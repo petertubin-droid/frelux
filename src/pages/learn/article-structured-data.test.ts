@@ -46,10 +46,10 @@ function buildArticleStructuredData(
       description: article.meta_description ?? article.excerpt ?? "",
       author: article.author
         ? { "@type": "Person", name: article.author }
-        : { "@type": "Organization", name: "FRELUX PAINT CALC" },
+        : { "@type": "Organization", name: "FRELUX PROJECT CALC" },
       publisher: {
         "@type": "Organization",
-        name: "FRELUX PAINT CALC",
+        name: "FRELUX PROJECT CALC",
         logo: { "@type": "ImageObject", url: `${SITE_URL}/logo.png` },
       },
       datePublished: article.published_at ?? article.created_at,
@@ -159,7 +159,7 @@ describe("Article Structured Data — Google Compliance", () => {
       data.author = null;
       const [article] = buildArticleStructuredData(data, "test-slug");
       expect(article.author!["@type"]).toBe("Organization");
-      expect(article.author!.name).toBe("FRELUX PAINT CALC");
+      expect(article.author!.name).toBe("FRELUX PROJECT CALC");
     });
 
     it("has publisher with Organization type and logo", () => {
@@ -168,7 +168,7 @@ describe("Article Structured Data — Google Compliance", () => {
         "test-slug",
       );
       expect(article.publisher!["@type"]).toBe("Organization");
-      expect(article.publisher!.name).toBe("FRELUX PAINT CALC");
+      expect(article.publisher!.name).toBe("FRELUX PROJECT CALC");
       expect(article.publisher!.logo["@type"]).toBe("ImageObject");
       expect(article.publisher!.logo.url).toContain("logo.png");
     });

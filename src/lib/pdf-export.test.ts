@@ -302,7 +302,7 @@ describe("exportPdfQuote", () => {
       paintTypeName: "Premium",
     });
     const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("FRELUX Paint Calculator");
+    expect(html).toContain("FRELUX Project Calculator");
   });
 
   it("calls document.close after write", () => {

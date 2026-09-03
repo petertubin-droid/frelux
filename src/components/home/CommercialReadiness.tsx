@@ -26,7 +26,7 @@ const capabilities = [
     icon: DollarSign,
     title: "Estimate Project Costs",
     description:
-      "Convert material quantities into real cost estimates using current Nigerian market prices. Adjust prices to match your local supplier.",
+      "Convert material quantities into real cost estimates using admin-configured material prices. Adjust prices to match your local supplier.",
     to: "/paint-calculator?mode=cost",
     linkText: "Estimate costs",
   },

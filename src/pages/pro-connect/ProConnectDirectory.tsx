@@ -42,7 +42,7 @@ export default function ProConnectDirectory() {
       url: `${SITE_URL}/pro-connect`,
       provider: {
         "@type": "Organization",
-        name: "FRELUX PAINT CALC",
+        name: "FRELUX PROJECT CALC",
         url: SITE_URL,
       },
       areaServed: {

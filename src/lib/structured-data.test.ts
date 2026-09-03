@@ -12,7 +12,7 @@ import {
 // VITE_SITE_URL is set to https://freluxtools.netlify.app in .env.local;
 // The code falls back to https://freluxtools.netlify.app when the env var is absent.
 const SITE_URL = 'https://freluxtools.netlify.app';
-const SITE_NAME = 'FRELUX PAINT CALC';
+const SITE_NAME = 'FRELUX PROJECT CALC';
 
 describe('organizationSchema', () => {
   it('returns a WebApplication schema with correct @context and @type', () => {

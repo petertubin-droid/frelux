@@ -127,7 +127,7 @@ export default function ToolsSection() {
       <SectionHeading
         label="All calculators"
         title="Everything you need, organized by trade"
-        subtitle="Pick a calculator and start calculating. Every tool uses Nigerian coverage rates and real product prices."
+        subtitle="Pick a calculator and start calculating. Every tool uses Nigerian coverage rates and admin-configured material prices."
         align="center"
       />
 

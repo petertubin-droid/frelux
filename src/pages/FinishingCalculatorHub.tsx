@@ -48,7 +48,7 @@ const FAQS = [
   {
     question: "Are material prices in Nigerian Naira?",
     answer:
-      "Yes. The FRELUX finishing calculator uses real Nigerian market prices for all finishing materials including cement, sand, acrylic bond, and additives.",
+      "Yes. The FRELUX finishing calculator uses admin-configured material prices for all finishing materials including cement, sand, acrylic bond, and additives.",
   },
 ];
 

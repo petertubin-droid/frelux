@@ -4,21 +4,21 @@ import { SITE_URL } from "@/lib/seo";
 
 export default function About() {
   useSeo({
-    title: "About: FRELUX PAINT CALC",
+    title: "About: FRELUX PROJECT CALC",
     description:
-      "Learn about FRELUX PAINT CALC — a practical painting, construction, and color platform helping homeowners, decorators, and contractors in Nigeria and beyond plan projects with confidence.",
+      "Learn about FRELUX PROJECT CALC — a practical painting, construction, and color platform helping homeowners, decorators, and contractors in Nigeria and beyond plan projects with confidence.",
     canonicalPath: "/about",
     ogType: "website",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "AboutPage",
-      name: "About FRELUX PAINT CALC",
+      name: "About FRELUX PROJECT CALC",
       description:
-        "FRELUX PAINT CALC is a practical painting and construction platform helping homeowners, decorators, and contractors plan paint projects with confidence.",
+        "FRELUX PROJECT CALC is a practical painting and construction platform helping homeowners, decorators, and contractors plan paint projects with confidence.",
       url: `${SITE_URL}/about`,
       mainEntity: {
         "@type": "Organization",
-        name: "FRELUX PAINT CALC",
+        name: "FRELUX PROJECT CALC",
         url: SITE_URL,
         logo: `${SITE_URL}/logo-mark.png`,
         foundingDate: "2025",
@@ -39,11 +39,11 @@ export default function About() {
   return (
     <LegalLayout
       slug="about"
-      title="About FRELUX PAINT CALC"
+      title="About FRELUX PROJECT CALC"
       updated="2026-09-03"
       intro={
         <p>
-          FRELUX PAINT CALC is a practical painting, construction, and color
+          FRELUX PROJECT CALC is a practical painting, construction, and color
           platform built to help homeowners, decorators, and contractors plan
           projects with confidence. Founded in 2025 and based in Nigeria, our
           tools are calibrated for the Nigerian market while remaining useful
@@ -70,7 +70,7 @@ export default function About() {
           heading: "What we offer",
           body: (
             <p>
-              FRELUX PAINT CALC provides a suite of focused tools:
+              FRELUX PROJECT CALC provides a suite of focused tools:
               <br />
               <br />
               <strong>Paint Calculator</strong> — Estimate the exact quantity of
@@ -140,7 +140,7 @@ export default function About() {
           heading: "Why we built this",
           body: (
             <p>
-              We started FRELUX PAINT CALC after years of seeing homeowners and
+              We started FRELUX PROJECT CALC after years of seeing homeowners and
               contractors struggle with material estimation — buying too much
               paint and wasting money, or buying too little and running out
               mid-project. Color selection was equally challenging, with

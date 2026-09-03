@@ -11,7 +11,7 @@ export function PaintCalculatorSeo(): ReactNode {
       <p>
         Calculating how much paint you need is the first step in any painting
         project. Whether you're painting a single room or an entire house, the
-        FRELUX Paint Calculator takes your wall dimensions, number of coats,
+        FRELUX Project Calculator takes your wall dimensions, number of coats,
         doors, and windows into account to give you the number of paint buckets
         required for your project.
       </p>
@@ -230,7 +230,7 @@ export function CostEstimatorSeo(): ReactNode {
         give you a comprehensive cost breakdown.
       </p>
       <p>
-        The estimator uses real product prices from popular paint brands and
+        The estimator uses admin-configured material prices from popular paint brands and
         updates with current market rates. Simply enter your paint bucket count
         (from the Paint Calculator), choose your paint type and quality, and the
         estimator calculates the total paint material cost.
@@ -482,7 +482,7 @@ export function PaintingEstimatorSeo(): ReactNode {
         Each room can have different paint types, number of coats, and surface
         conditions. The estimator uses the FRELUX methodology, a systematic
         approach that combines wall area calculation, paint coverage rates, and
-        real product prices.
+        admin-configured material prices.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Why Room-Based Estimation Is More Accurate

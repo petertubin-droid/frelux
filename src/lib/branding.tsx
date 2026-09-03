@@ -16,9 +16,9 @@ interface BrandingContextValue {
 
 const defaultBranding: DbSiteBranding = {
   id: "",
-  website_name: "FRELUX PAINT CALC",
-  website_tagline: "Plan Your Perfect Paint Project",
-  browser_title: "FRELUX PAINT CALC: Plan Your Perfect Paint Project",
+  website_name: "FRELUX PROJECT CALC",
+  website_tagline: "Construction Estimation & Project Planning",
+  browser_title: "FRELUX PROJECT CALC: Construction Estimation & Project Planning",
   light_logo_url: null,
   dark_logo_url: null,
   favicon_url: null,

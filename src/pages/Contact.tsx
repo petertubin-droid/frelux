@@ -12,7 +12,7 @@ type Status = 'idle' | 'submitting' | 'success' | 'error';
 
 export default function Contact() {
   useSeo({
-    title: 'Contact: Get in Touch with FRELUX PAINT CALC',
+    title: 'Contact: Get in Touch with FRELUX PROJECT CALC',
     description:
       'Questions about a paint project, pricing, or colors? Send us a message or reach us directly on WhatsApp.',
     canonicalPath: '/contact',

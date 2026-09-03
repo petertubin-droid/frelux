@@ -188,7 +188,7 @@ export default function Navbar() {
             </Button>
             <Link
               to="/"
-              aria-label="FRELUX PAINT CALC home"
+              aria-label="FRELUX PROJECT CALC home"
               className="shrink-0"
             >
               <Logo />

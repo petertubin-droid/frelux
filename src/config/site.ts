@@ -1,12 +1,12 @@
 // Central site configuration. Update values here to change brand-wide behavior.
 
 export const siteConfig = {
-  name: "FRELUX PAINT CALC",
+  name: "FRELUX PROJECT CALC",
   shortName: "FRELUX",
   tagline:
-    "Paint buckets, finishing & construction estimation for Nigerian projects",
+    "Construction estimation, painting, finishing & project planning platform",
   description:
-    "Paint buckets, finishing & construction estimation for Nigerian projects",
+    "Construction estimation, painting, finishing & project planning platform for professionals and homeowners.",
   // International format without "+" for wa.me links
   whatsappNumber: "2349063612439",
   whatsappDisplay: "+234 906 361 2439",
@@ -52,8 +52,8 @@ export const navWorkspaces: NavWorkspace[] = [
     path: "/",
   },
   {
-    label: "Painting & Finishing",
-    path: "/paint-calculator",
+    label: "Calculators",
+    path: "/calculators",
     children: [
       // Section: Painting
       {
@@ -148,10 +148,11 @@ export const navWorkspaces: NavWorkspace[] = [
         section: "Estimation",
         description: "Foundation sizing by soil type (preliminary)",
       },
+      // Section: AI Tools
       {
         label: "AI Photo Estimator",
         path: "/image-estimator",
-        section: "Estimation",
+        section: "AI Tools",
         description: "AI-assisted photo-based estimate (Premium)",
       },
       {
@@ -202,43 +203,38 @@ export const navWorkspaces: NavWorkspace[] = [
     ],
   },
   {
-    label: "Marketplace",
-    path: "/marketplace",
-    external: true,
-  },
-  {
-    label: "Community",
-    path: "/pro-connect",
+    label: "Projects",
+    path: "/my-projects",
     children: [
       {
-        label: "Find Professionals",
-        path: "/pro-connect",
-        section: "Pro Connect",
-        description: "Browse verified FRELUX professionals",
+        label: "My Projects",
+        path: "/my-projects",
+        section: "Project Management",
+        description: "View and manage your saved projects",
       },
       {
-        label: "Become a Professional",
-        path: "/pro-connect/register",
-        section: "Pro Connect",
-        description: "List your services on FRELUX",
+        label: "Project Workspace",
+        path: "/project-workspace",
+        section: "Project Management",
+        description: "Full project planning workspace",
       },
       {
-        label: "Professional Dashboard",
-        path: "/pro-connect/dashboard",
-        section: "Pro Connect",
-        description: "Manage your pro profile",
+        label: "Estimate Analytics",
+        path: "/dashboard",
+        section: "Project Management",
+        description: "Insights across your estimates",
       },
       {
-        label: "Worker Channels",
-        path: "/worker-channels",
-        section: "Worker Hub",
-        description: "Chat, price updates & networking",
+        label: "Templates",
+        path: "/templates",
+        section: "Project Management",
+        description: "Reusable calculation templates",
       },
       {
-        label: "Messages",
-        path: "/messages",
-        section: "Worker Hub",
-        description: "Your direct messages",
+        label: "Brand Studio",
+        path: "/brand-studio",
+        section: "Tools",
+        description: "Custom PDF branding & AI logo generation",
       },
     ],
   },

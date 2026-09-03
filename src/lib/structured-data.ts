@@ -2,7 +2,7 @@
 // Used by the useSeo hook and injected into <head> as <script type="application/ld+json">
 
 const SITE_URL = import.meta.env.VITE_SITE_URL ?? 'https://freluxtools.netlify.app';
-const SITE_NAME = 'FRELUX PAINT CALC';
+const SITE_NAME = 'FRELUX PROJECT CALC';
 
 export interface BreadcrumbItem {
   name: string;

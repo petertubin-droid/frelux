@@ -29,7 +29,7 @@ interface CostEstimateShareData {
 function buildPaintCalcMessage(data: PaintCalcShareData): string {
   const { result, input, paintTypeName } = data;
   const lines: string[] = [
-    "🎨 *FRELUX Paint Calculator Result*",
+    "🎨 *FRELUX Project Calculator Result*",
     "",
     `*Project:* ${input.projectType}`,
     `*Paint type:* ${paintTypeName}`,

@@ -446,7 +446,7 @@ export default function BuildToRoofEstimator() {
                   <RotatingText
                     messages={[
                       "Foundation → Block walls → Structural frame → Roof — all in one estimate",
-                      "Nigerian-market prices for cement, blocks, sand, granite & more",
+                      "admin-configured prices for cement, blocks, sand, granite & more",
                       "Engineer-ready material schedules with quantities and costs",
                       "11 guided steps · Full transparency · No hidden assumptions",
                     ]}

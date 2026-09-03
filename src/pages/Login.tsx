@@ -71,7 +71,7 @@ export default function Login() {
   useSeo({
     title: "Sign In or Create Account",
     description:
-      "Sign in to your FRELUX PAINT CALC account or create a new one.",
+      "Sign in to your FRELUX PROJECT CALC account or create a new one.",
     canonicalPath: "/login",
     noIndex: true,
   });

@@ -54,7 +54,7 @@ export default function AdminPdfBranding() {
 
   // Config form state
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [brandName, setBrandName] = useState("FRELUX PAINT CALC");
+  const [brandName, setBrandName] = useState("FRELUX PROJECT CALC");
   const [tagline, setTagline] = useState("Smart Construction Estimation");
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
@@ -80,7 +80,7 @@ export default function AdminPdfBranding() {
     if (c) {
       setConfig(c);
       setLogoUrl(c.pdf_default_logo_url);
-      setBrandName(c.pdf_default_brand_name || "FRELUX PAINT CALC");
+      setBrandName(c.pdf_default_brand_name || "FRELUX PROJECT CALC");
       setTagline(c.pdf_default_tagline || "Smart Construction Estimation");
       setContactEmail(c.pdf_default_contact_email || "");
       setContactPhone(c.pdf_default_contact_phone || "");

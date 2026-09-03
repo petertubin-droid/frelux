@@ -126,7 +126,7 @@ export default function SharedProject() {
         )}
 
         <div className="mt-8 border-t border-border pt-6 text-center">
-          <Link to="/" className="text-sm font-semibold text-brand-purple hover:underline">Create your own project at FRELUX PAINT CALC</Link>
+          <Link to="/" className="text-sm font-semibold text-brand-purple hover:underline">Create your own project at FRELUX PROJECT CALC</Link>
         </div>
       </div>
     </>

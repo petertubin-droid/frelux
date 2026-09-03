@@ -150,7 +150,7 @@ export default function Calculators() {
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
 
   useSeo({
-    title: "All Calculators | FRELUX PAINT CALC",
+    title: "All Calculators | FRELUX PROJECT CALC",
     description:
       "Browse every FRELUX calculator — paint, screeding, POP ceiling, tiles, tyrolene, finishing, and cost estimators. Free Nigerian construction material calculators.",
     canonicalPath: "/calculators",
@@ -220,7 +220,7 @@ export default function Calculators() {
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-relaxed text-primary-foreground/55">
             Pick a tool below to start estimating materials and costs. Every
-            calculator uses Nigerian coverage rates and real product prices.
+            calculator uses Nigerian coverage rates and admin-configured material prices.
           </p>
         </Container>
       </section>

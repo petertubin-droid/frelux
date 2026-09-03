@@ -117,7 +117,7 @@ export default function MarketplaceHome() {
       url: `${SITE_URL}/marketplace`,
       provider: {
         "@type": "Organization",
-        name: "FRELUX PAINT CALC",
+        name: "FRELUX PROJECT CALC",
         url: SITE_URL,
       },
       areaServed: {

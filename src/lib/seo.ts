@@ -54,14 +54,14 @@ function removeStructuredData(id: string) {
 export function useSeo(meta: SeoMeta | null) {
   useEffect(() => {
     if (!meta) return;
-    const fullTitle = meta.title.includes('FRELUX') ? meta.title : `${meta.title}: FRELUX PAINT CALC`;
+    const fullTitle = meta.title.includes('FRELUX') ? meta.title : `${meta.title}: FRELUX PROJECT CALC`;
     const canonicalUrl = `${SITE_URL}${meta.canonicalPath ?? ''}`;
     const ogImage = meta.ogImage ?? DEFAULT_OG_IMAGE;
 
     // Primary meta
     document.title = fullTitle;
     setMeta('name', 'description', meta.description);
-    setMeta('name', 'author', 'FRELUX PAINT CALC');
+    setMeta('name', 'author', 'FRELUX PROJECT CALC');
 
     // Keywords (if provided)
     if (meta.keywords) {
@@ -73,11 +73,11 @@ export function useSeo(meta: SeoMeta | null) {
     setMeta('property', 'og:description', meta.description);
     setMeta('property', 'og:type', meta.ogType ?? 'website');
     setMeta('property', 'og:url', canonicalUrl);
-    setMeta('property', 'og:site_name', 'FRELUX PAINT CALC');
+    setMeta('property', 'og:site_name', 'FRELUX PROJECT CALC');
     setMeta('property', 'og:image', ogImage);
     setMeta('property', 'og:image:width', '1200');
     setMeta('property', 'og:image:height', '630');
-    setMeta('property', 'og:image:alt', `${fullTitle}: FRELUX PAINT CALC`);
+    setMeta('property', 'og:image:alt', `${fullTitle}: FRELUX PROJECT CALC`);
     setMeta('property', 'og:locale', 'en_US');
 
     // Twitter Cards
@@ -85,7 +85,7 @@ export function useSeo(meta: SeoMeta | null) {
     setMeta('name', 'twitter:title', fullTitle);
     setMeta('name', 'twitter:description', meta.description);
     setMeta('name', 'twitter:image', ogImage);
-    setMeta('name', 'twitter:image:alt', `${fullTitle}: FRELUX PAINT CALC`);
+    setMeta('name', 'twitter:image:alt', `${fullTitle}: FRELUX PROJECT CALC`);
 
     // Canonical URL — always set
     setLink('canonical', canonicalUrl);

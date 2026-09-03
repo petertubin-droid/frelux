@@ -20,15 +20,15 @@ describe("useSeo", () => {
       title: "Paint Calculator",
       description: "Calculate paint needed",
     });
-    expect(document.title).toBe("Paint Calculator: FRELUX PAINT CALC");
+    expect(document.title).toBe("Paint Calculator: FRELUX PROJECT CALC");
   });
 
   it("does not duplicate FRELUX in title when already present", () => {
     renderSeoHook({
-      title: "FRELUX Paint Calculator",
+      title: "FRELUX Project Calculator",
       description: "Calculate paint needed",
     });
-    expect(document.title).toBe("FRELUX Paint Calculator");
+    expect(document.title).toBe("FRELUX Project Calculator");
   });
 
   it("sets meta description tag", () => {
@@ -52,7 +52,7 @@ describe("useSeo", () => {
       document.head
         .querySelector('meta[property="og:title"]')
         ?.getAttribute("content"),
-    ).toBe("Test Page: FRELUX PAINT CALC");
+    ).toBe("Test Page: FRELUX PROJECT CALC");
     expect(
       document.head
         .querySelector('meta[property="og:type"]')
@@ -149,9 +149,9 @@ describe("useSeo", () => {
       title: "First",
       description: "First",
     });
-    expect(document.title).toBe("First: FRELUX PAINT CALC");
+    expect(document.title).toBe("First: FRELUX PROJECT CALC");
 
     rerender({ m: { title: "Second", description: "Second" } });
-    expect(document.title).toBe("Second: FRELUX PAINT CALC");
+    expect(document.title).toBe("Second: FRELUX PROJECT CALC");
   });
 });

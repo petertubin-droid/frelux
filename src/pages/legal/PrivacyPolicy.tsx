@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 
 export default function PrivacyPolicy() {
   useSeo({
-    title: 'Privacy Policy: FRELUX PAINT CALC',
-    description: 'How FRELUX PAINT CALC handles your information when you use our website and tools. Read our privacy policy for details on data collection, usage, advertising, and your rights.',
+    title: 'Privacy Policy: FRELUX PROJECT CALC',
+    description: 'How FRELUX PROJECT CALC handles your information when you use our website and tools. Read our privacy policy for details on data collection, usage, advertising, and your rights.',
     canonicalPath: '/privacy-policy',
     ogType: 'website',
     noIndex: false,
@@ -16,7 +16,7 @@ export default function PrivacyPolicy() {
       slug="privacy-policy"
       title="Privacy Policy"
       updated="2026-09-03"
-      intro={<p>This privacy policy describes how FRELUX PAINT CALC collects, uses, and protects your information when you visit our website and use our tools.</p>}
+      intro={<p>This privacy policy describes how FRELUX PROJECT CALC collects, uses, and protects your information when you visit our website and use our tools.</p>}
       sections={[
         {
           heading: 'Information we collect',

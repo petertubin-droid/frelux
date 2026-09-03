@@ -164,7 +164,7 @@ export default function PaintCalculator({
             {
               "@context": "https://schema.org",
               "@type": "WebApplication",
-              name: "FRELUX Paint Calculator",
+              name: "FRELUX Project Calculator",
               description:
                 "Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate how many paint buckets your project requires.",
               url: `${SITE_URL}/paint-calculator`,

@@ -1,8 +1,8 @@
 {
   "id": "/",
-  "name": "FRELUX PAINT CALC: Plan Your Perfect Paint Project",
-  "short_name": "FRELUX Paint",
-  "description": "Plan Your Perfect Paint Project, calculators, cost estimators, and AI color recommendations.",
+  "name": "FRELUX PROJECT CALC: Construction Estimation & Project Planning",
+  "short_name": "FRELUX Project",
+  "description": "Construction Estimation & Project Planning, calculators, cost estimators, and AI color recommendations.",
   "start_url": "/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],

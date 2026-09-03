@@ -35,7 +35,7 @@ const FAQS = [
     question:
       "What is the difference between Material Quantity and Cost Estimate?",
     answer:
-      "Material Quantity calculates POP cement, mesh, and material quantities for your ceiling. Cost Estimate adds real market prices for a complete cost breakdown including materials and waste.",
+      "Material Quantity calculates POP cement, mesh, and material quantities for your ceiling. Cost Estimate adds admin-configured material prices for a complete cost breakdown including materials and waste.",
   },
   {
     question: "Does the calculator support different POP ceiling types?",
@@ -50,7 +50,7 @@ const FAQS = [
   {
     question: "Are material prices in Nigerian Naira?",
     answer:
-      "Yes. The FRELUX POP ceiling cost estimator uses real Nigerian market prices for POP cement, fibreglass mesh, and other materials.",
+      "Yes. The FRELUX POP ceiling cost estimator uses admin-configured material prices for POP cement, fibreglass mesh, and other materials.",
   },
 ];
 
@@ -68,7 +68,7 @@ export default function PopCeilingCalculatorHub() {
   useSeo({
     title: "POP Ceiling Calculator — Material Quantity & Cost Estimate",
     description:
-      "Free FRELUX POP ceiling calculator. Calculate POP cement, fibreglass mesh, and material quantities. Get a full cost estimate with real Nigerian market prices.",
+      "Free FRELUX POP ceiling calculator. Calculate POP cement, fibreglass mesh, and material quantities. Get a full cost estimate with admin-configured material prices.",
     canonicalPath: "/pop-ceiling-calculator",
     ogType: "website",
     keywords:
@@ -79,7 +79,7 @@ export default function PopCeilingCalculatorHub() {
         "@type": "WebApplication",
         name: "FRELUX POP Ceiling Calculator",
         description:
-          "Calculate POP cement, fibreglass mesh, and material quantities. Get a full cost estimate with real Nigerian market prices.",
+          "Calculate POP cement, fibreglass mesh, and material quantities. Get a full cost estimate with admin-configured material prices.",
         url: `${SITE_URL}/pop-ceiling-calculator`,
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
@@ -187,7 +187,7 @@ export default function PopCeilingCalculatorHub() {
             </li>
             <li>
               <strong>Cost Estimate</strong> — Get a full cost breakdown using
-              real market prices for all POP ceiling materials including waste
+              admin-configured material prices for all POP ceiling materials including waste
               factors.
             </li>
           </ul>

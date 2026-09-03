@@ -40,7 +40,7 @@ const FAQS = [
     question:
       "What is the difference between Screeding Quantity and Cost Estimate?",
     answer:
-      "Screeding Quantity calculates the wall surface area and material requirements. Cost Estimate adds real market prices for cement, sand, and bonding agents to give you a full cost breakdown.",
+      "Screeding Quantity calculates the wall surface area and material requirements. Cost Estimate adds admin-configured material prices for cement, sand, and bonding agents to give you a full cost breakdown.",
   },
   {
     question: "Does the calculator account for doors and windows?",
@@ -50,7 +50,7 @@ const FAQS = [
   {
     question: "Are material prices in Nigerian Naira?",
     answer:
-      "Yes. The FRELUX screeding cost estimator uses real Nigerian market prices for cement, sand, and other screeding materials.",
+      "Yes. The FRELUX screeding cost estimator uses admin-configured material prices for cement, sand, and other screeding materials.",
   },
 ];
 
@@ -68,7 +68,7 @@ export default function ScreedingCalculatorHub() {
   useSeo({
     title: "Screeding Calculator — Wall Screeding Quantity & Cost",
     description:
-      "Free FRELUX screeding calculator. Calculate wall screeding surface area in m², material requirements, and cost estimates with real Nigerian market prices.",
+      "Free FRELUX screeding calculator. Calculate wall screeding surface area in m², material requirements, and cost estimates with admin-configured material prices.",
     canonicalPath: "/screeding-calculator",
     ogType: "website",
     keywords:
@@ -79,7 +79,7 @@ export default function ScreedingCalculatorHub() {
         "@type": "WebApplication",
         name: "FRELUX Screeding Calculator",
         description:
-          "Calculate wall screeding surface area in m², material requirements, and cost estimates with real Nigerian market prices.",
+          "Calculate wall screeding surface area in m², material requirements, and cost estimates with admin-configured material prices.",
         url: `${SITE_URL}/screeding-calculator`,
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",

@@ -74,7 +74,7 @@ export default function PaintingCalculatorHub() {
   useSeo({
     title: "Painting Calculator — Paint Quantity, Cost & Room Estimate",
     description:
-      "Free FRELUX painting calculator. Calculate paint buckets required, estimate painting costs, and get room-by-room painting estimates with real Nigerian material prices.",
+      "Free FRELUX painting calculator. Calculate paint buckets required, estimate painting costs, and get room-by-room painting estimates with admin-configured material prices.",
     canonicalPath: "/paint-calculator",
     ogType: "website",
     keywords:
@@ -85,7 +85,7 @@ export default function PaintingCalculatorHub() {
         "@type": "WebApplication",
         name: "FRELUX Painting Calculator",
         description:
-          "Calculate paint buckets required, estimate painting costs, and get room-by-room painting estimates with real Nigerian material prices.",
+          "Calculate paint buckets required, estimate painting costs, and get room-by-room painting estimates with admin-configured material prices.",
         url: `${SITE_URL}/paint-calculator`,
         applicationCategory: "CalculatorApplication",
         operatingSystem: "Web",
@@ -189,7 +189,7 @@ export default function PaintingCalculatorHub() {
             </li>
             <li>
               <strong>Cost Estimate</strong> — Get a full paint material cost
-              breakdown using real product prices for paint buckets, primer, and
+              breakdown using admin-configured material prices for paint buckets, primer, and
               materials.
             </li>
             <li>

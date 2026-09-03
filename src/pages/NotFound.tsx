@@ -12,7 +12,7 @@ const suggestions = [
 
 export default function NotFound() {
   useSeo({
-    title: 'Page Not Found — FRELUX PAINT CALC',
+    title: 'Page Not Found — FRELUX PROJECT CALC',
     description: 'The page you are looking for could not be found. Browse our paint calculators, cost estimators, and AI color tools instead.',
     canonicalPath: '/404',
     noIndex: true,

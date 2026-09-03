@@ -67,8 +67,8 @@ export default function TemplateDetail() {
           "@type": "TechArticle",
           headline: template.name,
           description: template.seo_description ?? template.description ?? "",
-          author: { "@type": "Organization", name: "FRELUX PAINT CALC" },
-          publisher: { "@type": "Organization", name: "FRELUX PAINT CALC" },
+          author: { "@type": "Organization", name: "FRELUX PROJECT CALC" },
+          publisher: { "@type": "Organization", name: "FRELUX PROJECT CALC" },
           url: `${SITE_URL}/templates/${template.slug}`,
         },
         {
@@ -234,7 +234,7 @@ export default function TemplateDetail() {
           When you click "Use This Template," the {calcLabel} opens with the
           configuration above already filled in. You can adjust any value to
           match your actual room or surface dimensions. The calculator uses
-          Nigerian coverage rates, real product sizes, and current market prices
+          Nigerian coverage rates, admin-configured product sizes, and admin-configured material prices
           to compute material quantities and cost estimates. Every formula,
           waste factor, and coverage rate is transparent and visible in the
           results.

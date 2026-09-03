@@ -3,8 +3,8 @@ import { useSeo } from '@/lib/seo';
 
 export default function Disclaimer() {
   useSeo({
-    title: 'Disclaimer: FRELUX PAINT CALC',
-    description: 'Disclaimer for FRELUX PAINT CALC tools and estimates. All calculations, costs, and recommendations are for general guidance only and not professional advice.',
+    title: 'Disclaimer: FRELUX PROJECT CALC',
+    description: 'Disclaimer for FRELUX PROJECT CALC tools and estimates. All calculations, costs, and recommendations are for general guidance only and not professional advice.',
     canonicalPath: '/disclaimer',
     ogType: 'website',
     noIndex: false,
@@ -17,7 +17,7 @@ export default function Disclaimer() {
       updated="2026-09-03"
       intro={
         <p>
-          The information and tools provided on FRELUX PAINT CALC are intended for
+          The information and tools provided on FRELUX PROJECT CALC are intended for
           general informational and planning purposes only. By using this website,
           you acknowledge that you have read and understood this disclaimer.
         </p>
@@ -48,7 +48,7 @@ export default function Disclaimer() {
               product brand and quality, local labour rates, weather conditions, and
               other factors specific to your project. Always verify quantities and
               costs with your supplier or contractor before purchasing materials or
-              starting work. FRELUX PAINT CALC does not warrant that any estimate will
+              starting work. FRELUX PROJECT CALC does not warrant that any estimate will
               match the actual materials required or the final cost of your project.
             </p>
           ),
@@ -76,7 +76,7 @@ export default function Disclaimer() {
               significantly depending on the manufacturer, paint finish, sheen level,
               substrate, lighting conditions, and screen display settings. We
               strongly recommend testing a physical paint sample on your wall before
-              committing to a color choice. FRELUX PAINT CALC is not responsible for
+              committing to a color choice. FRELUX PROJECT CALC is not responsible for
               discrepancies between displayed colors and the final painted result.
             </p>
           ),
@@ -100,7 +100,7 @@ export default function Disclaimer() {
           body: (
             <p>
               This website may contain links to external websites and third-party
-              services that are not operated or controlled by FRELUX PAINT CALC. We
+              services that are not operated or controlled by FRELUX PROJECT CALC. We
               have no control over and assume no responsibility for the content,
               accuracy, privacy practices, or availability of any external site or
               service. The inclusion of any link does not imply endorsement.
@@ -124,7 +124,7 @@ export default function Disclaimer() {
           heading: 'Limitation of liability',
           body: (
             <p>
-              To the fullest extent permitted by applicable law, FRELUX PAINT CALC,
+              To the fullest extent permitted by applicable law, FRELUX PROJECT CALC,
               its owners, and contributors shall not be liable for any direct,
               indirect, incidental, consequential, or special damages arising from
               your use of, or reliance on, this website or its tools, including but
