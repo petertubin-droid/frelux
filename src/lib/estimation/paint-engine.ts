@@ -71,6 +71,7 @@ export interface PaintEngineConfig {
   coatCountRule: EstimationCalcRule | null;
   calibrationReferencesRule: EstimationCalcRule | null;
   colourConditions: EstimationColourCondition[];
+  primer_coverage_multiplier?: number; // 1.3 = primer covers 30% more area per litre than paint
   surfaceConditions: EstimationSurfaceCondition[];
   calcVersionId: string | null;
 }
@@ -808,7 +809,8 @@ export function calculateRoom(
 
   if (includePrimer) {
     // Primer covers ~30% more area per liter
-    const primerCoverageM2PerL = wallCoverageM2PerL > 0 ? wallCoverageM2PerL * 1.3 : 0;
+    const primerMultiplier = config.primer_coverage_multiplier ?? 1.3;
+    const primerCoverageM2PerL = wallCoverageM2PerL > 0 ? wallCoverageM2PerL * primerMultiplier : 0;
     primerLitres = primerCoverageM2PerL > 0
       ? Math.round((netWallArea * 1) / primerCoverageM2PerL * 100) / 100
       : 0;

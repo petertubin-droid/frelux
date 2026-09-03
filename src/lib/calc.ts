@@ -91,6 +91,7 @@ export interface CalcConfig {
   containerSizes?: number[]; // liters, ascending
   surfaceFactorOverride?: number; // DB-driven coverage adjustment factor
   minCoatsOverride?: number; // DB-driven minimum coats for colour condition
+  primerCoverageMultiplier?: number; // 1.3 = primer covers 30% more area per litre (admin-configurable)
 }
 
 // ─────────────────────────────────────────────────────────
@@ -330,7 +331,7 @@ export function calculatePaint(input: CalculatorInput, config?: CalcConfig): Cal
   const primerRecommended = surfaceCondition === 'new_plaster' || surfaceCondition === 'rough' || colorCondition === 'new_unpainted' || colorCondition === 'light_over_dark';
   const includePrimer = input.includePrimer ?? primerRecommended;
   // Primer typically covers more area per liter (~30% more than paint) and needs 1 coat
-  const primerCoverageRate = adjustedCoverageRate * 1.3;
+  const primerCoverageRate = adjustedCoverageRate * (config?.primerCoverageMultiplier ?? 1.3);
   const primerLiters = includePrimer ? calculateAdjustedPaintRequired(
     calculatePaintRequired(area, 1, primerCoverageRate),
     input.wasteMargin

@@ -1765,7 +1765,7 @@ function ResultCard({
             </span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            Primer covers ~30% more area per litre than paint. Applied as 1 coat
+            Primer covers more area per litre than paint (admin-configured). Applied as 1 coat
             before painting.
           </p>
         </div>

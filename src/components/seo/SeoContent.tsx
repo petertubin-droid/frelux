@@ -230,8 +230,8 @@ export function CostEstimatorSeo(): ReactNode {
         give you a comprehensive cost breakdown.
       </p>
       <p>
-        The estimator uses admin-configured material prices from popular paint brands and
-        updates with current market rates. Simply enter your paint bucket count
+        The estimator uses admin-configured material prices from popular paint brands.
+        Simply enter your paint bucket count
         (from the Paint Calculator), choose your paint type and quality, and the
         estimator calculates the total paint material cost.
       </p>
