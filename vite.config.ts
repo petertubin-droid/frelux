@@ -40,17 +40,6 @@ export default defineConfig({
     target: "es2020",
     cssCodeSplit: true,
     chunkSizeWarningLimit: 1000,
-    // Vite 8: Oxc minifier is default. Drop debugger statements via rolldownOptions.
-    // (Replaces the deprecated esbuild.drop option from Vite 5)
-    rolldownOptions: {
-      output: {
-        minify: {
-          compress: {
-            drop: ["debugger"],
-          },
-        },
-      },
-    },
     // Only generate hidden sourcemaps when Sentry is configured
     sourcemap: hasSentryToken ? "hidden" : false,
     rollupOptions: {
