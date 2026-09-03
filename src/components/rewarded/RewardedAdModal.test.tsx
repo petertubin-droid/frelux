@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render } from "@testing-library/react";
 
 vi.mock("@/lib/rewarded-access", () => ({
   RewardedAccess: { canUse: vi.fn(() => false), watchAd: vi.fn(), from: vi.fn() },

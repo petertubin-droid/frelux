@@ -20,7 +20,7 @@ vi.mock("@/components/rewarded/RewardedAdModal", () => ({
   RewardedAdModal: () => <div data-testid="rewarded-modal">Modal</div>,
 }));
 
-function defaultAccess(overrides: Record<string, any> = {}) {
+function defaultAccess(overrides: Record<string, unknown> = {}) {
   return {
     loading: false,
     error: null,

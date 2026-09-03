@@ -1,5 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { detectAdBlocker } from "@/lib/ad-block-detection";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 
 describe("detectAdBlocker", () => {
   beforeEach(() => {

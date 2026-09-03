@@ -6,7 +6,7 @@ import {
   type SequenceStep,
 } from "@/lib/engineering/sequence-planner";
 import {
-  ListChecks,
+
   ShieldCheck,
   AlertTriangle,
   ChevronRight,

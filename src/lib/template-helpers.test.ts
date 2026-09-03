@@ -23,7 +23,7 @@ describe("calculatorLabel", () => {
   });
 
   it("returns the type string for unknown types", () => {
-    expect(calculatorLabel("unknown" as any)).toBe("unknown");
+    expect(calculatorLabel("unknown" as unknown)).toBe("unknown");
   });
 });
 
@@ -37,7 +37,7 @@ describe("calculatorPath", () => {
   });
 
   it("returns / for unknown types", () => {
-    expect(calculatorPath("unknown" as any)).toBe("/");
+    expect(calculatorPath("unknown" as unknown)).toBe("/");
   });
 });
 

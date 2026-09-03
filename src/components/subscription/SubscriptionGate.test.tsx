@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { SubscriptionGate } from "@/components/subscription/SubscriptionGate";
 
@@ -28,7 +28,7 @@ vi.mock("@/lib/subscription", async (importOriginal) => {
       foundation_calculator: "Foundation Calculator",
       pdf_export: "PDF Export",
       pro_connect_messaging: "Pro Connect Messaging",
-    } as any,
+    } as unknown,
     getFeatureMinPlan: vi.fn((feature: string) => {
       if (feature === "free") return "free";
       if (feature === "pdf_export") return "basic";
@@ -189,7 +189,7 @@ describe("SubscriptionGate", () => {
       },
       user: { id: "1" },
     });
-    renderGate({ feature: "free" as any, children: <div>Free content</div> });
+    renderGate({ feature: "free" as unknown, children: <div>Free content</div> });
     expect(screen.getByText("Free content")).toBeTruthy();
   });
 
@@ -200,7 +200,7 @@ describe("SubscriptionGate", () => {
       paidStatus: null,
       user: { id: "1" },
     });
-    renderGate({ feature: "free" as any, children: <div>Free content</div> });
+    renderGate({ feature: "free" as unknown, children: <div>Free content</div> });
     await waitFor(() => expect(screen.queryByText("Free content")).toBeNull());
   });
 

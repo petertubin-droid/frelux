@@ -35,7 +35,7 @@ const FALLBACK_CONFIG: ScreedingMixConfig = {
 };
 
 export default function SmartCalculator() {
-  const { user } = useAuth();
+  const { _user } = useAuth();
   const seo = useSeo({
     title: "Smart Calculator — AI-Powered Construction Estimator | FRELUX",
     description:

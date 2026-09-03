@@ -63,7 +63,7 @@ import {
 describe("useCookieConsent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (getStoredConsent as any).mockReturnValue(null);
+    (getStoredConsent as unknown).mockReturnValue(null);
   });
 
   afterEach(() => {
@@ -77,7 +77,7 @@ describe("useCookieConsent", () => {
   });
 
   it("returns stored consent and showBanner=false when consent exists", () => {
-    (getStoredConsent as any).mockReturnValue({
+    (getStoredConsent as unknown).mockReturnValue({
       essential: true,
       analytics: true,
       advertising: false,
@@ -153,7 +153,7 @@ describe("useCookieConsent", () => {
   it("listens for external consent change events", () => {
     const { result } = renderHook(() => useCookieConsent());
     // Simulate external change
-    (getStoredConsent as any).mockReturnValue({
+    (getStoredConsent as unknown).mockReturnValue({
       essential: true,
       analytics: false,
       advertising: false,
@@ -170,7 +170,7 @@ describe("useCookieConsent", () => {
 
   it("listens for storage events", () => {
     const { result } = renderHook(() => useCookieConsent());
-    (getStoredConsent as any).mockReturnValue({
+    (getStoredConsent as unknown).mockReturnValue({
       essential: true,
       analytics: true,
       advertising: true,

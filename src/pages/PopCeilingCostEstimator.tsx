@@ -38,7 +38,6 @@ import LabourCostSection, {
   useLabourConfig,
 } from "@/components/labour/LabourCostSection";
 import { calculateLabourCost } from "@/lib/labour";
-import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { SITE_URL } from "@/lib/seo";

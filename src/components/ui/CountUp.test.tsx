@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, act } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import CountUp from "@/components/ui/CountUp";
 
 // Mock requestAnimationFrame
@@ -11,7 +11,7 @@ beforeEach(() => {
   globalThis.requestAnimationFrame = vi.fn((cb: (ts: number) => void) => {
     rafCallbacks.push(cb);
     return rafCallbacks.length;
-  }) as any;
+  }) as unknown;
   globalThis.cancelAnimationFrame = vi.fn();
 });
 
@@ -19,7 +19,7 @@ afterEach(() => {
   globalThis.requestAnimationFrame = originalRAF;
 });
 
-function flushRAF(ts: number) {
+function _flushRAF(ts: number) {
   const callbacks = [...rafCallbacks];
   rafCallbacks = [];
   callbacks.forEach((cb) => cb(ts));

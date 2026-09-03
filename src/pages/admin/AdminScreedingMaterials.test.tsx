@@ -47,17 +47,17 @@ vi.mock("@/lib/credits", () => ({
 }));
 
 // Mock supabase with controllable data
-const mockData: Record<string, any[]> = {
+const mockData: Record<string, unknown[]> = {
   screeding_system_config: [],
 };
 
 vi.mock("@/lib/supabase", () => {
-  function makeChain(table: string, filters: Record<string, any> = {}) {
-    const chain: any = {
+  function makeChain(table: string, filters: Record<string, unknown> = {}) {
+    const chain: unknown = {
       _table: table,
       _filters: filters,
-      _data: null as any,
-      _error: null as any,
+      _data: null as unknown,
+      _error: null as unknown,
       get data() {
         return this._data;
       },
@@ -68,7 +68,7 @@ vi.mock("@/lib/supabase", () => {
 
     // Filter methods
     for (const m of ["eq", "neq", "gt", "gte", "lt", "lte", "like", "ilike", "in", "is", "not"]) {
-      chain[m] = vi.fn((col: string, val: any) => makeChain(table, { ...filters, [col]: val }));
+      chain[m] = vi.fn((col: string, val: unknown) => makeChain(table, { ...filters, [col]: val }));
     }
     for (const m of ["or", "and"]) {
       chain[m] = vi.fn(() => makeChain(table, filters));
@@ -81,13 +81,13 @@ vi.mock("@/lib/supabase", () => {
     function getFilteredRows() {
       let rows = mockData[table] || [];
       for (const [col, val] of Object.entries(filters)) {
-        rows = rows.filter((r: any) => r[col] === val);
+        rows = rows.filter((r: unknown) => r[col] === val);
       }
       return rows;
     }
 
     // When awaited without single/maybeSingle, return array
-    chain.then = function(resolve: any, reject: any) {
+    chain.then = function(resolve: unknown, reject: unknown) {
       const rows = getFilteredRows();
       return Promise.resolve({ data: rows, error: null }).then(resolve, reject);
     };

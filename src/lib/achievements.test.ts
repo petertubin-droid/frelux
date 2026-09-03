@@ -9,7 +9,6 @@ import {
   trackVisit,
   getAchievements,
   getNewlyUnlocked,
-  type UsageStats,
 } from "@/lib/achievements";
 
 describe("achievements", () => {

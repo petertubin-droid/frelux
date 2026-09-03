@@ -11,10 +11,8 @@ import {
   Layers,
   Percent,
   DollarSign,
-  Calculator,
-  Brain,
-  AlertTriangle,
-} from "lucide-react";
+    Brain,
+  } from "lucide-react";
 import { calculateAdvancedEstimate, type AdvancedCalcInput } from "@/lib/calc";
 import { formatCurrency, formatNumber } from "@/lib/utils";
 import {
@@ -899,7 +897,7 @@ function ScreedingBreakdownTab({
 function MixTab({
   input,
   update,
-  config,
+  _config,
 }: {
   input: AdvancedCalcInput;
   update: <K extends keyof AdvancedCalcInput>(
@@ -992,8 +990,8 @@ function CostsTab({
   update,
   estimate,
   isScreeding,
-  contextSummary,
-  aiBreakdown,
+  _contextSummary,
+  _aiBreakdown,
   pdfGateOpen,
   setPdfGateOpen,
   setPdfUnlocked,

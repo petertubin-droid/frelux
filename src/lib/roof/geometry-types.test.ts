@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { RoofPoint, RoofSectionGeometry, GeometrySource, EdgeType } from "@/lib/roof/geometry-types";
+import type { RoofPoint, GeometrySource, EdgeType } from "@/lib/roof/geometry-types";
 
 describe("roof geometry types", () => {
   it("RoofPoint has x,y coordinates", () => {

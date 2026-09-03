@@ -19,7 +19,7 @@ vi.mock("@/lib/queries", () => ({
 }));
 
 vi.mock("@/lib/supabase", () => {
-  const chainable: any = { data: null, error: null };
+  const chainable: unknown = { data: null, error: null };
   const methods = ["select", "eq", "neq", "gt", "gte", "lt", "lte", "like", "ilike", "in", "is", "not", "or", "and", "order", "range", "limit", "single", "maybeSingle", "insert", "update", "delete", "upsert", "count", "head"];
   for (const m of methods) chainable[m] = vi.fn(() => chainable);
   const supabase = {
@@ -111,7 +111,7 @@ async function renderEstimator() {
 describe("ScreedingCostEstimator — Material System Selection", () => {
   it("renders without crashing", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as any)
+    (fetchScreedingSystemConfig as unknown)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -121,7 +121,7 @@ describe("ScreedingCostEstimator — Material System Selection", () => {
 
   it("displays Putty as an available material option", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as any)
+    (fetchScreedingSystemConfig as unknown)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -133,7 +133,7 @@ describe("ScreedingCostEstimator — Material System Selection", () => {
 
   it("displays White Cement + Screeding Paint as an available material option", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as any)
+    (fetchScreedingSystemConfig as unknown)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -145,7 +145,7 @@ describe("ScreedingCostEstimator — Material System Selection", () => {
 
   it("shows Putty description", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as any)
+    (fetchScreedingSystemConfig as unknown)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -157,7 +157,7 @@ describe("ScreedingCostEstimator — Material System Selection", () => {
 
   it("shows White Cement + Screeding Paint description", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as any)
+    (fetchScreedingSystemConfig as unknown)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -171,7 +171,7 @@ describe("ScreedingCostEstimator — Material System Selection", () => {
 describe("ScreedingCostEstimator — Putty Flow", () => {
   it("calculates Putty requirement when area is entered", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as any)
+    (fetchScreedingSystemConfig as unknown)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -197,7 +197,7 @@ describe("ScreedingCostEstimator — Putty Flow", () => {
 
   it("shows coats selector", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as any)
+    (fetchScreedingSystemConfig as unknown)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -209,7 +209,7 @@ describe("ScreedingCostEstimator — Putty Flow", () => {
 
   it("shows cost using configured Admin price", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as any)
+    (fetchScreedingSystemConfig as unknown)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -231,7 +231,7 @@ describe("ScreedingCostEstimator — Putty Flow", () => {
 describe("ScreedingCostEstimator — White Cement + Paint Flow", () => {
   it("calculates both Screeding Paint and White Cement separately", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as any)
+    (fetchScreedingSystemConfig as unknown)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -260,7 +260,7 @@ describe("ScreedingCostEstimator — White Cement + Paint Flow", () => {
 
   it("shows configured waste applied", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as any)
+    (fetchScreedingSystemConfig as unknown)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -283,7 +283,7 @@ describe("ScreedingCostEstimator — White Cement + Paint Flow", () => {
 
   it("shows total estimated material cost", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as any)
+    (fetchScreedingSystemConfig as unknown)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -308,7 +308,7 @@ describe("ScreedingCostEstimator — White Cement + Paint Flow", () => {
 describe("ScreedingCostEstimator — Material System Isolation", () => {
   it("does not mix Putty materials with Cement/Paint", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as any)
+    (fetchScreedingSystemConfig as unknown)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 

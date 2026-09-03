@@ -112,7 +112,7 @@ export function trackCalculation(type: 'paint' | 'cost' | 'screeding' | 'tile' |
   else if (type === 'ai') stats.aiAssistants++;
 
   // Check all-rounder: used at least 5 different types
-  const typesUsed = [stats.paintCalcs > 0, stats.costEstimates > 0, stats.screedingCalcs > 0, stats.tileCalcs > 0, stats.popCalcs > 0].filter(Boolean).length;
+  const _typesUsed = [stats.paintCalcs > 0, stats.costEstimates > 0, stats.screedingCalcs > 0, stats.tileCalcs > 0, stats.popCalcs > 0].filter(Boolean).length;
 
   saveStats(stats);
 

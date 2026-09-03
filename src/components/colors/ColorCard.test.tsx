@@ -11,7 +11,7 @@ const mockColor = {
   brand: "Dulux",
   is_trending: false,
   is_featured: false,
-} as any;
+} as unknown;
 
 function renderCard(props: Partial<Parameters<typeof ColorCard>[0]> = {}) {
   return render(
@@ -35,18 +35,18 @@ describe("ColorCard", () => {
   });
 
   it("shows trending badge when is_trending", () => {
-    renderCard({ color: { ...mockColor, is_trending: true } as any });
+    renderCard({ color: { ...mockColor, is_trending: true } as unknown });
     expect(screen.getByText("Trending")).toBeTruthy();
   });
 
   it("shows featured badge when is_featured and not trending", () => {
-    renderCard({ color: { ...mockColor, is_featured: true } as any });
+    renderCard({ color: { ...mockColor, is_featured: true } as unknown });
     expect(screen.getByText("Featured")).toBeTruthy();
   });
 
   it("does not show featured badge when trending", () => {
     renderCard({
-      color: { ...mockColor, is_trending: true, is_featured: true } as any,
+      color: { ...mockColor, is_trending: true, is_featured: true } as unknown,
     });
     expect(screen.queryByText("Featured")).toBeNull();
   });

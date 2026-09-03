@@ -16,16 +16,13 @@ import type {
   ScreedingMaterialBreakdown,
   ScreedingPuttyResult,
   ScreedingMixSystemResult,
-  ScreedingSystemResult,
-  ScreedingMaterialSystem,
-} from '@/types';
+  ScreedingSystemResult } from '@/types';
 import {
   feetToMeters,
   DEFAULT_DOOR_WIDTH_M,
   DEFAULT_DOOR_HEIGHT_M,
   DEFAULT_WINDOW_WIDTH_M,
-  DEFAULT_WINDOW_HEIGHT_M,
-} from '@/lib/utils';
+  DEFAULT_WINDOW_HEIGHT_M } from '@/lib/utils';
 
 // ─────────────────────────────────────────────────────────
 // Configurable constants (defaults; overridden by DB values)
@@ -49,8 +46,7 @@ export const SURFACE_CONDITION_FACTORS: Record<SurfaceCondition, { factor: numbe
   smooth:           { factor: 1.00, label: 'Smooth / Previously Painted', description: 'Sound, smooth surface — standard coverage applies.' },
   textured:          { factor: 0.85, label: 'Textured',                    description: 'Textured surface — ~15% more paint absorbed due to surface profile.' },
   rough:             { factor: 0.75, label: 'Rough',                       description: 'Rough surface — ~25% more paint absorbed. Consider surface preparation.' },
-  new_plaster:       { factor: 0.80, label: 'New / Bare Plaster',           description: 'New plaster is porous — ~20% more paint absorbed on first coat. Primer strongly recommended.' },
-};
+  new_plaster:       { factor: 0.80, label: 'New / Bare Plaster',           description: 'New plaster is porous — ~20% more paint absorbed on first coat. Primer strongly recommended.' } };
 
 // ─────────────────────────────────────────────────────────
 // Color condition logic
@@ -61,8 +57,7 @@ export const COLOR_CONDITION_INFO: Record<ColorCondition, { label: string; warni
   same_or_light:     { label: 'Same / Light Colour',         warning: null,                                                                                   minCoats: 2 },
   dark_over_light:   { label: 'Dark over Light',            warning: 'Dark colour over light surface typically requires 3+ coats or a tinted primer for full opacity.', minCoats: 3 },
   light_over_dark:   { label: 'Light over Dark',            warning: 'Light colour over dark surface requires primer + 2-3 coats for complete coverage.',     minCoats: 3 },
-  new_unpainted:     { label: 'New / Unpainted',            warning: 'New/unpainted surfaces are porous. Primer/sealer is strongly recommended before painting.', minCoats: 2 },
-};
+  new_unpainted:     { label: 'New / Unpainted',            warning: 'New/unpainted surfaces are porous. Primer/sealer is strongly recommended before painting.', minCoats: 2 } };
 
 // FRELUX standard height threshold (8 ft / 2.4384 m)
 const STANDARD_HEIGHT_FT = 8;
@@ -368,8 +363,7 @@ export function calculatePaint(input: CalculatorInput, config?: CalcConfig): Cal
     primerTotalLiters: round(primerTotalLiters),
     heightWarning,
     colorWarning: colorInfo.warning,
-    primerRecommended,
-  };
+    primerRecommended };
 }
 
 // ─────────────────────────────────────────────────────────
@@ -385,14 +379,12 @@ export function calculatePaintCost(input: CostEstimateInput): { cost: number; co
     const containersNeeded = Math.ceil(Math.max(0, input.paintLiters) / input.paintContainerSize);
     return {
       cost: containersNeeded * input.paintContainerPrice,
-      containerCount: containersNeeded,
-    };
+      containerCount: containersNeeded };
   }
   // Manual per-liter fallback
   return {
     cost: Math.max(0, input.paintLiters) * Math.max(0, input.paintPricePerLiter),
-    containerCount: 0,
-  };
+    containerCount: 0 };
 }
 
 export function calculateMaterialCost(input: CostEstimateInput): number {
@@ -442,8 +434,7 @@ export function calculateEstimatedTotal(input: CostEstimateInput): CostEstimateR
     laborCost: round(laborCost),
     total: round(total),
     currency: input.currency,
-    currencySymbol: input.currencySymbol,
-  };
+    currencySymbol: input.currencySymbol };
 }
 
 // ─────────────────────────────────────────────────────────
@@ -495,8 +486,7 @@ export function calculateScreedingMix(
     taxAmount: round(taxAmount),
     grandTotal: round(grandTotal),
     currency: config.currency,
-    currencySymbol: config.currencySymbol,
-  };
+    currencySymbol: config.currencySymbol };
 }
 
 
@@ -538,8 +528,7 @@ function buildMaterialBreakdown(params: {
     finalQuantity: round(finalQuantity),
     purchaseQuantity,
     pricePerUnit: params.pricePerUnit ?? null,
-    totalCost: totalCost != null ? round(totalCost) : null,
-  };
+    totalCost: totalCost != null ? round(totalCost) : null };
 }
 
 /**
@@ -574,8 +563,7 @@ export function calculateScreedingPutty(
     baseQuantity: baseUnits,
     wastePercentage: wastePct,
     pricePerUnit: config.puttyPricePerUnit,
-    roundingRule: config.roundingRule,
-  });
+    roundingRule: config.roundingRule });
 
   const materialCost = putty.totalCost ?? null;
 
@@ -587,8 +575,7 @@ export function calculateScreedingPutty(
     putty,
     materialCost,
     currency: config.currency,
-    currencySymbol: config.currencySymbol,
-  };
+    currencySymbol: config.currencySymbol };
 }
 
 /**
@@ -627,8 +614,7 @@ export function calculateScreedingMixSystem(
     baseQuantity: basePaint,
     wastePercentage: wastePct,
     pricePerUnit: config.paintPricePerUnit,
-    roundingRule: config.roundingRule,
-  });
+    roundingRule: config.roundingRule });
 
   const cement = buildMaterialBreakdown({
     name: config.cementName ?? 'White Cement',
@@ -636,8 +622,7 @@ export function calculateScreedingMixSystem(
     baseQuantity: baseCement,
     wastePercentage: wastePct,
     pricePerUnit: config.cementPricePerUnit,
-    roundingRule: config.roundingRule,
-  });
+    roundingRule: config.roundingRule });
 
   const paintCost = paint.totalCost ?? 0;
   const cementCost = cement.totalCost ?? 0;
@@ -654,8 +639,7 @@ export function calculateScreedingMixSystem(
     cement,
     materialCost,
     currency: config.currency,
-    currencySymbol: config.currencySymbol,
-  };
+    currencySymbol: config.currencySymbol };
 }
 
 /**
@@ -721,8 +705,7 @@ export function dbToSystemConfig(db: {
     cementQuantity: db.cement_quantity != null ? Number(db.cement_quantity) : null,
     cementUnit: db.cement_unit,
     cementPricePerUnit: db.cement_price_per_unit != null ? Number(db.cement_price_per_unit) : null,
-    roundingRule: db.rounding_rule,
-  };
+    roundingRule: db.rounding_rule };
 }
 
 // ─────────────────────────────────────────────────────────
@@ -817,8 +800,7 @@ export function calculateAdvancedEstimate(input: AdvancedCalcInput): AdvancedEst
     currency: input.currency,
     currencySymbol: input.currencySymbol,
     notes: '',
-    aiRecommendations: [],
-  };
+    aiRecommendations: [] };
 }
 
 // Backward-compatible alias.

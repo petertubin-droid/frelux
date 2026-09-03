@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { RoofSectionSpec, MultiRoofSpec, RoofSectionCalculation } from "@/lib/roof/section-model-types";
+import type { RoofSectionSpec, MultiRoofSpec } from "@/lib/roof/section-model-types";
 
 describe("roof section model types", () => {
   it("RoofSectionSpec has required fields", () => {

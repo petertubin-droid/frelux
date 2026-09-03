@@ -246,6 +246,7 @@ export interface Segment {
   lang: string;
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function parseMarkdown(text: string): Segment[] {
   const segments: Segment[] = [];
   const regex = /```(\w+)?\n([\s\S]*?)```/g;

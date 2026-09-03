@@ -63,7 +63,6 @@ import {
   CALC_LINKS,
 } from "@/components/seo/SeoSections";
 import { PopCeilingCalculatorSeo } from "@/components/seo/SeoContent";
-import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";

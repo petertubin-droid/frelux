@@ -30,7 +30,7 @@ function renderBanner() {
 describe("CookieBanner", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (useCookieConsent as any).mockReturnValue({
+    (useCookieConsent as unknown).mockReturnValue({
       showBanner: true,
       accept: vi.fn(),
       reject: vi.fn(),
@@ -40,7 +40,7 @@ describe("CookieBanner", () => {
   });
 
   it("returns null when showBanner is false", () => {
-    (useCookieConsent as any).mockReturnValue({
+    (useCookieConsent as unknown).mockReturnValue({
       showBanner: false,
       accept: vi.fn(),
       reject: vi.fn(),
@@ -69,7 +69,7 @@ describe("CookieBanner", () => {
 
   it("calls accept when Accept All clicked", () => {
     const accept = vi.fn();
-    (useCookieConsent as any).mockReturnValue({
+    (useCookieConsent as unknown).mockReturnValue({
       showBanner: true,
       accept,
       reject: vi.fn(),
@@ -83,7 +83,7 @@ describe("CookieBanner", () => {
 
   it("calls reject when Reject Non-Essential clicked", () => {
     const reject = vi.fn();
-    (useCookieConsent as any).mockReturnValue({
+    (useCookieConsent as unknown).mockReturnValue({
       showBanner: true,
       accept: vi.fn(),
       reject,

@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/shadcn/button";
 const fmt = (v: number) => "₦" + (v || 0).toLocaleString();
 
 export default function ClientEstimateEditor() {
-  const { id: projectId, estimateId } = useParams<{
+  const { id: projectId, _estimateId } = useParams<{
     id: string;
     estimateId?: string;
   }>();

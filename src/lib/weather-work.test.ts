@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useWorkWeather, type WorkType } from "@/lib/weather-work";
+import { useWorkWeather } from "@/lib/weather-work";
 
 describe("useWorkWeather", () => {
   it("returns initial loading state", () => {

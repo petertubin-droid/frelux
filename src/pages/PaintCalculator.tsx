@@ -128,7 +128,6 @@ const ADVANCED_FEATURES = [
 
 import { useSeo } from "@/lib/seo";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
-import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";

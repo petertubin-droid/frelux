@@ -54,7 +54,7 @@ vi.mock("@/lib/supabase", () => {
   };
   const methods = ["select", "eq", "neq", "gt", "gte", "lt", "lte", "like", "ilike", "in", "is", "not", "or", "and", "order", "range", "limit", "single", "maybeSingle", "insert", "update", "delete", "upsert", "count", "head"];
   for (const m of methods) {
-    (chainable as any)[m] = vi.fn(() => chainable);
+    (chainable as unknown)[m] = vi.fn(() => chainable);
   }
   const supabase = {
     from: vi.fn(() => chainable),

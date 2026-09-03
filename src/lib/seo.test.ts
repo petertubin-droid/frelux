@@ -1,5 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, act } from "@testing-library/react";
+import { describe, it, expect, beforeEach } from "vitest";
+import { renderHook } from "@testing-library/react";
 import { useSeo, type SeoMeta } from "@/lib/seo";
 
 // Helper to render the hook with a given meta object

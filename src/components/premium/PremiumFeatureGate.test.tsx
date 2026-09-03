@@ -54,7 +54,7 @@ import {
   unlockFeatureViaAd,
   getAiFeatureCost,
 } from "@/lib/credits";
-import { hasRewardedAdProvider, logAdEvent, fetchAdConfig } from "@/lib/ad-config";
+import { hasRewardedAdProvider, logAdEvent } from "@/lib/ad-config";
 
 vi.mock("@/lib/rewarded-access", () => ({
   getClientHash: vi.fn(() => "test-hash-123"),

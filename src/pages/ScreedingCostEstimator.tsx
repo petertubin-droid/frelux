@@ -16,7 +16,6 @@ import {
   calculateScreedingSystem,
   dbToSystemConfig,
 } from "@/lib/calc";
-import { calculateLabourCost } from "@/lib/labour";
 import LabourCostSection, {
   useLabourConfig,
 } from "@/components/labour/LabourCostSection";
@@ -29,7 +28,7 @@ import type {
   ScreedingMaterialSystem,
   ScreedingMaterialBreakdown,
 } from "@/types";
-import type { DbScreedingSystemConfig } from "@/types/database";
+import type {  } from "@/types/database";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
 import {
@@ -37,12 +36,10 @@ import {
   ReportCalculationIssue,
 } from "@/components/calculators";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
-import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 // Engine integration
 import { useEngineFeatures } from "@/lib/measurement";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import {
-  EngineConfidenceBadge,
   EngineExplanationPanel,
   EngineMaterialSummaryCard,
 } from "@/components/engine";
@@ -121,7 +118,7 @@ export default function ScreedingCostEstimator({
           fetchScreedingSystemConfig("white_cement_paint"),
         ]);
         if (puttyRes.error) setLoadError(puttyRes.error);
-        if (mixRes.error && !loadError) setLoadError(mixRes.error);
+        if (mixRes.error) setLoadError(mixRes.error);
         if (puttyRes.data) {
           const cfg = dbToSystemConfig(puttyRes.data);
           setPuttyConfig(cfg);
@@ -402,8 +399,8 @@ export default function ScreedingCostEstimator({
 
             {/* Results panel */}
             <div className="lg:col-span-2">
-              <div className="card sticky top-20 overflow-hidden">
-                <div className="relative bg-gradient-to-br from-background to-primary p-6 text-primary-foreground">
+              <div className="card lg:sticky lg:top-20">
+                <div className="relative rounded-t-[inherit] bg-gradient-to-br from-primary to-primary-deep p-5 text-primary-foreground">
                   <p className="text-xs font-semibold uppercase tracking-widest text-primary-foreground/60">
                     Estimated material cost
                   </p>
@@ -582,9 +579,6 @@ export default function ScreedingCostEstimator({
                     />
                   </div>
                 )}
-                <div className="border-t border-border/50 bg-muted/50 dark:bg-white/5 px-6 py-3 text-xs text-muted-foreground">
-                  All screeding calculations use square metres (m²). Material quantities, prices, and coverage rules are admin-configured.
-                </div>
               </div>
             </div>
           </div>
@@ -616,6 +610,13 @@ export default function ScreedingCostEstimator({
           </div>
         )}
       </div>
+        {/* Info note */}
+        {availableSystems.length > 0 && (
+          <p className="mt-4 text-center text-xs text-muted-foreground">
+            All screeding calculations use square metres (m²). Material quantities, prices, and coverage rules are admin-configured.
+          </p>
+        )}
+
       {!embedded && (
         <RelatedTools
           links={[

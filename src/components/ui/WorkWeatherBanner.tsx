@@ -14,7 +14,7 @@ import {
   CloudDrizzle,
   CloudLightning,
   CloudFog,
-  Gauge,
+
 } from "lucide-react";
 import { useState } from "react";
 import { classNames } from "@/lib/utils";

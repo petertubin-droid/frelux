@@ -46,7 +46,7 @@ export default function Navbar() {
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   const [avatarError, setAvatarError] = useState(false);
   const location = useLocation();
-  const { user, profile, signOut, isPaid, paidStatus } = useAuth();
+  const { user, profile, signOut, isPaid } = useAuth();
   const { wallet } = useCredits();
   const { theme, toggle } = useTheme();
   const navRef = useRef<HTMLDivElement>(null);
@@ -447,29 +447,28 @@ export default function Navbar() {
 
               {openDropdown === "account" && (
                 <div
-                  className="absolute right-0 top-full z-50 w-[340px] max-w-[calc(100vw-2rem)] max-h-[calc(100vh-5rem)] overflow-y-auto rounded-2xl border border-border/30 bg-white/95 backdrop-blur-xl shadow-[0_20px_60px_-15px_rgba(0,0,0,0.2),0_8px_30px_-12px_rgba(0,0,0,0.12)] animate-fade-in-up dark:border-white/10 dark:bg-background-mid/95"
+                  className="absolute right-0 top-full z-50 w-[200px] max-w-[calc(100vw-1rem)] max-h-[calc(100vh-5rem)] overflow-y-auto rounded-xl border border-border/40 bg-popover/95 backdrop-blur-xl shadow-[0_8px_30px_-6px_rgba(0,0,0,0.15)] animate-fade-in-up dark:border-white/10 dark:bg-popover/95"
                   style={{
-                    animationDuration: "0.22s",
+                    animationDuration: "0.18s",
                     transformOrigin: "top right",
                   }}
                   onMouseLeave={() => setOpenDropdown(null)}
                 >
                   {user ? (
                     <>
-                      {/* Premium profile header with glass gradient */}
-                      <div className="relative overflow-hidden rounded-t-2xl px-5 pt-5 pb-4">
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/14 via-primary/5 to-transparent dark:from-primary/25 dark:via-primary/10" />
-                        <div className="absolute -top-8 -right-8 h-28 w-28 rounded-full bg-primary/8 blur-2xl dark:bg-primary/15" />
-                        <div className="relative flex items-center gap-3.5">
+                      {/* Compact profile header */}
+                      <div className="relative overflow-hidden rounded-t-xl px-3 pt-3 pb-2.5">
+                        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent dark:from-primary/15" />
+                        <div className="relative flex items-center gap-2.5">
                           {profile?.avatar_url && !avatarError ? (
                             <img
                               src={profile.avatar_url}
                               alt=""
-                              className="h-12 w-12 rounded-full object-cover ring-2 ring-white/40 shadow-lg dark:ring-white/20"
+                              className="h-8 w-8 rounded-full object-cover ring-1 ring-border/40 shadow-sm dark:ring-white/15"
                               onError={() => setAvatarError(true)}
                             />
                           ) : (
-                            <span className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-deep text-base font-bold text-primary-foreground shadow-lg ring-2 ring-white/40 dark:ring-white/20">
+                            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary-deep text-xs font-bold text-primary-foreground shadow-sm">
                               {(
                                 profile?.full_name?.charAt(0) ||
                                 (user.email ?? "?")
@@ -479,117 +478,105 @@ export default function Navbar() {
                             </span>
                           )}
                           <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold text-foreground truncate dark:text-muted-foreground/40">
+                            <p className="text-xs font-semibold text-foreground truncate">
                               {profile?.full_name || user.email?.split("@")[0]}
                             </p>
-                            <p className="text-xs text-muted-foreground truncate dark:text-muted-foreground">
+                            <p className="text-[10px] text-muted-foreground truncate">
                               {user.email}
                             </p>
-                            <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                              {isPaid && <PremiumBadge size="xs" glow />}
-                            </div>
                           </div>
                         </div>
+                        {isPaid && (
+                          <div className="relative mt-2">
+                            <PremiumBadge size="xs" />
+                          </div>
+                        )}
                       </div>
 
-                      {/* AI Credits balance card */}
-                      <div className="px-3 pb-2">
-                        <div className="rounded-xl border border-border/50 bg-gradient-to-br from-muted/50 to-card px-3.5 py-3 dark:border-white/5 dark:from-white/5 dark:to-transparent">
+                      {/* AI Credits balance — compact */}
+                      <div className="px-2.5 pb-2">
+                        <div className="rounded-lg border border-border/40 bg-muted/30 px-2.5 py-2 dark:border-white/5 dark:bg-white/5">
                           <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-deep text-primary-foreground shadow-sm">
-                                <Bot className="h-3.5 w-3.5" />
+                            <div className="flex items-center gap-1.5">
+                              <span className="flex h-5 w-5 items-center justify-center rounded bg-primary text-primary-foreground">
+                                <Bot className="h-3 w-3" />
                               </span>
-                              <span className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground/80">
-                                AI Credits
+                              <span className="text-[10px] font-semibold text-muted-foreground">
+                                Credits
                               </span>
                             </div>
                             <Link
                               to="/rewards"
                               onClick={() => setOpenDropdown(null)}
-                              className="text-[10px] font-medium text-brand-purple transition-opacity hover:opacity-70 dark:text-brand-purple-lighter"
+                              className="text-[9px] font-medium text-brand-purple hover:opacity-70 dark:text-brand-purple-lighter"
                             >
-                              Manage →
+                              →
                             </Link>
                           </div>
-                          <div className="mt-2.5 flex items-end justify-between">
-                            <div>
-                              <span className="text-2xl font-bold tracking-tight text-foreground dark:text-muted-foreground/40">
-                                {wallet?.balance ?? 0}
-                              </span>
-                              <span className="ml-1 text-[11px] font-medium text-muted-foreground dark:text-muted-foreground">
-                                available
-                              </span>
-                            </div>
-                            <div className="flex flex-col items-end">
-                              <span className="text-sm font-semibold text-amber-600 dark:text-amber-400">
-                                {wallet?.total_earned ?? 0}
-                              </span>
-                              <span className="text-[9px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
-                                total owned
-                              </span>
-                            </div>
+                          <div className="mt-1.5 flex items-baseline justify-between">
+                            <span className="text-lg font-bold tracking-tight text-foreground">
+                              {wallet?.balance ?? 0}
+                            </span>
+                            <span className="text-[10px] font-medium text-muted-foreground">
+                              {wallet?.total_earned ?? 0} earned
+                            </span>
                           </div>
                         </div>
                       </div>
 
-                      {/* Plan strip */}
-                      <div className="flex items-center justify-between gap-2 border-y border-border/50 bg-muted/40 px-5 py-2 dark:border-white/5 dark:bg-white/3">
+                      {/* Plan strip — compact */}
+                      <div className="flex items-center justify-between gap-1 border-y border-border/40 bg-muted/20 px-2.5 py-1.5 dark:border-white/5 dark:bg-white/3">
                         <Link
                           to="/dashboard"
                           onClick={() => setOpenDropdown(null)}
-                          className="flex flex-col items-center gap-0.5 transition-opacity hover:opacity-70"
+                          className="flex flex-col items-center gap-0.5 hover:opacity-70"
                         >
-                          <span className="flex items-center gap-1 text-sm font-bold text-brand-purple dark:text-brand-purple-lighter">
-                            {isPaid ? (
-                              <PremiumBadge size="xs" minimal />
-                            ) : (
-                              "Free"
-                            )}
+                          <span className="text-[11px] font-bold text-brand-purple dark:text-brand-purple-lighter">
+                            {isPaid ? "Premium" : "Free"}
                           </span>
-                          <span className="text-[9px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
+                          <span className="text-[8px] uppercase tracking-wide text-muted-foreground">
                             Plan
                           </span>
                         </Link>
-                        <div className="h-7 w-px bg-muted dark:bg-white/10" />
+                        <div className="h-6 w-px bg-border dark:bg-white/10" />
                         <Link
                           to="/rewards"
                           onClick={() => setOpenDropdown(null)}
-                          className="flex flex-col items-center gap-0.5 transition-opacity hover:opacity-70"
+                          className="flex flex-col items-center gap-0.5 hover:opacity-70"
                         >
-                          <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
+                          <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400">
                             {wallet?.total_earned ?? 0}
                           </span>
-                          <span className="text-[9px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
-                            Lifetime Credits
+                          <span className="text-[8px] uppercase tracking-wide text-muted-foreground">
+                            Earned
                           </span>
                         </Link>
-                        <div className="h-7 w-px bg-muted dark:bg-white/10" />
+                        <div className="h-6 w-px bg-border dark:bg-white/10" />
                         <Link
                           to="/pricing"
                           onClick={() => setOpenDropdown(null)}
-                          className="flex flex-col items-center gap-0.5 transition-opacity hover:opacity-70"
+                          className="flex flex-col items-center gap-0.5 hover:opacity-70"
                         >
-                          <span className="text-sm font-bold text-muted-foreground dark:text-muted-foreground/80">
+                          <span className="text-[11px] font-bold text-muted-foreground">
                             {wallet?.total_spent ?? 0}
                           </span>
-                          <span className="text-[9px] font-medium uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
+                          <span className="text-[8px] uppercase tracking-wide text-muted-foreground">
                             Spent
                           </span>
                         </Link>
                       </div>
 
-                      {/* Grouped menu sections */}
+                      {/* Menu sections — compact */}
                       <div
-                        className="max-h-[min(50vh,320px)] overflow-y-auto nav-scroll px-2 py-1.5"
+                        className="max-h-[min(40vh,240px)] overflow-y-auto nav-scroll px-1.5 py-1"
                         style={{ scrollbarWidth: "thin" }}
                       >
                         {accountMenuSections.map((section, si) => (
                           <div key={section.section}>
                             {si > 0 && (
-                              <div className="mx-2 my-1.5 border-t border-border/50 dark:border-white/5" />
+                              <div className="mx-1.5 my-1 border-t border-border/40 dark:border-white/5" />
                             )}
-                            <p className="px-3 pb-1 pt-2.5 text-[10px] font-bold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
+                            <p className="px-2 pb-0.5 pt-1.5 text-[9px] font-bold uppercase tracking-wider text-muted-foreground">
                               {section.section}
                             </p>
                             {section.items.map((item) => {
@@ -605,9 +592,9 @@ export default function Navbar() {
                                       : undefined
                                   }
                                   onClick={() => setOpenDropdown(null)}
-                                  className="group flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-muted-foreground transition-all duration-200 hover:bg-primary/6 hover:text-brand-purple dark:text-muted-foreground/80 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
+                                  className="group flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-primary/8 hover:text-brand-purple dark:text-muted-foreground/80 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
                                 >
-                                  <Icon className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-brand-purple dark:text-muted-foreground dark:group-hover:text-brand-purple-lighter" />
+                                  <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter" />
                                   {item.label}
                                 </Link>
                               );
@@ -616,8 +603,8 @@ export default function Navbar() {
                         ))}
                       </div>
 
-                      {/* Sign out footer */}
-                      <div className="border-t border-border/50 px-2 py-2.5 dark:border-white/5">
+                      {/* Sign out footer — compact */}
+                      <div className="border-t border-border/40 px-1.5 py-1.5 dark:border-white/5">
                         <Button
                           variant="ghost"
                           type="button"
@@ -625,39 +612,38 @@ export default function Navbar() {
                             signOut();
                             setOpenDropdown(null);
                           }}
-                          className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[13px] font-medium text-muted-foreground transition-all duration-200 hover:bg-red-50 hover:text-red-500 dark:text-muted-foreground dark:hover:bg-red-500/10 dark:hover:text-red-400"
+                          className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10 dark:hover:text-red-400"
                         >
-                          <LogOut className="h-4 w-4 shrink-0" />
+                          <LogOut className="h-3.5 w-3.5 shrink-0" />
                           Sign Out
                         </Button>
                       </div>
                     </>
                   ) : (
-                    <div className="py-2">
-                      <div className="px-5 py-2 pb-3">
-                        <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
+                    <div className="py-1.5">
+                      <div className="px-2.5 py-1.5 pb-2">
+                        <p className="text-xs font-semibold text-card-foreground">
                           Welcome to FRELUX
                         </p>
-                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                          Sign in to access your projects, estimates, and
-                          rewards.
+                        <p className="text-[10px] text-muted-foreground">
+                          Sign in for projects, estimates & rewards.
                         </p>
                       </div>
-                      <div className="px-2">
+                      <div className="px-1.5">
                         <Link
                           to="/login"
                           onClick={() => setOpenDropdown(null)}
-                          className="flex items-center gap-2.5 rounded-xl bg-primary/5 px-3 py-2.5 text-sm font-semibold text-brand-purple transition-all hover:bg-primary/10 dark:bg-primary/10 dark:text-brand-purple-lighter dark:hover:bg-primary/20"
+                          className="flex items-center gap-2 rounded-md bg-primary/5 px-2 py-1.5 text-[11px] font-semibold text-brand-purple transition-colors hover:bg-primary/10 dark:bg-primary/10 dark:text-brand-purple-lighter"
                         >
-                          <LogIn className="h-4 w-4 shrink-0" />
+                          <LogIn className="h-3.5 w-3.5 shrink-0" />
                           Sign In
                         </Link>
                         <Link
                           to="/login?mode=signup"
                           onClick={() => setOpenDropdown(null)}
-                          className="mt-1 flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-medium text-muted-foreground transition-all hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
+                          className="mt-1 flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:hover:bg-white/5"
                         >
-                          <User className="h-4 w-4 shrink-0" />
+                          <User className="h-3.5 w-3.5 shrink-0" />
                           Create Account
                         </Link>
                       </div>

@@ -50,7 +50,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState<"overview" | "history" | "ads">("overview");
   const [showEarnModal, setShowEarnModal] = useState(false);
-  const [adProviderReady, setAdProviderReady] = useState(false);
+  const [adProviderReady, _setAdProviderReady] = useState(false);
   const [todayEarned, setTodayEarned] = useState(0);
 
   const load = useCallback(async () => {

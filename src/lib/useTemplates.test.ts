@@ -9,11 +9,11 @@ const mockDeleteUserTemplate = vi.fn();
 const mockDuplicateUserTemplate = vi.fn();
 
 vi.mock("@/lib/templates", () => ({
-  getUserTemplates: (...args: any[]) => mockGetUserTemplates(...args),
-  createUserTemplate: (...args: any[]) => mockCreateUserTemplate(...args),
-  updateUserTemplate: (...args: any[]) => mockUpdateUserTemplate(...args),
-  deleteUserTemplate: (...args: any[]) => mockDeleteUserTemplate(...args),
-  duplicateUserTemplate: (...args: any[]) => mockDuplicateUserTemplate(...args),
+  getUserTemplates: (...args: unknown[]) => mockGetUserTemplates(...args),
+  createUserTemplate: (...args: unknown[]) => mockCreateUserTemplate(...args),
+  updateUserTemplate: (...args: unknown[]) => mockUpdateUserTemplate(...args),
+  deleteUserTemplate: (...args: unknown[]) => mockDeleteUserTemplate(...args),
+  duplicateUserTemplate: (...args: unknown[]) => mockDuplicateUserTemplate(...args),
 }));
 
 // Mock auth
@@ -81,8 +81,8 @@ describe("useUserTemplates", () => {
       name: "New",
       calculator_type: "paint",
       data: { area: 50 },
-    } as any;
-    let created: any;
+    } as unknown;
+    let created: unknown;
     await act(async () => {
       created = await result.current.create(input);
     });
@@ -95,9 +95,9 @@ describe("useUserTemplates", () => {
     const { result } = renderHook(() => useUserTemplates());
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    let created: any;
+    let created: unknown;
     await act(async () => {
-      created = await result.current.create({} as any);
+      created = await result.current.create({} as unknown);
     });
     expect(created).toBeNull();
   });
@@ -107,7 +107,7 @@ describe("useUserTemplates", () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
-      await result.current.update("tpl-1", { name: "Updated" } as any);
+      await result.current.update("tpl-1", { name: "Updated" } as unknown);
     });
     expect(mockUpdateUserTemplate).toHaveBeenCalledWith("tpl-1", "user-1", {
       name: "Updated",
@@ -131,7 +131,7 @@ describe("useUserTemplates", () => {
     const { result } = renderHook(() => useUserTemplates());
     await waitFor(() => expect(result.current.loading).toBe(false));
 
-    let result_dup: any;
+    let result_dup: unknown;
     await act(async () => {
       result_dup = await result.current.duplicate("tpl-1", "Copy");
     });

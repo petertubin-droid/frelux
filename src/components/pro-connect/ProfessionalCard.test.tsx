@@ -14,13 +14,13 @@ const mockProfile = {
   pro_level: false,
   bio: "Professional painter with 10 years experience",
   city: "Lagos",
-} as any;
+} as unknown;
 
-const mockCategory = { name: "Painting", slug: "painting" } as any;
+const mockCategory = { name: "Painting", slug: "painting" } as unknown;
 const mockServices = [
   { name: "Interior Painting", slug: "interior" },
   { name: "Exterior Painting", slug: "exterior" },
-] as any;
+] as unknown;
 
 function renderCard(
   props: Partial<Parameters<typeof ProfessionalCard>[0]> = {},
@@ -65,13 +65,13 @@ describe("ProfessionalCard", () => {
   });
 
   it("shows busy status when profile is busy", () => {
-    renderCard({ profile: { ...mockProfile, availability: "busy" } as any });
+    renderCard({ profile: { ...mockProfile, availability: "busy" } as unknown });
     expect(screen.getByText("Busy")).toBeTruthy();
   });
 
   it("shows unavailable status", () => {
     renderCard({
-      profile: { ...mockProfile, availability: "unavailable" } as any,
+      profile: { ...mockProfile, availability: "unavailable" } as unknown,
     });
     expect(screen.getByText("Unavailable")).toBeTruthy();
   });

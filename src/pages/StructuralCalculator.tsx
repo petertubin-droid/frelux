@@ -17,7 +17,7 @@ import {
 import type {} from "@/types/build-to-roof";
 import {
   Calculator,
-  Building2,
+
   AlertTriangle,
   CheckCircle2,
   ShieldCheck,

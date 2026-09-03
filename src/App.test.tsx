@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 vi.mock("@/lib/auth", () => ({
   useAuth: vi.fn(() => ({ user: null, loading: false })),
-  AuthProvider: ({ children }: any) => children,
+  AuthProvider: ({ children }: unknown) => children,
 }));
 
 beforeEach(() => { vi.clearAllMocks(); });

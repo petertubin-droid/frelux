@@ -72,7 +72,6 @@ import { trackCalculation } from "@/lib/achievements";
 import { trackCalculationWithRewards } from "@/lib/rewards-integration";
 import { trackRecentTool } from "@/lib/smart-defaults";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
-import RelatedToolsLinks from "@/components/ui/RelatedToolsLinks";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
 import { useAuth } from "@/lib/auth";

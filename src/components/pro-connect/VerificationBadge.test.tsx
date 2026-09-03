@@ -7,22 +7,22 @@ const tier0Profile = {
   contact_verified_at: null,
   identity_verified_at: null,
   pro_level: false,
-} as any;
+} as unknown;
 const tier1Profile = {
   contact_verified_at: "2025-01-01",
   identity_verified_at: null,
   pro_level: false,
-} as any;
+} as unknown;
 const tier2Profile = {
   contact_verified_at: "2025-01-01",
   identity_verified_at: "2025-01-02",
   pro_level: false,
-} as any;
+} as unknown;
 const tier3Profile = {
   contact_verified_at: "2025-01-01",
   identity_verified_at: "2025-01-02",
   pro_level: true,
-} as any;
+} as unknown;
 
 describe("getVerificationTier", () => {
   it("returns 0 for unverified", () => {

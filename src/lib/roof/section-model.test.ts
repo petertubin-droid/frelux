@@ -3,7 +3,6 @@ import {
   pitchAdjustedArea,
   getSectionPlanArea,
   getSectionMissing,
-  createRoofSectionSpec,
   createDefaultMultiRoofSpec,
   addRoofSection,
   removeRoofSection,
@@ -13,7 +12,6 @@ import {
   calculateMultiRoof,
 } from "@/lib/roof/section-model";
 import type {
-  RoofSectionSpec,
   MultiRoofSpec,
 } from "@/lib/roof/section-model-types";
 

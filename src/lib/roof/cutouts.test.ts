@@ -132,7 +132,7 @@ describe("validateCutout", () => {
     expect(validateCutout(c)).toContain("Area must be greater than 0");
   });
   it("returns error for invalid type", () => {
-    const c = { ...createCutout("Test", 5), type: "invalid" } as any;
+    const c = { ...createCutout("Test", 5), type: "invalid" } as unknown;
     expect(validateCutout(c)).toContain("Invalid cutout type");
   });
 });

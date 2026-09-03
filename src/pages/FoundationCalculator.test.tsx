@@ -6,7 +6,7 @@ import { ToastProvider } from "@/components/ui/Toast";
 vi.mock("@/lib/auth", () => ({ useAuth: vi.fn(() => ({ user: null, loading: false })) }));
 vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 vi.mock("@/components/calculators/SaveToProjectButton", () => ({
-  default: (props: any) => null,
+  default: (_props: unknown) => null,
 }));
 
 beforeEach(() => { vi.clearAllMocks(); });

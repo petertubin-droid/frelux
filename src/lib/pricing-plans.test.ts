@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { PRICING_PLANS, type PricingPlan } from "@/lib/pricing-plans";
+import { PRICING_PLANS } from "@/lib/pricing-plans";
 
 describe("pricing-plans", () => {
   it("exports exactly 4 plans", () => {

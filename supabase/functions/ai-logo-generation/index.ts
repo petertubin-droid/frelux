@@ -36,7 +36,7 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
-async function sha256(text: string): Promise<string> {
+async function _sha256(text: string): Promise<string> {
   const data = new TextEncoder().encode(text);
   const hash = await crypto.subtle.digest("SHA-256", data);
   return Array.from(new Uint8Array(hash))

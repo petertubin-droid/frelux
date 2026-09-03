@@ -7,7 +7,6 @@ import {
   validateArticleCompliance,
   validateBreadcrumbSchema,
   validateArticleSchema,
-  MIN_WORD_COUNT,
   META_TITLE_MAX,
   META_TITLE_MIN,
   META_DESC_MAX,

@@ -464,7 +464,7 @@ Deno.serve(async (req: Request) => {
       const eventId = eventIdHeader || owTxId;
 
       // Determine if this event should award, reverse, or ignore
-      const isAwardable =
+      const _isAwardable =
         eventType === "conversion.approved" ||
         eventType === "conversion.released";
       const isReversal = eventType === "conversion.reversed";

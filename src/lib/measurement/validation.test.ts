@@ -81,7 +81,7 @@ describe("validateMeasurementEntry", () => {
 
   it("fails for inches in painting context", () => {
     const r = validateMeasurementEntry(
-      makeEntry({ unit: "inches" as any }),
+      makeEntry({ unit: "inches" as unknown }),
       ctx,
     );
     expect(r.valid).toBe(false);
@@ -92,7 +92,7 @@ describe("validateMeasurementEntry", () => {
 
   it("allows inches in block context", () => {
     const r = validateMeasurementEntry(
-      makeEntry({ unit: "inches" as any }),
+      makeEntry({ unit: "inches" as unknown }),
       "block",
     );
     expect(

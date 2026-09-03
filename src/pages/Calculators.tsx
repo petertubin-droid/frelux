@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import AdSlot from "@/components/ui/AdSlot";
 import {
   Paintbrush,
-  Calculator,
+
   Grid3x3,
   Square,
   Layers,

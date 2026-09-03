@@ -10,7 +10,7 @@ import {
   CloudFog,
   Droplets,
   Thermometer,
-  Wind,
+
   CheckCircle2,
   AlertTriangle,
   XCircle,
