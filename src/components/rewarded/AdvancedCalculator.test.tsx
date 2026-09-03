@@ -9,17 +9,27 @@ vi.mock("@/lib/auth", () => ({
 vi.mock("@/lib/ai-credit-gate", () => ({
   spendAiCredits: vi.fn().mockResolvedValue(true),
 }));
-vi.mock("@/lib/queries", () => ({ saveAdvancedEstimate: vi.fn().mockResolvedValue({ data: null, error: null }), fetchAdvancedEstimates: vi.fn().mockResolvedValue({ data: [], error: null }), deleteAdvancedEstimate: vi.fn().mockResolvedValue({ data: null, error: null }) }));
+vi.mock("@/lib/queries", () => ({
+  saveAdvancedEstimate: vi.fn().mockResolvedValue({ data: null, error: null }),
+  fetchAdvancedEstimates: vi.fn().mockResolvedValue({ data: [], error: null }),
+  deleteAdvancedEstimate: vi
+    .fn()
+    .mockResolvedValue({ data: null, error: null }),
+}));
 
 beforeEach(() => {
   vi.clearAllMocks();
 });
 
 async function renderCalc() {
-  const { AdvancedCalculator } = await import("@/components/rewarded/AdvancedCalculator");
+  const { AdvancedCalculator } =
+    await import("@/components/rewarded/AdvancedCalculator");
   return render(
     <MemoryRouter>
-      <AdvancedCalculator contextSummary="Area: 50 sqm, Paint: 3 containers" />
+      <AdvancedCalculator
+        contextSummary="Area: 50 sqm, Paint: 3 containers"
+        clientHash="test-hash-123"
+      />
     </MemoryRouter>,
   );
 }

@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
+import AdSlot from "@/components/ui/AdSlot";
 import {
   fetchEstimationAccessConfig,
   getEstimationUsageStatus,
@@ -82,7 +83,9 @@ function AiFeatureSlide() {
           }}
         >
           <span className="inline-block h-1 w-1 rounded-full bg-accent-green" />
-          <span className="text-xs font-medium text-primary-foreground/70">{msg}</span>
+          <span className="text-xs font-medium text-primary-foreground/70">
+            {msg}
+          </span>
         </div>
       ))}
     </div>
@@ -366,7 +369,8 @@ export default function ImageEstimator() {
                     alt="Building"
                     className="max-h-80 mx-auto rounded-lg shadow-md"
                   />
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => fileRef.current?.click()}
                     className="text-sm text-brand-purple hover:text-brand-purple-dark font-medium"
                   >
@@ -383,7 +387,8 @@ export default function ImageEstimator() {
                     JPG or PNG, max 10MB. The clearer the photo, the better the
                     estimate.
                   </p>
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => fileRef.current?.click()}
                     className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
                   >
@@ -454,7 +459,8 @@ export default function ImageEstimator() {
                   </p>
                 </div>
 
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={runEstimation}
                   className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-primary-foreground -green/90 transition-colors"
                 >
@@ -677,7 +683,9 @@ export default function ImageEstimator() {
                   </p>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Image quality</span>
+                      <span className="text-muted-foreground">
+                        Image quality
+                      </span>
                       <div className="flex gap-0.5">
                         {[1, 2, 3, 4, 5].map((n) => (
                           <div
@@ -688,7 +696,9 @@ export default function ImageEstimator() {
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Angle quality</span>
+                      <span className="text-muted-foreground">
+                        Angle quality
+                      </span>
                       <div className="flex gap-0.5">
                         {[1, 2, 3, 4, 5].map((n) => (
                           <div
@@ -699,7 +709,9 @@ export default function ImageEstimator() {
                       </div>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Scale reference</span>
+                      <span className="text-muted-foreground">
+                        Scale reference
+                      </span>
                       <span className="text-muted-foreground">
                         {analysis.confidence_factors.scale_reference_visible
                           ? "✓"
@@ -707,7 +719,9 @@ export default function ImageEstimator() {
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Multiple facades</span>
+                      <span className="text-muted-foreground">
+                        Multiple facades
+                      </span>
                       <span className="text-muted-foreground">
                         {analysis.confidence_factors.multiple_facades_visible
                           ? "✓"
@@ -746,7 +760,8 @@ export default function ImageEstimator() {
                   </div>
                 )}
 
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={generateEstimate}
                 className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-primary-foreground -green/90 transition-colors"
               >
@@ -764,6 +779,11 @@ export default function ImageEstimator() {
             analysis={analysis}
             savedId={savedId}
             onEdit={() => setPhase("review")}
+            isPaid={isPaid}
+            pdfGateOpen={pdfGateOpen}
+            pdfUnlocked={pdfUnlocked}
+            setPdfGateOpen={setPdfGateOpen}
+            setPdfUnlocked={setPdfUnlocked}
           />
         )}
 
@@ -780,7 +800,8 @@ export default function ImageEstimator() {
             <p className="mt-2 text-sm text-muted-foreground max-w-md text-center">
               {error}
             </p>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => {
                 setPhase("upload");
                 setError("");
@@ -911,7 +932,9 @@ function LockedView({
             <p className="text-2xl font-bold">
               {formatCurrency(config.paidPrice)}
             </p>
-            <p className="text-sm text-primary-foreground/60 mt-1">per estimation</p>
+            <p className="text-sm text-primary-foreground/60 mt-1">
+              per estimation
+            </p>
           </div>
         )}
 
@@ -928,7 +951,8 @@ function LockedView({
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   {adError}
                 </div>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   onClick={() => {
                     setAdState("idle");
@@ -941,7 +965,8 @@ function LockedView({
                 </Button>
               </div>
             ) : (
-              <Button variant="default"
+              <Button
+                variant="default"
                 type="button"
                 onClick={handleWatchAd}
                 disabled={
@@ -979,7 +1004,10 @@ function LockedView({
           </>
         )}
         {"nextAction" in decision && decision.nextAction === "paid" && (
-          <Button variant="default" className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-medium hover:/90">
+          <Button
+            variant="default"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-medium hover:/90"
+          >
             <PremiumBadge size="xs" />
             Upgrade
           </Button>
@@ -1008,11 +1036,21 @@ function EstimateResultView({
   analysis,
   savedId,
   onEdit,
+  isPaid,
+  pdfGateOpen,
+  pdfUnlocked,
+  setPdfGateOpen,
+  setPdfUnlocked,
 }: {
   estimate: BuildToRoofResult;
   analysis: BuildingAnalysisResult | null;
   savedId: string | null;
   onEdit: () => void;
+  isPaid: boolean;
+  pdfGateOpen: boolean;
+  pdfUnlocked: boolean;
+  setPdfGateOpen: (open: boolean) => void;
+  setPdfUnlocked: (unlocked: boolean) => void;
 }) {
   return (
     <div className="space-y-6">
@@ -1160,7 +1198,8 @@ function EstimateResultView({
 
       {/* Actions */}
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={onEdit}
           className="inline-flex items-center gap-1 rounded-lg px-4 py-2.5 text-sm font-medium text-muted-foreground"
         >
@@ -1171,7 +1210,7 @@ function EstimateResultView({
             calculatorType="build_to_roof"
             calculatorSlug="ai-photo-estimator"
             calcTitle={`AI Photo: ${estimate.project_name} (${estimate.total_floor_area} m²)`}
-            calcData={estimate}
+            calcData={estimate as unknown as Record<string, unknown>}
             resultSummary={{
               grand_total: estimate.grand_total,
               materials_total: estimate.materials_total,
@@ -1191,7 +1230,8 @@ function EstimateResultView({
               <CheckCircle2 className="w-3.5 h-3.5" /> Saved to your projects
             </span>
           )}
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={() => {
               if (isPaid || pdfUnlocked) {
                 window.print();

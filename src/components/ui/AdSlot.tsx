@@ -7,6 +7,7 @@ import {
   shouldDisplayPlacement,
   logAdEvent,
 } from "@/lib/ad-config";
+import { getMonetagZone } from "@/lib/monetag-rewarded";
 import { getSupabase } from "@/lib/supabase-lazy";
 import type { DbAdProvider, DbAdPlacement } from "@/types/database";
 
@@ -144,7 +145,11 @@ export default function AdSlot({
           const hasCreds = Object.values(provider.credentials ?? {}).some(
             (v) => typeof v === "string" && v.length > 0,
           );
-          if (hasCreds) {
+          // Monetag resolves via its default website zone even when the
+          // DB credential is not yet visible (see src/lib/monetag-rewarded.ts)
+          const zoneFallback =
+            provider.slug === "monetag" ? getMonetagZone(provider) : null;
+          if (hasCreds || zoneFallback) {
             setResolved({ provider, adUnitId: "", placement });
             if (
               !loggedRef.current &&
@@ -379,12 +384,13 @@ export default function AdSlot({
         break;
       }
       case "monetag": {
-        if (!creds.zone_id) break;
+        const zone = getMonetagZone(provider);
+        if (!zone) break;
         if (!document.querySelector('script[src*="quge5.com"]')) {
           const s = document.createElement("script");
           s.async = true;
           s.setAttribute("data-cfasync", "false");
-          s.setAttribute("data-zone", creds.zone_id);
+          s.setAttribute("data-zone", zone);
           // Pin the tag's config/module requests to quge5.com so the
           // site CSP (script-src/connect-src/frame-src) can reliably allow it.
           s.setAttribute("data-domain", "quge5.com");
@@ -627,12 +633,13 @@ export default function AdSlot({
 
   // Monetag rendering — multi-tag container, tag.min.js fills it
   else if (provider.slug === "monetag") {
-    if (!creds.zone_id) return null;
+    const zone = getMonetagZone(provider);
+    if (!zone) return null;
     adInner = (
       <div
         ref={containerRef}
         data-ad-provider="monetag"
-        data-zone={creds.zone_id}
+        data-zone={zone}
         data-ad-placement={slotKey}
       />
     );

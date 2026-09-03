@@ -14,6 +14,45 @@ import {
   showMonetagRewardedAd,
 } from "@/lib/monetag-rewarded";
 
+/**
+ * Rewarded ad bridges — one entry per provider with a working client-side
+ * rewarded implementation. A bridge shows the real ad and reports how it
+ * completed; the unlock is then granted server-side with a client
+ * attestation token (att_<slug>_<mode>_<timestamp>) that the edge
+ * function validates against the active providers in the database.
+ *
+ * To support a new provider (of the 35 in ad_providers, or a future one):
+ * 1. Implement its rewarded flow (see src/lib/monetag-rewarded.ts).
+ * 2. Register it here. No edge-function or database change is needed.
+ * Providers without a bridge honestly fail — the unlock is never
+ * granted without a real ad being shown.
+ */
+export interface RewardedAdBridgeResult {
+  mode: string;
+  valued: boolean | null;
+  estimatedPrice: number | null;
+}
+
+type RewardedAdBridge = (
+  provider: DbAdProvider,
+  opts: { ymid: string; toolKey: string },
+) => Promise<RewardedAdBridgeResult>;
+
+const REWARDED_AD_BRIDGES: Record<string, RewardedAdBridge> = {
+  // Monetag — website tag / SDK bridge (src/lib/monetag-rewarded.ts)
+  monetag: async (provider, opts) => {
+    const zone = getMonetagZone(provider);
+    if (!zone)
+      throw new Error("The ad zone is not configured. Please try again later.");
+    return showMonetagRewardedAd({
+      zone,
+      ymid: opts.ymid,
+      requestVar: opts.toolKey,
+      sdkUrl: getMonetagSdkUrl(provider),
+    });
+  },
+};
+
 export interface RewardedAccessState {
   toolKey: string;
   config: DbRewardedToolConfig | null;
@@ -513,31 +552,27 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     };
 
     // ──────────────────────────────────────────────────────
-    // Monetag: show the rewarded ad from this user gesture, then
-    // grant the unlock server-side. Must run inside the tap handler —
-    // mobile browsers only allow window-opening ad formats from a
-    // direct user gesture (which is why Monetag ads never fired for
-    // mobile visitors while the tag ran passively in <head>).
+    // Provider bridge: show the rewarded ad from this user gesture,
+    // then grant the unlock server-side with a client attestation.
+    // Must run inside the tap handler — mobile browsers only allow
+    // window-opening ad formats from a direct user gesture (which is
+    // why Monetag ads never fired for mobile visitors while the tag
+    // ran passively in <head>). See REWARDED_AD_BRIDGES above.
     // ──────────────────────────────────────────────────────
-    if (activeProvider && activeProvider.slug === "monetag") {
-      const zone = getMonetagZone(activeProvider);
-      if (!zone) {
-        setError("The ad service is not configured. Please try again later.");
-        setAdLoading(false);
-        return;
-      }
+    const bridge = activeProvider
+      ? REWARDED_AD_BRIDGES[activeProvider.slug]
+      : undefined;
+    if (activeProvider && bridge) {
       try {
-        const adResult = await showMonetagRewardedAd({
-          zone,
+        const adResult = await bridge(activeProvider, {
           ymid: clientHash,
-          requestVar: toolKey,
-          sdkUrl: getMonetagSdkUrl(activeProvider),
+          toolKey,
         });
         await grantUnlock(
           activeProvider.name,
-          `monetag_${adResult.mode}_${Date.now()}`,
+          `att_${activeProvider.slug}_${adResult.mode}_${Date.now()}`,
           {
-            monetag_mode: adResult.mode,
+            ad_mode: adResult.mode,
             ...(adResult.estimatedPrice != null
               ? { estimated_price: adResult.estimatedPrice }
               : {}),

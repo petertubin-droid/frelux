@@ -72,6 +72,9 @@ export function AdvancedCalculator({
   const [aiBreakdown, setAiBreakdown] = useState<string | null>(null);
   const [aiBreakdownLoading, setAiBreakdownLoading] = useState(false);
   const [aiQuestion, setAiQuestion] = useState("");
+  const [pdfGateOpen, setPdfGateOpen] = useState(false);
+  const [pdfUnlocked, setPdfUnlocked] = useState(false);
+  const { isPaid } = useAuth();
   const [compareEstimate, setCompareEstimate] =
     useState<AdvancedEstimateData | null>(null);
 
@@ -443,7 +446,8 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
           {uniqueTabs.map((t) => {
             const Icon = t.icon;
             return (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 key={t.key}
                 type="button"
                 onClick={() => setTab(t.key)}
@@ -505,6 +509,10 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
               isScreeding={isScreeding}
               contextSummary={contextSummary}
               aiBreakdown={aiBreakdown}
+              pdfGateOpen={pdfGateOpen}
+              setPdfGateOpen={setPdfGateOpen}
+              setPdfUnlocked={setPdfUnlocked}
+              onExportPDF={handleExportPDF}
             />
           )}
           {tab === "compare" && isScreeding && estimate && (
@@ -587,7 +595,8 @@ function AiBreakdownTab({
               AI-Powered Analysis
             </h4>
           </div>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={onRefresh}
             disabled={loading}
@@ -632,7 +641,8 @@ function AiBreakdownTab({
             placeholder="Estimate name…"
             className="input-field flex-1"
           />
-          <Button variant="default"
+          <Button
+            variant="default"
             type="button"
             onClick={onSave}
             className="flex items-center gap-1.5 whitespace-nowrap"
@@ -640,14 +650,16 @@ function AiBreakdownTab({
             <Save aria-hidden="true" className="h-4 w-4" /> Save
           </Button>
         </div>
-        <Button variant="secondary"
+        <Button
+          variant="secondary"
           type="button"
           onClick={onDuplicate}
           className="flex items-center gap-1.5"
         >
           <Copy aria-hidden="true" className="h-4 w-4" /> Duplicate
         </Button>
-        <Button variant="secondary"
+        <Button
+          variant="secondary"
           type="button"
           onClick={onExport}
           className="flex items-center gap-1.5"
@@ -844,7 +856,8 @@ function ScreedingBreakdownTab({
             placeholder="Estimate name…"
             className="input-field flex-1"
           />
-          <Button variant="default"
+          <Button
+            variant="default"
             type="button"
             onClick={onSave}
             className="flex items-center gap-1.5 whitespace-nowrap"
@@ -852,14 +865,16 @@ function ScreedingBreakdownTab({
             <Save aria-hidden="true" className="h-4 w-4" /> Save
           </Button>
         </div>
-        <Button variant="secondary"
+        <Button
+          variant="secondary"
           type="button"
           onClick={onDuplicate}
           className="flex items-center gap-1.5"
         >
           <Copy aria-hidden="true" className="h-4 w-4" /> Duplicate
         </Button>
-        <Button variant="secondary"
+        <Button
+          variant="secondary"
           type="button"
           onClick={onExport}
           className="flex items-center gap-1.5"
@@ -905,7 +920,8 @@ function MixTab({
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           {ratios.map((r) => (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               key={r}
               type="button"
               onClick={() => update("mixRatio", r)}
@@ -978,6 +994,10 @@ function CostsTab({
   isScreeding,
   contextSummary,
   aiBreakdown,
+  pdfGateOpen,
+  setPdfGateOpen,
+  setPdfUnlocked,
+  onExportPDF,
 }: {
   costAdjust: {
     labourCost: number;
@@ -992,6 +1012,10 @@ function CostsTab({
   isScreeding: boolean;
   contextSummary: string;
   aiBreakdown: string | null;
+  pdfGateOpen: boolean;
+  setPdfGateOpen: (open: boolean) => void;
+  setPdfUnlocked: (unlocked: boolean) => void;
+  onExportPDF: () => void;
 }) {
   // For screeding, use the calculated estimate. For AI mode, estimate is conceptual.
   const baseCost = isScreeding && estimate ? estimate.materialCost : 0;
@@ -1040,7 +1064,8 @@ function CostsTab({
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
           {[0, 5, 10, 15, 20, 25].map((w) => (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               key={w}
               type="button"
               onClick={() => update("wastePercentage", w)}
@@ -1175,7 +1200,7 @@ function CostsTab({
               onUnlock={() => {
                 setPdfUnlocked(true);
                 setPdfGateOpen(false);
-                handleExportPDF();
+                onExportPDF();
               }}
               onClose={() => setPdfGateOpen(false)}
             />
@@ -1223,7 +1248,8 @@ function CompareTab({
           </p>
           <div className="flex flex-wrap gap-2">
             {saved.map((s) => (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 key={s.id}
                 type="button"
                 onClick={() =>
@@ -1365,7 +1391,8 @@ function AiTab({
           Get smart suggestions to reduce waste and lower costs for your{" "}
           {toolLabel.toLowerCase()} project.
         </p>
-        <Button variant="default"
+        <Button
+          variant="default"
           type="button"
           onClick={onRecommend}
           disabled={loading}
@@ -1399,7 +1426,8 @@ function AiTab({
             placeholder="e.g. How can I reduce material waste?"
             className="input-field flex-1"
           />
-          <Button variant="default"
+          <Button
+            variant="default"
             type="button"
             onClick={onAsk}
             disabled={loading || !question.trim()}
@@ -1487,7 +1515,8 @@ function SavedTab({
             </p>
           </div>
           <div className="flex items-center gap-1">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={onExport}
               className="rounded p-1.5 text-muted-foreground hover:text-brand-purple"
@@ -1495,7 +1524,8 @@ function SavedTab({
             >
               <Download className="h-4 w-4" />
             </Button>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={() => onDelete(e.id)}
               className="rounded p-1.5 text-muted-foreground hover:text-red-500"
@@ -1524,7 +1554,9 @@ function NumField({
 }) {
   return (
     <div>
-      <label className="text-xs font-semibold text-muted-foreground">{label}</label>
+      <label className="text-xs font-semibold text-muted-foreground">
+        {label}
+      </label>
       <input
         type="number"
         value={value}

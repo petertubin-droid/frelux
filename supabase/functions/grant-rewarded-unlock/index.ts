@@ -110,17 +110,45 @@ Deno.serve(async (req: Request) => {
   // ──────────────────────────────────────────────────────────
   // Ad verification
   // ──────────────────────────────────────────────────────────
-  // Monetag: web zones complete client-side. The SDK resolves a
-  // completion promise (and fires a S2S postback when configured in
-  // the Monetag dashboard), but provides no server-verifiable token
-  // for regular web zones. We accept the client attestation for
-  // Monetag only; the daily limit, cooldown, and unlock duration
-  // below constrain abuse. The attestation token format is
-  // `monetag_<mode>_<timestamp>` (see src/lib/monetag-rewarded.ts).
-  const isMonetagAttestation =
-    (adProvider ?? "").trim().toLowerCase() === "monetag" &&
+  // Ad verification — generic provider attestation system.
+  //
+  // All ad providers (the 35 currently in ad_providers, plus any added
+  // in the future) are linked through one mechanism: a client
+  // attestation token in the format
+  //
+  //   att_<provider_slug>_<mode>_<timestamp>
+  //
+  // issued by the client bridge AFTER it actually showed the ad (see
+  // src/lib/monetag-rewarded.ts for the Monetag implementation). Web
+  // ad zones generally complete client-side — the SDK resolves a
+  // completion promise and (optionally) fires a server-to-server
+  // postback — but provide no server-verifiable token. The attestation
+  // is accepted only for providers that are ACTIVE in the database,
+  // and the daily limit, cooldown, and unlock duration below constrain
+  // abuse server-side. When a provider offers true server-side
+  // verification (e.g. AdMob's /verify endpoint), add that check in
+  // verifyProviderToken() below and issue real SDK tokens instead.
+  const parseAttestation = (token: string): { slug: string } | null => {
+    if (!token.startsWith("att_")) return null;
+    const parts = token.split("_");
+    if (parts.length < 4) return null;
+    const slug = parts[1];
+    const timestamp = Number(parts[parts.length - 1]);
+    if (!slug || !Number.isFinite(timestamp) || timestamp <= 0) return null;
+    return { slug };
+  };
+
+  const providerName = (adProvider ?? "").trim().toLowerCase();
+
+  // Legacy format from the first Monetag rollout:
+  //   monetag_<mode>_<timestamp>
+  const isLegacyMonetagAttestation =
+    providerName === "monetag" &&
     typeof adToken === "string" &&
     adToken.startsWith("monetag_");
+
+  const attestation =
+    typeof adToken === "string" ? parseAttestation(adToken) : null;
 
   if (!devMode) {
     if (!adToken) {
@@ -133,11 +161,33 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    if (isMonetagAttestation) {
-      // Accepted — client-attested Monetag completion (see note above).
+    if (isLegacyMonetagAttestation) {
+      // Accepted — client-attested Monetag completion (legacy format).
+    } else if (attestation) {
+      // The attested provider must be ACTIVE in the database. This
+      // links every active provider (current and future) without code
+      // changes — admins activate a provider in the dashboard and the
+      // rewarded flow accepts it immediately.
+      const { data: providerRow } = await supabase
+        .from("ad_providers")
+        .select("id, slug, provider_type, is_active")
+        .eq("slug", attestation.slug)
+        .eq("is_active", true)
+        .maybeSingle();
+
+      if (!providerRow) {
+        return jsonResponse(
+          {
+            error: `The ad provider "${attestation.slug}" is not active.`,
+            code: "PROVIDER_INACTIVE",
+          },
+          403,
+        );
+      }
     } else {
-      // When a real SDK is integrated, verify the adToken against the
-      // provider's server-side verification API here. Example for AdMob:
+      // Raw SDK verification tokens: when a provider with server-side
+      // verification is integrated, verify the adToken against the
+      // provider's API here. Example for AdMob:
       //   GET https://www.gstatic.com/rewardedads/verify/<token>
       return jsonResponse(
         {
