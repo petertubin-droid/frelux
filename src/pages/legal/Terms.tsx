@@ -74,7 +74,7 @@ export default function Terms() {
               post fraudulent, offensive, spam, off-platform solicitation, or
               illegal content. We reserve the right to remove messages, restrict
               access, or ban users who violate these rules. Content posted in
-              these channels reflects the views of the sender, not FRELUX PAINT
+              these channels reflects the views of the sender, not FRELUX PROJECT
               CALC.
             </p>
           ),
