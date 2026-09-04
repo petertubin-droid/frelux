@@ -37,6 +37,7 @@ import { useCredits } from "@/lib/credits-context";
 import { useTheme } from "@/lib/theme";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { AccessibilityToggle } from "@/components/ui/AccessibilityToggle";
+import { MarketSelector } from "@/components/ui/MarketSelector";
 import { Button } from "@/components/ui/shadcn/button";
 
 export default function Navbar() {
@@ -383,6 +384,7 @@ export default function Navbar() {
             <div className="hidden items-center gap-1 lg:flex">
               <AccessibilityToggle />
               <LanguageSwitcher />
+              <MarketSelector />
               <Button
                 variant="ghost"
                 type="button"
@@ -790,6 +792,7 @@ export default function Navbar() {
             <div className="mt-4 space-y-1 border-t border-border/50 pt-4 dark:border-white/5">
               <AccessibilityToggle inline={true} />
               <LanguageSwitcher inline={true} />
+              <MarketSelector inline={true} />
               <Button
                 variant="ghost"
                 type="button"
