@@ -1041,6 +1041,13 @@ function EstimateResultView({
             {analysis.ai_confidence}
           </div>
         )}
+        <p className="mt-3 text-xs text-muted-foreground">
+          These are preliminary estimates derived from photo analysis and your
+          adjustments — not a structural or geotechnical design. Final
+          quantities and safety requirements must come from a qualified
+          structural engineer working from actual drawings and site
+          investigations.
+        </p>
       </div>
 
       {/* Grand total */}
