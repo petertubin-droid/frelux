@@ -230,10 +230,7 @@ export default function Navbar() {
                       />
                     </Button>
                     {openDropdown === workspace.label && (
-                      <div
-                        className="absolute left-0 top-full z-50 pt-1"
-                        onMouseLeave={() => setOpenDropdown(null)}
-                      >
+                      <div className="absolute left-0 top-full z-50 pt-1">
                         {/* Premium mega-menu panel */}
                         <div
                           className="origin-top-left rounded-2xl border border-border/50 bg-card shadow-premium-lg dark:border-white/10 dark:bg-card"
@@ -447,12 +444,11 @@ export default function Navbar() {
 
               {openDropdown === "account" && (
                 <div
-                  className="absolute right-0 top-full z-50 w-[200px] max-w-[calc(100vw-1rem)] max-h-[calc(100vh-5rem)] overflow-y-auto rounded-xl border border-border/40 bg-popover/95 backdrop-blur-xl shadow-[0_8px_30px_-6px_rgba(0,0,0,0.15)] animate-fade-in-up dark:border-white/10 dark:bg-popover/95"
+                  className="absolute right-0 top-full z-50 w-[200px] max-w-[calc(100vw-1rem)] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain rounded-xl border border-border/40 bg-popover/95 backdrop-blur-xl shadow-[0_8px_30px_-6px_rgba(0,0,0,0.15)] animate-fade-in-up dark:border-white/10 dark:bg-popover/95"
                   style={{
                     animationDuration: "0.18s",
                     transformOrigin: "top right",
                   }}
-                  onMouseLeave={() => setOpenDropdown(null)}
                 >
                   {user ? (
                     <>
