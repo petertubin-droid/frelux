@@ -11,22 +11,25 @@ import { describe, it, expect } from "vitest";
 import {
   calculateWallArea,
   calculateCeilingArea,
-  calculateOpeningArea as _calculateOpeningArea,
   calculateAdvancedEstimate,
   calculateScreedingMix,
   calculateScreedingPutty,
   calculateScreedingMixSystem,
 } from "@/lib/calc";
 import { calculateTile, calculatePopCeiling } from "@/lib/pop-tile-calc";
-import { roundPackQuantity, calculateLeftover } from "@/lib/estimation/pack-sizing";
+import {
+  roundPackQuantity,
+  calculateLeftover,
+} from "@/lib/estimation/pack-sizing";
 import { calculateLineTotal } from "@/lib/estimation/pricing";
 import { calculateWallArea as engineWallArea } from "@/lib/estimation/painting-engine";
+import type { AdvancedCalcInput } from "@/lib/calc";
 import type {
-  AdvancedCalcInput,
   ScreedingMixConfig,
   ScreedingSystemConfig,
-} from "@/lib/calc";
-import type { TileCalcInput, PopCalcInput } from "@/types";
+  TileCalcInput,
+  PopCalcInput,
+} from "@/types";
 import type { DbTileMaterial, DbPopMaterial } from "@/types/database";
 
 // ─────────────────────────────────────────────────────────
@@ -54,7 +57,7 @@ describe("GOLDEN: wall area geometry", () => {
   });
 
   it("ceiling area = length × width exactly once", () => {
-    expect(calculateCeilingArea(4, 3)).toBe(12);
+    expect(calculateCeilingArea(4, 3, "room")).toBe(12);
   });
 });
 
@@ -87,6 +90,7 @@ describe("GOLDEN: tile calculator", () => {
     spacerCoverageRate: 10, // m² per pack
     spacerPackageSize: 1,
     spacerPricePerPack: 500,
+    labourRatePerSqm: 0, // labour excluded from totals — negotiated separately
   };
 
   // Hand math: area 12 m², +10% waste → 13.2 m²
@@ -119,7 +123,12 @@ describe("GOLDEN: tile calculator", () => {
   });
 
   it("0% waste gives raw quantities", () => {
-    const r = calculateTile({ ...base, wasteMargin: 0 }, [] as DbTileMaterial[], "NGN", "₦");
+    const r = calculateTile(
+      { ...base, wasteMargin: 0 },
+      [] as DbTileMaterial[],
+      "NGN",
+      "₦",
+    );
     expect(r.tilesNeeded).toBe(Math.ceil(12 / 0.16)); // 75
     expect(r.wasteAmount).toBe(0);
   });
@@ -133,16 +142,23 @@ describe("GOLDEN: POP ceiling calculator", () => {
     {
       id: "m1",
       name: "POP Cement",
-      category: "binding",
-      workflow: "direct",
-      coverage_rate: "4", // m² per kg
-      coverage_unit: "kg",
-      package_size: "20", // kg per bag
+      category: "primary",
+      workflow: "nigeria",
+      description: "POP cement for direct ceiling application",
+      unit: "kg",
+      coverage_rate: 4, // m² per kg
+      coverage_unit: "m²",
+      package_size: 20, // kg per bag
+      package_unit: "kg",
       unit_price: 4500,
-      sort_order: 1,
-      is_active: true,
+      labour_rate_per_sqm: 0,
       is_optional: false,
-    } as unknown as DbPopMaterial,
+      currency: "NGN",
+      is_active: true,
+      sort_order: 1,
+      created_at: "2026-01-01T00:00:00Z",
+      updated_at: "2026-01-01T00:00:00Z",
+    },
   ];
 
   // 5m × 4m = 20 m², 15% waste → 23 m²
@@ -153,7 +169,7 @@ describe("GOLDEN: POP ceiling calculator", () => {
       roomWidth: 4,
       unit: "meters",
       wasteMargin: 15,
-      workflow: "direct",
+      workflow: "nigeria",
       includeOptional: false,
       includeDecorative: false,
     };
@@ -172,7 +188,10 @@ describe("GOLDEN: POP ceiling calculator", () => {
 describe("GOLDEN: screeding putty system", () => {
   const config: ScreedingSystemConfig = {
     systemType: "putty",
-    coverageAreaM2: 12, // 2 buckets per 12 m²
+    displayName: "Putty Screeding",
+    description: null,
+    coverageAreaM2: 12,
+    coverageUnit: "m²", // 2 buckets per 12 m²
     puttyQuantity: 2,
     defaultCoats: 2,
     wastePercentage: 10,
@@ -180,6 +199,14 @@ describe("GOLDEN: screeding putty system", () => {
     roundingRule: "ceil",
     puttyName: "Putty",
     puttyUnit: "bucket",
+    paintName: null,
+    paintQuantity: null,
+    paintUnit: null,
+    paintPricePerUnit: null,
+    cementName: null,
+    cementQuantity: null,
+    cementUnit: null,
+    cementPricePerUnit: null,
     currency: "NGN",
     currencySymbol: "₦",
   };
@@ -211,7 +238,10 @@ describe("GOLDEN: screeding putty system", () => {
 describe("GOLDEN: screeding white-cement + paint system", () => {
   const config: ScreedingSystemConfig = {
     systemType: "white_cement_paint",
-    coverageAreaM2: 20, // per 20 m²
+    displayName: "White Cement + Paint Screeding",
+    description: null,
+    coverageAreaM2: 20,
+    coverageUnit: "m²", // per 20 m²
     paintQuantity: 2,
     cementQuantity: 1,
     defaultCoats: 2,
@@ -219,6 +249,10 @@ describe("GOLDEN: screeding white-cement + paint system", () => {
     paintPricePerUnit: 9000,
     cementPricePerUnit: 4000,
     roundingRule: "ceil",
+    puttyName: null,
+    puttyQuantity: null,
+    puttyUnit: null,
+    puttyPricePerUnit: null,
     paintName: "Screeding Paint",
     paintUnit: "bucket",
     cementName: "White Cement",
@@ -255,7 +289,8 @@ describe("GOLDEN: advanced estimate chain (waste→markup→profit→tax)", () =
     cementRatioKgPerL: 0.5,
     cementBagSizeKg: 40,
     cementPricePerBag: 6000,
-    labourCost: 0,
+    mixRatio: "2:1",
+    labourRatePerSqm: 0, // labour excluded — negotiated separately
     transportCost: 5000,
     markupPercentage: 20,
     profitPercentage: 10,
@@ -278,7 +313,10 @@ describe("GOLDEN: advanced estimate chain (waste→markup→profit→tax)", () =
     expect(r.cementBags).toBe(1);
     expect(r.materialCost).toBe(46000);
     // material + transport = 51,000 (implicit subtotal; no double-count check)
-    expect(r.markupAmount / (r.materialCost + input.transportCost)).toBeCloseTo(0.2, 5);
+    expect(r.markupAmount / (r.materialCost + input.transportCost)).toBeCloseTo(
+      0.2,
+      5,
+    );
     expect(r.markupAmount).toBe(10200);
     expect(r.profitAmount).toBe(6120);
     expect(r.taxAmount).toBeCloseTo(5049, 0);
@@ -312,6 +350,8 @@ describe("GOLDEN: screeding mix coverage model", () => {
     cementConsumptionRatioKgPerL: 0.5,
     cementBagSizeKg: 40,
     cementPricePerBag: 6000,
+    defaultMixRatio: "2:1",
+    labourRatePerSqm: 0, // labour excluded — negotiated separately
     currency: "NGN",
     currencySymbol: "₦",
   };
@@ -374,7 +414,8 @@ describe("GOLDEN: cross-cutting invariants", () => {
       cementRatioKgPerL: 0.5,
       cementBagSizeKg: 40,
       cementPricePerBag: 6000,
-      labourCost: 0,
+      mixRatio: "2:1",
+      labourRatePerSqm: 0, // labour excluded — negotiated separately
       transportCost: 0,
       markupPercentage: 0,
       profitPercentage: 0,
