@@ -14,7 +14,7 @@ const features = [
     icon: Ruler,
     title: "Practical calculations",
     description:
-      "Enter your measurements and get realistic paint quantity estimates. No guesswork.",
+      "Enter your measurements and get realistic paint quantity estimates backed by transparent assumptions.",
   },
   {
     icon: TrendingUp,

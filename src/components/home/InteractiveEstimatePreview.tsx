@@ -145,8 +145,9 @@ export default function InteractiveEstimatePreview() {
             What a FRELUX estimate looks like
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground dark:text-muted-foreground">
-            Real calculation output. No demo data, these numbers come from the
-            actual FRELUX calculation engine.
+            Live output from the FRELUX calculation engine, computed using the
+            example inputs shown — not pre-recorded numbers. Pick a room size
+            and watch the estimate recalculate.
           </p>
         </div>
 
