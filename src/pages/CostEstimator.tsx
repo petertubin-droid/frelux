@@ -90,7 +90,7 @@ export default function CostEstimator({
           title:
             "Paint Cost Estimator — How Much Will Your Paint Materials Cost?",
           description:
-            "Estimate the cost of your paint materials. Enter your paint bucket count, select products, and get a material cost breakdown. Labour not included.",
+            "Estimate the cost of your paint materials. Measure your room in the Paint Calculator, then carry your paint quantity and area over here for a full material cost breakdown. Labour not included.",
           canonicalPath: "/cost-estimator",
           ogType: "website",
           structuredDataArray: [
@@ -99,7 +99,7 @@ export default function CostEstimator({
               "@type": "WebApplication",
               name: "FRELUX Paint Cost Estimator",
               description:
-                "Estimate the cost of your paint materials. Enter your paint bucket count, select products, and get a material cost breakdown. Labour not included.",
+                "Estimate the cost of your paint materials. Measure your room in the Paint Calculator, then carry your paint quantity and area over here for a full material cost breakdown. Labour not included.",
               url: `${SITE_URL}/cost-estimator`,
               applicationCategory: "CalculatorApplication",
               operatingSystem: "Web",
