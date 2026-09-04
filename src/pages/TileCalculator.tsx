@@ -442,7 +442,7 @@ export default function TileCalculator({
                     >
                       <Grid3x3 aria-hidden="true" className="h-5 w-5" />
                     </span>
-                    <span>
+                    <span className="min-w-0 flex-1">
                       <span className="block text-sm font-semibold text-foreground dark:text-primary-foreground">
                         {s.label}
                       </span>
@@ -650,7 +650,7 @@ export default function TileCalculator({
                       >
                         <Grid3x3 aria-hidden="true" className="h-5 w-5" />
                       </span>
-                      <span>
+                      <span className="min-w-0 flex-1">
                         <span className="block text-sm font-semibold text-foreground">
                           {m.label}
                         </span>

@@ -167,7 +167,7 @@ export default function Navbar() {
         className={classNames(
           "fixed top-0 z-40 w-full transition-all duration-500",
           scrolled
-            ? "glass-premium border-b border-border/40 shadow-sm dark:border-white/5 dark:glass-dark-premium"
+            ? "glass-premium border-b border-border/40 shadow-sm dark:border-white/5"
             : "bg-white/50 backdrop-blur-md border-b border-transparent dark:bg-background/50 dark:border-transparent",
         )}
       >

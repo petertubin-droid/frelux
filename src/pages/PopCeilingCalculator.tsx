@@ -347,7 +347,7 @@ export default function PopCeilingCalculator({
                     >
                       <Icon className="h-5 w-5" />
                     </span>
-                    <span>
+                    <span className="min-w-0 flex-1">
                       <span className="block text-sm font-semibold text-foreground dark:text-primary-foreground">
                         {wf.name}
                       </span>
@@ -930,24 +930,26 @@ function Toggle({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-lg border border-border p-4">
-      <Button
-        variant="ghost"
+      {/* Plain <button> — not shadcn's <Button variant="ghost">, whose
+          hover state gets "stuck" on touch devices after a tap until the
+          next tap elsewhere, masking the checked-state color change. */}
+      <button
         type="button"
+        role="switch"
         onClick={() => onChange(!checked)}
         className={
-          "relative inline-flex appearance-none h-5 w-9 shrink-0 rounded-full transition-colors border-0 p-0 " +
+          "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-0 p-0 transition-colors " +
           (checked ? "bg-accent-green" : "bg-muted")
         }
-        aria-pressed={checked}
-        style={{ width: "2.25rem", height: "1.25rem", minWidth: "2.25rem" }}
+        aria-checked={checked}
       >
         <span
           className={
-            "absolute top-0.5 h-4 w-4 rounded-full bg-card shadow transition-transform dark:bg-card " +
-            (checked ? "translate-x-4" : "translate-x-0.5")
+            "inline-block h-4 w-4 translate-x-0.5 rounded-full bg-card shadow transition-transform dark:bg-card " +
+            (checked ? "translate-x-4" : "")
           }
         />
-      </Button>
+      </button>
       <div>
         <p className="text-sm font-semibold text-card-foreground">{label}</p>
         {hint && <p className="text-xs text-muted-foreground">{hint}</p>}

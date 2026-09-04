@@ -1078,7 +1078,7 @@ function Step1({
               >
                 <Icon className="h-5 w-5" />
               </span>
-              <span>
+              <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold text-foreground dark:text-primary-foreground">
                   {p.label}
                 </span>
@@ -1983,25 +1983,26 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <Button
-      variant="ghost"
+    // Plain <button> — not shadcn's <Button variant="ghost">, whose hover
+    // state gets "stuck" on touch devices after a tap until the next tap
+    // elsewhere, masking the checked-state color change.
+    <button
       type="button"
+      role="switch"
       onClick={() => onChange(!checked)}
-      style={{ width: "2.25rem", height: "1.25rem", minWidth: "2.25rem" }}
       className={
-        "relative inline-flex appearance-none h-5 w-9 shrink-0 rounded-full border-0 p-0 transition-colors " +
+        "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-0 p-0 transition-colors " +
         (checked ? "bg-accent-green" : "bg-muted")
       }
-      aria-pressed={checked}
+      aria-checked={checked}
     >
       <span
-        style={{ width: "1rem", height: "1rem" }}
         className={
-          "absolute top-0.5 left-0 rounded-full bg-card shadow transition-transform dark:bg-card " +
-          (checked ? "translate-x-4" : "translate-x-0.5")
+          "inline-block h-4 w-4 translate-x-0.5 rounded-full bg-card shadow transition-transform dark:bg-card " +
+          (checked ? "translate-x-4" : "")
         }
       />
-    </Button>
+    </button>
   );
 }
 

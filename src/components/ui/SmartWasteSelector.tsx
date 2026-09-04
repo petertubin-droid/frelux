@@ -137,28 +137,23 @@ export function SmartWasteSelector({
             <span className="text-xs font-semibold text-muted-foreground">
               Repair / patch work?
             </span>
-            <Button
-              variant="ghost"
+            <button
               type="button"
+              role="switch"
               onClick={() => setIsRepair(!isRepair)}
-              aria-pressed={isRepair}
-              style={{
-                width: "2.25rem",
-                height: "1.25rem",
-                minWidth: "2.25rem",
-              }}
+              aria-checked={isRepair}
               className={classNames(
-                "relative inline-flex h-5 w-9 shrink-0 appearance-none rounded-full border-0 p-0 transition-colors",
+                "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-0 p-0 transition-colors",
                 isRepair ? "bg-accent-green" : "bg-muted",
               )}
             >
               <span
                 className={classNames(
-                  "absolute top-0.5 h-4 w-4 rounded-full bg-card transition-transform",
+                  "inline-block h-4 w-4 rounded-full bg-card shadow transition-transform",
                   isRepair ? "translate-x-4" : "translate-x-0.5",
                 )}
               />
-            </Button>
+            </button>
           </div>
 
           {/* Result */}

@@ -651,7 +651,9 @@ export default function CostEstimator({
                   checked={input.includePrimer}
                   onChange={(v) => update("includePrimer", v)}
                 />
-                <span className="text-sm text-muted-foreground">Include primer</span>
+                <span className="text-sm text-muted-foreground">
+                  Include primer
+                </span>
               </div>
               {input.includePrimer && (
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -765,7 +767,8 @@ export default function CostEstimator({
               last
             />
 
-            <Button variant="default"
+            <Button
+              variant="default"
               type="button"
               onClick={compute}
               className="btn-glow mt-6 w-full sm:w-auto"
@@ -932,7 +935,8 @@ export default function CostEstimator({
               {result && (
                 <>
                   <div className="grid grid-cols-2 gap-2 p-4 md:grid-cols-4">
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       type="button"
                       onClick={handleWhatsAppShare}
                       className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all -green/20"
@@ -942,7 +946,8 @@ export default function CostEstimator({
                         WhatsApp
                       </span>
                     </Button>
-                    <Button variant="default"
+                    <Button
+                      variant="default"
                       type="button"
                       onClick={handlePdfExport}
                       className="flex flex-col items-center gap-1.5 rounded-lg p-3 text-center transition-all hover:"
@@ -952,7 +957,8 @@ export default function CostEstimator({
                         Export PDF
                       </span>
                     </Button>
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       type="button"
                       onClick={handleShoppingList}
                       className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-orange/10 p-3 text-center transition-all -orange/20"
@@ -962,7 +968,8 @@ export default function CostEstimator({
                         Shopping List
                       </span>
                     </Button>
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       type="button"
                       onClick={handleSaveLocal}
                       className="flex flex-col items-center gap-1.5 rounded-lg bg-muted p-3 text-center transition-all dark:bg-card-foreground/90 dark:hover:bg-card-foreground/80"
@@ -1121,7 +1128,9 @@ function Field({
         {label}
       </span>
       {hint && (
-        <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">
+          {hint}
+        </span>
       )}
       <div className="mt-1.5">{children}</div>
     </label>
@@ -1136,23 +1145,26 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <Button variant="ghost"
+    // Plain <button> — not shadcn's <Button variant="ghost">, whose hover
+    // state gets "stuck" on touch devices after a tap until the next tap
+    // elsewhere, masking the checked-state color change.
+    <button
       type="button"
+      role="switch"
       onClick={() => onChange(!checked)}
       className={
-        "relative inline-flex appearance-none h-5 w-9 shrink-0 rounded-full transition-colors border-0 p-0 " +
+        "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-0 p-0 transition-colors " +
         (checked ? "bg-accent-green" : "bg-muted")
       }
-      aria-pressed={checked}
-      style={{ width: "2.25rem", height: "1.25rem", minWidth: "2.25rem" }}
+      aria-checked={checked}
     >
       <span
         className={
-          "absolute top-0.5 h-4 w-4 rounded-full bg-card shadow transition-transform dark:bg-card " +
-          (checked ? "translate-x-4" : "translate-x-0.5")
+          "inline-block h-4 w-4 translate-x-0.5 rounded-full bg-card shadow transition-transform dark:bg-card " +
+          (checked ? "translate-x-4" : "")
         }
       />
-    </Button>
+    </button>
   );
 }
 
@@ -1175,9 +1187,7 @@ function MaterialToggle({
     <div
       className={classNames(
         "rounded-lg border p-3 transition-colors",
-        checked
-          ? "border-brand-purple/30 bg-primary/5"
-          : "border-border",
+        checked ? "border-brand-purple/30 bg-primary/5" : "border-border",
       )}
     >
       <div className="flex items-center justify-between gap-3">
