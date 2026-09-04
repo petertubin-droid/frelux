@@ -422,6 +422,30 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://freluxtools.netlify.app/paint-comparison</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.netlify.app/gallery</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.netlify.app/material-prices</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.netlify.app/surface-assessment</loc>
+    <lastmod>2026-09-04</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
     <loc>https://freluxtools.netlify.app/pricing</loc>
     <lastmod>2026-09-04</lastmod>
     <changefreq>monthly</changefreq>

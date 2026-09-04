@@ -279,6 +279,46 @@ const routes = [
     ],
   },
   {
+    path: '/paint-comparison',
+    title: 'Paint Comparison Tool: Compare Colours Side by Side | FRELUX',
+    description: 'Compare paint colours, finishes, and prices side by side to choose the right option for your project.',
+    priority: '0.7',
+    changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Paint Comparison', item: 'https://freluxtools.netlify.app/paint-comparison' }] },
+    ],
+  },
+  {
+    path: '/gallery',
+    title: 'Project Gallery: Real FRELUX Estimates | FRELUX',
+    description: 'Browse real painting, tiling, screeding, and POP ceiling projects with photos and verified cost estimates.',
+    priority: '0.7',
+    changefreq: 'daily',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Gallery', item: 'https://freluxtools.netlify.app/gallery' }] },
+    ],
+  },
+  {
+    path: '/material-prices',
+    title: 'Material Price Tracker: Live Paint & Building Material Prices | FRELUX',
+    description: 'Track live prices of paint, cement, tiles, and building materials across Nigerian markets to keep your estimates accurate.',
+    priority: '0.7',
+    changefreq: 'daily',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Material Prices', item: 'https://freluxtools.netlify.app/material-prices' }] },
+    ],
+  },
+  {
+    path: '/surface-assessment',
+    title: 'Surface Assessment Tool: Check Wall Conditions | FRELUX',
+    description: 'Assess wall and ceiling surface conditions to get accurate paint absorption factors and material estimates.',
+    priority: '0.7',
+    changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Surface Assessment', item: 'https://freluxtools.netlify.app/surface-assessment' }] },
+    ],
+  },
+  {
     path: '/learn',
     title: 'Learn: Painting Guides & Tips | FRELUX',
     description: 'Expert guides on paint selection, surface preparation, application techniques, and cost planning for your painting projects.',
