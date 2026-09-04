@@ -320,7 +320,7 @@ export default function SaveToProjectButton({
                       variant="ghost"
                       key={proj.id}
                       onClick={() => setSelectedProject(proj.id)}
-                      className={`group flex w-full items-center gap-3 rounded-xl border p-4 text-left transition-all duration-200 hover:shadow-md ${
+                      className={`group flex h-auto w-full items-center gap-3 rounded-xl border p-4 text-left transition-all duration-200 hover:shadow-md ${
                         selectedProject === proj.id
                           ? "border-primary bg-primary/5 shadow-md scale-[1.01]"
                           : "hover:border-primary/50"

@@ -331,7 +331,7 @@ export default function PopCeilingCalculator({
                     type="button"
                     onClick={() => update("workflow", wf.workflow_type)}
                     className={
-                      "select-card flex items-start gap-3 rounded-xl border p-4 text-left " +
+                      "select-card flex h-auto items-start gap-3 rounded-xl border p-4 text-left " +
                       (selected
                         ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
                         : "border-border")

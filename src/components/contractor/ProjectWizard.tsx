@@ -12,8 +12,8 @@
  * project detail page. A live recommendation from `getWizardRecommendation` is
  * shown once the first two steps are filled.
  */
-import { useState, useMemo, type ReactNode } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useMemo, type ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   PaintRoller,
   Paintbrush2,
@@ -25,7 +25,6 @@ import {
   Check,
   MapPin,
   Hammer,
-
   Crown,
   Award,
   DollarSign,
@@ -33,21 +32,21 @@ import {
   Phone,
   Mail,
   FileText,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   createContractorProject,
   getWizardRecommendation,
   type CreateProjectInput,
-} from '@/lib/contractor';
+} from "@/lib/contractor";
 import type {
   BuildingType,
   SurfaceLocation,
   ConstructionType,
   ProjectType,
   FinishQuality,
-} from '@/types/database';
-import { classNames } from '@/lib/utils';
-import { useSeo } from '@/lib/seo';
+} from "@/types/database";
+import { classNames } from "@/lib/utils";
+import { useSeo } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 
 // NOTE: lucide-react@0.344.0 does not export `Trowel`, so `Paintbrush2` is used
@@ -59,13 +58,13 @@ import { Button } from "@/components/ui/shadcn/button";
 
 /** The full wizard state, mirrors CreateProjectInput plus transient UI fields. */
 interface WizardState {
-  project_type: ProjectType | '';
-  building_type: BuildingType | '';
-  surface_location: SurfaceLocation | '';
-  construction_type: ConstructionType | '';
-  finish_quality: FinishQuality | '';
-  budget_level: FinishQuality | '';
-  material_quality: FinishQuality | '';
+  project_type: ProjectType | "";
+  building_type: BuildingType | "";
+  surface_location: SurfaceLocation | "";
+  construction_type: ConstructionType | "";
+  finish_quality: FinishQuality | "";
+  budget_level: FinishQuality | "";
+  material_quality: FinishQuality | "";
   name: string;
   description: string;
   client_name: string;
@@ -75,24 +74,29 @@ interface WizardState {
   notes: string;
 }
 
-const STEPS = ['Project Type', 'Project Details', 'Budget & Materials', 'Client Info'] as const;
+const STEPS = [
+  "Project Type",
+  "Project Details",
+  "Budget & Materials",
+  "Client Info",
+] as const;
 const TOTAL_STEPS = STEPS.length;
 
 const initialState: WizardState = {
-  project_type: '',
-  building_type: '',
-  surface_location: '',
-  construction_type: '',
-  finish_quality: '',
-  budget_level: '',
-  material_quality: '',
-  name: '',
-  description: '',
-  client_name: '',
-  client_phone: '',
-  client_email: '',
-  client_address: '',
-  notes: '',
+  project_type: "",
+  building_type: "",
+  surface_location: "",
+  construction_type: "",
+  finish_quality: "",
+  budget_level: "",
+  material_quality: "",
+  name: "",
+  description: "",
+  client_name: "",
+  client_phone: "",
+  client_email: "",
+  client_address: "",
+  notes: "",
 };
 
 // ============================================================
@@ -105,31 +109,56 @@ const PROJECT_TYPES: Array<{
   description: string;
   icon: typeof PaintRoller;
 }> = [
-  { value: 'painting', label: 'Painting', description: 'Interior or exterior painting', icon: PaintRoller },
-  { value: 'screeding', label: 'Screeding', description: 'Wall screeding & surface finishing', icon: Paintbrush2 },
-  { value: 'pop_ceiling', label: 'POP Ceiling', description: 'POP ceiling installation & finishing', icon: Layers },
-  { value: 'tiling', label: 'Tiling', description: 'Floor & wall tile installation', icon: Grid3x3 },
-  { value: 'multi_trade', label: 'Multi-Trade', description: 'Combined renovation project', icon: Building2 },
+  {
+    value: "painting",
+    label: "Painting",
+    description: "Interior or exterior painting",
+    icon: PaintRoller,
+  },
+  {
+    value: "screeding",
+    label: "Screeding",
+    description: "Wall screeding & surface finishing",
+    icon: Paintbrush2,
+  },
+  {
+    value: "pop_ceiling",
+    label: "POP Ceiling",
+    description: "POP ceiling installation & finishing",
+    icon: Layers,
+  },
+  {
+    value: "tiling",
+    label: "Tiling",
+    description: "Floor & wall tile installation",
+    icon: Grid3x3,
+  },
+  {
+    value: "multi_trade",
+    label: "Multi-Trade",
+    description: "Combined renovation project",
+    icon: Building2,
+  },
 ];
 
 const BUILDING_TYPES: Array<{ value: BuildingType; label: string }> = [
-  { value: 'residential', label: 'Residential' },
-  { value: 'commercial', label: 'Commercial' },
-  { value: 'industrial', label: 'Industrial' },
-  { value: 'institutional', label: 'Institutional' },
-  { value: 'renovation', label: 'Renovation' },
+  { value: "residential", label: "Residential" },
+  { value: "commercial", label: "Commercial" },
+  { value: "industrial", label: "Industrial" },
+  { value: "institutional", label: "Institutional" },
+  { value: "renovation", label: "Renovation" },
 ];
 
 const SURFACE_LOCATIONS: Array<{ value: SurfaceLocation; label: string }> = [
-  { value: 'interior', label: 'Interior' },
-  { value: 'exterior', label: 'Exterior' },
-  { value: 'both', label: 'Both' },
+  { value: "interior", label: "Interior" },
+  { value: "exterior", label: "Exterior" },
+  { value: "both", label: "Both" },
 ];
 
 const CONSTRUCTION_TYPES: Array<{ value: ConstructionType; label: string }> = [
-  { value: 'new_construction', label: 'New Construction' },
-  { value: 'renovation', label: 'Renovation' },
-  { value: 'touch_up', label: 'Touch-up' },
+  { value: "new_construction", label: "New Construction" },
+  { value: "renovation", label: "Renovation" },
+  { value: "touch_up", label: "Touch-up" },
 ];
 
 const QUALITY_OPTIONS: Array<{
@@ -137,10 +166,10 @@ const QUALITY_OPTIONS: Array<{
   label: string;
   icon: typeof DollarSign;
 }> = [
-  { value: 'economy', label: 'Economy', icon: DollarSign },
-  { value: 'standard', label: 'Standard', icon: Hammer },
-  { value: 'premium', label: 'Premium', icon: Award },
-  { value: 'luxury', label: 'Luxury', icon: Crown },
+  { value: "economy", label: "Economy", icon: DollarSign },
+  { value: "standard", label: "Standard", icon: Hammer },
+  { value: "premium", label: "Premium", icon: Award },
+  { value: "luxury", label: "Luxury", icon: Crown },
 ];
 
 // ============================================================
@@ -162,7 +191,12 @@ export interface WizardStepProps {
  * Reusable layout wrapper for a single wizard step. Renders the step indicator
  * (dots + connecting lines), title, and the body content.
  */
-export function WizardStep({ step, title, subtitle, children }: WizardStepProps) {
+export function WizardStep({
+  step,
+  title,
+  subtitle,
+  children,
+}: WizardStepProps) {
   return (
     <div>
       {/* Step indicator */}
@@ -172,20 +206,23 @@ export function WizardStep({ step, title, subtitle, children }: WizardStepProps)
             <div key={label} className="flex items-center">
               <div
                 className={classNames(
-                  'flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors',
-                  idx < step && 'border-purple-700 bg-purple-700 text-primary-foreground',
-                  idx === step && 'border-purple-700 bg-purple-50 text-purple-700',
-                  idx > step && 'border-border bg-card dark:bg-card text-muted-foreground',
+                  "flex h-9 w-9 items-center justify-center rounded-full border-2 text-sm font-semibold transition-colors",
+                  idx < step &&
+                    "border-purple-700 bg-purple-700 text-primary-foreground",
+                  idx === step &&
+                    "border-purple-700 bg-purple-50 text-purple-700",
+                  idx > step &&
+                    "border-border bg-card dark:bg-card text-muted-foreground",
                 )}
-                aria-current={idx === step ? 'step' : undefined}
+                aria-current={idx === step ? "step" : undefined}
               >
                 {idx < step ? <Check className="h-4 w-4" /> : idx + 1}
               </div>
               {idx < TOTAL_STEPS - 1 && (
                 <div
                   className={classNames(
-                    'h-0.5 w-10 transition-colors sm:w-16',
-                    idx < step ? 'bg-purple-700' : 'bg-muted',
+                    "h-0.5 w-10 transition-colors sm:w-16",
+                    idx < step ? "bg-purple-700" : "bg-muted",
                   )}
                 />
               )}
@@ -194,8 +231,14 @@ export function WizardStep({ step, title, subtitle, children }: WizardStepProps)
         </div>
       </div>
 
-      <h2 className="text-center text-xl font-bold text-foreground sm:text-2xl">{title}</h2>
-      {subtitle && <p className="mt-1 text-center text-sm text-muted-foreground">{subtitle}</p>}
+      <h2 className="text-center text-xl font-bold text-foreground sm:text-2xl">
+        {title}
+      </h2>
+      {subtitle && (
+        <p className="mt-1 text-center text-sm text-muted-foreground">
+          {subtitle}
+        </p>
+      )}
 
       <div className="mt-6">{children}</div>
     </div>
@@ -224,21 +267,24 @@ function OptionButton<T extends string>({
   onSelect,
 }: OptionButtonProps<T>) {
   return (
-    <Button variant="ghost"
+    <Button
+      variant="ghost"
       type="button"
       onClick={() => onSelect(value)}
       className={classNames(
-        'group flex w-full items-start gap-3 rounded-xl border p-4 text-left transition-all duration-200',
+        "group flex h-auto w-full items-start gap-3 rounded-xl border p-4 text-left transition-all duration-200",
         selected
-          ? 'border-2 border-purple-700 bg-purple-50 shadow-sm'
-          : 'border border-border bg-card dark:bg-card hover:border-purple-300 hover:bg-purple-50/50',
+          ? "border-2 border-purple-700 bg-purple-50 shadow-sm"
+          : "border border-border bg-card dark:bg-card hover:border-purple-300 hover:bg-purple-50/50",
       )}
     >
       {Icon && (
         <span
           className={classNames(
-            'mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg transition-colors',
-            selected ? 'bg-purple-700 text-primary-foreground' : 'bg-muted text-muted-foreground group-hover:bg-purple-100',
+            "mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg transition-colors",
+            selected
+              ? "bg-purple-700 text-primary-foreground"
+              : "bg-muted text-muted-foreground group-hover:bg-purple-100",
           )}
         >
           <Icon className="h-5 w-5" />
@@ -246,7 +292,11 @@ function OptionButton<T extends string>({
       )}
       <span className="flex-1">
         <span className="block font-semibold text-foreground">{label}</span>
-        {description && <span className="mt-0.5 block text-sm text-muted-foreground">{description}</span>}
+        {description && (
+          <span className="mt-0.5 block text-sm text-muted-foreground">
+            {description}
+          </span>
+        )}
       </span>
       {selected && (
         <Check className="mt-1 h-5 w-5 flex-shrink-0 text-purple-700" />
@@ -261,14 +311,17 @@ function OptionButton<T extends string>({
 
 export default function ProjectWizard() {
   const navigate = useNavigate();
-  useSeo({ title: 'FRELUX', description: 'FRELUX', noIndex: true });
+  useSeo({ title: "FRELUX", description: "FRELUX", noIndex: true });
   const [step, setStep] = useState(0);
   const [state, setState] = useState<WizardState>(initialState);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // ---- helpers ----
-  const update = <K extends keyof WizardState>(key: K, value: WizardState[K]) => {
+  const update = <K extends keyof WizardState>(
+    key: K,
+    value: WizardState[K],
+  ) => {
     setState((prev) => ({ ...prev, [key]: value }));
     setError(null);
   };
@@ -289,7 +342,12 @@ export default function ProjectWizard() {
       state.construction_type,
       state.finish_quality,
     );
-  }, [state.project_type, state.surface_location, state.construction_type, state.finish_quality]);
+  }, [
+    state.project_type,
+    state.surface_location,
+    state.construction_type,
+    state.finish_quality,
+  ]);
 
   // ---- validation ----
   const isStepValid = (currentStep: number): boolean => {
@@ -334,12 +392,12 @@ export default function ProjectWizard() {
         name: state.name.trim(),
         description: state.description.trim() || undefined,
         project_type: state.project_type as ProjectType,
-        building_type: state.building_type || 'residential',
-        surface_location: state.surface_location || 'interior',
-        construction_type: state.construction_type || 'renovation',
-        finish_quality: state.finish_quality || 'standard',
-        budget_level: state.budget_level || 'standard',
-        material_quality: state.material_quality || 'standard',
+        building_type: state.building_type || "residential",
+        surface_location: state.surface_location || "interior",
+        construction_type: state.construction_type || "renovation",
+        finish_quality: state.finish_quality || "standard",
+        budget_level: state.budget_level || "standard",
+        material_quality: state.material_quality || "standard",
         client_name: state.client_name.trim() || undefined,
         client_phone: state.client_phone.trim() || undefined,
         client_email: state.client_email.trim() || undefined,
@@ -350,7 +408,11 @@ export default function ProjectWizard() {
       navigate(`/contractor/projects/${project.id}`);
     } catch (err) {
       setSubmitting(false);
-      setError(err instanceof Error ? err.message : 'Failed to create project. Please try again.');
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to create project. Please try again.",
+      );
     }
   };
 
@@ -359,7 +421,11 @@ export default function ProjectWizard() {
   // ============================================================
 
   const renderProjectTypeStep = () => (
-    <WizardStep step={0} title="Select Project Type" subtitle="What kind of project are you estimating?">
+    <WizardStep
+      step={0}
+      title="Select Project Type"
+      subtitle="What kind of project are you estimating?"
+    >
       <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
         {PROJECT_TYPES.map((opt) => (
           <OptionButton
@@ -369,7 +435,7 @@ export default function ProjectWizard() {
             description={opt.description}
             icon={opt.icon}
             selected={state.project_type === opt.value}
-            onSelect={(v) => update('project_type', v)}
+            onSelect={(v) => update("project_type", v)}
           />
         ))}
       </div>
@@ -377,10 +443,16 @@ export default function ProjectWizard() {
   );
 
   const renderDetailsStep = () => (
-    <WizardStep step={1} title="Project Details" subtitle="Tell us about the building and surface">
+    <WizardStep
+      step={1}
+      title="Project Details"
+      subtitle="Tell us about the building and surface"
+    >
       <div className="space-y-6">
         <fieldset>
-          <legend className="mb-2 text-sm font-semibold text-card-foreground">Building Type</legend>
+          <legend className="mb-2 text-sm font-semibold text-card-foreground">
+            Building Type
+          </legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             {BUILDING_TYPES.map((opt) => (
               <OptionButton
@@ -388,14 +460,16 @@ export default function ProjectWizard() {
                 value={opt.value}
                 label={opt.label}
                 selected={state.building_type === opt.value}
-                onSelect={(v) => update('building_type', v)}
+                onSelect={(v) => update("building_type", v)}
               />
             ))}
           </div>
         </fieldset>
 
         <fieldset>
-          <legend className="mb-2 text-sm font-semibold text-card-foreground">Surface Location</legend>
+          <legend className="mb-2 text-sm font-semibold text-card-foreground">
+            Surface Location
+          </legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-3">
             {SURFACE_LOCATIONS.map((opt) => (
               <OptionButton
@@ -403,14 +477,16 @@ export default function ProjectWizard() {
                 value={opt.value}
                 label={opt.label}
                 selected={state.surface_location === opt.value}
-                onSelect={(v) => update('surface_location', v)}
+                onSelect={(v) => update("surface_location", v)}
               />
             ))}
           </div>
         </fieldset>
 
         <fieldset>
-          <legend className="mb-2 text-sm font-semibold text-card-foreground">Construction Type</legend>
+          <legend className="mb-2 text-sm font-semibold text-card-foreground">
+            Construction Type
+          </legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-3">
             {CONSTRUCTION_TYPES.map((opt) => (
               <OptionButton
@@ -418,14 +494,16 @@ export default function ProjectWizard() {
                 value={opt.value}
                 label={opt.label}
                 selected={state.construction_type === opt.value}
-                onSelect={(v) => update('construction_type', v)}
+                onSelect={(v) => update("construction_type", v)}
               />
             ))}
           </div>
         </fieldset>
 
         <fieldset>
-          <legend className="mb-2 text-sm font-semibold text-card-foreground">Finish Quality</legend>
+          <legend className="mb-2 text-sm font-semibold text-card-foreground">
+            Finish Quality
+          </legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             {QUALITY_OPTIONS.map((opt) => (
               <OptionButton
@@ -434,7 +512,7 @@ export default function ProjectWizard() {
                 label={opt.label}
                 icon={opt.icon}
                 selected={state.finish_quality === opt.value}
-                onSelect={(v) => update('finish_quality', v)}
+                onSelect={(v) => update("finish_quality", v)}
               />
             ))}
           </div>
@@ -444,9 +522,13 @@ export default function ProjectWizard() {
           <div className="rounded-xl border border-purple-200 bg-purple-50 p-4">
             <div className="flex items-center gap-2 text-purple-700">
               <Award className="h-4 w-4" />
-              <span className="text-sm font-semibold">Smart Recommendation</span>
+              <span className="text-sm font-semibold">
+                Smart Recommendation
+              </span>
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">{recommendation.reason}</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {recommendation.reason}
+            </p>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {recommendation.workflow.map((phase, idx) => (
                 <span
@@ -464,10 +546,16 @@ export default function ProjectWizard() {
   );
 
   const renderBudgetStep = () => (
-    <WizardStep step={2} title="Budget & Materials" subtitle="Choose your budget and material quality levels">
+    <WizardStep
+      step={2}
+      title="Budget & Materials"
+      subtitle="Choose your budget and material quality levels"
+    >
       <div className="space-y-6">
         <fieldset>
-          <legend className="mb-2 text-sm font-semibold text-card-foreground">Budget Level</legend>
+          <legend className="mb-2 text-sm font-semibold text-card-foreground">
+            Budget Level
+          </legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             {QUALITY_OPTIONS.map((opt) => (
               <OptionButton
@@ -476,14 +564,16 @@ export default function ProjectWizard() {
                 label={opt.label}
                 icon={opt.icon}
                 selected={state.budget_level === opt.value}
-                onSelect={(v) => update('budget_level', v)}
+                onSelect={(v) => update("budget_level", v)}
               />
             ))}
           </div>
         </fieldset>
 
         <fieldset>
-          <legend className="mb-2 text-sm font-semibold text-card-foreground">Material Quality</legend>
+          <legend className="mb-2 text-sm font-semibold text-card-foreground">
+            Material Quality
+          </legend>
           <div className="grid grid-cols-1 sm:grid-cols-1 gap-3 sm:grid-cols-2">
             {QUALITY_OPTIONS.map((opt) => (
               <OptionButton
@@ -492,7 +582,7 @@ export default function ProjectWizard() {
                 label={opt.label}
                 icon={opt.icon}
                 selected={state.material_quality === opt.value}
-                onSelect={(v) => update('material_quality', v)}
+                onSelect={(v) => update("material_quality", v)}
               />
             ))}
           </div>
@@ -502,11 +592,18 @@ export default function ProjectWizard() {
   );
 
   const renderClientInfoStep = () => (
-    <WizardStep step={3} title="Project Name & Client Info" subtitle="Final details to create your project">
+    <WizardStep
+      step={3}
+      title="Project Name & Client Info"
+      subtitle="Final details to create your project"
+    >
       <div className="space-y-4">
         {/* Project name */}
         <div>
-          <label htmlFor="pw-name" className="mb-1.5 block text-sm font-semibold text-card-foreground">
+          <label
+            htmlFor="pw-name"
+            className="mb-1.5 block text-sm font-semibold text-card-foreground"
+          >
             Project Name <span className="text-red-500">*</span>
           </label>
           <div className="relative">
@@ -515,7 +612,7 @@ export default function ProjectWizard() {
               id="pw-name"
               type="text"
               value={state.name}
-              onChange={(e) => update('name', e.target.value)}
+              onChange={(e) => update("name", e.target.value)}
               placeholder="e.g. Lekki Phase 1 Duplex Painting"
               className="w-full rounded-lg border border-border py-2.5 pl-10 pr-3 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
             />
@@ -524,13 +621,16 @@ export default function ProjectWizard() {
 
         {/* Description */}
         <div>
-          <label htmlFor="pw-desc" className="mb-1.5 block text-sm font-semibold text-card-foreground">
+          <label
+            htmlFor="pw-desc"
+            className="mb-1.5 block text-sm font-semibold text-card-foreground"
+          >
             Description
           </label>
           <textarea
             id="pw-desc"
             value={state.description}
-            onChange={(e) => update('description', e.target.value)}
+            onChange={(e) => update("description", e.target.value)}
             rows={2}
             placeholder="Short project description (optional)"
             className="w-full resize-none rounded-lg border border-border px-3 py-2.5 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
@@ -540,7 +640,10 @@ export default function ProjectWizard() {
         <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2">
           {/* Client name */}
           <div>
-            <label htmlFor="pw-client-name" className="mb-1.5 block text-sm font-semibold text-card-foreground">
+            <label
+              htmlFor="pw-client-name"
+              className="mb-1.5 block text-sm font-semibold text-card-foreground"
+            >
               Client Name
             </label>
             <div className="relative">
@@ -549,7 +652,7 @@ export default function ProjectWizard() {
                 id="pw-client-name"
                 type="text"
                 value={state.client_name}
-                onChange={(e) => update('client_name', e.target.value)}
+                onChange={(e) => update("client_name", e.target.value)}
                 placeholder="Client full name"
                 className="w-full rounded-lg border border-border py-2.5 pl-10 pr-3 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
               />
@@ -558,7 +661,10 @@ export default function ProjectWizard() {
 
           {/* Client phone */}
           <div>
-            <label htmlFor="pw-phone" className="mb-1.5 block text-sm font-semibold text-card-foreground">
+            <label
+              htmlFor="pw-phone"
+              className="mb-1.5 block text-sm font-semibold text-card-foreground"
+            >
               Client Phone
             </label>
             <div className="relative">
@@ -567,7 +673,7 @@ export default function ProjectWizard() {
                 id="pw-phone"
                 type="tel"
                 value={state.client_phone}
-                onChange={(e) => update('client_phone', e.target.value)}
+                onChange={(e) => update("client_phone", e.target.value)}
                 placeholder="+234 800 000 0000"
                 className="w-full rounded-lg border border-border py-2.5 pl-10 pr-3 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
               />
@@ -576,7 +682,10 @@ export default function ProjectWizard() {
 
           {/* Client email */}
           <div>
-            <label htmlFor="pw-email" className="mb-1.5 block text-sm font-semibold text-card-foreground">
+            <label
+              htmlFor="pw-email"
+              className="mb-1.5 block text-sm font-semibold text-card-foreground"
+            >
               Client Email
             </label>
             <div className="relative">
@@ -585,7 +694,7 @@ export default function ProjectWizard() {
                 id="pw-email"
                 type="email"
                 value={state.client_email}
-                onChange={(e) => update('client_email', e.target.value)}
+                onChange={(e) => update("client_email", e.target.value)}
                 placeholder="client@example.com"
                 className="w-full rounded-lg border border-border py-2.5 pl-10 pr-3 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
               />
@@ -594,7 +703,10 @@ export default function ProjectWizard() {
 
           {/* Client address */}
           <div>
-            <label htmlFor="pw-address" className="mb-1.5 block text-sm font-semibold text-card-foreground">
+            <label
+              htmlFor="pw-address"
+              className="mb-1.5 block text-sm font-semibold text-card-foreground"
+            >
               Client Address
             </label>
             <div className="relative">
@@ -603,7 +715,7 @@ export default function ProjectWizard() {
                 id="pw-address"
                 type="text"
                 value={state.client_address}
-                onChange={(e) => update('client_address', e.target.value)}
+                onChange={(e) => update("client_address", e.target.value)}
                 placeholder="Project site address"
                 className="w-full rounded-lg border border-border py-2.5 pl-10 pr-3 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
               />
@@ -613,13 +725,16 @@ export default function ProjectWizard() {
 
         {/* Notes */}
         <div>
-          <label htmlFor="pw-notes" className="mb-1.5 block text-sm font-semibold text-card-foreground">
+          <label
+            htmlFor="pw-notes"
+            className="mb-1.5 block text-sm font-semibold text-card-foreground"
+          >
             Notes
           </label>
           <textarea
             id="pw-notes"
             value={state.notes}
-            onChange={(e) => update('notes', e.target.value)}
+            onChange={(e) => update("notes", e.target.value)}
             rows={3}
             placeholder="Any additional notes or special instructions (optional)"
             className="w-full resize-none rounded-lg border border-border px-3 py-2.5 text-sm text-foreground transition-colors focus:border-purple-700 focus:outline-none focus:ring-1 focus:ring-purple-700"
@@ -629,7 +744,12 @@ export default function ProjectWizard() {
     </WizardStep>
   );
 
-  const stepContent = [renderProjectTypeStep, renderDetailsStep, renderBudgetStep, renderClientInfoStep][step]();
+  const stepContent = [
+    renderProjectTypeStep,
+    renderDetailsStep,
+    renderBudgetStep,
+    renderClientInfoStep,
+  ][step]();
 
   // ============================================================
   // Render
@@ -648,15 +768,16 @@ export default function ProjectWizard() {
 
         {/* Navigation */}
         <div className="mt-8 flex items-center justify-between gap-3">
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={handleBack}
             disabled={step === 0 || submitting}
             className={classNames(
-              'inline-flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors',
+              "inline-flex items-center gap-1.5 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors",
               step === 0 || submitting
-                ? 'cursor-not-allowed bg-muted text-muted-foreground'
-                : 'bg-muted text-card-foreground hover:bg-muted',
+                ? "cursor-not-allowed bg-muted text-muted-foreground"
+                : "bg-muted text-card-foreground hover:bg-muted",
             )}
           >
             <ArrowLeft className="h-4 w-4" />
@@ -664,37 +785,54 @@ export default function ProjectWizard() {
           </Button>
 
           {step < TOTAL_STEPS - 1 ? (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={handleNext}
               disabled={!canAdvance}
               className={classNames(
-                'inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors',
+                "inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors",
                 canAdvance
-                  ? 'bg-purple-700 text-primary-foreground hover:bg-purple-800'
-                  : 'cursor-not-allowed bg-purple-300 text-primary-foreground',
+                  ? "bg-purple-700 text-primary-foreground hover:bg-purple-800"
+                  : "cursor-not-allowed bg-purple-300 text-primary-foreground",
               )}
             >
               Next
               <ArrowRight className="h-4 w-4" />
             </Button>
           ) : (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={handleSubmit}
               disabled={submitting || !state.name.trim()}
               className={classNames(
-                'inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors',
+                "inline-flex items-center gap-1.5 rounded-lg px-5 py-2.5 text-sm font-semibold transition-colors",
                 submitting || !state.name.trim()
-                  ? 'cursor-not-allowed bg-green-400 text-primary-foreground'
-                  : 'bg-green-600 text-primary-foreground hover:bg-green-700',
+                  ? "cursor-not-allowed bg-green-400 text-primary-foreground"
+                  : "bg-green-600 text-primary-foreground hover:bg-green-700",
               )}
             >
               {submitting ? (
                 <>
-                  <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  <svg
+                    className="h-4 w-4 animate-spin"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
                   </svg>
                   Creating…
                 </>

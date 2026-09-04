@@ -1062,7 +1062,7 @@ function Step1({
               type="button"
               onClick={() => update("projectType", p.value)}
               className={
-                "select-card flex items-start gap-3 rounded-xl border p-4 text-left transition-colors hover:bg-accent/40 " +
+                "select-card flex h-auto items-start gap-3 rounded-xl border p-4 text-left transition-colors hover:bg-accent/40 " +
                 (selected
                   ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
                   : "border-border")

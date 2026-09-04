@@ -1,8 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Lightbulb, ChevronDown } from 'lucide-react';
-import { calculateSmartWaste, type SurfaceCondition, type ApplicationMethod } from '@/lib/smart-waste';
-import type { ProjectType } from '@/types';
-import { classNames } from '@/lib/utils';
+import { useState, useEffect } from "react";
+import { Lightbulb, ChevronDown } from "lucide-react";
+import {
+  calculateSmartWaste,
+  type SurfaceCondition,
+  type ApplicationMethod,
+} from "@/lib/smart-waste";
+import type { ProjectType } from "@/types";
+import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface SmartWasteSelectorProps {
@@ -12,15 +16,29 @@ interface SmartWasteSelectorProps {
   currentWaste: number;
 }
 
-export function SmartWasteSelector({ projectType, coats, onWasteChange, currentWaste }: SmartWasteSelectorProps) {
+export function SmartWasteSelector({
+  projectType,
+  coats,
+  onWasteChange,
+  currentWaste,
+}: SmartWasteSelectorProps) {
   const [expanded, setExpanded] = useState(false);
-  const [surface, setSurface] = useState<SurfaceCondition>('smooth');
-  const [method, setMethod] = useState<ApplicationMethod>('roller');
+  const [surface, setSurface] = useState<SurfaceCondition>("smooth");
+  const [method, setMethod] = useState<ApplicationMethod>("roller");
   const [isRepair, setIsRepair] = useState(false);
-  const [result, setResult] = useState<{ wasteMargin: number; reason: string } | null>(null);
+  const [result, setResult] = useState<{
+    wasteMargin: number;
+    reason: string;
+  } | null>(null);
 
   function compute() {
-    const res = calculateSmartWaste({ projectType, surfaceCondition: surface, applicationMethod: method, coats, isRepair });
+    const res = calculateSmartWaste({
+      projectType,
+      surfaceCondition: surface,
+      applicationMethod: method,
+      coats,
+      isRepair,
+    });
     setResult({ wasteMargin: res.wasteMargin, reason: res.reason });
     onWasteChange(res.wasteMargin);
   }
@@ -33,81 +51,113 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
 
   return (
     <div className="rounded-lg border border-border dark:border-border border-border">
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between p-3 text-left transition-colors hover:bg-muted/50 dark:hover:bg-card-foreground/50"
       >
         <div className="flex items-center gap-2">
           <Lightbulb aria-hidden="true" className="h-4 w-4 text-brand-purple" />
-          <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">Smart waste calculator</span>
+          <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+            Smart waste calculator
+          </span>
           {result && !expanded && (
             <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-brand-purple">
               {result.wasteMargin}%
             </span>
           )}
         </div>
-        <ChevronDown className={classNames('h-4 w-4 text-muted-foreground transition-transform', expanded && 'rotate-180')} />
+        <ChevronDown
+          className={classNames(
+            "h-4 w-4 text-muted-foreground transition-transform",
+            expanded && "rotate-180",
+          )}
+        />
       </Button>
 
       {expanded && (
         <div className="border-t border-border/50 p-3 dark:border-white/5">
           {/* Surface condition */}
           <div className="mb-3">
-            <label className="block text-xs font-semibold text-muted-foreground">Surface condition</label>
+            <label className="block text-xs font-semibold text-muted-foreground">
+              Surface condition
+            </label>
             <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-3 gap-2">
-              {(['smooth', 'textured', 'rough'] as SurfaceCondition[]).map((s) => (
-                <Button variant="ghost"
-                  key={s}
-                  type="button"
-                  onClick={() => setSurface(s)}
-                  className={classNames(
-                    'rounded-lg border py-2 text-xs font-medium capitalize transition-all',
-                    surface === s
-                      ? 'border-brand-purple bg-primary/5 text-brand-purple'
-                      : 'border-border text-muted-foreground hover:border-border dark:border-border border-border',
-                  )}
-                >
-                  {s}
-                </Button>
-              ))}
+              {(["smooth", "textured", "rough"] as SurfaceCondition[]).map(
+                (s) => (
+                  <Button
+                    variant="ghost"
+                    key={s}
+                    type="button"
+                    onClick={() => setSurface(s)}
+                    className={classNames(
+                      "rounded-lg border py-2 text-xs font-medium capitalize transition-all",
+                      surface === s
+                        ? "border-brand-purple bg-primary/5 text-brand-purple"
+                        : "border-border text-muted-foreground hover:border-border dark:border-border border-border",
+                    )}
+                  >
+                    {s}
+                  </Button>
+                ),
+              )}
             </div>
           </div>
 
           {/* Application method */}
           <div className="mb-3">
-            <label className="block text-xs font-semibold text-muted-foreground">Application method</label>
+            <label className="block text-xs font-semibold text-muted-foreground">
+              Application method
+            </label>
             <div className="mt-1.5 grid grid-cols-1 sm:grid-cols-3 gap-2">
-              {(['brush', 'roller', 'spray'] as ApplicationMethod[]).map((m) => (
-                <Button variant="ghost"
-                  key={m}
-                  type="button"
-                  onClick={() => setMethod(m)}
-                  className={classNames(
-                    'rounded-lg border py-2 text-xs font-medium capitalize transition-all',
-                    method === m
-                      ? 'border-brand-purple bg-primary/5 text-brand-purple'
-                      : 'border-border text-muted-foreground hover:border-border dark:border-border border-border',
-                  )}
-                >
-                  {m}
-                </Button>
-              ))}
+              {(["brush", "roller", "spray"] as ApplicationMethod[]).map(
+                (m) => (
+                  <Button
+                    variant="ghost"
+                    key={m}
+                    type="button"
+                    onClick={() => setMethod(m)}
+                    className={classNames(
+                      "rounded-lg border py-2 text-xs font-medium capitalize transition-all",
+                      method === m
+                        ? "border-brand-purple bg-primary/5 text-brand-purple"
+                        : "border-border text-muted-foreground hover:border-border dark:border-border border-border",
+                    )}
+                  >
+                    {m}
+                  </Button>
+                ),
+              )}
             </div>
           </div>
 
           {/* Repair work */}
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-xs font-semibold text-muted-foreground">Repair / patch work?</span>
-            <Button variant="ghost"
+            <span className="text-xs font-semibold text-muted-foreground">
+              Repair / patch work?
+            </span>
+            <Button
+              variant="ghost"
               type="button"
               onClick={() => setIsRepair(!isRepair)}
+              aria-pressed={isRepair}
+              style={{
+                width: "2.25rem",
+                height: "1.25rem",
+                minWidth: "2.25rem",
+              }}
               className={classNames(
-                'relative h-5 w-9 rounded-full transition-colors',
-                isRepair ? 'bg-accent-green' : 'bg-muted',
+                "relative inline-flex h-5 w-9 shrink-0 appearance-none rounded-full border-0 p-0 transition-colors",
+                isRepair ? "bg-accent-green" : "bg-muted",
               )}
             >
-              <span className={classNames('absolute top-0.5 h-4 w-4 rounded-full bg-card transition-transform', isRepair ? 'translate-x-4' : 'translate-x-0.5')} />
+              <span
+                className={classNames(
+                  "absolute top-0.5 h-4 w-4 rounded-full bg-card transition-transform",
+                  isRepair ? "translate-x-4" : "translate-x-0.5",
+                )}
+              />
             </Button>
           </div>
 
@@ -119,10 +169,15 @@ export function SmartWasteSelector({ projectType, coats, onWasteChange, currentW
                   <Lightbulb aria-hidden="true" className="h-4 w-4" />
                   Recommended: {result.wasteMargin}% waste
                 </span>
-                <span className="text-xs text-muted-foreground">Current: {currentWaste}%</span>
+                <span className="text-xs text-muted-foreground">
+                  Current: {currentWaste}%
+                </span>
               </div>
-              <p className="mt-1.5 text-xs text-muted-foreground dark:text-muted-foreground">{result.reason}</p>
-              <Button variant="ghost"
+              <p className="mt-1.5 text-xs text-muted-foreground dark:text-muted-foreground">
+                {result.reason}
+              </p>
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={() => onWasteChange(result.wasteMargin)}
                 className="mt-2 w-full rounded-lg bg-primary py-2 text-xs font-bold text-primary-foreground transition-colors hover:bg-primary/90"
