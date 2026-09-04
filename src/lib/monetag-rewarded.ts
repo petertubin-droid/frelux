@@ -43,17 +43,23 @@ export interface MonetagShowResult {
 
 /**
  * Resolve the Monetag zone ID from the Admin-configured provider only
- * (Admin → Ads → Monetag → "Zone ID" credential, or the provider's
- * `zone_id` / `sub_id` settings). There is deliberately NO hardcoded
- * fallback: if the Admin has not configured a zone, this returns null and
- * callers must not serve or inject any Monetag tag. Zone IDs are public
- * client-side values, not secrets — the requirement to keep them in Admin
- * is about controlling which zone serves production traffic.
+ * (Admin → Ads → Monetag → "Rewarded Zone ID" credential for rewarded
+ * flows, falling back to the shared "Zone ID" credential, then the
+ * provider's `zone_id` / `sub_id` settings). There is deliberately NO
+ * hardcoded fallback: if the Admin has not configured a zone, this returns
+ * null and callers must not serve or inject any Monetag tag. Zone IDs are
+ * public client-side values, not secrets — the requirement to keep them in
+ * Admin is about controlling which zone serves production traffic.
  */
 export function getMonetagZone(provider?: DbAdProvider | null): string | null {
   const creds = (provider?.credentials ?? {}) as Record<string, unknown>;
   const settings = (provider?.settings ?? {}) as Record<string, unknown>;
-  const raw = creds.zone_id ?? settings.zone_id ?? settings.sub_id;
+  const raw =
+    creds.rewarded_zone_id ??
+    settings.rewarded_zone_id ??
+    creds.zone_id ??
+    settings.zone_id ??
+    settings.sub_id;
   const zone =
     typeof raw === "string" || typeof raw === "number"
       ? String(raw).trim()

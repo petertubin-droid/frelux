@@ -27,9 +27,8 @@ import {
   getEstimationUsageStatus,
   checkEstimationAccess,
 } from "@/lib/estimation-access";
-import { unlockFeatureViaAd } from "@/lib/credits";
-import { hasRewardedAdProvider } from "@/lib/ad-config";
-import { logAdEvent } from "@/lib/ad-config";
+import { useRewardedAccess } from "@/lib/rewarded-access";
+import { RewardedAdModal } from "@/components/rewarded/RewardedAdModal";
 import type {
   EstimationAccessConfig,
   EstimationUsageStatus,
@@ -208,6 +207,11 @@ export default function ImageEstimator() {
       const resizedImage = await resizeImage(imageDataUrl);
       const clientId =
         localStorage.getItem("frelux_estimation_client_id") || "unknown";
+      // The rewarded-unlock client hash — the edge function checks this
+      // against rewarded_unlock_log so an active ad unlock bypasses the
+      // daily usage limit.
+      const clientHash =
+        localStorage.getItem("frelux_client_hash") || "unknown";
 
       const { data, error: fnError } = await supabase.functions.invoke(
         "ai-building-estimation",
@@ -215,6 +219,7 @@ export default function ImageEstimator() {
           body: {
             imageDataUrl: resizedImage,
             clientId,
+            clientHash,
             projectName: projectName || "AI-Estimated Building",
             location: location || "Nigeria",
           },
@@ -839,70 +844,25 @@ function LockedView({
   usage: EstimationUsageStatus | null;
   onUnlocked: () => Promise<void>;
 }) {
-  const [adState, setAdState] = useState<
-    "idle" | "checking" | "watching" | "verifying" | "success" | "error"
-  >("idle");
-  const [adError, setAdError] = useState("");
-  const [adProviderReady, setAdProviderReady] = useState(false);
+  // Standard rewarded flow (same as the calculators): real Monetag
+  // rewarded ad via the bridge, 5-second watch, client attestation,
+  // server-side grant through the grant-rewarded-unlock edge function.
+  // The old inline flow bypassed the real ad and sent no attestation
+  // token, so the server always rejected the unlock.
+  const rewarded = useRewardedAccess("image_estimator");
+  const adProviderReady =
+    !!rewarded.primaryProvider || !!rewarded.fallbackProvider;
+  const adFlowReady = adProviderReady && (rewarded.config?.is_enabled ?? false);
+  const unlockHandledRef = useRef(false);
 
+  // When the unlock lands, hand control back to the parent so it
+  // re-checks access and moves on to the upload phase.
   useEffect(() => {
-    hasRewardedAdProvider().then(setAdProviderReady);
-  }, []);
-
-  async function handleWatchAd() {
-    if (adState === "watching" || adState === "verifying") return;
-
-    setAdState("checking");
-    setAdError("");
-
-    const providerReady = await hasRewardedAdProvider();
-    if (!providerReady) {
-      setAdError("No ad provider is configured yet. Please check back later!");
-      setAdState("error");
-      return;
+    if (rewarded.isUnlocked && !unlockHandledRef.current) {
+      unlockHandledRef.current = true;
+      onUnlocked();
     }
-
-    setAdState("watching");
-
-    // Log impression
-    const adEventId = `est_ad_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-    await logAdEvent({
-      event_type: "impression",
-      tool_key: "image_estimator",
-      metadata: { ad_event_id: adEventId, mode: "unlock_feature" },
-    });
-
-    // In production, this is where the ad SDK renders and plays the ad.
-    // The SDK fires a completion callback with a verification token.
-    // For now, we show a brief watching state then verify server-side.
-    setAdState("verifying");
-
-    const result = await unlockFeatureViaAd(
-      "image_estimator",
-      "adsense",
-      adEventId,
-      { source: "locked_view" },
-    );
-
-    if (result.success) {
-      setAdState("success");
-      await logAdEvent({
-        event_type: "reward",
-        tool_key: "image_estimator",
-        metadata: { ad_event_id: adEventId, mode: "unlock_feature" },
-      });
-      // Give user feedback before re-checking access
-      setTimeout(() => {
-        onUnlocked();
-      }, 1000);
-    } else {
-      setAdError(
-        result.error ??
-          "Ad verification failed. No reward was granted. Please try again.",
-      );
-      setAdState("error");
-    }
-  }
+  }, [rewarded.isUnlocked, onUnlocked]);
 
   return (
     <div className="min-h-screen bg-muted/50 flex items-center justify-center px-4">
@@ -940,66 +900,58 @@ function LockedView({
 
         {"nextAction" in decision && decision.nextAction === "rewarded" && (
           <>
-            {adState === "success" ? (
+            {rewarded.isUnlocked ? (
               <div className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3 text-sm font-medium text-primary-foreground">
                 <CheckCircle2 className="w-4 h-4" />
                 Unlocked! Loading...
-              </div>
-            ) : adState === "error" ? (
-              <div className="space-y-3">
-                <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  {adError}
-                </div>
-                <Button
-                  variant="ghost"
-                  type="button"
-                  onClick={() => {
-                    setAdState("idle");
-                    setAdError("");
-                  }}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-                >
-                  <Zap className="w-4 h-4" />
-                  Try Again
-                </Button>
               </div>
             ) : (
               <Button
                 variant="default"
                 type="button"
-                onClick={handleWatchAd}
-                disabled={
-                  adState === "watching" ||
-                  adState === "verifying" ||
-                  adState === "checking" ||
-                  !adProviderReady
-                }
+                onClick={rewarded.requestUnlock}
+                disabled={rewarded.adLoading || !adFlowReady}
                 className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-medium hover:/90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {adState === "watching" ||
-                adState === "verifying" ||
-                adState === "checking" ? (
+                {rewarded.adLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 animate-spin" />
-                    {adState === "watching"
-                      ? "Watching ad..."
-                      : adState === "checking"
-                        ? "Checking..."
-                        : "Verifying..."}
+                    Watching ad...
                   </>
                 ) : (
                   <>
                     <Zap className="w-4 h-4" />
-                    {adProviderReady ? "Watch Ad to Unlock" : "Coming Soon"}
+                    {adFlowReady ? "Watch Ad to Unlock" : "Coming Soon"}
                   </>
                 )}
               </Button>
             )}
-            {adState === "idle" && !adProviderReady && (
+            {rewarded.error && !rewarded.isUnlocked && (
+              <div className="mt-3 flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                {rewarded.error}
+              </div>
+            )}
+            {rewarded.config && !rewarded.config.is_enabled && (
+              <p className="mt-2 text-xs text-muted-foreground">
+                This feature is temporarily disabled.
+              </p>
+            )}
+            {!adProviderReady && (
               <p className="mt-2 text-xs text-muted-foreground">
                 Ad provider not yet configured. Check back soon!
               </p>
+            )}
+            {(rewarded.showAdModal || rewarded.adLoading) && (
+              <RewardedAdModal
+                access={rewarded}
+                featureName="AI Building Photo Estimation"
+                features={[
+                  "One AI estimation from a building photo",
+                  "Full material & cost breakdown",
+                  "Unlimited re-checks while unlocked",
+                ]}
+              />
             )}
           </>
         )}

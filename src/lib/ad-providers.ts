@@ -970,6 +970,13 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         placeholder: "1234567",
       },
       {
+        key: "rewarded_zone_id",
+        label: "Rewarded Zone ID (for the rewarded unlock flow)",
+        type: "text",
+        required: false,
+        placeholder: "1234567",
+      },
+      {
         key: "sdk_url",
         label: "SDK Script URL (for Rewarded/SDK zones)",
         type: "text",

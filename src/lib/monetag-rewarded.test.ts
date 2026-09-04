@@ -44,6 +44,21 @@ describe("getMonetagZone", () => {
     });
     expect(getMonetagZone(provider)).toBe("777666");
   });
+
+  it("prefers the dedicated rewarded zone over the shared display zone", () => {
+    const provider = makeProvider({
+      credentials: { zone_id: "275352", rewarded_zone_id: "11712895" },
+      settings: { zone_id: "275352" },
+    });
+    expect(getMonetagZone(provider)).toBe("11712895");
+  });
+
+  it("falls back to the shared zone_id when no rewarded zone is set", () => {
+    const provider = makeProvider({
+      credentials: { zone_id: "275352" },
+    });
+    expect(getMonetagZone(provider)).toBe("275352");
+  });
 });
 
 describe("getMonetagSdkUrl", () => {

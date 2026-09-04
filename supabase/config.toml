@@ -9,3 +9,6 @@ verify_jwt = false
 
 [functions.ai-admin-assistant]
 verify_jwt = true
+
+[functions.ai-building-estimation]
+verify_jwt = false

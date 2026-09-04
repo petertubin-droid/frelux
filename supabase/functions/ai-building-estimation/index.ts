@@ -31,6 +31,8 @@ interface EstimationRequest {
   imageDataUrl?: string;
   imageUrl?: string;
   clientId?: string;
+  /** Rewarded-unlock client hash (frelux_client_hash) — checked against rewarded_unlock_log */
+  clientHash?: string;
   projectName?: string;
   location?: string;
 }
@@ -49,6 +51,50 @@ function jsonResponse(body: unknown, status = 200): Response {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
+}
+
+/**
+ * Check for an active rewarded unlock (granted by grant-rewarded-unlock
+ * after a real Monetag rewarded ad). If the client (or, when signed in,
+ * the user) has an unexpired unlock for the image_estimator tool, the
+ * daily free-usage limit does not apply.
+ */
+async function hasActiveRewardedUnlock(
+  supabase: ReturnType<typeof createClient>,
+  clientHash: string | undefined,
+  userId: string | null,
+): Promise<boolean> {
+  const nowIso = new Date().toISOString();
+
+  // Anonymous: match by client hash
+  if (clientHash && clientHash !== "unknown") {
+    const { data } = await supabase
+      .from("rewarded_unlock_log")
+      .select("expires_at")
+      .eq("tool_key", "image_estimator")
+      .eq("client_hash", clientHash)
+      .gt("expires_at", nowIso)
+      .order("unlocked_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data) return true;
+  }
+
+  // Signed-in: match by user so the unlock follows the account
+  if (userId) {
+    const { data } = await supabase
+      .from("rewarded_unlock_log")
+      .select("expires_at")
+      .eq("tool_key", "image_estimator")
+      .eq("user_id", userId)
+      .gt("expires_at", nowIso)
+      .order("unlocked_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (data) return true;
+  }
+
+  return false;
 }
 
 async function getAuthenticatedUserId(
@@ -673,11 +719,17 @@ Deno.serve(async (req: Request) => {
           );
         }
       } else {
-        // Free/rewarded modes — check daily limit
+        // Free/rewarded modes — check daily limit. An active rewarded
+        // unlock (watched a Monetag rewarded ad) bypasses the limit.
         const clientId = body.clientId ?? "unknown";
+        const unlocked = await hasActiveRewardedUnlock(
+          supabase,
+          body.clientHash,
+          userId,
+        );
         const usedToday = await getDailyUsage(supabase, clientId, userId);
 
-        if (usedToday >= config.estimation_daily_free_uses) {
+        if (!unlocked && usedToday >= config.estimation_daily_free_uses) {
           const limitMsg =
             config.estimation_daily_free_uses === 0
               ? "Free AI estimations are no longer included in the Free plan. Use FRELUX Credits to access AI features."
