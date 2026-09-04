@@ -9,16 +9,16 @@ test.describe("Home page", () => {
   test("loads and shows FRELUX branding", async ({ page }) => {
     await dismissCookieBanner(page);
     await page.goto("/");
-    await expect(page).toHaveTitle(/FRELUX PAINT CALC/);
+    await expect(page).toHaveTitle(/FRELUX/);
     await expect(
-      page.locator('a[aria-label="FRELUX PAINT CALC home"]'),
+      page.locator('a[aria-label="FRELUX PROJECT CALC home"]'),
     ).toBeVisible();
   });
 
   test("navigates to the calculators page", async ({ page }) => {
     await dismissCookieBanner(page);
     await page.goto("/");
-    const calcLink = page.locator('a[href*="paint-calculator"]').first();
+    const calcLink = page.locator('footer a[href*="paint-calculator"]').first();
     await calcLink.click();
     await page.waitForLoadState("networkidle");
     expect(page.url()).toContain("/paint-calculator");
