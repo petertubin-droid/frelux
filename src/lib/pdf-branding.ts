@@ -6,11 +6,8 @@
 // HTML print quote system — it injects branding into them.
 // =========================================================
 
-import type {
-  ResolvedBranding,
-  PdfWatermarkConfig,
-  PdfTemplateConfig,
-} from "@/lib/brand-studio";
+import type { ResolvedBranding } from "@/lib/brand-studio";
+import type { PdfWatermarkConfig, PdfTemplateConfig } from "@/types/database";
 
 // ───────────────────────────────────────────────────────
 // jsPDF helpers (for generateQuotationPDF / generateShoppingListPDF)

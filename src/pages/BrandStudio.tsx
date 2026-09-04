@@ -24,9 +24,9 @@ import {
   resolveBrandStudioAccess,
   fetchBrandProfiles,
   fetchPdfBrandingConfig,
+  type BrandStudioAccess,
 } from "@/lib/brand-studio";
 import type {
-  BrandStudioAccess,
   DbBrandProfile,
   PdfDefaultBrandingConfig,
 } from "@/types/database";
@@ -60,11 +60,7 @@ export default function BrandStudio() {
       user.id,
       isAdmin,
       isPaid,
-      paidStatus as {
-        is_paid: boolean;
-        paid_until: string | null;
-        plan: string | null;
-      } | null,
+      paidStatus,
     );
     setAccess(a);
     if (a.canSaveMultipleProfiles) {
@@ -111,7 +107,8 @@ export default function BrandStudio() {
           {/* Section tabs */}
           <div className="mb-6 flex flex-wrap gap-2 border-b border-border dark:border-white/10 pb-2">
             {sections.map((s) => (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 key={s.id}
                 onClick={() => setActiveSection(s.id)}
                 className={`rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
@@ -175,7 +172,6 @@ export default function BrandStudio() {
               {activeSection === "my-brands" && (
                 <MyBrandTemplatesSection
                   userId={user?.id ?? ""}
-                  access={access}
                   profiles={profiles}
                   selectedProfileId={selectedProfileId}
                   onSelectProfile={setSelectedProfileId}

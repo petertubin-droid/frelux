@@ -187,6 +187,6 @@ describe("useMeasurementProject", () => {
       useMeasurementProject({ calculatorContext: "painting" }),
     );
     expect(result.current.activeSection).toBeDefined();
-    expect(result.current.activeSection.label).toBe("Measurements");
+    expect(result.current.activeSection?.label).toBe("Measurements");
   });
 });

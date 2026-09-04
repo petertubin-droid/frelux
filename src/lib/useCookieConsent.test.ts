@@ -6,26 +6,32 @@ import { useCookieConsent } from "@/lib/useCookieConsent";
 vi.mock("@/lib/cookie-consent", () => ({
   getStoredConsent: vi.fn(() => null),
   acceptAll: vi.fn((src: string) => ({
-    essential: true,
-    analytics: true,
-    advertising: true,
-    version: "2.0",
+    version: 2,
+    categories: {
+      essential: true,
+      analytics: true,
+      advertising: true,
+    },
     timestamp: Date.now(),
     source: src,
   })),
   rejectAll: vi.fn((src: string) => ({
-    essential: true,
-    analytics: false,
-    advertising: false,
-    version: "2.0",
+    version: 2,
+    categories: {
+      essential: true,
+      analytics: false,
+      advertising: false,
+    },
     timestamp: Date.now(),
     source: src,
   })),
   saveConsent: vi.fn((cats: Record<string, boolean>, src: string) => ({
-    essential: cats.essential ?? true,
-    analytics: cats.analytics ?? false,
-    advertising: cats.advertising ?? false,
-    version: "2.0",
+    version: 2,
+    categories: {
+      essential: cats.essential ?? true,
+      analytics: cats.analytics ?? false,
+      advertising: cats.advertising ?? false,
+    },
     timestamp: Date.now(),
     source: src,
   })),
@@ -63,7 +69,7 @@ import {
 describe("useCookieConsent", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (getStoredConsent as unknown).mockReturnValue(null);
+    vi.mocked(getStoredConsent).mockReturnValue(null);
   });
 
   afterEach(() => {
@@ -77,11 +83,9 @@ describe("useCookieConsent", () => {
   });
 
   it("returns stored consent and showBanner=false when consent exists", () => {
-    (getStoredConsent as unknown).mockReturnValue({
-      essential: true,
-      analytics: true,
-      advertising: false,
-      version: "2.0",
+    vi.mocked(getStoredConsent).mockReturnValue({
+      version: 2,
+      categories: { essential: true, analytics: true, advertising: false },
       timestamp: Date.now(),
       source: "settings",
     });
@@ -99,7 +103,7 @@ describe("useCookieConsent", () => {
     expect(acceptAll).toHaveBeenCalledWith("banner");
     expect(result.current.showBanner).toBe(false);
     expect(result.current.consent).toBeTruthy();
-    expect(result.current.consent?.analytics).toBe(true);
+    expect(result.current.consent?.categories.analytics).toBe(true);
   });
 
   it("reject() calls rejectAll and hides banner", () => {
@@ -109,8 +113,8 @@ describe("useCookieConsent", () => {
     });
     expect(rejectAll).toHaveBeenCalledWith("banner");
     expect(result.current.showBanner).toBe(false);
-    expect(result.current.consent?.analytics).toBe(false);
-    expect(result.current.consent?.advertising).toBe(false);
+    expect(result.current.consent?.categories.analytics).toBe(false);
+    expect(result.current.consent?.categories.advertising).toBe(false);
   });
 
   it("save() calls saveConsent with categories", () => {
@@ -153,11 +157,9 @@ describe("useCookieConsent", () => {
   it("listens for external consent change events", () => {
     const { result } = renderHook(() => useCookieConsent());
     // Simulate external change
-    (getStoredConsent as unknown).mockReturnValue({
-      essential: true,
-      analytics: false,
-      advertising: false,
-      version: "2.0",
+    vi.mocked(getStoredConsent).mockReturnValue({
+      version: 2,
+      categories: { essential: true, analytics: false, advertising: false },
       timestamp: Date.now(),
       source: "settings",
     });
@@ -170,17 +172,15 @@ describe("useCookieConsent", () => {
 
   it("listens for storage events", () => {
     const { result } = renderHook(() => useCookieConsent());
-    (getStoredConsent as unknown).mockReturnValue({
-      essential: true,
-      analytics: true,
-      advertising: true,
-      version: "2.0",
+    vi.mocked(getStoredConsent).mockReturnValue({
+      version: 2,
+      categories: { essential: true, analytics: true, advertising: true },
       timestamp: Date.now(),
       source: "settings",
     });
     act(() => {
       window.dispatchEvent(new StorageEvent("storage"));
     });
-    expect(result.current.consent?.analytics).toBe(true);
+    expect(result.current.consent?.categories.analytics).toBe(true);
   });
 });

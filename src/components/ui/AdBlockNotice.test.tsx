@@ -15,7 +15,7 @@ import { detectAdBlocker } from "@/lib/ad-block-detection";
 describe("AdBlockNotice", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (detectAdBlocker as unknown).mockResolvedValue(false);
+    vi.mocked(detectAdBlocker).mockResolvedValue(false);
   });
 
   it("returns null when no ad blocker detected", async () => {
@@ -25,7 +25,7 @@ describe("AdBlockNotice", () => {
   });
 
   it("shows notice when ad blocker is detected", async () => {
-    (detectAdBlocker as unknown).mockResolvedValue(true);
+    vi.mocked(detectAdBlocker).mockResolvedValue(true);
     render(<AdBlockNotice />);
     await waitFor(() =>
       expect(screen.getByText("Ad blocker detected")).toBeTruthy(),
@@ -33,7 +33,7 @@ describe("AdBlockNotice", () => {
   });
 
   it("can be dismissed", async () => {
-    (detectAdBlocker as unknown).mockResolvedValue(true);
+    vi.mocked(detectAdBlocker).mockResolvedValue(true);
     const { container } = render(<AdBlockNotice />);
     await waitFor(() =>
       expect(screen.getByText("Ad blocker detected")).toBeTruthy(),
@@ -43,7 +43,7 @@ describe("AdBlockNotice", () => {
   });
 
   it("shows helpful message", async () => {
-    (detectAdBlocker as unknown).mockResolvedValue(true);
+    vi.mocked(detectAdBlocker).mockResolvedValue(true);
     render(<AdBlockNotice />);
     await waitFor(() =>
       expect(screen.getByText(/Frelux is free because of ads/i)).toBeTruthy(),

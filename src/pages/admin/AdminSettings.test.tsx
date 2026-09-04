@@ -3,7 +3,9 @@ import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
-vi.mock("@/lib/auth", () => ({ useAuth: vi.fn(() => ({ user: null, loading: false })) }));
+vi.mock("@/lib/auth", () => ({
+  useAuth: vi.fn(() => ({ user: null, loading: false })),
+}));
 vi.mock("@/lib/credits", () => ({
   getCreditWallet: vi.fn().mockResolvedValue(null),
   getCreditTransactions: vi.fn().mockResolvedValue([]),
@@ -52,16 +54,46 @@ vi.mock("@/lib/supabase", () => {
     error: null,
     then: undefined, // prevent thenable detection
   };
-  const methods = ["select", "eq", "neq", "gt", "gte", "lt", "lte", "like", "ilike", "in", "is", "not", "or", "and", "order", "range", "limit", "single", "maybeSingle", "insert", "update", "delete", "upsert", "count", "head"];
+  const methods = [
+    "select",
+    "eq",
+    "neq",
+    "gt",
+    "gte",
+    "lt",
+    "lte",
+    "like",
+    "ilike",
+    "in",
+    "is",
+    "not",
+    "or",
+    "and",
+    "order",
+    "range",
+    "limit",
+    "single",
+    "maybeSingle",
+    "insert",
+    "update",
+    "delete",
+    "upsert",
+    "count",
+    "head",
+  ];
   for (const m of methods) {
-    (chainable as unknown)[m] = vi.fn(() => chainable);
+    (chainable as unknown as Record<string, unknown>)[m] = vi.fn(
+      () => chainable,
+    );
   }
   const supabase = {
     from: vi.fn(() => chainable),
     channel: vi.fn(() => ({ on: vi.fn(() => ({ subscribe: vi.fn() })) })),
     removeChannel: vi.fn(),
     auth: {
-      getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+      getSession: vi
+        .fn()
+        .mockResolvedValue({ data: { session: null }, error: null }),
       getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
       signInWithPassword: vi.fn().mockResolvedValue({ data: {}, error: null }),
       signOut: vi.fn().mockResolvedValue({ error: null }),
@@ -71,14 +103,18 @@ vi.mock("@/lib/supabase", () => {
         list: vi.fn().mockResolvedValue({ data: [], error: null }),
         upload: vi.fn().mockResolvedValue({ data: {}, error: null }),
         remove: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        getPublicUrl: vi.fn(() => ({ data: { publicUrl: "https://example.com/test.png" } })),
+        getPublicUrl: vi.fn(() => ({
+          data: { publicUrl: "https://example.com/test.png" },
+        })),
       })),
     },
   };
   return { supabase };
 });
 
-beforeEach(() => { vi.clearAllMocks(); });
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 async function renderPage() {
   const Comp = (await import("@/pages/admin/AdminSettings")).default;

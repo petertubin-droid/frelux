@@ -67,6 +67,17 @@ import { monitoredCalc } from "@/lib/calculator-monitor";
 import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
+const ADVANCED_FEATURES = [
+  "AI-powered project analysis & breakdown",
+  "Smart cost optimization recommendations",
+  "Labour, transport & markup cost adjuster",
+  "Multiple waste percentage scenarios",
+  "Profit and tax/VAT calculator",
+  "Ask AI: get expert answers about your POP ceiling project",
+  "Save estimates and export professional PDF quotations",
+  "AI recommendations for reducing waste",
+];
+
 export default function PopCeilingCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
@@ -314,7 +325,8 @@ export default function PopCeilingCalculator({
                 const selected = input.workflow === wf.workflow_type;
                 const Icon = wf.workflow_type === "nigeria" ? MapPin : Globe;
                 return (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     key={wf.id}
                     type="button"
                     onClick={() => update("workflow", wf.workflow_type)}
@@ -352,7 +364,8 @@ export default function PopCeilingCalculator({
             <div className="mt-6">
               <div className="inline-flex rounded-lg border border-border p-1">
                 {(["meters", "feet"] as Unit[]).map((u) => (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     key={u}
                     type="button"
                     onClick={() => update("unit", u)}
@@ -430,7 +443,8 @@ export default function PopCeilingCalculator({
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[0, 5, 10, 15, 20].map((w) => (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     key={w}
                     type="button"
                     onClick={() => update("wasteMargin", w)}
@@ -457,7 +471,8 @@ export default function PopCeilingCalculator({
               </div>
             )}
 
-            <Button variant="default"
+            <Button
+              variant="default"
               type="button"
               onClick={compute}
               className="btn-glow mt-6 w-full sm:w-auto"
@@ -842,13 +857,19 @@ function PopResultCard({
         </div>
 
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <Button variant="secondary" type="button" onClick={onAgain} className="btn-secondary">
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={onAgain}
+            className="btn-secondary"
+          >
             <RotateCcw aria-hidden="true" className="h-4 w-4" /> Calculate Again
           </Button>
           <div className="flex flex-col gap-3 sm:flex-row">
             {user && (
               <>
-                <Button variant="secondary"
+                <Button
+                  variant="secondary"
                   type="button"
                   onClick={onSave}
                   disabled={saving}
@@ -869,7 +890,8 @@ function PopResultCard({
                 </div>
               </>
             )}
-            <Button variant="secondary"
+            <Button
+              variant="secondary"
               type="button"
               onClick={onStartOver}
               className="btn-secondary"
@@ -908,7 +930,8 @@ function Toggle({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-lg border border-border p-4">
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         onClick={() => onChange(!checked)}
         className={
@@ -952,7 +975,9 @@ function Field({
         {label}
       </span>
       {hint && (
-        <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">
+          {hint}
+        </span>
       )}
       <div className="relative mt-1.5">
         {children}

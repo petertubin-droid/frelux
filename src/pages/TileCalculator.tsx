@@ -67,6 +67,17 @@ import { monitoredCalc } from "@/lib/calculator-monitor";
 import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
+const ADVANCED_FEATURES = [
+  "AI-powered project analysis & breakdown",
+  "Smart cost optimization recommendations",
+  "Labour, transport & markup cost adjuster",
+  "Multiple waste percentage scenarios",
+  "Profit and tax/VAT calculator",
+  "Ask AI: get expert answers about your tiling project",
+  "Save estimates and export professional PDF quotations",
+  "AI recommendations for reducing waste",
+];
+
 export default function TileCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
@@ -409,7 +420,8 @@ export default function TileCalculator({
               ).map((s) => {
                 const selected = input.surfaceType === s.value;
                 return (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     key={s.value}
                     type="button"
                     onClick={() => update("surfaceType", s.value)}
@@ -447,7 +459,8 @@ export default function TileCalculator({
             <div className="mt-6">
               <div className="inline-flex rounded-lg border border-border p-1">
                 {(["meters", "feet"] as Unit[]).map((u) => (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     key={u}
                     type="button"
                     onClick={() => update("unit", u)}
@@ -615,7 +628,8 @@ export default function TileCalculator({
                 ).map((m) => {
                   const selected = input.method === m.value;
                   return (
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       key={m.value}
                       type="button"
                       onClick={() => update("method", m.value)}
@@ -682,87 +696,57 @@ export default function TileCalculator({
             )}
 
             {input.method === "traditional" && (
-              <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                <Field label={`Cement price per bag (${currencySymbol})`}>
-                  <input
-                    type="number"
-                    min={0}
-                    value={input.cementPricePerBag || ""}
-                    onChange={(e) =>
-                      update("cementPricePerBag", Number(e.target.value))
-                    }
-                    className="input-field"
-                    placeholder="0"
+              <div className="mt-6 rounded-lg border border-primary/20 bg-primary/5 p-4">
+                <p className="text-xs font-semibold text-muted-foreground">
+                  Cement &amp; sharp sand — configured in Admin
+                </p>
+                <div className="mt-3 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
+                  <ConfigItem
+                    label="Cement price"
+                    value={`${formatCurrency(input.cementPricePerBag, currencySymbol)}/bag`}
                   />
-                </Field>
-                <Field label="Cement coverage (m²/bag)">
-                  <input
-                    type="number"
-                    min={0}
-                    step="0.1"
-                    value={input.cementCoverageRate || ""}
-                    onChange={(e) =>
-                      update("cementCoverageRate", Number(e.target.value))
-                    }
-                    className="input-field"
-                    placeholder="0"
+                  <ConfigItem
+                    label="Cement coverage"
+                    value={`${formatNumber(input.cementCoverageRate)} m²/bag`}
                   />
-                </Field>
-                <Field label={`Sharp sand price per bag (${currencySymbol})`}>
-                  <input
-                    type="number"
-                    min={0}
-                    value={input.sandPricePerBag || ""}
-                    onChange={(e) =>
-                      update("sandPricePerBag", Number(e.target.value))
-                    }
-                    className="input-field"
-                    placeholder="0"
+                  <ConfigItem
+                    label="Sand price"
+                    value={`${formatCurrency(input.sandPricePerBag, currencySymbol)}/bag`}
                   />
-                </Field>
-                <Field label="Sharp sand coverage (m²/bag)">
-                  <input
-                    type="number"
-                    min={0}
-                    step="0.1"
-                    value={input.sandCoverageRate || ""}
-                    onChange={(e) =>
-                      update("sandCoverageRate", Number(e.target.value))
-                    }
-                    className="input-field"
-                    placeholder="0"
+                  <ConfigItem
+                    label="Sand coverage"
+                    value={`${formatNumber(input.sandCoverageRate)} m²/bag`}
                   />
-                </Field>
+                </div>
+                <p className="mt-2 text-[11px] text-muted-foreground">
+                  These rates are set by the site admin under Tile Materials and
+                  can&apos;t be changed here.
+                </p>
               </div>
             )}
 
-            {/* Grout + Spacers (always shown) */}
+            {/* Grout (admin-configured) + Spacers (always shown) */}
+            <div className="mt-6 rounded-lg border border-primary/20 bg-primary/5 p-4">
+              <p className="text-xs font-semibold text-muted-foreground">
+                Grout — configured in Admin
+              </p>
+              <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
+                <ConfigItem
+                  label="Grout price"
+                  value={`${formatCurrency(input.groutPricePerKg, currencySymbol)}/kg`}
+                />
+                <ConfigItem
+                  label="Grout coverage"
+                  value={`${formatNumber(input.groutCoverageRate)} m²/kg`}
+                />
+              </div>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                This rate is set by the site admin under Tile Materials and
+                can&apos;t be changed here.
+              </p>
+            </div>
+
             <div className="mt-6 grid gap-4 sm:grid-cols-2">
-              <Field label={`Grout price per kg (${currencySymbol})`}>
-                <input
-                  type="number"
-                  min={0}
-                  value={input.groutPricePerKg || ""}
-                  onChange={(e) =>
-                    update("groutPricePerKg", Number(e.target.value))
-                  }
-                  className="input-field"
-                  placeholder="0"
-                />
-              </Field>
-              <Field label="Grout coverage (m²/kg)">
-                <input
-                  type="number"
-                  min={0}
-                  step="0.1"
-                  value={input.groutCoverageRate || ""}
-                  onChange={(e) =>
-                    update("groutCoverageRate", Number(e.target.value))
-                  }
-                  className="input-field"
-                  placeholder="0"
-                />
-              </Field>
               <Field label={`Tile spacers price per pack (${currencySymbol})`}>
                 <input
                   type="number"
@@ -800,7 +784,8 @@ export default function TileCalculator({
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[0, 5, 10, 15, 20].map((w) => (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     key={w}
                     type="button"
                     onClick={() => update("wasteMargin", w)}
@@ -827,7 +812,8 @@ export default function TileCalculator({
               </div>
             )}
 
-            <Button variant="default"
+            <Button
+              variant="default"
               type="button"
               onClick={compute}
               className="btn-glow mt-6 w-full sm:w-auto"
@@ -1252,13 +1238,19 @@ function TileResultCard({
       />
 
       <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-        <Button variant="secondary" type="button" onClick={onAgain} className="btn-secondary">
+        <Button
+          variant="secondary"
+          type="button"
+          onClick={onAgain}
+          className="btn-secondary"
+        >
           <RotateCcw aria-hidden="true" className="h-4 w-4" /> Calculate Again
         </Button>
         <div className="flex flex-col gap-3 sm:flex-row">
           {user && (
             <>
-              <Button variant="secondary"
+              <Button
+                variant="secondary"
                 type="button"
                 onClick={onSave}
                 disabled={saving}
@@ -1279,7 +1271,12 @@ function TileResultCard({
               </div>
             </>
           )}
-          <Button variant="secondary" type="button" onClick={onStartOver} className="btn-secondary">
+          <Button
+            variant="secondary"
+            type="button"
+            onClick={onStartOver}
+            className="btn-secondary"
+          >
             Start Over
           </Button>
           <Link
@@ -1329,6 +1326,17 @@ function TileResultCard({
   );
 }
 
+function ConfigItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <span className="block text-muted-foreground">{label}</span>
+      <span className="font-semibold text-foreground dark:text-primary-foreground">
+        {value}
+      </span>
+    </div>
+  );
+}
+
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="stat-card dark:border-white/5 dark:bg-card">
@@ -1361,7 +1369,9 @@ function Field({
         {label}
       </span>
       {hint && (
-        <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">
+          {hint}
+        </span>
       )}
       <div className="relative mt-1.5">
         {children}

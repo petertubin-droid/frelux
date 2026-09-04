@@ -21,17 +21,17 @@ vi.mock("@/lib/subscription", async (importOriginal) => {
     ...actual,
     formatSubscriptionStatus: vi.fn(() => "Active — 30 days remaining"),
     FEATURE_LABELS: {
-      engineering_calculators: "Engineering Calculators",
+      structural_calculator: "Structural Calculator",
       ai_photo_estimator: "AI Photo Estimator",
       construction_sequence: "Construction Sequence Planner",
-      structural_calculator: "Structural Calculator",
       foundation_calculator: "Foundation Calculator",
-      pdf_export: "PDF Export",
+      painting_estimator: "Painting Cost Estimator",
+      template_download: "Template Downloads",
       pro_connect_messaging: "Pro Connect Messaging",
     } as unknown,
     getFeatureMinPlan: vi.fn((feature: string) => {
-      if (feature === "free") return "free";
-      if (feature === "pdf_export") return "basic";
+      if (feature === "painting_estimator") return "free";
+      if (feature === "template_download") return "basic";
       return "pro";
     }),
   };
@@ -69,7 +69,7 @@ describe("SubscriptionGate", () => {
       user: { id: "1" },
     });
     renderGate({
-      feature: "engineering_calculators",
+      feature: "structural_calculator",
       children: <div>Admin content</div>,
     });
     expect(screen.getByText("Admin content")).toBeTruthy();
@@ -86,7 +86,7 @@ describe("SubscriptionGate", () => {
       user: { id: "1" },
     });
     renderGate({
-      feature: "engineering_calculators",
+      feature: "structural_calculator",
       children: <div>Paid content</div>,
     });
     expect(screen.getByText("Paid content")).toBeTruthy();
@@ -100,11 +100,11 @@ describe("SubscriptionGate", () => {
       user: { id: "1" },
     });
     renderGate({
-      feature: "engineering_calculators",
+      feature: "structural_calculator",
       children: <div>Hidden content</div>,
     });
     await waitFor(() =>
-      expect(screen.getByText("Engineering Calculators")).toBeTruthy(),
+      expect(screen.getByText("Structural Calculator")).toBeTruthy(),
     );
     expect(screen.queryByText("Hidden content")).toBeNull();
     expect(screen.getByText("Upgrade")).toBeTruthy();
@@ -118,7 +118,7 @@ describe("SubscriptionGate", () => {
       user: null,
     });
     renderGate({
-      feature: "engineering_calculators",
+      feature: "structural_calculator",
       children: <div>Hidden</div>,
     });
     await waitFor(() =>
@@ -134,7 +134,7 @@ describe("SubscriptionGate", () => {
       user: null,
     });
     renderGate({
-      feature: "engineering_calculators",
+      feature: "structural_calculator",
       children: <div>Hidden</div>,
       fallback: <div>Custom fallback</div>,
     });
@@ -150,7 +150,7 @@ describe("SubscriptionGate", () => {
       user: { id: "1" },
     });
     renderGate({
-      feature: "engineering_calculators",
+      feature: "structural_calculator",
       children: <div>Hidden</div>,
     });
     await waitFor(() =>
@@ -166,7 +166,7 @@ describe("SubscriptionGate", () => {
       user: { id: "1" },
     });
     renderGate({
-      feature: "engineering_calculators",
+      feature: "structural_calculator",
       children: <div>Hidden</div>,
     });
     await waitFor(() =>
@@ -189,7 +189,10 @@ describe("SubscriptionGate", () => {
       },
       user: { id: "1" },
     });
-    renderGate({ feature: "free" as unknown, children: <div>Free content</div> });
+    renderGate({
+      feature: "painting_estimator",
+      children: <div>Free content</div>,
+    });
     expect(screen.getByText("Free content")).toBeTruthy();
   });
 
@@ -200,7 +203,10 @@ describe("SubscriptionGate", () => {
       paidStatus: null,
       user: { id: "1" },
     });
-    renderGate({ feature: "free" as unknown, children: <div>Free content</div> });
+    renderGate({
+      feature: "painting_estimator",
+      children: <div>Free content</div>,
+    });
     await waitFor(() => expect(screen.queryByText("Free content")).toBeNull());
   });
 
@@ -215,7 +221,7 @@ describe("SubscriptionGate", () => {
       user: { id: "1" },
     });
     renderGate({
-      feature: "engineering_calculators",
+      feature: "structural_calculator",
       children: <div>Pro content</div>,
     });
     await waitFor(() => expect(screen.getByText("Upgrade")).toBeTruthy());
@@ -232,7 +238,10 @@ describe("SubscriptionGate", () => {
       },
       user: { id: "1" },
     });
-    renderGate({ feature: "pdf_export", children: <div>Basic feature</div> });
+    renderGate({
+      feature: "template_download",
+      children: <div>Basic feature</div>,
+    });
     expect(screen.getByText("Basic feature")).toBeTruthy();
   });
 });

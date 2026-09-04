@@ -27,10 +27,7 @@ import { Button } from "@/components/ui/shadcn/button";
 const fmt = (v: number) => "₦" + (v || 0).toLocaleString();
 
 export default function ClientEstimateEditor() {
-  const { id: projectId, _estimateId } = useParams<{
-    id: string;
-    estimateId?: string;
-  }>();
+  const { id: projectId } = useParams<{ id: string }>();
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -124,10 +121,11 @@ export default function ClientEstimateEditor() {
         markup_percentage: Number(markupPct),
         materials_summary: materialsSummary.map((m) => ({
           name: m.name,
+          category: "Material",
           quantity: Number(m.quantity),
           unit: m.unit,
-          unit_cost: Number(m.unitCost),
-          line_total: Number(m.quantity) * Number(m.unitCost),
+          unit_price: Number(m.unitCost),
+          total: Number(m.quantity) * Number(m.unitCost),
         })),
         validity_days: Number(validityDays),
         notes: notes.trim() || undefined,
@@ -327,7 +325,8 @@ export default function ClientEstimateEditor() {
           <div className="rounded-xl border bg-card p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">Materials Summary</h3>
-              <Button variant="default"
+              <Button
+                variant="default"
                 onClick={addMaterialRow}
                 className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-primary hover:transition-colors"
               >
@@ -392,7 +391,8 @@ export default function ClientEstimateEditor() {
                       min={0}
                       className="col-span-3 rounded-lg border bg-background px-3 py-2 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
                     />
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => removeMaterialRow(idx)}
                       className="col-span-1 flex items-center justify-center rounded-lg p-2 text-destructive hover:bg-destructive/10 transition-colors"
                     >
@@ -494,7 +494,8 @@ export default function ClientEstimateEditor() {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => handleSave(true)}
               disabled={saving || sharing}
               className="inline-flex items-center gap-2 rounded-xl border px-5 py-2.5 text-sm font-medium hover:bg-muted transition-colors disabled:opacity-50"
@@ -506,7 +507,8 @@ export default function ClientEstimateEditor() {
               )}
               Save as Draft
             </Button>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => handleSave(false)}
               disabled={saving || sharing}
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"

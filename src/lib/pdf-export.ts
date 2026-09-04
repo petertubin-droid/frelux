@@ -142,29 +142,6 @@ export function exportPdfQuote(data: QuoteExportData): void {
       </div>
     </div>
     `;
-    // If using branding, the meta section is already in getHtmlBrandedHeader
-    // but we need to add it for the branding case too
-    if (useBranding) {
-      headerHtml = `
-      <div class="header" style="border-bottom: 2px solid ${primaryColor};">
-        <div class="company">
-          ${brandLogo ? `<img src="${brandLogo}" class="logo" alt="logo" />` : ""}
-          <div class="company-name" style="color: ${primaryColor};">${escapeHtml(brandName)}</div>
-          ${branding.tagline ? `<div class="company-info" style="font-style: italic;">${escapeHtml(branding.tagline)}</div>` : ""}
-          ${brandAddress ? `<div class="company-info">${escapeHtml(brandAddress)}</div>` : ""}
-          ${brandPhone ? `<div class="company-info">Tel: ${escapeHtml(brandPhone)}</div>` : ""}
-          ${brandEmail ? `<div class="company-info">Email: ${escapeHtml(brandEmail)}</div>` : ""}
-          ${branding.whatsapp ? `<div class="company-info">WhatsApp: ${escapeHtml(branding.whatsapp)}</div>` : ""}
-          ${branding.website ? `<div class="company-info">${escapeHtml(branding.website)}</div>` : ""}
-        </div>
-        <div class="meta">
-          <h1 style="color: ${primaryColor};">QUOTATION</h1>
-          <div class="ref">Ref: ${ref}</div>
-          <div class="date">Date: ${date}</div>
-        </div>
-      </div>
-      `;
-    }
   }
 
   // Build footer HTML

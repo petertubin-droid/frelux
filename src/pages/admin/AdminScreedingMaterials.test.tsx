@@ -3,7 +3,9 @@ import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
-vi.mock("@/lib/auth", () => ({ useAuth: vi.fn(() => ({ user: null, loading: false })) }));
+vi.mock("@/lib/auth", () => ({
+  useAuth: vi.fn(() => ({ user: null, loading: false })),
+}));
 vi.mock("@/lib/credits", () => ({
   getCreditWallet: vi.fn().mockResolvedValue(null),
   getCreditTransactions: vi.fn().mockResolvedValue([]),
@@ -47,28 +49,61 @@ vi.mock("@/lib/credits", () => ({
 }));
 
 // Mock supabase with controllable data
-const mockData: Record<string, unknown[]> = {
+const mockData: Record<string, Record<string, unknown>[]> = {
   screeding_system_config: [],
 };
 
 vi.mock("@/lib/supabase", () => {
+  type Chain = {
+    [key: string]: unknown;
+    _table: string;
+    _filters: Record<string, unknown>;
+    _data: unknown;
+    _error: unknown;
+    then(
+      resolve?: ((value: { data: unknown[]; error: null }) => unknown) | null,
+      reject?: ((reason: unknown) => unknown) | null,
+    ): unknown;
+  };
   function makeChain(table: string, filters: Record<string, unknown> = {}) {
-    const chain: unknown = {
+    const chain: Chain = {
       _table: table,
       _filters: filters,
-      _data: null as unknown,
-      _error: null as unknown,
+      _data: null,
+      _error: null,
       get data() {
         return this._data;
       },
       get error() {
         return this._error;
       },
+      // When awaited without single/maybeSingle, return array
+      then(resolve, reject) {
+        const rows = getFilteredRows();
+        return Promise.resolve({ data: rows, error: null }).then(
+          resolve,
+          reject,
+        );
+      },
     };
 
     // Filter methods
-    for (const m of ["eq", "neq", "gt", "gte", "lt", "lte", "like", "ilike", "in", "is", "not"]) {
-      chain[m] = vi.fn((col: string, val: unknown) => makeChain(table, { ...filters, [col]: val }));
+    for (const m of [
+      "eq",
+      "neq",
+      "gt",
+      "gte",
+      "lt",
+      "lte",
+      "like",
+      "ilike",
+      "in",
+      "is",
+      "not",
+    ]) {
+      chain[m] = vi.fn((col: string, val: unknown) =>
+        makeChain(table, { ...filters, [col]: val }),
+      );
     }
     for (const m of ["or", "and"]) {
       chain[m] = vi.fn(() => makeChain(table, filters));
@@ -81,16 +116,10 @@ vi.mock("@/lib/supabase", () => {
     function getFilteredRows() {
       let rows = mockData[table] || [];
       for (const [col, val] of Object.entries(filters)) {
-        rows = rows.filter((r: unknown) => r[col] === val);
+        rows = rows.filter((r: Record<string, unknown>) => r[col] === val);
       }
       return rows;
     }
-
-    // When awaited without single/maybeSingle, return array
-    chain.then = function(resolve: unknown, reject: unknown) {
-      const rows = getFilteredRows();
-      return Promise.resolve({ data: rows, error: null }).then(resolve, reject);
-    };
 
     chain.maybeSingle = vi.fn(() => {
       const rows = getFilteredRows();
@@ -114,7 +143,9 @@ vi.mock("@/lib/supabase", () => {
     channel: vi.fn(() => ({ on: vi.fn(() => ({ subscribe: vi.fn() })) })),
     removeChannel: vi.fn(),
     auth: {
-      getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+      getSession: vi
+        .fn()
+        .mockResolvedValue({ data: { session: null }, error: null }),
       getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
       signInWithPassword: vi.fn().mockResolvedValue({ data: {}, error: null }),
       signOut: vi.fn().mockResolvedValue({ error: null }),
@@ -124,7 +155,9 @@ vi.mock("@/lib/supabase", () => {
         list: vi.fn().mockResolvedValue({ data: [], error: null }),
         upload: vi.fn().mockResolvedValue({ data: {}, error: null }),
         remove: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        getPublicUrl: vi.fn(() => ({ data: { publicUrl: "https://example.com/test.png" } })),
+        getPublicUrl: vi.fn(() => ({
+          data: { publicUrl: "https://example.com/test.png" },
+        })),
       })),
     },
   };

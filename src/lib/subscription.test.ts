@@ -1,4 +1,18 @@
 import { describe, it, expect } from "vitest";
+import type { DbUserPaidStatus } from "@/types/database";
+
+/** Build a DbUserPaidStatus with the full current row shape. */
+function makePaidStatus(
+  overrides: Pick<DbUserPaidStatus, "is_paid" | "plan" | "paid_until">,
+): DbUserPaidStatus {
+  return {
+    user_id: "test-user",
+    payment_provider: null,
+    provider_customer_id: null,
+    updated_at: new Date().toISOString(),
+    ...overrides,
+  };
+}
 import {
   PAID_FEATURES,
   FEATURE_LABELS,
@@ -73,27 +87,35 @@ describe("isSubscriptionActive", () => {
 
   it("returns false when is_paid is false", () => {
     expect(
-      isSubscriptionActive({ is_paid: false, plan: "pro", paid_until: null }),
+      isSubscriptionActive(
+        makePaidStatus({ is_paid: false, plan: "pro", paid_until: null }),
+      ),
     ).toBe(false);
   });
 
   it("returns true when paid with no expiry", () => {
     expect(
-      isSubscriptionActive({ is_paid: true, plan: "pro", paid_until: null }),
+      isSubscriptionActive(
+        makePaidStatus({ is_paid: true, plan: "pro", paid_until: null }),
+      ),
     ).toBe(true);
   });
 
   it("returns true when paid and not expired", () => {
     const future = new Date(Date.now() + 30 * 86400000).toISOString();
     expect(
-      isSubscriptionActive({ is_paid: true, plan: "pro", paid_until: future }),
+      isSubscriptionActive(
+        makePaidStatus({ is_paid: true, plan: "pro", paid_until: future }),
+      ),
     ).toBe(true);
   });
 
   it("returns false when paid but expired", () => {
     const past = new Date(Date.now() - 86400000).toISOString();
     expect(
-      isSubscriptionActive({ is_paid: true, plan: "pro", paid_until: past }),
+      isSubscriptionActive(
+        makePaidStatus({ is_paid: true, plan: "pro", paid_until: past }),
+      ),
     ).toBe(false);
   });
 });
@@ -105,21 +127,27 @@ describe("getDaysRemaining", () => {
 
   it("returns 0 when no paid_until", () => {
     expect(
-      getDaysRemaining({ is_paid: true, plan: "pro", paid_until: null }),
+      getDaysRemaining(
+        makePaidStatus({ is_paid: true, plan: "pro", paid_until: null }),
+      ),
     ).toBe(0);
   });
 
   it("returns positive days for future expiry", () => {
     const future = new Date(Date.now() + 30 * 86400000).toISOString();
     expect(
-      getDaysRemaining({ is_paid: true, plan: "pro", paid_until: future }),
+      getDaysRemaining(
+        makePaidStatus({ is_paid: true, plan: "pro", paid_until: future }),
+      ),
     ).toBeGreaterThan(28);
   });
 
   it("returns 0 for past expiry", () => {
     const past = new Date(Date.now() - 86400000).toISOString();
     expect(
-      getDaysRemaining({ is_paid: true, plan: "pro", paid_until: past }),
+      getDaysRemaining(
+        makePaidStatus({ is_paid: true, plan: "pro", paid_until: past }),
+      ),
     ).toBe(0);
   });
 });
@@ -130,64 +158,78 @@ describe("getPlan", () => {
   });
 
   it("returns free when not paid", () => {
-    expect(getPlan({ is_paid: false, plan: "pro", paid_until: null })).toBe(
-      "free",
-    );
+    expect(
+      getPlan(
+        makePaidStatus({ is_paid: false, plan: "pro", paid_until: null }),
+      ),
+    ).toBe("free");
   });
 
   it("returns pro for pro plan", () => {
-    expect(getPlan({ is_paid: true, plan: "pro", paid_until: null })).toBe(
-      "pro",
-    );
+    expect(
+      getPlan(makePaidStatus({ is_paid: true, plan: "pro", paid_until: null })),
+    ).toBe("pro");
   });
 
   it("returns premium for premium plan", () => {
-    expect(getPlan({ is_paid: true, plan: "premium", paid_until: null })).toBe(
-      "premium",
-    );
+    expect(
+      getPlan(
+        makePaidStatus({ is_paid: true, plan: "premium", paid_until: null }),
+      ),
+    ).toBe("premium");
   });
 
   it("returns enterprise for enterprise plan", () => {
     expect(
-      getPlan({ is_paid: true, plan: "enterprise", paid_until: null }),
+      getPlan(
+        makePaidStatus({ is_paid: true, plan: "enterprise", paid_until: null }),
+      ),
     ).toBe("enterprise");
   });
 
   it("returns basic for basic plan", () => {
-    expect(getPlan({ is_paid: true, plan: "basic", paid_until: null })).toBe(
-      "basic",
-    );
+    expect(
+      getPlan(
+        makePaidStatus({ is_paid: true, plan: "basic", paid_until: null }),
+      ),
+    ).toBe("basic");
   });
 
   it("returns basic for starter plan", () => {
-    expect(getPlan({ is_paid: true, plan: "starter", paid_until: null })).toBe(
-      "basic",
-    );
+    expect(
+      getPlan(
+        makePaidStatus({ is_paid: true, plan: "starter", paid_until: null }),
+      ),
+    ).toBe("basic");
   });
 
   it("defaults to pro for unrecognized paid plan", () => {
-    expect(getPlan({ is_paid: true, plan: "unknown", paid_until: null })).toBe(
-      "pro",
-    );
+    expect(
+      getPlan(
+        makePaidStatus({ is_paid: true, plan: "unknown", paid_until: null }),
+      ),
+    ).toBe("pro");
   });
 
   it("handles case-insensitive plan names", () => {
-    expect(getPlan({ is_paid: true, plan: "PRO", paid_until: null })).toBe(
-      "pro",
-    );
-    expect(getPlan({ is_paid: true, plan: "Premium", paid_until: null })).toBe(
-      "premium",
-    );
+    expect(
+      getPlan(makePaidStatus({ is_paid: true, plan: "PRO", paid_until: null })),
+    ).toBe("pro");
+    expect(
+      getPlan(
+        makePaidStatus({ is_paid: true, plan: "Premium", paid_until: null }),
+      ),
+    ).toBe("premium");
   });
 });
 
 describe("hasFeatureAccess", () => {
   const activePro: SubscriptionState = {
-    paidStatus: {
+    paidStatus: makePaidStatus({
       is_paid: true,
       plan: "pro",
       paid_until: new Date(Date.now() + 30 * 86400000).toISOString(),
-    },
+    }),
     isActive: true,
     plan: "pro",
     paidUntil: new Date(Date.now() + 30 * 86400000),
@@ -261,7 +303,11 @@ describe("formatSubscriptionStatus", () => {
 
   it("returns 'Free plan' when not paid", () => {
     const state: SubscriptionState = {
-      paidStatus: { is_paid: false, plan: "free", paid_until: null },
+      paidStatus: makePaidStatus({
+        is_paid: false,
+        plan: "free",
+        paid_until: null,
+      }),
       isActive: false,
       plan: "free",
       paidUntil: null,
@@ -275,11 +321,11 @@ describe("formatSubscriptionStatus", () => {
 
   it("returns plan with days remaining when active", () => {
     const state: SubscriptionState = {
-      paidStatus: {
+      paidStatus: makePaidStatus({
         is_paid: true,
         plan: "pro",
         paid_until: new Date(Date.now() + 30 * 86400000).toISOString(),
-      },
+      }),
       isActive: true,
       plan: "pro",
       paidUntil: new Date(Date.now() + 30 * 86400000),
@@ -295,11 +341,11 @@ describe("formatSubscriptionStatus", () => {
 
   it("uses singular 'day' for 1 remaining", () => {
     const state: SubscriptionState = {
-      paidStatus: {
+      paidStatus: makePaidStatus({
         is_paid: true,
         plan: "pro",
         paid_until: new Date(Date.now() + 86400000).toISOString(),
-      },
+      }),
       isActive: true,
       plan: "pro",
       paidUntil: new Date(Date.now() + 86400000),
@@ -313,11 +359,11 @@ describe("formatSubscriptionStatus", () => {
 
   it("returns expired when not active but paid", () => {
     const state: SubscriptionState = {
-      paidStatus: {
+      paidStatus: makePaidStatus({
         is_paid: true,
         plan: "pro",
         paid_until: new Date(Date.now() - 86400000).toISOString(),
-      },
+      }),
       isActive: false,
       plan: "pro",
       paidUntil: null,

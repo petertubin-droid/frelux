@@ -56,9 +56,9 @@ interface AvailableSystem {
   icon: typeof PaintBucket;
 }
 
-export default function ScreedingCostEstimator(
-  { embedded = false }: { embedded?: boolean } = () => {},
-) {
+export default function ScreedingCostEstimator({
+  embedded = false,
+}: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults("screeding_cost");
   useSeo(
     !embedded
@@ -618,8 +618,6 @@ export default function ScreedingCostEstimator(
                           calcTitle={`Screeding Cost (${result.systemType === "putty" ? "Putty" : "Cement+Paint"}): ${formatNumber(result.netScreedingArea, 2)} m²`}
                           calcData={{
                             netArea,
-                            systemType: result.systemType,
-                            coats: result.coats,
                             ...result,
                           }}
                           resultSummary={{

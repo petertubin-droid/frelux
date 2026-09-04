@@ -1583,7 +1583,7 @@ export interface DbProjectCalculation {
     | "foundation";
   calculator_slug: string;
   calc_title: string;
-  calc_data: Record<string, unknown>;
+  calc_data: object;
   result_summary: Record<string, unknown>;
   materials: Array<{
     name: string;
@@ -1896,7 +1896,7 @@ export interface PdfDefaultBrandingConfig {
 
 export interface DbScreedingSystemConfig {
   id: string;
-  system_type: 'putty' | 'white_cement_paint';
+  system_type: "putty" | "white_cement_paint";
   display_name: string;
   description: string | null;
   coverage_area_m2: number;
@@ -1917,7 +1917,7 @@ export interface DbScreedingSystemConfig {
   cement_quantity: number | null;
   cement_unit: string | null;
   cement_price_per_unit: number | null;
-  rounding_rule: 'ceil' | 'none';
+  rounding_rule: "ceil" | "none";
   is_active: boolean;
   sort_order: number;
   created_at: string;

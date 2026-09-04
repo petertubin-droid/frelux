@@ -8,23 +8,46 @@ import {
   type ShoppingItemWithActual,
 } from "@/lib/project-intelligence";
 
+let itemSeq = 0;
+function makeItem(
+  overrides: Partial<ShoppingItemWithActual>,
+): ShoppingItemWithActual {
+  itemSeq += 1;
+  return {
+    id: `item-${itemSeq}`,
+    project_id: "proj-1",
+    category: "Material",
+    name: "Item",
+    quantity: 1,
+    unit: "pcs",
+    estimated_price: 100,
+    actual_price: 100,
+    total_price: 100,
+    supplier: null,
+    notes: null,
+    is_purchased: true,
+    sort_order: itemSeq,
+    ...overrides,
+  };
+}
+
 describe("calculateShoppingTotals", () => {
   it("calculates totals for items with actual prices", () => {
     const items: ShoppingItemWithActual[] = [
-      {
+      makeItem({
         name: "Paint",
         quantity: 3,
         estimated_price: 5000,
         actual_price: 4500,
         is_purchased: true,
-      },
-      {
+      }),
+      makeItem({
         name: "Brush",
         quantity: 2,
         estimated_price: 500,
         actual_price: 600,
         is_purchased: true,
-      },
+      }),
     ];
     const result = calculateShoppingTotals(items);
     expect(result.estimatedTotal).toBe(16000); // (5000*3) + (500*2)
@@ -37,13 +60,13 @@ describe("calculateShoppingTotals", () => {
 
   it("handles items with null actual_price", () => {
     const items: ShoppingItemWithActual[] = [
-      {
+      makeItem({
         name: "Primer",
         quantity: 1,
         estimated_price: 3000,
         actual_price: null,
         is_purchased: false,
-      },
+      }),
     ];
     const result = calculateShoppingTotals(items);
     expect(result.estimatedTotal).toBe(3000);
@@ -62,27 +85,27 @@ describe("calculateShoppingTotals", () => {
 
   it("handles mixed purchased and not purchased", () => {
     const items: ShoppingItemWithActual[] = [
-      {
+      makeItem({
         name: "A",
         quantity: 1,
         estimated_price: 100,
         actual_price: 100,
         is_purchased: true,
-      },
-      {
+      }),
+      makeItem({
         name: "B",
         quantity: 2,
         estimated_price: 200,
         actual_price: null,
         is_purchased: false,
-      },
-      {
+      }),
+      makeItem({
         name: "C",
         quantity: 1,
         estimated_price: 300,
         actual_price: 350,
         is_purchased: true,
-      },
+      }),
     ];
     const result = calculateShoppingTotals(items);
     expect(result.purchasedCount).toBe(2);

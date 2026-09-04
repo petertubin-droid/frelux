@@ -3,7 +3,8 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import SaveTemplateButton from "@/components/templates/SaveTemplateButton";
 
-const mockUser = { value: { id: "user-1" } as null };
+type FakeUser = { id: string } | null;
+const mockUser: { value: FakeUser } = { value: { id: "user-1" } };
 
 vi.mock("@/lib/auth", () => ({
   useAuth: () => ({ user: mockUser.value }),
@@ -49,6 +50,8 @@ describe("SaveTemplateButton", () => {
   it("opens modal when button is clicked", () => {
     renderButton();
     fireEvent.click(screen.getByText("Save as Template"));
-    expect(screen.getAllByText("Save as Template").length).toBeGreaterThanOrEqual(2);
+    expect(
+      screen.getAllByText("Save as Template").length,
+    ).toBeGreaterThanOrEqual(2);
   });
 });

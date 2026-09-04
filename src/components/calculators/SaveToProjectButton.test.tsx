@@ -12,7 +12,9 @@ beforeEach(() => {
 });
 
 async function renderButton() {
-  const SaveToProjectButton = (await import("@/components/calculators/SaveToProjectButton")).default;
+  const SaveToProjectButton = (
+    await import("@/components/calculators/SaveToProjectButton")
+  ).default;
   return render(
     <MemoryRouter>
       <ToastProvider>
@@ -20,7 +22,7 @@ async function renderButton() {
           calculatorType="paint"
           calculatorSlug="paint-calculator"
           calcData={{ area: 50 }}
-          calcSummary="50 sqm, 3 containers"
+          resultSummary={{ summary: "50 sqm, 3 containers" }}
         />
       </ToastProvider>
     </MemoryRouter>,

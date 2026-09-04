@@ -81,7 +81,7 @@ const {
   fetchMetrics,
   fetchRoles,
   createRole,
-  _updateRole,
+  updateRole,
   deleteRole,
 } = await import("./ai-studio");
 

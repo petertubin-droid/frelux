@@ -320,6 +320,10 @@ describe("PremiumFeatureGate", () => {
         "pdf_export",
         "adsense",
         expect.any(String),
+        expect.objectContaining({
+          source: "premium_gate",
+          provider: "adsense",
+        }),
         expect.any(String),
       );
     });

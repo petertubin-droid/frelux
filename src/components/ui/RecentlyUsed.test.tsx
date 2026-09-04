@@ -29,8 +29,18 @@ describe("RecentlyUsed", () => {
   it("renders recent tools when available", async () => {
     const { getRecentTools } = await import("@/lib/smart-defaults");
     vi.mocked(getRecentTools).mockReturnValue([
-      { path: "/paint-calculator", label: "Paint Calculator", icon: "Calculator", visitedAt: Date.now() },
-      { path: "/tile-calculator", label: "Tile Calculator", icon: "Grid3x3", visitedAt: Date.now() },
+      {
+        path: "/paint-calculator",
+        label: "Paint Calculator",
+        icon: "Calculator",
+        visitedAt: new Date().toISOString(),
+      },
+      {
+        path: "/tile-calculator",
+        label: "Tile Calculator",
+        icon: "Grid3x3",
+        visitedAt: new Date().toISOString(),
+      },
     ]);
     renderComponent();
     expect(screen.getByText("Recently Used")).toBeTruthy();
@@ -41,7 +51,12 @@ describe("RecentlyUsed", () => {
   it("renders section heading with clock icon", async () => {
     const { getRecentTools } = await import("@/lib/smart-defaults");
     vi.mocked(getRecentTools).mockReturnValue([
-      { path: "/paint", label: "Paint", icon: "Calculator", visitedAt: Date.now() },
+      {
+        path: "/paint",
+        label: "Paint",
+        icon: "Calculator",
+        visitedAt: new Date().toISOString(),
+      },
     ]);
     renderComponent();
     expect(screen.getByText("Recently Used")).toBeTruthy();

@@ -9,11 +9,9 @@ import {
   createBrandProfile,
   updateBrandProfile,
   deleteBrandProfile,
+  type BrandStudioAccess as BSAccess,
 } from "@/lib/brand-studio";
-import type {
-  BrandStudioAccess as BSAccess,
-  DbBrandProfile,
-} from "@/types/database";
+import type { DbBrandProfile } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface Props {
@@ -315,7 +313,9 @@ export function BrandIdentitySection({
                 </div>
               </div>
               <div>
-                <label className="text-xs text-muted-foreground">Secondary</label>
+                <label className="text-xs text-muted-foreground">
+                  Secondary
+                </label>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
@@ -408,7 +408,8 @@ export function BrandIdentitySection({
 
           {/* Actions */}
           <div className="flex gap-2">
-            <Button variant="default"
+            <Button
+              variant="default"
               onClick={handleSave}
               disabled={saving || !name.trim()}
               className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold hover:/90 disabled:opacity-50"
@@ -421,7 +422,8 @@ export function BrandIdentitySection({
                   : "Create Profile"}
             </Button>
             {editingId && (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={handleDelete}
                 disabled={saving}
                 className="inline-flex items-center gap-2 rounded-lg border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 disabled:opacity-50 dark:border-red-900 dark:hover:bg-red-950"
@@ -430,7 +432,8 @@ export function BrandIdentitySection({
                 Delete
               </Button>
             )}
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={resetForm}
               className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground dark:border-white/10 dark:hover:bg-white/5"
             >

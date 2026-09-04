@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import CountUp from "@/components/ui/CountUp";
 
@@ -11,7 +11,7 @@ beforeEach(() => {
   globalThis.requestAnimationFrame = vi.fn((cb: (ts: number) => void) => {
     rafCallbacks.push(cb);
     return rafCallbacks.length;
-  }) as unknown;
+  }) as unknown as typeof globalThis.requestAnimationFrame;
   globalThis.cancelAnimationFrame = vi.fn();
 });
 

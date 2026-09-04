@@ -4,10 +4,12 @@ import { MemoryRouter } from "react-router-dom";
 
 vi.mock("@/lib/useCookieConsent", () => ({
   useCookieConsent: vi.fn(() => ({
+    consent: null,
     showBanner: true,
     accept: vi.fn(),
     reject: vi.fn(),
     save: vi.fn(),
+    withdraw: vi.fn(),
     dismiss: vi.fn(),
   })),
 }));
@@ -30,21 +32,25 @@ function renderBanner() {
 describe("CookieBanner", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (useCookieConsent as unknown).mockReturnValue({
+    vi.mocked(useCookieConsent).mockReturnValue({
+      consent: null,
       showBanner: true,
       accept: vi.fn(),
       reject: vi.fn(),
       save: vi.fn(),
+      withdraw: vi.fn(),
       dismiss: vi.fn(),
     });
   });
 
   it("returns null when showBanner is false", () => {
-    (useCookieConsent as unknown).mockReturnValue({
+    vi.mocked(useCookieConsent).mockReturnValue({
+      consent: null,
       showBanner: false,
       accept: vi.fn(),
       reject: vi.fn(),
       save: vi.fn(),
+      withdraw: vi.fn(),
       dismiss: vi.fn(),
     });
     const { container } = renderBanner();
@@ -69,11 +75,13 @@ describe("CookieBanner", () => {
 
   it("calls accept when Accept All clicked", () => {
     const accept = vi.fn();
-    (useCookieConsent as unknown).mockReturnValue({
+    vi.mocked(useCookieConsent).mockReturnValue({
+      consent: null,
       showBanner: true,
       accept,
       reject: vi.fn(),
       save: vi.fn(),
+      withdraw: vi.fn(),
       dismiss: vi.fn(),
     });
     renderBanner();
@@ -83,11 +91,13 @@ describe("CookieBanner", () => {
 
   it("calls reject when Reject Non-Essential clicked", () => {
     const reject = vi.fn();
-    (useCookieConsent as unknown).mockReturnValue({
+    vi.mocked(useCookieConsent).mockReturnValue({
+      consent: null,
       showBanner: true,
       accept: vi.fn(),
       reject,
       save: vi.fn(),
+      withdraw: vi.fn(),
       dismiss: vi.fn(),
     });
     renderBanner();

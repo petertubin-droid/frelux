@@ -294,7 +294,7 @@ describe("generateErrorFix", () => {
       affected_file: "test.ts",
       category: "bug",
       proposed_solution: "fix",
-      risk_level: "low",
+      risk_level: "low" as const,
       protected_functionality_affected: false,
       recommended_action: "fix it",
     };

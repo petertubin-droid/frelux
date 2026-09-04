@@ -11,8 +11,8 @@ import {
   Layers,
   Percent,
   DollarSign,
-    Brain,
-  } from "lucide-react";
+  Brain,
+} from "lucide-react";
 import { calculateAdvancedEstimate, type AdvancedCalcInput } from "@/lib/calc";
 import { formatCurrency, formatNumber } from "@/lib/utils";
 import {
@@ -493,11 +493,7 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
             />
           )}
           {tab === "mix" && isScreeding && screedingInput && (
-            <MixTab
-              input={screedingInput}
-              update={updateScreeding}
-              config={config!}
-            />
+            <MixTab input={screedingInput} update={updateScreeding} />
           )}
           {tab === "costs" && (
             <CostsTab
@@ -505,8 +501,6 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
               update={updateCost}
               estimate={estimate}
               isScreeding={isScreeding}
-              contextSummary={contextSummary}
-              aiBreakdown={aiBreakdown}
               pdfGateOpen={pdfGateOpen}
               setPdfGateOpen={setPdfGateOpen}
               setPdfUnlocked={setPdfUnlocked}
@@ -897,14 +891,12 @@ function ScreedingBreakdownTab({
 function MixTab({
   input,
   update,
-  _config,
 }: {
   input: AdvancedCalcInput;
   update: <K extends keyof AdvancedCalcInput>(
     key: K,
     value: AdvancedCalcInput[K],
   ) => void;
-  config: ScreedingMixConfig;
 }) {
   const ratios = ["1:1", "2:1", "3:1", "3:2", "4:1"];
   return (
@@ -990,8 +982,6 @@ function CostsTab({
   update,
   estimate,
   isScreeding,
-  _contextSummary,
-  _aiBreakdown,
   pdfGateOpen,
   setPdfGateOpen,
   setPdfUnlocked,
@@ -1008,8 +998,6 @@ function CostsTab({
   update: <K extends keyof typeof costAdjust>(key: K, value: number) => void;
   estimate: AdvancedEstimateData | null;
   isScreeding: boolean;
-  contextSummary: string;
-  aiBreakdown: string | null;
   pdfGateOpen: boolean;
   setPdfGateOpen: (open: boolean) => void;
   setPdfUnlocked: (unlocked: boolean) => void;

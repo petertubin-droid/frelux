@@ -2,6 +2,11 @@ import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import ProfessionalCard from "@/components/pro-connect/ProfessionalCard";
+import type {
+  DbProCategory,
+  DbProProfile,
+  DbProService,
+} from "@/types/pro-connect";
 
 const mockProfile = {
   slug: "john-painter",
@@ -14,13 +19,16 @@ const mockProfile = {
   pro_level: false,
   bio: "Professional painter with 10 years experience",
   city: "Lagos",
-} as unknown;
+} as unknown as DbProProfile;
 
-const mockCategory = { name: "Painting", slug: "painting" } as unknown;
+const mockCategory = {
+  name: "Painting",
+  slug: "painting",
+} as unknown as DbProCategory;
 const mockServices = [
   { name: "Interior Painting", slug: "interior" },
   { name: "Exterior Painting", slug: "exterior" },
-] as unknown;
+] as unknown as DbProService[];
 
 function renderCard(
   props: Partial<Parameters<typeof ProfessionalCard>[0]> = {},
@@ -65,13 +73,13 @@ describe("ProfessionalCard", () => {
   });
 
   it("shows busy status when profile is busy", () => {
-    renderCard({ profile: { ...mockProfile, availability: "busy" } as unknown });
+    renderCard({ profile: { ...mockProfile, availability: "busy" } });
     expect(screen.getByText("Busy")).toBeTruthy();
   });
 
   it("shows unavailable status", () => {
     renderCard({
-      profile: { ...mockProfile, availability: "unavailable" } as unknown,
+      profile: { ...mockProfile, availability: "unavailable" },
     });
     expect(screen.getByText("Unavailable")).toBeTruthy();
   });

@@ -33,7 +33,7 @@ export interface SaveCalculationInput {
   calculator_type: DbProjectCalculation["calculator_type"];
   calculator_slug: string;
   calc_title: string;
-  calc_data: Record<string, unknown>;
+  calc_data: object;
   result_summary: Record<string, unknown>;
   materials: Array<{
     name: string;

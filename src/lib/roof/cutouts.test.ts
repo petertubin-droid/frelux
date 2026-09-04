@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import type { RoofCutout } from "@/lib/roof/area-pipeline";
 import {
   CUTOUT_TYPES,
   createCutout,
@@ -132,7 +133,10 @@ describe("validateCutout", () => {
     expect(validateCutout(c)).toContain("Area must be greater than 0");
   });
   it("returns error for invalid type", () => {
-    const c = { ...createCutout("Test", 5), type: "invalid" } as unknown;
+    const c = {
+      ...createCutout("Test", 5),
+      type: "invalid",
+    } as unknown as RoofCutout;
     expect(validateCutout(c)).toContain("Invalid cutout type");
   });
 });

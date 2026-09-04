@@ -135,7 +135,9 @@ export function useWorkWeather(workType: WorkType): WorkWeatherData {
 
     async function load() {
       try {
-        const { _usePaintingWeather } = await import("./weather");
+        // Yield one tick so consumers can observe the initial loading state
+        // before estimated data resolves synchronously.
+        await new Promise((resolve) => setTimeout(resolve, 0));
         // usePaintingWeather is a hook — we can't call it inside a callback.
         // Instead, replicate the fetch logic minimally.
         const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;

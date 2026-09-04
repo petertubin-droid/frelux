@@ -4,6 +4,7 @@ import {
   calculatorPath,
   CALCULATOR_META,
 } from "@/lib/templates";
+import type { CalculatorType } from "@/types/database";
 
 describe("calculatorLabel", () => {
   it("returns label for paint", () => {
@@ -14,8 +15,8 @@ describe("calculatorLabel", () => {
     expect(calculatorLabel("screeding")).toBeTruthy();
   });
 
-  it("returns label for pop_ceiling", () => {
-    expect(calculatorLabel("pop_ceiling")).toBeTruthy();
+  it("returns label for pop", () => {
+    expect(calculatorLabel("pop")).toBeTruthy();
   });
 
   it("returns label for tile", () => {
@@ -23,7 +24,9 @@ describe("calculatorLabel", () => {
   });
 
   it("returns the type string for unknown types", () => {
-    expect(calculatorLabel("unknown" as unknown)).toBe("unknown");
+    expect(calculatorLabel("unknown" as unknown as CalculatorType)).toBe(
+      "unknown",
+    );
   });
 });
 
@@ -37,7 +40,7 @@ describe("calculatorPath", () => {
   });
 
   it("returns / for unknown types", () => {
-    expect(calculatorPath("unknown" as unknown)).toBe("/");
+    expect(calculatorPath("unknown" as unknown as CalculatorType)).toBe("/");
   });
 });
 

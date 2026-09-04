@@ -13,6 +13,7 @@ import { isSubscriptionActive } from "@/lib/subscription";
 
 import type {
   DbBrandProfile,
+  DbUserPaidStatus,
   DbPdfBrandingTemplate,
   DbPdfExportUnlock,
   DbAiLogoGeneration,
@@ -180,11 +181,7 @@ export async function resolveBrandStudioAccess(
   userId: string | null,
   isAdmin: boolean,
   isPaid: boolean,
-  paidStatus: {
-    is_paid: boolean;
-    paid_until: string | null;
-    plan: string | null;
-  } | null,
+  paidStatus: DbUserPaidStatus | null,
 ): Promise<BrandStudioAccess> {
   const config = await fetchPdfBrandingConfig();
 
@@ -201,12 +198,7 @@ export async function resolveBrandStudioAccess(
     };
   }
 
-  const hasPremium =
-    isAdmin ||
-    (isPaid &&
-      isSubscriptionActive(
-        paidStatus as { is_paid: boolean; paid_until: string | null } | null,
-      ));
+  const hasPremium = isAdmin || (isPaid && isSubscriptionActive(paidStatus));
 
   // Check rewarded-ad unlock
   let activeUnlock: DbPdfExportUnlock | null = null;
