@@ -780,7 +780,9 @@ export default function TileCalculator({
                 Waste / safety margin
               </span>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Extra tiles added for cuts, breakage, and future repairs.
+                Buys extra tiles for cuts, breakage, and future repairs —
+                the quantity is multiplied by a factor (10% = ×1.10, 15% =
+                ×1.15).
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[0, 5, 10, 15, 20].map((w) => (
