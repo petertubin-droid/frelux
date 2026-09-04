@@ -550,59 +550,59 @@ export async function revokeClientEstimateShare(id: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
+/**
+ * Fetch a shared client estimate by its share token.
+ *
+ * Goes through the `fetch_shared_estimate` SECURITY DEFINER RPC — the
+ * public SELECT policy on client_estimates was removed in phase 26
+ * because it did not bind access to the token. The RPC validates the
+ * token server-side and auto-marks the estimate as viewed.
+ */
 export async function fetchClientEstimateByToken(
   token: string,
 ): Promise<DbClientEstimate | null> {
-  const { data, error } = await supabase
-    .from("client_estimates")
-    .select("*")
-    .eq("share_token", token)
-    .in("status", ["sent", "viewed", "approved", "changes_requested"])
-    .single();
-  if (error) {
-    if (error.code === "PGRST116") return null;
-    throw new Error(error.message);
-  }
-
-  // Mark as viewed if currently 'sent'
-  if (data && data.status === "sent") {
-    await supabase
-      .from("client_estimates")
-      .update({ status: "viewed", viewed_at: new Date().toISOString() })
-      .eq("id", data.id);
-    data.status = "viewed";
-    data.viewed_at = new Date().toISOString();
-  }
-
+  const { data, error } = await supabase.rpc("fetch_shared_estimate", {
+    p_token: token,
+  });
+  if (error) throw new Error(error.message);
+  if (!data) return null;
   return data as DbClientEstimate;
 }
 
+/**
+ * Approve a shared estimate. Goes through the
+ * `respond_to_client_estimate` RPC (see fetchClientEstimateByToken).
+ */
 export async function approveClientEstimate(token: string): Promise<void> {
-  const { error } = await supabase
-    .from("client_estimates")
-    .update({
-      status: "approved",
-      approved_at: new Date().toISOString(),
-    })
-    .eq("share_token", token)
-    .in("status", ["sent", "viewed", "changes_requested"]);
+  const { data, error } = await supabase.rpc("respond_to_client_estimate", {
+    p_token: token,
+    p_action: "approve",
+  });
   if (error) throw new Error(error.message);
+  const result = data as { ok?: boolean; error?: string };
+  if (!result?.ok) {
+    throw new Error(result?.error ?? "Could not approve estimate");
+  }
 }
 
+/**
+ * Request changes on a shared estimate. Goes through the
+ * `respond_to_client_estimate` RPC (see fetchClientEstimateByToken).
+ */
 export async function requestEstimateChanges(
   token: string,
   feedback: string,
 ): Promise<void> {
-  const { error } = await supabase
-    .from("client_estimates")
-    .update({
-      status: "changes_requested",
-      changes_requested_at: new Date().toISOString(),
-      client_feedback: feedback,
-    })
-    .eq("share_token", token)
-    .in("status", ["sent", "viewed"]);
+  const { data, error } = await supabase.rpc("respond_to_client_estimate", {
+    p_token: token,
+    p_action: "request_changes",
+    p_feedback: feedback,
+  });
   if (error) throw new Error(error.message);
+  const result = data as { ok?: boolean; error?: string };
+  if (!result?.ok) {
+    throw new Error(result?.error ?? "Could not submit feedback");
+  }
 }
 
 export async function deleteClientEstimate(id: string): Promise<void> {

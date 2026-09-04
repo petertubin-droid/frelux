@@ -263,7 +263,7 @@ Use ₦ (Naira) for all currency. Be specific with numbers. Keep it practical an
   }
 
   async function handleDelete(id: string) {
-    await deleteAdvancedEstimate(id);
+    await deleteAdvancedEstimate(id, clientHash);
     setSavedEstimates((prev) => prev.filter((e) => e.id !== id));
   }
 
