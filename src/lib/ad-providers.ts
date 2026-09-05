@@ -260,6 +260,13 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         required: false,
         placeholder: "banner_1",
       },
+      {
+        key: "serve_domain",
+        label: "Serve Domain",
+        type: "text",
+        required: false,
+        placeholder: "www.highperformanceformat.com",
+      },
     ],
     setting_fields: [
       { key: "format", label: "Ad Format", type: "text", default: "banner" },

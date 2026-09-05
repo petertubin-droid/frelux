@@ -62,8 +62,10 @@ const FIELD_HELP: Record<string, Record<string, string>> = {
     crids: "Optional — comma-separated CRIDs for specific ad zones.",
   },
   adsterra: {
-    key: "Your Adsterra ad zone key. Create a zone in Adsterra dashboard → Ad Units.",
+    key: "Your Adsterra Banner zone key (the 32-character token from the atOptions snippet). Create a Banner zone in Adsterra dashboard → Websites → Ad Units. One key per size — map size-specific keys per placement under Ads → Placements → Ad Unit ID.",
     placement_id: "Optional — a label for this placement (for your reference).",
+    serve_domain:
+      "Optional — the hostname from your Adsterra banner snippet (e.g. www.highperformanceformat.com or pl12345678.profitabledisplaynetwork.com). Defaults to www.highperformanceformat.com.",
   },
   buysellads: {
     site_key:

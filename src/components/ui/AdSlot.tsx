@@ -48,6 +48,128 @@ interface ResolvedAd {
 }
 
 /**
+ * ── Adsterra banner integration ─────────────────────────────────────────
+ * Adsterra banner zones serve via their official snippet:
+ *   atOptions = { key, format: 'iframe', height, width, params }
+ *   <script src="https://<serve-domain>/<key>/invoke.js">
+ * Each zone key is size-specific (created in the Adsterra dashboard with a
+ * fixed size), so width/height MUST match the zone or the banner renders
+ * into blank space. Per-placement overrides come from the Admin "Ad Unit
+ * ID" mapping (a size-specific key); the provider `key` credential is the
+ * default fallback zone.
+ *
+ * Banner sizes supported by Adsterra: 160x300, 160x600, 300x250, 320x50,
+ * 728x90, 468x60. Placement policy: banners go in standard content
+ * positions (in-content, sidebar, top/bottom of page), clearly separated
+ * from site content, with reasonable density — we cap at 3 Adsterra
+ * banners per page so the page is never overloaded.
+ */
+
+/** Adsterra serve domain assigned to the account's banner zones. */
+export function getAdsterraServeDomain(provider: DbAdProvider): string {
+  const creds = (provider.credentials ?? {}) as Record<string, unknown>;
+  const raw =
+    typeof creds.serve_domain === "string" ? creds.serve_domain.trim() : "";
+  // Only accept a plain hostname — never a full URL or script injection
+  return /^[a-z0-9.-]+\.[a-z]{2,}$/i.test(raw)
+    ? raw
+    : "www.highperformanceformat.com";
+}
+
+/** Default Adsterra banner size per placement family (config-driven override
+ *  via provider.settings.banner_sizes[slotKey] = "WxH"). */
+export function resolveAdsterraSize(
+  provider: DbAdProvider,
+  slotKey: string,
+): { width: number; height: number } {
+  const settings = (provider.settings ?? {}) as Record<string, unknown>;
+  const custom = (settings.banner_sizes ?? {}) as Record<string, unknown>;
+  const raw = typeof custom[slotKey] === "string" ? custom[slotKey] : "";
+  const m = raw.match(/^(\d{2,4})\s*[x×]\s*(\d{2,4})$/);
+  if (m) return { width: Number(m[1]), height: Number(m[2]) };
+
+  const isMobile = window.innerWidth < 768;
+  if (slotKey.endsWith("_sidebar")) return { width: 300, height: 250 };
+  if (slotKey.endsWith("_bottom")) {
+    return isMobile ? { width: 320, height: 50 } : { width: 728, height: 90 };
+  }
+  // In-content and every other family: medium rectangle
+  return { width: 300, height: 250 };
+}
+
+/** Page-session cap: at most 3 Adsterra banners per page (density policy). */
+const ADSTERRA_MAX_PER_PAGE = 3;
+let adsterraRenderedCount = 0;
+let adsterraRenderedPath: string | null = null;
+
+export function adsterraSlotAvailable(): boolean {
+  if (adsterraRenderedPath !== window.location.pathname) {
+    adsterraRenderedPath = window.location.pathname;
+    adsterraRenderedCount = 0;
+  }
+  return adsterraRenderedCount < ADSTERRA_MAX_PER_PAGE;
+}
+
+/** Test-only: reset the per-page Adsterra banner counter. */
+export function resetAdsterraPageStateForTests(): void {
+  adsterraRenderedCount = 0;
+  adsterraRenderedPath = null;
+}
+
+/**
+ * Render an Adsterra banner into a container. The official snippet is
+ * isolated inside a per-slot iframe (srcdoc) so `window.atOptions` — a
+ * global that invoke.js reads — can never race between two banners, and
+ * invoke.js's document.write lands in the iframe's document instead of
+ * the host page. This is the same iframe Adsterra would produce anyway.
+ */
+export function renderAdsterraBanner(
+  container: HTMLElement,
+  provider: DbAdProvider,
+  opts: { key: string; slotKey: string },
+): void {
+  const key = opts.key;
+  if (!/^[a-f0-9]{20,40}$/i.test(key)) return; // zone keys are hex tokens
+  const serveDomain = getAdsterraServeDomain(provider);
+  const { width, height } = resolveAdsterraSize(provider, opts.slotKey);
+  const params =
+    (provider.settings ?? {}) instanceof Object &&
+    typeof (provider.settings as Record<string, unknown>).sub_id === "string"
+      ? `{ 'sub_id': '${(provider.settings as Record<string, unknown>).sub_id}' }`
+      : "{}";
+
+  const html =
+    '<!DOCTYPE html><html><head><meta charset="utf-8">' +
+    "<style>html,body{margin:0;padding:0;overflow:hidden;background:transparent}</style>" +
+    "</head><body>" +
+    '<script type="text/javascript">' +
+    `atOptions = { 'key' : '${key}', 'format' : 'iframe', 'height' : ${height}, 'width' : ${width}, 'params' : ${params} };` +
+    "<\/script>" +
+    `<script type="text/javascript" src="https://${serveDomain}/${key}/invoke.js"></` +
+    "script></body></html>";
+
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute("title", "Advertisement");
+  iframe.setAttribute("scrolling", "no");
+  iframe.setAttribute("frameborder", "0");
+  iframe.style.cssText = `border:0;display:block;margin:0 auto;max-width:100%;width:${width}px;height:${height}px;`;
+  iframe.srcdoc = html;
+  try {
+    container.appendChild(iframe);
+  } catch {
+    // Some test environments (happy-dom) throw while wiring srcdoc iframes.
+    // The element still lands in the DOM — treat as rendered and move on.
+  }
+  adsterraRenderedCount++;
+}
+
+/**
+ * Injector registry — the effect calls through this indirection so tests
+ * can stub the real srcdoc injection (happy-dom can't load ad iframes).
+ */
+export const adsterraInjector = { renderBanner: renderAdsterraBanner };
+
+/**
  * Whether a provider's VISUAL display ads are enabled.
  * Admin toggle (Admin → Ads → "Display ads"): when off, the provider stays
  * active for rewarded flows and its impressions keep being logged, but no
@@ -125,6 +247,7 @@ export default function AdSlot({
       // They can render on any placement as long as their credentials are set.
       const GLOBAL_CREDENTIAL_PROVIDERS = [
         "monetag",
+        "adsterra",
         "ezoic",
         "snigel",
         "monumetric",
@@ -321,16 +444,9 @@ export default function AdSlot({
         break;
       }
       case "adsterra": {
-        if (!creds.key) break;
-        if (
-          !document.querySelector(`script[data-adsterra-key="${creds.key}"]`)
-        ) {
-          const s = document.createElement("script");
-          s.async = true;
-          s.setAttribute("data-adsterra-key", creds.key);
-          s.src = `https://pl1234567.profitabledisplaynetwork.com/${encodeURIComponent(creds.key)}/invoke.js`;
-          document.head.appendChild(s);
-        }
+        // Rendered per-slot by renderAdsterraBanner() inside the resolved
+        // container (see the container effect below). The banner snippet is
+        // isolated per iframe — there is no global head script to inject.
         break;
       }
       case "buysellads": {
@@ -477,6 +593,24 @@ export default function AdSlot({
     }
   }, [resolved]);
 
+  // Adsterra: render the banner into the slot container once resolved.
+  // Each banner lives in its own iframe with its own atOptions — see
+  // renderAdsterraBanner() for the policy/cap details.
+  useEffect(() => {
+    if (!resolved || resolved === "none") return;
+    const { provider, adUnitId } = resolved;
+    if (provider.slug !== "adsterra") return;
+    if (!isDisplayAdsEnabled(provider)) return;
+    const creds = provider.credentials ?? {};
+    const key = adUnitId || (typeof creds.key === "string" ? creds.key : "");
+    if (!key) return;
+    // Density policy: cap the number of Adsterra banners per page
+    if (!adsterraSlotAvailable()) return;
+    const container = containerRef.current;
+    if (!container || container.childElementCount > 0) return;
+    adsterraInjector.renderBanner(container, provider, { key, slotKey });
+  }, [resolved, slotKey]);
+
   // Paid subscribers never see ads
   if (isPaid) return null;
 
@@ -559,12 +693,15 @@ export default function AdSlot({
 
   // Adsterra rendering
   else if (provider.slug === "adsterra") {
-    if (!creds.key) return null;
+    const adsterraKey = adUnitId || creds.key;
+    if (!adsterraKey) return null;
+    // Density policy: never exceed the per-page banner cap
+    if (!adsterraSlotAvailable()) return null;
     adInner = (
       <div
         ref={containerRef}
         data-ad-provider="adsterra"
-        data-ad-zone={creds.key}
+        data-ad-zone={adsterraKey}
         data-ad-placement={slotKey}
       />
     );
