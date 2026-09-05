@@ -23,12 +23,39 @@ export function displayAdsEnabled(provider: DbAdProvider): boolean {
 }
 
 /** Hostnames Adsterra serves ad scripts from. */
-const ADSTERRA_SERVE_HOSTS = [
+export const ADSTERRA_SERVE_HOSTS = [
   "highperformanceformat.com",
   "profitabledisplaynetwork.com",
   "profitablecpmrate.com",
   "adsterrapremium.com",
 ];
+
+/** Default Adsterra serve host when none is configured/valid. */
+export const ADSTERRA_DEFAULT_SERVE_HOST = "www.highperformanceformat.com";
+
+/**
+ * Normalize a configured Adsterra serve domain to a bare, allowlisted
+ * hostname. Accepts "www.highperformanceformat.com", bare or full-URL
+ * forms, and strips scheme/path. Anything that is not a known Adsterra
+ * serve host (typos, unrelated domains) falls back to the default so a
+ * bad admin value can never break every banner on the site.
+ */
+export function normalizeAdsterraServeDomain(raw: unknown): string {
+  if (typeof raw !== "string") return ADSTERRA_DEFAULT_SERVE_HOST;
+  let host = raw.trim().toLowerCase();
+  if (host.includes("//")) {
+    try {
+      host = new URL(raw.trim()).hostname;
+    } catch {
+      return ADSTERRA_DEFAULT_SERVE_HOST;
+    }
+  }
+  host = host.replace(/\/.*$/, "").replace(/:\d+$/, "");
+  const ok = ADSTERRA_SERVE_HOSTS.some(
+    (allowed) => host === allowed || host.endsWith(`.${allowed}`),
+  );
+  return ok ? host : ADSTERRA_DEFAULT_SERVE_HOST;
+}
 
 function isAllowedAdsterraHost(hostname: string, serveDomain: string): boolean {
   const host = hostname.toLowerCase();

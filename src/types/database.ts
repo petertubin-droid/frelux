@@ -883,6 +883,7 @@ export type AdPageTarget =
   | "color_detail"
   | "gallery"
   | "ai"
+  | "marketplace"
   | "sidebar"
   | "global";
 
@@ -903,6 +904,7 @@ export interface DbAdPlacement {
   provider_ids: string[];
   ad_unit_ids: Record<string, string>;
   display_rules: AdDisplayRules;
+  sort_order: number;
   created_at: string;
   updated_at: string;
 }

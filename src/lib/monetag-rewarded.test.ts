@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   getMonetagZone,
   getMonetagDisplayZone,
+  getMonetagNativeZone,
   getMonetagSdkUrl,
   showMonetagRewardedAd,
 } from "@/lib/monetag-rewarded";
@@ -225,5 +226,41 @@ describe("getMonetagDisplayZone (website tag data-zone)", () => {
       settings: { sub_id: "11718645" },
     });
     expect(getMonetagDisplayZone(tricky)).toBeNull();
+  });
+});
+
+describe("getMonetagNativeZone (in-page Native Banner zone)", () => {
+  it("returns null when no native zone is configured — dormant by default", () => {
+    expect(getMonetagNativeZone(makeProvider())).toBeNull();
+  });
+
+  it("returns the zone only for numeric zone IDs", () => {
+    expect(
+      getMonetagNativeZone(
+        makeProvider({ credentials: { native_banner_zone_id: "7654321" } }),
+      ),
+    ).toBe("7654321");
+    expect(
+      getMonetagNativeZone(
+        makeProvider({ credentials: { native_banner_zone_id: " 7654321 " } }),
+      ),
+    ).toBe("7654321");
+  });
+
+  it("rejects non-numeric garbage (injection safety)", () => {
+    expect(
+      getMonetagNativeZone(
+        makeProvider({ credentials: { native_banner_zone_id: "alert(1)" } }),
+      ),
+    ).toBeNull();
+    expect(
+      getMonetagNativeZone(
+        makeProvider({
+          credentials: {
+            native_banner_zone_id: "<script src=evil.example></script>",
+          },
+        }),
+      ),
+    ).toBeNull();
   });
 });

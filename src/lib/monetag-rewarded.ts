@@ -91,6 +91,23 @@ export function getMonetagDisplayZone(
   return zone || null;
 }
 
+/**
+ * Resolve the optional Monetag Native Banner zone (from the provider
+ * dashboard). Monetag's in-page display format — a Native Banner — renders
+ * into the SDK container AdSlot provides. Zone IDs are numeric; anything
+ * else resolves to null (no in-page display) so we never inject a bogus tag.
+ */
+export function getMonetagNativeZone(
+  provider?: DbAdProvider | null,
+): string | null {
+  const creds = (provider?.credentials ?? {}) as Record<string, unknown>;
+  const raw = creds.native_banner_zone_id;
+  const zone = typeof raw === "string" || typeof raw === "number"
+    ? String(raw).trim()
+    : "";
+  return /^\d{3,12}$/.test(zone) ? zone : null;
+}
+
 /** Resolve the optional Monetag SDK script URL (from the provider dashboard). */
 export function getMonetagSdkUrl(
   provider?: DbAdProvider | null,

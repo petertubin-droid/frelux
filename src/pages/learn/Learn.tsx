@@ -567,6 +567,8 @@ export default function Learn() {
 
         <div className="mt-10">
           <AdSlot slotKey="learn_sidebar" className="mb-8" />
+          {/* Native banner slot — placement "learn_native" */}
+          <AdSlot slotKey="learn_native" />
           <AdSlot slotKey="learn_bottom" />
         </div>
       </div>

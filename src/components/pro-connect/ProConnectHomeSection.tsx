@@ -29,7 +29,8 @@ const mountedRef = useRef(true);
     useEffect(() => {
     (async () => {
       const cats = await fetchCategories();
-      setCategories(cats.slice(0, 8)); // Show up to 8 category cards
+      // Guard: fetchCategories can resolve null (e.g. DB unavailable)
+      if (Array.isArray(cats)) setCategories(cats.slice(0, 8));
     })();
   
     return () => { mountedRef.current = false; };

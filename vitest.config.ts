@@ -11,6 +11,17 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'happy-dom',
+    // Never fetch/execute external ad-network scripts during tests —
+    // the ad slot components inject them into <head> and happy-dom would
+    // otherwise download the real tags over the network.
+    environmentOptions: {
+      happyDom: {
+        settings: {
+          disableJavaScriptFileLoading: true,
+          disableCSSFileLoading: true,
+        },
+      },
+    },
     setupFiles: ['./src/test/setup.ts'],
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     coverage: {

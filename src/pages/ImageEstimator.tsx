@@ -828,6 +828,10 @@ export default function ImageEstimator() {
         ]}
       />{" "}
       <AdSlot slotKey="ai_feature" className="mt-8" />
+      {/* Native banner slot — placement "image_estimator_native" */}
+      <AdSlot slotKey="image_estimator_native" className="mt-8" />
+      {/* Ad slot — placement "image_estimator_bottom" */}
+      <AdSlot slotKey="image_estimator_bottom" className="mt-8" />
     </div>
   );
 }

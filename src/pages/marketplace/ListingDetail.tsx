@@ -615,6 +615,10 @@ export default function ListingDetail() {
         </div>
       </div>
       <AdSlot slotKey="marketplace_sidebar" className="mt-8" />
+      {/* Native banner slot — placement "marketplace_native" */}
+      <AdSlot slotKey="marketplace_native" className="mt-8" />
+      {/* Ad slot — placement "marketplace_bottom" */}
+      <AdSlot slotKey="marketplace_bottom" className="mt-8" />
     </div>
   );
 }

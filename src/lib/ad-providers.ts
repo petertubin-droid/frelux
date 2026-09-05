@@ -1036,6 +1036,13 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         placeholder: "1234567",
       },
       {
+        key: "native_banner_zone_id",
+        label: "Native Banner Zone ID (in-page display ads)",
+        type: "text",
+        required: false,
+        placeholder: "1234567",
+      },
+      {
         key: "sdk_url",
         label: "SDK Script URL (for Rewarded/SDK zones)",
         type: "text",
@@ -1190,6 +1197,7 @@ export const PAGE_TARGET_LABELS: Record<string, string> = {
   color_detail: "Color Detail Page",
   gallery: "Color Gallery",
   ai: "AI Features",
+  marketplace: "Marketplace",
   sidebar: "Sidebar (all pages)",
   global: "Global (all pages)",
 };
@@ -1209,3 +1217,125 @@ export const REWARDED_FEATURES = [
   { key: "premium_reports", name: "Premium Reports", icon: "FileText" },
   { key: "image_estimation", name: "AI Photo Estimator", icon: "Camera" },
 ];
+
+/**
+ * Page map spec — the visual wireframe used by the Admin "Page Map"
+ * display. Each entry describes one page template: its content sections
+ * and the ad slot keys that sit between them (in on-page order).
+ * "native" keys render as native banner ads; everything else as banners
+ * or in-article units.
+ */
+export type PageMapSection = {
+  /** Section label shown in the wireframe (e.g. "Hero") */
+  label: string;
+  /** Ad slot key rendered between this section and the next (optional) */
+  slot?: string;
+  /** True if the slot renders a native banner format */
+  native?: boolean;
+};
+
+export const PAGE_MAP: Record<string, { title: string; sections: PageMapSection[] }> = {
+  home: {
+    title: "Homepage",
+    sections: [
+      { label: "Hero" },
+      { label: "Ad · home_top (banner)", slot: "home_top" },
+      { label: "How FRELUX Works" },
+      { label: "Ad · home_native (native)", slot: "home_native", native: true },
+      { label: "Commercial readiness" },
+      { label: "Ad · home_mid (banner)", slot: "home_mid" },
+      { label: "All calculators grid" },
+      { label: "Ad · home_native_2 (native)", slot: "home_native_2", native: true },
+      { label: "Pro Connect section" },
+      { label: "Ad · home_mid_2 (banner)", slot: "home_mid_2" },
+      { label: "Marketplace CTA" },
+      { label: "Ad · home_native_3 (native)", slot: "home_native_3", native: true },
+      { label: "Sidebar (desktop)", slot: "home_sidebar" },
+      { label: "Footer" },
+      { label: "Ad · home_footer (banner)", slot: "home_footer" },
+    ],
+  },
+  learn_article: {
+    title: "Learn · Article page",
+    sections: [
+      { label: "Article header + intro" },
+      { label: "Ad · learn_article_top (in-article)", slot: "learn_article_top" },
+      { label: "First content block" },
+      { label: "Ad · learn_article_native (native)", slot: "learn_article_native", native: true },
+      { label: "Mid content" },
+      { label: "Ad · learn_in_article (in-article)", slot: "learn_in_article" },
+      { label: "Second content block" },
+      { label: "Ad · learn_article_native_2 (native)", slot: "learn_article_native_2", native: true },
+      { label: "Later content" },
+      { label: "Ad · learn_article_mid_2 (in-article)", slot: "learn_article_mid_2" },
+      { label: "Article end" },
+      { label: "Ad · learn_article_native_3 (native)", slot: "learn_article_native_3", native: true },
+      { label: "Related articles" },
+      { label: "Ad · learn_article_bottom (banner)", slot: "learn_article_bottom" },
+    ],
+  },
+  calculator: {
+    title: "Calculator / Estimator page",
+    sections: [
+      { label: "Calculator form + results" },
+      { label: "Ad · calculator_mid (banner)", slot: "calculator_mid" },
+      { label: "Results detail / materials" },
+      { label: "Ad · calculator_native (native)", slot: "calculator_native", native: true },
+      { label: "Related calculators" },
+      { label: "Ad · calculator_bottom (banner)", slot: "calculator_bottom" },
+    ],
+  },
+  calculator_hub: {
+    title: "Calculator hub page",
+    sections: [
+      { label: "Hub header + calculator cards" },
+      { label: "Ad · calculator_hub_mid (banner)", slot: "calculator_hub_mid" },
+      { label: "Guides / templates" },
+      { label: "Ad · calculator_hub_native (native)", slot: "calculator_hub_native", native: true },
+      { label: "Hub bottom" },
+      { label: "Ad · calculator_hub_bottom (banner)", slot: "calculator_hub_bottom" },
+    ],
+  },
+  learn_index: {
+    title: "Learn · index + category pages",
+    sections: [
+      { label: "Article / category grid" },
+      { label: "Ad · learn_category_mid (banner)", slot: "learn_category_mid" },
+      { label: "Ad · learn_native / learn_category_native (native)", slot: "learn_native", native: true },
+      { label: "Sidebar (Learn index, desktop)", slot: "learn_sidebar" },
+      { label: "Page bottom" },
+      { label: "Ad · learn_bottom (banner)", slot: "learn_bottom" },
+    ],
+  },
+  color_gallery: {
+    title: "Colors · gallery + detail pages",
+    sections: [
+      { label: "Color content" },
+      { label: "Ad · gallery_mid / color_detail_mid (banner)", slot: "gallery_mid" },
+      { label: "Ad · gallery_native / color_detail_native (native)", slot: "gallery_native", native: true },
+      { label: "Page bottom" },
+      { label: "Ad · colors_gallery_bottom / color_detail_footer (banner)", slot: "colors_gallery_bottom" },
+    ],
+  },
+  ai_tools: {
+    title: "AI feature pages",
+    sections: [
+      { label: "AI tool UI" },
+      { label: "Ad · ai_feature (banner)", slot: "ai_feature" },
+      { label: "Ad · ai_assistant_native (native)", slot: "ai_assistant_native", native: true },
+      { label: "Image estimator native (image_estimator_native)", slot: "image_estimator_native", native: true },
+      { label: "Feature bottom" },
+      { label: "Ad · ai_assistant_footer / image_estimator_bottom (banner)", slot: "ai_assistant_footer" },
+    ],
+  },
+  marketplace: {
+    title: "Marketplace pages",
+    sections: [
+      { label: "Marketplace content" },
+      { label: "Ad · marketplace_sidebar (banner)", slot: "marketplace_sidebar" },
+      { label: "Ad · marketplace_native (native)", slot: "marketplace_native", native: true },
+      { label: "Page bottom" },
+      { label: "Ad · marketplace_bottom (banner)", slot: "marketplace_bottom" },
+    ],
+  },
+};

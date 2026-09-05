@@ -764,6 +764,10 @@ export default function ScreedingCostEstimator({
           ]}
         />
       )}
+      {/* Ad slot — placement "calculator_mid" */}
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      {/* Native banner slot — placement "calculator_native" */}
+      <AdSlot slotKey="calculator_native" className="mt-8" />
       <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </>
   );

@@ -138,8 +138,20 @@ export default function Home() {
         <InteractiveEstimatePreview />
       </Suspense>
 
+      {/* Ad slot — placement "home_top" */}
+      <AdSlot
+        slotKey="home_top"
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+      />
+
       {/* How FRELUX Works — 4-step process */}
       <HowItWorks />
+
+      {/* Native banner slot — placement "home_native" */}
+      <AdSlot
+        slotKey="home_native"
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+      />
 
       {/* Commercial readiness — more than calculators */}
       <Suspense fallback={<SectionSkeleton minHeight={500} />}>
@@ -150,6 +162,12 @@ export default function Home() {
       <Suspense fallback={<SectionSkeleton minHeight={700} />}>
         <ToolsSection />
       </Suspense>
+
+      {/* Native banner slot — placement "home_native_2" */}
+      <AdSlot
+        slotKey="home_native_2"
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+      />
 
       {/* FRELUX Pro Connect — find the right professional */}
       <ProConnectHomeSection />
@@ -191,10 +209,22 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Native banner slot — placement "home_native_3" */}
+      <AdSlot
+        slotKey="home_native_3"
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+      />
+
       {/* Trust signals + why FRELUX */}
       <Suspense fallback={<SectionSkeleton minHeight={420} />}>
         <FeaturesSection />
       </Suspense>
+
+      {/* Ad slot — placement "home_mid_2" */}
+      <AdSlot
+        slotKey="home_mid_2"
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+      />
 
       {/* Ad slot */}
       <AdSlot

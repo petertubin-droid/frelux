@@ -321,6 +321,10 @@ export default function Calculators() {
             </Link>
           </div>
 
+          {/* Adsterra Native Banner slot — placement "calculators_native" */}
+          {/* Ad slot — placement "calculators_mid" */}
+          <AdSlot slotKey="calculators_mid" className="mt-10" />
+          <AdSlot slotKey="calculators_native" className="mt-10" />
           <AdSlot slotKey="calculators_bottom" className="mt-10" />
           {/* Back to home */}
           <div className="mt-12 text-center">

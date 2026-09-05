@@ -153,3 +153,11 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.credit_token_purchase TO service_role;
+
+-- =========================================================
+-- PRIVILEGES (anon/authenticated/service_role need table
+-- grants when the migration is run outside the default
+-- Supabase privilege path, e.g. via the Management API)
+-- =========================================================
+GRANT SELECT ON public.token_purchase_config TO anon, authenticated, service_role;
+GRANT SELECT, INSERT ON public.token_purchases TO authenticated, service_role;

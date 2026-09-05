@@ -13,6 +13,8 @@ import {
   ArrowUp,
   ArrowDown,
   Check,
+  Copy,
+  Map as MapIcon,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -35,6 +37,7 @@ import {
   CUSTOM_PROVIDER_SCHEMA,
   PLACEMENT_TYPE_LABELS,
   PAGE_TARGET_LABELS,
+  PAGE_MAP,
 } from "@/lib/ad-providers";
 import type {
   DbAdProvider,
@@ -757,11 +760,16 @@ function PlacementsTab() {
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<DbAdPlacement | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [showMap, setShowMap] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
     const [pRes, provRes] = await Promise.all([
-      supabase.from("ad_placements").select("*").order("placement_key"),
+      supabase
+        .from("ad_placements")
+        .select("*")
+        .order("sort_order")
+        .order("placement_key"),
       supabase.from("ad_providers").select("*").order("priority"),
     ]);
     if (pRes.error) setError(pRes.error.message);
@@ -786,6 +794,35 @@ function PlacementsTab() {
     setPlacements((prev) =>
       prev.map((p) => (p.id === pl.id ? { ...p, is_active: !p.is_active } : p)),
     );
+    clearAdConfigCache();
+  }
+
+  async function move(pl: DbAdPlacement, dir: -1 | 1) {
+    // Swap sort_order with the neighbouring placement in the ordered list
+    const idx = placements.findIndex((p) => p.id === pl.id);
+    const swapIdx = idx + dir;
+    if (idx < 0 || swapIdx < 0 || swapIdx >= placements.length) return;
+    const other = placements[swapIdx];
+    const [res1, res2] = await Promise.all([
+      supabase
+        .from("ad_placements")
+        .update({ sort_order: other.sort_order })
+        .eq("id", pl.id),
+      supabase
+        .from("ad_placements")
+        .update({ sort_order: pl.sort_order })
+        .eq("id", other.id),
+    ]);
+    const err = res1.error ?? res2.error;
+    if (err) {
+      setError(err.message);
+      return;
+    }
+    setPlacements((prev) => {
+      const next = [...prev];
+      [next[idx], next[swapIdx]] = [next[swapIdx], next[idx]];
+      return next;
+    });
     clearAdConfigCache();
   }
 
@@ -824,15 +861,23 @@ function PlacementsTab() {
           {placements.length} placements ·{" "}
           {placements.filter((p) => p.is_active).length} active
         </p>
-        <AdminButton
-          onClick={() => {
-            setEditing(null);
-            setShowForm(true);
-          }}
-        >
-          <Plus className="h-4 w-4" /> Add Placement
-        </AdminButton>
+        <div className="flex items-center gap-2">
+          <AdminButton variant="secondary" onClick={() => setShowMap((s) => !s)}>
+            <MapIcon className="h-4 w-4" /> {showMap ? "Hide" : "Page Map"}
+          </AdminButton>
+          <AdminButton
+            onClick={() => {
+              setEditing(null);
+              setShowForm(true);
+            }}
+          >
+            <Plus className="h-4 w-4" /> Add Placement
+          </AdminButton>
+        </div>
       </div>
+      {showMap && (
+        <PageMapPanel placements={placements} providers={providers} />
+      )}
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
         {placements.map((pl) => {
           const assignedProviders = (pl.provider_ids as string[])
@@ -881,6 +926,22 @@ function PlacementsTab() {
                   <AdminIconButton
                     variant="ghost"
                     type="button"
+                    title="Move up"
+                    onClick={() => move(pl, -1)}
+                  >
+                    <ArrowUp className="h-3 w-3" />
+                  </AdminIconButton>
+                  <AdminIconButton
+                    variant="ghost"
+                    type="button"
+                    title="Move down"
+                    onClick={() => move(pl, 1)}
+                  >
+                    <ArrowDown className="h-3 w-3" />
+                  </AdminIconButton>
+                  <AdminIconButton
+                    variant="ghost"
+                    type="button"
                     onClick={() => {
                       setEditing(pl);
                       setShowForm(true);
@@ -913,6 +974,149 @@ function PlacementsTab() {
         />
       )}
     </>
+  );
+}
+
+/**
+ * PageMapPanel — the visual "markdown" display of every ad slot across the
+ * site. For each page template it shows a wireframe (content sections with
+ * the ad slots in their on-page order) plus the generated markdown source,
+ * which can be copied for documentation.
+ */
+function PageMapPanel({
+  placements,
+  providers,
+}: {
+  placements: DbAdPlacement[];
+  providers: DbAdProvider[];
+}) {
+  const [copied, setCopied] = useState(false);
+  const byKey = new Map(placements.map((p) => [p.placement_key, p]));
+
+  function chainLabel(pl: DbAdPlacement | undefined): string {
+    if (!pl) return "not registered";
+    const names = (pl.provider_ids as string[])
+      .map((pid) => providers.find((p) => p.id === pid)?.name)
+      .filter(Boolean);
+    return names.length > 0 ? names.join(" → ") : "no provider";
+  }
+
+  // Build the markdown document for the whole site
+  const md = Object.entries(PAGE_MAP)
+    .map(([mapKey, page]) => {
+      const lines = [`## ${page.title}`, ""];
+      for (const s of page.sections) {
+        if (!s.slot) {
+          lines.push(`- ${s.label}`);
+          continue;
+        }
+        const pl = byKey.get(s.slot);
+        const status = !pl
+          ? "⚠ not registered"
+          : pl.is_active
+            ? "✅ on"
+            : "⛔ off";
+        lines.push(
+          `- **${s.slot}** (${s.native ? "native banner" : "banner"}) — ${status} — ${chainLabel(pl)}`,
+        );
+      }
+      return lines.join("\n");
+    })
+    .join("\n\n");
+
+  async function copyMarkdown() {
+    try {
+      await navigator.clipboard.writeText(
+        `# FRELUX Ad Slot Map\n\n${md}\n`,
+      );
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // clipboard unavailable — ignore
+    }
+  }
+
+  return (
+    <div className="mb-6 rounded-xl border border-border/70 bg-card p-4 dark:border-white/10">
+      <div className="mb-3 flex items-center justify-between">
+        <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
+          Ad Slot Page Map — where every slot sits
+        </h3>
+        <AdminButton variant="secondary" onClick={copyMarkdown}>
+          {copied ? (
+            <>
+              <Check className="h-4 w-4" /> Copied
+            </>
+          ) : (
+            <>
+              <Copy className="h-4 w-4" /> Copy markdown
+            </>
+          )}
+        </AdminButton>
+      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {Object.entries(PAGE_MAP).map(([mapKey, page]) => (
+          <div
+            key={mapKey}
+            className="rounded-lg border border-border/50 bg-background/60 p-3 dark:border-white/5"
+          >
+            <p className="mb-2 text-xs font-semibold text-card-foreground dark:text-muted-foreground">
+              {page.title}
+            </p>
+            <div className="flex flex-col gap-1">
+              {page.sections.map((s, i) => {
+                if (!s.slot) {
+                  return (
+                    <div
+                      key={i}
+                      className="rounded-md bg-muted/70 px-2 py-1.5 text-[10px] text-muted-foreground dark:bg-white/5"
+                    >
+                      {s.label}
+                    </div>
+                  );
+                }
+                const pl = byKey.get(s.slot);
+                const on = pl?.is_active ?? false;
+                return (
+                  <div
+                    key={i}
+                    className={classNames(
+                      "flex items-center justify-between gap-2 rounded-md border px-2 py-1.5",
+                      on
+                        ? "border-brand-purple/40 bg-primary/10"
+                        : "border-border/60 bg-muted/40 dark:border-white/10 dark:bg-white/5",
+                    )}
+                  >
+                    <span className="min-w-0 truncate text-[10px] font-semibold text-brand-purple">
+                      {s.slot}
+                      <span className="ml-1 font-normal text-muted-foreground">
+                        ({s.native ? "native" : "banner"})
+                      </span>
+                    </span>
+                    <span
+                      className={classNames(
+                        "shrink-0 text-[9px] font-semibold",
+                        !pl
+                          ? "text-red-500"
+                          : on
+                            ? "text-accent-green"
+                            : "text-muted-foreground",
+                      )}
+                    >
+                      {!pl
+                        ? "not registered"
+                        : on
+                          ? `on · ${pl.page_target}`
+                          : "off"}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 

@@ -158,9 +158,13 @@ describe("AdSlot", () => {
     );
   });
 
-  it("hides visual ads when display_ads_enabled is false, but still logs impressions", async () => {
-    const provider = makeMonetagProvider({ display_ads_enabled: false });
+  it("renders Monetag Native Banner container when native_banner_zone_id is configured", async () => {
+    const provider = {
+      ...(makeMonetagProvider() as unknown as Record<string, unknown>),
+      credentials: { zone_id: "1234567", native_banner_zone_id: "7654321" },
+    } as never;
     const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.getAdUnitId).mockReturnValue(null);
     vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
       providers: [provider],
       placements: [
@@ -170,6 +174,52 @@ describe("AdSlot", () => {
           placement_type: "banner",
           is_active: true,
           provider_ids: ["prov-monetag"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    const { container } = await renderAdSlot();
+
+    // In-page container renders with the native zone, and the SDK tag is
+    // injected with that zone (not the site-wide display zone).
+    await waitFor(() => {
+      const el = container.querySelector('[data-ad-provider="monetag"]');
+      expect(el).not.toBeNull();
+      expect(el?.getAttribute("data-zone")).toBe("7654321");
+    });
+    await waitFor(() => {
+      const tag = document.head.querySelector('script[src*="quge5.com"]');
+      expect(tag).not.toBeNull();
+      expect(tag?.getAttribute("data-zone")).toBe("7654321");
+    });
+    expect(logAdEvent).toHaveBeenCalledWith(
+      expect.objectContaining({ event_type: "impression" }),
+    );
+  });
+
+  it("hides visual ads when display_ads_enabled is false, but still logs impressions", async () => {
+    // Adsterra resolves in-slot (so the impression is real — the slot
+    // was allocated), while the visual render is suppressed. Monetag
+    // without a zone resolves "none" and logs nothing (no false
+    // impressions) — that behavior is covered above.
+    resetAdsterraPageStateForTests();
+    const provider = makeAdsterraProvider(
+      { key: "2fc239403361cb893fa79b52b1d98332" },
+      { display_ads_enabled: false },
+    ) as never;
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsterra"],
           ad_unit_ids: {},
           display_rules: { mobile: true, desktop: true },
         },
@@ -219,6 +269,7 @@ function makeAdsterraProvider(
 }
 
 import {
+  extractAdsterraZoneKey,
   getAdsterraServeDomain,
   resolveAdsterraSize,
   renderAdsterraBanner,
@@ -247,6 +298,27 @@ describe("Adsterra helpers", () => {
   it("rejects non-hostname serve domains (injection safety)", () => {
     const p = makeAdsterraProvider({ serve_domain: "https://evil.example/x" });
     expect(getAdsterraServeDomain(p)).toBe("www.highperformanceformat.com");
+  });
+
+  it("extracts a bare 32-hex zone key unchanged", () => {
+    expect(extractAdsterraZoneKey("2fc239403361cb893fa79b52b1d98332")).toBe(
+      "2fc239403361cb893fa79b52b1d98332",
+    );
+  });
+
+  it("extracts the zone key from a pasted dashboard snippet", () => {
+    const snippet =
+      '<script async="async" data-cfasync="false" src="https://pl31194884.profitableratecpmnetwork.com/60c8524034bf047ff03e21ffec6aa01b/invoke.js"></script> <div id="container-60c8524034bf047ff03e21ffec6aa01b"></div>';
+    expect(extractAdsterraZoneKey(snippet)).toBe(
+      "60c8524034bf047ff03e21ffec6aa01b",
+    );
+  });
+
+  it("returns empty for garbage / empty unit values", () => {
+    expect(extractAdsterraZoneKey("")).toBe("");
+    expect(extractAdsterraZoneKey(null)).toBe("");
+    expect(extractAdsterraZoneKey("not-a-key")).toBe("");
+    expect(extractAdsterraZoneKey("<script>alert(1)</script>")).toBe("");
   });
 
   it("sizes sidebars 300x250, bottoms 728x90 desktop / 320x50 mobile", () => {

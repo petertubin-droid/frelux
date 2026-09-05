@@ -7,7 +7,10 @@ import {
   shouldDisplayPlacement,
   logAdEvent,
 } from "@/lib/ad-config";
-import { getMonetagDisplayZone } from "@/lib/monetag-rewarded";
+import {
+  getMonetagDisplayZone,
+  getMonetagNativeZone,
+} from "@/lib/monetag-rewarded";
 import { getAdsterraNativeBannerKey } from "@/lib/ad-network-formats";
 import { getSupabase } from "@/lib/supabase-lazy";
 import type { DbAdProvider, DbAdPlacement } from "@/types/database";
@@ -75,6 +78,21 @@ export function getAdsterraServeDomain(provider: DbAdProvider): string {
   return /^[a-z0-9.-]+\.[a-z]{2,}$/i.test(raw)
     ? raw
     : "www.highperformanceformat.com";
+}
+
+/**
+ * Normalize an Adsterra per-placement ad unit value. Admins sometimes paste
+ * the full snippet from the Adsterra dashboard (<script …invoke.js>… plus a
+ * container div) instead of the bare 32-hex zone key. Extract the key so
+ * the slot renders; anything without a valid 32-hex token resolves to ""
+ * (falsy — the placement falls through to the provider's global key).
+ */
+export function extractAdsterraZoneKey(value: string | undefined | null): string {
+  if (!value) return "";
+  const raw = value.trim();
+  if (/^[a-f0-9]{32}$/i.test(raw)) return raw.toLowerCase();
+  const m = raw.match(/([a-f0-9]{32})/i);
+  return m ? m[1].toLowerCase() : "";
 }
 
 /** Default Adsterra banner size per placement family (config-driven override
@@ -292,7 +310,11 @@ export default function AdSlot({
       // to this placement. AdSense, Media.net, etc.
       for (const provider of targetChain) {
         if (GLOBAL_CREDENTIAL_PROVIDERS.includes(provider.slug)) continue;
-        const adUnitId = getAdUnitId(placement, provider.id);
+        const rawUnit = getAdUnitId(placement, provider.id);
+        const adUnitId =
+          provider.slug === "adsterra"
+            ? extractAdsterraZoneKey(rawUnit)
+            : rawUnit;
         if (adUnitId) {
           setResolved({ provider, adUnitId, placement });
           if (
@@ -323,8 +345,17 @@ export default function AdSlot({
           (v) => typeof v === "string" && v.length > 0,
         );
         if (!hasCreds) continue;
+        // Adsterra density cap — at most 3 banner renders per page. When
+        // the cap is hit, later slots skip Adsterra entirely and fall
+        // through to the next provider in the chain (e.g. Monetag), so
+        // slots never render empty while another provider could fill them.
+        if (provider.slug === "adsterra" && !adsterraSlotAvailable()) continue;
+
         // Check if this placement has a specific ad unit for this provider
-        const perPlacementUnitId = getAdUnitId(placement, provider.id);
+        const perPlacementUnitId =
+          provider.slug === "adsterra"
+            ? extractAdsterraZoneKey(getAdUnitId(placement, provider.id))
+            : getAdUnitId(placement, provider.id);
         if (perPlacementUnitId) {
           // Has a per-placement zone — render with it
           setResolved({ provider, adUnitId: perPlacementUnitId, placement });
@@ -335,16 +366,46 @@ export default function AdSlot({
           // providers, resolve with empty adUnitId and let the render
           // code handle it.
           if (provider.slug === "monetag") {
-            // Monetag's global tag is in Layout.tsx — it handles
-            // popunder/interstitial/in-page push formats site-wide.
-            // No per-placement container is rendered here, so we do NOT
-            // log a placement-level impression (that would be a false
+            // Monetag site-wide tags are NOT injected (they hijack the
+            // tab). In-page display works through a Monetag Native Banner
+            // zone: when the admin configures one (Admin → Ads → Monetag
+            // → "Native Banner Zone ID"), the slot renders an SDK
+            // container the tag fills in-page. Without a native zone
+            // there is nothing to render in-slot — resolve "none" and do
+            // NOT log a placement-level impression (that would be a false
             // impression — no visible ad was shown in this slot).
-            // Monetag's own dashboard counts impressions from the tag.
+            const nativeZone = getMonetagNativeZone(provider);
+            if (nativeZone) {
+              setResolved({ provider, adUnitId: nativeZone, placement });
+              if (
+                !loggedRef.current &&
+                !hasLoggedImpressionThisSession(slotKey + (providerId ?? ""))
+              ) {
+                loggedRef.current = true;
+                logAdEvent({
+                  event_type: "impression",
+                  provider_id: provider.id,
+                  placement_key: slotKey,
+                  revenue_estimated: 0,
+                });
+              }
+              return;
+            }
             setResolved("none");
             return;
           }
-          setResolved({ provider, adUnitId: "", placement });
+          // Adsterra native placements: when the placement is typed
+          // "native" and the admin configured a Native Banner zone key,
+          // resolve with that key so the slot renders Adsterra's native.js
+          // unit instead of a fixed-size banner iframe.
+          let resolvedUnitId = "";
+          if (provider.slug === "adsterra") {
+            const nativeKey = getAdsterraNativeBannerKey(provider);
+            if (nativeKey && placement.placement_type === "native") {
+              resolvedUnitId = nativeKey;
+            }
+          }
+          setResolved({ provider, adUnitId: resolvedUnitId, placement });
           if (
             !loggedRef.current &&
             !hasLoggedImpressionThisSession(slotKey + (providerId ?? ""))
@@ -368,7 +429,12 @@ export default function AdSlot({
       // credentials configured.
       for (const provider of targetChain) {
         if (!GLOBAL_CREDENTIAL_PROVIDERS.includes(provider.slug)) continue;
-        const adUnitId = getAdUnitId(placement, provider.id);
+        if (provider.slug === "adsterra" && !adsterraSlotAvailable()) continue;
+        const rawUnit = getAdUnitId(placement, provider.id);
+        const adUnitId =
+          provider.slug === "adsterra"
+            ? extractAdsterraZoneKey(rawUnit)
+            : rawUnit;
         if (adUnitId) {
           setResolved({ provider, adUnitId, placement });
           if (
@@ -604,7 +670,10 @@ export default function AdSlot({
         break;
       }
       case "monetag": {
-        const zone = getMonetagDisplayZone(provider);
+        // Prefer the slot's own zone (per-placement mapping or the Native
+        // Banner zone credential); fall back to the display zone only when
+        // the slot resolved without one.
+        const zone = resolved.adUnitId || getMonetagDisplayZone(provider);
         if (!zone) break;
         if (!document.querySelector('script[src*="quge5.com"]')) {
           const s = document.createElement("script");
@@ -1021,6 +1090,7 @@ async function fetchLegacyAdSense(slotKey: string): Promise<ResolvedAd | null> {
     is_active: true,
     provider_ids: [],
     ad_unit_ids: {},
+    sort_order: 0,
     display_rules: {
       mobile: true,
       desktop: true,

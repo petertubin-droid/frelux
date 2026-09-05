@@ -474,9 +474,9 @@ export default function LearnArticle() {
               </div>
             )}
 
-            {/* In-article ad */}
+            {/* Ad slot — placement "learn_article_top" */}
             <div className="mb-10">
-              <AdSlot slotKey="learn_in_article" hideLabel />
+              <AdSlot slotKey="learn_article_top" hideLabel />
             </div>
 
             {/* Content — premium prose styling */}
@@ -502,6 +502,11 @@ export default function LearnArticle() {
                 content={article.content}
                 insertsByHeading={insertsByHeading}
               />
+            </div>
+
+            {/* Native banner slot — placement "learn_article_native" */}
+            <div className="mt-10">
+              <AdSlot slotKey="learn_article_native" hideLabel />
             </div>
 
             {/* Bottom in-article inserts */}
@@ -761,6 +766,22 @@ export default function LearnArticle() {
                 </div>
               </section>
             )}
+
+            {/* In-article ad + native banner — after FAQ */}
+            <div className="mt-10">
+              <AdSlot slotKey="learn_in_article" hideLabel />
+            </div>
+            <div className="mt-10">
+              <AdSlot slotKey="learn_article_native_2" hideLabel />
+            </div>
+
+            {/* Banner + native banner — after related articles */}
+            <div className="mt-10">
+              <AdSlot slotKey="learn_article_mid_2" hideLabel />
+            </div>
+            <div className="mt-10">
+              <AdSlot slotKey="learn_article_native_3" hideLabel />
+            </div>
 
             {/* Bottom ad */}
             <div className="mt-10">

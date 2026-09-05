@@ -67,41 +67,36 @@ export default function Layout() {
     };
   }, [location.pathname]);
 
-  // ── Monetag multi-tag: inject ONCE on first public page load ──
-  // The tag serves popunder/interstitial/in-page push formats globally.
-  // The zone ID comes ONLY from Admin → Ads → Monetag (Zone ID credential)
-  // — there is no hardcoded fallback. If the admin hasn't configured a
-  // zone, or the ad config can't be fetched, no tag is injected at all.
-  // The tag must NOT be removed and re-injected on SPA route changes —
-  // removing it resets the tag's internal state and prevents ads from
-  // ever initializing. Admin pages don't use Layout at all (separate
-  // AdminLayout), so the admin guard is belt-and-suspenders.
+  // ── Site-wide ad format tags: injected ONCE on first public page load ──
+  // Only non-intrusive, in-page-safe formats are injected here: AdSense
+  // page-level ads and Adsterra site-wide scripts (when their zone keys
+  // are configured in Admin → Ads). Monetag site-wide tags are NOT
+  // injected (they hijack the top-level page — see the note below).
+  // Admin pages don't use Layout at all (separate AdminLayout), so the
+  // admin guard is belt-and-suspenders.
   useEffect(() => {
     if (window.location.pathname.startsWith("/admin")) return;
 
     let cancelled = false;
     (async () => {
-      let zone: string | null = null;
-      let monetagAuto: Array<{ format: string; zone: string; src: string }> =
-        [];
+
       let adsterraSiteWide: Array<{ format: string; src: string }> = [];
       let adsensePubId: string | null = null;
       try {
-        const [{ fetchAdConfig }, { getMonetagDisplayZone }] =
-          await Promise.all([
-            import("@/lib/ad-config"),
-            import("@/lib/monetag-rewarded"),
-          ]);
+        const [{ fetchAdConfig }] = await Promise.all([
+          import("@/lib/ad-config"),
+        ]);
         const { providers } = await fetchAdConfig();
-        const monetag = providers.find(
-          (p) => p.slug === "monetag" && p.is_active,
-        );
-        zone = monetag ? getMonetagDisplayZone(monetag) : null;
-
         // ── Additional format tags (additive; dormant until configured) ──
         const formats = await import("@/lib/ad-network-formats");
-        // Monetag Interstitial / Popunder / Vignette auto zones
-        if (monetag) monetagAuto = formats.getMonetagAutoZoneScripts(monetag);
+        // NOTE: Monetag site-wide display/auto zones (Popunder / Vignette /
+        // Interstitial) are intentionally NOT injected. The website zone
+        // tag hijacked the top-level page (observed redirecting visitors
+        // off the site seconds after load), which breaks every other ad
+        // format and the site itself. Monetag still monetizes through the
+        // user-initiated REWARDED flow (monetag-rewarded.ts) and through
+        // per-placement SDK zones (AdSlot renders a container when an
+        // admin maps a Monetag zone ID to a placement).
         // AdSense page-level ads (Auto / Anchor / Vignette / Interstitial):
         // the script + page-level push runs only when the publisher toggled
         // at least one page-level format on here. The exact format mix is
@@ -139,38 +134,6 @@ export default function Layout() {
         return;
       }
       if (cancelled) return;
-
-      // Monetag display zone — inject once per page session, never remove
-      if (zone && !document.querySelector('script[data-monetag-tag="true"]')) {
-        const s = document.createElement("script");
-        s.src = "https://quge5.com/88/tag.min.js";
-        s.setAttribute("data-zone", zone);
-        s.setAttribute("data-domain", "quge5.com");
-        s.setAttribute("data-monetag-tag", "true");
-        s.async = true;
-        s.setAttribute("data-cfasync", "false");
-        document.head.appendChild(s);
-      }
-
-      // Monetag auto zones — one SDK tag per zone (the SDK reads its own
-      // tag attributes), marked data-sdk-ignore so no global show_ fn is
-      // created; the zone fires automatically.
-      for (const z of monetagAuto) {
-        if (cancelled) return;
-        if (
-          document.querySelector(`script[data-monetag-auto-zone="${z.zone}"]`)
-        )
-          continue;
-        const s = document.createElement("script");
-        s.src = z.src;
-        s.setAttribute("data-zone", z.zone);
-        s.setAttribute("data-domain", "quge5.com");
-        s.setAttribute("data-sdk-ignore", "true");
-        s.setAttribute("data-monetag-auto-zone", z.zone);
-        s.async = true;
-        s.setAttribute("data-cfasync", "false");
-        document.head.appendChild(s);
-      }
 
       // AdSense page-level ads — inject once, never remove
       if (
