@@ -67,6 +67,30 @@ export function getMonetagZone(provider?: DbAdProvider | null): string | null {
   return zone || null;
 }
 
+/**
+ * Resolve the Monetag DISPLAY zone ID — the website multi-tag zone used
+ * by tag.min.js for display formats (onclick, vignette, in-page push).
+ *
+ * This deliberately does NOT fall back to `rewarded_zone_id`: rewarded
+ * SDK zones (e.g. omg10.com/4/<id>) are only servable through the SDK
+ * script, and requesting them through the website tag endpoint returns
+ * 404 — which silently disables ALL display ads site-wide. Only the
+ * Admin-configured display "Zone ID" (or legacy `format` credential)
+ * belongs in the website tag's data-zone attribute.
+ */
+export function getMonetagDisplayZone(
+  provider?: DbAdProvider | null,
+): string | null {
+  const creds = (provider?.credentials ?? {}) as Record<string, unknown>;
+  const settings = (provider?.settings ?? {}) as Record<string, unknown>;
+  const raw = creds.zone_id ?? settings.zone_id ?? creds.format;
+  const zone =
+    typeof raw === "string" || typeof raw === "number"
+      ? String(raw).trim()
+      : "";
+  return zone || null;
+}
+
 /** Resolve the optional Monetag SDK script URL (from the provider dashboard). */
 export function getMonetagSdkUrl(
   provider?: DbAdProvider | null,

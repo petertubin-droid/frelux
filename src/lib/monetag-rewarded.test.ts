@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   getMonetagZone,
+  getMonetagDisplayZone,
   getMonetagSdkUrl,
   showMonetagRewardedAd,
 } from "@/lib/monetag-rewarded";
@@ -175,5 +176,54 @@ describe("showMonetagRewardedAd", () => {
 
     const tags = document.querySelectorAll("[data-monetag-src]");
     expect(tags.length).toBe(1);
+  });
+});
+
+describe("getMonetagDisplayZone (website tag data-zone)", () => {
+  const base = {
+    slug: "monetag",
+    is_active: true,
+    credentials: {
+      format: "275352",
+      sdk_url: "https://omg10.com/4/11712895",
+      zone_id: "275352",
+      rewarded_zone_id: "11712895",
+    },
+    settings: { sub_id: "11718645", display_ads_enabled: true },
+  };
+
+  const make = (overrides: Record<string, unknown> = {}): DbAdProvider =>
+    ({
+      id: "prov-1",
+      name: "Monetag",
+      provider_type: "rewarded",
+      priority: 99,
+      ...base,
+      ...overrides,
+    }) as unknown as DbAdProvider;
+
+  it("uses the display Zone ID, never the rewarded SDK zone", () => {
+    expect(getMonetagDisplayZone(make())).toBe("275352");
+  });
+
+  it("falls back to the legacy `format` credential when zone_id is absent", () => {
+    const legacy = make({
+      credentials: { format: "275352", rewarded_zone_id: "11712895" },
+    });
+    expect(getMonetagDisplayZone(legacy)).toBe("275352");
+  });
+
+  it("returns null when no display zone is configured", () => {
+    const bare = make({ credentials: { rewarded_zone_id: "11712895" } });
+    expect(getMonetagDisplayZone(bare)).toBeNull();
+    expect(getMonetagDisplayZone(null)).toBeNull();
+  });
+
+  it("never leaks the rewarded zone or sub_id into the display tag", () => {
+    const tricky = make({
+      credentials: { rewarded_zone_id: "11712895" },
+      settings: { sub_id: "11718645" },
+    });
+    expect(getMonetagDisplayZone(tricky)).toBeNull();
   });
 });

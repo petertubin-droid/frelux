@@ -7,7 +7,7 @@ import {
   shouldDisplayPlacement,
   logAdEvent,
 } from "@/lib/ad-config";
-import { getMonetagZone } from "@/lib/monetag-rewarded";
+import { getMonetagDisplayZone } from "@/lib/monetag-rewarded";
 import { getSupabase } from "@/lib/supabase-lazy";
 import type { DbAdProvider, DbAdPlacement } from "@/types/database";
 
@@ -459,7 +459,7 @@ export default function AdSlot({
         break;
       }
       case "monetag": {
-        const zone = getMonetagZone(provider);
+        const zone = getMonetagDisplayZone(provider);
         if (!zone) break;
         if (!document.querySelector('script[src*="quge5.com"]')) {
           const s = document.createElement("script");

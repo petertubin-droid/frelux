@@ -82,15 +82,16 @@ export default function Layout() {
     (async () => {
       let zone: string | null = null;
       try {
-        const [{ fetchAdConfig }, { getMonetagZone }] = await Promise.all([
-          import("@/lib/ad-config"),
-          import("@/lib/monetag-rewarded"),
-        ]);
+        const [{ fetchAdConfig }, { getMonetagDisplayZone }] =
+          await Promise.all([
+            import("@/lib/ad-config"),
+            import("@/lib/monetag-rewarded"),
+          ]);
         const { providers } = await fetchAdConfig();
         const monetag = providers.find(
           (p) => p.slug === "monetag" && p.is_active,
         );
-        zone = monetag ? getMonetagZone(monetag) : null;
+        zone = monetag ? getMonetagDisplayZone(monetag) : null;
       } catch {
         // Ad config unavailable — do not inject anything.
         return;
