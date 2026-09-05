@@ -5,6 +5,7 @@ import {
   getMonetagNativeZone,
   getMonetagSdkUrl,
   showMonetagRewardedAd,
+  getMonetagSdkZone,
 } from "@/lib/monetag-rewarded";
 import type { DbAdProvider } from "@/types/database";
 
@@ -81,6 +82,21 @@ describe("getMonetagSdkUrl", () => {
       credentials: { sdk_url: "http://insecure.example.com/sdk.js" },
     });
     expect(getMonetagSdkUrl(provider)).toBeNull();
+  });
+});
+
+describe("getMonetagSdkZone", () => {
+  it("derives the zone from the SDK script URL path", () => {
+    expect(getMonetagSdkZone("https://omg10.com/4/11712895")).toBe("11712895");
+    expect(getMonetagSdkZone("https://example.com/loader/4242424")).toBe(
+      "4242424",
+    );
+  });
+
+  it("returns null for URLs without an embedded zone", () => {
+    expect(getMonetagSdkZone("https://omg10.com/4/abc")).toBeNull();
+    expect(getMonetagSdkZone(null)).toBeNull();
+    expect(getMonetagSdkZone(undefined)).toBeNull();
   });
 });
 

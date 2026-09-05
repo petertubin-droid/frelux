@@ -108,6 +108,43 @@ describe("ad-network-formats — Adsterra script resolution", () => {
     ).toBeNull();
   });
 
+  it("extracts the script URL from a pasted dashboard snippet", () => {
+    expect(
+      resolveAdsterraScriptUrl(
+        '<script src="https://pl31194885.profitableratecpmnetwork.com/e0/57/7c/e0577c7805ee22e869f94c6eb77e0205.js"></script>',
+        {
+          serveDomain: "www.highperformanceformat.com",
+          defaultScript: "invoke.js",
+        },
+      ),
+    ).toBe(
+      "https://pl31194885.profitableratecpmnetwork.com/e0/57/7c/e0577c7805ee22e869f94c6eb77e0205.js",
+    );
+  });
+
+  it("accepts bare hashed-path social bar URLs on allowed hosts", () => {
+    expect(
+      resolveAdsterraScriptUrl(
+        "https://pl31194885.profitableratecpmnetwork.com/e0/57/7c/e0577c7805ee22e869f94c6eb77e0205.js",
+        {
+          serveDomain: "www.highperformanceformat.com",
+          defaultScript: "invoke.js",
+        },
+      ),
+    ).toBe(
+      "https://pl31194885.profitableratecpmnetwork.com/e0/57/7c/e0577c7805ee22e869f94c6eb77e0205.js",
+    );
+  });
+
+  it("rejects script tags without a usable URL", () => {
+    expect(
+      resolveAdsterraScriptUrl("evil<script>alert(1)</script>", {
+        serveDomain: "www.highperformanceformat.com",
+        defaultScript: "invoke.js",
+      }),
+    ).toBeNull();
+  });
+
   it("rejects non-key garbage values", () => {
     expect(
       resolveAdsterraScriptUrl("evil<script>alert(1)</script>", {
@@ -178,6 +215,18 @@ describe("ad-network-formats — site-wide Adsterra scripts", () => {
 });
 
 describe("ad-network-formats — native banner key", () => {
+  it("extracts the key from a pasted dashboard snippet", () => {
+    const key = "60c8524034bf047ff03e21ffec6aa01b";
+    expect(
+      getAdsterraNativeBannerKey({
+        ...baseProvider,
+        credentials: {
+          native_banner_key: `<script async="async" data-cfasync="false" src="https://pl31194884.profitableratecpmnetwork.com/${key}/invoke.js"></script> <div id="container-${key}"></div>`,
+        },
+      }),
+    ).toBe(key);
+  });
+
   it("returns the key only for valid hex values", () => {
     expect(getAdsterraNativeBannerKey(baseProvider)).toBeNull();
     expect(

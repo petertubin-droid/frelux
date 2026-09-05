@@ -11,7 +11,11 @@ import {
   getMonetagDisplayZone,
   getMonetagNativeZone,
 } from "@/lib/monetag-rewarded";
-import { getAdsterraNativeBannerKey } from "@/lib/ad-network-formats";
+import {
+  getAdsterraNativeBannerKey,
+  getAdsterraNativeBannerScript,
+} from "@/lib/ad-network-formats";
+import { adDebug, instrumentScript } from "@/lib/ad-diagnostics";
 import { getSupabase } from "@/lib/supabase-lazy";
 import type { DbAdProvider, DbAdPlacement } from "@/types/database";
 
@@ -74,10 +78,14 @@ export function getAdsterraServeDomain(provider: DbAdProvider): string {
   const creds = (provider.credentials ?? {}) as Record<string, unknown>;
   const raw =
     typeof creds.serve_domain === "string" ? creds.serve_domain.trim() : "";
-  // Only accept a plain hostname — never a full URL or script injection
-  return /^[a-z0-9.-]+\.[a-z]{2,}$/i.test(raw)
-    ? raw
-    : "www.highperformanceformat.com";
+  // Admins sometimes paste several values comma-separated. Take the first
+  // token that is a plain, valid hostname — never a URL, path or script
+  // content (injection safety).
+  for (const part of raw.split(",")) {
+    const host = part.trim();
+    if (/^[a-z0-9.-]+\.[a-z]{2,}$/i.test(host)) return host.toLowerCase();
+  }
+  return "www.highperformanceformat.com";
 }
 
 /**
@@ -87,7 +95,9 @@ export function getAdsterraServeDomain(provider: DbAdProvider): string {
  * the slot renders; anything without a valid 32-hex token resolves to ""
  * (falsy — the placement falls through to the provider's global key).
  */
-export function extractAdsterraZoneKey(value: string | undefined | null): string {
+export function extractAdsterraZoneKey(
+  value: string | undefined | null,
+): string {
   if (!value) return "";
   const raw = value.trim();
   if (/^[a-f0-9]{32}$/i.test(raw)) return raw.toLowerCase();
@@ -180,6 +190,12 @@ export function renderAdsterraBanner(
     // The element still lands in the DOM — treat as rendered and move on.
   }
   adsterraRenderedCount++;
+  adDebug("adsterra", "banner:rendered", {
+    slotKey: opts.slotKey,
+    width,
+    height,
+    host: serveDomain,
+  });
 }
 
 /**
@@ -197,13 +213,40 @@ export function renderAdsterraNativeBanner(
   if (!/^[a-f0-9]{20,40}$/i.test(key)) return; // zone keys are hex tokens
   if (container.querySelector('script[data-adsterra-native="true"]')) return;
   const serveDomain = getAdsterraServeDomain(provider);
-  const s = document.createElement("script");
-  s.async = true;
-  s.setAttribute("data-cfasync", "false");
-  s.setAttribute("data-adsterra-native", "true");
-  s.setAttribute("data-ad-zone", key);
-  s.src = `https://${serveDomain}/${key}/native.js`;
-  container.appendChild(s);
+
+  // Adsterra ships two in-place native products. The classic Native Banner
+  // snippet is invoke.js + <div id="container-<key>">; the newer one is a
+  // native.js tag. Which one this zone is comes from the admin's pasted
+  // snippet (see getAdsterraNativeBannerScript) — render the matching tag
+  // or the zone silently no-fills.
+  if (getAdsterraNativeBannerScript(provider) === "invoke") {
+    const s = document.createElement("script");
+    s.async = true;
+    s.setAttribute("data-cfasync", "false");
+    s.setAttribute("data-adsterra-native", "true");
+    s.setAttribute("data-ad-zone", key);
+    s.src = `https://${serveDomain}/${key}/invoke.js`;
+    const div = document.createElement("div");
+    div.id = `container-${key}`;
+    container.appendChild(s);
+    container.appendChild(div);
+    adDebug("adsterra", "native-banner:invoke-rendered", {
+      slotKey: opts.slotKey,
+      host: serveDomain,
+    });
+  } else {
+    const s = document.createElement("script");
+    s.async = true;
+    s.setAttribute("data-cfasync", "false");
+    s.setAttribute("data-adsterra-native", "true");
+    s.setAttribute("data-ad-zone", key);
+    s.src = `https://${serveDomain}/${key}/native.js`;
+    container.appendChild(s);
+    adDebug("adsterra", "native-banner:native-rendered", {
+      slotKey: opts.slotKey,
+      host: serveDomain,
+    });
+  }
   adsterraRenderedCount++;
 }
 
@@ -675,7 +718,11 @@ export default function AdSlot({
         // the slot resolved without one.
         const zone = resolved.adUnitId || getMonetagDisplayZone(provider);
         if (!zone) break;
-        if (!document.querySelector('script[src*="quge5.com"]')) {
+        if (
+          !document.querySelector(
+            `script[src*="quge5.com"][data-zone="${zone}"]`,
+          )
+        ) {
           const s = document.createElement("script");
           s.async = true;
           s.setAttribute("data-cfasync", "false");
@@ -684,7 +731,9 @@ export default function AdSlot({
           // site CSP (script-src/connect-src/frame-src) can reliably allow it.
           s.setAttribute("data-domain", "quge5.com");
           s.src = "https://quge5.com/88/tag.min.js";
+          instrumentScript("monetag", s, "tag");
           document.head.appendChild(s);
+          adDebug("monetag", "tag:injected", { zone, slotKey });
         }
         break;
       }

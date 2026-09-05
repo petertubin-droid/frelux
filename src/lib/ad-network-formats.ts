@@ -27,6 +27,7 @@ export const ADSTERRA_SERVE_HOSTS = [
   "highperformanceformat.com",
   "profitabledisplaynetwork.com",
   "profitablecpmrate.com",
+  "profitableratecpmnetwork.com",
   "adsterrapremium.com",
 ];
 
@@ -70,27 +71,50 @@ function isAllowedAdsterraHost(hostname: string, serveDomain: string): boolean {
  * URL from the dashboard snippet. Returns the absolute https script URL, or
  * null when the value doesn't look like either shape.
  */
+/** Extract the src URL from a pasted dashboard <script> snippet, if any.
+ *  Admins frequently paste the entire snippet from the Adsterra dashboard
+ *  ("<script src=\"...\"></script>") instead of the bare key/URL — pull the
+ *  https URL back out so the integration still works. Returns null when the
+ *  value contains no URL at all. */
+export function extractAdsterraScriptSrc(raw: string): string | null {
+  const m = raw.match(/src=\\?["']([^"'\\]+)["']/i);
+  if (m && /^[a-z]/i.test(m[1])) return m[1];
+  const bare = raw.match(/(?:https?:)?\/\/[^\s"'<>]+/i);
+  return bare ? bare[0] : null;
+}
+
 export function resolveAdsterraScriptUrl(
   raw: unknown,
   opts: { serveDomain: string; defaultScript: string },
 ): string | null {
   if (typeof raw !== "string") return null;
-  const value = raw.trim();
+  let value = raw.trim();
   if (!value) return null;
+
+  // Pasted dashboard snippet → extract the embedded script URL first
+  if (value.includes("<script")) {
+    const extracted = extractAdsterraScriptSrc(value);
+    if (!extracted) return null;
+    value = extracted.trim();
+  }
 
   // Bare key → construct the URL on the serve domain
   if (/^[a-f0-9]{20,40}$/i.test(value)) {
     return `https://${opts.serveDomain}/${value}/${opts.defaultScript}`;
   }
 
-  // Full URL → validate protocol, host and a clean /key/script.js path
+  // Full URL → validate protocol, host and a clean path
   const candidate = value.startsWith("//") ? `https:${value}` : value;
   try {
     const url = new URL(candidate);
     if (url.protocol !== "https:") return null;
     if (!isAllowedAdsterraHost(url.hostname, opts.serveDomain)) return null;
-    // Path must be /<key>/<script>.js (no query, no fragment)
-    if (!/^\/[a-z0-9-]{4,64}\/[a-z0-9-]+\.js$/i.test(url.pathname)) return null;
+    // Path must be /<key>/<script>.js — or the hashed /xx/xx/xx/<hash>.js
+    // shape newer Adsterra Social Bar snippets use (no query, no fragment)
+    const cleanPath =
+      /^\/[a-z0-9-]{4,64}\/[a-z0-9-]+\.js$/i.test(url.pathname) ||
+      /^\/([0-9a-f]{2}\/){2,3}[0-9a-f]{16,}\.js$/i.test(url.pathname);
+    if (!cleanPath) return null;
     if (url.search || url.hash) return null;
     return url.toString();
   } catch {
@@ -199,5 +223,25 @@ export function getAdsterraNativeBannerKey(
   const raw = creds.native_banner_key;
   if (typeof raw !== "string") return null;
   const value = raw.trim();
-  return /^[a-f0-9]{20,40}$/i.test(value) ? value : null;
+  if (/^[a-f0-9]{20,40}$/i.test(value)) return value.toLowerCase();
+  // Pasted dashboard snippet → extract the zone key out of it
+  const m = value.match(/([a-f0-9]{32})/i);
+  return m ? m[1].toLowerCase() : null;
+}
+
+/**
+ * Which Adsterra script product the Native Banner credential points at.
+ * Adsterra serves two in-place formats: the newer native.js unit and the
+ * classic "container-<key>" Native Banner that loads invoke.js. The admin's
+ * pasted snippet tells us which one the zone actually is — rendering a
+ * native.js tag for an invoke.js zone (or vice versa) silently no-fills.
+ */
+export function getAdsterraNativeBannerScript(
+  provider: DbAdProvider,
+): "native" | "invoke" {
+  const creds = (provider.credentials ?? {}) as Record<string, unknown>;
+  const raw = creds.native_banner_key;
+  return typeof raw === "string" && raw.includes("invoke.js")
+    ? "invoke"
+    : "native";
 }

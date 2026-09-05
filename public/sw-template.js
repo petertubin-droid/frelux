@@ -20,10 +20,18 @@ const { precacheAndRoute } = self.workbox.precaching;
 precacheAndRoute(precacheManifest);
 
 // ── Runtime caching strategies ──────────────────────────────────
-const CACHE_VERSION = 'frelux-v4';
+const CACHE_VERSION = 'frelux-v5';
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
-// Clean up old v3 caches on activate
+// Take control immediately when a new SW version deploys — a returning
+// visitor with a long-lived tab must not keep running stale ad/JS code
+// until every tab closes. Precache revision changes on every build, so
+// this only fires when a genuinely new build is deployed.
+self.addEventListener('install', () => {
+  self.skipWaiting();
+});
+
+// Clean up old caches on activate
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>

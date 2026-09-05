@@ -10,6 +10,7 @@ import { trackVisit } from "@/lib/achievements";
 import { trackReturnVisitRewards } from "@/lib/rewards-integration";
 import type { Achievement } from "@/lib/achievements";
 import { getSupabase } from "@/lib/supabase-lazy";
+import { adDebug, instrumentScript } from "@/lib/ad-diagnostics";
 import { useAuth } from "@/lib/auth";
 
 // Lazy-loaded below-the-fold components — not visible on first paint
@@ -79,8 +80,12 @@ export default function Layout() {
 
     let cancelled = false;
     (async () => {
-
       let adsterraSiteWide: Array<{ format: string; src: string }> = [];
+      let monetagAutoZones: Array<{
+        format: string;
+        zone: string;
+        src: string;
+      }> = [];
       let adsensePubId: string | null = null;
       try {
         const [{ fetchAdConfig }] = await Promise.all([
@@ -129,6 +134,19 @@ export default function Layout() {
             getAdsterraServeDomain(adsterra),
           );
         }
+
+        // Monetag admin-configured auto zones (Vignette / Interstitial /
+        // Popunder). These are true website zones the admin explicitly
+        // created per format in the Monetag dashboard — injected per zone
+        // with data-sdk-ignore so they never create global show_ fns.
+        // Rewarded/Social-Bar SDK zones are NOT auto zones and must never
+        // be loaded here (they hijack the page — see monetag-rewarded.ts).
+        const monetag = providers.find(
+          (p) => p.slug === "monetag" && p.is_active,
+        );
+        if (monetag) {
+          monetagAutoZones = formats.getMonetagAutoZoneScripts(monetag);
+        }
       } catch {
         // Ad config unavailable — do not inject anything.
         return;
@@ -166,7 +184,33 @@ export default function Layout() {
         s.setAttribute("data-adsterra-format", a.format);
         s.async = true;
         s.setAttribute("data-cfasync", "false");
+        instrumentScript("adsterra", s, `sitewide:${a.format}`);
         document.head.appendChild(s);
+        adDebug("adsterra", "sitewide:injected", {
+          format: a.format,
+          src: a.src,
+        });
+      }
+      // Monetag admin-configured auto zones (Vignette / Interstitial /
+      // Popunder) — one tag per zone, deduped per format
+      for (const m of monetagAutoZones) {
+        if (cancelled) return;
+        if (document.querySelector(`script[data-monetag-auto="${m.format}"]`))
+          continue;
+        const s = document.createElement("script");
+        s.src = m.src;
+        s.async = true;
+        s.setAttribute("data-cfasync", "false");
+        s.setAttribute("data-zone", m.zone);
+        s.setAttribute("data-domain", "quge5.com");
+        s.setAttribute("data-sdk-ignore", "true");
+        s.setAttribute("data-monetag-auto", m.format);
+        instrumentScript("monetag", s, `auto:${m.format}`);
+        document.head.appendChild(s);
+        adDebug("monetag", "auto-zone:injected", {
+          format: m.format,
+          zone: m.zone,
+        });
       }
       // No cleanup — tags persist for the entire page session
     })();

@@ -23,6 +23,7 @@
  */
 
 import type { DbAdProvider } from "@/types/database";
+import { adDebug, instrumentScript } from "@/lib/ad-diagnostics";
 
 /**
  * Monetag multi-tag CDN. `data-domain` pins the tag's config/module
@@ -102,9 +103,10 @@ export function getMonetagNativeZone(
 ): string | null {
   const creds = (provider?.credentials ?? {}) as Record<string, unknown>;
   const raw = creds.native_banner_zone_id;
-  const zone = typeof raw === "string" || typeof raw === "number"
-    ? String(raw).trim()
-    : "";
+  const zone =
+    typeof raw === "string" || typeof raw === "number"
+      ? String(raw).trim()
+      : "";
   return /^\d{3,12}$/.test(zone) ? zone : null;
 }
 
@@ -136,10 +138,34 @@ function injectScript(
     s.setAttribute("data-monetag-src", src);
     s.setAttribute("data-cfasync", "false");
     for (const [k, v] of Object.entries(attrs)) s.setAttribute(k, v);
-    s.onload = () => resolve();
-    s.onerror = () => reject(new Error("Monetag script failed to load"));
+    instrumentScript("monetag", s, "script");
+    s.onload = () => {
+      adDebug("monetag", "script:loaded", { src });
+      resolve();
+    };
+    s.onerror = () => {
+      adDebug("monetag", "script:error", { src });
+      reject(new Error("Monetag script failed to load"));
+    };
     document.head.appendChild(s);
   });
+}
+
+/**
+ * Derive the zone a Monetag SDK script URL actually serves. SDK URLs
+ * carry their zone in the path (e.g. https://omg10.com/4/11712895 →
+ * 11712895) and create the global show_<zone>() for THAT zone — not for
+ * whatever zone ID is passed as the data-zone attribute. When the admin
+ * configured only a display zone_id but the SDK URL points at a rewarded
+ * SDK zone, resolving the SDK's own zone is what makes the show_<zone>()
+ * callback (and therefore a real completion signal) reachable.
+ */
+export function getMonetagSdkZone(
+  sdkUrl: string | null | undefined,
+): string | null {
+  if (!sdkUrl) return null;
+  const m = sdkUrl.match(/\/(?:4|loader)\/(\d{4,12})/);
+  return m ? m[1] : null;
 }
 
 /** Load the Monetag website multi-tag for a zone (deduped). */
@@ -197,9 +223,15 @@ export async function showMonetagRewardedAd(opts: {
   const sdkTimeoutMs = opts.sdkTimeoutMs ?? 4000;
   const minWatchTimeMs = opts.minWatchTimeMs ?? 5000;
 
+  // The SDK script URL carries its own zone (e.g. /4/11712895); the show_
+  // global is created for THAT zone. Prefer it over the passed zone when they
+  // differ, so the completion callback is actually reachable.
+  const sdkZone = getMonetagSdkZone(sdkUrl) ?? zone;
+
   // SDK mode: function already present (script loaded previously) or loadable
-  const existingFn = getSdkShowFn(zone);
+  const existingFn = getSdkShowFn(sdkZone);
   if (existingFn) {
+    adDebug("monetag", "rewarded:sdk-show", { zone: sdkZone });
     const result = await existingFn({ type: "end", ymid, requestVar });
     return {
       mode: "sdk",
@@ -214,12 +246,12 @@ export async function showMonetagRewardedAd(opts: {
   if (sdkUrl) {
     try {
       await Promise.race([
-        loadMonetagSdk(sdkUrl, zone),
+        loadMonetagSdk(sdkUrl, sdkZone),
         new Promise((_, reject) =>
           setTimeout(() => reject(new Error("SDK load timeout")), sdkTimeoutMs),
         ),
       ]);
-      const fn = getSdkShowFn(zone);
+      const fn = getSdkShowFn(sdkZone);
       if (fn) {
         const result = await fn({ type: "end", ymid, requestVar });
         return {
@@ -257,9 +289,9 @@ export async function showMonetagRewardedAd(opts: {
     const w = window as unknown as Record<string, unknown>;
     // Monetag may expose show functions for interstitial/rewarded formats
     const possibleFns = [
-      `show_${zone}`,
-      `interstitial_${zone}`,
-      `zfgformhttp_${zone}`,
+      `show_${sdkZone}`,
+      `interstitial_${sdkZone}`,
+      `zfgformhttp_${sdkZone}`,
     ];
     for (const fnName of possibleFns) {
       const fn = w[fnName];

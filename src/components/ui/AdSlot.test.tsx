@@ -295,6 +295,14 @@ describe("Adsterra helpers", () => {
     );
   });
 
+  it("picks the first valid hostname from a comma-separated value", () => {
+    const p = makeAdsterraProvider({
+      serve_domain:
+        "www.highperformanceformat.com,https://pl31194884.profitableratecpmnetwork.com",
+    });
+    expect(getAdsterraServeDomain(p)).toBe("www.highperformanceformat.com");
+  });
+
   it("rejects non-hostname serve domains (injection safety)", () => {
     const p = makeAdsterraProvider({ serve_domain: "https://evil.example/x" });
     expect(getAdsterraServeDomain(p)).toBe("www.highperformanceformat.com");
