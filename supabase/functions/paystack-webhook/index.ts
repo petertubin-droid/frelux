@@ -83,9 +83,57 @@ Deno.serve(async (req: Request) => {
     }
 
     const metadata = data.metadata || {};
+    const purpose = (metadata.purpose as string) || "subscription";
     const plan = metadata.plan as string;
     const billingCycle = (metadata.billing_cycle as string) || "monthly";
     const userId = metadata.user_id as string;
+
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+    // ── Token purchase: credit tokens (idempotent via RPC reference check) ──
+    if (purpose === "token_purchase" && event === "charge.success") {
+      const tokens = metadata.tokens as number;
+      if (!userId || !tokens) {
+        return new Response(
+          JSON.stringify({ error: "Missing user_id or tokens" }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+      const { error: creditError } = await supabase.rpc(
+        "credit_token_purchase",
+        {
+          p_user_id: userId,
+          p_reference: data.reference as string,
+          p_tokens: tokens,
+          p_amount_kobo: data.amount as number,
+          p_metadata: {
+            source: "paystack-webhook",
+            paystack_reference: data.reference,
+          },
+        },
+      );
+      if (creditError) {
+        return new Response(
+          JSON.stringify({ error: creditError.message }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+      return new Response(
+        JSON.stringify({ received: true, tokens_credited: tokens }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
 
     if (!plan || !userId) {
       return new Response(JSON.stringify({ error: "Missing plan or user_id" }), {
@@ -95,10 +143,6 @@ Deno.serve(async (req: Request) => {
     }
 
     // Activate subscription
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
-
     const days = PLAN_DURATIONS_DAYS[billingCycle] ?? 30;
     const paidUntil = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
 

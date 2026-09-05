@@ -11,6 +11,17 @@ vi.mock("@/lib/credits", () => ({
   REWARD_EVENTS: {},
 }));
 vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
+vi.mock("@/lib/token-purchase", () => ({
+  getTokenPurchaseConfig: vi.fn().mockResolvedValue(null),
+  initializeTokenPurchase: vi.fn().mockResolvedValue({ success: false }),
+  verifyTokenPurchase: vi.fn().mockResolvedValue({ verified: false }),
+  formatNaira: vi.fn((kobo: number) => `₦${kobo / 100}`),
+}));
+vi.mock("@/lib/ad-config", () => ({
+  hasRewardedAdProvider: vi.fn().mockResolvedValue(false),
+  fetchAdConfig: vi.fn().mockResolvedValue({ providers: [], placements: [] }),
+  REWARDED_AD_BRIDGES: {},
+}));
 
 beforeEach(() => { vi.clearAllMocks(); });
 

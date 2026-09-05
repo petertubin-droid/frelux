@@ -4,6 +4,12 @@ import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
 vi.mock("@/lib/auth", () => ({ useAuth: vi.fn(() => ({ user: null, loading: false })) }));
+vi.mock("@/lib/token-purchase", () => ({
+  adminGetTokenPurchaseConfig: vi.fn().mockResolvedValue(null),
+  adminUpdateTokenPurchaseConfig: vi.fn().mockResolvedValue(true),
+  adminGetTokenPurchases: vi.fn().mockResolvedValue([]),
+  formatNaira: vi.fn((kobo: number) => `₦${kobo / 100}`),
+}));
 vi.mock("@/lib/credits", () => ({
   getCreditWallet: vi.fn().mockResolvedValue(null),
   getCreditTransactions: vi.fn().mockResolvedValue([]),
