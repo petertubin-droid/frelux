@@ -8,6 +8,7 @@ import {
   logAdEvent,
 } from "@/lib/ad-config";
 import { getMonetagDisplayZone } from "@/lib/monetag-rewarded";
+import { getAdsterraNativeBannerKey } from "@/lib/ad-network-formats";
 import { getSupabase } from "@/lib/supabase-lazy";
 import type { DbAdProvider, DbAdPlacement } from "@/types/database";
 
@@ -164,10 +165,38 @@ export function renderAdsterraBanner(
 }
 
 /**
+ * Native Banner (Adsterra): injects native.js into the slot container —
+ * the unit renders in place and adapts to the container's width. The key
+ * is validated (hex) before any script is built, so an invalid value can
+ * never inject. Counts toward the same per-page density cap as banners.
+ */
+export function renderAdsterraNativeBanner(
+  container: HTMLElement,
+  provider: DbAdProvider,
+  opts: { key: string; slotKey: string },
+): void {
+  const key = opts.key;
+  if (!/^[a-f0-9]{20,40}$/i.test(key)) return; // zone keys are hex tokens
+  if (container.querySelector('script[data-adsterra-native="true"]')) return;
+  const serveDomain = getAdsterraServeDomain(provider);
+  const s = document.createElement("script");
+  s.async = true;
+  s.setAttribute("data-cfasync", "false");
+  s.setAttribute("data-adsterra-native", "true");
+  s.setAttribute("data-ad-zone", key);
+  s.src = `https://${serveDomain}/${key}/native.js`;
+  container.appendChild(s);
+  adsterraRenderedCount++;
+}
+
+/**
  * Injector registry — the effect calls through this indirection so tests
  * can stub the real srcdoc injection (happy-dom can't load ad iframes).
  */
-export const adsterraInjector = { renderBanner: renderAdsterraBanner };
+export const adsterraInjector = {
+  renderBanner: renderAdsterraBanner,
+  renderNativeBanner: renderAdsterraNativeBanner,
+};
 
 /**
  * Whether a provider's VISUAL display ads are enabled.
@@ -608,7 +637,17 @@ export default function AdSlot({
     if (!adsterraSlotAvailable()) return;
     const container = containerRef.current;
     if (!container || container.childElementCount > 0) return;
-    adsterraInjector.renderBanner(container, provider, { key, slotKey });
+    // Native Banner slots render the in-place native unit; everything else
+    // renders the official atOptions/invoke.js banner iframe.
+    const nativeKey = getAdsterraNativeBannerKey(provider);
+    if (nativeKey && key === nativeKey) {
+      adsterraInjector.renderNativeBanner(container, provider, {
+        key,
+        slotKey,
+      });
+    } else {
+      adsterraInjector.renderBanner(container, provider, { key, slotKey });
+    }
   }, [resolved, slotKey]);
 
   // Paid subscribers never see ads

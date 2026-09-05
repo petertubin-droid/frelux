@@ -30,6 +30,30 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
     setting_fields: [
       { key: "auto_ads", label: "Auto Ads", type: "boolean", default: false },
       { key: "lazy_load", label: "Lazy Load", type: "boolean", default: true },
+      {
+        key: "anchor_ads",
+        label: "Anchor Ads (sticky top/bottom)",
+        type: "boolean",
+        default: false,
+      },
+      {
+        key: "vignette_ads",
+        label: "Vignette Ads (full-screen between pages)",
+        type: "boolean",
+        default: false,
+      },
+      {
+        key: "interstitial_ads",
+        label: "Interstitial Ads (mobile web)",
+        type: "boolean",
+        default: false,
+      },
+      {
+        key: "rewarded_ads",
+        label: "Rewarded Ads (H5 Games adBreak)",
+        type: "boolean",
+        default: false,
+      },
     ],
   },
   {
@@ -266,6 +290,34 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         type: "text",
         required: false,
         placeholder: "www.highperformanceformat.com",
+      },
+      {
+        key: "native_banner_key",
+        label: "Native Banner Zone Key (or full script URL)",
+        type: "text",
+        required: false,
+        placeholder: "32-char key, or the native.js URL from your snippet",
+      },
+      {
+        key: "interstitial_key",
+        label: "Interstitial Zone Key (or full script URL)",
+        type: "text",
+        required: false,
+        placeholder: "32-char key, or the invoke.js URL from your snippet",
+      },
+      {
+        key: "popunder_key",
+        label: "Popunder Zone Key (or full script URL)",
+        type: "text",
+        required: false,
+        placeholder: "32-char key, or the script URL from your snippet",
+      },
+      {
+        key: "social_bar_key",
+        label: "Social Bar Zone Key (or full script URL)",
+        type: "text",
+        required: false,
+        placeholder: "32-char key, or the script URL from your snippet",
       },
     ],
     setting_fields: [
@@ -990,6 +1042,27 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
         required: false,
         placeholder:
           "https://<your-cdn-domain>/sdk.js (from Monetag dashboard → Get SDK)",
+      },
+      {
+        key: "interstitial_zone_id",
+        label: "Interstitial Zone ID (auto full-screen)",
+        type: "text",
+        required: false,
+        placeholder: "1234567",
+      },
+      {
+        key: "popunder_zone_id",
+        label: "Popunder Zone ID",
+        type: "text",
+        required: false,
+        placeholder: "1234567",
+      },
+      {
+        key: "vignette_zone_id",
+        label: "Vignette Banner Zone ID",
+        type: "text",
+        required: false,
+        placeholder: "1234567",
       },
       {
         key: "format",

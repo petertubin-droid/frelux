@@ -916,6 +916,11 @@ function PlacementsTab() {
   );
 }
 
+function getProviderCredential(prov: DbAdProvider, key: string): string {
+  const creds = prov.credentials as Record<string, unknown> | null;
+  return typeof creds?.[key] === "string" ? (creds[key] as string) : "";
+}
+
 function PlacementForm({
   initial,
   providers,
@@ -1177,18 +1182,66 @@ function PlacementForm({
                     {prov.name}
                   </p>
                   {isSelected && (
-                    <AdminInput
-                      type="text"
-                      className="mt-1.5 text-xs"
-                      value={adUnitIds[prov.id] ?? ""}
-                      onChange={(e) =>
-                        setAdUnitIds({
-                          ...adUnitIds,
-                          [prov.id]: e.target.value,
-                        })
-                      }
-                      placeholder={`Ad unit ID for ${prov.name}`}
-                    />
+                    <>
+                      {/* Format chooser — providers with multiple in-slot
+                          formats let the admin pick which one this placement
+                          renders. Config-driven: driven by the provider's
+                          credentials, never hardcoded per-slug logic beyond
+                          the format catalog. */}
+                      {prov.slug === "adsterra" && (
+                        <AdminSelect
+                          className="mt-1.5 text-xs"
+                          value={
+                            adUnitIds[prov.id] &&
+                            adUnitIds[prov.id] ===
+                              getProviderCredential(prov, "native_banner_key")
+                              ? "native_banner"
+                              : "banner"
+                          }
+                          onChange={(e) => {
+                            const creds = prov.credentials as Record<
+                              string,
+                              unknown
+                            > | null;
+                            const banner =
+                              typeof creds?.key === "string" ? creds.key : "";
+                            const native =
+                              typeof creds?.native_banner_key === "string"
+                                ? (creds.native_banner_key as string)
+                                : "";
+                            const chosen =
+                              e.target.value === "native_banner"
+                                ? native
+                                : banner;
+                            setAdUnitIds({
+                              ...adUnitIds,
+                              [prov.id]: chosen,
+                            });
+                          }}
+                        >
+                          <option value="banner">Banner (atOptions)</option>
+                          <option value="native_banner">
+                            Native Banner (in-place)
+                          </option>
+                        </AdminSelect>
+                      )}
+                      <AdminInput
+                        type="text"
+                        className="mt-1.5 text-xs"
+                        value={adUnitIds[prov.id] ?? ""}
+                        onChange={(e) =>
+                          setAdUnitIds({
+                            ...adUnitIds,
+                            [prov.id]: e.target.value,
+                          })
+                        }
+                        placeholder={
+                          prov.slug === "google_adsense"
+                            ? "AdSense slot ID (banner / in-article / multiplex unit)"
+                            : `Ad unit ID for ${prov.name}`
+                        }
+                      />
+                    </>
                   )}
                 </div>
                 {isSelected && order >= 0 && (

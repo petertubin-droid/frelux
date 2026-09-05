@@ -212,6 +212,9 @@ export default function Home() {
       <Suspense fallback={<SectionSkeleton minHeight={500} />}>
         <TrendingColors />
       </Suspense>
+
+      {/* Home footer ad slot — placement "home_footer" */}
+      <AdSlot slotKey="home_footer" className="mt-12" />
       <Suspense fallback={<SectionSkeleton minHeight={450} />}>
         <ColorPreview />
       </Suspense>

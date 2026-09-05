@@ -203,6 +203,7 @@ export default function AiColorAssistant() {
         ]}
       />{" "}
       <AdSlot slotKey="ai_feature" className="mt-8" />
+      <AdSlot slotKey="ai_assistant_footer" className="mt-8" />
     </>
   );
 }
@@ -282,7 +283,8 @@ function ChooseView({
     config && (!config.aiEnabled || config.accessMode === "disabled");
   return (
     <div className="grid gap-6 sm:grid-cols-2">
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         onClick={() => onSelect("text")}
         disabled={!!disabled}
@@ -305,7 +307,8 @@ function ChooseView({
         </span>
       </Button>
 
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         onClick={() => onSelect("image")}
         disabled={!!disabled}
@@ -343,7 +346,8 @@ function ViewTab({
   label: string;
 }) {
   return (
-    <Button variant="ghost"
+    <Button
+      variant="ghost"
       type="button"
       onClick={onClick}
       className={classNames(
@@ -399,7 +403,8 @@ function AccessGate({
               Your daily allowance resets tomorrow.
             </p>
             {decision.nextAction === "rewarded" && config?.rewardedEnabled && (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={onRewarded}
                 className="mt-3 inline-flex items-center gap-2 rounded-lg border border-accent-orange/30 bg-card px-4 py-2 dark:border-accent-orange/30 dark:bg-card text-sm font-semibold text-accent-orange -orange/5"
@@ -613,7 +618,8 @@ function TextConsultation({
           </p>
 
           <div className="mt-4 flex items-center gap-3">
-            <Button variant="default"
+            <Button
+              variant="default"
               type="submit"
               disabled={!canSubmit}
               className="disabled:opacity-50"
@@ -634,7 +640,12 @@ function TextConsultation({
               )}
             </Button>
             {(status === "success" || status === "error") && (
-              <Button variant="secondary" type="button" onClick={reset} className="btn-secondary">
+              <Button
+                variant="secondary"
+                type="button"
+                onClick={reset}
+                className="btn-secondary"
+              >
                 <RefreshCw className="h-4 w-4" />
                 Start over
               </Button>
@@ -857,7 +868,8 @@ function ImageConsultation({
                 alt="Room preview"
                 className="max-h-72 w-full object-contain bg-muted/50 dark:bg-background"
               />
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={clearFile}
                 className="absolute right-3 top-3 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-muted-foreground shadow hover:bg-card dark:bg-background/90 dark:text-muted-foreground/80 dark:hover:bg-card"
@@ -899,7 +911,8 @@ function ImageConsultation({
           </label>
 
           <div className="mt-4 flex items-center gap-3">
-            <Button variant="default"
+            <Button
+              variant="default"
               type="submit"
               disabled={!canSubmit}
               className="disabled:opacity-50"
@@ -920,7 +933,12 @@ function ImageConsultation({
               )}
             </Button>
             {(status === "success" || status === "error") && (
-              <Button variant="secondary" type="button" onClick={reset} className="btn-secondary">
+              <Button
+                variant="secondary"
+                type="button"
+                onClick={reset}
+                className="btn-secondary"
+              >
                 <RefreshCw className="h-4 w-4" />
                 Start over
               </Button>
@@ -1227,7 +1245,9 @@ function ResultPanel({
                   <p className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">
                     {pc.name}
                   </p>
-                  <p className="text-[10px] text-muted-foreground">{pc.hex_code}</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    {pc.hex_code}
+                  </p>
                 </div>
               </Link>
             ))}

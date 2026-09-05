@@ -13,6 +13,7 @@ import {
   getMonetagSdkUrl,
   showMonetagRewardedAd,
 } from "@/lib/monetag-rewarded";
+import { showAdsenseRewardedAd } from "@/lib/adsense-rewarded";
 
 /**
  * Rewarded ad bridges — one entry per provider with a working client-side
@@ -51,6 +52,26 @@ export const REWARDED_AD_BRIDGES: Record<string, RewardedAdBridge> = {
       sdkUrl: getMonetagSdkUrl(provider),
       minWatchTimeMs: 5000,
     });
+  },
+  // Google AdSense — H5 Games Ads adBreak bridge (src/lib/adsense-rewarded.ts)
+  google_adsense: async (provider, opts) => {
+    const settings = (provider.settings ?? {}) as Record<string, unknown>;
+    const creds = (provider.credentials ?? {}) as Record<string, unknown>;
+    if (settings.rewarded_ads !== true) {
+      throw new Error(
+        "AdSense rewarded ads are disabled. Enable Rewarded Ads in Admin → Ads → Google AdSense.",
+      );
+    }
+    const publisherId =
+      typeof creds.publisher_id === "string" ? creds.publisher_id : "";
+    return showAdsenseRewardedAd({
+      publisherId,
+      requestVar: opts.toolKey,
+    }).then((res) => ({
+      mode: "adsense_h5_rewarded",
+      valued: res.viewed,
+      estimatedPrice: null,
+    }));
   },
 };
 

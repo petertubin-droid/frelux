@@ -228,6 +228,7 @@ import {
   getAdsterraServeDomain,
   resolveAdsterraSize,
   renderAdsterraBanner,
+  renderAdsterraNativeBanner,
   resetAdsterraPageStateForTests,
 } from "@/components/ui/AdSlot";
 
@@ -393,6 +394,95 @@ describe("AdSlot — Adsterra rendering", () => {
       slotKey: "home_sidebar",
     });
     expect(appended).toHaveLength(0); // guard rejects before any iframe is built
+  });
+
+  it("routes slots to the native renderer when the resolved key matches the native credential", async () => {
+    const nativeKey = "b".repeat(32);
+    const provider = makeAdsterraProvider({
+      key: "a".repeat(32),
+      native_banner_key: nativeKey,
+    });
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          name: "Test",
+          page_target: "all",
+          position: "content",
+          is_active: true,
+          provider_ids: ["prov-adsterra"],
+          ad_unit_ids: { "prov-adsterra": nativeKey },
+          display_rules: { mobile: true, desktop: true },
+          page_target: "all",
+          position: "content",
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+    // The placement maps this provider to the native zone key
+    vi.mocked(adConfig.getAdUnitId).mockReturnValue(nativeKey);
+
+    const AdSlotModule = await import("@/components/ui/AdSlot");
+    const nativeSpy = vi
+      .spyOn(AdSlotModule.adsterraInjector, "renderNativeBanner")
+      .mockImplementation(() => {});
+    const bannerSpy = vi
+      .spyOn(AdSlotModule.adsterraInjector, "renderBanner")
+      .mockImplementation(() => {});
+
+    const { container } = await renderAdSlot();
+    await waitFor(() => {
+      const slot = container.querySelector('[data-ad-provider="adsterra"]');
+      expect(slot).not.toBeNull();
+    });
+    expect(nativeSpy).toHaveBeenCalledTimes(1);
+    expect(bannerSpy).not.toHaveBeenCalled();
+    expect(nativeSpy.mock.calls[0][2]).toEqual({
+      key: nativeKey,
+      slotKey: "test-slot",
+    });
+    nativeSpy.mockRestore();
+    bannerSpy.mockRestore();
+  });
+
+  it("injects native.js into the slot container (captured, never connected)", () => {
+    const host = document.createElement("div");
+    const appended: unknown[] = [];
+    (host as unknown as Record<string, unknown>).appendChild = (c: unknown) => {
+      appended.push(c);
+      return c;
+    };
+    const provider = makeAdsterraProvider({
+      native_banner_key: "b".repeat(32),
+    });
+    renderAdsterraNativeBanner(host as unknown as HTMLElement, provider, {
+      key: "b".repeat(32),
+      slotKey: "home_sidebar",
+    });
+    expect(appended).toHaveLength(1);
+    const script = appended[0] as HTMLScriptElement;
+    expect(script.getAttribute("src")).toBe(
+      `https://www.highperformanceformat.com/${"b".repeat(32)}/native.js`,
+    );
+    expect(script.getAttribute("data-cfasync")).toBe("false");
+    expect(script.getAttribute("data-adsterra-native")).toBe("true");
+    // invalid key → no injection at all
+    const host2 = document.createElement("div");
+    const appended2: unknown[] = [];
+    (host2 as unknown as Record<string, unknown>).appendChild = (
+      c: unknown,
+    ) => {
+      appended2.push(c);
+      return c;
+    };
+    renderAdsterraNativeBanner(host2 as unknown as HTMLElement, provider, {
+      key: "evil<script>",
+      slotKey: "home_sidebar",
+    });
+    expect(appended2).toHaveLength(0);
   });
 
   it("renders nothing without a zone key (stays dormant until Admin adds it)", async () => {

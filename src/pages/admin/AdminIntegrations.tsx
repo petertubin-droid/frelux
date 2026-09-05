@@ -66,6 +66,42 @@ const FIELD_HELP: Record<string, Record<string, string>> = {
     placement_id: "Optional — a label for this placement (for your reference).",
     serve_domain:
       "Optional — the hostname from your Adsterra banner snippet (e.g. www.highperformanceformat.com or pl12345678.profitabledisplaynetwork.com). Defaults to www.highperformanceformat.com.",
+    native_banner_key:
+      "Adsterra Native Banner zone — paste the 32-char key from your native snippet (or the full native.js URL). When set, any placement whose Ad Unit ID matches this key renders the in-place native unit instead of a banner.",
+    interstitial_key:
+      "Adsterra Interstitial zone — paste the 32-char key (or full script URL). Injected once site-wide when set.",
+    popunder_key:
+      "Adsterra Popunder zone — paste the 32-char key (or full script URL). Injected once site-wide when set.",
+    social_bar_key:
+      "Adsterra Social Bar zone — paste the 32-char key (or full script URL). Adsterra recommends at most one Social Bar per site; injected once site-wide when set.",
+  },
+  google_adsense: {
+    publisher_id:
+      "Your AdSense publisher ID (ca-pub-…). From AdSense dashboard → Account → Settings.",
+    auto_ads:
+      "Auto Ads — Google automatically places ads across the site. Fine-tune formats in the AdSense dashboard → Auto ads.",
+    anchor_ads:
+      "Anchor ads — sticky top/bottom banner (mobile-first). Requires Auto ads in your AdSense dashboard.",
+    vignette_ads:
+      "Vignette ads — full-screen ads shown between page navigations. Requires Auto ads in your AdSense dashboard.",
+    interstitial_ads:
+      "Interstitial ads — full-screen mobile web ads between page loads. Requires Auto ads in your AdSense dashboard.",
+    rewarded_ads:
+      "Rewarded ads — uses the H5 Games Ads adBreak API for the rewarded unlock flow. Enable Rewarded ads for this site in the AdSense dashboard first.",
+  },
+  monetag: {
+    zone_id:
+      "Your Monetag display/auto zone ID (numeric). Find it in your Monetag dashboard → Sites → Zones.",
+    rewarded_zone_id:
+      "Optional — the Monetag Rewarded zone used by the rewarded unlock flow (numeric).",
+    sdk_url:
+      "Optional — only for Monetag SDK zones from the dashboard's Get SDK flow. Leave empty for standard website zones.",
+    interstitial_zone_id:
+      "Monetag Interstitial zone — full-screen ads shown automatically at intervals. Paste the numeric zone ID.",
+    popunder_zone_id:
+      "Monetag Popunder zone — paste the numeric zone ID. Injected site-wide when set.",
+    vignette_zone_id:
+      "Monetag Vignette Banner zone — paste the numeric zone ID. Injected site-wide when set.",
   },
   buysellads: {
     site_key:
@@ -138,6 +174,7 @@ const INTEGRATION_LINKS: Record<string, Record<string, string>> = {
   },
   media_net: { label: "Open Media.net", url: "https://www.media.net" },
   adsterra: { label: "Open Adsterra", url: "https://adsterra.com" },
+  monetag: { label: "Open Monetag", url: "https://monetag.com" },
   buysellads: { label: "Open BuySellAds", url: "https://www.buysellads.com" },
   taboola: { label: "Open Taboola", url: "https://www.taboola.com" },
   outbrain: { label: "Open Outbrain", url: "https://www.outbrain.com" },
