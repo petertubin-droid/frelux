@@ -52,6 +52,16 @@ const FIELD_HELP: Record<string, Record<string, string>> = {
       "Your AdSense Publisher ID (e.g. ca-pub-XXXXXXXXXXXXXXXX). Find it in AdSense → Account → Account information.",
     client_id:
       "Same as publisher_id — the ca-pub-XXXX ID used to load the AdSense script.",
+    auto_ads:
+      "Auto Ads — Google automatically places ads across the site. Fine-tune the mix in the AdSense dashboard → Auto ads.",
+    anchor_ads:
+      "Anchor ads — sticky top/bottom banner (mobile-first). Requires Auto ads in your AdSense dashboard.",
+    vignette_ads:
+      "Vignette ads — full-screen ads shown between page navigations. Requires Auto ads in your AdSense dashboard.",
+    interstitial_ads:
+      "Interstitial ads — full-screen mobile web ads between page loads. Requires Auto ads in your AdSense dashboard.",
+    rewarded_ads:
+      "Rewarded ads — uses the H5 Games Ads adBreak API for the rewarded unlock flow. Enable Rewarded ads for this site in the AdSense dashboard first.",
   },
   google_search_console: {
     verification_token:
@@ -75,20 +85,7 @@ const FIELD_HELP: Record<string, Record<string, string>> = {
     social_bar_key:
       "Adsterra Social Bar zone — paste the 32-char key (or full script URL). Adsterra recommends at most one Social Bar per site; injected once site-wide when set.",
   },
-  google_adsense: {
-    publisher_id:
-      "Your AdSense publisher ID (ca-pub-…). From AdSense dashboard → Account → Settings.",
-    auto_ads:
-      "Auto Ads — Google automatically places ads across the site. Fine-tune formats in the AdSense dashboard → Auto ads.",
-    anchor_ads:
-      "Anchor ads — sticky top/bottom banner (mobile-first). Requires Auto ads in your AdSense dashboard.",
-    vignette_ads:
-      "Vignette ads — full-screen ads shown between page navigations. Requires Auto ads in your AdSense dashboard.",
-    interstitial_ads:
-      "Interstitial ads — full-screen mobile web ads between page loads. Requires Auto ads in your AdSense dashboard.",
-    rewarded_ads:
-      "Rewarded ads — uses the H5 Games Ads adBreak API for the rewarded unlock flow. Enable Rewarded ads for this site in the AdSense dashboard first.",
-  },
+
   monetag: {
     zone_id:
       "Your Monetag display/auto zone ID (numeric). Find it in your Monetag dashboard → Sites → Zones.",

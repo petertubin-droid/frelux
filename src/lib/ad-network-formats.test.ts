@@ -6,6 +6,7 @@ import {
   resolveAdsterraScriptUrl,
   displayAdsEnabled,
 } from "@/lib/ad-network-formats";
+import type { DbAdProvider } from "@/types/database";
 
 const baseProvider = {
   id: "p",
@@ -19,7 +20,7 @@ const baseProvider = {
   is_system: true,
   created_at: "",
   updated_at: "",
-} as never;
+} as unknown as DbAdProvider;
 
 describe("ad-network-formats — Adsterra script resolution", () => {
   it("constructs invoke.js URL from a bare 32-hex key", () => {
@@ -206,7 +207,7 @@ describe("ad-network-formats — Monetag auto zones", () => {
       slug: "monetag",
       credentials: {
         interstitial_zone_id: "275353",
-        popunder_zone_id: 275354,
+        popunder_zone_id: "275354",
         vignette_zone_id: "275355",
       },
     };

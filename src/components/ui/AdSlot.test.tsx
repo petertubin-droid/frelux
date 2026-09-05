@@ -101,8 +101,6 @@ describe("AdSlot", () => {
           provider_ids: ["prov-monetag"],
           ad_unit_ids: {},
           display_rules: { mobile: true, desktop: true },
-          page_target: "all",
-          position: "content",
         },
       ] as never,
     });
@@ -135,8 +133,6 @@ describe("AdSlot", () => {
           provider_ids: ["prov-monetag"],
           ad_unit_ids: { "prov-monetag": "zone-999" },
           display_rules: { mobile: true, desktop: true },
-          page_target: "all",
-          position: "content",
         },
       ] as never,
     });
@@ -176,8 +172,6 @@ describe("AdSlot", () => {
           provider_ids: ["prov-monetag"],
           ad_unit_ids: {},
           display_rules: { mobile: true, desktop: true },
-          page_target: "all",
-          position: "content",
         },
       ] as never,
     });
@@ -322,8 +316,6 @@ describe("AdSlot — Adsterra rendering", () => {
           provider_ids: ["prov-adsterra"],
           ad_unit_ids: {},
           display_rules: { mobile: true, desktop: true },
-          page_target: "all",
-          position: "content",
         },
       ] as never,
     });
@@ -416,8 +408,6 @@ describe("AdSlot — Adsterra rendering", () => {
           provider_ids: ["prov-adsterra"],
           ad_unit_ids: { "prov-adsterra": nativeKey },
           display_rules: { mobile: true, desktop: true },
-          page_target: "all",
-          position: "content",
         },
       ] as never,
     });
@@ -499,8 +489,6 @@ describe("AdSlot — Adsterra rendering", () => {
           provider_ids: ["prov-adsterra"],
           ad_unit_ids: {},
           display_rules: { mobile: true, desktop: true },
-          page_target: "all",
-          position: "content",
         },
       ] as never,
     });
