@@ -23,6 +23,7 @@ import { sendPushToUser } from '@/lib/push-notifications';
 // -- Category / Service / Location lookups (public) --
 
 export async function fetchCategories(): Promise<DbProCategory[]> {
+  try {
   if (!isSupabaseConfigured) return [];
   const { data, error } = await supabase
     .from('pro_categories')
@@ -34,9 +35,14 @@ export async function fetchCategories(): Promise<DbProCategory[]> {
     return [];
   }
   return data as DbProCategory[];
-}
+
+  } catch (err) {
+    if (import.meta.env.DEV) console.error('[pro-connect] fetchCategories:', err);
+    return [];
+  }}
 
 export async function fetchServices(categoryId?: string): Promise<DbProService[]> {
+  try {
   if (!isSupabaseConfigured) return [];
   let query = supabase.from('pro_services').select('*').eq('is_active', true).order('sort_order');
   if (categoryId) query = query.eq('category_id', categoryId);
@@ -46,9 +52,14 @@ export async function fetchServices(categoryId?: string): Promise<DbProService[]
     return [];
   }
   return data as DbProService[];
-}
+
+  } catch (err) {
+    if (import.meta.env.DEV) console.error('[pro-connect] fetchServices:', err);
+    return [];
+  }}
 
 export async function fetchLocations(): Promise<DbProLocation[]> {
+  try {
   if (!isSupabaseConfigured) return [];
   const { data, error } = await supabase
     .from('pro_locations')
@@ -60,17 +71,31 @@ export async function fetchLocations(): Promise<DbProLocation[]> {
     return [];
   }
   return data as DbProLocation[];
-}
+
+  } catch (err) {
+    if (import.meta.env.DEV) console.error('[pro-connect] fetchLocations:', err);
+    return [];
+  }}
 
 export async function fetchStates(): Promise<string[]> {
+  try {
   const locations = await fetchLocations();
   return [...new Set(locations.map((l) => l.state))].sort();
-}
+
+  } catch (err) {
+    if (import.meta.env.DEV) console.error('[pro-connect] fetchStates:', err);
+    return [];
+  }}
 
 export async function fetchCitiesByState(state: string): Promise<string[]> {
+  try {
   const locations = await fetchLocations();
   return [...new Set(locations.filter((l) => l.state === state).map((l) => l.city))].sort();
-}
+
+  } catch (err) {
+    if (import.meta.env.DEV) console.error('[pro-connect] fetchCitiesByState:', err);
+    return [];
+  }}
 
 // -- Profile management --
 
@@ -803,6 +828,7 @@ export async function updateAccountType(userId: string, accountType: AccountType
 // -- Verification Settings (public) --
 
 export async function fetchProSettings(): Promise<DbProSettings | null> {
+  try {
   if (!isSupabaseConfigured) return null;
   const { data, error } = await supabase
     .from('pro_settings')
@@ -814,7 +840,11 @@ export async function fetchProSettings(): Promise<DbProSettings | null> {
     return null;
   }
   return data as DbProSettings;
-}
+
+  } catch (err) {
+    if (import.meta.env.DEV) console.error('[pro-connect] fetchProSettings:', err);
+    return null;
+  }}
 
 export async function updateProSettings(updates: Partial<DbProSettings>): Promise<boolean> {
   if (!isSupabaseConfigured) return false;

@@ -10,6 +10,7 @@ import {
   PaintBucket,
   Paintbrush,
   Package,
+  Droplets,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { calculateScreedingSystem, dbToSystemConfig } from "@/lib/calc";
@@ -532,6 +533,18 @@ export default function ScreedingCostEstimator({
                               />
                             }
                           />
+                          {result.extra && (
+                            <MaterialBreakdownCard
+                              breakdown={result.extra}
+                              currencySymbol={currencySymbol}
+                              icon={
+                                <Droplets
+                                  aria-hidden="true"
+                                  className="h-4 w-4 text-brand-purple"
+                                />
+                              }
+                            />
+                          )}
                         </>
                       )}
 
@@ -607,6 +620,18 @@ export default function ScreedingCostEstimator({
                                   quantityUnit: result.cement.unit + "s",
                                   spaceIds: ["surface"],
                                 },
+                                ...(result.extra
+                                  ? [
+                                      {
+                                        materialId: "screeding-extra",
+                                        productName: result.extra.name,
+                                        totalQuantity:
+                                          result.extra.purchaseQuantity,
+                                        quantityUnit: result.extra.unit + "s",
+                                        spaceIds: ["surface"],
+                                      },
+                                    ]
+                                  : []),
                               ],
                         )}
                       />
@@ -647,6 +672,16 @@ export default function ScreedingCostEstimator({
                                     quantity: result.cement.purchaseQuantity,
                                     unit: result.cement.unit + "s",
                                   },
+                                  ...(result.extra
+                                    ? [
+                                        {
+                                          name: result.extra.name,
+                                          category: "bond",
+                                          quantity: result.extra.purchaseQuantity,
+                                          unit: result.extra.unit + "s",
+                                        },
+                                      ]
+                                    : []),
                                 ]
                           }
                           compact
@@ -797,6 +832,22 @@ function buildExplanationSteps(result: ScreedingSystemResult) {
         value: `${result.cement.purchaseQuantity} ${result.cement.unit}s`,
       },
     );
+    if (result.extra) {
+      steps.push(
+        {
+          description: `${result.extra.name} base quantity`,
+          value: `${formatNumber(result.extra.baseQuantity, 2)} ${result.extra.unit}s`,
+        },
+        {
+          description: `${result.extra.name} waste (${result.extra.wastePercentage}%)`,
+          value: `${formatNumber(result.extra.wasteQuantity, 2)} ${result.extra.unit}s`,
+        },
+        {
+          description: `${result.extra.name} purchase quantity`,
+          value: `${result.extra.purchaseQuantity} ${result.extra.unit}s`,
+        },
+      );
+    }
   }
 
   if (result.materialCost != null) {

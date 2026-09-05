@@ -10,7 +10,7 @@ const GEMINI_MODEL = 'gemini-2.0-flash';
 const MAX_REQUESTS_PER_HOUR = 15;
 
 interface AiLearnRequest {
-  action: 'ask' | 'generate_article' | 'expand_outline' | 'rewrite' | 'improve' | 'seo_optimize' | 'generate_faq' | 'generate_summary' | 'image_prompts' | 'alt_text' | 'tutorial_steps' | 'comparison';
+  action: 'ask' | 'generate_article' | 'expand_outline' | 'rewrite' | 'improve' | 'seo_optimize' | 'generate_faq' | 'generate_summary' | 'image_prompts' | 'alt_text' | 'tutorial_steps' | 'comparison' | 'generate_insert';
   question?: string;
   content?: string;
   topic?: string;
@@ -18,6 +18,7 @@ interface AiLearnRequest {
   targetKeywords?: string[];
   context?: string;
   clientId?: string;
+  insertType?: string;
 }
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -264,6 +265,37 @@ Return as JSON: {"metaTitle": "...", "metaDescription": "...", "keywords": [...]
       case 'comparison': {
         systemPrompt = `You are a product reviewer for FRELUX PAINT CALC. Generate a comparison article in Markdown format with a table comparing the key features, pros, and cons of the products or methods mentioned.`;
         userPrompt = `Compare: ${body.topic ?? body.content ?? ''}`;
+        break;
+      }
+      case 'generate_insert': {
+        // In-article insert drafts (Summary, Key Takeaways, What to Watch,
+        // Pro Tip, Stat Highlight, Quote) for Admin → Learn → Inserts.
+        const insertType = body.insertType ?? 'summary';
+        const allowedTypes = ['summary', 'key_takeaways', 'what_to_watch', 'pro_tip', 'stat_highlight', 'quote'];
+        if (!allowedTypes.includes(insertType)) {
+          return jsonResponse({ error: `Unknown insert type: ${insertType}.`, code: 'BAD_REQUEST' }, 400);
+        }
+        const listTypes = ['summary', 'key_takeaways', 'what_to_watch'];
+        const formatRule = listTypes.includes(insertType)
+          ? `This is a list-style insert. Return 3-5 items, each a single line of at most 90 characters. Use one item per line with NO bullet markers, numbering, or markdown — plain lines only.`
+          : insertType === 'stat_highlight'
+            ? `Return 1-3 lines. Each line MUST be exactly: <big number or short stat> | <one-line explanation>. The pipe character separates the stat from its label. No markdown.`
+            : `Return a single short paragraph of 2-3 sentences. No markdown, no headings, no quotes.`;
+        systemPrompt = `You are a professional content editor for FRELUX PAINT CALC (painting, POP ceiling, tiles, and home improvement). Draft an in-article insert card of type "${insertType}".
+
+Rules:
+- Base every statement ONLY on the article content provided. Do not invent facts, prices, or statistics.
+- Nigerian context (₦, litres, bags) unless the article clearly says otherwise.
+- Punchy, specific, professional copy — no fluff, no "In this article..." filler.
+- ${formatRule}
+- Tone: expert but friendly.
+
+Return ONLY the card content as JSON, nothing else: {"title": "<short card title, max 6 words>", "body": "<the full body exactly as specified above with \n between lines if list-style>"}`;
+        userPrompt = `Article content:
+
+${body.content ?? ''}
+
+Draft the "${insertType}" insert card for this article.`;
         break;
       }
       default:

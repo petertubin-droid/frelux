@@ -1917,9 +1917,36 @@ export interface DbScreedingSystemConfig {
   cement_quantity: number | null;
   cement_unit: string | null;
   cement_price_per_unit: number | null;
+  // Generic third material slot — represents Bond today, any material
+  // later, without another migration. Dormant unless extra_enabled=true.
+  extra_enabled?: boolean | null;
+  extra_name?: string | null;
+  extra_quantity?: number | null;
+  extra_unit?: string | null;
+  extra_price_per_unit?: number | null;
   rounding_rule: "ceil" | "none";
   is_active: boolean;
   sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DbLearnArticleInsert {
+  id: string;
+  article_id: string;
+  insert_type:
+    | "summary"
+    | "key_takeaways"
+    | "what_to_watch"
+    | "pro_tip"
+    | "stat_highlight"
+    | "quote";
+  title: string;
+  body: string;
+  position_type: "top" | "after_heading" | "bottom";
+  position_heading_id: string | null;
+  sort_order: number;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }

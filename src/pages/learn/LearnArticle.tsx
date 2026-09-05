@@ -16,7 +16,12 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
-import type { DbLearnArticle, DbLearnArticleFaq } from "@/types/database";
+import type {
+  DbLearnArticle,
+  DbLearnArticleFaq,
+  DbLearnArticleInsert,
+} from "@/types/database";
+import { ArticleInsertBlock } from "@/components/learn/ArticleInserts";
 import { Button } from "@/components/ui/shadcn/button";
 
 type Status = "loading" | "ready" | "error" | "notfound";
@@ -26,6 +31,7 @@ export default function LearnArticle() {
 
   const [article, setArticle] = useState<DbLearnArticle | null>(null);
   const [faqs, setFaqs] = useState<DbLearnArticleFaq[]>([]);
+  const [inserts, setInserts] = useState<DbLearnArticleInsert[]>([]);
   const [related, setRelated] = useState<DbLearnArticle[]>([]);
   const [recent, setRecent] = useState<DbLearnArticle[]>([]);
   const [prevArticle, setPrevArticle] = useState<DbLearnArticle | null>(null);
@@ -148,7 +154,7 @@ export default function LearnArticle() {
       const currentCategory = art.category_slug;
       const currentPublishedAt = art.published_at ?? art.created_at;
 
-      const [relatedRes, recentRes, prevRes, nextRes, faqRes] =
+      const [relatedRes, recentRes, prevRes, nextRes, faqRes, insertRes] =
         await Promise.all([
           supabase
             .from("learn_articles")
@@ -185,6 +191,12 @@ export default function LearnArticle() {
             .eq("article_id", currentId)
             .eq("is_active", true)
             .order("sort_order", { ascending: true }),
+          supabase
+            .from("learn_article_inserts")
+            .select("*")
+            .eq("article_id", currentId)
+            .eq("is_active", true)
+            .order("sort_order", { ascending: true }),
         ]);
 
       setRelated((relatedRes.data ?? []) as DbLearnArticle[]);
@@ -192,6 +204,7 @@ export default function LearnArticle() {
       setPrevArticle((prevRes.data?.[0] as DbLearnArticle) ?? null);
       setNextArticle((nextRes.data?.[0] as DbLearnArticle) ?? null);
       setFaqs((faqRes.data ?? []) as DbLearnArticleFaq[]);
+      setInserts((insertRes.data ?? []) as DbLearnArticleInsert[]);
     }
     load();
   }, [articleSlug]);
@@ -227,6 +240,21 @@ export default function LearnArticle() {
     handleScroll();
     return () => window.removeEventListener("scroll", handleScroll);
   }, [status]);
+
+  // Group in-article inserts by placement
+  const { topInserts, bottomInserts, insertsByHeading } = useMemo(() => {
+    const top: DbLearnArticleInsert[] = [];
+    const bottom: DbLearnArticleInsert[] = [];
+    const byHeading: Record<string, DbLearnArticleInsert[]> = {};
+    for (const ins of inserts) {
+      if (ins.position_type === "top") top.push(ins);
+      else if (ins.position_type === "bottom") bottom.push(ins);
+      else if (ins.position_type === "after_heading" && ins.position_heading_id) {
+        (byHeading[ins.position_heading_id] ??= []).push(ins);
+      }
+    }
+    return { topInserts: top, bottomInserts: bottom, insertsByHeading: byHeading };
+  }, [inserts]);
 
   // Extract table of contents from article content
   const tableOfContents = useMemo(() => {
@@ -437,6 +465,15 @@ export default function LearnArticle() {
               </div>
             )}
 
+            {/* Top in-article inserts (Summary etc.) */}
+            {topInserts.length > 0 && (
+              <div className="mb-10">
+                {topInserts.map((ins) => (
+                  <ArticleInsertBlock key={ins.id} insert={ins} />
+                ))}
+              </div>
+            )}
+
             {/* In-article ad */}
             <div className="mb-10">
               <AdSlot slotKey="learn_in_article" hideLabel />
@@ -461,8 +498,20 @@ export default function LearnArticle() {
               prose-img:rounded-xl
             "
             >
-              <RenderedMarkdown content={article.content} />
+              <RenderedMarkdown
+                content={article.content}
+                insertsByHeading={insertsByHeading}
+              />
             </div>
+
+            {/* Bottom in-article inserts */}
+            {bottomInserts.length > 0 && (
+              <div className="mt-10">
+                {bottomInserts.map((ins) => (
+                  <ArticleInsertBlock key={ins.id} insert={ins} />
+                ))}
+              </div>
+            )}
 
             {/* FAQ Section */}
             {faqs.length > 0 && (
@@ -725,11 +774,27 @@ export default function LearnArticle() {
 }
 
 // Enhanced markdown renderer with heading IDs for TOC
-function RenderedMarkdown({ content }: { content: string }) {
+function RenderedMarkdown({
+  content,
+  insertsByHeading,
+}: {
+  content: string;
+  insertsByHeading?: Record<string, DbLearnArticleInsert[]>;
+}) {
   const lines = content.split("\n");
   const elements: React.ReactNode[] = [];
   let i = 0;
   let key = 0;
+
+  // In-article inserts placed right after their target heading
+  const pushHeadingInserts = (headingId: string) => {
+    const inserts = insertsByHeading?.[headingId];
+    if (inserts && inserts.length > 0) {
+      inserts.forEach((ins) => {
+        elements.push(<ArticleInsertBlock key={`ins-${ins.id}`} insert={ins} />);
+      });
+    }
+  };
 
   while (i < lines.length) {
     const line = lines[i];
@@ -770,6 +835,7 @@ function RenderedMarkdown({ content }: { content: string }) {
           {renderInline(text)}
         </h3>,
       );
+      pushHeadingInserts(id);
     } else if (line.startsWith("## ")) {
       const text = line.slice(3);
       const id = text
@@ -785,6 +851,7 @@ function RenderedMarkdown({ content }: { content: string }) {
           {renderInline(text)}
         </h2>,
       );
+      pushHeadingInserts(id);
     } else if (line.startsWith("# ")) {
       const text = line.slice(2);
       const id = text

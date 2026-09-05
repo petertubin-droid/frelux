@@ -7,6 +7,7 @@ import {
   Paintbrush,
   Package,
   PaintBucket,
+  Droplets,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -497,6 +498,19 @@ function MixConfigPanel({
   const [cementPrice, setCementPrice] = useState(
     Number(config.cement_price_per_unit ?? 0),
   );
+  const [extraEnabled, setExtraEnabled] = useState(
+    config.extra_enabled === true,
+  );
+  const [extraName, setExtraName] = useState(
+    config.extra_name ?? "Bond",
+  );
+  const [extraQuantity, setExtraQuantity] = useState(
+    Number(config.extra_quantity ?? 1),
+  );
+  const [extraUnit, setExtraUnit] = useState(config.extra_unit ?? "bucket");
+  const [extraPrice, setExtraPrice] = useState(
+    Number(config.extra_price_per_unit ?? 0),
+  );
   const [currency, setCurrency] = useState(config.currency);
   const [currencySymbol, setCurrencySymbol] = useState(config.currency_symbol);
   const [roundingRule, setRoundingRule] = useState(config.rounding_rule);
@@ -518,6 +532,11 @@ function MixConfigPanel({
       cement_quantity: Math.max(0, Number(cementQuantity) || 0),
       cement_unit: cementUnit,
       cement_price_per_unit: Math.max(0, Number(cementPrice) || 0),
+      extra_enabled: extraEnabled,
+      extra_name: extraName.trim() || null,
+      extra_quantity: Math.max(0, Number(extraQuantity) || 0),
+      extra_unit: extraUnit.trim() || "bucket",
+      extra_price_per_unit: Math.max(0, Number(extraPrice) || 0),
       currency,
       currency_symbol: currencySymbol,
       rounding_rule: roundingRule,
@@ -713,6 +732,67 @@ function MixConfigPanel({
               min={0}
               value={cementPrice}
               onChange={(e) => setCementPrice(Number(e.target.value))}
+            />
+          </AdminField>
+        </div>
+      </AdminCard>
+
+      <AdminCard className="mb-4 p-5">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Droplets aria-hidden="true" className="h-5 w-5 text-brand-purple" />
+            <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
+              Extra Material (e.g. Bond)
+            </h2>
+          </div>
+          <Toggle checked={extraEnabled} onChange={setExtraEnabled} />
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
+          Optional third material calculated from the same coverage rule —
+          e.g. Bond, glue or primer. Enable it to include it in the White
+          Cement + Screeding Paint system. Nothing is shown to users while
+          disabled.
+        </p>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <AdminField
+            label="Material name"
+            hint="e.g. Bond, Wall Primer"
+          >
+            <AdminInput
+              type="text"
+              value={extraName}
+              onChange={(e) => setExtraName(e.target.value)}
+              disabled={!extraEnabled}
+            />
+          </AdminField>
+          <AdminField
+            label="Quantity per coverage area"
+            hint="Units needed per coverage area"
+          >
+            <AdminInput
+              type="number"
+              min={0}
+              step="0.5"
+              value={extraQuantity}
+              onChange={(e) => setExtraQuantity(Number(e.target.value))}
+              disabled={!extraEnabled}
+            />
+          </AdminField>
+          <AdminField label="Unit" hint="e.g. litre, bucket">
+            <AdminInput
+              type="text"
+              value={extraUnit}
+              onChange={(e) => setExtraUnit(e.target.value)}
+              disabled={!extraEnabled}
+            />
+          </AdminField>
+          <AdminField label="Price per unit">
+            <AdminInput
+              type="number"
+              min={0}
+              value={extraPrice}
+              onChange={(e) => setExtraPrice(Number(e.target.value))}
+              disabled={!extraEnabled}
             />
           </AdminField>
         </div>

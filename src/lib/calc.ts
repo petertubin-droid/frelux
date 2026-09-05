@@ -752,6 +752,13 @@ export function calculateScreedingMixSystem(
   const coverage = Math.max(0.01, config.coverageAreaM2);
   const paintQty = config.paintQuantity ?? 0;
   const cementQty = config.cementQuantity ?? 0;
+  // Optional third material (e.g. Bond) — only participates when the admin
+  // has enabled it AND given it a name+quantity; dormant otherwise.
+  const extraActive =
+    config.extraEnabled === true &&
+    config.extraName != null &&
+    (config.extraQuantity ?? 0) > 0;
+  const extraQty = extraActive ? (config.extraQuantity ?? 0) : 0;
   const wastePct = config.wastePercentage;
 
   // Base units = (area / coverage) × materialQuantity × (coats / defaultCoats).
@@ -761,6 +768,7 @@ export function calculateScreedingMixSystem(
   const baseUnits = area / coverage;
   const basePaint = baseUnits * paintQty * coatFactor;
   const baseCement = baseUnits * cementQty * coatFactor;
+  const baseExtra = baseUnits * extraQty * coatFactor;
 
   const paint = buildMaterialBreakdown({
     name: config.paintName ?? "Screeding Paint",
@@ -780,10 +788,25 @@ export function calculateScreedingMixSystem(
     roundingRule: config.roundingRule,
   });
 
+  const extra = extraActive
+    ? buildMaterialBreakdown({
+        name: config.extraName as string,
+        unit: config.extraUnit ?? "bucket",
+        baseQuantity: baseExtra,
+        wastePercentage: wastePct,
+        pricePerUnit: config.extraPricePerUnit,
+        roundingRule: config.roundingRule,
+      })
+    : null;
+
   const paintCost = paint.totalCost ?? 0;
   const cementCost = cement.totalCost ?? 0;
-  const hasAnyPrice = paint.totalCost != null || cement.totalCost != null;
-  const materialCost = hasAnyPrice ? round(paintCost + cementCost) : null;
+  const extraCost = extra?.totalCost ?? 0;
+  const pricedParts = [paint.totalCost, cement.totalCost, extra?.totalCost];
+  const hasAnyPrice = pricedParts.some((c) => c != null);
+  const materialCost = hasAnyPrice
+    ? round(paintCost + cementCost + extraCost)
+    : null;
 
   return {
     systemType: "white_cement_paint",
@@ -793,6 +816,7 @@ export function calculateScreedingMixSystem(
     wastePercentage: wastePct,
     paint,
     cement,
+    extra,
     materialCost,
     currency: config.currency,
     currencySymbol: config.currencySymbol,
@@ -838,6 +862,13 @@ export function dbToSystemConfig(db: {
   cement_quantity: number | null;
   cement_unit: string | null;
   cement_price_per_unit: number | null;
+  // Optional: rows/configs created before Phase 37 have no extra_* columns
+  // — treat them as "extra material disabled".
+  extra_enabled?: boolean | null;
+  extra_name?: string | null;
+  extra_quantity?: number | null;
+  extra_unit?: string | null;
+  extra_price_per_unit?: number | null;
   rounding_rule: "ceil" | "none";
 }): ScreedingSystemConfig {
   return {
@@ -867,6 +898,14 @@ export function dbToSystemConfig(db: {
     cementPricePerUnit:
       db.cement_price_per_unit != null
         ? Number(db.cement_price_per_unit)
+        : null,
+    extraEnabled: db.extra_enabled === true,
+    extraName: db.extra_name,
+    extraQuantity: db.extra_quantity != null ? Number(db.extra_quantity) : null,
+    extraUnit: db.extra_unit,
+    extraPricePerUnit:
+      db.extra_price_per_unit != null
+        ? Number(db.extra_price_per_unit)
         : null,
     roundingRule: db.rounding_rule,
   };

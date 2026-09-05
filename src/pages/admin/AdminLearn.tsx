@@ -12,6 +12,7 @@ import {
   HelpCircle,
   ChevronDown,
   ChevronRight,
+  Sparkles,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -31,6 +32,7 @@ import type {
   DbLearnCategory,
   DbLearnArticle,
   DbLearnArticleFaq,
+  DbLearnArticleInsert,
   LearnArticleStatus,
 } from "@/types/database";
 import { classNames } from "@/lib/utils";
@@ -43,9 +45,9 @@ import { Button } from "@/components/ui/shadcn/button";
 type Status = "loading" | "ready" | "error";
 
 export default function AdminLearn() {
-  const [tab, setTab] = useState<"articles" | "categories" | "faqs">(
-    "articles",
-  );
+  const [tab, setTab] = useState<
+    "articles" | "categories" | "faqs" | "inserts"
+  >("articles");
   const [articles, setArticles] = useState<DbLearnArticle[]>([]);
   const [categories, setCategories] = useState<DbLearnCategory[]>([]);
   const [status, setStatus] = useState<Status>("loading");
@@ -62,6 +64,14 @@ export default function AdminLearn() {
     articleId: string;
     faq: DbLearnArticleFaq | null;
   } | null>(null);
+  const [inserts, setInserts] = useState<
+    Record<string, DbLearnArticleInsert[]>
+  >({});
+  const [editingInsert, setEditingInsert] = useState<{
+    articleId: string;
+    insert: DbLearnArticleInsert | null;
+  } | null>(null);
+  const [aiDrafting, setAiDrafting] = useState(false);
 
   useEffect(() => {
     loadAll();
@@ -95,6 +105,18 @@ export default function AdminLearn() {
         faqMap[f.article_id].push(f);
       });
       setFaqs(faqMap);
+
+      // Load in-article inserts grouped by article
+      const insertRes = await supabase
+        .from("learn_article_inserts")
+        .select("*")
+        .order("sort_order", { ascending: true });
+      const insertMap: Record<string, DbLearnArticleInsert[]> = {};
+      (insertRes.data ?? []).forEach((ins: DbLearnArticleInsert) => {
+        if (!insertMap[ins.article_id]) insertMap[ins.article_id] = [];
+        insertMap[ins.article_id].push(ins);
+      });
+      setInserts(insertMap);
       setStatus("ready");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed");
@@ -262,6 +284,180 @@ export default function AdminLearn() {
     }));
   }
 
+  async function handleSaveInsert(
+    articleId: string,
+    fields: Pick<
+      DbLearnArticleInsert,
+      "insert_type" | "title" | "body" | "position_type" | "position_heading_id"
+    >,
+  ) {
+    setMutationError(null);
+    if (!fields.title.trim()) {
+      setMutationError("Insert title is required.");
+      return;
+    }
+    if (!fields.body.trim()) {
+      setMutationError("Insert body is required.");
+      return;
+    }
+    if (editingInsert?.insert) {
+      const { error: updError } = await supabase
+        .from("learn_article_inserts")
+        .update({
+          ...fields,
+          position_heading_id:
+            fields.position_type === "after_heading"
+              ? fields.position_heading_id
+              : null,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", editingInsert.insert.id);
+      if (updError) {
+        setMutationError(updError.message);
+        return;
+      }
+    } else {
+      const existingCount = inserts[articleId]?.length ?? 0;
+      const { error: insError } = await supabase
+        .from("learn_article_inserts")
+        .insert({
+          article_id: articleId,
+          ...fields,
+          position_heading_id:
+            fields.position_type === "after_heading"
+              ? fields.position_heading_id
+              : null,
+          sort_order: existingCount,
+          is_active: true,
+        });
+      if (insError) {
+        setMutationError(insError.message);
+        return;
+      }
+    }
+    setEditingInsert(null);
+    loadAll();
+  }
+
+  async function handleDeleteInsert(id: string, articleId: string) {
+    setMutationError(null);
+    const { error: delError } = await supabase
+      .from("learn_article_inserts")
+      .delete()
+      .eq("id", id);
+    if (delError) {
+      setMutationError(delError.message);
+      return;
+    }
+    setInserts((prev) => ({
+      ...prev,
+      [articleId]: (prev[articleId] ?? []).filter((i) => i.id !== id),
+    }));
+  }
+
+  async function handleToggleInsert(ins: DbLearnArticleInsert) {
+    setMutationError(null);
+    const { error: updError } = await supabase
+      .from("learn_article_inserts")
+      .update({
+        is_active: !ins.is_active,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", ins.id);
+    if (updError) {
+      setMutationError(updError.message);
+      return;
+    }
+    setInserts((prev) => ({
+      ...prev,
+      [ins.article_id]: (prev[ins.article_id] ?? []).map((i) =>
+        i.id === ins.id ? { ...i, is_active: !i.is_active } : i,
+      ),
+    }));
+  }
+
+  // AI-assisted insert drafting — calls the ai-learn-assistant edge
+  // function (Gemini). Returns a {title, body} draft the admin can edit
+  // before saving. Admin-only on the server side as well.
+  async function handleAiDraftInsert(articleId: string, insertType: string) {
+    const article = articles.find((a) => a.id === articleId);
+    if (!article) return;
+    setAiDrafting(true);
+    setMutationError(null);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const endpoint = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-learn-assistant`;
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session?.access_token ?? ""}`,
+        },
+        body: JSON.stringify({
+          action: "generate_insert",
+          insertType,
+          content: article.content.slice(0, 10000),
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setMutationError(json?.error ?? "AI drafting failed. Try again.");
+        return;
+      }
+      // Model returns JSON — tolerate code fences around it.
+      let draft: { title?: string; body?: string } | null = null;
+      try {
+        const cleaned = String(json.result)
+          .replace(/^\s*```(?:json)?\s*/i, "")
+          .replace(/\s*```\s*$/, "")
+          .trim();
+        draft = JSON.parse(cleaned);
+      } catch {
+        draft = null;
+      }
+      if (!draft?.body) {
+        setMutationError(
+          "AI returned an unexpected draft. Try again or write it manually.",
+        );
+        return;
+      }
+      setEditingInsert((prev) => {
+        const base =
+          prev ?? { articleId, insert: null };
+        const current =
+          base.insert ??
+          ({
+            id: "",
+            article_id: articleId,
+            insert_type: insertType as DbLearnArticleInsert["insert_type"],
+            title: "",
+            body: "",
+            position_type: "top",
+            position_heading_id: null,
+            sort_order: 0,
+            is_active: true,
+            created_at: "",
+            updated_at: "",
+          } as DbLearnArticleInsert);
+        return {
+          articleId,
+          insert: {
+            ...current,
+            insert_type: insertType as DbLearnArticleInsert["insert_type"],
+            title: draft?.title?.trim() || current.title || "Untitled",
+            body: draft.body.trim(),
+          },
+        };
+      });
+    } catch {
+      setMutationError("AI drafting failed. Check your connection and retry.");
+    } finally {
+      setAiDrafting(false);
+    }
+  }
+
   function toggleArticleExpanded(articleId: string) {
     setExpandedArticles((prev) => {
       const next = new Set(prev);
@@ -324,7 +520,7 @@ export default function AdminLearn() {
 
       {/* Tab switcher */}
       <div className="mb-6 inline-flex rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-1">
-        {(["articles", "categories"] as const).map((t) => (
+        {(["articles", "categories", "faqs", "inserts"] as const).map((t) => (
           <AdminButton
             key={t}
             type="button"
@@ -668,7 +864,326 @@ export default function AdminLearn() {
             })}
         </div>
       )}
+      {/* Inserts tab */}
+      {tab === "inserts" && (
+        <div className="space-y-2">
+          <p className="mb-3 text-xs text-muted-foreground">
+            Insert cards render inline in the article body — top (below the
+            cover image), after a specific heading, or bottom (above FAQs).
+            Use AI Draft to generate a starting point, then edit before
+            saving.
+          </p>
+          {articles.map((article) => {
+            const articleInserts = inserts[article.id] ?? [];
+            const isExpanded = expandedArticles.has(article.id);
+            return (
+              <div key={article.id} className="card overflow-hidden">
+                <Button variant="ghost"
+                  onClick={() => toggleArticleExpanded(article.id)}
+                  className="flex w-full items-center gap-3 p-3 text-left"
+                >
+                  {isExpanded ? (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  )}
+                  <Sparkles className="h-4 w-4 text-brand-purple" />
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-bold text-foreground dark:text-primary-foreground">
+                      {article.title}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {articleInserts.length} insert
+                      {articleInserts.length !== 1 ? "s" : ""}
+                    </p>
+                  </div>
+                  <span
+                    className={classNames(
+                      "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                      article.status === "published"
+                        ? "bg-accent-green/15 text-accent-green"
+                        : "bg-muted text-muted-foreground",
+                    )}
+                  >
+                    {article.status}
+                  </span>
+                </Button>
+                {isExpanded && (
+                  <div className="border-t border-border/50 dark:border-white/5 p-3">
+                    {editingInsert?.articleId === article.id && (
+                      <InsertEditor
+                        key={editingInsert.insert?.id ?? "new"}
+                        draft={editingInsert.insert}
+                        aiDrafting={aiDrafting}
+                        onSave={(fields) =>
+                          handleSaveInsert(article.id, fields)
+                        }
+                        onCancel={() => setEditingInsert(null)}
+                        onAiDraft={(insertType) =>
+                          handleAiDraftInsert(article.id, insertType)
+                        }
+                      />
+                    )}
+                    {articleInserts.length > 0 ? (
+                      <div className="space-y-2">
+                        {articleInserts.map((ins) => (
+                          <div
+                            key={ins.id}
+                            className="flex items-start gap-3 rounded-lg border border-border p-3 dark:border-white/5"
+                          >
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+                                <span className="text-brand-purple">
+                                  {INSERT_TYPE_LABELS[ins.insert_type] ??
+                                    ins.insert_type}
+                                  :
+                                </span>{" "}
+                                {ins.title}
+                              </p>
+                              <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
+                                {ins.body.split("\n")[0].slice(0, 140)}
+                                {ins.body.length > 140 ? "…" : ""}
+                              </p>
+                              <p className="mt-1 text-[10px] font-medium uppercase tracking-wider text-muted-foreground/70">
+                                {ins.position_type === "after_heading"
+                                  ? `after "${ins.position_heading_id}"`
+                                  : ins.position_type}
+                              </p>
+                            </div>
+                            <div className="flex shrink-0 items-center gap-2">
+                              <Toggle
+                                checked={ins.is_active}
+                                onChange={() => handleToggleInsert(ins)}
+                              />
+                              <AdminIconButton
+                                variant="ghost"
+                                type="button"
+                                onClick={() =>
+                                  setEditingInsert({
+                                    articleId: article.id,
+                                    insert: ins,
+                                  })
+                                }
+                                className="rounded-md p-2 text-muted-foreground hover:text-brand-purple"
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </AdminIconButton>
+                              <AdminIconButton
+                                variant="ghost"
+                                type="button"
+                                onClick={() =>
+                                  handleDeleteInsert(ins.id, article.id)
+                                }
+                                className="rounded-md p-2 text-muted-foreground/80 hover:text-red-500"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </AdminIconButton>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-muted-foreground py-2">
+                        No inserts yet for this article.
+                      </p>
+                    )}
+                    {editingInsert?.articleId !== article.id && (
+                      <AdminButton
+                        onClick={() =>
+                          setEditingInsert({
+                            articleId: article.id,
+                            insert: null,
+                          })
+                        }
+                        className="mt-2"
+                      >
+                        <Plus className="h-4 w-4" /> Add Insert
+                      </AdminButton>
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </>
+  );
+}
+
+const INSERT_TYPE_LABELS: Record<string, string> = {
+  summary: "Summary",
+  key_takeaways: "Key Takeaways",
+  what_to_watch: "What to Watch",
+  pro_tip: "Pro Tip",
+  stat_highlight: "Stat",
+  quote: "Quote",
+};
+
+const INSERT_POSITIONS = ["top", "after_heading", "bottom"] as const;
+const INSERT_TYPES = [
+  "summary",
+  "key_takeaways",
+  "what_to_watch",
+  "pro_tip",
+  "stat_highlight",
+  "quote",
+] as const;
+
+// =========================================================
+// In-Article Insert Editor (with AI-assisted drafting)
+// =========================================================
+function InsertEditor({
+  draft,
+  aiDrafting,
+  onSave,
+  onCancel,
+  onAiDraft,
+}: {
+  draft: DbLearnArticleInsert | null;
+  aiDrafting: boolean;
+  onSave: (fields: {
+    insert_type: DbLearnArticleInsert["insert_type"];
+    title: string;
+    body: string;
+    position_type: DbLearnArticleInsert["position_type"];
+    position_heading_id: string | null;
+  }) => void;
+  onCancel: () => void;
+  onAiDraft: (insertType: string) => void;
+}) {
+  const [insertType, setInsertType] = useState<
+    DbLearnArticleInsert["insert_type"]
+  >(draft?.insert_type ?? "summary");
+  const [title, setTitle] = useState(draft?.title ?? "");
+  const [body, setBody] = useState(draft?.body ?? "");
+  const [positionType, setPositionType] = useState<
+    DbLearnArticleInsert["position_type"]
+  >(draft?.position_type ?? "top");
+  const [headingId, setHeadingId] = useState(
+    draft?.position_heading_id ?? "",
+  );
+
+  const isList = ["summary", "key_takeaways", "what_to_watch"].includes(
+    insertType,
+  );
+
+  return (
+    <div className="mb-3 rounded-lg border border-brand-purple/20 bg-primary/5 p-3 space-y-3">
+      <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+        {draft ? "Edit Insert" : "New Insert"}
+      </h4>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <AdminField label="Insert type">
+          <AdminSelect
+            value={insertType}
+            onChange={(e) =>
+              setInsertType(
+                e.target.value as DbLearnArticleInsert["insert_type"],
+              )
+            }
+          >
+            {INSERT_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {INSERT_TYPE_LABELS[t]}
+              </option>
+            ))}
+          </AdminSelect>
+        </AdminField>
+        <AdminField label="Position">
+          <AdminSelect
+            value={positionType}
+            onChange={(e) =>
+              setPositionType(
+                e.target.value as DbLearnArticleInsert["position_type"],
+              )
+            }
+          >
+            {INSERT_POSITIONS.map((t) => (
+              <option key={t} value={t}>
+                {t === "after_heading" ? "after heading" : t}
+              </option>
+            ))}
+          </AdminSelect>
+        </AdminField>
+      </div>
+
+      {positionType === "after_heading" && (
+        <AdminField
+          label="Target heading ID"
+          hint="Slugified text of the ## / ### heading, e.g. 'how-to-mix-screeding-paint'. Visible in the URL when you click a heading in the TOC."
+        >
+          <AdminInput
+            type="text"
+            value={headingId}
+            onChange={(e) => setHeadingId(e.target.value)}
+          />
+        </AdminField>
+      )}
+
+      <AdminField label="Title">
+        <AdminInput
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+      </AdminField>
+
+      <AdminField
+        label="Body"
+        hint={
+          isList
+            ? "One item per line — rendered as a bulleted list."
+            : insertType === "stat_highlight"
+              ? "One stat per line as: stat | short explanation."
+              : "Plain paragraph text."
+        }
+      >
+        <AdminTextarea
+          rows={isList ? 5 : 3}
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+        />
+      </AdminField>
+
+      <div className="flex flex-wrap gap-2">
+        <AdminButton
+          type="button"
+          onClick={() => onAiDraft(insertType)}
+          disabled={aiDrafting}
+          className="gap-1.5"
+        >
+          {aiDrafting ? (
+            <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+          ) : (
+            <Sparkles aria-hidden="true" className="h-4 w-4" />
+          )}
+          {aiDrafting ? "Drafting…" : "AI Draft"}
+        </AdminButton>
+        <AdminButton
+          type="button"
+          onClick={() =>
+            onSave({
+              insert_type: insertType,
+              title,
+              body,
+              position_type: positionType,
+              position_heading_id: headingId.trim() || null,
+            })
+          }
+        >
+          <Check className="h-4 w-4" /> Save Insert
+        </AdminButton>
+        <AdminButton type="button" onClick={onCancel}>
+          Cancel
+        </AdminButton>
+      </div>
+      <p className="text-[10px] text-muted-foreground">
+        AI Draft is optional assistance — review and edit the generated
+        text before saving. Nothing is stored until you press Save Insert.
+      </p>
+    </div>
   );
 }
 

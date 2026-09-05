@@ -813,3 +813,125 @@ describe("dbToSystemConfig", () => {
     expect(config.puttyQuantity).toBeNull();
   });
 });
+
+// ─────────────────────────────────────────────────────────
+// Phase 37: Extra material slot (Bond) — dormant by default,
+// additive when enabled.
+// ─────────────────────────────────────────────────────────
+describe("Screeding extra material (Bond)", () => {
+  it("is dormant when not enabled — no breakdown, unchanged cost", () => {
+    const r = calculateScreedingMixSystem(20, makeMixConfig());
+    expect(r.extra).toBeNull();
+    // Cost is identical to the pre-Bond behaviour
+    expect(r.materialCost).toBe(90000);
+  });
+
+  it("is dormant when enabled but missing name or quantity", () => {
+    const r = calculateScreedingMixSystem(
+      40,
+      makeMixConfig({ extraEnabled: true, extraName: null }),
+    );
+    expect(r.extra).toBeNull();
+    const r2 = calculateScreedingMixSystem(
+      40,
+      makeMixConfig({ extraEnabled: true, extraQuantity: 0 }),
+    );
+    expect(r2.extra).toBeNull();
+  });
+
+  it("scales with area, coats and waste exactly like paint/cement", () => {
+    // Same coverage rule as paint: 40 m² / 20 m² = 2 units; 1 Bond per unit
+    // × 1.5 coat factor (3 coats / 2 default) = 3 base; +20% waste = 3.6 → ceil 4
+    const r = calculateScreedingMixSystem(
+      40,
+      makeMixConfig({
+        extraEnabled: true,
+        extraName: "Bond",
+        extraQuantity: 1,
+        extraUnit: "litre",
+        extraPricePerUnit: 3500,
+      }),
+      3,
+    );
+    expect(r.extra).not.toBeNull();
+    expect(r.extra!.baseQuantity).toBe(3);
+    expect(r.extra!.purchaseQuantity).toBe(4);
+    expect(r.extra!.totalCost).toBe(14000);
+  });
+
+  it("adds its cost into the total without changing paint/cement", () => {
+    const without = calculateScreedingMixSystem(20, makeMixConfig());
+    const withBond = calculateScreedingMixSystem(
+      20,
+      makeMixConfig({
+        extraEnabled: true,
+        extraName: "Bond",
+        extraQuantity: 1,
+        extraUnit: "litre",
+        extraPricePerUnit: 3500,
+      }),
+    );
+    // extra: base=1, +20% = 1.2 → ceil 2 → 2 × 3500 = 7000
+    expect(withBond.extra!.totalCost).toBe(7000);
+    expect(withBond.paint).toEqual(without.paint);
+    expect(withBond.cement).toEqual(without.cement);
+    expect(withBond.materialCost).toBe(90000 + 7000);
+  });
+
+  it("keeps the cost correct when extra is the only priced material", () => {
+    const r = calculateScreedingMixSystem(
+      20,
+      makeMixConfig({
+        paintPricePerUnit: null,
+        cementPricePerUnit: null,
+        extraEnabled: true,
+        extraName: "Bond",
+        extraQuantity: 1,
+        extraUnit: "litre",
+        extraPricePerUnit: 3500,
+      }),
+    );
+    expect(r.paint.totalCost).toBeNull();
+    expect(r.cement.totalCost).toBeNull();
+    // extra: base=1, +20% = 1.2 → ceil 2 → 2 × 3500 = 7000
+    expect(r.extra!.totalCost).toBe(7000);
+    expect(r.materialCost).toBe(7000);
+  });
+
+  it("dbToSystemConfig maps extra_* columns and treats missing as disabled", () => {
+    const dbConfig = {
+      system_type: "white_cement_paint" as const,
+      display_name: "Mix",
+      description: null,
+      coverage_area_m2: 20,
+      coverage_unit: "m²",
+      default_coats: 2,
+      waste_percentage: 20,
+      currency: "NGN",
+      currency_symbol: "₦",
+      putty_name: null,
+      putty_quantity: null,
+      putty_unit: null,
+      putty_price_per_unit: null,
+      paint_name: "Screeding Paint",
+      paint_quantity: 2,
+      paint_unit: "bucket",
+      paint_price_per_unit: 25000,
+      cement_name: "White Cement",
+      cement_quantity: 1,
+      cement_unit: "bag",
+      cement_price_per_unit: 7500,
+      rounding_rule: "ceil" as const,
+      extra_enabled: true,
+      extra_name: "Bond",
+      extra_quantity: 1,
+      extra_unit: "litre",
+      extra_price_per_unit: 3500,
+    };
+    const config = dbToSystemConfig(dbConfig);
+    expect(config.extraEnabled).toBe(true);
+    expect(config.extraName).toBe("Bond");
+    expect(config.extraQuantity).toBe(1);
+    expect(config.extraPricePerUnit).toBe(3500);
+  });
+});
