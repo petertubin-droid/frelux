@@ -75,29 +75,27 @@ export function ScreedingCalculatorSeo(): ReactNode {
       </p>
       <p>
         To calculate screeding area, measure the length and height of each wall,
-        then multiply. Deduct doors and windows from the total. The screeding
-        mix ratio is typically 1:3 (cement to sand), applied at 6–12mm thickness
-        depending on the wall condition.
+        then multiply. Deduct doors and windows from the total. FRELUX measures
+        screeding in square metres (m²) and bases material quantities on the
+        system you choose — a putty-based system or a white cement + screeding
+        paint system — using coverage rates set in the calculator.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Materials Needed for Wall Screeding
       </h2>
+      <p className="mb-2">
+        FRELUX supports two screeding systems, and the calculator prices the
+        one you select:
+      </p>
       <ul className="list-disc pl-5 space-y-1">
         <li>
-          <strong>Cement</strong>: the binder in the screeding mix
+          <strong>Putty-based system</strong>: premixed putty applied straight
+          from the bucket — the fastest, most common modern approach
         </li>
         <li>
-          <strong>Sand</strong>: sharp or plaster sand for the mix
-        </li>
-        <li>
-          <strong>Bonding agent</strong>: improves adhesion to the wall surface
-        </li>
-        <li>
-          <strong>Fibreglass mesh</strong>: prevents cracking on large wall
-          areas
-        </li>
-        <li>
-          <strong>Water</strong>: for mixing to the right consistency
+          <strong>White cement + screeding paint system</strong>: white cement
+          as the binder, finished with screeding paint for a smooth,
+          paint-ready surface
         </li>
       </ul>
       <p>
@@ -280,15 +278,16 @@ export function ScreedingCostEstimatorSeo(): ReactNode {
         How to Estimate Wall Screeding Cost
       </h2>
       <p>
-        Wall screeding cost depends on the area to be screeded, the mix ratio,
-        and current material prices. The FRELUX Screeding Cost Estimator
-        calculates the total cost of cement, sand, bonding agents, and other
-        materials based on your wall area.
+        Wall screeding cost depends on the area to be screeded, the screeding
+        system you choose, and current material prices. The FRELUX Screeding
+        Cost Estimator calculates the total cost of putty or white cement,
+        screeding paint, and bonding agents based on your wall area.
       </p>
       <p>
         To get an accurate estimate, first use the Screeding Calculator to
-        determine your total wall area, then enter that area into the Cost
-        Estimator along with your preferred mix ratio and material prices.
+        determine your total wall area in m², then enter that area into the
+        Cost Estimator along with your chosen screeding system and material
+        prices.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Screeding Cost Breakdown
@@ -526,7 +525,7 @@ export function TyroleneEstimatorSeo(): ReactNode {
         Tyrolene is a durable exterior wall finish made from cement, sand, and
         chemical additives, applied with a Tyrolene machine to create a
         textured, weather-resistant surface. The FRELUX Tyrolene Estimator
-        calculates the exact quantities of all materials needed.
+        calculates practical quantities of all materials needed.
       </p>
       <p>
         The estimator uses a partition-based approach, you enter each wall

@@ -118,13 +118,14 @@ export default function SurfaceAssessment() {
           <h3 className="font-semibold mb-4">Select the surface condition</h3>
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {CONDITIONS.map((cond) => (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 key={cond.key}
                 onClick={() => {
                   setSelected(cond.key);
                   setSaved(false);
                 }}
-                className={`group text-left rounded-xl border p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ${
+                className={`group h-auto text-left rounded-xl border p-4 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 ${
                   selected === cond.key
                     ? "border-primary bg-primary/5 shadow-md scale-[1.02]"
                     : "hover:border-primary/50"
@@ -215,7 +216,8 @@ export default function SurfaceAssessment() {
                     />
                   </div>
                 </div>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={handleSave}
                   disabled={saving}
                   className="group mt-4 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all disabled:opacity-50"

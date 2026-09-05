@@ -18,36 +18,18 @@ afterEach(() => {
 vi.mock("@/lib/supabase", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/supabase")>();
 
-  const chainable = new Proxy(
+  // Infinitely recursive chainable proxy: any method call returns another
+  // chainable proxy, so query builders of ANY depth (.select().eq().limit()
+  // .maybeSingle().then() …) resolve to { data: null, error: null } instead
+  // of crashing with "Cannot read properties of undefined (reading 'then')".
+  const chainable: unknown = new Proxy(
     {},
     {
       get: (_target, prop) => {
-        if (prop === "then") return undefined;
-        return vi.fn().mockReturnValue(
-          new Proxy(
-            {},
-            {
-              get: (_t2, p2) => {
-                if (p2 === "then")
-                  return (resolve: (v: unknown) => void) =>
-                    resolve({ data: null, error: null, count: 0 });
-                return vi.fn().mockReturnValue(
-                  new Proxy(
-                    {},
-                    {
-                      get: (_t3, p3) => {
-                        if (p3 === "then")
-                          return (resolve: (v: unknown) => void) =>
-                            resolve({ data: null, error: null, count: 0 });
-                        return vi.fn();
-                      },
-                    },
-                  ),
-                );
-              },
-            },
-          ),
-        );
+        if (prop === "then")
+          return (resolve: (v: unknown) => void) =>
+            resolve({ data: null, error: null, count: 0 });
+        return vi.fn().mockReturnValue(chainable);
       },
     },
   );

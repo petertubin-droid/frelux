@@ -39,7 +39,7 @@ A production-grade construction estimation platform built for the Nigerian and A
 - **Backend:** Supabase (PostgreSQL, Auth, Storage, Edge Functions)
 - **Payments:** Paystack
 - **AI:** OpenAI integration for color recommendations and learning assistant
-- **Testing:** Vitest (1,293 tests)
+- **Testing:** Vitest (4,555 tests)
 - **PWA:** Service worker, manifest, offline support
 - **SEO:** Prerendered routes (76), structured data, sitemap generation
 
@@ -83,7 +83,7 @@ npm run preview  # Preview the production build locally
 ### Testing
 
 ```bash
-npx vitest run       # Run all 1,293 tests
+npx vitest run       # Run all 4,555 tests
 npx vitest watch     # Watch mode
 npx vitest coverage  # Coverage report
 ```
@@ -124,7 +124,7 @@ src/
 GitHub Actions runs on every push and PR:
 
 1. **Type check** — `tsc --noEmit`
-2. **Unit tests** — All 1,293 tests must pass
+2. **Unit tests** — All 4,555 tests must pass
 3. **Build** — Production build must succeed
 4. **Lighthouse audit** — Performance, accessibility, best practices, and SEO thresholds
 

@@ -10,7 +10,9 @@ test("home page loads", async ({ page }) => {
 test("navigation to paint calculator", async ({ page }) => {
   await dismissCookieBanner(page);
   await page.goto("/");
-  await page.click('a[href*="paint-calculator"]');
+  // The home page has desktop-only and carousel links; the footer link
+  // is in normal document flow and reliably clickable in every viewport.
+  await page.locator('footer a[href*="paint-calculator"]').first().click();
   await expect(page).toHaveURL(/paint-calculator/);
 });
 

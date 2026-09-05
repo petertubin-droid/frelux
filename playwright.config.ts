@@ -39,7 +39,10 @@ export default defineConfig({
     { name: "mobile-chrome", use: { ...devices["Pixel 5"] } },
   ],
   webServer: {
-    command: "npm run build && npm run preview",
+    // CI downloads a prebuilt dist artifact — skip the redundant build.
+    command: process.env.CI
+      ? "npm run preview"
+      : "npm run build && npm run preview",
     url: "http://localhost:4173",
     reuseExistingServer: !process.env.CI,
   },

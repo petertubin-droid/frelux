@@ -59,6 +59,7 @@ vi.mock("@/components/rewarded/AdvancedCalculator", () => ({
 // Import after mocks
 import SmartCalculator from "./SmartCalculator";
 import { fetchScreedingMixConfig } from "@/lib/queries";
+import type { DbScreedingMixConfig } from "@/types/database";
 
 function renderPage() {
   return render(
@@ -80,7 +81,10 @@ describe("SmartCalculator page", () => {
   // ── Rendering basics ──
 
   it("renders the page title and subtitle", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({ data: null });
+    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
+      data: null,
+      error: null,
+    });
     renderPage();
 
     expect(screen.getByText("Smart Calculator")).toBeInTheDocument();
@@ -90,7 +94,10 @@ describe("SmartCalculator page", () => {
   });
 
   it("renders the back-to-home link", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({ data: null });
+    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
+      data: null,
+      error: null,
+    });
     renderPage();
 
     const backLink = screen.getByText(/Back to home/i);
@@ -98,7 +105,10 @@ describe("SmartCalculator page", () => {
   });
 
   it("renders AI-powered badge banner", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({ data: null });
+    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
+      data: null,
+      error: null,
+    });
     renderPage();
 
     expect(screen.getByText("AI-Powered Estimation")).toBeInTheDocument();
@@ -119,7 +129,10 @@ describe("SmartCalculator page", () => {
   // ── Config loading ──
 
   it("uses fallback config when fetch returns no data", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({ data: null });
+    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
+      data: null,
+      error: null,
+    });
     renderPage();
 
     await waitFor(() => {
@@ -142,6 +155,10 @@ describe("SmartCalculator page", () => {
   it("maps Supabase config fields correctly", async () => {
     vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
       data: {
+        id: "mix-usd-1",
+        is_active: true,
+        created_at: "2026-01-01T00:00:00Z",
+        updated_at: "2026-01-01T00:00:00Z",
         paint_coverage_rate_m2_per_l: 10,
         paint_bucket_size_l: 4,
         paint_price_per_bucket: 12000,
@@ -155,6 +172,7 @@ describe("SmartCalculator page", () => {
         currency: "USD",
         currency_symbol: "$",
       },
+      error: null,
     });
     renderPage();
 
@@ -167,7 +185,10 @@ describe("SmartCalculator page", () => {
   // ── Info banner ──
 
   it("renders info banner with project description", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({ data: null });
+    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
+      data: null,
+      error: null,
+    });
     renderPage();
 
     expect(
@@ -181,7 +202,10 @@ describe("SmartCalculator page", () => {
   // ── Feature list ──
 
   it("renders all features in the RewardedFeatureGate", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({ data: null });
+    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
+      data: null,
+      error: null,
+    });
     renderPage();
 
     await waitFor(() => {
@@ -212,7 +236,10 @@ describe("SmartCalculator page", () => {
   // ── AdvancedCalculator rendering ──
 
   it("passes config and clientHash to AdvancedCalculator", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({ data: null });
+    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
+      data: null,
+      error: null,
+    });
     renderPage();
 
     await waitFor(() => {
@@ -227,6 +254,10 @@ describe("SmartCalculator page", () => {
   it("renders AdvancedCalculator after config loads", async () => {
     vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
       data: {
+        id: "mix-ngn-1",
+        is_active: true,
+        created_at: "2026-01-01T00:00:00Z",
+        updated_at: "2026-01-01T00:00:00Z",
         paint_coverage_rate_m2_per_l: 12,
         paint_bucket_size_l: 20,
         paint_price_per_bucket: 28000,
@@ -240,6 +271,7 @@ describe("SmartCalculator page", () => {
         currency: "NGN",
         currency_symbol: "₦",
       },
+      error: null,
     });
     renderPage();
 
@@ -254,6 +286,10 @@ describe("SmartCalculator page", () => {
   it("uses fallback config for null optional fields in Supabase data", async () => {
     vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
       data: {
+        id: "mix-nulls-1",
+        is_active: true,
+        created_at: "2026-01-01T00:00:00Z",
+        updated_at: "2026-01-01T00:00:00Z",
         paint_coverage_rate_m2_per_l: 12,
         paint_bucket_size_l: 20,
         paint_price_per_bucket: 28000,
@@ -266,7 +302,10 @@ describe("SmartCalculator page", () => {
         tax_vat_percentage: null,
         currency: null,
         currency_symbol: null,
-      },
+        // Nulls are intentional: the component must fall back to defaults.
+        // The DB type declares these as non-null, hence the cast.
+      } as unknown as DbScreedingMixConfig,
+      error: null,
     });
     renderPage();
 
@@ -281,7 +320,10 @@ describe("SmartCalculator page", () => {
 
   it("calls useSeo with correct title and canonical path", async () => {
     const { useSeo } = await import("@/lib/seo");
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({ data: null });
+    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
+      data: null,
+      error: null,
+    });
     renderPage();
 
     expect(useSeo).toHaveBeenCalledWith(

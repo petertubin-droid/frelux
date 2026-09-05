@@ -49,7 +49,8 @@ beforeEach(() => {
 
 describe("CreditsWallet", () => {
   it("renders without crashing", async () => {
-    const { CreditsWallet } = await import("@/components/credits/CreditsWallet");
+    const { CreditsWallet } =
+      await import("@/components/credits/CreditsWallet");
     const { container } = render(
       <MemoryRouter>
         <CreditsWallet userId="test-user" />
@@ -60,17 +61,17 @@ describe("CreditsWallet", () => {
 });
 
 describe("AiFeatureGate", () => {
-  it("renders children content", async () => {
-    const { AiFeatureGate } = await import("@/components/credits/CreditsWallet");
+  it("renders the gate UI without crashing", async () => {
+    const { AiFeatureGate } =
+      await import("@/components/credits/CreditsWallet");
     const { container } = render(
       <MemoryRouter>
         <AiFeatureGate
+          featureKey="test"
           featureName="test"
-          creditCost={5}
-          onSpend={vi.fn()}
-        >
-          <div data-testid="child">Content</div>
-        </AiFeatureGate>
+          onUnlocked={() => {}}
+          onClose={() => {}}
+        />
       </MemoryRouter>,
     );
     expect(container.innerHTML).not.toBe("");

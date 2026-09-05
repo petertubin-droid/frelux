@@ -10,12 +10,13 @@ import {
   CloudFog,
   Droplets,
   Thermometer,
-
   CheckCircle2,
   AlertTriangle,
   XCircle,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useWeatherLocation } from "@/lib/weather-locations";
+import { WeatherLocationSelect } from "@/components/ui/WeatherLocationSelect";
 
 // Map weather conditions to premium Lucide icons
 function conditionIcon(condition: string, className?: string) {
@@ -34,16 +35,22 @@ function conditionIcon(condition: string, className?: string) {
 }
 
 export function WeatherWidget() {
-  const { city, days, loading, error } = usePaintingWeather();
+  const { location } = useWeatherLocation();
+  const { days, loading, error } = usePaintingWeather(location);
 
   if (loading) {
     return (
       <div className="card p-6">
         <div className="flex items-center gap-2">
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-            <CloudRain aria-hidden="true" className="h-4 w-4 animate-pulse text-brand-purple" />
+            <CloudRain
+              aria-hidden="true"
+              className="h-4 w-4 animate-pulse text-brand-purple"
+            />
           </div>
-          <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">Best Days to Paint</h3>
+          <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
+            Best Days to Paint
+          </h3>
         </div>
         <div className="mt-4 flex items-center justify-center py-8 text-sm text-muted-foreground">
           Loading weather data...
@@ -67,7 +74,10 @@ export function WeatherWidget() {
             </div>
             <div>
               <h3 className="text-sm font-bold">Best Days to Paint</h3>
-              <p className="mt-0.5 text-xs text-primary-foreground/60">{city} · 5-day forecast</p>
+              <p className="mt-0.5 flex min-w-0 items-center gap-1 text-xs text-primary-foreground/60">
+                <WeatherLocationSelect tone="onGradient" />
+                <span className="shrink-0">· 5-day forecast</span>
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2 rounded-xl bg-white/10 px-3 py-1.5 backdrop-blur-sm">
@@ -85,7 +95,10 @@ export function WeatherWidget() {
       </div>
 
       <div className="border-t border-border/50 p-3 dark:border-white/5">
-        <Link to="/learn" className="text-xs font-medium text-brand-purple hover:underline dark:text-brand-purple-lighter">
+        <Link
+          to="/learn"
+          className="text-xs font-medium text-brand-purple hover:underline dark:text-brand-purple-lighter"
+        >
           Learn how weather affects painting →
         </Link>
       </div>
@@ -95,30 +108,59 @@ export function WeatherWidget() {
 
 function WeatherDayCard({ day }: { day: WeatherDay }) {
   const ratingConfig = {
-    good: { Icon: CheckCircle2, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/20", label: "Good" },
-    fair: { Icon: AlertTriangle, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/20", label: "Fair" },
-    poor: { Icon: XCircle, color: "text-red-500 dark:text-red-400", bg: "bg-red-50 dark:bg-red-950/20", label: "Poor" },
+    good: {
+      Icon: CheckCircle2,
+      color: "text-emerald-600 dark:text-emerald-400",
+      bg: "bg-emerald-50 dark:bg-emerald-950/20",
+      label: "Good",
+    },
+    fair: {
+      Icon: AlertTriangle,
+      color: "text-amber-600 dark:text-amber-400",
+      bg: "bg-amber-50 dark:bg-amber-950/20",
+      label: "Fair",
+    },
+    poor: {
+      Icon: XCircle,
+      color: "text-red-500 dark:text-red-400",
+      bg: "bg-red-50 dark:bg-red-950/20",
+      label: "Poor",
+    },
   };
 
   const config = ratingConfig[day.paintRating];
   const { Icon } = config;
 
   return (
-    <div className={classNames("rounded-xl border border-transparent p-2.5 text-center transition-all hover:shadow-sm", config.bg)}>
-      <p className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground/80">{day.dayName}</p>
+    <div
+      className={classNames(
+        "rounded-xl border border-transparent p-2.5 text-center transition-all hover:shadow-sm",
+        config.bg,
+      )}
+    >
+      <p className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground/80">
+        {day.dayName}
+      </p>
       <div className="my-1.5 flex items-center justify-center">
-        {conditionIcon(day.condition, "h-6 w-6 text-foreground dark:text-primary-foreground")}
+        {conditionIcon(
+          day.condition,
+          "h-6 w-6 text-foreground dark:text-primary-foreground",
+        )}
       </div>
       <div className="flex items-center justify-center gap-0.5">
         <Icon className={classNames("h-3.5 w-3.5", config.color)} />
       </div>
-      <p className={classNames("mt-0.5 text-[10px] font-medium", config.color)}>{config.label}</p>
+      <p className={classNames("mt-0.5 text-[10px] font-medium", config.color)}>
+        {config.label}
+      </p>
       <div className="mt-2 space-y-0.5">
         <p className="flex items-center justify-center gap-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
-          <Droplets aria-hidden="true" className="h-2.5 w-2.5" /> {day.humidity}%
+          <Droplets aria-hidden="true" className="h-2.5 w-2.5" /> {day.humidity}
+          %
         </p>
         <p className="flex items-center justify-center gap-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
-          <Thermometer aria-hidden="true" className="h-2.5 w-2.5" /> {Math.round(day.tempMax)}°
+          <Thermometer aria-hidden="true" className="h-2.5 w-2.5" />{" "}
+          {Math.round(day.tempMax)}°
         </p>
       </div>
     </div>
@@ -126,7 +168,8 @@ function WeatherDayCard({ day }: { day: WeatherDay }) {
 }
 
 export function WeatherWidgetCompact() {
-  const { city, days, loading } = usePaintingWeather();
+  const { location } = useWeatherLocation();
+  const { days, loading } = usePaintingWeather(location);
 
   if (loading || days.length === 0) return null;
 
@@ -139,11 +182,13 @@ export function WeatherWidgetCompact() {
         {conditionIcon(today.condition, "h-5 w-5 text-brand-purple")}
       </div>
       <div className="flex-1">
-        <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-          {today.dayName} in {city}
+        <p className="flex min-w-0 items-center gap-1 text-sm font-semibold text-foreground dark:text-primary-foreground">
+          <span className="shrink-0">{today.dayName} in</span>
+          <WeatherLocationSelect />
         </p>
         <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-          {today.condition} · {Math.round(today.tempMax)}°C · {today.humidity}% humidity
+          {today.condition} · {Math.round(today.tempMax)}°C · {today.humidity}%
+          humidity
         </p>
       </div>
       <div className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5">

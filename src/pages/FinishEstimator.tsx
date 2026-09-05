@@ -291,12 +291,13 @@ export default function FinishEstimator({
                   const Icon = meta.icon;
                   const selected = selectedFinish === ft;
                   return (
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       key={ft}
                       type="button"
                       onClick={() => setSelectedFinish(ft)}
                       className={
-                        "select-card flex flex-col items-start gap-3 rounded-xl border p-4 text-left " +
+                        "select-card flex h-auto flex-col items-start gap-3 rounded-xl border p-4 text-left " +
                         (selected
                           ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
                           : "border-border hover:border-border")
@@ -338,7 +339,8 @@ export default function FinishEstimator({
               <div className="mt-6 space-y-5">
                 {/* Method toggle */}
                 <div className="flex gap-2">
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     type="button"
                     onClick={() => updateArea("method", "full_room")}
                     className={
@@ -350,7 +352,8 @@ export default function FinishEstimator({
                   >
                     Full Room
                   </Button>
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     type="button"
                     onClick={() => updateArea("method", "individual_wall")}
                     className={
@@ -367,7 +370,8 @@ export default function FinishEstimator({
                 {/* Unit toggle */}
                 <div className="flex gap-2">
                   {(["meters", "feet"] as Unit[]).map((u) => (
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       key={u}
                       type="button"
                       onClick={() => updateArea("unit", u)}
@@ -552,7 +556,8 @@ export default function FinishEstimator({
                 </div>
               </div>
 
-              <Button variant="default"
+              <Button
+                variant="default"
                 type="button"
                 onClick={compute}
                 className="btn-glow mt-6 w-full"
@@ -682,7 +687,9 @@ export default function FinishEstimator({
                 {/* Cost Summary */}
                 <div className="rounded-xl bg-muted/50 p-4">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Total Materials</span>
+                    <span className="text-muted-foreground">
+                      Total Materials
+                    </span>
                     <span className="font-semibold text-foreground">
                       {formatCurrency(result.materialCost, currencySymbol)}
                     </span>

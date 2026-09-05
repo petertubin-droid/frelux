@@ -15,7 +15,7 @@ export default function PrivacyPolicy() {
     <LegalLayout
       slug="privacy-policy"
       title="Privacy Policy"
-      updated="2026-09-03"
+      updated="2026-09-05"
       intro={<p>This privacy policy describes how FRELUX PROJECT CALC collects, uses, and protects your information when you visit our website and use our tools.</p>}
       sections={[
         {
@@ -92,6 +92,17 @@ export default function PrivacyPolicy() {
           body: (
             <p>
               We do not sell, trade, or rent your personal information to third parties. We may share non-personal, aggregated information with partners for analytics and improvement purposes. We may disclose information when required by law or to protect our rights and safety. When you use AI-powered features, your text description or image is sent to Google AI for processing — Google's privacy practices are governed by their own privacy policy.
+            </p>
+          ),
+        },
+        {
+          heading: 'Payments',
+          body: (
+            <p>
+              Subscriptions and token purchases are processed securely by Paystack, our third-party payment provider. <strong>We never see or store your card or bank details.</strong> When you make a purchase, your email address and order details (product, amount, and transaction reference) are shared with Paystack to process the payment and issue receipts. Paystack's handling of your payment information is governed by{' '}
+              <a href="https://paystack.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="font-semibold text-brand-purple underline">Paystack's privacy policy</a>.
+              <br /><br />
+              We store a record of completed purchases (transaction reference, amount, and the tokens or plan credited to your account) so we can deliver what you paid for and provide support. Rewarded ads are always optional — you can earn credits by watching ads or purchase tokens directly, and paid purchases never require watching ads.
             </p>
           ),
         },

@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured, supabaseWithClientHash } from '@/lib/supabase';
 import type {
   DbColorCombination,
   DbColorCategory,
@@ -887,7 +887,10 @@ export async function saveAdvancedEstimate(params: {
   totalCost: number;
   currency: string;
 }) {
-  const { data, error } = await supabase.from('advanced_estimates').insert({
+  // RLS binds anonymous advanced_estimates rows to the x-client-hash
+  // request header, so these calls go through the hash-bound client.
+  const client = supabaseWithClientHash(params.clientHash);
+  const { data, error } = await client.from('advanced_estimates').insert({
     client_hash: params.clientHash,
     tool_key: params.toolKey,
     title: params.title,
@@ -901,7 +904,7 @@ export async function saveAdvancedEstimate(params: {
 }
 
 export async function fetchAdvancedEstimates(clientHash: string) {
-  const { data, error } = await supabase
+  const { data, error } = await supabaseWithClientHash(clientHash)
     .from('advanced_estimates')
     .select('*')
     .eq('client_hash', clientHash)
@@ -910,8 +913,11 @@ export async function fetchAdvancedEstimates(clientHash: string) {
   return { data: (data ?? []) as DbAdvancedEstimate[], error: error ? error.message : null };
 }
 
-export async function deleteAdvancedEstimate(id: string) {
-  const { error } = await supabase.from('advanced_estimates').delete().eq('id', id);
+export async function deleteAdvancedEstimate(id: string, clientHash: string) {
+  const { error } = await supabaseWithClientHash(clientHash)
+    .from('advanced_estimates')
+    .delete()
+    .eq('id', id);
   return { error: error ? error.message : null };
 }
 

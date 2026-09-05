@@ -1,5 +1,12 @@
 "use client";
 
+import {
+  adminGetTokenPurchaseConfig,
+  adminUpdateTokenPurchaseConfig,
+  adminGetTokenPurchases,
+  formatNaira,
+  type TokenPurchaseConfig,
+} from "@/lib/token-purchase";
 import { useState, useEffect, useCallback } from "react";
 import {
   Coins,
@@ -32,7 +39,7 @@ import {
 import { Button } from "@/components/ui/shadcn/button";
 
 type Tab =
-  "overview" | "features" | "ad_config" | "transactions" | "users" | "audit";
+  "overview" | "features" | "ad_config" | "token_shop" | "transactions" | "users" | "audit";
 
 export default function AdminCreditsAds() {
   const { user: _user } = useAuth();
@@ -61,6 +68,12 @@ export default function AdminCreditsAds() {
   const [adConfigDraft, setAdConfigDraft] =
     useState<RewardedAdCreditConfig | null>(null);
   const [savingAdConfig, setSavingAdConfig] = useState(false);
+  const [tokenConfigDraft, setTokenConfigDraft] =
+    useState<TokenPurchaseConfig | null>(null);
+  const [savingTokenConfig, setSavingTokenConfig] = useState(false);
+  const [tokenPurchases, setTokenPurchases] = useState<
+    Awaited<ReturnType<typeof adminGetTokenPurchases>>
+  >([]);
   const [adjustUserId, setAdjustUserId] = useState("");
   const [adjustAmount, setAdjustAmount] = useState(0);
   const [adjustReason, setAdjustReason] = useState("");
@@ -68,13 +81,15 @@ export default function AdminCreditsAds() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [w, tx, feat, cfg, adEvt, usage] = await Promise.all([
+    const [w, tx, feat, cfg, adEvt, usage, tokenCfg, purchases] = await Promise.all([
       adminGetAllWallets(100),
       adminGetAllTransactions(100),
       adminGetAllFeatureCosts(),
       adminGetRewardedAdConfig(),
       adminGetAllAdCreditEvents(100),
       adminGetAllAiFeatureUsage(100),
+      adminGetTokenPurchaseConfig(),
+      adminGetTokenPurchases(100),
     ]);
     setWallets(w);
     setTransactions(tx);
@@ -83,6 +98,8 @@ export default function AdminCreditsAds() {
     setAdConfigDraft(cfg);
     setAdEvents(adEvt);
     setAiUsage(usage);
+    setTokenConfigDraft(tokenCfg);
+    setTokenPurchases(purchases);
     const edit: Record<string, Partial<AiFeatureCost>> = {};
     feat.forEach((f) => {
       edit[f.id] = { ...f };
@@ -141,6 +158,36 @@ export default function AdminCreditsAds() {
     setSavingAdConfig(false);
   }
 
+  async function handleSaveTokenConfig() {
+    if (!tokenConfigDraft) return;
+    if (
+      !Number.isFinite(tokenConfigDraft.token_amount) ||
+      tokenConfigDraft.token_amount <= 0 ||
+      !Number.isFinite(tokenConfigDraft.price_kobo) ||
+      tokenConfigDraft.price_kobo < 10000
+    ) {
+      toast({
+        type: "error",
+        title: "Invalid configuration",
+        message: "Token amount must be > 0 and price at least ₦100.",
+      });
+      return;
+    }
+    setSavingTokenConfig(true);
+    const ok = await adminUpdateTokenPurchaseConfig({
+      token_amount: tokenConfigDraft.token_amount,
+      price_kobo: tokenConfigDraft.price_kobo,
+      is_enabled: tokenConfigDraft.is_enabled,
+    });
+    if (ok) {
+      toast({ type: "success", title: "Token shop updated" });
+      await load();
+    } else {
+      toast({ type: "error", title: "Failed to update token shop" });
+    }
+    setSavingTokenConfig(false);
+  }
+
   async function handleAdjust() {
     if (!adjustUserId || !adjustReason.trim()) {
       toast({ type: "error", title: "User ID and reason are required" });
@@ -182,6 +229,7 @@ export default function AdminCreditsAds() {
     ["overview", "Overview"],
     ["features", "AI Feature Costs"],
     ["ad_config", "Ad Config"],
+  ["token_shop", "Token Shop"],
     ["transactions", "Transactions"],
     ["users", "User Balances"],
     ["audit", "Audit & Fraud"],
@@ -578,6 +626,123 @@ export default function AdminCreditsAds() {
             )}
             Save Configuration
           </Button>
+        </div>
+      )}
+
+      {/* Token Shop — Paystack token purchase configuration */}
+      {tab === "token_shop" && tokenConfigDraft && (
+        <div className="space-y-4">
+          <div className="rounded-xl border border-border p-4 dark:border-white/10">
+            <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
+              Token Purchase Configuration (Paystack)
+            </h3>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              The pack shown on the Rewards page. Price is charged in Naira via
+              Paystack; users are credited instantly after payment.
+            </p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="text-[10px] font-semibold text-muted-foreground">
+                  Tokens per Pack
+                </label>
+                <input
+                  type="number"
+                  min={1}
+                  value={tokenConfigDraft.token_amount}
+                  onChange={(e) =>
+                    setTokenConfigDraft({
+                      ...tokenConfigDraft,
+                      token_amount: parseInt(e.target.value) || 0,
+                    })
+                  }
+                  className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-semibold text-muted-foreground">
+                  Price (₦)
+                </label>
+                <input
+                  type="number"
+                  min={100}
+                  value={tokenConfigDraft.price_kobo / 100}
+                  onChange={(e) =>
+                    setTokenConfigDraft({
+                      ...tokenConfigDraft,
+                      price_kobo: Math.round((parseFloat(e.target.value) || 0) * 100),
+                    })
+                  }
+                  className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+                />
+              </div>
+            </div>
+            <div className="mt-3">
+              <label className="flex items-center gap-2 text-xs text-muted-foreground dark:text-muted-foreground/80">
+                <input
+                  type="checkbox"
+                  checked={tokenConfigDraft.is_enabled}
+                  onChange={(e) =>
+                    setTokenConfigDraft({
+                      ...tokenConfigDraft,
+                      is_enabled: e.target.checked,
+                    })
+                  }
+                  className="h-3.5 w-3.5 rounded"
+                />
+                Token Purchases Enabled
+              </label>
+            </div>
+            <p className="mt-3 rounded-lg bg-muted/50 px-3 py-2 text-[11px] text-muted-foreground dark:bg-white/5">
+              Users see: <span className="font-semibold text-foreground dark:text-primary-foreground">
+                Buy {tokenConfigDraft.token_amount} Tokens — {formatNaira(tokenConfigDraft.price_kobo)}
+              </span>
+            </p>
+            <Button variant="default"
+              type="button"
+              onClick={handleSaveTokenConfig}
+              disabled={savingTokenConfig}
+              className="mt-4 flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold hover:/90 disabled:opacity-50"
+            >
+              {savingTokenConfig ? (
+                <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
+              ) : (
+                <Save aria-hidden="true" className="h-3.5 w-3.5" />
+              )}
+              Save Token Shop
+            </Button>
+          </div>
+
+          <div className="rounded-xl border border-border p-4 dark:border-white/10">
+            <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
+              Recent Token Purchases
+            </h3>
+            {tokenPurchases.length === 0 ? (
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                No token purchases yet.
+              </p>
+            ) : (
+              <div className="mt-3 space-y-2">
+                {tokenPurchases.map((p) => (
+                  <div
+                    key={p.id}
+                    className="flex items-center justify-between rounded-lg border border-border p-3 dark:border-white/10"
+                  >
+                    <div>
+                      <p className="text-xs font-semibold text-foreground dark:text-primary-foreground">
+                        {p.tokens_credited} tokens — {formatNaira(p.amount_kobo)}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground">
+                        {p.reference} • {new Date(p.created_at).toLocaleString()}
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+                      {p.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
 

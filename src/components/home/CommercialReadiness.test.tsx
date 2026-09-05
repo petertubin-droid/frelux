@@ -34,7 +34,7 @@ describe("CommercialReadiness", () => {
 
   it("renders descriptions", () => {
     renderComponent();
-    expect(screen.getByText(/Get exact quantities/)).toBeTruthy();
+    expect(screen.getByText(/Get reliable quantity estimates/)).toBeTruthy();
     expect(screen.getByText(/Convert material quantities/)).toBeTruthy();
   });
 });

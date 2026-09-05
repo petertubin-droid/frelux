@@ -749,7 +749,7 @@ export default function PaintCalculator({
     const name = `Paint: ${input.projectType} — ${formatNumber(result?.paintableArea ?? 0)} m²`;
     const configSnapshot = {
       paintTypeName: selectedPaintType?.name ?? null,
-      paintTypeCoverageRate: selectedPaintType?.coverageRate ?? null,
+      paintTypeCoverageRate: selectedPaintType?.coverage_rate ?? null,
       qualityName: selectedQuality?.name ?? null,
       qualityId: selectedQuality?.id ?? null,
       unitPrice: selectedQualityPrice?.price ?? null,
@@ -757,7 +757,7 @@ export default function PaintCalculator({
       surfaceCondition: input.surfaceCondition ?? null,
       colourCondition: input.colorCondition ?? null,
       wasteMargin: input.wasteMargin ?? null,
-      engineVersion: 'paint-engine-v1',
+      engineVersion: "paint-engine-v1",
     };
     const { error } = await saveUserProject(
       name,
@@ -895,7 +895,8 @@ export default function PaintCalculator({
             )}
 
             <div className="mt-8 flex items-center justify-between border-t border-border/50 pt-6">
-              <Button variant="secondary"
+              <Button
+                variant="secondary"
                 type="button"
                 onClick={back}
                 disabled={step === 1}
@@ -904,11 +905,17 @@ export default function PaintCalculator({
                 Back
               </Button>
               {step < 3 ? (
-                <Button variant="default" type="button" onClick={next} className="btn-primary">
+                <Button
+                  variant="default"
+                  type="button"
+                  onClick={next}
+                  className="btn-primary"
+                >
                   Continue
                 </Button>
               ) : (
-                <Button variant="default"
+                <Button
+                  variant="default"
                   type="button"
                   onClick={compute}
                   className="btn-glow"
@@ -1022,6 +1029,10 @@ ${result.primerContainers.length > 0 ? `- Primer: ${result.primerContainers.map(
           ]}
         />
       )}
+      {/* Ad slot — placement "calculator_mid" */}
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      {/* Native banner slot — placement "calculator_native" */}
+      <AdSlot slotKey="calculator_native" className="mt-8" />
       <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </>
   );
@@ -1055,7 +1066,7 @@ function Step1({
               type="button"
               onClick={() => update("projectType", p.value)}
               className={
-                "select-card flex items-start gap-3 rounded-xl border p-4 text-left transition-colors hover:bg-accent/40 " +
+                "select-card flex h-auto items-start gap-3 rounded-xl border p-4 text-left transition-colors hover:bg-accent/40 " +
                 (selected
                   ? "select-card-active border-brand-purple bg-primary/5 ring-2 ring-brand-purple/20"
                   : "border-border")
@@ -1071,7 +1082,7 @@ function Step1({
               >
                 <Icon className="h-5 w-5" />
               </span>
-              <span>
+              <span className="min-w-0 flex-1">
                 <span className="block text-sm font-semibold text-foreground dark:text-primary-foreground">
                   {p.label}
                 </span>
@@ -1114,7 +1125,8 @@ function Step2({
 
       <div className="mt-5 inline-flex rounded-lg border border-border p-1">
         {(["meters", "feet"] as Unit[]).map((u) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={u}
             type="button"
             onClick={() => update("unit", u)}
@@ -1132,7 +1144,10 @@ function Step2({
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
         Currently using{" "}
-        <span className="font-semibold text-muted-foreground">{input.unit}</span>.
+        <span className="font-semibold text-muted-foreground">
+          {input.unit}
+        </span>
+        .
       </p>
 
       <div
@@ -1302,7 +1317,8 @@ function Step3({
                 className="input-field"
               />
             </Field>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={() => setShowDoorDims((v) => !v)}
               className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple hover:underline"
@@ -1355,7 +1371,8 @@ function Step3({
                 className="input-field"
               />
             </Field>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={() => setShowWindowDims((v) => !v)}
               className="mt-1.5 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple hover:underline"
@@ -1509,7 +1526,8 @@ function Step3({
         </p>
         <div className="mt-2 flex flex-wrap gap-2">
           {wasteOptions.map((w: number) => (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               key={w}
               type="button"
               onClick={() => update("wasteMargin", w)}
@@ -1777,8 +1795,8 @@ function ResultCard({
             </span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
-            Primer covers more area per litre than paint (admin-configured). Applied as 1 coat
-            before painting.
+            Primer covers more area per litre than paint (admin-configured).
+            Applied as 1 coat before painting.
           </p>
         </div>
       )}
@@ -1881,7 +1899,8 @@ function ResultCard({
       </div>
 
       <div className="flex flex-col gap-3 p-6 sm:flex-row sm:items-center sm:justify-between sm:p-8">
-        <Button variant="secondary"
+        <Button
+          variant="secondary"
           type="button"
           onClick={onAgain}
           className="press-scale"
@@ -1890,7 +1909,8 @@ function ResultCard({
           Calculate Again
         </Button>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button variant="secondary"
+          <Button
+            variant="secondary"
             type="button"
             onClick={onStartOver}
             className="press-scale"
@@ -1967,24 +1987,26 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    <Button variant="ghost"
+    // Plain <button> — not shadcn's <Button variant="ghost">, whose hover
+    // state gets "stuck" on touch devices after a tap until the next tap
+    // elsewhere, masking the checked-state color change.
+    <button
       type="button"
+      role="switch"
       onClick={() => onChange(!checked)}
-      style={{ width: "2.25rem", height: "1.25rem", minWidth: "2.25rem" }}
       className={
-        "relative inline-flex appearance-none h-5 w-9 shrink-0 rounded-full border-0 p-0 transition-colors " +
+        "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-0 p-0 transition-colors " +
         (checked ? "bg-accent-green" : "bg-muted")
       }
-      aria-pressed={checked}
+      aria-checked={checked}
     >
       <span
-        style={{ width: "1rem", height: "1rem" }}
         className={
-          "absolute top-0.5 left-0 rounded-full bg-card shadow transition-transform dark:bg-card " +
-          (checked ? "translate-x-4" : "translate-x-0.5")
+          "inline-block h-4 w-4 translate-x-0.5 rounded-full bg-card shadow transition-transform dark:bg-card " +
+          (checked ? "translate-x-4" : "")
         }
       />
-    </Button>
+    </button>
   );
 }
 
@@ -2007,7 +2029,9 @@ function Field({
         {label}
       </span>
       {hint && (
-        <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">
+          {hint}
+        </span>
       )}
       <div className="relative mt-1.5">
         {children}

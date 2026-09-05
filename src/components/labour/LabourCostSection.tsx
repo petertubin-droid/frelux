@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
-import { HardHat, Info } from 'lucide-react';
+import { useEffect, useRef, useState, useCallback } from "react";
+import { HardHat, Info } from "lucide-react";
 import {
   type LabourConfig,
   type LabourEstimatorKey,
@@ -10,9 +10,9 @@ import {
   fetchLabourSettings,
   fetchLabourCategories,
   createInitialLabourConfig,
-} from '@/lib/labour';
-import type { DbLabourCategory } from '@/types/database';
-import { classNames } from '@/lib/utils';
+} from "@/lib/labour";
+import type { DbLabourCategory } from "@/types/database";
+import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface LabourCostSectionProps {
@@ -38,8 +38,8 @@ export function useLabourConfig(estimatorKey: LabourEstimatorKey) {
   const [config, setConfig] = useState<LabourConfig>(DEFAULT_LABOUR_CONFIG);
   const [loading, setLoading] = useState(true);
 
-const mountedRef = useRef(true);
-    useEffect(() => {
+  const mountedRef = useRef(true);
+  useEffect(() => {
     let cancelled = false;
     (async () => {
       const settings = await fetchLabourSettings(estimatorKey);
@@ -53,9 +53,13 @@ const mountedRef = useRef(true);
       }));
       setLoading(false);
     })();
-    return () => { cancelled = true; };
-  
-    return () => { mountedRef.current = false; };
+    return () => {
+      cancelled = true;
+    };
+
+    return () => {
+      mountedRef.current = false;
+    };
   }, [estimatorKey]);
 
   const updateConfig = useCallback((updates: Partial<LabourConfig>) => {
@@ -71,7 +75,7 @@ export default function LabourCostSection({
   onChange,
   currencySymbol,
   area,
-  label = 'Labour Cost',
+  label = "Labour Cost",
   last = false,
 }: LabourCostSectionProps) {
   const [categories, setCategories] = useState<DbLabourCategory[]>([]);
@@ -82,7 +86,9 @@ export default function LabourCostSection({
       const cats = await fetchLabourCategories(estimatorKey);
       if (!cancelled) setCategories(cats);
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [estimatorKey]);
 
   function update(updates: Partial<LabourConfig>) {
@@ -96,26 +102,47 @@ export default function LabourCostSection({
         ...config,
         categoryId: catId,
         pricingMethod: cat.rate_unit,
-        perSqmRate: cat.rate_unit === 'per_sqm' ? Number(cat.suggested_rate) : config.perSqmRate,
-        perRoomRate: cat.rate_unit === 'per_room' ? Number(cat.suggested_rate) : config.perRoomRate,
-        dailyRate: cat.rate_unit === 'daily' ? Number(cat.suggested_rate) : config.dailyRate,
-        fixedAmount: cat.rate_unit === 'fixed' ? Number(cat.suggested_rate) : config.fixedAmount,
+        perSqmRate:
+          cat.rate_unit === "per_sqm"
+            ? Number(cat.suggested_rate)
+            : config.perSqmRate,
+        perRoomRate:
+          cat.rate_unit === "per_room"
+            ? Number(cat.suggested_rate)
+            : config.perRoomRate,
+        dailyRate:
+          cat.rate_unit === "daily"
+            ? Number(cat.suggested_rate)
+            : config.dailyRate,
+        fixedAmount:
+          cat.rate_unit === "fixed"
+            ? Number(cat.suggested_rate)
+            : config.fixedAmount,
       });
     } else {
       update({ categoryId: null });
     }
   }
 
-  const methods: LabourPricingMethod[] = ['fixed', 'per_sqm', 'per_room', 'daily', 'custom'];
+  const methods: LabourPricingMethod[] = [
+    "fixed",
+    "per_sqm",
+    "per_room",
+    "daily",
+    "custom",
+  ];
 
   return (
-    <div className={last ? '' : 'mb-6 border-b border-border/50 pb-6'}>
+    <div className={last ? "" : "mb-6 border-b border-border/50 pb-6"}>
       <div className="flex items-center justify-between">
         <h2 className="mb-4 flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-muted-foreground">
           <HardHat className="h-4 w-4" />
           {label}
         </h2>
-        <Toggle checked={config.includeLabour} onChange={(v) => update({ includeLabour: v })} />
+        <Toggle
+          checked={config.includeLabour}
+          onChange={(v) => update({ includeLabour: v })}
+        />
       </div>
 
       {!config.includeLabour && (
@@ -128,18 +155,21 @@ export default function LabourCostSection({
         <div className="space-y-4">
           {/* Pricing method selector */}
           <div>
-            <label className="mb-2 block text-sm font-semibold text-card-foreground">Pricing Method</label>
+            <label className="mb-2 block text-sm font-semibold text-card-foreground">
+              Pricing Method
+            </label>
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {methods.map((method) => (
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   key={method}
                   type="button"
                   onClick={() => update({ pricingMethod: method })}
                   className={classNames(
-                    'rounded-lg border p-3 text-left transition-all',
+                    "rounded-lg border p-3 text-left transition-all",
                     config.pricingMethod === method
-                      ? 'border-brand-purple bg-primary/5'
-                      : 'border-border hover:border-border dark:border-border border-border dark:hover:border-border',
+                      ? "border-brand-purple bg-primary/5"
+                      : "border-border hover:border-border dark:border-border border-border dark:hover:border-border",
                   )}
                 >
                   <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
@@ -158,17 +188,27 @@ export default function LabourCostSection({
             <div>
               <label className="mb-2 block text-sm font-semibold text-card-foreground">
                 Suggested Labour Categories
-                <span className="ml-1 font-normal text-muted-foreground">(optional, you can override)</span>
+                <span className="ml-1 font-normal text-muted-foreground">
+                  (optional, you can override)
+                </span>
               </label>
               <select
-                value={config.categoryId ?? ''}
+                value={config.categoryId ?? ""}
                 onChange={(e) => applyCategory(e.target.value)}
                 className="input-field"
               >
                 <option value="">No category selected</option>
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
-                    {cat.category_name} · {currencySymbol}{Number(cat.suggested_rate).toLocaleString()}/{cat.rate_unit === 'per_sqm' ? 'm²' : cat.rate_unit === 'per_room' ? 'room' : cat.rate_unit === 'daily' ? 'day' : 'project'}
+                    {cat.category_name} · {currencySymbol}
+                    {Number(cat.suggested_rate).toLocaleString()}/
+                    {cat.rate_unit === "per_sqm"
+                      ? "m²"
+                      : cat.rate_unit === "per_room"
+                        ? "room"
+                        : cat.rate_unit === "daily"
+                          ? "day"
+                          : "project"}
                   </option>
                 ))}
               </select>
@@ -177,36 +217,49 @@ export default function LabourCostSection({
 
           {/* Method-specific inputs */}
           <div className="rounded-lg bg-muted/50 p-4 dark:bg-card-foreground/50">
-            {config.pricingMethod === 'fixed' && (
-              <Field label={`Fixed Labour Cost (${currencySymbol})`} hint="Enter the total labour cost for the entire project">
+            {config.pricingMethod === "fixed" && (
+              <Field
+                label={`Fixed Labour Cost (${currencySymbol})`}
+                hint="Enter the total labour cost for the entire project"
+              >
                 <input
                   type="number"
                   min={0}
-                  value={config.fixedAmount || ''}
-                  onChange={(e) => update({ fixedAmount: Number(e.target.value) })}
+                  value={config.fixedAmount || ""}
+                  onChange={(e) =>
+                    update({ fixedAmount: Number(e.target.value) })
+                  }
                   className="input-field"
                   placeholder="0"
                 />
               </Field>
             )}
 
-            {config.pricingMethod === 'per_sqm' && (
+            {config.pricingMethod === "per_sqm" && (
               <div className="grid gap-4 sm:grid-cols-2">
-                <Field label={`Labour Rate per m² (${currencySymbol})`} hint="Rate multiplied by total area">
+                <Field
+                  label={`Labour Rate per m² (${currencySymbol})`}
+                  hint="Rate multiplied by total area"
+                >
                   <input
                     type="number"
                     min={0}
-                    value={config.perSqmRate || ''}
-                    onChange={(e) => update({ perSqmRate: Number(e.target.value) })}
+                    value={config.perSqmRate || ""}
+                    onChange={(e) =>
+                      update({ perSqmRate: Number(e.target.value) })
+                    }
                     className="input-field"
                     placeholder="0"
                   />
                 </Field>
-                <Field label="Area (m²)" hint="Auto calculated from your inputs">
+                <Field
+                  label="Area (m²)"
+                  hint="Auto calculated from your inputs"
+                >
                   <input
                     type="number"
                     min={0}
-                    value={area ? area.toFixed(2) : ''}
+                    value={area ? area.toFixed(2) : ""}
                     readOnly
                     className="input-field bg-muted dark:bg-card-foreground/80"
                     placeholder="0"
@@ -215,14 +268,16 @@ export default function LabourCostSection({
               </div>
             )}
 
-            {config.pricingMethod === 'per_room' && (
+            {config.pricingMethod === "per_room" && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label={`Labour Rate per Room (${currencySymbol})`}>
                   <input
                     type="number"
                     min={0}
-                    value={config.perRoomRate || ''}
-                    onChange={(e) => update({ perRoomRate: Number(e.target.value) })}
+                    value={config.perRoomRate || ""}
+                    onChange={(e) =>
+                      update({ perRoomRate: Number(e.target.value) })
+                    }
                     className="input-field"
                     placeholder="0"
                   />
@@ -232,7 +287,9 @@ export default function LabourCostSection({
                     type="number"
                     min={1}
                     value={config.roomCount}
-                    onChange={(e) => update({ roomCount: Number(e.target.value) })}
+                    onChange={(e) =>
+                      update({ roomCount: Number(e.target.value) })
+                    }
                     className="input-field"
                     placeholder="1"
                   />
@@ -240,14 +297,16 @@ export default function LabourCostSection({
               </div>
             )}
 
-            {config.pricingMethod === 'daily' && (
+            {config.pricingMethod === "daily" && (
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label={`Daily Labour Rate (${currencySymbol})`}>
                   <input
                     type="number"
                     min={0}
-                    value={config.dailyRate || ''}
-                    onChange={(e) => update({ dailyRate: Number(e.target.value) })}
+                    value={config.dailyRate || ""}
+                    onChange={(e) =>
+                      update({ dailyRate: Number(e.target.value) })
+                    }
                     className="input-field"
                     placeholder="0"
                   />
@@ -257,7 +316,9 @@ export default function LabourCostSection({
                     type="number"
                     min={1}
                     value={config.dayCount}
-                    onChange={(e) => update({ dayCount: Number(e.target.value) })}
+                    onChange={(e) =>
+                      update({ dayCount: Number(e.target.value) })
+                    }
                     className="input-field"
                     placeholder="1"
                   />
@@ -265,13 +326,18 @@ export default function LabourCostSection({
               </div>
             )}
 
-            {config.pricingMethod === 'custom' && (
-              <Field label={`Custom Labour Amount (${currencySymbol})`} hint="Enter any custom labour cost. Full flexibility">
+            {config.pricingMethod === "custom" && (
+              <Field
+                label={`Custom Labour Amount (${currencySymbol})`}
+                hint="Enter any custom labour cost. Full flexibility"
+              >
                 <input
                   type="number"
                   min={0}
-                  value={config.customAmount || ''}
-                  onChange={(e) => update({ customAmount: Number(e.target.value) })}
+                  value={config.customAmount || ""}
+                  onChange={(e) =>
+                    update({ customAmount: Number(e.target.value) })
+                  }
                   className="input-field"
                   placeholder="0"
                 />
@@ -283,8 +349,9 @@ export default function LabourCostSection({
           <div className="flex items-start gap-2 rounded-lg bg-primary/5 p-3 text-xs text-muted-foreground dark:text-muted-foreground">
             <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-brand-purple" />
             <span>
-              Labour rates vary by contractor, location, and project. These are suggestions only.
-              You can enter any amount. Your labour selection is saved with your estimate.
+              Labour rates vary by contractor, location, and project. These are
+              suggestions only. You can enter any amount. Your labour selection
+              is saved with your estimate.
             </span>
           </div>
         </div>
@@ -293,39 +360,62 @@ export default function LabourCostSection({
   );
 }
 
-function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
+function Toggle({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  // Plain native <button> — deliberately NOT wrapping shadcn's <Button>.
+  // Button's `ghost` variant adds `hover:bg-accent`, and on touch devices
+  // that hover state gets "stuck" after a tap until the next tap
+  // elsewhere on the page — which masked the checked-state color change
+  // until the user touched something else. A bare switch pill has no
+  // legitimate use for Button's hover/focus/sizing behavior anyway.
   return (
-    <Button variant="ghost"
+    <button
       type="button"
       role="switch"
       onClick={() => onChange(!checked)}
       className={classNames(
-        'relative inline-flex appearance-none h-6 w-11 shrink-0 rounded-full transition-all duration-300 border-0 p-0',
+        "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border-0 p-0 transition-colors duration-300",
         checked
-          ? 'bg-accent-green shadow-sm shadow-accent-green/30'
-          : 'bg-muted dark:bg-card-foreground/80',
+          ? "bg-accent-green shadow-sm shadow-accent-green/30"
+          : "bg-muted dark:bg-card-foreground/80",
       )}
-      aria-pressed={checked}
+      aria-checked={checked}
       aria-label="Include labour cost"
-      style={{"width":"2.75rem","height":"1.5rem","minWidth":"2.75rem"}}
     >
       <span
         className={classNames(
-          'absolute top-0.5 h-5 w-5 rounded-full bg-card shadow-md transition-all duration-300 ease-out',
-          checked
-            ? 'translate-x-5'
-            : 'translate-x-0.5',
+          "inline-block h-5 w-5 translate-x-0.5 rounded-full bg-card shadow-md transition-transform duration-300 ease-out",
+          checked && "translate-x-5",
         )}
       />
-    </Button>
+    </button>
   );
 }
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+function Field({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
-      <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">{label}</span>
-      {hint && <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>}
+      <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
+        {label}
+      </span>
+      {hint && (
+        <span className="mt-0.5 block text-xs text-muted-foreground">
+          {hint}
+        </span>
+      )}
       <div className="mt-1.5">{children}</div>
     </label>
   );

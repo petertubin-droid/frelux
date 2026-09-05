@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import {
   getMonetagZone,
+  getMonetagDisplayZone,
+  getMonetagNativeZone,
   getMonetagSdkUrl,
   showMonetagRewardedAd,
-  MONETAG_DEFAULT_ZONE_ID,
 } from "@/lib/monetag-rewarded";
 import type { DbAdProvider } from "@/types/database";
 
@@ -25,13 +26,14 @@ function makeProvider(overrides: Partial<DbAdProvider> = {}): DbAdProvider {
 }
 
 describe("getMonetagZone", () => {
-  it("falls back to the default zone when no credentials are set", () => {
-    expect(getMonetagZone(makeProvider())).toBe(MONETAG_DEFAULT_ZONE_ID);
-    expect(getMonetagZone(null)).toBe(MONETAG_DEFAULT_ZONE_ID);
-    expect(getMonetagZone()).toBe(MONETAG_DEFAULT_ZONE_ID);
+  it("returns null when no zone is configured — no hardcoded fallback", () => {
+    // The zone ID must ONLY ever come from Admin → Ads configuration.
+    expect(getMonetagZone(makeProvider())).toBeNull();
+    expect(getMonetagZone(null)).toBeNull();
+    expect(getMonetagZone()).toBeNull();
   });
 
-  it("prefers the provider zone_id credential over the default", () => {
+  it("prefers the provider zone_id credential", () => {
     const provider = makeProvider({
       credentials: { zone_id: "999888" },
     });
@@ -43,6 +45,21 @@ describe("getMonetagZone", () => {
       settings: { zone_id: "777666" },
     });
     expect(getMonetagZone(provider)).toBe("777666");
+  });
+
+  it("prefers the dedicated rewarded zone over the shared display zone", () => {
+    const provider = makeProvider({
+      credentials: { zone_id: "275352", rewarded_zone_id: "11712895" },
+      settings: { zone_id: "275352" },
+    });
+    expect(getMonetagZone(provider)).toBe("11712895");
+  });
+
+  it("falls back to the shared zone_id when no rewarded zone is set", () => {
+    const provider = makeProvider({
+      credentials: { zone_id: "275352" },
+    });
+    expect(getMonetagZone(provider)).toBe("275352");
   });
 });
 
@@ -77,7 +94,7 @@ describe("showMonetagRewardedAd", () => {
   });
 
   it("uses the SDK path when show_<zone> is already available", async () => {
-    const zone = "275352";
+    const zone = "123456";
     const showFn = vi.fn(() =>
       Promise.resolve({ reward_event_type: "valued", estimated_price: 0.0042 }),
     );
@@ -103,7 +120,7 @@ describe("showMonetagRewardedAd", () => {
 
   it("falls back to tag mode when no SDK is available", async () => {
     const pending = showMonetagRewardedAd({
-      zone: "275352",
+      zone: "123456",
       ymid: "ch_test",
       minWatchTimeMs: 0,
     });
@@ -122,12 +139,12 @@ describe("showMonetagRewardedAd", () => {
       'script[data-monetag-src="https://quge5.com/88/tag.min.js"]',
     );
     expect(tag).not.toBeNull();
-    expect(tag?.getAttribute("data-zone")).toBe("275352");
+    expect(tag?.getAttribute("data-zone")).toBe("123456");
     expect(tag?.getAttribute("data-domain")).toBe("quge5.com");
   });
 
   it("does not inject a duplicate tag script on subsequent calls", async () => {
-    const first = showMonetagRewardedAd({ zone: "275352", minWatchTimeMs: 0 });
+    const first = showMonetagRewardedAd({ zone: "123456", minWatchTimeMs: 0 });
     document
       .querySelector(
         'script[data-monetag-src="https://quge5.com/88/tag.min.js"]',
@@ -136,7 +153,7 @@ describe("showMonetagRewardedAd", () => {
     await first;
 
     // Second call must resolve via dedup without a second injection
-    await showMonetagRewardedAd({ zone: "275352", minWatchTimeMs: 0 });
+    await showMonetagRewardedAd({ zone: "123456", minWatchTimeMs: 0 });
 
     const tags = document.querySelectorAll(
       'script[data-monetag-src="https://quge5.com/88/tag.min.js"]',
@@ -152,10 +169,98 @@ describe("showMonetagRewardedAd", () => {
     );
     document.head.appendChild(existing);
 
-    const result = await showMonetagRewardedAd({ zone: "275352", minWatchTimeMs: 0 });
+    const result = await showMonetagRewardedAd({
+      zone: "123456",
+      minWatchTimeMs: 0,
+    });
     expect(result.mode).toBe("tag");
 
     const tags = document.querySelectorAll("[data-monetag-src]");
     expect(tags.length).toBe(1);
+  });
+});
+
+describe("getMonetagDisplayZone (website tag data-zone)", () => {
+  const base = {
+    slug: "monetag",
+    is_active: true,
+    credentials: {
+      format: "275352",
+      sdk_url: "https://omg10.com/4/11712895",
+      zone_id: "275352",
+      rewarded_zone_id: "11712895",
+    },
+    settings: { sub_id: "11718645", display_ads_enabled: true },
+  };
+
+  const make = (overrides: Record<string, unknown> = {}): DbAdProvider =>
+    ({
+      id: "prov-1",
+      name: "Monetag",
+      provider_type: "rewarded",
+      priority: 99,
+      ...base,
+      ...overrides,
+    }) as unknown as DbAdProvider;
+
+  it("uses the display Zone ID, never the rewarded SDK zone", () => {
+    expect(getMonetagDisplayZone(make())).toBe("275352");
+  });
+
+  it("falls back to the legacy `format` credential when zone_id is absent", () => {
+    const legacy = make({
+      credentials: { format: "275352", rewarded_zone_id: "11712895" },
+    });
+    expect(getMonetagDisplayZone(legacy)).toBe("275352");
+  });
+
+  it("returns null when no display zone is configured", () => {
+    const bare = make({ credentials: { rewarded_zone_id: "11712895" } });
+    expect(getMonetagDisplayZone(bare)).toBeNull();
+    expect(getMonetagDisplayZone(null)).toBeNull();
+  });
+
+  it("never leaks the rewarded zone or sub_id into the display tag", () => {
+    const tricky = make({
+      credentials: { rewarded_zone_id: "11712895" },
+      settings: { sub_id: "11718645" },
+    });
+    expect(getMonetagDisplayZone(tricky)).toBeNull();
+  });
+});
+
+describe("getMonetagNativeZone (in-page Native Banner zone)", () => {
+  it("returns null when no native zone is configured — dormant by default", () => {
+    expect(getMonetagNativeZone(makeProvider())).toBeNull();
+  });
+
+  it("returns the zone only for numeric zone IDs", () => {
+    expect(
+      getMonetagNativeZone(
+        makeProvider({ credentials: { native_banner_zone_id: "7654321" } }),
+      ),
+    ).toBe("7654321");
+    expect(
+      getMonetagNativeZone(
+        makeProvider({ credentials: { native_banner_zone_id: " 7654321 " } }),
+      ),
+    ).toBe("7654321");
+  });
+
+  it("rejects non-numeric garbage (injection safety)", () => {
+    expect(
+      getMonetagNativeZone(
+        makeProvider({ credentials: { native_banner_zone_id: "alert(1)" } }),
+      ),
+    ).toBeNull();
+    expect(
+      getMonetagNativeZone(
+        makeProvider({
+          credentials: {
+            native_banner_zone_id: "<script src=evil.example></script>",
+          },
+        }),
+      ),
+    ).toBeNull();
   });
 });

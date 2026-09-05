@@ -133,7 +133,8 @@ export function PremiumFeatureGate({
 
     // Find an active provider with a real client-side rewarded bridge
     // and actually show the ad from this tap before requesting the unlock.
-    let result: { success: boolean; error?: string; message?: string } | null = null;
+    let result: { success: boolean; error?: string; message?: string } | null =
+      null;
     try {
       const { providers } = await fetchAdConfig();
       const activeProvider = providers.find(
@@ -159,12 +160,14 @@ export function PremiumFeatureGate({
         featureKey,
         activeProvider.slug,
         adEventId,
+        { source: "premium_gate", provider: activeProvider.slug },
         adToken,
       );
     } catch (e) {
-      const msg = e instanceof Error && e.message
-        ? e.message
-        : "The ad could not be loaded. Please try again.";
+      const msg =
+        e instanceof Error && e.message
+          ? e.message
+          : "The ad could not be loaded. Please try again.";
       setError(msg);
     } finally {
       setAdUnlocking(false);
@@ -224,7 +227,8 @@ export function PremiumFeatureGate({
               <PremiumBadge size="md" glow />
               <h2 className="text-lg font-bold">{featureName}</h2>
             </div>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={onClose}
               className="rounded-lg p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"
@@ -247,7 +251,8 @@ export function PremiumFeatureGate({
 
           <div className="space-y-3">
             {/* Use Credits button */}
-            <Button variant="default"
+            <Button
+              variant="default"
               type="button"
               onClick={handleUseCredits}
               disabled={spending}
@@ -271,7 +276,8 @@ export function PremiumFeatureGate({
                   </span>
                   <div className="h-px flex-1 bg-muted dark:bg-white/10" />
                 </div>
-                <Button variant="default"
+                <Button
+                  variant="default"
                   type="button"
                   onClick={handleWatchAd}
                   disabled={adUnlocking}

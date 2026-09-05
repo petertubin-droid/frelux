@@ -1,4 +1,4 @@
-# robots.txt for FRELUX PAINT CALC
+# robots.txt for FRELUX PROJECT CALC
 # https://freluxtools.netlify.app
 # Public pages are crawlable. Admin, auth, and API routes are excluded.
 

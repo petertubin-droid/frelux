@@ -294,7 +294,8 @@ export default function AdminAIAssistant() {
         ].map((t) => {
           const Icon = t.icon;
           return (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               key={t.id}
               onClick={() => setTab(t.id)}
               className={classNames(
@@ -326,7 +327,8 @@ export default function AdminAIAssistant() {
                   <p className="mt-1 text-xs text-amber-600 dark:text-amber-500">
                     To connect your admin to Solas, you need to add your
                     Superagent API key. Go to the{" "}
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => setTab("settings")}
                       className="underline font-medium"
                     >
@@ -345,10 +347,11 @@ export default function AdminAIAssistant() {
               {QUICK_TEMPLATES.map((template) => {
                 const Icon = template.icon;
                 return (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     key={template.label}
                     onClick={() => applyTemplate(template)}
-                    className="flex items-center gap-3 rounded-xl border border-border p-4 text-left transition-all hover:border-brand-purple hover:bg-primary/5 dark:border-white/10 dark:hover:border-brand-purple/30"
+                    className="flex h-auto items-center gap-3 rounded-xl border border-border p-4 text-left transition-all hover:border-brand-purple hover:bg-primary/5 dark:border-white/10 dark:hover:border-brand-purple/30"
                   >
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                       <Icon className="h-5 w-5" />
@@ -436,7 +439,8 @@ export default function AdminAIAssistant() {
               <p className="text-xs text-muted-foreground">
                 Press Enter to send · Shift+Enter for new line
               </p>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => handleSend()}
                 disabled={!input.trim() || sending}
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
@@ -464,7 +468,8 @@ export default function AdminAIAssistant() {
             <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
               Recent Actions
             </h2>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={loadActions}
               className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-card-foreground dark:text-muted-foreground dark:hover:text-muted-foreground/60"
             >
@@ -527,7 +532,8 @@ export default function AdminAIAssistant() {
                       </p>
                     </div>
                   )}
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => loadHistoryAction(action)}
                     className="mt-2 text-xs text-brand-purple hover:underline"
                   >
@@ -576,7 +582,8 @@ export default function AdminAIAssistant() {
                 placeholder="Enter your Solas API key"
                 className="flex-1 rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
               />
-              <Button variant="default"
+              <Button
+                variant="default"
                 onClick={saveApiKey}
                 disabled={!apiKey.trim() || apiKeySaving}
                 className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold disabled:opacity-50"

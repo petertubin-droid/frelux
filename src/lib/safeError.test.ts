@@ -4,14 +4,16 @@ import { getSafeError } from "./safeError";
 describe("getSafeError", () => {
   it("returns fallback for non-Error values", () => {
     expect(getSafeError(null)).toBe("Something went wrong. Please try again.");
-    expect(getSafeError("string")).toBe("Something went wrong. Please try again.");
+    expect(getSafeError("string")).toBe(
+      "Something went wrong. Please try again.",
+    );
     expect(getSafeError(undefined, "Custom fallback")).toBe("Custom fallback");
   });
 
   it("passes through short user-friendly messages", () => {
-    expect(getSafeError(new Error("Message should be at least 10 characters"))).toBe(
-      "Message should be at least 10 characters",
-    );
+    expect(
+      getSafeError(new Error("Message should be at least 10 characters")),
+    ).toBe("Message should be at least 10 characters");
   });
 
   it("returns fallback for long messages with stack traces", () => {
@@ -20,9 +22,9 @@ describe("getSafeError", () => {
   });
 
   it("returns fallback for 'relation does not exist' errors", () => {
-    expect(getSafeError(new Error('relation "public.foo" does not exist'))).toBe(
-      "Something went wrong. Please try again.",
-    );
+    expect(
+      getSafeError(new Error('relation "public.foo" does not exist')),
+    ).toBe("Something went wrong. Please try again.");
   });
 
   it("returns permission message for permission denied", () => {
@@ -56,9 +58,29 @@ describe("getSafeError", () => {
   });
 
   it("returns fallback for multi-line stack trace messages", () => {
-    const stackMsg = "TypeError: x is undefined\n    at Object.run (file.ts:1:2)\n    at main (index.ts:5:3)";
+    const stackMsg =
+      "TypeError: x is undefined\n    at Object.run (file.ts:1:2)\n    at main (index.ts:5:3)";
     expect(getSafeError(new Error(stackMsg))).toBe(
       "Something went wrong. Please try again.",
+    );
+  });
+
+  it("extracts .message from plain error-shaped objects (e.g. Supabase PostgrestError), not '[object Object]'", () => {
+    // Supabase's PostgrestError is a plain object, not `instanceof Error`.
+    // Without special handling, String(err) on it produces "[object Object]".
+    const postgrestError = {
+      message: "permission denied for table foo",
+      code: "42501",
+      details: null,
+      hint: null,
+    };
+    expect(getSafeError(postgrestError)).toBe(
+      "You don't have permission to do that.",
+    );
+
+    const genericPlainError = { message: "Something specific went wrong" };
+    expect(getSafeError(genericPlainError)).toBe(
+      "Something specific went wrong",
     );
   });
 });

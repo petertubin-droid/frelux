@@ -18,7 +18,7 @@ function makeInput(
   overrides: Partial<CostEstimateInput> = {},
 ): CostEstimateInput {
   return {
-    projectType: "interior" as unknown,
+    projectType: "room",
     paintableArea: 50,
     paintLiters: 10,
     coats: 2,
@@ -113,7 +113,7 @@ describe("exportPdfQuote", () => {
   it("includes project type and paint type", () => {
     exportPdfQuote({
       result: makeResult(),
-      input: makeInput({ projectType: "exterior" as unknown }),
+      input: makeInput({ projectType: "exterior" }),
       paintTypeName: "Weather Shield",
     });
     const html = mockWrite.mock.calls[0][0] as string;

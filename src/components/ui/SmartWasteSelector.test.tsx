@@ -9,6 +9,7 @@ describe("SmartWasteSelector", () => {
         projectType="room"
         coats={2}
         onWasteChange={vi.fn()}
+        currentWaste={10}
       />,
     );
     expect(container.innerHTML).not.toBe("");
@@ -20,6 +21,7 @@ describe("SmartWasteSelector", () => {
         projectType="room"
         coats={2}
         onWasteChange={vi.fn()}
+        currentWaste={10}
       />,
     );
     expect(screen.getByText(/waste/i)).toBeTruthy();

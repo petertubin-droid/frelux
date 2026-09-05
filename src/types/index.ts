@@ -460,6 +460,14 @@ export interface ScreedingSystemConfig {
   cementQuantity: number | null;
   cementUnit: string | null;
   cementPricePerUnit: number | null;
+  // Generic third material (white_cement_paint system only, optional).
+  // Represents Bond today; dormant unless extraEnabled is true.
+  // Optional so pre-existing config literals (tests, snapshots) stay valid.
+  extraEnabled?: boolean | null;
+  extraName?: string | null;
+  extraQuantity?: number | null;
+  extraUnit?: string | null;
+  extraPricePerUnit?: number | null;
 }
 
 /** Per-material breakdown in a screeding calculation result. */
@@ -496,6 +504,8 @@ export interface ScreedingMixSystemResult {
   wastePercentage: number;
   paint: ScreedingMaterialBreakdown;
   cement: ScreedingMaterialBreakdown;
+  // Optional third material (e.g. Bond). Null when not enabled/configured.
+  extra: ScreedingMaterialBreakdown | null;
   materialCost: number | null;
   currency: string;
   currencySymbol: string;

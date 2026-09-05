@@ -6,7 +6,10 @@ export default {
     extend: {
       colors: {
         // shadcn/ui semantic tokens — hsl(var(--token) / <alpha>)
-        background: 'hsl(var(--background) / <alpha-value>)',
+        background: {
+          DEFAULT: 'hsl(var(--background) / <alpha-value>)',
+          mid: 'hsl(var(--background-mid) / <alpha-value>)',
+        },
         foreground: 'hsl(var(--foreground) / <alpha-value>)',
         card: {
           DEFAULT: 'hsl(var(--card) / <alpha-value>)',

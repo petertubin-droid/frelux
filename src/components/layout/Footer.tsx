@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { MessageCircle } from "lucide-react";
+import { Cookie, MessageCircle } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import { siteConfig } from "@/config/site";
 import { whatsappUrl } from "@/lib/analytics";
@@ -101,12 +101,15 @@ export default function Footer() {
               or quantity.
             </p>
           </div>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => withdrawConsent()}
-            aria-label="Withdraw cookie consent"
-            className="text-xs text-muted-foreground hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter transition-colors"
+            aria-label="Cookie preferences"
+            title="Cookie preferences"
+            className="h-8 w-8 shrink-0 rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-brand-purple dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
           >
-            Cookie Preferences
+            <Cookie className="h-4 w-4" aria-hidden="true" />
           </Button>
         </div>
       </div>

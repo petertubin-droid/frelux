@@ -13,7 +13,8 @@ vi.mock("@/lib/templates", () => ({
   createUserTemplate: (...args: unknown[]) => mockCreateUserTemplate(...args),
   updateUserTemplate: (...args: unknown[]) => mockUpdateUserTemplate(...args),
   deleteUserTemplate: (...args: unknown[]) => mockDeleteUserTemplate(...args),
-  duplicateUserTemplate: (...args: unknown[]) => mockDuplicateUserTemplate(...args),
+  duplicateUserTemplate: (...args: unknown[]) =>
+    mockDuplicateUserTemplate(...args),
 }));
 
 // Mock auth
@@ -79,9 +80,9 @@ describe("useUserTemplates", () => {
 
     const input = {
       name: "New",
-      calculator_type: "paint",
-      data: { area: 50 },
-    } as unknown;
+      calculator_type: "paint" as const,
+      input_data: { area: 50 },
+    };
     let created: unknown;
     await act(async () => {
       created = await result.current.create(input);
@@ -97,7 +98,11 @@ describe("useUserTemplates", () => {
 
     let created: unknown;
     await act(async () => {
-      created = await result.current.create({} as unknown);
+      created = await result.current.create({
+        calculator_type: "paint",
+        name: "Ignored",
+        input_data: {},
+      });
     });
     expect(created).toBeNull();
   });
@@ -107,7 +112,7 @@ describe("useUserTemplates", () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
 
     await act(async () => {
-      await result.current.update("tpl-1", { name: "Updated" } as unknown);
+      await result.current.update("tpl-1", { name: "Updated" });
     });
     expect(mockUpdateUserTemplate).toHaveBeenCalledWith("tpl-1", "user-1", {
       name: "Updated",

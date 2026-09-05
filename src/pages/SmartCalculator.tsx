@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Brain, Loader2 } from "lucide-react";
-import { useAuth } from "@/lib/auth";
 import { useSeo } from "@/lib/seo";
 import { fetchScreedingMixConfig } from "@/lib/queries";
 import type { ScreedingMixConfig } from "@/types";
@@ -35,7 +34,6 @@ const FALLBACK_CONFIG: ScreedingMixConfig = {
 };
 
 export default function SmartCalculator() {
-  const { _user } = useAuth();
   const seo = useSeo({
     title: "Smart Calculator — AI-Powered Construction Estimator | FRELUX",
     description:
@@ -99,10 +97,7 @@ export default function SmartCalculator() {
             Smart Calculator
           </h1>
           <p className="mt-2 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
-            <Brain
-              className="h-4 w-4 text-brand-purple"
-              aria-hidden="true"
-            />
+            <Brain className="h-4 w-4 text-brand-purple" aria-hidden="true" />
             Powered by AI — describe any project, get an instant estimate
           </p>
         </div>
@@ -140,6 +135,8 @@ export default function SmartCalculator() {
           >
             {(access) => (
               <AdvancedCalculator
+                toolKey="smart"
+                contextSummary="Smart Calculator — freeform AI estimation. The user will describe their construction project in natural language; there is no form data yet."
                 netArea={0}
                 config={config}
                 clientHash={access.clientHash}

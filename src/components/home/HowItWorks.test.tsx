@@ -40,7 +40,7 @@ describe("HowItWorks", () => {
   it("renders step descriptions", () => {
     renderComponent();
     expect(screen.getByText(/Input your room dimensions/)).toBeTruthy();
-    expect(screen.getByText(/FRELUX computes exact quantities/)).toBeTruthy();
+    expect(screen.getByText(/FRELUX computes practical quantity estimates/)).toBeTruthy();
   });
 
   it("renders step numbers", () => {

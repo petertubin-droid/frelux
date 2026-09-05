@@ -4,15 +4,11 @@
 import { useState } from "react";
 import { Trash2, Edit3, Crown } from "lucide-react";
 import { updateBrandProfile, deleteBrandProfile } from "@/lib/brand-studio";
-import type {
-  BrandStudioAccess as BSAccess,
-  DbBrandProfile,
-} from "@/types/database";
+import type { DbBrandProfile } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface Props {
   userId: string;
-  access: BSAccess | null;
   profiles: DbBrandProfile[];
   selectedProfileId: string | null;
   onSelectProfile: (id: string | null) => void;
@@ -21,7 +17,6 @@ interface Props {
 
 export function MyBrandTemplatesSection({
   userId,
-  _access,
   profiles,
   selectedProfileId,
   onSelectProfile,
@@ -92,7 +87,9 @@ export function MyBrandTemplatesSection({
                   )}
                 </div>
                 {profile.tagline && (
-                  <p className="text-xs text-muted-foreground">{profile.tagline}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {profile.tagline}
+                  </p>
                 )}
                 <div className="mt-1 flex items-center gap-2">
                   <span
@@ -111,7 +108,8 @@ export function MyBrandTemplatesSection({
               </div>
             </div>
             <div className="flex items-center gap-1">
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => onSelectProfile(profile.id)}
                 className="rounded-lg p-2 text-brand-purple hover:bg-primary/10"
                 title="Select for editing"
@@ -119,7 +117,8 @@ export function MyBrandTemplatesSection({
                 <Edit3 className="h-4 w-4" />
               </Button>
               {!profile.is_default && (
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => handleSetDefault(profile.id)}
                   disabled={busy}
                   className="rounded-lg p-2 text-amber-600 hover:bg-amber-50 disabled:opacity-50 dark:hover:bg-amber-950"
@@ -128,7 +127,8 @@ export function MyBrandTemplatesSection({
                   <Crown className="h-4 w-4" />
                 </Button>
               )}
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => handleDelete(profile.id)}
                 disabled={busy}
                 className="rounded-lg p-2 text-red-500 hover:bg-red-50 disabled:opacity-50 dark:hover:bg-red-950"

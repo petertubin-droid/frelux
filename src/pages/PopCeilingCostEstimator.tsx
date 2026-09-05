@@ -270,7 +270,8 @@ export default function PopCeilingCostEstimator({
             <Section title="Dimensions">
               <div className="inline-flex rounded-lg border border-border dark:border-white/5 p-1">
                 {(["meters", "feet"] as Unit[]).map((u) => (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     key={u}
                     type="button"
                     onClick={() => update("unit", u)}
@@ -341,7 +342,8 @@ export default function PopCeilingCostEstimator({
             <Section title="Waste margin">
               <div className="flex flex-wrap gap-2">
                 {[0, 5, 10, 15, 20].map((w) => (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     key={w}
                     type="button"
                     onClick={() => update("wasteMargin", w)}
@@ -367,7 +369,8 @@ export default function PopCeilingCostEstimator({
               last
             />
 
-            <Button variant="default"
+            <Button
+              variant="default"
               type="button"
               onClick={compute}
               disabled={input.roomLength <= 0 || input.roomWidth <= 0}
@@ -446,7 +449,8 @@ export default function PopCeilingCostEstimator({
                       <p className="text-sm text-brand-purple">{saveMsg}</p>
                     )}
                     {user && (
-                      <Button variant="secondary"
+                      <Button
+                        variant="secondary"
                         type="button"
                         onClick={handleSave}
                         disabled={saving}
@@ -649,7 +653,9 @@ function Field({
         {label}
       </span>
       {hint && (
-        <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">
+          {hint}
+        </span>
       )}
       <div className="relative mt-1.5">
         {children}
@@ -711,23 +717,26 @@ function ToggleRow({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-lg border border-border dark:border-white/5 p-3">
-      <Button variant="ghost"
+      {/* Plain <button> — not shadcn's <Button variant="ghost">, whose
+          hover state gets "stuck" on touch devices after a tap until the
+          next tap elsewhere, masking the checked-state color change. */}
+      <button
         type="button"
+        role="switch"
         onClick={() => onChange(!checked)}
         className={
-          "relative inline-flex appearance-none h-5 w-9 shrink-0 rounded-full transition-colors border-0 p-0 " +
+          "relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border-0 p-0 transition-colors " +
           (checked ? "bg-accent-green" : "bg-muted")
         }
-        aria-pressed={checked}
-        style={{ width: "2.25rem", height: "1.25rem", minWidth: "2.25rem" }}
+        aria-checked={checked}
       >
         <span
           className={
-            "absolute top-0.5 h-4 w-4 rounded-full bg-card shadow transition-transform dark:bg-card " +
-            (checked ? "translate-x-4" : "translate-x-0.5")
+            "inline-block h-4 w-4 translate-x-0.5 rounded-full bg-card shadow transition-transform dark:bg-card " +
+            (checked ? "translate-x-4" : "")
           }
         />
-      </Button>
+      </button>
       <div>
         <p className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
           {label}

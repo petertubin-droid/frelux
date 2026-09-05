@@ -13,6 +13,7 @@ import {
   Crown,
   FileDown,
   Calculator,
+  Zap,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useCredits } from "@/lib/credits-context";
@@ -21,6 +22,13 @@ import { useSeo } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
 import { AchievementBadges } from "@/components/ui/AchievementBadges";
 import { hasRewardedAdProvider, fetchAdConfig } from "@/lib/ad-config";
+import {
+  getTokenPurchaseConfig,
+  initializeTokenPurchase,
+  verifyTokenPurchase,
+  formatNaira,
+  type TokenPurchaseConfig,
+} from "@/lib/token-purchase";
 import {
   getRewardCatalogue,
   getCreditTransactions,
@@ -77,18 +85,23 @@ export default function Rewards() {
   const [adHistory, setAdHistory] = useState<RewardedAdCreditEvent[]>([]);
   const [watchingAd, setWatchingAd] = useState(false);
   const [adProviderReady, setAdProviderReady] = useState(false);
+  const [tokenConfig, setTokenConfig] = useState<TokenPurchaseConfig | null>(
+    null,
+  );
+  const [purchasing, setPurchasing] = useState(false);
 
   const loadData = useCallback(async () => {
     if (!user) return;
     setRewardsLoading(true);
     try {
-      const [rwd, txs, mis, tokens, adCfg, adHist] = await Promise.all([
+      const [rwd, txs, mis, tokens, adCfg, adHist, tokenCfg] = await Promise.all([
         getRewardCatalogue(),
         getCreditTransactions(user.id, { limit: 20 }),
         getCurrentWeeklyMission(),
         getUnusedRewardGrantCount(user.id, "ai_token"),
         getRewardedAdConfig(),
         getRewardedAdHistory(10),
+        getTokenPurchaseConfig(),
       ]);
       setRewards(rwd);
       setTransactions(txs.transactions);
@@ -96,6 +109,7 @@ export default function Rewards() {
       setUnusedAiTokens(tokens);
       setAdConfig(adCfg);
       setAdHistory(adHist);
+      setTokenConfig(tokenCfg);
       // Check if a real rewarded ad provider is configured
       setAdProviderReady(await hasRewardedAdProvider());
       if (mis) {
@@ -113,6 +127,64 @@ export default function Rewards() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Verify a token purchase after returning from Paystack checkout.
+  // Runs once on mount; the URL is cleaned immediately so a refresh
+  // never double-verifies (server is idempotent regardless).
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("token_purchase") !== "verify") return;
+    const ref = params.get("ref");
+    if (!ref) return;
+    window.history.replaceState({}, "", window.location.pathname);
+    (async () => {
+      setPurchasing(true);
+      try {
+        const result = await verifyTokenPurchase(ref);
+        if (result.verified) {
+          toast({
+            type: "success",
+            title: "Tokens added!",
+            message: result.tokens
+              ? `${result.tokens} tokens were added to your balance.`
+              : "Your tokens were added to your balance.",
+          });
+          await refresh();
+          await loadData();
+        } else {
+          toast({
+            type: "info",
+            title: "Payment not completed",
+            message:
+              result.error ??
+              "If you were charged, your tokens will be credited automatically.",
+          });
+        }
+      } finally {
+        setPurchasing(false);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function handleBuyTokens() {
+    if (!user || !session || purchasing) return;
+    setPurchasing(true);
+    const result = await initializeTokenPurchase(
+      session.user.email ?? `${user.id}@frelux.app`,
+      user.id,
+    );
+    if (result.success && result.authorizationUrl) {
+      window.location.assign(result.authorizationUrl);
+      return; // leaving the page — keep spinner state
+    }
+    toast({
+      type: "error",
+      title: "Couldn't start checkout",
+      message: result.error ?? "Please try again.",
+    });
+    setPurchasing(false);
+  }
 
   async function handleRedeem(reward: RewardItem) {
     if (!user || !session) return;
@@ -477,6 +549,57 @@ export default function Rewards() {
                     width: `${Math.min((todayEarned / dailyLimit) * 100, 100)}%`,
                   }}
                 />
+              </div>
+            </div>
+          );
+        })()}
+
+      {/* Buy Tokens — direct purchase via Paystack (admin-configurable) */}
+      {tokenConfig?.is_enabled &&
+        (() => {
+          const price = formatNaira(tokenConfig.price_kobo);
+          return (
+            <div className="mb-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-6 dark:border-brand-purple/20 dark:bg-card dark:from-primary/5">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
+                    <Zap className="h-6 w-6 text-brand-purple" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
+                      Buy {tokenConfig.token_amount} Tokens — {price}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Instantly top up your balance. Secure checkout via Paystack.
+                    </p>
+                  </div>
+                </div>
+                <Button variant="ghost"
+                  type="button"
+                  onClick={handleBuyTokens}
+                  disabled={purchasing}
+                  className={classNames(
+                    "flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-all",
+                    !purchasing
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                      : "cursor-not-allowed bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
+                  )}
+                >
+                  {purchasing ? (
+                    <>
+                      <Loader2
+                        aria-hidden="true"
+                        className="h-4 w-4 animate-spin"
+                      />
+                      Redirecting...
+                    </>
+                  ) : (
+                    <>
+                      <Zap className="h-4 w-4" aria-hidden="true" />
+                      Buy Tokens
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
           );

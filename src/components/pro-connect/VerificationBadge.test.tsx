@@ -2,27 +2,28 @@ import { describe, it, expect } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { VerificationBadge } from "@/components/pro-connect/VerificationBadge";
 import { getVerificationTier, verificationTierInfo } from "@/types/pro-connect";
+import type { DbProProfile } from "@/types/pro-connect";
 
 const tier0Profile = {
   contact_verified_at: null,
   identity_verified_at: null,
   pro_level: false,
-} as unknown;
+} as unknown as DbProProfile;
 const tier1Profile = {
   contact_verified_at: "2025-01-01",
   identity_verified_at: null,
   pro_level: false,
-} as unknown;
+} as unknown as DbProProfile;
 const tier2Profile = {
   contact_verified_at: "2025-01-01",
   identity_verified_at: "2025-01-02",
   pro_level: false,
-} as unknown;
+} as unknown as DbProProfile;
 const tier3Profile = {
   contact_verified_at: "2025-01-01",
   identity_verified_at: "2025-01-02",
   pro_level: true,
-} as unknown;
+} as unknown as DbProProfile;
 
 describe("getVerificationTier", () => {
   it("returns 0 for unverified", () => {

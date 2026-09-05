@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import ColorCard from "@/components/colors/ColorCard";
+import type { DbPaintColor } from "@/types/database";
 
 const mockColor = {
   id: "color-1",
@@ -11,7 +12,7 @@ const mockColor = {
   brand: "Dulux",
   is_trending: false,
   is_featured: false,
-} as unknown;
+} as unknown as DbPaintColor;
 
 function renderCard(props: Partial<Parameters<typeof ColorCard>[0]> = {}) {
   return render(
@@ -35,18 +36,18 @@ describe("ColorCard", () => {
   });
 
   it("shows trending badge when is_trending", () => {
-    renderCard({ color: { ...mockColor, is_trending: true } as unknown });
+    renderCard({ color: { ...mockColor, is_trending: true } });
     expect(screen.getByText("Trending")).toBeTruthy();
   });
 
   it("shows featured badge when is_featured and not trending", () => {
-    renderCard({ color: { ...mockColor, is_featured: true } as unknown });
+    renderCard({ color: { ...mockColor, is_featured: true } });
     expect(screen.getByText("Featured")).toBeTruthy();
   });
 
   it("does not show featured badge when trending", () => {
     renderCard({
-      color: { ...mockColor, is_trending: true, is_featured: true } as unknown,
+      color: { ...mockColor, is_trending: true, is_featured: true },
     });
     expect(screen.queryByText("Featured")).toBeNull();
   });

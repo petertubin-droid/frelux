@@ -10,12 +10,10 @@ import {
   PaintBucket,
   Paintbrush,
   Package,
+  Droplets,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
-import {
-  calculateScreedingSystem,
-  dbToSystemConfig,
-} from "@/lib/calc";
+import { calculateScreedingSystem, dbToSystemConfig } from "@/lib/calc";
 import LabourCostSection, {
   useLabourConfig,
 } from "@/components/labour/LabourCostSection";
@@ -28,7 +26,7 @@ import type {
   ScreedingMaterialSystem,
   ScreedingMaterialBreakdown,
 } from "@/types";
-import type {  } from "@/types/database";
+import type {} from "@/types/database";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
 import {
@@ -45,6 +43,7 @@ import {
 } from "@/components/engine";
 import AdSlot from "@/components/ui/AdSlot";
 import { Button } from "@/components/ui/shadcn/button";
+import { getSafeError } from "@/lib/safeError";
 
 interface PassedState {
   netScreedingArea?: number;
@@ -60,7 +59,7 @@ interface AvailableSystem {
 
 export default function ScreedingCostEstimator({
   embedded = false,
-}: { embedded?: boolean } = () => {}) {
+}: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults("screeding_cost");
   useSeo(
     !embedded
@@ -86,17 +85,23 @@ export default function ScreedingCostEstimator({
   const location = useLocation();
   const passed = (location.state as PassedState | null) ?? {};
 
-  const [puttyConfig, setPuttyConfig] = useState<ScreedingSystemConfig | null>(null);
-  const [mixConfig, setMixConfig] = useState<ScreedingSystemConfig | null>(null);
+  const [puttyConfig, setPuttyConfig] = useState<ScreedingSystemConfig | null>(
+    null,
+  );
+  const [mixConfig, setMixConfig] = useState<ScreedingSystemConfig | null>(
+    null,
+  );
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [netArea, setNetArea] = useState(passed.netScreedingArea ?? 0);
-  const [selectedSystem, setSelectedSystem] = useState<ScreedingMaterialSystem | null>(null);
+  const [selectedSystem, setSelectedSystem] =
+    useState<ScreedingMaterialSystem | null>(null);
   const [coats, setCoats] = useState(2);
   const [result, setResult] = useState<ScreedingSystemResult | null>(null);
   // Engine features
   const engine = useEngineFeatures({ calculatorType: "screeding_cost" });
-  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig("screeding");
+  const { config: labourConfig, setConfig: setLabourConfig } =
+    useLabourConfig("screeding");
 
   const mountedRef = useRef(true);
   useEffect(() => {
@@ -129,7 +134,9 @@ export default function ScreedingCostEstimator({
           setMixConfig(dbToSystemConfig(mixRes.data));
         }
       } catch (err) {
-        setLoadError(err instanceof Error ? err.message : String(err));
+        setLoadError(
+          getSafeError(err, "Failed to load screeding configuration."),
+        );
       }
       setLoading(false);
     }
@@ -279,7 +286,10 @@ export default function ScreedingCostEstimator({
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <Icon aria-hidden="true" className="h-5 w-5 text-brand-purple" />
+                          <Icon
+                            aria-hidden="true"
+                            className="h-5 w-5 text-brand-purple"
+                          />
                           <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
                             {sys.displayName}
                           </span>
@@ -324,7 +334,7 @@ export default function ScreedingCostEstimator({
                 <Section title="Coats">
                   <Field
                     label="Number of coats"
-                    hint={`Default: ${activeConfig.defaultCoats} coats (admin-configured). Additional coats multiply material requirements.`}
+                    hint={`Default: ${activeConfig.defaultCoats} coats (admin-configured). The configured material quantities already include the default ${activeConfig.defaultCoats} coats; choosing a different number scales requirements proportionally.`}
                   >
                     <div className="flex items-center gap-3">
                       <button
@@ -366,19 +376,47 @@ export default function ScreedingCostEstimator({
                 <Section title="Active Configuration (Admin Managed)">
                   <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
                     <div className="grid grid-cols-2 gap-3 text-xs sm:grid-cols-3">
-                      <ConfigItem label="Coverage area" value={`${activeConfig.coverageAreaM2} ${activeConfig.coverageUnit}`} />
-                      <ConfigItem label="Default coats" value={`${activeConfig.defaultCoats}`} />
-                      <ConfigItem label="Waste" value={`${activeConfig.wastePercentage}%`} />
-                      {activeConfig.systemType === "putty" && activeConfig.puttyPricePerUnit != null && (
-                        <ConfigItem label="Putty price" value={formatCurrency(activeConfig.puttyPricePerUnit, currencySymbol)} />
-                      )}
+                      <ConfigItem
+                        label="Coverage area"
+                        value={`${activeConfig.coverageAreaM2} ${activeConfig.coverageUnit}`}
+                      />
+                      <ConfigItem
+                        label="Default coats"
+                        value={`${activeConfig.defaultCoats}`}
+                      />
+                      <ConfigItem
+                        label="Waste"
+                        value={`${activeConfig.wastePercentage}%`}
+                      />
+                      {activeConfig.systemType === "putty" &&
+                        activeConfig.puttyPricePerUnit != null && (
+                          <ConfigItem
+                            label="Putty price"
+                            value={formatCurrency(
+                              activeConfig.puttyPricePerUnit,
+                              currencySymbol,
+                            )}
+                          />
+                        )}
                       {activeConfig.systemType === "white_cement_paint" && (
                         <>
                           {activeConfig.paintPricePerUnit != null && (
-                            <ConfigItem label="Paint price" value={formatCurrency(activeConfig.paintPricePerUnit, currencySymbol)} />
+                            <ConfigItem
+                              label="Paint price"
+                              value={formatCurrency(
+                                activeConfig.paintPricePerUnit,
+                                currencySymbol,
+                              )}
+                            />
                           )}
                           {activeConfig.cementPricePerUnit != null && (
-                            <ConfigItem label="Cement price" value={formatCurrency(activeConfig.cementPricePerUnit, currencySymbol)} />
+                            <ConfigItem
+                              label="Cement price"
+                              value={formatCurrency(
+                                activeConfig.cementPricePerUnit,
+                                currencySymbol,
+                              )}
+                            />
                           )}
                         </>
                       )}
@@ -428,23 +466,35 @@ export default function ScreedingCostEstimator({
                       <div className="flex items-center gap-2.5">
                         <CheckCircle2 className="h-5 w-5 text-emerald-500" />
                         <h3 className="font-display text-sm font-bold text-foreground dark:text-primary-foreground">
-                          {result.systemType === "putty" ? "Putty Requirement" : "Screeding Materials Requirement"}
+                          {result.systemType === "putty"
+                            ? "Putty Requirement"
+                            : "Screeding Materials Requirement"}
                         </h3>
                       </div>
 
                       {/* Area and coats summary */}
                       <div className="rounded-lg border border-border bg-muted/30 p-3 text-xs dark:border-white/5 dark:bg-white/5">
                         <div className="flex items-center justify-between">
-                          <span className="text-muted-foreground">Total screeding area</span>
-                          <span className="font-semibold text-foreground dark:text-primary-foreground">{formatNumber(result.netScreedingArea, 2)} m²</span>
+                          <span className="text-muted-foreground">
+                            Total screeding area
+                          </span>
+                          <span className="font-semibold text-foreground dark:text-primary-foreground">
+                            {formatNumber(result.netScreedingArea, 2)} m²
+                          </span>
                         </div>
                         <div className="mt-1 flex items-center justify-between">
                           <span className="text-muted-foreground">Coats</span>
-                          <span className="font-semibold text-foreground dark:text-primary-foreground">{result.coats}</span>
+                          <span className="font-semibold text-foreground dark:text-primary-foreground">
+                            {result.coats}
+                          </span>
                         </div>
                         <div className="mt-1 flex items-center justify-between">
-                          <span className="text-muted-foreground">Coverage rule</span>
-                          <span className="font-semibold text-foreground dark:text-primary-foreground">{result.coverageAreaM2} m² per unit group</span>
+                          <span className="text-muted-foreground">
+                            Coverage rule
+                          </span>
+                          <span className="font-semibold text-foreground dark:text-primary-foreground">
+                            {result.coverageAreaM2} m² per unit group
+                          </span>
                         </div>
                       </div>
 
@@ -453,7 +503,12 @@ export default function ScreedingCostEstimator({
                         <MaterialBreakdownCard
                           breakdown={result.putty}
                           currencySymbol={currencySymbol}
-                          icon={<PaintBucket aria-hidden="true" className="h-4 w-4 text-brand-purple" />}
+                          icon={
+                            <PaintBucket
+                              aria-hidden="true"
+                              className="h-4 w-4 text-brand-purple"
+                            />
+                          }
                         />
                       )}
                       {result.systemType === "white_cement_paint" && (
@@ -461,36 +516,71 @@ export default function ScreedingCostEstimator({
                           <MaterialBreakdownCard
                             breakdown={result.paint}
                             currencySymbol={currencySymbol}
-                            icon={<Paintbrush aria-hidden="true" className="h-4 w-4 text-brand-purple" />}
+                            icon={
+                              <Paintbrush
+                                aria-hidden="true"
+                                className="h-4 w-4 text-brand-purple"
+                              />
+                            }
                           />
                           <MaterialBreakdownCard
                             breakdown={result.cement}
                             currencySymbol={currencySymbol}
-                            icon={<Package aria-hidden="true" className="h-4 w-4 text-brand-purple" />}
+                            icon={
+                              <Package
+                                aria-hidden="true"
+                                className="h-4 w-4 text-brand-purple"
+                              />
+                            }
                           />
+                          {result.extra && (
+                            <MaterialBreakdownCard
+                              breakdown={result.extra}
+                              currencySymbol={currencySymbol}
+                              icon={
+                                <Droplets
+                                  aria-hidden="true"
+                                  className="h-4 w-4 text-brand-purple"
+                                />
+                              }
+                            />
+                          )}
                         </>
                       )}
 
                       {/* Total cost */}
                       {result.materialCost != null && (
                         <div className="flex items-center justify-between border-t border-border pt-3 dark:border-white/10">
-                          <span className="text-sm font-bold text-foreground dark:text-primary-foreground">Total estimated material cost</span>
-                          <span className="text-sm font-bold text-foreground dark:text-primary-foreground">{formatCurrency(result.materialCost, currencySymbol)}</span>
+                          <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
+                            Total estimated material cost
+                          </span>
+                          <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
+                            {formatCurrency(
+                              result.materialCost,
+                              currencySymbol,
+                            )}
+                          </span>
                         </div>
                       )}
                       {result.materialCost == null && (
                         <div className="rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-3 text-xs text-muted-foreground">
-                          Material cost cannot be calculated until prices are configured in the Admin settings. The quantity calculation above is still valid.
+                          Material cost cannot be calculated until prices are
+                          configured in the Admin settings. The quantity
+                          calculation above is still valid.
                         </div>
                       )}
 
                       {/* Explanation panel */}
                       <EngineExplanationPanel
                         result={engine.buildExplanation({
-                          subject: result.systemType === "putty" ? "Putty Screeding Estimate" : "White Cement + Screeding Paint Estimate",
-                          resultSummary: result.materialCost != null
-                            ? `${formatCurrency(result.materialCost, currencySymbol)} for ${formatNumber(result.netScreedingArea, 2)} m² (${result.coats} coats)`
-                            : `${formatNumber(result.netScreedingArea, 2)} m² (${result.coats} coats) — price not configured`,
+                          subject:
+                            result.systemType === "putty"
+                              ? "Putty Screeding Estimate"
+                              : "White Cement + Screeding Paint Estimate",
+                          resultSummary:
+                            result.materialCost != null
+                              ? `${formatCurrency(result.materialCost, currencySymbol)} for ${formatNumber(result.netScreedingArea, 2)} m² (${result.coats} coats)`
+                              : `${formatNumber(result.netScreedingArea, 2)} m² (${result.coats} coats) — price not configured`,
                           steps: buildExplanationSteps(result),
                           notes: [
                             `Coverage: ${result.coverageAreaM2} m² per unit group`,
@@ -506,13 +596,15 @@ export default function ScreedingCostEstimator({
                       <EngineMaterialSummaryCard
                         summary={engine.buildMaterialSummary(
                           result.systemType === "putty"
-                            ? [{
-                                materialId: "putty",
-                                productName: result.putty.name,
-                                totalQuantity: result.putty.purchaseQuantity,
-                                quantityUnit: result.putty.unit + "s",
-                                spaceIds: ["surface"],
-                              }]
+                            ? [
+                                {
+                                  materialId: "putty",
+                                  productName: result.putty.name,
+                                  totalQuantity: result.putty.purchaseQuantity,
+                                  quantityUnit: result.putty.unit + "s",
+                                  spaceIds: ["surface"],
+                                },
+                              ]
                             : [
                                 {
                                   materialId: "screeding-paint",
@@ -528,7 +620,19 @@ export default function ScreedingCostEstimator({
                                   quantityUnit: result.cement.unit + "s",
                                   spaceIds: ["surface"],
                                 },
-                              ]
+                                ...(result.extra
+                                  ? [
+                                      {
+                                        materialId: "screeding-extra",
+                                        productName: result.extra.name,
+                                        totalQuantity:
+                                          result.extra.purchaseQuantity,
+                                        quantityUnit: result.extra.unit + "s",
+                                        spaceIds: ["surface"],
+                                      },
+                                    ]
+                                  : []),
+                              ],
                         )}
                       />
 
@@ -537,17 +641,47 @@ export default function ScreedingCostEstimator({
                           calculatorType="screeding"
                           calculatorSlug="screeding-cost-estimator"
                           calcTitle={`Screeding Cost (${result.systemType === "putty" ? "Putty" : "Cement+Paint"}): ${formatNumber(result.netScreedingArea, 2)} m²`}
-                          calcData={{ netArea, systemType: result.systemType, coats: result.coats, ...result }}
+                          calcData={{
+                            netArea,
+                            ...result,
+                          }}
                           resultSummary={{
                             materialCost: result.materialCost ?? 0,
                             systemType: result.systemType,
                           }}
                           materials={
                             result.systemType === "putty"
-                              ? [{ name: result.putty.name, category: "putty", quantity: result.putty.purchaseQuantity, unit: result.putty.unit + "s" }]
+                              ? [
+                                  {
+                                    name: result.putty.name,
+                                    category: "putty",
+                                    quantity: result.putty.purchaseQuantity,
+                                    unit: result.putty.unit + "s",
+                                  },
+                                ]
                               : [
-                                  { name: result.paint.name, category: "paint", quantity: result.paint.purchaseQuantity, unit: result.paint.unit + "s" },
-                                  { name: result.cement.name, category: "cement", quantity: result.cement.purchaseQuantity, unit: result.cement.unit + "s" },
+                                  {
+                                    name: result.paint.name,
+                                    category: "paint",
+                                    quantity: result.paint.purchaseQuantity,
+                                    unit: result.paint.unit + "s",
+                                  },
+                                  {
+                                    name: result.cement.name,
+                                    category: "cement",
+                                    quantity: result.cement.purchaseQuantity,
+                                    unit: result.cement.unit + "s",
+                                  },
+                                  ...(result.extra
+                                    ? [
+                                        {
+                                          name: result.extra.name,
+                                          category: "bond",
+                                          quantity: result.extra.purchaseQuantity,
+                                          unit: result.extra.unit + "s",
+                                        },
+                                      ]
+                                    : []),
                                 ]
                           }
                           compact
@@ -610,12 +744,13 @@ export default function ScreedingCostEstimator({
           </div>
         )}
       </div>
-        {/* Info note */}
-        {availableSystems.length > 0 && (
-          <p className="mt-4 text-center text-xs text-muted-foreground">
-            All screeding calculations use square metres (m²). Material quantities, prices, and coverage rules are admin-configured.
-          </p>
-        )}
+      {/* Info note */}
+      {availableSystems.length > 0 && (
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          All screeding calculations use square metres (m²). Material
+          quantities, prices, and coverage rules are admin-configured.
+        </p>
+      )}
 
       {!embedded && (
         <RelatedTools
@@ -629,6 +764,10 @@ export default function ScreedingCostEstimator({
           ]}
         />
       )}
+      {/* Ad slot — placement "calculator_mid" */}
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      {/* Native banner slot — placement "calculator_native" */}
+      <AdSlot slotKey="calculator_native" className="mt-8" />
       <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </>
   );
@@ -640,31 +779,86 @@ export default function ScreedingCostEstimator({
 
 function buildExplanationSteps(result: ScreedingSystemResult) {
   const steps: { description: string; value: string }[] = [
-    { description: "Total screeding area", value: `${formatNumber(result.netScreedingArea, 2)} m²` },
+    {
+      description: "Total screeding area",
+      value: `${formatNumber(result.netScreedingArea, 2)} m²`,
+    },
     { description: "Coats", value: `${result.coats}` },
-    { description: "Coverage rule", value: `${result.coverageAreaM2} m² per unit group` },
+    {
+      description: "Coverage rule",
+      value: `${result.coverageAreaM2} m² per unit group`,
+    },
   ];
 
   if (result.systemType === "putty") {
     steps.push(
-      { description: `${result.putty.name} base quantity`, value: `${formatNumber(result.putty.baseQuantity, 2)} ${result.putty.unit}s` },
-      { description: `${result.putty.name} waste (${result.putty.wastePercentage}%)`, value: `${formatNumber(result.putty.wasteQuantity, 2)} ${result.putty.unit}s` },
-      { description: `${result.putty.name} final quantity`, value: `${formatNumber(result.putty.finalQuantity, 2)} ${result.putty.unit}s` },
-      { description: `${result.putty.name} purchase quantity`, value: `${result.putty.purchaseQuantity} ${result.putty.unit}s` },
+      {
+        description: `${result.putty.name} base quantity`,
+        value: `${formatNumber(result.putty.baseQuantity, 2)} ${result.putty.unit}s`,
+      },
+      {
+        description: `${result.putty.name} waste (${result.putty.wastePercentage}%)`,
+        value: `${formatNumber(result.putty.wasteQuantity, 2)} ${result.putty.unit}s`,
+      },
+      {
+        description: `${result.putty.name} final quantity`,
+        value: `${formatNumber(result.putty.finalQuantity, 2)} ${result.putty.unit}s`,
+      },
+      {
+        description: `${result.putty.name} purchase quantity`,
+        value: `${result.putty.purchaseQuantity} ${result.putty.unit}s`,
+      },
     );
   } else {
     steps.push(
-      { description: `${result.paint.name} base quantity`, value: `${formatNumber(result.paint.baseQuantity, 2)} ${result.paint.unit}s` },
-      { description: `${result.paint.name} waste (${result.paint.wastePercentage}%)`, value: `${formatNumber(result.paint.wasteQuantity, 2)} ${result.paint.unit}s` },
-      { description: `${result.paint.name} purchase quantity`, value: `${result.paint.purchaseQuantity} ${result.paint.unit}s` },
-      { description: `${result.cement.name} base quantity`, value: `${formatNumber(result.cement.baseQuantity, 2)} ${result.cement.unit}s` },
-      { description: `${result.cement.name} waste (${result.cement.wastePercentage}%)`, value: `${formatNumber(result.cement.wasteQuantity, 2)} ${result.cement.unit}s` },
-      { description: `${result.cement.name} purchase quantity`, value: `${result.cement.purchaseQuantity} ${result.cement.unit}s` },
+      {
+        description: `${result.paint.name} base quantity`,
+        value: `${formatNumber(result.paint.baseQuantity, 2)} ${result.paint.unit}s`,
+      },
+      {
+        description: `${result.paint.name} waste (${result.paint.wastePercentage}%)`,
+        value: `${formatNumber(result.paint.wasteQuantity, 2)} ${result.paint.unit}s`,
+      },
+      {
+        description: `${result.paint.name} purchase quantity`,
+        value: `${result.paint.purchaseQuantity} ${result.paint.unit}s`,
+      },
+      {
+        description: `${result.cement.name} base quantity`,
+        value: `${formatNumber(result.cement.baseQuantity, 2)} ${result.cement.unit}s`,
+      },
+      {
+        description: `${result.cement.name} waste (${result.cement.wastePercentage}%)`,
+        value: `${formatNumber(result.cement.wasteQuantity, 2)} ${result.cement.unit}s`,
+      },
+      {
+        description: `${result.cement.name} purchase quantity`,
+        value: `${result.cement.purchaseQuantity} ${result.cement.unit}s`,
+      },
     );
+    if (result.extra) {
+      steps.push(
+        {
+          description: `${result.extra.name} base quantity`,
+          value: `${formatNumber(result.extra.baseQuantity, 2)} ${result.extra.unit}s`,
+        },
+        {
+          description: `${result.extra.name} waste (${result.extra.wastePercentage}%)`,
+          value: `${formatNumber(result.extra.wasteQuantity, 2)} ${result.extra.unit}s`,
+        },
+        {
+          description: `${result.extra.name} purchase quantity`,
+          value: `${result.extra.purchaseQuantity} ${result.extra.unit}s`,
+        },
+      );
+    }
   }
 
   if (result.materialCost != null) {
-    steps.push({ description: "Total estimated material cost", value: formatCurrency(result.materialCost, result.currencySymbol) });
+    steps.push({
+      description: "Total estimated material cost",
+      value: formatCurrency(result.materialCost, result.currencySymbol),
+    });
   }
 
   return steps;
@@ -688,18 +882,38 @@ function MaterialBreakdownCard({
         </p>
       </div>
       <div className="mt-2 space-y-1 text-sm">
-        <Row label="Base quantity" value={`${formatNumber(breakdown.baseQuantity, 2)} ${breakdown.unit}s`} />
+        <Row
+          label="Base quantity"
+          value={`${formatNumber(breakdown.baseQuantity, 2)} ${breakdown.unit}s`}
+        />
         {breakdown.wastePercentage > 0 && (
           <>
-            <Row label={`Waste (${breakdown.wastePercentage}%)`} value={`${formatNumber(breakdown.wasteQuantity, 2)} ${breakdown.unit}s`} />
-            <Row label="Final quantity" value={`${formatNumber(breakdown.finalQuantity, 2)} ${breakdown.unit}s`} />
+            <Row
+              label={`Waste (${breakdown.wastePercentage}%)`}
+              value={`${formatNumber(breakdown.wasteQuantity, 2)} ${breakdown.unit}s`}
+            />
+            <Row
+              label="Final quantity"
+              value={`${formatNumber(breakdown.finalQuantity, 2)} ${breakdown.unit}s`}
+            />
           </>
         )}
-        <Row label="Purchase quantity" value={`${breakdown.purchaseQuantity} ${breakdown.unit}s`} strong />
+        <Row
+          label="Purchase quantity"
+          value={`${breakdown.purchaseQuantity} ${breakdown.unit}s`}
+          strong
+        />
         {breakdown.pricePerUnit != null && breakdown.pricePerUnit > 0 ? (
           <>
-            <Row label="Unit price" value={formatCurrency(breakdown.pricePerUnit, currencySymbol)} />
-            <Row label="Total cost" value={formatCurrency(breakdown.totalCost ?? 0, currencySymbol)} strong />
+            <Row
+              label="Unit price"
+              value={formatCurrency(breakdown.pricePerUnit, currencySymbol)}
+            />
+            <Row
+              label="Total cost"
+              value={formatCurrency(breakdown.totalCost ?? 0, currencySymbol)}
+              strong
+            />
           </>
         ) : (
           <p className="text-xs text-accent-yellow">
@@ -715,7 +929,9 @@ function ConfigItem({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <span className="block text-muted-foreground">{label}</span>
-      <span className="font-semibold text-foreground dark:text-primary-foreground">{value}</span>
+      <span className="font-semibold text-foreground dark:text-primary-foreground">
+        {value}
+      </span>
     </div>
   );
 }
@@ -730,7 +946,11 @@ function Section({
   last?: boolean;
 }) {
   return (
-    <div className={last ? "" : "border-b border-border/50 pb-6 dark:border-white/5"}>
+    <div
+      className={
+        last ? "" : "border-b border-border/50 pb-6 dark:border-white/5"
+      }
+    >
       <h2 className="mb-4 text-sm font-bold uppercase tracking-widest text-muted-foreground">
         {title}
       </h2>
@@ -789,7 +1009,9 @@ function Field({
         {label}
       </span>
       {hint && (
-        <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">
+          {hint}
+        </span>
       )}
       <div className="mt-2">{children}</div>
     </label>

@@ -18,7 +18,7 @@ const capabilities = [
     icon: Ruler,
     title: "Calculate Required Materials",
     description:
-      "Get exact quantities of paint, cement, sand, tiles, and POP based on your actual room dimensions. Every calculation accounts for doors, windows, coats, and waste factors.",
+      "Get reliable quantity estimates for paint, cement, sand, tiles, and POP based on your actual room dimensions. Every calculation accounts for doors, windows, coats, and waste factors.",
     to: "/paint-calculator",
     linkText: "Start calculating",
   },

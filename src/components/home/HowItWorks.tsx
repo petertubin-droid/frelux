@@ -16,7 +16,7 @@ const steps = [
     icon: Calculator,
     title: "Calculate",
     description:
-      "FRELUX computes exact quantities of paint, cement, sand, tiles, or POP using Nigerian coverage rates and real product sizes.",
+      "FRELUX computes practical quantity estimates for paint, cement, sand, tiles, or POP using Nigerian coverage rates and real product sizes.",
     accent: "text-accent-cyan bg-accent-cyan/10",
     number: "02",
   },
@@ -58,7 +58,7 @@ export default function HowItWorks() {
             From measurement to estimate in 4 steps
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground dark:text-muted-foreground">
-            No spreadsheets. No guesswork. Just accurate numbers you can trust.
+            No spreadsheets. No guesswork. Just transparent estimates you can plan around.
           </p>
         </div>
 

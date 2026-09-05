@@ -4,12 +4,12 @@
 import { useState, useEffect } from "react";
 import { Lock, FileText } from "lucide-react";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
-import { fetchPdfTemplates, updateBrandProfile } from "@/lib/brand-studio";
-import type {
-  BrandStudioAccess as BSAccess,
-  DbBrandProfile,
-  DbPdfBrandingTemplate,
-} from "@/types/database";
+import {
+  fetchPdfTemplates,
+  updateBrandProfile,
+  type BrandStudioAccess as BSAccess,
+} from "@/lib/brand-studio";
+import type { DbBrandProfile, DbPdfBrandingTemplate } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface Props {
@@ -125,7 +125,8 @@ export function PdfTemplateSection({
                   </p>
                 )}
                 {!isLocked && selectedProfileId && (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => handleTemplateSelect(tpl.id)}
                     disabled={isSelected}
                     className="mt-2 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-brand-purple hover:bg-primary/20 disabled:opacity-50"

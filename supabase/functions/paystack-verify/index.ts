@@ -98,9 +98,87 @@ Deno.serve(async (req: Request) => {
 
     // Extract metadata
     const metadata = transaction.metadata || {};
+    const purpose = (metadata.purpose as string) || "subscription";
     const plan = metadata.plan as string;
     const billingCycle = (metadata.billing_cycle as string) || "monthly";
     const userId = metadata.user_id as string;
+
+    // ── Token purchase: credit the wallet atomically (idempotent) ──
+    if (purpose === "token_purchase") {
+      const tokens = metadata.tokens as number;
+      const priceKobo = (metadata.price_kobo as number) ||
+        transaction.amount;
+
+      if (!userId || !tokens) {
+        return new Response(
+          JSON.stringify({
+            error: "Missing user_id or tokens in transaction metadata",
+          }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      // Sanity: the amount actually paid must match the configured price
+      if (transaction.amount !== priceKobo) {
+        return new Response(
+          JSON.stringify({
+            status: false,
+            message: "Amount paid does not match token price",
+          }),
+          {
+            status: 200,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      const rpc = await supabase.rpc("credit_token_purchase", {
+        p_user_id: userId,
+        p_reference: reference,
+        p_tokens: tokens,
+        p_amount_kobo: transaction.amount,
+        p_metadata: {
+          source: "paystack-verify",
+          paystack_reference: reference,
+        },
+      });
+
+      if (rpc.error) {
+        return new Response(
+          JSON.stringify({
+            error: `Failed to credit tokens: ${rpc.error.message}`,
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      const row = (rpc.data as unknown as Record<string, unknown>[])?.[0];
+      return new Response(
+        JSON.stringify({
+          status: true,
+          message: row?.already_credited
+            ? "Tokens were already credited for this payment"
+            : `${tokens} tokens added to your balance`,
+          data: {
+            ...transaction,
+            purpose: "token_purchase",
+            tokens_credited: tokens,
+            already_credited: row?.already_credited ?? false,
+            new_balance: row?.new_balance ?? null,
+          },
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
 
     if (!plan || !userId) {
       return new Response(

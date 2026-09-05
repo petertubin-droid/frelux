@@ -22,9 +22,43 @@ export const supabase: SupabaseClient = isSupabaseConfigured
   : createClient('https://placeholder.supabase.co', 'placeholder-anon-key');
 
 /**
+ * Derived client that sends the caller's client hash in the
+ * `x-client-hash` request header. The RLS policies on
+ * advanced_estimates, estimation_estimates and estimation_estimate_items
+ * bind anonymous ownership to this header — supabase-js cannot set
+ * per-request headers, so these flows go through a second client
+ * instance created with a global header instead.
+ *
+ * The instance is cached per hash (the hash lives in localStorage and
+ * does not change during a session). Auth state is shared with the main
+ * client through localStorage; autoRefreshToken/detectSessionInUrl are
+ * disabled so only the primary client refreshes tokens or parses the
+ * URL session, avoiding duplicate refresh races.
+ */
+let hashBoundClient: SupabaseClient | null = null;
+let hashBoundClientHash: string | null = null;
+
+export function supabaseWithClientHash(clientHash: string): SupabaseClient {
+  if (!isSupabaseConfigured) return supabase;
+  if (hashBoundClient && hashBoundClientHash === clientHash) return hashBoundClient;
+  hashBoundClient = createClient(url as string, anonKey as string, {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
+    global: {
+      headers: { 'x-client-hash': clientHash },
+    },
+  });
+  hashBoundClientHash = clientHash;
+  return hashBoundClient;
+}
+
+/**
  * Supabase's functions.invoke() throws a FunctionsHttpError with a generic
  * message ("Edge Function returned a non-2xx status code") when a function
- * responds with a non-2xx status — the actual error body (e.g. our
+ * responds with a non-2xx — the actual error body (e.g. our
  * `{ error, code }` JSON) is only available via `error.context`, a Response
  * object, and must be read separately.
  *

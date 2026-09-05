@@ -3,7 +3,9 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
-vi.mock("@/lib/auth", () => ({ useAuth: vi.fn(() => ({ user: null, loading: false })) }));
+vi.mock("@/lib/auth", () => ({
+  useAuth: vi.fn(() => ({ user: null, loading: false })),
+}));
 vi.mock("@/lib/credits", () => ({
   getCreditWallet: vi.fn().mockResolvedValue(null),
   getCreditTransactions: vi.fn().mockResolvedValue([]),
@@ -11,7 +13,10 @@ vi.mock("@/lib/credits", () => ({
   recordActivity: vi.fn().mockResolvedValue(true),
   REWARD_EVENTS: {},
 }));
-vi.mock("@/lib/analytics", () => ({ track: vi.fn(), logAnalyticsEvent: vi.fn() }));
+vi.mock("@/lib/analytics", () => ({
+  track: vi.fn(),
+  logAnalyticsEvent: vi.fn(),
+}));
 vi.mock("@/lib/queries", () => ({
   logAnalyticsEvent: vi.fn(),
   fetchScreedingSystemConfig: vi.fn(),
@@ -19,22 +24,52 @@ vi.mock("@/lib/queries", () => ({
 }));
 
 vi.mock("@/lib/supabase", () => {
-  const chainable: unknown = { data: null, error: null };
-  const methods = ["select", "eq", "neq", "gt", "gte", "lt", "lte", "like", "ilike", "in", "is", "not", "or", "and", "order", "range", "limit", "single", "maybeSingle", "insert", "update", "delete", "upsert", "count", "head"];
+  const chainable: Record<string, unknown> = { data: null, error: null };
+  const methods = [
+    "select",
+    "eq",
+    "neq",
+    "gt",
+    "gte",
+    "lt",
+    "lte",
+    "like",
+    "ilike",
+    "in",
+    "is",
+    "not",
+    "or",
+    "and",
+    "order",
+    "range",
+    "limit",
+    "single",
+    "maybeSingle",
+    "insert",
+    "update",
+    "delete",
+    "upsert",
+    "count",
+    "head",
+  ];
   for (const m of methods) chainable[m] = vi.fn(() => chainable);
   const supabase = {
     from: vi.fn(() => chainable),
     channel: vi.fn(() => ({ on: vi.fn(() => ({ subscribe: vi.fn() })) })),
     removeChannel: vi.fn(),
     auth: {
-      getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+      getSession: vi
+        .fn()
+        .mockResolvedValue({ data: { session: null }, error: null }),
       getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
     },
   };
   return { supabase };
 });
 
-beforeEach(() => { vi.clearAllMocks(); });
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 // Test data — simulates what the DB would return
 const mockPuttyDbConfig = {
@@ -111,7 +146,7 @@ async function renderEstimator() {
 describe("ScreedingCostEstimator — Material System Selection", () => {
   it("renders without crashing", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as unknown)
+    vi.mocked(fetchScreedingSystemConfig)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -121,7 +156,7 @@ describe("ScreedingCostEstimator — Material System Selection", () => {
 
   it("displays Putty as an available material option", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as unknown)
+    vi.mocked(fetchScreedingSystemConfig)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -133,7 +168,7 @@ describe("ScreedingCostEstimator — Material System Selection", () => {
 
   it("displays White Cement + Screeding Paint as an available material option", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as unknown)
+    vi.mocked(fetchScreedingSystemConfig)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -145,7 +180,7 @@ describe("ScreedingCostEstimator — Material System Selection", () => {
 
   it("shows Putty description", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as unknown)
+    vi.mocked(fetchScreedingSystemConfig)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -157,7 +192,7 @@ describe("ScreedingCostEstimator — Material System Selection", () => {
 
   it("shows White Cement + Screeding Paint description", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as unknown)
+    vi.mocked(fetchScreedingSystemConfig)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -171,7 +206,7 @@ describe("ScreedingCostEstimator — Material System Selection", () => {
 describe("ScreedingCostEstimator — Putty Flow", () => {
   it("calculates Putty requirement when area is entered", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as unknown)
+    vi.mocked(fetchScreedingSystemConfig)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -182,14 +217,19 @@ describe("ScreedingCostEstimator — Putty Flow", () => {
     });
 
     // Enter area
-    const input = container.querySelector('input[type="number"]') as HTMLInputElement;
+    const input = container.querySelector(
+      'input[type="number"]',
+    ) as HTMLInputElement;
     expect(input).toBeTruthy();
     fireEvent.change(input, { target: { value: "12" } });
 
     // Wait for result
-    await waitFor(() => {
-      expect(screen.getByText("Putty Requirement")).toBeTruthy();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText("Putty Requirement")).toBeTruthy();
+      },
+      { timeout: 3000 },
+    );
 
     // Should show area
     expect(screen.getAllByText(/12.*m²/).length).toBeGreaterThan(0);
@@ -197,7 +237,7 @@ describe("ScreedingCostEstimator — Putty Flow", () => {
 
   it("shows coats selector", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as unknown)
+    vi.mocked(fetchScreedingSystemConfig)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -209,7 +249,7 @@ describe("ScreedingCostEstimator — Putty Flow", () => {
 
   it("shows cost using configured Admin price", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as unknown)
+    vi.mocked(fetchScreedingSystemConfig)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -218,20 +258,25 @@ describe("ScreedingCostEstimator — Putty Flow", () => {
       expect(screen.getByText("Putty")).toBeTruthy();
     });
 
-    const input = container.querySelector('input[type="number"]') as HTMLInputElement;
+    const input = container.querySelector(
+      'input[type="number"]',
+    ) as HTMLInputElement;
     fireEvent.change(input, { target: { value: "12" } });
 
-    await waitFor(() => {
-      // 4 buckets * 12000 = 48000
-      expect(screen.getAllByText(/48,000|48000/).length).toBeGreaterThan(0);
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        // 2 buckets (12 m² at the configured 2-per-12 m² ratio) * 12000 = 24000
+        expect(screen.getAllByText(/24,000|24000/).length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 },
+    );
   });
 });
 
 describe("ScreedingCostEstimator — White Cement + Paint Flow", () => {
   it("calculates both Screeding Paint and White Cement separately", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as unknown)
+    vi.mocked(fetchScreedingSystemConfig)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -241,17 +286,26 @@ describe("ScreedingCostEstimator — White Cement + Paint Flow", () => {
     });
 
     // Click on White Cement + Paint system
-    const mixButton = screen.getByText("White Cement + Screeding Paint").closest("button");
+    const mixButton = screen
+      .getByText("White Cement + Screeding Paint")
+      .closest("button");
     expect(mixButton).toBeTruthy();
     fireEvent.click(mixButton!);
 
     // Enter area
-    const input = container.querySelector('input[type="number"]') as HTMLInputElement;
+    const input = container.querySelector(
+      'input[type="number"]',
+    ) as HTMLInputElement;
     fireEvent.change(input, { target: { value: "20" } });
 
-    await waitFor(() => {
-      expect(screen.getByText("Screeding Materials Requirement")).toBeTruthy();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(
+          screen.getByText("Screeding Materials Requirement"),
+        ).toBeTruthy();
+      },
+      { timeout: 3000 },
+    );
 
     // Should show both Screeding Paint and White Cement sections
     expect(screen.getAllByText(/Screeding Paint/i).length).toBeGreaterThan(0);
@@ -260,7 +314,7 @@ describe("ScreedingCostEstimator — White Cement + Paint Flow", () => {
 
   it("shows configured waste applied", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as unknown)
+    vi.mocked(fetchScreedingSystemConfig)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -269,21 +323,28 @@ describe("ScreedingCostEstimator — White Cement + Paint Flow", () => {
       expect(screen.getByText("White Cement + Screeding Paint")).toBeTruthy();
     });
 
-    const mixButton = screen.getByText("White Cement + Screeding Paint").closest("button");
+    const mixButton = screen
+      .getByText("White Cement + Screeding Paint")
+      .closest("button");
     fireEvent.click(mixButton!);
 
-    const input = container.querySelector('input[type="number"]') as HTMLInputElement;
+    const input = container.querySelector(
+      'input[type="number"]',
+    ) as HTMLInputElement;
     fireEvent.change(input, { target: { value: "20" } });
 
-    await waitFor(() => {
-      // Waste 20% should be visible
-      expect(screen.getAllByText(/Waste.*20%/).length).toBeGreaterThan(0);
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        // Waste 20% should be visible
+        expect(screen.getAllByText(/Waste.*20%/).length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 },
+    );
   });
 
   it("shows total estimated material cost", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as unknown)
+    vi.mocked(fetchScreedingSystemConfig)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -292,23 +353,30 @@ describe("ScreedingCostEstimator — White Cement + Paint Flow", () => {
       expect(screen.getByText("White Cement + Screeding Paint")).toBeTruthy();
     });
 
-    const mixButton = screen.getByText("White Cement + Screeding Paint").closest("button");
+    const mixButton = screen
+      .getByText("White Cement + Screeding Paint")
+      .closest("button");
     fireEvent.click(mixButton!);
 
-    const input = container.querySelector('input[type="number"]') as HTMLInputElement;
+    const input = container.querySelector(
+      'input[type="number"]',
+    ) as HTMLInputElement;
     fireEvent.change(input, { target: { value: "20" } });
 
-    await waitFor(() => {
-      // paint: 5 * 25000 = 125000, cement: 3 * 7500 = 22500, total = 147500
-      expect(screen.getAllByText(/147,500|147500/).length).toBeGreaterThan(0);
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        // paint: 3 * 25000 = 75000, cement: 2 * 7500 = 15000, total = 90000
+        expect(screen.getAllByText(/90,000|90000/).length).toBeGreaterThan(0);
+      },
+      { timeout: 3000 },
+    );
   });
 });
 
 describe("ScreedingCostEstimator — Material System Isolation", () => {
   it("does not mix Putty materials with Cement/Paint", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
-    (fetchScreedingSystemConfig as unknown)
+    vi.mocked(fetchScreedingSystemConfig)
       .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
       .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
 
@@ -318,12 +386,17 @@ describe("ScreedingCostEstimator — Material System Isolation", () => {
     });
 
     // Enter area with Putty selected (default)
-    const input = container.querySelector('input[type="number"]') as HTMLInputElement;
+    const input = container.querySelector(
+      'input[type="number"]',
+    ) as HTMLInputElement;
     fireEvent.change(input, { target: { value: "12" } });
 
-    await waitFor(() => {
-      expect(screen.getByText("Putty Requirement")).toBeTruthy();
-    }, { timeout: 3000 });
+    await waitFor(
+      () => {
+        expect(screen.getByText("Putty Requirement")).toBeTruthy();
+      },
+      { timeout: 3000 },
+    );
 
     // Should NOT show Screeding Paint or White Cement sections
     expect(screen.queryByText("SCREEDING PAINT")).toBeNull();

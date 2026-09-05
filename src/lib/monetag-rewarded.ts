@@ -25,14 +25,6 @@
 import type { DbAdProvider } from "@/types/database";
 
 /**
- * Default Monetag website zone for FRELUX.
- * Public client-side value — zone IDs are not secrets (they are exposed
- * in the page HTML to every visitor). Overridden by the provider's
- * `zone_id` credential when set in Admin → Ads.
- */
-export const MONETAG_DEFAULT_ZONE_ID = "275352";
-
-/**
  * Monetag multi-tag CDN. `data-domain` pins the tag's config/module
  * requests to this domain so the site CSP can reliably allow it
  * (mirrors the tag already embedded in index.html).
@@ -49,20 +41,71 @@ export interface MonetagShowResult {
   estimatedPrice: number | null;
 }
 
-/** Resolve the Monetag zone ID: provider credential → provider setting → default. */
+/**
+ * Resolve the Monetag zone ID from the Admin-configured provider only
+ * (Admin → Ads → Monetag → "Rewarded Zone ID" credential for rewarded
+ * flows, falling back to the shared "Zone ID" credential, then the
+ * provider's `zone_id` / `sub_id` settings). There is deliberately NO
+ * hardcoded fallback: if the Admin has not configured a zone, this returns
+ * null and callers must not serve or inject any Monetag tag. Zone IDs are
+ * public client-side values, not secrets — the requirement to keep them in
+ * Admin is about controlling which zone serves production traffic.
+ */
 export function getMonetagZone(provider?: DbAdProvider | null): string | null {
   const creds = (provider?.credentials ?? {}) as Record<string, unknown>;
   const settings = (provider?.settings ?? {}) as Record<string, unknown>;
   const raw =
+    creds.rewarded_zone_id ??
+    settings.rewarded_zone_id ??
     creds.zone_id ??
     settings.zone_id ??
-    settings.sub_id ??
-    MONETAG_DEFAULT_ZONE_ID;
+    settings.sub_id;
   const zone =
     typeof raw === "string" || typeof raw === "number"
       ? String(raw).trim()
       : "";
   return zone || null;
+}
+
+/**
+ * Resolve the Monetag DISPLAY zone ID — the website multi-tag zone used
+ * by tag.min.js for display formats (onclick, vignette, in-page push).
+ *
+ * This deliberately does NOT fall back to `rewarded_zone_id`: rewarded
+ * SDK zones (e.g. omg10.com/4/<id>) are only servable through the SDK
+ * script, and requesting them through the website tag endpoint returns
+ * 404 — which silently disables ALL display ads site-wide. Only the
+ * Admin-configured display "Zone ID" (or legacy `format` credential)
+ * belongs in the website tag's data-zone attribute.
+ */
+export function getMonetagDisplayZone(
+  provider?: DbAdProvider | null,
+): string | null {
+  const creds = (provider?.credentials ?? {}) as Record<string, unknown>;
+  const settings = (provider?.settings ?? {}) as Record<string, unknown>;
+  const raw = creds.zone_id ?? settings.zone_id ?? creds.format;
+  const zone =
+    typeof raw === "string" || typeof raw === "number"
+      ? String(raw).trim()
+      : "";
+  return zone || null;
+}
+
+/**
+ * Resolve the optional Monetag Native Banner zone (from the provider
+ * dashboard). Monetag's in-page display format — a Native Banner — renders
+ * into the SDK container AdSlot provides. Zone IDs are numeric; anything
+ * else resolves to null (no in-page display) so we never inject a bogus tag.
+ */
+export function getMonetagNativeZone(
+  provider?: DbAdProvider | null,
+): string | null {
+  const creds = (provider?.credentials ?? {}) as Record<string, unknown>;
+  const raw = creds.native_banner_zone_id;
+  const zone = typeof raw === "string" || typeof raw === "number"
+    ? String(raw).trim()
+    : "";
+  return /^\d{3,12}$/.test(zone) ? zone : null;
 }
 
 /** Resolve the optional Monetag SDK script URL (from the provider dashboard). */
@@ -222,7 +265,11 @@ export async function showMonetagRewardedAd(opts: {
       const fn = w[fnName];
       if (typeof fn === "function") {
         // Call the function — it may show an interstitial overlay
-        const result = await (fn as (opts?: Record<string, unknown>) => Promise<Record<string, unknown>>)({
+        const result = await (
+          fn as (
+            opts?: Record<string, unknown>,
+          ) => Promise<Record<string, unknown>>
+        )({
           type: "end",
           ymid,
           requestVar,

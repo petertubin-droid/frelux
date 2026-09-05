@@ -37,6 +37,7 @@ import { useCredits } from "@/lib/credits-context";
 import { useTheme } from "@/lib/theme";
 import { LanguageSwitcher } from "@/components/ui/LanguageSwitcher";
 import { AccessibilityToggle } from "@/components/ui/AccessibilityToggle";
+import { MarketSelector } from "@/components/ui/MarketSelector";
 import { Button } from "@/components/ui/shadcn/button";
 
 export default function Navbar() {
@@ -166,7 +167,7 @@ export default function Navbar() {
         className={classNames(
           "fixed top-0 z-40 w-full transition-all duration-500",
           scrolled
-            ? "glass-premium border-b border-border/40 shadow-sm dark:border-white/5 dark:glass-dark-premium"
+            ? "glass-premium border-b border-border/40 shadow-sm dark:border-white/5"
             : "bg-white/50 backdrop-blur-md border-b border-transparent dark:bg-background/50 dark:border-transparent",
         )}
       >
@@ -230,10 +231,7 @@ export default function Navbar() {
                       />
                     </Button>
                     {openDropdown === workspace.label && (
-                      <div
-                        className="absolute left-0 top-full z-50 pt-1"
-                        onMouseLeave={() => setOpenDropdown(null)}
-                      >
+                      <div className="absolute left-0 top-full z-50 pt-1">
                         {/* Premium mega-menu panel */}
                         <div
                           className="origin-top-left rounded-2xl border border-border/50 bg-card shadow-premium-lg dark:border-white/10 dark:bg-card"
@@ -386,6 +384,7 @@ export default function Navbar() {
             <div className="hidden items-center gap-1 lg:flex">
               <AccessibilityToggle />
               <LanguageSwitcher />
+              <MarketSelector />
               <Button
                 variant="ghost"
                 type="button"
@@ -447,12 +446,11 @@ export default function Navbar() {
 
               {openDropdown === "account" && (
                 <div
-                  className="absolute right-0 top-full z-50 w-[200px] max-w-[calc(100vw-1rem)] max-h-[calc(100vh-5rem)] overflow-y-auto rounded-xl border border-border/40 bg-popover/95 backdrop-blur-xl shadow-[0_8px_30px_-6px_rgba(0,0,0,0.15)] animate-fade-in-up dark:border-white/10 dark:bg-popover/95"
+                  className="absolute right-0 top-full z-50 w-[200px] max-w-[calc(100vw-1rem)] max-h-[calc(100vh-5rem)] overflow-y-auto overscroll-contain rounded-xl border border-border/40 bg-popover/95 backdrop-blur-xl shadow-[0_8px_30px_-6px_rgba(0,0,0,0.15)] animate-fade-in-up dark:border-white/10 dark:bg-popover/95"
                   style={{
                     animationDuration: "0.18s",
                     transformOrigin: "top right",
                   }}
-                  onMouseLeave={() => setOpenDropdown(null)}
                 >
                   {user ? (
                     <>
@@ -794,6 +792,7 @@ export default function Navbar() {
             <div className="mt-4 space-y-1 border-t border-border/50 pt-4 dark:border-white/5">
               <AccessibilityToggle inline={true} />
               <LanguageSwitcher inline={true} />
+              <MarketSelector inline={true} />
               <Button
                 variant="ghost"
                 type="button"

@@ -16,7 +16,7 @@ export default function Terms() {
     <LegalLayout
       slug="terms"
       title="Terms of Service"
-      updated="2026-08-22"
+      updated="2026-09-05"
       intro={
         <p>
           By accessing or using FRELUX PROJECT CALC (the "Service"), you agree to
@@ -74,7 +74,7 @@ export default function Terms() {
               post fraudulent, offensive, spam, off-platform solicitation, or
               illegal content. We reserve the right to remove messages, restrict
               access, or ban users who violate these rules. Content posted in
-              these channels reflects the views of the sender, not FRELUX PAINT
+              these channels reflects the views of the sender, not FRELUX PROJECT
               CALC.
             </p>
           ),
@@ -88,6 +88,22 @@ export default function Terms() {
               AI-generated recommendations are suggestions for inspiration only
               and are not professional advice. See our AI Disclaimer page for
               full details on AI feature limitations.
+            </p>
+          ),
+        },
+        {
+          heading: "Credits, tokens, and purchases",
+          body: (
+            <p>
+              FRELUX Credits (including tokens you purchase) are a virtual
+              currency for using premium features on the Service. They hold no
+              cash value, cannot be transferred to other users, and are not
+              refundable once used. Purchases are processed by Paystack; the
+              price and token amount for each pack are shown before you pay.
+              Rewarded ads are optional — you can earn credits by watching ads,
+              purchase tokens directly, or use the free tools. We may adjust
+              pricing for future purchases at any time; changes never affect
+              tokens already credited to your balance.
             </p>
           ),
         },

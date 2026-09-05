@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import AdSlot from "@/components/ui/AdSlot";
 import { useCommandPalette } from "@/components/ui/useCommandPalette";
 import { isOnboardingComplete } from "@/lib/onboarding";
 import { trackVisit } from "@/lib/achievements";
@@ -66,31 +67,120 @@ export default function Layout() {
     };
   }, [location.pathname]);
 
-  // ── Monetag multi-tag: inject ONCE on first public page load ──
-  // The tag serves popunder/interstitial/in-page push formats globally.
-  // It must NOT be removed and re-injected on SPA route changes —
-  // removing it resets the tag's internal state and prevents ads from
-  // ever initializing. Admin pages don't use Layout at all (separate
-  // AdminLayout), so the admin guard is belt-and-suspenders.
+  // ── Site-wide ad format tags: injected ONCE on first public page load ──
+  // Only non-intrusive, in-page-safe formats are injected here: AdSense
+  // page-level ads and Adsterra site-wide scripts (when their zone keys
+  // are configured in Admin → Ads). Monetag site-wide tags are NOT
+  // injected (they hijack the top-level page — see the note below).
+  // Admin pages don't use Layout at all (separate AdminLayout), so the
+  // admin guard is belt-and-suspenders.
   useEffect(() => {
     if (window.location.pathname.startsWith("/admin")) return;
-    // Inject once per page session — never remove
-    if (document.querySelector('script[data-monetag-tag="true"]')) return;
 
-    const s = document.createElement("script");
-    s.src = "https://quge5.com/88/tag.min.js";
-    s.setAttribute("data-zone", "275352");
-    s.setAttribute("data-domain", "quge5.com");
-    s.setAttribute("data-monetag-tag", "true");
-    s.async = true;
-    s.setAttribute("data-cfasync", "false");
-    document.head.appendChild(s);
-    // No cleanup — the tag persists for the entire page session
+    let cancelled = false;
+    (async () => {
+
+      let adsterraSiteWide: Array<{ format: string; src: string }> = [];
+      let adsensePubId: string | null = null;
+      try {
+        const [{ fetchAdConfig }] = await Promise.all([
+          import("@/lib/ad-config"),
+        ]);
+        const { providers } = await fetchAdConfig();
+        // ── Additional format tags (additive; dormant until configured) ──
+        const formats = await import("@/lib/ad-network-formats");
+        // NOTE: Monetag site-wide display/auto zones (Popunder / Vignette /
+        // Interstitial) are intentionally NOT injected. The website zone
+        // tag hijacked the top-level page (observed redirecting visitors
+        // off the site seconds after load), which breaks every other ad
+        // format and the site itself. Monetag still monetizes through the
+        // user-initiated REWARDED flow (monetag-rewarded.ts) and through
+        // per-placement SDK zones (AdSlot renders a container when an
+        // admin maps a Monetag zone ID to a placement).
+        // AdSense page-level ads (Auto / Anchor / Vignette / Interstitial):
+        // the script + page-level push runs only when the publisher toggled
+        // at least one page-level format on here. The exact format mix is
+        // fine-tuned in the AdSense dashboard (Auto ads settings).
+        const adsense = providers.find(
+          (p) => p.slug === "google_adsense" && p.is_active,
+        );
+        if (adsense && formats.displayAdsEnabled(adsense)) {
+          const as = (adsense.settings ?? {}) as Record<string, unknown>;
+          const ac = (adsense.credentials ?? {}) as Record<string, unknown>;
+          const pubId =
+            typeof ac.publisher_id === "string" ? ac.publisher_id.trim() : "";
+          const pageLevelWanted =
+            as.auto_ads === true ||
+            as.anchor_ads === true ||
+            as.vignette_ads === true ||
+            as.interstitial_ads === true;
+          if (pubId && pageLevelWanted) adsensePubId = pubId;
+        }
+
+        // Adsterra Interstitial / Popunder / Social Bar site-wide scripts
+        const adsterra = providers.find(
+          (p) => p.slug === "adsterra" && p.is_active,
+        );
+        if (adsterra) {
+          const { getAdsterraServeDomain } =
+            await import("@/components/ui/AdSlot");
+          adsterraSiteWide = formats.getAdsterraSiteWideScripts(
+            adsterra,
+            getAdsterraServeDomain(adsterra),
+          );
+        }
+      } catch {
+        // Ad config unavailable — do not inject anything.
+        return;
+      }
+      if (cancelled) return;
+
+      // AdSense page-level ads — inject once, never remove
+      if (
+        adsensePubId &&
+        !cancelled &&
+        !document.querySelector('script[data-adsense-page-level="true"]')
+      ) {
+        const s = document.createElement("script");
+        s.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adsensePubId)}`;
+        s.async = true;
+        s.crossOrigin = "anonymous";
+        s.setAttribute("data-adsense-page-level", "true");
+        document.head.appendChild(s);
+        window.adsbygoogle = window.adsbygoogle || [];
+        window.adsbygoogle.push({
+          google_ad_client: adsensePubId,
+          enable_page_level_ads: true,
+        });
+      }
+
+      // Adsterra site-wide scripts (Interstitial / Popunder / Social Bar)
+      for (const a of adsterraSiteWide) {
+        if (cancelled) return;
+        if (
+          document.querySelector(`script[data-adsterra-format="${a.format}"]`)
+        )
+          continue;
+        const s = document.createElement("script");
+        s.src = a.src;
+        s.setAttribute("data-adsterra-format", a.format);
+        s.async = true;
+        s.setAttribute("data-cfasync", "false");
+        document.head.appendChild(s);
+      }
+      // No cleanup — tags persist for the entire page session
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // ── Maintenance mode check: deferred to idle callback to avoid blocking initial render ──
   useEffect(() => {
-    let channel: ReturnType<Awaited<ReturnType<typeof getSupabase>>["channel"]> | null = null;
+    let channel: ReturnType<
+      Awaited<ReturnType<typeof getSupabase>>["channel"]
+    > | null = null;
     let pollTimer: ReturnType<typeof setInterval> | null = null;
 
     // Defer to idle callback so it doesn't compete with initial paint/hydration
@@ -164,7 +254,9 @@ export default function Layout() {
 
     return () => {
       if (channel) {
-        getSupabase().then((sb) => sb.removeChannel(channel as Parameters<typeof sb.removeChannel>[0]));
+        getSupabase().then((sb) =>
+          sb.removeChannel(channel as Parameters<typeof sb.removeChannel>[0]),
+        );
       }
       if (pollTimer) clearInterval(pollTimer);
     };
@@ -228,6 +320,9 @@ export default function Layout() {
       >
         <Outlet />
       </main>
+      {/* Global footer ad slot — placement "global_footer", toggled in
+          Admin → Ads → Placements like every other slot. */}
+      <AdSlot slotKey="global_footer" />
       <Footer />
       <Suspense fallback={null}>
         <OfflineIndicator />

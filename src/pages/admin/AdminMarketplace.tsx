@@ -15,6 +15,7 @@ import {
   MessageSquare,
   Store,
   BadgeCheck,
+  Crown,
 } from "lucide-react";
 import {
   adminFetchAllListings,
@@ -244,7 +245,8 @@ function ListingsTab() {
               </span>
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={() => handleFeature(l.id, !l.is_featured)}
                 className={classNames(
@@ -273,7 +275,9 @@ function ListingsTab() {
           </div>
         ))}
       </div>
-      <p className="mt-3 text-xs text-muted-foreground">{total} total listings</p>
+      <p className="mt-3 text-xs text-muted-foreground">
+        {total} total listings
+      </p>
     </div>
   );
 }
@@ -595,7 +599,9 @@ function DisputesTab() {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <ShieldAlert className="h-10 w-10 text-muted-foreground/80 dark:text-muted-foreground" />
-        <p className="mt-2 text-sm text-muted-foreground">No disputes reported.</p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          No disputes reported.
+        </p>
       </div>
     );
   }
@@ -723,7 +729,9 @@ function ReportsTab() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{reports.length} reports</p>
+        <p className="text-sm text-muted-foreground">
+          {reports.length} reports
+        </p>
         <AdminSelect
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
@@ -859,7 +867,9 @@ function ReviewsTab() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{reviews.length} reviews</p>
+        <p className="text-sm text-muted-foreground">
+          {reviews.length} reviews
+        </p>
         <AdminSelect
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
@@ -1063,7 +1073,9 @@ function SellersTab() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">{sellers.length} sellers</p>
+        <p className="text-sm text-muted-foreground">
+          {sellers.length} sellers
+        </p>
         <AdminSelect
           value={verificationFilter}
           onChange={(e) => setVerificationFilter(e.target.value)}

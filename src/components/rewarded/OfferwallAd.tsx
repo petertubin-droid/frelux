@@ -111,7 +111,8 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
           </div>
         </div>
         {onBack && (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={onBack}
             className="flex items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:text-card-foreground dark:hover:bg-white/10 dark:hover:text-primary-foreground"
@@ -149,7 +150,8 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
                 This might be a temporary issue. Please try again.
               </p>
             </div>
-            <Button variant="default"
+            <Button
+              variant="default"
               type="button"
               onClick={handleRetry}
               className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-colors hover:/90"
@@ -162,7 +164,7 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
           /* The actual Offerwall iframe */
           <iframe
             ref={iframeRef}
-            src={offerwallUrl}
+            src={offerwallUrl ?? undefined}
             title="Frelux Offerwall — Earn Credits"
             className="block w-full border-0"
             style={{

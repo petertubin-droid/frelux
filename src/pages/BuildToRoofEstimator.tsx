@@ -1009,6 +1009,9 @@ export default function BuildToRoofEstimator() {
                       <p className="mt-2 text-xs text-muted-foreground">
                         Current ratio: {input.concrete_mix_cement}:
                         {input.concrete_mix_sand}:{input.concrete_mix_granite}
+                        {" "}(assumed budgeting mix — not a structural
+                        specification. Use the mix specified by your engineer's
+                        design).
                       </p>
                     </SectionCard>
                     <SectionCard title="Mortar Mix Ratio" icon={Settings}>
@@ -1030,7 +1033,9 @@ export default function BuildToRoofEstimator() {
                       </div>
                       <p className="mt-2 text-xs text-muted-foreground">
                         Current ratio: {input.mortar_mix_cement}:
-                        {input.mortar_mix_sand}
+                        {input.mortar_mix_sand} (assumed budgeting mix —
+                        adjust to your site practice or engineer's
+                        specification).
                       </p>
                     </SectionCard>
                     <SectionCard title="Wastage Allowances" icon={TrendingUp}>

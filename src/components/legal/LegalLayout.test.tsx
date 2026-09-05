@@ -7,10 +7,16 @@ vi.mock("react-router-dom", () => ({
   ),
 }));
 
-const mockUseLegalPage = vi.fn(() => ({ page: null, loading: false }));
+type MockLegalPage = { title: string; content: string } | null;
+const mockUseLegalPage = vi.fn(
+  (_slug?: string): { page: MockLegalPage; loading: boolean } => ({
+    page: null,
+    loading: false,
+  }),
+);
 
 vi.mock("@/lib/useLegalPage", () => ({
-  useLegalPage: (slug: string) => mockUseLegalPage(slug),
+  useLegalPage: (slug?: string) => mockUseLegalPage(slug),
 }));
 
 import LegalLayout from "@/components/legal/LegalLayout";
