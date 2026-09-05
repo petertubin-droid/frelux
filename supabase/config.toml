@@ -12,3 +12,6 @@ verify_jwt = true
 
 [functions.ai-building-estimation]
 verify_jwt = false
+
+[functions.ai-construction-extraction]
+verify_jwt = false
