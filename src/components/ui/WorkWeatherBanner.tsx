@@ -14,9 +14,10 @@ import {
   CloudDrizzle,
   CloudLightning,
   CloudFog,
-
 } from "lucide-react";
 import { useState } from "react";
+import { useWeatherLocation } from "@/lib/weather-locations";
+import { WeatherLocationSelect } from "@/components/ui/WeatherLocationSelect";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 
@@ -46,8 +47,11 @@ function conditionIcon(condition: string, className?: string) {
 }
 
 export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
-  const { today, days, city, loading, canWorkToday, workRating } =
-    useWorkWeather(workType);
+  const { location } = useWeatherLocation();
+  const { today, days, loading, canWorkToday, workRating } = useWorkWeather(
+    workType,
+    location,
+  );
   const [expanded, setExpanded] = useState(false);
 
   if (loading) {
@@ -108,7 +112,10 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
       <div className="flex items-center gap-3 p-4">
         {/* Weather condition icon badge */}
         <div className="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-white/80 shadow-sm dark:bg-white/10">
-          {conditionIcon(today.condition, "h-6 w-6 text-foreground dark:text-primary-foreground")}
+          {conditionIcon(
+            today.condition,
+            "h-6 w-6 text-foreground dark:text-primary-foreground",
+          )}
         </div>
 
         {/* Rating + condition */}
@@ -121,39 +128,72 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
                 : `${config.label} — postpone ${WORK_LABELS[workType].toLowerCase()}`}
             </span>
           </div>
-          <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
-            {city} · {today.dayName} {today.condition}
+          <p className="mt-0.5 flex min-w-0 items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground">
+            <WeatherLocationSelect /> ·{" "}
+            <span className="shrink-0">
+              {today.dayName} {today.condition}
+            </span>
           </p>
         </div>
 
         {/* Metrics badges */}
         <div className="hidden sm:flex items-center gap-1.5">
-          <MetricChip icon={<Thermometer className="h-3.5 w-3.5" />} value={`${Math.round(today.tempMax)}°`} />
-          <MetricChip icon={<Droplets className="h-3.5 w-3.5" />} value={`${today.humidity}%`} />
+          <MetricChip
+            icon={<Thermometer className="h-3.5 w-3.5" />}
+            value={`${Math.round(today.tempMax)}°`}
+          />
+          <MetricChip
+            icon={<Droplets className="h-3.5 w-3.5" />}
+            value={`${today.humidity}%`}
+          />
           {today.precipitation > 0 && (
-            <MetricChip icon={<CloudRain className="h-3.5 w-3.5" />} value={`${today.precipitation}mm`} />
+            <MetricChip
+              icon={<CloudRain className="h-3.5 w-3.5" />}
+              value={`${today.precipitation}mm`}
+            />
           )}
-          <MetricChip icon={<Wind className="h-3.5 w-3.5" />} value={`${today.windSpeed}m/s`} />
+          <MetricChip
+            icon={<Wind className="h-3.5 w-3.5" />}
+            value={`${today.windSpeed}m/s`}
+          />
         </div>
 
         {/* Expand toggle */}
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => setExpanded(!expanded)}
           className="flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-white/50 hover:text-card-foreground dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-muted-foreground/60"
         >
           {goodDays}/5
-          <ChevronDown className={classNames("h-3 w-3 transition-transform", expanded && "rotate-180")} />
+          <ChevronDown
+            className={classNames(
+              "h-3 w-3 transition-transform",
+              expanded && "rotate-180",
+            )}
+          />
         </Button>
       </div>
 
       {/* Mobile metrics */}
       <div className="flex items-center gap-2 px-4 pb-3 sm:hidden">
-        <MetricChip icon={<Thermometer className="h-3.5 w-3.5" />} value={`${Math.round(today.tempMax)}°`} />
-        <MetricChip icon={<Droplets className="h-3.5 w-3.5" />} value={`${today.humidity}%`} />
+        <MetricChip
+          icon={<Thermometer className="h-3.5 w-3.5" />}
+          value={`${Math.round(today.tempMax)}°`}
+        />
+        <MetricChip
+          icon={<Droplets className="h-3.5 w-3.5" />}
+          value={`${today.humidity}%`}
+        />
         {today.precipitation > 0 && (
-          <MetricChip icon={<CloudRain className="h-3.5 w-3.5" />} value={`${today.precipitation}mm`} />
+          <MetricChip
+            icon={<CloudRain className="h-3.5 w-3.5" />}
+            value={`${today.precipitation}mm`}
+          />
         )}
-        <MetricChip icon={<Wind className="h-3.5 w-3.5" />} value={`${today.windSpeed}m/s`} />
+        <MetricChip
+          icon={<Wind className="h-3.5 w-3.5" />}
+          value={`${today.windSpeed}m/s`}
+        />
       </div>
 
       {/* Expandable 5-day forecast */}
@@ -171,7 +211,10 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
                     {day.dayName}
                   </p>
                   <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted dark:bg-white/5">
-                    {conditionIcon(day.condition, "h-4 w-4 text-foreground dark:text-muted-foreground/60")}
+                    {conditionIcon(
+                      day.condition,
+                      "h-4 w-4 text-foreground dark:text-muted-foreground/60",
+                    )}
                   </div>
                   <r.Icon className={classNames("h-3.5 w-3.5", r.color)} />
                   <p className="text-[10px] font-medium text-muted-foreground dark:text-muted-foreground">

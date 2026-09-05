@@ -6,6 +6,11 @@
 
 import { useState, useEffect } from "react";
 import type { WeatherDay } from "./weather";
+import { generateEstimatedWeather } from "./weather";
+import {
+  DEFAULT_WEATHER_LOCATION,
+  type WeatherLocation,
+} from "./weather-locations";
 
 export type WorkType =
   "painting" | "screeding" | "tiling" | "tyrolene" | "finishing" | "general";
@@ -118,12 +123,15 @@ function getWorkNote(
  * Reuses the existing weather data fetch (painting weather) and re-rates
  * it for the specific work type.
  */
-export function useWorkWeather(workType: WorkType): WorkWeatherData {
+export function useWorkWeather(
+  workType: WorkType,
+  location: WeatherLocation = DEFAULT_WEATHER_LOCATION,
+): WorkWeatherData {
   // We import lazily to avoid circular deps
   const [data, setData] = useState<WorkWeatherData>({
     today: null,
     days: [],
-    city: "Lagos",
+    city: location.name,
     loading: true,
     canWorkToday: false,
     workRating: "fair",
@@ -142,21 +150,21 @@ export function useWorkWeather(workType: WorkType): WorkWeatherData {
         // Instead, replicate the fetch logic minimally.
         const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
         let days: WeatherDay[] = [];
-        let city = "Lagos";
+        let city = location.name;
 
         if (!apiKey) {
           // Fallback: estimated data — replicate the function's behavior
           // by importing the generator
-          days = generateEstimatedDays();
+          days = generateEstimatedWeather(location);
         } else {
-          const url = `https://api.openweathermap.org/data/2.5/forecast?lat=6.5244&lon=3.3792&appid=${apiKey}&units=metric`;
+          const url = `https://api.openweathermap.org/data/2.5/forecast?lat=${location.lat}&lon=${location.lon}&appid=${apiKey}&units=metric`;
           const res = await fetch(url);
           if (res.ok) {
             const json = await res.json();
-            city = json.city?.name ?? "Lagos";
+            city = json.city?.name ?? location.name;
             days = parseForecast(json);
           } else {
-            days = generateEstimatedDays();
+            days = generateEstimatedWeather(location);
           }
         }
 
@@ -194,7 +202,7 @@ export function useWorkWeather(workType: WorkType): WorkWeatherData {
         });
       } catch {
         if (cancelled) return;
-        const days = generateEstimatedDays();
+        const days = generateEstimatedWeather(location);
         const today = days[0];
         const rating = rateWorkConditions(
           workType,
@@ -205,7 +213,7 @@ export function useWorkWeather(workType: WorkType): WorkWeatherData {
         setData({
           today,
           days,
-          city: "Lagos",
+          city: location.name,
           loading: false,
           canWorkToday: rating !== "poor",
           workRating: rating,
@@ -223,12 +231,13 @@ export function useWorkWeather(workType: WorkType): WorkWeatherData {
     return () => {
       cancelled = true;
     };
-  }, [workType]);
+  }, [workType, location.id, location.lat, location.lon, location.name]);
 
   return data;
 }
 
 // --- Helpers (mirrored from weather.ts to avoid circular dependency) ---
+// (estimated-day generation now lives in weather.ts, location-aware)
 
 function ratePaintingConditions(
   humidity: number,
@@ -253,58 +262,6 @@ function mapWeatherIcon(condition: string): string {
     Haze: "🌫️",
   };
   return map[condition] ?? "🌤️";
-}
-
-function generateEstimatedDays(): WeatherDay[] {
-  const month = new Date().getMonth();
-  const isWetSeason = month >= 3 && month <= 9;
-  const days: WeatherDay[] = [];
-
-  for (let i = 0; i < 5; i++) {
-    const date = new Date();
-    date.setDate(date.getDate() + i);
-    const dateStr = date.toISOString().split("T")[0];
-    const humidity = isWetSeason
-      ? 75 + Math.floor(Math.random() * 15)
-      : 55 + Math.floor(Math.random() * 15);
-    const precip = isWetSeason
-      ? Math.random() > 0.4
-        ? Math.round(Math.random() * 15 * 10) / 10
-        : 0
-      : Math.random() > 0.8
-        ? Math.round(Math.random() * 3 * 10) / 10
-        : 0;
-    const wind = isWetSeason
-      ? 3 + Math.floor(Math.random() * 4)
-      : 2 + Math.floor(Math.random() * 3);
-    const condition =
-      precip > 5
-        ? "Rain"
-        : precip > 0
-          ? "Drizzle"
-          : humidity > 70
-            ? "Clouds"
-            : "Clear";
-
-    days.push({
-      date: dateStr,
-      dayName: date.toLocaleDateString("en-US", { weekday: "short" }),
-      tempMin: isWetSeason
-        ? 23 + Math.floor(Math.random() * 3)
-        : 25 + Math.floor(Math.random() * 3),
-      tempMax: isWetSeason
-        ? 29 + Math.floor(Math.random() * 3)
-        : 32 + Math.floor(Math.random() * 3),
-      humidity,
-      precipitation: precip,
-      windSpeed: wind,
-      condition,
-      icon: mapWeatherIcon(condition),
-      paintRating: ratePaintingConditions(humidity, precip, wind),
-      paintNote: "",
-    });
-  }
-  return days;
 }
 
 interface ForecastEntry {

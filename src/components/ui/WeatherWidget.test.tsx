@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 vi.mock("@/lib/weather", () => ({
@@ -47,7 +47,10 @@ describe("WeatherWidget", () => {
   it("shows loading state", async () => {
     const { usePaintingWeather } = await import("@/lib/weather");
     vi.mocked(usePaintingWeather).mockReturnValue({
-      city: "Lagos", days: [], loading: true, error: null,
+      city: "Lagos",
+      days: [],
+      loading: true,
+      error: null,
     } as never);
     await renderWidget();
     expect(screen.getByText(/Loading weather/i)).toBeTruthy();
@@ -56,7 +59,10 @@ describe("WeatherWidget", () => {
   it("returns null on error", async () => {
     const { usePaintingWeather } = await import("@/lib/weather");
     vi.mocked(usePaintingWeather).mockReturnValue({
-      city: "Lagos", days: [], loading: false, error: "Failed to fetch",
+      city: "Lagos",
+      days: [],
+      loading: false,
+      error: "Failed to fetch",
     } as never);
     const { container } = await renderWidget();
     expect(container.innerHTML).toBe("");
@@ -65,10 +71,58 @@ describe("WeatherWidget", () => {
   it("renders weather data when available", async () => {
     const { usePaintingWeather } = await import("@/lib/weather");
     vi.mocked(usePaintingWeather).mockReturnValue({
-      city: "Lagos", days: [mockDay], loading: false, error: null,
+      city: "Lagos",
+      days: [mockDay],
+      loading: false,
+      error: null,
     } as never);
     const { container } = await renderWidget();
     expect(container.innerHTML).not.toBe("");
     expect(screen.getByText(/forecast/i)).toBeTruthy();
+  });
+});
+
+describe("WeatherWidget location selector", () => {
+  beforeEach(() => {
+    localStorage.clear();
+    vi.clearAllMocks();
+  });
+
+  it("renders a state selector with Lagos preselected", async () => {
+    const { usePaintingWeather } = await import("@/lib/weather");
+    vi.mocked(usePaintingWeather).mockReturnValue({
+      city: "Lagos",
+      days: [mockDay],
+      loading: false,
+      error: null,
+    } as never);
+    await renderWidget();
+    const select = screen.getByLabelText(
+      /select your state/i,
+    ) as HTMLSelectElement;
+    expect(select).toBeTruthy();
+    expect(select.value).toBe("lagos");
+    // All Nigerian states are available
+    const options = Array.from(select.options).map((o) => o.value);
+    expect(options).toContain("kano");
+    expect(options).toContain("rivers");
+    expect(options).toContain("fct");
+  });
+
+  it("persists the user's state choice", async () => {
+    const { usePaintingWeather } = await import("@/lib/weather");
+    vi.mocked(usePaintingWeather).mockReturnValue({
+      city: "Kano",
+      days: [mockDay],
+      loading: false,
+      error: null,
+    } as never);
+    await renderWidget();
+    const select = screen.getByLabelText(
+      /select your state/i,
+    ) as HTMLSelectElement;
+    fireEvent.change(select, { target: { value: "kano" } });
+    expect(localStorage.getItem("frelux_weather_location")).toBe("kano");
+    expect(select.value).toBe("kano");
   });
 });
