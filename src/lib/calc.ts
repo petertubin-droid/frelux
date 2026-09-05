@@ -794,7 +794,7 @@ export function calculateScreedingMixSystem(
         unit: config.extraUnit ?? "bucket",
         baseQuantity: baseExtra,
         wastePercentage: wastePct,
-        pricePerUnit: config.extraPricePerUnit,
+        pricePerUnit: config.extraPricePerUnit ?? null,
         roundingRule: config.roundingRule,
       })
     : null;
@@ -904,9 +904,7 @@ export function dbToSystemConfig(db: {
     extraQuantity: db.extra_quantity != null ? Number(db.extra_quantity) : null,
     extraUnit: db.extra_unit,
     extraPricePerUnit:
-      db.extra_price_per_unit != null
-        ? Number(db.extra_price_per_unit)
-        : null,
+      db.extra_price_per_unit != null ? Number(db.extra_price_per_unit) : null,
     roundingRule: db.rounding_rule,
   };
 }

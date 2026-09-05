@@ -423,9 +423,12 @@ export default function AdminLearn() {
         );
         return;
       }
+      // Capture the narrowed draft into consts — TS cannot carry the
+      // guard above into the closure below because `draft` is a mutable let.
+      const draftBody: string = draft.body;
+      const draftTitle: string | undefined = draft.title;
       setEditingInsert((prev) => {
-        const base =
-          prev ?? { articleId, insert: null };
+        const base = prev ?? { articleId, insert: null };
         const current =
           base.insert ??
           ({
@@ -446,8 +449,8 @@ export default function AdminLearn() {
           insert: {
             ...current,
             insert_type: insertType as DbLearnArticleInsert["insert_type"],
-            title: draft?.title?.trim() || current.title || "Untitled",
-            body: draft.body.trim(),
+            title: draftTitle?.trim() || current.title || "Untitled",
+            body: draftBody.trim(),
           },
         };
       });
@@ -686,7 +689,8 @@ export default function AdminLearn() {
               const isExpanded = expandedArticles.has(article.id);
               return (
                 <div key={article.id} className="card overflow-hidden">
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => toggleArticleExpanded(article.id)}
                     className="flex w-full items-center gap-3 p-3 text-left"
                   >
@@ -869,16 +873,16 @@ export default function AdminLearn() {
         <div className="space-y-2">
           <p className="mb-3 text-xs text-muted-foreground">
             Insert cards render inline in the article body — top (below the
-            cover image), after a specific heading, or bottom (above FAQs).
-            Use AI Draft to generate a starting point, then edit before
-            saving.
+            cover image), after a specific heading, or bottom (above FAQs). Use
+            AI Draft to generate a starting point, then edit before saving.
           </p>
           {articles.map((article) => {
             const articleInserts = inserts[article.id] ?? [];
             const isExpanded = expandedArticles.has(article.id);
             return (
               <div key={article.id} className="card overflow-hidden">
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => toggleArticleExpanded(article.id)}
                   className="flex w-full items-center gap-3 p-3 text-left"
                 >
@@ -1060,9 +1064,7 @@ function InsertEditor({
   const [positionType, setPositionType] = useState<
     DbLearnArticleInsert["position_type"]
   >(draft?.position_type ?? "top");
-  const [headingId, setHeadingId] = useState(
-    draft?.position_heading_id ?? "",
-  );
+  const [headingId, setHeadingId] = useState(draft?.position_heading_id ?? "");
 
   const isList = ["summary", "key_takeaways", "what_to_watch"].includes(
     insertType,
@@ -1180,8 +1182,8 @@ function InsertEditor({
         </AdminButton>
       </div>
       <p className="text-[10px] text-muted-foreground">
-        AI Draft is optional assistance — review and edit the generated
-        text before saving. Nothing is stored until you press Save Insert.
+        AI Draft is optional assistance — review and edit the generated text
+        before saving. Nothing is stored until you press Save Insert.
       </p>
     </div>
   );
