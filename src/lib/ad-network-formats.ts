@@ -237,6 +237,16 @@ export function getAdsterraNativeBannerKey(
  * pasted snippet tells us which one the zone actually is — rendering a
  * native.js tag for an invoke.js zone (or vice versa) silently no-fills.
  */
+/** Whether the Adsterra Native Banner renders site-wide (Layout injects
+ * the container + tag on every public page; admin pages never see it).
+ * When true, native placements resolve "none" in AdSlot so the unit
+ * never renders twice on a page. */
+export function getAdsterraNativeBannerSitewide(
+  provider: DbAdProvider,
+): boolean {
+  return (provider.settings ?? {}).native_banner_sitewide === true;
+}
+
 export function getAdsterraNativeBannerScript(
   provider: DbAdProvider,
 ): "native" | "invoke" {

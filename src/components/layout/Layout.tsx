@@ -46,6 +46,12 @@ export default function Layout() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
+  // Adsterra Native Banner rendered site-wide (one container + tag on
+  // every public page; admin pages never mount Layout).
+  const [adsterraNative, setAdsterraNative] = useState<{
+    key: string;
+    src: string;
+  } | null>(null);
   const location = useLocation();
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette();
 
@@ -128,10 +134,30 @@ export default function Layout() {
         if (adsterra) {
           const { getAdsterraServeDomain } =
             await import("@/components/ui/AdSlot");
+          const adsterraServeDomain = getAdsterraServeDomain(adsterra);
           adsterraSiteWide = formats.getAdsterraSiteWideScripts(
             adsterra,
-            getAdsterraServeDomain(adsterra),
+            adsterraServeDomain,
           );
+          // Site-wide Native Banner: the admin's Native Banner zone
+          // (native_banner_key credential) renders ONE unit on every
+          // public page via the container div in the JSX below.
+          if (
+            formats.displayAdsEnabled(adsterra) &&
+            formats.getAdsterraNativeBannerSitewide(adsterra)
+          ) {
+            const nativeKey = formats.getAdsterraNativeBannerKey(adsterra);
+            if (nativeKey && !cancelled) {
+              const scriptFile =
+                formats.getAdsterraNativeBannerScript(adsterra) === "invoke"
+                  ? "invoke.js"
+                  : "native.js";
+              setAdsterraNative({
+                key: nativeKey,
+                src: `https://${adsterraServeDomain}/${nativeKey}/${scriptFile}`,
+              });
+            }
+          }
         }
 
         // Monetag admin-configured auto zones (Vignette / Interstitial /
@@ -244,6 +270,30 @@ export default function Layout() {
       }
       // No cleanup — tags persist for the entire page session
     })();
+
+    // Adsterra Native Banner (site-wide): load the zone tag after the
+    // container div is committed. The tag renders the native unit into
+    // the `container-<key>` div rendered above the footer.
+    useEffect(() => {
+      if (!adsterraNative) return;
+      const { key, src } = adsterraNative;
+      const container = document.getElementById(`container-${key}`);
+      if (!container) return;
+      if (
+        document.querySelector('script[data-adsterra-native-sitewide="true"]')
+      )
+        return;
+      const s = document.createElement("script");
+      s.src = src;
+      s.async = true;
+      s.setAttribute("data-cfasync", "false");
+      s.setAttribute("data-adsterra-native", "true");
+      s.setAttribute("data-adsterra-native-sitewide", "true");
+      s.setAttribute("data-ad-zone", key);
+      instrumentScript("adsterra", s, `native-sitewide:${key}`);
+      document.head.appendChild(s);
+      adDebug("adsterra", "native-sitewide:injected", { src });
+    }, [adsterraNative]);
 
     return () => {
       cancelled = true;
@@ -397,6 +447,14 @@ export default function Layout() {
       {/* Global footer ad slot — placement "global_footer", toggled in
           Admin → Ads → Placements like every other slot. */}
       <AdSlot slotKey="global_footer" />
+      {adsterraNative && (
+        <div
+          id={`container-${adsterraNative.key}`}
+          data-adsterra-native-sitewide="container"
+          className="mx-auto w-full max-w-5xl px-4 py-2"
+          aria-label="Advertisement"
+        />
+      )}
       <Footer />
       <Suspense fallback={null}>
         <OfflineIndicator />

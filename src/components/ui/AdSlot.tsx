@@ -14,6 +14,7 @@ import {
 import {
   getAdsterraNativeBannerKey,
   getAdsterraNativeBannerScript,
+  getAdsterraNativeBannerSitewide,
 } from "@/lib/ad-network-formats";
 import { adDebug, instrumentScript } from "@/lib/ad-diagnostics";
 import { getSupabase } from "@/lib/supabase-lazy";
@@ -444,8 +445,29 @@ export default function AdSlot({
           let resolvedUnitId = "";
           if (provider.slug === "adsterra") {
             const nativeKey = getAdsterraNativeBannerKey(provider);
-            if (nativeKey && placement.placement_type === "native") {
+            if (
+              nativeKey &&
+              placement.placement_type === "native" &&
+              // Site-wide native mode: Layout injects the single
+              // site-wide container, so in-slot native placements
+              // resolve nothing (prevents a double render).
+              !getAdsterraNativeBannerSitewide(provider)
+            ) {
               resolvedUnitId = nativeKey;
+            }
+            // No native resolution and no banner zone key: this
+            // provider has nothing to show in this slot. Skip it
+            // (fall through to the next provider in the chain)
+            // instead of resolving an empty labeled box.
+            if (!resolvedUnitId) {
+              const creds = (provider.credentials ?? {}) as Record<
+                string,
+                unknown
+              >;
+              const bannerKey = extractAdsterraZoneKey(
+                typeof creds.key === "string" ? creds.key : "",
+              );
+              if (!bannerKey) continue;
             }
           }
           setResolved({ provider, adUnitId: resolvedUnitId, placement });
