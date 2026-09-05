@@ -12,6 +12,7 @@ import {
   getMonetagNativeZone,
 } from "@/lib/monetag-rewarded";
 import {
+  ADSTERRA_SERVE_HOSTS,
   getAdsterraNativeBannerKey,
   getAdsterraNativeBannerScript,
   getAdsterraNativeBannerSitewide,
@@ -90,6 +91,31 @@ export function getAdsterraServeDomain(provider: DbAdProvider): string {
 }
 
 /**
+ * Serve host for the BANNER zone specifically. Adsterra emits different
+ * serve domains per zone snippet (e.g. the banner zone on
+ * www.highrevenueformat.com while the native zone lives on
+ * plNNNN.profitableratecpmnetwork.com). When the admin pasted a full
+ * banner snippet into the key credential, honor that snippet's host;
+ * otherwise fall back to the global serve_domain credential. The host
+ * must be in ADSTERRA_SERVE_HOSTS — a pasted value can never smuggle an
+ * arbitrary origin into the page.
+ */
+export function getAdsterraBannerServeDomain(provider: DbAdProvider): string {
+  const creds = (provider.credentials ?? {}) as Record<string, unknown>;
+  const raw = typeof creds.key === "string" ? creds.key : "";
+  const m = raw.match(/https:\/\/([a-z0-9.-]+\.[a-z]{2,})\//i);
+  if (m) {
+    const host = m[1].toLowerCase();
+    const suffix = (candidate: string) =>
+      ADSTERRA_SERVE_HOSTS.some(
+        (allowed) => candidate === allowed || candidate.endsWith("." + allowed),
+      );
+    if (suffix(host)) return host;
+  }
+  return getAdsterraServeDomain(provider);
+}
+
+/**
  * Normalize an Adsterra per-placement ad unit value. Admins sometimes paste
  * the full snippet from the Adsterra dashboard (<script …invoke.js>… plus a
  * container div) instead of the bare 32-hex zone key. Extract the key so
@@ -117,6 +143,17 @@ export function resolveAdsterraSize(
   const raw = typeof custom[slotKey] === "string" ? custom[slotKey] : "";
   const m = raw.match(/^(\d{2,4})\s*[x×]\s*(\d{2,4})$/);
   if (m) return { width: Number(m[1]), height: Number(m[2]) };
+
+  // Admin pasted a full banner snippet into the key credential? Use the
+  // zone's real dimensions (e.g. 468x60) as the default for banner slots.
+  // A zone requested at the wrong size never fills, so the snippet beats
+  // the generic family defaults below. Per-slot banner_sizes overrides
+  // still win when set.
+  const creds = (provider.credentials ?? {}) as Record<string, unknown>;
+  const keyRaw = typeof creds.key === "string" ? creds.key : "";
+  const h = keyRaw.match(/['"]height['"]\s*:\s*(\d{2,4})/i);
+  const w = keyRaw.match(/['"]width['"]\s*:\s*(\d{2,4})/i);
+  if (h && w) return { width: Number(w[1]), height: Number(h[1]) };
 
   const isMobile = window.innerWidth < 768;
   if (slotKey.endsWith("_sidebar")) return { width: 300, height: 250 };
@@ -160,7 +197,7 @@ export function renderAdsterraBanner(
 ): void {
   const key = opts.key;
   if (!/^[a-f0-9]{20,40}$/i.test(key)) return; // zone keys are hex tokens
-  const serveDomain = getAdsterraServeDomain(provider);
+  const serveDomain = getAdsterraBannerServeDomain(provider);
   const { width, height } = resolveAdsterraSize(provider, opts.slotKey);
   const params =
     (provider.settings ?? {}) instanceof Object &&
@@ -771,7 +808,9 @@ export default function AdSlot({
     if (provider.slug !== "adsterra") return;
     if (!isDisplayAdsEnabled(provider)) return;
     const creds = provider.credentials ?? {};
-    const key = adUnitId || (typeof creds.key === "string" ? creds.key : "");
+    const key =
+      extractAdsterraZoneKey(adUnitId) ||
+      extractAdsterraZoneKey(typeof creds.key === "string" ? creds.key : "");
     if (!key) return;
     // Density policy: cap the number of Adsterra banners per page
     if (!adsterraSlotAvailable()) return;

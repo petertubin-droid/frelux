@@ -780,9 +780,8 @@ export default function TileCalculator({
                 Waste / safety margin
               </span>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Buys extra tiles for cuts, breakage, and future repairs —
-                the quantity is multiplied by a factor (10% = ×1.10, 15% =
-                ×1.15).
+                Buys extra tiles for cuts, breakage, and future repairs — the
+                quantity is multiplied by a factor (10% = ×1.10, 15% = ×1.15).
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[0, 5, 10, 15, 20].map((w) => (
@@ -939,6 +938,9 @@ export default function TileCalculator({
       {/* Native banner slot — placement "calculator_native" */}
       <AdSlot slotKey="calculator_native" className="mt-8" />
       <AdSlot slotKey="calculator_bottom" className="mt-8" />
+      {/* Monetag In-Page Push — placement "calculator_push"
+          (zone ID editable in Admin → Ads → Placements) */}
+      <AdSlot slotKey="calculator_push" className="mt-8" />
     </>
   );
 }
