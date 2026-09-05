@@ -25,6 +25,7 @@ export function displayAdsEnabled(provider: DbAdProvider): boolean {
 /** Hostnames Adsterra serves ad scripts from. */
 export const ADSTERRA_SERVE_HOSTS = [
   "highperformanceformat.com",
+  "highrevenueformat.com",
   "profitabledisplaynetwork.com",
   "profitablecpmrate.com",
   "profitableratecpmnetwork.com",

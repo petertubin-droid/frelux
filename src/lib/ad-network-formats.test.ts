@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   getAdsterraNativeBannerKey,
+  normalizeAdsterraServeDomain,
   getAdsterraSiteWideScripts,
   getMonetagAutoZoneScripts,
   resolveAdsterraScriptUrl,
@@ -283,5 +284,25 @@ describe("ad-network-formats — Monetag auto zones", () => {
       credentials: { popunder_zone_id: "abc-def" },
     };
     expect(getMonetagAutoZoneScripts(monetagProvider)).toEqual([]);
+  });
+});
+
+describe("ad-network-formats — Adsterra serve domain normalization", () => {
+  it("accepts all live dashboard serve hosts", () => {
+    expect(normalizeAdsterraServeDomain("www.highrevenueformat.com")).toBe(
+      "www.highrevenueformat.com",
+    );
+    expect(
+      normalizeAdsterraServeDomain("https://www.profitableratecpmnetwork.com"),
+    ).toBe("www.profitableratecpmnetwork.com");
+    expect(
+      normalizeAdsterraServeDomain("pl31194882.profitableratecpmnetwork.com"),
+    ).toBe("pl31194882.profitableratecpmnetwork.com");
+  });
+
+  it("falls back to the default host for unknown domains", () => {
+    expect(normalizeAdsterraServeDomain("evil.example.com")).toBe(
+      "www.highperformanceformat.com",
+    );
   });
 });
