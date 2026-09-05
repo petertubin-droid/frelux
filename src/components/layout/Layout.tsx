@@ -271,34 +271,32 @@ export default function Layout() {
       // No cleanup — tags persist for the entire page session
     })();
 
-    // Adsterra Native Banner (site-wide): load the zone tag after the
-    // container div is committed. The tag renders the native unit into
-    // the `container-<key>` div rendered above the footer.
-    useEffect(() => {
-      if (!adsterraNative) return;
-      const { key, src } = adsterraNative;
-      const container = document.getElementById(`container-${key}`);
-      if (!container) return;
-      if (
-        document.querySelector('script[data-adsterra-native-sitewide="true"]')
-      )
-        return;
-      const s = document.createElement("script");
-      s.src = src;
-      s.async = true;
-      s.setAttribute("data-cfasync", "false");
-      s.setAttribute("data-adsterra-native", "true");
-      s.setAttribute("data-adsterra-native-sitewide", "true");
-      s.setAttribute("data-ad-zone", key);
-      instrumentScript("adsterra", s, `native-sitewide:${key}`);
-      document.head.appendChild(s);
-      adDebug("adsterra", "native-sitewide:injected", { src });
-    }, [adsterraNative]);
-
     return () => {
       cancelled = true;
     };
   }, []);
+
+  // Adsterra Native Banner (site-wide): load the zone tag after the
+  // container div is committed. The tag renders the native unit into
+  // the `container-<key>` div rendered above the footer.
+  useEffect(() => {
+    if (!adsterraNative) return;
+    const { key, src } = adsterraNative;
+    const container = document.getElementById(`container-${key}`);
+    if (!container) return;
+    if (document.querySelector('script[data-adsterra-native-sitewide="true"]'))
+      return;
+    const s = document.createElement("script");
+    s.src = src;
+    s.async = true;
+    s.setAttribute("data-cfasync", "false");
+    s.setAttribute("data-adsterra-native", "true");
+    s.setAttribute("data-adsterra-native-sitewide", "true");
+    s.setAttribute("data-ad-zone", key);
+    instrumentScript("adsterra", s, `native-sitewide:${key}`);
+    document.head.appendChild(s);
+    adDebug("adsterra", "native-sitewide:injected", { src });
+  }, [adsterraNative]);
 
   // ── Maintenance mode check: deferred to idle callback to avoid blocking initial render ──
   useEffect(() => {
