@@ -166,16 +166,16 @@ export default function LabourCostSection({
                   type="button"
                   onClick={() => update({ pricingMethod: method })}
                   className={classNames(
-                    "rounded-lg border p-3 text-left transition-all",
+                    "min-w-0 rounded-lg border p-3 text-left transition-all",
                     config.pricingMethod === method
                       ? "border-brand-purple bg-primary/5"
                       : "border-border hover:border-border dark:border-border border-border dark:hover:border-border",
                   )}
                 >
-                  <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
+                  <span className="block whitespace-normal break-words text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                     {PRICING_METHOD_LABELS[method]}
                   </span>
-                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                  <span className="mt-0.5 block whitespace-normal break-words text-xs text-muted-foreground">
                     {PRICING_METHOD_DESCRIPTIONS[method]}
                   </span>
                 </Button>
