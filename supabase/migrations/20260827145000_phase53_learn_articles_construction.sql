@@ -70,7 +70,7 @@ Protect adjacent areas before starting. Cover floors with plastic sheeting or ca
 
 Following a systematic process ensures consistent, professional results. In this section, we walk through the building construction process step by step, from start to finish.
 
-Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-calculator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
+Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-estimator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
 
 Step 2: Prepare the surface as described in the previous section. Ensure the surface is clean, sound, properly dampened, and primed if necessary. Set up your tools and materials within easy reach of the work area. Mix a small test batch to check consistency and setting time before mixing a full batch.
 
@@ -122,7 +122,7 @@ Labour costs vary by location and skill level. In Lagos and Abuja, skilled labou
 
 Additional costs to consider include tools and equipment (if you do not already own them), delivery charges for materials, scaffolding or ladder rental for high work, and protective coverings. Always include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter hidden damage, additional preparation needs, or material price increases.
 
-To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-calculator) for accurate material quantity calculations that form the basis of your cost estimate.
+To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-estimator) for accurate material quantity calculations that form the basis of your cost estimate.
 
 ## Maintenance and Longevity
 
@@ -152,7 +152,7 @@ Keep children and pets away from the work area. Construction materials, tools, a
 
 Complete Guide to the Building Construction Sequence requires knowledge, preparation, and attention to detail. By understanding the fundamentals, using quality materials, following a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the principles remain the same: plan carefully, prepare thoroughly, use the right materials in the correct ratios, allow adequate curing time, and never compromise on quality.
 
-For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-calculator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
+For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-estimator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
 
 Remember that construction is an investment. The small extra cost of quality materials and proper technique pays dividends for decades in durability, appearance, and low maintenance. Take your time, follow the steps in this guide, and your building construction project will be one you can be proud of for years to come.',
   'construction-guides',
@@ -236,7 +236,7 @@ Protect adjacent areas before starting. Cover floors with plastic sheeting or ca
 
 Following a systematic process ensures consistent, professional results. In this section, we walk through the building construction process step by step, from start to finish.
 
-Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-calculator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
+Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-estimator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
 
 Step 2: Prepare the surface as described in the previous section. Ensure the surface is clean, sound, properly dampened, and primed if necessary. Set up your tools and materials within easy reach of the work area. Mix a small test batch to check consistency and setting time before mixing a full batch.
 
@@ -288,7 +288,7 @@ Labour costs vary by location and skill level. In Lagos and Abuja, skilled labou
 
 Additional costs to consider include tools and equipment (if you do not already own them), delivery charges for materials, scaffolding or ladder rental for high work, and protective coverings. Always include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter hidden damage, additional preparation needs, or material price increases.
 
-To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-calculator) for accurate material quantity calculations that form the basis of your cost estimate.
+To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-estimator) for accurate material quantity calculations that form the basis of your cost estimate.
 
 ## Maintenance and Longevity
 
@@ -318,7 +318,7 @@ Keep children and pets away from the work area. Construction materials, tools, a
 
 How to Estimate Materials for Each Construction Phase requires knowledge, preparation, and attention to detail. By understanding the fundamentals, using quality materials, following a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the principles remain the same: plan carefully, prepare thoroughly, use the right materials in the correct ratios, allow adequate curing time, and never compromise on quality.
 
-For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-calculator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
+For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-estimator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
 
 Remember that construction is an investment. The small extra cost of quality materials and proper technique pays dividends for decades in durability, appearance, and low maintenance. Take your time, follow the steps in this guide, and your building construction project will be one you can be proud of for years to come.',
   'construction-guides',
@@ -402,7 +402,7 @@ Protect adjacent areas before starting. Cover floors with plastic sheeting or ca
 
 Following a systematic process ensures consistent, professional results. In this section, we walk through the building construction process step by step, from start to finish.
 
-Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-calculator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
+Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-estimator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
 
 Step 2: Prepare the surface as described in the previous section. Ensure the surface is clean, sound, properly dampened, and primed if necessary. Set up your tools and materials within easy reach of the work area. Mix a small test batch to check consistency and setting time before mixing a full batch.
 
@@ -454,7 +454,7 @@ Labour costs vary by location and skill level. In Lagos and Abuja, skilled labou
 
 Additional costs to consider include tools and equipment (if you do not already own them), delivery charges for materials, scaffolding or ladder rental for high work, and protective coverings. Always include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter hidden damage, additional preparation needs, or material price increases.
 
-To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-calculator) for accurate material quantity calculations that form the basis of your cost estimate.
+To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-estimator) for accurate material quantity calculations that form the basis of your cost estimate.
 
 ## Maintenance and Longevity
 
@@ -484,7 +484,7 @@ Keep children and pets away from the work area. Construction materials, tools, a
 
 Foundation to Roof: Understanding the Build Process requires knowledge, preparation, and attention to detail. By understanding the fundamentals, using quality materials, following a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the principles remain the same: plan carefully, prepare thoroughly, use the right materials in the correct ratios, allow adequate curing time, and never compromise on quality.
 
-For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-calculator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
+For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-estimator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
 
 Remember that construction is an investment. The small extra cost of quality materials and proper technique pays dividends for decades in durability, appearance, and low maintenance. Take your time, follow the steps in this guide, and your building construction project will be one you can be proud of for years to come.',
   'construction-guides',
@@ -568,7 +568,7 @@ Protect adjacent areas before starting. Cover floors with plastic sheeting or ca
 
 Following a systematic process ensures consistent, professional results. In this section, we walk through the building construction process step by step, from start to finish.
 
-Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-calculator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
+Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-estimator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
 
 Step 2: Prepare the surface as described in the previous section. Ensure the surface is clean, sound, properly dampened, and primed if necessary. Set up your tools and materials within easy reach of the work area. Mix a small test batch to check consistency and setting time before mixing a full batch.
 
@@ -620,7 +620,7 @@ Labour costs vary by location and skill level. In Lagos and Abuja, skilled labou
 
 Additional costs to consider include tools and equipment (if you do not already own them), delivery charges for materials, scaffolding or ladder rental for high work, and protective coverings. Always include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter hidden damage, additional preparation needs, or material price increases.
 
-To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-calculator) for accurate material quantity calculations that form the basis of your cost estimate.
+To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-estimator) for accurate material quantity calculations that form the basis of your cost estimate.
 
 ## Maintenance and Longevity
 
@@ -650,7 +650,7 @@ Keep children and pets away from the work area. Construction materials, tools, a
 
 Construction Timeline: How Long Does Each Phase Take requires knowledge, preparation, and attention to detail. By understanding the fundamentals, using quality materials, following a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the principles remain the same: plan carefully, prepare thoroughly, use the right materials in the correct ratios, allow adequate curing time, and never compromise on quality.
 
-For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-calculator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
+For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-estimator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
 
 Remember that construction is an investment. The small extra cost of quality materials and proper technique pays dividends for decades in durability, appearance, and low maintenance. Take your time, follow the steps in this guide, and your building construction project will be one you can be proud of for years to come.',
   'construction-guides',
@@ -734,7 +734,7 @@ Protect adjacent areas before starting. Cover floors with plastic sheeting or ca
 
 Following a systematic process ensures consistent, professional results. In this section, we walk through the building construction process step by step, from start to finish.
 
-Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-calculator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
+Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-estimator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
 
 Step 2: Prepare the surface as described in the previous section. Ensure the surface is clean, sound, properly dampened, and primed if necessary. Set up your tools and materials within easy reach of the work area. Mix a small test batch to check consistency and setting time before mixing a full batch.
 
@@ -786,7 +786,7 @@ Labour costs vary by location and skill level. In Lagos and Abuja, skilled labou
 
 Additional costs to consider include tools and equipment (if you do not already own them), delivery charges for materials, scaffolding or ladder rental for high work, and protective coverings. Always include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter hidden damage, additional preparation needs, or material price increases.
 
-To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-calculator) for accurate material quantity calculations that form the basis of your cost estimate.
+To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-estimator) for accurate material quantity calculations that form the basis of your cost estimate.
 
 ## Maintenance and Longevity
 
@@ -816,7 +816,7 @@ Keep children and pets away from the work area. Construction materials, tools, a
 
 Common Construction Mistakes and How to Prevent Them requires knowledge, preparation, and attention to detail. By understanding the fundamentals, using quality materials, following a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the principles remain the same: plan carefully, prepare thoroughly, use the right materials in the correct ratios, allow adequate curing time, and never compromise on quality.
 
-For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-calculator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
+For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-estimator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
 
 Remember that construction is an investment. The small extra cost of quality materials and proper technique pays dividends for decades in durability, appearance, and low maintenance. Take your time, follow the steps in this guide, and your building construction project will be one you can be proud of for years to come.',
   'construction-guides',
@@ -900,7 +900,7 @@ Protect adjacent areas before starting. Cover floors with plastic sheeting or ca
 
 Following a systematic process ensures consistent, professional results. In this section, we walk through the building construction process step by step, from start to finish.
 
-Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-calculator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
+Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-estimator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
 
 Step 2: Prepare the surface as described in the previous section. Ensure the surface is clean, sound, properly dampened, and primed if necessary. Set up your tools and materials within easy reach of the work area. Mix a small test batch to check consistency and setting time before mixing a full batch.
 
@@ -952,7 +952,7 @@ Labour costs vary by location and skill level. In Lagos and Abuja, skilled labou
 
 Additional costs to consider include tools and equipment (if you do not already own them), delivery charges for materials, scaffolding or ladder rental for high work, and protective coverings. Always include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter hidden damage, additional preparation needs, or material price increases.
 
-To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-calculator) for accurate material quantity calculations that form the basis of your cost estimate.
+To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-estimator) for accurate material quantity calculations that form the basis of your cost estimate.
 
 ## Maintenance and Longevity
 
@@ -982,7 +982,7 @@ Keep children and pets away from the work area. Construction materials, tools, a
 
 Building on a Budget: Cost Optimization Strategies requires knowledge, preparation, and attention to detail. By understanding the fundamentals, using quality materials, following a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the principles remain the same: plan carefully, prepare thoroughly, use the right materials in the correct ratios, allow adequate curing time, and never compromise on quality.
 
-For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-calculator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
+For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-estimator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
 
 Remember that construction is an investment. The small extra cost of quality materials and proper technique pays dividends for decades in durability, appearance, and low maintenance. Take your time, follow the steps in this guide, and your building construction project will be one you can be proud of for years to come.',
   'construction-guides',
@@ -1066,7 +1066,7 @@ Protect adjacent areas before starting. Cover floors with plastic sheeting or ca
 
 Following a systematic process ensures consistent, professional results. In this section, we walk through the building construction process step by step, from start to finish.
 
-Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-calculator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
+Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-estimator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
 
 Step 2: Prepare the surface as described in the previous section. Ensure the surface is clean, sound, properly dampened, and primed if necessary. Set up your tools and materials within easy reach of the work area. Mix a small test batch to check consistency and setting time before mixing a full batch.
 
@@ -1118,7 +1118,7 @@ Labour costs vary by location and skill level. In Lagos and Abuja, skilled labou
 
 Additional costs to consider include tools and equipment (if you do not already own them), delivery charges for materials, scaffolding or ladder rental for high work, and protective coverings. Always include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter hidden damage, additional preparation needs, or material price increases.
 
-To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-calculator) for accurate material quantity calculations that form the basis of your cost estimate.
+To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-estimator) for accurate material quantity calculations that form the basis of your cost estimate.
 
 ## Maintenance and Longevity
 
@@ -1148,7 +1148,7 @@ Keep children and pets away from the work area. Construction materials, tools, a
 
 How to Plan Your Build-to-Roof Project requires knowledge, preparation, and attention to detail. By understanding the fundamentals, using quality materials, following a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the principles remain the same: plan carefully, prepare thoroughly, use the right materials in the correct ratios, allow adequate curing time, and never compromise on quality.
 
-For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-calculator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
+For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-estimator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
 
 Remember that construction is an investment. The small extra cost of quality materials and proper technique pays dividends for decades in durability, appearance, and low maintenance. Take your time, follow the steps in this guide, and your building construction project will be one you can be proud of for years to come.',
   'construction-guides',
@@ -1232,7 +1232,7 @@ Protect adjacent areas before starting. Cover floors with plastic sheeting or ca
 
 Following a systematic process ensures consistent, professional results. In this section, we walk through the building construction process step by step, from start to finish.
 
-Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-calculator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
+Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-estimator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
 
 Step 2: Prepare the surface as described in the previous section. Ensure the surface is clean, sound, properly dampened, and primed if necessary. Set up your tools and materials within easy reach of the work area. Mix a small test batch to check consistency and setting time before mixing a full batch.
 
@@ -1284,7 +1284,7 @@ Labour costs vary by location and skill level. In Lagos and Abuja, skilled labou
 
 Additional costs to consider include tools and equipment (if you do not already own them), delivery charges for materials, scaffolding or ladder rental for high work, and protective coverings. Always include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter hidden damage, additional preparation needs, or material price increases.
 
-To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-calculator) for accurate material quantity calculations that form the basis of your cost estimate.
+To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-estimator) for accurate material quantity calculations that form the basis of your cost estimate.
 
 ## Maintenance and Longevity
 
@@ -1314,7 +1314,7 @@ Keep children and pets away from the work area. Construction materials, tools, a
 
 Choosing the Right Roof Type for Your Building requires knowledge, preparation, and attention to detail. By understanding the fundamentals, using quality materials, following a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the principles remain the same: plan carefully, prepare thoroughly, use the right materials in the correct ratios, allow adequate curing time, and never compromise on quality.
 
-For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-calculator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
+For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-estimator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
 
 Remember that construction is an investment. The small extra cost of quality materials and proper technique pays dividends for decades in durability, appearance, and low maintenance. Take your time, follow the steps in this guide, and your building construction project will be one you can be proud of for years to come.',
   'construction-guides',
@@ -1398,7 +1398,7 @@ Protect adjacent areas before starting. Cover floors with plastic sheeting or ca
 
 Following a systematic process ensures consistent, professional results. In this section, we walk through the building construction process step by step, from start to finish.
 
-Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-calculator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
+Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-estimator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
 
 Step 2: Prepare the surface as described in the previous section. Ensure the surface is clean, sound, properly dampened, and primed if necessary. Set up your tools and materials within easy reach of the work area. Mix a small test batch to check consistency and setting time before mixing a full batch.
 
@@ -1450,7 +1450,7 @@ Labour costs vary by location and skill level. In Lagos and Abuja, skilled labou
 
 Additional costs to consider include tools and equipment (if you do not already own them), delivery charges for materials, scaffolding or ladder rental for high work, and protective coverings. Always include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter hidden damage, additional preparation needs, or material price increases.
 
-To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-calculator) for accurate material quantity calculations that form the basis of your cost estimate.
+To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-estimator) for accurate material quantity calculations that form the basis of your cost estimate.
 
 ## Maintenance and Longevity
 
@@ -1480,7 +1480,7 @@ Keep children and pets away from the work area. Construction materials, tools, a
 
 Structural Considerations for Multi-Story Buildings requires knowledge, preparation, and attention to detail. By understanding the fundamentals, using quality materials, following a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the principles remain the same: plan carefully, prepare thoroughly, use the right materials in the correct ratios, allow adequate curing time, and never compromise on quality.
 
-For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-calculator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
+For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-estimator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
 
 Remember that construction is an investment. The small extra cost of quality materials and proper technique pays dividends for decades in durability, appearance, and low maintenance. Take your time, follow the steps in this guide, and your building construction project will be one you can be proud of for years to come.',
   'construction-guides',
@@ -1564,7 +1564,7 @@ Protect adjacent areas before starting. Cover floors with plastic sheeting or ca
 
 Following a systematic process ensures consistent, professional results. In this section, we walk through the building construction process step by step, from start to finish.
 
-Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-calculator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
+Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-estimator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
 
 Step 2: Prepare the surface as described in the previous section. Ensure the surface is clean, sound, properly dampened, and primed if necessary. Set up your tools and materials within easy reach of the work area. Mix a small test batch to check consistency and setting time before mixing a full batch.
 
@@ -1616,7 +1616,7 @@ Labour costs vary by location and skill level. In Lagos and Abuja, skilled labou
 
 Additional costs to consider include tools and equipment (if you do not already own them), delivery charges for materials, scaffolding or ladder rental for high work, and protective coverings. Always include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter hidden damage, additional preparation needs, or material price increases.
 
-To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-calculator) for accurate material quantity calculations that form the basis of your cost estimate.
+To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-estimator) for accurate material quantity calculations that form the basis of your cost estimate.
 
 ## Maintenance and Longevity
 
@@ -1646,7 +1646,7 @@ Keep children and pets away from the work area. Construction materials, tools, a
 
 Construction Quality Control: Inspection Checklist requires knowledge, preparation, and attention to detail. By understanding the fundamentals, using quality materials, following a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the principles remain the same: plan carefully, prepare thoroughly, use the right materials in the correct ratios, allow adequate curing time, and never compromise on quality.
 
-For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-calculator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
+For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-estimator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
 
 Remember that construction is an investment. The small extra cost of quality materials and proper technique pays dividends for decades in durability, appearance, and low maintenance. Take your time, follow the steps in this guide, and your building construction project will be one you can be proud of for years to come.',
   'construction-guides',
@@ -1730,7 +1730,7 @@ Protect adjacent areas before starting. Cover floors with plastic sheeting or ca
 
 Following a systematic process ensures consistent, professional results. In this section, we walk through the building construction process step by step, from start to finish.
 
-Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-calculator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
+Step 1: Measure and plan. Measure all dimensions accurately using a tape measure. Calculate material quantities using the appropriate formulas or use the [FRELUX calculator](/build-to-roof-estimator) for instant results. Create a material list and purchase everything before starting. Plan the sequence of work, starting from the farthest point from the entrance and working toward the exit to avoid walking on finished work.
 
 Step 2: Prepare the surface as described in the previous section. Ensure the surface is clean, sound, properly dampened, and primed if necessary. Set up your tools and materials within easy reach of the work area. Mix a small test batch to check consistency and setting time before mixing a full batch.
 
@@ -1782,7 +1782,7 @@ Labour costs vary by location and skill level. In Lagos and Abuja, skilled labou
 
 Additional costs to consider include tools and equipment (if you do not already own them), delivery charges for materials, scaffolding or ladder rental for high work, and protective coverings. Always include a contingency of 10 to 15 percent in your budget for unforeseen expenses. Construction projects frequently encounter hidden damage, additional preparation needs, or material price increases.
 
-To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-calculator) for accurate material quantity calculations that form the basis of your cost estimate.
+To estimate total project cost, calculate the material quantity needed, multiply by current unit prices, add labour costs, add tool and equipment costs, and add the contingency. Use the [FRELUX calculator](/build-to-roof-estimator) for accurate material quantity calculations that form the basis of your cost estimate.
 
 ## Maintenance and Longevity
 
@@ -1812,7 +1812,7 @@ Keep children and pets away from the work area. Construction materials, tools, a
 
 Nigerian Building Regulations and What You Need to Know requires knowledge, preparation, and attention to detail. By understanding the fundamentals, using quality materials, following a systematic process, and avoiding common mistakes, you can achieve professional-quality results that last for years. Whether you are a DIY enthusiast or a professional contractor, the principles remain the same: plan carefully, prepare thoroughly, use the right materials in the correct ratios, allow adequate curing time, and never compromise on quality.
 
-For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-calculator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
+For accurate material calculations and cost estimates, use the [FRELUX calculator](/build-to-roof-estimator). The calculator accounts for surface area, material coverage rates, wastage allowances, and current Nigerian market prices, giving you instant, accurate results that help you budget and plan your project with confidence.
 
 Remember that construction is an investment. The small extra cost of quality materials and proper technique pays dividends for decades in durability, appearance, and low maintenance. Take your time, follow the steps in this guide, and your building construction project will be one you can be proud of for years to come.',
   'construction-guides',

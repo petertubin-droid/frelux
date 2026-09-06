@@ -487,7 +487,7 @@ export default function LearnArticle() {
 
             {/* Ad slot — placement "learn_article_top" */}
             <div className="mb-10">
-              <AdSlot slotKey="learn_article_top" hideLabel />
+              <AdSlot slotKey="learn_article_top" />
               {/* Monetag In-Page Push — placement "article_push_1"
                   (zone ID editable in Admin → Ads → Placements) */}
               <AdSlot slotKey="article_push_1" />
@@ -520,7 +520,7 @@ export default function LearnArticle() {
 
             {/* Native banner slot — placement "learn_article_native" */}
             <div className="mt-10">
-              <AdSlot slotKey="learn_article_native" hideLabel />
+              <AdSlot slotKey="learn_article_native" />
             </div>
 
             {/* Bottom in-article inserts */}
@@ -787,18 +787,18 @@ export default function LearnArticle() {
 
             {/* In-article ad + native banner — after FAQ */}
             <div className="mt-10">
-              <AdSlot slotKey="learn_in_article" hideLabel />
+              <AdSlot slotKey="learn_in_article" />
             </div>
             <div className="mt-10">
-              <AdSlot slotKey="learn_article_native_2" hideLabel />
+              <AdSlot slotKey="learn_article_native_2" />
             </div>
 
             {/* Banner + native banner — after related articles */}
             <div className="mt-10">
-              <AdSlot slotKey="learn_article_mid_2" hideLabel />
+              <AdSlot slotKey="learn_article_mid_2" />
             </div>
             <div className="mt-10">
-              <AdSlot slotKey="learn_article_native_3" hideLabel />
+              <AdSlot slotKey="learn_article_native_3" />
             </div>
 
             {/* Bottom ad */}
