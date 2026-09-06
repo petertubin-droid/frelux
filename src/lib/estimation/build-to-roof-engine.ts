@@ -364,9 +364,9 @@ export function decomposeRoofPlanes(
       id: 'flat-1',
       roof_type: 'flat',
       label: 'Flat roof plane',
-      projected_area_m2: round(Le * We),
+      projected_area_m2: Le * We,
       pitch_degrees: 0,
-      sloped_area_m2: round(Le * We),
+      sloped_area_m2: Le * We,
       boundary: `Eave rectangle ${round(Le, 2)}m × ${round(We, 2)}m`,
     }];
   }
@@ -381,9 +381,9 @@ export function decomposeRoofPlanes(
       id: 'vertical-1',
       roof_type: roofType,
       label: 'Vertical plane (pitch 90° — not a roof)',
-      projected_area_m2: round(Le * We),
+      projected_area_m2: Le * We,
       pitch_degrees: pitchDegrees,
-      sloped_area_m2: round(Le * We),
+      sloped_area_m2: Le * We,
       boundary: 'Undefined — vertical pitch is not a roof plane',
     }];
   }
@@ -395,9 +395,12 @@ export function decomposeRoofPlanes(
     id,
     roof_type: roofType,
     label,
-    projected_area_m2: round(projectedArea),
+    // Full precision — rounding happens only on the total (see
+    // calculateRoofArea) and at purchase-quantity stage. Rounding plane
+    // areas before summing leaked up to 0.02 m² into the total.
+    projected_area_m2: projectedArea,
     pitch_degrees: pitchDegrees,
-    sloped_area_m2: round(projectedArea * slopeFactor),
+    sloped_area_m2: projectedArea * slopeFactor,
     boundary,
   });
 
