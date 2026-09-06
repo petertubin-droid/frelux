@@ -248,6 +248,7 @@ export default function AdminLearn() {
   }
 
   async function handleDeleteFaq(id: string, articleId: string) {
+    if (!confirm('Delete this FAQ entry? This cannot be undone.')) return;
     setMutationError(null);
     const { error: delError } = await supabase
       .from("learn_article_faqs")
@@ -340,6 +341,7 @@ export default function AdminLearn() {
   }
 
   async function handleDeleteInsert(id: string, articleId: string) {
+    if (!confirm('Delete this insert? This cannot be undone.')) return;
     setMutationError(null);
     const { error: delError } = await supabase
       .from("learn_article_inserts")

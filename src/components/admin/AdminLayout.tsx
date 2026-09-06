@@ -258,8 +258,8 @@ const navModules: NavModule[] = [
       { label: "Typography", to: "/admin/typography", icon: Type },
       { label: "Site Settings", to: "/admin/settings", icon: Settings },
       {
-        label: "Studio Management",
-        to: "/admin/studio/management",
+        label: "Roles & Permissions",
+        to: "/admin/studio/role_management",
         icon: ShieldCheck,
       },
       { label: "Error Monitor", to: "/admin/errors", icon: AlertTriangle },

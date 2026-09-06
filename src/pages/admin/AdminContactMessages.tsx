@@ -45,6 +45,7 @@ export default function AdminContactMessages() {
   }
 
   async function del(id: string) {
+    if (!confirm('Delete this message? This cannot be undone.')) return;
     const { error } = await supabase.from('contact_messages').delete().eq('id', id);
     if (error) { setError(error.message); return; }
     setItems((prev) => prev.filter((m) => m.id !== id));

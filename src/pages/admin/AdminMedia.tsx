@@ -101,7 +101,7 @@ export default function AdminMedia() {
                 <AdminCard key={item.id} className="group overflow-hidden p-0">
                   <div className="relative aspect-square overflow-hidden bg-muted">
                     <img src={item.public_url} alt={item.alt_text ?? item.file_name} className="h-full w-full object-cover" loading="lazy" />
-                    <AdminIconButton variant="ghost" type="button" onClick={() => handleDelete(item)} className="absolute right-2 top-2 rounded-full bg-white/80 p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100">
+                    <AdminIconButton variant="ghost" type="button" onClick={() => handleDelete(item)} aria-label={`Delete ${item.file_name}`} className="absolute right-2 top-2 rounded-full bg-white/80 p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100">
                       <Trash2 aria-hidden="true" className="h-4 w-4" />
                     </AdminIconButton>
                   </div>

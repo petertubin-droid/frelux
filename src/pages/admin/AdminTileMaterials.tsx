@@ -20,6 +20,8 @@ export default function AdminTileMaterials() {
   const [editingMat, setEditingMat] = useState<DbTileMaterial | null>(null);
   const [showSizeEditor, setShowSizeEditor] = useState(false);
   const [showMatEditor, setShowMatEditor] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => { load(); }, []);
 
@@ -37,38 +39,48 @@ export default function AdminTileMaterials() {
   }
 
   async function handleSaveSize(data: Partial<DbTileSize>) {
-    if (editingSize) {
-      await supabase.from('tile_sizes').update({ ...data, updated_at: new Date().toISOString() }).eq('id', editingSize.id);
-    } else {
-      await supabase.from('tile_sizes').insert(data);
-    }
+    if (saving) return;
+    setSaveError(null);
+    setSaving(true);
+    const { error } = editingSize
+      ? await supabase.from('tile_sizes').update({ ...data, updated_at: new Date().toISOString() }).eq('id', editingSize.id)
+      : await supabase.from('tile_sizes').insert(data);
+    setSaving(false);
+    if (error) { setSaveError(error.message); return; }
     setShowSizeEditor(false); setEditingSize(null); load();
   }
 
   async function handleSaveMat(data: Partial<DbTileMaterial>) {
+    if (saving) return;
     // Validate numeric fields before saving
     const validated = { ...data };
     if ('coverage_rate' in validated) validated.coverage_rate = Math.max(0.1, Number(validated.coverage_rate) || 0.1);
     if ('package_size' in validated) validated.package_size = Math.max(1, Number(validated.package_size) || 1);
     if ('unit_price' in validated) validated.unit_price = Math.max(0, Number(validated.unit_price) || 0);
     if ('labour_rate_per_sqm' in validated) validated.labour_rate_per_sqm = Math.max(0, Number(validated.labour_rate_per_sqm) || 0);
-    if (editingMat) {
-      await supabase.from('tile_materials').update({ ...validated, updated_at: new Date().toISOString() }).eq('id', editingMat.id);
-    } else {
-      await supabase.from('tile_materials').insert(validated);
-    }
+    setSaveError(null);
+    setSaving(true);
+    const { error } = editingMat
+      ? await supabase.from('tile_materials').update({ ...validated, updated_at: new Date().toISOString() }).eq('id', editingMat.id)
+      : await supabase.from('tile_materials').insert(validated);
+    setSaving(false);
+    if (error) { setSaveError(error.message); return; }
     setShowMatEditor(false); setEditingMat(null); load();
   }
 
   async function handleDeleteSize(id: string) {
     if (!confirm('Delete this tile size?')) return;
-    await supabase.from('tile_sizes').delete().eq('id', id);
+    setSaveError(null);
+    const { error } = await supabase.from('tile_sizes').delete().eq('id', id);
+    if (error) { setSaveError(error.message); return; }
     setSizes((prev) => prev.filter((s) => s.id !== id));
   }
 
   async function handleDeleteMat(id: string) {
     if (!confirm('Delete this material?')) return;
-    await supabase.from('tile_materials').delete().eq('id', id);
+    setSaveError(null);
+    const { error } = await supabase.from('tile_materials').delete().eq('id', id);
+    if (error) { setSaveError(error.message); return; }
     setMaterials((prev) => prev.filter((m) => m.id !== id));
   }
 
@@ -103,6 +115,9 @@ export default function AdminTileMaterials() {
           <AdminButton onClick={() => { setEditingMat(null); setShowMatEditor(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add Material</AdminButton>
         }
       />
+      {saveError && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400" role="alert">{saveError}</div>
+      )}
 
       <div className="mb-4 inline-flex rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-1">
         {(['sizes', 'materials'] as Tab[]).map((t) => (

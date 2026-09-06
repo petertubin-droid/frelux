@@ -344,6 +344,7 @@ export function AdminIconButton({
   disabled,
   className,
   title,
+  "aria-label": ariaLabel,
 }: {
   children: ReactNode;
   onClick?: () => void;
@@ -352,6 +353,7 @@ export function AdminIconButton({
   disabled?: boolean;
   className?: string;
   title?: string;
+  "aria-label"?: string;
 }) {
   const base =
     "inline-flex items-center justify-center rounded-md p-1 transition-all active:scale-95 disabled:opacity-50";
@@ -367,6 +369,7 @@ export function AdminIconButton({
       onClick={onClick}
       disabled={disabled}
       title={title}
+      aria-label={ariaLabel}
       className={classNames(base, variants[variant], className)}
     >
       {children}
