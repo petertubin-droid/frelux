@@ -116,14 +116,16 @@ export function MarketProvider({ children }: { children: ReactNode }) {
 
   // Load available markets (visible ones for the selector)
   useEffect(() => {
-    getSupabase().then((supabase) =>
-      supabase
-      .from("market_profiles")
-      .select("*")
-      .in("status", ["active", "coming_soon"])
-      .eq("is_visible", true)
-      .order("sort_order", { ascending: true })
-    ).then(({ data }) => {
+    getSupabase()
+      .then((supabase) =>
+        supabase
+          .from("market_profiles")
+          .select("*")
+          .in("status", ["active", "coming_soon"])
+          .eq("is_visible", true)
+          .order("sort_order", { ascending: true }),
+      )
+      .then(({ data }) => {
         if (data) setAvailableMarkets(data as unknown as MarketProfile[]);
       });
   }, []);

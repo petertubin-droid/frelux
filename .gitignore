@@ -31,3 +31,16 @@ coverage/
 test-results/
 playwright-report/
 .env.staging
+mock_data_found.txt
+scan_colors.py
+
+# Local analysis/scratch files (agent working files — never deploy)
+incoming_files/
+live_*
+live_chunks/
+chunklist.txt
+check_*.py
+check_*.cjs
+*_found.txt
+scan_colors.py
+mock_data_found.txt

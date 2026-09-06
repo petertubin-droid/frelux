@@ -9,7 +9,10 @@
  * region yet") rather than as a fabricated number or a crash.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { MarketProfile, ResolvedMarketContext } from "@/types/international";
+import type {
+  MarketProfile,
+  ResolvedMarketContext,
+} from "@/types/international";
 import { NIGERIA_DEFAULTS, isMarketSupported } from "./market-context";
 import { fetchCurrentPrice, clearPriceCache } from "./pricing-resolver";
 
@@ -54,8 +57,14 @@ const { fromMock } = vi.hoisted(() => {
 vi.mock("@/lib/supabase", () => ({
   supabase: {
     from: fromMock,
-    functions: { invoke: vi.fn().mockResolvedValue({ data: null, error: null }) },
-    auth: { getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }) },
+    functions: {
+      invoke: vi.fn().mockResolvedValue({ data: null, error: null }),
+    },
+    auth: {
+      getSession: vi
+        .fn()
+        .mockResolvedValue({ data: { session: null }, error: null }),
+    },
     rpc: vi.fn().mockResolvedValue({ data: null, error: null }),
     channel: vi.fn().mockReturnValue({
       on: vi.fn().mockReturnThis(),
@@ -68,8 +77,14 @@ vi.mock("@/lib/supabase", () => ({
 vi.mock("@/lib/supabase-lazy", () => ({
   getSupabase: vi.fn().mockResolvedValue({
     from: fromMock,
-    functions: { invoke: vi.fn().mockResolvedValue({ data: null, error: null }) },
-    auth: { getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }) },
+    functions: {
+      invoke: vi.fn().mockResolvedValue({ data: null, error: null }),
+    },
+    auth: {
+      getSession: vi
+        .fn()
+        .mockResolvedValue({ data: { session: null }, error: null }),
+    },
     rpc: vi.fn().mockResolvedValue({ data: null, error: null }),
     channel: vi.fn().mockReturnValue({
       on: vi.fn().mockReturnThis(),
@@ -182,8 +197,10 @@ function profileToContext(p: Partial<MarketProfile>): ResolvedMarketContext {
     currencyCode: p.currency_code ?? "NGN",
     currencySymbol: p.currency_symbol ?? "₦",
     measurementSystem: p.default_measurement_system ?? "mixed",
-    defaultLengthUnit: (p.default_length_unit ?? "meters") as ResolvedMarketContext["defaultLengthUnit"],
-    defaultAreaUnit: (p.default_area_unit ?? "sqm") as ResolvedMarketContext["defaultAreaUnit"],
+    defaultLengthUnit: (p.default_length_unit ??
+      "meters") as ResolvedMarketContext["defaultLengthUnit"],
+    defaultAreaUnit: (p.default_area_unit ??
+      "sqm") as ResolvedMarketContext["defaultAreaUnit"],
     supportedLengthUnits: ["meters", "feet", "inches"],
     supportedAreaUnits: ["sqm", "sqft"],
     defaultLanguage: p.default_language ?? "en",
@@ -222,7 +239,13 @@ describe("Seeded market profile facts (NG / GB / US / CA / AU / ZA / AE)", () =>
 
   it("currency facts match ISO 4217", () => {
     const iso: Record<string, string> = {
-      NG: "NGN", GB: "GBP", US: "USD", CA: "CAD", AU: "AUD", ZA: "ZAR", AE: "AED",
+      NG: "NGN",
+      GB: "GBP",
+      US: "USD",
+      CA: "CAD",
+      AU: "AUD",
+      ZA: "ZAR",
+      AE: "AED",
     };
     for (const [code, facts] of Object.entries(SEEDED_PROFILE_FACTS)) {
       expect(facts.currency_code).toBe(iso[code]);

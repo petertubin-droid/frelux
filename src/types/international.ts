@@ -11,14 +11,24 @@
 // MARKET PROFILE
 // ============================================================
 
-export type MarketStatus = 'active' | 'coming_soon' | 'unsupported' | 'test_only';
-export type MeasurementSystem = 'metric' | 'imperial' | 'mixed';
+export type MarketStatus =
+  "active" | "coming_soon" | "unsupported" | "test_only";
+export type MeasurementSystem = "metric" | "imperial" | "mixed";
 
 export type MarketCalculatorType =
-  | 'painting' | 'screeding' | 'pop_ceiling' | 'tile'
-  | 'tyrolene' | 'grafitex' | 'block' | 'roofing'
-  | 'cost_estimator' | 'foundation' | 'structural'
-  | 'build_to_roof' | 'sequence';
+  | "painting"
+  | "screeding"
+  | "pop_ceiling"
+  | "tile"
+  | "tyrolene"
+  | "grafitex"
+  | "block"
+  | "roofing"
+  | "cost_estimator"
+  | "foundation"
+  | "structural"
+  | "build_to_roof"
+  | "sequence";
 
 export interface MarketProfile {
   id: string;
@@ -55,7 +65,8 @@ export interface MarketProfile {
 // MATERIAL RULES
 // ============================================================
 
-export type MaterialRulePriceType = 'product' | 'material' | 'labour' | 'quality_level';
+export type MaterialRulePriceType =
+  "product" | "material" | "labour" | "quality_level";
 
 export interface MarketMaterialRule {
   id: string;
@@ -122,7 +133,7 @@ export interface MarketPricing {
   source_name: string | null;
   source_url: string | null;
   collected_at: string | null;
-  confidence: 'high' | 'medium' | 'low';
+  confidence: "high" | "medium" | "low";
 
   pricing_version: string;
   created_at: string;
@@ -149,8 +160,8 @@ export interface MarketCalculatorConfig {
 // USER PREFERENCES
 // ============================================================
 
-export type PreferredLengthUnit = 'meters' | 'feet' | 'inches';
-export type PreferredAreaUnit = 'sqm' | 'sqft';
+export type PreferredLengthUnit = "meters" | "feet" | "inches";
+export type PreferredAreaUnit = "sqm" | "sqft";
 
 export interface UserMarketPreference {
   id: string;
@@ -211,37 +222,37 @@ export interface CalculationAuditMeta {
 // ============================================================
 
 export const MARKET_STATUS_LABELS: Record<MarketStatus, string> = {
-  active: 'Active',
-  coming_soon: 'Coming Soon',
-  unsupported: 'Unsupported',
-  test_only: 'Test Only',
+  active: "Active",
+  coming_soon: "Coming Soon",
+  unsupported: "Unsupported",
+  test_only: "Test Only",
 };
 
 export const MEASUREMENT_SYSTEM_LABELS: Record<MeasurementSystem, string> = {
-  metric: 'Metric (metres, m²)',
-  imperial: 'Imperial (feet, sqft)',
-  mixed: 'Mixed (metres & feet)',
+  metric: "Metric (metres, m²)",
+  imperial: "Imperial (feet, sqft)",
+  mixed: "Mixed (metres & feet)",
 };
 
 export const CALCULATOR_TYPE_LABELS: Record<MarketCalculatorType, string> = {
-  painting: 'Painting',
-  screeding: 'Screeding',
-  pop_ceiling: 'POP Ceiling',
-  tile: 'Tiling',
-  tyrolene: 'Tyrolene',
-  grafitex: 'Grafitex',
-  block: 'Block',
-  roofing: 'Roofing',
-  cost_estimator: 'Cost Estimator',
-  foundation: 'Foundation',
-  structural: 'Structural',
-  build_to_roof: 'Build to Roof',
-  sequence: 'Construction Sequence',
+  painting: "Painting",
+  screeding: "Screeding",
+  pop_ceiling: "POP Ceiling",
+  tile: "Tiling",
+  tyrolene: "Tyrolene",
+  grafitex: "Grafitex",
+  block: "Block",
+  roofing: "Roofing",
+  cost_estimator: "Cost Estimator",
+  foundation: "Foundation",
+  structural: "Structural",
+  build_to_roof: "Build to Roof",
+  sequence: "Construction Sequence",
 };
 
 export const PRICE_TYPE_LABELS: Record<MaterialRulePriceType, string> = {
-  product: 'Product',
-  material: 'Material',
-  labour: 'Labour',
-  quality_level: 'Quality Level',
+  product: "Product",
+  material: "Material",
+  labour: "Labour",
+  quality_level: "Quality Level",
 };

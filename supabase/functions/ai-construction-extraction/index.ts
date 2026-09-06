@@ -563,7 +563,9 @@ Deno.serve(async (req: Request) => {
   const documentDataUrl =
     typeof body.documentDataUrl === "string" ? body.documentDataUrl : "";
   const regionContext =
-    typeof body.regionContext === "string" ? body.regionContext.slice(0, 200) : "";
+    typeof body.regionContext === "string"
+      ? body.regionContext.slice(0, 200)
+      : "";
 
   if (!documentDataUrl && !textDescription) {
     return jsonResponse(

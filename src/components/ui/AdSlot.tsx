@@ -615,9 +615,6 @@ export default function AdSlot({
   useEffect(() => {
     if (!resolved || resolved === "none") return;
     const { provider } = resolved;
-    // Test environments (happy-dom) throw on external script loads — skip
-    // injector side effects under vitest so tests exercise rendering only.
-    if (import.meta.env?.MODE === "test") return;
     if (!isDisplayAdsEnabled(provider)) return;
     const creds = provider.credentials ?? {};
 
