@@ -199,7 +199,7 @@ export function AiLogoSection({ userId, access, onLogoSelected }: Props) {
                 variant="default"
                 onClick={handleGenerate}
                 disabled={generating || !prompt.trim()}
-                className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-bold hover:/90 disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-bold hover:bg-primary/90 disabled:opacity-50"
               >
                 {generating ? (
                   <Loader2 className="h-4 w-4 animate-spin" />

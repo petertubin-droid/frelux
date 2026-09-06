@@ -350,7 +350,10 @@ export default function WorkerChannels() {
   if (!loading && !isWorker && profile?.account_type !== "pro_worker") {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <Shield aria-hidden="true" className="mx-auto mb-4 h-12 w-12 text-amber-500" />
+        <Shield
+          aria-hidden="true"
+          className="mx-auto mb-4 h-12 w-12 text-amber-500"
+        />
         <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
           Worker Access Only
         </h1>
@@ -376,7 +379,10 @@ export default function WorkerChannels() {
     };
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
-        <Shield aria-hidden="true" className="mx-auto mb-4 h-12 w-12 text-amber-500" />
+        <Shield
+          aria-hidden="true"
+          className="mx-auto mb-4 h-12 w-12 text-amber-500"
+        />
         <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
           Verification Required
         </h1>
@@ -439,7 +445,8 @@ export default function WorkerChannels() {
             </span>
           </div>
           {channels.map((ch) => (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               key={ch.id}
               onClick={() => navigate(`/worker-channels/${ch.slug}`)}
               className={classNames(
@@ -460,7 +467,8 @@ export default function WorkerChannels() {
                   </span>
                   {ch.region && (
                     <span className="flex items-center gap-0.5">
-                      <MapPin aria-hidden="true" className="h-3 w-3" /> {ch.region}
+                      <MapPin aria-hidden="true" className="h-3 w-3" />{" "}
+                      {ch.region}
                     </span>
                   )}
                 </div>
@@ -530,7 +538,8 @@ export default function WorkerChannels() {
                   <span className="text-xs text-muted-foreground">
                     Replying to a message
                   </span>
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => setReplyingTo(null)}
                     className="text-xs text-brand-purple"
                   >
@@ -589,13 +598,15 @@ export default function WorkerChannels() {
                       />
                     </div>
                     <div className="flex justify-end gap-2">
-                      <Button variant="ghost"
+                      <Button
+                        variant="ghost"
                         onClick={() => setShowPriceUpdate(false)}
                         className="rounded-lg px-3 py-1.5 text-sm text-muted-foreground hover:bg-muted dark:hover:bg-white/5"
                       >
                         Cancel
                       </Button>
-                      <Button variant="default"
+                      <Button
+                        variant="default"
                         onClick={handleSendPriceUpdate}
                         disabled={
                           sending || !priceForm.item.trim() || !priceForm.amount
@@ -608,7 +619,8 @@ export default function WorkerChannels() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-2">
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => setShowPriceUpdate(true)}
                       className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border text-brand-purple transition-colors hover:bg-primary/5 dark:border-white/10"
                       title="Share price update"
@@ -624,10 +636,12 @@ export default function WorkerChannels() {
                       onKeyDown={handleKeyDown}
                       disabled={sending}
                     />
-                    <Button size="icon" variant="default"
+                    <Button
+                      size="icon"
+                      variant="default"
                       onClick={handleSendMessage}
                       disabled={!newMessage.trim() || sending}
-                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-all hover:/90 disabled:opacity-50"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg transition-all hover:bg-primary/90 disabled:opacity-50"
                     >
                       <Send aria-hidden="true" className="h-5 w-5" />
                     </Button>
@@ -690,7 +704,8 @@ export default function WorkerChannels() {
                   )}
                 </div>
               </div>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => setViewingProfile(null)}
                 className="text-muted-foreground hover:text-muted-foreground"
               >
@@ -765,7 +780,8 @@ export default function WorkerChannels() {
               View Full Profile
             </Link>
             {viewingProfile.id && (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() =>
                   viewingProfile && openReportModal(viewingProfile.id)
                 }
@@ -837,13 +853,15 @@ export default function WorkerChannels() {
               )}
 
               <div className="flex gap-2">
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => setShowReportModal(false)}
                   className="flex-1 rounded-lg border border-border py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                 >
                   Cancel
                 </Button>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={handleSubmitReport}
                   disabled={reportSubmitting || !reportReason}
                   className="flex-1 rounded-lg bg-red-500 py-2.5 text-sm font-semibold text-primary-foreground disabled:opacity-50"
@@ -913,7 +931,8 @@ function MessageBubble({
         )}
       >
         {!isOwn && (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={onProfileView}
             className="mb-0.5 text-xs font-semibold text-brand-purple hover:underline"
           >
@@ -975,14 +994,16 @@ function MessageBubble({
 
       {/* Actions (hover) */}
       <div className="flex items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => setShowReactions(!showReactions)}
           className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-white/5"
           title="React"
         >
           <span className="text-xs">😊</span>
         </Button>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => onReply(message.id)}
           className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-muted-foreground dark:hover:bg-white/5"
           title="Reply"
@@ -990,7 +1011,8 @@ function MessageBubble({
           <MessageSquare className="h-3.5 w-3.5" />
         </Button>
         {isOwn && (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={() => onDelete(message.id)}
             className="rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500"
             title="Delete"
@@ -1004,7 +1026,8 @@ function MessageBubble({
       {showReactions && (
         <div className="absolute z-10 flex gap-1 rounded-lg border border-border bg-card p-1.5 shadow-lg dark:border-white/10 dark:bg-card">
           {QUICK_EMOJIS.map((emoji) => (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               key={emoji}
               onClick={() => {
                 onReact(message.id, emoji);
@@ -1027,7 +1050,8 @@ function MessageBubble({
               return acc;
             }, {}),
           ).map(([emoji, count]) => (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               key={emoji}
               onClick={() => onReact(message.id, emoji)}
               className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs dark:bg-white/5"

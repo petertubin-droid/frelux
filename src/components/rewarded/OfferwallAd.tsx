@@ -154,7 +154,7 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
               variant="default"
               type="button"
               onClick={handleRetry}
-              className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-colors hover:/90"
+              className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-colors hover:bg-primary/90"
             >
               <RefreshCw className="h-4 w-4" />
               Retry

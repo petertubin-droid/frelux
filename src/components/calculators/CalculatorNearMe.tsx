@@ -87,26 +87,34 @@ export default function CalculatorNearMe({
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="default"
+          <Button
+            variant="default"
             onClick={detect}
             disabled={locLoading}
-            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all hover:/90 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold transition-all hover:bg-primary/90 disabled:opacity-50"
           >
             {locLoading ? (
-              <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
+              <Loader2
+                aria-hidden="true"
+                className="h-3.5 w-3.5 animate-spin"
+              />
             ) : (
               <MapPin aria-hidden="true" className="h-3.5 w-3.5" />
             )}
             {locLoading ? "Detecting..." : "Use My Location"}
           </Button>
           {hasLocation && (
-            <Button variant="default"
+            <Button
+              variant="default"
               onClick={handleSearch}
               disabled={searching}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-brand-purple/30 bg-card px-3 py-1.5 text-xs font-semibold text-brand-purple transition-all hover:disabled:opacity-50 dark:bg-transparent"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-brand-purple/30 bg-card px-3 py-1.5 text-xs font-semibold text-brand-purple transition-all hover:bg-primary/5 disabled:opacity-50 dark:bg-transparent"
             >
               {searching ? (
-                <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
+                <Loader2
+                  aria-hidden="true"
+                  className="h-3.5 w-3.5 animate-spin"
+                />
               ) : (
                 <Search aria-hidden="true" className="h-3.5 w-3.5" />
               )}
@@ -125,7 +133,8 @@ export default function CalculatorNearMe({
           </span>
           <div className="flex items-center gap-1">
             {DISTANCE_FILTERS.map((f) => (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 key={f.value}
                 onClick={() => setRadius(f.value)}
                 className={classNames(
@@ -153,7 +162,8 @@ export default function CalculatorNearMe({
         <div className="mt-4 space-y-3 border-t border-brand-purple/10 pt-3">
           {/* Tab switcher */}
           <div className="flex gap-1">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => setActiveTab("professionals")}
               className={classNames(
                 "inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-semibold transition-colors",
@@ -165,7 +175,8 @@ export default function CalculatorNearMe({
               <Briefcase className="h-3 w-3" />
               Professionals ({pros.length})
             </Button>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => setActiveTab("listings")}
               className={classNames(
                 "inline-flex items-center gap-1 rounded-md px-3 py-1 text-xs font-semibold transition-colors",
@@ -181,7 +192,10 @@ export default function CalculatorNearMe({
 
           {searching ? (
             <div className="flex items-center justify-center py-4">
-              <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin text-brand-purple" />
+              <Loader2
+                aria-hidden="true"
+                className="h-4 w-4 animate-spin text-brand-purple"
+              />
             </div>
           ) : activeTab === "professionals" ? (
             pros.length === 0 ? (

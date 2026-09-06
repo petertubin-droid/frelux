@@ -217,7 +217,8 @@ export default function ListingDetail() {
     <div className="min-h-screen bg-muted/50 dark:bg-background">
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6 lg:px-8">
         {/* Back */}
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => navigate("/marketplace")}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
         >
@@ -379,7 +380,8 @@ export default function ListingDetail() {
               Bids ({bids.length})
             </h2>
             {!isOwner && isOpen && user && (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => setShowBidForm(!showBidForm)}
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
               >
@@ -442,10 +444,11 @@ export default function ListingDetail() {
               </div>
               {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
               <div className="mt-3 flex gap-2">
-                <Button variant="default"
+                <Button
+                  variant="default"
                   onClick={handleBidSubmit}
                   disabled={submitting || !bidPrice || !bidMessage}
-                  className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
+                  className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50"
                 >
                   {submitting ? (
                     <Loader2
@@ -457,7 +460,8 @@ export default function ListingDetail() {
                   )}
                   Submit Bid
                 </Button>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => setShowBidForm(false)}
                   className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                 >
@@ -591,13 +595,15 @@ export default function ListingDetail() {
 
                     {isOwner && isOpen && bid.status === "pending" && (
                       <div className="flex gap-2">
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           onClick={() => handleRejectBid(bid.id)}
                           className="rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-red-300 hover:text-red-500 dark:border-white/10 dark:text-muted-foreground/80"
                         >
                           Decline
                         </Button>
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           onClick={() => handleAcceptBid(bid.id)}
                           disabled={submitting}
                           className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-emerald-700 disabled:opacity-50"

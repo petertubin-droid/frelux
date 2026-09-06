@@ -187,7 +187,7 @@ export function CookieBanner() {
                     <Button
                       variant="default"
                       onClick={handleSaveChoices}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl shadow-sm hover:/90 hover:shadow-md active:scale-[0.98] transition-all duration-200"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98] transition-all duration-200"
                     >
                       <Check className="h-4 w-4" />
                       Save Preferences
@@ -213,7 +213,7 @@ export function CookieBanner() {
                     <Button
                       variant="default"
                       onClick={accept}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl shadow-sm hover:/90 hover:shadow-md active:scale-[0.98] transition-all duration-200"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98] transition-all duration-200"
                     >
                       Accept All
                     </Button>

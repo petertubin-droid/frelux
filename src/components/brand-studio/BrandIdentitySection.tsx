@@ -412,7 +412,7 @@ export function BrandIdentitySection({
               variant="default"
               onClick={handleSave}
               disabled={saving || !name.trim()}
-              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold hover:/90 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-bold hover:bg-primary/90 disabled:opacity-50"
             >
               <Save className="h-4 w-4" />
               {saving

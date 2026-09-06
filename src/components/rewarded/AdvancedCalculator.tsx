@@ -1382,7 +1382,7 @@ function AiTab({
           type="button"
           onClick={onRecommend}
           disabled={loading}
-          className="mt-3 flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold hover:/90 disabled:opacity-50"
+          className="mt-3 flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold hover:bg-primary/90 disabled:opacity-50"
         >
           {loading ? (
             <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />

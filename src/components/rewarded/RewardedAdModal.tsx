@@ -71,7 +71,8 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                 unlock
               </h2>
             </div>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={() => {
                 closeOfferwall();
@@ -101,7 +102,8 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
               Checking for completion… This will close automatically when you
               earn your reward.
             </p>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={() => {
                 closeOfferwall();
@@ -126,7 +128,8 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                 />
                 <h2 className="text-lg font-bold">{featureName}</h2>
               </div>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={cancelUnlock}
                 className="rounded-lg p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"
@@ -207,10 +210,11 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
 
             {/* CTA */}
             {!adLoading && !isUnlocked && (
-              <Button variant="default"
+              <Button
+                variant="default"
                 type="button"
                 onClick={handleWatchAd}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors hover:/90"
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors hover:bg-primary/90"
               >
                 <PlayCircle aria-hidden="true" className="h-5 w-5" />
                 Watch Rewarded Ad to Unlock for Today
@@ -218,10 +222,11 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
             )}
 
             {isUnlocked && (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={cancelUnlock}
-                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-green px-4 py-3 text-sm font-bold text-primary-foreground transition-colors -green/90"
+                className="mt-6 flex w-full items-center justify-center gap-2 rounded-xl bg-accent-green px-4 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-accent-green/90"
               >
                 <Lock aria-hidden="true" className="h-4 w-4" />
                 Continue to Advanced Calculator

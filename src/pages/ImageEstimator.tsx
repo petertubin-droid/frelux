@@ -467,7 +467,7 @@ export default function ImageEstimator() {
                 <Button
                   variant="ghost"
                   onClick={runEstimation}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-primary-foreground -green/90 transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-primary-foreground hover:bg-accent-green/90 transition-colors"
                 >
                   <Zap className="w-4 h-4" />
                   Analyze Building & Generate Estimate
@@ -768,7 +768,7 @@ export default function ImageEstimator() {
               <Button
                 variant="ghost"
                 onClick={generateEstimate}
-                className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-primary-foreground -green/90 transition-colors"
+                className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-primary-foreground hover:bg-accent-green/90 transition-colors"
               >
                 <TrendingUp className="w-4 h-4" />
                 Generate Full Cost Estimate
@@ -915,7 +915,7 @@ function LockedView({
                 type="button"
                 onClick={rewarded.requestUnlock}
                 disabled={rewarded.adLoading || !adFlowReady}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-medium hover:/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {rewarded.adLoading ? (
                   <>
@@ -962,7 +962,7 @@ function LockedView({
         {"nextAction" in decision && decision.nextAction === "paid" && (
           <Button
             variant="default"
-            className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-medium hover:/90"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-medium hover:bg-primary/90"
           >
             <PremiumBadge size="xs" />
             Upgrade

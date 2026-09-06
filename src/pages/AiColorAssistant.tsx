@@ -409,7 +409,7 @@ function AccessGate({
                 variant="ghost"
                 type="button"
                 onClick={onRewarded}
-                className="mt-3 inline-flex items-center gap-2 rounded-lg border border-accent-orange/30 bg-card px-4 py-2 dark:border-accent-orange/30 dark:bg-card text-sm font-semibold text-accent-orange -orange/5"
+                className="mt-3 inline-flex items-center gap-2 rounded-lg border border-accent-orange/30 bg-card px-4 py-2 dark:border-accent-orange/30 dark:bg-card text-sm font-semibold text-accent-orange hover:bg-accent-orange/5"
               >
                 <Gift className="h-4 w-4" />
                 Unlock with rewarded access

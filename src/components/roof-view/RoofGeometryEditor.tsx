@@ -173,7 +173,8 @@ export function RoofGeometryEditor({
       {/* Section tabs */}
       <div className="flex items-center gap-2 flex-wrap">
         {geometry.sections.map((section, _i) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={section.id}
             onClick={() =>
               onChange({ ...geometry, activeSectionId: section.id })
@@ -188,11 +189,15 @@ export function RoofGeometryEditor({
             <Layers aria-hidden="true" className="w-3 h-3" />
             {section.name}
             {section.confirmed && (
-              <CheckCircle2 aria-hidden="true" className="w-3 h-3 text-green-400" />
+              <CheckCircle2
+                aria-hidden="true"
+                className="w-3 h-3 text-green-400"
+              />
             )}
           </Button>
         ))}
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={handleAddSection}
           disabled={disabled}
           className="inline-flex items-center gap-1 rounded-lg border border-dashed border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:border-border hover:text-muted-foreground disabled:opacity-50"
@@ -218,7 +223,8 @@ export function RoofGeometryEditor({
             placeholder="Section name"
           />
           {geometry.sections.length > 1 && (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() =>
                 onChange(removeSection(geometry, activeSection.id))
               }
@@ -241,7 +247,8 @@ export function RoofGeometryEditor({
             { id: "delete", label: "Delete Points", icon: Eraser },
           ] as const
         ).map((t) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={t.id}
             onClick={() => setTool(t.id)}
             disabled={disabled}
@@ -423,10 +430,11 @@ export function RoofGeometryEditor({
 
       {/* Confirm button */}
       {hasValidSections && !allConfirmed && (
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={handleConfirm}
           disabled={disabled}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-4 py-2.5 text-sm font-medium text-primary-foreground -green/90 transition-colors"
+          className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-accent-green/90 transition-colors"
         >
           <CheckCircle2 aria-hidden="true" className="w-4 h-4" />
           Confirm Roof Geometry

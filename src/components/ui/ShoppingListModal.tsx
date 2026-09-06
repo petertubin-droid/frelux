@@ -176,7 +176,7 @@ export function ShoppingListModal({
             variant="ghost"
             type="button"
             onClick={handleShare}
-            className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-4 py-2.5 text-sm font-bold text-primary-foreground transition-colors -green/90"
+            className="flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-4 py-2.5 text-sm font-bold text-primary-foreground transition-colors hover:bg-accent-green/90"
           >
             <Share2 className="h-4 w-4" /> Share on WhatsApp
           </Button>

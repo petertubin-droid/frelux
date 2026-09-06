@@ -1,14 +1,22 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Bookmark, Copy, Trash2, Edit2, ArrowRight, Calculator, Download } from 'lucide-react';
-import { calculatorLabel } from '@/lib/templates';
-import type { DbCalculatorTemplate } from '@/types/database';
-import { classNames } from '@/lib/utils';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  Bookmark,
+  Copy,
+  Trash2,
+  Edit2,
+  ArrowRight,
+  Calculator,
+  Download,
+} from "lucide-react";
+import { calculatorLabel } from "@/lib/templates";
+import type { DbCalculatorTemplate } from "@/types/database";
+import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface TemplateCardProps {
   template: DbCalculatorTemplate;
-  variant?: 'private' | 'public';
+  variant?: "private" | "public";
   onUse?: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
@@ -19,7 +27,7 @@ interface TemplateCardProps {
 
 export default function TemplateCard({
   template,
-  variant = 'private',
+  variant = "private",
   onUse,
   onEdit,
   onDelete,
@@ -29,9 +37,10 @@ export default function TemplateCard({
 }: TemplateCardProps) {
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const useHref = variant === 'public' && template.slug
-    ? `/templates/${template.slug}`
-    : undefined;
+  const useHref =
+    variant === "public" && template.slug
+      ? `/templates/${template.slug}`
+      : undefined;
 
   return (
     <div className="group relative flex flex-col rounded-xl border border-border bg-card p-4 transition-all duration-200 hover:border-brand-purple/30 hover:shadow-sm dark:border-white/10 dark:bg-card dark:hover:border-brand-purple/40">
@@ -43,17 +52,25 @@ export default function TemplateCard({
         </span>
 
         {onToggleFavorite && (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={onToggleFavorite}
             className={classNames(
-              'rounded-md p-1 transition-colors',
+              "rounded-md p-1 transition-colors",
               template.is_favorite
-                ? 'text-amber-500 hover:text-amber-600'
-                : 'text-muted-foreground/80 hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-muted-foreground'
+                ? "text-amber-500 hover:text-amber-600"
+                : "text-muted-foreground/80 hover:text-muted-foreground dark:text-muted-foreground dark:hover:text-muted-foreground",
             )}
-            aria-label={template.is_favorite ? 'Remove from favorites' : 'Add to favorites'}
+            aria-label={
+              template.is_favorite
+                ? "Remove from favorites"
+                : "Add to favorites"
+            }
           >
-            <Bookmark className="h-4 w-4" fill={template.is_favorite ? 'currentColor' : 'none'} />
+            <Bookmark
+              className="h-4 w-4"
+              fill={template.is_favorite ? "currentColor" : "none"}
+            />
           </Button>
         )}
       </div>
@@ -76,9 +93,10 @@ export default function TemplateCard({
       {/* Actions */}
       <div className="mt-4 flex items-center gap-2">
         {onUse ? (
-          <Button variant="default"
+          <Button
+            variant="default"
             onClick={onUse}
-            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-colors hover:/90"
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-colors hover:bg-primary/90"
           >
             Use Template
             <ArrowRight className="h-3.5 w-3.5" />
@@ -93,10 +111,11 @@ export default function TemplateCard({
           </Link>
         ) : null}
 
-        {variant === 'private' && (
+        {variant === "private" && (
           <div className="flex items-center gap-1">
             {onEdit && (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={onEdit}
                 className="rounded-md p-1.5 text-muted-foreground transition-colors hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
                 aria-label="Edit template"
@@ -105,7 +124,8 @@ export default function TemplateCard({
               </Button>
             )}
             {onExport && (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={onExport}
                 className="rounded-md p-1.5 text-muted-foreground transition-colors hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
                 aria-label="Export template"
@@ -114,7 +134,8 @@ export default function TemplateCard({
               </Button>
             )}
             {onDuplicate && (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={onDuplicate}
                 className="rounded-md p-1.5 text-muted-foreground transition-colors hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
                 aria-label="Duplicate template"
@@ -122,24 +143,28 @@ export default function TemplateCard({
                 <Copy className="h-3.5 w-3.5" />
               </Button>
             )}
-            {onDelete && (
-              confirmDelete ? (
-                <Button variant="ghost"
-                  onClick={() => { onDelete(); setConfirmDelete(false); }}
+            {onDelete &&
+              (confirmDelete ? (
+                <Button
+                  variant="ghost"
+                  onClick={() => {
+                    onDelete();
+                    setConfirmDelete(false);
+                  }}
                   className="rounded-md bg-red-50 px-2 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-100 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
                 >
                   Confirm?
                 </Button>
               ) : (
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => setConfirmDelete(true)}
                   className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-500/10 dark:hover:text-red-400"
                   aria-label="Delete template"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                 </Button>
-              )
-            )}
+              ))}
           </div>
         )}
       </div>
@@ -147,31 +172,43 @@ export default function TemplateCard({
   );
 }
 
-function TemplateInputSummary({ template }: { template: DbCalculatorTemplate }) {
+function TemplateInputSummary({
+  template,
+}: {
+  template: DbCalculatorTemplate;
+}) {
   const data = template.input_data;
   const parts: string[] = [];
 
-  if (template.calculator_type === 'paint') {
-    if (data.length && data.width) parts.push(`${data.length}×${data.width} ${data.unit ?? ''}`);
+  if (template.calculator_type === "paint") {
+    if (data.length && data.width)
+      parts.push(`${data.length}×${data.width} ${data.unit ?? ""}`);
     if (data.coats) parts.push(`${data.coats} coats`);
-    if (data.includeCeiling) parts.push('Ceiling');
-  } else if (template.calculator_type === 'tile') {
-    if (data.length && data.width) parts.push(`${data.length}×${data.width} ${data.unit ?? ''}`);
+    if (data.includeCeiling) parts.push("Ceiling");
+  } else if (template.calculator_type === "tile") {
+    if (data.length && data.width)
+      parts.push(`${data.length}×${data.width} ${data.unit ?? ""}`);
     if (data.tileWidthMm) parts.push(`${data.tileWidthMm}mm tile`);
-    if (data.method) parts.push(data.method === 'adhesive' ? 'Adhesive' : 'Cement');
-  } else if (template.calculator_type === 'screeding') {
-    if (data.roomLength && data.roomWidth) parts.push(`${data.roomLength}×${data.roomWidth} ${data.unit ?? ''}`);
+    if (data.method)
+      parts.push(data.method === "adhesive" ? "Adhesive" : "Cement");
+  } else if (template.calculator_type === "screeding") {
+    if (data.roomLength && data.roomWidth)
+      parts.push(`${data.roomLength}×${data.roomWidth} ${data.unit ?? ""}`);
     if (data.wallHeight) parts.push(`${data.wallHeight}ft height`);
-  } else if (template.calculator_type === 'pop') {
-    if (data.roomLength && data.roomWidth) parts.push(`${data.roomLength}×${data.roomWidth} ${data.unit ?? ''}`);
-    if (data.includeDecorative) parts.push('Decorative');
+  } else if (template.calculator_type === "pop") {
+    if (data.roomLength && data.roomWidth)
+      parts.push(`${data.roomLength}×${data.roomWidth} ${data.unit ?? ""}`);
+    if (data.includeDecorative) parts.push("Decorative");
   }
 
   if (parts.length === 0) return null;
   return (
     <div className="mt-3 flex flex-wrap gap-1.5">
       {parts.map((p, i) => (
-        <span key={i} className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
+        <span
+          key={i}
+          className="rounded-md bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground dark:bg-white/5 dark:text-muted-foreground"
+        >
           {p}
         </span>
       ))}

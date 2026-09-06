@@ -939,7 +939,7 @@ export default function CostEstimator({
                       variant="ghost"
                       type="button"
                       onClick={handleWhatsAppShare}
-                      className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all -green/20"
+                      className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all hover:bg-accent-green/20"
                     >
                       <MessageCircle className="h-5 w-5 text-accent-green" />
                       <span className="text-xs font-semibold text-accent-green">
@@ -947,10 +947,10 @@ export default function CostEstimator({
                       </span>
                     </Button>
                     <Button
-                      variant="default"
+                      variant="ghost"
                       type="button"
                       onClick={handlePdfExport}
-                      className="flex flex-col items-center gap-1.5 rounded-lg p-3 text-center transition-all hover:"
+                      className="flex flex-col items-center gap-1.5 rounded-lg bg-primary/10 p-3 text-center transition-all hover:bg-primary/20"
                     >
                       <FileText className="h-5 w-5 text-brand-purple" />
                       <span className="text-xs font-semibold text-brand-purple">
@@ -961,7 +961,7 @@ export default function CostEstimator({
                       variant="ghost"
                       type="button"
                       onClick={handleShoppingList}
-                      className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-orange/10 p-3 text-center transition-all -orange/20"
+                      className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-orange/10 p-3 text-center transition-all hover:bg-accent-orange/20"
                     >
                       <ShoppingBag className="h-5 w-5 text-accent-orange" />
                       <span className="text-xs font-semibold text-accent-orange">

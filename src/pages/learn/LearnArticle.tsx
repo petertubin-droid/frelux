@@ -443,9 +443,9 @@ export default function LearnArticle() {
                   </span>
                 )}
                 <Button
-                  variant="default"
+                  variant="ghost"
                   onClick={shareArticle}
-                  className="ml-auto flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 text-xs font-medium text-muted-foreground transition-all hover:border-brand-purple/30 hover:hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
+                  className="ml-auto flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 text-xs font-medium text-muted-foreground transition-all hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
                 >
                   {copied ? (
                     <Check className="h-4 w-4 text-green-500" />

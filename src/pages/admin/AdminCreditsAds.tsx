@@ -39,7 +39,13 @@ import {
 import { Button } from "@/components/ui/shadcn/button";
 
 type Tab =
-  "overview" | "features" | "ad_config" | "token_shop" | "transactions" | "users" | "audit";
+  | "overview"
+  | "features"
+  | "ad_config"
+  | "token_shop"
+  | "transactions"
+  | "users"
+  | "audit";
 
 export default function AdminCreditsAds() {
   const { user: _user } = useAuth();
@@ -81,16 +87,17 @@ export default function AdminCreditsAds() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [w, tx, feat, cfg, adEvt, usage, tokenCfg, purchases] = await Promise.all([
-      adminGetAllWallets(100),
-      adminGetAllTransactions(100),
-      adminGetAllFeatureCosts(),
-      adminGetRewardedAdConfig(),
-      adminGetAllAdCreditEvents(100),
-      adminGetAllAiFeatureUsage(100),
-      adminGetTokenPurchaseConfig(),
-      adminGetTokenPurchases(100),
-    ]);
+    const [w, tx, feat, cfg, adEvt, usage, tokenCfg, purchases] =
+      await Promise.all([
+        adminGetAllWallets(100),
+        adminGetAllTransactions(100),
+        adminGetAllFeatureCosts(),
+        adminGetRewardedAdConfig(),
+        adminGetAllAdCreditEvents(100),
+        adminGetAllAiFeatureUsage(100),
+        adminGetTokenPurchaseConfig(),
+        adminGetTokenPurchases(100),
+      ]);
     setWallets(w);
     setTransactions(tx);
     setFeatures(feat);
@@ -220,7 +227,10 @@ export default function AdminCreditsAds() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
   }
@@ -229,7 +239,7 @@ export default function AdminCreditsAds() {
     ["overview", "Overview"],
     ["features", "AI Feature Costs"],
     ["ad_config", "Ad Config"],
-  ["token_shop", "Token Shop"],
+    ["token_shop", "Token Shop"],
     ["transactions", "Transactions"],
     ["users", "User Balances"],
     ["audit", "Audit & Fraud"],
@@ -264,7 +274,12 @@ export default function AdminCreditsAds() {
           value={totalAdsCompleted}
         />
         <StatCard
-          icon={<TrendingUp aria-hidden="true" className="h-4 w-4 text-accent-green" />}
+          icon={
+            <TrendingUp
+              aria-hidden="true"
+              className="h-4 w-4 text-accent-green"
+            />
+          }
           label="Credits from Ads"
           value={totalCreditsFromAds}
         />
@@ -273,7 +288,8 @@ export default function AdminCreditsAds() {
       {/* Tabs */}
       <div className="flex flex-wrap gap-1 rounded-xl border border-border p-1 dark:border-white/10">
         {tabs.map(([key, label]) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={key}
             type="button"
             onClick={() => setTab(key)}
@@ -369,7 +385,9 @@ export default function AdminCreditsAds() {
                 </div>
               ))}
               {transactions.length === 0 && (
-                <p className="text-xs text-muted-foreground">No transactions yet</p>
+                <p className="text-xs text-muted-foreground">
+                  No transactions yet
+                </p>
               )}
             </div>
           </div>
@@ -506,14 +524,18 @@ export default function AdminCreditsAds() {
                     Enabled
                   </label>
                 </div>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   onClick={() => handleSaveFeature(f.id)}
                   disabled={savingFeature === f.id}
                   className="mt-3 flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                 >
                   {savingFeature === f.id ? (
-                    <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
+                    <Loader2
+                      aria-hidden="true"
+                      className="h-3.5 w-3.5 animate-spin"
+                    />
                   ) : (
                     <Save aria-hidden="true" className="h-3.5 w-3.5" />
                   )}
@@ -613,14 +635,18 @@ export default function AdminCreditsAds() {
               Rewarded Ads Enabled
             </label>
           </div>
-          <Button variant="default"
+          <Button
+            variant="default"
             type="button"
             onClick={handleSaveAdConfig}
             disabled={savingAdConfig}
-            className="mt-4 flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold hover:/90 disabled:opacity-50"
+            className="mt-4 flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold hover:bg-primary/90 disabled:opacity-50"
           >
             {savingAdConfig ? (
-              <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
+              <Loader2
+                aria-hidden="true"
+                className="h-3.5 w-3.5 animate-spin"
+              />
             ) : (
               <Save aria-hidden="true" className="h-3.5 w-3.5" />
             )}
@@ -669,7 +695,9 @@ export default function AdminCreditsAds() {
                   onChange={(e) =>
                     setTokenConfigDraft({
                       ...tokenConfigDraft,
-                      price_kobo: Math.round((parseFloat(e.target.value) || 0) * 100),
+                      price_kobo: Math.round(
+                        (parseFloat(e.target.value) || 0) * 100,
+                      ),
                     })
                   }
                   className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -693,18 +721,24 @@ export default function AdminCreditsAds() {
               </label>
             </div>
             <p className="mt-3 rounded-lg bg-muted/50 px-3 py-2 text-[11px] text-muted-foreground dark:bg-white/5">
-              Users see: <span className="font-semibold text-foreground dark:text-primary-foreground">
-                Buy {tokenConfigDraft.token_amount} Tokens — {formatNaira(tokenConfigDraft.price_kobo)}
+              Users see:{" "}
+              <span className="font-semibold text-foreground dark:text-primary-foreground">
+                Buy {tokenConfigDraft.token_amount} Tokens —{" "}
+                {formatNaira(tokenConfigDraft.price_kobo)}
               </span>
             </p>
-            <Button variant="default"
+            <Button
+              variant="default"
               type="button"
               onClick={handleSaveTokenConfig}
               disabled={savingTokenConfig}
-              className="mt-4 flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold hover:/90 disabled:opacity-50"
+              className="mt-4 flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold hover:bg-primary/90 disabled:opacity-50"
             >
               {savingTokenConfig ? (
-                <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
+                <Loader2
+                  aria-hidden="true"
+                  className="h-3.5 w-3.5 animate-spin"
+                />
               ) : (
                 <Save aria-hidden="true" className="h-3.5 w-3.5" />
               )}
@@ -729,10 +763,12 @@ export default function AdminCreditsAds() {
                   >
                     <div>
                       <p className="text-xs font-semibold text-foreground dark:text-primary-foreground">
-                        {p.tokens_credited} tokens — {formatNaira(p.amount_kobo)}
+                        {p.tokens_credited} tokens —{" "}
+                        {formatNaira(p.amount_kobo)}
                       </p>
                       <p className="text-[10px] text-muted-foreground">
-                        {p.reference} • {new Date(p.created_at).toLocaleString()}
+                        {p.reference} •{" "}
+                        {new Date(p.created_at).toLocaleString()}
                       </p>
                     </div>
                     <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
@@ -819,14 +855,18 @@ export default function AdminCreditsAds() {
                 className="rounded-lg border border-border px-3 py-2 text-xs dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               />
             </div>
-            <Button variant="default"
+            <Button
+              variant="default"
               type="button"
               onClick={handleAdjust}
               disabled={adjusting}
-              className="mt-3 flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold hover:/90 disabled:opacity-50"
+              className="mt-3 flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-bold hover:bg-primary/90 disabled:opacity-50"
             >
               {adjusting ? (
-                <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />
+                <Loader2
+                  aria-hidden="true"
+                  className="h-3.5 w-3.5 animate-spin"
+                />
               ) : (
                 <Coins className="h-3.5 w-3.5" />
               )}
@@ -944,7 +984,9 @@ export default function AdminCreditsAds() {
                 </div>
               ))}
               {aiUsage.length === 0 && (
-                <p className="text-xs text-muted-foreground">No usage records</p>
+                <p className="text-xs text-muted-foreground">
+                  No usage records
+                </p>
               )}
             </div>
           </div>

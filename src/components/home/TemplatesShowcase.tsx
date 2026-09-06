@@ -117,7 +117,9 @@ export default function TemplatesShowcase() {
                   <Bookmark className="h-3 w-3 fill-amber-500" />
                 </span>
               </div>
-              <span className="text-xs text-muted-foreground">3 months ago</span>
+              <span className="text-xs text-muted-foreground">
+                3 months ago
+              </span>
             </div>
             <div className="px-5 py-4">
               <h3 className="font-display text-base font-bold text-foreground dark:text-primary-foreground">
@@ -135,11 +137,17 @@ export default function TemplatesShowcase() {
               </div>
             </div>
             <div className="flex items-center gap-2 border-t border-border/50 px-5 py-3 dark:border-white/5">
-              <Button variant="default" className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter">
+              <Button
+                variant="ghost"
+                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
+              >
                 <Copy className="h-3.5 w-3.5" />
                 Duplicate
               </Button>
-              <Button variant="default" className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter">
+              <Button
+                variant="ghost"
+                className="inline-flex items-center gap-1 rounded-lg px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
+              >
                 <Share2 className="h-3.5 w-3.5" />
                 Share
               </Button>

@@ -14,7 +14,7 @@
  * Feature 2: Roof View
  */
 
-import { useState } from 'react';
+import { useState } from "react";
 import {
   Satellite,
   MapPin,
@@ -24,9 +24,9 @@ import {
   Info,
   Eye,
   X,
-} from 'lucide-react';
-import { useRoofView } from '@/lib/roof/use-roof-view';
-import type {} from '@/lib/roof/types';
+} from "lucide-react";
+import { useRoofView } from "@/lib/roof/use-roof-view";
+import type {} from "@/lib/roof/types";
 import { Button } from "@/components/ui/shadcn/button";
 
 export function RoofViewPanel() {
@@ -40,9 +40,9 @@ export function RoofViewPanel() {
     resetImagery,
   } = useRoofView();
 
-  const [address, setAddress] = useState('');
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
+  const [address, setAddress] = useState("");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
 
   const handleFetch = () => {
     const location = {
@@ -66,20 +66,24 @@ export function RoofViewPanel() {
   }
 
   // ── Not configured state ──
-  if (state === 'not_configured') {
+  if (state === "not_configured") {
     return (
       <div className="rounded-xl border border-border bg-muted/50 p-4">
         <div className="flex items-start gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted shrink-0">
-            <Satellite aria-hidden="true" className="w-5 h-5 text-muted-foreground" />
+            <Satellite
+              aria-hidden="true"
+              className="w-5 h-5 text-muted-foreground"
+            />
           </div>
           <div className="flex-1">
             <p className="text-sm font-semibold text-card-foreground">
               Roof View (Aerial Imagery)
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              Aerial or satellite imagery can help you trace your roof outline for more accurate measurements.
-              No imagery provider is currently configured.
+              Aerial or satellite imagery can help you trace your roof outline
+              for more accurate measurements. No imagery provider is currently
+              configured.
             </p>
             <div className="mt-2 inline-flex items-center gap-1.5 rounded-md bg-amber-50 border border-amber-200 px-2 py-1 text-xs font-medium text-amber-700">
               <Info aria-hidden="true" className="w-3 h-3" />
@@ -100,7 +104,10 @@ export function RoofViewPanel() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
-            <Satellite aria-hidden="true" className="w-5 h-5 text-brand-purple" />
+            <Satellite
+              aria-hidden="true"
+              className="w-5 h-5 text-brand-purple"
+            />
           </div>
           <div>
             <p className="text-sm font-semibold text-card-foreground">
@@ -118,18 +125,21 @@ export function RoofViewPanel() {
       </div>
 
       {/* Location input */}
-      {state !== 'available' && (
+      {state !== "available" && (
         <div className="space-y-3">
           <div>
             <label className="text-xs font-medium text-muted-foreground mb-1 block">
               Property address
             </label>
             <div className="relative">
-              <MapPin aria-hidden="true" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <MapPin
+                aria-hidden="true"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground"
+              />
               <input
                 type="text"
                 value={address}
-                onChange={e => setAddress(e.target.value)}
+                onChange={(e) => setAddress(e.target.value)}
                 placeholder="e.g. 12 Adeola Odeku, Victoria Island, Lagos"
                 className="w-full rounded-lg border border-border pl-9 pr-3 py-2 text-sm"
               />
@@ -144,7 +154,7 @@ export function RoofViewPanel() {
               <input
                 type="number"
                 value={latitude}
-                onChange={e => setLatitude(e.target.value)}
+                onChange={(e) => setLatitude(e.target.value)}
                 placeholder="6.4474"
                 step="0.0001"
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm"
@@ -157,7 +167,7 @@ export function RoofViewPanel() {
               <input
                 type="number"
                 value={longitude}
-                onChange={e => setLongitude(e.target.value)}
+                onChange={(e) => setLongitude(e.target.value)}
                 placeholder="3.4089"
                 step="0.0001"
                 className="w-full rounded-lg border border-border px-3 py-2 text-sm"
@@ -165,10 +175,11 @@ export function RoofViewPanel() {
             </div>
           </div>
 
-          <Button variant="default"
+          <Button
+            variant="default"
             onClick={handleFetch}
             disabled={loadingImagery || (!address && !latitude)}
-            className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium hover:/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {loadingImagery ? (
               <>
@@ -186,7 +197,7 @@ export function RoofViewPanel() {
       )}
 
       {/* Fetching state */}
-      {state === 'fetching' && !imagery && (
+      {state === "fetching" && !imagery && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
           <Loader2 aria-hidden="true" className="w-4 h-4 animate-spin" />
           Contacting {config?.display_name}...
@@ -194,7 +205,7 @@ export function RoofViewPanel() {
       )}
 
       {/* Imagery available */}
-      {state === 'available' && imagery?.imagery_url && (
+      {state === "available" && imagery?.imagery_url && (
         <div className="space-y-3">
           <div className="relative rounded-lg overflow-hidden border border-border">
             <img
@@ -202,7 +213,8 @@ export function RoofViewPanel() {
               alt="Aerial roof view"
               className="w-full h-auto"
             />
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={resetImagery}
               className="absolute top-2 right-2 flex items-center gap-1 rounded-md bg-black/50 backdrop-blur px-2 py-1 text-xs text-primary-foreground hover:bg-black/70"
             >
@@ -212,23 +224,29 @@ export function RoofViewPanel() {
           </div>
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Eye aria-hidden="true" className="w-3.5 h-3.5" />
-            Retrieved from {imagery.provider_display_name} on{' '}
+            Retrieved from {imagery.provider_display_name} on{" "}
             {imagery.retrieved_at
               ? new Date(imagery.retrieved_at).toLocaleDateString()
-              : 'unknown date'}
+              : "unknown date"}
           </div>
           <p className="text-xs text-muted-foreground">
-            Use this image as a reference to trace your roof outline in the geometry editor below.
+            Use this image as a reference to trace your roof outline in the
+            geometry editor below.
           </p>
         </div>
       )}
 
       {/* Error states */}
-      {(state === 'error' || state === 'provider_error') && imagery?.error && (
+      {(state === "error" || state === "provider_error") && imagery?.error && (
         <div className="rounded-lg bg-red-50 border border-red-200 p-3 flex items-start gap-2">
-          <AlertCircle aria-hidden="true" className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+          <AlertCircle
+            aria-hidden="true"
+            className="w-4 h-4 text-red-500 shrink-0 mt-0.5"
+          />
           <div>
-            <p className="text-xs font-medium text-red-700">Could not retrieve imagery</p>
+            <p className="text-xs font-medium text-red-700">
+              Could not retrieve imagery
+            </p>
             <p className="text-xs text-red-600 mt-1">{imagery.error}</p>
             <p className="text-xs text-muted-foreground mt-2">
               You can still enter your roof dimensions manually below.
