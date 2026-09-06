@@ -873,6 +873,14 @@ export default function BuildToRoofEstimator() {
                         }
                         options={FOUNDATION_TYPES}
                       />
+                      {input.foundation_type !== "strip_footing" && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
+                          Quantities are modelled on continuous strip-footing
+                          geometry. For pad, raft or pile foundations, treat the
+                          excavation, concrete and blockwork figures as
+                          strip-footing equivalents — verify with your engineer.
+                        </p>
+                      )}
                       <Field
                         label="Foundation depth"
                         unit={input.measurement_unit}
