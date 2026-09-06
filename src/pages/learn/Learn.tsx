@@ -214,7 +214,7 @@ export default function Learn() {
             </div>
             <h2 className="font-display text-3xl font-bold leading-tight tracking-tight text-foreground dark:text-primary-foreground sm:text-4xl">
               Master Your Craft with{" "}
-              <span className="bg-gradient-to-r from-primary to-primary-lighter bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent dark:to-primary-lighter">
                 Expert Guides
               </span>
             </h2>

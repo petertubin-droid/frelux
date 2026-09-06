@@ -30,6 +30,14 @@ interface Tool {
   featured?: boolean;
 }
 
+// Cycled RGB gradient palettes for the sliding strip — vivid on light and dark
+const RGB_GRADIENTS = [
+  "from-rose-500 via-fuchsia-500 to-violet-500",
+  "from-sky-500 via-cyan-500 to-emerald-500",
+  "from-amber-500 via-orange-500 to-rose-500",
+  "from-violet-500 via-sky-500 to-emerald-500",
+];
+
 const calculators: Tool[] = [
   {
     icon: Paintbrush,
@@ -224,6 +232,35 @@ export default function Calculators() {
           </p>
         </Container>
       </section>
+
+
+      {/* Continuous sliding strip of calculator names — decorative */}
+      <div
+        aria-hidden="true"
+        className="overflow-hidden border-y border-border/40 bg-card py-3 dark:bg-background-mid"
+      >
+        <div className="flex w-max animate-marquee items-center gap-10 motion-reduce:animate-none">
+          {[0, 1].map((copy) => (
+            <div key={copy} className="flex items-center gap-10">
+              {calculators.map((tool, i) => (
+                <span
+                  key={`${copy}-${tool.title}`}
+                  className="flex items-center gap-10 whitespace-nowrap"
+                >
+                  <span
+                    className={`bg-gradient-to-r bg-clip-text text-sm font-semibold uppercase tracking-wider text-transparent ${
+                      RGB_GRADIENTS[i % RGB_GRADIENTS.length]
+                    }`}
+                  >
+                    {tool.title}
+                  </span>
+                  <span className="h-1 w-1 rounded-full bg-border" />
+                </span>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Calculator grid */}
       <section
