@@ -46,7 +46,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
-import { useTheme } from "@/lib/theme";
+import { AdminThemeProvider, useAdminTheme } from "@/lib/admin-theme";
 import { Button } from "@/components/ui/shadcn/button";
 
 // =========================================================
@@ -268,10 +268,22 @@ const navModules: NavModule[] = [
   },
 ];
 
+/**
+ * Admin layout shell. Wraps the dashboard in the ADMIN-scoped theme provider
+ * so admin dark-mode toggles never modify the public site / visitor theme.
+ */
 export default function AdminLayout() {
+  return (
+    <AdminThemeProvider>
+      <AdminLayoutInner />
+    </AdminThemeProvider>
+  );
+}
+
+function AdminLayoutInner() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const { theme, toggle } = useTheme();
+  const { theme, toggle } = useAdminTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
