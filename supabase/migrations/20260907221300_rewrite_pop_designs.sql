@@ -44,7 +44,7 @@ A plain ceiling has a border; a "modern" ceiling is border + tray + cove; a show
 
 Two numbers govern everything in the catalogue:
 
-**Height:** the drop is subtracted at the border (cove lighting drops the *usable* sense of height a little more — [the lighting guide](/learn/pop-ceiling-lighting-integration-guide)). The working rules: 2.4–2.6 m rooms stay with frames or slim single trays; 2.7–3.0 m carries the simple tray comfortably; 3.0 m+ earns the layered families. A tray that reads well in a 3.2 m lounge is a mistake in a 2.5 m bedroom — the design fails by *room*, not by pattern.
+**Height:** the drop is subtracted at the border (cove lighting drops the *usable* sense of height a little more — [the lighting guide](/learn/pop-ceiling-lighting-integration-guide)). The working rules: 2.4–2.6 m rooms stay with frames or slim single trays; 2.7–3.0 m carries the simple tray comfortably; 3.0 m+ earns the layered families. A tray that reads well in a 3.2 m lounge is a mistake in a 2.5 m bedroom — the design fails by *room*, not by pattern — and no installer's portfolio changes that arithmetic, because the portfolio shows the pattern at its best, in a room chosen for it; your room is not that room.
 
 **Area:** the border-to-field ratio — small rooms (under ~12 m²) have proportionally more border per ceiling, so borders read heavier and multi-layer designs crowd; large rooms absorb layers generously and *need* them (a vast plain field in a big lounge reads as institutional). The pattern scales to the plan, not the budget alone.
 
@@ -71,6 +71,6 @@ The market's own drift, worth naming because installers quote from it: the ornat
 
 ## Closing
 
-The catalogue is four moves — border, tray, step, cove — in families from the honest default to the showpiece, each priced in material, labour, and skill, and each honest only in the right room: the frame flatters every room, the tray earns the standard lounge, the layers belong to the heights that can carry them, and the plain ceiling is a decision, not an absence. Choose by intent, verify the height math, and the ceiling you commission is the one the room asked for — not the one the installer had in the van.
+The catalogue is four moves — border, tray, step, cove — in families from the honest default to the showpiece, each priced in material, labour, and skill, and each honest only in the right room: the frame flatters every room, the tray earns the standard lounge, the layers belong to the heights that can carry them, and the plain ceiling is a decision, not an absence. Choose by intent, verify the height math, and the ceiling you commission is the one the room asked for — not the one the installer had in the van. The ceilings that age best are never the ones that photographed best on handover day; they are the ones whose owners chose depth and light over novelty — and the catalogue has just shown you how.
 $body$, updated_at = now()
 WHERE slug = 'types-of-pop-ceiling-designs-and-patterns' AND status = 'published' AND content LIKE '%## Understanding the Fundamentals%';
