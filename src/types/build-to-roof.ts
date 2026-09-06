@@ -315,7 +315,8 @@ export interface ConsolidatedMaterial {
 export interface ReinforcementBreakdownItem {
   diameter_mm: number;
   label: string;           // e.g. "12mm Main Bars"
-  total_length_m: number;  // total length in meters
+  base_length_m: number;   // net length in meters (before wastage)
+  total_length_m: number;  // total length in meters (incl. wastage)
   standard_lengths: number; // number of 12m standard lengths
   weight_kg: number;       // total weight
   weight_tonnes: number;   // total weight in tonnes

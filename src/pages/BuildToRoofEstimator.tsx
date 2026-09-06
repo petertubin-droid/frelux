@@ -33,6 +33,8 @@ import {
 } from "lucide-react";
 import {
   calculateBuildToRoof,
+  convertBuildToRoofUnits,
+  validateBuildToRoofInput,
   DEFAULT_PRICES,
   DEFAULT_LABOUR,
   DEFAULT_WASTAGE,
@@ -395,18 +397,51 @@ export default function BuildToRoofEstimator() {
   // same fields the user would have typed by hand. Manual editing in the
   // following steps remains fully available.
   const [extractionApplied, setExtractionApplied] = useState(0);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const applyExtractionPatch = useCallback(
     (
       patch: Partial<BuildToRoofInput>,
       meta: { appliedCount: number; fileName?: string },
     ) => {
-      setInput((prev) => ({ ...prev, ...patch }));
+      setInput((prev) => {
+        // AI-extracted dimensions are validated in METRES (mirrors the
+        // server clamps). If the form is in feet, convert them so the
+        // engine's own ft→m pass doesn't shrink them by 3.28×.
+        let normalized = patch;
+        if (prev.measurement_unit === "ft") {
+          const factor = 1 / 0.3048;
+          normalized = {
+            ...patch,
+            building_length: patch.building_length !== undefined ? patch.building_length * factor : undefined,
+            building_width: patch.building_width !== undefined ? patch.building_width * factor : undefined,
+            floor_to_floor_height: patch.floor_to_floor_height !== undefined ? patch.floor_to_floor_height * factor : undefined,
+            wall_thickness: patch.wall_thickness !== undefined ? patch.wall_thickness * factor : undefined,
+            internal_wall_length: patch.internal_wall_length !== undefined ? patch.internal_wall_length * factor : undefined,
+            roof_overhang: patch.roof_overhang !== undefined ? patch.roof_overhang * factor : undefined,
+            openings: patch.openings?.map((o) => ({
+              ...o,
+              width: o.width * factor,
+              height: o.height * factor,
+            })),
+          };
+        }
+        return { ...prev, ...normalized };
+      });
       setExtractionApplied(meta.appliedCount);
     },
     [],
   );
 
   const calculate = useCallback(() => {
+    // Invalid inputs must never produce an apparently-valid construction
+    // estimate — validate first and surface every problem at once.
+    const errors = validateBuildToRoofInput(input);
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      setResult(null);
+      return;
+    }
+    setValidationErrors([]);
     const r = monitoredCalc("Build-to-Roof Estimator", () =>
       calculateBuildToRoof(input),
     );
@@ -619,34 +654,11 @@ export default function BuildToRoofEstimator() {
                           variant="ghost"
                           onClick={() => {
                             if (input.measurement_unit === "ft") {
-                              // Convert ft values to m
+                              // Convert EVERY ft-mappable field to m — the
+                              // engine reads all of them in the active unit.
                               setInput((prev) => ({
-                                ...prev,
-                                measurement_unit: "m",
-                                building_length: parseFloat(
-                                  (prev.building_length * 0.3048).toFixed(2),
-                                ),
-                                building_width: parseFloat(
-                                  (prev.building_width * 0.3048).toFixed(2),
-                                ),
-                                floor_to_floor_height: parseFloat(
-                                  (prev.floor_to_floor_height * 0.3048).toFixed(
-                                    2,
-                                  ),
-                                ),
-                                wall_thickness: parseFloat(
-                                  (prev.wall_thickness * 0.3048).toFixed(4),
-                                ),
-                                internal_wall_length: parseFloat(
-                                  (prev.internal_wall_length * 0.3048).toFixed(
-                                    2,
-                                  ),
-                                ),
-                                internal_wall_thickness: parseFloat(
-                                  (
-                                    prev.internal_wall_thickness * 0.3048
-                                  ).toFixed(4),
-                                ),
+                                ...convertBuildToRoofUnits(prev, 0.3048),
+                                measurement_unit: "m" as const,
                               }));
                             }
                           }}
@@ -658,34 +670,11 @@ export default function BuildToRoofEstimator() {
                           variant="ghost"
                           onClick={() => {
                             if (input.measurement_unit === "m") {
-                              // Convert m values to ft
+                              // Convert EVERY ft-mappable field to ft — the
+                              // engine reads all of them in the active unit.
                               setInput((prev) => ({
-                                ...prev,
-                                measurement_unit: "ft",
-                                building_length: parseFloat(
-                                  (prev.building_length / 0.3048).toFixed(2),
-                                ),
-                                building_width: parseFloat(
-                                  (prev.building_width / 0.3048).toFixed(2),
-                                ),
-                                floor_to_floor_height: parseFloat(
-                                  (prev.floor_to_floor_height / 0.3048).toFixed(
-                                    2,
-                                  ),
-                                ),
-                                wall_thickness: parseFloat(
-                                  (prev.wall_thickness / 0.3048).toFixed(4),
-                                ),
-                                internal_wall_length: parseFloat(
-                                  (prev.internal_wall_length / 0.3048).toFixed(
-                                    2,
-                                  ),
-                                ),
-                                internal_wall_thickness: parseFloat(
-                                  (
-                                    prev.internal_wall_thickness / 0.3048
-                                  ).toFixed(4),
-                                ),
+                                ...convertBuildToRoofUnits(prev, 1 / 0.3048),
+                                measurement_unit: "ft" as const,
                               }));
                             }
                           }}
@@ -2059,7 +2048,7 @@ export default function BuildToRoofEstimator() {
                 )}
               </div>
               {/* Navigation */}
-              <div className="flex items-center justify-between mt-6 sm:mt-8 pt-4 border-t border-border/50">
+              <div className="relative flex items-center justify-between mt-6 sm:mt-8 pt-4 border-t border-border/50">
                 <Button
                   variant="ghost"
                   onClick={prev}
@@ -2088,6 +2077,25 @@ export default function BuildToRoofEstimator() {
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 ) : step === STEPS.length - 2 ? (
+                  <>
+                  {validationErrors.length > 0 && (
+                    <div className="absolute bottom-full right-0 mb-3 w-72 rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 p-3 shadow-lg">
+                      <p className="text-xs font-semibold text-red-700 dark:text-red-300 mb-1">
+                        Please fix these before calculating:
+                      </p>
+                      <ul className="text-xs text-red-600 dark:text-red-400 space-y-0.5 list-disc list-inside">
+                        {validationErrors.slice(0, 4).map((e) => (
+                          <li key={e}>{e}</li>
+                        ))}
+                        {validationErrors.length > 4 && (
+                          <li>
+                            …and {validationErrors.length - 4} more (see the
+                            earlier steps)
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
                   <Button
                     variant="ghost"
                     onClick={calculate}
@@ -2097,6 +2105,7 @@ export default function BuildToRoofEstimator() {
                     <span className="hidden sm:inline">Generate Estimate</span>
                     <span className="sm:hidden">Calculate</span>
                   </Button>
+                  </>
                 ) : null}
               </div>
             </>

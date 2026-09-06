@@ -92,11 +92,6 @@ function round(n: number, dp = 2): number {
   return Math.round(n * f) / f;
 }
 
-// Convert feet to meters
-function ftToM(ft: number): number {
-  return ft * M_PER_FT;
-}
-
 // Convert m³ to trips (Nigerian construction unit)
 export function m3ToTrips(m3: number): number {
   return m3 / M3_PER_TRIP;
@@ -176,7 +171,10 @@ function matLine(
   unitPrice: number,
   priceSource: string
 ): MaterialLine {
-  const finalQty = applyWastage(baseQty, wastagePercent);
+  const withWastage = applyWastage(baseQty, wastagePercent);
+  // Discrete pieces (blocks, sheets, screws) are bought whole — one
+  // purchase rounding at the end. Continuous materials keep 2 dp.
+  const finalQty = unit === 'pcs' ? Math.ceil(withWastage) : withWastage;
   return {
     label,
     unit,
@@ -355,21 +353,25 @@ export function getSheetCoverage(material: RoofingMaterial): number {
 export function calculateRidgeLength(
   buildingLength: number,
   buildingWidth: number,
-  roofType: string
+  roofType: string,
+  overhang = 0
 ): number {
   switch (roofType) {
     case 'gable':
-      return buildingLength; // one ridge along the length
+      // Ridge cap runs the full apex — the sloped planes extend 2 x overhang
+      // beyond the gable walls, so the apex (and its cap) is L + 2 x overhang.
+      return buildingLength + 2 * overhang;
     case 'hip': {
-      // Hip has a ridge of approximately (length - width)
-      return Math.max(0, buildingLength - buildingWidth);
+      // Ridge runs along the LONGER side; its length is |L - W|.
+      // (L = W gives a pyramid — no ridge.)
+      return Math.abs(buildingLength - buildingWidth);
     }
     case 'mono_pitch':
       return 0; // no ridge
     case 'flat':
       return 0;
     default:
-      return buildingLength;
+      return buildingLength + 2 * overhang;
   }
 }
 
@@ -378,14 +380,21 @@ export function calculateRidgeLength(
 export function calculateHipLength(
   buildingLength: number,
   buildingWidth: number,
-  pitchDegrees: number
+  pitchDegrees: number,
+  overhang = 0
 ): number {
+  // True hip-rafter geometry (standard roofing math):
+  //   plan run per direction = min(L, W)/2 + overhang  (hips sit at 45 deg
+  //   in plan when all pitches are equal, and start at the eave corners)
+  //   rise = plan run x tan(pitch)
+  //   hip length per hip = sqrt(run^2 + run^2 + rise^2) = run x sqrt(2 + tan^2(pitch))
+  // A hip is NOT a common rafter: using (run / cos(pitch)) understates the
+  // true hip length by 18-34% over typical pitches.
   const pitchRad = (pitchDegrees * Math.PI) / 180;
-  const halfWidth = buildingWidth / 2;
-  // Each hip runs from corner to ridge end point
-  const hipSlope = halfWidth / Math.cos(pitchRad);
+  const run = Math.min(buildingLength, buildingWidth) / 2 + overhang;
+  const hipLength = run * Math.sqrt(2 + Math.pow(Math.tan(pitchRad), 2));
   // 4 hips in a standard hip roof (one from each corner)
-  return 4 * hipSlope;
+  return 4 * hipLength;
 }
 
 // ── Fascia length ──
@@ -420,61 +429,54 @@ export function estimateTimberMeters(
   }
 
   const pitchRad = (pitchDegrees * Math.PI) / 180;
-  // FIX: slope length now includes overhang
-  const slopeLength = (buildingWidth / 2 + overhang) / Math.cos(pitchRad);
 
-  // Rafters: spaced at 0.9m, each rafter length = slopeLength
-  const rafterCount = Math.ceil(buildingLength / RAFTER_SPACING) + 1;
-  const rafterTotalM = rafterCount * 2 * slopeLength; // both sides
+  // The framing supports the sheets, so it is measured on the EAVE rectangle
+  // (the actual roof extent incl. overhang), not the wall rectangle.
+  const eaveLength = buildingLength + 2 * overhang;   // along the ridge
+  const eaveWidth = buildingWidth + 2 * overhang;    // across the ridge
 
-  // Purlins: rows per slope, each running the length of the building
-  const purlinTotalM = PURLIN_ROWS_PER_SLOPE * 2 * buildingLength;
+  if (roofType === 'mono_pitch') {
+    // Single plane spanning the FULL width: rafter run = eave width.
+    const slopeLength = eaveWidth / Math.cos(pitchRad);
+    const rafterCount = Math.ceil(eaveLength / RAFTER_SPACING) + 1;
+    const rafterTotalM = rafterCount * slopeLength;              // ONE plane
+    const purlinTotalM = PURLIN_ROWS_PER_SLOPE * eaveLength;     // ONE plane
+    return round(rafterTotalM + purlinTotalM);
+  }
+
+  // Gable / hip: common-rafter slope covers half the eave width
+  const slopeLength = (eaveWidth / 2) / Math.cos(pitchRad);
+
+  let rafterTotalM: number;
+  let purlinTotalM: number;
+
+  if (roofType === 'hip') {
+    // Commons step down toward the hips: full-height section runs between
+    // the hip planes, i.e. along (eaveLength - eaveWidth).
+    const commonPositions = Math.max(1, Math.ceil((eaveLength - eaveWidth) / RAFTER_SPACING) + 1);
+    rafterTotalM = commonPositions * 2 * slopeLength; // 2 side planes
+    // Jack rafters radiate on the 2 end planes: spaced along the eave width,
+    // average length ~ half the common slope.
+    const jacksPerEnd = Math.ceil(eaveWidth / RAFTER_SPACING) + 1;
+    rafterTotalM += jacksPerEnd * 2 * (slopeLength / 2);
+    // Purlins on all 4 planes: side planes run eaveLength; end-plane rows
+    // average half the eave width (triangular planes taper to the ridge).
+    purlinTotalM = PURLIN_ROWS_PER_SLOPE * 2 * eaveLength
+                 + PURLIN_ROWS_PER_SLOPE * 2 * (eaveWidth / 2);
+  } else {
+    // Gable (and custom): 2 planes, rafters at spacing along the eave length
+    const rafterCount = Math.ceil(eaveLength / RAFTER_SPACING) + 1;
+    rafterTotalM = rafterCount * 2 * slopeLength; // both slopes
+    purlinTotalM = PURLIN_ROWS_PER_SLOPE * 2 * eaveLength;
+  }
 
   return round(rafterTotalM + purlinTotalM);
 }
 
-// ── Reinforcement estimation (from engineer's schedule) ──
-
-/**
- * Calculate reinforcement steel weight for a structural member.
- *
- * Main bars: count × length × quantity × weight_per_m
- * Links/stirrups: links_per_m × member_length × quantity × link_length × weight_per_m
- *
- * FIX: link length now includes hook length (10 × link_diameter per hook, 2 hooks per link)
- *
- * Steel weight per meter: kg/m = d² / 162  [where d is in mm]
- * This formula derives from: weight = π × d²/4 × 7850 kg/m³ / 10⁶ = d²/162.3 ≈ d²/162
- */
-export function estimateReinforcementKg(member: StructuralMemberInput): number {
-  if (!member.bar_diameter_mm || !member.bar_count_main) return 0;
-
-  // Main bars
-  const mainBarWeightPerM = Math.pow(member.bar_diameter_mm, 2) / 162;
-  const mainBarLength = member.bar_length_main ?? member.length;
-  const mainBarsTotal = member.bar_count_main * mainBarLength * member.quantity;
-  const mainBarsKg = mainBarsTotal * mainBarWeightPerM;
-
-  // Links/stirrups
-  let linksKg = 0;
-  if (member.link_diameter_mm && member.bar_count_links) {
-    const linkWeightPerM = Math.pow(member.link_diameter_mm, 2) / 162;
-    const cover = (member.cover_mm ?? 25) / 1000; // convert mm to m
-
-    // FIX: link length includes hook length
-    // Link body: 2 × (width - 2×cover + depth - 2×cover) = 2 × (width + depth - 4×cover)
-    const linkBodyLength = 2 * (member.width + member.depth - 4 * cover);
-    // Hook length: 2 hooks × 10 × bar_diameter
-    const hookLength = 2 * STIRRUP_HOOK_MULTIPLIER * (member.link_diameter_mm / 1000);
-    const linkTotalLength = linkBodyLength + hookLength;
-
-    const linksTotal = member.bar_count_links * member.length * member.quantity;
-    linksKg = linksTotal * linkTotalLength * linkWeightPerM;
-  }
-
-  return round(mainBarsKg + linksKg);
-}
-
+// ── Reinforcement ──
+// Steel weight per meter: kg/m = d² / 162  [d in mm]
+// Derives from: weight = π × d²/4 × 7850 kg/m³ / 10⁶ = d²/162.3 ≈ d²/162
+// (verified: 16mm → 1.580 kg/m vs exact 1.578 kg/m, 0.1% off — standard formula)
 // ── Reinforcement breakdown by bar diameter ──
 
 interface RebarAggregate {
@@ -576,6 +578,7 @@ export function buildReinforcementBreakdown(
     items.push({
       diameter_mm: agg.diameter_mm,
       label,
+      base_length_m: round(agg.total_length_m),
       total_length_m: round(lengthWithWastage),
       standard_lengths: standardLengths,
       weight_kg: round(weightWithWastage),
@@ -693,11 +696,13 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
   labour.push(labLine('Sand filling labour', 'm³', sandFillVol, input.labour.sand_filling_per_m3));
 
   // 8. Backfilling — FIX: added backfilling (excavated soil returned into trench)
-  const backfillVol = Math.max(0, excavationVol - foundationConcreteVol - blindingVol);
+  // Blinding sits over the full footprint (inside the walls), not inside the
+  // trench, so the only trench volume occupied is the footing concrete itself.
+  const backfillVol = Math.max(0, excavationVol - foundationConcreteVol);
   if (backfillVol > 0) {
     quantities.push(
-      qtyLine('Backfilling volume', 'Excavation vol − (Foundation concrete + Blinding)',
-        { excavation: excavationVol, foundation_concrete: foundationConcreteVol, blinding: blindingVol },
+      qtyLine('Backfilling volume', 'Excavation vol − Foundation concrete',
+        { excavation: excavationVol, foundation_concrete: foundationConcreteVol },
         backfillVol, 'm³', 0)
     );
     labour.push(labLine('Backfilling labour', 'm³', backfillVol, input.labour.backfilling_per_m3));
@@ -758,17 +763,9 @@ function calcGroundFloor(input: BuildToRoofInput): StageResult {
 
   const footprintArea = input.building_length * input.building_width;
 
-  // FIX: Sand blinding/filling under ground floor slab (spec requires it)
-  const gfSandFillThickness = input.sand_filling_thickness ?? 0.05; // configurable, default 50mm
-  const gfSandFillVol = footprintArea * gfSandFillThickness;
-  quantities.push(
-    qtyLine('Sand filling (under slab)', 'Footprint area × 0.05 (50mm)',
-      { footprint_area: footprintArea, thickness: gfSandFillThickness },
-      gfSandFillVol, 'm³', input.wastage.sand)
-  );
-  materials.push(matLineTrips('Sand (ground floor filling)', gfSandFillVol, input.wastage.sand, input.prices.sand_per_trip, input.prices.sand_per_m3, input.prices.price_source));
-  labour.push(labLine('Sand filling labour (ground floor)', 'm³', gfSandFillVol, input.labour.sand_filling_per_m3));
-
+  // Sand filling over the hardcore is calculated ONCE, in the Site &
+  // Foundation stage (over hardcore, below DPC). The same physical layer
+  // must not also be priced here — that was double-counting.
   // Oversite concrete (ground floor slab)
   const slabThickness = 0.1; // 100mm — standard Nigerian construction
   const slabVol = footprintArea * slabThickness;
@@ -903,7 +900,6 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
   }
 
   let totalConcreteVol = 0;
-  let _totalReinforcementKg = 0;
   let totalFormworkArea = 0;
 
   for (const member of input.structural_members) {
@@ -925,10 +921,6 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
       formwork = member.length * 2 * (member.width + member.depth) * member.quantity;
     }
     totalFormworkArea += formwork;
-
-    // Reinforcement
-    const rebarKg = estimateReinforcementKg(member);
-    _totalReinforcementKg += rebarKg;
 
     quantities.push(
       qtyLine(`${member.label} — concrete`, `${member.length} × ${member.width} × ${member.depth} × ${member.quantity}`,
@@ -952,7 +944,9 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
     materials.push({
       label: item.label,
       unit: 'lengths',
-      base_quantity: round(item.total_length_m / 12), // base 12m lengths
+      // Net (pre-wastage) length ÷ 12m standard lengths — wastage is added
+      // by the purchase rounding, not baked into the base quantity.
+      base_quantity: round(item.base_length_m / 12),
       wastage_percent: input.wastage.reinforcement,
       final_quantity: item.standard_lengths,
       unit_price: item.unit_price,
@@ -1018,13 +1012,26 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
       { roof_area: roofArea, coverage: sheetCoverage, material: input.roofing_material as unknown as number },
       sheetCount, 'pcs', input.wastage.roofing_sheets)
   );
-  materials.push(matLine('Roofing sheets', 'pcs', sheetCount, input.wastage.roofing_sheets, input.prices.roofing_sheet_per_piece, input.prices.price_source));
+  // Purchase quantity: wastage is applied to the MEASURED AREA first, then
+  // ONE purchase rounding to whole sheets (ceil(count × 1.05) would compound
+  // two roundings and over-order).
+  const purchaseSheets = Math.ceil(applyWastage(roofArea, input.wastage.roofing_sheets) / sheetCoverage);
+  materials.push({
+    label: 'Roofing sheets',
+    unit: 'pcs',
+    base_quantity: round(sheetCount),
+    wastage_percent: input.wastage.roofing_sheets,
+    final_quantity: purchaseSheets,
+    unit_price: input.prices.roofing_sheet_per_piece,
+    total_cost: round(purchaseSheets * input.prices.roofing_sheet_per_piece),
+    price_source: input.prices.price_source,
+  });
 
   // Ridge caps
-  const ridgeLength = calculateRidgeLength(input.building_length, input.building_width, input.roof_type);
+  const ridgeLength = calculateRidgeLength(input.building_length, input.building_width, input.roof_type, input.roof_overhang);
   quantities.push(
-    qtyLine('Ridge cap length', 'Depends on roof type',
-      { roof_type: input.roof_type as unknown as number, length: input.building_length, width: input.building_width },
+    qtyLine('Ridge cap length', 'Gable: L + 2×overhang · Hip: |L − W|',
+      { roof_type: input.roof_type as unknown as number, length: input.building_length, width: input.building_width, overhang: input.roof_overhang },
       ridgeLength, 'm', 0)
   );
   if (ridgeLength > 0) {
@@ -1033,10 +1040,10 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
 
   // Hip accessories (for hip roofs)
   if (input.roof_type === 'hip') {
-    const hipLength = calculateHipLength(input.building_length, input.building_width, input.roof_pitch_degrees);
+    const hipLength = calculateHipLength(input.building_length, input.building_width, input.roof_pitch_degrees, input.roof_overhang);
     quantities.push(
-      qtyLine('Hip accessory length', '4 × (width/2) / cos(pitch)',
-        { width: input.building_width, pitch: input.roof_pitch_degrees },
+      qtyLine('Hip accessory length', '4 × (min(L,W)/2 + overhang) × √(2 + tan²(pitch))',
+        { length: input.building_length, width: input.building_width, pitch: input.roof_pitch_degrees, overhang: input.roof_overhang },
         hipLength, 'm', 0)
     );
     materials.push(matLine('Hip accessories', 'm', hipLength, 5, input.prices.ridge_cap_per_meter, input.prices.price_source));
@@ -1051,8 +1058,8 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
   );
   materials.push(matLine('Timber', 'm', timberM, input.wastage.timber, input.prices.timber_per_m, input.prices.price_source));
 
-  // Roofing screws (10 per sheet)
-  const screwCount = sheetCount * SCREWS_PER_SHEET;
+  // Roofing screws (10 per sheet — sized to the purchase quantity)
+  const screwCount = purchaseSheets * SCREWS_PER_SHEET;
   materials.push(matLine('Roofing screws', 'pcs', screwCount, 5, input.prices.roofing_screws_per_piece, input.prices.price_source));
 
   // Fascia
@@ -1184,39 +1191,128 @@ function assessConfidence(input: BuildToRoofInput): { level: ConfidenceLevel; re
   };
 }
 
+// ── Unit conversion ──
+
+/** Fields expressed in the user's measurement unit (ft or m) that must be
+ *  converted when the unit changes or when the engine needs metric values.
+ *  Everything NOT listed here is unit-independent (block sizes are inches,
+ *  pitch is degrees, counts are integers). */
+const UNIT_SCALAR_FIELDS: (keyof BuildToRoofInput)[] = [
+  'building_length', 'building_width', 'floor_to_floor_height', 'wall_thickness',
+  'internal_wall_length', 'internal_wall_thickness', 'foundation_depth',
+  'foundation_width', 'footing_thickness', 'blinding_thickness',
+  'hardcore_thickness', 'dpc_length', 'roof_overhang',
+];
+
+/**
+ * Convert a Build-to-Roof input between metric and imperial, applying the
+ * given factor to every unit-dependent field (m→ft: /0.3048, ft→m: ×0.3048).
+ * Openings and structural members are converted too. Used by the engine
+ * (ft→m before calculation) and by the UI unit toggle (both directions).
+ */
+export function convertBuildToRoofUnits(
+  input: BuildToRoofInput,
+  factor: number
+): BuildToRoofInput {
+  const converted: BuildToRoofInput = { ...input };
+  const target = converted as unknown as Record<string, number>;
+  for (const key of UNIT_SCALAR_FIELDS) {
+    target[key as string] = (input[key] as number) * factor;
+  }
+  converted.openings = input.openings.map(o => ({
+    ...o,
+    width: o.width * factor,
+    height: o.height * factor,
+  }));
+  converted.structural_members = input.structural_members.map(m => ({
+    ...m,
+    length: m.length * factor,
+    width: m.width * factor,
+    depth: m.depth * factor,
+  }));
+  return converted;
+}
+
+// ── Input validation ──
+
+/**
+ * Validate a Build-to-Roof input (in the user's own unit system).
+ * Returns a list of human-readable problems — empty means the input is
+ * safe to calculate. Ranges mirror the server-validated AI-extraction
+ * clamps so manual input and AI input obey identical limits.
+ */
+export function validateBuildToRoofInput(rawInput: BuildToRoofInput): string[] {
+  const input = rawInput.measurement_unit === 'ft'
+    ? convertBuildToRoofUnits(rawInput, M_PER_FT)
+    : rawInput;
+  const errors: string[] = [];
+  const num = (label: string, v: number, min: number, max: number, integer = false): void => {
+    if (!Number.isFinite(v)) { errors.push(`${label} must be a number (got ${v})`); return; }
+    if (integer && !Number.isInteger(v)) { errors.push(`${label} must be a whole number (got ${v})`); return; }
+    if (v < min || v > max) errors.push(`${label} must be between ${min} and ${max} (got ${round(v, 3)})`);
+  };
+  const nonNeg = (label: string, v: number): void => {
+    if (!Number.isFinite(v) || v < 0) errors.push(`${label} cannot be negative (got ${v})`);
+  };
+
+  num('Building length', input.building_length, 1, 300);
+  num('Building width', input.building_width, 1, 300);
+  num('Number of floors', input.number_of_floors, 1, 100, true);
+  num('Wall height per floor', input.floor_to_floor_height, 2, 8);
+  num('Wall thickness', input.wall_thickness, 0.05, 0.6);
+  nonNeg('Internal wall length', input.internal_wall_length);
+  if (input.internal_wall_length > 0) num('Internal wall thickness', input.internal_wall_thickness, 0.05, 0.6);
+  nonNeg('Foundation depth', input.foundation_depth);
+  nonNeg('Foundation width', input.foundation_width);
+  nonNeg('Footing thickness', input.footing_thickness);
+  nonNeg('Blinding thickness', input.blinding_thickness);
+  nonNeg('Hardcore thickness', input.hardcore_thickness);
+  nonNeg('DPC length', input.dpc_length);
+  nonNeg('Overhang', input.roof_overhang);
+  if (input.roof_type !== 'flat') num('Roof pitch', input.roof_pitch_degrees, 0, 60);
+  if (input.contingency_percent < 0 || input.contingency_percent > 100)
+    errors.push(`Contingency must be between 0 and 100% (got ${input.contingency_percent})`);
+
+  for (const w of ['blocks', 'cement', 'sand', 'granite', 'reinforcement', 'timber', 'roofing_sheets', 'hardcore'] as const) {
+    const v = input.wastage[w];
+    if (!Number.isFinite(v) || v < 0 || v > 100)
+      errors.push(`Wastage (${w}) must be between 0 and 100% (got ${v})`);
+  }
+  for (const [k, v] of Object.entries(input.prices)) {
+    if (k === 'price_date' || k === 'price_source') continue;
+    if (!Number.isFinite(v) || v < 0) errors.push(`Price (${k}) cannot be negative (got ${v})`);
+  }
+
+  for (const o of input.openings) {
+    if (o.count < 0 || !Number.isInteger(o.count)) errors.push(`Opening "${o.label ?? o.type}" count must be a whole number ≥ 0`);
+    if (o.count > 0) {
+      num(`Opening "${o.label ?? o.type}" width`, o.width, 0.1, 20);
+      num(`Opening "${o.label ?? o.type}" height`, o.height, 0.1, 20);
+    }
+  }
+  for (const m of input.structural_members) {
+    nonNeg(`Structural member "${m.label}" length`, m.length);
+    nonNeg(`"${m.label}" width`, m.width);
+    nonNeg(`"${m.label}" depth`, m.depth);
+    if (!Number.isInteger(m.quantity) || m.quantity < 1) errors.push(`Structural member "${m.label}" quantity must be a whole number ≥ 1`);
+  }
+  return errors;
+}
+
 // ── Main calculation ──
 
 export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult {
   // Convert ft inputs to meters if measurement_unit is ft
   const input_m: BuildToRoofInput = input.measurement_unit === 'ft'
-    ? {
-        ...input,
-        building_length: ftToM(input.building_length),
-        building_width: ftToM(input.building_width),
-        floor_to_floor_height: ftToM(input.floor_to_floor_height),
-        wall_thickness: ftToM(input.wall_thickness),
-        internal_wall_length: ftToM(input.internal_wall_length),
-        internal_wall_thickness: ftToM(input.internal_wall_thickness),
-        foundation_depth: ftToM(input.foundation_depth),
-        foundation_width: ftToM(input.foundation_width),
-        footing_thickness: ftToM(input.footing_thickness),
-        blinding_thickness: ftToM(input.blinding_thickness),
-        hardcore_thickness: ftToM(input.hardcore_thickness),
-        dpc_length: ftToM(input.dpc_length),
-        roof_overhang: ftToM(input.roof_overhang),
-        openings: input.openings.map(o => ({
-          ...o,
-          width: ftToM(o.width),
-          height: ftToM(o.height),
-        })),
-        structural_members: input.structural_members.map(m => ({
-          ...m,
-          length: ftToM(m.length),
-          width: ftToM(m.width),
-          depth: ftToM(m.depth),
-        })),
-      }
+    ? convertBuildToRoofUnits(input, M_PER_FT)
     : input;
+
+  // Invalid input must never produce an apparently-valid construction
+  // estimate — reject explicitly.
+  const validationErrors = validateBuildToRoofInput(input);
+  if (validationErrors.length > 0) {
+    throw new Error(`Build-to-Roof input is invalid: ${validationErrors.join('; ')}`);
+  }
 
   const stages: StageResult[] = [];
 
@@ -1305,7 +1401,9 @@ export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult
     location: input.location || 'Not specified',
     building_type: input.building_type,
     number_of_floors: input.number_of_floors,
-    total_floor_area: round(input.building_length * input.building_width * input.number_of_floors),
+    // Use the METRIC input — in ft mode the raw values are feet and must not
+    // be reported as m².
+    total_floor_area: round(input_m.building_length * input_m.building_width * input_m.number_of_floors),
     construction_stage: 'SITE → FOUNDATION → GROUND FLOOR → WALLS → STRUCTURAL FRAME → ROOF → READY FOR FINISHING',
     confidence: confidence.level,
     confidence_reason: confidence.reason,
