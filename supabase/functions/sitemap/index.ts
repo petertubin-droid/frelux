@@ -245,7 +245,7 @@ ${urls.join("\n")}
     return new Response(sitemap, {
       headers: {
         ...corsHeaders,
-        "Content-Type": "application/xml; charset=utf-8",
+        "Content-Type": "application/xml",
         "Cache-Control": "public, max-age=3600",
       },
     });

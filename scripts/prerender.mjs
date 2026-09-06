@@ -621,6 +621,188 @@ const routes = [
   },
 ];
 
+// ── Learn section: dynamic article + category pages from Supabase ───
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';
+
+// Minimal markdown -> HTML for noscript content (headings, lists, bold,
+// italic, links, code blocks, paragraphs). Full fidelity is not needed —
+// this is the no-JS crawler fallback; JS users get the React renderer.
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function mdInline(s) {
+  let out = escapeHtml(s);
+  out = out.replace(/`([^`]+)`/g, '<code>$1</code>');
+  out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  out = out.replace(/(^|[^*])\*([^*]+)\*/g, '$1<em>$2</em>');
+  out = out.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, '<a href="$2">$1</a>');
+  return out;
+}
+function markdownToHtml(md) {
+  const lines = md.split('\n');
+  const out = [];
+  let i = 0;
+  let listType = null; // 'ul' | 'ol'
+  const closeList = () => { if (listType) { out.push(`</${listType}>`); listType = null; } };
+  while (i < lines.length) {
+    const line = lines[i];
+    const trimmed = line.trim();
+    if (trimmed.startsWith('```')) {
+      closeList();
+      const codeLines = [];
+      i++;
+      while (i < lines.length && !lines[i].trim().startsWith('```')) { codeLines.push(escapeHtml(lines[i])); i++; }
+      i++;
+      out.push(`<pre><code>${codeLines.join('\n')}</code></pre>`);
+      continue;
+    }
+    const h = /^(#{1,4})\s+(.*)$/.exec(trimmed);
+    if (h) {
+      closeList();
+      const lvl = h[1].length;
+      out.push(`<h${lvl}>${mdInline(h[2])}</h${lvl}>`);
+      i++;
+      continue;
+    }
+    const ul = /^[-*]\s+(.*)$/.exec(trimmed);
+    if (ul) {
+      if (listType !== 'ul') { closeList(); out.push('<ul>'); listType = 'ul'; }
+      out.push(`<li>${mdInline(ul[1])}</li>`);
+      i++;
+      continue;
+    }
+    const ol = /^\d+\.\s+(.*)$/.exec(trimmed);
+    if (ol) {
+      if (listType !== 'ol') { closeList(); out.push('<ol>'); listType = 'ol'; }
+      out.push(`<li>${mdInline(ol[1])}</li>`);
+      i++;
+      continue;
+    }
+    if (trimmed === '') {
+      closeList();
+      i++;
+      continue;
+    }
+    // Table rows: render as a simple definition list (pipes are rare in prose)
+    if (trimmed.startsWith('|')) {
+      const cells = trimmed.split('|').map((c) => c.trim()).filter((c) => c && !/^[\-: ]+$/.test(c));
+      if (cells.length) {
+        if (!out.length || !out[out.length - 1].startsWith('<table>')) {
+          closeList();
+          out.push('<table>');
+        }
+        out.push(`<tr>${cells.map((c) => `<td>${mdInline(c)}</td>`).join('')}</tr>`);
+        i++;
+        continue;
+      }
+    }
+    if (out.length && out[out.length - 1].startsWith('<table>')) {
+      out.push('</table>');
+    }
+    closeList();
+    out.push(`<p>${mdInline(trimmed)}</p>`);
+    i++;
+  }
+  if (out.length && out[out.length - 1].startsWith('<table>')) out.push('</table>');
+  closeList();
+  return out.join('\n');
+}
+
+async function fetchLearnPages() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    console.log('  ⚠️  Supabase env vars missing — skipping dynamic Learn article pages');
+    return { routes: [], content: {} };
+  }
+  const headers = { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` };
+  const learnRoutes = [];
+  const learnContent = {};
+  try {
+    const [catRes, artRes] = await Promise.all([
+      fetch(`${SUPABASE_URL}/rest/v1/learn_categories?select=slug,name,description,is_active&is_active=eq.true&order=sort_order.asc`, { headers }),
+      fetch(`${SUPABASE_URL}/rest/v1/learn_articles?select=slug,title,excerpt,content,meta_title,meta_description,category_slug,author,read_time_minutes,cover_image_url,published_at,updated_at&status=eq.published&order=published_at.desc&limit=200`, { headers }),
+    ]);
+
+    if (catRes.ok && artRes.ok) {
+      const cats = await catRes.json();
+      const arts = await artRes.json();
+      const catBySlug = Object.fromEntries(cats.map((c) => [c.slug, c]));
+
+      // Category pages — /learn/category/{slug}
+      for (const c of cats) {
+        const catArts = arts.filter((a) => a.category_slug === c.slug);
+        learnRoutes.push({
+          path: `/learn/category/${c.slug}`,
+          title: `${c.name} Guides | FRELUX Learn`,
+          description: (c.description || `Guides and articles about ${c.name.toLowerCase()} from the FRELUX Learn hub.`).slice(0, 160),
+          priority: '0.6',
+          changefreq: 'weekly',
+          structuredData: [
+            { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+              { '@type': 'ListItem', position: 2, name: 'Learn', item: `${SITE_URL}/learn` },
+              { '@type': 'ListItem', position: 3, name: c.name, item: `${SITE_URL}/learn/category/${c.slug}` },
+            ] },
+            { '@context': 'https://schema.org', '@type': 'CollectionPage', name: `${c.name} — FRELUX Learn`, description: (c.description || '').slice(0, 300), url: `${SITE_URL}/learn/category/${c.slug}` },
+          ],
+        });
+        const listing = catArts
+          .map((a) => `<li><a href="/learn/${a.slug}">${escapeHtml(a.title)}</a>${a.excerpt ? ` — ${escapeHtml(a.excerpt.slice(0, 140))}` : ''}</li>`)
+          .join('');
+        learnContent[`/learn/category/${c.slug}`] = `<h1>${escapeHtml(c.name)} Guides</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/learn">Learn</a> &rsaquo; ${escapeHtml(c.name)}</nav>${c.description ? `<p>${escapeHtml(c.description)}</p>` : ''}${listing ? `<h2>Articles in this category</h2><ul>${listing}</ul>` : '<p>New guides are coming soon to this category.</p>'}`;
+      }
+
+      // Article pages — /learn/{slug}
+      for (const a of arts) {
+        const cat = catBySlug[a.category_slug];
+        const desc = (a.meta_description || a.excerpt || a.title).slice(0, 160);
+        const datePublished = (a.published_at || a.updated_at || '').split('T')[0];
+        const dateModified = (a.updated_at || a.published_at || '').split('T')[0];
+        learnRoutes.push({
+          path: `/learn/${a.slug}`,
+          title: (a.meta_title || `${a.title} | FRELUX Learn`).slice(0, 100),
+          description: desc,
+          priority: '0.7',
+          changefreq: 'monthly',
+          structuredData: [
+            {
+              '@context': 'https://schema.org',
+              '@type': 'Article',
+              headline: a.title.slice(0, 110),
+              description: desc,
+              image: a.cover_image_url || ogImage,
+              author: { '@type': 'Organization', name: 'FRELUX' },
+              publisher: { '@type': 'Organization', name: 'FRELUX', logo: { '@type': 'ImageObject', url: `${SITE_URL}/favicon-32.png` } },
+              datePublished,
+              dateModified,
+              mainEntityOfPage: `${SITE_URL}/learn/${a.slug}`,
+            },
+            { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+              { '@type': 'ListItem', position: 2, name: 'Learn', item: `${SITE_URL}/learn` },
+              ...(cat ? [{ '@type': 'ListItem', position: 3, name: cat.name, item: `${SITE_URL}/learn/category/${cat.slug}` }] : []),
+              { '@type': 'ListItem', position: cat ? 4 : 3, name: a.title, item: `${SITE_URL}/learn/${a.slug}` },
+            ] },
+          ],
+        });
+        const bodyHtml = markdownToHtml(a.content || '');
+        learnContent[`/learn/${a.slug}`] = `<h1>${escapeHtml(a.title)}</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/learn">Learn</a>${cat ? ` &rsaquo; <a href="/learn/category/${cat.slug}">${escapeHtml(cat.name)}</a>` : ''} &rsaquo; ${escapeHtml(a.title)}</nav>${bodyHtml}`;
+      }
+      console.log(`  ✅ Learn: ${learnRoutes.length} dynamic pages (${arts.length} articles, ${cats.length} categories)`);
+    } else {
+      console.log(`  ⚠️  Learn fetch failed (${catRes.status}/${artRes.status}) — skipping dynamic Learn pages`);
+    }
+  } catch (err) {
+    console.log(`  ⚠️  Learn fetch failed (${err.message}) — skipping dynamic Learn pages`);
+  }
+  return { routes: learnRoutes, content: learnContent };
+}
+
+const { routes: learnDynamicRoutes, content: learnDynamicContent } = await fetchLearnPages();
+routes.push(...learnDynamicRoutes);
+const contentMap = { ...seoContentMap, ...learnDynamicContent };
+
+
 // ── Prerender ──────────────────────────────────────────────────────
 const templatePath = join(distDir, 'index.html');
 if (!existsSync(templatePath)) {
@@ -703,7 +885,7 @@ for (const route of routes) {
   // Googlebot reads <noscript> content. When JS loads, React replaces #root
   // entirely, so the noscript content is never visible to JS-enabled users.
   // The loading spinner remains visible only to JS users until hydration.
-  const pageContent = seoContentMap[route.path];
+  const pageContent = contentMap[route.path];
   if (pageContent) {
     const noscriptContent = `<noscript><div style="font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:1rem 1.5rem;line-height:1.6;color:#1e293b;">${pageContent}</div></noscript>`;
     html = html.replace('<div id="root">', `${noscriptContent}\n    <div id="root">`);
