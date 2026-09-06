@@ -56,21 +56,29 @@ create table if not exists public.properties (
 -- Row-level security: users see and manage only their own properties.
 alter table public.properties enable row level security;
 
+DROP POLICY IF EXISTS "users_select_own_properties" ON public.properties;
+
 create policy "users_select_own_properties"
   on public.properties for select
   to authenticated
   using (created_by = auth.uid());
+
+DROP POLICY IF EXISTS "users_insert_own_properties" ON public.properties;
 
 create policy "users_insert_own_properties"
   on public.properties for insert
   to authenticated
   with check (created_by = auth.uid());
 
+DROP POLICY IF EXISTS "users_update_own_properties" ON public.properties;
+
 create policy "users_update_own_properties"
   on public.properties for update
   to authenticated
   using (created_by = auth.uid())
   with check (created_by = auth.uid());
+
+DROP POLICY IF EXISTS "users_delete_own_properties" ON public.properties;
 
 create policy "users_delete_own_properties"
   on public.properties for delete
