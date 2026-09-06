@@ -77,6 +77,34 @@ Hold any surface against those three questions and the right finish is usually o
 
 **Why:** trim takes more contact wear than any wall; the film must be harder and the primer must match the substrate, or wear shows and rust creeps.
 
+## More Surfaces the Questions Keep Coming Back To
+
+**Stairwells and high voids.** A stairwell is a wall system with extreme height, raking light from above, and no room for scaffolding mistakes. The reasoning: suction normal (it is masonry), water low, movement low — so the build-up is standard interior, but the *access* changes everything. Plan staging properly, and prime and putty generously: overhead and side walls seen from below display every pinhole, and nobody wants the scaffold back a month later for touch-ups.
+
+**Plastered concrete columns and beams.** Frame buildings leave columns and beams that were cast, then plastered to blend with blockwork. The reasoning: the plaster-to-concrete bond is the weak link (smooth form-face concrete under hand plaster), so tap-test these zones first — hollow drumming here is common, and the fix is cutting back and re-plastering with a keyed, bonded base, not more coats over the void.
+
+**Previously oil-painted walls.** Common in older Nigerian housing stock. The reasoning: water-based coats over oil gloss do not bond — the sheen must be sanded to a full matte key and primed with a suitable bonding primer first. If the oil paint is itself failing (tape test lifts it), it comes off entirely; a new emulsion over tired oil peels in the oil's own pattern, which is worse than the oil looked.
+
+**Boundary walls and compound walls.** Exterior reasoning applies twice over: sun, rain, and ground moisture at the base (splash and soil contact), plus usually no roof protection. Cement-based build-up, flexible detailing at the movement joints, exterior acrylic or textured system, and special attention at the base — a small apron or plinth render at ground level saves the wall's skin. Cap the wall: an uncapped boundary wall is a sponge at the top.
+
+**Fences of precast elements and metal gates.** Precast concrete panels follow the concrete route (key + bonding primer + exterior system). Metal gates and railings want a corrosion-inhibiting primer system, applied over de-rusted, de-greased metal — decorative topcoats do not stop rust that was not treated first; they only colour it briefly.
+
+**PVC and panel systems (kitchen backsplashes, wall panels).** Where water and grease are constant, the honest answer is often not paint at all: tile, glass, or purpose-made panels behind cookers and sinks. The reasoning: repeated wetting plus grease defeats paint films at their joints and edges; a sheet or tile system removes the joint problem and cleans for decades.
+
+## The Reasoning in Practice — Five Worked Situations
+
+**Situation 1: the new-build stack.** Fresh blockwork everywhere, hand-plastered last month, handover in six weeks. Reasoning: high suction (new masonry, still drying) → the 28-day rule plus polythene test before anything; walls mostly at 2–4 mm ripple → skim route on the worst walls, putty route on the best; kitchens and baths → cement-based wet-zone systems. The commonest error is starting the sequence on walls that are still respirating construction moisture, and blaming the paint for the calendar.
+
+**Situation 2: the repaint of a fifteen-year-old house.** Reasoning: unknown adhesion history → the tape test on five places per wall decides everything. Sound matte film → wash, de-gloss lightly, spot-prime repairs, two coats. Failing film → strip the failed zones to a sound layer, feather, prime, full recoat. The estimate difference between those two outcomes is a factor of two — so the audit happens before any quote is compared.
+
+**Situation 3: the sun-punished west face.** Reasoning: full UV + daily thermal movement + driven rain in storms → cement-based prep, flexible filler for hairlines, 100% acrylic exterior system, sealant (not rigid filler) at the movement joints, and a repaint cycle accepted as maintenance (~3–5 years on this face). The interior tin that "matched the colour" is the standard failure story on this wall.
+
+**Situation 4: the shop and office fit-out.** Reasoning: sound new plaster + a deadline → the interior routes run as fast as drying allows, with gypsum skim where the brand image needs mirror finish. The surfaces people forget: the ceiling (largest visible plane in a lit shop), the columns (concrete — key and prime), and the metal door frames (matched metal primer). Fit-outs fail at the surfaces nobody assessed, in the first month of hard commercial use.
+
+**Situation 5: the damp-stained corner.** Reasoning: water present → everything else paused. The stain is an exit point, not a defect location; find the source (roof edge, pipe, ground level), fix it, dry the wall, polythene-test, and only then apply the interior route. The repaint that "doesn't hold" in a corner is never a paint problem; it is a plumbing or roofing invoice in disguise.
+
+Each situation is the same three questions — suction, water, movement — asked in a different order. That is the whole skill of specifying: not memorizing pairings, but interrogating surfaces until they confess.
+
 ## Quick Reference Table
 
 | Surface | Build-up | Watch out for |
@@ -88,6 +116,7 @@ Hold any surface against those three questions and the right finish is usually o
 | Exterior | Flexible filler + exterior acrylic; sealant at joints | Interior products outdoors; rigid crack repair |
 | Ceilings / soffits | Skim if needed → putty → primer → matte paint | Over-thick overhead coats; skipping putty |
 | Trim / joinery | Sand → matched primer → undercoat → gloss/satin | Wrong primer for wood vs metal |
+
 
 ## Closing
 

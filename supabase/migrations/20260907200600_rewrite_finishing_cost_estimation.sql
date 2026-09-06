@@ -20,6 +20,18 @@ The estimate is only as good as the measurement, and the standard error is measu
 
 The honest number you need: net wall area per room, net ceiling area, total metres of internal and external corners and reveals, and the reach/scaffolding question for anything above about 2.4 m.
 
+## Measuring Honestly — the Four Standard Errors
+
+Most estimate drift starts at the tape, not the market. The four errors that recur:
+
+**Treating openings as free.** Doors and windows subtract area, but their reveals (the jambs, heads, and sills) add edge metres that consume coating and time disproportionately — a metre of reveal work takes several times the minutes of a metre of flat wall. Count reveals separately, as metres of edge work.
+
+**Ignoring height changes.** Above about 2.4 m, work slows: steps or staging appear, coats are applied overhead, and fatigue does to the afternoon what the morning did not. The area did not change; the labour per metre did.
+
+**Averaging rooms.** The living room's 45 m² at skim route and the bedroom's 36 m² at putty route are different jobs with different unit economics. "Six rooms, average room" produces the most confidently wrong estimates in the trade.
+
+**Forgetting the ceilings** — or assuming they match the walls in paint. Ceilings are often the largest surface in the room, typically take a different (white) product, and almost always take putty: overhead pinholes are the ones everyone lies down and stares at.
+
 ## Step 2 — Build the Materials Line from the System
 
 Materials follow directly from the system the wall needs (see [types of wall finishes](/learn/types-of-wall-finishes-skim-coat-putty-paint) for choosing). Per square metre of wall, a full build-up consumes:
@@ -58,6 +70,42 @@ A complete wall finishing estimate has five lines, and each must appear in every
 
 Add contingency of roughly 10 to 15% for the stages that surprise: re-plastering reveals, and material coverage worse than planning figures. That percentage is not pessimism — it is the standard experience of finishing in old or hand-built stock.
 
+## A Worked Estimate — Two-Bedroom Flat, Room by Room
+
+The method earns its keep on real geometry. Take a modest two-bedroom flat with these rooms (dimensions in metres, wall areas net of openings, ceilings included):
+
+| Room | Net walls m² | Ceiling m² | Assessment finding | Route |
+|---|---|---|---|---|
+| Living | 45.6 | 17.3 | 3–4 mm ripple | Skim + putty + prime + 2 coats |
+| Bedroom 1 | 36.0 | 12.0 | Sound, ≤2 mm | Putty + prime + 2 coats |
+| Bedroom 2 | 33.0 | 11.0 | One hollow patch, 300 mm | Patch re-plaster, then skim route |
+| Kitchen | 28.0 | 10.0 | Grease near cooker | Degrease + wet-zone system |
+| Bath | 22.0 | 6.0 | Sound, tiles to 1.8 m | Cement-based, remaining walls |
+| Passage + store | 30.0 | 9.0 | Sound | Putty route |
+
+**The measurement discipline that matters:** each line came from its own straightedge-and-torch assessment, not from "same as the living room". The living room's skim route costs roughly double the bedrooms' putty route per square metre — a difference that disappears entirely if the estimate is built by multiplying a single room rate by six rooms.
+
+**Assembling the numbers (planning figures, verify current prices):** total skim-route area ≈ 106 m² (living, bedroom 2 after patch, passage if desired), putty-route area ≈ 82 m², wet-zone walls ≈ 50 m². Gypsum skim at ~1 kg/m²/mm over ~3 mm: about 320 kg plus repair margin — call it nine 40 kg bags. Putty: three 20 kg tubs. Primer at ~11 m²/L over ~180 m² of dry-zone wall plus ~65 m² ceiling: about 22 L. Topcoat at ~12 m²/L per coat over ~245 m², two coats: roughly 40 L plus ceiling white if separate. Add the degreaser for the kitchen, the wet-zone primer, and a 10–15% contingency line.
+
+**The honest output:** an estimate whose lines each carry a reason — and a total that a builder can defend to a client, adjust when one wall surprises, and use to compare quotes like-for-like. Run the same flat through the [finishing estimator](/finish-estimator) and the labour and material lines price against current market figures rather than my planning approximations.
+
+## Anatomy of a Wall Finishing Quote — Read the Five Lines
+
+Every legitimate finishing quote reduces to five lines, and the cheapest quotes are cheap because specific lines are missing:
+
+1. **Preparation** — cleaning, crack repair, hollow-patch re-plastering, degreasing. *Missing from cheap quotes because preparation is invisible on completion day.*
+2. **Levelling** — skim or alternative, plus sanding labour and consumables. *Often re-labelled "smoothing" and done in one thick pass.*
+3. **Filling** — putty. *The first line to be "included in the paint" (i.e., skipped).*
+4. **Sealing** — primer. *The second line to be "included in the paint" (i.e., skipped).*
+5. **Decoration** — paint coats, brand and grade named, plus edge labour.
+
+When a quote arrives, write the five lines down the side of the paper and place each quote item into a line. Anything that cannot be placed — "finishing, all-in" — is a line the quote is not admitting to. The pattern is consistent across markets: preparation, putty, and primer are the invisible stages, so they are where "cheap" is manufactured. A quote is honest when the invisible stages are present and priced; it is not honest because it is short.
+
+Two specific comparison traps:
+
+- **"Per coat" pricing** hides the number of coats. Two quotes at N X per coat are not comparable if one assumes two coats and the other three. Always convert to per-job.
+- **"Materials by client" arrangements** move the risk of under-quantity to you. If the labourer buys nothing, they estimate nothing — and the mid-job shortage is your errand and your dispute.
+
 ## Step 5 — Compare Quotes Line by Line
 
 Put three quotes side by side against the five-line structure. Typical findings:
@@ -68,10 +116,6 @@ Put three quotes side by side against the five-line structure. Typical findings:
 - **The "same paint" question** — confirm brand and grade in writing; the same colour name exists at several price points.
 
 Ask each bidder the same three questions: *What wall condition did you assume? What exactly does your rate include? What would you charge extra for, if you find X?* The answers reorganize the price list more honestly than the totals do.
-
-## What Moves Prices Between Markets and Months
-
-Material prices move — cement and gypsum noticeably — so any fixed price list in an article (including this one) is out of date before publication. What stays stable is the *structure*: area × system layers × labour model × contingency. Rebuild the numbers each project; for current pricing run your measurements through the [finishing estimator](/finish-estimator).
 
 ## Closing
 
