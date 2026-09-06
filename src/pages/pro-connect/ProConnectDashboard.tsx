@@ -554,28 +554,28 @@ export default function ProConnectDashboard() {
                 <Button variant="ghost"
                   onClick={() => setVerifType("contact")}
                   className={classNames(
-                    "rounded-lg border p-3 text-left text-sm transition-colors",
+                    "min-w-0 rounded-lg border p-3 text-left text-sm transition-colors",
                     verifType === "contact"
                       ? "border-brand-purple bg-primary/5 text-brand-purple"
                       : "border-border text-muted-foreground hover:border-border dark:border-white/10 dark:text-muted-foreground",
                   )}
                 >
-                  <span className="block font-semibold">Level 1: Contact</span>
-                  <span className="text-xs">
+                  <span className="block whitespace-normal break-words font-semibold">Level 1: Contact</span>
+                  <span className="block whitespace-normal break-words text-xs">
                     Verify your contact info &amp; profile
                   </span>
                 </Button>
                 <Button variant="ghost"
                   onClick={() => setVerifType("identity")}
                   className={classNames(
-                    "rounded-lg border p-3 text-left text-sm transition-colors",
+                    "min-w-0 rounded-lg border p-3 text-left text-sm transition-colors",
                     verifType === "identity"
                       ? "border-brand-purple bg-primary/5 text-brand-purple"
                       : "border-border text-muted-foreground hover:border-border dark:border-white/10 dark:text-muted-foreground",
                   )}
                 >
-                  <span className="block font-semibold">Level 2: Identity</span>
-                  <span className="text-xs">Verify your identity (NIN/ID)</span>
+                  <span className="block whitespace-normal break-words font-semibold">Level 2: Identity</span>
+                  <span className="block whitespace-normal break-words text-xs">Verify your identity (NIN/ID)</span>
                 </Button>
               </div>
             </div>
