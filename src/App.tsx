@@ -267,6 +267,7 @@ const SellerDashboard = lazy(
 // Project Intelligence routes
 const PaintComparison = lazy(() => import("@/pages/PaintComparison"));
 const Gallery = lazy(() => import("@/pages/Gallery"));
+const PropertiesDashboard = lazy(() => import("@/pages/PropertiesDashboard"));
 const GalleryUpload = lazy(() => import("@/pages/GalleryUpload"));
 const SurfaceAssessment = lazy(() => import("@/pages/SurfaceAssessment"));
 const ProjectWorkspace = lazy(() => import("@/pages/ProjectWorkspace"));
@@ -1214,6 +1215,7 @@ export default function App() {
                     element={<PaintComparison />}
                   />
                   <Route path="/gallery" element={<Gallery />} />
+                  <Route path="/properties" element={<PropertiesDashboard />} />
                   <Route path="/gallery/new" element={<GalleryUpload />} />
                   <Route
                     path="/surface-assessment"
