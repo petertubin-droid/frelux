@@ -25,3 +25,24 @@ SET settings = jsonb_set(
     updated_at = now()
 WHERE slug = 'google_adsense'
   AND (settings ->> 'display_ads_enabled') IS DISTINCT FROM 'true';
+
+-- ---------------------------------------------------------
+-- 2. Push placements (article_push_1/2, calculator_push) were
+--    wired to Monetag only. Extend them to the full active
+--    provider chain so the fallback order applies (Monetag
+--    still wins via its per-slot push zone 11734901; the
+--    others only serve if a matching unit/zone is configured).
+-- ---------------------------------------------------------
+UPDATE public.ad_placements
+SET provider_ids = jsonb_build_array(
+      '06f616f0-b932-4e48-ad64-73589b656ada', -- google_adsense
+      'c4373ff9-4b5f-4c45-9974-23d43e21b8cb', -- adsterra
+      '545bacb5-ab9c-4301-9a60-a5361e360f8a'  -- monetag
+    ),
+    updated_at = now()
+WHERE placement_key IN ('article_push_1', 'article_push_2', 'calculator_push')
+  AND provider_ids::text <> jsonb_build_array(
+      '06f616f0-b932-4e48-ad64-73589b656ada',
+      'c4373ff9-4b5f-4c45-9974-23d43e21b8cb',
+      '545bacb5-ab9c-4301-9a60-a5361e360f8a'
+    )::text;
