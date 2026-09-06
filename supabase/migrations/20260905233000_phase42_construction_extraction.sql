@@ -28,15 +28,21 @@ create table if not exists public.construction_extractions (
 -- Row-level security: users see and create only their own records.
 alter table public.construction_extractions enable row level security;
 
+DROP POLICY IF EXISTS "users_select_own_extractions" ON public.construction_extractions;
+
 create policy "users_select_own_extractions"
   on public.construction_extractions for select
   to authenticated
   using (created_by = auth.uid());
 
+DROP POLICY IF EXISTS "users_insert_own_extractions" ON public.construction_extractions;
+
 create policy "users_insert_own_extractions"
   on public.construction_extractions for insert
   to authenticated
   with check (created_by = auth.uid());
+
+DROP POLICY IF EXISTS "users_update_own_extractions" ON public.construction_extractions;
 
 create policy "users_update_own_extractions"
   on public.construction_extractions for update
