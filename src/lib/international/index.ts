@@ -13,6 +13,7 @@ export {
   useMarket,
   useCurrencySymbol,
   useCurrencyCode,
+  isMarketSupported,
   DEFAULT_MARKET_CODE,
   NIGERIA_DEFAULTS,
 } from './market-context';

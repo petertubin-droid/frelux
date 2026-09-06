@@ -114,6 +114,16 @@ export interface MarketPricing {
   package_unit: string | null;
   effective_from: string;
   effective_to: string | null;
+
+  // Provenance (Prompt 2 / Phase 6): every price records where it
+  // came from, when it was collected and how confident we are.
+  // Existing rows predating provenance are labelled honestly as
+  // 'Admin manual entry'.
+  source_name: string | null;
+  source_url: string | null;
+  collected_at: string | null;
+  confidence: 'high' | 'medium' | 'low';
+
   pricing_version: string;
   created_at: string;
   updated_at: string;

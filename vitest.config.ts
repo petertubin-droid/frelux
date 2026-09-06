@@ -23,6 +23,10 @@ export default defineConfig({
       },
     },
     setupFiles: ['./src/test/setup.ts'],
+    // Heavy page modules (full calculator pages) can take over the default
+    // 5s just to import under happy-dom in CI sandboxes — give them room
+    // while keeping real hangs from running forever.
+    testTimeout: 20_000,
     include: ['src/**/*.{test,spec}.{ts,tsx}'],
     coverage: {
       provider: 'v8',

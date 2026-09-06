@@ -17,12 +17,76 @@
 // =========================================================
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
-import {
-  checkRateLimit,
-  getRateLimitKey,
-  rateLimitHeaders,
-  RATE_LIMITS,
-} from "../_shared/rate-limit.ts";
+
+// ── Rate limiting (inlined mirror of supabase/functions/_shared/rate-limit.ts) ──
+// The Management API deploys this function as a single self-contained file,
+// so the shared module is inlined verbatim to keep repo and deployed code
+// identical. Keep in sync with _shared/rate-limit.ts if it ever changes.
+
+interface RateLimitEntry {
+  count: number;
+  resetAt: number;
+}
+
+const buckets = new Map<string, RateLimitEntry>();
+
+interface RateLimitOptions {
+  maxRequests: number;
+  windowMs: number;
+}
+
+function checkRateLimit(
+  key: string,
+  options: RateLimitOptions,
+): { allowed: boolean; remaining: number; resetAt: number } {
+  const now = Date.now();
+  const entry = buckets.get(key);
+
+  if (!entry || entry.resetAt < now) {
+    buckets.set(key, { count: 1, resetAt: now + options.windowMs });
+    return {
+      allowed: true,
+      remaining: options.maxRequests - 1,
+      resetAt: now + options.windowMs,
+    };
+  }
+
+  if (entry.count >= options.maxRequests) {
+    return { allowed: false, remaining: 0, resetAt: entry.resetAt };
+  }
+
+  entry.count++;
+  return {
+    allowed: true,
+    remaining: options.maxRequests - entry.count,
+    resetAt: entry.resetAt,
+  };
+}
+
+function getRateLimitKey(req: Request, userId?: string): string {
+  if (userId) return `user:${userId}`;
+  const forwarded = req.headers.get("x-forwarded-for");
+  const ip = forwarded ? forwarded.split(",")[0].trim() : "unknown";
+  return `ip:${ip}`;
+}
+
+function rateLimitHeaders(
+  remaining: number,
+  resetAt: number,
+): Record<string, string> {
+  return {
+    "X-RateLimit-Remaining": String(remaining),
+    "X-RateLimit-Reset": String(Math.ceil(resetAt / 1000)),
+  };
+}
+
+const RATE_LIMITS = {
+  PAYMENT: { maxRequests: 10, windowMs: 60_000 },
+  AI: { maxRequests: 20, windowMs: 60_000 },
+  AUTH: { maxRequests: 5, windowMs: 60_000 },
+  GENERAL: { maxRequests: 60, windowMs: 60_000 },
+  AD: { maxRequests: 30, windowMs: 60_000 },
+} as const;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -41,6 +105,7 @@ interface ExtractionRequest {
   documentDataUrl?: string;
   textDescription?: string;
   clientId?: string;
+  regionContext?: string;
 }
 
 // ── Field catalog (strict whitelist — anything else is dropped) ──
@@ -404,6 +469,7 @@ function sanitizeFields(raw: unknown): SanitizedField[] {
 function buildPrompt(
   documentKind: DocumentKind,
   textDescription?: string,
+  regionContext?: string,
 ): string {
   const catalog = FIELD_CATALOG.map((f) =>
     f.type === "enum"
@@ -415,10 +481,14 @@ function buildPrompt(
     architectural_plan: `This is an ARCHITECTURAL DRAWING (floor plan, elevation, section — image or PDF). This is the MOST RELIABLE source. READ DIMENSION LINES AND TEXT ANNOTATIONS FIRST: dimensions are usually written as plain numbers in mm (e.g. "18000" or "18 000" = 18m) or occasionally in meters ("18.0"). Match each dimension to the element it annotates (overall length/width, wall thicknesses, room sizes, door/window sizes). If a graphic scale bar exists, use it to derive un-annotated lengths and mark those values source "scale_derived" with honest lower confidence. Room layout: count rooms from the plan and sum internal partition wall lengths from wall centerlines.`,
     roof_plan: `This is a ROOF PLAN / ROOF DRAWING. Focus on roof geometry: overall roof dimensions, ridge length, hips, valleys, overhang (eaves), roof slope annotations (often written as degrees or as a rise ratio like 1:2). Identify roof type from the outline shape (rectangular with two slopes = gable; all sides sloping = hip; single slope = mono_pitch). Read annotated dimensions exactly; derive un-annotated ones from scale and mark "scale_derived".`,
     building_photo: `This is a BUILDING PHOTOGRAPH. Photos CANNOT show exact dimensions — never claim "dimension_annotation" for a photo. Estimate scale from visual cues (a door is ~0.9m wide and 2.1m tall, windows ~1.2m wide, floor height ~3m) and mark every value "visual_estimate" with honest confidence (usually below 0.85 → these will require user confirmation).`,
-    text_description: `The user DESCRIBED the building in text. Extract ONLY what the text explicitly states, with source "text_description". For anything the text implies but does not state numerically (e.g. "a standard 3 bedroom bungalow"), provide a widely-used Nigerian standard value, mark it "inferred" with confidence no higher than 0.5.`,
+    text_description: `The user DESCRIBED the building in text. Extract ONLY what the text explicitly states, with source "text_description". For anything the text implies but does not state numerically (e.g. "a standard 3 bedroom bungalow"), provide a widely-used conservative standard value for the building's stated location — or a neutral international default when no location is stated — mark it "inferred" with confidence no higher than 0.5 and state the assumption in the evidence.`,
   };
 
-  return `You are a construction document analyst for Nigerian residential and commercial buildings. You read architectural drawings, roof plans and building photos with engineering precision.
+  const regionLine = regionContext?.trim()
+    ? `\nThe building is located in: ${regionContext.trim()}. Apply that region's drawing conventions, units and terminology where relevant. NEVER use the region to invent prices, materials availability or market data — you extract document facts only.`
+    : "";
+
+  return `You are a construction document analyst. You read architectural drawings, roof plans and building photos from any country with engineering precision. Plans may be dimensioned in millimetres, metres, feet/inches or other local units — report lengths in the unit the drawing actually uses, and say so in the evidence.${regionLine}
 
 ${kindGuidance[documentKind]}
 
@@ -427,7 +497,7 @@ CRITICAL HONESTY RULES:
 2. Report confidence as a fraction between 0 and 1, reflecting how certain you are.
 3. "evidence" must quote the actual annotation text or describe the exact element on the document that supports the value (e.g. "Dimension line '18000' along grid line A-F, ground floor plan"). For photos describe the visual cue.
 4. Prefer dimension annotations ("dimension_annotation") > graphic scale ("scale_derived") > visual estimate ("visual_estimate") > inference ("inferred").
-5. Wall thickness: Nigerian 9-inch blocks = 0.225m, 6-inch = 0.15m, 5-inch = 0.125m. If a plan shows wall hatching without annotation, use the drawn thickness from scale.
+5. Wall thickness: common block/brick conventions are 9-inch = 0.225m, 6-inch = 0.15m, 5-inch = 0.125m; if the plan/schedule annotates a different thickness (any unit), report that instead. If a plan shows wall hatching without annotation, use the drawn thickness from scale.
 6. Roof pitch: only report when explicitly annotated (degrees or rise ratio) or clearly shown in a section; otherwise omit it.
 
 Return ONLY a JSON object with this exact shape:
@@ -492,6 +562,8 @@ Deno.serve(async (req: Request) => {
     typeof body.textDescription === "string" ? body.textDescription.trim() : "";
   const documentDataUrl =
     typeof body.documentDataUrl === "string" ? body.documentDataUrl : "";
+  const regionContext =
+    typeof body.regionContext === "string" ? body.regionContext.slice(0, 200) : "";
 
   if (!documentDataUrl && !textDescription) {
     return jsonResponse(
@@ -544,7 +616,11 @@ Deno.serve(async (req: Request) => {
   }
 
   // ── Gemini call ──
-  const prompt = buildPrompt(documentKind, textDescription || undefined);
+  const prompt = buildPrompt(
+    documentKind,
+    textDescription || undefined,
+    regionContext || undefined,
+  );
   const parts: Array<Record<string, unknown>> = [{ text: prompt }];
   if (documentDataUrl) {
     const mimeMatch = documentDataUrl.match(/^data:([^;,]+)[;,]/);

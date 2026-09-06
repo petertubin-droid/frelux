@@ -36,6 +36,18 @@ import type {
 
 export const DEFAULT_MARKET_CODE = "NG";
 
+/**
+ * Prompt 2 / Phase 12: honest region gating. A market is only
+ * "supported" for priced calculations when its profile is active.
+ * 'coming_soon' / 'unsupported' markets keep geometry calculators
+ * usable but must surface "not available in your region yet" instead
+ * of any fabricated price, and never silently substitute another
+ * market's prices.
+ */
+export function isMarketSupported(ctx: ResolvedMarketContext): boolean {
+  return ctx.status === "active";
+}
+
 export const NIGERIA_DEFAULTS: ResolvedMarketContext = {
   marketCode: "NG",
   countryName: "Nigeria",

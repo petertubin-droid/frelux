@@ -182,3 +182,23 @@ console.error = (...args: unknown[]) => {
     return;
   originalError.call(console, ...args);
 };
+
+// Block external network requests from the test DOM. Components under
+// test sometimes fetch fonts or ad assets with real URLs; in a sandbox
+// (or CI without egress) those fetches abort with unhandled network
+// errors that can kill the whole worker pool. Tests must be hermetic:
+// any external request resolves to an empty response instead.
+const nativeFetch = globalThis.fetch.bind(globalThis);
+globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
+  const url =
+    typeof input === "string"
+      ? input
+      : input instanceof URL
+        ? input.href
+        : input.url;
+  if (/^https?:\/\//i.test(url)) {
+    // External request — return an inert response, never touch the network.
+    return new Response("", { status: 200, url });
+  }
+  return nativeFetch(input as RequestInfo, init);
+}) as typeof fetch;
