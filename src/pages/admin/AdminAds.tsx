@@ -15,6 +15,7 @@ import {
   Check,
   Copy,
   Map as MapIcon,
+  AlertTriangle,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -751,6 +752,84 @@ function ImportModal({
 }
 
 // =========================================================
+// =========================================================
+// Placement fill validation
+// =========================================================
+// Mirrors the AdSlot resolution rules so the admin can see, at a
+// glance, which active placements would render nothing.
+const GLOBAL_CREDENTIAL_PROVIDERS = [
+  "monetag", "adsterra", "ezoic", "snigel", "monumetric",
+  "carbon_ads", "ethical_ads", "amazon_publisher", "yllix",
+  "revcontent",
+] as const;
+
+function getPlacementUnit(
+  pl: DbAdPlacement,
+  providerId: string,
+): string {
+  const units = (pl.ad_unit_ids ?? {}) as Record<string, unknown>;
+  const unit = units[providerId];
+  return typeof unit === "string" ? unit.trim() : "";
+}
+
+/** Whether this provider, as currently configured, could visually fill this placement. */
+function providerCanFill(pl: DbAdPlacement, prov: DbAdProvider): boolean {
+  if (!prov.is_active) return false;
+  const settings = (prov.settings ?? {}) as Record<string, unknown>;
+  if (settings.display_ads_enabled === false) return false;
+  // Per-slot unit configured for this provider — always fillable.
+  if (getPlacementUnit(pl, prov.id)) return true;
+  // Per-unit providers (AdSense, Media.net, …) need a unit per slot.
+  if (!(GLOBAL_CREDENTIAL_PROVIDERS as readonly string[]).includes(prov.slug))
+    return false;
+  const creds = (prov.credentials ?? {}) as Record<string, unknown>;
+  // Monetag in-slot display works through the Native Banner zone.
+  if (prov.slug === "monetag")
+    return typeof creds.native_banner_zone_id === "string" &&
+      creds.native_banner_zone_id.trim().length > 0;
+  // Adsterra banners render from the zone key; native needs the native key.
+  if (prov.slug === "adsterra") {
+    const key = typeof creds.key === "string" ? creds.key : "";
+    const nativeKey =
+      typeof creds.native_banner_key === "string" ? creds.native_banner_key : "";
+    return key.trim().length > 0 || nativeKey.trim().length > 0;
+  }
+  return Object.values(creds).some(
+    (v) => typeof v === "string" && v.trim().length > 0,
+  );
+}
+
+/** Active providers in the chain that need a per-slot unit but have none. */
+function providersMissingUnit(
+  pl: DbAdPlacement,
+  providers: DbAdProvider[],
+): DbAdProvider[] {
+  return (pl.provider_ids as string[])
+    .map((pid) => providers.find((p) => p.id === pid))
+    .filter((p): p is DbAdProvider => Boolean(p))
+    .filter(
+      (p) =>
+        p.is_active &&
+        ((p.settings ?? {}) as Record<string, unknown>).display_ads_enabled !==
+          false &&
+        !(GLOBAL_CREDENTIAL_PROVIDERS as readonly string[]).includes(p.slug) &&
+        !getPlacementUnit(pl, p.id),
+    );
+}
+
+/** True when no provider in the placement's chain could render an ad. */
+function isDeadSlot(
+  pl: DbAdPlacement,
+  providers: DbAdProvider[],
+): boolean {
+  if (!pl.is_active) return false;
+  const chain = (pl.provider_ids as string[])
+    .map((pid) => providers.find((p) => p.id === pid))
+    .filter((p): p is DbAdProvider => Boolean(p));
+  if (chain.length === 0) return true;
+  return !chain.some((p) => providerCanFill(pl, p));
+}
+
 // Placements Tab
 // =========================================================
 function PlacementsTab() {
@@ -761,6 +840,9 @@ function PlacementsTab() {
   const [editing, setEditing] = useState<DbAdPlacement | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [showMap, setShowMap] = useState(false);
+
+  // Validation: active placements no linked provider could fill
+  const deadSlots = placements.filter((pl) => isDeadSlot(pl, providers));
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -856,6 +938,27 @@ function PlacementsTab() {
           {error}
         </div>
       )}
+      {deadSlots.length > 0 && (
+        <div className="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300">
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+            <div>
+              <p className="font-semibold">
+                {deadSlots.length} active{" "}
+                {deadSlots.length === 1 ? "placement" : "placements"}{" "}
+                {deadSlots.length === 1 ? "has" : "have"} no fillable ad unit —
+                nothing renders there.
+              </p>
+              <p className="mt-0.5 text-xs opacity-80">
+                {deadSlots.map((p) => p.placement_key).join(", ")} — add a
+                per-slot ad unit for a linked provider, or configure the
+                provider's global credentials (Adsterra key / Monetag native
+                banner zone).
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="mb-4 flex items-center justify-between">
         <p className="text-sm text-muted-foreground dark:text-muted-foreground">
           {placements.length} placements ·{" "}
@@ -917,6 +1020,21 @@ function PlacementsTab() {
                   {assignedProviders.map((p) => p.name).join(" → ")}
                 </p>
               )}
+              {pl.is_active && isDeadSlot(pl, providers) && (
+                <p className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
+                  <AlertTriangle className="h-3 w-3 shrink-0" />
+                  No fillable ad unit — slot renders nothing
+                </p>
+              )}
+              {pl.is_active &&
+                !isDeadSlot(pl, providers) &&
+                providersMissingUnit(pl, providers).length > 0 && (
+                  <p className="mt-1 text-[10px] text-muted-foreground dark:text-muted-foreground">
+                    {providersMissingUnit(pl, providers)
+                      .map((p) => `${p.name} unit not set — falls back`)
+                      .join(" · ")}
+                  </p>
+                )}
               <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                 <Toggle
                   checked={pl.is_active}
