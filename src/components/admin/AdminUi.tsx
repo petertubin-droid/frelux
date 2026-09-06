@@ -413,7 +413,7 @@ export function AdminTabButton({
     filter: {
       base: "rounded-lg px-3 py-1.5 capitalize",
       active:
-        "bg-background text-primary-foreground dark:bg-white dark:text-foreground",
+        "bg-foreground text-background",
       inactive:
         "bg-card border border-border text-muted-foreground hover:bg-muted/50 dark:bg-white/5 dark:border-white/10 dark:text-muted-foreground",
     },

@@ -801,7 +801,7 @@ function ScreedingBreakdownTab({
           label={`Tax/VAT (${estimate.taxPercentage}%)`}
           value={formatCurrency(estimate.taxAmount, estimate.currencySymbol)}
         />
-        <div className="flex items-center justify-between rounded-lg bg-background px-4 py-3 text-primary-foreground">
+        <div className="flex items-center justify-between rounded-lg bg-brand-navy px-4 py-3 text-primary-foreground">
           <span className="text-sm font-bold">Grand Total</span>
           <span className="text-lg font-bold">
             {formatCurrency(estimate.grandTotal, estimate.currencySymbol)}

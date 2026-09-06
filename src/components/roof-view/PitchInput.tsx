@@ -130,7 +130,7 @@ export function PitchInput({
               disabled={disabled}
               className={`rounded-md px-2 py-1 text-[10px] font-medium transition-colors ${
                 inputMode === mode
-                  ? "bg-background text-primary-foreground"
+                  ? "bg-foreground text-background"
                   : "bg-muted text-muted-foreground hover:bg-muted"
               }`}
             >

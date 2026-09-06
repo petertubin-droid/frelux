@@ -247,7 +247,7 @@ export function RoofGeometryEditor({
             disabled={disabled}
             className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium ${
               tool === t.id
-                ? "bg-background text-primary-foreground"
+                ? "bg-foreground text-background"
                 : "bg-muted text-muted-foreground hover:bg-muted"
             }`}
           >

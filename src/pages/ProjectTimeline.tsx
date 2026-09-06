@@ -253,7 +253,7 @@ export default function ProjectTimeline() {
                   >
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
-                        <span className="flex h-6 w-6 items-center justify-center rounded bg-background text-primary-foreground text-xs font-bold">
+                        <span className="flex h-6 w-6 items-center justify-center rounded bg-foreground text-background text-xs font-bold">
                           {i + 1}
                         </span>
                         <span className="text-sm font-medium text-foreground">

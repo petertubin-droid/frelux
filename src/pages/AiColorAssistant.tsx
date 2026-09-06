@@ -1113,7 +1113,7 @@ function ResultPanel({
   // Success
   return (
     <div className="card sticky top-20 overflow-hidden">
-      <div className="bg-background p-5 text-primary-foreground">
+      <div className="bg-brand-navy p-5 text-primary-foreground">
         <div className="flex items-center gap-2 text-accent-green">
           <CheckCircle2 className="h-5 w-5" />
           <span className="text-xs font-semibold uppercase tracking-widest">

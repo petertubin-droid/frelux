@@ -429,7 +429,7 @@ export default function BuildToRoofEstimator() {
     <SubscriptionGate feature="build_to_roof_estimator">
       <div className="min-h-screen bg-gradient-to-b from-muted/50 to-muted/50">
         {/* Premium Header with mesh gradient */}
-        <div className="relative overflow-hidden bg-background text-primary-foreground">
+        <div className="relative overflow-hidden bg-brand-navy text-primary-foreground">
           {/* Animated mesh background */}
           <div
             className="absolute inset-0 animate-mesh-float"
@@ -2190,7 +2190,7 @@ function EstimateResult({
 
       {/* Grand Total */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <div className="rounded-2xl border border-border bg-background p-4 sm:p-6 text-primary-foreground animate-stat-count-in col-span-2 md:col-span-1 relative overflow-hidden">
+        <div className="rounded-2xl border border-border bg-brand-navy p-4 sm:p-6 text-primary-foreground animate-stat-count-in col-span-2 md:col-span-1 relative overflow-hidden">
           <div
             className="absolute inset-0 opacity-20"
             style={{

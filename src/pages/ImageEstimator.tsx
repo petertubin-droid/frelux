@@ -317,7 +317,7 @@ export default function ImageEstimator() {
   return (
     <div className="min-h-screen bg-muted/50">
       {/* Premium Header */}
-      <div className="relative overflow-hidden bg-background text-primary-foreground">
+      <div className="relative overflow-hidden bg-brand-navy text-primary-foreground">
         <div
           className="absolute inset-0 animate-mesh-float"
           style={{
@@ -889,7 +889,7 @@ function LockedView({
         </p>
 
         {config?.paidEnabled && config.paidPrice > 0 && (
-          <div className="rounded-xl bg-background p-6 text-primary-foreground mb-6">
+          <div className="rounded-xl bg-brand-navy p-6 text-primary-foreground mb-6">
             <div className="flex justify-center mb-2">
               <PremiumBadge size="md" glow />
             </div>
@@ -1056,7 +1056,7 @@ function EstimateResultView({
 
       {/* Grand total */}
       <div className="grid md:grid-cols-4 gap-4">
-        <div className="rounded-2xl border border-border bg-background p-6 text-primary-foreground">
+        <div className="rounded-2xl border border-border bg-brand-navy p-6 text-primary-foreground">
           <p className="text-xs text-primary-foreground/60 mb-1">
             Estimated Build-to-Roof Cost
           </p>
