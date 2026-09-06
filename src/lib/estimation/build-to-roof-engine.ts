@@ -1575,7 +1575,7 @@ export const DEFAULT_PRICES = {
   dpm_per_m2: 1500,             // DPM membrane — updated
   formwork_per_m2: 5500,         // plywood formwork — updated
   price_date: new Date().toISOString().split('T')[0],
-  price_source: 'FRELUX default — Nigerian market (auto-updated)',
+  price_source: 'FRELUX reference prices — Nigerian market (edit in Step 8; verify before ordering)',
 };
 
 export const DEFAULT_LABOUR: LabourConfig = {
