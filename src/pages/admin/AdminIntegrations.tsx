@@ -121,29 +121,30 @@ const FIELD_HELP: Record<string, Record<string, string>> = {
   adgate_media: {
     gateway_id: "Your AdGate Media gateway ID. Register at adgatemedia.com.",
     api_key: "Your AdGate API key for postback verification.",
-    postback_url: `Set this in your AdGate dashboard: ${SITE_URL}/functions/v1/rewarded-postback/adgate_media`,
+    postback_url: `Paste into your AdGate dashboard postback settings — replace the {macros} with the AdGate variable names, and YOUR-ADGATE-API-KEY with the api_key saved above: ${SITE_URL}/functions/v1/rewarded-postback/adgate_media?user_id={user_id}&credits={credits}&sig=YOUR-ADGATE-API-KEY`,
   },
   offertoro: {
     app_id: "Your OfferToro app ID. Register at offertoro.com.",
     pub_id: "Your OfferToro publisher ID.",
     secret: "Your OfferToro secret key for postback verification.",
-    postback_url: `Set this in your OfferToro dashboard: ${SITE_URL}/functions/v1/rewarded-postback/offertoro`,
+    postback_url: `Paste into your OfferToro dashboard postback settings — replace the {macros} with the OfferToro variable names, and YOUR-OFFERTORO-SECRET with the secret saved above: ${SITE_URL}/functions/v1/rewarded-postback/offertoro?user_id={user_id}&amount={amount}&sig=YOUR-OFFERTORO-SECRET`,
   },
   adgem: {
     placement_id: "Your AdGem placement ID. Register at adgem.com.",
     api_key: "Your AdGem API key for postback verification.",
-    postback_url: `Set this in your AdGem dashboard: ${SITE_URL}/functions/v1/rewarded-postback/adgem`,
+    postback_url: `Paste into your AdGem dashboard postback settings — replace the {macros} with the AdGem variable names, and YOUR-ADGEM-API-KEY with the api_key saved above: ${SITE_URL}/functions/v1/rewarded-postback/adgem?user_id={user_id}&amount={amount}&sig=YOUR-ADGEM-API-KEY`,
   },
   cpx_research: {
     app_id: "Your CPX Research app ID. Register at cpx-research.com.",
     secure_hash: "Your CPX Research secure hash for postback verification.",
     survey_mode:
       'Survey mode: "full" for complete surveys, "quick" for shorter ones.',
+    postback_url: `Paste into your CPX Research dashboard postback settings — replace the {macros} with the CPX variable names, and YOUR-CPX-SECRET with a dedicated secret (not the secure_hash, which is public in the offerwall URL): ${SITE_URL}/functions/v1/rewarded-postback/cpx_research?ext_user_id={ext_user_id}&payout={payout}&sig=YOUR-CPX-SECRET`,
   },
   ayet_studios: {
     app_id: "Your Ayet Studios app ID. Register at ayetstudios.com.",
     api_key: "Your Ayet Studios API key for postback verification.",
-    postback_url: `Set this in your Ayet Studios dashboard: ${SITE_URL}/functions/v1/rewarded-postback/ayet_studios`,
+    postback_url: `Paste into your Ayet Studios dashboard postback settings — replace the {macros} with the Ayet variable names, and YOUR-AYET-API-KEY with the api_key saved above: ${SITE_URL}/functions/v1/rewarded-postback/ayet_studios?user={user}&amount={amount}&sig=YOUR-AYET-API-KEY`,
   },
   meta_pixel: {
     pixel_id:
@@ -152,7 +153,7 @@ const FIELD_HELP: Record<string, Record<string, string>> = {
   revu: {
     api_key: "Your RevU API key for postback verification.",
     placement_id: "Your RevU placement ID.",
-    postback_url: `Set this in your RevU dashboard: ${SITE_URL}/functions/v1/rewarded-postback/revu`,
+    postback_url: `Paste into your RevU dashboard postback settings — replace the {macros} with the RevU variable names, and YOUR-REVU-API-KEY with the api_key saved above: ${SITE_URL}/functions/v1/rewarded-postback/revu?user_id={user_id}&amount={amount}&sig=YOUR-REVU-API-KEY`,
   },
 };
 

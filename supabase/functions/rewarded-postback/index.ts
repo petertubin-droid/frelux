@@ -69,13 +69,30 @@ async function offerwallSecretOk(
   url: URL,
 ): Promise<boolean> {
   const creds = provider?.credentials ?? {};
-  const storedSecret =
+  let storedSecret =
     (typeof creds.api_key === "string" && creds.api_key) ||
     (typeof creds.secret === "string" && creds.secret) ||
     (typeof creds.secure_hash === "string" && creds.secure_hash) ||
     (typeof creds.app_signature === "string" && creds.app_signature) ||
     (typeof creds.sdk_key === "string" && creds.sdk_key) ||
     "";
+
+  // Fall back to the Integrations page (integration_settings.config) when
+  // the ad_providers row has no secret — admins may keep credentials in
+  // either place. Service role can read both tables.
+  if (!storedSecret) {
+    const { data: integration } = await supabase
+      .from("integration_settings")
+      .select("config")
+      .eq("integration_key", providerSlug)
+      .maybeSingle();
+    const iCreds = (integration?.config ?? {}) as Record<string, unknown>;
+    storedSecret =
+      (typeof iCreds.api_key === "string" && iCreds.api_key) ||
+      (typeof iCreds.secret === "string" && iCreds.secret) ||
+      (typeof iCreds.secure_hash === "string" && iCreds.secure_hash) ||
+      "";
+  }
 
   if (!storedSecret) {
     await supabase
