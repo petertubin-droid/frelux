@@ -198,7 +198,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
         : input.url;
   if (/^https?:\/\//i.test(url)) {
     // External request — return an inert response, never touch the network.
-    return new Response("", { status: 200, url });
+    return new Response("", { status: 200 });
   }
   return nativeFetch(input as RequestInfo, init);
 }) as typeof fetch;

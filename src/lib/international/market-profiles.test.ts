@@ -28,7 +28,8 @@ function createChainable() {
     ),
   };
   const proxy = new Proxy(chain, {
-    get(target, prop) {
+    get(target: Record<string, unknown>, prop: string | symbol) {
+      if (typeof prop === "symbol") return undefined;
       if (prop in target) return target[prop];
       if (prop === "then") return target.then;
       target[prop] = vi.fn().mockReturnValue(proxy);
