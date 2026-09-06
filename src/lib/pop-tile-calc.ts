@@ -5,13 +5,13 @@ import type {
   PopEstimateResult,
   TileCalcInput,
   TileCalcResult,
-} from '@/types';
-import type { DbPopMaterial, DbTileMaterial } from '@/types/database';
+} from "@/types";
+import type { DbPopMaterial, DbTileMaterial } from "@/types/database";
 
 const FT_TO_M = 0.3048;
 
-function toSqm(value: number, unit: 'meters' | 'feet'): number {
-  return unit === 'feet' ? value * FT_TO_M : value;
+function toSqm(value: number, unit: "meters" | "feet"): number {
+  return unit === "feet" ? value * FT_TO_M : value;
 }
 
 // =========================================================
@@ -33,12 +33,13 @@ export function calculatePopCeiling(
   const adjustedArea = ceilingArea * wasteMultiplier;
 
   const materialResults: PopMaterialResult[] = [];
+  const calcWarnings: string[] = [];
   let materialCost = 0;
 
   const filtered = materials
     .filter((m) => m.workflow === input.workflow && m.is_active)
     .filter((m) => {
-      if (m.category === 'decorative' && !input.includeDecorative) return false;
+      if (m.category === "decorative" && !input.includeDecorative) return false;
       if (m.is_optional && !input.includeOptional) return false;
       return true;
     })
@@ -48,11 +49,26 @@ export function calculatePopCeiling(
     const coverage = Number(mat.coverage_rate);
     const pkgSize = Number(mat.package_size);
     const unitPrice = Number(mat.unit_price);
-    if (mat.category === 'labour') {
+    if (mat.category === "labour") {
       // Labour not included — negotiated separately
     } else {
+      if (coverage > 0 && adjustedArea > 0) {
+        // ok — configurable coverage present
+      } else if (adjustedArea > 0) {
+        calcWarnings.push(
+          `Coverage rate is not configured for '${mat.name}'. Its quantity and cost are excluded from the total until an admin configures it.`,
+        );
+      }
+      if (unitPrice > 0) {
+        // ok — price configured
+      } else {
+        calcWarnings.push(
+          `Unit price is not configured for '${mat.name}'. Its cost is excluded from the total until an admin configures it.`,
+        );
+      }
       const quantity = coverage > 0 ? adjustedArea / coverage : 0;
-      const packagesNeeded = pkgSize > 0 ? Math.ceil(quantity / pkgSize) : Math.ceil(quantity);
+      const packagesNeeded =
+        pkgSize > 0 ? Math.ceil(quantity / pkgSize) : Math.ceil(quantity);
       const cost = packagesNeeded * unitPrice;
       materialCost += cost;
       materialResults.push({
@@ -78,6 +94,7 @@ export function calculatePopCeiling(
     grandTotal,
     currency,
     currencySymbol,
+    warnings: calcWarnings,
   };
 }
 
@@ -102,7 +119,7 @@ export function calculateTile(
 ): TileCalcResult {
   let surfaceArea: number;
 
-  if (input.surfaceType === 'wall') {
+  if (input.surfaceType === "wall") {
     const lengthM = toSqm(input.length, input.unit);
     const heightM = toSqm(input.height, input.unit);
     surfaceArea = lengthM * heightM;
@@ -119,23 +136,33 @@ export function calculateTile(
   // --- Tiles (always calculated) ---
   const tileAreaM2 = (input.tileWidthMm / 1000) * (input.tileHeightMm / 1000);
   const tilesNeeded = tileAreaM2 > 0 ? Math.ceil(adjustedArea / tileAreaM2) : 0;
-  const boxesNeeded = input.tilesPerBox > 0 ? Math.ceil(tilesNeeded / input.tilesPerBox) : tilesNeeded;
+  const boxesNeeded =
+    input.tilesPerBox > 0
+      ? Math.ceil(tilesNeeded / input.tilesPerBox)
+      : tilesNeeded;
   const tileCost = boxesNeeded * input.tilePricePerBox;
 
   // --- Adhesive (only when method === 'adhesive') ---
   let adhesiveNeeded = 0;
   let adhesiveCost = 0;
-  if (input.method === 'adhesive') {
-    adhesiveNeeded = input.adhesiveCoverageRate > 0 ? adjustedArea / input.adhesiveCoverageRate : 0;
+  if (input.method === "adhesive") {
+    adhesiveNeeded =
+      input.adhesiveCoverageRate > 0
+        ? adjustedArea / input.adhesiveCoverageRate
+        : 0;
     adhesiveCost = Math.ceil(adhesiveNeeded) * input.adhesivePricePerBag;
   }
 
   // --- Cement (only when method === 'traditional') ---
   let cementNeeded = 0;
   let cementCost = 0;
-  if (input.method === 'traditional') {
-    const cementQty = input.cementCoverageRate > 0 ? adjustedArea / input.cementCoverageRate : 0;
-    const cementPkgSize = input.cementPackageSize > 0 ? input.cementPackageSize : 1;
+  if (input.method === "traditional") {
+    const cementQty =
+      input.cementCoverageRate > 0
+        ? adjustedArea / input.cementCoverageRate
+        : 0;
+    const cementPkgSize =
+      input.cementPackageSize > 0 ? input.cementPackageSize : 1;
     cementNeeded = Math.ceil(cementQty / cementPkgSize);
     cementCost = cementNeeded * input.cementPricePerBag;
   }
@@ -143,24 +170,58 @@ export function calculateTile(
   // --- Sharp sand (only when method === 'traditional') ---
   let sandNeeded = 0;
   let sandCost = 0;
-  if (input.method === 'traditional') {
-    const sandQty = input.sandCoverageRate > 0 ? adjustedArea / input.sandCoverageRate : 0;
+  if (input.method === "traditional") {
+    const sandQty =
+      input.sandCoverageRate > 0 ? adjustedArea / input.sandCoverageRate : 0;
     const sandPkgSize = input.sandPackageSize > 0 ? input.sandPackageSize : 1;
     sandNeeded = Math.ceil(sandQty / sandPkgSize);
     sandCost = sandNeeded * input.sandPricePerBag;
   }
 
   // --- Grout (always needed) ---
-  const groutNeeded = input.groutCoverageRate > 0 ? adjustedArea / input.groutCoverageRate : 0;
+  const groutNeeded =
+    input.groutCoverageRate > 0 ? adjustedArea / input.groutCoverageRate : 0;
   const groutCost = Math.ceil(groutNeeded) * input.groutPricePerKg;
 
   // --- Tile spacers (always needed) ---
-  const spacerQty = input.spacerCoverageRate > 0 ? adjustedArea / input.spacerCoverageRate : 0;
-  const spacerPkgSize = input.spacerPackageSize > 0 ? input.spacerPackageSize : 1;
+  const spacerQty =
+    input.spacerCoverageRate > 0 ? adjustedArea / input.spacerCoverageRate : 0;
+  const spacerPkgSize =
+    input.spacerPackageSize > 0 ? input.spacerPackageSize : 1;
   const spacerNeeded = Math.ceil(spacerQty / spacerPkgSize);
   const spacerCost = spacerNeeded * input.spacerPricePerPack;
 
-  const materialCost = tileCost + adhesiveCost + cementCost + sandCost + groutCost + spacerCost;
+  const tileWarnings: string[] = [];
+  if (surfaceArea > 0 && tileAreaM2 <= 0) {
+    tileWarnings.push(
+      "Tile dimensions are invalid (zero tile area). Tile count and cost cannot be calculated.",
+    );
+  }
+  if (surfaceArea > 0) {
+    if (input.method === "adhesive" && input.adhesiveCoverageRate <= 0) {
+      tileWarnings.push(
+        "Adhesive coverage rate is not configured. Adhesive cost is excluded from the total until it is configured.",
+      );
+    }
+    if (input.method === "traditional" && input.cementCoverageRate <= 0) {
+      tileWarnings.push(
+        "Cement coverage rate is not configured. Cement cost is excluded from the total until it is configured.",
+      );
+    }
+    if (input.method === "traditional" && input.sandCoverageRate <= 0) {
+      tileWarnings.push(
+        "Sand coverage rate is not configured. Sand cost is excluded from the total until it is configured.",
+      );
+    }
+    if (input.groutCoverageRate <= 0) {
+      tileWarnings.push(
+        "Grout coverage rate is not configured. Grout cost is excluded from the total until it is configured.",
+      );
+    }
+  }
+
+  const materialCost =
+    tileCost + adhesiveCost + cementCost + sandCost + groutCost + spacerCost;
   const labourCost = 0; // Labour not included — negotiated separately
   const grandTotal = materialCost;
 
@@ -187,5 +248,6 @@ export function calculateTile(
     grandTotal,
     currency,
     currencySymbol,
+    warnings: tileWarnings,
   };
 }

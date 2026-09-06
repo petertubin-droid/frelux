@@ -10,34 +10,34 @@
  * Labour: Not included — negotiated separately.
  */
 
-export type FinishType = 'painting' | 'tyrolene' | 'grafitex';
+export type FinishType = "painting" | "tyrolene" | "grafitex";
 
 export interface FinishMaterialConfig {
   id: string;
   name: string;
   finishType: FinishType;
-  coverageRate: number;      // m² per unit per coat (L for paint, kg for tyrolene/grafitex)
-  coverageUnit: string;      // 'L' or 'kg'
-  packageSize: number;        // size of one package (liters or kg)
-  packageUnit: string;       // 'L' or 'kg'
-  unitPrice: number;          // price per package
-  defaultCoats: number;      // recommended number of coats
-  isBase: boolean;            // true for base coat materials
-  isFinishing: boolean;      // true for finishing/top coat materials
+  coverageRate: number; // m² per unit per coat (L for paint, kg for tyrolene/grafitex)
+  coverageUnit: string; // 'L' or 'kg'
+  packageSize: number; // size of one package (liters or kg)
+  packageUnit: string; // 'L' or 'kg'
+  unitPrice: number; // price per package
+  defaultCoats: number; // recommended number of coats
+  isBase: boolean; // true for base coat materials
+  isFinishing: boolean; // true for finishing/top coat materials
   isActive: boolean;
   sortOrder: number;
 }
 
 export interface FinishCalcInput {
   finishType: FinishType;
-  area: number;              // surface area in m²
-  coats?: number;            // number of coats (defaults to finish type default)
-  wasteMargin?: number;      // percentage 0–100
+  area: number; // surface area in m²
+  coats?: number; // number of coats (defaults to finish type default)
+  wasteMargin?: number; // percentage 0–100
   materials?: FinishMaterialConfig[]; // optional override of material configs
   currency?: string;
   currencySymbol?: string;
   // Grafitex-specific: partition-based calculation
-  grafitexBucketPrice?: number;  // admin-configurable price per 20-L bucket
+  grafitexBucketPrice?: number; // admin-configurable price per 20-L bucket
   grafitexPartitionsPerBucket?: number; // FRELUX rule: 2 standard partitions per bucket
   standardPartitionArea?: number; // m² per standard partition (for Grafitex)
   standardPartitionCount?: number; // number of standard partitions (for Grafitex)
@@ -50,13 +50,13 @@ export interface FinishMaterialResult {
   isFinishing: boolean;
   coverageRate: number;
   coverageUnit: string;
-  quantityRequired: number;  // raw amount needed (liters or kg or buckets)
-  quantityWithWaste: number;  // after waste margin
-  packagesNeeded: number;    // number of packages to buy
+  quantityRequired: number; // raw amount needed (liters or kg or buckets)
+  quantityWithWaste: number; // after waste margin
+  packagesNeeded: number; // number of packages to buy
   packageSize: number;
   packageUnit: string;
   unitPrice: number;
-  cost: number;               // total cost for this material
+  cost: number; // total cost for this material
 }
 
 export interface FinishCalcResult {
@@ -74,6 +74,8 @@ export interface FinishCalcResult {
   grafitexBucketsTheoretical?: number;
   grafitexBucketsPractical?: number;
   grafitexEquivalentPartitions?: number;
+  /** Non-blocking configuration problems (missing coverage/price) — audit fix */
+  warnings?: string[];
 }
 
 // ─────────────────────────────────────────────────────────
@@ -94,11 +96,11 @@ export function round(value: number, decimals: number = 2): number {
  */
 export function getDefaultCoats(finishType: FinishType): number {
   switch (finishType) {
-    case 'painting':
+    case "painting":
       return 2;
-    case 'tyrolene':
+    case "tyrolene":
       return 2;
-    case 'grafitex':
+    case "grafitex":
       return 1; // Grafitex is a single-coat exterior finish
     default:
       return 2;
@@ -110,14 +112,14 @@ export function getDefaultCoats(finishType: FinishType): number {
  */
 export function getFinishTypeLabel(finishType: FinishType): string {
   switch (finishType) {
-    case 'painting':
-      return 'Painting';
-    case 'tyrolene':
-      return 'Tyrolene';
-    case 'grafitex':
-      return 'Grafitex';
+    case "painting":
+      return "Painting";
+    case "tyrolene":
+      return "Tyrolene";
+    case "grafitex":
+      return "Grafitex";
     default:
-      return 'Painting';
+      return "Painting";
   }
 }
 
@@ -126,14 +128,14 @@ export function getFinishTypeLabel(finishType: FinishType): string {
  */
 export function getFinishTypeDescription(finishType: FinishType): string {
   switch (finishType) {
-    case 'painting':
-      return 'Standard paint application with coverage in m² per litre per coat.';
-    case 'tyrolene':
-      return 'Textured exterior cementitious finish, partition-based estimation. Use the dedicated Tyrolene Estimator for accurate calculations.';
-    case 'grafitex':
-      return 'Rough exterior finish. 1 × 20-L bucket covers 2 standard partitions. Price is admin-configurable.';
+    case "painting":
+      return "Standard paint application with coverage in m² per litre per coat.";
+    case "tyrolene":
+      return "Textured exterior cementitious finish, partition-based estimation. Use the dedicated Tyrolene Estimator for accurate calculations.";
+    case "grafitex":
+      return "Rough exterior finish. 1 × 20-L bucket covers 2 standard partitions. Price is admin-configurable.";
     default:
-      return '';
+      return "";
   }
 }
 
@@ -141,7 +143,7 @@ export function getFinishTypeDescription(finishType: FinishType): string {
 // Main calculation
 // ─────────────────────────────────────────────────────────
 
-const LABOUR_NOTE = 'Labour: Not included, negotiated separately.';
+const LABOUR_NOTE = "Labour: Not included, negotiated separately.";
 
 /**
  * Calculate finish material quantities and costs for a given area.
@@ -162,17 +164,21 @@ const LABOUR_NOTE = 'Labour: Not included, negotiated separately.';
  */
 export function calculateFinish(input: FinishCalcInput): FinishCalcResult {
   const area = Math.max(0, input.area || 0);
-  const rawCoats = input.coats !== undefined ? input.coats : getDefaultCoats(input.finishType);
+  const rawCoats =
+    input.coats !== undefined ? input.coats : getDefaultCoats(input.finishType);
   const coats = Math.max(0, rawCoats);
   const rawWaste = input.wasteMargin !== undefined ? input.wasteMargin : 0;
   const wasteMargin = Math.min(100, Math.max(0, rawWaste));
-  const currency = input.currency ?? 'NGN';
-  const currencySymbol = input.currencySymbol ?? '₦';
+  const currency = input.currency ?? "NGN";
+  const currencySymbol = input.currencySymbol ?? "₦";
 
   // ── Grafitex: partition-based bucket calculation ──
-  if (input.finishType === 'grafitex') {
+  if (input.finishType === "grafitex") {
     const bucketPrice = Math.max(0, input.grafitexBucketPrice ?? 0);
-    const partitionsPerBucket = Math.max(1, input.grafitexPartitionsPerBucket ?? 2); // FRELUX rule: 2 partitions per bucket
+    const partitionsPerBucket = Math.max(
+      1,
+      input.grafitexPartitionsPerBucket ?? 2,
+    ); // FRELUX rule: 2 partitions per bucket
     const standardArea = Math.max(0.01, input.standardPartitionArea ?? 9); // 3m × 3m = 9m² default
     const partitionCount = input.standardPartitionCount;
 
@@ -187,30 +193,37 @@ export function calculateFinish(input: FinishCalcInput): FinishCalcResult {
       equivalentPartitions = 0;
     }
 
-    const theoreticalBuckets = equivalentPartitions > 0
-      ? equivalentPartitions / partitionsPerBucket
-      : 0;
+    const theoreticalBuckets =
+      equivalentPartitions > 0 ? equivalentPartitions / partitionsPerBucket : 0;
     const practicalBuckets = Math.ceil(theoreticalBuckets);
     const materialCost = practicalBuckets * bucketPrice;
+    const grafitexWarnings: string[] = [];
+    if (bucketPrice <= 0) {
+      grafitexWarnings.push(
+        "Grafitex bucket price is not configured. Total cost cannot be calculated until an admin configures the price.",
+      );
+    }
 
-    const materials: FinishMaterialResult[] = [{
-      name: 'Grafitex 20-L Bucket',
-      finishType: 'grafitex',
-      isBase: true,
-      isFinishing: true,
-      coverageRate: partitionsPerBucket * standardArea, // m² per bucket
-      coverageUnit: 'm²',
-      quantityRequired: round(theoreticalBuckets, 4),
-      quantityWithWaste: round(theoreticalBuckets, 4),
-      packagesNeeded: practicalBuckets,
-      packageSize: 20,
-      packageUnit: 'L',
-      unitPrice: bucketPrice,
-      cost: round(materialCost),
-    }];
+    const materials: FinishMaterialResult[] = [
+      {
+        name: "Grafitex 20-L Bucket",
+        finishType: "grafitex",
+        isBase: true,
+        isFinishing: true,
+        coverageRate: partitionsPerBucket * standardArea, // m² per bucket
+        coverageUnit: "m²",
+        quantityRequired: round(theoreticalBuckets, 4),
+        quantityWithWaste: round(theoreticalBuckets, 4),
+        packagesNeeded: practicalBuckets,
+        packageSize: 20,
+        packageUnit: "L",
+        unitPrice: bucketPrice,
+        cost: round(materialCost),
+      },
+    ];
 
     return {
-      finishType: 'grafitex',
+      finishType: "grafitex",
       area,
       coats,
       wasteMargin,
@@ -220,6 +233,7 @@ export function calculateFinish(input: FinishCalcInput): FinishCalcResult {
       currency,
       currencySymbol,
       labourNote: LABOUR_NOTE,
+      warnings: grafitexWarnings,
       grafitexBucketsTheoretical: round(theoreticalBuckets, 4),
       grafitexBucketsPractical: practicalBuckets,
       grafitexEquivalentPartitions: round(equivalentPartitions, 4),
@@ -228,14 +242,35 @@ export function calculateFinish(input: FinishCalcInput): FinishCalcResult {
 
   // ── Painting and Tyrolene: coverage-based calculation ──
   const materialConfigs =
-    input.materials && input.materials.length > 0
-      ? input.materials
-      : [];
+    input.materials && input.materials.length > 0 ? input.materials : [];
+
+  const configWarnings: string[] = [];
+  if (area > 0 && coats > 0 && materialConfigs.length === 0) {
+    configWarnings.push(
+      "No materials are configured for this finish type. Configure materials in Admin before an accurate estimate is possible.",
+    );
+  }
 
   const results: FinishMaterialResult[] = materialConfigs.map((mat) => {
     const coverageRate = Math.max(0, mat.coverageRate || 0);
     const packageSize = Math.max(0, mat.packageSize || 0);
     const unitPrice = Math.max(0, mat.unitPrice || 0);
+
+    if (area > 0 && coats > 0) {
+      if (coverageRate <= 0) {
+        configWarnings.push(
+          `Coverage rate is not configured for '${mat.name}'. Its quantity and cost are excluded until an admin configures it.`,
+        );
+      } else if (packageSize <= 0) {
+        configWarnings.push(
+          `Package size is not configured for '${mat.name}'. Purchase quantity and cost are excluded until an admin configures it.`,
+        );
+      } else if (unitPrice <= 0) {
+        configWarnings.push(
+          `Unit price is not configured for '${mat.name}'. Its cost is excluded from the total until an admin configures it.`,
+        );
+      }
+    }
 
     if (area === 0 || coats === 0 || coverageRate === 0) {
       return {
@@ -259,7 +294,8 @@ export function calculateFinish(input: FinishCalcInput): FinishCalcResult {
     const quantityRequired = round(rawRequired, 2);
     const rawWithWaste = rawRequired * (1 + wasteMargin / 100);
     const quantityWithWaste = round(rawWithWaste, 2);
-    const packagesNeeded = packageSize > 0 ? Math.ceil(quantityWithWaste / packageSize) : 0;
+    const packagesNeeded =
+      packageSize > 0 ? Math.ceil(quantityWithWaste / packageSize) : 0;
     const cost = packagesNeeded * unitPrice;
 
     return {
@@ -292,32 +328,35 @@ export function calculateFinish(input: FinishCalcInput): FinishCalcResult {
     currency,
     currencySymbol,
     labourNote: LABOUR_NOTE,
+    warnings: configWarnings,
   };
 }
 
 /**
  * Convert a DbFinishType record to a FinishMaterialConfig.
  */
-export function dbToFinishMaterialConfig(
-  db: {
-    id: string;
-    name: string;
-    slug: string;
-    coverage_rate: number;
-    coverage_unit: string;
-    default_coats: number;
-    package_size: number;
-    package_unit: string;
-    unit_price: number;
-    is_base: boolean;
-    is_finishing: boolean;
-    sort_order: number;
-  },
-): FinishMaterialConfig {
+export function dbToFinishMaterialConfig(db: {
+  id: string;
+  name: string;
+  slug: string;
+  coverage_rate: number;
+  coverage_unit: string;
+  default_coats: number;
+  package_size: number;
+  package_unit: string;
+  unit_price: number;
+  is_base: boolean;
+  is_finishing: boolean;
+  sort_order: number;
+}): FinishMaterialConfig {
   return {
     id: db.id,
     name: db.name,
-    finishType: (db.slug.includes('tyrolene') ? 'tyrolene' : db.slug.includes('grafitex') ? 'grafitex' : 'painting') as FinishType,
+    finishType: (db.slug.includes("tyrolene")
+      ? "tyrolene"
+      : db.slug.includes("grafitex")
+        ? "grafitex"
+        : "painting") as FinishType,
     coverageRate: Number(db.coverage_rate),
     coverageUnit: db.coverage_unit,
     packageSize: Number(db.package_size),

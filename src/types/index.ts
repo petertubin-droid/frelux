@@ -1,7 +1,8 @@
-export type ProjectType = 'room' | 'house' | 'exterior' | 'fence';
-export type Unit = 'meters' | 'feet';
-export type SurfaceCondition = 'smooth' | 'textured' | 'rough' | 'new_plaster';
-export type ColorCondition = 'same_or_light' | 'dark_over_light' | 'light_over_dark' | 'new_unpainted';
+export type ProjectType = "room" | "house" | "exterior" | "fence";
+export type Unit = "meters" | "feet";
+export type SurfaceCondition = "smooth" | "textured" | "rough" | "new_plaster";
+export type ColorCondition =
+  "same_or_light" | "dark_over_light" | "light_over_dark" | "new_unpainted";
 
 // Re-export default opening dimensions from utils so all modules
 // share a single source of truth.
@@ -10,7 +11,7 @@ export {
   DEFAULT_DOOR_HEIGHT_M,
   DEFAULT_WINDOW_WIDTH_M,
   DEFAULT_WINDOW_HEIGHT_M,
-} from '@/lib/utils';
+} from "@/lib/utils";
 
 export interface OpeningDimensions {
   width: number; // meters
@@ -113,7 +114,7 @@ export interface CostEstimateInput {
   includeOther: boolean;
   otherMaterialsCost: number;
   // Labor
-  laborMode: 'perSqm' | 'manual';
+  laborMode: "perSqm" | "manual";
   laborRatePerSqm: number;
   laborTotal: number;
   // Currency
@@ -154,7 +155,7 @@ export interface ColorCombination {
 }
 
 export interface ScreedingCalcInput {
-  method: 'full_room' | 'individual_wall';
+  method: "full_room" | "individual_wall";
   // Full room
   roomLength: number;
   roomWidth: number;
@@ -172,7 +173,7 @@ export interface ScreedingCalcInput {
 }
 
 export interface ScreedingCalcResult {
-  method: 'full_room' | 'individual_wall';
+  method: "full_room" | "individual_wall";
   unit: Unit;
   grossWallArea: number;
   doorArea: number;
@@ -299,7 +300,7 @@ export interface SavedEstimate {
 // =========================================================
 
 export interface PopCalcInput {
-  workflow: 'nigeria' | 'international';
+  workflow: "nigeria" | "international";
   roomLength: number;
   roomWidth: number;
   unit: Unit;
@@ -327,6 +328,8 @@ export interface PopCalcResult {
   grandTotal: number;
   currency: string;
   currencySymbol: string;
+  /** Non-blocking configuration problems (missing coverage/price) — audit fix */
+  warnings?: string[];
 }
 
 export interface PopEstimateResult {
@@ -345,8 +348,8 @@ export interface PopEstimateResult {
 // =========================================================
 
 export interface TileCalcInput {
-  surfaceType: 'floor' | 'wall';
-  method: 'traditional' | 'adhesive';
+  surfaceType: "floor" | "wall";
+  method: "traditional" | "adhesive";
   length: number;
   width: number;
   height: number;
@@ -383,7 +386,7 @@ export interface TileCalcResult {
   tilesNeeded: number;
   boxesNeeded: number;
   tileCost: number;
-  method: 'traditional' | 'adhesive';
+  method: "traditional" | "adhesive";
   adhesiveNeeded: number;
   adhesiveCost: number;
   cementNeeded: number;
@@ -400,18 +403,20 @@ export interface TileCalcResult {
   grandTotal: number;
   currency: string;
   currencySymbol: string;
+  /** Non-blocking configuration problems (missing coverage/price) — audit fix */
+  warnings?: string[];
 }
 
 export const colorCategories = [
-  'Living Room',
-  'Bedroom',
-  'Kitchen',
-  'Exterior',
-  'Modern',
-  'Luxury',
-  'Neutral',
-  'Warm',
-  'Bold',
+  "Living Room",
+  "Bedroom",
+  "Kitchen",
+  "Exterior",
+  "Modern",
+  "Luxury",
+  "Neutral",
+  "Warm",
+  "Bold",
 ] as const;
 
 export type ColorFilter = {
@@ -422,7 +427,7 @@ export type ColorFilter = {
   isExterior?: boolean | null;
   isFeatured?: boolean | null;
   isTrending?: boolean | null;
-  sort?: 'popularity' | 'name' | 'newest' | 'display_order';
+  sort?: "popularity" | "name" | "newest" | "display_order";
   page?: number;
   pageSize?: number;
 };
@@ -431,7 +436,7 @@ export type ColorFilter = {
 // Screeding Material System (Putty + White Cement/Paint)
 // =========================================================
 
-export type ScreedingMaterialSystem = 'putty' | 'white_cement_paint';
+export type ScreedingMaterialSystem = "putty" | "white_cement_paint";
 
 /** Configuration for a screeding material system, loaded from DB. */
 export interface ScreedingSystemConfig {
@@ -444,7 +449,7 @@ export interface ScreedingSystemConfig {
   wastePercentage: number;
   currency: string;
   currencySymbol: string;
-  roundingRule: 'ceil' | 'none';
+  roundingRule: "ceil" | "none";
   // Putty (putty system only)
   puttyName: string | null;
   puttyQuantity: number | null;
@@ -474,18 +479,18 @@ export interface ScreedingSystemConfig {
 export interface ScreedingMaterialBreakdown {
   name: string;
   unit: string;
-  baseQuantity: number;       // before waste
+  baseQuantity: number; // before waste
   wastePercentage: number;
-  wasteQuantity: number;      // waste amount
-  finalQuantity: number;      // base + waste
-  purchaseQuantity: number;   // rounded for purchase (e.g. ceil to whole buckets)
+  wasteQuantity: number; // waste amount
+  finalQuantity: number; // base + waste
+  purchaseQuantity: number; // rounded for purchase (e.g. ceil to whole buckets)
   pricePerUnit: number | null;
-  totalCost: number | null;   // null when price not configured
+  totalCost: number | null; // null when price not configured
 }
 
 /** Result for the Putty material system. */
 export interface ScreedingPuttyResult {
-  systemType: 'putty';
+  systemType: "putty";
   netScreedingArea: number;
   coats: number;
   coverageAreaM2: number;
@@ -497,7 +502,7 @@ export interface ScreedingPuttyResult {
 
 /** Result for the White Cement + Screeding Paint material system. */
 export interface ScreedingMixSystemResult {
-  systemType: 'white_cement_paint';
+  systemType: "white_cement_paint";
   netScreedingArea: number;
   coats: number;
   coverageAreaM2: number;
@@ -512,4 +517,5 @@ export interface ScreedingMixSystemResult {
 }
 
 /** Union result type for any screeding material system. */
-export type ScreedingSystemResult = ScreedingPuttyResult | ScreedingMixSystemResult;
+export type ScreedingSystemResult =
+  ScreedingPuttyResult | ScreedingMixSystemResult;

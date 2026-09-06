@@ -577,6 +577,18 @@ export default function FinishEstimator({
 
         {!loading && result && (
           <div className="space-y-6">
+            {(result.warnings ?? []).length > 0 && (
+              <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-700 dark:text-amber-400">
+                <p className="mb-1 font-medium">
+                  Configuration incomplete — estimate may be understated:
+                </p>
+                <ul className="list-disc pl-4 space-y-0.5">
+                  {(result.warnings ?? []).map((w) => (
+                    <li key={w}>{w}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <ResultCard
               title={`${getFinishTypeLabel(result.finishType)} Estimate`}
               subtitle={`${formatNumber(result.area)} m² — ${result.coats} coat${result.coats > 1 ? "s" : ""} — ${result.wasteMargin}% waste`}
