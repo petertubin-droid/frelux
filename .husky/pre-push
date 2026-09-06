@@ -1,23 +1,29 @@
-# Fast pre-push gate — the full test suite still runs in GitHub CI.
-# 1) Whole-project type check: catches non-compiling code/tests instantly
+# Fast pre-push gate (~1-2 min). The full test suite + build run in GitHub CI.
+#
+# 1) Whole-project type check — cheap, catches non-compiling code instantly.
 npx tsc --noEmit -p tsconfig.app.json || {
   echo "✗ pre-push: TypeScript check failed"
   exit 1
 }
 
-# 2) Tests related to the files changed in this push only
+# 2) Run ONLY the test files that themselves changed in this push.
+#    (Source-graph expansion via `vitest related` can pull in the whole
+#    suite — that is GitHub CI's job, not the push gate's.)
+CHANGED_FILES=""
 while read local_ref local_sha remote_ref remote_sha; do
   if [ "$remote_sha" != "0000000000000000000000000000000000000000" ]; then
-    CHANGED="$CHANGED $(git diff --name-only "$remote_sha" "$local_sha")"
+    CHANGED_FILES="$CHANGED_FILES
+$(git diff --name-only "$remote_sha" "$local_sha")"
   fi
 done
 
-if [ -n "${CHANGED:-}" ]; then
+TESTS=$(echo "$CHANGED_FILES" | grep -E '\.(test|spec)\.(ts|tsx)$' | sort -u | tr '\n' ' ')
+if [ -n "$TESTS" ]; then
   # shellcheck disable=SC2086
-  npx vitest related --run --passWithNoTests $CHANGED || {
-    echo "✗ pre-push: related tests failed"
+  npx vitest run --passWithNoTests $TESTS || {
+    echo "✗ pre-push: changed test files failed"
     exit 1
   }
 fi
 
-echo "✓ pre-push: type check + related tests passed (full suite runs in CI)"
+echo "✓ pre-push: fast gate passed (full suite + build run in GitHub CI)"
