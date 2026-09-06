@@ -296,6 +296,16 @@ export function developmentMargin(
       reason: `Sale value currency (${expectedSaleValue.currency}) differs from cost currency (${costResult.currency}).`,
     };
   }
+  if (!validPositive(expectedSaleValue.amount)) {
+    return {
+      status: "insufficient_data",
+      unit: "percent",
+      formula: "margin = ((expected sale value − total cost) ÷ total cost) × 100",
+      inputs: [{ label: "Expected sale value", value: expectedSaleValue.amount, currency: expectedSaleValue.currency }],
+      assumptions: [],
+      reason: "Expected sale value must be a positive, finite number. It is an assumption the user provides — FRELUX does not invent or accept invalid ones.",
+    };
+  }
   if (costResult.status !== "calculated" || costResult.totalKnownCost === undefined) {
     return {
       status: "insufficient_data",

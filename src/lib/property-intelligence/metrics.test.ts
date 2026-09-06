@@ -187,3 +187,67 @@ describe("developmentMargin", () => {
     expect(margin.status).toBe("invalid_input");
   });
 });
+
+describe("mathematical boundary & invalid-value audit (Phase 12)", () => {
+  it("handles extremely large values without overflow or precision loss", () => {
+    const result = grossRentalYield({
+      rent: { amount: 9e15, period: "annual", currency: "NGN" },
+      propertyPrice: { amount: 9e17, currency: "NGN" },
+    });
+    expect(result.status).toBe("calculated");
+    expect(result.value).toBeCloseTo(1, 12); // 9e15 / 9e17 = 1%
+  });
+
+  it("rejects non-finite inputs (NaN, Infinity)", () => {
+    for (const bad of [Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
+      const result = grossRentalYield({
+        rent: { amount: bad, period: "annual", currency: "NGN" },
+        propertyPrice: { amount: 12_000_000, currency: "NGN" },
+      });
+      expect(result.status).toBe("insufficient_data");
+      expect(result.value).toBeUndefined();
+    }
+  });
+
+  it("rejects negative and zero prices and rents", () => {
+    for (const bad of [0, -5_000_000]) {
+      const result = grossRentalYield({
+        rent: { amount: 1_200_000, period: "annual", currency: "NGN" },
+        propertyPrice: { amount: bad, currency: "NGN" },
+      });
+      expect(result.status).toBe("insufficient_data");
+      expect(result.reason).toContain("positive");
+    }
+  });
+
+  it("rejects negative costs in the development total", () => {
+    const result = totalDevelopmentCost({
+      currency: "NGN",
+      purchaseCost: { amount: -1, currency: "NGN" },
+    });
+    expect(result.status).not.toBe("calculated");
+    expect(result.unpricedItems.join(" ")).toContain("invalid amount");
+  });
+
+  it("rejects non-finite sale values in the margin", () => {
+    const cost = totalDevelopmentCost({
+      currency: "NGN",
+      purchaseCost: { amount: 5_000_000, currency: "NGN" },
+    });
+    const margin = developmentMargin(cost, { amount: Number.NaN, currency: "NGN" });
+    expect(margin.status).toBe("insufficient_data");
+    expect(margin.value).toBeUndefined();
+  });
+
+  it("preserves full precision through chained metric calculations", () => {
+    const cost = totalDevelopmentCost({
+      currency: "NGN",
+      purchaseCost: { amount: 5_000_000, currency: "NGN" },
+      constructionCost: { amount: 8_000_000, currency: "NGN", source: "CI" },
+      otherKnownCosts: [{ label: "Fees", amount: 1_666_667, currency: "NGN" }],
+    });
+    expect(cost.totalKnownCost).toBeCloseTo(14_666_667, 6);
+    const margin = developmentMargin(cost, { amount: 19_000_000, currency: "NGN" });
+    expect(margin.value).toBeCloseTo(4_333_333 / 14_666_667 * 100, 9);
+  });
+});
