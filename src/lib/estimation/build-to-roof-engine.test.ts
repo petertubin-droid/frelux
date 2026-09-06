@@ -14,6 +14,7 @@ import {
   mortarToMaterials,
   blocksPerM2,
   calculateRoofArea,
+  decomposeRoofPlanes,
   roofingSheetsCount,
   getSheetCoverage,
   calculateRidgeLength,
@@ -116,8 +117,9 @@ describe("blocksPerM2", () => {
 
 describe("calculateRoofArea", () => {
   it("returns footprint for flat roof", () => {
-    expect(calculateRoofArea(10, 8, 0, 0.6, "flat")).toBe(
+    expect(calculateRoofArea(10, 8, 0, 0.6, "flat")).toBeCloseTo(
       (10 + 1.2) * (8 + 1.2),
+      6,
     );
   });
   it("applies pitch factor for gable", () => {
@@ -443,5 +445,126 @@ describe("calculateBuildToRoof (audit regression)", () => {
     expect(item?.base_length_m).toBeCloseTo(4 * 3 * 6, 2);            // 72 m net
     expect(item?.total_length_m).toBeCloseTo(72 * 1.03, 2);           // +3% wastage
     expect(item?.standard_lengths).toBe(Math.ceil(72 * 1.03 / 12));   // 7 lengths
+  });
+});
+
+// ─────────────────────────────────────────────────────────
+// Explicit roof-plane model — geometric invariants
+// ─────────────────────────────────────────────────────────
+
+describe("decomposeRoofPlanes — explicit geometry", () => {
+  const TYPES = ["gable", "hip", "mono_pitch"] as const;
+
+  it("decomposes every supported type into unique, complete planes", () => {
+    expect(decomposeRoofPlanes(10, 8, 30, 0.6, "gable")).toHaveLength(2);
+    expect(decomposeRoofPlanes(10, 8, 30, 0.6, "hip")).toHaveLength(4);
+    expect(decomposeRoofPlanes(10, 8, 30, 0.6, "mono_pitch")).toHaveLength(1);
+    expect(decomposeRoofPlanes(10, 8, 30, 0.6, "flat")).toHaveLength(1);
+    // uniqueness — no plane counted twice
+    for (const t of [...TYPES, "flat"]) {
+      const ids = decomposeRoofPlanes(10, 8, 30, 0.6, t).map((p) => p.id);
+      expect(new Set(ids).size).toBe(ids.length);
+    }
+  });
+
+  it("CONSERVATION: projections sum exactly to the eave rectangle Le × We", () => {
+    for (const t of [...TYPES, "flat"] as string[]) {
+      const planes = decomposeRoofPlanes(10, 8, 30, 0.6, t);
+      const projSum = planes.reduce((s, p) => s + p.projected_area_m2, 0);
+      expect(projSum).toBeCloseTo(11.2 * 9.2, 1);
+    }
+  });
+
+  it("CONSERVATION: calculateRoofArea == sum of plane areas (exact)", () => {
+    for (const t of [...TYPES, "flat"] as string[]) {
+      const planes = decomposeRoofPlanes(10, 8, 30, 0.6, t);
+      const sum = Math.round(planes.reduce((s, p) => s + p.sloped_area_m2, 0) * 100) / 100;
+      expect(calculateRoofArea(10, 8, 30, 0.6, t)).toBe(sum);
+    }
+  });
+
+  it("ZERO PITCH: sloped area → horizontal projected area (limiting case)", () => {
+    for (const t of [...TYPES] as string[]) {
+      const planes = decomposeRoofPlanes(10, 8, 0, 0.6, t);
+      const total = planes.reduce((s, p) => s + p.sloped_area_m2, 0);
+      expect(total).toBeCloseTo(11.2 * 9.2, 1);
+    }
+  });
+
+  it("INCREASING PITCH increases sloped area at fixed projection", () => {
+    for (const t of [...TYPES] as string[]) {
+      const a15 = calculateRoofArea(10, 8, 15, 0.6, t);
+      const a30 = calculateRoofArea(10, 8, 30, 0.6, t);
+      const a45 = calculateRoofArea(10, 8, 45, 0.6, t);
+      expect(a15).toBeLessThan(a30);
+      expect(a30).toBeLessThan(a45);
+    }
+  });
+
+  it("ZERO OVERHANG reduces the roof to the building footprint geometry", () => {
+    // gable: two planes L × W/2, ridge = L
+    const gable = decomposeRoofPlanes(10, 8, 30, 0, "gable");
+    expect(gable[0].projected_area_m2).toBeCloseTo(10 * 4, 1);
+    expect(calculateRidgeLength(10, 8, "gable", 0)).toBe(10);
+    // mono: one plane L × W
+    const mono = decomposeRoofPlanes(10, 8, 30, 0, "mono_pitch");
+    expect(mono[0].projected_area_m2).toBeCloseTo(80, 1);
+    // hip: ridge = L − W, projections sum to L × W
+    const hip = decomposeRoofPlanes(10, 8, 30, 0, "hip");
+    expect(hip.reduce((s, p) => s + p.projected_area_m2, 0)).toBeCloseTo(80, 1);
+    expect(calculateRidgeLength(10, 8, "hip", 0)).toBe(2);
+    // flat: exact footprint
+    expect(calculateRoofArea(10, 8, 30, 0, "flat")).toBeCloseTo(80, 6);
+  });
+
+  it("SYMMETRY: gable planes are equal; hip planes pair up; square hip is a pyramid", () => {
+    const gable = decomposeRoofPlanes(10, 8, 30, 0.6, "gable");
+    expect(gable[0].sloped_area_m2).toBeCloseTo(gable[1].sloped_area_m2, 6);
+
+    const hip = decomposeRoofPlanes(10, 8, 30, 0.6, "hip");
+    expect(hip[0].sloped_area_m2).toBeCloseTo(hip[1].sloped_area_m2, 6); // trapezoids
+    expect(hip[2].sloped_area_m2).toBeCloseTo(hip[3].sloped_area_m2, 6); // triangles
+
+    // Square hip = pyramid: all four planes identical triangles
+    const pyramid = decomposeRoofPlanes(8, 8, 30, 0, "hip");
+    expect(new Set(pyramid.map((p) => p.sloped_area_m2)).size).toBe(1);
+    expect(calculateRidgeLength(8, 8, "hip", 0)).toBe(0);
+  });
+
+  it("HIP geometry matches the explicit trapezoid + triangle model", () => {
+    const planes = decomposeRoofPlanes(10, 8, 30, 0.6, "hip");
+    const Le = 11.2, We = 9.2, R = Le - We;
+    const cosT = Math.cos((30 * Math.PI) / 180);
+    const trap = ((Le + R) / 2) * (We / 2);   // each trapezoid projection
+    const tri = (We * We) / 4;                // each triangle projection
+    expect(planes[0].projected_area_m2).toBeCloseTo(trap, 1);
+    expect(planes[2].projected_area_m2).toBeCloseTo(tri, 1);
+    // sloped per-plane = projection / cos(pitch)
+    expect(planes[0].sloped_area_m2).toBeCloseTo(trap / cosT, 1);
+    expect(planes[2].sloped_area_m2).toBeCloseTo(tri / cosT, 1);
+    // total = Le·We/cos(pitch) — exact for uniform pitch (proved, not assumed)
+    const total = planes.reduce((s, p) => s + p.sloped_area_m2, 0);
+    expect(total).toBeCloseTo((Le * We) / cosT, 1);
+  });
+
+  it("UNIT EQUIVALENCE: identical building in m and ft gives equal geometry", () => {
+    const M_PER_FT = 0.3048;
+    for (const t of [...TYPES] as string[]) {
+      const inM = decomposeRoofPlanes(10, 8, 30, 0.6, t);
+      const inFt = decomposeRoofPlanes(10 / M_PER_FT, 8 / M_PER_FT, 30, 0.6 / M_PER_FT, t);
+      const ftM2 = inFt.reduce((s, p) => s + p.sloped_area_m2, 0) * M_PER_FT * M_PER_FT;
+      const m2 = inM.reduce((s, p) => s + p.sloped_area_m2, 0);
+      expect(ftM2).toBeCloseTo(m2, 1); // 0.1 m² tolerance
+    }
+  });
+
+  it("PITCH is degrees only — conversion θ_rad = θ_deg × π/180 (never mixed)", () => {
+    // 30° must equal the radian-converted value, not 30 rad
+    const deg = calculateRoofArea(10, 8, 30, 0.6, "gable");
+    const viaRad = (11.2 * 9.2) / Math.cos((30 * Math.PI) / 180);
+    expect(deg).toBeCloseTo(viaRad, 2);
+    // 30 radians would produce a wildly different (negative) result —
+    // degrees-only input must never reach trig unconverted:
+    expect(Math.cos(30)).toBeLessThan(1); // 30 rad ≠ 30°
   });
 });

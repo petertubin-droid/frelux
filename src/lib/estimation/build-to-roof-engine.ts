@@ -285,26 +285,163 @@ export function blocksPerM2(blockLengthInches: number, blockHeightInches: number
   return 1 / blockFaceArea;
 }
 
-// ── Roof geometry ──
+// ── Roof geometry: explicit roof-plane model ──
 
 /**
- * Calculate roof surface area from building footprint + pitch + overhang.
+ * ONE explicit roof plane. Every supported roof is decomposed into a list
+ * of these; the total roof area is the SUM of the plane areas — no plane
+ * is counted twice and none is omitted.
+ */
+export interface RoofPlane {
+  id: string;                 // unique within the decomposition
+  roof_type: string;
+  label: string;
+  /** Horizontal projected area of the plane (m²) */
+  projected_area_m2: number;
+  pitch_degrees: number;
+  /** Sloped (true surface) area of the plane (m²) */
+  sloped_area_m2: number;
+  /** Human-readable projected boundary of the plane */
+  boundary: string;
+}
+
+/**
+ * Decompose a roof into its explicit roof planes.
  *
- * For gable roof:
- *   Two sloped sides, each covering half the width.
- *   slope_length = (width/2 + overhang) / cos(pitch)
- *   roof_area = 2 × (length + 2×overhang) × slope_length
- *            = (length + 2×overhang) × (width + 2×overhang) / cos(pitch)
- *            = footprint / cos(pitch)  [mathematically equivalent]
+ * CONVENTIONS (the geometric model of the engine):
+ * - Building: rectangular footprint, L (length) × W (width).
+ * - Overhang: ONE uniform HORIZONTAL eave overhang, applied once to each
+ *   of the four footprint edges (so the eave rectangle is (L+2OH)×(W+2OH)).
+ *   Longitudinal and transverse overhangs are not specified separately —
+ *   the single value is used for both.
+ * - Pitch: inclination angle θ in DEGREES relative to horizontal, converted
+ *   internally via θ_rad = θ_deg × π/180. All planes of a roof share the
+ *   same pitch (uniform-pitch model).
+ * - Sloped area of a plane = projected area / cos(θ) (exact for a plane of
+ *   constant pitch, independent of the plane's horizontal shape).
  *
- * For hip roof:
- *   All 4 sides slope. footprint / cos(pitch) is a standard approximation.
+ * PER-TYPE GEOMETRY (eave rectangle Le = L+2OH, We = W+2OH):
  *
- * For mono-pitch:
- *   Single slope. footprint / cos(pitch) is correct.
+ * GABLE — two rectangular planes, ridge along the LENGTH:
+ *   each plane: projected Le × (We/2)   → sloped / cos θ
+ *   (2 × Le × We/2 = Le·We — equivalent to the closed form Le·We/cos θ)
+ *   ridge length = Le; ridge caps = Le.
  *
- * For flat roof:
- *   roof_area = footprint (no pitch)
+ * HIP — 4 planes, ridge along the LONGER eave side, R = |Le − We|
+ *   (Le = We → pyramid, R = 0):
+ *   2 trapezoid side planes: parallel sides Le and R, height We/2
+ *     → projected (Le + R)/2 × We/2
+ *   2 triangular end planes: base We, depth We/2
+ *     → projected We²/4 each
+ *   Projection conservation: 2 × (Le+R)/2 × We/2 + 2 × We²/4 = Le·We ✓
+ *   (For uniform pitch the sloped total = Le·We/cos θ, which is EXACT for
+ *   this geometry — proven by plane decomposition, not assumed.)
+ *
+ * MONO-PITCH — ONE rectangular plane spanning the FULL width:
+ *   projected Le × We → sloped / cos θ. High and low edges run along Le.
+ *
+ * FLAT — one plane at 0°: sloped area = projected area = Le·We.
+ *
+ * CUSTOM — the engine explicitly applies the GABLE-EQUIVALENT model
+ *   (2 planes, single ridge along the length) with the user-supplied
+ *   pitch. This is a documented modelling choice, disclosed in the UI;
+ *   complex roof geometry (L/T-shaped, cross-gable, intersecting hips,
+ *   multiple ridges/valleys) is NOT supported and is not silently
+ *   approximated by this tool.
+ */
+export function decomposeRoofPlanes(
+  buildingLength: number,
+  buildingWidth: number,
+  pitchDegrees: number,
+  overhang: number,
+  roofType: string
+): RoofPlane[] {
+  const Le = buildingLength + 2 * overhang; // eave length (along ridge)
+  const We = buildingWidth + 2 * overhang;  // eave width (across ridge)
+
+  if (roofType === 'flat') {
+    return [{
+      id: 'flat-1',
+      roof_type: 'flat',
+      label: 'Flat roof plane',
+      projected_area_m2: round(Le * We),
+      pitch_degrees: 0,
+      sloped_area_m2: round(Le * We),
+      boundary: `Eave rectangle ${round(Le, 2)}m × ${round(We, 2)}m`,
+    }];
+  }
+
+  const pitchRad = (pitchDegrees * Math.PI) / 180;
+
+  // Guard against pitch = 90° (vertical) — a wall, not a roof. The plane
+  // is undefined for sheeting; the horizontal projection is returned so
+  // the estimate degrades to the limiting flat case.
+  if (Math.abs(pitchDegrees - 90) < 0.01) {
+    return [{
+      id: 'vertical-1',
+      roof_type: roofType,
+      label: 'Vertical plane (pitch 90° — not a roof)',
+      projected_area_m2: round(Le * We),
+      pitch_degrees: pitchDegrees,
+      sloped_area_m2: round(Le * We),
+      boundary: 'Undefined — vertical pitch is not a roof plane',
+    }];
+  }
+
+  const slopeFactor = 1 / Math.cos(pitchRad);
+  const plane = (
+    id: string, label: string, projectedArea: number, boundary: string
+  ): RoofPlane => ({
+    id,
+    roof_type: roofType,
+    label,
+    projected_area_m2: round(projectedArea),
+    pitch_degrees: pitchDegrees,
+    sloped_area_m2: round(projectedArea * slopeFactor),
+    boundary,
+  });
+
+  if (roofType === 'mono_pitch') {
+    return [
+      plane('mono-1', 'Mono-pitch plane (full width)', Le * We,
+        `Eave rectangle ${round(Le, 2)}m × ${round(We, 2)}m — high edge along Le`),
+    ];
+  }
+
+  if (roofType === 'hip') {
+    // Ridge along the longer eave side; R = 0 gives a pyramid.
+    const long = Math.max(Le, We);
+    const short = Math.min(Le, We);
+    const R = long - short;
+    const trapProjected = ((long + R) / 2) * (short / 2);
+    const triProjected = (short * short) / 4;
+    const ridgeNote = R === 0 ? ' (pyramid — no ridge)' : '';
+    return [
+      plane('hip-side-1', `Hip trapezoid plane 1${ridgeNote}`, trapProjected,
+        `Trapezoid: parallel sides ${round(long, 2)}m (eave) and ${round(R, 2)}m (ridge), height ${round(short / 2, 2)}m`),
+      plane('hip-side-2', `Hip trapezoid plane 2${ridgeNote}`, trapProjected,
+        `Trapezoid: parallel sides ${round(long, 2)}m (eave) and ${round(R, 2)}m (ridge), height ${round(short / 2, 2)}m`),
+      plane('hip-end-1', `Hip triangular end plane 1${ridgeNote}`, triProjected,
+        `Triangle: base ${round(short, 2)}m, depth ${round(short / 2, 2)}m`),
+      plane('hip-end-2', `Hip triangular end plane 2${ridgeNote}`, triProjected,
+        `Triangle: base ${round(short, 2)}m, depth ${round(short / 2, 2)}m`),
+    ];
+  }
+
+  // GABLE — and CUSTOM, which explicitly uses the gable-equivalent model
+  const typeLabel = roofType === 'custom' ? 'Custom (gable-equivalent)' : 'Gable';
+  const halfSpan = We / 2;
+  return [
+    plane(`${roofType}-1`, `${typeLabel} plane 1 (half-span)`, Le * halfSpan,
+      `Rectangle ${round(Le, 2)}m (ridge/eave) × ${round(halfSpan, 2)}m (horizontal half-span)`),
+    plane(`${roofType}-2`, `${typeLabel} plane 2 (half-span)`, Le * halfSpan,
+      `Rectangle ${round(Le, 2)}m (ridge/eave) × ${round(halfSpan, 2)}m (horizontal half-span)`),
+  ];
+}
+
+/**
+ * Total roof surface area = the sum of the explicitly decomposed roof-plane
+ * areas (conservation invariant — no plane counted twice, none omitted).
  */
 export function calculateRoofArea(
   buildingLength: number,
@@ -313,21 +450,8 @@ export function calculateRoofArea(
   overhang: number,
   roofType: string
 ): number {
-  const footprint = (buildingLength + 2 * overhang) * (buildingWidth + 2 * overhang);
-
-  if (roofType === 'flat') {
-    return footprint;
-  }
-
-  const pitchRad = (pitchDegrees * Math.PI) / 180;
-
-  // Guard against pitch = 90° (vertical) which would give infinity
-  if (Math.abs(pitchDegrees - 90) < 0.01) {
-    return footprint; // vertical pitch = wall, not roof
-  }
-
-  const slopeFactor = 1 / Math.cos(pitchRad);
-  return footprint * slopeFactor;
+  const planes = decomposeRoofPlanes(buildingLength, buildingWidth, pitchDegrees, overhang, roofType);
+  return round(planes.reduce((sum, p) => sum + p.sloped_area_m2, 0));
 }
 
 // ── Roofing sheets ──

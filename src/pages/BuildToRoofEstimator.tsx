@@ -1158,14 +1158,31 @@ export default function BuildToRoofEstimator() {
                         geometry={roofGeometry}
                         onChange={setRoofGeometry}
                       />
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Traced geometry is a visual reference only — estimates
+                        use the dimensions and roof type you enter below.
+                        Complex roof geometry (L-shaped, T-shaped, cross-gable,
+                        intersecting hips, multiple ridges or valleys) requires
+                        manual configuration or future support.
+                      </p>
                     </div>
                     <div className="grid md:grid-cols-3 gap-4">
-                      <SelectField
-                        label="Roof type"
-                        value={input.roof_type}
-                        onChange={(v) => update("roof_type", v as RoofType)}
-                        options={ROOF_TYPES}
-                      />
+                      <div>
+                        <SelectField
+                          label="Roof type"
+                          value={input.roof_type}
+                          onChange={(v) => update("roof_type", v as RoofType)}
+                          options={ROOF_TYPES}
+                        />
+                        {input.roof_type === "custom" && (
+                          <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
+                            Custom roofs are estimated with the explicit
+                            gable-equivalent model (2 planes, single ridge) at
+                            your entered pitch. Verify quantities manually for
+                            non-rectangular or multi-ridge roofs.
+                          </p>
+                        )}
+                      </div>
                       <Field
                         label="Roof pitch"
                         unit="°"
