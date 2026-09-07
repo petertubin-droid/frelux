@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  isValidElement,
+  cloneElement,
+  type ReactNode,
+} from "react";
 import { Link } from "react-router-dom";
 import {
   Home,
@@ -51,7 +59,7 @@ import {
   fetchSurfaceConditions,
   fetchColourConditions,
 } from "@/lib/estimation/queries";
-import { formatNumber } from "@/lib/utils";
+import { formatNumber, classNames } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { useCalcDefaults, type CalcDefaults } from "@/lib/use-calc-defaults";
 import {
@@ -2026,6 +2034,13 @@ function Field({
   error?: string;
   children: ReactNode;
 }) {
+  const errorId = `${label.toLowerCase().replace(/\s+/g, "-")}-error`;
+  const decoratedChildren = isValidElement(children)
+    ? cloneElement(children, {
+        "aria-invalid": error ? true : undefined,
+        "aria-describedby": error ? errorId : undefined,
+      } as Record<string, unknown>)
+    : children;
   return (
     <label className="block">
       <span className="block text-sm font-semibold text-card-foreground">
@@ -2036,8 +2051,14 @@ function Field({
           {hint}
         </span>
       )}
-      <div className="relative mt-1.5">
-        {children}
+      <div
+        className={classNames(
+          "relative mt-1.5",
+          error &&
+            "[&_.input-field]:border-red-400 [&_.input-field]:focus:border-red-500 [&_.input-field]:focus:ring-red-300/40 dark:[&_.input-field]:border-red-500/60 dark:[&_.input-field]:focus:border-red-400",
+        )}
+      >
+        {decoratedChildren}
         {suffix && (
           <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
             {suffix}
@@ -2045,7 +2066,14 @@ function Field({
         )}
       </div>
       {error && (
-        <span className="mt-1 block text-xs text-red-600">{error}</span>
+        <span
+          id={errorId}
+          role="alert"
+          className="mt-1 flex items-center gap-1 text-xs text-red-600"
+        >
+          <AlertCircle aria-hidden="true" className="h-3 w-3 shrink-0" />
+          {error}
+        </span>
       )}
     </label>
   );

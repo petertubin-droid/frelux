@@ -216,7 +216,7 @@ export default function LabourCostSection({
           )}
 
           {/* Method-specific inputs */}
-          <div className="rounded-lg bg-muted/50 p-4 dark:bg-card-foreground/50">
+          <div className="rounded-lg bg-muted/50 p-4 dark:bg-white/5">
             {config.pricingMethod === "fixed" && (
               <Field
                 label={`Fixed Labour Cost (${currencySymbol})`}
@@ -261,7 +261,7 @@ export default function LabourCostSection({
                     min={0}
                     value={area ? area.toFixed(2) : ""}
                     readOnly
-                    className="input-field bg-muted dark:bg-card-foreground/80"
+                    className="input-field bg-muted dark:bg-muted"
                     placeholder="0"
                   />
                 </Field>
@@ -382,14 +382,14 @@ function Toggle({
         "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border-0 p-0 transition-colors duration-300",
         checked
           ? "bg-accent-green shadow-sm shadow-accent-green/30"
-          : "bg-muted dark:bg-card-foreground/80",
+          : "bg-muted dark:bg-white/10",
       )}
       aria-checked={checked}
       aria-label="Include labour cost"
     >
       <span
         className={classNames(
-          "inline-block h-5 w-5 translate-x-0.5 rounded-full bg-card shadow-md transition-transform duration-300 ease-out",
+          "inline-block h-5 w-5 translate-x-0.5 rounded-full bg-card shadow-md transition-transform duration-300 ease-out dark:bg-white/90",
           checked && "translate-x-5",
         )}
       />

@@ -27,7 +27,10 @@ import type {
   ScreedingMaterialBreakdown,
 } from "@/types";
 import type {} from "@/types/database";
-import { useProjectLocationCurrency, type FreluxLocation } from "@/lib/location-intelligence";
+import {
+  useProjectLocationCurrency,
+  type FreluxLocation,
+} from "@/lib/location-intelligence";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
 import {
@@ -90,8 +93,9 @@ export default function ScreedingCostEstimator({
 
   // Regional data flow: project location -> market profile -> currency.
   // Hook must run before the loading early-return (Rules of Hooks).
-  const { currencySymbol: projectCurrencySymbol } =
-    useProjectLocationCurrency(passed.projectLocation ?? null);
+  const { currencySymbol: projectCurrencySymbol } = useProjectLocationCurrency(
+    passed.projectLocation ?? null,
+  );
 
   const [puttyConfig, setPuttyConfig] = useState<ScreedingSystemConfig | null>(
     null,
@@ -223,7 +227,8 @@ export default function ScreedingCostEstimator({
     );
   }
 
-  const currencySymbol = projectCurrencySymbol ?? activeConfig?.currencySymbol ?? "₦";
+  const currencySymbol =
+    projectCurrencySymbol ?? activeConfig?.currencySymbol ?? "₦";
 
   return (
     <>
@@ -818,7 +823,7 @@ function buildExplanationSteps(result: ScreedingSystemResult) {
       },
       {
         description: `${result.putty.name} purchase quantity`,
-        value: `${result.putty.purchaseQuantity} ${result.putty.unit}s`,
+        value: `${formatNumber(result.putty.purchaseQuantity)} ${result.putty.unit}s`,
       },
     );
   } else {
@@ -833,7 +838,7 @@ function buildExplanationSteps(result: ScreedingSystemResult) {
       },
       {
         description: `${result.paint.name} purchase quantity`,
-        value: `${result.paint.purchaseQuantity} ${result.paint.unit}s`,
+        value: `${formatNumber(result.paint.purchaseQuantity)} ${result.paint.unit}s`,
       },
       {
         description: `${result.cement.name} base quantity`,
@@ -845,7 +850,7 @@ function buildExplanationSteps(result: ScreedingSystemResult) {
       },
       {
         description: `${result.cement.name} purchase quantity`,
-        value: `${result.cement.purchaseQuantity} ${result.cement.unit}s`,
+        value: `${formatNumber(result.cement.purchaseQuantity)} ${result.cement.unit}s`,
       },
     );
     if (result.extra) {
@@ -860,7 +865,7 @@ function buildExplanationSteps(result: ScreedingSystemResult) {
         },
         {
           description: `${result.extra.name} purchase quantity`,
-          value: `${result.extra.purchaseQuantity} ${result.extra.unit}s`,
+          value: `${formatNumber(result.extra.purchaseQuantity)} ${result.extra.unit}s`,
         },
       );
     }
@@ -912,7 +917,7 @@ function MaterialBreakdownCard({
         )}
         <Row
           label="Purchase quantity"
-          value={`${breakdown.purchaseQuantity} ${breakdown.unit}s`}
+          value={`${formatNumber(breakdown.purchaseQuantity)} ${breakdown.unit}s`}
           strong
         />
         {breakdown.pricePerUnit != null && breakdown.pricePerUnit > 0 ? (
