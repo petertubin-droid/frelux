@@ -5,7 +5,7 @@
 
 import { describe, it, expect } from "vitest";
 import { rowToProfile, profileToRowInput, type PropertyRow } from "./queries";
-import type { PropertyProfile, PropertyType } from "./types";
+import type { PropertyType } from "./types";
 
 function makeRow(overrides: Partial<PropertyRow> = {}): PropertyRow {
   return {
@@ -25,6 +25,9 @@ function makeRow(overrides: Partial<PropertyRow> = {}): PropertyRow {
     building_type: null,
     number_of_buildings: 1,
     number_of_floors: 2,
+    number_of_rooms: 5,
+    existing_condition: "Lived in, fair condition",
+    development_status: "existing",
     land_size: 500,
     land_unit: "m²",
     construction_status: "completed",
@@ -104,7 +107,10 @@ describe("profileToRowInput", () => {
   });
 
   it("omits fields that are absent (undefined) — no stale clears", () => {
-    const input = profileToRowInput({ name: undefined, location: { country: "NG" } });
+    const input = profileToRowInput({
+      name: undefined,
+      location: { country: "NG" },
+    });
     expect(input).toEqual({ country: "NG" });
   });
 

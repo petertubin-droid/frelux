@@ -7,7 +7,7 @@
  */
 
 import type { PropertyProfile } from "./types";
-import { resolveRegionalContext, type LocationResolutionInput } from "./location";
+import { resolveRegionalContext } from "./location";
 import type { ComparableEvaluation } from "./market-data";
 
 // =========================================================
@@ -50,6 +50,14 @@ export interface PropertyRiskFlag {
   severity: PropertyRiskSeverity;
   title: string;
   reason: string;
+  /** Phase 5 §15: where the risk bites (which analysis is affected). */
+  affectedArea: string;
+  /** Phase 5 §15: what the risk is evidenced by. */
+  evidence: string;
+  /** Phase 5 §15: deterministic recommended verification/action. */
+  recommendedAction: string;
+  /** Phase 5 §15: current handling status. */
+  status: "open" | "mitigated_by_disclosure" | "requires_user_action";
 }
 
 export interface PropertyRiskInput {
@@ -73,8 +81,15 @@ export interface PropertyRiskInput {
 // Evaluation
 // =========================================================
 
-export function evaluatePropertyRisks(input: PropertyRiskInput): PropertyRiskFlag[] {
-  const flags: PropertyRiskFlag[] = [];
+type DraftRiskFlag = Omit<
+  PropertyRiskFlag,
+  "affectedArea" | "evidence" | "recommendedAction" | "status"
+>;
+
+export function evaluatePropertyRisks(
+  input: PropertyRiskInput,
+): PropertyRiskFlag[] {
+  const flags: DraftRiskFlag[] = [];
   const { profile } = input;
 
   // --- Location ---
@@ -87,7 +102,8 @@ export function evaluatePropertyRisks(input: PropertyRiskInput): PropertyRiskFla
       code: "missing_location",
       severity: "critical",
       title: "No location information",
-      reason: "The property has no address, city or coordinates. Location analysis and regional pricing cannot proceed.",
+      reason:
+        "The property has no address, city or coordinates. Location analysis and regional pricing cannot proceed.",
     });
   } else {
     const resolution = resolveRegionalContext({
@@ -116,18 +132,27 @@ export function evaluatePropertyRisks(input: PropertyRiskInput): PropertyRiskFla
   // --- Unverified / low-confidence profile values ---
   const unverifiedFields: string[] = [];
   const lowConfidenceFields: string[] = [];
-  const checkProvenance = (label: string, p?: { confidence?: number; verificationStatus: string }) => {
+  const checkProvenance = (
+    label: string,
+    p?: { confidence?: number; verificationStatus: string },
+  ) => {
     if (!p) return;
-    if (p.verificationStatus === "requires_confirmation" || p.verificationStatus === "unverified") {
+    if (
+      p.verificationStatus === "requires_confirmation" ||
+      p.verificationStatus === "unverified"
+    ) {
       unverifiedFields.push(label);
     }
     if (p.confidence !== undefined && p.confidence < 0.7) {
-      lowConfidenceFields.push(`${label} (${Math.round(p.confidence * 100)}% confidence)`);
+      lowConfidenceFields.push(
+        `${label} (${Math.round(p.confidence * 100)}% confidence)`,
+      );
     }
   };
   checkProvenance("location", profile.location.provenance);
   checkProvenance("land information", profile.land?.provenance);
-  if (profile.provenance) checkProvenance("property details", profile.provenance);
+  if (profile.provenance)
+    checkProvenance("property details", profile.provenance);
 
   if (unverifiedFields.length > 0) {
     flags.push({
@@ -152,7 +177,8 @@ export function evaluatePropertyRisks(input: PropertyRiskInput): PropertyRiskFla
       code: "missing_documents",
       severity: "info",
       title: "No supporting documents",
-      reason: "No property documents (title documents, plans, survey) are attached. FRELUX makes no ownership, title or planning claims.",
+      reason:
+        "No property documents (title documents, plans, survey) are attached. FRELUX makes no ownership, title or planning claims.",
     });
   }
 
@@ -162,7 +188,8 @@ export function evaluatePropertyRisks(input: PropertyRiskInput): PropertyRiskFla
       code: "missing_dimensions",
       severity: "warning",
       title: "Missing dimensions",
-      reason: "No land size is recorded and no Construction Intelligence project is linked, so no size-based analysis (price per m², development quantities) can be produced.",
+      reason:
+        "No land size is recorded and no Construction Intelligence project is linked, so no size-based analysis (price per m², development quantities) can be produced.",
     });
   }
 
@@ -178,7 +205,10 @@ export function evaluatePropertyRisks(input: PropertyRiskInput): PropertyRiskFla
     }
     const maxAge = input.comparableMaxAgeDays ?? 180;
     const cutoff = Date.now() - maxAge * 24 * 60 * 60 * 1000;
-    if (input.oldestComparableDate && new Date(input.oldestComparableDate).getTime() < cutoff) {
+    if (
+      input.oldestComparableDate &&
+      new Date(input.oldestComparableDate).getTime() < cutoff
+    ) {
       flags.push({
         code: "outdated_market_data",
         severity: "info",
@@ -189,7 +219,10 @@ export function evaluatePropertyRisks(input: PropertyRiskInput): PropertyRiskFla
   }
 
   // --- Construction cost gaps ---
-  if (input.unpricedConstructionItems && input.unpricedConstructionItems.length > 0) {
+  if (
+    input.unpricedConstructionItems &&
+    input.unpricedConstructionItems.length > 0
+  ) {
     flags.push({
       code: "unpriced_construction_items",
       severity: "warning",
@@ -204,9 +237,116 @@ export function evaluatePropertyRisks(input: PropertyRiskInput): PropertyRiskFla
       code: "condition_unverified",
       severity: "warning",
       title: "Building condition unverified",
-      reason: "A building condition value is present without an authoritative source. FRELUX does not claim structural condition from photographs, a professional inspection is required.",
+      reason:
+        "A building condition value is present without an authoritative source. FRELUX does not claim structural condition from photographs, a professional inspection is required.",
     });
   }
 
-  return flags;
+  return flags.map((flag) => ({
+    ...flag,
+    ...RISK_FLAG_META[flag.code],
+  }));
 }
+
+/**
+ * Phase 5 §15: deterministic metadata for every risk code — evidence,
+ * affected area, recommended action and status. No risk is given a
+ * score merely to populate the interface; each entry maps to the
+ * concrete condition that raised it.
+ */
+export const RISK_FLAG_META: Record<
+  PropertyRiskCode,
+  {
+    affectedArea: string;
+    evidence: string;
+    recommendedAction: string;
+    status: PropertyRiskFlag["status"];
+  }
+> = {
+  missing_location: {
+    affectedArea: "Location Intelligence, market context, regional pricing",
+    evidence: "The profile contains no address, city or coordinates.",
+    recommendedAction: "Add at least an address, city or coordinates.",
+    status: "requires_user_action",
+  },
+  location_requires_confirmation: {
+    affectedArea: "Regional construction and market profiles",
+    evidence:
+      "The recorded country/region could not be resolved to a regional profile.",
+    recommendedAction:
+      "Confirm the property country so the correct regional profile applies.",
+    status: "requires_user_action",
+  },
+  region_unsupported: {
+    affectedArea: "Region-specific market data",
+    evidence: "No regional profile exists for this location.",
+    recommendedAction:
+      "Property intelligence for this region is unavailable; universal building analysis still works.",
+    status: "mitigated_by_disclosure",
+  },
+  unverified_property_info: {
+    affectedArea: "All analyses that use the affected fields",
+    evidence:
+      "Field-level provenance records an unverified or requires-confirmation status.",
+    recommendedAction:
+      "Review and confirm the listed values before relying on the analyses that use them.",
+    status: "requires_user_action",
+  },
+  low_confidence_ai_data: {
+    affectedArea: "Analyses built on AI-extracted values",
+    evidence: "AI extraction confidence below the 70% threshold.",
+    recommendedAction: "Confirm the AI-extracted values or correct them.",
+    status: "requires_user_action",
+  },
+  missing_documents: {
+    affectedArea: "Document-based verification",
+    evidence: "No documents are attached to the property profile.",
+    recommendedAction:
+      "Attach relevant documents if available. FRELUX makes no ownership, title or planning claims either way.",
+    status: "mitigated_by_disclosure",
+  },
+  missing_dimensions: {
+    affectedArea: "Price-per-area analysis, development quantities",
+    evidence:
+      "No land size recorded and no linked Construction Intelligence project.",
+    recommendedAction:
+      "Record the plot size or link a construction project with the relevant dimensions.",
+    status: "requires_user_action",
+  },
+  insufficient_comparables: {
+    affectedArea: "Comparable analysis, indicative value estimation",
+    evidence:
+      "The deterministic comparable screen rejected too many candidates.",
+    recommendedAction:
+      "Add more traceable listings/transactions for the location, or accept that no comparison can be produced.",
+    status: "mitigated_by_disclosure",
+  },
+  outdated_market_data: {
+    affectedArea: "Market context and indicative value freshness",
+    evidence: "At least one comparable is older than the freshness window.",
+    recommendedAction:
+      "Treat market-derived results as dated; refresh listings where possible.",
+    status: "mitigated_by_disclosure",
+  },
+  unpriced_construction_items: {
+    affectedArea: "Total cost, margin and investment analysis",
+    evidence: "Construction estimate explicitly excludes unpriced items.",
+    recommendedAction:
+      "Price the listed items before treating the total as complete.",
+    status: "requires_user_action",
+  },
+  no_market_data: {
+    affectedArea: "Market context, comparable analysis",
+    evidence: "No market listings/transactions are recorded for the location.",
+    recommendedAction:
+      "Record traceable listings (with source and observation date) to enable market context.",
+    status: "requires_user_action",
+  },
+  condition_unverified: {
+    affectedArea: "Condition assessment",
+    evidence: "Condition value present without an authoritative source.",
+    recommendedAction:
+      "Obtain a professional inspection before decisions that depend on condition.",
+    status: "requires_user_action",
+  },
+};

@@ -8,7 +8,12 @@
  */
 
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
-import type { PropertyProfile, Provenance, PropertyType, ConstructionStatus } from "./types";
+import type {
+  PropertyProfile,
+  Provenance,
+  PropertyType,
+  ConstructionStatus,
+} from "./types";
 
 /** Document/image attachment: storage key + kind + provenance. */
 export interface PropertyDocument {
@@ -38,6 +43,9 @@ export interface PropertyRow {
   building_type: string | null;
   number_of_buildings: number | null;
   number_of_floors: number | null;
+  number_of_rooms: number | null;
+  existing_condition: string | null;
+  development_status: string | null;
   land_size: number | null;
   land_unit: string | null;
   construction_status: string | null;
@@ -68,6 +76,11 @@ export function rowToProfile(row: PropertyRow): PropertyProfile {
     buildingType: row.building_type ?? undefined,
     numberOfBuildings: row.number_of_buildings ?? undefined,
     numberOfFloors: row.number_of_floors ?? undefined,
+    numberOfRooms: row.number_of_rooms ?? undefined,
+    existingCondition: row.existing_condition ?? undefined,
+    developmentStatus:
+      (row.development_status as PropertyProfile["developmentStatus"] | null) ??
+      undefined,
     land:
       row.land_size !== null && row.land_unit
         ? {
@@ -76,38 +89,62 @@ export function rowToProfile(row: PropertyRow): PropertyProfile {
             provenance: undefined,
           }
         : undefined,
-    constructionStatus: (row.construction_status as ConstructionStatus | null) ?? undefined,
+    constructionStatus:
+      (row.construction_status as ConstructionStatus | null) ?? undefined,
     constructionProjectId: row.construction_project_id ?? undefined,
-    documents: Array.isArray(row.documents) ? (row.documents as PropertyDocument[]) : [],
+    documents: Array.isArray(row.documents)
+      ? (row.documents as PropertyDocument[])
+      : [],
     provenance: (row.provenance as Provenance | null) ?? undefined,
   };
 }
 
 /** PropertyProfile (partial input) → DB row payload. Only valid columns are sent. */
-export function profileToRowInput(profile: Partial<PropertyProfile>): Record<string, unknown> {
+export function profileToRowInput(
+  profile: Partial<PropertyProfile>,
+): Record<string, unknown> {
   const input: Record<string, unknown> = {};
   if (profile.name !== undefined) input.name = profile.name || null;
-  if (profile.location?.address !== undefined) input.address = profile.location.address || null;
-  if (profile.location?.country !== undefined) input.country = profile.location.country?.trim().toUpperCase() || null;
-  if (profile.location?.region !== undefined) input.region = profile.location.region || null;
-  if (profile.location?.city !== undefined) input.city = profile.location.city || null;
-  if (profile.location?.district !== undefined) input.district = profile.location.district || null;
+  if (profile.location?.address !== undefined)
+    input.address = profile.location.address || null;
+  if (profile.location?.country !== undefined)
+    input.country = profile.location.country?.trim().toUpperCase() || null;
+  if (profile.location?.region !== undefined)
+    input.region = profile.location.region || null;
+  if (profile.location?.city !== undefined)
+    input.city = profile.location.city || null;
+  if (profile.location?.district !== undefined)
+    input.district = profile.location.district || null;
   if (profile.location?.coordinates !== undefined) {
     input.lat = profile.location.coordinates?.lat ?? null;
     input.lng = profile.location.coordinates?.lng ?? null;
   }
-  if (profile.propertyType !== undefined) input.property_type = profile.propertyType || null;
-  if (profile.buildingType !== undefined) input.building_type = profile.buildingType || null;
-  if (profile.numberOfBuildings !== undefined) input.number_of_buildings = profile.numberOfBuildings || null;
-  if (profile.numberOfFloors !== undefined) input.number_of_floors = profile.numberOfFloors || null;
+  if (profile.propertyType !== undefined)
+    input.property_type = profile.propertyType || null;
+  if (profile.buildingType !== undefined)
+    input.building_type = profile.buildingType || null;
+  if (profile.numberOfBuildings !== undefined)
+    input.number_of_buildings = profile.numberOfBuildings || null;
+  if (profile.numberOfFloors !== undefined)
+    input.number_of_floors = profile.numberOfFloors || null;
+  if (profile.numberOfRooms !== undefined)
+    input.number_of_rooms = profile.numberOfRooms || null;
+  if (profile.existingCondition !== undefined)
+    input.existing_condition = profile.existingCondition || null;
+  if (profile.developmentStatus !== undefined)
+    input.development_status = profile.developmentStatus || null;
   if (profile.land !== undefined) {
     input.land_size = profile.land?.size || null;
     input.land_unit = profile.land?.unit || null;
   }
-  if (profile.constructionStatus !== undefined) input.construction_status = profile.constructionStatus || null;
-  if (profile.constructionProjectId !== undefined) input.construction_project_id = profile.constructionProjectId || null;
-  if (profile.documents !== undefined) input.documents = profile.documents ?? [];
-  if (profile.provenance !== undefined) input.provenance = profile.provenance ?? null;
+  if (profile.constructionStatus !== undefined)
+    input.construction_status = profile.constructionStatus || null;
+  if (profile.constructionProjectId !== undefined)
+    input.construction_project_id = profile.constructionProjectId || null;
+  if (profile.documents !== undefined)
+    input.documents = profile.documents ?? [];
+  if (profile.provenance !== undefined)
+    input.provenance = profile.provenance ?? null;
   return input;
 }
 
@@ -116,8 +153,7 @@ export function profileToRowInput(profile: Partial<PropertyProfile>): Record<str
 // =========================================================
 
 export type QueryOutcome<T> =
-  | { ok: true; data: T }
-  | { ok: false; error: string };
+  { ok: true; data: T } | { ok: false; error: string };
 
 export const NOT_CONFIGURED_ERROR =
   "Supabase is not configured. Property storage is unavailable.";
@@ -126,7 +162,9 @@ export const NOT_CONFIGURED_ERROR =
 // CRUD
 // =========================================================
 
-export async function listProperties(userId: string): Promise<QueryOutcome<PropertyProfile[]>> {
+export async function listProperties(
+  userId: string,
+): Promise<QueryOutcome<PropertyProfile[]>> {
   if (!isSupabaseConfigured) return { ok: false, error: NOT_CONFIGURED_ERROR };
   const { data, error } = await supabase
     .from("properties")

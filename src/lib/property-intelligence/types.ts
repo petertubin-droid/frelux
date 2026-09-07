@@ -52,13 +52,18 @@ export interface Provenance {
   effectiveAt?: string;
   /** 0–1 confidence where applicable (AI extraction). */
   confidence?: number;
-  verificationStatus: "verified" | "unverified" | "requires_confirmation" | "rejected";
+  verificationStatus:
+    "verified" | "unverified" | "requires_confirmation" | "rejected";
 }
 
 export function provenanceClass(p: Provenance): PropertyDataClass {
   if (p.verificationStatus === "rejected") return "unverified";
   if (p.verificationStatus === "verified") {
-    return p.sourceType === "ai_extraction" ? "fact" : p.sourceType === "user" ? "user_provided" : "source_derived";
+    return p.sourceType === "ai_extraction"
+      ? "fact"
+      : p.sourceType === "user"
+        ? "user_provided"
+        : "source_derived";
   }
   if (p.sourceType === "ai_extraction") return "ai_detected";
   return "unverified";
@@ -127,8 +132,16 @@ export interface PropertyProfile {
   buildingType?: string;
   numberOfBuildings?: number;
   numberOfFloors?: number;
+  /** Phase 5: rooms where reliably known. */
+  numberOfRooms?: number;
   land?: LandInfo;
   constructionStatus?: ConstructionStatus;
+  /** Phase 5 §6: user-observed existing condition summary (free text,
+   *  user_provided — never AI-certified). */
+  existingCondition?: string;
+  /** Phase 5: development stage of the property itself. */
+  developmentStatus?:
+    "greenfield" | "existing" | "developing" | "redeveloping" | "unknown";
   /** Reference to the linked Construction Intelligence project, if any. */
   constructionProjectId?: string;
   /** Document/image attachment ids (storage keys), with provenance. */
@@ -140,9 +153,10 @@ export interface PropertyProfile {
 }
 
 /** Required vs optional — only location identity is required. */
-export function validatePropertyProfile(
-  profile: PropertyProfile,
-): { valid: boolean; issues: string[] } {
+export function validatePropertyProfile(profile: PropertyProfile): {
+  valid: boolean;
+  issues: string[];
+} {
   const issues: string[] = [];
   if (!profile.id) issues.push("Property id is required.");
   if (

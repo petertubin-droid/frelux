@@ -11,3 +11,8 @@ export * from "./location";
 export * from "./market-data";
 export * from "./metrics";
 export * from "./property-risk-flags";
+export * from "./property-condition";
+export * from "./document-intelligence";
+export * from "./property-value";
+export * from "./development-investment";
+export * from "./intelligence";

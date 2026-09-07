@@ -54,6 +54,12 @@ export {
   type RiskAnswerResult,
   type RiskAnswerUnavailable,
 } from "./risk-answers";
+export {
+  classifyPropertyQuestion,
+  answerPropertyQuestion,
+  comparePropertyReports,
+  type PropertyQuestionKind,
+} from "./property-answers";
 
 import { interpretRequest, planTask, runTask } from "./orchestrator";
 import { compareScenarios } from "./scenario-engine";
