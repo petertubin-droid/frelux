@@ -22,6 +22,7 @@
 // =========================================================
 
 import { assertProjectVisible } from "./session";
+import { formatMoney } from "./region";
 import type { AgentResult } from "./types";
 import { buildProjectAgentContext, type ProjectAgentContext } from "./context";
 import { buildProjectSnapshot } from "@/lib/predictive-intelligence/snapshot";
@@ -374,6 +375,8 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
   // ---------------------------------------------------------
   what_to_buy: (inputs) => {
     const { snapshot } = inputs;
+    // Stage 11 — the project's recorded market drives money formatting.
+    const mkt = snapshot.region.marketCode ?? snapshot.region.countryCode;
     const unpurchased = snapshot.shoppingItems
       .slice()
       .sort((a, b) => a.sort_order - b.sort_order)
@@ -402,12 +405,12 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
     }
 
     const items: GuidanceItem[] = unpurchased.map((i) => ({
-      action: `Buy ${i.quantity} ${i.unit} of ${i.name} (estimated ₦${Number(i.total_price).toLocaleString()})`,
+      action: `Buy ${i.quantity} ${i.unit} of ${i.name} (estimated ${formatMoney(Number(i.total_price), mkt)})`,
       evidence: [
-        `${i.name} (${i.category}): estimated ₦${Number(i.estimated_price).toLocaleString()}/${i.unit}`,
+        `${i.name} (${i.category}): estimated ${formatMoney(Number(i.estimated_price), mkt)}/${i.unit}`,
         i.supplier ? `Recorded supplier: ${i.supplier}` : "No supplier recorded",
         ...(i.actual_price !== null
-          ? [`Recorded actual price: ₦${Number(i.actual_price).toLocaleString()}`]
+          ? [`Recorded actual price: ${formatMoney(Number(i.actual_price), mkt)}`]
           : []),
       ],
       priority: "low",
@@ -427,6 +430,8 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
   // ---------------------------------------------------------
   budget_risk: (inputs) => {
     const { report, analysis, snapshot } = inputs;
+    // Stage 11 — the project's recorded market drives money formatting.
+    const mkt = snapshot.region.marketCode ?? snapshot.region.countryCode;
     const recs = recsByCondition(
       report,
       "budget_risk",
@@ -440,9 +445,8 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
     );
 
     const spendNote: GuidanceItem = {
-      action: `Recorded spend is tracked against the recorded shopping-list budget (current estimate ₦${snapshot.shoppingItems
-        .reduce((sum, i) => sum + (Number.isFinite(i.total_price) ? i.total_price : 0), 0)
-        .toLocaleString()}).`,
+      action: `Recorded spend is tracked against the recorded shopping-list budget (current estimate ${formatMoney(snapshot.shoppingItems
+        .reduce((sum, i) => sum + (Number.isFinite(i.total_price) ? i.total_price : 0), 0), mkt)}).`,
       evidence: [`${snapshot.shoppingItems.length} recorded shopping list line(s)`],
       priority: "low",
       source: "project_shopping_list (recorded state)",
@@ -575,6 +579,8 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
   // ---------------------------------------------------------
   prepare_next_stage: (inputs) => {
     const { snapshot, report, context } = inputs;
+    // Stage 11 — the project's recorded market drives money formatting.
+    const mkt = snapshot.region.marketCode ?? snapshot.region.countryCode;
     const pending = pendingStages(snapshot);
 
     if (snapshot.stages.length === 0) {
@@ -609,7 +615,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
       items.push({
         action: `Buy the ${unpurchased.length} unpurchased material line(s) on the recorded shopping list before starting "${next.stageName}" (shopping lines are not stage-tagged in FRELUX, so these are all outstanding recorded materials).`,
         evidence: unpurchased.map(
-          (i) => `${i.name}: ${i.quantity} ${i.unit} (est ₦${Number(i.total_price).toLocaleString()})`,
+          (i) => `${i.name}: ${i.quantity} ${i.unit} (est ${formatMoney(Number(i.total_price), mkt)})`,
         ),
         priority: "high",
         source: "project_shopping_list (recorded, unpurchased lines)",

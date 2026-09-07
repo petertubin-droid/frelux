@@ -26,6 +26,7 @@
 // =========================================================
 
 import { assertProjectVisible } from "./session";
+import { formatMoney } from "./region";
 import type { AgentResult } from "./types";
 import {
   buildProjectAgentContext,
@@ -503,6 +504,7 @@ function collectProcurementPriceIncreases(
     snapshot.shoppingItems as never,
   );
   if (increases.length === 0) return;
+  const mkt = snapshot.region.marketCode ?? snapshot.region.countryCode;
 
   out.push({
     id: "procurement:increases",
@@ -510,7 +512,7 @@ function collectProcurementPriceIncreases(
     recommendation: `${increases.length} unpurchased material line(s) show recorded price increases — remaining purchases will cost more than estimated.`,
     evidence: increases.map(
       (inc) =>
-        `${inc.item.name}: estimated ₦${inc.estimated.toLocaleString()} → actual ₦${inc.actual.toLocaleString()} (+${(inc.increasePct * 100).toFixed(1)}%)`,
+        `${inc.item.name}: estimated ${formatMoney(inc.estimated, mkt)} → actual ${formatMoney(inc.actual, mkt)} (+${(inc.increasePct * 100).toFixed(1)}%)`,
     ),
     affectedElement: "shopping list (unpurchased lines)",
     severity: increases.length > 2 ? "high" : "medium",
@@ -539,6 +541,7 @@ function collectQuantityChanges(
   snapshot: PredictiveProjectSnapshot,
   out: AgentRecommendation[],
 ): void {
+  const mkt = snapshot.region.marketCode ?? snapshot.region.countryCode;
   const byType = new Map<string, typeof snapshot.calculations>();
   for (const calc of snapshot.calculations) {
     const list = byType.get(calc.calculatorType) ?? [];
@@ -558,7 +561,7 @@ function collectQuantityChanges(
       condition: "quantity_change",
       recommendation: `${type} has been re-calculated with a different total (${first.title} → ${last.title}).`,
       evidence: withTotals.map(
-        (c) => `${c.title} (${c.createdAt.split("T")[0]}): ₦${Number(c.estimatedTotal).toLocaleString()}`,
+        (c) => `${c.title} (${c.createdAt.split("T")[0]}): ${formatMoney(Number(c.estimatedTotal), mkt)}`,
       ),
       affectedElement: `saved ${type} calculations`,
       severity: "low",
@@ -590,6 +593,7 @@ function collectForecastChanges(
   out: AgentRecommendation[],
   insufficient: InsufficientCondition[],
 ): void {
+  const mkt = snapshot.region.marketCode ?? snapshot.region.countryCode;
   const history = snapshot.priceHistory;
   if (history.length === 0) {
     insufficient.push({
@@ -614,7 +618,7 @@ function collectForecastChanges(
     recommendation: `${recent.length} recorded material price change(s) affect cost forecasts for this project.`,
     evidence: recent.map(
       (h) =>
-        `${h.materialName}: ${h.oldPrice !== null ? `₦${h.oldPrice.toLocaleString()} → ` : ""}₦${h.newPrice.toLocaleString()} on ${h.changedAt.split("T")[0]}${h.priceSource ? ` (source: ${h.priceSource})` : ""}`,
+        `${h.materialName}: ${h.oldPrice !== null ? `${formatMoney(h.oldPrice, mkt)} → ` : ""}${formatMoney(h.newPrice, mkt)} on ${h.changedAt.split("T")[0]}${h.priceSource ? ` (source: ${h.priceSource})` : ""}`,
     ),
     affectedElement: "material cost forecasts",
     severity: increases.length > 0 && decreasing.length === 0 ? "medium" : "low",

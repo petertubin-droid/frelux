@@ -29,6 +29,7 @@ import { supabase } from "@/lib/supabase";
 import type { AgentResult } from "./types";
 import { assertProjectVisible, recordActivity } from "./session";
 import { buildProjectSnapshot } from "@/lib/predictive-intelligence/snapshot";
+import { formatMoney, formatSignedMoney } from "./region";
 import type {
   Evidence,
   PredictiveProjectSnapshot,
@@ -97,13 +98,23 @@ const LIMITATIONS = [
 // Shared helpers
 // ---------------------------------------------------------
 
-function money(n: number): string {
-  return `₦${n.toLocaleString()}`;
+/** Stage 11 — money is formatted for the project's RECORDED
+ *  market; unsupported markets get an explicit unavailable
+ *  marker, never a substituted currency symbol. */
+function money(n: number, market: string | null): string {
+  return formatMoney(n, market);
 }
 
 /** Signed money — "+₦1,000" / "-₦800", never "₦-800". */
-function signedMoney(delta: number): string {
-  return `${delta >= 0 ? "+" : "-"}₦${Math.abs(delta).toLocaleString()}`;
+function signedMoney(delta: number, market: string | null): string {
+  return formatSignedMoney(delta, market);
+}
+
+/** The project's recorded market, from the compared snapshots. */
+function marketOf(ctx: DiffCtx): string | null {
+  return (
+    ctx.after.region.marketCode ?? ctx.after.region.countryCode ?? null
+  );
 }
 
 function evidence(
@@ -315,6 +326,7 @@ function diffStages(ctx: DiffCtx): void {
 }
 
 function diffShoppingItems(ctx: DiffCtx): void {
+  const mkt = marketOf(ctx);
   const before = new Map(ctx.before.shoppingItems.map((i) => [i.id, i]));
   const after = new Map(ctx.after.shoppingItems.map((i) => [i.id, i]));
 
@@ -325,13 +337,13 @@ function diffShoppingItems(ctx: DiffCtx): void {
       id: `item:${a.id}:added`,
       category: "material_requirement",
       severity: "minor",
-      whatChanged: `A material line was added to the shopping list: "${a.name}" (${a.quantity} ${a.unit}, ${money(lineEstimatedTotal(a))} estimated).`,
+      whatChanged: `A material line was added to the shopping list: "${a.name}" (${a.quantity} ${a.unit}, ${money(lineEstimatedTotal(a), mkt)} estimated).`,
       whyItChanged: `The line exists in the recorded shopping list; the specific addition event is not captured in the recorded state.`,
-      effect: `Estimated material budget for the project increases by ${money(lineEstimatedTotal(a))}.`,
+      effect: `Estimated material budget for the project increases by ${money(lineEstimatedTotal(a), mkt)}.`,
       before: { at: ctx.before.now, value: "not in list" },
       after: {
         at: ctx.after.now,
-        value: `${a.quantity} ${a.unit} — ${money(lineEstimatedTotal(a))}`,
+        value: `${a.quantity} ${a.unit} — ${money(lineEstimatedTotal(a), mkt)}`,
       },
       evidence: [
         evidence(
@@ -349,14 +361,14 @@ function diffShoppingItems(ctx: DiffCtx): void {
       id: `item:${b.id}:removed`,
       category: "material_requirement",
       severity: b.is_purchased ? "major" : "minor",
-      whatChanged: `The material line "${b.name}" (${b.quantity} ${b.unit}, ${money(lineEstimatedTotal(b))} estimated) was removed from the shopping list.`,
+      whatChanged: `The material line "${b.name}" (${b.quantity} ${b.unit}, ${money(lineEstimatedTotal(b), mkt)} estimated) was removed from the shopping list.`,
       whyItChanged: unknownCause(ctx),
       effect: b.is_purchased
-        ? `A PURCHASED line was removed — recorded spend loses the ${money(lineEstimatedTotal(b))} this line contributed. Verify the removal was intentional.`
-        : `Estimated material budget for the project decreases by ${money(lineEstimatedTotal(b))}.`,
+        ? `A PURCHASED line was removed — recorded spend loses the ${money(lineEstimatedTotal(b), mkt)} this line contributed. Verify the removal was intentional.`
+        : `Estimated material budget for the project decreases by ${money(lineEstimatedTotal(b), mkt)}.`,
       before: {
         at: ctx.before.now,
-        value: `${b.quantity} ${b.unit} — ${money(lineEstimatedTotal(b))}`,
+        value: `${b.quantity} ${b.unit} — ${money(lineEstimatedTotal(b), mkt)}`,
       },
       after: { at: ctx.after.now, value: "removed" },
       evidence: [
@@ -386,7 +398,7 @@ function diffShoppingItems(ctx: DiffCtx): void {
         whyItChanged: unknownCause(ctx),
         effect:
           a.estimated_price > 0
-            ? `At the recorded unit estimate of ${money(a.estimated_price)}/${a.unit}, the line's estimated total moves by ${signedMoney(estDelta)} (${money(lineEstimatedTotal(b))} → ${money(lineEstimatedTotal(a))})${a.is_purchased ? " — the line is already purchased, so this affects the estimate, not recorded spend." : " — the line is not yet purchased, so remaining planned spend is affected."}`
+            ? `At the recorded unit estimate of ${money(a.estimated_price, mkt)}/${a.unit}, the line's estimated total moves by ${signedMoney(estDelta, mkt)} (${money(lineEstimatedTotal(b), mkt)} → ${money(lineEstimatedTotal(a), mkt)})${a.is_purchased ? " — the line is already purchased, so this affects the estimate, not recorded spend." : " — the line is not yet purchased, so remaining planned spend is affected."}`
             : `No unit price is recorded for this line — the spend effect cannot be quantified.`,
         before: { at: ctx.before.now, value: `${b.quantity} ${b.unit}` },
         after: { at: ctx.after.now, value: `${a.quantity} ${a.unit}` },
@@ -411,11 +423,11 @@ function diffShoppingItems(ctx: DiffCtx): void {
         severity: magnitudeSeverity(
           pctChange(b.estimated_price, a.estimated_price),
         ),
-        whatChanged: `The estimated unit price of "${a.name}" changed from ${money(b.estimated_price)} to ${money(a.estimated_price)}.`,
+        whatChanged: `The estimated unit price of "${a.name}" changed from ${money(b.estimated_price, mkt)} to ${money(a.estimated_price, mkt)}.`,
         whyItChanged: cause ?? unknownCause(ctx),
-        effect: `The line's estimated total moves by ${signedMoney(lineDelta)} (${money(lineEstimatedTotal(b))} → ${money(lineEstimatedTotal(a))})${a.is_purchased ? " — the line is already purchased, so this changes the estimate only." : " — the line is not yet purchased, so remaining planned spend is affected."}`,
-        before: { at: ctx.before.now, value: money(b.estimated_price) },
-        after: { at: ctx.after.now, value: money(a.estimated_price) },
+        effect: `The line's estimated total moves by ${signedMoney(lineDelta, mkt)} (${money(lineEstimatedTotal(b), mkt)} → ${money(lineEstimatedTotal(a), mkt)})${a.is_purchased ? " — the line is already purchased, so this changes the estimate only." : " — the line is not yet purchased, so remaining planned spend is affected."}`,
+        before: { at: ctx.before.now, value: money(b.estimated_price, mkt) },
+        after: { at: ctx.after.now, value: money(a.estimated_price, mkt) },
         evidence: [
           evidence(
             "shopping_item",
@@ -440,17 +452,17 @@ function diffShoppingItems(ctx: DiffCtx): void {
           severity: magnitudeSeverity(pctChange(est, now), 0.15),
           whatChanged:
             was !== null
-              ? `The recorded actual unit price of "${a.name}" changed from ${money(was)} to ${money(now)}.`
-              : `An actual unit price was recorded for "${a.name}": ${money(now)} (estimated ${money(est)}).`,
+              ? `The recorded actual unit price of "${a.name}" changed from ${money(was, mkt)} to ${money(now, mkt)}.`
+              : `An actual unit price was recorded for "${a.name}": ${money(now, mkt)} (estimated ${money(est, mkt)}).`,
           whyItChanged: a.is_purchased
             ? "The price was recorded against a purchase in the shopping list."
             : unknownCause(ctx),
-          effect: `Compared to the recorded estimate, this line's cost moves by ${signedMoney(lineEffect)} (${((pctChange(est, now) ?? 0) * 100).toFixed(1)}% per unit).`,
+          effect: `Compared to the recorded estimate, this line's cost moves by ${signedMoney(lineEffect, mkt)} (${((pctChange(est, now) ?? 0) * 100).toFixed(1)}% per unit).`,
           before: {
             at: ctx.before.now,
-            value: was === null ? "not recorded" : money(was),
+            value: was === null ? "not recorded" : money(was, mkt),
           },
-          after: { at: ctx.after.now, value: money(now) },
+          after: { at: ctx.after.now, value: money(now, mkt) },
           evidence: [
             evidence(
               "shopping_item",
@@ -473,7 +485,7 @@ function diffShoppingItems(ctx: DiffCtx): void {
           severity: "minor",
           whatChanged: `"${a.name}" was recorded as purchased.`,
           whyItChanged: "The purchase was recorded in the shopping list.",
-          effect: `Recorded spend for this line is ${money(at * a.quantity)} (at the ${a.actual_price !== null ? "recorded actual" : "estimated — no actual price recorded"} unit price of ${money(at)}). Remaining planned spend decreases by ${money(lineEstimatedTotal(a))}.`,
+          effect: `Recorded spend for this line is ${money(at * a.quantity, mkt)} (at the ${a.actual_price !== null ? "recorded actual" : "estimated — no actual price recorded"} unit price of ${money(at, mkt)}). Remaining planned spend decreases by ${money(lineEstimatedTotal(a), mkt)}.`,
           before: { at: ctx.before.now, value: "not purchased" },
           after: { at: ctx.after.now, value: "purchased" },
           evidence: [
@@ -492,7 +504,7 @@ function diffShoppingItems(ctx: DiffCtx): void {
           severity: "major",
           whatChanged: `"${a.name}" changed from purchased back to not purchased.`,
           whyItChanged: unknownCause(ctx),
-          effect: `This is a REGRESSION — the purchase record was undone. The line's ${money(lineEstimatedTotal(a))} returns to remaining planned spend. Verify the project records are correct.`,
+          effect: `This is a REGRESSION — the purchase record was undone. The line's ${money(lineEstimatedTotal(a), mkt)} returns to remaining planned spend. Verify the project records are correct.`,
           before: { at: ctx.before.now, value: "purchased" },
           after: { at: ctx.after.now, value: "not purchased" },
           evidence: [
@@ -510,6 +522,7 @@ function diffShoppingItems(ctx: DiffCtx): void {
 }
 
 function diffCalculations(ctx: DiffCtx): void {
+  const mkt = marketOf(ctx);
   const beforeIds = new Set(ctx.before.calculations.map((c) => c.id));
   const afterIds = new Set(ctx.after.calculations.map((c) => c.id));
 
@@ -519,18 +532,18 @@ function diffCalculations(ctx: DiffCtx): void {
       id: `calc:${c.id}:added`,
       category: "measurement",
       severity: "info",
-      whatChanged: `A saved calculation "${c.title}" was added${c.estimatedTotal !== null ? ` with a total of ${money(c.estimatedTotal)}` : " (no recorded total)"}.`,
+      whatChanged: `A saved calculation "${c.title}" was added${c.estimatedTotal !== null ? ` with a total of ${money(c.estimatedTotal, mkt)}` : " (no recorded total)"}.`,
       whyItChanged: `The calculation was saved to the project on ${c.createdAt.split("T")[0]} — this usually means measurements or requirements were re-run.`,
       effect:
         c.estimatedTotal !== null
-          ? `The latest recorded estimate reference is now ${money(c.estimatedTotal)}. Measurement inputs themselves are not captured, so the exact re-measurement cannot be shown.`
+          ? `The latest recorded estimate reference is now ${money(c.estimatedTotal, mkt)}. Measurement inputs themselves are not captured, so the exact re-measurement cannot be shown.`
           : "No recorded total — no quantified effect can be derived from this calculation.",
       before: { at: ctx.before.now, value: "not saved" },
       after: {
         at: ctx.after.now,
         value:
           c.estimatedTotal !== null
-            ? money(c.estimatedTotal)
+            ? money(c.estimatedTotal, mkt)
             : "saved (no total)",
       },
       evidence: [
@@ -558,7 +571,7 @@ function diffCalculations(ctx: DiffCtx): void {
         at: ctx.before.now,
         value:
           c.estimatedTotal !== null
-            ? money(c.estimatedTotal)
+            ? money(c.estimatedTotal, mkt)
             : "saved (no total)",
       },
       after: { at: ctx.after.now, value: "removed" },
@@ -575,6 +588,7 @@ function diffCalculations(ctx: DiffCtx): void {
 }
 
 function diffRegion(ctx: DiffCtx): void {
+  const mkt = marketOf(ctx);
   const b = ctx.before.region;
   const a = ctx.after.region;
   const parts = (r: typeof a) =>
@@ -605,6 +619,7 @@ function diffRegion(ctx: DiffCtx): void {
 
 /** Budget roll-up — one honest change per metric that actually moved. */
 function diffBudget(ctx: DiffCtx): void {
+  const mkt = marketOf(ctx);
   const metrics: Array<{
     id: string;
     label: string;
@@ -642,11 +657,11 @@ function diffBudget(ctx: DiffCtx): void {
       id: m.id,
       category: "budget",
       severity: magnitudeSeverity(pct),
-      whatChanged: `The project's ${m.label} changed from ${money(m.before)} to ${money(m.after)} (${signedMoney(delta)}${pct !== null ? `, ${(pct * 100).toFixed(1)}%` : ""}).`,
+      whatChanged: `The project's ${m.label} changed from ${money(m.before, mkt)} to ${money(m.after, mkt)} (${signedMoney(delta, mkt)}${pct !== null ? `, ${(pct * 100).toFixed(1)}%` : ""}).`,
       whyItChanged: m.why,
       effect: `This is a derived roll-up of recorded lines, not an independent event — the line-level changes listed above are the actual cause${pct !== null && Math.abs(pct) >= 0.1 ? ", and a movement of this size materially changes the project's cost position." : "."}`,
-      before: { at: ctx.before.now, value: money(m.before) },
-      after: { at: ctx.after.now, value: money(m.after) },
+      before: { at: ctx.before.now, value: money(m.before, mkt) },
+      after: { at: ctx.after.now, value: money(m.after, mkt) },
       evidence: [
         evidence(
           "shopping_item",

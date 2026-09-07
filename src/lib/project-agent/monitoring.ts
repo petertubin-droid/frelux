@@ -51,6 +51,7 @@ import {
   unpurchasedEstimatedTotal,
 } from "@/lib/predictive-intelligence/spend";
 import { detectProjectChanges, type ChangeDetectionResult } from "./changes";
+import { formatMoney } from "./region";
 
 // ---------------------------------------------------------
 // Configuration — one place, no scattered magic numbers.
@@ -201,6 +202,10 @@ export function evaluateMonitoringAlerts(
   nowIso: string,
 ): AlertCandidate[] {
   const alerts: AlertCandidate[] = [];
+  // Stage 11 — the project's recorded market drives money
+  // formatting; unsupported markets get an honest marker, never
+  // a substituted currency symbol.
+  const mkt = snap.region.marketCode ?? snap.region.countryCode;
   const confidence = coverageConfidence(snap, nowIso);
   const daysSinceUpdate = daysBetween(snap.project.updatedAt, nowIso);
 
@@ -221,14 +226,14 @@ export function evaluateMonitoringAlerts(
         kind: "budget",
         severity: high ? "high" : "medium",
         title: high ? "Budget overrun risk (high)" : "Budget overrun risk",
-        condition: `Recorded spend plus remaining planned spend projects to ₦${projected.toLocaleString()}, which is ${(overrunPct * 100).toFixed(1)}% above the latest recorded estimate of ₦${latestEstimate.total.toLocaleString()} ("${latestEstimate.title}").`,
+        condition: `Recorded spend plus remaining planned spend projects to ${formatMoney(projected, mkt)}, which is ${(overrunPct * 100).toFixed(1)}% above the latest recorded estimate of ${formatMoney(latestEstimate.total, mkt)} ("${latestEstimate.title}").`,
         recommendedAction:
           "Re-estimate the remaining lines (or re-run the calculation) with the recorded actual prices, and adjust the budget or scope before the next purchases.",
         evidence: [
           {
             kind: "calculation",
             id: latestEstimate.id,
-            label: `Recorded estimate "${latestEstimate.title}" (₦${latestEstimate.total.toLocaleString()})`,
+            label: `Recorded estimate "${latestEstimate.title}" (${formatMoney(latestEstimate.total, mkt)})`,
             recordedAt: latestEstimate.createdAt,
             verification: "user_recorded",
           },
@@ -238,7 +243,7 @@ export function evaluateMonitoringAlerts(
             .map((i) =>
               itemEvidence(
                 i,
-                `Unpurchased line "${i.name}" (₦${(i.quantity * i.estimated_price).toLocaleString()} estimated)`,
+                `Unpurchased line "${i.name}" (${formatMoney(i.quantity * i.estimated_price, mkt)} estimated)`,
               ),
             ),
         ],

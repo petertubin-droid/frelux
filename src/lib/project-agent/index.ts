@@ -11,4 +11,5 @@ export * from "./execute";
 export * from "./changes";
 export * from "./monitoring";
 export * from "./audit";
+export * from "./region";
 export { sanitizeAuditValue } from "./sanitizer";
