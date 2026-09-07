@@ -10,3 +10,5 @@ export * from "./actions";
 export * from "./execute";
 export * from "./changes";
 export * from "./monitoring";
+export * from "./audit";
+export { sanitizeAuditValue } from "./sanitizer";

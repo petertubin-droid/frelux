@@ -14,6 +14,7 @@
 // =========================================================
 
 import { supabase } from "@/lib/supabase";
+import { sanitizeAuditValue } from "./sanitizer";
 import type {
   AgentActivityEntry,
   AgentResult,
@@ -303,10 +304,15 @@ export async function recordFact(
   }
 
   try {
+    // Stage 10: memory facts carry values too — same secret hygiene.
+    const sanitizedFacts = facts.map((f) => ({
+      ...f,
+      value: sanitizeAuditValue(f.value),
+    }));
     const { error } = await supabase
       .from("project_agent_memory")
       .upsert(
-        { project_id: projectId, facts, updated_at: nowIso },
+        { project_id: projectId, facts: sanitizedFacts, updated_at: nowIso },
         { onConflict: "project_id" },
       );
     if (error)
@@ -341,11 +347,16 @@ export async function recordActivity(
   const visible = await assertProjectVisible(projectId);
   if (!visible.ok) return visible;
 
+  // Stage 10: secrets never enter the append-only trail.
+  const sanitizedPayload = entry.payload
+    ? (sanitizeAuditValue(entry.payload) as Record<string, unknown> | undefined)
+    : undefined;
   const full: AgentActivityEntry = {
     id: crypto.randomUUID(),
     projectId,
     createdAt: nowIso,
     ...entry,
+    payload: sanitizedPayload,
   };
   try {
     const { error } = await supabase.from("project_agent_activity").insert({
