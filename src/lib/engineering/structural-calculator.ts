@@ -354,7 +354,7 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
   formulas.push(`Slenderness ratio = ${input.height * 1000} / ${Math.min(recommended_width, recommended_depth)} = ${slenderness_ratio.toFixed(1)} → ${is_short ? 'short column' : 'slender column'}`);
 
   if (!is_short) {
-    warnings.push(`Column is slender (ratio ${slenderness_ratio.toFixed(1)} > 15). Requires additional moment magnification — consult structural engineer.`);
+    warnings.push(`Column is slender (ratio ${slenderness_ratio.toFixed(1)} > 15). Requires additional moment magnification, consult structural engineer.`);
   }
 
   // Steel area
@@ -513,7 +513,7 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
   const shear_capacity = vc * 1000 * eff_depth / 1000;
   const shear_link_note = shear_capacity >= max_shear
     ? 'No shear reinforcement required (solid slab)'
-    : 'Shear reinforcement required — consider thickening slab or adding links';
+    : 'Shear reinforcement required, consider thickening slab or adding links';
 
   if (shear_capacity < max_shear) {
     warnings.push(shear_link_note);

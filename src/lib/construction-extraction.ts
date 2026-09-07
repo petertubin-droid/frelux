@@ -281,7 +281,7 @@ export function buildEnginePatch(
     if (!validEngineValue(field.key, value)) {
       skippedFields.push({
         key: field.key,
-        reason: "value out of range — left unchanged",
+        reason: "value out of range, left unchanged",
       });
       continue;
     }

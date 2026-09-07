@@ -161,7 +161,7 @@ export function evaluateRiskFlags(input: RiskEvaluationInput): RiskFlag[] {
         title: `Price unavailable for this region: ${evidence.materialName}`,
         reason:
           `No verified price is configured for "${evidence.materialName}" in the active region. ` +
-          "The item is listed without a cost — enter a verified price to include it in the estimate.",
+          "The item is listed without a cost. Enter a verified price to include it in the estimate.",
         references: evidence.materialItemId ? [evidence.materialItemId] : [],
       });
       continue;

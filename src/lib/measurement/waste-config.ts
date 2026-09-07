@@ -291,5 +291,5 @@ export function createNigeriaWasteConfig(): WasteConfig {
  * Format waste resolution as readable text.
  */
 export function wasteResolutionToText(resolution: WasteResolution): string {
-  return `${resolution.wastePercent}% waste (${WASTE_SOURCE_LABELS[resolution.source]}) — ${resolution.explanation}`;
+  return `${resolution.wastePercent}% waste (${WASTE_SOURCE_LABELS[resolution.source]}), ${resolution.explanation}`;
 }

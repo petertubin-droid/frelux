@@ -17,8 +17,8 @@
 export type PropertyDataClass =
   | "fact" // authoritative / verified source
   | "source_derived" // derived from a legitimate external source
-  | "ai_detected" // extracted by the Prompt 1 AI layer — needs verification
-  | "user_provided" // entered by the user — not independently verified
+  | "ai_detected" // extracted by the Prompt 1 AI layer, needs verification
+  | "user_provided" // entered by the user, not independently verified
   | "calculated" // deterministic FRELUX engine output
   | "estimated" // modelled from available inputs
   | "unverified" // present but awaiting confirmation
@@ -115,7 +115,7 @@ export type ConstructionStatus =
 
 export interface LandInfo {
   size?: number;
-  unit?: string; // e.g. "m²", "sq ft", "hectares" — regional units
+  unit?: string; // e.g. "m²", "sq ft", "hectares", regional units
   provenance?: Provenance;
 }
 

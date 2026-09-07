@@ -74,7 +74,7 @@ export interface StructuralMemberInput {
   bar_count_main?: number; // number of main bars
   bar_count_links?: number; // links/stirrups per meter
   link_diameter_mm?: number;
-  bar_length_main?: number; // length per main bar (m) — defaults to member length
+  bar_length_main?: number; // length per main bar (m), defaults to member length
   cover_mm?: number; // concrete cover
 }
 
@@ -101,9 +101,9 @@ export interface BuildToRoofInput {
 
   // Foundation
   foundation_type: FoundationType;
-  foundation_depth: number; // trench depth (m) — used for excavation
+  foundation_depth: number; // trench depth (m), used for excavation
   foundation_width: number; // trench/pad width (m)
-  footing_thickness: number; // concrete footing thickness (m) — configurable, NOT hardcoded
+  footing_thickness: number; // concrete footing thickness (m), configurable, NOT hardcoded
   blinding_thickness: number; // blinding concrete thickness (m)
   hardcore_thickness: number; // hardcore fill thickness (m)
   dpc_length: number; // DPC roll length needed (m), 0 if none
@@ -184,7 +184,7 @@ export interface PriceConfig {
   roofing_screws_per_piece: number; // ₦ per screw
   fascia_per_meter: number; // ₦ per linear meter
   dpc_per_meter: number; // ₦ per linear meter (DPC roll)
-  dpm_per_m2: number; // ₦ per m² (DPM membrane — different from DPC roll)
+  dpm_per_m2: number; // ₦ per m² (DPM membrane, different from DPC roll)
   formwork_per_m2: number; // ₦ per m² of formwork (plywood + nails)
   price_date: string; // ISO date
   price_source: string; // e.g. "User-supplied" or "Admin-configured"
@@ -207,7 +207,7 @@ export interface LabourConfig {
   // Role-based daily rates (Nigerian construction)
   bricklayer_per_day: number; // ₦ per day per bricklayer/mason
   bricklayer_days: number; // estimated bricklayer-days for blockwork
-  contractor_fee: number; // ₦ — lump sum or daily rate × days
+  contractor_fee: number; // ₦, lump sum or daily rate × days
   contractor_fee_type: 'daily' | 'contract'; // payment mode
   contractor_days: number; // if daily, estimated contractor days
   supervisor_per_day: number; // ₦ per day

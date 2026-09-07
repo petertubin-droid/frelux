@@ -180,7 +180,7 @@ export function buildLabourLineItem(
       rateSource: 'not_configured',
       rateOverridden: false,
       hasRate: false,
-      explanation: `${input.activity}: ${input.quantity} ${input.unit} — no labour rate configured`,
+      explanation: `${input.activity}: ${input.quantity} ${input.unit}, no labour rate configured`,
     };
   }
 

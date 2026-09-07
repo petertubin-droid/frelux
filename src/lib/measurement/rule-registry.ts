@@ -311,7 +311,7 @@ export function createGlobalGeometryRules(): CalculationRule[] {
       status: 'active',
       approvalStatus: 'approved',
       source: 'Universal geometry',
-      notes: 'Universal rectangular area formula — applies to all markets',
+      notes: 'Universal rectangular area formula, applies to all markets',
       parameters: {},
     }),
     createRule({
@@ -353,7 +353,7 @@ export function createNigeriaPaintingRules(): CalculationRule[] {
   const now = new Date().toISOString();
   return [
     createRule({
-      ruleName: 'Nigeria Painting — 2 Coats Standard',
+      ruleName: 'Nigeria Painting, 2 Coats Standard',
       category: 'painting',
       scope: 'country',
       countryCode: 'NG',
@@ -365,7 +365,7 @@ export function createNigeriaPaintingRules(): CalculationRule[] {
       status: 'active',
       approvalStatus: 'approved',
       source: 'FRELUX Nigeria construction standard',
-      notes: 'Nigeria-specific painting rule — 2 coats standard for emulsion paint',
+      notes: 'Nigeria-specific painting rule, 2 coats standard for emulsion paint',
       parameters: { standardCoats: 2, defaultWastePercent: 5 },
     }),
   ];
@@ -378,7 +378,7 @@ export function createNigeriaScreedingRules(): CalculationRule[] {
   const now = new Date().toISOString();
   return [
     createRule({
-      ruleName: 'Nigeria Screeding — Area-Based',
+      ruleName: 'Nigeria Screeding, Area-Based',
       category: 'screeding',
       scope: 'country',
       countryCode: 'NG',

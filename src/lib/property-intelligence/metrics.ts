@@ -101,7 +101,7 @@ export function grossRentalYield(input: RentalYieldInput): MetricResult {
     assumptions.push(`Rent was provided monthly and converted to annual (× 12) = ${annualRent} ${rent.currency}/yr.`);
   }
   if (input.priceLabel) {
-    assumptions.push(`Yield is calculated against the ${input.priceLabel} — this is NOT a market valuation.`);
+    assumptions.push(`Yield is calculated against the ${input.priceLabel}, this is NOT a market valuation.`);
   }
 
   const value = (annualRent / propertyPrice.amount) * 100;
@@ -134,7 +134,7 @@ export function netRentalYield(input: RentalYieldInput & {
       formula: "net yield = ((annual rent − annual operating expenses) ÷ property price) × 100",
       inputs: [{ label: "Annual operating expenses", value: undefined }],
       assumptions: [],
-      reason: "Net yield requires annual operating expenses. They were not provided, so net yield is unavailable — not guessed.",
+      reason: "Net yield requires annual operating expenses. They were not provided, so net yield is unavailable, not guessed.",
     };
   }
   if (annualOperatingExpenses.currency !== input.rent.currency) {
@@ -303,7 +303,7 @@ export function developmentMargin(
       formula: "margin = ((expected sale value − total cost) ÷ total cost) × 100",
       inputs: [{ label: "Expected sale value", value: expectedSaleValue.amount, currency: expectedSaleValue.currency }],
       assumptions: [],
-      reason: "Expected sale value must be a positive, finite number. It is an assumption the user provides — FRELUX does not invent or accept invalid ones.",
+      reason: "Expected sale value must be a positive, finite number. It is an assumption the user provides, FRELUX does not invent or accept invalid ones.",
     };
   }
   if (costResult.status !== "calculated" || costResult.totalKnownCost === undefined) {
@@ -329,11 +329,11 @@ export function developmentMargin(
       { label: "Total known development cost", value: costResult.totalKnownCost, currency: costResult.currency },
     ],
     assumptions: [
-      "Expected sale value is an ASSUMPTION provided to the system — not a FRELUX valuation.",
+      "Expected sale value is an ASSUMPTION provided to the system, not a FRELUX valuation.",
       ...(costResult.unpricedItems.length > 0
         ? [`Margin ignores unpriced items: ${costResult.unpricedItems.join(", ")}. Actual margin would be lower.`]
         : []),
-      "Analytical calculation only — not financial advice or a guarantee.",
+      "Analytical calculation only, not financial advice or a guarantee.",
     ],
   };
 }

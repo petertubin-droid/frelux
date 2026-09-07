@@ -222,7 +222,7 @@ export function calculateTile(
 
   const materialCost =
     tileCost + adhesiveCost + cementCost + sandCost + groutCost + spacerCost;
-  const labourCost = 0; // Labour not included — negotiated separately
+  const labourCost = 0; // Labour not included, negotiated separately
   const grandTotal = materialCost;
 
   return {

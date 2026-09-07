@@ -47,7 +47,7 @@ export type VerificationState =
 export const VERIFICATION_STATE_LABELS: Record<VerificationState, string> = {
   manual_input: 'Manual Input',
   ai_detected: 'AI Detected',
-  ai_detected_review_required: 'AI Detected — Review Required',
+  ai_detected_review_required: 'AI Detected, Review Required',
   user_verified: 'User Verified',
   imported: 'Imported',
   calculated: 'Calculated',
@@ -252,16 +252,16 @@ export function assessUnifiedConfidence(
 
   // Build dimension breakdown
   const aiBreakdown = aiConfidence === 'not_applicable'
-    ? 'Not AI-detected — no AI confidence applies.'
+    ? 'Not AI-detected, no AI confidence applies.'
     : `${AI_CONFIDENCE_LABELS[aiConfidence]}. Note: AI detection confidence does NOT guarantee calculation accuracy.`;
 
   const calcBreakdown = `Calculation confidence: ${calcConfidence.toUpperCase()}. This reflects the quality of the calculation, independent of AI detection or market pricing.`;
 
   const priceBreakdown = priceConfidence === 'unavailable'
-    ? 'No market price available — this calculation cannot be priced automatically.'
+    ? 'No market price available, this calculation cannot be priced automatically.'
     : `Market price confidence: ${priceConfidence.toUpperCase()}. This reflects the quality of the market price, independent of the calculation.`;
 
-  const summary = `${VERIFICATION_STATE_LABELS[verificationState]} — Overall: ${overallConfidence.toUpperCase()}`;
+  const summary = `${VERIFICATION_STATE_LABELS[verificationState]}, Overall: ${overallConfidence.toUpperCase()}`;
 
   return {
     verificationState,
@@ -437,7 +437,7 @@ export function buildVerificationSummary(records: VerificationRecord[]): Verific
 
   const allVerified = records.every((r) => VERIFICATION_STATE_VERIFIED[r.state]);
 
-  const summary = `${records.length} items: ${verifiedCount} verified, ${requiresActionCount} require action${allVerified ? ' — all verified' : ''}`;
+  const summary = `${records.length} items: ${verifiedCount} verified, ${requiresActionCount} require action${allVerified ? ', all verified' : ''}`;
 
   return {
     totalItems: records.length,

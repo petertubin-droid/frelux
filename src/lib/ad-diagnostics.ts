@@ -49,7 +49,7 @@ export function adDebug(
     // window unavailable (SSR/test) — keep the in-memory trail only
   }
   // eslint-disable-next-line no-console
-  console.debug(`[ads] ${provider} — ${event}`, detail ?? "");
+  console.debug(`[ads] ${provider}, ${event}`, detail ?? "");
 }
 
 /** Attach load/error diagnostics to an injected script element (dev only). */

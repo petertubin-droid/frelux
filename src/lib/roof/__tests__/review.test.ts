@@ -146,15 +146,15 @@ describe('Roof Review: Readiness Label', () => {
   });
 
   it('returns "Almost ready" for score 70-89', () => {
-    expect(getReadinessLabel(75)).toBe('Almost ready — review warnings');
+    expect(getReadinessLabel(75)).toBe('Almost ready: review warnings');
   });
 
   it('returns "Needs attention" for score 50-69', () => {
-    expect(getReadinessLabel(60)).toBe('Needs attention — missing data');
+    expect(getReadinessLabel(60)).toBe('Needs attention: missing data');
   });
 
   it('returns "Not ready" for score < 50', () => {
-    expect(getReadinessLabel(30)).toBe('Not ready — critical data missing');
+    expect(getReadinessLabel(30)).toBe('Not ready: critical data missing');
   });
 });
 

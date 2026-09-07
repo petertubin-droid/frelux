@@ -56,7 +56,7 @@ export type RoomVerificationState =
 
 export const VERIFICATION_STATE_LABELS: Record<RoomVerificationState, string> = {
   ai_detected: 'AI Detected',
-  ai_detected_review: 'AI Detected — Review Required',
+  ai_detected_review: 'AI Detected, Review Required',
   user_corrected: 'User Corrected',
   user_verified: 'User Verified',
   user_rejected: 'User Rejected',

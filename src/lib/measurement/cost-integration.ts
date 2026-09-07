@@ -249,7 +249,7 @@ export function buildCostLineItem(
       priceConfidence: null,
       priceOverridden: false,
       hasPrice: false,
-      explanation: `${quantity.materialName}: ${quantity.quantity} ${quantity.quantityUnit} — no price configured`,
+      explanation: `${quantity.materialName}: ${quantity.quantity} ${quantity.quantityUnit}, no price configured`,
     };
   }
 
@@ -444,7 +444,7 @@ export function roofMaterialResultToQuantities(
   for (const section of roofResult.sections) {
     if (section.roofingMaterial && section.materialConfigured) {
       quantities.push({
-        materialName: `Roofing — ${section.sectionName}`,
+        materialName: `Roofing, ${section.sectionName}`,
         category: 'roofing',
         quantity: section.roofingMaterial.purchaseQuantity,
         quantityUnit: section.roofingMaterial.quantityUnit,
@@ -454,7 +454,7 @@ export function roofMaterialResultToQuantities(
 
     if (section.screwsNeeded) {
       quantities.push({
-        materialName: `Roofing screws — ${section.sectionName}`,
+        materialName: `Roofing screws, ${section.sectionName}`,
         category: 'roofing',
         quantity: section.screwsNeeded,
         quantityUnit: 'pcs',
@@ -464,7 +464,7 @@ export function roofMaterialResultToQuantities(
 
     if (section.ridgeCapQuantity) {
       quantities.push({
-        materialName: `Ridge caps — ${section.sectionName}`,
+        materialName: `Ridge caps, ${section.sectionName}`,
         category: 'roofing',
         quantity: section.ridgeCapQuantity,
         quantityUnit: 'pcs',
@@ -474,7 +474,7 @@ export function roofMaterialResultToQuantities(
 
     if (section.hipCapQuantity) {
       quantities.push({
-        materialName: `Hip caps — ${section.sectionName}`,
+        materialName: `Hip caps, ${section.sectionName}`,
         category: 'roofing',
         quantity: section.hipCapQuantity,
         quantityUnit: 'pcs',
@@ -484,7 +484,7 @@ export function roofMaterialResultToQuantities(
 
     if (section.fasciaBoardQuantity) {
       quantities.push({
-        materialName: `Fascia boards — ${section.sectionName}`,
+        materialName: `Fascia boards, ${section.sectionName}`,
         category: 'roofing',
         quantity: section.fasciaBoardQuantity,
         quantityUnit: 'pcs',

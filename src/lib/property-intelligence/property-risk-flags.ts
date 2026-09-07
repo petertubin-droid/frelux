@@ -18,8 +18,8 @@ export type PropertyRiskSeverity = "info" | "warning" | "critical";
 
 export type PropertyRiskCode =
   | "missing_location" // no usable location at all
-  | "location_requires_confirmation" // country unknown — profile pending
-  | "region_unsupported" // no regional profile — no fallback applied
+  | "location_requires_confirmation" // country unknown, profile pending
+  | "region_unsupported" // no regional profile, no fallback applied
   | "unverified_property_info" // profile values awaiting verification
   | "low_confidence_ai_data" // AI-extracted values below threshold
   | "missing_documents" // no supporting documents attached
@@ -204,7 +204,7 @@ export function evaluatePropertyRisks(input: PropertyRiskInput): PropertyRiskFla
       code: "condition_unverified",
       severity: "warning",
       title: "Building condition unverified",
-      reason: "A building condition value is present without an authoritative source. FRELUX does not claim structural condition from photographs — a professional inspection is required.",
+      reason: "A building condition value is present without an authoritative source. FRELUX does not claim structural condition from photographs, a professional inspection is required.",
     });
   }
 

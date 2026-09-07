@@ -134,7 +134,7 @@ export const freluxCrawlerAdapter: PriceProviderAdapter = {
       isHealthy: healthCheckPassed,
       lastError,
       remainingQuota: null, // unlimited
-      message: lastError ?? 'FRELUX Direct Crawler — operational',
+      message: lastError ?? 'FRELUX Direct Crawler, operational',
     };
   },
 };

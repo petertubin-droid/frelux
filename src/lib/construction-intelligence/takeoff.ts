@@ -31,7 +31,7 @@ export type QuantitySource =
 
 export type TakeoffStatus =
   | "calculated" // an existing engine produced this quantity
-  | "requires_calculation" // no engine result exists yet — explicitly not invented
+  | "requires_calculation" // no engine result exists yet, explicitly not invented
   | "requires_verification"; // value exists but awaits user verification
 
 /** Discipline labels reused across the takeoff and estimate layers. */
@@ -246,7 +246,7 @@ export function buildQuantityTakeoff(input: TakeoffInput): QuantityTakeoff {
 
     for (const space of element.spaceResults) {
       if (!Number.isFinite(space.totalAreaM2) || space.totalAreaM2 < 0) {
-        continue; // invalid measurements are excluded — risk flags report them
+        continue; // invalid measurements are excluded, risk flags report them
       }
       measurementItems.push({
         id: `m:${element.elementId}:${space.spaceId}`,
@@ -270,7 +270,7 @@ export function buildQuantityTakeoff(input: TakeoffInput): QuantityTakeoff {
     const discipline = calculatorTypeToDiscipline(calc.calculator_type);
     for (const material of calc.materials ?? []) {
       if (!Number.isFinite(material.quantity) || material.quantity < 0) {
-        continue; // risk flags will surface this — never propagate invalid data
+        continue; // risk flags will surface this, never propagate invalid data
       }
       let purchaseQuantity = material.quantity;
       let waste: TakeoffMaterial["waste"];

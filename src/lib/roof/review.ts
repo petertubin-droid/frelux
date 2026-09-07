@@ -246,7 +246,7 @@ export function getInfoIssues(review: RoofReviewData): ReviewIssue[] {
  */
 export function getReadinessLabel(score: number): string {
   if (score >= 90) return 'Ready for estimation';
-  if (score >= 70) return 'Almost ready — review warnings';
-  if (score >= 50) return 'Needs attention — missing data';
-  return 'Not ready — critical data missing';
+  if (score >= 70) return 'Almost ready: review warnings';
+  if (score >= 50) return 'Needs attention: missing data';
+  return 'Not ready: critical data missing';
 }

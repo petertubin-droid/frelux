@@ -39,7 +39,7 @@ export const COOKIE_CATEGORIES: {
   {
     key: 'essential',
     label: 'Essential',
-    description: 'Required for core site functionality — login, preferences, and security. Always on.',
+    description: 'Required for core site functionality, login, preferences, and security. Always on.',
     required: true,
   },
   {

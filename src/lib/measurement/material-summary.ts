@@ -305,7 +305,7 @@ export function materialSummaryToText(summary: ProjectMaterialSummary): string {
     lines.push(`  Subtotal: ${subtotal.totalPurchaseQuantity} ${subtotal.quantityUnit} (buy: ${subtotal.totalBuyQuantity})`);
     for (const line of subtotal.lines) {
       const brandPart = line.brand ? ` [${line.brand}]` : '';
-      lines.push(`  • ${line.materialName}${brandPart} — ${line.purchaseQuantity} ${line.quantityUnit} (have: ${line.alreadyHaveQuantity}, buy: ${line.buyQuantity})`);
+      lines.push(`  • ${line.materialName}${brandPart}, ${line.purchaseQuantity} ${line.quantityUnit} (have: ${line.alreadyHaveQuantity}, buy: ${line.buyQuantity})`);
     }
     lines.push('');
   }

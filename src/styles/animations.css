@@ -1,10 +1,10 @@
 /* =========================================================
-   FRELUX — Deferred Animations & Visual Effects
+   FRELUX, Deferred Animations & Visual Effects
    Loaded after initial paint to reduce critical CSS payload.
    =========================================================
 
 /* =========================================================
-   Micro-interaction Animations — Premium
+   Micro-interaction Animations, Premium
    ========================================================= */
 
 @keyframes toast-in {

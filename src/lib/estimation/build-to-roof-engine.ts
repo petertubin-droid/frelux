@@ -380,11 +380,11 @@ export function decomposeRoofPlanes(
     return [{
       id: 'vertical-1',
       roof_type: roofType,
-      label: 'Vertical plane (pitch 90° — not a roof)',
+      label: 'Vertical plane (pitch 90°, not a roof)',
       projected_area_m2: Le * We,
       pitch_degrees: pitchDegrees,
       sloped_area_m2: Le * We,
-      boundary: 'Undefined — vertical pitch is not a roof plane',
+      boundary: 'Undefined, vertical pitch is not a roof plane',
     }];
   }
 
@@ -407,7 +407,7 @@ export function decomposeRoofPlanes(
   if (roofType === 'mono_pitch') {
     return [
       plane('mono-1', 'Mono-pitch plane (full width)', Le * We,
-        `Eave rectangle ${round(Le, 2)}m × ${round(We, 2)}m — high edge along Le`),
+        `Eave rectangle ${round(Le, 2)}m × ${round(We, 2)}m, high edge along Le`),
     ];
   }
 
@@ -418,7 +418,7 @@ export function decomposeRoofPlanes(
     const R = long - short;
     const trapProjected = ((long + R) / 2) * (short / 2);
     const triProjected = (short * short) / 4;
-    const ridgeNote = R === 0 ? ' (pyramid — no ridge)' : '';
+    const ridgeNote = R === 0 ? ' (pyramid, no ridge)' : '';
     return [
       plane('hip-side-1', `Hip trapezoid plane 1${ridgeNote}`, trapProjected,
         `Trapezoid: parallel sides ${round(long, 2)}m (eave) and ${round(R, 2)}m (ridge), height ${round(short / 2, 2)}m`),
@@ -752,7 +752,7 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
 
   // 1. Site clearing & setting out (allowance-based)
   quantities.push(
-    qtyLine('Site clearing & setting out', 'Allowance — general labour days',
+    qtyLine('Site clearing & setting out', 'Allowance, general labour days',
       { days: input.labour.general_labour_days },
       input.labour.general_labour_days, 'days', 0)
   );
@@ -894,7 +894,7 @@ function calcGroundFloor(input: BuildToRoofInput): StageResult {
   // Foundation stage (over hardcore, below DPC). The same physical layer
   // must not also be priced here — that was double-counting.
   // Oversite concrete (ground floor slab)
-  const slabThickness = 0.1; // 100mm — standard Nigerian construction
+  const slabThickness = 0.1; // 100mm, standard Nigerian construction
   const slabVol = footprintArea * slabThickness;
   quantities.push(
     qtyLine('Ground floor concrete volume', 'Footprint area × Slab thickness (100mm)',
@@ -1050,7 +1050,7 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
     totalFormworkArea += formwork;
 
     quantities.push(
-      qtyLine(`${member.label} — concrete`, `${member.length} × ${member.width} × ${member.depth} × ${member.quantity}`,
+      qtyLine(`${member.label}, concrete`, `${member.length} × ${member.width} × ${member.depth} × ${member.quantity}`,
         { length: member.length, width: member.width, depth: member.depth, quantity: member.quantity },
         vol, 'm³', input.wastage.cement)
     );
@@ -1135,7 +1135,7 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
   const sheetCoverage = getSheetCoverage(input.roofing_material);
   const sheetCount = roofingSheetsCount(roofArea, sheetCoverage);
   quantities.push(
-    qtyLine('Roofing sheets', `ceil(Roof area / ${sheetCoverage}m² per sheet) — ${input.roofing_material}`,
+    qtyLine('Roofing sheets', `ceil(Roof area / ${sheetCoverage}m² per sheet), ${input.roofing_material}`,
       { roof_area: roofArea, coverage: sheetCoverage, material: input.roofing_material as unknown as number },
       sheetCount, 'pcs', input.wastage.roofing_sheets)
   );
@@ -1303,7 +1303,7 @@ function assessConfidence(input: BuildToRoofInput): { level: ConfidenceLevel; re
     if (!hasStructural) {
       return {
         level: 'moderate',
-        reason: 'Architectural dimensions available but structural engineering schedule missing. Structural concrete quantities are preliminary — not a structural design.',
+        reason: 'Architectural dimensions available but structural engineering schedule missing. Structural concrete quantities are preliminary, not a structural design.',
       };
     }
     return {
@@ -1504,23 +1504,23 @@ export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult
     'Doors and windows are used only as wall opening deductions. Their purchase and installation costs are NOT included.',
     'Structural member sizes (columns, beams, slabs, reinforcement) must be verified by a qualified structural engineer. This tool does NOT design or certify structural adequacy.',
     'Roofing sheet count is based on standard sheet dimensions for the selected material type. Actual sheet sizes may vary by manufacturer.',
-    'Mortar volume is estimated at 0.03 m³ per m² of wall — this is a standard industry approximation for 9-inch (225mm) blockwork.',
-    'Sand filling thickness under ground floor slab defaults to 50mm — configurable in advanced settings.',
+    'Mortar volume is estimated at 0.03 m³ per m² of wall, this is a standard industry approximation for 9-inch (225mm) blockwork.',
+    'Sand filling thickness under ground floor slab defaults to 50mm, configurable in advanced settings.',
     'Material prices fluctuate frequently. Always verify current prices before procurement. Prices older than 30 days are flagged as stale.',
   ];
 
   const missingInfo: string[] = [];
   if (!input.has_engineer_schedule) {
-    missingInfo.push('Engineer-supplied structural schedule — structural concrete quantities are preliminary estimates based on architectural dimensions only.');
+    missingInfo.push('Engineer-supplied structural schedule, structural concrete quantities are preliminary estimates based on architectural dimensions only.');
   }
   if (input.internal_wall_length <= 0) {
-    missingInfo.push('Internal wall layout — internal partition walls not specified. Wall quantities may be understated.');
+    missingInfo.push('Internal wall layout, internal partition walls not specified. Wall quantities may be understated.');
   }
   if (!input.drawing_analysis) {
-    missingInfo.push('Architectural drawing — no drawing uploaded. Dimensions are user-entered and should be verified against actual plans.');
+    missingInfo.push('Architectural drawing, no drawing uploaded. Dimensions are user-entered and should be verified against actual plans.');
   }
   if (input.openings.length === 0) {
-    missingInfo.push('Door/window openings not specified — wall quantities include the full gross area with no deductions.');
+    missingInfo.push('Door/window openings not specified, wall quantities include the full gross area with no deductions.');
   }
 
   return {
@@ -1555,59 +1555,59 @@ export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult
 // ── Default price/labour/wastage configs (Nigerian market defaults) ──
 
 export const DEFAULT_PRICES = {
-  cement_per_bag: 10000,       // Dangote/BUA 50kg — updated Aug 2026
-  block_per_piece: 450,        // 9-inch hollow block — updated
+  cement_per_bag: 10000,       // Dangote/BUA 50kg, updated Aug 2026
+  block_per_piece: 450,        // 9-inch hollow block, updated
   sand_per_m3: 55000,           // sharp sand per m³ (reference only)
-  sand_per_trip: 192500,        // per trip (3.5 m³, 5-tonne tipper) — PRIMARY
+  sand_per_trip: 192500,        // per trip (3.5 m³, 5-tonne tipper), PRIMARY
   granite_per_m3: 110000,       // 3/4" granite per m³ (reference only)
-  granite_per_trip: 385000,     // per trip (3.5 m³) — PRIMARY
-  hardcore_per_m3: 40000,       // hardcore stone/laterite — updated
+  granite_per_trip: 385000,     // per trip (3.5 m³), PRIMARY
+  hardcore_per_m3: 40000,       // hardcore stone/laterite, updated
   reinforcement_per_tonne: 1350000, // bulk steel per tonne (fallback)
   // Per-diameter rebar prices (₦ per 12m standard length)
-  rebar_12mm_per_length: 9500,   // 12mm × 12m — common for columns/slabs
-  rebar_16mm_per_length: 16500,  // 16mm × 12m — common for columns/beams
-  rebar_20mm_per_length: 25500,  // 20mm × 12m — heavy columns/beams
-  rebar_25mm_per_length: 38000,  // 25mm × 12m — major beams/columns
-  binding_wire_per_kg: 3000,    // annealed binding wire — updated
-  timber_per_m: 3500,           // 2×4 timber per linear meter — updated
-  roofing_sheet_per_piece: 12000, // long-span aluminium 0.5mm — updated
-  ridge_cap_per_meter: 4500,    // aluminium ridge cap — updated
-  roofing_screws_per_piece: 200, // roofing screws with washers — updated
-  fascia_per_meter: 3000,       // fascia board — updated
-  dpc_per_meter: 1000,          // DPC roll — updated
-  dpm_per_m2: 1500,             // DPM membrane — updated
-  formwork_per_m2: 5500,         // plywood formwork — updated
+  rebar_12mm_per_length: 9500,   // 12mm × 12m, common for columns/slabs
+  rebar_16mm_per_length: 16500,  // 16mm × 12m, common for columns/beams
+  rebar_20mm_per_length: 25500,  // 20mm × 12m, heavy columns/beams
+  rebar_25mm_per_length: 38000,  // 25mm × 12m, major beams/columns
+  binding_wire_per_kg: 3000,    // annealed binding wire, updated
+  timber_per_m: 3500,           // 2×4 timber per linear meter, updated
+  roofing_sheet_per_piece: 12000, // long-span aluminium 0.5mm, updated
+  ridge_cap_per_meter: 4500,    // aluminium ridge cap, updated
+  roofing_screws_per_piece: 200, // roofing screws with washers, updated
+  fascia_per_meter: 3000,       // fascia board, updated
+  dpc_per_meter: 1000,          // DPC roll, updated
+  dpm_per_m2: 1500,             // DPM membrane, updated
+  formwork_per_m2: 5500,         // plywood formwork, updated
   price_date: new Date().toISOString().split('T')[0],
-  price_source: 'FRELUX reference prices — Nigerian market (edit in Step 8; verify before ordering)',
+  price_source: 'FRELUX reference prices, Nigerian market (edit in Step 8; verify before ordering)',
 };
 
 export const DEFAULT_LABOUR: LabourConfig = {
-  excavation_per_m3: 4000,        // manual excavation — updated
-  blockwork_per_block: 200,       // per block laid — updated
-  concrete_per_m3: 30000,         // per m³ cast — updated
-  reinforcement_per_tonne: 180000, // per tonne fixed — updated
-  formwork_per_m2: 6000,           // per m² erected/removed — updated
-  roofing_per_m2: 6000,            // per m² roof area — updated
-  blinding_per_m3: 10000,          // per m³ — updated
-  hardcore_per_m3: 7000,           // per m³ — updated
-  sand_filling_per_m3: 6000,       // per m³ — updated
-  compaction_per_m3: 3500,         // per m³ — updated
-  backfilling_per_m3: 3000,        // per m³ — updated
-  general_labour_per_day: 12000,    // per day — updated
+  excavation_per_m3: 4000,        // manual excavation, updated
+  blockwork_per_block: 200,       // per block laid, updated
+  concrete_per_m3: 30000,         // per m³ cast, updated
+  reinforcement_per_tonne: 180000, // per tonne fixed, updated
+  formwork_per_m2: 6000,           // per m² erected/removed, updated
+  roofing_per_m2: 6000,            // per m² roof area, updated
+  blinding_per_m3: 10000,          // per m³, updated
+  hardcore_per_m3: 7000,           // per m³, updated
+  sand_filling_per_m3: 6000,       // per m³, updated
+  compaction_per_m3: 3500,         // per m³, updated
+  backfilling_per_m3: 3000,        // per m³, updated
+  general_labour_per_day: 12000,    // per day, updated
   general_labour_days: 5,
   // Nigerian construction role-based daily rates
-  bricklayer_per_day: 10000,       // per day — updated
+  bricklayer_per_day: 10000,       // per day, updated
   bricklayer_days: 20,
-  contractor_fee: 600000,          // lump sum — updated
+  contractor_fee: 600000,          // lump sum, updated
   contractor_fee_type: 'contract',
   contractor_days: 30,
-  supervisor_per_day: 12000,       // per day — updated
+  supervisor_per_day: 12000,       // per day, updated
   supervisor_days: 30,
-  foreman_per_day: 8000,            // per day — updated
+  foreman_per_day: 8000,            // per day, updated
   foreman_days: 25,
-  carpenter_per_day: 10000,         // per day — updated
+  carpenter_per_day: 10000,         // per day, updated
   carpenter_days: 15,
-  concrete_labourer_per_day: 7000,  // per day — updated
+  concrete_labourer_per_day: 7000,  // per day, updated
   concrete_labourer_days: 15,
 };
 

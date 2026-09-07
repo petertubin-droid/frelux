@@ -170,7 +170,7 @@ export function validateArticle(
     passed: titleValid,
     message: titleValid
       ? `Title length is ${titleLen} chars (within 10-70)`
-      : `Title is ${titleLen} chars — should be 10-70 characters`,
+      : `Title is ${titleLen} chars, should be 10-70 characters`,
     value: titleLen,
   });
 
@@ -185,7 +185,7 @@ export function validateArticle(
       passed: mtValid,
       message: mtValid
         ? `Meta title is ${mtLen} chars (optimal ${META_TITLE_MIN}-${META_TITLE_MAX})`
-        : `Meta title is ${mtLen} chars — should be ${META_TITLE_MIN}-${META_TITLE_MAX}`,
+        : `Meta title is ${mtLen} chars, should be ${META_TITLE_MIN}-${META_TITLE_MAX}`,
       value: mtLen,
     });
   } else {
@@ -193,7 +193,7 @@ export function validateArticle(
       rule: "meta-title-missing",
       level: "warning",
       passed: false,
-      message: "Meta title is missing — will fall back to article title",
+      message: "Meta title is missing, will fall back to article title",
     });
   }
 
@@ -208,7 +208,7 @@ export function validateArticle(
       passed: mdValid,
       message: mdValid
         ? `Meta description is ${mdLen} chars (optimal ${META_DESC_MIN}-${META_DESC_MAX})`
-        : `Meta description is ${mdLen} chars — should be ${META_DESC_MIN}-${META_DESC_MAX}`,
+        : `Meta description is ${mdLen} chars, should be ${META_DESC_MIN}-${META_DESC_MAX}`,
       value: mdLen,
     });
   } else {
@@ -230,7 +230,7 @@ export function validateArticle(
     passed: minWordsMet,
     message: minWordsMet
       ? `Content has ${wordCount} words (meets minimum of ${MIN_WORD_COUNT})`
-      : `Content has only ${wordCount} words — minimum is ${MIN_WORD_COUNT} (Google flags thin content)`,
+      : `Content has only ${wordCount} words, minimum is ${MIN_WORD_COUNT} (Google flags thin content)`,
     value: wordCount,
   });
   rules.push({
@@ -239,7 +239,7 @@ export function validateArticle(
     passed: recWordsMet,
     message: recWordsMet
       ? `Content has ${wordCount} words (meets recommended ${RECOMMENDED_WORD_COUNT}+)`
-      : `Content has ${wordCount} words — recommended ${RECOMMENDED_WORD_COUNT}+ for comprehensive guides`,
+      : `Content has ${wordCount} words, recommended ${RECOMMENDED_WORD_COUNT}+ for comprehensive guides`,
     value: wordCount,
   });
 
@@ -258,10 +258,10 @@ export function validateArticle(
     passed: h1Count === 0 || h1Count === 1,
     message:
       h1Count === 0
-        ? "No H1 in content (correct — H1 is rendered from article title)"
+        ? "No H1 in content (correct, H1 is rendered from article title)"
         : h1Count === 1
           ? "One H1 heading present"
-          : `Found ${h1Count} H1 headings — content should use H2+ (H1 comes from article title)`,
+          : `Found ${h1Count} H1 headings, content should use H2+ (H1 comes from article title)`,
     value: h1Count,
   });
 
@@ -272,7 +272,7 @@ export function validateArticle(
     message:
       h2Count >= 2
         ? `${h2Count} H2 headings present (good structure)`
-        : `Only ${h2Count} H2 headings — should have at least 2 for content structure`,
+        : `Only ${h2Count} H2 headings, should have at least 2 for content structure`,
     value: h2Count,
   });
 
@@ -284,7 +284,7 @@ export function validateArticle(
     passed: hasAuthor,
     message: hasAuthor
       ? `Author: "${article.author}" (E-E-A-T requirement met)`
-      : "No author attributed — Google E-E-A-T requires author attribution",
+      : "No author attributed, Google E-E-A-T requires author attribution",
     value: article.author ?? undefined,
   });
 
@@ -296,7 +296,7 @@ export function validateArticle(
     passed: hasExcerpt,
     message: hasExcerpt
       ? "Excerpt present (used for search snippets and previews)"
-      : "No excerpt — recommended for search snippets and social previews",
+      : "No excerpt, recommended for search snippets and social previews",
   });
 
   // 9. Thin content / placeholder detection
@@ -312,7 +312,7 @@ export function validateArticle(
     level: "error",
     passed: !hasThinContent,
     message: hasThinContent
-      ? "Placeholder/lorem ipsum text detected — Google flags this as unhelpful content"
+      ? "Placeholder/lorem ipsum text detected, Google flags this as unhelpful content"
       : "No placeholder content detected",
   });
 
@@ -329,7 +329,7 @@ export function validateArticle(
           rule: "keyword-density",
           level: "warning",
           passed: false,
-          message: `Keyword "${kw}" density is ${(density * 100).toFixed(1)}% — should be under ${MAX_KEYWORD_DENSITY * 100}% to avoid keyword stuffing`,
+          message: `Keyword "${kw}" density is ${(density * 100).toFixed(1)}%, should be under ${MAX_KEYWORD_DENSITY * 100}% to avoid keyword stuffing`,
           value: density,
         });
       }
@@ -349,7 +349,7 @@ export function validateArticle(
       level: "warning",
       passed: false,
       message:
-        "No meta keywords specified — recommended for topical relevance signals",
+        "No meta keywords specified, recommended for topical relevance signals",
     });
   }
 
@@ -368,7 +368,7 @@ export function validateArticle(
     message:
       internalLinks.length >= 1
         ? `${internalLinks.length} internal link(s) found (good for SEO)`
-        : "No internal links — add links to related FRELUX pages for better crawling",
+        : "No internal links, add links to related FRELUX pages for better crawling",
     value: internalLinks.length,
   });
 
@@ -383,7 +383,7 @@ export function validateArticle(
       message:
         imagesWithAlt === totalImages
           ? `All ${totalImages} image(s) have alt text`
-          : `${imagesWithAlt}/${totalImages} image(s) have alt text — all images need descriptive alt text`,
+          : `${imagesWithAlt}/${totalImages} image(s) have alt text, all images need descriptive alt text`,
       value: `${imagesWithAlt}/${totalImages}`,
     });
   }
@@ -423,7 +423,7 @@ export function validateArticle(
     passed: hasConclusion,
     message: hasConclusion
       ? "Conclusion/wrap-up section detected (helpful content signal)"
-      : "No conclusion section detected — articles should end with a summary or takeaway",
+      : "No conclusion section detected, articles should end with a summary or takeaway",
   });
 
   // 15. Category slug is non-empty
@@ -433,7 +433,7 @@ export function validateArticle(
     passed: !!article.category_slug && article.category_slug.trim().length > 0,
     message: article.category_slug
       ? `Category: ${article.category_slug}`
-      : "No category assigned — articles must belong to a category",
+      : "No category assigned, articles must belong to a category",
     value: article.category_slug ?? undefined,
   });
 

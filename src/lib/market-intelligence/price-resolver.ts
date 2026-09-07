@@ -168,7 +168,7 @@ async function tryFallback(
     return {
       ...resolved,
       isEstimated: true,
-      message: `Estimated price (package mismatch) — ${resolved.message}`,
+      message: `Estimated price (package mismatch), ${resolved.message}`,
     };
   }
 

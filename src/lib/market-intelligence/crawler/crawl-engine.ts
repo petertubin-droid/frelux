@@ -105,7 +105,7 @@ export async function executeCrawl(
       message: `Source "${source.source_name}" is not active`,
       timestamp: new Date().toISOString(),
     });
-    job.message = "Source is not active — crawl skipped";
+    job.message = "Source is not active, crawl skipped";
     finishJob(job, startedAt);
     await logCrawlResult(job);
     return job;
@@ -208,7 +208,7 @@ export async function executeCrawl(
       timestamp: new Date().toISOString(),
     });
     job.message =
-      "Rendering required — direct crawler cannot extract data from this page";
+      "Rendering required, direct crawler cannot extract data from this page";
 
     // Update source health
     await updateSourceHealth(source, false, "RENDERING_REQUIRED");
@@ -225,7 +225,7 @@ export async function executeCrawl(
   if (products.length === 0) {
     job.status = "completed";
     job.warnings.push("No products found on this page");
-    job.message = "Crawl completed — no products found";
+    job.message = "Crawl completed, no products found";
 
     // Update source health — fetch succeeded but no products
     await updateSourceHealth(source, true, null);
@@ -250,7 +250,7 @@ export async function executeCrawl(
   for (const product of products) {
     // Skip products with no price
     if (product.price === null || product.price <= 0) {
-      job.warnings.push(`Product "${product.productName}" — no price found`);
+      job.warnings.push(`Product "${product.productName}", no price found`);
       continue;
     }
 
@@ -418,13 +418,13 @@ export async function executeCrawl(
   // 10. Final status
   if (job.errors.length > 0 && job.observationIds.length > 0) {
     job.status = "partial";
-    job.message = `Crawl partial — ${job.observationIds.length} observations created, ${job.errors.length} errors`;
+    job.message = `Crawl partial, ${job.observationIds.length} observations created, ${job.errors.length} errors`;
   } else if (job.errors.length > 0 && job.observationIds.length === 0) {
     job.status = "failed";
-    job.message = `Crawl failed — ${job.errors.length} errors, 0 observations`;
+    job.message = `Crawl failed, ${job.errors.length} errors, 0 observations`;
   } else {
     job.status = "completed";
-    job.message = `Crawl completed — ${job.productsDiscovered} products found, ${job.observationIds.length} observations created (${job.pricesAccepted} approved, ${job.pricesReviewRequired} review required)`;
+    job.message = `Crawl completed, ${job.productsDiscovered} products found, ${job.observationIds.length} observations created (${job.pricesAccepted} approved, ${job.pricesReviewRequired} review required)`;
   }
 
   // Update source health

@@ -57,25 +57,25 @@ export const SURFACE_CONDITION_FACTORS: Record<
   smooth: {
     factor: 1.0,
     label: "Smooth / Previously Painted",
-    description: "Sound, smooth surface — standard coverage applies.",
+    description: "Sound, smooth surface, standard coverage applies.",
   },
   textured: {
     factor: 0.85,
     label: "Textured",
     description:
-      "Textured surface — ~15% more paint absorbed due to surface profile.",
+      "Textured surface, ~15% more paint absorbed due to surface profile.",
   },
   rough: {
     factor: 0.75,
     label: "Rough",
     description:
-      "Rough surface — ~25% more paint absorbed. Consider surface preparation.",
+      "Rough surface, ~25% more paint absorbed. Consider surface preparation.",
   },
   new_plaster: {
     factor: 0.8,
     label: "New / Bare Plaster",
     description:
-      "New plaster is porous — ~20% more paint absorbed on first coat. Primer strongly recommended.",
+      "New plaster is porous, ~20% more paint absorbed on first coat. Primer strongly recommended.",
   },
 };
 
@@ -258,7 +258,7 @@ export function recommendContainerCombination(
 ): ContainerRecommendation[] {
   const sizes =
     containerSizes.length > 0
-      ? [...containerSizes].sort((a, b) => b - a) // descending — prefer larger containers
+      ? [...containerSizes].sort((a, b) => b - a) // descending, prefer larger containers
       : [...DEFAULT_CONTAINER_SIZES_LITERS].sort((a, b) => b - a);
 
   let remaining = Math.max(0, liters);
@@ -598,7 +598,7 @@ export function calculateScreedingMix(
 
   // Costs
   const materialCost = paintTotalCost + cementTotalCost;
-  const labourCost = 0; // Labour not included — negotiated separately
+  const labourCost = 0; // Labour not included, negotiated separately
   const wasteAllowance = materialCost * (wasteFraction / (1 + wasteFraction)); // informational: waste portion of materialCost (already baked into quantities)
   const subtotal = materialCost;
   const taxAmount = subtotal * taxFraction;
@@ -962,7 +962,7 @@ export function calculateAdvancedEstimate(
   const cementCost = cementBags * input.cementPricePerBag;
 
   const materialCost = paintCost + cementCost;
-  const labourCost = 0; // Labour not included — negotiated separately
+  const labourCost = 0; // Labour not included, negotiated separately
   const transportCost = Math.max(0, input.transportCost);
   // Extract the waste portion from the already-waste-adjusted materialCost.
   // wasteAmount = materialCost × (wasteFraction / (1 + wasteFraction))

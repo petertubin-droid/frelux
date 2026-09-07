@@ -93,27 +93,27 @@ function getWorkNote(
     general: "outdoor work",
   };
 
-  if (precip > 2) return `Rain expected — not advisable for ${workName[type]}`;
+  if (precip > 2) return `Rain expected, not advisable for ${workName[type]}`;
   if (precip > 0.5 && type === "screeding")
-    return `Light rain may affect fresh screed — wait for a dry day`;
-  if (precip > 0.5) return `Light rain possible — risky for ${workName[type]}`;
+    return `Light rain may affect fresh screed, wait for a dry day`;
+  if (precip > 0.5) return `Light rain possible, risky for ${workName[type]}`;
 
   if (type === "tyrolene" && wind > 6)
-    return `Windy — tyrolene spray will scatter, wait for calmer conditions`;
+    return `Windy, tyrolene spray will scatter, wait for calmer conditions`;
 
   if (humidity > 85 && (type === "painting" || type === "finishing"))
-    return `Very humid — surfaces may not cure properly, delay ${workName[type]}`;
+    return `Very humid, surfaces may not cure properly, delay ${workName[type]}`;
   if (humidity > 85)
-    return `Very humid — slow drying expected for ${workName[type]}`;
+    return `Very humid, slow drying expected for ${workName[type]}`;
 
   if (humidity > 70 && (type === "painting" || type === "finishing"))
-    return `Moderate humidity — ${workName[type]} will take longer to dry`;
+    return `Moderate humidity, ${workName[type]} will take longer to dry`;
 
   if (wind > 8 && (type === "painting" || type === "finishing"))
-    return `Windy — dust may stick to wet surfaces during ${workName[type]}`;
+    return `Windy, dust may stick to wet surfaces during ${workName[type]}`;
 
   if (humidity < 40 && (type === "painting" || type === "finishing"))
-    return `Low humidity — surfaces may dry too fast, consider a retarder`;
+    return `Low humidity, surfaces may dry too fast, consider a retarder`;
 
   return `Good conditions for ${workName[type]}`;
 }

@@ -410,7 +410,7 @@ export function calculateTileRequirement(
     steps.push(makeStep(
       'Cartons required',
       'Missing packaging data',
-      'Error — configure tile packaging',
+      'Error, configure tile packaging',
     ));
   }
 

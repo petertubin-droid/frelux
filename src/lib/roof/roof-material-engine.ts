@@ -312,7 +312,7 @@ export function calculateRoofMaterials(
   for (const section of roofCalc.sections) {
     if (!section.complete) {
       explanation.push(
-        `Section "${section.sectionName}": Incomplete data — missing: ${section.missing.join(', ')}. Skipped.`
+        `Section "${section.sectionName}": Incomplete data, missing: ${section.missing.join(', ')}. Skipped.`
       );
       allConfigured = false;
       continue;

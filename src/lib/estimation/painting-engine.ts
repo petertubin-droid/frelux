@@ -591,7 +591,7 @@ export function calculateRoom(
     } else {
       const ceilingQtyBuckets = getCeilingQuantityBuckets(config.ceilingRule);
       theoreticalCeilingBuckets = ceilingQtyBuckets;
-      theoreticalCeilingLitres = ceilingQtyBuckets * 20; // placeholder — recalculated with actual packSizeLitres in Step 11
+      theoreticalCeilingLitres = ceilingQtyBuckets * 20; // placeholder, recalculated with actual packSizeLitres in Step 11
       steps.push({
         label: "Ceiling",
         value: `${theoreticalCeilingBuckets} bucket(s)`,
@@ -602,7 +602,7 @@ export function calculateRoom(
     steps.push({
       label: "Ceiling",
       value: "Not included",
-      detail: "Ceiling excluded — ceiling quantity = 0.",
+      detail: "Ceiling excluded, ceiling quantity = 0.",
     });
   }
 
@@ -695,7 +695,7 @@ export function calculateRoom(
         heightAdjustment.message +
         (heightAdjustment.adjustment_factor !== 1.0
           ? ` Adjustment factor: ${heightAdjustment.adjustment_factor}.`
-          : " Actual height is used in wall area calculation — no additional factor applied."),
+          : " Actual height is used in wall area calculation, no additional factor applied."),
     });
   } else {
     steps.push({
@@ -774,8 +774,8 @@ export function calculateRoom(
   steps.push({
     label: "Paint Quality & Coverage",
     value: coverage
-      ? `${config.quality?.name ?? "N/A"} — ${coverage} ${getCoverageUnitLabel(coverageUnit)}`
-      : `${config.quality?.name ?? "N/A"} — NOT CONFIGURED`,
+      ? `${config.quality?.name ?? "N/A"}, ${coverage} ${getCoverageUnitLabel(coverageUnit)}`
+      : `${config.quality?.name ?? "N/A"}, NOT CONFIGURED`,
     detail: coverage
       ? `Coverage rate configured for ${config.quality?.name ?? "this quality"} level. This feeds the FRELUX room-based engine.`
       : "Admin must configure coverage before accurate calculation.",
@@ -892,7 +892,7 @@ export function calculateRoom(
     label: "Theoretical Wall Requirement",
     value: coverage
       ? `${theoreticalWallLitres.toFixed(2)} L (${theoreticalWallBuckets.toFixed(4)} buckets)`
-      : "Cannot calculate — coverage not configured",
+      : "Cannot calculate, coverage not configured",
     detail: coverage
       ? `Based on ${room.length} × ${room.breadth} ${room.unit} room at ${room.height} ${room.unit} height, ${coats} coat(s), ${config.quality?.name ?? "N/A"} quality.`
       : undefined,
@@ -1266,7 +1266,7 @@ export function calculatePaintingProject(
     productionMinRequired = eligibility.min_required;
   }
 
-  const labourNote = "Labour: Not included — negotiated separately.";
+  const labourNote = "Labour: Not included, negotiated separately.";
 
   return {
     rooms: roomResults,

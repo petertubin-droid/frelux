@@ -531,7 +531,7 @@ export function calculateRoom(
     steps.push({
       label: 'Ceiling Area',
       value: `${ceilingArea.toFixed(2)} m²`,
-      detail: `${lengthM.toFixed(2)} × ${widthM.toFixed(2)} — calculated separately from walls`,
+      detail: `${lengthM.toFixed(2)} × ${widthM.toFixed(2)}, calculated separately from walls`,
     });
   } else {
     steps.push({ label: 'Ceiling', value: 'Not included' });
@@ -611,13 +611,13 @@ export function calculateRoom(
     );
     steps.push({
       label: 'Paint Quality & Coverage',
-      value: `${config.quality?.name ?? 'N/A'} — NOT CONFIGURED`,
+      value: `${config.quality?.name ?? 'N/A'}, NOT CONFIGURED`,
       detail: 'Admin must configure coverage before accurate calculation.',
     });
   } else {
     steps.push({
       label: 'Paint Quality & Coverage',
-      value: `${config.quality?.name ?? 'N/A'} — ${coverage} ${getCoverageUnitLabel(coverageUnit)}`,
+      value: `${config.quality?.name ?? 'N/A'}, ${coverage} ${getCoverageUnitLabel(coverageUnit)}`,
       detail: 'Product-specific and quality-specific coverage. No global coverage inheritance.',
     });
   }
@@ -691,7 +691,7 @@ export function calculateRoom(
     label: 'Theoretical Wall Requirement',
     value: wallCoverageM2PerL > 0
       ? `${theoreticalWallLitres.toFixed(2)} L (${theoreticalWallBuckets.toFixed(4)} buckets)`
-      : 'Cannot calculate — coverage not configured',
+      : 'Cannot calculate, coverage not configured',
     detail: `(${netWallArea.toFixed(2)} m² × ${effectiveCoats} coats) ÷ ${wallCoverageM2PerL.toFixed(2)} m²/L`,
   });
 
@@ -797,7 +797,7 @@ export function calculateRoom(
     label: 'Material Cost',
     value: priceConfigured
       ? `${materialCost.toFixed(2)} ${config.price?.currency ?? 'NGN'}`
-      : 'Cannot calculate — price not configured',
+      : 'Cannot calculate, price not configured',
     detail: `${practicalTotalBuckets} bucket(s) × ${unitPrice}`,
   });
 
@@ -853,7 +853,7 @@ export function calculateRoom(
       ? `${materialCost.toFixed(2)} ${config.price?.currency ?? 'NGN'}`
       : 'Not configured',
     height_notice: heightWarning,
-    labour_note: 'Labour: Not included — negotiated separately.',
+    labour_note: 'Labour: Not included, negotiated separately.',
   };
 
   return {
@@ -1001,6 +1001,6 @@ export function calculatePaintProject(
     errors: allErrors,
     valid: allErrors.length === 0,
     calc_version_id: config.calcVersionId,
-    labour_note: 'Labour: Not included — negotiated separately.',
+    labour_note: 'Labour: Not included, negotiated separately.',
   };
 }

@@ -382,7 +382,7 @@ export function combineConfidence(
 
   const notes: string[] = [];
   if (priceLevel === 'review_required') {
-    notes.push('Market price is unavailable — calculation result is valid but cannot be priced.');
+    notes.push('Market price is unavailable, calculation result is valid but cannot be priced.');
   }
   if (calcLevel === 'high' && priceLevel !== 'high') {
     notes.push('Calculation confidence is HIGH but market price confidence is lower.');

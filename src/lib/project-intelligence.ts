@@ -754,7 +754,7 @@ const SURFACE_RECOMMENDATIONS: Record<string, SurfaceRecommendation[]> = {
     },
     {
       recommendation:
-        "Check moisture content of the wall — it should be below 15% before painting.",
+        "Check moisture content of the wall, it should be below 15% before painting.",
       priority: "medium",
     },
   ],
@@ -795,7 +795,7 @@ const SURFACE_RECOMMENDATIONS: Record<string, SurfaceRecommendation[]> = {
     },
     {
       recommendation:
-        "Rough surfaces absorb up to 30% more paint — account for this in your calculations.",
+        "Rough surfaces absorb up to 30% more paint, account for this in your calculations.",
       priority: "high",
     },
     {

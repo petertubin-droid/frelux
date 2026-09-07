@@ -387,7 +387,7 @@ export function listProfiles(registry: MarketProfileRegistry): string {
   lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━');
   for (const profile of registry.profiles.values()) {
     const status = profile.isActive ? '✓ Active' : '○ Inactive';
-    lines.push(`${status}  ${profile.marketName} (${profile.marketCode}) — ${profile.currency}`);
+    lines.push(`${status}  ${profile.marketName} (${profile.marketCode}), ${profile.currency}`);
   }
   return lines.join('\n');
 }

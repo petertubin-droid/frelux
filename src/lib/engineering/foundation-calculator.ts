@@ -77,14 +77,14 @@ export const SOIL_BEARING_CAPACITY: Record<SoilType, number> = {
 };
 
 export const SOIL_DESCRIPTIONS: Record<SoilType, string> = {
-  stiff_clay: 'Stiff clay — high plasticity, firm to hard',
-  firm_clay: 'Firm clay — medium plasticity',
-  sandy_clay: 'Sandy clay — mixed granular-cohesive',
-  loose_sand: 'Loose sand — poorly compacted',
-  dense_sand: 'Dense sand — well-compacted granular',
-  lateritic: 'Lateritic soil — common in Nigerian uplands',
-  rock: 'Sound rock — very high capacity',
-  custom: 'Custom — user-defined bearing capacity',
+  stiff_clay: 'Stiff clay, high plasticity, firm to hard',
+  firm_clay: 'Firm clay, medium plasticity',
+  sandy_clay: 'Sandy clay, mixed granular-cohesive',
+  loose_sand: 'Loose sand, poorly compacted',
+  dense_sand: 'Dense sand, well-compacted granular',
+  lateritic: 'Lateritic soil, common in Nigerian uplands',
+  rock: 'Sound rock, very high capacity',
+  custom: 'Custom, user-defined bearing capacity',
 };
 
 function roundUpTo50(n: number): number {

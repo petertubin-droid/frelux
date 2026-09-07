@@ -90,7 +90,7 @@ const SEQUENCE_STEPS: Omit<SequenceStep, 'step_number'>[] = [
       'Building is within plot boundaries (verify with survey plan)',
       'Levels are referenced to a permanent benchmark',
     ],
-    safety_notes: ['Ensure accurate setting out — errors here compound throughout the project'],
+    safety_notes: ['Ensure accurate setting out, errors here compound throughout the project'],
     common_mistakes: [
       'Inaccurate setting out → walls out of square',
       'Not checking diagonals → parallelogram instead of rectangle',
@@ -200,12 +200,12 @@ const SEQUENCE_STEPS: Omit<SequenceStep, 'step_number'>[] = [
     description: 'Lay foundation blocks from footing to DPC level, install DPC membrane.',
     prerequisites: [5],
     activities: [
-      'Lay 9-inch (225mm) hollow blocks in mortar — 9-inch is the standard for foundation walls',
+      'Lay 9-inch (225mm) hollow blocks in mortar, 9-inch is the standard for foundation walls',
       'Build up to DPC level (typically 4-5 courses)',
       'Fill hollow block cores with weak concrete (1:3:6) where specified',
       'Install DPC membrane over blockwork',
     ],
-    materials_required: ['9-inch hollow blocks (225mm) — mandatory for foundations', 'Cement', 'Sand', 'DPC membrane (polythene)'],
+    materials_required: ['9-inch hollow blocks (225mm), mandatory for foundations', 'Cement', 'Sand', 'DPC membrane (polythene)'],
     quality_checks: [
       'Blocks are laid in stretcher bond',
       'Mortar joints are 10-12mm and fully filled',
@@ -294,7 +294,7 @@ const SEQUENCE_STEPS: Omit<SequenceStep, 'step_number'>[] = [
       'Install wall reinforcement where specified',
       'Cast columns to this level',
     ],
-    materials_required: ['9-inch hollow blocks (external load-bearing walls)', '6-inch blocks (internal partitions — hollow or solid)', '5-inch solid blocks (non-load-bearing partitions, if applicable)', 'Cement', 'Sand', 'Column reinforcement'],
+    materials_required: ['9-inch hollow blocks (external load-bearing walls)', '6-inch blocks (internal partitions, hollow or solid)', '5-inch solid blocks (non-load-bearing partitions, if applicable)', 'Cement', 'Sand', 'Column reinforcement'],
     quality_checks: [
       'First course is laid on mortar bed over DPC',
       'Walls are plumb and level',
@@ -306,7 +306,7 @@ const SEQUENCE_STEPS: Omit<SequenceStep, 'step_number'>[] = [
     common_mistakes: [
       'Not maintaining bond pattern → weak walls',
       'Door frames not set before blockwork → fitting problems',
-      'Using 6-inch or 5-inch blocks for foundation walls → insufficient strength — foundations require 9-inch blocks',
+      'Using 6-inch or 5-inch blocks for foundation walls → insufficient strength, foundations require 9-inch blocks',
       'Using 5-inch solid blocks for load-bearing walls → only suitable for non-load-bearing partitions',
     ],
     estimated_duration_days: '5-7 days',
@@ -368,7 +368,7 @@ const SEQUENCE_STEPS: Omit<SequenceStep, 'step_number'>[] = [
       'All connections are properly nailed/bolted',
     ],
     safety_notes: [
-      'Work at height — use harnesses and scaffolding',
+      'Work at height, use harnesses and scaffolding',
       'Never work on roof during high winds or rain',
       'At least two people for truss erection',
     ],
@@ -471,7 +471,7 @@ export function generateSequencePlan(_buildingType?: string): SequencePlan {
         'All roofing sheets installed with proper overlap',
         'Ridge caps and flashings complete',
         'No visible leaks during rain test',
-        'Building is weathertight — finishing can begin',
+        'Building is weathertight, finishing can begin',
       ],
     },
   ];
@@ -481,7 +481,7 @@ export function generateSequencePlan(_buildingType?: string): SequencePlan {
     {
       can_overlap: true,
       steps: [6, 7],
-      description: 'Foundation blockwork and hardcore filling can partially overlap — start hardcore on one side while finishing blockwork on another.',
+      description: 'Foundation blockwork and hardcore filling can partially overlap, start hardcore on one side while finishing blockwork on another.',
     },
     {
       can_overlap: true,
