@@ -44,3 +44,4 @@ check_*.cjs
 *_found.txt
 scan_colors.py
 mock_data_found.txt
+*.tsbuildinfo
