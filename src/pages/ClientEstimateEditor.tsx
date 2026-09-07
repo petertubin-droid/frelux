@@ -21,10 +21,16 @@ import {
   shareClientEstimate,
   type CreateClientEstimateInput,
 } from "@/lib/project-intelligence";
+import { getSupabase } from "@/lib/supabase-lazy";
 import type { DbClientEstimate } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 
-const fmt = (v: number) => "₦" + (v || 0).toLocaleString();
+const fmt = (v: number, currency = "NGN") =>
+  new Intl.NumberFormat("en-NG", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(v || 0);
 
 export default function ClientEstimateEditor() {
   const { id: projectId } = useParams<{ id: string }>();
@@ -59,6 +65,8 @@ export default function ClientEstimateEditor() {
     { name: string; quantity: number; unit: string; unitCost: number }[]
   >([]);
 
+  const [projectCurrency, setProjectCurrency] = useState<string>("NGN");
+
   const loadExisting = useCallback(async () => {
     if (!projectId) return;
     try {
@@ -66,6 +74,19 @@ export default function ClientEstimateEditor() {
       setExisting(ests);
     } catch {
       // ignore — not critical
+    }
+    try {
+      // Regional data flow: the project's saved location syncs its currency
+      // from the active market profile; estimates inherit that currency.
+      const sb = await getSupabase();
+      const { data: proj } = await sb
+        .from("contractor_projects")
+        .select("currency")
+        .eq("id", projectId)
+        .maybeSingle();
+      if (proj?.currency) setProjectCurrency(proj.currency);
+    } catch {
+      // fall back to NGN — honest default for legacy projects
     }
   }, [projectId]);
 
@@ -112,6 +133,7 @@ export default function ClientEstimateEditor() {
     try {
       const input: CreateClientEstimateInput = {
         project_id: projectId,
+        currency: projectCurrency,
         title: title.trim(),
         description: description.trim() || undefined,
         materials_cost: Number(materialsCost),
@@ -196,7 +218,8 @@ export default function ClientEstimateEditor() {
                   <div>
                     <p className="text-sm font-medium">{est.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {est.estimate_number} · {fmt(est.grand_total)} ·{" "}
+                      {est.estimate_number} ·{" "}
+                      {fmt(est.grand_total, est.currency)} ·{" "}
                       <span
                         className={
                           est.status === "approved"

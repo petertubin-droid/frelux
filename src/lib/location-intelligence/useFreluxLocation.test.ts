@@ -4,6 +4,7 @@ import { useFreluxLocation } from "./useFreluxLocation";
 import {
   BrowserGeolocationProvider,
   locationProviderRegistry,
+  type GeolocationProvider,
   type GeolocationResult,
   type ReverseGeocodeResult,
   type ForwardGeocodeResult,
@@ -13,7 +14,7 @@ import { emptyLocation } from "./model";
 
 // ---- Test providers injected through the registry seam ----
 
-class MockGeoProvider implements BrowserGeolocationProvider {
+class MockGeoProvider implements GeolocationProvider {
   readonly id = "mock-geo";
   readonly label = "Mock";
   next: GeolocationResult = { ok: true, location: { ...emptyLocation("gps"), latitude: 6.5, longitude: 3.4, accuracy_m: 30 } };

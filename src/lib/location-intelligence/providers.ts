@@ -275,9 +275,9 @@ export interface LocationProviderStatus {
 class LocationProviderRegistry {
   private geolocationProvider: GeolocationProvider =
     new BrowserGeolocationProvider();
-  private reverseProvider: ReverseGeocodingProvider =
+  private reverseProvider: ReverseGeocodingProvider | null =
     new NominatimReverseGeocoder();
-  private forwardProvider: ForwardGeocodingProvider =
+  private forwardProvider: ForwardGeocodingProvider | null =
     new NominatimForwardGeocoder();
   private mapProvider: MapProvider | null = null;
 

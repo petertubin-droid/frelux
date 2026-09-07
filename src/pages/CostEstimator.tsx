@@ -65,8 +65,11 @@ interface PassedState {
   qualityPriceCurrency?: string | null;
   recommendedContainers?: ContainerRecommendation[];
   totalRecommendedLiters?: number;
+  /** Canonical project location (location-intelligence) passed via router state. */
+  projectLocation?: FreluxLocation | null;
 }
 
+import { useProjectLocationCurrency, type FreluxLocation } from "@/lib/location-intelligence";
 import { useSeo } from "@/lib/seo";
 import { trackCalculation } from "@/lib/achievements";
 import { trackCalculationWithRewards } from "@/lib/rewards-integration";
@@ -150,8 +153,12 @@ export default function CostEstimator({
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const currencySymbol = settings?.default_currency_symbol ?? "₦";
-  const currency = settings?.default_currency ?? "NGN";
+  // Regional data flow: project location -> market profile -> currency.
+  const { currencyCode: projectCurrencyCode, currencySymbol: projectCurrencySymbol } =
+    useProjectLocationCurrency(passed.projectLocation ?? null);
+  const currencySymbol =
+    projectCurrencySymbol ?? settings?.default_currency_symbol ?? "₦";
+  const currency = projectCurrencyCode ?? settings?.default_currency ?? "NGN";
 
   const [input, setInput] = useState<CostEstimateInput>({
     projectType: passed.projectType ?? "room",

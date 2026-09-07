@@ -56,11 +56,22 @@ export type { FreluxLocationApi, LocationState } from "./useFreluxLocation";
 export { resolveRegionalContext, fetchRegionalProfileFromDb } from "./regional";
 export type { RegionalContext, RegionalDataStatus } from "./regional";
 
+// Shared consumption layer (project location context)
+export {
+  ProjectLocationProvider,
+  useProjectLocation,
+  useProjectLocationCurrency,
+  useUserMarketFallback,
+} from "./project-location-context";
+export type { ProjectLocationContextValue } from "./project-location-context";
+
 // Persistence
 export {
   saveContractorProjectLocation,
   saveUserProjectLocation,
+  syncProjectCurrencyFromRegional,
   locationFromProjectRow,
   locationFromPropertyRow,
   propertyFieldsFromLocation,
 } from "./persistence";
+export type { CurrencySyncResult } from "./persistence";

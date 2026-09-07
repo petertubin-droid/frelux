@@ -85,6 +85,59 @@ export function locationFromProjectRow(
 }
 
 // ============================================================
+// Regional currency sync (Construction Intelligence projects)
+// ============================================================
+
+export interface CurrencySyncResult {
+  ok: boolean;
+  /** The synced currency fields, when ok. */
+  currency: { code: string; symbol: string } | null;
+  error: string | null;
+}
+
+/**
+ * Sync a contractor project's `currency` / `currency_symbol` columns from
+ * its location's ACTIVE regional market profile (the existing
+ * regional-profile system). Called after a location save so that every
+ * Construction Intelligence surface — stat cards, shopping totals,
+ * estimates — follows the project's true regional currency.
+ *
+ * Honest behavior: when the region has NO active profile, nothing is
+ * changed (no substitution of another region's currency).
+ */
+export async function syncProjectCurrencyFromRegional(
+  projectId: string,
+  regional: { status: string; currency_code?: string; currency_symbol?: string },
+): Promise<CurrencySyncResult> {
+  if (!isSupabaseConfigured) {
+    return { ok: false, currency: null, error: "Offline — currency not synced." };
+  }
+  if (regional.status !== "available" || !regional.currency_code) {
+    return { ok: true, currency: null, error: null }; // nothing to sync — honest no-op
+  }
+  try {
+    const { error } = await supabase
+      .from("contractor_projects")
+      .update({
+        currency: regional.currency_code,
+        currency_symbol: regional.currency_symbol ?? regional.currency_code,
+      })
+      .eq("id", projectId);
+    if (error) return { ok: false, currency: null, error: error.message };
+    return {
+      ok: true,
+      currency: {
+        code: regional.currency_code,
+        symbol: regional.currency_symbol ?? regional.currency_code,
+      },
+      error: null,
+    };
+  } catch (e) {
+    return { ok: false, currency: null, error: (e as Error).message };
+  }
+}
+
+// ============================================================
 // Property Intelligence bridge
 // ============================================================
 

@@ -20,6 +20,12 @@ import {
   deleteProperty,
   type QueryOutcome,
 } from "@/lib/property-intelligence/queries";
+import LocationCard from "@/components/location/LocationCard";
+import {
+  locationFromPropertyRow,
+  hasValidCoordinates,
+  type FreluxLocation,
+} from "@/lib/location-intelligence";
 import {
   evaluatePropertyRisks,
   PROPERTY_TYPE_LABELS,
@@ -812,11 +818,49 @@ function PropertyEditor({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  // Canonical location staged by LocationCard (GPS / search / manual).
+  // Persists with the property only on submit — one canonical record,
+  // the text fields below are just its editable projection.
+  const [capturedLocation, setCapturedLocation] = useState<FreluxLocation | null>(
+    // Hydrate from the existing properties row (reload persistence) —
+    // only when the row actually carries some location data.
+    initial &&
+      (initial.location.coordinates ||
+        initial.location.country ||
+        initial.location.city ||
+        initial.location.address ||
+        initial.location.region)
+      ? locationFromPropertyRow({
+          lat: initial.location.coordinates?.lat ?? null,
+          lng: initial.location.coordinates?.lng ?? null,
+          address: initial.location.address ?? null,
+          country: initial.location.country ?? null,
+          region: initial.location.region ?? null,
+          city: initial.location.city ?? null,
+          district: initial.location.district ?? null,
+        })
+      : null,
+  );
 
   const set =
     (key: keyof typeof form) =>
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
       setForm((f) => ({ ...f, [key]: e.target.value }));
+
+  // Card -> form: the canonical record fills the editable text fields.
+  // The user can still adjust them; coordinates ride along on submit.
+  const handleStagedLocation = (loc: FreluxLocation | null) => {
+    setCapturedLocation(loc);
+    if (loc) {
+      setForm((f) => ({
+        ...f,
+        country: loc.country_code ?? loc.country ?? f.country,
+        city: loc.city ?? f.city,
+        region: loc.region ?? f.region,
+        address: loc.formatted_address ?? f.address,
+      }));
+    }
+  };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -842,6 +886,15 @@ function PropertyEditor({
         country: form.country.trim().toUpperCase(),
         region: form.region.trim(),
         city: form.city.trim(),
+        // Coordinates flow from the canonical captured record (GPS/search);
+        // manual-only entries simply have none. Never guessed.
+        coordinates:
+          capturedLocation && hasValidCoordinates(capturedLocation)
+            ? {
+                lat: capturedLocation.latitude!,
+                lng: capturedLocation.longitude!,
+              }
+            : initial?.location.coordinates,
         provenance: makeProvenance(),
       },
       propertyType: form.propertyType as PropertyType, // "" clears in the mapper
@@ -922,6 +975,11 @@ function PropertyEditor({
           <p className="pt-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Location
           </p>
+          <LocationCard
+            compact
+            initialLocation={capturedLocation}
+            onLocationChange={handleStagedLocation}
+          />
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className={label} htmlFor="p-country">

@@ -19,6 +19,7 @@ import {
   Search,
   Share2,
   ArrowRight,
+  MapPin,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import EmptyState from "@/components/ui/EmptyState";
@@ -52,6 +53,13 @@ import type {
   ShareableResourceType,
 } from "@/types/database";
 import { SITE_URL } from "@/lib/seo";
+import LocationCard from "@/components/location/LocationCard";
+import {
+  saveUserProjectLocation,
+  locationFromProjectRow,
+  formatLocationLabel,
+  type FreluxLocation,
+} from "@/lib/location-intelligence";
 import { Button } from "@/components/ui/shadcn/button";
 
 type Tab = "projects" | "colors" | "palettes" | "collections" | "recent";
@@ -87,6 +95,10 @@ export default function MyProjects() {
   const [creating, setCreating] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  // Calculator-project location (canonical location-intelligence record)
+  const [locationProject, setLocationProject] = useState<DbUserProject | null>(
+    null,
+  );
   const [moveState, setMoveState] = useState<{
     colorId: string;
     fromColl: string;
@@ -164,8 +176,33 @@ export default function MyProjects() {
         projectData: p.project_data,
         projectId: p.id,
         projectName: p.name,
+        // Canonical location record — calculators consume the regional
+        // context (currency) from it without duplicating location state.
+        projectLocation: p.location,
       },
     });
+  }
+
+  async function handleSaveProjectLocation(loc: FreluxLocation | null) {
+    if (!locationProject) return;
+    const res = await saveUserProjectLocation(locationProject.id, loc);
+    if (res.ok) {
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.id === locationProject.id
+            ? { ...p, location: loc as unknown as Record<string, unknown> }
+            : p,
+        ),
+      );
+      toast({ title: "Project location saved", variant: "success" });
+      setLocationProject(null);
+    } else {
+      toast({
+        title: "Could not save location",
+        message: res.error ?? undefined,
+        variant: "error",
+      });
+    }
   }
 
   async function handleCreateCollection() {
@@ -427,6 +464,13 @@ export default function MyProjects() {
                       )}
                       <p className="mt-1 text-xs text-muted-foreground">
                         Updated {new Date(p.updated_at).toLocaleDateString()}
+                        {p.location && (
+                          <>
+                            {" · "}
+                            <MapPin aria-hidden="true" className="inline h-3 w-3" />{" "}
+                            {formatLocationLabel(locationFromProjectRow(p))}
+                          </>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -449,6 +493,15 @@ export default function MyProjects() {
                       title="Share"
                     >
                       <Share2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      type="button"
+                      onClick={() => setLocationProject(p)}
+                      className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
+                      title={p.location ? "Edit location" : "Set location"}
+                    >
+                      <MapPin aria-hidden="true" className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -812,6 +865,40 @@ export default function MyProjects() {
           </>
         )}
       </div>
+
+      {/* Project location dialog — canonical location-intelligence record */}
+      {locationProject && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Project location"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4 backdrop-blur-[2px]"
+        >
+          <div className="w-full max-w-md rounded-2xl border border-border/40 bg-card p-5 shadow-premium-lg sm:p-6">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-heading text-lg font-semibold">
+                {locationProject.name} · Location
+              </h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setLocationProject(null)}
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" aria-hidden />
+              </Button>
+            </div>
+            <p className="mb-4 text-xs text-muted-foreground">
+              Set this project's location to unlock regional market data —
+              calculators opened from this project will follow its currency.
+            </p>
+            <LocationCard
+              initialLocation={locationFromProjectRow(locationProject)}
+              onSave={handleSaveProjectLocation}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }

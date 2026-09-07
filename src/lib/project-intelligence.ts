@@ -445,6 +445,12 @@ export async function toggleGalleryFeature(
 export interface CreateClientEstimateInput {
   project_id: string;
   title: string;
+  /**
+   * Estimate currency — follows the project's regional market profile
+   * (synced from the project's saved location). When omitted, the
+   * database default applies.
+   */
+  currency?: string;
   description?: string;
   materials_cost: number;
   labour_cost: number;
@@ -489,6 +495,7 @@ export async function createClientEstimate(
       project_id: input.project_id,
       estimate_number: generateEstimateNumber(),
       title: input.title,
+      currency: input.currency || undefined,
       description: input.description || null,
       materials_cost: input.materials_cost,
       labour_cost: input.labour_cost,

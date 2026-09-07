@@ -50,6 +50,9 @@ import LocationCard from "@/components/location/LocationCard";
 import {
   locationFromProjectRow,
   saveContractorProjectLocation,
+  syncProjectCurrencyFromRegional,
+  resolveRegionalContext,
+  ProjectLocationProvider,
   type FreluxLocation,
 } from "@/lib/location-intelligence";
 
@@ -70,8 +73,6 @@ const TABS: { key: Tab; label: string; icon: typeof TrendingUp }[] = [
   { key: "gallery", label: "Gallery", icon: Images },
   { key: "ai", label: "AI Assistant", icon: Brain },
 ];
-
-const fmt = (v: number) => "₦" + (v || 0).toLocaleString();
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
@@ -98,6 +99,18 @@ export default function ProjectDetail() {
   const [estimates, setEstimates] = useState<DbClientEstimate[]>([]);
   const [uploading, setUploading] = useState(false);
   const [projectLocation, setProjectLocation] = useState<FreluxLocation | null>(null);
+  // Project currency follows the project's active regional market profile
+  // (synced whenever a location is saved). Existing rows keep their currency.
+  const currencySymbol = project?.currency_symbol || "₦";
+  const fmt = (v: number) => currencySymbol + (v || 0).toLocaleString();
+  // Estimates carry their own stored currency — always display in it,
+  // never the project's (a saved estimate is a historical document).
+  const formatEstimateAmount = (v: number, currency: string) =>
+    new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(v || 0);
 
   const loadData = useCallback(async () => {
     if (!id) return;
@@ -289,10 +302,28 @@ export default function ProjectDetail() {
                 if (res.ok) {
                   setProjectLocation(location);
                   toast({ title: "Location saved", variant: "success" });
+                  // Regional data flow: location -> market profile -> project currency
+                  if (location) {
+                    const regional = await resolveRegionalContext(location);
+                    if (regional.status === "available") {
+                      const sync = await syncProjectCurrencyFromRegional(id!, regional);
+                      if (sync.ok && sync.currency) {
+                        setProject((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                currency: sync.currency!.code,
+                                currency_symbol: sync.currency!.symbol,
+                              }
+                            : prev,
+                        );
+                      }
+                    }
+                  }
                 } else {
                   toast({
                     title: "Could not save location",
-                    description: res.error ?? undefined,
+                    message: res.error ?? undefined,
                     variant: "error",
                   });
                 }
@@ -718,7 +749,8 @@ export default function ProjectDetail() {
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {est.estimate_number} · {fmt(est.grand_total)}
+                        {est.estimate_number} ·{" "}
+                        {formatEstimateAmount(est.grand_total, est.currency)}
                         {est.client_name && " · " + est.client_name}
                         {est.shared_at &&
                           " · Sent " +

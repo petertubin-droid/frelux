@@ -12,6 +12,7 @@ import {
 } from "@/lib/queries";
 import { formatNumber, formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
+import { useProjectLocationCurrency, type FreluxLocation } from "@/lib/location-intelligence";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
 import {
@@ -46,6 +47,8 @@ interface PassedState {
   ceilingArea?: number;
   workflow?: string;
   grandTotal?: number;
+  /** Canonical project location (location-intelligence) passed via router state. */
+  projectLocation?: FreluxLocation | null;
 }
 
 export default function PopCeilingCostEstimator({
@@ -101,8 +104,12 @@ export default function PopCeilingCostEstimator({
     includeOptional: false,
   });
 
-  const currencySymbol = settings?.default_currency_symbol ?? "₦";
-  const currency = settings?.default_currency ?? "NGN";
+  // Regional data flow: project location -> market profile -> currency.
+  const { currencyCode: projectCurrencyCode, currencySymbol: projectCurrencySymbol } =
+    useProjectLocationCurrency(passed.projectLocation ?? null);
+  const currencySymbol =
+    projectCurrencySymbol ?? settings?.default_currency_symbol ?? "₦";
+  const currency = projectCurrencyCode ?? settings?.default_currency ?? "NGN";
 
   const mountedRef = useRef(true);
   useEffect(() => {

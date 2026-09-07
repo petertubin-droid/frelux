@@ -119,7 +119,7 @@ describe("sanitizeLocationRecord", () => {
     const loc = sanitizeLocationRecord(raw);
     expect(loc.country_code).toBe("NG");
     expect(loc.verification).toBe("provider_verified");
-    expect((loc as Record<string, unknown>).malicious).toBeUndefined();
+    expect((loc as unknown as Record<string, unknown>).malicious).toBeUndefined();
   });
   it("falls back to safe defaults for malformed input", () => {
     const loc = sanitizeLocationRecord({ latitude: "abc", source: "weird" });

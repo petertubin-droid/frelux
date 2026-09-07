@@ -27,6 +27,7 @@ import type {
   ScreedingMaterialBreakdown,
 } from "@/types";
 import type {} from "@/types/database";
+import { useProjectLocationCurrency, type FreluxLocation } from "@/lib/location-intelligence";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
 import {
@@ -48,6 +49,8 @@ import { getSafeError } from "@/lib/safeError";
 interface PassedState {
   netScreedingArea?: number;
   method?: string;
+  /** Canonical project location (location-intelligence) passed via router state. */
+  projectLocation?: FreluxLocation | null;
 }
 
 interface AvailableSystem {
@@ -84,6 +87,11 @@ export default function ScreedingCostEstimator({
 
   const location = useLocation();
   const passed = (location.state as PassedState | null) ?? {};
+
+  // Regional data flow: project location -> market profile -> currency.
+  // Hook must run before the loading early-return (Rules of Hooks).
+  const { currencySymbol: projectCurrencySymbol } =
+    useProjectLocationCurrency(passed.projectLocation ?? null);
 
   const [puttyConfig, setPuttyConfig] = useState<ScreedingSystemConfig | null>(
     null,
@@ -215,7 +223,7 @@ export default function ScreedingCostEstimator({
     );
   }
 
-  const currencySymbol = activeConfig?.currencySymbol ?? "₦";
+  const currencySymbol = projectCurrencySymbol ?? activeConfig?.currencySymbol ?? "₦";
 
   return (
     <>
