@@ -143,7 +143,7 @@ export default function AdminImageEstimation() {
 
   const save = useCallback(async () => {
     if (!rowId) {
-      setSaveError("No settings row found to update — try reloading the page.");
+      setSaveError("No settings row found to update, try reloading the page.");
       return;
     }
     setStatus("saving");
@@ -195,7 +195,7 @@ export default function AdminImageEstimation() {
     <>
       <AdminHeader
         title="AI Image Estimation"
-        subtitle="Premium building photo estimation — control access, pricing, and usage limits."
+        subtitle="Premium building photo estimation, control access, pricing, and usage limits."
       />
 
       {error && (

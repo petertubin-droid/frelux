@@ -694,7 +694,7 @@ function AdminKycTab() {
     const result = await adminApproveNin(profileId);
     setProcessing(false);
     if (result.success) {
-      setResultMsg("NIN approved — worker auto-verified to Tier 2!");
+      setResultMsg("NIN approved, worker auto-verified to Tier 2!");
       setSelectedNin(null);
       load();
     } else {
@@ -957,7 +957,7 @@ function AdminKycTab() {
                   <div className="flex items-center gap-2 text-sm text-emerald-600 dark:text-emerald-400">
                     <Check aria-hidden="true" className="h-4 w-4" />
                     <span>
-                      NIN verified — worker has Tier 2 access. NIN + profile
+                      NIN verified, worker has Tier 2 access. NIN + profile
                       snapshot saved to audit log.
                     </span>
                   </div>
@@ -2368,7 +2368,7 @@ function AdminModerationTab() {
           </p>
           <p className="text-xs text-muted-foreground dark:text-muted-foreground">
             {config.is_enabled
-              ? `Using ${config.ai_provider} / ${config.ai_model} — messages are auto-checked on send.`
+              ? `Using ${config.ai_provider} / ${config.ai_model}, messages are auto-checked on send.`
               : "All messages will pass through without moderation."}
           </p>
         </div>

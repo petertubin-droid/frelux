@@ -723,7 +723,7 @@ export default function AdminCreditsAds() {
             <p className="mt-3 rounded-lg bg-muted/50 px-3 py-2 text-[11px] text-muted-foreground dark:bg-white/5">
               Users see:{" "}
               <span className="font-semibold text-foreground dark:text-primary-foreground">
-                Buy {tokenConfigDraft.token_amount} Tokens —{" "}
+                Buy {tokenConfigDraft.token_amount} Tokens:{" "}
                 {formatNaira(tokenConfigDraft.price_kobo)}
               </span>
             </p>
@@ -763,7 +763,7 @@ export default function AdminCreditsAds() {
                   >
                     <div>
                       <p className="text-xs font-semibold text-foreground dark:text-primary-foreground">
-                        {p.tokens_credited} tokens —{" "}
+                        {p.tokens_credited} tokens:{" "}
                         {formatNaira(p.amount_kobo)}
                       </p>
                       <p className="text-[10px] text-muted-foreground">
@@ -1018,7 +1018,7 @@ export default function AdminCreditsAds() {
                 with idempotency protection.
               </p>
               <p>
-                • Client-side credit costs are never trusted — the server reads
+                • Client-side credit costs are never trusted, the server reads
                 costs from <code>ai_feature_costs</code>.
               </p>
             </div>

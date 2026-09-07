@@ -282,7 +282,7 @@ export default function AdminUsers() {
                             {u.paid_status.plan}
                           </span>
                         ) : (
-                          "—"
+                          ""
                         )}
                       </td>
                       <td className="py-3 pr-4 text-muted-foreground dark:text-muted-foreground">
@@ -305,7 +305,7 @@ export default function AdminUsers() {
                         ) : u.paid_status?.is_paid ? (
                           "Lifetime"
                         ) : (
-                          "—"
+                          ""
                         )}
                       </td>
                       <td className="py-3 pr-4">

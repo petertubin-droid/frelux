@@ -51,17 +51,17 @@ const FIELD_HELP: Record<string, Record<string, string>> = {
     publisher_id:
       "Your AdSense Publisher ID (e.g. ca-pub-XXXXXXXXXXXXXXXX). Find it in AdSense → Account → Account information.",
     client_id:
-      "Same as publisher_id — the ca-pub-XXXX ID used to load the AdSense script.",
+      "Same as publisher_id, the ca-pub-XXXX ID used to load the AdSense script.",
     auto_ads:
-      "Auto Ads — Google automatically places ads across the site. Fine-tune the mix in the AdSense dashboard → Auto ads.",
+      "Auto Ads, Google automatically places ads across the site. Fine-tune the mix in the AdSense dashboard → Auto ads.",
     anchor_ads:
-      "Anchor ads — sticky top/bottom banner (mobile-first). Requires Auto ads in your AdSense dashboard.",
+      "Anchor ads, sticky top/bottom banner (mobile-first). Requires Auto ads in your AdSense dashboard.",
     vignette_ads:
-      "Vignette ads — full-screen ads shown between page navigations. Requires Auto ads in your AdSense dashboard.",
+      "Vignette ads, full-screen ads shown between page navigations. Requires Auto ads in your AdSense dashboard.",
     interstitial_ads:
-      "Interstitial ads — full-screen mobile web ads between page loads. Requires Auto ads in your AdSense dashboard.",
+      "Interstitial ads, full-screen mobile web ads between page loads. Requires Auto ads in your AdSense dashboard.",
     rewarded_ads:
-      "Rewarded ads — uses the H5 Games Ads adBreak API for the rewarded unlock flow. Enable Rewarded ads for this site in the AdSense dashboard first.",
+      "Rewarded ads, uses the H5 Games Ads adBreak API for the rewarded unlock flow. Enable Rewarded ads for this site in the AdSense dashboard first.",
   },
   google_search_console: {
     verification_token:
@@ -69,36 +69,36 @@ const FIELD_HELP: Record<string, Record<string, string>> = {
   },
   media_net: {
     cid: "Your Media.net Customer ID (CID). Find it in your Media.net dashboard.",
-    crids: "Optional — comma-separated CRIDs for specific ad zones.",
+    crids: "Optional, comma-separated CRIDs for specific ad zones.",
   },
   adsterra: {
-    key: "Your Adsterra Banner zone key (the 32-character token from the atOptions snippet). Create a Banner zone in Adsterra dashboard → Websites → Ad Units. One key per size — map size-specific keys per placement under Ads → Placements → Ad Unit ID.",
-    placement_id: "Optional — a label for this placement (for your reference).",
+    key: "Your Adsterra Banner zone key (the 32-character token from the atOptions snippet). Create a Banner zone in Adsterra dashboard → Websites → Ad Units. One key per size, map size-specific keys per placement under Ads → Placements → Ad Unit ID.",
+    placement_id: "Optional, a label for this placement (for your reference).",
     serve_domain:
-      "Optional — the hostname from your Adsterra banner snippet (e.g. www.highperformanceformat.com or pl12345678.profitabledisplaynetwork.com). Defaults to www.highperformanceformat.com.",
+      "Optional, the hostname from your Adsterra banner snippet (e.g. www.highperformanceformat.com or pl12345678.profitabledisplaynetwork.com). Defaults to www.highperformanceformat.com.",
     native_banner_key:
-      "Adsterra Native Banner zone — paste the 32-char key from your native snippet (or the full native.js URL). When set, any placement whose Ad Unit ID matches this key renders the in-place native unit instead of a banner.",
+      "Adsterra Native Banner zone, paste the 32-char key from your native snippet (or the full native.js URL). When set, any placement whose Ad Unit ID matches this key renders the in-place native unit instead of a banner.",
     interstitial_key:
-      "Adsterra Interstitial zone — paste the 32-char key (or full script URL). Injected once site-wide when set.",
+      "Adsterra Interstitial zone, paste the 32-char key (or full script URL). Injected once site-wide when set.",
     popunder_key:
-      "Adsterra Popunder zone — paste the 32-char key (or full script URL). Injected once site-wide when set.",
+      "Adsterra Popunder zone, paste the 32-char key (or full script URL). Injected once site-wide when set.",
     social_bar_key:
-      "Adsterra Social Bar zone — paste the 32-char key (or full script URL). Adsterra recommends at most one Social Bar per site; injected once site-wide when set.",
+      "Adsterra Social Bar zone, paste the 32-char key (or full script URL). Adsterra recommends at most one Social Bar per site; injected once site-wide when set.",
   },
 
   monetag: {
     zone_id:
       "Your Monetag display/auto zone ID (numeric). Find it in your Monetag dashboard → Sites → Zones.",
     rewarded_zone_id:
-      "Optional — the Monetag Rewarded zone used by the rewarded unlock flow (numeric).",
+      "Optional, the Monetag Rewarded zone used by the rewarded unlock flow (numeric).",
     sdk_url:
-      "Optional — only for Monetag SDK zones from the dashboard's Get SDK flow. Leave empty for standard website zones.",
+      "Optional, only for Monetag SDK zones from the dashboard's Get SDK flow. Leave empty for standard website zones.",
     interstitial_zone_id:
-      "Monetag Interstitial zone — full-screen ads shown automatically at intervals. Paste the numeric zone ID.",
+      "Monetag Interstitial zone, full-screen ads shown automatically at intervals. Paste the numeric zone ID.",
     popunder_zone_id:
-      "Monetag Popunder zone — paste the numeric zone ID. Injected site-wide when set.",
+      "Monetag Popunder zone, paste the numeric zone ID. Injected site-wide when set.",
     vignette_zone_id:
-      "Monetag Vignette Banner zone — paste the numeric zone ID. Injected site-wide when set.",
+      "Monetag Vignette Banner zone, paste the numeric zone ID. Injected site-wide when set.",
   },
   buysellads: {
     site_key:
@@ -121,30 +121,30 @@ const FIELD_HELP: Record<string, Record<string, string>> = {
   adgate_media: {
     gateway_id: "Your AdGate Media gateway ID. Register at adgatemedia.com.",
     api_key: "Your AdGate API key for postback verification.",
-    postback_url: `Paste into your AdGate dashboard postback settings — replace the {macros} with the AdGate variable names, and YOUR-ADGATE-API-KEY with the api_key saved above: ${SITE_URL}/functions/v1/rewarded-postback/adgate_media?user_id={user_id}&credits={credits}&sig=YOUR-ADGATE-API-KEY`,
+    postback_url: `Paste into your AdGate dashboard postback settings, replace the {macros} with the AdGate variable names, and YOUR-ADGATE-API-KEY with the api_key saved above: ${SITE_URL}/functions/v1/rewarded-postback/adgate_media?user_id={user_id}&credits={credits}&sig=YOUR-ADGATE-API-KEY`,
   },
   offertoro: {
     app_id: "Your OfferToro app ID. Register at offertoro.com.",
     pub_id: "Your OfferToro publisher ID.",
     secret: "Your OfferToro secret key for postback verification.",
-    postback_url: `Paste into your OfferToro dashboard postback settings — replace the {macros} with the OfferToro variable names, and YOUR-OFFERTORO-SECRET with the secret saved above: ${SITE_URL}/functions/v1/rewarded-postback/offertoro?user_id={user_id}&amount={amount}&sig=YOUR-OFFERTORO-SECRET`,
+    postback_url: `Paste into your OfferToro dashboard postback settings, replace the {macros} with the OfferToro variable names, and YOUR-OFFERTORO-SECRET with the secret saved above: ${SITE_URL}/functions/v1/rewarded-postback/offertoro?user_id={user_id}&amount={amount}&sig=YOUR-OFFERTORO-SECRET`,
   },
   adgem: {
     placement_id: "Your AdGem placement ID. Register at adgem.com.",
     api_key: "Your AdGem API key for postback verification.",
-    postback_url: `Paste into your AdGem dashboard postback settings — replace the {macros} with the AdGem variable names, and YOUR-ADGEM-API-KEY with the api_key saved above: ${SITE_URL}/functions/v1/rewarded-postback/adgem?user_id={user_id}&amount={amount}&sig=YOUR-ADGEM-API-KEY`,
+    postback_url: `Paste into your AdGem dashboard postback settings, replace the {macros} with the AdGem variable names, and YOUR-ADGEM-API-KEY with the api_key saved above: ${SITE_URL}/functions/v1/rewarded-postback/adgem?user_id={user_id}&amount={amount}&sig=YOUR-ADGEM-API-KEY`,
   },
   cpx_research: {
     app_id: "Your CPX Research app ID. Register at cpx-research.com.",
     secure_hash: "Your CPX Research secure hash for postback verification.",
     survey_mode:
       'Survey mode: "full" for complete surveys, "quick" for shorter ones.',
-    postback_url: `Paste into your CPX Research dashboard postback settings — replace the {macros} with the CPX variable names, and YOUR-CPX-SECRET with a dedicated secret (not the secure_hash, which is public in the offerwall URL): ${SITE_URL}/functions/v1/rewarded-postback/cpx_research?ext_user_id={ext_user_id}&payout={payout}&sig=YOUR-CPX-SECRET`,
+    postback_url: `Paste into your CPX Research dashboard postback settings, replace the {macros} with the CPX variable names, and YOUR-CPX-SECRET with a dedicated secret (not the secure_hash, which is public in the offerwall URL): ${SITE_URL}/functions/v1/rewarded-postback/cpx_research?ext_user_id={ext_user_id}&payout={payout}&sig=YOUR-CPX-SECRET`,
   },
   ayet_studios: {
     app_id: "Your Ayet Studios app ID. Register at ayetstudios.com.",
     api_key: "Your Ayet Studios API key for postback verification.",
-    postback_url: `Paste into your Ayet Studios dashboard postback settings — replace the {macros} with the Ayet variable names, and YOUR-AYET-API-KEY with the api_key saved above: ${SITE_URL}/functions/v1/rewarded-postback/ayet_studios?user={user}&amount={amount}&sig=YOUR-AYET-API-KEY`,
+    postback_url: `Paste into your Ayet Studios dashboard postback settings, replace the {macros} with the Ayet variable names, and YOUR-AYET-API-KEY with the api_key saved above: ${SITE_URL}/functions/v1/rewarded-postback/ayet_studios?user={user}&amount={amount}&sig=YOUR-AYET-API-KEY`,
   },
   meta_pixel: {
     pixel_id:
@@ -153,7 +153,7 @@ const FIELD_HELP: Record<string, Record<string, string>> = {
   revu: {
     api_key: "Your RevU API key for postback verification.",
     placement_id: "Your RevU placement ID.",
-    postback_url: `Paste into your RevU dashboard postback settings — replace the {macros} with the RevU variable names, and YOUR-REVU-API-KEY with the api_key saved above: ${SITE_URL}/functions/v1/rewarded-postback/revu?user_id={user_id}&amount={amount}&sig=YOUR-REVU-API-KEY`,
+    postback_url: `Paste into your RevU dashboard postback settings, replace the {macros} with the RevU variable names, and YOUR-REVU-API-KEY with the api_key saved above: ${SITE_URL}/functions/v1/rewarded-postback/revu?user_id={user_id}&amount={amount}&sig=YOUR-REVU-API-KEY`,
   },
 };
 
@@ -360,7 +360,7 @@ export default function AdminIntegrations() {
                     <>
                       <Loader2 className="h-3.5 w-3.5 text-amber-500" />
                       <span className="text-xs text-amber-500">
-                        Enabled — needs credentials
+                        Enabled, needs credentials
                       </span>
                     </>
                   ) : (
@@ -544,7 +544,7 @@ export default function AdminIntegrations() {
             verification field, and save
           </li>
           <li>
-            5. Click "Verify" back in Search Console — the meta tag is
+            5. Click "Verify" back in Search Console, the meta tag is
             auto-injected on page load
           </li>
           <li>
@@ -557,7 +557,7 @@ export default function AdminIntegrations() {
             >
               sitemap.xml
             </a>{" "}
-            — submit it in Search Console
+           , submit it in Search Console
           </li>
         </ol>
       </div>

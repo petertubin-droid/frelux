@@ -246,7 +246,7 @@ function MaterialsTab() {
                 className="border-b border-border/50 dark:border-white/5"
               >
                 <td className="px-3 py-2 font-medium">{item.product_name}</td>
-                <td className="px-3 py-2">{item.brand || "—"}</td>
+                <td className="px-3 py-2">{item.brand || ""}</td>
                 <td className="px-3 py-2">{item.category}</td>
                 <td className="px-3 py-2">
                   {item.coverage_value} {item.coverage_unit}/
@@ -559,7 +559,7 @@ function RoofTab() {
                   className="border-b border-border/50 dark:border-white/5"
                 >
                   <td className="px-3 py-2 font-medium">{m.material_name}</td>
-                  <td className="px-3 py-2">{m.brand || "—"}</td>
+                  <td className="px-3 py-2">{m.brand || ""}</td>
                   <td className="px-3 py-2">{m.category}</td>
                   <td className="px-3 py-2">
                     {m.coverage_value} {m.coverage_unit}
@@ -621,7 +621,7 @@ function RoofTab() {
                   </td>
                   <td className="px-3 py-2">{s.is_flat ? "Yes" : "No"}</td>
                   <td className="px-3 py-2">
-                    {s.default_length ?? "—"} × {s.default_width ?? "—"}
+                    {s.default_length ?? ""} × {s.default_width ?? ""}
                   </td>
                   <td className="px-3 py-2">{s.default_overhang}m</td>
                   <td className="px-3 py-2">{s.area_factor}</td>
@@ -698,19 +698,19 @@ function WasteTab() {
                 <td className="px-3 py-2">
                   {SCOPE_LEVEL_LABELS[c.scope_level]}
                 </td>
-                <td className="px-3 py-2">{c.country_code || "—"}</td>
-                <td className="px-3 py-2">{c.market_code || "—"}</td>
-                <td className="px-3 py-2">{c.material_category || "—"}</td>
+                <td className="px-3 py-2">{c.country_code || ""}</td>
+                <td className="px-3 py-2">{c.market_code || ""}</td>
+                <td className="px-3 py-2">{c.material_category || ""}</td>
                 <td className="px-3 py-2 font-semibold">{c.waste_percent}%</td>
                 <td className="px-3 py-2">
                   {c.is_override ? (
                     <Check aria-hidden="true" className="h-4 w-4 text-amber-600" />
                   ) : (
-                    "—"
+                    ""
                   )}
                 </td>
-                <td className="px-3 py-2">{c.source || "—"}</td>
-                <td className="px-3 py-2">{c.description || "—"}</td>
+                <td className="px-3 py-2">{c.source || ""}</td>
+                <td className="px-3 py-2">{c.description || ""}</td>
               </tr>
             ))}
             {configs.length === 0 && (
@@ -822,15 +822,15 @@ function AiTab() {
                   </span>
                 </td>
                 <td className="px-3 py-2">
-                  {item.ai_confidence ? `${item.ai_confidence}%` : "—"}
+                  {item.ai_confidence ? `${item.ai_confidence}%` : ""}
                 </td>
                 <td className="px-3 py-2">
-                  {item.ai_flags?.join(", ") || "—"}
+                  {item.ai_flags?.join(", ") || ""}
                 </td>
                 <td className="px-3 py-2">
                   {item.reviewed_at
                     ? new Date(item.reviewed_at).toLocaleDateString()
-                    : "—"}
+                    : ""}
                 </td>
                 <td className="px-3 py-2">
                   {new Date(item.created_at).toLocaleDateString()}
@@ -953,7 +953,7 @@ function RulesTab() {
               <td className="px-3 py-2">
                 {item.reference_doc
                   ? `${item.reference_doc}${item.reference_page ? ` p.${item.reference_page}` : ""}`
-                  : "—"}
+                  : ""}
               </td>
               <td className="px-3 py-2">
                 {item.is_verified ? (

@@ -180,7 +180,7 @@ function LocationsTab() {
                     {editingId === loc.id ? (
                       <AdminInput value={editSlug} onChange={(e) => setEditSlug(e.target.value)} className="w-28 rounded border border-border px-2 py-1 text-xs dark:border-white/10 dark:bg-background dark:text-primary-foreground" />
                     ) : (
-                      <span className="text-xs text-muted-foreground">{loc.slug || '—'}</span>
+                      <span className="text-xs text-muted-foreground">{loc.slug || ''}</span>
                     )}
                   </td>
                   <td className="py-2 pr-4">
@@ -188,7 +188,7 @@ function LocationsTab() {
                       <AdminInput value={editLat} onChange={(e) => setEditLat(e.target.value)} placeholder="e.g. 6.45" className="w-20 rounded border border-border px-2 py-1 text-xs dark:border-white/10 dark:bg-background dark:text-primary-foreground" />
                     ) : (
                       <span className={classNames('text-xs', loc.latitude ? 'text-emerald-600' : 'text-muted-foreground')}>
-                        {loc.latitude ? loc.latitude.toFixed(4) : '—'}
+                        {loc.latitude ? loc.latitude.toFixed(4) : ''}
                       </span>
                     )}
                   </td>
@@ -197,7 +197,7 @@ function LocationsTab() {
                       <AdminInput value={editLng} onChange={(e) => setEditLng(e.target.value)} placeholder="e.g. 3.39" className="w-20 rounded border border-border px-2 py-1 text-xs dark:border-white/10 dark:bg-background dark:text-primary-foreground" />
                     ) : (
                       <span className={classNames('text-xs', loc.longitude ? 'text-emerald-600' : 'text-muted-foreground')}>
-                        {loc.longitude ? loc.longitude.toFixed(4) : '—'}
+                        {loc.longitude ? loc.longitude.toFixed(4) : ''}
                       </span>
                     )}
                   </td>
@@ -321,7 +321,7 @@ function CategoriesTab() {
                     <AdminInput
  value={editTitle}
  onChange={(e) => setEditTitle(e.target.value)}
-                      placeholder={`${cat.name} Services & Jobs — FRELUX Marketplace`}
+                      placeholder={`${cat.name} Services & Jobs, FRELUX Marketplace`}
                       className="mt-1 w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                     />
                   </div>

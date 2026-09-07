@@ -272,7 +272,7 @@ export default function AdminBranding() {
 
         {/* Live preview — clickable headline */}
         <div className="mt-4 rounded-xl border border-border bg-gradient-to-br from-background to-card p-6 dark:border-white/10">
-          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary-foreground/30">Live preview — click words to toggle highlight</p>
+          <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.14em] text-primary-foreground/30">Live preview, click words to toggle highlight</p>
           <h3 className="font-display text-2xl font-bold leading-tight tracking-tight text-primary-foreground sm:text-3xl">
             {words.map((word, i) => {
               const hl = highlightConfig?.highlights.find((h) => h.wordIndex === i);
@@ -283,7 +283,7 @@ export default function AdminBranding() {
                   onClick={() => toggleWordHighlight(i)}
                   className="cursor-pointer rounded px-1 py-0.5 transition-all hover:bg-white/10"
                   style={isHighlighted ? { color: hl!.color } : undefined}
-                  title={isHighlighted ? `Highlighted: ${hl!.color} — click to remove` : 'Click to highlight'}
+                  title={isHighlighted ? `Highlighted: ${hl!.color}, click to remove` : 'Click to highlight'}
                 >
                   {word}{i < words.length - 1 ? ' ' : ''}
                 </span>

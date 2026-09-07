@@ -237,7 +237,7 @@ describe("AdminAds", () => {
       screen.getByText(/home_top, home_native, home_mid/),
     ).toBeInTheDocument();
     expect(
-      screen.getAllByText(/No fillable ad unit — slot renders nothing/),
+      screen.getAllByText(/No fillable ad unit, slot renders nothing/),
     ).toHaveLength(3);
   });
 
@@ -257,7 +257,7 @@ describe("AdminAds", () => {
         screen.getByText(/home_native, home_mid/),
       ).toBeInTheDocument();
       expect(
-        screen.getAllByText(/No fillable ad unit — slot renders nothing/),
+        screen.getAllByText(/No fillable ad unit, slot renders nothing/),
       ).toHaveLength(2);
 
       // The fillable card shows no warning
@@ -283,7 +283,7 @@ describe("AdminAds", () => {
     await user.click(await screen.findByText("Page Map"));
 
     expect(
-      await screen.findByText("Ad Slot Page Map — where every slot sits"),
+      await screen.findByText("Ad Slot Page Map, where every slot sits"),
     ).toBeDefined();
     // Wireframe shows a registered slot chip and its status
     expect(await screen.findByText("home_top")).toBeDefined();
@@ -300,6 +300,6 @@ describe("AdminAds", () => {
     const md = writeText.mock.calls[0][0] as string;
     expect(md).toContain("# FRELUX Ad Slot Map");
     expect(md).toContain("## Homepage");
-    expect(md).toContain("**home_top** (banner) — ✅ on — Monetag");
+    expect(md).toContain("**home_top** (banner), ✅ on, Monetag");
   });
 });

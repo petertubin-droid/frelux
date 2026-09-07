@@ -236,7 +236,7 @@ function ObservationsTab() {
                   <td className="py-2 pr-3 text-xs text-muted-foreground">
                     {obs.package_size
                       ? `${obs.package_size} ${obs.package_unit ?? ""}`
-                      : "—"}
+                      : ""}
                   </td>
                   <td className="py-2 pr-3 text-xs">
                     {obs.country_code}
@@ -290,7 +290,7 @@ function ObservationsTab() {
                       </div>
                     ) : (
                       <span className="text-xs text-muted-foreground">
-                        {obs.review_action ?? "—"}
+                        {obs.review_action ?? ""}
                       </span>
                     )}
                   </td>
@@ -341,7 +341,7 @@ function ApprovedTab() {
   return (
     <div>
       <p className="mb-4 text-sm text-muted-foreground">
-        {prices.length} approved prices — these are what calculators consume.
+        {prices.length} approved prices, these are what calculators consume.
       </p>
       {prices.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">

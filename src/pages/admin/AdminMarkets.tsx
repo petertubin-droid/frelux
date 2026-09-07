@@ -139,7 +139,7 @@ function MarketSelector({
     >
       {markets.map((m) => (
         <option key={m.country_code} value={m.country_code}>
-          {m.country_name} ({m.country_code}) — {MARKET_STATUS_LABELS[m.status]}
+          {m.country_name} ({m.country_code}), {MARKET_STATUS_LABELS[m.status]}
         </option>
       ))}
     </select>
@@ -542,7 +542,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
         <p className="text-sm text-muted-foreground py-10 text-center">
           No material rules configured for this market yet.
           {marketCode === "NG" &&
-            " (Nigeria uses existing calculator defaults — rules can override them)"}
+            " (Nigeria uses existing calculator defaults, rules can override them)"}
         </p>
       ) : (
         <div className="space-y-2">

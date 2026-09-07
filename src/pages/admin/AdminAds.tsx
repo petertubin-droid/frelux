@@ -300,7 +300,7 @@ function ProvidersTab() {
                     </p>
                     <p className="truncate text-[9px] text-muted-foreground">
                       {prov.settings?.display_ads_enabled === false
-                        ? "Hidden — impressions still logged, no visual ads served"
+                        ? "Hidden, impressions still logged, no visual ads served"
                         : "Visual ads served on placements"}
                     </p>
                   </div>
@@ -946,11 +946,11 @@ function PlacementsTab() {
               <p className="font-semibold">
                 {deadSlots.length} active{" "}
                 {deadSlots.length === 1 ? "placement" : "placements"}{" "}
-                {deadSlots.length === 1 ? "has" : "have"} no fillable ad unit —
+                {deadSlots.length === 1 ? "has" : "have"} no fillable ad unit,
                 nothing renders there.
               </p>
               <p className="mt-0.5 text-xs opacity-80">
-                {deadSlots.map((p) => p.placement_key).join(", ")} — add a
+                {deadSlots.map((p) => p.placement_key).join(", ")}, add a
                 per-slot ad unit for a linked provider, or configure the
                 provider's global credentials (Adsterra key / Monetag native
                 banner zone).
@@ -1023,7 +1023,7 @@ function PlacementsTab() {
               {pl.is_active && isDeadSlot(pl, providers) && (
                 <p className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
                   <AlertTriangle className="h-3 w-3 shrink-0" />
-                  No fillable ad unit — slot renders nothing
+                  No fillable ad unit, slot renders nothing
                 </p>
               )}
               {pl.is_active &&
@@ -1031,7 +1031,7 @@ function PlacementsTab() {
                 providersMissingUnit(pl, providers).length > 0 && (
                   <p className="mt-1 text-[10px] text-muted-foreground dark:text-muted-foreground">
                     {providersMissingUnit(pl, providers)
-                      .map((p) => `${p.name} unit not set — falls back`)
+                      .map((p) => `${p.name} unit not set, falls back`)
                       .join(" · ")}
                   </p>
                 )}
@@ -1135,7 +1135,7 @@ function PageMapPanel({
             ? "✅ on"
             : "⛔ off";
         lines.push(
-          `- **${s.slot}** (${s.native ? "native banner" : "banner"}) — ${status} — ${chainLabel(pl)}`,
+          `- **${s.slot}** (${s.native ? "native banner" : "banner"}), ${status}, ${chainLabel(pl)}`,
         );
       }
       return lines.join("\n");
@@ -1158,7 +1158,7 @@ function PageMapPanel({
     <div className="mb-6 rounded-xl border border-border/70 bg-card p-4 dark:border-white/10">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-          Ad Slot Page Map — where every slot sits
+          Ad Slot Page Map, where every slot sits
         </h3>
         <AdminButton variant="secondary" onClick={copyMarkdown}>
           {copied ? (
