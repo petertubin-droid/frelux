@@ -211,7 +211,7 @@ export function renderAdsterraBanner(
     "</head><body>" +
     '<script type="text/javascript">' +
     `atOptions = { 'key' : '${key}', 'format' : 'iframe', 'height' : ${height}, 'width' : ${width}, 'params' : ${params} };` +
-    "<\/script>" +
+    "</script>" +
     `<script type="text/javascript" src="https://${serveDomain}/${key}/invoke.js"></` +
     "script></body></html>";
 

@@ -31,12 +31,12 @@ describe("BrowserGeolocationProvider", () => {
 
   it("returns a canonical GPS record on success", async () => {
     const g = mockGeolocation({
-      getCurrentPosition: ((_s: any, _e: any, _o: any) => {
-        _s({
+      getCurrentPosition: (success: (pos: GeolocationPosition) => void) => {
+        success({
           coords: { latitude: 6.6, longitude: 3.35, accuracy: 41 },
           timestamp: Date.now(),
-        });
-      }) as any,
+        } as GeolocationPosition);
+      },
     });
     void g;
     const res = await provider.getPosition();
@@ -49,9 +49,15 @@ describe("BrowserGeolocationProvider", () => {
 
   it("maps PERMISSION_DENIED to permission_denied", async () => {
     mockGeolocation({
-      getCurrentPosition: ((_s: any, err: any) => {
-        err({ code: 1, message: "User denied Geolocation" });
-      }) as any,
+      getCurrentPosition: (
+        _success: (pos: GeolocationPosition) => void,
+        error: (err: GeolocationPositionError) => void,
+      ) => {
+        error({
+          code: 1,
+          message: "User denied Geolocation",
+        } as GeolocationPositionError);
+      },
     });
     const res = await provider.getPosition();
     expect(res.ok).toBe(false);
@@ -60,15 +66,21 @@ describe("BrowserGeolocationProvider", () => {
 
   it("maps POSITION_UNAVAILABLE and TIMEOUT", async () => {
     mockGeolocation({
-      getCurrentPosition: ((_s: any, err: any) => {
-        err({ code: 2, message: "unavailable" });
-      }) as any,
+      getCurrentPosition: (
+        _success: (pos: GeolocationPosition) => void,
+        error: (err: GeolocationPositionError) => void,
+      ) => {
+        error({ code: 2, message: "unavailable" } as GeolocationPositionError);
+      },
     });
     expect((await provider.getPosition()).error).toBe("unavailable");
     mockGeolocation({
-      getCurrentPosition: ((_s: any, err: any) => {
-        err({ code: 3, message: "timeout" });
-      }) as any,
+      getCurrentPosition: (
+        _success: (pos: GeolocationPosition) => void,
+        error: (err: GeolocationPositionError) => void,
+      ) => {
+        error({ code: 3, message: "timeout" } as GeolocationPositionError);
+      },
     });
     expect((await provider.getPosition()).error).toBe("timeout");
   });
@@ -131,7 +143,11 @@ describe("NominatimReverseGeocoder", () => {
   });
 
   it("degrades honestly on HTTP errors", async () => {
-    fetchMock.mockResolvedValueOnce({ ok: false, status: 503, json: async () => ({}) });
+    fetchMock.mockResolvedValueOnce({
+      ok: false,
+      status: 503,
+      json: async () => ({}),
+    });
     const res = await geo.reverseGeocode(6.45, 3.4);
     expect(res.ok).toBe(false);
     expect(res.error).toContain("503");
