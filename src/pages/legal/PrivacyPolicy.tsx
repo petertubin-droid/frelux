@@ -15,7 +15,7 @@ export default function PrivacyPolicy() {
     <LegalLayout
       slug="privacy-policy"
       title="Privacy Policy"
-      updated="2026-09-05"
+      updated="2026-09-07"
       intro={<p>This privacy policy describes how FRELUX PROJECT CALC collects, uses, and protects your information when you visit our website and use our tools.</p>}
       sections={[
         {
@@ -23,6 +23,14 @@ export default function PrivacyPolicy() {
           body: (
             <p>
               The public tools (Paint Calculator, Cost Estimator, Color Gallery, Tile Calculator, Screeding Calculator, POP Ceiling Calculator) run in your browser and do not require an account. When you use the Smart Color Assistant, your text description or uploaded image is sent to our secure backend and then to a third-party AI provider (Google AI) to generate your recommendation. We do not store your uploaded images or full descriptions long-term. If you create an account, we store your name, email, and project data. If you submit the contact form, the information you provide is used solely to respond to your inquiry.
+            </p>
+          ),
+        },
+        {
+          heading: 'Location data',
+          body: (
+            <p>
+              FRELUX only accesses your device location when you explicitly tap "Use My Location" — never automatically and never continuously. Location detection uses your browser's built-in geolocation feature, which asks for your permission first. If you deny permission, FRELUX will not ask again until you choose to retry, and all tools remain available without location. If you attach a location to a project, the coordinates and any address you provide are stored with that project and are visible only to you — they are never shared with other users. When available, a free geocoding service (OpenStreetMap) may convert your coordinates into an approximate address; when it is unavailable, FRELUX shows your coordinates without guessing an address. You can change or remove a project's location at any time.
             </p>
           ),
         },

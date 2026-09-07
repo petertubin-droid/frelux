@@ -46,6 +46,12 @@ import type {
   DbClientEstimate,
 } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import LocationCard from "@/components/location/LocationCard";
+import {
+  locationFromProjectRow,
+  saveContractorProjectLocation,
+  type FreluxLocation,
+} from "@/lib/location-intelligence";
 
 type Tab =
   | "overview"
@@ -91,6 +97,7 @@ export default function ProjectDetail() {
   const [attachments, setAttachments] = useState<DbProjectAttachment[]>([]);
   const [estimates, setEstimates] = useState<DbClientEstimate[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [projectLocation, setProjectLocation] = useState<FreluxLocation | null>(null);
 
   const loadData = useCallback(async () => {
     if (!id) return;
@@ -101,7 +108,12 @@ export default function ProjectDetail() {
         .select("*")
         .eq("id", id)
         .single();
-      if (proj) setProject(proj as DbContractorProject);
+      if (proj) {
+        setProject(proj as DbContractorProject);
+        setProjectLocation(
+          locationFromProjectRow(proj as { location?: unknown }),
+        );
+      }
       else {
         navigate("/project-workspace");
         return;
@@ -270,6 +282,22 @@ export default function ProjectDetail() {
                 </div>
               ))}
             </div>
+            <LocationCard
+              initialLocation={projectLocation}
+              onSave={async (location) => {
+                const res = await saveContractorProjectLocation(id!, location);
+                if (res.ok) {
+                  setProjectLocation(location);
+                  toast({ title: "Location saved", variant: "success" });
+                } else {
+                  toast({
+                    title: "Could not save location",
+                    description: res.error ?? undefined,
+                    variant: "error",
+                  });
+                }
+              }}
+            />
             {project.description && (
               <div className="rounded-xl border bg-card p-5">
                 <h3 className="font-semibold mb-2">Description</h3>

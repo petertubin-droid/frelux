@@ -364,6 +364,8 @@ export interface DbUserProject {
     | "tile"
     | "tile_estimate";
   project_data: Record<string, unknown>;
+  /** Canonical FRELUX location record (location-intelligence); null = not set. */
+  location: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
 }
@@ -1190,6 +1192,8 @@ export interface DbContractorProject {
   estimated_duration_days: number | null;
   currency: string;
   currency_symbol: string;
+  /** Canonical FRELUX location record (location-intelligence); null = not set. */
+  location: Record<string, unknown> | null;
   created_at: string;
   updated_at: string;
 }
