@@ -59,7 +59,7 @@ const KIND_OPTIONS: { id: DocumentKind; label: string; hint: string }[] = [
   {
     id: "architectural_plan",
     label: "Building plan",
-    hint: "Floor plans, elevations, sections — most reliable",
+    hint: "Floor plans, elevations, sections, most reliable",
   },
   {
     id: "roof_plan",
@@ -69,7 +69,7 @@ const KIND_OPTIONS: { id: DocumentKind; label: string; hint: string }[] = [
   {
     id: "building_photo",
     label: "Building photo",
-    hint: "Site photo — estimates only, needs your confirmation",
+    hint: "Site photo, estimates only, needs your confirmation",
   },
   {
     id: "text_description",
@@ -222,7 +222,7 @@ export function ConstructionExtractionPanel({
       });
       if (res.fields.length === 0) {
         setError(
-          "The AI could not read any construction information from this input. Check the image quality, or enter your dimensions manually below — the estimator is fully functional without AI.",
+          "The AI could not read any construction information from this input. Check the image quality, or enter your dimensions manually below. The estimator is fully functional without AI.",
         );
         setPhase("error");
         return;
@@ -476,7 +476,7 @@ export function ConstructionExtractionPanel({
 
           <p className="mt-3 text-xs text-muted-foreground">
             The AI reads your document and fills the form below. You review
-            every value before anything is used — and the manual estimator
+            every value before anything is used, and the manual estimator
             always works without it.
           </p>
         </div>
@@ -693,7 +693,7 @@ export function ConstructionExtractionPanel({
             <div className="mt-4 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-100 dark:border-amber-900 p-3">
               <p className="flex items-center gap-1.5 text-xs font-medium text-amber-700 dark:text-amber-300 mb-1">
                 <AlertTriangle className="h-3.5 w-3.5" aria-hidden="true" />
-                Not detected — you can enter these in the next steps
+                Not detected, you can enter these in the next steps
               </p>
               <p className="text-xs text-amber-700 dark:text-amber-300">
                 The AI could not reliably read:{" "}
@@ -714,7 +714,7 @@ export function ConstructionExtractionPanel({
               {applied ? (
                 <>
                   <Check className="h-4 w-4" aria-hidden="true" />
-                  Applied — continue below
+                  Applied, continue below
                 </>
               ) : (
                 <>
@@ -727,7 +727,7 @@ export function ConstructionExtractionPanel({
             {applied && (
               <p className="mt-2 text-center text-xs text-emerald-600 dark:text-emerald-400">
                 Your estimate now uses the confirmed values. Review the next
-                steps — you can still adjust anything there.
+                steps, you can still adjust anything there.
               </p>
             )}
           </div>

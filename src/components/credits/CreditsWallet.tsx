@@ -143,7 +143,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
         >
           <PlayCircle className="h-5 w-5" />
           {canEarn
-            ? `Watch Ad — +${creditsPerAd} Credits`
+            ? `Watch Ad: +${creditsPerAd} Credits`
             : adProviderReady
               ? "Daily limit reached"
               : "Coming soon"}
@@ -550,7 +550,7 @@ function EarnCreditsModal({
                 className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors hover:bg-primary/90"
               >
                 <PlayCircle className="h-5 w-5" />
-                Watch Ad — +{creditsPerAd} Credits
+                Watch Ad: +{creditsPerAd} Credits
               </Button>
               <p className="mt-3 text-center text-xs text-muted-foreground dark:text-muted-foreground">
                 Credits are only awarded after the ad is fully watched and
@@ -573,7 +573,7 @@ function EarnCreditsModal({
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-600 transition-colors hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
               >
                 <ExternalLink className="h-5 w-5" />
-                Complete Offers — Earn More Credits
+                Complete Offers: Earn More Credits
               </Link>
               <p className="mt-2 text-center text-xs text-muted-foreground dark:text-muted-foreground">
                 Surveys, app installs, and other offers. Rewards vary by offer.

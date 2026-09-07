@@ -118,7 +118,7 @@ export function EngineWasteSelector({
 
       {mode === "none" && (
         <p className="mt-2 text-xs text-muted-foreground">
-          No waste allowance — exact quantity only
+          No waste allowance, exact quantity only
         </p>
       )}
     </div>
@@ -176,7 +176,7 @@ export function EngineAlreadyHaveInput({
       </div>
       {alreadyHave > 0 && (
         <p className="mt-2 text-xs text-green-600">
-          You already have {alreadyHave} {unit} — purchase {purchase} {unit}{" "}
+          You already have {alreadyHave} {unit}, purchase {purchase} {unit}{" "}
           more.
         </p>
       )}

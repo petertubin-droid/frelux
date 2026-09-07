@@ -103,7 +103,7 @@ export function PitchInput({
       <div className="rounded-lg bg-muted/50 border border-border px-3 py-2.5">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <CheckCircle2 aria-hidden="true" className="w-3.5 h-3.5 text-green-500" />
-          <span>Flat roof — no pitch required for {sectionName}</span>
+          <span>Flat roof, no pitch required for {sectionName}</span>
         </div>
       </div>
     );
@@ -116,7 +116,7 @@ export function PitchInput({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <label className="text-xs font-medium text-muted-foreground">
-          Roof Pitch — {sectionName}
+          Roof Pitch: {sectionName}
         </label>
         <div className="flex items-center gap-1">
           {(["degrees", "ratio", "unknown"] as const).map((mode) => (
@@ -197,7 +197,7 @@ export function PitchInput({
                 <AlertCircle aria-hidden="true" className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-semibold text-amber-700">
-                    PITCH ESTIMATION — USER VERIFICATION REQUIRED
+                    PITCH ESTIMATION: USER VERIFICATION REQUIRED
                   </p>
                   <p className="text-xs text-amber-600 mt-0.5">
                     Pitch was estimated by AI. Please verify or enter the
@@ -249,7 +249,7 @@ export function PitchInput({
           <HelpCircle aria-hidden="true" className="w-3 h-3" />
           Surface area = plan area ÷ cos({pitchDegrees!.toFixed(1)}°)
           {aiEstimated && (
-            <span className="text-amber-500 ml-1">· AI-estimated — verify</span>
+            <span className="text-amber-500 ml-1">· AI-estimated, verify</span>
           )}
         </div>
       )}

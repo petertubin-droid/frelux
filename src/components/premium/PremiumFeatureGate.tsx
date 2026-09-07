@@ -238,7 +238,7 @@ export function PremiumFeatureGate({
           </div>
           <p className="mt-2 text-sm text-primary-foreground/70">
             {description ??
-              "Unlock this premium feature. One-time use — choose how you want to access it."}
+              "Unlock this premium feature. One-time use. Choose how you want to access it."}
           </p>
         </div>
 

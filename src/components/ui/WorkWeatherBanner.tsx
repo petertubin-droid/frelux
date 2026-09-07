@@ -125,7 +125,7 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
             <span className={classNames("text-sm font-bold", config.color)}>
               {canWorkToday
                 ? `${config.label} for ${WORK_LABELS[workType]}`
-                : `${config.label} — postpone ${WORK_LABELS[workType].toLowerCase()}`}
+                : `${config.label}, postpone ${WORK_LABELS[workType].toLowerCase()}`}
             </span>
           </div>
           <p className="mt-0.5 flex min-w-0 items-center gap-1 text-xs text-muted-foreground dark:text-muted-foreground">

@@ -118,7 +118,7 @@ function EntryCard({
         >
           {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
           Measurement {index + 1}
-          {entry.description ? ` — ${entry.description}` : ''}
+          {entry.description ? `: ${entry.description}` : ''}
         </Button>
         {onRemove && (
           <Button variant="ghost"

@@ -67,7 +67,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
             <div className="flex items-center gap-2">
               <Gift aria-hidden="true" className="h-5 w-5 text-brand-purple" />
               <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                {offerwallProviderName ?? adProviderUsed} — Complete offers to
+                {offerwallProviderName ?? adProviderUsed}, Complete offers to
                 unlock
               </h2>
             </div>
@@ -183,7 +183,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                     {offerwallProviderName
                       ? "Opening offerwall…"
                       : canProceed
-                        ? "Ad complete — unlocking…"
+                        ? "Ad complete, unlocking…"
                         : "Sponsored ad playing…"}
                   </p>
                   <p className="text-xs text-muted-foreground dark:text-muted-foreground">
@@ -191,7 +191,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
                       ? "Complete offers in the offerwall to earn your unlock."
                       : canProceed
                         ? "Your access is being granted."
-                        : `Please keep this tab open — ${minWatchTime - adWatchSeconds}s remaining.`}
+                        : `Please keep this tab open, ${minWatchTime - adWatchSeconds}s remaining.`}
                   </p>
                   {/* Progress bar */}
                   {!offerwallProviderName && (

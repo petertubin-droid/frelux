@@ -146,7 +146,7 @@ export default function InteractiveEstimatePreview() {
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground dark:text-muted-foreground">
             Live output from the FRELUX calculation engine, computed using the
-            example inputs shown — not pre-recorded numbers. Pick a room size
+            example inputs shown, not pre-recorded numbers. Pick a room size
             and watch the estimate recalculate.
           </p>
         </div>

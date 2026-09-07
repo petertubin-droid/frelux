@@ -24,7 +24,7 @@ const SUGGESTED_QUESTIONS = [
 const WELCOME_MESSAGE: ChatMessage = {
   id: 0,
   from: 'assistant',
-  text: `Hi! I'm the FRELUX AI assistant. Ask me anything about paint quantities, POP ceiling, tiling, colors, or surface prep — I'll give you a practical answer right away.`,
+  text: `Hi! I'm the FRELUX AI assistant. Ask me anything about paint quantities, POP ceiling, tiling, colors, or surface prep. I'll give you a practical answer right away.`,
   timestamp: Date.now(),
 };
 
@@ -91,7 +91,7 @@ export default function SupportChatWidget() {
       setMessages((m) => [...m, {
         id: Date.now() + 1,
         from: 'assistant',
-        text: 'I\'m having trouble right now. For immediate help, please reach us on WhatsApp — we typically reply within minutes.',
+        text: 'I\'m having trouble right now. For immediate help, please reach us on WhatsApp. We typically reply within minutes.',
         timestamp: Date.now(),
       }]);
     } finally {

@@ -441,7 +441,7 @@ function RoomForm({
                   {step.product && (
                     <span className="text-muted-foreground dark:text-muted-foreground">
                       {" "}
-                      — {step.product}
+                      : {step.product}
                     </span>
                   )}
                 </span>

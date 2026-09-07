@@ -16,7 +16,7 @@ export function PaintCalculatorSeo(): ReactNode {
         required for your project.
       </p>
       <p>
-        FRELUX estimates paint requirements in <strong>buckets</strong> — the
+        FRELUX estimates paint requirements in <strong>buckets</strong>, the
         standard purchase unit for paint in Nigeria. The engine calculates your
         paintable wall area, applies coverage rates specific to your selected
         paint type and quality, accounts for the number of coats, and rounds up
@@ -77,8 +77,8 @@ export function ScreedingCalculatorSeo(): ReactNode {
         To calculate screeding area, measure the length and height of each wall,
         then multiply. Deduct doors and windows from the total. FRELUX measures
         screeding in square metres (m²) and bases material quantities on the
-        system you choose — a putty-based system or a white cement + screeding
-        paint system — using coverage rates set in the calculator.
+        system you choose (a putty-based system or a white cement + screeding
+        paint system), using coverage rates set in the calculator.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Materials Needed for Wall Screeding
@@ -90,7 +90,7 @@ export function ScreedingCalculatorSeo(): ReactNode {
       <ul className="list-disc pl-5 space-y-1">
         <li>
           <strong>Putty-based system</strong>: premixed putty applied straight
-          from the bucket — the fastest, most common modern approach
+          from the bucket, the fastest, most common modern approach
         </li>
         <li>
           <strong>White cement + screeding paint system</strong>: white cement
