@@ -47,6 +47,7 @@ import type {
 } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import LocationCard from "@/components/location/LocationCard";
+import ProjectAgentPanel from "@/components/project-agent/ProjectAgentPanel";
 import {
   locationFromProjectRow,
   saveContractorProjectLocation,
@@ -989,6 +990,7 @@ export default function ProjectDetail() {
         )}
         {tab === "ai" && (
           <div className="space-y-4">
+            {id && <ProjectAgentPanel projectId={id} />}
             <div className="rounded-xl border bg-card p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Brain className="h-5 w-5 text-primary" />
