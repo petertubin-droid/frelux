@@ -1439,7 +1439,8 @@ export interface DbWeatherCache {
 // =========================================================
 // Calculator Templates
 // =========================================================
-export type CalculatorType = "paint" | "tile" | "pop" | "screeding" | "build_to_roof";
+export type CalculatorType =
+  "paint" | "tile" | "pop" | "screeding" | "build_to_roof";
 export type TemplateVisibility = "private" | "public" | "unlisted";
 
 export interface DbCalculatorTemplate {
@@ -1769,6 +1770,21 @@ export interface DbMaterialPriceHistory {
   changed_by: string | null;
   change_reason: string | null;
   created_at: string;
+}
+
+/** Cached deterministic predictive analysis per project (§22).
+ *  Owner-only under RLS; invalidated by input hash whenever any
+ *  source row changes. */
+export interface DbProjectPredictiveAnalysis {
+  id: string;
+  project_id: string;
+  user_id: string;
+  /** Digest of every analysis input — cache key (§22). */
+  input_hash: string;
+  /** The full deterministic analysis bundle. */
+  result: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
 }
 
 // =========================================================
