@@ -53,9 +53,7 @@ import {
 // =========================================================
 
 export type PreparedActionKind =
-  | "record_purchase"
-  | "confirm_stage_completion"
-  | "update_material_price";
+  "record_purchase" | "confirm_stage_completion" | "update_material_price";
 
 export interface RecordPurchaseParams {
   shoppingItemId: string;
@@ -75,9 +73,7 @@ export interface UpdateMaterialPriceParams {
 }
 
 export type PreparedActionParams =
-  | RecordPurchaseParams
-  | ConfirmStageParams
-  | UpdateMaterialPriceParams;
+  RecordPurchaseParams | ConfirmStageParams | UpdateMaterialPriceParams;
 
 /** Which recommendation conditions legitimately ground each
  *  kind. A mismatch is refused — no opportunistic actions. */
@@ -300,7 +296,10 @@ async function applyLazyExpiry(
   const pending = approvals.find((a) => a.state === "pending");
   if (
     !pending ||
-    isApprovalActive({ state: pending.state, expiresAt: pending.expiresAt }, nowIso)
+    isApprovalActive(
+      { state: pending.state, expiresAt: pending.expiresAt },
+      nowIso,
+    )
   ) {
     return { action, expired: false };
   }
@@ -335,6 +334,19 @@ interface ValidationSuccess {
 }
 type Validation = ValidationSuccess | { ok: false; error: AgentError };
 
+/**
+ * Stage 7 re-uses the SAME honesty bar before executing an
+ * approved action: params are validated against FRESH recorded
+ * state, and changed state means refusal — never a forced write.
+ */
+export async function validateActionParams(
+  kind: PreparedActionKind,
+  params: PreparedActionParams,
+  snap: PredictiveProjectSnapshot,
+): Promise<Validation> {
+  return validateParams(kind, params, snap);
+}
+
 async function validateParams(
   kind: PreparedActionKind,
   params: PreparedActionParams,
@@ -354,13 +366,9 @@ async function validateParams(
         `"${item.name}" is already recorded as purchased — recorded state changed.`,
       );
     if (p.actualPrice != null && !isPositiveNumber(p.actualPrice))
-      return paramError(
-        "Actual price must be a positive number (or omitted).",
-      );
+      return paramError("Actual price must be a positive number (or omitted).");
     const pricePart =
-      p.actualPrice != null
-        ? ` with an actual price of ${p.actualPrice}`
-        : "";
+      p.actualPrice != null ? ` with an actual price of ${p.actualPrice}` : "";
     const qtyPart = item.unit
       ? `quantity ${item.quantity} ${item.unit}`
       : `quantity ${item.quantity}`;
@@ -368,8 +376,7 @@ async function validateParams(
       ok: true,
       data: {
         what: `Mark "${item.name}" (${qtyPart}) as purchased${pricePart}.`,
-        expectedResult:
-          `"${item.name}" will be recorded as purchased${pricePart}; budget actuals, forecasts and procurement status update accordingly.`,
+        expectedResult: `"${item.name}" will be recorded as purchased${pricePart}; budget actuals, forecasts and procurement status update accordingly.`,
         dataUsed: [
           `shopping_item:${item.id}`,
           `shopping_item_recorded_price:${item.estimated_price}`,
@@ -395,10 +402,7 @@ async function validateParams(
       data: {
         what: `Record the "${stage.stageName}" stage as completed.`,
         expectedResult: `"${stage.stageName}" will be marked completed with the confirmation date; project progress and schedule predictions update accordingly.`,
-        dataUsed: [
-          `stage:${stage.id}`,
-          `stage_sort_order:${stage.sortOrder}`,
-        ],
+        dataUsed: [`stage:${stage.id}`, `stage_sort_order:${stage.sortOrder}`],
       },
     };
   }
@@ -415,13 +419,16 @@ async function validateParams(
       .select("id, name, current_price")
       .eq("id", p.materialId)
       .maybeSingle();
-    if (error)
-      return persistError("Material lookup failed", error.message);
+    if (error) return persistError("Material lookup failed", error.message);
     if (!data)
       return paramError(
         `Material ${p.materialId} is not in the material catalog.`,
       );
-    const mat = data as { id: string; name: string; current_price: number | null };
+    const mat = data as {
+      id: string;
+      name: string;
+      current_price: number | null;
+    };
     return {
       ok: true,
       data: {
@@ -466,7 +473,10 @@ export async function prepareAction(
     if (existingError)
       return persistError("Idempotency check failed", existingError.message);
     if (existing)
-      return { ok: true, data: { action: rowToAction(existing as ActionRow), duplicate: true } };
+      return {
+        ok: true,
+        data: { action: rowToAction(existing as ActionRow), duplicate: true },
+      };
   } catch (e) {
     return persistError("Idempotency check failed", String(e));
   }
@@ -627,17 +637,15 @@ export async function requestApproval(
   };
 
   try {
-    const { error } = await supabase
-      .from("project_agent_approvals")
-      .insert({
-        id: approval.id,
-        action_id: approval.actionId,
-        state: approval.state,
-        requested_at: approval.requestedAt,
-        expires_at: approval.expiresAt,
-        idempotency_key: approval.idempotencyKey,
-        created_at: nowIso,
-      });
+    const { error } = await supabase.from("project_agent_approvals").insert({
+      id: approval.id,
+      action_id: approval.actionId,
+      state: approval.state,
+      requested_at: approval.requestedAt,
+      expires_at: approval.expiresAt,
+      idempotency_key: approval.idempotencyKey,
+      created_at: nowIso,
+    });
     if (error) return persistError("Approval insert failed", error.message);
   } catch (e) {
     return persistError("Approval insert failed", String(e));
@@ -725,10 +733,17 @@ export async function decideApproval(
 
   // Apply the decision on the state machine.
   const target: PreparedAction["state"] =
-    decision === "approved" ? "approved" : decision === "rejected" ? "rejected" : "cancelled";
+    decision === "approved"
+      ? "approved"
+      : decision === "rejected"
+        ? "rejected"
+        : "cancelled";
   const check = canTransition(action.state, target);
   if (!check.allowed)
-    return { ok: false, error: { code: "invalid_state", message: check.reason } };
+    return {
+      ok: false,
+      error: { code: "invalid_state", message: check.reason },
+    };
 
   try {
     const { error: approvalError } = await supabase
@@ -876,10 +891,10 @@ export async function amendPreparedAction(
       },
     };
   const validation = await validateParams(
-      action.kind as PreparedActionKind,
-      nextParams,
-      snap,
-    );
+    action.kind as PreparedActionKind,
+    nextParams,
+    snap,
+  );
   if (!validation.ok) return validation;
 
   try {
@@ -896,7 +911,10 @@ export async function amendPreparedAction(
       .select("*")
       .maybeSingle();
     if (error || !data)
-      return persistError("Action update failed", error?.message ?? "row not found");
+      return persistError(
+        "Action update failed",
+        error?.message ?? "row not found",
+      );
     const updated = rowToAction(data as ActionRow);
     await recordActivity(
       projectId,
@@ -1035,7 +1053,13 @@ export async function describePreparedAction(
   ];
   return {
     ok: true,
-    data: { action, approval, availableDecisions: decisions, note, display: lines.join("\n") },
+    data: {
+      action,
+      approval,
+      availableDecisions: decisions,
+      note,
+      display: lines.join("\n"),
+    },
   };
 }
 
