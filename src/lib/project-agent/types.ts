@@ -69,6 +69,14 @@ export interface PreparedAction {
   state: AgentLifecycleState;
   approval?: AgentApproval;
   createdAt: string;
+  /** The concrete, validated operation parameters (Stage 6+). */
+  payload?: Record<string, unknown>;
+  /** The fresh recommendation this action is grounded in. */
+  recommendationId?: string;
+  recommendationSummary?: string;
+  /** Double-tap collapse key (Stage 6+). */
+  idempotencyKey?: string;
+  updatedAt?: string;
 }
 
 /** An approval decision on a prepared action. */
@@ -152,6 +160,13 @@ export interface AgentError {
     | "not_authenticated"
     | "invalid_state"
     | "persistence_error"
-    | "prohibited_action";
+    | "prohibited_action"
+    // Stage 6 — prepared actions
+    | "invalid_params"
+    | "insufficient_data"
+    | "recommendation_not_found"
+    | "kind_mismatch"
+    | "action_expired"
+    | "not_found";
   message: string;
 }
