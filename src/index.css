@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* =========================================================
-   PREMIUM DESIGN SYSTEM — FRELUX
+   PREMIUM DESIGN SYSTEM, FRELUX
    Refined, sophisticated, high-end SaaS aesthetic
    ========================================================= */
 
@@ -20,7 +20,7 @@
    Primary/ring/accent mirror the brand colors (updated dynamically by BrandingProvider). */
 :root {
   --background: 0 0% 100%; /* white */
-  --background-mid: 0 0% 97%; /* off-white — elevated sticky surfaces */
+  --background-mid: 0 0% 97%; /* off-white, elevated sticky surfaces */
   --foreground: 240 10% 9%; /* neutral-900 */
   --card: 0 0% 100%; /* white */
   --card-foreground: 240 10% 9%;
@@ -28,8 +28,8 @@
   --popover-foreground: 240 10% 9%;
   --primary: 258 74% 48%; /* #6D28D9 brand-purple */
   --primary-foreground: 0 0% 100%; /* white */
-  --primary-light: 258 74% 62%; /* #9B6CF2 — lighter purple */
-  --primary-lighter: 258 80% 75%; /* #C4A6F8 — lightest purple */
+  --primary-light: 258 74% 62%; /* #9B6CF2, lighter purple */
+  --primary-lighter: 258 80% 75%; /* #C4A6F8, lightest purple */
   --secondary: 240 5% 96%; /* neutral-100 */
   --secondary-foreground: 240 10% 9%;
   --muted: 240 5% 96%; /* neutral-100 */
@@ -46,7 +46,7 @@
 
 .dark {
   --background: 240 44% 7%; /* #0A0A1A brand-navy */
-  --background-mid: 240 44% 10%; /* navy — elevated sticky surfaces */
+  --background-mid: 240 44% 10%; /* navy, elevated sticky surfaces */
   --foreground: 0 0% 100%; /* white */
   --card: 240 42% 12%; /* #12122A navy-mid */
   --card-foreground: 0 0% 100%;
@@ -701,7 +701,7 @@
 }
 
 /* =========================================================
-   Refined Dark Mode — Professional, premium
+   Refined Dark Mode, Professional, premium
    ========================================================= */
 
 .dark body {
@@ -838,7 +838,7 @@
 }
 
 /* =========================================================
-   ACCESSIBILITY MODES — triggered by AccessibilityToggle
+   ACCESSIBILITY MODES, triggered by AccessibilityToggle
    Classes are toggled on <html> by the AccessibilityProvider.
    ========================================================= */
 
