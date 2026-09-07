@@ -70,8 +70,12 @@ export interface AiFact {
 export type CopilotTaskType =
   | "building_estimate" // whole-building materials & cost (Build-to-Roof engine)
   | "roof_estimate" // roof geometry / materials
-  | "painting_estimate" // painting wall area / materials
+  | "painting_estimate" // painting wall area
+  | "painting_materials" // full painting materials/containers (classic calculator)
   | "tyrolene_estimate" // tyrolene finishing
+  | "screeding_estimate" // screeding system materials & cost
+  | "tile_estimate" // tile quantities & cost
+  | "pop_estimate" // POP ceiling materials & cost
   | "finish_compare" // compare finishing systems
   | "scenario_compare" // compare named scenarios via deterministic engines
   | "project_question" // answer from existing project data

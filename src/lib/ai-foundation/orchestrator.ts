@@ -59,7 +59,11 @@ export function interpretRequest(text: string, now = new Date().toISOString()): 
   // ── Task classification (keyword-based, deterministic) ──
   let taskType: CopilotTaskType;
   if (/(tyrolene|tyro)/.test(lower)) taskType = 'tyrolene_estimate';
-  else if (/(paint|painting|emulsion|wall paint)/.test(lower)) taskType = 'painting_estimate';
+  else if (/\bpop\b|plaster of paris|p\.o\.p/.test(lower)) taskType = 'pop_estimate';
+  else if (/tile|tiling|ceramic|porcelain/.test(lower)) taskType = 'tile_estimate';
+  else if (/screed|screeding/.test(lower)) taskType = 'screeding_estimate';
+  else if (/paint|painting|emulsion|wall paint/.test(lower) && /need|buy|purchase|bucket|container|litre|liter|how much/.test(lower)) taskType = 'painting_materials';
+  else if (/paint|painting|emulsion|wall paint/.test(lower)) taskType = 'painting_estimate';
   else if (/(roof|roofing)/.test(lower) && !/(build to roof|whole building|complete building|entire building)/.test(lower)) taskType = 'roof_estimate';
   else if (/(compare|versus|vs\.?)\b.*\b(bedroom|scenario|design|option)/.test(lower) || /\bscenario\b/.test(lower)) taskType = 'scenario_compare';
   else if (/(estimate|cost|material|build|house|home|duplex|bungalow|bedroom)/.test(lower)) taskType = 'building_estimate';
@@ -119,6 +123,10 @@ export function interpretRequest(text: string, now = new Date().toISOString()): 
       scenario_compare: ['building_length', 'building_width'],
       roof_estimate: ['building_length', 'building_width'],
       painting_estimate: ['length', 'width'],
+      painting_materials: ['length', 'width'],
+      screeding_estimate: ['length', 'width'],
+      tile_estimate: ['length', 'width'],
+      pop_estimate: ['roomLength', 'roomWidth'],
       tyrolene_estimate: ['width', 'height'],
     };
     const [keyA, keyB] = dimKeys[taskType] ?? ['building_length', 'building_width'];
@@ -140,7 +148,7 @@ export function planTask(
 ): CopilotPlan {
   if (taskType === 'unsupported') {
     return refusePlan(
-      "FRELUX AI can't support that request yet. It will not guess an answer — try asking for a building, roof, painting or tyrolene estimate.",
+      "FRELUX AI can't support that request yet. It will not guess an answer — try asking for a building, roof, painting, screeding, tile or POP estimate.",
     );
   }
 

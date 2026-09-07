@@ -421,7 +421,7 @@ function ResultPanel({
         </div>
       )}
 
-      {result.raw && 'assumptions' in (result.raw as Record<string, unknown>) && (
+      {!!result.raw && 'assumptions' in (result.raw as Record<string, unknown>) && (
         <ul className="space-y-1 text-xs text-muted-foreground">
           {(((result.raw as Record<string, unknown>).assumptions as string[]) ?? []).slice(0, 4).map((a, i) => (
             <li key={i}>• {a}</li>
@@ -467,6 +467,10 @@ const TASK_LABELS: Record<CopilotTaskType, string> = {
   scenario_compare: 'Scenario comparison',
   project_question: 'Project question',
   unsupported: 'Not supported yet',
+  painting_materials: 'Painting materials & containers',
+  screeding_estimate: 'Screeding estimate',
+  tile_estimate: 'Tile estimate',
+  pop_estimate: 'POP ceiling estimate',
 };
 
 function badgeClass(fact: AiFact): string {

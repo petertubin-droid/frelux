@@ -38,8 +38,12 @@ describe('deterministic interpretation (no API call)', () => {
     expect(length?.evidence).toContain('converted from ft');
   });
 
-  it('classifies painting and tyrolene requests', () => {
-    expect(interpretRequest('how much paint for my room').taskType).toBe('painting_estimate');
+  it('classifies painting, POP, tile, screeding and tyrolene requests', () => {
+    // Phase 2: "how much paint" asks for the full materials list (litres +
+    // containers) — the manual calculator methodology, never m²-only.
+    expect(interpretRequest('how much paint for my room').taskType).toBe('painting_materials');
+    // Plain area phrasing still routes to the area engine.
+    expect(interpretRequest('paintable wall area for my room').taskType).toBe('painting_estimate');
     expect(interpretRequest('tyrolene estimate for my partitions').taskType).toBe('tyrolene_estimate');
   });
 
@@ -100,15 +104,30 @@ describe('end-to-end execution', () => {
     expect(outcome.result).toBeUndefined();
   });
 
-  it('accepts user-supplied missing values as trusted facts', async () => {
+  it('accepts user-supplied missing values as trusted facts (Phase 2: full materials parity)', async () => {
     const interp = interpretRequest('how much paint for my room');
     const outcome = await runTask(interp.taskType, context, [
       ...interp.facts,
       { key: 'length', label: 'Room length', value: 6, unit: 'm', origin: 'user_input', source: 'form', confidence: 1, trust: 'user_confirmed' },
       { key: 'width', label: 'Room width', value: 5, unit: 'm', origin: 'user_input', source: 'form', confidence: 1, trust: 'user_confirmed' },
-      { key: 'height', label: 'Wall height', value: 3, unit: 'm', origin: 'user_input', source: 'form', confidence: 1, trust: 'user_confirmed' },
+      { key: 'wallHeight', label: 'Wall height', value: 3, unit: 'm', origin: 'user_input', source: 'form', confidence: 1, trust: 'user_confirmed' },
     ]);
+    expect(outcome.refusal).toBeUndefined();
     expect(outcome.result?.ok).toBe(true);
-    expect(outcome.result?.quantities[0].quantity).toBeCloseTo(66, 1); // 2(6+5)×3
+    // PARITY: the Copilot result must equal the manual painting calculator
+    // invoked directly with the same room + surfaced default assumptions.
+    const { calculatePaint, DEFAULT_DOOR_DIMS, DEFAULT_WINDOW_DIMS } = await import('@/lib/calc');
+    const manual = calculatePaint({
+      projectType: 'room' as never,
+      length: 6, width: 5, wallHeight: 3,
+      doors: 1, doorDims: DEFAULT_DOOR_DIMS,
+      windows: 2, windowDims: DEFAULT_WINDOW_DIMS,
+      coats: 2, paintType: 'standard', unit: 'meters' as never,
+      includeCeiling: true, wasteMargin: 10,
+    });
+    const raw = outcome.result?.raw as ReturnType<typeof manual> | undefined;
+    expect(raw?.paintableArea).toBe(manual.paintableArea);
+    expect(raw?.totalRecommendedLiters).toBe(manual.totalRecommendedLiters);
+    expect(raw?.recommendedContainers).toEqual(manual.recommendedContainers);
   });
 });

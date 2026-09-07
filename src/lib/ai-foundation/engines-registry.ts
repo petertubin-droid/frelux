@@ -149,7 +149,7 @@ export function defaultBuildToRoofInput(): BuildToRoofInputLike {
 
 
 /** Guard: all numeric engine inputs must be finite — else error, never NaN math. */
-function requireFiniteNumbers(values: Record<string, unknown>): string | null {
+export function requireFiniteNumbers(values: Record<string, unknown>): string | null {
   for (const [key, value] of Object.entries(values)) {
     const n = Number(value);
     if (!Number.isFinite(n)) return `Invalid numeric input for "${key}"`;
@@ -157,7 +157,7 @@ function requireFiniteNumbers(values: Record<string, unknown>): string | null {
   return null;
 }
 
-function quantityLine(label: string, quantity: number, unit: string): EngineQuantityLine {
+export function quantityLine(label: string, quantity: number, unit: string): EngineQuantityLine {
   return { label, quantity, unit };
 }
 
@@ -167,7 +167,7 @@ function quantityLine(label: string, quantity: number, unit: string): EngineQuan
 
 const REGISTRY = new Map<string, EngineDescriptor>();
 
-function registerEngine(descriptor: EngineDescriptor): void {
+export function registerEngine(descriptor: EngineDescriptor): void {
   REGISTRY.set(descriptor.id, descriptor);
 }
 
@@ -354,3 +354,8 @@ export async function executeEngine(engineId: string, input: unknown): Promise<E
     };
   }
 }
+
+// Register the Phase-2 engines AFTER the registry map exists.
+// (Import alone would hoist above the REGISTRY declaration — TDZ.)
+import { registerPhase2Engines } from './engines-phase2';
+registerPhase2Engines();

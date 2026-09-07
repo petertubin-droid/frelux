@@ -78,7 +78,7 @@ async function interpretWithAiOnce(text: string): Promise<InterpretationResult> 
       interpretedBy: 'ai_assisted',
     };
   } catch (error) {
-    captureAiError(error instanceof Error ? error : new Error('ai-copilot unavailable'), 'ai-copilot');
+    captureAiError(error instanceof Error ? error : new Error('ai-copilot unavailable'), { feature: 'ai-copilot' });
     // Graceful degradation — deterministic parse, zero API cost.
     return interpretRequest(text);
   }
