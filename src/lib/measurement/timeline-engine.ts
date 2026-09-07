@@ -108,10 +108,14 @@ export const DEFAULT_PHASE_TEMPLATES: PhaseTemplate[] = [
 // FACTORY
 // =========================================================
 
-let phaseIdCounter = 0;
-
-function generatePhaseId(): string {
-  return `phase_${++phaseIdCounter}`;
+/**
+ * Deterministic phase ids: derived from the template index, so the
+ * SAME scope + templates ALWAYS produce the SAME ids. (A module-level
+ * counter used to leak state between calls — identical inputs yielded
+ * different ids depending on call history.)
+ */
+function generatePhaseId(index: number): string {
+  return `phase_${index + 1}`;
 }
 
 // =========================================================
@@ -151,7 +155,7 @@ export function estimateTimeline(
     }
 
     return {
-      id: generatePhaseId(),
+      id: generatePhaseId(idx),
       name: tmpl.name,
       description: tmpl.description,
       sequence: idx + 1,
