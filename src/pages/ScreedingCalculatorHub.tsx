@@ -66,7 +66,7 @@ export default function ScreedingCalculatorHub() {
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useSeo({
-    title: "Screeding Calculator — Wall Screeding Quantity & Cost",
+    title: "Screeding Calculator, Wall Screeding Quantity & Cost",
     description:
       "Free FRELUX screeding calculator. Calculate wall screeding surface area in m², material requirements, and cost estimates with admin-configured material prices.",
     canonicalPath: "/screeding-calculator",
@@ -132,7 +132,7 @@ export default function ScreedingCalculatorHub() {
       <PageHeader
         eyebrow="Calculator"
         title="Screeding Calculator"
-        subtitle="Calculate wall screeding quantity, material requirements, and cost — all in one place."
+        subtitle="Calculate wall screeding quantity, material requirements, and cost, all in one place."
         breadcrumbs={[
           { label: "Calculators", path: "/calculators" },
           { label: "Screeding Calculator" },
@@ -181,12 +181,12 @@ export default function ScreedingCalculatorHub() {
           </h3>
           <ul>
             <li>
-              <strong>Screeding Quantity</strong> — Enter room or wall
+              <strong>Screeding Quantity</strong>, Enter room or wall
               dimensions to calculate the net screeding surface area in m², with
               doors and windows deducted.
             </li>
             <li>
-              <strong>Cost Estimate</strong> — Get a full material cost
+              <strong>Cost Estimate</strong>, Get a full material cost
               breakdown including cement, sand, and bonding agents at real
               Nigerian market prices.
             </li>
@@ -197,7 +197,7 @@ export default function ScreedingCalculatorHub() {
           <p className="text-muted-foreground dark:text-muted-foreground/80">
             Screeding quantities are calculated in m² according to established
             FRELUX rules. The calculator uses admin-configured mix ratios and
-            material packaging sizes to produce accurate material quantities —
+            material packaging sizes to produce accurate material quantities,
             not generic m²-per-bag estimates. For fences, the calculator accepts
             dimensions in feet or metres and converts the resulting surface area
             to m² before applying material calculations.

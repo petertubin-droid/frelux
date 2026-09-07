@@ -64,7 +64,7 @@ export default function FinishingCalculatorHub() {
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useSeo({
-    title: "Finishing Calculator — Tyrolene, Grafitex & Painting Finishes",
+    title: "Finishing Calculator, Tyrolene, Grafitex & Painting Finishes",
     description:
       "Free FRELUX finishing calculator. Compare Painting, Tyrolene, and Grafitex finishes. Detailed Tyrolene estimator with partition-based material calculations.",
     canonicalPath: "/finish-estimator",
@@ -125,7 +125,7 @@ export default function FinishingCalculatorHub() {
       <PageHeader
         eyebrow="Calculator"
         title="Finishing Calculator"
-        subtitle="Compare wall finishes and calculate Tyrolene material quantities — all in one place."
+        subtitle="Compare wall finishes and calculate Tyrolene material quantities, all in one place."
         breadcrumbs={[
           { label: "Calculators", path: "/calculators" },
           { label: "Finishing Calculator" },
@@ -172,12 +172,12 @@ export default function FinishingCalculatorHub() {
           </h3>
           <ul>
             <li>
-              <strong>Compare Finishes</strong> — Compare material quantities
+              <strong>Compare Finishes</strong>, Compare material quantities
               and costs for Painting, Tyrolene, and Grafitex side by side. Enter
               your wall area and see which finish suits your budget.
             </li>
             <li>
-              <strong>Tyrolene Estimator</strong> — A detailed partition-based
+              <strong>Tyrolene Estimator</strong>, A detailed partition-based
               exterior finishing estimator using the FRELUX Tyrolene engine with
               production rules, material breakdowns, and saveable estimates.
             </li>

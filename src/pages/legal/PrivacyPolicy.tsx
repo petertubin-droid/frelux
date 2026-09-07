@@ -40,11 +40,11 @@ export default function PrivacyPolicy() {
             <p>
               Our website uses cookies and browser storage for several purposes:
               <br /><br />
-              <strong>Essential cookies</strong> — These are necessary for the website to function. They include storing your theme preference (light/dark mode) and a random anonymous identifier in your browser's localStorage to enforce the shared daily AI usage limit. This identifier is a random token — it is not linked to your name, email, or identity.
+              <strong>Essential cookies</strong>, These are necessary for the website to function. They include storing your theme preference (light/dark mode) and a random anonymous identifier in your browser's localStorage to enforce the shared daily AI usage limit. This identifier is a random token, it is not linked to your name, email, or identity.
               <br /><br />
-              <strong>Analytics cookies</strong> — When Google Analytics or Meta Pixel is configured, these tools may set cookies to collect aggregate usage data such as page views, time on site, and event counts. These are third-party cookies controlled by their respective providers. We use this data only to understand how the tools are used and to improve them.
+              <strong>Analytics cookies</strong>, When Google Analytics or Meta Pixel is configured, these tools may set cookies to collect aggregate usage data such as page views, time on site, and event counts. These are third-party cookies controlled by their respective providers. We use this data only to understand how the tools are used and to improve them.
               <br /><br />
-              <strong>Advertising cookies</strong> — See the Advertising section below for details.
+              <strong>Advertising cookies</strong>, See the Advertising section below for details.
               <br /><br />
               You can control and delete cookies through your browser settings. Disabling cookies may affect some features. See our{' '}
               <Link to="/cookie-policy" className="font-semibold text-brand-purple underline">Cookie Policy</Link>{' '}
@@ -83,7 +83,7 @@ export default function PrivacyPolicy() {
           heading: 'AI usage tracking',
           body: (
             <p>
-              To enforce the shared daily AI usage limit, we store an anonymous random identifier in your browser's localStorage and a count of successful AI generations per day. This identifier is a random token — it is not linked to your name, email, or identity. Failed AI requests do not consume your daily allowance.
+              To enforce the shared daily AI usage limit, we store an anonymous random identifier in your browser's localStorage and a count of successful AI generations per day. This identifier is a random token, it is not linked to your name, email, or identity. Failed AI requests do not consume your daily allowance.
             </p>
           ),
         },
@@ -91,7 +91,7 @@ export default function PrivacyPolicy() {
           heading: 'Data sharing',
           body: (
             <p>
-              We do not sell, trade, or rent your personal information to third parties. We may share non-personal, aggregated information with partners for analytics and improvement purposes. We may disclose information when required by law or to protect our rights and safety. When you use AI-powered features, your text description or image is sent to Google AI for processing — Google's privacy practices are governed by their own privacy policy.
+              We do not sell, trade, or rent your personal information to third parties. We may share non-personal, aggregated information with partners for analytics and improvement purposes. We may disclose information when required by law or to protect our rights and safety. When you use AI-powered features, your text description or image is sent to Google AI for processing, Google's privacy practices are governed by their own privacy policy.
             </p>
           ),
         },
@@ -102,7 +102,7 @@ export default function PrivacyPolicy() {
               Subscriptions and token purchases are processed securely by Paystack, our third-party payment provider. <strong>We never see or store your card or bank details.</strong> When you make a purchase, your email address and order details (product, amount, and transaction reference) are shared with Paystack to process the payment and issue receipts. Paystack's handling of your payment information is governed by{' '}
               <a href="https://paystack.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="font-semibold text-brand-purple underline">Paystack's privacy policy</a>.
               <br /><br />
-              We store a record of completed purchases (transaction reference, amount, and the tokens or plan credited to your account) so we can deliver what you paid for and provide support. Rewarded ads are always optional — you can earn credits by watching ads or purchase tokens directly, and paid purchases never require watching ads.
+              We store a record of completed purchases (transaction reference, amount, and the tokens or plan credited to your account) so we can deliver what you paid for and provide support. Rewarded ads are always optional, you can earn credits by watching ads or purchase tokens directly, and paid purchases never require watching ads.
             </p>
           ),
         },

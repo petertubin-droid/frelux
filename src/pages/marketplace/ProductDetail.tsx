@@ -87,7 +87,7 @@ export default function ProductDetail() {
 
   useSeo({
     title:
-      product?.seo_title || product?.title || "Product — FRELUX Marketplace",
+      product?.seo_title || product?.title || "Product, FRELUX Marketplace",
     description:
       product?.seo_description ||
       product?.description?.slice(0, 160) ||

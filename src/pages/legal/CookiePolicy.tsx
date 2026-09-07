@@ -32,11 +32,11 @@ export default function CookiePolicy() {
             <p>
               We categorize our cookies into three types:
               <br /><br />
-              <strong>Essential</strong> — Required for the website to function correctly. These include your theme preference (light/dark mode) and an anonymous identifier used for AI usage limiting. These cannot be disabled as they are necessary for the service.
+              <strong>Essential</strong>, Required for the website to function correctly. These include your theme preference (light/dark mode) and an anonymous identifier used for AI usage limiting. These cannot be disabled as they are necessary for the service.
               <br /><br />
-              <strong>Analytics</strong> — Help us understand how visitors use our tools so we can improve them. These include Google Analytics and Meta Pixel cookies, which collect aggregate, anonymized data such as page views, session duration, and event counts.
+              <strong>Analytics</strong>, Help us understand how visitors use our tools so we can improve them. These include Google Analytics and Meta Pixel cookies, which collect aggregate, anonymized data such as page views, session duration, and event counts.
               <br /><br />
-              <strong>Advertising</strong> — Used to display and measure advertisements. These include cookies set by Google AdSense and other advertising partners. See the section on advertising cookies below for full details.
+              <strong>Advertising</strong>, Used to display and measure advertisements. These include cookies set by Google AdSense and other advertising partners. See the section on advertising cookies below for full details.
             </p>
           ),
         },
@@ -62,11 +62,11 @@ export default function CookiePolicy() {
             <p>
               When Google AdSense and other advertising partners are active, they may use cookies, device identifiers, and similar technologies to serve and measure advertisements:
               <br /><br />
-              <strong>Google AdSense</strong> — Google uses the DoubleClick DART cookie and other advertising cookies to serve ads based on your visits to this site and other websites. Google's use of advertising cookies enables it and its partners to serve ads to users based on prior visits to our site and/or other sites on the Internet.
+              <strong>Google AdSense</strong>, Google uses the DoubleClick DART cookie and other advertising cookies to serve ads based on your visits to this site and other websites. Google's use of advertising cookies enables it and its partners to serve ads to users based on prior visits to our site and/or other sites on the Internet.
               <br /><br />
-              <strong>Third-party vendors</strong> — Third-party vendors, including Google, use cookies to serve relevant ads based on a user's prior visits to this website or other websites. These vendors may use device identifiers (such as advertising ID) to serve relevant ads.
+              <strong>Third-party vendors</strong>, Third-party vendors, including Google, use cookies to serve relevant ads based on a user's prior visits to this website or other websites. These vendors may use device identifiers (such as advertising ID) to serve relevant ads.
               <br /><br />
-              <strong>Opting out</strong> — Users may opt out of personalized advertising by visiting:
+              <strong>Opting out</strong>, Users may opt out of personalized advertising by visiting:
               <br />
               • <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer" className="font-semibold text-brand-purple underline">Google Ads Settings</a>
               <br />
@@ -83,7 +83,7 @@ export default function CookiePolicy() {
           heading: 'Managing cookies',
           body: (
             <p>
-              You can control and delete cookies through your browser settings. Disabling cookies may affect some features of the site. You can also manage your cookie preferences using our cookie banner — click "Cookie Preferences" in the website footer at any time to accept, reject, or customize which cookie categories you allow. Third-party cookies (analytics, advertising) are governed by their respective providers' policies.
+              You can control and delete cookies through your browser settings. Disabling cookies may affect some features of the site. You can also manage your cookie preferences using our cookie banner, click "Cookie Preferences" in the website footer at any time to accept, reject, or customize which cookie categories you allow. Third-party cookies (analytics, advertising) are governed by their respective providers' policies.
             </p>
           ),
         },

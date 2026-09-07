@@ -65,7 +65,7 @@ export default function ScreedingCostEstimator({
     !embedded
       ? {
           title:
-            "Wall Screeding Cost Estimator — Putty, Paint & Cement Calculator",
+            "Wall Screeding Cost Estimator, Putty, Paint & Cement Calculator",
           description:
             "Estimate wall screeding costs with Putty or White Cement + Screeding Paint. Configurable coverage, coats, waste, labour, and material pricing.",
           canonicalPath: "/screeding-cost-estimator",
@@ -223,7 +223,7 @@ export default function ScreedingCostEstimator({
         <PageHeader
           eyebrow="Tool"
           title="Screeding Cost Estimator"
-          subtitle="Calculate screeding material costs — Putty or White Cement + Screeding Paint. Coverage, coats, waste, and pricing are all admin-configured."
+          subtitle="Calculate screeding material costs, Putty or White Cement + Screeding Paint. Coverage, coats, waste, and pricing are all admin-configured."
           breadcrumbs={[
             { label: "Home", path: "/" },
             { label: "Calculators", path: "/calculators" },
@@ -580,7 +580,7 @@ export default function ScreedingCostEstimator({
                           resultSummary:
                             result.materialCost != null
                               ? `${formatCurrency(result.materialCost, currencySymbol)} for ${formatNumber(result.netScreedingArea, 2)} m² (${result.coats} coats)`
-                              : `${formatNumber(result.netScreedingArea, 2)} m² (${result.coats} coats) — price not configured`,
+                              : `${formatNumber(result.netScreedingArea, 2)} m² (${result.coats} coats), price not configured`,
                           steps: buildExplanationSteps(result),
                           notes: [
                             `Coverage: ${result.coverageAreaM2} m² per unit group`,
@@ -921,7 +921,7 @@ function MaterialBreakdownCard({
           </>
         ) : (
           <p className="text-xs text-accent-yellow">
-            Price not configured — cost cannot be calculated.
+            Price not configured, cost cannot be calculated.
           </p>
         )}
       </div>

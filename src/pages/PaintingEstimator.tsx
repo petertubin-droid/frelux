@@ -145,9 +145,9 @@ export default function PaintingEstimator({
     !embedded
       ? {
           title:
-            "Painting Estimator — Complete Paint Project Estimate & Summary",
+            "Painting Estimator, Complete Paint Project Estimate & Summary",
           description:
-            "Complete painting project estimator. Get a room-by-room summary with paint buckets, material costs, finishes, and assumptions — the full project overview.",
+            "Complete painting project estimator. Get a room-by-room summary with paint buckets, material costs, finishes, and assumptions, the full project overview.",
           canonicalPath: "/painting-estimator",
           ogType: "website",
           keywords:
@@ -2007,7 +2007,7 @@ function EstimateResult({
                 ...result.warnings,
                 ...(alreadyHave > 0
                   ? [
-                      `Already have: ${alreadyHave} buckets — purchase ${Math.max(0, result.combined_practical_buckets - alreadyHave)} more`,
+                      `Already have: ${alreadyHave} buckets, purchase ${Math.max(0, result.combined_practical_buckets - alreadyHave)} more`,
                     ]
                   : []),
               ],

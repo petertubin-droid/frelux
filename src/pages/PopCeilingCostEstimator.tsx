@@ -550,7 +550,7 @@ export default function PopCeilingCostEstimator({
                   {(result.warnings ?? []).length > 0 && (
                     <div className="mx-6 mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-700 dark:text-amber-400">
                       <p className="mb-1 font-medium">
-                        Configuration incomplete — estimate may be understated:
+                        Configuration incomplete, estimate may be understated:
                       </p>
                       <ul className="list-disc pl-4 space-y-0.5">
                         {(result.warnings ?? []).map((w) => (

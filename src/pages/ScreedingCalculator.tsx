@@ -46,7 +46,7 @@ export default function ScreedingCalculator({
   useSeo(
     !embedded
       ? {
-          title: "Wall Screeding Calculator — How Much Screeding Do I Need?",
+          title: "Wall Screeding Calculator, How Much Screeding Do I Need?",
           description:
             "Free wall screeding calculator. Enter your room or wall dimensions, doors, and windows to calculate the exact wall area that needs screeding.",
           canonicalPath: "/screeding-calculator",
@@ -178,7 +178,7 @@ export default function ScreedingCalculator({
           <PageHeader
             eyebrow="Tool"
             title="Wall Screeding Calculator"
-            subtitle="Calculate the exact wall surface area that needs screeding. Enter room dimensions in feet or metres — we handle the conversion."
+            subtitle="Calculate the exact wall surface area that needs screeding. Enter room dimensions in feet or metres, we handle the conversion."
             breadcrumbs={[
               { label: "Home", path: "/" },
               { label: "Calculators", path: "/calculators" },

@@ -56,7 +56,7 @@ export default function OrderDetail() {
   const { user } = useAuth();
   useSeo({
     description: "FRELUX marketplace",
-    title: "Order Details — FRELUX Marketplace",
+    title: "Order Details, FRELUX Marketplace",
     canonicalPath: `/marketplace/orders/${id}`,
   });
 

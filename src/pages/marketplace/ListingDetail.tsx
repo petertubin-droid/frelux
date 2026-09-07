@@ -69,7 +69,7 @@ export default function ListingDetail() {
     title:
       listing?.seo_title ||
       listing?.title ||
-      "Job Details — FRELUX Marketplace",
+      "Job Details, FRELUX Marketplace",
     description:
       listing?.seo_description ||
       (listing?.description

@@ -113,7 +113,7 @@ const PROPERTY_TYPE_ICONS: Record<PropertyType, typeof Home> = {
 
 export default function PropertiesDashboard() {
   useSeo({
-    title: "Property Intelligence — FRELUX",
+    title: "Property Intelligence, FRELUX",
     description:
       "Manage your property profiles: location, building information, documents, risk flags and data confidence.",
     canonicalPath: "/properties",
@@ -358,7 +358,7 @@ export default function PropertiesDashboard() {
           <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
             Add a property to record its location, building information and
             documents. FRELUX analyses what you provide and clearly marks
-            anything missing — nothing is assumed.
+            anything missing, nothing is assumed.
           </p>
           <Button className="mt-6" onClick={openCreate}>
             <Plus className="h-4 w-4" aria-hidden />
@@ -571,7 +571,7 @@ function PropertyDetail({
             label="Location"
             value={
               profile.location.address
-                ? `${profile.location.address}${locationSummary(profile) ? ` — ${locationSummary(profile)}` : ""}`
+                ? `${profile.location.address}${locationSummary(profile) ? `, ${locationSummary(profile)}` : ""}`
                 : locationSummary(profile) || "No location recorded"
             }
           />
@@ -737,7 +737,7 @@ function PropertyDetail({
         <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground">
           No market-data provider is connected yet. FRELUX does not estimate
           rental yields, property values or development margins without real
-          regional data — these panels activate automatically once a verified
+          regional data, these panels activate automatically once a verified
           source is available.
         </p>
       </div>

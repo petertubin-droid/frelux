@@ -52,7 +52,7 @@ const CONDITIONS: { value: ProductCondition; label: string }[] = [
 export default function PostProduct() {
   useSeo({
     description: "FRELUX marketplace",
-    title: "Post a Product — FRELUX Marketplace",
+    title: "Post a Product, FRELUX Marketplace",
     canonicalPath: "/marketplace/products/post",
   });
   const navigate = useNavigate();
@@ -212,7 +212,7 @@ export default function PostProduct() {
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g. Dulux Vinyl Matt Emulsion — 4 Litres (White)"
+            placeholder="e.g. Dulux Vinyl Matt Emulsion, 4 Litres (White)"
             className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </div>

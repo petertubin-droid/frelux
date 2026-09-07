@@ -155,7 +155,7 @@ export default function PaintCalculator({
   useSeo(
     !embedded
       ? {
-          title: "Paint Calculator — How Much Paint Do I Need?",
+          title: "Paint Calculator, How Much Paint Do I Need?",
           description:
             "Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate how many paint buckets your project requires.",
           canonicalPath: "/paint-calculator",
@@ -746,7 +746,7 @@ export default function PaintCalculator({
       });
       return;
     }
-    const name = `Paint: ${input.projectType} — ${formatNumber(result?.paintableArea ?? 0)} m²`;
+    const name = `Paint: ${input.projectType}, ${formatNumber(result?.paintableArea ?? 0)} m²`;
     const configSnapshot = {
       paintTypeName: selectedPaintType?.name ?? null,
       paintTypeCoverageRate: selectedPaintType?.coverage_rate ?? null,
@@ -952,7 +952,7 @@ export default function PaintCalculator({
             <SaveToProjectButton
               calculatorType="paint"
               calculatorSlug="paint-calculator"
-              calcTitle={`Paint: ${input.projectType} — ${formatNumber(result.paintableArea ?? 0)} m²`}
+              calcTitle={`Paint: ${input.projectType}, ${formatNumber(result.paintableArea ?? 0)} m²`}
               calcData={input as unknown as Record<string, unknown>}
               resultSummary={{
                 paintableArea: result.paintableArea,
@@ -1475,7 +1475,7 @@ function Step3({
                 onChange={(e) => onSelectQuality(e.target.value)}
                 className="input-field mt-2"
               >
-                <option value="">— Select quality —</option>
+                <option value="">Select quality</option>
                 {availableQualities.map((q) => {
                   const qp = qualityPriceMap.get(q.id);
                   const price = qp
@@ -1558,7 +1558,7 @@ function Step3({
           Surface condition
         </span>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          Affects coverage — rough surfaces absorb more paint.
+          Affects coverage, rough surfaces absorb more paint.
         </p>
         <select
           value={input.surfaceCondition ?? "smooth"}

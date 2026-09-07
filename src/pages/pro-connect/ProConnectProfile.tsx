@@ -123,12 +123,12 @@ export default function ProConnectProfile() {
     title:
       profile?.seo_title ||
       (profile
-        ? `${profile.display_name}${profile.business_name ? " — " + profile.business_name : ""} | FRELUX Pro Connect`
+        ? `${profile.display_name}${profile.business_name ? ", " + profile.business_name : ""} | FRELUX Pro Connect`
         : "Professional Profile | FRELUX Pro Connect"),
     description:
       profile?.seo_description ||
       profile?.bio?.slice(0, 160) ||
-      "View this professional's profile on FRELUX Pro Connect — services, portfolio, reviews, and contact information.",
+      "View this professional's profile on FRELUX Pro Connect, services, portfolio, reviews, and contact information.",
     canonicalPath: profile ? `/pro-connect/${profile.slug}` : "/pro-connect",
     noIndex: false,
     ogType: "profile",

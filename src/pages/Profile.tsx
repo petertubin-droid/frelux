@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/shadcn/button";
 
 export default function Profile() {
   useSeo({
-    title: "My Profile — FRELUX PROJECT CALC",
+    title: "My Profile, FRELUX PROJECT CALC",
     description:
       "Edit your profile information, upload a profile picture, and view your marketplace ID.",
     canonicalPath: "/profile",
@@ -396,7 +396,7 @@ export default function Profile() {
                         month: "long",
                         day: "numeric",
                       })
-                    : "—"}
+                    : ""}
                 </p>
               </div>
             </div>

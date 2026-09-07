@@ -6,7 +6,7 @@ export default function About() {
   useSeo({
     title: "About: FRELUX PROJECT CALC",
     description:
-      "Learn about FRELUX PROJECT CALC — a practical painting, construction, and color platform helping homeowners, decorators, and contractors in Nigeria and beyond plan projects with confidence.",
+      "Learn about FRELUX PROJECT CALC, a practical painting, construction, and color platform helping homeowners, decorators, and contractors in Nigeria and beyond plan projects with confidence.",
     canonicalPath: "/about",
     ogType: "website",
     structuredData: {
@@ -73,35 +73,35 @@ export default function About() {
               FRELUX PROJECT CALC provides a suite of focused tools:
               <br />
               <br />
-              <strong>Paint Calculator</strong> — Estimate the exact quantity of
+              <strong>Paint Calculator</strong>, Estimate the exact quantity of
               paint needed for any room, house, exterior, or fence. Factor in
               doors, windows, coats, surface conditions, and waste margin
               for an accurate material list.
               <br />
               <br />
-              <strong>Cost Estimators</strong> — Go beyond quantity. Our
+              <strong>Cost Estimators</strong>, Go beyond quantity. Our
               estimators factor in labour, transport, markup, profit, and tax
               to give you a realistic project budget calibrated to Nigerian
               market rates.
               <br />
               <br />
-              <strong>Screeding, POP Ceiling & Tile Calculators</strong> — The
+              <strong>Screeding, POP Ceiling & Tile Calculators</strong>, The
               same precision applied to wall screeding, POP ceiling
               installation, and tiling projects.
               <br />
               <br />
-              <strong>Color Library & Smart Color Assistant</strong> — Browse
+              <strong>Color Library & Smart Color Assistant</strong>, Browse
               curated color combinations, compare options side by side, and get
               AI-powered color recommendations based on your room description
               or uploaded photo.
               <br />
               <br />
-              <strong>Project Templates</strong> — Pre-configured project
+              <strong>Project Templates</strong>, Pre-configured project
               templates for common painting, tiling, and screeding scenarios.
               Start with a template and adjust the details to fit your space.
               <br />
               <br />
-              <strong>Learn Hub</strong> — Educational guides on painting
+              <strong>Learn Hub</strong>, Educational guides on painting
               techniques, material selection, preparation, and construction
               best practices.
             </p>
@@ -141,7 +141,7 @@ export default function About() {
           body: (
             <p>
               We started FRELUX PROJECT CALC after years of seeing homeowners and
-              contractors struggle with material estimation — buying too much
+              contractors struggle with material estimation, buying too much
               paint and wasting money, or buying too little and running out
               mid-project. Color selection was equally challenging, with
               homeowners relying on small swatches that looked completely
@@ -183,7 +183,7 @@ export default function About() {
           heading: "Contact us",
           body: (
             <p>
-              We are always happy to hear from our users — whether you have a
+              We are always happy to hear from our users, whether you have a
               question, a suggestion, or feedback on a calculator. Reach us
               through our contact page or via WhatsApp, and we will respond as
               soon as practical.

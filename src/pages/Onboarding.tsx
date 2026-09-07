@@ -136,7 +136,7 @@ export default function Onboarding() {
             <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground">
               Plan your construction project with precision. Calculate
               materials, estimate costs, and connect with verified professionals
-              — all in one place.
+             , all in one place.
             </p>
           </div>
 

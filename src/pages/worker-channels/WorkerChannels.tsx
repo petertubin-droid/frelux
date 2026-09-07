@@ -270,7 +270,7 @@ export default function WorkerChannels() {
     if (!priceForm.item.trim() || !priceForm.amount || !activeChannel || !user)
       return;
     setSending(true);
-    const content = `📊 PRICE UPDATE: ${priceForm.item} — ₦${Number(priceForm.amount).toLocaleString()}${priceForm.location ? ` in ${priceForm.location}` : ""}${priceForm.store ? ` (${priceForm.store})` : ""}`;
+    const content = `📊 PRICE UPDATE: ${priceForm.item}, ₦${Number(priceForm.amount).toLocaleString()}${priceForm.location ? ` in ${priceForm.location}` : ""}${priceForm.store ? ` (${priceForm.store})` : ""}`;
     const msg = await sendMessage({
       channelId: activeChannel.id,
       userId: user.id,

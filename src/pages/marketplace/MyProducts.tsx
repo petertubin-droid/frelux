@@ -11,7 +11,7 @@ import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 
 export default function MyProducts() {
-  useSeo({ description: 'FRELUX marketplace', title: 'My Products — FRELUX Marketplace', canonicalPath: '/marketplace/products/my' });
+  useSeo({ description: 'FRELUX marketplace', title: 'My Products, FRELUX Marketplace', canonicalPath: '/marketplace/products/my' });
 
   const [products, setProducts] = useState<DbMarketplaceProduct[]>([]);
   const [actionError, setActionError] = useState<string | null>(null);

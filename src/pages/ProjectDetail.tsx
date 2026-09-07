@@ -477,7 +477,7 @@ export default function ProjectDetail() {
                           <input
                             type="number"
                             className="w-24 rounded border bg-background px-2 py-1 text-sm transition-all focus:ring-2 focus:ring-primary/50 outline-none"
-                            placeholder="—"
+                            placeholder=""
                             defaultValue={item.actual_price || ""}
                             onBlur={async (e) => {
                               const val = parseFloat(e.target.value);

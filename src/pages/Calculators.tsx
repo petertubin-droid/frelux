@@ -43,7 +43,7 @@ const calculators: Tool[] = [
     icon: Paintbrush,
     title: "Painting Calculator",
     description:
-      "Calculate paint quantities, painting requirements and estimated cost — all in one tool.",
+      "Calculate paint quantities, painting requirements and estimated cost, all in one tool.",
     benefit: "Quantity · Cost · Estimate",
     to: "/paint-calculator",
     accent: "text-brand-purple bg-primary/10",
@@ -80,7 +80,7 @@ const calculators: Tool[] = [
     icon: Building2,
     title: "Finishing Calculator",
     description:
-      "Compare painting, Tyrolene and Grafitex finishes — material quantities and costs side by side.",
+      "Compare painting, Tyrolene and Grafitex finishes, material quantities and costs side by side.",
     benefit: "Tyrolene · Grafitex",
     to: "/finish-estimator",
     accent: "text-accent-amber bg-accent-amber/10",
@@ -89,7 +89,7 @@ const calculators: Tool[] = [
     icon: Building2,
     title: "Build-to-Roof Estimator",
     description:
-      "Calculate materials, quantities, and costs from foundation through roof — structural concrete, blockwork, roofing, and more.",
+      "Calculate materials, quantities, and costs from foundation through roof, structural concrete, blockwork, roofing, and more.",
     benefit: "Foundation to roof",
     to: "/build-to-roof-estimator",
     accent: "text-brand-purple bg-primary/10",
@@ -160,7 +160,7 @@ export default function Calculators() {
   useSeo({
     title: "All Calculators | FRELUX PROJECT CALC",
     description:
-      "Browse every FRELUX calculator — paint, screeding, POP ceiling, tiles, tyrolene, finishing, and cost estimators. Free Nigerian construction material calculators.",
+      "Browse every FRELUX calculator, paint, screeding, POP ceiling, tiles, tyrolene, finishing, and cost estimators. Free Nigerian construction material calculators.",
     canonicalPath: "/calculators",
     ogType: "website",
     keywords:

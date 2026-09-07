@@ -200,7 +200,7 @@ export default function SellerDashboard() {
           value={
             profile
               ? `${profile.rating_avg.toFixed(1)} (${profile.rating_count})`
-              : "—"
+              : ""
           }
         />
         <StatCard

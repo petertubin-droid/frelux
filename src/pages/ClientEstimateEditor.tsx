@@ -240,7 +240,7 @@ export default function ClientEstimateEditor() {
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="e.g. Interior Painting — 3 Bedroom Apartment"
+                placeholder="e.g. Interior Painting, 3 Bedroom Apartment"
                 className="w-full rounded-lg border bg-background px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary focus:outline-none"
               />
             </div>

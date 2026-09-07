@@ -33,7 +33,7 @@ type BillingCycle = "monthly" | "yearly";
 
 export default function Pricing() {
   useSeo({
-    title: "Pricing — FRELUX Premium",
+    title: "Pricing, FRELUX Premium",
     description:
       "Choose the FRELUX plan that fits your construction needs. From free calculators to the full engineering toolkit with structural design, foundation analysis, and AI-powered estimation.",
     canonicalPath: "/pricing",
@@ -97,7 +97,7 @@ export default function Pricing() {
             name: "What happens when my FRELUX subscription expires?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "You'll automatically revert to the Free plan. Your saved projects and data remain intact — you just lose access to premium tools until you renew.",
+              text: "You'll automatically revert to the Free plan. Your saved projects and data remain intact, you just lose access to premium tools until you renew.",
             },
           },
         ],
@@ -324,7 +324,7 @@ export default function Pricing() {
               className="mx-auto h-8 w-8 text-brand-purple"
             />
             <h3 className="mt-3 text-lg font-bold text-foreground dark:text-primary-foreground">
-              Premium Subscriptions — Coming Soon
+              Premium Subscriptions, Coming Soon
             </h3>
             <p className="mt-1 text-sm text-muted-foreground">
               We're putting the finishing touches on FRELUX Premium. Browse the
@@ -512,7 +512,7 @@ export default function Pricing() {
             />
             <FaqItem
               q="What happens when my subscription expires?"
-              a="You'll automatically revert to the Free plan. Your saved projects and data remain intact — you just lose access to premium tools until you renew."
+              a="You'll automatically revert to the Free plan. Your saved projects and data remain intact, you just lose access to premium tools until you renew."
             />
           </div>
         </div>
@@ -525,7 +525,7 @@ export default function Pricing() {
               className="mx-auto h-8 w-8 text-brand-purple"
             />
             <p className="mt-3 text-sm text-muted-foreground dark:text-muted-foreground/80">
-              You need a FRELUX account to subscribe. Create one in seconds —
+              You need a FRELUX account to subscribe. Create one in seconds,
               it's free.
             </p>
             <Link

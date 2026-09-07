@@ -23,7 +23,7 @@ export default function StartBuilding() {
   useSeo({
     title: "Start Building: What Are You Building Today? | FRELUX",
     description:
-      "Start your construction project with FRELUX. Estimate materials and costs from foundation to roof, then finishing — paint, screeding, POP ceiling, tiles, and exterior. Free Nigerian construction calculators and estimators.",
+      "Start your construction project with FRELUX. Estimate materials and costs from foundation to roof, then finishing, paint, screeding, POP ceiling, tiles, and exterior. Free Nigerian construction calculators and estimators.",
     canonicalPath: "/start-building",
     ogType: "website",
     keywords:
@@ -32,7 +32,7 @@ export default function StartBuilding() {
       {
         "@context": "https://schema.org",
         "@type": "WebPage",
-        name: "Start Building — FRELUX",
+        name: "Start Building, FRELUX",
         description:
           "Choose what you are building and FRELUX will help you calculate materials, quantities and estimated project costs.",
         url: `${SITE_URL}/start-building`,

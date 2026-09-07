@@ -80,7 +80,7 @@ export default function FinishEstimator({
     !embedded
       ? {
           title:
-            "Finish Estimator — Painting, Tyrolene & Grafitex Cost Calculator",
+            "Finish Estimator, Painting, Tyrolene & Grafitex Cost Calculator",
           description:
             "Estimate material quantities and costs for wall finishes including Painting, Tyrolene, and Grafitex. Based on real coverage rates and package sizes.",
           canonicalPath: "/finish-estimator",
@@ -209,7 +209,7 @@ export default function FinishEstimator({
 
   async function handleSave() {
     if (!result) return;
-    const name = `${getFinishTypeLabel(selectedFinish)} — ${formatNumber(result.area)} m²`;
+    const name = `${getFinishTypeLabel(selectedFinish)}, ${formatNumber(result.area)} m²`;
     const { error } = await saveUserProject(
       name,
       "custom",
@@ -580,7 +580,7 @@ export default function FinishEstimator({
             {(result.warnings ?? []).length > 0 && (
               <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-700 dark:text-amber-400">
                 <p className="mb-1 font-medium">
-                  Configuration incomplete — estimate may be understated:
+                  Configuration incomplete, estimate may be understated:
                 </p>
                 <ul className="list-disc pl-4 space-y-0.5">
                   {(result.warnings ?? []).map((w) => (
@@ -591,7 +591,7 @@ export default function FinishEstimator({
             )}
             <ResultCard
               title={`${getFinishTypeLabel(result.finishType)} Estimate`}
-              subtitle={`${formatNumber(result.area)} m² — ${result.coats} coat${result.coats > 1 ? "s" : ""} — ${result.wasteMargin}% waste`}
+              subtitle={`${formatNumber(result.area)} m², ${result.coats} coat${result.coats > 1 ? "s" : ""}, ${result.wasteMargin}% waste`}
               stats={[
                 {
                   label: "Surface Area",

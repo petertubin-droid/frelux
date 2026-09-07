@@ -285,7 +285,7 @@ function RotatingText({
 export default function BuildToRoofEstimator() {
   useSeo({
     title:
-      "Build-to-Roof Estimator — Construction Planning & Budgeting | FRELUX",
+      "Build-to-Roof Estimator, Construction Planning & Budgeting | FRELUX",
     description:
       "Planning and budgeting estimate for building from foundation to roof. Configure dimensions, materials, and prices. Actual requirements and costs may vary based on location, current material prices, building design, site conditions, and professional specifications.",
     keywords:
@@ -497,7 +497,7 @@ export default function BuildToRoofEstimator() {
                 <div className="mt-1.5">
                   <RotatingText
                     messages={[
-                      "Foundation → Block walls → Structural frame → Roof — all in one estimate",
+                      "Foundation → Block walls → Structural frame → Roof, all in one estimate",
                       "admin-configured prices for cement, blocks, sand, granite & more",
                       "Engineer-ready material schedules with quantities and costs",
                       "11 guided steps · Full transparency · No hidden assumptions",
@@ -543,7 +543,7 @@ export default function BuildToRoofEstimator() {
             >
               <Camera className="w-4 h-4" />
               <span className="hidden sm:inline">
-                Estimate from a Photo — Try our AI Photo Estimator
+                Estimate from a Photo, Try our AI Photo Estimator
               </span>
               <span className="sm:hidden">Try AI Photo Estimator</span>
               <ArrowRight className="w-4 h-4" />
@@ -878,7 +878,7 @@ export default function BuildToRoofEstimator() {
                           Quantities are modelled on continuous strip-footing
                           geometry. For pad, raft or pile foundations, treat the
                           excavation, concrete and blockwork figures as
-                          strip-footing equivalents — verify with your engineer.
+                          strip-footing equivalents, verify with your engineer.
                         </p>
                       )}
                       <Field
@@ -945,9 +945,9 @@ export default function BuildToRoofEstimator() {
                       <div className="col-span-full -mt-2 mb-2 rounded-lg bg-blue-50 border border-blue-100 p-2.5">
                         <p className="text-xs text-blue-600">
                           <strong>Nigerian block sizes:</strong> 9-inch (hollow)
-                          — foundations &amp; external load-bearing walls ·
-                          6-inch (hollow or solid) — internal partitions ·
-                          5-inch (solid only) — non-load-bearing partitions
+                         , foundations &amp; external load-bearing walls ·
+                          6-inch (hollow or solid), internal partitions ·
+                          5-inch (solid only), non-load-bearing partitions
                         </p>
                       </div>
                       <div className="grid md:grid-cols-4 gap-4">
@@ -1028,7 +1028,7 @@ export default function BuildToRoofEstimator() {
                       <p className="mt-2 text-xs text-muted-foreground">
                         Current ratio: {input.concrete_mix_cement}:
                         {input.concrete_mix_sand}:{input.concrete_mix_granite}{" "}
-                        (assumed budgeting mix — not a structural specification.
+                        (assumed budgeting mix, not a structural specification.
                         Use the mix specified by your engineer's design).
                       </p>
                     </SectionCard>
@@ -1051,7 +1051,7 @@ export default function BuildToRoofEstimator() {
                       </div>
                       <p className="mt-2 text-xs text-muted-foreground">
                         Current ratio: {input.mortar_mix_cement}:
-                        {input.mortar_mix_sand} (assumed budgeting mix — adjust
+                        {input.mortar_mix_sand} (assumed budgeting mix, adjust
                         to your site practice or engineer's specification).
                       </p>
                     </SectionCard>
@@ -1167,7 +1167,7 @@ export default function BuildToRoofEstimator() {
                         onChange={setRoofGeometry}
                       />
                       <p className="text-xs text-muted-foreground mt-2">
-                        Traced geometry is a visual reference only — estimates
+                        Traced geometry is a visual reference only, estimates
                         use the dimensions and roof type you enter below.
                         Complex roof geometry (L-shaped, T-shaped, cross-gable,
                         intersecting hips, multiple ridges or valleys) requires
@@ -2064,7 +2064,7 @@ export default function BuildToRoofEstimator() {
                         <span className="text-sm text-emerald-700 dark:text-emerald-300">
                           {extractionApplied} confirmed value
                           {extractionApplied === 1 ? "" : "s"} added to your
-                          estimate. Review and adjust them in the next steps —
+                          estimate. Review and adjust them in the next steps,
                           or calculate now.
                         </span>
                       </div>
@@ -2418,7 +2418,7 @@ function EstimateResult({
               </h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              Steel rods split by diameter — priced per 12m standard length
+              Steel rods split by diameter, priced per 12m standard length
             </p>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -2513,7 +2513,7 @@ function EstimateResult({
           <summary className="cursor-pointer p-4 sm:p-6 flex items-center justify-between">
             <span className="font-semibold text-foreground flex items-center gap-2">
               <Layers className="w-5 h-5 text-brand-purple" />
-              {stage.stage_label} — Detailed Quantities
+              {stage.stage_label}, Detailed Quantities
             </span>
             <span className="text-sm text-muted-foreground">
               {formatCurrency(stage.stage_total)}

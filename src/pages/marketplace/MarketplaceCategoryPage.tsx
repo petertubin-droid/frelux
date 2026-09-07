@@ -63,8 +63,8 @@ export default function MarketplaceCategoryPage() {
   // SEO
   useSeo({
     title: category
-      ? `${category.name} Services & Jobs — FRELUX Marketplace`
-      : "Marketplace Category — FRELUX",
+      ? `${category.name} Services & Jobs, FRELUX Marketplace`
+      : "Marketplace Category, FRELUX",
     description:
       category?.seo_description ||
       category?.description ||

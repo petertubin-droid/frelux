@@ -1080,7 +1080,7 @@ export default function ProjectDashboard() {
         <PremiumFeatureGate
           featureKey="pdf_export"
           featureName="PDF Export"
-          description="Export professional PDF documents. One-time use — unlock each export."
+          description="Export professional PDF documents. One-time use, unlock each export."
           onUnlock={() => {
             setPdfUnlocked(true);
             setPdfGateOpen(false);

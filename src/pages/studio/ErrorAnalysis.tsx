@@ -85,7 +85,7 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 function formatDate(date: string | null): string {
-  if (!date) return "—";
+  if (!date) return "";
   return new Date(date).toLocaleString("en-GB", {
     day: "2-digit",
     month: "short",
@@ -314,7 +314,7 @@ export default function ErrorAnalysis() {
                       {e.message}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {e.feature ?? "—"}
+                      {e.feature ?? ""}
                     </p>
                   </Button>
                 ))}
@@ -481,7 +481,7 @@ export default function ErrorAnalysis() {
                           <div className="flex items-center gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
                             <ShieldAlert className="h-4 w-4" />
                             <span className="font-medium">
-                              ⚠️ Protected FRELUX Logic Detected — explicit
+                              ⚠️ Protected FRELUX Logic Detected, explicit
                               admin approval required
                             </span>
                           </div>
@@ -579,7 +579,7 @@ export default function ErrorAnalysis() {
                               <div className="flex items-center gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
                                 <ShieldAlert className="h-4 w-4" />
                                 <span className="font-medium">
-                                  ⚠️ Protected FRELUX Logic Detected — requires
+                                  ⚠️ Protected FRELUX Logic Detected, requires
                                   explicit admin approval
                                 </span>
                               </div>
@@ -724,13 +724,13 @@ export default function ErrorAnalysis() {
                         )}
                       </td>
                       <td className="py-2 pr-3 text-xs text-muted-foreground">
-                        {h.approved_at ? formatDate(h.approved_at) : "—"}
+                        {h.approved_at ? formatDate(h.approved_at) : ""}
                       </td>
                       <td className="py-2 pr-3 text-xs text-muted-foreground">
                         {formatDate(h.created_at)}
                       </td>
                       <td className="py-2 text-xs text-muted-foreground">
-                        {h.deployed_at ? formatDate(h.deployed_at) : "—"}
+                        {h.deployed_at ? formatDate(h.deployed_at) : ""}
                       </td>
                     </tr>
                   ))}

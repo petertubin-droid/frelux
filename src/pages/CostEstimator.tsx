@@ -88,7 +88,7 @@ export default function CostEstimator({
     !embedded
       ? {
           title:
-            "Paint Cost Estimator — How Much Will Your Paint Materials Cost?",
+            "Paint Cost Estimator, How Much Will Your Paint Materials Cost?",
           description:
             "Estimate the cost of your paint materials. Measure your room in the Paint Calculator, then carry your paint quantity and area over here for a full material cost breakdown. Labour not included.",
           canonicalPath: "/cost-estimator",
@@ -347,7 +347,7 @@ export default function CostEstimator({
 
   function handleSaveLocal() {
     if (!result) return;
-    const name = `Cost Estimate: ${input.projectType} — ${formatCurrency(result.total, currencySymbol)}`;
+    const name = `Cost Estimate: ${input.projectType}, ${formatCurrency(result.total, currencySymbol)}`;
     saveLocalProject(name, "cost_estimate", { input, result });
   }
 
@@ -392,7 +392,7 @@ export default function CostEstimator({
           <PageHeader
             eyebrow="Tool"
             title="Cost Estimator"
-            subtitle="Estimate the cost of your paint materials — buckets, primer, and supplies."
+            subtitle="Estimate the cost of your paint materials, buckets, primer, and supplies."
             breadcrumbs={[
               { label: "Home", path: "/" },
               { label: "Calculators", path: "/calculators" },
@@ -1045,7 +1045,7 @@ export default function CostEstimator({
         <PremiumFeatureGate
           featureKey="pdf_export"
           featureName="PDF Export"
-          description="Export professional PDF quotations. One-time use — unlock each export."
+          description="Export professional PDF quotations. One-time use, unlock each export."
           onUnlock={() => {
             setPdfUnlocked(true);
             setPdfGateOpen(false);

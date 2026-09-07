@@ -328,7 +328,7 @@ describe("SmartCalculator page", () => {
 
     expect(useSeo).toHaveBeenCalledWith(
       expect.objectContaining({
-        title: "Smart Calculator — AI-Powered Construction Estimator | FRELUX",
+        title: "Smart Calculator: AI-Powered Construction Estimator | FRELUX",
         canonicalPath: "/smart-calculator",
       }),
     );

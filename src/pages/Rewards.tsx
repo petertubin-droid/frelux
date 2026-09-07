@@ -63,7 +63,7 @@ const rewardIcon: Record<string, typeof Crown> = {
 
 export default function Rewards() {
   useSeo({
-    title: "FRELUX Rewards — Earn Credits & Unlock Features",
+    title: "FRELUX Rewards, Earn Credits & Unlock Features",
     description:
       "Earn FRELUX Credits by using the platform, complete weekly missions, maintain activity streaks, and redeem rewards.",
     canonicalPath: "/rewards",
@@ -188,7 +188,7 @@ export default function Rewards() {
     );
     if (result.success && result.authorizationUrl) {
       window.location.assign(result.authorizationUrl);
-      return; // leaving the page — keep spinner state
+      return; // leaving the page, keep spinner state
     }
     toast({
       type: "error",
@@ -223,9 +223,9 @@ export default function Rewards() {
     if (result.success) {
       const effectMessage =
         reward.reward_type === "ai_token"
-          ? `${reward.name} redeemed — you now have an extra AI estimate ready to use next time.`
+          ? `${reward.name} redeemed, you now have an extra AI estimate ready to use next time.`
           : reward.reward_type === "calc_unlock"
-            ? `${reward.name} redeemed — the Advanced Calculator is unlocked for 24 hours.`
+            ? `${reward.name} redeemed, the Advanced Calculator is unlocked for 24 hours.`
             : `${reward.name} has been redeemed.`;
       toast({
         type: "success",
@@ -516,7 +516,7 @@ export default function Rewards() {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                      Watch Ad — Earn {creditsPerAd} Credits
+                      Watch Ad, Earn {creditsPerAd} Credits
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Today: {todayEarned} / {dailyLimit} ads watched
@@ -580,7 +580,7 @@ export default function Rewards() {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                      Buy {tokenConfig.token_amount} Tokens — {price}
+                      Buy {tokenConfig.token_amount} Tokens, {price}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Instantly top up your balance. Secure checkout via
@@ -629,7 +629,7 @@ export default function Rewards() {
             </div>
             <div>
               <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                Complete Offers — Earn FRELUX Credits
+                Complete Offers: Earn FRELUX Credits
               </p>
               <p className="text-xs text-muted-foreground">
                 Surveys, app installs, and other offers.
@@ -692,7 +692,7 @@ export default function Rewards() {
               />
               <span>
                 You have <strong>{unusedAiTokens}</strong> unused AI Estimate
-                Token{unusedAiTokens > 1 ? "s" : ""} — it&apos;ll be used
+                Token{unusedAiTokens > 1 ? "s" : ""}, it&apos;ll be used
                 automatically next time you hit your daily AI limit.
               </span>
             </div>

@@ -93,9 +93,9 @@ function AiFeatureSlide() {
 
 export default function ImageEstimator() {
   useSeo({
-    title: "AI Photo Estimator — AI-Assisted Preliminary Estimation | FRELUX",
+    title: "AI Photo Estimator, AI-Assisted Preliminary Estimation | FRELUX",
     description:
-      "Upload a photo of any building for AI-assisted preliminary construction estimation. AI analyzes visible features to suggest dimensions and materials. Results are preliminary — verify with actual drawings and a qualified professional.",
+      "Upload a photo of any building for AI-assisted preliminary construction estimation. AI analyzes visible features to suggest dimensions and materials. Results are preliminary, verify with actual drawings and a qualified professional.",
     keywords:
       "AI building estimator, photo to construction cost, building image analysis, Nigerian construction AI",
   });
@@ -456,7 +456,7 @@ export default function ImageEstimator() {
                     dimensions, roof type, and building type. You can review and
                     adjust the AI's estimates before generating a cost
                     breakdown. This is an{" "}
-                    <strong>AI-assisted preliminary estimate</strong> — a
+                    <strong>AI-assisted preliminary estimate</strong>, a
                     photograph cannot determine hidden construction conditions,
                     exact dimensions, or structural integrity. Always verify
                     with actual drawings, site measurements, and a qualified
@@ -736,7 +736,7 @@ export default function ImageEstimator() {
                   </div>
                   {!analysis.validation_passed && (
                     <p className="mt-2 text-xs text-red-500">
-                      ⚠ Some AI parameters failed validation — verify
+                      ⚠ Some AI parameters failed validation, verify
                       highlighted values before generating estimate.
                     </p>
                   )}
@@ -1047,7 +1047,7 @@ function EstimateResultView({
         )}
         <p className="mt-3 text-xs text-muted-foreground">
           These are preliminary estimates derived from photo analysis and your
-          adjustments — not a structural or geotechnical design. Final
+          adjustments, not a structural or geotechnical design. Final
           quantities and safety requirements must come from a qualified
           structural engineer working from actual drawings and site
           investigations.
@@ -1217,7 +1217,7 @@ function EstimateResultView({
             <PremiumFeatureGate
               featureKey="pdf_export"
               featureName="PDF Export"
-              description="Print or export your estimate as PDF. One-time use — unlock each export."
+              description="Print or export your estimate as PDF. One-time use, unlock each export."
               onUnlock={() => {
                 setPdfUnlocked(true);
                 setPdfGateOpen(false);

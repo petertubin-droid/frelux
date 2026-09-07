@@ -31,7 +31,7 @@ export default function PostListing() {
   const { user, profile } = useAuth();
   useSeo({
     description: "FRELUX marketplace",
-    title: "Post a Job — FRELUX Marketplace",
+    title: "Post a Job, FRELUX Marketplace",
     canonicalPath: "/marketplace/post",
   });
 
