@@ -89,7 +89,7 @@ interface KindSpec {
 }
 
 /** Every Stage-6 kind writes project data on execution → CONFIRM. */
-const KIND_SPECS: Record<PreparedActionKind, KindSpec> = {
+export const KIND_SPECS: Record<PreparedActionKind, KindSpec> = {
   record_purchase: { label: "Record a purchase", permission: "confirm" },
   confirm_stage_completion: {
     label: "Confirm a construction stage as completed",
@@ -409,40 +409,51 @@ async function validateParams(
 
   // update_material_price — the material catalog is authoritative
   // for the write (Stage 7), so existence is checked against it.
-  const p = params as UpdateMaterialPriceParams;
-  if (!p?.materialId) return paramError("A material must be selected.");
-  if (!isPositiveNumber(p.newPrice))
-    return paramError("The new price must be a positive number.");
-  try {
-    const { data, error } = await supabase
-      .from("material_catalog")
-      .select("id, name, current_price")
-      .eq("id", p.materialId)
-      .maybeSingle();
-    if (error) return persistError("Material lookup failed", error.message);
-    if (!data)
-      return paramError(
-        `Material ${p.materialId} is not in the material catalog.`,
-      );
-    const mat = data as {
-      id: string;
-      name: string;
-      current_price: number | null;
-    };
-    return {
-      ok: true,
-      data: {
-        what: `Update the price of "${mat.name}" to ${p.newPrice}${p.source ? ` (source: ${p.source})` : ""}.`,
-        expectedResult: `"${mat.name}" current price becomes ${p.newPrice} (from ${mat.current_price ?? "unset"}); the change is recorded in price history${p.source ? ` with source "${p.source}"` : ""}.`,
-        dataUsed: [
-          `material:${mat.id}`,
-          `material_recorded_price:${mat.current_price ?? "none"}`,
-        ],
-      },
-    };
-  } catch (e) {
-    return persistError("Material lookup failed", String(e));
+  // Stage 12 — the branch is kind-guarded so an unregistered
+  // (adversarial or corrupted) kind can never fall into it.
+  if (kind === "update_material_price") {
+    const p = params as UpdateMaterialPriceParams;
+    if (!p?.materialId) return paramError("A material must be selected.");
+    if (!isPositiveNumber(p.newPrice))
+      return paramError("The new price must be a positive number.");
+    try {
+      const { data, error } = await supabase
+        .from("material_catalog")
+        .select("id, name, current_price")
+        .eq("id", p.materialId)
+        .maybeSingle();
+      if (error) return persistError("Material lookup failed", error.message);
+      if (!data)
+        return paramError(
+          `Material ${p.materialId} is not in the material catalog.`,
+        );
+      const mat = data as {
+        id: string;
+        name: string;
+        current_price: number | null;
+      };
+      return {
+        ok: true,
+        data: {
+          what: `Update the price of "${mat.name}" to ${p.newPrice}${p.source ? ` (source: ${p.source})` : ""}.`,
+          expectedResult: `"${mat.name}" current price becomes ${p.newPrice} (from ${mat.current_price ?? "unset"}); the change is recorded in price history${p.source ? ` with source "${p.source}"` : ""}.`,
+          dataUsed: [
+            `material:${mat.id}`,
+            `material_recorded_price:${mat.current_price ?? "none"}`,
+          ],
+        },
+      };
+    } catch (e) {
+      return persistError("Material lookup failed", String(e));
+    }
   }
+
+  // Stage 12 — adversarial/corrupted input: an unregistered kind
+  // never validates and never dispatches. Refused explicitly,
+  // never by fallthrough.
+  return paramError(
+    `Unknown action kind "${String(kind)}". The agent only validates registered action kinds.`,
+  );
 }
 
 function paramError(message: string): Validation {
@@ -460,6 +471,20 @@ export async function prepareAction(
 ): Promise<AgentResult<PrepareActionResult>> {
   const visible = await assertProjectVisible(projectId);
   if (!visible.ok) return visible;
+
+  // Stage 12 — adversarial input: an unregistered action kind is
+  // refused cleanly BEFORE any lookup. It is never indexed (which
+  // would crash) and there is no fallback preparation.
+  if (!(request.kind in KIND_SPECS) || !KIND_CONDITIONS[request.kind])
+    return {
+      ok: false,
+      error: {
+        code: "invalid_params",
+        message:
+          `Unknown action kind "${String(request.kind)}". The agent only ` +
+          `prepares registered action kinds — no fallbacks.`,
+      },
+    };
 
   // Idempotency first: a duplicate submission collapses to the
   // existing action. No second insert, no state change.
@@ -585,6 +610,11 @@ export async function requestApproval(
   const row = await loadActionRow(actionId);
   if (!row.ok) return row;
   if (!row.data) return notFound("Prepared action not found.");
+  // Stage 12 — property isolation: an action loaded by bare ID
+  // must belong to THIS project, or it is not found. No
+  // cross-project routing even for the same account.
+  if (row.data.project_id !== projectId)
+    return notFound("The action belongs to a different project.");
   const action = rowToAction(row.data);
 
   if (action.state !== "prepared")
@@ -694,6 +724,10 @@ export async function decideApproval(
   const actionRow = await loadActionRow(approval.actionId);
   if (!actionRow.ok) return actionRow;
   if (!actionRow.data) return notFound("Prepared action not found.");
+  // Stage 12 — property isolation: the approval's action must
+  // belong to THIS project.
+  if (actionRow.data.project_id !== projectId)
+    return notFound("The action belongs to a different project.");
   const action = rowToAction(actionRow.data);
 
   if (approval.state !== "pending")
@@ -803,6 +837,11 @@ export async function cancelAction(
   const row = await loadActionRow(actionId);
   if (!row.ok) return row;
   if (!row.data) return notFound("Prepared action not found.");
+  // Stage 12 — property isolation: an action loaded by bare ID
+  // must belong to THIS project, or it is not found. No
+  // cross-project routing even for the same account.
+  if (row.data.project_id !== projectId)
+    return notFound("The action belongs to a different project.");
   const action = rowToAction(row.data);
 
   // Cancel any pending approval alongside the action.
@@ -859,6 +898,11 @@ export async function amendPreparedAction(
   const row = await loadActionRow(actionId);
   if (!row.ok) return row;
   if (!row.data) return notFound("Prepared action not found.");
+  // Stage 12 — property isolation: an action loaded by bare ID
+  // must belong to THIS project, or it is not found. No
+  // cross-project routing even for the same account.
+  if (row.data.project_id !== projectId)
+    return notFound("The action belongs to a different project.");
   const action = rowToAction(row.data);
 
   if (action.state !== "prepared")
@@ -1030,6 +1074,10 @@ export async function describePreparedAction(
   const row = await loadActionRow(actionId);
   if (!row.ok) return row;
   if (!row.data) return notFound("Prepared action not found.");
+  // Stage 12 — property isolation (same guard as the other
+  // action endpoints).
+  if (row.data.project_id !== projectId)
+    return notFound("The action belongs to a different project.");
   let action = rowToAction(row.data);
 
   const approvalsRes = await loadApprovalsForAction(actionId);

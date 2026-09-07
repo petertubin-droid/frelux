@@ -32,6 +32,7 @@ import { buildProjectSnapshot } from "@/lib/predictive-intelligence/snapshot";
 import type { PredictiveProjectSnapshot } from "@/lib/predictive-intelligence/types";
 import type { PreparedAction } from "./types";
 import {
+  KIND_SPECS,
   validateActionParams,
   type PreparedActionKind,
   type PreparedActionParams,
@@ -713,6 +714,13 @@ async function performWrite(
   action: ExecutableActionRow,
   nowIso: string,
 ): Promise<AgentResult<WriteOutcome>> {
+  // Stage 12 — defensive: only registered kinds can ever reach
+  // execution (prepareAction validates at creation), but a
+  // corrupted row is refused cleanly, never dispatched by fallthrough.
+  if (!(action.kind in KIND_SPECS))
+    return invalidState(
+      `Refusing to execute unregistered action kind "${String(action.kind)}".`,
+    );
   switch (action.kind) {
     case "record_purchase": {
       const p = action.payload as {
