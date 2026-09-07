@@ -23,15 +23,9 @@ const routes = [
   { path: '/start-building', priority: '0.9', changefreq: 'weekly' },
   { path: '/paint-calculator', priority: '0.9', changefreq: 'monthly' },
   { path: '/screeding-calculator', priority: '0.9', changefreq: 'monthly' },
-  { path: '/cost-estimator', priority: '0.9', changefreq: 'monthly' },
   { path: '/pop-ceiling-calculator', priority: '0.8', changefreq: 'monthly' },
   { path: '/tile-calculator', priority: '0.8', changefreq: 'monthly' },
-  { path: '/painting-estimator', priority: '0.8', changefreq: 'monthly' },
-  { path: '/screeding-cost-estimator', priority: '0.8', changefreq: 'monthly' },
-  { path: '/pop-ceiling-cost-estimator', priority: '0.8', changefreq: 'monthly' },
-  { path: '/tile-cost-estimator', priority: '0.8', changefreq: 'monthly' },
   { path: '/finish-estimator', priority: '0.7', changefreq: 'monthly' },
-  { path: '/tyrolene-estimator', priority: '0.7', changefreq: 'monthly' },
   { path: '/colors', priority: '0.8', changefreq: 'weekly' },
   { path: '/colors/compare', priority: '0.7', changefreq: 'monthly' },
   { path: '/ai-color-assistant', priority: '0.7', changefreq: 'monthly' },
@@ -144,11 +138,18 @@ async function fetchLearnRoutes() {
 const learnRoutes = await fetchLearnRoutes();
 const allRoutes = [...routes, ...learnRoutes];
 
+// Netlify's "pretty URLs" force-redirect every path to its trailing-slash
+// form (301 /calculators -> /calculators/). The sitemap must list the final
+// URL only, otherwise Google Search Console flags every entry as a redirect.
+// The deprecated consolidation routes (cost-estimator etc.) redirect to
+// ?mode= URLs, so they are deliberately absent from the route list.
+const canonical = (p) => (p === '/' ? p : `${p}/`);
+
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"${' '}
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${allRoutes.map(r => `  <url>
-    <loc>${SITE_URL}${r.path}</loc>
+    <loc>${SITE_URL}${canonical(r.path)}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${r.changefreq}</changefreq>
     <priority>${r.priority}</priority>

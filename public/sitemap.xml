@@ -8,913 +8,877 @@
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/calculators</loc>
+    <loc>https://freluxtools.netlify.app/calculators/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/start-building</loc>
+    <loc>https://freluxtools.netlify.app/start-building/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/paint-calculator</loc>
+    <loc>https://freluxtools.netlify.app/paint-calculator/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/screeding-calculator</loc>
+    <loc>https://freluxtools.netlify.app/screeding-calculator/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/cost-estimator</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.netlify.app/pop-ceiling-calculator</loc>
+    <loc>https://freluxtools.netlify.app/pop-ceiling-calculator/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/tile-calculator</loc>
+    <loc>https://freluxtools.netlify.app/tile-calculator/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/painting-estimator</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.netlify.app/screeding-cost-estimator</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.netlify.app/pop-ceiling-cost-estimator</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.netlify.app/tile-cost-estimator</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.netlify.app/finish-estimator</loc>
+    <loc>https://freluxtools.netlify.app/finish-estimator/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/tyrolene-estimator</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.netlify.app/colors</loc>
+    <loc>https://freluxtools.netlify.app/colors/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/colors/compare</loc>
+    <loc>https://freluxtools.netlify.app/colors/compare/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/ai-color-assistant</loc>
+    <loc>https://freluxtools.netlify.app/ai-color-assistant/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn</loc>
+    <loc>https://freluxtools.netlify.app/learn/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates</loc>
+    <loc>https://freluxtools.netlify.app/templates/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/standard-living-room-painting</loc>
+    <loc>https://freluxtools.netlify.app/templates/standard-living-room-painting/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/master-bedroom-painting</loc>
+    <loc>https://freluxtools.netlify.app/templates/master-bedroom-painting/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/single-accent-wall-painting</loc>
+    <loc>https://freluxtools.netlify.app/templates/single-accent-wall-painting/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/exterior-bungalow-painting</loc>
+    <loc>https://freluxtools.netlify.app/templates/exterior-bungalow-painting/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/dining-room-painting</loc>
+    <loc>https://freluxtools.netlify.app/templates/dining-room-painting/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/childrens-room-painting</loc>
+    <loc>https://freluxtools.netlify.app/templates/childrens-room-painting/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/kitchen-walls-painting</loc>
+    <loc>https://freluxtools.netlify.app/templates/kitchen-walls-painting/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/corridor-stairwell-painting</loc>
+    <loc>https://freluxtools.netlify.app/templates/corridor-stairwell-painting/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/2-bedroom-flat-full-painting</loc>
+    <loc>https://freluxtools.netlify.app/templates/2-bedroom-flat-full-painting/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/office-space-painting</loc>
+    <loc>https://freluxtools.netlify.app/templates/office-space-painting/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/exterior-duplex-painting</loc>
+    <loc>https://freluxtools.netlify.app/templates/exterior-duplex-painting/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/shop-retail-front-painting</loc>
+    <loc>https://freluxtools.netlify.app/templates/shop-retail-front-painting/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/standard-floor-tiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/standard-floor-tiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/bathroom-wall-tiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/bathroom-wall-tiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/large-hall-floor-tiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/large-hall-floor-tiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/kitchen-backsplash-tiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/kitchen-backsplash-tiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/balcony-floor-tiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/balcony-floor-tiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/kitchen-floor-tiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/kitchen-floor-tiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/guest-toilet-wall-tiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/guest-toilet-wall-tiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/staircase-tiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/staircase-tiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/terrazzo-porcelain-floor-tiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/terrazzo-porcelain-floor-tiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/wall-feature-strip-tiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/wall-feature-strip-tiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/standard-room-screeding</loc>
+    <loc>https://freluxtools.netlify.app/templates/standard-room-screeding/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/single-wall-screeding</loc>
+    <loc>https://freluxtools.netlify.app/templates/single-wall-screeding/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/living-room-ceiling-screeding</loc>
+    <loc>https://freluxtools.netlify.app/templates/living-room-ceiling-screeding/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/corridor-walls-screeding</loc>
+    <loc>https://freluxtools.netlify.app/templates/corridor-walls-screeding/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/dining-room-screeding</loc>
+    <loc>https://freluxtools.netlify.app/templates/dining-room-screeding/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/office-screeding</loc>
+    <loc>https://freluxtools.netlify.app/templates/office-screeding/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/corridor-screeding</loc>
+    <loc>https://freluxtools.netlify.app/templates/corridor-screeding/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/single-feature-wall-screeding</loc>
+    <loc>https://freluxtools.netlify.app/templates/single-feature-wall-screeding/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/shop-front-screeding</loc>
+    <loc>https://freluxtools.netlify.app/templates/shop-front-screeding/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/standard-bedroom-pop-ceiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/standard-bedroom-pop-ceiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/large-living-room-pop-ceiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/large-living-room-pop-ceiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/small-office-pop-ceiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/small-office-pop-ceiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/hall-cornice-pop-ceiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/hall-cornice-pop-ceiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/dining-room-pop-ceiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/kitchen-pop-ceiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/kitchen-pop-ceiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/corridor-pop-ceiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/corridor-pop-ceiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/master-bedroom-pop-ceiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/master-bedroom-pop-ceiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/templates/conference-room-pop-ceiling</loc>
+    <loc>https://freluxtools.netlify.app/templates/conference-room-pop-ceiling/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/about</loc>
+    <loc>https://freluxtools.netlify.app/about/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/contact</loc>
+    <loc>https://freluxtools.netlify.app/contact/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/build-to-roof-estimator</loc>
+    <loc>https://freluxtools.netlify.app/build-to-roof-estimator/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/structural-calculator</loc>
+    <loc>https://freluxtools.netlify.app/structural-calculator/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/foundation-calculator</loc>
+    <loc>https://freluxtools.netlify.app/foundation-calculator/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/project-timeline</loc>
+    <loc>https://freluxtools.netlify.app/project-timeline/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/construction-sequence</loc>
+    <loc>https://freluxtools.netlify.app/construction-sequence/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/image-estimator</loc>
+    <loc>https://freluxtools.netlify.app/image-estimator/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/smart-calculator</loc>
+    <loc>https://freluxtools.netlify.app/smart-calculator/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/marketplace</loc>
+    <loc>https://freluxtools.netlify.app/marketplace/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/pro-connect</loc>
+    <loc>https://freluxtools.netlify.app/pro-connect/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/paint-comparison</loc>
+    <loc>https://freluxtools.netlify.app/paint-comparison/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/gallery</loc>
-    <lastmod>2026-09-06</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.7</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.netlify.app/material-prices</loc>
+    <loc>https://freluxtools.netlify.app/gallery/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/surface-assessment</loc>
+    <loc>https://freluxtools.netlify.app/material-prices/</loc>
+    <lastmod>2026-09-06</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.netlify.app/surface-assessment/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/pricing</loc>
+    <loc>https://freluxtools.netlify.app/pricing/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/privacy-policy</loc>
+    <loc>https://freluxtools.netlify.app/privacy-policy/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/terms</loc>
+    <loc>https://freluxtools.netlify.app/terms/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/cookie-policy</loc>
+    <loc>https://freluxtools.netlify.app/cookie-policy/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/disclaimer</loc>
+    <loc>https://freluxtools.netlify.app/disclaimer/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/ai-disclaimer</loc>
+    <loc>https://freluxtools.netlify.app/ai-disclaimer/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/category/painting</loc>
+    <loc>https://freluxtools.netlify.app/learn/category/painting/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/category/painting-guides</loc>
+    <loc>https://freluxtools.netlify.app/learn/category/painting-guides/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/category/screeding-guides</loc>
+    <loc>https://freluxtools.netlify.app/learn/category/screeding-guides/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/category/pop-ceiling-guides</loc>
+    <loc>https://freluxtools.netlify.app/learn/category/pop-ceiling-guides/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/category/tile-guides</loc>
+    <loc>https://freluxtools.netlify.app/learn/category/tile-guides/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/category/finishing-guides</loc>
+    <loc>https://freluxtools.netlify.app/learn/category/finishing-guides/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/category/construction-guides</loc>
+    <loc>https://freluxtools.netlify.app/learn/category/construction-guides/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/nigerian-building-regulations-what-you-need-to-know</loc>
+    <loc>https://freluxtools.netlify.app/learn/nigerian-building-regulations-what-you-need-to-know/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/construction-quality-control-inspection-checklist</loc>
+    <loc>https://freluxtools.netlify.app/learn/construction-quality-control-inspection-checklist/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/structural-considerations-multi-story-buildings</loc>
+    <loc>https://freluxtools.netlify.app/learn/structural-considerations-multi-story-buildings/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/choosing-right-roof-type-for-your-building</loc>
+    <loc>https://freluxtools.netlify.app/learn/choosing-right-roof-type-for-your-building/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/how-to-plan-your-build-to-roof-project</loc>
+    <loc>https://freluxtools.netlify.app/learn/how-to-plan-your-build-to-roof-project/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/building-on-budget-cost-optimization-strategies</loc>
+    <loc>https://freluxtools.netlify.app/learn/building-on-budget-cost-optimization-strategies/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/common-construction-mistakes-and-how-to-prevent</loc>
+    <loc>https://freluxtools.netlify.app/learn/common-construction-mistakes-and-how-to-prevent/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/construction-timeline-how-long-each-phase-takes</loc>
+    <loc>https://freluxtools.netlify.app/learn/construction-timeline-how-long-each-phase-takes/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/foundation-to-roof-understanding-build-process</loc>
+    <loc>https://freluxtools.netlify.app/learn/foundation-to-roof-understanding-build-process/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/how-to-estimate-materials-each-construction-phase</loc>
+    <loc>https://freluxtools.netlify.app/learn/how-to-estimate-materials-each-construction-phase/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/complete-guide-building-construction-sequence</loc>
+    <loc>https://freluxtools.netlify.app/learn/complete-guide-building-construction-sequence/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/finishing-quality-standards-what-to-look-for</loc>
+    <loc>https://freluxtools.netlify.app/learn/finishing-quality-standards-what-to-look-for/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/achieving-textured-finishes-techniques-tools</loc>
+    <loc>https://freluxtools.netlify.app/learn/achieving-textured-finishes-techniques-tools/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/skimming-vs-plastering-understanding-options</loc>
+    <loc>https://freluxtools.netlify.app/learn/skimming-vs-plastering-understanding-options/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/choosing-right-finish-different-surfaces</loc>
+    <loc>https://freluxtools.netlify.app/learn/choosing-right-finish-different-surfaces/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/cost-estimation-wall-finishing-projects</loc>
+    <loc>https://freluxtools.netlify.app/learn/cost-estimation-wall-finishing-projects/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/interior-vs-exterior-wall-finishing-differences</loc>
+    <loc>https://freluxtools.netlify.app/learn/interior-vs-exterior-wall-finishing-differences/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/common-finishing-defects-and-how-to-fix</loc>
+    <loc>https://freluxtools.netlify.app/learn/common-finishing-defects-and-how-to-fix/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/finishing-tools-every-contractor-should-own</loc>
+    <loc>https://freluxtools.netlify.app/learn/finishing-tools-every-contractor-should-own/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/types-of-wall-finishes-skim-coat-putty-paint</loc>
+    <loc>https://freluxtools.netlify.app/learn/types-of-wall-finishes-skim-coat-putty-paint/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/how-to-achieve-smooth-wall-finish</loc>
+    <loc>https://freluxtools.netlify.app/learn/how-to-achieve-smooth-wall-finish/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/complete-guide-interior-wall-finishing</loc>
+    <loc>https://freluxtools.netlify.app/learn/complete-guide-interior-wall-finishing/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/outdoor-tiling-weather-resistant-materials</loc>
+    <loc>https://freluxtools.netlify.app/learn/outdoor-tiling-weather-resistant-materials/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/tile-maintenance-cleaning-sealing-grout-care</loc>
+    <loc>https://freluxtools.netlify.app/learn/tile-maintenance-cleaning-sealing-grout-care/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/how-to-tile-bathroom-waterproofing-best-practices</loc>
+    <loc>https://freluxtools.netlify.app/learn/how-to-tile-bathroom-waterproofing-best-practices/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/tile-cost-estimation-materials-labour-budget</loc>
+    <loc>https://freluxtools.netlify.app/learn/tile-cost-estimation-materials-labour-budget/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/tile-layout-patterns-herringbone-straight-diagonal</loc>
+    <loc>https://freluxtools.netlify.app/learn/tile-layout-patterns-herringbone-straight-diagonal/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/common-tiling-mistakes-and-how-to-avoid</loc>
+    <loc>https://freluxtools.netlify.app/learn/common-tiling-mistakes-and-how-to-avoid/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/tile-grout-selection-and-application</loc>
+    <loc>https://freluxtools.netlify.app/learn/tile-grout-selection-and-application/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/choosing-right-tiles-ceramic-porcelain-stone</loc>
+    <loc>https://freluxtools.netlify.app/learn/choosing-right-tiles-ceramic-porcelain-stone/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/wall-tiling-step-by-step-installation</loc>
+    <loc>https://freluxtools.netlify.app/learn/wall-tiling-step-by-step-installation/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/how-to-calculate-tile-quantities-any-room</loc>
+    <loc>https://freluxtools.netlify.app/learn/how-to-calculate-tile-quantities-any-room/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/complete-guide-floor-tile-installation</loc>
+    <loc>https://freluxtools.netlify.app/learn/complete-guide-floor-tile-installation/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/diy-pop-ceiling-can-you-install-yourself</loc>
+    <loc>https://freluxtools.netlify.app/learn/diy-pop-ceiling-can-you-install-yourself/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/pop-ceiling-maintenance-and-repair-tips</loc>
+    <loc>https://freluxtools.netlify.app/learn/pop-ceiling-maintenance-and-repair-tips/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/pop-ceiling-lighting-integration-guide</loc>
+    <loc>https://freluxtools.netlify.app/learn/pop-ceiling-lighting-integration-guide/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/creative-pop-ceiling-designs-for-living-rooms</loc>
+    <loc>https://freluxtools.netlify.app/learn/creative-pop-ceiling-designs-for-living-rooms/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/pop-ceiling-cost-estimation-guide</loc>
+    <loc>https://freluxtools.netlify.app/learn/pop-ceiling-cost-estimation-guide/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/common-pop-ceiling-problems-and-solutions</loc>
+    <loc>https://freluxtools.netlify.app/learn/common-pop-ceiling-problems-and-solutions/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/pop-ceiling-vs-suspended-ceiling-comparison</loc>
+    <loc>https://freluxtools.netlify.app/learn/pop-ceiling-vs-suspended-ceiling-comparison/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/step-by-step-pop-ceiling-board-installation</loc>
+    <loc>https://freluxtools.netlify.app/learn/step-by-step-pop-ceiling-board-installation/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/types-of-pop-ceiling-designs-and-patterns</loc>
+    <loc>https://freluxtools.netlify.app/learn/types-of-pop-ceiling-designs-and-patterns/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/how-to-calculate-pop-ceiling-material-quantities</loc>
+    <loc>https://freluxtools.netlify.app/learn/how-to-calculate-pop-ceiling-material-quantities/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/complete-guide-pop-ceiling-installation</loc>
+    <loc>https://freluxtools.netlify.app/learn/complete-guide-pop-ceiling-installation/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/curing-drying-times-screeded-walls</loc>
+    <loc>https://freluxtools.netlify.app/learn/curing-drying-times-screeded-walls/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/screeding-tools-equipment-guide</loc>
+    <loc>https://freluxtools.netlify.app/learn/screeding-tools-equipment-guide/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/how-to-estimate-screeding-costs-nigeria</loc>
+    <loc>https://freluxtools.netlify.app/learn/how-to-estimate-screeding-costs-nigeria/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/screeding-exterior-walls-tips-techniques</loc>
+    <loc>https://freluxtools.netlify.app/learn/screeding-exterior-walls-tips-techniques/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/best-bonding-agents-wall-screeding</loc>
+    <loc>https://freluxtools.netlify.app/learn/best-bonding-agents-wall-screeding/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/how-to-prepare-walls-for-screeding</loc>
+    <loc>https://freluxtools.netlify.app/learn/how-to-prepare-walls-for-screeding/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/screeding-vs-plastering-key-differences</loc>
+    <loc>https://freluxtools.netlify.app/learn/screeding-vs-plastering-key-differences/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/common-screeding-mistakes-how-to-avoid</loc>
+    <loc>https://freluxtools.netlify.app/learn/common-screeding-mistakes-how-to-avoid/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/cement-sand-ratio-screeding-explained</loc>
+    <loc>https://freluxtools.netlify.app/learn/cement-sand-ratio-screeding-explained/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/how-to-calculate-screeding-material-quantities</loc>
+    <loc>https://freluxtools.netlify.app/learn/how-to-calculate-screeding-material-quantities/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/complete-guide-wall-screeding-professional</loc>
+    <loc>https://freluxtools.netlify.app/learn/complete-guide-wall-screeding-professional/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/essential-painting-video-tutorials-walkthroughs-beginners</loc>
+    <loc>https://freluxtools.netlify.app/learn/essential-painting-video-tutorials-walkthroughs-beginners/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/complete-guide-painting-interior-walls-professional</loc>
+    <loc>https://freluxtools.netlify.app/learn/complete-guide-painting-interior-walls-professional/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/how-paint-colors-affect-mood-and-space-perception</loc>
+    <loc>https://freluxtools.netlify.app/learn/how-paint-colors-affect-mood-and-space-perception/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/professional-painting-tips-techniques-better-results</loc>
+    <loc>https://freluxtools.netlify.app/learn/professional-painting-tips-techniques-better-results/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/frequently-asked-questions-about-paint-colors-and-calculators</loc>
+    <loc>https://freluxtools.netlify.app/learn/frequently-asked-questions-about-paint-colors-and-calculators/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/essential-guide-preparing-surfaces-before-painting</loc>
+    <loc>https://freluxtools.netlify.app/learn/essential-guide-preparing-surfaces-before-painting/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/choosing-right-paint-type-finish-for-every-room</loc>
+    <loc>https://freluxtools.netlify.app/learn/choosing-right-paint-type-finish-for-every-room/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/paint-kitchen-cabinets-without-removing-them</loc>
+    <loc>https://freluxtools.netlify.app/learn/paint-kitchen-cabinets-without-removing-them/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/top-paint-brands-compared-which-premium-paint-worth-your-money</loc>
+    <loc>https://freluxtools.netlify.app/learn/top-paint-brands-compared-which-premium-paint-worth-your-money/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/real-world-painting-projects-dramatic-transformations</loc>
+    <loc>https://freluxtools.netlify.app/learn/real-world-painting-projects-dramatic-transformations/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://freluxtools.netlify.app/learn/paint-industry-trends-innovations-shaping-2026-and-beyond</loc>
+    <loc>https://freluxtools.netlify.app/learn/paint-industry-trends-innovations-shaping-2026-and-beyond/</loc>
     <lastmod>2026-09-06</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

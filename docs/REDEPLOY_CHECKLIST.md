@@ -40,7 +40,7 @@ curl -s -X POST "https://api.indexnow.org/IndexNow" \
 ```
 
 - [ ] Key file live (3a)
-- [ ] Bulk submission accepted (3b) — expect 153 URLs
+- [ ] Bulk submission accepted (3b) — expect 147 URLs
 - [ ] Status visible in Bing Webmaster Tools → IndexNow within ~48h
 
 ## 4. AdSense final activation
