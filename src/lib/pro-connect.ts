@@ -70,7 +70,8 @@ export async function fetchLocations(): Promise<DbProLocation[]> {
     if (import.meta.env.DEV) console.error('[pro-connect] fetchLocations:', error.message);
     return [];
   }
-  return data as DbProLocation[];
+  // Guard: supabase may resolve data:null — callers expect an array.
+  return (data ?? []) as DbProLocation[];
 
   } catch (err) {
     if (import.meta.env.DEV) console.error('[pro-connect] fetchLocations:', err);

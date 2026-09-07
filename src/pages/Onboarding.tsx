@@ -65,9 +65,16 @@ export default function Onboarding() {
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
-    fetchLocations().then((locs) => {
-      setStates([...new Set(locs.map((l) => l.state))].sort());
-    });
+    fetchLocations()
+      .then((locs) => {
+        // locs is null-safe: fetchLocations guarantees an array,
+        // but guard anyway — this effect must never reject unhandled.
+        setStates([...new Set((locs ?? []).map((l) => l.state))].sort());
+      })
+      .catch(() => {
+        // A locations fetch failure must never crash onboarding.
+        setStates([]);
+      });
   }, []);
 
   function toggleGoal(id: string) {

@@ -11,10 +11,23 @@
 //     fabricated analysis
 // =========================================================
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // Controlled snapshot: identical shape to the real builder output.
 const NOW = "2026-09-07T12:00:00.000Z";
+
+// The cache-age check (tryLoadCache) uses the REAL clock
+// (Date.now()) — the wall clock at test time, not the snapshot's
+// `now`. Pin it to the reference time so freshness is
+// deterministic no matter when the suite runs (this test used to
+// fail whenever CI ran more than 6 hours after `NOW`).
+let dateNowSpy: ReturnType<typeof vi.spyOn>;
+beforeEach(() => {
+  dateNowSpy = vi.spyOn(Date, "now").mockReturnValue(new Date(NOW).getTime());
+});
+afterEach(() => {
+  dateNowSpy.mockRestore();
+});
 function makeSnapshot(overrides: Record<string, unknown> = {}) {
   return {
     projectId: "proj-1",
