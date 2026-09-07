@@ -85,7 +85,7 @@ describe('useSeo', () => {
       renderSeo({ title: 'T', description: 'd', canonicalPath: '/about' });
       const link = getLink('canonical');
       expect(link).not.toBeNull();
-      expect(link!.getAttribute('href')).toBe(`${SITE_URL}/about`);
+      expect(link!.getAttribute('href')).toBe(`${SITE_URL}/about/`);
     });
 
     it('creates a canonical link pointing to SITE_URL when canonicalPath is absent', () => {
@@ -99,10 +99,10 @@ describe('useSeo', () => {
         description: 'd',
         canonicalPath: '/a',
       });
-      expect(getLink('canonical')!.getAttribute('href')).toBe(`${SITE_URL}/a`);
+      expect(getLink('canonical')!.getAttribute('href')).toBe(`${SITE_URL}/a/`);
 
       rerender({ title: 'T', description: 'd', canonicalPath: '/b' });
-      expect(getLink('canonical')!.getAttribute('href')).toBe(`${SITE_URL}/b`);
+      expect(getLink('canonical')!.getAttribute('href')).toBe(`${SITE_URL}/b/`);
       expect(document.head.querySelectorAll('link[rel="canonical"]')).toHaveLength(1);
     });
   });
@@ -146,7 +146,7 @@ describe('useSeo', () => {
       );
       expect(getMetaContent('property', 'og:description')).toBe('desc');
       expect(getMetaContent('property', 'og:type')).toBe('article');
-      expect(getMetaContent('property', 'og:url')).toBe(`${SITE_URL}/page`);
+      expect(getMetaContent('property', 'og:url')).toBe(`${SITE_URL}/page/`);
       expect(getMetaContent('property', 'og:site_name')).toBe('FRELUX PROJECT CALC');
       expect(getMetaContent('property', 'og:image')).toBe(
         'https://example.com/img.png',
@@ -161,7 +161,7 @@ describe('useSeo', () => {
 
     it('uses the canonicalPath for og:url and defaults to SITE_URL when absent', () => {
       renderSeo({ title: 'T', description: 'd', canonicalPath: '/x' });
-      expect(getMetaContent('property', 'og:url')).toBe(`${SITE_URL}/x`);
+      expect(getMetaContent('property', 'og:url')).toBe(`${SITE_URL}/x/`);
 
       renderSeo({ title: 'T', description: 'd' });
       expect(getMetaContent('property', 'og:url')).toBe(SITE_URL);

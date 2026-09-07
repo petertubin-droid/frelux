@@ -55,7 +55,12 @@ export function useSeo(meta: SeoMeta | null) {
   useEffect(() => {
     if (!meta) return;
     const fullTitle = meta.title.includes('FRELUX') ? meta.title : `${meta.title}: FRELUX PROJECT CALC`;
-    const canonicalUrl = `${SITE_URL}${meta.canonicalPath ?? ''}`;
+    // Netlify pretty URLs force-redirect /path to /path/ (301), so the
+    // canonical URL must use the trailing-slash form to match what is
+    // actually served and indexed.
+    const rawCanonicalPath = meta.canonicalPath ?? '';
+    const canonicalPath = !rawCanonicalPath || rawCanonicalPath === '/' ? rawCanonicalPath : `${rawCanonicalPath}/`;
+    const canonicalUrl = `${SITE_URL}${canonicalPath}`;
     const ogImage = meta.ogImage ?? DEFAULT_OG_IMAGE;
 
     // Primary meta
