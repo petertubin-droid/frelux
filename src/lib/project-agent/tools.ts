@@ -26,10 +26,8 @@
 import { supabase } from "@/lib/supabase";
 import { assertProjectVisible } from "./session";
 import type { AgentDataClass, AgentResult } from "./types";
-import {
-  buildProjectSnapshot,
-  type PredictiveProjectSnapshot,
-} from "@/lib/predictive-intelligence/snapshot";
+import { buildProjectSnapshot } from "@/lib/predictive-intelligence/snapshot";
+import type { PredictiveProjectSnapshot } from "@/lib/predictive-intelligence/types";
 import { analyzeProject } from "@/lib/predictive-intelligence/analysis";
 import {
   listEngines,
@@ -699,11 +697,11 @@ async function runShoppingList(
   if (!snap.ok)
     return insufficient("shopping_list", engineUsed, ["visible project data"], nowIso);
 
-  const items = snap.data.shoppingItems as Array<Record<string, unknown>>;
+  const items = snap.data.shoppingItems;
   const lastTouched =
     items.length > 0
       ? (items
-          .map((i) => i.updatedAt as string | undefined)
+          .map((i) => i.updated_at)
           .filter((t): t is string => Boolean(t))
           .sort()
           .pop() ?? nowIso)
@@ -1029,9 +1027,9 @@ async function runPropertyAnalysis(
     executedAt: nowIso,
     engineUsed,
     result: report,
-    missingData: Object.entries(report.condition.assessments ?? {})
-      .filter(([, a]) => (a as { status?: string } | null)?.status !== "assessed")
-      .map(([category]) => `condition assessment: ${category}`),
+    missingData: report.condition.unassessedCategories.map(
+      (category) => `condition assessment: ${category}`,
+    ),
     inputsUsed: [
       {
         key: "linkedProperty",

@@ -290,8 +290,8 @@ describe("build_to_roof — verbatim engine parity", () => {
     expect({ ...(direct as object), calculatedAt: undefined }).toEqual(
       { ...(res.data.result as object), calculatedAt: undefined },
     );
-    expect((res.data.result as { costs: { grandTotal: number } }).costs.grandTotal)
-      .toEqual(direct.costs?.grandTotal);
+    expect((res.data.result as { costs: { total: number } }).costs.total)
+      .toEqual(direct.costs?.total);
     expect(res.data.engineUsed).toContain("build_to_roof");
     // Provenance: user-supplied overrides marked user_provided.
     const loc = res.data.inputsUsed.find((i) => i.key === "location");
@@ -467,7 +467,7 @@ describe("cost_analysis & shopping_list & calculator_lookup — recorded data ve
 
   it("shopping list returns recorded items with estimated/actual intact", async () => {
     snapshotState.shoppingItems = [
-      { id: "s1", name: "Cement", quantity: 10, estimated_price: 5500, actual_price: 5600, is_purchased: true, updatedAt: "2026-09-01T00:00:00Z" },
+      { id: "s1", name: "Cement", quantity: 10, estimated_price: 5500, actual_price: 5600, is_purchased: true, updated_at: "2026-09-01T00:00:00Z" },
     ];
     const res = await invokeAgentTool("proj-1", { tool: "shopping_list" }, NOW);
     expect(res.ok).toBe(true);

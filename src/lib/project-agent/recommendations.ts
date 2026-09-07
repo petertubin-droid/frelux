@@ -31,10 +31,8 @@ import {
   buildProjectAgentContext,
   type ProjectAgentContext,
 } from "./context";
-import {
-  buildProjectSnapshot,
-  type PredictiveProjectSnapshot,
-} from "@/lib/predictive-intelligence/snapshot";
+import { buildProjectSnapshot } from "@/lib/predictive-intelligence/snapshot";
+import type { PredictiveProjectSnapshot } from "@/lib/predictive-intelligence/types";
 import { analyzeProject } from "@/lib/predictive-intelligence/analysis";
 import type {
   ProjectPredictiveAnalysis,

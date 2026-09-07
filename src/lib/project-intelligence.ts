@@ -102,6 +102,8 @@ export interface ShoppingItemWithActual {
   notes: string | null;
   is_purchased: boolean;
   sort_order: number;
+  /** DB-maintained (set_updated_at trigger) — present on rows from the DB. */
+  updated_at?: string;
 }
 
 export interface ShoppingListTotals {

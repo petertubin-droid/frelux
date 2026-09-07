@@ -48,24 +48,9 @@ export interface AgentFact {
   note?: string;
 }
 
-/** A recommendation the agent produced from evidence. */
-export interface AgentRecommendation {
-  id: string;
-  /** What is recommended. */
-  recommendation: string;
-  /** Evidence backing it — fact keys and what they show. */
-  evidence: string[];
-  /** Which project element it affects. */
-  affectedElement: string;
-  severity: "info" | "warning" | "critical";
-  confidence: number;
-  assumptions: string[];
-  dataFreshness: string;
-  recommendedNextStep: string;
-  /** Deterministic lifecycle position. */
-  state: AgentLifecycleState;
-  createdAt: string;
-}
+/** A recommendation the agent produced from evidence.
+ *  The implemented contract lives in recommendations.ts
+ *  (Stage 4) — the former placeholder here is superseded. */
 
 /** An action the agent has prepared for user approval. */
 export interface PreparedAction {

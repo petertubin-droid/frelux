@@ -38,6 +38,7 @@ interface DbShoppingRow {
   notes: string | null;
   is_purchased: boolean;
   sort_order: number;
+  updated_at?: string;
 }
 
 interface DbStageRow {
@@ -184,6 +185,7 @@ export async function buildProjectSnapshot(
       total_price: Number(s.total_price),
       supplier: s.supplier,
       notes: s.notes,
+      updated_at: s.updated_at ?? undefined,
       is_purchased: s.is_purchased,
       sort_order: s.sort_order,
     })),
