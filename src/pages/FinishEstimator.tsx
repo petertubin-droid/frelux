@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Paintbrush,
   SprayCan,
@@ -52,6 +53,10 @@ import type { DbFinishType, DbSiteSettings } from "@/types/database";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
+import {
+  useProjectLocationCurrency,
+  type FreluxLocation,
+} from "@/lib/location-intelligence";
 
 // Default door/window dims now from admin calc rules via useCalcDefaults
 
@@ -64,10 +69,16 @@ const finishTypeMeta: Record<
   grafitex: { icon: Layers, color: "text-emerald-600" },
 };
 
+interface PassedState {
+  /** Canonical project location (location-intelligence) passed via router state. */
+  projectLocation?: FreluxLocation | null;
+}
+
 export default function FinishEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults("finish");
+  const passed = (useLocation().state as PassedState | null) ?? {};
   const defaultDoorDims: OpeningDimensions = {
     width: calcDefaults.doorWidthM,
     height: calcDefaults.doorHeightM,
@@ -105,8 +116,14 @@ export default function FinishEstimator({
   const [result, setResult] = useState<FinishCalcResult | null>(null);
   const [saved, setSaved] = useState(false);
 
-  const currencySymbol = settings?.default_currency_symbol ?? "₦";
-  const currency = settings?.default_currency ?? "NGN";
+  // Regional data flow: project location -> market profile -> currency.
+  const {
+    currencyCode: projectCurrencyCode,
+    currencySymbol: projectCurrencySymbol,
+  } = useProjectLocationCurrency(passed.projectLocation ?? null);
+  const currencySymbol =
+    projectCurrencySymbol ?? settings?.default_currency_symbol ?? "₦";
+  const currency = projectCurrencyCode ?? settings?.default_currency ?? "NGN";
 
   const [areaInput, setAreaInput] = useState<ScreedingCalcInput>({
     method: "full_room",

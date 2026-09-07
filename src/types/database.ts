@@ -1439,7 +1439,7 @@ export interface DbWeatherCache {
 // =========================================================
 // Calculator Templates
 // =========================================================
-export type CalculatorType = "paint" | "tile" | "pop" | "screeding";
+export type CalculatorType = "paint" | "tile" | "pop" | "screeding" | "build_to_roof";
 export type TemplateVisibility = "private" | "public" | "unlisted";
 
 export interface DbCalculatorTemplate {

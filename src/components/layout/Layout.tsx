@@ -17,6 +17,9 @@ import { useAuth } from "@/lib/auth";
 const SupportChatWidget = lazy(
   () => import("@/components/layout/SupportChatWidget"),
 );
+const CopilotWidget = lazy(
+  () => import("@/components/copilot/CopilotWidget"),
+);
 const MobileBottomNav = lazy(() => import("@/components/ui/MobileBottomNav"));
 const OfflineIndicator = lazy(() =>
   import("@/components/ui/OfflineIndicator").then((m) => ({
@@ -459,6 +462,11 @@ export default function Layout() {
       </Suspense>
       <Suspense fallback={null}>
         <SupportChatWidget />
+      </Suspense>
+      {/* FRELUX AI Copilot — interprets requests, routes to
+          authoritative engines. Additive; no existing flow changed. */}
+      <Suspense fallback={null}>
+        <CopilotWidget />
       </Suspense>
       <Suspense fallback={null}>
         <MobileBottomNav />
