@@ -121,6 +121,9 @@ const AdminEstimationPricing = lazy(
 const AdminEstimationEstimates = lazy(
   () => import("@/pages/admin/AdminEstimationEstimates"),
 );
+const AdminLearningReview = lazy(
+  () => import("@/pages/admin/AdminLearningReview"),
+);
 const AdminEstimationAudit = lazy(
   () => import("@/pages/admin/AdminEstimationAudit"),
 );
@@ -1007,6 +1010,10 @@ export default function App() {
                     <Route
                       path="estimation-audit"
                       element={<AdminEstimationAudit />}
+                    />
+                    <Route
+                      path="learning-review"
+                      element={<AdminLearningReview />}
                     />
                     <Route
                       path="estimation-production"

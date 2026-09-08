@@ -109,6 +109,11 @@ const navModules: NavModule[] = [
       { label: "Estimates", to: "/admin/estimation-estimates", icon: FileText },
       { label: "Audit Log", to: "/admin/estimation-audit", icon: ShieldCheck },
       {
+        label: "Learning Review",
+        to: "/admin/learning-review",
+        icon: ShieldCheck,
+      },
+      {
         label: "Production Rules",
         to: "/admin/estimation-production",
         icon: Factory,

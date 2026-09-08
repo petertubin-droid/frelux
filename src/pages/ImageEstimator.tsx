@@ -4,6 +4,7 @@ import { useSeo } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { trackAiPhotoEstimatorRewards } from "@/lib/rewards-integration";
 import { supabase } from "@/lib/supabase";
+import { recordExtractionCorrection } from "@/lib/learning/learning-client";
 import {
   ImagePlus,
   Zap,
@@ -263,6 +264,9 @@ export default function ImageEstimator() {
       const aiInput = data.estimateInput as BuildToRoofInput;
       setAnalysis(aiAnalysis);
       setEstimateInput(aiInput);
+      // PHASE 6.5 — keep the pristine AI extraction so user adjustments can
+      // be recorded as Gemini learning events (AI value vs USER value).
+      aiOriginalInput.current = aiInput;
       setSavedId(data.savedId ?? null);
       setPhase("review");
     } catch (err) {
@@ -272,9 +276,37 @@ export default function ImageEstimator() {
     }
   }, [imageDataUrl, projectName, location, resizeImage]);
 
+  // PHASE 6.5 — pristine Gemini extraction for correction learning.
+  const aiOriginalInput = useRef<BuildToRoofInput | null>(null);
+
   // ── Generate estimate from review ──
   const generateEstimate = useCallback(() => {
     if (!estimateInput) return;
+    // PHASE 6.5 — Gemini learning: every adjusted field becomes a learning
+    // event (AI value vs USER value). Repeated verified corrections may
+    // produce a DRAFT improvement proposal; extraction logic itself never
+    // changes automatically.
+    const original = aiOriginalInput.current;
+    if (original) {
+      for (const key of Object.keys(original) as Array<
+        keyof BuildToRoofInput
+      >) {
+        const aiValue = original[key];
+        const userValue = estimateInput[key];
+        if (
+          typeof aiValue === "number" &&
+          typeof userValue === "number" &&
+          aiValue !== userValue
+        ) {
+          recordExtractionCorrection({
+            field: String(key),
+            aiValue,
+            userValue,
+            metadata: { origin: "ai-photo-estimator" },
+          }).catch(() => {});
+        }
+      }
+    }
     const result = monitoredCalc("AI Photo Estimator", () =>
       calculateBuildToRoof(estimateInput),
     );
@@ -736,8 +768,8 @@ export default function ImageEstimator() {
                   </div>
                   {!analysis.validation_passed && (
                     <p className="mt-2 text-xs text-red-500">
-                      ⚠ Some AI parameters failed validation, verify
-                      highlighted values before generating estimate.
+                      ⚠ Some AI parameters failed validation, verify highlighted
+                      values before generating estimate.
                     </p>
                   )}
                 </div>
@@ -1047,10 +1079,9 @@ function EstimateResultView({
         )}
         <p className="mt-3 text-xs text-muted-foreground">
           These are preliminary estimates derived from photo analysis and your
-          adjustments, not a structural or geotechnical design. Final
-          quantities and safety requirements must come from a qualified
-          structural engineer working from actual drawings and site
-          investigations.
+          adjustments, not a structural or geotechnical design. Final quantities
+          and safety requirements must come from a qualified structural engineer
+          working from actual drawings and site investigations.
         </p>
       </div>
 

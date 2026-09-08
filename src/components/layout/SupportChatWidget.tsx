@@ -1,29 +1,38 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { X, Send, Minus, Loader2, MessageCircle, ChevronRight, Phone } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from "react";
+import {
+  X,
+  Send,
+  Minus,
+  Loader2,
+  MessageCircle,
+  ChevronRight,
+  Phone,
+} from "lucide-react";
 // import { siteConfig } from '@/config/site';
-import { whatsappUrl } from '@/lib/analytics';
-import { supabase, getFunctionErrorMessage } from '@/lib/supabase';
-import { getClientId } from '@/lib/ai-access';
-import { classNames } from '@/lib/utils';
+import { whatsappUrl } from "@/lib/analytics";
+import { supabase, getFunctionErrorMessage } from "@/lib/supabase";
+import { recordLiveChatSignal } from "@/lib/learning/learning-client";
+import { getClientId } from "@/lib/ai-access";
+import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface ChatMessage {
   id: number;
-  from: 'user' | 'assistant';
+  from: "user" | "assistant";
   text: string;
   timestamp: number;
 }
 
 const SUGGESTED_QUESTIONS = [
-  'How much paint do I need for a 12×12 room?',
-  'How do I prepare my wall for painting?',
-  'What\'s the difference between POP and screeding?',
-  'Which paint finish is best for a bathroom?',
+  "How much paint do I need for a 12×12 room?",
+  "How do I prepare my wall for painting?",
+  "What's the difference between POP and screeding?",
+  "Which paint finish is best for a bathroom?",
 ];
 
 const WELCOME_MESSAGE: ChatMessage = {
   id: 0,
-  from: 'assistant',
+  from: "assistant",
   text: `Hi! I'm the FRELUX AI assistant. Ask me anything about paint quantities, POP ceiling, tiling, colors, or surface prep. I'll give you a practical answer right away.`,
   timestamp: Date.now(),
 };
@@ -32,7 +41,7 @@ export default function SupportChatWidget() {
   const [open, setOpen] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
-  const [draft, setDraft] = useState('');
+  const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -51,63 +60,85 @@ export default function SupportChatWidget() {
     }
   }, [open, minimized]);
 
-  const handleSend = useCallback(async (question?: string) => {
-    const q = (question ?? draft).trim();
-    if (!q || loading) return;
+  const handleSend = useCallback(
+    async (question?: string) => {
+      const q = (question ?? draft).trim();
+      if (!q || loading) return;
 
-    const userMsg: ChatMessage = {
-      id: Date.now(),
-      from: 'user',
-      text: q,
-      timestamp: Date.now(),
-    };
-    setMessages((m) => [...m, userMsg]);
-    setDraft('');
-    setLoading(true);
-    setHasInteracted(true);
-    setHasError(false);
-
-    try {
-      const clientId = getClientId();
-      const { data, error: fnError } = await supabase.functions.invoke<{
-        result?: string;
-        error?: string;
-      }>('ai-livechat', {
-        body: { question: q, clientId },
-      });
-
-      if (fnError) throw new Error(await getFunctionErrorMessage(fnError));
-      if (!data) throw new Error('No response from AI.');
-
-      const responseText = data.result || data.error || 'Sorry, I couldn\'t answer that right now. Try asking in a different way.';
-      setMessages((m) => [...m, {
-        id: Date.now() + 1,
-        from: 'assistant',
-        text: responseText,
+      const userMsg: ChatMessage = {
+        id: Date.now(),
+        from: "user",
+        text: q,
         timestamp: Date.now(),
-      }]);
-    } catch {
-      setHasError(true);
-      setMessages((m) => [...m, {
-        id: Date.now() + 1,
-        from: 'assistant',
-        text: 'I\'m having trouble right now. For immediate help, please reach us on WhatsApp. We typically reply within minutes.',
-        timestamp: Date.now(),
-      }]);
-    } finally {
-      setLoading(false);
-    }
-  }, [draft, loading]);
+      };
+      setMessages((m) => [...m, userMsg]);
+      setDraft("");
+      setLoading(true);
+      setHasInteracted(true);
+      setHasError(false);
+
+      try {
+        const clientId = getClientId();
+        const { data, error: fnError } = await supabase.functions.invoke<{
+          result?: string;
+          error?: string;
+        }>("ai-livechat", {
+          body: { question: q, clientId },
+        });
+
+        if (fnError) throw new Error(await getFunctionErrorMessage(fnError));
+        if (!data) throw new Error("No response from AI.");
+
+        const responseText =
+          data.result ||
+          data.error ||
+          "Sorry, I couldn't answer that right now. Try asking in a different way.";
+        setMessages((m) => [
+          ...m,
+          {
+            id: Date.now() + 1,
+            from: "assistant",
+            text: responseText,
+            timestamp: Date.now(),
+          },
+        ]);
+        // PHASE 6.5 — OpenAI learning signal: capture honest missing-info /
+        // retrieval-failure replies as learning events (never success noise,
+        // never private reasoning). Fire-and-forget.
+        recordLiveChatSignal({ questionSummary: q, reply: responseText }).catch(
+          () => {},
+        );
+      } catch {
+        setHasError(true);
+        setMessages((m) => [
+          ...m,
+          {
+            id: Date.now() + 1,
+            from: "assistant",
+            text: "I'm having trouble right now. For immediate help, please reach us on WhatsApp. We typically reply within minutes.",
+            timestamp: Date.now(),
+          },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [draft, loading],
+  );
 
   function formatTime(ts: number) {
-    return new Date(ts).toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit' });
+    return new Date(ts).toLocaleTimeString("en-NG", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
   }
 
   return (
     <>
       {/* Floating button — uses a proper icon, not an image */}
       {!open && (
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           type="button"
           onClick={() => setOpen(true)}
           className="fixed bottom-20 right-4 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-brand-purple/30 transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
@@ -125,12 +156,13 @@ export default function SupportChatWidget() {
         <div
           className={
             minimized
-              ? 'fixed bottom-20 right-4 z-50 sm:bottom-4 sm:right-4'
-              : 'fixed bottom-20 left-1/2 z-50 flex h-[min(72vh,560px)] w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl dark:border-white/5 dark:bg-card sm:bottom-4 sm:left-auto sm:right-4 sm:translate-x-0'
+              ? "fixed bottom-20 right-4 z-50 sm:bottom-4 sm:right-4"
+              : "fixed bottom-20 left-1/2 z-50 flex h-[min(72vh,560px)] w-[calc(100vw-2rem)] max-w-sm -translate-x-1/2 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl dark:border-white/5 dark:bg-card sm:bottom-4 sm:left-auto sm:right-4 sm:translate-x-0"
           }
         >
           {minimized ? (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={() => setMinimized(false)}
               className="inline-flex items-center gap-2 rounded-full bg-primary pl-3 pr-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg"
@@ -154,15 +186,29 @@ export default function SupportChatWidget() {
                     <p className="text-sm font-semibold">FRELUX AI Assistant</p>
                     <div className="flex items-center gap-1.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-accent-green" />
-                      <p className="text-[11px] text-primary-foreground/70">Online · answers instantly</p>
+                      <p className="text-[11px] text-primary-foreground/70">
+                        Online · answers instantly
+                      </p>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Button variant="ghost" type="button" onClick={() => setMinimized(true)} className="rounded p-1.5 hover:bg-white/10" aria-label="Minimize chat">
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    onClick={() => setMinimized(true)}
+                    className="rounded p-1.5 hover:bg-white/10"
+                    aria-label="Minimize chat"
+                  >
                     <Minus className="h-4 w-4" />
                   </Button>
-                  <Button variant="ghost" type="button" onClick={() => setOpen(false)} className="rounded p-1.5 hover:bg-white/10" aria-label="Close chat">
+                  <Button
+                    variant="ghost"
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="rounded p-1.5 hover:bg-white/10"
+                    aria-label="Close chat"
+                  >
                     <X className="h-4 w-4" />
                   </Button>
                 </div>
@@ -176,18 +222,32 @@ export default function SupportChatWidget() {
                 aria-live="polite"
               >
                 {messages.map((m) => (
-                  <div key={m.id} className={m.from === 'user' ? 'flex justify-end' : 'flex justify-start'}>
+                  <div
+                    key={m.id}
+                    className={
+                      m.from === "user"
+                        ? "flex justify-end"
+                        : "flex justify-start"
+                    }
+                  >
                     <div className="max-w-[85%]">
                       <div
                         className={
-                          m.from === 'user'
-                            ? 'break-words rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-sm text-primary-foreground'
-                            : 'break-words rounded-2xl rounded-bl-md bg-card px-3.5 py-2 text-sm text-card-foreground shadow-sm border border-border/50 dark:bg-white/10 dark:text-muted-foreground/60 dark:border-white/5'
+                          m.from === "user"
+                            ? "break-words rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-sm text-primary-foreground"
+                            : "break-words rounded-2xl rounded-bl-md bg-card px-3.5 py-2 text-sm text-card-foreground shadow-sm border border-border/50 dark:bg-white/10 dark:text-muted-foreground/60 dark:border-white/5"
                         }
                       >
-                        <p className="whitespace-pre-wrap leading-relaxed">{m.text}</p>
+                        <p className="whitespace-pre-wrap leading-relaxed">
+                          {m.text}
+                        </p>
                       </div>
-                      <p className={classNames('mt-1 px-1 text-[10px] text-muted-foreground/80 dark:text-muted-foreground', m.from === 'user' ? 'text-right' : 'text-left')}>
+                      <p
+                        className={classNames(
+                          "mt-1 px-1 text-[10px] text-muted-foreground/80 dark:text-muted-foreground",
+                          m.from === "user" ? "text-right" : "text-left",
+                        )}
+                      >
                         {formatTime(m.timestamp)}
                       </p>
                     </div>
@@ -199,9 +259,18 @@ export default function SupportChatWidget() {
                   <div className="flex justify-start">
                     <div className="rounded-2xl rounded-bl-md bg-card px-4 py-3 shadow-sm border border-border/50 dark:bg-white/10 dark:border-white/5">
                       <div className="flex items-center gap-1">
-                        <span className="h-2 w-2 animate-bounce rounded-full bg-muted dark:bg-muted-foreground" style={{ animationDelay: '0ms' }} />
-                        <span className="h-2 w-2 animate-bounce rounded-full bg-muted dark:bg-muted-foreground" style={{ animationDelay: '150ms' }} />
-                        <span className="h-2 w-2 animate-bounce rounded-full bg-muted dark:bg-muted-foreground" style={{ animationDelay: '300ms' }} />
+                        <span
+                          className="h-2 w-2 animate-bounce rounded-full bg-muted dark:bg-muted-foreground"
+                          style={{ animationDelay: "0ms" }}
+                        />
+                        <span
+                          className="h-2 w-2 animate-bounce rounded-full bg-muted dark:bg-muted-foreground"
+                          style={{ animationDelay: "150ms" }}
+                        />
+                        <span
+                          className="h-2 w-2 animate-bounce rounded-full bg-muted dark:bg-muted-foreground"
+                          style={{ animationDelay: "300ms" }}
+                        />
                       </div>
                     </div>
                   </div>
@@ -215,7 +284,8 @@ export default function SupportChatWidget() {
                     </p>
                     <div className="space-y-1.5">
                       {SUGGESTED_QUESTIONS.map((q) => (
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           key={q}
                           type="button"
                           onClick={() => handleSend(q)}
@@ -234,7 +304,9 @@ export default function SupportChatWidget() {
               {hasError && (
                 <div className="border-t border-border/50 bg-card px-4 py-2 dark:border-white/5 dark:bg-card">
                   <a
-                    href={whatsappUrl('Hello FRELUX, I need help with my paint project.')}
+                    href={whatsappUrl(
+                      "Hello FRELUX, I need help with my paint project.",
+                    )}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-green hover:underline"
@@ -247,7 +319,10 @@ export default function SupportChatWidget() {
 
               {/* Input */}
               <form
-                onSubmit={(e) => { e.preventDefault(); handleSend(); }}
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  handleSend();
+                }}
                 className="flex items-center gap-2 border-t border-border/50 bg-card p-3 dark:border-white/5 dark:bg-card"
               >
                 <input
@@ -260,13 +335,19 @@ export default function SupportChatWidget() {
                   disabled={loading}
                   className="flex-1 rounded-full border border-border bg-muted/50 px-4 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-purple disabled:opacity-50 dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground/60"
                 />
-                <Button size="icon" variant="default"
+                <Button
+                  size="icon"
+                  variant="default"
                   type="submit"
                   disabled={!draft.trim() || loading}
                   className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-opacity disabled:opacity-40"
                   aria-label="Send message"
                 >
-                  {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+                  {loading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Send className="h-4 w-4" />
+                  )}
                 </Button>
               </form>
             </>
