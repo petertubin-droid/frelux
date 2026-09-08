@@ -1,5 +1,5 @@
 /**
- * FRELUX PLAN INTELLIGENCE — Plan → Space Engine Integration
+ * FRELUX PLAN INTELLIGENCE, Plan → Space Engine Integration
  *
  * Feature 16: Plan → Space Engine Integration
  *
@@ -24,7 +24,7 @@
  *   EXISTING CALCULATORS (user-chosen, not automatic)
  *
  * AI-detected data remains UNVERIFIED until the user confirms it.
- * The user selects which calculators to run — no automatic execution.
+ * The user selects which calculators to run, no automatic execution.
  * The existing FRELUX measurement-unit architecture is preserved.
  *
  * This module does NOT create a second space engine.
@@ -68,7 +68,7 @@ export const VERIFICATION_STATE_LABELS: Record<RoomVerificationState, string> = 
 
 /**
  * A room detected by AI from a building plan.
- * This is the RAW AI output — it is NOT verified.
+ * This is the RAW AI output, it is NOT verified.
  * The user must review and confirm before it becomes a Space.
  */
 export interface DetectedRoom {
@@ -163,7 +163,7 @@ export interface VerifiedSpace {
 
 /**
  * Create a detected room from AI analysis output.
- * Starts in 'ai_detected' state — unverified.
+ * Starts in 'ai_detected' state, unverified.
  */
 export function createDetectedRoom(params: {
   name: string;

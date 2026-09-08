@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 6.5 ALPHA — PRICE INTELLIGENCE (pure stats)
+// FRELUX PHASE 6.5 ALPHA, PRICE INTELLIGENCE (pure stats)
 //
 // Statistics over APPEND-ONLY price observations. Observed
 // market price is always distinguished from FRELUX configured
@@ -107,7 +107,7 @@ export function computePriceStats(
   };
 }
 
-/** Regional comparison — regions never bleed into each other. */
+/** Regional comparison, regions never bleed into each other. */
 export function regionalPriceComparison(
   observations: Observation[],
 ): Array<{ region: string; stats: PriceStats }> {

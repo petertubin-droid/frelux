@@ -1,9 +1,9 @@
 // =========================================================
-// PROJECT AGENT — CONTROLLED CONTEXT ENGINE TESTS (Stage 2)
+// PROJECT AGENT, CONTROLLED CONTEXT ENGINE TESTS (Stage 2)
 //
 // Acceptance matrix: complete project, partially completed,
 // empty project, missing measurements, missing market data,
-// conflicting information — the agent states what is KNOWN and
+// conflicting information, the agent states what is KNOWN and
 // what is MISSING. Nothing invented, nothing substituted.
 // =========================================================
 
@@ -278,7 +278,7 @@ describe("project isolation", () => {
 });
 
 describe("complete project", () => {
-  it("labels every item with its data class — no unlabelled data", async () => {
+  it("labels every item with its data class, no unlabelled data", async () => {
     const result = await buildProjectAgentContext("proj-1", NOW);
     expect(result.ok).toBe(true);
     if (!result.ok) return;
@@ -302,7 +302,7 @@ describe("complete project", () => {
     const unverified = result.data.items.find(
       (i) => i.key === "observation:o2",
     );
-    expect(unverified?.requiresConfirmation).toBe(true); // unverified — must be confirmed
+    expect(unverified?.requiresConfirmation).toBe(true); // unverified, must be confirmed
 
     const forecast = result.data.items.find((i) => i.area === "forecasts");
     expect(forecast?.dataClass).toBe("ai_analysis");
@@ -326,7 +326,7 @@ describe("complete project", () => {
 });
 
 describe("empty project", () => {
-  it("states what is known and what is missing — nothing invented", async () => {
+  it("states what is known and what is missing, nothing invented", async () => {
     currentFixture = EMPTY_FIXTURE;
     typedSupabase.__state.documents = {};
     typedSupabase.__state.properties = {};
@@ -422,7 +422,7 @@ describe("conflicting information", () => {
 });
 
 describe("partially completed project", () => {
-  it("known parts are labelled, missing parts are gaps — both visible", async () => {
+  it("known parts are labelled, missing parts are gaps, both visible", async () => {
     currentFixture = {
       ...COMPLETE_FIXTURE,
       shopping: [],
@@ -456,7 +456,7 @@ describe("summariseContext", () => {
     expect(summary).toContain("Missing");
   });
 
-  it("with no gaps, states that nothing is REPORTED missing — not that nothing is missing", async () => {
+  it("with no gaps, states that nothing is REPORTED missing, not that nothing is missing", async () => {
     const result = await buildProjectAgentContext("proj-1", NOW);
     if (!result.ok) return;
     const summary = summariseContext(result.data);

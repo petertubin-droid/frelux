@@ -1,10 +1,10 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — TYPES
+// FRELUX PREDICTIVE INTELLIGENCE, TYPES
 //
 // Phase 4 core contract. EVERY prediction carries: prediction,
 // evidence, inputs, assumptions, data freshness, confidence,
 // timestamp and status. A result with insufficient evidence is
-// `insufficient_data` — never a fabricated value (§18).
+// `insufficient_data`, never a fabricated value (§18).
 //
 // AI vs deterministic boundary (§15):
 //   - Everything in this module is DETERMINISTIC: comparisons,
@@ -18,7 +18,7 @@ export type { ShoppingItemWithActual };
 /** Data-age classification for any dated value (§17). */
 export type DataFreshness = "current" | "stale" | "outdated" | "unavailable";
 
-/** Honest status — the only three outcomes of any analysis (§18). */
+/** Honest status, the only three outcomes of any analysis (§18). */
 export type AnalysisStatus = "ok" | "insufficient_data" | "unsupported_region";
 
 /** The kinds of predictive intelligence Phase 4 provides. */
@@ -31,7 +31,7 @@ export type PredictionKind =
   | "cashflow";
 
 // ---------------------------------------------------------
-// Evidence — "What is FRELUX basing this on?" (§14)
+// Evidence, "What is FRELUX basing this on?" (§14)
 // ---------------------------------------------------------
 
 export type EvidenceKind =
@@ -63,7 +63,7 @@ export interface Evidence {
 }
 
 // ---------------------------------------------------------
-// Confidence — deterministic, never a single AI guess (§14/§18)
+// Confidence, deterministic, never a single AI guess (§14/§18)
 // ---------------------------------------------------------
 
 export type ConfidenceBand = "high" | "medium" | "low";
@@ -72,12 +72,12 @@ export interface ConfidenceAssessment {
   /** 0–1, computed ONLY from data coverage, freshness and verification. */
   score: number;
   band: ConfidenceBand;
-  /** Exactly how the score was computed — shown to the user. */
+  /** Exactly how the score was computed, shown to the user. */
   method: string;
 }
 
 // ---------------------------------------------------------
-// Prediction — the universal result envelope
+// Prediction, the universal result envelope
 // ---------------------------------------------------------
 
 export interface PredictionResult<T = unknown> {
@@ -94,7 +94,7 @@ export interface PredictionResult<T = unknown> {
     label: string;
     value: number | string | boolean | null;
   }>;
-  /** Explicit, visible assumptions — never hidden (§14). */
+  /** Explicit, visible assumptions, never hidden (§14). */
   assumptions: string[];
   freshness: DataFreshness;
   confidence: ConfidenceAssessment | null;
@@ -125,7 +125,7 @@ export interface RiskItem {
   id: string;
   category: RiskCategory;
   severity: RiskSeverity;
-  /** Only present where genuinely measurable — measured rate, never invented. */
+  /** Only present where genuinely measurable, measured rate, never invented. */
   probability: { value: number; basis: string } | null;
   title: string;
   evidence: Evidence[];
@@ -138,7 +138,7 @@ export interface RiskItem {
 }
 
 // ---------------------------------------------------------
-// Recommendation — Observation → Analysis → Recommendation (§10)
+// Recommendation, Observation → Analysis → Recommendation (§10)
 // ---------------------------------------------------------
 
 export interface Recommendation {
@@ -147,14 +147,14 @@ export interface Recommendation {
   observation: string;
   /** Why it matters for this project. */
   analysis: string;
-  /** Practical next step — decision support, never a guaranteed outcome. */
+  /** Practical next step, decision support, never a guaranteed outcome. */
   recommendation: string;
   confidence: ConfidenceAssessment;
   basedOnRisk: string;
 }
 
 // ---------------------------------------------------------
-// Scenario — explicitly hypothetical, never a prediction (§11)
+// Scenario, explicitly hypothetical, never a prediction (§11)
 // ---------------------------------------------------------
 
 export interface ScenarioOutcome {
@@ -166,14 +166,14 @@ export interface ScenarioOutcome {
   result: { label: string; value: number; basis: string } | null;
   difference: { value: number; percent: number } | null;
   assumptions: string[];
-  /** Always true — a scenario is a what-if, NOT a forecast. */
+  /** Always true, a scenario is a what-if, NOT a forecast. */
   hypothetical: true;
   missingData: string[];
   generatedAt: string;
 }
 
 // ---------------------------------------------------------
-// Project Health — dashboard rollup (§13)
+// Project Health, dashboard rollup (§13)
 // ---------------------------------------------------------
 
 export type TriStateRating = "low" | "medium" | "high" | "insufficient_data";
@@ -190,10 +190,10 @@ export interface ProjectHealth {
 }
 
 // ---------------------------------------------------------
-// Snapshot — the real project data the analysis runs on
+// Snapshot, the real project data the analysis runs on
 // ---------------------------------------------------------
 
-/** A dated visual observation (§8). Only as evidence — never overrides
+/** A dated visual observation (§8). Only as evidence, never overrides
  *  verified records without user confirmation. */
 export interface VisualObservation {
   id: string;
@@ -235,7 +235,7 @@ export interface PredictiveProjectSnapshot {
     status: "draft" | "in_progress" | "on_hold" | "completed" | "archived";
     createdAt: string;
     updatedAt: string;
-    /** User-entered progress % (0–100) — may be stale; never trusted blindly. */
+    /** User-entered progress % (0–100), may be stale; never trusted blindly. */
     progressPercentage: number | null;
   };
   stages: Array<{
@@ -274,7 +274,7 @@ export interface PredictiveProjectSnapshot {
 export interface ProjectPredictiveAnalysis {
   projectId: string;
   generatedAt: string;
-  /** Stable hash of every input the analysis depends on — cache key (§22). */
+  /** Stable hash of every input the analysis depends on, cache key (§22). */
   inputHash: string;
   dataQuality: {
     rating: DataQualityRating;
@@ -286,7 +286,7 @@ export interface ProjectPredictiveAnalysis {
   recommendations: Recommendation[];
   health: ProjectHealth;
   scenarios: ScenarioOutcome[];
-  /** Every limitation of this analysis run — shown, never hidden (§14). */
+  /** Every limitation of this analysis run, shown, never hidden (§14). */
   limitations: string[];
 }
 

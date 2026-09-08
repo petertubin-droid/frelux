@@ -1,5 +1,5 @@
 /**
- * FRELUX Golden-Numbers Audit — pre-launch verification
+ * FRELUX Golden-Numbers Audit, pre-launch verification
  *
  * Every scenario below is computed BY HAND from first principles and pinned
  * against the engine output. These tests are the launch gate: if any result
@@ -33,7 +33,7 @@ import type {
 import type { DbTileMaterial, DbPopMaterial } from "@/types/database";
 
 // ─────────────────────────────────────────────────────────
-// Geometry primitives — used by every calculator
+// Geometry primitives, used by every calculator
 // ─────────────────────────────────────────────────────────
 describe("GOLDEN: wall area geometry", () => {
   it("rectangular room: perimeter × height (no doubling)", () => {
@@ -62,7 +62,7 @@ describe("GOLDEN: wall area geometry", () => {
 });
 
 // ─────────────────────────────────────────────────────────
-// Tile calculator — full hand-check
+// Tile calculator, full hand-check
 // ─────────────────────────────────────────────────────────
 describe("GOLDEN: tile calculator", () => {
   const base: TileCalcInput = {
@@ -90,7 +90,7 @@ describe("GOLDEN: tile calculator", () => {
     spacerCoverageRate: 10, // m² per pack
     spacerPackageSize: 1,
     spacerPricePerPack: 500,
-    labourRatePerSqm: 0, // labour excluded from totals — negotiated separately
+    labourRatePerSqm: 0, // labour excluded from totals, negotiated separately
   };
 
   // Hand math: area 12 m², +10% waste → 13.2 m²
@@ -100,7 +100,7 @@ describe("GOLDEN: tile calculator", () => {
   // Grout: 13.2/20 = 0.66 → ceil 1 kg → 800
   // Spacers: 13.2/10 = 1.32 → ceil 2 packs → 1,000
   // Total: 132,000+10,500+800+1,000 = 144,300
-  it("floor: 4×3m, 400mm tiles, 10% waste — exact hand-computed totals", () => {
+  it("floor: 4×3m, 400mm tiles, 10% waste, exact hand-computed totals", () => {
     const r = calculateTile(base, [] as DbTileMaterial[], "NGN", "₦");
     expect(r.surfaceArea).toBe(12);
     expect(r.tilesNeeded).toBe(83);
@@ -118,7 +118,7 @@ describe("GOLDEN: tile calculator", () => {
 
   it("waste is applied exactly once (10% of base area, not compounded)", () => {
     const r = calculateTile(base, [] as DbTileMaterial[], "NGN", "₦");
-    // 12 × 0.10 = 1.2 m² — NOT 12×1.1×1.1
+    // 12 × 0.10 = 1.2 m², NOT 12×1.1×1.1
     expect(r.wasteAmount).toBeCloseTo(1.2, 5);
   });
 
@@ -163,7 +163,7 @@ describe("GOLDEN: POP ceiling calculator", () => {
 
   // 5m × 4m = 20 m², 15% waste → 23 m²
   // POP cement: 23/4 = 5.75 → ceil(5.75/20) = 1 bag → 4,500
-  it("5×4m ceiling, 15% waste — hand-computed totals", () => {
+  it("5×4m ceiling, 15% waste, hand-computed totals", () => {
     const input: PopCalcInput = {
       roomLength: 5,
       roomWidth: 4,
@@ -175,7 +175,7 @@ describe("GOLDEN: POP ceiling calculator", () => {
     };
     const r = calculatePopCeiling(input, materials, "NGN", "₦");
     expect(r.ceilingArea).toBe(20);
-    expect(r.wasteAmount).toBeCloseTo(3, 5); // 20 × 0.15 — applied once
+    expect(r.wasteAmount).toBeCloseTo(3, 5); // 20 × 0.15, applied once
     expect(r.materials[0].packagesNeeded).toBe(1);
     expect(r.materialCost).toBe(4500);
     expect(r.grandTotal).toBe(4500);
@@ -183,7 +183,7 @@ describe("GOLDEN: POP ceiling calculator", () => {
 });
 
 // ─────────────────────────────────────────────────────────
-// Screeding systems — coat-factor model
+// Screeding systems, coat-factor model
 // ─────────────────────────────────────────────────────────
 describe("GOLDEN: screeding putty system", () => {
   const config: ScreedingSystemConfig = {
@@ -221,7 +221,7 @@ describe("GOLDEN: screeding putty system", () => {
     expect(r.materialCost).toBe(27500);
   });
 
-  it("double coats is ×1.5 relative to 2-coat default — NOT ×2", () => {
+  it("double coats is ×1.5 relative to 2-coat default, NOT ×2", () => {
     // 3 coats / 2 default = 1.5 factor (the ratio already includes 2 coats)
     const r3 = calculateScreedingPutty(24, config, 3);
     expect(r3.putty.baseQuantity).toBe(6); // 4 × 1.5
@@ -229,7 +229,7 @@ describe("GOLDEN: screeding putty system", () => {
     const r4 = calculateScreedingPutty(24, config, 4);
     expect(r4.putty.baseQuantity).toBe(8);
     // but 2 coats (the default) must NOT be ×2 on top of a ratio that
-    // already includes 2 coats — the classic double-count:
+    // already includes 2 coats, the classic double-count:
     const r2 = calculateScreedingPutty(24, config, 2);
     expect(r2.putty.baseQuantity).toBe(4);
   });
@@ -275,7 +275,7 @@ describe("GOLDEN: screeding white-cement + paint system", () => {
 });
 
 // ─────────────────────────────────────────────────────────
-// Advanced estimate — full cost chain
+// Advanced estimate, full cost chain
 // ─────────────────────────────────────────────────────────
 describe("GOLDEN: advanced estimate chain (waste→markup→profit→tax)", () => {
   const input: AdvancedCalcInput = {
@@ -290,7 +290,7 @@ describe("GOLDEN: advanced estimate chain (waste→markup→profit→tax)", () =
     cementBagSizeKg: 40,
     cementPricePerBag: 6000,
     mixRatio: "2:1",
-    labourRatePerSqm: 0, // labour excluded — negotiated separately
+    labourRatePerSqm: 0, // labour excluded, negotiated separately
     transportCost: 5000,
     markupPercentage: 20,
     profitPercentage: 10,
@@ -351,7 +351,7 @@ describe("GOLDEN: screeding mix coverage model", () => {
     cementBagSizeKg: 40,
     cementPricePerBag: 6000,
     defaultMixRatio: "2:1",
-    labourRatePerSqm: 0, // labour excluded — negotiated separately
+    labourRatePerSqm: 0, // labour excluded, negotiated separately
     currency: "NGN",
     currencySymbol: "₦",
   };
@@ -402,7 +402,7 @@ describe("GOLDEN: cross-cutting invariants", () => {
   it("grand total is never more than 2× a zero-config baseline for sane inputs", () => {
     // Sanity net: with all adjustments at 0 the total must equal raw costs.
     // With each adjustment at its default the total must be within a
-    // hand-computable band — guarding against compounding factors.
+    // hand-computable band, guarding against compounding factors.
     const base: AdvancedCalcInput = {
       netArea: 50,
       wastePercentage: 0,
@@ -415,7 +415,7 @@ describe("GOLDEN: cross-cutting invariants", () => {
       cementBagSizeKg: 40,
       cementPricePerBag: 6000,
       mixRatio: "2:1",
-      labourRatePerSqm: 0, // labour excluded — negotiated separately
+      labourRatePerSqm: 0, // labour excluded, negotiated separately
       transportCost: 0,
       markupPercentage: 0,
       profitPercentage: 0,

@@ -1,5 +1,5 @@
 /**
- * FRELUX CONSTRUCTION INTELLIGENCE — COST & RISK FLAGS
+ * FRELUX CONSTRUCTION INTELLIGENCE, COST & RISK FLAGS
  *
  * Prompt 3, §17: warnings based on ACTUAL project data, each with a
  * traceable reason. This module derives flags only from concrete evidence
@@ -42,7 +42,7 @@ export interface RiskFlag {
   code: RiskCode;
   severity: RiskSeverity;
   title: string;
-  /** Traceable reason — references the actual value/record that caused it. */
+  /** Traceable reason, references the actual value/record that caused it. */
   reason: string;
   /** Ids of the takeoff items / records this flag is derived from. */
   references: string[];
@@ -91,7 +91,7 @@ export interface RiskEvaluationInput {
 /**
  * Confidence below this means "requires user confirmation" per the Prompt 1
  * verification flow. The threshold is the extraction layer's own documented
- * boundary — not an invented risk score.
+ * boundary, not an invented risk score.
  */
 export const AI_CONFIDENCE_THRESHOLD = 0.7;
 
@@ -99,7 +99,7 @@ export function evaluateRiskFlags(input: RiskEvaluationInput): RiskFlag[] {
   const flags: RiskFlag[] = [];
   const { takeoff, aiDetections, priceEvidence, priceStaleDays = 180 } = input;
 
-  // --- 1. Invalid measurements (defensive — engines should reject these) ---
+  // --- 1. Invalid measurements (defensive, engines should reject these) ---
   for (const item of takeoff.measurementItems) {
     if (!Number.isFinite(item.baseQuantity) || item.baseQuantity < 0) {
       flags.push({

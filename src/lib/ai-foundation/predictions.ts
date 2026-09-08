@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX AI FOUNDATION — Predictive Intelligence Foundation
+// FRELUX AI FOUNDATION, Predictive Intelligence Foundation
 //
 // Prepares the DATA architecture for future predictions:
 //   cost overruns, schedule delays, material price changes,
@@ -18,7 +18,7 @@ import type { PredictionReadiness, PredictionType } from './types';
 
 /**
  * Data sets each prediction type requires before it may be generated.
- * These are honest minimums — fewer data means "not supported", never
+ * These are honest minimums, fewer data means "not supported", never
  * a lower-confidence guess dressed up as a prediction.
  */
 export const PREDICTION_REQUIREMENTS: Record<PredictionType, string[]> = {
@@ -87,7 +87,7 @@ export function assertPredictionAllowed(
   const readiness = assessPredictionReadiness(type, availableData);
   if (!readiness.supported) {
     throw new Error(
-      `Prediction "${type}" is not supported yet — missing data: ${readiness.missing.join(', ')}. FRELUX does not fabricate predictions.`,
+      `Prediction "${type}" is not supported yet, missing data: ${readiness.missing.join(', ')}. FRELUX does not fabricate predictions.`,
     );
   }
 }
@@ -98,5 +98,5 @@ export function predictionReadinessMessage(type: PredictionType, availableData: 
   if (readiness.supported) {
     return `A ${type.replace(/_/g, ' ')} prediction can be generated from the current data.`;
   }
-  return `FRELUX can't predict ${type.replace(/_/g, ' ')} yet — it needs more data first: ${readiness.missing.join(', ')}. No estimate will be invented without it.`;
+  return `FRELUX can't predict ${type.replace(/_/g, ' ')} yet, it needs more data first: ${readiness.missing.join(', ')}. No estimate will be invented without it.`;
 }

@@ -1,5 +1,5 @@
 /**
- * FRELUX Error Monitor — centralized client-side error capture.
+ * FRELUX Error Monitor, centralized client-side error capture.
  *
  * Captures: JS runtime errors, unhandled promise rejections, React errors,
  * API failures, Supabase errors, auth errors, calculator errors, AI errors,
@@ -255,7 +255,7 @@ function saveOfflineQueue(queue: ErrorReport[]): void {
     }
     localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(queue));
   } catch {
-    // Silently fail — never let monitoring break the app
+    // Silently fail, never let monitoring break the app
   }
 }
 
@@ -283,7 +283,7 @@ async function sendToServer(report: ErrorReport): Promise<boolean> {
     });
 
     if (error) {
-      // Network error or function error — queue for retry
+      // Network error or function error, queue for retry
       return false;
     }
     return true;
@@ -361,7 +361,7 @@ export function reportError(
         }
       })
       .catch(() => {
-        // Silently fail — never create an error loop
+        // Silently fail, never create an error loop
       });
   } catch {
     // Never let error reporting itself throw

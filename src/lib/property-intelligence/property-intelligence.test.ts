@@ -1,5 +1,5 @@
 /**
- * Property Intelligence — architecture tests.
+ * Property Intelligence, architecture tests.
  * Location resolution, market data/comparables, risk flags, provenance.
  * Guarantees: no Nigerian fallback, no guessing, no fabricated comparables.
  */
@@ -74,7 +74,7 @@ describe("resolveRegionalContext", () => {
     expect(result.reason).toContain("No other region's data was substituted");
   });
 
-  it("requires confirmation when no country is given — never guesses", () => {
+  it("requires confirmation when no country is given, never guesses", () => {
     const result = resolveRegionalContext({ city: "Lagos" });
     expect(result.status).toBe("requires_confirmation");
     expect(result.reason).toContain("does not guess");
@@ -135,9 +135,9 @@ describe("evaluateComparables", () => {
       freshListing("a"),
       freshListing("b", { region: "Ogun" }),
       freshListing("c"),
-      // wrong type — excluded
+      // wrong type, excluded
       freshListing("d", { propertyType: "apartment" }),
-      // wrong currency — excluded, never mixed
+      // wrong currency, excluded, never mixed
       freshListing("e", { currency: "USD", askingPrice: { amount: 30_000, currency: "USD" } }),
     ]);
     expect(result.status).toBe("sufficient");
@@ -304,7 +304,7 @@ describe("evaluatePropertyRisks", () => {
     expect(flag?.reason).toContain("true cost is higher");
   });
 
-  it("never claims condition from photographs — flags it instead", () => {
+  it("never claims condition from photographs, flags it instead", () => {
     const flags = evaluatePropertyRisks({
       profile: makeProfile(),
       conditionClaimedWithoutSource: true,

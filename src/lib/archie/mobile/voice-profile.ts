@@ -1,15 +1,15 @@
 // =========================================================
-// FRELUX PHASE 8d — ARCHIE VOICE BANK (owner's own voice)
+// FRELUX PHASE 8d, ARCHIE VOICE BANK (owner's own voice)
 //
 // The owner records voice samples in the Admin panel. ARCHIE
 // derives a deterministic pitch/pace profile from the samples
-// (pure math — autocorrelation + energy nuclei, NO cloud AI,
+// (pure math, autocorrelation + energy nuclei, NO cloud AI,
 // NO paid service, nothing uploaded to any provider) and
 // applies it to every speechSynthesis reply, so ARCHIE speaks
 // with the closest possible match to the owner's voice.
 //
 // Samples themselves are saved as encrypted-at-rest owner-only
-// records (private bucket + RLS table) — the voice bank.
+// records (private bucket + RLS table), the voice bank.
 // =========================================================
 
 import { supabase } from "@/lib/supabase";
@@ -50,7 +50,7 @@ export function framePitch(frame: Float32Array, sampleRate: number): number {
   const maxLag = Math.floor(sampleRate / 60); // 60 Hz floor
   let energy = 0;
   for (let i = 0; i < frame.length; i++) energy += frame[i] * frame[i];
-  if (energy < 1e-4 * frame.length) return 0; // silence — skip
+  if (energy < 1e-4 * frame.length) return 0; // silence, skip
   let bestLag = -1;
   let bestCorr = 0;
   for (let lag = minLag; lag <= maxLag && lag < frame.length; lag++) {
@@ -158,7 +158,7 @@ export function storeProfileLocally(profile: ArchieVoiceProfile): void {
   try {
     localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
   } catch {
-    /* storage unavailable — profile still lives in the DB */
+    /* storage unavailable, profile still lives in the DB */
   }
 }
 
@@ -226,7 +226,7 @@ export async function listVoiceSamples(userId: string): Promise<VoiceSample[]> {
   return (data ?? []) as VoiceSample[];
 }
 
-/** Signed URL for playback — private bucket, owner-only. */
+/** Signed URL for playback, private bucket, owner-only. */
 export async function createSamplePlayUrl(path: string): Promise<string> {
   const { data, error } = await supabase.storage
     .from(VOICE_SAMPLE_BUCKET)

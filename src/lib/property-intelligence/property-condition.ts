@@ -1,10 +1,10 @@
 // =========================================================
-// FRELUX PROPERTY INTELLIGENCE — CONDITION ASSESSMENT (§6)
+// FRELUX PROPERTY INTELLIGENCE, CONDITION ASSESSMENT (§6)
 //
 // Observable property conditions from user-provided information,
 // documents and images. Every observation is flagged with its
 // data class; AI-detected observations are ALWAYS requires-
-// confirmation — AI vision cannot certify anything.
+// confirmation, AI vision cannot certify anything.
 //
 // WORDING RULE (§6): findings are worded as
 //   "Potential issue detected: …"
@@ -15,7 +15,7 @@
 import type { Provenance, PropertyDataClass } from "./types";
 
 export const CONDITION_LIMITATION =
-  "Condition observations describe only what is visible in user-supplied information. AI vision cannot certify structural integrity, safety or building-code compliance — qualified professional assessment is required before decisions that depend on condition.";
+  "Condition observations describe only what is visible in user-supplied information. AI vision cannot certify structural integrity, safety or building-code compliance, qualified professional assessment is required before decisions that depend on condition.";
 
 // =========================================================
 // Observable condition categories (§6)
@@ -40,7 +40,7 @@ export const CONDITION_CATEGORY_LABELS: Record<ConditionCategory, string> = {
   apparent_maintenance_requirement: "Apparent maintenance requirement",
 };
 
-/** How the observation reached FRELUX — never invented. */
+/** How the observation reached FRELUX, never invented. */
 export type ConditionObservationSource =
   "user_reported" | "document" | "ai_vision" | "inspection_report";
 
@@ -57,7 +57,7 @@ export interface ConditionObservation {
 export interface ConditionFinding {
   category: ConditionCategory;
   categoryLabel: string;
-  /** Careful, hedged wording — §6. */
+  /** Careful, hedged wording, §6. */
   finding: string;
   source: ConditionObservationSource;
   dataClass: PropertyDataClass;
@@ -68,7 +68,7 @@ export interface ConditionFinding {
 
 export interface ConditionAssessment {
   findings: ConditionFinding[];
-  /** Categories with no recorded observation — explicit gaps. */
+  /** Categories with no recorded observation, explicit gaps. */
   unassessedCategories: ConditionCategory[];
   limitation: string;
   /** True when nothing observable has been recorded at all. */
@@ -77,7 +77,7 @@ export interface ConditionAssessment {
 
 function dataClassForObservation(o: ConditionObservation): PropertyDataClass {
   // Inspection reports / user statements are user-provided or source
-  // derived; AI vision is ai_detected — never better.
+  // derived; AI vision is ai_detected, never better.
   if (o.source === "ai_vision") return "ai_detected";
   if (o.source === "inspection_report")
     return o.provenance?.verificationStatus === "verified"
@@ -101,7 +101,7 @@ function severityWord(s: ConditionObservation["observableSeverity"]): string {
 
 /**
  * Assess observable property conditions. Pure and deterministic:
- * the output contains exactly the observations supplied — nothing
+ * the output contains exactly the observations supplied, nothing
  * is inferred, no condition is invented, no severity is upgraded.
  */
 export function assessCondition(
@@ -120,7 +120,7 @@ export function assessCondition(
       `Potential issue detected: ${CONDITION_CATEGORY_LABELS[o.category].toLowerCase()}`,
       observable ? `(${observable})` : "",
       qualifier,
-      `— recorded observation: "${o.observation}".`,
+      `: recorded observation: "${o.observation}".`,
     ]
       .filter(Boolean)
       .join(" ");

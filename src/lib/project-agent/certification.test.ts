@@ -1,5 +1,5 @@
 // =========================================================
-// PROJECT AGENT — STAGE 15: MATH & DATA-INTEGRITY CERTIFICATION
+// PROJECT AGENT, STAGE 15: MATH & DATA-INTEGRITY CERTIFICATION
 //
 // For EVERY calculation the agent can trigger, this suite
 // certifies the full chain:
@@ -12,7 +12,7 @@
 // and that recorded-data tools return rows VERBATIM (no
 // recomputation, no region substitution, no fabrication).
 //
-// Nothing here is mocked except supabase (in-memory rows) — the
+// Nothing here is mocked except supabase (in-memory rows), the
 // same fidelity as the Stage 14 e2e suite.
 // =========================================================
 
@@ -209,7 +209,7 @@ vi.mock("@/lib/supabase", () => {
 });
 
 // ---------------------------------------------------------
-// Entry points — the REAL chain.
+// Entry points, the REAL chain.
 // ---------------------------------------------------------
 import { invokeAgentTool } from "./tools";
 import { buildProjectSnapshot } from "@/lib/predictive-intelligence/snapshot";
@@ -252,7 +252,7 @@ import type { PlanExtraction, ExtractedRoom } from "@/lib/plan-vision/types";
 import type { AgentResult, AgentError } from "./types";
 import type { EngineResult } from "@/lib/ai-foundation/types";
 
-// AgentResult is a discriminated union — narrow loudly mid-test.
+// AgentResult is a discriminated union, narrow loudly mid-test.
 function data<T>(r: AgentResult<T>): T {
   if (!r.ok) throw new Error(`expected ok, got: ${r.error.message}`);
   return r.data;
@@ -424,9 +424,9 @@ beforeEach(() => {
 });
 
 // =========================================================
-// 1. PROJECT TIMELINE — independent arithmetic
+// 1. PROJECT TIMELINE, independent arithmetic
 // =========================================================
-describe("CERT — project_timeline", () => {
+describe("CERT, project_timeline", () => {
   const scope = {
     site_preparation: 400, // 400 m² ÷ 200 m²/day  = 2 days
     foundation: 50, //  50 m³ ÷ 10 m³/day   = 5 days
@@ -464,9 +464,9 @@ describe("CERT — project_timeline", () => {
     );
     const inv = okData(res);
     expect(inv.status).toBe("ok");
-    expect(inv.result).toEqual(direct); // verbatim — zero drift
+    expect(inv.result).toEqual(direct); // verbatim, zero drift
 
-    // Per-phase arithmetic is shown in the phase explanations —
+    // Per-phase arithmetic is shown in the phase explanations :
     // the traceable "÷" division, not a black-box total.
     const masonry = direct.phases.find((ph) => ph.name === "Block Laying")!;
     expect(masonry.explanation).toContain("300 m² ÷ 15/day = 22 days");
@@ -498,9 +498,9 @@ describe("CERT — project_timeline", () => {
 });
 
 // =========================================================
-// 2. COST LAYER + QUOTATION — independent totals
+// 2. COST LAYER + QUOTATION, independent totals
 // =========================================================
-describe("CERT — cost estimate & quotation_preview", () => {
+describe("CERT, cost estimate & quotation_preview", () => {
   // 100 blocks @ ₦250 = ₦25,000; 20 cement bags @ ₦5,000 = ₦100,000.
   const quantities: MaterialQuantityInput[] = [
     {
@@ -577,10 +577,10 @@ describe("CERT — cost estimate & quotation_preview", () => {
 });
 
 // =========================================================
-// 3. BUILD-TO-ROOF — chain integrity & determinism
+// 3. BUILD-TO-ROOF, chain integrity & determinism
 // =========================================================
-describe("CERT — build_to_roof", () => {
-  it("agent(overrides) == direct engine with the SAME merged input — verbatim", async () => {
+describe("CERT, build_to_roof", () => {
+  it("agent(overrides) == direct engine with the SAME merged input, verbatim", async () => {
     const merged = {
       ...defaultBuildToRoofInput(),
       building_length: 16,
@@ -620,9 +620,9 @@ describe("CERT — build_to_roof", () => {
 });
 
 // =========================================================
-// 4. SCENARIOS — independent hypothetical arithmetic
+// 4. SCENARIOS, independent hypothetical arithmetic
 // =========================================================
-describe("CERT — scenario_analysis", () => {
+describe("CERT, scenario_analysis", () => {
   beforeEach(() => {
     seedStages();
     seedShopping();
@@ -652,7 +652,7 @@ describe("CERT — scenario_analysis", () => {
     );
     const inv = okData(res);
     expect(inv.status).toBe("ok");
-    expect(inv.result).toEqual(direct); // verbatim — no re-math
+    expect(inv.result).toEqual(direct); // verbatim, no re-math
     expect(inv.note).toContain("passed through verbatim");
   });
 
@@ -702,7 +702,7 @@ describe("CERT — scenario_analysis", () => {
     expect(inv.missingData.join(" ")).toContain("Rebar (12mm)");
   });
 
-  it("task_delay: honest sequencing consequence — NO invented carrying cost", async () => {
+  it("task_delay: honest sequencing consequence, NO invented carrying cost", async () => {
     const snap = await buildProjectSnapshot("proj-1", { now: NOW });
     const direct = taskDelayScenario({
       now: NOW,
@@ -727,16 +727,16 @@ describe("CERT — scenario_analysis", () => {
 });
 
 // =========================================================
-// 5. RECORDED-DATA TOOLS — verbatim rows, no recomputation
+// 5. RECORDED-DATA TOOLS, verbatim rows, no recomputation
 // =========================================================
-describe("CERT — recorded-data tools (verbatim)", () => {
+describe("CERT, recorded-data tools (verbatim)", () => {
   beforeEach(() => {
     seedStages();
     seedShopping();
     seedMarketPrices();
   });
 
-  it("shopping_list: rows returned verbatim — no totals recomputed", async () => {
+  it("shopping_list: rows returned verbatim, no totals recomputed", async () => {
     const res = await invokeAgentTool("proj-1", { tool: "shopping_list" }, NOW);
     const inv = okData(res);
     expect(inv.status).toBe("ok");
@@ -747,7 +747,7 @@ describe("CERT — recorded-data tools (verbatim)", () => {
   });
 
   it("market_intelligence: region-scoped verbatim == fetchApprovedPrices(NG); NO other region substituted", async () => {
-    // A foreign-market row exists — it must NEVER appear.
+    // A foreign-market row exists, it must NEVER appear.
     db.tables.mi_approved_prices.push({
       id: "mp-ke",
       product_name: "Cement",
@@ -799,9 +799,9 @@ describe("CERT — recorded-data tools (verbatim)", () => {
 });
 
 // =========================================================
-// 6. PROPERTY ANALYSIS — linked profile, report verbatim
+// 6. PROPERTY ANALYSIS, linked profile, report verbatim
 // =========================================================
-describe("CERT — property_analysis", () => {
+describe("CERT, property_analysis", () => {
   it("agent == direct rowToProfile + buildPropertyIntelligenceReport; gaps surfaced, never filled", async () => {
     const propertyRow = {
       id: "prop-1",
@@ -842,7 +842,7 @@ describe("CERT — property_analysis", () => {
     const inv = okData(res);
     expect(inv.status).toBe("ok");
     expect(inv.result).toEqual(direct); // report verbatim
-    // Unassessed condition categories are surfaced as gaps — not guessed.
+    // Unassessed condition categories are surfaced as gaps, not guessed.
     expect(inv.missingData.length).toBeGreaterThan(0);
     expect(inv.missingData[0]).toContain("condition assessment");
   });
@@ -860,9 +860,9 @@ describe("CERT — property_analysis", () => {
 });
 
 // =========================================================
-// 7. DOCUMENT ANALYSIS — consistency findings verbatim
+// 7. DOCUMENT ANALYSIS, consistency findings verbatim
 // =========================================================
-describe("CERT — document_analysis", () => {
+describe("CERT, document_analysis", () => {
   function seedExtraction(extraction: PlanExtraction): void {
     db.tables.plan_documents.push({
       id: "doc-1",
@@ -926,10 +926,10 @@ describe("CERT — document_analysis", () => {
 });
 
 // =========================================================
-// 8. QUANTITY TAKEOFF — full agent chain per the Stage-15
+// 8. QUANTITY TAKEOFF, full agent chain per the Stage-15
 //    contract re-audit (wall/floor/ceiling measurement semantics)
 // =========================================================
-describe("CERT — quantity_takeoff (agent chain)", () => {
+describe("CERT, quantity_takeoff (agent chain)", () => {
   function seedPlan(extraction: PlanExtraction): void {
     db.tables.plan_documents.push({
       id: "doc-1",
@@ -993,7 +993,7 @@ describe("CERT — quantity_takeoff (agent chain)", () => {
     const by = (kind: string, roomId: string) =>
       items.find((i) => i.kind === kind && i.roomId === roomId)!;
 
-    // SCREEDING — net WALL area:
+    // SCREEDING, net WALL area:
     //   room-1: 2×(4+3)×3 = 42 − 0.9×2.1 door = 40.11 m²
     //   room-2: 2×(5+4)×3 = 54 m² (no openings)
     const scrA = by("screeding", "room-1");
@@ -1008,7 +1008,7 @@ describe("CERT — quantity_takeoff (agent chain)", () => {
     expect(directScrA.ok).toBe(true);
     expect(quantitiesOf(scrA.result!)).toEqual(quantitiesOf(directScrA));
 
-    // POP — ceiling plane = footprint:
+    // POP, ceiling plane = footprint:
     //   room-1: 4×3 = 12 m²; room-2: 5×4 = 20 m².
     const popA = by("pop_ceiling", "room-1");
     const popB = by("pop_ceiling", "room-2");
@@ -1026,12 +1026,12 @@ describe("CERT — quantity_takeoff (agent chain)", () => {
     });
     expect(quantitiesOf(popA.result!)).toEqual(quantitiesOf(directPopA));
 
-    // PAINTING — wall height semantics, engine defaults apply.
+    // PAINTING, wall height semantics, engine defaults apply.
     const paintA = by("painting", "room-1");
     expect(paintA.result?.ok).toBe(true);
     expect(paintA.result!.quantities.length).toBeGreaterThan(0);
 
-    // TILING — honest gap (tile selection is user data, never invented).
+    // TILING, honest gap (tile selection is user data, never invented).
     const tileA = by("tiling", "room-1");
     expect(tileA.status).toBe("missing_info");
     expect(tileA.result).toBeUndefined();
@@ -1041,9 +1041,9 @@ describe("CERT — quantity_takeoff (agent chain)", () => {
 });
 
 // =========================================================
-// 9. SAVED-RESULT CHAIN — estimator save → snapshot → agent
+// 9. SAVED-RESULT CHAIN, estimator save → snapshot → agent
 // =========================================================
-describe("CERT — saved calculation read-back", () => {
+describe("CERT, saved calculation read-back", () => {
   it("saveCalculationToProject → snapshot carries the result verbatim → cost_analysis sees it", async () => {
     const saved = await saveCalculationToProject({
       project_id: "proj-1",
@@ -1060,7 +1060,7 @@ describe("CERT — saved calculation read-back", () => {
 
     const snap = await buildProjectSnapshot("proj-1", { now: NOW });
     expect(snap!.calculations).toHaveLength(1);
-    // The snapshot carries the saved calculation VERBATIM — the
+    // The snapshot carries the saved calculation VERBATIM, the
     // recorded grand_total is extracted as-is, no re-math.
     expect(snap!.calculations[0]).toMatchObject({
       calculatorType: "paint",
@@ -1076,9 +1076,9 @@ describe("CERT — saved calculation read-back", () => {
 });
 
 // =========================================================
-// 10. PROJECT SCOPING — the agent only ever reads THIS project
+// 10. PROJECT SCOPING, the agent only ever reads THIS project
 // =========================================================
-describe("CERT — project scoping", () => {
+describe("CERT, project scoping", () => {
   it("another project's shopping rows are NEVER returned", async () => {
     seedShopping();
     db.tables.project_shopping_list.push({
@@ -1114,12 +1114,12 @@ describe("CERT — project scoping", () => {
 });
 
 // =========================================================
-// 11. ADMIN CHANGE-PROPAGATION (post-Phase-6 audit item 8) —
+// 11. ADMIN CHANGE-PROPAGATION (post-Phase-6 audit item 8) :
 //     an intentional Admin configuration change must reach
 //     EVERY consumer; a missing/invalid configuration must make
 //     every consumer fail honestly instead of inventing values.
 // =========================================================
-describe("PROPAGATION — admin config change reaches every consumer", () => {
+describe("PROPAGATION, admin config change reaches every consumer", () => {
   const ROOM = { length: 4, width: 3, wallHeight: 3, unit: "meters" as const };
 
   function seedPaintType(coverageRate: number, containerSizes: number[]): void {
@@ -1204,7 +1204,7 @@ describe("PROPAGATION — admin config change reaches every consumer", () => {
   });
 
   it("no admin paint config → documented code defaults (legacy behavior preserved)", async () => {
-    // paint_types is EMPTY — the engine must fall back to exactly the
+    // paint_types is EMPTY, the engine must fall back to exactly the
     // documented code constants, never a different invented opinion.
     const expected = calculatePaint(
       {
@@ -1301,7 +1301,7 @@ describe("PROPAGATION — admin config change reaches every consumer", () => {
     )[0];
     expect(itemAfter.result?.ok).toBe(true);
     const costAfter = JSON.stringify(itemAfter.result!.costs);
-    expect(costAfter).not.toBe(costBefore); // new config used — no stale cache
+    expect(costAfter).not.toBe(costBefore); // new config used, no stale cache
 
     // Engine direct == agent path (same fresh config).
     const direct = await executeEngine("screeding_system", {
@@ -1339,7 +1339,7 @@ describe("PROPAGATION — admin config change reaches every consumer", () => {
 });
 
 // ---------------------------------------------------------
-// Fixtures — full ExtractedRoom builders (real helpers, so the
+// Fixtures, full ExtractedRoom builders (real helpers, so the
 // seeded extraction is exactly what Plan Vision records).
 // ---------------------------------------------------------
 function confirmedRoom(

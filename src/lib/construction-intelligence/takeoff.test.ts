@@ -1,5 +1,5 @@
 /**
- * Construction Intelligence — quantity takeoff tests.
+ * Construction Intelligence, quantity takeoff tests.
  *
  * Guarantees:
  * - Measurement items come from the Project Engine (no new math).
@@ -20,7 +20,7 @@ import type { ConstructionProjectResult, ProjectElementResult, SpaceResult } fro
 import type { WasteResolution } from "@/lib/measurement/waste-config";
 
 // =========================================================
-// Fixtures — minimal deterministic Project Engine results
+// Fixtures, minimal deterministic Project Engine results
 // =========================================================
 
 function makeSpaceResult(overrides: Partial<SpaceResult> = {}): SpaceResult {
@@ -125,7 +125,7 @@ describe("buildQuantityTakeoff", () => {
     ]);
   });
 
-  it("references saved engine calculations for materials — never recreates them", () => {
+  it("references saved engine calculations for materials, never recreates them", () => {
     const takeoff = buildQuantityTakeoff({
       project: makeProjectResult([makeElementResult()]),
       calculations: [makeCalc()],
@@ -151,7 +151,7 @@ describe("buildQuantityTakeoff", () => {
           primaryCalculator: "tiling",
         }),
       ]),
-      calculations: [makeCalc()], // painting only — nothing for tiling
+      calculations: [makeCalc()], // painting only, nothing for tiling
     });
 
     expect(takeoff.requiresCalculation).toEqual([
@@ -183,11 +183,11 @@ describe("buildQuantityTakeoff", () => {
       source: "rule",
       reason: waste.explanation,
     });
-    // 4.5 + 10% = 4.95 (engine waste application reused — same formula)
+    // 4.5 + 10% = 4.95 (engine waste application reused, same formula)
     expect(item.material.purchaseQuantity).toBeCloseTo(4.95, 10);
   });
 
-  it("never adds waste when no resolver is provided — waste is not arbitrary", () => {
+  it("never adds waste when no resolver is provided, waste is not arbitrary", () => {
     const takeoff = buildQuantityTakeoff({
       project: makeProjectResult([makeElementResult()]),
       calculations: [makeCalc()],

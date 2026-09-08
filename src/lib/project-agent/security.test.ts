@@ -1,7 +1,7 @@
 // =========================================================
-// PROJECT AGENT — SECURITY & ADVERSARIAL TESTING (Stage 12)
+// PROJECT AGENT, SECURITY & ADVERSARIAL TESTING (Stage 12)
 //
-// Stage 12 acceptance — a dedicated sweep across:
+// Stage 12 acceptance, a dedicated sweep across:
 //   - authentication / authorization / RLS behavior (every
 //     entry point refuses an invisible project BEFORE any work)
 //   - project & property isolation (no cross-project routing)
@@ -24,7 +24,7 @@ const NOW = "2026-09-07T12:00:00.000Z";
 const IN_WINDOW = "2026-09-07T12:10:00.000Z";
 
 // ---------------------------------------------------------
-// In-memory supabase — the REAL ./session module runs against
+// In-memory supabase, the REAL ./session module runs against
 // this mock, so the visibility code itself is under test.
 // Empty contractor_projects = RLS returns nothing = invisible.
 // ---------------------------------------------------------
@@ -145,14 +145,14 @@ vi.mock("@/lib/supabase", () => {
   return { supabase: { from }, isSupabaseConfigured: true };
 });
 
-// Fresh recorded snapshot — controllable per test.
+// Fresh recorded snapshot, controllable per test.
 const snapState: { snap: PredictiveProjectSnapshot | null } = { snap: null };
 
 vi.mock("@/lib/predictive-intelligence/snapshot", () => ({
   buildProjectSnapshot: vi.fn(async () => snapState.snap),
 }));
 
-// Latest plan-document extraction — controllable per test.
+// Latest plan-document extraction, controllable per test.
 const docState: { extraction: PlanExtraction | null } = { extraction: null };
 
 vi.mock("@/lib/plan-vision/persistence", () => ({
@@ -160,7 +160,7 @@ vi.mock("@/lib/plan-vision/persistence", () => ({
 }));
 
 // ---------------------------------------------------------
-// Entry points under test (REAL modules — no session mock).
+// Entry points under test (REAL modules, no session mock).
 // ---------------------------------------------------------
 import { invokeAgentTool, listAgentTools } from "./tools";
 import {
@@ -287,9 +287,9 @@ beforeEach(() => {
 });
 
 // =========================================================
-// 1. Authentication / authorization — isolation matrix.
+// 1. Authentication / authorization, isolation matrix.
 // =========================================================
-describe("Stage 12 — isolation matrix (invisible project)", () => {
+describe("Stage 12, isolation matrix (invisible project)", () => {
   type R = { ok: boolean; error?: { code: string } };
   const matrix: Array<[string, () => Promise<R>]> = [];
   function entry(name: string, fn: () => Promise<R>) {
@@ -349,7 +349,7 @@ describe("Stage 12 — isolation matrix (invisible project)", () => {
         expect(r.error?.code, `${name} error code`).toBe("project_not_found");
       }
     }
-    // Nothing was written anywhere — not even agent bookkeeping.
+    // Nothing was written anywhere, not even agent bookkeeping.
     expect(db.writes.length).toBe(0);
     expect(db.tables.project_agent_actions.length).toBe(0);
     expect(db.tables.project_agent_activity.length).toBe(0);
@@ -363,9 +363,9 @@ describe("Stage 12 — isolation matrix (invisible project)", () => {
 });
 
 // =========================================================
-// 2. Agent tool permissions — structurally read-only.
+// 2. Agent tool permissions, structurally read-only.
 // =========================================================
-describe("Stage 12 — agent tool permissions", () => {
+describe("Stage 12, agent tool permissions", () => {
   it("every registered tool is read-only (write tools cannot exist)", () => {
     const tools = listAgentTools();
     expect(tools.length).toBeGreaterThan(0);
@@ -374,7 +374,7 @@ describe("Stage 12 — agent tool permissions", () => {
     }
   });
 
-  it("an unknown tool id is refused — no fallback execution, no writes", async () => {
+  it("an unknown tool id is refused, no fallback execution, no writes", async () => {
     makeVisible();
     const r = await invokeAgentTool(
       "proj-1",
@@ -391,10 +391,10 @@ describe("Stage 12 — agent tool permissions", () => {
 });
 
 // =========================================================
-// 3. Adversarial action kinds — refused cleanly, never
+// 3. Adversarial action kinds, refused cleanly, never
 // dispatched by fallthrough, never crashing.
 // =========================================================
-describe("Stage 12 — adversarial action kinds", () => {
+describe("Stage 12, adversarial action kinds", () => {
   it("prepareAction refuses an unregistered kind BEFORE any lookup", async () => {
     makeVisible();
     const r = await prepareAction(
@@ -432,9 +432,9 @@ describe("Stage 12 — adversarial action kinds", () => {
 });
 
 // =========================================================
-// 4. Property isolation — cross-project routing.
+// 4. Property isolation, cross-project routing.
 // =========================================================
-describe("Stage 12 — cross-project routing", () => {
+describe("Stage 12, cross-project routing", () => {
   beforeEach(() => {
     makeVisible();
     seedAction({ project_id: "proj-2" });
@@ -512,7 +512,7 @@ describe("Stage 12 — cross-project routing", () => {
 // =========================================================
 // 5. Replay / double-execution.
 // =========================================================
-describe("Stage 12 — replay attempts", () => {
+describe("Stage 12, replay attempts", () => {
   it("executing twice performs the project write ONCE (idempotent replay)", async () => {
     makeVisible();
     db.tables.project_shopping_list = [
@@ -534,14 +534,14 @@ describe("Stage 12 — replay attempts", () => {
     if (first.ok) expect(first.data.duplicate).toBe(false);
     expect(projectWrites().length).toBe(1);
 
-    // Replay — same call again after success.
+    // Replay, same call again after success.
     const second = await executeApprovedAction("proj-1", id, NOW);
     expect(second.ok).toBe(true);
     if (second.ok) expect(second.data.duplicate).toBe(true);
     expect(projectWrites().length).toBe(1);
   });
 
-  it("deciding an approval twice is final — the second decision is refused", async () => {
+  it("deciding an approval twice is final, the second decision is refused", async () => {
     makeVisible();
     const id = seedAction({ state: "prepared" });
     seedApproval(id); // pending
@@ -561,10 +561,10 @@ describe("Stage 12 — replay attempts", () => {
 });
 
 // =========================================================
-// 6. Prompt injection — instructions inside recorded data or
+// 6. Prompt injection, instructions inside recorded data or
 // uploaded documents are DATA, never agent commands.
 // =========================================================
-describe("Stage 12 — prompt injection & malicious documents", () => {
+describe("Stage 12, prompt injection & malicious documents", () => {
   it("an injection payload in recorded data surfaces verbatim AS DATA and triggers no command", async () => {
     makeVisible();
     snapState.snap = {
@@ -588,19 +588,19 @@ describe("Stage 12 — prompt injection & malicious documents", () => {
     const r = await invokeAgentTool("proj-1", { tool: "shopping_list" }, NOW);
     expect(r.ok).toBe(true);
     if (r.ok) {
-      // The payload is returned verbatim as recorded data — never
+      // The payload is returned verbatim as recorded data, never
       // interpreted, never executed.
       expect(JSON.stringify(r.data)).toContain(INJECT);
       expect(r.data.permission).toBe("read");
     }
 
-    // No action was auto-prepared, nothing was written —
+    // No action was auto-prepared, nothing was written :
     // instructions in data are inert.
     expect(db.tables.project_agent_actions.length).toBe(0);
     expect(db.writes.length).toBe(0);
   });
 
-  it("a malicious uploaded document is analyzed AS DATA — its instructions are inert", async () => {
+  it("a malicious uploaded document is analyzed AS DATA, its instructions are inert", async () => {
     makeVisible();
     docState.extraction = {
       id: "e1",
@@ -609,7 +609,7 @@ describe("Stage 12 — prompt injection & malicious documents", () => {
       scale: null,
       rooms: [
         {
-          name: `BEDROOM 1 — ${INJECT}`,
+          name: `BEDROOM 1, ${INJECT}`,
           spaceType: "bedroom" as never,
           length: null,
           width: null,
@@ -637,7 +637,7 @@ describe("Stage 12 — prompt injection & malicious documents", () => {
     if (r.ok) {
       const json = JSON.stringify(r.data);
       // The document's content appears verbatim in the analysis
-      // output — as reported data.
+      // output, as reported data.
       expect(json).toContain(INJECT);
       expect(r.data.permission).toBe("read");
       // Extractions carry the ai_extracted data class.
@@ -652,9 +652,9 @@ describe("Stage 12 — prompt injection & malicious documents", () => {
 });
 
 // =========================================================
-// 7. API secrets — never persisted.
+// 7. API secrets, never persisted.
 // =========================================================
-describe("Stage 12 — secret hygiene", () => {
+describe("Stage 12, secret hygiene", () => {
   it("sanitizeAuditValue redacts secret-looking values at any depth", () => {
     const out = sanitizeAuditValue({
       api_key: "sk_live_abc123",
@@ -696,10 +696,10 @@ describe("Stage 12 — secret hygiene", () => {
 });
 
 // =========================================================
-// 8. RLS static audit — every project_agent_* table in the
+// 8. RLS static audit, every project_agent_* table in the
 // migrations has RLS enabled with auth.uid()-scoped policies.
 // =========================================================
-describe("Stage 12 — RLS static audit of migrations", () => {
+describe("Stage 12, RLS static audit of migrations", () => {
   const migrationsDir = path.resolve(__dirname, "../../../supabase/migrations");
 
   function allSql(): string {

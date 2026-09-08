@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX AI COPILOT — UI entry point
+// FRELUX AI COPILOT, UI entry point
 //
 // A small floating entry that adds natural-language estimation
 // WITHOUT overwhelming the existing calculators:
@@ -94,7 +94,7 @@ export default function CopilotWidget() {
     reset();
     setPhase('running');
 
-    // 1. Deterministic interpretation first — free, offline, no API call.
+    // 1. Deterministic interpretation first, free, offline, no API call.
     let interpretation = interpretRequest(q);
 
     // 2. AI-assisted interpretation ONLY when the deterministic parse
@@ -151,13 +151,13 @@ export default function CopilotWidget() {
     if (!outcome?.result?.ok) return;
     setSaveState('saving');
     try {
-      // calculator_type must match the existing enum — build-to-roof runs
+      // calculator_type must match the existing enum, build-to-roof runs
       // are saved with the calculator this engine belongs to.
       await saveCalculationToProject({
         project_id: projectId,
         calculator_type: 'build_to_roof',
         calculator_slug: 'build-to-roof-estimator',
-        calc_title: `Copilot estimate — ${new Date().toLocaleDateString()}`,
+        calc_title: `Copilot estimate, ${new Date().toLocaleDateString()}`,
         calc_data: outcome.engineInput ?? {},
         result_summary: {
           grand_total: outcome.result.costs?.total ?? 0,
@@ -221,7 +221,7 @@ export default function CopilotWidget() {
               <em>"Estimate materials and cost for a 4-bedroom duplex, 15m by 12m"</em>.
             </p>
             <ul className="space-y-1 text-xs text-muted-foreground">
-              <li>• Your words are turned into inputs — no guessing.</li>
+              <li>• Your words are turned into inputs, no guessing.</li>
               <li>• Quantities & costs come only from FRELUX calculation engines.</li>
               <li>• Assumptions are always shown, never hidden.</li>
             </ul>
@@ -230,7 +230,7 @@ export default function CopilotWidget() {
 
         {(phase === 'running' || busy) && (
           <div className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Working — interpreting your request…
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> Working, interpreting your request…
           </div>
         )}
 
@@ -311,8 +311,8 @@ function ReviewPanel({
         <p className="mt-1 text-sm font-medium">{TASK_LABELS[interpretation.taskType] ?? interpretation.taskType}</p>
         <p className="mt-0.5 text-xs text-muted-foreground">
           {interpretation.interpretedBy === 'ai_assisted'
-            ? 'Interpreted by AI — values below are detected and need your confirmation.'
-            : 'Parsed directly from your request — no AI call needed.'}
+            ? 'Interpreted by AI, values below are detected and need your confirmation.'
+            : 'Parsed directly from your request, no AI call needed.'}
         </p>
       </div>
 
@@ -334,7 +334,7 @@ function ReviewPanel({
 
       {missing.length > 0 && (
         <div className="space-y-2 rounded-lg border border-border p-3">
-          <p className="text-xs font-medium">A few details are still needed — FRELUX won't guess them:</p>
+          <p className="text-xs font-medium">A few details are still needed, FRELUX won't guess them:</p>
           {missing.map((field) => (
             <label key={field.key} className="block text-sm">
               <span className="text-muted-foreground">{field.label}{field.unit ? ` (${field.unit})` : ''}</span>
@@ -386,13 +386,13 @@ function ResultPanel({
     <div className="space-y-4">
       <div className="rounded-lg border border-border bg-background p-3">
         <p className="text-xs uppercase tracking-wide text-muted-foreground">Estimated total</p>
-        <p className="mt-1 text-2xl font-bold">{result.costs ? fmt(result.costs.total) : '—'}</p>
+        <p className="mt-1 text-2xl font-bold">{result.costs ? fmt(result.costs.total) : '-'}</p>
         <p className="mt-1 flex items-center gap-1 text-[11px] text-muted-foreground">
           <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" aria-hidden />
           Calculated by: {outcome.plan.steps.find((s) => s.kind === 'run_engine')?.detail.replace(/^Run the /, '') ?? 'an authoritative FRELUX engine'}
         </p>
         {result.costs && !result.costs.regionalDataAvailable && (
-          <p className="mt-1 text-[11px] text-amber-600">Pricing basis is older than 30 days — verify current prices before decisions.</p>
+          <p className="mt-1 text-[11px] text-amber-600">Pricing basis is older than 30 days, verify current prices before decisions.</p>
         )}
       </div>
 
@@ -446,7 +446,7 @@ function ResultPanel({
               {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
             {saveState === 'saving' && <p className="flex items-center gap-1 text-xs text-muted-foreground"><Loader2 className="h-3 w-3 animate-spin" aria-hidden /> Saving…</p>}
-            {saveState === 'error' && <p className="text-xs text-destructive">Couldn't save — please try again.</p>}
+            {saveState === 'error' && <p className="text-xs text-destructive">Couldn't save, please try again.</p>}
           </div>
         )}
         {saveState === 'saved' && (

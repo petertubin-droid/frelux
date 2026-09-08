@@ -1,8 +1,8 @@
 // =========================================================
-// FRELUX PHASE 8 P4 — SUBSCRIBER CLIENT (PERSISTENCE)
+// FRELUX PHASE 8 P4, SUBSCRIBER CLIENT (PERSISTENCE)
 //
 // RLS-shaped writes for the Phase 8 P4 tables. Every query
-// is user-scoped (user_id = session user) — the database
+// is user-scoped (user_id = session user), the database
 // enforces isolation even if a caller forgets a filter.
 // Pipeline guards from the pure modules run BEFORE any write.
 // =========================================================

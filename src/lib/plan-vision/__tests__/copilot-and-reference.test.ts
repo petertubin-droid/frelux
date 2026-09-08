@@ -1,5 +1,5 @@
 // =========================================================
-// PLAN VISION TESTS — Copilot bridge (§19), upload validation
+// PLAN VISION TESTS, Copilot bridge (§19), upload validation
 // (§23), and the REFERENCE TEST (§25): the same dimensions
 // through the manual calculator and through the plan workflow
 // MUST produce identical quantities.
@@ -134,7 +134,7 @@ describe("Copilot bridge (§19)", () => {
     );
   });
 
-  it("feeds the AI Foundation requirements resolver — no unnecessary questions (§19)", () => {
+  it("feeds the AI Foundation requirements resolver, no unnecessary questions (§19)", () => {
     const ex = extraction({
       buildingFacts: [
         confirmElement(fact("building_length", 15)),
@@ -151,7 +151,7 @@ describe("Copilot bridge (§19)", () => {
       ...planFactsForCopilot(ex),
     ]);
     // Everything the plan knows is resolved from the PLAN (project_data),
-    // not from smart defaults — the Copilot asks no unnecessary questions.
+    // not from smart defaults, the Copilot asks no unnecessary questions.
     expect(resolution.resolved.building_length?.value).toBe(15);
     expect(resolution.resolved.building_length?.origin).toBe("project_data");
     expect(resolution.resolved.building_width?.value).toBe(10);
@@ -160,7 +160,7 @@ describe("Copilot bridge (§19)", () => {
     // (bungalow default), never fabricated plan data.
     expect(resolution.resolved.building_type?.origin).toBe("smart_default");
     expect(resolution.resolved.building_type?.value).toBe("bungalow");
-    // Nothing is left missing — and nothing plan-derived needed asking.
+    // Nothing is left missing, and nothing plan-derived needed asking.
     expect(resolution.missing).toHaveLength(0);
     expect(resolution.assumptions.map((a) => a.key)).toContain("building_type");
   });
@@ -256,10 +256,10 @@ describe("upload validation (§23)", () => {
 // =========================================================
 // REFERENCE TEST (§25)
 // Same dimensions: manual calculator vs plan-vision workflow
-// MUST produce identical quantities — the workflow adds no math.
+// MUST produce identical quantities, the workflow adds no math.
 // =========================================================
 
-describe("REFERENCE TEST — manual path vs plan-vision path (§25)", () => {
+describe("REFERENCE TEST, manual path vs plan-vision path (§25)", () => {
   const L = 4.8; // metres
   const W = 3.6;
   const H = 3.0;

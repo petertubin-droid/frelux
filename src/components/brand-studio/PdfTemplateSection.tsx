@@ -1,5 +1,5 @@
 /**
- * PDF Template Section — select templates and branding preferences
+ * PDF Template Section, select templates and branding preferences
  */
 import { useState, useEffect } from "react";
 import { Lock, FileText } from "lucide-react";

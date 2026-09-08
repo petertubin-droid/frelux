@@ -1,10 +1,10 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — PROGRESS VARIANCE (§7, §8)
+// FRELUX PREDICTIVE INTELLIGENCE, PROGRESS VARIANCE (§7, §8)
 //
 // Expected state vs recorded/observed state:
 //   expected: stages completed in template order at this point
 //   recorded: stages marked complete (user records)
-//   observed: dated visual observations (§8) — supporting
+//   observed: dated visual observations (§8), supporting
 //             evidence only, NEVER overriding verified records
 //             without user confirmation.
 //
@@ -60,10 +60,10 @@ export function analyzeProgressVariance(snapshot: {
   const evidence: Evidence[] = [];
   const inputs: PredictionResult["inputs"] = [];
   const assumptions: string[] = [
-    "The stage-completion rate counts every recorded stage equally — stages can differ in size, cost and duration.",
+    "The stage-completion rate counts every recorded stage equally, stages can differ in size, cost and duration.",
   ];
   const limitations: string[] = [
-    "Physical completion percentage from photographs is NOT estimated — no measurement methodology supports it.",
+    "Physical completion percentage from photographs is NOT estimated, no measurement methodology supports it.",
   ];
 
   if (stages.length === 0) {
@@ -71,7 +71,7 @@ export function analyzeProgressVariance(snapshot: {
       kind: "progress_variance",
       status: "insufficient_data",
       prediction:
-        "Insufficient evidence — no progress stages are recorded, so expected vs recorded state cannot be compared.",
+        "Insufficient evidence, no progress stages are recorded, so expected vs recorded state cannot be compared.",
       result: null,
       evidence,
       inputs,
@@ -92,14 +92,14 @@ export function analyzeProgressVariance(snapshot: {
     evidence.push({
       kind: "progress_stage",
       id: s.id,
-      label: `Stage "${s.stageName}" — ${s.isCompleted ? "recorded complete" : "not yet complete"}`,
+      label: `Stage "${s.stageName}", ${s.isCompleted ? "recorded complete" : "not yet complete"}`,
       recordedAt: s.completedAt ?? s.updatedAt,
       verification: "user_recorded",
     });
   }
 
   // Visual observations (§8): supporting evidence with explicit
-  // verification state — they never override the records above.
+  // verification state, they never override the records above.
   for (const o of visualObservations) {
     evidence.push({
       kind: "visual_observation",
@@ -111,7 +111,7 @@ export function analyzeProgressVariance(snapshot: {
   }
   if (visualObservations.length > 0) {
     assumptions.push(
-      "Visual observations are supporting evidence only — they do not override the recorded stage data without user confirmation.",
+      "Visual observations are supporting evidence only, they do not override the recorded stage data without user confirmation.",
     );
   }
 
@@ -158,7 +158,7 @@ export function analyzeProgressVariance(snapshot: {
   });
 
   const prediction = disagrees
-    ? `Recorded stage completion is ${stagePct}%, while your stated project progress is ${userPct}% — the records disagree. FRELUX uses the recorded stages (${completed.length}/${ordered.length} complete) and flags the mismatch for your review.`
+    ? `Recorded stage completion is ${stagePct}%, while your stated project progress is ${userPct}%, the records disagree. FRELUX uses the recorded stages (${completed.length}/${ordered.length} complete) and flags the mismatch for your review.`
     : completed.length === ordered.length
       ? `All ${ordered.length} recorded stages are complete (100% stage completion).`
       : `On the recorded data: ${completed.length} of ${ordered.length} stages complete (${stagePct}% stage completion)${userPct !== null ? `, consistent with your stated progress of ${userPct}%` : ""}. Without planned dates, ahead/behind-schedule vs plan cannot be computed.`;

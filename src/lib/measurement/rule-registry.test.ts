@@ -14,7 +14,7 @@ import {
   createNigeriaScreedingRules,
 } from "@/lib/measurement/rule-registry";
 
-describe("rule-registry — createRuleRegistry", () => {
+describe("rule-registry, createRuleRegistry", () => {
   it("creates an empty registry", () => {
     const registry = createRuleRegistry();
     expect(registry.rules).toEqual([]);
@@ -22,7 +22,7 @@ describe("rule-registry — createRuleRegistry", () => {
   });
 });
 
-describe("rule-registry — createRule", () => {
+describe("rule-registry, createRule", () => {
   it("creates a rule with defaults", () => {
     const rule = createRule();
     expect(rule.ruleId).toBeTruthy();
@@ -53,7 +53,7 @@ describe("rule-registry — createRule", () => {
   });
 });
 
-describe("rule-registry — registerRule", () => {
+describe("rule-registry, registerRule", () => {
   it("adds a rule to the registry", () => {
     const registry = createRuleRegistry();
     const rule = createRule({ ruleId: "r1" });
@@ -70,7 +70,7 @@ describe("rule-registry — registerRule", () => {
   });
 });
 
-describe("rule-registry — registerRules", () => {
+describe("rule-registry, registerRules", () => {
   it("adds multiple rules at once", () => {
     const registry = createRuleRegistry();
     const rules = [createRule({ ruleId: "r1" }), createRule({ ruleId: "r2" })];
@@ -79,7 +79,7 @@ describe("rule-registry — registerRules", () => {
   });
 });
 
-describe("rule-registry — findRules", () => {
+describe("rule-registry, findRules", () => {
   it("returns all rules when no query filter", () => {
     const rules = [createRule({ ruleId: "r1" }), createRule({ ruleId: "r2" })];
     const registry = registerRules(createRuleRegistry(), rules);
@@ -134,7 +134,7 @@ describe("rule-registry — findRules", () => {
   });
 });
 
-describe("rule-registry — findApplicableRule", () => {
+describe("rule-registry, findApplicableRule", () => {
   it("returns most specific active+approved rule", () => {
     const rules = [
       createRule({
@@ -177,7 +177,7 @@ describe("rule-registry — findApplicableRule", () => {
   });
 });
 
-describe("rule-registry — findApplicableRules", () => {
+describe("rule-registry, findApplicableRules", () => {
   it("returns all active+approved rules in specificity order", () => {
     const rules = [
       createRule({
@@ -202,7 +202,7 @@ describe("rule-registry — findApplicableRules", () => {
   });
 });
 
-describe("rule-registry — getRuleById", () => {
+describe("rule-registry, getRuleById", () => {
   it("finds a rule by ID", () => {
     const rules = [createRule({ ruleId: "r1" }), createRule({ ruleId: "r2" })];
     const registry = registerRules(createRuleRegistry(), rules);
@@ -216,7 +216,7 @@ describe("rule-registry — getRuleById", () => {
   });
 });
 
-describe("rule-registry — getRuleParameter", () => {
+describe("rule-registry, getRuleParameter", () => {
   it("returns parameter value when present", () => {
     const rule = createRule({ parameters: { wasteFactor: 15 } });
     expect(getRuleParameter(rule, "wasteFactor")).toBe(15);
@@ -233,7 +233,7 @@ describe("rule-registry — getRuleParameter", () => {
   });
 });
 
-describe("rule-registry — built-in rules", () => {
+describe("rule-registry, built-in rules", () => {
   it("createGlobalGeometryRules returns non-empty array", () => {
     const rules = createGlobalGeometryRules();
     expect(Array.isArray(rules)).toBe(true);

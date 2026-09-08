@@ -30,7 +30,7 @@ interface Tool {
   featured?: boolean;
 }
 
-// Cycled RGB gradient palettes for the sliding strip — vivid on light and dark
+// Cycled RGB gradient palettes for the sliding strip, vivid on light and dark
 const RGB_GRADIENTS = [
   "from-rose-500 via-fuchsia-500 to-violet-500",
   "from-sky-500 via-cyan-500 to-emerald-500",
@@ -200,7 +200,7 @@ export default function Calculators() {
 
   return (
     <>
-      {/* Hero strip — premium */}
+      {/* Hero strip, premium */}
       <section
         aria-label="All FRELUX calculators"
         className="relative overflow-hidden bg-mesh text-primary-foreground"
@@ -234,7 +234,7 @@ export default function Calculators() {
       </section>
 
 
-      {/* Continuous sliding strip of calculator names — decorative */}
+      {/* Continuous sliding strip of calculator names, decorative */}
       <div
         aria-hidden="true"
         className="overflow-hidden border-y border-border/40 bg-card py-3 dark:bg-background-mid"
@@ -358,8 +358,8 @@ export default function Calculators() {
             </Link>
           </div>
 
-          {/* Adsterra Native Banner slot — placement "calculators_native" */}
-          {/* Ad slot — placement "calculators_mid" */}
+          {/* Adsterra Native Banner slot, placement "calculators_native" */}
+          {/* Ad slot, placement "calculators_mid" */}
           <AdSlot slotKey="calculators_mid" className="mt-10" />
           <AdSlot slotKey="calculators_native" className="mt-10" />
           <AdSlot slotKey="calculators_bottom" className="mt-10" />

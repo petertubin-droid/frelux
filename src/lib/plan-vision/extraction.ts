@@ -1,17 +1,17 @@
 // =========================================================
-// FRELUX PLAN VISION — Extraction Client & Sanitizer
+// FRELUX PLAN VISION, Extraction Client & Sanitizer
 //
 // Calls the ai-plan-extraction Edge Function (vision model) and
 // DETERMINISTICALLY sanitizes every response before it can become
 // a PlanExtraction:
 //   - strict element whitelist + range clamps
 //   - confidence clamped 0..1
-//   - dimension classification validated (§4) — a model can never
+//   - dimension classification validated (§4), a model can never
 //     label an inference "explicit"; the sanitizer re-derives the
 //     kind from the declared source
 //   - photos can never produce explicit/dimension_annotation data
-//     (§16) — visual sources are forced to "inferred"
-//   - unknown values stay null — never filled (§22)
+//     (§16), visual sources are forced to "inferred"
+//   - unknown values stay null, never filled (§22)
 //
 // PERFORMANCE (§24): extractions are keyed by document + version;
 // a caller must not reprocess a document whose verified extraction
@@ -56,7 +56,7 @@ export interface PlanExtractionRequest {
 }
 
 // =========================================================
-// RANGE CONFIGURATION (deterministic clamps — mirror server-side)
+// RANGE CONFIGURATION (deterministic clamps, mirror server-side)
 // =========================================================
 
 const LENGTH_MIN_M = 0.01;
@@ -69,7 +69,7 @@ const FLOORS_MIN = 1;
 const FLOORS_MAX = 100;
 
 // =========================================================
-// SANITIZER — pure, deterministic, unit-tested without network
+// SANITIZER, pure, deterministic, unit-tested without network
 // =========================================================
 
 type Raw = Record<string, unknown>;
@@ -85,7 +85,7 @@ function asString(v: unknown): string | null {
   return typeof v === "string" && v.trim() ? v.trim() : null;
 }
 
-/** Sanitize one raw dimension into a DimensionValue — or null. */
+/** Sanitize one raw dimension into a DimensionValue, or null. */
 function sanitizeDimension(
   raw: unknown,
   forceKind: DimensionValue["kind"] | null,
@@ -115,7 +115,7 @@ function sanitizeDimension(
   const meters = value * toM[unit];
   if (meters < LENGTH_MIN_M || meters > LENGTH_MAX_M) return null;
 
-  // §4: the KIND is re-derived here — the model cannot self-certify
+  // §4: the KIND is re-derived here, the model cannot self-certify
   // a value as "explicit". "dimension_annotation" is only honored
   // for dimension-grade documents; visual-only sources are forced
   // to inferred (§16).
@@ -144,7 +144,7 @@ function sanitizeDimension(
   };
 }
 
-/** Sanitize a raw opening (§13 — unknown dims stay null). */
+/** Sanitize a raw opening (§13, unknown dims stay null). */
 function sanitizeOpening(
   raw: unknown,
   provenance: ProvenanceRef,
@@ -158,7 +158,7 @@ function sanitizeOpening(
   const w = sanitizeDimension(rec.width, null, visualOnly);
   const h = sanitizeDimension(rec.height, null, visualOnly);
 
-  // Impossible opening sizes are dropped (dims become unknown —
+  // Impossible opening sizes are dropped (dims become unknown :
   // flagged for confirmation, never invented).
   const wM = w
     ? w.value *
@@ -300,7 +300,7 @@ function sanitizeRoof(
   const hips = asNumber(rec.hipsCount);
   const valleys = asNumber(rec.valleysCount);
 
-  // §14: geometry sufficiency is decided deterministically — a roof
+  // §14: geometry sufficiency is decided deterministically, a roof
   // is sufficient only when its type is known AND its pitch is
   // explicitly known (or it is flat). Missing geometry ⇒ Requires
   // Confirmation; NO generic multiplier is ever used.
@@ -330,8 +330,8 @@ function sanitizeRoof(
     insufficientReason: geometrySufficient
       ? undefined
       : roofType === "unknown"
-        ? "Roof type could not be determined from the drawing — confirm the roof type."
-        : "Roof pitch is not explicitly known — confirm the pitch before roof calculations.",
+        ? "Roof type could not be determined from the drawing, confirm the roof type."
+        : "Roof pitch is not explicitly known, confirm the pitch before roof calculations.",
     provenance,
     confidence: clamp01(asNumber(rec.confidence) ?? 0),
     reviewStatus: "ai_extracted",
@@ -388,7 +388,7 @@ function sanitizeBuildingFact(
 }
 
 /**
- * Sanitize a raw scale record (§5). unusable scales are kept —
+ * Sanitize a raw scale record (§5). unusable scales are kept :
  * the user sees why scale-derived dimensions are disabled.
  */
 function sanitizeScale(raw: unknown): ScaleRecord | null {
@@ -462,7 +462,7 @@ export function sanitizeExtractionResponse(
         .slice(0, 12)
     : [];
 
-  // §6 deterministic consistency pass — issues surfaced, never corrected.
+  // §6 deterministic consistency pass, issues surfaced, never corrected.
   let issues: ConsistencyIssue[] = [];
   try {
     issues = validateExtraction(rooms, buildingFacts);
@@ -511,7 +511,7 @@ function emptyExtraction(
 }
 
 // =========================================================
-// PERFORMANCE (§24) — do not reprocess verified extractions
+// PERFORMANCE (§24), do not reprocess verified extractions
 // =========================================================
 
 /**
@@ -543,7 +543,7 @@ export function shouldReextract(
 
 /**
  * Request an element-level extraction from the ai-plan-extraction
- * Edge Function. Errors are surfaced honestly with codes — the
+ * Edge Function. Errors are surfaced honestly with codes, the
  * caller NEVER receives a fabricated extraction (§22).
  */
 export async function requestPlanExtraction(

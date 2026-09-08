@@ -1,5 +1,5 @@
 /**
- * FRELUX PROPERTY INTELLIGENCE — PUBLIC API
+ * FRELUX PROPERTY INTELLIGENCE, PUBLIC API
  *
  * A structured information and analysis layer over the Global Foundation
  * (Prompt 2) and Construction Intelligence (Prompt 3). No invented

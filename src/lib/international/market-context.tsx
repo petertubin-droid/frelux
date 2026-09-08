@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 /**
- * FRELUX INTERNATIONAL ARCHITECTURE — Market Context Provider
+ * FRELUX INTERNATIONAL ARCHITECTURE, Market Context Provider
  *
  * React context + hook for accessing the current market context.
  *
@@ -31,7 +31,7 @@ import type {
 } from "@/types/international";
 
 // ============================================================
-// DEFAULTS (Nigeria — preserving existing behavior)
+// DEFAULTS (Nigeria, preserving existing behavior)
 // ============================================================
 
 export const DEFAULT_MARKET_CODE = "NG";
@@ -214,7 +214,7 @@ export function MarketProvider({ children }: { children: ReactNode }) {
           );
         await loadMarketContext();
       } catch {
-        /* ignore — non-critical */
+        /* ignore, non-critical */
       }
     },
     [user, loadMarketContext],

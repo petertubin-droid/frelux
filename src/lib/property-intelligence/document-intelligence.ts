@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PROPERTY INTELLIGENCE — DOCUMENT INTELLIGENCE (§5)
+// FRELUX PROPERTY INTELLIGENCE, DOCUMENT INTELLIGENCE (§5)
 //
 // Property-related documents (plans, surveys, listings, reports,
 // photographs) contribute information ONLY as explicitly
@@ -8,7 +8,7 @@
 //     verification status + timestamp
 //   - AI-extracted facts are ai_detected and requires_confirmation
 //   - verified/user-confirmed values are NEVER overwritten by a
-//     document — conflicts are surfaced for the user to resolve
+//     document, conflicts are surfaced for the user to resolve
 //   - FRELUX does NOT authenticate legal documents; no legal
 //     verification claim is made anywhere (§5, §21)
 // =========================================================
@@ -48,7 +48,7 @@ export const DOCUMENT_FIELD_LABELS: Record<DocumentSupportedField, string> = {
   constructionStatus: "Construction status",
 };
 
-/** One raw extraction from a document — usually produced by the
+/** One raw extraction from a document, usually produced by the
  *  AI extraction layer, always treated as unverified input. */
 export interface DocumentExtractionFact {
   field: DocumentSupportedField;
@@ -87,9 +87,9 @@ export interface DocumentMergeInput {
 }
 
 export interface DocumentMergeOutcome {
-  /** Updates safe to apply — nothing conflicts at a higher trust level. */
+  /** Updates safe to apply, nothing conflicts at a higher trust level. */
   updates: ExtractedFieldUpdate[];
-  /** Fields whose current value is more trusted — never overwritten. */
+  /** Fields whose current value is more trusted, never overwritten. */
   preserved: Array<{
     field: DocumentSupportedField;
     fieldLabel: string;
@@ -116,7 +116,7 @@ function trustRank(p: Provenance | undefined): number {
 
 /**
  * Convert a document extraction into provenance-tracked field
- * updates. Every fact becomes ai_detected + requires_confirmation —
+ * updates. Every fact becomes ai_detected + requires_confirmation :
  * regardless of extractor confidence, a document NEVER self-verifies.
  */
 export function extractPropertyFacts(
@@ -149,7 +149,7 @@ export function extractPropertyFacts(
 /**
  * Merge extracted updates against the existing profile provenance.
  * Verified / user-confirmed values are NEVER overwritten by an
- * AI-extracted document fact — that is a hard trust boundary.
+ * AI-extracted document fact, that is a hard trust boundary.
  */
 export function mergeDocumentFacts(
   extraction: DocumentExtraction,
@@ -171,7 +171,7 @@ export function mergeDocumentFacts(
       preserved.push({
         field: update.field,
         fieldLabel: update.fieldLabel,
-        reason: `Current value is ${existingProvenance.verificationStatus} (${existingProvenance.sourceType}) — a document extraction may not overwrite it. The document value is kept aside for you to review.`,
+        reason: `Current value is ${existingProvenance.verificationStatus} (${existingProvenance.sourceType}), a document extraction may not overwrite it. The document value is kept aside for you to review.`,
       });
       continue;
     }
@@ -183,7 +183,7 @@ export function mergeDocumentFacts(
       duplicates.push({
         field,
         fieldLabel: DOCUMENT_FIELD_LABELS[field],
-        reason: `Extracted ${count} times in this document — the first occurrence was kept. Review the document for the correct value.`,
+        reason: `Extracted ${count} times in this document, the first occurrence was kept. Review the document for the correct value.`,
       });
     }
   }

@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 P3 — ARCHIE INTELLIGENCE CLIENT
+// FRELUX PHASE 8 P3, ARCHIE INTELLIGENCE CLIENT
 //
 // Browser-facing persistence for the Phase 8 P3 layer:
 // knowledge links, contradictions, domain gaps, professional

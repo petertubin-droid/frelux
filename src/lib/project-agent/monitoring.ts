@@ -1,16 +1,16 @@
 // =========================================================
-// FRELUX PROJECT AGENT — PROACTIVE MONITORING (Phase 6, Stage 9)
+// FRELUX PROJECT AGENT, PROACTIVE MONITORING (Phase 6, Stage 9)
 //
 // Controlled proactive monitoring: evaluate the recorded
 // project state periodically and raise an alert ONLY when a
-// meaningful condition exists. Alert spam is a design failure —
+// meaningful condition exists. Alert spam is a design failure :
 // a quiet project produces ZERO alerts.
 //
 // Every alert carries, per the Stage 9 contract:
-//   - evidence (the recorded rows behind it — traceable)
+//   - evidence (the recorded rows behind it, traceable)
 //   - timestamp (detectedAt / lastSeenAt)
 //   - confidence (deterministic, computed from data coverage,
-//     freshness and verification — never a guess)
+//     freshness and verification, never a guess)
 //   - severity (low / medium / high)
 //   - affected project
 //   - recommended action
@@ -26,12 +26,12 @@
 //
 // Honesty rules:
 //   - "Completed" claims derive ONLY from recorded stage
-//     completions — never from the user-entered progress
+//     completions, never from the user-entered progress
 //     percentage (which may be stale).
 //   - Thresholds are configuration, not scattered magic
 //     numbers (MONITORING_RULES below).
 //   - A project whose records claim "completed" with
-//     incomplete stages is flagged as a data-quality alert —
+//     incomplete stages is flagged as a data-quality alert :
 //     the system does not propagate a false completed state.
 // =========================================================
 
@@ -54,7 +54,7 @@ import { detectProjectChanges, type ChangeDetectionResult } from "./changes";
 import { formatMoney } from "./region";
 
 // ---------------------------------------------------------
-// Configuration — one place, no scattered magic numbers.
+// Configuration, one place, no scattered magic numbers.
 // ---------------------------------------------------------
 
 export const MONITORING_RULES = {
@@ -90,7 +90,7 @@ export type AlertSeverity = "low" | "medium" | "high";
 export type AlertStatus = "open" | "dismissed" | "resolved";
 
 export interface AlertCandidate {
-  /** Stable key — the same condition maps to the same key, so
+  /** Stable key, the same condition maps to the same key, so
    *  re-runs refresh instead of duplicating. */
   alertKey: string;
   kind: AlertKind;
@@ -127,11 +127,11 @@ export interface MonitoringReconciliation {
   created: AlertCandidate[];
   /** Refreshed open alerts (condition persisted). */
   refreshed: Array<{ existing: AlertRow; candidate: AlertCandidate }>;
-  /** Dismissed alerts whose condition ESCALATED — re-opened. */
+  /** Dismissed alerts whose condition ESCALATED, re-opened. */
   reopened: Array<{ existing: AlertRow; candidate: AlertCandidate }>;
   /** Dismissed alerts whose condition persisted unchanged. */
   stillDismissed: Array<{ existing: AlertRow; candidate: AlertCandidate }>;
-  /** Alerts whose condition cleared — expired with it. */
+  /** Alerts whose condition cleared, expired with it. */
   resolved: AlertRow[];
 }
 
@@ -151,7 +151,7 @@ export interface MonitoringResult {
 }
 
 // ---------------------------------------------------------
-// Deterministic confidence — data coverage, freshness, verification.
+// Deterministic confidence, data coverage, freshness, verification.
 // ---------------------------------------------------------
 
 function daysBetween(fromIso: string, toIso: string): number {
@@ -193,7 +193,7 @@ function itemEvidence(item: ShoppingItemWithActual, label: string): Evidence {
 }
 
 // ---------------------------------------------------------
-// Condition evaluation — pure, snapshot + changes in, alerts out.
+// Condition evaluation, pure, snapshot + changes in, alerts out.
 // ---------------------------------------------------------
 
 export function evaluateMonitoringAlerts(
@@ -202,7 +202,7 @@ export function evaluateMonitoringAlerts(
   nowIso: string,
 ): AlertCandidate[] {
   const alerts: AlertCandidate[] = [];
-  // Stage 11 — the project's recorded market drives money
+  // Stage 11, the project's recorded market drives money
   // formatting; unsupported markets get an honest marker, never
   // a substituted currency symbol.
   const mkt = snap.region.marketCode ?? snap.region.countryCode;
@@ -267,11 +267,11 @@ export function evaluateMonitoringAlerts(
       title: "Project marked completed with incomplete stages",
       condition: `The project record says "completed", but ${incompleteStages.length} of ${snap.stages.length} recorded construction stage(s) are incomplete: ${incompleteStages.map((s) => s.stageName).join(", ")}.`,
       recommendedAction:
-        "Either complete the remaining stages' records or correct the project status — a completed status with incomplete stages misrepresents the recorded progress.",
+        "Either complete the remaining stages' records or correct the project status, a completed status with incomplete stages misrepresents the recorded progress.",
       evidence: incompleteStages.map((s) => ({
         kind: "progress_stage" as const,
         id: s.id,
-        label: `Stage "${s.stageName}" — recorded incomplete`,
+        label: `Stage "${s.stageName}", recorded incomplete`,
         recordedAt: s.updatedAt,
         verification: "user_recorded" as const,
       })),
@@ -309,11 +309,11 @@ export function evaluateMonitoringAlerts(
       title: "Project appears stalled",
       condition: `The project is in progress with ${snap.stages.length} planned stage(s), but no stage completion is recorded and there has been no recorded activity for ${daysSinceActivity} days.`,
       recommendedAction:
-        "Record current progress (stage completions, purchases) or update the plan — a project with no recorded movement needs either data or a decision.",
+        "Record current progress (stage completions, purchases) or update the plan, a project with no recorded movement needs either data or a decision.",
       evidence: snap.stages.map((s) => ({
         kind: "progress_stage" as const,
         id: s.id,
-        label: `Planned stage "${s.stageName}" — not completed`,
+        label: `Planned stage "${s.stageName}", not completed`,
         recordedAt: s.updatedAt,
         verification: "user_recorded" as const,
       })),
@@ -332,7 +332,7 @@ export function evaluateMonitoringAlerts(
       kind: "stale_data",
       severity: "low",
       title: "Project records are stale",
-      condition: `The project is in progress but its record has not been updated for ${daysSinceUpdate} days — budget, schedule and requirement analysis may be running on outdated information.`,
+      condition: `The project is in progress but its record has not been updated for ${daysSinceUpdate} days, budget, schedule and requirement analysis may be running on outdated information.`,
       recommendedAction:
         "Update the project records (progress, prices, purchases) so analyses reflect the current state of the build.",
       evidence: [
@@ -370,7 +370,7 @@ export function evaluateMonitoringAlerts(
       evidence: unpricedPurchases.map((i) =>
         itemEvidence(
           i,
-          `Purchased line "${i.name}" — actual price not recorded`,
+          `Purchased line "${i.name}", actual price not recorded`,
         ),
       ),
       confidence,
@@ -410,9 +410,9 @@ export function evaluateMonitoringAlerts(
         kind: "project_change",
         severity: "high",
         title: "Major change(s) detected in project records",
-        condition: `${majorNonPrice.length} major change(s) were detected since ${changes.baselineCapturedAt?.split("T")[0] ?? "the last baseline"} — the recorded state moved in ways that should be verified: ${majorNonPrice.map((c) => c.whatChanged).join(" ")}`,
+        condition: `${majorNonPrice.length} major change(s) were detected since ${changes.baselineCapturedAt?.split("T")[0] ?? "the last baseline"}, the recorded state moved in ways that should be verified: ${majorNonPrice.map((c) => c.whatChanged).join(" ")}`,
         recommendedAction:
-          "Review the flagged changes and confirm they were intentional — major movements in recorded state (regressions, removals, scope growth) deserve a human decision.",
+          "Review the flagged changes and confirm they were intentional, major movements in recorded state (regressions, removals, scope growth) deserve a human decision.",
         evidence: majorNonPrice.flatMap((c) => c.evidence),
         confidence,
         payload: { changeIds: majorNonPrice.map((c) => c.id) },
@@ -424,7 +424,7 @@ export function evaluateMonitoringAlerts(
 }
 
 // ---------------------------------------------------------
-// Reconciliation — the anti-spam, anti-zombie core.
+// Reconciliation, the anti-spam, anti-zombie core.
 // ---------------------------------------------------------
 
 const SEVERITY_RANK: Record<AlertSeverity, number> = {
@@ -456,7 +456,7 @@ export function reconcileAlerts(
       continue;
     }
     if (row.status === "dismissed") {
-      // Dismissed stays dismissed — UNLESS the condition escalated.
+      // Dismissed stays dismissed, UNLESS the condition escalated.
       if (SEVERITY_RANK[c.severity] > SEVERITY_RANK[row.severity]) {
         plan.reopened.push({ existing: row, candidate: c });
       } else {
@@ -465,7 +465,7 @@ export function reconcileAlerts(
       continue;
     }
     if (row.status === "resolved") {
-      // Condition returned after resolving — re-open it.
+      // Condition returned after resolving, re-open it.
       plan.reopened.push({ existing: row, candidate: c });
       continue;
     }
@@ -607,7 +607,7 @@ export async function runProactiveMonitoring(
     return persistError("Snapshot build failed", String(e));
   }
 
-  // Stage 8 change detection runs as part of the evaluation — its
+  // Stage 8 change detection runs as part of the evaluation, its
   // result feeds the change-driven alerts.
   const changes = await detectProjectChanges(projectId, nowIso);
   if (!changes.ok) return changes;
@@ -658,7 +658,7 @@ export async function runProactiveMonitoring(
     counts.created + counts.refreshed + counts.reopened + counts.resolved;
   const summary =
     total === 0
-      ? "Monitoring run: no meaningful conditions — no alerts raised or changed."
+      ? "Monitoring run: no meaningful conditions, no alerts raised or changed."
       : `Monitoring run: ${counts.created} new, ${counts.refreshed} refreshed, ${counts.reopened} re-opened, ${counts.resolved} resolved.${counts.stillDismissed > 0 ? ` ${counts.stillDismissed} dismissed alert(s) remain dismissed.` : ""}`;
 
   await recordActivity(
@@ -688,7 +688,7 @@ export async function runProactiveMonitoring(
 }
 
 // ---------------------------------------------------------
-// User actions on alerts — dismissal is a HUMAN decision.
+// User actions on alerts, dismissal is a HUMAN decision.
 // ---------------------------------------------------------
 
 /** Dismiss an open alert. The condition's next occurrence at the

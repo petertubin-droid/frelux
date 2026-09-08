@@ -4,7 +4,7 @@ import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
 // ---------------------------------------------------------
-// FRELUX PHASE 7 — DEVELOPER PORTAL TESTS
+// FRELUX PHASE 7, DEVELOPER PORTAL TESTS
 // Verifies the honest key lifecycle surfaced in the UI:
 //   * raw key shown EXACTLY ONCE, then never again
 //   * create / rotate / revoke flows use the §3 contract
@@ -166,7 +166,7 @@ describe("DeveloperPortal (key manager)", () => {
     fireEvent.click(screen.getByRole("button", { name: /Create key/i }));
     await waitFor(() =>
       expect(
-        screen.getByText(/Copy this key now — FRELUX stores only a hash/i),
+        screen.getByText(/Copy this key now, FRELUX stores only a hash/i),
       ).toBeInTheDocument(),
     );
     expect(
@@ -189,7 +189,7 @@ describe("DeveloperPortal (key manager)", () => {
     await waitFor(() =>
       expect(screen.getByText("Production")).toBeInTheDocument(),
     );
-    // Buttons stay disabled while usage is still loading — wait for
+    // Buttons stay disabled while usage is still loading, wait for
     // enabled before clicking (slow CI runners hit this race once).
     await waitFor(() =>
       expect(screen.getByRole("button", { name: /Rotate/i })).toBeEnabled(),

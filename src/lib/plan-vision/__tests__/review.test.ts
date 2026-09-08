@@ -1,5 +1,5 @@
 // =========================================================
-// PLAN VISION TESTS — human verification workflow (§8, §17)
+// PLAN VISION TESTS, human verification workflow (§8, §17)
 // =========================================================
 
 import { describe, it, expect } from "vitest";
@@ -91,7 +91,7 @@ describe("review state machine (§8)", () => {
   });
 });
 
-describe("room editing — users are never locked into AI results (§8, §17)", () => {
+describe("room editing, users are never locked into AI results (§8, §17)", () => {
   it("records every correction in the history with previous value", () => {
     const original = room({ name: "AI Room" });
     const edited = editRoom(
@@ -235,7 +235,7 @@ describe("roof editing (§14)", () => {
     ...over,
   });
 
-  it("user sets the roof type and pitch — recorded with history", () => {
+  it("user sets the roof type and pitch, recorded with history", () => {
     const edited = editRoof(roof(), {
       roofType: "gable",
       pitchDegrees: 25,

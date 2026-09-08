@@ -30,7 +30,7 @@ function renderWidget() {
   );
 }
 
-describe('CopilotWidget — end-to-end smoke', () => {
+describe('CopilotWidget, end-to-end smoke', () => {
   beforeEach(() => vi.clearAllMocks());
 
   it('renders the floating entry without breaking the site', () => {
@@ -44,7 +44,7 @@ describe('CopilotWidget — end-to-end smoke', () => {
 
     await user.click(screen.getByRole('button', { name: /open frelux ai copilot/i }));
 
-    // Deterministic parse — no AI credits spent for anon users.
+    // Deterministic parse, no AI credits spent for anon users.
     const input = screen.getByLabelText(/describe your estimation request/i);
     await user.type(input, 'Estimate a 4-bedroom bungalow, 15m by 12m');
     await user.click(screen.getByRole('button', { name: /send request/i }));

@@ -1,5 +1,5 @@
 /**
- * FRELUX Engine Integration — Supabase Queries
+ * FRELUX Engine Integration, Supabase Queries
  *
  * CRUD operations for the engine management tables (em_*).
  * Admin-only: all queries rely on RLS policies that check is_admin().
@@ -323,7 +323,7 @@ export async function upsertEngineSetting(setting: Partial<EmEngineSetting> & { 
 
 /**
  * Toggle a market's active status.
- * Uses the existing market_profiles table — does NOT create a duplicate.
+ * Uses the existing market_profiles table, does NOT create a duplicate.
  * Ghana and Kenya remain inactive unless explicitly activated here.
  */
 export async function toggleMarketActivation(countryCode: string, status: 'active' | 'coming_soon' | 'unsupported' | 'test_only'): Promise<void> {

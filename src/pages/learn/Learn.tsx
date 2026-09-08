@@ -363,7 +363,7 @@ export default function Learn() {
           </section>
         )}
 
-        {/* Browse by category — hierarchical */}
+        {/* Browse by category, hierarchical */}
         <section className="mb-14">
           <div className="mb-6 flex items-center gap-3">
             <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
@@ -579,7 +579,7 @@ export default function Learn() {
 
         <div className="mt-10">
           <AdSlot slotKey="learn_sidebar" className="mb-8" />
-          {/* Native banner slot — placement "learn_native" */}
+          {/* Native banner slot, placement "learn_native" */}
           <AdSlot slotKey="learn_native" />
           <AdSlot slotKey="learn_bottom" />
         </div>

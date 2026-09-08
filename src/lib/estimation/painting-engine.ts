@@ -1,9 +1,9 @@
 /**
- * FRELUX Phase 2 — Painting Estimation Engine
+ * FRELUX Phase 2, Painting Estimation Engine
  *
  * Room-based painting estimator that follows FRELUX's actual estimating methodology.
  * Uses the Phase 1 estimation infrastructure (products, quality levels, prices, calc rules,
- * pack sizing, validation, adjustments) — does NOT duplicate or replace those systems.
+ * pack sizing, validation, adjustments), does NOT duplicate or replace those systems.
  *
  * Key principles:
  * - Room-based: primary inputs are room length, breadth, wall height
@@ -56,7 +56,7 @@ import {
 
 import { feetToMeters } from "@/lib/utils";
 
-// The central paint-engine owns coverage-unit normalization — reuse it so the
+// The central paint-engine owns coverage-unit normalization, reuse it so the
 // two engines can never diverge on unit handling (audit finding fix).
 import { normalizeCoverage, getCoverageUnitLabel } from "./paint-engine";
 
@@ -109,7 +109,7 @@ export interface OpeningDeductionInfo {
   deducted_area_m2: number;
 }
 
-/** Customer-facing room summary — painter language, not m² */
+/** Customer-facing room summary, painter language, not m² */
 export interface RoomCustomerSummary {
   room_name: string;
   room_size: string; // "12 ft × 14 ft"
@@ -284,7 +284,7 @@ export function calculateCeilingArea(
 }
 
 /**
- * Internal calculation — NOT shown as the primary FRELUX methodology to the customer.
+ * Internal calculation, NOT shown as the primary FRELUX methodology to the customer.
  */
 export function calculateTheoreticalLitres(
   areaM2: number,
@@ -568,7 +568,7 @@ export function calculateRoom(
   if (room.include_ceiling) {
     ceilingArea = calculateCeilingArea(lengthM, breadthM);
     // Determine ceiling mode up-front so the transparency step matches what
-    // Step 11 will actually compute (audit fix — previously always per-room).
+    // Step 11 will actually compute (audit fix, previously always per-room).
     const qCeilEarly = config.quality?.ceiling_coverage;
     let ruleCeilEarly = false;
     if (config.ceilingCoverageRule?.rule_value) {
@@ -582,7 +582,7 @@ export function calculateRoom(
         (rv.m2_per_liter as number) > 0;
     }
     if ((qCeilEarly && qCeilEarly > 0) || ruleCeilEarly) {
-      // Area-based ceiling coverage configured — computed with pack size at Step 11
+      // Area-based ceiling coverage configured, computed with pack size at Step 11
       steps.push({
         label: "Ceiling",
         value: `${ceilingArea.toFixed(2)} m²`,
@@ -820,7 +820,7 @@ export function calculateRoom(
   }
 
   // AUDIT FIX (ceiling divergence): honor configured ceiling coverage with the
-  // same priority as the central paint-engine — (1) quality-level ceiling
+  // same priority as the central paint-engine, (1) quality-level ceiling
   // coverage, (2) ceiling_coverage_rate calc rule, (3) per-room
   // ceiling_quantity_per_room fallback. Previously this engine ALWAYS used the
   // per-room rule, so the two calculators disagreed for the same room whenever
@@ -862,7 +862,7 @@ export function calculateRoom(
 
   if (room.include_ceiling) {
     if (ceilingCoverageM2PerL && ceilingCoverageM2PerL > 0) {
-      // Area-based ceiling — matches central engine Step 12
+      // Area-based ceiling, matches central engine Step 12
       theoreticalCeilingLitres =
         Math.round(((ceilingArea * coats) / ceilingCoverageM2PerL) * 100) / 100;
       theoreticalCeilingBuckets = litresToBuckets(
@@ -875,7 +875,7 @@ export function calculateRoom(
         detail: `(${ceilingArea.toFixed(2)} m² × ${coats} coat(s)) ÷ ${ceilingCoverageM2PerL.toFixed(2)} m²/L`,
       });
     } else {
-      // Per-room rule fallback — recalculated with the actual pack size
+      // Per-room rule fallback, recalculated with the actual pack size
       theoreticalCeilingLitres = theoreticalCeilingBuckets * packSizeLitres;
     }
   }

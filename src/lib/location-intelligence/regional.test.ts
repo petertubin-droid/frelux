@@ -42,7 +42,7 @@ describe("resolveRegionalContext", () => {
     expect(ctx.reason).toContain("Nigeria");
   });
 
-  it("reports 'Regional data unavailable' for countries with no profile — and substitutes nothing", async () => {
+  it("reports 'Regional data unavailable' for countries with no profile, and substitutes nothing", async () => {
     const ctx = await resolveRegionalContext(
       loc({ country_code: "FR", country: "France" }),
       lookup({ NG: NG_PROFILE }),

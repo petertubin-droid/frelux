@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8b — ARCHIE MOBILE SECURITY TEST SUITE
+// FRELUX PHASE 8b, ARCHIE MOBILE SECURITY TEST SUITE
 //
 // Covers the required security matrix:
 //  1. stolen-device scenarios        8. attempted non-owner
@@ -334,7 +334,7 @@ describe("stolen-device scenarios", () => {
 
   it("a stolen phone alone never provides account access: no session row, no entry", async () => {
     const res = await validateCurrentSession(OWNER);
-    expect(res.valid).toBe(true); // unknown device — but nothing cached/decrypted yet
+    expect(res.valid).toBe(true); // unknown device, but nothing cached/decrypted yet
     // Protected items are ciphertext-only and passphrase-gated:
     const items = await listProtectedItems(OWNER);
     expect(items).toEqual([]);
@@ -413,7 +413,7 @@ describe("unauthorized access & cross-user isolation", () => {
 // 4. Permission denial
 // ---------------------------------------------------------
 describe("permission denial", () => {
-  it("every free capability requires explicit consent — denial is graceful", () => {
+  it("every free capability requires explicit consent, denial is graceful", () => {
     for (const cap of FREE_CAPABILITY_KEYS) {
       const gate = checkCapabilityConsent(cap, undefined);
       expect(gate.ok).toBe(false);
@@ -440,7 +440,7 @@ describe("permission denial", () => {
     expect(consents.LOCATION.granted_at).toBeNull();
   });
 
-  it("only safe http(s) links open — javascript:/data: blocked", () => {
+  it("only safe http(s) links open, javascript:/data: blocked", () => {
     expect(isSafeLink("https://frelux.app/paint-calculator")).toBe(true);
     expect(isSafeLink("javascript:alert(1)")).toBe(false);
     expect(isSafeLink("data:text/html;base64,xxx")).toBe(false);
@@ -468,7 +468,7 @@ describe("account & protected-data recovery (replacement device)", () => {
     expect(meta).not.toContain("roof 145.2m2");
 
     // New device: sign in, list, download, decrypt with passphrase
-    mockDownloadBody = ""; // will be set by cache — recovery prefers cache in test env
+    mockDownloadBody = ""; // will be set by cache, recovery prefers cache in test env
     const rec = await recoverProtectedItem(
       OWNER,
       res.item.id,
@@ -530,7 +530,7 @@ describe("account & protected-data recovery (replacement device)", () => {
     expect(getCachedEnvelope(ATTACKER, "b")).toBeNull();
   });
 
-  it("the phone is never the only copy — protectItem uploads before returning", async () => {
+  it("the phone is never the only copy, protectItem uploads before returning", async () => {
     const res = await protectItem(OWNER, {
       label: "Estimate",
       itemType: "ESTIMATE",
@@ -696,19 +696,19 @@ describe("owner authorization", () => {
     expect(constantTimeEqual("abc", "abcd")).toBe(false);
   });
 
-  it("the stored credential is ONLY a salted hash — never the plaintext", () => {
+  it("the stored credential is ONLY a salted hash, never the plaintext", () => {
     // The owner_credentials table stores secret_hash + salt + iterations.
     // Structural guarantee: this table is reachable ONLY via the service
-    // role (no RLS policies) — verified by the migration audit in CI.
+    // role (no RLS policies), verified by the migration audit in CI.
     expect(tables.frelux_owner_credentials).toEqual([]);
   });
 });
 
 // ---------------------------------------------------------
-// 10. API abuse — rate limiting (client + policy)
+// 10. API abuse, rate limiting (client + policy)
 // ---------------------------------------------------------
 describe("API abuse defenses", () => {
-  it("paid capabilities are OFF by default — fetchPaidActivations starts empty", async () => {
+  it("paid capabilities are OFF by default, fetchPaidActivations starts empty", async () => {
     const activations = await fetchPaidActivations(OWNER);
     for (const cap of PAID_CAPABILITY_KEYS) {
       expect(activations[cap]).toBeUndefined();

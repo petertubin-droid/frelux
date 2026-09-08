@@ -62,7 +62,7 @@ export default function HowItWorks() {
           </p>
         </div>
 
-        {/* Steps — 4 columns on desktop */}
+        {/* Steps, 4 columns on desktop */}
         <div
           ref={ref}
           className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5"
@@ -88,7 +88,7 @@ export default function HowItWorks() {
                 )}
 
                 <div className="relative h-full rounded-2xl border border-border/60 bg-card p-7 transition-all duration-300 hover:border-brand-purple/20 hover:shadow-premium dark:border-white/5 dark:bg-card dark:hover:border-brand-purple/30">
-                  {/* Step number — large faded */}
+                  {/* Step number, large faded */}
                   <div className="flex items-center justify-between">
                     <span
                       className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl ${step.accent} transition-transform duration-300 hover:scale-105`}

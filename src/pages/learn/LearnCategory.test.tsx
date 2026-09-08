@@ -214,7 +214,7 @@ describe("LearnCategory", () => {
       expect(adSlotRenders.length).toBeGreaterThan(0);
     });
     // Ad network / Better Ads compliance: every ad block on the page
-    // must be clearly labeled — hideLabel must never be set.
+    // must be clearly labeled, hideLabel must never be set.
     for (const slot of adSlotRenders) {
       expect(slot.hideLabel).toBeFalsy();
     }

@@ -486,7 +486,7 @@ export default function PaintCalculator({
     const e: Record<string, string> = {};
     if (s === 2) {
       if (input.length <= 0) e.length = "Enter a valid length";
-      // Width is optional for all project types — no validation needed when blank.
+      // Width is optional for all project types, no validation needed when blank.
       if (input.wallHeight <= 0) e.wallHeight = "Enter a valid wall height";
     }
     if (s === 3) {
@@ -1037,12 +1037,12 @@ ${result.primerContainers.length > 0 ? `- Primer: ${result.primerContainers.map(
           ]}
         />
       )}
-      {/* Ad slot — placement "calculator_mid" */}
+      {/* Ad slot, placement "calculator_mid" */}
       <AdSlot slotKey="calculator_mid" className="mt-8" />
-      {/* Native banner slot — placement "calculator_native" */}
+      {/* Native banner slot, placement "calculator_native" */}
       <AdSlot slotKey="calculator_native" className="mt-8" />
       <AdSlot slotKey="calculator_bottom" className="mt-8" />
-      {/* Monetag In-Page Push — placement "calculator_push"
+      {/* Monetag In-Page Push, placement "calculator_push"
           (zone ID editable in Admin → Ads → Placements) */}
       <AdSlot slotKey="calculator_push" className="mt-8" />
     </>
@@ -1458,7 +1458,7 @@ function Step3({
         </Field>
       </div>
 
-      {/* Quality selection — type-specific, dynamic from admin config */}
+      {/* Quality selection, type-specific, dynamic from admin config */}
       {matchedEstProduct && (
         <div className="mt-4">
           <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
@@ -1998,7 +1998,7 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    // Plain <button> — not shadcn's <Button variant="ghost">, whose hover
+    // Plain <button>, not shadcn's <Button variant="ghost">, whose hover
     // state gets "stuck" on touch devices after a tap until the next tap
     // elsewhere, masking the checked-state color change.
     <button

@@ -54,7 +54,7 @@ describe("getFinishTypeDescription", () => {
   });
 });
 
-describe("calculateFinish — Painting", () => {
+describe("calculateFinish, Painting", () => {
   const paintMaterial: FinishMaterialConfig = {
     id: "paint-1",
     name: "Paint",
@@ -120,7 +120,7 @@ describe("calculateFinish — Painting", () => {
   });
 });
 
-describe("calculateFinish — Grafitex (partition-based)", () => {
+describe("calculateFinish, Grafitex (partition-based)", () => {
   it("calculates bucket requirements from partition count", () => {
     const input: FinishCalcInput = {
       finishType: "grafitex",
@@ -214,7 +214,7 @@ describe("calculateFinish — Grafitex (partition-based)", () => {
   });
 });
 
-describe("calculateFinish — Zero area", () => {
+describe("calculateFinish, Zero area", () => {
   it("returns all zeros when area is 0", () => {
     const input: FinishCalcInput = {
       finishType: "painting",
@@ -249,7 +249,7 @@ describe("calculateFinish — Zero area", () => {
   });
 });
 
-describe("calculateFinish — Waste margin clamping", () => {
+describe("calculateFinish, Waste margin clamping", () => {
   it("clamps waste margin > 100% down to 100%", () => {
     const input: FinishCalcInput = {
       finishType: "painting",
@@ -287,7 +287,7 @@ describe("calculateFinish — Waste margin clamping", () => {
   });
 });
 
-describe("calculateFinish — Negative inputs", () => {
+describe("calculateFinish, Negative inputs", () => {
   it("clamps negative area to 0", () => {
     const input: FinishCalcInput = {
       finishType: "painting",

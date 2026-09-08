@@ -1,16 +1,16 @@
 // =========================================================
-// FRELUX PROJECT AGENT — TOOL ORCHESTRATION LAYER (Stage 3)
+// FRELUX PROJECT AGENT, TOOL ORCHESTRATION LAYER (Stage 3)
 //
 // Connects the Project Agent to EXISTING authoritative FRELUX
 // tools. Hard rules:
 //
-//   1. The agent CALLS engines — it never reproduces their
+//   1. The agent CALLS engines, it never reproduces their
 //      mathematics. Every number in `result` was produced by
 //      the credited engine, verbatim.
 //   2. Every tool is project-scoped: a project the caller
 //      cannot see resolves to project_not_found. There is no
 //      path that touches another user's or project's data.
-//   3. All Stage-3 tools are READ / analysis operations —
+//   3. All Stage-3 tools are READ / analysis operations :
 //      permission "read", no approval flow, no mutation of
 //      project data. (Prepare/confirm actions arrive later,
 //      in Stage 6+.)
@@ -84,10 +84,10 @@ export type AgentToolId =
 export interface AgentToolDescriptor {
   id: AgentToolId;
   title: string;
-  /** Who actually does the work — shown in agent responses. */
+  /** Who actually does the work, shown in agent responses. */
   creditedAs: string;
   description: string;
-  /** What the tool needs — human-readable, used for the agent's
+  /** What the tool needs, human-readable, used for the agent's
    *  "determine required information" step and for UI copy. */
   requiredInputs: string[];
   /** Stage 3: every tool is read/analysis only. */
@@ -136,11 +136,11 @@ export const AGENT_TOOLS: Record<AgentToolId, AgentToolDescriptor> = {
   shopping_list: {
     id: "shopping_list",
     title: "Shopping list",
-    creditedAs: "project_shopping_list (recorded data — no math added)",
+    creditedAs: "project_shopping_list (recorded data, no math added)",
     description:
       "Read the project's recorded shopping list with estimated and actual prices, verbatim.",
     requiredInputs: [
-      "a visible project (list may be empty — stated, not guessed)",
+      "a visible project (list may be empty, stated, not guessed)",
     ],
     permission: "read",
   },
@@ -149,7 +149,7 @@ export const AGENT_TOOLS: Record<AgentToolId, AgentToolDescriptor> = {
     title: "Quotation preview",
     creditedAs: "Quotation engine (authoritative, read-only preview)",
     description:
-      "Build a quotation document (preview only — nothing is saved or sent) from a cost estimate the caller supplies.",
+      "Build a quotation document (preview only, nothing is saved or sent) from a cost estimate the caller supplies.",
     requiredInputs: ["costEstimate (from a FRELUX cost calculation)"],
     permission: "read",
   },
@@ -223,13 +223,13 @@ export interface ToolInputUsed {
 
 export interface ToolInvocation {
   tool: AgentToolId;
-  /** Stage 3 — always "read". */
+  /** Stage 3, always "read". */
   permission: "read";
   status: "ok" | "insufficient_data";
   executedAt: string;
   /** The authoritative engine/module that produced `result`. */
   engineUsed: string;
-  /** The engine's output, VERBATIM — never transformed by the agent. */
+  /** The engine's output, VERBATIM, never transformed by the agent. */
   result: unknown;
   /** What was missing when status = insufficient_data. */
   missingData: string[];
@@ -242,7 +242,7 @@ export interface ToolInvocation {
 
 export interface ToolRequest {
   tool: AgentToolId;
-  /** Tool parameters — validated per tool; unknown keys are ignored. */
+  /** Tool parameters, validated per tool; unknown keys are ignored. */
   params?: Record<string, unknown>;
 }
 
@@ -251,7 +251,7 @@ const USER_CLASS: AgentDataClass = "user_provided";
 const RECORDED_CLASS: AgentDataClass = "user_provided";
 
 // =========================================================
-// Dispatcher — the single entry point
+// Dispatcher, the single entry point
 // =========================================================
 
 export async function invokeAgentTool(
@@ -265,7 +265,7 @@ export async function invokeAgentTool(
       ok: false,
       error: {
         code: "persistence_error",
-        message: `Unknown agent tool "${request.tool}". The agent only invokes registered tools — no fallbacks.`,
+        message: `Unknown agent tool "${request.tool}". The agent only invokes registered tools, no fallbacks.`,
       },
     };
   }
@@ -434,7 +434,7 @@ async function runCalculatorLookup(
       : [],
     assumptions: [],
     dataFreshness: nowIso,
-    note: "Engine list comes from the registry — engines the AI may call by id. Totals are the recorded values from each saved calculation.",
+    note: "Engine list comes from the registry, engines the AI may call by id. Totals are the recorded values from each saved calculation.",
   };
 }
 
@@ -458,7 +458,7 @@ async function runQuantityTakeoff(
       "quantity_takeoff",
       engineUsed,
       [
-        "a plan document with an extraction for this project — upload a plan and let Plan Vision extract it first",
+        "a plan document with an extraction for this project, upload a plan and let Plan Vision extract it first",
       ],
       nowIso,
     );
@@ -482,7 +482,7 @@ async function runQuantityTakeoff(
     );
   }
 
-  // Existing planner — no math added here.
+  // Existing planner, no math added here.
   const plan = planRoomTakeoff(extraction, kinds);
   const executed = await executeTakeoffPlan(plan);
 
@@ -535,12 +535,12 @@ async function runQuantityTakeoff(
     inputsUsed,
     assumptions: extraction.warnings,
     dataFreshness: extraction.extractedAt,
-    note: "Each item's quantities/costs were produced by its registered engine, verbatim. Rooms not yet confirmed are excluded — the takeoff reports gaps, it never guesses them.",
+    note: "Each item's quantities/costs were produced by its registered engine, verbatim. Rooms not yet confirmed are excluded, the takeoff reports gaps, it never guesses them.",
   };
 }
 
 // =========================================================
-// 3. Build-to-Roof (registry engine — verbatim EngineResult)
+// 3. Build-to-Roof (registry engine, verbatim EngineResult)
 // =========================================================
 
 async function runBuildToRoof(
@@ -555,7 +555,7 @@ async function runBuildToRoof(
   const overrides = (params?.input ?? {}) as Partial<BuildToRoofInputLike>;
   const input = { ...defaults, ...overrides };
 
-  // The ENGINE validates its own input — the agent adds no math,
+  // The ENGINE validates its own input, the agent adds no math,
   // no unit conversion, no defaults of its own.
   const result: EngineResult = await executeEngine(engineId, input);
   const inputsUsed: ToolInputUsed[] = Object.entries(input as Record<string, unknown>).map(
@@ -585,13 +585,13 @@ async function runBuildToRoof(
       : [],
     dataFreshness: result.calculatedAt,
     note: result.ok
-      ? "Result is the engine's output verbatim — identical to running the Build-to-Roof estimator with the same inputs."
-      : "The engine reported a failure honestly — no approximation was produced.",
+      ? "Result is the engine's output verbatim, identical to running the Build-to-Roof estimator with the same inputs."
+      : "The engine reported a failure honestly, no approximation was produced.",
   };
 }
 
 // =========================================================
-// 4. Project timeline (timeline engine — scope is required)
+// 4. Project timeline (timeline engine, scope is required)
 // =========================================================
 
 function runProjectTimeline(
@@ -609,7 +609,7 @@ function runProjectTimeline(
       "project_timeline",
       engineUsed,
       [
-        "scope map (trade → quantity), e.g. from a quantity takeoff or a saved calculation — the timeline engine never invents quantities",
+        "scope map (trade → quantity), e.g. from a quantity takeoff or a saved calculation, the timeline engine never invents quantities",
       ],
       nowIso,
     );
@@ -639,7 +639,7 @@ function runProjectTimeline(
       ? params.contingencyDays
       : undefined;
 
-  // Existing engine — verbatim result.
+  // Existing engine, verbatim result.
   const result = estimateTimeline(scope, undefined, {
     startDate,
     weatherBufferPercent,
@@ -685,7 +685,7 @@ function runProjectTimeline(
 }
 
 // =========================================================
-// 5. Shopping list (recorded data — verbatim)
+// 5. Shopping list (recorded data, verbatim)
 // =========================================================
 
 async function runShoppingList(
@@ -715,7 +715,7 @@ async function runShoppingList(
     result: items,
     missingData:
       items.length === 0
-        ? ["shopping list items (none recorded — procurement status is unknown)"]
+        ? ["shopping list items (none recorded, procurement status is unknown)"]
         : [],
     inputsUsed: items.map((i) => ({
       key: `shopping:${String(i.id ?? "?")}`,
@@ -725,12 +725,12 @@ async function runShoppingList(
     })),
     assumptions: [],
     dataFreshness: lastTouched,
-    note: "Recorded values verbatim — estimated vs actual prices are shown exactly as stored; no totals are recomputed here.",
+    note: "Recorded values verbatim, estimated vs actual prices are shown exactly as stored; no totals are recomputed here.",
   };
 }
 
 // =========================================================
-// 6. Quotation preview (quotation engine — nothing persisted)
+// 6. Quotation preview (quotation engine, nothing persisted)
 // =========================================================
 
 function runQuotationPreview(
@@ -744,7 +744,7 @@ function runQuotationPreview(
       "quotation_preview",
       engineUsed,
       [
-        "costEstimate — the CostEstimate output of a FRELUX cost calculation (the quotation engine never invents line items or prices)",
+        "costEstimate, the CostEstimate output of a FRELUX cost calculation (the quotation engine never invents line items or prices)",
       ],
       nowIso,
     );
@@ -772,7 +772,7 @@ function runQuotationPreview(
       ? params.quotationNumber
       : undefined;
 
-  // Existing engine — verbatim document, PREVIEW ONLY.
+  // Existing engine, verbatim document, PREVIEW ONLY.
   const result = buildQuotation({
     costEstimate,
     clientName,
@@ -821,12 +821,12 @@ function runQuotationPreview(
       "Default quotation settings (validity, terms, tax) apply where none supplied.",
     ],
     dataFreshness: nowIso,
-    note: "Preview only — the document is returned; nothing is saved, sent or exported by this tool.",
+    note: "Preview only, the document is returned; nothing is saved, sent or exported by this tool.",
   };
 }
 
 // =========================================================
-// 7. Cost & project analysis (predictive intelligence — verbatim)
+// 7. Cost & project analysis (predictive intelligence, verbatim)
 // =========================================================
 
 async function runCostAnalysis(
@@ -838,7 +838,7 @@ async function runCostAnalysis(
   if (!snap.ok)
     return insufficient("cost_analysis", engineUsed, ["visible project data"], nowIso);
 
-  // Existing deterministic analysis — verbatim.
+  // Existing deterministic analysis, verbatim.
   const analysis = analyzeProject(snap.data);
 
   return {
@@ -861,7 +861,7 @@ async function runCostAnalysis(
     ],
     assumptions: analysis.limitations,
     dataFreshness: analysis.generatedAt,
-    note: "Analysis is the deterministic engine's output verbatim — every limitation is carried through, none hidden.",
+    note: "Analysis is the deterministic engine's output verbatim, every limitation is carried through, none hidden.",
   };
 }
 
@@ -885,7 +885,7 @@ async function runScenarioAnalysis(
       "scenario_analysis",
       engineUsed,
       [
-        "scenario kind — one of: material_price_change (needs changePct), task_delay (needs delayDays), material_change (needs materialName + newUnitPrice)",
+        "scenario kind, one of: material_price_change (needs changePct), task_delay (needs delayDays), material_change (needs materialName + newUnitPrice)",
       ],
       nowIso,
     );
@@ -896,7 +896,7 @@ async function runScenarioAnalysis(
     return insufficient("scenario_analysis", engineUsed, ["visible project data"], nowIso);
 
   // The scenario functions return insufficient_data HONESTLY when
-  // the recorded data is missing — that outcome is passed through
+  // the recorded data is missing, that outcome is passed through
   // verbatim; the agent never substitutes anything.
   let result;
   if (scenario === "material_price_change") {
@@ -931,7 +931,7 @@ async function runScenarioAnalysis(
     result = taskDelayScenario({
       now: nowIso,
       nextPendingStage: pending?.stageName ?? null,
-      dailySpendRate: null, // only a measured rate belongs here — never a guess
+      dailySpendRate: null, // only a measured rate belongs here, never a guess
       delayDays,
     });
   } else {
@@ -983,12 +983,12 @@ async function runScenarioAnalysis(
     ],
     assumptions: result.assumptions,
     dataFreshness: nowIso,
-    note: "The scenario engine's own insufficient_data verdicts are passed through verbatim — nothing is fabricated to fill a gap.",
+    note: "The scenario engine's own insufficient_data verdicts are passed through verbatim, nothing is fabricated to fill a gap.",
   };
 }
 
 // =========================================================
-// 9. Property analysis (Property Intelligence — linked property)
+// 9. Property analysis (Property Intelligence, linked property)
 // =========================================================
 
 async function runPropertyAnalysis(
@@ -1016,7 +1016,7 @@ async function runPropertyAnalysis(
     );
   }
 
-  // Existing mapping + engine — verbatim.
+  // Existing mapping + engine, verbatim.
   const profile = rowToProfile(propertyRow as never);
   const report = buildPropertyIntelligenceReport({ profile, nowIso });
 
@@ -1039,7 +1039,7 @@ async function runPropertyAnalysis(
       },
     ],
     assumptions: [
-      "The report is built from the recorded property profile alone — no observations, listings or investment inputs were supplied by this tool.",
+      "The report is built from the recorded property profile alone, no observations, listings or investment inputs were supplied by this tool.",
     ],
     dataFreshness: nowIso,
     note: "Report is the Property Intelligence engine's output verbatim.",
@@ -1047,7 +1047,7 @@ async function runPropertyAnalysis(
 }
 
 // =========================================================
-// 10. Plan document analysis (consistency checks — verbatim)
+// 10. Plan document analysis (consistency checks, verbatim)
 // =========================================================
 
 async function runDocumentAnalysis(
@@ -1067,7 +1067,7 @@ async function runDocumentAnalysis(
   }
 
   // Footprint dims, if recorded as building facts (deterministic
-  // lookup — null when absent; the checks handle null honestly).
+  // lookup, null when absent; the checks handle null honestly).
   const footprintLength = numericFact(extraction, "footprint_length");
   const footprintWidth = numericFact(extraction, "footprint_width");
   const footprintArea =
@@ -1075,7 +1075,7 @@ async function runDocumentAnalysis(
       ? footprintLength * footprintWidth
       : null;
 
-  // Existing deterministic checks — verbatim, unioned.
+  // Existing deterministic checks, verbatim, unioned.
   const issues = [
     ...findImpossibleRooms(extraction.rooms, footprintLength, footprintWidth),
     ...findDuplicateRooms(extraction.rooms),
@@ -1101,7 +1101,7 @@ async function runDocumentAnalysis(
     missingData:
       footprintLength === null || footprintWidth === null
         ? [
-            "footprint dimensions (not recorded as building facts — area-total checks skipped)",
+            "footprint dimensions (not recorded as building facts, area-total checks skipped)",
           ]
         : [],
     inputsUsed: [
@@ -1120,7 +1120,7 @@ async function runDocumentAnalysis(
     ],
     assumptions: extraction.warnings,
     dataFreshness: extraction.extractedAt,
-    note: "Issues are the consistency engine's findings verbatim — nothing is auto-corrected or hidden.",
+    note: "Issues are the consistency engine's findings verbatim, nothing is auto-corrected or hidden.",
   };
 }
 
@@ -1144,13 +1144,13 @@ async function runMarketIntelligence(
       "market_intelligence",
       engineUsed,
       [
-        "a confirmed project location — no market profile applies, and NO other region's prices are substituted",
+        "a confirmed project location, no market profile applies, and NO other region's prices are substituted",
       ],
       nowIso,
     );
   }
 
-  // Existing query layer — verbatim approved prices for THIS region.
+  // Existing query layer, verbatim approved prices for THIS region.
   const prices = await fetchApprovedPrices(marketCode);
   const lastUpdated = prices
     .map((p) => p.last_updated)
@@ -1168,7 +1168,7 @@ async function runMarketIntelligence(
     missingData:
       prices.length === 0
         ? [
-            `approved market prices for market "${marketCode}" (none on record — none substituted)`,
+            `approved market prices for market "${marketCode}" (none on record, none substituted)`,
           ]
         : [],
     inputsUsed: [
@@ -1180,7 +1180,7 @@ async function runMarketIntelligence(
       },
     ],
     assumptions: [
-      "Prices are the approved (validated) records only — raw observations and other markets' data are never shown as this project's prices.",
+      "Prices are the approved (validated) records only, raw observations and other markets' data are never shown as this project's prices.",
     ],
     dataFreshness: String(lastUpdated ?? nowIso),
     note: "Prices are returned verbatim from mi_approved_prices for the project's own market.",

@@ -1,10 +1,10 @@
 // =========================================================
-// FRELUX PHASE 8b — SECURITY EVENTS / NOTIFICATIONS
+// FRELUX PHASE 8b, SECURITY EVENTS / NOTIFICATIONS
 //
 // The security feed the user sees in ARCHIE Mobile → Security.
 // Device notifications (Notification API) are shown only when
 // the NOTIFICATIONS capability is consented AND the platform
-// permission is granted — never silently.
+// permission is granted, never silently.
 // =========================================================
 import { supabase } from "@/lib/supabase";
 import type { SecurityEvent, SecurityEventKind } from "./types";
@@ -53,7 +53,7 @@ export async function markSecurityEventsRead(userId: string): Promise<void> {
 
 /**
  * Show a system notification. Requires BOTH the user's app-level
- * consent and the platform permission — normal Android model,
+ * consent and the platform permission, normal Android model,
  * no bypass.
  */
 export async function notifyUserDevice(

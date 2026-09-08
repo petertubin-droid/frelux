@@ -1,5 +1,5 @@
 /**
- * FRELUX MARKET INTELLIGENCE — Calculator Price Resolver
+ * FRELUX MARKET INTELLIGENCE, Calculator Price Resolver
  *
  * THE clean interface that FRELUX calculators use to get prices.
  *
@@ -30,7 +30,7 @@ import type {
 import { NO_PRICE_AVAILABLE } from '@/types/market-intelligence';
 
 // ============================================================
-// CACHE — approved prices cached per market+product for the session
+// CACHE, approved prices cached per market+product for the session
 // ============================================================
 
 const approvedPriceCache = new Map<string, MiApprovedPrice | null>();
@@ -45,8 +45,8 @@ const approvedPriceCache = new Map<string, MiApprovedPrice | null>();
  *
  * @param marketCode  e.g. "NG", "GH", "KE"
  * @param productId   canonical_product_id from market_products
- * @param packageSize optional — match exact package size
- * @param packageUnit optional — match exact package unit
+ * @param packageSize optional, match exact package size
+ * @param packageUnit optional, match exact package unit
  */
 export async function resolveCalculatorPrice(
   marketCode: string,
@@ -73,7 +73,7 @@ export async function resolveCalculatorPrice(
     const { data, error } = await query.limit(10);
 
     if (error || !data || data.length === 0) {
-      // No approved price — try fallback: any approved price for this product
+      // No approved price, try fallback: any approved price for this product
       return tryFallback(marketCode, productId, options);
     }
 

@@ -1,18 +1,18 @@
 // =========================================================
-// FRELUX PHASE 7 — SERVER ENGINE BUNDLE ENTRY
+// FRELUX PHASE 7, SERVER ENGINE BUNDLE ENTRY
 //
 // Bundled by esbuild (npm run build:api-engines) into
 // supabase/functions/frelix-api/_engines.bundle.js and imported
 // by the FRELUX API gateway edge function.
 //
 // This entry RE-EXPORTS the canonical engine registry and the
-// Phase-7 key/auth modules — it invents NO new math and adds NO
+// Phase-7 key/auth modules, it invents NO new math and adds NO
 // alternate execution path. The gateway can only execute what
 // is registered here, exactly as the in-app AI surfaces do.
 // =========================================================
 
 // Canonical deterministic engine registry (the single sanctioned
-// execution path for all AI surfaces — Phase 2+ foundation).
+// execution path for all AI surfaces, Phase 2+ foundation).
 export {
   listEngines,
   getEngineDescriptor,

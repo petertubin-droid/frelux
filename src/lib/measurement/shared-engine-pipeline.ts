@@ -89,7 +89,7 @@ export const PIPELINE_STAGE_LABELS: Record<PipelineStage, string> = {
 // =========================================================
 
 /**
- * Input to the shared pipeline — from either source.
+ * Input to the shared pipeline, from either source.
  * Both sources provide the same normalized structure.
  */
 export interface PipelineInput {
@@ -217,7 +217,7 @@ export interface PipelineResult {
  * Execute the shared engine pipeline.
  *
  * This orchestrates existing FRELUX engines in the correct order.
- * It does NOT implement calculation logic — it calls existing engines.
+ * It does NOT implement calculation logic, it calls existing engines.
  *
  * Each stage receives the output of the previous stage.
  * If a stage fails, the pipeline continues with partial results
@@ -328,7 +328,7 @@ export function executeSharedPipeline(input: PipelineInput): PipelineResult {
   // ── Stage 4: Material Engine ──
   const matStart = Date.now();
   // Material engine produces material requirements from calculation results.
-  // Actual material specs are configurable — this stage records the pipeline flow.
+  // Actual material specs are configurable, this stage records the pipeline flow.
   const materialResult: MaterialStageResult = {
     success: true,
     materialResults: [],
@@ -562,7 +562,7 @@ export function createAiImageInput(params: {
 
 /**
  * Check if both sources can share the same pipeline.
- * They always can — the pipeline is source-agnostic.
+ * They always can, the pipeline is source-agnostic.
  * This function exists for documentation and testing.
  */
 export function canSharePipeline(_source: PipelineSource): boolean {

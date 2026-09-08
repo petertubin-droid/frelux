@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PLAN VISION — Geometric Consistency Validator (§6)
+// FRELUX PLAN VISION, Geometric Consistency Validator (§6)
 //
 // Deterministic validation of extracted dimensions against each
 // other. Detects:
@@ -11,7 +11,7 @@
 //   - impossible door/window placement
 //
 // The validator NEVER silently corrects contradictory plan
-// information — every finding becomes a ConsistencyIssue that is
+// information, every finding becomes a ConsistencyIssue that is
 // surfaced to the user for review (§6, §22). Pure functions only.
 // =========================================================
 
@@ -24,7 +24,7 @@ import type {
 import { dimensionToMeters, isUnknown } from "./dimensions";
 
 // =========================================================
-// CONFIGURATION — deterministic engineering bounds
+// CONFIGURATION, deterministic engineering bounds
 // =========================================================
 
 /** A single room larger than this is flagged as suspicious (m²). */
@@ -94,7 +94,7 @@ export function findImpossibleRooms(
         elementIds: [room.id],
         message: `Room "${room.name}" is missing a reliable ${
           isUnknown(room.length) ? "length" : "width"
-        }. Enter it manually — FRELUX will not infer it.`,
+        }. Enter it manually, FRELUX will not infer it.`,
       });
       continue;
     }
@@ -104,7 +104,7 @@ export function findImpossibleRooms(
         code: "room_exceeds_footprint",
         severity: "error",
         elementIds: [room.id],
-        message: `Room "${room.name}" has a non-positive length (${lengthM} m) — impossible geometry.`,
+        message: `Room "${room.name}" has a non-positive length (${lengthM} m), impossible geometry.`,
       });
       continue;
     }
@@ -115,12 +115,12 @@ export function findImpossibleRooms(
         code: "room_exceeds_footprint",
         severity: "error",
         elementIds: [room.id],
-        message: `Room "${room.name}" has an area of ${areaM2.toFixed(1)} m² — implausibly large for a single room. Verify the dimensions and units.`,
+        message: `Room "${room.name}" has an area of ${areaM2.toFixed(1)} m², implausibly large for a single room. Verify the dimensions and units.`,
       });
       continue;
     }
 
-    // Room larger than the whole building footprint — impossible.
+    // Room larger than the whole building footprint, impossible.
     if (footprintLengthM && footprintWidthM) {
       if (
         (lengthM !== null &&
@@ -171,7 +171,7 @@ export function findDuplicateRooms(rooms: ExtractedRoom[]): ConsistencyIssue[] {
         code: "duplicate_element",
         severity: "warning",
         elementIds: [existing.id, room.id],
-        message: `"${existing.name}" and "${room.name}" have the same type, floor and near-identical dimensions — possibly the same room extracted twice. Reject one if duplicated.`,
+        message: `"${existing.name}" and "${room.name}" have the same type, floor and near-identical dimensions, possibly the same room extracted twice. Reject one if duplicated.`,
       });
     } else {
       seen.set(key, room);
@@ -210,7 +210,7 @@ export function findContradictoryFacts(
           code: "contradictory_dimensions",
           severity: "error",
           elementIds: [group[0].id, group[i].id],
-          message: `${group[0].label}: conflicting values found (${group[0].dimension!.value} ${group[0].dimension!.unit} vs ${group[i].dimension!.value} ${group[i].dimension!.unit}). Choose the correct value — FRELUX will not silently pick one.`,
+          message: `${group[0].label}: conflicting values found (${group[0].dimension!.value} ${group[0].dimension!.unit} vs ${group[i].dimension!.value} ${group[i].dimension!.unit}). Choose the correct value, FRELUX will not silently pick one.`,
         });
       }
     }
@@ -227,7 +227,7 @@ export function findContradictoryFacts(
 /**
  * Compare the sum of room areas against the stated footprint area.
  * Only meaningful when ALL non-rejected rooms have known dimensions
- * — a partial sum is never used to claim inconsistency.
+ *, a partial sum is never used to claim inconsistency.
  */
 export function checkAreaTotals(
   rooms: ExtractedRoom[],
@@ -269,7 +269,7 @@ export function checkAreaTotals(
 /**
  * Detect impossible openings: dimensions below plausible minimums,
  * wider than the room, or taller than the wall. Openings with
- * unknown dimensions are flagged as requiring confirmation —
+ * unknown dimensions are flagged as requiring confirmation :
  * dimensions are NEVER invented for them.
  */
 export function checkOpenings(rooms: ExtractedRoom[]): ConsistencyIssue[] {
@@ -287,7 +287,7 @@ export function checkOpenings(rooms: ExtractedRoom[]): ConsistencyIssue[] {
           code: "missing_dimension",
           severity: "warning",
           elementIds: [opening.id],
-          message: `${opening.type === "door" ? "Door" : "Window"} in "${room.name}" has no reliable dimensions. Confirm its size before it can be deducted from any area — FRELUX will not invent dimensions.`,
+          message: `${opening.type === "door" ? "Door" : "Window"} in "${room.name}" has no reliable dimensions. Confirm its size before it can be deducted from any area, FRELUX will not invent dimensions.`,
         });
         continue;
       }
@@ -305,7 +305,7 @@ export function checkOpenings(rooms: ExtractedRoom[]): ConsistencyIssue[] {
         continue;
       }
 
-      // Opening wider than the room — impossible placement.
+      // Opening wider than the room, impossible placement.
       const maxRoomSpanM = Math.max(roomLengthM ?? 0, roomWidthM ?? 0);
       if (
         maxRoomSpanM > 0 &&
@@ -318,7 +318,7 @@ export function checkOpenings(rooms: ExtractedRoom[]): ConsistencyIssue[] {
           message: `${opening.type === "door" ? "Door" : "Window"} in "${room.name}" is wider (${wM.toFixed(2)} m) than the room itself (${maxRoomSpanM.toFixed(2)} m).`,
         });
       }
-      // Opening taller than the wall — impossible placement.
+      // Opening taller than the wall, impossible placement.
       if (
         roomHeightM !== null &&
         roomHeightM >= MIN_ROOM_HEIGHT_M &&
@@ -370,7 +370,7 @@ export function footprintFromFacts(
 
 /**
  * Run the complete deterministic consistency pass over one
- * extraction's rooms and building facts. Pure — same input,
+ * extraction's rooms and building facts. Pure, same input,
  * same issues, always in a stable order.
  */
 export function validateExtraction(

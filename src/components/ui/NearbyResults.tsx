@@ -20,7 +20,7 @@ import type { UserLocation } from "@/lib/location";
 import LocationPicker from "@/components/ui/LocationPicker";
 
 // ============================================================
-// NearbyResults — shows ranked nearby professionals + listings
+// NearbyResults, shows ranked nearby professionals + listings
 // ============================================================
 
 interface NearbyResultsProps {

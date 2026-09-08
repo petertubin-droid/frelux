@@ -1,17 +1,17 @@
 // =========================================================
-// FRELUX ARCHIE AMENDMENT — ACCOUNT PAUSE AUTHORITY
+// FRELUX ARCHIE AMENDMENT, ACCOUNT PAUSE AUTHORITY
 //
 // The Owner EXPLICITLY authorizes ARCHIE to temporarily
 // pause/suspend an offender account when STRONG EVIDENCE
 // indicates serious spam, fraud, abuse, compromise or other
-// FRELUX policy violations — pending Owner review.
+// FRELUX policy violations, pending Owner review.
 //
 // Workflow:
 //   DETECT → ANALYZE → COLLECT EVIDENCE → RISK ASSESSMENT →
 //   TEMPORARY PAUSE → NOTIFY OWNER → OWNER REVIEW →
 //   REINSTATE / RESTRICT / TERMINATE
 //
-// Hard limits — enforced, not advised:
+// Hard limits, enforced, not advised:
 //   * Maximum suspension period (72h); a pause that the
 //     Owner has not reviewed EXPIRES and the account is
 //     reinstated pending the Owner's decision.
@@ -23,7 +23,7 @@
 //     evidence, detected behavior, risk level, timestamp,
 //     ARCHIE decision, review status, final Owner decision.
 //   * The account is notified of the pause and has an
-//     appeal path — appeal goes to the Owner.
+//     appeal path, appeal goes to the Owner.
 // =========================================================
 
 import {
@@ -120,7 +120,7 @@ export function proposeAccountPause(input: {
   if (risk_level !== "HIGH" && risk_level !== "CRITICAL") {
     return {
       ok: false,
-      error: `Risk level ${risk_level} does not meet the pause threshold — only HIGH or CRITICAL evidence-backed violations may be paused, pending Owner review`,
+      error: `Risk level ${risk_level} does not meet the pause threshold, only HIGH or CRITICAL evidence-backed violations may be paused, pending Owner review`,
     };
   }
   const now = input.now ?? new Date().toISOString();
@@ -154,7 +154,7 @@ export function proposeAccountPause(input: {
 
 /** Does a pause still hold? Pauses are temporary: past
  *  expires_at the pause EXPIRES and the account is
- *  reinstated pending the Owner's decision — ARCHIE never
+ *  reinstated pending the Owner's decision, ARCHIE never
  *  extends its own pause. */
 export function isPauseActive(pause: AccountPauseRecord, now?: string): {
   active: boolean;
@@ -178,7 +178,7 @@ export function isPauseActive(pause: AccountPauseRecord, now?: string): {
   return { active: true, stage: "PAUSED" };
 }
 
-/** The account's appeal — always routed to the Owner. ARCHIE
+/** The account's appeal, always routed to the Owner. ARCHIE
  *  records it; it cannot adjudicate its own pause. */
 export function recordAppeal(
   pause: AccountPauseRecord,
@@ -190,13 +190,13 @@ export function recordAppeal(
     pause: {
       ...pause,
       notification: { ...pause.notification, appeal_available: true, appeal_to: "OWNER" },
-      // appeal keeps the pause PENDING_OWNER_REVIEW — the Owner decides
+      // appeal keeps the pause PENDING_OWNER_REVIEW, the Owner decides
       review_status: "PENDING_OWNER_REVIEW",
     },
   };
 }
 
-/** OWNER REVIEW — the final decision. ARCHIE can never call
+/** OWNER REVIEW, the final decision. ARCHIE can never call
  *  this: actor must be OWNER, and TERMINATION is ONLY ever
  *  an owner decision. */
 export function ownerReview(
@@ -208,7 +208,7 @@ export function ownerReview(
   if (actor !== "OWNER") {
     return {
       ok: false,
-      error: "Only the Owner reviews a pause — ARCHIE can never adjudicate its own enforcement",
+      error: "Only the Owner reviews a pause, ARCHIE can never adjudicate its own enforcement",
     };
   }
   return {

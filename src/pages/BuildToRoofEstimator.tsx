@@ -393,7 +393,7 @@ export default function BuildToRoofEstimator() {
   );
 
   // ── AI extraction: apply user-confirmed values into the existing manual
-  // input state. The deterministic engine is untouched — this only fills the
+  // input state. The deterministic engine is untouched, this only fills the
   // same fields the user would have typed by hand. Manual editing in the
   // following steps remains fully available.
   const [extractionApplied, setExtractionApplied] = useState(0);
@@ -434,7 +434,7 @@ export default function BuildToRoofEstimator() {
 
   const calculate = useCallback(() => {
     // Invalid inputs must never produce an apparently-valid construction
-    // estimate — validate first and surface every problem at once.
+    // estimate, validate first and surface every problem at once.
     const errors = validateBuildToRoofInput(input);
     if (errors.length > 0) {
       setValidationErrors(errors);
@@ -654,7 +654,7 @@ export default function BuildToRoofEstimator() {
                           variant="ghost"
                           onClick={() => {
                             if (input.measurement_unit === "ft") {
-                              // Convert EVERY ft-mappable field to m — the
+                              // Convert EVERY ft-mappable field to m, the
                               // engine reads all of them in the active unit.
                               setInput((prev) => ({
                                 ...convertBuildToRoofUnits(prev, 0.3048),
@@ -670,7 +670,7 @@ export default function BuildToRoofEstimator() {
                           variant="ghost"
                           onClick={() => {
                             if (input.measurement_unit === "m") {
-                              // Convert EVERY ft-mappable field to ft — the
+                              // Convert EVERY ft-mappable field to ft, the
                               // engine reads all of them in the active unit.
                               setInput((prev) => ({
                                 ...convertBuildToRoofUnits(prev, 1 / 0.3048),
@@ -1153,11 +1153,11 @@ export default function BuildToRoofEstimator() {
                 {/* Step 5: Roof */}
                 {step === 5 && (
                   <SectionCard title="Roof Configuration" icon={Building2}>
-                    {/* Roof View — optional aerial imagery (Feature 2) */}
+                    {/* Roof View, optional aerial imagery (Feature 2) */}
                     <div className="mb-4">
                       <RoofViewPanel />
                     </div>
-                    {/* Roof Geometry Editor — editable tracing (Feature 3) */}
+                    {/* Roof Geometry Editor, editable tracing (Feature 3) */}
                     <div className="mb-4">
                       <p className="text-xs font-semibold text-muted-foreground mb-2">
                         Roof Geometry (trace your roof outline)

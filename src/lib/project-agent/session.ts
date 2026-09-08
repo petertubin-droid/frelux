@@ -1,12 +1,12 @@
 // =========================================================
-// FRELUX PROJECT AGENT — SESSION, MEMORY & ACTIVITY (Stage 1)
+// FRELUX PROJECT AGENT, SESSION, MEMORY & ACTIVITY (Stage 1)
 //
 // Project-scoped persistence. Hard rules:
 //   - Every read/write goes through the user-scoped supabase
 //     client; RLS (created_by = auth.uid()) is the isolation wall.
 //     A user can never touch another user's agent data.
 //   - The agent session is resolved per project: a project that is
-//     not visible to the caller resolves to project_not_found —
+//     not visible to the caller resolves to project_not_found :
 //     there is no "fallback" that could leak cross-project data.
 //   - Reload/recovery: sessions and memory are stored server-side
 //     and are re-loadable at any time; a lost in-memory state is
@@ -81,7 +81,7 @@ export async function assertProjectVisible(
   }
 }
 
-/** Load the agent session for a project — creating it on first use. */
+/** Load the agent session for a project, creating it on first use. */
 export async function loadAgentSession(
   projectId: string,
   nowIso: string,
@@ -119,7 +119,7 @@ export async function loadAgentSession(
       };
     }
 
-    // First use — create the session in the observed state.
+    // First use, create the session in the observed state.
     const session: ProjectAgentSession = {
       projectId,
       state: "observed",
@@ -212,7 +212,7 @@ export async function saveAgentSessionState(
 }
 
 // =========================================================
-// Project memory — provenance-tracked facts
+// Project memory, provenance-tracked facts
 // =========================================================
 
 interface MemoryRow {
@@ -262,7 +262,7 @@ export async function loadProjectMemory(
 
 /**
  * Record a fact in project memory. A fact NEVER overwrites a
- * 'verified' fact with a lower-class one — the trust boundary is
+ * 'verified' fact with a lower-class one, the trust boundary is
  * structural (same rule as Document Intelligence §5).
  */
 export async function recordFact(
@@ -304,7 +304,7 @@ export async function recordFact(
   }
 
   try {
-    // Stage 10: memory facts carry values too — same secret hygiene.
+    // Stage 10: memory facts carry values too, same secret hygiene.
     const sanitizedFacts = facts.map((f) => ({
       ...f,
       value: sanitizeAuditValue(f.value),
@@ -336,7 +336,7 @@ export async function recordFact(
 }
 
 // =========================================================
-// Activity history — append-only audit trail
+// Activity history, append-only audit trail
 // =========================================================
 
 export async function recordActivity(

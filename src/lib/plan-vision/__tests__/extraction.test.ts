@@ -1,5 +1,5 @@
 // =========================================================
-// PLAN VISION TESTS — extraction sanitizer (§3, §4, §7, §16, §22)
+// PLAN VISION TESTS, extraction sanitizer (§3, §4, §7, §16, §22)
 // The response MUST never become a fabricated result.
 // =========================================================
 
@@ -197,7 +197,7 @@ describe("graceful handling of missing/unusable data (§22)", () => {
     expect(result.rooms).toHaveLength(1);
   });
 
-  it("keeps rooms with null dimensions — null stays null, never filled", () => {
+  it("keeps rooms with null dimensions, null stays null, never filled", () => {
     const result = sanitizeExtractionResponse(
       { rooms: [rawRoom({ width: null, height: null })] },
       OPTS,
@@ -206,7 +206,7 @@ describe("graceful handling of missing/unusable data (§22)", () => {
     expect(result.rooms[0].height).toBeNull();
   });
 
-  it("an unreadable response yields an empty extraction with a warning — not a fake one", () => {
+  it("an unreadable response yields an empty extraction with a warning, not a fake one", () => {
     const result = sanitizeExtractionResponse("not an object", OPTS);
     expect(result.rooms).toHaveLength(0);
     expect(result.warnings[0]).toContain("could not be read");

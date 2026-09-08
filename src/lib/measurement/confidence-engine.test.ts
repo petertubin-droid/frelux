@@ -26,7 +26,7 @@ function makeSpaceResult(overrides: Partial<SpaceResult> = {}): SpaceResult {
   };
 }
 
-describe("confidence-engine — constants", () => {
+describe("confidence-engine, constants", () => {
   it("CONFIDENCE_LEVEL_LABELS has all 4 levels", () => {
     expect(CONFIDENCE_LEVEL_LABELS.high).toBeTruthy();
     expect(CONFIDENCE_LEVEL_LABELS.medium).toBeTruthy();
@@ -42,7 +42,7 @@ describe("confidence-engine — constants", () => {
   });
 });
 
-describe("confidence-engine — assessCalculationConfidence", () => {
+describe("confidence-engine, assessCalculationConfidence", () => {
   it("returns a ConfidenceAssessment object", () => {
     const result = assessCalculationConfidence(makeSpaceResult());
     expect(result).toHaveProperty("level");
@@ -86,7 +86,7 @@ describe("confidence-engine — assessCalculationConfidence", () => {
   });
 });
 
-describe("confidence-engine — assessPriceConfidence", () => {
+describe("confidence-engine, assessPriceConfidence", () => {
   it("returns a ConfidenceAssessment object", () => {
     const result = assessPriceConfidence({});
     expect(result).toHaveProperty("level");
@@ -113,7 +113,7 @@ describe("confidence-engine — assessPriceConfidence", () => {
   });
 });
 
-describe("confidence-engine — combineConfidence", () => {
+describe("confidence-engine, combineConfidence", () => {
   it("returns a combined assessment", () => {
     const calc = assessCalculationConfidence(makeSpaceResult());
     const price = assessPriceConfidence({ hasApprovedPrice: true });

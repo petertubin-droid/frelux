@@ -25,7 +25,7 @@ function fact(overrides: Partial<AiFact> = {}): Omit<AiFact, 'trust'> {
 }
 
 describe('trust state machine', () => {
-  it('classifies AI interpretations as needing confirmation — never silently trusted', () => {
+  it('classifies AI interpretations as needing confirmation, never silently trusted', () => {
     const f = createFact(fact());
     expect(f.trust).toBe('needs_confirmation');
     expect(canUseInCalculation(f)).toBe(false);

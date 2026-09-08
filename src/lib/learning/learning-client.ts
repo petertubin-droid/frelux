@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 6.5 — LEARNING CLIENT
+// FRELUX PHASE 6.5, LEARNING CLIENT
 //
 // Browser-facing connection of the unified Learning Engine to
 // the live FRELUX AI systems:
@@ -86,7 +86,7 @@ export async function recordExtractionCorrection(args: {
   });
   if (!res.ok) return { ok: false, error: res.error };
   // Repeated verified errors may produce an improvement proposal
-  // (DRAFT only — never a silent change to extraction logic).
+  // (DRAFT only, never a silent change to extraction logic).
   const { count } = await supabase
     .from("frelux_learning_events")
     .select("id", { count: "exact", head: true })
@@ -219,7 +219,7 @@ export async function submitArchieReference(
 }
 
 // ---------------------------------------------------------
-// Admin review workflow (Human Review — Phase 6.5 §8)
+// Admin review workflow (Human Review, Phase 6.5 §8)
 // ---------------------------------------------------------
 export async function fetchLearningRecords(
   statusFilter?: string,

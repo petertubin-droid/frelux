@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 6.5 — INGESTION SANITIZATION & PROMPT-INJECTION
+// FRELUX PHASE 6.5, INGESTION SANITIZATION & PROMPT-INJECTION
 // RESISTANCE
 //
 // All ingested reference material and user-supplied text is
@@ -81,7 +81,7 @@ export function sanitizeText(raw: string | undefined | null): SanitizeResult {
   if (flags.length > 0) {
     // Quarantine: keep the text as DATA but neutralize it for any
     // downstream prompt interpolation by wrapping in a data fence.
-    value = `[UNTRUSTED-DATA — INJECTION-FLAGGED: ${flags.join(",")}]\n${value}`;
+    value = `[UNTRUSTED-DATA, INJECTION-FLAGGED: ${flags.join(",")}]\n${value}`;
   }
   return { value, flags, truncated };
 }

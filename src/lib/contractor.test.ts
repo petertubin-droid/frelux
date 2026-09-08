@@ -9,7 +9,7 @@ import {
 
 // ── calculateWasteFactor ──
 
-describe("contractor — calculateWasteFactor", () => {
+describe("contractor, calculateWasteFactor", () => {
   it("returns 10% baseline for good/smooth conditions", () => {
     const result = calculateWasteFactor(
       "good",
@@ -115,7 +115,7 @@ describe("contractor — calculateWasteFactor", () => {
 
 // ── assessSurface ──
 
-describe("contractor — assessSurface", () => {
+describe("contractor, assessSurface", () => {
   it("recommends sealer primer for fresh plaster", () => {
     const steps = assessSurface("fresh_plaster", "good");
     expect(steps.length).toBeGreaterThan(0);
@@ -177,7 +177,7 @@ describe("contractor — assessSurface", () => {
 
 // ── generateDefaultLabourPlan ──
 
-describe("contractor — generateDefaultLabourPlan", () => {
+describe("contractor, generateDefaultLabourPlan", () => {
   it("generates painting plan with painters and labourer", () => {
     const plan = generateDefaultLabourPlan("painting", 100, "₦");
     expect(plan.length).toBeGreaterThanOrEqual(2);
@@ -234,7 +234,7 @@ describe("contractor — generateDefaultLabourPlan", () => {
 
 // ── explainCalculation ──
 
-describe("contractor — explainCalculation", () => {
+describe("contractor, explainCalculation", () => {
   it("explains paint calculation", () => {
     const result = explainCalculation(
       "paint",
@@ -272,7 +272,7 @@ describe("contractor — explainCalculation", () => {
 
 // ── getWizardRecommendation ──
 
-describe("contractor — getWizardRecommendation", () => {
+describe("contractor, getWizardRecommendation", () => {
   it("recommends paint calc for painting project", () => {
     const result = getWizardRecommendation(
       "painting",

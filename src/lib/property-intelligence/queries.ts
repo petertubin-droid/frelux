@@ -1,10 +1,10 @@
 /**
- * FRELUX PROPERTY INTELLIGENCE — PERSISTENCE QUERIES
+ * FRELUX PROPERTY INTELLIGENCE, PERSISTENCE QUERIES
  *
  * Prompt 4, Phase 2 + 14: typed access to the `properties` table.
  * Pure mapping lives here so it can be tested without Supabase;
  * CRUD functions wrap the client and degrade to professional
- * error states — never mock data, never swallowed failures.
+ * error states, never mock data, never swallowed failures.
  */
 
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
@@ -54,7 +54,7 @@ export interface PropertyRow {
   provenance: unknown;
 }
 
-/** DB row → PropertyProfile. NULLs stay undefined — never defaulted, never guessed. */
+/** DB row → PropertyProfile. NULLs stay undefined, never defaulted, never guessed. */
 export function rowToProfile(row: PropertyRow): PropertyProfile {
   return {
     id: row.id,
@@ -149,7 +149,7 @@ export function profileToRowInput(
 }
 
 // =========================================================
-// Query result shape — errors are surfaced, never hidden
+// Query result shape, errors are surfaced, never hidden
 // =========================================================
 
 export type QueryOutcome<T> =

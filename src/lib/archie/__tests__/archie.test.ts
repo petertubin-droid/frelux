@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 — ARCHIE INTELLIGENCE FOUNDATION TEST SUITE
+// FRELUX PHASE 8, ARCHIE INTELLIGENCE FOUNDATION TEST SUITE
 //
 // Covers the Prompt 1 contract:
 //  * domain registry (core = architecture, no fixed ceiling)
@@ -15,7 +15,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // ---------------------------------------------------------
-// supabase mock — same fidelity pattern as the learning suite
+// supabase mock, same fidelity pattern as the learning suite
 // ---------------------------------------------------------
 type Row = Record<string, unknown>;
 const tables: Record<string, Row[]> = {
@@ -272,7 +272,7 @@ describe("ARCHIE domain registry", () => {
     expect(core.is_core).toBe(true);
   });
 
-  it("has no artificial ceiling — new domains can be added", () => {
+  it("has no artificial ceiling, new domains can be added", () => {
     const reg = new ArchieDomainRegistry();
     reg.addDomain({
       key: "acoustics",
@@ -333,7 +333,7 @@ describe("ARCHIE domain registry", () => {
 });
 
 // ---------------------------------------------------------
-// 2. Governance — never silent conversion
+// 2. Governance, never silent conversion
 // ---------------------------------------------------------
 describe("ARCHIE evidence governance", () => {
   it("estimates/assumptions/AI output never become verified truth silently", () => {
@@ -537,7 +537,7 @@ describe("ARCHIE pipeline", () => {
     ).toBe("AI_RECOMMENDATION");
   });
 
-  it("the pipeline always stops at AWAITING_APPROVAL — never auto-promotes", () => {
+  it("the pipeline always stops at AWAITING_APPROVAL, never auto-promotes", () => {
     const res = runArchiePipeline(makeInput(), makeExtraction());
     expect(res.state).toBe("AWAITING_APPROVAL");
     expect(res.candidates.length).toBeGreaterThan(0);

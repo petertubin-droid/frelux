@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF AREA PIPELINE — Pitch-Adjusted Surface Area
+ * FRELUX ROOF AREA PIPELINE, Pitch-Adjusted Surface Area
  *
  * The complete roof area calculation pipeline:
  *
@@ -56,7 +56,7 @@ export interface RoofAreaPipelineInput {
 }
 
 /**
- * Result of the roof area pipeline — each step is traceable.
+ * Result of the roof area pipeline, each step is traceable.
  */
 export interface RoofAreaPipelineResult {
   /** Step 1: Plan area input */
@@ -102,7 +102,7 @@ export interface RoofAreaExplanation {
  * Run the full roof area pipeline.
  *
  * Every step is deterministic and produces an explanation string.
- * No silent estimation — if pitch is missing, it's noted clearly.
+ * No silent estimation, if pitch is missing, it's noted clearly.
  */
 export function calculateRoofAreaPipeline(
   input: RoofAreaPipelineInput,

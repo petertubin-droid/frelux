@@ -1,5 +1,5 @@
 /**
- * Sentry instrumentation — imported FIRST in main.tsx, before any other code.
+ * Sentry instrumentation, imported FIRST in main.tsx, before any other code.
  *
  * Setup:
  * 1. Create a project at https://sentry.io (free tier: 5K events/month)
@@ -30,7 +30,7 @@ if (dsn) {
     release: import.meta.env.VITE_SENTRY_RELEASE as string | undefined,
 
     integrations: [
-      // React Router v7 tracing — names transactions after the matched route
+      // React Router v7 tracing, names transactions after the matched route
       Sentry.reactRouterV7BrowserTracingIntegration({
         useEffect: React.useEffect,
         useLocation,
@@ -38,14 +38,14 @@ if (dsn) {
         createRoutesFromChildren,
         matchRoutes,
       }),
-      // Session replay — records DOM + user interactions around errors
+      // Session replay, records DOM + user interactions around errors
       Sentry.replayIntegration({
         maskAllText: true,
         blockAllMedia: true,
       }),
     ],
 
-    // Tracing — 10% in production, 100% in dev
+    // Tracing, 10% in production, 100% in dev
     tracesSampleRate: import.meta.env.PROD ? 0.1 : 1.0,
 
     // Propagate trace headers to Supabase and Paystack
@@ -55,7 +55,7 @@ if (dsn) {
       /^https:\/\/api\.paystack\.co/,
     ],
 
-    // Session replay — 1% of normal sessions, 100% of error sessions
+    // Session replay, 1% of normal sessions, 100% of error sessions
     replaysSessionSampleRate: 0.01,
     replaysOnErrorSampleRate: 1.0,
 

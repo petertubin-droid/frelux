@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 — ARCHIE CLIENT
+// FRELUX PHASE 8, ARCHIE CLIENT
 //
 // Browser-facing persistence for the ARCHIE Training interface:
 //   * domain registry (read-only for non-admins)
@@ -10,7 +10,7 @@
 //     (learning record → knowledge item → version → audit)
 //
 // All writes are guarded by Supabase RLS. No raw keys, no
-// secrets. ARCHIE never approves its own learning — approval
+// secrets. ARCHIE never approves its own learning, approval
 // is a human admin action enforced by RLS + governance.
 // =========================================================
 import { supabase } from "@/lib/supabase";
@@ -41,7 +41,7 @@ export async function fetchArchieDomains(): Promise<ArchieDomain[]> {
 }
 
 // ---------------------------------------------------------
-// Contributor profile — falls back to an implicit admin
+// Contributor profile, falls back to an implicit admin
 // profile for platform admins not yet in the registry.
 // ---------------------------------------------------------
 export async function fetchMyContributor(
@@ -66,7 +66,7 @@ export async function fetchMyContributor(
 }
 
 // ---------------------------------------------------------
-// Media upload — private archie-media bucket, per-user folder
+// Media upload, private archie-media bucket, per-user folder
 // ---------------------------------------------------------
 export async function uploadTrainingMedia(
   userId: string,
@@ -173,7 +173,7 @@ export async function createArchieIngestion(
 }
 
 // ---------------------------------------------------------
-// List ingestions (admin: all; contributor: own — RLS)
+// List ingestions (admin: all; contributor: own, RLS)
 // ---------------------------------------------------------
 export async function fetchIngestions(
   opts: { state?: string; limit?: number } = {},
@@ -193,7 +193,7 @@ export async function fetchIngestions(
 // HUMAN APPROVAL: an admin approves candidates from an
 // ingestion. Each candidate becomes a learning record +
 // versioned knowledge item via the Phase 6.5 machinery:
-// evidence_state NEVER upgrades silently — the candidate keeps
+// evidence_state NEVER upgrades silently, the candidate keeps
 // its born state unless the reviewer explicitly confirms, in
 // which case the state moves through the governed conversion
 // (see governance.convertEvidenceState).
@@ -228,7 +228,7 @@ export async function approveIngestionCandidates(args: {
     if (seenHashes.has(contentHash)) continue;
     seenHashes.add(contentHash);
 
-    // 1) Learning record (Phase 6.5 shape — admin-only via RLS)
+    // 1) Learning record (Phase 6.5 shape, admin-only via RLS)
     const rec = await supabase
       .from("frelux_learning_records")
       .insert({
@@ -251,7 +251,7 @@ export async function approveIngestionCandidates(args: {
       .single();
     if (rec.error) return { ok: false, error: rec.error.message };
 
-    // 2) Knowledge item — born with the candidate's evidence
+    // 2) Knowledge item, born with the candidate's evidence
     //    state; reaches READY_FOR_REVIEW through the standard
     //    review flow (this insert is the CANDIDATE stage).
     const ki = await supabase
@@ -270,7 +270,7 @@ export async function approveIngestionCandidates(args: {
         knowledge_type: c.knowledge_type,
         ingestion_id: ingestionId,
         status: "ACTIVE",
-        change_reason: "ARCHIE training — human approved",
+        change_reason: "ARCHIE training, human approved",
       })
       .select("id, version")
       .single();

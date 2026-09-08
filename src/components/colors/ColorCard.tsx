@@ -21,7 +21,7 @@ export default function ColorCard({
   return (
     <div className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card transition-all dark:border-white/5 dark:bg-card duration-300 hover:-translate-y-1.5 hover:shadow-premium hover:border-border dark:hover:border-white/10 animate-fade-in-up">
       <Link to={`/colors/paint/${color.slug}`} className="block">
-        {/* Color swatch — large, premium */}
+        {/* Color swatch, large, premium */}
         <div
           className="relative flex aspect-[4/5] items-end justify-start p-3 transition-transform duration-500 group-hover:scale-[1.03]"
           style={{ background: color.hex_code }}

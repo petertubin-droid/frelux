@@ -48,7 +48,7 @@ export function WeatherLocationSelect({
         setDetecting(false);
       },
       () => {
-        // Denied or unavailable — keep the current selection
+        // Denied or unavailable, keep the current selection
         setDetecting(false);
       },
       { timeout: 8000, maximumAge: 600000 },

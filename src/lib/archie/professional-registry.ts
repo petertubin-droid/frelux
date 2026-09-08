@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 P3 — PROFESSIONAL ECOSYSTEM REGISTRY
+// FRELUX PHASE 8 P3, PROFESSIONAL ECOSYSTEM REGISTRY
 //
 // Readiness for future connections with architects, engineers,
 // quantity surveyors, contractors, tradespeople, suppliers,
@@ -38,10 +38,10 @@ export interface ProfessionalProfile {
   role: ProfessionalRole;
   display_name: string;
   verification_state: VerificationState;
-  /** Who verified and when — required for VERIFIED. */
+  /** Who verified and when, required for VERIFIED. */
   verified_by?: string | null;
   verified_at?: string | null;
-  /** Credential references (license no., association id…) —
+  /** Credential references (license no., association id…) :
    *  references only, never the credentials themselves. */
   credential_refs: string[];
   /** Regional scope this professional may act in. */
@@ -51,7 +51,7 @@ export interface ProfessionalProfile {
 }
 
 export interface VerificationBadge {
-  /** Structured truth — the UI renders this boolean, and it is
+  /** Structured truth, the UI renders this boolean, and it is
    *  impossible for an unverified profile to yield true. */
   verified: boolean;
   /** Short label. For non-verified profiles it NEVER contains
@@ -60,7 +60,7 @@ export interface VerificationBadge {
   detail: string;
 }
 
-/** Public badge — the ONLY sanctioned way to display a
+/** Public badge, the ONLY sanctioned way to display a
  *  professional's verification status. */
 export function publicBadge(p: ProfessionalProfile): VerificationBadge {
   if (p.verification_state === "VERIFIED" && p.active) {
@@ -146,7 +146,7 @@ export function mayClaimAuthority(
 }
 
 /** Verify (or revoke) a professional. Only a HUMAN verifier can
- *  mint verification — ARCHIE passes `verified_by: "ARCHIE"` at
+ *  mint verification, ARCHIE passes `verified_by: "ARCHIE"` at
  *  its peril; the function refuses it explicitly. */
 export function verifyProfessional(
   p: ProfessionalProfile,

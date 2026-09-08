@@ -1,23 +1,23 @@
 // =========================================================
-// PROJECT AGENT — PROACTIVE MONITORING TESTS (Stage 9)
+// PROJECT AGENT, PROACTIVE MONITORING TESTS (Stage 9)
 //
 // Stage 9 acceptance, each mapped to a test:
-//   - no false "completed" states — alerts derive ONLY from
+//   - no false "completed" states, alerts derive ONLY from
 //     recorded stage completions, never the user-entered
 //     progress percentage
-//   - no repeated duplicate alerts — re-runs refresh, not
+//   - no repeated duplicate alerts, re-runs refresh, not
 //     duplicate; a quiet project writes nothing
-//   - stale alerts expire/update correctly — a cleared
+//   - stale alerts expire/update correctly, a cleared
 //     condition resolves its alert; a returning condition
 //     re-opens it
-//   - dismissed alerts behave correctly — dismissal sticks
+//   - dismissed alerts behave correctly, dismissal sticks
 //     while the condition is unchanged; escalation re-opens
-//   - changed project data recalculates the alert state —
+//   - changed project data recalculates the alert state :
 //     severity/payload refresh with the recorded facts
 //
 // Every alert is also checked for the full contract: evidence,
 // timestamp, confidence, severity, affected project, recommended
-// action — on every test's alerts, not just one.
+// action, on every test's alerts, not just one.
 // =========================================================
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -37,7 +37,7 @@ const T1 = "2026-09-07T12:00:00.000Z";
 const T2 = "2026-09-07T14:00:00.000Z";
 
 // ---------------------------------------------------------
-// In-memory supabase — project_agent_alerts only.
+// In-memory supabase, project_agent_alerts only.
 // ---------------------------------------------------------
 type Row = Record<string, unknown>;
 
@@ -100,7 +100,7 @@ vi.mock("@/lib/supabase", () => {
         return { error: null };
       },
       update: (patch: Row) => {
-        // update() has its OWN filter chain — fresh eqs, separate
+        // update() has its OWN filter chain, fresh eqs, separate
         // from the collector's, resolved on await/maybeSingle.
         const ueqs: Array<[string, unknown]> = [];
         const apply = () => {
@@ -208,7 +208,7 @@ function snap(overrides: {
       status: overrides.status ?? "in_progress",
       createdAt: isoDaysAgo(60),
       updatedAt: isoDaysAgo(overrides.projectUpdatedDaysAgo ?? 1),
-      progressPercentage: 40, // stale user-entered value — must NEVER be trusted
+      progressPercentage: 40, // stale user-entered value, must NEVER be trusted
     },
     stages:
       overrides.stages?.map((s, idx) => ({
@@ -303,9 +303,9 @@ beforeEach(() => {
 });
 
 // ---------------------------------------------------------
-// Pure evaluation — meaningful conditions only.
+// Pure evaluation, meaningful conditions only.
 // ---------------------------------------------------------
-describe("evaluateMonitoringAlerts — conditions (§Stage 9)", () => {
+describe("evaluateMonitoringAlerts, conditions (§Stage 9)", () => {
   it("a healthy, current project produces ZERO alerts (no spam)", () => {
     const s = snap({
       stages: [{ id: "st1", name: "Foundation", completed: true }],
@@ -482,9 +482,9 @@ describe("evaluateMonitoringAlerts — conditions (§Stage 9)", () => {
 });
 
 // ---------------------------------------------------------
-// Reconciliation — no duplicates, no zombies, dismissal respected.
+// Reconciliation, no duplicates, no zombies, dismissal respected.
 // ---------------------------------------------------------
-describe("reconcileAlerts — the anti-spam core (§Stage 9)", () => {
+describe("reconcileAlerts, the anti-spam core (§Stage 9)", () => {
   const cand = (sev: AlertCandidate["severity"]): AlertCandidate => ({
     alertKey: "budget:overrun",
     kind: "budget",
@@ -574,9 +574,9 @@ describe("reconcileAlerts — the anti-spam core (§Stage 9)", () => {
 });
 
 // ---------------------------------------------------------
-// Orchestrator — end-to-end runs against the in-memory store.
+// Orchestrator, end-to-end runs against the in-memory store.
 // ---------------------------------------------------------
-describe("runProactiveMonitoring — end to end (§Stage 9)", () => {
+describe("runProactiveMonitoring, end to end (§Stage 9)", () => {
   it("first run raises alerts; second run with the same state refreshes instead of duplicating", async () => {
     snapState.snap = snap({
       items: [{ id: "i1", name: "Cement", qty: 20, est: 625 }],
@@ -589,7 +589,7 @@ describe("runProactiveMonitoring — end to end (§Stage 9)", () => {
     expect(r1.data.counts.refreshed).toBe(0);
     expect(db.alerts).toHaveLength(1);
 
-    // Second run — same recorded state → refresh, not duplicate.
+    // Second run, same recorded state → refresh, not duplicate.
     const r2 = await runProactiveMonitoring("proj-1", T2);
     expect(r2.ok).toBe(true);
     if (!r2.ok) return;
@@ -642,7 +642,7 @@ describe("runProactiveMonitoring — end to end (§Stage 9)", () => {
     expect(db.alerts).toHaveLength(1);
     expect(db.alerts[0].status).toBe("dismissed");
 
-    // The budget WORSENS → +25% (high) — escalation re-opens it.
+    // The budget WORSENS → +25% (high), escalation re-opens it.
     snapState.snap = snap({
       items: [{ id: "i1", name: "Cement", qty: 20, est: 625 }],
       calculations: [{ id: "c1", title: "Full build estimate", total: 10_000 }],

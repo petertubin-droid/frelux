@@ -104,7 +104,7 @@ export default function ProjectDetail() {
   // (synced whenever a location is saved). Existing rows keep their currency.
   const currencySymbol = project?.currency_symbol || "₦";
   const fmt = (v: number) => currencySymbol + (v || 0).toLocaleString();
-  // Estimates carry their own stored currency — always display in it,
+  // Estimates carry their own stored currency, always display in it,
   // never the project's (a saved estimate is a historical document).
   const formatEstimateAmount = (v: number, currency: string) =>
     new Intl.NumberFormat("en-NG", {

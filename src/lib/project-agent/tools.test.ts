@@ -1,11 +1,11 @@
 // =========================================================
-// PROJECT AGENT — TOOL ORCHESTRATION LAYER TESTS (Stage 3)
+// PROJECT AGENT, TOOL ORCHESTRATION LAYER TESTS (Stage 3)
 //
 // Stage 3 acceptance: for every supported tool,
 //   agent request → correct tool → authoritative result
 // must produce the SAME mathematical result as using the
 // engine directly. These tests compare the agent's result
-// against a direct engine call — verbatim, field by field.
+// against a direct engine call, verbatim, field by field.
 //
 // Also verified:
 //   - project isolation (invisible project → project_not_found)
@@ -17,7 +17,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // ---------------------------------------------------------
-// Supabase mock — RLS-scoped reads, per-table fixtures
+// Supabase mock, RLS-scoped reads, per-table fixtures
 // ---------------------------------------------------------
 interface PlanDocRow { id: string; project_id: string; }
 interface PropertyRowFixture { construction_project_id: string; name: string; }
@@ -45,7 +45,7 @@ vi.mock("@/lib/supabase", () => {
                     const docs = state.planDocuments.filter(
                       (d) => d.project_id === projectId,
                     );
-                    // latest first — the tool orders created_at desc
+                    // latest first, the tool orders created_at desc
                     return { data: docs[docs.length - 1] ?? null, error: null };
                   }),
                 })),
@@ -116,7 +116,7 @@ vi.mock("./session", () => ({
 }));
 
 // ---------------------------------------------------------
-// Predictive snapshot mock — feeds shopping_list, scenarios,
+// Predictive snapshot mock, feeds shopping_list, scenarios,
 // cost analysis, market intelligence, calculator lookup
 // ---------------------------------------------------------
 const snapshotState: {
@@ -158,7 +158,7 @@ vi.mock("@/lib/predictive-intelligence/snapshot", () => ({
   }),
 }));
 
-// Market intelligence query mock — records the market it was asked for
+// Market intelligence query mock, records the market it was asked for
 const miState: { requestedMarket: string | null; prices: Array<Record<string, unknown>> } = {
   requestedMarket: null,
   prices: [],
@@ -251,7 +251,7 @@ describe("agent tool registry", () => {
 });
 
 describe("dispatcher", () => {
-  it("refuses unknown tools — no fallback", async () => {
+  it("refuses unknown tools, no fallback", async () => {
     const res = await invokeAgentTool("proj-1", { tool: "pay_money" as never }, NOW);
     expect(res.ok).toBe(false);
   });
@@ -271,7 +271,7 @@ describe("dispatcher", () => {
 // ---------------------------------------------------------
 // Acceptance: identical results to direct engine use
 // ---------------------------------------------------------
-describe("build_to_roof — verbatim engine parity", () => {
+describe("build_to_roof, verbatim engine parity", () => {
   it("returns EXACTLY the engine's EngineResult for the same input", async () => {
     const overrides = { location: "Lagos" };
     const defaults = defaultBuildToRoofInput();
@@ -285,7 +285,7 @@ describe("build_to_roof — verbatim engine parity", () => {
     expect(res.ok).toBe(true);
     if (!res.ok) return;
     expect(res.data.status).toBe("ok");
-    // Same math as direct use — verbatim EngineResult (the only
+    // Same math as direct use, verbatim EngineResult (the only
     // permitted difference is the calculatedAt timestamp itself).
     expect({ ...(direct as object), calculatedAt: undefined }).toEqual(
       { ...(res.data.result as object), calculatedAt: undefined },
@@ -307,7 +307,7 @@ describe("build_to_roof — verbatim engine parity", () => {
   });
 });
 
-describe("project_timeline — verbatim engine parity", () => {
+describe("project_timeline, verbatim engine parity", () => {
   it("matches estimateTimeline called directly", async () => {
     const scope = { "Block work": 1200, Roofing: 1 };
     const direct = estimateTimeline(new Map(Object.entries(scope)), undefined, {
@@ -322,7 +322,7 @@ describe("project_timeline — verbatim engine parity", () => {
     expect(res.data.result).toEqual(direct);
   });
 
-  it("refuses to invent a scope — insufficient_data, never a guess", async () => {
+  it("refuses to invent a scope, insufficient_data, never a guess", async () => {
     const res = await invokeAgentTool("proj-1", { tool: "project_timeline" }, NOW);
     expect(res.ok).toBe(true);
     if (!res.ok) return;
@@ -332,7 +332,7 @@ describe("project_timeline — verbatim engine parity", () => {
   });
 });
 
-describe("quotation_preview — verbatim engine parity, preview only", () => {
+describe("quotation_preview, verbatim engine parity, preview only", () => {
   const costEstimate = {
     lineItems: [
       { id: "l1", materialName: "Cement", category: "Masonry", quantity: 50, quantityUnit: "bags", unitPrice: 5500, lineTotal: 275000 },
@@ -384,7 +384,7 @@ describe("quotation_preview — verbatim engine parity, preview only", () => {
   });
 });
 
-describe("scenario_analysis — verbatim engine parity", () => {
+describe("scenario_analysis, verbatim engine parity", () => {
   it("price change scenario matches direct engine call", async () => {
     snapshotState.shoppingItems = [
       { id: "s1", name: "Cement", quantity: 10, estimated_price: 5500, total_price: 55000, actual_price: null, is_purchased: false, unit: "bags" },
@@ -453,7 +453,7 @@ describe("scenario_analysis — verbatim engine parity", () => {
   });
 });
 
-describe("cost_analysis & shopping_list & calculator_lookup — recorded data verbatim", () => {
+describe("cost_analysis & shopping_list & calculator_lookup, recorded data verbatim", () => {
   it("cost analysis returns the deterministic analysis verbatim", async () => {
     const res = await invokeAgentTool("proj-1", { tool: "cost_analysis" }, NOW);
     expect(res.ok).toBe(true);
@@ -503,7 +503,7 @@ describe("cost_analysis & shopping_list & calculator_lookup — recorded data ve
   });
 });
 
-describe("property_analysis — linked property only", () => {
+describe("property_analysis, linked property only", () => {
   it("runs the real Property Intelligence engine on the linked property", async () => {
     state.properties = [{ construction_project_id: "proj-1", name: "Duplex A" }];
     const res = await invokeAgentTool("proj-1", { tool: "property_analysis" }, NOW);
@@ -532,7 +532,7 @@ describe("property_analysis — linked property only", () => {
   });
 });
 
-describe("market_intelligence — project's OWN region only", () => {
+describe("market_intelligence, project's OWN region only", () => {
   it("queries exactly the project market and returns prices verbatim", async () => {
     miState.prices = [
       { id: "p1", product_name: "Cement", market_code: "NG", median_price: 5500, last_updated: "2026-09-06T00:00:00Z" },
@@ -564,7 +564,7 @@ describe("market_intelligence — project's OWN region only", () => {
   });
 });
 
-describe("quantity_takeoff & document_analysis — extraction-gated", () => {
+describe("quantity_takeoff & document_analysis, extraction-gated", () => {
   const extraction = {
     id: "ext-1",
     documentId: "doc-1",

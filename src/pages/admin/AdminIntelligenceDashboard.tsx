@@ -90,7 +90,7 @@ export default function AdminIntelligenceDashboard() {
     <div>
       <AdminHeader
         title="Intelligence Dashboard"
-        subtitle="Crawling and learning activity for approved external sources. External prices are OBSERVED MARKET PRICES — they never automatically change FRELUX configured calculator prices."
+        subtitle="Crawling and learning activity for approved external sources. External prices are OBSERVED MARKET PRICES, they never automatically change FRELUX configured calculator prices."
       />
       <div className="space-y-6">
         {error && (
@@ -117,7 +117,7 @@ export default function AdminIntelligenceDashboard() {
             sources
               .find((s) => s.enabled && s.next_crawl)
               ?.next_crawl?.slice(0, 16)
-              .replace("T", " ") ?? "—",
+              .replace("T", " ") ?? "-",
           )}
           {tile("Crawl errors", errors)}
         </div>
@@ -134,7 +134,7 @@ export default function AdminIntelligenceDashboard() {
           {tile("Knowledge promoted (via review)", promoted)}
           {tile(
             "Reliability mix",
-            [...new Set(sources.map((s) => s.reliability))].join(", ") || "—",
+            [...new Set(sources.map((s) => s.reliability))].join(", ") || "-",
           )}
         </div>
 
@@ -146,9 +146,9 @@ export default function AdminIntelligenceDashboard() {
           </h2>
           <p className="text-xs text-muted-foreground">
             OBSERVED MARKET PRICE ({stats.count} observations, currency{" "}
-            {stats.currency ?? "mixed"}) — median {stats.median ?? "—"}, typical{" "}
-            {stats.typical?.toFixed(0) ?? "—"}, range {stats.min ?? "—"}–
-            {stats.max ?? "—"}, newest {stats.priceAgeDays ?? "—"} days old
+            {stats.currency ?? "mixed"}), median {stats.median ?? "-"}, typical{" "}
+            {stats.typical?.toFixed(0) ?? "-"}, range {stats.min ?? "-"}–
+            {stats.max ?? "-"}, newest {stats.priceAgeDays ?? "-"} days old
             {stats.trendPerDay != null
               ? `, trend ${stats.trendPerDay}/day`
               : ""}
@@ -161,8 +161,8 @@ export default function AdminIntelligenceDashboard() {
                 <div key={region} className="rounded-md border p-2 text-xs">
                   <p className="font-medium">{region}</p>
                   <p className="text-muted-foreground">
-                    median {rs.median ?? "—"} {rs.currency ?? ""} · {rs.count}{" "}
-                    obs · age {rs.priceAgeDays ?? "—"}d
+                    median {rs.median ?? "-"} {rs.currency ?? ""} · {rs.count}{" "}
+                    obs · age {rs.priceAgeDays ?? "-"}d
                   </p>
                 </div>
               ))}
@@ -211,7 +211,7 @@ export default function AdminIntelligenceDashboard() {
                           (Array.isArray(r.errors) &&
                           (r.errors as unknown[]).length > 0
                             ? JSON.stringify(r.errors).slice(0, 120)
-                            : "—"),
+                            : "-"),
                       )}
                     </td>
                   </tr>
@@ -238,7 +238,7 @@ export default function AdminIntelligenceDashboard() {
             {products.slice(0, 20).map((p, i) => (
               <div key={i} className="rounded-md border p-2 text-xs">
                 <p className="font-medium">
-                  {String(p.product_name ?? "unidentified product")} —{" "}
+                  {String(p.product_name ?? "unidentified product")} :{" "}
                   {p.price ? `${p.price} ${p.currency ?? "?"}` : "no price"}
                 </p>
                 <p className="text-muted-foreground break-all">
@@ -248,8 +248,8 @@ export default function AdminIntelligenceDashboard() {
                   uncertain:{" "}
                   {Array.isArray(p.uncertain_fields)
                     ? (p.uncertain_fields as string[]).join(", ") || "none"
-                    : "—"}{" "}
-                  · confidence {String(p.confidence ?? "—")} · verification{" "}
+                    : "-"}{" "}
+                  · confidence {String(p.confidence ?? "-")} · verification{" "}
                   {String(p.verification_status)}
                 </p>
               </div>

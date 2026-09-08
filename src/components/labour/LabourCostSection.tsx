@@ -44,7 +44,7 @@ export function useLabourConfig(estimatorKey: LabourEstimatorKey) {
     (async () => {
       const settings = await fetchLabourSettings(estimatorKey);
       if (cancelled) return;
-      // Preserve user's includeLabour choice — the async fetch should only
+      // Preserve user's includeLabour choice, the async fetch should only
       // update pricing method and suggested rates, not the toggle state.
       // This fixes the bug where the toggle appears "on" but resets on click.
       setConfig((prev) => ({
@@ -367,10 +367,10 @@ function Toggle({
   checked: boolean;
   onChange: (v: boolean) => void;
 }) {
-  // Plain native <button> — deliberately NOT wrapping shadcn's <Button>.
+  // Plain native <button>, deliberately NOT wrapping shadcn's <Button>.
   // Button's `ghost` variant adds `hover:bg-accent`, and on touch devices
   // that hover state gets "stuck" after a tap until the next tap
-  // elsewhere on the page — which masked the checked-state color change
+  // elsewhere on the page, which masked the checked-state color change
   // until the user touched something else. A bare switch pill has no
   // legitimate use for Button's hover/focus/sizing behavior anyway.
   return (

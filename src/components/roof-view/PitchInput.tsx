@@ -1,12 +1,12 @@
 /* eslint-disable react-refresh/only-export-components */
 /**
- * FRELUX ROOF PITCH — Per-Section Pitch Input
+ * FRELUX ROOF PITCH, Per-Section Pitch Input
  *
  * Allows the user to define pitch independently for each roof section.
  * Supports:
  *   - Pitch ratio (e.g. 4:12, 1:2)
  *   - Degrees
- *   - "Unknown" state → shows PITCH REQUIRED or PITCH ESTIMATION — USER VERIFICATION REQUIRED
+ *   - "Unknown" state → shows PITCH REQUIRED or PITCH ESTIMATION, USER VERIFICATION REQUIRED
  *
  * Feature 5: Roof Pitch Per Section
  */
@@ -76,7 +76,7 @@ interface PitchInputProps {
   pitchDegrees: number | null;
   /** Called when pitch changes (null = user cleared it) */
   onChange: (degrees: number | null) => void;
-  /** Roof type — flat roofs don't need pitch */
+  /** Roof type, flat roofs don't need pitch */
   roofType: string;
   /** Section name for display */
   sectionName: string;
@@ -188,7 +188,7 @@ export function PitchInput({
         </select>
       )}
 
-      {/* Unknown — shows required / estimation warning */}
+      {/* Unknown, shows required / estimation warning */}
       {inputMode === "unknown" && (
         <div className="space-y-2">
           {aiEstimated ? (

@@ -1,22 +1,22 @@
 /**
- * FRELUX LOCATION INTELLIGENCE — Provider Adapters
+ * FRELUX LOCATION INTELLIGENCE, Provider Adapters
  *
  * Every external location capability is behind a provider interface so
  * providers can be swapped or added without touching the canonical model
  * or any calling code:
  *
- *   - GeolocationProvider    — device position (native browser API default)
- *   - ReverseGeocodingProvider — coordinates → address
- *   - ForwardGeocodingProvider — text search → candidates
- *   - MapProvider            — interactive map / pin selection
+ *   - GeolocationProvider   , device position (native browser API default)
+ *   - ReverseGeocodingProvider, coordinates → address
+ *   - ForwardGeocodingProvider, text search → candidates
+ *   - MapProvider           , interactive map / pin selection
  *
  * FREE-FIRST: the default geolocation provider is the browser's native
- * W3C Geolocation API — no key, no cost. The default geocoding provider
- * is OpenStreetMap Nominatim (free, keyless); it is OPTIONAL — GPS and
+ * W3C Geolocation API, no key, no cost. The default geocoding provider
+ * is OpenStreetMap Nominatim (free, keyless); it is OPTIONAL, GPS and
  * manual entry work with no provider at all.
  *
  * NO SECRETS: providers that require API keys read them from build-time
- * env (VITE_*) which must be publishable/restricted keys, or — better —
+ * env (VITE_*) which must be publishable/restricted keys, or, better :
  * through a backend proxy. The registry never embeds secret keys.
  * External paid providers (Google Maps etc.) are NEVER activated
  * silently: they must be explicitly configured via env and their
@@ -142,14 +142,14 @@ export class BrowserGeolocationProvider implements GeolocationProvider {
 }
 
 // ============================================================
-// OpenStreetMap Nominatim (free, keyless geocoding — optional)
+// OpenStreetMap Nominatim (free, keyless geocoding, optional)
 // ============================================================
 
 const NOMINATIM_BASE = "https://nominatim.openstreetmap.org";
 const NOMINATIM_HEADERS = { "Accept-Language": "en" };
 
 /**
- * Nominatim reverse geocoder. Free and keyless, but OPTIONAL — if the
+ * Nominatim reverse geocoder. Free and keyless, but OPTIONAL, if the
  * request fails (offline, blocked, rate-limited) the caller keeps the
  * raw GPS coordinates and the UI shows "reverse geocoding unavailable".
  * This class never throws.
@@ -236,7 +236,7 @@ export class NominatimForwardGeocoder implements ForwardGeocodingProvider {
 
 /**
  * Build a search-selected canonical location from a provider candidate.
- * All fields come from the provider result — nothing is invented.
+ * All fields come from the provider result, nothing is invented.
  */
 export function locationFromSearchCandidate(
   candidate: SearchCandidate,
@@ -268,7 +268,7 @@ export interface LocationProviderStatus {
  * native geolocation + OSM Nominatim geocoding, no map provider.
  *
  * Future external providers (Google Maps, Mapbox, …) slot in by
- * replacing registry entries — the canonical model, hook, and UI never
+ * replacing registry entries, the canonical model, hook, and UI never
  * change. Such providers MUST be configured explicitly via env and are
  * surfaced with their status; paid services are never silently active.
  */
@@ -281,7 +281,7 @@ class LocationProviderRegistry {
     new NominatimForwardGeocoder();
   private mapProvider: MapProvider | null = null;
 
-  /** Test/extension seam — swap any provider at runtime. */
+  /** Test/extension seam, swap any provider at runtime. */
   setGeolocationProvider(p: GeolocationProvider) { this.geolocationProvider = p; }
   setReverseGeocodingProvider(p: ReverseGeocodingProvider | null) { this.reverseProvider = p; }
   setForwardGeocodingProvider(p: ForwardGeocodingProvider | null) { this.forwardProvider = p; }

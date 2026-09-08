@@ -17,7 +17,7 @@ describe('authoritative engine registry', () => {
     }
   });
 
-  it('REFUSES to run an unregistered engine — no AI fallback math', async () => {
+  it('REFUSES to run an unregistered engine, no AI fallback math', async () => {
     await expect(executeEngine('totally_made_up_engine', {})).rejects.toThrow(EngineNotRegisteredError);
   });
 

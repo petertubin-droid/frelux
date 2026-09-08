@@ -1,5 +1,5 @@
 // =========================================================
-// PROJECT AGENT — STATE MACHINE TESTS (Phase 6, Stage 1)
+// PROJECT AGENT, STATE MACHINE TESTS (Phase 6, Stage 1)
 // =========================================================
 
 import { describe, it, expect } from "vitest";
@@ -39,7 +39,7 @@ describe("lifecycle sequence (Stage 1 explicit states)", () => {
     }
   });
 
-  it("rejects skipping stages — no Observed → Approved", () => {
+  it("rejects skipping stages, no Observed → Approved", () => {
     expect(canTransition("observed", "approved").allowed).toBe(false);
     expect(canTransition("observed", "executed").allowed).toBe(false);
     expect(canTransition("prepared", "executed").allowed).toBe(false); // must be approved first
@@ -73,7 +73,7 @@ describe("lifecycle sequence (Stage 1 explicit states)", () => {
     expect(canTransition("approved", "expired").allowed).toBe(true);
   });
 
-  it("execution ends in verified or failed — nothing else", () => {
+  it("execution ends in verified or failed, nothing else", () => {
     expect(canTransition("executed", "verified").allowed).toBe(true);
     expect(canTransition("executed", "failed").allowed).toBe(true);
     expect(canTransition("executed", "rejected").allowed).toBe(false);
@@ -100,7 +100,7 @@ describe("terminal states", () => {
 });
 
 describe("applyTransition", () => {
-  it("returns a new record — never mutates", () => {
+  it("returns a new record, never mutates", () => {
     const record = { id: "a", state: "observed" as const };
     const result = applyTransition(record, "analyzed", NOW);
     expect(result.ok).toBe(true);
@@ -131,7 +131,7 @@ describe("approval validity (expired-approval guard)", () => {
     ).toBe(true);
   });
 
-  it("approval past its TTL is NOT active — must be re-requested", () => {
+  it("approval past its TTL is NOT active, must be re-requested", () => {
     expect(
       isApprovalActive(
         { state: "pending", expiresAt: "2026-09-07T13:59:59Z" },

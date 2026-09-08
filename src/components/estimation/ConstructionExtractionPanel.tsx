@@ -5,7 +5,7 @@
 // Pipeline: Upload → AI analysis → Review (accept/edit/reject) →
 // Apply → existing Build-to-Roof manual steps & engine.
 //
-// The AI NEVER calculates anything — this panel only produces
+// The AI NEVER calculates anything, this panel only produces
 // user-confirmed input values for the deterministic engine.
 // If AI extraction fails at any point, the panel degrades
 // gracefully: the manual workflow below it is always available.
@@ -278,7 +278,7 @@ export function ConstructionExtractionPanel({
       patch.drawing_analysis = drawingAnalysis;
       onApply(patch, { appliedCount: appliedFields.length, fileName });
     }
-    // Best-effort record for signed-in users — never blocks the workflow.
+    // Best-effort record for signed-in users, never blocks the workflow.
     void saveExtractionRecord({
       documentKind: result.documentKind,
       fileName,

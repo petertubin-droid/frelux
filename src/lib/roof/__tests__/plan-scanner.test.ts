@@ -1,5 +1,5 @@
 /**
- * FRELUX PLAN SCANNER — Tests
+ * FRELUX PLAN SCANNER, Tests
  *
  * Feature 9: Plan Scanner
  * Feature 10: Scale Calibration (computePixelsPerMeter)

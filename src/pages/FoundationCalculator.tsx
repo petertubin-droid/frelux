@@ -273,7 +273,7 @@ export default function FoundationCalculator() {
               </h2>
             </div>
 
-            {/* Key results — premium stat cards */}
+            {/* Key results, premium stat cards */}
             <div className="grid md:grid-cols-3 gap-4 mb-6">
               {result.shape !== "raft" && (
                 <div className="relative overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-primary/10 p-5 dark:border-brand-purple/30">

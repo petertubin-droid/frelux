@@ -1,5 +1,5 @@
 /**
- * FRELUX CONSTRUCTION INTELLIGENCE — UNIFIED QUANTITY TAKEOFF
+ * FRELUX CONSTRUCTION INTELLIGENCE, UNIFIED QUANTITY TAKEOFF
  *
  * A thin aggregation layer that produces ONE traceable quantity takeoff for a
  * construction project by REFERENCING existing FRELUX deterministic results:
@@ -10,7 +10,7 @@
  *
  * This layer NEVER recalculates a quantity that an existing engine already
  * produced. Where no engine result exists the item is marked
- * `requires_calculation` — an explicit unknown beats an invented number
+ * `requires_calculation`, an explicit unknown beats an invented number
  * (Prompt 3, §7 and §24).
  */
 
@@ -100,7 +100,7 @@ export interface TakeoffItem {
   unit: string;
   baseQuantity: number;
   quantitySource: QuantitySource;
-  /** Engine that produced the quantity — for traceability, never a copy. */
+  /** Engine that produced the quantity, for traceability, never a copy. */
   engine: string;
   status: TakeoffStatus;
   /** Traceable steps: Input → Formula/Engine → Result. */
@@ -112,7 +112,7 @@ export interface TakeoffMaterialItem {
   discipline: TakeoffDiscipline;
   material: TakeoffMaterial;
   status: TakeoffStatus;
-  /** Calculation reference — the authoritative engine result, not a copy. */
+  /** Calculation reference, the authoritative engine result, not a copy. */
   calculation: {
     id: string;
     calculatorType: DbProjectCalculation["calculator_type"];
@@ -264,7 +264,7 @@ export function buildQuantityTakeoff(input: TakeoffInput): QuantityTakeoff {
     }
   }
 
-  // --- 2. Material items — reference saved engine calculations ---
+  // --- 2. Material items, reference saved engine calculations ---
   const materialItems: TakeoffMaterialItem[] = [];
   for (const calc of calculations) {
     const discipline = calculatorTypeToDiscipline(calc.calculator_type);

@@ -1,7 +1,7 @@
 import type { AdProviderSchema } from "@/types/database";
 
 /**
- * Provider Registry — defines the configuration schema for each built-in ad provider.
+ * Provider Registry, defines the configuration schema for each built-in ad provider.
  * New providers can be added by admin users from the panel; those will use a generic
  * schema. Built-in providers have custom credential fields shown in the admin UI.
  */
@@ -1011,12 +1011,12 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
     ],
   },
   // ─────────────────────────────────────────────────────────
-  // Monetag — display/push/native ad network
+  // Monetag, display/push/native ad network
   // ─────────────────────────────────────────────────────────
   {
     slug: "monetag",
     name: "Monetag",
-    // "mixed" — serves display formats via the website tag AND rewarded
+    // "mixed", serves display formats via the website tag AND rewarded
     // ads through the rewarded unlock flow (src/lib/monetag-rewarded.ts)
     provider_type: "mixed",
     icon: "monetag",
@@ -1090,7 +1090,7 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
     ],
   },
   // ─────────────────────────────────────────────────────────
-  // Offerwall.ad — rewarded offerwall (iframe-based)
+  // Offerwall.ad, rewarded offerwall (iframe-based)
   // ─────────────────────────────────────────────────────────
   {
     slug: "offerwall_ad",
@@ -1219,7 +1219,7 @@ export const REWARDED_FEATURES = [
 ];
 
 /**
- * Page map spec — the visual wireframe used by the Admin "Page Map"
+ * Page map spec, the visual wireframe used by the Admin "Page Map"
  * display. Each entry describes one page template: its content sections
  * and the ad slot keys that sit between them (in on-page order).
  * "native" keys render as native banner ads; everything else as banners

@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — MARKET PRICE TREND (§6)
+// FRELUX PREDICTIVE INTELLIGENCE, MARKET PRICE TREND (§6)
 //
 // Analyses REAL price records only:
 //   - the project's material_price_history (user-entered changes)
@@ -164,10 +164,10 @@ export function analyzeMarketTrends(snapshot: {
   const evidence: Evidence[] = [];
   const inputs: PredictionResult["inputs"] = [];
   const assumptions: string[] = [
-    "Trends are computed only from dated price records of the SAME region — never from another region and never synthesised.",
+    "Trends are computed only from dated price records of the SAME region, never from another region and never synthesised.",
   ];
   const limitations: string[] = [
-    "A trend describes recorded price movement to date — it is not a forecast of future prices.",
+    "A trend describes recorded price movement to date, it is not a forecast of future prices.",
   ];
 
   // Region gate (§16): market observations are only usable when they
@@ -178,7 +178,7 @@ export function analyzeMarketTrends(snapshot: {
       kind: "material_price_trend",
       status: "unsupported_region",
       prediction:
-        "Prediction unavailable for this region — no regional market profile is recorded for this project.",
+        "Prediction unavailable for this region, no regional market profile is recorded for this project.",
       result: null,
       evidence,
       inputs,
@@ -228,7 +228,7 @@ export function analyzeMarketTrends(snapshot: {
     evidence.push({
       kind: "market_observation",
       id: p.label,
-      label: `Market price for ${p.label} (${p.marketCode}${p.region ? `, ${p.region}` : ""}) collected ${p.collectedAt.slice(0, 10)}${p.verified ? " — verified" : " — unverified"}`,
+      label: `Market price for ${p.label} (${p.marketCode}${p.region ? `, ${p.region}` : ""}) collected ${p.collectedAt.slice(0, 10)}${p.verified ? ", verified" : ", unverified"}`,
       recordedAt: p.collectedAt,
       verification: p.verified ? "admin_verified" : "unverified",
     });

@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 6.5 ALPHA — EXTERNAL WEB INTELLIGENCE TYPES
+// FRELUX PHASE 6.5 ALPHA, EXTERNAL WEB INTELLIGENCE TYPES
 //
 // Controlled crawling of Admin-approved sources feeding the
 // EXISTING learning pipeline. Webpage content is DATA, never
@@ -119,6 +119,6 @@ export interface SearchCandidate {
   retrieved_at: string;
 }
 
-/** The three kinds of price — never conflated. */
+/** The three kinds of price, never conflated. */
 export type PriceKind =
   "OBSERVED_MARKET" | "FRELUX_CONFIGURED" | "VERIFIED_ACTUAL";

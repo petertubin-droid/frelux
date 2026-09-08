@@ -25,7 +25,7 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
       ) as HTMLElement | null;
 
       if (!el) {
-        // Element not found — center the tooltip on screen
+        // Element not found, center the tooltip on screen
         setPosition({
           top: window.innerHeight / 2 - 120,
           left: window.innerWidth / 2 - 175,
@@ -85,7 +85,7 @@ export function OnboardingTour({ onComplete }: { onComplete: () => void }) {
     };
   }, [step, currentTour.target]);
 
-  // Reposition on resize AND scroll — keep tooltip anchored to target
+  // Reposition on resize AND scroll, keep tooltip anchored to target
   useEffect(() => {
     function reposition() {
       const el = document.querySelector(

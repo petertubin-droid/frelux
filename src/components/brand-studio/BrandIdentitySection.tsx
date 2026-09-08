@@ -1,5 +1,5 @@
 /**
- * Brand Identity Section — create/edit branding profile
+ * Brand Identity Section, create/edit branding profile
  */
 import { useState, useEffect } from "react";
 import { Save, Trash2, Plus } from "lucide-react";

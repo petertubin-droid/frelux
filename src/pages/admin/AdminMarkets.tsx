@@ -1,10 +1,10 @@
 /**
- * FRELUX Admin — International Markets Management
+ * FRELUX Admin, International Markets Management
  *
  * Manage market profiles, material rules, products, pricing, and
  * calculator availability per market.
  *
- * This is purely additive — does not modify any existing admin pages.
+ * This is purely additive, does not modify any existing admin pages.
  */
 
 import { useEffect, useState, useCallback } from "react";

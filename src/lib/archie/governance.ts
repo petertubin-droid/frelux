@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 — ARCHIE LEARNING GOVERNANCE
+// FRELUX PHASE 8, ARCHIE LEARNING GOVERNANCE
 //
 // ARCHIE can continuously acquire and organize knowledge, but
 // learning capacity does NOT equal authority. This module is
@@ -22,7 +22,7 @@ import type {
 
 /**
  * Allowed evidence-state transitions. Anything not listed is
- * FORBIDDEN — the matrix is intentionally tiny:
+ * FORBIDDEN, the matrix is intentionally tiny:
  *
  * - AI_EXTRACTED / AI_RECOMMENDATION may only move to
  *   USER_CONFIRMED (a human validated it) or stay as is.
@@ -32,7 +32,7 @@ import type {
  * - USER_CONFIRMED / EXTERNAL_SOURCE_VERIFIED may become
  *   SYSTEM_VERIFIED only through the approval pipeline with
  *   verification evidence.
- * - ACTUAL_OUTCOME is terminal — it can never be "improved"
+ * - ACTUAL_OUTCOME is terminal, it can never be "improved"
  *   into something else.
  */
 const ALLOWED_TRANSITIONS: Readonly<
@@ -62,7 +62,7 @@ export function canEvidenceConvert(
   to: ArchieEvidenceState,
 ): boolean {
   if (from === to) return true;
-  // Transitive reach — e.g. AI_EXTRACTED → USER_CONFIRMED → SYSTEM_VERIFIED
+  // Transitive reach, e.g. AI_EXTRACTED → USER_CONFIRMED → SYSTEM_VERIFIED
   const queue = [from];
   const seen = new Set<ArchieEvidenceState>();
   while (queue.length > 0) {
@@ -89,7 +89,7 @@ export function convertEvidenceState(
     };
   }
   // Reaching a verified state requires BOTH a human approver and
-  // verification evidence — never silent, never AI-only.
+  // verification evidence, never silent, never AI-only.
   // USER_CONFIRMED likewise demands a human: an AI can never
   // confirm on behalf of the user.
   if (VERIFIED_STATES.has(to) || to === "USER_CONFIRMED") {
@@ -97,7 +97,7 @@ export function convertEvidenceState(
       return {
         ok: false,
         error:
-          "ARCHIE cannot approve its own learning — a human approver is required",
+          "ARCHIE cannot approve its own learning, a human approver is required",
       };
     }
     if (VERIFIED_STATES.has(to) && !opts.hasVerificationEvidence) {
@@ -117,7 +117,7 @@ export function convertEvidenceState(
   return { ok: true };
 }
 
-/** What ARCHIE must NEVER modify — hard list, no exceptions. */
+/** What ARCHIE must NEVER modify, hard list, no exceptions. */
 export const ARCHIE_NEVER_MODIFIES: readonly string[] = [
   "formulas",
   "unit conversions",
@@ -154,7 +154,7 @@ export function canRecordCandidate(candidate: ArchieCandidate): {
   ) {
     return {
       ok: false,
-      error: `New candidates can never be born verified — "${candidate.evidence_state}" is only reachable through human approval`,
+      error: `New candidates can never be born verified, "${candidate.evidence_state}" is only reachable through human approval`,
     };
   }
   return { ok: true };

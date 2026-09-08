@@ -176,7 +176,7 @@ export default function MyProjects() {
         projectData: p.project_data,
         projectId: p.id,
         projectName: p.name,
-        // Canonical location record — calculators consume the regional
+        // Canonical location record, calculators consume the regional
         // context (currency) from it without duplicating location state.
         projectLocation: p.location,
       },
@@ -866,7 +866,7 @@ export default function MyProjects() {
         )}
       </div>
 
-      {/* Project location dialog — canonical location-intelligence record */}
+      {/* Project location dialog, canonical location-intelligence record */}
       {locationProject && (
         <div
           role="dialog"
@@ -889,7 +889,7 @@ export default function MyProjects() {
               </Button>
             </div>
             <p className="mb-4 text-xs text-muted-foreground">
-              Set this project's location to unlock regional market data —
+              Set this project's location to unlock regional market data :
               calculators opened from this project will follow its currency.
             </p>
             <LocationCard

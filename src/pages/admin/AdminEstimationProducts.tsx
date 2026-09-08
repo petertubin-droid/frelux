@@ -5,7 +5,7 @@ import { AdminHeader, AdminButton, AdminField, StateMessage, Toggle, Collapsible
 import { AdminModal } from '@/components/admin/AdminModal';
 
 // ─────────────────────────────────────────────────────────
-// Types (inline — matches DB columns from estimation_products)
+// Types (inline, matches DB columns from estimation_products)
 // ─────────────────────────────────────────────────────────
 interface EstProduct {
   id: string;

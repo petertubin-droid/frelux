@@ -655,7 +655,7 @@ export default function AdminCreditsAds() {
         </div>
       )}
 
-      {/* Token Shop — Paystack token purchase configuration */}
+      {/* Token Shop, Paystack token purchase configuration */}
       {tab === "token_shop" && tokenConfigDraft && (
         <div className="space-y-4">
           <div className="rounded-xl border border-border p-4 dark:border-white/10">

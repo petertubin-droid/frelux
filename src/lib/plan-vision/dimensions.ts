@@ -1,16 +1,16 @@
 // =========================================================
-// FRELUX PLAN VISION — Dimensions & Scale Handling
+// FRELUX PLAN VISION, Dimensions & Scale Handling
 //
 // §4 DIMENSION CLASSIFICATION: explicit / derived / inferred /
 //    unknown are NEVER conflated. An inferred dimension never
 //    becomes an explicit measurement.
 // §5 SCALE HANDLING: a scale is only used when its source is
 //    reliable AND confidence is sufficient. Missing/ambiguous
-//    scale ⇒ request user confirmation or manual measurement —
+//    scale ⇒ request user confirmation or manual measurement :
 //    NEVER guess.
 // §20 GLOBAL SUPPORT: metric + imperial. Native units are
 //    preserved; conversion to FRELUX internal units (metres)
-//    uses the central measurement unit service — exact factors.
+//    uses the central measurement unit service, exact factors.
 // =========================================================
 
 import type { LengthUnit } from "@/lib/measurement/units";
@@ -28,7 +28,7 @@ export { SCALE_USABLE_CONFIDENCE } from "./types";
 import { FT_TO_M, INCH_TO_M } from "@/lib/measurement/units";
 
 // =========================================================
-// NATIVE UNIT CONVERSION (exact factors — central service rules)
+// NATIVE UNIT CONVERSION (exact factors, central service rules)
 // =========================================================
 
 /** Exact factors to metres. 'mm'/'cm' derived from SI; ft/in exact. */
@@ -42,7 +42,7 @@ export const TO_METERS: Record<DimensionValue["unit"], number> = {
 
 /**
  * Convert a document-native dimension into FRELUX internal metres.
- * The ORIGINAL DimensionValue is never mutated — this returns a number.
+ * The ORIGINAL DimensionValue is never mutated, this returns a number.
  * Returns null when the dimension is unknown (never invents, §13/§4).
  */
 export function dimensionToMeters(dim: DimensionValue | null): number | null {
@@ -53,7 +53,7 @@ export function dimensionToMeters(dim: DimensionValue | null): number | null {
 
 /**
  * Create an explicit dimension (clearly written on the document).
- * Confidence must be honest — the caller (extraction sanitizer)
+ * Confidence must be honest, the caller (extraction sanitizer)
  * decides it; this factory only classifies.
  */
 export function explicitDimension(
@@ -66,7 +66,7 @@ export function explicitDimension(
 
 /**
  * Create a derived dimension (mathematically derived from other
- * CONFIRMED dimensions — e.g. total width minus two wall thicknesses).
+ * CONFIRMED dimensions, e.g. total width minus two wall thicknesses).
  * Derived values are second-class to explicit ones.
  */
 export function derivedDimension(
@@ -77,7 +77,7 @@ export function derivedDimension(
   return { value, unit, kind: "derived", confidence: clamp01(confidence) };
 }
 
-/** Create an inferred dimension (AI interpretation — visual/scale estimate). */
+/** Create an inferred dimension (AI interpretation, visual/scale estimate). */
 export function inferredDimension(
   value: number,
   unit: DimensionValue["unit"],
@@ -86,7 +86,7 @@ export function inferredDimension(
   return { value, unit, kind: "inferred", confidence: clamp01(confidence) };
 }
 
-/** The canonical unknown — must be confirmed by the user, never filled. */
+/** The canonical unknown, must be confirmed by the user, never filled. */
 export function unknownDimension(): DimensionValue {
   return { value: 0, unit: "m", kind: "unknown", confidence: 0 };
 }
@@ -109,7 +109,7 @@ const KIND_RANK: Record<DimensionKind, number> = {
 /**
  * Compare two dimensions for the SAME element. Explicit beats
  * derived beats inferred; within a kind, higher confidence wins.
- * Used by reconciliation when documents disagree — but the
+ * Used by reconciliation when documents disagree, but the
  * disagreement is STILL surfaced to the user (§15); this ranking
  * only proposes a default candidate, it never silently resolves.
  */
@@ -134,7 +134,7 @@ export function rankDimensions(
  *   - its source is written on the drawing, a graphic scale bar,
  *     or the user calibrated it manually, AND
  *   - confidence >= SCALE_USABLE_CONFIDENCE.
- * An unusable/missing scale NEVER blocks explicit dimensions —
+ * An unusable/missing scale NEVER blocks explicit dimensions :
  * it only forbids scale-DERIVED measurements, which then require
  * user confirmation or manual measurement instead.
  */
@@ -151,7 +151,7 @@ export function evaluateScale(
       confidence: c,
       usable: false,
       reason:
-        "No reliable scale was detected on this document. Scale-derived measurements are disabled — confirm dimensions manually.",
+        "No reliable scale was detected on this document. Scale-derived measurements are disabled, confirm dimensions manually.",
     };
   }
   if (c < SCALE_USABLE_CONFIDENCE) {
@@ -172,12 +172,12 @@ export function evaluateScale(
     usable: true,
     reason:
       source === "user_calibrated"
-        ? "Scale calibrated by you — scale-derived dimensions may be used."
+        ? "Scale calibrated by you, scale-derived dimensions may be used."
         : `Scale read from the drawing as "${text}" with sufficient confidence.`,
   };
 }
 
-/** The honest missing-scale record — requests user calibration. */
+/** The honest missing-scale record, requests user calibration. */
 export function missingScale(): ScaleRecord {
   return {
     source: "unknown",
@@ -185,7 +185,7 @@ export function missingScale(): ScaleRecord {
     confidence: 0,
     usable: false,
     reason:
-      "No scale found on this document. Please calibrate the scale or enter dimensions manually — FRELUX will not guess.",
+      "No scale found on this document. Please calibrate the scale or enter dimensions manually, FRELUX will not guess.",
   };
 }
 
@@ -199,7 +199,7 @@ export function userCalibratedScale(text: string): ScaleRecord {
     text,
     confidence: 1,
     usable: true,
-    reason: "Scale calibrated by you — scale-derived dimensions may be used.",
+    reason: "Scale calibrated by you, scale-derived dimensions may be used.",
   };
 }
 

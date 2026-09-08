@@ -102,7 +102,7 @@ const AdminQuotationSettings = lazy(
   () => import("@/pages/admin/AdminQuotationSettings"),
 );
 
-// Admin pages — all lazy-loaded to keep the public bundle small
+// Admin pages, all lazy-loaded to keep the public bundle small
 const AdminApiKeys = lazy(() => import("@/pages/admin/AdminApiKeys"));
 const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 const AdminLayout = lazy(() => import("@/components/admin/AdminLayout"));
@@ -221,7 +221,7 @@ const StudioOverview = lazy(() => import("@/pages/studio/StudioOverview"));
 const StudioTool = lazy(() => import("@/pages/studio/StudioTool"));
 const ErrorAnalysis = lazy(() => import("@/pages/studio/ErrorAnalysis"));
 
-// Pro Connect pages — professional network
+// Pro Connect pages, professional network
 const Onboarding = lazy(() => import("@/pages/Onboarding"));
 const ProConnectDirectory = lazy(
   () => import("@/pages/pro-connect/ProConnectDirectory"),
@@ -372,7 +372,7 @@ export default function App() {
                 </Suspense>
                 <SentryRoutes>
                   {/* ─────────────────────────────────────────────────────── */}
-                  {/* PUBLIC SITE — all public-facing pages under Layout */}
+                  {/* PUBLIC SITE, all public-facing pages under Layout */}
                   {/* No admin links, routes, or components appear here. */}
                   {/* ─────────────────────────────────────────────────────── */}
 
@@ -833,7 +833,7 @@ export default function App() {
                         </Suspense>
                       }
                     />
-                    {/* Phase 7 — FRELUX AI API docs + key manager */}
+                    {/* Phase 7, FRELUX AI API docs + key manager */}
                     <Route
                       path="/developers"
                       element={
@@ -843,7 +843,7 @@ export default function App() {
                       }
                     />
 
-                    {/* Pro Connect — Professional Network */}
+                    {/* Pro Connect, Professional Network */}
                     <Route
                       path="/pro-connect"
                       element={
@@ -877,7 +877,7 @@ export default function App() {
                       }
                     />
 
-                    {/* Marketplace — wrapped in dedicated MarketplaceLayout */}
+                    {/* Marketplace, wrapped in dedicated MarketplaceLayout */}
                     <Route
                       path="/marketplace"
                       element={
@@ -963,7 +963,7 @@ export default function App() {
                   </Route>
 
                   {/* ─────────────────────────────────────────────────────── */}
-                  {/* AUTH PAGES — standalone, no public Layout or admin chrome */}
+                  {/* AUTH PAGES, standalone, no public Layout or admin chrome */}
                   {/* ─────────────────────────────────────────────────────── */}
                   <Route
                     path="/admin/login"
@@ -983,7 +983,7 @@ export default function App() {
                   />
 
                   {/* ─────────────────────────────────────────────────────── */}
-                  {/* ADMIN PANEL — completely separated from public site. */}
+                  {/* ADMIN PANEL, completely separated from public site. */}
                   {/* Protected by RequireAdmin. No public Layout wrapping. */}
                   {/* ─────────────────────────────────────────────────────── */}
                   <Route
@@ -1062,9 +1062,9 @@ export default function App() {
                       path="intelligence-dashboard"
                       element={<AdminIntelligenceDashboard />}
                     />
-                    {/* Phase 7 — FRELUX AI API key administration */}
+                    {/* Phase 7, FRELUX AI API key administration */}
                     <Route path="api-keys" element={<AdminApiKeys />} />
-                    {/* ARCHIE extension — Owner Social Brand Center */}
+                    {/* ARCHIE extension, Owner Social Brand Center */}
                     <Route
                       path="social-brand-center"
                       element={<AdminSocialBrandCenter />}
@@ -1255,7 +1255,7 @@ export default function App() {
                           </Suspense>
                         }
                       />
-                      {/* All other tools — StudioDispatcher reads :toolSlug
+                      {/* All other tools, StudioDispatcher reads :toolSlug
                            and routes to StudioTool (chat/generation) or
                            StudioManagement (plugins/prompts/etc) */}
                       <Route path=":toolSlug" element={<StudioTool />} />

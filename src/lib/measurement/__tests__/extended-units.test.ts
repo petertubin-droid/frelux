@@ -1,5 +1,5 @@
 /**
- * Tests for the Extended Units module (Feature 1 — Universal Measurement Engine)
+ * Tests for the Extended Units module (Feature 1, Universal Measurement Engine)
  *
  * Tests:
  * - Extended length conversions (mm, cm, ft, in, m)

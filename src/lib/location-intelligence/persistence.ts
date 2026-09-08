@@ -1,5 +1,5 @@
 /**
- * FRELUX LOCATION INTELLIGENCE — Persistence
+ * FRELUX LOCATION INTELLIGENCE, Persistence
  *
  * Attaches / loads the canonical location record on existing FRELUX
  * entities. Storage shape is identical everywhere: the `location`
@@ -7,11 +7,11 @@
  *
  * - contractor_projects  (Construction Intelligence projects)
  * - user_projects        (calculator-estimator projects)
- * - properties rows      (Property Intelligence — the table keeps its
+ * - properties rows      (Property Intelligence, the table keeps its
  *   own structured lat/lng/country columns; helpers convert both ways
  *   rather than duplicating data)
  *
- * RLS: all tables are user-scoped already — a user's location is never
+ * RLS: all tables are user-scoped already, a user's location is never
  * exposed to another user. The `location` column inherits those policies.
  */
 
@@ -28,7 +28,7 @@ export interface LocationSaveResult {
   error: string | null;
 }
 
-/** Persist helper — writes the sanitized record or null (clears). */
+/** Persist helper, writes the sanitized record or null (clears). */
 async function writeProjectLocation(
   table: "contractor_projects" | "user_projects",
   projectId: string,
@@ -99,8 +99,8 @@ export interface CurrencySyncResult {
  * Sync a contractor project's `currency` / `currency_symbol` columns from
  * its location's ACTIVE regional market profile (the existing
  * regional-profile system). Called after a location save so that every
- * Construction Intelligence surface — stat cards, shopping totals,
- * estimates — follows the project's true regional currency.
+ * Construction Intelligence surface, stat cards, shopping totals,
+ * estimates, follows the project's true regional currency.
  *
  * Honest behavior: when the region has NO active profile, nothing is
  * changed (no substitution of another region's currency).
@@ -110,10 +110,10 @@ export async function syncProjectCurrencyFromRegional(
   regional: { status: string; currency_code?: string; currency_symbol?: string },
 ): Promise<CurrencySyncResult> {
   if (!isSupabaseConfigured) {
-    return { ok: false, currency: null, error: "Offline — currency not synced." };
+    return { ok: false, currency: null, error: "Offline, currency not synced." };
   }
   if (regional.status !== "available" || !regional.currency_code) {
-    return { ok: true, currency: null, error: null }; // nothing to sync — honest no-op
+    return { ok: true, currency: null, error: null }; // nothing to sync, honest no-op
   }
   try {
     const { error } = await supabase
@@ -153,7 +153,7 @@ export interface PropertyLocationFields {
 
 /**
  * Canonical location view of an existing `properties` row (Phase 43).
- * Pure conversion — no data is invented; NULL stays NULL.
+ * Pure conversion, no data is invented; NULL stays NULL.
  */
 export function locationFromPropertyRow(
   row: PropertyLocationFields | null | undefined,

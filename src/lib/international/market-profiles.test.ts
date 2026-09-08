@@ -1,5 +1,5 @@
 /**
- * Prompt 2 / Phase 12 — market profile behavior tests.
+ * Prompt 2 / Phase 12, market profile behavior tests.
  *
  * The purpose of these tests is to verify the ARCHITECTURE, never to
  * fabricate market datasets. Regional profile facts below (ISO codes,
@@ -95,7 +95,7 @@ vi.mock("@/lib/supabase-lazy", () => ({
 }));
 
 // ── Seeded profile facts (mirror of the Phase 45 migration seed) ─
-// Objective facts only — ISO 4217 currency codes/symbols and each
+// Objective facts only, ISO 4217 currency codes/symbols and each
 // country's construction unit conventions. No prices, no rules.
 const SEEDED_PROFILE_FACTS: Record<
   string,
@@ -226,7 +226,7 @@ describe("Seeded market profile facts (NG / GB / US / CA / AU / ZA / AE)", () =>
     );
   });
 
-  it("only Nigeria is active — every other market honestly reports coming_soon", () => {
+  it("only Nigeria is active, every other market honestly reports coming_soon", () => {
     for (const [code, facts] of Object.entries(SEEDED_PROFILE_FACTS)) {
       expect(facts.status).toBe(code === "NG" ? "active" : "coming_soon");
     }
@@ -265,7 +265,7 @@ describe("Seeded market profile facts (NG / GB / US / CA / AU / ZA / AE)", () =>
     }
   });
 
-  it("contains NO price data — regional pricing must never be fabricated", () => {
+  it("contains NO price data, regional pricing must never be fabricated", () => {
     // The seeded facts carry identity, currency and units only.
     for (const facts of Object.values(SEEDED_PROFILE_FACTS)) {
       expect("price" in facts).toBe(false);
@@ -341,7 +341,7 @@ describe("Pricing resolution with provenance (Phase 6)", () => {
     expect(price!.effective_from).toBe("2026-09-01");
   });
 
-  it("a market with NO stored price returns null — never a fabricated number", async () => {
+  it("a market with NO stored price returns null, never a fabricated number", async () => {
     const chain = createChainable();
     (chain.maybeSingle as ReturnType<typeof vi.fn>).mockResolvedValue({
       data: null,

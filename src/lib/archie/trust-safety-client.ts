@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX TRUST & SAFETY CLIENT — persistence & enforcement
+// FRELUX TRUST & SAFETY CLIENT, persistence & enforcement
 //
 // Browser-facing persistence for the Trust & Safety core:
 //   * trust & safety detection events (auditable records)
@@ -85,7 +85,7 @@ function buildAssessment(row: Record<string, unknown>): TrustSafetyAssessment {
 }
 
 // ---------------------------------------------------------
-// Pauses — persistence + enforcement
+// Pauses, persistence + enforcement
 // ---------------------------------------------------------
 export async function persistAccountPause(
   pause: AccountPauseRecord,
@@ -111,7 +111,7 @@ export async function persistAccountPause(
   return { ok: true, id: data?.id };
 }
 
-/** Active pauses for an account — review status decides. */
+/** Active pauses for an account, review status decides. */
 export async function fetchAccountPauses(
   accountId: string,
 ): Promise<AccountPauseRecord[]> {
@@ -155,7 +155,7 @@ export async function fetchAccountPauses(
   }));
 }
 
-/** OWNER REVIEW — applied by the owner/admin session (RLS
+/** OWNER REVIEW, applied by the owner/admin session (RLS
  *  enforces admin-only writes). ARCHIE never calls this for
  *  its own adjudication. */
 export async function applyOwnerReview(
@@ -174,7 +174,7 @@ export async function applyOwnerReview(
   return { ok: true };
 }
 
-/** The account's appeal — recorded, routed to the Owner. */
+/** The account's appeal, recorded, routed to the Owner. */
 export async function recordAccountAppeal(
   pauseId: string,
   appealText: string,
@@ -192,7 +192,7 @@ export async function recordAccountAppeal(
  *  record is active (not expired, not owner-reinstated). If
  *  the pause table is unreachable the check fails OPEN with a
  *  logged reason: persistent enforcement stays with RLS, the
- *  database CHECK bounds and Owner review — a transport error
+ *  database CHECK bounds and Owner review, a transport error
  *  must not lock every legitimate user out. */
 export async function isAccountPaused(accountId: string): Promise<boolean> {
   try {

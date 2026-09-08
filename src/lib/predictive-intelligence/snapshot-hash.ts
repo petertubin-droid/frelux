@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — INPUT HASH (§22)
+// FRELUX PREDICTIVE INTELLIGENCE, INPUT HASH (§22)
 //
 // A stable digest of every input the analysis depends on. Two
 // snapshots with the same hash MUST produce the same analysis,
@@ -11,7 +11,7 @@
 // until its data changes.
 //
 // Browser-safe: pure-JS FNV-1a (two seeds) over a canonicalized
-// JSON string. Not cryptographic — it is a cache key, not a
+// JSON string. Not cryptographic, it is a cache key, not a
 // security primitive.
 // =========================================================
 

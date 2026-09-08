@@ -59,7 +59,7 @@ function makePaidStatus(
 
 // ── checkUserPaidStatus ──
 
-describe("estimation-access — checkUserPaidStatus", () => {
+describe("estimation-access, checkUserPaidStatus", () => {
   it("returns true for active paid status with no expiry", () => {
     expect(
       checkUserPaidStatus(makePaidStatus({ is_paid: true, paid_until: null })),
@@ -99,9 +99,9 @@ describe("estimation-access — checkUserPaidStatus", () => {
   });
 });
 
-// ── checkEstimationAccess — disabled ──
+// ── checkEstimationAccess, disabled ──
 
-describe("estimation-access — checkEstimationAccess (disabled)", () => {
+describe("estimation-access, checkEstimationAccess (disabled)", () => {
   it("denies when feature is disabled", () => {
     const result = checkEstimationAccess(
       makeConfig({ enabled: false }),
@@ -121,9 +121,9 @@ describe("estimation-access — checkEstimationAccess (disabled)", () => {
   });
 });
 
-// ── checkEstimationAccess — admin override ──
+// ── checkEstimationAccess, admin override ──
 
-describe("estimation-access — checkEstimationAccess (admin override)", () => {
+describe("estimation-access, checkEstimationAccess (admin override)", () => {
   it("allows admin with override enabled (in paid mode)", () => {
     const result = checkEstimationAccess(
       makeConfig({ accessMode: "paid", adminOverride: true }),
@@ -158,9 +158,9 @@ describe("estimation-access — checkEstimationAccess (admin override)", () => {
   });
 });
 
-// ── checkEstimationAccess — paid subscriber bypass ──
+// ── checkEstimationAccess, paid subscriber bypass ──
 
-describe("estimation-access — checkEstimationAccess (paid subscriber)", () => {
+describe("estimation-access, checkEstimationAccess (paid subscriber)", () => {
   it("paid subscriber gets access in paid mode", () => {
     const result = checkEstimationAccess(
       makeConfig({ accessMode: "paid" }),
@@ -195,9 +195,9 @@ describe("estimation-access — checkEstimationAccess (paid subscriber)", () => 
   });
 });
 
-// ── checkEstimationAccess — free mode ──
+// ── checkEstimationAccess, free mode ──
 
-describe("estimation-access — checkEstimationAccess (free mode)", () => {
+describe("estimation-access, checkEstimationAccess (free mode)", () => {
   it("allows when usage remaining", () => {
     const result = checkEstimationAccess(
       makeConfig({ accessMode: "free" }),
@@ -218,9 +218,9 @@ describe("estimation-access — checkEstimationAccess (free mode)", () => {
   });
 });
 
-// ── checkEstimationAccess — rewarded mode ──
+// ── checkEstimationAccess, rewarded mode ──
 
-describe("estimation-access — checkEstimationAccess (rewarded mode)", () => {
+describe("estimation-access, checkEstimationAccess (rewarded mode)", () => {
   it("allows free when usage remaining", () => {
     const result = checkEstimationAccess(
       makeConfig({ accessMode: "rewarded", rewardedEnabled: true }),
@@ -249,9 +249,9 @@ describe("estimation-access — checkEstimationAccess (rewarded mode)", () => {
   });
 });
 
-// ── checkEstimationAccess — paid mode ──
+// ── checkEstimationAccess, paid mode ──
 
-describe("estimation-access — checkEstimationAccess (paid mode)", () => {
+describe("estimation-access, checkEstimationAccess (paid mode)", () => {
   it("suggests paid upgrade when paid is enabled", () => {
     const result = checkEstimationAccess(
       makeConfig({ accessMode: "paid", paidEnabled: true }),
@@ -276,9 +276,9 @@ describe("estimation-access — checkEstimationAccess (paid mode)", () => {
   });
 });
 
-// ── checkEstimationAccess — free_rewarded hybrid ──
+// ── checkEstimationAccess, free_rewarded hybrid ──
 
-describe("estimation-access — checkEstimationAccess (free_rewarded mode)", () => {
+describe("estimation-access, checkEstimationAccess (free_rewarded mode)", () => {
   it("allows free when usage remaining", () => {
     const result = checkEstimationAccess(
       makeConfig({ accessMode: "free_rewarded" }),
@@ -309,7 +309,7 @@ describe("estimation-access — checkEstimationAccess (free_rewarded mode)", () 
 
 // ── getClientId ──
 
-describe("estimation-access — getClientId", () => {
+describe("estimation-access, getClientId", () => {
   beforeEach(() => {
     localStorage.clear();
   });

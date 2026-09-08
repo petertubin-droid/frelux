@@ -29,7 +29,7 @@
  *   - Whether the price was user-overridden
  *   - Whether material quantity was AI-estimated or user-verified
  *
- * This module is additive — it does not replace existing cost calculations
+ * This module is additive, it does not replace existing cost calculations
  * in build-to-roof-engine.ts. It provides a unified interface for
  * cost estimation across all FRELUX calculation engines.
  */

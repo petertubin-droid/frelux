@@ -1,8 +1,8 @@
 // =========================================================
-// FRELUX PHASE 8d — ADMIN: ARCHIE'S VOICE BANK
+// FRELUX PHASE 8d, ADMIN: ARCHIE'S VOICE BANK
 //
 // The owner records their own voice; ARCHIE derives a
-// deterministic pitch/pace profile (pure math — NO cloud AI,
+// deterministic pitch/pace profile (pure math, NO cloud AI,
 // NO paid service) and speaks with it in the Assistant.
 // Samples are stored owner-only (private bucket + RLS).
 // =========================================================
@@ -91,7 +91,7 @@ export default function AdminArchieVoice() {
       setSeconds(0);
       timerRef.current = setInterval(() => setSeconds((s) => s + 1), 1000);
     } catch {
-      setError("Microphone permission denied — ARCHIE cannot record.");
+      setError("Microphone permission denied, ARCHIE cannot record.");
     }
   }
 
@@ -108,8 +108,8 @@ export default function AdminArchieVoice() {
         rec.stop();
       });
       if (blob.size < 2000)
-        throw new Error("Sample too short — speak for a few seconds.");
-      // Deterministic on-device analysis — nothing leaves this browser unencrypted.
+        throw new Error("Sample too short, speak for a few seconds.");
+      // Deterministic on-device analysis, nothing leaves this browser unencrypted.
       const ctx = new AudioContext();
       const audio = await ctx.decodeAudioData(await blob.arrayBuffer());
       const pcm = mixdown(audio);
@@ -117,7 +117,7 @@ export default function AdminArchieVoice() {
       const rateHint = estimateRateHint(pcm, audio.sampleRate);
       await ctx.close();
       if (pitchHz === 0)
-        throw new Error("No voiced speech detected — try again.");
+        throw new Error("No voiced speech detected, try again.");
       const saved = await saveVoiceSample(userId, blob, {
         pitchHz,
         rateHint,
@@ -174,7 +174,7 @@ export default function AdminArchieVoice() {
     <div>
       <AdminHeader
         title="ARCHIE's voice"
-        subtitle="Record your voice — ARCHIE saves it and speaks with your pitch and pace. Free, on-device, no cloud AI."
+        subtitle="Record your voice, ARCHIE saves it and speaks with your pitch and pace. Free, on-device, no cloud AI."
       />
       {!isAdmin ? (
         <StateMessage
@@ -244,7 +244,7 @@ export default function AdminArchieVoice() {
               </div>
             ) : (
               <p className="text-sm text-muted-foreground">
-                No profile yet — record your first sample.
+                No profile yet, record your first sample.
               </p>
             )}
             <div>

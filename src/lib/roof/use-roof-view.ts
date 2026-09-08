@@ -1,7 +1,7 @@
 /**
- * FRELUX ROOF VIEW — React Hook
+ * FRELUX ROOF VIEW, React Hook
  *
- * useRoofView — manages the roof view state for the Building-to-Roof Estimator.
+ * useRoofView, manages the roof view state for the Building-to-Roof Estimator.
  *
  * Feature 2: Roof View
  */

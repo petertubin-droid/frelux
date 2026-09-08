@@ -1,12 +1,12 @@
 // =========================================================
-// FRELUX AI FOUNDATION — Scenario Engine
+// FRELUX AI FOUNDATION, Scenario Engine
 //
 // Foundation for scenario comparison, e.g.:
 //   Scenario A: 3-bedroom design   vs   Scenario B: 4-bedroom design
 //
 // EVERY scenario is executed by the SAME registered deterministic
 // engine with per-scenario inputs. There is no approximate AI-only
-// construction mathematics in this module — it computes only deltas
+// construction mathematics in this module, it computes only deltas
 // between authoritative engine results.
 // =========================================================
 
@@ -95,20 +95,20 @@ export async function compareScenarios(
     });
   }
 
-  // Assumptions — honest provenance of every assumed input.
+  // Assumptions, honest provenance of every assumed input.
   const resolution = resolveRequirements(taskType, context, facts);
   const assumptions = resolution.assumptions.map(
-    (a) => `${a.label}: ${a.value}${a.unit ? ` ${a.unit}` : ''} (FRELUX standard assumption — editable)`,
+    (a) => `${a.label}: ${a.value}${a.unit ? ` ${a.unit}` : ''} (FRELUX standard assumption, editable)`,
   );
 
-  // Risks — honest notes only, no invented predictions.
+  // Risks, honest notes only, no invented predictions.
   const risks: string[] = [];
   const costs = results.map((r) => r.result.costs?.total ?? 0);
   const maxCost = Math.max(...costs);
-  if (maxCost === 0) risks.push('No cost data was produced — verify inputs before relying on this comparison.');
+  if (maxCost === 0) risks.push('No cost data was produced, verify inputs before relying on this comparison.');
   results.forEach((r) => {
     if (r.deltas.costDeltaPercent >= 25) {
-      risks.push(`"${r.name}" costs ${r.deltas.costDeltaPercent}% more than "${results[0].name}" — confirm the difference is intentional.`);
+      risks.push(`"${r.name}" costs ${r.deltas.costDeltaPercent}% more than "${results[0].name}", confirm the difference is intentional.`);
     }
   });
   risks.push('Estimates use standard FRELUX defaults unless you stated otherwise; a quantity surveyor should verify before contract decisions.');

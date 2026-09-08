@@ -68,7 +68,7 @@ export default function Onboarding() {
     fetchLocations()
       .then((locs) => {
         // locs is null-safe: fetchLocations guarantees an array,
-        // but guard anyway — this effect must never reject unhandled.
+        // but guard anyway, this effect must never reject unhandled.
         setStates([...new Set((locs ?? []).map((l) => l.state))].sort());
       })
       .catch(() => {

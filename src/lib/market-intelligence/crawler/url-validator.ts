@@ -1,5 +1,5 @@
 /**
- * FRELUX DIRECT CRAWLER — URL Validator & SSRF Protection
+ * FRELUX DIRECT CRAWLER, URL Validator & SSRF Protection
  *
  * Validates URLs before any server-side fetch.
  * Prevents SSRF attacks by blocking private IPs, localhost, and internal protocols.
@@ -171,7 +171,7 @@ export function validateUrl(rawUrl: string): UrlValidationResult {
 }
 
 // ============================================================
-// DOMAIN MATCHING — check if URL belongs to approved source domain
+// DOMAIN MATCHING, check if URL belongs to approved source domain
 // ============================================================
 
 export function isUrlInDomain(url: string, allowedDomain: string): boolean {

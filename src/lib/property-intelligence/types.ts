@@ -1,5 +1,5 @@
 /**
- * FRELUX PROPERTY INTELLIGENCE — TYPES
+ * FRELUX PROPERTY INTELLIGENCE, TYPES
  *
  * Prompt 4 foundation: a unified property profile built on the Global
  * Foundation (Prompt 2). Every externally sourced data point retains
@@ -137,7 +137,7 @@ export interface PropertyProfile {
   land?: LandInfo;
   constructionStatus?: ConstructionStatus;
   /** Phase 5 §6: user-observed existing condition summary (free text,
-   *  user_provided — never AI-certified). */
+   *  user_provided, never AI-certified). */
   existingCondition?: string;
   /** Phase 5: development stage of the property itself. */
   developmentStatus?:
@@ -152,7 +152,7 @@ export interface PropertyProfile {
   provenance?: Provenance;
 }
 
-/** Required vs optional — only location identity is required. */
+/** Required vs optional, only location identity is required. */
 export function validatePropertyProfile(profile: PropertyProfile): {
   valid: boolean;
   issues: string[];

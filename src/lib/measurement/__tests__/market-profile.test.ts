@@ -121,7 +121,7 @@ describe("Market Profile Registry", () => {
 
   it("creates default registry with all profiles", () => {
     const registry = createDefaultRegistry();
-    // NG, GH, KE active + UK, US (Stage 11 — registered for
+    // NG, GH, KE active + UK, US (Stage 11, registered for
     // regional validation; inactive by default).
     expect(registry.profiles.size).toBe(5);
     expect(registry.defaultMarketCode).toBe("NG");

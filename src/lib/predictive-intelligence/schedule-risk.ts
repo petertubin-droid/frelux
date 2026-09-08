@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — SCHEDULE RISK (§4)
+// FRELUX PREDICTIVE INTELLIGENCE, SCHEDULE RISK (§4)
 //
 // Planned vs Actual vs Remaining, from project_progress_stages.
 //
@@ -59,7 +59,7 @@ export function analyzeScheduleRisk(snapshot: {
   const evidence: Evidence[] = [];
   const inputs: PredictionResult["inputs"] = [];
   const assumptions: string[] = [
-    "The recorded schedule stores stage order and completion timestamps, but not planned start/end dates — so FRELUX measures sequencing, stalls and remaining work, and does NOT predict calendar completion dates.",
+    "The recorded schedule stores stage order and completion timestamps, but not planned start/end dates, so FRELUX measures sequencing, stalls and remaining work, and does NOT predict calendar completion dates.",
   ];
   const limitations: string[] = [
     "Completion-date prediction requires planned dates on each stage, which the current schedule does not record.",
@@ -70,7 +70,7 @@ export function analyzeScheduleRisk(snapshot: {
       kind: "schedule_risk",
       status: "insufficient_data",
       prediction:
-        "Schedule prediction cannot be reliably made — no progress stages are recorded for this project.",
+        "Schedule prediction cannot be reliably made, no progress stages are recorded for this project.",
       result: null,
       evidence,
       inputs,
@@ -91,7 +91,7 @@ export function analyzeScheduleRisk(snapshot: {
     evidence.push({
       kind: "progress_stage",
       id: s.id,
-      label: `Stage "${s.stageName}" — ${s.isCompleted ? `completed ${s.completedAt ?? "(no timestamp)"}` : "not completed"}`,
+      label: `Stage "${s.stageName}", ${s.isCompleted ? `completed ${s.completedAt ?? "(no timestamp)"}` : "not completed"}`,
       recordedAt: s.completedAt ?? s.updatedAt,
       verification: "user_recorded",
     });
@@ -185,13 +185,13 @@ export function analyzeScheduleRisk(snapshot: {
   const prediction =
     rating === "low"
       ? remaining === 0
-        ? "All recorded stages are complete — no schedule risk detected in the recorded data."
-        : "Schedule risk: LOW — recorded completions follow the planned order with no stall detected."
+        ? "All recorded stages are complete, no schedule risk detected in the recorded data."
+        : "Schedule risk: LOW, recorded completions follow the planned order with no stall detected."
       : rating === "medium"
-        ? `Schedule risk: MEDIUM — no stage completion recorded for ${daysSinceLast} days while the project is in progress.`
+        ? `Schedule risk: MEDIUM, no stage completion recorded for ${daysSinceLast} days while the project is in progress.`
         : violations.length > 0
-          ? `Schedule risk: HIGH — later stage(s) were recorded complete while earlier stage(s) remain incomplete, indicating rework or out-of-order execution.`
-          : `Schedule risk: HIGH — no stage completion recorded for ${daysSinceLast} days while the project is in progress.`;
+          ? `Schedule risk: HIGH, later stage(s) were recorded complete while earlier stage(s) remain incomplete, indicating rework or out-of-order execution.`
+          : `Schedule risk: HIGH, no stage completion recorded for ${daysSinceLast} days while the project is in progress.`;
 
   return {
     kind: "schedule_risk",
@@ -218,7 +218,7 @@ export function analyzeScheduleRisk(snapshot: {
   };
 }
 
-/** Freshness of the progress record as a whole — used by data quality. */
+/** Freshness of the progress record as a whole, used by data quality. */
 export function progressFreshness(
   stages: Array<{ completedAt: string | null; updatedAt: string }>,
   now: string,

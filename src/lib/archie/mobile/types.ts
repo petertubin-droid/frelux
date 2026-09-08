@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8b — ARCHIE MOBILE TYPES
+// FRELUX PHASE 8b, ARCHIE MOBILE TYPES
 //
 // Types for the ARCHIE Mobile Assistant (Free tier), the
 // Mobile Security & Secure Data Protection Layer and the
@@ -7,7 +7,7 @@
 // =========================================================
 
 // ---------------------------------------------------------
-// Free mobile capabilities — explicit user permission, one
+// Free mobile capabilities, explicit user permission, one
 // consent record each. ARCHIE never assumes device access.
 // ---------------------------------------------------------
 export type ArchieMobileCapability =
@@ -32,7 +32,7 @@ export interface ArchieConsent {
 }
 
 // ---------------------------------------------------------
-// Paid capabilities — modular, optional, DISABLED BY DEFAULT
+// Paid capabilities, modular, optional, DISABLED BY DEFAULT
 // ---------------------------------------------------------
 export type ArchiePaidCapability =
   | "CLOUD_AI_GENERATION" // cloud LLM generation (Gemini/OpenAI)
@@ -115,7 +115,7 @@ export type SecurityEventKind =
   | "OWNER_AUTH_FAILED"
   | "NON_OWNER_AUTH_ATTEMPT"
   | "RATE_LIMIT_HIT"
-  // Phase 8 P4 — trusted devices & subscriber intelligence
+  // Phase 8 P4, trusted devices & subscriber intelligence
   | "SUSPICIOUS_DEVICE_DETECTED"
   | "FORBIDDEN_CONSENT_REQUESTED"
   | "DEVICE_TOKEN_ROTATED"

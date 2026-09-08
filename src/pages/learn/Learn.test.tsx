@@ -151,7 +151,7 @@ describe("Learn", () => {
   it("falls back to the un-numbered hero label when the count query fails", async () => {
     (supabase as unknown as { __count: number | null }).__count = null;
     await renderReady();
-    // No "66+" — only the bare label is rendered
+    // No "66+", only the bare label is rendered
     expect(screen.getByText("Expert Articles", { exact: true })).toBeInTheDocument();
   });
 
@@ -165,7 +165,7 @@ describe("Learn", () => {
     const pattern = orCalls()[0];
     // The or-filter template adds its own ilike wildcards (…ilike.%…%), so
     // assert on the user query itself: none of the injected characters may
-    // survive — "50%(a,b)_paint" must become "50 a b  paint" (trimmed).
+    // survive, "50%(a,b)_paint" must become "50 a b  paint" (trimmed).
     const match = pattern.match(/title\.ilike\.%(.*)%,excerpt/);
     expect(match).not.toBeNull();
     const sanitizedQuery = (match as RegExpMatchArray)[1].trim();

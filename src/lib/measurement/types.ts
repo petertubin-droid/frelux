@@ -1,5 +1,5 @@
 /**
- * FRELUX SHARED MEASUREMENT MODEL — TYPES
+ * FRELUX SHARED MEASUREMENT MODEL, TYPES
  *
  * One reusable measurement model capable of representing every FRELUX calculation scenario:
  * - Single room
@@ -126,14 +126,14 @@ export interface TileConfig {
 }
 
 // =========================================================
-// Measurement Entry — the atomic unit (spec section 4)
+// Measurement Entry, the atomic unit (spec section 4)
 // =========================================================
 
 /**
  * A single measurement entry representing what the user entered.
  * This is the UNIT in the Unit → Group → Section → Project hierarchy.
  *
- * The entry stores the USER'S INPUT — not the calculation result.
+ * The entry stores the USER'S INPUT, not the calculation result.
  * Normalisation happens at calculation time, not at input time.
  */
 export interface MeasurementEntry {
@@ -144,17 +144,17 @@ export interface MeasurementEntry {
   surfaceType?: SurfaceType;
   /** Length in the user's input unit */
   length: number;
-  /** Width in the user's input unit (optional — some surfaces only need length × height) */
+  /** Width in the user's input unit (optional, some surfaces only need length × height) */
   width?: number;
   /** Height in the user's input unit (walls, fences) */
   height?: number;
   /** The unit the user chose for this measurement */
   unit: LengthUnit;
-  /** Quantity: how many identical units (e.g., 2 identical bedrooms) — spec section 5 */
+  /** Quantity: how many identical units (e.g., 2 identical bedrooms), spec section 5 */
   quantity: number;
   /** Tile configuration (tiling only) */
   tileConfig?: TileConfig;
-  /** Fence: number of partitions for this fence dimension — spec section 10–11 */
+  /** Fence: number of partitions for this fence dimension, spec section 10–11 */
   partitionCount?: number;
   /** Description / label for this measurement */
   description?: string;
@@ -171,7 +171,7 @@ export interface MeasurementEntry {
 }
 
 // =========================================================
-// Measurement Group — identical units grouped (spec section 5)
+// Measurement Group, identical units grouped (spec section 5)
 // =========================================================
 
 /**
@@ -190,7 +190,7 @@ export interface MeasurementGroup {
 }
 
 // =========================================================
-// Measurement Section — category of spaces (spec section 7)
+// Measurement Section, category of spaces (spec section 7)
 // =========================================================
 
 /**
@@ -206,11 +206,11 @@ export interface MeasurementSection {
 }
 
 // =========================================================
-// Measurement Project — the top level (spec section 7)
+// Measurement Project, the top level (spec section 7)
 // =========================================================
 
 /**
- * The complete measurement project — the root of the hierarchy.
+ * The complete measurement project, the root of the hierarchy.
  * This is what gets saved, shared, and passed to calculation engines.
  */
 export interface MeasurementProject {
@@ -228,7 +228,7 @@ export interface MeasurementProject {
 }
 
 // =========================================================
-// Calculation Result — stored separately from measurements (spec section 32)
+// Calculation Result, stored separately from measurements (spec section 32)
 // =========================================================
 
 /**
@@ -242,7 +242,7 @@ export interface CalculationStep {
 
 /**
  * The result of normalising and calculating a single measurement entry.
- * This is SEPARATE from the measurement — it's derived data.
+ * This is SEPARATE from the measurement, it's derived data.
  */
 export interface MeasurementEntryResult {
   entryId: string;

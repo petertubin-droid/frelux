@@ -1,5 +1,5 @@
 /**
- * Hero content hook — reads the homepage hero copy from
+ * Hero content hook, reads the homepage hero copy from
  * site_settings (CMS-managed) with module-level caching.
  *
  * Falls back to hardcoded defaults if the DB row is missing
@@ -22,7 +22,7 @@ export interface HeroContent {
   ctaSecondaryHref: string;
 }
 
-/** Hardcoded fallback — the permanent approved copy. */
+/** Hardcoded fallback, the permanent approved copy. */
 export const DEFAULT_HERO_CONTENT: HeroContent = {
   headline: 'Know Exactly What Materials Your Project Needs.',
   subheadline:

@@ -1,8 +1,8 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — PUBLIC API
+// FRELUX PREDICTIVE INTELLIGENCE, PUBLIC API
 //
 // Phase 4: Predictive Construction Intelligence.
-// "What is required?" → "What is likely to happen?" — with
+// "What is required?" → "What is likely to happen?", with
 // evidence, confidence, freshness and honest INSUFFICIENT DATA.
 // =========================================================
 

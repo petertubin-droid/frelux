@@ -1,10 +1,10 @@
 // =========================================================
-// FRELUX PROJECT AGENT — CORE TYPES (Phase 6, Stage 1)
+// FRELUX PROJECT AGENT, CORE TYPES (Phase 6, Stage 1)
 //
 // The Project Agent is a project-scoped intelligence layer that:
 //   OBSERVES project data → ANALYZES it → RECOMMENDS → PREPARES
 //   actions → obtains user APPROVAL → EXECUTES via authoritative
-//   FRELUX tools → VERIFIES results — every step auditable.
+//   FRELUX tools → VERIFIES results, every step auditable.
 //
 // It NEVER replaces deterministic engines, never mutates project
 // data without explicit approval, and never invents facts. Every
@@ -14,7 +14,7 @@
 
 import type { AgentLifecycleState, AgentPermission } from "./states";
 
-/** Data classes — identical taxonomy to Property Intelligence. */
+/** Data classes, identical taxonomy to Property Intelligence. */
 export type AgentDataClass =
   | "verified"
   | "user_provided"
@@ -43,14 +43,14 @@ export interface AgentFact {
   /** Where it came from (tool, table, document, user). */
   source: string;
   observedAt: string;
-  /** Present only when dataClass is ai_extracted — must be confirmed. */
+  /** Present only when dataClass is ai_extracted, must be confirmed. */
   requiresConfirmation?: boolean;
   note?: string;
 }
 
 /** A recommendation the agent produced from evidence.
  *  The implemented contract lives in recommendations.ts
- *  (Stage 4) — the former placeholder here is superseded. */
+ *  (Stage 4), the former placeholder here is superseded. */
 
 /** An action the agent has prepared for user approval. */
 export interface PreparedAction {
@@ -59,7 +59,7 @@ export interface PreparedAction {
   /** Human description of what will happen. */
   what: string;
   why: string;
-  /** Data used — fact keys / engine ids, traceable. */
+  /** Data used, fact keys / engine ids, traceable. */
   dataUsed: string[];
   assumptions: string[];
   expectedResult: string;
@@ -85,11 +85,11 @@ export interface AgentApproval {
   actionId: string;
   state: "pending" | "approved" | "rejected" | "cancelled" | "expired";
   requestedAt: string;
-  /** Approvals expire — stale approvals must be re-requested. */
+  /** Approvals expire, stale approvals must be re-requested. */
   expiresAt: string;
   decidedAt?: string;
   decidedBy?: string;
-  /** Idempotency key — duplicate/double-tap submissions collapse. */
+  /** Idempotency key, duplicate/double-tap submissions collapse. */
   idempotencyKey: string;
 }
 
@@ -105,7 +105,7 @@ export interface AgentExecution {
   error?: string;
   startedAt: string;
   finishedAt?: string;
-  /** One execution per approval — guards double execution. */
+  /** One execution per approval, guards double execution. */
   attempt: number;
 }
 
@@ -161,7 +161,7 @@ export interface AgentError {
     | "invalid_state"
     | "persistence_error"
     | "prohibited_action"
-    // Stage 6 — prepared actions
+    // Stage 6, prepared actions
     | "invalid_params"
     | "insufficient_data"
     | "recommendation_not_found"

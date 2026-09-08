@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 P4 — CONSENT-DRIVEN MOBILE INTELLIGENCE
+// FRELUX PHASE 8 P4, CONSENT-DRIVEN MOBILE INTELLIGENCE
 //
 // ARCHIE may learn from a category of device data ONLY when
 // the user explicitly granted THAT category on THAT device.
@@ -116,7 +116,7 @@ export function isGrantableCategory(category: string): boolean {
 }
 
 /** Grant a category on a device. The explanation shown to the
- *  user is REQUIRED and is stored with the consent record —
+ *  user is REQUIRED and is stored with the consent record :
  *  an unexplained grant is invalid. */
 export function grantDataConsent(
   device: TrustedDevice,
@@ -126,7 +126,7 @@ export function grantDataConsent(
   if (FORBIDDEN_DEVICE_CATEGORIES.has(category)) {
     return {
       ok: false,
-      error: `"${category}" is not a grantable capability — this request was refused and flagged`,
+      error: `"${category}" is not a grantable capability, this request was refused and flagged`,
     };
   }
   if (!isGrantableCategory(category)) {
@@ -180,7 +180,7 @@ export function mayIngestFrom(
   if (FORBIDDEN_DEVICE_CATEGORIES.has(category)) {
     return {
       ok: false,
-      error: `Category "${category}" can never be ingested — refusal recorded`,
+      error: `Category "${category}" can never be ingested, refusal recorded`,
     };
   }
   if (!mayArchieInteract(device)) {

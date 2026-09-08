@@ -12,7 +12,7 @@ import { Toaster } from "@/components/ui/shadcn/toast";
 import { initErrorMonitor } from "@/lib/errorMonitor";
 import "./index.css";
 
-// Initialize FRELUX error monitoring — global error listeners
+// Initialize FRELUX error monitoring, global error listeners
 initErrorMonitor();
 
 createRoot(document.getElementById("root")!).render(
@@ -30,7 +30,7 @@ createRoot(document.getElementById("root")!).render(
   </StrictMode>,
 );
 
-// Register Service Worker for PWA — only in production
+// Register Service Worker for PWA, only in production
 if ("serviceWorker" in navigator && import.meta.env.PROD) {
   window.addEventListener("load", () => {
     // Clean up any foreign/third-party service workers that earlier bad
@@ -60,7 +60,7 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
       .catch(() => {})
       .finally(() => {
         navigator.serviceWorker.register("/sw.js").catch(() => {
-          // Service worker registration failed — app still works without offline support
+          // Service worker registration failed, app still works without offline support
         });
       });
   });

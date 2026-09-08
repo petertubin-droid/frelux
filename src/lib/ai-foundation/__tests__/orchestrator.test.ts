@@ -44,7 +44,7 @@ describe("deterministic interpretation (no API call)", () => {
 
   it("classifies painting, POP, tile, screeding and tyrolene requests", () => {
     // Phase 2: "how much paint" asks for the full materials list (litres +
-    // containers) — the manual calculator methodology, never m²-only.
+    // containers), the manual calculator methodology, never m²-only.
     expect(interpretRequest("how much paint for my room").taskType).toBe(
       "painting_materials",
     );
@@ -57,7 +57,7 @@ describe("deterministic interpretation (no API call)", () => {
     ).toBe("tyrolene_estimate");
   });
 
-  it("only extracts what the user said — never invents values", () => {
+  it("only extracts what the user said, never invents values", () => {
     const result = interpretRequest("estimate my house");
     expect(result.facts).toHaveLength(0);
   });

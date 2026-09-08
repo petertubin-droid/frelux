@@ -1,15 +1,15 @@
 // =========================================================
-// FRELUX PHASE 8b — ARCHIE MOBILE ASSISTANT (FREE TIER)
+// FRELUX PHASE 8b, ARCHIE MOBILE ASSISTANT (FREE TIER)
 //
 // The mobile front door to ARCHIE. Four surfaces:
-//   ASSISTANT     — voice, camera, photos, files, location,
+//   ASSISTANT    , voice, camera, photos, files, location,
 //                   clipboard, links, calculators and free
 //                   on-device generation
-//   CAPABILITIES  — explicit per-capability consent; nothing
+//   CAPABILITIES , explicit per-capability consent; nothing
 //                   is used without permission
-//   VAULT         — protect important FRELUX data (AES-256-GCM
+//   VAULT        , protect important FRELUX data (AES-256-GCM
 //                   on-device, encrypted cloud backup, versions)
-//   SECURITY      — device sessions & revocation (stolen-phone
+//   SECURITY     , device sessions & revocation (stolen-phone
 //                   defense), security feed, optional paid
 //                   capabilities (OFF by default), owner
 //                   authorization for production changes
@@ -136,7 +136,7 @@ export default function Assistant() {
   const [messages, setMessages] = useState<Msg[]>([
     {
       role: "archie",
-      text: "Hi, I'm ARCHIE — your FRELUX assistant. Free tier: voice, camera, photos, files, calculators and on-device generation. Nothing on your phone is touched until you enable it in Capabilities.",
+      text: "Hi, I'm ARCHIE, your FRELUX assistant. Free tier: voice, camera, photos, files, calculators and on-device generation. Nothing on your phone is touched until you enable it in Capabilities.",
     },
   ]);
   const [input, setInput] = useState("");
@@ -250,7 +250,7 @@ export default function Assistant() {
     // speakArchie refuses (and returns a hint) when consent is absent.
     const spoken = speakArchie(text, consents?.VOICE_OUTPUT);
     if (!spoken.ok && spoken.error) {
-      // Non-blocking hint in the transcript — voice stays off until enabled.
+      // Non-blocking hint in the transcript, voice stays off until enabled.
       setMessages((m) => [...m, { role: "system", text: spoken.error! }]);
     }
   }
@@ -268,7 +268,7 @@ export default function Assistant() {
     if (/authoriz|approve|deploy|production change/i.test(text)) {
       purgeTranscriptsForAuthorization(voiceBufferRef.current);
       pushArchie(
-        "Owner authorization must be completed in Security → Owner Authorization — the secret is typed into a password field and verified server-side. Opening it now.",
+        "Owner authorization must be completed in Security → Owner Authorization, the secret is typed into a password field and verified server-side. Opening it now.",
       );
       setTab("security");
       return;
@@ -356,7 +356,7 @@ export default function Assistant() {
       },
       () =>
         pushArchie(
-          "Location permission was denied — FRELUX works fine without it.",
+          "Location permission was denied, FRELUX works fine without it.",
         ),
       { timeout: 10000 },
     );
@@ -377,7 +377,7 @@ export default function Assistant() {
       );
     } else {
       pushArchie(
-        "Notification permission was denied — FRELUX works fine without it.",
+        "Notification permission was denied, FRELUX works fine without it.",
       );
     }
   }
@@ -389,7 +389,7 @@ export default function Assistant() {
       setInput((prev) => (prev ? `${prev} ${text}` : text));
     } catch {
       pushArchie(
-        "Clipboard permission was denied — FRELUX works fine without it.",
+        "Clipboard permission was denied, FRELUX works fine without it.",
       );
     }
   }
@@ -435,7 +435,7 @@ export default function Assistant() {
         passphrase: vPass,
       });
       setNotice(
-        `"${vLabel.trim()}" is encrypted and backed up — the phone is not the only copy.`,
+        `"${vLabel.trim()}" is encrypted and backed up, the phone is not the only copy.`,
       );
       setVLabel("");
       setVText("");
@@ -461,12 +461,12 @@ export default function Assistant() {
       const res = await recoverProtectedItem(user.id, item.id, recoverPass);
       setRecovered(res.plaintext);
       setNotice(
-        `Decrypted "${item.label}" (v${res.version.version}) — authenticated recovery complete.`,
+        `Decrypted "${item.label}" (v${res.version.version}), authenticated recovery complete.`,
       );
       setRecoverPass("");
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "Recovery failed — wrong passphrase?",
+        e instanceof Error ? e.message : "Recovery failed, wrong passphrase?",
       );
     } finally {
       setBusy(false);
@@ -587,7 +587,7 @@ export default function Assistant() {
         return;
       }
       setNotice(
-        "Change authorized — audit recorded with before/after state, versions, tests and a rollback reference.",
+        "Change authorized, audit recorded with before/after state, versions, tests and a rollback reference.",
       );
       setAuthSecret("");
       setAuthTarget("");
@@ -847,7 +847,7 @@ export default function Assistant() {
             </h2>
             <p className="mt-1 text-xs text-muted-foreground">
               You choose what to protect. It's encrypted on this phone
-              (AES-256-GCM) and only ciphertext is backed up — the passphrase is
+              (AES-256-GCM) and only ciphertext is backed up, the passphrase is
               never stored.
             </p>
             <input
@@ -960,7 +960,7 @@ export default function Assistant() {
               onClick={async () => {
                 const n = await clearLocalProtectedCache(user.id);
                 setNotice(
-                  `Removed ${n} local protected cache(s) — where Android permits.`,
+                  `Removed ${n} local protected cache(s), where Android permits.`,
                 );
               }}
               className="text-xs underline text-muted-foreground"
@@ -983,7 +983,7 @@ export default function Assistant() {
             </h2>
             <p className="mt-1 text-xs text-muted-foreground">
               A stolen phone can be locked out instantly from here. Complements
-              Android's native anti-theft — never replaces it.
+              Android's native anti-theft, never replaces it.
             </p>
             <div className="mt-2 space-y-2">
               {sessions.map((s) => (
@@ -1198,7 +1198,7 @@ export default function Assistant() {
                   Authorize change (server-side verification)
                 </button>
                 <p className="text-[11px] text-muted-foreground">
-                  {authTrail.length} authorization(s) on record — each with
+                  {authTrail.length} authorization(s) on record, each with
                   before/after state, versions, tests and a rollback reference.
                 </p>
               </div>

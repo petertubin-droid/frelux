@@ -2,17 +2,17 @@
  * CROSS-ENGINE PARITY + UNIT REGRESSION TESTS (audit finding fixes)
  *
  * The audit found two genuine defects in painting-engine.ts:
- *  1. UNIT BUG: quality.coverage_unit was ignored — the raw configured value
+ *  1. UNIT BUG: quality.coverage_unit was ignored, the raw configured value
  *     was treated as m²/L (a "m² per bucket" config would be wrong by ~20×
  *     here while the central paint-engine handled it correctly).
  *  2. CEILING DIVERGENCE: configured ceiling coverage (quality.ceiling_coverage
- *     or the ceiling_coverage_rate rule) was ignored — the per-room 0.5-bucket
+ *     or the ceiling_coverage_rate rule) was ignored, the per-room 0.5-bucket
  *     rule was always used, so the two calculators disagreed for the same room.
  *
  * These tests lock in the fixes: independent reference numbers computed from
  * first principles, plus strict parity between the two engines.
  *
- * Test data only — no invented business values; coverage/price are mock config.
+ * Test data only, no invented business values; coverage/price are mock config.
  */
 import { describe, it, expect } from "vitest";
 import {
@@ -235,7 +235,7 @@ const mkPaintingConfig = (over: Record<string, unknown> = {}) => ({
 });
 
 describe("AUDIT FIX 1: painting-engine honors coverage_unit", () => {
-  it("m2_per_bucket coverage (100 m² per 20-L bucket = 5 m²/L) is normalized — independent reference", () => {
+  it("m2_per_bucket coverage (100 m² per 20-L bucket = 5 m²/L) is normalized, independent reference", () => {
     // Independent: L=3.048, B=3.6576, H=2.4384 m → perimeter 13.4112 m
     // gross = 32.70 m²; door 3×7 ft = 1.95 m²; window 4×4 ft = 1.49 m²
     // net = 29.26 m²; litres = 29.26 × 2 / 5 = 11.70 L
@@ -269,7 +269,7 @@ describe("AUDIT FIX 1: painting-engine honors coverage_unit", () => {
 });
 
 describe("AUDIT FIX 2: painting-engine honors configured ceiling coverage", () => {
-  it("quality ceiling_coverage (8 m²/L) is used, not the per-room rule — independent reference", () => {
+  it("quality ceiling_coverage (8 m²/L) is used, not the per-room rule, independent reference", () => {
     // Ceiling area = 3.048 × 3.6576 = 11.1487 m²; litres = 11.1487 × 2 / 8 = 2.79
     const result = paintingRoom(
       { ...paintingInput, include_ceiling: true },

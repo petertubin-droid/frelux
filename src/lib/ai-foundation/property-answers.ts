@@ -1,9 +1,9 @@
 // =========================================================
-// FRELUX AI FOUNDATION — PROPERTY QUESTION ANSWERING (Phase 5 §16)
+// FRELUX AI FOUNDATION, PROPERTY QUESTION ANSWERING (Phase 5 §16)
 //
 // The Copilot's property-intelligence surface: deterministic intent
 // classification + retrieval over the ACTUAL Property Intelligence
-// report. No AI call is needed to answer — the deterministic answer
+// report. No AI call is needed to answer, the deterministic answer
 // is assembled from recorded data, and an optional AI summary may
 // only relay it. Nothing is invented; missing data is reported as
 // missing.
@@ -65,7 +65,7 @@ const disclaimerLine = `\n\n${PROPERTY_INTELLIGENCE_DISCLAIMER}`;
 
 /**
  * Answer a property question from a prebuilt Property Intelligence
- * report. Pure, deterministic retrieval — returns null when the
+ * report. Pure, deterministic retrieval, returns null when the
  * question matches no property intent.
  */
 export function answerPropertyQuestion(
@@ -87,7 +87,7 @@ export function answerPropertyQuestion(
         lines.push(REGION_UNAVAILABLE_MESSAGE);
       lines.push(
         `Data availability: ${report.profile.dataAvailability
-          .map((d) => `${d.field} — ${d.dataClass}`)
+          .map((d) => `${d.field}, ${d.dataClass}`)
           .join("; ")}.`,
       );
       if (report.condition.findings.length > 0) {
@@ -164,7 +164,7 @@ export function answerPropertyQuestion(
         return (
           "No development cost estimate is available yet. " +
           (report.development.requiredInformation["extension"]?.join(" ") ??
-            "Run the deterministic FRELUX calculators with the proposed dimensions — FRELUX does not invent costs.") +
+            "Run the deterministic FRELUX calculators with the proposed dimensions, FRELUX does not invent costs.") +
           disclaimerLine
         );
       }
@@ -184,7 +184,7 @@ export function answerPropertyQuestion(
 
     case "compare_properties": {
       return (
-        "To compare two properties, request an analysis for each one — FRELUX will compare data availability, " +
+        "To compare two properties, request an analysis for each one, FRELUX will compare data availability, " +
         "recorded facts, comparable-based indicative estimates (where evidence exists) and risks side by side. " +
         "Fundamentally different properties (e.g. land vs completed building) are compared only with their limitations stated." +
         disclaimerLine
@@ -194,7 +194,7 @@ export function answerPropertyQuestion(
     case "biggest_risks": {
       if (report.risks.length === 0) {
         return (
-          "No property risk flags were raised from the recorded data. This is not a claim that no risks exist — only that none are currently evidenced." +
+          "No property risk flags were raised from the recorded data. This is not a claim that no risks exist, only that none are currently evidenced." +
           disclaimerLine
         );
       }
@@ -249,7 +249,7 @@ export function comparePropertyReports(
   if (!a && !b) return null;
   if (!a || !b)
     return (
-      "Two properties are required for a comparison — only one has recorded data." +
+      "Two properties are required for a comparison, only one has recorded data." +
       disclaimerLine
     );
 
@@ -267,7 +267,7 @@ export function comparePropertyReports(
     line("Known risks", a, b),
   ];
   return (
-    "Comparison (recorded data only — no fabricated comparables):\n" +
+    "Comparison (recorded data only, no fabricated comparables):\n" +
     parts.join("\n") +
     "\nNote: properties of fundamentally different types are compared only with their limitations stated." +
     disclaimerLine

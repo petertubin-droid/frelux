@@ -71,7 +71,7 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-// Test data — simulates what the DB would return
+// Test data, simulates what the DB would return
 const mockPuttyDbConfig = {
   id: "putty-1",
   system_type: "putty" as const,
@@ -143,7 +143,7 @@ async function renderEstimator() {
   );
 }
 
-describe("ScreedingCostEstimator — Material System Selection", () => {
+describe("ScreedingCostEstimator, Material System Selection", () => {
   it("renders without crashing", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
     vi.mocked(fetchScreedingSystemConfig)
@@ -203,7 +203,7 @@ describe("ScreedingCostEstimator — Material System Selection", () => {
   });
 });
 
-describe("ScreedingCostEstimator — Putty Flow", () => {
+describe("ScreedingCostEstimator, Putty Flow", () => {
   it("calculates Putty requirement when area is entered", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
     vi.mocked(fetchScreedingSystemConfig)
@@ -273,7 +273,7 @@ describe("ScreedingCostEstimator — Putty Flow", () => {
   });
 });
 
-describe("ScreedingCostEstimator — White Cement + Paint Flow", () => {
+describe("ScreedingCostEstimator, White Cement + Paint Flow", () => {
   it("calculates both Screeding Paint and White Cement separately", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
     vi.mocked(fetchScreedingSystemConfig)
@@ -373,7 +373,7 @@ describe("ScreedingCostEstimator — White Cement + Paint Flow", () => {
   });
 });
 
-describe("ScreedingCostEstimator — Material System Isolation", () => {
+describe("ScreedingCostEstimator, Material System Isolation", () => {
   it("does not mix Putty materials with Cement/Paint", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
     vi.mocked(fetchScreedingSystemConfig)

@@ -11,7 +11,7 @@ import {
 } from "./document-intelligence";
 
 describe("assessCondition (§6 careful wording)", () => {
-  it('words findings as "Potential issue detected" — never a certification', () => {
+  it('words findings as "Potential issue detected", never a certification', () => {
     const a = assessCondition([
       {
         category: "visible_cracks",
@@ -40,7 +40,7 @@ describe("assessCondition (§6 careful wording)", () => {
     expect(a.findings[1].requiresConfirmation).toBe(true);
   });
 
-  it("never certifies structural integrity — limitation always attached", () => {
+  it("never certifies structural integrity, limitation always attached", () => {
     const a = assessCondition([]);
     expect(a.limitation).toContain("cannot certify structural integrity");
     expect(a.hasNoObservations).toBe(true);

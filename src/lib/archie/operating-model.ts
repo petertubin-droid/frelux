@@ -1,14 +1,14 @@
 // =========================================================
-// FRELUX PHASE 8 FINAL — THE 80/20 OPERATING MODEL
+// FRELUX PHASE 8 FINAL, THE 80/20 OPERATING MODEL
 //
 //   ARCHIE = broad operational intelligence & orchestration.
 //   OWNER   = final authority and approval.
 //
 // The "80/20" split is RESPONSIBILITY and OPERATIONAL
-// AUTONOMY — not a percentage of database or system
+// AUTONOMY, not a percentage of database or system
 // permissions. ARCHIE may independently perform the
 // permitted low-risk operations below; the Owner retains
-// final authority over the protected list — always, with no
+// final authority over the protected list, always, with no
 // exception path, no override and no time-based privilege
 // decay.
 // =========================================================
@@ -78,7 +78,7 @@ const OWNER_PATTERNS: ReadonlyArray<{ rx: RegExp; gate: OperationClassification[
 ];
 
 /** Classify an operation request. Owner-reserved patterns are
- *  matched FIRST — an operation that is both autonomous and
+ *  matched FIRST, an operation that is both autonomous and
  *  protected is treated as protected, always. */
 export function classifyOperation(operation: string): OperationClassification {
   const op = operation.trim();
@@ -87,7 +87,7 @@ export function classifyOperation(operation: string): OperationClassification {
     return {
       verdict: "OWNER_APPROVAL_REQUIRED",
       operation: op,
-      rationale: `"${op}" touches an Owner-reserved area. ARCHIE may analyze, plan, test and present — the Owner approves and applies.`,
+      rationale: `"${op}" touches an Owner-reserved area. ARCHIE may analyze, plan, test and present, the Owner approves and applies.`,
       gate: hit.gate,
     };
   }
@@ -98,7 +98,7 @@ export function classifyOperation(operation: string): OperationClassification {
     verdict: "ARCHIE_MAY_ACT",
     operation: op,
     rationale: autonomous
-      ? `"${op}" is a permitted autonomous operation — ARCHIE acts within its authorized scope.`
+      ? `"${op}" is a permitted autonomous operation, ARCHIE acts within its authorized scope.`
       : `"${op}" is not an Owner-reserved operation; ARCHIE operates within its authorized scope and standard guards.`,
     gate: "none (autonomous operation)",
   };

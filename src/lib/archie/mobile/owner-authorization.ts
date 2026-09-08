@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8b — OWNER AUTHORIZATION (CLIENT)
+// FRELUX PHASE 8b, OWNER AUTHORIZATION (CLIENT)
 //
 // Owner-only authorization for production changes to FRELUX
 // code, calculator engines, deterministic logic and high-risk
@@ -27,7 +27,7 @@ export function purgeTranscriptsForAuthorization(transcripts: string[]): {
   remaining: string[];
 } {
   // Voice may INITIATE authorization, but the secret is never
-  // spoken — transcripts are dropped the moment the workflow
+  // spoken, transcripts are dropped the moment the workflow
   // begins, so nothing sensitive can linger in memory.
   return {
     purged: transcripts.splice(0, transcripts.length),
@@ -92,7 +92,7 @@ export interface AuthorizeChangeInput {
   afterState: Record<string, unknown>;
   testsPassed: boolean;
   rollbackRef?: string;
-  /** Why the change is being made — required, stored with the
+  /** Why the change is being made, required, stored with the
    *  server-side approval record. */
   reason: string;
   secret: string;
@@ -100,7 +100,7 @@ export interface AuthorizeChangeInput {
   engineeringReviewCompleted?: boolean;
 }
 
-/** Authorize a production change — server-side verification. */
+/** Authorize a production change, server-side verification. */
 export async function authorizeOwnerChange(
   input: AuthorizeChangeInput,
 ): Promise<OwnerAuthResponse> {
@@ -110,13 +110,13 @@ export async function authorizeOwnerChange(
     return {
       ok: false,
       error:
-        "All authorized changes require a passing test run — run the tests first.",
+        "All authorized changes require a passing test run, run the tests first.",
     };
   }
   if (!input.engineeringReviewCompleted && gate.requiresEngineeringReview) {
     return {
       ok: false,
-      error: `${input.changeKind} is a high-risk change — the engineering-review gate must also be completed before authorization.`,
+      error: `${input.changeKind} is a high-risk change, the engineering-review gate must also be completed before authorization.`,
     };
   }
   return callOwnerAuth({

@@ -12,7 +12,7 @@ import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 
 // ============================================================
-// CalculatorNearMe — "Find This Material Near Me" + "Find a Professional Near Me"
+// CalculatorNearMe, "Find This Material Near Me" + "Find a Professional Near Me"
 // ============================================================
 // Embedded in calculator result cards.
 // Uses the user's selected location to show nearby marketplace sellers

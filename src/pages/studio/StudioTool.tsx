@@ -123,7 +123,7 @@ export default function StudioDispatcher() {
 }
 
 // =========================================================
-// Generation Tool — shared by all 15 generation/code-quality tools
+// Generation Tool, shared by all 15 generation/code-quality tools
 // =========================================================
 function GenerationTool({
   toolSlug,
@@ -214,7 +214,7 @@ function GenerationTool({
 }
 
 // =========================================================
-// Chat Tool — conversational AI assistant
+// Chat Tool, conversational AI assistant
 // =========================================================
 function ChatTool({
   tool,

@@ -909,7 +909,7 @@ export default function ProConnectDashboard() {
         )}
       </div>
 
-      {/* Marketplace — My Bids */}
+      {/* Marketplace, My Bids */}
       <div className="mb-8">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="flex items-center gap-2 text-lg font-semibold text-foreground dark:text-primary-foreground">
@@ -975,7 +975,7 @@ export default function ProConnectDashboard() {
         )}
       </div>
 
-      {/* Marketplace — Active Orders */}
+      {/* Marketplace, Active Orders */}
       {myOrders.length > 0 && (
         <div className="mb-8">
           <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-foreground dark:text-primary-foreground">

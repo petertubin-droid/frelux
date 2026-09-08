@@ -22,7 +22,7 @@ export interface LabourConfig {
   dailyRate: number;
   /** Number of days (for daily method) */
   dayCount: number;
-  /** Custom labour calculation — user enters any amount */
+  /** Custom labour calculation, user enters any amount */
   customAmount: number;
   /** Selected category ID (optional, for suggested rates) */
   categoryId: string | null;

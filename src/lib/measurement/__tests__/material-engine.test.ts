@@ -1,5 +1,5 @@
 /**
- * Tests for the Material Engine (Feature 5 — Material Engine)
+ * Tests for the Material Engine (Feature 5, Material Engine)
  */
 
 import { describe, it, expect } from 'vitest';

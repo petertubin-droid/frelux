@@ -46,12 +46,12 @@ import { supabase } from "@/lib/supabase";
 import type { AgentResult } from "@/lib/project-agent/types";
 
 // =========================================================
-// PHASE 6 STAGE 13 — Project Agent panel (mobile-first).
+// PHASE 6 STAGE 13, Project Agent panel (mobile-first).
 //
 // The full agent workflow on one screen, stacked for small
 // viewports: ask → evidence → recommendation → prepared
 // action → review → approve/reject → execute → history.
-// The agent never acts on its own — every button is the
+// The agent never acts on its own, every button is the
 // user's explicit instruction.
 // =========================================================
 
@@ -63,7 +63,7 @@ const SEVERITY_STYLES: Record<string, string> = {
 };
 
 /** Which recommendation conditions ground which action kinds
- * (mirrors KIND_CONDITIONS in actions.ts — the backend still
+ * (mirrors KIND_CONDITIONS in actions.ts, the backend still
  * re-validates; the UI just refuses to offer impossible buttons). */
 const CONDITION_TO_KIND: Record<string, "record_purchase" | "confirm_stage_completion" | "update_material_price"> = {
   procurement_risk: "record_purchase",
@@ -175,7 +175,7 @@ export default function ProjectAgentPanel({ projectId }: { projectId: string }) 
     if (!kind) return;
     setDraft({ ...EMPTY_DRAFT, recId: rec.id, kind });
     setRefs(null);
-    // Material catalog is authoritative for price updates — fetch
+    // Material catalog is authoritative for price updates, fetch
     // the names the user selects from directly (RLS-enforced).
     let materials: Array<{ id: string; name: string }> = [];
     try {
@@ -277,7 +277,7 @@ export default function ProjectAgentPanel({ projectId }: { projectId: string }) 
             title: decision === "approved" ? "Approved" : "Rejected",
             message:
               decision === "approved"
-                ? "You can execute the action when you are ready — nothing is written until then."
+                ? "You can execute the action when you are ready, nothing is written until then."
                 : "The action was rejected. Nothing was changed.",
           });
           await refreshCore();
@@ -572,7 +572,7 @@ export default function ProjectAgentPanel({ projectId }: { projectId: string }) 
                     <option value="">Select an item…</option>
                     {refs.unpurchased.map((i) => (
                       <option key={i.id} value={i.id}>
-                        {i.name}{i.estimatedPrice != null ? ` — estimated ${i.estimatedPrice}` : ""}
+                        {i.name}{i.estimatedPrice != null ? `, estimated ${i.estimatedPrice}` : ""}
                       </option>
                     ))}
                   </select>

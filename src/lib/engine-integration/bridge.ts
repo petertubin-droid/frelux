@@ -1,5 +1,5 @@
 /**
- * FRELUX Engine Integration — Configuration Bridge
+ * FRELUX Engine Integration, Configuration Bridge
  *
  * Bridges between the measurement engine's in-memory types
  * and the database-stored configurations (em_* tables).
@@ -8,7 +8,7 @@
  * This bridge reads those configs and builds engine objects
  * (MaterialSpec, WasteConfig, MarketProfile, etc.) from them.
  *
- * This is the "control layer" — the admin manages configs in the DB,
+ * This is the "control layer", the admin manages configs in the DB,
  * and the engine reads them through this bridge.
  */
 

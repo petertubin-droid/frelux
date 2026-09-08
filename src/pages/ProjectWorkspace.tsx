@@ -72,7 +72,7 @@ export default function ProjectWorkspace() {
     project_type: "painting",
     building_type: "residential",
   });
-  // Canonical staged location (Location Intelligence) — persisted on create.
+  // Canonical staged location (Location Intelligence), persisted on create.
   const [draftLocation, setDraftLocation] = useState<FreluxLocation | null>(null);
   const [creating, setCreating] = useState(false);
 

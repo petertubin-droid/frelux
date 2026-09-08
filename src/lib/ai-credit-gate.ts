@@ -1,5 +1,5 @@
 /**
- * AI Credit Gate — server-side credit verification for AI features.
+ * AI Credit Gate, server-side credit verification for AI features.
  *
  * Before any AI edge function is called, the client should:
  * 1. Check if the feature requires credits (via ai_feature_costs)
@@ -39,14 +39,14 @@ export interface CreditGateResult {
  * Returns a CreditGateResult telling the caller whether to proceed.
  *
  * This is a NO-OP if the feature doesn't require credits or doesn't exist.
- * The server-side spend function validates the cost — the client never
+ * The server-side spend function validates the cost, the client never
  * determines the cost.
  */
 export async function checkAndSpendCredits(featureKey: string): Promise<CreditGateResult> {
   const feature = await getAiFeatureCost(featureKey);
 
   if (!feature) {
-    // Feature not configured — allow by default (backward compat)
+    // Feature not configured, allow by default (backward compat)
     return { allowed: true, feature: null, spend: null, error: null, newBalance: null, adUnlockAvailable: false };
   }
 

@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 7 §23 — ADMIN OBSERVABILITY TESTS
+// FRELUX PHASE 7 §23, ADMIN OBSERVABILITY TESTS
 // Verifies the aggregate layer: window stats, capability
 // aggregation, suspicious-activity heuristics and overview
 // composition. No key material is ever read or stored.
@@ -33,7 +33,7 @@ const supabaseMock = vi.hoisted(() => {
     }
     chain.order = vi.fn(() => chain);
     chain.limit = vi.fn(() => chain);
-    // Thenable — resolves at await time with the shape's response.
+    // Thenable, resolves at await time with the shape's response.
     // Time-varying (gte:created_at) and list (in:id) filters are
     // normalized out of the lookup key.
     const norm = (list: string[]) =>

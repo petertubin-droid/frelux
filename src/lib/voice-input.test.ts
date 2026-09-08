@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { parseSpokenNumber } from "@/lib/voice-input";
 
-describe("voice-input — parseSpokenNumber", () => {
+describe("voice-input, parseSpokenNumber", () => {
   it("parses direct numeric strings", () => {
     expect(parseSpokenNumber("3.5")).toBe(3.5);
     expect(parseSpokenNumber("12")).toBe(12);

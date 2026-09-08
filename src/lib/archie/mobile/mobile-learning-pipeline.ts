@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 P4 — MOBILE LEARNING PIPELINE
+// FRELUX PHASE 8 P4, MOBILE LEARNING PIPELINE
 //
 // USER CONSENT → SELECT DATA → ARCHIE INGESTION → EXTRACT/
 // ANALYZE → STRUCTURE → VALIDATE → EVALUATE → SHOW USER WHAT
@@ -8,7 +8,7 @@
 // KNOWLEDGE
 //
 // Enforced invariants:
-//   * Raw mobile data is NEVER verified truth — items are
+//   * Raw mobile data is NEVER verified truth, items are
 //     born AI_EXTRACTED (an estimate) and only human
 //     verification upgrades evidence state.
 //   * The SHOW USER step is mandatory: ARCHIE ingests nothing
@@ -38,7 +38,7 @@ import {
 } from "./knowledge-scope";
 
 /** Open a mobile learning: consent + selection must already be
- *  validated — this function re-checks both so the pipeline
+ *  validated, this function re-checks both so the pipeline
  *  cannot start on assumption. */
 export function startMobileLearning(args: {
   device: TrustedDevice;
@@ -52,7 +52,7 @@ export function startMobileLearning(args: {
   if (args.selected_count <= 0) {
     return {
       ok: false,
-      error: "No data selected — silent whole-device ingestion is forbidden",
+      error: "No data selected, silent whole-device ingestion is forbidden",
     };
   }
   const now = args.now ?? new Date().toISOString();
@@ -133,7 +133,7 @@ export function advanceMobileLearning(
     }
     case "SHOWN_TO_USER": {
       if (!evidence.shown_summary?.trim()) {
-        return { ok: false, error: "SHOW USER WHAT WAS LEARNED is mandatory — a summary is required" };
+        return { ok: false, error: "SHOW USER WHAT WAS LEARNED is mandatory, a summary is required" };
       }
       return {
         ok: true,
@@ -158,11 +158,11 @@ export function advanceMobileLearning(
     case "APPROVED": {
       const scope = next.scope ?? DEFAULT_MOBILE_SCOPE;
       // EVERY scope beyond PRIVATE needs human approval at this
-      // stage — no unauthorized global knowledge promotion.
+      // stage, no unauthorized global knowledge promotion.
       if (scope !== "PRIVATE" && !evidence.human_approval_id) {
         return {
           ok: false,
-          error: `Scope ${scope} requires human/owner approval — ARCHIE never self-approves`,
+          error: `Scope ${scope} requires human/owner approval, ARCHIE never self-approves`,
         };
       }
       return { ok: true, learning: { ...next, pipeline_state: to } };
@@ -174,7 +174,7 @@ export function advanceMobileLearning(
   }
 }
 
-/** Born evidence state for mobile-learned items — the fixed
+/** Born evidence state for mobile-learned items, the fixed
  *  starting point. Never USER_CONFIRMED, never VERIFIED. */
 export const MOBILE_BORN_EVIDENCE = "AI_EXTRACTED" as const;
 

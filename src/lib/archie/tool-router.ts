@@ -1,11 +1,11 @@
 // =========================================================
-// FRELUX PHASE 8 P3 — ARCHIE TOOL SELECTION
+// FRELUX PHASE 8 P3, ARCHIE TOOL SELECTION
 //
 // ARCHIE's reasoning layer must select the RIGHT tool for a
 // question, and for construction mathematics the ONLY right
 // tools are FRELUX's canonical deterministic engines. This
 // module layers ARCHIE's tool-selection policy OVER the
-// existing Phase 2 AI Foundation engine registry — it does
+// existing Phase 2 AI Foundation engine registry, it does
 // not duplicate or replace it.
 //
 // Enforced invariants:
@@ -18,14 +18,14 @@
 //   * Non-math project systems (timeline, quotations, shopping
 //     lists, weather, market, property intelligence) are
 //     addressable capabilities with their own deterministic
-//     entry points — ARCHIE orchestrates, never fabricates.
+//     entry points, ARCHIE orchestrates, never fabricates.
 // =========================================================
 
 import type { ArchieCandidate } from "./types";
 import { listEngines } from "@/lib/ai-foundation/engines-registry";
 
 /** The systems ARCHIE can reason across (FRELUX's existing
- *  project intelligence — reused, not rebuilt here). */
+ *  project intelligence, reused, not rebuilt here). */
 export interface CapabilityDescriptor {
   key: string;
   label: string;
@@ -97,7 +97,7 @@ const CAPABILITY_HINTS: ReadonlyArray<{ rx: RegExp; key: string }> = [
 
 /** Select the tool for a question. The critical rule: a
  *  CALCULATION intent ALWAYS resolves to a deterministic
- *  engine — when no registered engine fits, ARCHIE must say so
+ *  engine, when no registered engine fits, ARCHIE must say so
  *  rather than approximate. */
 export function selectTool(question: string): ToolSelection {
   const isCalculation = CALCULATION_PATTERNS.some((rx) => rx.test(question));
@@ -127,7 +127,7 @@ export function selectTool(question: string): ToolSelection {
       intent: "CALCULATION",
       must_use_deterministic_engine: true,
       rationale:
-        "This is a calculation question; ARCHIE will not approximate — a registered FRELUX engine must compute it",
+        "This is a calculation question; ARCHIE will not approximate, a registered FRELUX engine must compute it",
     };
   }
   if (!capability.deterministic) {
@@ -150,7 +150,7 @@ export function selectTool(question: string): ToolSelection {
 /** An answer ARCHIE wants to present to a user. */
 export interface ArchieAnswer {
   text: string;
-  /** Engine provenance — present iff numbers came from an engine. */
+  /** Engine provenance, present iff numbers came from an engine. */
   engine_id?: string;
   numeric_values?: Record<string, number>;
 }

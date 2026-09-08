@@ -3,7 +3,7 @@
  *
  * Tests the bridge functions that convert between
  * DB records and in-memory engine types.
- * Does NOT hit Supabase — tests pure transformation logic.
+ * Does NOT hit Supabase, tests pure transformation logic.
  */
 
 import { describe, it, expect } from 'vitest';

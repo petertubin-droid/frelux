@@ -32,7 +32,7 @@ export type UnitSystem = 'metric' | 'imperial' | 'mixed';
 
 /**
  * A market profile that defines a market's characteristics.
- * This is configuration, not code — new markets are added by
+ * This is configuration, not code, new markets are added by
  * creating new profiles.
  */
 export interface MarketProfile {
@@ -128,7 +128,7 @@ export function getActiveProfiles(
 
 /**
  * Create the Nigeria market profile.
- * Nigeria is the primary market — all others are additive.
+ * Nigeria is the primary market, all others are additive.
  */
 export function createNigeriaProfile(): MarketProfile {
   return {
@@ -241,14 +241,14 @@ export function createKenyaProfile(): MarketProfile {
 }
 
 // =========================================================
-// UNITED KINGDOM PROFILE (Phase 6 Stage 11 — regional validation)
+// UNITED KINGDOM PROFILE (Phase 6 Stage 11, regional validation)
 // =========================================================
 
 /**
  * Create the United Kingdom market profile.
  * UK construction is metric (mm/m) with GBP pricing; sheet
  * materials come in metric-imperial hybrid sizes (1220x2440 mm).
- * Inactive until UK market launch — registered so the agent can
+ * Inactive until UK market launch, registered so the agent can
  * validate regional behaviour and report honest availability.
  */
 export function createUKProfile(): MarketProfile {
@@ -281,13 +281,13 @@ export function createUKProfile(): MarketProfile {
 }
 
 // =========================================================
-// UNITED STATES PROFILE (Phase 6 Stage 11 — regional validation)
+// UNITED STATES PROFILE (Phase 6 Stage 11, regional validation)
 // =========================================================
 
 /**
  * Create the United States market profile.
  * US construction is imperial (feet, 4x8 sheets, gallons).
- * Inactive until US market launch — registered so the agent can
+ * Inactive until US market launch, registered so the agent can
  * validate regional behaviour and report honest availability.
  */
 export function createUSProfile(): MarketProfile {
@@ -331,7 +331,7 @@ export function createDefaultRegistry(): MarketProfileRegistry {
   registry = registerProfile(registry, createNigeriaProfile());
   registry = registerProfile(registry, createGhanaProfile());
   registry = registerProfile(registry, createKenyaProfile());
-  // Stage 11 — registered for regional validation; inactive.
+  // Stage 11, registered for regional validation; inactive.
   registry = registerProfile(registry, createUKProfile());
   registry = registerProfile(registry, createUSProfile());
   return registry;

@@ -1,5 +1,5 @@
 // =========================================================
-// DEVELOPMENT & INVESTMENT — DETERMINISTIC FORMULA TESTS (§7–9, §13, §14)
+// DEVELOPMENT & INVESTMENT, DETERMINISTIC FORMULA TESTS (§7–9, §13, §14)
 // Includes the controlled reference calculation (§23).
 // =========================================================
 
@@ -14,7 +14,7 @@ import {
 } from "./development-investment";
 
 describe("requiredInformationFor (§7)", () => {
-  it("lists exactly what is missing — no guessing", () => {
+  it("lists exactly what is missing, no guessing", () => {
     const reqs = requiredInformationFor("extension", {
       hasBuildingSize: false,
       hasFloorCount: false,
@@ -40,7 +40,7 @@ describe("requiredInformationFor (§7)", () => {
 });
 
 describe("compareDevelopmentScenarios (§8)", () => {
-  it("marks unpriced scenarios unavailable — no invented costs", () => {
+  it("marks unpriced scenarios unavailable, no invented costs", () => {
     const cmp = compareDevelopmentScenarios([
       { kind: "as_is", scope: "Do nothing", assumptions: [], knownRisks: [] },
       {
@@ -158,7 +158,7 @@ describe("buildPropertyCostView (§9)", () => {
     expect(view.contingency?.amount).toBe(7_000_000);
     expect(view.contingency?.note).toContain("NOT added to the total");
     expect(view.unknownCosts).toContain(
-      "professional fees (not supplied — not invented)",
+      "professional fees (not supplied, not invented)",
     );
   });
 
@@ -172,7 +172,7 @@ describe("buildPropertyCostView (§9)", () => {
   });
 });
 
-describe("analyseInvestment — CONTROLLED REFERENCE (§13, §23)", () => {
+describe("analyseInvestment, CONTROLLED REFERENCE (§13, §23)", () => {
   it("hand-checked totals, margin, yield, return", () => {
     const analysis = analyseInvestment({
       currency: "NGN",
@@ -220,7 +220,7 @@ describe("analyseInvestment — CONTROLLED REFERENCE (§13, §23)", () => {
       acquisitionCost: { amount: 50_000_000, currency: "NGN" },
     });
     // The deterministic margin engine refuses to compute without a
-    // sale value — it returns insufficient_data, never a guess.
+    // sale value, it returns insufficient_data, never a guess.
     expect(analysis.grossDevelopmentMargin?.status).toBe("insufficient_data");
     expect(analysis.grossDevelopmentMargin?.reason).toContain(
       "does not assume one",
@@ -247,7 +247,7 @@ describe("simulateInvestmentScenario (§14)", () => {
     },
   };
 
-  it("what-if: construction costs +15% — deterministic re-run", () => {
+  it("what-if: construction costs +15%, deterministic re-run", () => {
     const sim = simulateInvestmentScenario(baseline, {
       kind: "construction_cost_factor",
       percent: 15,

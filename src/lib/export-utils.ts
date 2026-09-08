@@ -102,7 +102,7 @@ export function downloadExcel(
 }
 
 /**
- * Share via email — opens the default mail client.
+ * Share via email, opens the default mail client.
  */
 export function shareViaEmail(to: string, subject: string, body: string): void {
   const params = new URLSearchParams({

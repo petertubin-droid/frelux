@@ -1,5 +1,5 @@
 /**
- * FRELUX Admin — Engine Configuration Dashboard
+ * FRELUX Admin, Engine Configuration Dashboard
  *
  * Central control layer for the measurement engine.
  * Admins can manage:
@@ -13,7 +13,7 @@
  * 8. Engine global settings
  * 9. Market activation status
  *
- * This is purely additive — does not modify existing admin pages.
+ * This is purely additive, does not modify existing admin pages.
  * Uses the existing Supabase structure and auth.
  */
 

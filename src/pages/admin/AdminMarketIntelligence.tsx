@@ -1,10 +1,10 @@
 /**
- * FRELUX Admin — Market Intelligence Dashboard
+ * FRELUX Admin, Market Intelligence Dashboard
  *
  * Manages the price intelligence engine: providers, sources, price observations,
  * approved prices, anomalies, and crawl logs.
  *
- * This is purely additive — does not modify any existing admin pages.
+ * This is purely additive, does not modify any existing admin pages.
  */
 
 import { useEffect, useState, useCallback } from "react";

@@ -190,7 +190,7 @@ describe("calculateHipLength", () => {
   //   run x sqrt(2 + tan^2(pitch)),  run = min(L,W)/2 + overhang
   // (hips run at 45 deg in plan, from eave corner to ridge end).
   // The previous baseline 4 x (W/2)/cos(pitch) was the COMMON-RAFTER
-  // formula misapplied to hips — it understates by 18-34%.
+  // formula misapplied to hips, it understates by 18-34%.
   it("calculates 4 true hip rafters", () => {
     const run = 4; // W/2, no overhang
     const expected = 4 * run * Math.sqrt(2 + Math.tan(Math.PI / 6) ** 2);
@@ -241,7 +241,7 @@ describe("estimateTimberMeters", () => {
     const purlinTotal = 4 * 2 * eaveL;
     expect(result).toBeCloseTo(rafterTotal + purlinTotal, 1);
   });
-  it("mono-pitch: ONE plane — full-width rafters, single-slope purlins", () => {
+  it("mono-pitch: ONE plane, full-width rafters, single-slope purlins", () => {
     const result = estimateTimberMeters(100, 10, 8, 30, 0.6, "mono_pitch");
     const eaveL = 11.2, eaveW = 9.2;
     const slopeLen = eaveW / Math.cos((30 * Math.PI) / 180);
@@ -252,7 +252,7 @@ describe("estimateTimberMeters", () => {
   it("mono-pitch purlins are not double-counted", () => {
     const mono = estimateTimberMeters(100, 10, 8, 30, 0.6, "mono_pitch");
     const gable = estimateTimberMeters(100, 10, 8, 30, 0.6, "gable");
-    // mono has 1 plane vs gable 2 planes — its total must be smaller
+    // mono has 1 plane vs gable 2 planes, its total must be smaller
     expect(mono).toBeLessThan(gable);
   });
   it("hip: framing covers all 4 planes (commons + jacks + purlins)", () => {
@@ -449,10 +449,10 @@ describe("calculateBuildToRoof (audit regression)", () => {
 });
 
 // ─────────────────────────────────────────────────────────
-// Explicit roof-plane model — geometric invariants
+// Explicit roof-plane model, geometric invariants
 // ─────────────────────────────────────────────────────────
 
-describe("decomposeRoofPlanes — explicit geometry", () => {
+describe("decomposeRoofPlanes, explicit geometry", () => {
   const TYPES = ["gable", "hip", "mono_pitch"] as const;
 
   it("decomposes every supported type into unique, complete planes", () => {
@@ -460,7 +460,7 @@ describe("decomposeRoofPlanes — explicit geometry", () => {
     expect(decomposeRoofPlanes(10, 8, 30, 0.6, "hip")).toHaveLength(4);
     expect(decomposeRoofPlanes(10, 8, 30, 0.6, "mono_pitch")).toHaveLength(1);
     expect(decomposeRoofPlanes(10, 8, 30, 0.6, "flat")).toHaveLength(1);
-    // uniqueness — no plane counted twice
+    // uniqueness, no plane counted twice
     for (const t of [...TYPES, "flat"]) {
       const ids = decomposeRoofPlanes(10, 8, 30, 0.6, t).map((p) => p.id);
       expect(new Set(ids).size).toBe(ids.length);
@@ -542,7 +542,7 @@ describe("decomposeRoofPlanes — explicit geometry", () => {
     // sloped per-plane = projection / cos(pitch)
     expect(planes[0].sloped_area_m2).toBeCloseTo(trap / cosT, 1);
     expect(planes[2].sloped_area_m2).toBeCloseTo(tri / cosT, 1);
-    // total = Le·We/cos(pitch) — exact for uniform pitch (proved, not assumed)
+    // total = Le·We/cos(pitch), exact for uniform pitch (proved, not assumed)
     const total = planes.reduce((s, p) => s + p.sloped_area_m2, 0);
     expect(total).toBeCloseTo((Le * We) / cosT, 1);
   });
@@ -558,12 +558,12 @@ describe("decomposeRoofPlanes — explicit geometry", () => {
     }
   });
 
-  it("PITCH is degrees only — conversion θ_rad = θ_deg × π/180 (never mixed)", () => {
+  it("PITCH is degrees only, conversion θ_rad = θ_deg × π/180 (never mixed)", () => {
     // 30° must equal the radian-converted value, not 30 rad
     const deg = calculateRoofArea(10, 8, 30, 0.6, "gable");
     const viaRad = (11.2 * 9.2) / Math.cos((30 * Math.PI) / 180);
     expect(deg).toBeCloseTo(viaRad, 2);
-    // 30 radians would produce a wildly different (negative) result —
+    // 30 radians would produce a wildly different (negative) result :
     // degrees-only input must never reach trig unconverted:
     expect(Math.cos(30)).toBeLessThan(1); // 30 rad ≠ 30°
   });

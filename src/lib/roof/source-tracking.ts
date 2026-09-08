@@ -1,5 +1,5 @@
 /**
- * FRELUX SOURCE TRACKING — Engine
+ * FRELUX SOURCE TRACKING, Engine
  *
  * Tracks the origin of every piece of roof data:
  *   - plan_import: traced from an imported plan file
@@ -12,7 +12,7 @@
  * The source is displayed in the UI and included in reports.
  *
  * Feature 12: Source Tracking
- * Feature 13: Audit Trail (combined — audit entries reference sources)
+ * Feature 13: Audit Trail (combined, audit entries reference sources)
  */
 
 // =========================================================

@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 /**
- * FRELUX LOCATION INTELLIGENCE — Project Location Context
+ * FRELUX LOCATION INTELLIGENCE, Project Location Context
  *
  * The shared consumption layer. ONE canonical location record flows in
  * from the host surface's existing state (project row, property row, or
@@ -8,10 +8,10 @@
  * ONCE against the existing market-profile system and hands derived
  * display values to every consumer:
  *
- *   ProjectDetail (Construction Intelligence) — currency for stat cards,
+ *   ProjectDetail (Construction Intelligence), currency for stat cards,
  *     shopping totals, estimate lists.
- *   Property surfaces (Property Intelligence) — regional context display.
- *   Calculators / estimators — currency override when a saved calculator
+ *   Property surfaces (Property Intelligence), regional context display.
+ *   Calculators / estimators, currency override when a saved calculator
  *     project carries a location.
  *
  * Nothing here duplicates location state: the record is owned by the
@@ -43,7 +43,7 @@ import {
 // ============================================================
 
 export interface ProjectLocationContextValue {
-  /** The canonical record — owned by the host surface, never copied here. */
+  /** The canonical record, owned by the host surface, never copied here. */
   location: FreluxLocation | null;
   /** Resolved once against market_profiles. */
   regional: RegionalContext | null;
@@ -52,7 +52,7 @@ export interface ProjectLocationContextValue {
   isRegionSupported: boolean;
   /**
    * Currency from the project's active regional profile.
-   * NULL when no location / unresolved / unsupported — callers then keep
+   * NULL when no location / unresolved / unsupported, callers then keep
    * their existing currency source. No other region's currency is
    * ever substituted.
    */
@@ -127,13 +127,13 @@ export function useProjectLocation(): ProjectLocationContextValue {
 }
 
 // ============================================================
-// Calculator helper — router-state project location
+// Calculator helper, router-state project location
 // ============================================================
 
 /**
  * Resolve the currency for a calculator opened from a saved project
  * (user_projects). Returns the active regional profile's currency, or
- * NULL when the project has no location / unresolved / unsupported —
+ * NULL when the project has no location / unresolved / unsupported :
  * so calculators keep their existing settings-based currency untouched.
  *
  * This reuses the exact same regional resolution as every other surface:
@@ -182,7 +182,7 @@ export function useProjectLocationCurrency(
 
 /**
  * Existing user-preference market context (MarketProvider). Surfaced so
- * location-aware surfaces can fall back to the user's chosen market —
+ * location-aware surfaces can fall back to the user's chosen market :
  * the same fallback chain the site used before Location Intelligence.
  */
 export function useUserMarketFallback(): ReturnType<typeof useMarket> {

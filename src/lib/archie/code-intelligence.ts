@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 — ARCHIE CODE INTELLIGENCE
+// FRELUX PHASE 8, ARCHIE CODE INTELLIGENCE
 //
 // ARCHIE may inspect AUTHORIZED FRELUX source code and learn
 // the application architecture: frontend, backend, database,
@@ -21,7 +21,7 @@
 
 import type { ArchieCodeFinding } from "./types";
 
-/** Authorized roots ARCHIE may inspect — nothing else. */
+/** Authorized roots ARCHIE may inspect, nothing else. */
 export const AUTHORIZED_CODE_ROOTS: readonly {
   root: string;
   area: ArchieCodeFinding["area"];
@@ -72,7 +72,7 @@ export const AUTHORIZED_CODE_ROOTS: readonly {
 ];
 
 // ---------------------------------------------------------
-// Technology registry — extensible by design. ARCHIE is NOT
+// Technology registry, extensible by design. ARCHIE is NOT
 // artificially restricted to this list: new legitimate
 // languages/frameworks/platforms FRELUX adopts can be
 // registered, extending ARCHIE's authorized understanding.
@@ -103,11 +103,11 @@ const BASE_TECHNOLOGIES: TechnologyDescriptor[] = [
   { name: "Deno", kind: "runtime", description: "Edge function runtime" },
 ];
 
-/** Live registry — extensible, so ARCHIE grows with FRELUX. */
+/** Live registry, extensible, so ARCHIE grows with FRELUX. */
 const registeredTechnologies: TechnologyDescriptor[] = [...BASE_TECHNOLOGIES];
 
 /** Register a NEW legitimate technology ARCHIE may understand.
- *  This EXTENDS the registry — it cannot remove the base set
+ *  This EXTENDS the registry, it cannot remove the base set
  *  or bypass the code authority model. */
 export function registerTechnology(tech: TechnologyDescriptor): {
   ok: boolean;
@@ -126,7 +126,7 @@ export function listTechnologies(): readonly TechnologyDescriptor[] {
   return registeredTechnologies;
 }
 
-/** Roots ARCHIE must NEVER touch — secrets, credentials, env. */
+/** Roots ARCHIE must NEVER touch, secrets, credentials, env. */
 export const FORBIDDEN_CODE_ROOTS: readonly string[] = [
   ".env",
   ".env.local",
@@ -173,12 +173,12 @@ export function canInspectPath(path: string): { ok: boolean; error?: string } {
   return { ok: true };
 }
 
-/** The authority model — fixed, not configurable by ARCHIE. */
+/** The authority model, fixed, not configurable by ARCHIE. */
 export const ARCHIE_CODE_AUTHORITY = {
   mayInspect: true,
   mayExplain: true,
   mayAnalyze: true,
-  mayGenerateCode: true, // when instructed — as proposals
+  mayGenerateCode: true, // when instructed, as proposals
   mayRunTests: true, // isolated environment only
   mayModifyProduction: false, // hard-false, never flipped
   mayDeploy: false, // hard-false, never flipped
@@ -189,7 +189,7 @@ export function mayApplyToProduction(): false {
   return false; // Production modification requires the human repo gates
 }
 
-/** A code finding is ALWAYS a recommendation — this constructor
+/** A code finding is ALWAYS a recommendation, this constructor
  *  makes it impossible to create an actionable finding. */
 export function makeCodeFinding(
   finding: Omit<ArchieCodeFinding, "requires_engineering_review">,

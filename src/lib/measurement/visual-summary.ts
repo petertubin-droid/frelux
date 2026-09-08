@@ -13,7 +13,7 @@
  * Visual summaries are data structures, not rendered images.
  * The UI layer renders them as charts, bars, or tables.
  *
- * The summary is purely visual — it does NOT change the calculation.
+ * The summary is purely visual, it does NOT change the calculation.
  */
 
 import type {} from './space-engine';

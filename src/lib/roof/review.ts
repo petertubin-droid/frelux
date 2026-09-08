@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF REVIEW — Data Aggregation & Verification
+ * FRELUX ROOF REVIEW, Data Aggregation & Verification
  *
  * Aggregates all roof data into a single review structure
  * for the final verification screen before estimation.

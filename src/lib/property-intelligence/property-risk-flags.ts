@@ -1,5 +1,5 @@
 /**
- * FRELUX PROPERTY INTELLIGENCE — PROPERTY RISK FLAGS
+ * FRELUX PROPERTY INTELLIGENCE, PROPERTY RISK FLAGS
  *
  * Prompt 4, Phase 12: transparent, evidence-based property risk flags.
  * Same rules as construction-intelligence/risk-flags: no arbitrary risk
@@ -71,7 +71,7 @@ export interface PropertyRiskInput {
    * verification? FRELUX never claims condition from photographs alone.
    */
   conditionClaimedWithoutSource?: boolean;
-  /** Max comparable data age in days — default 180 (used for the outdated flag). */
+  /** Max comparable data age in days, default 180 (used for the outdated flag). */
   comparableMaxAgeDays?: number;
   /** Oldest comparable observation date actually used, if any. */
   oldestComparableDate?: string;
@@ -249,7 +249,7 @@ export function evaluatePropertyRisks(
 }
 
 /**
- * Phase 5 §15: deterministic metadata for every risk code — evidence,
+ * Phase 5 §15: deterministic metadata for every risk code, evidence,
  * affected area, recommended action and status. No risk is given a
  * score merely to populate the interface; each entry maps to the
  * concrete condition that raised it.

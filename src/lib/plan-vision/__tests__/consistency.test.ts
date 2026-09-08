@@ -1,5 +1,5 @@
 // =========================================================
-// PLAN VISION TESTS — geometric consistency (§6)
+// PLAN VISION TESTS, geometric consistency (§6)
 // =========================================================
 
 import { describe, it, expect } from "vitest";
@@ -105,7 +105,7 @@ describe("impossible rooms (§6)", () => {
     expect(issues[0].severity).toBe("error");
   });
 
-  it("flags rooms missing dimensions as missing — never infers (§4)", () => {
+  it("flags rooms missing dimensions as missing, never infers (§4)", () => {
     const issues = findImpossibleRooms(
       [room({ width: unknownDimension() })],
       null,
@@ -200,7 +200,7 @@ describe("area totals (§6)", () => {
         width: explicitDimension(9, "m", 0.9),
       }),
     ];
-    const issues = checkAreaTotals(rooms, 100); // room area 99 vs footprint 100*1.15 ok — use tighter footprint
+    const issues = checkAreaTotals(rooms, 100); // room area 99 vs footprint 100*1.15 ok, use tighter footprint
     expect(issues).toHaveLength(0);
 
     const tooBig = checkAreaTotals(rooms, 50); // 99 m² room on a 50 m² footprint
@@ -329,7 +329,7 @@ describe("full validation pass (§6)", () => {
     ).toBe(true);
   });
 
-  it("is deterministic — same input, same issues, same order", () => {
+  it("is deterministic, same input, same issues, same order", () => {
     const rooms = [
       room(),
       room({ name: "Same", length: explicitDimension(4, "m", 0.9) }),

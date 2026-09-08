@@ -1,9 +1,9 @@
 // =========================================================
-// FRELUX PHASE 8 P3 — ARCHIE KNOWLEDGE GRAPH
+// FRELUX PHASE 8 P3, ARCHIE KNOWLEDGE GRAPH
 //
 // The connective tissue of ARCHIE's learned knowledge. Built
 // ONLY over approved, versioned knowledge items (Phase 6.5
-// frelux_knowledge_items shape) — never raw ingestion output.
+// frelux_knowledge_items shape), never raw ingestion output.
 //
 // Capabilities (all pure, deterministic, testable):
 //   * connect related knowledge (typed relations, provenance)
@@ -16,7 +16,7 @@
 // Governing principles (unchanged from the foundation):
 //   * ACTUAL_OUTCOME outranks everything and never converts.
 //   * Human-verified states outrank AI-extracted states.
-//   * Regional scope is respected — an item never answers for
+//   * Regional scope is respected, an item never answers for
 //     a region it was not scoped to.
 //   * Contradictions are FLAGGED for human resolution; ARCHIE
 //     never silently deletes or rewrites either side.
@@ -58,7 +58,7 @@ export interface KnowledgeLink {
   created_at: string;
 }
 
-/** Evidence ranking — lower rank = stronger evidence. */
+/** Evidence ranking, lower rank = stronger evidence. */
 const EVIDENCE_RANK: Readonly<Record<ArchieEvidenceState, number>> = {
   ACTUAL_OUTCOME: 0,
   SYSTEM_VERIFIED: 1,
@@ -123,7 +123,7 @@ export interface ContradictionRecord {
   domain: string;
   /** Human-readable description of exactly WHAT conflicts. */
   detail: string;
-  /** Never auto-resolved — a human closes every contradiction. */
+  /** Never auto-resolved, a human closes every contradiction. */
   status: "OPEN";
   detected_at: string;
 }
@@ -190,7 +190,7 @@ export function detectContradictions(
           item_b_id: b.id,
           topic: a.topic,
           domain: a.domain,
-          detail: `Conflicting values — ${conflicts.join("; ")}`,
+          detail: `Conflicting values, ${conflicts.join("; ")}`,
           status: "OPEN",
           detected_at: now,
         });
@@ -201,7 +201,7 @@ export function detectContradictions(
 }
 
 // ---------------------------------------------------------
-// 3. Conflict resolution (recommendation only — human decides)
+// 3. Conflict resolution (recommendation only, human decides)
 // ---------------------------------------------------------
 
 export interface ConflictResolution {
@@ -255,7 +255,7 @@ export interface DomainGap {
   summary: string;
 }
 
-/** Identify knowledge gaps per domain. Evidence-based only —
+/** Identify knowledge gaps per domain. Evidence-based only :
  *  never invents what ARCHIE "should" know, only reports what
  *  the learned data demonstrably lacks. */
 export function identifyGaps(
@@ -305,7 +305,7 @@ export interface RankedNode {
 }
 
 /** Rank knowledge for a question: evidence strength, confidence,
- *  recency and region fit — deterministic, explainable. */
+ *  recency and region fit, deterministic, explainable. */
 export function rankForQuestion(
   question: { domain: string; region?: string | null },
   items: KnowledgeNode[],

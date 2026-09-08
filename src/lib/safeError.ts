@@ -6,7 +6,7 @@
  * Handles both native Error instances AND plain error-shaped objects
  * (e.g. Supabase's PostgrestError, which has a `.message` but is NOT
  * `instanceof Error`). Passing those through `String(err)` produces the
- * useless "[object Object]" — this extracts `.message` first instead.
+ * useless "[object Object]", this extracts `.message` first instead.
  *
  * Usage in catch blocks:
  *   catch (e) { setError(getSafeError(e, "Failed to load data")); }

@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF — Public API
+ * FRELUX ROOF, Public API
  *
  * Exports:
  *   - Roof View (imagery provider interface)

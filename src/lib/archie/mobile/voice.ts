@@ -1,12 +1,12 @@
 // =========================================================
-// FRELUX PHASE 8c — ARCHIE VOICE (TEXT-TO-SPEECH)
+// FRELUX PHASE 8c, ARCHIE VOICE (TEXT-TO-SPEECH)
 //
 // ARCHIE speaks ONLY when the user has explicitly granted the
 // VOICE_OUTPUT capability (Consent → speak, never silent).
 // Uses the browser's native speechSynthesis engine:
 //   * no paid AI/cloud service, no API keys, no provider
 //   * Android/browser security model complemented, never bypassed
-//   * nothing is recorded, uploaded or transcribed — this is
+//   * nothing is recorded, uploaded or transcribed, this is
 //     OUTPUT only (VOICE_INPUT is the separate, consented input)
 // The module refuses to speak without consent at the LIBRARY
 // level, so no caller can bypass the consent gate.
@@ -51,7 +51,7 @@ export function chunkForSpeech(text: string, max = MAX_CHUNK): string[] {
   const chunks: string[] = [];
   let rest = clean;
   while (rest.length > max) {
-    // Prefer breaking at sentence, then word boundary — never mid-word.
+    // Prefer breaking at sentence, then word boundary, never mid-word.
     let cut = rest.lastIndexOf(". ", max);
     if (cut < max * 0.5) cut = rest.lastIndexOf(" ", max);
     if (cut < max * 0.5) cut = max;
@@ -70,7 +70,7 @@ export interface VoiceResult {
 
 /**
  * Speak text as ARCHIE. Requires the VOICE_OUTPUT consent to be
- * granted — checked here, not only by callers.
+ * granted, checked here, not only by callers.
  */
 export function speakArchie(
   text: string,

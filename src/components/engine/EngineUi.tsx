@@ -5,18 +5,18 @@
  * in the user-facing calculator pages. Each component is
  * self-contained and can be dropped into any calculator.
  *
- * Uses simple types from useEngineFeatures — no engine-internal types.
+ * Uses simple types from useEngineFeatures, no engine-internal types.
  *
  * Components:
- * - EngineWasteSelector — configurable waste (system/user/none)
- * - EngineAlreadyHaveInput — already-have / purchase quantity
- * - EngineConfidenceBadge — result confidence indicator
- * - EngineConfidenceDetail — expandable confidence breakdown
- * - EngineExplanationPanel — "how this was calculated" display
- * - EngineMaterialSummaryCard — aggregated materials
- * - EngineEstimateReportView — structured estimate report
+ * - EngineWasteSelector, configurable waste (system/user/none)
+ * - EngineAlreadyHaveInput, already-have / purchase quantity
+ * - EngineConfidenceBadge, result confidence indicator
+ * - EngineConfidenceDetail, expandable confidence breakdown
+ * - EngineExplanationPanel, "how this was calculated" display
+ * - EngineMaterialSummaryCard, aggregated materials
+ * - EngineEstimateReportView, structured estimate report
  *
- * ADDITIVE — existing calculator UI is not modified.
+ * ADDITIVE, existing calculator UI is not modified.
  */
 
 import { useState } from "react";

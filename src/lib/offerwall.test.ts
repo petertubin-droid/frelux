@@ -34,7 +34,7 @@ const OFFERWALL_SLUGS = [
   "bitcot",
 ];
 
-describe("offerwall — supportsOfferwall", () => {
+describe("offerwall, supportsOfferwall", () => {
   it("returns true for all known offerwall providers", () => {
     for (const slug of OFFERWALL_SLUGS) {
       expect(supportsOfferwall(makeProvider({ slug }))).toBe(true);
@@ -51,7 +51,7 @@ describe("offerwall — supportsOfferwall", () => {
   });
 });
 
-describe("offerwall — generateOfferwallUrl", () => {
+describe("offerwall, generateOfferwallUrl", () => {
   it("returns null for unknown provider slug", () => {
     const result = generateOfferwallUrl(
       makeProvider({ slug: "unknown" }),

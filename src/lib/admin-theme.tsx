@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
 
 /**
- * Admin-only theme state — completely separate from the public site theme.
+ * Admin-only theme state, completely separate from the public site theme.
  *
  * The public site's theme lives in `src/lib/theme.tsx` under the `'theme'`
  * localStorage key and represents the *visitor's* preference. This provider
@@ -68,7 +68,7 @@ export function AdminThemeProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // Own the <html> dark class while the admin surface is mounted, and
-    // persist ONLY to the admin key — the public 'theme' key is untouched.
+    // persist ONLY to the admin key, the public 'theme' key is untouched.
     applyThemeClass(theme);
     window.localStorage.setItem(ADMIN_THEME_KEY, theme);
     // On unmount, hand the dark class back to the public theme so the

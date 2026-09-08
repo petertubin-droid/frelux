@@ -1,10 +1,10 @@
 // =========================================================
-// FRELUX PHASE 8 P4 — PRIVACY CONTROLS
+// FRELUX PHASE 8 P4, PRIVACY CONTROLS
 //
 // FRELUX clearly distinguishes USER DATA from FRELUX
 // KNOWLEDGE. One subscriber's personal information is never
 // exposed to another subscriber. These are the user's
-// controls over their own data — every decision function is
+// controls over their own data, every decision function is
 // evidence-based and auditable:
 //
 //   view / correct / withdraw / revoke device / revoke
@@ -14,7 +14,7 @@
 // Deletion eligibility: personal data (PRIVATE scope) and
 // not-yet-promoted candidates are deletable. Knowledge
 // already human-approved as FRELUX GLOBAL is technical
-// knowledge — the contributor identity is dissociated and
+// knowledge, the contributor identity is dissociated and
 // the item is flagged for review, because silently deleting
 // reviewed knowledge would rewrite history.
 // =========================================================
@@ -82,12 +82,12 @@ export function mayServeKnowledgeToUser(args: {
     return { ok: true, reason: "Within the verified regional context" };
   }
   // FRELUX_GLOBAL_CANDIDATE never serves as knowledge to
-  // users — it is evaluation-pool material only.
+  // users, it is evaluation-pool material only.
   if (s.item_scope === "FRELUX_GLOBAL_CANDIDATE") {
     if (s.requester_user_id === s.item_owner_user_id) {
       return { ok: true, reason: "Contributor viewing their own candidate" };
     }
-    return { ok: false, reason: "Global candidates are not knowledge yet — evaluation pool only" };
+    return { ok: false, reason: "Global candidates are not knowledge yet, evaluation pool only" };
   }
   return { ok: true, reason: "Approved global knowledge" };
 }
@@ -124,7 +124,7 @@ export function deleteEligibility(
   return {
     eligible: true,
     action: "DELETE",
-    reason: "Personal data / not-yet-promoted candidate — fully deletable",
+    reason: "Personal data / not-yet-promoted candidate, fully deletable",
   };
 }
 
@@ -150,7 +150,7 @@ export function requestScopeChange(
   return { ok: true, requires_user_consent: result.requires_user_consent };
 }
 
-/** Revoke a device as a privacy control — the device loses
+/** Revoke a device as a privacy control, the device loses
  *  every permission immediately (terminal, as in
  *  trusted-devices). */
 export function revokeDeviceAsPrivacyControl(

@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF SECTION MODEL — Calculation Engine
+ * FRELUX ROOF SECTION MODEL, Calculation Engine
  *
  * Calculates per-section roof quantities (area, sheets, ridge, hip, fascia, timber)
  * for a multi-section roof specification.
@@ -51,7 +51,7 @@ export function pitchAdjustedArea(
   if (roofType === "flat") return planAreaM2;
 
   if (pitchDegrees === null || pitchDegrees <= 0) {
-    // Cannot calculate pitched area without pitch — return plan area
+    // Cannot calculate pitched area without pitch, return plan area
     // The UI must show "PITCH REQUIRED" in this case
     return planAreaM2;
   }

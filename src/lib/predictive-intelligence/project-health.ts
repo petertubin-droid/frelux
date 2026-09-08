@@ -1,7 +1,7 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — PROJECT HEALTH (§13)
+// FRELUX PREDICTIVE INTELLIGENCE, PROJECT HEALTH (§13)
 //
-// Dashboard rollup. Missing data produces "Insufficient data" —
+// Dashboard rollup. Missing data produces "Insufficient data" :
 // NEVER a reassuring status (§13/§18).
 // =========================================================
 
@@ -37,7 +37,7 @@ export function buildProjectHealth(input: HealthInput): ProjectHealth {
       ? cost.result.rating === "low"
         ? "Recorded expenditure is at or below the pro-rata estimate for recorded progress."
         : `Recorded expenditure is trending above the pro-rata estimate (burn ${(cost.result.burnPct * 100).toFixed(1)}%).`
-      : "Insufficient data — no estimate with spend or progress records.";
+      : "Insufficient data, no estimate with spend or progress records.";
 
   const scheduleRating =
     schedule.status === "ok" && schedule.result
@@ -52,7 +52,7 @@ export function buildProjectHealth(input: HealthInput): ProjectHealth {
         : schedule.result.stallDays !== null
           ? `No stage completion recorded for ${schedule.result.stallDays} days while in progress.`
           : "Recorded completions follow the planned order."
-      : "Insufficient data — no progress stages recorded.";
+      : "Insufficient data, no progress stages recorded.";
 
   const procurementRating =
     procurement.status === "ok" && procurement.result
@@ -65,7 +65,7 @@ export function buildProjectHealth(input: HealthInput): ProjectHealth {
       ? procurement.result.rating === "low"
         ? "Remaining material needs are covered on the recorded data."
         : `${procurement.result.unpurchasedCount} unpurchased item(s) for remaining work${procurement.result.missingSupplierNames.length > 0 ? `, ${procurement.result.missingSupplierNames.length} without supplier` : ""}.`
-      : "Insufficient data — no shopping list recorded.";
+      : "Insufficient data, no shopping list recorded.";
 
   const progressRating =
     progress.status !== "ok" || !progress.result
@@ -80,7 +80,7 @@ export function buildProjectHealth(input: HealthInput): ProjectHealth {
       ? progress.result.userProgressDisagrees
         ? `Stated progress (${progress.result.userProgressPct}%) disagrees with recorded stages (${progress.result.stageCompletionPct}%).`
         : `${progress.result.completedStages}/${progress.result.totalStages} recorded stages complete. Without planned dates, ahead/behind-plan cannot be computed.`
-      : "Insufficient data — no progress records.";
+      : "Insufficient data, no progress records.";
 
   return {
     cost: { rating: costRating, reason: costReason },

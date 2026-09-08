@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PROPERTY INTELLIGENCE — INDICATIVE VALUE (§11, §12)
+// FRELUX PROPERTY INTELLIGENCE, INDICATIVE VALUE (§11, §12)
 //
 // Structured, comparable-based value estimation. Rules:
 //   - ONLY verified/traceable comparables passing the deterministic
@@ -7,8 +7,8 @@
 //   - asking prices and transaction prices are NEVER mixed
 //   - every input value retains source, location, currency, date,
 //     freshness and confidence
-//   - output is labelled "Indicative estimate — not a professional
-//     valuation" — always
+//   - output is labelled "Indicative estimate, not a professional
+//     valuation", always
 //   - inadequate evidence → NO estimate is produced (§12)
 //   - stale data is labelled stale, never "current" (§19)
 // =========================================================
@@ -20,7 +20,7 @@ import {
   type PropertyListing,
 } from "./market-data";
 
-export const VALUE_LABEL = "Indicative estimate — not a professional valuation";
+export const VALUE_LABEL = "Indicative estimate, not a professional valuation";
 
 export type MarketFreshness =
   "current" | "recent" | "stale" | "outdated" | "unavailable";
@@ -136,7 +136,7 @@ export function estimateIndicativeValue(
   );
 
   const limitations: string[] = [
-    "Asking prices are not completed transaction prices — they indicate listing levels only.",
+    "Asking prices are not completed transaction prices, they indicate listing levels only.",
     "This is an indicative estimate from recorded comparable data, not a professional valuation.",
   ];
 
@@ -147,20 +147,20 @@ export function estimateIndicativeValue(
       evidence: [],
       analysis: "Insufficient comparable data.",
       conclusion:
-        "No value estimate was produced. Insufficient comparable data — FRELUX does not fabricate property values.",
+        "No value estimate was produced. Insufficient comparable data, FRELUX does not fabricate property values.",
       assumptions: [],
       limitations,
       confidence: {
         score: 0,
         band: "low",
-        method: "insufficient comparables — no estimate",
+        method: "insufficient comparables, no estimate",
       },
       dataFreshness: "unavailable",
     };
   }
 
   // Prefer verified transactions when at least the minimum number of
-  // them exist; otherwise use asking prices — never a mixture.
+  // them exist; otherwise use asking prices, never a mixture.
   const tx = screen.comparables.filter((c) => isVerifiedTransaction(c.listing));
   const basisKind: ValueBasis["kind"] =
     tx.length >= (criteria.minComparables ?? 3)
@@ -229,7 +229,7 @@ export function estimateIndicativeValue(
   const medianValue = medianPerUnit * subjectSize;
 
   // Spread-derived indicative range (25th–75th percentile of unit
-  // prices applied to the subject size) — disclosed as such.
+  // prices applied to the subject size), disclosed as such.
   const low = percentile(pricesPerUnit, 25) * subjectSize;
   const high = percentile(pricesPerUnit, 75) * subjectSize;
 
@@ -248,7 +248,7 @@ export function estimateIndicativeValue(
   }, "current");
 
   // Deterministic confidence: comparable count (up to 5), spread
-  // tightness (unit-price spread), and freshness — all public.
+  // tightness (unit-price spread), and freshness, all public.
   const spread =
     medianPerUnit > 0 ? (high - low) / Math.max(1, medianValue) : 1;
   const countScore = Math.min(1, used.length / 5);
@@ -277,16 +277,16 @@ export function estimateIndicativeValue(
   }));
 
   const assumptions = [
-    `Price basis: ${basisKind === "verified_transaction" ? "verified transaction prices only" : "asking prices only (no verified transactions were available)"} — the two are never mixed.`,
+    `Price basis: ${basisKind === "verified_transaction" ? "verified transaction prices only" : "asking prices only (no verified transactions were available)"}, the two are never mixed.`,
     dimension === "whole_property"
-      ? "Prices were compared whole-property because consistent size data was unavailable — this is a weaker basis than price-per-area."
+      ? "Prices were compared whole-property because consistent size data was unavailable, this is a weaker basis than price-per-area."
       : `Median ${unitLabel} × subject ${subject.buildingSize ? `${subject.buildingSize.value} ${subject.buildingSize.unit}` : `${subject.landSize!.value} ${subject.landSize!.unit}`}.`,
-    "Range = 25th–75th percentile of comparable unit prices applied to the subject size — a spread indicator, not a valuation bracket.",
+    "Range = 25th–75th percentile of comparable unit prices applied to the subject size, a spread indicator, not a valuation bracket.",
   ];
 
   if (basisKind === "asking_price") {
     assumptions.push(
-      "Asking-price evidence was NOT treated as current market transaction data — the freshness label reflects its age.",
+      "Asking-price evidence was NOT treated as current market transaction data, the freshness label reflects its age.",
     );
   }
 

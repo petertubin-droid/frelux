@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PLAN VISION — Phase 3 Core Vocabulary
+// FRELUX PLAN VISION, Phase 3 Core Vocabulary
 //
 // ADVANCED VISION + PLAN INTELLIGENCE + AI QUANTITY TAKEOFF.
 //
@@ -11,9 +11,9 @@
 //   1. AI interprets and extracts. ONLY deterministic FRELUX
 //      engines calculate quantities and costs.
 //   2. AI NEVER invents construction quantities to fill missing
-//      information — a missing value stays "unknown".
+//      information, a missing value stays "unknown".
 //   3. An inferred dimension is never an explicit measurement.
-//   4. Photos are visual observations — they never override
+//   4. Photos are visual observations, they never override
 //      explicit dimensioned plans without user confirmation.
 //
 // This module is ADDITIVE. It reuses:
@@ -56,13 +56,13 @@ export const PLAN_DOCUMENT_KIND_LABELS: Record<PlanDocumentKind, string> = {
 
 /**
  * Reliability tier of a document for dimension purposes.
- * Photos/screenshots are NEVER dimension-grade — they can only
+ * Photos/screenshots are NEVER dimension-grade, they can only
  * contribute visual observations (§16).
  */
 export type DimensionReliability =
-  | "dimensioned_drawing" // annotated dimensions/scale — authoritative after review
-  | "undimensioned_drawing" // drawing without usable scale — needs user calibration
-  | "visual_only"; // photograph/screenshot — visual observation only
+  | "dimensioned_drawing" // annotated dimensions/scale, authoritative after review
+  | "undimensioned_drawing" // drawing without usable scale, needs user calibration
+  | "visual_only"; // photograph/screenshot, visual observation only
 
 export interface PlanDocument {
   id: string;
@@ -90,10 +90,10 @@ export interface PlanDocument {
 
 /**
  * How a dimension became known. NEVER conflated:
- *   explicit  — clearly written dimension on the document
- *   derived   — mathematically derived from other CONFIRMED dimensions
- *   inferred  — AI interpretation (visual estimate, scale guess…)
- *   unknown   — cannot be reliably determined
+ *   explicit , clearly written dimension on the document
+ *   derived  , mathematically derived from other CONFIRMED dimensions
+ *   inferred , AI interpretation (visual estimate, scale guess…)
+ *   unknown  , cannot be reliably determined
  */
 export type DimensionKind = "explicit" | "derived" | "inferred" | "unknown";
 
@@ -137,14 +137,14 @@ export interface ScaleRecord {
    * confidence >= SCALE_USABLE_CONFIDENCE.
    */
   usable: boolean;
-  /** Why the scale is (not) usable — traceable, shown to the user. */
+  /** Why the scale is (not) usable, traceable, shown to the user. */
   reason: string;
 }
 
 /** Minimum confidence for a scale to be usable for derived dimensions. */
 export const SCALE_USABLE_CONFIDENCE = 0.75;
 
-/** Reliability tier per document kind (§16 — photos are never dimension-grade). */
+/** Reliability tier per document kind (§16, photos are never dimension-grade). */
 export const DOCUMENT_RELIABILITY: Record<
   PlanDocumentKind,
   DimensionReliability
@@ -165,7 +165,7 @@ export const DOCUMENT_RELIABILITY: Record<
 // =========================================================
 
 /**
- * Exactly where an extracted element came from — page + region,
+ * Exactly where an extracted element came from, page + region,
  * so important measurements can be highlighted on the source
  * document for visual verification (§7).
  */
@@ -194,16 +194,16 @@ export type ExtractionMethod =
 // EXTRACTED ELEMENTS (§3)
 // =========================================================
 
-/** Review/verification status — mirrors the trust state machine. */
+/** Review/verification status, mirrors the trust state machine. */
 export type ReviewStatus =
-  | "ai_extracted" // fresh from extraction — awaiting review
+  | "ai_extracted" // fresh from extraction, awaiting review
   | "in_review" // user started reviewing
   | "user_confirmed" // user confirmed as-is
   | "user_edited" // user corrected values
   | "user_rejected"; // user rejected the element
 
 export const REVIEW_STATUS_LABELS: Record<ReviewStatus, string> = {
-  ai_extracted: "AI Extracted — Requires Confirmation",
+  ai_extracted: "AI Extracted, Requires Confirmation",
   in_review: "In Review",
   user_confirmed: "User Confirmed",
   user_edited: "User Corrected",
@@ -268,7 +268,7 @@ export interface ExtractedRoof extends ExtractedElementBase {
   valleysCount: number | null;
   /**
    * True when the extracted geometry is INSUFFICIENT to uniquely
-   * determine the roof — the roof stays "Requires Confirmation"
+   * determine the roof, the roof stays "Requires Confirmation"
    * and no generic multiplier approximation is allowed (§14).
    */
   geometrySufficient: boolean;
@@ -292,7 +292,7 @@ export interface ExtractedBuildingFact extends ExtractedElementBase {
 export interface PlanExtraction {
   id: string;
   documentId: string;
-  /** Extraction version — incremented on re-extraction. */
+  /** Extraction version, incremented on re-extraction. */
   version: number;
   scale: ScaleRecord | null;
   rooms: ExtractedRoom[];
@@ -302,7 +302,7 @@ export interface PlanExtraction {
   notes: string[];
   /** Honest limitations (unreadable areas, missing scale…). */
   warnings: string[];
-  /** Deterministic consistency findings (§6) — never silently corrected. */
+  /** Deterministic consistency findings (§6), never silently corrected. */
   issues: ConsistencyIssue[];
   /** Unit the document predominantly uses (native display unit). */
   nativeUnit: LengthUnit;
@@ -317,7 +317,7 @@ export type ConsistencyIssueSeverity = "error" | "warning" | "info";
 
 export interface ConsistencyIssue {
   code:
-    | "room_exceeds_footprint" // room bigger than building — impossible
+    | "room_exceeds_footprint" // room bigger than building, impossible
     | "rooms_overlap" // bounding boxes overlap
     | "contradictory_dimensions" // same element, conflicting values
     | "inconsistent_totals" // parts don't sum to stated total
@@ -328,7 +328,7 @@ export interface ConsistencyIssue {
   severity: ConsistencyIssueSeverity;
   /** Element ids involved. */
   elementIds: string[];
-  /** Human explanation — surfaced for review, never auto-corrected. */
+  /** Human explanation, surfaced for review, never auto-corrected. */
   message: string;
 }
 

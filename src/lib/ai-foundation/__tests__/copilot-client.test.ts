@@ -12,7 +12,7 @@ vi.mock('@/lib/errorMonitor', () => ({
 
 import { interpretWithAi } from '../copilot-client';
 
-describe('copilot client — resilience', () => {
+describe('copilot client, resilience', () => {
   beforeEach(() => {
     invokeMock.mockClear();
     invokeMock.mockResolvedValue({ data: null, error: new Error('FunctionsRelay error') });

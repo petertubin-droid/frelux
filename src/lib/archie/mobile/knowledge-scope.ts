@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 P4 — MOBILE KNOWLEDGE SCOPE
+// FRELUX PHASE 8 P4, MOBILE KNOWLEDGE SCOPE
 //
 // Every learned item carries an EXPLICIT scope:
 //
@@ -44,7 +44,7 @@ export interface ScopeTransitionResult {
 }
 
 /** The scope transition matrix. Anything not permitted here is
- *  forbidden — there are no implicit promotions. */
+ *  forbidden, there are no implicit promotions. */
 export function evaluateScopeTransition(
   from: MobileKnowledgeScope,
   to: MobileKnowledgeScope,
@@ -99,7 +99,7 @@ export function evaluateScopeTransition(
         allowed: true,
         requires_user_consent: false,
         requires_human_approval: true,
-        reason: `Sharing private data into ${to} scope requires human approval — consent to analyze is not consent to share.`,
+        reason: `Sharing private data into ${to} scope requires human approval, consent to analyze is not consent to share.`,
       };
     case "REGIONAL":
       return {

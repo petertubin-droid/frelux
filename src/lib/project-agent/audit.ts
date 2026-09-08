@@ -1,8 +1,8 @@
 // =========================================================
-// FRELUX PROJECT AGENT — MEMORY & AUDIT TRAIL (Phase 6, Stage 10)
+// FRELUX PROJECT AGENT, MEMORY & AUDIT TRAIL (Phase 6, Stage 10)
 //
 // Finalize persistent project memory: one unified, human-readable
-// chronicle a USER can follow end to end —
+// chronicle a USER can follow end to end :
 //
 //   What FRELUX observed
 //     → what it recommended
@@ -28,7 +28,7 @@ import type { AgentActivityEntry, AgentFact } from "./types";
 import { assertProjectVisible, recordActivity, recordFact } from "./session";
 
 // ---------------------------------------------------------
-// Secret hygiene — applied on write AND on read.
+// Secret hygiene, applied on write AND on read.
 // ---------------------------------------------------------
 
 import { sanitizeAuditValue } from "./sanitizer";
@@ -36,7 +36,7 @@ import { sanitizeAuditValue } from "./sanitizer";
 export { sanitizeAuditValue };
 
 // ---------------------------------------------------------
-// Types — the unified trail.
+// Types, the unified trail.
 // ---------------------------------------------------------
 
 export type AuditEntryKind = AgentActivityEntry["kind"] | "alert";
@@ -45,7 +45,7 @@ export interface AuditEntry {
   id: string;
   at: string;
   projectId: string;
-  /** Who caused it (record owner) — recorded, never invented. */
+  /** Who caused it (record owner), recorded, never invented. */
   user: string | null;
   kind: AuditEntryKind;
   summary: string;
@@ -70,7 +70,7 @@ export interface ActionThread {
   recommended: string | null;
   /** The user's decision, verbatim: approved / rejected / … */
   approved: string | null;
-  /** What actually happened — execution + verification. */
+  /** What actually happened, execution + verification. */
   happened: string | null;
   /** Honest statement of the first missing link, if any. */
   gap: string | null;
@@ -81,7 +81,7 @@ export interface ProjectStory {
   generatedAt: string;
   /** Full chronicle, oldest first. */
   timeline: AuditEntry[];
-  /** Decision threads — one per prepared action. */
+  /** Decision threads, one per prepared action. */
   threads: ActionThread[];
   openAlerts: Array<{ alertKey: string; severity: string; condition: string }>;
   summary: string;
@@ -206,7 +206,7 @@ async function loadOpenAlerts(
 }
 
 // ---------------------------------------------------------
-// Thread assembly — observed → recommended → approved → happened.
+// Thread assembly, observed → recommended → approved → happened.
 // ---------------------------------------------------------
 
 function buildThread(
@@ -239,14 +239,14 @@ function buildThread(
 
   let happened: string | null = null;
   if (result?.outcome === "succeeded") {
-    happened = `Executed: ${result.summary ?? action.what}${action.verified_at ? ` — verified in recorded state on ${action.verified_at.split("T")[0]}.` : " — verification not recorded."}`;
+    happened = `Executed: ${result.summary ?? action.what}${action.verified_at ? `, verified in recorded state on ${action.verified_at.split("T")[0]}.` : ", verification not recorded."}`;
   } else if (result?.outcome) {
     happened = `Execution ${result.outcome}${result.failureReason ? `: ${result.failureReason}` : ""}.`;
   } else if (action.executed_at) {
     happened = `Execution was attempted on ${action.executed_at.split("T")[0]} but no result was recorded.`;
   }
 
-  // The honest gap — the FIRST missing link in the chain.
+  // The honest gap, the FIRST missing link in the chain.
   let gap: string | null = null;
   if (!approval) gap = "No approval decision is recorded for this action.";
   else if (approval.state === "approved" && !happened)
@@ -333,10 +333,10 @@ export async function getProjectStory(
 }
 
 // ---------------------------------------------------------
-// Audited memory — fact writes become part of the trail.
+// Audited memory, fact writes become part of the trail.
 // ---------------------------------------------------------
 
-/** Record a project memory fact AND an audit entry for it — memory
+/** Record a project memory fact AND an audit entry for it, memory
  *  changes are never invisible to the trail. */
 export async function recordAuditedFact(
   projectId: string,

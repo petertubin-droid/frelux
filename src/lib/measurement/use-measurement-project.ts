@@ -50,13 +50,13 @@ export interface UseMeasurementProjectReturn {
   removeSection: (sectionId: string) => void;
   // Group/entry management
   addEntry: (sectionId: string, label: string, entry: Partial<MeasurementEntry>) => void;
-  /** Simplified addEntry — adds to the first/active section automatically */
+  /** Simplified addEntry, adds to the first/active section automatically */
   addMeasurement: (label: string, entry: Partial<MeasurementEntry>) => void;
   updateEntry: (sectionId: string, groupId: string, updates: Partial<MeasurementEntry>) => void;
-  /** Simplified update — finds the entry in any section */
+  /** Simplified update, finds the entry in any section */
   updateMeasurement: (groupId: string, updates: Partial<MeasurementEntry>) => void;
   removeEntry: (sectionId: string, groupId: string) => void;
-  /** Simplified remove — finds the entry in any section */
+  /** Simplified remove, finds the entry in any section */
   removeMeasurement: (groupId: string) => void;
   // Project management
   setProjectMode: (mode: MeasurementProject['projectMode']) => void;

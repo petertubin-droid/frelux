@@ -1,5 +1,5 @@
 // =========================================================
-// PROJECT AGENT — STAGE 14: COMPLETE END-TO-END VALIDATION
+// PROJECT AGENT, STAGE 14: COMPLETE END-TO-END VALIDATION
 //
 // Full real-world workflows, each running the REAL module
 // chain against an in-memory supabase backing store:
@@ -20,18 +20,18 @@
 // real too (plan_documents/plan_extractions tables, empty).
 //
 // Scenarios (per the Stage-14 plan):
-//   A — new project: create → location → building info →
+//   A, new project: create → location → building info →
 //        analyze → identify missing info → calculate → save.
-//   B — existing project: load → status → detect changes →
+//   B, existing project: load → status → detect changes →
 //        identify risk → prepare → approve → execute → verify →
 //        history (and idempotent re-execute).
-//   C — cost change: verified material price change →
+//   C, cost change: verified material price change →
 //        recalculate → explain cause → updated analysis.
-//   D — schedule risk: progress change → schedule variance →
+//   D, schedule risk: progress change → schedule variance →
 //        risk → recommended next action → executed.
-//   E — failure: network/tool failure during execution →
+//   E, failure: network/tool failure during execution →
 //        graceful failure → retry → no duplicate execution.
-//   F — unauthorized action: prohibited attempts are blocked.
+//   F, unauthorized action: prohibited attempts are blocked.
 // =========================================================
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
@@ -43,7 +43,7 @@ const iso = (daysAgo: number) =>
   new Date(new Date(NOW).getTime() - daysAgo * DAY_MS).toISOString();
 
 // ---------------------------------------------------------
-// In-memory supabase — every table the REAL chain touches.
+// In-memory supabase, every table the REAL chain touches.
 // fail.perTable / fail.all simulate outages.
 // ---------------------------------------------------------
 type Row = Record<string, unknown>;
@@ -246,7 +246,7 @@ vi.mock("@/lib/supabase", () => {
 });
 
 // ---------------------------------------------------------
-// Entry points under test — the REAL agent chain.
+// Entry points under test, the REAL agent chain.
 // ---------------------------------------------------------
 import { invokeAgentTool } from "./tools";
 import { buildProjectAgentContext } from "./context";
@@ -264,7 +264,7 @@ import { getProjectStory } from "./audit";
 import { buildProjectSnapshot } from "@/lib/predictive-intelligence/snapshot";
 import type { AgentResult, AgentError } from "./types";
 
-// AgentResult is a discriminated union — vitest's expect() cannot
+// AgentResult is a discriminated union, vitest's expect() cannot
 // narrow it, so these helpers do (and fail loudly mid-test).
 function data<T>(r: AgentResult<T>): T {
   if (!r.ok) throw new Error(`expected ok, got: ${r.error.message}`);
@@ -276,7 +276,7 @@ function errorOf<T>(r: AgentResult<T>): AgentError {
 }
 
 // ---------------------------------------------------------
-// Seeds — realistic recorded state for one project.
+// Seeds, realistic recorded state for one project.
 // ---------------------------------------------------------
 function seedProjectRow(id: string, withLocation = true): void {
   const row: Row = {
@@ -414,20 +414,20 @@ beforeEach(() => {
 });
 
 // =========================================================
-// SCENARIO A — NEW PROJECT
+// SCENARIO A, NEW PROJECT
 // =========================================================
-describe("Scenario A — new project workflow", () => {
+describe("Scenario A, new project workflow", () => {
   it("create → location → building info → analyze → missing info → calculate → save", async () => {
     // 1. Create project (recorded by the app).
     seedProjectRow("proj-new", false);
 
-    // 2. Provide location — recorded on the project.
+    // 2. Provide location, recorded on the project.
     rowOf("contractor_projects", "proj-new").location = {
       country_code: "NG",
       city: "Lagos",
     };
 
-    // 3. Add building information — stage + shopping rows.
+    // 3. Add building information, stage + shopping rows.
     db.tables.project_progress_stages.push({
       id: "ns-1",
       project_id: "proj-new",
@@ -456,7 +456,7 @@ describe("Scenario A — new project workflow", () => {
       sort_order: 1,
     });
 
-    // 4. Analyze — the real snapshot + context chain runs.
+    // 4. Analyze, the real snapshot + context chain runs.
     const snap = await buildProjectSnapshot("proj-new", { now: NOW });
     expect(snap).not.toBeNull();
     expect(snap?.shoppingItems.length).toBe(1);
@@ -465,7 +465,7 @@ describe("Scenario A — new project workflow", () => {
     const context = await buildProjectAgentContext("proj-new", NOW);
     expect(context.ok).toBe(true);
 
-    // 5. Identify missing information — honest, never invented.
+    // 5. Identify missing information, honest, never invented.
     const guidance = await buildGuidance("proj-new", "missing_info", NOW);
     expect(guidance.ok).toBe(true);
     const text = JSON.stringify(data(guidance)).toLowerCase();
@@ -474,7 +474,7 @@ describe("Scenario A — new project workflow", () => {
     // never substituted from another region.
     expect(text).not.toMatch(/ghana|kenya|united kingdom/);
 
-    // 6. Calculate — deterministic engine via the tool surface.
+    // 6. Calculate, deterministic engine via the tool surface.
     const calc = await invokeAgentTool(
       "proj-new",
       {
@@ -489,12 +489,12 @@ describe("Scenario A — new project workflow", () => {
       (data(calc).result as Record<string, unknown>).totalEstimatedDays,
     ).toBeTruthy();
 
-    // 7. Save — the app records the calculation; snapshot reflects it.
+    // 7. Save, the app records the calculation; snapshot reflects it.
     db.tables.project_calculations.push({
       id: "calc-1",
       project_id: "proj-new",
       calculator_type: "project_timeline",
-      calc_title: "Timeline — duplex foundation",
+      calc_title: "Timeline, duplex foundation",
       created_at: iso(0),
       result_summary: { totalEstimatedDays: 18 },
     });
@@ -504,9 +504,9 @@ describe("Scenario A — new project workflow", () => {
 });
 
 // =========================================================
-// SCENARIO B — EXISTING PROJECT: THE FULL AGENT LOOP
+// SCENARIO B, EXISTING PROJECT: THE FULL AGENT LOOP
 // =========================================================
-describe("Scenario B — existing project full workflow", () => {
+describe("Scenario B, existing project full workflow", () => {
   it("load → status → detect changes → risk → prepare → approve → execute → verify → history", async () => {
     seedRichProject();
 
@@ -520,13 +520,13 @@ describe("Scenario B — existing project full workflow", () => {
     expect(whatNext.ok).toBe(true);
     expect(data(whatNext).items.length).toBeGreaterThan(0);
 
-    // 3. Detect changes — first capture stores the baseline.
+    // 3. Detect changes, first capture stores the baseline.
     const detect1 = await detectProjectChanges("proj-1", NOW);
     expect(detect1.ok).toBe(true);
     expect(data(detect1).status).toBe("first_capture");
     expect(data(detect1).changes.length).toBe(0);
 
-    // 4. Identify risk — a procurement_risk recommendation exists,
+    // 4. Identify risk, a procurement_risk recommendation exists,
     //    grounded in the recorded price increase.
     const recs = await buildRecommendations("proj-1", NOW);
     expect(recs.ok).toBe(true);
@@ -550,7 +550,7 @@ describe("Scenario B — existing project full workflow", () => {
     expect(executed.ok).toBe(true);
     expect(data(executed).duplicate).toBe(false);
 
-    // 8. Verify — the write actually stuck in the backing store.
+    // 8. Verify, the write actually stuck in the backing store.
     const item = rowOf("project_shopping_list", "item-cement");
     expect(item.is_purchased).toBe(true);
     expect(item.actual_price).toBe(6500);
@@ -561,24 +561,24 @@ describe("Scenario B — existing project full workflow", () => {
     expect(data(detect2).status).toBe("ok");
     expect(data(detect2).changes.length).toBeGreaterThan(0);
 
-    // The recorded state feeding the analysis changed — the line
+    // The recorded state feeding the analysis changed, the line
     // is now recorded as purchased, not an open exposure.
     const recs2 = await buildRecommendations("proj-1", NOW);
     const procAfter = data(recs2).recommendations.find(
       (r) => r.condition === "procurement_risk",
     );
     const evidenceAfter = procAfter?.evidence.join(" ") ?? "";
-    expect(evidenceAfter).toMatch(/Cement \(bags\) — purchased/);
+    expect(evidenceAfter).toMatch(/Cement \(bags\), purchased/);
     expect(evidenceAfter).not.toMatch(/not yet purchased/);
 
-    // 9. History — the audit story records the execution.
+    // 9. History, the audit story records the execution.
     const story = await getProjectStory("proj-1", NOW);
     expect(story.ok).toBe(true);
     const storyText = JSON.stringify(data(story));
     expect(storyText).toMatch(new RegExp(actionId));
     expect(storyText).toMatch(/executed|verified/);
 
-    // 10. Re-execute is idempotent — no duplicate write.
+    // 10. Re-execute is idempotent, no duplicate write.
     const writesBefore = db.writes.filter(
       (w) => w.table === "project_shopping_list",
     ).length;
@@ -592,9 +592,9 @@ describe("Scenario B — existing project full workflow", () => {
 });
 
 // =========================================================
-// SCENARIO C — COST CHANGE
+// SCENARIO C, COST CHANGE
 // =========================================================
-describe("Scenario C — cost change workflow", () => {
+describe("Scenario C, cost change workflow", () => {
   it("verified material price change → recalculate → explain cause → updated analysis", async () => {
     seedRichProject();
 
@@ -652,13 +652,13 @@ describe("Scenario C — cost change workflow", () => {
 });
 
 // =========================================================
-// SCENARIO D — SCHEDULE RISK
+// SCENARIO D, SCHEDULE RISK
 // =========================================================
-describe("Scenario D — schedule risk workflow", () => {
+describe("Scenario D, schedule risk workflow", () => {
   it("progress change → schedule variance → risk → recommended next action → executed", async () => {
     seedRichProject();
 
-    // Change project progress — the last stage completion was
+    // Change project progress, the last stage completion was
     // recorded 40 days ago (a real stall).
     const project = rowOf("contractor_projects", "proj-1");
     project.updated_at = iso(40);
@@ -692,7 +692,7 @@ describe("Scenario D — schedule risk workflow", () => {
     expect(stage.is_completed).toBe(true);
     expect(stage.completed_at).toBeTruthy();
 
-    // Re-analysis: the stall is resolved — fresh completion date.
+    // Re-analysis: the stall is resolved, fresh completion date.
     const recs2 = await buildRecommendations("proj-1", NOW);
     expect(
       data(recs2).recommendations.find((r) => r.condition === "schedule_risk"),
@@ -701,9 +701,9 @@ describe("Scenario D — schedule risk workflow", () => {
 });
 
 // =========================================================
-// SCENARIO E — FAILURE & RETRY
+// SCENARIO E, FAILURE & RETRY
 // =========================================================
-describe("Scenario E — graceful failure, retry, no duplicate execution", () => {
+describe("Scenario E, graceful failure, retry, no duplicate execution", () => {
   it("partial outage: write fails, action is marked failed, retry via a NEW preparation executes exactly once", async () => {
     seedRichProject();
     const recs = await buildRecommendations("proj-1", NOW);
@@ -824,7 +824,7 @@ describe("Scenario E — graceful failure, retry, no duplicate execution", () =>
       true,
     );
 
-    // Re-execution after recovery is a duplicate — no second write.
+    // Re-execution after recovery is a duplicate, no second write.
     const again = await executeApprovedAction(
       "proj-1",
       data(prep).action.id,
@@ -841,9 +841,9 @@ describe("Scenario E — graceful failure, retry, no duplicate execution", () =>
 });
 
 // =========================================================
-// SCENARIO F — UNAUTHORIZED ACTIONS
+// SCENARIO F, UNAUTHORIZED ACTIONS
 // =========================================================
-describe("Scenario F — prohibited actions are blocked", () => {
+describe("Scenario F, prohibited actions are blocked", () => {
   it("blocks execution without approval, kind mismatch, ghost projects, double decisions and ghost actions", async () => {
     seedRichProject();
     const recs = await buildRecommendations("proj-1", NOW);
@@ -874,7 +874,7 @@ describe("Scenario F — prohibited actions are blocked", () => {
     expect(tooEarly.ok).toBe(false);
     expect(errorOf(tooEarly).code).toBe("invalid_state");
 
-    // 2. Kind mismatch — a purchase grounded by market-data advice.
+    // 2. Kind mismatch, a purchase grounded by market-data advice.
     const mismatch = await prepareAction(
       "proj-1",
       {
@@ -888,7 +888,7 @@ describe("Scenario F — prohibited actions are blocked", () => {
     expect(mismatch.ok).toBe(false);
     expect(errorOf(mismatch).code).toBe("kind_mismatch");
 
-    // 3. Ghost project — invisible to this user → refused.
+    // 3. Ghost project, invisible to this user → refused.
     const ghostRecs = await buildRecommendations("proj-ghost", NOW);
     expect(ghostRecs.ok).toBe(false);
 

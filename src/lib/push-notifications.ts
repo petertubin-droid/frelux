@@ -1,6 +1,6 @@
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';
 
-// VAPID public key — set this in your environment / Supabase auth settings
+// VAPID public key, set this in your environment / Supabase auth settings
 // The private key is used server-side (in Supabase Edge Functions) to send pushes.
 const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined;
 

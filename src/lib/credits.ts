@@ -1,5 +1,5 @@
 /**
- * FRELUX Credits & Rewards — Client-side API
+ * FRELUX Credits & Rewards, Client-side API
  *
  * All credit operations go through Supabase Edge Functions or RPC functions.
  * The frontend NEVER directly writes to credit_wallets or credit_transactions.
@@ -396,7 +396,7 @@ export async function redeemReward(
 }
 
 /** Count still-unused redeemed grants of a given reward_type for this user
- * (e.g. 'ai_token'). Shows the user their redemption actually did something —
+ * (e.g. 'ai_token'). Shows the user their redemption actually did something :
  * these are consumed server-side by the relevant feature's edge function. */
 export async function getUnusedRewardGrantCount(
   userId: string,
@@ -591,7 +591,7 @@ export function getDailyRefId(prefix: string, date: Date = new Date()): string {
 }
 
 // =========================================================
-// FRELUX Credits — Rewarded Ads & AI Feature Access
+// FRELUX Credits, Rewarded Ads & AI Feature Access
 // New functions built on top of the existing credit system.
 // All operations are server-side verified via edge functions.
 // =========================================================
@@ -660,7 +660,7 @@ export interface EarnResult {
 }
 
 // ───────────────────────────────────────────────────────
-// AI Feature Costs — public read
+// AI Feature Costs, public read
 // ───────────────────────────────────────────────────────
 
 export async function getAiFeatureCosts(): Promise<AiFeatureCost[]> {
@@ -690,7 +690,7 @@ export async function getAiFeatureCost(
 }
 
 // ───────────────────────────────────────────────────────
-// Rewarded Ad Credit Config — public read
+// Rewarded Ad Credit Config, public read
 // ───────────────────────────────────────────────────────
 
 export async function getRewardedAdConfig(): Promise<RewardedAdCreditConfig | null> {
@@ -706,7 +706,7 @@ export async function getRewardedAdConfig(): Promise<RewardedAdCreditConfig | nu
 }
 
 // ───────────────────────────────────────────────────────
-// Rewarded Ad Credit Events — user reads own history
+// Rewarded Ad Credit Events, user reads own history
 // ───────────────────────────────────────────────────────
 
 export async function getRewardedAdHistory(
@@ -724,7 +724,7 @@ export async function getRewardedAdHistory(
 }
 
 // ───────────────────────────────────────────────────────
-// AI Feature Usage — user reads own
+// AI Feature Usage, user reads own
 // ───────────────────────────────────────────────────────
 
 export async function getAiFeatureUsageToday(
@@ -743,7 +743,7 @@ export async function getAiFeatureUsageToday(
 }
 
 // ───────────────────────────────────────────────────────
-// Spend Credits for AI Feature — server-side via edge function
+// Spend Credits for AI Feature, server-side via edge function
 // ───────────────────────────────────────────────────────
 
 export async function spendAiCredits(
@@ -778,7 +778,7 @@ export async function spendAiCredits(
 }
 
 // ───────────────────────────────────────────────────────
-// Verify Rewarded Ad & Earn Credits — server-side via edge function
+// Verify Rewarded Ad & Earn Credits, server-side via edge function
 // ───────────────────────────────────────────────────────
 
 export async function verifyRewardedAd(

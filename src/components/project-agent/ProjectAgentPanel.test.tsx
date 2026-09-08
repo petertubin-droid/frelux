@@ -369,7 +369,7 @@ describe("ProjectAgentPanel", () => {
     await waitFor(() => expect(mockExecute).toHaveBeenCalledWith(PROJECT, "act-1", expect.any(String)));
   });
 
-  it("rejecting calls decideApproval with rejected — no execution is offered", async () => {
+  it("rejecting calls decideApproval with rejected, no execution is offered", async () => {
     mockListPreparedActions.mockResolvedValue(ok([preparedAction("prepared")]));
     mockDecideApproval.mockResolvedValue(
       ok({ ...preparedAction("rejected").approval, decision: "rejected" }),

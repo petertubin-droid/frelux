@@ -203,7 +203,7 @@ export default function AiColorAssistant() {
         ]}
       />{" "}
       <AdSlot slotKey="ai_feature" className="mt-8" />
-      {/* Native banner slot — placement "ai_assistant_native" */}
+      {/* Native banner slot, placement "ai_assistant_native" */}
       <AdSlot slotKey="ai_assistant_native" className="mt-8" />
       <AdSlot slotKey="ai_assistant_footer" className="mt-8" />
     </>

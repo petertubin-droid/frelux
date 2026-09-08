@@ -8,14 +8,14 @@ import {
 import type { ScreedingSystemConfig } from "@/types";
 
 // =========================================================
-// Test fixtures — configuration objects that simulate
+// Test fixtures, configuration objects that simulate
 // what the Admin would configure in the database.
 // NO hardcoded business values in the engine itself.
 // =========================================================
 //
 // MODEL: the admin-configured ratio (e.g. 2 buckets per 12 m²)
 // describes the COMPLETE standard job at the default coat
-// count — it already includes the standard coats. Quantities
+// count, it already includes the standard coats. Quantities
 // scale linearly with area at the default coats; a coat
 // count DIFFERENT from the default scales proportionally.
 //
@@ -99,7 +99,7 @@ describe("calculateScreedingPutty", () => {
       expect(result.putty.purchaseQuantity).toBe(2);
     });
 
-    it("produces correct quantity for 24 m² (2x coverage) — 4 buckets", () => {
+    it("produces correct quantity for 24 m² (2x coverage), 4 buckets", () => {
       const config = makePuttyConfig();
       const result = calculateScreedingPutty(24, config);
 
@@ -489,7 +489,7 @@ describe("calculateScreedingMixSystem", () => {
 });
 
 // =========================================================
-// CONFIGURATION TESTS — Verify changing config changes results
+// CONFIGURATION TESTS, Verify changing config changes results
 // =========================================================
 
 describe("Configuration-driven behaviour", () => {
@@ -815,11 +815,11 @@ describe("dbToSystemConfig", () => {
 });
 
 // ─────────────────────────────────────────────────────────
-// Phase 37: Extra material slot (Bond) — dormant by default,
+// Phase 37: Extra material slot (Bond), dormant by default,
 // additive when enabled.
 // ─────────────────────────────────────────────────────────
 describe("Screeding extra material (Bond)", () => {
-  it("is dormant when not enabled — no breakdown, unchanged cost", () => {
+  it("is dormant when not enabled, no breakdown, unchanged cost", () => {
     const r = calculateScreedingMixSystem(20, makeMixConfig());
     expect(r.extra).toBeNull();
     // Cost is identical to the pre-Bond behaviour

@@ -59,7 +59,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
         onClick={cancelUnlock}
       />
 
-      {/* Offerwall iframe mode — larger modal */}
+      {/* Offerwall iframe mode, larger modal */}
       {offerwallUrl ? (
         <div className="relative w-full max-w-3xl overflow-hidden rounded-2xl bg-card shadow-2xl dark:bg-card">
           {/* Header */}
@@ -116,7 +116,7 @@ export function RewardedAdModal({ access, featureName, features }: Props) {
           </div>
         </div>
       ) : (
-        /* Standard rewarded ad modal — now showing real display ads from all providers */
+        /* Standard rewarded ad modal, now showing real display ads from all providers */
         <div className="relative w-full max-w-md overflow-hidden rounded-2xl bg-card shadow-2xl dark:bg-card">
           {/* Header */}
           <div className="bg-gradient-to-br from-background to-primary p-6 text-primary-foreground">

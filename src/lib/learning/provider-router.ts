@@ -1,8 +1,8 @@
 // =========================================================
-// FRELUX PHASE 6.5 — AI MODEL ROUTER (provider abstraction)
+// FRELUX PHASE 6.5, AI MODEL ROUTER (provider abstraction)
 //
 // Runtime provider selection for FRELUX AI features. Providers
-// are registered capabilities — future providers slot in
+// are registered capabilities, future providers slot in
 // without rewriting FRELUX. Gemini stays available for
 // multimodal/image/document intelligence; OpenAI for text and
 // reasoning. ARCHIE/ChatGPT reference intelligence is a SEPARATE
@@ -112,7 +112,7 @@ export interface RouteDecision {
  * capability match, availability, historical evaluation results,
  * cost and latency. Reference-only channels (ARCHIE) are never
  * returned. Falls back to any capable provider when the preferred
- * one is unavailable — providers stay replaceable.
+ * one is unavailable, providers stay replaceable.
  */
 export function routeTask(opts: RouteOptions): RouteDecision | null {
   if (REGISTRY.size === 0) registerBuiltinProviders();

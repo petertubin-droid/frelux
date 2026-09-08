@@ -1,5 +1,5 @@
 /**
- * Brand Preview — shows how branding will appear on a PDF
+ * Brand Preview, shows how branding will appear on a PDF
  */
 import type {
   DbBrandProfile,

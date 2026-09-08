@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF GEOMETRY — Interactive SVG Editor
+ * FRELUX ROOF GEOMETRY, Interactive SVG Editor
  *
  * An SVG-based editor where the user can:
  *   - Click to add boundary points (vertices)
@@ -10,7 +10,7 @@
  *   - Confirm the geometry
  *
  * AI-generated geometry (if available) can be loaded into the editor,
- * but it is NEVER treated as automatically correct — the user must confirm.
+ * but it is NEVER treated as automatically correct, the user must confirm.
  *
  * Feature 3: Editable Roof Tracing
  */

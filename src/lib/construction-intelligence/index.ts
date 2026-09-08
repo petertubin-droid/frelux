@@ -1,5 +1,5 @@
 /**
- * FRELUX CONSTRUCTION INTELLIGENCE — PUBLIC API
+ * FRELUX CONSTRUCTION INTELLIGENCE, PUBLIC API
  *
  * Thin aggregation layer over the existing deterministic engines:
  * - Quantity takeoff: unified, traceable, references engine results

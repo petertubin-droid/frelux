@@ -1,6 +1,6 @@
 /**
  * PDF generation for quotations and shopping lists
- * Uses jsPDF for client-side PDF generation — no server needed.
+ * Uses jsPDF for client-side PDF generation, no server needed.
  *
  * Brand Studio integration: Both functions accept an optional
  * `branding` parameter (ResolvedBranding). When provided, the
@@ -55,7 +55,7 @@ export async function generateQuotationPDF(
       y,
     );
   } else {
-    // Original behavior — use quotation company fields
+    // Original behavior, use quotation company fields
     if (quotation.company_name) {
       doc.setFontSize(22);
       doc.setFont("helvetica", "bold");
@@ -73,7 +73,7 @@ export async function generateQuotationPDF(
           15,
         );
       } catch {
-        // Logo may fail to load — skip
+        // Logo may fail to load, skip
       }
     }
 
@@ -283,7 +283,7 @@ export async function generateQuotationPDF(
     doc.setFont("helvetica", "normal");
     doc.text("Scan to verify quotation", margin + 28, y + 10);
   } catch {
-    // QR generation may fail — skip
+    // QR generation may fail, skip
   }
 
   // ─── SIGNATURE AREA ───
@@ -367,7 +367,7 @@ export async function generateShoppingListPDF(
   const colWidths = [25, 70, 25, 25, 25]; // category, name, qty, unit price, total
   const tableWidth = colWidths.reduce((a, b) => a + b, 0);
 
-  // Header row — use branding color if available
+  // Header row, use branding color if available
   const accentColor = branding?.primaryColor ?? "#6B21A8";
   const hexToRgb = (hex: string): [number, number, number] => {
     const cleaned = hex.replace("#", "");

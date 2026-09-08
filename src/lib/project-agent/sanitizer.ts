@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PROJECT AGENT — AUDIT SANITIZER (Phase 6, Stage 10)
+// FRELUX PROJECT AGENT, AUDIT SANITIZER (Phase 6, Stage 10)
 //
 // Shared secret hygiene for everything the agent persists:
 // activity payloads, memory facts, audit trails. Secrets never

@@ -15,11 +15,11 @@
  * the existing report content.
  *
  * Each piece of data is tagged with its verification state:
- *   AI DETECTED — raw AI output, not yet verified
- *   USER CORRECTED — AI detected, user modified
- *   USER VERIFIED — user confirmed the data
- *   CALCULATED — engine produced from verified inputs
- *   MARKET PRICE VERIFIED — market intelligence validated the price
+ *   AI DETECTED, raw AI output, not yet verified
+ *   USER CORRECTED, AI detected, user modified
+ *   USER VERIFIED, user confirmed the data
+ *   CALCULATED, engine produced from verified inputs
+ *   MARKET PRICE VERIFIED, market intelligence validated the price
  *
  * AI detection confidence does NOT mean the calculation is accurate.
  * A calculated quantity does NOT mean its market price is verified.

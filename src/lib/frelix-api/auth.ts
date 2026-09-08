@@ -1,8 +1,8 @@
 // =========================================================
-// FRELUX PHASE 7 — API AUTHORIZATION & QUOTA LOGIC
+// FRELUX PHASE 7, API AUTHORIZATION & QUOTA LOGIC
 //
 // Pure decision logic shared by the API gateway (edge runtime)
-// and its tests. All database access is injected — this module
+// and its tests. All database access is injected, this module
 // NEVER trusts client-provided identity: the tenant is resolved
 // from the key record, never from request headers or payloads.
 // =========================================================

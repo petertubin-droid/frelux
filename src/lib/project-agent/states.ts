@@ -1,8 +1,8 @@
 // =========================================================
-// FRELUX PROJECT AGENT — LIFECYCLE STATE MACHINE (Stage 1)
+// FRELUX PROJECT AGENT, LIFECYCLE STATE MACHINE (Stage 1)
 //
 // Observed → Analyzed → Recommended → Prepared → Approved →
-// Executed → Verified — plus terminal exits (rejected, cancelled,
+// Executed → Verified, plus terminal exits (rejected, cancelled,
 // failed, expired). Every transition is explicit and validated;
 // an invalid transition is rejected with a reason, never coerced.
 // =========================================================
@@ -32,20 +32,20 @@ export const LIFECYCLE_SEQUENCE: readonly AgentLifecycleState[] = [
 
 /** Permission levels for agent operations (Stage 7 enforces; the
  *  taxonomy is fixed here so every action carries its level from
- *  birth — never inferred later). */
+ *  birth, never inferred later). */
 export type AgentPermission = "read" | "prepare" | "confirm" | "prohibited";
 
 export const PERMISSION_LABELS: Record<AgentPermission, string> = {
-  read: "READ — no approval required",
-  prepare: "PREPARE — creates a proposed action",
-  confirm: "CONFIRM — requires explicit user approval",
-  prohibited: "PROHIBITED — blocked regardless of any instruction",
+  read: "READ, no approval required",
+  prepare: "PREPARE, creates a proposed action",
+  confirm: "CONFIRM, requires explicit user approval",
+  prohibited: "PROHIBITED, blocked regardless of any instruction",
 };
 
 /**
  * Explicitly allowed transitions. Anything not listed is invalid.
  * Terminal states (verified, rejected, cancelled, failed, expired)
- * have no outgoing transitions — records end there, permanently.
+ * have no outgoing transitions, records end there, permanently.
  */
 const TRANSITIONS: Record<AgentLifecycleState, AgentLifecycleState[]> = {
   observed: ["analyzed", "rejected", "cancelled"],
@@ -55,10 +55,10 @@ const TRANSITIONS: Record<AgentLifecycleState, AgentLifecycleState[]> = {
   approved: ["executed", "cancelled", "expired"],
   executed: ["verified", "failed"],
   verified: [], // terminal success
-  rejected: [], // terminal — user said no
-  cancelled: [], // terminal — user abandoned
-  failed: [], // terminal — execution failed; a NEW action may be prepared
-  expired: [], // terminal — approval window lapsed; re-prepare
+  rejected: [], // terminal, user said no
+  cancelled: [], // terminal, user abandoned
+  failed: [], // terminal, execution failed; a NEW action may be prepared
+  expired: [], // terminal, approval window lapsed; re-prepare
 };
 
 export interface TransitionCheck {
@@ -66,7 +66,7 @@ export interface TransitionCheck {
   reason: string;
 }
 
-/** Pure transition validator — the single source of truth. */
+/** Pure transition validator, the single source of truth. */
 export function canTransition(
   from: AgentLifecycleState,
   to: AgentLifecycleState,
@@ -74,7 +74,7 @@ export function canTransition(
   if (from === to) {
     return {
       allowed: false,
-      reason: `Already in state '${from}' — no self-transitions.`,
+      reason: `Already in state '${from}', no self-transitions.`,
     };
   }
   const allowed = TRANSITIONS[from];
@@ -100,7 +100,7 @@ export function isTerminal(state: AgentLifecycleState): boolean {
 
 /**
  * Apply a transition to a record that carries `state`. Returns a new
- * object — never mutates. Invalid transitions return the original
+ * object, never mutates. Invalid transitions return the original
  * record plus the reason.
  */
 export function applyTransition<T extends { state: AgentLifecycleState }>(
@@ -130,7 +130,7 @@ export function isApprovalActive(
 
 /**
  * An approved action may be executed exactly once. After execution
- * (or failure), re-approval is impossible — a NEW action must be
+ * (or failure), re-approval is impossible, a NEW action must be
  * prepared. This is the double-execution guard at the state level.
  */
 export function isExecutable(action: {

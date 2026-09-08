@@ -73,7 +73,7 @@ export default function ClientEstimateEditor() {
       const ests = await fetchClientEstimates(projectId);
       setExisting(ests);
     } catch {
-      // ignore — not critical
+      // ignore, not critical
     }
     try {
       // Regional data flow: the project's saved location syncs its currency
@@ -86,7 +86,7 @@ export default function ClientEstimateEditor() {
         .maybeSingle();
       if (proj?.currency) setProjectCurrency(proj.currency);
     } catch {
-      // fall back to NGN — honest default for legacy projects
+      // fall back to NGN, honest default for legacy projects
     }
   }, [projectId]);
 

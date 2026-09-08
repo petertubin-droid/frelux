@@ -1,5 +1,5 @@
 /**
- * FRELUX Engine UI — Barrel Export
+ * FRELUX Engine UI, Barrel Export
  *
  * Import from here:
  *   import { EngineWasteSelector, EngineConfidenceBadge } from '@/components/engine';

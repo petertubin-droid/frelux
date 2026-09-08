@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF VIEW — Tests
+ * FRELUX ROOF VIEW, Tests
  *
  * Feature 2: Roof View
  *
@@ -69,7 +69,7 @@ describe('Roof View: Provider Registry', () => {
       expect(schemaJson).not.toMatch(/AIza[0-9A-Za-z_-]{35}/); // Google API key
       expect(schemaJson).not.toMatch(/pk\.[a-zA-Z0-9]{20,}/); // Mapbox token
       expect(schemaJson).not.toMatch(/sk_[a-zA-Z0-9]{20,}/); // Secret key
-      // Descriptions may mention 'API key' or 'token' as requirements — that's fine
+      // Descriptions may mention 'API key' or 'token' as requirements, that's fine
     }
   });
 });
@@ -213,7 +213,7 @@ describe('Roof View: Type Validation', () => {
 });
 
 // =========================================================
-// fetchRoofViewImagery — No Fake Data
+// fetchRoofViewImagery, No Fake Data
 // =========================================================
 
 describe('Roof View: fetchRoofViewImagery (mocked)', () => {

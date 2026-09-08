@@ -1,5 +1,5 @@
 // =========================================================
-// PROJECT AGENT — GUIDANCE TESTS (Stage 5)
+// PROJECT AGENT, GUIDANCE TESTS (Stage 5)
 //
 // Acceptance:
 //   - All 8 supported questions are answered from recorded state.
@@ -33,7 +33,7 @@ vi.mock("./session", () => ({
 const NOW = "2026-09-07T12:00:00Z";
 
 // ---------------------------------------------------------
-// Fixture state — recorded project state under our control
+// Fixture state, recorded project state under our control
 // ---------------------------------------------------------
 const fx = {
   snapshot: null as Record<string, unknown> | null,
@@ -128,7 +128,7 @@ beforeEach(() => {
   fx.conflicts = [];
 });
 
-// Real Stage-4 engine runs over the same fixtures — guidance is a
+// Real Stage-4 engine runs over the same fixtures, guidance is a
 // pure projection, so no extra mocking of buildRecommendations.
 
 // ---------------------------------------------------------
@@ -146,7 +146,7 @@ describe("classifyGuidanceQuestion", () => {
     expect(classifyGuidanceQuestion("What should I prepare before the next construction stage?")).toBe("prepare_next_stage");
   });
 
-  it("returns null for unsupported questions — no guess", () => {
+  it("returns null for unsupported questions, no guess", () => {
     expect(classifyGuidanceQuestion("How many bags of cement do I need?")).toBeNull();
     expect(classifyGuidanceQuestion("")).toBeNull();
   });
@@ -166,7 +166,7 @@ describe("classifyGuidanceQuestion", () => {
 // ---------------------------------------------------------
 // All 8 questions answered from recorded state
 // ---------------------------------------------------------
-describe("realistic project state — all questions", () => {
+describe("realistic project state, all questions", () => {
   it("what_next: answers from the recorded state with traceable items", async () => {
     fx.analysis = makeAnalysis({
       risks: [{
@@ -377,7 +377,7 @@ describe("answers change when project data changes", () => {
     fx.analysis = makeAnalysis();
     const after = await buildGuidance("proj-1", "what_next", NOW);
     // The Stage-4 engine's incomplete_task recommendation provides
-    // the next step — still grounded in the recorded pending stage.
+    // the next step, still grounded in the recorded pending stage.
     expect(after.ok && after.data.items[0].action).toContain("Block work");
     expect(after.ok && after.data.items[0].source).toContain("project_progress_stages");
   });
@@ -399,7 +399,7 @@ describe("answers change when project data changes", () => {
 });
 
 // ---------------------------------------------------------
-// Insufficient data — never fabricated
+// Insufficient data, never fabricated
 // ---------------------------------------------------------
 describe("insufficient data", () => {
   it("no recorded data → INSUFFICIENT DATA for every question", async () => {
@@ -441,10 +441,10 @@ describe("insufficient data", () => {
 });
 
 // ---------------------------------------------------------
-// No invention — items cite recorded facts only
+// No invention, items cite recorded facts only
 // ---------------------------------------------------------
 describe("no invention", () => {
-  it("what_to_buy never invents materials — only recorded lines appear", async () => {
+  it("what_to_buy never invents materials, only recorded lines appear", async () => {
     const res = await buildGuidance("proj-1", "what_to_buy", NOW);
     expect(res.ok).toBe(true);
     if (!res.ok) return;

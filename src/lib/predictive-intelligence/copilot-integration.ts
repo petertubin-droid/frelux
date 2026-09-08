@@ -1,8 +1,8 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — COPILOT INTEGRATION (§20)
+// FRELUX PREDICTIVE INTELLIGENCE, COPILOT INTEGRATION (§20)
 //
 // Lets the Phase 2 Copilot answer risk questions from the ACTUAL
-// predictive analysis — retrieval, never invention. The
+// predictive analysis, retrieval, never invention. The
 // deterministic facts below are handed to the AI as pre-computed
 // context; the AI summarizes/recommends, it never recomputes.
 //
@@ -51,14 +51,14 @@ export function classifyRiskQuestion(text: string): RiskQuestionKind | null {
 }
 
 /** Deterministic, evidence-anchored answers assembled from the
- *  ACTUAL analysis. The Copilot relays/summarizes these — any AI
+ *  ACTUAL analysis. The Copilot relays/summarizes these, any AI
  *  answer must trace back to this context. */
 export function answerRiskQuestion(
   kind: RiskQuestionKind,
   analysis: ProjectPredictiveAnalysis,
 ): { answer: string; supportsAiSummary: boolean; basedOn: string[] } {
   const insufficient = (area: string) => ({
-    answer: `Insufficient data to answer this reliably — ${area}. FRELUX will not guess.`,
+    answer: `Insufficient data to answer this reliably, ${area}. FRELUX will not guess.`,
     supportsAiSummary: true,
     basedOn: [`${area} records are missing`],
   });
@@ -68,7 +68,7 @@ export function answerRiskQuestion(
       if (analysis.risks.length === 0) {
         return {
           answer:
-            "No measurable risks were detected in your current project records. This can also mean the records are thin — data quality is " +
+            "No measurable risks were detected in your current project records. This can also mean the records are thin, data quality is " +
             analysis.dataQuality.rating +
             ".",
           supportsAiSummary: true,
@@ -84,7 +84,7 @@ export function answerRiskQuestion(
         .slice(0, 3)
         .map(
           (r) =>
-            `${r.severity.toUpperCase()} (${r.category}): ${r.title} — confidence ${r.confidence.band}. Recommended: ${r.recommendedAction}`,
+            `${r.severity.toUpperCase()} (${r.category}): ${r.title}, confidence ${r.confidence.band}. Recommended: ${r.recommendedAction}`,
         );
       return {
         answer: `Your biggest detected risks:\n${lines.join("\n")}`,
@@ -107,7 +107,7 @@ export function answerRiskQuestion(
       return {
         answer:
           r.rating === "low"
-            ? `On the recorded data, cost risk is LOW — recorded spend ${r.recordedSpend.toFixed(2)} is at or below the pro-rata estimate.`
+            ? `On the recorded data, cost risk is LOW, recorded spend ${r.recordedSpend.toFixed(2)} is at or below the pro-rata estimate.`
             : `Cost risk is ${r.rating.toUpperCase()}. Recorded spend ${r.recordedSpend.toFixed(2)} is running ${(r.burnPct * 100).toFixed(1)}% ahead of the pro-rata estimate; the deterministic projection puts the final cost ${(r.projectedOverrunPct * 100).toFixed(1)}% ${r.projectedOverrunPct >= 0 ? "above" : "below"} the current estimate (${r.projectedFinalCost.toFixed(2)}).`,
         supportsAiSummary: true,
         basedOn: [`${cost.evidence.length} evidence records`],
@@ -131,7 +131,7 @@ export function answerRiskQuestion(
         };
       }
       return {
-        answer: `Materials still needed for remaining work (${r.unpurchasedCount} item(s), estimated ${r.unpurchasedEstimatedTotal.toFixed(2)}): ${r.missingSupplierNames.length > 0 ? `priority — no supplier recorded for ${r.missingSupplierNames.join(", ")}` : "all have suppliers recorded"}. Confirm availability with your suppliers before the related stages begin.`,
+        answer: `Materials still needed for remaining work (${r.unpurchasedCount} item(s), estimated ${r.unpurchasedEstimatedTotal.toFixed(2)}): ${r.missingSupplierNames.length > 0 ? `priority, no supplier recorded for ${r.missingSupplierNames.join(", ")}` : "all have suppliers recorded"}. Confirm availability with your suppliers before the related stages begin.`,
         supportsAiSummary: true,
         basedOn: ["shopping list rows", "progress stages"],
       };
@@ -151,7 +151,7 @@ export function answerRiskQuestion(
       return {
         answer:
           r.rating === "low"
-            ? `Schedule risk is LOW — ${r.completedStages}/${r.totalStages} recorded stages complete, no stalls or out-of-order completions detected.`
+            ? `Schedule risk is LOW, ${r.completedStages}/${r.totalStages} recorded stages complete, no stalls or out-of-order completions detected.`
             : `Schedule risk is ${r.rating.toUpperCase()}: ${r.completedStages}/${r.totalStages} stages complete${r.daysSinceLastCompletion !== null ? `, last completion ${r.daysSinceLastCompletion} day(s) ago` : ""}${r.sequencingViolations.length > 0 ? `, ${r.sequencingViolations.length} out-of-order completion(s)` : ""}. Note: the recorded schedule has no planned dates, so a calendar-based delay prediction is not possible.`,
         supportsAiSummary: true,
         basedOn: ["progress stage records"],
@@ -208,7 +208,7 @@ export function answerRiskQuestion(
         answer:
           reasons.length > 0
             ? `Based on your recorded data: ${reasons.join("; ")}. These are measured differences, not guesses.`
-            : "No cost increases are measurable in your current records — either prices are tracking their estimates, or actual prices have not been recorded yet.",
+            : "No cost increases are measurable in your current records, either prices are tracking their estimates, or actual prices have not been recorded yet.",
         supportsAiSummary: true,
         basedOn:
           reasons.length > 0
@@ -228,20 +228,20 @@ function find(
 
 /**
  * Build the context block the Copilot AI summarizes. The AI is
- * FORBIDDEN from adding numbers not present here — this function
+ * FORBIDDEN from adding numbers not present here, this function
  * is the retrieval layer for all predictive questions (§20).
  */
 export function buildPredictiveContextForAi(
   analysis: ProjectPredictiveAnalysis,
 ): string {
   const lines: string[] = [
-    `Project predictive analysis (generated ${analysis.generatedAt}, data quality ${analysis.dataQuality.rating} — ${analysis.dataQuality.reason}):`,
+    `Project predictive analysis (generated ${analysis.generatedAt}, data quality ${analysis.dataQuality.rating}, ${analysis.dataQuality.reason}):`,
   ];
   for (const p of analysis.predictions) {
     lines.push(
       p.status === "ok"
         ? `- ${p.kind.replace(/_/g, " ")}: ${p.prediction} (confidence ${p.confidence?.band ?? "n/a"}, freshness ${p.freshness})`
-        : `- ${p.kind.replace(/_/g, " ")}: INSUFFICIENT DATA — missing: ${p.missingData.join(", ")}`,
+        : `- ${p.kind.replace(/_/g, " ")}: INSUFFICIENT DATA, missing: ${p.missingData.join(", ")}`,
     );
   }
   if (analysis.risks.length > 0) {

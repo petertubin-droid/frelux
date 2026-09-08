@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 6.5 — LEARNING ENGINE TYPES
+// FRELUX PHASE 6.5, LEARNING ENGINE TYPES
 //
 // One unified learning architecture for every intelligence
 // source: GEMINI, OPENAI, ARCHIE/ChatGPT reference, USER
@@ -14,7 +14,7 @@
 export type LearningSource =
   "GEMINI" | "OPENAI" | "ARCHIE" | "USER" | "OUTCOME" | "SYSTEM" | "WEB";
 
-/** Evidence states — never silently changed (Phase 6.5 §13). */
+/** Evidence states, never silently changed (Phase 6.5 §13). */
 export type EvidenceState =
   | "AI_EXTRACTED"
   | "AI_RECOMMENDATION"
@@ -26,7 +26,7 @@ export type EvidenceState =
   | "ASSUMPTION"
   | "ACTUAL_OUTCOME";
 
-/** Knowledge scopes — isolation is enforced by evaluateScopePromotion. */
+/** Knowledge scopes, isolation is enforced by evaluateScopePromotion. */
 export type KnowledgeScope =
   "GLOBAL" | "REGIONAL" | "PROJECT" | "PROPERTY" | "USER";
 
@@ -51,7 +51,7 @@ export type LearningLifecycle =
  * Capabilities whose rules are deterministic certified math.
  * Learning events may OBSERVE these (corrections, outcomes) and
  * proposals may suggest changes, but promotion REQUIRES the
- * engineering-review process — never automatic, never via
+ * engineering-review process, never automatic, never via
  * ordinary Admin config. Mirrors the Logic & Rules Registry
  * high-risk classes.
  */
@@ -78,7 +78,7 @@ export const MATH_CAPABILITIES: ReadonlySet<string> = new Set([
 /**
  * Low-risk automatic learning capability families (Phase 6.5 §20):
  * confirmed preferences, terminology, retrieval relevance, UX.
- * These may auto-record as events and create DRAFT proposals —
+ * These may auto-record as events and create DRAFT proposals :
  * never production knowledge without approval.
  */
 export const AUTO_LEARN_CAPABILITIES: ReadonlySet<string> = new Set([
@@ -138,7 +138,7 @@ export interface LearningRecordInput {
   payload_size: number;
 }
 
-/** Ingestion result — used by the edge function AND the tests. */
+/** Ingestion result, used by the edge function AND the tests. */
 export interface IngestionResult {
   accepted: boolean;
   code:

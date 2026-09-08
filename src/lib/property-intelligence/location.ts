@@ -1,5 +1,5 @@
 /**
- * FRELUX PROPERTY INTELLIGENCE — LOCATION INTELLIGENCE
+ * FRELUX PROPERTY INTELLIGENCE, LOCATION INTELLIGENCE
  *
  * Prompt 4, Phase 3: location → regional profile. Reuses the Prompt 2
  * market-profile architecture. An unsupported or undeterminable location
@@ -25,7 +25,7 @@ export interface ResolvedRegionalContext {
   status: "resolved" | "requires_confirmation" | "unsupported";
   /** The country code that was matched, when resolved. */
   countryCode?: string;
-  /** Why this resolution was reached — traceable, never guessed. */
+  /** Why this resolution was reached, traceable, never guessed. */
   reason: string;
   /** The resolved regional profile (opaque here; caller supplies the lookup). */
   profile?: unknown;
@@ -59,7 +59,7 @@ export function resolveRegionalContext(
     };
   }
 
-  // No country code. Coordinates alone are NOT country detection —
+  // No country code. Coordinates alone are NOT country detection :
   // reverse geocoding is not implemented, so we cannot reliably determine
   // the country from coordinates. Never guess.
   return {

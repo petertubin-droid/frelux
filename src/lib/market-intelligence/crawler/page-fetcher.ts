@@ -1,5 +1,5 @@
 /**
- * FRELUX DIRECT CRAWLER — Server-Side Page Fetcher
+ * FRELUX DIRECT CRAWLER, Server-Side Page Fetcher
  *
  * Secure server-side HTTP fetcher with:
  * - SSRF protection (via url-validator)

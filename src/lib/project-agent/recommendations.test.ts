@@ -1,5 +1,5 @@
 // =========================================================
-// PROJECT AGENT — RECOMMENDATION ENGINE TESTS (Stage 4)
+// PROJECT AGENT, RECOMMENDATION ENGINE TESTS (Stage 4)
 //
 // Acceptance matrix: test projects with
 //   - no risks              → no risk conditions fabricated
@@ -32,7 +32,7 @@ vi.mock("./session", () => ({
 }));
 
 // ---------------------------------------------------------
-// Fixture state — controls snapshot + analysis + context
+// Fixture state, controls snapshot + analysis + context
 // ---------------------------------------------------------
 const NOW = "2026-09-07T12:00:00Z";
 
@@ -251,7 +251,7 @@ describe("single-risk project", () => {
 });
 
 // ---------------------------------------------------------
-// Acceptance: multiple risks — 1:1, severity-ordered
+// Acceptance: multiple risks, 1:1, severity-ordered
 // ---------------------------------------------------------
 describe("multi-risk project", () => {
   it("maps every risk 1:1 and orders worst severity first", async () => {
@@ -285,11 +285,11 @@ describe("multi-risk project", () => {
 // Acceptance: conflicting evidence
 // ---------------------------------------------------------
 describe("conflicting evidence", () => {
-  it("reports conflicting_measurements with BOTH values — never a silent pick", async () => {
+  it("reports conflicting_measurements with BOTH values, never a silent pick", async () => {
     fx.context.conflicts = [
       {
         key: "progress_vs_stages",
-        description: "User-entered progress (80%) differs from completed stages (50% — 1/2).",
+        description: "User-entered progress (80%) differs from completed stages (50%, 1/2).",
         resolution: "Both values are reported side by side; the agent does NOT pick one silently.",
       },
     ];

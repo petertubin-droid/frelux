@@ -140,7 +140,7 @@ export function SubscriptionGate({
     );
   }
 
-  // Loading state (premiumLive === null) — show nothing briefly
+  // Loading state (premiumLive === null), show nothing briefly
   if (premiumLive === null) {
     return (
       <div className="mx-auto max-w-md py-12 px-4 animate-pulse">
@@ -149,7 +149,7 @@ export function SubscriptionGate({
     );
   }
 
-  // Premium is live — show the real paywall
+  // Premium is live, show the real paywall
   return (
     <div className="mx-auto max-w-md py-12 px-4">
       <div className="rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-8 text-center">

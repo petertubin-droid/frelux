@@ -1,5 +1,5 @@
 /**
- * FRELUX LOCATION INTELLIGENCE — Barrel Export
+ * FRELUX LOCATION INTELLIGENCE, Barrel Export
  *
  * Import from here:
  *   import { useFreluxLocation, resolveRegionalContext, ... } from "@/lib/location-intelligence";

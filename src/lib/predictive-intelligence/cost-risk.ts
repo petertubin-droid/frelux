@@ -1,8 +1,8 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — COST OVERRUN (§3)
+// FRELUX PREDICTIVE INTELLIGENCE, COST OVERRUN (§3)
 //
 // Compares the project's recorded estimates, recorded spend and
-// recorded progress — deterministically. "Recorded material
+// recorded progress, deterministically. "Recorded material
 // expenditure is trending above the original estimate" can only
 // be said when the rows say so. Otherwise: insufficient data.
 //
@@ -211,7 +211,7 @@ export function analyzeCostOverrun(snapshot: {
   );
 
   // Freshness from DATED records only: an uncompleted stage has no
-  // completion date, which is "not yet" — not stale data (§17).
+  // completion date, which is "not yet", not stale data (§17).
   const freshness = worstFreshness(
     [
       ...estimateTimelinePoints.map((p) => p.createdAt),
@@ -231,10 +231,10 @@ export function analyzeCostOverrun(snapshot: {
 
   const prediction =
     rating === "low"
-      ? "Current project cost risk: LOW — recorded expenditure is at or below the pro-rata estimate for the recorded progress."
+      ? "Current project cost risk: LOW, recorded expenditure is at or below the pro-rata estimate for the recorded progress."
       : rating === "medium"
-        ? "Current project cost risk: MEDIUM — recorded material expenditure is trending above the original estimate."
-        : "Current project cost risk: HIGH — recorded expenditure is running well ahead of the pro-rata estimate for the recorded progress.";
+        ? "Current project cost risk: MEDIUM, recorded material expenditure is trending above the original estimate."
+        : "Current project cost risk: HIGH, recorded expenditure is running well ahead of the pro-rata estimate for the recorded progress.";
 
   return {
     kind: "cost_overrun",

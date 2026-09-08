@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from "vitest";
-// jsdom has no speech synthesis — stub the utterance class.
+// jsdom has no speech synthesis, stub the utterance class.
 class FakeUtterance {
   text: string;
   pitch = 1;
@@ -22,7 +22,7 @@ import {
   loadProfileLocally,
 } from "../voice-profile";
 
-/** Sine wave generator — deterministic, no fixtures needed. */
+/** Sine wave generator, deterministic, no fixtures needed. */
 function sine(freq: number, seconds: number, rate = 48000): Float32Array {
   const n = Math.floor(seconds * rate);
   const out = new Float32Array(n);

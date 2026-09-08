@@ -54,7 +54,7 @@ export function CookieBanner() {
 
   return (
     <>
-      {/* Scrim — subtle darkening to draw focus, but non-blocking */}
+      {/* Scrim, subtle darkening to draw focus, but non-blocking */}
       <div
         className="fixed inset-0 z-[90] bg-black/20 backdrop-blur-[2px] animate-[fade-in_0.2s_ease-out]"
         onClick={dismiss}
@@ -98,7 +98,7 @@ export function CookieBanner() {
                     </Link>
                   </p>
                 </div>
-                {/* Close button (dismiss without saving — banner returns next visit) */}
+                {/* Close button (dismiss without saving, banner returns next visit) */}
                 <Button
                   size="icon"
                   variant="ghost"
@@ -144,7 +144,7 @@ export function CookieBanner() {
                             </p>
                           </div>
                           {/* Toggle */}
-                          {/* Plain <button> — not shadcn's <Button variant="ghost">,
+                          {/* Plain <button>, not shadcn's <Button variant="ghost">,
                             whose hover state gets "stuck" on touch devices after a
                             tap until the next tap elsewhere. */}
                           <button

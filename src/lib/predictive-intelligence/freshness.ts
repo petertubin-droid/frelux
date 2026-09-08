@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — DATA FRESHNESS (§17)
+// FRELUX PREDICTIVE INTELLIGENCE, DATA FRESHNESS (§17)
 //
 // Every prediction considers data age. A prediction built on old
 // data can NEVER look equivalent to one built on current data.
@@ -71,9 +71,9 @@ export function worstFreshness(
  * The formula is public, deterministic and shown verbatim in `method`.
  */
 export function assessConfidence(input: {
-  coverage: number; // 0–1 — required data points present
+  coverage: number; // 0–1, required data points present
   freshness: DataFreshness;
-  verifiedShare: number; // 0–1 — share of evidence rows that are verified
+  verifiedShare: number; // 0–1, share of evidence rows that are verified
   context: string; // e.g. "cost overrun", for the method text
 }): ConfidenceAssessment {
   const clampedCoverage = Math.max(0, Math.min(1, input.coverage));

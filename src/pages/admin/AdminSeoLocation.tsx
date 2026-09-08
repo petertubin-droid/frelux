@@ -44,7 +44,7 @@ export default function AdminSeoLocation() {
 }
 
 // ============================================================
-// Locations Tab — manage coordinates for pro_locations
+// Locations Tab, manage coordinates for pro_locations
 // ============================================================
 function LocationsTab() {
   const [locations, setLocations] = useState<DbProLocation[]>([]);
@@ -240,7 +240,7 @@ function LocationsTab() {
 }
 
 // ============================================================
-// Categories Tab — manage SEO metadata for pro_categories
+// Categories Tab, manage SEO metadata for pro_categories
 // ============================================================
 function CategoriesTab() {
   const [categories, setCategories] = useState<DbProCategory[]>([]);
@@ -369,7 +369,7 @@ function CategoriesTab() {
 }
 
 // ============================================================
-// SEO Pages Tab — manage custom SEO for dynamic pages
+// SEO Pages Tab, manage custom SEO for dynamic pages
 // ============================================================
 function SeoPagesTab() {
   const [settings, setSettings] = useState<SeoPageSetting[]>([]);
@@ -557,7 +557,7 @@ function SeoPagesTab() {
 }
 
 // ============================================================
-// Indexability Tab — control which listings/profiles are indexable
+// Indexability Tab, control which listings/profiles are indexable
 // ============================================================
 function IndexabilityTab() {
   const [listings, setListings] = useState<{ id: string; title: string; seo_indexable: boolean; seo_title: string | null; status: string; is_active: boolean }[]>([]);

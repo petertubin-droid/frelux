@@ -7,7 +7,7 @@
  * - Grafitex: Rough exterior finish (20-L bucket, 1 bucket = 2 standard partitions)
  *
  * LABOUR IS NOT CALCULATED.
- * Labour: Not included — negotiated separately.
+ * Labour: Not included, negotiated separately.
  */
 
 export type FinishType = "painting" | "tyrolene" | "grafitex";
@@ -74,7 +74,7 @@ export interface FinishCalcResult {
   grafitexBucketsTheoretical?: number;
   grafitexBucketsPractical?: number;
   grafitexEquivalentPartitions?: number;
-  /** Non-blocking configuration problems (missing coverage/price) — audit fix */
+  /** Non-blocking configuration problems (missing coverage/price), audit fix */
   warnings?: string[];
 }
 

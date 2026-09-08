@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX ARCHIE AMENDMENT — CODE REVIEW & ERROR INTELLIGENCE
+// FRELUX ARCHIE AMENDMENT, CODE REVIEW & ERROR INTELLIGENCE
 //
 // ARCHIE continuously identifies, explains and prioritizes
 // findings across the FRELUX codebase: bugs, warnings, build
@@ -12,7 +12,7 @@
 //
 // Every significant finding carries severity, affected
 // component, evidence, likely cause, impact and recommended
-// remediation. Findings are always PROPOSALS — fixes go
+// remediation. Findings are always PROPOSALS, fixes go
 // through the owner approval gate, never direct application.
 // =========================================================
 
@@ -60,7 +60,7 @@ const SEVERITY_ORDER: Record<ReviewSeverity, number> = {
   INFO: 4,
 };
 
-/** Default severity per finding kind — a finding may be
+/** Default severity per finding kind, a finding may be
  *  raised or lowered per instance based on evidence. */
 export const DEFAULT_SEVERITY: Readonly<Record<FindingKind, ReviewSeverity>> = {
   bug: "HIGH",
@@ -85,7 +85,7 @@ export interface CodeReviewFinding {
   affected_component: string;
   /** Concrete evidence: file path, error message, test output,
    *  stack trace, measurement. Findings without evidence are
-   *  not findings — they are guesses. */
+   *  not findings, they are guesses. */
   evidence: string;
   likely_cause: string;
   impact: string;
@@ -114,7 +114,7 @@ export function prepareFinding(input: {
   severity?: ReviewSeverity;
 }): { ok: boolean; error?: string; finding?: PreparedFinding } {
   if (!input.evidence.trim()) {
-    return { ok: false, error: "A finding without evidence is a guess — evidence is required" };
+    return { ok: false, error: "A finding without evidence is a guess, evidence is required" };
   }
   if (!input.affected_component.trim()) {
     return { ok: false, error: "A finding requires the affected component" };

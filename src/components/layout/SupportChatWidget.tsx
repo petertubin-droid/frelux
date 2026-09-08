@@ -102,7 +102,7 @@ export default function SupportChatWidget() {
             timestamp: Date.now(),
           },
         ]);
-        // PHASE 6.5 — OpenAI learning signal: capture honest missing-info /
+        // PHASE 6.5, OpenAI learning signal: capture honest missing-info /
         // retrieval-failure replies as learning events (never success noise,
         // never private reasoning). Fire-and-forget.
         recordLiveChatSignal({ questionSummary: q, reply: responseText }).catch(
@@ -135,7 +135,7 @@ export default function SupportChatWidget() {
 
   return (
     <>
-      {/* Floating button — uses a proper icon, not an image */}
+      {/* Floating button, uses a proper icon, not an image */}
       {!open && (
         <Button
           variant="ghost"
@@ -172,7 +172,7 @@ export default function SupportChatWidget() {
             </Button>
           ) : (
             <>
-              {/* Header — avatar image only shown here, inside the chat */}
+              {/* Header, avatar image only shown here, inside the chat */}
               <div className="flex items-center justify-between bg-gradient-to-r from-primary to-primary-dark px-4 py-3 text-primary-foreground">
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white/15 ring-2 ring-white/20">
@@ -300,7 +300,7 @@ export default function SupportChatWidget() {
                 )}
               </div>
 
-              {/* WhatsApp fallback bar — only shown when the AI chat has errored */}
+              {/* WhatsApp fallback bar, only shown when the AI chat has errored */}
               {hasError && (
                 <div className="border-t border-border/50 bg-card px-4 py-2 dark:border-white/5 dark:bg-card">
                   <a

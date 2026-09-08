@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX ARCHIE AMENDMENT — CODING & APP DEVELOPMENT WORKFLOW
+// FRELUX ARCHIE AMENDMENT, CODING & APP DEVELOPMENT WORKFLOW
 //
 // ARCHIE may:
 //
@@ -29,7 +29,7 @@ export type DevStage =
   | "REVIEW"
   | "PROPOSE";
 
-/** ARCHIE's autonomous development stages — all proposals. */
+/** ARCHIE's autonomous development stages, all proposals. */
 export const DEV_STAGES: readonly DevStage[] = [
   "READ",
   "UNDERSTAND",
@@ -41,7 +41,7 @@ export const DEV_STAGES: readonly DevStage[] = [
   "PROPOSE",
 ];
 
-/** The production workflow — every stage after ARCHIE's
+/** The production workflow, every stage after ARCHIE's
  *  proposal is owner-driven. Fixed, not configurable. */
 export const PRODUCTION_WORKFLOW: readonly string[] = [
   "ARCHIE PROPOSES",
@@ -114,13 +114,13 @@ export function nextProductionStage(
   const next = PRODUCTION_WORKFLOW[idx + 1];
   if (!next) return { ok: false, error: "Workflow is complete (DEPLOY)" };
   if (current === "ARCHIE PROPOSES") {
-    // Moving to OWNER REVIEWS is automatic presentation — allowed.
+    // Moving to OWNER REVIEWS is automatic presentation, allowed.
     return { ok: true, next };
   }
   if (actor !== "OWNER") {
     return {
       ok: false,
-      error: `Only the Owner advances "${current}" — ARCHIE proposes, the Owner authorizes`,
+      error: `Only the Owner advances "${current}", ARCHIE proposes, the Owner authorizes`,
     };
   }
   return { ok: true, next };

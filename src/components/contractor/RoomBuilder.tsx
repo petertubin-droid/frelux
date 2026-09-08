@@ -167,7 +167,7 @@ export interface RoomBuilderProps {
   projectId: string;
   /** Notify parent when rooms change (e.g. for totals recalculation). */
   onRoomsChange?: (rooms: DbProjectRoom[]) => void;
-  /** Called when the user clicks "Run Calculation" — parent controls the calculator modal. */
+  /** Called when the user clicks "Run Calculation", parent controls the calculator modal. */
   onRunCalculation?: (room: DbProjectRoom) => void;
   /** Optional render-prop for the calculator modal. If not provided, clicking "Run Calculation" will call onRunCalculation. */
   calculatorModal?: (

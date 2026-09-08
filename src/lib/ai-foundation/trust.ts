@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX AI FOUNDATION — Trust / Verification Layer
+// FRELUX AI FOUNDATION, Trust / Verification Layer
 //
 // State machine for every AI-derived value:
 //   Detected → Needs Confirmation → User Confirmed / System Verified
@@ -10,9 +10,9 @@
 //      verified construction fact. Transitions require an explicit
 //      event (user confirmation or a deterministic validator).
 //   2. Deterministic sources (user input, engines, verified market
-//      data, canonical location data) are trusted by origin — they
+//      data, canonical location data) are trusted by origin, they
 //      are not "AI inferences" and need no extra confirmation.
-//   3. Interop with the pre-existing vocabularies is provided —
+//   3. Interop with the pre-existing vocabularies is provided :
 //      measurement/verification-states and construction-extraction
 //      statuses map cleanly in both directions.
 //
@@ -31,7 +31,7 @@ export const AUTHORITATIVE_ORIGINS: ReadonlySet<Provenance> = new Set([
   "user_input",
   "user_confirmed",
   // Data retrieved from the user's own saved FRELUX project was entered
-  // or verified through the app (e.g. a verified plan extraction) — it
+  // or verified through the app (e.g. a verified plan extraction), it
   // is authoritative, matching its ORIGIN_PRIORITY rank.
   "project_data",
   "engine_calculation",
@@ -62,7 +62,7 @@ export function classifyFact(fact: Omit<AiFact, "trust">): TrustStatus {
   if (AUTHORITATIVE_ORIGINS.has(fact.origin)) {
     return "system_verified";
   }
-  // smart defaults are visible assumptions — usable but clearly labelled,
+  // smart defaults are visible assumptions, usable but clearly labelled,
   // the user can correct them any time (they are product defaults, not
   // AI inferences, so they do not block calculation).
   if (fact.origin === "smart_default") return "detected";
@@ -124,7 +124,7 @@ export function applyTrustEvent(
  *
  * Authoritative origins: yes. Inferences: only when confirmed or
  * deterministically verified. Smart defaults: yes (they are product
- * defaults the engine already uses — but they are surfaced to the
+ * defaults the engine already uses, but they are surfaced to the
  * user as assumptions and never hidden).
  */
 export function canUseInCalculation(fact: AiFact): boolean {
@@ -142,7 +142,7 @@ export function canUseInCalculation(fact: AiFact): boolean {
 
 /**
  * Does this fact still require user attention before the task completes?
- * Used to build the "Please confirm" step — never silently skipped.
+ * Used to build the "Please confirm" step, never silently skipped.
  */
 export function requiresUserAttention(fact: AiFact): boolean {
   return fact.trust === "needs_confirmation";
@@ -220,6 +220,6 @@ export function trustBadge(fact: AiFact): string {
     case "unknown":
       return "Unknown origin";
     default:
-      return "Detected — assumption";
+      return "Detected, assumption";
   }
 }

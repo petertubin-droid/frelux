@@ -132,7 +132,7 @@ function ProvidersTab() {
   }
 
   // Toggle a provider's VISUAL display ads without disabling the provider.
-  // Impressions keep being logged and rewarded flows keep working — only
+  // Impressions keep being logged and rewarded flows keep working, only
   // the visible ad rendering is suppressed (e.g. while awaiting AdSense
   // approval, intrusive display networks can be hidden).
   async function toggleDisplayAds(prov: DbAdProvider) {
@@ -777,7 +777,7 @@ function providerCanFill(pl: DbAdPlacement, prov: DbAdProvider): boolean {
   if (!prov.is_active) return false;
   const settings = (prov.settings ?? {}) as Record<string, unknown>;
   if (settings.display_ads_enabled === false) return false;
-  // Per-slot unit configured for this provider — always fillable.
+  // Per-slot unit configured for this provider, always fillable.
   if (getPlacementUnit(pl, prov.id)) return true;
   // Per-unit providers (AdSense, Media.net, …) need a unit per slot.
   if (!(GLOBAL_CREDENTIAL_PROVIDERS as readonly string[]).includes(prov.slug))
@@ -1096,7 +1096,7 @@ function PlacementsTab() {
 }
 
 /**
- * PageMapPanel — the visual "markdown" display of every ad slot across the
+ * PageMapPanel, the visual "markdown" display of every ad slot across the
  * site. For each page template it shows a wireframe (content sections with
  * the ad slots in their on-page order) plus the generated markdown source,
  * which can be copied for documentation.
@@ -1150,7 +1150,7 @@ function PageMapPanel({
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {
-      // clipboard unavailable — ignore
+      // clipboard unavailable, ignore
     }
   }
 
@@ -1505,7 +1505,7 @@ function PlacementForm({
                   </p>
                   {isSelected && (
                     <>
-                      {/* Format chooser — providers with multiple in-slot
+                      {/* Format chooser, providers with multiple in-slot
                           formats let the admin pick which one this placement
                           renders. Config-driven: driven by the provider's
                           credentials, never hardcoded per-slug logic beyond

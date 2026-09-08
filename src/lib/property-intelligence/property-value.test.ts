@@ -1,5 +1,5 @@
 // =========================================================
-// PROPERTY VALUE — COMPARABLE-BASED INDICATIVE ESTIMATE TESTS (§11, §12, §19)
+// PROPERTY VALUE, COMPARABLE-BASED INDICATIVE ESTIMATE TESTS (§11, §12, §19)
 // =========================================================
 
 import { describe, it, expect } from "vitest";
@@ -129,7 +129,7 @@ describe("estimateIndicativeValue", () => {
       verified("t1", 95_000_000, 190), // 500000/m²
       verified("t2", 105_000_000, 210), // 500000/m²
       verified("t3", 115_000_000, 230), // 500000/m²
-      listing("a1", 30_000_000, 200), // asking, wildly different — must not contribute
+      listing("a1", 30_000_000, 200), // asking, wildly different, must not contribute
       listing("a2", 40_000_000, 200),
     ];
     const result = estimateIndicativeValue(
@@ -173,7 +173,7 @@ describe("estimateIndicativeValue", () => {
 
   it("falls back to whole-property comparison with a disclosed weaker basis when comparables carry no size data", () => {
     // Mixed-unit comparables are EXCLUDED by the screen (no silent
-    // conversion) — with one excluded, only 2 remain and no estimate
+    // conversion), with one excluded, only 2 remain and no estimate
     // is produced at all.
     const mixedUnits = [
       listing("a", 90_000_000, 150),

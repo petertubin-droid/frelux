@@ -1,9 +1,9 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — SNAPSHOT BUILDER
+// FRELUX PREDICTIVE INTELLIGENCE, SNAPSHOT BUILDER
 //
 // Loads the project's REAL data through the existing Supabase
 // client (row-level security applies: users only ever load
-// their own projects — §21). Everything the analysis consumes
+// their own projects, §21). Everything the analysis consumes
 // is here; the analyzers are pure functions over this snapshot.
 // =========================================================
 
@@ -72,7 +72,7 @@ interface DbPriceHistoryRow {
 /**
  * Build the analysis snapshot for one project. Returns null when
  * the project does not exist OR is not visible to the current
- * user — RLS makes the two indistinguishable, by design.
+ * user, RLS makes the two indistinguishable, by design.
  */
 export async function buildProjectSnapshot(
   projectId: string,
@@ -129,7 +129,7 @@ export async function buildProjectSnapshot(
   // region honestly (§16), never another region's data.
   const region = await loadRegionContext(projectId);
 
-  // Market price points for the region (verified or unverified —
+  // Market price points for the region (verified or unverified :
   // verification state travels with each point and is surfaced).
   const marketPrices: MarketPricePoint[] = await loadMarketPrices(region, now);
 
@@ -142,7 +142,7 @@ export async function buildProjectSnapshot(
     )
     .map((s) => ({
       id: s.id,
-      observation: `Stage "${s.stage_name}" recorded complete with photo${s.notes ? ` — notes: ${s.notes}` : ""}`,
+      observation: `Stage "${s.stage_name}" recorded complete with photo${s.notes ? `, notes: ${s.notes}` : ""}`,
       observedAt: s.completed_at ?? s.updated_at,
       confidence: 1,
       verification: "user_confirmed" as const,
@@ -231,7 +231,7 @@ function extractEstimatedTotal(
 /**
  * Region context from the canonical location record stored on the
  * project (location-intelligence `location` jsonb column). A
- * missing location is honest "unsupported region", not an error —
+ * missing location is honest "unsupported region", not an error :
  * and market data for OTHER regions is never substituted (§16).
  */
 async function loadRegionContext(

@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF SECTION MODEL — Types
+ * FRELUX ROOF SECTION MODEL, Types
  *
  * Defines the data model for multiple roof sections/facets.
  * Each section stores its own geometry, pitch, roof type, material,
@@ -25,7 +25,7 @@ export interface RoofSectionSpec {
   id: string;
   /** Display name (e.g. "Main Roof", "Garage", "Porch") */
   name: string;
-  /** Traced geometry (polygon vertices) — may be null when using footprint mode */
+  /** Traced geometry (polygon vertices), may be null when using footprint mode */
   geometry: RoofGeometry | null;
   /** Manual plan area in m² (when geometry not traced) */
   planAreaM2: number | null;

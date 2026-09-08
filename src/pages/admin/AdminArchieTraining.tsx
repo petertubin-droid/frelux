@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 — ADMIN ARCHIE TRAINING CONSOLE
+// FRELUX PHASE 8, ADMIN ARCHIE TRAINING CONSOLE
 //
 // The human front door of ARCHIE training: submit text, image,
 // document, drawing, table, voice, video, project-outcome, code
@@ -199,7 +199,7 @@ export default function AdminArchieTraining() {
         return;
       }
       setNotice(
-        `Extracted ${res.candidates?.length ?? 0} candidate(s). Review before approving — ARCHIE never promotes on its own.`,
+        `Extracted ${res.candidates?.length ?? 0} candidate(s). Review before approving, ARCHIE never promotes on its own.`,
       );
       setPreview({
         ingestionId: res.ingestionId,
@@ -250,7 +250,7 @@ export default function AdminArchieTraining() {
         return;
       }
       setNotice(
-        `Approved ${res.approved} knowledge item(s) — versioned through the learning governance machinery.`,
+        `Approved ${res.approved} knowledge item(s), versioned through the learning governance machinery.`,
       );
       setPreview(null);
       await loadIngestions();
@@ -268,7 +268,7 @@ export default function AdminArchieTraining() {
       setError(res.error ?? "Reject failed");
       return;
     }
-    setNotice("Ingestion rejected — no knowledge was created.");
+    setNotice("Ingestion rejected, no knowledge was created.");
     setPreview(null);
     await loadIngestions();
   }
@@ -279,7 +279,7 @@ export default function AdminArchieTraining() {
     <div className="space-y-6">
       <AdminHeader
         title="ARCHIE Training"
-        subtitle="Teach FRELUX's built-in AI — every submission is reviewed before it becomes knowledge"
+        subtitle="Teach FRELUX's built-in AI, every submission is reviewed before it becomes knowledge"
       />
 
       {error && (
@@ -436,7 +436,7 @@ export default function AdminArchieTraining() {
         <AdminCard className="space-y-4" data-testid="archie-preview">
           <div>
             <h3 className="flex items-center gap-2 font-medium">
-              <ClipboardCheck className="h-4 w-4" /> Extraction preview —{" "}
+              <ClipboardCheck className="h-4 w-4" /> Extraction preview :{" "}
               {preview.candidates.length} candidate(s)
             </h3>
             {preview.flags.length > 0 && (

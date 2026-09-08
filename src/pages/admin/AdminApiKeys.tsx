@@ -1,7 +1,7 @@
 // =========================================================
-// FRELUX PHASE 7 — ADMIN: API KEYS MANAGEMENT (/admin/api-keys)
+// FRELUX PHASE 7, ADMIN: API KEYS MANAGEMENT (/admin/api-keys)
 //
-// Operator view of every FRELUX API key (masked — key_hash is
+// Operator view of every FRELUX API key (masked, key_hash is
 // never selected), with quota/plan/status controls. Raw keys are
 // NEVER visible here: they are only ever shown once, to the
 // owner, at create/rotate time (Developer Portal or /v1/keys).
@@ -278,7 +278,7 @@ export default function AdminApiKeys() {
                     </div>
                   </td>
                   <td className="px-3 py-2 font-mono text-xs text-muted-foreground">
-                    {k.created_by ? `${k.created_by.slice(0, 8)}…` : "—"}
+                    {k.created_by ? `${k.created_by.slice(0, 8)}…` : "-"}
                   </td>
                   <td className="px-3 py-2 text-xs text-muted-foreground">
                     {k.last_used_at
@@ -330,7 +330,7 @@ export default function AdminApiKeys() {
       <section className="rounded-lg border bg-card p-5">
         <h2 className="mb-1 flex items-center gap-2 text-base font-semibold">
           <Activity aria-hidden="true" className="h-4 w-4" />
-          API usage monitor — last 24h
+          API usage monitor, last 24h
         </h2>
         <p className="mb-4 text-sm text-muted-foreground">
           Requests, errors, latency, quota exhaustion and authentication
@@ -344,7 +344,7 @@ export default function AdminApiKeys() {
                 role="alert"
               >
                 <ShieldAlert aria-hidden="true" className="h-4 w-4 shrink-0" />
-                Suspicious activity pattern detected — review auth failures
+                Suspicious activity pattern detected, review auth failures
                 below.
               </p>
             )}

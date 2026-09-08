@@ -1,5 +1,5 @@
 /**
- * FRELUX INTERNATIONAL ARCHITECTURE — Calculation Audit
+ * FRELUX INTERNATIONAL ARCHITECTURE, Calculation Audit
  *
  * Generates audit metadata for saved calculations.
  * This metadata is attached to calculation records for traceability

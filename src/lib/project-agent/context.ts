@@ -1,8 +1,8 @@
 // =========================================================
-// FRELUX PROJECT AGENT — CONTROLLED CONTEXT ENGINE (Stage 2)
+// FRELUX PROJECT AGENT, CONTROLLED CONTEXT ENGINE (Stage 2)
 //
 // Assembles the agent's view of ONE project from EXISTING
-// authoritative sources — it never recomputes anything:
+// authoritative sources, it never recomputes anything:
 //
 //   contractor_projects / stages / shopping / calculations
 //     → predictive-intelligence buildProjectSnapshot
@@ -15,7 +15,7 @@
 // Every item is labelled with its data class. Unverified values
 // NEVER silently become verified (that upgrade happens only
 // through explicit user confirmation elsewhere). Missing
-// information is listed as MISSING — the agent states what is
+// information is listed as MISSING, the agent states what is
 // known and what is not.
 // =========================================================
 
@@ -62,7 +62,7 @@ export interface ContextItem {
   note?: string;
 }
 
-/** Something that is NOT known. Explicit unknowns — never filled. */
+/** Something that is NOT known. Explicit unknowns, never filled. */
 export interface ContextGap {
   area: ContextArea | "market_data";
   key: string;
@@ -97,12 +97,12 @@ export interface ProjectAgentContext {
 // Data class policies (deterministic, central)
 // =========================================================
 
-/** A saved engine calculation is deterministic output — 'estimated'. */
+/** A saved engine calculation is deterministic output, 'estimated'. */
 export const ENGINE_RESULT_CLASS: AgentDataClass = "estimated";
-/** Anything the user typed or confirmed — 'user_provided' until a
+/** Anything the user typed or confirmed, 'user_provided' until a
  *  verification flow marks it 'verified'. */
 export const USER_INPUT_CLASS: AgentDataClass = "user_provided";
-/** AI vision / AI extraction — always requires confirmation. */
+/** AI vision / AI extraction, always requires confirmation. */
 export const AI_EXTRACTION_CLASS: AgentDataClass = "ai_extracted";
 /** Deterministic analysis of recorded data (risks, forecasts). */
 export const ANALYSIS_CLASS: AgentDataClass = "ai_analysis";
@@ -169,7 +169,7 @@ export async function buildProjectAgentContext(
     label: "Recorded progress",
     value: snapshot.project.progressPercentage,
     dataClass: USER_INPUT_CLASS,
-    source: "contractor_projects (user-entered — may be stale)",
+    source: "contractor_projects (user-entered, may be stale)",
     note:
       snapshot.project.progressPercentage === null
         ? "No progress percentage recorded."
@@ -209,7 +209,7 @@ export async function buildProjectAgentContext(
       area: "regional_profile",
       key: "market",
       reason:
-        "No confirmed country on the project location — no regional profile applies, and none is substituted.",
+        "No confirmed country on the project location, no regional profile applies, and none is substituted.",
     });
   }
 
@@ -235,7 +235,7 @@ export async function buildProjectAgentContext(
       area: "tasks",
       key: "stages",
       reason:
-        "No progress stages recorded — schedule variance cannot be assessed.",
+        "No progress stages recorded, schedule variance cannot be assessed.",
     });
   }
 
@@ -256,7 +256,7 @@ export async function buildProjectAgentContext(
         area: "documents",
         key: "plan_documents",
         reason:
-          "No plan documents uploaded — Building Model and takeoff cannot be produced.",
+          "No plan documents uploaded, Building Model and takeoff cannot be produced.",
       });
     }
   }
@@ -277,7 +277,7 @@ export async function buildProjectAgentContext(
       area: "building_model",
       key: "building_model",
       reason:
-        "No Building Model — no verified plan extraction exists for this project.",
+        "No Building Model, no verified plan extraction exists for this project.",
     });
   }
 
@@ -317,7 +317,7 @@ export async function buildProjectAgentContext(
       area: "calculations",
       key: "calculations",
       reason:
-        "No saved calculations — no deterministic quantities or costs exist yet.",
+        "No saved calculations, no deterministic quantities or costs exist yet.",
     });
   }
 
@@ -330,7 +330,7 @@ export async function buildProjectAgentContext(
       value:
         item.actual_price !== null
           ? `${item.actual_price} (actual) / ${item.estimated_price} (estimated)`
-          : `${item.estimated_price} (estimated — no actual price yet)`,
+          : `${item.estimated_price} (estimated, no actual price yet)`,
       dataClass: USER_INPUT_CLASS,
       source: "project_shopping_list",
     });
@@ -339,7 +339,7 @@ export async function buildProjectAgentContext(
     gaps.push({
       area: "materials",
       key: "shopping_list",
-      reason: "No shopping list items — procurement status is unknown.",
+      reason: "No shopping list items, procurement status is unknown.",
     });
   }
 
@@ -349,7 +349,7 @@ export async function buildProjectAgentContext(
       area: "market_data",
       key: "market_prices",
       reason:
-        "No approved market prices for this region — no price data is substituted from another region.",
+        "No approved market prices for this region, no price data is substituted from another region.",
     });
   }
 
@@ -373,7 +373,7 @@ export async function buildProjectAgentContext(
       area: "risks",
       key: `risk:${risk.id}`,
       label: risk.title,
-      value: `${risk.severity} risk in ${risk.affectedArea} — evidence: ${risk.evidence.map((e) => e.label).join("; ")}`,
+      value: `${risk.severity} risk in ${risk.affectedArea}, evidence: ${risk.evidence.map((e) => e.label).join("; ")}`,
       dataClass: ANALYSIS_CLASS,
       source: "predictive-intelligence deterministic analysis",
     });
@@ -421,7 +421,7 @@ export async function buildProjectAgentContext(
 }
 
 // =========================================================
-// Conflict detection — deterministic, with stated resolution
+// Conflict detection, deterministic, with stated resolution
 // =========================================================
 
 function detectConflicts(
@@ -441,7 +441,7 @@ function detectConflicts(
     if (diff >= 20) {
       conflicts.push({
         key: "progress_vs_stages",
-        description: `User-entered progress (${snapshot.project.progressPercentage}%) differs from completed stages (${stagePct}% — ${done}/${snapshot.stages.length}).`,
+        description: `User-entered progress (${snapshot.project.progressPercentage}%) differs from completed stages (${stagePct}%, ${done}/${snapshot.stages.length}).`,
         resolution:
           "Both values are reported side by side; stage evidence (timestamps/photos) is preferred for schedule analysis. The agent does NOT pick one silently.",
       });
@@ -457,7 +457,7 @@ function detectConflicts(
       key: "completed_without_timestamp",
       description: `${noTimestamp.length} completed stage(s) have no completion date (${noTimestamp.map((s) => s.stageName).join(", ")}).`,
       resolution:
-        "Treated as completed (user-asserted) but flagged — schedule variance dates cannot be verified for them.",
+        "Treated as completed (user-asserted) but flagged, schedule variance dates cannot be verified for them.",
     });
   }
 
@@ -467,7 +467,7 @@ function detectConflicts(
       conflicts.push({
         key: `coverage:${cov.area}`,
         description: `${cov.area}: ${cov.note}`,
-        resolution: "Reported as missing — no value substituted.",
+        resolution: "Reported as missing, no value substituted.",
       });
     }
   }
@@ -556,13 +556,13 @@ export function summariseContext(context: ProjectAgentContext): string {
     .map((g) => `- ${g.area}.${g.key}: ${g.reason}`)
     .join("\n");
   return [
-    `Known — ${known || "nothing"}.`,
+    `Known, ${known || "nothing"}.`,
     context.conflicts.length > 0
       ? `Conflicts (${context.conflicts.length}):\n${context.conflicts.map((c) => `- ${c.description} → ${c.resolution}`).join("\n")}`
       : "",
     context.gaps.length > 0
       ? `Missing (${context.gaps.length}):\n${missing}`
-      : "Nothing reported missing by the recorded data — this is not a claim that nothing is missing.",
+      : "Nothing reported missing by the recorded data, this is not a claim that nothing is missing.",
   ]
     .filter(Boolean)
     .join("\n");

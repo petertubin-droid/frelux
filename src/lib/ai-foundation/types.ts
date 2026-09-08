@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX AI FOUNDATION — Core Vocabulary
+// FRELUX AI FOUNDATION, Core Vocabulary
 //
 // One shared vocabulary for every AI capability in FRELUX:
 //   conversational AI, document/image extraction, project &
@@ -11,14 +11,14 @@
 //   geometry, materials and costs. See engines-registry.ts for
 //   the single sanctioned path from AI to numbers.
 //
-// This module is additive — it reuses, and does not replace,
+// This module is additive, it reuses, and does not replace,
 // the existing verification vocabularies in
 //   - src/lib/measurement/verification-states.ts
 //   - src/lib/construction-extraction.ts
 // (interop lives in trust.ts).
 // =========================================================
 
-/** Where a fact came from. Never guessed — always recorded. */
+/** Where a fact came from. Never guessed, always recorded. */
 export type Provenance =
   | "user_input" // typed / spoken by the user in this session
   | "user_confirmed" // user explicitly confirmed an AI/extracted value
@@ -57,14 +57,14 @@ export interface AiFact {
   source: string; // id of the system that produced it, e.g. "build-to-roof-engine"
   confidence: number; // 0..1 (1 = authoritative)
   trust: TrustStatus;
-  evidence?: string; // why/how — shown to users when important
+  evidence?: string; // why/how, shown to users when important
   detectedAt?: string; // ISO timestamp
   verifiedAt?: string; // ISO timestamp
   scope?: string; // project id / session id this fact belongs to
 }
 
 // =========================================================
-// TASKS — what a user can ask the Copilot to do
+// TASKS, what a user can ask the Copilot to do
 // =========================================================
 
 export type CopilotTaskType =
@@ -91,7 +91,7 @@ export interface InterpretationResult {
 }
 
 // =========================================================
-// CONTEXT — what the Copilot already knows
+// CONTEXT, what the Copilot already knows
 // =========================================================
 
 export interface FreluxContext {
@@ -129,7 +129,7 @@ export interface FreluxContext {
 }
 
 // =========================================================
-// PLANS — how the Copilot works a request
+// PLANS, how the Copilot works a request
 // =========================================================
 
 export type PlanStepKind =
@@ -139,7 +139,7 @@ export type PlanStepKind =
   | "present_result" // result + provenance + assumptions
   | "ask_confirmation" // user approval before any saved state changes
   | "save_to_project" // after explicit user confirmation
-  | "refuse"; // unsupported request — never guess
+  | "refuse"; // unsupported request, never guess
 
 export interface PlanStep {
   kind: PlanStepKind;
@@ -162,7 +162,7 @@ export interface CopilotPlan {
 }
 
 // =========================================================
-// ENGINE RESULTS — the ONLY way numbers enter AI surfaces
+// ENGINE RESULTS, the ONLY way numbers enter AI surfaces
 // =========================================================
 
 export interface EngineQuantityLine {
@@ -215,7 +215,7 @@ export interface ScenarioComparison {
 }
 
 // =========================================================
-// AGENTS (future) — bounded, audited, approval-first
+// AGENTS (future), bounded, audited, approval-first
 // =========================================================
 
 export type AgentActionDecision =
@@ -244,7 +244,7 @@ export interface AgentEvent {
 }
 
 // =========================================================
-// PREDICTIONS (future) — data readiness only, no fake outputs
+// PREDICTIONS (future), data readiness only, no fake outputs
 // =========================================================
 
 export type PredictionType =
@@ -256,7 +256,7 @@ export type PredictionType =
   | "progress_variance";
 
 export interface PredictionReadiness {
-  supported: boolean; // false until sufficient data exists — NEVER faked
+  supported: boolean; // false until sufficient data exists, NEVER faked
   missing: string[]; // data sets still required
   evidenceAvailable: string[]; // data sets already present
 }

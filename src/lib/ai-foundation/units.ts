@@ -1,9 +1,9 @@
 // =========================================================
-// FRELUX AI FOUNDATION — Unit Conversion (AI → engine boundary)
+// FRELUX AI FOUNDATION, Unit Conversion (AI → engine boundary)
 //
 // Point 6 of the Phase-2 contract: Copilot inputs must be
 // converted into the engine's expected internal units BEFORE the
-// calculator runs — and the ENGINE'S OWN conversion conventions
+// calculator runs, and the ENGINE'S OWN conversion conventions
 // remain untouched. Some engines (painting, tile, POP) accept a
 // `unit` parameter and convert internally per their established
 // methodology; for those we pass `unit` through unchanged. For
@@ -40,7 +40,7 @@ export interface UnitConversionResult {
 /**
  * Convert a length value from its stated unit into the engine's
  * required unit. Only ft→m is needed (engines work in metres).
- * m→m is a no-op. m→ft is NOT offered — no FRELUX engine needs it
+ * m→m is a no-op. m→ft is NOT offered, no FRELUX engine needs it
  * at the boundary (engines that support feet convert internally).
  */
 export function convertToEngineUnit(

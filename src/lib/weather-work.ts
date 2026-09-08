@@ -43,21 +43,21 @@ function rateWorkConditions(
 
   switch (type) {
     case "screeding":
-      // Screeding is very sensitive to rain — fresh screed washes away
+      // Screeding is very sensitive to rain, fresh screed washes away
       if (precip > 0.5) return "poor";
       if (humidity > 80) return "fair"; // slow drying
       if (wind > 8) return "fair";
       return "good";
 
     case "tiling":
-      // Tiling is more tolerant — adhesive cures even in moderate humidity
+      // Tiling is more tolerant, adhesive cures even in moderate humidity
       if (precip > 1) return "poor";
       if (humidity > 90 || wind > 10) return "poor";
       if (humidity > 75 || wind > 7) return "fair";
       return "good";
 
     case "tyrolene":
-      // Tyrolene needs calm conditions — wind blows the textured spray
+      // Tyrolene needs calm conditions, wind blows the textured spray
       if (precip > 1) return "poor";
       if (wind > 6) return "poor";
       if (humidity > 80 || precip > 0.3) return "fair";
@@ -146,14 +146,14 @@ export function useWorkWeather(
         // Yield one tick so consumers can observe the initial loading state
         // before estimated data resolves synchronously.
         await new Promise((resolve) => setTimeout(resolve, 0));
-        // usePaintingWeather is a hook — we can't call it inside a callback.
+        // usePaintingWeather is a hook, we can't call it inside a callback.
         // Instead, replicate the fetch logic minimally.
         const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
         let days: WeatherDay[] = [];
         let city = location.name;
 
         if (!apiKey) {
-          // Fallback: estimated data — replicate the function's behavior
+          // Fallback: estimated data, replicate the function's behavior
           // by importing the generator
           days = generateEstimatedWeather(location);
         } else {

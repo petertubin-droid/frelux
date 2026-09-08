@@ -1,5 +1,5 @@
 /**
- * FRELUX PLAN SCANNER — Types & Engine
+ * FRELUX PLAN SCANNER, Types & Engine
  *
  * Handles imported building plans (PDF pages rendered to canvas,
  * raster images uploaded by user) and prepares them for roof tracing.
@@ -235,7 +235,7 @@ export function computePixelsPerMeter(
 }
 
 /**
- * Complete calibration — validates and stores the result.
+ * Complete calibration, validates and stores the result.
  */
 export function completeCalibration(
   calibration: ScaleCalibration,

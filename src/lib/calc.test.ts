@@ -436,7 +436,7 @@ describe('calculateEstimatedTotal', () => {
 });
 
 // =========================================================
-// Advanced Calculator Tests — verifies waste is NOT double-counted
+// Advanced Calculator Tests, verifies waste is NOT double-counted
 // =========================================================
 
 describe('calculateAdvancedEstimate', () => {

@@ -1,13 +1,13 @@
 // =========================================================
 // FRELUX AI Construction Document & Image Extraction Layer
-// — client library
+//, client library
 //
 // Pipeline position:
 //   User Input → AI Extraction (edge function) → Structured Data
 //   → Confidence & Validation → User Confirmation
 //   → EXISTING Build-to-Roof Calculation Engine → Estimate
 //
-// This layer NEVER calculates quantities, materials or costs —
+// This layer NEVER calculates quantities, materials or costs :
 // it only produces validated, user-confirmed input values for the
 // deterministic engine. It is schema-driven so the same
 // infrastructure can later serve painting, screeding, tiles, POP
@@ -136,7 +136,7 @@ export async function requestConstructionExtraction(
 // ── Field keys the Build-to-Roof engine consumes ──
 // Informational-only keys (perimeter, floor_area, room_count, ridge_length,
 // valleys_count, hips_count) are shown to the user for verification and
-// cross-checking but are NOT patched into the engine input — the engine
+// cross-checking but are NOT patched into the engine input, the engine
 // derives them authoritatively from its own geometry math.
 
 const ENGINE_FIELD_KEYS = new Set([
@@ -186,7 +186,7 @@ export interface EditedValues {
 }
 
 /** Fields default to accepted only when the AI marked them `ai_detected`.
- *  Everything else starts as "pending" — the user must explicitly confirm. */
+ *  Everything else starts as "pending", the user must explicitly confirm. */
 export function initialDecisions(fields: ExtractionField[]): FieldDecisions {
   const decisions: FieldDecisions = {};
   for (const f of fields) {
@@ -257,7 +257,7 @@ export interface ApplyResult {
 
 /**
  * Builds a patch for the existing BuildToRoofInput from the fields the user
- * accepted or edited. ONLY user-confirmed values are applied — never raw AI
+ * accepted or edited. ONLY user-confirmed values are applied, never raw AI
  * output. The deterministic engine remains authoritative for all quantities.
  */
 export function buildEnginePatch(
@@ -424,7 +424,7 @@ export const SOURCE_LABELS: Record<ExtractionSource, string> = {
   inferred: "Inferred",
 };
 
-/** Missing engine-critical fields — surfaced as "enter manually" in the UI. */
+/** Missing engine-critical fields, surfaced as "enter manually" in the UI. */
 export function missingRequiredFields(
   fields: ExtractionField[],
   decisions: FieldDecisions,
@@ -442,7 +442,7 @@ export function missingRequiredFields(
 /**
  * Stores the user-reviewed extraction for signed-in users. Silent by
  * design: persistence must never block the estimation workflow. Only the
- * structured data is stored — the original document stays on the user's
+ * structured data is stored, the original document stays on the user's
  * device.
  */
 export async function saveExtractionRecord(params: {
@@ -467,7 +467,7 @@ export async function saveExtractionRecord(params: {
       applied_at: new Date().toISOString(),
     });
   } catch {
-    // Persistence is opportunistic — ignore errors (e.g. migration not yet
+    // Persistence is opportunistic, ignore errors (e.g. migration not yet
     // applied) and let the estimation continue.
   }
 }

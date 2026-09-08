@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF VIEW — Panel Component
+ * FRELUX ROOF VIEW, Panel Component
  *
  * Renders the Roof View section within the Building-to-Roof Estimator's
  * Roof step. Shows:

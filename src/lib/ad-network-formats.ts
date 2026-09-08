@@ -2,14 +2,14 @@
  * Ad network format catalog & site-wide script injection helpers.
  *
  * Adsterra and Monetag both offer more than the classic banner:
- *   Adsterra — Banner (atOptions + invoke.js, per-slot iframe — see AdSlot),
+ *   Adsterra, Banner (atOptions + invoke.js, per-slot iframe, see AdSlot),
  *              Native Banner (native.js, renders in-place), Interstitial,
  *              Popunder, Social Bar (all site-wide script tags).
- *   Monetag  — Display/auto zones via tag.min.js (data-zone), Rewarded
+ *   Monetag , Display/auto zones via tag.min.js (data-zone), Rewarded
  *              (src/lib/monetag-rewarded.ts), plus Interstitial / Popunder /
  *              Vignette auto zones.
  *
- * Every field is dormant until the admin fills it — empty credentials never
+ * Every field is dormant until the admin fills it, empty credentials never
  * inject anything. Keys are strictly validated (32-char hex for Adsterra,
  * numeric zone IDs for Monetag) and script URLs must sit on an allowlisted
  * Adsterra serve domain, so a pasted value can never smuggle arbitrary
@@ -74,7 +74,7 @@ function isAllowedAdsterraHost(hostname: string, serveDomain: string): boolean {
  */
 /** Extract the src URL from a pasted dashboard <script> snippet, if any.
  *  Admins frequently paste the entire snippet from the Adsterra dashboard
- *  ("<script src=\"...\"></script>") instead of the bare key/URL — pull the
+ *  ("<script src=\"...\"></script>") instead of the bare key/URL, pull the
  *  https URL back out so the integration still works. Returns null when the
  *  value contains no URL at all. */
 export function extractAdsterraScriptSrc(raw: string): string | null {
@@ -110,7 +110,7 @@ export function resolveAdsterraScriptUrl(
     const url = new URL(candidate);
     if (url.protocol !== "https:") return null;
     if (!isAllowedAdsterraHost(url.hostname, opts.serveDomain)) return null;
-    // Path must be /<key>/<script>.js — or the hashed /xx/xx/xx/<hash>.js
+    // Path must be /<key>/<script>.js, or the hashed /xx/xx/xx/<hash>.js
     // shape newer Adsterra Social Bar snippets use (no query, no fragment)
     const cleanPath =
       /^\/[a-z0-9-]{4,64}\/[a-z0-9-]+\.js$/i.test(url.pathname) ||
@@ -175,7 +175,7 @@ export function getAdsterraSiteWideScripts(
 
 /**
  * Monetag auto-zone format catalog. These are website zones (Popunder,
- * Interstitial, Vignette) that run automatically via the SDK tag — injected
+ * Interstitial, Vignette) that run automatically via the SDK tag, injected
  * with data-sdk-ignore so they don't create a global show_ function.
  */
 export const MONETAG_AUTO_ZONES = [
@@ -234,7 +234,7 @@ export function getAdsterraNativeBannerKey(
  * Which Adsterra script product the Native Banner credential points at.
  * Adsterra serves two in-place formats: the newer native.js unit and the
  * classic "container-<key>" Native Banner that loads invoke.js. The admin's
- * pasted snippet tells us which one the zone actually is — rendering a
+ * pasted snippet tells us which one the zone actually is, rendering a
  * native.js tag for an invoke.js zone (or vice versa) silently no-fills.
  */
 /** Whether the Adsterra Native Banner renders site-wide (Layout injects

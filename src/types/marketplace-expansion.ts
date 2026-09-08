@@ -1,4 +1,4 @@
-// Marketplace expansion types — favorites, reviews, reports, seller profiles
+// Marketplace expansion types, favorites, reviews, reports, seller profiles
 
 export type FavoriteItemType = 'product' | 'listing' | 'professional' | 'project';
 export type ReviewType = 'seller' | 'professional' | 'product' | 'listing';

@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF REVIEW — Tests
+ * FRELUX ROOF REVIEW, Tests
  *
  * Feature 11: Roof Review Screen
  */

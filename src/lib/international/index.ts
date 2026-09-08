@@ -1,5 +1,5 @@
 /**
- * FRELUX INTERNATIONAL ARCHITECTURE — Barrel Export
+ * FRELUX INTERNATIONAL ARCHITECTURE, Barrel Export
  *
  * Import from here:
  *   import { useMarket, resolveMaterialRule, fetchCurrentPrice, ... } from '@/lib/international';

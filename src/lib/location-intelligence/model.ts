@@ -1,5 +1,5 @@
 /**
- * FRELUX LOCATION INTELLIGENCE — Canonical Location Model
+ * FRELUX LOCATION INTELLIGENCE, Canonical Location Model
  *
  * ONE canonical location record that can be attached to a project,
  * property, or any future FRELUX entity (supplier, contractor, listing).
@@ -113,7 +113,7 @@ export function validateFreluxLocation(
   const hasAnyCoord = loc.latitude !== null || loc.longitude !== null;
   if (hasAnyCoord && !(latOk && lngOk)) issues.push("invalid_coordinates");
   if (!hasAnyCoord) {
-    // No coordinates at all — then a country is required.
+    // No coordinates at all, then a country is required.
     if (!loc.country_code && !loc.country) {
       issues.push("needs_country_or_coordinates");
     }
@@ -132,7 +132,7 @@ export function validateFreluxLocation(
 
 const nowIso = () => new Date().toISOString();
 
-/** An empty, unverified location shell — all fields null. */
+/** An empty, unverified location shell, all fields null. */
 export function emptyLocation(source: LocationSource = "manual"): FreluxLocation {
   return {
     latitude: null,
@@ -153,7 +153,7 @@ export function emptyLocation(source: LocationSource = "manual"): FreluxLocation
 
 /**
  * Build a canonical location from a browser GeolocationPosition.
- * Only GPS fields are populated — reverse geocoding is a separate,
+ * Only GPS fields are populated, reverse geocoding is a separate,
  * optional provider step. Nothing is guessed.
  */
 export function fromGeolocationPosition(
@@ -215,7 +215,7 @@ export function sanitizeLocationRecord(
 
 /**
  * Honest, human-readable label for a location.
- * Uses only fields that actually exist — never fabricates an address.
+ * Uses only fields that actually exist, never fabricates an address.
  */
 export function formatLocationLabel(loc: FreluxLocation | null | undefined): string {
   if (!loc) return "Location not set";

@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PROPERTY INTELLIGENCE — REPORT ORCHESTRATOR (§2–§20)
+// FRELUX PROPERTY INTELLIGENCE, REPORT ORCHESTRATOR (§2–§20)
 //
 // Builds the single canonical Property Intelligence report from:
 //   property profile (verified/user/AI-extracted, provenance-tracked)
@@ -48,13 +48,13 @@ import {
 } from "./property-risk-flags";
 
 export const PROPERTY_INTELLIGENCE_DISCLAIMER =
-  "FRELUX provides decision support built on recorded data and deterministic calculations — not professional property valuation, legal, financial or engineering advice.";
+  "FRELUX provides decision support built on recorded data and deterministic calculations, not professional property valuation, legal, financial or engineering advice.";
 
 export const REGION_UNAVAILABLE_MESSAGE =
   "Property intelligence unavailable for this region. No regional market profile exists for this location, and FRELUX does not substitute another region’s data.";
 
 // =========================================================
-// Input bundle — everything the report may legitimately use
+// Input bundle, everything the report may legitimately use
 // =========================================================
 
 export interface PropertyIntelligenceInput {
@@ -63,13 +63,13 @@ export interface PropertyIntelligenceInput {
   conditionObservations?: ConditionObservation[];
   /** §7/§8 development scenarios with engine/user estimates. */
   developmentScenarios?: PropertyDevelopmentScenario[];
-  /** §13 investment inputs (costs, sale/rent — all user-supplied or
+  /** §13 investment inputs (costs, sale/rent, all user-supplied or
    *  deterministically derived, each with stated provenance). */
   investment?: InvestmentAnalysisInput;
   /** §10 market listings for comparable evidence. */
   marketListings?: PropertyListing[];
   comparableCriteria?: ComparableCriteria;
-  /** Analysis time (ISO) — freshness is computed against this. */
+  /** Analysis time (ISO), freshness is computed against this. */
   nowIso: string;
   /** §4/§18: regional profile status resolved via location-intelligence.
    *  Omitted → 'needs_confirmation' when the country is unknown,
@@ -185,7 +185,7 @@ function profileDataAvailability(profile: PropertyProfile): DataAvailability[] {
   rows.push({
     field: "Existing condition",
     dataClass: profile.existingCondition ? "user_provided" : "unavailable",
-    note: "observable description only — not a certified condition survey",
+    note: "observable description only, not a certified condition survey",
   });
   rows.push({
     field: "Construction status",
@@ -198,7 +198,7 @@ function profileDataAvailability(profile: PropertyProfile): DataAvailability[] {
     rows.push({
       field: "Construction project (Building Model connection)",
       dataClass: "verified",
-      note: `linked project ${profile.constructionProjectId} — deterministic FRELUX estimates flow through it (§3, §17)`,
+      note: `linked project ${profile.constructionProjectId}, deterministic FRELUX estimates flow through it (§3, §17)`,
     });
   }
   return rows;
@@ -230,7 +230,7 @@ export function buildPropertyIntelligenceReport(
           : undefined,
   };
 
-  // §6: with no observations the assessment is a pure gap list —
+  // §6: with no observations the assessment is a pure gap list :
   // unassessed categories are explicit, nothing is inferred.
   const condition = assessCondition(input.conditionObservations ?? []);
 
@@ -309,8 +309,8 @@ export function buildPropertyIntelligenceReport(
       conclusion:
         value.status === "estimated"
           ? value.conclusion
-          : "Insufficient comparable data — no value estimate produced.",
-      confidence: `${value.confidence.band} (${value.confidence.score}) — ${value.dataFreshness}`,
+          : "Insufficient comparable data, no value estimate produced.",
+      confidence: `${value.confidence.band} (${value.confidence.score}), ${value.dataFreshness}`,
     });
   }
   if (investment?.totalKnownCost !== undefined) {
@@ -328,7 +328,7 @@ export function buildPropertyIntelligenceReport(
       conclusion:
         "Potential issues recorded for user review. " +
         STRUCTURAL_FEASIBILITY_NOTE,
-      confidence: "observations only — no condition is certified",
+      confidence: "observations only, no condition is certified",
     });
   }
 

@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8b — PAID CAPABILITY GUARDS
+// FRELUX PHASE 8b, PAID CAPABILITY GUARDS
 //
 // Paid services are modular, optional and DISABLED BY DEFAULT.
 // ARCHIE NEVER silently consumes a paid service: every paid
@@ -46,7 +46,7 @@ export const PAID_CAPABILITIES: Readonly<
 export const PAID_CAPABILITY_KEYS: readonly ArchiePaidCapability[] =
   Object.keys(PAID_CAPABILITIES) as ArchiePaidCapability[];
 
-/** The single enforcement point — never bypass it for a paid path. */
+/** The single enforcement point, never bypass it for a paid path. */
 export function checkPaidCapability(
   capability: ArchiePaidCapability,
   activations: Partial<Record<ArchiePaidCapability, boolean>>,
@@ -57,7 +57,7 @@ export function checkPaidCapability(
       ok: false,
       error:
         `${spec.label} is disabled and requires activation. ` +
-        `This is an optional paid capability (${spec.provider}) — ARCHIE never uses paid services silently. ` +
+        `This is an optional paid capability (${spec.provider}), ARCHIE never uses paid services silently. ` +
         `Activate it in ARCHIE Mobile → Security, or continue with the free on-device path.`,
     };
   }
@@ -79,7 +79,7 @@ export async function fetchPaidActivations(
   return map;
 }
 
-/** Activation is ALWAYS explicit — no code path flips this silently. */
+/** Activation is ALWAYS explicit, no code path flips this silently. */
 export async function activatePaidCapability(
   userId: string,
   capability: ArchiePaidCapability,

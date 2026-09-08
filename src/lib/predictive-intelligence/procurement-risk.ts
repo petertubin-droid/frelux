@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — PROCUREMENT RISK (§5)
+// FRELUX PREDICTIVE INTELLIGENCE, PROCUREMENT RISK (§5)
 //
 // From the project's REAL shopping list and verified price data:
 //   - materials still needed (unpurchased) while work remains
@@ -7,7 +7,7 @@
 //   - lines whose recorded actual price rose vs estimate
 //   - market price points gone stale/unavailable for needed items
 //
-// FRELUX never claims a material is "unavailable" — availability
+// FRELUX never claims a material is "unavailable", availability
 // is not recorded anywhere and is therefore never asserted (§18).
 // =========================================================
 
@@ -53,7 +53,7 @@ export function analyzeProcurementRisk(snapshot: {
   const inputs: PredictionResult["inputs"] = [];
   const assumptions: string[] = [];
   const limitations: string[] = [
-    "Supplier availability is not recorded by any FRELUX data source — this analysis never claims a material is unavailable.",
+    "Supplier availability is not recorded by any FRELUX data source, this analysis never claims a material is unavailable.",
   ];
 
   if (shoppingItems.length === 0) {
@@ -61,7 +61,7 @@ export function analyzeProcurementRisk(snapshot: {
       kind: "procurement_risk",
       status: "insufficient_data",
       prediction:
-        "Insufficient data — no shopping list is recorded for this project.",
+        "Insufficient data, no shopping list is recorded for this project.",
       result: null,
       evidence,
       inputs,
@@ -84,7 +84,7 @@ export function analyzeProcurementRisk(snapshot: {
     evidence.push({
       kind: "shopping_item",
       id: item.id,
-      label: `${item.name} — ${item.is_purchased ? "purchased" : "not yet purchased"}${item.supplier ? `, supplier: ${item.supplier}` : ", no supplier recorded"}`,
+      label: `${item.name}, ${item.is_purchased ? "purchased" : "not yet purchased"}${item.supplier ? `, supplier: ${item.supplier}` : ", no supplier recorded"}`,
       recordedAt: null,
       verification: "user_recorded",
     });
@@ -93,7 +93,7 @@ export function analyzeProcurementRisk(snapshot: {
   // Materials needed soon: unpurchased items while work remains.
   const neededSoon = remainingWork ? unpurchased : [];
 
-  // Market price staleness for needed items — only a claim the data supports.
+  // Market price staleness for needed items, only a claim the data supports.
   const staleMarketNames: string[] = [];
   for (const item of neededSoon) {
     const points = marketPrices.filter((p) =>
@@ -132,7 +132,7 @@ export function analyzeProcurementRisk(snapshot: {
   );
 
   assumptions.push(
-    "Unpurchased items are treated as material needs of the remaining work — procurement urgency follows from the recorded progress state.",
+    "Unpurchased items are treated as material needs of the remaining work, procurement urgency follows from the recorded progress state.",
   );
   if (!remainingWork) {
     assumptions.push(
@@ -178,11 +178,11 @@ export function analyzeProcurementRisk(snapshot: {
   const prediction =
     rating === "low"
       ? neededSoon.length === 0
-        ? "Procurement risk: LOW — all recorded materials are purchased (or no work remains)."
-        : "Procurement risk: LOW — remaining material needs have supplier information and stable recorded prices."
+        ? "Procurement risk: LOW, all recorded materials are purchased (or no work remains)."
+        : "Procurement risk: LOW, remaining material needs have supplier information and stable recorded prices."
       : rating === "medium"
-        ? `Procurement risk: MEDIUM — ${neededSoon.length} material(s) still needed for remaining work${missingSupplier.length > 0 ? `, ${missingSupplier.length} without a recorded supplier` : ""}.`
-        : "Procurement risk: HIGH — a material needed for remaining work has a recorded price increase above 25%.";
+        ? `Procurement risk: MEDIUM, ${neededSoon.length} material(s) still needed for remaining work${missingSupplier.length > 0 ? `, ${missingSupplier.length} without a recorded supplier` : ""}.`
+        : "Procurement risk: HIGH, a material needed for remaining work has a recorded price increase above 25%.";
 
   return {
     kind: "procurement_risk",

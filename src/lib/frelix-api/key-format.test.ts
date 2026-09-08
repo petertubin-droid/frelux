@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 7 — API KEY FORMAT & AUTHORIZATION TESTS
+// FRELUX PHASE 7, API KEY FORMAT & AUTHORIZATION TESTS
 // Strict §3 key contract + gateway decision logic.
 // =========================================================
 
@@ -22,7 +22,7 @@ import {
 } from "./auth";
 import type { ApiKeyRecord } from "./auth";
 
-describe("API key format — strict §3 contract", () => {
+describe("API key format, strict §3 contract", () => {
   it('generates keys exactly 32 characters long: "FLX-" + 28 alphanumerics', () => {
     for (let i = 0; i < 500; i++) {
       const key = generateFreluxApiKey();
@@ -71,7 +71,7 @@ describe("API key format — strict §3 contract", () => {
     expect(isValidApiKeyFormat("FLX-550e8400-e29b-41d4-a716-446655")).toBe(
       false,
     ); // UUID-derived
-    // A structurally valid but predictable key passes FORMAT validation —
+    // A structurally valid but predictable key passes FORMAT validation :
     // unpredictability is enforced at generation time (crypto RNG + uniqueness tests above)
     expect(isValidApiKeyFormat("FLX-" + "0".repeat(27) + "1")).toBe(true);
   });
@@ -93,7 +93,7 @@ describe("API key format — strict §3 contract", () => {
   });
 });
 
-describe("key hashing & masking — the raw key is never stored", () => {
+describe("key hashing & masking, the raw key is never stored", () => {
   it("hashes deterministically to a 64-char SHA-256 hex digest", async () => {
     const key = "FLX-A7k92MP4Q8xZ1Bc6N5rT3vW9Y2hK";
     const h1 = await hashApiKey(key);
@@ -128,7 +128,7 @@ describe("key hashing & masking — the raw key is never stored", () => {
   });
 });
 
-describe("authorization decisions — never trust client identity", () => {
+describe("authorization decisions, never trust client identity", () => {
   const base: ApiKeyRecord = {
     id: "key-1",
     user_id: "user-1",
@@ -178,7 +178,7 @@ describe("authorization decisions — never trust client identity", () => {
     ).toBe(true);
   });
 
-  it("rate limit and quotas refuse with retry windows — no silent overage", () => {
+  it("rate limit and quotas refuse with retry windows, no silent overage", () => {
     expect(evaluateRateLimit(59, 60).allowed).toBe(true);
     expect(evaluateRateLimit(60, 60)).toEqual({
       allowed: false,
@@ -199,7 +199,7 @@ describe("authorization decisions — never trust client identity", () => {
     ).toBe(false);
   });
 
-  it('region entitlement comes from plan config — "*" or explicit region codes', () => {
+  it('region entitlement comes from plan config, "*" or explicit region codes', () => {
     expect(regionAllowed(["NG", "GB"], "NG")).toBe(true);
     expect(regionAllowed(["NG", "GB"], "US")).toBe(false);
     expect(regionAllowed(["*"], "US")).toBe(true);

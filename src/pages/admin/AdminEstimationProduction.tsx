@@ -1,5 +1,5 @@
 /**
- * FRELUX Admin — Estimation Production Rules
+ * FRELUX Admin, Estimation Production Rules
  *
  * Manage production minimums for FRELUX paint production.
  * Owerri: no minimum. Outside Owerri: product-specific minimums.

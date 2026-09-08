@@ -15,14 +15,14 @@
  *   engine.buildExplanation(...)         // calculation explanation
  *   engine.assessConfidence(...)         // confidence assessment
  *
- * ADDITIVE — existing calculator logic is not modified.
+ * ADDITIVE, existing calculator logic is not modified.
  */
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/supabase';
 
 // ============================================================
-// TYPES (simple, UI-friendly — not engine-internal types)
+// TYPES (simple, UI-friendly, not engine-internal types)
 // ============================================================
 
 export interface WasteResolution {
@@ -92,7 +92,7 @@ export interface EstimateReportData {
 }
 
 // ============================================================
-// DB Types (minimal — just what we need for loading)
+// DB Types (minimal, just what we need for loading)
 // ============================================================
 
 interface EmWasteConfigRow {
@@ -163,7 +163,7 @@ export function useEngineFeatures(options: UseEngineFeaturesOptions) {
           setEngineSettings(es);
         }
       } catch {
-        // DB not available — use fallbacks
+        // DB not available, use fallbacks
       }
       if (!cancelled) setLoading(false);
     }

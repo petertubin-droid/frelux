@@ -45,7 +45,7 @@ const SUPABASE_PROJECT_REF =
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? "";
 
 // =========================================================
-// AI Feature Registry — every AI feature in the app
+// AI Feature Registry, every AI feature in the app
 // =========================================================
 interface AiFeatureDef {
   key: string;

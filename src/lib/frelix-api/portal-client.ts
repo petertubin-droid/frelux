@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 7 — DEVELOPER PORTAL CLIENT (in-app)
+// FRELUX PHASE 7, DEVELOPER PORTAL CLIENT (in-app)
 //
 // Key management for the Developer Portal and the admin API
 // keys page. Uses the SAME §3 key contract as the gateway:
@@ -8,9 +8,9 @@
 //
 // All queries go through the user-scoped Supabase client and
 // are protected by RLS:
-//   frelux_api_keys   — owner_all + admin policies
-//   frelux_api_usage  — owner_read + admin_read
-//   frelux_api_plans  — authenticated read + admin manage
+//   frelux_api_keys  , owner_all + admin policies
+//   frelux_api_usage , owner_read + admin_read
+//   frelux_api_plans , authenticated read + admin manage
 //
 // key_hash is NEVER selected for display anywhere.
 // =========================================================
@@ -55,7 +55,7 @@ export interface UsageSummary {
 
 export interface CreatedKey {
   row: ApiKeyRow;
-  /** Shown exactly once — never stored raw, never retrievable again. */
+  /** Shown exactly once, never stored raw, never retrievable again. */
   rawKey: string;
 }
 
@@ -83,8 +83,8 @@ export async function createApiKey(
   if (trimmed.length < 1 || trimmed.length > 100) {
     throw new Error("Key name must be 1–100 characters.");
   }
-  const rawKey = generateFreluxApiKey(); // §3 contract — same as the gateway
-  const keyHash = await hashApiKey(rawKey); // WebCrypto — raw key never stored
+  const rawKey = generateFreluxApiKey(); // §3 contract, same as the gateway
+  const keyHash = await hashApiKey(rawKey); // WebCrypto, raw key never stored
   const { data, error } = await supabase
     .from("frelux_api_keys")
     .insert({
@@ -211,12 +211,12 @@ export async function getPlans(): Promise<ApiKeyPlan[]> {
 }
 
 // =========================================================
-// Phase 7 §17 — API plan purchase
+// Phase 7 §17, API plan purchase
 //
 // The plan price is ALWAYS resolved server-side from
 // frelux_api_plans by the paystack-checkout edge function; the
 // client cannot influence it. The entitlement itself is granted
-// ONLY by the signed payment webhook (reference-idempotent) —
+// ONLY by the signed payment webhook (reference-idempotent) :
 // this call merely starts a payment session.
 // =========================================================
 export async function initializeApiPlanCheckout(

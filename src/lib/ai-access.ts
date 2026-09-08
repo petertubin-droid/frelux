@@ -13,8 +13,8 @@
 // count from the browser.
 //
 // Usage flow:
-// 1. fetchAiAccessConfig() — get the configured access mode + daily limit
-// 2. getAiUsageStatus() — check remaining uses for today (read-only)
+// 1. fetchAiAccessConfig(), get the configured access mode + daily limit
+// 2. getAiUsageStatus(), check remaining uses for today (read-only)
 // 3. The edge function consumes usage server-side on success only
 
 import { supabase } from '@/lib/supabase';
@@ -157,7 +157,7 @@ export function checkAiAccess(config: AiAccessConfig, usage: AiUsageStatus, isAd
 }
 
 // Rewarded access: the server must verify the reward before granting access.
-// This is a placeholder architecture — when a real rewarded ad provider is
+// This is a placeholder architecture, when a real rewarded ad provider is
 // configured, the verification call goes here. For now, it always returns
 // false because no provider is configured.
 export async function requestRewardedAccess(): Promise<{ granted: boolean; reason: string }> {

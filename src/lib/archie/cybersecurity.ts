@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX ARCHIE AMENDMENT — DEFENSIVE CYBERSECURITY
+// FRELUX ARCHIE AMENDMENT, DEFENSIVE CYBERSECURITY
 //
 // ARCHIE continuously develops LEGITIMATE DEFENSIVE security
 // intelligence for FRELUX: secure coding, authentication,
@@ -8,7 +8,7 @@
 // modeling, vulnerability assessment, monitoring, incident
 // response and authorized security testing.
 //
-// Absolute refusals — enforced, not advised:
+// Absolute refusals, enforced, not advised:
 //   unauthorized access, credential theft, persistence,
 //   surveillance, security bypass, attacks against
 //   third-party systems. These are REFUSED regardless of
@@ -33,7 +33,7 @@ export const DEFENSIVE_CAPABILITIES: readonly string[] = [
   "authorized security testing of FRELUX systems",
 ];
 
-/** Hard-refused operations — no framing changes this. */
+/** Hard-refused operations, no framing changes this. */
 export const FORBIDDEN_SECURITY_OPERATIONS: readonly string[] = [
   "unauthorized access",
   "credential theft",
@@ -62,7 +62,7 @@ export interface SecurityOperationVerdict {
 
 /** Classify a security operation request. Defensive work on
  *  FRELUX's own systems is allowed; anything matching a
- *  forbidden pattern is REFUSED — first match wins. */
+ *  forbidden pattern is REFUSED, first match wins. */
 export function classifySecurityOperation(operation: string): SecurityOperationVerdict {
   const op = operation.trim();
   const forbidden = FORBIDDEN_PATTERNS.find((p) => p.rx.test(op));
@@ -70,7 +70,7 @@ export function classifySecurityOperation(operation: string): SecurityOperationV
     return {
       verdict: "REFUSED",
       operation: op,
-      rationale: `"${forbidden.label}" is absolutely refused. ARCHIE performs only legitimate defensive security for FRELUX — never unauthorized access, credential theft, persistence, surveillance, security bypass or attacks on third-party systems.`,
+      rationale: `"${forbidden.label}" is absolutely refused. ARCHIE performs only legitimate defensive security for FRELUX, never unauthorized access, credential theft, persistence, surveillance, security bypass or attacks on third-party systems.`,
     };
   }
   return {
@@ -86,7 +86,7 @@ export interface VulnerabilityAssessment {
   component: string;
   severity: "CRITICAL" | "HIGH" | "MEDIUM" | "LOW";
   evidence: string;
-  /** The defensive fix ARCHIE prepares — a proposal. */
+  /** The defensive fix ARCHIE prepares, a proposal. */
   defensive_fix: string;
   /** Fix application goes through the owner gate. */
   fix_is_proposal: true;
@@ -121,7 +121,7 @@ export function prepareVulnerabilityAssessment(input: {
 }
 
 /** The incident response lifecycle ARCHIE supports for
- *  FRELUX — analysis and preparation; containment decisions
+ *  FRELUX, analysis and preparation; containment decisions
  *  involving production or credentials belong to the owner. */
 export const INCIDENT_RESPONSE_STAGES: readonly string[] = [
   "detect",

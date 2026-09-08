@@ -197,7 +197,7 @@ export default function ToolsSection() {
             );
           })}
 
-          {/* Color & AI — smaller card */}
+          {/* Color & AI, smaller card */}
           <Link
             to="/colors"
             className="card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card p-6 transition-all duration-500 dark:border-white/5 dark:bg-card"

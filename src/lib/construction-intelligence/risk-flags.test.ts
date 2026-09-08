@@ -1,8 +1,8 @@
 /**
- * Construction Intelligence — risk flag tests.
+ * Construction Intelligence, risk flag tests.
  *
  * Guarantees:
- * - Flags are derived ONLY from evidence passed in — no manufactured scores.
+ * - Flags are derived ONLY from evidence passed in, no manufactured scores.
  * - Missing regional price → explicit "price unavailable" flag.
  * - Low-confidence AI detection → flag with the actual confidence in the reason.
  * - Invalid measurements → critical flag.
@@ -144,7 +144,7 @@ describe("evaluateRiskFlags", () => {
     expect(flags.find((f) => f.code === "unverified_input")).toBeUndefined();
   });
 
-  it("flags missing regional prices explicitly — never a borrowed or invented price", () => {
+  it("flags missing regional prices explicitly, never a borrowed or invented price", () => {
     const flags = evaluate({
       priceEvidence: [{ materialName: "Cement", materialItemId: "mat:1" }],
     });

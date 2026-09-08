@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX AI FOUNDATION — Authoritative Engine Registry
+// FRELUX AI FOUNDATION, Authoritative Engine Registry
 //
 // THE AI → DETERMINISTIC BOUNDARY.
 //
@@ -9,7 +9,7 @@
 // engine with `executeEngine`. There is no other sanctioned path and
 // no code path for the AI to compute construction mathematics itself.
 //
-// Existing engines are reused as-is — their formulas are untouched
+// Existing engines are reused as-is, their formulas are untouched
 // and remain the single source of truth.
 // =========================================================
 
@@ -24,7 +24,7 @@ export interface EngineDescriptor {
   id: string;
   domain: string; // building | painting | roofing | finishing | measurement
   title: string;
-  /** Authoritative — always true; registered engines are THE truth for their math. */
+  /** Authoritative, always true; registered engines are THE truth for their math. */
   authoritative: true;
   /** Human note shown in AI surfaces: who calculated this. */
   creditedAs: string;
@@ -49,7 +49,7 @@ export class EngineNotRegisteredError extends Error {
 // Build-to-Roof input defaults
 //
 // Mirrors the defaults the existing BuildToRoofEstimator page ships
-// (the same smart defaults users already see). Reused — not reinvented.
+// (the same smart defaults users already see). Reused, not reinvented.
 // Wastage/prices/labour constants come from the engine itself, so the
 // engine stays the single source of truth for its own configuration.
 // =========================================================
@@ -96,7 +96,7 @@ export interface BuildToRoofInputLike {
 }
 
 /**
- * Smart defaults — identical to the values the existing estimator page
+ * Smart defaults, identical to the values the existing estimator page
  * pre-fills. Every value filled from here is labelled as an assumption
  * by the requirements layer (origin: smart_default).
  */
@@ -148,7 +148,7 @@ export function defaultBuildToRoofInput(): BuildToRoofInputLike {
 // =========================================================
 
 
-/** Guard: all numeric engine inputs must be finite — else error, never NaN math. */
+/** Guard: all numeric engine inputs must be finite, else error, never NaN math. */
 export function requireFiniteNumbers(values: Record<string, unknown>): string | null {
   for (const [key, value] of Object.entries(values)) {
     const n = Number(value);
@@ -202,7 +202,7 @@ registerEngine({
       }
       const labourCost = stage.labour_total ?? 0;
       if (labourCost > 0) {
-        costLines.push({ label: `Labour — ${stage.stage_label}`, amount: labourCost });
+        costLines.push({ label: `Labour, ${stage.stage_label}`, amount: labourCost });
       }
     }
 
@@ -210,7 +210,7 @@ registerEngine({
       total: result.grand_total,
       currency: 'NGN',
       lines: costLines,
-      // Engine ships price staleness — surface it honestly.
+      // Engine ships price staleness, surface it honestly.
       regionalDataAvailable: !result.price_stale,
     };
 
@@ -273,7 +273,7 @@ registerEngine({
 registerEngine({
   id: 'painting_wall_area',
   domain: 'painting',
-  title: 'FRELUX Painting Engine — Wall Area',
+  title: 'FRELUX Painting Engine, Wall Area',
   authoritative: true,
   creditedAs: 'Calculated by the authoritative FRELUX painting engine',
   async run(rawInput) {
@@ -299,7 +299,7 @@ registerEngine({
 registerEngine({
   id: 'tyrolene_partition_area',
   domain: 'finishing',
-  title: 'FRELUX Tyrolene Engine — Partition Area',
+  title: 'FRELUX Tyrolene Engine, Partition Area',
   authoritative: true,
   creditedAs: 'Calculated by the authoritative FRELUX tyrolene engine',
   async run(rawInput) {
@@ -335,7 +335,7 @@ export function getEngineDescriptor(engineId: string): EngineDescriptor | null {
 
 /**
  * The single sanctioned execution path for AI surfaces.
- * Unknown ids throw — the AI never falls back to its own math.
+ * Unknown ids throw, the AI never falls back to its own math.
  */
 export async function executeEngine(engineId: string, input: unknown): Promise<EngineResult> {
   const descriptor = REGISTRY.get(engineId);
@@ -356,6 +356,6 @@ export async function executeEngine(engineId: string, input: unknown): Promise<E
 }
 
 // Register the Phase-2 engines AFTER the registry map exists.
-// (Import alone would hoist above the REGISTRY declaration — TDZ.)
+// (Import alone would hoist above the REGISTRY declaration, TDZ.)
 import { registerPhase2Engines } from './engines-phase2';
 registerPhase2Engines();

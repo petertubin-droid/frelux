@@ -1,7 +1,7 @@
 // =========================================================
-// PROJECT AGENT — MEMORY & AUDIT TRAIL TESTS (Stage 10)
+// PROJECT AGENT, MEMORY & AUDIT TRAIL TESTS (Stage 10)
 //
-// Stage 10 acceptance: a user can understand —
+// Stage 10 acceptance: a user can understand :
 //   What FRELUX observed → what it recommended → what the user
 //   approved → what actually happened.
 //
@@ -107,14 +107,14 @@ vi.mock("@/lib/supabase", () => {
   return { supabase: { from }, isSupabaseConfigured: true };
 });
 
-// NOTE: './session' is NOT mocked — the REAL recordActivity /
+// NOTE: './session' is NOT mocked, the REAL recordActivity /
 // recordFact / assertProjectVisible run, so write-layer
 // sanitization and the visibility boundary are tested through
 // the actual code paths against the mock tables above.
 
 // recordActivity/recordFact keep their REAL implementations (the
 // './session' mock above only replaces assertProjectVisible), so
-// their writes flow into the mock db tables above — write-layer
+// their writes flow into the mock db tables above, write-layer
 // sanitization is tested through the real code paths.
 
 beforeEach(() => {
@@ -124,7 +124,7 @@ beforeEach(() => {
 // ---------------------------------------------------------
 // Secret hygiene (write AND read).
 // ---------------------------------------------------------
-describe("sanitizeAuditValue — secret hygiene (§Stage 10)", () => {
+describe("sanitizeAuditValue, secret hygiene (§Stage 10)", () => {
   it("redacts secret-looking keys recursively, keeps everything else", () => {
     const input = {
       api_key: "sk-123",
@@ -194,9 +194,9 @@ describe("sanitizeAuditValue — secret hygiene (§Stage 10)", () => {
 });
 
 // ---------------------------------------------------------
-// The story — observed → recommended → approved → happened.
+// The story, observed → recommended → approved → happened.
 // ---------------------------------------------------------
-describe("getProjectStory — the unified trail (§Stage 10)", () => {
+describe("getProjectStory, the unified trail (§Stage 10)", () => {
   function seedFullChain() {
     db.activity.push(
       {
@@ -274,7 +274,7 @@ describe("getProjectStory — the unified trail (§Stage 10)", () => {
     });
   }
 
-  it("assembles the full chain end to end — observed → recommended → approved → happened", async () => {
+  it("assembles the full chain end to end, observed → recommended → approved → happened", async () => {
     seedFullChain();
     const r = await getProjectStory("proj-1", T4);
     expect(r.ok).toBe(true);
@@ -316,7 +316,7 @@ describe("getProjectStory — the unified trail (§Stage 10)", () => {
     expect(r.data.openAlerts[0].alertKey).toBe("budget:overrun");
   });
 
-  it("sanitizes legacy rows on READ — secrets cannot leak through the story", async () => {
+  it("sanitizes legacy rows on READ, secrets cannot leak through the story", async () => {
     seedFullChain();
     const r = await getProjectStory("proj-1", T4);
     expect(r.ok).toBe(true);
@@ -326,7 +326,7 @@ describe("getProjectStory — the unified trail (§Stage 10)", () => {
     expect(stored).toContain("[REDACTED]");
   });
 
-  it("reports missing links honestly — prepared but never decided", async () => {
+  it("reports missing links honestly, prepared but never decided", async () => {
     db.actions.push({
       id: "act-2",
       kind: "confirm_stage_completion",
@@ -457,7 +457,7 @@ describe("getProjectStory — the unified trail (§Stage 10)", () => {
   });
 
   it("unreadable project (RLS) → project_not_found", async () => {
-    db.projects = []; // not visible — indistinguishable from non-existent
+    db.projects = []; // not visible, indistinguishable from non-existent
     const r = await getProjectStory("proj-1", T4);
     expect(r.ok).toBe(false);
     if (r.ok) return;
@@ -466,9 +466,9 @@ describe("getProjectStory — the unified trail (§Stage 10)", () => {
 });
 
 // ---------------------------------------------------------
-// Audited memory — fact writes enter the trail.
+// Audited memory, fact writes enter the trail.
 // ---------------------------------------------------------
-describe("recordAuditedFact — memory changes are never invisible (§Stage 10)", () => {
+describe("recordAuditedFact, memory changes are never invisible (§Stage 10)", () => {
   it("persists the fact AND records an activity entry for it", async () => {
     const fact: AgentFact = {
       id: "f1",
@@ -523,7 +523,7 @@ describe("recordAuditedFact — memory changes are never invisible (§Stage 10)"
     expect(r.ok).toBe(false);
     if (r.ok) return;
     expect(r.error.code).toBe("invalid_state");
-    // The refusal produced NO new activity entry — refusals of
+    // The refusal produced NO new activity entry, refusals of
     // writes are not themselves memory observations.
     expect(db.activity.length).toBe(0);
   });

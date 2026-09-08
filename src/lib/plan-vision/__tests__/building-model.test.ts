@@ -1,5 +1,5 @@
 // =========================================================
-// PLAN VISION TESTS — canonical building model (§9) + §13/§14
+// PLAN VISION TESTS, canonical building model (§9) + §13/§14
 // =========================================================
 
 import { describe, it, expect } from "vitest";
@@ -117,7 +117,7 @@ describe("verified room → canonical Space (§9)", () => {
     expect(space.height).toBe(3);
   });
 
-  it("throws for an unverified room — AI observations never pass the door", () => {
+  it("throws for an unverified room, AI observations never pass the door", () => {
     expect(() => verifiedRoomToSpace(room())).toThrow(/not user-verified/);
     expect(() => verifiedRoomToSpace(startReviewed(room()))).toThrow();
   });

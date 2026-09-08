@@ -144,7 +144,7 @@ export interface BuildingResult {
  *
  * This wraps the existing ConstructionProject concept but adds
  * a building layer. The buildings array is the authoritative
- * structure — the project aggregates building results.
+ * structure, the project aggregates building results.
  */
 export interface MultiBuildingProject {
   /** Unique project ID */

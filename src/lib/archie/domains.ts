@@ -1,10 +1,10 @@
 // =========================================================
-// FRELUX PHASE 8 — ARCHIE DOMAIN REGISTRY
+// FRELUX PHASE 8, ARCHIE DOMAIN REGISTRY
 //
 // ARCHIE's core domain is Architecture; its learning capacity
 // is EXTENSIBLE with NO artificial fixed domain ceiling. The
 // registry is data: new legitimate domains are added by admins
-// (and only admins). Risk class decides the verification bar —
+// (and only admins). Risk class decides the verification bar :
 // structural/foundation/safety/deterministic math knowledge
 // can NEVER be auto-promoted.
 // =========================================================
@@ -12,7 +12,7 @@
 import type { ArchieDomain, ArchieRiskClass } from "./types";
 import { isMathCapability } from "@/lib/learning/learning-engine";
 
-/** The seeded registry — mirrors migration 20260908140000. */
+/** The seeded registry, mirrors migration 20260908140000. */
 export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
   {
     key: "architecture",
@@ -21,7 +21,7 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     risk_class: "STANDARD",
     active: true,
     description:
-      "ARCHIE core domain — building design, spaces, forms, plans and architectural practice.",
+      "ARCHIE core domain, building design, spaces, forms, plans and architectural practice.",
   },
   {
     key: "construction",
@@ -197,7 +197,7 @@ export class ArchieDomainRegistry {
     return this.domains.get(key);
   }
 
-  /** Core domain is architecture — always present, never removable. */
+  /** Core domain is architecture, always present, never removable. */
   getCore(): ArchieDomain {
     const core = [...this.domains.values()].find((d) => d.is_core);
     if (!core) {

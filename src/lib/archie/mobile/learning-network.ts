@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 P4 — ARCHIE LEARNING NETWORK
+// FRELUX PHASE 8 P4, ARCHIE LEARNING NETWORK
 //
 // The multi-subscriber knowledge ecosystem:
 //
@@ -49,7 +49,7 @@ function contentKey(content: Record<string, unknown>): string {
   return JSON.stringify(content);
 }
 
-/** Evidence rank — identical to the knowledge-graph ranking. */
+/** Evidence rank, identical to the knowledge-graph ranking. */
 const EVIDENCE_RANK: Record<string, number> = {
   ACTUAL_OUTCOME: 0,
   SYSTEM_VERIFIED: 1,
@@ -74,7 +74,7 @@ export interface QualityReport {
   low_confidence: string[];
   outdated: string[];
   malicious: Array<{ contribution_id: string; reason: string }>;
-  /** Per-topic agreement-derived confidence adjustments — capped. */
+  /** Per-topic agreement-derived confidence adjustments, capped. */
   confidence_adjustments: Array<{
     topic: string;
     distinct_contributors: number;
@@ -87,7 +87,7 @@ export interface QualityReport {
 
 /** Evaluate a pool of network submissions for one topic. The
  *  decision (accept/flag/reject) always routes through human
- *  review — this report informs it. */
+ *  review, this report informs it. */
 export function evaluateSubmissions(
   topic: string,
   submissions: NetworkSubmission[],
@@ -110,7 +110,7 @@ export function evaluateSubmissions(
     for (const pattern of injections) {
       report.malicious.push({
         contribution_id: s.contribution_id,
-        reason: `Content contains a prompt-injection pattern (${pattern}) — treated as untrusted data`,
+        reason: `Content contains a prompt-injection pattern (${pattern}), treated as untrusted data`,
       });
     }
   }
@@ -125,7 +125,7 @@ export function evaluateSubmissions(
   for (const [contributor, count] of byContributor) {
     if (count > FLOOD_LIMIT) {
       report.flags.push(
-        `CONTRIBUTOR_FLOODING:${contributor} (${count} submissions on "${topic}" — possible mass manipulation)`,
+        `CONTRIBUTOR_FLOODING:${contributor} (${count} submissions on "${topic}", possible mass manipulation)`,
       );
       for (const s of submissions.filter((x) => x.contributor_id === contributor)) {
         report.unreliable_sources.push(s.contribution_id);
@@ -149,7 +149,7 @@ export function evaluateSubmissions(
       const contributors = new Set(list.map((s) => s.contributor_id));
       if (contributors.size > 1) {
         report.flags.push(
-          `COORDINATED_IDENTICAL_CONTENT:${list.length} identical submissions from ${contributors.size} contributors — agreement from identical raw content gives NO confidence`,
+          `COORDINATED_IDENTICAL_CONTENT:${list.length} identical submissions from ${contributors.size} contributors, agreement from identical raw content gives NO confidence`,
         );
       }
     }
@@ -239,7 +239,7 @@ export function agreementAdjustment(
   let adjustment = Math.min(0.2, (distinct - 1) * 0.05);
   let capped = distinct > 1 && adjustment >= 0.2;
   if (!independent) {
-    // identical copies agree by construction — no confidence
+    // identical copies agree by construction, no confidence
     adjustment = 0;
     capped = false;
   }

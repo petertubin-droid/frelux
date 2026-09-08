@@ -12,7 +12,7 @@
  * - Tiled surfaces with tile config
  * - Custom sections
  *
- * Uses the shared measurement model — no duplicate conversion logic.
+ * Uses the shared measurement model, no duplicate conversion logic.
  */
 
 import { useState, type ReactNode } from 'react';

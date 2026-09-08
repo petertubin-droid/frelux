@@ -1,5 +1,5 @@
 // =========================================================
-// PLAN VISION TESTS — multi-document reconciliation (§15, §16)
+// PLAN VISION TESTS, multi-document reconciliation (§15, §16)
 // =========================================================
 
 import { describe, it, expect } from "vitest";
@@ -236,7 +236,7 @@ describe("building fact merging (§15)", () => {
   });
 });
 
-describe("conflict resolution — the user decides (§15)", () => {
+describe("conflict resolution, the user decides (§15)", () => {
   const conflicting = () =>
     detectDocumentConflicts([
       extraction("doc1", {
@@ -274,7 +274,7 @@ describe("conflict resolution — the user decides (§15)", () => {
   });
 });
 
-describe("suggestion ranking — dimensioned drawings outrank photos (§16)", () => {
+describe("suggestion ranking, dimensioned drawings outrank photos (§16)", () => {
   it("suggests the dimension-grade document over the photo", () => {
     const conflicts = detectDocumentConflicts([
       extraction("doc1", {

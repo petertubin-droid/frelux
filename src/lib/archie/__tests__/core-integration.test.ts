@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 FINAL — CORE INTEGRATION & OWNER AUTHORITY
+// FRELUX PHASE 8 FINAL, CORE INTEGRATION & OWNER AUTHORITY
 // TEST SUITE
 //
 // The final integration test proves ARCHIE can actually
@@ -179,7 +179,7 @@ describe("core integration: the 80/20 operating model", () => {
     expect(OPERATING_MODEL.archie_cannot_self_approve).toBe(true);
   });
 
-  it("routes protected questions to the owner gate — never direct execution", () => {
+  it("routes protected questions to the owner gate, never direct execution", () => {
     const prod = orchestrate("change the production code for the cement calculator");
     expect(prod.authority).toBe("OWNER_APPROVAL_REQUIRED");
     const formula = orchestrate("update the deterministic formula for paint coverage");
@@ -222,7 +222,7 @@ describe("core integration: the owner approval gate", () => {
   it("walks the full gate: ANALYZE → PLAN → TEST → PRESENT → APPROVAL → APPLY → AUDIT", () => {
     const change = reviewedChange();
 
-    // PRESENT ACTION — mandatory artifact with all required fields
+    // PRESENT ACTION, mandatory artifact with all required fields
     const presented = buildPresentedAction(change, {
       action: "Round cement quantities to 2 decimal places",
       affected_component: "src/lib/calc.ts",
@@ -236,7 +236,7 @@ describe("core integration: the owner approval gate", () => {
     expect(presented.presented!.reason).toContain("under-reported");
     expect(presented.presented!.rollback_plan).toBeTruthy();
 
-    // OWNER APPROVAL — ARCHIE can never approve
+    // OWNER APPROVAL, ARCHIE can never approve
     expect(
       ownerApproves(change, presented.presented!, "ARCHIE" as const, {
         owner_id: "owner-1",
@@ -262,13 +262,13 @@ describe("core integration: the owner approval gate", () => {
       authorization_record_id: "srv-auth-1",
     });
 
-    // APPLY — owner only, server-side record required
+    // APPLY, owner only, server-side record required
     expect(applyAuthorizedChange(change, approval.approval!, "ARCHIE" as const).ok).toBe(false);
     const applied = applyAuthorizedChange(approval.change!, approval.approval!, "OWNER");
     expect(applied.ok).toBe(true);
     expect(applied.change!.stage).toBe("APPLY");
 
-    // AUDIT — the append-only record
+    // AUDIT, the append-only record
     const audit = auditAppliedChange(approval.approval!);
     expect(audit.owner_identity).toBe("owner-1");
     expect(audit.action).toContain("Round cement");

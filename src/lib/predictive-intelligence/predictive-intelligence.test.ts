@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — TESTS (Phase 4 §23)
+// FRELUX PREDICTIVE INTELLIGENCE, TESTS (Phase 4 §23)
 //
 // Controlled project data with INDEPENDENTLY hand-calculated
 // expected outcomes. The critical chain verified end-to-end:
@@ -160,7 +160,7 @@ function controlledSnapshot(
       },
     ],
     priceHistory: [
-      // Cement (50kg bag) price record — 3 dated points, same region
+      // Cement (50kg bag) price record, 3 dated points, same region
       {
         materialName: "Cement (50kg bag)",
         oldPrice: 5500,
@@ -325,7 +325,7 @@ describe("insufficient project data (§18)", () => {
     }),
   );
 
-  it("reports INSUFFICIENT DATA everywhere — no fabricated predictions", () => {
+  it("reports INSUFFICIENT DATA everywhere, no fabricated predictions", () => {
     for (const p of empty.predictions) {
       expect(p.status).not.toBe("ok");
       expect(p.result).toBeNull();
@@ -450,7 +450,7 @@ describe("schedule risk", () => {
     expect(result.missingData).toContain("progress_stages");
   });
 
-  it("never invents planned dates — limitation is disclosed", () => {
+  it("never invents planned dates, limitation is disclosed", () => {
     const result = analyzeScheduleRisk({
       now: NOW,
       projectStatus: "in_progress",
@@ -568,7 +568,7 @@ describe("market price intelligence", () => {
       region: { marketCode: "NG", countryCode: "NG", city: "Lagos" },
       projectPriceHistory: [],
       marketPrices: [
-        // Three points — but for a DIFFERENT market: must not be used
+        // Three points, but for a DIFFERENT market: must not be used
         {
           label: "Cement",
           price: 5500,
@@ -888,7 +888,7 @@ describe("determinism & failure boundaries", () => {
     if (r) expect(Number.isFinite(r.plannedSpending)).toBe(true);
   });
 
-  it("imperial-unit rows are treated identically — no unit assumptions in the math", () => {
+  it("imperial-unit rows are treated identically, no unit assumptions in the math", () => {
     // Same structure, imperial units on the labels: the deterministic
     // math is unit-agnostic; no hard-coded metric conversion happens.
     const imperial = analyzeProject(

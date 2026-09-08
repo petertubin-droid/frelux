@@ -210,7 +210,7 @@ describe("amendment 3: coding & app development", () => {
 });
 
 // =========================================================
-// 4. Cybersecurity — defensive only
+// 4. Cybersecurity, defensive only
 // =========================================================
 describe("amendment 4: defensive cybersecurity", () => {
   it("develops the full defensive capability set", () => {
@@ -285,7 +285,7 @@ describe("amendment 5: trust & safety core", () => {
     }
   });
 
-  it("scores risk from evidence only — confidence alone is refused", () => {
+  it("scores risk from evidence only, confidence alone is refused", () => {
     const noEvidence = assessTrustSafety({
       account_id: "u1",
       signals: ["scam_attempt"],
@@ -407,7 +407,7 @@ describe("amendment 6: bounded account pause authority", () => {
     if (!pause.ok) throw new Error(pause.error);
     const p = pause.pause;
     expect(isPauseActive(p, "2026-09-08T20:00:00.000Z").active).toBe(true);
-    // at 72h + 1s the pause is gone — expired, account reinstated pending Owner decision
+    // at 72h + 1s the pause is gone, expired, account reinstated pending Owner decision
     const afterMax = isPauseActive(p, "2026-09-11T10:00:01.000Z");
     expect(afterMax.active).toBe(false);
     expect(afterMax.stage).toBe("EXPIRED");
@@ -428,7 +428,7 @@ describe("amendment 6: bounded account pause authority", () => {
     expect(pause.ok).toBe(true);
     if (!pause.ok) throw new Error(pause.error);
     const p = pause.pause;
-    const appeal = recordAppeal(p, "That was me travelling — I can verify by email");
+    const appeal = recordAppeal(p, "That was me travelling, I can verify by email");
     expect(appeal.ok).toBe(true);
     if (!appeal.ok || !appeal.pause) throw new Error(appeal.error ?? "no pause");
     expect(appeal.pause.review_status).toBe("PENDING_OWNER_REVIEW");

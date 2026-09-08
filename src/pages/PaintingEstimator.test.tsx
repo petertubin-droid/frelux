@@ -191,7 +191,7 @@ describe("PaintingEstimator", () => {
       screen.getByRole("button", { name: /Calculate Estimate/i }),
     );
 
-    // A result panel appears — the button works out of the box
+    // A result panel appears, the button works out of the box
     await waitFor(
       () => {
         expect(

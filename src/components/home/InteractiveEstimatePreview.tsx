@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/shadcn/button";
 /**
  * Interactive estimate preview section.
  * Demonstrates how a FRELUX calculation looks using the REAL calculation engine.
- * No fake numbers — everything is computed from calculatePaint().
+ * No fake numbers, everything is computed from calculatePaint().
  */
 
 const presets = [

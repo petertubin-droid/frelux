@@ -1,10 +1,10 @@
 // =========================================================
-// FRELUX PHASE 8b — ARCHIE MOBILE CAPABILITY REGISTRY
+// FRELUX PHASE 8b, ARCHIE MOBILE CAPABILITY REGISTRY
 //
 // Free-tier mobile capabilities: every one requires an
 // EXPLICIT user consent before ARCHIE may touch the device
 // feature. Support is detected via the platform's normal
-// APIs — Android's permission/security model is complemented,
+// APIs, Android's permission/security model is complemented,
 // never bypassed. No covert or unrestricted device access
 // exists anywhere in this layer.
 //
@@ -63,7 +63,7 @@ export const MOBILE_CAPABILITIES: Readonly<
     capability: "CAMERA",
     label: "Camera",
     description:
-      "Manually invoked camera — you press the button, ARCHIE never opens it on its own.",
+      "Manually invoked camera, you press the button, ARCHIE never opens it on its own.",
     supported: () =>
       has("mediaDevices.getUserMedia") || !!documentPictureCaptureSupport(),
     permissionModel: "BROWSER_PROMPT",
@@ -107,7 +107,7 @@ export const MOBILE_CAPABILITIES: Readonly<
     capability: "CLIPBOARD",
     label: "Clipboard",
     description:
-      "Copy ARCHIE results, paste material into ARCHIE — with your consent.",
+      "Copy ARCHIE results, paste material into ARCHIE, with your consent.",
     supported: () => has("clipboard.readText") || has("clipboard.writeText"),
     permissionModel: "BROWSER_PROMPT",
     requiresPlatformPermission: true,
@@ -133,7 +133,7 @@ export const MOBILE_CAPABILITIES: Readonly<
     capability: "TEXT_GENERATION",
     label: "Text generation (on-device)",
     description:
-      "ARCHIE composes text from FRELUX data with the free on-device path — no paid cloud service.",
+      "ARCHIE composes text from FRELUX data with the free on-device path, no paid cloud service.",
     supported: () => typeof window !== "undefined",
     permissionModel: "APP_CONSENT_ONLY",
     requiresPlatformPermission: false,
@@ -142,7 +142,7 @@ export const MOBILE_CAPABILITIES: Readonly<
     capability: "CODE_GENERATION",
     label: "Code generation (on-device)",
     description:
-      "ARCHIE drafts code snippets from templates — free; production changes still need owner authorization.",
+      "ARCHIE drafts code snippets from templates, free; production changes still need owner authorization.",
     supported: () => typeof window !== "undefined",
     permissionModel: "APP_CONSENT_ONLY",
     requiresPlatformPermission: false,
@@ -178,7 +178,7 @@ export function isCapabilitySupported(cap: ArchieMobileCapability): boolean {
 }
 
 // ---------------------------------------------------------
-// Consent gate — the single enforcement point for every device
+// Consent gate, the single enforcement point for every device
 // capability. Denial is always graceful.
 // ---------------------------------------------------------
 export function checkCapabilityConsent(
@@ -188,7 +188,7 @@ export function checkCapabilityConsent(
   if (!consent || !consent.granted) {
     return {
       ok: false,
-      error: `"${MOBILE_CAPABILITIES[capability].label}" is not enabled. Turn it on in ARCHIE Mobile settings — ARCHIE never uses device features without your explicit permission.`,
+      error: `"${MOBILE_CAPABILITIES[capability].label}" is not enabled. Turn it on in ARCHIE Mobile settings, ARCHIE never uses device features without your explicit permission.`,
     };
   }
   if (!isCapabilitySupported(capability)) {
@@ -227,7 +227,7 @@ export function validateDeviceFile(
   if (BLOCKED_EXTENSIONS.test(name)) {
     return {
       ok: false,
-      error: `"${name}" is an executable/script file type — not accepted for security reasons.`,
+      error: `"${name}" is an executable/script file type, not accepted for security reasons.`,
     };
   }
   const max = kind === "IMAGE" ? MAX_IMAGE_BYTES : MAX_FILE_BYTES;

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { track, whatsappUrl } from "@/lib/analytics";
 
-describe("analytics — whatsappUrl", () => {
+describe("analytics, whatsappUrl", () => {
   it("builds a base WhatsApp URL without a message", () => {
     const url = whatsappUrl();
     expect(url).toContain("https://wa.me/");
@@ -32,7 +32,7 @@ describe("analytics — whatsappUrl", () => {
   });
 });
 
-describe("analytics — track", () => {
+describe("analytics, track", () => {
   it("does not throw when called with valid event", () => {
     expect(() => track("calculator_started")).not.toThrow();
   });

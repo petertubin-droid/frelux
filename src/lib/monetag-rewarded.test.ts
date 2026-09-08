@@ -27,7 +27,7 @@ function makeProvider(overrides: Partial<DbAdProvider> = {}): DbAdProvider {
 }
 
 describe("getMonetagZone", () => {
-  it("returns null when no zone is configured — no hardcoded fallback", () => {
+  it("returns null when no zone is configured, no hardcoded fallback", () => {
     // The zone ID must ONLY ever come from Admin → Ads configuration.
     expect(getMonetagZone(makeProvider())).toBeNull();
     expect(getMonetagZone(null)).toBeNull();
@@ -140,7 +140,7 @@ describe("showMonetagRewardedAd", () => {
       ymid: "ch_test",
       minWatchTimeMs: 0,
     });
-    // jsdom does not fire script onload — dispatch it manually
+    // jsdom does not fire script onload, dispatch it manually
     document
       .querySelector(
         'script[data-monetag-src="https://quge5.com/88/tag.min.js"]',
@@ -246,7 +246,7 @@ describe("getMonetagDisplayZone (website tag data-zone)", () => {
 });
 
 describe("getMonetagNativeZone (in-page Native Banner zone)", () => {
-  it("returns null when no native zone is configured — dormant by default", () => {
+  it("returns null when no native zone is configured, dormant by default", () => {
     expect(getMonetagNativeZone(makeProvider())).toBeNull();
   });
 

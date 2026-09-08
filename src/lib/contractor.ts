@@ -1,5 +1,5 @@
 /**
- * Contractor Experience — Core library functions
+ * Contractor Experience, Core library functions
  * Project CRUD, room aggregation, shopping list generation, labour planning,
  * quotation generation, timeline calculation, weather intelligence,
  * waste factor intelligence, surface assessment, material recommendations.
@@ -1874,7 +1874,7 @@ export function explainCalculation(
 }
 
 // ============================================================
-// SMART WIZARD — Recommend calculator and workflow
+// SMART WIZARD, Recommend calculator and workflow
 // ============================================================
 
 export interface WizardRecommendation {

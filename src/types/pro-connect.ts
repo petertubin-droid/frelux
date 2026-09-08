@@ -1,6 +1,6 @@
 
 // =========================================================
-// FRELUX Pro Connect — Database Types
+// FRELUX Pro Connect, Database Types
 // Phase 25 + Phase 26 (Verification System)
 // =========================================================
 

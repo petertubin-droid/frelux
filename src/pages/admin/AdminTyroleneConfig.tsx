@@ -1,5 +1,5 @@
 /**
- * FRELUX Admin — Tyrolene Configuration
+ * FRELUX Admin, Tyrolene Configuration
  *
  * Admin page for configuring:
  * - Standard partition dimensions (width × height)
@@ -357,7 +357,7 @@ export default function AdminTyroleneConfig() {
       const minQty = parseFloat(outsideOwerriMin);
 
       if (outsideOwerriMin === '') {
-        // If empty, don't set — leave unconfigured
+        // If empty, don't set, leave unconfigured
         setSaveMessage({ type: 'success', message: 'Outside Owerri minimum left unconfigured. Production eligibility cannot be determined for outside-Owerri clients until a minimum is set.' });
         return;
       }

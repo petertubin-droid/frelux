@@ -7,14 +7,14 @@ afterEach(() => {
   cleanup();
 });
 
-// Global mock for the Supabase client — prevents real network calls (ENOTFOUND
+// Global mock for the Supabase client, prevents real network calls (ENOTFOUND
 // errors on placeholder.supabase.co) when tests import components that transitively
 // use supabase but don't mock it themselves.  Tests that need specific mock
 // behaviour (paystack, storage, labour, supabase-monitor) override this with
 // their own vi.mock('@/lib/supabase', ...) which takes precedence.
 //
 // We use importOriginal so the real pure-function exports (isSupabaseConfigured,
-// getFunctionErrorMessage) are preserved — supabase.test.ts depends on them.
+// getFunctionErrorMessage) are preserved, supabase.test.ts depends on them.
 vi.mock("@/lib/supabase", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/supabase")>();
 
@@ -197,7 +197,7 @@ globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
         ? input.href
         : input.url;
   if (/^https?:\/\//i.test(url)) {
-    // External request — return an inert response, never touch the network.
+    // External request, return an inert response, never touch the network.
     return new Response("", { status: 200 });
   }
   return nativeFetch(input as RequestInfo, init);

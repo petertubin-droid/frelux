@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 FINAL — ARCHIE CORE ORCHESTRATOR
+// FRELUX PHASE 8 FINAL, ARCHIE CORE ORCHESTRATOR
 //
 // The connection between ARCHIE and the FRELUX application
 // core. ARCHIE reasons ACROSS the core systems and selects
@@ -15,7 +15,7 @@
 //
 // ARCHIE NEVER bypasses the owner approval gate. Every
 // binding in FRELUX_CORE_SYSTEMS is a REAL module verified
-// by dynamic import at health-check time — disconnected,
+// by dynamic import at health-check time, disconnected,
 // simulated, placeholder, duplicate or non-functional
 // integrations fail LOUDLY.
 // =========================================================
@@ -43,10 +43,10 @@ import {
 } from "./change-pipeline";
 
 // ---------------------------------------------------------
-// Real module loading — the connectivity proof
+// Real module loading, the connectivity proof
 // ---------------------------------------------------------
 
-/** Explicit per-system loaders — REAL dynamic imports of the
+/** Explicit per-system loaders, REAL dynamic imports of the
  *  actual FRELUX core modules. Statically analyzable so both
  *  the browser and vite/node resolve the aliases correctly. */
 const LOADERS: Record<CoreSystemKey, () => Promise<Record<string, unknown>>> = {
@@ -68,7 +68,7 @@ const LOADERS: Record<CoreSystemKey, () => Promise<Record<string, unknown>>> = {
 };
 
 /** Dynamically import a core system's REAL module. Throws on a
- *  disconnected binding — there are no simulated fallbacks. */
+ *  disconnected binding, there are no simulated fallbacks. */
 export async function loadCoreSystem(key: CoreSystemKey): Promise<
   Record<string, unknown>
 > {
@@ -123,7 +123,7 @@ export async function coreHealthCheck(): Promise<{
 }
 
 // ---------------------------------------------------------
-// Orchestration — ARCHIE routes into the core
+// Orchestration, ARCHIE routes into the core
 // ---------------------------------------------------------
 
 export interface CoreRouting {
@@ -216,7 +216,7 @@ function toolToCoreSystem(tool: ToolSelection): CoreSystemKey {
   return "AI_CORE";
 }
 
-/** The full core inventory — for ARCHIE's own diagnostics and
+/** The full core inventory, for ARCHIE's own diagnostics and
  *  the admin health surface. */
 export function describeCore(): Array<{
   key: string;
@@ -269,7 +269,7 @@ export interface OwnerApproval {
   authorization_record_id: string;
 }
 
-/** Build the PRESENTED ACTION package — the artifact the
+/** Build the PRESENTED ACTION package, the artifact the
  *  owner reviews. It carries the full record the prompt
  *  requires: action, reason/context, before/after state,
  *  affected component, tests/results, version, rollback. */
@@ -317,7 +317,7 @@ export function buildPresentedAction(change: ChangeRequest, args: {
   };
 }
 
-/** OWNER APPROVAL — the authenticated approval record. ARCHIE
+/** OWNER APPROVAL, the authenticated approval record. ARCHIE
  *  can never call this: actor must be OWNER, and the record is
  *  written server-side by the archie-owner-auth function
  *  (PBKDF2-verified secret, service-role insert). */
@@ -328,7 +328,7 @@ export function ownerApproves(
   args: { owner_id: string; authorization_record_id: string },
 ): { ok: boolean; error?: string; approval?: OwnerApproval; change?: ChangeRequest } {
   if (actor !== "OWNER") {
-    return { ok: false, error: "Only the owner can approve — ARCHIE never approves its own change" };
+    return { ok: false, error: "Only the owner can approve, ARCHIE never approves its own change" };
   }
   if (presented.change_request_id !== change.id) {
     return { ok: false, error: "The approval must match the presented action" };
@@ -363,7 +363,7 @@ export function ownerApproves(
   };
 }
 
-/** APPLY — owner only, after approval. */
+/** APPLY, owner only, after approval. */
 export function applyAuthorizedChange(
   change: ChangeRequest,
   approval: OwnerApproval,
@@ -396,7 +396,7 @@ export interface AuditRecord {
   audited_at: string;
 }
 
-/** AUDIT — the append-only record of what was applied. */
+/** AUDIT, the append-only record of what was applied. */
 export function auditAppliedChange(
   approval: OwnerApproval,
   now?: string,
@@ -418,7 +418,7 @@ export function auditAppliedChange(
   };
 }
 
-/** VERSION/ROLLBACK — the owner can roll back an applied
+/** VERSION/ROLLBACK, the owner can roll back an applied
  *  change using the recorded rollback information; the
  *  authorization record's status moves to ROLLED_BACK
  *  server-side (archie-owner-auth record-rollback). */

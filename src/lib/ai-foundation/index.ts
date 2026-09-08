@@ -1,11 +1,11 @@
 // =========================================================
-// FRELUX AI FOUNDATION — public entry point
+// FRELUX AI FOUNDATION, public entry point
 //
 // One import surface for every AI capability:
 //   import { aiFoundation } from '@/lib/ai-foundation';
 //
 // Everything else in this folder is internal. The orchestration
-// layer (orchestrator.ts) is the single coordinator — do not add
+// layer (orchestrator.ts) is the single coordinator, do not add
 // parallel AI systems for individual features.
 // =========================================================
 

@@ -1,5 +1,5 @@
 // =========================================================
-// PLAN VISION TESTS — dimensions, classification & scale (§4, §5,
+// PLAN VISION TESTS, dimensions, classification & scale (§4, §5,
 // §16, §20, §21)
 // =========================================================
 
@@ -68,7 +68,7 @@ describe("dimension classification (§4)", () => {
   });
 });
 
-describe("unit conversion (§20 — exact, via the central service)", () => {
+describe("unit conversion (§20, exact, via the central service)", () => {
   it("converts all native units to metres exactly", () => {
     expect(dimensionToMeters(explicitDimension(1, "m", 1))).toBe(1);
     expect(dimensionToMeters(explicitDimension(100, "cm", 1))).toBe(1);
@@ -83,7 +83,7 @@ describe("unit conversion (§20 — exact, via the central service)", () => {
     );
   });
 
-  it("returns null for unknown dimensions — never invents a value (§22)", () => {
+  it("returns null for unknown dimensions, never invents a value (§22)", () => {
     expect(dimensionToMeters(null)).toBeNull();
     expect(dimensionToMeters(unknownDimension())).toBeNull();
   });
@@ -139,7 +139,7 @@ describe("scale handling (§5)", () => {
   });
 });
 
-describe("document reliability tiers (§16 — photos are never dimension-grade)", () => {
+describe("document reliability tiers (§16, photos are never dimension-grade)", () => {
   it("classifies drawings as dimension-grade", () => {
     expect(isDimensionGrade(DOCUMENT_RELIABILITY.floor_plan)).toBe(true);
     expect(isDimensionGrade(DOCUMENT_RELIABILITY.architectural_pdf)).toBe(true);

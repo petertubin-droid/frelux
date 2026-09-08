@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF GEOMETRY — Tests
+ * FRELUX ROOF GEOMETRY, Tests
  *
  * Feature 3: Editable Roof Tracing
  *
@@ -398,7 +398,7 @@ describe("Roof Geometry: Full Calculation", () => {
   it("marks invalid sections correctly", () => {
     let geom = createDefaultRoofGeometry();
     const sectionId = geom.activeSectionId!;
-    // Only 2 vertices — invalid
+    // Only 2 vertices, invalid
     geom = addVertex(geom, sectionId, { x: 0, y: 0 });
     geom = addVertex(geom, sectionId, { x: 100, y: 0 });
 

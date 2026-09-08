@@ -1,10 +1,10 @@
 /**
- * FRELUX MARKET INTELLIGENCE — Provider Registry
+ * FRELUX MARKET INTELLIGENCE, Provider Registry
  *
  * Manages provider adapters. New providers register here.
  * The price engine uses this registry to select providers by priority.
  *
- * Provider API keys are NEVER stored here — they go in Supabase secrets.
+ * Provider API keys are NEVER stored here, they go in Supabase secrets.
  * This module only manages adapter registration and selection.
  */
 

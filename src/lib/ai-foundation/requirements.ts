@@ -1,17 +1,17 @@
 // =========================================================
-// FRELUX AI FOUNDATION — Requirements Resolution
+// FRELUX AI FOUNDATION, Requirements Resolution
 //
 // "It must not ask unnecessary questions when reliable
 //  information already exists."
 //
 // For each task, required information is resolved in a strict
-// priority order — the FIRST source that yields a usable value wins:
+// priority order, the FIRST source that yields a usable value wins:
 //
 //   1. Facts the user stated in this request (user_input)
 //   2. Values the user confirmed (user_confirmed / corrected)
 //   3. Existing project data / saved calculations (project_data,
 //      saved_calculation, location_data, market_data)
-//   4. Existing FRELUX smart defaults — surfaced as ASSUMPTIONS,
+//   4. Existing FRELUX smart defaults, surfaced as ASSUMPTIONS,
 //      never silently hidden
 //
 // Only when no source yields a value does the field become
@@ -23,7 +23,7 @@ import { canUseInCalculation, createFact } from './trust';
 import { defaultBuildToRoofInput, getEngineDescriptor } from './engines-registry';
 import { normalizeLengthUnit, convertToEngineUnit } from './units';
 
-/** Priority order — lower number wins. */
+/** Priority order, lower number wins. */
 const ORIGIN_PRIORITY: Record<AiFact['origin'], number> = {
   user_input: 0,
   user_confirmed: 1,
@@ -90,7 +90,7 @@ export const TASK_REQUIREMENTS: Record<Exclude<CopilotTaskType, 'unsupported'>, 
       { key: 'length', label: 'Room length', unit: 'm' },
       { key: 'width', label: 'Room width', unit: 'm' },
       { key: 'wallHeight', label: 'Wall height', unit: 'm' },
-      // Defaultable inputs — resolved from TASK_SMART_DEFAULTS and shown
+      // Defaultable inputs, resolved from TASK_SMART_DEFAULTS and shown
       // as editable assumptions, never asked unless the user overrides.
       { key: 'doors', label: 'Doors', unit: 'count' },
       { key: 'windows', label: 'Windows', unit: 'count' },
@@ -138,7 +138,7 @@ export const TASK_REQUIREMENTS: Record<Exclude<CopilotTaskType, 'unsupported'>, 
 
 /**
  * Per-task smart defaults. Unlike build_to_roof (whose defaults come from the
- * engine itself), these are surfaced as explicit, editable ASSUMPTIONS —
+ * engine itself), these are surfaced as explicit, editable ASSUMPTIONS :
  * never silently applied.
  */
 const TASK_SMART_DEFAULTS: Partial<Record<Exclude<CopilotTaskType, 'unsupported'>, Record<string, {
@@ -148,31 +148,31 @@ const TASK_SMART_DEFAULTS: Partial<Record<Exclude<CopilotTaskType, 'unsupported'
   confidence?: number;
 }>>> = {
   painting_materials: {
-    doors: { value: 1, unit: 'count', assumption: '1 standard door (0.9 × 2.1 m) — the FRELUX manual calculator default', confidence: 0.5 },
-    windows: { value: 2, unit: 'count', assumption: '2 standard windows (0.9 × 1.2 m) — the FRELUX manual calculator default', confidence: 0.5 },
-    coats: { value: 2, unit: 'count', assumption: '2 coats — standard for emulsion', confidence: 0.7 },
-    wasteMargin: { value: 10, unit: '%', assumption: '10% waste margin — FRELUX standard', confidence: 0.7 },
+    doors: { value: 1, unit: 'count', assumption: '1 standard door (0.9 × 2.1 m), the FRELUX manual calculator default', confidence: 0.5 },
+    windows: { value: 2, unit: 'count', assumption: '2 standard windows (0.9 × 1.2 m), the FRELUX manual calculator default', confidence: 0.5 },
+    coats: { value: 2, unit: 'count', assumption: '2 coats, standard for emulsion', confidence: 0.7 },
+    wasteMargin: { value: 10, unit: '%', assumption: '10% waste margin, FRELUX standard', confidence: 0.7 },
     includeCeiling: { value: true, assumption: 'Ceiling included in the paint estimate', confidence: 0.6 },
   },
   screeding_estimate: {
-    systemType: { value: 'white_cement_paint', assumption: 'White cement + screeding paint system — the common Nigerian screed finish', confidence: 0.6 },
+    systemType: { value: 'white_cement_paint', assumption: 'White cement + screeding paint system, the common Nigerian screed finish', confidence: 0.6 },
   },
   tile_estimate: {
     method: { value: 'traditional', assumption: 'Traditional cement-and-sand installation method', confidence: 0.6 },
-    wasteMargin: { value: 10, unit: '%', assumption: '10% waste margin — FRELUX standard', confidence: 0.7 },
+    wasteMargin: { value: 10, unit: '%', assumption: '10% waste margin, FRELUX standard', confidence: 0.7 },
   },
   pop_estimate: {
-    wasteMargin: { value: 10, unit: '%', assumption: '10% waste margin — FRELUX standard', confidence: 0.7 },
+    wasteMargin: { value: 10, unit: '%', assumption: '10% waste margin, FRELUX standard', confidence: 0.7 },
     includeDecorative: { value: false, assumption: 'Plain POP ceiling (no decorative mouldings)', confidence: 0.7 },
     includeOptional: { value: false, assumption: 'Optional items excluded', confidence: 0.7 },
-    workflow: { value: 'nigeria', assumption: 'Nigerian POP material workflow — the only material list currently configured', confidence: 0.8 },
+    workflow: { value: 'nigeria', assumption: 'Nigerian POP material workflow, the only material list currently configured', confidence: 0.8 },
   },
 };
 
 export interface RequirementResolution {
-  /** Values keyed by engine input field — only from usable facts. */
+  /** Values keyed by engine input field, only from usable facts. */
   resolved: Record<string, AiFact>;
-  /** Fields with NO usable value from any source — the only things to ask. */
+  /** Fields with NO usable value from any source, the only things to ask. */
   missing: RequirementField[];
   /** Smart-default assumptions in effect, shown to the user. */
   assumptions: AiFact[];
@@ -261,7 +261,7 @@ export function resolveRequirements(
       assumptions.push(assumptionFact);
       continue;
     }
-    // No default exists for this field — the ONLY correct move is to ask.
+    // No default exists for this field, the ONLY correct move is to ask.
     missing.push(field);
   }
 
@@ -271,7 +271,7 @@ export function resolveRequirements(
 /**
  * Engines that accept a `unit` parameter and convert internally per their
  * own established convention (Phase-2 contract point 6). For these, feet
- * are passed THROUGH — the engine converts them itself.
+ * are passed THROUGH, the engine converts them itself.
  */
 const NATIVE_UNIT_ENGINES = new Set(['painting_project', 'tile_estimate', 'pop_ceiling']);
 
@@ -303,7 +303,7 @@ export function buildEngineInput(
       const from = normalizeLengthUnit(fact.unit ?? null);
       if (from === 'ft') {
         if (native) {
-          sawFeet = true; // engine converts internally — its convention wins
+          sawFeet = true; // engine converts internally, its convention wins
         } else {
           const converted = convertToEngineUnit(value, 'ft', 'm');
           if (converted.converted) value = converted.value;

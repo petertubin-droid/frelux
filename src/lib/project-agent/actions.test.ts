@@ -1,18 +1,18 @@
 // =========================================================
-// PROJECT AGENT — PREPARED ACTIONS TESTS (Stage 6)
+// PROJECT AGENT, PREPARED ACTIONS TESTS (Stage 6)
 //
 // Stage 6 acceptance:
 //   - The agent PREPARES actions without committing them:
 //     what / why / data used / assumptions / expected result are
 //     all derived, never invented.
 //   - A prepared action is GROUNDED in a recommendation that is
-//     re-derived fresh — stale state means refusal, not a guess.
+//     re-derived fresh, stale state means refusal, not a guess.
 //   - Params are validated against recorded state; changed
 //     state (already purchased / completed) means refusal.
 //   - Approve / Edit / Reject / Cancel ride the Stage-1 state
 //     machine; decisions are final; approvals expire (terminal).
 //   - Idempotency: duplicate submissions collapse.
-//   - NOTHING writes project data — approving is not executing.
+//   - NOTHING writes project data, approving is not executing.
 //     The only writes are to the agent's own tables.
 // =========================================================
 
@@ -22,11 +22,11 @@ import type { PreparedAction } from "./types";
 import type { PredictiveProjectSnapshot } from "@/lib/predictive-intelligence/types";
 
 const NOW = "2026-09-07T12:00:00.000Z";
-// 16 minutes later — past the 15-minute approval window.
+// 16 minutes later, past the 15-minute approval window.
 const AFTER_TTL = "2026-09-07T12:16:00.000Z";
 
 // ---------------------------------------------------------
-// In-memory supabase — agent tables, material catalog, and a
+// In-memory supabase, agent tables, material catalog, and a
 // project table that MUST never receive a write.
 // ---------------------------------------------------------
 type Row = Record<string, unknown>;
@@ -41,7 +41,7 @@ const db: {
     project_agent_actions: [],
     project_agent_approvals: [],
     material_catalog: [],
-    // A project data table — Stage 6 must NEVER write here.
+    // A project data table, Stage 6 must NEVER write here.
     project_shopping_list: [],
   },
   writes: [],
@@ -63,7 +63,7 @@ function resetDb() {
 
 vi.mock("@/lib/supabase", () => {
   /** Minimal chain engine: select/eq/order/maybeSingle,
-   *  insert, update — exactly the shapes actions.ts uses. */
+   *  insert, update, exactly the shapes actions.ts uses. */
   function from(table: string) {
     const rows = () => db.tables[table] ?? [];
 
@@ -123,7 +123,7 @@ vi.mock("@/lib/supabase", () => {
 });
 
 // ---------------------------------------------------------
-// Module mocks — session, recommendations, snapshot
+// Module mocks, session, recommendations, snapshot
 // ---------------------------------------------------------
 vi.mock("./session", () => ({
   assertProjectVisible: vi.fn(async () =>
@@ -148,7 +148,7 @@ vi.mock("./session", () => ({
   ),
 }));
 
-// Fresh recommendation report — controllable per test.
+// Fresh recommendation report, controllable per test.
 const reportState: {
   recommendations: AgentRecommendation[];
 } = {
@@ -189,7 +189,7 @@ vi.mock("./recommendations", () => ({
   })),
 }));
 
-// Fresh recorded snapshot — controllable per test.
+// Fresh recorded snapshot, controllable per test.
 const snapState: { snap: PredictiveProjectSnapshot | null } = {
   snap: null,
 };
@@ -295,10 +295,10 @@ beforeEach(() => {
 });
 
 // ---------------------------------------------------------
-// prepareAction — grounding, validation, idempotency
+// prepareAction, grounding, validation, idempotency
 // ---------------------------------------------------------
 
-describe("prepareAction — record_purchase", () => {
+describe("prepareAction, record_purchase", () => {
   it("prepares WITHOUT committing: derived display, prepared state", async () => {
     const res = await prepareAction(
       "proj-1",
@@ -325,7 +325,7 @@ describe("prepareAction — record_purchase", () => {
     expect(a.assumptions).toContain("assumption of rec-buy");
     expect(a.expectedResult).toContain("recorded as purchased");
     expect(res.data.duplicate).toBe(false);
-    // Preparation was logged — nothing was committed.
+    // Preparation was logged, nothing was committed.
     expect(db.activity.some((e) => e.kind === "preparation")).toBe(true);
     expect(
       db.writes.some((w) => w.table === "project_shopping_list"),
@@ -429,7 +429,7 @@ describe("prepareAction — record_purchase", () => {
   });
 });
 
-describe("prepareAction — confirm_stage_completion", () => {
+describe("prepareAction, confirm_stage_completion", () => {
   it("prepares a pending stage for completion", async () => {
     const res = await prepareAction(
       "proj-1",
@@ -464,7 +464,7 @@ describe("prepareAction — confirm_stage_completion", () => {
   });
 });
 
-describe("prepareAction — update_material_price", () => {
+describe("prepareAction, update_material_price", () => {
   it("prepares a price update with old and new price traceable", async () => {
     const res = await prepareAction(
       "proj-1",
@@ -513,7 +513,7 @@ describe("prepareAction — update_material_price", () => {
   });
 });
 
-describe("prepareAction — isolation", () => {
+describe("prepareAction, isolation", () => {
   it("an invisible project resolves to project_not_found", async () => {
     db.visible = false;
     const res = await prepareAction(
@@ -562,7 +562,7 @@ describe("requestApproval", () => {
     expect(db.activity.some((e) => e.kind === "approval_request")).toBe(true);
   });
 
-  it("is idempotent — a repeated request returns the same approval", async () => {
+  it("is idempotent, a repeated request returns the same approval", async () => {
     const action = await preparedBuyAction();
     const first = await requestApproval("proj-1", action.id, NOW);
     const second = await requestApproval("proj-1", action.id, NOW);
@@ -573,8 +573,8 @@ describe("requestApproval", () => {
   });
 });
 
-describe("decideApproval — Approve / Reject / finality", () => {
-  it("approve moves the action to approved — and commits NOTHING", async () => {
+describe("decideApproval, Approve / Reject / finality", () => {
+  it("approve moves the action to approved, and commits NOTHING", async () => {
     const action = await preparedBuyAction();
     const approval = await requestApproval("proj-1", action.id, NOW);
     if (!approval.ok) throw new Error("approval failed");
@@ -638,7 +638,7 @@ describe("decideApproval — Approve / Reject / finality", () => {
     if (!reRequest.ok) expect(reRequest.error.code).toBe("invalid_state");
   });
 
-  it("a lapsed window expires BOTH records — terminal, re-prepare required", async () => {
+  it("a lapsed window expires BOTH records, terminal, re-prepare required", async () => {
     const action = await preparedBuyAction();
     const approval = await requestApproval("proj-1", action.id, NOW);
     if (!approval.ok) throw new Error("approval failed");
@@ -671,7 +671,7 @@ describe("decideApproval — Approve / Reject / finality", () => {
 // Edit & direct cancel
 // ---------------------------------------------------------
 
-describe("amendPreparedAction — Edit", () => {
+describe("amendPreparedAction, Edit", () => {
   it("edits params on a still-prepared action and re-validates", async () => {
     const action = await preparedBuyAction();
     const res = await amendPreparedAction(
@@ -706,7 +706,7 @@ describe("amendPreparedAction — Edit", () => {
     if (!res.ok) expect(res.error.code).toBe("invalid_params");
   });
 
-  it("refuses an edit after approval — decisions are final", async () => {
+  it("refuses an edit after approval, decisions are final", async () => {
     const action = await preparedBuyAction();
     const approval = await requestApproval("proj-1", action.id, NOW);
     if (!approval.ok) throw new Error("approval failed");
@@ -755,7 +755,7 @@ describe("listPreparedActions & lazy expiry", () => {
   });
 });
 
-describe("describePreparedAction — the approval display", () => {
+describe("describePreparedAction, the approval display", () => {
   it("shows what / why / data used / assumptions / expected result", async () => {
     const action = await preparedBuyAction();
     await requestApproval("proj-1", action.id, NOW);
@@ -777,7 +777,7 @@ describe("describePreparedAction — the approval display", () => {
   });
 });
 
-describe("availableDecisions — deterministic decision surface", () => {
+describe("availableDecisions, deterministic decision surface", () => {
   const base: PreparedAction = {
     id: "a1",
     kind: "record_purchase",
@@ -850,7 +850,7 @@ describe("availableDecisions — deterministic decision surface", () => {
 // The Stage-6 invariant, end to end
 // ---------------------------------------------------------
 
-describe("prepare-without-committing — the invariant", () => {
+describe("prepare-without-committing, the invariant", () => {
   it("the full lifecycle never writes a single project data table", async () => {
     const action = await preparedBuyAction();
     await requestApproval("proj-1", action.id, NOW);
@@ -862,7 +862,7 @@ describe("prepare-without-committing — the invariant", () => {
     await describePreparedAction("proj-1", action.id, NOW);
     await listPreparedActions("proj-1", NOW);
     // Insert action, insert approval, record the approval decision,
-    // transition the action — agent tables ONLY, never project data.
+    // transition the action, agent tables ONLY, never project data.
     expect(db.writes.map((w) => w.table)).toEqual([
       "project_agent_actions",
       "project_agent_approvals",

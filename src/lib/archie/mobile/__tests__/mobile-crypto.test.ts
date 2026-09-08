@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8b — MOBILE CRYPTO TESTS (real Web Crypto)
+// FRELUX PHASE 8b, MOBILE CRYPTO TESTS (real Web Crypto)
 //
 // AES-256-GCM + PBKDF2-SHA256 roundtrips, wrong-passphrase
 // rejection, envelope integrity, and the guarantee that
@@ -19,10 +19,10 @@ describe("ARCHIE mobile crypto", () => {
     const secret = "correct horse battery staple";
     const envelope = await encryptEnvelope(
       secret,
-      "FRELUX protected content — roof area 145.2m²",
+      "FRELUX protected content, roof area 145.2m²",
     );
     const plain = await decryptEnvelope(secret, envelope);
-    expect(plain).toBe("FRELUX protected content — roof area 145.2m²");
+    expect(plain).toBe("FRELUX protected content, roof area 145.2m²");
   });
 
   it("uses AES-256-GCM with PBKDF2-SHA256 at policy iterations", async () => {
@@ -33,7 +33,7 @@ describe("ARCHIE mobile crypto", () => {
     expect(KDF_ITERATIONS).toBeGreaterThanOrEqual(310000);
   });
 
-  it("a wrong passphrase FAILS — ciphertext never decrypts", async () => {
+  it("a wrong passphrase FAILS, ciphertext never decrypts", async () => {
     const envelope = await encryptEnvelope(
       "the real passphrase",
       "secret measurements",

@@ -1,9 +1,9 @@
 /**
- * FRELUX Engine Integration — Types
+ * FRELUX Engine Integration, Types
  *
  * TypeScript types for the engine management tables (em_*).
  * These map to the Phase 42 migration tables.
- * All types are additive — no existing types are modified.
+ * All types are additive, no existing types are modified.
  */
 
 // ============================================================

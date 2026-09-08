@@ -1,5 +1,5 @@
 /**
- * FRELUX DIRECT CRAWLER — Provider Adapter
+ * FRELUX DIRECT CRAWLER, Provider Adapter
  *
  * Implements the existing PriceProviderAdapter interface.
  * Registered via registerProviderAdapter() at module load.
@@ -48,7 +48,7 @@ export const freluxCrawlerAdapter: PriceProviderAdapter = {
   isFree: true,
 
   /**
-   * The FRELUX Direct Crawler is always configured — it requires no API key.
+   * The FRELUX Direct Crawler is always configured, it requires no API key.
    * It only needs enabled sources in mi_sources.
    */
   isConfigured(): boolean {
@@ -56,7 +56,7 @@ export const freluxCrawlerAdapter: PriceProviderAdapter = {
   },
 
   /**
-   * Free provider — no quota limits.
+   * Free provider, no quota limits.
    * Rate limiting is handled per-domain by the fetcher.
    */
   hasQuota(_usage: MiProviderUsage | null): boolean {
@@ -140,7 +140,7 @@ export const freluxCrawlerAdapter: PriceProviderAdapter = {
 };
 
 // ============================================================
-// EXTENDED API — multi-product extraction (not part of interface)
+// EXTENDED API, multi-product extraction (not part of interface)
 // ============================================================
 
 /**

@@ -1,4 +1,4 @@
-// Database row types — mirror the Supabase schema. Keep these in sync with migrations.
+// Database row types, mirror the Supabase schema. Keep these in sync with migrations.
 
 export interface DbProfile {
   id: string;
@@ -46,7 +46,7 @@ export interface DbSiteBranding {
   /** JSON: which words in the hero headline get a custom color. */
   hero_highlight_config: HeroHighlightConfig | null;
   hero_image_url: string | null;
-  /** Alt text for the hero image — displayed as caption overlay. */
+  /** Alt text for the hero image, displayed as caption overlay. */
   hero_image_alt: string | null;
   /** Label shown on the floating swatch card. */
   hero_image_label: string | null;
@@ -137,7 +137,7 @@ export interface DbSiteSettings {
   estimation_reset_period: string;
   estimation_admin_override: boolean;
   premium_subscriptions_enabled: boolean;
-  // Manual paint price entry (Cost Estimator) — admin-configurable bucket
+  // Manual paint price entry (Cost Estimator), admin-configurable bucket
   // sizes so users enter a price per bucket (e.g. 20L, 4L) instead of per liter.
   manual_paint_bucket_sizes: number[];
   updated_at: string;
@@ -1572,7 +1572,7 @@ export interface DbPushSubscription {
 // Phase 56: Project Intelligence Types
 // ============================================================
 
-// Project calculations — structured calc results linked to projects
+// Project calculations, structured calc results linked to projects
 export interface DbProjectCalculation {
   id: string;
   project_id: string;
@@ -1603,7 +1603,7 @@ export interface DbProjectCalculation {
   updated_at: string;
 }
 
-// Gallery entries — Before & After showcase
+// Gallery entries, Before & After showcase
 export interface DbGalleryEntry {
   id: string;
   user_id: string;
@@ -1642,7 +1642,7 @@ export interface DbGalleryImage {
   created_at: string;
 }
 
-// Client estimates — with approval workflow
+// Client estimates, with approval workflow
 export interface DbClientEstimate {
   id: string;
   project_id: string;
@@ -1779,7 +1779,7 @@ export interface DbProjectPredictiveAnalysis {
   id: string;
   project_id: string;
   user_id: string;
-  /** Digest of every analysis input — cache key (§22). */
+  /** Digest of every analysis input, cache key (§22). */
   input_hash: string;
   /** The full deterministic analysis bundle. */
   result: Record<string, unknown>;
@@ -1788,7 +1788,7 @@ export interface DbProjectPredictiveAnalysis {
 }
 
 // =========================================================
-// FRELUX Brand Studio — Phase 60 Types
+// FRELUX Brand Studio, Phase 60 Types
 // =========================================================
 
 /** Watermark configuration for PDF templates and brand profiles. */
@@ -1939,7 +1939,7 @@ export interface DbScreedingSystemConfig {
   cement_quantity: number | null;
   cement_unit: string | null;
   cement_price_per_unit: number | null;
-  // Generic third material slot — represents Bond today, any material
+  // Generic third material slot, represents Bond today, any material
   // later, without another migration. Dormant unless extra_enabled=true.
   extra_enabled?: boolean | null;
   extra_name?: string | null;

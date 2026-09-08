@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 6.5 ALPHA — INTELLIGENCE CLIENT (Admin browser)
+// FRELUX PHASE 6.5 ALPHA, INTELLIGENCE CLIENT (Admin browser)
 //
 // Admin CRUD for approved external sources, crawl triggering,
 // search discovery, and dashboard reads. All privileged
@@ -211,7 +211,7 @@ export async function createSearchProvider(
   return { ok: !error, error: error?.message };
 }
 
-/** Trigger one verification pass on a crawled learning record —
+/** Trigger one verification pass on a crawled learning record :
  *  reuses the EXISTING Phase 6.5 review workflow. */
 export async function advanceWebRecordToCandidate(
   recordId: string,

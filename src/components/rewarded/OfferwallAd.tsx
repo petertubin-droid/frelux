@@ -1,5 +1,5 @@
 /**
- * OfferwallAd — Responsive Offerwall.ad iframe component.
+ * OfferwallAd, Responsive Offerwall.ad iframe component.
  *
  * Only renders after authentication has been confirmed.
  * Uses the authenticated user's stable Supabase Auth UUID as the
@@ -28,7 +28,7 @@ interface OfferwallAdProps {
   onBack?: () => void;
 }
 
-// Fallback wall URL — used when no offerwall_ad provider is configured in the DB
+// Fallback wall URL, used when no offerwall_ad provider is configured in the DB
 const FALLBACK_WALL_URL =
   "https://offerwall.ad/wall/1b50ede6cf94ed6dbeedb6274efc2b6d";
 
@@ -123,9 +123,9 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
         )}
       </div>
 
-      {/* Iframe container — responsive, no horizontal scroll */}
+      {/* Iframe container, responsive, no horizontal scroll */}
       <div className="relative overflow-hidden rounded-2xl border border-border bg-card dark:border-white/10 dark:bg-card">
-        {/* Loading overlay — absolutely positioned so it doesn't affect layout */}
+        {/* Loading overlay, absolutely positioned so it doesn't affect layout */}
         {loading && !error && (
           <div className="absolute inset-0 z-10 flex min-h-[500px] flex-col items-center justify-center gap-3 p-8 bg-card dark:bg-card">
             <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
@@ -138,7 +138,7 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
           </div>
         )}
 
-        {/* Error state — replaces the iframe entirely */}
+        {/* Error state, replaces the iframe entirely */}
         {error ? (
           <div className="flex min-h-[500px] flex-col items-center justify-center gap-4 p-8">
             <AlertCircle className="h-10 w-10 text-red-400" />

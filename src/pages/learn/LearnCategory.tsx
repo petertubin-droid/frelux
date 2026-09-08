@@ -178,7 +178,7 @@ export default function LearnCategory() {
       />
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
-        {/* Category header banner — premium */}
+        {/* Category header banner, premium */}
         <div className="relative mb-12 overflow-hidden rounded-3xl border border-border/80 dark:border-white/10 bg-gradient-to-br from-card via-primary/[0.03] to-primary/[0.06] dark:from-card dark:via-card/50 dark:to-background p-7 sm:p-10">
           <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/8 blur-3xl" aria-hidden="true" />
           <div className="relative flex items-center gap-6">
@@ -362,9 +362,9 @@ export default function LearnCategory() {
           </Link>
         </div>
         <div className="mt-8">
-          {/* Ad slot — placement "learn_category_mid" */}
+          {/* Ad slot, placement "learn_category_mid" */}
           <AdSlot slotKey="learn_category_mid" />
-          {/* Native banner slot — placement "learn_category_native" */}
+          {/* Native banner slot, placement "learn_category_native" */}
           <AdSlot slotKey="learn_category_native" />
           <AdSlot slotKey="learn_category_bottom" />
         </div>

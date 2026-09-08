@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX API — Admin Observability (Phase 7 §23)
+// FRELUX API, Admin Observability (Phase 7 §23)
 //
 // Aggregates the per-request metering in frelux_api_usage so
 // admins can monitor: request volume, errors, latency, quota
@@ -15,9 +15,9 @@ export interface UsageWindowStats {
   billableRequests: number;
   errorResponses: number;
   avgLatencyMs: number;
-  quotaExhausted: number; // 429s — rate limit + quotas
-  authFailures: number; // 401s — invalid/unknown keys
-  permissionDenials: number; // 403s — capability/region
+  quotaExhausted: number; // 429s, rate limit + quotas
+  authFailures: number; // 401s, invalid/unknown keys
+  permissionDenials: number; // 403s, capability/region
 }
 
 export interface CapabilityStat {
@@ -212,7 +212,7 @@ export async function getTopKeys(
   });
 }
 
-/** Auth-failure breakdown (unknown/invalid keys — abuse signal). */
+/** Auth-failure breakdown (unknown/invalid keys, abuse signal). */
 export async function getAuthFailures(
   days: number = 1,
 ): Promise<AuthFailureStat[]> {

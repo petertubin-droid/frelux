@@ -26,7 +26,7 @@ const TABS = [
 ];
 
 const FAQS = [
-  // Painting — bucket-specific
+  // Painting, bucket-specific
   {
     question: "How does FRELUX calculate paint buckets?",
     answer:
@@ -231,9 +231,9 @@ export default function PaintingCalculatorHub() {
           ]}
         />
         <RelatedToolsLinks />
-        {/* Ad slot — placement "calculator_hub_mid" */}
+        {/* Ad slot, placement "calculator_hub_mid" */}
         <AdSlot slotKey="calculator_hub_mid" className="mt-8" />
-        {/* Native banner slot — placement "calculator_hub_native" */}
+        {/* Native banner slot, placement "calculator_hub_native" */}
         <AdSlot slotKey="calculator_hub_native" className="mt-8" />
         <AdSlot slotKey="calculator_hub_bottom" className="mt-8" />
         <EstimateDisclaimer />

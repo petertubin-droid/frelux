@@ -89,7 +89,7 @@ export interface CostEstimateInput {
   paintLiters: number;
   coats: number;
   paintType: string;
-  // Paint — actual container purchase
+  // Paint, actual container purchase
   paintProductId: string | null;
   paintProductName: string;
   paintContainerSize: number; // liters of one container (0 = manual per-liter)
@@ -328,7 +328,7 @@ export interface PopCalcResult {
   grandTotal: number;
   currency: string;
   currencySymbol: string;
-  /** Non-blocking configuration problems (missing coverage/price) — audit fix */
+  /** Non-blocking configuration problems (missing coverage/price), audit fix */
   warnings?: string[];
 }
 
@@ -403,7 +403,7 @@ export interface TileCalcResult {
   grandTotal: number;
   currency: string;
   currencySymbol: string;
-  /** Non-blocking configuration problems (missing coverage/price) — audit fix */
+  /** Non-blocking configuration problems (missing coverage/price), audit fix */
   warnings?: string[];
 }
 

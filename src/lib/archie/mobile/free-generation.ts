@@ -1,11 +1,11 @@
 // =========================================================
-// FRELUX PHASE 8b — FREE ON-DEVICE GENERATION PATHS
+// FRELUX PHASE 8b, FREE ON-DEVICE GENERATION PATHS
 //
 // ARCHIE text/code generation is a FREE mobile capability that
 // requires NO paid AI/cloud service: deterministic templates
 // compose text/code from FRELUX data. If the user wants full
 // cloud LLM generation, that is a paid capability (disabled by
-// default) — see paid-services.ts. ARCHIE never silently
+// default), see paid-services.ts. ARCHIE never silently
 // consumes a paid service.
 // =========================================================
 import { checkPaidCapability } from "./paid-services";
@@ -20,7 +20,7 @@ export interface GenerationRequest {
 
 export interface GenerationResult {
   text: string;
-  /** Which path produced it — free/on-device, never paid. */
+  /** Which path produced it, free/on-device, never paid. */
   path: "FREE_ON_DEVICE";
 }
 
@@ -41,7 +41,7 @@ const TEMPLATES: Record<string, (r: GenerationRequest) => string> = {
       "",
       ...parts,
       "",
-      "— Composed on-device by ARCHIE (free path, no cloud AI).",
+      ": Composed on-device by ARCHIE (free path, no cloud AI).",
     ].join("\n");
   },
   TASK_LIST: (r) => {
@@ -53,7 +53,7 @@ const TEMPLATES: Record<string, (r: GenerationRequest) => string> = {
       "",
       ...tasks.map((t, i) => `${i + 1}. ${String(t).slice(0, 200)}`),
       "",
-      "— Composed on-device by ARCHIE (free path, no cloud AI).",
+      ": Composed on-device by ARCHIE (free path, no cloud AI).",
     ].join("\n");
   },
   MATERIAL_LIST: (r) => {
@@ -65,7 +65,7 @@ const TEMPLATES: Record<string, (r: GenerationRequest) => string> = {
       "",
       ...mats.map((m) => `• ${String(m).slice(0, 200)}`),
       "",
-      "— Composed on-device by ARCHIE (free path, no cloud AI).",
+      ": Composed on-device by ARCHIE (free path, no cloud AI).",
     ].join("\n");
   },
   SNIPPET: (r) =>
@@ -75,7 +75,7 @@ const TEMPLATES: Record<string, (r: GenerationRequest) => string> = {
       ? r.data.language
       : "text";
     const code = String(r.data.code ?? "").slice(0, 8000);
-    return `${r.title}\n\n\`\`\`${lang}\n${code}\n\`\`\`\n— Drafted on-device by ARCHIE (free path). Production changes still require owner authorization.`;
+    return `${r.title}\n\n\`\`\`${lang}\n${code}\n\`\`\`\n: Drafted on-device by ARCHIE (free path). Production changes still require owner authorization.`;
   },
 };
 
@@ -84,7 +84,7 @@ function label(k: string): string {
 }
 
 /**
- * Free generation — deterministic, on-device, zero paid services.
+ * Free generation, deterministic, on-device, zero paid services.
  * Injection-safe: templates treat all data as inert strings.
  */
 export function generateFree(req: GenerationRequest): GenerationResult {
@@ -93,7 +93,7 @@ export function generateFree(req: GenerationRequest): GenerationResult {
 }
 
 /**
- * Cloud generation request — ONLY reachable when the user has
+ * Cloud generation request, ONLY reachable when the user has
  * explicitly activated the paid capability. Returns the guard
  * message otherwise; the caller never invokes a cloud provider
  * without an explicit ok here.

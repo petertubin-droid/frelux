@@ -4,7 +4,7 @@ import { SITE_URL } from "./seo";
  * FRELUX Article Validation Engine
  *
  * Validates learn articles against Google's E-E-A-T and SEO content guidelines.
- * Used as a gatekeeper before publishing — every future article must pass.
+ * Used as a gatekeeper before publishing, every future article must pass.
  *
  * Google guidelines covered:
  * - E-E-A-T: Experience, Expertise, Authoritativeness, Trustworthiness
@@ -243,7 +243,7 @@ export function validateArticle(
     value: wordCount,
   });
 
-  // 6. Heading structure — exactly one H1, at least two H2s
+  // 6. Heading structure, exactly one H1, at least two H2s
   const headings = extractHeadings(article.content);
   const h1Count = headings.filter((h) => h.level === 1).length;
   const h2Count = headings.filter((h) => h.level === 2).length;
@@ -450,7 +450,7 @@ export function validateArticle(
 }
 
 /**
- * Quick check — returns true if an article passes all error-level rules.
+ * Quick check, returns true if an article passes all error-level rules.
  * Use this before publishing to block non-compliant articles.
  */
 export function isArticleCompliant(article: ArticleInput): boolean {

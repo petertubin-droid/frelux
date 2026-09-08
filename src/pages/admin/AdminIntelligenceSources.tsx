@@ -159,7 +159,7 @@ export default function AdminIntelligenceSources() {
     <div>
       <AdminHeader
         title="Intelligence Sources"
-        subtitle="Register approved external sources for controlled crawling. Sources are off until explicitly enabled; crawling respects robots.txt, rate limits and access restrictions, and extracted information enters the existing learning pipeline (human review required — it can never silently change calculator prices)."
+        subtitle="Register approved external sources for controlled crawling. Sources are off until explicitly enabled; crawling respects robots.txt, rate limits and access restrictions, and extracted information enters the existing learning pipeline (human review required, it can never silently change calculator prices)."
       />
       <div className="space-y-6">
         {error && (
@@ -294,7 +294,7 @@ export default function AdminIntelligenceSources() {
             provider only)
           </h2>
           <p className="text-xs text-muted-foreground">
-            Uses a registered search API — never scrapes search-engine result
+            Uses a registered search API, never scrapes search-engine result
             pages. Results are evidence candidates, not verified truth.
           </p>
           <div className="flex gap-2">
@@ -358,7 +358,7 @@ export default function AdminIntelligenceSources() {
                     </p>
                     <p className="text-xs text-muted-foreground">
                       last crawl: {s.last_crawl ?? "never"} · next:{" "}
-                      {s.next_crawl ?? "—"} · flags:{" "}
+                      {s.next_crawl ?? "-"} · flags:{" "}
                       {[
                         s.is_price_source && "price",
                         s.is_product_source && "product",

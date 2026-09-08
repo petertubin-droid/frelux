@@ -1,5 +1,5 @@
 /**
- * My Brand Templates Section — list, select, manage saved branding profiles
+ * My Brand Templates Section, list, select, manage saved branding profiles
  */
 import { useState } from "react";
 import { Trash2, Edit3, Crown } from "lucide-react";

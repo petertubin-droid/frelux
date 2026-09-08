@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — INTERNAL ROW TYPES
+// FRELUX PREDICTIVE INTELLIGENCE, INTERNAL ROW TYPES
 //
 // Structural types matching the actual database rows the analysis
 // consumes. Kept separate from `types.ts` (public contract) so the

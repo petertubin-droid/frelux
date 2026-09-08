@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8b — OWNER CHANGE POLICY (pure logic)
+// FRELUX PHASE 8b, OWNER CHANGE POLICY (pure logic)
 //
 // Which production changes require owner authorization, and
 // which are additionally high-risk (engineering-review gate).

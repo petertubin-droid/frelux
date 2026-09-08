@@ -9,7 +9,7 @@
  * In production builds this entire module is a no-op: `import.meta.env.DEV`
  * is statically `false`, so the bundler tree-shakes every call site and no
  * diagnostic state or logging ships to users. No credentials, zone keys, or
- * private configuration are ever logged — only event names and public
+ * private configuration are ever logged, only event names and public
  * identifiers (provider slug, placement key, script host).
  */
 
@@ -46,7 +46,7 @@ export function adDebug(
     w.__freluxAds ??= { events };
     w.__freluxAds.events = events;
   } catch {
-    // window unavailable (SSR/test) — keep the in-memory trail only
+    // window unavailable (SSR/test), keep the in-memory trail only
   }
   // eslint-disable-next-line no-console
   console.debug(`[ads] ${provider}, ${event}`, detail ?? "");

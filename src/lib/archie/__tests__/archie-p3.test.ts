@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 P3 TEST SUITE — ARCHIE INTELLIGENCE LAYER
+// FRELUX PHASE 8 P3 TEST SUITE, ARCHIE INTELLIGENCE LAYER
 //
 // Covers the Prompt 3 contract:
 //  * knowledge graph: links, contradiction detection,

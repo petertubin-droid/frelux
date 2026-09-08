@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — RISK REGISTER (§9, §10)
+// FRELUX PREDICTIVE INTELLIGENCE, RISK REGISTER (§9, §10)
 //
 // Turns OK predictions with actual findings into structured
 // RiskItems, and each risk into a recommendation with the
@@ -9,9 +9,9 @@
 //   - a risk exists ONLY when a deterministic analyzer found a
 //     real finding in real rows (§18)
 //   - probability is ONLY attached where it is a measured rate
-//     from the data — never an invented likelihood
+//     from the data, never an invented likelihood
 //   - no unsupported categories (e.g. Weather) are created just
-//     to fill the dashboard — weather data sources do not exist
+//     to fill the dashboard, weather data sources do not exist
 //     in this project, so no Weather risk can be produced
 //   - recommendations are decision support, never guaranteed
 //     outcomes (§10)
@@ -63,7 +63,7 @@ function makeRisk(input: {
 /**
  * Build the risk register from prediction results. Deterministic:
  * every risk corresponds to a measured finding in one of the OK
- * predictions. Insufficient-data predictions contribute nothing —
+ * predictions. Insufficient-data predictions contribute nothing :
  * a missing prediction can never be a risk, and produces no fake
  * severity either.
  */
@@ -164,7 +164,7 @@ export function buildRiskRegister(input: {
           title: `No recorded stage completion for ${r.stallDays} days`,
           evidence: schedule.evidence,
           affectedArea: "Project timeline",
-          recommendedAction: `Record the actual status of "${r.nextPendingStage ?? "the next stage"}" — if work is ongoing, updating the records restores reliable tracking.`,
+          recommendedAction: `Record the actual status of "${r.nextPendingStage ?? "the next stage"}", if work is ongoing, updating the records restores reliable tracking.`,
           confidence: schedule.confidence as ConfidenceAssessment,
           now,
         }),
@@ -264,7 +264,7 @@ export function buildRiskRegister(input: {
         evidence: progress.evidence,
         affectedArea: "Project records",
         recommendedAction:
-          "Reconcile the stated progress with the recorded stages — reliable prediction depends on accurate records.",
+          "Reconcile the stated progress with the recorded stages, reliable prediction depends on accurate records.",
         confidence: progress.confidence as ConfidenceAssessment,
         now,
       }),

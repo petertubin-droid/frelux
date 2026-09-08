@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF PITCH — Tests
+ * FRELUX ROOF PITCH, Tests
  *
  * Feature 5: Roof Pitch Per Section
  *
@@ -121,13 +121,13 @@ describe('Roof Pitch: Ratio Table', () => {
 // =========================================================
 
 describe('Roof Pitch: No Silent Estimation', () => {
-  it('pitchRatioToDegrees does not guess — returns null for garbage', () => {
+  it('pitchRatioToDegrees does not guess, returns null for garbage', () => {
     expect(pitchRatioToDegrees('')).toBeNull();
     expect(pitchRatioToDegrees('nope')).toBeNull();
     expect(pitchRatioToDegrees('12')).toBeNull(); // missing colon
   });
 
-  it('degreesToPitchRatio does not guess — returns null for out of range', () => {
+  it('degreesToPitchRatio does not guess, returns null for out of range', () => {
     expect(degreesToPitchRatio(-1)).toBeNull();
     expect(degreesToPitchRatio(90)).toBeNull();
     expect(degreesToPitchRatio(180)).toBeNull();

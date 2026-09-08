@@ -1,7 +1,7 @@
 /**
- * SaveToProjectButton — reusable component for saving any calculator result
+ * SaveToProjectButton, reusable component for saving any calculator result
  * to a Project Workspace project. Does NOT modify calculator methodology.
- * Works with any calculator result shape — just needs a title, type, and the raw data.
+ * Works with any calculator result shape, just needs a title, type, and the raw data.
  */
 import { useState, useEffect, useCallback } from "react";
 import { FolderPlus, Loader2, Check, X, Folder, Save } from "lucide-react";
@@ -22,7 +22,7 @@ export interface SaveToProjectButtonProps {
   calculatorSlug: string;
   /** Title for the saved calculation (auto-generated if omitted) */
   calcTitle?: string;
-  /** Raw calculation input data — stored as-is for audit trail */
+  /** Raw calculation input data, stored as-is for audit trail */
   calcData: object;
   /** Result summary (key numbers: area, buckets, cost, etc.) */
   resultSummary: Record<string, unknown>;
@@ -34,7 +34,7 @@ export interface SaveToProjectButtonProps {
     unit: string;
     estimated_price?: number;
   }>;
-  /** Compact mode — smaller button */
+  /** Compact mode, smaller button */
   compact?: boolean;
   /** Custom label */
   label?: string;

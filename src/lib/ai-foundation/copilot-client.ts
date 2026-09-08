@@ -1,7 +1,7 @@
 // =========================================================
-// FRELUX AI FOUNDATION — Copilot Client
+// FRELUX AI FOUNDATION, Copilot Client
 //
-// Client for the ai-copilot edge function (NL interpretation only —
+// Client for the ai-copilot edge function (NL interpretation only :
 // the edge function is FORBIDDEN from computing quantities/costs).
 //
 // PERFORMANCE & RESILIENCE
@@ -34,7 +34,7 @@ interface CopilotEdgeResponse {
   };
 }
 
-/** In-flight dedupe — same payload shares one request. */
+/** In-flight dedupe, same payload shares one request. */
 const inFlight = new Map<string, Promise<InterpretationResult>>();
 
 function requestKey(text: string, contextHash: string): string {
@@ -43,7 +43,7 @@ function requestKey(text: string, contextHash: string): string {
 
 /**
  * Interpret a natural-language request with AI assistance.
- * Falls back to the deterministic parser on any failure — the
+ * Falls back to the deterministic parser on any failure, the
  * Copilot always returns a usable interpretation.
  */
 export async function interpretWithAi(text: string, contextHash = ''): Promise<InterpretationResult> {
@@ -79,7 +79,7 @@ async function interpretWithAiOnce(text: string): Promise<InterpretationResult> 
     };
   } catch (error) {
     captureAiError(error instanceof Error ? error : new Error('ai-copilot unavailable'), { feature: 'ai-copilot' });
-    // Graceful degradation — deterministic parse, zero API cost.
+    // Graceful degradation, deterministic parse, zero API cost.
     return interpretRequest(text);
   }
 }

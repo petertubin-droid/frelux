@@ -30,7 +30,7 @@ declare global {
 
 /**
  * Provider-agnostic ad slot. Reads placement + provider config from the database.
- * Supports fallback chains — if the primary provider has no ad unit configured
+ * Supports fallback chains, if the primary provider has no ad unit configured
  * for this placement, the next provider in the chain is tried.
  *
  * Supported providers:
@@ -44,7 +44,7 @@ declare global {
  * - PropellerAds: script-based zone
  * - Rewarded providers (AdGate, OfferToro, etc.): offerwall iframe containers
  *
- * Ads are never fake — nothing is shown until a real provider + ad unit is configured.
+ * Ads are never fake, nothing is shown until a real provider + ad unit is configured.
  *
  * Every rendered ad is wrapped in an "Advertisement" label container per Google
  * AdSense placement policies (ads must be clearly distinguishable from content).
@@ -71,7 +71,7 @@ interface ResolvedAd {
  * Banner sizes supported by Adsterra: 160x300, 160x600, 300x250, 320x50,
  * 728x90, 468x60. Placement policy: banners go in standard content
  * positions (in-content, sidebar, top/bottom of page), clearly separated
- * from site content, with reasonable density — we cap at 3 Adsterra
+ * from site content, with reasonable density, we cap at 3 Adsterra
  * banners per page so the page is never overloaded.
  */
 
@@ -81,7 +81,7 @@ export function getAdsterraServeDomain(provider: DbAdProvider): string {
   const raw =
     typeof creds.serve_domain === "string" ? creds.serve_domain.trim() : "";
   // Admins sometimes paste several values comma-separated. Take the first
-  // token that is a plain, valid hostname — never a URL, path or script
+  // token that is a plain, valid hostname, never a URL, path or script
   // content (injection safety).
   for (const part of raw.split(",")) {
     const host = part.trim();
@@ -97,7 +97,7 @@ export function getAdsterraServeDomain(provider: DbAdProvider): string {
  * plNNNN.profitableratecpmnetwork.com). When the admin pasted a full
  * banner snippet into the key credential, honor that snippet's host;
  * otherwise fall back to the global serve_domain credential. The host
- * must be in ADSTERRA_SERVE_HOSTS — a pasted value can never smuggle an
+ * must be in ADSTERRA_SERVE_HOSTS, a pasted value can never smuggle an
  * arbitrary origin into the page.
  */
 export function getAdsterraBannerServeDomain(provider: DbAdProvider): string {
@@ -120,7 +120,7 @@ export function getAdsterraBannerServeDomain(provider: DbAdProvider): string {
  * the full snippet from the Adsterra dashboard (<script …invoke.js>… plus a
  * container div) instead of the bare 32-hex zone key. Extract the key so
  * the slot renders; anything without a valid 32-hex token resolves to ""
- * (falsy — the placement falls through to the provider's global key).
+ * (falsy, the placement falls through to the provider's global key).
  */
 export function extractAdsterraZoneKey(
   value: string | undefined | null,
@@ -185,8 +185,8 @@ export function resetAdsterraPageStateForTests(): void {
 
 /**
  * Render an Adsterra banner into a container. The official snippet is
- * isolated inside a per-slot iframe (srcdoc) so `window.atOptions` — a
- * global that invoke.js reads — can never race between two banners, and
+ * isolated inside a per-slot iframe (srcdoc) so `window.atOptions`, a
+ * global that invoke.js reads, can never race between two banners, and
  * invoke.js's document.write lands in the iframe's document instead of
  * the host page. This is the same iframe Adsterra would produce anyway.
  */
@@ -225,7 +225,7 @@ export function renderAdsterraBanner(
     container.appendChild(iframe);
   } catch {
     // Some test environments (happy-dom) throw while wiring srcdoc iframes.
-    // The element still lands in the DOM — treat as rendered and move on.
+    // The element still lands in the DOM, treat as rendered and move on.
   }
   adsterraRenderedCount++;
   adDebug("adsterra", "banner:rendered", {
@@ -237,7 +237,7 @@ export function renderAdsterraBanner(
 }
 
 /**
- * Native Banner (Adsterra): injects native.js into the slot container —
+ * Native Banner (Adsterra): injects native.js into the slot container :
  * the unit renders in place and adapts to the container's width. The key
  * is validated (hex) before any script is built, so an invalid value can
  * never inject. Counts toward the same per-page density cap as banners.
@@ -255,7 +255,7 @@ export function renderAdsterraNativeBanner(
   // Adsterra ships two in-place native products. The classic Native Banner
   // snippet is invoke.js + <div id="container-<key>">; the newer one is a
   // native.js tag. Which one this zone is comes from the admin's pasted
-  // snippet (see getAdsterraNativeBannerScript) — render the matching tag
+  // snippet (see getAdsterraNativeBannerScript), render the matching tag
   // or the zone silently no-fills.
   if (getAdsterraNativeBannerScript(provider) === "invoke") {
     const s = document.createElement("script");
@@ -289,7 +289,7 @@ export function renderAdsterraNativeBanner(
 }
 
 /**
- * Injector registry — the effect calls through this indirection so tests
+ * Injector registry, the effect calls through this indirection so tests
  * can stub the real srcdoc injection (happy-dom can't load ad iframes).
  */
 export const adsterraInjector = {
@@ -304,7 +304,7 @@ export const adsterraInjector = {
  * ad scripts are injected and nothing is rendered visually. Useful for
  * hiding intrusive display networks (e.g. Monetag) while awaiting
  * AdSense approval without losing the provider configuration.
- * Defaults to enabled — only an explicit `false` in settings disables it.
+ * Defaults to enabled, only an explicit `false` in settings disables it.
  */
 function isDisplayAdsEnabled(provider: DbAdProvider): boolean {
   return provider.settings?.display_ads_enabled !== false;
@@ -347,7 +347,7 @@ export default function AdSlot({
 
   useEffect(() => {
     let cancelled = false;
-    // Paid subscribers never see ads — resolve to "none" without fetching
+    // Paid subscribers never see ads, resolve to "none" without fetching
     // config or logging impressions.
     if (isPaid) {
       setResolved("none");
@@ -387,7 +387,7 @@ export default function AdSlot({
       ];
 
       // ── Pass 1: Providers with per-placement ad unit IDs ──
-      // These take priority — admin explicitly mapped this provider
+      // These take priority, admin explicitly mapped this provider
       // to this placement. AdSense, Media.net, etc.
       for (const provider of targetChain) {
         if (GLOBAL_CREDENTIAL_PROVIDERS.includes(provider.slug)) continue;
@@ -419,14 +419,14 @@ export default function AdSlot({
       // ensures Monetag (site-wide tag) doesn't block AdSense or other
       // specifically-configured providers from rendering.
       // For global providers that also have a per-placement ad unit ID
-      // configured, use that ID — it allows dedicated zones per placement.
+      // configured, use that ID, it allows dedicated zones per placement.
       for (const provider of targetChain) {
         if (!GLOBAL_CREDENTIAL_PROVIDERS.includes(provider.slug)) continue;
         const hasCreds = Object.values(provider.credentials ?? {}).some(
           (v) => typeof v === "string" && v.length > 0,
         );
         if (!hasCreds) continue;
-        // Adsterra density cap — at most 3 banner renders per page. When
+        // Adsterra density cap, at most 3 banner renders per page. When
         // the cap is hit, later slots skip Adsterra entirely and fall
         // through to the next provider in the chain (e.g. Monetag), so
         // slots never render empty while another provider could fill them.
@@ -438,10 +438,10 @@ export default function AdSlot({
             ? extractAdsterraZoneKey(getAdUnitId(placement, provider.id))
             : getAdUnitId(placement, provider.id);
         if (perPlacementUnitId) {
-          // Has a per-placement zone — render with it
+          // Has a per-placement zone, render with it
           setResolved({ provider, adUnitId: perPlacementUnitId, placement });
         } else {
-          // No per-placement zone — global tag handles display.
+          // No per-placement zone, global tag handles display.
           // For Monetag specifically, don't render a container (the
           // global tag in Layout.tsx handles it). For other global
           // providers, resolve with empty adUnitId and let the render
@@ -452,9 +452,9 @@ export default function AdSlot({
             // zone: when the admin configures one (Admin → Ads → Monetag
             // → "Native Banner Zone ID"), the slot renders an SDK
             // container the tag fills in-page. Without a native zone
-            // there is nothing to render in-slot — resolve "none" and do
+            // there is nothing to render in-slot, resolve "none" and do
             // NOT log a placement-level impression (that would be a false
-            // impression — no visible ad was shown in this slot).
+            // impression, no visible ad was shown in this slot).
             const nativeZone = getMonetagNativeZone(provider);
             if (nativeZone) {
               setResolved({ provider, adUnitId: nativeZone, placement });
@@ -592,7 +592,7 @@ export default function AdSlot({
         try {
           (window.adsbygoogle = window.adsbygoogle || []).push({});
         } catch {
-          // AdSense not loaded yet — script will handle it when ready
+          // AdSense not loaded yet, script will handle it when ready
         }
       }
       // BuySellAds uses _bsa object
@@ -611,7 +611,7 @@ export default function AdSlot({
 
   // Inject provider-specific scripts when provider is resolved.
   // Skipped entirely when the admin has turned the provider's visual
-  // display ads off — no third-party ad scripts load in that case.
+  // display ads off, no third-party ad scripts load in that case.
   useEffect(() => {
     if (!resolved || resolved === "none") return;
     const { provider } = resolved;
@@ -643,7 +643,7 @@ export default function AdSlot({
       case "adsterra": {
         // Rendered per-slot by renderAdsterraBanner() inside the resolved
         // container (see the container effect below). The banner snippet is
-        // isolated per iframe — there is no global head script to inject.
+        // isolated per iframe, there is no global head script to inject.
         break;
       }
       case "buysellads": {
@@ -800,7 +800,7 @@ export default function AdSlot({
   }, [resolved]);
 
   // Adsterra: render the banner into the slot container once resolved.
-  // Each banner lives in its own iframe with its own atOptions — see
+  // Each banner lives in its own iframe with its own atOptions, see
   // renderAdsterraBanner() for the policy/cap details.
   useEffect(() => {
     if (!resolved || resolved === "none") return;
@@ -847,7 +847,7 @@ export default function AdSlot({
 
   const { provider } = resolved;
 
-  // Display ads turned off for this provider — reserve the layout slot
+  // Display ads turned off for this provider, reserve the layout slot
   // but show nothing (no label, no ad content, no third-party scripts).
   if (!isDisplayAdsEnabled(provider)) {
     return (
@@ -863,7 +863,7 @@ export default function AdSlot({
   const creds = provider.credentials ?? {};
 
   // ============================================================
-  // Provider-specific inner content (unwrapped — label applied below)
+  // Provider-specific inner content (unwrapped, label applied below)
   // ============================================================
   let adInner: ReactNode = null;
 
@@ -1080,7 +1080,7 @@ export default function AdSlot({
 
   // Monetag: the global tag.min.js (injected once in Layout.tsx) handles
   // all display ad formats (popunder, interstitial, in-page push) site-wide.
-  // It does NOT render into per-placement container divs — rendering an
+  // It does NOT render into per-placement container divs, rendering an
   // empty div with an "Advertisement" label looks broken to users.
   // Only render a container if this placement has a specific per-placement
   // ad_unit_id configured (e.g. a dedicated Monetag SDK zone for this slot).
@@ -1096,12 +1096,12 @@ export default function AdSlot({
     );
   }
 
-  // Rewarded ad providers (offerwall iframe based) — not rendered as regular ad slots
+  // Rewarded ad providers (offerwall iframe based), not rendered as regular ad slots
   else if (provider.provider_type === "rewarded") {
     return null;
   }
 
-  // Generic provider container — SDK scripts (when loaded) will fill this
+  // Generic provider container, SDK scripts (when loaded) will fill this
   else {
     adInner = (
       <div

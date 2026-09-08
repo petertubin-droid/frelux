@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 P4 — SUBSCRIBER CONTRIBUTIONS
+// FRELUX PHASE 8 P4, SUBSCRIBER CONTRIBUTIONS
 //
 // Subscribers may VOLUNTARILY contribute knowledge to
 // ARCHIE. Every contribution records the full lineage:
@@ -133,7 +133,7 @@ export function traceOrigin(contribution: SubscriberContribution) {
 
 /** Withdraw a contribution (user's right). If the knowledge
  *  was already promoted to FRELUX_GLOBAL_APPROVED, the
- *  derived knowledge is FLAGGED for human review — history is
+ *  derived knowledge is FLAGGED for human review, history is
  *  never silently rewritten, and the withdrawal is recorded
  *  in the trace. */
 export function withdrawContribution(
@@ -167,7 +167,7 @@ export function withdrawContribution(
   };
 }
 
-/** A contributor's correction creates a new VERSION — the old
+/** A contributor's correction creates a new VERSION, the old
  *  version stays in history (audit + rollback). */
 export function amendContribution(
   contribution: SubscriberContribution,

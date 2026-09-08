@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/shadcn/dialog";
 
 /**
- * AdminModal — replaces the 31+ custom modal overlays across admin pages.
+ * AdminModal, replaces the 31+ custom modal overlays across admin pages.
  * Uses shadcn Dialog (Radix UI) for accessibility: focus trapping,
  * escape-to-close, proper ARIA roles, screen reader support.
  *

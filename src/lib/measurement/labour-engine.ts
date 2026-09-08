@@ -10,7 +10,7 @@
  *   - Rate per project (lump sum)
  *   - Percentage of material cost
  *
- * Labour rates are NOT hardcoded — they come from admin configuration
+ * Labour rates are NOT hardcoded, they come from admin configuration
  * or user overrides. The engine only does the math.
  *
  * Architecture:
@@ -24,7 +24,7 @@
  *     ↓
  *   TOTAL LABOUR COST
  *
- * Additive — does not replace existing labour calculations in contractor.ts.
+ * Additive, does not replace existing labour calculations in contractor.ts.
  */
 
 import type { ConfidenceLevel } from './confidence-engine';

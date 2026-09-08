@@ -6,7 +6,7 @@
  * Transforms a CostEstimate + LabourCostResult into a structured
  * quotation document ready for PDF, HTML, WhatsApp, or email.
  *
- * The engine generates STRUCTURED DATA — the UI renders it.
+ * The engine generates STRUCTURED DATA, the UI renders it.
  * No PDF formatting is hardcoded in the engine.
  *
  * Architecture:
@@ -18,7 +18,7 @@
  *     ↓
  *   RENDER (PDF / HTML / WhatsApp / Email)
  *
- * Additive — does not replace existing quotation functions in contractor.ts.
+ * Additive, does not replace existing quotation functions in contractor.ts.
  */
 
 import type { CostEstimate } from './cost-integration';

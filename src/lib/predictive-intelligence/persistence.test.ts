@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — PERSISTENCE & SECURITY TESTS
+// FRELUX PREDICTIVE INTELLIGENCE, PERSISTENCE & SECURITY TESTS
 //
 // Covers (§22, §21, §23):
 //   - cache hit when input hash unchanged + fresh
@@ -17,7 +17,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 const NOW = "2026-09-07T12:00:00.000Z";
 
 // The cache-age check (tryLoadCache) uses the REAL clock
-// (Date.now()) — the wall clock at test time, not the snapshot's
+// (Date.now()), the wall clock at test time, not the snapshot's
 // `now`. Pin it to the reference time so freshness is
 // deterministic no matter when the suite runs (this test used to
 // fail whenever CI ran more than 6 hours after `NOW`).
@@ -173,7 +173,7 @@ describe("security & failure handling (§21, §23)", () => {
     mockChain.upsert.mockResolvedValue({ error: null });
   });
 
-  it("a project invisible to the user (RLS / not found) returns null — never an analysis", async () => {
+  it("a project invisible to the user (RLS / not found) returns null, never an analysis", async () => {
     buildProjectSnapshotMock.mockResolvedValue(null);
     const result = await getProjectAnalysis("someone-elses-project", {
       now: NOW,

@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 P4 — TRUSTED DEVICES & SUBSCRIBER
+// FRELUX PHASE 8 P4, TRUSTED DEVICES & SUBSCRIBER
 // INTELLIGENCE: TYPES
 //
 // ARCHIE operates across explicitly enrolled, authorized
@@ -45,7 +45,7 @@ export interface TrustedDevice {
   enrollment_state: DeviceEnrollmentState;
   security_status: DeviceSecurityStatus;
   /** SHA-256 digest of the device token. The token itself only
-   *  ever lives on the device — FRELUX stores the digest. */
+   *  ever lives on the device, FRELUX stores the digest. */
   token_digest: string;
   token_rotated_at: string;
   /** MobileDataCategory keys granted to THIS device. */
@@ -76,7 +76,7 @@ export type MobileDataCategory =
   | "AUTHORIZED_CODE_RESOURCES"
   | "OTHER_SELECTED_INFORMATION";
 
-/** Categories that can NEVER be granted — they do not exist as
+/** Categories that can NEVER be granted, they do not exist as
  *  capabilities anywhere in the system. Requesting them is a
  *  hard refusal, and the attempt is a security signal. */
 export const FORBIDDEN_DEVICE_CATEGORIES: ReadonlySet<string> = new Set([
@@ -190,7 +190,7 @@ export type ContributionEvaluationState =
 export interface SubscriberContribution {
   id: string;
   user_id: string;
-  /** Origin traceability — always present. */
+  /** Origin traceability, always present. */
   device_id: string;
   source_type: MobileDataCategory;
   topic: string;
@@ -199,7 +199,7 @@ export interface SubscriberContribution {
   property_ref: string | null;
   country_region: string | null;
   evidence: string[];
-  /** Full provenance — who, which device, when, from what. */
+  /** Full provenance, who, which device, when, from what. */
   provenance: {
     contributor_id: string;
     device_id: string;

@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 /**
- * FRELUX LOCATION INTELLIGENCE — useFreluxLocation hook
+ * FRELUX LOCATION INTELLIGENCE, useFreluxLocation hook
  *
  * The ONE canonical location state machine behind the LocationCard
  * widget and any future surface. Every capture path (GPS, search, map
@@ -38,7 +38,7 @@ export type LocationState =
   | "not_set" // Location not set
   | "detecting" // Detecting location
   | "permission_requested" // Permission dialog showing
-  | "found" // Location found (any source) — record staged
+  | "found" // Location found (any source), record staged
   | "permission_denied" // Permission denied
   | "unavailable" // GPS unavailable / errored
   | "saved"; // Location persisted to the project
@@ -56,12 +56,12 @@ export interface FreluxLocationApi {
   hasLocation: boolean;
   error: string | null;
   reverseGeocode: ReverseGeocodeStatus;
-  /** Search (forward geocoding) — null provider means unavailable. */
+  /** Search (forward geocoding), null provider means unavailable. */
   searchEnabled: boolean;
   searchResults: SearchCandidate[];
   searching: boolean;
   searchError: string | null;
-  /** Map pin selection — null provider means unavailable. */
+  /** Map pin selection, null provider means unavailable. */
   mapEnabled: boolean;
   /** Denial memory: true after the user has denied permission once. */
   permissionDeniedRemembered: boolean;
@@ -156,7 +156,7 @@ export function useFreluxLocation(): FreluxLocationApi {
       setError(null);
       setSearchResults([]);
 
-      // Respect remembered denial — never re-prompt without explicit retry.
+      // Respect remembered denial, never re-prompt without explicit retry.
       if (permissionDeniedRemembered) {
         setState("permission_denied");
         setError(
@@ -196,7 +196,7 @@ export function useFreluxLocation(): FreluxLocationApi {
         return;
       }
 
-      // GPS succeeded. Reverse geocoding is optional — attempt it.
+      // GPS succeeded. Reverse geocoding is optional, attempt it.
       const record = result.location;
       const reverser = reverseProvider;
       if (!reverser) {
@@ -222,7 +222,7 @@ export function useFreluxLocation(): FreluxLocationApi {
         setReverseGeocode({
           attempted: true,
           ok: false,
-          message: geo.error ?? "Reverse geocoding unavailable — showing coordinates only.",
+          message: geo.error ?? "Reverse geocoding unavailable, showing coordinates only.",
         });
         applyRecord(record);
       }
@@ -243,7 +243,7 @@ export function useFreluxLocation(): FreluxLocationApi {
   const search = useCallback(
     async (query: string) => {
       if (!forwardProvider) {
-        setSearchError("Location search is unavailable — no search provider configured.");
+        setSearchError("Location search is unavailable, no search provider configured.");
         return;
       }
       setSearching(true);
@@ -278,7 +278,7 @@ export function useFreluxLocation(): FreluxLocationApi {
     [applyRecord],
   );
 
-  /** Map pin selection — only reachable when a map provider is configured. */
+  /** Map pin selection, only reachable when a map provider is configured. */
   const setMapPin = useCallback(
     (lat: number, lng: number) => {
       if (!mapProvider) return;

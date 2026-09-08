@@ -1,9 +1,9 @@
 // =========================================================
-// FRELUX AI FOUNDATION — RISK QUESTION ANSWERING (Phase 4 §20)
+// FRELUX AI FOUNDATION, RISK QUESTION ANSWERING (Phase 4 §20)
 //
 // The Copilot's risk-question surface: deterministic retrieval
 // over the project's ACTUAL predictive analysis. No AI call is
-// made to answer a risk question — the deterministic answer and
+// made to answer a risk question, the deterministic answer and
 // the pre-computed AI context come from the predictive-intelligence
 // module, and the optional AI summary may only relay them.
 //
@@ -13,7 +13,7 @@
 //                  → answerRiskQuestion (retrieval, never invention)
 //                  → buildPredictiveContextForAi (for optional summary)
 //     → no match? → null (the Copilot falls through to its
-//                  normal interpretation path — §20)
+//                  normal interpretation path, §20)
 // =========================================================
 
 import {
@@ -28,7 +28,7 @@ export interface RiskAnswerResult {
   matched: true;
   /** Deterministic, evidence-anchored answer. */
   answer: string;
-  /** Pre-computed context an AI summary may relay verbatim —
+  /** Pre-computed context an AI summary may relay verbatim :
    *  the AI is forbidden from adding facts beyond this. */
   aiContext: string;
   /** Analysis came from cache vs fresh computation (§22). */
@@ -38,7 +38,7 @@ export interface RiskAnswerResult {
 export interface RiskAnswerUnavailable {
   question: string;
   matched: true;
-  /** Honest reason — project missing, not visible, or analysis failed. */
+  /** Honest reason, project missing, not visible, or analysis failed. */
   unavailableReason: "project_not_found" | "analysis_failed";
 }
 
@@ -46,7 +46,7 @@ export type RiskAnswer = RiskAnswerResult | RiskAnswerUnavailable | null;
 
 /**
  * Answer a project risk question from the actual project records.
- * Returns null when the question is not a risk question — callers
+ * Returns null when the question is not a risk question, callers
  * fall through to their normal flow. NEVER fabricates.
  */
 export async function answerProjectRiskQuestion(

@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX AI FOUNDATION — Agent Framework (future agents)
+// FRELUX AI FOUNDATION, Agent Framework (future agents)
 //
 // Safe, bounded, audited foundation for future FRELUX agents:
 //   Project Agent · Property Agent · Procurement Agent ·
@@ -8,13 +8,13 @@
 // IRONCLAD RULES
 //   1. AI proposes → user reviews → user approves → action occurs.
 //      An agent can NEVER execute a write action on its own.
-//   2. High-impact actions are FORBIDDEN — not even proposeable:
+//   2. High-impact actions are FORBIDDEN, not even proposeable:
 //      financial transactions, structural approval, safety
 //      certification, contract execution.
 //   3. Every agent decision is recorded in an auditable history
 //      (agent_events table; local fallback queue keeps the audit
 //      alive even when the network is down).
-//   4. Future agents ship DISABLED until a real capability lands —
+//   4. Future agents ship DISABLED until a real capability lands :
 //      no dormant "agent" UI.
 // =========================================================
 
@@ -53,7 +53,7 @@ export const AGENT_REGISTRY: AgentDefinition[] = [
     description: 'Reads property intelligence (location, metrics, market availability) and summarizes it.',
     readDomains: ['property', 'location', 'market'],
     proposableActions: ['save_property_note'],
-    enabled: false, // future phase — ships disabled, no dormant UI
+    enabled: false, // future phase, ships disabled, no dormant UI
   },
   {
     id: 'procurement_agent',
@@ -122,7 +122,7 @@ export function evaluateAgentAction(agentId: string, action: string): {
 // AUDIT TRAIL
 // =========================================================
 
-/** Local fallback queue — the audit survives network failures. */
+/** Local fallback queue, the audit survives network failures. */
 const localAuditQueue: AgentEvent[] = [];
 
 export function getLocalAuditQueue(): AgentEvent[] {
@@ -131,7 +131,7 @@ export function getLocalAuditQueue(): AgentEvent[] {
 
 /**
  * Record an agent event to the auditable history (agent_events table).
- * Falls back to the local queue on failure — audit entries are never lost.
+ * Falls back to the local queue on failure, audit entries are never lost.
  */
 export async function recordAgentEvent(event: AgentEvent, userId: string | null): Promise<'persisted' | 'queued_locally'> {
   const entry = { ...event, createdAt: event.createdAt || new Date().toISOString() };
@@ -156,7 +156,7 @@ export async function recordAgentEvent(event: AgentEvent, userId: string | null)
 
 /**
  * Flush the local audit queue to the database once connectivity returns.
- * Idempotent per entry — safe to retry.
+ * Idempotent per entry, safe to retry.
  */
 export async function flushLocalAuditQueue(userId: string | null): Promise<number> {
   if (!userId || localAuditQueue.length === 0) return 0;

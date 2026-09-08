@@ -1,7 +1,7 @@
 /**
  * PDF Quote Export Utility
  * Generates a printable HTML document and opens the browser's print dialog.
- * The user can save as PDF from the print dialog — no external library needed.
+ * The user can save as PDF from the print dialog, no external library needed.
  *
  * Brand Studio integration: Accepts an optional `branding` parameter.
  * When provided, the branding layer overrides the default FRELUX branding.
@@ -30,7 +30,7 @@ interface QuoteExportData {
     logoUrl?: string | null;
   };
   terms?: string | null;
-  /** Resolved branding from Brand Studio — overrides company fields */
+  /** Resolved branding from Brand Studio, overrides company fields */
   branding?: ResolvedBranding;
 }
 
@@ -43,7 +43,7 @@ export function exportPdfQuote(data: QuoteExportData): void {
   });
   const ref = `FRELUX-${Date.now().toString().slice(-8)}`;
 
-  // Resolve branding — if branding is provided, it takes priority over company fields
+  // Resolve branding, if branding is provided, it takes priority over company fields
   const useBranding = !!branding;
   const brandName = branding?.brandName ?? company?.name ?? "FRELUX";
   const brandAddress = branding?.address ?? company?.address;

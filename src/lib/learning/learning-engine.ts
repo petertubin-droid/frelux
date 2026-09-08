@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 6.5 — UNIFIED LEARNING ENGINE (pure logic)
+// FRELUX PHASE 6.5, UNIFIED LEARNING ENGINE (pure logic)
 //
 // Lifecycle, verification, evaluation, human approval,
 // versioning and rollback for ALL intelligence sources.
@@ -202,7 +202,7 @@ export function checkPromotion(args: {
       allowed: false,
       requiresEngineeringReview: isMathCapability(args.capability),
       reason:
-        "AI must never approve its own learning — a human reviewer is required.",
+        "AI must never approve its own learning, a human reviewer is required.",
     };
   }
   const scope = evaluateScopePromotion(args.proposed_scope, args.target_scope, {
@@ -360,6 +360,6 @@ export function compareProviderOpinions(
       recommendation,
       providers,
     })),
-    note: "Majority AI agreement is NOT proof of correctness — independent verification remains mandatory.",
+    note: "Majority AI agreement is NOT proof of correctness, independent verification remains mandatory.",
   };
 }

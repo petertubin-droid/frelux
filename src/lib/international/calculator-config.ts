@@ -1,5 +1,5 @@
 /**
- * FRELUX INTERNATIONAL ARCHITECTURE — Calculator Config Service
+ * FRELUX INTERNATIONAL ARCHITECTURE, Calculator Config Service
  *
  * Resolves which calculators are available in each market.
  * Provides market-specific calculator settings and label overrides.

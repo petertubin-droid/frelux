@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF VIEW — Types
+ * FRELUX ROOF VIEW, Types
  *
  * Type definitions for the roof view / imagery provider system.
  *
@@ -7,7 +7,7 @@
  *   - Provider interface allows future imagery providers (satellite, aerial, etc.)
  *   - No provider is hardcoded or assumed active
  *   - Manual measurement always works regardless of provider state
- *   - No fake data — if no provider is configured, the UI shows a clear state
+ *   - No fake data, if no provider is configured, the UI shows a clear state
  *
  * Feature 2: Roof View
  */
@@ -35,7 +35,7 @@ export interface RoofViewProviderConfig {
   provider_type: RoofViewProviderType;
   /** Whether the provider is configured and active */
   enabled: boolean;
-  /** API key or endpoint — stored server-side only, never in frontend */
+  /** API key or endpoint, stored server-side only, never in frontend */
   api_key_configured: boolean;
   /** Display name for the provider */
   display_name: string;

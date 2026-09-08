@@ -1,5 +1,5 @@
 /**
- * FRELUX INTERNATIONAL ARCHITECTURE — Pricing Resolver
+ * FRELUX INTERNATIONAL ARCHITECTURE, Pricing Resolver
  *
  * Resolves market-specific pricing for materials and products.
  *

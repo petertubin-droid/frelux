@@ -58,7 +58,7 @@ export interface ConfidenceFactor {
   passed: boolean;
   /** Detail about why it passed or failed */
   detail: string;
-  /** Weight (0–1) — how much this factor affects overall confidence */
+  /** Weight (0–1), how much this factor affects overall confidence */
   weight: number;
 }
 
@@ -110,7 +110,7 @@ function aggregateConfidence(
 
 /**
  * Assess calculation confidence for a space result.
- * This is purely about the math — not about market prices.
+ * This is purely about the math, not about market prices.
  *
  * A purely mathematical calculation can have HIGH calculation confidence
  * even if current market pricing is unavailable.

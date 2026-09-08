@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PROJECT AGENT — "WHAT SHOULD I DO NEXT?" (Stage 5)
+// FRELUX PROJECT AGENT, "WHAT SHOULD I DO NEXT?" (Stage 5)
 //
 // Natural project guidance. Answers questions such as:
 //   What should I do next?         What is blocking my project?
@@ -9,15 +9,15 @@
 //                                 the next construction stage?
 //
 // Hard rules:
-//   1. Every answer is DERIVED from recorded project state —
+//   1. Every answer is DERIVED from recorded project state :
 //      the Stage-4 recommendation engine, the deterministic
 //      analysis, the Stage-2 context and the project snapshot.
 //      Nothing is invented: no progress, no completed work,
 //      no purchases, no site conditions.
-//   2. Identical project data produces an identical answer —
+//   2. Identical project data produces an identical answer :
 //      and answers CHANGE when project data changes.
 //   3. Where recorded evidence is insufficient, the answer says
-//      INSUFFICIENT DATA with the honest reason — no substitute
+//      INSUFFICIENT DATA with the honest reason, no substitute
 //      data, no guess.
 // =========================================================
 
@@ -73,7 +73,7 @@ export interface GuidanceItem {
   action: string;
   /** Recorded facts behind this item. */
   evidence: string[];
-  /** Priority — derived from underlying severity, never guessed. */
+  /** Priority, derived from underlying severity, never guessed. */
   priority: "high" | "medium" | "low";
   /** Traceability. */
   source: string;
@@ -142,7 +142,7 @@ export async function buildGuidance(
         generatedAt: nowIso,
         status: "insufficient_data",
         headline:
-          "INSUFFICIENT DATA — no recorded project state could be loaded for this project, so this question cannot be answered honestly.",
+          "INSUFFICIENT DATA, no recorded project state could be loaded for this project, so this question cannot be answered honestly.",
         items: [],
         derivedFrom: [],
         insufficientData: ["no recorded project data could be loaded for this project"],
@@ -265,7 +265,7 @@ function answer(
 }
 
 // =========================================================
-// Answerers — one per supported question
+// Answerers, one per supported question
 // =========================================================
 
 const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
@@ -299,7 +299,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
       inputs,
       "what_next",
       items.length === 0
-        ? "Nothing actionable is recorded right now — no open risks and no pending stages. This is the absence of recommendations, not a guarantee."
+        ? "Nothing actionable is recorded right now, no open risks and no pending stages. This is the absence of recommendations, not a guarantee."
         : `Based on recorded project state, the next ${items.length === 1 ? "step" : `${items.length} steps, in priority order`}: ${items[0].action}`,
       items,
     );
@@ -328,7 +328,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
         ? `${blockers.length} recorded high-severity condition(s) are affecting this project.`
         : "No high-severity blockers are recorded for this project" +
             (unknown.length > 0
-              ? ` — but ${unknown.length} condition(s) could not be assessed (see evidence), so absence of a blocker is not proof of none.`
+              ? `, but ${unknown.length} condition(s) could not be assessed (see evidence), so absence of a blocker is not proof of none.`
               : ". This is the recorded state, not a guarantee."),
       blockers,
       { insufficientData: unknown },
@@ -342,7 +342,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
     const { context, report } = inputs;
     const gaps = context?.gaps ?? [];
     const items: GuidanceItem[] = gaps.map((g) => ({
-      action: `Record ${g.area} data — ${g.reason}`,
+      action: `Record ${g.area} data, ${g.reason}`,
       evidence: [`${g.area}: ${g.reason}`],
       priority: "low",
       source: "context gaps (Stage-2 controlled context)",
@@ -351,7 +351,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
     for (const cov of inputs.analysis.dataQuality?.coverage ?? []) {
       if (!cov.available) {
         items.push({
-          action: `Provide ${cov.area} data — ${cov.note ?? "not available for this project"}`,
+          action: `Provide ${cov.area} data, ${cov.note ?? "not available for this project"}`,
           evidence: [`${cov.area}: ${cov.note ?? "marked unavailable by the deterministic analysis"}`],
           priority: "low",
           source: "data quality assessment (deterministic)",
@@ -364,7 +364,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
       inputs,
       "missing_info",
       items.length + reportMissing.length === 0
-        ? "No information gaps are recorded for this project — the agent is not aware of anything missing."
+        ? "No information gaps are recorded for this project, the agent is not aware of anything missing."
         : `${items.length + reportMissing.length} recorded information gap(s) limit what can be assessed.`,
       [...items, ...reportMissing],
     );
@@ -375,7 +375,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
   // ---------------------------------------------------------
   what_to_buy: (inputs) => {
     const { snapshot } = inputs;
-    // Stage 11 — the project's recorded market drives money formatting.
+    // Stage 11, the project's recorded market drives money formatting.
     const mkt = snapshot.region.marketCode ?? snapshot.region.countryCode;
     const unpurchased = snapshot.shoppingItems
       .slice()
@@ -386,7 +386,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
       return answer(
         inputs,
         "what_to_buy",
-        "INSUFFICIENT DATA — no shopping list has been recorded for this project, so there is nothing recorded to buy. Run a materials calculation to create one.",
+        "INSUFFICIENT DATA, no shopping list has been recorded for this project, so there is nothing recorded to buy. Run a materials calculation to create one.",
         [],
         {
           status: "insufficient_data",
@@ -399,7 +399,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
       return answer(
         inputs,
         "what_to_buy",
-        `All ${snapshot.shoppingItems.length} recorded shopping list line(s) are marked purchased — nothing is recorded as still to buy.`,
+        `All ${snapshot.shoppingItems.length} recorded shopping list line(s) are marked purchased, nothing is recorded as still to buy.`,
         [],
       );
     }
@@ -430,7 +430,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
   // ---------------------------------------------------------
   budget_risk: (inputs) => {
     const { report, analysis, snapshot } = inputs;
-    // Stage 11 — the project's recorded market drives money formatting.
+    // Stage 11, the project's recorded market drives money formatting.
     const mkt = snapshot.region.marketCode ?? snapshot.region.countryCode;
     const recs = recsByCondition(
       report,
@@ -457,7 +457,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
       inputs,
       "budget_risk",
       items.length === 0
-        ? "No recorded condition is putting the budget at risk — the risk register has no Cost/Procurement/Market risks and no cost prediction could contradict them. This is the recorded state, not a guarantee."
+        ? "No recorded condition is putting the budget at risk, the risk register has no Cost/Procurement/Market risks and no cost prediction could contradict them. This is the recorded state, not a guarantee."
         : `Based on recorded data, the budget risk factor(s) are: ${items
             .slice(0, 2)
             .map((i) => i.action)
@@ -477,7 +477,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
     const stageStatus: GuidanceItem = {
       action:
         snapshot.stages.length === 0
-          ? "INSUFFICIENT DATA — no progress stages are recorded, so schedule status cannot be assessed."
+          ? "INSUFFICIENT DATA, no progress stages are recorded, so schedule status cannot be assessed."
           : `Recorded stage progress: ${done}/${snapshot.stages.length} completed${
               pending.length > 0 ? `; next pending is "${pending[0].stageName}"` : "; all stages complete"
             }.`,
@@ -498,16 +498,16 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
 
     const insufficient =
       snapshot.stages.length === 0
-        ? ["no progress stages recorded — schedule position is unknown, not assumed"]
+        ? ["no progress stages recorded, schedule position is unknown, not assumed"]
         : [];
 
     // Honest verdict: the risk register is the authority on schedule
-    // risk — predictions are listed as supporting evidence either way.
+    // risk, predictions are listed as supporting evidence either way.
     return answer(
       inputs,
       "schedule",
       recs.length > 0
-        ? "Schedule risk is recorded in the project risk register — see the items below."
+        ? "Schedule risk is recorded in the project risk register, see the items below."
         : `No schedule risk is recorded in the risk register${snapshot.stages.length > 0 ? `, and ${done}/${snapshot.stages.length} stages are recorded complete` : ""}. This is the recorded state, not a guarantee.`,
       [stageStatus, ...recs, ...predItems],
       insufficient.length > 0
@@ -523,7 +523,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
     const { report, snapshot, context } = inputs;
     const items: GuidanceItem[] = [];
 
-    // Conflicting recorded values — both sides reported.
+    // Conflicting recorded values, both sides reported.
     for (const conflict of (context?.conflicts ?? []).filter(
       (c) => !c.key.startsWith("coverage:"),
     )) {
@@ -551,7 +551,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
       const unverified = risk.evidence.filter((e) => e.verification === "unverified");
       if (unverified.length > 0) {
         items.push({
-          action: `Verify the evidence behind "${risk.title}" — ${unverified.length} item(s) are unverified.`,
+          action: `Verify the evidence behind "${risk.title}", ${unverified.length} item(s) are unverified.`,
           evidence: unverified.map((e) => `${e.label} [unverified]`),
           priority: "medium",
           source: `risk-register (${risk.id})`,
@@ -568,7 +568,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
       inputs,
       "what_to_verify",
       all.length === 0
-        ? "Nothing recorded currently requires verification — no conflicting values, no unverified risk evidence, no undated completions and fresh market data."
+        ? "Nothing recorded currently requires verification, no conflicting values, no unverified risk evidence, no undated completions and fresh market data."
         : `${all.length} thing(s) are recorded as worth verifying; the most important: ${all[0].action}`,
       all,
     );
@@ -579,7 +579,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
   // ---------------------------------------------------------
   prepare_next_stage: (inputs) => {
     const { snapshot, report, context } = inputs;
-    // Stage 11 — the project's recorded market drives money formatting.
+    // Stage 11, the project's recorded market drives money formatting.
     const mkt = snapshot.region.marketCode ?? snapshot.region.countryCode;
     const pending = pendingStages(snapshot);
 
@@ -587,11 +587,11 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
       return answer(
         inputs,
         "prepare_next_stage",
-        "INSUFFICIENT DATA — no progress stages are recorded, so the next construction stage is unknown.",
+        "INSUFFICIENT DATA, no progress stages are recorded, so the next construction stage is unknown.",
         [],
         {
           status: "insufficient_data",
-          insufficientData: ["no progress stages recorded — the next stage cannot be identified"],
+          insufficientData: ["no progress stages recorded, the next stage cannot be identified"],
         },
       );
     }
@@ -599,7 +599,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
       return answer(
         inputs,
         "prepare_next_stage",
-        `All ${snapshot.stages.length} recorded stages are complete — there is no next stage recorded to prepare for.`,
+        `All ${snapshot.stages.length} recorded stages are complete, there is no next stage recorded to prepare for.`,
         [],
       );
     }
@@ -641,7 +641,7 @@ const ANSWERERS: Record<GuidanceQuestion, Answerer> = {
       inputs,
       "prepare_next_stage",
       `Before the next recorded stage ("${next.stageName}"), prepare: ${
-        items.length > 0 ? items[0].action : "nothing recorded is outstanding — the recorded state has no open risks, no unpurchased materials and no gaps."
+        items.length > 0 ? items[0].action : "nothing recorded is outstanding, the recorded state has no open risks, no unpurchased materials and no gaps."
       }`,
       items,
     );

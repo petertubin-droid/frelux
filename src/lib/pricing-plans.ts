@@ -1,8 +1,8 @@
 // =========================================================
-// FRELUX Pricing Plans — Configuration
+// FRELUX Pricing Plans, Configuration
 //
 // Defines subscription tiers with feature lists and Naira pricing.
-// Paystack handles the actual payment — this is the plan config.
+// Paystack handles the actual payment, this is the plan config.
 // =========================================================
 
 import type { SubscriptionPlan } from '@/lib/subscription';

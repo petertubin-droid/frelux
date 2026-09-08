@@ -1,12 +1,12 @@
 // =========================================================
-// FRELUX PHASE 7 — DEVELOPER PORTAL (/developers)
+// FRELUX PHASE 7, DEVELOPER PORTAL (/developers)
 //
 // The public face of the FRELUX AI API:
 //   * API identity + documentation (§1): endpoints, auth, errors
 //   * Capabilities & plans
 //   * Authenticated: API key management (create / rotate / revoke)
 //
-// The raw key is shown EXACTLY ONCE at create/rotate — FRELUX
+// The raw key is shown EXACTLY ONCE at create/rotate, FRELUX
 // stores only a SHA-256 hash. Docs state this honestly, together
 // with the "no fabricated values" contract of the calculators.
 // =========================================================
@@ -62,7 +62,7 @@ const ENDPOINTS: Array<{ method: string; path: string; description: string }> =
       method: "POST",
       path: "/v1/chat",
       description:
-        "FRELUX AI construction & property intelligence. Calculation requests are routed through the deterministic engines — never answered by the AI.",
+        "FRELUX AI construction & property intelligence. Calculation requests are routed through the deterministic engines, never answered by the AI.",
     },
     {
       method: "GET",
@@ -84,7 +84,7 @@ const ENDPOINTS: Array<{ method: string; path: string; description: string }> =
       method: "POST",
       path: "/v1/feedback",
       description:
-        "Submit knowledge candidates. Enters the human-review governance pipeline as USER_PROVIDED — never auto-approved.",
+        "Submit knowledge candidates. Enters the human-review governance pipeline as USER_PROVIDED, never auto-approved.",
     },
     {
       method: "GET",
@@ -104,7 +104,7 @@ const ERROR_CODES: Array<{ code: string; meaning: string }> = [
   },
   {
     code: "expired_api_key",
-    meaning: "The key passed its expiry date — rotate it",
+    meaning: "The key passed its expiry date, rotate it",
   },
   {
     code: "rate_limit_exceeded",
@@ -133,16 +133,16 @@ const ERROR_CODES: Array<{ code: string; meaning: string }> = [
   {
     code: "calculation_requires_engine",
     meaning:
-      "The request needs an engine FRELUX does not have — FRELUX AI will not fabricate results (422)",
+      "The request needs an engine FRELUX does not have, FRELUX AI will not fabricate results (422)",
   },
   {
     code: "validation_failed",
     meaning:
-      "Incomplete calculation input — FRELUX never invents missing values (422)",
+      "Incomplete calculation input, FRELUX never invents missing values (422)",
   },
   {
     code: "ai_provider_unavailable",
-    meaning: "AI temporarily unavailable — retry with backoff (502/503)",
+    meaning: "AI temporarily unavailable, retry with backoff (502/503)",
   },
 ];
 
@@ -212,7 +212,7 @@ export default function DeveloperPortal() {
       const created = await createApiKey(newKeyName, newKeyPlan);
       setFreshKey(created.rawKey);
       setNewKeyName("");
-      success("API key created. Copy it now — it cannot be shown again.");
+      success("API key created. Copy it now, it cannot be shown again.");
       await load();
     } catch (e) {
       error(e instanceof Error ? e.message : "Key creation failed.");
@@ -227,7 +227,7 @@ export default function DeveloperPortal() {
       const rotated = await rotateApiKey(id);
       setFreshKey(rotated.rawKey);
       success(
-        "Key rotated. Copy the new key now — the old secret no longer works.",
+        "Key rotated. Copy the new key now, the old secret no longer works.",
       );
       await load();
     } catch (e) {
@@ -257,7 +257,7 @@ export default function DeveloperPortal() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      error("Copy failed — select the key text manually.");
+      error("Copy failed, select the key text manually.");
     }
   };
 
@@ -293,7 +293,7 @@ export default function DeveloperPortal() {
         <p className="mt-3 text-sm text-muted-foreground">
           Authentication is a Bearer FRELUX API key (
           <code className="rounded bg-muted px-1">FLX-…</code>, exactly 32
-          characters). Keys are hashed — store your key when you create it.
+          characters). Keys are hashed, store your key when you create it.
         </p>
       </section>
 
@@ -339,7 +339,7 @@ export default function DeveloperPortal() {
           </div>
           <p className="text-sm text-muted-foreground">
             Calculation results are produced only by the canonical FRELUX
-            engines — the same engines the in-app calculators use. The API
+            engines, the same engines the in-app calculators use. The API
             introduces no alternative math and never invents missing values:
             incomplete input returns a structured{" "}
             <code className="rounded bg-muted px-1">validation_failed</code>{" "}
@@ -357,7 +357,7 @@ export default function DeveloperPortal() {
           <p className="text-sm text-muted-foreground">
             Market prices are labeled OBSERVED vs CONFIGURED and are never
             presented as guaranteed current pricing. Regions without a FRELUX
-            profile return an explicit "not available" — another region's data
+            profile return an explicit "not available", another region's data
             is never silently substituted.
           </p>
         </div>
@@ -440,11 +440,11 @@ export default function DeveloperPortal() {
               </button>
             </div>
 
-            {/* Raw key — exactly once */}
+            {/* Raw key, exactly once */}
             {freshKey && (
               <div className="mb-5 rounded-lg border border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-950/40">
                 <p className="mb-2 text-sm font-semibold text-amber-800 dark:text-amber-300">
-                  Copy this key now — FRELUX stores only a hash and cannot show
+                  Copy this key now, FRELUX stores only a hash and cannot show
                   it again.
                 </p>
                 <div className="flex items-center gap-2">
@@ -560,7 +560,7 @@ export default function DeveloperPortal() {
           Paid plans are self-serve; enterprise/custom is
           contact-sales. Plan changes apply automatically to all
           your active keys once the signed payment webhook confirms
-          — never from this page alone. */}
+         , never from this page alone. */}
       <section className="rounded-lg border bg-card p-5">
         <h2 className="mb-1 flex items-center gap-2 text-base font-semibold">
           <Crown
@@ -603,8 +603,8 @@ export default function DeveloperPortal() {
                     )}
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {cfg.rateLimitPerMinute ?? "—"}/min ·{" "}
-                    {cfg.dailyQuota ?? "—"}/day · {cfg.monthlyQuota ?? "—"}
+                    {cfg.rateLimitPerMinute ?? "-"}/min ·{" "}
+                    {cfg.dailyQuota ?? "-"}/day · {cfg.monthlyQuota ?? "-"}
                     /month
                   </p>
                 </div>

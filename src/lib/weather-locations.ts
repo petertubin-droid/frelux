@@ -149,7 +149,7 @@ export const WEATHER_LOCATIONS: WeatherLocation[] = [
   { id: "yobe", name: "Yobe", lat: 11.7518, lon: 11.7469, climate: "arid" },
 ];
 
-/** Default location — Lagos (Nigeria-first default market). */
+/** Default location, Lagos (Nigeria-first default market). */
 export const DEFAULT_WEATHER_LOCATION: WeatherLocation = WEATHER_LOCATIONS[0];
 
 export const WEATHER_LOCATION_STORAGE_KEY = "frelux_weather_location";
@@ -179,7 +179,7 @@ export function writeStoredWeatherLocation(id: string): void {
   try {
     localStorage.setItem(WEATHER_LOCATION_STORAGE_KEY, id);
   } catch {
-    // localStorage unavailable (private mode) — keep in-memory only
+    // localStorage unavailable (private mode), keep in-memory only
   }
   try {
     window.dispatchEvent(

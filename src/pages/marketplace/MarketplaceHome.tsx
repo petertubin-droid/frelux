@@ -166,7 +166,7 @@ export default function MarketplaceHome() {
       .catch(() => {});
   }, []);
 
-  // Load jobs — uses refs to avoid re-creation on state change (prevents infinite render loop)
+  // Load jobs, uses refs to avoid re-creation on state change (prevents infinite render loop)
   const jobsOffsetRef = useRef(jobsOffset);
   const listingsRef = useRef(listings);
   jobsOffsetRef.current = jobsOffset;
@@ -193,7 +193,7 @@ export default function MarketplaceHome() {
     [jobSearch, projectType, jobState],
   );
 
-  // Load products — same ref pattern to prevent infinite loop
+  // Load products, same ref pattern to prevent infinite loop
   const productsOffsetRef = useRef(productsOffset);
   const productsRef = useRef(products);
   productsOffsetRef.current = productsOffset;
@@ -546,9 +546,9 @@ export default function MarketplaceHome() {
         )}
       </div>
       <AdSlot slotKey="marketplace_sidebar" className="mt-8" />
-      {/* Native banner slot — placement "marketplace_native" */}
+      {/* Native banner slot, placement "marketplace_native" */}
       <AdSlot slotKey="marketplace_native" className="mt-8" />
-      {/* Ad slot — placement "marketplace_bottom" */}
+      {/* Ad slot, placement "marketplace_bottom" */}
       <AdSlot slotKey="marketplace_bottom" className="mt-8" />
     </div>
   );

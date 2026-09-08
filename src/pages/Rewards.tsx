@@ -296,9 +296,9 @@ export default function Rewards() {
     setWatchingAd(true);
     try {
       // Find an active provider with a real client-side rewarded bridge
-      // (e.g. Monetag). We must actually show the ad from this tap —
+      // (e.g. Monetag). We must actually show the ad from this tap :
       // mobile browsers block window-opening ad formats outside a direct
-      // user gesture — then pass a client attestation token so the
+      // user gesture, then pass a client attestation token so the
       // server can verify a real ad was shown before granting credits.
       const { providers } = await fetchAdConfig();
       const activeProvider = providers.find(
@@ -567,7 +567,7 @@ export default function Rewards() {
           );
         })()}
 
-      {/* Buy Tokens — direct purchase via Paystack (admin-configurable) */}
+      {/* Buy Tokens, direct purchase via Paystack (admin-configurable) */}
       {tokenConfig?.is_enabled &&
         (() => {
           const price = formatNaira(tokenConfig.price_kobo);
@@ -620,7 +620,7 @@ export default function Rewards() {
           );
         })()}
 
-      {/* Complete Offers — Offerwall.ad */}
+      {/* Complete Offers, Offerwall.ad */}
       <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-transparent p-6 dark:border-emerald-500/20 dark:from-emerald-500/5">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">

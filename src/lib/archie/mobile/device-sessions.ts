@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8b — DEVICE SESSIONS & STOLEN-PHONE DEFENSE
+// FRELUX PHASE 8b, DEVICE SESSIONS & STOLEN-PHONE DEFENSE
 //
 // Every device the user signs in on registers a session row.
 // From any device the user can:
@@ -7,7 +7,7 @@
 //   * revoke ALL other sessions instantly
 // A revoked session is checked on app open: the client signs
 // the user out and clears local protected caches. The phone
-// is never the only copy of protected data — ciphertext lives
+// is never the only copy of protected data, ciphertext lives
 // in the private archie-protected bucket, and decryption needs
 // the user's passphrase, which is never stored.
 //
@@ -41,7 +41,7 @@ export function computeDeviceFingerprint(): string {
     screen_.colorDepth ?? 0,
     tz,
   ].join("|");
-  // djb2 — stable, non-cryptographic is fine (identifier, not secret)
+  // djb2, stable, non-cryptographic is fine (identifier, not secret)
   let h = 5381;
   for (let i = 0; i < raw.length; i++)
     h = ((h << 5) + h + raw.charCodeAt(i)) >>> 0;
@@ -78,7 +78,7 @@ export async function registerCurrentSession(
   }
 
   if (existing?.revoked) {
-    // Same device re-registering after a revocation — the user
+    // Same device re-registering after a revocation, the user
     // deliberately signed back in on this device.
     await recordSecurityEvent(userId, {
       kind: "RECOVERY_COMPLETED",
@@ -167,7 +167,7 @@ export async function revokeAllOtherSessions(userId: string): Promise<number> {
 }
 
 /**
- * Stolen-phone check — call on app open. If THIS device's session
+ * Stolen-phone check, call on app open. If THIS device's session
  * was revoked remotely, sign out and clear every local protected
  * cache immediately.
  */

@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — SPEND MATH (shared, pure)
+// FRELUX PREDICTIVE INTELLIGENCE, SPEND MATH (shared, pure)
 //
 // Deterministic sums over the project's REAL rows. No value is
 // ever invented: every figure traces to shopping items, saved
@@ -11,7 +11,7 @@ import type { PredictiveProjectSnapshot } from "./types";
 
 /**
  * Deterministic progress fraction from recorded stage completion.
- * 0 when there are no stages — the caller decides whether that
+ * 0 when there are no stages, the caller decides whether that
  * means "no data" (it usually does). Never invented (§4).
  */
 export function recordedStageProgress(
@@ -22,14 +22,14 @@ export function recordedStageProgress(
   return completed / stages.length;
 }
 
-/** Lines with a recorded actual price — the only true "recorded" cost rows. */
+/** Lines with a recorded actual price, the only true "recorded" cost rows. */
 export function recordedActualLines(items: ShoppingRow[]): ShoppingRow[] {
   return items.filter(
     (i) => i.actual_price !== null && Number.isFinite(i.actual_price),
   );
 }
 
-/** Purchased lines — actual price if recorded, otherwise the recorded
+/** Purchased lines, actual price if recorded, otherwise the recorded
  *  estimated line total (explicitly a lower-bound proxy, disclosed
  *  as an assumption by the caller). */
 export function purchasedLines(items: ShoppingRow[]): ShoppingRow[] {
@@ -50,7 +50,7 @@ export function lineActualTotal(item: ShoppingRow): number {
   if (Number.isFinite(actual) && item.actual_price !== null) {
     return Number.isFinite(q) ? actual * q : 0;
   }
-  return lineEstimatedTotal(item); // proxy — caller must disclose
+  return lineEstimatedTotal(item); // proxy, caller must disclose
 }
 
 /** Sum of estimated line totals (the current material budget). */
@@ -64,7 +64,7 @@ export function recordedSpend(items: ShoppingRow[]): number {
   return purchasedLines(items).reduce((sum, i) => sum + lineActualTotal(i), 0);
 }
 
-/** Spend recorded with an explicit actual price — no proxy lines. */
+/** Spend recorded with an explicit actual price, no proxy lines. */
 export function strictlyRecordedSpend(items: ShoppingRow[]): number {
   return purchasedLines(items)
     .filter((i) => i.actual_price !== null && Number.isFinite(i.actual_price))
@@ -80,7 +80,7 @@ export function unpurchasedEstimatedTotal(items: ShoppingRow[]): number {
 
 /**
  * The estimate series from saved calculations (chronological).
- * Each entry carries its recorded total. Null totals are skipped —
+ * Each entry carries its recorded total. Null totals are skipped :
  * a calculation without a recorded total is not an estimate point.
  */
 export function estimateTimeline(

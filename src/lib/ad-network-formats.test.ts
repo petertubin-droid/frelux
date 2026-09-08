@@ -23,7 +23,7 @@ const baseProvider = {
   updated_at: "",
 } as unknown as DbAdProvider;
 
-describe("ad-network-formats — Adsterra script resolution", () => {
+describe("ad-network-formats, Adsterra script resolution", () => {
   it("constructs invoke.js URL from a bare 32-hex key", () => {
     const key = "a".repeat(32);
     expect(
@@ -168,7 +168,7 @@ describe("ad-network-formats — Adsterra script resolution", () => {
   });
 });
 
-describe("ad-network-formats — site-wide Adsterra scripts", () => {
+describe("ad-network-formats, site-wide Adsterra scripts", () => {
   it("returns nothing when credentials are empty (dormant)", () => {
     expect(
       getAdsterraSiteWideScripts(baseProvider, "www.highperformanceformat.com"),
@@ -215,7 +215,7 @@ describe("ad-network-formats — site-wide Adsterra scripts", () => {
   });
 });
 
-describe("ad-network-formats — native banner key", () => {
+describe("ad-network-formats, native banner key", () => {
   it("extracts the key from a pasted dashboard snippet", () => {
     const key = "60c8524034bf047ff03e21ffec6aa01b";
     expect(
@@ -245,7 +245,7 @@ describe("ad-network-formats — native banner key", () => {
   });
 });
 
-describe("ad-network-formats — Monetag auto zones", () => {
+describe("ad-network-formats, Monetag auto zones", () => {
   it("returns nothing without credentials (dormant)", () => {
     const monetagProvider = { ...baseProvider, slug: "monetag" };
     expect(getMonetagAutoZoneScripts(monetagProvider)).toEqual([]);
@@ -287,7 +287,7 @@ describe("ad-network-formats — Monetag auto zones", () => {
   });
 });
 
-describe("ad-network-formats — Adsterra serve domain normalization", () => {
+describe("ad-network-formats, Adsterra serve domain normalization", () => {
   it("accepts all live dashboard serve hosts", () => {
     expect(normalizeAdsterraServeDomain("www.highrevenueformat.com")).toBe(
       "www.highrevenueformat.com",

@@ -13,7 +13,7 @@ import { getSupabase } from "@/lib/supabase-lazy";
 import { adDebug, instrumentScript } from "@/lib/ad-diagnostics";
 import { useAuth } from "@/lib/auth";
 
-// Lazy-loaded below-the-fold components — not visible on first paint
+// Lazy-loaded below-the-fold components, not visible on first paint
 const SupportChatWidget = lazy(
   () => import("@/components/layout/SupportChatWidget"),
 );
@@ -165,10 +165,10 @@ export default function Layout() {
 
         // Monetag admin-configured auto zones (Vignette / Interstitial /
         // Popunder). These are true website zones the admin explicitly
-        // created per format in the Monetag dashboard — injected per zone
+        // created per format in the Monetag dashboard, injected per zone
         // with data-sdk-ignore so they never create global show_ fns.
         // Rewarded/Social-Bar SDK zones are NOT auto zones and must never
-        // be loaded here (they hijack the page — see monetag-rewarded.ts).
+        // be loaded here (they hijack the page, see monetag-rewarded.ts).
         const monetag = providers.find(
           (p) => p.slug === "monetag" && p.is_active,
         );
@@ -187,12 +187,12 @@ export default function Layout() {
           }
         }
       } catch {
-        // Ad config unavailable — do not inject anything.
+        // Ad config unavailable, do not inject anything.
         return;
       }
       if (cancelled) return;
 
-      // AdSense page-level ads — inject once, never remove
+      // AdSense page-level ads, inject once, never remove
       if (
         adsensePubId &&
         !cancelled &&
@@ -231,7 +231,7 @@ export default function Layout() {
         });
       }
       // Monetag admin-configured auto zones (Vignette / Interstitial /
-      // Popunder) — one tag per zone, deduped per format
+      // Popunder), one tag per zone, deduped per format
       for (const m of monetagAutoZones) {
         if (cancelled) return;
         if (document.querySelector(`script[data-monetag-auto="${m.format}"]`))
@@ -251,7 +251,7 @@ export default function Layout() {
           zone: m.zone,
         });
       }
-      // Monetag site-wide SDK zone (popunder / on-click formats) —
+      // Monetag site-wide SDK zone (popunder / on-click formats) :
       // the tag that carries Monetag's main display revenue.
       // Injected once per session; the SDK manages its own display
       // cadence and click handling.
@@ -271,7 +271,7 @@ export default function Layout() {
           src: monetagSdkUrl,
         });
       }
-      // No cleanup — tags persist for the entire page session
+      // No cleanup, tags persist for the entire page session
     })();
 
     return () => {
@@ -445,7 +445,7 @@ export default function Layout() {
       >
         <Outlet />
       </main>
-      {/* Global footer ad slot — placement "global_footer", toggled in
+      {/* Global footer ad slot, placement "global_footer", toggled in
           Admin → Ads → Placements like every other slot. */}
       <AdSlot slotKey="global_footer" />
       {adsterraNative && (
@@ -463,7 +463,7 @@ export default function Layout() {
       <Suspense fallback={null}>
         <SupportChatWidget />
       </Suspense>
-      {/* FRELUX AI Copilot — interprets requests, routes to
+      {/* FRELUX AI Copilot, interprets requests, routes to
           authoritative engines. Additive; no existing flow changed. */}
       <Suspense fallback={null}>
         <CopilotWidget />

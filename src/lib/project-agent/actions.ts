@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PROJECT AGENT — PREPARED ACTIONS (Stage 6)
+// FRELUX PROJECT AGENT, PREPARED ACTIONS (Stage 6)
 //
 // The agent prepares actions WITHOUT committing them. A
 // prepared action is intent only: what / why / data used /
@@ -10,7 +10,7 @@
 // Hard rules (Phase 6 honesty contract):
 //   - Every prepared action is GROUNDED: it must reference a
 //     recommendation that is re-derived FRESH at prepare time.
-//     If recorded state has moved on, preparation is refused —
+//     If recorded state has moved on, preparation is refused :
 //     the agent never prepares from a stale screen.
 //   - Params are VALIDATED against recorded state (RLS-scoped
 //     reads). An action whose target no longer exists (item
@@ -19,7 +19,7 @@
 //     the agent's own tables (actions, approvals, activity).
 //     Execution of approved actions is Stage 7's job.
 //   - Approvals expire (15-minute window). A lapsed approval is
-//     terminal: the user re-prepares a fresh action — no
+//     terminal: the user re-prepares a fresh action, no
 //     resurrection, no guessing.
 //   - Idempotency: duplicate submissions (same idempotency key)
 //     collapse to the single existing action.
@@ -48,7 +48,7 @@ import {
 } from "./recommendations";
 
 // =========================================================
-// Action kinds — deterministic, traceable to real FRELUX writes
+// Action kinds, deterministic, traceable to real FRELUX writes
 // (Stage 7 executes these payloads via the authoritative tools)
 // =========================================================
 
@@ -57,7 +57,7 @@ export type PreparedActionKind =
 
 export interface RecordPurchaseParams {
   shoppingItemId: string;
-  /** The actual price paid — optional; purchasing without a price is legal. */
+  /** The actual price paid, optional; purchasing without a price is legal. */
   actualPrice?: number;
 }
 
@@ -76,7 +76,7 @@ export type PreparedActionParams =
   RecordPurchaseParams | ConfirmStageParams | UpdateMaterialPriceParams;
 
 /** Which recommendation conditions legitimately ground each
- *  kind. A mismatch is refused — no opportunistic actions. */
+ *  kind. A mismatch is refused, no opportunistic actions. */
 const KIND_CONDITIONS: Record<PreparedActionKind, RecommendationCondition[]> = {
   record_purchase: ["procurement_risk"],
   confirm_stage_completion: ["incomplete_task", "schedule_risk"],
@@ -286,7 +286,7 @@ async function persistActionState(
 /**
  * Lazy expiry: a pending approval past its window makes BOTH the
  * approval and the action terminal-expired. Terminal means
- * terminal — the user prepares a NEW action; nothing resurrects.
+ * terminal, the user prepares a NEW action; nothing resurrects.
  */
 async function applyLazyExpiry(
   action: PreparedAction,
@@ -317,7 +317,7 @@ async function applyLazyExpiry(
 }
 
 // =========================================================
-// Validation — params against FRESH recorded state
+// Validation, params against FRESH recorded state
 // =========================================================
 
 function isPositiveNumber(value: unknown): value is number {
@@ -337,7 +337,7 @@ type Validation = ValidationSuccess | { ok: false; error: AgentError };
 /**
  * Stage 7 re-uses the SAME honesty bar before executing an
  * approved action: params are validated against FRESH recorded
- * state, and changed state means refusal — never a forced write.
+ * state, and changed state means refusal, never a forced write.
  */
 export async function validateActionParams(
   kind: PreparedActionKind,
@@ -363,7 +363,7 @@ async function validateParams(
       );
     if (item.is_purchased)
       return paramError(
-        `"${item.name}" is already recorded as purchased — recorded state changed.`,
+        `"${item.name}" is already recorded as purchased, recorded state changed.`,
       );
     if (p.actualPrice != null && !isPositiveNumber(p.actualPrice))
       return paramError("Actual price must be a positive number (or omitted).");
@@ -395,7 +395,7 @@ async function validateParams(
       );
     if (stage.isCompleted)
       return paramError(
-        `"${stage.stageName}" is already recorded as completed — recorded state changed.`,
+        `"${stage.stageName}" is already recorded as completed, recorded state changed.`,
       );
     return {
       ok: true,
@@ -407,9 +407,9 @@ async function validateParams(
     };
   }
 
-  // update_material_price — the material catalog is authoritative
+  // update_material_price, the material catalog is authoritative
   // for the write (Stage 7), so existence is checked against it.
-  // Stage 12 — the branch is kind-guarded so an unregistered
+  // Stage 12, the branch is kind-guarded so an unregistered
   // (adversarial or corrupted) kind can never fall into it.
   if (kind === "update_material_price") {
     const p = params as UpdateMaterialPriceParams;
@@ -448,7 +448,7 @@ async function validateParams(
     }
   }
 
-  // Stage 12 — adversarial/corrupted input: an unregistered kind
+  // Stage 12, adversarial/corrupted input: an unregistered kind
   // never validates and never dispatches. Refused explicitly,
   // never by fallthrough.
   return paramError(
@@ -461,7 +461,7 @@ function paramError(message: string): Validation {
 }
 
 // =========================================================
-// prepareAction — the core of Stage 6
+// prepareAction, the core of Stage 6
 // =========================================================
 
 export async function prepareAction(
@@ -472,7 +472,7 @@ export async function prepareAction(
   const visible = await assertProjectVisible(projectId);
   if (!visible.ok) return visible;
 
-  // Stage 12 — adversarial input: an unregistered action kind is
+  // Stage 12, adversarial input: an unregistered action kind is
   // refused cleanly BEFORE any lookup. It is never indexed (which
   // would crash) and there is no fallback preparation.
   if (!(request.kind in KIND_SPECS) || !KIND_CONDITIONS[request.kind])
@@ -482,7 +482,7 @@ export async function prepareAction(
         code: "invalid_params",
         message:
           `Unknown action kind "${String(request.kind)}". The agent only ` +
-          `prepares registered action kinds — no fallbacks.`,
+          `prepares registered action kinds, no fallbacks.`,
       },
     };
 
@@ -506,7 +506,7 @@ export async function prepareAction(
     return persistError("Idempotency check failed", String(e));
   }
 
-  // Ground the action in a FRESH recommendation — recorded state
+  // Ground the action in a FRESH recommendation, recorded state
   // now, not the state when the screen was rendered.
   const report = await buildRecommendations(projectId, nowIso);
   if (!report.ok) return report;
@@ -520,7 +520,7 @@ export async function prepareAction(
         code: "recommendation_not_found",
         message:
           `Recommendation "${request.recommendationId}" does not exist in the current ` +
-          `recorded state. Recorded state may have changed — refresh and try again.`,
+          `recorded state. Recorded state may have changed, refresh and try again.`,
       },
     };
   if (!KIND_CONDITIONS[request.kind].includes(rec.condition))
@@ -586,7 +586,7 @@ export async function prepareAction(
     {
       kind: "preparation",
       state: "prepared",
-      summary: `Prepared action: ${action.what} (awaiting approval — nothing is committed).`,
+      summary: `Prepared action: ${action.what} (awaiting approval, nothing is committed).`,
       payload: { actionId: action.id, kind: action.kind },
     },
     nowIso,
@@ -596,7 +596,7 @@ export async function prepareAction(
 }
 
 // =========================================================
-// Approval lifecycle — request / decide / amend / cancel / list
+// Approval lifecycle, request / decide / amend / cancel / list
 // =========================================================
 
 export async function requestApproval(
@@ -610,7 +610,7 @@ export async function requestApproval(
   const row = await loadActionRow(actionId);
   if (!row.ok) return row;
   if (!row.data) return notFound("Prepared action not found.");
-  // Stage 12 — property isolation: an action loaded by bare ID
+  // Stage 12, property isolation: an action loaded by bare ID
   // must belong to THIS project, or it is not found. No
   // cross-project routing even for the same account.
   if (row.data.project_id !== projectId)
@@ -622,7 +622,7 @@ export async function requestApproval(
       ok: false,
       error: {
         code: "invalid_state",
-        message: `Action is '${action.state}' — approval can only be requested on a prepared action.`,
+        message: `Action is '${action.state}', approval can only be requested on a prepared action.`,
       },
     };
 
@@ -639,7 +639,7 @@ export async function requestApproval(
         nowIso,
       )
     ) {
-      // One pending approval per action — an identical request
+      // One pending approval per action, an identical request
       // returns the existing one (idempotent).
       return { ok: true, data: pending };
     }
@@ -650,7 +650,7 @@ export async function requestApproval(
       error: {
         code: "action_expired",
         message:
-          "The approval window has lapsed. The prepared action is expired — prepare a fresh one.",
+          "The approval window has lapsed. The prepared action is expired, prepare a fresh one.",
       },
     };
   }
@@ -724,7 +724,7 @@ export async function decideApproval(
   const actionRow = await loadActionRow(approval.actionId);
   if (!actionRow.ok) return actionRow;
   if (!actionRow.data) return notFound("Prepared action not found.");
-  // Stage 12 — property isolation: the approval's action must
+  // Stage 12, property isolation: the approval's action must
   // belong to THIS project.
   if (actionRow.data.project_id !== projectId)
     return notFound("The action belongs to a different project.");
@@ -735,7 +735,7 @@ export async function decideApproval(
       ok: false,
       error: {
         code: "invalid_state",
-        message: `Approval is already '${approval.state}' — decisions are final and recorded.`,
+        message: `Approval is already '${approval.state}', decisions are final and recorded.`,
       },
     };
 
@@ -752,7 +752,7 @@ export async function decideApproval(
         .update({ state: "expired", decided_at: nowIso })
         .eq("id", approval.id);
     } catch {
-      // best-effort — the action state below is authoritative
+      // best-effort, the action state below is authoritative
     }
     await persistActionState(action, "expired", nowIso);
     return {
@@ -760,7 +760,7 @@ export async function decideApproval(
       error: {
         code: "action_expired",
         message:
-          "The approval window has lapsed. This action is expired — prepare a fresh one.",
+          "The approval window has lapsed. This action is expired, prepare a fresh one.",
       },
     };
   }
@@ -837,7 +837,7 @@ export async function cancelAction(
   const row = await loadActionRow(actionId);
   if (!row.ok) return row;
   if (!row.data) return notFound("Prepared action not found.");
-  // Stage 12 — property isolation: an action loaded by bare ID
+  // Stage 12, property isolation: an action loaded by bare ID
   // must belong to THIS project, or it is not found. No
   // cross-project routing even for the same account.
   if (row.data.project_id !== projectId)
@@ -855,7 +855,7 @@ export async function cancelAction(
           .update({ state: "cancelled", decided_at: nowIso })
           .eq("id", pending.id);
       } catch {
-        // best-effort — action state below is authoritative
+        // best-effort, action state below is authoritative
       }
     }
   }
@@ -877,7 +877,7 @@ export async function cancelAction(
 }
 
 // =========================================================
-// Edit — amend a still-prepared action, then re-validate
+// Edit, amend a still-prepared action, then re-validate
 // =========================================================
 
 export interface AmendActionRequest {
@@ -898,7 +898,7 @@ export async function amendPreparedAction(
   const row = await loadActionRow(actionId);
   if (!row.ok) return row;
   if (!row.data) return notFound("Prepared action not found.");
-  // Stage 12 — property isolation: an action loaded by bare ID
+  // Stage 12, property isolation: an action loaded by bare ID
   // must belong to THIS project, or it is not found. No
   // cross-project routing even for the same account.
   if (row.data.project_id !== projectId)
@@ -911,7 +911,7 @@ export async function amendPreparedAction(
       error: {
         code: "invalid_state",
         message:
-          `Action is '${action.state}' — only a prepared action can be edited. ` +
+          `Action is '${action.state}', only a prepared action can be edited. ` +
           `Terminal decisions (approved/rejected/cancelled/expired) are final.`,
       },
     };
@@ -922,7 +922,7 @@ export async function amendPreparedAction(
     ? [...action.assumptions, ...request.assumptions]
     : action.assumptions;
 
-  // Re-validate against FRESH recorded state — an edit must meet
+  // Re-validate against FRESH recorded state, an edit must meet
   // the same honesty bar as the original preparation.
   const snap = await buildProjectSnapshot(projectId, { now: nowIso });
   if (!snap)
@@ -1005,17 +1005,17 @@ export function availableDecisions(
   if (action.state === "prepared" && active)
     return {
       decisions: ["approved", "rejected", "cancelled"],
-      note: "Approval window open — Approve, Reject or Cancel. Editing is possible while prepared.",
+      note: "Approval window open, Approve, Reject or Cancel. Editing is possible while prepared.",
     };
   if (action.state === "prepared")
     return {
       decisions: [],
-      note: "Prepared — request approval, edit, or cancel it.",
+      note: "Prepared, request approval, edit, or cancel it.",
     };
   if (action.state === "approved")
     return {
       decisions: [],
-      note: "Approved — execution happens in Stage 7; nothing has been committed yet.",
+      note: "Approved, execution happens in Stage 7; nothing has been committed yet.",
     };
   return {
     decisions: [],
@@ -1074,7 +1074,7 @@ export async function describePreparedAction(
   const row = await loadActionRow(actionId);
   if (!row.ok) return row;
   if (!row.data) return notFound("Prepared action not found.");
-  // Stage 12 — property isolation (same guard as the other
+  // Stage 12, property isolation (same guard as the other
   // action endpoints).
   if (row.data.project_id !== projectId)
     return notFound("The action belongs to a different project.");
@@ -1095,7 +1095,7 @@ export async function describePreparedAction(
     `DATA USED: ${action.dataUsed.join("; ")}`,
     `ASSUMPTIONS: ${action.assumptions.length ? action.assumptions.join("; ") : "none"}`,
     `EXPECTED RESULT: ${action.expectedResult}`,
-    `RECOMMENDATION: ${action.recommendationId} — ${action.recommendationSummary}`,
+    `RECOMMENDATION: ${action.recommendationId}, ${action.recommendationSummary}`,
     `STATE: ${action.state}${approval ? ` (approval ${approval.state}, expires ${approval.expiresAt})` : ""}`,
     `NOTE: ${note}`,
   ];

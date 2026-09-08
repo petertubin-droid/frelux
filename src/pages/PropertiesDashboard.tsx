@@ -1,5 +1,5 @@
 /**
- * FRELUX PROPERTY INTELLIGENCE — DASHBOARD
+ * FRELUX PROPERTY INTELLIGENCE, DASHBOARD
  *
  * Prompt 4, Phase 14: mobile-first property dashboard.
  * Lists, creates and edits the user's property profiles, surfaces
@@ -819,10 +819,10 @@ function PropertyEditor({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
   // Canonical location staged by LocationCard (GPS / search / manual).
-  // Persists with the property only on submit — one canonical record,
+  // Persists with the property only on submit, one canonical record,
   // the text fields below are just its editable projection.
   const [capturedLocation, setCapturedLocation] = useState<FreluxLocation | null>(
-    // Hydrate from the existing properties row (reload persistence) —
+    // Hydrate from the existing properties row (reload persistence) :
     // only when the row actually carries some location data.
     initial &&
       (initial.location.coordinates ||
@@ -878,7 +878,7 @@ function PropertyEditor({
     if (Object.keys(errs).length > 0) return;
 
     // Cleared fields are sent as explicit empties ("", 0) so the mapper
-    // persists them as NULL — otherwise old values would silently survive.
+    // persists them as NULL, otherwise old values would silently survive.
     const input: Partial<PropertyProfile> = {
       name: form.name.trim(),
       location: {

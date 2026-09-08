@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF AREA PIPELINE — Tests
+ * FRELUX ROOF AREA PIPELINE, Tests
  *
  * Feature 6: Pitch-Adjusted Roof Area
  */

@@ -390,7 +390,7 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
     setAiLoading(false);
   }
 
-  // Build tabs list — hide Mix Ratio for non-screeding
+  // Build tabs list, hide Mix Ratio for non-screeding
   const tabs: { key: Tab; label: string; icon: typeof Layers }[] = isScreeding
     ? [
         { key: "breakdown", label: "Breakdown", icon: Layers },
@@ -1197,7 +1197,7 @@ function CostsTab({
   );
 }
 
-// ─── Compare Tab (screeding only — needs structured data) ───
+// ─── Compare Tab (screeding only, needs structured data) ───
 function CompareTab({
   current,
   saved,

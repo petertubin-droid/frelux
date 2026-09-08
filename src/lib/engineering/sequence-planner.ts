@@ -1,6 +1,6 @@
 // =========================================================
 // FRELUX Construction Sequence Planner
-// Engine — Phase 32
+// Engine, Phase 32
 //
 // Generates the correct construction build order with:
 // - Step-by-step sequence with dependencies

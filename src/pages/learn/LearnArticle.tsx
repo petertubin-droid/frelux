@@ -43,7 +43,7 @@ export default function LearnArticle() {
   const [copied, setCopied] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
 
-  // Build structured data — Article schema + BreadcrumbList + FAQPage for rich results.
+  // Build structured data, Article schema + BreadcrumbList + FAQPage for rich results.
   const SITE_URL_ =
     import.meta.env.VITE_SITE_URL ?? "https://freluxtools.netlify.app";
 
@@ -485,15 +485,15 @@ export default function LearnArticle() {
               </div>
             )}
 
-            {/* Ad slot — placement "learn_article_top" */}
+            {/* Ad slot, placement "learn_article_top" */}
             <div className="mb-10">
               <AdSlot slotKey="learn_article_top" />
-              {/* Monetag In-Page Push — placement "article_push_1"
+              {/* Monetag In-Page Push, placement "article_push_1"
                   (zone ID editable in Admin → Ads → Placements) */}
               <AdSlot slotKey="article_push_1" />
             </div>
 
-            {/* Content — premium prose styling */}
+            {/* Content, premium prose styling */}
             <div
               className="prose prose-sm max-w-none sm:prose-base dark:prose-invert
               prose-headings:scroll-mt-20 prose-headings:font-display
@@ -518,7 +518,7 @@ export default function LearnArticle() {
               />
             </div>
 
-            {/* Native banner slot — placement "learn_article_native" */}
+            {/* Native banner slot, placement "learn_article_native" */}
             <div className="mt-10">
               <AdSlot slotKey="learn_article_native" />
             </div>
@@ -785,7 +785,7 @@ export default function LearnArticle() {
               </section>
             )}
 
-            {/* In-article ad + native banner — after FAQ */}
+            {/* In-article ad + native banner, after FAQ */}
             <div className="mt-10">
               <AdSlot slotKey="learn_in_article" />
             </div>
@@ -793,7 +793,7 @@ export default function LearnArticle() {
               <AdSlot slotKey="learn_article_native_2" />
             </div>
 
-            {/* Banner + native banner — after related articles */}
+            {/* Banner + native banner, after related articles */}
             <div className="mt-10">
               <AdSlot slotKey="learn_article_mid_2" />
             </div>
@@ -803,7 +803,7 @@ export default function LearnArticle() {
 
             {/* Bottom ad */}
             <div className="mt-10">
-              {/* Monetag In-Page Push — placement "article_push_2"
+              {/* Monetag In-Page Push, placement "article_push_2"
                   (zone ID editable in Admin → Ads → Placements) */}
               <AdSlot slotKey="article_push_2" />
               <AdSlot slotKey="learn_article_bottom" />
@@ -863,7 +863,7 @@ function RenderedMarkdown({
       continue;
     }
 
-    // Headings — with IDs for TOC navigation
+    // Headings, with IDs for TOC navigation
     if (line.startsWith("### ")) {
       const text = line.slice(4);
       const id = text

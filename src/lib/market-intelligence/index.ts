@@ -1,5 +1,5 @@
 /**
- * FRELUX MARKET INTELLIGENCE — Barrel Export
+ * FRELUX MARKET INTELLIGENCE, Barrel Export
  *
  * Import from here:
  *   import { resolveCalculatorPrice, normalizeProduct, ... } from '@/lib/market-intelligence';

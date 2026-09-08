@@ -1,5 +1,5 @@
 /**
- * FRELUX Phase 3 — Tyrolene Estimator Page
+ * FRELUX Phase 3, Tyrolene Estimator Page
  *
  * Partition-based Tyrolene exterior finishing estimator.
  * Progressive disclosure flow:

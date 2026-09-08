@@ -1,5 +1,5 @@
 /**
- * Cookie Consent Engine — manages user consent state for cookies/tracking.
+ * Cookie Consent Engine, manages user consent state for cookies/tracking.
  *
  * Categories:
  *  - essential: always on (auth, preferences, security)
@@ -100,7 +100,7 @@ export function saveConsent(
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(consent));
   } catch {
-    // localStorage might be unavailable (private mode) — fail gracefully
+    // localStorage might be unavailable (private mode), fail gracefully
   }
 
   // Dispatch a custom event so listeners (AnalyticsScripts, etc.) can react
@@ -126,7 +126,7 @@ export function hasConsent(category: CookieCategory): boolean {
   return consent.categories[category] ?? false;
 }
 
-/** Withdraw consent — clears storage so banner reappears. */
+/** Withdraw consent, clears storage so banner reappears. */
 export function withdrawConsent(): void {
   try {
     localStorage.removeItem(STORAGE_KEY);

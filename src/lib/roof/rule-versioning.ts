@@ -1,5 +1,5 @@
 /**
- * FRELUX RULE VERSIONING — Engine
+ * FRELUX RULE VERSIONING, Engine
  *
  * Versioned rule sets for reproducibility:
  *   - Every estimation references the exact rule versions used
@@ -49,7 +49,7 @@ export interface RuleSetHistory {
 
 /**
  * Compute a simple hash from a JSON string.
- * This is NOT cryptographic — it's for integrity verification
+ * This is NOT cryptographic, it's for integrity verification
  * that two rule sets are identical.
  */
 export function computeContentHash(rules: Record<string, unknown>): string {

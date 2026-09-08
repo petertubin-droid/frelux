@@ -86,7 +86,7 @@ export default function AdminImageEstimation() {
       .maybeSingle();
 
     if (fetchError) {
-      // Columns might not exist yet — show default config with migration notice
+      // Columns might not exist yet, show default config with migration notice
       setError(
         "Database migration required. Run the Phase 31 SQL migration to enable this feature.",
       );

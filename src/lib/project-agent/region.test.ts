@@ -1,9 +1,9 @@
 // =========================================================
-// PROJECT AGENT — GLOBAL & REGIONAL VALIDATION TESTS (Stage 11)
+// PROJECT AGENT, GLOBAL & REGIONAL VALIDATION TESTS (Stage 11)
 //
-// Spec: test the agent against multiple regional profiles —
+// Spec: test the agent against multiple regional profiles :
 // minimum Nigeria, United Kingdom, United States, and one
-// additional supported region — verifying:
+// additional supported region, verifying:
 //   currency, units, terminology, construction conventions,
 //   regional assumptions, market-data availability.
 //
@@ -35,7 +35,7 @@ import {
 
 const REQUIRED_REGIONS = ["NG", "GB", "US", "GH"] as const;
 
-describe("market profile registry — the minimum regions (§Stage 11)", () => {
+describe("market profile registry, the minimum regions (§Stage 11)", () => {
   it("registers NG, GB, US and GH (all inactive markets except Nigeria)", () => {
     const registry = createDefaultRegistry();
     for (const code of REQUIRED_REGIONS) {
@@ -55,7 +55,7 @@ describe("market profile registry — the minimum regions (§Stage 11)", () => {
     const us = createUSProfile();
     const gh = createGhanaProfile();
 
-    // Currency — never shared by accident.
+    // Currency, never shared by accident.
     expect(ng.currency).toBe("NGN");
     expect(ng.currencySymbol).toBe("₦");
     expect(gb.currency).toBe("GBP");
@@ -85,7 +85,7 @@ describe("market profile registry — the minimum regions (§Stage 11)", () => {
   });
 
   it("adding a market is configuration, not code changes (architecture rule)", () => {
-    // A future market joins by registering a profile — the
+    // A future market joins by registering a profile, the
     // resolution layer picks it up with zero engine changes.
     const registry: MarketProfileRegistry = createDefaultRegistry();
     const custom = {
@@ -108,10 +108,10 @@ function createKenyaLikeProfile() {
 }
 
 // ---------------------------------------------------------
-// Resolution — explicit unavailable states, never substitution.
+// Resolution, explicit unavailable states, never substitution.
 // ---------------------------------------------------------
 
-describe("resolveMarket — the honest resolution contract (§Stage 11)", () => {
+describe("resolveMarket, the honest resolution contract (§Stage 11)", () => {
   it("resolves each minimum region to its own profile", () => {
     expect(resolveMarket("NG")).toMatchObject({
       status: "supported",
@@ -139,12 +139,12 @@ describe("resolveMarket — the honest resolution contract (§Stage 11)", () => 
     }
   });
 
-  it("an UNSUPPORTED market produces an explicit unavailable state — never a silent fallback to Nigeria", () => {
+  it("an UNSUPPORTED market produces an explicit unavailable state, never a silent fallback to Nigeria", () => {
     const r = resolveMarket("AU"); // not registered
     expect(r.status).toBe("unsupported");
     if (r.status === "unsupported") {
       expect(r.marketCode).toBe("AU");
-      // The resolution carries NO profile — no NG data anywhere.
+      // The resolution carries NO profile, no NG data anywhere.
       expect("profile" in r).toBe(false);
     }
   });
@@ -154,7 +154,7 @@ describe("resolveMarket — the honest resolution contract (§Stage 11)", () => 
 // Currency formatting per region.
 // ---------------------------------------------------------
 
-describe("formatMoney — the project's market, never another region's symbol (§Stage 11)", () => {
+describe("formatMoney, the project's market, never another region's symbol (§Stage 11)", () => {
   it("formats the same amount in each region's currency", () => {
     expect(formatMoney(12_500, "NG")).toMatch(/^₦[\d,]+$/);
     expect(formatMoney(12_500, "GB")).toMatch(/^£[\d,]+$/);
@@ -185,10 +185,10 @@ describe("formatMoney — the project's market, never another region's symbol (�
 });
 
 // ---------------------------------------------------------
-// The market note — terminology that states defaults honestly.
+// The market note, terminology that states defaults honestly.
 // ---------------------------------------------------------
 
-describe("marketNote — honest terminology (§Stage 11)", () => {
+describe("marketNote, honest terminology (§Stage 11)", () => {
   it("empty for a confirmed market; explicit for default and unsupported", () => {
     expect(marketNote("US")).toBe("");
     const d = marketNote(null);
@@ -254,7 +254,7 @@ function snapshotForRegion(
   } as unknown as PredictiveProjectSnapshot;
 }
 
-describe("agent output honours each region — end to end (§Stage 11)", () => {
+describe("agent output honours each region, end to end (§Stage 11)", () => {
   const NOW = "2026-09-07T12:00:00.000Z";
 
   it("Nigeria project → ₦ in alerts", () => {
@@ -264,7 +264,7 @@ describe("agent output honours each region — end to end (§Stage 11)", () => {
     expect(overrun!.condition).toContain("₦62,500");
   });
 
-  it("UK project → £ in alerts — never ₦", () => {
+  it("UK project → £ in alerts, never ₦", () => {
     const alerts = evaluateMonitoringAlerts(snapshotForRegion("GB"), null, NOW);
     const overrun = alerts.find((a) => a.alertKey === "budget:overrun");
     expect(overrun).toBeDefined();
@@ -272,7 +272,7 @@ describe("agent output honours each region — end to end (§Stage 11)", () => {
     expect(overrun!.condition).not.toContain("₦");
   });
 
-  it("US project → $ in alerts — never ₦", () => {
+  it("US project → $ in alerts, never ₦", () => {
     const alerts = evaluateMonitoringAlerts(snapshotForRegion("US"), null, NOW);
     const overrun = alerts.find((a) => a.alertKey === "budget:overrun");
     expect(overrun).toBeDefined();
@@ -280,7 +280,7 @@ describe("agent output honours each region — end to end (§Stage 11)", () => {
     expect(overrun!.condition).not.toContain("₦");
   });
 
-  it("Ghana project → ₵ in alerts — never ₦", () => {
+  it("Ghana project → ₵ in alerts, never ₦", () => {
     const alerts = evaluateMonitoringAlerts(snapshotForRegion("GH"), null, NOW);
     const overrun = alerts.find((a) => a.alertKey === "budget:overrun");
     expect(overrun).toBeDefined();
@@ -293,7 +293,7 @@ describe("agent output honours each region — end to end (§Stage 11)", () => {
     const overrun = alerts.find((a) => a.alertKey === "budget:overrun");
     expect(overrun).toBeDefined();
     const text = JSON.stringify(overrun);
-    // The amount appears as a bare, honestly-marked number —
+    // The amount appears as a bare, honestly-marked number :
     // no ₦/$/£/₵ symbol was substituted.
     expect(text).not.toContain("₦");
     expect(text).toContain("unavailable");

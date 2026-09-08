@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PLAN VISION — Copilot Bridge (§19)
+// FRELUX PLAN VISION, Copilot Bridge (§19)
 //
 // From within the Copilot the user can ask:
 //   "What materials do I need for the plan I uploaded?"
@@ -9,10 +9,10 @@
 // requirements resolver already prioritizes. The Copilot then:
 //   1. checks verified extracted data (no unnecessary questions)
 //   2. asks only for what is genuinely missing
-//   3. routes through the authoritative engines — never its own math
+//   3. routes through the authoritative engines, never its own math
 //
 // Only user-verified facts cross this bridge. Unverified AI
-// observations are NOT exposed to the Copilot as project data —
+// observations are NOT exposed to the Copilot as project data :
 // they would be indistinguishable from real project facts.
 // =========================================================
 
@@ -206,5 +206,5 @@ export function describeVerifiedPlan(extraction: PlanExtraction): string {
     .map((r) => r.name)
     .join(", ");
   const more = rooms.length > 5 ? ` (+${rooms.length - 5} more)` : "";
-  return `Verified from your plan: ${rooms.length} room(s) — ${names}${more}.`;
+  return `Verified from your plan: ${rooms.length} room(s), ${names}${more}.`;
 }

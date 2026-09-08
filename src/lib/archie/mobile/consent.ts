@@ -1,8 +1,8 @@
 // =========================================================
-// FRELUX PHASE 8b — MOBILE CONSENT MANAGER
+// FRELUX PHASE 8b, MOBILE CONSENT MANAGER
 //
 // One consent record per capability per user. Every device
-// capability goes through checkCapabilityConsent() — ARCHIE
+// capability goes through checkCapabilityConsent(), ARCHIE
 // never touches a device feature without an explicit grant,
 // and denial is always graceful.
 // =========================================================

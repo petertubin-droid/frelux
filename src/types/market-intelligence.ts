@@ -1,8 +1,8 @@
 /**
- * FRELUX MARKET INTELLIGENCE & PRICE ENGINE — Types
+ * FRELUX MARKET INTELLIGENCE & PRICE ENGINE, Types
  *
  * All types for the provider-independent price intelligence system.
- * Strictly additive — existing types are not modified.
+ * Strictly additive, existing types are not modified.
  */
 
 // ============================================================

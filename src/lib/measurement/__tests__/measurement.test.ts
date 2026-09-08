@@ -1,5 +1,5 @@
 /**
- * FRELUX Measurement Architecture — Tests
+ * FRELUX Measurement Architecture, Tests
  *
  * Validates the core acceptance criteria from the specification.
  */
@@ -491,7 +491,7 @@ describe("Grafitex Calculation", () => {
 
   test("grafitex does NOT invent material coverage rules", () => {
     // The measurement system only provides the area.
-    // It does NOT compute Grafitex material quantity — that's a configurable rule.
+    // It does NOT compute Grafitex material quantity, that's a configurable rule.
     const entry = createMeasurementEntry({
       length: 20,
       height: 10,

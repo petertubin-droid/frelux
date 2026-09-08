@@ -235,7 +235,7 @@ export default function AdminLearningReview() {
     <div>
       <AdminHeader
         title="Learning Review"
-        subtitle="Unified Learning Engine — ARCHIE reference intelligence, Gemini/OpenAI signals, user corrections and project outcomes. Nothing enters production knowledge without human approval."
+        subtitle="Unified Learning Engine, ARCHIE reference intelligence, Gemini/OpenAI signals, user corrections and project outcomes. Nothing enters production knowledge without human approval."
       />
       <div className="space-y-6">
         {error && (
@@ -290,7 +290,7 @@ export default function AdminLearningReview() {
           <textarea
             className="w-full rounded-md border px-2 py-1.5 text-sm"
             rows={2}
-            placeholder="Recommendation (conclusions only — no chain-of-thought)"
+            placeholder="Recommendation (conclusions only, no chain-of-thought)"
             value={archieRecommendation}
             onChange={(e) => setArchieRecommendation(e.target.value)}
           />
@@ -411,16 +411,16 @@ export default function AdminLearningReview() {
                       {capabilityIsMath(r.capability) && (
                         <span className="ml-2 inline-flex items-center gap-1 text-xs text-amber-700">
                           <ShieldAlert className="h-3 w-3" /> deterministic math
-                          — engineering review required
+                         , engineering review required
                         </span>
                       )}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {r.source} · {r.provider ?? "—"}{" "}
+                      {r.source} · {r.provider ?? "-"}{" "}
                       {r.model_version ? `(${r.model_version})` : ""} ·{" "}
                       {r.capability} · scope {r.proposed_scope}
                       {r.scope_key ? `/${r.scope_key}` : ""} · conf{" "}
-                      {r.confidence ?? "—"}
+                      {r.confidence ?? "-"}
                     </p>
                   </div>
                   <span
@@ -440,7 +440,7 @@ export default function AdminLearningReview() {
                     <dl className="grid gap-2 text-xs md:grid-cols-2">
                       <div>
                         <dt className="font-medium">Source type</dt>
-                        <dd>{r.source_type ?? "—"}</dd>
+                        <dd>{r.source_type ?? "-"}</dd>
                       </div>
                       <div>
                         <dt className="font-medium">Verification</dt>
@@ -452,7 +452,7 @@ export default function AdminLearningReview() {
                       </div>
                       <div>
                         <dt className="font-medium">Submitted by</dt>
-                        <dd>{r.created_by ?? "—"}</dd>
+                        <dd>{r.created_by ?? "-"}</dd>
                       </div>
                     </dl>
                     {r.request_context && (
@@ -466,7 +466,7 @@ export default function AdminLearningReview() {
                     <div>
                       <p className="text-xs font-medium">Recommendation</p>
                       <p className="text-xs whitespace-pre-wrap">
-                        {r.recommendation ?? "—"}
+                        {r.recommendation ?? "-"}
                       </p>
                     </div>
                     {r.conclusion && (
@@ -514,7 +514,7 @@ export default function AdminLearningReview() {
                           {(r.provenance.sanitizer_flags as string[]).join(
                             ", ",
                           )}{" "}
-                          — review the quarantined text carefully before any
+                         , review the quarantined text carefully before any
                           approval.
                         </div>
                       )}
@@ -524,8 +524,8 @@ export default function AdminLearningReview() {
                         <ul className="text-xs space-y-1">
                           {audit.map((a, i) => (
                             <li key={i} className="text-muted-foreground">
-                              {String(a.action)} —{" "}
-                              {String(a.created_date ?? "")} —{" "}
+                              {String(a.action)} :{" "}
+                              {String(a.created_date ?? "")} :{" "}
                               {String(
                                 (a.details as Record<string, unknown>)
                                   ?.reason ?? "",

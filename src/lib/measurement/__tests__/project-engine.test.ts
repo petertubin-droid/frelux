@@ -1,5 +1,5 @@
 /**
- * Tests for the Project/Building Engine (Feature 3 — Project/Building Engine)
+ * Tests for the Project/Building Engine (Feature 3, Project/Building Engine)
  */
 
 import { describe, it, expect } from 'vitest';

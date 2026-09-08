@@ -1,6 +1,6 @@
 // =========================================================
 // FRELUX Project Timeline Estimator
-// Engine — Phase 32
+// Engine, Phase 32
 //
 // Estimates construction project durations based on:
 // - Building type, size, and complexity

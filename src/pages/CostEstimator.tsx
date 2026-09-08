@@ -204,7 +204,7 @@ export default function CostEstimator({
   const [labourConfig, setLabourConfig] = useState<LabourConfig>(
     DEFAULT_LABOUR_CONFIG,
   );
-  // Manual bucket pricing — user picks a bucket size (e.g. 20L, 4L) from
+  // Manual bucket pricing, user picks a bucket size (e.g. 20L, 4L) from
   // admin-configurable options and enters the price for that bucket.
   const [manualBucketSize, setManualBucketSize] = useState(20);
   const [manualBucketPrice, setManualBucketPrice] = useState(0);
@@ -290,7 +290,7 @@ export default function CostEstimator({
         }));
       }
     } else {
-      // Manual entry — use bucket-based pricing with the user's selection.
+      // Manual entry, use bucket-based pricing with the user's selection.
       setInput((prev) => ({
         ...prev,
         paintProductName: "",
@@ -582,7 +582,7 @@ export default function CostEstimator({
                 </div>
               ) : (
                 <>
-                  {/* Manual entry — always show inputs */}
+                  {/* Manual entry, always show inputs */}
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     <Field
                       label="Paint bucket size"
@@ -1061,9 +1061,9 @@ export default function CostEstimator({
           onClose={() => setPdfGateOpen(false)}
         />
       )}
-      {/* Ad slot — placement "estimator_mid" */}
+      {/* Ad slot, placement "estimator_mid" */}
       <AdSlot slotKey="estimator_mid" className="mt-8" />
-      {/* Native banner slot — placement "estimator_native" */}
+      {/* Native banner slot, placement "estimator_native" */}
       <AdSlot slotKey="estimator_native" className="mt-8" />
       <AdSlot slotKey="estimator_bottom" className="mt-8" />
     </>
@@ -1156,7 +1156,7 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    // Plain <button> — not shadcn's <Button variant="ghost">, whose hover
+    // Plain <button>, not shadcn's <Button variant="ghost">, whose hover
     // state gets "stuck" on touch devices after a tap until the next tap
     // elsewhere, masking the checked-state color change.
     <button

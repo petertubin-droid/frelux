@@ -1,9 +1,9 @@
 // =========================================================
-// FRELUX PHASE 8 — ARCHIE CONTRIBUTOR PERMISSIONS
+// FRELUX PHASE 8, ARCHIE CONTRIBUTOR PERMISSIONS
 //
 // Contributor training WITH permissions: identity, provenance,
 // review requirements and scope isolation. A DOMAIN_CONTRIBUTOR
-// may submit knowledge inside their allowed domains only —
+// may submit knowledge inside their allowed domains only :
 // and every submission is reviewed before promotion. An
 // OBSERVER may never submit. ARCHIE_ADMIN may approve.
 // =========================================================
@@ -114,7 +114,7 @@ export function canManageIngestion(
   }
 }
 
-/** Terminal states — no further pipeline movement allowed. */
+/** Terminal states, no further pipeline movement allowed. */
 const TERMINAL: ReadonlySet<ArchiePipelineState> = new Set([
   "APPROVED",
   "REJECTED",

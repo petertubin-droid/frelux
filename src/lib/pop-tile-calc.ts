@@ -50,17 +50,17 @@ export function calculatePopCeiling(
     const pkgSize = Number(mat.package_size);
     const unitPrice = Number(mat.unit_price);
     if (mat.category === "labour") {
-      // Labour not included — negotiated separately
+      // Labour not included, negotiated separately
     } else {
       if (coverage > 0 && adjustedArea > 0) {
-        // ok — configurable coverage present
+        // ok, configurable coverage present
       } else if (adjustedArea > 0) {
         calcWarnings.push(
           `Coverage rate is not configured for '${mat.name}'. Its quantity and cost are excluded from the total until an admin configures it.`,
         );
       }
       if (unitPrice > 0) {
-        // ok — price configured
+        // ok, price configured
       } else {
         calcWarnings.push(
           `Unit price is not configured for '${mat.name}'. Its cost is excluded from the total until an admin configures it.`,

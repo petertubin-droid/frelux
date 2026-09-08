@@ -589,12 +589,12 @@ export default function PopCeilingCalculator({
           <ProConnectCTA calculatorType="pop-ceiling" />
         </>
       )}
-      {/* Ad slot — placement "calculator_mid" */}
+      {/* Ad slot, placement "calculator_mid" */}
       <AdSlot slotKey="calculator_mid" className="mt-8" />
-      {/* Native banner slot — placement "calculator_native" */}
+      {/* Native banner slot, placement "calculator_native" */}
       <AdSlot slotKey="calculator_native" className="mt-8" />
       <AdSlot slotKey="calculator_bottom" className="mt-8" />
-      {/* Monetag In-Page Push — placement "calculator_push"
+      {/* Monetag In-Page Push, placement "calculator_push"
           (zone ID editable in Admin → Ads → Placements) */}
       <AdSlot slotKey="calculator_push" className="mt-8" />
     </>
@@ -944,7 +944,7 @@ function Toggle({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-lg border border-border p-4">
-      {/* Plain <button> — not shadcn's <Button variant="ghost">, whose
+      {/* Plain <button>, not shadcn's <Button variant="ghost">, whose
           hover state gets "stuck" on touch devices after a tap until the
           next tap elsewhere, masking the checked-state color change. */}
       <button

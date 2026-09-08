@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — PERSISTENCE & CACHING (§22)
+// FRELUX PREDICTIVE INTELLIGENCE, PERSISTENCE & CACHING (§22)
 //
 // `project_predictive_analyses` stores the latest analysis per
 // project with its input hash. getProjectAnalysis returns the
@@ -16,7 +16,7 @@ import { buildProjectSnapshot } from "./snapshot";
 import { analyzeProject } from "./analysis";
 import { snapshotInputHash } from "./snapshot-hash";
 
-/** Cache validity window — an analysis older than this is refreshed
+/** Cache validity window, an analysis older than this is refreshed
  *  even if the input hash matches, so freshness sections stay true. */
 export const CACHE_MAX_AGE_MS = 1000 * 60 * 60 * 6; // 6 hours
 
@@ -54,7 +54,7 @@ export async function getProjectAnalysis(
 
   const analysis = analyzeProject(snapshot);
 
-  // Fire-and-forget cache write — failure never blocks the user.
+  // Fire-and-forget cache write, failure never blocks the user.
   void trySaveCache(projectId, analysis);
 
   return { analysis, fromCache: false };
@@ -96,7 +96,7 @@ async function trySaveCache(
       { onConflict: "project_id" },
     );
     if (error) {
-      // Table may not be migrated yet — silent, non-blocking.
+      // Table may not be migrated yet, silent, non-blocking.
       if (process.env.NODE_ENV === "development") {
         console.warn(
           "[predictive-intelligence] cache write skipped:",
@@ -105,6 +105,6 @@ async function trySaveCache(
       }
     }
   } catch {
-    // network/offline — the analysis was already computed locally
+    // network/offline, the analysis was already computed locally
   }
 }

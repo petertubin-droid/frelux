@@ -1,8 +1,8 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — ANALYSIS ORCHESTRATOR
+// FRELUX PREDICTIVE INTELLIGENCE, ANALYSIS ORCHESTRATOR
 //
 // The single entry point: a project snapshot in, one complete,
-// explainable, deterministic analysis out. No AI calls (§15) —
+// explainable, deterministic analysis out. No AI calls (§15) :
 // the Copilot summarizes this output; it never recomputes it.
 //
 // The full bundle answers: prediction, evidence, inputs,
@@ -33,7 +33,7 @@ import { materialPriceChangeScenario } from "./scenario-analysis";
 import { recordedStageProgress } from "./spend";
 import { snapshotInputHash } from "./snapshot-hash";
 
-/** Measured data quality — coverage of the six analysis areas. */
+/** Measured data quality, coverage of the six analysis areas. */
 function assessDataQuality(
   snapshot: PredictiveProjectSnapshot,
   predictions: PredictionResult[],

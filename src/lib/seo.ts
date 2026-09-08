@@ -92,7 +92,7 @@ export function useSeo(meta: SeoMeta | null) {
     setMeta('name', 'twitter:image', ogImage);
     setMeta('name', 'twitter:image:alt', `${fullTitle}: FRELUX PROJECT CALC`);
 
-    // Canonical URL — always set
+    // Canonical URL, always set
     setLink('canonical', canonicalUrl);
 
     // Robots
@@ -102,7 +102,7 @@ export function useSeo(meta: SeoMeta | null) {
       setMeta('name', 'robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
     }
 
-    // Structured data — single or array
+    // Structured data, single or array
     const sdIds: string[] = [];
 
     if (meta.structuredData) {

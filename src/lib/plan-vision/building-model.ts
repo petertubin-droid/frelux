@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PLAN VISION — Canonical Building Model Integration (§9)
+// FRELUX PLAN VISION, Canonical Building Model Integration (§9)
 //
 //   Uploaded plan → AI extraction → verification → CANONICAL
 //   FRELUX Building/Property Model → calculators/intelligence.
@@ -13,7 +13,7 @@
 //
 // ONLY user-verified elements (user_confirmed / user_edited)
 // pass through. Unverified AI observations are rejected at the
-// door — this function throws/flags rather than passing them.
+// door, this function throws/flags rather than passing them.
 // =========================================================
 
 import type {
@@ -35,7 +35,7 @@ import type { BuildToRoofInput } from "@/types/build-to-roof";
 /**
  * Convert a VERIFIED extracted room into the canonical Space
  * object (measurement/space-engine). Unknown heights fall back
- * to the Space Engine's own defaults — never an invented AI
+ * to the Space Engine's own defaults, never an invented AI
  * value. Openings are carried only when their dimensions are
  * reliable (§13); unknown openings stay out of area deductions.
  */
@@ -45,7 +45,7 @@ export function verifiedRoomToSpace(room: ExtractedRoom): Space {
     room.reviewStatus === "user_edited";
   if (!verified) {
     throw new Error(
-      `Room "${room.name}" is not user-verified — it cannot enter the canonical Building Model. Confirm or edit it first.`,
+      `Room "${room.name}" is not user-verified, it cannot enter the canonical Building Model. Confirm or edit it first.`,
     );
   }
 
@@ -53,7 +53,7 @@ export function verifiedRoomToSpace(room: ExtractedRoom): Space {
   const widthM = dimensionToMeters(room.width);
   if (lengthM === null || widthM === null) {
     throw new Error(
-      `Room "${room.name}" lacks reliable dimensions — it cannot enter the canonical Building Model.`,
+      `Room "${room.name}" lacks reliable dimensions, it cannot enter the canonical Building Model.`,
     );
   }
 
@@ -77,7 +77,7 @@ export function verifiedRoomToSpace(room: ExtractedRoom): Space {
 
   // The Space Engine's createSpace owns defaults (ceiling, waste…).
   // Verified openings are mapped into the Space's own opening
-  // structure — the Space Engine decides how they affect areas.
+  // structure, the Space Engine decides how they affect areas.
   return createSpace({
     name: room.name,
     type: room.spaceType,
@@ -103,7 +103,7 @@ export function extractionToSpaces(extraction: PlanExtraction): Space[] {
       spaces.push(verifiedRoomToSpace(room));
     } catch {
       // A verified room missing dims is impossible by definition
-      // of isRoomVerified — skip defensively rather than crash a batch.
+      // of isRoomVerified, skip defensively rather than crash a batch.
     }
   }
   return spaces;
@@ -135,7 +135,7 @@ export interface BuildingModelPatchResult {
  * Build a patch for the existing BuildToRoofInput from VERIFIED
  * building facts and roof geometry. Only user-verified values are
  * applied; everything else is skipped with an explicit reason.
- * (Same contract as the Phase 2 buildEnginePatch — no duplicate
+ * (Same contract as the Phase 2 buildEnginePatch, no duplicate
  * math, just element-level sourcing.)
  */
 export function verifiedFactsToEnginePatch(
@@ -185,7 +185,7 @@ export function verifiedFactsToEnginePatch(
     applied.push(fact.key);
   }
 
-  // Roof type from the verified roof element (§14 — never an
+  // Roof type from the verified roof element (§14, never an
   // unsupported approximation; geometrySufficient is required).
   if (
     roof &&
@@ -195,7 +195,7 @@ export function verifiedFactsToEnginePatch(
     if (!roof.geometrySufficient) {
       skipped.push({
         key: "roof_type",
-        reason: "roof geometry insufficient — requires confirmation (§14)",
+        reason: "roof geometry insufficient, requires confirmation (§14)",
       });
     } else if (roof.roofType !== "unknown") {
       (patch as Record<string, unknown>).roof_type = roof.roofType;
@@ -219,14 +219,14 @@ export interface CanonicalBuildingModel {
   buildToRoofPatch: BuildingModelPatchResult;
   /** Verified roof geometry (Requires Confirmation when insufficient). */
   roof: ExtractedRoof | null;
-  /** Facts that did not pass verification — shown to the user. */
+  /** Facts that did not pass verification, shown to the user. */
   unverifiedCount: number;
 }
 
 /**
  * The single entry point: one (reconciled) extraction → canonical
  * Building Model. Nothing unverified passes. Missing information
- * is reported as missing — never filled with AI guesses.
+ * is reported as missing, never filled with AI guesses.
  */
 export function toCanonicalBuildingModel(
   extraction: PlanExtraction,

@@ -7,7 +7,7 @@ import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 
 // ============================================================
-// LocationPicker — "Use My Location" + manual selection
+// LocationPicker, "Use My Location" + manual selection
 // ============================================================
 // Privacy-first: only requests GPS on explicit click,
 // stores in sessionStorage, provides manual fallback.

@@ -3,7 +3,7 @@
  *
  * Calculates surface areas from normalised measurements.
  * All functions accept values in METRES and return SQUARE METRES.
- * No premature rounding — full precision is maintained (spec section 28).
+ * No premature rounding, full precision is maintained (spec section 28).
  *
  * Surface types are treated independently (spec section 9):
  * - Wall: perimeter × height (room) or length × height (single wall / fence)
@@ -17,7 +17,7 @@ import type {} from './types';
 import type { CalculationStep } from './types';
 
 // =========================================================
-// Area Calculations — all in metres, all return m²
+// Area Calculations, all in metres, all return m²
 // =========================================================
 
 /**
@@ -130,7 +130,7 @@ export function netAreaM2(
 
 /**
  * Calculate the number of tiles needed for a given area.
- * No rounding — returns the exact theoretical value (spec section 28).
+ * No rounding, returns the exact theoretical value (spec section 28).
  * Rounding to whole cartons happens at the packaging stage.
  */
 export function tilesRequired(
@@ -171,7 +171,7 @@ export function cartonsFromCoverage(
 
 /**
  * Apply waste margin to an area. Returns the adjusted area.
- * Does NOT round — precision maintained (spec section 28).
+ * Does NOT round, precision maintained (spec section 28).
  */
 export function applyWasteMargin(
   areaM2: number,
@@ -187,7 +187,7 @@ export function applyWasteMargin(
 
 /**
  * Round a value to a specified number of decimal places for display.
- * This does NOT alter the underlying calculation — it's for display only.
+ * This does NOT alter the underlying calculation, it's for display only.
  */
 export function roundForDisplay(value: number, decimals: number = 2): number {
   if (!isFinite(value) || isNaN(value)) return 0;

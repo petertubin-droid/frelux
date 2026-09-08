@@ -1,16 +1,16 @@
 /**
- * PremiumFeatureGate — Reusable inline gate for premium features.
+ * PremiumFeatureGate, Reusable inline gate for premium features.
  *
  * Shows a golden crown icon and two unlock buttons:
  * 1. Watch Ad to Unlock (uses existing unlockFeatureViaAd)
  * 2. Use 10 Credits to Unlock (uses existing spendAiCredits)
  *
- * Unlock is session-scoped (useState only) — once the user leaves
+ * Unlock is session-scoped (useState only), once the user leaves
  * the feature, they must unlock again.
  *
  * Paid subscribers bypass the gate entirely.
  *
- * Does NOT modify the credits flow — uses existing edge functions.
+ * Does NOT modify the credits flow, uses existing edge functions.
  */
 import { useState, useCallback, useEffect } from "react";
 import { Crown, PlayCircle, Loader2, X } from "lucide-react";
@@ -34,7 +34,7 @@ interface Props {
   featureKey: string;
   /** Display name shown in the gate UI */
   featureName: string;
-  /** Called when the user successfully unlocks — proceed with the feature */
+  /** Called when the user successfully unlocks, proceed with the feature */
   onUnlock: () => void;
   /** Called when the user dismisses the gate */
   onClose: () => void;

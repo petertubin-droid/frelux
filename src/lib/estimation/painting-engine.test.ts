@@ -1,8 +1,8 @@
 /**
- * FRELUX Painting Estimator — Comprehensive Tests
+ * FRELUX Painting Estimator, Comprehensive Tests
  *
  * Tests verify calculation outputs against established FRELUX rules.
- * Tests do NOT invent coverage values or prices — they use configured test data.
+ * Tests do NOT invent coverage values or prices, they use configured test data.
  *
  * Verification Tests (per spec section 28):
  * TEST 1: 10×12 ft room, 8ft, 2 coats → approximately 1 bucket
@@ -514,7 +514,7 @@ describe('FRELUX Painting Estimator', () => {
     });
   });
 
-  // ── TEST 6: Price change — new estimate uses new price, old retains snapshot ──
+  // ── TEST 6: Price change, new estimate uses new price, old retains snapshot ──
   describe('TEST 6: Price snapshot', () => {
     it('new estimate uses current active price', () => {
       const result = calculatePaintingProject({
@@ -539,7 +539,7 @@ describe('FRELUX Painting Estimator', () => {
 
   // ── TEST 7: Labour is never calculated ──
   describe('TEST 7: Labour exclusion', () => {
-    it('labour note says "Not included — negotiated separately"', () => {
+    it('labour note says "Not included, negotiated separately"', () => {
       const result = calculatePaintingProject({
         rooms: [makeRoom()], currency: 'NGN', user_id: null, client_hash: null,
         project_description: 'Test', customer_location: 'owerri', add_primer: false,
@@ -568,7 +568,7 @@ describe('FRELUX Painting Estimator', () => {
 
   // ── TEST 8: Customer never required to enter m² ──
   describe('TEST 8: No m² input required', () => {
-    it('room input uses length, breadth, height — not m²', () => {
+    it('room input uses length, breadth, height, not m²', () => {
       const room = makeRoom();
       expect(room).toHaveProperty('length');
       expect(room).toHaveProperty('breadth');

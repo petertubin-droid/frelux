@@ -1,8 +1,8 @@
 /**
- * FRELUX LOCATION INTELLIGENCE — LocationCard
+ * FRELUX LOCATION INTELLIGENCE, LocationCard
  *
  * Premium, mobile-first canonical location widget. Every project /
- * property surface renders THIS card — one location system, no
+ * property surface renders THIS card, one location system, no
  * duplicates. Implements the full state set:
  *
  *   not_set · detecting · permission_requested · found ·
@@ -51,7 +51,7 @@ export interface LocationCardProps {
   /** Persist the location (called on save and on clear). */
   onSave?: (location: FreluxLocation | null) => Promise<void> | void;
   /**
-   * Staging callback — fires whenever the staged record changes.
+   * Staging callback, fires whenever the staged record changes.
    * Used by create/edit dialogs that persist the record only on submit.
    */
   onLocationChange?: (location: FreluxLocation | null) => void;
@@ -72,7 +72,7 @@ export default function LocationCard({
   const [regional, setRegional] = useState<RegionalContext | null>(null);
   const [regionalLoading, setRegionalLoading] = useState(false);
 
-  // ---- Hydrate from the row (project reload) — provenance preserved ----
+  // ---- Hydrate from the row (project reload), provenance preserved ----
   useEffect(() => {
     if (!initialLocation) return;
     loc.hydrateLocation(initialLocation as unknown as Record<string, unknown>, true);
@@ -178,7 +178,7 @@ export default function LocationCard({
           <div>
             <h3 className="text-sm font-semibold leading-tight">Project Location</h3>
             <p className="text-[11px] text-muted-foreground">
-              Sets regional context — currency, units, terminology
+              Sets regional context, currency, units, terminology
             </p>
           </div>
         </div>
@@ -223,7 +223,7 @@ export default function LocationCard({
               </Button>
             </div>
             <p className="text-[11px] leading-relaxed text-muted-foreground">
-              FRELUX only accesses your device location when you ask it to — never
+              FRELUX only accesses your device location when you ask it to, never
               automatically. Location services are free; no map subscription required.
             </p>
           </div>
@@ -351,7 +351,7 @@ export default function LocationCard({
               </div>
             </div>
 
-            {/* Coordinates + accuracy — always shown when present */}
+            {/* Coordinates + accuracy, always shown when present */}
             <div className="grid grid-cols-2 gap-2 text-[11px]">
               {formatCoordinates(loc.location) && (
                 <div className="rounded-lg bg-muted px-2.5 py-1.5">
@@ -367,10 +367,10 @@ export default function LocationCard({
               )}
             </div>
 
-            {/* Reverse-geocode availability — honest reporting */}
+            {/* Reverse-geocode availability, honest reporting */}
             {loc.location.source === "gps" && loc.reverseGeocode.attempted && !loc.reverseGeocode.ok && (
               <p className="text-[11px] leading-relaxed text-muted-foreground" data-testid="reverse-unavailable">
-                Address lookup unavailable — coordinates shown exactly as detected. No
+                Address lookup unavailable, coordinates shown exactly as detected. No
                 address was guessed.
               </p>
             )}
@@ -506,18 +506,18 @@ export default function LocationCard({
               </div>
             ) : (
               <p className="text-[11px] text-muted-foreground">
-                Location search is unavailable — no geocoding provider configured.
+                Location search is unavailable, no geocoding provider configured.
               </p>
             )}
 
-            {/* Map pin — only when a map provider is configured */}
+            {/* Map pin, only when a map provider is configured */}
             {loc.mapEnabled ? (
               <div className="rounded-lg border p-3 text-xs" data-testid="map-picker-slot">
-                Map provider configured — pin selection renders here.
+                Map provider configured, pin selection renders here.
               </div>
             ) : (
               <p className="text-[11px] text-muted-foreground">
-                Map pin selection is unavailable — no map provider configured.
+                Map pin selection is unavailable, no map provider configured.
               </p>
             )}
 
@@ -557,7 +557,7 @@ export default function LocationCard({
 }
 
 // ============================================================
-// Manual entry sub-form (last-resort fallback — always available)
+// Manual entry sub-form (last-resort fallback, always available)
 // ============================================================
 
 function ManualEntry({
@@ -662,7 +662,7 @@ function ManualEntry({
         </Button>
       </div>
       <p className="text-[11px] leading-relaxed text-muted-foreground">
-        Manual entries are never verified against a map service — you confirm them,
+        Manual entries are never verified against a map service, you confirm them,
         FRELUX stores exactly what you typed.
       </p>
     </div>

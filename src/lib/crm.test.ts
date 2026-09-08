@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 
-// CRM module uses supabase directly — test that it handles unconfigured state
+// CRM module uses supabase directly, test that it handles unconfigured state
 vi.mock("@/lib/supabase", () => ({
   supabase: {},
   isSupabaseConfigured: false,

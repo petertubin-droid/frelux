@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX TRUST & SAFETY CORE — INTEGRATED WITH ARCHIE
+// FRELUX TRUST & SAFETY CORE, INTEGRATED WITH ARCHIE
 //
 // ARCHIE analyzes FRELUX-controlled activity for spam,
 // scams, impersonation, fraudulent contractor/supplier
@@ -49,7 +49,7 @@ export const TRUST_SAFETY_SIGNALS: readonly TrustSafetySignal[] = [
   "repeated_fraudulent_behavior",
 ];
 
-/** Base evidence weight per signal — stronger signals carry
+/** Base evidence weight per signal, stronger signals carry
  *  more risk. Every point must still be backed by recorded
  *  evidence. */
 const SIGNAL_BASE_WEIGHT: Record<TrustSafetySignal, number> = {
@@ -71,7 +71,7 @@ const SIGNAL_BASE_WEIGHT: Record<TrustSafetySignal, number> = {
 // Evidence
 // ---------------------------------------------------------
 export interface TrustSafetyEvidence {
-  /** What was observed — verifiable record reference. */
+  /** What was observed, verifiable record reference. */
   observed: string;
   /** Where: message id, listing id, transaction ref, profile… */
   source_ref: string;
@@ -128,7 +128,7 @@ export type AssessmentResult =
 
 /** Assess trust & safety for one account. EVIDENCE IS
  *  MANDATORY: signals without valid evidence are dropped,
- *  and an assessment with no valid evidence is refused —
+ *  and an assessment with no valid evidence is refused :
  *  ARCHIE never flags on confidence alone. Repeated signals
  *  escalate: each repeated evidence-backed signal adds a
  *  smaller escalation bump. */
@@ -200,23 +200,23 @@ export const AUTHORITY_LAYERS: Readonly<
   Record<AuthorityLayer, { label: string; scope: string }>
 > = {
   ARCHIE_DETECTION: {
-    label: "ARCHIE — Detection",
+    label: "ARCHIE, Detection",
     scope: "Evidence-based detection of spam, fraud, abuse and risk. Detects; never judges finances.",
   },
   ARCHIE_RECOMMENDATION: {
-    label: "ARCHIE — Recommendation",
+    label: "ARCHIE, Recommendation",
     scope: "Recommends actions (pause, flag, dispute analysis). Recommendations carry evidence and provenance; they are never self-executing financial decisions.",
   },
   ARCHIE_TEMPORARY_SECURITY_ENFORCEMENT: {
-    label: "ARCHIE — Temporary Security Enforcement",
+    label: "ARCHIE, Temporary Security Enforcement",
     scope: "Explicitly owner-authorized, bounded: temporary account pauses for HIGH/CRITICAL evidence-backed violations, pending owner review, with maximum duration and appeal.",
   },
   OWNER_AUTHORITY: {
-    label: "Owner — Final Authority",
+    label: "Owner, Final Authority",
     scope: "Final authority on reinstatement, restriction, termination, protected production and financial decisions.",
   },
   PAYMENT_ESCROW_PROVIDER_AUTHORITY: {
-    label: "Payment/Escrow Provider — Funds Authority",
+    label: "Payment/Escrow Provider, Funds Authority",
     scope: "Sole authority over custody, movement, release and refund of funds under its own controls and applicable regulation.",
   },
 };

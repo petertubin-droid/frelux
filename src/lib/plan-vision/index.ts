@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PLAN VISION — public API (barrel)
+// FRELUX PLAN VISION, public API (barrel)
 // =========================================================
 
 export * from "./types";

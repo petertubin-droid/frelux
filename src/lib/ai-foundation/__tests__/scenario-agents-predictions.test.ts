@@ -48,7 +48,7 @@ describe('agent framework (bounded, audited, approval-first)', () => {
     getLocalAuditQueue().length = 0;
   });
 
-  it('FORBIDS high-impact actions — not even proposeable', () => {
+  it('FORBIDS high-impact actions, not even proposeable', () => {
     const decision = evaluateAgentAction('project_agent', 'financial_transaction');
     expect(decision.decision).toBe('forbidden');
     expect(decision.reason).toContain('never');
@@ -65,7 +65,7 @@ describe('agent framework (bounded, audited, approval-first)', () => {
     expect(evaluateAgentAction('project_agent', 'delete_user_data').decision).toBe('forbidden');
   });
 
-  it('ships future agents DISABLED — no dormant capabilities', () => {
+  it('ships future agents DISABLED, no dormant capabilities', () => {
     const disabled = AGENT_REGISTRY.filter((a) => !a.enabled);
     expect(disabled.length).toBe(4); // property, procurement, market, progress
     for (const agent of disabled) {
@@ -88,7 +88,7 @@ describe('agent framework (bounded, audited, approval-first)', () => {
       'user-1',
     );
     const flushed = await flushLocalAuditQueue('user-1');
-    // With the chainable mock the insert resolves — either flushed or still queued.
+    // With the chainable mock the insert resolves, either flushed or still queued.
     expect(typeof flushed).toBe('number');
   });
 });
@@ -107,7 +107,7 @@ describe('predictions (no fake outputs)', () => {
     expect(readiness.missing).toHaveLength(0);
   });
 
-  it('assertPredictionAllowed THROWS on missing data — fabricated predictions impossible', () => {
+  it('assertPredictionAllowed THROWS on missing data, fabricated predictions impossible', () => {
     expect(() => assertPredictionAllowed('material_price_change', ['region'])).toThrow(
       /needs more data|missing/i,
     );

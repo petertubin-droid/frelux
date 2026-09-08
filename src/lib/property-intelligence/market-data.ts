@@ -1,14 +1,14 @@
 /**
- * FRELUX PROPERTY INTELLIGENCE — MARKET DATA & COMPARABLES
+ * FRELUX PROPERTY INTELLIGENCE, MARKET DATA & COMPARABLES
  *
  * Prompt 4, Phases 8–10: data structures and evaluation architecture for
  * property market analysis. NO fabricated listings, NO fake comparables,
  * NO asking-price-as-transaction-price, and never "nearest = comparable".
  *
- * This module contains NO data source integration — records must come from
+ * This module contains NO data source integration, records must come from
  * legitimate configured providers or verified user/admin input, each with
  * provenance. With no provider connected, evaluation returns
- * insufficient_data — never invented comparables.
+ * insufficient_data, never invented comparables.
  */
 
 // =========================================================
@@ -22,10 +22,10 @@ export interface PropertyListing {
   country: string;
   region?: string;
   city?: string;
-  /** Asking price — displayed as ASKING, never as a transaction value. */
+  /** Asking price, displayed as ASKING, never as a transaction value. */
   askingPrice?: { amount: number; currency: string };
   /**
-   * Transaction price — only for VERIFIED completed sales.
+   * Transaction price, only for VERIFIED completed sales.
    * Its provenance must have verificationStatus 'verified'.
    */
   transactionPrice?: { amount: number; currency: string; provenanceVerified: boolean };
@@ -114,7 +114,7 @@ function ageInDays(observedAt: string): number | undefined {
 
 /**
  * Evaluates candidate listings against the subject criteria. A listing is a
- * comparable only if it satisfies EVERY check — each inclusion/exclusion
+ * comparable only if it satisfies EVERY check, each inclusion/exclusion
  * carries a traceable reason. Insufficient candidates → insufficient_data.
  */
 export function evaluateComparables(

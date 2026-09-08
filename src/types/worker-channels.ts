@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX Worker Channels — Database Types
+// FRELUX Worker Channels, Database Types
 // Phase 30: Nationwide worker chat & price updates
 // =========================================================
 

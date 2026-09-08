@@ -1,15 +1,15 @@
 // =========================================================
-// FRELUX PROJECT AGENT — ACTION EXECUTION (Phase 6, Stage 7)
+// FRELUX PROJECT AGENT, ACTION EXECUTION (Phase 6, Stage 7)
 //
 // The ONLY layer that writes project data tables. Everything
 // before this (Stage 6) was intent; this stage makes it real.
 //
 // Honesty rules, all enforced:
 //   - Only an APPROVED action with an APPROVED, in-window
-//     approval may execute — exactly once. Terminal is terminal.
+//     approval may execute, exactly once. Terminal is terminal.
 //   - State is re-derived FRESH and params re-validated before
 //     the write. If the recorded world changed since approval,
-//     the action is CANCELLED with the honest reason — never a
+//     the action is CANCELLED with the honest reason, never a
 //     guess, never a forced write.
 //   - The write goes through the authoritative FRELUX table with
 //     RLS as the final authority. A policy rejection (e.g. a
@@ -49,7 +49,7 @@ export interface ActionExecutionResult {
   summary: string;
   /** Project data tables this execution wrote (audit trail). */
   writtenTables: string[];
-  /** Present only on failure — the honest reason. */
+  /** Present only on failure, the honest reason. */
   failureReason?: string;
   /** Present when an ancillary write (e.g. price history) failed
    *  after the authoritative write succeeded. */
@@ -59,7 +59,7 @@ export interface ActionExecutionResult {
 export interface ExecutionOutcome {
   action: PreparedAction;
   execution: ActionExecutionResult;
-  /** True when the action was already executed/verified — no new write. */
+  /** True when the action was already executed/verified, no new write. */
   duplicate: boolean;
 }
 
@@ -98,7 +98,7 @@ function invalidState(message: string): AgentResult<never> {
 }
 
 // ---------------------------------------------------------
-// Loading helpers (RLS-scoped — same patterns as Stage 6)
+// Loading helpers (RLS-scoped, same patterns as Stage 6)
 // ---------------------------------------------------------
 
 async function loadActionRow(
@@ -180,7 +180,7 @@ async function persistExecutionState(
 }
 
 // ---------------------------------------------------------
-// Authoritative writes — one function per kind.
+// Authoritative writes, one function per kind.
 // Every write returns the affected row so the caller can verify
 // the change actually stuck.
 // ---------------------------------------------------------
@@ -216,7 +216,7 @@ async function writePurchase(
         error: {
           code: "persistence_error",
           message:
-            "The purchase could not be recorded — the shopping item is no longer writable to this account (permissions or recent deletion).",
+            "The purchase could not be recorded, the shopping item is no longer writable to this account (permissions or recent deletion).",
         },
       };
     const row = data as Record<string, unknown>;
@@ -255,7 +255,7 @@ async function writeStageCompletion(
         error: {
           code: "persistence_error",
           message:
-            "The stage could not be updated — it is no longer writable to this account (permissions or recent deletion).",
+            "The stage could not be updated, it is no longer writable to this account (permissions or recent deletion).",
         },
       };
     const row = data as Record<string, unknown>;
@@ -277,7 +277,7 @@ async function writeStageCompletion(
  * is admin-only. The catalog update is authoritative and happens
  * first; the price-history insert (audit trail) is second. If the
  * history write fails after the catalog changed, the execution
- * still reports success — with an honest note about the gap.
+ * still reports success, with an honest note about the gap.
  */
 async function writeMaterialPrice(
   params: { materialId: string; newPrice: number; source?: string },
@@ -309,7 +309,7 @@ async function writeMaterialPrice(
       error: {
         code: "persistence_error",
         message:
-          "The material is no longer in the catalog — it may have been removed.",
+          "The material is no longer in the catalog, it may have been removed.",
       },
     };
 
@@ -334,14 +334,14 @@ async function writeMaterialPrice(
         error: {
           code: "persistence_error",
           message:
-            "The price could not be updated — the material catalog is admin-only and this account does not have admin permissions.",
+            "The price could not be updated, the material catalog is admin-only and this account does not have admin permissions.",
         },
       };
   } catch (e) {
     return persistError("Material price write failed", String(e));
   }
 
-  // Audit trail — best effort, honestly reported on failure.
+  // Audit trail, best effort, honestly reported on failure.
   let note: string | undefined;
   try {
     const { error: histError } = await supabase
@@ -374,7 +374,7 @@ async function writeMaterialPrice(
 }
 
 // ---------------------------------------------------------
-// Verification — re-read recorded state and confirm.
+// Verification, re-read recorded state and confirm.
 // ---------------------------------------------------------
 
 async function verifyPurchase(
@@ -448,7 +448,7 @@ async function verifyMaterialPrice(
 }
 
 // ---------------------------------------------------------
-// executeApprovedAction — the only entry point.
+// executeApprovedAction, the only entry point.
 // ---------------------------------------------------------
 
 export async function executeApprovedAction(
@@ -478,14 +478,14 @@ export async function executeApprovedAction(
         },
       };
     return invalidState(
-      `The action is '${action.state}' but carries no execution record — its state is inconsistent. Prepare a new action.`,
+      `The action is '${action.state}' but carries no execution record, its state is inconsistent. Prepare a new action.`,
     );
   }
 
   // ---- Only approved actions execute. Terminal is terminal.
   if (action.state !== "approved")
     return invalidState(
-      `The action is '${action.state}' — only approved actions execute, and decisions are final. Prepare a new action instead.`,
+      `The action is '${action.state}', only approved actions execute, and decisions are final. Prepare a new action instead.`,
     );
 
   const approvals = await loadApprovals(actionId);
@@ -493,7 +493,7 @@ export async function executeApprovedAction(
   const approved = approvals.data.find((a) => a.state === "approved");
   if (!approved)
     return invalidState(
-      "No approved approval backs this action — it cannot execute.",
+      "No approved approval backs this action, it cannot execute.",
     );
 
   // ---- Lazy expiry: an approved approval past its window is
@@ -534,13 +534,13 @@ export async function executeApprovedAction(
       error: {
         code: "action_expired",
         message:
-          "The approval window lapsed before execution — the action has expired. Prepare a new one.",
+          "The approval window lapsed before execution, the action has expired. Prepare a new one.",
       },
     };
   }
 
   // ---- Pre-flight: re-derive the recorded world FRESH and
-  // re-validate. If the world changed, cancel honestly — never
+  // re-validate. If the world changed, cancel honestly, never
   // execute against stale assumptions.
   let snap: PredictiveProjectSnapshot | null;
   try {
@@ -554,7 +554,7 @@ export async function executeApprovedAction(
     const cancelled = await persistExecutionState(action, "cancelled", nowIso, {
       outcome: "failed",
       attemptedAt: nowIso,
-      summary: "Execution refused — recorded state unreadable.",
+      summary: "Execution refused, recorded state unreadable.",
       writtenTables: [],
       failureReason: reason,
     });
@@ -564,12 +564,12 @@ export async function executeApprovedAction(
       {
         kind: "error",
         state: "cancelled",
-        summary: `Execution of "${action.what}" was cancelled — ${reason}`,
+        summary: `Execution of "${action.what}" was cancelled, ${reason}`,
       },
       nowIso,
     );
     return invalidState(
-      `${reason} The action was cancelled — nothing was written.`,
+      `${reason} The action was cancelled, nothing was written.`,
     );
   }
   const validation = await validateActionParams(
@@ -592,12 +592,12 @@ export async function executeApprovedAction(
       {
         kind: "error",
         state: "cancelled",
-        summary: `Execution of "${action.what}" was cancelled — ${reason}`,
+        summary: `Execution of "${action.what}" was cancelled, ${reason}`,
       },
       nowIso,
     );
     return invalidState(
-      `${reason} The action was cancelled — prepare a new one against the current recorded state.`,
+      `${reason} The action was cancelled, prepare a new one against the current recorded state.`,
     );
   }
 
@@ -623,7 +623,7 @@ export async function executeApprovedAction(
       {
         kind: "execution",
         state: "failed",
-        summary: `Execution of "${action.what}" failed — ${write.error.message}`,
+        summary: `Execution of "${action.what}" failed, ${write.error.message}`,
         payload: { failureReason: write.error.message },
       },
       nowIso,
@@ -632,7 +632,7 @@ export async function executeApprovedAction(
       ok: false,
       error: {
         code: "persistence_error",
-        message: `${write.error.message} The action is marked failed — prepare a new one.`,
+        message: `${write.error.message} The action is marked failed, prepare a new one.`,
       },
     };
   }
@@ -714,7 +714,7 @@ async function performWrite(
   action: ExecutableActionRow,
   nowIso: string,
 ): Promise<AgentResult<WriteOutcome>> {
-  // Stage 12 — defensive: only registered kinds can ever reach
+  // Stage 12, defensive: only registered kinds can ever reach
   // execution (prepareAction validates at creation), but a
   // corrupted row is refused cleanly, never dispatched by fallthrough.
   if (!(action.kind in KIND_SPECS))

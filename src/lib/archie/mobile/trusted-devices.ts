@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 8 P4 — TRUSTED DEVICE ARCHITECTURE
+// FRELUX PHASE 8 P4, TRUSTED DEVICE ARCHITECTURE
 //
 // A device must be EXPLICITLY ENROLLED and AUTHORIZED before
 // ARCHIE can interact with it. Every device carries its own
@@ -21,7 +21,7 @@ import type {
 } from "./p4-types";
 
 /** Enroll a device. Two-phase: enrollment alone is NOT
- *  authorization — the user must explicitly activate before
+ *  authorization, the user must explicitly activate before
  *  ARCHIE may interact. */
 export function enrollDevice(args: {
   user_id: string;
@@ -51,7 +51,7 @@ export function enrollDevice(args: {
   };
 }
 
-/** Explicit user authorization — the second phase. Only the
+/** Explicit user authorization, the second phase. Only the
  *  owner of the device (same user) can activate it. */
 export function activateDevice(
   device: TrustedDevice,
@@ -63,7 +63,7 @@ export function activateDevice(
   if (device.enrollment_state === "REVOKED") {
     return {
       ok: false,
-      error: "A revoked device cannot be reactivated — enroll a new device",
+      error: "A revoked device cannot be reactivated, enroll a new device",
     };
   }
   if (device.enrollment_state !== "ENROLLED") {
@@ -83,7 +83,7 @@ export function mayArchieInteract(device: TrustedDevice): boolean {
 }
 
 /** Token check: digest match + not revoked. The raw token is
- *  never stored, only its digest — a stolen token is checked
+ *  never stored, only its digest, a stolen token is checked
  *  against the CURRENT digest (rotation invalidates old). */
 export function verifyDeviceToken(
   device: TrustedDevice,
@@ -113,7 +113,7 @@ export function rotateDeviceToken(
   };
 }
 
-/** Revoke a device (lost/stolen/disowned). Terminal — a new
+/** Revoke a device (lost/stolen/disowned). Terminal, a new
  *  enrollment is required to use the hardware again. */
 export function revokeDevice(
   device: TrustedDevice,
@@ -135,7 +135,7 @@ export function suspendDevice(device: TrustedDevice): TrustedDevice {
 }
 
 /** Suspicious-session detection: evidence-based signals raise
- *  the security status. Never a silent judgement — the flags
+ *  the security status. Never a silent judgement, the flags
  *  are surfaced to the user as security alerts. */
 export function detectSuspiciousActivity(
   device: TrustedDevice,
@@ -202,7 +202,7 @@ export function revokeDeviceCategory(
 
 /** The stolen-device workflow decision: revoke the device,
  *  revoke all its sessions, clear local caches via the 8b
- *  stolen-phone path, and alert. The vault stays safe —
+ *  stolen-phone path, and alert. The vault stays safe :
  *  protected data is AES-GCM ciphertext needing the user's
  *  passphrase, which the thief does not have. */
 export function stolenDeviceResponse(device: TrustedDevice): {
@@ -217,7 +217,7 @@ export function stolenDeviceResponse(device: TrustedDevice): {
       "revoke all sessions for this device (Phase 8b session revocation)",
       "clear local protected caches on next app open (Phase 8b validateCurrentSession)",
       "record a critical security event and notify the user",
-      "protected vault data remains ciphertext — passphrase not present on the device",
+      "protected vault data remains ciphertext, passphrase not present on the device",
     ],
   };
 }

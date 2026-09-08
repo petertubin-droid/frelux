@@ -1,5 +1,5 @@
 /**
- * FRELUX PROPERTY INTELLIGENCE — INVESTMENT METRICS
+ * FRELUX PROPERTY INTELLIGENCE, INVESTMENT METRICS
  *
  * Prompt 4, Phases 11 + 17: deterministic decision-support metrics.
  *
@@ -27,14 +27,14 @@ export interface MetricInput {
 
 export interface MetricResult {
   status: MetricStatus;
-  /** The value — only present when status is 'calculated'. */
+  /** The value, only present when status is 'calculated'. */
   value?: number;
   unit: "percent" | "currency";
   currency?: string;
   formula: string;
   inputs: MetricInput[];
   assumptions: string[];
-  /** Present for insufficient_data/invalid_input — the traceable reason. */
+  /** Present for insufficient_data/invalid_input, the traceable reason. */
   reason?: string;
 }
 
@@ -51,11 +51,11 @@ export interface RentalYieldInput {
   rent: { amount: number; period: "monthly" | "annual"; currency: string };
   /**
    * Property price to yield against. Which price this is (asking /
-   * verified transaction / FRELUX estimate) is the caller's responsibility —
+   * verified transaction / FRELUX estimate) is the caller's responsibility :
    * it must be labelled in the UI and must be in the same currency.
    */
   propertyPrice: { amount: number; currency: string };
-  /** Provenance of the price — recorded in assumptions, not invented. */
+  /** Provenance of the price, recorded in assumptions, not invented. */
   priceLabel?: string;
 }
 
@@ -185,7 +185,7 @@ export interface DevelopmentCostInput {
   purchaseCost?: { amount: number; currency: string };
   constructionCost?: { amount: number; currency: string; /** e.g. "Construction Intelligence estimate" */ source: string };
   otherKnownCosts?: Array<{ label: string; amount: number; currency: string }>;
-  /** Cost items that exist but are UNPRICED — tracked, never guessed. */
+  /** Cost items that exist but are UNPRICED, tracked, never guessed. */
   unpricedItems?: string[];
 }
 

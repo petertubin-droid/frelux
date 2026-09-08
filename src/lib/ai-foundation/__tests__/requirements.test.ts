@@ -29,7 +29,7 @@ function userFact(key: string, value: number | string, label = key): AiFact {
 }
 
 describe('requirements resolution', () => {
-  it('uses stated values first — user_input wins over everything', () => {
+  it('uses stated values first, user_input wins over everything', () => {
     const resolution = resolveRequirements('building_estimate', context, [
       userFact('building_length', 18),
       userFact('building_width', 12),
@@ -39,7 +39,7 @@ describe('requirements resolution', () => {
     expect(resolution.missing).toHaveLength(0);
   });
 
-  it('does not re-ask — fills the rest from smart defaults as visible assumptions', () => {
+  it('does not re-ask, fills the rest from smart defaults as visible assumptions', () => {
     const resolution = resolveRequirements('building_estimate', context, [
       userFact('building_length', 18),
       userFact('building_width', 12),

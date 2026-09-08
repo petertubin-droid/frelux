@@ -1,12 +1,12 @@
 // =========================================================
-// FRELUX PHASE 8b — PROTECTED DATA VAULT
+// FRELUX PHASE 8b, PROTECTED DATA VAULT
 //
 // The user EXPLICITLY selects important FRELUX data to protect.
 // Protecting an item:
 //   1. encrypts it on-device (AES-256-GCM, PBKDF2 key from the
-//      user's passphrase — never stored anywhere)
+//      user's passphrase, never stored anywhere)
 //   2. uploads ONLY ciphertext to the private archie-protected
-//      bucket (secure cloud backup — the phone is never the
+//      bucket (secure cloud backup, the phone is never the
 //      only copy)
 //   3. keeps a version history for every change
 //   4. records a security event
@@ -28,7 +28,7 @@ export const PROTECTED_BUCKET = "archie-protected";
 export const LOCAL_CACHE_PREFIX = "frelux:protected-cache:";
 
 // ---------------------------------------------------------
-// Local cache — CIPHERTEXT ONLY, per user, removable
+// Local cache, CIPHERTEXT ONLY, per user, removable
 // ---------------------------------------------------------
 function cacheKey(userId: string) {
   return `${LOCAL_CACHE_PREFIX}${userId}`;
@@ -88,13 +88,13 @@ export async function clearLocalProtectedCache(
       }
     }
   } catch {
-    /* storage may be unavailable — nothing to remove */
+    /* storage may be unavailable, nothing to remove */
   }
   return removed;
 }
 
 // ---------------------------------------------------------
-// Protect (encrypt + back up + version) — user-selected data
+// Protect (encrypt + back up + version), user-selected data
 // ---------------------------------------------------------
 async function uploadEnvelope(
   userId: string,
@@ -274,7 +274,7 @@ async function downloadEnvelope(
 }
 
 /**
- * Authenticated recovery — works on a replacement device: sign
+ * Authenticated recovery, works on a replacement device: sign
  * in, pick the item, enter the passphrase, decrypt.
  */
 export async function recoverProtectedItem(
@@ -318,7 +318,7 @@ export async function recoverProtectedItem(
   const checksum = await checksumEnvelope(envelope);
   if (ver.checksum && ver.checksum !== checksum) {
     throw new Error(
-      "Integrity check failed — the backup does not match its recorded checksum. It may have been tampered with.",
+      "Integrity check failed, the backup does not match its recorded checksum. It may have been tampered with.",
     );
   }
 

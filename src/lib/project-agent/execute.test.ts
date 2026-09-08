@@ -1,10 +1,10 @@
 // =========================================================
-// PROJECT AGENT — ACTION EXECUTION TESTS (Stage 7)
+// PROJECT AGENT, ACTION EXECUTION TESTS (Stage 7)
 //
 // Stage 7 acceptance:
 //   - This is the ONLY layer that writes project data tables.
 //   - Only an APPROVED action with an APPROVED, in-window
-//     approval executes — exactly once. Terminal is terminal.
+//     approval executes, exactly once. Terminal is terminal.
 //   - The recorded world is re-derived FRESH and re-validated
 //     before the write; a changed world CANCELS the action with
 //     the honest reason (no write).
@@ -21,11 +21,11 @@ import type { AgentLifecycleState } from "./states";
 import type { PredictiveProjectSnapshot } from "@/lib/predictive-intelligence/types";
 
 const NOW = "2026-09-07T12:00:00.000Z";
-// Approval window ends at 12:10 — active at NOW, lapsed by LATE.
+// Approval window ends at 12:10, active at NOW, lapsed by LATE.
 const LATE = "2026-09-07T12:11:00.000Z";
 
 // ---------------------------------------------------------
-// In-memory supabase — agent tables + project data tables,
+// In-memory supabase, agent tables + project data tables,
 // with per-table RLS blocking to simulate policy rejections.
 // ---------------------------------------------------------
 type Row = Record<string, unknown>;
@@ -118,7 +118,7 @@ const AGENT_TABLES = ["project_agent_actions", "project_agent_approvals"];
 vi.mock("@/lib/supabase", () => {
   function from(table: string) {
     const rows = () => db.tables[table] ?? [];
-    // Real supabase returns freshly-deserialized objects — the
+    // Real supabase returns freshly-deserialized objects, the
     // harness returns copies so rows read earlier never alias-
     // mutate when an update lands.
     const copy = (r: Row | undefined) => (r ? { ...r } : null);
@@ -160,7 +160,7 @@ vi.mock("@/lib/supabase", () => {
       update: (data: Row) => {
         db.writes.push({ table, op: "update" });
         // Like real supabase, the write applies when the eq filter
-        // is provided — with or without a trailing select().
+        // is provided, with or without a trailing select().
         // RLS blocking / silent failures only affect PROJECT data
         // tables, never the agent's own tables.
         let affected: Row | null = null;
@@ -170,7 +170,7 @@ vi.mock("@/lib/supabase", () => {
             const rlsBlocked = projectTable && db.rlsBlocked[table];
             // A silent update FABRICATES a successful result (the
             // caller sees the row as-if-written) but the stored
-            // row never changes — so verification catches it.
+            // row never changes, so verification catches it.
             const silent = projectTable && db.silentUpdate;
             if (!rlsBlocked) {
               rows().forEach((r) => {
@@ -201,7 +201,7 @@ vi.mock("@/lib/supabase", () => {
 });
 
 // ---------------------------------------------------------
-// Module mocks — session (visibility + activity) and snapshot.
+// Module mocks, session (visibility + activity) and snapshot.
 // ---------------------------------------------------------
 vi.mock("./session", () => ({
   assertProjectVisible: vi.fn(async () =>
@@ -226,7 +226,7 @@ vi.mock("./session", () => ({
   ),
 }));
 
-/** Fresh recorded snapshot — controllable per test. */
+/** Fresh recorded snapshot, controllable per test. */
 const snapState: { snap: PredictiveProjectSnapshot | null } = { snap: null };
 
 vi.mock("@/lib/predictive-intelligence/snapshot", () => ({
@@ -276,7 +276,7 @@ function baseSnapshot(): PredictiveProjectSnapshot {
 import { executeApprovedAction } from "./execute";
 
 // ---------------------------------------------------------
-// Fixtures — approved actions with approved, in-window
+// Fixtures, approved actions with approved, in-window
 // approvals (mirrors Stage 6 records).
 // ---------------------------------------------------------
 function seedAction(overrides: Partial<Row> = {}): { id: string } {
@@ -348,7 +348,7 @@ describe("action execution (§Stage 7)", () => {
     expect(db.activity.filter((e) => e.kind === "verification").length).toBe(1);
   });
 
-  it("is idempotent — an executed action never re-executes", async () => {
+  it("is idempotent, an executed action never re-executes", async () => {
     const { id } = seedAction({
       state: "verified",
       execution_result: {
@@ -368,7 +368,7 @@ describe("action execution (§Stage 7)", () => {
     expect(db.writes.length).toBe(before); // no new writes at all
   });
 
-  it("a lapsed approval window expires BOTH records — no write", async () => {
+  it("a lapsed approval window expires BOTH records, no write", async () => {
     const { id } = seedAction();
     seedApproval(id); // expires 12:10
 
@@ -401,7 +401,7 @@ describe("action execution (§Stage 7)", () => {
     expect(audit.writtenTables).toEqual([]);
   });
 
-  it("only APPROVED actions execute — other states are refused", async () => {
+  it("only APPROVED actions execute, other states are refused", async () => {
     for (const state of [
       "prepared",
       "rejected",
@@ -552,7 +552,7 @@ describe("action execution (§Stage 7)", () => {
     expect(projectWrites().length).toBe(0);
   });
 
-  it("an unreadable recorded state cancels the action — never a blind write", async () => {
+  it("an unreadable recorded state cancels the action, never a blind write", async () => {
     const { id } = seedAction();
     seedApproval(id);
     snapState.snap = null;

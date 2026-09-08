@@ -5,7 +5,7 @@ import { locationProviderRegistry } from "@/lib/location-intelligence/providers"
 import { emptyLocation } from "@/lib/location-intelligence/model";
 import type { GeolocationResult } from "@/lib/location-intelligence/providers";
 
-// ---- mock providers (registry seam — no network, no navigator) ----
+// ---- mock providers (registry seam, no network, no navigator) ----
 class MockGeo {
   next: GeolocationResult = {
     ok: true,
@@ -73,7 +73,7 @@ describe("LocationCard", () => {
     vi.restoreAllMocks();
   });
 
-  it("renders not_set state and offers GPS + search — no map provider shown as configured", () => {
+  it("renders not_set state and offers GPS + search, no map provider shown as configured", () => {
     render(<LocationCard />);
     expect(screen.getByTestId("state-not-set")).toBeTruthy();
     expect(screen.getByTestId("use-my-location")).toBeTruthy();

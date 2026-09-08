@@ -53,7 +53,7 @@ import { AdminThemeProvider, useAdminTheme } from "@/lib/admin-theme";
 import { Button } from "@/components/ui/shadcn/button";
 
 // =========================================================
-// Admin sidebar — organized into logical modules
+// Admin sidebar, organized into logical modules
 // =========================================================
 // Each module is a group with a heading and items. This replaces the
 // previous flat list and makes the admin panel scalable.

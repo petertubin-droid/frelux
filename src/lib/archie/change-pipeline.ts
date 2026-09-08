@@ -1,19 +1,19 @@
 // =========================================================
-// FRELUX PHASE 8 P3 — OWNER-GATED CHANGE PIPELINE
+// FRELUX PHASE 8 P3, OWNER-GATED CHANGE PIPELINE
 //
 // When the owner asks ARCHIE to create something, work follows:
 //
 // REQUEST → UNDERSTAND → PLAN → IMPLEMENT → TEST → REVIEW →
 // OWNER_AUTHORIZATION → APPLY
 //
-// KNOWLEDGE ≠ AUTHORITY — enforced here, not by convention:
+// KNOWLEDGE ≠ AUTHORITY, enforced here, not by convention:
 //   * ARCHIE (the AI actor) can NEVER pass OWNER_AUTHORIZATION
 //     and NEVER apply or deploy anything.
 //   * Deterministic-math / structural / foundation / safety
 //     changes additionally require a HUMAN engineer sign-off
-//     at REVIEW — ARCHIE cannot sign for them either.
+//     at REVIEW, ARCHIE cannot sign for them either.
 //   * APPLY requires a rollback plan, test evidence, and an
-//     owner authorization record — always.
+//     owner authorization record, always.
 //   * States only move forward, one step at a time.
 //
 // Production deployment itself remains a human repo/CI action
@@ -50,7 +50,7 @@ export type ChangeActor = "ARCHIE" | "CONTRIBUTOR" | "ENGINEER" | "OWNER";
 export interface ChangeRequest {
   id: string;
   title: string;
-  /** What the change touches — areas enforce risk classification. */
+  /** What the change touches, areas enforce risk classification. */
   areas: string[];
   created_by: ChangeActor;
   created_at: string;
@@ -63,7 +63,7 @@ export interface ChangeRequest {
   review_signoff_by?: ChangeActor;
   rollback_plan?: string;
   /** True when areas touch deterministic math/structural/
-   *  foundation/safety — extra human gates apply. */
+   *  foundation/safety, extra human gates apply. */
   requires_engineering_review: boolean;
   flags: string[];
 }
@@ -205,7 +205,7 @@ export function advanceChange(
   }
 }
 
-/** The fixed authority model — mirrors code-intelligence.ts. */
+/** The fixed authority model, mirrors code-intelligence.ts. */
 export const CHANGE_AUTHORITY = {
   archie_may_authorize: false,
   archie_may_apply: false,

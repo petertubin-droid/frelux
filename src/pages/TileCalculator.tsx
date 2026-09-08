@@ -940,12 +940,12 @@ export default function TileCalculator({
           <ProConnectCTA calculatorType="tile" />
         </>
       )}
-      {/* Ad slot — placement "calculator_mid" */}
+      {/* Ad slot, placement "calculator_mid" */}
       <AdSlot slotKey="calculator_mid" className="mt-8" />
-      {/* Native banner slot — placement "calculator_native" */}
+      {/* Native banner slot, placement "calculator_native" */}
       <AdSlot slotKey="calculator_native" className="mt-8" />
       <AdSlot slotKey="calculator_bottom" className="mt-8" />
-      {/* Monetag In-Page Push — placement "calculator_push"
+      {/* Monetag In-Page Push, placement "calculator_push"
           (zone ID editable in Admin → Ads → Placements) */}
       <AdSlot slotKey="calculator_push" className="mt-8" />
     </>

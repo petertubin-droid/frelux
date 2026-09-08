@@ -1,9 +1,9 @@
 // =========================================================
 // FRELUX Build-to-Roof Construction Cost Estimator
-// Types — Phase 30
+// Types, Phase 30
 //
 // Covers: site/foundation → ground floor → walls → structural frame → roof
-// Stops at "ready for finishing" — no plastering, painting, tiling, doors, etc.
+// Stops at "ready for finishing", no plastering, painting, tiling, doors, etc.
 // =========================================================
 
 // ── Enums / Union types ──
@@ -69,7 +69,7 @@ export interface StructuralMemberInput {
   width: number; // meters (or diameter for columns)
   depth: number; // meters (or thickness for slabs)
   quantity: number; // number of identical members
-  // Reinforcement (optional — from engineer's schedule)
+  // Reinforcement (optional, from engineer's schedule)
   bar_diameter_mm?: number;
   bar_count_main?: number; // number of main bars
   bar_count_links?: number; // links/stirrups per meter
@@ -96,7 +96,7 @@ export interface BuildToRoofInput {
   internal_wall_length: number; // total length of internal partition walls (m)
   internal_wall_thickness: number; // meters
 
-  // Openings (doors/windows) — used for wall deductions only
+  // Openings (doors/windows), used for wall deductions only
   openings: OpeningInput[];
 
   // Foundation
@@ -129,7 +129,7 @@ export interface BuildToRoofInput {
   roof_overhang: number; // meters
   roofing_material: RoofingMaterial;
 
-  // Structural members (optional — from engineer's schedule)
+  // Structural members (optional, from engineer's schedule)
   structural_members: StructuralMemberInput[];
   has_engineer_schedule: boolean;
 

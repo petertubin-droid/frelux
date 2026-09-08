@@ -1,9 +1,9 @@
 // =========================================================
-// FRELUX PLAN VISION — Persistence (documents & extractions)
+// FRELUX PLAN VISION, Persistence (documents & extractions)
 //
 // Secure client-side storage for construction documents:
 //   - upload validation (type + size) BEFORE any network call
-//   - PRIVATE bucket only — originals never public (§23)
+//   - PRIVATE bucket only, originals never public (§23)
 //   - RLS-enforced ownership (user_id = auth.uid() in the DB)
 //   - versioned extractions; a verified extraction is never
 //     re-processed (§24)
@@ -26,7 +26,7 @@ export const ACCEPTED_MIME_TYPES = [
   "image/heif",
 ] as const;
 
-/** Max upload size (25MB — matches the private bucket limit). */
+/** Max upload size (25MB, matches the private bucket limit). */
 export const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 
 export interface ValidationResult {
@@ -196,7 +196,7 @@ export async function fetchPlanDocuments(): Promise<{
 }
 
 /**
- * Download a document for EXTRACTION (short-lived signed URL —
+ * Download a document for EXTRACTION (short-lived signed URL :
  * private bucket contents are never exposed through public URLs).
  */
 export async function createDocumentSignedUrl(
@@ -268,7 +268,7 @@ export async function savePlanExtraction(
 }
 
 /**
- * Load the LATEST extraction of a document (§24 — callers check
+ * Load the LATEST extraction of a document (§24, callers check
  * shouldReextract() before re-running AI on it).
  */
 export async function fetchLatestExtraction(

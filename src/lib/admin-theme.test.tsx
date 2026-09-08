@@ -83,7 +83,7 @@ describe("AdminThemeProvider", () => {
       </AdminThemeProvider>,
     );
     // Admin preference (light) wins on the admin surface even though the
-    // public visitor preference is dark — the two states are independent.
+    // public visitor preference is dark, the two states are independent.
     expect(ctx!.theme).toBe("light");
     expect(document.documentElement.classList.contains("dark")).toBe(false);
   });

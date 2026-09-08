@@ -130,7 +130,7 @@ describe("sanitizeLocationRecord", () => {
 });
 
 describe("display formatting", () => {
-  it("uses only fields that exist — never fabricates", () => {
+  it("uses only fields that exist, never fabricates", () => {
     expect(formatLocationLabel(null)).toBe("Location not set");
     expect(formatLocationLabel(goodLocation())).toContain("6.5244"); // coords only
     expect(

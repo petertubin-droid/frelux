@@ -1,5 +1,5 @@
 /**
- * FRELUX LOCATION INTELLIGENCE — Regional Resolution
+ * FRELUX LOCATION INTELLIGENCE, Regional Resolution
  *
  * Location → regional context. This REUSES the existing FRELUX
  * international / market-profile architecture (market_profiles table
@@ -9,13 +9,13 @@
  * - A location only resolves when its country has an ACTIVE FRELUX
  *   regional profile.
  * - Unsupported countries resolve to status "unsupported" and the UI
- *   shows "Regional data unavailable" — Nigerian/default/demo values
+ *   shows "Regional data unavailable", Nigerian/default/demo values
  *   are NEVER substituted for another region.
  * - Coordinates alone never imply a country.
  *
  * Regional context describes the region (currency, measurement
  * system, terminology). It does NOT create prices, labour rates,
- * quantities, or standards — those come only from the existing verified
+ * quantities, or standards, those come only from the existing verified
  * market-data layers.
  */
 
@@ -37,7 +37,7 @@ export interface RegionalContext {
   country_code: string | null;
   /** Human country name from the location record, when known. */
   country_name: string | null;
-  /** Traceable reason for the resolution outcome — never a guess. */
+  /** Traceable reason for the resolution outcome, never a guess. */
   reason: string;
 
   // ---- Present only when status === "available": ----
@@ -68,12 +68,12 @@ export interface RegionalDataSourceRow {
 export type RegionalProfileLookup = (code: string) => Promise<RegionalDataSourceRow | null>;
 
 // ============================================================
-// Production lookup — market_profiles via Supabase
+// Production lookup, market_profiles via Supabase
 // ============================================================
 
 /**
  * Fetch a regional (market) profile by country code.
- * Only ACTIVE profiles count as available — "coming_soon" markets are
+ * Only ACTIVE profiles count as available, "coming_soon" markets are
  * honestly reported as unavailable, matching isMarketSupported().
  */
 export const fetchRegionalProfileFromDb: RegionalProfileLookup = async (code) => {
@@ -107,7 +107,7 @@ function isUsableProfile(row: RegionalDataSourceRow | null): boolean {
 /**
  * Resolve a canonical location into regional context.
  *
- * Trace: location.country_code (provider-verified or user-entered —
+ * Trace: location.country_code (provider-verified or user-entered :
  * never inferred from coordinates) → market_profiles lookup →
  * regional context for Construction Intelligence, Property
  * Intelligence, estimators, and future marketplace/market layers.
@@ -133,7 +133,7 @@ export async function resolveRegionalContext(
       country_code: null,
       country_name: location.country ?? null,
       reason: location.latitude !== null && location.longitude !== null
-        ? "Coordinates were captured, but the country could not be verified. Reverse geocoding may be unavailable — enter or confirm the country to resolve regional data."
+        ? "Coordinates were captured, but the country could not be verified. Reverse geocoding may be unavailable, enter or confirm the country to resolve regional data."
         : "The country for this location is unknown. Confirm the country to resolve regional data. FRELUX does not guess the region.",
     };
   }

@@ -91,7 +91,7 @@ const popMaterials: DbPopMaterial[] = [
     labour_rate_per_sqm: 1500,
     sort_order: 5,
   }),
-  // Inactive material — should always be filtered out
+  // Inactive material, should always be filtered out
   makePopMaterial({
     id: "pop-inactive",
     category: "primary",
@@ -101,7 +101,7 @@ const popMaterials: DbPopMaterial[] = [
     is_active: false,
     sort_order: 0,
   }),
-  // International workflow material — should be filtered out for nigeria workflow
+  // International workflow material, should be filtered out for nigeria workflow
   makePopMaterial({
     id: "pop-intl",
     workflow: "international",
@@ -257,7 +257,7 @@ describe("calculatePopCeiling", () => {
   it("excludes labour category materials from calculation", () => {
     const result = calculatePopCeiling(basePopInput, popMaterials, "NGN", "₦");
     const labourItem = result.materials.find((m) => m.name === "POP Labour");
-    // Labour is excluded — not included in results
+    // Labour is excluded, not included in results
     expect(labourItem).toBeUndefined();
     // Labour cost is 0
     expect(result.labourCost).toBe(0);
@@ -637,7 +637,7 @@ describe("Waste margin clamping", () => {
     const input: PopCalcInput = {
       roomLength: 4,
       roomWidth: 4,
-      wasteMargin: -10, // negative — should be clamped to 0
+      wasteMargin: -10, // negative, should be clamped to 0
       workflow: "nigeria",
       includeDecorative: false,
       includeOptional: false,
@@ -676,7 +676,7 @@ describe("Waste margin clamping", () => {
     const input: PopCalcInput = {
       roomLength: 4,
       roomWidth: 4,
-      wasteMargin: 200, // > 100 — should be clamped to 100
+      wasteMargin: 200, // > 100, should be clamped to 100
       workflow: "nigeria",
       includeDecorative: false,
       includeOptional: false,
@@ -735,7 +735,7 @@ describe("Waste margin clamping", () => {
       spacerCoverageRate: 0,
       spacerPackageSize: 0,
       spacerPricePerPack: 0,
-      wasteMargin: -20, // negative — should be clamped to 0
+      wasteMargin: -20, // negative, should be clamped to 0
       labourRatePerSqm: 0,
     };
     const materials: DbTileMaterial[] = [];

@@ -1,5 +1,5 @@
 // =========================================================
-// PROJECT AGENT — SESSION / MEMORY / ACTIVITY TESTS (Stage 1)
+// PROJECT AGENT, SESSION / MEMORY / ACTIVITY TESTS (Stage 1)
 //
 // Acceptance coverage:
 //   - project isolation: an unseen project → project_not_found,
@@ -27,7 +27,7 @@ vi.mock("@/lib/supabase", () => {
     limit: ReturnType<typeof vi.fn>;
     maybeSingle: ReturnType<typeof vi.fn>;
     onConflict: ReturnType<typeof vi.fn>;
-    /** captured eq() value — the row key being selected. */
+    /** captured eq() value, the row key being selected. */
     __lastEq: string;
   }
   const state: {
@@ -48,7 +48,7 @@ vi.mock("@/lib/supabase", () => {
       return { error: null };
     });
     chain.update = vi.fn((patch: Record<string, unknown>) => {
-      // supabase update().select().eq().maybeSingle() chain — returns
+      // supabase update().select().eq().maybeSingle() chain, returns
       // the patched row so callers see the persisted state.
       const sel = {
         select: vi.fn(() => sel),
@@ -271,7 +271,7 @@ describe("session persistence & reload/recovery", () => {
     if (!result.ok) expect(result.error.code).toBe("invalid_state");
   });
 
-  it("supabase failures surface as persistence errors — never fabricated state", async () => {
+  it("supabase failures surface as persistence errors, never fabricated state", async () => {
     typedSupabase.__state.failTables = ["project_agent_sessions"];
     const result = await loadAgentSession("proj-1", NOW);
     expect(result.ok).toBe(false);
@@ -368,7 +368,7 @@ describe("activity history (audit trail)", () => {
     }
   });
 
-  it("a failed write returns an error — history is never silently lost", async () => {
+  it("a failed write returns an error, history is never silently lost", async () => {
     typedSupabase.__state.failTables = ["project_agent_activity"];
     const result = await recordActivity(
       "proj-1",

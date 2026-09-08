@@ -1,9 +1,9 @@
 // =========================================================
-// FRELUX PROJECT AGENT — REGIONAL RESOLUTION (Phase 6, Stage 11)
+// FRELUX PROJECT AGENT, REGIONAL RESOLUTION (Phase 6, Stage 11)
 //
 // Global & regional validation. Every market-facing string the
 // agent produces (money, units, terminology) must honour the
-// project's RECORDED market — never silently substitute
+// project's RECORDED market, never silently substitute
 // Nigerian data for another region.
 //
 // Contract:
@@ -14,7 +14,7 @@
 //     currency symbol / locale / unit system.
 //   - An UNSUPPORTED market -> an explicit unavailable state.
 //     Formatting falls back to a bare, unlabeled number with an
-//     honest marker — never another region's symbol.
+//     honest marker, never another region's symbol.
 // =========================================================
 
 import {
@@ -31,7 +31,7 @@ export type MarketResolution =
       isDefault: boolean;
     }
   | {
-      /** The project's market is recorded but NOT supported —
+      /** The project's market is recorded but NOT supported :
        *  no profile exists. Explicitly unavailable. */
       status: "unsupported";
       marketCode: string;
@@ -83,7 +83,7 @@ export function formatMoney(
   return `${market.profile.currencySymbol}${n}`;
 }
 
-/** Signed money — "+₦1,000" / "-₦800", never "₦-800". */
+/** Signed money, "+₦1,000" / "-₦800", never "₦-800". */
 export function formatSignedMoney(
   delta: number,
   marketCode: string | null | undefined,
@@ -93,7 +93,7 @@ export function formatSignedMoney(
 }
 
 /**
- * A one-line market note for agent output — states plainly when
+ * A one-line market note for agent output, states plainly when
  * the default market was assumed, or when the market is
  * unsupported. Empty string when the market is confirmed.
  */
@@ -102,10 +102,10 @@ export function marketNote(
 ): string {
   const market = resolveMarket(marketCode);
   if (market.status === "unsupported") {
-    return `Market "${market.marketCode}" is not supported by FRELUX — regional pricing and conventions are unavailable for this project, and no other region's data has been substituted.`;
+    return `Market "${market.marketCode}" is not supported by FRELUX, regional pricing and conventions are unavailable for this project, and no other region's data has been substituted.`;
   }
   if (market.isDefault) {
-    return `No market recorded for this project — FRELUX platform defaults (Nigeria: ₦, metric) are being used.`;
+    return `No market recorded for this project, FRELUX platform defaults (Nigeria: ₦, metric) are being used.`;
   }
   return "";
 }

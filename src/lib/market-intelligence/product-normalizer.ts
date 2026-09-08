@@ -1,5 +1,5 @@
 /**
- * FRELUX MARKET INTELLIGENCE — Product Normalizer
+ * FRELUX MARKET INTELLIGENCE, Product Normalizer
  *
  * Normalizes raw product names from different sources into canonical FRELUX products.
  * Different websites describe the same product differently.
@@ -112,7 +112,7 @@ export function extractBrand(rawName: string): string | null {
 
 /**
  * Normalize a raw product name into a cleaner canonical form.
- * Does NOT invent information — only cleans what exists.
+ * Does NOT invent information, only cleans what exists.
  */
 export function normalizeProductName(rawName: string): string {
   return (
@@ -185,7 +185,7 @@ export function calculateMatchConfidence(
   const rawLower = rawName.toLowerCase();
   const canonLower = canonical.name.toLowerCase();
 
-  // Name similarity (Levenshtein-ish — check for key term overlap)
+  // Name similarity (Levenshtein-ish, check for key term overlap)
   const rawTerms = new Set(rawLower.split(/\s+/).filter((t) => t.length > 2));
   const canonTerms = new Set(
     canonLower.split(/\s+/).filter((t) => t.length > 2),
@@ -269,7 +269,7 @@ export function normalizeProduct(rawName: string): {
 
 /**
  * Calculate unit price (per kg or per litre) if the data supports it.
- * NEVER invents — only computes when package info is available.
+ * NEVER invents, only computes when package info is available.
  */
 export function calculateUnitPrice(
   price: number,

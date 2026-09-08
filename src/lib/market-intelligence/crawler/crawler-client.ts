@@ -1,5 +1,5 @@
 /**
- * FRELUX DIRECT CRAWLER — Admin Client
+ * FRELUX DIRECT CRAWLER, Admin Client
  *
  * Client-side functions for admin crawl actions.
  * Calls the Supabase Edge Function for server-side execution.

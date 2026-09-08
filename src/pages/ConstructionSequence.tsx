@@ -148,7 +148,7 @@ export default function ConstructionSequence() {
             ))}
           </div>
 
-          {/* Related calculators — shown once for the whole sequence, not per step */}
+          {/* Related calculators, shown once for the whole sequence, not per step */}
           <RelatedTools
             links={[
               CALC_LINKS.buildToRoof,

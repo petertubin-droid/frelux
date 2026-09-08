@@ -98,7 +98,7 @@ export interface CalculationRule {
   category: RuleCategory;
   /** Scope: global, country, market, user */
   scope: RuleScope;
-  /** Country code (for country/market scope) — ISO 3166-1 alpha-2 */
+  /** Country code (for country/market scope), ISO 3166-1 alpha-2 */
   countryCode?: string;
   /** Market/region code (for market scope) */
   marketCode?: string;
@@ -294,7 +294,7 @@ export function getRuleParameter(
 
 /**
  * Create the built-in global geometry rules.
- * These are universal mathematical rules — no country assumptions.
+ * These are universal mathematical rules, no country assumptions.
  */
 export function createGlobalGeometryRules(): CalculationRule[] {
   const now = new Date().toISOString();

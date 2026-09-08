@@ -1,5 +1,5 @@
 /**
- * Tests for the Space Engine (Feature 2 — Space Engine)
+ * Tests for the Space Engine (Feature 2, Space Engine)
  *
  * Tests:
  * - Space creation and defaults
@@ -74,7 +74,7 @@ describe("Space Creation", () => {
   });
 });
 
-describe("Space Calculation — Single Room", () => {
+describe("Space Calculation, Single Room", () => {
   it("calculates wall area for a 12×12×10 ft room", () => {
     const space = createSpace({
       name: "Bedroom",

@@ -3,9 +3,9 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 // ---------------------------------------------------------
-// FRELUX PHASE 7 — ADMIN API KEYS TESTS
+// FRELUX PHASE 7, ADMIN API KEYS TESTS
 // Verifies the operator surface:
-//   * keys listed masked — key_hash never rendered
+//   * keys listed masked, key_hash never rendered
 //   * plan/quota/status controls call the RLS client
 //   * revocation and restore toggle key status
 // ---------------------------------------------------------

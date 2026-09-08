@@ -1,5 +1,5 @@
 // =========================================================
-// PHASE 2 TESTS — AI Copilot ↔ deterministic engine parity
+// PHASE 2 TESTS, AI Copilot ↔ deterministic engine parity
 //
 // THE contract test: for identical inputs, the engine invoked
 // through the Copilot path (executeEngine) must produce EXACTLY
@@ -36,11 +36,11 @@ function statedFact(key: string, value: AiFact['value'], unit?: string): AiFact 
 // =========================================================
 // PARITY: painting (manual calculator vs Copilot engine path)
 // =========================================================
-describe('PARITY — painting materials engine matches the manual calculator exactly', () => {
+describe('PARITY, painting materials engine matches the manual calculator exactly', () => {
   it('produces the exact same litres, containers and areas as calculatePaint', async () => {
     const { calculatePaint, DEFAULT_COVERAGE_M2_PER_LITER, DEFAULT_CONTAINER_SIZES_LITERS, DEFAULT_DOOR_DIMS, DEFAULT_WINDOW_DIMS } = await import('@/lib/calc');
 
-    // Manual calculator invocation — exactly what the UI does.
+    // Manual calculator invocation, exactly what the UI does.
     const manual = calculatePaint(
       {
         projectType: 'room' as never,
@@ -64,7 +64,7 @@ describe('PARITY — painting materials engine matches the manual calculator exa
 
     expect(viaCopilot.ok).toBe(true);
     const raw = viaCopilot.raw as typeof manual;
-    // EXACT parity — every number identical.
+    // EXACT parity, every number identical.
     expect(raw.paintableArea).toBe(manual.paintableArea);
     expect(raw.paintRequiredLiters).toBe(manual.paintRequiredLiters);
     expect(raw.adjustedLiters).toBe(manual.adjustedLiters);
@@ -99,7 +99,7 @@ describe('PARITY — painting materials engine matches the manual calculator exa
 // =========================================================
 // PARITY: tile
 // =========================================================
-describe('PARITY — tile engine matches the manual tile calculator exactly', () => {
+describe('PARITY, tile engine matches the manual tile calculator exactly', () => {
   it('produces the exact same tile/box counts and costs', async () => {
     const { calculateTile } = await import('@/lib/pop-tile-calc');
     const shared = {
@@ -142,9 +142,9 @@ describe('PARITY — tile engine matches the manual tile calculator exactly', ()
 });
 
 // =========================================================
-// PARITY: POP ceiling (materials supplied — no DB in tests)
+// PARITY: POP ceiling (materials supplied, no DB in tests)
 // =========================================================
-describe('PARITY — POP ceiling engine matches the manual POP calculator', () => {
+describe('PARITY, POP ceiling engine matches the manual POP calculator', () => {
   const materials = [
     {
       id: 'm1', workflow: 'nigeria', category: 'board',
@@ -185,9 +185,9 @@ describe('PARITY — POP ceiling engine matches the manual POP calculator', () =
 });
 
 // =========================================================
-// PARITY: screeding system (config supplied — no DB in tests)
+// PARITY: screeding system (config supplied, no DB in tests)
 // =========================================================
-describe('PARITY — screeding engine matches the manual screeding calculator', () => {
+describe('PARITY, screeding engine matches the manual screeding calculator', () => {
   it('produces the exact same quantities as calculateScreedingSystem', async () => {
     const { calculateScreedingSystem, dbToSystemConfig } = await import('@/lib/calc');
     const dbRow = {
@@ -312,7 +312,7 @@ describe('unit conversion at the engine boundary', () => {
     // resolve adds no defaults for these fields; wall dims are all present
     expect(res.missing).toEqual([]);
     const input = buildEngineInput(res) as Record<string, unknown>;
-    expect(input.roomLength).toBe(16); // untouched — engine converts itself
+    expect(input.roomLength).toBe(16); // untouched, engine converts itself
     expect(input.unit).toBe('feet');
   });
 
@@ -344,7 +344,7 @@ describe('Phase 2 engine registry integrity', () => {
     }
   });
 
-  it('still refuses unregistered engines — no silent AI math fallback', async () => {
+  it('still refuses unregistered engines, no silent AI math fallback', async () => {
     await expect(executeEngine('does_not_exist', {})).rejects.toThrow(EngineNotRegisteredError);
   });
 

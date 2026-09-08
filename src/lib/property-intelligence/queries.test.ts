@@ -1,5 +1,5 @@
 /**
- * Property Intelligence — persistence mapping tests.
+ * Property Intelligence, persistence mapping tests.
  * Pure row <-> profile mapping; NULL stays undefined, never guessed.
  */
 
@@ -48,7 +48,7 @@ describe("rowToProfile", () => {
     expect(p.constructionStatus).toBe("completed");
   });
 
-  it("keeps NULLs undefined — never defaults", () => {
+  it("keeps NULLs undefined, never defaults", () => {
     const p = rowToProfile(
       makeRow({
         name: null,
@@ -106,7 +106,7 @@ describe("profileToRowInput", () => {
     });
   });
 
-  it("omits fields that are absent (undefined) — no stale clears", () => {
+  it("omits fields that are absent (undefined), no stale clears", () => {
     const input = profileToRowInput({
       name: undefined,
       location: { country: "NG" },

@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 6.5 ALPHA — EXTERNAL WEB INTELLIGENCE TESTS
+// FRELUX PHASE 6.5 ALPHA, EXTERNAL WEB INTELLIGENCE TESTS
 //
 // Tests import the REAL production modules (the pure edge-
 // function files the crawler itself runs) plus the existing
@@ -425,14 +425,14 @@ describe("SSRF prevention", () => {
 // ---------------------------------------------------------
 describe("Content extraction (products, prices, currency, dates)", () => {
   const PAGE = `<!doctype html><html><head>
-    <title>BUA Cement 50kg Bag — Buy Online</title>
+    <title>BUA Cement 50kg Bag, Buy Online</title>
     <meta property="og:title" content="BUA Cement 50kg Bag">
     <meta property="og:site_name" content="BUA Industries">
     <meta property="article:published_time" content="2026-09-01T08:00:00Z">
     <meta name="description" content="Grade 42.5 cement, 50kg bag. Coverage: 2 bags per 9-inch block wall per course.">
     </head><body>
     <h1>BUA Cement 50kg Bag</h1>
-    <p>Price: ₦9,500 per 50kg bag. In stock — ready for delivery in Lagos.</p>
+    <p>Price: ₦9,500 per 50kg bag. In stock, ready for delivery in Lagos.</p>
     <p>Coverage: approximately 2 bags per square metre of 9-inch block wall.</p>
     <p>Application: mix ratio 1:3 for screeding per BS EN 197-1 standard.</p>
     </body></html>`;
@@ -556,7 +556,7 @@ describe("Price intelligence (append-only history)", () => {
     expect(s.trendPerDay).not.toBeNull(); // enough history for a trend
   });
 
-  it("price changes APPEND new observations — history is never destroyed", () => {
+  it("price changes APPEND new observations, history is never destroyed", () => {
     // ₦50,000 → ₦57,000: both retained
     const obs = [mkObs(50000, 30), mkObs(50000, 20), mkObs(57000, 2)];
     const s = computePriceStats(obs);
@@ -565,7 +565,7 @@ describe("Price intelligence (append-only history)", () => {
     expect(s.max).toBe(57000);
   });
 
-  it("regional differences are isolated — UK data never bleeds into Nigeria", () => {
+  it("regional differences are isolated, UK data never bleeds into Nigeria", () => {
     const obs = [
       mkObs(50000, 1, "Lagos", "NG"),
       { ...mkObs(6.5, 1, "London", "UK"), currency: "GBP" },
@@ -582,7 +582,7 @@ describe("Price intelligence (append-only history)", () => {
     expect(regionMatches("REGIONAL", "NG", "UK")).toBe(false);
   });
 
-  it("empty history is honest — no fabricated stats", () => {
+  it("empty history is honest, no fabricated stats", () => {
     const s = computePriceStats([]);
     expect(s.count).toBe(0);
     expect(s.median).toBeNull();

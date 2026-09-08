@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PHASE 6.5 — LEARNING ENGINE TEST SUITE
+// FRELUX PHASE 6.5, LEARNING ENGINE TEST SUITE
 //
 // Covers the 25 required areas: ARCHIE ingestion lifecycle and
 // security, Gemini/OpenAI/user-correction/outcome learning,
@@ -814,7 +814,7 @@ describe("evaluation engine", () => {
 });
 
 // ---------------------------------------------------------
-// 13: unified engine — all sources flow through the same store
+// 13: unified engine, all sources flow through the same store
 // ---------------------------------------------------------
 describe("unified Learning Engine", () => {
   it("all sources share one event stream and one review lifecycle", async () => {

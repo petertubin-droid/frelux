@@ -1,5 +1,5 @@
 /**
- * Property Intelligence — metrics tests (Prompt 4, Phase 19: mathematical).
+ * Property Intelligence, metrics tests (Prompt 4, Phase 19: mathematical).
  *
  * Deterministic, unit-safe, currency-safe. No silent mixing of periods,
  * currencies, or missing values.
@@ -53,7 +53,7 @@ describe("grossRentalYield", () => {
     expect(result.value).toBeUndefined();
   });
 
-  it("does not prematurely round — precision preserved", () => {
+  it("does not prematurely round, precision preserved", () => {
     const result = grossRentalYield({
       rent: { amount: 100_000, period: "monthly", currency: "NGN" },
       propertyPrice: { amount: 9_850_000, currency: "NGN" },
@@ -74,7 +74,7 @@ describe("netRentalYield", () => {
     expect(result.value).toBeCloseTo(1_000_000 / 12_000_000 * 100, 10);
   });
 
-  it("returns insufficient_data without expenses — never guesses them", () => {
+  it("returns insufficient_data without expenses, never guesses them", () => {
     const result = netRentalYield({
       rent: { amount: 1_200_000, period: "annual", currency: "NGN" },
       propertyPrice: { amount: 12_000_000, currency: "NGN" },
@@ -124,7 +124,7 @@ describe("totalDevelopmentCost", () => {
     expect(result.totalKnownCost).toBeUndefined();
   });
 
-  it("tracks unpriced items explicitly — the true cost is stated as higher", () => {
+  it("tracks unpriced items explicitly, the true cost is stated as higher", () => {
     const result = totalDevelopmentCost({
       currency: "NGN",
       purchaseCost: { amount: 5_000_000, currency: "NGN" },

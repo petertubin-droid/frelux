@@ -1,11 +1,11 @@
 /**
- * FRELUX INTERNATIONAL ARCHITECTURE — Measurement Bridge
+ * FRELUX INTERNATIONAL ARCHITECTURE, Measurement Bridge
  *
  * Bridges the existing measurement system (src/lib/measurement/units.ts)
  * with the market context. Provides unit preferences from the market
  * without modifying the existing measurement system.
  *
- * This is an ADAPTER — it wraps existing functionality, does not replace it.
+ * This is an ADAPTER, it wraps existing functionality, does not replace it.
  */
 
 import type { ResolvedMarketContext, PreferredLengthUnit, PreferredAreaUnit } from '@/types/international';
@@ -67,7 +67,7 @@ export function isAreaUnitSupported(
 }
 
 /**
- * Get a safe length unit for the market — falls back to default if unsupported.
+ * Get a safe length unit for the market, falls back to default if unsupported.
  */
 export function getSafeLengthUnit(
   market: ResolvedMarketContext,
@@ -78,7 +78,7 @@ export function getSafeLengthUnit(
 }
 
 /**
- * Get a safe area unit for the market — falls back to default if unsupported.
+ * Get a safe area unit for the market, falls back to default if unsupported.
  */
 export function getSafeAreaUnit(
   market: ResolvedMarketContext,

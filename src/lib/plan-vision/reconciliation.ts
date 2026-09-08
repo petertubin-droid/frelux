@@ -1,9 +1,9 @@
 // =========================================================
-// FRELUX PLAN VISION — Multi-Document Reconciliation (§15)
+// FRELUX PLAN VISION, Multi-Document Reconciliation (§15)
 //
 // Information from MULTIPLE documents (floor plan + roof plan +
 // elevations + photos…) contributes to the same project. When
-// documents conflict, the system NEVER silently chooses one —
+// documents conflict, the system NEVER silently chooses one :
 // the conflict is surfaced and requires user confirmation.
 //
 // Photos NEVER outrank dimensioned drawings (§16): when a
@@ -44,7 +44,7 @@ const RECONCILABLE_FACT_KEYS = new Set([
 /**
  * Collect a canonical fact from every extraction that carries it.
  * Values are compared unit-safely (a metric plan and an imperial
- * elevation can both be right — metres are the comparison basis).
+ * elevation can both be right, metres are the comparison basis).
  */
 export function collectFactCandidates(
   extractions: PlanExtraction[],
@@ -85,7 +85,7 @@ export function collectFactCandidates(
 /**
  * Detect conflicts between documents for every reconcilable fact.
  * A conflict exists only when two non-unknown values differ beyond
- * tolerance — unknowns are NEVER treated as disagreements.
+ * tolerance, unknowns are NEVER treated as disagreements.
  */
 export function detectDocumentConflicts(
   extractions: PlanExtraction[],
@@ -148,7 +148,7 @@ export function detectDocumentConflicts(
 }
 
 // =========================================================
-// MERGE — a single reconciled view for review
+// MERGE, a single reconciled view for review
 // =========================================================
 
 /**
@@ -162,7 +162,7 @@ export interface DocumentReliabilityMap {
 
 /**
  * Merge rooms from all extractions. Rooms are keyed by
- * name-normalized identity — different documents describing the
+ * name-normalized identity, different documents describing the
  * SAME room merge into one review row; overlapping names with
  * contradictory dimensions become conflicts instead of a silent
  * choice.
@@ -186,7 +186,7 @@ export function mergeRooms(extractions: PlanExtraction[]): {
         merged.push(room);
         continue;
       }
-      // Same room from two documents — check the dimensions agree.
+      // Same room from two documents, check the dimensions agree.
       const a = match.length;
       const b = room.length;
       if (
@@ -226,7 +226,7 @@ export function mergeRooms(extractions: PlanExtraction[]): {
 /**
  * Merge building facts across documents into ONE reconciled set.
  * When all documents agree (within tolerance) the fact carries all
- * provenance refs. When they disagree, the conflict is surfaced —
+ * provenance refs. When they disagree, the conflict is surfaced :
  * no silent resolution (§15).
  */
 export function mergeBuildingFacts(extractions: PlanExtraction[]): {
@@ -244,7 +244,7 @@ export function mergeBuildingFacts(extractions: PlanExtraction[]): {
       if (fact.reviewStatus === "user_rejected") continue;
       if (seen.has(fact.key)) continue;
       if (conflictKeys.has(fact.key)) {
-        // Conflicting fact — include the first candidate for review,
+        // Conflicting fact, include the first candidate for review,
         // the conflict itself is carried in `conflicts`.
         seen.add(fact.key);
         facts.push(fact);
@@ -262,7 +262,7 @@ export function mergeBuildingFacts(extractions: PlanExtraction[]): {
  * Choose the suggested candidate for a conflict: dimensioned
  * drawings outrank undimensioned drawings outrank photos (§16),
  * then higher dimension kind (explicit > inferred), then
- * confidence. A SUGGESTION only — the user still confirms.
+ * confidence. A SUGGESTION only, the user still confirms.
  */
 export function suggestConflictCandidate(
   conflict: DocumentConflict,
@@ -294,7 +294,7 @@ export function suggestConflictCandidate(
 }
 
 /**
- * Apply a user's conflict resolution (§15 — the user, never the
+ * Apply a user's conflict resolution (§15, the user, never the
  * system, decides). Returns the updated conflicts array.
  */
 export function resolveConflict(

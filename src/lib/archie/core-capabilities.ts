@@ -1,10 +1,10 @@
 // =========================================================
-// FRELUX PHASE 8 FINAL — ARCHIE ↔ FRELUX CORE REGISTRY
+// FRELUX PHASE 8 FINAL, ARCHIE ↔ FRELUX CORE REGISTRY
 //
 // ARCHIE is not an isolated chatbot: it is wired to the real
 // FRELUX application core. This registry binds every major
 // capability to its REAL implementation module and its REAL
-// exported entry functions — no simulated, placeholder or
+// exported entry functions, no simulated, placeholder or
 // duplicate bindings. core-orchestrator verifies every
 // binding by dynamically importing the actual module and
 // confirming the exported functions exist, so a disconnected
@@ -33,7 +33,7 @@ export interface CoreSystemBinding {
   label: string;
   /** The prompt's capability family. */
   family: string;
-  /** REAL module specifier — dynamically imported for every
+  /** REAL module specifier, dynamically imported for every
    *  health check and for actual invocation. */
   module: string;
   /** REAL exported function names in that module. The health
@@ -67,7 +67,7 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
     exports: ["listEngines", "registerEngine"],
     deterministic: true,
     autonomy: "ARCHIE_AUTONOMOUS",
-    note: "Phase 2 engine registry — every deterministic calculator ARCHIE selects must be registered here.",
+    note: "Phase 2 engine registry, every deterministic calculator ARCHIE selects must be registered here.",
   },
   {
     key: "CALCULATORS",
@@ -87,7 +87,7 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
     exports: ["saveLocalProject", "getLocalProjects", "getLocalProjectsByType"],
     deterministic: false,
     autonomy: "AUTONOMOUS_READS_GATED_WRITES",
-    note: "User's own project data — reads autonomous, writes stay user-owned.",
+    note: "User's own project data, reads autonomous, writes stay user-owned.",
   },
   {
     key: "CONTRACTOR_INTELLIGENCE",
@@ -97,7 +97,7 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
     exports: ["createContractorProject", "fetchContractorProjects", "fetchContractorProject"],
     deterministic: false,
     autonomy: "AUTONOMOUS_READS_GATED_WRITES",
-    note: "Contractor projects (Pro Connect) — RLS-shaped, user-scoped.",
+    note: "Contractor projects (Pro Connect), RLS-shaped, user-scoped.",
   },
   {
     key: "MATERIALS_ESTIMATES",
@@ -147,7 +147,7 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
     exports: ["isEligibleWebSource", "wrapAsUntrustedData", "canAdvanceWebIntel"],
     deterministic: false,
     autonomy: "ARCHIE_AUTONOMOUS",
-    note: "Eligible-source checks + untrusted-data wrapping — external content never trusted blindly.",
+    note: "Eligible-source checks + untrusted-data wrapping, external content never trusted blindly.",
   },
   {
     key: "KNOWLEDGE_LEARNING",
@@ -157,7 +157,7 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
     exports: ["checkPromotion", "evaluateScopePromotion", "regionMatches"],
     deterministic: false,
     autonomy: "OWNER_GATED",
-    note: "Phase 6.5 knowledge governance: scope promotion needs human approval — ARCHIE reads, never promotes alone.",
+    note: "Phase 6.5 knowledge governance: scope promotion needs human approval, ARCHIE reads, never promotes alone.",
   },
   {
     key: "USER_FILES_STORAGE",
@@ -167,7 +167,7 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
     exports: ["uploadProductImage"],
     deterministic: false,
     autonomy: "AUTONOMOUS_READS_GATED_WRITES",
-    note: "Storage layer — user-approved uploads only; ARCHIE never ingests unselected files.",
+    note: "Storage layer, user-approved uploads only; ARCHIE never ingests unselected files.",
   },
   {
     key: "FRELUX_API",

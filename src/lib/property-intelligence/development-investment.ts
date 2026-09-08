@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PROPERTY INTELLIGENCE — DEVELOPMENT & INVESTMENT (§7–9, §13–14)
+// FRELUX PROPERTY INTELLIGENCE, DEVELOPMENT & INVESTMENT (§7–9, §13–14)
 //
 // Deterministic development-scenario and investment analysis over
 // existing FRELUX engines. Rules:
@@ -43,7 +43,7 @@ export const SCENARIO_KIND_LABELS: Record<DevelopmentScenarioKind, string> = {
   redevelopment: "Redevelopment (demolish & rebuild)",
 };
 
-/** Where a scenario cost came from — engine, user, or nowhere. */
+/** Where a scenario cost came from, engine, user, or nowhere. */
 export type ScenarioCostSource =
   | { kind: "engine"; engineId: string; source: string }
   | { kind: "user"; source: string }
@@ -179,7 +179,7 @@ export function analyseScenario(
 
   if (cost.status === "unavailable") {
     limitations.push(
-      "No construction cost estimate is available for this scenario — none was invented. Run the deterministic FRELUX calculators with the proposed dimensions or supply an estimate with provenance.",
+      "No construction cost estimate is available for this scenario, none was invented. Run the deterministic FRELUX calculators with the proposed dimensions or supply an estimate with provenance.",
     );
   }
   if (c && c.costSource.kind === "engine" && c.materialSummary === undefined) {
@@ -246,12 +246,12 @@ export function compareDevelopmentScenarios(
 }
 
 // =========================================================
-// Property cost view (§9) — over the deterministic cost engine
+// Property cost view (§9), over the deterministic cost engine
 // =========================================================
 
 export interface PropertyCostViewInput {
   currency: string;
-  /** Acquisition cost — only where the user supplied it (§9). */
+  /** Acquisition cost, only where the user supplied it (§9). */
   acquisitionCost?: { amount: number; currency: string };
   constructionCost?: { amount: number; currency: string; source: string };
   renovationCost?: { amount: number; currency: string; source: string };
@@ -297,7 +297,7 @@ export function buildPropertyCostView(
   ];
   const unpriced = [
     ...(input.professionalCosts && input.professionalCosts.length === 0
-      ? ["professional fees (not supplied — not invented)"]
+      ? ["professional fees (not supplied, not invented)"]
       : []),
     ...(input.unknownCosts ?? []),
   ];
@@ -335,7 +335,7 @@ export function buildPropertyCostView(
   }
   if (cost.status === "insufficient_data") {
     notes.push(
-      "No priced costs were available — no total was produced. FRELUX does not invent missing costs.",
+      "No priced costs were available, no total was produced. FRELUX does not invent missing costs.",
     );
   }
 
@@ -359,7 +359,7 @@ export interface InvestmentAnalysisInput {
   }>;
   contingencyPercent?: number;
   otherKnownCosts?: Array<{ label: string; amount: number; currency: string }>;
-  /** Estimated sale value — user-supplied or from the indicative value
+  /** Estimated sale value, user-supplied or from the indicative value
    *  estimate. Its provenance must be stated. */
   estimatedSaleValue?: {
     amount: number;
@@ -367,9 +367,9 @@ export interface InvestmentAnalysisInput {
     source: string;
     sourceKind: "user" | "indicative_estimate";
   };
-  /** Monthly gross rent — user-supplied only. */
+  /** Monthly gross rent, user-supplied only. */
   monthlyGrossRent?: { amount: number; currency: string };
-  /** Annual operating costs for net yield — user-supplied only. */
+  /** Annual operating costs for net yield, user-supplied only. */
   annualOperatingCosts?: { amount: number; currency: string };
   /** Known floor area, for cost-per-area metrics. */
   floorArea?: { value: number; unit: string };
@@ -410,7 +410,7 @@ export function analyseInvestment(
   const sale = input.estimatedSaleValue;
   if (sale) {
     assumptions.push(
-      `Estimated sale value ${sale.amount} ${sale.currency} — source: ${sale.sourceKind === "indicative_estimate" ? "indicative comparable-based estimate (not a professional valuation)" : "user-supplied"}.`,
+      `Estimated sale value ${sale.amount} ${sale.currency}, source: ${sale.sourceKind === "indicative_estimate" ? "indicative comparable-based estimate (not a professional valuation)" : "user-supplied"}.`,
     );
   } else {
     limitations.push(
@@ -419,7 +419,7 @@ export function analyseInvestment(
   }
   if (input.monthlyGrossRent) {
     assumptions.push(
-      `Monthly gross rent ${input.monthlyGrossRent.amount} ${input.monthlyGrossRent.currency} — user-supplied.`,
+      `Monthly gross rent ${input.monthlyGrossRent.amount} ${input.monthlyGrossRent.currency}, user-supplied.`,
     );
   }
 
@@ -442,7 +442,7 @@ export function analyseInvestment(
           (costView.cost.totalKnownCost / input.floorArea.value) * 100,
         ) / 100,
       unit: input.floorArea.unit,
-      note: `Known costs ÷ ${input.floorArea.value} ${input.floorArea.unit} — excludes unpriced items${costView.cost.unpricedItems.length > 0 ? " (see unknown costs)" : ""}.`,
+      note: `Known costs ÷ ${input.floorArea.value} ${input.floorArea.unit}, excludes unpriced items${costView.cost.unpricedItems.length > 0 ? " (see unknown costs)" : ""}.`,
     };
   }
 
@@ -478,7 +478,7 @@ export function analyseInvestment(
     input.monthlyGrossRent.currency === input.currency
   ) {
     const annualRent = input.monthlyGrossRent.amount * 12;
-    // Yield is computed against the acquisition cost when supplied —
+    // Yield is computed against the acquisition cost when supplied :
     // otherwise against the estimated sale value. Both are labelled.
     const yieldPrice =
       input.acquisitionCost && input.acquisitionCost.currency === input.currency
@@ -538,7 +538,7 @@ export function analyseInvestment(
 }
 
 // =========================================================
-// Scenario simulation (§14) — what-if over the SAME formulas
+// Scenario simulation (§14), what-if over the SAME formulas
 // =========================================================
 
 export type InvestmentOverride =
@@ -550,7 +550,7 @@ export type InvestmentOverride =
 export interface InvestmentScenarioSimulation {
   label: string;
   changedAssumption: string;
-  /** True — hypothetical scenarios are never predictions. */
+  /** True, hypothetical scenarios are never predictions. */
   hypothetical: true;
   baseline: InvestmentAnalysis;
   scenario: InvestmentAnalysis;
@@ -656,7 +656,7 @@ export function simulateInvestmentScenario(
     difference: {
       totalKnownCostDifference: costDiff,
       simpleReturnDifferencePercent: returnDiff,
-      note: "Hypothetical scenario computed with the same deterministic formulas — it is not a prediction of what will happen.",
+      note: "Hypothetical scenario computed with the same deterministic formulas, it is not a prediction of what will happen.",
     },
   };
 }

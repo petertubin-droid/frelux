@@ -1,9 +1,9 @@
 // =========================================================
-// FRELUX PHASE 8b — CLIENT-SIDE ENCRYPTION (Web Crypto)
+// FRELUX PHASE 8b, CLIENT-SIDE ENCRYPTION (Web Crypto)
 //
 // Protected data is encrypted on the device with AES-256-GCM.
 // The key is derived (PBKDF2-SHA256) from a passphrase the user
-// enters — the passphrase is NEVER stored, logged, cached or
+// enters, the passphrase is NEVER stored, logged, cached or
 // sent anywhere. Only ciphertext leaves the device, and only
 // for backup. A stolen phone holds ciphertext, not plaintext.
 // =========================================================
@@ -13,7 +13,7 @@ const subtle = (): SubtleCrypto => {
   const c = globalThis.crypto;
   if (!c?.subtle) {
     throw new Error(
-      "Web Crypto is not available on this device — protected data cannot be encrypted safely.",
+      "Web Crypto is not available on this device, protected data cannot be encrypted safely.",
     );
   }
   return c.subtle;
@@ -135,7 +135,7 @@ export async function hashPasswordForVerification(
   salt: Uint8Array,
   iterations: number,
 ): Promise<string> {
-  // Same derivation path as decrypt — used to prove the passphrase
+  // Same derivation path as decrypt, used to prove the passphrase
   // matches BEFORE attempting an operation, so wrong-passphrase
   // attempts never touch data. Constant output length.
   const key = await deriveKey(passphrase, salt, iterations);

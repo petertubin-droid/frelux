@@ -6,22 +6,22 @@ import {
 } from "./engines-registry";
 
 // =========================================================
-// PHASE 2 ENGINES — added for the AI Copilot. Each wraps the
+// PHASE 2 ENGINES, added for the AI Copilot. Each wraps the
 // EXISTING authoritative calculator functions; no new math.
 // Engines that need DB-backed configs/materials fetch them through
-// the same queries the manual calculators use — or accept them
+// the same queries the manual calculators use, or accept them
 // via rawInput (so callers with cached data avoid duplicate fetches).
 // =========================================================
 
 export function registerPhase2Engines(): void {
   // ── Painting: full purchasing methodology (classic FRELUX painting
-  //    calculator — containers/buckets, openings deduction, waste).
+  //    calculator, containers/buckets, openings deduction, waste).
   //    The AI must NOT flatten painting into an m²-only answer: this
   //    engine returns the same containers the manual calculator does.
   registerEngine({
     id: "painting_project",
     domain: "painting",
-    title: "FRELUX Painting Engine — Materials & Containers",
+    title: "FRELUX Painting Engine, Materials & Containers",
     authoritative: true,
     creditedAs: "Calculated by the authoritative FRELUX painting calculator",
     async run(rawInput) {
@@ -70,7 +70,7 @@ export function registerPhase2Engines(): void {
       // calculator page reads (paint_types + estimation_calc_rules), so an
       // admin change propagates identically to page, AI copilot, agent and
       // plan takeoff. The code constants below remain ONLY as the honest
-      // fallback when no admin configuration exists — never a silent
+      // fallback when no admin configuration exists, never a silent
       // second opinion. (Same pattern as the screeding/POP engines.)
       let coverageRate = DEFAULT_COVERAGE_M2_PER_LITER;
       let containerSizes: number[] = DEFAULT_CONTAINER_SIZES_LITERS;
@@ -99,7 +99,7 @@ export function registerPhase2Engines(): void {
       } catch {
         // DB unavailable → documented default of 2 coats.
       }
-      // The engine's own `unit` convention converts internally — pass through,
+      // The engine's own `unit` convention converts internally, pass through,
       // never convert at this boundary (Phase-2 contract point 6).
       const result = calculatePaint(
         {
@@ -218,7 +218,7 @@ export function registerPhase2Engines(): void {
           tilePricePerBox: input.tilePricePerBox,
           wasteMargin: input.wasteMargin ?? 10,
           // Installation materials: costs only appear when the user supplied
-          // real rates/prices — every field is explicit and zero by default so
+          // real rates/prices, every field is explicit and zero by default so
           // the engine's own warnings (not NaN) mark what is unconfigured.
           adhesiveCoverageRate: 0,
           adhesivePricePerBag: 0,
@@ -277,7 +277,7 @@ export function registerPhase2Engines(): void {
   // ── POP ceiling: authoritative POP calculator. Materials come from
   //    the pop_materials table via the same query the manual
   //    calculator uses (or rawInput.materials when the caller has
-  //    already fetched them — avoids duplicate requests).
+  //    already fetched them, avoids duplicate requests).
   registerEngine({
     id: "pop_ceiling",
     domain: "pop",
@@ -330,7 +330,7 @@ export function registerPhase2Engines(): void {
           costs: null,
           raw: null,
           error:
-            "POP materials data is unavailable right now — use the POP Ceiling Calculator directly for this estimate.",
+            "POP materials data is unavailable right now, use the POP Ceiling Calculator directly for this estimate.",
         };
       }
 
@@ -430,7 +430,7 @@ export function registerPhase2Engines(): void {
             costs: null,
             raw: null,
             error:
-              "Screeding configuration is unavailable right now — use the Screeding Cost Estimator directly for this estimate.",
+              "Screeding configuration is unavailable right now, use the Screeding Cost Estimator directly for this estimate.",
           };
         }
         config = dbToSystemConfig(data);
@@ -448,7 +448,7 @@ export function registerPhase2Engines(): void {
       const costLines: Array<{ label: string; amount: number }> = [];
       // Contract note (post-Phase-6 audit fix): the authoritative
       // calculateScreedingSystem result exposes each material as
-      // { purchaseQuantity, totalCost, unit } — the PURCHASE quantity the
+      // { purchaseQuantity, totalCost, unit }, the PURCHASE quantity the
       // manual screeding calculators show. The wrapper previously read
       // stale { quantity, cost } field names, silently reporting 0 units
       // and no costs to every engine consumer. Both spellings are accepted

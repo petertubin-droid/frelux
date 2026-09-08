@@ -149,7 +149,7 @@ describe("AdminAds", () => {
     await renderPage();
     expect(await screen.findByText("Monetag")).toBeDefined();
     expect(await screen.findByText("AdGate Media")).toBeDefined();
-    // Exactly one Display ads toggle — for Monetag. Rewarded providers
+    // Exactly one Display ads toggle, for Monetag. Rewarded providers
     // (AdGate) are excluded because their flows are never gated by it.
     expect(screen.getAllByText("Display ads")).toHaveLength(1);
     expect(screen.getByText("Visual ads served on placements")).toBeDefined();
@@ -203,7 +203,7 @@ describe("AdminAds", () => {
     expect(cards[0].textContent).toBe("Home Top");
     expect(cards[1].textContent).toBe("Home Native");
 
-    // Move "Home Native" up — should swap sort_order with "Home Top"
+    // Move "Home Native" up, should swap sort_order with "Home Top"
     updateCalls.length = 0;
     const nativeCard = screen
       .getByText("Home Native")

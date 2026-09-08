@@ -1,11 +1,11 @@
 // =========================================================
-// PROJECT AGENT — CHANGE DETECTION TESTS (Stage 8)
+// PROJECT AGENT, CHANGE DETECTION TESTS (Stage 8)
 //
 // Stage 8 acceptance: controlled before/after project scenarios
 // where every reported difference is independently verified.
 // Each test builds the two recorded states from scratch and
 // asserts the EXACT before/after values, deltas, severities and
-// honest causes — never by calling the code under test.
+// honest causes, never by calling the code under test.
 //
 // Honesty checks:
 //   - "why" cites the recorded cause (completion date, purchase,
@@ -25,7 +25,7 @@ const T1 = "2026-09-07T12:00:00.000Z";
 const T2 = "2026-09-07T14:00:00.000Z";
 
 // ---------------------------------------------------------
-// In-memory supabase — the baseline table only.
+// In-memory supabase, the baseline table only.
 // ---------------------------------------------------------
 type Row = Record<string, unknown>;
 
@@ -109,7 +109,7 @@ vi.mock("@/lib/predictive-intelligence/snapshot", () => ({
 }));
 
 // ---------------------------------------------------------
-// Controlled scenario builders — the recorded states.
+// Controlled scenario builders, the recorded states.
 // ---------------------------------------------------------
 function snap(overrides: {
   projectStatus?: PredictiveProjectSnapshot["project"]["status"];
@@ -219,9 +219,9 @@ beforeEach(() => {
 });
 
 // ---------------------------------------------------------
-// Pure diff — controlled before/after scenarios.
+// Pure diff, controlled before/after scenarios.
 // ---------------------------------------------------------
-describe("diffSnapshots — controlled scenarios (§Stage 8)", () => {
+describe("diffSnapshots, controlled scenarios (§Stage 8)", () => {
   it("identical recorded states → no changes", () => {
     const a = snap({
       now: T1,
@@ -365,7 +365,7 @@ describe("diffSnapshots — controlled scenarios (§Stage 8)", () => {
     expect(changes.find((x) => x.id === "budget:remaining")?.severity).toBe(
       "major",
     );
-    // Nothing was purchased — recorded spend must NOT be reported as changed.
+    // Nothing was purchased, recorded spend must NOT be reported as changed.
     expect(
       changes.find((x) => x.id === "budget:recorded_spend"),
     ).toBeUndefined();
@@ -557,7 +557,7 @@ describe("diffSnapshots — controlled scenarios (§Stage 8)", () => {
     const after = snap({
       now: T2,
       calculations: [
-        { id: "c1", title: "Screeding — ground floor", total: 240000 },
+        { id: "c1", title: "Screeding, ground floor", total: 240000 },
       ],
     });
     const c = diffSnapshots(before, after, T2).find(
@@ -572,7 +572,7 @@ describe("diffSnapshots — controlled scenarios (§Stage 8)", () => {
     );
   });
 
-  it("is deterministic — identical inputs, identical output (order included)", () => {
+  it("is deterministic, identical inputs, identical output (order included)", () => {
     const before = snap({
       now: T1,
       items: [{ id: "i1", name: "Cement", qty: 10, est: 500 }],
@@ -600,9 +600,9 @@ describe("diffSnapshots — controlled scenarios (§Stage 8)", () => {
 });
 
 // ---------------------------------------------------------
-// Orchestrator — baseline lifecycle.
+// Orchestrator, baseline lifecycle.
 // ---------------------------------------------------------
-describe("detectProjectChanges — baseline lifecycle (§Stage 8)", () => {
+describe("detectProjectChanges, baseline lifecycle (§Stage 8)", () => {
   it("first run → first_capture, baseline stored, no comparison", async () => {
     snapState.snap = snap({
       now: T1,

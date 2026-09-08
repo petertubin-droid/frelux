@@ -56,7 +56,7 @@ export function getProvidersForPlacement(
     return ordered;
   }
 
-  // No explicit provider list — use all active providers sorted by priority
+  // No explicit provider list, use all active providers sorted by priority
   return providers;
 }
 
@@ -105,7 +105,7 @@ export async function logAdEvent(event: {
     const sb = await getSupabase();
     await sb.from('ad_analytics_events').insert(payload);
   } catch {
-    // Silently fail — analytics logging should never break the user experience
+    // Silently fail, analytics logging should never break the user experience
   }
 }
 
@@ -118,7 +118,7 @@ export function getAdUnitId(placement: DbAdPlacement, providerId: string): strin
 
 /**
  * Check if at least one active rewarded ad provider is configured.
- * Used to gate the "Watch Ad" UI — if no real provider exists, we show
+ * Used to gate the "Watch Ad" UI, if no real provider exists, we show
  * "Coming soon" instead of letting users click a button that can't work.
  */
 export async function hasRewardedAdProvider(): Promise<boolean> {

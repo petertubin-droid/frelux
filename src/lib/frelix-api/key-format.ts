@@ -1,12 +1,12 @@
 // =========================================================
-// FRELUX PHASE 7 — API KEY FORMAT & GENERATION
+// FRELUX PHASE 7, API KEY FORMAT & GENERATION
 //
 // STRICT REQUIREMENT (Phase 7 §3): every FRELUX-issued API key
 // is exactly 32 characters:
 //   "FLX-" (4 chars) + 28 alphanumeric chars [A-Za-z0-9]
 //
 // The raw key is generated with a cryptographically secure
-// generator (Web Crypto getRandomValues — browser + Deno), using
+// generator (Web Crypto getRandomValues, browser + Deno), using
 // rejection sampling so the 62-character alphabet is sampled
 // uniformly (no modulo bias). The raw key is returned exactly
 // once at creation; only a SHA-256 hash is ever stored.
@@ -20,7 +20,7 @@ export const API_KEY_TOTAL_LENGTH =
 const SUFFIX_ALPHABET =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-// ^FLX- followed by exactly 28 alphanumerics — nothing else.
+// ^FLX- followed by exactly 28 alphanumerics, nothing else.
 const CANONICAL_KEY_PATTERN = /^FLX-[A-Za-z0-9]{28}$/;
 
 export interface ApiKeyFormatVerdict {
@@ -59,7 +59,7 @@ export function isValidApiKeyFormat(key: string): boolean {
 }
 
 // Uniform rejection sampling over the 62-char alphabet. The
-// rejection buffer keeps every character exactly equilikely —
+// rejection buffer keeps every character exactly equilikely :
 // a plain modulo over random bytes would bias the alphabet.
 function randomSuffix(length: number): string {
   const out = new Array<string>(length);
@@ -89,7 +89,7 @@ export function generateFreluxApiKey(): string {
 }
 
 /**
- * SHA-256 hex hash of the full raw key — the ONLY thing stored.
+ * SHA-256 hex hash of the full raw key, the ONLY thing stored.
  * Web Crypto works in both the browser and Deno edge runtime.
  */
 export async function hashApiKey(rawKey: string): Promise<string> {
@@ -114,7 +114,7 @@ export function extractBearerToken(header: string | null): string | null {
 
 /**
  * Masked display form for stored key metadata: "FLX-A7k9••••"
- * (prefix + first 4 suffix characters — never more).
+ * (prefix + first 4 suffix characters, never more).
  */
 export function maskApiKey(rawKey: string): string {
   if (!isValidApiKeyFormat(rawKey)) return "FLX-••••";

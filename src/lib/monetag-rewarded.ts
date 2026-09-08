@@ -3,18 +3,18 @@
  *
  * Monetag serves FRELUX via a website multi-tag zone (tag.min.js) plus an
  * optional SDK script for zones created through the Monetag dashboard
- * ("SDK" / rewarded zones). Both are client-side only — zone IDs and SDK
+ * ("SDK" / rewarded zones). Both are client-side only, zone IDs and SDK
  * URLs are public values exposed to every visitor, not secrets.
  *
  * Two display modes, resolved at runtime:
  *
- * 1. SDK mode — if the SDK script is configured (provider credential
+ * 1. SDK mode, if the SDK script is configured (provider credential
  *    `sdk_url`, or the script was already loaded), it exposes a global
  *    `show_<zone>()` function returning a Promise that resolves when the
  *    rewarded ad is watched and closed. This is the preferred path: it
  *    gives a true completion callback.
  *
- * 2. Tag mode — the standard website tag (tag.min.js). The zone serves
+ * 2. Tag mode, the standard website tag (tag.min.js). The zone serves
  *    whatever formats it is configured for (interstitial, popunder,
  *    in-page push). There is no completion callback; the caller gates the
  *    reward with its own watch timer. The tag must be triggered from a
@@ -49,7 +49,7 @@ export interface MonetagShowResult {
  * provider's `zone_id` / `sub_id` settings). There is deliberately NO
  * hardcoded fallback: if the Admin has not configured a zone, this returns
  * null and callers must not serve or inject any Monetag tag. Zone IDs are
- * public client-side values, not secrets — the requirement to keep them in
+ * public client-side values, not secrets, the requirement to keep them in
  * Admin is about controlling which zone serves production traffic.
  */
 export function getMonetagZone(provider?: DbAdProvider | null): string | null {
@@ -69,13 +69,13 @@ export function getMonetagZone(provider?: DbAdProvider | null): string | null {
 }
 
 /**
- * Resolve the Monetag DISPLAY zone ID — the website multi-tag zone used
+ * Resolve the Monetag DISPLAY zone ID, the website multi-tag zone used
  * by tag.min.js for display formats (onclick, vignette, in-page push).
  *
  * This deliberately does NOT fall back to `rewarded_zone_id`: rewarded
  * SDK zones (e.g. omg10.com/4/<id>) are only servable through the SDK
  * script, and requesting them through the website tag endpoint returns
- * 404 — which silently disables ALL display ads site-wide. Only the
+ * 404, which silently disables ALL display ads site-wide. Only the
  * Admin-configured display "Zone ID" (or legacy `format` credential)
  * belongs in the website tag's data-zone attribute.
  */
@@ -94,7 +94,7 @@ export function getMonetagDisplayZone(
 
 /**
  * Resolve the optional Monetag Native Banner zone (from the provider
- * dashboard). Monetag's in-page display format — a Native Banner — renders
+ * dashboard). Monetag's in-page display format, a Native Banner, renders
  * into the SDK container AdSlot provides. Zone IDs are numeric; anything
  * else resolves to null (no in-page display) so we never inject a bogus tag.
  */
@@ -154,7 +154,7 @@ function injectScript(
 /**
  * Derive the zone a Monetag SDK script URL actually serves. SDK URLs
  * carry their zone in the path (e.g. https://omg10.com/4/11712895 →
- * 11712895) and create the global show_<zone>() for THAT zone — not for
+ * 11712895) and create the global show_<zone>() for THAT zone, not for
  * whatever zone ID is passed as the data-zone attribute. When the admin
  * configured only a display zone_id but the SDK URL points at a rewarded
  * SDK zone, resolving the SDK's own zone is what makes the show_<zone>()
@@ -197,7 +197,7 @@ function getSdkShowFn(zone: string): MonetagShowFn | null {
  * Show a Monetag rewarded ad.
  *
  * Must be called from a direct user gesture (e.g. the "Watch Ad" button's
- * click handler) — mobile browsers block window-opening ad formats outside
+ * click handler), mobile browsers block window-opening ad formats outside
  * a tap, which is why this is invoked inside `watchAd()`.
  *
  * - If the SDK is available (loaded or loadable), shows the rewarded ad and
@@ -264,7 +264,7 @@ export async function showMonetagRewardedAd(opts: {
         };
       }
     } catch {
-      // SDK unavailable — fall through to the website tag below.
+      // SDK unavailable, fall through to the website tag below.
     }
   }
 
@@ -273,7 +273,7 @@ export async function showMonetagRewardedAd(opts: {
   //
   // We do two things here:
   // 1. Ensure the tag is loaded (it may already be from Layout.tsx).
-  // 2. Wait for minWatchTimeMs before resolving. This is critical —
+  // 2. Wait for minWatchTimeMs before resolving. This is critical :
   //    without the wait, the caller grants the reward instantly and
   //    the user never sees an ad. The wait gives the tag time to
   //    trigger its ad format (interstitial, in-page push) from this
@@ -296,7 +296,7 @@ export async function showMonetagRewardedAd(opts: {
     for (const fnName of possibleFns) {
       const fn = w[fnName];
       if (typeof fn === "function") {
-        // Call the function — it may show an interstitial overlay
+        // Call the function, it may show an interstitial overlay
         const result = await (
           fn as (
             opts?: Record<string, unknown>,
@@ -321,7 +321,7 @@ export async function showMonetagRewardedAd(opts: {
       }
     }
   } catch {
-    // No callable function available — continue with timer-based wait
+    // No callable function available, continue with timer-based wait
   }
 
   // Wait for the minimum watch time before resolving.

@@ -1,5 +1,5 @@
 /**
- * FRELUX DIRECT CRAWLER — Crawl Engine
+ * FRELUX DIRECT CRAWLER, Crawl Engine
  *
  * The orchestrator that runs a full crawl job for a single source.
  *
@@ -227,7 +227,7 @@ export async function executeCrawl(
     job.warnings.push("No products found on this page");
     job.message = "Crawl completed, no products found";
 
-    // Update source health — fetch succeeded but no products
+    // Update source health, fetch succeeded but no products
     await updateSourceHealth(source, true, null);
 
     finishJob(job, startedAt);

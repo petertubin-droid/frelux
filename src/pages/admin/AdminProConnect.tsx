@@ -1633,7 +1633,7 @@ function AdminSettingsTab() {
 }
 
 // =========================================================
-// CHANNELS TAB — Manage worker channels & categories
+// CHANNELS TAB, Manage worker channels & categories
 // =========================================================
 function AdminChannelsTab() {
   const [categories, setCategories] = useState<DbWorkerChannelCategory[]>([]);
@@ -2249,7 +2249,7 @@ function AdminChannelsTab() {
 }
 
 // =========================================================
-// MODERATION TAB — AI bot configuration
+// MODERATION TAB, AI bot configuration
 // =========================================================
 function AdminModerationTab() {
   const [config, setConfig] = useState<DbWorkerModerationConfig | null>(null);

@@ -8,7 +8,7 @@ import {
 } from "./providers";
 
 // ============================================================
-// Browser geolocation (native, free) — mocked navigator API
+// Browser geolocation (native, free), mocked navigator API
 // ============================================================
 
 function mockGeolocation(overrides: Partial<Geolocation> = {}) {
@@ -98,7 +98,7 @@ describe("BrowserGeolocationProvider", () => {
 });
 
 // ============================================================
-// Nominatim (free, keyless, optional) — mocked fetch
+// Nominatim (free, keyless, optional), mocked fetch
 // ============================================================
 
 describe("NominatimReverseGeocoder", () => {
@@ -205,7 +205,7 @@ describe("NominatimForwardGeocoder", () => {
 });
 
 // ============================================================
-// Registry — provider swap without touching callers
+// Registry, provider swap without touching callers
 // ============================================================
 
 describe("locationProviderRegistry", () => {

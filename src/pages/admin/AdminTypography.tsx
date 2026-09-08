@@ -80,7 +80,7 @@ export default function AdminTypography() {
     setStatus('saving');
     setError('');
     if (!settingsId) {
-      // No settings row yet — insert a new one with typography config
+      // No settings row yet, insert a new one with typography config
       const { data: insertData, error: insertError } = await supabase
         .from('site_settings')
         .insert({ typography_config: config })

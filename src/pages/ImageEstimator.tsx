@@ -208,7 +208,7 @@ export default function ImageEstimator() {
       const resizedImage = await resizeImage(imageDataUrl);
       const clientId =
         localStorage.getItem("frelux_estimation_client_id") || "unknown";
-      // The rewarded-unlock client hash — the edge function checks this
+      // The rewarded-unlock client hash, the edge function checks this
       // against rewarded_unlock_log so an active ad unlock bypasses the
       // daily usage limit.
       const clientHash =
@@ -228,7 +228,7 @@ export default function ImageEstimator() {
       );
 
       if (fnError || !data) {
-        // Edge function not deployed — fallback to manual mode
+        // Edge function not deployed, fallback to manual mode
         setError(
           "The AI vision service is not yet deployed. You can still use the manual Build-to-Roof Estimator.",
         );
@@ -264,7 +264,7 @@ export default function ImageEstimator() {
       const aiInput = data.estimateInput as BuildToRoofInput;
       setAnalysis(aiAnalysis);
       setEstimateInput(aiInput);
-      // PHASE 6.5 — keep the pristine AI extraction so user adjustments can
+      // PHASE 6.5, keep the pristine AI extraction so user adjustments can
       // be recorded as Gemini learning events (AI value vs USER value).
       aiOriginalInput.current = aiInput;
       setSavedId(data.savedId ?? null);
@@ -276,13 +276,13 @@ export default function ImageEstimator() {
     }
   }, [imageDataUrl, projectName, location, resizeImage]);
 
-  // PHASE 6.5 — pristine Gemini extraction for correction learning.
+  // PHASE 6.5, pristine Gemini extraction for correction learning.
   const aiOriginalInput = useRef<BuildToRoofInput | null>(null);
 
   // ── Generate estimate from review ──
   const generateEstimate = useCallback(() => {
     if (!estimateInput) return;
-    // PHASE 6.5 — Gemini learning: every adjusted field becomes a learning
+    // PHASE 6.5, Gemini learning: every adjusted field becomes a learning
     // event (AI value vs USER value). Repeated verified corrections may
     // produce a DRAFT improvement proposal; extraction logic itself never
     // changes automatically.
@@ -860,9 +860,9 @@ export default function ImageEstimator() {
         ]}
       />{" "}
       <AdSlot slotKey="ai_feature" className="mt-8" />
-      {/* Native banner slot — placement "image_estimator_native" */}
+      {/* Native banner slot, placement "image_estimator_native" */}
       <AdSlot slotKey="image_estimator_native" className="mt-8" />
-      {/* Ad slot — placement "image_estimator_bottom" */}
+      {/* Ad slot, placement "image_estimator_bottom" */}
       <AdSlot slotKey="image_estimator_bottom" className="mt-8" />
     </div>
   );

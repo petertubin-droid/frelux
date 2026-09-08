@@ -1,5 +1,5 @@
 /**
- * AI Logo Studio Section — generate custom business logos via AI
+ * AI Logo Studio Section, generate custom business logos via AI
  *
  * Uses the existing Supabase Edge Function architecture.
  * The edge function calls the AI image generation API securely.

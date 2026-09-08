@@ -1,6 +1,6 @@
 // =========================================================
 // FRELUX Foundation Design Calculator
-// Engine — Phase 32
+// Engine, Phase 32
 //
 // Calculates foundation sizing for Nigerian construction:
 // - Strip footing width based on soil bearing capacity

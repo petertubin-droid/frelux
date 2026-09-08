@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX ARCHIE AMENDMENT — ESCROW & TRANSACTION INTELLIGENCE
+// FRELUX ARCHIE AMENDMENT, ESCROW & TRANSACTION INTELLIGENCE
 //
 // FRELUX may provide an escrow workflow through an
 // appropriately authorized payment/escrow provider. ARCHIE
@@ -58,7 +58,7 @@ export interface EscrowFlag {
   reason: string;
   evidence: string;
   recommended_action: string;
-  /** What actually happens to the funds — never ARCHIE. */
+  /** What actually happens to the funds, never ARCHIE. */
   fund_authority: "payment/escrow provider";
   created_at: string;
 }
@@ -82,7 +82,7 @@ export function flagTransaction(input: {
   if (!input.evidence.trim()) {
     return {
       ok: false,
-      error: "A transaction flag requires evidence — AI confidence alone is never financial truth",
+      error: "A transaction flag requires evidence, AI confidence alone is never financial truth",
     };
   }
   if (!input.recommended_action.trim()) {
@@ -112,7 +112,7 @@ export interface DisputeAnalysis {
   decision_authority: "payment/escrow provider + human/business controls";
 }
 
-/** Assist dispute analysis — structured output for human
+/** Assist dispute analysis, structured output for human
  *  adjudication. */
 export function assistDisputeAnalysis(input: {
   transaction_ref: string;

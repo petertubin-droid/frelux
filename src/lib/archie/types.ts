@@ -1,8 +1,8 @@
 // =========================================================
-// FRELUX PHASE 8 — ARCHIE INTELLIGENCE FOUNDATION: TYPES
+// FRELUX PHASE 8, ARCHIE INTELLIGENCE FOUNDATION: TYPES
 //
 // ARCHIE is FRELUX's built-in AI. Core domain: Architecture,
-// extensible with NO artificial domain ceiling — domains are
+// extensible with NO artificial domain ceiling, domains are
 // registry data, never a fixed enum.
 //
 // Everything ARCHIE learns flows through the unified pipeline:
@@ -21,7 +21,7 @@ export type ArchieEvidenceState = EvidenceState;
 /** ARCHIE knowledge scopes (Phase 6.5, unchanged). */
 export type ArchieScope = KnowledgeScope;
 
-/** Risk classes — decide the verification bar for promotion. */
+/** Risk classes, decide the verification bar for promotion. */
 export type ArchieRiskClass =
   "STANDARD" | "ENGINEERING_REVIEW" | "DETERMINISTIC";
 
@@ -39,7 +39,7 @@ export type ArchieInputType =
   | "SOURCE_CODE"
   | "WEB_INTELLIGENCE";
 
-/** Contributor roles — permissions are enforced, not cosmetic. */
+/** Contributor roles, permissions are enforced, not cosmetic. */
 export type ArchieContributorRole =
   "ARCHIE_ADMIN" | "DOMAIN_CONTRIBUTOR" | "OBSERVER";
 
@@ -204,7 +204,7 @@ export interface ArchieIngestion {
   updated_date: string;
 }
 
-/** Code intelligence finding — always a proposal, never an action. */
+/** Code intelligence finding, always a proposal, never an action. */
 export interface ArchieCodeFinding {
   area: string; // frontend | backend | database | edge | tests | deps | config
   path: string;

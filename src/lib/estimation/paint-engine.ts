@@ -233,7 +233,7 @@ export function normalizeCoverage(
     case 'ft2_per_bucket':
       return (coverageValue * SQM_PER_SQFT) / bucket;
     case 'frelux_calibration':
-      // Calibration mode — the coverage value IS the calibration reference
+      // Calibration mode, the coverage value IS the calibration reference
       // The engine uses calibration logic separately
       return coverageValue; // Will be handled by calibration logic
     default:

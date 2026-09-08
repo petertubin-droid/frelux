@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PLAN VISION — AI QUANTITY TAKEOFF PLANNER (§10–12)
+// FRELUX PLAN VISION, AI QUANTITY TAKEOFF PLANNER (§10–12)
 //
 //   Verified building data → WHAT information each FRELUX
 //   calculator needs → deterministic FRELUX engines → HOW MUCH
@@ -27,7 +27,7 @@ import type { Space } from "@/lib/measurement/space-engine";
 import type { EngineResult } from "@/lib/ai-foundation/types";
 
 // =========================================================
-// TAKEOFF CATALOG — WHAT each calculator requires (§10)
+// TAKEOFF CATALOG, WHAT each calculator requires (§10)
 // =========================================================
 
 export type TakeoffKind =
@@ -49,7 +49,7 @@ export const TAKEOFF_KIND_LABELS: Record<TakeoffKind, string> = {
   building: "Whole Building (Build-to-Roof)",
 };
 
-/** The registered engine each takeoff runs through — no other path. */
+/** The registered engine each takeoff runs through, no other path. */
 export const TAKEOFF_ENGINE_IDS: Record<TakeoffKind, string> = {
   painting: "painting_project",
   screeding: "screeding_system",
@@ -89,7 +89,7 @@ export const ROOM_TAKEOFF_CATALOG: RoomTakeoffRequirement[] = [
       "Wall screeding system materials per the FRELUX net-wall-area (full-room) methodology.",
     requires: ["length", "width", "height"],
     assumptions: [
-      "Engine default screeding system configuration applies. The area is the net WALL surface (perimeter × height − confirmed openings) — never the floor area.",
+      "Engine default screeding system configuration applies. The area is the net WALL surface (perimeter × height − confirmed openings), never the floor area.",
     ],
   },
   {
@@ -97,7 +97,7 @@ export const ROOM_TAKEOFF_CATALOG: RoomTakeoffRequirement[] = [
     description: "Tile quantities, boxes and cost.",
     requires: ["length", "width"],
     assumptions: [
-      "Tile size and price come from user selection or regional profile — never invented.",
+      "Tile size and price come from user selection or regional profile, never invented.",
     ],
   },
   {
@@ -125,7 +125,7 @@ export interface RoomTakeoffItem {
   engineId: string;
   /** READY when all required dimensions are verified, else MISSING_INFO. */
   status: "ready" | "missing_info" | "unverified_room";
-  /** What is missing — surfaced to the user, never invented (§13/§22). */
+  /** What is missing, surfaced to the user, never invented (§13/§22). */
   missing: string[];
   /** Verified dimensions in metres (engine input basis). */
   input: {
@@ -133,7 +133,7 @@ export interface RoomTakeoffItem {
     widthM: number | null;
     heightM: number | null;
     /**
-     * Net WALL screeding area (m²) — full-room FRELUX semantics:
+     * Net WALL screeding area (m²), full-room FRELUX semantics:
      * perimeter × height − confirmed openings. Derived from the
      * room's verified geometry by the planner because the
      * screeding engine's contract takes a single areaM2. Only set
@@ -149,7 +149,7 @@ export interface RoomTakeoffItem {
 
 /**
  * Build the multi-room takeoff plan: one item per (verified room ×
- * requested kind). Unverified rooms are marked — they NEVER run
+ * requested kind). Unverified rooms are marked, they NEVER run
  * through engines silently.
  */
 export function planRoomTakeoff(
@@ -173,7 +173,7 @@ export function planRoomTakeoff(
           kind: req.kind,
           engineId: TAKEOFF_ENGINE_IDS[req.kind],
           status: "unverified_room",
-          missing: ["Room not yet verified — confirm or edit it first."],
+          missing: ["Room not yet verified, confirm or edit it first."],
           input: { lengthM: null, widthM: null, heightM: null },
           provenance: room.provenance,
         });
@@ -188,7 +188,7 @@ export function planRoomTakeoff(
     // Net WALL screeding area (FRELUX full-room methodology, the
     // same one the screeding wall-area calculator uses): perimeter
     // × height − confirmed openings. Only CONFIRMED openings with
-    // known dimensions are deducted — AI-extracted opening dims are
+    // known dimensions are deducted, AI-extracted opening dims are
     // never used in money math (§13), and unknown dims are never
     // invented.
     const confirmedOpeningAreaM2 = (room.openings ?? [])
@@ -229,12 +229,12 @@ export function planRoomTakeoff(
         missing.push("height");
       }
       // Tiling needs a tile SELECTION (size, tiles per box, price per
-      // box) — user/regional data the plan does not carry. The gap is
+      // box), user/regional data the plan does not carry. The gap is
       // reported; the engine is never sent a doomed input, and tile
       // data is never invented.
       if (req.kind === "tiling") {
         missing.push(
-          "tile selection (tile size, tiles per box, price per box) — the Tiling Calculator runs this room's FLOOR area (length × width) with your chosen tile",
+          "tile selection (tile size, tiles per box, price per box), the Tiling Calculator runs this room's FLOOR area (length × width) with your chosen tile",
         );
       }
 
@@ -258,7 +258,7 @@ export function planRoomTakeoff(
 }
 
 // =========================================================
-// TAKEOFF SUMMARY (§12 — Room → dimensions → openings → finishes
+// TAKEOFF SUMMARY (§12, Room → dimensions → openings → finishes
 // → calculated quantity → confidence/status)
 // =========================================================
 
@@ -308,12 +308,12 @@ export function summarizeRoomTakeoff(
 }
 
 // =========================================================
-// EXECUTION — engines only, through the registry (§11)
+// EXECUTION, engines only, through the registry (§11)
 // =========================================================
 
 /**
  * Run one READY takeoff item through its authoritative engine.
- * The engine receives verified metres and its own defaults — the
+ * The engine receives verified metres and its own defaults, the
  * planner adds no math of its own. Returns the engine result with
  * full traceability (§18).
  */
@@ -325,11 +325,11 @@ export async function executeRoomTakeoff(
   const { executeEngine } =
     await import("@/lib/ai-foundation/engines-registry");
 
-  // Per-kind input shape — each engine's OWN documented contract.
+  // Per-kind input shape, each engine's OWN documented contract.
   // The planner adds no math, no unit conversion and no defaults;
   // omitted optional fields fall back to the engine's own defaults.
   // Each branch maps to its engine's OWN documented input contract.
-  // The planner adds no market data and no defaults — only the
+  // The planner adds no market data and no defaults, only the
   // geometry adaptation each engine's contract requires.
   const input =
     item.kind === "painting"
@@ -347,8 +347,8 @@ export async function executeRoomTakeoff(
         : item.kind === "screeding"
           ? {
               // screeding_system engine contract: the NET WALL
-              // screeding area (m²). FRELUX full-room semantics —
-              // perimeter × height − confirmed openings — derived
+              // screeding area (m²). FRELUX full-room semantics :
+              // perimeter × height − confirmed openings, derived
               // from the room's verified geometry by the planner,
               // because the engine's contract takes a single
               // areaM2. Wall surface area, NOT floor area.
@@ -357,7 +357,7 @@ export async function executeRoomTakeoff(
           : item.kind === "pop_ceiling"
             ? {
                 // pop_ceiling engine contract: the roomLength/roomWidth
-                // that define the ceiling plane — the room's verified
+                // that define the ceiling plane, the room's verified
                 // footprint in metres (ceiling area = L × W).
                 roomLength: item.input.lengthM,
                 roomWidth: item.input.widthM,
@@ -366,7 +366,7 @@ export async function executeRoomTakeoff(
             : {
                 // Tiling (and future kinds): tiling items are
                 // blocked at plan time until a tile SELECTION
-                // exists — the engine's floor-area basis (length ×
+                // exists, the engine's floor-area basis (length ×
                 // width) is stated in the plan's missing entry, and
                 // tile data is never invented. Any kind that does
                 // reach execution gets its dimensions passed through
@@ -381,7 +381,7 @@ export async function executeRoomTakeoff(
   try {
     result = await executeEngine(item.engineId, input);
   } catch (error) {
-    // The engine failing is reported honestly — never faked (§22).
+    // The engine failing is reported honestly, never faked (§22).
     result = {
       ok: false,
       engine: item.engineId,
@@ -400,7 +400,7 @@ export async function executeRoomTakeoff(
 /**
  * Execute all READY items of a takeoff plan (§12 multi-room).
  * Items with missing info / unverified rooms are returned
- * untouched — the gaps stay visible.
+ * untouched, the gaps stay visible.
  */
 export async function executeTakeoffPlan(
   items: RoomTakeoffItem[],

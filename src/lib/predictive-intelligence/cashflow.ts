@@ -1,8 +1,8 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — CASH-FLOW / BUDGET (§12)
+// FRELUX PREDICTIVE INTELLIGENCE, CASH-FLOW / BUDGET (§12)
 //
 // Planned spending vs recorded spending vs remaining estimated
-// cost — all from real rows. Estimates are ALWAYS labelled as
+// cost, all from real rows. Estimates are ALWAYS labelled as
 // estimates; only rows with recorded actual prices count as
 // recorded spend. No financial transactions, ever.
 // =========================================================
@@ -45,7 +45,7 @@ export function analyzeCashflow(snapshot: {
   const inputs: PredictionResult["inputs"] = [];
   const assumptions: string[] = [];
   const limitations: string[] = [
-    "FRELUX performs no financial transactions — this is recorded data plus deterministic arithmetic only.",
+    "FRELUX performs no financial transactions, this is recorded data plus deterministic arithmetic only.",
   ];
 
   if (shoppingItems.length === 0) {
@@ -53,7 +53,7 @@ export function analyzeCashflow(snapshot: {
       kind: "cashflow",
       status: "insufficient_data",
       prediction:
-        "Insufficient data — no budget or expenditure records exist for this project.",
+        "Insufficient data, no budget or expenditure records exist for this project.",
       result: null,
       evidence,
       inputs,
@@ -87,7 +87,7 @@ export function analyzeCashflow(snapshot: {
     evidence.push({
       kind: "shopping_item",
       id: i.id,
-      label: `${i.name} — estimated ${Number(i.estimated_price)}${i.actual_price !== null ? `, recorded actual ${Number(i.actual_price)}` : ""}, ${i.is_purchased ? "purchased" : "unpurchased"}`,
+      label: `${i.name}, estimated ${Number(i.estimated_price)}${i.actual_price !== null ? `, recorded actual ${Number(i.actual_price)}` : ""}, ${i.is_purchased ? "purchased" : "unpurchased"}`,
       recordedAt: null,
       verification: "user_recorded",
     });
@@ -106,7 +106,7 @@ export function analyzeCashflow(snapshot: {
 
   if (proxied.length > 0) {
     assumptions.push(
-      `${proxied.length} purchased line(s) have no recorded actual price and are counted at their estimated total — the recorded spending figure is therefore a lower bound for those lines.`,
+      `${proxied.length} purchased line(s) have no recorded actual price and are counted at their estimated total, the recorded spending figure is therefore a lower bound for those lines.`,
     );
   }
   const est = currentEstimate(calculations, shoppingItems);
@@ -151,7 +151,7 @@ export function analyzeCashflow(snapshot: {
   });
 
   const prediction =
-    `Planned spending: ${planned.toFixed(2)}. Recorded spending: ${recorded.toFixed(2)} (estimate — lines without recorded actual prices are counted at their recorded estimate). ` +
+    `Planned spending: ${planned.toFixed(2)}. Recorded spending: ${recorded.toFixed(2)} (estimate, lines without recorded actual prices are counted at their recorded estimate). ` +
     `Remaining estimated cost: ${remaining.toFixed(2)}. Upcoming financial requirement: ${unpurchasedEstimatedTotal(shoppingItems).toFixed(2)} across ${upcoming.length} unpurchased item(s).`;
 
   return {

@@ -20,7 +20,7 @@ describe("SOIL_BEARING_CAPACITY", () => {
   });
 });
 
-describe("designFoundation — strip footing", () => {
+describe("designFoundation, strip footing", () => {
   const baseInput: FoundationDesignInput = {
     shape: "strip",
     soil_type: "stiff_clay",
@@ -85,7 +85,7 @@ describe("designFoundation — strip footing", () => {
   });
 });
 
-describe("designFoundation — pad footing", () => {
+describe("designFoundation, pad footing", () => {
   const baseInput: FoundationDesignInput = {
     shape: "pad",
     soil_type: "dense_sand",
@@ -125,7 +125,7 @@ describe("designFoundation — pad footing", () => {
   });
 });
 
-describe("designFoundation — raft foundation", () => {
+describe("designFoundation, raft foundation", () => {
   const baseInput: FoundationDesignInput = {
     shape: "raft",
     soil_type: "sandy_clay",
@@ -150,7 +150,7 @@ describe("designFoundation — raft foundation", () => {
   });
 });
 
-describe("designFoundation — custom soil", () => {
+describe("designFoundation, custom soil", () => {
   it("uses custom bearing capacity when provided", () => {
     const input: FoundationDesignInput = {
       shape: "strip",
@@ -179,7 +179,7 @@ describe("designFoundation — custom soil", () => {
   });
 });
 
-describe("designFoundation — safety factor", () => {
+describe("designFoundation, safety factor", () => {
   it("applies default safety factor of 2.5", () => {
     const result = designFoundation({
       shape: "strip",
@@ -206,7 +206,7 @@ describe("designFoundation — safety factor", () => {
   });
 });
 
-describe("designFoundation — formula transparency", () => {
+describe("designFoundation, formula transparency", () => {
   it("includes formula explanations in results", () => {
     const result = designFoundation({
       shape: "strip",

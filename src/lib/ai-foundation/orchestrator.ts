@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX AI FOUNDATION — Orchestrator
+// FRELUX AI FOUNDATION, Orchestrator
 //
 // The single coordinator for every AI capability in FRELUX:
 //   conversational AI, document/image extraction, project &
@@ -8,15 +8,15 @@
 // It decides when to:
 //   - retrieve existing project data          (resolve_context)
 //   - request missing information             (request_missing_info)
-//   - call a deterministic engine             (run_engine — registry only)
+//   - call a deterministic engine             (run_engine, registry only)
 //   - use location intelligence               (region/market resolution)
 //   - request user confirmation               (ask_confirmation)
-//   - REFUSE an unsupported request           (refuse — never guess)
+//   - REFUSE an unsupported request           (refuse, never guess)
 //
 // The deterministic interpretation layer means the Copilot works
 // end-to-end with ZERO AI API calls; the optional ai-copilot edge
 // function (same schema) only enriches extraction. AI never computes
-// construction mathematics — see engines-registry.ts.
+// construction mathematics, see engines-registry.ts.
 // =========================================================
 
 import type {
@@ -39,7 +39,7 @@ import {
 
 // =========================================================
 // DETERMINISTIC NATURAL-LANGUAGE INTERPRETATION
-// No API call, no invented values — only what the user wrote.
+// No API call, no invented values, only what the user wrote.
 // =========================================================
 
 const DIMENSION_RE = /(\d+(?:\.\d+)?)\s*(?:m\b|meters?\b|metres?\b|ft\b|feet\b|')?\s*(?:x|×|by)\s*(\d+(?:\.\d+)?)/i;
@@ -148,7 +148,7 @@ export function planTask(
 ): CopilotPlan {
   if (taskType === 'unsupported') {
     return refusePlan(
-      "FRELUX AI can't support that request yet. It will not guess an answer — try asking for a building, roof, painting, screeding, tile or POP estimate.",
+      "FRELUX AI can't support that request yet. It will not guess an answer, try asking for a building, roof, painting, screeding, tile or POP estimate.",
     );
   }
 
@@ -159,14 +159,14 @@ export function planTask(
         kind: 'present_result',
         detail: context.calculations?.length
           ? 'Answer from your saved projects and calculations'
-          : 'Answer from your project data (none saved yet — offer to start an estimate)',
+          : 'Answer from your project data (none saved yet, offer to start an estimate)',
       },
     ];
     return { taskType, engineId: null, steps };
   }
 
   if (taskType === 'finish_compare') {
-    // Config-backed engine (finish materials from DB) — future phase.
+    // Config-backed engine (finish materials from DB), future phase.
     return refusePlan(
       'Finish-system comparison needs the finishing-materials configuration, which is not wired into the Copilot yet. Use the Finish System Comparison calculator meanwhile.',
     );
@@ -174,7 +174,7 @@ export function planTask(
 
   const spec = TASK_REQUIREMENTS[taskType as Exclude<CopilotTaskType, 'unsupported'>];
   if (!spec || !engineExistsForTask(taskType as Exclude<CopilotTaskType, 'unsupported'>)) {
-    return refusePlan('No authoritative FRELUX engine is registered for this request — FRELUX AI will not approximate construction mathematics.');
+    return refusePlan('No authoritative FRELUX engine is registered for this request, FRELUX AI will not approximate construction mathematics.');
   }
 
   const resolution = resolveRequirements(taskType as Exclude<CopilotTaskType, 'unsupported'>, context, facts);
@@ -185,7 +185,7 @@ export function planTask(
   if (resolution.missing.length > 0) {
     steps.push({
       kind: 'request_missing_info',
-      detail: `Ask for ${resolution.missing.length} missing detail(s) — everything else is already resolved`,
+      detail: `Ask for ${resolution.missing.length} missing detail(s), everything else is already resolved`,
       missingFields: resolution.missing,
     });
   }
@@ -221,7 +221,7 @@ export interface TaskRunOutcome {
   result?: EngineResult;
   /** Engine input actually used, with provenance per field. */
   engineInput?: Record<string, unknown>;
-  /** Assumptions in effect — shown to the user. */
+  /** Assumptions in effect, shown to the user. */
   assumptions?: AiFact[];
   /** Facts still needing user confirmation. */
   needsConfirmation?: AiFact[];
@@ -240,7 +240,7 @@ export async function runTask(
     return { plan, refusal: plan.reason };
   }
   if (plan.engineId === null) {
-    // project_question — answered from context by the caller/UI.
+    // project_question, answered from context by the caller/UI.
     return { plan };
   }
 
@@ -275,7 +275,7 @@ export async function runTask(
     }
     return {
       plan,
-      refusal: 'The calculation engine could not run. Your inputs are preserved — please try again.',
+      refusal: 'The calculation engine could not run. Your inputs are preserved, please try again.',
     };
   }
 }

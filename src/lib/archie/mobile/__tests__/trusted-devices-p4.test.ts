@@ -232,7 +232,7 @@ describe("P4: consent-driven mobile intelligence", () => {
     expect(grantDataConsent(enrolled, "PHOTOGRAPHS").ok).toBe(false);
   });
 
-  it("NEVER grants forbidden categories — refusal + security flag", () => {
+  it("NEVER grants forbidden categories, refusal + security flag", () => {
     const d = device();
     for (const forbidden of ["SILENT_MICROPHONE", "MESSAGES", "CALLS", "ALL_DEVICE_FILES"]) {
       const r = grantDataConsent(d, forbidden as never);
@@ -257,7 +257,7 @@ describe("P4: consent-driven mobile intelligence", () => {
     const phoneConsent = consentFor(phone, "SCREENSHOTS");
     // phone may ingest
     expect(mayIngestFrom(phone, [phoneConsent], "SCREENSHOTS").ok).toBe(true);
-    // tablet may not — a different device is a different device
+    // tablet may not, a different device is a different device
     expect(mayIngestFrom(tablet, [phoneConsent], "SCREENSHOTS").ok).toBe(false);
     // revoked consent stops ingestion immediately
     const revoked = revokeDataConsent(phone, "SCREENSHOTS");
@@ -506,8 +506,8 @@ describe("P4: learning network quality + poisoning defense", () => {
       sub({ contribution_id: "d", contributor_id: "c4", content: { days: 21 }, region: "Kenya" }),
     ]);
     expect(report.duplicates).toContain("b");
-    // a/b (7 days, Nigeria) contradict c (12 days, Nigeria) — 2 pairs;
-    // d (Kenya) differs regionally from a, b and c — 3 pairs.
+    // a/b (7 days, Nigeria) contradict c (12 days, Nigeria), 2 pairs;
+    // d (Kenya) differs regionally from a, b and c, 3 pairs.
     expect(report.contradictions.length).toBe(2);
     expect(report.contradictions[0].detail).toContain("days");
     expect(report.regional_differences.length).toBe(3);
@@ -656,7 +656,7 @@ describe("P4: privacy controls & isolation", () => {
     expect(mayServeKnowledgeToUser({ ...reg, requester_region: "Nigeria" }).ok).toBe(true);
   });
 
-  it("global candidates are NOT knowledge — evaluation pool only", () => {
+  it("global candidates are NOT knowledge, evaluation pool only", () => {
     const r = mayServeKnowledgeToUser({
       requester_user_id: "user-b",
       item_owner_user_id: "user-a",

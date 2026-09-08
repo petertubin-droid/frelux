@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PLAN VISION — Human Verification Workflow (§8)
+// FRELUX PLAN VISION, Human Verification Workflow (§8)
 //
 //   AI Extracted → Review → User Confirms/Edits/Rejects
 //                → Verified Building Data
@@ -8,7 +8,7 @@
 // floor count and any other extracted information. Users are
 // NEVER locked into AI results.
 //
-// State machine (mirrors ai-foundation/trust.ts — an uncertain AI
+// State machine (mirrors ai-foundation/trust.ts, an uncertain AI
 // inference is never silently converted into a verified fact):
 //   ai_extracted → in_review → user_confirmed
 //                            → user_edited (correction recorded)
@@ -69,7 +69,7 @@ export function confirmElement<T extends ExtractedElementBase>(
   return stamped(el, "user_confirmed", now);
 }
 
-/** User rejected the element — it must never reach the Building Model. */
+/** User rejected the element, it must never reach the Building Model. */
 export function rejectElement<T extends ExtractedElementBase>(
   el: T,
   now = new Date().toISOString(),
@@ -83,7 +83,7 @@ export function resetElement<T extends ExtractedElementBase>(el: T): T {
 }
 
 // =========================================================
-// ROOM REVIEW — dimension/name/type/opening corrections (§8)
+// ROOM REVIEW, dimension/name/type/opening corrections (§8)
 // =========================================================
 
 export interface RoomEdit {
@@ -97,7 +97,7 @@ export interface RoomEdit {
 
 /**
  * User edits a room. Every change is recorded in the correction
- * history (§17) and the dimension becomes EXPLICIT — the user is
+ * history (§17) and the dimension becomes EXPLICIT, the user is
  * the authority (kind: explicit, confidence: 1, method: user_input).
  */
 export function editRoom(
@@ -191,7 +191,7 @@ export function editRoom(
 /**
  * Edit/confirm an opening. If the user supplies dimensions for an
  * opening the AI could not read, the opening becomes explicit and
- * may then be deducted (§13) — until then it never is.
+ * may then be deducted (§13), until then it never is.
  */
 export function editOpening(
   opening: ExtractedOpening,
@@ -323,7 +323,7 @@ export function editRoof(
 
 /**
  * Apply a review operation to a room inside an extraction
- * (returns a new extraction — inputs are never mutated).
+ * (returns a new extraction, inputs are never mutated).
  */
 export function updateRoomInExtraction(
   extraction: PlanExtraction,
@@ -386,7 +386,7 @@ export function verifiedRooms(extraction: PlanExtraction): ExtractedRoom[] {
 }
 
 /**
- * Unresolved blocking issues — an extraction with ERROR-severity
+ * Unresolved blocking issues, an extraction with ERROR-severity
  * consistency issues must not feed calculators until the user
  * resolves them (contradictions are never silently accepted, §6).
  */

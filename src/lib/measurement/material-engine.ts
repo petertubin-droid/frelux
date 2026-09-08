@@ -83,7 +83,7 @@ export type CoverageType = 'area' | 'volume' | 'count' | 'per_unit';
 
 /**
  * Material coverage specification.
- * Not every material covers area — some are count-based or volume-based.
+ * Not every material covers area, some are count-based or volume-based.
  */
 export interface MaterialCoverage {
   type: CoverageType;
@@ -101,7 +101,7 @@ export interface MaterialCoverage {
 
 /**
  * A complete material specification.
- * This is NOT a price — it's the physical product specification.
+ * This is NOT a price, it's the physical product specification.
  * Pricing is handled separately by the Market Intelligence layer.
  */
 export interface MaterialSpec {
@@ -123,7 +123,7 @@ export interface MaterialSpec {
   coverage?: MaterialCoverage;
   /** Application/finish type this material is used for */
   application: FinishType;
-  /** Default waste percentage (0–100) — can be overridden per calculation */
+  /** Default waste percentage (0–100), can be overridden per calculation */
   defaultWastePercent: number;
   /** Market/country code this material is specified for */
   marketCode: string;
@@ -224,7 +224,7 @@ import { makeStep } from './geometry';
  * Base quantity × (1 + waste%) = Quantity with waste
  * ⌈Quantity with waste⌉ = Purchase quantity
  *
- * This is a pure calculation — no pricing, no market data.
+ * This is a pure calculation, no pricing, no market data.
  * The Market Intelligence layer provides validated prices separately.
  *
  * @param areaM2 - Surface area to cover in m²

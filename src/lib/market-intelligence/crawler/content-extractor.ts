@@ -1,5 +1,5 @@
 /**
- * FRELUX DIRECT CRAWLER — Content Extractor
+ * FRELUX DIRECT CRAWLER, Content Extractor
  *
  * Extracts product and price data from fetched HTML pages.
  *
@@ -129,7 +129,7 @@ function extractFromJsonLd(html: string, url: string): ExtractedProduct[] {
         }
       }
     } catch {
-      // Invalid JSON — skip
+      // Invalid JSON, skip
     }
   }
 
@@ -385,7 +385,7 @@ function extractFromHtmlElements(html: string, url: string): ExtractedProduct[] 
   // Check if this looks like a construction material product page
   const category = classifyCategory(productName);
   if (!category) {
-    // Not a construction product — skip HTML extraction for this page
+    // Not a construction product, skip HTML extraction for this page
     return products;
   }
 
@@ -531,7 +531,7 @@ function deduplicateProducts(products: ExtractedProduct[]): ExtractedProduct[] {
 
 /**
  * Determine currency from source context when extraction doesn't provide it.
- * Uses market_profiles mapping — does NOT assume Nigeria by default.
+ * Uses market_profiles mapping, does NOT assume Nigeria by default.
  */
 export function deriveCurrencyFromMarket(marketCode: string): string | null {
   const marketCurrencyMap: Record<string, string> = {

@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX PREDICTIVE INTELLIGENCE — SCENARIO ANALYSIS (§11)
+// FRELUX PREDICTIVE INTELLIGENCE, SCENARIO ANALYSIS (§11)
 //
 // Explicit what-if scenarios over REAL recorded baselines:
 //   - "What if material prices increase 10%?"
@@ -8,7 +8,7 @@
 //
 // Every scenario shows baseline → changed assumption → result →
 // difference → assumptions. All arithmetic is deterministic.
-// A scenario is ALWAYS labelled hypothetical — it is NOT a
+// A scenario is ALWAYS labelled hypothetical, it is NOT a
 // prediction and never presented as one (§11/§18).
 //
 // For engine-comparison scenarios (e.g. two designs), the Phase 2
@@ -74,7 +74,7 @@ export function materialPriceChangeScenario(input: {
         baseline > 0 ? round2(((changed - baseline) / baseline) * 100) : 0,
     },
     assumptions: [
-      "Only unpurchased items are affected — already-purchased materials are sunk cost and do not change.",
+      "Only unpurchased items are affected, already-purchased materials are sunk cost and do not change.",
       "The price change applies uniformly to all remaining materials; individual materials may move differently.",
       "This is a hypothetical calculation, not a forecast of market prices.",
     ],
@@ -86,7 +86,7 @@ export function materialPriceChangeScenario(input: {
 
 /** Scenario: delay of the next pending stage by N days. Since the
  *  schedule records no planned dates, the honest deterministic
- *  result is the stall offset vs the measured sequencing — no
+ *  result is the stall offset vs the measured sequencing, no
  *  invented cost-of-delay. */
 export function taskDelayScenario(input: {
   now: string;
@@ -134,7 +134,7 @@ export function taskDelayScenario(input: {
       difference: { value: delayDays, percent: 100 },
       assumptions: [
         "The recorded schedule has no planned dates, so no cost-of-delay can be computed without a measured daily spend rate.",
-        "Downstream stages are assumed to follow the delayed stage in sequence — a deterministic ordering consequence, not a calendar forecast.",
+        "Downstream stages are assumed to follow the delayed stage in sequence, a deterministic ordering consequence, not a calendar forecast.",
         "This is a hypothetical calculation, not a prediction.",
       ],
       hypothetical: true,
@@ -161,7 +161,7 @@ export function taskDelayScenario(input: {
     },
     difference: { value: round2(cost), percent: 0 },
     assumptions: [
-      "The daily spend rate is derived from your recorded expenditure history and stays constant — real delays may change spend patterns.",
+      "The daily spend rate is derived from your recorded expenditure history and stays constant, real delays may change spend patterns.",
       "This is a hypothetical calculation, not a prediction.",
     ],
     hypothetical: true,
@@ -171,7 +171,7 @@ export function taskDelayScenario(input: {
 }
 
 /** Scenario: swapping one unpurchased material line at a different
- *  unit price — a pure recorded-line substitution. */
+ *  unit price, a pure recorded-line substitution. */
 export function materialChangeScenario(input: {
   now: string;
   shoppingItems: ShoppingRow[];

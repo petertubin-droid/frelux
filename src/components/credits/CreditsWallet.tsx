@@ -345,7 +345,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
 }
 
 // ───────────────────────────────────────────────────────
-// Earn Credits Modal — Watch Ad → Earn Credits
+// Earn Credits Modal, Watch Ad → Earn Credits
 // ───────────────────────────────────────────────────────
 
 function EarnCreditsModal({
@@ -416,8 +416,8 @@ function EarnCreditsModal({
     setPhase("watching");
 
     // Find an active provider with a real client-side rewarded bridge
-    // (e.g. Monetag). The ad must be shown from this tap — mobile browsers
-    // block window-opening ad formats outside a direct user gesture —
+    // (e.g. Monetag). The ad must be shown from this tap, mobile browsers
+    // block window-opening ad formats outside a direct user gesture :
     // then we pass a client attestation token to the server.
     try {
       const { providers } = await fetchAdConfig();
@@ -566,7 +566,7 @@ function EarnCreditsModal({
                 <div className="h-px flex-1 bg-muted dark:bg-white/10" />
               </div>
 
-              {/* Complete Offers — separate from Watch Ad */}
+              {/* Complete Offers, separate from Watch Ad */}
               <Link
                 to="/rewards?tab=offerwall"
                 onClick={onClose}
@@ -707,7 +707,7 @@ function EarnCreditsModal({
 }
 
 // ───────────────────────────────────────────────────────
-// AI Feature Gate — Shows cost, "Use Credits" and "Watch Ad to Unlock"
+// AI Feature Gate, Shows cost, "Use Credits" and "Watch Ad to Unlock"
 // ───────────────────────────────────────────────────────
 
 export function AiFeatureGate({

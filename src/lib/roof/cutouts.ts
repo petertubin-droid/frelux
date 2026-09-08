@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF CUTOUTS — Management Engine
+ * FRELUX ROOF CUTOUTS, Management Engine
  *
  * Allows users to mark roof cutouts/penetrations:
  *   - skylight, courtyard, rooftop equipment, roof opening, other configurable
@@ -109,7 +109,7 @@ export function netAreaAfterCutouts(
 // =========================================================
 
 /**
- * Validate a cutout — returns error messages if invalid.
+ * Validate a cutout, returns error messages if invalid.
  */
 export function validateCutout(cutout: RoofCutout): string[] {
   const errors: string[] = [];

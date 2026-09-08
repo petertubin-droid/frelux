@@ -1,5 +1,5 @@
 /**
- * Calculator monitoring — wraps FRELUX calculator functions with error capture.
+ * Calculator monitoring, wraps FRELUX calculator functions with error capture.
  *
  * This module does NOT modify calculator logic. It provides wrapped versions
  * that catch errors, report them to the error monitor, and either re-throw

@@ -1,10 +1,10 @@
 /**
- * FRELUX INTERNATIONAL ARCHITECTURE — Types
+ * FRELUX INTERNATIONAL ARCHITECTURE, Types
  *
  * All types for the multi-market system: market profiles, material rules,
  * products, pricing, calculator config, and user preferences.
  *
- * These types are purely additive — existing types are not modified.
+ * These types are purely additive, existing types are not modified.
  */
 
 // ============================================================
@@ -180,7 +180,7 @@ export interface UserMarketPreference {
 
 /**
  * The fully resolved market context after inheritance is applied.
- * This is what calculators receive — they don't deal with the raw profile.
+ * This is what calculators receive, they don't deal with the raw profile.
  */
 export interface ResolvedMarketContext {
   marketCode: string;
