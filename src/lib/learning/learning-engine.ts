@@ -15,6 +15,8 @@ import { MATH_CAPABILITIES } from "./types";
 // 1. Lifecycle state machine (Phase 6.5 §7)
 // ---------------------------------------------------------
 const LIFECYCLE_TRANSITIONS: Record<LearningLifecycle, LearningLifecycle[]> = {
+  CRAWLED: ["EXTRACTED", "REJECTED"],
+  EXTRACTED: ["CANDIDATE", "REJECTED"],
   ARCHIE_RECEIVED: ["CANDIDATE", "REJECTED"],
   CANDIDATE: ["VERIFYING", "REJECTED", "DEFERRED"],
   VERIFYING: ["EVALUATING", "CANDIDATE", "REJECTED", "DEFERRED"],

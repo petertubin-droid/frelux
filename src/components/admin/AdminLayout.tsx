@@ -114,6 +114,16 @@ const navModules: NavModule[] = [
         icon: ShieldCheck,
       },
       {
+        label: "Intelligence Sources",
+        to: "/admin/intelligence-sources",
+        icon: ShieldCheck,
+      },
+      {
+        label: "Intelligence Dashboard",
+        to: "/admin/intelligence-dashboard",
+        icon: ShieldCheck,
+      },
+      {
         label: "Production Rules",
         to: "/admin/estimation-production",
         icon: Factory,

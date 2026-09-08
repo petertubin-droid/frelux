@@ -12,7 +12,7 @@
 
 /** Intelligence sources feeding the unified Learning Engine. */
 export type LearningSource =
-  "GEMINI" | "OPENAI" | "ARCHIE" | "USER" | "OUTCOME" | "SYSTEM";
+  "GEMINI" | "OPENAI" | "ARCHIE" | "USER" | "OUTCOME" | "SYSTEM" | "WEB";
 
 /** Evidence states — never silently changed (Phase 6.5 §13). */
 export type EvidenceState =
@@ -30,8 +30,14 @@ export type EvidenceState =
 export type KnowledgeScope =
   "GLOBAL" | "REGIONAL" | "PROJECT" | "PROPERTY" | "USER";
 
-/** Ingestion → production lifecycle (Phase 6.5 §7). */
+/**
+ * Ingestion → production lifecycle (Phase 6.5 §7). Phase 6.5 Alpha
+ * ADDS CRAWLED/EXTRACTED for external web intelligence:
+ * CRAWLED → EXTRACTED → CANDIDATE → ... (existing chain reused).
+ */
 export type LearningLifecycle =
+  | "CRAWLED"
+  | "EXTRACTED"
   | "ARCHIE_RECEIVED"
   | "CANDIDATE"
   | "VERIFYING"

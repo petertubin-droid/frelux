@@ -124,6 +124,12 @@ const AdminEstimationEstimates = lazy(
 const AdminLearningReview = lazy(
   () => import("@/pages/admin/AdminLearningReview"),
 );
+const AdminIntelligenceSources = lazy(
+  () => import("@/pages/admin/AdminIntelligenceSources"),
+);
+const AdminIntelligenceDashboard = lazy(
+  () => import("@/pages/admin/AdminIntelligenceDashboard"),
+);
 const AdminEstimationAudit = lazy(
   () => import("@/pages/admin/AdminEstimationAudit"),
 );
@@ -1014,6 +1020,14 @@ export default function App() {
                     <Route
                       path="learning-review"
                       element={<AdminLearningReview />}
+                    />
+                    <Route
+                      path="intelligence-sources"
+                      element={<AdminIntelligenceSources />}
+                    />
+                    <Route
+                      path="intelligence-dashboard"
+                      element={<AdminIntelligenceDashboard />}
                     />
                     <Route
                       path="estimation-production"
