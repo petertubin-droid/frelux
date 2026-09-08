@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX ARCHIE EXTENSION — ABSOLUTE AUTHORITY BOUNDARY
+// FRELUX ARCHIE EXTENSION, ABSOLUTE AUTHORITY BOUNDARY
 //
 // The complete statement of what ARCHIE is and the lines it
 // never crosses. This extends the Phase 8 final principle

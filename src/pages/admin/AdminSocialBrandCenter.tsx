@@ -1,11 +1,11 @@
 // =========================================================
-// FRELUX ARCHIE EXTENSION — ADMIN: SOCIAL INTELLIGENCE &
+// FRELUX ARCHIE EXTENSION, ADMIN: SOCIAL INTELLIGENCE &
 // BRAND CENTER (/admin/social-brand-center)
 //
 // Owner-only surface to connect and manage the Owner's own
 // authorized brand/social accounts using each platform's
 // OFFICIAL OAuth / official Sign-In mechanism. FRELUX stores
-// NO social-media, Google or platform passwords — only the
+// NO social-media, Google or platform passwords, only the
 // authorization tokens the platform issues, held server-side
 // in an encrypted vault (service-role only).
 //

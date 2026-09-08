@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX ARCHIE EXTENSION — OWNER-ONLY CODE COMMAND CONTROL
+// FRELUX ARCHIE EXTENSION, OWNER-ONLY CODE COMMAND CONTROL
 //
 // ARCHIE may read, understand, analyze, learn from, write
 // and test code. But ARCHIE may modify its own code or
@@ -56,7 +56,7 @@ export const CODE_COMMAND_WORKFLOW: readonly CodeCommandStage[] = [
   "DEPLOY",
 ];
 
-/** Stages ARCHIE advances autonomously — everything up to the
+/** Stages ARCHIE advances autonomously, everything up to the
  *  owner gate. */
 const ARCHIE_STAGES: readonly CodeCommandStage[] = [
   "OWNER COMMAND",
@@ -156,7 +156,7 @@ export function advanceCodeCommand(
       if (actor !== "OWNER" || opts?.server_verified_approval !== true) {
         return {
           ok: false,
-          error: "Protected code modification waits at the gate — only the Owner's server-verified authorization applies it",
+          error: "Protected code modification waits at the gate, only the Owner's server-verified authorization applies it",
         };
       }
       return { ok: true, next: "APPLY" };

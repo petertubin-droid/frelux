@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX ARCHIE EXTENSION — SOCIAL INTELLIGENCE
+// FRELUX ARCHIE EXTENSION, SOCIAL INTELLIGENCE
 //
 // For accounts the Owner explicitly connected and authorized,
 // ARCHIE may analyze permitted information to understand
@@ -16,7 +16,7 @@
 // Learning from connected accounts contributes to ARCHIE's
 // understanding of brand strategy, audience preferences,
 // content effectiveness, terminology, regional interests,
-// campaign performance and communication patterns — but
+// campaign performance and communication patterns, but
 // private information stays isolated and NEVER automatically
 // becomes global FRELUX knowledge, and every platform's
 // terms, permissions, privacy requirements and data
@@ -70,14 +70,14 @@ export function buildInsightReport(input: {
     if (!i.statement.trim() || !i.basis.trim()) {
       return {
         ok: false,
-        error: "Every insight requires a statement and a basis — unlabeled guesses are refused",
+        error: "Every insight requires a statement and a basis, unlabeled guesses are refused",
       };
     }
   }
   return { ok: true, report: input.insights };
 }
 
-/** Count of each labeled kind — used to prove separation of
+/** Count of each labeled kind, used to prove separation of
  *  observed data from ARCHIE recommendations in reports. */
 export function summarizeInsightKinds(report: readonly SocialInsight[]): Record<InsightKind, number> {
   const out: Record<InsightKind, number> = {
@@ -103,7 +103,7 @@ export const SOCIAL_LEARNING_TOPICS: readonly string[] = [
 ];
 
 /** Promotion of social-account information to global FRELUX
- *  knowledge requires explicit Owner verification — NEVER
+ *  knowledge requires explicit Owner verification, NEVER
  *  automatic. Private account data stays isolated. */
 export const SOCIAL_DATA_PROMOTION_RULE =
   "Owner-verified promotion only. Private information from connected accounts is isolated and never automatically becomes global FRELUX knowledge.";

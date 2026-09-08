@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX ARCHIE EXTENSION — OWNER SOCIAL CONNECTIONS
+// FRELUX ARCHIE EXTENSION, OWNER SOCIAL CONNECTIONS
 //
 // Owner-only Social Intelligence & Brand Center connection
 // governance. The Owner connects and manages ONLY their own
@@ -8,10 +8,10 @@
 // the platform's official Sign-In; Google Sign-In where
 // supported).
 //
-// FRELUX never stores platform passwords — only the OAuth
+// FRELUX never stores platform passwords, only the OAuth
 // authorization tokens the platform issues, held server-side
 // in an encrypted token vault (see the archie-social-connect
-// edge function and frelux_social_tokens — service-role
+// edge function and frelux_social_tokens, service-role
 // only, encrypted at rest, rotatable, revocable).
 //
 // ARCHIE may access ONLY accounts the Owner explicitly
@@ -34,7 +34,7 @@ export type SocialPlatform =
 export interface SocialPlatformDescriptor {
   platform: SocialPlatform | string;
   label: string;
-  /** Official mechanism only — never password capture. */
+  /** Official mechanism only, never password capture. */
   auth_mechanism: "oauth2" | "official_sign_in";
   /** Official OAuth authorize endpoint (empty for platforms
    *  whose official flow is app/sign-in based). */
@@ -84,7 +84,7 @@ const BASE_PLATFORMS: SocialPlatformDescriptor[] = [
     auth_mechanism: "official_sign_in",
     oauth_authorize_url: "",
     requires_owner_app_credentials: ["WHATSAPP_BUSINESS_TOKEN"],
-    note: "WhatsApp Business Platform — official Business API login. No password capture.",
+    note: "WhatsApp Business Platform, official Business API login. No password capture.",
   },
   {
     platform: "tiktok",
@@ -112,7 +112,7 @@ const BASE_PLATFORMS: SocialPlatformDescriptor[] = [
   },
 ];
 
-/** Extensible registry — additional legitimate social
+/** Extensible registry, additional legitimate social
  *  platforms as FRELUX expands. */
 const registered: SocialPlatformDescriptor[] = [...BASE_PLATFORMS];
 
@@ -177,7 +177,7 @@ export function transitionConnection(
   switch (action) {
     case "CONNECT":
       if (status === "DISCONNECTED") return { ok: true, next: "CONNECT_PENDING" };
-      return { ok: false, error: "Already connected — disconnect first" };
+      return { ok: false, error: "Already connected, disconnect first" };
     case "VIEW PERMISSIONS":
       if (status === "CONNECTED" || status === "SYNCED") return { ok: true, next: status };
       return { ok: false, error: "Connect the account before viewing permissions" };
@@ -198,7 +198,7 @@ export interface ConnectedSocialAccount {
   platform: string;
   account_handle: string;
   status: ConnectionStatus;
-  /** Only the Owner's own brand accounts — enforced at
+  /** Only the Owner's own brand accounts, enforced at
    *  creation and in mayArchieAccessAccount(). */
   connection_kind: "OWNER_BRAND_ACCOUNT";
   scopes: readonly string[];
@@ -207,8 +207,8 @@ export interface ConnectedSocialAccount {
 
 /** THE access rule: ARCHIE may access ONLY accounts the
  *  Owner explicitly connected and authorized. Everything
- *  else — subscriber accounts, employee/private accounts,
- *  third-party accounts, unconnected accounts — is refused. */
+ *  else, subscriber accounts, employee/private accounts,
+ *  third-party accounts, unconnected accounts, is refused. */
 export function mayArchieAccessAccount(
   account: ConnectedSocialAccount,
 ): { ok: boolean; error?: string } {
@@ -230,12 +230,12 @@ export function mayArchieAccessAccount(
   return { ok: true };
 }
 
-/** Token governance — tokens live ONLY in the server-side
+/** Token governance, tokens live ONLY in the server-side
  *  encrypted vault. The client (and ARCHIE's client context)
  *  never sees or stores them. */
 export const TOKEN_GOVERNANCE = {
   storage: "server-side encrypted vault (service-role only, pgcrypto at rest)",
-  password_storage: "NEVER — FRELUX stores no social-media or Google passwords",
-  rotation: "supported — re-authorization rotates the vault entry",
-  revocation: "supported — REVOKE ACCESS destroys the vault entry",
+  password_storage: "NEVER, FRELUX stores no social-media or Google passwords",
+  rotation: "supported, re-authorization rotates the vault entry",
+  revocation: "supported, REVOKE ACCESS destroys the vault entry",
 } as const;

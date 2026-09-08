@@ -1,15 +1,15 @@
 -- =========================================================
--- FRELUX ARCHIE EXTENSION — SOCIAL INTELLIGENCE & BRAND
+-- FRELUX ARCHIE EXTENSION, SOCIAL INTELLIGENCE & BRAND
 -- CENTER + API SUBSCRIBER LIMIT GOVERNANCE
 --
 -- Three governance surfaces:
---  1. frelux_social_accounts — Owner brand-account metadata
+--  1. frelux_social_accounts, Owner brand-account metadata
 --     (admin-only RLS; no secrets stored here).
---  2. frelux_social_tokens — encrypted token vault. NO
+--  2. frelux_social_tokens, encrypted token vault. NO
 --     client policies: service-role (edge function) only.
 --     Tokens are pgp_sym_encrypt'ed at rest; the key lives as
 --     an edge secret, never in the database.
---  3. frelux_social_analyses — ARCHIE insight reports with
+--  3. frelux_social_analyses, ARCHIE insight reports with
 --     observed data / recommendations / assumptions kept as
 --     DISTINCT labeled kinds (admin-only).
 --
@@ -20,7 +20,7 @@
 -- =========================================================
 
 -- ---------------------------------------------------------
--- 1. Social accounts (metadata only — no secrets)
+-- 1. Social accounts (metadata only, no secrets)
 -- ---------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.frelux_social_accounts (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -49,14 +49,14 @@ CREATE POLICY "admins manage social accounts"
   USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- ---------------------------------------------------------
--- 2. Token vault — service-role only. NO authenticated
+-- 2. Token vault, service-role only. NO authenticated
 --    policies exist for this table: no browser client and no
 --    ARCHIE client context can read or write tokens.
 -- ---------------------------------------------------------
 CREATE TABLE IF NOT EXISTS public.frelux_social_tokens (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   account_id uuid NOT NULL REFERENCES public.frelux_social_accounts (id) ON DELETE CASCADE,
-  -- pgp_sym_encrypt output — ciphertext only.
+  -- pgp_sym_encrypt output, ciphertext only.
   token_ciphertext bytea NOT NULL,
   key_version int NOT NULL DEFAULT 1,
   rotated_at timestamptz,
@@ -123,7 +123,7 @@ CREATE POLICY "admins manage social analyses"
 -- 4. API KEYS GOVERNANCE FIX
 --
 -- The old owner_all FOR-ALL policy allowed a subscriber to
--- UPDATE their own key row — including rate_limit_per_minute,
+-- UPDATE their own key row, including rate_limit_per_minute,
 -- daily_quota, monthly_quota and permissions. Subscribers must
 -- never increase, alter or bypass their own limits.
 -- ---------------------------------------------------------

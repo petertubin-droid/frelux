@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX ARCHIE EXTENSION TESTS — SOCIAL INTELLIGENCE, API
+// FRELUX ARCHIE EXTENSION TESTS, SOCIAL INTELLIGENCE, API
 // GOVERNANCE & CODE COMMAND CONTROL
 // =========================================================
 import { describe, it, expect } from "vitest";
@@ -101,7 +101,7 @@ describe("extension 1: owner-only social connections", () => {
     ).toBe(false);
   });
 
-  it("never stores passwords — OAuth tokens only, encrypted server-side", () => {
+  it("never stores passwords, OAuth tokens only, encrypted server-side", () => {
     expect(isPasswordConnectionAllowed()).toBe(false);
     expect(TOKEN_GOVERNANCE.password_storage).toContain("NEVER");
     expect(TOKEN_GOVERNANCE.storage).toContain("server-side encrypted vault");

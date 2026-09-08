@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX ARCHIE EXTENSION — API SUBSCRIBER LIMIT GOVERNANCE
+// FRELUX ARCHIE EXTENSION, API SUBSCRIBER LIMIT GOVERNANCE
 //
 // Subscriber API keys operate ONLY within the permissions
 // configured by the FRELUX Owner/Admin. Only authorized
@@ -12,7 +12,7 @@
 //
 // Subscribers must NEVER be able to increase, alter or bypass
 // their own limits. All enforcement occurs SERVER-SIDE
-// (see the frelix-api edge function — quotas, rate limits and
+// (see the frelix-api edge function, quotas, rate limits and
 // capabilities are read from the service-role key row, never
 // from client state).
 //
@@ -73,7 +73,7 @@ export function canSubscriberAlterLimits(): false {
 /** All enforcement is server-side: the client can request,
  *  but the service-role key row is the single source of
  *  truth. This is how the frelix-api edge function already
- *  works — quotas, rate limits and capabilities are read and
+ *  works, quotas, rate limits and capabilities are read and
  *  enforced per request from the database, never from
  *  client-supplied state. */
 export const API_ENFORCEMENT = "server-side (service-role key row is the single source of truth)" as const;
@@ -81,7 +81,7 @@ export const API_ENFORCEMENT = "server-side (service-role key row is the single 
 /** RLS governance note, mirrored in the migration: subscribers
  *  can READ their own key metadata; every WRITE (including
  *  quota, permission and status changes) is admin/service-
- *  role only. The prior owner-all write policy was removed —
+ *  role only. The prior owner-all write policy was removed :
  *  it allowed a subscriber to raise their own quotas. */
 export const API_KEYS_RLS_MODEL = {
   subscriber_select_own_metadata: true,

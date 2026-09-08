@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX ARCHIE EXTENSION — TARGETED ADVERTISING INTELLIGENCE
+// FRELUX ARCHIE EXTENSION, TARGETED ADVERTISING INTELLIGENCE
 //
 // ARCHIE may analyze permitted advertising/audience
 // information and recommend geographic markets, customer
@@ -10,7 +10,7 @@
 // permitted).
 //
 // HARD RULES:
-//   * Never fabricate audience information — every
+//   * Never fabricate audience information, every
 //     recommendation requires an observed basis.
 //   * ARCHIE never spends advertising money and never
 //     materially changes campaigns without the required
@@ -46,7 +46,7 @@ export interface AdRecommendation {
   kind: AdRecommendationKind;
   recommendation: string;
   /** The observed data the recommendation builds on.
-   *  Recommendations without an observed basis are refused —
+   *  Recommendations without an observed basis are refused :
    *  ARCHIE never fabricates audience information. */
   observed_basis: string;
   /** Retargeting recommendations must confirm legal and
@@ -63,7 +63,7 @@ export function prepareAdRecommendation(input: {
   if (!input.observed_basis.trim()) {
     return {
       ok: false,
-      error: "Advertising recommendations require an observed basis — ARCHIE never fabricates audience information",
+      error: "Advertising recommendations require an observed basis, ARCHIE never fabricates audience information",
     };
   }
   if (!input.recommendation.trim()) {
@@ -105,7 +105,7 @@ export function canArchieSpend(): false {
   return false;
 }
 
-/** The only path to authorized spend/change — the Owner. */
+/** The only path to authorized spend/change, the Owner. */
 export function authorizeCampaignAction(actor: "ARCHIE" | "OWNER"): {
   ok: boolean;
   error?: string;

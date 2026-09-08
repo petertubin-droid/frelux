@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX ARCHIE EXTENSION — SOCIAL BRAND CENTER CLIENT
+// FRELUX ARCHIE EXTENSION, SOCIAL BRAND CENTER CLIENT
 //
 // Admin-session client for the Owner-only Social Intelligence
 // & Brand Center. Tokens NEVER pass through this file: they
@@ -67,7 +67,7 @@ async function authedFetch(
   return { ok: res.ok, status: res.status, body };
 }
 
-/** CONNECT — get the platform's official OAuth authorize URL.
+/** CONNECT, get the platform's official OAuth authorize URL.
  *  The Owner completes authorization on the platform itself. */
 export async function getSocialAuthorizeUrl(platform: string): Promise<{
   ok: boolean;
@@ -82,7 +82,7 @@ export async function getSocialAuthorizeUrl(platform: string): Promise<{
   return { ok: true, authorize_url: String(res.body.authorize_url) };
 }
 
-/** Complete the official OAuth code exchange — the token goes
+/** Complete the official OAuth code exchange, the token goes
  *  straight into the encrypted server-side vault. */
 export async function completeSocialConnection(input: {
   platform: string;
@@ -102,7 +102,7 @@ export async function completeSocialConnection(input: {
   return { ok: true };
 }
 
-/** SYNC — refresh account status and last-sync timestamp. */
+/** SYNC, refresh account status and last-sync timestamp. */
 export async function syncSocialAccount(id: string): Promise<{ ok: boolean; error?: string }> {
   const { error } = await supabase
     .from("frelux_social_accounts")
@@ -112,7 +112,7 @@ export async function syncSocialAccount(id: string): Promise<{ ok: boolean; erro
   return { ok: true };
 }
 
-/** DISCONNECT — connection is marked disconnected; the
+/** DISCONNECT, connection is marked disconnected; the
  *  encrypted token stays vaulted until REVOKE ACCESS (or
  *  reconnection rotates it). */
 export async function disconnectSocialAccount(id: string): Promise<{ ok: boolean; error?: string }> {
@@ -124,7 +124,7 @@ export async function disconnectSocialAccount(id: string): Promise<{ ok: boolean
   return { ok: true };
 }
 
-/** REVOKE ACCESS — destroys the server-side vault entry and
+/** REVOKE ACCESS, destroys the server-side vault entry and
  *  disconnects the account. */
 export async function revokeSocialAccess(id: string): Promise<{ ok: boolean; error?: string }> {
   const res = await authedFetch("revoke", {
@@ -137,7 +137,7 @@ export async function revokeSocialAccess(id: string): Promise<{ ok: boolean; err
 
 /** ARCHIE insight reports: observed platform data,
  *  recommendations and assumptions stored as SEPARATE labeled
- *  kinds — never merged. */
+ *  kinds, never merged. */
 export interface SocialAnalysisRow {
   id: string;
   platform: string;

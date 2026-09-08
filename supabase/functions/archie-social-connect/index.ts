@@ -1,11 +1,11 @@
 // Supabase Edge Function: archie-social-connect
 // =========================================================
-// FRELUX ARCHIE EXTENSION — SOCIAL TOKEN VAULT (server-side)
+// FRELUX ARCHIE EXTENSION, SOCIAL TOKEN VAULT (server-side)
 //
 // The ONLY place Owner social-account authorization tokens
 // are exchanged and stored. Rules:
 //   * FRELUX never stores social-media, Google or platform
-//     passwords — connections use each platform's OFFICIAL
+//     passwords, connections use each platform's OFFICIAL
 //     OAuth / official Sign-In mechanism only.
 //   * Tokens are stored ENCRYPTED AT REST (pgcrypto, key held
 //     as an edge secret) in frelux_social_tokens, which has
@@ -288,7 +288,7 @@ Deno.serve(async (req) => {
     if (!vaultKey) {
       return json(
         501,
-        { error: "ARCHIE_TOKEN_VAULT_KEY edge secret is not configured — tokens cannot be stored securely." },
+        { error: "ARCHIE_TOKEN_VAULT_KEY edge secret is not configured, tokens cannot be stored securely." },
         requestId,
       );
     }
