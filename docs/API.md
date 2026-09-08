@@ -121,11 +121,11 @@ https://<project-ref>.supabase.co/functions/v1/<function-name>
 
 By default, every Edge Function requires a valid Supabase JWT (`Authorization: Bearer <access_token>`), enforced by `verify_jwt` in `supabase/config.toml`. Three functions are explicitly public because they're called before a session exists or by an external webhook:
 
-| Function | Why `verify_jwt = false` |
-| --- | --- |
-| `paystack-checkout` | Called at checkout, before/without an authenticated session in some flows |
-| `paystack-verify` | Called on redirect back from Paystack |
-| `paystack-webhook` | Called server-to-server by Paystack, authenticated via webhook signature instead |
+| Function            | Why `verify_jwt = false`                                                         |
+| ------------------- | -------------------------------------------------------------------------------- |
+| `paystack-checkout` | Called at checkout, before/without an authenticated session in some flows        |
+| `paystack-verify`   | Called on redirect back from Paystack                                            |
+| `paystack-webhook`  | Called server-to-server by Paystack, authenticated via webhook signature instead |
 
 ### Rate Limiting
 
@@ -133,34 +133,34 @@ Public-facing functions use the shared in-memory limiter in `supabase/functions/
 
 ### Function Reference
 
-| Function | Method(s) | Auth | Purpose |
-| --- | --- | --- | --- |
-| `health` | GET | Public via JWT default* | Health check — returns `healthy`/`degraded`/`down` plus DB, AI provider, and payment sub-checks |
-| `report-error` | POST | JWT | Ingests client error reports with validation, rate limiting, and fingerprint-based deduplication |
-| `cleanup-old-errors` | POST | JWT (cron/admin) | Deletes old resolved errors on a retention schedule; keeps unresolved critical errors indefinitely |
-| `record-activity` | POST | JWT | Records user activity events (used for engagement/analytics) |
-| `award-credits` | POST | JWT | Awards AI/feature credits to a user's wallet |
-| `spend-ai-credits` | POST | JWT | Debits AI credits for a metered AI feature call |
-| `redeem-reward` | POST | JWT | Redeems a reward-catalogue item using a user's credit balance |
-| `verify-rewarded-ad` | POST | JWT | Verifies a rewarded-ad impression before granting a reward |
-| `grant-rewarded-unlock` | POST | JWT | Grants a temporary feature unlock after a verified rewarded ad |
-| `rewarded-postback` | GET, POST | Public (ad network postback) | Server-to-server postback endpoint for ad network reward confirmation |
-| `ai-building-estimation` | POST | JWT | Analyzes a building photo via Google Gemini Vision, then runs the Build-to-Roof estimation engine |
-| `ai-color-consult` | GET, POST, PUT, DELETE | JWT | AI color consultation assistant |
-| `ai-color-preview` | GET, POST | JWT | Generates AI color preview renders |
-| `ai-learn-assistant` | GET, POST, PUT, DELETE | JWT | AI assistant for the Learn Hub |
-| `ai-livechat` | GET, POST, PUT, DELETE | JWT | AI-powered live chat support |
-| `ai-project-assistant` | GET, POST | JWT | AI assistant for project planning/estimation |
-| `ai-studio` | GET, POST, PUT, DELETE | JWT | AI Studio orchestration (color recommendations, monetized AI features) |
-| `moderate-pro-message` | POST | JWT | OpenAI-based moderation of Pro Connect client↔professional messages (spam/scam/harassment) |
-| `moderate-worker-message` | POST | JWT | AI moderation of worker-channel messages (spam, offensive content, misinformation) |
-| `market-intelligence-crawl` | POST | JWT (admin) / cron | Runs price crawls (manual, scheduled via pg_cron, or test-mode with no publish) |
-| `paystack-checkout` | POST | **Public** | Initializes a Paystack transaction; holds `PAYSTACK_SECRET_KEY` server-side |
-| `paystack-verify` | POST | **Public** | Verifies a completed Paystack transaction and activates the subscription |
-| `paystack-webhook` | POST | **Public** (signature-verified) | Receives Paystack payment events and auto-activates subscriptions |
-| `send-push-notification` | POST | JWT | Sends a Web Push notification via VAPID keys to a user's subscriptions |
-| `send-sms-otp` | POST | JWT | Sends an SMS OTP via the Termii gateway (backs the `send_mobile_otp` RPC) |
-| `sitemap` | GET | Public | Serves the dynamically generated sitemap |
+| Function                    | Method(s)              | Auth                            | Purpose                                                                                            |
+| --------------------------- | ---------------------- | ------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `health`                    | GET                    | Public via JWT default*         | Health check — returns `healthy`/`degraded`/`down` plus DB, AI provider, and payment sub-checks    |
+| `report-error`              | POST                   | JWT                             | Ingests client error reports with validation, rate limiting, and fingerprint-based deduplication   |
+| `cleanup-old-errors`        | POST                   | JWT (cron/admin)                | Deletes old resolved errors on a retention schedule; keeps unresolved critical errors indefinitely |
+| `record-activity`           | POST                   | JWT                             | Records user activity events (used for engagement/analytics)                                       |
+| `award-credits`             | POST                   | JWT                             | Awards AI/feature credits to a user's wallet                                                       |
+| `spend-ai-credits`          | POST                   | JWT                             | Debits AI credits for a metered AI feature call                                                    |
+| `redeem-reward`             | POST                   | JWT                             | Redeems a reward-catalogue item using a user's credit balance                                      |
+| `verify-rewarded-ad`        | POST                   | JWT                             | Verifies a rewarded-ad impression before granting a reward                                         |
+| `grant-rewarded-unlock`     | POST                   | JWT                             | Grants a temporary feature unlock after a verified rewarded ad                                     |
+| `rewarded-postback`         | GET, POST              | Public (ad network postback)    | Server-to-server postback endpoint for ad network reward confirmation                              |
+| `ai-building-estimation`    | POST                   | JWT                             | Analyzes a building photo via Google Gemini Vision, then runs the Build-to-Roof estimation engine  |
+| `ai-color-consult`          | GET, POST, PUT, DELETE | JWT                             | AI color consultation assistant                                                                    |
+| `ai-color-preview`          | GET, POST              | JWT                             | Generates AI color preview renders                                                                 |
+| `ai-learn-assistant`        | GET, POST, PUT, DELETE | JWT                             | AI assistant for the Learn Hub                                                                     |
+| `ai-livechat`               | GET, POST, PUT, DELETE | JWT                             | AI-powered live chat support                                                                       |
+| `ai-project-assistant`      | GET, POST              | JWT                             | AI assistant for project planning/estimation                                                       |
+| `ai-studio`                 | GET, POST, PUT, DELETE | JWT                             | AI Studio orchestration (color recommendations, monetized AI features)                             |
+| `moderate-pro-message`      | POST                   | JWT                             | OpenAI-based moderation of Pro Connect client↔professional messages (spam/scam/harassment)         |
+| `moderate-worker-message`   | POST                   | JWT                             | AI moderation of worker-channel messages (spam, offensive content, misinformation)                 |
+| `market-intelligence-crawl` | POST                   | JWT (admin) / cron              | Runs price crawls (manual, scheduled via pg_cron, or test-mode with no publish)                    |
+| `paystack-checkout`         | POST                   | **Public**                      | Initializes a Paystack transaction; holds `PAYSTACK_SECRET_KEY` server-side                        |
+| `paystack-verify`           | POST                   | **Public**                      | Verifies a completed Paystack transaction and activates the subscription                           |
+| `paystack-webhook`          | POST                   | **Public** (signature-verified) | Receives Paystack payment events and auto-activates subscriptions                                  |
+| `send-push-notification`    | POST                   | JWT                             | Sends a Web Push notification via VAPID keys to a user's subscriptions                             |
+| `send-sms-otp`              | POST                   | JWT                             | Sends an SMS OTP via the Termii gateway (backs the `send_mobile_otp` RPC)                          |
+| `sitemap`                   | GET                    | Public                          | Serves the dynamically generated sitemap                                                           |
 
 \* `health` defaults to requiring a JWT like other functions unless configured otherwise — treat it as internal/monitoring-only, not a public uptime endpoint, unless you've explicitly set `verify_jwt = false` for it.
 
@@ -178,3 +178,26 @@ Deno.serve(async (req: Request) => {
 ```
 
 Errors are returned as `{ error: string }` with a non-2xx status. CORS headers are applied via the shared helper in `supabase/functions/_shared/cors.ts`.
+
+## FRELUX AI API (Phase 7)
+
+The official public API lives at
+`https://hqhvlkunkdrxyuvziorm.supabase.co/functions/v1/frelix-api/v1`
+(Edge Function `frelix-api`, no verify-JWT — authenticated by FRELUX API keys).
+
+- Documentation & key manager: `https://frelux.app/developers` (DeveloperPortal page)
+- Admin console: `/admin/api-keys`
+- Deterministic calculators execute the canonical engine registry server-side
+  (bundled from `src/lib/frelux-api/server-engines.ts` via `npm run build:api-engines`).
+- API keys: 32-char `FLX-…` secrets; only a SHA-256 hash is stored. Raw keys are
+  shown exactly once, at create/rotate time.
+- API feedback enters the learning pipeline as `USER_PROVIDED` `CANDIDATE` records
+  (never auto-approved; structural topics require engineering review).
+
+### Tables
+
+| Table              | Description                                  | RLS                                |
+| ------------------ | -------------------------------------------- | ---------------------------------- |
+| `frelux_api_keys`  | API keys (hashed, per-user)                  | Yes (owner_all + admin policies)   |
+| `frelux_api_usage` | Per-request metering (rate/quota accounting) | Yes (owner_read + admin_read)      |
+| `frelux_api_plans` | Configurable API plans                       | Yes (authenticated read, admin rw) |

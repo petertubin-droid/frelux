@@ -58,6 +58,7 @@ const Terms = lazy(() => import("@/pages/legal/Terms"));
 const CookiePolicy = lazy(() => import("@/pages/legal/CookiePolicy"));
 const Disclaimer = lazy(() => import("@/pages/legal/Disclaimer"));
 const AiDisclaimer = lazy(() => import("@/pages/legal/AiDisclaimer"));
+const DeveloperPortal = lazy(() => import("@/pages/DeveloperPortal"));
 const LearnCategory = lazy(() => import("@/pages/learn/LearnCategory"));
 const LearnArticle = lazy(() => import("@/pages/learn/LearnArticle"));
 const PaintColorDetail = lazy(() => import("@/pages/PaintColorDetail"));
@@ -101,6 +102,7 @@ const AdminQuotationSettings = lazy(
 );
 
 // Admin pages — all lazy-loaded to keep the public bundle small
+const AdminApiKeys = lazy(() => import("@/pages/admin/AdminApiKeys"));
 const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 const AdminLayout = lazy(() => import("@/components/admin/AdminLayout"));
 const RequireAdmin = lazy(() => import("@/components/admin/RequireAdmin"));
@@ -814,6 +816,15 @@ export default function App() {
                         </Suspense>
                       }
                     />
+                    {/* Phase 7 — FRELUX AI API docs + key manager */}
+                    <Route
+                      path="/developers"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <DeveloperPortal />
+                        </Suspense>
+                      }
+                    />
 
                     {/* Pro Connect — Professional Network */}
                     <Route
@@ -1029,6 +1040,8 @@ export default function App() {
                       path="intelligence-dashboard"
                       element={<AdminIntelligenceDashboard />}
                     />
+                    {/* Phase 7 — FRELUX AI API key administration */}
+                    <Route path="api-keys" element={<AdminApiKeys />} />
                     <Route
                       path="estimation-production"
                       element={

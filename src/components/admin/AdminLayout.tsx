@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, Outlet, Link, useNavigate } from "react-router-dom";
 import {
+  KeyRound,
   LayoutDashboard,
   Calculator,
   DollarSign,
@@ -178,6 +179,11 @@ const navModules: NavModule[] = [
         label: "AI Developer Studio",
         to: "/admin/studio",
         icon: GraduationCap,
+      },
+      {
+        label: "API Keys",
+        to: "/admin/api-keys",
+        icon: KeyRound,
       },
       {
         label: "Image Estimation",
