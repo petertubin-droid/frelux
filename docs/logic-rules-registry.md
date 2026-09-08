@@ -267,3 +267,42 @@ The public API (`supabase/functions/frelix-api`, served at `/v1`) is a governed 
 - **Audited like the UI.** Every request is metered in `frelux_api_usage` (method, path, status, capability) — an audit trail equivalent to the in-app audit registry. Denials are metered at `usage_units = 0` so only successful requests consume the self-recovering rate/quota window (§22); unknown-key 401s are metered with no key material for abuse detection.
 - **Server-priced billing (§17).** Plan purchases resolve the price server-side from `frelux_api_plans` — never from the client. The signature-verified Paystack webhook grants entitlements and applies plan quotas via reference-idempotent `SECURITY DEFINER` RPCs (`frelux_api_apply_plan_purchase`, `frelux_api_record_refund`) callable only by `service_role`; webhook replays and double-charges are safe, refunds downgrade to the free plan.
 - **Admin observability (§23).** `/admin/api-keys` surfaces the usage monitor (requests, errors, latency, quota exhaustion, auth failures, suspicious-activity flag); usage rows expire after 90 days.
+
+## 22. ARCHIE INTELLIGENCE FOUNDATION (PHASE 8)
+
+ARCHIE is FRELUX's built-in AI — its own intelligence layer, not a pass-through
+to any provider. Core domain: Architecture; learning capacity is extensible
+with NO artificial domain ceiling (domains are registry data in
+`frelux_archie_domains`, admin-managed, risk-classed).
+
+- **Unified pipeline.** Every learned item, whatever the modality (text, image,
+  PDF, scanned, drawing, table, audio, video, project outcome, source code, web)
+  flows INPUT → EXTRACT/ANALYZE → STRUCTURE → VALIDATE → EVALUATE →
+  HUMAN APPROVAL → VERSION → KNOWLEDGE. The pipeline ALWAYS stops at
+  AWAITING_APPROVAL — ARCHIE never promotes its own learning.
+- **Evidence discipline.** The nine states (AI_EXTRACTED, AI_RECOMMENDATION,
+  USER_PROVIDED, USER_CONFIRMED, SYSTEM_VERIFIED, EXTERNAL_SOURCE_VERIFIED,
+  ESTIMATED, ASSUMPTION, ACTUAL_OUTCOME) are never silently converted
+  (§13, unchanged): verified states and USER_CONFIRMED require a human
+  approver + verification evidence; ACTUAL_OUTCOME is terminal; candidates
+  can never be born verified.
+- **High-risk bar.** Structural, foundation, safety, deterministic math
+  domains/knowledge carry risk classes that force the engineering-review
+  process. ARCHIE never modifies formulas, unit conversions, roof geometry,
+  material ratios, safety thresholds, waste factors, rounding rules or the
+  deterministic quantity engines (§17 list).
+- **Contributor training.** Identity + provenance + scope isolation:
+  DOMAIN_CONTRIBUTORs are bound to allowed domains (RLS + logic), every
+  non-admin submission is human-reviewed; OBSERVERs submit nothing. Media
+  lives in the private `archie-media` bucket (per-user folders).
+- **Code intelligence.** ARCHIE may inspect authorized FRELUX source roots
+  (frontend, backend, database, edge functions, engines, auth, PWA,
+  integrations, tests, dependencies, deployment config, documentation) and
+  may propose implementation plans, code, tests and docs — but findings are
+  ALWAYS AI_RECOMMENDATION + engineering review, and ARCHIE has NO
+  production authority: production modification/deployment stays with the
+  human repo gates (§19).
+- **Web intelligence.** ARCHIE reuses the Phase 6.5 Alpha controlled external
+  web architecture only — never bypassing authentication, paywalls, CAPTCHA,
+  anti-bot or robots.txt; external content is DATA (injection-fenced), and the
+  CRAWLED → … → APPROVED → VERSIONED governance cannot be skipped.
