@@ -19,7 +19,13 @@ import {
   CheckCircle2,
   RefreshCw,
   Search,
+  Activity,
+  ShieldAlert,
 } from "lucide-react";
+import {
+  getApiUsageOverview,
+  type ApiUsageOverview,
+} from "@/lib/frelix-api/admin-observability";
 import { AdminHeader } from "@/components/admin/AdminUi";
 import { useToast } from "@/components/ui/Toast";
 import {
@@ -43,11 +49,12 @@ export default function AdminApiKeys() {
   const [busy, setBusy] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [notice, setNotice] = useState<string | null>(null);
+  const [overview, setOverview] = useState<ApiUsageOverview | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [k, p] = await Promise.all([
+      const [k, p, o] = await Promise.all([
         supabase
           .from("frelux_api_keys")
           .select(
@@ -55,8 +62,10 @@ export default function AdminApiKeys() {
           )
           .order("created_at", { ascending: false }),
         getPlans(),
+        getApiUsageOverview(1),
       ]);
       if (k.error) throw new Error(k.error.message);
+      setOverview(o);
       setKeys(
         (k.data ?? []).map((r) => ({
           ...r,
@@ -316,6 +325,122 @@ export default function AdminApiKeys() {
           </table>
         </div>
       )}
+
+      {/* ── API observability (Phase 7 §23) ────────────────── */}
+      <section className="rounded-lg border bg-card p-5">
+        <h2 className="mb-1 flex items-center gap-2 text-base font-semibold">
+          <Activity aria-hidden="true" className="h-4 w-4" />
+          API usage monitor — last 24h
+        </h2>
+        <p className="mb-4 text-sm text-muted-foreground">
+          Requests, errors, latency, quota exhaustion and authentication
+          failures across the FRELUX API.
+        </p>
+        {overview ? (
+          <>
+            {overview.suspicious && (
+              <p
+                className="mb-4 flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300"
+                role="alert"
+              >
+                <ShieldAlert aria-hidden="true" className="h-4 w-4 shrink-0" />
+                Suspicious activity pattern detected — review auth failures
+                below.
+              </p>
+            )}
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="rounded-lg border bg-background p-4">
+                <p className="text-xs text-muted-foreground">Requests</p>
+                <p className="mt-1 text-xl font-semibold">
+                  {overview.window.totalRequests}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {overview.window.billableRequests} billable
+                </p>
+              </div>
+              <div className="rounded-lg border bg-background p-4">
+                <p className="text-xs text-muted-foreground">Errors</p>
+                <p className="mt-1 text-xl font-semibold">
+                  {overview.window.errorResponses}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  avg latency {overview.window.avgLatencyMs}ms
+                </p>
+              </div>
+              <div className="rounded-lg border bg-background p-4">
+                <p className="text-xs text-muted-foreground">
+                  Quota exhaustion
+                </p>
+                <p className="mt-1 text-xl font-semibold">
+                  {overview.window.quotaExhausted}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  429 rate/quota denials
+                </p>
+              </div>
+              <div className="rounded-lg border bg-background p-4">
+                <p className="text-xs text-muted-foreground">Auth failures</p>
+                <p className="mt-1 text-xl font-semibold">
+                  {overview.window.authFailures}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {overview.window.permissionDenials} permission denials
+                </p>
+              </div>
+            </div>
+
+            {overview.authFailures.length > 0 && (
+              <div className="mt-4">
+                <p className="mb-2 text-sm font-medium">
+                  Auth failure breakdown (no key material stored)
+                </p>
+                <ul className="flex flex-wrap gap-2 text-xs">
+                  {overview.authFailures.map((f) => (
+                    <li
+                      key={f.errorCode}
+                      className="rounded-full border bg-background px-3 py-1"
+                    >
+                      {f.errorCode}: {f.count}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {overview.byCapability.length > 0 && (
+              <div className="mt-4 overflow-x-auto">
+                <p className="mb-2 text-sm font-medium">By capability</p>
+                <table className="w-full text-left text-xs">
+                  <thead className="text-muted-foreground">
+                    <tr>
+                      <th className="py-1 pr-4">Capability</th>
+                      <th className="py-1 pr-4">Requests</th>
+                      <th className="py-1 pr-4">Errors</th>
+                      <th className="py-1">Avg latency</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {overview.byCapability.map((c) => (
+                      <tr key={c.capability} className="border-t">
+                        <td className="py-1.5 pr-4 font-mono">
+                          {c.capability}
+                        </td>
+                        <td className="py-1.5 pr-4">{c.requests}</td>
+                        <td className="py-1.5 pr-4">{c.errors}</td>
+                        <td className="py-1.5">{c.avgLatencyMs}ms</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
+        ) : (
+          <p className="text-sm text-muted-foreground">
+            Loading usage monitor…
+          </p>
+        )}
+      </section>
     </div>
   );
 }

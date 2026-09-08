@@ -18,6 +18,7 @@ const portalClient = vi.hoisted(() => ({
   rotateApiKey: vi.fn(),
   getUsageSummary: vi.fn(),
   getPlans: vi.fn(),
+  initializeApiPlanCheckout: vi.fn(),
 }));
 
 vi.mock("@/lib/frelix-api/portal-client", () => portalClient);
@@ -62,13 +63,36 @@ function renderPortal() {
 beforeEach(() => {
   vi.clearAllMocks();
   portalClient.getPlans.mockResolvedValue([
-    { key: "free", name: "Free", config: {}, active: true, sort_order: 0 },
+    {
+      key: "free",
+      name: "Free",
+      config: {
+        rateLimitPerMinute: 10,
+        dailyQuota: 50,
+        monthlyQuota: 1000,
+        priceMonthly: 0,
+      },
+      active: true,
+      sort_order: 0,
+    },
     {
       key: "developer",
       name: "Developer",
-      config: {},
+      config: {
+        rateLimitPerMinute: 60,
+        dailyQuota: 1000,
+        monthlyQuota: 25000,
+        priceMonthly: 19,
+      },
       active: true,
       sort_order: 1,
+    },
+    {
+      key: "enterprise",
+      name: "Enterprise",
+      config: { priceMonthly: null },
+      active: true,
+      sort_order: 4,
     },
   ]);
   portalClient.listApiKeys.mockResolvedValue([]);
@@ -197,5 +221,38 @@ describe("DeveloperPortal (key manager)", () => {
       expect(screen.getByText("Production")).toBeInTheDocument(),
     );
     expect(screen.queryByText(/^FLX-[A-Za-z0-9]{28}$/)).not.toBeInTheDocument();
+  });
+
+  it("renders plan pricing and upgrades via the server-priced checkout", async () => {
+    portalClient.initializeApiPlanCheckout.mockResolvedValue({
+      authorization_url: "https://checkout.paystack.com/session",
+    });
+    const assign = vi.fn();
+    Object.defineProperty(window, "location", {
+      value: { ...window.location, assign },
+      writable: true,
+    });
+
+    renderPortal();
+    const upgradeButtons = await screen.findAllByRole("button", {
+      name: /Upgrade/i,
+    });
+    expect(upgradeButtons.length).toBeGreaterThan(0);
+
+    // Enterprise (no self-serve price) is not purchasable.
+    const cards = screen.getAllByTestId("api-plan-card");
+    expect(cards.some((c) => c.textContent?.includes("Contact sales"))).toBe(
+      true,
+    );
+
+    fireEvent.click(upgradeButtons[0]);
+    await waitFor(() =>
+      expect(portalClient.initializeApiPlanCheckout).toHaveBeenCalled(),
+    );
+    await waitFor(() =>
+      expect(assign).toHaveBeenCalledWith(
+        expect.stringContaining("checkout.paystack.com"),
+      ),
+    );
   });
 });

@@ -35,9 +35,9 @@ Deno.serve(async (req: Request) => {
 
   try {
     const {
-      email,
       amount,
-      reference,
+      reference: clientReference,
+      email: clientEmail,
       plan,
       billing_cycle,
       user_id,
@@ -46,10 +46,130 @@ Deno.serve(async (req: Request) => {
       purpose,
     } = await req.json();
 
+    const isApiPlanPurchase = purpose === "api_plan";
     const isTokenPurchase = purpose === "token_purchase";
+    let email = clientEmail;
+    let reference = clientReference;
     let checkoutAmount = amount;
     let checkoutMetadata = metadata;
     let checkoutCallback = callback_url;
+    let apiPlanCurrency: string | null = null;
+
+    if (isApiPlanPurchase) {
+      // FRELUX API plan purchase (Phase 7 §17). Server-priced ONLY —
+      // the amount comes from frelux_api_plans (DB configuration),
+      // never from the client.
+      if (!user_id) {
+        return new Response(
+          JSON.stringify({ error: "Missing required fields" }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      const supabaseUrl = Deno.env.get("SUPABASE_URL");
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      if (!supabaseUrl || !serviceRoleKey) {
+        return new Response(
+          JSON.stringify({ error: "Payment provider not configured" }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+      const admin = createClient(supabaseUrl, serviceRoleKey);
+
+      const authHeader =
+        req.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
+      const tokenUser = authHeader
+        ? await admin.auth.getUser(authHeader)
+        : { data: { user: null }, error: new Error("no auth header") };
+      if (!tokenUser?.data?.user || tokenUser.data.user.id !== user_id) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const planKey = typeof plan === "string" ? plan : "";
+      if (!planKey) {
+        return new Response(JSON.stringify({ error: "Missing API plan" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // ALWAYS price server-side from the plan configuration.
+      const { data: planRow, error: planError } = await admin
+        .from("frelux_api_plans")
+        .select("key, name, active, config")
+        .eq("key", planKey)
+        .maybeSingle();
+
+      if (planError || !planRow || !planRow.active) {
+        return new Response(
+          JSON.stringify({ error: "Unknown or inactive API plan" }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      const priceMonthly = Number(planRow.config?.priceMonthly ?? null);
+      const currency = String(planRow.config?.currency ?? "USD");
+      // Free plans and contact-sales plans are not self-serve purchases.
+      if (!Number.isFinite(priceMonthly) || priceMonthly <= 0) {
+        return new Response(
+          JSON.stringify({
+            error:
+              "This plan is not available for self-service purchase. Contact FRELUX.",
+          }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      // Paystack expects minor units (kobo/cents).
+      checkoutAmount = Math.round(priceMonthly * 100);
+      const buyerEmail =
+        typeof email === "string" && email.length > 0
+          ? email
+          : (tokenUser.data.user.email ?? `${user_id}@frelux.api`);
+      checkoutMetadata = {
+        purpose: "api_plan",
+        user_id,
+        plan_key: planKey,
+        price_monthly: priceMonthly,
+        currency,
+        custom_fields: [
+          {
+            display_name: "Product",
+            variable_name: "product",
+            value: `FRELUX API — ${planRow.name}`,
+          },
+          { display_name: "Plan", variable_name: "plan", value: planKey },
+          {
+            display_name: "Platform",
+            variable_name: "platform",
+            value: "FRELUX API",
+          },
+        ],
+      };
+      checkoutCallback =
+        callback_url ||
+        `${req.headers.get("origin")}/developers?plan_purchase=verify&plan=${planKey}`;
+      // Reference is ALWAYS generated server-side for API plan purchases.
+      reference = `FRELUX_API_${planKey}_${user_id.slice(0, 8)}_${Date.now()}`;
+      email = buyerEmail;
+      apiPlanCurrency = currency;
+      // Falls through to the shared initialize-transaction code below.
+    }
 
     if (isTokenPurchase) {
       if (!user_id || !email) {
@@ -82,13 +202,10 @@ Deno.serve(async (req: Request) => {
         ? await admin.auth.getUser(authHeader)
         : { data: { user: null }, error: new Error("no auth header") };
       if (!tokenUser?.data?.user || tokenUser.data.user.id !== user_id) {
-        return new Response(
-          JSON.stringify({ error: "Unauthorized" }),
-          {
-            status: 401,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          },
-        );
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
 
       // ALWAYS price server-side from config — never trust the client amount.
@@ -115,9 +232,21 @@ Deno.serve(async (req: Request) => {
         tokens: config.token_amount,
         price_kobo: config.price_kobo,
         custom_fields: [
-          { display_name: "Product", variable_name: "product", value: `FRELUX Tokens (${config.token_amount})` },
-          { display_name: "Tokens", variable_name: "tokens", value: String(config.token_amount) },
-          { display_name: "Platform", variable_name: "platform", value: "FRELUX" },
+          {
+            display_name: "Product",
+            variable_name: "product",
+            value: `FRELUX Tokens (${config.token_amount})`,
+          },
+          {
+            display_name: "Tokens",
+            variable_name: "tokens",
+            value: String(config.token_amount),
+          },
+          {
+            display_name: "Platform",
+            variable_name: "platform",
+            value: "FRELUX",
+          },
         ],
       };
     } else {
@@ -139,6 +268,7 @@ Deno.serve(async (req: Request) => {
     const reference_ = isTokenPurchase
       ? `FRELUX_TOKENS_${user_id.slice(0, 8)}_${Date.now()}`
       : reference;
+
     if (isTokenPurchase) {
       checkoutCallback = `${req.headers.get("origin")}/rewards?token_purchase=verify&ref=${reference_}`;
     }
@@ -165,12 +295,13 @@ Deno.serve(async (req: Request) => {
         },
         body: JSON.stringify({
           email,
-          amount: checkoutAmount, // in kobo
+          amount: checkoutAmount, // minor units
+          ...(apiPlanCurrency ? { currency: apiPlanCurrency } : {}),
           reference: reference_,
           callback_url: isTokenPurchase
             ? checkoutCallback
-            : (checkoutCallback ||
-              `${req.headers.get("origin")}/pricing?status=verify&ref=${reference_}`),
+            : checkoutCallback ||
+              `${req.headers.get("origin")}/pricing?status=verify&ref=${reference_}`,
           metadata: checkoutMetadata || {
             plan,
             billing_cycle,

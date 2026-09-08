@@ -156,12 +156,46 @@ interface AuthedRequest {
   requestId: string;
 }
 
+/**
+ * §23 Observability / abuse detection: meter an authentication
+ * failure for an UNKNOWN key (wrong format or no matching hash).
+ * The row has no key/user attribution BY DESIGN — no raw key,
+ * hash fragment, or prefix is ever stored (§3).
+ */
+async function meterAuthFailure(
+  req: Request,
+  requestId: string,
+  capability: string,
+  errorCode: string,
+): Promise<void> {
+  const url = new URL(req.url);
+  await svc.from("frelux_api_usage").insert({
+    api_key_id: null,
+    user_id: null,
+    request_id: requestId,
+    endpoint: url.pathname.replace(/^.*frelix-api\//, "/"),
+    capability,
+    method: req.method,
+    status_code: 401,
+    latency_ms: 0,
+    provider: null,
+    usage_units: 0,
+    billing_unit: "request",
+    cost: 0,
+    region: null,
+    error_code: errorCode,
+  });
+}
+
 async function usageCount(keyId: string, sinceIso: string): Promise<number> {
   const { count, error } = await svc
     .from("frelux_api_usage")
     .select("id", { count: "exact", head: true })
     .gte("created_at", sinceIso)
-    .eq("api_key_id", keyId);
+    .eq("api_key_id", keyId)
+    // Only billable requests count — denials are metered with
+    // usage_units = 0 and never tighten the self-recovery window.
+    .gt("usage_units", 0);
   if (error) return 0;
   return count ?? 0;
 }
@@ -173,6 +207,7 @@ async function authenticate(
 ): Promise<{ auth?: AuthedRequest; denial?: Response }> {
   const token = extractBearerToken(req.headers.get("Authorization"));
   if (!token || !isValidApiKeyFormat(token)) {
+    await meterAuthFailure(req, requestId, capability, "invalid_api_key");
     return {
       denial: json(
         401,
@@ -197,6 +232,7 @@ async function authenticate(
     .eq("key_hash", keyHash)
     .maybeSingle();
   if (error || !row) {
+    await meterAuthFailure(req, requestId, capability, "invalid_api_key");
     return {
       denial: json(
         401,
@@ -220,7 +256,9 @@ async function authenticate(
     new Date(),
   );
   if (!statusVerdict.ok) {
-    await meter(key, requestId, req, 401, capability, 0, statusVerdict.code);
+    await meter(key, requestId, req, 401, capability, 0, statusVerdict.code, {
+      usageUnits: 0,
+    });
     return {
       denial: json(
         401,
@@ -241,6 +279,18 @@ async function authenticate(
   const recent = await usageCount(key.id, minuteAgo);
   const rl = evaluateRateLimit(recent, key.rate_limit_per_minute);
   if (!rl.allowed) {
+    await meter(
+      key,
+      requestId,
+      req,
+      429,
+      capability,
+      0,
+      "rate_limit_exceeded",
+      {
+        usageUnits: 0,
+      },
+    );
     return {
       denial: json(
         429,
@@ -266,6 +316,18 @@ async function authenticate(
   const daily = await usageCount(key.id, dayStart.toISOString());
   const dq = evaluateQuota("daily", daily, key.daily_quota);
   if (!dq.allowed) {
+    await meter(
+      key,
+      requestId,
+      req,
+      429,
+      capability,
+      0,
+      "daily_quota_exceeded",
+      {
+        usageUnits: 0,
+      },
+    );
     return {
       denial: json(
         429,
@@ -284,6 +346,18 @@ async function authenticate(
   const monthly = await usageCount(key.id, monthStart.toISOString());
   const mq = evaluateQuota("monthly", monthly, key.monthly_quota);
   if (!mq.allowed) {
+    await meter(
+      key,
+      requestId,
+      req,
+      429,
+      capability,
+      0,
+      "monthly_quota_exceeded",
+      {
+        usageUnits: 0,
+      },
+    );
     return {
       denial: json(
         429,

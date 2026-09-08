@@ -26,6 +26,7 @@ import {
   Terminal,
   ShieldCheck,
   AlertTriangle,
+  Crown,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { useToast } from "@/components/ui/Toast";
@@ -36,6 +37,7 @@ import {
   rotateApiKey,
   getUsageSummary,
   getPlans,
+  initializeApiPlanCheckout,
   type ApiKeyRow,
   type ApiKeyPlan,
   type UsageSummary,
@@ -162,7 +164,24 @@ export default function DeveloperPortal() {
   const [newKeyName, setNewKeyName] = useState("");
   const [newKeyPlan, setNewKeyPlan] = useState("free");
   const [freshKey, setFreshKey] = useState<string | null>(null);
+  const [upgradeBusy, setUpgradeBusy] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+
+  const handleUpgrade = async (planKey: string) => {
+    setUpgradeBusy(planKey);
+    try {
+      const res = await initializeApiPlanCheckout(planKey);
+      if ("authorization_url" in res) {
+        window.location.assign(res.authorization_url);
+      } else {
+        error(res.error);
+      }
+    } catch {
+      error("Could not start checkout. Please retry.");
+    } finally {
+      setUpgradeBusy(null);
+    }
+  };
 
   const load = useCallback(async () => {
     setBusy("load");
@@ -535,6 +554,89 @@ export default function DeveloperPortal() {
             )}
           </>
         )}
+      </section>
+
+      {/* ── Plans & pricing (Phase 7 §17) ─────────────────────
+          Paid plans are self-serve; enterprise/custom is
+          contact-sales. Plan changes apply automatically to all
+          your active keys once the signed payment webhook confirms
+          — never from this page alone. */}
+      <section className="rounded-lg border bg-card p-5">
+        <h2 className="mb-1 flex items-center gap-2 text-base font-semibold">
+          <Crown
+            aria-hidden="true"
+            className="h-4 w-4 text-amber-500 dark:text-amber-300"
+          />
+          Plans &amp; pricing
+        </h2>
+        <p className="mb-4 text-sm text-muted-foreground">
+          Upgrades are confirmed by the payment provider&#39;s signed webhook,
+          then applied to every active key automatically.
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {plans.map((p) => {
+            const cfg = (p.config ?? {}) as {
+              priceMonthly?: number | null;
+              rateLimitPerMinute?: number;
+              dailyQuota?: number;
+              monthlyQuota?: number;
+            };
+            const priceMonthly = cfg.priceMonthly;
+            const purchasable =
+              typeof priceMonthly === "number" && priceMonthly > 0;
+            return (
+              <div
+                key={p.key}
+                className="flex flex-col justify-between rounded-lg border bg-background p-4"
+                data-testid="api-plan-card"
+              >
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <p className="font-medium">{p.name}</p>
+                    {purchasable && (
+                      <span title="Premium plan">
+                        <Crown
+                          aria-hidden="true"
+                          className="h-3.5 w-3.5 text-amber-500 dark:text-amber-300"
+                        />
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {cfg.rateLimitPerMinute ?? "—"}/min ·{" "}
+                    {cfg.dailyQuota ?? "—"}/day · {cfg.monthlyQuota ?? "—"}
+                    /month
+                  </p>
+                </div>
+                <div className="mt-3">
+                  <p className="text-sm font-semibold">
+                    {purchasable
+                      ? `$${priceMonthly}/mo`
+                      : priceMonthly === 0
+                        ? "Free"
+                        : "Contact sales"}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => handleUpgrade(p.key)}
+                    disabled={!purchasable || upgradeBusy !== null}
+                    className="mt-2 inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground disabled:opacity-50"
+                  >
+                    {upgradeBusy === p.key ? (
+                      <Loader2
+                        aria-hidden="true"
+                        className="h-3 w-3 animate-spin"
+                      />
+                    ) : (
+                      <Crown aria-hidden="true" className="h-3 w-3" />
+                    )}
+                    {p.key === "free" ? "Included" : "Upgrade"}
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </section>
     </div>
   );

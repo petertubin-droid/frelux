@@ -209,3 +209,48 @@ export async function getPlans(): Promise<ApiKeyPlan[]> {
   if (error) throw new Error(error.message);
   return data ?? [];
 }
+
+// =========================================================
+// Phase 7 §17 — API plan purchase
+//
+// The plan price is ALWAYS resolved server-side from
+// frelux_api_plans by the paystack-checkout edge function; the
+// client cannot influence it. The entitlement itself is granted
+// ONLY by the signed payment webhook (reference-idempotent) —
+// this call merely starts a payment session.
+// =========================================================
+export async function initializeApiPlanCheckout(
+  planKey: string,
+): Promise<{ authorization_url: string } | { error: string }> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  if (!session?.user) {
+    return { error: "Sign in to purchase an API plan." };
+  }
+
+  const { data, error: fnError } = await supabase.functions.invoke(
+    "paystack-checkout",
+    {
+      body: {
+        purpose: "api_plan",
+        plan: planKey,
+        user_id: session.user.id,
+        email: session.user.email,
+        callback_url: `${window.location.origin}/developers?plan_purchase=verify&plan=${planKey}`,
+      },
+    },
+  );
+
+  if (fnError) {
+    return { error: fnError.message || "Could not start checkout." };
+  }
+  if (!data?.data?.authorization_url) {
+    return {
+      error:
+        (data as { error?: string })?.error ??
+        "Checkout is unavailable for this plan.",
+    };
+  }
+  return { authorization_url: data.data.authorization_url };
+}

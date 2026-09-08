@@ -36,6 +36,10 @@ const supabaseMock = vi.hoisted(() => {
 });
 
 vi.mock("@/lib/frelix-api/portal-client", () => portalClient);
+const observability = vi.hoisted(() => ({
+  getApiUsageOverview: vi.fn(),
+}));
+vi.mock("@/lib/frelix-api/admin-observability", () => observability);
 vi.mock("@/lib/supabase", () => ({ supabase: supabaseMock }));
 vi.mock("@/components/ui/Toast", () => ({
   useToast: vi.fn(() => ({
@@ -166,5 +170,37 @@ describe("AdminApiKeys", () => {
       target: { value: "zzz-no-match" },
     });
     expect(await screen.findByText(/No API keys match/i)).toBeInTheDocument();
+  });
+
+  it("renders the §23 usage monitor with stats and suspicion alerts", async () => {
+    observability.getApiUsageOverview.mockResolvedValue({
+      window: {
+        totalRequests: 42,
+        billableRequests: 40,
+        errorResponses: 2,
+        avgLatencyMs: 130,
+        quotaExhausted: 1,
+        authFailures: 0,
+        permissionDenials: 1,
+      },
+      byCapability: [
+        {
+          capability: "calculators",
+          requests: 40,
+          errors: 0,
+          avgLatencyMs: 120,
+        },
+      ],
+      topKeys: [],
+      authFailures: [],
+      suspicious: true,
+      generatedAt: "2026-09-08T00:00:00Z",
+    });
+    renderPage();
+    expect(await screen.findByText("42")).toBeInTheDocument();
+    expect(
+      screen.getByText(/Suspicious activity pattern detected/i),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText(/Quota exhaustion/i).length).toBeGreaterThan(0);
   });
 });
