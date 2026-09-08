@@ -85,9 +85,12 @@ export const ROOM_TAKEOFF_CATALOG: RoomTakeoffRequirement[] = [
   },
   {
     kind: "screeding",
-    description: "Screeding system materials per the FRELUX m² methodology.",
-    requires: ["length", "width"],
-    assumptions: ["Engine default screeding system configuration applies."],
+    description:
+      "Wall screeding system materials per the FRELUX net-wall-area (full-room) methodology.",
+    requires: ["length", "width", "height"],
+    assumptions: [
+      "Engine default screeding system configuration applies. The area is the net WALL surface (perimeter × height − confirmed openings) — never the floor area.",
+    ],
   },
   {
     kind: "tiling",
@@ -129,6 +132,14 @@ export interface RoomTakeoffItem {
     lengthM: number | null;
     widthM: number | null;
     heightM: number | null;
+    /**
+     * Net WALL screeding area (m²) — full-room FRELUX semantics:
+     * perimeter × height − confirmed openings. Derived from the
+     * room's verified geometry by the planner because the
+     * screeding engine's contract takes a single areaM2. Only set
+     * for screeding items of rooms with all three dimensions.
+     */
+    netWallAreaM2?: number | null;
   };
   /** Traceability: which document/page the room came from. */
   provenance: ExtractedRoom["provenance"];
@@ -174,6 +185,29 @@ export function planRoomTakeoff(
     const widthM = dimensionToMeters(room.width);
     const heightM = dimensionToMeters(room.height);
 
+    // Net WALL screeding area (FRELUX full-room methodology, the
+    // same one the screeding wall-area calculator uses): perimeter
+    // × height − confirmed openings. Only CONFIRMED openings with
+    // known dimensions are deducted — AI-extracted opening dims are
+    // never used in money math (§13), and unknown dims are never
+    // invented.
+    const confirmedOpeningAreaM2 = (room.openings ?? [])
+      .filter(
+        (o) =>
+          o.reviewStatus === "user_confirmed" ||
+          o.reviewStatus === "user_edited",
+      )
+      .reduce((sum, o) => {
+        const w = dimensionToMeters(o.width);
+        const h = dimensionToMeters(o.height);
+        if (w === null || h === null) return sum;
+        return sum + w * h * Math.max(1, o.count);
+      }, 0);
+    const netWallAreaM2 =
+      lengthM !== null && widthM !== null && heightM !== null
+        ? Math.max(0, 2 * (lengthM + widthM) * heightM - confirmedOpeningAreaM2)
+        : null;
+
     for (const req of reqs) {
       const missing: string[] = [];
       if (
@@ -194,6 +228,15 @@ export function planRoomTakeoff(
       ) {
         missing.push("height");
       }
+      // Tiling needs a tile SELECTION (size, tiles per box, price per
+      // box) — user/regional data the plan does not carry. The gap is
+      // reported; the engine is never sent a doomed input, and tile
+      // data is never invented.
+      if (req.kind === "tiling") {
+        missing.push(
+          "tile selection (tile size, tiles per box, price per box) — the Tiling Calculator runs this room's FLOOR area (length × width) with your chosen tile",
+        );
+      }
 
       items.push({
         roomId: room.id,
@@ -202,7 +245,10 @@ export function planRoomTakeoff(
         engineId: TAKEOFF_ENGINE_IDS[req.kind],
         status: missing.length === 0 ? "ready" : "missing_info",
         missing,
-        input: { lengthM, widthM, heightM },
+        input:
+          req.kind === "screeding"
+            ? { lengthM, widthM, heightM, netWallAreaM2 }
+            : { lengthM, widthM, heightM },
         provenance: room.provenance,
       });
     }
@@ -282,6 +328,9 @@ export async function executeRoomTakeoff(
   // Per-kind input shape — each engine's OWN documented contract.
   // The planner adds no math, no unit conversion and no defaults;
   // omitted optional fields fall back to the engine's own defaults.
+  // Each branch maps to its engine's OWN documented input contract.
+  // The planner adds no market data and no defaults — only the
+  // geometry adaptation each engine's contract requires.
   const input =
     item.kind === "painting"
       ? {
@@ -295,11 +344,38 @@ export async function executeRoomTakeoff(
             width: item.input.widthM,
             height: item.input.heightM, // tyrolene partition contract
           }
-        : {
-            length: item.input.lengthM,
-            width: item.input.widthM,
-            height: item.input.heightM,
-          };
+        : item.kind === "screeding"
+          ? {
+              // screeding_system engine contract: the NET WALL
+              // screeding area (m²). FRELUX full-room semantics —
+              // perimeter × height − confirmed openings — derived
+              // from the room's verified geometry by the planner,
+              // because the engine's contract takes a single
+              // areaM2. Wall surface area, NOT floor area.
+              areaM2: item.input.netWallAreaM2 ?? null,
+            }
+          : item.kind === "pop_ceiling"
+            ? {
+                // pop_ceiling engine contract: the roomLength/roomWidth
+                // that define the ceiling plane — the room's verified
+                // footprint in metres (ceiling area = L × W).
+                roomLength: item.input.lengthM,
+                roomWidth: item.input.widthM,
+                unit: "meters" as const,
+              }
+            : {
+                // Tiling (and future kinds): tiling items are
+                // blocked at plan time until a tile SELECTION
+                // exists — the engine's floor-area basis (length ×
+                // width) is stated in the plan's missing entry, and
+                // tile data is never invented. Any kind that does
+                // reach execution gets its dimensions passed through
+                // unchanged; each engine validates its own input
+                // honestly.
+                length: item.input.lengthM,
+                width: item.input.widthM,
+                height: item.input.heightM,
+              };
 
   let result: EngineResult;
   try {

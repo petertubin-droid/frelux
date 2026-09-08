@@ -2,6 +2,11 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./e2e",
+  // Live-debugging specs (e2e/debug-*.spec.ts) are version-controlled
+  // but run against REAL Supabase / the deployed site — never in CI.
+  // Run them explicitly with the live config:
+  //   npx playwright test --config playwright-live.config.ts
+  testIgnore: /debug-.*\.spec\.ts/,
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

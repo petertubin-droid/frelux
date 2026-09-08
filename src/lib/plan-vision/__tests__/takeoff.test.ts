@@ -2,7 +2,7 @@
 // PLAN VISION TESTS — AI quantity takeoff (§10, §11, §12, §18)
 // =========================================================
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import {
   buildTakeoffTrace,
   executeRoomTakeoff,
@@ -15,6 +15,113 @@ import {
 import { confirmElement, editRoom, rejectElement } from "../review";
 import { explicitDimension, unknownDimension } from "../dimensions";
 import type { ExtractedRoom, PlanExtraction } from "../types";
+
+// ---------------------------------------------------------
+// In-memory supabase — the screeding engine fetches its
+// admin-configured system config and the POP engine fetches
+// its material list; both are seeded here (the same data the
+// manual calculators read in production).
+// ---------------------------------------------------------
+const SCREED_CONFIG_ROW = {
+  id: "sc-1",
+  system_type: "white_cement_paint",
+  display_name: "White Cement + Screeding Paint",
+  description: "Combined White Cement and Screeding Paint calculation.",
+  coverage_area_m2: 20,
+  coverage_unit: "m²",
+  default_coats: 2,
+  waste_percentage: 20,
+  currency: "NGN",
+  currency_symbol: "₦",
+  putty_name: null,
+  putty_quantity: null,
+  putty_unit: null,
+  putty_price_per_unit: null,
+  paint_name: "Screeding Paint",
+  paint_quantity: 2,
+  paint_unit: "bucket",
+  paint_price_per_unit: 25000,
+  cement_name: "White Cement",
+  cement_quantity: 1,
+  cement_unit: "bag",
+  cement_price_per_unit: 7500,
+  extra_enabled: null,
+  extra_name: null,
+  extra_quantity: null,
+  extra_unit: null,
+  extra_price_per_unit: null,
+  rounding_rule: "ceil",
+  is_active: true,
+  sort_order: 1,
+  created_at: "2026-01-01T00:00:00Z",
+  updated_at: "2026-01-01T00:00:00Z",
+};
+
+const POP_MATERIAL_ROW = {
+  id: "pop-1",
+  workflow: "nigeria",
+  category: "primary",
+  name: "POP Cement",
+  description: null,
+  unit: "bag",
+  coverage_rate: 10,
+  coverage_unit: "m²",
+  package_size: 1,
+  package_unit: "bag",
+  unit_price: 3500,
+  labour_rate_per_sqm: 0,
+  is_optional: false,
+  currency: "NGN",
+  is_active: true,
+  sort_order: 1,
+  created_at: "2026-01-01T00:00:00Z",
+  updated_at: "2026-01-01T00:00:00Z",
+};
+
+const MOCK_TABLES: Record<string, Array<Record<string, unknown>>> = {
+  screeding_system_config: [SCREED_CONFIG_ROW],
+  pop_materials: [POP_MATERIAL_ROW],
+};
+
+vi.mock("@/lib/supabase", () => {
+  function from(table: string) {
+    const rows = () => MOCK_TABLES[table] ?? [];
+    const eqs: Array<[string, unknown]> = [];
+    let countHead = false;
+    const filtered = () =>
+      rows().filter((r) => eqs.every(([k, v]) => r[k] === v));
+    const c: Record<string, unknown> = {
+      select: (_cols?: unknown, opts?: { head?: boolean; count?: string }) => {
+        if (opts?.head && opts.count) countHead = true;
+        return c;
+      },
+      eq: (col: string, val: unknown) => {
+        eqs.push([col, val]);
+        return c;
+      },
+      order: () => c,
+      limit: () => c,
+      maybeSingle: () =>
+        Promise.resolve({
+          data: filtered()[0] ? { ...filtered()[0] } : null,
+          error: null,
+        }),
+      single: () =>
+        Promise.resolve({
+          data: filtered()[0] ? { ...filtered()[0] } : null,
+          error: null,
+        }),
+      then: (resolve: (v: unknown) => unknown) =>
+        resolve({
+          data: filtered().map((r) => ({ ...r })),
+          error: null,
+          count: countHead ? filtered().length : null,
+        }),
+    };
+    return c;
+  }
+  return { supabase: { from }, isSupabaseConfigured: true };
+});
 
 let seq = 0;
 function room(over: Partial<ExtractedRoom> = {}): ExtractedRoom {
@@ -117,14 +224,16 @@ describe("multi-room takeoff planning (§12)", () => {
     expect(items).toHaveLength(0);
   });
 
-  it("reports missing floor-area dims for screeding (no height needed)", () => {
+  it("screeding needs the WALL height too (net wall area = perimeter × height − openings)", () => {
     const noHeight = editRoom(room({ height: unknownDimension() }), {
       lengthM: 4,
     });
     const items = planRoomTakeoff(extraction([noHeight]), ["screeding"]);
-    expect(items[0].status).toBe("ready"); // screeding needs length+width only
-    const painting = planRoomTakeoff(extraction([noHeight]), ["painting"]);
-    expect(painting[0].status).toBe("missing_info");
+    expect(items[0].status).toBe("missing_info");
+    expect(items[0].missing).toContain("height");
+    // POP ceiling is a footprint calculation — height not required.
+    const pop = planRoomTakeoff(extraction([noHeight]), ["pop_ceiling"]);
+    expect(pop[0].status).toBe("ready");
   });
 
   it("carries provenance into every item (§7/§18)", () => {
@@ -238,5 +347,130 @@ describe("traceability chain (§18)", () => {
     expect(trace.quantities).toHaveLength(0);
     expect(trace.status).toBe("missing_info");
     expect(trace.inputs.height).toBeNull();
+  });
+});
+
+// =========================================================
+// STAGE 15 RE-AUDIT — ENGINE CONTRACT BOUNDARIES
+//
+// Each takeoff kind must feed its engine the measurement the
+// engine's OWN contract expects, per FRELUX's actual calculator
+// semantics — inputs are mapped, never renamed or reinterpreted
+// to make a test pass:
+//
+//   screeding_system  ← net WALL area (full-room: perimeter ×
+//                      height − confirmed openings) — NOT floor area
+//   tile_estimate    ← floor area (L × W) — blocked until the
+//                      user's tile selection exists
+//   pop_ceiling      ← the room footprint (ceiling plane = L × W)
+// =========================================================
+
+function opening(
+  id: string,
+  type: "door" | "window",
+  w: number,
+  h: number,
+  count: number,
+  reviewStatus: "user_confirmed" | "ai_extracted",
+): ExtractedRoom["openings"][number] {
+  return {
+    id,
+    type,
+    width: explicitDimension(w, "m", 1),
+    height: explicitDimension(h, "m", 1),
+    count,
+    confidence: 1,
+    provenance: {
+      documentId: "doc1",
+      page: 1,
+      quote: `${type.toUpperCase()} ${w * 1000}x${h * 1000}`,
+      method: "vision_model",
+    },
+    reviewStatus,
+  };
+}
+
+describe("engine contract boundaries (Stage 15 re-audit — FRELUX measurement semantics)", () => {
+  it("SCREEDING: planner derives the NET WALL area (perimeter × height − CONFIRMED openings); the engine receives areaM2", async () => {
+    const confirmed = confirmElement(
+      room({
+        openings: [
+          opening("op-door", "door", 0.9, 2.1, 1, "user_confirmed"),
+          opening("op-win", "window", 1.5, 1.5, 2, "ai_extracted"),
+        ],
+      }),
+    );
+    const items = planRoomTakeoff(extraction([confirmed]), ["screeding"]);
+    expect(items[0].status).toBe("ready");
+
+    // Independent FRELUX full-room arithmetic:
+    //   gross wall area = 2 × (4 + 3) × 3 = 42 m²
+    //   confirmed door  = 0.9 × 2.1 × 1 = 1.89 m² (deducted)
+    //   unconfirmed windows = NEVER deducted (AI dims are not money math)
+    //   net wall area = 40.11 m² — wall surface, not floor area (12 m²)
+    expect(items[0].input.netWallAreaM2).toBeCloseTo(40.11, 8);
+
+    const executed = await executeTakeoffPlan(items);
+    expect(executed[0].result?.ok).toBe(true);
+    expect(executed[0].result!.quantities[0]).toMatchObject({
+      label: "Net screeding area",
+    });
+    expect(executed[0].result!.quantities[0].quantity).toBeCloseTo(40.11, 6);
+
+    // Boundary: identical output to the engine invoked DIRECTLY with
+    // the documented contract input — the takeoff adds nothing.
+    const { executeEngine } =
+      await import("@/lib/ai-foundation/engines-registry");
+    const direct = await executeEngine("screeding_system", {
+      areaM2: items[0].input.netWallAreaM2,
+    });
+    expect(direct.ok).toBe(true);
+    expect(executed[0].result!.quantities).toEqual(direct.quantities);
+    expect(executed[0].result!.costs).toEqual(direct.costs);
+  });
+
+  it("SCREEDING: no confirmed openings → the full gross wall area is the net area", () => {
+    const confirmed = confirmElement(room()); // 4 × 3 × 3, no openings
+    const items = planRoomTakeoff(extraction([confirmed]), ["screeding"]);
+    expect(items[0].status).toBe("ready");
+    expect(items[0].input.netWallAreaM2).toBe(42); // 2 × (4 + 3) × 3
+  });
+
+  it("POP CEILING: engine receives the room footprint — the ceiling plane (length × width)", async () => {
+    const confirmed = confirmElement(room()); // 4 × 3 × 3
+    const items = planRoomTakeoff(extraction([confirmed]), ["pop_ceiling"]);
+    expect(items[0].status).toBe("ready");
+
+    const executed = await executeTakeoffPlan(items);
+    expect(executed[0].result?.ok).toBe(true);
+    // Independent: ceiling area = 4 × 3 = 12 m² (height plays no part).
+    expect(executed[0].result!.quantities[0]).toMatchObject({
+      label: "Ceiling area",
+      quantity: 12,
+    });
+
+    const { executeEngine } =
+      await import("@/lib/ai-foundation/engines-registry");
+    const direct = await executeEngine("pop_ceiling", {
+      roomLength: 4,
+      roomWidth: 3,
+      unit: "meters",
+    });
+    expect(direct.ok).toBe(true);
+    expect(executed[0].result!.quantities).toEqual(direct.quantities);
+  });
+
+  it("TILING: blocked until a tile selection exists — the gap states the FLOOR-area basis; nothing is invented", async () => {
+    const confirmed = confirmElement(room());
+    const items = planRoomTakeoff(extraction([confirmed]), ["tiling"]);
+    expect(items[0].status).toBe("missing_info");
+    const gap = items[0].missing.join(" ");
+    expect(gap).toMatch(/tile selection/i);
+    expect(gap).toMatch(/floor area/i);
+
+    // Blocked items are never executed — the gap stays visible.
+    const executed = await executeTakeoffPlan(items);
+    expect(executed[0].result).toBeUndefined();
+    expect(executed[0].status).toBe("missing_info");
   });
 });
