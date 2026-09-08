@@ -21,7 +21,8 @@
     "inline-critical-css": "node scripts/inline-critical-css.mjs",
     "generate-sw": "node scripts/generate-sw.mjs",
     "lighthouse": "npx @lhci/cli autorun",
-    "lighthouse:collect": "npx @lhci/cli collect --config=./.lighthouserc.json"
+    "lighthouse:collect": "npx @lhci/cli collect --config=./.lighthouserc.json",
+    "build:api-engines": "npx esbuild src/lib/frelix-api/server-engines.ts --bundle --format=esm --platform=neutral --target=es2022 --outfile=supabase/functions/frelix-api/_engines.bundle.js --define:import.meta.env={} --define:import.meta.env.VITE_SUPABASE_URL=\\\"https://hqhvlkunkdrxyuvziorm.supabase.co\\\" --define:import.meta.env.VITE_SUPABASE_ANON_KEY=\\\"\\$VITE_ANON_KEY\\\""
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.11",

@@ -198,3 +198,21 @@ INSERT INTO public.frelux_api_plans (key, name, config, active, sort_order) VALU
     'features', jsonb_build_array('calculators','chat','capabilities','regions','market')
   ), true, 6)
 ON CONFLICT (key) DO NOTHING;
+
+-- ---------------------------------------------------------
+-- ROLE GRANTS
+-- The migration runner creates tables without Supabase's
+-- default privileges, so the standard roles must be granted
+-- explicitly (identical effect to the platform defaults).
+-- ---------------------------------------------------------
+GRANT SELECT, INSERT, UPDATE, DELETE
+  ON public.frelux_api_keys, public.frelux_api_usage, public.frelux_api_plans
+  TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.frelux_api_keys TO authenticated;
+GRANT SELECT ON public.frelux_api_plans, public.frelux_api_usage TO authenticated;
+
+-- The Phase 6.5 tables the API gateway touches (created via the
+-- same migration runner — same missing-grants situation):
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.frelux_learning_records TO service_role;
+GRANT SELECT ON public.frelux_price_observations TO service_role;
+GRANT SELECT ON public.market_pricing, public.market_profiles, public.market_products TO service_role;
