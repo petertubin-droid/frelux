@@ -165,6 +165,11 @@ describe("DeveloperPortal (key manager)", () => {
     await waitFor(() =>
       expect(screen.getByText("Production")).toBeInTheDocument(),
     );
+    // Buttons stay disabled while usage is still loading — wait for
+    // enabled before clicking (slow CI runners hit this race once).
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /Rotate/i })).toBeEnabled(),
+    );
 
     fireEvent.click(screen.getByRole("button", { name: /Rotate/i }));
     await waitFor(() =>
@@ -176,6 +181,9 @@ describe("DeveloperPortal (key manager)", () => {
       ).toBeInTheDocument(),
     );
 
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /Revoke/i })).toBeEnabled(),
+    );
     fireEvent.click(screen.getByRole("button", { name: /Revoke/i }));
     await waitFor(() =>
       expect(portalClient.revokeApiKey).toHaveBeenCalledWith("key-1"),
