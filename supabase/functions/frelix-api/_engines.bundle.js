@@ -21224,7 +21224,7 @@ var init_supabase = __esm({
     init_define_import_meta_env();
     init_dist4();
     url = "https://hqhvlkunkdrxyuvziorm.supabase.co";
-    anonKey = "";
+    anonKey = "$VITE_ANON_KEY";
     isSupabaseConfigured = Boolean(url && anonKey);
     if (define_import_meta_env_default.DEV && !isSupabaseConfigured) {
       console.warn(
@@ -21264,7 +21264,7 @@ var init_supabase_lazy = __esm({
   "src/lib/supabase-lazy.ts"() {
     init_define_import_meta_env();
     url2 = "https://hqhvlkunkdrxyuvziorm.supabase.co";
-    anonKey2 = "";
+    anonKey2 = "$VITE_ANON_KEY";
     isSupabaseConfigured2 = Boolean(url2 && anonKey2);
     _client = null;
     _promise = null;
