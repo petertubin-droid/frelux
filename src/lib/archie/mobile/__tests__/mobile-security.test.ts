@@ -886,8 +886,8 @@ describe("poisoned learning material", () => {
 // Capability registry sanity
 // ---------------------------------------------------------
 describe("mobile capability registry", () => {
-  it("all 12 free capabilities are registered with explicit consent semantics", () => {
-    expect(FREE_CAPABILITY_KEYS.length).toBe(12);
+  it("all 13 free capabilities are registered with explicit consent semantics", () => {
+    expect(FREE_CAPABILITY_KEYS.length).toBe(13);
     for (const cap of FREE_CAPABILITY_KEYS) {
       const spec = MOBILE_CAPABILITIES[cap];
       expect(spec.label.length).toBeGreaterThan(0);

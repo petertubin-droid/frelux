@@ -12,6 +12,7 @@
 // ---------------------------------------------------------
 export type ArchieMobileCapability =
   | "VOICE_INPUT" // voice commands/input (where Android supports)
+  | "VOICE_OUTPUT" // ARCHIE speaks responses (browser TTS, output only)
   | "CAMERA" // manually invoked camera access
   | "PHOTOS" // user-selected photos/images
   | "FILES" // user-selected files/documents

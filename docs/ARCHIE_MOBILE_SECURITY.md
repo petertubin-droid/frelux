@@ -91,3 +91,23 @@ features (no text labels).
   verification copy.
 
 Full regression: **5,650 tests / 615 files green**, production build green.
+
+## ARCHIE's voice (Phase 8c, 2026-09-08)
+
+`voice.ts` — ARCHIE speaks its responses aloud through the browser's native
+`speechSynthesis` engine:
+
+- **Consent-gated at the library level**: `speakArchie()` refuses to speak
+  without an explicitly granted `VOICE_OUTPUT` consent (a new free
+  capability, default OFF — same registry, same switch UI).
+- **No provider, no keys, no cost**: browser-native TTS only; output-only
+  (nothing is recorded or uploaded; `VOICE_INPUT` remains the separate,
+  consented input path).
+- **Never speaks junk**: emoji, markdown syntax and raw URLs are stripped
+  (`speakableText`); long replies are chunked at sentence/word boundaries
+  (max 220 chars, never mid-word) for engines that cut long utterances.
+- **Silent on new input**: `stopArchieVoice()` fires whenever the user sends
+  a new message or starts voice input — ARCHIE stops talking the moment you
+  speak.
+- Consent-denied replies surface a one-line system hint in the transcript
+  (muted, italic) instead of blocking the chat.

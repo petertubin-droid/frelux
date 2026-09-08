@@ -50,6 +50,15 @@ export const MOBILE_CAPABILITIES: Readonly<
     permissionModel: "BROWSER_PROMPT",
     requiresPlatformPermission: true,
   },
+  VOICE_OUTPUT: {
+    capability: "VOICE_OUTPUT",
+    label: "ARCHIE voice",
+    description:
+      "ARCHIE speaks its responses aloud (on-device speech, output only). Nothing is recorded.",
+    supported: () => has("speechSynthesis"),
+    permissionModel: "APP_CONSENT_ONLY",
+    requiresPlatformPermission: false,
+  },
   CAMERA: {
     capability: "CAMERA",
     label: "Camera",

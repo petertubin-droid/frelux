@@ -63,6 +63,7 @@ import {
   deactivatePaidCapability,
 } from "@/lib/archie/mobile/paid-services";
 import { generateFree } from "@/lib/archie/mobile/free-generation";
+import { speakArchie, stopArchieVoice } from "@/lib/archie/mobile/voice";
 import {
   registerCurrentSession,
   fetchSessions,
@@ -121,7 +122,7 @@ function deviceLabel(): string {
 }
 
 interface Msg {
-  role: "user" | "archie";
+  role: "user" | "archie" | "system";
   text: string;
 }
 
@@ -244,6 +245,13 @@ export default function Assistant() {
 
   function pushArchie(text: string) {
     setMessages((m) => [...m, { role: "archie", text }]);
+    // ARCHIE's voice: speaks ONLY with an explicit VOICE_OUTPUT consent.
+    // speakArchie refuses (and returns a hint) when consent is absent.
+    const spoken = speakArchie(text, consents?.VOICE_OUTPUT);
+    if (!spoken.ok && spoken.error) {
+      // Non-blocking hint in the transcript — voice stays off until enabled.
+      setMessages((m) => [...m, { role: "system", text: spoken.error! }]);
+    }
   }
 
   // -------------------------------------------------------
@@ -252,6 +260,7 @@ export default function Assistant() {
   async function handleSend() {
     const text = input.trim();
     if (!text) return;
+    stopArchieVoice();
     setMessages((m) => [...m, { role: "user", text }]);
     setInput("");
     // Voice/text may INITIATE an authorization workflow…
@@ -273,6 +282,7 @@ export default function Assistant() {
   }
 
   async function startVoice() {
+    stopArchieVoice();
     if (!consentGate("VOICE_INPUT")) return;
     const SR =
       (window as unknown as Record<string, unknown>).SpeechRecognition ??
@@ -677,7 +687,9 @@ export default function Assistant() {
                   "max-w-[85%] rounded-xl px-3 py-2 text-sm",
                   m.role === "user"
                     ? "ml-auto bg-primary text-primary-foreground"
-                    : "bg-muted text-foreground",
+                    : m.role === "system"
+                      ? "w-full bg-transparent px-0 py-0 text-center text-xs italic text-muted-foreground"
+                      : "bg-muted text-foreground",
                 )}
               >
                 {m.text}
