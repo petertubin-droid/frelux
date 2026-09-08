@@ -51,6 +51,7 @@ const FinishingCalculatorHub = lazy(
 );
 const Calculators = lazy(() => import("@/pages/Calculators"));
 const AiColorAssistant = lazy(() => import("@/pages/AiColorAssistant"));
+const Assistant = lazy(() => import("@/pages/Assistant"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const About = lazy(() => import("@/pages/legal/About"));
 const PrivacyPolicy = lazy(() => import("@/pages/legal/PrivacyPolicy"));
@@ -575,6 +576,15 @@ export default function App() {
                     />
 
                     {/* AI workspace */}
+                    <Route
+                      path="/assistant"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <Assistant />
+                        </Suspense>
+                      }
+                    />
+
                     <Route
                       path="/ai-color-assistant"
                       element={

@@ -15,3 +15,6 @@ verify_jwt = false
 
 [functions.ai-construction-extraction]
 verify_jwt = false
+
+[functions.archie-owner-auth]
+verify_jwt = true

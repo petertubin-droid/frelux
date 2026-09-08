@@ -196,6 +196,12 @@ export const navWorkspaces: NavWorkspace[] = [
         description: "AI-powered color recommendations",
       },
       {
+        label: "ARCHIE Mobile Assistant",
+        path: "/assistant",
+        description:
+          "ARCHIE on your phone — voice, calculators, protected vault & security",
+      },
+      {
         label: "AI Color Preview",
         path: "/color-preview",
         description: "Before & after room visualization",
