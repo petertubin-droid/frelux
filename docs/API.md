@@ -185,7 +185,7 @@ The official public API lives at
 `https://hqhvlkunkdrxyuvziorm.supabase.co/functions/v1/frelix-api/v1`
 (Edge Function `frelix-api`, no verify-JWT — authenticated by FRELUX API keys).
 
-- Documentation & key manager: `https://frelux.app/developers` (DeveloperPortal page)
+- Documentation & key manager: `https://freluxtools.netlify.app/developers` (DeveloperPortal page)
 - Admin console: `/admin/api-keys`
 - Deterministic calculators execute the canonical engine registry server-side
   (bundled from `src/lib/frelux-api/server-engines.ts` via `npm run build:api-engines`).

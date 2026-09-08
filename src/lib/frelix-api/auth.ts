@@ -125,7 +125,8 @@ export interface ApiErrorBody {
   };
 }
 
-export const API_ERROR_DOCUMENTATION = "https://frelux.app/developers#errors";
+export const API_ERROR_DOCUMENTATION =
+  "https://freluxtools.netlify.app/developers#errors";
 
 export function apiError(
   code: string,

@@ -599,7 +599,7 @@ function handleIdentity(requestId: string) {
       authentication: "Authorization: Bearer FLX-… (FRELUX API key)",
       capabilities: "/v1/capabilities",
       plans: "/v1/plans",
-      documentation: "https://frelux.app/developers",
+      documentation: "https://freluxtools.netlify.app/developers",
       requestId,
     },
     requestId,

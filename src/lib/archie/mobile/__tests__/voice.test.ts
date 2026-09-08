@@ -75,7 +75,7 @@ describe("ARCHIE voice", () => {
   it("never speaks emoji, markdown or raw URLs", () => {
     const clean = speakableText(
       BANNER +
-        " **Roof area** is 42m2 - see https://frelux.app/r/9 for details.",
+        " **Roof area** is 42m2 - see https://freluxtools.netlify.app/r/9 for details.",
     );
     expect(clean).not.toMatch(/\*\*|https?:\/\/|frelux\.app/);
     expect(clean.includes(BANNER)).toBe(false);

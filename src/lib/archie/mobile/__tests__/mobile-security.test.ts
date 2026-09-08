@@ -441,7 +441,9 @@ describe("permission denial", () => {
   });
 
   it("only safe http(s) links open, javascript:/data: blocked", () => {
-    expect(isSafeLink("https://frelux.app/paint-calculator")).toBe(true);
+    expect(isSafeLink("https://freluxtools.netlify.app/paint-calculator")).toBe(
+      true,
+    );
     expect(isSafeLink("javascript:alert(1)")).toBe(false);
     expect(isSafeLink("data:text/html;base64,xxx")).toBe(false);
     expect(isSafeLink("ftp://example.com")).toBe(false);

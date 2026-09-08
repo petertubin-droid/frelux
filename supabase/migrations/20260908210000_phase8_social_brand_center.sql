@@ -150,10 +150,19 @@ CREATE POLICY frelux_api_keys_admin_insert ON public.frelux_api_keys
 
 -- Guard the quotas against escalation: a non-admin session
 -- can never raise limits above the plan maximums.
-ALTER TABLE public.frelux_api_keys
-  ADD CONSTRAINT api_keys_limit_ceiling
-  CHECK (
-    rate_limit_per_minute <= 10000
-    AND daily_quota <= 1000000
-    AND monthly_quota <= 10000000
-  );
+-- Idempotent guard (ADD CONSTRAINT has no IF NOT EXISTS form in
+-- Postgres) so this migration can be safely re-run to completion.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'api_keys_limit_ceiling'
+  ) THEN
+    ALTER TABLE public.frelux_api_keys
+      ADD CONSTRAINT api_keys_limit_ceiling
+      CHECK (
+        rate_limit_per_minute <= 10000
+        AND daily_quota <= 1000000
+        AND monthly_quota <= 10000000
+      );
+  END IF;
+END $$;
