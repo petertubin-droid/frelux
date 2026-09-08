@@ -30,10 +30,7 @@ import {
   OWNER_RESERVED_OPERATIONS,
   AUTONOMOUS_OPERATIONS,
 } from "./operating-model";
-import {
-  selectTool,
-  type ToolSelection,
-} from "./tool-router";
+import { selectTool, type ToolSelection } from "./tool-router";
 import {
   createChangeRequest,
   advanceChange,
@@ -65,13 +62,17 @@ const LOADERS: Record<CoreSystemKey, () => Promise<Record<string, unknown>>> = {
   FRELUX_API: () => import("@/lib/frelix-api/portal-client"),
   SOURCE_CODE_INTELLIGENCE: () => import("@/lib/archie/code-intelligence"),
   DIAGNOSTICS_HEALTH: () => import("@/lib/error-analysis"),
+  ARCHIE_INTERNAL_AGENTS: () => import("@/lib/archie/internal-agents"),
+  CRYPTO_INTELLIGENCE: () => import("@/lib/archie/crypto-intelligence"),
+  FOUNDATION_KNOWLEDGE: () => import("@/lib/archie/engineering-knowledge"),
+  COST_GOVERNANCE: () => import("@/lib/archie/cost-governance"),
 };
 
 /** Dynamically import a core system's REAL module. Throws on a
  *  disconnected binding, there are no simulated fallbacks. */
-export async function loadCoreSystem(key: CoreSystemKey): Promise<
-  Record<string, unknown>
-> {
+export async function loadCoreSystem(
+  key: CoreSystemKey,
+): Promise<Record<string, unknown>> {
   const binding = findCoreSystem(key);
   const loader = LOADERS[binding.key];
   if (!loader) {
@@ -273,16 +274,19 @@ export interface OwnerApproval {
  *  owner reviews. It carries the full record the prompt
  *  requires: action, reason/context, before/after state,
  *  affected component, tests/results, version, rollback. */
-export function buildPresentedAction(change: ChangeRequest, args: {
-  action: string;
-  affected_component: string;
-  reason: string;
-  before_state?: Record<string, unknown>;
-  after_state?: Record<string, unknown>;
-  proposed_version: string;
-  rollback_plan?: string;
-  now?: string;
-}): { ok: boolean; error?: string; presented?: PresentedAction } {
+export function buildPresentedAction(
+  change: ChangeRequest,
+  args: {
+    action: string;
+    affected_component: string;
+    reason: string;
+    before_state?: Record<string, unknown>;
+    after_state?: Record<string, unknown>;
+    proposed_version: string;
+    rollback_plan?: string;
+    now?: string;
+  },
+): { ok: boolean; error?: string; presented?: PresentedAction } {
   if (change.stage !== "REVIEW") {
     return {
       ok: false,
@@ -290,14 +294,24 @@ export function buildPresentedAction(change: ChangeRequest, args: {
     };
   }
   if (!args.reason.trim()) {
-    return { ok: false, error: "A presented action requires the reason/context" };
+    return {
+      ok: false,
+      error: "A presented action requires the reason/context",
+    };
   }
   if (!args.proposed_version.trim()) {
-    return { ok: false, error: "A presented action requires a proposed version" };
+    return {
+      ok: false,
+      error: "A presented action requires a proposed version",
+    };
   }
-  const rollbackPlan = change.rollback_plan?.trim() || args.rollback_plan?.trim();
+  const rollbackPlan =
+    change.rollback_plan?.trim() || args.rollback_plan?.trim();
   if (!rollbackPlan) {
-    return { ok: false, error: "A presented action requires the rollback plan" };
+    return {
+      ok: false,
+      error: "A presented action requires the rollback plan",
+    };
   }
   return {
     ok: true,
@@ -326,9 +340,17 @@ export function ownerApproves(
   presented: PresentedAction,
   actor: ChangeActor,
   args: { owner_id: string; authorization_record_id: string },
-): { ok: boolean; error?: string; approval?: OwnerApproval; change?: ChangeRequest } {
+): {
+  ok: boolean;
+  error?: string;
+  approval?: OwnerApproval;
+  change?: ChangeRequest;
+} {
   if (actor !== "OWNER") {
-    return { ok: false, error: "Only the owner can approve, ARCHIE never approves its own change" };
+    return {
+      ok: false,
+      error: "Only the owner can approve, ARCHIE never approves its own change",
+    };
   }
   if (presented.change_request_id !== change.id) {
     return { ok: false, error: "The approval must match the presented action" };
@@ -336,7 +358,8 @@ export function ownerApproves(
   if (!args.authorization_record_id) {
     return {
       ok: false,
-      error: "Approval requires the server-side authorization record (archie-owner-auth)",
+      error:
+        "Approval requires the server-side authorization record (archie-owner-auth)",
     };
   }
   const advanced = advanceChange(change, "OWNER_AUTHORIZATION", "OWNER", {
@@ -370,10 +393,16 @@ export function applyAuthorizedChange(
   actor: ChangeActor,
 ): { ok: boolean; error?: string; change?: ChangeRequest } {
   if (actor !== "OWNER") {
-    return { ok: false, error: "Only the owner can apply an authorized change" };
+    return {
+      ok: false,
+      error: "Only the owner can apply an authorized change",
+    };
   }
   if (!approval.authorization_record_id) {
-    return { ok: false, error: "APPLY requires the server-side approval record" };
+    return {
+      ok: false,
+      error: "APPLY requires the server-side approval record",
+    };
   }
   const advanced = advanceChange(change, "APPLY", "OWNER", {});
   if (!advanced.ok) return { ok: false, error: advanced.error };
@@ -428,10 +457,16 @@ export function rollbackAuthorizedChange(args: {
   reason: string;
 }): { ok: boolean; error?: string } {
   if (args.actor !== "OWNER") {
-    return { ok: false, error: "Only the owner can roll back an applied change" };
+    return {
+      ok: false,
+      error: "Only the owner can roll back an applied change",
+    };
   }
   if (!args.reason.trim()) {
-    return { ok: false, error: "Rollback requires a reason for the audit trail" };
+    return {
+      ok: false,
+      error: "Rollback requires a reason for the audit trail",
+    };
   }
   return { ok: true };
 }

@@ -26,7 +26,11 @@ export type CoreSystemKey =
   | "USER_FILES_STORAGE"
   | "FRELUX_API"
   | "SOURCE_CODE_INTELLIGENCE"
-  | "DIAGNOSTICS_HEALTH";
+  | "DIAGNOSTICS_HEALTH"
+  | "ARCHIE_INTERNAL_AGENTS"
+  | "CRYPTO_INTELLIGENCE"
+  | "FOUNDATION_KNOWLEDGE"
+  | "COST_GOVERNANCE";
 
 export interface CoreSystemBinding {
   key: CoreSystemKey;
@@ -43,7 +47,8 @@ export interface CoreSystemBinding {
    *  replaces the math. */
   deterministic: boolean;
   /** Read/analysis vs owner-gated write operations. */
-  autonomy: "ARCHIE_AUTONOMOUS" | "OWNER_GATED" | "AUTONOMOUS_READS_GATED_WRITES";
+  autonomy:
+    "ARCHIE_AUTONOMOUS" | "OWNER_GATED" | "AUTONOMOUS_READS_GATED_WRITES";
   /** Where the binding lives in the core (for diagnostics). */
   note: string;
 }
@@ -54,7 +59,10 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
     label: "FRELUX AI Core",
     family: "AI generation & consultation",
     module: "@/lib/ai",
-    exports: ["requestColorConsultation", "requestColorConsultationWithCredits"],
+    exports: [
+      "requestColorConsultation",
+      "requestColorConsultationWithCredits",
+    ],
     deterministic: false,
     autonomy: "ARCHIE_AUTONOMOUS",
     note: "Credit-gated AI consultation core (Phase 4-5 AI foundation paths).",
@@ -74,7 +82,10 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
     label: "Paint & Finish Calculators",
     family: "Deterministic calculators",
     module: "@/lib/calc",
-    exports: ["DEFAULT_COVERAGE_M2_PER_LITER", "DEFAULT_CONTAINER_SIZES_LITERS"],
+    exports: [
+      "DEFAULT_COVERAGE_M2_PER_LITER",
+      "DEFAULT_CONTAINER_SIZES_LITERS",
+    ],
     deterministic: true,
     autonomy: "ARCHIE_AUTONOMOUS",
     note: "Deterministic paint/finish math constants + computation.",
@@ -94,7 +105,11 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
     label: "Contractor Intelligence",
     family: "Contractor & project intelligence",
     module: "@/lib/contractor",
-    exports: ["createContractorProject", "fetchContractorProjects", "fetchContractorProject"],
+    exports: [
+      "createContractorProject",
+      "fetchContractorProjects",
+      "fetchContractorProject",
+    ],
     deterministic: false,
     autonomy: "AUTONOMOUS_READS_GATED_WRITES",
     note: "Contractor projects (Pro Connect), RLS-shaped, user-scoped.",
@@ -104,7 +119,11 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
     label: "Materials, Estimates & Shopping Lists",
     family: "Materials, estimates, shopping lists",
     module: "@/lib/shopping-list",
-    exports: ["generatePaintShoppingList", "generateCostEstimateShoppingList", "shoppingListToText"],
+    exports: [
+      "generatePaintShoppingList",
+      "generateCostEstimateShoppingList",
+      "shoppingListToText",
+    ],
     deterministic: true,
     autonomy: "ARCHIE_AUTONOMOUS",
     note: "Deterministic shopping-list generation from calculation results.",
@@ -124,7 +143,11 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
     label: "AI Image/Document Intelligence",
     family: "Image & document intelligence",
     module: "@/lib/plan-vision/extraction",
-    exports: ["requestPlanExtraction", "sanitizeExtractionResponse", "shouldReextract"],
+    exports: [
+      "requestPlanExtraction",
+      "sanitizeExtractionResponse",
+      "shouldReextract",
+    ],
     deterministic: false,
     autonomy: "ARCHIE_AUTONOMOUS",
     note: "Plan-vision extraction: images/drawings → structured quantities, sanitized.",
@@ -144,7 +167,11 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
     label: "External Web Intelligence",
     family: "External web intelligence",
     module: "@/lib/archie/web-intelligence",
-    exports: ["isEligibleWebSource", "wrapAsUntrustedData", "canAdvanceWebIntel"],
+    exports: [
+      "isEligibleWebSource",
+      "wrapAsUntrustedData",
+      "canAdvanceWebIntel",
+    ],
     deterministic: false,
     autonomy: "ARCHIE_AUTONOMOUS",
     note: "Eligible-source checks + untrusted-data wrapping, external content never trusted blindly.",
@@ -198,6 +225,66 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
     deterministic: false,
     autonomy: "ARCHIE_AUTONOMOUS",
     note: "Error analysis + fix generation; read-only diagnostics (monitoredQuery wrappers in supabase-monitor).",
+  },
+  {
+    key: "ARCHIE_INTERNAL_AGENTS",
+    label: "ARCHIE Internal Agent Orchestration",
+    family: "Internal task-agent orchestration",
+    module: "@/lib/archie/internal-agents",
+    exports: [
+      "planAgentFleet",
+      "canTransition",
+      "validateAgentEvent",
+      "AGENT_ROLES",
+    ],
+    deterministic: false,
+    autonomy: "AUTONOMOUS_READS_GATED_WRITES",
+    note: "Phase 8 P5: dynamic internal task agents with enforced lifecycle; no arbitrary ceiling, real budget/concurrency limits via cost governance; production actions still owner-gated.",
+  },
+  {
+    key: "CRYPTO_INTELLIGENCE",
+    label: "Crypto & Digital Asset Intelligence",
+    family: "Owner-only crypto intelligence",
+    module: "@/lib/archie/crypto-intelligence",
+    exports: [
+      "finalizeCryptoRecord",
+      "assessPortfolioConcentration",
+      "assertNoFinancialAction",
+      "screenForScamIndicators",
+    ],
+    deterministic: false,
+    autonomy: "ARCHIE_AUTONOMOUS",
+    note: "Phase 8 P5: owner-only research/analysis domain. Financial execution is structurally impossible (FORBIDDEN_FINANCIAL_ACTIONS); predictions never guaranteed; owner-private data.",
+  },
+  {
+    key: "FOUNDATION_KNOWLEDGE",
+    label: "Foundational Engineering Knowledge (Base44-taught)",
+    family: "Engineering knowledge acquisition",
+    module: "@/lib/archie/engineering-knowledge",
+    exports: [
+      "FOUNDATION_PACKAGE",
+      "packageToTrainingInputs",
+      "learnTechnology",
+      "screenKnowledgeSource",
+    ],
+    deterministic: false,
+    autonomy: "ARCHIE_AUTONOMOUS",
+    note: "Phase 8 P5: authorized Base44/FRELUX engineering knowledge through the existing learning pipeline; knowledge acquisition NEVER authorizes production changes; no ceiling on future technologies.",
+  },
+  {
+    key: "COST_GOVERNANCE",
+    label: "Infrastructure Cost Governance",
+    family: "Internal cost governance and budget control",
+    module: "@/lib/archie/cost-governance",
+    exports: [
+      "budgetDecision",
+      "assertNotCustomerQuota",
+      "validateCostRecord",
+      "OPERATION_CLASSES",
+    ],
+    deterministic: false,
+    autonomy: "ARCHIE_AUTONOMOUS",
+    note: "Phase 8 P5: internal agent provider costs land on the FRELUX infrastructure ledger and can NEVER consume user/subscriber/API-customer credits; budgets, concurrency, rate limits and emergency stop are owner/admin-configured.",
   },
 ];
 

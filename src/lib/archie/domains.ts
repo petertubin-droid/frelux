@@ -170,6 +170,24 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     risk_class: "STANDARD",
     active: true,
   },
+  {
+    key: "crypto_intelligence",
+    label: "Crypto & Digital Asset Intelligence",
+    is_core: false,
+    risk_class: "STANDARD",
+    active: true,
+    description:
+      "OWNER-ONLY: legitimate crypto/digital-asset research, market data, analysis and clearly-labeled predictions. ARCHIE never executes financial actions.",
+  },
+  {
+    key: "engineering_foundations",
+    label: "Engineering Foundations (Base44-taught)",
+    is_core: false,
+    risk_class: "STANDARD",
+    active: true,
+    description:
+      "Foundational engineering knowledge package from authorized Base44/FRELUX sources with full provenance; extensible to any legitimate technology.",
+  },
 ];
 
 /** In-memory registry for pure-logic use; the DB table is the
