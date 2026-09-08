@@ -45,6 +45,8 @@ const ALL_TABLES = [
   "properties",
   "screeding_system_config",
   "pop_materials",
+  "paint_types",
+  "estimation_calc_rules",
 ];
 
 const db: { tables: Record<string, Row[]> } = {
@@ -74,6 +76,10 @@ vi.mock("@/lib/supabase", () => {
           return c;
         },
         eq: (col: string, val: unknown) => {
+          eqs.push([col, val]);
+          return c;
+        },
+        is: (col: string, val: unknown) => {
           eqs.push([col, val]);
           return c;
         },
@@ -214,6 +220,13 @@ import {
   taskDelayScenario,
 } from "@/lib/predictive-intelligence/scenario-analysis";
 import { estimateTimeline } from "@/lib/measurement/timeline-engine";
+import {
+  calculatePaint,
+  DEFAULT_COVERAGE_M2_PER_LITER,
+  DEFAULT_CONTAINER_SIZES_LITERS,
+  DEFAULT_DOOR_DIMS,
+  DEFAULT_WINDOW_DIMS,
+} from "@/lib/calc";
 import {
   buildCostEstimate,
   type MaterialQuantityInput,
@@ -1097,6 +1110,231 @@ describe("CERT — project scoping", () => {
       NOW,
     );
     expect(errorOf(res).code).toBeTruthy();
+  });
+});
+
+// =========================================================
+// 11. ADMIN CHANGE-PROPAGATION (post-Phase-6 audit item 8) —
+//     an intentional Admin configuration change must reach
+//     EVERY consumer; a missing/invalid configuration must make
+//     every consumer fail honestly instead of inventing values.
+// =========================================================
+describe("PROPAGATION — admin config change reaches every consumer", () => {
+  const ROOM = { length: 4, width: 3, wallHeight: 3, unit: "meters" as const };
+
+  function seedPaintType(coverageRate: number, containerSizes: number[]): void {
+    db.tables.paint_types.push({
+      id: "standard",
+      name: "Standard",
+      coverage_rate: coverageRate,
+      container_sizes: containerSizes,
+      is_active: true,
+      sort_order: 1,
+    });
+  }
+
+  function seedPlan(): void {
+    db.tables.plan_documents.push({
+      id: "doc-1",
+      project_id: "proj-1",
+      created_at: iso(3),
+    });
+    db.tables.plan_extractions.push({
+      id: "ext-1",
+      document_id: "doc-1",
+      version: 1,
+      created_at: iso(3),
+      extraction: {
+        id: "ext-1",
+        documentId: "doc-1",
+        version: 1,
+        scale: null,
+        rooms: [
+          confirmedRoom("room-1", "Bedroom 1", 4, 3, 3, [
+            confirmedOpening("op-1", "door", 0.9, 2.1, 1),
+          ]),
+        ],
+        roof: null,
+        buildingFacts: [],
+        notes: [],
+        warnings: [],
+        issues: [],
+        nativeUnit: "meters",
+        extractedAt: iso(3),
+      },
+    });
+  }
+
+  it("paint coverage + pack-size config propagates: paint_types → engine → agent takeoff", async () => {
+    seedPaintType(5, [4]);
+    const r5 = await executeEngine("painting_project", { ...ROOM });
+    expect(r5.ok).toBe(true);
+    const litres5 = (r5.raw as { adjustedLiters: number }).adjustedLiters;
+    // The admin pack size reaches the container recommendation.
+    expect(r5.quantities.map((q) => q.label).join()).toContain(
+      "4 litre containers",
+    );
+
+    // ADMIN CHANGE: coverage 10, 20L buckets.
+    db.tables.paint_types = [];
+    seedPaintType(10, [20]);
+    const r10 = await executeEngine("painting_project", { ...ROOM });
+    const litres10 = (r10.raw as { adjustedLiters: number }).adjustedLiters;
+    expect(r10.quantities.map((q) => q.label).join()).toContain(
+      "20 litre containers",
+    );
+    // Independent relation: halved coverage doubles the litres.
+    expect(litres5).toBeCloseTo(litres10 * 2, 6);
+
+    // The plan-takeoff/agent path uses the SAME config source.
+    seedPlan();
+    const res = await invokeAgentTool(
+      "proj-1",
+      { tool: "quantity_takeoff", params: { kinds: ["painting"] } },
+      NOW,
+    );
+    const items = okData(res).result as Array<{
+      kind: string;
+      result?: EngineResult;
+    }>;
+    const paint = items.find((i) => i.kind === "painting")!;
+    expect(paint.result?.ok).toBe(true);
+    const direct = await executeEngine("painting_project", { ...ROOM });
+    expect(paint.result!.quantities).toEqual(direct.quantities); // zero drift
+  });
+
+  it("no admin paint config → documented code defaults (legacy behavior preserved)", async () => {
+    // paint_types is EMPTY — the engine must fall back to exactly the
+    // documented code constants, never a different invented opinion.
+    const expected = calculatePaint(
+      {
+        projectType: "room",
+        length: 4,
+        width: 3,
+        wallHeight: 3,
+        doors: 0,
+        doorDims: DEFAULT_DOOR_DIMS,
+        windows: 0,
+        windowDims: DEFAULT_WINDOW_DIMS,
+        coats: 2,
+        paintType: "standard",
+        unit: "meters",
+        includeCeiling: true,
+        wasteMargin: 10,
+      },
+      {
+        coverageRate: DEFAULT_COVERAGE_M2_PER_LITER,
+        containerSizes: DEFAULT_CONTAINER_SIZES_LITERS,
+      },
+    );
+    const r = await executeEngine("painting_project", { ...ROOM });
+    expect(r.ok).toBe(true);
+    expect(r.raw).toEqual(expected);
+  });
+
+  it("standard_coat_count rule propagates to the engine default (3 coats = 1.5× litres)", async () => {
+    db.tables.estimation_calc_rules.push({
+      id: "rule-coats",
+      rule_key: "standard_coat_count",
+      calculator_type: null,
+      rule_value: { value: 3 },
+      rule_status: "approved",
+      description: null,
+      is_active: true,
+      created_at: iso(1),
+      updated_at: iso(1),
+    });
+    const r3 = await executeEngine("painting_project", { ...ROOM });
+    expect(r3.ok).toBe(true);
+    const litres3 = (r3.raw as { adjustedLiters: number }).adjustedLiters;
+
+    db.tables.estimation_calc_rules = [];
+    const r2 = await executeEngine("painting_project", { ...ROOM });
+    const litres2 = (r2.raw as { adjustedLiters: number }).adjustedLiters;
+    // Independent relation: the rule-driven default (3 coats) yields
+    // exactly 1.5× the 2-coat litres for the same room.
+    expect(litres3).toBeCloseTo(litres2 * 1.5, 6);
+  });
+
+  it("screeding config price change propagates to engine + agent takeoff; historical saves stay intact", async () => {
+    seedScreedConfig();
+    seedPopMaterials();
+    seedPlan();
+
+    const before = await invokeAgentTool(
+      "proj-1",
+      { tool: "quantity_takeoff", params: { kinds: ["screeding"] } },
+      NOW,
+    );
+    const itemBefore = (
+      okData(before).result as Array<{ kind: string; result?: EngineResult }>
+    )[0];
+    expect(itemBefore.result?.ok).toBe(true);
+    const costBefore = JSON.stringify(itemBefore.result!.costs);
+
+    // Historical record saved BEFORE the admin change.
+    await saveCalculationToProject({
+      project_id: "proj-1",
+      calculator_type: "screeding",
+      calculator_slug: "screeding-calculator",
+      calc_title: "Screed audit",
+      calc_data: { areaM2: 40.11 },
+      result_summary: { grand_total: 123456, currency: "NGN" },
+      materials: [],
+    });
+
+    // ADMIN CHANGE: clearly identifiable test value.
+    const cfg = db.tables.screeding_system_config[0];
+    cfg.paint_price_per_unit = 11111;
+
+    const after = await invokeAgentTool(
+      "proj-1",
+      { tool: "quantity_takeoff", params: { kinds: ["screeding"] } },
+      NOW,
+    );
+    const itemAfter = (
+      okData(after).result as Array<{
+        kind: string;
+        result?: EngineResult;
+        input: { netWallAreaM2?: number | null };
+      }>
+    )[0];
+    expect(itemAfter.result?.ok).toBe(true);
+    const costAfter = JSON.stringify(itemAfter.result!.costs);
+    expect(costAfter).not.toBe(costBefore); // new config used — no stale cache
+
+    // Engine direct == agent path (same fresh config).
+    const direct = await executeEngine("screeding_system", {
+      areaM2: itemAfter.input.netWallAreaM2,
+    });
+    expect(itemAfter.result!.costs).toEqual(direct.costs);
+
+    // The historical record is NOT recomputed after the config change.
+    const snap = await buildProjectSnapshot("proj-1", { now: NOW });
+    expect(snap!.calculations[0]).toMatchObject({
+      title: "Screed audit",
+      estimatedTotal: 123456,
+    });
+  });
+
+  it("missing engine configuration → every consumer fails honestly (no invented values)", async () => {
+    seedPlan(); // NO screeding config seeded
+    const res = await invokeAgentTool(
+      "proj-1",
+      { tool: "quantity_takeoff", params: { kinds: ["screeding"] } },
+      NOW,
+    );
+    const inv = okData(res);
+    const items = inv.result as Array<{
+      kind: string;
+      result?: { ok: boolean; error?: string };
+    }>;
+    expect(items[0].result?.ok).toBe(false); // engine refused honestly
+    expect(inv.missingData.join(" ")).toMatch(/configuration|unavailable/i);
+
+    const direct = await executeEngine("screeding_system", { areaM2: 40 });
+    expect(direct.ok).toBe(false);
+    expect(direct.quantities).toEqual([]);
   });
 });
 
