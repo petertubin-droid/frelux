@@ -183,6 +183,7 @@ const AdminAiLearningAssistant = lazy(
 const AdminArchieTraining = lazy(
   () => import("@/pages/admin/AdminArchieTraining"),
 );
+const AdminArchieVoice = lazy(() => import("@/pages/admin/AdminArchieVoice"));
 const AdminPopMaterials = lazy(() => import("@/pages/admin/AdminPopMaterials"));
 const AdminTypography = lazy(() => import("@/pages/admin/AdminTypography"));
 
@@ -1010,6 +1011,7 @@ export default function App() {
                       path="archie-training"
                       element={<AdminArchieTraining />}
                     />
+                    <Route path="archie-voice" element={<AdminArchieVoice />} />
                     <Route path="legal" element={<AdminLegal />} />
                     <Route path="contact" element={<AdminContactMessages />} />
 

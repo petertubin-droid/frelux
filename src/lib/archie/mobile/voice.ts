@@ -13,6 +13,7 @@
 // =========================================================
 
 import type { ArchieConsent } from "./types";
+import { applyProfileToUtterance, loadProfileLocally } from "./voice-profile";
 
 const MAX_CHUNK = 220;
 
@@ -88,10 +89,14 @@ export function speakArchie(
   }
   const chunks = chunkForSpeech(text);
   if (chunks.length === 0) return { ok: true, chunks: 0 };
+  // The owner's saved voice profile (Admin → ARCHIE's voice bank), if
+  // present, shapes pitch + pace so ARCHIE approximates the owner's voice.
+  const ownerProfile = loadProfileLocally();
   for (const part of chunks) {
     const u = new SpeechSynthesisUtterance(part);
     u.rate = 1;
     u.pitch = 1;
+    applyProfileToUtterance(u, ownerProfile);
     window.speechSynthesis.speak(u);
   }
   return { ok: true, chunks: chunks.length };

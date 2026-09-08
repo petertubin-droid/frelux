@@ -111,3 +111,20 @@ Full regression: **5,650 tests / 615 files green**, production build green.
   speak.
 - Consent-denied replies surface a one-line system hint in the transcript
   (muted, italic) instead of blocking the chat.
+
+## ARCHIE's voice bank (Phase 8d, 2026-09-08)
+
+The owner records their own voice in **Admin → ARCHIE's Voice**:
+
+- Samples are recorded via the browser's MediaRecorder and saved to the
+  private `archie-voice-samples` bucket + `frelux_archie_voice_samples`
+  table (RLS owner-only, deployed live).
+- ARCHIE derives a **deterministic** pitch/pace profile from the bank
+  (`voice-profile.ts`): autocorrelation fundamental-frequency estimation
+  (60–400 Hz, 2048-frame, 0.35 voiced threshold) and an energy-envelope
+  syllable-nuclei rate estimate — pure math, free, no cloud AI ever.
+- Every ARCHIE reply (Assistant + admin voice test) applies the saved
+  profile to `speechSynthesisUtterance` pitch/rate, so ARCHIE approximates
+  the owner's voice. Profile persists locally + in the bank.
+- Owner can play (signed 5-min URL) or delete samples; the profile
+  recalculates from the remaining bank. Free capability — no paid path.
