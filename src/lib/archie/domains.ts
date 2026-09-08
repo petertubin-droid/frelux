@@ -179,6 +179,74 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     description:
       "OWNER-ONLY: legitimate crypto/digital-asset research, market data, analysis and clearly-labeled predictions. ARCHIE never executes financial actions.",
   },
+  // -----------------------------------------------------
+  // PHASE 9: global general intelligence domains. Same
+  // registry, same governance, NO ceiling. Risk classes
+  // inherit the verification bars; none are core.
+  // -----------------------------------------------------
+  {
+    key: "climate_environment",
+    label: "Climate & Environment",
+    is_core: false,
+    risk_class: "STANDARD",
+    active: true,
+    description:
+      "Environmental and climate intelligence: climate zones, seasonal patterns, sustainability context.",
+  },
+  {
+    key: "weather_intelligence",
+    label: "Weather & Environmental Conditions",
+    is_core: false,
+    risk_class: "STANDARD",
+    active: true,
+    description:
+      "Weather/forecast intelligence for project timing and weather-sensitive work advisories.",
+  },
+  {
+    key: "regional_market",
+    label: "Regional Market & Price Intelligence",
+    is_core: false,
+    risk_class: "STANDARD",
+    active: true,
+    description:
+      "Observed regional market data (prices, labour, availability). Observations NEVER override FRELUX configured prices.",
+  },
+  {
+    key: "language_intelligence",
+    label: "Language & Terminology",
+    is_core: false,
+    risk_class: "STANDARD",
+    active: true,
+    description:
+      "Multilingual intelligence and regional/construction terminology (LEARN, VERIFY, VERSION, USE).",
+  },
+  {
+    key: "regulations_standards",
+    label: "Regulations & Standards",
+    is_core: false,
+    risk_class: "ENGINEERING_REVIEW",
+    active: true,
+    description:
+      "Building regulations and standards context where reliable information exists; highest care, never invented.",
+  },
+  {
+    key: "planning_productivity",
+    label: "Planning & Productivity",
+    is_core: false,
+    risk_class: "STANDARD",
+    active: true,
+    description:
+      "Daily routines, task planning, productivity and personal organization.",
+  },
+  {
+    key: "health_fitness",
+    label: "Health, Fitness & Wellness (general information)",
+    is_core: false,
+    risk_class: "STANDARD",
+    active: true,
+    description:
+      "General wellness information only; never presented as medical diagnosis or treatment.",
+  },
   {
     key: "engineering_foundations",
     label: "Engineering Foundations (Base44-taught)",
