@@ -158,6 +158,9 @@ const AdminContactMessages = lazy(
   () => import("@/pages/admin/AdminContactMessages"),
 );
 const AdminAnalytics = lazy(() => import("@/pages/admin/AdminAnalytics"));
+const AdminSocialBrandCenter = lazy(
+  () => import("@/pages/admin/AdminSocialBrandCenter"),
+);
 const AdminAiMonetization = lazy(
   () => import("@/pages/admin/AdminAiMonetization"),
 );
@@ -1061,6 +1064,11 @@ export default function App() {
                     />
                     {/* Phase 7 — FRELUX AI API key administration */}
                     <Route path="api-keys" element={<AdminApiKeys />} />
+                    {/* ARCHIE extension — Owner Social Brand Center */}
+                    <Route
+                      path="social-brand-center"
+                      element={<AdminSocialBrandCenter />}
+                    />
                     <Route
                       path="estimation-production"
                       element={

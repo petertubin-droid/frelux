@@ -45,6 +45,7 @@ import {
   TrendingUp,
   Coins,
   Crown,
+  Link2,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
@@ -195,6 +196,11 @@ const navModules: NavModule[] = [
         label: "API Keys",
         to: "/admin/api-keys",
         icon: KeyRound,
+      },
+      {
+        label: "Social Brand Center",
+        to: "/admin/social-brand-center",
+        icon: Link2,
       },
       {
         label: "Image Estimation",

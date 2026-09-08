@@ -1411,20 +1411,48 @@ async function handleKeys(
     }
     const rawKey = generateFreluxApiKey(); // §3: crypto-random, exactly 32 chars
     const keyHash = await hashApiKey(rawKey);
+    // API GOVERNANCE: capabilities, scopes and quotas come
+    // from the plan the OWNER/ADMIN configured in
+    // frelux_api_plans — NEVER from the request body. A
+    // subscriber can never self-issue elevated permissions.
+    const { data: plan } = await svc
+      .from("frelux_api_plans")
+      .select("key,config,active")
+      .eq("key", "free")
+      .maybeSingle();
+    if (!plan?.active) {
+      return json(
+        503,
+        apiError(
+          "key_creation_failed",
+          "No active plan is configured. Contact the FRELUX owner.",
+          requestId,
+        ),
+        requestId,
+      );
+    }
+    const planCfg = (plan.config ?? {}) as {
+      capabilities?: string[];
+      permissions?: string[];
+      rateLimitPerMinute?: number;
+      dailyQuota?: number;
+      monthlyQuota?: number;
+    };
     const insert = {
       name,
       key_prefix: apiKeyDisplayPrefix(rawKey),
       key_hash: keyHash,
       permissions:
-        Array.isArray(body.permissions) &&
-        body.permissions.every((p) => typeof p === "string")
-          ? body.permissions
-          : ["*"],
-      plan_key: typeof body.plan_key === "string" ? body.plan_key : "free",
-      rate_limit_per_minute: 30,
-      daily_quota: 100,
-      monthly_quota: 2500,
-      expires_at: typeof body.expires_at === "string" ? body.expires_at : null,
+        Array.isArray(planCfg.capabilities) && planCfg.capabilities.length > 0
+          ? planCfg.capabilities
+          : Array.isArray(planCfg.permissions) && planCfg.permissions.length > 0
+            ? planCfg.permissions
+            : ["calculators"],
+      plan_key: "free",
+      rate_limit_per_minute: Math.max(1, planCfg.rateLimitPerMinute ?? 30),
+      daily_quota: Math.max(1, planCfg.dailyQuota ?? 100),
+      monthly_quota: Math.max(1, planCfg.monthlyQuota ?? 2500),
+      expires_at: null,
     };
     const { data, error: insertError } = await userClient
       .from("frelux_api_keys")
@@ -1527,29 +1555,11 @@ async function handleKeys(
     };
     if (typeof body.name === "string" && body.name.trim().length >= 1)
       update.name = body.name.trim();
-    if (
-      Array.isArray(body.permissions) &&
-      body.permissions.every((p) => typeof p === "string")
-    )
-      update.permissions = body.permissions;
-    if (typeof body.plan_key === "string") update.plan_key = body.plan_key;
-    if (typeof body.rate_limit_per_minute === "number")
-      update.rate_limit_per_minute = Math.max(
-        1,
-        Math.min(600, Math.round(body.rate_limit_per_minute)),
-      );
-    if (typeof body.daily_quota === "number")
-      update.daily_quota = Math.max(
-        1,
-        Math.min(1_000_000, Math.round(body.daily_quota)),
-      );
-    if (typeof body.monthly_quota === "number")
-      update.monthly_quota = Math.max(
-        1,
-        Math.min(10_000_000, Math.round(body.monthly_quota)),
-      );
-    if (body.expires_at === null || typeof body.expires_at === "string")
-      update.expires_at = body.expires_at;
+    // API GOVERNANCE: subscribers can NEVER alter their own
+    // permissions, plan, quotas, rate limits or expiry through
+    // this route. Those are Owner/Admin-configured only (the
+    // Admin API Keys console; RLS blocks client writes too).
+    // This route accepts ONLY name and status changes.
     const { data, error: updateError } = await userClient
       .from("frelux_api_keys")
       .update(update)
