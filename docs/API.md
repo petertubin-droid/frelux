@@ -196,8 +196,36 @@ The official public API lives at
 
 ### Tables
 
-| Table              | Description                                  | RLS                                |
-| ------------------ | -------------------------------------------- | ---------------------------------- |
-| `frelux_api_keys`  | API keys (hashed, per-user)                  | Yes (owner_all + admin policies)   |
-| `frelux_api_usage` | Per-request metering (rate/quota accounting) | Yes (owner_read + admin_read)      |
-| `frelux_api_plans` | Configurable API plans                       | Yes (authenticated read, admin rw) |
+| Table                     | Description                                  | RLS                                |
+| ------------------------- | -------------------------------------------- | ---------------------------------- |
+| `frelux_api_keys`         | API keys (hashed, per-user)                  | Yes (owner_all + admin policies)   |
+| `frelux_api_usage`        | Per-request metering (rate/quota accounting) | Yes (owner_read + admin_read)      |
+| `frelux_api_plans`        | Configurable API plans                       | Yes (authenticated read, admin rw) |
+| `frelux_api_transactions` | Plan purchase transactions (Paystack refs)   | Yes (owner_read + admin_read)      |
+| `frelux_api_entitlements` | Active plan entitlements per user            | Yes (owner_read + admin_read)      |
+
+### Plans & billing
+
+- Plans are self-serve: `/developers` shows the pricing grid (premium plans
+  marked with the crown icon); Upgrade starts a Paystack checkout.
+- The plan price is ALWAYS resolved server-side from `frelux_api_plans` —
+  the client can never influence the charged amount.
+- The `paystack-webhook` edge function (signature-verified) grants the
+  entitlement and applies the plan's quotas to the buyer's active keys via
+  the idempotent `frelux_api_apply_plan_purchase` RPC (reference-keyed —
+  webhook replays are safe). Refunds / disputes downgrade back to the free
+  plan via the idempotent `frelux_api_record_refund` RPC.
+- Both RPCs are `SECURITY DEFINER` and callable only by `service_role`
+  (the webhook) — they are revoked from `PUBLIC`, `anon` and `authenticated`.
+
+### Metering semantics
+
+- Every request (success or denial) is metered in `frelux_api_usage`.
+- Denials (rate limit, quota, expired/revoked key, unknown key) are metered
+  with `usage_units = 0` — only successful requests consume the self-recovering
+  rate/quota window, so denials can never lock a key out permanently.
+- Unknown-key 401s are metered WITHOUT any key material (nullable
+  `api_key_id`/`user_id`) for abuse detection; raw keys are never stored.
+- Usage rows are retained for 90 days (`cleanup-old-errors` edge function).
+- Admin `/admin/api-keys` shows a usage monitor: requests, errors, latency,
+  quota exhaustion, auth failures and a suspicious-activity flag.
