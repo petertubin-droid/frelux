@@ -40,6 +40,7 @@ import {
   learnTechnology,
   CODE_CAPABILITIES,
 } from "@/lib/archie/engineering-knowledge";
+import type { AgentLifecycleState } from "@/lib/archie/internal-agents";
 import {
   AGENT_LIFECYCLE,
   canTransition,
@@ -345,7 +346,7 @@ describe("ARCHIE foundational engineering knowledge", () => {
 describe("ARCHIE internal agent orchestration", () => {
   it("enforces the CREATE→AUTHORIZE→ASSIGN→EXECUTE→MONITOR→REPORT→TERMINATE lifecycle", () => {
     expect(AGENT_LIFECYCLE).toContain("TERMINATED");
-    const happy: Array<[string, string]> = [
+    const happy: Array<[AgentLifecycleState, AgentLifecycleState]> = [
       ["CREATED", "AUTHORIZED"],
       ["AUTHORIZED", "ASSIGNED"],
       ["ASSIGNED", "EXECUTING"],

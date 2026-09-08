@@ -49,6 +49,9 @@ import {
 } from "@/lib/archie/p5-client";
 import type { InternalAgentRecord } from "@/lib/archie/internal-agents";
 
+type BudgetStatus = Awaited<ReturnType<typeof budgetStatus>>;
+type RiskReport = Awaited<ReturnType<typeof portfolioRisk>>["report"];
+
 type Tab = "agents" | "costs" | "crypto";
 
 interface AgentRow {
@@ -83,9 +86,7 @@ export default function AdminArchieOps() {
 
   // Agents + budgets state
   const [agents, setAgents] = useState<AgentRow[]>([]);
-  const [budgets, setBudgets] = useState<Awaited<
-    ReturnType<typeof budgetStatus>["prototype"]
-  > | null>(null);
+  const [budgets, setBudgets] = useState<BudgetStatus | null>(null);
   const [spend, setSpend] = useState(0);
   const [activeAgents, setActiveAgents] = useState(0);
   const [spawnRole, setSpawnRole] = useState("code_analysis");
@@ -104,9 +105,7 @@ export default function AdminArchieOps() {
   const [statement, setStatement] = useState("");
   const [confidence, setConfidence] = useState("0.7");
   const [holdings, setHoldings] = useState("BTC: 50000, ETH: 15000");
-  const [riskReport, setRiskReport] = useState<Awaited<
-    ReturnType<typeof portfolioRisk>["prototype"]
-  > | null>(null);
+  const [riskReport, setRiskReport] = useState<RiskReport | null>(null);
 
   const loadAgents = useCallback(async () => {
     const { data, error: e } = await supabase
@@ -216,7 +215,7 @@ export default function AdminArchieOps() {
     <div>
       <AdminHeader
         title="ARCHIE Ops"
-        description="Internal agent orchestration, infrastructure cost governance and owner-only crypto intelligence. Internal provider costs are FRELUX infrastructure costs, never user credits."
+        subtitle="Internal agent orchestration, infrastructure cost governance and owner-only crypto intelligence. Internal provider costs are FRELUX infrastructure costs, never user credits."
       />
 
       {(error || notice) && (
@@ -278,7 +277,10 @@ export default function AdminArchieOps() {
               ceiling, real limits only.
             </p>
             <AdminField label="Role">
-              <AdminSelect value={spawnRole} onChange={(v) => setSpawnRole(v)}>
+              <AdminSelect
+                value={spawnRole}
+                onChange={(e) => setSpawnRole(e.target.value)}
+              >
                 {AGENT_ROLES.map((r) => (
                   <option key={r.role} value={r.role}>
                     {r.label} ({r.role})
@@ -416,7 +418,7 @@ export default function AdminArchieOps() {
               are structurally never touched. Configure budgets below; when
               exhausted, agents queue, reduce, consolidate or stop per policy.
             </p>
-            {budgets?.budgets?.map((b) => (
+            {budgets?.budgets.map((b) => (
               <div
                 key={b.provider}
                 className="mb-3 rounded-xl border border-border bg-background p-3 text-sm"
@@ -530,7 +532,10 @@ export default function AdminArchieOps() {
               disclaimer. ARCHIE cannot execute financial actions.
             </p>
             <AdminField label="Asset">
-              <AdminSelect value={assetSymbol} onChange={setAssetSymbol}>
+              <AdminSelect
+                value={assetSymbol}
+                onChange={(e) => setAssetSymbol(e.target.value)}
+              >
                 {assets.map((a) => (
                   <option key={a.symbol} value={a.symbol}>
                     {a.symbol} — {a.name}
@@ -539,7 +544,10 @@ export default function AdminArchieOps() {
               </AdminSelect>
             </AdminField>
             <AdminField label="Classification">
-              <AdminSelect value={classification} onChange={setClassification}>
+              <AdminSelect
+                value={classification}
+                onChange={(e) => setClassification(e.target.value)}
+              >
                 {CLASSIFICATIONS.map((c) => (
                   <option key={c} value={c}>
                     {c}
