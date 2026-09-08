@@ -172,6 +172,7 @@ export default function Assistant() {
   // owner auth form
   const [authKind, setAuthKind] = useState<OwnerChangeKind>("CODE_CHANGE");
   const [authTarget, setAuthTarget] = useState("");
+  const [authReason, setAuthReason] = useState("");
   const [authBefore, setAuthBefore] = useState("{}");
   const [authAfter, setAuthAfter] = useState("{}");
   const [authTests, setAuthTests] = useState(false);
@@ -555,6 +556,10 @@ export default function Assistant() {
       setError("A change target is required.");
       return;
     }
+    if (!authReason.trim()) {
+      setError("The reason/context for this change is required.");
+      return;
+    }
     purgeTranscriptsForAuthorization(voiceBufferRef.current);
     let before: Record<string, unknown>, after: Record<string, unknown>;
     try {
@@ -569,6 +574,7 @@ export default function Assistant() {
       const res = await authorizeOwnerChange({
         changeKind: authKind,
         target: authTarget.trim(),
+        reason: authReason.trim(),
         beforeState: before,
         afterState: after,
         testsPassed: authTests,
@@ -1136,6 +1142,13 @@ export default function Assistant() {
                   placeholder="Target (e.g. src/lib/paint/coverage.ts)"
                   className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
                   aria-label="Change target"
+                />
+                <input
+                  value={authReason}
+                  onChange={(e) => setAuthReason(e.target.value)}
+                  placeholder="Reason/context (required, stored with the approval record)"
+                  className="w-full rounded-lg border bg-background px-3 py-2 text-sm"
+                  aria-label="Change reason"
                 />
                 <input
                   value={authBefore}

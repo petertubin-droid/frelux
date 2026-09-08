@@ -147,6 +147,7 @@ interface Body {
   afterState?: Record<string, unknown>;
   testsPassed?: boolean;
   rollbackRef?: string;
+  reason?: string;
   authorizationId?: string;
 }
 
@@ -346,6 +347,16 @@ Deno.serve(async (req) => {
             400,
           );
         }
+        const reason = (body.reason ?? "").trim();
+        if (!reason) {
+          return json(
+            {
+              ok: false,
+              error: "Authorized changes require the reason/context.",
+            },
+            400,
+          );
+        }
 
         const { data: record, error: recErr } = await service<
           Record<string, unknown>
@@ -361,6 +372,7 @@ Deno.serve(async (req) => {
             after_state: body.afterState ?? {},
             tests_passed: true,
             rollback_ref: body.rollbackRef ?? null,
+            reason,
             status: "AUTHORIZED",
           }),
           headers: { Prefer: "return=representation" },

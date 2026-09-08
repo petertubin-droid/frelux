@@ -92,6 +92,9 @@ export interface AuthorizeChangeInput {
   afterState: Record<string, unknown>;
   testsPassed: boolean;
   rollbackRef?: string;
+  /** Why the change is being made — required, stored with the
+   *  server-side approval record. */
+  reason: string;
   secret: string;
   /** High-risk changes additionally require engineering review. */
   engineeringReviewCompleted?: boolean;

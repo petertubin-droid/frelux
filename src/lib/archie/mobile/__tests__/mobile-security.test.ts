@@ -570,6 +570,7 @@ describe("owner authorization", () => {
       target: "src/lib/paint/coverage.ts",
       beforeState: {},
       afterState: {},
+      reason: "Authorization test",
       secret: "owner-secret-123",
     };
     const noTests = await authorizeOwnerChange({
@@ -624,6 +625,7 @@ describe("owner authorization", () => {
       afterState: { a: 2 },
       testsPassed: true,
       rollbackRef: "rb-1",
+      reason: "Fix estimate rounding",
       secret: "owner-secret-123",
     });
     expect(res.ok).toBe(true);
@@ -645,6 +647,7 @@ describe("owner authorization", () => {
       beforeState: {},
       afterState: {},
       testsPassed: true,
+      reason: "Non-owner probe",
       secret: "attacker-guess",
     });
     expect(res.ok).toBe(false);
@@ -681,6 +684,7 @@ describe("owner authorization", () => {
       beforeState: {},
       afterState: {},
       testsPassed: true,
+      reason: "Second authorization",
       secret: "SUPER-SECRET-VALUE-XYZ",
     });
     expect(JSON.stringify(res)).not.toContain("SUPER-SECRET-VALUE-XYZ");
