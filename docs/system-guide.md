@@ -175,7 +175,14 @@ AI learning modules (learn assistant, admin AI assistant, estimation audit) assi
 
 Governance rule: admin controls change DATA (prices, coverage, materials, rules). Formulas and methodology are code-only and change only through the high-risk process in the Logic and Rules Registry. Admin propagation is regression-tested (certification suite section 11).
 
-## 7. Deployment and Operations
+## 7. Public API (FRELUX AI API)
+
+- Edge Function `frelix-api` (no verify-JWT; authenticated by FRELUX API keys) serves `/v1`: capabilities, plans, calculators, chat, market, regions, feedback, usage, key management. Deployment and docs: `docs/API.md`, user-facing docs at `/developers`, key admin at `/admin/api-keys`.
+- Tables: `frelux_api_keys` (hashed keys, owner + admin RLS), `frelux_api_usage` (per-request metering), `frelux_api_plans`.
+- The deterministic engines are bundled to `supabase/functions/frelix-api/_engines.bundle.js` via `npm run build:api-engines` (generated file — never edit; regenerate after touching `src/lib/frelix-api/server-engines.ts` or any engine it imports).
+- Gateway enforces status/expiry, rate limits, quotas, capability and region entitlements before any business logic; API feedback enters the Phase 6.5 learning pipeline as USER_PROVIDED CANDIDATE.
+
+## 8. Deployment and Operations
 
 - **Source**: GitHub repository, main branch protected by CI.
 - **CI**: GitHub Actions runs typecheck (`tsc --noEmit -p tsconfig.app.json`), the full Vitest suite and build. Local pre-push runs a fast related-tests gate.
@@ -186,7 +193,7 @@ Governance rule: admin controls change DATA (prices, coverage, materials, rules)
 - **Testing**: Vitest unit and component suite (~5,443 tests) including per-calculator, engine, takeoff, agent certification, market intelligence and propagation suites; Playwright e2e (default config excludes live-debug specs; live specs run against deployed site via `playwright-live.config.ts`).
 - **Monitoring**: `supabase-monitor.ts`, admin SystemHealth page, error logging (AdminErrors), analytics events (`analytics.ts`, calculator monitor `calculator-monitor.ts`).
 
-## 8. Security
+## 9. Security
 
 - **Authentication**: Supabase Auth (email, OAuth options as configured).
 - **Authorization**: RLS per table; admin role gating on admin routes and tables.

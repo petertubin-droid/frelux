@@ -184,3 +184,9 @@ A "Help FRELUX Learn This Region" feature is planned. It will let users submit l
 ## 22. Contact and Help
 
 Use the Contact page to reach the team, and the in-app messaging channels where available. Legal pages (Privacy Policy, Terms, Disclaimer) are in the site footer. The Disclaimer states clearly that FRELUX estimates are guides and professional confirmation is required before construction.
+
+---
+
+## 23. FRELUX API (For Developers)
+
+If you want to connect your own tools to FRELUX's calculators and intelligence, visit **/developers** on the website. You can create a personal API key, read the endpoint documentation, and track your usage. Keys are shown once at creation — keep them safe. Calculation results through the API come from the same engines as the website calculators, with the same honesty: FRELUX never invents missing values or unobserved prices.

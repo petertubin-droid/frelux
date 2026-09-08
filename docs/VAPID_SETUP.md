@@ -9,6 +9,7 @@ npx web-push generate-vapid-keys
 ```
 
 This outputs:
+
 ```
 Public Key:  <long-base64-string>
 Private Key: <long-base64-string>
@@ -24,6 +25,7 @@ supabase secrets set VAPID_PRIVATE_KEY=<private-key-from-step-1>
 ## Step 3: Set Netlify env var (client-side)
 
 In Netlify dashboard → Site settings → Environment variables:
+
 - `VITE_VAPID_PUBLIC_KEY` = <public-key-from-step-1>
 
 ## Step 4: Redeploy

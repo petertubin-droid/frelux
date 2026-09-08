@@ -253,3 +253,15 @@ Ordinary Admin configuration (prices, coverage of finish materials, rules) can n
 ## 20. DOCUMENTATION VALIDATION
 
 This registry was generated from the implemented system on 2026-09-08 and cross-checked: every engine listed exists in the registry code; every stated contract matches the certified test suites (5,443 tests passing); every documented admin propagation path is exercised by the propagation regression tests; planned features ("Help FRELUX Learn This Region") are labeled as planned, not implemented. Known limitations: the registry documents rule families, not every numeric default; individual values live in the admin tables and migrations referenced above, which remain the authoritative numeric sources.
+
+---
+
+## 21. PUBLIC API (FRELUX AI API, PHASE 7)
+
+The public API (`supabase/functions/frelix-api`, served at `/v1`) is a governed surface, not a side channel:
+
+- **Canonical engines only.** Calculation requests are executed by the canonical engine registry, bundled server-side from `src/lib/frelix-api/server-engines.ts` (`npm run build:api-engines`). The API introduces no alternative math, and incomplete input returns a structured `validation_failed` error — missing values are never invented.
+- **AI honesty unchanged.** `/v1/chat` routes calculation questions through the deterministic engines; the AI never produces calculation results. Market responses keep the OBSERVED vs CONFIGURED labels and freshness contract; regions without a FRELUX profile return "not available" rather than substituted data.
+- **Key governance (§3).** Keys are 32-char `FLX-…` crypto-random secrets; only a SHA-256 hash is stored. Raw keys are shown exactly once at create/rotate. Status, expiry, per-minute rate limit, daily/monthly quotas, capability allow-list and plan region entitlement are enforced before any business logic runs; the tenant is always resolved from the key record.
+- **Feedback enters governance.** `/v1/feedback` writes `USER_PROVIDED` `CANDIDATE` learning records (Phase 6.5 pipeline) — never auto-approved, never trusted; structural topics are flagged `requires_engineering_review`.
+- **Audited like the UI.** Every request is metered in `frelux_api_usage` (method, path, status, capability) — an audit trail equivalent to the in-app audit registry.
