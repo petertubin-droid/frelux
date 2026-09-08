@@ -114,7 +114,13 @@ export type SecurityEventKind =
   | "OWNER_AUTH_SUCCEEDED"
   | "OWNER_AUTH_FAILED"
   | "NON_OWNER_AUTH_ATTEMPT"
-  | "RATE_LIMIT_HIT";
+  | "RATE_LIMIT_HIT"
+  // Phase 8 P4 — trusted devices & subscriber intelligence
+  | "SUSPICIOUS_DEVICE_DETECTED"
+  | "FORBIDDEN_CONSENT_REQUESTED"
+  | "DEVICE_TOKEN_ROTATED"
+  | "TRUSTED_DEVICE_REVOKED"
+  | "DATA_CONSENT_REVOKED";
 
 export interface SecurityEvent {
   id: string;
