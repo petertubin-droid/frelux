@@ -59,6 +59,44 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
   REVOKE ALL ON SEQUENCES FROM authenticated;
 
+-- Phase 23 only covered FOR ROLE postgres. Tables created via the
+-- Supabase dashboard are created by other roles (e.g. supabase_admin),
+-- whose default privileges were never fixed — the reason the Sept-3
+-- revoke "didn't stick". Attempt REVOKE ALL for EVERY creator role that
+-- holds default-privilege entries in public; guarded per role so a
+-- permission denial is reported by the verification below rather than
+-- aborting the cleanup.
+DO $fix_other_creators$
+DECLARE
+  role_entry record;
+  failures   text[] := '{}';
+BEGIN
+  FOR role_entry IN
+    SELECT DISTINCT defaclrole
+    FROM pg_catalog.pg_default_acl
+    JOIN pg_namespace n ON n.oid = defaclnamespace
+    WHERE n.nspname = 'public'
+      AND defaclrole::regrole::text <> 'postgres'
+  LOOP
+    BEGIN
+      EXECUTE format(
+        'ALTER DEFAULT PRIVILEGES FOR ROLE %s IN SCHEMA public REVOKE ALL ON TABLES FROM anon, authenticated',
+        role_entry.defaclrole::regrole::text);
+      EXECUTE format(
+        'ALTER DEFAULT PRIVILEGES FOR ROLE %s IN SCHEMA public REVOKE ALL ON SEQUENCES FROM anon, authenticated',
+        role_entry.defaclrole::regrole::text);
+    EXCEPTION WHEN OTHERS THEN
+      failures := failures || role_entry.defaclrole::regrole::text;
+    END;
+  END LOOP;
+
+  IF array_length(failures, 1) > 0 THEN
+    RAISE NOTICE 'Could not alter default privileges of role(s) % — verification will flag any residue',
+      array_to_string(failures, ', ');
+  END IF;
+END
+$fix_other_creators$;
+
 -- ─────────────────────────────────────────────────────────
 -- 2. Strip the dangerous privileges from EXISTING relations
 --    TRUNCATE  — wipes all rows, ignores RLS row policies
