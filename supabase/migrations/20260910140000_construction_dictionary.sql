@@ -16,11 +16,11 @@
 -- 1. Language registry extension (spec §1, §22): languages
 --    are data. pt/ar/hi/zh join the Phase 9 registry.
 -- ---------------------------------------------------------
-INSERT INTO public.frelux_archie_languages (code, label, native_label, common_regions) VALUES
-  ('pt', 'Portuguese', 'Português', ARRAY['PT','BR']),
-  ('ar', 'Arabic', 'العربية', ARRAY['SA','EG']),
-  ('hi', 'Hindi', 'हिन्दी', ARRAY['IN']),
-  ('zh', 'Chinese', '中文', ARRAY['CN'])
+INSERT INTO public.frelux_archie_languages (code, label, native_label, common_regions, active) VALUES
+  ('pt', 'Portuguese', 'Português', ARRAY['PT','BR'], true),
+  ('ar', 'Arabic', 'العربية', ARRAY['SA','EG'], true),
+  ('hi', 'Hindi', 'हिन्दी', ARRAY['IN'], true),
+  ('zh', 'Chinese', '中文', ARRAY['CN'], true)
 ON CONFLICT (code) DO NOTHING;
 
 -- ---------------------------------------------------------
