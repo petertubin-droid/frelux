@@ -133,3 +133,20 @@ functionality unchanged.
 Tests: `stage2-vault-recovery.test.ts` (7) — reason-required edit guard,
 version bump, rollback-from-history + missing-version refusal, recovery
 ordering/audit. Full regression 5,907/5,907 (632 files), tsc clean.
+
+## 8. Shared-with-you member view (Stage 2 continuation, §28)
+
+- `src/lib/archie/stage2-shared-client.ts` — the read path for invited
+  people: `fetchMyPersonhood()` (RLS: a person sees ONLY their own record),
+  `fetchSharedConversations()` / `fetchSharedKnowledge()` — both call the
+  deployed SECURITY DEFINER RPCs, which re-check person status, expiry and
+  the exact permission on every call. The client never decides access;
+  isolation is entirely server-side.
+- `/archie/shared` (nav "Shared"): honest states — no access (ask the Owner
+  for an invitation), PENDING_REQUEST (waiting for Owner review, nothing
+  fetched), ACTIVE (permission chips, expiry date, shared conversations
+  and knowledge lists), SUSPENDED / REVOKED. Shared content is only
+  fetched for ACTIVE people.
+- Tests: `stage2-shared.test.tsx` (8) — RPC-only reads, own-row-only
+  personhood, honest error surfacing, and every page state including
+  "pending never fetches shared content".
