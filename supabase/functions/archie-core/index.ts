@@ -355,6 +355,95 @@ async function attachmentParts(
 }
 
 // ---------------------------------------------------------
+// §16 LANGUAGE RESOLUTION (server-side, validated against the
+// live registry — frelux_archie_languages is the source of
+// truth). USER_SELECTION is AUTHORITATIVE: an unknown/inactive
+// selection is an honest error, never a silent fallback.
+// LOCATION_SUGGESTION is advisory: falls back to English.
+// ---------------------------------------------------------
+interface LanguageResolution {
+  language_code: string;
+  source: "USER_SELECTION" | "LOCATION_SUGGESTION";
+  authoritative: boolean;
+}
+
+async function resolveTurnLanguage(
+  reqLang: ChatRequest["language"],
+): Promise<
+  { ok: true; res: LanguageResolution } | { ok: false; res: Response }
+> {
+  const { data: registry } = await service
+    .from("frelux_archie_languages")
+    .select("code, active")
+    .eq("active", true);
+  const active = new Set((registry ?? []).map((r: { code: string }) => r.code));
+
+  // no language info at all → honest advisory English
+  if (!reqLang || !reqLang.language_code) {
+    return {
+      ok: true,
+      res: { language_code: "en", source: "LOCATION_SUGGESTION", authoritative: false },
+    };
+  }
+
+  const code = String(reqLang.language_code);
+  if (reqLang.source === "USER_SELECTION") {
+    if (!active.has(code)) {
+      return {
+        ok: false,
+        res: json(400, {
+          ok: false,
+          error:
+            `Selected language "${code}" is not registered/active in the ARCHIE language registry.`,
+        }),
+      };
+    }
+    return {
+      ok: true,
+      res: { language_code: code, source: "USER_SELECTION", authoritative: true },
+    };
+  }
+
+  // advisory suggestion: invalid → English fallback
+  const resolved = active.has(code) ? code : "en";
+  return {
+    ok: true,
+    res: {
+      language_code: resolved,
+      source: "LOCATION_SUGGESTION",
+      authoritative: false,
+    },
+  };
+}
+
+/**
+ * VERIFIED terminology for the resolved language (LEARN →
+ * VERIFY → VERSION → USE: only VERIFIED terms are
+ * authoritative in outputs). Injected as ground truth.
+ */
+async function verifiedTerminologyBlock(
+  languageCode: string,
+): Promise<{ block: string; terms: number }> {
+  const { data } = await service
+    .from("frelux_archie_terminology")
+    .select("domain, canonical_term, regional_term, meaning_note")
+    .eq("language_code", languageCode)
+    .eq("verification_status", "VERIFIED")
+    .order("domain")
+    .limit(40);
+  const rows = data ?? [];
+  if (!rows.length) return { block: "", terms: 0 };
+  const lines = rows.map(
+    (r: { domain: string; canonical_term: string; regional_term: string; meaning_note: string | null }) =>
+      `- [${r.domain}] "${r.canonical_term}" → "${r.regional_term}"${r.meaning_note ? ` (${r.meaning_note})` : ""}`,
+  );
+  return {
+    block: `Verified regional terminology for this language (authoritative, use these exact terms):\n${lines.join("\n")}`,
+    terms: rows.length,
+  };
+}
+
+// ---------------------------------------------------------
 // UNDERSTAND: intent classification (schema-constrained).
 // Extensible: new intents map to new tools without changing
 // the interface contract.
@@ -408,6 +497,13 @@ interface ChatRequest {
   attachments?: Array<{ storage_path: string; mime: string; name?: string }>;
   teach?: boolean;
   history?: Array<{ role: "owner" | "archie"; content: string }>;
+  /** §16: resolved session language. USER_SELECTION is
+   * authoritative (invalid → honest 400); LOCATION_SUGGESTION
+   * is advisory (invalid → English fallback). */
+  language?: {
+    language_code: string;
+    source: "USER_SELECTION" | "LOCATION_SUGGESTION";
+  } | null;
 }
 
 Deno.serve(async (req: Request) => {
@@ -444,6 +540,11 @@ Deno.serve(async (req: Request) => {
     .eq("owner_id", userId)
     .maybeSingle();
   if (!conv) return json(404, { error: "Conversation not found" });
+
+  // §16: resolve the session language FIRST (server-side
+  // validation; user selection errors are honest, never silent)
+  const language = await resolveTurnLanguage(body.language);
+  if (!language.ok) return language.res;
 
   // 1) persist the Owner's message
   const { data: ownerMsg } = await service
@@ -520,6 +621,16 @@ Deno.serve(async (req: Request) => {
           .join("\n")
       : "No tools were needed for this request.";
 
+    // §16: VERIFIED terminology for the resolved language
+    const terminology = await verifiedTerminologyBlock(
+      language.res.language_code,
+    );
+
+    const languageDirective =
+      language.res.language_code === "en"
+        ? ""
+        : `\n\nLanguage: respond in the language with registry code "${language.res.language_code}" (its label is in frelux_archie_languages). Write the ENTIRE reply in that language. Keep technical terms consistent with the verified terminology below when present.`;
+
     const inference = await infer({
       parts: [
         {
@@ -528,11 +639,14 @@ Deno.serve(async (req: Request) => {
         ...mediaParts,
         { text: `Owner's new message: ${message || "(attachment only)"}` },
         { text: `Tool execution results (ground truth):\n${toolBlock}` },
+        ...(terminology.block
+          ? [{ text: terminology.block }]
+          : []),
         {
           text: "Answer the Owner now as ARCHIE, using the tool results as facts.",
         },
       ],
-      systemPrompt: ARCHIE_PERSONA,
+      systemPrompt: ARCHIE_PERSONA + languageDirective,
     });
     const response = inference.data;
     const reply = String(response.reply ?? "(no reply)");
@@ -563,6 +677,12 @@ Deno.serve(async (req: Request) => {
         intent,
         tools: toolResults.map((t) => t.tool),
         attachments: attachments.length,
+        language: {
+          code: language.res.language_code,
+          source: language.res.source,
+          authoritative: language.res.authoritative,
+          verified_terms: terminology.terms,
+        },
       }),
       service.from("frelux_infrastructure_costs").insert({
         operation_class: "INTERNAL_ARCHIE_OPERATION",
@@ -583,6 +703,13 @@ Deno.serve(async (req: Request) => {
       tool_results: toolResults,
       warnings,
       reply,
+      // §16: how the language was resolved for this turn
+      language: {
+        language_code: language.res.language_code,
+        source: language.res.source,
+        authoritative: language.res.authoritative,
+        terminology_terms_used: terminology.terms,
+      },
       // Model transparency (spec §§1, 11, 39): ARCHIE's identity is the
       // Intelligence Core; the runtime/adapter is a replaceable part and is
       // reported separately, never as ARCHIE's brain.

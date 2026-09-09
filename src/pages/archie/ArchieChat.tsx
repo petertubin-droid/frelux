@@ -37,6 +37,14 @@ import {
   type ArchieConversation,
   type ArchieMessage,
 } from "@/lib/archie/stage1-client";
+import {
+  fetchActiveLanguages,
+  resolveSessionLanguage,
+  setSelectedLanguage,
+  clearSelectedLanguage,
+  type LanguageRegistryRow,
+  type SessionLanguageResolution,
+} from "@/lib/archie/stage2-language-client";
 import { useAuth } from "@/lib/auth";
 
 type PendingUpload = { file: File; error?: string };
@@ -80,6 +88,11 @@ export default function ArchieChat() {
   const [listOpen, setListOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [recording, setRecording] = useState(false);
+  // §16: location → language wiring
+  const [languages, setLanguages] = useState<LanguageRegistryRow[]>([]);
+  const [sessionLanguage, setSessionLanguage] =
+    useState<SessionLanguageResolution | null>(null);
+  const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
   const recorderRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const threadRef = useRef<HTMLDivElement | null>(null);
@@ -101,6 +114,26 @@ export default function ArchieChat() {
   useEffect(() => {
     refreshConversations();
   }, [refreshConversations]);
+
+  // §16: load the live registry and resolve the session language
+  // (user selection authoritative; timezone suggestion advisory)
+  useEffect(() => {
+    let cancelled = false;
+    fetchActiveLanguages()
+      .then((rows) => {
+        if (cancelled) return;
+        setLanguages(rows);
+        setSessionLanguage(resolveSessionLanguage({ languages: rows }));
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setError("Could not load the language registry; ARCHIE stays in English.");
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // load newest conversation on first open
   useEffect(() => {
@@ -256,6 +289,14 @@ export default function ArchieChat() {
         attachments,
         teach: teachMode,
         history,
+        // §16: user selection authoritative, location advisory;
+        // the server validates against the live registry.
+        language: sessionLanguage
+          ? {
+              language_code: sessionLanguage.language_code,
+              source: sessionLanguage.source,
+            }
+          : undefined,
       });
 
       if (!result.ok) {
@@ -535,6 +576,83 @@ export default function ArchieChat() {
             ))}
           </div>
         )}
+
+        {/* §16: language selector (user choice is authoritative,
+            "Auto" uses the advisory location suggestion) */}
+        <div className="relative flex items-center gap-2 border-t border-white/5 px-3 py-1.5">
+          <button
+            type="button"
+            onClick={() => setLanguageMenuOpen((v) => !v)}
+            className="flex items-center gap-1.5 rounded-lg px-2 py-1 text-xs text-slate-400 transition hover:bg-white/5 hover:text-slate-200"
+            aria-label="Select ARCHIE language"
+            aria-expanded={languageMenuOpen}
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-3.5 w-3.5">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M2 12h20M12 2a15.3 15.3 0 0 1 0 20 15.3 15.3 0 0 1 0-20Z" />
+            </svg>
+            {sessionLanguage
+              ? `${
+                  languages.find((l) => l.code === sessionLanguage.language_code)
+                    ?.native_label ?? sessionLanguage.language_code
+                }${sessionLanguage.authoritative ? "" : " · auto"}`
+              : "Language"}
+          </button>
+          {sessionLanguage && (
+            <span className="text-[10px] uppercase tracking-wide text-slate-600">
+              {sessionLanguage.authoritative ? "your choice" : "from location"}
+            </span>
+          )}
+          {languageMenuOpen && (
+            <div className="absolute bottom-full left-2 z-20 mb-1 w-52 overflow-hidden rounded-xl border border-white/10 bg-slate-900/95 shadow-xl backdrop-blur">
+              <button
+                type="button"
+                onClick={() => {
+                  clearSelectedLanguage();
+                  setSessionLanguage(
+                    resolveSessionLanguage({
+                      languages,
+                      selectedCode: null,
+                    }),
+                  );
+                  setLanguageMenuOpen(false);
+                }}
+                className="block w-full px-3 py-2 text-left text-xs text-slate-300 hover:bg-white/5"
+              >
+                Auto (from location)
+                <span className="block text-[10px] text-slate-500">
+                  advisory suggestion; English fallback
+                </span>
+              </button>
+              {languages.map((l) => (
+                <button
+                  key={l.code}
+                  type="button"
+                  onClick={() => {
+                    setSelectedLanguage(l.code);
+                    setSessionLanguage({
+                      language_code: l.code,
+                      source: "USER_SELECTION",
+                      authoritative: true,
+                    });
+                    setLanguageMenuOpen(false);
+                  }}
+                  className={`block w-full px-3 py-2 text-left text-xs hover:bg-white/5 ${
+                    sessionLanguage?.language_code === l.code &&
+                    sessionLanguage?.authoritative
+                      ? "bg-amber-400/10 text-amber-200"
+                      : "text-slate-300"
+                  }`}
+                >
+                  {l.native_label}
+                  <span className="block text-[10px] text-slate-500">
+                    {l.label} · {l.code}
+                  </span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* composer */}
         <div className="border-t border-white/5 p-2 md:p-3">

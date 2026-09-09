@@ -148,7 +148,7 @@ export async function uploadAttachment(
   const check = validateAttachment(file);
   if (!check.ok) return { ok: false, error: check.error };
   const supabase = await getSupabase();
-  const safeName = file.name.replace(/[^\w.\-]/g, "_");
+  const safeName = file.name.replace(/[^\w.-]/g, "_");
   const path = `chat/${userId}/${Date.now()}_${safeName}`;
   const { error } = await supabase.storage
     .from("archie-media")
@@ -180,6 +180,13 @@ export interface ChatTurnResult {
   tool_results?: Array<{ tool: string; ok: boolean; summary: string }>;
   warnings?: string[];
   error?: string;
+  /** Language resolution for this turn (§16). */
+  language?: {
+    language_code: string;
+    source: "USER_SELECTION" | "LOCATION_SUGGESTION";
+    authoritative: boolean;
+    terminology_terms_used?: number;
+  };
 }
 
 export async function sendChatTurn(input: {
@@ -188,6 +195,13 @@ export async function sendChatTurn(input: {
   attachments?: ArchieAttachment[];
   teach?: boolean;
   history?: Array<{ role: "owner" | "archie"; content: string }>;
+  /** §16: resolved session language (user selection is
+   * authoritative; location suggestion is advisory). The
+   * server validates against the live registry. */
+  language?: {
+    language_code: string;
+    source: "USER_SELECTION" | "LOCATION_SUGGESTION";
+  };
 }): Promise<ChatTurnResult> {
   const supabase = await getSupabase();
   const { data, error } = await supabase.functions.invoke("archie-core", {
@@ -197,6 +211,7 @@ export async function sendChatTurn(input: {
       attachments: input.attachments ?? [],
       teach: input.teach ?? false,
       history: input.history ?? [],
+      language: input.language ?? null,
     },
   });
   if (error) return { ok: false, error: error.message };
