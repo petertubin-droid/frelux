@@ -48,6 +48,7 @@ import {
  *  the browser and vite/node resolve the aliases correctly. */
 const LOADERS: Record<CoreSystemKey, () => Promise<Record<string, unknown>>> = {
   AI_CORE: () => import("@/lib/ai"),
+  ENGINEERING_OBJECTIVE: () => import("@/lib/archie/engineering-objective"),
   DETERMINISTIC_ENGINES: () => import("@/lib/ai-foundation/engines-registry"),
   CALCULATORS: () => import("@/lib/calc"),
   PROJECTS_PROPERTIES: () => import("@/lib/local-projects"),

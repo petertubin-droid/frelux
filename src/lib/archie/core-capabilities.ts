@@ -30,7 +30,8 @@ export type CoreSystemKey =
   | "ARCHIE_INTERNAL_AGENTS"
   | "CRYPTO_INTELLIGENCE"
   | "FOUNDATION_KNOWLEDGE"
-  | "COST_GOVERNANCE";
+  | "COST_GOVERNANCE"
+  | "ENGINEERING_OBJECTIVE";
 
 export interface CoreSystemBinding {
   key: CoreSystemKey;
@@ -255,6 +256,24 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
     deterministic: false,
     autonomy: "ARCHIE_AUTONOMOUS",
     note: "Phase 8 P5: owner-only research/analysis domain. Financial execution is structurally impossible (FORBIDDEN_FINANCIAL_ACTIONS); predictions never guaranteed; owner-private data.",
+  },
+  {
+    key: "ENGINEERING_OBJECTIVE",
+    label: "Long-Term Engineering Objective",
+    family: "ARCHIE core principles",
+    module: "@/lib/archie/engineering-objective",
+    exports: [
+      "ENGINEERING_OBJECTIVE",
+      "classifyEngineeringAction",
+      "verifyEngineeringObjectiveIntegrity",
+    ],
+    deterministic: true,
+    autonomy: "ARCHIE_AUTONOMOUS",
+    note:
+      "Permanent architectural principle from birth: continuously develop " +
+      "engineering mastery toward eventually proposing ARCHIE-owned " +
+      "infrastructure. Grants ZERO authority — every non-grant routes to " +
+      "the Owner Authority Layer. Persisted in frelux_archie_core_principles.",
   },
   {
     key: "FOUNDATION_KNOWLEDGE",
