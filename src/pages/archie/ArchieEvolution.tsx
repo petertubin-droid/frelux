@@ -13,9 +13,9 @@
 // recommendation as authorization. ARCHIE cannot approve its own
 // modification (spec §§4, §9, §10).
 //
-// Language registry, evolution memory and evolution settings are
-// viewable in the Admin Control Center and the PWA Learning /
-// Knowledge sections — both interfaces control the same ARCHIE.
+// ALSO includes the mobile Evolution settings editor (language
+// learning, self-modification, protected paths, risk ceiling)
+// and the Language Registry — same backend as Admin, one ARCHIE.
 // =========================================================
 
 import { useCallback, useEffect, useState } from "react";
@@ -23,9 +23,18 @@ import { buildApprovalView } from "@/lib/archie/evolution/change-request";
 import { authorizeOwnerChange } from "@/lib/archie/mobile/owner-authorization";
 import {
   fetchChangeRequests,
+  fetchEvolutionSettings,
+  fetchLanguageProfiles,
+  saveEvolutionSettings,
   transitionChangeRequestServer,
 } from "@/lib/archie/evolution/persistence";
-import type { EvolutionChangeRequest } from "@/lib/archie/evolution/types";
+import { DEFAULT_EVOLUTION_SETTINGS } from "@/lib/archie/evolution/settings";
+import { Switch } from "@/components/ui/shadcn/switch";
+import type {
+  EvolutionChangeRequest,
+  EvolutionSettings,
+  LanguageProfile,
+} from "@/lib/archie/evolution/types";
 
 const STATE_LABELS: Record<string, string> = {
   PROPOSED: "Proposed",
@@ -58,10 +67,23 @@ export default function ArchieEvolution() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
 
+  // Settings + registry
+  const [view, setView] = useState<"changes" | "settings" | "registry">("changes");
+  const [settings, setSettings] = useState<EvolutionSettings>(DEFAULT_EVOLUTION_SETTINGS);
+  const [savingSettings, setSavingSettings] = useState(false);
+  const [languages, setLanguages] = useState<LanguageProfile[]>([]);
+
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      setChanges(await fetchChangeRequests());
+      const [crs, s, langs] = await Promise.all([
+        fetchChangeRequests(),
+        fetchEvolutionSettings(),
+        fetchLanguageProfiles().catch(() => [] as LanguageProfile[]),
+      ]);
+      setChanges(crs);
+      if (s.ok) setSettings(s.data);
+      setLanguages(langs);
       setError("");
     } catch (e) {
       setError(
@@ -75,6 +97,27 @@ export default function ArchieEvolution() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // ── Settings save — same validated upsert as Admin. ──
+  const saveSettings = useCallback(async () => {
+    setSavingSettings(true);
+    setError("");
+    setNotice("");
+    try {
+      const result = await saveEvolutionSettings({
+        ...settings,
+        updatedAt: new Date().toISOString(),
+      });
+      if (result.ok) {
+        setSettings(result.data);
+        setNotice("Evolution settings saved.");
+      } else {
+        setError(result.error);
+      }
+    } finally {
+      setSavingSettings(false);
+    }
+  }, [settings]);
 
   // ── Owner-gated decisions — every one requires the owner
   // secret and produces a server-verified authorization record,
@@ -173,6 +216,21 @@ export default function ArchieEvolution() {
         </p>
       )}
 
+      {/* View tabs */}
+      <div className="mt-3 grid grid-cols-3 gap-1 rounded-lg border border-white/5 bg-white/[0.02] p-1">
+        {(["changes", "settings", "registry"] as const).map((v) => (
+          <button
+            key={v}
+            onClick={() => setView(v)}
+            className={`rounded-md px-2 py-2 text-xs font-medium capitalize ${
+              view === v ? "bg-brand-purple text-white" : "text-slate-400"
+            }`}
+          >
+            {v}
+          </button>
+        ))}
+      </div>
+
       {error && (
         <p role="alert" className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300">
           {error}
@@ -185,8 +243,186 @@ export default function ArchieEvolution() {
       )}
       {loading && <p className="mt-4 text-xs text-slate-500">Loading…</p>}
 
+      {/* ── Settings ── */}
+      {view === "settings" && (
+        <div className="mt-4 space-y-3">
+          <div className="space-y-3 rounded-xl border border-white/5 bg-white/[0.03] p-3">
+            <p className="text-xs font-medium text-slate-200">Language learning</p>
+            {([
+              ["language.enabled", "Language learning"],
+              ["language.autoLearning", "Auto learning"],
+              ["language.autoMemory", "Auto memory"],
+              ["language.externalResearch", "External research"],
+              ["language.dialectLearning", "Dialect learning"],
+              ["language.requireApprovalBeforePermanentMemory", "Approval before permanent memory"],
+            ] as const).map(([path, label]) => (
+              <label key={path} className="flex items-center justify-between gap-3">
+                <span className="text-xs text-slate-300">{label}</span>
+                <Switch
+                  checked={(settings.language as Record<string, unknown>)[path.split(".")[1]] as boolean}
+                  onCheckedChange={(val) =>
+                    setSettings((s) => ({
+                      ...s,
+                      language: { ...s.language, [path.split(".")[1]]: val },
+                    }))
+                  }
+                />
+              </label>
+            ))}
+            <label className="flex items-center justify-between gap-3">
+              <span className="text-xs text-slate-300">
+                Min confidence for permanent memory (0–1)
+              </span>
+              <input
+                type="number"
+                min={0}
+                max={1}
+                step={0.05}
+                value={settings.language.minConfidenceThreshold}
+                onChange={(e) =>
+                  setSettings((s) => ({
+                    ...s,
+                    language: {
+                      ...s.language,
+                      minConfidenceThreshold: Number(e.target.value),
+                    },
+                  }))
+                }
+                className="w-20 rounded-lg border border-white/10 bg-slate-900 px-2 py-1.5 text-sm text-slate-100"
+              />
+            </label>
+          </div>
+
+          <div className="space-y-3 rounded-xl border border-white/5 bg-white/[0.03] p-3">
+            <p className="text-xs font-medium text-slate-200">Self-modification</p>
+            {([
+              ["selfCodeAnalysis", "Self code analysis"],
+              ["automaticChangeProposals", "Automatic change proposals"],
+              ["stagingPermission", "Staging permission"],
+              ["productionModification", "Production modification"],
+              ["requireExplicitApproval", "Require explicit approval"],
+              ["automaticRollback", "Automatic rollback on failed validation"],
+            ] as const).map(([key, label]) => (
+              <label key={key} className="flex items-center justify-between gap-3">
+                <span className="text-xs text-slate-300">{label}</span>
+                <Switch
+                  checked={settings.selfModification[key]}
+                  onCheckedChange={(val) =>
+                    setSettings((s) => ({
+                      ...s,
+                      selfModification: { ...s.selfModification, [key]: val },
+                    }))
+                  }
+                />
+              </label>
+            ))}
+            <label className="flex items-center justify-between gap-3">
+              <span className="text-xs text-slate-300">Max change risk allowed</span>
+              <select
+                value={settings.selfModification.maxChangeRiskAllowed}
+                onChange={(e) =>
+                  setSettings((s) => ({
+                    ...s,
+                    selfModification: {
+                      ...s.selfModification,
+                      maxChangeRiskAllowed: e.target.value as typeof s.selfModification.maxChangeRiskAllowed,
+                    },
+                  }))
+                }
+                className="w-28 rounded-lg border border-white/10 bg-slate-900 px-2 py-1.5 text-sm text-slate-100"
+              >
+                {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((r) => (
+                  <option key={r} value={r}>{r}</option>
+                ))}
+              </select>
+            </label>
+            <div>
+              <p className="text-xs text-slate-300">Protected paths (one per line)</p>
+              <textarea
+                value={settings.selfModification.protectedPaths.join("\n")}
+                onChange={(e) =>
+                  setSettings((s) => ({
+                    ...s,
+                    selfModification: {
+                      ...s.selfModification,
+                      protectedPaths: e.target.value
+                        .split("\n")
+                        .map((p) => p.trim())
+                        .filter(Boolean),
+                    },
+                  }))
+                }
+                rows={3}
+                className="mt-1 w-full rounded-lg border border-white/10 bg-slate-900 px-2 py-1.5 text-xs text-slate-100"
+              />
+            </div>
+          </div>
+
+          <button
+            onClick={() => void saveSettings()}
+            disabled={savingSettings}
+            className="w-full rounded-lg bg-brand-purple px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+          >
+            {savingSettings ? "Saving…" : "Save evolution settings"}
+          </button>
+          <p className="text-[10px] leading-relaxed text-slate-500">
+            Production modification stays owner-gated regardless: ARCHIE can
+            stage and test, but every production execution still requires the
+            server-verified owner secret (archie-owner-auth). Same settings
+            record as FRELUX Admin — changes are shared everywhere.
+          </p>
+        </div>
+      )}
+
+      {/* ── Language registry ── */}
+      {view === "registry" && (
+        <ul className="mt-4 space-y-2">
+          {languages.map((l) => (
+            <li
+              key={l.id}
+              className="rounded-xl border border-white/5 bg-white/[0.03] p-3"
+            >
+              <div className="flex items-center gap-2">
+                <span className="min-w-0 flex-1 truncate text-sm text-slate-100">
+                  {l.name}
+                  {l.nativeName && l.nativeName !== l.name && (
+                    <span className="text-slate-400"> · {l.nativeName}</span>
+                  )}
+                </span>
+                <span
+                  className={`text-[10px] ${
+                    l.verificationStatus === "VERIFIED"
+                      ? "text-emerald-300"
+                      : l.verificationStatus === "REJECTED"
+                        ? "text-red-300"
+                        : "text-amber-300"
+                  }`}
+                >
+                  {l.verificationStatus}
+                </span>
+              </div>
+              <p className="mt-0.5 text-[11px] text-slate-500">
+                {l.registryStatus} · v{l.version}
+                {l.isoCode ? ` · ${l.isoCode}` : ""}
+                {l.confidence != null && ` · ${(l.confidence * 100).toFixed(0)}% confidence`}
+              </p>
+              {l.regions.length > 0 && (
+                <p className="mt-1 text-[11px] text-slate-400">
+                  {l.regions.join(", ")}
+                </p>
+              )}
+            </li>
+          ))}
+          {!loading && !languages.length && !error && (
+            <li className="py-6 text-center text-xs text-slate-500">
+              No languages in the registry yet.
+            </li>
+          )}
+        </ul>
+      )}
+
       {/* ── Change requests ── */}
-      <ul className="mt-4 space-y-2">
+      <ul className={`mt-4 space-y-2 ${view === "changes" ? "" : "hidden"}`}>
         {changes.map((cr) => {
           const open = expanded === cr.id;
           const view = buildApprovalView(cr);
