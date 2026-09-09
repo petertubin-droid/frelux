@@ -14,6 +14,10 @@ import {
   updateDevice,
   type ArchieDevice,
 } from "@/lib/archie/stage1-client";
+import {
+  recoverLostDevice,
+  type RecoveryResult,
+} from "@/lib/archie/stage2-device-recovery";
 
 function statusBadge(status: ArchieDevice["status"]) {
   if (status === "TRUSTED")
@@ -40,6 +44,7 @@ export default function ArchieDevices() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [recovery, setRecovery] = useState<RecoveryResult | null>(null);
   const thisKey = getDeviceKey();
 
   const load = useCallback(async () => {
@@ -64,6 +69,26 @@ export default function ArchieDevices() {
       const res = await registerThisDevice();
       if (!res.ok) setError(res.error);
       else await load();
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleLostDevice(d: ArchieDevice) {
+    if (busy) return;
+    if (
+      !window.confirm(
+        `Mark "${d.label}" as lost? ARCHIE will revoke it and terminate every other session. Do this only if the device is lost or stolen.`,
+      )
+    )
+      return;
+    setBusy(true);
+    try {
+      const res = await recoverLostDevice(d.id, d.label);
+      setRecovery(res);
+      await load();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Recovery failed");
     } finally {
       setBusy(false);
     }
@@ -119,6 +144,22 @@ export default function ArchieDevices() {
           {error}
         </p>
       )}
+      {recovery && (
+        <div
+          role="status"
+          data-testid="recovery-checklist"
+          className="mt-3 rounded-lg border border-emerald-400/20 bg-emerald-400/5 p-3"
+        >
+          <p className="text-sm font-medium text-emerald-300">
+            Lost-device recovery completed
+          </p>
+          <ol className="mt-1 list-decimal space-y-0.5 pl-5 text-xs text-slate-300">
+            {recovery.steps.map((step, i) => (
+              <li key={i}>{step}</li>
+            ))}
+          </ol>
+        </div>
+      )}
       {loading && (
         <p className="mt-4 text-xs text-slate-500">Loading devices…</p>
       )}
@@ -162,6 +203,16 @@ export default function ArchieDevices() {
                 className="rounded-lg bg-red-400/10 px-3 py-1 text-xs text-red-300 hover:bg-red-400/20 disabled:opacity-40"
               >
                 Revoke
+              </button>
+            )}
+            {d.status !== "REVOKED" && d.device_key !== thisKey && (
+              <button
+                type="button"
+                onClick={() => handleLostDevice(d)}
+                disabled={busy}
+                className="rounded-lg border border-red-400/30 px-3 py-1 text-xs text-red-300 hover:bg-red-400/10 disabled:opacity-40"
+              >
+                Lost this device?
               </button>
             )}
           </li>

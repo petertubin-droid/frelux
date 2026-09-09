@@ -96,3 +96,40 @@ Trusted People, ARCHIE Model & Inference, Code Sentry, Security Sentry
 
 Full regression 5,900/5,900 green (631 files), tsc clean. All Stage 1
 functionality unchanged.
+
+## 6. Knowledge Vault per-item controls (Stage 2 continuation)
+
+- Migration `20260910120000_archie_stage2_knowledge_history.sql` (deployed
+  LIVE): `frelux_archie_knowledge_history` + a BEFORE UPDATE trigger that
+  snapshots every `frelux_knowledge_items` row before it is modified.
+  History reads are admin-gated (RLS); writes happen only via the trigger.
+- `src/lib/archie/stage2-knowledge-client.ts`:
+  - `listKnowledgeItems` — full provenance (evidence_state, confidence,
+    approved_by/date, change_reason, content).
+  - `updateKnowledgeItem(id, patch, reason)` — reason REQUIRED; saves as a
+    NEW version (trigger preserves the prior state). Nothing is edited
+    silently.
+  - `rollbackKnowledgeItem(id, toVersion)` — restores a prior state from
+    history AS A NEW VERSION, so the rollback itself is versioned.
+  - `listKnowledgeHistory(item)` — full lineage.
+- `/archie/knowledge` is now the **Knowledge Vault**: scope tiles, per-item
+  expandable detail (provenance, content JSON), version history with
+  one-click Restore, and an edit form (topic / capability / scope + scope
+  key / content) that requires a change reason.
+
+## 7. Lost-device recovery (Stage 2 continuation, §24)
+
+- `src/lib/archie/stage2-device-recovery.ts` — `recoverLostDevice()`:
+  1. revokes the device row,
+  2. terminates EVERY other session (the lost phone's session dies; its
+     cached data becomes ciphertext without access),
+  3. audits `archie.device.recovery` into the Owner stream,
+  4. returns the re-enrollment checklist for the replacement device
+     (sign in → PENDING → Trust — protected data restored from vault
+     backups; the phone is never the only copy).
+- `/archie/devices` gains a "Lost this device?" action (confirmation
+  guarded) plus the recovery checklist panel.
+
+Tests: `stage2-vault-recovery.test.ts` (7) — reason-required edit guard,
+version bump, rollback-from-history + missing-version refusal, recovery
+ordering/audit. Full regression 5,907/5,907 (632 files), tsc clean.
