@@ -22,14 +22,15 @@ import {
   setVerification,
   type TerminologyRow,
 } from "@/lib/archie/stage2-terminology-client";
+import {
+  ArchieBadge,
+  ArchieButton,
+  ArchiePage,
+  ArchiePanel,
+  ArchieSectionTitle,
+} from "@/components/archie/premium";
 
 type StatusFilter = "ALL" | "UNVERIFIED" | "VERIFIED" | "REJECTED";
-
-function statusColor(s: string) {
-  if (s === "VERIFIED") return "text-emerald-300";
-  if (s === "REJECTED") return "text-red-300";
-  return "text-amber-300";
-}
 
 export default function ArchieTerminology() {
   const [rows, setRows] = useState<TerminologyRow[]>([]);
@@ -140,29 +141,29 @@ export default function ArchieTerminology() {
   ).length;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-4 md:py-6">
-      <h1 className="text-lg font-semibold text-slate-100">TerminoBook</h1>
-      <p className="text-xs text-slate-400">
-        Multilingual construction terminology ARCHIE uses in chat. Entries are
-        created UNVERIFIED — verification is your deliberate action, and only
-        VERIFIED entries reach ARCHIE's chat.
-      </p>
+    <ArchiePage
+      eyebrow="Terminology Center"
+      title="TerminoBook"
+      subtitle="Multilingual construction terminology ARCHIE uses in chat. Entries are created UNVERIFIED — verification is your deliberate action, and only VERIFIED entries reach ARCHIE's chat."
+    >
       {unverified > 0 && (
-        <p className="mt-2 text-xs text-amber-200/80">
-          {unverified} entry(ies) awaiting verification
-        </p>
+        <div className="mb-4">
+          <ArchieBadge tone="warning">
+            {unverified} entry(ies) awaiting verification
+          </ArchieBadge>
+        </div>
       )}
 
       {error && (
         <p
           role="alert"
-          className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300"
+          className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300"
         >
           {error}
         </p>
       )}
       {notice && (
-        <p className="mt-3 rounded-lg bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300">
+        <p className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300">
           {notice}
         </p>
       )}
@@ -172,7 +173,7 @@ export default function ArchieTerminology() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
-          className="flex-1 rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+          className="archie-input flex-1 rounded-lg px-3 py-2.5 text-sm text-slate-100"
           aria-label="Filter by status"
         >
           {["ALL", "UNVERIFIED", "VERIFIED", "REJECTED"].map((s) => (
@@ -185,20 +186,21 @@ export default function ArchieTerminology() {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search term…"
-          className="flex-1 rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+          className="archie-input flex-1 rounded-lg px-3 py-2.5 text-sm text-slate-100"
         />
       </div>
 
       {/* ── Add entry ── */}
-      <button
+      <ArchieButton
         onClick={() => setShowForm(!showForm)}
-        className="mt-3 w-full rounded-lg bg-brand-purple px-4 py-3 text-sm font-semibold text-white"
+        className="mt-3 w-full py-3"
       >
         {showForm ? "Cancel" : "+ Add terminology"}
-      </button>
+      </ArchieButton>
 
       {showForm && (
-        <div className="mt-3 space-y-2 rounded-xl border border-white/5 bg-white/[0.03] p-3">
+        <ArchiePanel className="mt-3 space-y-3 p-4">
+          <ArchieSectionTitle>New Terminology Entry</ArchieSectionTitle>
           <div className="grid grid-cols-2 gap-2">
             <select
               value={domain}
@@ -207,7 +209,7 @@ export default function ArchieTerminology() {
                   e.target.value as (typeof TERMINOLOGY_DOMAINS)[number],
                 )
               }
-              className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+              className="archie-input w-full rounded-lg px-3 py-2.5 text-sm text-slate-100"
               aria-label="Domain"
             >
               {TERMINOLOGY_DOMAINS.map((d) => (
@@ -220,49 +222,46 @@ export default function ArchieTerminology() {
               value={languageCode}
               onChange={(e) => setLanguageCode(e.target.value)}
               placeholder="Lang (yo, ig, ha…)"
-              className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+              className="archie-input w-full rounded-lg px-3 py-2.5 text-sm text-slate-100"
             />
           </div>
           <input
             value={canonicalTerm}
             onChange={(e) => setCanonicalTerm(e.target.value)}
             placeholder="Canonical term (English)"
-            className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+            className="archie-input w-full rounded-lg px-3 py-2.5 text-sm text-slate-100"
           />
           <input
             value={regionalTerm}
             onChange={(e) => setRegionalTerm(e.target.value)}
             placeholder="Regional term"
-            className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+            className="archie-input w-full rounded-lg px-3 py-2.5 text-sm text-slate-100"
           />
           <input
             value={meaningNote}
             onChange={(e) => setMeaningNote(e.target.value)}
             placeholder="Meaning note (optional)"
-            className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+            className="archie-input w-full rounded-lg px-3 py-2.5 text-sm text-slate-100"
           />
-          <button
+          <ArchieButton
             onClick={() => void handleCreate()}
             disabled={busy}
-            className="w-full rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50"
+            className="w-full py-2.5"
           >
             {busy ? "Saving…" : "Add as UNVERIFIED"}
-          </button>
-        </div>
+          </ArchieButton>
+        </ArchiePanel>
       )}
 
       {/* ── Entries ── */}
       <ul className="mt-4 space-y-2">
         {rows.map((r) => (
-          <li
-            key={r.id}
-            className="rounded-xl border border-white/5 bg-white/[0.03] p-3"
-          >
+          <li key={r.id} className="archie-panel rounded-xl p-3">
             <div className="flex items-start gap-2">
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-slate-100">
+                <p className="text-sm font-medium text-slate-100">
                   {r.canonical_term}{" "}
-                  <span className="text-slate-300">→ {r.regional_term}</span>
+                  <span className="text-amber-300/80">→ {r.regional_term}</span>
                 </p>
                 <p className="mt-0.5 text-[11px] text-slate-500">
                   {r.language_code} · {r.domain} · v{r.version}
@@ -273,18 +272,24 @@ export default function ArchieTerminology() {
                   </p>
                 )}
               </div>
-              <span
-                className={`text-[10px] ${statusColor(r.verification_status)}`}
+              <ArchieBadge
+                tone={
+                  r.verification_status === "VERIFIED"
+                    ? "positive"
+                    : r.verification_status === "REJECTED"
+                      ? "critical"
+                      : "warning"
+                }
               >
                 {r.verification_status}
-              </span>
+              </ArchieBadge>
             </div>
             <div className="mt-2 flex gap-1.5">
               {r.verification_status !== "VERIFIED" && (
                 <button
                   onClick={() => void handleVerify(r.id, "VERIFIED")}
                   disabled={busy}
-                  className="rounded-md bg-emerald-600/80 px-3 py-1.5 text-[11px] font-medium text-white disabled:opacity-50"
+                  className="rounded-md border border-emerald-500/30 bg-emerald-500/20 px-3 py-1.5 text-[11px] font-medium text-emerald-200 hover:bg-emerald-500/30 disabled:opacity-50"
                 >
                   Verify
                 </button>
@@ -293,7 +298,7 @@ export default function ArchieTerminology() {
                 <button
                   onClick={() => void handleVerify(r.id, "REJECTED")}
                   disabled={busy}
-                  className="rounded-md bg-white/10 px-3 py-1.5 text-[11px] font-medium text-slate-200 disabled:opacity-50"
+                  className="rounded-md border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-medium text-slate-200 hover:bg-white/10 disabled:opacity-50"
                 >
                   Reject
                 </button>
@@ -301,7 +306,7 @@ export default function ArchieTerminology() {
               <button
                 onClick={() => void handleDelete(r.id)}
                 disabled={busy}
-                className="rounded-md bg-red-600/60 px-3 py-1.5 text-[11px] font-medium text-white disabled:opacity-50"
+                className="rounded-md border border-red-500/30 bg-red-500/20 px-3 py-1.5 text-[11px] font-medium text-red-200 hover:bg-red-500/30 disabled:opacity-50"
               >
                 Delete
               </button>
@@ -309,12 +314,14 @@ export default function ArchieTerminology() {
           </li>
         ))}
         {!loading && !rows.length && !error && (
-          <li className="py-6 text-center text-xs text-slate-500">
+          <li className="archie-panel rounded-xl py-6 text-center text-xs text-slate-500">
             No entries match this filter yet.
           </li>
         )}
         {loading && (
-          <li className="py-4 text-center text-xs text-slate-500">Loading…</li>
+          <li className="archie-panel rounded-xl py-4 text-center text-xs text-slate-500">
+            Loading…
+          </li>
         )}
       </ul>
 
@@ -324,6 +331,6 @@ export default function ArchieTerminology() {
         chat on every interface, because both this app and FRELUX Admin share
         the same terminology table.
       </p>
-    </div>
+    </ArchiePage>
   );
 }

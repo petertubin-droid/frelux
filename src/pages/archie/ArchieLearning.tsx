@@ -13,6 +13,12 @@ import {
   listLearningIngestions,
   type ArchieLearningIngestion,
 } from "@/lib/archie/stage1-client";
+import {
+  ArchiePage,
+  ArchiePanel,
+  ArchieSectionTitle,
+  ArchieBadge,
+} from "@/components/archie/premium";
 
 const STATE_LABEL: Record<string, string> = {
   RECEIVED: "Received",
@@ -26,11 +32,13 @@ const STATE_LABEL: Record<string, string> = {
   REJECTED: "Rejected",
 };
 
-function stateColor(state: string) {
-  if (state === "AWAITING_APPROVAL") return "text-amber-300";
-  if (state === "APPROVED") return "text-emerald-300";
-  if (state === "REJECTED") return "text-red-300";
-  return "text-slate-400";
+function stateTone(
+  state: string,
+): "warning" | "positive" | "critical" | "neutral" {
+  if (state === "AWAITING_APPROVAL") return "warning";
+  if (state === "APPROVED") return "positive";
+  if (state === "REJECTED") return "critical";
+  return "neutral";
 }
 
 export default function ArchieLearning() {
@@ -59,24 +67,20 @@ export default function ArchieLearning() {
   );
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-4 md:py-6">
-      <h1 className="text-lg font-semibold text-slate-100">Learning</h1>
-      <p className="text-xs text-slate-400">
-        ARCHIE shows you what it believes it learned before anything is
-        promoted. Review and approve candidates in the Training section —
-        nothing here becomes knowledge on its own.
-      </p>
-
-      <div className="mt-4 rounded-lg border border-white/5 bg-white/[0.03] p-3 text-xs text-slate-300">
-        <p className="font-medium text-slate-200">Pipeline</p>
+    <ArchiePage
+      title="Learning"
+      subtitle="ARCHIE shows you what it believes it learned before anything is promoted. Review and approve candidates in the Training section — nothing here becomes knowledge on its own."
+    >
+      <ArchiePanel accent className="p-4 text-xs text-slate-300">
+        <ArchieSectionTitle>Pipeline</ArchieSectionTitle>
         <p className="mt-1 text-slate-400">
           INPUT → EXTRACT → UNDERSTAND → STRUCTURE → VALIDATE → EVALUATE → SHOW
           OWNER → OWNER APPROVAL → VERSION → KNOWLEDGE
         </p>
-        <p className="mt-2 text-amber-200/80">
+        <p className="mt-2.5 font-medium text-amber-200/90">
           {awaiting.length} candidate(s) awaiting your approval
         </p>
-      </div>
+      </ArchiePanel>
 
       {error && (
         <p role="alert" className="mt-4 text-sm text-amber-300">
@@ -87,21 +91,18 @@ export default function ArchieLearning() {
         <p className="mt-4 text-xs text-slate-500">Loading pipeline…</p>
       )}
 
-      <ul className="mt-4 space-y-1.5">
+      <ul className="mt-4 space-y-2">
         {items.map((i) => (
-          <li
-            key={i.id}
-            className="rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2"
-          >
+          <li key={i.id} className="archie-panel rounded-xl p-3.5">
             <div className="flex items-center gap-2">
-              <span className="min-w-0 flex-1 truncate text-sm text-slate-200">
+              <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-200">
                 {i.title}
               </span>
-              <span className={`text-[10px] ${stateColor(i.pipeline_state)}`}>
+              <ArchieBadge tone={stateTone(i.pipeline_state)}>
                 {STATE_LABEL[i.pipeline_state] ?? i.pipeline_state}
-              </span>
+              </ArchieBadge>
             </div>
-            <p className="mt-0.5 text-[11px] text-slate-500">
+            <p className="mt-1 text-[11px] text-slate-500">
               {i.domain} · {i.input_type} · {i.candidate_count} candidate(s)
             </p>
           </li>
@@ -113,6 +114,6 @@ export default function ArchieLearning() {
           to queue your first candidate.
         </p>
       )}
-    </div>
+    </ArchiePage>
   );
 }

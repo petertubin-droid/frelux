@@ -117,9 +117,7 @@ export default function ArchieVoice() {
       });
       setSamples((s) => [saved, ...s]);
       await refresh(userId);
-      setNotice(
-        "Sample saved. ARCHIE now speaks with your pitch and pace.",
-      );
+      setNotice("Sample saved. ARCHIE now speaks with your pitch and pace.");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not save the sample.");
     } finally {
@@ -141,15 +139,20 @@ export default function ArchieVoice() {
     );
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-4 md:py-6">
-      <h1 className="text-lg font-semibold text-slate-100">Voice</h1>
+    <div className="archie-fade-up mx-auto max-w-2xl px-4 py-4 md:py-6">
+      <h1 className="archie-title-gradient text-lg font-semibold md:text-xl">
+        Voice
+      </h1>
       <p className="text-xs text-slate-400">
         Record your voice; ARCHIE derives a deterministic pitch/pace profile —
         pure math, no cloud AI. Samples stay owner-only (private bucket + RLS).
       </p>
 
       {error && (
-        <p role="alert" className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300">
+        <p
+          role="alert"
+          className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300"
+        >
           {error}
         </p>
       )}
@@ -161,23 +164,23 @@ export default function ArchieVoice() {
 
       {/* ── Profile ── */}
       {profile && (
-        <div className="mt-4 rounded-xl border border-white/5 bg-white/[0.03] p-3">
+        <div className="mt-4 rounded-xl archie-panel p-3">
           <p className="text-xs font-medium text-slate-200">Current profile</p>
           <div className="mt-2 grid grid-cols-3 gap-2 text-center">
             <div>
-              <p className="text-lg font-semibold text-slate-100">
+              <p className="archie-title-gradient text-lg font-semibold md:text-xl">
                 {Math.round(profile.pitchHz)} Hz
               </p>
               <p className="text-[10px] text-slate-500">Pitch</p>
             </div>
             <div>
-              <p className="text-lg font-semibold text-slate-100">
+              <p className="archie-title-gradient text-lg font-semibold md:text-xl">
                 {profile.rateHint}
               </p>
               <p className="text-[10px] text-slate-500">Pace hint</p>
             </div>
             <div>
-              <p className="text-lg font-semibold text-slate-100">
+              <p className="archie-title-gradient text-lg font-semibold md:text-xl">
                 {samples.length}
               </p>
               <p className="text-[10px] text-slate-500">Samples</p>
@@ -187,7 +190,7 @@ export default function ArchieVoice() {
       )}
 
       {/* ── Recorder ── */}
-      <div className="mt-4 rounded-xl border border-white/5 bg-white/[0.03] p-3">
+      <div className="mt-4 rounded-xl archie-panel p-3">
         {!supported ? (
           <p className="text-xs text-slate-400">
             This device/browser does not support audio recording.
@@ -220,10 +223,7 @@ export default function ArchieVoice() {
         <p className="text-xs font-medium text-slate-300">Saved samples</p>
         <ul className="mt-2 space-y-1.5">
           {samples.map((s) => (
-            <li
-              key={s.id}
-              className="rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2"
-            >
+            <li key={s.id} className="rounded-lg archie-panel px-3 py-2">
               <div className="flex items-center gap-2">
                 <span className="min-w-0 flex-1 text-sm text-slate-200">
                   {s.pitch_hz ? `${Math.round(s.pitch_hz)} Hz` : "—"} ·{" "}

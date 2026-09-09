@@ -418,10 +418,10 @@ export default function ArchieMigration() {
     ].includes(progress.phase);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-4 md:py-6">
+    <div className="archie-fade-up mx-auto max-w-4xl px-4 py-4 md:py-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold text-slate-100">
+          <h1 className="archie-title-gradient text-lg font-semibold md:text-xl">
             Migration Center
           </h1>
           <p className="text-xs text-slate-400">
@@ -460,7 +460,7 @@ export default function ArchieMigration() {
       )}
 
       {progress && (
-        <div className="mt-3 rounded-lg border border-white/10 bg-white/[0.03] p-3">
+        <div className="mt-3 rounded-lg archie-panel p-3">
           <div className="flex items-center justify-between text-sm">
             <span className="text-slate-100">
               {progress.phase === "COMPLETE" ? "Complete" : progress.phase}
@@ -592,7 +592,7 @@ export default function ArchieMigration() {
             />
           </div>
 
-          <div className="mt-3 rounded-lg border border-white/10 bg-white/[0.03] p-3 text-xs text-slate-400">
+          <div className="mt-3 rounded-lg archie-panel p-3 text-xs text-slate-400">
             Export method:{" "}
             {capability === "file-system-access"
               ? "this browser supports direct file saving — you can pick a mounted USB drive as the destination."
@@ -600,7 +600,7 @@ export default function ArchieMigration() {
           </div>
 
           <div className="mt-4 grid gap-3 md:grid-cols-2">
-            <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
+            <div className="rounded-lg archie-panel p-3">
               <p className="text-sm font-medium text-slate-100">
                 Verify a package
               </p>
@@ -622,7 +622,7 @@ export default function ArchieMigration() {
                 />
               </label>
             </div>
-            <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
+            <div className="rounded-lg archie-panel p-3">
               <p className="text-sm font-medium text-slate-100">
                 Restore ARCHIE
               </p>
@@ -671,7 +671,7 @@ export default function ArchieMigration() {
           )}
 
           {verification?.ok && plan && unzipped && (
-            <div className="mt-3 rounded-lg border border-white/10 bg-white/[0.03] p-3">
+            <div className="mt-3 rounded-lg archie-panel p-3">
               <p className="text-sm font-medium text-slate-100">Restore plan</p>
               <div className="mt-2 flex gap-2 text-xs">
                 <button
@@ -724,7 +724,7 @@ export default function ArchieMigration() {
                       busy: false,
                     })
                   }
-                  className="mt-3 rounded-lg bg-amber-400/90 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-amber-300 disabled:opacity-40"
+                  className="mt-3 archie-btn-primary rounded-lg bg-amber-400/90 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-amber-300 disabled:opacity-40"
                 >
                   Authorize and restore
                 </button>
@@ -736,7 +736,7 @@ export default function ArchieMigration() {
 
       {authDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-sm rounded-xl border border-white/10 bg-slate-900 p-4">
+          <div className="w-full max-w-sm rounded-xl archie-input p-4">
             <p className="text-sm font-medium text-slate-100">
               Owner authorization required
             </p>
@@ -800,7 +800,7 @@ export default function ArchieMigration() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
+    <div className="rounded-lg archie-panel p-3">
       <p className="text-[10px] uppercase tracking-wide text-slate-500">
         {label}
       </p>
@@ -821,7 +821,7 @@ function ActionCard({
   disabled?: boolean;
 }) {
   return (
-    <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
+    <div className="rounded-lg archie-panel p-3">
       <p className="text-sm font-medium text-slate-100">{title}</p>
       <p className="mt-1 text-xs text-slate-400">{description}</p>
       <button

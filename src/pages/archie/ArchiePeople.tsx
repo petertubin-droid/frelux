@@ -32,8 +32,7 @@ const STATUS_STYLE: Record<ArchiePerson["status"], string> = {
     "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-200",
   PENDING_REQUEST:
     "bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200",
-  ACTIVE:
-    "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200",
+  ACTIVE: "border border-emerald-400/30 bg-emerald-500/10 text-emerald-300",
   SUSPENDED:
     "bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-200",
   REVOKED: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-200",
@@ -136,38 +135,38 @@ export default function ArchiePeople() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="archie-fade-up mx-auto max-w-4xl space-y-4 px-4 py-4 md:py-6">
       <header>
-        <h1 className="text-xl font-bold">People</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1 className="archie-title-gradient text-xl font-bold">People</h1>
+        <p className="text-sm text-slate-400">
           Family and trusted professionals. Invitation codes are single-use,
           expire in 24 hours, and grant nothing until you review and approve.
         </p>
       </header>
 
       {error && (
-        <p className="rounded-lg bg-red-100 p-2 text-sm text-red-800 dark:bg-red-900/40 dark:text-red-200">
+        <p className="rounded-lg border border-red-400/30 bg-red-500/10 p-2 text-sm text-red-300">
           {error}
         </p>
       )}
       {notice && (
-        <p className="rounded-lg bg-emerald-100 p-2 text-sm text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-200">
+        <p className="rounded-lg border border-emerald-400/30 bg-emerald-500/10 p-2 text-sm text-emerald-300">
           {notice}
         </p>
       )}
 
       {phase.kind === "invited" && (
         <div
-          className="rounded-xl border-2 border-dashed p-4"
+          className="rounded-xl border-2 border-dashed border-white/15 p-4"
           data-testid="invite-code"
         >
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-slate-400">
             Invitation code (shown once — share it now):
           </p>
           <p className="my-2 select-all font-mono text-2xl font-bold tracking-widest">
             {phase.code}
           </p>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-slate-500">
             Expires {new Date(phase.expiresAt).toLocaleString()}. {phase.note}
           </p>
           <button
@@ -186,12 +185,12 @@ export default function ArchiePeople() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Their name"
-            className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm"
+            className="flex-1 archie-input w-full rounded-lg px-3 py-2 text-sm text-slate-200"
           />
           <select
             value={relation}
             onChange={(e) => setRelation(e.target.value)}
-            className="rounded-lg border bg-background px-3 py-2 text-sm"
+            className="archie-input w-full rounded-lg px-3 py-2 text-sm text-slate-200"
           >
             {PEOPLE_RELATIONS.map((r) => (
               <option key={r} value={r}>
@@ -212,9 +211,9 @@ export default function ArchiePeople() {
       <section className="space-y-3">
         <h2 className="font-semibold">Your network ({people.length})</h2>
         {loading ? (
-          <p className="text-sm text-muted-foreground">Loading…</p>
+          <p className="text-sm text-slate-400">Loading…</p>
         ) : people.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-slate-400">
             No one yet — invite a family member or trusted professional above.
           </p>
         ) : (
@@ -224,7 +223,7 @@ export default function ArchiePeople() {
                 <div>
                   <p className="font-medium">
                     {p.display_name}{" "}
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-slate-500">
                       · {p.relation.replace(/_/g, " ")}
                     </span>
                   </p>
@@ -234,13 +233,13 @@ export default function ArchiePeople() {
                     {p.status.replace(/_/g, " ")}
                   </span>
                   {p.status === "ACTIVE" && p.access_expires_at && (
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <p className="mt-1 text-xs text-slate-500">
                       Access expires{" "}
                       {new Date(p.access_expires_at).toLocaleString()}
                     </p>
                   )}
                   {p.permissions.length > 0 && (
-                    <p className="mt-1 text-xs text-muted-foreground">
+                    <p className="mt-1 text-xs text-slate-500">
                       Permissions: {p.permissions.join(", ")}
                     </p>
                   )}
@@ -256,7 +255,7 @@ export default function ArchiePeople() {
                   )}
                   {p.status === "ACTIVE" && (
                     <button
-                      className="rounded-lg border px-3 py-1.5 text-xs"
+                      className="archie-input rounded-lg px-3 py-1.5 text-xs text-slate-200"
                       onClick={() => handleStatus(p, "SUSPENDED")}
                       disabled={busy}
                     >
@@ -265,7 +264,7 @@ export default function ArchiePeople() {
                   )}
                   {p.status === "SUSPENDED" && (
                     <button
-                      className="rounded-lg border px-3 py-1.5 text-xs"
+                      className="archie-input rounded-lg px-3 py-1.5 text-xs text-slate-200"
                       onClick={() => handleStatus(p, "ACTIVE")}
                       disabled={busy}
                     >
@@ -274,7 +273,7 @@ export default function ArchiePeople() {
                   )}
                   {p.status !== "REVOKED" && (
                     <button
-                      className="rounded-lg border px-3 py-1.5 text-xs"
+                      className="archie-input rounded-lg px-3 py-1.5 text-xs text-slate-200"
                       onClick={() => handleStatus(p, "REVOKED")}
                       disabled={busy}
                     >
@@ -322,9 +321,7 @@ export default function ArchiePeople() {
                     ))}
                   </div>
                   <div className="mt-3 flex flex-wrap items-center gap-2">
-                    <span className="text-xs text-muted-foreground">
-                      Access:
-                    </span>
+                    <span className="text-xs text-slate-500">Access:</span>
                     {ACCESS_OPTIONS.map((opt) => (
                       <button
                         key={opt.label}

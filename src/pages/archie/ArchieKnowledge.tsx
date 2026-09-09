@@ -149,8 +149,10 @@ export default function ArchieKnowledge() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-4 md:py-6">
-      <h1 className="text-lg font-semibold text-slate-100">Knowledge Vault</h1>
+    <div className="archie-fade-up mx-auto max-w-4xl px-4 py-4 md:py-6">
+      <h1 className="archie-title-gradient text-lg font-semibold md:text-xl">
+        Knowledge Vault
+      </h1>
       <p className="text-xs text-slate-400">
         ARCHIE's knowledge core with strict scopes and full Owner controls.
         Every edit creates a new version with a recorded reason; every prior
@@ -160,10 +162,7 @@ export default function ArchieKnowledge() {
 
       <div className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3">
         {SCOPES.map((s) => (
-          <div
-            key={s.key}
-            className="rounded-lg border border-white/5 bg-white/[0.03] p-3"
-          >
+          <div key={s.key} className="rounded-lg archie-panel p-3">
             <p className="text-sm font-medium text-slate-200">{s.label}</p>
             <p className="mt-0.5 text-[11px] text-slate-400">{s.note}</p>
             <p className="mt-1 text-xs text-amber-200/80">
@@ -189,10 +188,7 @@ export default function ArchieKnowledge() {
 
       <ul className="mt-4 space-y-1.5">
         {rows.map((r) => (
-          <li
-            key={r.id}
-            className="rounded-lg border border-white/5 bg-white/[0.02]"
-          >
+          <li key={r.id} className="rounded-lg archie-panel">
             <button
               type="button"
               onClick={() => openItem(r)}
@@ -307,7 +303,7 @@ export default function ArchieKnowledge() {
                 </div>
 
                 {/* Edit form — new version, reason required */}
-                <div className="space-y-2 rounded-lg border border-white/5 bg-white/[0.02] p-3">
+                <div className="space-y-2 rounded-lg archie-panel p-3">
                   <p className="text-[11px] font-medium text-slate-300">
                     Edit as new version (reason required)
                   </p>
@@ -315,13 +311,13 @@ export default function ArchieKnowledge() {
                     value={editTopic}
                     onChange={(e) => setEditTopic(e.target.value)}
                     placeholder="Topic"
-                    className="w-full rounded-lg border border-white/10 bg-black/30 px-2 py-1.5 text-xs text-slate-200"
+                    className="w-full rounded-lg archie-input px-2 py-1.5 text-xs text-slate-200"
                   />
                   <input
                     value={editCapability}
                     onChange={(e) => setEditCapability(e.target.value)}
                     placeholder="Capability"
-                    className="w-full rounded-lg border border-white/10 bg-black/30 px-2 py-1.5 text-xs text-slate-200"
+                    className="w-full rounded-lg archie-input px-2 py-1.5 text-xs text-slate-200"
                   />
                   <div className="flex flex-wrap gap-1">
                     {KNOWLEDGE_SCOPES.map((s) => (
@@ -344,7 +340,7 @@ export default function ArchieKnowledge() {
                       value={editScopeKey}
                       onChange={(e) => setEditScopeKey(e.target.value)}
                       placeholder="Scope key (region / project / property id)"
-                      className="w-full rounded-lg border border-white/10 bg-black/30 px-2 py-1.5 text-xs text-slate-200"
+                      className="w-full rounded-lg archie-input px-2 py-1.5 text-xs text-slate-200"
                     />
                   )}
                   <textarea
@@ -352,19 +348,19 @@ export default function ArchieKnowledge() {
                     onChange={(e) => setEditContent(e.target.value)}
                     rows={6}
                     placeholder="Content (JSON)"
-                    className="w-full rounded-lg border border-white/10 bg-black/30 px-2 py-1.5 font-mono text-[10px] text-slate-300"
+                    className="w-full rounded-lg archie-input px-2 py-1.5 font-mono text-[10px] text-slate-300"
                   />
                   <input
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
                     placeholder="Why are you changing this? (required)"
-                    className="w-full rounded-lg border border-white/10 bg-black/30 px-2 py-1.5 text-xs text-slate-200"
+                    className="w-full rounded-lg archie-input px-2 py-1.5 text-xs text-slate-200"
                   />
                   <button
                     type="button"
                     disabled={busy || !reason.trim()}
                     onClick={() => saveEdit(r)}
-                    className="rounded-lg bg-amber-500/90 px-3 py-1.5 text-xs font-medium text-black disabled:opacity-50"
+                    className="archie-btn-primary rounded-lg bg-amber-500/90 px-3 py-1.5 text-xs font-medium text-black disabled:opacity-50"
                   >
                     Save as new version
                   </button>

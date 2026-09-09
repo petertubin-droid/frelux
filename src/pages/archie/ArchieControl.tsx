@@ -238,9 +238,9 @@ export default function ArchieControl() {
   }, [load]);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-4 md:py-6">
+    <div className="archie-fade-up mx-auto max-w-4xl px-4 py-4 md:py-6">
       <header className="mb-4">
-        <h1 className="text-lg font-semibold text-slate-100">
+        <h1 className="archie-title-gradient text-lg font-semibold md:text-xl">
           Central Control
         </h1>
         <p className="text-xs text-slate-400">
@@ -274,7 +274,7 @@ export default function ArchieControl() {
         {SYSTEMS.map((s) => {
           const inner = (
             <div
-              className={`h-full rounded-lg border border-white/5 bg-white/[0.03] p-3 transition ${
+              className={`h-full rounded-lg archie-panel p-3 transition ${
                 s.route ? "hover:border-amber-400/30" : ""
               }`}
             >

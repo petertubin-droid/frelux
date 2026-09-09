@@ -127,7 +127,9 @@ export default function ArchieChat() {
       })
       .catch(() => {
         if (!cancelled) {
-          setError("Could not load the language registry; ARCHIE stays in English.");
+          setError(
+            "Could not load the language registry; ARCHIE stays in English.",
+          );
         }
       });
     return () => {
@@ -370,7 +372,7 @@ export default function ArchieChat() {
         <button
           type="button"
           onClick={handleNewConversation}
-          className="mb-3 w-full rounded-lg bg-amber-400/90 px-3 py-2 text-sm font-medium text-slate-900 transition hover:bg-amber-300"
+          className="mb-3 w-full archie-btn-primary rounded-lg bg-amber-400/90 px-3 py-2 text-sm font-medium text-slate-900 transition hover:bg-amber-300"
         >
           + New conversation
         </button>
@@ -380,7 +382,7 @@ export default function ArchieChat() {
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search conversations…"
           aria-label="Search conversations"
-          className="mb-3 w-full rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-400/40"
+          className="mb-3 w-full rounded-lg archie-panel px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-400/40"
         />
         {conversations.length === 0 && (
           <p className="px-1 py-4 text-xs text-slate-500">
@@ -476,7 +478,7 @@ export default function ArchieChat() {
               <button
                 type="button"
                 onClick={handleNewConversation}
-                className="mt-4 rounded-lg bg-amber-400/90 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-amber-300"
+                className="mt-4 archie-btn-primary rounded-lg bg-amber-400/90 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-amber-300"
               >
                 Start a conversation
               </button>
@@ -493,9 +495,9 @@ export default function ArchieChat() {
               <div
                 className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
                   m.role === "owner"
-                    ? "bg-amber-400/90 text-slate-900"
+                    ? "archie-btn-primary bg-amber-400/90 text-slate-900 shadow-lg"
                     : m.role === "archie"
-                      ? "bg-white/[0.06] text-slate-100"
+                      ? "archie-panel border border-white/10 text-slate-100 shadow-md"
                       : "bg-transparent text-slate-400 text-xs"
                 }`}
               >
@@ -587,14 +589,21 @@ export default function ArchieChat() {
             aria-label="Select ARCHIE language"
             aria-expanded={languageMenuOpen}
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" className="h-3.5 w-3.5">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.6"
+              className="h-3.5 w-3.5"
+            >
               <circle cx="12" cy="12" r="10" />
               <path d="M2 12h20M12 2a15.3 15.3 0 0 1 0 20 15.3 15.3 0 0 1 0-20Z" />
             </svg>
             {sessionLanguage
               ? `${
-                  languages.find((l) => l.code === sessionLanguage.language_code)
-                    ?.native_label ?? sessionLanguage.language_code
+                  languages.find(
+                    (l) => l.code === sessionLanguage.language_code,
+                  )?.native_label ?? sessionLanguage.language_code
                 }${sessionLanguage.authoritative ? "" : " · auto"}`
               : "Language"}
           </button>
@@ -604,7 +613,7 @@ export default function ArchieChat() {
             </span>
           )}
           {languageMenuOpen && (
-            <div className="absolute bottom-full left-2 z-20 mb-1 w-52 overflow-hidden rounded-xl border border-white/10 bg-slate-900/95 shadow-xl backdrop-blur">
+            <div className="absolute bottom-full left-2 z-20 mb-1 w-52 overflow-hidden rounded-xl archie-input/95 shadow-xl backdrop-blur">
               <button
                 type="button"
                 onClick={() => {
@@ -787,7 +796,7 @@ export default function ArchieChat() {
                 recording ? "Recording… tap to stop" : "Message ARCHIE…"
               }
               aria-label="Message ARCHIE"
-              className="max-h-32 min-h-[42px] flex-1 resize-none rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-400/40"
+              className="max-h-32 min-h-[42px] flex-1 resize-none rounded-xl archie-panel px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-400/40"
             />
             <button
               type="button"
@@ -795,7 +804,7 @@ export default function ArchieChat() {
               disabled={
                 sending || (!draft.trim() && pending.length === 0) || !activeId
               }
-              className="shrink-0 rounded-xl bg-amber-400/90 px-4 py-2.5 text-sm font-medium text-slate-900 transition hover:bg-amber-300 disabled:opacity-40"
+              className="shrink-0 archie-btn-primary rounded-xl bg-amber-400/90 px-4 py-2.5 text-sm font-medium text-slate-900 transition hover:bg-amber-300 disabled:opacity-40"
               aria-label="Send message"
             >
               ↑

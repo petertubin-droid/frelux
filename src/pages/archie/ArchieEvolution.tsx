@@ -208,8 +208,10 @@ export default function ArchieEvolution() {
   );
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-4 md:py-6">
-      <h1 className="text-lg font-semibold text-slate-100">Evolution</h1>
+    <div className="archie-fade-up mx-auto max-w-2xl px-4 py-4 md:py-6">
+      <h1 className="archie-title-gradient text-lg font-semibold md:text-xl">
+        Evolution
+      </h1>
       <p className="text-xs text-slate-400">
         ARCHIE's self-evolution — every change request, tested and reviewed by
         you before anything touches production. ARCHIE can never authorize its
@@ -222,7 +224,7 @@ export default function ArchieEvolution() {
       )}
 
       {/* View tabs */}
-      <div className="mt-3 grid grid-cols-3 gap-1 rounded-lg border border-white/5 bg-white/[0.02] p-1">
+      <div className="mt-3 grid grid-cols-3 gap-1 rounded-lg archie-panel p-1">
         {(["changes", "settings", "registry"] as const).map((v) => (
           <button
             key={v}
@@ -254,7 +256,7 @@ export default function ArchieEvolution() {
       {/* ── Settings ── */}
       {view === "settings" && (
         <div className="mt-4 space-y-3">
-          <div className="space-y-3 rounded-xl border border-white/5 bg-white/[0.03] p-3">
+          <div className="space-y-3 rounded-xl archie-panel p-3">
             <p className="text-xs font-medium text-slate-200">
               Language learning
             </p>
@@ -310,12 +312,12 @@ export default function ArchieEvolution() {
                     },
                   }))
                 }
-                className="w-20 rounded-lg border border-white/10 bg-slate-900 px-2 py-1.5 text-sm text-slate-100"
+                className="w-20 rounded-lg archie-input px-2 py-1.5 text-sm text-slate-100"
               />
             </label>
           </div>
 
-          <div className="space-y-3 rounded-xl border border-white/5 bg-white/[0.03] p-3">
+          <div className="space-y-3 rounded-xl archie-panel p-3">
             <p className="text-xs font-medium text-slate-200">
               Self-modification
             </p>
@@ -364,7 +366,7 @@ export default function ArchieEvolution() {
                     },
                   }))
                 }
-                className="w-28 rounded-lg border border-white/10 bg-slate-900 px-2 py-1.5 text-sm text-slate-100"
+                className="w-28 rounded-lg archie-input px-2 py-1.5 text-sm text-slate-100"
               >
                 {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((r) => (
                   <option key={r} value={r}>
@@ -392,7 +394,7 @@ export default function ArchieEvolution() {
                   }))
                 }
                 rows={3}
-                className="mt-1 w-full rounded-lg border border-white/10 bg-slate-900 px-2 py-1.5 text-xs text-slate-100"
+                className="mt-1 w-full rounded-lg archie-input px-2 py-1.5 text-xs text-slate-100"
               />
             </div>
           </div>
@@ -417,10 +419,7 @@ export default function ArchieEvolution() {
       {view === "registry" && (
         <ul className="mt-4 space-y-2">
           {languages.map((l) => (
-            <li
-              key={l.id}
-              className="rounded-xl border border-white/5 bg-white/[0.03] p-3"
-            >
+            <li key={l.id} className="rounded-xl archie-panel p-3">
               <div className="flex items-center gap-2">
                 <span className="min-w-0 flex-1 truncate text-sm text-slate-100">
                   {l.name}
@@ -469,10 +468,7 @@ export default function ArchieEvolution() {
           const isPending =
             cr.state === "AWAITING_OWNER" || cr.state === "PROPOSED";
           return (
-            <li
-              key={cr.id}
-              className="rounded-xl border border-white/5 bg-white/[0.03]"
-            >
+            <li key={cr.id} className="rounded-xl archie-panel">
               <button
                 onClick={() => setExpanded(open ? null : cr.id)}
                 className="flex w-full items-center gap-2 px-3 py-3 text-left"

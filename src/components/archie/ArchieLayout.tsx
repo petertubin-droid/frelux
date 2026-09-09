@@ -14,6 +14,7 @@
 import { useEffect } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
+import "@/styles/archie-premium.css";
 
 const NAV = [
   { to: "/archie/chat", label: "Chat", icon: "chat" },
@@ -122,7 +123,11 @@ function NavIcon({ name }: { name: string }) {
           className={common}
         >
           <path d="M3 12h12" strokeLinecap="round" />
-          <path d="m11 8 4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+          <path
+            d="m11 8 4 4-4 4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
           <path d="M17 4v16" strokeLinecap="round" />
           <path d="M21 8v8" strokeLinecap="round" />
         </svg>
@@ -186,9 +191,9 @@ export default function ArchieLayout() {
   }, []);
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#0B0F14] text-slate-100">
+    <div className="archie-root flex min-h-screen flex-col text-slate-100">
       {/* ARCHIE header */}
-      <header className="sticky top-0 z-20 border-b border-white/5 bg-[#0B0F14]/90 backdrop-blur">
+      <header className="sticky top-0 z-20 border-b border-white/5 bg-[#0B0F14]/80 backdrop-blur-xl after:absolute after:inset-x-0 after:bottom-0 after:h-px after:bg-gradient-to-r after:from-transparent after:via-amber-400/30 after:to-transparent">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
           <img
             src="/assets/archie/archie-icon-512.png"
@@ -221,10 +226,10 @@ export default function ArchieLayout() {
               key={n.to}
               to={n.to}
               className={({ isActive }) =>
-                `flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors ${
+                `group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all ${
                   isActive
-                    ? "bg-amber-400/10 text-amber-200"
-                    : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                    ? "archie-nav-active bg-amber-400/10 text-amber-200"
+                    : "text-slate-400 hover:bg-white/[0.04] hover:text-slate-200"
                 }`
               }
             >
@@ -253,14 +258,17 @@ export default function ArchieLayout() {
           </a>
         </nav>
 
-        <main className="min-w-0 flex-1 pb-16 md:pb-0" key={location.pathname}>
+        <main
+          className="relative z-10 min-w-0 flex-1 pb-16 md:pb-0"
+          key={location.pathname}
+        >
           <Outlet />
         </main>
       </div>
 
       <nav
         aria-label="ARCHIE sections"
-        className="fixed inset-x-0 bottom-0 z-20 flex overflow-x-auto border-t border-white/5 bg-[#0B0F14]/95 backdrop-blur md:hidden"
+        className="fixed inset-x-0 bottom-0 z-20 flex overflow-x-auto border-t border-white/10 bg-[#0B0F14]/85 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
       >
         {NAV.map((n) => (
           <NavLink
@@ -268,8 +276,10 @@ export default function ArchieLayout() {
             to={n.to}
             aria-label={n.label}
             className={({ isActive }) =>
-              `flex min-w-[68px] shrink-0 flex-col items-center gap-1 px-1 py-2 text-[10px] ${
-                isActive ? "text-amber-200" : "text-slate-500"
+              `flex min-w-[68px] shrink-0 flex-col items-center gap-1 px-1 py-2 text-[10px] transition-colors ${
+                isActive
+                  ? "text-amber-200 drop-shadow-[0_0_8px_rgba(251,191,36,0.45)]"
+                  : "text-slate-500"
               }`
             }
           >

@@ -11,11 +11,18 @@ import {
   listAuditEvents,
   type ArchieAuditEvent,
 } from "@/lib/archie/stage1-client";
+import {
+  ArchiePage,
+  ArchieStat,
+  ArchieBadge,
+} from "@/components/archie/premium";
 
-function severityColor(s: ArchieAuditEvent["severity"]) {
-  if (s === "CRITICAL") return "text-red-300";
-  if (s === "WARNING") return "text-amber-300";
-  return "text-slate-400";
+function severityTone(
+  s: ArchieAuditEvent["severity"],
+): "critical" | "warning" | "neutral" {
+  if (s === "CRITICAL") return "critical";
+  if (s === "WARNING") return "warning";
+  return "neutral";
 }
 
 export default function ArchieSecurity() {
@@ -42,47 +49,24 @@ export default function ArchieSecurity() {
   const critical = events.filter((e) => e.severity === "CRITICAL").length;
   const warnings = events.filter((e) => e.severity === "WARNING").length;
 
-  return (
-    <div className="mx-auto max-w-4xl px-4 py-4 md:py-6">
-      <h1 className="text-lg font-semibold text-slate-100">Security</h1>
-      <p className="text-xs text-slate-400">
-        Server-side authorization, audit logging and revocation. ARCHIE is
-        Owner-only — every non-admin access attempt is recorded below.
-      </p>
+  const postureValue =
+    critical > 0 ? "CRITICAL" : warnings > 0 ? "WARNING" : "NORMAL";
+  const postureTone =
+    critical > 0 ? "critical" : warnings > 0 ? "warning" : "positive";
 
+  return (
+    <ArchiePage
+      title="Security"
+      subtitle="Server-side authorization, audit logging and revocation. ARCHIE is Owner-only — every non-admin access attempt is recorded below."
+    >
       <div className="mt-4 grid grid-cols-3 gap-2">
-        <div className="rounded-lg border border-white/5 bg-white/[0.03] p-3">
-          <p className="text-[10px] uppercase tracking-wider text-slate-500">
-            Posture
-          </p>
-          <p
-            className={`mt-1 text-sm font-semibold ${
-              critical > 0
-                ? "text-red-300"
-                : warnings > 0
-                  ? "text-amber-300"
-                  : "text-emerald-300"
-            }`}
-          >
-            {critical > 0 ? "CRITICAL" : warnings > 0 ? "WARNING" : "NORMAL"}
-          </p>
-        </div>
-        <div className="rounded-lg border border-white/5 bg-white/[0.03] p-3">
-          <p className="text-[10px] uppercase tracking-wider text-slate-500">
-            Warnings
-          </p>
-          <p className="mt-1 text-sm font-semibold text-slate-100">
-            {warnings}
-          </p>
-        </div>
-        <div className="rounded-lg border border-white/5 bg-white/[0.03] p-3">
-          <p className="text-[10px] uppercase tracking-wider text-slate-500">
-            Events
-          </p>
-          <p className="mt-1 text-sm font-semibold text-slate-100">
-            {events.length}
-          </p>
-        </div>
+        <ArchieStat label="Posture" value={postureValue} tone={postureTone} />
+        <ArchieStat
+          label="Warnings"
+          value={warnings}
+          tone={warnings > 0 ? "warning" : "neutral"}
+        />
+        <ArchieStat label="Events" value={events.length} tone="neutral" />
       </div>
 
       {error && (
@@ -94,25 +78,21 @@ export default function ArchieSecurity() {
         <p className="mt-4 text-xs text-slate-500">Loading audit trail…</p>
       )}
 
-      <ul className="mt-4 space-y-1.5">
+      <ul className="mt-4 space-y-2">
         {events.map((e) => (
           <li
             key={e.id}
-            className="rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2"
+            className="archie-panel flex items-center gap-2.5 rounded-xl px-3.5 py-2.5"
           >
-            <div className="flex items-center gap-2">
-              <span
-                className={`text-[10px] font-medium ${severityColor(e.severity)}`}
-              >
-                {e.severity}
-              </span>
-              <span className="min-w-0 flex-1 truncate text-sm text-slate-200">
-                {e.event_type}
-              </span>
-              <span className="text-[10px] text-slate-500">
-                {new Date(e.created_date).toLocaleString()}
-              </span>
-            </div>
+            <ArchieBadge tone={severityTone(e.severity)}>
+              {e.severity}
+            </ArchieBadge>
+            <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-200">
+              {e.event_type}
+            </span>
+            <span className="text-[10px] text-slate-500">
+              {new Date(e.created_date).toLocaleString()}
+            </span>
           </li>
         ))}
       </ul>
@@ -121,6 +101,6 @@ export default function ArchieSecurity() {
           No security events recorded yet — a quiet system is a good system.
         </p>
       )}
-    </div>
+    </ArchiePage>
   );
 }

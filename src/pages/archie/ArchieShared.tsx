@@ -59,8 +59,10 @@ export default function ArchieShared() {
   }, [load]);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-4 md:py-6">
-      <h1 className="text-lg font-semibold text-slate-100">Shared with you</h1>
+    <div className="archie-fade-up mx-auto max-w-4xl px-4 py-4 md:py-6">
+      <h1 className="archie-title-gradient text-lg font-semibold md:text-xl">
+        Shared with you
+      </h1>
       <p className="text-xs text-slate-400">
         What the Owner has shared with you through ARCHIE. The Owner controls
         every permission and can revoke access at any time.
@@ -76,7 +78,7 @@ export default function ArchieShared() {
       {!loading && !error && !me && (
         <div
           data-testid="no-access"
-          className="mt-4 rounded-lg border border-white/5 bg-white/[0.03] p-4"
+          className="mt-4 rounded-lg archie-panel p-4"
         >
           <p className="text-sm text-slate-300">No ARCHIE access yet.</p>
           <p className="mt-1 text-xs text-slate-400">
@@ -88,7 +90,7 @@ export default function ArchieShared() {
 
       {me && (
         <div className="mt-4 space-y-4">
-          <div className="rounded-lg border border-white/5 bg-white/[0.03] p-4">
+          <div className="rounded-lg archie-panel p-4">
             <p className="text-sm text-slate-200">
               {me.display_name}{" "}
               <span className="text-[11px] text-slate-500">
@@ -140,7 +142,7 @@ export default function ArchieShared() {
 
           {me.status === "ACTIVE" && (
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-4">
+              <div className="rounded-lg archie-panel p-4">
                 <p className="text-sm font-medium text-slate-200">
                   Shared conversations
                 </p>
@@ -161,7 +163,7 @@ export default function ArchieShared() {
                   </ul>
                 )}
               </div>
-              <div className="rounded-lg border border-white/5 bg-white/[0.02] p-4">
+              <div className="rounded-lg archie-panel p-4">
                 <p className="text-sm font-medium text-slate-200">
                   Shared knowledge
                 </p>

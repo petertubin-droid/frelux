@@ -59,10 +59,14 @@ export default function ArchieOps() {
   const [spawnTask, setSpawnTask] = useState("");
 
   // Budgets
-  const [budgets, setBudgets] = useState<Awaited<ReturnType<typeof budgetStatus>> | null>(null);
+  const [budgets, setBudgets] = useState<Awaited<
+    ReturnType<typeof budgetStatus>
+  > | null>(null);
 
   // Crypto
-  const [market, setMarket] = useState<Array<Record<string, unknown>> | null>(null);
+  const [market, setMarket] = useState<Array<Record<string, unknown>> | null>(
+    null,
+  );
   const [statement, setStatement] = useState("");
   const [classification, setClassification] = useState("ANALYSIS");
   const [holdings, setHoldings] = useState("BTC: 50000, ETH: 15000");
@@ -100,7 +104,8 @@ export default function ArchieOps() {
           .limit(30),
         budgetStatus(),
       ]);
-      if (agentRes.data) setAgents(agentRes.data as unknown as InternalAgentRecord[]);
+      if (agentRes.data)
+        setAgents(agentRes.data as unknown as InternalAgentRecord[]);
       setBudgets(budget);
       setError("");
     } catch (e) {
@@ -135,7 +140,11 @@ export default function ArchieOps() {
       setSpawnTask("");
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Spawn failed (budget gate may have rejected it)");
+      setError(
+        e instanceof Error
+          ? e.message
+          : "Spawn failed (budget gate may have rejected it)",
+      );
     } finally {
       setBusy(false);
     }
@@ -143,14 +152,22 @@ export default function ArchieOps() {
 
   async function handleAdvance(
     id: string,
-    event: "AUTHORIZE" | "ASSIGN" | "EXECUTE" | "MONITOR" | "REPORT" | "TERMINATE" | "FAIL",
+    event:
+      | "AUTHORIZE"
+      | "ASSIGN"
+      | "EXECUTE"
+      | "MONITOR"
+      | "REPORT"
+      | "TERMINATE"
+      | "FAIL",
   ) {
     setBusy(true);
     setError("");
     try {
       const res = await advanceAgent(id, event);
       if (res.ok) setNotice(`Agent ${event.toLowerCase()} recorded`);
-      else setError(res.status ? `Rejected: ${res.status}` : "Transition failed");
+      else
+        setError(res.status ? `Rejected: ${res.status}` : "Transition failed");
       await load();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Transition failed");
@@ -187,7 +204,9 @@ export default function ArchieOps() {
         confidence: 0.7,
         evidence: ["Owner-issued from ARCHIE PWA"],
       });
-      setNotice(`Analysis recorded (${res.ok ? "ok" : "pending"}), guardrails applied.`);
+      setNotice(
+        `Analysis recorded (${res.ok ? "ok" : "pending"}), guardrails applied.`,
+      );
       setStatement("");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not record analysis");
@@ -222,23 +241,23 @@ export default function ArchieOps() {
     );
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-4 md:py-6">
-      <h1 className="text-lg font-semibold text-slate-100">Operations</h1>
+    <div className="archie-fade-up mx-auto max-w-2xl px-4 py-4 md:py-6">
+      <h1 className="archie-title-gradient text-lg font-semibold md:text-xl">
+        Operations
+      </h1>
       <p className="text-xs text-slate-400">
         Internal agents, infrastructure budgets and crypto intelligence — the
         same data as the FRELUX Admin Ops Console.
       </p>
 
       {/* Tabs */}
-      <div className="mt-3 grid grid-cols-3 gap-1 rounded-lg border border-white/5 bg-white/[0.02] p-1">
+      <div className="mt-3 grid grid-cols-3 gap-1 rounded-lg archie-panel p-1">
         {(["agents", "budgets", "crypto"] as Tab[]).map((t) => (
           <button
             key={t}
             onClick={() => setTab(t)}
             className={`rounded-md px-2 py-2 text-xs font-medium capitalize ${
-              tab === t
-                ? "bg-brand-purple text-white"
-                : "text-slate-400"
+              tab === t ? "bg-brand-purple text-white" : "text-slate-400"
             }`}
           >
             {t}
@@ -247,7 +266,10 @@ export default function ArchieOps() {
       </div>
 
       {error && (
-        <p role="alert" className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300">
+        <p
+          role="alert"
+          className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300"
+        >
           {error}
         </p>
       )}
@@ -260,12 +282,12 @@ export default function ArchieOps() {
       {/* ── Agents ── */}
       {tab === "agents" && (
         <div className="mt-4 space-y-3">
-          <div className="space-y-2 rounded-xl border border-white/5 bg-white/[0.03] p-3">
+          <div className="space-y-2 rounded-xl archie-panel p-3">
             <p className="text-xs font-medium text-slate-200">Spawn an agent</p>
             <select
               value={spawnRole}
               onChange={(e) => setSpawnRole(e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+              className="w-full rounded-lg archie-input px-3 py-2.5 text-sm text-slate-100"
               aria-label="Agent role"
             >
               {AGENT_ROLES.map((r) => (
@@ -278,7 +300,7 @@ export default function ArchieOps() {
               value={spawnTask}
               onChange={(e) => setSpawnTask(e.target.value)}
               placeholder="Task description"
-              className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+              className="w-full rounded-lg archie-input px-3 py-2.5 text-sm text-slate-100"
             />
             <button
               onClick={() => void handleSpawn()}
@@ -291,10 +313,7 @@ export default function ArchieOps() {
 
           <ul className="space-y-2">
             {agents.map((a) => (
-              <li
-                key={a.id}
-                className="rounded-xl border border-white/5 bg-white/[0.03] p-3"
-              >
+              <li key={a.id} className="rounded-xl archie-panel p-3">
                 <div className="flex items-center gap-2">
                   <span className="min-w-0 flex-1 truncate text-sm text-slate-100">
                     {a.display_name || a.role}
@@ -362,7 +381,7 @@ export default function ArchieOps() {
       {/* ── Budgets ── */}
       {tab === "budgets" && budgets && (
         <div className="mt-4 space-y-3">
-          <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3">
+          <div className="rounded-xl archie-panel p-3">
             <p className="text-xs font-medium text-slate-200">
               Month-to-date infrastructure spend
             </p>
@@ -375,10 +394,7 @@ export default function ArchieOps() {
             </p>
           </div>
           {budgets.budgets.map((b) => (
-            <div
-              key={b.provider}
-              className="rounded-xl border border-white/5 bg-white/[0.03] p-3"
-            >
+            <div key={b.provider} className="rounded-xl archie-panel p-3">
               <div className="flex items-center gap-2">
                 <span className="flex-1 text-sm text-slate-100">
                   {b.provider}
@@ -391,18 +407,26 @@ export default function ArchieOps() {
               </div>
               <div className="mt-2 grid grid-cols-2 gap-2 text-[11px] text-slate-400">
                 <p>
-                  Monthly: <span className="text-slate-200">{naira(b.monthly_budget_cents)}</span>
+                  Monthly:{" "}
+                  <span className="text-slate-200">
+                    {naira(b.monthly_budget_cents)}
+                  </span>
                 </p>
                 <p>
                   Concurrency:{" "}
                   <span className="text-slate-200">{b.concurrency_limit}</span>
                 </p>
                 <p>
-                  Rate: <span className="text-slate-200">{b.rate_limit_per_minute}/min</span>
+                  Rate:{" "}
+                  <span className="text-slate-200">
+                    {b.rate_limit_per_minute}/min
+                  </span>
                 </p>
                 <p>
                   Emergency:{" "}
-                  <span className="text-slate-200">{b.emergency_threshold_pct}%</span>
+                  <span className="text-slate-200">
+                    {b.emergency_threshold_pct}%
+                  </span>
                 </p>
                 <p className="col-span-2">
                   Exhaustion policy:{" "}
@@ -413,8 +437,8 @@ export default function ArchieOps() {
           ))}
           <p className="text-[10px] text-slate-500">
             Budget configuration (monthly amounts, concurrency, emergency
-            thresholds) is editable from the FRELUX Admin Ops Console — the
-            same record; both interfaces read the same state.
+            thresholds) is editable from the FRELUX Admin Ops Console — the same
+            record; both interfaces read the same state.
           </p>
         </div>
       )}
@@ -422,11 +446,9 @@ export default function ArchieOps() {
       {/* ── Crypto ── */}
       {tab === "crypto" && (
         <div className="mt-4 space-y-3">
-          <div className="rounded-xl border border-white/5 bg-white/[0.03] p-3">
+          <div className="rounded-xl archie-panel p-3">
             <div className="flex items-center justify-between">
-              <p className="text-xs font-medium text-slate-200">
-                Live market
-              </p>
+              <p className="text-xs font-medium text-slate-200">Live market</p>
               <button
                 onClick={() => void handleMarket()}
                 disabled={busy}
@@ -447,28 +469,30 @@ export default function ArchieOps() {
             )}
           </div>
 
-          <div className="space-y-2 rounded-xl border border-white/5 bg-white/[0.03] p-3">
+          <div className="space-y-2 rounded-xl archie-panel p-3">
             <p className="text-xs font-medium text-slate-200">
               Record an analysis (with guardrails)
             </p>
             <select
               value={classification}
               onChange={(e) => setClassification(e.target.value)}
-              className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+              className="w-full rounded-lg archie-input px-3 py-2.5 text-sm text-slate-100"
               aria-label="Classification"
             >
-              {["ANALYSIS", "OBSERVATION", "PREDICTION", "RISK_WARNING"].map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
-              ))}
+              {["ANALYSIS", "OBSERVATION", "PREDICTION", "RISK_WARNING"].map(
+                (c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ),
+              )}
             </select>
             <textarea
               value={statement}
               onChange={(e) => setStatement(e.target.value)}
               placeholder="Analysis statement…"
               rows={3}
-              className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+              className="w-full rounded-lg archie-input px-3 py-2.5 text-sm text-slate-100"
             />
             <button
               onClick={() => void handleRecordAnalysis()}
@@ -479,7 +503,7 @@ export default function ArchieOps() {
             </button>
           </div>
 
-          <div className="space-y-2 rounded-xl border border-white/5 bg-white/[0.03] p-3">
+          <div className="space-y-2 rounded-xl archie-panel p-3">
             <p className="text-xs font-medium text-slate-200">
               Portfolio concentration risk
             </p>
@@ -487,7 +511,7 @@ export default function ArchieOps() {
               value={holdings}
               onChange={(e) => setHoldings(e.target.value)}
               placeholder="BTC: 50000, ETH: 15000"
-              className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+              className="w-full rounded-lg archie-input px-3 py-2.5 text-sm text-slate-100"
             />
             <button
               onClick={() => void handleRisk()}

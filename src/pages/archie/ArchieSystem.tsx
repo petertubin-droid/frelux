@@ -65,15 +65,17 @@ export default function ArchieSystem() {
   );
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-4 md:py-6">
-      <h1 className="text-lg font-semibold text-slate-100">System</h1>
+    <div className="archie-fade-up mx-auto max-w-4xl px-4 py-4 md:py-6">
+      <h1 className="archie-title-gradient text-lg font-semibold md:text-xl">
+        System
+      </h1>
       <p className="text-xs text-slate-400">
         Internal ARCHIE operations are infrastructure expenditure — structurally
         separate from subscriber credits, API quotas and user allowances.
       </p>
 
       <div className="mt-4 grid grid-cols-2 gap-2">
-        <div className="rounded-lg border border-white/5 bg-white/[0.03] p-3">
+        <div className="rounded-lg archie-panel p-3">
           <p className="text-[10px] uppercase tracking-wider text-slate-500">
             Recent internal cost ledger
           </p>
@@ -84,7 +86,7 @@ export default function ArchieSystem() {
             Estimate ledger of provider costs, not customer billing.
           </p>
         </div>
-        <div className="rounded-lg border border-white/5 bg-white/[0.03] p-3">
+        <div className="rounded-lg archie-panel p-3">
           <p className="text-[10px] uppercase tracking-wider text-slate-500">
             Notifications
           </p>
@@ -116,7 +118,7 @@ export default function ArchieSystem() {
         {costs.map((c, i) => (
           <li
             key={i}
-            className="flex items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2"
+            className="flex items-center gap-2 rounded-lg archie-panel px-3 py-2"
           >
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm text-slate-200">{c.operation}</p>

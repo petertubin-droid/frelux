@@ -18,25 +18,19 @@ import {
   recoverLostDevice,
   type RecoveryResult,
 } from "@/lib/archie/stage2-device-recovery";
+import {
+  ArchiePage,
+  ArchiePanel,
+  ArchieButton,
+  ArchieBadge,
+} from "@/components/archie/premium";
 
 function statusBadge(status: ArchieDevice["status"]) {
   if (status === "TRUSTED")
-    return (
-      <span className="rounded-full bg-emerald-400/10 px-2 py-0.5 text-[10px] text-emerald-300">
-        TRUSTED
-      </span>
-    );
+    return <ArchieBadge tone="positive">TRUSTED</ArchieBadge>;
   if (status === "REVOKED")
-    return (
-      <span className="rounded-full bg-red-400/10 px-2 py-0.5 text-[10px] text-red-300">
-        REVOKED
-      </span>
-    );
-  return (
-    <span className="rounded-full bg-amber-400/10 px-2 py-0.5 text-[10px] text-amber-300">
-      PENDING
-    </span>
-  );
+    return <ArchieBadge tone="critical">REVOKED</ArchieBadge>;
+  return <ArchieBadge tone="warning">PENDING</ArchieBadge>;
 }
 
 export default function ArchieDevices() {
@@ -112,31 +106,30 @@ export default function ArchieDevices() {
   const thisDevice = devices.find((d) => d.device_key === thisKey);
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-4 md:py-6">
-      <h1 className="text-lg font-semibold text-slate-100">Devices</h1>
-      <p className="text-xs text-slate-400">
-        Device identity is a secure app-generated key — ARCHIE never uses IMEI
-        or device identifiers you can't control.
-      </p>
-
+    <ArchiePage
+      title="Devices"
+      subtitle="Device identity is a secure app-generated key — ARCHIE never uses IMEI or device identifiers you can't control."
+    >
       {!thisDevice && (
-        <button
-          type="button"
-          onClick={handleRegister}
-          disabled={busy}
-          className="mt-4 rounded-lg bg-amber-400/90 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-amber-300 disabled:opacity-40"
-        >
-          {busy ? "Working…" : "Register this device"}
-        </button>
+        <div className="mt-4">
+          <ArchieButton onClick={handleRegister} disabled={busy}>
+            {busy ? "Working…" : "Register this device"}
+          </ArchieButton>
+        </div>
       )}
       {thisDevice && (
-        <p className="mt-3 rounded-lg border border-white/5 bg-white/[0.03] p-3 text-xs text-slate-300">
-          This device is registered as{" "}
-          <span className="text-slate-100">{thisDevice.label}</span> —{" "}
-          {thisDevice.status === "TRUSTED"
-            ? "trusted."
-            : "pending your approval below."}
-        </p>
+        <ArchiePanel accent className="mt-4 p-3.5 text-xs text-slate-300">
+          <p>
+            This device is registered as{" "}
+            <span className="font-medium text-slate-100">
+              {thisDevice.label}
+            </span>{" "}
+            —{" "}
+            {thisDevice.status === "TRUSTED"
+              ? "trusted."
+              : "pending your approval below."}
+          </p>
+        </ArchiePanel>
       )}
 
       {error && (
@@ -148,7 +141,7 @@ export default function ArchieDevices() {
         <div
           role="status"
           data-testid="recovery-checklist"
-          className="mt-3 rounded-lg border border-emerald-400/20 bg-emerald-400/5 p-3"
+          className="mt-3 rounded-xl border border-emerald-400/20 bg-emerald-400/5 p-3.5"
         >
           <p className="text-sm font-medium text-emerald-300">
             Lost-device recovery completed
@@ -164,11 +157,11 @@ export default function ArchieDevices() {
         <p className="mt-4 text-xs text-slate-500">Loading devices…</p>
       )}
 
-      <ul className="mt-4 space-y-1.5">
+      <ul className="mt-4 space-y-2">
         {devices.map((d) => (
           <li
             key={d.id}
-            className="flex flex-wrap items-center gap-2 rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2"
+            className="archie-panel flex flex-wrap items-center gap-2 rounded-xl px-3.5 py-2.5"
           >
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm text-slate-200">
@@ -223,6 +216,6 @@ export default function ArchieDevices() {
           No devices registered yet.
         </p>
       )}
-    </div>
+    </ArchiePage>
   );
 }

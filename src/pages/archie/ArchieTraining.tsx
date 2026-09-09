@@ -31,6 +31,13 @@ import type {
   ArchieIngestion,
   ArchieInputType,
 } from "@/lib/archie/types";
+import {
+  ArchieBadge,
+  ArchieButton,
+  ArchiePage,
+  ArchiePanel,
+  ArchieSectionTitle,
+} from "@/components/archie/premium";
 
 const INPUT_TYPES: ArchieInputType[] = [
   "TEXT",
@@ -253,14 +260,18 @@ export default function ArchieTraining() {
 
   if (!contributor)
     return (
-      <div className="px-4 py-10 text-center text-sm text-slate-400">
-        {isAdmin ? "Loading…" : "Sign in required."}
+      <div className="mx-auto max-w-4xl px-4 py-10 text-center text-sm text-slate-400">
+        <ArchiePanel className="mx-auto max-w-md p-8">
+          {isAdmin ? "Loading…" : "Sign in required."}
+        </ArchiePanel>
       </div>
     );
   if (!isAdmin)
     return (
-      <div className="px-4 py-10 text-center text-sm text-slate-400">
-        Owner access only.
+      <div className="mx-auto max-w-4xl px-4 py-10 text-center text-sm text-slate-400">
+        <ArchiePanel className="mx-auto max-w-md p-8">
+          Owner access only.
+        </ArchiePanel>
       </div>
     );
 
@@ -269,41 +280,40 @@ export default function ArchieTraining() {
   ).length;
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-4 md:py-6">
-      <h1 className="text-lg font-semibold text-slate-100">Training</h1>
-      <p className="text-xs text-slate-400">
-        Teach ARCHIE from material you capture on the phone. Everything shows up
-        as candidates first — nothing is promoted without your approval.
-      </p>
+    <ArchiePage
+      eyebrow="Training Center"
+      title="Training"
+      subtitle="Teach ARCHIE from material you capture on the phone. Everything shows up as candidates first — nothing is promoted without your approval."
+    >
       {awaiting > 0 && (
-        <p className="mt-2 text-xs text-amber-200/80">
-          {awaiting} ingestion(s) awaiting approval
-        </p>
+        <div className="mb-4">
+          <ArchieBadge tone="warning">
+            {awaiting} ingestion(s) awaiting approval
+          </ArchieBadge>
+        </div>
       )}
 
       {error && (
         <p
           role="alert"
-          className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300"
+          className="mt-3 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300"
         >
           {error}
         </p>
       )}
       {notice && (
-        <p className="mt-3 rounded-lg bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300">
+        <p className="mt-3 rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300">
           {notice}
         </p>
       )}
 
       {/* ── Submission form ── */}
-      <div className="mt-4 space-y-3 rounded-xl border border-white/5 bg-white/[0.03] p-3">
-        <p className="text-xs font-medium text-slate-200">
-          New training material
-        </p>
+      <ArchiePanel className="mt-4 space-y-3 p-4">
+        <ArchieSectionTitle>New training material</ArchieSectionTitle>
         <select
           value={inputType}
           onChange={(e) => setInputType(e.target.value as ArchieInputType)}
-          className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+          className="archie-input w-full rounded-lg px-3 py-2.5 text-sm text-slate-100"
           aria-label="Input type"
         >
           {INPUT_TYPES.map((t) => (
@@ -316,13 +326,13 @@ export default function ArchieTraining() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Title"
-          className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+          className="archie-input w-full rounded-lg px-3 py-2.5 text-sm text-slate-100"
         />
         <div className="grid grid-cols-2 gap-2">
           <select
             value={domain}
             onChange={(e) => setDomain(e.target.value)}
-            className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+            className="archie-input w-full rounded-lg px-3 py-2.5 text-sm text-slate-100"
             aria-label="Domain"
           >
             {(domains.length ? domains.map((d) => d.key) : [domain]).map(
@@ -337,14 +347,14 @@ export default function ArchieTraining() {
             value={region}
             onChange={(e) => setRegion(e.target.value)}
             placeholder="Region (optional)"
-            className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+            className="archie-input w-full rounded-lg px-3 py-2.5 text-sm text-slate-100"
           />
         </div>
         <input
           value={sourceRef}
           onChange={(e) => setSourceRef(e.target.value)}
           placeholder="Source reference (optional)"
-          className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+          className="archie-input w-full rounded-lg px-3 py-2.5 text-sm text-slate-100"
         />
         {NEEDS_FILE.includes(inputType) && (
           <input
@@ -361,7 +371,7 @@ export default function ArchieTraining() {
                     : "*/*"
             }
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2 text-xs text-slate-300"
+            className="archie-input w-full rounded-lg px-3 py-2 text-xs text-slate-300"
             aria-label="Media file"
           />
         )}
@@ -371,7 +381,7 @@ export default function ArchieTraining() {
             onChange={(e) => setText(e.target.value)}
             placeholder="Paste or type the material…"
             rows={5}
-            className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
+            className="archie-input w-full rounded-lg px-3 py-2.5 text-sm text-slate-100"
           />
         )}
         <label className="flex items-center gap-2 px-1 text-xs text-slate-300">
@@ -379,25 +389,28 @@ export default function ArchieTraining() {
             type="checkbox"
             checked={userConfirmed}
             onChange={(e) => setUserConfirmed(e.target.checked)}
-            className="h-5 w-5 accent-emerald-500"
+            className="h-5 w-5 rounded border-white/20 bg-slate-900 accent-amber-400"
           />
           I confirm every fact in this material
         </label>
-        <button
+        <ArchieButton
           onClick={() => void handleSubmit()}
           disabled={busy}
-          className="w-full rounded-lg bg-brand-purple px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+          className="w-full py-3"
         >
           {busy ? "Processing…" : "Submit for extraction"}
-        </button>
-      </div>
+        </ArchieButton>
+      </ArchiePanel>
 
       {/* ── Candidate review ── */}
       {preview && (
-        <div className="mt-4 space-y-3 rounded-xl border border-amber-400/20 bg-amber-400/5 p-3">
-          <p className="text-xs font-medium text-amber-200">
+        <ArchiePanel
+          accent
+          className="mt-4 space-y-3 p-4 border-amber-400/20 bg-amber-400/5"
+        >
+          <ArchieSectionTitle>
             Extracted candidates — review before promotion
-          </p>
+          </ArchieSectionTitle>
           {preview.flags.length > 0 && (
             <p className="text-[11px] text-amber-200/70">
               Flags: {preview.flags.join(" · ")}
@@ -406,7 +419,7 @@ export default function ArchieTraining() {
           {preview.candidates.map((c, i) => (
             <label
               key={i}
-              className="flex cursor-pointer items-start gap-2 rounded-lg border border-white/5 bg-white/[0.02] p-3"
+              className="archie-panel flex cursor-pointer items-start gap-2 rounded-lg p-3"
             >
               <input
                 type="checkbox"
@@ -419,11 +432,11 @@ export default function ArchieTraining() {
                     return next;
                   })
                 }
-                className="mt-0.5 h-5 w-5 accent-emerald-500"
+                className="mt-0.5 h-5 w-5 rounded border-white/20 bg-slate-900 accent-amber-400"
               />
               <div className="min-w-0 flex-1">
-                <p className="text-sm text-slate-100">{c.topic}</p>
-                <p className="mt-0.5 text-[11px] text-slate-500">
+                <p className="text-sm font-medium text-slate-100">{c.topic}</p>
+                <p className="mt-0.5 text-[11px] text-slate-400">
                   {c.knowledge_type} · {c.domain}
                   {c.region ? ` · ${c.region}` : ""}
                 </p>
@@ -434,7 +447,7 @@ export default function ArchieTraining() {
                   · {c.evidence.length} evidence · {c.evidence_state}
                 </p>
                 {c.requires_engineering_review && (
-                  <p className="mt-1 text-[11px] text-amber-300">
+                  <p className="mt-1 text-[11px] font-medium text-amber-300">
                     High-risk — requires engineering review
                   </p>
                 )}
@@ -452,46 +465,53 @@ export default function ArchieTraining() {
                 type="checkbox"
                 checked={engineeringReviewed}
                 onChange={(e) => setEngineeringReviewed(e.target.checked)}
-                className="h-5 w-5 accent-amber-500"
+                className="h-5 w-5 rounded border-white/20 bg-slate-900 accent-amber-400"
               />
               Engineering review completed (required for high-risk candidates)
             </label>
           )}
           <div className="grid grid-cols-2 gap-2">
-            <button
+            <ArchieButton
               onClick={() => void handleApprove()}
               disabled={busy}
-              className="rounded-lg bg-emerald-600 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+              className="py-3"
             >
               Approve selected
-            </button>
+            </ArchieButton>
             <button
               onClick={() => void handleReject()}
               disabled={busy}
-              className="rounded-lg bg-red-600/80 px-4 py-3 text-sm font-semibold text-white disabled:opacity-50"
+              className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm font-semibold text-red-300 hover:bg-red-500/20 disabled:opacity-50"
             >
               Reject all
             </button>
           </div>
-        </div>
+        </ArchiePanel>
       )}
 
       {/* ── Recent ingestions ── */}
       <div className="mt-6">
-        <p className="text-xs font-medium text-slate-300">Recent ingestions</p>
+        <ArchieSectionTitle>Recent ingestions</ArchieSectionTitle>
         <ul className="mt-2 space-y-1.5">
           {ingestions.map((i) => (
-            <li
-              key={i.id}
-              className="rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2"
-            >
+            <li key={i.id} className="archie-panel rounded-lg px-3 py-2.5">
               <div className="flex items-center gap-2">
                 <span className="min-w-0 flex-1 truncate text-sm text-slate-200">
                   {i.title}
                 </span>
-                <span className="text-[10px] text-slate-400">
+                <ArchieBadge
+                  tone={
+                    i.pipeline_state === "APPROVED"
+                      ? "positive"
+                      : i.pipeline_state === "AWAITING_APPROVAL"
+                        ? "warning"
+                        : i.pipeline_state === "REJECTED"
+                          ? "critical"
+                          : "neutral"
+                  }
+                >
                   {i.pipeline_state}
-                </span>
+                </ArchieBadge>
               </div>
               <p className="mt-0.5 text-[11px] text-slate-500">
                 {i.domain} · {i.input_type.replace(/_/g, " ")} ·{" "}
@@ -500,12 +520,12 @@ export default function ArchieTraining() {
             </li>
           ))}
           {!ingestions.length && !error && (
-            <li className="py-4 text-center text-xs text-slate-500">
+            <li className="archie-panel rounded-lg py-4 text-center text-xs text-slate-500">
               No ingestions yet — submit your first material above.
             </li>
           )}
         </ul>
       </div>
-    </div>
+    </ArchiePage>
   );
 }
