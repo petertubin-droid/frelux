@@ -1671,13 +1671,13 @@ function EstimateResult({
                   </span>
                 </div>
               </div>
-              {room.customer_summary.material_cost !== "Not configured" && (
+              {room.customer_summary.material_cost !== null && (
                 <div className="mt-2 border-t border-border pt-2 dark:border-white/10">
                   <span className="text-muted-foreground dark:text-muted-foreground">
                     Material Cost:
                   </span>{" "}
                   <span className="font-bold text-foreground dark:text-primary-foreground">
-                    {room.customer_summary.material_cost}
+                    {room.customer_summary.material_cost_formatted}
                   </span>
                 </div>
               )}

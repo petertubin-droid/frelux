@@ -27,8 +27,8 @@ import type {
   EstimationSurfaceCondition,
   CoverageUnit,
   OpeningInput,
-} from '@/types/estimation';
-import { feetToMeters } from '@/lib/utils';
+} from "@/types/estimation";
+import { feetToMeters } from "@/lib/utils";
 
 // =========================================================
 // Types
@@ -40,7 +40,7 @@ export interface PaintEngineRoomInput {
   length: number;
   width: number;
   height: number;
-  unit: 'feet' | 'meters';
+  unit: "feet" | "meters";
   doors: OpeningInput[];
   windows: OpeningInput[];
   doors_unknown: boolean;
@@ -98,13 +98,13 @@ export interface PaintEngineRoomResult {
   // Product info
   product: EstimationProduct | null;
   quality: EstimationProductQuality | null;
-  coverage_rate: number | null;  // normalized to m²/L per coat
+  coverage_rate: number | null; // normalized to m²/L per coat
   coverage_unit: string;
-  ceiling_coverage_rate: number | null;  // separate ceiling coverage
+  ceiling_coverage_rate: number | null; // separate ceiling coverage
   pack_size_litres: number;
   // Coats
   coats: number;
-  effective_coats: number;  // after colour condition min_coats_override
+  effective_coats: number; // after colour condition min_coats_override
   // Theoretical
   theoretical_wall_litres: number;
   theoretical_ceiling_litres: number;
@@ -161,7 +161,8 @@ export interface PaintEngineCustomerSummary {
   windows: string;
   theoretical_buckets: string;
   practical_purchase: string;
-  material_cost: string;
+  material_cost: number | null; // numeric cost; null = not configured
+  material_cost_formatted: string; // display-ready, currency included
   height_notice: string | null;
   labour_note: string;
 }
@@ -218,21 +219,21 @@ const SQM_PER_SQFT = 0.09290304;
 export function normalizeCoverage(
   coverageValue: number,
   coverageUnit: string,
-  packSizeLitres: number
+  packSizeLitres: number,
 ): number {
   if (coverageValue <= 0) return 0;
   const bucket = packSizeLitres > 0 ? packSizeLitres : 20;
 
   switch (coverageUnit) {
-    case 'm2_per_liter':
+    case "m2_per_liter":
       return coverageValue;
-    case 'm2_per_bucket':
+    case "m2_per_bucket":
       return coverageValue / bucket;
-    case 'ft2_per_liter':
+    case "ft2_per_liter":
       return coverageValue * SQM_PER_SQFT;
-    case 'ft2_per_bucket':
+    case "ft2_per_bucket":
       return (coverageValue * SQM_PER_SQFT) / bucket;
-    case 'frelux_calibration':
+    case "frelux_calibration":
       // Calibration mode, the coverage value IS the calibration reference
       // The engine uses calibration logic separately
       return coverageValue; // Will be handled by calibration logic
@@ -246,32 +247,42 @@ export function normalizeCoverage(
  */
 export function getCoverageUnitLabel(unit: string): string {
   switch (unit) {
-    case 'm2_per_liter': return 'm² per litre';
-    case 'm2_per_bucket': return 'm² per 20-L bucket';
-    case 'ft2_per_liter': return 'ft² per litre';
-    case 'ft2_per_bucket': return 'ft² per 20-L bucket';
-    case 'frelux_calibration': return 'FRELUX Calibration';
-    default: return unit;
+    case "m2_per_liter":
+      return "m² per litre";
+    case "m2_per_bucket":
+      return "m² per 20-L bucket";
+    case "ft2_per_liter":
+      return "ft² per litre";
+    case "ft2_per_bucket":
+      return "ft² per 20-L bucket";
+    case "frelux_calibration":
+      return "FRELUX Calibration";
+    default:
+      return unit;
   }
 }
 
 export const COVERAGE_UNIT_OPTIONS: { value: CoverageUnit; label: string }[] = [
-  { value: 'm2_per_liter', label: 'm² per litre' },
-  { value: 'm2_per_bucket', label: 'm² per 20-L bucket' },
-  { value: 'ft2_per_liter', label: 'ft² per litre' },
-  { value: 'ft2_per_bucket', label: 'ft² per 20-L bucket' },
-  { value: 'frelux_calibration', label: 'FRELUX Calibration' },
+  { value: "m2_per_liter", label: "m² per litre" },
+  { value: "m2_per_bucket", label: "m² per 20-L bucket" },
+  { value: "ft2_per_liter", label: "ft² per litre" },
+  { value: "ft2_per_bucket", label: "ft² per 20-L bucket" },
+  { value: "frelux_calibration", label: "FRELUX Calibration" },
 ];
 
 // =========================================================
 // Geometry (internal, not customer-facing)
 // =========================================================
 
-function toMeters(value: number, unit: 'feet' | 'meters'): number {
-  return unit === 'feet' ? feetToMeters(value) : value;
+function toMeters(value: number, unit: "feet" | "meters"): number {
+  return unit === "feet" ? feetToMeters(value) : value;
 }
 
-function calculateWallArea(lengthM: number, widthM: number, heightM: number): number {
+function calculateWallArea(
+  lengthM: number,
+  widthM: number,
+  heightM: number,
+): number {
   const safeL = Math.max(0, lengthM);
   const safeW = Math.max(0, widthM);
   const safeH = Math.max(0, heightM);
@@ -284,7 +295,10 @@ function calculateCeilingArea(lengthM: number, widthM: number): number {
   return Math.round(Math.max(0, lengthM) * Math.max(0, widthM) * 100) / 100;
 }
 
-function calculateOpeningArea(openings: OpeningInput[], unit: 'feet' | 'meters'): number {
+function calculateOpeningArea(
+  openings: OpeningInput[],
+  unit: "feet" | "meters",
+): number {
   if (!openings || openings.length === 0) return 0;
   let total = 0;
   for (const o of openings) {
@@ -301,67 +315,86 @@ function calculateOpeningArea(openings: OpeningInput[], unit: 'feet' | 'meters')
 
 export function getPackSizeLitres(
   product: EstimationProduct | null,
-  packSizeRule: EstimationCalcRule | null
+  packSizeRule: EstimationCalcRule | null,
 ): number {
-  if (product?.standard_pack_size && product.standard_pack_size > 0) return product.standard_pack_size;
+  if (product?.standard_pack_size && product.standard_pack_size > 0)
+    return product.standard_pack_size;
   if (packSizeRule?.rule_value) {
     const litres = (packSizeRule.rule_value as Record<string, unknown>).litres;
-    if (typeof litres === 'number' && litres > 0) return litres;
+    if (typeof litres === "number" && litres > 0) return litres;
   }
   return 20;
 }
 
-export function getRoundingRule(roundingRule: EstimationCalcRule | null): string {
+export function getRoundingRule(
+  roundingRule: EstimationCalcRule | null,
+): string {
   if (roundingRule?.rule_value) {
     const rule = (roundingRule.rule_value as Record<string, unknown>).rule;
-    if (typeof rule === 'string') return rule;
+    if (typeof rule === "string") return rule;
   }
-  return 'ceil';
+  return "ceil";
 }
 
 export function getStandardHeight(
-  standardHeightRule: EstimationCalcRule | null
+  standardHeightRule: EstimationCalcRule | null,
 ): { ft: number; m: number } {
   if (standardHeightRule?.rule_value) {
     const rv = standardHeightRule.rule_value as Record<string, unknown>;
     const valueM = rv.value_m as number | undefined;
     const valueFt = rv.value_ft as number | undefined;
-    if (typeof valueM === 'number' && valueM > 0 && typeof valueFt === 'number' && valueFt > 0) {
+    if (
+      typeof valueM === "number" &&
+      valueM > 0 &&
+      typeof valueFt === "number" &&
+      valueFt > 0
+    ) {
       return { ft: valueFt, m: valueM };
     }
-    if (typeof valueM === 'number' && valueM > 0) return { ft: valueM / 0.3048, m: valueM };
-    if (typeof valueFt === 'number' && valueFt > 0) return { ft: valueFt, m: feetToMeters(valueFt) };
+    if (typeof valueM === "number" && valueM > 0)
+      return { ft: valueM / 0.3048, m: valueM };
+    if (typeof valueFt === "number" && valueFt > 0)
+      return { ft: valueFt, m: feetToMeters(valueFt) };
   }
   return { ft: 8, m: 2.4384 };
 }
 
-export function getStandardCoatCount(coatCountRule: EstimationCalcRule | null): number {
+export function getStandardCoatCount(
+  coatCountRule: EstimationCalcRule | null,
+): number {
   if (coatCountRule?.rule_value) {
     const count = (coatCountRule.rule_value as Record<string, unknown>).count;
-    if (typeof count === 'number' && count > 0) return count;
+    if (typeof count === "number" && count > 0) return count;
   }
   return 2;
 }
 
-export function getOpeningDeductionPct(rule: EstimationCalcRule | null): number {
+export function getOpeningDeductionPct(
+  rule: EstimationCalcRule | null,
+): number {
   if (!rule?.rule_value) return 100;
   const pct = (rule.rule_value as Record<string, unknown>).deduction_percentage;
-  if (typeof pct === 'number' && pct >= 0 && pct <= 100) return pct;
+  if (typeof pct === "number" && pct >= 0 && pct <= 100) return pct;
   return 100;
 }
 
-export function getCeilingQuantityBuckets(ceilingRule: EstimationCalcRule | null): number {
+export function getCeilingQuantityBuckets(
+  ceilingRule: EstimationCalcRule | null,
+): number {
   if (!ceilingRule || !ceilingRule.rule_value) return 0.5;
   const buckets = (ceilingRule.rule_value as Record<string, unknown>).buckets;
-  if (typeof buckets === 'number' && buckets >= 0) return buckets;
+  if (typeof buckets === "number" && buckets >= 0) return buckets;
   return 0.5;
 }
 
-export function getCeilingCoverageRate(ceilingCoverageRule: EstimationCalcRule | null): { enabled: boolean; m2PerLiter: number | null } {
-  if (!ceilingCoverageRule?.rule_value) return { enabled: false, m2PerLiter: null };
+export function getCeilingCoverageRate(
+  ceilingCoverageRule: EstimationCalcRule | null,
+): { enabled: boolean; m2PerLiter: number | null } {
+  if (!ceilingCoverageRule?.rule_value)
+    return { enabled: false, m2PerLiter: null };
   const rv = ceilingCoverageRule.rule_value as Record<string, unknown>;
   const enabled = rv.enabled !== false;
-  const rate = typeof rv.m2_per_liter === 'number' ? rv.m2_per_liter : null;
+  const rate = typeof rv.m2_per_liter === "number" ? rv.m2_per_liter : null;
   return { enabled, m2PerLiter: rate };
 }
 
@@ -369,15 +402,19 @@ export function getCeilingCoverageRate(ceilingCoverageRule: EstimationCalcRule |
 // Practical Purchase Rounding
 // =========================================================
 
-function roundUpToBuckets(litres: number, packSizeLitres: number, roundingRule: string): number {
+function roundUpToBuckets(
+  litres: number,
+  packSizeLitres: number,
+  roundingRule: string,
+): number {
   if (packSizeLitres <= 0) return 0;
   const buckets = litres / packSizeLitres;
   switch (roundingRule) {
-    case 'ceil':
+    case "ceil":
       return Math.ceil(buckets);
-    case 'round':
+    case "round":
       return Math.round(buckets);
-    case 'floor':
+    case "floor":
       return Math.max(0, Math.floor(buckets));
     default:
       return Math.ceil(buckets);
@@ -389,7 +426,7 @@ function roundUpToBuckets(litres: number, packSizeLitres: number, roundingRule: 
 // =========================================================
 
 export function isPriceConfigured(price: number): boolean {
-  return typeof price === 'number' && price > 0;
+  return typeof price === "number" && price > 0;
 }
 
 function buildPriceSnapshot(
@@ -399,11 +436,11 @@ function buildPriceSnapshot(
   packSizeLitres: number,
   coverageRate: number | null,
   coverageUnit: string,
-  calcVersionId: string | null
+  calcVersionId: string | null,
 ): PriceSnapshotData | null {
   if (!price) return null;
   return {
-    product_name: product?.name ?? 'Unknown',
+    product_name: product?.name ?? "Unknown",
     quality_name: quality?.name ?? null,
     pack_size_litres: packSizeLitres,
     coverage_rate: coverageRate,
@@ -421,7 +458,7 @@ function buildPriceSnapshot(
 // =========================================================
 
 interface CalibrationReference {
-  room_ft: string;    // "10x12"
+  room_ft: string; // "10x12"
   height_ft: number;
   coats: number;
   buckets: number;
@@ -429,10 +466,11 @@ interface CalibrationReference {
 }
 
 export function getCalibrationReferences(
-  calibrationRule: EstimationCalcRule | null
+  calibrationRule: EstimationCalcRule | null,
 ): CalibrationReference[] {
   if (!calibrationRule?.rule_value) return [];
-  const refs = (calibrationRule.rule_value as Record<string, unknown>).references;
+  const refs = (calibrationRule.rule_value as Record<string, unknown>)
+    .references;
   if (!Array.isArray(refs)) return [];
   return refs as CalibrationReference[];
 }
@@ -447,16 +485,26 @@ function findCalibrationMatch(
   heightFt: number,
   coats: number,
   qualityId: string,
-  references: CalibrationReference[]
+  references: CalibrationReference[],
 ): number | null {
   // Try exact match first
   for (const ref of references) {
-    const [refL, refW] = ref.room_ft.split('x').map(Number);
-    if (refL === lengthFt && refW === widthFt && ref.height_ft === heightFt && ref.coats === coats) {
+    const [refL, refW] = ref.room_ft.split("x").map(Number);
+    if (
+      refL === lengthFt &&
+      refW === widthFt &&
+      ref.height_ft === heightFt &&
+      ref.coats === coats
+    ) {
       if (!ref.quality_id || ref.quality_id === qualityId) return ref.buckets;
     }
     // Also try reversed dimensions (12x10 == 10x12)
-    if (refW === lengthFt && refL === widthFt && ref.height_ft === heightFt && ref.coats === coats) {
+    if (
+      refW === lengthFt &&
+      refL === widthFt &&
+      ref.height_ft === heightFt &&
+      ref.coats === coats
+    ) {
       if (!ref.quality_id || ref.quality_id === qualityId) return ref.buckets;
     }
   }
@@ -469,7 +517,7 @@ function findCalibrationMatch(
 
 export function calculateRoom(
   room: PaintEngineRoomInput,
-  config: PaintEngineConfig
+  config: PaintEngineConfig,
 ): PaintEngineRoomResult {
   const steps: PaintEngineCalcStep[] = [];
   const warnings: string[] = [];
@@ -483,7 +531,7 @@ export function calculateRoom(
 
   // ── STEP 1: Room Dimensions ──
   steps.push({
-    label: 'Room Dimensions',
+    label: "Room Dimensions",
     value: `${room.length} × ${room.width} × ${room.height} ${room.unit}`,
     detail: `Converted to ${lengthM.toFixed(2)} × ${widthM.toFixed(2)} × ${heightM.toFixed(2)} m`,
   });
@@ -491,7 +539,7 @@ export function calculateRoom(
   // ── STEP 2: Wall Geometry ──
   const grossWallArea = calculateWallArea(lengthM, widthM, heightM);
   steps.push({
-    label: 'Gross Wall Area',
+    label: "Gross Wall Area",
     value: `${grossWallArea.toFixed(2)} m²`,
     detail: `2 × (${lengthM.toFixed(2)} + ${widthM.toFixed(2)}) × ${heightM.toFixed(2)} = perimeter × height`,
   });
@@ -509,17 +557,18 @@ export function calculateRoom(
 
   const totalOpeningArea = doorArea + windowArea;
   const deductionPct = getOpeningDeductionPct(config.openingDeductionRule);
-  const openingDeduction = Math.round(totalOpeningArea * deductionPct / 100 * 100) / 100;
+  const openingDeduction =
+    Math.round(((totalOpeningArea * deductionPct) / 100) * 100) / 100;
   const netWallArea = Math.max(0, grossWallArea - openingDeduction);
 
   if (totalOpeningArea > 0) {
     steps.push({
-      label: 'Opening Deduction',
+      label: "Opening Deduction",
       value: `−${openingDeduction.toFixed(2)} m² (${deductionPct}% of ${totalOpeningArea.toFixed(2)} m²)`,
     });
   }
   steps.push({
-    label: 'Net Wall Area',
+    label: "Net Wall Area",
     value: `${netWallArea.toFixed(2)} m²`,
     detail: `${grossWallArea.toFixed(2)} − ${openingDeduction.toFixed(2)}`,
   });
@@ -529,17 +578,17 @@ export function calculateRoom(
   if (room.include_ceiling) {
     ceilingArea = calculateCeilingArea(lengthM, widthM);
     steps.push({
-      label: 'Ceiling Area',
+      label: "Ceiling Area",
       value: `${ceilingArea.toFixed(2)} m²`,
       detail: `${lengthM.toFixed(2)} × ${widthM.toFixed(2)}, calculated separately from walls`,
     });
   } else {
-    steps.push({ label: 'Ceiling', value: 'Not included' });
+    steps.push({ label: "Ceiling", value: "Not included" });
   }
 
   // ── STEP 5: Height Rule ──
   const standardHeight = getStandardHeight(config.standardHeightRule);
-  const heightFt = room.unit === 'feet' ? room.height : room.height * 3.28084;
+  const heightFt = room.unit === "feet" ? room.height : room.height * 3.28084;
   let heightWarning: string | null = null;
 
   if (heightFt > standardHeight.ft) {
@@ -547,78 +596,90 @@ export function calculateRoom(
     warnings.push(heightWarning);
   }
   steps.push({
-    label: 'Height Rule',
+    label: "Height Rule",
     value: `${room.height} ${room.unit}`,
-    detail: heightWarning ?? `Within FRELUX standard (7–${standardHeight.ft} ft).`,
+    detail:
+      heightWarning ?? `Within FRELUX standard (7–${standardHeight.ft} ft).`,
   });
 
   // ── STEP 6: Surface Condition ──
-  const surfaceCondition = config.surfaceConditions.find(
-    s => s.condition_key === room.surface_condition_key
-  ) ?? null;
+  const surfaceCondition =
+    config.surfaceConditions.find(
+      (s) => s.condition_key === room.surface_condition_key,
+    ) ?? null;
   const surfaceFactor = surfaceCondition?.coverage_adjustment_factor ?? 1.0;
   let primerRecommended = false;
 
   if (surfaceCondition) {
     steps.push({
-      label: 'Surface Condition',
+      label: "Surface Condition",
       value: surfaceCondition.name,
-      detail: surfaceFactor !== 1.0
-        ? `Coverage adjustment: ×${surfaceFactor} (${Math.round((1 - surfaceFactor) * 100)}% more paint needed)`
-        : 'No coverage adjustment.',
+      detail:
+        surfaceFactor !== 1.0
+          ? `Coverage adjustment: ×${surfaceFactor} (${Math.round((1 - surfaceFactor) * 100)}% more paint needed)`
+          : "No coverage adjustment.",
     });
     if (surfaceCondition.primer_recommended) {
       primerRecommended = true;
-      recommendations.push(`${surfaceCondition.name}: Primer/sealer recommended.`);
+      recommendations.push(
+        `${surfaceCondition.name}: Primer/sealer recommended.`,
+      );
     }
   }
 
   // ── STEP 7: Colour Condition ──
-  const colourCondition = config.colourConditions.find(
-    c => c.condition_key === room.colour_condition_key
-  ) ?? null;
+  const colourCondition =
+    config.colourConditions.find(
+      (c) => c.condition_key === room.colour_condition_key,
+    ) ?? null;
   const minCoatsOverride = colourCondition?.min_coats_override ?? null;
 
   if (colourCondition?.requires_warning) {
-    const w = 'Strong colour transition detected. Additional preparation or paint may be required.';
+    const w =
+      "Strong colour transition detected. Additional preparation or paint may be required.";
     warnings.push(w);
-    steps.push({ label: 'Colour Condition', value: colourCondition.name, detail: w });
+    steps.push({
+      label: "Colour Condition",
+      value: colourCondition.name,
+      detail: w,
+    });
   } else if (colourCondition) {
-    steps.push({ label: 'Colour Condition', value: colourCondition.name });
+    steps.push({ label: "Colour Condition", value: colourCondition.name });
   }
 
   // ── STEP 8: Product & Quality ──
   steps.push({
-    label: 'Paint Type',
-    value: config.product?.name ?? 'N/A',
+    label: "Paint Type",
+    value: config.product?.name ?? "N/A",
     detail: config.product ? `Category: ${config.product.category}` : undefined,
   });
 
   const coverage = config.quality?.coverage ?? null;
-  const coverageUnit = config.quality?.coverage_unit ?? 'm2_per_liter';
+  const coverageUnit = config.quality?.coverage_unit ?? "m2_per_liter";
   const packSizeLitres = getPackSizeLitres(config.product, config.packSizeRule);
 
   steps.push({
-    label: 'Bucket Size',
+    label: "Bucket Size",
     value: `${packSizeLitres} L per bucket`,
-    detail: 'FRELUX standard: 20-L buckets.',
+    detail: "FRELUX standard: 20-L buckets.",
   });
 
   if (coverage === null || coverage === undefined) {
     errors.push(
-      `Coverage has not been configured for ${config.product?.name ?? 'product'}, ${config.quality?.name ?? 'quality'}. ` +
-      'Accurate FRELUX calculation unavailable until the required coverage rate is configured.'
+      `Coverage has not been configured for ${config.product?.name ?? "product"}, ${config.quality?.name ?? "quality"}. ` +
+        "Accurate FRELUX calculation unavailable until the required coverage rate is configured.",
     );
     steps.push({
-      label: 'Paint Quality & Coverage',
-      value: `${config.quality?.name ?? 'N/A'}, NOT CONFIGURED`,
-      detail: 'Admin must configure coverage before accurate calculation.',
+      label: "Paint Quality & Coverage",
+      value: `${config.quality?.name ?? "N/A"}, NOT CONFIGURED`,
+      detail: "Admin must configure coverage before accurate calculation.",
     });
   } else {
     steps.push({
-      label: 'Paint Quality & Coverage',
-      value: `${config.quality?.name ?? 'N/A'}, ${coverage} ${getCoverageUnitLabel(coverageUnit)}`,
-      detail: 'Product-specific and quality-specific coverage. No global coverage inheritance.',
+      label: "Paint Quality & Coverage",
+      value: `${config.quality?.name ?? "N/A"}, ${coverage} ${getCoverageUnitLabel(coverageUnit)}`,
+      detail:
+        "Product-specific and quality-specific coverage. No global coverage inheritance.",
     });
   }
 
@@ -627,11 +688,12 @@ export function calculateRoom(
   const userCoats = Math.max(1, room.coats || standardCoats);
   const effectiveCoats = Math.max(userCoats, minCoatsOverride ?? 0);
   steps.push({
-    label: 'Coats',
+    label: "Coats",
     value: `${effectiveCoats} coat(s)`,
-    detail: effectiveCoats > userCoats
-      ? `User selected ${userCoats}; colour condition requires minimum ${minCoatsOverride}. Using ${effectiveCoats}.`
-      : `FRELUX standard: ${standardCoats} coats.`,
+    detail:
+      effectiveCoats > userCoats
+        ? `User selected ${userCoats}; colour condition requires minimum ${minCoatsOverride}. Using ${effectiveCoats}.`
+        : `FRELUX standard: ${standardCoats} coats.`,
   });
 
   // ── STEP 10: Normalize Coverage ──
@@ -639,59 +701,82 @@ export function calculateRoom(
   let ceilingCoverageM2PerL: number | null = null;
 
   if (coverage && coverage > 0) {
-    wallCoverageM2PerL = normalizeCoverage(coverage, coverageUnit, packSizeLitres);
+    wallCoverageM2PerL = normalizeCoverage(
+      coverage,
+      coverageUnit,
+      packSizeLitres,
+    );
     // Apply surface condition factor
     wallCoverageM2PerL = wallCoverageM2PerL * surfaceFactor;
     steps.push({
-      label: 'Normalized Wall Coverage',
+      label: "Normalized Wall Coverage",
       value: `${wallCoverageM2PerL.toFixed(2)} m²/L per coat`,
-      detail: `Normalized from ${coverage} ${getCoverageUnitLabel(coverageUnit)}${surfaceFactor !== 1.0 ? ` × surface factor ${surfaceFactor}` : ''}`,
+      detail: `Normalized from ${coverage} ${getCoverageUnitLabel(coverageUnit)}${surfaceFactor !== 1.0 ? ` × surface factor ${surfaceFactor}` : ""}`,
     });
   }
 
   // Ceiling coverage: separate rate if configured
-  const ceilingCoverageConfig = getCeilingCoverageRate(config.ceilingCoverageRule);
+  const ceilingCoverageConfig = getCeilingCoverageRate(
+    config.ceilingCoverageRule,
+  );
   if (room.include_ceiling) {
-    if (config.quality?.ceiling_coverage && config.quality.ceiling_coverage > 0) {
+    if (
+      config.quality?.ceiling_coverage &&
+      config.quality.ceiling_coverage > 0
+    ) {
       const ceilingUnit = config.quality.ceiling_coverage_unit ?? coverageUnit;
-      ceilingCoverageM2PerL = normalizeCoverage(config.quality.ceiling_coverage, ceilingUnit, packSizeLitres);
+      ceilingCoverageM2PerL = normalizeCoverage(
+        config.quality.ceiling_coverage,
+        ceilingUnit,
+        packSizeLitres,
+      );
       steps.push({
-        label: 'Ceiling Coverage',
+        label: "Ceiling Coverage",
         value: `${ceilingCoverageM2PerL.toFixed(2)} m²/L per coat`,
-        detail: 'Separate ceiling coverage rate (NOT same as wall).',
+        detail: "Separate ceiling coverage rate (NOT same as wall).",
       });
-    } else if (ceilingCoverageConfig.enabled && ceilingCoverageConfig.m2PerLiter && ceilingCoverageConfig.m2PerLiter > 0) {
+    } else if (
+      ceilingCoverageConfig.enabled &&
+      ceilingCoverageConfig.m2PerLiter &&
+      ceilingCoverageConfig.m2PerLiter > 0
+    ) {
       ceilingCoverageM2PerL = ceilingCoverageConfig.m2PerLiter;
       steps.push({
-        label: 'Ceiling Coverage',
+        label: "Ceiling Coverage",
         value: `${ceilingCoverageM2PerL.toFixed(2)} m²/L per coat`,
-        detail: 'From ceiling_coverage_rate calc rule.',
+        detail: "From ceiling_coverage_rate calc rule.",
       });
     } else {
       // Fall back to ceiling_quantity_per_room rule
       const ceilingBuckets = getCeilingQuantityBuckets(config.ceilingRule);
       const ceilingLitres = ceilingBuckets * packSizeLitres;
       steps.push({
-        label: 'Ceiling Paint',
+        label: "Ceiling Paint",
         value: `${ceilingBuckets} bucket(s) (${ceilingLitres.toFixed(2)} L)`,
-        detail: 'FRELUX rule: ceiling_quantity_per_room. Ceiling coverage is NOT assumed to equal wall coverage.',
+        detail:
+          "FRELUX rule: ceiling_quantity_per_room. Ceiling coverage is NOT assumed to equal wall coverage.",
       });
     }
   }
 
   // ── STEP 11: Theoretical Wall Litres ──
-  const theoreticalWallLitres = wallCoverageM2PerL > 0
-    ? Math.round((netWallArea * effectiveCoats) / wallCoverageM2PerL * 100) / 100
-    : 0;
-  const theoreticalWallBuckets = packSizeLitres > 0
-    ? Math.round((theoreticalWallLitres / packSizeLitres) * 10000) / 10000
-    : 0;
+  const theoreticalWallLitres =
+    wallCoverageM2PerL > 0
+      ? Math.round(
+          ((netWallArea * effectiveCoats) / wallCoverageM2PerL) * 100,
+        ) / 100
+      : 0;
+  const theoreticalWallBuckets =
+    packSizeLitres > 0
+      ? Math.round((theoreticalWallLitres / packSizeLitres) * 10000) / 10000
+      : 0;
 
   steps.push({
-    label: 'Theoretical Wall Requirement',
-    value: wallCoverageM2PerL > 0
-      ? `${theoreticalWallLitres.toFixed(2)} L (${theoreticalWallBuckets.toFixed(4)} buckets)`
-      : 'Cannot calculate, coverage not configured',
+    label: "Theoretical Wall Requirement",
+    value:
+      wallCoverageM2PerL > 0
+        ? `${theoreticalWallLitres.toFixed(2)} L (${theoreticalWallBuckets.toFixed(4)} buckets)`
+        : "Cannot calculate, coverage not configured",
     detail: `(${netWallArea.toFixed(2)} m² × ${effectiveCoats} coats) ÷ ${wallCoverageM2PerL.toFixed(2)} m²/L`,
   });
 
@@ -701,12 +786,17 @@ export function calculateRoom(
 
   if (room.include_ceiling) {
     if (ceilingCoverageM2PerL && ceilingCoverageM2PerL > 0) {
-      theoreticalCeilingLitres = Math.round((ceilingArea * effectiveCoats) / ceilingCoverageM2PerL * 100) / 100;
-      theoreticalCeilingBuckets = packSizeLitres > 0
-        ? Math.round((theoreticalCeilingLitres / packSizeLitres) * 10000) / 10000
-        : 0;
+      theoreticalCeilingLitres =
+        Math.round(
+          ((ceilingArea * effectiveCoats) / ceilingCoverageM2PerL) * 100,
+        ) / 100;
+      theoreticalCeilingBuckets =
+        packSizeLitres > 0
+          ? Math.round((theoreticalCeilingLitres / packSizeLitres) * 10000) /
+            10000
+          : 0;
       steps.push({
-        label: 'Theoretical Ceiling Requirement',
+        label: "Theoretical Ceiling Requirement",
         value: `${theoreticalCeilingLitres.toFixed(2)} L (${theoreticalCeilingBuckets.toFixed(4)} buckets)`,
         detail: `(${ceilingArea.toFixed(2)} m² × ${effectiveCoats} coats) ÷ ${ceilingCoverageM2PerL.toFixed(2)} m²/L`,
       });
@@ -716,64 +806,78 @@ export function calculateRoom(
       theoreticalCeilingBuckets = ceilingBuckets;
       theoreticalCeilingLitres = ceilingBuckets * packSizeLitres;
       steps.push({
-        label: 'Theoretical Ceiling Requirement',
+        label: "Theoretical Ceiling Requirement",
         value: `${theoreticalCeilingBuckets.toFixed(2)} buckets (${theoreticalCeilingLitres.toFixed(2)} L)`,
-        detail: 'FRELUX ceiling_quantity_per_room rule.',
+        detail: "FRELUX ceiling_quantity_per_room rule.",
       });
     }
   }
 
   // ── STEP 13: Total Theoretical ──
-  const theoreticalTotalLitres = theoreticalWallLitres + theoreticalCeilingLitres;
-  const theoreticalTotalBuckets = theoreticalWallBuckets + theoreticalCeilingBuckets;
+  const theoreticalTotalLitres =
+    theoreticalWallLitres + theoreticalCeilingLitres;
+  const theoreticalTotalBuckets =
+    theoreticalWallBuckets + theoreticalCeilingBuckets;
   steps.push({
-    label: 'Total Theoretical Quantity',
+    label: "Total Theoretical Quantity",
     value: `${theoreticalTotalLitres.toFixed(2)} L (${theoreticalTotalBuckets.toFixed(4)} buckets)`,
-    detail: 'Wall + Ceiling theoretical (before purchase rounding).',
+    detail: "Wall + Ceiling theoretical (before purchase rounding).",
   });
 
   // ── STEP 14: FRELUX Calibration Check ──
-  const calibrationRefs = getCalibrationReferences(config.calibrationReferencesRule);
-  if (coverageUnit === 'frelux_calibration' && calibrationRefs.length > 0) {
+  const calibrationRefs = getCalibrationReferences(
+    config.calibrationReferencesRule,
+  );
+  if (coverageUnit === "frelux_calibration" && calibrationRefs.length > 0) {
     const calMatch = findCalibrationMatch(
-      room.unit === 'feet' ? room.length : room.length * 3.28084,
-      room.unit === 'feet' ? room.width : room.width * 3.28084,
+      room.unit === "feet" ? room.length : room.length * 3.28084,
+      room.unit === "feet" ? room.width : room.width * 3.28084,
       heightFt,
       effectiveCoats,
       room.quality_id,
-      calibrationRefs
+      calibrationRefs,
     );
     if (calMatch !== null) {
       steps.push({
-        label: 'FRELUX Calibration',
+        label: "FRELUX Calibration",
         value: `${calMatch} bucket(s)`,
-        detail: 'Matched FRELUX calibration reference point for this room size.',
+        detail:
+          "Matched FRELUX calibration reference point for this room size.",
       });
     }
   }
 
   // ── STEP 15: Practical Purchase Quantity ──
   const roundingRule = getRoundingRule(config.roundingRule);
-  const practicalWallBuckets = roundUpToBuckets(theoreticalWallLitres, packSizeLitres, roundingRule);
+  const practicalWallBuckets = roundUpToBuckets(
+    theoreticalWallLitres,
+    packSizeLitres,
+    roundingRule,
+  );
   const practicalCeilingBuckets = ceilingCoverageM2PerL
     ? roundUpToBuckets(theoreticalCeilingLitres, packSizeLitres, roundingRule)
-    : (room.include_ceiling ? Math.ceil(theoreticalCeilingBuckets) : 0);
+    : room.include_ceiling
+      ? Math.ceil(theoreticalCeilingBuckets)
+      : 0;
 
   const practicalTotalBuckets = practicalWallBuckets + practicalCeilingBuckets;
   const practicalTotalLitres = practicalTotalBuckets * packSizeLitres;
-  const leftoverLitres = Math.max(0, Math.round((practicalTotalLitres - theoreticalTotalLitres) * 100) / 100);
+  const leftoverLitres = Math.max(
+    0,
+    Math.round((practicalTotalLitres - theoreticalTotalLitres) * 100) / 100,
+  );
 
   steps.push({
-    label: 'Practical Purchase Quantity',
+    label: "Practical Purchase Quantity",
     value: `${practicalTotalBuckets} bucket(s) (${practicalTotalLitres.toFixed(2)} L)`,
     detail: `Theoretical ${theoreticalTotalBuckets.toFixed(4)} → rounded up to ${practicalTotalBuckets} × ${packSizeLitres}-L buckets (${roundingRule} rule).`,
   });
 
   if (leftoverLitres > 0) {
     steps.push({
-      label: 'Estimated Remaining',
+      label: "Estimated Remaining",
       value: `${leftoverLitres.toFixed(2)} L`,
-      detail: 'Excess paint after theoretical requirement is met.',
+      detail: "Excess paint after theoretical requirement is met.",
     });
   }
 
@@ -782,22 +886,22 @@ export function calculateRoom(
   const priceConfigured = isPriceConfigured(unitPrice);
   if (!priceConfigured) {
     warnings.push(
-      `Price not configured for ${config.product?.name ?? 'product'}, ${config.quality?.name ?? 'quality'}. Material cost cannot be calculated.`
+      `Price not configured for ${config.product?.name ?? "product"}, ${config.quality?.name ?? "quality"}. Material cost cannot be calculated.`,
     );
   }
   const materialCost = priceConfigured ? unitPrice * practicalTotalBuckets : 0;
 
   steps.push({
-    label: 'Price',
+    label: "Price",
     value: priceConfigured
-      ? `${unitPrice} ${config.price?.currency ?? 'NGN'} per ${packSizeLitres}-L bucket`
-      : 'NOT CONFIGURED',
+      ? `${unitPrice} ${config.price?.currency ?? "NGN"} per ${packSizeLitres}-L bucket`
+      : "NOT CONFIGURED",
   });
   steps.push({
-    label: 'Material Cost',
+    label: "Material Cost",
     value: priceConfigured
-      ? `${materialCost.toFixed(2)} ${config.price?.currency ?? 'NGN'}`
-      : 'Cannot calculate, price not configured',
+      ? `${materialCost.toFixed(2)} ${config.price?.currency ?? "NGN"}`
+      : "Cannot calculate, price not configured",
     detail: `${practicalTotalBuckets} bucket(s) × ${unitPrice}`,
   });
 
@@ -810,30 +914,41 @@ export function calculateRoom(
   if (includePrimer) {
     // Primer covers ~30% more area per liter
     const primerMultiplier = config.primer_coverage_multiplier ?? 1.3;
-    const primerCoverageM2PerL = wallCoverageM2PerL > 0 ? wallCoverageM2PerL * primerMultiplier : 0;
-    primerLitres = primerCoverageM2PerL > 0
-      ? Math.round((netWallArea * 1) / primerCoverageM2PerL * 100) / 100
-      : 0;
-    primerBuckets = primerLitres > 0 ? roundUpToBuckets(primerLitres, packSizeLitres, roundingRule) : 0;
+    const primerCoverageM2PerL =
+      wallCoverageM2PerL > 0 ? wallCoverageM2PerL * primerMultiplier : 0;
+    primerLitres =
+      primerCoverageM2PerL > 0
+        ? Math.round(((netWallArea * 1) / primerCoverageM2PerL) * 100) / 100
+        : 0;
+    primerBuckets =
+      primerLitres > 0
+        ? roundUpToBuckets(primerLitres, packSizeLitres, roundingRule)
+        : 0;
     const primerUnitPrice = config.primer_price?.price ?? 0;
     primerCost = primerUnitPrice > 0 ? primerUnitPrice * primerBuckets : 0;
 
     steps.push({
-      label: 'Primer/Sealer',
-      value: primerBuckets > 0
-        ? `${primerBuckets} bucket(s) (${primerLitres.toFixed(2)} L)`
-        : 'Recommended but not calculated (coverage not configured)',
-      detail: primerCost > 0
-        ? `Cost: ${primerCost.toFixed(2)} ${config.primer_price?.currency ?? 'NGN'}`
-        : 'Primer price not configured.',
+      label: "Primer/Sealer",
+      value:
+        primerBuckets > 0
+          ? `${primerBuckets} bucket(s) (${primerLitres.toFixed(2)} L)`
+          : "Recommended but not calculated (coverage not configured)",
+      detail:
+        primerCost > 0
+          ? `Cost: ${primerCost.toFixed(2)} ${config.primer_price?.currency ?? "NGN"}`
+          : "Primer price not configured.",
     });
   }
 
   // ── Price Snapshot ──
   const priceSnapshot = buildPriceSnapshot(
-    config.product, config.quality, config.price,
-    packSizeLitres, coverage, coverageUnit,
-    config.calcVersionId
+    config.product,
+    config.quality,
+    config.price,
+    packSizeLitres,
+    coverage,
+    coverageUnit,
+    config.calcVersionId,
   );
 
   // ── Customer Summary ──
@@ -841,19 +956,26 @@ export function calculateRoom(
     room_name: room.room_name,
     room_size: `${room.length} × ${room.width} ${room.unit}`,
     wall_height: `${room.height} ${room.unit}`,
-    paint: config.product?.name ?? 'N/A',
-    quality: config.quality?.name ?? 'N/A',
+    paint: config.product?.name ?? "N/A",
+    quality: config.quality?.name ?? "N/A",
     coats: String(effectiveCoats),
-    ceiling: room.include_ceiling ? 'Included' : 'Not included',
-    doors: room.doors_unknown ? 'Not provided' : String(room.doors.reduce((s, o) => s + o.quantity, 0)),
-    windows: room.windows_unknown ? 'Not provided' : String(room.windows.reduce((s, o) => s + o.quantity, 0)),
+    ceiling: room.include_ceiling ? "Included" : "Not included",
+    doors: room.doors_unknown
+      ? "Not provided"
+      : String(room.doors.reduce((s, o) => s + o.quantity, 0)),
+    windows: room.windows_unknown
+      ? "Not provided"
+      : String(room.windows.reduce((s, o) => s + o.quantity, 0)),
     theoretical_buckets: `${theoreticalTotalBuckets.toFixed(2)} buckets (${theoreticalTotalLitres.toFixed(2)} L)`,
     practical_purchase: `${practicalTotalBuckets} × ${packSizeLitres}-L buckets`,
     material_cost: priceConfigured
-      ? `${materialCost.toFixed(2)} ${config.price?.currency ?? 'NGN'}`
-      : 'Not configured',
+      ? Math.round(materialCost * 100) / 100
+      : null,
+    material_cost_formatted: priceConfigured
+      ? `${materialCost.toFixed(2)} ${config.price?.currency ?? "NGN"}`
+      : "Not configured",
     height_notice: heightWarning,
-    labour_note: 'Labour: Not included, negotiated separately.',
+    labour_note: "Labour: Not included, negotiated separately.",
   };
 
   return {
@@ -925,7 +1047,7 @@ export function calculatePaintProject(
     surfaceConditions: EstimationSurfaceCondition[];
     calcVersionId: string | null;
     primerPrice?: EstimationPrice | null;
-  }
+  },
 ): PaintEngineProjectResult {
   const allWarnings: string[] = [];
   const allRecommendations: string[] = [];
@@ -933,20 +1055,28 @@ export function calculatePaintProject(
   const roomResults: PaintEngineRoomResult[] = [];
 
   // Extract shared rules
-  const ceilingRule = config.calcRules.get('ceiling_quantity_per_room') ?? null;
-  const ceilingCoverageRule = config.calcRules.get('ceiling_coverage_rate') ?? null;
-  const packSizeRule = config.calcRules.get('pack_size_bucket_litres') ?? null;
-  const roundingRule = config.calcRules.get('purchase_rounding_rule') ?? null;
-  const standardHeightRule = config.calcRules.get('standard_room_height') ?? null;
-  const heightAdjustmentRule = config.calcRules.get('height_adjustment_rule') ?? null;
-  const openingDeductionRule = config.calcRules.get('opening_deduction_rule') ?? null;
-  const coatCountRule = config.calcRules.get('standard_coat_count') ?? null;
-  const calibrationReferencesRule = config.calcRules.get('frelux_calibration_references') ?? null;
+  const ceilingRule = config.calcRules.get("ceiling_quantity_per_room") ?? null;
+  const ceilingCoverageRule =
+    config.calcRules.get("ceiling_coverage_rate") ?? null;
+  const packSizeRule = config.calcRules.get("pack_size_bucket_litres") ?? null;
+  const roundingRule = config.calcRules.get("purchase_rounding_rule") ?? null;
+  const standardHeightRule =
+    config.calcRules.get("standard_room_height") ?? null;
+  const heightAdjustmentRule =
+    config.calcRules.get("height_adjustment_rule") ?? null;
+  const openingDeductionRule =
+    config.calcRules.get("opening_deduction_rule") ?? null;
+  const coatCountRule = config.calcRules.get("standard_coat_count") ?? null;
+  const calibrationReferencesRule =
+    config.calcRules.get("frelux_calibration_references") ?? null;
 
   for (const room of rooms) {
-    const product = config.products.find(p => p.id === room.product_id) ?? null;
-    const qualities = room.product_id ? (config.qualities.get(room.product_id) ?? []) : [];
-    const quality = qualities.find(q => q.id === room.quality_id) ?? null;
+    const product =
+      config.products.find((p) => p.id === room.product_id) ?? null;
+    const qualities = room.product_id
+      ? (config.qualities.get(room.product_id) ?? [])
+      : [];
+    const quality = qualities.find((q) => q.id === room.quality_id) ?? null;
     const priceKey = room.quality_id ?? room.product_id;
     const price = config.prices.get(priceKey) ?? null;
 
@@ -976,31 +1106,54 @@ export function calculatePaintProject(
   }
 
   // Combined totals
-  const combinedTheoreticalLitres = roomResults.reduce((s, r) => s + r.theoretical_total_litres, 0);
-  const combinedTheoreticalBuckets = roomResults.reduce((s, r) => s + r.theoretical_total_buckets, 0);
-  const combinedPracticalBuckets = roomResults.reduce((s, r) => s + r.practical_total_buckets, 0);
-  const combinedPracticalLitres = roomResults.reduce((s, r) => s + r.practical_total_litres, 0);
-  const combinedLeftoverLitres = roomResults.reduce((s, r) => s + r.leftover_litres, 0);
-  const totalMaterialCost = roomResults.reduce((s, r) => s + r.material_cost, 0);
+  const combinedTheoreticalLitres = roomResults.reduce(
+    (s, r) => s + r.theoretical_total_litres,
+    0,
+  );
+  const combinedTheoreticalBuckets = roomResults.reduce(
+    (s, r) => s + r.theoretical_total_buckets,
+    0,
+  );
+  const combinedPracticalBuckets = roomResults.reduce(
+    (s, r) => s + r.practical_total_buckets,
+    0,
+  );
+  const combinedPracticalLitres = roomResults.reduce(
+    (s, r) => s + r.practical_total_litres,
+    0,
+  );
+  const combinedLeftoverLitres = roomResults.reduce(
+    (s, r) => s + r.leftover_litres,
+    0,
+  );
+  const totalMaterialCost = roomResults.reduce(
+    (s, r) => s + r.material_cost,
+    0,
+  );
   const totalPrimerCost = roomResults.reduce((s, r) => s + r.primer_cost, 0);
   const grandTotal = totalMaterialCost + totalPrimerCost;
 
   return {
     rooms: roomResults,
-    combined_theoretical_litres: Math.round(combinedTheoreticalLitres * 100) / 100,
-    combined_theoretical_buckets: Math.round(combinedTheoreticalBuckets * 10000) / 10000,
+    combined_theoretical_litres:
+      Math.round(combinedTheoreticalLitres * 100) / 100,
+    combined_theoretical_buckets:
+      Math.round(combinedTheoreticalBuckets * 10000) / 10000,
     combined_practical_buckets: combinedPracticalBuckets,
     combined_practical_litres: combinedPracticalLitres,
     combined_leftover_litres: Math.round(combinedLeftoverLitres * 100) / 100,
     total_material_cost: Math.round(totalMaterialCost * 100) / 100,
     total_primer_cost: Math.round(totalPrimerCost * 100) / 100,
     grand_total: Math.round(grandTotal * 100) / 100,
-    currency: config.prices.size > 0 ? Array.from(config.prices.values())[0].currency : 'NGN',
+    currency:
+      config.prices.size > 0
+        ? Array.from(config.prices.values())[0].currency
+        : "NGN",
     warnings: [...new Set(allWarnings)],
     recommendations: [...new Set(allRecommendations)],
     errors: allErrors,
     valid: allErrors.length === 0,
     calc_version_id: config.calcVersionId,
-    labour_note: 'Labour: Not included, negotiated separately.',
+    labour_note: "Labour: Not included, negotiated separately.",
   };
 }

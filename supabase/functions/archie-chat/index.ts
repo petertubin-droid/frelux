@@ -33,6 +33,7 @@ import {
   type ArchieInferencePart,
   type ArchieToolSpec,
 } from "../_shared/archie-ai/runtime.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -62,6 +63,7 @@ interface ChatTurn {
 }
 interface ChatRequest {
   message: string;
+  clientId?: string;
   history?: ChatTurn[];
   attachments?: { name: string; type: string }[];
 }
@@ -990,29 +992,63 @@ async function fetchRepoFile(repoPath: string): Promise<
   };
 }
 
+// ---- PUBLIC VISITOR MODE --------------------------------
+// Role-scoped persona for the FRELUX site live-chat widget,
+// powered by ARCHIE (owner instruction 2026-09-09). Anonymous
+// visitors and non-admin users get site guidance ONLY: no
+// owner tools, no owner memory, no protected operations, no
+// account/order access. The scope IS the protection.
+// ---------------------------------------------------------
+const VISITOR_SYSTEM_PROMPT = `You are ARCHIE, the AI assistant on the FRELUX website (frelux.tools) — a Nigerian building, painting and finishing platform.
+
+Your job: help site visitors with practical guidance on painting, POP ceilings, screeding, tiling, paint colours and surface preparation, and point them to the right FRELUX calculator or page for real numbers.
+
+FRELUX calculators you can direct people to:
+- Paint Calculator and Painting Estimator (paint quantities by room or area)
+- POP Ceiling Calculator and Cost Estimator
+- Screeding (putty/wall skimming) Calculator and Cost Estimator
+- Tile Calculator and Cost Estimator
+- Build-to-Roof Estimator (full project, room photos)
+- Colour tools, AI colour preview, and the Learn section for guides
+
+Rules you MUST follow:
+- Be concise, friendly and practical. Nigerian context (prices in Naira).
+- NEVER invent current prices or give exact cost figures — costs change and depend on configuration. Direct users to the relevant cost estimator page for live numbers.
+- NEVER claim access to accounts, orders, saved estimates, projects, or any user data. You cannot look up or modify anything. If asked, explain that they can save estimates from the calculators themselves.
+- You are the site's public assistant. Do not present yourself as performing admin, security, payment or account operations — those do not happen through chat.
+- If a visitor describes a project (e.g. "how much paint for a 12x12 room?"), give the practical method (measure wall area, subtract openings, coats, coverage) and recommend the Paint Calculator for the exact quantity.
+- If asked something outside FRELUX scope, briefly help if it is general building/painting knowledge, otherwise redirect politely.`;
+
 // ---- main handler ----------------------------------------
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
-  // 1. Authenticate + verify Owner (admin role)
+  // 1. Authenticate — Owner (admin) gets FULL ARCHIE. Authenticated
+  //    non-admins and anonymous site visitors get the role-scoped
+  //    PUBLIC visitor mode (site guidance only). Visitor mode never
+  //    reaches owner tools, owner memory or protected operations.
   const authHeader = req.headers.get("Authorization") ?? "";
-  if (!authHeader.startsWith("Bearer "))
-    return json(401, { error: "Not authenticated" });
-  const anon = createClient(SUPABASE_URL, Deno.env.get("SUPABASE_ANON_KEY")!, {
-    global: { headers: { Authorization: authHeader } },
-    auth: { persistSession: false },
-  });
-  const { data: userData, error: userError } = await anon.auth.getUser();
-  const user = userData?.user as User | undefined;
-  if (userError || !user) return json(401, { error: "Not authenticated" });
-
-  const { data: profile } = await db
-    .from("profiles")
-    .select("role")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (profile?.role !== "admin") {
-    return json(403, { error: "ARCHIE is Owner-only" });
+  let user: User | undefined;
+  let isOwner = false;
+  if (authHeader.startsWith("Bearer ")) {
+    const anon = createClient(
+      SUPABASE_URL,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      {
+        global: { headers: { Authorization: authHeader } },
+        auth: { persistSession: false },
+      },
+    );
+    const { data: userData, error: userError } = await anon.auth.getUser();
+    user = (userData?.user ?? undefined) as User | undefined;
+    if (!userError && user) {
+      const { data: profile } = await db
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .maybeSingle();
+      isOwner = profile?.role === "admin";
+    }
   }
 
   // 2. Parse + validate request
@@ -1028,6 +1064,75 @@ Deno.serve(async (req) => {
     role: t.role,
     content: sanitize(String(t.content ?? "").slice(0, 4000)),
   }));
+
+  // 2b. PUBLIC VISITOR MODE — rate-limited, role-scoped site
+  //     guidance through the same ARCHIE inference boundary.
+  if (!isOwner) {
+    const clientId = sanitize(String(body.clientId ?? "anon")).slice(0, 80);
+    const rl = checkRateLimit(`archie-chat:visitor:${clientId}`, {
+      maxRequests: 12,
+      windowMs: 60_000,
+    });
+    if (!rl.allowed) {
+      return json(429, {
+        error:
+          "You're sending messages very quickly — please wait a moment and try again.",
+      });
+    }
+
+    const { runtime: visitorRuntime, engine: visitorEngine } =
+      resolveArchieRuntime({
+        devAdapter: Deno.env.get("ARCHIE_DEV_ADAPTER"),
+        geminiKey: Deno.env.get("GOOGLE_AI_API_KEY"),
+      });
+    if (!visitorRuntime) {
+      return json(503, {
+        error:
+          "The FRELUX assistant is briefly unavailable. Please try again shortly, or use the calculators directly.",
+        engine: visitorEngine,
+      });
+    }
+
+    const visitorRequest: ArchieInferenceRequest = {
+      turns: [
+        ...history.map((t) => ({
+          role: t.role,
+          parts: [{ text: t.content }] as ArchieInferencePart[],
+        })),
+        { role: "owner" as const, parts: [{ text: message }] },
+      ],
+      systemInstruction: VISITOR_SYSTEM_PROMPT,
+      // No tools for visitors — the empty array is explicit: the
+      // public mode has ZERO capabilities beyond site guidance.
+      tools: [],
+    };
+
+    try {
+      const result = await visitorRuntime.generate(visitorRequest);
+      const text = result.parts
+        .map((p) => p.text)
+        .filter(Boolean)
+        .join("")
+        .trim();
+      if (!text) {
+        return json(502, {
+          error: "The assistant produced no response. Please try again.",
+          engine: result.engine,
+        });
+      }
+      return json(200, {
+        reply: sanitize(text),
+        engine: result.engine,
+        mode: "visitor",
+      });
+    } catch (err) {
+      return json(502, {
+        error:
+          err instanceof Error ? sanitize(err.message) : "Assistant failure",
+        engine: visitorEngine,
+      });
+    }
+  }
 
   // 3. Resolve the inference engine through the ARCHIE AI
   //    abstraction. Never a direct provider call.

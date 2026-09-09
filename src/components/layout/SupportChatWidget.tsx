@@ -7,7 +7,9 @@ import {
   MessageCircle,
   ChevronRight,
   Phone,
+  Sparkles,
 } from "lucide-react";
+import CopilotWidget from "@/components/copilot/CopilotWidget";
 // import { siteConfig } from '@/config/site';
 import { whatsappUrl } from "@/lib/analytics";
 import { supabase, getFunctionErrorMessage } from "@/lib/supabase";
@@ -33,7 +35,7 @@ const SUGGESTED_QUESTIONS = [
 const WELCOME_MESSAGE: ChatMessage = {
   id: 0,
   from: "assistant",
-  text: `Hi! I'm the FRELUX AI assistant. Ask me anything about paint quantities, POP ceiling, tiling, colors, or surface prep. I'll give you a practical answer right away.`,
+  text: `Hi! I'm ARCHIE, FRELUX's AI assistant. Ask me anything about paint quantities, POP ceiling, tiling, colors, or surface prep — or open the FRELUX AI tab to describe a project and get routed to the right calculator automatically.`,
   timestamp: Date.now(),
 };
 
@@ -41,6 +43,7 @@ export default function SupportChatWidget() {
   const [open, setOpen] = useState(false);
   const [minimized, setMinimized] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
+  const [mode, setMode] = useState<"chat" | "copilot">("chat");
   const [draft, setDraft] = useState("");
   const [loading, setLoading] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -79,18 +82,31 @@ export default function SupportChatWidget() {
 
       try {
         const clientId = getClientId();
+        // Powered by ARCHIE (archie-chat edge function). Anonymous and
+        // non-admin visitors get the role-scoped public visitor mode;
+        // the Owner gets full ARCHIE through the same endpoint.
         const { data, error: fnError } = await supabase.functions.invoke<{
-          result?: string;
+          reply?: string;
           error?: string;
-        }>("ai-livechat", {
-          body: { question: q, clientId },
+        }>("archie-chat", {
+          body: {
+            message: q,
+            clientId,
+            history: messages
+              .filter((m) => m.id !== 0)
+              .slice(-10)
+              .map((m) => ({
+                role: m.from === "user" ? "owner" : "archie",
+                content: m.text,
+              })),
+          },
         });
 
         if (fnError) throw new Error(await getFunctionErrorMessage(fnError));
         if (!data) throw new Error("No response from AI.");
 
         const responseText =
-          data.result ||
+          data.reply ||
           data.error ||
           "Sorry, I couldn't answer that right now. Try asking in a different way.";
         setMessages((m) => [
@@ -168,7 +184,7 @@ export default function SupportChatWidget() {
               className="inline-flex items-center gap-2 rounded-full bg-primary pl-3 pr-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg"
             >
               <MessageCircle className="h-5 w-5" strokeWidth={1.8} />
-              Chat with FRELUX AI
+              Chat with ARCHIE
             </Button>
           ) : (
             <>
@@ -183,7 +199,7 @@ export default function SupportChatWidget() {
                     />
                   </div>
                   <div className="leading-tight">
-                    <p className="text-sm font-semibold">FRELUX AI Assistant</p>
+                    <p className="text-sm font-semibold">ARCHIE · FRELUX AI</p>
                     <div className="flex items-center gap-1.5">
                       <span className="h-1.5 w-1.5 rounded-full bg-accent-green" />
                       <p className="text-[11px] text-primary-foreground/70">
@@ -214,142 +230,179 @@ export default function SupportChatWidget() {
                 </div>
               </div>
 
-              {/* Messages */}
-              <div
-                ref={scrollRef}
-                className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden bg-muted/50 p-4 dark:bg-background"
-                role="log"
-                aria-live="polite"
-              >
-                {messages.map((m) => (
-                  <div
-                    key={m.id}
-                    className={
-                      m.from === "user"
-                        ? "flex justify-end"
-                        : "flex justify-start"
-                    }
-                  >
-                    <div className="max-w-[85%]">
-                      <div
-                        className={
-                          m.from === "user"
-                            ? "break-words rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-sm text-primary-foreground"
-                            : "break-words rounded-2xl rounded-bl-md bg-card px-3.5 py-2 text-sm text-card-foreground shadow-sm border border-border/50 dark:bg-white/10 dark:text-muted-foreground/60 dark:border-white/5"
-                        }
-                      >
-                        <p className="whitespace-pre-wrap leading-relaxed">
-                          {m.text}
-                        </p>
-                      </div>
-                      <p
-                        className={classNames(
-                          "mt-1 px-1 text-[10px] text-muted-foreground/80 dark:text-muted-foreground",
-                          m.from === "user" ? "text-right" : "text-left",
-                        )}
-                      >
-                        {formatTime(m.timestamp)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-
-                {/* Typing indicator */}
-                {loading && (
-                  <div className="flex justify-start">
-                    <div className="rounded-2xl rounded-bl-md bg-card px-4 py-3 shadow-sm border border-border/50 dark:bg-white/10 dark:border-white/5">
-                      <div className="flex items-center gap-1">
-                        <span
-                          className="h-2 w-2 animate-bounce rounded-full bg-muted dark:bg-muted-foreground"
-                          style={{ animationDelay: "0ms" }}
-                        />
-                        <span
-                          className="h-2 w-2 animate-bounce rounded-full bg-muted dark:bg-muted-foreground"
-                          style={{ animationDelay: "150ms" }}
-                        />
-                        <span
-                          className="h-2 w-2 animate-bounce rounded-full bg-muted dark:bg-muted-foreground"
-                          style={{ animationDelay: "300ms" }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Suggested questions (before first interaction) */}
-                {!hasInteracted && !loading && (
-                  <div className="pt-2">
-                    <p className="mb-2 px-1 text-[11px] font-medium text-muted-foreground dark:text-muted-foreground">
-                      Try asking:
-                    </p>
-                    <div className="space-y-1.5">
-                      {SUGGESTED_QUESTIONS.map((q) => (
-                        <Button
-                          variant="ghost"
-                          key={q}
-                          type="button"
-                          onClick={() => handleSend(q)}
-                          className="flex w-full items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-left text-xs text-muted-foreground transition-all hover:border-brand-purple/30 hover:bg-primary/5 hover:text-brand-purple dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground/80 dark:hover:border-brand-purple/30 dark:hover:text-brand-purple-lighter"
-                        >
-                          {q}
-                          <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground/80 dark:text-muted-foreground" />
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+              {/* Mode tabs: live chat (ARCHIE) | FRELUX AI copilot.
+                  One floating button, both capabilities. */}
+              <div className="flex shrink-0 border-b border-border bg-card px-2 py-1.5 dark:border-white/5">
+                <button
+                  type="button"
+                  onClick={() => setMode("chat")}
+                  className={
+                    mode === "chat"
+                      ? "flex flex-1 items-center justify-center gap-1.5 rounded-md bg-primary/10 px-2 py-1.5 text-xs font-semibold text-primary"
+                      : "flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted"
+                  }
+                >
+                  <MessageCircle className="h-3.5 w-3.5" strokeWidth={2} />
+                  Live Chat
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setMode("copilot")}
+                  className={
+                    mode === "copilot"
+                      ? "flex flex-1 items-center justify-center gap-1.5 rounded-md bg-primary/10 px-2 py-1.5 text-xs font-semibold text-primary"
+                      : "flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted"
+                  }
+                >
+                  <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
+                  FRELUX AI
+                </button>
               </div>
 
-              {/* WhatsApp fallback bar, only shown when the AI chat has errored */}
-              {hasError && (
-                <div className="border-t border-border/50 bg-card px-4 py-2 dark:border-white/5 dark:bg-card">
-                  <a
-                    href={whatsappUrl(
-                      "Hello FRELUX, I need help with my paint project.",
-                    )}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-green hover:underline"
+              {mode === "chat" ? (
+                <>
+                  {/* Messages */}
+                  <div
+                    ref={scrollRef}
+                    className="flex-1 space-y-3 overflow-y-auto overflow-x-hidden bg-muted/50 p-4 dark:bg-background"
+                    role="log"
+                    aria-live="polite"
                   >
-                    <Phone className="h-3.5 w-3.5" />
-                    Still need help? Chat on WhatsApp →
-                  </a>
+                    {messages.map((m) => (
+                      <div
+                        key={m.id}
+                        className={
+                          m.from === "user"
+                            ? "flex justify-end"
+                            : "flex justify-start"
+                        }
+                      >
+                        <div className="max-w-[85%]">
+                          <div
+                            className={
+                              m.from === "user"
+                                ? "break-words rounded-2xl rounded-br-md bg-primary px-3.5 py-2 text-sm text-primary-foreground"
+                                : "break-words rounded-2xl rounded-bl-md bg-card px-3.5 py-2 text-sm text-card-foreground shadow-sm border border-border/50 dark:bg-white/10 dark:text-muted-foreground/60 dark:border-white/5"
+                            }
+                          >
+                            <p className="whitespace-pre-wrap leading-relaxed">
+                              {m.text}
+                            </p>
+                          </div>
+                          <p
+                            className={classNames(
+                              "mt-1 px-1 text-[10px] text-muted-foreground/80 dark:text-muted-foreground",
+                              m.from === "user" ? "text-right" : "text-left",
+                            )}
+                          >
+                            {formatTime(m.timestamp)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Typing indicator */}
+                    {loading && (
+                      <div className="flex justify-start">
+                        <div className="rounded-2xl rounded-bl-md bg-card px-4 py-3 shadow-sm border border-border/50 dark:bg-white/10 dark:border-white/5">
+                          <div className="flex items-center gap-1">
+                            <span
+                              className="h-2 w-2 animate-bounce rounded-full bg-muted dark:bg-muted-foreground"
+                              style={{ animationDelay: "0ms" }}
+                            />
+                            <span
+                              className="h-2 w-2 animate-bounce rounded-full bg-muted dark:bg-muted-foreground"
+                              style={{ animationDelay: "150ms" }}
+                            />
+                            <span
+                              className="h-2 w-2 animate-bounce rounded-full bg-muted dark:bg-muted-foreground"
+                              style={{ animationDelay: "300ms" }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Suggested questions (before first interaction) */}
+                    {!hasInteracted && !loading && (
+                      <div className="pt-2">
+                        <p className="mb-2 px-1 text-[11px] font-medium text-muted-foreground dark:text-muted-foreground">
+                          Try asking:
+                        </p>
+                        <div className="space-y-1.5">
+                          {SUGGESTED_QUESTIONS.map((q) => (
+                            <Button
+                              variant="ghost"
+                              key={q}
+                              type="button"
+                              onClick={() => handleSend(q)}
+                              className="flex w-full items-center justify-between rounded-lg border border-border bg-card px-3 py-2 text-left text-xs text-muted-foreground transition-all hover:border-brand-purple/30 hover:bg-primary/5 hover:text-brand-purple dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground/80 dark:hover:border-brand-purple/30 dark:hover:text-brand-purple-lighter"
+                            >
+                              {q}
+                              <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground/80 dark:text-muted-foreground" />
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* WhatsApp fallback bar, only shown when the AI chat has errored */}
+                  {hasError && (
+                    <div className="border-t border-border/50 bg-card px-4 py-2 dark:border-white/5 dark:bg-card">
+                      <a
+                        href={whatsappUrl(
+                          "Hello FRELUX, I need help with my paint project.",
+                        )}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-green hover:underline"
+                      >
+                        <Phone className="h-3.5 w-3.5" />
+                        Still need help? Chat on WhatsApp →
+                      </a>
+                    </div>
+                  )}
+
+                  {/* Input */}
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      handleSend();
+                    }}
+                    className="flex items-center gap-2 border-t border-border/50 bg-card p-3 dark:border-white/5 dark:bg-card"
+                  >
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={draft}
+                      onChange={(e) => setDraft(e.target.value)}
+                      placeholder="Ask about paint, tiles, POP, colors…"
+                      aria-label="Type a message"
+                      disabled={loading}
+                      className="flex-1 rounded-full border border-border bg-muted/50 px-4 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-purple disabled:opacity-50 dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground/60"
+                    />
+                    <Button
+                      size="icon"
+                      variant="default"
+                      type="submit"
+                      disabled={!draft.trim() || loading}
+                      className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-opacity disabled:opacity-40"
+                      aria-label="Send message"
+                    >
+                      {loading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Send className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </form>
+                </>
+              ) : (
+                <div className="flex-1 overflow-y-auto">
+                  <CopilotWidget embedded onClose={() => setMode("chat")} />
                 </div>
               )}
-
-              {/* Input */}
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSend();
-                }}
-                className="flex items-center gap-2 border-t border-border/50 bg-card p-3 dark:border-white/5 dark:bg-card"
-              >
-                <input
-                  ref={inputRef}
-                  type="text"
-                  value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
-                  placeholder="Ask about paint, tiles, POP, colors…"
-                  aria-label="Type a message"
-                  disabled={loading}
-                  className="flex-1 rounded-full border border-border bg-muted/50 px-4 py-2 text-sm focus:border-transparent focus:outline-none focus:ring-2 focus:ring-brand-purple disabled:opacity-50 dark:border-white/5 dark:bg-white/5 dark:text-muted-foreground/60"
-                />
-                <Button
-                  size="icon"
-                  variant="default"
-                  type="submit"
-                  disabled={!draft.trim() || loading}
-                  className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition-opacity disabled:opacity-40"
-                  aria-label="Send message"
-                >
-                  {loading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Send className="h-4 w-4" />
-                  )}
-                </Button>
-              </form>
             </>
           )}
         </div>

@@ -56,9 +56,29 @@ import {
 
 import { feetToMeters } from "@/lib/utils";
 
-// The central paint-engine owns coverage-unit normalization, reuse it so the
-// two engines can never diverge on unit handling (audit finding fix).
-import { normalizeCoverage, getCoverageUnitLabel } from "./paint-engine";
+// MERGED (audit finding cf_dual_paint_engines, resolved 2026-09-09):
+// the central paint-engine is the single source of truth for ALL
+// shared estimation rules — coverage normalization, pack size,
+// rounding, standard height, ceiling quantity. This room-based
+// engine is an orchestration layer over those rules; it no longer
+// duplicates any rule definition, so the two calculators can
+// never disagree on a shared rule again.
+import {
+  normalizeCoverage,
+  getCoverageUnitLabel,
+  getPackSizeLitres,
+  getRoundingRule,
+  getStandardHeight,
+  getCeilingQuantityBuckets,
+} from "./paint-engine";
+export {
+  normalizeCoverage,
+  getCoverageUnitLabel,
+  getPackSizeLitres,
+  getRoundingRule,
+  getStandardHeight,
+  getCeilingQuantityBuckets,
+} from "./paint-engine";
 
 // =========================================================
 // Types
@@ -121,7 +141,8 @@ export interface RoomCustomerSummary {
   windows: string; // "3" or "Not provided"
   calculated_requirement: string; // "X buckets"
   practical_purchase: string; // "X × 20-L buckets"
-  material_cost: string; // "₦XX,XXX" or "Not configured"
+  material_cost: number | null; // numeric cost; null = not configured
+  material_cost_formatted: string; // display-ready, currency included
   height_notice: string | null; // height warning if applicable
 }
 
@@ -235,9 +256,6 @@ export interface PaintingEstimateResult {
 
 const CALCULATOR_TYPE = "painting";
 
-const FALLBACK_STANDARD_HEIGHT_FT = 8;
-const FALLBACK_STANDARD_HEIGHT_M = 2.4384;
-
 // =========================================================
 // Core Calculation Functions
 // =========================================================
@@ -303,64 +321,6 @@ export function litresToBuckets(
 ): number {
   if (packSizeLitres <= 0) return 0;
   return Math.round((Math.max(0, litres) / packSizeLitres) * 10000) / 10000;
-}
-
-export function getCeilingQuantityBuckets(
-  ceilingRule: EstimationCalcRule | null,
-): number {
-  if (!ceilingRule || !ceilingRule.rule_value) return 0.5;
-  const buckets = (ceilingRule.rule_value as Record<string, unknown>).buckets;
-  if (typeof buckets === "number" && buckets >= 0) return buckets;
-  return 0.5;
-}
-
-export function getPackSizeLitres(
-  product: EstimationProduct | null,
-  packSizeRule: EstimationCalcRule | null,
-): number {
-  if (product?.standard_pack_size && product.standard_pack_size > 0) {
-    return product.standard_pack_size;
-  }
-  if (packSizeRule?.rule_value) {
-    const litres = (packSizeRule.rule_value as Record<string, unknown>).litres;
-    if (typeof litres === "number" && litres > 0) return litres;
-  }
-  return 20;
-}
-
-export function getRoundingRule(
-  roundingRule: EstimationCalcRule | null,
-): string {
-  if (roundingRule?.rule_value) {
-    const rule = (roundingRule.rule_value as Record<string, unknown>).rule;
-    if (typeof rule === "string") return rule;
-  }
-  return "ceil";
-}
-
-export function getStandardHeight(
-  standardHeightRule: EstimationCalcRule | null,
-): { ft: number; m: number } {
-  if (standardHeightRule?.rule_value) {
-    const rv = standardHeightRule.rule_value as Record<string, unknown>;
-    const valueM = rv.value_m;
-    const valueFt = rv.value_ft;
-    if (
-      typeof valueM === "number" &&
-      valueM > 0 &&
-      typeof valueFt === "number" &&
-      valueFt > 0
-    ) {
-      return { ft: valueFt, m: valueM };
-    }
-    if (typeof valueM === "number" && valueM > 0) {
-      return { ft: valueM / 0.3048, m: valueM };
-    }
-    if (typeof valueFt === "number" && valueFt > 0) {
-      return { ft: valueFt, m: feetToMeters(valueFt) };
-    }
-  }
-  return { ft: FALLBACK_STANDARD_HEIGHT_FT, m: FALLBACK_STANDARD_HEIGHT_M };
 }
 
 export function evaluateHeightAdjustment(
@@ -978,7 +938,8 @@ export function calculateRoom(
     windows: countOpenings(room.windows, room.windows_unknown),
     calculated_requirement: `${theoreticalTotalBuckets.toFixed(2)} buckets (${theoreticalTotalLitres.toFixed(2)} L)`,
     practical_purchase: `${practicalTotalBuckets} × ${packSizeLitres}-L buckets`,
-    material_cost:
+    material_cost: unitPrice > 0 ? Math.round(lineTotal * 100) / 100 : null,
+    material_cost_formatted:
       unitPrice > 0
         ? formatCurrency(lineTotal, config.price?.currency ?? "NGN")
         : "Not configured",

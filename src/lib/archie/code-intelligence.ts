@@ -674,8 +674,10 @@ export const FRELUX_AUDIT_BASELINE: readonly CodeFinding[] = [
       'material_cost: string; // "₦XX,XXX" or "Not configured" — a money amount is modelled as a preformatted string',
     proposedFix:
       "Model money as a numeric value with currency, and format at the presentation layer. Requires owner decision on display contract.",
-    status: "OWNER_REVIEW",
+    status: "RESOLVED",
     createdAt: "2026-09-09T00:00:00.000Z",
+    resolution:
+      "Owner approved (2026-09-09). RoomCustomerSummary and PaintEngineCustomerSummary now carry material_cost as number | null (null = not configured) plus material_cost_formatted for display; UI renders the formatted value and tests on the numeric field. Evidence: 436 estimation + copilot tests pass, typecheck clean.",
   },
   {
     id: "cf_dual_paint_engines",
@@ -685,9 +687,12 @@ export const FRELUX_AUDIT_BASELINE: readonly CodeFinding[] = [
       "src/lib/estimation/paint-engine.ts vs src/lib/estimation/painting-engine.ts",
     evidence:
       "Two live paint estimation engines: paint-engine (used by PaintCalculator.tsx and admin AdminPaintEngineTest.tsx) and painting-engine (used by PaintingEstimator.tsx, which imports normalizeCoverage from paint-engine)",
-    proposedFix: undefined,
-    status: "OWNER_REVIEW",
+    proposedFix:
+      "Consolidate shared estimation rules into the central paint-engine as the single source of truth; keep the room-based engine as an orchestration layer over it.",
+    status: "RESOLVED",
     createdAt: "2026-09-09T00:00:00.000Z",
+    resolution:
+      "Owner approved merge (2026-09-09). painting-engine no longer defines ANY shared rule: getPackSizeLitres, getRoundingRule, getStandardHeight and getCeilingQuantityBuckets are imported from and re-exported by the central paint-engine (identical semantics verified — including the standard-height fallback chain). painting-engine is now a room-based orchestration layer; the two calculators cannot disagree on a shared rule. Evidence: 436 estimation + copilot tests pass, typecheck clean.",
   },
 ];
 
