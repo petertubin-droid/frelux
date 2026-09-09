@@ -28,7 +28,10 @@ const colorLinks = [
   { label: "Smart Color Assistant", path: "/ai-color-assistant" },
 ];
 
-const learnLinks = [{ label: "Learn Hub", path: "/learn" }];
+const learnLinks = [
+  { label: "Learn Hub", path: "/learn" },
+  { label: "User Guide", path: "/user-guide" },
+];
 
 const accountLinks = [
   { label: "Sign In", path: "/login" },

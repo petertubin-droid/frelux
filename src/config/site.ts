@@ -249,6 +249,11 @@ export const navWorkspaces: NavWorkspace[] = [
     path: "/learn",
     children: [
       {
+        label: "User Guide",
+        path: "/user-guide",
+        description: "How to use every FRELUX feature",
+      },
+      {
         label: "Guides & Tutorials",
         path: "/learn",
         description: "Step-by-step building guides",

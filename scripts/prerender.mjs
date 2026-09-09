@@ -329,6 +329,28 @@ const routes = [
     ],
   },
   {
+    path: '/user-guide',
+    title: 'FRELUX User Guide: How to Use Every Calculator and Feature',
+    description:
+      'Step by step guide to FRELUX: paint, screeding, tiling and POP ceiling calculators, AI floor plan estimation, saving estimates, PDF export, projects, pricing and regional settings.',
+    priority: '0.7',
+    changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Learn', item: 'https://freluxtools.netlify.app/learn' }, { '@type': 'ListItem', position: 3, name: 'User Guide', item: 'https://freluxtools.netlify.app/user-guide' }] },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: [
+          { '@type': 'Question', name: 'Do I need an account to use FRELUX calculators?', acceptedAnswer: { '@type': 'Answer', text: 'No. All calculators are free to use with no sign-up required. A free account is only needed to save projects and estimate history.' } },
+          { '@type': 'Question', name: 'Can I enter measurements in feet?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. Pick metres or feet before you calculate and FRELUX converts internally. Results are always shown in metric units because materials are sold that way.' } },
+          { '@type': 'Question', name: 'Where do FRELUX prices come from?', acceptedAnswer: { '@type': 'Answer', text: 'Prices come from, in order of preference: a price you entered yourself, a verified market price for your region where FRELUX has one, or nothing. FRELUX tells you a price is needed instead of guessing.' } },
+          { '@type': 'Question', name: 'Is FRELUX a substitute for a qualified engineer?', acceptedAnswer: { '@type': 'Answer', text: 'No. Structural, foundation and roof quantities are budgeting estimates. A qualified engineer must review and approve anything structural before you build.' } },
+          { '@type': 'Question', name: 'Does the AI invent numbers?', acceptedAnswer: { '@type': 'Answer', text: 'No. The AI extracts data such as room dimensions from a floor plan image and marks its confidence. All quantities come from the same deterministic calculators, and unconfirmed values are never used.' } },
+        ],
+      },
+    ],
+  },
+  {
     path: '/templates',
     title: 'Calculator Templates: FRELUX',
     description: 'Professionally curated templates for common painting, tiling, screeding, and POP ceiling projects using the FRELUX calculation engine.',

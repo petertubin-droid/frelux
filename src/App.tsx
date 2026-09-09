@@ -36,6 +36,7 @@ import { useTypography } from "@/lib/useTypography";
 // Lazy-loaded public pages for code splitting
 const ColorDetail = lazy(() => import("@/pages/ColorDetail"));
 const Learn = lazy(() => import("@/pages/learn/Learn"));
+const UserGuide = lazy(() => import("@/pages/UserGuide"));
 const PaintingCalculatorHub = lazy(
   () => import("@/pages/PaintingCalculatorHub"),
 );
@@ -124,7 +125,9 @@ const ArchieTraining = lazy(() => import("@/pages/archie/ArchieTraining"));
 const ArchieEvolution = lazy(() => import("@/pages/archie/ArchieEvolution"));
 const ArchieVoice = lazy(() => import("@/pages/archie/ArchieVoice"));
 const ArchieOps = lazy(() => import("@/pages/archie/ArchieOps"));
-const ArchieTerminology = lazy(() => import("@/pages/archie/ArchieTerminology"));
+const ArchieTerminology = lazy(
+  () => import("@/pages/archie/ArchieTerminology"),
+);
 const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"));
 const AdminAIAssistant = lazy(() => import("@/pages/admin/AdminAIAssistant"));
 const AdminEstimationConfig = lazy(
@@ -782,6 +785,14 @@ export default function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <Learn />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/user-guide"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <UserGuide />
                         </Suspense>
                       }
                     />

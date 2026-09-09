@@ -30,6 +30,7 @@ const routes = [
   { path: '/colors/compare', priority: '0.7', changefreq: 'monthly' },
   { path: '/ai-color-assistant', priority: '0.7', changefreq: 'monthly' },
   { path: '/learn', priority: '0.8', changefreq: 'weekly' },
+  { path: '/user-guide', priority: '0.7', changefreq: 'monthly' },
   { path: '/templates', priority: '0.6', changefreq: 'weekly' },
   { path: '/templates/standard-living-room-painting', priority: '0.5', changefreq: 'monthly' },
   { path: '/templates/master-bedroom-painting', priority: '0.5', changefreq: 'monthly' },
