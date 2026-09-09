@@ -47,7 +47,9 @@ import {
   Crown,
   Link2,
   Languages,
-  Dna, Smartphone,} from "lucide-react";
+  Dna,
+  Smartphone,
+} from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
 import { AdminThemeProvider, useAdminTheme } from "@/lib/admin-theme";
@@ -86,6 +88,11 @@ const navModules: NavModule[] = [
         label: "AI Learning Assistant",
         to: "/admin/ai-learning",
         icon: GraduationCap,
+      },
+      {
+        label: "Coding Studio",
+        to: "/admin/archie-studio",
+        icon: Brain,
       },
       {
         label: "ARCHIE Training",

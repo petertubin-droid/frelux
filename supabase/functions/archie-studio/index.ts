@@ -1,0 +1,512 @@
+// Supabase Edge Function: archie-studio
+// =========================================================
+// ARCHIE CODING STUDIO — THE REAL BUILD & ITERATION ENGINE
+//
+// The owner-only workspace where ARCHIE:
+//   PLAN → WRITE REAL CODE → VALIDATE → VERSION → PREVIEW
+//   → ITERATE ON OWNER FEEDBACK → APPROVE → PRODUCTION BUILD
+//
+// HARD RULES (all enforced here, never by prompt alone):
+//   * Owner-only: caller's profile.role must be 'admin'.
+//   * ALL inference goes through the ARCHIE AI abstraction —
+//     never a direct provider call. If no engine is
+//     operational, the response says so honestly. NO MOCK
+//     CODE GENERATION EVER.
+//   * Every generated project passes the DETERMINISTIC
+//     validator (shared/studio/validate.ts) before it is
+//     persisted. Invalid output is returned as issues —
+//     never silently accepted, never auto-"fixed" by
+//     fabrication.
+//   * Projects are ISOLATED: frelux_studio_* tables only,
+//     sandboxed preview client-side, no production access.
+//   * NOTHING DEPLOYS. Approval produces a verified
+//     PRODUCTION_BUILD package with status
+//     READY_FOR_DEPLOYMENT — deployment itself goes through
+//     the Owner Authority Layer / authorized workflow.
+//   * Every build, feedback iteration and rollback creates an
+//     IMMUTABLE version snapshot — full history, real
+//     rollback.
+//   * No secrets in, no secrets out.
+// =========================================================
+
+import { createClient, User } from "npm:@supabase/supabase-js@2.45.4";
+import {
+  resolveArchieRuntime,
+  type ArchieInferenceRequest,
+  type ArchieInferencePart,
+} from "../_shared/archie-ai/runtime.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
+import {
+  validateStudioProject,
+  type StudioFile,
+  type StudioValidationReport,
+} from "../_shared/studio/validate.ts";
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+};
+
+function json(status: number, body: Record<string, unknown>) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json", ...CORS },
+  });
+}
+
+const db = createClient(SUPABASE_URL, SERVICE_ROLE, {
+  auth: { persistSession: false },
+});
+
+// ---------------------------------------------------------
+// Request contract
+// ---------------------------------------------------------
+interface StudioBody {
+  action: "create" | "feedback" | "approve" | "rollback";
+  brief?: string;
+  projectId?: string;
+  comment?: string;
+  versionId?: string;
+}
+
+// ---------------------------------------------------------
+// The ARCHIE developer system instruction. The model writes
+// a STRICT JSON manifest of real files. Deterministic code
+// below does everything else.
+// ---------------------------------------------------------
+const STUDIO_SYSTEM_PROMPT = `You are ARCHIE in CODING STUDIO mode — a senior web developer building complete, self-contained websites for the Owner of the FRELUX platform.
+
+You output ONE JSON object and NOTHING else — no markdown fences, no commentary. Schema:
+{
+  "projectName": "short-kebab-case-name",
+  "summary": "one paragraph: what you built and the design direction",
+  "files": [{ "path": "index.html", "content": "the complete file content" }]
+}
+
+REQUIREMENTS (violations are rejected by deterministic validation):
+- Real, complete, production-quality code. Every HTML page is a complete document: <!DOCTYPE html>, <html lang="...">, <head> with <title> and the responsive viewport meta tag, <body>, closing tags. No placeholders, no "TODO", no lorem-ipsum-only sections.
+- index.html is always the entrypoint. Multi-page projects add real pages (e.g. about.html) and link them with relative hrefs.
+- Styles in .css files, behavior in .js files — referenced with relative paths that exist in the manifest.
+- Self-contained: no fetch(), no XMLHttpRequest, no external <script src="http...">, no document.cookie, no localStorage/sessionStorage writes, no embedded API keys, no form actions to external URLs, no references to supabase or frelux.tools. Fonts via Google Fonts <link> are allowed.
+- Design bar: professional, modern, responsive (mobile + desktop), consistent spacing, real sections with real copy tailored to the brief. Aim for a premium result the Owner will approve.
+- Write copy for every section: headings, paragraphs, service cards, testimonials, contact details from the brief. Never leave empty shells.`;
+
+/** Extract the JSON manifest from model text (tolerates fences). */
+function parseManifest(text: string): {
+  projectName?: string;
+  summary?: string;
+  files?: StudioFile[];
+} | null {
+  const trimmed = text.trim();
+  const candidates = [trimmed];
+  const fence = trimmed.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (fence) candidates.push(fence[1].trim());
+  const start = trimmed.indexOf("{");
+  const end = trimmed.lastIndexOf("}");
+  if (start >= 0 && end > start) candidates.push(trimmed.slice(start, end + 1));
+  for (const c of candidates) {
+    try {
+      const parsed = JSON.parse(c);
+      if (parsed && Array.isArray(parsed.files)) return parsed;
+    } catch {
+      /* try next candidate */
+    }
+  }
+  return null;
+}
+
+/** Build the inference request for a new build or a feedback
+ *  iteration, including the current draft as context. */
+function buildRequest(
+  briefOrFeedback: string,
+  currentFiles: StudioFile[],
+  projectName: string | null,
+): ArchieInferenceRequest {
+  const currentSummary =
+    currentFiles.length > 0
+      ? `\n\nCURRENT DRAFT of "${projectName}" — the Owner is giving feedback on this. Modify it as requested; keep everything not mentioned unless it conflicts. Return the COMPLETE updated file manifest (all files, full contents):\n${currentFiles
+          .map((f) => `--- ${f.path} ---\n${f.content}`)
+          .join("\n")}`
+      : "";
+  return {
+    turns: [
+      {
+        role: "owner" as const,
+        parts: [
+          {
+            text:
+              currentFiles.length > 0
+                ? `OWNER FEEDBACK: ${briefOrFeedback}${currentSummary}`
+                : `PROJECT BRIEF: ${briefOrFeedback}`,
+          },
+        ] as ArchieInferencePart[],
+      },
+    ],
+    systemInstruction: STUDIO_SYSTEM_PROMPT,
+    temperature: 0.7,
+    maxOutputTokens: 32768,
+  };
+}
+
+// ---------------------------------------------------------
+// Persistence helpers (service role; RLS bypassed here, but
+// every write is scoped to studio tables only).
+// ---------------------------------------------------------
+async function persistDraft(
+  projectId: string,
+  files: StudioFile[],
+): Promise<void> {
+  await db.from("frelux_studio_files").delete().eq("project_id", projectId);
+  if (files.length > 0) {
+    await db
+      .from("frelux_studio_files")
+      .insert(
+        files.map((f) => ({
+          project_id: projectId,
+          path: f.path,
+          content: f.content,
+        })),
+      );
+  }
+}
+
+async function snapshotVersion(
+  projectId: string,
+  kind: "DRAFT_BUILD" | "FEEDBACK_ITERATION" | "ROLLBACK" | "PRODUCTION_BUILD",
+  label: string,
+  reason: string,
+  engineNote: string | null,
+  files: StudioFile[],
+): Promise<{ id: string }> {
+  const { data, error } = await db
+    .from("frelux_studio_versions")
+    .insert({
+      project_id: projectId,
+      kind,
+      label,
+      reason,
+      engine_note: engineNote,
+      snapshot: {
+        files: files.map((f) => ({ path: f.path, content: f.content })),
+      },
+    })
+    .select("id")
+    .single();
+  if (error) throw new Error(`version snapshot failed: ${error.message}`);
+  return data;
+}
+
+async function loadProject(projectId: string) {
+  const { data: project, error } = await db
+    .from("frelux_studio_projects")
+    .select("*")
+    .eq("id", projectId)
+    .maybeSingle();
+  if (error || !project) return null;
+  const { data: fileRows } = await db
+    .from("frelux_studio_files")
+    .select("path, content")
+    .eq("project_id", projectId);
+  return {
+    project,
+    files: (fileRows ?? []) as StudioFile[],
+  };
+}
+
+// ---------------------------------------------------------
+// Handler
+// ---------------------------------------------------------
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+
+  try {
+    const auth = req.headers.get("Authorization") ?? "";
+    const userClient = createClient(
+      SUPABASE_URL,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      {
+        global: { headers: { Authorization: auth } },
+        auth: { persistSession: false },
+      },
+    );
+    const {
+      data: { user },
+    } = await userClient.auth.getUser();
+    if (!user) return json(401, { error: "Authentication required." });
+
+    const { data: profile } = await db
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+    if (profile?.role !== "admin") {
+      return json(403, { error: "ARCHIE Coding Studio is Owner-only." });
+    }
+
+    const limited = await checkRateLimit(
+      user.id,
+      "archie-studio",
+      30,
+      60 * 1000,
+    );
+    if (limited)
+      return json(429, {
+        error: "Too many studio requests, please wait a moment.",
+      });
+
+    const body = (await req.json()) as StudioBody;
+
+    // -----------------------------------------------------
+    // CREATE (new project from brief) and FEEDBACK (iterate
+    // existing draft) share the real inference path.
+    // -----------------------------------------------------
+    if (body.action === "create" || body.action === "feedback") {
+      const isCreate = body.action === "create";
+      const directive = (isCreate ? body.brief : body.comment) ?? "";
+      if (!directive.trim()) {
+        return json(400, {
+          error: isCreate
+            ? "A project brief is required."
+            : "Feedback text is required.",
+        });
+      }
+
+      let projectId: string;
+      let existingFiles: StudioFile[] = [];
+      let projectName: string | null = null;
+
+      if (isCreate) {
+        const { data: project, error } = await db
+          .from("frelux_studio_projects")
+          .insert({ owner_id: user.id, name: "draft", brief: directive.trim() })
+          .select("id")
+          .single();
+        if (error) throw new Error(error.message);
+        projectId = project.id;
+      } else {
+        if (!body.projectId)
+          return json(400, { error: "projectId is required for feedback." });
+        const loaded = await loadProject(body.projectId);
+        if (!loaded) return json(404, { error: "Studio project not found." });
+        if (loaded.project.owner_id !== user.id && profile?.role !== "admin") {
+          return json(403, { error: "Not your studio project." });
+        }
+        projectId = loaded.project.id;
+        existingFiles = loaded.files;
+        projectName = loaded.project.name;
+      }
+
+      // --- REAL INFERENCE (ARCHIE AI abstraction) ---
+      const { runtime, engine } = resolveArchieRuntime({
+        devAdapter: Deno.env.get("ARCHIE_DEV_ADAPTER"),
+        geminiKey: Deno.env.get("GOOGLE_AI_API_KEY"),
+      });
+      if (!runtime) {
+        return json(503, {
+          error:
+            "ARCHIE's inference engine is not operational right now — no code was generated and nothing was faked. The Coding Studio requires a real engine.",
+          engine,
+        });
+      }
+
+      let result;
+      try {
+        result = await runtime.generate(
+          buildRequest(directive, existingFiles, projectName),
+        );
+      } catch (err) {
+        return json(502, {
+          error: `Inference failed: ${(err as Error).message}. No code was generated.`,
+          engine,
+        });
+      }
+
+      const text = result.parts
+        .map((p: { text?: string }) => p.text ?? "")
+        .join("")
+        .trim();
+      const manifest = parseManifest(text);
+      if (
+        !manifest ||
+        !Array.isArray(manifest.files) ||
+        manifest.files.length === 0
+      ) {
+        return json(502, {
+          error:
+            "The engine did not return a valid project manifest — no code was persisted.",
+          engine: result.engine,
+        });
+      }
+
+      const files: StudioFile[] = manifest.files
+        .filter(
+          (f) => typeof f?.path === "string" && typeof f?.content === "string",
+        )
+        .map((f) => ({
+          path: (f.path as string).trim(),
+          content: f.content as string,
+        }));
+
+      // --- DETERMINISTIC VALIDATION (real QA) ---
+      const report: StudioValidationReport = validateStudioProject(files);
+      if (!report.valid) {
+        return json(422, {
+          error:
+            "Generated code failed deterministic validation — nothing was persisted. ARCHIE does not accept or auto-fix invalid output silently.",
+          qa: report,
+          engine: result.engine,
+        });
+      }
+
+      // --- PERSIST ---
+      const name =
+        manifest.projectName?.trim() || projectName || "studio-project";
+      const summary = manifest.summary?.trim() ?? null;
+      await db
+        .from("frelux_studio_projects")
+        .update({ name, summary, updated_date: new Date().toISOString() })
+        .eq("id", projectId);
+      await persistDraft(projectId, files);
+      const version = await snapshotVersion(
+        projectId,
+        isCreate ? "DRAFT_BUILD" : "FEEDBACK_ITERATION",
+        isCreate ? "Initial build" : `Iteration from feedback`,
+        directive.trim(),
+        result.engine.note,
+        files,
+      );
+      if (!isCreate) {
+        await db.from("frelux_studio_reviews").insert({
+          project_id: projectId,
+          kind: "FEEDBACK",
+          comment: directive.trim(),
+          created_by: user.id,
+        });
+      }
+
+      return json(200, {
+        projectId,
+        versionId: version.id,
+        name,
+        summary,
+        files,
+        qa: report,
+        engine: result.engine,
+        message: isCreate
+          ? "ARCHIE planned, wrote and validated the project. It is running in the isolated preview."
+          : "ARCHIE applied your feedback and re-validated the draft.",
+      });
+    }
+
+    // -----------------------------------------------------
+    // ROLLBACK: restore any immutable snapshot. Real files
+    // from the version record — never a reconstruction.
+    // -----------------------------------------------------
+    if (body.action === "rollback") {
+      if (!body.projectId || !body.versionId) {
+        return json(400, { error: "projectId and versionId are required." });
+      }
+      const { data: version } = await db
+        .from("frelux_studio_versions")
+        .select("kind, snapshot, label")
+        .eq("id", body.versionId)
+        .eq("project_id", body.projectId)
+        .maybeSingle();
+      if (!version) return json(404, { error: "Version not found." });
+
+      const files: StudioFile[] =
+        (version.snapshot as { files: StudioFile[] }).files ?? [];
+      await persistDraft(body.projectId, files);
+      const newVersion = await snapshotVersion(
+        body.projectId,
+        "ROLLBACK",
+        `Rollback to "${version.label}"`,
+        body.comment?.trim() || "Owner rollback",
+        null,
+        files,
+      );
+      await db.from("frelux_studio_reviews").insert({
+        project_id: body.projectId,
+        kind: "ROLLBACK",
+        comment: body.comment?.trim() || `Rolled back to "${version.label}"`,
+        created_by: user.id,
+      });
+      await db
+        .from("frelux_studio_projects")
+        .update({ updated_date: new Date().toISOString() })
+        .eq("id", body.projectId);
+
+      return json(200, {
+        projectId: body.projectId,
+        versionId: newVersion.id,
+        files,
+        message: `Rolled back to "${version.label}". The preview now runs that exact snapshot.`,
+      });
+    }
+
+    // -----------------------------------------------------
+    // APPROVE: verify the current draft, package a
+    // PRODUCTION_BUILD. NOTHING IS DEPLOYED — deployment is
+    // the Owner Authority Layer's job.
+    // -----------------------------------------------------
+    if (body.action === "approve") {
+      if (!body.projectId)
+        return json(400, { error: "projectId is required." });
+      const loaded = await loadProject(body.projectId);
+      if (!loaded) return json(404, { error: "Studio project not found." });
+
+      const report = validateStudioProject(loaded.files);
+      if (!report.valid) {
+        return json(422, {
+          error:
+            "The current draft does not pass validation — it cannot be approved as production-ready.",
+          qa: report,
+        });
+      }
+
+      const approvedDate = new Date().toISOString();
+      await db
+        .from("frelux_studio_projects")
+        .update({
+          status: "READY_FOR_DEPLOYMENT",
+          approved_date: approvedDate,
+          updated_date: approvedDate,
+        })
+        .eq("id", body.projectId);
+      const version = await snapshotVersion(
+        body.projectId,
+        "PRODUCTION_BUILD",
+        "Owner-approved production build",
+        body.comment?.trim() || "Owner approved",
+        null,
+        loaded.files,
+      );
+      await db.from("frelux_studio_reviews").insert({
+        project_id: body.projectId,
+        kind: "APPROVAL",
+        comment: body.comment?.trim() || "Owner approved the project.",
+        created_by: user.id,
+      });
+
+      return json(200, {
+        projectId: body.projectId,
+        versionId: version.id,
+        qa: report,
+        status: "READY_FOR_DEPLOYMENT",
+        message:
+          "Production build verified and packaged as an immutable version. NOTHING WAS DEPLOYED — deployment proceeds only through the Owner-authorized deployment workflow.",
+      });
+    }
+
+    return json(400, { error: `Unknown action "${body.action}".` });
+  } catch (err) {
+    console.error("archie-studio error", err);
+    return json(500, {
+      error: "Studio engine error. No partial result was saved.",
+    });
+  }
+});

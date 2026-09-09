@@ -34,6 +34,9 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "@studio-shared": fileURLToPath(
+        new URL("./supabase/functions/_shared", import.meta.url),
+      ),
     },
   },
   build: {
@@ -47,7 +50,11 @@ export default defineConfig({
         // Vendor chunk splitting for better caching
         manualChunks(id) {
           if (!id.includes("node_modules")) return;
-          if (id.includes("react-router-dom") || id.includes("/react-dom/") || id.includes("/react/")) {
+          if (
+            id.includes("react-router-dom") ||
+            id.includes("/react-dom/") ||
+            id.includes("/react/")
+          ) {
             return "react-vendor";
           }
           if (id.includes("@supabase")) {

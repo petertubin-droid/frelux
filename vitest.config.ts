@@ -38,6 +38,10 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname_new, "./src"),
+      "@studio-shared": path.resolve(
+        __dirname_new,
+        "./supabase/functions/_shared",
+      ),
     },
   },
 });

@@ -31,7 +31,8 @@ export type CoreSystemKey =
   | "CRYPTO_INTELLIGENCE"
   | "FOUNDATION_KNOWLEDGE"
   | "COST_GOVERNANCE"
-  | "ENGINEERING_OBJECTIVE";
+  | "ENGINEERING_OBJECTIVE"
+  | "STUDIO";
 
 export interface CoreSystemBinding {
   key: CoreSystemKey;
@@ -256,6 +257,20 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
     deterministic: false,
     autonomy: "ARCHIE_AUTONOMOUS",
     note: "Phase 8 P5: owner-only research/analysis domain. Financial execution is structurally impossible (FORBIDDEN_FINANCIAL_ACTIONS); predictions never guaranteed; owner-private data.",
+  },
+  {
+    key: "STUDIO",
+    label: "ARCHIE Coding Studio",
+    family: "ARCHIE engineering workspace",
+    module: "@/lib/studio/preview",
+    exports: ["composePreview"],
+    deterministic: true,
+    autonomy: "ARCHIE_AUTONOMOUS",
+    note:
+      "Isolated owner-only workspace: ARCHIE plans, writes REAL code, " +
+      "validates it deterministically, runs it in a sandboxed live preview " +
+      "and iterates on Owner feedback with immutable versions. Approval " +
+      "packages a verified build; deployment stays owner-authorized.",
   },
   {
     key: "ENGINEERING_OBJECTIVE",
