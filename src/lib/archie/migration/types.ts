@@ -48,6 +48,7 @@ export type MigrationPhase =
   | "VERIFYING"
   | "READY"
   | "EXPORTING"
+  | "IMPORTING"
   | "COMPLETE"
   | "FAILED"
   | "CANCELLED";
@@ -166,12 +167,15 @@ export interface MigrationHistoryRecord {
   sourceEnvironment: string;
   destinationEnvironment: string;
   archieVersion: string;
-  ownerAuthorized: boolean;
+  /** id of the owner-authorization record that approved the operation. */
+  ownerAuthorizationRecordId: string | null;
   createdAt: string;
-  packageVerified: boolean | null;
-  restoreResult: string | null;
-  componentsRestored: string[];
+  /** Lifecycle events appended during the operation (append-only audit). */
+  events: string[];
+  componentsIncluded: string[];
   componentsExcluded: string[];
+  verificationResult: string | null;
+  restorationResult: string | null;
   errors: string[];
 }
 
@@ -185,7 +189,8 @@ export interface PackageVerificationResult {
 }
 
 /** Memory handling choice at restore time (spec §17). */
-export type RestoreMemoryMode = "KEEP_EXISTING_MEMORY" | "RESTORE_PORTABLE_SNAPSHOT";
+export type RestoreMemoryMode =
+  "KEEP_EXISTING_MEMORY" | "RESTORE_PORTABLE_SNAPSHOT";
 
 /** One planned restoration step. */
 export interface RestoreStep {

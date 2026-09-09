@@ -32,7 +32,10 @@ import {
   verifyPackage,
   type UnzippedPackage,
 } from "@/lib/archie/migration/verify";
-import { buildRestorePlan, executeRestore } from "@/lib/archie/migration/restore";
+import {
+  buildRestorePlan,
+  executeRestore,
+} from "@/lib/archie/migration/restore";
 import {
   fetchMigrationHistory,
   recordMigration,
@@ -59,9 +62,14 @@ interface SizeCounts {
   evolutionLessons: number | null;
 }
 
-async function countRows(supabase: NonNullable<Awaited<ReturnType<typeof getSupabase>>>, table: string): Promise<number | null> {
+async function countRows(
+  supabase: NonNullable<Awaited<ReturnType<typeof getSupabase>>>,
+  table: string,
+): Promise<number | null> {
   try {
-    const { count } = await supabase.from(table).select("*", { count: "exact", head: true });
+    const { count } = await supabase
+      .from(table)
+      .select("*", { count: "exact", head: true });
     return count;
   } catch {
     return null;
@@ -74,8 +82,12 @@ export default function ArchieMigration() {
   const [environmentLabel, setEnvironmentLabel] = useState<string>("…");
   const [projectRef, setProjectRef] = useState<string>("");
   const [sizes, setSizes] = useState<SizeCounts>({
-    conversations: null, knowledge: null, languageProfiles: null,
-    languageEntries: null, evolutionChanges: null, evolutionLessons: null,
+    conversations: null,
+    knowledge: null,
+    languageProfiles: null,
+    languageEntries: null,
+    evolutionChanges: null,
+    evolutionLessons: null,
   });
   const [history, setHistory] = useState<MigrationHistoryRecord[]>([]);
   const [lastBackup, setLastBackup] = useState<string | null>(null);
@@ -83,7 +95,10 @@ export default function ArchieMigration() {
 
   const [progress, setProgress] = useState<MigrationProgress | null>(null);
   const cancelRef = useRef(false);
-  const [message, setMessage] = useState<{ kind: "info" | "error" | "success"; text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    kind: "info" | "error" | "success";
+    text: string;
+  } | null>(null);
   const [capability] = useState(exportCapability());
 
   // Owner-authorization dialog state
@@ -95,9 +110,12 @@ export default function ArchieMigration() {
   } | null>(null);
 
   // Restore flow state
-  const [verification, setVerification] = useState<PackageVerificationResult | null>(null);
+  const [verification, setVerification] =
+    useState<PackageVerificationResult | null>(null);
   const [unzipped, setUnzipped] = useState<UnzippedPackage | null>(null);
-  const [restoreMode, setRestoreMode] = useState<RestoreMemoryMode>("KEEP_EXISTING_MEMORY");
+  const [restoreMode, setRestoreMode] = useState<RestoreMemoryMode>(
+    "KEEP_EXISTING_MEMORY",
+  );
   const [plan, setPlan] = useState<RestorePlan | null>(null);
 
   const load = useCallback(async () => {
@@ -106,13 +124,20 @@ export default function ArchieMigration() {
       setAppVersion(
         (import.meta.env.VITE_APP_VERSION as string | undefined) ?? "dev",
       );
-      const ref = supabase.supabaseUrl.replace(/^https:\/\//, "").split(".")[0];
-      setProjectRef(ref);
+      // SupabaseClient#supabaseUrl is protected in supabase-js v2 —
+      // derive the project ref from the same env var the client uses.
+      const url =
+        (import.meta.env.VITE_SUPABASE_URL as string | undefined) ?? "";
+      setProjectRef(url.replace(/^https:\/\//, "").split(".")[0]);
       const installation = await getOrCreateInstallation(supabase);
       setEnvironmentLabel(installation.environmentLabel);
       const [
-        conversations, knowledge, languageProfiles, languageEntries,
-        evolutionChanges, evolutionLessons,
+        conversations,
+        knowledge,
+        languageProfiles,
+        languageEntries,
+        evolutionChanges,
+        evolutionLessons,
       ] = await Promise.all([
         countRows(supabase, "frelux_archie_conversations"),
         countRows(supabase, "frelux_knowledge_items"),
@@ -121,17 +146,29 @@ export default function ArchieMigration() {
         countRows(supabase, "archie_change_requests"),
         countRows(supabase, "archie_evolution_memory"),
       ]);
-      setSizes({ conversations, knowledge, languageProfiles, languageEntries, evolutionChanges, evolutionLessons });
+      setSizes({
+        conversations,
+        knowledge,
+        languageProfiles,
+        languageEntries,
+        evolutionChanges,
+        evolutionLessons,
+      });
       const h = await fetchMigrationHistory(supabase, 50);
       setHistory(h);
       setLastBackup(
-        h.find((r) => r.mode === "BACKUP" && r.status === "EXPORTED")?.createdAt ?? null,
+        h.find((r) => r.mode === "BACKUP" && r.status === "EXPORTED")
+          ?.createdAt ?? null,
       );
       setLastMigration(
-        h.find((r) => r.mode === "MIGRATE" && r.status === "EXPORTED")?.createdAt ?? null,
+        h.find((r) => r.mode === "MIGRATE" && r.status === "EXPORTED")
+          ?.createdAt ?? null,
       );
     } catch (err) {
-      setMessage({ kind: "error", text: getSafeError(err, "Could not load migration status.") });
+      setMessage({
+        kind: "error",
+        text: getSafeError(err, "Could not load migration status."),
+      });
     }
   }, []);
 
@@ -147,11 +184,12 @@ export default function ArchieMigration() {
   async function confirmExport(): Promise<void> {
     const dialog = authDialog;
     if (!dialog) return;
+    if (dialog.op === "RESTORE") return; // restore is dispatched to confirmRestore
     setAuthDialog({ ...dialog, busy: true });
     cancelRef.current = false;
     try {
       const supabase = await getSupabase();
-      const mode = dialog.op;
+      const mode: "BACKUP" | "MIGRATE" = dialog.op;
 
       // ---- Owner authorization gate (spec §8) ----
       const auth = await authorizeOwnerChange({
@@ -166,8 +204,15 @@ export default function ArchieMigration() {
       });
       if (!auth.ok || !auth.authorization) {
         setAuthDialog(null);
-        setMessage({ kind: "error", text: auth.error ?? "Owner authorization failed." });
-        setProgress({ phase: "FAILED", fraction: null, detail: "Owner authorization failed." });
+        setMessage({
+          kind: "error",
+          text: auth.error ?? "Owner authorization failed.",
+        });
+        setProgress({
+          phase: "FAILED",
+          fraction: null,
+          detail: "Owner authorization failed.",
+        });
         return;
       }
 
@@ -181,7 +226,12 @@ export default function ArchieMigration() {
         isCancelled: () => cancelRef.current,
       });
 
-      const exported = await exportPackage(built.pkg, built.checksumsJson, built.filename, setProgress);
+      const exported = await exportPackage(
+        built.pkg,
+        built.checksumsJson,
+        built.filename,
+        setProgress,
+      );
       await recordMigration({
         supabase,
         packageId: built.pkg.manifest.packageId,
@@ -197,7 +247,9 @@ export default function ArchieMigration() {
         events: ["CREATED", "VERIFIED", "EXPORTED"],
         verificationResult: "verified",
         componentsIncluded: built.pkg.manifest.includedComponents,
-        componentsExcluded: built.pkg.manifest.excludedComponents.map((e) => e.id),
+        componentsExcluded: built.pkg.manifest.excludedComponents.map(
+          (e) => e.id,
+        ),
         errors: [],
       }).catch(() => undefined);
       await load();
@@ -207,14 +259,21 @@ export default function ArchieMigration() {
       });
     } catch (err) {
       const text = getSafeError(err, "Export failed.");
-      setProgress({ phase: /cancel/i.test(text) ? "CANCELLED" : "FAILED", fraction: null, detail: text });
+      setProgress({
+        phase: /cancel/i.test(text) ? "CANCELLED" : "FAILED",
+        fraction: null,
+        detail: text,
+      });
       setMessage({ kind: "error", text });
       const supabase = await getSupabase().catch(() => null);
       if (supabase) {
         await recordMigration({
-          supabase, packageId: "unknown", mode: dialog.op,
+          supabase,
+          packageId: "unknown",
+          mode: dialog.op,
           status: /cancel/i.test(text) ? "CANCELLED" : "FAILED",
-          sourceEnvironment: environmentLabel, destinationEnvironment: "—",
+          sourceEnvironment: environmentLabel,
+          destinationEnvironment: "—",
           archieVersion: ARCHIE_VERSION,
           ownerAuthorizationRecordId: null,
           events: [/cancel/i.test(text) ? "CANCELLED" : "FAILED"],
@@ -240,19 +299,30 @@ export default function ArchieMigration() {
       setVerification(result);
       if (!result.ok) {
         // spec §7: STOP — tell the owner exactly why.
-        setProgress({ phase: "FAILED", fraction: null, detail: "Package failed verification." });
+        setProgress({
+          phase: "FAILED",
+          fraction: null,
+          detail: "Package failed verification.",
+        });
         return;
       }
       const parsed = unzipPackage(zipBytes);
       setUnzipped(parsed);
       if (forRestore) {
         setRestoreMode("KEEP_EXISTING_MEMORY");
-        setPlan(buildRestorePlan({ unzipped: parsed, memoryMode: "KEEP_EXISTING_MEMORY" }));
+        setPlan(
+          buildRestorePlan({
+            unzipped: parsed,
+            memoryMode: "KEEP_EXISTING_MEMORY",
+          }),
+        );
       }
     } catch (err) {
       setVerification({
-        ok: false, manifest: null,
-        errors: [getSafeError(err, "Package could not be read.")], warnings: [],
+        ok: false,
+        manifest: null,
+        errors: [getSafeError(err, "Package could not be read.")],
+        warnings: [],
       });
     }
   }
@@ -276,10 +346,17 @@ export default function ArchieMigration() {
       });
       if (!auth.ok) {
         setAuthDialog(null);
-        setMessage({ kind: "error", text: auth.error ?? "Owner authorization failed." });
+        setMessage({
+          kind: "error",
+          text: auth.error ?? "Owner authorization failed.",
+        });
         return;
       }
-      setProgress({ phase: "IMPORTING", fraction: null, detail: "Restoring portable state…" });
+      setProgress({
+        phase: "IMPORTING",
+        fraction: null,
+        detail: "Restoring portable state…",
+      });
       const outcome = await executeRestore(
         { supabase, unzipped, verificationOk: true, memoryMode: restoreMode },
         plan,
@@ -294,7 +371,9 @@ export default function ArchieMigration() {
         destinationEnvironment: environmentLabel,
         archieVersion: unzipped.manifest.archieVersion,
         ownerAuthorizationRecordId: auth.authorization?.id ?? null,
-        events: outcome.ok ? ["IMPORTING", "RESTORED"] : ["IMPORTING", "FAILED"],
+        events: outcome.ok
+          ? ["IMPORTING", "RESTORED"]
+          : ["IMPORTING", "FAILED"],
         verificationResult: "verified",
         restorationResult: outcome.ok
           ? `restored ${outcome.restoredTables.map((t) => `${t.table}:${t.count}`).join(", ")}`
@@ -306,8 +385,17 @@ export default function ArchieMigration() {
       await load();
       setProgress(
         outcome.ok
-          ? { phase: "COMPLETE", fraction: 1, detail: "Restore complete. This environment is registered as PENDING OWNER APPROVAL — approve it from Devices." }
-          : { phase: "FAILED", fraction: null, detail: `Restore stopped: ${outcome.failedTables[0]?.error ?? "unknown error"}. Existing data was NOT destroyed (upsert-merge only).` },
+          ? {
+              phase: "COMPLETE",
+              fraction: 1,
+              detail:
+                "Restore complete. This environment is registered as PENDING OWNER APPROVAL — approve it from Devices.",
+            }
+          : {
+              phase: "FAILED",
+              fraction: null,
+              detail: `Restore stopped: ${outcome.failedTables[0]?.error ?? "unknown error"}. Existing data was NOT destroyed (upsert-merge only).`,
+            },
       );
     } catch (err) {
       const text = getSafeError(err, "Restore failed.");
@@ -318,13 +406,24 @@ export default function ArchieMigration() {
     }
   }
 
-  const busy = progress !== null && ["PREPARING", "COLLECTING", "PACKAGING", "VERIFYING", "EXPORTING", "IMPORTING"].includes(progress.phase);
+  const busy =
+    progress !== null &&
+    [
+      "PREPARING",
+      "COLLECTING",
+      "PACKAGING",
+      "VERIFYING",
+      "EXPORTING",
+      "IMPORTING",
+    ].includes(progress.phase);
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-4 md:py-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold text-slate-100">Migration Center</h1>
+          <h1 className="text-lg font-semibold text-slate-100">
+            Migration Center
+          </h1>
           <p className="text-xs text-slate-400">
             ARCHIE portable continuity — backup, migrate, verify, restore.
           </p>
@@ -394,12 +493,36 @@ export default function ArchieMigration() {
           <Stat label="ARCHIE version" value={ARCHIE_VERSION} />
           <Stat label="FRELUX version" value={appVersion} />
           <Stat label="Environment" value={environmentLabel} />
-          <Stat label="Memory (conversations / knowledge)" value={`${sizes.conversations ?? "?"} / ${sizes.knowledge ?? "?"}`} />
-          <Stat label="Language memory (profiles / entries)" value={`${sizes.languageProfiles ?? "?"} / ${sizes.languageEntries ?? "?"}`} />
-          <Stat label="Evolution (changes / lessons)" value={`${sizes.evolutionChanges ?? "?"} / ${sizes.evolutionLessons ?? "?"}`} />
-          <Stat label="Last backup" value={lastBackup ? new Date(lastBackup).toLocaleString() : "none yet"} />
-          <Stat label="Last migration package" value={lastMigration ? new Date(lastMigration).toLocaleString() : "none yet"} />
-          <Stat label="Compatibility" value={`format v${MIGRATION_COMPATIBILITY_VERSION} (supports ≤ v${SUPPORTED_COMPATIBILITY_VERSION})`} />
+          <Stat
+            label="Memory (conversations / knowledge)"
+            value={`${sizes.conversations ?? "?"} / ${sizes.knowledge ?? "?"}`}
+          />
+          <Stat
+            label="Language memory (profiles / entries)"
+            value={`${sizes.languageProfiles ?? "?"} / ${sizes.languageEntries ?? "?"}`}
+          />
+          <Stat
+            label="Evolution (changes / lessons)"
+            value={`${sizes.evolutionChanges ?? "?"} / ${sizes.evolutionLessons ?? "?"}`}
+          />
+          <Stat
+            label="Last backup"
+            value={
+              lastBackup ? new Date(lastBackup).toLocaleString() : "none yet"
+            }
+          />
+          <Stat
+            label="Last migration package"
+            value={
+              lastMigration
+                ? new Date(lastMigration).toLocaleString()
+                : "none yet"
+            }
+          />
+          <Stat
+            label="Compatibility"
+            value={`format v${MIGRATION_COMPATIBILITY_VERSION} (supports ≤ v${SUPPORTED_COMPATIBILITY_VERSION})`}
+          />
         </div>
       )}
 
@@ -425,16 +548,27 @@ export default function ArchieMigration() {
                 </tr>
               )}
               {history.map((h) => (
-                <tr key={h.id} className="border-t border-white/5 text-slate-300">
-                  <td className="p-2 whitespace-nowrap">{new Date(h.createdAt).toLocaleString()}</td>
+                <tr
+                  key={h.id}
+                  className="border-t border-white/5 text-slate-300"
+                >
+                  <td className="p-2 whitespace-nowrap">
+                    {new Date(h.createdAt).toLocaleString()}
+                  </td>
                   <td className="p-2">{h.mode}</td>
                   <td className="p-2">{h.status}</td>
-                  <td className="p-2 font-mono text-[10px]">{h.packageId.slice(0, 8)}</td>
+                  <td className="p-2 font-mono text-[10px]">
+                    {h.packageId.slice(0, 8)}
+                  </td>
                   <td className="p-2">{h.destinationEnvironment}</td>
                   <td className="p-2">
                     {h.errors.length > 0
                       ? h.errors[0]
-                      : h.restoreResult ?? (h.ownerAuthorized ? "owner authorized" : "—")}
+                      : (h.restorationResult ??
+                        h.verificationResult ??
+                        (h.ownerAuthorizationRecordId
+                          ? "owner authorized"
+                          : "—"))}
                   </td>
                 </tr>
               ))}
@@ -467,9 +601,12 @@ export default function ArchieMigration() {
 
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
-              <p className="text-sm font-medium text-slate-100">Verify a package</p>
+              <p className="text-sm font-medium text-slate-100">
+                Verify a package
+              </p>
               <p className="mt-1 text-xs text-slate-400">
-                Check any ARCHIE package file for integrity, compatibility and secrets — without restoring anything.
+                Check any ARCHIE package file for integrity, compatibility and
+                secrets — without restoring anything.
               </p>
               <label className="mt-2 inline-block cursor-pointer rounded bg-white/10 px-3 py-1.5 text-xs text-slate-100 hover:bg-white/15">
                 Choose package file…
@@ -486,9 +623,12 @@ export default function ArchieMigration() {
               </label>
             </div>
             <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
-              <p className="text-sm font-medium text-slate-100">Restore ARCHIE</p>
+              <p className="text-sm font-medium text-slate-100">
+                Restore ARCHIE
+              </p>
               <p className="mt-1 text-xs text-slate-400">
-                Verified, owner-authorized restore of portable state. Existing data is never deleted (upsert-merge only).
+                Verified, owner-authorized restore of portable state. Existing
+                data is never deleted (upsert-merge only).
               </p>
               <label className="mt-2 inline-block cursor-pointer rounded bg-white/10 px-3 py-1.5 text-xs text-slate-100 hover:bg-white/15">
                 Choose package to restore…
@@ -537,7 +677,12 @@ export default function ArchieMigration() {
                 <button
                   onClick={() => {
                     setRestoreMode("KEEP_EXISTING_MEMORY");
-                    setPlan(buildRestorePlan({ unzipped, memoryMode: "KEEP_EXISTING_MEMORY" }));
+                    setPlan(
+                      buildRestorePlan({
+                        unzipped,
+                        memoryMode: "KEEP_EXISTING_MEMORY",
+                      }),
+                    );
                   }}
                   className={`rounded-full px-3 py-1 ${restoreMode === "KEEP_EXISTING_MEMORY" ? "bg-emerald-400/20 text-emerald-300" : "bg-white/10 text-slate-300"}`}
                 >
@@ -546,7 +691,12 @@ export default function ArchieMigration() {
                 <button
                   onClick={() => {
                     setRestoreMode("RESTORE_PORTABLE_SNAPSHOT");
-                    setPlan(buildRestorePlan({ unzipped, memoryMode: "RESTORE_PORTABLE_SNAPSHOT" }));
+                    setPlan(
+                      buildRestorePlan({
+                        unzipped,
+                        memoryMode: "RESTORE_PORTABLE_SNAPSHOT",
+                      }),
+                    );
                   }}
                   className={`rounded-full px-3 py-1 ${restoreMode === "RESTORE_PORTABLE_SNAPSHOT" ? "bg-amber-400/20 text-amber-300" : "bg-white/10 text-slate-300"}`}
                 >
@@ -566,7 +716,14 @@ export default function ArchieMigration() {
               {plan.steps.length > 0 && (
                 <button
                   disabled={busy}
-                  onClick={() => setAuthDialog({ op: "RESTORE", secret: "", reviewed: false, busy: false })}
+                  onClick={() =>
+                    setAuthDialog({
+                      op: "RESTORE",
+                      secret: "",
+                      reviewed: false,
+                      busy: false,
+                    })
+                  }
                   className="mt-3 rounded-lg bg-amber-400/90 px-4 py-2 text-sm font-medium text-slate-900 hover:bg-amber-300 disabled:opacity-40"
                 >
                   Authorize and restore
@@ -592,7 +749,9 @@ export default function ArchieMigration() {
               type="password"
               autoFocus
               value={authDialog.secret}
-              onChange={(e) => setAuthDialog({ ...authDialog, secret: e.target.value })}
+              onChange={(e) =>
+                setAuthDialog({ ...authDialog, secret: e.target.value })
+              }
               className="mt-3 w-full rounded border border-white/15 bg-slate-800 px-3 py-2 text-sm text-slate-100"
               placeholder="Owner secret"
               autoComplete="off"
@@ -601,10 +760,14 @@ export default function ArchieMigration() {
               <input
                 type="checkbox"
                 checked={authDialog.reviewed}
-                onChange={(e) => setAuthDialog({ ...authDialog, reviewed: e.target.checked })}
+                onChange={(e) =>
+                  setAuthDialog({ ...authDialog, reviewed: e.target.checked })
+                }
                 className="mt-0.5"
               />
-              I have reviewed what this operation packages/restores, and I understand a migration package never contains secrets or owner authority.
+              I have reviewed what this operation packages/restores, and I
+              understand a migration package never contains secrets or owner
+              authority.
             </label>
             <div className="mt-3 flex justify-end gap-2">
               <button
@@ -614,7 +777,11 @@ export default function ArchieMigration() {
                 Cancel
               </button>
               <button
-                disabled={authDialog.busy || authDialog.secret.length < 12 || !authDialog.reviewed}
+                disabled={
+                  authDialog.busy ||
+                  authDialog.secret.length < 12 ||
+                  !authDialog.reviewed
+                }
                 onClick={() => {
                   if (authDialog.op === "RESTORE") void confirmRestore();
                   else void confirmExport();
@@ -634,14 +801,19 @@ export default function ArchieMigration() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
-      <p className="text-[10px] uppercase tracking-wide text-slate-500">{label}</p>
+      <p className="text-[10px] uppercase tracking-wide text-slate-500">
+        {label}
+      </p>
       <p className="mt-1 truncate text-sm text-slate-100">{value}</p>
     </div>
   );
 }
 
 function ActionCard({
-  title, description, onClick, disabled,
+  title,
+  description,
+  onClick,
+  disabled,
 }: {
   title: string;
   description: string;

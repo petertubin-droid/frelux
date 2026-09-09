@@ -11,7 +11,11 @@
 // =========================================================
 
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { MigrationHistoryRecord, MigrationMode, MigrationStatus } from "./types";
+import type {
+  MigrationHistoryRecord,
+  MigrationMode,
+  MigrationStatus,
+} from "./types";
 
 export interface RecordMigrationInput {
   supabase: SupabaseClient;
@@ -21,10 +25,13 @@ export interface RecordMigrationInput {
   sourceEnvironment: string;
   destinationEnvironment: string;
   archieVersion: string;
-  ownerAuthorized: boolean;
-  packageVerified: boolean | null;
-  restoreResult?: string | null;
-  componentsRestored?: string[];
+  /** id of the owner-authorization record approving the operation. */
+  ownerAuthorizationRecordId: string | null;
+  /** Lifecycle events appended during the operation. */
+  events?: string[];
+  verificationResult?: string | null;
+  restorationResult?: string | null;
+  componentsIncluded?: string[];
   componentsExcluded?: string[];
   errors?: string[];
 }
@@ -43,10 +50,11 @@ export async function recordMigration(
       source_environment: input.sourceEnvironment,
       destination_environment: input.destinationEnvironment,
       archie_version: input.archieVersion,
-      owner_authorized: input.ownerAuthorized,
-      package_verified: input.packageVerified,
-      restore_result: input.restoreResult ?? null,
-      components_restored: input.componentsRestored ?? [],
+      owner_authorization_record_id: input.ownerAuthorizationRecordId,
+      events: input.events ?? [],
+      verification_result: input.verificationResult ?? null,
+      restoration_result: input.restorationResult ?? null,
+      components_included: input.componentsIncluded ?? [],
       components_excluded: input.componentsExcluded ?? [],
       errors: input.errors ?? [],
     })
@@ -74,7 +82,9 @@ export async function fetchMigrationHistory(
   return (data ?? []).map(rowToRecord);
 }
 
-export function rowToRecord(row: Record<string, unknown>): MigrationHistoryRecord {
+export function rowToRecord(
+  row: Record<string, unknown>,
+): MigrationHistoryRecord {
   return {
     id: row.id as string,
     packageId: row.package_id as string,
@@ -83,12 +93,16 @@ export function rowToRecord(row: Record<string, unknown>): MigrationHistoryRecor
     sourceEnvironment: row.source_environment as string,
     destinationEnvironment: row.destination_environment as string,
     archieVersion: row.archie_version as string,
-    ownerAuthorized: row.owner_authorized as boolean,
-    createdAt: (row.created_at ?? row.created_date ?? new Date().toISOString()) as string,
-    packageVerified: row.package_verified as boolean | null,
-    restoreResult: row.restore_result as string | null,
-    componentsRestored: (row.components_restored as string[]) ?? [],
+    ownerAuthorizationRecordId:
+      (row.owner_authorization_record_id as string | null) ?? null,
+    createdAt: (row.created_at ??
+      row.created_date ??
+      new Date().toISOString()) as string,
+    events: (row.events as string[]) ?? [],
+    componentsIncluded: (row.components_included as string[]) ?? [],
     componentsExcluded: (row.components_excluded as string[]) ?? [],
+    verificationResult: (row.verification_result as string | null) ?? null,
+    restorationResult: (row.restoration_result as string | null) ?? null,
     errors: (row.errors as string[]) ?? [],
   };
 }

@@ -12,9 +12,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { sha256Hex, verifyFile } from "../checksums";
 import { scanFilesForSecrets, secretsTemplate } from "../secrets";
-import { buildMigrationPackage, unzipComponentFiles, ARCHIE_VERSION } from "../package-builder";
-import { unzipPackage, verifyPackage, SUPPORTED_COMPATIBILITY_VERSION } from "../verify";
-import { buildRestorePlan, executeRestore, RESTORE_TABLE_ALLOWLIST } from "../restore";
+import {
+  buildMigrationPackage,
+  unzipComponentFiles,
+  ARCHIE_VERSION,
+} from "../package-builder";
+import {
+  unzipPackage,
+  verifyPackage,
+  SUPPORTED_COMPATIBILITY_VERSION,
+} from "../verify";
+import {
+  buildRestorePlan,
+  executeRestore,
+  RESTORE_TABLE_ALLOWLIST,
+} from "../restore";
 import type { PackageFile } from "../types";
 
 // ---------------------------------------------------------
@@ -38,7 +50,10 @@ function makeClient() {
       const matching = () =>
         rows().filter((r) => eqs.every(([col, val]) => r[col] === val));
       const c: Record<string, unknown> = {};
-      c.select = (_cols?: string, opts?: { count?: string; head?: boolean }) => {
+      c.select = (
+        _cols?: string,
+        opts?: { count?: string; head?: boolean },
+      ) => {
         countExact = opts?.count === "exact";
         const req = {
           eq: (col: string, val: unknown) => {
@@ -63,7 +78,9 @@ function makeClient() {
             return Promise.resolve({ data: apply(), error: null });
           },
           range: (from: number, to: number) => {
-            const list = apply();
+            // range() in supabase-js is a paginated LIST fetch — the
+            // in-memory mock returns the filtered array, never a single row.
+            const list = apply() as Row[];
             return Promise.resolve({
               data: list.slice(from, to + 1),
               error: null,
@@ -86,7 +103,11 @@ function makeClient() {
         };
         if (countExact) {
           // count queries (head: true) — return count metadata
-          return Promise.resolve({ data: null, count: matching().length, error: null });
+          return Promise.resolve({
+            data: null,
+            count: matching().length,
+            error: null,
+          });
         }
         return req;
       };
@@ -154,8 +175,15 @@ describe("checksums", () => {
 describe("secret scanning", () => {
   it("detects real secrets", () => {
     const hits = scanFilesForSecrets([
-      { path: "config/x.env", content: "AI_PROVIDER_API_KEY=sk-proj-abc123def456ghi789xyz000" },
-      { path: "db/k.json", content: "service key eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjzgJJmqW1aXgqFSG8ZUiUiUiUiUiUiUiUiUiU" },
+      {
+        path: "config/x.env",
+        content: "AI_PROVIDER_API_KEY=sk-proj-abc123def456ghi789xyz000",
+      },
+      {
+        path: "db/k.json",
+        content:
+          "service key eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjzgJJmqW1aXgqFSG8ZUiUiUiUiUiUiUiUiUiU",
+      },
       { path: "pem", content: "-----BEGIN RSA PRIVATE KEY-----" },
     ]);
     expect(hits.length).toBeGreaterThanOrEqual(3);
@@ -194,21 +222,48 @@ describe("migration package lifecycle", () => {
 
     // realistic seed data
     tables.archie_language_profiles = [
-      { id: "p1", language: "Yoruba", confidence: 0.9, validation_state: "validated" },
+      {
+        id: "p1",
+        language: "Yoruba",
+        confidence: 0.9,
+        validation_state: "validated",
+      },
     ];
     tables.archie_language_entries = [
-      { id: "e1", profile_id: "p1", term: "ile", meaning: "house", confidence: 0.95 },
-      { id: "e2", profile_id: "p1", term: "omi", meaning: "water", confidence: 0.9 },
+      {
+        id: "e1",
+        profile_id: "p1",
+        term: "ile",
+        meaning: "house",
+        confidence: 0.95,
+      },
+      {
+        id: "e2",
+        profile_id: "p1",
+        term: "omi",
+        meaning: "water",
+        confidence: 0.9,
+      },
     ];
     tables.archie_change_requests = [
-      { id: "cr1", cr_number: "CR-001", title: "Improve estimator", status: "approved" },
+      {
+        id: "cr1",
+        cr_number: "CR-001",
+        title: "Improve estimator",
+        status: "approved",
+      },
     ];
     tables.frelux_archie_conversations = [
       { id: "c1", title: "estimator chat" },
     ];
     tables.site_settings = [{ ads_enabled: true, site_name: "FRELUX" }];
     tables.integration_settings = [
-      { integration_key: "paystack", display_name: "Paystack", category: "payments", is_enabled: true },
+      {
+        integration_key: "paystack",
+        display_name: "Paystack",
+        category: "payments",
+        is_enabled: true,
+      },
     ];
     tables.schema_migrations = [
       { version: "20260101000000" },
@@ -247,7 +302,9 @@ describe("migration package lifecycle", () => {
     expect(m.secretsIncluded).toBe(false);
     expect(m.owner.authorizationId).toBe("auth-rec-1");
     expect(m.databaseSchemaVersion).toBe("20260910160000");
-    expect(m.migrationCompatibilityVersion).toBe(SUPPORTED_COMPATIBILITY_VERSION);
+    expect(m.migrationCompatibilityVersion).toBe(
+      SUPPORTED_COMPATIBILITY_VERSION,
+    );
     // real components, really included
     expect(m.includedComponents).toContain("language-memory");
     expect(m.includedComponents).toContain("evolution");
@@ -317,7 +374,9 @@ describe("migration package lifecycle", () => {
     );
     const result = await verifyPackage(zipSync(raw));
     expect(result.ok).toBe(false);
-    expect(result.errors.join(" ")).toMatch(/unknown component "authority-layer"/);
+    expect(result.errors.join(" ")).toMatch(
+      /unknown component "authority-layer"/,
+    );
   });
 
   it("verifyPackage REJECTS garbage input with an owner-readable error", async () => {
@@ -329,7 +388,11 @@ describe("migration package lifecycle", () => {
   it("export STOPS when a secret leaks into collected data", async () => {
     // a secret pasted into a knowledge row — export must fail closed
     tables.frelux_knowledge_items = [
-      { id: "k1", title: "notes", content: "SUPABASE_SERVICE_KEY=sbp_aBcDeFgHiJkLmNoPqRsTuVwX" },
+      {
+        id: "k1",
+        title: "notes",
+        content: "SUPABASE_SERVICE_KEY=sbp_aBcDeFgHiJkLmNoPqRsTuVwX",
+      },
     ];
     await expect(buildMigrationPackage(buildOpts("BACKUP"))).rejects.toThrow(
       /Secret content detected/,
@@ -387,7 +450,9 @@ describe("migration package lifecycle", () => {
     expect(outcome.ok).toBe(true);
     expect(outcome.environmentRegistered).toBe(true);
     // language entries really merged
-    expect(upsertLog.some((u) => u.table === "archie_language_entries")).toBe(true);
+    expect(upsertLog.some((u) => u.table === "archie_language_entries")).toBe(
+      true,
+    );
     // restored environment registered as PENDING_OWNER_APPROVAL
     const installations = tables.archie_installations ?? [];
     expect(
@@ -404,7 +469,12 @@ describe("migration package lifecycle", () => {
     });
     await expect(
       executeRestore(
-        { supabase: client as never, unzipped, verificationOk: false, memoryMode: "RESTORE_PORTABLE_SNAPSHOT" },
+        {
+          supabase: client as never,
+          unzipped,
+          verificationOk: false,
+          memoryMode: "RESTORE_PORTABLE_SNAPSHOT",
+        },
         plan,
         () => {},
       ),
@@ -427,7 +497,12 @@ describe("migration package lifecycle", () => {
       description: "forged",
     });
     const outcome = await executeRestore(
-      { supabase: client as never, unzipped, verificationOk: true, memoryMode: "RESTORE_PORTABLE_SNAPSHOT" },
+      {
+        supabase: client as never,
+        unzipped,
+        verificationOk: true,
+        memoryMode: "RESTORE_PORTABLE_SNAPSHOT",
+      },
       forged,
       () => {},
     );
