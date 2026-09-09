@@ -100,6 +100,7 @@ export default function ArchieChat() {
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
   const audioInputRef = useRef<HTMLInputElement | null>(null);
   const docInputRef = useRef<HTMLInputElement | null>(null);
+  const composerRef = useRef<HTMLTextAreaElement | null>(null);
 
   // ---- conversations list ----
   const refreshConversations = useCallback(async () => {
@@ -473,7 +474,7 @@ export default function ArchieChat() {
               </p>
               <p className="mt-1 text-xs text-slate-500">
                 Ask anything, attach a photo, site drawing, PDF or voice note,
-                or teach me something new.
+                inspect a website, or teach me something new.
               </p>
               <button
                 type="button"
@@ -772,6 +773,18 @@ export default function ArchieChat() {
             </div>
             <button
               type="button"
+              onClick={() => {
+                setDraft("Inspect this website: ");
+                setTeachMode(false);
+                composerRef.current?.focus();
+              }}
+              title="Inspect a website — ARCHIE fetches the live page, analyzes it and reports findings"
+              className="shrink-0 rounded-lg px-2.5 py-2 text-xs font-medium text-slate-400 hover:bg-white/5 hover:text-slate-200"
+            >
+              Inspect
+            </button>
+            <button
+              type="button"
               onClick={() => setTeachMode((v) => !v)}
               title="Teach ARCHIE — queue a learning candidate for your approval"
               className={`shrink-0 rounded-lg px-2.5 py-2 text-xs font-medium ${
@@ -792,8 +805,11 @@ export default function ArchieChat() {
                 }
               }}
               rows={1}
+              ref={composerRef}
               placeholder={
-                recording ? "Recording… tap to stop" : "Message ARCHIE…"
+                recording
+                  ? "Recording… tap to stop"
+                  : "Message ARCHIE… (paste a URL to inspect a website)"
               }
               aria-label="Message ARCHIE"
               className="max-h-32 min-h-[42px] flex-1 resize-none rounded-xl archie-panel px-3 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-400/40"

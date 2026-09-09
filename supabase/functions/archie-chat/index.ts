@@ -96,7 +96,10 @@ function sanitize(text: string): string {
 // =========================================================
 interface ToolDef extends ArchieToolSpec {
   operational: boolean;
-  execute?: (input: Record<string, unknown>) => Promise<unknown>;
+  execute?: (
+    input: Record<string, unknown>,
+    ctx: { userId: string },
+  ) => Promise<unknown>;
 }
 
 async function count(table: string, filter?: [string, unknown]) {
@@ -206,12 +209,120 @@ const TOOLS: ToolDef[] = [
       return { domains: data ?? [] };
     },
   },
-  // ---- adapter boundaries: declared, honestly PENDING ----
+  // ---- REAL website inspection: URL -> robots-aware fetch ->
+  // structured extraction -> persisted ARCHIE ingestion ----
   {
     name: "web_intelligence",
-    description: "Live web search and crawl intelligence. NOT OPERATIONAL YET.",
-    parameters: { type: "object", properties: {}, required: [] },
-    operational: false,
+    description:
+      "Inspect a website URL: fetches the live page (robots.txt respected, private addresses blocked), extracts title/meta/headings/content/counts, and persists the inspection into the ARCHIE learning pipeline. Use whenever the Owner supplies a website URL or asks to inspect, review or analyze a website. Returns REAL data from the live response - report findings and recommendations from it.",
+    parameters: {
+      type: "object",
+      properties: { url: { type: "string" } },
+      required: ["url"],
+    },
+    operational: true,
+    execute: async (input, ctx) => {
+      const raw = String(input.url ?? "").trim();
+      if (!raw) return { error: "url is required" };
+      let u: URL;
+      try {
+        u = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
+      } catch {
+        return { error: "That does not look like a valid URL." };
+      }
+      if (u.protocol !== "http:" && u.protocol !== "https:") {
+        return { error: "Only http/https URLs can be inspected." };
+      }
+      if (isBlockedHost(u.hostname)) {
+        return {
+          error:
+            "That host is not inspectable (private, reserved or non-public address).",
+        };
+      }
+
+      // robots.txt (standard crawler behavior; unreachable => proceed)
+      let blockedBy: string | null = null;
+      try {
+        const robotsRes = await fetchWithTimeout(
+          `${u.origin}/robots.txt`,
+          8000,
+        );
+        if (robotsRes.ok) {
+          const rules = starDisallowRules(await robotsRes.text());
+          blockedBy = robotsBlocks(rules, u.pathname + u.search);
+        }
+      } catch {
+        /* no robots file: allowed */
+      }
+      if (blockedBy) {
+        return {
+          blocked: true,
+          reason: `The site's robots.txt disallows this path (rule "${blockedBy}"). ARCHIE respects the site's crawl policy - nothing was fetched.`,
+          url: u.href,
+        };
+      }
+
+      const res = await fetchWithTimeout(u.href, 15000);
+      const contentType = res.headers.get("content-type") ?? "";
+      if (!res.ok) {
+        return {
+          error: `The site responded HTTP ${res.status} ${res.statusText}. Nothing was inspected.`,
+          url: u.href,
+        };
+      }
+      if (!/text\/html|application\/xhtml|text\/plain/.test(contentType)) {
+        return {
+          error: `The URL returned ${contentType || "an unknown content type"}, which is not inspectable as a page.`,
+          url: u.href,
+        };
+      }
+      const reader = res.body?.getReader();
+      let html = "";
+      if (reader) {
+        const decoder = new TextDecoder();
+        for (;;) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          html += decoder.decode(value, { stream: true });
+          if (html.length > 500_000) {
+            await reader.cancel();
+            break;
+          }
+        }
+      } else {
+        html = (await res.text()).slice(0, 500_000);
+      }
+
+      const report = extractSiteReport(html);
+      const inspection = {
+        url: u.href,
+        final_url: res.url,
+        https: res.url.startsWith("https://"),
+        http_status: res.status,
+        content_type: contentType,
+        inspected_at: new Date().toISOString(),
+        ...report,
+      };
+
+      // Persist into the ARCHIE learning pipeline (owner-owned)
+      const { error: insErr } = await db
+        .from("frelux_archie_ingestions")
+        .insert({
+          created_by: ctx.userId,
+          input_type: "WEB_INTELLIGENCE",
+          title: report.title || u.hostname,
+          domain: u.hostname,
+          source_ref: res.url,
+          raw_text: report.content_excerpt,
+          pipeline_state: "RECEIVED",
+        });
+
+      return {
+        inspection,
+        persisted_to_learning: insErr ? false : true,
+        persistence_error: insErr ? insErr.message : undefined,
+      };
+    },
   },
   {
     name: "market_intelligence",
@@ -220,11 +331,94 @@ const TOOLS: ToolDef[] = [
     parameters: { type: "object", properties: {}, required: [] },
     operational: false,
   },
+  // ---- REAL code inspection: owner-supplied code OR FRELUX
+  // repository files via the GitHub API. Deterministic security
+  // findings + the actual code, so the reasoning layer analyzes
+  // REAL material and reports actionable recommendations. ----
   {
     name: "code_intelligence",
-    description: "Authorized FRELUX codebase analysis. NOT OPERATIONAL YET.",
-    parameters: { type: "object", properties: {}, required: [] },
-    operational: false,
+    description:
+      "Inspect real code. Pass `code` (text the Owner supplied) and/or `repo_path` (a file or directory in the FRELUX repository, e.g. 'src/lib/archie' or 'src/App.tsx'). Returns deterministic security findings (hardcoded secrets, eval, raw HTML injection, TODO markers) plus the code or directory listing itself. Analyze and report findings, then suggest improvements. Never invent file contents.",
+    parameters: {
+      type: "object",
+      properties: {
+        code: { type: "string" },
+        repo_path: { type: "string" },
+        question: { type: "string" },
+      },
+      required: [],
+    },
+    operational: true,
+    execute: async (input, ctx) => {
+      const code = input.code ? String(input.code).slice(0, 60_000) : null;
+      const repoPath = input.repo_path
+        ? String(input.repo_path)
+            .replace(/^[\/.]+/, "")
+            .slice(0, 200)
+        : null;
+      if (!code && !repoPath) {
+        return {
+          error:
+            "Provide either `code` (the code to inspect) or `repo_path` (a FRELUX repository path).",
+        };
+      }
+
+      const result: Record<string, unknown> = {};
+
+      if (code) {
+        result.findings = scanCode(code);
+        result.code_supplied = {
+          lines: code.split("\n").length,
+          excerpt_chars: code.length,
+        };
+      }
+
+      if (repoPath) {
+        const repo = await fetchRepoFile(repoPath);
+        if (repo.ok) {
+          if (repo.file) {
+            result.repository_file = {
+              path: repo.file.path,
+              size: repo.file.size,
+              truncated: repo.truncated ?? false,
+            };
+            result.findings = scanCode(repo.file.content);
+            result.code = repo.file.content;
+          } else if (repo.listing) {
+            result.repository_listing = repo.listing;
+          }
+        } else {
+          result.repo_error = repo.error;
+        }
+      }
+
+      // Persist coding knowledge into the ARCHIE learning pipeline
+      const { error: insErr } = await db
+        .from("frelux_archie_ingestions")
+        .insert({
+          created_by: ctx.userId,
+          input_type: "SOURCE_CODE",
+          title: repoPath
+            ? `FRELUX repository: ${repoPath}`
+            : "Owner-supplied code inspection",
+          domain: "programming",
+          source_ref: repoPath
+            ? `github:petertubin-droid/frelux/${repoPath}`
+            : "chat:owner-supplied",
+          raw_text: code
+            ? code.slice(0, 20_000)
+            : Array.isArray(result.repository_listing)
+              ? JSON.stringify(result.repository_listing).slice(0, 20_000)
+              : null,
+          pipeline_state: "RECEIVED",
+        });
+
+      return {
+        ...result,
+        persisted_to_learning: insErr ? false : true,
+        persistence_error: insErr ? insErr.message : undefined,
+      };
+    },
   },
   {
     name: "sentry_diagnostics",
@@ -266,6 +460,298 @@ Operating rules:
 - Keep answers concise and useful. Use short paragraphs. No filler.
 - Never echo credentials, API keys, or tokens. Never ask for passwords.`;
 
+// =========================================================
+// web_intelligence — REAL website inspection
+// URL → robots-aware fetch → structured extraction →
+// persisted ARCHIE ingestion (owner learning path).
+// No fake results: every field comes from the live response.
+// =========================================================
+function isBlockedHost(hostname: string): boolean {
+  const h = hostname.toLowerCase();
+  if (
+    !h ||
+    h === "localhost" ||
+    h.endsWith(".localhost") ||
+    h.endsWith(".local") ||
+    h.endsWith(".internal") ||
+    h.endsWith(".lan")
+  ) {
+    return true;
+  }
+  const m = h.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (m) {
+    const a = Number(m[1]),
+      b = Number(m[2]);
+    if (a === 0 || a === 10 || a === 127 || a >= 240) return true;
+    if (a === 169 && b === 254) return true;
+    if (a === 172 && b >= 16 && b <= 31) return true;
+    if (a === 192 && b === 168) return true;
+    if (a === 100 && b >= 64 && b <= 127) return true;
+    if (a === 198 && (b === 18 || b === 19)) return true;
+  }
+  if (h.includes(":")) return true; // IPv6 literals: block (no inspection need)
+  return false;
+}
+
+function starDisallowRules(robotsTxt: string): string[] {
+  const rules: string[] = [];
+  let inStar = false;
+  let groupHasRule = false;
+  for (const raw of robotsTxt.split(/\r?\n/)) {
+    const line = raw.split("#")[0].trim();
+    if (!line) continue;
+    const idx = line.indexOf(":");
+    if (idx === -1) continue;
+    const key = line.slice(0, idx).trim().toLowerCase();
+    const val = line.slice(idx + 1).trim();
+    if (key === "user-agent") {
+      if (groupHasRule) {
+        inStar = false;
+        groupHasRule = false;
+      }
+      if (val === "*") inStar = true;
+    } else if (inStar && key === "disallow") {
+      rules.push(val);
+      groupHasRule = true;
+    } else if (inStar && (key === "allow" || key === "crawl-delay")) {
+      groupHasRule = true;
+    }
+  }
+  return rules;
+}
+
+function robotsBlocks(rules: string[], pathname: string): string | null {
+  let matched: string | null = null;
+  for (const rule of rules) {
+    if (!rule) continue;
+    try {
+      const pat = rule
+        .replace(/[.+?^${}()|[\]\\]/g, "\\$&")
+        .replace(/\*/g, ".*");
+      if (new RegExp(`^${pat}`).test(pathname)) {
+        if (matched === null || rule.length > matched.length) matched = rule;
+      }
+    } catch {
+      /* malformed rule: skip */
+    }
+  }
+  return matched;
+}
+
+async function fetchWithTimeout(
+  url: string,
+  ms: number,
+  headers: Record<string, string> = {},
+): Promise<Response> {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), ms);
+  try {
+    return await fetch(url, {
+      headers: {
+        "user-agent": "ARCHIE-Inspector/1.0 (owner-authorized site inspection)",
+        ...headers,
+      },
+      redirect: "follow",
+      signal: ctrl.signal,
+    });
+  } finally {
+    clearTimeout(t);
+  }
+}
+
+function decodeEntities(s: string): string {
+  return s
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&#x27;/g, "'");
+}
+
+function extractSiteReport(html: string) {
+  const strip = (s: string) =>
+    decodeEntities(s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ")).trim();
+  const title = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1];
+  const metaDesc =
+    html.match(
+      /<meta[^>]+name=["']description["'][^>]*content=["']([^"']*)/i,
+    )?.[1] ??
+    html.match(
+      /<meta[^>]+content=["']([^"']*)["'][^>]*name=["']description["']/i,
+    )?.[1] ??
+    null;
+  const h1 = [...html.matchAll(/<h1[^>]*>([\s\S]*?)<\/h1>/gi)]
+    .map((m) => strip(m[1]))
+    .filter(Boolean)
+    .slice(0, 5);
+  const h2 = [...html.matchAll(/<h2[^>]*>([\s\S]*?)<\/h2>/gi)]
+    .map((m) => strip(m[1]))
+    .filter(Boolean)
+    .slice(0, 10);
+  const bodyText = decodeEntities(
+    html
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<noscript[\s\S]*?<\/noscript>/gi, " ")
+      .replace(/<!--[\s\S]*?-->/g, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " "),
+  ).trim();
+  return {
+    title: title ? decodeEntities(title).trim() : null,
+    meta_description: metaDesc ? decodeEntities(metaDesc).trim() : null,
+    headings: { h1: h1, h2: h2 },
+    word_count: bodyText ? bodyText.split(" ").length : 0,
+    counts: {
+      links: (html.match(/<a\s[^>]*href=/gi) ?? []).length,
+      images: (html.match(/<img\s/gi) ?? []).length,
+      forms: (html.match(/<form\s/gi) ?? []).length,
+      scripts: (html.match(/<script\s/gi) ?? []).length,
+    },
+    content_excerpt: bodyText.slice(0, 4000),
+  };
+}
+
+// =========================================================
+// code_intelligence — REAL code inspection
+// Owner-supplied code OR FRELUX repository files via the
+// GitHub API. Deterministic security findings + the code
+// itself, so the reasoning layer analyzes REAL material.
+// =========================================================
+interface CodeFinding {
+  severity: "high" | "medium" | "low" | "info";
+  rule: string;
+  detail: string;
+}
+
+function scanCode(code: string): CodeFinding[] {
+  const findings: CodeFinding[] = [];
+  const lines = code.split("\n");
+  lines.forEach((line, i) => {
+    const n = i + 1;
+    const trimmed = line.trim();
+    if (/^(\/\/|#)\s*(TODO|FIXME|HACK)\b/i.test(trimmed)) {
+      findings.push({
+        severity: "info",
+        rule: "todo-marker",
+        detail: `line ${n}: ${trimmed.slice(0, 90)}`,
+      });
+    }
+    if (
+      /\bsk-[A-Za-z0-9]{16,}\b/.test(line) ||
+      /AIza[A-Za-z0-9_-]{20,}/.test(line) ||
+      /AQ\.[A-Za-z0-9_-]{20,}/.test(line) ||
+      /gh[pousr]_[A-Za-z0-9]{30,}/.test(line) ||
+      /-----BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY-----/.test(line)
+    ) {
+      findings.push({
+        severity: "high",
+        rule: "hardcoded-secret",
+        detail: `line ${n}: credential-looking literal — move to environment secrets`,
+      });
+    }
+    if (
+      /\b(password|secret|api_?key|token)\s*[:=]\s*["'][^"'"'"']{6,}["']/i.test(
+        line,
+      ) &&
+      !/env\.|secrets|placeholder/i.test(line)
+    ) {
+      findings.push({
+        severity: "medium",
+        rule: "credential-assignment",
+        detail: `line ${n}: assigns a literal to a credential-named variable`,
+      });
+    }
+    if (/\beval\s*\(/.test(line)) {
+      findings.push({
+        severity: "high",
+        rule: "eval-usage",
+        detail: `line ${n}: eval() — verify necessity and input trust`,
+      });
+    }
+    if (/dangerouslySetInnerHTML|\.innerHTML\s*=/.test(line)) {
+      findings.push({
+        severity: "medium",
+        rule: "raw-html-injection",
+        detail: `line ${n}: raw HTML injection — confirm the input is sanitized`,
+      });
+    }
+    if (/\bconsole\.log\(/.test(line)) {
+      findings.push({
+        severity: "low",
+        rule: "console-log",
+        detail: `line ${n}: console.log left in code`,
+      });
+    }
+  });
+  return findings.slice(0, 40);
+}
+
+async function fetchRepoFile(
+  repoPath: string,
+): Promise<
+  | {
+      ok: true;
+      listing?: unknown[];
+      file?: { path: string; size: number; content: string };
+      truncated?: boolean;
+    }
+  | { ok: false; error: string }
+> {
+  const token = Deno.env.get("GITHUB_ACCESS_TOKEN");
+  if (!token) {
+    return {
+      ok: false,
+      error:
+        "GitHub inspection is not configured: GITHUB_ACCESS_TOKEN is missing on the ARCHIE function. The Owner can add it in Supabase project secrets.",
+    };
+  }
+  const api = `https://api.github.com/repos/petertubin-droid/frelux/contents/${repoPath}?ref=main`;
+  const res = await fetchWithTimeout(api, 15000, {
+    authorization: `Bearer ${token}`,
+    accept: "application/vnd.github+json",
+  });
+  if (res.status === 404)
+    return {
+      ok: false,
+      error: `Path "${repoPath}" was not found in the FRELUX repository (main branch).`,
+    };
+  if (!res.ok)
+    return { ok: false, error: `GitHub API returned HTTP ${res.status}.` };
+  const body = await res.json();
+  if (Array.isArray(body)) {
+    return {
+      ok: true,
+      listing: body
+        .map((e: { path: string; type: string; size?: number }) => ({
+          path: e.path,
+          type: e.type,
+          size: e.size ?? null,
+        }))
+        .slice(0, 100),
+    };
+  }
+  const content = body?.content ?? "";
+  let decoded = "";
+  try {
+    decoded = atob(content.replace(/\n/g, ""));
+  } catch {
+    return { ok: false, error: "File content could not be decoded." };
+  }
+  const truncated = decoded.length > 60000;
+  return {
+    ok: true,
+    file: {
+      path: body.path,
+      size: decoded.length,
+      content: decoded.slice(0, 60000),
+    },
+    truncated,
+  };
+}
+
 // ---- main handler ----------------------------------------
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
@@ -300,12 +786,10 @@ Deno.serve(async (req) => {
   }
   const message = sanitize(String(body.message ?? "").slice(0, 8000)).trim();
   if (!message) return json(400, { error: "Message is required" });
-  const history = (body.history ?? [])
-    .slice(-20)
-    .map((t) => ({
-      role: t.role,
-      content: sanitize(String(t.content ?? "").slice(0, 4000)),
-    }));
+  const history = (body.history ?? []).slice(-20).map((t) => ({
+    role: t.role,
+    content: sanitize(String(t.content ?? "").slice(0, 4000)),
+  }));
 
   // 3. Resolve the inference engine through the ARCHIE AI
   //    abstraction. Never a direct provider call.
@@ -371,7 +855,7 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      const output = await tool.execute(call.args ?? {});
+      const output = await tool.execute(call.args ?? {}, { userId: user.id });
       toolRuns.push({
         tool: tool.name,
         ok: true,

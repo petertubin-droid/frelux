@@ -62,6 +62,8 @@ export interface ArchieToolSpec {
 }
 
 export interface ArchieToolCall {
+  /** Provider round-trip signature, relayed verbatim for multi-turn tool flows. */
+  signature?: string;
   name: string;
   args: Record<string, unknown>;
 }
@@ -179,7 +181,7 @@ export function createGeminiDevAdapter(opts: {
   apiKey: string;
   model?: string;
 }): ArchieRuntime {
-  const model = opts.model ?? "gemini-2.0-flash";
+  const model = opts.model ?? "gemini-3.6-flash";
   return {
     id: "external-gemini-dev-adapter",
     kind: "external-adapter",
@@ -203,6 +205,9 @@ export function createGeminiDevAdapter(opts: {
           if (p.toolCall) {
             return {
               functionCall: { name: p.toolCall.name, args: p.toolCall.args },
+              ...(p.toolCall.signature
+                ? { thoughtSignature: p.toolCall.signature }
+                : {}),
             };
           }
           if (p.toolResult) {
@@ -244,13 +249,18 @@ export function createGeminiDevAdapter(opts: {
       }
       const parts = (body?.candidates?.[0]?.content?.parts ?? []) as {
         text?: string;
+        thoughtSignature?: string;
         functionCall?: { name: string; args?: Record<string, unknown> };
       }[];
       return {
         parts: parts.map((p) => ({
           text: p.text,
           toolCall: p.functionCall
-            ? { name: p.functionCall.name, args: p.functionCall.args ?? {} }
+            ? {
+                name: p.functionCall.name,
+                args: p.functionCall.args ?? {},
+                signature: p.thoughtSignature,
+              }
             : undefined,
         })),
         engine: {

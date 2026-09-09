@@ -51,7 +51,7 @@ export default function ArchieVoice() {
       if (!auth.user) return;
       setUserId(auth.user.id);
       const { data: prof } = await supabase
-        .from("frelux_users")
+        .from("profiles")
         .select("role")
         .eq("id", auth.user.id)
         .single();

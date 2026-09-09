@@ -82,7 +82,7 @@ export default function ArchieOps() {
       const { data: auth } = await supabase.auth.getUser();
       if (auth.user) {
         const { data: profile } = await supabase
-          .from("frelux_users")
+          .from("profiles")
           .select("role")
           .eq("id", auth.user.id)
           .single();

@@ -110,7 +110,7 @@ export default function ArchieTraining() {
       const user = auth.user;
       if (!user) return;
       const { data: profile } = await supabase
-        .from("frelux_users")
+        .from("profiles")
         .select("role")
         .eq("id", user.id)
         .single();
