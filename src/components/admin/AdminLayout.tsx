@@ -100,6 +100,11 @@ const navModules: NavModule[] = [
         label: "ARCHIE Ops",
         to: "/admin/archie-ops",
         icon: Brain,
+      },,
+      {
+        label: "TerminologyBook",
+        to: "/admin/archie-terminology",
+        icon: BookOpen,
       },
       { label: "Legal Pages", to: "/admin/legal", icon: FileText },
       { label: "Contact Messages", to: "/admin/contact", icon: Mail },
