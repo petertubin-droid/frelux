@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
@@ -15,6 +15,8 @@ import {
   DollarSign,
   Calculator,
   Crown,
+  ClipboardCheck,
+  AlertTriangle,
 } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { useSeo } from "@/lib/seo";
@@ -36,6 +38,7 @@ import {
   fetchAttachments,
   deleteAttachment,
   uploadProjectAttachment,
+  fetchProjectRooms,
 } from "@/lib/contractor";
 import type { DbProjectAttachment } from "@/types/database";
 import type {
@@ -44,6 +47,7 @@ import type {
   DbProjectProgressStage,
   DbProjectStageTemplate,
   DbClientEstimate,
+  DbProjectRoom,
 } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import LocationCard from "@/components/location/LocationCard";
@@ -56,10 +60,23 @@ import {
   ProjectLocationProvider,
   type FreluxLocation,
 } from "@/lib/location-intelligence";
+import { dbProjectToConstructionProject } from "@/lib/construction-intelligence/project-adapter";
+import {
+  buildQuantityTakeoff,
+  DISCIPLINE_LABELS,
+  type TakeoffDiscipline,
+} from "@/lib/construction-intelligence/takeoff";
+import {
+  evaluateRiskFlags,
+  RISK_CODE_LABELS,
+  type RiskFlag,
+} from "@/lib/construction-intelligence/risk-flags";
+import { calculateConstructionProject } from "@/lib/measurement/project-engine";
 
 type Tab =
   | "overview"
   | "calculations"
+  | "takeoff"
   | "shopping"
   | "progress"
   | "client"
@@ -68,6 +85,7 @@ type Tab =
 const TABS: { key: Tab; label: string; icon: typeof TrendingUp }[] = [
   { key: "overview", label: "Overview", icon: TrendingUp },
   { key: "calculations", label: "Calculations", icon: Calculator },
+  { key: "takeoff", label: "Takeoff & Risk", icon: ClipboardCheck },
   { key: "shopping", label: "Shopping", icon: ClipboardList },
   { key: "progress", label: "Progress", icon: CheckCircle2 },
   { key: "client", label: "Client", icon: FileText },
@@ -97,9 +115,12 @@ export default function ProjectDetail() {
     DbProjectStageTemplate[]
   >([]);
   const [attachments, setAttachments] = useState<DbProjectAttachment[]>([]);
+  const [rooms, setRooms] = useState<DbProjectRoom[]>([]);
   const [estimates, setEstimates] = useState<DbClientEstimate[]>([]);
   const [uploading, setUploading] = useState(false);
-  const [projectLocation, setProjectLocation] = useState<FreluxLocation | null>(null);
+  const [projectLocation, setProjectLocation] = useState<FreluxLocation | null>(
+    null,
+  );
   // Project currency follows the project's active regional market profile
   // (synced whenever a location is saved). Existing rows keep their currency.
   const currencySymbol = project?.currency_symbol || "₦";
@@ -127,13 +148,12 @@ export default function ProjectDetail() {
         setProjectLocation(
           locationFromProjectRow(proj as { location?: unknown }),
         );
-      }
-      else {
+      } else {
         navigate("/project-workspace");
         return;
       }
 
-      const [calcs, shopping, progress, templates, attach, ests] =
+      const [calcs, shopping, progress, templates, attach, ests, rms] =
         await Promise.all([
           fetchProjectCalculations(id),
           fetchShoppingListWithActual(id),
@@ -141,6 +161,7 @@ export default function ProjectDetail() {
           fetchStageTemplates(),
           fetchAttachments(id),
           fetchClientEstimates(id),
+          fetchProjectRooms(id),
         ]);
       setCalculations(calcs);
       setShoppingItems(shopping);
@@ -148,6 +169,7 @@ export default function ProjectDetail() {
       setStageTemplates(templates);
       setAttachments(attach);
       setEstimates(ests);
+      setRooms(rms);
     } catch (e) {
       toast({ title: (e as Error).message, variant: "error" });
     } finally {
@@ -158,6 +180,28 @@ export default function ProjectDetail() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  /**
+   * Deterministic takeoff and risk evaluation (Construction Intelligence).
+   * AI never computes quantities here: the Project Engine produces the
+   * measurements, saved engine calculations produce the material quantities,
+   * and the risk layer reports evidence-based flags only.
+   */
+  const takeoffAnalysis = useMemo(() => {
+    if (!project || rooms.length === 0) return null;
+    const { constructionProject, unmeasuredRooms } =
+      dbProjectToConstructionProject(project, rooms);
+    if (constructionProject.elements.length === 0) {
+      return { takeoff: null, unmeasuredRooms, riskFlags: [] as RiskFlag[] };
+    }
+    const engineResult = calculateConstructionProject(constructionProject);
+    const takeoff = buildQuantityTakeoff({
+      project: engineResult,
+      calculations,
+    });
+    const riskFlags = evaluateRiskFlags({ takeoff });
+    return { takeoff, unmeasuredRooms, riskFlags };
+  }, [project, rooms, calculations]);
 
   async function handleInitProgress() {
     if (!id || !stageTemplates.length) return;
@@ -237,7 +281,8 @@ export default function ProjectDetail() {
           {/* Tabs */}
           <div className="flex gap-1 overflow-x-auto pb-px">
             {TABS.map((t) => (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 key={t.key}
                 onClick={() => setTab(t.key)}
                 className={`inline-flex items-center gap-1.5 whitespace-nowrap border-b-2 px-4 py-2.5 text-sm font-medium transition-all duration-200 ${
@@ -307,7 +352,10 @@ export default function ProjectDetail() {
                   if (location) {
                     const regional = await resolveRegionalContext(location);
                     if (regional.status === "available") {
-                      const sync = await syncProjectCurrencyFromRegional(id!, regional);
+                      const sync = await syncProjectCurrencyFromRegional(
+                        id!,
+                        regional,
+                      );
                       if (sync.ok && sync.currency) {
                         setProject((prev) =>
                           prev
@@ -348,14 +396,16 @@ export default function ProjectDetail() {
                   <Calculator className="h-4 w-4 group-hover:scale-110 transition-transform" />{" "}
                   Add Calculation
                 </Link>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => setTab("shopping")}
                   className="group inline-flex items-center gap-2 rounded-lg bg-amber-500/10 px-4 py-2.5 text-sm font-medium text-amber-600 hover:bg-amber-500/20 transition-all hover:scale-105"
                 >
                   <ClipboardList className="h-4 w-4 group-hover:scale-110 transition-transform" />{" "}
                   View Shopping List
                 </Button>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => setTab("progress")}
                   className="group inline-flex items-center gap-2 rounded-lg bg-emerald-500/10 px-4 py-2.5 text-sm font-medium text-emerald-600 hover:bg-emerald-500/20 transition-all hover:scale-105"
                 >
@@ -450,6 +500,224 @@ export default function ProjectDetail() {
                   </div>
                 ))}
               </div>
+            )}
+          </div>
+        )}
+
+        {/* Takeoff & Risk tab (Construction Intelligence) */}
+        {tab === "takeoff" && (
+          <div className="space-y-6">
+            <div>
+              <h3 className="font-semibold text-lg">
+                Unified Quantity Takeoff
+              </h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                One traceable takeoff for this project. Measurements come from
+                the deterministic Project Engine, material quantities reference
+                your saved calculator results, and nothing is estimated where an
+                engine has not run.
+              </p>
+            </div>
+
+            {rooms.length === 0 ? (
+              <div className="text-center py-16 border-2 border-dashed rounded-xl">
+                <ClipboardCheck className="mx-auto h-12 w-12 text-muted-foreground mb-3" />
+                <p className="text-muted-foreground mb-4">
+                  No rooms recorded yet. Add rooms with dimensions to generate a
+                  traceable takeoff.
+                </p>
+                <Link
+                  to={`/contractor/projects/${id}`}
+                  className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                >
+                  Open Room Builder
+                </Link>
+              </div>
+            ) : (
+              <>
+                {/* Risk flags */}
+                <section className="rounded-xl border bg-card p-5">
+                  <h4 className="font-semibold flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4" /> Risk Flags
+                  </h4>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Evidence-based warnings with traceable reasons. Each flag
+                    references the project data it was derived from.
+                  </p>
+                  <div className="mt-4 space-y-2">
+                    {(takeoffAnalysis?.riskFlags ?? []).length === 0 &&
+                      (takeoffAnalysis?.unmeasuredRooms ?? []).length === 0 && (
+                        <p className="text-sm text-muted-foreground">
+                          No risk flags. All measured surfaces have saved engine
+                          calculations.
+                        </p>
+                      )}
+                    {(takeoffAnalysis?.riskFlags ?? []).map((flag) => (
+                      <div
+                        key={flag.code + flag.title}
+                        className={`flex items-start gap-3 rounded-lg border p-3 ${
+                          flag.severity === "critical"
+                            ? "border-destructive/40 bg-destructive/5"
+                            : flag.severity === "warning"
+                              ? "border-amber-500/40 bg-amber-500/5"
+                              : "border-border bg-muted/30"
+                        }`}
+                      >
+                        <AlertTriangle
+                          className={`h-4 w-4 mt-0.5 shrink-0 ${
+                            flag.severity === "critical"
+                              ? "text-destructive"
+                              : flag.severity === "warning"
+                                ? "text-amber-600"
+                                : "text-muted-foreground"
+                          }`}
+                        />
+                        <div>
+                          <p className="text-sm font-medium">
+                            {flag.title}
+                            <span className="ml-2 text-xs font-normal text-muted-foreground">
+                              {RISK_CODE_LABELS[flag.code]}
+                            </span>
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {flag.reason}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    {(takeoffAnalysis?.unmeasuredRooms ?? []).map((room) => (
+                      <div
+                        key={room.id}
+                        className="flex items-start gap-3 rounded-lg border border-amber-500/40 bg-amber-500/5 p-3"
+                      >
+                        <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0 text-amber-600" />
+                        <div>
+                          <p className="text-sm font-medium">
+                            Missing dimensions: {room.name || "Room"}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            This room has no recorded length and width, so no
+                            quantity was measured or estimated for it.
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                {takeoffAnalysis?.takeoff ? (
+                  <>
+                    {/* Measurements by discipline */}
+                    <section className="rounded-xl border bg-card p-5">
+                      <h4 className="font-semibold">Measured Surfaces</h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Areas produced by the FRELUX Project Engine from your
+                        recorded room dimensions.
+                      </p>
+                      <div className="mt-4 space-y-4">
+                        {Object.entries(
+                          takeoffAnalysis.takeoff.areaByDiscipline,
+                        ).map(([discipline, area]) => {
+                          const items =
+                            takeoffAnalysis.takeoff!.measurementItems.filter(
+                              (m) => m.discipline === discipline,
+                            );
+                          return (
+                            <div key={discipline}>
+                              <div className="flex items-center justify-between">
+                                <p className="text-sm font-medium capitalize">
+                                  {DISCIPLINE_LABELS[
+                                    discipline as TakeoffDiscipline
+                                  ] ?? discipline}
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                  {area.toLocaleString(undefined, {
+                                    maximumFractionDigits: 2,
+                                  })}{" "}
+                                  m² total
+                                </p>
+                              </div>
+                              <div className="mt-2 divide-y rounded-lg border">
+                                {items.map((item) => (
+                                  <div
+                                    key={item.id}
+                                    className="flex items-center justify-between gap-3 px-3 py-2"
+                                  >
+                                    <p className="text-sm">{item.label}</p>
+                                    <p className="text-sm text-muted-foreground whitespace-nowrap">
+                                      {item.baseQuantity.toLocaleString(
+                                        undefined,
+                                        { maximumFractionDigits: 2 },
+                                      )}{" "}
+                                      {item.unit}
+                                    </p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </section>
+
+                    {/* Material quantities from saved calculations */}
+                    <section className="rounded-xl border bg-card p-5">
+                      <h4 className="font-semibold">Material Quantities</h4>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Each material references the saved deterministic
+                        calculator run that produced it.
+                      </p>
+                      {takeoffAnalysis.takeoff.materialItems.length === 0 ? (
+                        <p className="text-sm text-muted-foreground mt-4">
+                          No material quantities yet. Run a calculator and save
+                          the result to this project, and its materials will
+                          appear here with full traceability.
+                        </p>
+                      ) : (
+                        <div className="mt-4 divide-y rounded-lg border">
+                          {takeoffAnalysis.takeoff.materialItems.map((item) => (
+                            <div key={item.id} className="px-3 py-3">
+                              <div className="flex items-center justify-between gap-3">
+                                <p className="text-sm font-medium">
+                                  {item.material.name}
+                                </p>
+                                <p className="text-sm text-muted-foreground whitespace-nowrap">
+                                  {item.material.purchaseQuantity.toLocaleString(
+                                    undefined,
+                                    { maximumFractionDigits: 2 },
+                                  )}{" "}
+                                  {item.material.unit}
+                                  {item.material.waste &&
+                                    item.material.waste.percent > 0 && (
+                                      <span className="ml-1 text-xs">
+                                        (incl. {item.material.waste.percent}%
+                                        waste)
+                                      </span>
+                                    )}
+                                </p>
+                              </div>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                {DISCIPLINE_LABELS[item.discipline]} • from “
+                                {item.calculation.title}” •{" "}
+                                {new Date(
+                                  item.calculation.createdAt,
+                                ).toLocaleDateString()}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </section>
+                  </>
+                ) : (
+                  <div className="text-center py-12 border-2 border-dashed rounded-xl">
+                    <p className="text-muted-foreground">
+                      No measured surfaces yet. Every room still lacks recorded
+                      dimensions, so no quantity was measured or estimated.
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         )}
@@ -562,7 +830,8 @@ export default function ProjectDetail() {
                           />
                         </td>
                         <td className="p-3">
-                          <Button variant="ghost"
+                          <Button
+                            variant="ghost"
                             onClick={async () => {
                               const newVal = !item.is_purchased;
                               await supabase
@@ -610,7 +879,8 @@ export default function ProjectDetail() {
                 </p>
               </div>
               {stages.length === 0 && stageTemplates.length > 0 && (
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={handleInitProgress}
                   className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
                 >
@@ -643,7 +913,8 @@ export default function ProjectDetail() {
                     className={`group flex items-start gap-4 rounded-xl border bg-card p-5 transition-all duration-300 hover:shadow-md ${stage.is_completed ? "border-emerald-500/30 bg-emerald-500/5" : ""}`}
                     style={{ opacity: stage.is_completed ? 0.8 : 1 }}
                   >
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() =>
                         handleToggleStage(stage.id, stage.is_completed)
                       }
