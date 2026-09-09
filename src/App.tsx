@@ -120,6 +120,11 @@ const ArchieShared = lazy(() => import("@/pages/archie/ArchieShared"));
 const ArchieSecurity = lazy(() => import("@/pages/archie/ArchieSecurity"));
 const ArchieSystem = lazy(() => import("@/pages/archie/ArchieSystem"));
 const ArchieMigration = lazy(() => import("@/pages/archie/ArchieMigration"));
+const ArchieTraining = lazy(() => import("@/pages/archie/ArchieTraining"));
+const ArchieEvolution = lazy(() => import("@/pages/archie/ArchieEvolution"));
+const ArchieVoice = lazy(() => import("@/pages/archie/ArchieVoice"));
+const ArchieOps = lazy(() => import("@/pages/archie/ArchieOps"));
+const ArchieTerminology = lazy(() => import("@/pages/archie/ArchieTerminology"));
 const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"));
 const AdminAIAssistant = lazy(() => import("@/pages/admin/AdminAIAssistant"));
 const AdminEstimationConfig = lazy(
@@ -1036,6 +1041,11 @@ export default function App() {
                     <Route path="security" element={<ArchieSecurity />} />
                     <Route path="system" element={<ArchieSystem />} />
                     <Route path="migration" element={<ArchieMigration />} />
+                    <Route path="training" element={<ArchieTraining />} />
+                    <Route path="evolution" element={<ArchieEvolution />} />
+                    <Route path="voice" element={<ArchieVoice />} />
+                    <Route path="ops" element={<ArchieOps />} />
+                    <Route path="terminology" element={<ArchieTerminology />} />
                     <Route path="*" element={<NotFound />} />
                   </Route>
 

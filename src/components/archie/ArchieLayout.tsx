@@ -26,6 +26,11 @@ const NAV = [
   { to: "/archie/security", label: "Security", icon: "security" },
   { to: "/archie/system", label: "System", icon: "system" },
   { to: "/archie/migration", label: "Migration", icon: "migration" },
+  { to: "/archie/training", label: "Training", icon: "knowledge" },
+  { to: "/archie/evolution", label: "Evolution", icon: "control" },
+  { to: "/archie/voice", label: "Voice", icon: "chat" },
+  { to: "/archie/ops", label: "Ops", icon: "control" },
+  { to: "/archie/terminology", label: "TerminoBook", icon: "learning" },
 ] as const;
 
 function NavIcon({ name }: { name: string }) {
@@ -255,7 +260,7 @@ export default function ArchieLayout() {
 
       <nav
         aria-label="ARCHIE sections"
-        className="fixed inset-x-0 bottom-0 z-20 grid grid-cols-7 border-t border-white/5 bg-[#0B0F14]/95 backdrop-blur md:hidden"
+        className="fixed inset-x-0 bottom-0 z-20 flex overflow-x-auto border-t border-white/5 bg-[#0B0F14]/95 backdrop-blur md:hidden"
       >
         {NAV.map((n) => (
           <NavLink
@@ -263,7 +268,7 @@ export default function ArchieLayout() {
             to={n.to}
             aria-label={n.label}
             className={({ isActive }) =>
-              `flex flex-col items-center gap-1 py-2 text-[10px] ${
+              `flex min-w-[68px] shrink-0 flex-col items-center gap-1 px-1 py-2 text-[10px] ${
                 isActive ? "text-amber-200" : "text-slate-500"
               }`
             }

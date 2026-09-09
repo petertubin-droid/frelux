@@ -63,8 +63,8 @@ export default function ArchieLearning() {
       <h1 className="text-lg font-semibold text-slate-100">Learning</h1>
       <p className="text-xs text-slate-400">
         ARCHIE shows you what it believes it learned before anything is
-        promoted. Approvals happen in the ARCHIE Training review — nothing here
-        becomes knowledge on its own.
+        promoted. Review and approve candidates in the Training section —
+        nothing here becomes knowledge on its own.
       </p>
 
       <div className="mt-4 rounded-lg border border-white/5 bg-white/[0.03] p-3 text-xs text-slate-300">
