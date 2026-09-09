@@ -54,6 +54,7 @@ function registryWithExternalGrant() {
     scope: "https://partner.example.com",
     granted_at: NOW,
     expires_at: NOW + 86_400_000,
+    evidence: "test-owner-approval",
   });
   reg.grant({
     id: "auth-ext-access",
@@ -61,6 +62,7 @@ function registryWithExternalGrant() {
     scope: "https://partner.example.com",
     granted_at: NOW,
     expires_at: NOW + 86_400_000,
+    evidence: "test-owner-approval",
   });
   return reg;
 }
@@ -75,6 +77,7 @@ function labRegistry() {
     scope: "CONTROLLED_LAB",
     granted_at: NOW,
     expires_at: NOW + 86_400_000,
+    evidence: "test-owner-approval",
   });
   return reg;
 }
@@ -234,6 +237,7 @@ describe("§authorization gate (external targets)", () => {
       scope: "https://partner.example.com",
       granted_at: NOW - 100_000,
       expires_at: NOW - 1000, // already expired
+      evidence: "test-owner-approval",
     });
     const r = startEngagement(externalTarget(), iso(NOW));
     if (!r.ok) throw new Error(r.error);
@@ -252,6 +256,7 @@ describe("§authorization gate (external targets)", () => {
       scope: "https://different.example.com",
       granted_at: NOW,
       expires_at: NOW + 86_400_000,
+      evidence: "test-owner-approval",
     });
     const r = startEngagement(externalTarget(), iso(NOW));
     if (!r.ok) throw new Error(r.error);
