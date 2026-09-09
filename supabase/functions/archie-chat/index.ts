@@ -324,12 +324,92 @@ const TOOLS: ToolDef[] = [
       };
     },
   },
+  // ---- REAL market intelligence: configured FRELUX prices +
+  // regional OBSERVED market data with provenance. Never
+  // invented: empty regions return an honest empty state ----
   {
     name: "market_intelligence",
     description:
-      "Regional building-material market price intelligence. NOT OPERATIONAL YET.",
-    parameters: { type: "object", properties: {}, required: [] },
-    operational: false,
+      "Regional building-material market price intelligence. Queries the configured FRELUX material price catalog and the frelux_archie_market_observations registry (observed prices/rates with source provenance) for a region and optional item. Returns REAL recorded data only - if nothing is recorded for a region, say so honestly and state which regions DO have observations.",
+    parameters: {
+      type: "object",
+      properties: {
+        region: {
+          type: "string",
+          description: "Region, state or country, e.g. 'Lagos', 'Nigeria'",
+        },
+        item: {
+          type: "string",
+          description: "Optional item filter, e.g. 'cement', 'paint'",
+        },
+      },
+      required: ["region"],
+    },
+    operational: true,
+    execute: async (input, ctx) => {
+      const region = String(input.region ?? "")
+        .trim()
+        .slice(0, 80);
+      const item = input.item ? String(input.item).trim().slice(0, 80) : null;
+      if (!region) return { error: "region is required" };
+
+      const obsQ = db
+        .from("frelux_archie_market_observations")
+        .select(
+          "kind,region,item,value,currency,unit,price_kind,observed_at,confidence,source_ref",
+        )
+        .ilike("region", `%${region}%`)
+        .order("observed_at", { ascending: false })
+        .limit(100);
+      const obsRes = item ? await obsQ.ilike("item", `%${item}%`) : await obsQ;
+      if (obsRes.error) return { error: obsRes.error.message };
+      const observations = obsRes.data ?? [];
+
+      // Which regions actually have data (honest guidance)
+      const regionsRes = await db
+        .from("frelux_archie_market_observations")
+        .select("region")
+        .limit(500);
+      const regionsWithData = [
+        ...new Set((regionsRes.data ?? []).map((r) => r.region)),
+      ];
+
+      const catQ = db
+        .from("material_prices")
+        .select("name,category,unit,price,currency")
+        .eq("is_active", true)
+        .order("sort_order")
+        .limit(50);
+      const catRes = item ? await catQ.ilike("name", `%${item}%`) : await catQ;
+      if (catRes.error) return { error: catRes.error.message };
+      const configured_prices = catRes.data ?? [];
+
+      const { error: insErr } = await db
+        .from("frelux_archie_ingestions")
+        .insert({
+          created_by: ctx.userId,
+          input_type: "TEXT",
+          title: `Market intelligence query: ${region}${item ? ` / ${item}` : ""}`,
+          domain: "market",
+          region,
+          source_ref: "archie:market_intelligence",
+          raw_text: JSON.stringify({
+            observations: observations.slice(0, 20),
+            configured_prices,
+          }).slice(0, 20_000),
+          pipeline_state: "RECEIVED",
+        });
+
+      return {
+        region_queried: region,
+        item_filter: item,
+        observed_market_data: observations,
+        regions_with_observations: regionsWithData,
+        configured_frelux_prices: configured_prices,
+        note: "Observed data carries source provenance; configured prices are the deterministic FRELUX calculator catalog. Never present an unrecorded figure as fact.",
+        persisted_to_learning: insErr ? false : true,
+      };
+    },
   },
   // ---- REAL code inspection: owner-supplied code OR FRELUX
   // repository files via the GitHub API. Deterministic security
@@ -420,18 +500,178 @@ const TOOLS: ToolDef[] = [
       };
     },
   },
+  // ---- REAL platform sentry duty: live boot checks of the
+  // ARCHIE edge functions + deterministic database health.
+  // (Sentry SaaS is not connected; ARCHIE stands its own watch) ----
   {
     name: "sentry_diagnostics",
-    description: "Sentry error and diagnostics review. NOT OPERATIONAL YET.",
+    description:
+      "Run ARCHIE's own sentry duty: live boot/health checks of all five ARCHIE edge functions (chat, agents, crypto, extract, ingestion) plus deterministic counts of the core ARCHIE database tables. Returns REAL status only - report exactly what is up or down, never guess.",
     parameters: { type: "object", properties: {}, required: [] },
-    operational: false,
+    operational: true,
+    execute: async () => {
+      const fns = [
+        "archie-chat",
+        "archie-agents",
+        "archie-crypto",
+        "archie-extract",
+        "archie-ingestion",
+      ];
+      const checks = await Promise.all(
+        fns.map(async (fn) => {
+          try {
+            const res = await fetchWithTimeout(
+              `${SUPABASE_URL}/functions/v1/${fn}`,
+              10_000,
+              "OPTIONS",
+            );
+            // An unauthenticated ping that answers 401/405 means the
+            // function IS deployed and enforcing auth - it booted fine.
+            // Only 5xx / network failure means unhealthy.
+            return {
+              function: fn,
+              status: res.status,
+              healthy: res.status < 500,
+            };
+          } catch (e) {
+            return {
+              function: fn,
+              status: 0,
+              healthy: false,
+              error: String(e).slice(0, 120),
+            };
+          }
+        }),
+      );
+
+      const tables = [
+        "frelux_archie_conversations",
+        "frelux_archie_messages",
+        "frelux_archie_ingestions",
+        "frelux_archie_audit_events",
+        "frelux_archie_market_observations",
+      ];
+      const dbHealth: Record<string, unknown>[] = [];
+      for (const t of tables) {
+        const { count, error } = await db
+          .from(t)
+          .select("id", { count: "exact", head: true });
+        dbHealth.push({
+          table: t,
+          rows: error ? null : count,
+          error: error ? error.message : undefined,
+        });
+      }
+
+      return {
+        checked_at: new Date().toISOString(),
+        edge_functions: checks,
+        database_health: dbHealth,
+        summary: {
+          functions_healthy: checks.filter((c) => c.healthy).length,
+          functions_total: checks.length,
+        },
+      };
+    },
   },
+  // ---- REAL property intelligence: location routing to the
+  // regional profile (observed material/labour data) +
+  // configured price catalog, with honest gap reporting.
+  // No figures are invented - only recorded data and the
+  // Owner's own stated building facts are returned ----
   {
     name: "property_intelligence",
     description:
-      "Property analysis and location intelligence. NOT OPERATIONAL YET.",
-    parameters: { type: "object", properties: {}, required: [] },
-    operational: false,
+      "Structured property analysis and location intelligence. Pass `location` (region/country/state) and any known building facts in `building` (e.g. {floor_area_m2: 180, stories: 2, roof_type: 'hip', use: 'residential'}). Returns the regional profile from recorded market observations, the configured material catalog, and a deterministic gap report listing exactly what data is still needed for a full FRELUX takeoff. Analyze from the returned records; never invent quantities or prices.",
+    parameters: {
+      type: "object",
+      properties: {
+        location: {
+          type: "string",
+          description: "Region, state or country, e.g. 'Lagos, Nigeria'",
+        },
+        building: {
+          type: "object",
+          description:
+            "Known building facts supplied by the Owner, e.g. {floor_area_m2, stories, roof_type, use}",
+        },
+        question: { type: "string" },
+      },
+      required: ["location"],
+    },
+    operational: true,
+    execute: async (input, ctx) => {
+      const location = String(input.location ?? "")
+        .trim()
+        .slice(0, 120);
+      if (!location) return { error: "location is required" };
+      const building =
+        input.building && typeof input.building === "object"
+          ? (input.building as Record<string, unknown>)
+          : {};
+
+      // Regional profile: latest observation per kind/item (deterministic SQL)
+      const obsRes = await db
+        .from("frelux_archie_market_observations")
+        .select(
+          "kind,item,value,currency,unit,price_kind,observed_at,confidence,source_ref,region",
+        )
+        .ilike("region", `%${location}%`)
+        .order("observed_at", { ascending: false })
+        .limit(100);
+      if (obsRes.error) return { error: obsRes.error.message };
+      const observations = obsRes.data ?? [];
+
+      const catRes = await db
+        .from("material_prices")
+        .select("name,category,unit,price,currency")
+        .eq("is_active", true)
+        .limit(50);
+      if (catRes.error) return { error: catRes.error.message };
+
+      // Deterministic gap report for a full takeoff
+      const gaps: string[] = [];
+      if (observations.length === 0)
+        gaps.push(
+          `No recorded market observations for ${location} yet - regional price context is unavailable`,
+        );
+      const needFacts = [
+        ["floor_area_m2", "floor area (m²)"],
+        ["stories", "number of stories"],
+        ["roof_type", "roof type"],
+      ];
+      for (const [key, label] of needFacts)
+        if (building[key] === undefined)
+          gaps.push(`Building fact missing: ${label}`);
+      if (!observations.some((o) => o.kind === "LABOUR_RATE"))
+        gaps.push("No recorded labour rates for this region");
+
+      const { error: insErr } = await db
+        .from("frelux_archie_ingestions")
+        .insert({
+          created_by: ctx.userId,
+          input_type: "TEXT",
+          title: `Property intelligence analysis: ${location}`,
+          domain: "property",
+          region: location,
+          source_ref: "archie:property_intelligence",
+          raw_text: JSON.stringify({
+            building,
+            observations: observations.slice(0, 20),
+          }).slice(0, 20_000),
+          pipeline_state: "RECEIVED",
+        });
+
+      return {
+        location,
+        building_facts_as_given: building,
+        regional_market_observations: observations,
+        configured_material_catalog: catRes.data ?? [],
+        gap_report: gaps,
+        analysis_ready: gaps.length === 0,
+        persisted_to_learning: insErr ? false : true,
+      };
+    },
   },
 ];
 
@@ -689,9 +929,7 @@ function scanCode(code: string): CodeFinding[] {
   return findings.slice(0, 40);
 }
 
-async function fetchRepoFile(
-  repoPath: string,
-): Promise<
+async function fetchRepoFile(repoPath: string): Promise<
   | {
       ok: true;
       listing?: unknown[];
