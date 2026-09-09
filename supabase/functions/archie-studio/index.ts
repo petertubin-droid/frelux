@@ -31,7 +31,7 @@
 
 import { createClient, User } from "npm:@supabase/supabase-js@2.45.4";
 import {
-  resolveArchieRuntime,
+  resolveArchieCapabilityEngine,
   type ArchieInferenceRequest,
   type ArchieInferencePart,
 } from "../_shared/archie-ai/runtime.ts";
@@ -272,6 +272,22 @@ Deno.serve(async (req) => {
         });
       }
 
+      // --- ENGINE RESOLUTION (provider-agnostic, before any DB write) ---
+      // The Coding Studio never references a provider, key or model name.
+      // Its engine is resolved through ARCHIE's AI abstraction registry by
+      // neutral id (ARCHIE_STUDIO_ENGINE) — future engines plug into the
+      // registry without redesigning the Studio.
+      const { runtime, engine } = resolveArchieCapabilityEngine({
+        engineId: Deno.env.get("ARCHIE_STUDIO_ENGINE"),
+      });
+      if (!runtime) {
+        return json(503, {
+          error:
+            "ARCHIE's inference engine is not operational right now — no code was generated and nothing was faked. The Coding Studio requires a real engine.",
+          engine,
+        });
+      }
+
       let projectId: string;
       let existingFiles: StudioFile[] = [];
       let projectName: string | null = null;
@@ -297,26 +313,30 @@ Deno.serve(async (req) => {
         projectName = loaded.project.name;
       }
 
-      // --- REAL INFERENCE (ARCHIE AI abstraction) ---
-      const { runtime, engine } = resolveArchieRuntime({
-        devAdapter: Deno.env.get("ARCHIE_DEV_ADAPTER"),
-        geminiKey: Deno.env.get("GOOGLE_AI_API_KEY"),
-      });
-      if (!runtime) {
-        return json(503, {
-          error:
-            "ARCHIE's inference engine is not operational right now — no code was generated and nothing was faked. The Coding Studio requires a real engine.",
-          engine,
-        });
-      }
+      // A failed CREATE must leave nothing behind in the workspace:
+      // on any build failure the just-inserted draft row is removed.
+      const failBuild = (code: number, payload: Record<string, unknown>) => {
+        if (isCreate) {
+          void db
+            .from("frelux_studio_projects")
+            .delete()
+            .eq("id", projectId)
+            .then(
+              () => undefined,
+              () => undefined,
+            );
+        }
+        return json(code, payload);
+      };
 
+      // --- REAL INFERENCE (ARCHIE AI abstraction) ---
       let result;
       try {
         result = await runtime.generate(
           buildRequest(directive, existingFiles, projectName),
         );
       } catch (err) {
-        return json(502, {
+        return failBuild(502, {
           error: `Inference failed: ${(err as Error).message}. No code was generated.`,
           engine,
         });
@@ -327,7 +347,7 @@ Deno.serve(async (req) => {
         .join("")
         .trim();
       if (result.finishReason === "MAX_TOKENS") {
-        return json(502, {
+        return failBuild(502, {
           error:
             "The engine's output was truncated before the manifest was complete — no code was persisted. Reduce the scope of the brief (fewer pages or sections) and try again.",
           engine: result.engine,
@@ -339,7 +359,7 @@ Deno.serve(async (req) => {
         !Array.isArray(manifest.files) ||
         manifest.files.length === 0
       ) {
-        return json(502, {
+        return failBuild(502, {
           error:
             "The engine did not return a valid project manifest — no code was persisted.",
           engine: result.engine,
@@ -358,7 +378,7 @@ Deno.serve(async (req) => {
       // --- DETERMINISTIC VALIDATION (real QA) ---
       const report: StudioValidationReport = validateStudioProject(files);
       if (!report.valid) {
-        return json(422, {
+        return failBuild(422, {
           error:
             "Generated code failed deterministic validation — nothing was persisted. ARCHIE does not accept or auto-fix invalid output silently.",
           qa: report,
