@@ -30,7 +30,7 @@ const tables: Record<string, Row[]> = {
   ],
   frelux_archie_contributors: [],
   frelux_archie_ingestions: [],
-  profiles: [{ id: "admin-1", is_admin: true, full_name: "Admin" }],
+  profiles: [{ id: "admin-1", role: "admin", full_name: "Admin" }],
 };
 
 const supabaseMock = vi.hoisted(() => ({
