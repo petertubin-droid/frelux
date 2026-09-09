@@ -63,7 +63,12 @@ jobs:
           key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        # No --with-deps: it runs apt-get update across all repos,
+        # including Google's chrome repo, which has been serving
+        # hash-mismatched indexes (transient mirror flake that has
+        # now failed CI twice). GitHub's ubuntu-latest runner image
+        # already ships the Chromium system libraries.
+        run: npx playwright install chromium
 
       - name: Download build output
         uses: actions/download-artifact@v4
