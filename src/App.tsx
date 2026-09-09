@@ -7,7 +7,7 @@ const SentryRoutes = isSentryActive()
   ? Sentry.withSentryReactRouterV7Routing(Routes)
   : Routes;
 import { useEffect, lazy, Suspense } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
 import { MarketProvider } from "@/lib/international/market-context";
@@ -107,6 +107,16 @@ const AdminApiKeys = lazy(() => import("@/pages/admin/AdminApiKeys"));
 const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 const AdminLayout = lazy(() => import("@/components/admin/AdminLayout"));
 const RequireAdmin = lazy(() => import("@/components/admin/RequireAdmin"));
+
+// ARCHIE Owner PWA (Stage 1) — independent shell, Owner-only
+const ArchieLayout = lazy(() => import("@/components/archie/ArchieLayout"));
+const ArchieChat = lazy(() => import("@/pages/archie/ArchieChat"));
+const ArchieControl = lazy(() => import("@/pages/archie/ArchieControl"));
+const ArchieKnowledge = lazy(() => import("@/pages/archie/ArchieKnowledge"));
+const ArchieLearning = lazy(() => import("@/pages/archie/ArchieLearning"));
+const ArchieDevices = lazy(() => import("@/pages/archie/ArchieDevices"));
+const ArchieSecurity = lazy(() => import("@/pages/archie/ArchieSecurity"));
+const ArchieSystem = lazy(() => import("@/pages/archie/ArchieSystem"));
 const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"));
 const AdminAIAssistant = lazy(() => import("@/pages/admin/AdminAIAssistant"));
 const AdminEstimationConfig = lazy(
@@ -982,6 +992,37 @@ export default function App() {
                       </Suspense>
                     }
                   />
+
+                  {/* ─────────────────────────────────────────────────────── */}
+                  {/* ARCHIE OWNER PWA (Stage 1) — independent of the public */}
+                  {/* site and of the admin panel. Owner-only (RequireAdmin  */}
+                  {/* auth), own shell/manifest/navigation.                  */}
+                  {/* ─────────────────────────────────────────────────────── */}
+                  <Route
+                    path="/archie"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <RequireAdmin>
+                          <ErrorBoundary boundaryName="archie">
+                            <ArchieLayout />
+                          </ErrorBoundary>
+                        </RequireAdmin>
+                      </Suspense>
+                    }
+                  >
+                    <Route
+                      index
+                      element={<Navigate to="/archie/chat" replace />}
+                    />
+                    <Route path="chat" element={<ArchieChat />} />
+                    <Route path="control" element={<ArchieControl />} />
+                    <Route path="knowledge" element={<ArchieKnowledge />} />
+                    <Route path="learning" element={<ArchieLearning />} />
+                    <Route path="devices" element={<ArchieDevices />} />
+                    <Route path="security" element={<ArchieSecurity />} />
+                    <Route path="system" element={<ArchieSystem />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Route>
 
                   {/* ─────────────────────────────────────────────────────── */}
                   {/* ADMIN PANEL, completely separated from public site. */}
