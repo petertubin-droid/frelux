@@ -35,23 +35,25 @@ import type {
 const INPUT_TYPES: ArchieInputType[] = [
   "TEXT",
   "IMAGE",
-  "DOCUMENT",
-  "DRAWING",
-  "TABLE",
-  "VOICE",
-  "VIDEO",
+  "PDF_DOCUMENT",
+  "SCANNED_TECHNICAL",
+  "ENGINEERING_DRAWING",
+  "TABLE_CALCULATION",
+  "AUDIO_VOICE",
+  "VIDEO_DEMONSTRATION",
   "PROJECT_OUTCOME",
   "SOURCE_CODE",
-  "WEB",
+  "WEB_INTELLIGENCE",
 ];
 
 const NEEDS_FILE: ArchieInputType[] = [
   "IMAGE",
-  "DOCUMENT",
-  "DRAWING",
-  "TABLE",
-  "VOICE",
-  "VIDEO",
+  "PDF_DOCUMENT",
+  "SCANNED_TECHNICAL",
+  "ENGINEERING_DRAWING",
+  "TABLE_CALCULATION",
+  "AUDIO_VOICE",
+  "VIDEO_DEMONSTRATION",
 ];
 
 interface Preview {
@@ -67,7 +69,9 @@ function confidenceColor(c: number) {
 }
 
 export default function ArchieTraining() {
-  const [contributor, setContributor] = useState<ArchieContributor | null>(null);
+  const [contributor, setContributor] = useState<ArchieContributor | null>(
+    null,
+  );
   const [isAdmin, setIsAdmin] = useState(false);
   const [domains, setDomains] = useState<ArchieDomain[]>([]);
   const [ingestions, setIngestions] = useState<ArchieIngestion[]>([]);
@@ -202,7 +206,9 @@ export default function ArchieTraining() {
     }
     const highRisk = chosen.some((c) => c.requires_engineering_review);
     if (highRisk && !engineeringReviewed) {
-      setError("High-risk candidates require the engineering-review confirmation");
+      setError(
+        "High-risk candidates require the engineering-review confirmation",
+      );
       return;
     }
     setBusy(true);
@@ -266,8 +272,8 @@ export default function ArchieTraining() {
     <div className="mx-auto max-w-2xl px-4 py-4 md:py-6">
       <h1 className="text-lg font-semibold text-slate-100">Training</h1>
       <p className="text-xs text-slate-400">
-        Teach ARCHIE from material you capture on the phone. Everything shows
-        up as candidates first — nothing is promoted without your approval.
+        Teach ARCHIE from material you capture on the phone. Everything shows up
+        as candidates first — nothing is promoted without your approval.
       </p>
       {awaiting > 0 && (
         <p className="mt-2 text-xs text-amber-200/80">
@@ -276,7 +282,10 @@ export default function ArchieTraining() {
       )}
 
       {error && (
-        <p role="alert" className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300">
+        <p
+          role="alert"
+          className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300"
+        >
           {error}
         </p>
       )}
@@ -288,7 +297,9 @@ export default function ArchieTraining() {
 
       {/* ── Submission form ── */}
       <div className="mt-4 space-y-3 rounded-xl border border-white/5 bg-white/[0.03] p-3">
-        <p className="text-xs font-medium text-slate-200">New training material</p>
+        <p className="text-xs font-medium text-slate-200">
+          New training material
+        </p>
         <select
           value={inputType}
           onChange={(e) => setInputType(e.target.value as ArchieInputType)}
@@ -314,11 +325,13 @@ export default function ArchieTraining() {
             className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
             aria-label="Domain"
           >
-            {(domains.length ? domains.map((d) => d.key) : [domain]).map((d) => (
-              <option key={d} value={d}>
-                {d}
-              </option>
-            ))}
+            {(domains.length ? domains.map((d) => d.key) : [domain]).map(
+              (d) => (
+                <option key={d} value={d}>
+                  {d}
+                </option>
+              ),
+            )}
           </select>
           <input
             value={region}
@@ -337,12 +350,14 @@ export default function ArchieTraining() {
           <input
             type="file"
             accept={
-              inputType === "VOICE"
+              inputType === "AUDIO_VOICE"
                 ? "audio/*"
-                : inputType === "VIDEO"
+                : inputType === "VIDEO_DEMONSTRATION"
                   ? "video/*"
-                  : inputType === "IMAGE" || inputType === "DRAWING"
-                    ? "image/*"
+                  : inputType === "IMAGE" ||
+                      inputType === "SCANNED_TECHNICAL" ||
+                      inputType === "ENGINEERING_DRAWING"
+                    ? "image/*,application/pdf"
                     : "*/*"
             }
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}

@@ -38,7 +38,9 @@ export default function ArchieTerminology() {
 
   // New entry form
   const [showForm, setShowForm] = useState(false);
-  const [domain, setDomain] = useState(TERMINOLOGY_DOMAINS[0] ?? "architecture");
+  const [domain, setDomain] = useState<(typeof TERMINOLOGY_DOMAINS)[number]>(
+    TERMINOLOGY_DOMAINS[0],
+  );
   const [languageCode, setLanguageCode] = useState("yo");
   const [canonicalTerm, setCanonicalTerm] = useState("");
   const [regionalTerm, setRegionalTerm] = useState("");
@@ -104,10 +106,16 @@ export default function ArchieTerminology() {
     setError("");
     try {
       await setVerification(id, status);
-      setNotice(status === "VERIFIED" ? "Verified — now usable in ARCHIE chat" : "Rejected");
+      setNotice(
+        status === "VERIFIED"
+          ? "Verified — now usable in ARCHIE chat"
+          : "Rejected",
+      );
       await load();
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not update verification");
+      setError(
+        e instanceof Error ? e.message : "Could not update verification",
+      );
     } finally {
       setBusy(false);
     }
@@ -127,7 +135,9 @@ export default function ArchieTerminology() {
     }
   }
 
-  const unverified = rows.filter((r) => r.verification_status === "UNVERIFIED").length;
+  const unverified = rows.filter(
+    (r) => r.verification_status === "UNVERIFIED",
+  ).length;
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-4 md:py-6">
@@ -144,7 +154,10 @@ export default function ArchieTerminology() {
       )}
 
       {error && (
-        <p role="alert" className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300">
+        <p
+          role="alert"
+          className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300"
+        >
           {error}
         </p>
       )}
@@ -189,7 +202,11 @@ export default function ArchieTerminology() {
           <div className="grid grid-cols-2 gap-2">
             <select
               value={domain}
-              onChange={(e) => setDomain(e.target.value)}
+              onChange={(e) =>
+                setDomain(
+                  e.target.value as (typeof TERMINOLOGY_DOMAINS)[number],
+                )
+              }
               className="w-full rounded-lg border border-white/10 bg-slate-900 px-3 py-2.5 text-sm text-slate-100"
               aria-label="Domain"
             >
@@ -256,7 +273,9 @@ export default function ArchieTerminology() {
                   </p>
                 )}
               </div>
-              <span className={`text-[10px] ${statusColor(r.verification_status)}`}>
+              <span
+                className={`text-[10px] ${statusColor(r.verification_status)}`}
+              >
                 {r.verification_status}
               </span>
             </div>
@@ -294,7 +313,9 @@ export default function ArchieTerminology() {
             No entries match this filter yet.
           </li>
         )}
-        {loading && <li className="py-4 text-center text-xs text-slate-500">Loading…</li>}
+        {loading && (
+          <li className="py-4 text-center text-xs text-slate-500">Loading…</li>
+        )}
       </ul>
 
       <p className="mt-6 text-[10px] leading-relaxed text-slate-500">

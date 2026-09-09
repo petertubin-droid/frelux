@@ -68,8 +68,12 @@ export default function ArchieEvolution() {
   const [notice, setNotice] = useState("");
 
   // Settings + registry
-  const [view, setView] = useState<"changes" | "settings" | "registry">("changes");
-  const [settings, setSettings] = useState<EvolutionSettings>(DEFAULT_EVOLUTION_SETTINGS);
+  const [view, setView] = useState<"changes" | "settings" | "registry">(
+    "changes",
+  );
+  const [settings, setSettings] = useState<EvolutionSettings>(
+    DEFAULT_EVOLUTION_SETTINGS,
+  );
   const [savingSettings, setSavingSettings] = useState(false);
   const [languages, setLanguages] = useState<LanguageProfile[]>([]);
 
@@ -79,11 +83,12 @@ export default function ArchieEvolution() {
       const [crs, s, langs] = await Promise.all([
         fetchChangeRequests(),
         fetchEvolutionSettings(),
-        fetchLanguageProfiles().catch(() => [] as LanguageProfile[]),
+        fetchLanguageProfiles().catch(() => null),
       ]);
-      setChanges(crs);
+      if (crs.ok) setChanges(crs.data);
+      else setError(crs.error);
       if (s.ok) setSettings(s.data);
-      setLanguages(langs);
+      if (langs?.ok) setLanguages(langs.data);
       setError("");
     } catch (e) {
       setError(
@@ -232,7 +237,10 @@ export default function ArchieEvolution() {
       </div>
 
       {error && (
-        <p role="alert" className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300">
+        <p
+          role="alert"
+          className="mt-3 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300"
+        >
           {error}
         </p>
       )}
@@ -247,19 +255,33 @@ export default function ArchieEvolution() {
       {view === "settings" && (
         <div className="mt-4 space-y-3">
           <div className="space-y-3 rounded-xl border border-white/5 bg-white/[0.03] p-3">
-            <p className="text-xs font-medium text-slate-200">Language learning</p>
-            {([
-              ["language.enabled", "Language learning"],
-              ["language.autoLearning", "Auto learning"],
-              ["language.autoMemory", "Auto memory"],
-              ["language.externalResearch", "External research"],
-              ["language.dialectLearning", "Dialect learning"],
-              ["language.requireApprovalBeforePermanentMemory", "Approval before permanent memory"],
-            ] as const).map(([path, label]) => (
-              <label key={path} className="flex items-center justify-between gap-3">
+            <p className="text-xs font-medium text-slate-200">
+              Language learning
+            </p>
+            {(
+              [
+                ["language.enabled", "Language learning"],
+                ["language.autoLearning", "Auto learning"],
+                ["language.autoMemory", "Auto memory"],
+                ["language.externalResearch", "External research"],
+                ["language.dialectLearning", "Dialect learning"],
+                [
+                  "language.requireApprovalBeforePermanentMemory",
+                  "Approval before permanent memory",
+                ],
+              ] as const
+            ).map(([path, label]) => (
+              <label
+                key={path}
+                className="flex items-center justify-between gap-3"
+              >
                 <span className="text-xs text-slate-300">{label}</span>
                 <Switch
-                  checked={(settings.language as Record<string, unknown>)[path.split(".")[1]] as boolean}
+                  checked={
+                    (settings.language as unknown as Record<string, boolean>)[
+                      path.split(".")[1]
+                    ]
+                  }
                   onCheckedChange={(val) =>
                     setSettings((s) => ({
                       ...s,
@@ -294,16 +316,26 @@ export default function ArchieEvolution() {
           </div>
 
           <div className="space-y-3 rounded-xl border border-white/5 bg-white/[0.03] p-3">
-            <p className="text-xs font-medium text-slate-200">Self-modification</p>
-            {([
-              ["selfCodeAnalysis", "Self code analysis"],
-              ["automaticChangeProposals", "Automatic change proposals"],
-              ["stagingPermission", "Staging permission"],
-              ["productionModification", "Production modification"],
-              ["requireExplicitApproval", "Require explicit approval"],
-              ["automaticRollback", "Automatic rollback on failed validation"],
-            ] as const).map(([key, label]) => (
-              <label key={key} className="flex items-center justify-between gap-3">
+            <p className="text-xs font-medium text-slate-200">
+              Self-modification
+            </p>
+            {(
+              [
+                ["selfCodeAnalysis", "Self code analysis"],
+                ["automaticChangeProposals", "Automatic change proposals"],
+                ["stagingPermission", "Staging permission"],
+                ["productionModification", "Production modification"],
+                ["requireExplicitApproval", "Require explicit approval"],
+                [
+                  "automaticRollback",
+                  "Automatic rollback on failed validation",
+                ],
+              ] as const
+            ).map(([key, label]) => (
+              <label
+                key={key}
+                className="flex items-center justify-between gap-3"
+              >
                 <span className="text-xs text-slate-300">{label}</span>
                 <Switch
                   checked={settings.selfModification[key]}
@@ -317,7 +349,9 @@ export default function ArchieEvolution() {
               </label>
             ))}
             <label className="flex items-center justify-between gap-3">
-              <span className="text-xs text-slate-300">Max change risk allowed</span>
+              <span className="text-xs text-slate-300">
+                Max change risk allowed
+              </span>
               <select
                 value={settings.selfModification.maxChangeRiskAllowed}
                 onChange={(e) =>
@@ -325,19 +359,24 @@ export default function ArchieEvolution() {
                     ...s,
                     selfModification: {
                       ...s.selfModification,
-                      maxChangeRiskAllowed: e.target.value as typeof s.selfModification.maxChangeRiskAllowed,
+                      maxChangeRiskAllowed: e.target
+                        .value as typeof s.selfModification.maxChangeRiskAllowed,
                     },
                   }))
                 }
                 className="w-28 rounded-lg border border-white/10 bg-slate-900 px-2 py-1.5 text-sm text-slate-100"
               >
                 {["LOW", "MEDIUM", "HIGH", "CRITICAL"].map((r) => (
-                  <option key={r} value={r}>{r}</option>
+                  <option key={r} value={r}>
+                    {r}
+                  </option>
                 ))}
               </select>
             </label>
             <div>
-              <p className="text-xs text-slate-300">Protected paths (one per line)</p>
+              <p className="text-xs text-slate-300">
+                Protected paths (one per line)
+              </p>
               <textarea
                 value={settings.selfModification.protectedPaths.join("\n")}
                 onChange={(e) =>
@@ -391,7 +430,7 @@ export default function ArchieEvolution() {
                 </span>
                 <span
                   className={`text-[10px] ${
-                    l.verificationStatus === "VERIFIED"
+                    l.verificationStatus === "CONFIRMED"
                       ? "text-emerald-300"
                       : l.verificationStatus === "REJECTED"
                         ? "text-red-300"
@@ -404,7 +443,8 @@ export default function ArchieEvolution() {
               <p className="mt-0.5 text-[11px] text-slate-500">
                 {l.registryStatus} · v{l.version}
                 {l.isoCode ? ` · ${l.isoCode}` : ""}
-                {l.confidence != null && ` · ${(l.confidence * 100).toFixed(0)}% confidence`}
+                {l.confidence != null &&
+                  ` · ${(l.confidence * 100).toFixed(0)}% confidence`}
               </p>
               {l.regions.length > 0 && (
                 <p className="mt-1 text-[11px] text-slate-400">
