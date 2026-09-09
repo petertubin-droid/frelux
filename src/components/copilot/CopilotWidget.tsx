@@ -46,6 +46,7 @@ import {
 } from "@/lib/ai-foundation";
 import { interpretWithAi } from "@/lib/ai-foundation/copilot-client";
 import { trustBadge } from "@/lib/ai-foundation/trust";
+import { generateArchieCalculationReport } from "@/lib/archie/calculator-intelligence";
 
 type Phase = "input" | "review" | "running" | "result" | "refused";
 
@@ -494,6 +495,9 @@ function ResultPanel({
 }) {
   const result = outcome.result as EngineResult;
   const fmt = (n: number) => `₦${Math.round(n).toLocaleString()}`;
+  // ARCHIE structured report: assumptions, materials, waste, pricing
+  // basis, methodology and confidence — all verbatim from the engine.
+  const report = generateArchieCalculationReport(outcome);
 
   return (
     <div className="space-y-4">
@@ -520,13 +524,13 @@ function ResultPanel({
         )}
       </div>
 
-      {result.quantities.length > 0 && (
+      {report.materials.length > 0 && (
         <div>
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Key quantities
+            Materials & quantities
           </p>
           <ul className="mt-1 space-y-1 text-sm">
-            {result.quantities.slice(0, 6).map((q, i) => (
+            {report.materials.map((q, i) => (
               <li key={`${q.label}-${i}`} className="flex justify-between">
                 <span className="text-muted-foreground">{q.label}</span>
                 <span className="font-medium">
@@ -537,6 +541,57 @@ function ResultPanel({
           </ul>
         </div>
       )}
+
+      {report.waste.length > 0 && (
+        <div className="rounded-lg border border-border p-3">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Waste & allowances (engine rules)
+          </p>
+          <ul className="mt-1 space-y-1 text-sm">
+            {report.waste.map((q, i) => (
+              <li key={`${q.label}-${i}`} className="flex justify-between">
+                <span className="text-muted-foreground">{q.label}</span>
+                <span className="font-medium">
+                  {q.quantity.toLocaleString()} {q.unit}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      <div className="rounded-lg border border-border p-3 text-xs">
+        <p className="flex items-center gap-1 font-medium">
+          <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" aria-hidden />
+          Methodology & confidence
+        </p>
+        <p className="mt-1 text-muted-foreground">{report.methodology}</p>
+        <p className="mt-1">
+          <span className="text-muted-foreground">Pricing basis: </span>
+          <span
+            className={
+              report.pricingBasis.configured
+                ? "text-emerald-600"
+                : "text-amber-600"
+            }
+          >
+            {report.pricingBasis.disclosure}
+          </span>
+        </p>
+        <p className="mt-1">
+          <span className="text-muted-foreground">Confidence: </span>
+          <span className="font-medium capitalize">
+            {report.confidence.level}
+          </span>
+          {report.confidence.limitations.length > 0 && (
+            <ul className="mt-1 space-y-1 text-muted-foreground">
+              {report.confidence.limitations.map((l, i) => (
+                <li key={i}>• {l}</li>
+              ))}
+            </ul>
+          )}
+        </p>
+      </div>
 
       {outcome.assumptions && outcome.assumptions.length > 0 && (
         <div className="rounded-lg border border-border p-3 text-sm">
