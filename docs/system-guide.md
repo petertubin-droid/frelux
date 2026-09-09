@@ -9,7 +9,7 @@ Last reviewed: 2026-09-08. Reflects the implemented production system.
 
 ### 1.1 Stack
 
-React + TypeScript SPA built with Vite, Tailwind-based UI, Supabase backend, deployed on Netlify. Tests: Vitest/Jest DOM suite (~5,400 tests) plus Playwright e2e. CI: GitHub Actions with a pre-push fast gate (related tests) and full suite on push.
+React + TypeScript SPA built with Vite, Tailwind-based UI, Supabase backend, deployed on Netlify. Tests: Vitest/Jest DOM suite (6,081 tests) plus Playwright e2e. CI: GitHub Actions with a pre-push fast gate (related tests) and full suite on push.
 
 ### 1.2 Routes and Pages
 
@@ -47,6 +47,10 @@ Routing lives in `src/App.tsx`. Key public routes:
 ### 1.4 Responsive and PWA
 
 Mobile-first styling throughout; navigation adapts to a phone menu. The build generates a service worker that precaches the app shell and static assets (about 395 files), enabling offline app loading and stale-while-revalidate updates. Calculation results can be cached locally (`local-projects.ts`, localStorage) so users can work with poor connectivity; anything needing live data (auth, market prices, saves) requires connectivity and reports errors honestly when offline.
+
+### 1.5 ARCHIE Owner PWA
+
+`/archie` is an owner-only companion PWA with its own shell (`src/components/archie/ArchieLayout.tsx`), manifest and dark "command centre" visual language, deliberately separate from the public FRELUX light theme. The premium design layer lives in `src/styles/archie-premium.css` (aurora backdrop, glassmorphic `.archie-panel`, gradient `.archie-title-gradient`, glow `.archie-input`/`.archie-btn-primary`, reduced-motion safe) with shared building blocks in `src/components/archie/premium.tsx` (ArchiePage, ArchiePanel, ArchieStat, ArchieButton, ArchieBadge, ArchieSectionTitle). All 15 ARCHIE pages (Chat, Control, Knowledge, Learning, Devices, People, Shared, Security, System, Migration, Training, Evolution, Voice, Ops, Terminology) render inside this shell and have hermetic test files in `src/pages/archie/`.
 
 ## 2. Backend
 

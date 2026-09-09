@@ -94,8 +94,9 @@ Trusted People, ARCHIE Model & Inference, Code Sentry, Security Sentry
 - `ArchiePeople.test.tsx` (4) — invitation shown once, zero default
   permissions, server-error surfacing.
 
-Full regression 5,900/5,900 green (631 files), tsc clean. All Stage 1
-functionality unchanged.
+Full regression is now 6,081/6,081 green (654 files), tsc clean. All
+Stage 1 functionality unchanged; every ARCHIE page has a hermetic test
+file.
 
 ## 6. Knowledge Vault per-item controls (Stage 2 continuation)
 

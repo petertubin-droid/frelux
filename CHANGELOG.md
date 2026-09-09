@@ -15,6 +15,44 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `CHANGELOG.md` (this file)
 - Edge Functions reference section in `docs/API.md`
 
+## 2026-09-09 — ARCHIE PWA: Admin Continuity, Full Test Coverage & Premium Display
+
+### Added
+
+- ARCHIE PWA admin continuity: five new owner sections (Migration, Training, Evolution, Terminology/TerminoBook, Voice) plus an Evolution settings editor with language registry
+- Test coverage for all 13 previously untested ARCHIE pages (36 new tests) — every ARCHIE page now has a hermetic test file (6,081 tests total)
+- Premium display for the ARCHIE PWA: shared design layer `src/styles/archie-premium.css` (deep-space aurora backdrop, glassmorphic panels, gradient amber→gold headlines, glow inputs/buttons, reduced-motion safe) and kit `src/components/archie/premium.tsx` (ArchiePage/ArchiePanel/ArchieStat/ArchieButton/ArchieBadge), applied across all 15 pages and the shell; Chat gains amber-glow owner bubbles and frosted ARCHIE bubbles
+
+### Fixed
+
+- ArchiePeople page migrated off the light-theme tokens onto the dark ARCHIE language and given the standard page shell padding it was missing
+- Anon table-privilege cleanup with per-table verification; missing `region` column added to `frelux_learning_records`; all 21 ESLint errors resolved; CI type-check failures in the migration system fixed
+
+## 2026-08-27 — Production Hardening Sprint
+
+### Added
+
+- AdSense compliance pass: ad labels, visual separation, removal from low-content pages, `app-ads.txt`
+- Learn content: articles across DIY tutorials, FAQs, case studies, color psychology, industry news and buying guides
+
+### Changed
+
+- Build toolchain upgraded Vite 5 → Vite 8 (Rolldown + Oxc)
+
+### Fixed
+
+- Comprehensive dark-mode safety net (global overrides for hardcoded neutral/gray utilities, sticky-header/overlay opacity variants)
+- Paint engine pricing bug (price multiplied by bucket count instead of litres); rewards redemption now actually grants benefits; nav dropdown hover/click conflict with keyboard support; AdBlockNotice overlap with mobile nav
+
+## 2026-08-18 — Contractor Experience (Phase 5)
+
+### Added
+
+- Contractor project management: 11 new database tables, contractor library with waste-factor intelligence and quotation generation
+- Professional PDF generation for branded quotations (jspdf, qrcode, date-fns)
+- Smart Project Wizard, Project Dashboard (7 tabs), Room Builder, Contractor Projects List
+- Admin pages: Material Catalog, Timeline Templates, Quotation Settings (17 files, ~9,100 insertions; zero TS/ESLint/build errors, 183-test suite green at the time)
+
 ## 2026-08-26 — Test Coverage Expansion & Rate Limiting
 
 ### Added

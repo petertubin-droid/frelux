@@ -190,3 +190,11 @@ Use the Contact page to reach the team, and the in-app messaging channels where 
 ## 23. FRELUX API (For Developers)
 
 If you want to connect your own tools to FRELUX's calculators and intelligence, visit **/developers** on the website. You can create a personal API key, read the endpoint documentation, and track your usage. Keys are shown once at creation — keep them safe. Calculation results through the API come from the same engines as the website calculators, with the same honesty: FRELUX never invents missing values or unobserved prices.
+
+---
+
+## 24. The ARCHIE Owner App
+
+ARCHIE is FRELUX's owner-only companion app, available at **/archie** for the site owner (it requires owner sign-in). It is a separate installable PWA with its own icon and a premium dark "command centre" design — glass panels, soft amber glows and gradient headlines.
+
+Sections include Chat (talk to ARCHIE), Control, Knowledge Vault, Learning, Devices, People (family and trusted professionals with single-use invitation codes), Shared, Security, System, Migration, Training, Evolution, Voice, Ops and Terminology (the TerminoBook). The public FRELUX website and calculators are unaffected by anything configured inside ARCHIE.
