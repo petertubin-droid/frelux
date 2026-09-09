@@ -61,10 +61,10 @@ export default function AdminArchieVoice() {
       setUserId(auth.user.id);
       const { data: prof } = await supabase
         .from("profiles")
-        .select("is_admin")
+        .select("role")
         .eq("id", auth.user.id)
         .single();
-      setIsAdmin(!!prof?.is_admin);
+      setIsAdmin(prof?.role === "admin");
       await refresh(auth.user.id);
       const { data } = await supabase
         .from("frelux_archie_voice_samples")

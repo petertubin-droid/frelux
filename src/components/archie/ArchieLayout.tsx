@@ -15,6 +15,7 @@ import { useEffect } from "react";
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import "@/styles/archie-premium.css";
+import ArchieInstallButton from "./ArchieInstallButton";
 
 const NAV = [
   { to: "/archie/chat", label: "Chat", icon: "chat" },
@@ -182,11 +183,26 @@ export default function ArchieLayout() {
     document
       .querySelector('meta[name="theme-color"]')
       ?.setAttribute("content", "#0B0F14");
+    // Register the ARCHIE service worker (scoped to /archie) —
+    // required by browsers to offer the PWA install option.
+    let registration: ServiceWorkerRegistration | undefined;
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("/archie-sw.js", { scope: "/archie/" })
+        .then((reg) => {
+          registration = reg;
+        })
+        .catch(() => {
+          /* offline shell unavailable; the app still works online */
+        });
+    }
+
     return () => {
       if (link) link.setAttribute("href", original ?? "/manifest.json");
       document
         .querySelector('meta[name="theme-color"]')
         ?.setAttribute("content", "#6D28D9");
+      registration?.unregister().catch(() => undefined);
     };
   }, []);
 
@@ -209,8 +225,11 @@ export default function ArchieLayout() {
               Personal Intelligence
             </span>
           </div>
-          <div className="ml-auto text-[11px] text-slate-400">
-            {user?.email ? user.email : "Owner"}
+          <div className="ml-auto flex items-center gap-2">
+            <ArchieInstallButton />
+            <div className="text-[11px] text-slate-400">
+              {user?.email ? user.email : "Owner"}
+            </div>
           </div>
         </div>
       </header>

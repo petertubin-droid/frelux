@@ -47,8 +47,7 @@ import {
   Crown,
   Link2,
   Languages,
-  Dna,
-} from "lucide-react";
+  Dna, Smartphone,} from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
 import { AdminThemeProvider, useAdminTheme } from "@/lib/admin-theme";
@@ -112,6 +111,11 @@ const navModules: NavModule[] = [
         label: "Evolution Control",
         to: "/admin/archie-evolution",
         icon: Dna,
+      },
+      {
+        label: "ARCHIE Owner App",
+        to: "/archie/chat",
+        icon: Smartphone,
       },
       {
         label: "Construction Dictionary",

@@ -123,11 +123,11 @@ export default function AdminArchieTraining() {
         if (!auth?.user) return;
         const { data: profile } = await supabase
           .from("profiles")
-          .select("is_admin, full_name")
+          .select("role, full_name")
           .eq("id", auth.user.id)
           .maybeSingle();
         const me = await fetchMyContributor(
-          profile?.is_admin === true,
+          profile?.role === "admin",
           auth.user.id,
           profile?.full_name ?? auth.user.email ?? "Admin",
         );

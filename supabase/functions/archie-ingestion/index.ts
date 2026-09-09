@@ -17,7 +17,7 @@
 // through an authorized admin workflow only. No provider API keys
 // exist in this code; the service role key is server-side env.
 // =========================================================
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
 const MAX_PER_HOUR = 20;
 const RATE_WINDOW_MS = 3_600_000;
@@ -141,18 +141,16 @@ Deno.serve(async (req: Request) => {
       message: `Ingestion limit reached (${MAX_PER_HOUR}/hour). Try again later.`,
     });
   }
-  await service
-    .from("frelux_learning_rate_limits")
-    .upsert(
-      {
-        key: rlKey,
-        window_start: expired
-          ? now.toISOString()
-          : new Date(windowStart).toISOString(),
-        count: count + 1,
-      },
-      { onConflict: "key" },
-    );
+  await service.from("frelux_learning_rate_limits").upsert(
+    {
+      key: rlKey,
+      window_start: expired
+        ? now.toISOString()
+        : new Date(windowStart).toISOString(),
+      count: count + 1,
+    },
+    { onConflict: "key" },
+  );
 
   // Duplicate detection by content hash.
   const { data: dup } = await service

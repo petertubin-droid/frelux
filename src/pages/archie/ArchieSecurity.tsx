@@ -1,106 +1,174 @@
 // =========================================================
-// FRELUX ARCHIE STAGE 1 — SECURITY CENTER
+// FRELUX ARCHIE STAGE 1, SECURITY
 //
-// Owner-visible audit trail (real events from archie-core
-// and session actions), access-denied events and the
-// security posture. No fabricated incidents (spec §12, §3).
+// Live security feed and the Owner authorization ledger.
+// Protected operations always pass through the server-side
+// authorization workflow: a bug report, recommendation or AI
+// decision is NEVER interpreted as Owner authorization.
 // =========================================================
+import { useEffect, useState } from "react";
+import { Loader2, AlertCircle, ShieldCheck, FileCheck } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { classNames } from "@/lib/utils";
 
-import { useCallback, useEffect, useState } from "react";
-import {
-  listAuditEvents,
-  type ArchieAuditEvent,
-} from "@/lib/archie/stage1-client";
-import {
-  ArchiePage,
-  ArchieStat,
-  ArchieBadge,
-} from "@/components/archie/premium";
+interface SecurityEvent {
+  id: string;
+  kind: string;
+  severity: string;
+  message: string;
+  created_date: string;
+}
 
-function severityTone(
-  s: ArchieAuditEvent["severity"],
-): "critical" | "warning" | "neutral" {
-  if (s === "CRITICAL") return "critical";
-  if (s === "WARNING") return "warning";
-  return "neutral";
+interface OwnerAuthorization {
+  id: string;
+  change_kind: string;
+  target: string;
+  status: string;
+  tests_passed: boolean;
+  created_date: string;
+}
+
+function severityClass(severity: string): string {
+  if (severity === "CRITICAL") return "bg-destructive/10 text-destructive";
+  if (severity === "WARNING" || severity === "warning")
+    return "bg-amber-500/10 text-amber-600 dark:text-amber-400";
+  return "bg-muted text-muted-foreground";
 }
 
 export default function ArchieSecurity() {
-  const [events, setEvents] = useState<ArchieAuditEvent[]>([]);
+  const [events, setEvents] = useState<SecurityEvent[]>([]);
+  const [auths, setAuths] = useState<OwnerAuthorization[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      setEvents(await listAuditEvents(60));
-      setError(null);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not load audit trail");
-    } finally {
-      setLoading(false);
-    }
+  useEffect(() => {
+    (async () => {
+      try {
+        const [eventsRes, authsRes] = await Promise.all([
+          supabase
+            .from("frelux_security_events")
+            .select("id,kind,severity,message,created_date")
+            .order("created_date", { ascending: false })
+            .limit(30),
+          supabase
+            .from("frelux_owner_authorizations")
+            .select("id,change_kind,target,status,tests_passed,created_date")
+            .order("created_date", { ascending: false })
+            .limit(20),
+        ]);
+        if (eventsRes.error || authsRes.error) {
+          setError(
+            eventsRes.error?.message ??
+              authsRes.error?.message ??
+              "Security data unavailable",
+          );
+          return;
+        }
+        setEvents((eventsRes.data ?? []) as SecurityEvent[]);
+        setAuths((authsRes.data ?? []) as OwnerAuthorization[]);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const critical = events.filter((e) => e.severity === "CRITICAL").length;
-  const warnings = events.filter((e) => e.severity === "WARNING").length;
-
-  const postureValue =
-    critical > 0 ? "CRITICAL" : warnings > 0 ? "WARNING" : "NORMAL";
-  const postureTone =
-    critical > 0 ? "critical" : warnings > 0 ? "warning" : "positive";
-
   return (
-    <ArchiePage
-      title="Security"
-      subtitle="Server-side authorization, audit logging and revocation. ARCHIE is Owner-only — every non-admin access attempt is recorded below."
-    >
-      <div className="mt-4 grid grid-cols-3 gap-2">
-        <ArchieStat label="Posture" value={postureValue} tone={postureTone} />
-        <ArchieStat
-          label="Warnings"
-          value={warnings}
-          tone={warnings > 0 ? "warning" : "neutral"}
-        />
-        <ArchieStat label="Events" value={events.length} tone="neutral" />
+    <div className="space-y-6" data-testid="archie-security">
+      <div>
+        <h1 className="font-display text-xl font-bold text-foreground">
+          Security
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Security events and the Owner authorization ledger. Server-side
+          enforcement: sessions, token rotation, revocation, audit.
+        </p>
       </div>
 
-      {error && (
-        <p role="alert" className="mt-4 text-sm text-amber-300">
-          {error}
-        </p>
-      )}
-      {loading && (
-        <p className="mt-4 text-xs text-slate-500">Loading audit trail…</p>
-      )}
-
-      <ul className="mt-4 space-y-2">
-        {events.map((e) => (
-          <li
-            key={e.id}
-            className="archie-panel flex items-center gap-2.5 rounded-xl px-3.5 py-2.5"
+      <section aria-label="Security events">
+        <h2 className="mb-3 font-display text-base font-bold text-foreground">
+          Recent security events
+        </h2>
+        {loading ? (
+          <p
+            className="flex items-center gap-2 text-sm text-muted-foreground"
+            role="status"
           >
-            <ArchieBadge tone={severityTone(e.severity)}>
-              {e.severity}
-            </ArchieBadge>
-            <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-200">
-              {e.event_type}
-            </span>
-            <span className="text-[10px] text-slate-500">
-              {new Date(e.created_date).toLocaleString()}
-            </span>
-          </li>
-        ))}
-      </ul>
-      {!loading && events.length === 0 && !error && (
-        <p className="mt-4 text-sm text-slate-500">
-          No security events recorded yet — a quiet system is a good system.
-        </p>
-      )}
-    </ArchiePage>
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />{" "}
+            Loading…
+          </p>
+        ) : error ? (
+          <p
+            role="alert"
+            className="flex items-center gap-1.5 text-sm text-destructive"
+          >
+            <AlertCircle className="h-4 w-4" aria-hidden="true" /> {error}
+          </p>
+        ) : events.length === 0 ? (
+          <p className="flex items-center gap-2 rounded-xl border border-dashed border-border p-6 text-sm text-muted-foreground">
+            <ShieldCheck className="h-4 w-4" aria-hidden="true" /> No security
+            events recorded.
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {events.map((e) => (
+              <li
+                key={e.id}
+                className="flex items-start justify-between gap-3 rounded-xl border border-border bg-card p-3.5"
+              >
+                <div>
+                  <p className="text-sm text-foreground">{e.message}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {e.kind} · {new Date(e.created_date).toLocaleString()}
+                  </p>
+                </div>
+                <span
+                  className={classNames(
+                    "rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                    severityClass(e.severity),
+                  )}
+                >
+                  {e.severity}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      <section aria-label="Owner authorizations">
+        <h2 className="mb-3 font-display text-base font-bold text-foreground">
+          Owner authorization ledger
+        </h2>
+        {auths.length === 0 ? (
+          <p className="flex items-center gap-2 rounded-xl border border-dashed border-border p-6 text-sm text-muted-foreground">
+            <FileCheck className="h-4 w-4" aria-hidden="true" />
+            No protected operations have been authorized yet.
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {auths.map((a) => (
+              <li
+                key={a.id}
+                className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-3.5"
+              >
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    {a.change_kind}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {a.target} · tests{" "}
+                    {a.tests_passed ? "passed" : "not passed"} ·{" "}
+                    {new Date(a.created_date).toLocaleString()}
+                  </p>
+                </div>
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                  {a.status}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
   );
 }

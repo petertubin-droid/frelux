@@ -18,7 +18,7 @@
 //   * NEVER promotes knowledge — extraction only; promotion is
 //     a separate human approval flow
 // =========================================================
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 
 const GEMINI_MODEL = "gemini-3.6-flash";
 const MAX_PER_HOUR = 30;
@@ -213,13 +213,11 @@ Deno.serve(async (req: Request) => {
         .update({ count: hits })
         .eq("bucket_key", rateKey);
     } else {
-      await service
-        .from("frelux_learning_rate_limits")
-        .upsert({
-          bucket_key: rateKey,
-          window_start: new Date(now).toISOString(),
-          count: hits,
-        });
+      await service.from("frelux_learning_rate_limits").upsert({
+        bucket_key: rateKey,
+        window_start: new Date(now).toISOString(),
+        count: hits,
+      });
     }
   } catch (_rlErr) {
     hits = 1; // never block training on rate-limit store failure

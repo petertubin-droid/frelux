@@ -1,119 +1,169 @@
 // =========================================================
-// FRELUX ARCHIE STAGE 1 — LEARNING CENTER
+// FRELUX ARCHIE STAGE 1, LEARNING
 //
-// The real learning pipeline (Phase 6.5/8): INPUT → EXTRACT
-// → UNDERSTAND → STRUCTURE → VALIDATE → EVALUATE → SHOW OWNER
-// → OWNER APPROVAL → VERSION → KNOWLEDGE (spec §8).
-// Candidates created through chat ("Teach ARCHIE") land here
-// as AWAITING_APPROVAL — never auto-promoted.
+// The ARCHIE learning pipeline, made visible: every ingestion
+// with its real pipeline state and candidate count. Promotion
+// is ALWAYS a human Owner action (RLS-enforced); ARCHIE never
+// approves its own learning.
 // =========================================================
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { Loader2, AlertCircle, ArrowUpRight } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
-import { useCallback, useEffect, useState } from "react";
-import {
-  listLearningIngestions,
-  type ArchieLearningIngestion,
-} from "@/lib/archie/stage1-client";
-import {
-  ArchiePage,
-  ArchiePanel,
-  ArchieSectionTitle,
-  ArchieBadge,
-} from "@/components/archie/premium";
+const PIPELINE = [
+  "INPUT",
+  "EXTRACT",
+  "UNDERSTAND",
+  "STRUCTURE",
+  "VALIDATE",
+  "EVALUATE",
+  "SHOW OWNER",
+  "OWNER APPROVAL",
+  "VERSION",
+  "KNOWLEDGE",
+];
 
-const STATE_LABEL: Record<string, string> = {
-  RECEIVED: "Received",
-  EXTRACTING: "Extracting",
-  EXTRACTED: "Extracted",
-  STRUCTURED: "Structured",
-  VALIDATED: "Validated",
-  EVALUATED: "Evaluated",
-  AWAITING_APPROVAL: "Awaiting your approval",
-  APPROVED: "Approved",
-  REJECTED: "Rejected",
-};
-
-function stateTone(
-  state: string,
-): "warning" | "positive" | "critical" | "neutral" {
-  if (state === "AWAITING_APPROVAL") return "warning";
-  if (state === "APPROVED") return "positive";
-  if (state === "REJECTED") return "critical";
-  return "neutral";
+interface Ingestion {
+  id: string;
+  title: string;
+  domain: string;
+  input_type: string;
+  pipeline_state: string;
+  candidate_count: number;
+  created_date: string;
 }
 
 export default function ArchieLearning() {
-  const [items, setItems] = useState<ArchieLearningIngestion[]>([]);
+  const [ingestions, setIngestions] = useState<Ingestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    try {
-      setItems(await listLearningIngestions());
-      setError(null);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not load pipeline");
-    } finally {
-      setLoading(false);
-    }
+  useEffect(() => {
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("frelux_archie_ingestions")
+          .select(
+            "id,title,domain,input_type,pipeline_state,candidate_count,created_date",
+          )
+          .order("created_date", { ascending: false })
+          .limit(30);
+        if (error) setError(error.message);
+        else setIngestions((data ?? []) as Ingestion[]);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, []);
 
-  useEffect(() => {
-    load();
-  }, [load]);
-
-  const awaiting = items.filter(
-    (i) => i.pipeline_state === "AWAITING_APPROVAL",
-  );
-
   return (
-    <ArchiePage
-      title="Learning"
-      subtitle="ARCHIE shows you what it believes it learned before anything is promoted. Review and approve candidates in the Training section — nothing here becomes knowledge on its own."
-    >
-      <ArchiePanel accent className="p-4 text-xs text-slate-300">
-        <ArchieSectionTitle>Pipeline</ArchieSectionTitle>
-        <p className="mt-1 text-slate-400">
-          INPUT → EXTRACT → UNDERSTAND → STRUCTURE → VALIDATE → EVALUATE → SHOW
-          OWNER → OWNER APPROVAL → VERSION → KNOWLEDGE
+    <div className="space-y-6" data-testid="archie-learning">
+      <div>
+        <h1 className="font-display text-xl font-bold text-foreground">
+          Learning
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          How ARCHIE learns. ARCHIE shows you what it believes it learned before
+          anything becomes knowledge. You are the approval step.
         </p>
-        <p className="mt-2.5 font-medium text-amber-200/90">
-          {awaiting.length} candidate(s) awaiting your approval
-        </p>
-      </ArchiePanel>
+      </div>
 
-      {error && (
-        <p role="alert" className="mt-4 text-sm text-amber-300">
-          {error}
-        </p>
-      )}
-      {loading && (
-        <p className="mt-4 text-xs text-slate-500">Loading pipeline…</p>
-      )}
-
-      <ul className="mt-4 space-y-2">
-        {items.map((i) => (
-          <li key={i.id} className="archie-panel rounded-xl p-3.5">
-            <div className="flex items-center gap-2">
-              <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-200">
-                {i.title}
+      <section
+        aria-label="Learning pipeline"
+        className="rounded-xl border border-border bg-card p-4"
+      >
+        <h2 className="mb-2 font-display text-base font-bold text-foreground">
+          Pipeline
+        </h2>
+        <ol className="flex flex-wrap gap-1.5">
+          {PIPELINE.map((step, i) => (
+            <li key={step} className="flex items-center gap-1.5">
+              <span
+                className={
+                  i >= 6
+                    ? "rounded-md bg-primary/10 px-2 py-1 text-[11px] font-semibold text-primary"
+                    : "rounded-md bg-muted px-2 py-1 text-[11px] font-semibold text-muted-foreground"
+                }
+              >
+                {step}
               </span>
-              <ArchieBadge tone={stateTone(i.pipeline_state)}>
-                {STATE_LABEL[i.pipeline_state] ?? i.pipeline_state}
-              </ArchieBadge>
-            </div>
-            <p className="mt-1 text-[11px] text-slate-500">
-              {i.domain} · {i.input_type} · {i.candidate_count} candidate(s)
-            </p>
-          </li>
-        ))}
-      </ul>
-      {!loading && items.length === 0 && !error && (
-        <p className="mt-4 text-sm text-slate-500">
-          Nothing in the learning pipeline yet. Use "Teach" in the Chat Center
-          to queue your first candidate.
+              {i < PIPELINE.length - 1 && (
+                <span aria-hidden="true" className="text-muted-foreground">
+                  →
+                </span>
+              )}
+            </li>
+          ))}
+        </ol>
+        <p className="mt-2 text-xs text-muted-foreground">
+          The highlighted steps are the Owner gates: ARCHIE can never approve
+          its own learning.
         </p>
-      )}
-    </ArchiePage>
+      </section>
+
+      <section aria-label="Ingestions">
+        <div className="mb-3 flex items-center justify-between">
+          <h2 className="font-display text-base font-bold text-foreground">
+            Recent ingestions
+          </h2>
+          <Link
+            to="/admin/archie-training"
+            className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+          >
+            Review and approve candidates{" "}
+            <ArrowUpRight className="h-3 w-3" aria-hidden="true" />
+          </Link>
+        </div>
+        {loading ? (
+          <p
+            className="flex items-center gap-2 text-sm text-muted-foreground"
+            role="status"
+          >
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />{" "}
+            Loading ingestions…
+          </p>
+        ) : error ? (
+          <p
+            role="alert"
+            className="flex items-center gap-1.5 text-sm text-destructive"
+          >
+            <AlertCircle className="h-4 w-4" aria-hidden="true" /> {error}
+          </p>
+        ) : ingestions.length === 0 ? (
+          <p className="rounded-xl border border-dashed border-border p-6 text-sm text-muted-foreground">
+            Nothing has been taught to ARCHIE yet. Use Teach ARCHIE in a
+            conversation to start.
+          </p>
+        ) : (
+          <ul className="space-y-2">
+            {ingestions.map((i) => (
+              <li
+                key={i.id}
+                className="flex items-start justify-between gap-3 rounded-xl border border-border bg-card p-3.5"
+              >
+                <div>
+                  <p className="text-sm font-semibold text-foreground line-clamp-1">
+                    {i.title}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {i.domain} · {i.input_type} ·{" "}
+                    {new Date(i.created_date).toLocaleString()}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                    {i.pipeline_state}
+                  </span>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    {i.candidate_count} candidate(s)
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+    </div>
   );
 }
