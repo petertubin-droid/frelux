@@ -1,10 +1,13 @@
 // =========================================================
-// ARCHIE CODING STUDIO — ADMIN SURFACE
+// ARCHIE PWA — CODING SURFACE (/archie/coding)
 //
-// Thin wrapper: the real workbench is ONE shared component
-// (src/components/studio/StudioWorkbench.tsx) used by both
-// the Admin console and the ARCHIE Owner PWA. No duplicate
-// implementation, no separate feature set.
+// The Owner's complete mobile coding command center:
+//   * ARCHIE CODING STUDIO — the SAME shared workbench as
+//     the admin console (one implementation, one backend)
+//   * CODE INTELLIGENCE — findings, traces, patch approvals
+//
+// No PWA-only duplicate: both panels are the shared
+// components the admin console renders too.
 // =========================================================
 
 import { useState } from "react";
@@ -13,8 +16,11 @@ import StudioWorkbench from "@/components/studio/StudioWorkbench";
 import CodeIntelligencePanel from "@/components/archie/CodeIntelligencePanel";
 import { Button } from "@/components/ui/shadcn/button";
 
-export default function AdminArchieStudio() {
-  const [surface, setSurface] = useState<"studio" | "intelligence">("studio");
+type Surface = "studio" | "intelligence";
+
+export default function ArchieCoding() {
+  const [surface, setSurface] = useState<Surface>("studio");
+
   return (
     <div>
       <div className="mx-auto max-w-7xl px-4 pt-2 md:pt-4">

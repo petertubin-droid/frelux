@@ -50,6 +50,7 @@ const LOADERS: Record<CoreSystemKey, () => Promise<Record<string, unknown>>> = {
   AI_CORE: () => import("@/lib/ai"),
   ENGINEERING_OBJECTIVE: () => import("@/lib/archie/engineering-objective"),
   STUDIO: () => import("@/lib/studio/preview"),
+  PWA_ARCHITECTURE: () => import("@/lib/archie/pwa-architecture"),
   DETERMINISTIC_ENGINES: () => import("@/lib/ai-foundation/engines-registry"),
   CALCULATORS: () => import("@/lib/calc"),
   PROJECTS_PROPERTIES: () => import("@/lib/local-projects"),

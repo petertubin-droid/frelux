@@ -19,6 +19,7 @@ import ArchieInstallButton from "./ArchieInstallButton";
 
 const NAV = [
   { to: "/archie/chat", label: "Chat", icon: "chat" },
+  { to: "/archie/coding", label: "Coding", icon: "control" },
   { to: "/archie/control", label: "Control", icon: "control" },
   { to: "/archie/knowledge", label: "Knowledge", icon: "knowledge" },
   { to: "/archie/learning", label: "Learning", icon: "learning" },

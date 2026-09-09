@@ -54,7 +54,7 @@ export interface StudioActionResponse {
 
 /** Invoke a studio action (server does REAL inference + validation). */
 export async function studioAction(
-  action: "create" | "feedback" | "approve" | "rollback",
+  action: "create" | "feedback" | "approve" | "rollback" | "archive",
   payload: {
     brief?: string;
     projectId?: string;

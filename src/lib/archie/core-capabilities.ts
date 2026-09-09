@@ -32,7 +32,8 @@ export type CoreSystemKey =
   | "FOUNDATION_KNOWLEDGE"
   | "COST_GOVERNANCE"
   | "ENGINEERING_OBJECTIVE"
-  | "STUDIO";
+  | "STUDIO"
+  | "PWA_ARCHITECTURE";
 
 export interface CoreSystemBinding {
   key: CoreSystemKey;
@@ -257,6 +258,22 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
     deterministic: false,
     autonomy: "ARCHIE_AUTONOMOUS",
     note: "Phase 8 P5: owner-only research/analysis domain. Financial execution is structurally impossible (FORBIDDEN_FINANCIAL_ACTIONS); predictions never guaranteed; owner-private data.",
+  },
+  {
+    key: "PWA_ARCHITECTURE",
+    label: "ARCHIE Owner PWA — complete capability exposure",
+    family: "ARCHIE owner command center",
+    module: "@/lib/archie/pwa-architecture",
+    exports: ["PWA_CAPABILITY_MAP", "assertPwaExposure"],
+    deterministic: true,
+    autonomy: "ARCHIE_AUTONOMOUS",
+    note:
+      "Permanent Owner rule: every new core capability is " +
+      "integrated into the standalone PWA in the same feature " +
+      "implementation — same identity, backend, memory, " +
+      "knowledge, workspace and permissions. Enforced by " +
+      "assertPwaExposure() + CI tests; exceptions require an " +
+      "explicit Owner Authority restriction with a reason.",
   },
   {
     key: "STUDIO",

@@ -66,7 +66,7 @@ const db = createClient(SUPABASE_URL, SERVICE_ROLE, {
 // Request contract
 // ---------------------------------------------------------
 interface StudioBody {
-  action: "create" | "feedback" | "approve" | "rollback";
+  action: "create" | "feedback" | "approve" | "rollback" | "archive";
   brief?: string;
   projectId?: string;
   comment?: string;
@@ -147,8 +147,9 @@ function buildRequest(
       },
     ],
     systemInstruction: STUDIO_SYSTEM_PROMPT,
+    tools: [], // the studio generates a file manifest — no tool calling
     temperature: 0.7,
-    maxOutputTokens: 32768,
+    maxOutputTokens: 65535,
   };
 }
 
@@ -162,15 +163,13 @@ async function persistDraft(
 ): Promise<void> {
   await db.from("frelux_studio_files").delete().eq("project_id", projectId);
   if (files.length > 0) {
-    await db
-      .from("frelux_studio_files")
-      .insert(
-        files.map((f) => ({
-          project_id: projectId,
-          path: f.path,
-          content: f.content,
-        })),
-      );
+    await db.from("frelux_studio_files").insert(
+      files.map((f) => ({
+        project_id: projectId,
+        path: f.path,
+        content: f.content,
+      })),
+    );
   }
 }
 
@@ -247,13 +246,11 @@ Deno.serve(async (req) => {
       return json(403, { error: "ARCHIE Coding Studio is Owner-only." });
     }
 
-    const limited = await checkRateLimit(
-      user.id,
-      "archie-studio",
-      30,
-      60 * 1000,
-    );
-    if (limited)
+    const rl = checkRateLimit(`archie-studio:${user.id}`, {
+      maxRequests: 30,
+      windowMs: 60_000,
+    });
+    if (!rl.allowed)
       return json(429, {
         error: "Too many studio requests, please wait a moment.",
       });
@@ -329,6 +326,13 @@ Deno.serve(async (req) => {
         .map((p: { text?: string }) => p.text ?? "")
         .join("")
         .trim();
+      if (result.finishReason === "MAX_TOKENS") {
+        return json(502, {
+          error:
+            "The engine's output was truncated before the manifest was complete — no code was persisted. Reduce the scope of the brief (fewer pages or sections) and try again.",
+          engine: result.engine,
+        });
+      }
       const manifest = parseManifest(text);
       if (
         !manifest ||
@@ -499,6 +503,40 @@ Deno.serve(async (req) => {
         status: "READY_FOR_DEPLOYMENT",
         message:
           "Production build verified and packaged as an immutable version. NOTHING WAS DEPLOYED — deployment proceeds only through the Owner-authorized deployment workflow.",
+      });
+    }
+
+    // -----------------------------------------------------
+    // ARCHIVE: workspace management. Sets the project to
+    // ARCHIVED (hidden from the active list). Versions are
+    // IMMUTABLE history and are never deleted by this action.
+    // -----------------------------------------------------
+    if (body.action === "archive") {
+      if (!body.projectId)
+        return json(400, { error: "projectId is required." });
+      const loaded = await loadProject(body.projectId);
+      if (!loaded) return json(404, { error: "Studio project not found." });
+      if (loaded.project.status === "READY_FOR_DEPLOYMENT") {
+        return json(409, {
+          error:
+            "This project is an approved production build. Owner Authority Layer: archiving an approved build requires explicit instruction.",
+        });
+      }
+      const now = new Date().toISOString();
+      await db
+        .from("frelux_studio_projects")
+        .update({ status: "ARCHIVED", updated_date: now })
+        .eq("id", body.projectId);
+      await db.from("frelux_studio_reviews").insert({
+        project_id: body.projectId,
+        kind: "ROLLBACK",
+        comment: body.comment?.trim() || "Owner archived the project.",
+        created_by: user.id,
+      });
+      return json(200, {
+        projectId: body.projectId,
+        message:
+          "Project archived. All immutable versions are preserved and it is out of the active workspace list.",
       });
     }
 

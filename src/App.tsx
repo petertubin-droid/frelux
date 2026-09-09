@@ -210,6 +210,7 @@ const AdminArchieTraining = lazy(
 const AdminArchieVoice = lazy(() => import("@/pages/admin/AdminArchieVoice"));
 const AdminArchieOps = lazy(() => import("@/pages/admin/AdminArchieOps"));
 const AdminArchieStudio = lazy(() => import("@/pages/admin/AdminArchieStudio"));
+const ArchieCoding = lazy(() => import("@/pages/archie/ArchieCoding"));
 const AdminArchieTerminology = lazy(
   () => import("@/pages/admin/AdminArchieTerminology"),
 );
@@ -1056,6 +1057,7 @@ export default function App() {
                     <Route path="training" element={<ArchieTraining />} />
                     <Route path="evolution" element={<ArchieEvolution />} />
                     <Route path="voice" element={<ArchieVoice />} />
+                    <Route path="coding" element={<ArchieCoding />} />
                     <Route path="ops" element={<ArchieOps />} />
                     <Route path="terminology" element={<ArchieTerminology />} />
                     <Route path="*" element={<NotFound />} />
