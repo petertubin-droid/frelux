@@ -119,6 +119,7 @@ const ArchiePeople = lazy(() => import("@/pages/archie/ArchiePeople"));
 const ArchieShared = lazy(() => import("@/pages/archie/ArchieShared"));
 const ArchieSecurity = lazy(() => import("@/pages/archie/ArchieSecurity"));
 const ArchieSystem = lazy(() => import("@/pages/archie/ArchieSystem"));
+const ArchieMigration = lazy(() => import("@/pages/archie/ArchieMigration"));
 const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"));
 const AdminAIAssistant = lazy(() => import("@/pages/admin/AdminAIAssistant"));
 const AdminEstimationConfig = lazy(
@@ -1034,6 +1035,7 @@ export default function App() {
                     <Route path="shared" element={<ArchieShared />} />
                     <Route path="security" element={<ArchieSecurity />} />
                     <Route path="system" element={<ArchieSystem />} />
+                    <Route path="migration" element={<ArchieMigration />} />
                     <Route path="*" element={<NotFound />} />
                   </Route>
 

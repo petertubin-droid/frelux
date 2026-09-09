@@ -113,6 +113,14 @@ const SYSTEMS: SystemSection[] = [
     description: "Internal provider cost ledger and budgets.",
   },
   {
+    key: "migration",
+    title: "Migration Center",
+    state: "operational",
+    route: "/archie/migration",
+    description:
+      "Portable continuity — backup, migrate, verify and restore ARCHIE's portable state across environments (USB → PC/VPS/cloud). Owner-authorized, secret-free packages.",
+  },
+  {
     key: "family",
     title: "Family & Trusted People",
     state: "operational",

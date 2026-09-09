@@ -140,7 +140,9 @@ export type OwnerChangeKind =
   | "CALCULATOR_ENGINE_CHANGE"
   | "DETERMINISTIC_LOGIC_CHANGE"
   | "HIGH_RISK_CONFIG_CHANGE"
-  | "KNOWLEDGE_PROMOTION";
+  | "KNOWLEDGE_PROMOTION"
+  /** Portable continuity: backup/migration/restore of ARCHIE state. */
+  | "ARCHIE_MIGRATION";
 
 export interface OwnerAuthorizationRecord {
   id: string;

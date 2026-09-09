@@ -42,6 +42,13 @@ export const OWNER_CHANGE_POLICY: Readonly<
     label: "Knowledge promotion",
     requiresEngineeringReview: false,
   },
+  ARCHIE_MIGRATION: {
+    changeKind: "ARCHIE_MIGRATION",
+    label: "ARCHIE migration package (backup / migrate / restore)",
+    // Migration moves ARCHIE's state between environments —
+    // privileged and high-risk (spec §8, §24).
+    requiresEngineeringReview: true,
+  },
 };
 
 export function requiresOwnerAuth(changeKind: OwnerChangeKind): {

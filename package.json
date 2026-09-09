@@ -22,7 +22,7 @@
     "generate-sw": "node scripts/generate-sw.mjs",
     "lighthouse": "npx @lhci/cli autorun",
     "lighthouse:collect": "npx @lhci/cli collect --config=./.lighthouserc.json",
-    "build:api-engines": "npx esbuild src/lib/frelix-api/server-engines.ts --bundle --format=esm --platform=browser --target=es2022 --alias:@=./src --outfile=supabase/functions/frelix-api/_engines.bundle.js --define:import.meta.env={} --define:import.meta.env.VITE_SUPABASE_URL=\\\"https://hqhvlkunkdrxyuvziorm.supabase.co\\\" --define:import.meta.env.VITE_SUPABASE_ANON_KEY=\\\"\\$VITE_ANON_KEY\\\" && node -e \"const fs=require('fs');const p='supabase/functions/frelix-api/_engines.bundle.js';let s=fs.readFileSync(p,'utf8');if(!s.startsWith('// GENERATED')){s='// GENERATED FILE \u2014 do not edit. Regenerate with: npm run build:api-engines\\n// (bundles src/lib/frelix-api/server-engines.ts: canonical engine registry + key/auth modules)\\n'+s;fs.writeFileSync(p,s)}\""
+    "build:api-engines": "npx esbuild src/lib/frelix-api/server-engines.ts --bundle --format=esm --platform=browser --target=es2022 --alias:@=./src --outfile=supabase/functions/frelix-api/_engines.bundle.js --define:import.meta.env={} --define:import.meta.env.VITE_SUPABASE_URL=\\\"https://hqhvlkunkdrxyuvziorm.supabase.co\\\" --define:import.meta.env.VITE_SUPABASE_ANON_KEY=\\\"\\$VITE_ANON_KEY\\\" && node -e \"const fs=require('fs');const p='supabase/functions/frelix-api/_engines.bundle.js';let s=fs.readFileSync(p,'utf8');if(!s.startsWith('// GENERATED')){s='// GENERATED FILE — do not edit. Regenerate with: npm run build:api-engines\\n// (bundles src/lib/frelix-api/server-engines.ts: canonical engine registry + key/auth modules)\\n'+s;fs.writeFileSync(p,s)}\""
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "^1.3.11",
@@ -42,6 +42,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "date-fns": "^4.4.0",
+    "fflate": "^0.8.3",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.344.0",
     "qrcode": "^1.5.4",

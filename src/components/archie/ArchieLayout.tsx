@@ -25,6 +25,7 @@ const NAV = [
   { to: "/archie/shared", label: "Shared", icon: "knowledge" },
   { to: "/archie/security", label: "Security", icon: "security" },
   { to: "/archie/system", label: "System", icon: "system" },
+  { to: "/archie/migration", label: "Migration", icon: "migration" },
 ] as const;
 
 function NavIcon({ name }: { name: string }) {
@@ -104,6 +105,21 @@ function NavIcon({ name }: { name: string }) {
         >
           <rect x="6" y="2" width="12" height="20" rx="2" />
           <path d="M11 18h2" strokeLinecap="round" />
+        </svg>
+      );
+    case "migration":
+      return (
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          className={common}
+        >
+          <path d="M3 12h12" strokeLinecap="round" />
+          <path d="m11 8 4 4-4 4" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M17 4v16" strokeLinecap="round" />
+          <path d="M21 8v8" strokeLinecap="round" />
         </svg>
       );
     case "security":
