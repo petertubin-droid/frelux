@@ -34,6 +34,7 @@ import type {
   EvolutionChangeRequest,
   EvolutionSettings,
   LanguageProfile,
+  LanguageLearningSettings,
 } from "@/lib/archie/evolution/types";
 
 const STATE_LABELS: Record<string, string> = {
@@ -262,32 +263,31 @@ export default function ArchieEvolution() {
             </p>
             {(
               [
-                ["language.enabled", "Language learning"],
-                ["language.autoLearning", "Auto learning"],
-                ["language.autoMemory", "Auto memory"],
-                ["language.externalResearch", "External research"],
-                ["language.dialectLearning", "Dialect learning"],
+                ["enabled", "Language learning"],
+                ["autoLearning", "Auto learning"],
+                ["autoMemory", "Auto memory"],
+                ["externalResearch", "External research"],
+                ["dialectLearning", "Dialect learning"],
                 [
-                  "language.requireApprovalBeforePermanentMemory",
+                  "requireApprovalBeforePermanentMemory",
                   "Approval before permanent memory",
                 ],
-              ] as const
-            ).map(([path, label]) => (
+              ] as const satisfies readonly [
+                keyof LanguageLearningSettings,
+                string,
+              ][]
+            ).map(([key, label]) => (
               <label
-                key={path}
+                key={key}
                 className="flex items-center justify-between gap-3"
               >
                 <span className="text-xs text-slate-300">{label}</span>
                 <Switch
-                  checked={
-                    (settings.language as unknown as Record<string, boolean>)[
-                      path.split(".")[1]
-                    ]
-                  }
-                  onCheckedChange={(val) =>
+                  checked={settings.language[key]}
+                  onCheckedChange={(val: boolean) =>
                     setSettings((s) => ({
                       ...s,
-                      language: { ...s.language, [path.split(".")[1]]: val },
+                      language: { ...s.language, [key]: val },
                     }))
                   }
                 />
@@ -341,7 +341,7 @@ export default function ArchieEvolution() {
                 <span className="text-xs text-slate-300">{label}</span>
                 <Switch
                   checked={settings.selfModification[key]}
-                  onCheckedChange={(val) =>
+                  onCheckedChange={(val: boolean) =>
                     setSettings((s) => ({
                       ...s,
                       selfModification: { ...s.selfModification, [key]: val },

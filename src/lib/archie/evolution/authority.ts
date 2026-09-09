@@ -37,6 +37,9 @@ import type { EvolutionActor } from "./types";
  * this gate.
  */
 export const PROTECTED_SURFACES: readonly string[] = [
+  "src/lib/archie/capability-authority.ts",
+  "src/lib/archie/authorized-security.ts",
+  "src/lib/archie/global-orchestrator.ts",
   "src/lib/archie/evolution/authority.ts",
   "src/lib/archie/authority-boundary.ts",
   "src/lib/archie/code-command.ts",

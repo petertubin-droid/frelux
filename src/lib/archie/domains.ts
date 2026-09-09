@@ -10,6 +10,7 @@
 // =========================================================
 
 import type { ArchieDomain, ArchieRiskClass } from "./types";
+import { GLOBAL_EXPANSION_DOMAINS } from "./global-domains";
 import { isMathCapability } from "@/lib/learning/learning-engine";
 
 /** The seeded registry, mirrors migration 20260908140000. */
@@ -313,8 +314,13 @@ export class ArchieDomainRegistry {
   }
 }
 
-/** Singleton registry used by pure pipeline logic. */
-export const archieDomains = new ArchieDomainRegistry();
+/** Singleton registry used by pure pipeline logic.
+ *  Seeded with the FRELUX registry AND the global expansion
+ *  domains — ARCHIE's knowledge horizon is global (§12). */
+export const archieDomains = new ArchieDomainRegistry([
+  ...ARCHIE_SEED_DOMAINS,
+  ...GLOBAL_EXPANSION_DOMAINS,
+]);
 
 /** Domains that must never be removed or de-activated. */
 export const PROTECTED_DOMAIN_KEYS: ReadonlySet<string> = new Set([
