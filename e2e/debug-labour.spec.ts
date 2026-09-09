@@ -12,7 +12,9 @@ test("local overflow culprit chain (real supabase)", async ({ page }) => {
   await page.addInitScript((c) => {
     try {
       localStorage.setItem("frelux_cookie_consent", JSON.stringify(c));
-    } catch {}
+    } catch {
+      /* localStorage unavailable pre-consent — best-effort only */
+    }
   }, CONSENT);
 
   await page.goto("/pop-ceiling-calculator?mode=cost", {
@@ -36,7 +38,7 @@ test("local overflow culprit chain (real supabase)", async ({ page }) => {
 
   const info = await page.evaluate(() => {
     const vw = document.documentElement.clientWidth;
-    const chain: any[] = [];
+    const chain: Array<{ d: number; tag: string; cls: string; w: number }> = [];
     const walk = (el: Element, depth: number) => {
       const r = el.getBoundingClientRect();
       if (r.right > vw + 1 && depth < 18) {
@@ -50,7 +52,12 @@ test("local overflow culprit chain (real supabase)", async ({ page }) => {
       }
     };
     walk(document.body, 0);
-    let deepest: any = null;
+    let deepest: {
+      tag: string;
+      text: string;
+      cls: string;
+      right: number;
+    } | null = null;
     for (const el of document.querySelectorAll("*")) {
       const r = el.getBoundingClientRect();
       if (r.right > vw + 1 && !el.children.length && r.width > 0) {

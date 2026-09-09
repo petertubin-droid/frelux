@@ -48,7 +48,7 @@ export function adDebug(
   } catch {
     // window unavailable (SSR/test), keep the in-memory trail only
   }
-  // eslint-disable-next-line no-console
+
   console.debug(`[ads] ${provider}, ${event}`, detail ?? "");
 }
 

@@ -58,6 +58,7 @@ function sanitizeText(raw: unknown): { value: string; flags: string[] } {
   const flags: string[] = [];
   if (raw == null) return { value: "", flags };
   let value = String(raw)
+    // eslint-disable-next-line no-control-regex -- stripping control chars from untrusted input is the point
     .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "")
     .slice(0, MAX_FIELD_CHARS);
   for (const { flag, re } of INJECTION_PATTERNS) {
@@ -125,9 +126,7 @@ export interface ValidatedRecord {
   payload_size: number;
 }
 
-export function validateArchiePayload(
-  raw: unknown,
-):
+export function validateArchiePayload(raw: unknown):
   | { ok: true; record: ValidatedRecord; flags: string[] }
   | {
       ok: false;

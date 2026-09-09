@@ -75,7 +75,7 @@ export async function uploadTrainingMedia(
   if (file.size > 100 * 1024 * 1024) {
     return { ok: false, error: "Media must be under 100 MB" };
   }
-  const safeName = file.name.replace(/[^\w.\-]/g, "_");
+  const safeName = file.name.replace(/[^\w.-]/g, "_");
   const path = `${userId}/${Date.now()}_${safeName}`;
   const { error } = await supabase.storage
     .from("archie-media")

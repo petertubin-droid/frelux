@@ -11,7 +11,9 @@ test("weather location selector works on mobile", async ({ page }) => {
   await page.addInitScript((c) => {
     try {
       localStorage.setItem("frelux_cookie_consent", JSON.stringify(c));
-    } catch {}
+    } catch {
+      /* localStorage unavailable pre-consent — best-effort only */
+    }
   }, CONSENT);
 
   // 1. Home page widget

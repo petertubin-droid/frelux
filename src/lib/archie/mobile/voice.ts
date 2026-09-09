@@ -31,16 +31,20 @@ export function archieVoiceSupported(): boolean {
  * control characters and collapsing whitespace. Deterministic.
  */
 export function speakableText(text: string): string {
-  return text
-    .replace(
-      /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}]/gu,
-      " ",
-    )
-    .replace(/[*_`#>|~]/g, " ")
-    .replace(/https?:\/\/\S+/g, "a link")
-    .replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  return (
+    text
+      .replace(
+        // eslint-disable-next-line no-misleading-character-class -- \u{FE0F} is a standalone variation selector stripped on purpose
+        /[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{2190}-\u{21FF}\u{2B00}-\u{2BFF}]/gu,
+        " ",
+      )
+      .replace(/[*_`#>|~]/g, " ")
+      .replace(/https?:\/\/\S+/g, "a link")
+      // eslint-disable-next-line no-control-regex -- stripping control chars from TTS input is the point
+      .replace(/[\u0000-\u0008\u000B-\u001F\u007F]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim()
+  );
 }
 
 /** Split into engine-friendly chunks (some engines cut long text). */

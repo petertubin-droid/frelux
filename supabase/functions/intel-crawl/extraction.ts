@@ -332,7 +332,7 @@ export function extractProduct(
     currency: best?.currency ?? null,
     availability,
     location:
-      text.match(/(?:location|address)\s*[:\-]\s*([^.]{3,60})/i)?.[1]?.trim() ??
+      text.match(/(?:location|address)\s*[:-]\s*([^.]{3,60})/i)?.[1]?.trim() ??
       null,
     supplier: opts.sourceName ?? null,
     terminology,

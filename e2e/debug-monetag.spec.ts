@@ -39,7 +39,9 @@ test("diagnose monetag tag on live site", async ({ page }) => {
   await page.addInitScript((c) => {
     try {
       localStorage.setItem("frelux_cookie_consent", JSON.stringify(c));
-    } catch {}
+    } catch {
+      /* localStorage unavailable pre-consent — best-effort only */
+    }
   }, CONSENT);
 
   await page.goto("https://freluxtools.netlify.app/", {

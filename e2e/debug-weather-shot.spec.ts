@@ -12,7 +12,9 @@ test("capture weather widget", async ({ page }) => {
     try {
       localStorage.setItem("frelux_cookie_consent", JSON.stringify(c));
       localStorage.setItem("frelux_weather_location", JSON.stringify("kano"));
-    } catch {}
+    } catch {
+      /* localStorage unavailable pre-consent — best-effort only */
+    }
   }, CONSENT);
   await page.goto("/", { waitUntil: "domcontentloaded" });
   const widget = page

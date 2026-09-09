@@ -36,7 +36,7 @@ function makeClient() {
     from: (table: string) => {
       const rows = () => tables[table] ?? (tables[table] = []);
       const c: Record<string, unknown> = {};
-      let eqs: Array<[string, unknown]> = [];
+      const eqs: Array<[string, unknown]> = [];
       let orderField: string | null = null;
       let orderAsc = true;
       let limitN: number | null = null;
@@ -478,7 +478,7 @@ describe("Content extraction (products, prices, currency, dates)", () => {
 
   it("extracts multi-currency prices with package context and marks ambiguity", () => {
     const hits = extractPrices(
-      "Cement ₦12,500 per 50kg bag and \$250 USD per tonne, £40 per bag, KES 800",
+      "Cement ₦12,500 per 50kg bag and $250 USD per tonne, £40 per bag, KES 800",
     );
     expect(hits.length).toBeGreaterThan(3);
     const ngn = hits.find((h) => h.amount === 12500);

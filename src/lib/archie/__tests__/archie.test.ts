@@ -32,7 +32,7 @@ const supabaseMock = vi.hoisted(() => {
       from: (table: string) => {
         const rows = () => tables[table] ?? (tables[table] = []);
         const c: Record<string, unknown> = {};
-        let eqs: Array<[string, unknown]> = [];
+        const eqs: Array<[string, unknown]> = [];
         let single = false;
         let orderField: string | null = null;
         let orderAsc = true;

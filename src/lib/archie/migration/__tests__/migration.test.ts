@@ -41,7 +41,7 @@ function makeClient() {
     supabaseUrl: "https://hqhvlkunkdrxyuvziorm.supabase.co",
     from: (table: string) => {
       const rows = () => tables[table] ?? (tables[table] = []);
-      let eqs: Array<[string, unknown]> = [];
+      const eqs: Array<[string, unknown]> = [];
       let orderField: string | null = null;
       let orderAsc = true;
       let limitN: number | null = null;

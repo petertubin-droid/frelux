@@ -1,4 +1,3 @@
-/* eslint-disable react-refresh/only-export-components */
 /**
  * FRELUX LOCATION INTELLIGENCE, useFreluxLocation hook
  *
@@ -92,7 +91,10 @@ export interface FreluxLocationApi {
    * Provenance (source, verification, captured_at) is preserved exactly.
    * persisted=true marks the widget as "saved"; false stages it as "found".
    */
-  hydrateLocation: (record: Record<string, unknown>, persisted?: boolean) => void;
+  hydrateLocation: (
+    record: Record<string, unknown>,
+    persisted?: boolean,
+  ) => void;
 }
 
 const DENIED_KEY = "frelux_location_permission_denied";
@@ -118,7 +120,9 @@ export function useFreluxLocation(): FreluxLocationApi {
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [permissionDeniedRemembered, setPermissionDeniedRemembered] =
-    useState<boolean>(() => typeof window !== "undefined" && loadDeniedMemory());
+    useState<boolean>(
+      () => typeof window !== "undefined" && loadDeniedMemory(),
+    );
   const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
   const mounted = useRef(true);
 
@@ -176,7 +180,9 @@ export function useFreluxLocation(): FreluxLocationApi {
         if (result.error === "permission_denied") {
           try {
             localStorage.setItem(DENIED_KEY, "1");
-          } catch { /* non-critical */ }
+          } catch {
+            /* non-critical */
+          }
           setPermissionDeniedRemembered(true);
           setState("permission_denied");
           setError(
@@ -184,7 +190,10 @@ export function useFreluxLocation(): FreluxLocationApi {
           );
         } else if (result.error === "unsupported") {
           setState("unavailable");
-          setError(result.message ?? "Location detection is not supported on this device.");
+          setError(
+            result.message ??
+              "Location detection is not supported on this device.",
+          );
         } else {
           setState("unavailable");
           setError(
@@ -203,13 +212,17 @@ export function useFreluxLocation(): FreluxLocationApi {
         setReverseGeocode({
           attempted: false,
           ok: false,
-          message: "Address lookup services are not configured. Coordinates are kept exactly as detected.",
+          message:
+            "Address lookup services are not configured. Coordinates are kept exactly as detected.",
         });
         applyRecord(record);
         return;
       }
 
-      const geo = await reverser.reverseGeocode(record.latitude!, record.longitude!);
+      const geo = await reverser.reverseGeocode(
+        record.latitude!,
+        record.longitude!,
+      );
       if (!mounted.current) return;
       if (geo.ok && geo.location) {
         setReverseGeocode({
@@ -222,7 +235,9 @@ export function useFreluxLocation(): FreluxLocationApi {
         setReverseGeocode({
           attempted: true,
           ok: false,
-          message: geo.error ?? "Reverse geocoding unavailable, showing coordinates only.",
+          message:
+            geo.error ??
+            "Reverse geocoding unavailable, showing coordinates only.",
         });
         applyRecord(record);
       }
@@ -234,7 +249,9 @@ export function useFreluxLocation(): FreluxLocationApi {
   const retryPermission = useCallback(() => {
     try {
       localStorage.removeItem(DENIED_KEY);
-    } catch { /* non-critical */ }
+    } catch {
+      /* non-critical */
+    }
     setPermissionDeniedRemembered(false);
     setState("not_set");
     setError(null);
@@ -243,7 +260,9 @@ export function useFreluxLocation(): FreluxLocationApi {
   const search = useCallback(
     async (query: string) => {
       if (!forwardProvider) {
-        setSearchError("Location search is unavailable, no search provider configured.");
+        setSearchError(
+          "Location search is unavailable, no search provider configured.",
+        );
         return;
       }
       setSearching(true);
@@ -253,11 +272,16 @@ export function useFreluxLocation(): FreluxLocationApi {
       setSearching(false);
       if (!res.ok) {
         setSearchResults([]);
-        setSearchError(res.error ?? "Search failed. Try again or enter the location manually.");
+        setSearchError(
+          res.error ??
+            "Search failed. Try again or enter the location manually.",
+        );
       } else {
         setSearchResults(res.candidates);
         if (res.candidates.length === 0) {
-          setSearchError("No matching locations found. Try a different search or enter the location manually.");
+          setSearchError(
+            "No matching locations found. Try a different search or enter the location manually.",
+          );
         }
       }
     },
