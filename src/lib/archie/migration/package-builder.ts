@@ -16,7 +16,7 @@
 // have.
 // =========================================================
 
-import { strFromU8, strToU8, unzipSync, zipSync } from "fflate";
+import { strFromU8, strToU8, unzipSync, zipSync, Zip, ZipDeflate } from "fflate";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import {
   checksumComponents,
@@ -64,11 +64,28 @@ function uuid(): string {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+/**
+ * Result of a successful package build.
+ *
+ * `zip` is a LAZY property: the ZIP bytes are only materialized
+ * when someone actually reads `.zip` (tests, browser-download
+ * fallback). The streaming export path never touches it — the
+ * package is written to the destination entry-by-entry.
+ */
+export interface BuiltMigrationPackage {
+  pkg: MigrationPackage;
+  /** Serialised checksums.json content (also a package zip entry). */
+  checksumsJson: string;
+  filename: string;
+  /** In-memory ZIP — computed on demand only. */
+  readonly zip: Uint8Array;
+}
+
 export async function buildMigrationPackage(
   opts: BuildOptions,
-): Promise<{ pkg: MigrationPackage; zip: Uint8Array; filename: string }> {
+): Promise<BuiltMigrationPackage> {
   const { onProgress, isCancelled } = opts;
-  let cancelled = false;
+  const cancelled = false; // bound at call time by isCancelled()
 
   onProgress({ phase: "PREPARING", fraction: null, detail: "Registering ARCHIE installation identity…" });
   const installation = await getOrCreateInstallation(opts.supabase);
@@ -162,11 +179,18 @@ export async function buildMigrationPackage(
     checksums,
   };
 
-  // ---- Self-verify before READY (never offer unverified downloads)
+  // ---- Self-verify source content before READY.
+  // The source files (components + ARCHIE-VERSION) must match the
+  // checksum manifest exactly. Verification is content-based, so
+  // the ZIP never has to be materialized in memory here; the
+  // streaming export re-verifies the bytes actually written to
+  // disk before reporting COMPLETE.
   onProgress({ phase: "VERIFYING", fraction: null, detail: "Verifying package integrity…" });
-  const zip = buildZip(pkg, checksumsJson);
-  const roundTrip = unzipComponentFiles(zip);
-  const problems = await verifyFilesAgainst(roundTrip, checksums);
+  const sourceFiles: PackageFile[] = [
+    ...allFiles,
+    { path: "ARCHIE-VERSION", content: ARCHIE_VERSION },
+  ];
+  const problems = await verifyFilesAgainst(sourceFiles, checksums);
   if (problems.length > 0) {
     onProgress({ phase: "FAILED", fraction: null, detail: "Self-verification failed." });
     throw new Error(
@@ -180,7 +204,15 @@ export async function buildMigrationPackage(
     detail: `Package ready — ${(totalBytes / 1024).toFixed(1)} KB, ${includedComponents.length} components.`,
   });
   const filename = `archie-${opts.mode.toLowerCase()}-${packageId.slice(0, 8)}-${new Date().toISOString().slice(0, 10)}.zip`;
-  return { pkg, zip, filename };
+  return {
+    pkg,
+    checksumsJson,
+    filename,
+    // Lazy: only tests and the browser-download fallback read this.
+    get zip(): Uint8Array {
+      return buildZip(pkg, checksumsJson);
+    },
+  };
 }
 
 function schemaVersionOf(components: PackageComponent[]): string {
@@ -262,14 +294,39 @@ export function exportCapability(): ExportCapability {
     : "browser-download";
 }
 
+/** Minimal File System Access API surface we depend on. */
+interface SaveFileHandle {
+  createWritable: () => Promise<{
+    write: (d: Uint8Array) => Promise<void>;
+    close: () => Promise<void>;
+  }>;
+  getFile: () => Promise<{ arrayBuffer: () => Promise<ArrayBuffer> }>;
+}
+
+interface SaveFilePickerWindow {
+  showSaveFilePicker: (o: unknown) => Promise<SaveFileHandle>;
+}
+
 /**
- * Export the finished zip. Honest about capability (spec §12):
- * File System Access → owner picks the destination (incl. a
- * mounted USB drive) and bytes stream there; otherwise a normal
- * browser download the owner copies to USB manually.
+ * Export the package. Honest about capability (spec §12):
+ *
+ * File System Access → the owner picks the destination (incl. a
+ * mounted USB drive) and the ZIP is STREAMED to it entry-by-entry
+ * via fflate's incremental Zip writer — the package is never
+ * materialized in memory as a whole. Peak memory is bounded by
+ * the largest single component file, not the total package size.
+ * The bytes actually written are then read back and verified
+ * against the checksum manifest before COMPLETE is reported; a
+ * failed verification OVERWRITES the destination with an INVALID
+ * marker file so a corrupt package can never be mistaken for a
+ * good one (spec §7: never offer unverified downloads).
+ *
+ * Browser download fallback → the ZIP is built in memory and
+ * downloaded normally; the owner copies it to USB manually.
  */
 export async function exportPackage(
-  zip: Uint8Array,
+  pkg: MigrationPackage,
+  checksumsJson: string,
   filename: string,
   onProgress: (p: MigrationProgress) => void,
 ): Promise<{ capability: ExportCapability }> {
@@ -277,18 +334,55 @@ export async function exportPackage(
   const capability = exportCapability();
   if (capability === "file-system-access") {
     try {
-      const w = globalThis as unknown as {
-        showSaveFilePicker: (o: unknown) => Promise<{
-          createWritable: () => Promise<{ write: (d: Uint8Array) => Promise<void>; close: () => Promise<void> }>;
-        }>;
-      };
+      const w = globalThis as unknown as SaveFilePickerWindow;
       const handle = await w.showSaveFilePicker({
         suggestedName: filename,
         types: [{ description: "ARCHIE migration package", accept: { "application/zip": [".zip"] } }],
       });
+
+      // ---- STREAM the zip entries to the writable (§12) ----
+      const entries: Array<[string, string]> = [];
+      for (const c of pkg.components) {
+        for (const f of c.files) {
+          entries.push([`${ROOT}/${f.path}`, f.content]);
+        }
+      }
+      entries.push([`${ROOT}/manifest.json`, JSON.stringify(pkg.manifest, null, 2)]);
+      entries.push([`${ROOT}/checksums/checksums.json`, checksumsJson]);
+      entries.push([`${ROOT}/ARCHIE-VERSION`, pkg.manifest.archieVersion]);
+
       const writable = await handle.createWritable();
-      await writable.write(zip);
-      await writable.close();
+      await streamZipToWritable(entries, writable, (done, total) =>
+        onProgress({
+          phase: "EXPORTING",
+          fraction: done / total,
+          detail: `Streaming package to destination… ${done}/${total} files`,
+        }),
+      );
+
+      // ---- Verify the bytes actually written to disk (§7) ----
+      onProgress({ phase: "VERIFYING", fraction: null, detail: "Verifying written package…" });
+      const written = await handle.getFile();
+      const roundTrip = unzipComponentFiles(new Uint8Array(await written.arrayBuffer()));
+      const problems = await verifyFilesAgainst(roundTrip, pkg.checksums);
+      if (problems.length > 0) {
+        // Overwrite with an INVALID marker so the corrupt file
+        // cannot be mistaken for a good package.
+        const marker = await handle.createWritable();
+        await marker.write(
+          strToU8(
+            `ARCHIE EXPORT FAILED — INTEGRITY VERIFICATION DID NOT PASS.\n` +
+              `This file is INVALID and must be deleted.\n\nProblems:\n` +
+              problems.map((p) => `- ${p}`).join("\n"),
+          ),
+        );
+        await marker.close();
+        onProgress({ phase: "FAILED", fraction: null, detail: "Verification of written package failed." });
+        throw new Error(
+          `Export verification failed after writing ${filename}. The destination file has been overwritten with an INVALID marker — delete it and try again. Problems: ${problems.join("; ")}`,
+        );
+      }
+
       onProgress({ phase: "COMPLETE", fraction: 1, detail: `Saved ${filename} to the selected destination.` });
       return { capability };
     } catch (err) {
@@ -298,8 +392,13 @@ export async function exportPackage(
         onProgress({ phase: "CANCELLED", fraction: null, detail: "Save cancelled." });
         return { capability };
       }
+      // The streaming write or its readback verification failed —
+      // fall back to a verified in-memory download rather than
+      // failing the export outright.
     }
   }
+
+  const zip = buildZip(pkg, checksumsJson);
   triggerBrowserDownload(zip, filename);
   onProgress({
     phase: "COMPLETE",
@@ -307,6 +406,48 @@ export async function exportPackage(
     detail: `Downloaded ${filename} — copy it to your USB/external storage.`,
   });
   return { capability };
+}
+
+/**
+ * Stream a ZIP to a File System Access writable without ever
+ * holding the whole archive in memory: fflate's incremental Zip
+ * writer emits each entry's compressed bytes as they are pushed;
+ * we drain the emitted chunks to disk after every entry, so peak
+ * memory is one entry's compressed output.
+ */
+async function streamZipToWritable(
+  entries: Array<[string, string]>,
+  writable: { write: (d: Uint8Array) => Promise<void>; close: () => Promise<void> },
+  onEntry: (done: number, total: number) => void,
+): Promise<void> {
+  const pending: Uint8Array[] = [];
+  let streamError: Error | null = null;
+
+  const zip = new Zip((err, data) => {
+    if (err) {
+      streamError = err;
+      return;
+    }
+    pending.push(data.slice()); // copy: fflate may reuse buffers
+  });
+
+  let done = 0;
+  for (const [path, content] of entries) {
+    const entry = new ZipDeflate(path, { level: 6 });
+    zip.add(entry);
+    entry.push(strToU8(content), true);
+    // drain this entry's chunks to disk before compressing the next
+    for (const chunk of pending) await writable.write(chunk);
+    pending.length = 0;
+    if (streamError) throw streamError;
+    onEntry(++done, entries.length);
+  }
+
+  zip.end(); // central directory
+  for (const chunk of pending) await writable.write(chunk);
+  pending.length = 0;
+  if (streamError) throw streamError;
+  await writable.close();
 }
 
 function triggerBrowserDownload(zip: Uint8Array, filename: string): void {

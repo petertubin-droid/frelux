@@ -181,7 +181,7 @@ export default function ArchieMigration() {
         isCancelled: () => cancelRef.current,
       });
 
-      const exported = await exportPackage(built.zip, built.filename, setProgress);
+      const exported = await exportPackage(built.pkg, built.checksumsJson, built.filename, setProgress);
       await recordMigration({
         supabase,
         packageId: built.pkg.manifest.packageId,
