@@ -193,9 +193,10 @@ export default function ArchieMigration() {
             ? "owner-selected destination (external storage possible)"
             : "browser download (owner copies to external storage)",
         archieVersion: ARCHIE_VERSION,
-        ownerAuthorized: true,
-        packageVerified: true,
-        componentsRestored: [],
+        ownerAuthorizationRecordId: auth.authorization?.id ?? null,
+        events: ["CREATED", "VERIFIED", "EXPORTED"],
+        verificationResult: "verified",
+        componentsIncluded: built.pkg.manifest.includedComponents,
         componentsExcluded: built.pkg.manifest.excludedComponents.map((e) => e.id),
         errors: [],
       }).catch(() => undefined);
@@ -214,8 +215,11 @@ export default function ArchieMigration() {
           supabase, packageId: "unknown", mode: dialog.op,
           status: /cancel/i.test(text) ? "CANCELLED" : "FAILED",
           sourceEnvironment: environmentLabel, destinationEnvironment: "—",
-          archieVersion: ARCHIE_VERSION, ownerAuthorized: true,
-          packageVerified: false, errors: [text],
+          archieVersion: ARCHIE_VERSION,
+          ownerAuthorizationRecordId: null,
+          events: [/cancel/i.test(text) ? "CANCELLED" : "FAILED"],
+          verificationResult: null,
+          errors: [text],
         }).catch(() => undefined);
       }
     } finally {
@@ -289,12 +293,13 @@ export default function ArchieMigration() {
         sourceEnvironment: unzipped.manifest.sourceEnvironment.platform,
         destinationEnvironment: environmentLabel,
         archieVersion: unzipped.manifest.archieVersion,
-        ownerAuthorized: true,
-        packageVerified: true,
-        restoreResult: outcome.ok
+        ownerAuthorizationRecordId: auth.authorization?.id ?? null,
+        events: outcome.ok ? ["IMPORTING", "RESTORED"] : ["IMPORTING", "FAILED"],
+        verificationResult: "verified",
+        restorationResult: outcome.ok
           ? `restored ${outcome.restoredTables.map((t) => `${t.table}:${t.count}`).join(", ")}`
           : `failed: ${outcome.failedTables.map((t) => `${t.table}: ${t.error}`).join("; ")}`,
-        componentsRestored: outcome.restoredTables.map((t) => t.table),
+        componentsIncluded: plan.steps.map((s) => s.targetTable),
         componentsExcluded: plan.skipped.map((s) => s.component),
         errors: outcome.failedTables.map((t) => `${t.table}: ${t.error}`),
       });
