@@ -35,12 +35,11 @@
 // =========================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { infer, listRuntimes } from "./model-runtime.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
-const GEMINI_KEY = Deno.env.get("GOOGLE_AI_API_KEY") ?? "";
-const GEMINI_MODEL = "gemini-2.0-flash";
 
 // Owner-side identity for the service client (all writes are
 // cross-checked against the authenticated owner id).
@@ -122,58 +121,6 @@ async function withinRateLimit(userId: string): Promise<boolean> {
     .eq("owner_id", userId)
     .gte("created_date", oneMinuteAgo);
   return (count ?? 0) < 30;
-}
-
-// ---------------------------------------------------------
-// Gemini call helper (schema-constrained when a schema is
-// given). Provider key NEVER leaves this function.
-// ---------------------------------------------------------
-interface GeminiPart {
-  text?: string;
-  inlineData?: { mimeType: string; data: string };
-}
-
-async function gemini(
-  parts: GeminiPart[],
-  schema?: Record<string, unknown>,
-  systemPrompt?: string,
-): Promise<Record<string, unknown>> {
-  if (!GEMINI_KEY) throw new Error("AI provider is not configured.");
-  const body: Record<string, unknown> = {
-    contents: [{ role: "user", parts }],
-    generationConfig: {
-      temperature: 0.4,
-      maxOutputTokens: 2048,
-      ...(schema
-        ? { responseMimeType: "application/json", responseSchema: schema }
-        : {}),
-    },
-    ...(systemPrompt
-      ? { systemInstruction: { parts: [{ text: systemPrompt }] } }
-      : {}),
-  };
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_KEY}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    },
-  );
-  const data = await res.json();
-  if (!res.ok) {
-    throw new Error(
-      `AI provider error (${res.status}). ARCHIE's provider is not responding correctly.`,
-    );
-  }
-  const text: string | undefined =
-    data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error("AI provider returned no content.");
-  try {
-    return JSON.parse(text);
-  } catch {
-    return { reply: text };
-  }
 }
 
 // ---------------------------------------------------------
@@ -515,10 +462,12 @@ Deno.serve(async (req: Request) => {
     const attachments = Array.isArray(body.attachments) ? body.attachments : [];
 
     // 2) UNDERSTAND
-    const understanding = await gemini(
-      [{ text: message || "Please analyze the attached file(s)." }],
-      UNDERSTAND_SCHEMA as unknown as Record<string, unknown>,
-    );
+    const understanding = (
+      await infer({
+        parts: [{ text: message || "Please analyze the attached file(s)." }],
+        schema: UNDERSTAND_SCHEMA as unknown as Record<string, unknown>,
+      })
+    ).data;
     const intent = String(understanding.intent ?? "general_reasoning");
 
     // 3) SELECT + EXECUTE real tools
@@ -571,8 +520,8 @@ Deno.serve(async (req: Request) => {
           .join("\n")
       : "No tools were needed for this request.";
 
-    const response = await gemini(
-      [
+    const inference = await infer({
+      parts: [
         {
           text: `Conversation so far:\n${historyBlock || "(new conversation)"}`,
         },
@@ -583,9 +532,9 @@ Deno.serve(async (req: Request) => {
           text: "Answer the Owner now as ARCHIE, using the tool results as facts.",
         },
       ],
-      undefined,
-      ARCHIE_PERSONA,
-    );
+      systemPrompt: ARCHIE_PERSONA,
+    });
+    const response = inference.data;
     const reply = String(response.reply ?? "(no reply)");
 
     // 6) persist ARCHIE's reply
@@ -601,7 +550,8 @@ Deno.serve(async (req: Request) => {
           ok: t.ok,
           summary: t.summary,
         })),
-        model: GEMINI_MODEL,
+        model: inference.model,
+        adapter_id: inference.adapterId,
       })
       .select("id, created_date")
       .single();
@@ -616,8 +566,9 @@ Deno.serve(async (req: Request) => {
       }),
       service.from("frelux_infrastructure_costs").insert({
         operation_class: "INTERNAL_ARCHIE_OPERATION",
-        provider: "GEMINI_FLASH",
+        provider: inference.adapterId,
         operation: "owner chat conversation turn",
+        runtime: inference.runtimeId,
         cost_estimate_cents: 1,
       }),
     ]);
@@ -632,6 +583,19 @@ Deno.serve(async (req: Request) => {
       tool_results: toolResults,
       warnings,
       reply,
+      // Model transparency (spec §§1, 11, 39): ARCHIE's identity is the
+      // Intelligence Core; the runtime/adapter is a replaceable part and is
+      // reported separately, never as ARCHIE's brain.
+      runtime: {
+        core: "ARCHIE_INTELLIGENCE_CORE",
+        active_adapter: inference.adapterId,
+        model: inference.model,
+        registered: listRuntimes().map((r) => ({
+          id: r.id,
+          kind: r.kind,
+          status: r.status,
+        })),
+      },
     });
   } catch (err) {
     const detail = err instanceof Error ? err.message : "Unknown error";

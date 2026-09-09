@@ -115,6 +115,7 @@ const ArchieControl = lazy(() => import("@/pages/archie/ArchieControl"));
 const ArchieKnowledge = lazy(() => import("@/pages/archie/ArchieKnowledge"));
 const ArchieLearning = lazy(() => import("@/pages/archie/ArchieLearning"));
 const ArchieDevices = lazy(() => import("@/pages/archie/ArchieDevices"));
+const ArchiePeople = lazy(() => import("@/pages/archie/ArchiePeople"));
 const ArchieSecurity = lazy(() => import("@/pages/archie/ArchieSecurity"));
 const ArchieSystem = lazy(() => import("@/pages/archie/ArchieSystem"));
 const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"));
@@ -1019,6 +1020,7 @@ export default function App() {
                     <Route path="knowledge" element={<ArchieKnowledge />} />
                     <Route path="learning" element={<ArchieLearning />} />
                     <Route path="devices" element={<ArchieDevices />} />
+                    <Route path="people" element={<ArchiePeople />} />
                     <Route path="security" element={<ArchieSecurity />} />
                     <Route path="system" element={<ArchieSystem />} />
                     <Route path="*" element={<NotFound />} />

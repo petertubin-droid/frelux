@@ -113,6 +113,35 @@ const SYSTEMS: SystemSection[] = [
     description: "Internal provider cost ledger and budgets.",
   },
   {
+    key: "family",
+    title: "Family & Trusted People",
+    state: "operational",
+    route: "/archie/people",
+    description:
+      "Invitation-gated family/professional network — single-use codes, explicit permissions, temporary access, strict data isolation.",
+  },
+  {
+    key: "model",
+    title: "ARCHIE Model & Inference",
+    state: "operational",
+    description:
+      "ARCHIE AI Abstraction — replaceable model runtimes. ARCHIE's own model is registered (honestly not yet available); external inference is an isolated adapter.",
+  },
+  {
+    key: "code-sentry",
+    title: "Code Sentry",
+    state: "operational",
+    description:
+      "Deterministic scans of owner-authorized code — reports and proposes, never modifies production code.",
+  },
+  {
+    key: "security-sentry",
+    title: "Security Sentry",
+    state: "operational",
+    description:
+      "Real audit-event analysis — observe, alert, recommend. Never self-escalates.",
+  },
+  {
     key: "documents",
     title: "Documents & Images",
     state: "operational",

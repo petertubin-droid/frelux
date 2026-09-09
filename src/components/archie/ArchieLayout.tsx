@@ -21,6 +21,7 @@ const NAV = [
   { to: "/archie/knowledge", label: "Knowledge", icon: "knowledge" },
   { to: "/archie/learning", label: "Learning", icon: "learning" },
   { to: "/archie/devices", label: "Devices", icon: "devices" },
+  { to: "/archie/people", label: "People", icon: "devices" },
   { to: "/archie/security", label: "Security", icon: "security" },
   { to: "/archie/system", label: "System", icon: "system" },
 ] as const;
