@@ -591,7 +591,13 @@ export function calculateRoom(
     } else {
       const ceilingQtyBuckets = getCeilingQuantityBuckets(config.ceilingRule);
       theoreticalCeilingBuckets = ceilingQtyBuckets;
-      theoreticalCeilingLitres = ceilingQtyBuckets * 20; // placeholder, recalculated with actual packSizeLitres in Step 11
+      // Litres are NOT derived here: the theoretical litres are computed at
+      // Step 11 from the actual configured pack size (never an assumed 20 L).
+      // AUDIT RESOLUTION (code-intelligence cf_paint_placeholder_step):
+      // the former interim `* 20` placeholder was provably dead — Step 11
+      // overwrites it in every reachable path under this same
+      // `room.include_ceiling` guard — and is removed so no placeholder
+      // value can ever exist in this engine.
       steps.push({
         label: "Ceiling",
         value: `${theoreticalCeilingBuckets} bucket(s)`,

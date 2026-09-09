@@ -131,6 +131,62 @@ export function getColorConditionInfo(condition: ColorCondition | undefined): {
   return COLOR_CONDITION_INFO[condition] ?? COLOR_CONDITION_INFO.same_or_light;
 }
 
+// ─────────────────────────────────────────────────────────
+// Configurable rule resolution (AUDIT RESOLUTION
+// cf_calc_hardcoded_fallbacks): the documented industry-standard
+// factors below remain the tested, owner-confirmed defaults, but
+// every value is now resolvable from database configuration with
+// a single validated precedence:
+//   per-condition DB override → scalar DB override → documented default
+// Invalid configured values (non-positive factors, factors that
+// would increase coverage beyond smooth, non-positive coats) are
+// rejected and fall back to the documented default — never
+// silently applied.
+// ─────────────────────────────────────────────────────────
+
+/** Maximum meaningful coverage factor (smooth = full rate). */
+const MAX_SURFACE_FACTOR = 1.0;
+
+/** Resolve the coverage adjustment factor for a surface condition. */
+export function resolveSurfaceFactor(
+  condition: SurfaceCondition | undefined,
+  config?: Pick<CalcConfig, "surfaceFactorOverride" | "surfaceFactorOverrides">,
+): number {
+  const documented = getSurfaceConditionFactor(condition).factor;
+  const perCondition = condition
+    ? config?.surfaceFactorOverrides?.[condition]
+    : undefined;
+  if (perCondition !== undefined) {
+    if (perCondition > 0 && perCondition <= MAX_SURFACE_FACTOR)
+      return perCondition;
+  }
+  const scalar = config?.surfaceFactorOverride;
+  if (scalar !== undefined) {
+    if (scalar > 0 && scalar <= MAX_SURFACE_FACTOR) return scalar;
+  }
+  return documented;
+}
+
+/** Resolve the minimum coats for a colour condition. */
+export function resolveMinCoats(
+  condition: ColorCondition | undefined,
+  config?: Pick<CalcConfig, "minCoatsOverride" | "minCoatsOverrides">,
+): number {
+  const documented = getColorConditionInfo(condition).minCoats;
+  const perCondition = condition
+    ? config?.minCoatsOverrides?.[condition]
+    : undefined;
+  if (perCondition !== undefined) {
+    if (Number.isInteger(perCondition) && perCondition >= 1)
+      return perCondition;
+  }
+  const scalar = config?.minCoatsOverride;
+  if (scalar !== undefined) {
+    if (Number.isInteger(scalar) && scalar >= 1) return scalar;
+  }
+  return documented;
+}
+
 export function evaluateHeightWarning(
   heightM: number,
   unit: "meters" | "feet",
@@ -150,8 +206,14 @@ export function evaluateHeightWarning(
 export interface CalcConfig {
   coverageRate?: number; // m² per liter per coat
   containerSizes?: number[]; // liters, ascending
-  surfaceFactorOverride?: number; // DB-driven coverage adjustment factor
-  minCoatsOverride?: number; // DB-driven minimum coats for colour condition
+  surfaceFactorOverride?: number; // DB-driven coverage adjustment factor (all conditions)
+  minCoatsOverride?: number; // DB-driven minimum coats (all colour conditions)
+  /** DB-driven per-condition coverage factors. Take precedence over the
+   *  scalar override; invalid values fall back to documented defaults. */
+  surfaceFactorOverrides?: Partial<Record<SurfaceCondition, number>>;
+  /** DB-driven per-condition minimum coats. Take precedence over the
+   *  scalar override; invalid values fall back to documented defaults. */
+  minCoatsOverrides?: Partial<Record<ColorCondition, number>>;
   primerCoverageMultiplier?: number; // 1.3 = primer covers 30% more area per litre (admin-configurable)
 }
 
@@ -386,14 +448,14 @@ export function calculatePaint(
   // Use DB-driven override if provided, otherwise fall back to hardcoded factor.
   const surfaceCondition = input.surfaceCondition ?? "smooth";
   const surfaceInfo = getSurfaceConditionFactor(surfaceCondition);
-  const surfaceFactor = config?.surfaceFactorOverride ?? surfaceInfo.factor;
+  const surfaceFactor = resolveSurfaceFactor(surfaceCondition, config);
   const adjustedCoverageRate = round(baseCoverageRate * surfaceFactor);
 
   // ── Color condition logic ──
   // Use DB-driven override for min coats if provided.
   const colorCondition = input.colorCondition ?? "same_or_light";
   const colorInfo = getColorConditionInfo(colorCondition);
-  const minCoats = config?.minCoatsOverride ?? colorInfo.minCoats;
+  const minCoats = resolveMinCoats(colorCondition, config);
   const effectiveCoats = Math.max(input.coats, minCoats);
 
   // ── Height warning ──

@@ -483,6 +483,8 @@ export interface CodeFinding {
   /** What to change; omitted when the rule is unknown. */
   proposedFix?: string;
   status: CodeFindingStatus;
+  /** How a RESOLVED finding was resolved, with real evidence. */
+  resolution?: string;
   createdAt: string;
 }
 
@@ -644,8 +646,10 @@ export const FRELUX_AUDIT_BASELINE: readonly CodeFinding[] = [
       "theoreticalCeilingLitres = ceilingQtyBuckets * 20; // placeholder, recalculated with actual packSizeLitres in Step 11",
     proposedFix:
       "Trace Step 11 to confirm the placeholder is always overwritten before the result is returned; if any path returns it, restructure the interim computation.",
-    status: "OPEN",
+    status: "RESOLVED",
     createdAt: "2026-09-09T00:00:00.000Z",
+    resolution:
+      "Trace verified 2026-09-09: Step 11 overwrites the variable in every reachable path under the same `room.include_ceiling` guard (area-based and per-room branches). The dead interim assignment was removed (comment documents the audit resolution). Evidence: 511 estimation+calc tests pass, typecheck clean.",
   },
   {
     id: "cf_calc_hardcoded_fallbacks",
@@ -656,8 +660,10 @@ export const FRELUX_AUDIT_BASELINE: readonly CodeFinding[] = [
       "comment: 'Use DB-driven override if provided, otherwise fall back to hardcoded factor' — surface-condition and color-condition factors have baked-in fallback constants when DB config is absent",
     proposedFix:
       "Migrate fallback factors to the admin configuration tables (estimation-config pattern) so every surface/color factor is database-driven; keep code fallback only as a documented owner-confirmed trade practice.",
-    status: "OPEN",
+    status: "RESOLVED",
     createdAt: "2026-09-09T00:00:00.000Z",
+    resolution:
+      "Intended rule KNOWN (documented industry-standard factors). Structured implementation added: resolveSurfaceFactor/resolveMinCoats with validated precedence per-condition DB override → scalar DB override → documented default; invalid configured values fall back safely. CalcConfig extended with surfaceFactorOverrides/minCoatsOverrides. Evidence: 10 new resolver tests, 78 calc tests, typecheck clean.",
   },
   {
     id: "cf_paint_material_cost_string",
