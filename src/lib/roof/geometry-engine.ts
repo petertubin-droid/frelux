@@ -1,16 +1,16 @@
 /**
- * FRELUX ROOF GEOMETRY — Calculation Engine
+ * FRELUX ROOF GEOMETRY, Calculation Engine
  *
  * Pure functions for calculating roof geometry from traced polygons.
  *
  * Supports:
  *   - Polygon area (shoelace formula)
  *   - Polygon perimeter
- *   - Edge classification (by position — auto-classification, user can correct)
+ *   - Edge classification (by position, auto-classification, user can correct)
  *   - Point-in-polygon test
  *   - Vertex manipulation (add, move, delete)
  *
- * All functions are pure — no side effects, no state.
+ * All functions are pure, no side effects, no state.
  * Feature 3: Editable Roof Tracing
  */
 
@@ -123,13 +123,13 @@ export function pixelLengthToM(pixelLength: number, pixelsPerMeter: number): num
 }
 
 // =========================================================
-// Edge Classification (heuristic — user can correct)
+// Edge Classification (heuristic, user can correct)
 // =========================================================
 
 /**
  * Classify an edge based on its position in the polygon.
  *
- * This is a HEURISTIC — it's not always correct, and the user must be able
+ * This is a HEURISTIC, it's not always correct, and the user must be able
  * to correct classifications. The classification is based on:
  *   - Top edges → likely ridge or rake
  *   - Bottom edges → likely eave

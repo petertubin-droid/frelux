@@ -96,7 +96,7 @@ export default function Messages() {
           },
         });
       } catch {
-        // Moderation failure is silent — don't block the user experience
+        // Moderation failure is silent, don't block the user experience
       }
     }
     // Refresh messages

@@ -3,7 +3,7 @@
  * ----------------------------
  * A collection of reusable, production-ready components for the contractor
  * experience. Built with Tailwind CSS + lucide-react, animated via CSS
- * transitions and requestAnimationFrame — no external animation libraries.
+ * transitions and requestAnimationFrame, no external animation libraries.
  */
 import {
   useEffect,

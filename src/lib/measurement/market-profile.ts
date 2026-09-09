@@ -32,7 +32,7 @@ export type UnitSystem = 'metric' | 'imperial' | 'mixed';
 
 /**
  * A market profile that defines a market's characteristics.
- * This is configuration, not code — new markets are added by
+ * This is configuration, not code, new markets are added by
  * creating new profiles.
  */
 export interface MarketProfile {
@@ -128,7 +128,7 @@ export function getActiveProfiles(
 
 /**
  * Create the Nigeria market profile.
- * Nigeria is the primary market — all others are additive.
+ * Nigeria is the primary market, all others are additive.
  */
 export function createNigeriaProfile(): MarketProfile {
   return {
@@ -241,6 +241,85 @@ export function createKenyaProfile(): MarketProfile {
 }
 
 // =========================================================
+// UNITED KINGDOM PROFILE (Phase 6 Stage 11, regional validation)
+// =========================================================
+
+/**
+ * Create the United Kingdom market profile.
+ * UK construction is metric (mm/m) with GBP pricing; sheet
+ * materials come in metric-imperial hybrid sizes (1220x2440 mm).
+ * Inactive until UK market launch, registered so the agent can
+ * validate regional behaviour and report honest availability.
+ */
+export function createUKProfile(): MarketProfile {
+  return {
+    marketCode: 'GB',
+    marketName: 'United Kingdom',
+    unitSystem: 'metric',
+    defaultLengthUnit: 'meters',
+    currency: 'GBP',
+    currencySymbol: '£',
+    defaultWastePercent: 10,
+    defaultPackageSizes: {
+      paint: { size: 5, unit: 'litres' },
+      cement: { size: 25, unit: 'kg' },
+      tiles: { size: 0.36, unit: 'm2' },
+      screeding: { size: 25, unit: 'kg' },
+      primer: { size: 5, unit: 'litres' },
+    },
+    defaultCoverage: {
+      paint: 30, // m² per 5L tub (2 coats)
+      cement: 5,
+      tiles: 0.36, // m² per box
+      screeding: 20,
+      primer: 40,
+    },
+    ruleIds: [],
+    isActive: false, // Not yet active
+    locale: 'en-GB',
+  };
+}
+
+// =========================================================
+// UNITED STATES PROFILE (Phase 6 Stage 11, regional validation)
+// =========================================================
+
+/**
+ * Create the United States market profile.
+ * US construction is imperial (feet, 4x8 sheets, gallons).
+ * Inactive until US market launch, registered so the agent can
+ * validate regional behaviour and report honest availability.
+ */
+export function createUSProfile(): MarketProfile {
+  return {
+    marketCode: 'US',
+    marketName: 'United States',
+    unitSystem: 'imperial',
+    defaultLengthUnit: 'feet',
+    currency: 'USD',
+    currencySymbol: '$',
+    defaultWastePercent: 10,
+    defaultPackageSizes: {
+      paint: { size: 1, unit: 'gallons' },
+      cement: { size: 94, unit: 'lb' },
+      tiles: { size: 1, unit: 'box' },
+      screeding: { size: 25, unit: 'kg' },
+      primer: { size: 1, unit: 'gallons' },
+    },
+    defaultCoverage: {
+      paint: 32, // m² per gallon (2 coats)
+      cement: 5,
+      tiles: 1, // m² per box
+      screeding: 20,
+      primer: 37,
+    },
+    ruleIds: [],
+    isActive: false, // Not yet active
+    locale: 'en-US',
+  };
+}
+
+// =========================================================
 // DEFAULT REGISTRY
 // =========================================================
 
@@ -252,6 +331,9 @@ export function createDefaultRegistry(): MarketProfileRegistry {
   registry = registerProfile(registry, createNigeriaProfile());
   registry = registerProfile(registry, createGhanaProfile());
   registry = registerProfile(registry, createKenyaProfile());
+  // Stage 11, registered for regional validation; inactive.
+  registry = registerProfile(registry, createUKProfile());
+  registry = registerProfile(registry, createUSProfile());
   return registry;
 }
 
@@ -387,7 +469,7 @@ export function listProfiles(registry: MarketProfileRegistry): string {
   lines.push('━━━━━━━━━━━━━━━━━━━━━━━━━');
   for (const profile of registry.profiles.values()) {
     const status = profile.isActive ? '✓ Active' : '○ Inactive';
-    lines.push(`${status}  ${profile.marketName} (${profile.marketCode}) — ${profile.currency}`);
+    lines.push(`${status}  ${profile.marketName} (${profile.marketCode}), ${profile.currency}`);
   }
   return lines.join('\n');
 }

@@ -63,6 +63,7 @@ export default function Learn() {
   const [categories, setCategories] = useState<DbLearnCategory[]>([]);
   const [featured, setFeatured] = useState<DbLearnArticle[]>([]);
   const [recent, setRecent] = useState<DbLearnArticle[]>([]);
+  const [totalPublished, setTotalPublished] = useState<number | null>(null);
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState("");
   const [expandedParents, setExpandedParents] = useState<Set<string>>(
@@ -75,7 +76,7 @@ export default function Learn() {
   useEffect(() => {
     async function load() {
       try {
-        const [catRes, featRes, recentRes] = await Promise.all([
+        const [catRes, featRes, recentRes, countRes] = await Promise.all([
           supabase
             .from("learn_categories")
             .select("*")
@@ -94,11 +95,18 @@ export default function Learn() {
             .eq("status", "published")
             .order("published_at", { ascending: false })
             .limit(6),
+          supabase
+            .from("learn_articles")
+            .select("id", { count: "exact", head: true })
+            .eq("status", "published"),
         ]);
 
         setCategories((catRes.data ?? []) as DbLearnCategory[]);
         setFeatured((featRes.data ?? []) as DbLearnArticle[]);
         setRecent((recentRes.data ?? []) as DbLearnArticle[]);
+        if (countRes.error === null && countRes.count !== null) {
+          setTotalPublished(countRes.count);
+        }
         setStatus("ready");
       } catch (e) {
         setError(getSafeError(e, "Failed to load"));
@@ -117,11 +125,15 @@ export default function Learn() {
     }
     setSearching(true);
     const timer = setTimeout(async () => {
+      // Sanitize: % _ are ilike wildcards, , ( ) break the PostgREST
+      // or-filter syntax. Strip all of them so arbitrary input can't
+      // error or widen the filter.
+      const q = searchQuery.trim().replace(/[%_(),()]/g, " ").slice(0, 80);
       const { data } = await supabase
         .from("learn_articles")
         .select("*")
         .eq("status", "published")
-        .or(`title.ilike.%${searchQuery}%,excerpt.ilike.%${searchQuery}%`)
+        .or(`title.ilike.%${q}%,excerpt.ilike.%${q}%`)
         .order("published_at", { ascending: false })
         .limit(8);
       setSearchResults((data ?? []) as DbLearnArticle[]);
@@ -210,11 +222,11 @@ export default function Learn() {
 
           <div className="relative mx-auto max-w-2xl text-center">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-brand-purple">
-              {recent.length + featured.length}+ Expert Articles
+              {totalPublished !== null ? `${totalPublished}+ Expert Articles` : "Expert Articles"}
             </div>
             <h2 className="font-display text-3xl font-bold leading-tight tracking-tight text-foreground dark:text-primary-foreground sm:text-4xl">
               Master Your Craft with{" "}
-              <span className="bg-gradient-to-r from-primary to-primary-lighter bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary to-primary-light bg-clip-text text-transparent dark:to-primary-lighter">
                 Expert Guides
               </span>
             </h2>
@@ -351,7 +363,7 @@ export default function Learn() {
           </section>
         )}
 
-        {/* Browse by category — hierarchical */}
+        {/* Browse by category, hierarchical */}
         <section className="mb-14">
           <div className="mb-6 flex items-center gap-3">
             <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
@@ -397,7 +409,7 @@ export default function Learn() {
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground dark:bg-white/10 dark:text-muted-foreground">
-                          {children.length} topics
+                          {children.length} {children.length === 1 ? "topic" : "topics"}
                         </span>
                         <ChevronDown
                           className={`h-5 w-5 text-muted-foreground transition-transform duration-300 ${isExpanded ? "rotate-180" : ""} group-hover:text-brand-purple`}
@@ -567,7 +579,7 @@ export default function Learn() {
 
         <div className="mt-10">
           <AdSlot slotKey="learn_sidebar" className="mb-8" />
-          {/* Native banner slot — placement "learn_native" */}
+          {/* Native banner slot, placement "learn_native" */}
           <AdSlot slotKey="learn_native" />
           <AdSlot slotKey="learn_bottom" />
         </div>

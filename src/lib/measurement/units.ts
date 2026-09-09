@@ -2,14 +2,14 @@
  * FRELUX CENTRAL UNIT CONVERSION SERVICE
  *
  * Single source of truth for all measurement conversions across FRELUX.
- * Every calculator must use these functions — NO duplicate conversion logic.
+ * Every calculator must use these functions, NO duplicate conversion logic.
  *
  * Principles:
  * - All internal calculations use METRES as the canonical length unit
  * - All internal area calculations use SQUARE METRES (m²) as the canonical area unit
  * - The user's original input unit is preserved for display
  * - Conversions are mathematically exact and deterministic
- * - No premature rounding — full precision retained internally
+ * - No premature rounding, full precision retained internally
  */
 
 // =========================================================
@@ -26,7 +26,7 @@ export type LengthUnit = 'feet' | 'meters' | 'inches';
 export type AreaUnit = 'sqft' | 'sqm';
 
 /**
- * Calculator context — determines which units are available to the user.
+ * Calculator context, determines which units are available to the user.
  * This is the context-aware unit selector (spec section 22).
  */
 export type CalculatorContext =
@@ -82,7 +82,7 @@ export function toMeters(value: number, unit: LengthUnit): number {
 
 /**
  * Convert metres back to the user's display unit.
- * Used for display purposes only — never for calculation.
+ * Used for display purposes only, never for calculation.
  */
 export function fromMeters(valueM: number, unit: LengthUnit): number {
   switch (unit) {

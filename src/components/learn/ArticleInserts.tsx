@@ -10,7 +10,7 @@ import {
 import type { DbLearnArticleInsert } from "@/types/database";
 
 /**
- * In-Article Insert blocks — admin-configured content cards rendered
+ * In-Article Insert blocks, admin-configured content cards rendered
  * inline within Learn articles (Summary, Key Takeaways, What to Watch,
  * Pro Tip, Stat Highlight, Quote).
  *

@@ -35,7 +35,7 @@ function round(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
-// Default opening dimensions in meters — single source of truth.
+// Default opening dimensions in meters, single source of truth.
 export const DEFAULT_DOOR_WIDTH_M = 0.8;
 export const DEFAULT_DOOR_HEIGHT_M = 2.4;
 export const DEFAULT_WINDOW_WIDTH_M = 1.2;
@@ -53,7 +53,7 @@ export function calculateScreedingArea(input: ScreedingCalcInput): ScreedingCalc
 
   let grossWallArea: number;
   if (input.method === 'full_room') {
-    // Width is optional — when blank, calculate only the two walls defined by length.
+    // Width is optional, when blank, calculate only the two walls defined by length.
     if (widthM <= 0) {
       grossWallArea = 2 * lengthM * heightM;
     } else {
@@ -120,7 +120,7 @@ export function validateScreedingInput(input: ScreedingCalcInput): Record<string
   const errors: Record<string, string> = {};
   if (input.method === 'full_room') {
     if (input.roomLength <= 0 || !isFinite(input.roomLength)) errors.roomLength = 'Enter a valid room length greater than 0';
-    // Room width is optional — when blank, only the two walls defined by length are calculated.
+    // Room width is optional, when blank, only the two walls defined by length are calculated.
   } else {
     if (input.wallWidth <= 0 || !isFinite(input.wallWidth)) errors.wallWidth = 'Enter a valid wall width greater than 0';
     if (input.wallCount < 1 || !isFinite(input.wallCount)) errors.wallCount = 'Enter at least 1 wall';

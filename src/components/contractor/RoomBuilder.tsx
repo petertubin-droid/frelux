@@ -12,7 +12,7 @@ import {
   useMemo,
   useState,
   type ReactNode,
-} from 'react';
+} from "react";
 import {
   Plus,
   Edit3,
@@ -25,7 +25,7 @@ import {
   Info,
   CheckCircle2,
   type LucideIcon,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   fetchProjectRooms,
   createProjectRoom,
@@ -33,7 +33,7 @@ import {
   deleteProjectRoom,
   calculateWasteFactor,
   assessSurface,
-} from '@/lib/contractor';
+} from "@/lib/contractor";
 import type {
   DbProjectRoom,
   RoomType,
@@ -43,30 +43,30 @@ import type {
   WallSmoothness,
   Porosity,
   SurfacePrepStep,
-} from '@/types/database';
+} from "@/types/database";
 import {
   SkeletonList,
   EmptyState,
   Badge,
   SectionCard,
   ProgressTracker,
-} from '@/components/contractor/PremiumUI';
+} from "@/components/contractor/PremiumUI";
 import { Button } from "@/components/ui/shadcn/button";
 
 // ============================================================
 // Constants & label maps
 // ============================================================
 const ROOM_TYPE_LABELS: Record<RoomType, string> = {
-  living_room: 'Living Room',
-  bedroom: 'Bedroom',
-  kitchen: 'Kitchen',
-  bathroom: 'Bathroom',
-  balcony: 'Balcony',
-  hallway: 'Hallway',
-  staircase: 'Staircase',
-  office: 'Office',
-  dining: 'Dining',
-  custom: 'Custom',
+  living_room: "Living Room",
+  bedroom: "Bedroom",
+  kitchen: "Kitchen",
+  bathroom: "Bathroom",
+  balcony: "Balcony",
+  hallway: "Hallway",
+  staircase: "Staircase",
+  office: "Office",
+  dining: "Dining",
+  custom: "Custom",
 };
 
 const ROOM_TYPE_ICONS: Record<RoomType, LucideIcon> = {
@@ -83,53 +83,53 @@ const ROOM_TYPE_ICONS: Record<RoomType, LucideIcon> = {
 };
 
 const CALC_TYPE_LABELS: Record<RoomCalcType, string> = {
-  paint: 'Paint',
-  screeding: 'Screeding',
-  pop_ceiling: 'POP Ceiling',
-  tiling: 'Tiling',
+  paint: "Paint",
+  screeding: "Screeding",
+  pop_ceiling: "POP Ceiling",
+  tiling: "Tiling",
 };
 
 const SURFACE_CONDITION_LABELS: Record<SurfaceCondition, string> = {
-  excellent: 'Excellent',
-  good: 'Good',
-  fair: 'Fair',
-  poor: 'Poor',
-  damaged: 'Damaged',
+  excellent: "Excellent",
+  good: "Good",
+  fair: "Fair",
+  poor: "Poor",
+  damaged: "Damaged",
 };
 
 const SURFACE_TYPE_LABELS: Record<SurfaceType, string> = {
-  fresh_plaster: 'Fresh Plaster',
-  old_paint: 'Old Paint',
-  peeling_paint: 'Peeling Paint',
-  moisture: 'Moisture',
-  cracks: 'Cracks',
-  mould: 'Mould',
-  concrete: 'Concrete',
-  wood: 'Wood',
-  metal: 'Metal',
+  fresh_plaster: "Fresh Plaster",
+  old_paint: "Old Paint",
+  peeling_paint: "Peeling Paint",
+  moisture: "Moisture",
+  cracks: "Cracks",
+  mould: "Mould",
+  concrete: "Concrete",
+  wood: "Wood",
+  metal: "Metal",
 };
 
 const SMOOTHNESS_LABELS: Record<WallSmoothness, string> = {
-  smooth: 'Smooth',
-  slightly_rough: 'Slightly Rough',
-  rough: 'Rough',
-  very_rough: 'Very Rough',
+  smooth: "Smooth",
+  slightly_rough: "Slightly Rough",
+  rough: "Rough",
+  very_rough: "Very Rough",
 };
 
 const POROSITY_LABELS: Record<Porosity, string> = {
-  low: 'Low',
-  medium: 'Medium',
-  high: 'High',
-  very_high: 'Very High',
+  low: "Low",
+  medium: "Medium",
+  high: "High",
+  very_high: "Very High",
 };
 
 const PRIORITY_BADGE_VARIANT: Record<
-  'required' | 'recommended' | 'optional',
-  'error' | 'warning' | 'default'
+  "required" | "recommended" | "optional",
+  "error" | "warning" | "default"
 > = {
-  required: 'error',
-  recommended: 'warning',
-  optional: 'default',
+  required: "error",
+  recommended: "warning",
+  optional: "default",
 };
 
 // ============================================================
@@ -142,7 +142,7 @@ interface RoomFormState {
   length_m: string;
   width_m: string;
   height_m: string;
-  unit: 'meters' | 'feet';
+  unit: "meters" | "feet";
   surface_condition: SurfaceCondition;
   surface_type: SurfaceType;
   wall_smoothness: WallSmoothness;
@@ -150,27 +150,30 @@ interface RoomFormState {
 }
 
 const emptyFormState: RoomFormState = {
-  name: '',
-  room_type: 'living_room',
-  calculation_type: 'paint',
-  length_m: '',
-  width_m: '',
-  height_m: '',
-  unit: 'meters',
-  surface_condition: 'good',
-  surface_type: 'fresh_plaster',
-  wall_smoothness: 'smooth',
-  porosity: 'medium',
+  name: "",
+  room_type: "living_room",
+  calculation_type: "paint",
+  length_m: "",
+  width_m: "",
+  height_m: "",
+  unit: "meters",
+  surface_condition: "good",
+  surface_type: "fresh_plaster",
+  wall_smoothness: "smooth",
+  porosity: "medium",
 };
 
 export interface RoomBuilderProps {
   projectId: string;
   /** Notify parent when rooms change (e.g. for totals recalculation). */
   onRoomsChange?: (rooms: DbProjectRoom[]) => void;
-  /** Called when the user clicks "Run Calculation" — parent controls the calculator modal. */
+  /** Called when the user clicks "Run Calculation", parent controls the calculator modal. */
   onRunCalculation?: (room: DbProjectRoom) => void;
   /** Optional render-prop for the calculator modal. If not provided, clicking "Run Calculation" will call onRunCalculation. */
-  calculatorModal?: (room: DbProjectRoom | null, onClose: () => void) => ReactNode;
+  calculatorModal?: (
+    room: DbProjectRoom | null,
+    onClose: () => void,
+  ) => ReactNode;
 }
 
 // ============================================================
@@ -251,7 +254,12 @@ function RoomForm({
         form.wall_smoothness,
         form.porosity,
       ),
-    [form.surface_condition, form.surface_type, form.wall_smoothness, form.porosity],
+    [
+      form.surface_condition,
+      form.surface_type,
+      form.wall_smoothness,
+      form.porosity,
+    ],
   );
 
   const surfacePrep = useMemo(
@@ -259,8 +267,10 @@ function RoomForm({
     [form.surface_type, form.surface_condition],
   );
 
-  const update = <K extends keyof RoomFormState>(key: K, val: RoomFormState[K]) =>
-    setForm((p) => ({ ...p, [key]: val }));
+  const update = <K extends keyof RoomFormState>(
+    key: K,
+    val: RoomFormState[K],
+  ) => setForm((p) => ({ ...p, [key]: val }));
 
   const handleSubmit = async () => {
     if (!form.name.trim()) return;
@@ -283,7 +293,7 @@ function RoomForm({
           <input
             type="text"
             value={form.name}
-            onChange={(e) => update('name', e.target.value)}
+            onChange={(e) => update("name", e.target.value)}
             placeholder="e.g. Master Bedroom"
             className="input-field"
           />
@@ -292,13 +302,13 @@ function RoomForm({
           label="Room Type"
           value={form.room_type}
           options={ROOM_TYPE_OPTIONS}
-          onChange={(v) => update('room_type', v)}
+          onChange={(v) => update("room_type", v)}
         />
         <Select
           label="Calculation Type"
           value={form.calculation_type}
           options={CALC_TYPE_OPTIONS}
-          onChange={(v) => update('calculation_type', v)}
+          onChange={(v) => update("calculation_type", v)}
         />
       </div>
 
@@ -306,39 +316,39 @@ function RoomForm({
       <div className="grid gap-3 sm:grid-cols-4">
         <div>
           <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
-            Length ({form.unit === 'meters' ? 'm' : 'ft'})
+            Length ({form.unit === "meters" ? "m" : "ft"})
           </label>
           <input
             type="number"
             step="0.01"
             value={form.length_m}
-            onChange={(e) => update('length_m', e.target.value)}
+            onChange={(e) => update("length_m", e.target.value)}
             placeholder="0.00"
             className="input-field"
           />
         </div>
         <div>
           <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
-            Width ({form.unit === 'meters' ? 'm' : 'ft'})
+            Width ({form.unit === "meters" ? "m" : "ft"})
           </label>
           <input
             type="number"
             step="0.01"
             value={form.width_m}
-            onChange={(e) => update('width_m', e.target.value)}
+            onChange={(e) => update("width_m", e.target.value)}
             placeholder="0.00"
             className="input-field"
           />
         </div>
         <div>
           <label className="mb-1 block text-xs font-semibold uppercase tracking-wider text-muted-foreground dark:text-muted-foreground">
-            Height ({form.unit === 'meters' ? 'm' : 'ft'})
+            Height ({form.unit === "meters" ? "m" : "ft"})
           </label>
           <input
             type="number"
             step="0.01"
             value={form.height_m}
-            onChange={(e) => update('height_m', e.target.value)}
+            onChange={(e) => update("height_m", e.target.value)}
             placeholder="0.00"
             className="input-field"
           />
@@ -347,10 +357,10 @@ function RoomForm({
           label="Unit"
           value={form.unit}
           options={[
-            { value: 'meters', label: 'Meters' },
-            { value: 'feet', label: 'Feet' },
+            { value: "meters", label: "Meters" },
+            { value: "feet", label: "Feet" },
           ]}
-          onChange={(v) => update('unit', v)}
+          onChange={(v) => update("unit", v)}
         />
       </div>
 
@@ -364,25 +374,25 @@ function RoomForm({
             label="Surface Condition"
             value={form.surface_condition}
             options={SURFACE_CONDITION_OPTIONS}
-            onChange={(v) => update('surface_condition', v)}
+            onChange={(v) => update("surface_condition", v)}
           />
           <Select
             label="Surface Type"
             value={form.surface_type}
             options={SURFACE_TYPE_OPTIONS}
-            onChange={(v) => update('surface_type', v)}
+            onChange={(v) => update("surface_type", v)}
           />
           <Select
             label="Wall Smoothness"
             value={form.wall_smoothness}
             options={SMOOTHNESS_OPTIONS}
-            onChange={(v) => update('wall_smoothness', v)}
+            onChange={(v) => update("wall_smoothness", v)}
           />
           <Select
             label="Porosity"
             value={form.porosity}
             options={POROSITY_OPTIONS}
-            onChange={(v) => update('porosity', v)}
+            onChange={(v) => update("porosity", v)}
           />
         </div>
       </div>
@@ -395,9 +405,19 @@ function RoomForm({
             Waste Factor: {wasteFactor}%
           </span>
           <Badge
-            variant={wasteFactor <= 10 ? 'success' : wasteFactor <= 20 ? 'warning' : 'error'}
+            variant={
+              wasteFactor <= 10
+                ? "success"
+                : wasteFactor <= 20
+                  ? "warning"
+                  : "error"
+            }
           >
-            {wasteFactor <= 10 ? 'Low' : wasteFactor <= 20 ? 'Moderate' : 'High'}
+            {wasteFactor <= 10
+              ? "Low"
+              : wasteFactor <= 20
+                ? "Moderate"
+                : "High"}
           </Badge>
         </div>
         <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
@@ -419,7 +439,10 @@ function RoomForm({
                 <span className="text-xs text-muted-foreground dark:text-muted-foreground/80">
                   {step.action}
                   {step.product && (
-                    <span className="text-muted-foreground dark:text-muted-foreground"> — {step.product}</span>
+                    <span className="text-muted-foreground dark:text-muted-foreground">
+                      {" "}
+                      : {step.product}
+                    </span>
                   )}
                 </span>
               </div>
@@ -430,7 +453,8 @@ function RoomForm({
 
       {/* Actions */}
       <div className="flex items-center gap-2">
-        <Button variant="default"
+        <Button
+          variant="default"
           type="button"
           onClick={handleSubmit}
           disabled={!form.name.trim() || submitting}
@@ -438,7 +462,12 @@ function RoomForm({
         >
           {submitLabel}
         </Button>
-        <Button variant="secondary" type="button" onClick={onCancel} className="btn-secondary">
+        <Button
+          variant="secondary"
+          type="button"
+          onClick={onCancel}
+          className="btn-secondary"
+        >
           Cancel
         </Button>
       </div>
@@ -470,8 +499,8 @@ function RoomCard({
 
   const dimensions = [room.length_m, room.width_m, room.height_m]
     .filter((v) => v != null)
-    .map((v) => `${v}${room.unit === 'meters' ? 'm' : 'ft'}`)
-    .join(' × ');
+    .map((v) => `${v}${room.unit === "meters" ? "m" : "ft"}`)
+    .join(" × ");
 
   const hasCalculation =
     room.calculation_result && Object.keys(room.calculation_result).length > 0;
@@ -502,7 +531,9 @@ function RoomCard({
               {room.name}
             </h4>
             <Badge variant="purple">{ROOM_TYPE_LABELS[room.room_type]}</Badge>
-            <Badge variant="info">{CALC_TYPE_LABELS[room.calculation_type]}</Badge>
+            <Badge variant="info">
+              {CALC_TYPE_LABELS[room.calculation_type]}
+            </Badge>
             {hasCalculation && (
               <Badge variant="success">
                 <CheckCircle2 className="h-3 w-3" /> Calculated
@@ -527,11 +558,14 @@ function RoomCard({
 
         {/* Actions */}
         <div className="flex shrink-0 items-center gap-1">
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={() => setExpanded((p) => !p)}
             className="rounded-lg p-2 text-muted-foreground dark:text-muted-foreground transition-all duration-300 hover:bg-muted hover:text-foreground dark:text-primary-foreground"
-            aria-label={expanded ? 'Collapse room details' : 'Expand room details'}
+            aria-label={
+              expanded ? "Collapse room details" : "Expand room details"
+            }
             aria-expanded={expanded}
           >
             {expanded ? (
@@ -540,15 +574,17 @@ function RoomCard({
               <ChevronDown className="h-4 w-4" />
             )}
           </Button>
-          <Button variant="default"
+          <Button
+            variant="ghost"
             type="button"
             onClick={onEdit}
-            className="rounded-lg p-2 text-muted-foreground dark:text-muted-foreground transition-all duration-300 hover:hover:text-brand-purple"
+            className="rounded-lg p-2 text-muted-foreground dark:text-muted-foreground transition-all duration-300 hover:text-brand-purple"
             aria-label="Edit room"
           >
             <Edit3 className="h-4 w-4" />
           </Button>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={() => setConfirmDelete(true)}
             className="rounded-lg p-2 text-muted-foreground dark:text-muted-foreground transition-all duration-300 hover:bg-red-500/10 hover:text-red-600"
@@ -614,24 +650,24 @@ function RoomCard({
                 <Badge
                   variant={
                     wasteFactor <= 10
-                      ? 'success'
+                      ? "success"
                       : wasteFactor <= 20
-                        ? 'warning'
-                        : 'error'
+                        ? "warning"
+                        : "error"
                   }
                 >
                   {wasteFactor <= 10
-                    ? 'Low Waste'
+                    ? "Low Waste"
                     : wasteFactor <= 20
-                      ? 'Moderate Waste'
-                      : 'High Waste'}
+                      ? "Moderate Waste"
+                      : "High Waste"}
                 </Badge>
               </div>
               <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                 Calculated from the surface assessment above. Surface condition,
                 type, smoothness, and porosity each contribute, rougher or more
-                porous surfaces with damage require extra material to account for
-                absorption, spillage, and touch-ups.
+                porous surfaces with damage require extra material to account
+                for absorption, spillage, and touch-ups.
               </p>
             </div>
 
@@ -657,10 +693,12 @@ function RoomCard({
                         <p className="text-sm font-medium text-foreground dark:text-primary-foreground">
                           {step.action}
                         </p>
-                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">{step.reason}</p>
+                        <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                          {step.reason}
+                        </p>
                         {step.product && (
                           <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
-                            <span className="font-semibold">Product:</span>{' '}
+                            <span className="font-semibold">Product:</span>{" "}
                             {step.product}
                           </p>
                         )}
@@ -708,13 +746,14 @@ function RoomCard({
 
             {/* Run calculation button */}
             <div className="mt-4">
-              <Button variant="default"
+              <Button
+                variant="default"
                 type="button"
                 onClick={onRunCalc}
                 className="w-full sm:w-auto"
               >
                 <Calculator className="h-4 w-4" />
-                {hasCalculation ? 'Re-run Calculation' : 'Run Calculation'}
+                {hasCalculation ? "Re-run Calculation" : "Run Calculation"}
               </Button>
             </div>
           </div>
@@ -731,19 +770,21 @@ function RoomCard({
                 Delete "{room.name}"?
               </p>
               <p className="text-xs text-red-600">
-                This action cannot be undone. All calculation data for this
-                room will be permanently removed.
+                This action cannot be undone. All calculation data for this room
+                will be permanently removed.
               </p>
             </div>
             <div className="flex shrink-0 gap-2">
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={() => setConfirmDelete(false)}
                 className="btn-secondary"
               >
                 Cancel
               </Button>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={() => {
                   setConfirmDelete(false);
@@ -800,7 +841,8 @@ function CalculatorModal({
                 Calculator, {room.name}
               </h3>
             </div>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={onClose}
               className="rounded-lg p-2 text-muted-foreground dark:text-muted-foreground transition-all duration-300 hover:text-foreground dark:text-primary-foreground"
@@ -842,7 +884,7 @@ export function RoomBuilder({
       setRooms(data);
       onRoomsChange?.(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load rooms');
+      setError(err instanceof Error ? err.message : "Failed to load rooms");
     } finally {
       setLoading(false);
     }
@@ -873,7 +915,7 @@ export function RoomBuilder({
       onRoomsChange?.([...rooms, newRoom]);
       setShowAddForm(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to add room');
+      setError(err instanceof Error ? err.message : "Failed to add room");
     }
   };
 
@@ -900,7 +942,7 @@ export function RoomBuilder({
       });
       setEditingId(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to update room');
+      setError(err instanceof Error ? err.message : "Failed to update room");
     }
   };
 
@@ -914,7 +956,7 @@ export function RoomBuilder({
         return next;
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to delete room');
+      setError(err instanceof Error ? err.message : "Failed to delete room");
     }
   };
 
@@ -943,9 +985,9 @@ export function RoomBuilder({
       name: editingRoom.name,
       room_type: editingRoom.room_type,
       calculation_type: editingRoom.calculation_type,
-      length_m: editingRoom.length_m?.toString() ?? '',
-      width_m: editingRoom.width_m?.toString() ?? '',
-      height_m: editingRoom.height_m?.toString() ?? '',
+      length_m: editingRoom.length_m?.toString() ?? "",
+      width_m: editingRoom.width_m?.toString() ?? "",
+      height_m: editingRoom.height_m?.toString() ?? "",
       unit: editingRoom.unit,
       surface_condition: editingRoom.surface_condition,
       surface_type: editingRoom.surface_type,
@@ -956,8 +998,7 @@ export function RoomBuilder({
 
   // Overall progress (how many rooms have calculations)
   const calculatedCount = rooms.filter(
-    (r) =>
-      r.calculation_result && Object.keys(r.calculation_result).length > 0,
+    (r) => r.calculation_result && Object.keys(r.calculation_result).length > 0,
   ).length;
   const progress =
     rooms.length === 0 ? 0 : Math.round((calculatedCount / rooms.length) * 100);
@@ -968,12 +1009,15 @@ export function RoomBuilder({
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">Rooms</h2>
+          <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
+            Rooms
+          </h2>
           <p className="text-sm text-muted-foreground dark:text-muted-foreground">
-            {rooms.length} room{rooms.length !== 1 ? 's' : ''} in this project
+            {rooms.length} room{rooms.length !== 1 ? "s" : ""} in this project
           </p>
         </div>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           type="button"
           onClick={() => setShowAddForm((p) => !p)}
           className="btn-primary"
@@ -987,10 +1031,7 @@ export function RoomBuilder({
       {/* Progress */}
       {rooms.length > 0 && (
         <div className="card p-4">
-          <ProgressTracker
-            percentage={progress}
-            label="Rooms Calculated"
-          />
+          <ProgressTracker percentage={progress} label="Rooms Calculated" />
         </div>
       )}
 
@@ -999,7 +1040,8 @@ export function RoomBuilder({
         <div className="flex items-center gap-3 rounded-lg border border-red-200 bg-red-50 p-4">
           <AlertTriangle className="h-5 w-5 shrink-0 text-red-600" />
           <p className="flex-1 text-sm text-red-700">{error}</p>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={() => setError(null)}
             className="text-xs font-semibold text-red-600 hover:text-red-700"
@@ -1045,7 +1087,8 @@ export function RoomBuilder({
                   title={`Edit: ${room.name}`}
                   icon={Edit3}
                   action={
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       type="button"
                       onClick={() => setEditingId(null)}
                       className="rounded-lg p-1.5 text-muted-foreground dark:text-muted-foreground transition-all duration-300 hover:bg-muted hover:text-foreground dark:text-primary-foreground"
@@ -1079,11 +1122,10 @@ export function RoomBuilder({
 
       {/* Calculator modal */}
       {calculatorModal && (
-        <CalculatorModal
-          room={calcRoom}
-          onClose={() => setCalcRoomId(null)}
-        >
-          {calcRoom ? calculatorModal(calcRoom, () => setCalcRoomId(null)) : null}
+        <CalculatorModal room={calcRoom} onClose={() => setCalcRoomId(null)}>
+          {calcRoom
+            ? calculatorModal(calcRoom, () => setCalcRoomId(null))
+            : null}
         </CalculatorModal>
       )}
     </div>

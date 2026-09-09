@@ -54,11 +54,11 @@ export default function AdminUsers() {
       return;
     }
 
-    // Also load paid statuses — admin can read all (RLS policy added in Phase 2a)
+    // Also load paid statuses, admin can read all (RLS policy added in Phase 2a)
     const { data: paidData, error: paidError } = await supabase
       .from("user_paid_status")
       .select("*");
-    // paidError is OK — table might be empty or RLS might not grant admin yet
+    // paidError is OK, table might be empty or RLS might not grant admin yet
     const paidMap = new Map<string, DbUserPaidStatus>();
     if (!paidError && paidData) {
       for (const p of paidData as DbUserPaidStatus[]) {
@@ -282,7 +282,7 @@ export default function AdminUsers() {
                             {u.paid_status.plan}
                           </span>
                         ) : (
-                          "—"
+                          ""
                         )}
                       </td>
                       <td className="py-3 pr-4 text-muted-foreground dark:text-muted-foreground">
@@ -305,7 +305,7 @@ export default function AdminUsers() {
                         ) : u.paid_status?.is_paid ? (
                           "Lifetime"
                         ) : (
-                          "—"
+                          ""
                         )}
                       </td>
                       <td className="py-3 pr-4">

@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX Worker Channels — Library Functions
+// FRELUX Worker Channels, Library Functions
 // Phase 30: Nationwide worker chat & price updates
 // =========================================================
 
@@ -725,7 +725,7 @@ export async function sendSmsOTP(
   const termiiSender = import.meta.env.VITE_TERMII_SENDER_ID ?? "FRELUX";
 
   if (!termiiKey) {
-    // No API key configured — fail gracefully
+    // No API key configured, fail gracefully
     return { success: false, message: "SMS gateway not configured" };
   }
 

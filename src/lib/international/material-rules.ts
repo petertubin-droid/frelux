@@ -1,5 +1,5 @@
 /**
- * FRELUX INTERNATIONAL ARCHITECTURE — Material Rule Resolver
+ * FRELUX INTERNATIONAL ARCHITECTURE, Material Rule Resolver
  *
  * Resolves market-specific material rules for a given calculator.
  *
@@ -10,14 +10,14 @@
  *   → Pricing (market-specific) → estimated cost
  *
  * This module is the bridge between universal geometry and market-specific rules.
- * It does NOT contain calculation logic — it resolves configuration.
+ * It does NOT contain calculation logic, it resolves configuration.
  */
 
 import { supabase } from '@/lib/supabase';
 import type { MarketMaterialRule, MarketCalculatorType } from '@/types/international';
 
 // ============================================================
-// CACHE — rules are cached per market+calculator for the session
+// CACHE, rules are cached per market+calculator for the session
 // ============================================================
 
 const ruleCache = new Map<string, Map<string, MarketMaterialRule>>();
@@ -70,7 +70,7 @@ export async function fetchMaterialRules(
  * Returns the rule value, or null if not configured.
  *
  * IMPORTANT: If a rule is not found, returns null.
- * Calculators must handle null gracefully — never invent a value.
+ * Calculators must handle null gracefully, never invent a value.
  */
 export async function resolveMaterialRule<T = unknown>(
   marketCode: string,
@@ -84,7 +84,7 @@ export async function resolveMaterialRule<T = unknown>(
 }
 
 /**
- * Synchronous version — uses cache only. Returns null if not cached.
+ * Synchronous version, uses cache only. Returns null if not cached.
  * Use this in hot calculation paths where async fetch is not practical.
  */
 export function getCachedMaterialRule<T = unknown>(
@@ -120,7 +120,7 @@ export async function resolveAllRules(
 }
 
 // ============================================================
-// PRELOAD — warm the cache for common calculators
+// PRELOAD, warm the cache for common calculators
 // ============================================================
 
 export async function preloadMaterialRules(marketCode: string): Promise<void> {

@@ -1,5 +1,5 @@
 /**
- * Accessibility Context — high-contrast mode and accessibility settings
+ * Accessibility Context, high-contrast mode and accessibility settings
  * Persists in localStorage. Adds 'accessibility-mode' class to <html>.
  */
 

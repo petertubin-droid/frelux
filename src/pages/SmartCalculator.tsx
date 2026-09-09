@@ -35,7 +35,7 @@ const FALLBACK_CONFIG: ScreedingMixConfig = {
 
 export default function SmartCalculator() {
   const seo = useSeo({
-    title: "Smart Calculator — AI-Powered Construction Estimator | FRELUX",
+    title: "Smart Calculator: AI-Powered Construction Estimator | FRELUX",
     description:
       "Describe any construction project in plain language and get an AI-powered cost estimate with material quantities, line items, and savings recommendations. Free to use.",
     canonicalPath: "/smart-calculator",
@@ -98,7 +98,7 @@ export default function SmartCalculator() {
           </h1>
           <p className="mt-2 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
             <Brain className="h-4 w-4 text-brand-purple" aria-hidden="true" />
-            Powered by AI — describe any project, get an instant estimate
+            Powered by AI, describe any project, get an instant estimate
           </p>
         </div>
 
@@ -112,7 +112,7 @@ export default function SmartCalculator() {
               AI-Powered Estimation
             </p>
             <p className="text-xs text-muted-foreground">
-              Describe your project in plain English — the AI calculates
+              Describe your project in plain English, the AI calculates
               material quantities, costs, and recommendations automatically.
               Supports screeding, painting, tiling, POP ceiling, and custom
               projects.
@@ -136,7 +136,7 @@ export default function SmartCalculator() {
             {(access) => (
               <AdvancedCalculator
                 toolKey="smart"
-                contextSummary="Smart Calculator — freeform AI estimation. The user will describe their construction project in natural language; there is no form data yet."
+                contextSummary="Smart Calculator: freeform AI estimation. The user will describe their construction project in natural language; there is no form data yet."
                 netArea={0}
                 config={config}
                 clientHash={access.clientHash}

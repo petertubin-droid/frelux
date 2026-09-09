@@ -1,5 +1,5 @@
 /**
- * Credits Context — provides credit wallet state and reward actions
+ * Credits Context, provides credit wallet state and reward actions
  * to the entire app. Integrates with existing auth context.
  */
 
@@ -102,7 +102,7 @@ export function CreditsProvider({ children }: { children: ReactNode }) {
       }
 
       if (result.success && result.alreadyAwarded) {
-        // Already awarded — silent (idempotency working)
+        // Already awarded, silent (idempotency working)
         return false;
       }
 

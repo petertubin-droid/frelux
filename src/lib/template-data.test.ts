@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { FALLBACK_TEMPLATES } from "@/lib/template-data";
 
-describe("template-data — FALLBACK_TEMPLATES", () => {
+describe("template-data, FALLBACK_TEMPLATES", () => {
   it("is a non-empty array", () => {
     expect(Array.isArray(FALLBACK_TEMPLATES)).toBe(true);
     expect(FALLBACK_TEMPLATES.length).toBeGreaterThan(0);

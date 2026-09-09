@@ -1,5 +1,5 @@
 /**
- * FRELUX Font Library — 60 real Google Fonts organized by category.
+ * FRELUX Font Library, 60 real Google Fonts organized by category.
  *
  * Fonts are loaded dynamically via the Google Fonts CSS API.
  * Only the active fonts (max 7) are loaded on the site at any time.
@@ -204,6 +204,6 @@ export function getFont(family: string): FontFamily | undefined {
 export function fontStack(family: string): string {
   const font = getFont(family);
   if (font) return font.stack;
-  // Unknown font — provide generic fallback
+  // Unknown font, provide generic fallback
   return `'${family}', system-ui, -apple-system, sans-serif`;
 }

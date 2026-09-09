@@ -103,11 +103,20 @@ Deno.serve(async (req: Request) => {
     const billingCycle = (metadata.billing_cycle as string) || "monthly";
     const userId = metadata.user_id as string;
 
+    // Service-role client — needed by BOTH the token-purchase branch and the
+    // subscription branch below. Previously it was only created inside the
+    // subscription path, so the token branch crashed with
+    // "supabase is not defined" (caught as a 500) on every manual verify
+    // after returning from Paystack. The webhook still credited tokens,
+    // masking the bug — the client showed a failure for a successful buy.
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
+
     // ── Token purchase: credit the wallet atomically (idempotent) ──
     if (purpose === "token_purchase") {
       const tokens = metadata.tokens as number;
-      const priceKobo = (metadata.price_kobo as number) ||
-        transaction.amount;
+      const priceKobo = (metadata.price_kobo as number) || transaction.amount;
 
       if (!userId || !tokens) {
         return new Response(
@@ -192,10 +201,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // Activate subscription using service role (bypasses RLS)
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
+    // (supabase client already created above, before the token branch)
 
     const days = PLAN_DURATIONS_DAYS[billingCycle] ?? 30;
     const paidUntil = new Date(

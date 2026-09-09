@@ -1,5 +1,5 @@
 /**
- * FRELUX INTERNATIONAL ARCHITECTURE — Supabase Queries
+ * FRELUX INTERNATIONAL ARCHITECTURE, Supabase Queries
  *
  * CRUD operations for the international architecture tables.
  * Used by admin pages and the market context provider.

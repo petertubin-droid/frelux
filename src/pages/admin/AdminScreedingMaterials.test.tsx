@@ -244,7 +244,7 @@ async function renderAdmin() {
   );
 }
 
-describe("AdminScreedingMaterials — Configuration", () => {
+describe("AdminScreedingMaterials, Configuration", () => {
   it("renders without crashing", async () => {
     const { container } = await renderAdmin();
     expect(container.innerHTML).not.toBe("");

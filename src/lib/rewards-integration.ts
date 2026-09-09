@@ -77,7 +77,7 @@ export async function trackCalculationWithRewards(
 ): Promise<void> {
   // 1. Record activity for streak + mission progress
   const token = await getSessionToken();
-  if (!token) return; // not logged in — just skip credits
+  if (!token) return; // not logged in, just skip credits
 
   // 2. Track calculator type diversity
   const typesUsed = getCalcTypesUsed();

@@ -1,5 +1,5 @@
 /**
- * FRELUX Phase 2 — Painting Estimator Page
+ * FRELUX Phase 2, Painting Estimator Page
  *
  * Room-based painting estimator using the Phase 1 estimation engine.
  * Progressive disclosure flow:
@@ -145,9 +145,9 @@ export default function PaintingEstimator({
     !embedded
       ? {
           title:
-            "Painting Estimator — Complete Paint Project Estimate & Summary",
+            "Painting Estimator, Complete Paint Project Estimate & Summary",
           description:
-            "Complete painting project estimator. Get a room-by-room summary with paint buckets, material costs, finishes, and assumptions — the full project overview.",
+            "Complete painting project estimator. Get a room-by-room summary with paint buckets, material costs, finishes, and assumptions, the full project overview.",
           canonicalPath: "/painting-estimator",
           ogType: "website",
           keywords:
@@ -248,13 +248,13 @@ export default function PaintingEstimator({
   ]);
   const [expandedRoom, setExpandedRoom] = useState(0);
   const [showCalculation, setShowCalculation] = useState(false);
-  // Set true after a failed Calculate attempt — drives live inline validation errors
+  // Set true after a failed Calculate attempt, drives live inline validation errors
   const [attempted, setAttempted] = useState(false);
   const { toast } = useToast();
 
   // ── State: Result ──
   const [result, setResult] = useState<PaintingEstimateResult | null>(null);
-  // Engine features hook (additive — existing logic unchanged)
+  // Engine features hook (additive, existing logic unchanged)
   const engine = useEngineFeatures({ calculatorType: "painting" });
   const [alreadyHave, setAlreadyHave] = useState(0);
   const [calculating, setCalculating] = useState(false);
@@ -374,7 +374,7 @@ export default function PaintingEstimator({
       let changed = false;
       const next = prev.map((room) => {
         if (room.product_id) {
-          // Room already has a product — just ensure a quality is selected
+          // Room already has a product, just ensure a quality is selected
           const quals = qualities.get(room.product_id) ?? [];
           if (room.quality_id && quals.some((q) => q.id === room.quality_id)) {
             return room;
@@ -550,7 +550,7 @@ export default function PaintingEstimator({
       const quality = quals.find((q) => q.id === room.quality_id) ?? null;
       const validation = validateRoomInput(room, product, quality);
       if (!validation.valid) {
-        // Surface the failure instead of silently returning —
+        // Surface the failure instead of silently returning :
         // expand the offending room, show inline errors, and toast the first issue.
         setAttempted(true);
         setExpandedRoom(i);
@@ -1093,7 +1093,7 @@ function RoomCard({
 }) {
   const roomQualities = qualities.get(room.product_id) ?? [];
 
-  // Live validation — only shown after a failed Calculate attempt,
+  // Live validation, only shown after a failed Calculate attempt,
   // so the form isn't covered in red on first load. Errors clear
   // themselves as the user fixes each field.
   const roomProduct = products.find((p) => p.id === room.product_id) ?? null;
@@ -1595,7 +1595,7 @@ function EstimateResult({
             </p>
           </div>
           <div className="p-5">
-            {/* Customer-facing summary — painter language */}
+            {/* Customer-facing summary, painter language */}
             <div className="rounded-lg border border-border bg-muted/50 p-4 dark:border-white/10 dark:bg-white/5">
               <div className="grid grid-cols-1 gap-x-4 gap-y-2 text-sm sm:grid-cols-2 md:grid-cols-3">
                 <div>
@@ -2007,7 +2007,7 @@ function EstimateResult({
                 ...result.warnings,
                 ...(alreadyHave > 0
                   ? [
-                      `Already have: ${alreadyHave} buckets — purchase ${Math.max(0, result.combined_practical_buckets - alreadyHave)} more`,
+                      `Already have: ${alreadyHave} buckets, purchase ${Math.max(0, result.combined_practical_buckets - alreadyHave)} more`,
                     ]
                   : []),
               ],
@@ -2099,7 +2099,7 @@ function EstimateResult({
             </Button>
           </div>
 
-          {/* Post as Job CTA — marketplace integration */}
+          {/* Post as Job CTA, marketplace integration */}
           <div className="mt-4 rounded-xl border border-brand-purple/20 bg-primary/5 p-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>

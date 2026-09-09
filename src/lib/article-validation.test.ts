@@ -81,7 +81,7 @@ function makeLongContent(): string {
 // ── Tests ────────────────────────────────────────────────────────
 
 describe("Article Validation Engine", () => {
-  describe("validateArticle — valid article", () => {
+  describe("validateArticle, valid article", () => {
     it("passes with a well-formed article", () => {
       const result = validateArticle(makeValidArticle());
       expect(result.valid).toBe(true);

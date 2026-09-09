@@ -1,5 +1,5 @@
 /**
- * Tests for the Fence Element Engine (Feature 4 — Fence Element Engine)
+ * Tests for the Fence Element Engine (Feature 4, Fence Element Engine)
  */
 
 import { describe, it, expect } from 'vitest';
@@ -299,7 +299,7 @@ describe('Screeding is Area-Based', () => {
     ];
 
     const result = calculateFence(fence);
-    // 20 × 2 × 5 = 200 m² — this is an area, not a bucket count
+    // 20 × 2 × 5 = 200 m², this is an area, not a bucket count
     expect(result.totalAreaM2).toBeCloseTo(200, 4);
     expect(result.totalTilesNeeded).toBeUndefined(); // no tiling
   });

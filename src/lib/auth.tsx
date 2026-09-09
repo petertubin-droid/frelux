@@ -118,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .update({ account_type: accountType })
       .eq('id', userId);
     if (updateError) {
-      // Row might not exist yet — try upsert
+      // Row might not exist yet, try upsert
       const { error: upsertError } = await supabase
         .from('profiles')
         .upsert({ id: userId, email, role: 'user', account_type: accountType }, { onConflict: 'id' });

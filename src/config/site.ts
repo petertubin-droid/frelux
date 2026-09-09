@@ -11,16 +11,16 @@ export const siteConfig = {
   whatsappNumber: "2349063612439",
   whatsappDisplay: "+234 906 361 2439",
   email: "frenzyanthony39@gmail.com",
-  // AdSense — leave empty until approved; ads component renders nothing when unset.
+  // AdSense, leave empty until approved; ads component renders nothing when unset.
   adsense: {
     publisherId: "ca-pub-3404100134534192",
     adSlots: {} as Record<string, string>,
   },
-  // Meta Pixel — leave empty until real ID is provided.
+  // Meta Pixel, leave empty until real ID is provided.
   metaPixel: {
     pixelId: "", // numeric string
   },
-  // Google Analytics — leave empty until ready.
+  // Google Analytics, leave empty until ready.
   analytics: {
     gaMeasurementId: "", // e.g. 'G-XXXXXXXXXX'
   },
@@ -194,6 +194,12 @@ export const navWorkspaces: NavWorkspace[] = [
         label: "Smart Color Assistant",
         path: "/ai-color-assistant",
         description: "AI-powered color recommendations",
+      },
+      {
+        label: "ARCHIE Mobile Assistant",
+        path: "/assistant",
+        description:
+          "ARCHIE on your phone, voice, calculators, protected vault & security",
       },
       {
         label: "AI Color Preview",

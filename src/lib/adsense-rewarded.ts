@@ -1,12 +1,12 @@
 /**
- * Google AdSense — Rewarded ads (H5 Games Ads SDK / adBreak API).
+ * Google AdSense, Rewarded ads (H5 Games Ads SDK / adBreak API).
  *
  * AdSense rewarded ads run through the H5 Games Ads SDK: the standard
  * adsbygoogle.js script (loaded with ?client=ca-pub-…) exposes a global
  * `adBreak()` function. The Rewarded format must be enabled for the site in
  * the AdSense dashboard (Ads → By ad unit → Rewarded / H5 games ads).
  *
- * Additive bridge — registered in src/lib/rewarded-access.ts alongside the
+ * Additive bridge, registered in src/lib/rewarded-access.ts alongside the
  * Monetag bridge; only used when AdSense is active with the rewarded_ads
  * setting enabled.
  */
@@ -101,7 +101,7 @@ export async function showAdsenseRewardedAd(opts: {
       type: "reward",
       name: requestVar ?? "rewarded_unlock",
       beforeReward: (showAdFn: () => void) => {
-        // Always show — the unlock flow only calls this after a user gesture
+        // Always show, the unlock flow only calls this after a user gesture
         showAdFn();
       },
       adDismissed: () => {
@@ -119,7 +119,7 @@ export async function showAdsenseRewardedAd(opts: {
         }
       },
       adBreakDone: (placementInfo: AdBreakPlacementInfo) => {
-        // Terminal callback — if nothing settled yet, the ad never fully showed
+        // Terminal callback, if nothing settled yet, the ad never fully showed
         if (!settled) {
           settled = true;
           clearTimeout(timer);

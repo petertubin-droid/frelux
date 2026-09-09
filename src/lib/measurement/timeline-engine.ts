@@ -17,7 +17,7 @@
  *     ↓
  *   TIMELINE (start/end dates, milestones)
  *
- * All productivity rates are configurable — not hardcoded.
+ * All productivity rates are configurable, not hardcoded.
  * The engine only does the math and dependency resolution.
  */
 
@@ -37,7 +37,7 @@ export interface TimelinePhase {
   estimatedDays: number;
   /** Actual days (updated during construction) */
   actualDays?: number;
-  /** Dependencies — phase IDs that must complete before this one starts */
+  /** Dependencies, phase IDs that must complete before this one starts */
   dependsOn: string[];
   /** Productivity rate (units per day) */
   productivityRate: number;
@@ -89,7 +89,7 @@ export interface PhaseTemplate {
 
 /**
  * Default phase templates for a standard construction project.
- * These are starting points — fully customizable via admin config.
+ * These are starting points, fully customizable via admin config.
  */
 export const DEFAULT_PHASE_TEMPLATES: PhaseTemplate[] = [
   { name: 'Site Preparation', description: 'Clearing, setting out, site facilities', trade: 'site_preparation', productivityRate: 200, productivityUnit: 'm²', crewSize: 4, dependsOn: [] },
@@ -108,10 +108,14 @@ export const DEFAULT_PHASE_TEMPLATES: PhaseTemplate[] = [
 // FACTORY
 // =========================================================
 
-let phaseIdCounter = 0;
-
-function generatePhaseId(): string {
-  return `phase_${++phaseIdCounter}`;
+/**
+ * Deterministic phase ids: derived from the template index, so the
+ * SAME scope + templates ALWAYS produce the SAME ids. (A module-level
+ * counter used to leak state between calls, identical inputs yielded
+ * different ids depending on call history.)
+ */
+function generatePhaseId(index: number): string {
+  return `phase_${index + 1}`;
 }
 
 // =========================================================
@@ -151,7 +155,7 @@ export function estimateTimeline(
     }
 
     return {
-      id: generatePhaseId(),
+      id: generatePhaseId(idx),
       name: tmpl.name,
       description: tmpl.description,
       sequence: idx + 1,
@@ -247,7 +251,7 @@ function resolveSchedule(phases: TimelinePhase[]): void {
     phaseMap.set(p.id, p);
   }
 
-  // Topological resolution — a phase starts after all dependencies end
+  // Topological resolution, a phase starts after all dependencies end
   for (const phase of phases) {
     if (phase.dependsOn.length === 0) {
       phase.startDay = 0;

@@ -121,7 +121,7 @@ function makeValidArticleData(): {
   };
 }
 
-describe("Article Structured Data — Google Compliance", () => {
+describe("Article Structured Data, Google Compliance", () => {
   describe("Article schema", () => {
     it("has @context set to schema.org", () => {
       const [article] = buildArticleStructuredData(

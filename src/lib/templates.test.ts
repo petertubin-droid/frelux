@@ -8,7 +8,7 @@ import {
   BUILDING_TYPES,
 } from "@/lib/templates";
 
-describe("templates — CALCULATOR_META", () => {
+describe("templates, CALCULATOR_META", () => {
   it("has entries for all calculator types", () => {
     expect(CALCULATOR_META.paint).toBeTruthy();
     expect(CALCULATOR_META.tile).toBeTruthy();
@@ -26,7 +26,7 @@ describe("templates — CALCULATOR_META", () => {
   });
 });
 
-describe("templates — calculatorLabel", () => {
+describe("templates, calculatorLabel", () => {
   it("returns label for known type", () => {
     expect(calculatorLabel("paint")).toBe("Painting");
     expect(calculatorLabel("tile")).toBe("Tiling");
@@ -41,7 +41,7 @@ describe("templates — calculatorLabel", () => {
   });
 });
 
-describe("templates — calculatorPath", () => {
+describe("templates, calculatorPath", () => {
   it("returns path for known type", () => {
     expect(calculatorPath("paint")).toContain("/paint-calculator");
     expect(calculatorPath("tile")).toContain("/tile-calculator");
@@ -54,14 +54,14 @@ describe("templates — calculatorPath", () => {
   });
 });
 
-describe("templates — TEMPLATE_CATEGORIES", () => {
+describe("templates, TEMPLATE_CATEGORIES", () => {
   it("is a non-empty array", () => {
     expect(Array.isArray(TEMPLATE_CATEGORIES)).toBe(true);
     expect(TEMPLATE_CATEGORIES.length).toBeGreaterThan(0);
   });
 });
 
-describe("templates — BUILDING_TYPES", () => {
+describe("templates, BUILDING_TYPES", () => {
   it("is a non-empty array", () => {
     expect(Array.isArray(BUILDING_TYPES)).toBe(true);
     expect(BUILDING_TYPES.length).toBeGreaterThan(0);

@@ -123,7 +123,7 @@ export function SeoContent({ children }: { children: ReactNode }) {
 // ── Standard related calculator groups ──────────────────────────────
 
 const CALC_LINKS = {
-  // Painting routes — differentiated
+  // Painting routes, differentiated
   paintBuckets: {
     label: "Paint Calculator",
     path: "/paint-calculator",

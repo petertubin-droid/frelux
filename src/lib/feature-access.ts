@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX Feature Access — Unified Registry
+// FRELUX Feature Access, Unified Registry
 // Phase 9
 //
 // Single import point for all feature access checks.

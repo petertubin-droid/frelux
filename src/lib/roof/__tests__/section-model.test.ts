@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF SECTION MODEL — Tests
+ * FRELUX ROOF SECTION MODEL, Tests
  *
  * Feature 4: Roof Facet / Section Engine
  */

@@ -52,7 +52,7 @@ export default function StructuralCalculator() {
       <PageHeader
         eyebrow="Engineering Tool"
         title="Structural Engineering Calculator"
-        subtitle="Engineer-grade beam, column, and slab sizing based on BS 8110. Full formula transparency. Preliminary sizing — always verify with a qualified structural engineer."
+        subtitle="Engineer-grade beam, column, and slab sizing based on BS 8110. Full formula transparency. Preliminary sizing, always verify with a qualified structural engineer."
         breadcrumbs={[
           { label: "Home", path: "/" },
           { label: "Calculators", path: "/calculators" },
@@ -473,7 +473,7 @@ function ColumnCalculator() {
               value={
                 result.short_or_slender === "short"
                   ? "Short column ✓"
-                  : "Slender — needs detailed analysis"
+                  : "Slender, needs detailed analysis"
               }
             />
           </div>

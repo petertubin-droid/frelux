@@ -1,5 +1,5 @@
 /**
- * FRELUX Phase 3 — Tyrolene Estimation Engine
+ * FRELUX Phase 3, Tyrolene Estimation Engine
  *
  * Partition-based Tyrolene estimator. Uses the Phase 1 estimation infrastructure
  * (products, materials, prices, calc rules, pack sizing, validation, adjustments).
@@ -48,7 +48,7 @@ import {
 // Types
 // =========================================================
 
-/** A single partition type entry (e.g., "Type A — 10 partitions, 3m × 2.5m") */
+/** A single partition type entry (e.g., "Type A, 10 partitions, 3m × 2.5m") */
 export interface PartitionTypeInput {
   id: string;
   label: string;
@@ -465,7 +465,7 @@ export function checkTyroleneProductionEligibility(
   );
 
   if (!rule) {
-    // No minimum configured — do NOT invent one
+    // No minimum configured, do NOT invent one
     return {
       eligible: false,
       message: 'Tyrolene production eligibility for locations outside Owerri cannot be determined, the production minimum has not been configured. Contact FRELUX to confirm production availability.',
@@ -640,7 +640,7 @@ export function calculateTyroleneProject(
         packCount = roundingResult.pack_count;
         leftoverQty = roundingResult.leftover_quantity;
       } else {
-        // No pack size configured — use rounding rule only
+        // No pack size configured, use rounding rule only
         if (roundingRule === 'ceil' && theoreticalQty > 0) {
           practicalQty = Math.ceil(theoreticalQty);
         }

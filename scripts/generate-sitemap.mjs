@@ -1,12 +1,21 @@
 /**
- * Generate sitemap.xml from the route list.
+ * Generate sitemap.xml from the route list + live Learn content.
  * Usage: node scripts/generate-sitemap.mjs
  * Run AFTER `vite build` (writes to dist/sitemap.xml and public/sitemap.xml).
+ *
+ * Static routes come from the list below. Learn category and article URLs
+ * are fetched from Supabase (RLS public read: active categories and
+ * published articles only). If the fetch fails (e.g. local build without
+ * env vars), the sitemap falls back to the static route list so the build
+ * never breaks.
  */
 import { writeFileSync, mkdirSync } from 'fs';
 
 const SITE_URL = 'https://freluxtools.netlify.app';
 const today = new Date().toISOString().split('T')[0];
+
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || '';
+const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';
 
 const routes = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
@@ -14,15 +23,9 @@ const routes = [
   { path: '/start-building', priority: '0.9', changefreq: 'weekly' },
   { path: '/paint-calculator', priority: '0.9', changefreq: 'monthly' },
   { path: '/screeding-calculator', priority: '0.9', changefreq: 'monthly' },
-  { path: '/cost-estimator', priority: '0.9', changefreq: 'monthly' },
   { path: '/pop-ceiling-calculator', priority: '0.8', changefreq: 'monthly' },
   { path: '/tile-calculator', priority: '0.8', changefreq: 'monthly' },
-  { path: '/painting-estimator', priority: '0.8', changefreq: 'monthly' },
-  { path: '/screeding-cost-estimator', priority: '0.8', changefreq: 'monthly' },
-  { path: '/pop-ceiling-cost-estimator', priority: '0.8', changefreq: 'monthly' },
-  { path: '/tile-cost-estimator', priority: '0.8', changefreq: 'monthly' },
   { path: '/finish-estimator', priority: '0.7', changefreq: 'monthly' },
-  { path: '/tyrolene-estimator', priority: '0.7', changefreq: 'monthly' },
   { path: '/colors', priority: '0.8', changefreq: 'weekly' },
   { path: '/colors/compare', priority: '0.7', changefreq: 'monthly' },
   { path: '/ai-color-assistant', priority: '0.7', changefreq: 'monthly' },
@@ -91,11 +94,62 @@ const routes = [
   { path: '/ai-disclaimer', priority: '0.3', changefreq: 'yearly' },
 ];
 
+
+// ── Learn section: dynamic category + article URLs from Supabase ─────
+async function fetchLearnRoutes() {
+  if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+    console.log('  ⚠️  Supabase env vars missing — skipping dynamic Learn URLs');
+    return [];
+  }
+  const headers = { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` };
+  const learnRoutes = [];
+  try {
+    // Active categories (RLS: public read, is_active only)
+    const catRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/learn_categories?select=slug,updated_at&is_active=eq.true`,
+      { headers }
+    );
+    if (catRes.ok) {
+      const cats = await catRes.json();
+      for (const c of cats) {
+        learnRoutes.push({ path: `/learn/category/${c.slug}`, priority: '0.6', changefreq: 'weekly' });
+      }
+    }
+
+    // Published articles (RLS: public read, published + published_at <= now)
+    const artRes = await fetch(
+      `${SUPABASE_URL}/rest/v1/learn_articles?select=slug,updated_at&status=eq.published&order=published_at.desc&limit=1000`,
+      { headers }
+    );
+    if (artRes.ok) {
+      const arts = await artRes.json();
+      for (const a of arts) {
+        learnRoutes.push({ path: `/learn/${a.slug}`, priority: '0.7', changefreq: 'monthly' });
+      }
+    }
+    console.log(`  ✅ Learn: ${learnRoutes.length} dynamic URLs`);
+  } catch (err) {
+    console.log(`  ⚠️  Learn fetch failed (${err.message}) — falling back to static routes only`);
+    return [];
+  }
+  return learnRoutes;
+}
+
+const learnRoutes = await fetchLearnRoutes();
+const allRoutes = [...routes, ...learnRoutes];
+
+// Netlify's "pretty URLs" force-redirect every path to its trailing-slash
+// form (301 /calculators -> /calculators/). The sitemap must list the final
+// URL only, otherwise Google Search Console flags every entry as a redirect.
+// The deprecated consolidation routes (cost-estimator etc.) redirect to
+// ?mode= URLs, so they are deliberately absent from the route list.
+const canonical = (p) => (p === '/' ? p : `${p}/`);
+
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"${' '}
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-${routes.map(r => `  <url>
-    <loc>${SITE_URL}${r.path}</loc>
+${allRoutes.map(r => `  <url>
+    <loc>${SITE_URL}${canonical(r.path)}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${r.changefreq}</changefreq>
     <priority>${r.priority}</priority>
@@ -112,4 +166,4 @@ try {
 }
 writeFileSync('public/sitemap.xml', xml);
 console.log('  ✅ public/sitemap.xml');
-console.log(`\n sitemap generated with ${routes.length} URLs`);
+console.log(`\n sitemap generated with ${allRoutes.length} URLs`);

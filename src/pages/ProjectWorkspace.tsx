@@ -25,6 +25,8 @@ import { supabase } from "@/lib/supabase";
 import type { DbContractorProject } from "@/types/database";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import LocationCard from "@/components/location/LocationCard";
+import type { FreluxLocation } from "@/lib/location-intelligence";
 
 const STATUS_COLORS: Record<string, string> = {
   draft:
@@ -69,8 +71,9 @@ export default function ProjectWorkspace() {
     description: "",
     project_type: "painting",
     building_type: "residential",
-    location: "",
   });
+  // Canonical staged location (Location Intelligence), persisted on create.
+  const [draftLocation, setDraftLocation] = useState<FreluxLocation | null>(null);
   const [creating, setCreating] = useState(false);
 
   const loadProjects = useCallback(async () => {
@@ -115,7 +118,7 @@ export default function ProjectWorkspace() {
           description: newProject.description || null,
           project_type: newProject.project_type,
           building_type: newProject.building_type,
-          location: newProject.location || null,
+          location: draftLocation ?? null,
           status: "draft",
         })
         .select()
@@ -128,8 +131,8 @@ export default function ProjectWorkspace() {
         description: "",
         project_type: "painting",
         building_type: "residential",
-        location: "",
       });
+      setDraftLocation(null);
       navigate(`/project-workspace/${data.id}`);
     } catch (err) {
       toast({ title: (err as Error).message, variant: "error" });
@@ -437,13 +440,9 @@ export default function ProjectWorkspace() {
                 </div>
                 <div>
                   <label className={labelCls}>Location (optional)</label>
-                  <input
-                    className={inputCls}
-                    value={newProject.location}
-                    onChange={(e) =>
-                      setNewProject({ ...newProject, location: e.target.value })
-                    }
-                    placeholder="e.g. Lagos, Nigeria"
+                  <LocationCard
+                    compact
+                    onLocationChange={setDraftLocation}
                   />
                 </div>
                 <div className="flex gap-3 pt-2">

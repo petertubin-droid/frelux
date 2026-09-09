@@ -15,7 +15,7 @@ export default function PrivacyPolicy() {
     <LegalLayout
       slug="privacy-policy"
       title="Privacy Policy"
-      updated="2026-09-05"
+      updated="2026-09-07"
       intro={<p>This privacy policy describes how FRELUX PROJECT CALC collects, uses, and protects your information when you visit our website and use our tools.</p>}
       sections={[
         {
@@ -23,6 +23,14 @@ export default function PrivacyPolicy() {
           body: (
             <p>
               The public tools (Paint Calculator, Cost Estimator, Color Gallery, Tile Calculator, Screeding Calculator, POP Ceiling Calculator) run in your browser and do not require an account. When you use the Smart Color Assistant, your text description or uploaded image is sent to our secure backend and then to a third-party AI provider (Google AI) to generate your recommendation. We do not store your uploaded images or full descriptions long-term. If you create an account, we store your name, email, and project data. If you submit the contact form, the information you provide is used solely to respond to your inquiry.
+            </p>
+          ),
+        },
+        {
+          heading: 'Location data',
+          body: (
+            <p>
+              FRELUX only accesses your device location when you explicitly tap "Use My Location", never automatically and never continuously. Location detection uses your browser's built-in geolocation feature, which asks for your permission first. If you deny permission, FRELUX will not ask again until you choose to retry, and all tools remain available without location. If you attach a location to a project, the coordinates and any address you provide are stored with that project and are visible only to you, they are never shared with other users. When available, a free geocoding service (OpenStreetMap) may convert your coordinates into an approximate address; when it is unavailable, FRELUX shows your coordinates without guessing an address. You can change or remove a project's location at any time.
             </p>
           ),
         },
@@ -40,11 +48,11 @@ export default function PrivacyPolicy() {
             <p>
               Our website uses cookies and browser storage for several purposes:
               <br /><br />
-              <strong>Essential cookies</strong> — These are necessary for the website to function. They include storing your theme preference (light/dark mode) and a random anonymous identifier in your browser's localStorage to enforce the shared daily AI usage limit. This identifier is a random token — it is not linked to your name, email, or identity.
+              <strong>Essential cookies</strong>, These are necessary for the website to function. They include storing your theme preference (light/dark mode) and a random anonymous identifier in your browser's localStorage to enforce the shared daily AI usage limit. This identifier is a random token, it is not linked to your name, email, or identity.
               <br /><br />
-              <strong>Analytics cookies</strong> — When Google Analytics or Meta Pixel is configured, these tools may set cookies to collect aggregate usage data such as page views, time on site, and event counts. These are third-party cookies controlled by their respective providers. We use this data only to understand how the tools are used and to improve them.
+              <strong>Analytics cookies</strong>, When Google Analytics or Meta Pixel is configured, these tools may set cookies to collect aggregate usage data such as page views, time on site, and event counts. These are third-party cookies controlled by their respective providers. We use this data only to understand how the tools are used and to improve them.
               <br /><br />
-              <strong>Advertising cookies</strong> — See the Advertising section below for details.
+              <strong>Advertising cookies</strong>, See the Advertising section below for details.
               <br /><br />
               You can control and delete cookies through your browser settings. Disabling cookies may affect some features. See our{' '}
               <Link to="/cookie-policy" className="font-semibold text-brand-purple underline">Cookie Policy</Link>{' '}
@@ -83,7 +91,7 @@ export default function PrivacyPolicy() {
           heading: 'AI usage tracking',
           body: (
             <p>
-              To enforce the shared daily AI usage limit, we store an anonymous random identifier in your browser's localStorage and a count of successful AI generations per day. This identifier is a random token — it is not linked to your name, email, or identity. Failed AI requests do not consume your daily allowance.
+              To enforce the shared daily AI usage limit, we store an anonymous random identifier in your browser's localStorage and a count of successful AI generations per day. This identifier is a random token, it is not linked to your name, email, or identity. Failed AI requests do not consume your daily allowance.
             </p>
           ),
         },
@@ -91,7 +99,7 @@ export default function PrivacyPolicy() {
           heading: 'Data sharing',
           body: (
             <p>
-              We do not sell, trade, or rent your personal information to third parties. We may share non-personal, aggregated information with partners for analytics and improvement purposes. We may disclose information when required by law or to protect our rights and safety. When you use AI-powered features, your text description or image is sent to Google AI for processing — Google's privacy practices are governed by their own privacy policy.
+              We do not sell, trade, or rent your personal information to third parties. We may share non-personal, aggregated information with partners for analytics and improvement purposes. We may disclose information when required by law or to protect our rights and safety. When you use AI-powered features, your text description or image is sent to Google AI for processing, Google's privacy practices are governed by their own privacy policy.
             </p>
           ),
         },
@@ -102,7 +110,7 @@ export default function PrivacyPolicy() {
               Subscriptions and token purchases are processed securely by Paystack, our third-party payment provider. <strong>We never see or store your card or bank details.</strong> When you make a purchase, your email address and order details (product, amount, and transaction reference) are shared with Paystack to process the payment and issue receipts. Paystack's handling of your payment information is governed by{' '}
               <a href="https://paystack.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="font-semibold text-brand-purple underline">Paystack's privacy policy</a>.
               <br /><br />
-              We store a record of completed purchases (transaction reference, amount, and the tokens or plan credited to your account) so we can deliver what you paid for and provide support. Rewarded ads are always optional — you can earn credits by watching ads or purchase tokens directly, and paid purchases never require watching ads.
+              We store a record of completed purchases (transaction reference, amount, and the tokens or plan credited to your account) so we can deliver what you paid for and provide support. Rewarded ads are always optional, you can earn credits by watching ads or purchase tokens directly, and paid purchases never require watching ads.
             </p>
           ),
         },

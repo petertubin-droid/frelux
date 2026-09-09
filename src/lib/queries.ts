@@ -838,7 +838,7 @@ export async function logRewardedAdEvent(params: {
  * @deprecated Issue #2 fix: Unlocks are now granted server-side via the
  * grant-rewarded-unlock edge function. Direct client-side INSERT into
  * rewarded_unlock_log is no longer permitted by RLS policies.
- * This function will fail silently — use the edge function instead.
+ * This function will fail silently, use the edge function instead.
  */
 export async function recordRewardedUnlock(params: {
   toolKey: string;

@@ -68,7 +68,7 @@ export function SkeletonGrid({ count = 6, className }: { count?: number; classNa
   );
 }
 
-/* Premium stat skeleton — for dashboards and result areas */
+/* Premium stat skeleton, for dashboards and result areas */
 export function SkeletonStat({ className }: { className?: string }) {
   return (
     <div className={classNames('stat-card space-y-3', className)}>

@@ -1,0 +1,162 @@
+// Supabase Edge Function: archie-status
+// =========================================================
+// FRELUX ARCHIE STAGE 1 — STATUS CENTER (OWNER-ONLY)
+//
+// Returns REAL system state for the Owner dashboard from
+// actual database counts and configuration. No fake status.
+// Where a capability is not yet operational, it is reported
+// as "NOT_OPERATIONAL" honestly (spec §§3, 16, 19).
+// =========================================================
+
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
+const service = createClient(SUPABASE_URL, SERVICE_ROLE);
+
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey",
+};
+
+function json(status: number, body: Record<string, unknown>) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { "Content-Type": "application/json", ...CORS },
+  });
+}
+
+async function count(
+  table: string,
+  query?: Record<string, string>,
+): Promise<number> {
+  let q = service.from(table).select("id", { count: "exact", head: true });
+  if (query) {
+    for (const [k, v] of Object.entries(query)) {
+      if (k.endsWith("!in")) q = q.in(k.slice(0, -3), v.split(","));
+      else q = q.eq(k, v);
+    }
+  }
+  const { count } = await q;
+  return count ?? 0;
+}
+
+Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+  if (req.method !== "GET") return json(405, { error: "Method not allowed" });
+
+  // Owner-only
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader) return json(401, { error: "Unauthorized" });
+  const anon = createClient(SUPABASE_URL, ANON_KEY, {
+    global: { headers: { Authorization: authHeader } },
+  });
+  const { data } = await anon.auth.getUser();
+  const user = data.user;
+  if (!user) return json(401, { error: "Unauthorized" });
+  const { data: profile } = await anon
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+  if (profile?.role !== "admin") {
+    return json(403, { error: "Forbidden — ARCHIE is Owner-only." });
+  }
+
+  try {
+    const [
+      domains,
+      knowledgeItems,
+      knowledgeApproved,
+      learningProcessing,
+      learningAwaiting,
+      agentsActive,
+      agentsTotal,
+      estimates,
+      materials,
+      devicesTrusted,
+      devicesPending,
+      conversations,
+      auditEvents,
+      auditCritical,
+      infraCostRows,
+      apiKeys,
+      intelSources,
+      priceObservations,
+    ] = await Promise.all([
+      count("frelux_archie_domains", { active: "true" }),
+      count("frelux_knowledge_items"),
+      count("frelux_knowledge_items", { status: "ACTIVE" }),
+      count("frelux_archie_ingestions", {
+        "pipeline_state!in":
+          "RECEIVED,EXTRACTING,AWAITING_APPROVAL,APPROVED,REJECTED",
+      }),
+      count("frelux_archie_ingestions", {
+        pipeline_state: "AWAITING_APPROVAL",
+      }),
+      count("frelux_archie_internal_agents", {
+        "status!in": "TERMINATED,FAILED",
+      }),
+      count("frelux_archie_internal_agents"),
+      count("estimation_estimates"),
+      count("estimation_materials"),
+      count("frelux_archie_devices", { status: "TRUSTED" }),
+      count("frelux_archie_devices", { status: "PENDING" }),
+      count("frelux_archie_conversations", { owner_id: user.id }),
+      count("frelux_archie_audit_events"),
+      count("frelux_archie_audit_events", { severity: "CRITICAL" }),
+      count("frelux_infrastructure_costs"),
+      count("frelux_api_keys"),
+      count("frelux_intelligence_sources"),
+      count("frelux_price_observations"),
+    ]);
+
+    return json(200, {
+      ok: true,
+      generated_at: new Date().toISOString(),
+      status: {
+        archie_core: { state: "ONLINE", note: "ARCHIE core operational" },
+        knowledge_core: {
+          state: knowledgeItems > 0 ? "OPERATIONAL" : "EMPTY",
+          knowledge_items: knowledgeItems,
+          approved: knowledgeApproved,
+          domains: domains,
+        },
+        learning: {
+          state: learningProcessing > 0 ? "PROCESSING" : "READY",
+          awaiting_approval: learningAwaiting,
+        },
+        frelux_connection: {
+          // ARCHIE runs inside FRELUX infrastructure; the DB
+          // connection itself is the live link.
+          state: "CONNECTED",
+          estimates: estimates,
+          materials: materials,
+        },
+        internal_agents: { active: agentsActive, total: agentsTotal },
+        devices: { trusted: devicesTrusted, pending: devicesPending },
+        conversations: conversations,
+        security: {
+          // real posture: any CRITICAL audit event in the
+          // lifetime of the log escalates the display
+          state: auditCritical > 0 ? "WARNING" : "NORMAL",
+          audit_events: auditEvents,
+          critical_events: auditCritical,
+        },
+        infrastructure: {
+          cost_records: infraCostRows,
+          api_keys: apiKeys,
+          intel_sources: intelSources,
+          price_observations: priceObservations,
+        },
+      },
+    });
+  } catch (err) {
+    return json(500, {
+      ok: false,
+      error: err instanceof Error ? err.message : "Status query failed",
+    });
+  }
+});

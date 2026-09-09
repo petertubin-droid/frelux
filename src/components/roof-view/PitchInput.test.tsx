@@ -36,7 +36,7 @@ describe("PitchInput", () => {
     render(
       <PitchInput pitchDegrees={null} onChange={() => {}} roofType="flat" sectionName="Section A" />,
     );
-    expect(screen.getByText(/Flat roof — no pitch required/)).toBeTruthy();
+    expect(screen.getByText(/Flat roof, no pitch required/)).toBeTruthy();
   });
 
   it("renders degree input when pitch is set", () => {

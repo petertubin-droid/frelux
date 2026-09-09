@@ -81,7 +81,7 @@ function dateRangeToISO(range: DateRange): string {
 }
 
 function formatDate(date: string | null): string {
-  if (!date) return '—';
+  if (!date) return '';
   return new Date(date).toLocaleString('en-GB', {
     day: '2-digit',
     month: 'short',
@@ -102,8 +102,8 @@ export default function SystemHealth() {
     last7d: 0,
     unresolved: 0,
     critical: 0,
-    mostAffectedRoute: '—',
-    mostAffectedFeature: '—',
+    mostAffectedRoute: '',
+    mostAffectedFeature: '',
   });
   const [systemStatus, setSystemStatus] = useState<HealthStatus>('operational');
   const [severityFilter, setSeverityFilter] = useState<SeverityFilter>('all');
@@ -195,8 +195,8 @@ export default function SystemHealth() {
       .gte('last_seen', start24h)
       .limit(500);
 
-    let topRoute = '—';
-    let topFeature = '—';
+    let topRoute = '';
+    let topFeature = '';
     if (recentErrors && recentErrors.length > 0) {
       const routeCounts: Record<string, number> = {};
       const featureCounts: Record<string, number> = {};
@@ -204,8 +204,8 @@ export default function SystemHealth() {
         if (e.route) routeCounts[e.route] = (routeCounts[e.route] || 0) + 1;
         if (e.feature) featureCounts[e.feature] = (featureCounts[e.feature] || 0) + 1;
       }
-      topRoute = Object.entries(routeCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
-      topFeature = Object.entries(featureCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '—';
+      topRoute = Object.entries(routeCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
+      topFeature = Object.entries(featureCounts).sort((a, b) => b[1] - a[1])[0]?.[0] ?? '';
     }
 
     setStats({
@@ -677,8 +677,8 @@ export default function SystemHealth() {
                         </span>
                       </td>
                       <td className="py-2 pr-3 max-w-[300px] truncate text-card-foreground dark:text-muted-foreground/80">{e.message}</td>
-                      <td className="py-2 pr-3 text-muted-foreground dark:text-muted-foreground">{e.feature ?? '—'}</td>
-                      <td className="py-2 pr-3 max-w-[150px] truncate text-muted-foreground dark:text-muted-foreground">{e.route ?? '—'}</td>
+                      <td className="py-2 pr-3 text-muted-foreground dark:text-muted-foreground">{e.feature ?? ''}</td>
+                      <td className="py-2 pr-3 max-w-[150px] truncate text-muted-foreground dark:text-muted-foreground">{e.route ?? ''}</td>
                       <td className="py-2 pr-3 text-card-foreground dark:text-muted-foreground/80">{e.occurrence_count}</td>
                       <td className="py-2 pr-3 text-xs text-muted-foreground">{formatDate(e.first_seen)}</td>
                       <td className="py-2 pr-3 text-xs text-muted-foreground">{formatDate(e.last_seen)}</td>
@@ -889,7 +889,7 @@ export default function SystemHealth() {
                   </div>
                   {aiDiagnosis.protected_functionality_affected && (
                     <div className="rounded-lg bg-amber-50 p-2 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
-                      ⚠️ Protected FRELUX Logic Detected — explicit admin approval required
+                      ⚠️ Protected FRELUX Logic Detected, explicit admin approval required
                     </div>
                   )}
                   <div>
@@ -932,7 +932,7 @@ export default function SystemHealth() {
                   )}
                   {aiFix.protected_functionality_affected && (
                     <div className="rounded-lg bg-amber-50 p-2 text-xs text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
-                      ⚠️ Protected FRELUX Logic Detected — requires explicit admin approval before applying
+                      ⚠️ Protected FRELUX Logic Detected, requires explicit admin approval before applying
                     </div>
                   )}
                   <div className="flex gap-2">
@@ -1022,7 +1022,7 @@ function DetailField({ label, value }: { label: string; value: string | null }) 
   return (
     <div>
       <span className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">{label}</span>
-      <p className="mt-0.5 text-sm text-foreground dark:text-muted-foreground/60">{value ?? '—'}</p>
+      <p className="mt-0.5 text-sm text-foreground dark:text-muted-foreground/60">{value ?? ''}</p>
     </div>
   );
 }

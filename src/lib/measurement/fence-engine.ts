@@ -184,7 +184,7 @@ export function createFence(
 
 /**
  * Create a fence with a specified number of dimensions.
- * Does NOT hardcode 4 — user specifies the count.
+ * Does NOT hardcode 4, user specifies the count.
  */
 export function createFenceWithDimensions(
   name: string,

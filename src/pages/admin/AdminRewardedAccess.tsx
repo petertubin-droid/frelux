@@ -45,7 +45,7 @@ export default function AdminRewardedAccess() {
 }
 
 // =========================================================
-// Feature Config Tab — manages rewarded_feature_config table
+// Feature Config Tab, manages rewarded_feature_config table
 // =========================================================
 function FeatureConfigTab() {
   const [features, setFeatures] = useState<DbRewardedFeatureConfig[]>([]);
@@ -210,7 +210,7 @@ function FeatureConfigTab() {
 }
 
 // =========================================================
-// Tool Config Tab — legacy rewarded_tool_config management
+// Tool Config Tab, legacy rewarded_tool_config management
 // =========================================================
 function ToolConfigTab() {
   const [configs, setConfigs] = useState<DbRewardedToolConfig[]>([]);

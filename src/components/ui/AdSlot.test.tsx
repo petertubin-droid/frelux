@@ -31,7 +31,7 @@ vi.mock("@/lib/supabase-lazy", () => ({
 
 beforeEach(async () => {
   vi.clearAllMocks();
-  // Reset the auth mock — individual tests may override isPaid
+  // Reset the auth mock, individual tests may override isPaid
   const { useAuth } = await import("@/lib/auth");
   vi.mocked(useAuth).mockReturnValue({
     user: null,
@@ -46,7 +46,7 @@ beforeEach(async () => {
   try {
     sessionStorage.clear();
   } catch {
-    // private mode — ignore
+    // private mode, ignore
   }
 });
 
@@ -108,7 +108,7 @@ describe("AdSlot", () => {
 
     const { container } = await renderAdSlot();
 
-    // Monetag with no per-placement ad unit ID renders nothing —
+    // Monetag with no per-placement ad unit ID renders nothing :
     // the global tag.min.js in Layout.tsx handles Monetag display ads.
     await waitFor(() => {
       expect(
@@ -201,10 +201,10 @@ describe("AdSlot", () => {
   });
 
   it("hides visual ads when display_ads_enabled is false, but still logs impressions", async () => {
-    // Adsterra resolves in-slot (so the impression is real — the slot
+    // Adsterra resolves in-slot (so the impression is real, the slot
     // was allocated), while the visual render is suppressed. Monetag
     // without a zone resolves "none" and logs nothing (no false
-    // impressions) — that behavior is covered above.
+    // impressions), that behavior is covered above.
     resetAdsterraPageStateForTests();
     const provider = makeAdsterraProvider(
       { key: "2fc239403361cb893fa79b52b1d98332" },
@@ -235,7 +235,7 @@ describe("AdSlot", () => {
         expect.objectContaining({ event_type: "impression" }),
       );
     });
-    // But nothing visual renders — only the hidden reserved zone
+    // But nothing visual renders, only the hidden reserved zone
     await waitFor(() => {
       expect(
         container.querySelector('[data-ad-reserved="test-slot"]'),
@@ -293,6 +293,14 @@ describe("Adsterra helpers", () => {
     expect(getAdsterraServeDomain(p)).toBe(
       "pl12345678.profitabledisplaynetwork.com",
     );
+  });
+
+  it("picks the first valid hostname from a comma-separated value", () => {
+    const p = makeAdsterraProvider({
+      serve_domain:
+        "www.highperformanceformat.com,https://pl31194884.profitableratecpmnetwork.com",
+    });
+    expect(getAdsterraServeDomain(p)).toBe("www.highperformanceformat.com");
   });
 
   it("rejects non-hostname serve domains (injection safety)", () => {
@@ -366,10 +374,10 @@ describe("Adsterra helpers", () => {
   });
 });
 
-describe("AdSlot — Adsterra rendering", () => {
+describe("AdSlot, Adsterra rendering", () => {
   beforeEach(async () => {
     resetAdsterraPageStateForTests();
-    // mockReturnValue from earlier tests survives clearAllMocks — reset it
+    // mockReturnValue from earlier tests survives clearAllMocks, reset it
     const adConfig = await import("@/lib/ad-config");
     vi.mocked(adConfig.getAdUnitId).mockReturnValue(null);
   });
@@ -393,7 +401,7 @@ describe("AdSlot — Adsterra rendering", () => {
     });
     vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
 
-    // Spy the injector — appending a real srcdoc iframe makes happy-dom
+    // Spy the injector, appending a real srcdoc iframe makes happy-dom
     // attempt an async page load that surfaces as an unhandled rejection
     // in unrelated test files. The injector itself is unit-tested below
     // against a detached container (no document connection, no page load).
@@ -418,7 +426,7 @@ describe("AdSlot — Adsterra rendering", () => {
 
   it("builds the official atOptions/invoke.js srcdoc (captured, never connected)", () => {
     const host = document.createElement("div");
-    // happy-dom refuses to attach srcdoc iframes — capture instead of connect
+    // happy-dom refuses to attach srcdoc iframes, capture instead of connect
     const appended: unknown[] = [];
     (host as unknown as Record<string, unknown>).appendChild = (c: unknown) => {
       appended.push(c);
@@ -441,7 +449,7 @@ describe("AdSlot — Adsterra rendering", () => {
     expect(iframe.getAttribute("srcdoc")).toContain(
       `https://www.highperformanceformat.com/${"a".repeat(32)}/invoke.js`,
     );
-    // injection safety — key never lands outside the hex-guarded srcdoc
+    // injection safety, key never lands outside the hex-guarded srcdoc
     expect(iframe.getAttribute("srcdoc")).not.toContain("evil");
   });
 

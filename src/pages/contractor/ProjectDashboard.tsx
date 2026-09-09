@@ -1,5 +1,5 @@
 /**
- * FRELUX — Smart Project Dashboard
+ * FRELUX, Smart Project Dashboard
  * Main project view showing aggregated project data with tabbed sections:
  * Overview | Rooms | Labour | Shopping | Quotation | Timeline | Notes
  */
@@ -759,7 +759,7 @@ export default function ProjectDashboard() {
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    // File upload is handled via Supabase storage — simplified UI here
+    // File upload is handled via Supabase storage, simplified UI here
     // The actual upload logic would use a Supabase storage bucket
     e.target.value = "";
   };
@@ -1080,7 +1080,7 @@ export default function ProjectDashboard() {
         <PremiumFeatureGate
           featureKey="pdf_export"
           featureName="PDF Export"
-          description="Export professional PDF documents. One-time use — unlock each export."
+          description="Export professional PDF documents. One-time use, unlock each export."
           onUnlock={() => {
             setPdfUnlocked(true);
             setPdfGateOpen(false);

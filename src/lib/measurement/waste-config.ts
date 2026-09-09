@@ -97,7 +97,7 @@ export function createWasteConfig(
  *
  * Priority: userOverride → byMarket → byCountry → globalDefault
  *
- * The resolution is transparent — it reports which source was used.
+ * The resolution is transparent, it reports which source was used.
  *
  * @param config - Waste configuration
  * @param countryCode - ISO country code (optional)
@@ -270,7 +270,7 @@ export function setUserWaste(
 
 /**
  * Create a waste config with Nigeria-specific defaults.
- * Nigeria remains the primary market — other markets use their own configs.
+ * Nigeria remains the primary market, other markets use their own configs.
  */
 export function createNigeriaWasteConfig(): WasteConfig {
   return createWasteConfig({
@@ -291,5 +291,5 @@ export function createNigeriaWasteConfig(): WasteConfig {
  * Format waste resolution as readable text.
  */
 export function wasteResolutionToText(resolution: WasteResolution): string {
-  return `${resolution.wastePercent}% waste (${WASTE_SOURCE_LABELS[resolution.source]}) — ${resolution.explanation}`;
+  return `${resolution.wastePercent}% waste (${WASTE_SOURCE_LABELS[resolution.source]}), ${resolution.explanation}`;
 }

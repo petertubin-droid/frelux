@@ -1,7 +1,7 @@
 /**
  * Dynamic Google Fonts loader.
  *
- * Loads only the fonts currently needed — not the entire 60-font library.
+ * Loads only the fonts currently needed, not the entire 60-font library.
  * Each unique font family is loaded once, regardless of how many areas use it.
  * Uses font-display=swap so text renders immediately with fallbacks.
  */

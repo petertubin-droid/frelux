@@ -667,7 +667,7 @@ export default function ProConnectRegister() {
           {(otpVerified || ninSubmitted) && (
             <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-3 text-sm">
               {otpVerified && <p className="text-emerald-500">✓ Mobile number verified</p>}
-              {ninSubmitted && <p className="text-amber-500">⏳ NIN submitted — pending admin verification</p>}
+              {ninSubmitted && <p className="text-amber-500">⏳ NIN submitted, pending admin verification</p>}
               {!ninSubmitted && (
                 <p className="text-muted-foreground dark:text-muted-foreground">
                   Complete NIN verification to unlock Worker Channels (Tier 2 access).

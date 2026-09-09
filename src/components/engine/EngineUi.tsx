@@ -5,18 +5,18 @@
  * in the user-facing calculator pages. Each component is
  * self-contained and can be dropped into any calculator.
  *
- * Uses simple types from useEngineFeatures — no engine-internal types.
+ * Uses simple types from useEngineFeatures, no engine-internal types.
  *
  * Components:
- * - EngineWasteSelector — configurable waste (system/user/none)
- * - EngineAlreadyHaveInput — already-have / purchase quantity
- * - EngineConfidenceBadge — result confidence indicator
- * - EngineConfidenceDetail — expandable confidence breakdown
- * - EngineExplanationPanel — "how this was calculated" display
- * - EngineMaterialSummaryCard — aggregated materials
- * - EngineEstimateReportView — structured estimate report
+ * - EngineWasteSelector, configurable waste (system/user/none)
+ * - EngineAlreadyHaveInput, already-have / purchase quantity
+ * - EngineConfidenceBadge, result confidence indicator
+ * - EngineConfidenceDetail, expandable confidence breakdown
+ * - EngineExplanationPanel, "how this was calculated" display
+ * - EngineMaterialSummaryCard, aggregated materials
+ * - EngineEstimateReportView, structured estimate report
  *
- * ADDITIVE — existing calculator UI is not modified.
+ * ADDITIVE, existing calculator UI is not modified.
  */
 
 import { useState } from "react";
@@ -118,7 +118,7 @@ export function EngineWasteSelector({
 
       {mode === "none" && (
         <p className="mt-2 text-xs text-muted-foreground">
-          No waste allowance — exact quantity only
+          No waste allowance, exact quantity only
         </p>
       )}
     </div>
@@ -176,7 +176,7 @@ export function EngineAlreadyHaveInput({
       </div>
       {alreadyHave > 0 && (
         <p className="mt-2 text-xs text-green-600">
-          You already have {alreadyHave} {unit} — purchase {purchase} {unit}{" "}
+          You already have {alreadyHave} {unit}, purchase {purchase} {unit}{" "}
           more.
         </p>
       )}

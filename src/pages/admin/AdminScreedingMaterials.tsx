@@ -748,7 +748,7 @@ function MixConfigPanel({
           <Toggle checked={extraEnabled} onChange={setExtraEnabled} />
         </div>
         <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
-          Optional third material calculated from the same coverage rule —
+          Optional third material calculated from the same coverage rule,
           e.g. Bond, glue or primer. Enable it to include it in the White
           Cement + Screeding Paint system. Nothing is shown to users while
           disabled.

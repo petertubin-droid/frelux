@@ -16,7 +16,7 @@ import {
 import { showAdsenseRewardedAd } from "@/lib/adsense-rewarded";
 
 /**
- * Rewarded ad bridges — one entry per provider with a working client-side
+ * Rewarded ad bridges, one entry per provider with a working client-side
  * rewarded implementation. A bridge shows the real ad and reports how it
  * completed; the unlock is then granted server-side with a client
  * attestation token (att_<slug>_<mode>_<timestamp>) that the edge
@@ -25,7 +25,7 @@ import { showAdsenseRewardedAd } from "@/lib/adsense-rewarded";
  * To support a new provider (of the 35 in ad_providers, or a future one):
  * 1. Implement its rewarded flow (see src/lib/monetag-rewarded.ts).
  * 2. Register it here. No edge-function or database change is needed.
- * Providers without a bridge honestly fail — the unlock is never
+ * Providers without a bridge honestly fail, the unlock is never
  * granted without a real ad being shown.
  */
 export interface RewardedAdBridgeResult {
@@ -40,7 +40,7 @@ type RewardedAdBridge = (
 ) => Promise<RewardedAdBridgeResult>;
 
 export const REWARDED_AD_BRIDGES: Record<string, RewardedAdBridge> = {
-  // Monetag — website tag / SDK bridge (src/lib/monetag-rewarded.ts)
+  // Monetag, website tag / SDK bridge (src/lib/monetag-rewarded.ts)
   monetag: async (provider, opts) => {
     const zone = getMonetagZone(provider);
     if (!zone)
@@ -53,7 +53,7 @@ export const REWARDED_AD_BRIDGES: Record<string, RewardedAdBridge> = {
       minWatchTimeMs: 5000,
     });
   },
-  // Google AdSense — H5 Games Ads adBreak bridge (src/lib/adsense-rewarded.ts)
+  // Google AdSense, H5 Games Ads adBreak bridge (src/lib/adsense-rewarded.ts)
   google_adsense: async (provider, opts) => {
     const settings = (provider.settings ?? {}) as Record<string, unknown>;
     const creds = (provider.credentials ?? {}) as Record<string, unknown>;
@@ -154,10 +154,10 @@ function _endOfDayISO(): string {
 }
 
 // ─────────────────────────────────────────────────────────
-// Client-side daily count and cooldown — UX hints only.
+// Client-side daily count and cooldown, UX hints only.
 // Real enforcement is server-side in the grant-rewarded-unlock
 // edge function. These provide immediate feedback without
-// a round-trip, but can be bypassed (that's OK — the server
+// a round-trip, but can be bypassed (that's OK, the server
 // is the source of truth).
 // ─────────────────────────────────────────────────────────
 
@@ -270,7 +270,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
       }
     }
 
-    // Fetch provider details — use the public view (ad_providers_public) not the raw table.
+    // Fetch provider details, use the public view (ad_providers_public) not the raw table.
     // The raw ad_providers table is admin-only after Phase 2b RLS hardening.
     const cfg = cfgRes.data;
     const feat = featRes.data as DbRewardedFeatureConfig | null;
@@ -424,7 +424,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
         setOfferwallProviderName(offerwall.providerName);
         setAdProviderUsed(offerwall.providerName);
 
-        // Start polling for unlock status — the provider's postback
+        // Start polling for unlock status, the provider's postback
         // will trigger the edge function to grant the unlock
         pollIntervalRef.current = setInterval(async () => {
           const unlockRes = await checkRewardedUnlock(toolKey, clientHash);
@@ -503,7 +503,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
 
         if (fnError || !data?.success) {
           // supabase.functions.invoke() throws a FunctionsHttpError with a
-          // generic "non-2xx status code" message on failure — the real
+          // generic "non-2xx status code" message on failure, the real
           // reason (e.g. "No rewarded ad provider is configured", daily
           // limit, cooldown, disabled feature) is in the response body and
           // must be read via getFunctionErrorMessage(). Falling back to
@@ -562,7 +562,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
         }
       } catch (e) {
         // Surface the real error when available instead of always showing
-        // the same generic network message — network failures, thrown
+        // the same generic network message, network failures, thrown
         // exceptions, and edge cases all land here.
         const message =
           e instanceof Error && e.message
@@ -576,7 +576,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     // ──────────────────────────────────────────────────────
     // Provider bridge: show the rewarded ad from this user gesture,
     // then grant the unlock server-side with a client attestation.
-    // Must run inside the tap handler — mobile browsers only allow
+    // Must run inside the tap handler, mobile browsers only allow
     // window-opening ad formats from a direct user gesture (which is
     // why Monetag ads never fired for mobile visitors while the tag
     // ran passively in <head>). See REWARDED_AD_BRIDGES above.

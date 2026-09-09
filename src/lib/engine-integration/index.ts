@@ -1,5 +1,5 @@
 /**
- * FRELUX Engine Integration — Barrel Export
+ * FRELUX Engine Integration, Barrel Export
  *
  * Import from here:
  *   import { fetchMaterialProfiles, dbProfileToMaterialSpec } from '@/lib/engine-integration';

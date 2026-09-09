@@ -17,6 +17,8 @@ export default function AdminPopMaterials() {
   const [filterWf, setFilterWf] = useState<PopWorkflowType>('nigeria');
   const [editing, setEditing] = useState<DbPopMaterial | null>(null);
   const [showEditor, setShowEditor] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => { load(); }, []);
 
@@ -29,23 +31,28 @@ export default function AdminPopMaterials() {
   }
 
   async function handleSave(mat: Partial<DbPopMaterial>) {
+    if (saving) return;
     // Validate numeric fields before saving
     const validated = { ...mat };
     if ('coverage_rate' in validated) validated.coverage_rate = Math.max(0.1, Number(validated.coverage_rate) || 0.1);
     if ('package_size' in validated) validated.package_size = Math.max(1, Number(validated.package_size) || 1);
     if ('unit_price' in validated) validated.unit_price = Math.max(0, Number(validated.unit_price) || 0);
     if ('labour_rate_per_sqm' in validated) validated.labour_rate_per_sqm = Math.max(0, Number(validated.labour_rate_per_sqm) || 0);
-    if (editing) {
-      await supabase.from('pop_materials').update({ ...validated, updated_at: new Date().toISOString() }).eq('id', editing.id);
-    } else {
-      await supabase.from('pop_materials').insert(validated);
-    }
+    setSaveError(null);
+    setSaving(true);
+    const { error } = editing
+      ? await supabase.from('pop_materials').update({ ...validated, updated_at: new Date().toISOString() }).eq('id', editing.id)
+      : await supabase.from('pop_materials').insert(validated);
+    setSaving(false);
+    if (error) { setSaveError(error.message); return; }
     setShowEditor(false); setEditing(null); load();
   }
 
   async function handleDelete(id: string) {
     if (!confirm('Delete this material?')) return;
-    await supabase.from('pop_materials').delete().eq('id', id);
+    setSaveError(null);
+    const { error } = await supabase.from('pop_materials').delete().eq('id', id);
+    if (error) { setSaveError(error.message); return; }
     setMaterials((prev) => prev.filter((m) => m.id !== id));
   }
 
@@ -78,6 +85,9 @@ export default function AdminPopMaterials() {
           <AdminButton onClick={() => { setEditing(null); setShowEditor(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add Material</AdminButton>
         </div>}
       />
+      {saveError && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-400" role="alert">{saveError}</div>
+      )}
 
       <div className="mb-4 inline-flex rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-1">
         {workflows.map((wf) => (

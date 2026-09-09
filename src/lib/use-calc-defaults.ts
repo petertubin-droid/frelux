@@ -1,5 +1,5 @@
 /**
- * useCalcDefaults — fetches admin-configured calculation rules from
+ * useCalcDefaults, fetches admin-configured calculation rules from
  * the estimation_calc_rules table. Replaces hardcoded frontend defaults.
  *
  * All calculator pages should use this hook to get their default values

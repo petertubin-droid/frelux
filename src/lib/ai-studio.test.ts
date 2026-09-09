@@ -43,7 +43,7 @@ function chain(overrides: Record<string, unknown> = {}) {
     });
   }
 
-  // single is terminal — returns plain result, not chainable
+  // single is terminal, returns plain result, not chainable
   c.single = vi.fn(() => defaultReturn);
 
   return c;

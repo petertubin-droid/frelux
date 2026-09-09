@@ -1,5 +1,5 @@
 /**
- * FRELUX INTERNATIONAL ARCHITECTURE — Barrel Export
+ * FRELUX INTERNATIONAL ARCHITECTURE, Barrel Export
  *
  * Import from here:
  *   import { useMarket, resolveMaterialRule, fetchCurrentPrice, ... } from '@/lib/international';
@@ -13,9 +13,10 @@ export {
   useMarket,
   useCurrencySymbol,
   useCurrencyCode,
+  isMarketSupported,
   DEFAULT_MARKET_CODE,
   NIGERIA_DEFAULTS,
-} from './market-context';
+} from "./market-context";
 
 // Material rule resolver
 export {
@@ -25,7 +26,7 @@ export {
   resolveAllRules,
   preloadMaterialRules,
   clearMaterialRuleCache,
-} from './material-rules';
+} from "./material-rules";
 
 // Pricing resolver
 export {
@@ -34,7 +35,7 @@ export {
   fetchMarketProducts,
   resolveProductPrice,
   clearPriceCache,
-} from './pricing-resolver';
+} from "./pricing-resolver";
 
 // Calculator config service
 export {
@@ -44,7 +45,7 @@ export {
   getCalculatorLabel,
   getAvailableCalculators,
   clearCalculatorConfigCache,
-} from './calculator-config';
+} from "./calculator-config";
 
 // Measurement bridge (wraps existing measurement system)
 export {
@@ -57,14 +58,14 @@ export {
   normalizeArea,
   denormalizeLength,
   denormalizeArea,
-} from './measurement-bridge';
+} from "./measurement-bridge";
 
 // Calculation audit
 export {
   createCalculationAudit,
   createLegacyAudit,
   auditToRecord,
-} from './calculation-audit';
+} from "./calculation-audit";
 
 // Supabase queries (for admin)
 export {
@@ -86,7 +87,7 @@ export {
   toggleCalculatorAvailability,
   fetchUserMarketPreference,
   upsertUserMarketPreference,
-} from './queries';
+} from "./queries";
 
 // Types (re-export)
 export type {
@@ -103,4 +104,4 @@ export type {
   MarketCalculatorType,
   PreferredLengthUnit,
   PreferredAreaUnit,
-} from '@/types/international';
+} from "@/types/international";

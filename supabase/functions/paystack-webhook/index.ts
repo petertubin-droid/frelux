@@ -16,7 +16,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-paystack-signature",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-paystack-signature",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
@@ -39,7 +40,7 @@ async function verifySignature(req: Request): Promise<boolean> {
     encoder.encode(secretKey),
     { name: "HMAC", hash: "SHA-256" },
     false,
-    ["sign"]
+    ["sign"],
   );
   const signed = await crypto.subtle.sign("HMAC", key, encoder.encode(body));
   const hash = Array.from(new Uint8Array(signed))
@@ -67,19 +68,48 @@ Deno.serve(async (req: Request) => {
     const event = body.event;
     const data = body.data;
 
-    // Only process successful charge or subscription events
-    if (event !== "charge.success" && event !== "subscription.enable") {
+    // Only process charge/subscription events; refunds handled below
+    if (
+      event !== "charge.success" &&
+      event !== "subscription.enable" &&
+      event !== "charge.refunded"
+    ) {
       return new Response(JSON.stringify({ received: true, skipped: true }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    if (data.status !== "success") {
-      return new Response(JSON.stringify({ received: true, status: data.status }), {
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, serviceRoleKey);
+
+    // ── FRELUX API plan refund (Phase 7 §17): idempotent downgrade ──
+    if (event === "charge.refunded") {
+      const { error: refundError } = await supabase.rpc(
+        "frelux_api_record_refund",
+        { p_provider_reference: data.reference as string },
+      );
+      if (refundError) {
+        return new Response(JSON.stringify({ error: refundError.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(JSON.stringify({ received: true, refunded: true }), {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    if (data.status !== "success") {
+      return new Response(
+        JSON.stringify({ received: true, status: data.status }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     const metadata = data.metadata || {};
@@ -88,9 +118,50 @@ Deno.serve(async (req: Request) => {
     const billingCycle = (metadata.billing_cycle as string) || "monthly";
     const userId = metadata.user_id as string;
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
+    // ── FRELUX API plan purchase (Phase 7 §17): grant the
+    // entitlement ONLY from this signed webhook, idempotently via
+    // the reference-unique transactions ledger. A client-side
+    // payment-success message NEVER grants API access. ──
+    if (purpose === "api_plan" && event === "charge.success") {
+      const planKey = metadata.plan_key as string;
+      if (!userId || !planKey) {
+        return new Response(
+          JSON.stringify({ error: "Missing user_id or plan_key" }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+      const { data: applied, error: planError } = await supabase.rpc(
+        "frelux_api_apply_plan_purchase",
+        {
+          p_user_id: userId,
+          p_plan_key: planKey,
+          p_provider_reference: data.reference as string,
+          p_amount: data.amount as number,
+          p_currency: (metadata.currency as string) || "USD",
+          p_metadata: {
+            source: "paystack-webhook",
+            paystack_reference: data.reference,
+            purpose: "api_plan",
+          },
+        },
+      );
+      if (planError) {
+        return new Response(JSON.stringify({ error: planError.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      return new Response(
+        JSON.stringify({ received: true, api_plan_applied: !!applied }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
 
     // ── Token purchase: credit tokens (idempotent via RPC reference check) ──
     if (purpose === "token_purchase" && event === "charge.success") {
@@ -118,13 +189,10 @@ Deno.serve(async (req: Request) => {
         },
       );
       if (creditError) {
-        return new Response(
-          JSON.stringify({ error: creditError.message }),
-          {
-            status: 500,
-            headers: { ...corsHeaders, "Content-Type": "application/json" },
-          },
-        );
+        return new Response(JSON.stringify({ error: creditError.message }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
       }
       return new Response(
         JSON.stringify({ received: true, tokens_credited: tokens }),
@@ -136,19 +204,23 @@ Deno.serve(async (req: Request) => {
     }
 
     if (!plan || !userId) {
-      return new Response(JSON.stringify({ error: "Missing plan or user_id" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ error: "Missing plan or user_id" }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
     }
 
     // Activate subscription
     const days = PLAN_DURATIONS_DAYS[billingCycle] ?? 30;
-    const paidUntil = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+    const paidUntil = new Date(
+      Date.now() + days * 24 * 60 * 60 * 1000,
+    ).toISOString();
 
-    const { error } = await supabase
-      .from("user_paid_status")
-      .upsert({
+    const { error } = await supabase.from("user_paid_status").upsert(
+      {
         user_id: userId,
         is_paid: true,
         plan,
@@ -156,7 +228,9 @@ Deno.serve(async (req: Request) => {
         payment_provider: "paystack",
         provider_customer_id: data.customer?.customer_code || null,
         updated_at: new Date().toISOString(),
-      }, { onConflict: "user_id" });
+      },
+      { onConflict: "user_id" },
+    );
 
     if (error) {
       return new Response(JSON.stringify({ error: error.message }), {
@@ -165,10 +239,13 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    return new Response(JSON.stringify({ received: true, activated: true, plan }), {
-      status: 200,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ received: true, activated: true, plan }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,

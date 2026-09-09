@@ -17,7 +17,7 @@ beforeEach(() => {
   vi.spyOn(console, "error").mockImplementation(() => {});
 });
 
-describe("errorMonitor — reportError", () => {
+describe("errorMonitor, reportError", () => {
   it("does not throw on valid report", () => {
     expect(() =>
       reportError({
@@ -38,7 +38,7 @@ describe("errorMonitor — reportError", () => {
   });
 });
 
-describe("errorMonitor — captureError", () => {
+describe("errorMonitor, captureError", () => {
   it("captures Error instance", () => {
     expect(() => captureError(new Error("Something broke"))).not.toThrow();
   });
@@ -63,7 +63,7 @@ describe("errorMonitor — captureError", () => {
   });
 });
 
-describe("errorMonitor — captureSupabaseError", () => {
+describe("errorMonitor, captureSupabaseError", () => {
   it("captures supabase error with message", () => {
     expect(() =>
       captureSupabaseError(
@@ -80,7 +80,7 @@ describe("errorMonitor — captureSupabaseError", () => {
   });
 });
 
-describe("errorMonitor — captureApiError", () => {
+describe("errorMonitor, captureApiError", () => {
   it("captures API error with status code", () => {
     expect(() =>
       captureApiError(new Error("Not found"), { feature: "marketplace" }),
@@ -92,7 +92,7 @@ describe("errorMonitor — captureApiError", () => {
   });
 });
 
-describe("errorMonitor — captureCalculatorError", () => {
+describe("errorMonitor, captureCalculatorError", () => {
   it("captures calculator error", () => {
     expect(() =>
       captureCalculatorError("paint-calculator", new Error("Division by zero")),
@@ -100,7 +100,7 @@ describe("errorMonitor — captureCalculatorError", () => {
   });
 });
 
-describe("errorMonitor — captureAiError", () => {
+describe("errorMonitor, captureAiError", () => {
   it("captures AI error", () => {
     expect(() =>
       captureAiError(new Error("Model timeout"), {
@@ -110,7 +110,7 @@ describe("errorMonitor — captureAiError", () => {
   });
 });
 
-describe("errorMonitor — capturePaymentError", () => {
+describe("errorMonitor, capturePaymentError", () => {
   it("captures payment error", () => {
     expect(() =>
       capturePaymentError(new Error("Charge failed"), { provider: "paystack" }),
@@ -118,7 +118,7 @@ describe("errorMonitor — capturePaymentError", () => {
   });
 });
 
-describe("errorMonitor — captureMarketplaceError", () => {
+describe("errorMonitor, captureMarketplaceError", () => {
   it("captures marketplace error", () => {
     expect(() =>
       captureMarketplaceError(new Error("Cart empty"), {
@@ -128,7 +128,7 @@ describe("errorMonitor — captureMarketplaceError", () => {
   });
 });
 
-describe("errorMonitor — captureAuthError", () => {
+describe("errorMonitor, captureAuthError", () => {
   it("captures auth error", () => {
     expect(() =>
       captureAuthError(new Error("Invalid credentials"), {
@@ -138,7 +138,7 @@ describe("errorMonitor — captureAuthError", () => {
   });
 });
 
-describe("errorMonitor — withErrorCapture", () => {
+describe("errorMonitor, withErrorCapture", () => {
   it("returns result on success", () => {
     const fn = (a: number, b: number) => a + b;
     const wrapped = withErrorCapture(fn, { feature: "test" });

@@ -56,7 +56,7 @@ export default function OrderDetail() {
   const { user } = useAuth();
   useSeo({
     description: "FRELUX marketplace",
-    title: "Order Details — FRELUX Marketplace",
+    title: "Order Details, FRELUX Marketplace",
     canonicalPath: `/marketplace/orders/${id}`,
   });
 
@@ -294,7 +294,7 @@ export default function OrderDetail() {
               variant="default"
               onClick={handleAdvanceStatus}
               disabled={submitting}
-              className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50"
             >
               {submitting ? (
                 <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -336,7 +336,7 @@ export default function OrderDetail() {
                 variant="default"
                 onClick={handleAddMilestone}
                 disabled={submitting || !newMilestoneTitle.trim()}
-                className="rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
+                className="rounded-lg px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50"
               >
                 Add
               </Button>
@@ -535,7 +535,7 @@ export default function OrderDetail() {
                     variant="default"
                     onClick={handleSubmitReview}
                     disabled={submitting}
-                    className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
+                    className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50"
                   >
                     {submitting ? (
                       <Loader2

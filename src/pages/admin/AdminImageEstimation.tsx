@@ -86,7 +86,7 @@ export default function AdminImageEstimation() {
       .maybeSingle();
 
     if (fetchError) {
-      // Columns might not exist yet — show default config with migration notice
+      // Columns might not exist yet, show default config with migration notice
       setError(
         "Database migration required. Run the Phase 31 SQL migration to enable this feature.",
       );
@@ -143,7 +143,7 @@ export default function AdminImageEstimation() {
 
   const save = useCallback(async () => {
     if (!rowId) {
-      setSaveError("No settings row found to update — try reloading the page.");
+      setSaveError("No settings row found to update, try reloading the page.");
       return;
     }
     setStatus("saving");
@@ -195,7 +195,7 @@ export default function AdminImageEstimation() {
     <>
       <AdminHeader
         title="AI Image Estimation"
-        subtitle="Premium building photo estimation — control access, pricing, and usage limits."
+        subtitle="Premium building photo estimation, control access, pricing, and usage limits."
       />
 
       {error && (

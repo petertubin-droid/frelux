@@ -41,6 +41,96 @@ function timingSafeEqual(a: string, b: string): boolean {
   return result === 0;
 }
 
+/**
+ * Offerwall postback secret verification (standard providers).
+ *
+ * The identifier checks alone (gateway_id / app_id / placement …) are NOT
+ * authentication — those values are public: they appear in the offerwall
+ * URL rendered in the user's iframe. Anyone who completed one offer (or
+ * read the URL) could previously forge
+ *   /rewarded-postback/<slug>?user_id=<hash>&amount=100&app_id=<public>…
+ * and mint unlocks/credits without watching anything.
+ *
+ * Real fix, phased so live postbacks don't break before the provider
+ * dashboards are updated:
+ *  - When the provider row has a SECRET credential configured
+ *    (api_key / secret / secure_hash / app_signature / sdk_key), the
+ *    postback URL must carry it as &sig=<secret> (or &secret=<secret>).
+ *    The URL is configured in the provider's dashboard server-side, so
+ *    the secret never appears in the browser. Mismatch → rejected.
+ *  - When no secret is stored yet, the postback is allowed but a
+ *    `postback_secret_missing` analytics event is logged so the admin
+ *    sees which providers still need a secret added to their postback URL.
+ */
+async function offerwallSecretOk(
+  supabase: ReturnType<typeof createClient>,
+  providerSlug: string,
+  provider: { credentials?: Record<string, unknown> } | null,
+  url: URL,
+): Promise<boolean> {
+  const creds = provider?.credentials ?? {};
+  let storedSecret =
+    (typeof creds.api_key === "string" && creds.api_key) ||
+    (typeof creds.secret === "string" && creds.secret) ||
+    (typeof creds.secure_hash === "string" && creds.secure_hash) ||
+    (typeof creds.app_signature === "string" && creds.app_signature) ||
+    (typeof creds.sdk_key === "string" && creds.sdk_key) ||
+    "";
+
+  // Fall back to the Integrations page (integration_settings.config) when
+  // the ad_providers row has no secret — admins may keep credentials in
+  // either place. Service role can read both tables.
+  if (!storedSecret) {
+    const { data: integration } = await supabase
+      .from("integration_settings")
+      .select("config")
+      .eq("integration_key", providerSlug)
+      .maybeSingle();
+    const iCreds = (integration?.config ?? {}) as Record<string, unknown>;
+    storedSecret =
+      (typeof iCreds.api_key === "string" && iCreds.api_key) ||
+      (typeof iCreds.secret === "string" && iCreds.secret) ||
+      (typeof iCreds.secure_hash === "string" && iCreds.secure_hash) ||
+      "";
+  }
+
+  if (!storedSecret) {
+    await supabase
+      .from("ad_analytics_events")
+      .insert({
+        event_type: "postback_secret_missing",
+        tool_key: "offerwall_security",
+        metadata: {
+          provider_slug: providerSlug,
+          note: "Postback accepted without secret — add the provider's api_key/secret to its credentials and append &sig=<secret> to the postback URL in the provider dashboard.",
+        },
+      })
+      .catch(() => {});
+    return true;
+  }
+
+  const provided =
+    url.searchParams.get("sig") ?? url.searchParams.get("secret") ?? "";
+  if (provided && timingSafeEqual(provided, storedSecret)) {
+    return true;
+  }
+
+  await supabase
+    .from("ad_analytics_events")
+    .insert({
+      event_type: "postback_secret_mismatch",
+      tool_key: "offerwall_security",
+      client_hash:
+        url.searchParams.get("user_id") ?? url.searchParams.get("uid") ?? "",
+      metadata: {
+        provider_slug: providerSlug,
+        note: "Rejected offerwall postback: missing/incorrect secret param.",
+      },
+    })
+    .catch(() => {});
+  return false;
+}
+
 // Offerwall.ad event context (set during parsing, used in processing)
 let owEventType = "";
 let owOriginalTxId = "";
@@ -94,7 +184,10 @@ Deno.serve(async (req: Request) => {
         .eq("slug", "adgate_media")
         .eq("is_active", true)
         .maybeSingle();
-      if (provider?.credentials?.gateway_id === gatewayId) {
+      if (
+        provider?.credentials?.gateway_id === gatewayId &&
+        (await offerwallSecretOk(supabase, providerSlug, provider, url))
+      ) {
         isValid = true;
       }
       toolKey = url.searchParams.get("tool_key") ?? "advanced_calculator";
@@ -111,7 +204,10 @@ Deno.serve(async (req: Request) => {
         .eq("slug", "offertoro")
         .eq("is_active", true)
         .maybeSingle();
-      if (provider?.credentials?.app_id === appId) {
+      if (
+        provider?.credentials?.app_id === appId &&
+        (await offerwallSecretOk(supabase, providerSlug, provider, url))
+      ) {
         isValid = true;
       }
       toolKey = url.searchParams.get("tool_key") ?? "advanced_calculator";
@@ -127,7 +223,10 @@ Deno.serve(async (req: Request) => {
         .eq("slug", "adgem")
         .eq("is_active", true)
         .maybeSingle();
-      if (provider?.credentials?.placement_id === placementId) {
+      if (
+        provider?.credentials?.placement_id === placementId &&
+        (await offerwallSecretOk(supabase, providerSlug, provider, url))
+      ) {
         isValid = true;
       }
       toolKey = url.searchParams.get("tool_key") ?? "advanced_calculator";
@@ -143,7 +242,10 @@ Deno.serve(async (req: Request) => {
         .eq("slug", "cpx_research")
         .eq("is_active", true)
         .maybeSingle();
-      if (provider?.credentials?.secure_hash === secureHash) {
+      if (
+        provider?.credentials?.secure_hash === secureHash &&
+        (await offerwallSecretOk(supabase, providerSlug, provider, url))
+      ) {
         isValid = true;
       }
       toolKey = url.searchParams.get("tool_key") ?? "advanced_calculator";
@@ -159,7 +261,10 @@ Deno.serve(async (req: Request) => {
         .eq("slug", "ayet_studios")
         .eq("is_active", true)
         .maybeSingle();
-      if (provider?.credentials?.app_id === appId) {
+      if (
+        provider?.credentials?.app_id === appId &&
+        (await offerwallSecretOk(supabase, providerSlug, provider, url))
+      ) {
         isValid = true;
       }
       toolKey = url.searchParams.get("tool_key") ?? "advanced_calculator";
@@ -175,7 +280,10 @@ Deno.serve(async (req: Request) => {
         .eq("slug", "revu")
         .eq("is_active", true)
         .maybeSingle();
-      if (provider?.credentials?.placement_id === placementId) {
+      if (
+        provider?.credentials?.placement_id === placementId &&
+        (await offerwallSecretOk(supabase, providerSlug, provider, url))
+      ) {
         isValid = true;
       }
       toolKey = url.searchParams.get("tool_key") ?? "advanced_calculator";
@@ -191,7 +299,10 @@ Deno.serve(async (req: Request) => {
         .eq("slug", "wannads")
         .eq("is_active", true)
         .maybeSingle();
-      if (provider?.credentials?.sub_id === subId) {
+      if (
+        provider?.credentials?.sub_id === subId &&
+        (await offerwallSecretOk(supabase, providerSlug, provider, url))
+      ) {
         isValid = true;
       }
       toolKey = url.searchParams.get("tool_key") ?? "advanced_calculator";
@@ -207,7 +318,10 @@ Deno.serve(async (req: Request) => {
         .eq("slug", "my_lead")
         .eq("is_active", true)
         .maybeSingle();
-      if (provider?.credentials?.app_id === appId) {
+      if (
+        provider?.credentials?.app_id === appId &&
+        (await offerwallSecretOk(supabase, providerSlug, provider, url))
+      ) {
         isValid = true;
       }
       toolKey = url.searchParams.get("tool_key") ?? "advanced_calculator";
@@ -223,7 +337,10 @@ Deno.serve(async (req: Request) => {
         .eq("slug", "adwork_media")
         .eq("is_active", true)
         .maybeSingle();
-      if (provider?.credentials?.campaign_id === campId) {
+      if (
+        provider?.credentials?.campaign_id === campId &&
+        (await offerwallSecretOk(supabase, providerSlug, provider, url))
+      ) {
         isValid = true;
       }
       toolKey = url.searchParams.get("tool_key") ?? "advanced_calculator";
@@ -239,7 +356,10 @@ Deno.serve(async (req: Request) => {
         .eq("slug", "revenuehits")
         .eq("is_active", true)
         .maybeSingle();
-      if (provider?.credentials?.client_id === clientId) {
+      if (
+        provider?.credentials?.client_id === clientId &&
+        (await offerwallSecretOk(supabase, providerSlug, provider, url))
+      ) {
         isValid = true;
       }
       toolKey = url.searchParams.get("tool_key") ?? "advanced_calculator";
@@ -255,7 +375,10 @@ Deno.serve(async (req: Request) => {
         .eq("slug", "notik")
         .eq("is_active", true)
         .maybeSingle();
-      if (provider?.credentials?.app_id === appId) {
+      if (
+        provider?.credentials?.app_id === appId &&
+        (await offerwallSecretOk(supabase, providerSlug, provider, url))
+      ) {
         isValid = true;
       }
       toolKey = url.searchParams.get("tool_key") ?? "advanced_calculator";
@@ -271,7 +394,10 @@ Deno.serve(async (req: Request) => {
         .eq("slug", "bitcot")
         .eq("is_active", true)
         .maybeSingle();
-      if (provider?.credentials?.app_id === appId) {
+      if (
+        provider?.credentials?.app_id === appId &&
+        (await offerwallSecretOk(supabase, providerSlug, provider, url))
+      ) {
         isValid = true;
       }
       toolKey = url.searchParams.get("tool_key") ?? "advanced_calculator";
@@ -390,7 +516,10 @@ Deno.serve(async (req: Request) => {
         { label: "query_string_no_qmark", payload: url.search.slice(1) },
         { label: "path_plus_query", payload: pathAndQuery },
         { label: "path_only", payload: pathOnly },
-        { label: "path_plus_query_no_provider", payload: url.pathname.replace("/offerwall_ad", "") + url.search },
+        {
+          label: "path_plus_query_no_provider",
+          payload: url.pathname.replace("/offerwall_ad", "") + url.search,
+        },
       ];
 
       let sigValid = false;
@@ -398,7 +527,8 @@ Deno.serve(async (req: Request) => {
       for (const candidate of candidates) {
         // Skip empty payloads except raw_body (an empty body is a
         // legitimate case for GET requests with no body at all).
-        if (candidate.payload === "" && candidate.label !== "raw_body") continue;
+        if (candidate.payload === "" && candidate.label !== "raw_body")
+          continue;
         const computedHex = await computeHmacHex(candidate.payload);
         if (timingSafeEqual(computedHex, receivedSig)) {
           sigValid = true;
@@ -414,12 +544,17 @@ Deno.serve(async (req: Request) => {
             label: c.label,
             payloadPreview: c.payload.slice(0, 300),
             payloadLength: c.payload.length,
-            computedHex: c.payload === "" && c.label !== "raw_body" ? null : await computeHmacHex(c.payload),
+            computedHex:
+              c.payload === "" && c.label !== "raw_body"
+                ? null
+                : await computeHmacHex(c.payload),
           })),
         );
         const allHeaders: Record<string, string> = {};
         req.headers.forEach((value, key) => {
-          allHeaders[key] = key.toLowerCase().includes("secret") ? "[REDACTED]" : value;
+          allHeaders[key] = key.toLowerCase().includes("secret")
+            ? "[REDACTED]"
+            : value;
         });
         const debugData = {
           method: req.method,
@@ -441,10 +576,13 @@ Deno.serve(async (req: Request) => {
           client_hash: owUid || "unknown",
           metadata: debugData,
         });
-        return jsonResponse({
-          error: "Invalid signature",
-          debug: debugData,
-        }, 403);
+        return jsonResponse(
+          {
+            error: "Invalid signature",
+            debug: debugData,
+          },
+          403,
+        );
       }
 
       console.log(

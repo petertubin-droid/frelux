@@ -19,6 +19,7 @@ import {
   Search,
   Share2,
   ArrowRight,
+  MapPin,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import EmptyState from "@/components/ui/EmptyState";
@@ -52,6 +53,13 @@ import type {
   ShareableResourceType,
 } from "@/types/database";
 import { SITE_URL } from "@/lib/seo";
+import LocationCard from "@/components/location/LocationCard";
+import {
+  saveUserProjectLocation,
+  locationFromProjectRow,
+  formatLocationLabel,
+  type FreluxLocation,
+} from "@/lib/location-intelligence";
 import { Button } from "@/components/ui/shadcn/button";
 
 type Tab = "projects" | "colors" | "palettes" | "collections" | "recent";
@@ -87,6 +95,10 @@ export default function MyProjects() {
   const [creating, setCreating] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
+  // Calculator-project location (canonical location-intelligence record)
+  const [locationProject, setLocationProject] = useState<DbUserProject | null>(
+    null,
+  );
   const [moveState, setMoveState] = useState<{
     colorId: string;
     fromColl: string;
@@ -164,8 +176,33 @@ export default function MyProjects() {
         projectData: p.project_data,
         projectId: p.id,
         projectName: p.name,
+        // Canonical location record, calculators consume the regional
+        // context (currency) from it without duplicating location state.
+        projectLocation: p.location,
       },
     });
+  }
+
+  async function handleSaveProjectLocation(loc: FreluxLocation | null) {
+    if (!locationProject) return;
+    const res = await saveUserProjectLocation(locationProject.id, loc);
+    if (res.ok) {
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.id === locationProject.id
+            ? { ...p, location: loc as unknown as Record<string, unknown> }
+            : p,
+        ),
+      );
+      toast({ title: "Project location saved", variant: "success" });
+      setLocationProject(null);
+    } else {
+      toast({
+        title: "Could not save location",
+        message: res.error ?? undefined,
+        variant: "error",
+      });
+    }
   }
 
   async function handleCreateCollection() {
@@ -367,7 +404,8 @@ export default function MyProjects() {
           {tabs.map((t) => {
             const Icon = t.icon;
             return (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 key={t.id}
                 type="button"
                 onClick={() => {
@@ -426,11 +464,19 @@ export default function MyProjects() {
                       )}
                       <p className="mt-1 text-xs text-muted-foreground">
                         Updated {new Date(p.updated_at).toLocaleDateString()}
+                        {p.location && (
+                          <>
+                            {" · "}
+                            <MapPin aria-hidden="true" className="inline h-3 w-3" />{" "}
+                            {formatLocationLabel(locationFromProjectRow(p))}
+                          </>
+                        )}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       type="button"
                       onClick={() => handleOpenProject(p)}
                       className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
@@ -439,7 +485,8 @@ export default function MyProjects() {
                       <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />{" "}
                       Open
                     </Button>
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       type="button"
                       onClick={() => handleShare("project", p.id)}
                       className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
@@ -447,7 +494,17 @@ export default function MyProjects() {
                     >
                       <Share2 className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
+                      type="button"
+                      onClick={() => setLocationProject(p)}
+                      className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
+                      title={p.location ? "Edit location" : "Set location"}
+                    >
+                      <MapPin aria-hidden="true" className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
                       type="button"
                       onClick={() => handleDuplicate(p.id)}
                       className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
@@ -455,7 +512,8 @@ export default function MyProjects() {
                     >
                       <Copy aria-hidden="true" className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       type="button"
                       onClick={() => handleDeleteProject(p.id)}
                       className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50"
@@ -576,11 +634,12 @@ export default function MyProjects() {
                 className="input-field flex-1"
                 onKeyDown={(e) => e.key === "Enter" && handleCreateCollection()}
               />
-              <Button variant="default"
+              <Button
+                variant="default"
                 type="button"
                 onClick={handleCreateCollection}
                 disabled={creating || !newCollName.trim()}
-                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-50 hover:/90"
+                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-50 hover:bg-primary/90"
               >
                 <Plus aria-hidden="true" className="h-4 w-4" /> Create
               </Button>
@@ -605,14 +664,16 @@ export default function MyProjects() {
                                 e.key === "Enter" && handleRename(c.id)
                               }
                             />
-                            <Button variant="ghost"
+                            <Button
+                              variant="ghost"
                               type="button"
                               onClick={() => handleRename(c.id)}
                               className="rounded-md bg-primary p-1.5 text-primary-foreground"
                             >
                               <Check aria-hidden="true" className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost"
+                            <Button
+                              variant="ghost"
                               type="button"
                               onClick={() => setRenamingId(null)}
                               className="rounded-md border border-border p-1.5 text-muted-foreground dark:border-white/5 dark:text-muted-foreground"
@@ -638,7 +699,8 @@ export default function MyProjects() {
                       </div>
                       {renamingId !== c.id && (
                         <div className="flex shrink-0 items-center gap-2">
-                          <Button variant="ghost"
+                          <Button
+                            variant="ghost"
                             type="button"
                             onClick={() => {
                               setRenamingId(c.id);
@@ -649,7 +711,8 @@ export default function MyProjects() {
                           >
                             <Pencil className="h-4 w-4" />
                           </Button>
-                          <Button variant="ghost"
+                          <Button
+                            variant="ghost"
                             type="button"
                             onClick={() => handleDeleteCollection(c.id)}
                             className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50"
@@ -681,7 +744,8 @@ export default function MyProjects() {
                             </Link>
                             {collections.length > 1 && (
                               <div className="relative">
-                                <Button variant="ghost"
+                                <Button
+                                  variant="ghost"
                                   type="button"
                                   onClick={() =>
                                     setMoveState({
@@ -705,7 +769,8 @@ export default function MyProjects() {
                                     {collections
                                       .filter((oc) => oc.id !== c.id)
                                       .map((oc) => (
-                                        <Button variant="ghost"
+                                        <Button
+                                          variant="ghost"
                                           key={oc.id}
                                           type="button"
                                           onClick={() => handleMoveColor(oc.id)}
@@ -741,7 +806,8 @@ export default function MyProjects() {
             {recentlyViewed.length > 0 ? (
               <>
                 <div className="mb-4 flex justify-end">
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     type="button"
                     onClick={handleClearRecent}
                     className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-red-500 dark:border-white/5 dark:text-muted-foreground/80 dark:hover:text-red-400"
@@ -756,7 +822,8 @@ export default function MyProjects() {
                       key={c.id}
                       className="group relative overflow-hidden rounded-lg border border-border bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-md"
                     >
-                      <Button variant="ghost"
+                      <Button
+                        variant="ghost"
                         type="button"
                         onClick={() => handlePinRecent(c.id)}
                         className="absolute right-2 top-2 z-10 rounded-full bg-white/80 p-1.5 text-muted-foreground dark:bg-background/80 dark:text-muted-foreground hover:text-brand-purple"
@@ -798,6 +865,40 @@ export default function MyProjects() {
           </>
         )}
       </div>
+
+      {/* Project location dialog, canonical location-intelligence record */}
+      {locationProject && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Project location"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4 backdrop-blur-[2px]"
+        >
+          <div className="w-full max-w-md rounded-2xl border border-border/40 bg-card p-5 shadow-premium-lg sm:p-6">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-heading text-lg font-semibold">
+                {locationProject.name} · Location
+              </h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setLocationProject(null)}
+                aria-label="Close"
+              >
+                <X className="h-4 w-4" aria-hidden />
+              </Button>
+            </div>
+            <p className="mb-4 text-xs text-muted-foreground">
+              Set this project's location to unlock regional market data :
+              calculators opened from this project will follow its currency.
+            </p>
+            <LocationCard
+              initialLocation={locationFromProjectRow(locationProject)}
+              onSave={handleSaveProjectLocation}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 }

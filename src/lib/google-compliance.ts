@@ -21,8 +21,8 @@ import {
 export interface GoogleComplianceReport {
   compliant: boolean;
   score: number;
-  blockingIssues: string[]; // errors — must fix before publishing
-  advisoryIssues: string[]; // warnings — recommended fixes
+  blockingIssues: string[]; // errors, must fix before publishing
+  advisoryIssues: string[]; // warnings, recommended fixes
   passedChecks: string[]; // rules that passed
   eeattAssessment: {
     experience: "pass" | "fail";
@@ -80,7 +80,7 @@ export function checkGoogleCompliance(
   const summary =
     blockingIssues.length === 0
       ? `Article passes Google compliance with score ${result.score}/100. ${eeattPassCount}/4 E-E-A-T pillars met. ${advisoryIssues.length} advisory issue(s).`
-      : `Article fails Google compliance — ${blockingIssues.length} blocking issue(s) must be fixed before publishing. Score: ${result.score}/100.`;
+      : `Article fails Google compliance, ${blockingIssues.length} blocking issue(s) must be fixed before publishing. Score: ${result.score}/100.`;
 
   return {
     compliant: blockingIssues.length === 0,

@@ -175,7 +175,7 @@ export default function Navbar() {
           ref={navRef}
           className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
         >
-          {/* Logo — left */}
+          {/* Logo, left */}
           <div className="flex items-center gap-3">
             <Button
               variant="ghost"
@@ -251,7 +251,7 @@ export default function Navbar() {
                             </NavLink>
                           </div>
 
-                          {/* Grouped sections — multi-column for large menus */}
+                          {/* Grouped sections, multi-column for large menus */}
                           {(() => {
                             const groups = groupBySection(workspace.children);
                             const totalItems = (workspace.children ?? [])
@@ -411,7 +411,7 @@ export default function Navbar() {
               </a>
             </div>
 
-            {/* Language switcher — Nigerian languages */}
+            {/* Language switcher, Nigerian languages */}
             <div className="relative">
               <button
                 type="button"
@@ -491,7 +491,7 @@ export default function Navbar() {
                         )}
                       </div>
 
-                      {/* AI Credits balance — compact */}
+                      {/* AI Credits balance, compact */}
                       <div className="px-2.5 pb-2">
                         <div className="rounded-lg border border-border/40 bg-muted/30 px-2.5 py-2 dark:border-white/5 dark:bg-white/5">
                           <div className="flex items-center justify-between">
@@ -522,7 +522,7 @@ export default function Navbar() {
                         </div>
                       </div>
 
-                      {/* Plan strip — compact */}
+                      {/* Plan strip, compact */}
                       <div className="flex items-center justify-between gap-1 border-y border-border/40 bg-muted/20 px-2.5 py-1.5 dark:border-white/5 dark:bg-white/3">
                         <Link
                           to="/dashboard"
@@ -564,7 +564,7 @@ export default function Navbar() {
                         </Link>
                       </div>
 
-                      {/* Menu sections — compact */}
+                      {/* Menu sections, compact */}
                       <div
                         className="max-h-[min(40vh,240px)] overflow-y-auto nav-scroll px-1.5 py-1"
                         style={{ scrollbarWidth: "thin" }}
@@ -601,7 +601,7 @@ export default function Navbar() {
                         ))}
                       </div>
 
-                      {/* Sign out footer — compact */}
+                      {/* Sign out footer, compact */}
                       <div className="border-t border-border/40 px-1.5 py-1.5 dark:border-white/5">
                         <Button
                           variant="ghost"
@@ -651,7 +651,7 @@ export default function Navbar() {
               )}
             </div>
 
-            {/* Primary CTA — Start Calculating */}
+            {/* Primary CTA, Start Calculating */}
             <Link
               to="/paint-calculator?mode=room-estimate"
               className="hidden sm:inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-brand-purple/30 hover:-translate-y-0.5 active:scale-[0.98] dark:bg-primary dark:hover:bg-primary/90"
@@ -663,7 +663,7 @@ export default function Navbar() {
         </nav>
       </header>
 
-      {/* ===== Mobile drawer — premium collapsible sections ===== */}
+      {/* ===== Mobile drawer, premium collapsible sections ===== */}
       <div
         className={classNames(
           "fixed inset-0 z-50 lg:hidden",
@@ -701,7 +701,7 @@ export default function Navbar() {
             </Button>
           </div>
 
-          {/* Drawer nav — collapsible sections */}
+          {/* Drawer nav, collapsible sections */}
           <div className="px-3 py-4">
             {navWorkspaces.map((workspace) => (
               <div key={workspace.label} className="mb-1">
@@ -788,7 +788,7 @@ export default function Navbar() {
               </div>
             ))}
 
-            {/* Language, Accessibility & Theme — stacked for narrow drawer */}
+            {/* Language, Accessibility & Theme, stacked for narrow drawer */}
             <div className="mt-4 space-y-1 border-t border-border/50 pt-4 dark:border-white/5">
               <AccessibilityToggle inline={true} />
               <LanguageSwitcher inline={true} />

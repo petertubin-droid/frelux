@@ -13,6 +13,47 @@ const corsHeaders = {
     "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
+/**
+ * SERVER-SIDE REWARD EVENT CATALOG.
+ *
+ * SECURITY: the client-supplied `amount` is IGNORED. Amounts are granted
+ * only from this server-side catalog. Previously any authenticated user
+ * could POST { amount: 999999, referenceId: <unique> } and mint unlimited
+ * credits (the RPC's idempotency key was client-controlled, so the rate
+ * limit was the only bound). Amounts here mirror REWARD_EVENTS in
+ * src/lib/credits.ts — keep the two in sync when tuning the reward economy.
+ */
+const REWARD_EVENT_CATALOG: Record<string, { amount: number; reason: string }> =
+  {
+    first_calc: { amount: 2, reason: "Completed first calculator" },
+    three_different_calcs: {
+      amount: 5,
+      reason: "Completed 3 different calculators",
+    },
+    save_estimate: { amount: 3, reason: "Saved an estimate" },
+    return_3_days: { amount: 5, reason: "Returned on 3 different days" },
+    streak_7_day: { amount: 15, reason: "7-day activity streak" },
+    build_to_roof: { amount: 10, reason: "Completed a Build-to-Roof estimate" },
+    ai_photo_estimator: {
+      amount: 5,
+      reason: "Successfully used AI Photo Estimator",
+    },
+    five_estimates: { amount: 15, reason: "Completed 5 estimates" },
+    referral: { amount: 25, reason: "Referred a new user to FRELUX" },
+    ach_builder_10: {
+      amount: 25,
+      reason: "Achievement: FRELUX Builder (10 estimates)",
+    },
+    ach_estimator_25: {
+      amount: 50,
+      reason: "Achievement: Estimator Pro (25 estimates)",
+    },
+    ach_master_5: {
+      amount: 100,
+      reason: "Achievement: FRELUX Master (5 categories)",
+    },
+  };
+
 function jsonResponse(body: unknown, status = 200): Response {
   return new Response(JSON.stringify(body), {
     status,
@@ -83,8 +124,10 @@ Deno.serve(async (req: Request) => {
   let payload: {
     eventType: string;
     referenceId: string;
-    amount: number;
-    reason: string;
+    // `amount`/`reason` in the body are accepted but IGNORED — the
+    // server-side catalog decides what an event is worth.
+    amount?: number;
+    reason?: string;
     metadata?: Record<string, unknown>;
   };
 
@@ -97,24 +140,31 @@ Deno.serve(async (req: Request) => {
     );
   }
 
-  const { eventType, referenceId, amount, reason, metadata } = payload;
+  const { eventType, referenceId, metadata } = payload;
 
-  if (!eventType || !referenceId || !amount || !reason) {
+  if (!eventType || !referenceId) {
+    return jsonResponse(
+      { error: "eventType and referenceId are required", code: "BAD_REQUEST" },
+      400,
+    );
+  }
+
+  // Unknown event types are rejected — only catalogued events can earn credits.
+  const catalogEntry = REWARD_EVENT_CATALOG[eventType];
+  if (!catalogEntry) {
     return jsonResponse(
       {
-        error: "eventType, referenceId, amount, and reason are required",
-        code: "BAD_REQUEST",
+        error: `Unknown reward event type: ${eventType}`,
+        code: "UNKNOWN_EVENT_TYPE",
       },
       400,
     );
   }
 
-  if (amount <= 0) {
-    return jsonResponse(
-      { error: "Amount must be positive", code: "INVALID_AMOUNT" },
-      400,
-    );
-  }
+  // SECURITY: amount and reason come from the server-side catalog,
+  // never from the request body.
+  const amount = catalogEntry.amount;
+  const reason = catalogEntry.reason;
 
   // Call the secure RPC function (SECURITY DEFINER, bypasses RLS)
   const { data, error } = await admin.rpc("award_credits", {

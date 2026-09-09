@@ -98,7 +98,7 @@ export default function Hero() {
 
           {/*
            * =====================================================================
-           * PERMANENT HERO COPY — DO NOT MODIFY VIA CODE, AI, OR AUTOMATION.
+           * PERMANENT HERO COPY, DO NOT MODIFY VIA CODE, AI, OR AUTOMATION.
            * -----------------------------------------------------------------
            * The headline, supporting text, and CTA labels below are FINAL,
            * client-approved copy. They must NEVER be rewritten, paraphrased,
@@ -251,7 +251,7 @@ export default function Hero() {
               </div>
             </div>
 
-            {/* Floating swatch card — derived from branding config */}
+            {/* Floating swatch card, derived from branding config */}
             <div className="absolute -bottom-6 -left-6 w-52 rounded-xl bg-card dark:bg-card p-4 shadow-premium-lg animate-float">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-muted-foreground">
                 {branding?.hero_image_label || "FRELUX Tools"}
@@ -276,7 +276,7 @@ export default function Hero() {
               </p>
             </div>
 
-            {/* Floating estimate chip — uses hero content */}
+            {/* Floating estimate chip, uses hero content */}
             <div className="absolute -right-5 top-8 rounded-xl bg-card dark:bg-card px-4 py-3 shadow-premium-lg animate-float-delayed">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-muted-foreground">
                 {branding?.hero_chip_label || "Plan & Estimate"}
@@ -289,7 +289,7 @@ export default function Hero() {
               </p>
             </div>
 
-            {/* Floating badge — uses branding config */}
+            {/* Floating badge, uses branding config */}
             <div className="absolute -top-4 right-12 rounded-xl bg-primary px-3.5 py-2.5 shadow-lg shadow-brand-purple/30 transition-transform duration-300 hover:scale-105">
               <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-primary-foreground/60">
                 {branding?.hero_badge_label || "Platform"}

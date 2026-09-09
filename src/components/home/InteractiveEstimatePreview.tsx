@@ -22,7 +22,7 @@ import { Button } from "@/components/ui/shadcn/button";
 /**
  * Interactive estimate preview section.
  * Demonstrates how a FRELUX calculation looks using the REAL calculation engine.
- * No fake numbers — everything is computed from calculatePaint().
+ * No fake numbers, everything is computed from calculatePaint().
  */
 
 const presets = [
@@ -146,7 +146,7 @@ export default function InteractiveEstimatePreview() {
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground dark:text-muted-foreground">
             Live output from the FRELUX calculation engine, computed using the
-            example inputs shown — not pre-recorded numbers. Pick a room size
+            example inputs shown, not pre-recorded numbers. Pick a room size
             and watch the estimate recalculate.
           </p>
         </div>

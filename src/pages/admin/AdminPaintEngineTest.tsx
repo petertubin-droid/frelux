@@ -221,7 +221,7 @@ export default function AdminPaintEngineTest() {
   return (
     <div>
       <AdminHeader
-        title="Paint Calculation Engine — Test Calculation"
+        title="Paint Calculation Engine, Test Calculation"
         subtitle="Test the central paint engine with real inputs. Verify coverage, pricing, and calculation steps."
       />
 
@@ -264,8 +264,8 @@ export default function AdminPaintEngineTest() {
                     <option key={q.id} value={q.id}>
                       {q.name}
                       {q.coverage
-                        ? ` — ${q.coverage} ${getCoverageUnitLabel(q.coverage_unit ?? "m2_per_liter")}`
-                        : " — NOT CONFIGURED"}
+                        ? `, ${q.coverage} ${getCoverageUnitLabel(q.coverage_unit ?? "m2_per_liter")}`
+                        : ", NOT CONFIGURED"}
                     </option>
                   ))}
                 </select>
@@ -381,7 +381,7 @@ export default function AdminPaintEngineTest() {
           {selectedQuality && (
             <AdminCard>
               <h3 className="mb-2 text-sm font-semibold text-card-foreground">
-                Coverage Configuration for {selectedProduct?.name} —{" "}
+                Coverage Configuration for {selectedProduct?.name}:{" "}
                 {selectedQuality.name}
               </h3>
               <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -621,7 +621,7 @@ export default function AdminPaintEngineTest() {
                     {result.customer_summary.wall_height}
                   </p>
                   <p>
-                    Paint: {result.customer_summary.paint} —{" "}
+                    Paint: {result.customer_summary.paint},{" "}
                     {result.customer_summary.quality}
                   </p>
                   <p>

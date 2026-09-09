@@ -248,6 +248,7 @@ export default function AdminLearn() {
   }
 
   async function handleDeleteFaq(id: string, articleId: string) {
+    if (!confirm('Delete this FAQ entry? This cannot be undone.')) return;
     setMutationError(null);
     const { error: delError } = await supabase
       .from("learn_article_faqs")
@@ -340,6 +341,7 @@ export default function AdminLearn() {
   }
 
   async function handleDeleteInsert(id: string, articleId: string) {
+    if (!confirm('Delete this insert? This cannot be undone.')) return;
     setMutationError(null);
     const { error: delError } = await supabase
       .from("learn_article_inserts")
@@ -376,7 +378,7 @@ export default function AdminLearn() {
     }));
   }
 
-  // AI-assisted insert drafting — calls the ai-learn-assistant edge
+  // AI-assisted insert drafting, calls the ai-learn-assistant edge
   // function (Gemini). Returns a {title, body} draft the admin can edit
   // before saving. Admin-only on the server side as well.
   async function handleAiDraftInsert(articleId: string, insertType: string) {
@@ -406,7 +408,7 @@ export default function AdminLearn() {
         setMutationError(json?.error ?? "AI drafting failed. Try again.");
         return;
       }
-      // Model returns JSON — tolerate code fences around it.
+      // Model returns JSON, tolerate code fences around it.
       let draft: { title?: string; body?: string } | null = null;
       try {
         const cleaned = String(json.result)
@@ -423,7 +425,7 @@ export default function AdminLearn() {
         );
         return;
       }
-      // Capture the narrowed draft into consts — TS cannot carry the
+      // Capture the narrowed draft into consts, TS cannot carry the
       // guard above into the closure below because `draft` is a mutable let.
       const draftBody: string = draft.body;
       const draftTitle: string | undefined = draft.title;
@@ -872,7 +874,7 @@ export default function AdminLearn() {
       {tab === "inserts" && (
         <div className="space-y-2">
           <p className="mb-3 text-xs text-muted-foreground">
-            Insert cards render inline in the article body — top (below the
+            Insert cards render inline in the article body, top (below the
             cover image), after a specific heading, or bottom (above FAQs). Use
             AI Draft to generate a starting point, then edit before saving.
           </p>
@@ -1136,7 +1138,7 @@ function InsertEditor({
         label="Body"
         hint={
           isList
-            ? "One item per line — rendered as a bulleted list."
+            ? "One item per line, rendered as a bulleted list."
             : insertType === "stat_highlight"
               ? "One stat per line as: stat | short explanation."
               : "Plain paragraph text."
@@ -1182,7 +1184,7 @@ function InsertEditor({
         </AdminButton>
       </div>
       <p className="text-[10px] text-muted-foreground">
-        AI Draft is optional assistance — review and edit the generated text
+        AI Draft is optional assistance, review and edit the generated text
         before saving. Nothing is stored until you press Save Insert.
       </p>
     </div>
@@ -1252,7 +1254,7 @@ function ArticleEditor({
       setError("Slug, title, and category are required.");
       return;
     }
-    // Google compliance gate — block publishing non-compliant articles
+    // Google compliance gate, block publishing non-compliant articles
     if (form.status === "published") {
       const report = runComplianceCheck();
       if (!report.compliant) {
@@ -1489,7 +1491,7 @@ function ArticleEditor({
             </AdminIconButton>
           </div>
           <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
-            Score: {complianceReport.score}/100 —{" "}
+            Score: {complianceReport.score}/100,{" "}
             {complianceReport.compliant
               ? "✅ Compliant"
               : "❌ Not compliant for publishing"}

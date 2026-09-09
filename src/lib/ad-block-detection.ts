@@ -22,7 +22,7 @@ export async function detectAdBlocker(): Promise<boolean> {
 
   // Create a bait element that ad blockers typically target.
   // Use position:fixed (not absolute) with visible coordinates so the
-  // element has a proper layout box — ad blockers hide it via CSS rules
+  // element has a proper layout box, ad blockers hide it via CSS rules
   // that set display:none or visibility:hidden, which we can detect
   // reliably via getComputedStyle on any device.
   const bait = document.createElement("div");
@@ -36,7 +36,7 @@ export async function detectAdBlocker(): Promise<boolean> {
   // synchronously/very early, so 100ms is plenty for this signal).
   await new Promise((r) => setTimeout(r, 100));
 
-  // Only check computed style — this is the actual mechanism ad blockers
+  // Only check computed style, this is the actual mechanism ad blockers
   // use (CSS filter rules that set display:none or visibility:hidden).
   // Avoid offsetParent/offsetHeight checks which are unreliable on mobile
   // for off-screen or fixed-position elements.

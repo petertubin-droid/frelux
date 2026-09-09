@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF GEOMETRY — Interactive SVG Editor
+ * FRELUX ROOF GEOMETRY, Interactive SVG Editor
  *
  * An SVG-based editor where the user can:
  *   - Click to add boundary points (vertices)
@@ -10,7 +10,7 @@
  *   - Confirm the geometry
  *
  * AI-generated geometry (if available) can be loaded into the editor,
- * but it is NEVER treated as automatically correct — the user must confirm.
+ * but it is NEVER treated as automatically correct, the user must confirm.
  *
  * Feature 3: Editable Roof Tracing
  */
@@ -173,7 +173,8 @@ export function RoofGeometryEditor({
       {/* Section tabs */}
       <div className="flex items-center gap-2 flex-wrap">
         {geometry.sections.map((section, _i) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={section.id}
             onClick={() =>
               onChange({ ...geometry, activeSectionId: section.id })
@@ -188,11 +189,15 @@ export function RoofGeometryEditor({
             <Layers aria-hidden="true" className="w-3 h-3" />
             {section.name}
             {section.confirmed && (
-              <CheckCircle2 aria-hidden="true" className="w-3 h-3 text-green-400" />
+              <CheckCircle2
+                aria-hidden="true"
+                className="w-3 h-3 text-green-400"
+              />
             )}
           </Button>
         ))}
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={handleAddSection}
           disabled={disabled}
           className="inline-flex items-center gap-1 rounded-lg border border-dashed border-border px-2.5 py-1.5 text-xs text-muted-foreground hover:border-border hover:text-muted-foreground disabled:opacity-50"
@@ -218,7 +223,8 @@ export function RoofGeometryEditor({
             placeholder="Section name"
           />
           {geometry.sections.length > 1 && (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() =>
                 onChange(removeSection(geometry, activeSection.id))
               }
@@ -241,13 +247,14 @@ export function RoofGeometryEditor({
             { id: "delete", label: "Delete Points", icon: Eraser },
           ] as const
         ).map((t) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={t.id}
             onClick={() => setTool(t.id)}
             disabled={disabled}
             className={`inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium ${
               tool === t.id
-                ? "bg-background text-primary-foreground"
+                ? "bg-foreground text-background"
                 : "bg-muted text-muted-foreground hover:bg-muted"
             }`}
           >
@@ -423,10 +430,11 @@ export function RoofGeometryEditor({
 
       {/* Confirm button */}
       {hasValidSections && !allConfirmed && (
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={handleConfirm}
           disabled={disabled}
-          className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-4 py-2.5 text-sm font-medium text-primary-foreground -green/90 transition-colors"
+          className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-accent-green/90 transition-colors"
         >
           <CheckCircle2 aria-hidden="true" className="w-4 h-4" />
           Confirm Roof Geometry
@@ -435,7 +443,7 @@ export function RoofGeometryEditor({
       {allConfirmed && (
         <div className="flex items-center gap-2 rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-xs font-medium text-green-700">
           <CheckCircle2 aria-hidden="true" className="w-4 h-4" />
-          Geometry confirmed — ready for calculation
+          Geometry confirmed, ready for calculation
         </div>
       )}
     </div>

@@ -1,16 +1,16 @@
 /**
- * PremiumFeatureGate — Reusable inline gate for premium features.
+ * PremiumFeatureGate, Reusable inline gate for premium features.
  *
  * Shows a golden crown icon and two unlock buttons:
  * 1. Watch Ad to Unlock (uses existing unlockFeatureViaAd)
  * 2. Use 10 Credits to Unlock (uses existing spendAiCredits)
  *
- * Unlock is session-scoped (useState only) — once the user leaves
+ * Unlock is session-scoped (useState only), once the user leaves
  * the feature, they must unlock again.
  *
  * Paid subscribers bypass the gate entirely.
  *
- * Does NOT modify the credits flow — uses existing edge functions.
+ * Does NOT modify the credits flow, uses existing edge functions.
  */
 import { useState, useCallback, useEffect } from "react";
 import { Crown, PlayCircle, Loader2, X } from "lucide-react";
@@ -34,7 +34,7 @@ interface Props {
   featureKey: string;
   /** Display name shown in the gate UI */
   featureName: string;
-  /** Called when the user successfully unlocks — proceed with the feature */
+  /** Called when the user successfully unlocks, proceed with the feature */
   onUnlock: () => void;
   /** Called when the user dismisses the gate */
   onClose: () => void;
@@ -238,7 +238,7 @@ export function PremiumFeatureGate({
           </div>
           <p className="mt-2 text-sm text-primary-foreground/70">
             {description ??
-              "Unlock this premium feature. One-time use — choose how you want to access it."}
+              "Unlock this premium feature. One-time use. Choose how you want to access it."}
           </p>
         </div>
 
@@ -256,7 +256,7 @@ export function PremiumFeatureGate({
               type="button"
               onClick={handleUseCredits}
               disabled={spending}
-              className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all hover:/90 disabled:opacity-50"
+              className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-all hover:bg-primary/90 disabled:opacity-50"
             >
               {spending ? (
                 <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />
@@ -281,7 +281,7 @@ export function PremiumFeatureGate({
                   type="button"
                   onClick={handleWatchAd}
                   disabled={adUnlocking}
-                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-purple/30 px-4 py-3 text-sm font-bold text-brand-purple transition-all hover:disabled:opacity-50"
+                  className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-purple/30 bg-card px-4 py-3 text-sm font-bold text-brand-purple transition-all hover:bg-primary/5 disabled:opacity-50 dark:bg-transparent"
                 >
                   {adUnlocking ? (
                     <Loader2

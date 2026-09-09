@@ -1,12 +1,12 @@
 /* eslint-disable react-refresh/only-export-components */
 /**
- * FRELUX ROOF PITCH — Per-Section Pitch Input
+ * FRELUX ROOF PITCH, Per-Section Pitch Input
  *
  * Allows the user to define pitch independently for each roof section.
  * Supports:
  *   - Pitch ratio (e.g. 4:12, 1:2)
  *   - Degrees
- *   - "Unknown" state → shows PITCH REQUIRED or PITCH ESTIMATION — USER VERIFICATION REQUIRED
+ *   - "Unknown" state → shows PITCH REQUIRED or PITCH ESTIMATION, USER VERIFICATION REQUIRED
  *
  * Feature 5: Roof Pitch Per Section
  */
@@ -76,7 +76,7 @@ interface PitchInputProps {
   pitchDegrees: number | null;
   /** Called when pitch changes (null = user cleared it) */
   onChange: (degrees: number | null) => void;
-  /** Roof type — flat roofs don't need pitch */
+  /** Roof type, flat roofs don't need pitch */
   roofType: string;
   /** Section name for display */
   sectionName: string;
@@ -103,7 +103,7 @@ export function PitchInput({
       <div className="rounded-lg bg-muted/50 border border-border px-3 py-2.5">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <CheckCircle2 aria-hidden="true" className="w-3.5 h-3.5 text-green-500" />
-          <span>Flat roof — no pitch required for {sectionName}</span>
+          <span>Flat roof, no pitch required for {sectionName}</span>
         </div>
       </div>
     );
@@ -116,7 +116,7 @@ export function PitchInput({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <label className="text-xs font-medium text-muted-foreground">
-          Roof Pitch — {sectionName}
+          Roof Pitch: {sectionName}
         </label>
         <div className="flex items-center gap-1">
           {(["degrees", "ratio", "unknown"] as const).map((mode) => (
@@ -130,7 +130,7 @@ export function PitchInput({
               disabled={disabled}
               className={`rounded-md px-2 py-1 text-[10px] font-medium transition-colors ${
                 inputMode === mode
-                  ? "bg-background text-primary-foreground"
+                  ? "bg-foreground text-background"
                   : "bg-muted text-muted-foreground hover:bg-muted"
               }`}
             >
@@ -188,7 +188,7 @@ export function PitchInput({
         </select>
       )}
 
-      {/* Unknown — shows required / estimation warning */}
+      {/* Unknown, shows required / estimation warning */}
       {inputMode === "unknown" && (
         <div className="space-y-2">
           {aiEstimated ? (
@@ -197,7 +197,7 @@ export function PitchInput({
                 <AlertCircle aria-hidden="true" className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-semibold text-amber-700">
-                    PITCH ESTIMATION — USER VERIFICATION REQUIRED
+                    PITCH ESTIMATION: USER VERIFICATION REQUIRED
                   </p>
                   <p className="text-xs text-amber-600 mt-0.5">
                     Pitch was estimated by AI. Please verify or enter the
@@ -249,7 +249,7 @@ export function PitchInput({
           <HelpCircle aria-hidden="true" className="w-3 h-3" />
           Surface area = plan area ÷ cos({pitchDegrees!.toFixed(1)}°)
           {aiEstimated && (
-            <span className="text-amber-500 ml-1">· AI-estimated — verify</span>
+            <span className="text-amber-500 ml-1">· AI-estimated, verify</span>
           )}
         </div>
       )}

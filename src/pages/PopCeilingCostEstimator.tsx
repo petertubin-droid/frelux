@@ -12,6 +12,7 @@ import {
 } from "@/lib/queries";
 import { formatNumber, formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
+import { useProjectLocationCurrency, type FreluxLocation } from "@/lib/location-intelligence";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
 import {
@@ -46,6 +47,8 @@ interface PassedState {
   ceilingArea?: number;
   workflow?: string;
   grandTotal?: number;
+  /** Canonical project location (location-intelligence) passed via router state. */
+  projectLocation?: FreluxLocation | null;
 }
 
 export default function PopCeilingCostEstimator({
@@ -101,8 +104,12 @@ export default function PopCeilingCostEstimator({
     includeOptional: false,
   });
 
-  const currencySymbol = settings?.default_currency_symbol ?? "₦";
-  const currency = settings?.default_currency ?? "NGN";
+  // Regional data flow: project location -> market profile -> currency.
+  const { currencyCode: projectCurrencyCode, currencySymbol: projectCurrencySymbol } =
+    useProjectLocationCurrency(passed.projectLocation ?? null);
+  const currencySymbol =
+    projectCurrencySymbol ?? settings?.default_currency_symbol ?? "₦";
+  const currency = projectCurrencyCode ?? settings?.default_currency ?? "NGN";
 
   const mountedRef = useRef(true);
   useEffect(() => {
@@ -547,6 +554,18 @@ export default function PopCeilingCostEstimator({
               </div>
               {result && (
                 <div className="border-t border-border/50 px-6 py-3 dark:border-white/5">
+                  {(result.warnings ?? []).length > 0 && (
+                    <div className="mx-6 mt-3 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-700 dark:text-amber-400">
+                      <p className="mb-1 font-medium">
+                        Configuration incomplete, estimate may be understated:
+                      </p>
+                      <ul className="list-disc pl-4 space-y-0.5">
+                        {(result.warnings ?? []).map((w) => (
+                          <li key={w}>{w}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
                   <ReportCalculationIssue
                     calculatorType="pop_ceiling_cost"
@@ -717,7 +736,7 @@ function ToggleRow({
 }) {
   return (
     <div className="flex items-center gap-3 rounded-lg border border-border dark:border-white/5 p-3">
-      {/* Plain <button> — not shadcn's <Button variant="ghost">, whose
+      {/* Plain <button>, not shadcn's <Button variant="ghost">, whose
           hover state gets "stuck" on touch devices after a tap until the
           next tap elsewhere, masking the checked-state color change. */}
       <button

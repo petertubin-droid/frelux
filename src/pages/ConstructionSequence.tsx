@@ -148,7 +148,7 @@ export default function ConstructionSequence() {
             ))}
           </div>
 
-          {/* Related calculators — shown once for the whole sequence, not per step */}
+          {/* Related calculators, shown once for the whole sequence, not per step */}
           <RelatedTools
             links={[
               CALC_LINKS.buildToRoof,
@@ -198,7 +198,7 @@ function StepCard({
         className="flex w-full items-center justify-between p-4 text-left"
       >
         <div className="flex items-center gap-3">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-background text-primary-foreground text-sm font-bold shrink-0">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-foreground text-background text-sm font-bold shrink-0">
             {step.step_number}
           </span>
           <div>

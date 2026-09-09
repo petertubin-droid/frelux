@@ -52,7 +52,7 @@ const CONDITIONS: { value: ProductCondition; label: string }[] = [
 export default function PostProduct() {
   useSeo({
     description: "FRELUX marketplace",
-    title: "Post a Product — FRELUX Marketplace",
+    title: "Post a Product, FRELUX Marketplace",
     canonicalPath: "/marketplace/products/post",
   });
   const navigate = useNavigate();
@@ -212,7 +212,7 @@ export default function PostProduct() {
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="e.g. Dulux Vinyl Matt Emulsion — 4 Litres (White)"
+            placeholder="e.g. Dulux Vinyl Matt Emulsion, 4 Litres (White)"
             className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </div>
@@ -367,20 +367,23 @@ export default function PostProduct() {
                     />
                     <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
                       <div className="flex gap-1">
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           onClick={() => moveImage(idx, -1)}
                           disabled={idx === 0}
                           className="rounded bg-white/90 p-1 text-xs disabled:opacity-30"
                         >
                           ←
                         </Button>
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           onClick={() => removeImage(idx)}
                           className="rounded bg-red-500 p-1 text-primary-foreground"
                         >
                           <X aria-hidden="true" className="h-3 w-3" />
                         </Button>
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           onClick={() => moveImage(idx, 1)}
                           disabled={idx === images.length - 1}
                           className="rounded bg-white/90 p-1 text-xs disabled:opacity-30"
@@ -525,7 +528,8 @@ export default function PostProduct() {
                 className="inline-flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-xs text-brand-purple"
               >
                 {t}
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => setTags(tags.filter((x) => x !== t))}
                   className="text-brand-purple/60 hover:text-brand-purple"
                 >
@@ -544,7 +548,8 @@ export default function PostProduct() {
               placeholder="Add a tag and press Enter"
               className="flex-1 rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
             />
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={addTag}
               className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10"
             >
@@ -556,12 +561,13 @@ export default function PostProduct() {
         {error && <p className="text-sm text-red-500">{error}</p>}
 
         <div className="flex gap-3 border-t border-border/50 pt-4 dark:border-white/5">
-          <Button variant="default"
+          <Button
+            variant="default"
             onClick={handleSubmit}
             disabled={
               submitting || !title.trim() || !price || images.length === 0
             }
-            className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold hover:/90 disabled:opacity-50"
+            className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50"
           >
             {submitting ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -570,7 +576,8 @@ export default function PostProduct() {
             )}
             Post Product
           </Button>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={() => navigate("/marketplace")}
             className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
           >

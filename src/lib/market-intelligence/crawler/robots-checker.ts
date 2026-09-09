@@ -1,5 +1,5 @@
 /**
- * FRELUX DIRECT CRAWLER — Robots.txt Checker
+ * FRELUX DIRECT CRAWLER, Robots.txt Checker
  *
  * Fetches and parses robots.txt for a domain.
  * Respects disallow rules and crawl-delay directives.
@@ -43,7 +43,7 @@ export async function fetchRobotsTxt(
     });
 
     if (!response.ok) {
-      // No robots.txt or error — default to allowed
+      // No robots.txt or error, default to allowed
       rules.set('*', { allowed: true, crawlDelay: null });
       robotsCache.set(cacheKey, { rules, fetchedAt: Date.now() });
       return rules;

@@ -12,7 +12,7 @@
  *
  * This module normalises measurements and computes areas in m².
  * It does NOT compute calculator-specific results (paint buckets, screeding materials, etc.)
- * — those are computed by the specialised calculation engines.
+ *, those are computed by the specialised calculation engines.
  *
  * Measurement entries are normalised here; results are stored SEPARATELY (spec section 32).
  */
@@ -381,7 +381,7 @@ export function calculateTileRequirement(
     `${roundForDisplay(tileArea, 4)} m²`,
   ));
 
-  // Tiles required (no rounding — theoretical value)
+  // Tiles required (no rounding, theoretical value)
   const tiles = tilesRequired(areaM2, tileArea);
   steps.push(makeStep(
     'Tiles required',
@@ -410,7 +410,7 @@ export function calculateTileRequirement(
     steps.push(makeStep(
       'Cartons required',
       'Missing packaging data',
-      'Error — configure tile packaging',
+      'Error, configure tile packaging',
     ));
   }
 

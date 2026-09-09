@@ -15,11 +15,11 @@
  * the existing report content.
  *
  * Each piece of data is tagged with its verification state:
- *   AI DETECTED — raw AI output, not yet verified
- *   USER CORRECTED — AI detected, user modified
- *   USER VERIFIED — user confirmed the data
- *   CALCULATED — engine produced from verified inputs
- *   MARKET PRICE VERIFIED — market intelligence validated the price
+ *   AI DETECTED, raw AI output, not yet verified
+ *   USER CORRECTED, AI detected, user modified
+ *   USER VERIFIED, user confirmed the data
+ *   CALCULATED, engine produced from verified inputs
+ *   MARKET PRICE VERIFIED, market intelligence validated the price
  *
  * AI detection confidence does NOT mean the calculation is accurate.
  * A calculated quantity does NOT mean its market price is verified.
@@ -299,7 +299,7 @@ export function buildSmartAiImageReport(params: {
     calculatedCount,
     marketPriceVerifiedCount,
     explanation: [
-      `AI Detection: ${params.confidence.aiDetectionConfidence.toUpperCase()} — ${aiDetectedCount} items detected by AI`,
+      `AI Detection: ${params.confidence.aiDetectionConfidence.toUpperCase()}, ${aiDetectedCount} items detected by AI`,
       `User Corrections: ${userCorrectedCount} items modified by user`,
       `User Verified: ${userVerifiedCount} items confirmed by user`,
       `Calculated: ${calculatedCount} items from calculation engines`,
@@ -325,7 +325,7 @@ export function buildSmartAiImageReport(params: {
   shareLines.push('');
   shareLines.push('--- Detected Rooms ---');
   for (const room of params.detectedRooms) {
-    shareLines.push(`${room.roomName}: ${room.length}×${room.width} ${room.unit} (×${room.quantity}) — ${room.verificationState}`);
+    shareLines.push(`${room.roomName}: ${room.length}×${room.width} ${room.unit} (×${room.quantity}), ${room.verificationState}`);
   }
   shareLines.push('');
   shareLines.push('--- Scale ---');
@@ -375,11 +375,11 @@ export function buildSmartAiImageReport(params: {
   explanation.push('--- Detected Rooms ---');
   for (const room of params.detectedRooms) {
     const corrections = room.userCorrections.length > 0 ? ` [corrected: ${room.userCorrections.join(', ')}]` : '';
-    explanation.push(`${room.roomName}: ${room.length}×${room.width} ${room.unit} ×${room.quantity} — ${room.verificationState}${corrections}`);
+    explanation.push(`${room.roomName}: ${room.length}×${room.width} ${room.unit} ×${room.quantity}, ${room.verificationState}${corrections}`);
   }
   explanation.push('');
   explanation.push('--- Scale Status ---');
-  explanation.push(`${params.scaleInfo.status} — ${params.scaleInfo.explanation}`);
+  explanation.push(`${params.scaleInfo.status}, ${params.scaleInfo.explanation}`);
   explanation.push('');
   explanation.push('--- AI Review ---');
   explanation.push(`Status: ${params.aiReview.status}`);
@@ -392,7 +392,7 @@ export function buildSmartAiImageReport(params: {
   explanation.push('');
   explanation.push('--- Verified Measurements ---');
   for (const m of params.verifiedMeasurements) {
-    explanation.push(`${m.label}: ${m.value} ${m.unit} (${m.source}) — ${m.derivation}`);
+    explanation.push(`${m.label}: ${m.value} ${m.unit} (${m.source}), ${m.derivation}`);
   }
   explanation.push('');
   explanation.push('--- Calculation Results ---');

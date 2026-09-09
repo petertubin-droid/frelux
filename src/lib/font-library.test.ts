@@ -7,7 +7,7 @@ import {
   fontStack,
 } from "@/lib/font-library";
 
-describe("font-library — FONT_LIBRARY", () => {
+describe("font-library, FONT_LIBRARY", () => {
   it("is a non-empty array", () => {
     expect(Array.isArray(FONT_LIBRARY)).toBe(true);
     expect(FONT_LIBRARY.length).toBeGreaterThan(0);
@@ -28,21 +28,21 @@ describe("font-library — FONT_LIBRARY", () => {
   });
 });
 
-describe("font-library — FONT_CATEGORIES", () => {
+describe("font-library, FONT_CATEGORIES", () => {
   it("is a non-empty array", () => {
     expect(Array.isArray(FONT_CATEGORIES)).toBe(true);
     expect(FONT_CATEGORIES.length).toBeGreaterThan(0);
   });
 });
 
-describe("font-library — DEFAULT_TYPOGRAPHY", () => {
+describe("font-library, DEFAULT_TYPOGRAPHY", () => {
   it("is a defined object", () => {
     expect(DEFAULT_TYPOGRAPHY).toBeDefined();
     expect(typeof DEFAULT_TYPOGRAPHY).toBe("object");
   });
 });
 
-describe("font-library — getFont", () => {
+describe("font-library, getFont", () => {
   it("returns font for existing family", () => {
     const firstFont = FONT_LIBRARY[0];
     const result = getFont(firstFont.family);
@@ -55,7 +55,7 @@ describe("font-library — getFont", () => {
   });
 });
 
-describe("font-library — fontStack", () => {
+describe("font-library, fontStack", () => {
   it("returns a CSS font stack string for known font", () => {
     const firstFont = FONT_LIBRARY[0];
     const stack = fontStack(firstFont.family);

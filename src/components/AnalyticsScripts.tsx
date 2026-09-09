@@ -4,13 +4,13 @@ import { getSupabase } from '@/lib/supabase-lazy';
 
 /**
  * Injects third-party analytics scripts into <head> when configured.
- * Renders nothing to the DOM — side-effect only.
+ * Renders nothing to the DOM, side-effect only.
  *
  * Reads from two sources (integration_settings takes priority over site_settings
  * and static siteConfig):
- * 1. integration_settings table (admin Integration Center) — primary source
- * 2. site_settings table (legacy admin panel) — fallback
- * 3. siteConfig (static, from src/config/site.ts) — last resort
+ * 1. integration_settings table (admin Integration Center), primary source
+ * 2. site_settings table (legacy admin panel), fallback
+ * 3. siteConfig (static, from src/config/site.ts), last resort
  *
  * Supports: Google Analytics 4, Meta Pixel, Google Search Console verification.
  *

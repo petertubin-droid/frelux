@@ -5,6 +5,7 @@ import {
   getMonetagNativeZone,
   getMonetagSdkUrl,
   showMonetagRewardedAd,
+  getMonetagSdkZone,
 } from "@/lib/monetag-rewarded";
 import type { DbAdProvider } from "@/types/database";
 
@@ -26,7 +27,7 @@ function makeProvider(overrides: Partial<DbAdProvider> = {}): DbAdProvider {
 }
 
 describe("getMonetagZone", () => {
-  it("returns null when no zone is configured — no hardcoded fallback", () => {
+  it("returns null when no zone is configured, no hardcoded fallback", () => {
     // The zone ID must ONLY ever come from Admin → Ads configuration.
     expect(getMonetagZone(makeProvider())).toBeNull();
     expect(getMonetagZone(null)).toBeNull();
@@ -84,6 +85,21 @@ describe("getMonetagSdkUrl", () => {
   });
 });
 
+describe("getMonetagSdkZone", () => {
+  it("derives the zone from the SDK script URL path", () => {
+    expect(getMonetagSdkZone("https://omg10.com/4/11712895")).toBe("11712895");
+    expect(getMonetagSdkZone("https://example.com/loader/4242424")).toBe(
+      "4242424",
+    );
+  });
+
+  it("returns null for URLs without an embedded zone", () => {
+    expect(getMonetagSdkZone("https://omg10.com/4/abc")).toBeNull();
+    expect(getMonetagSdkZone(null)).toBeNull();
+    expect(getMonetagSdkZone(undefined)).toBeNull();
+  });
+});
+
 describe("showMonetagRewardedAd", () => {
   beforeEach(() => {
     document.head.innerHTML = "";
@@ -124,7 +140,7 @@ describe("showMonetagRewardedAd", () => {
       ymid: "ch_test",
       minWatchTimeMs: 0,
     });
-    // jsdom does not fire script onload — dispatch it manually
+    // jsdom does not fire script onload, dispatch it manually
     document
       .querySelector(
         'script[data-monetag-src="https://quge5.com/88/tag.min.js"]',
@@ -230,7 +246,7 @@ describe("getMonetagDisplayZone (website tag data-zone)", () => {
 });
 
 describe("getMonetagNativeZone (in-page Native Banner zone)", () => {
-  it("returns null when no native zone is configured — dormant by default", () => {
+  it("returns null when no native zone is configured, dormant by default", () => {
     expect(getMonetagNativeZone(makeProvider())).toBeNull();
   });
 

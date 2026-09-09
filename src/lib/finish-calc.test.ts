@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect } from "vitest";
 import {
   calculateFinish,
   getDefaultCoats,
@@ -7,22 +7,22 @@ import {
   round,
   type FinishCalcInput,
   type FinishMaterialConfig,
-} from './finish-calc';
+} from "./finish-calc";
 
-describe('round helper', () => {
-  it('rounds numbers to specified decimal places (default 2)', () => {
+describe("round helper", () => {
+  it("rounds numbers to specified decimal places (default 2)", () => {
     expect(round(66.666666)).toBe(66.67);
     expect(round(10.1234, 2)).toBe(10.12);
     expect(round(10.125, 2)).toBe(10.13);
   });
 
-  it('handles custom decimal precision', () => {
+  it("handles custom decimal precision", () => {
     expect(round(10.12345, 3)).toBe(10.123);
     expect(round(10.12345, 1)).toBe(10.1);
     expect(round(10.12345, 0)).toBe(10);
   });
 
-  it('handles zero and non-finite numbers', () => {
+  it("handles zero and non-finite numbers", () => {
     expect(round(0)).toBe(0);
     expect(round(NaN)).toBe(0);
     expect(round(Infinity)).toBe(0);
@@ -30,39 +30,39 @@ describe('round helper', () => {
   });
 });
 
-describe('getDefaultCoats', () => {
-  it('returns correct default coats for each finish type', () => {
-    expect(getDefaultCoats('painting')).toBe(2);
-    expect(getDefaultCoats('tyrolene')).toBe(2);
-    expect(getDefaultCoats('grafitex')).toBe(1); // Grafitex is single-coat
+describe("getDefaultCoats", () => {
+  it("returns correct default coats for each finish type", () => {
+    expect(getDefaultCoats("painting")).toBe(2);
+    expect(getDefaultCoats("tyrolene")).toBe(2);
+    expect(getDefaultCoats("grafitex")).toBe(1); // Grafitex is single-coat
   });
 });
 
-describe('getFinishTypeLabel', () => {
-  it('returns correct display labels for each finish type', () => {
-    expect(getFinishTypeLabel('painting')).toBe('Painting');
-    expect(getFinishTypeLabel('tyrolene')).toBe('Tyrolene');
-    expect(getFinishTypeLabel('grafitex')).toBe('Grafitex');
+describe("getFinishTypeLabel", () => {
+  it("returns correct display labels for each finish type", () => {
+    expect(getFinishTypeLabel("painting")).toBe("Painting");
+    expect(getFinishTypeLabel("tyrolene")).toBe("Tyrolene");
+    expect(getFinishTypeLabel("grafitex")).toBe("Grafitex");
   });
 });
 
-describe('getFinishTypeDescription', () => {
-  it('returns non-empty descriptions for each finish type', () => {
-    expect(getFinishTypeDescription('painting')).toBeTruthy();
-    expect(getFinishTypeDescription('tyrolene')).toBeTruthy();
-    expect(getFinishTypeDescription('grafitex')).toBeTruthy();
+describe("getFinishTypeDescription", () => {
+  it("returns non-empty descriptions for each finish type", () => {
+    expect(getFinishTypeDescription("painting")).toBeTruthy();
+    expect(getFinishTypeDescription("tyrolene")).toBeTruthy();
+    expect(getFinishTypeDescription("grafitex")).toBeTruthy();
   });
 });
 
-describe('calculateFinish — Painting', () => {
+describe("calculateFinish, Painting", () => {
   const paintMaterial: FinishMaterialConfig = {
-    id: 'paint-1',
-    name: 'Paint',
-    finishType: 'painting',
+    id: "paint-1",
+    name: "Paint",
+    finishType: "painting",
     coverageRate: 10,
-    coverageUnit: 'L',
+    coverageUnit: "L",
     packageSize: 20,
-    packageUnit: 'L',
+    packageUnit: "L",
     unitPrice: 15000,
     defaultCoats: 2,
     isBase: true,
@@ -71,9 +71,9 @@ describe('calculateFinish — Painting', () => {
     sortOrder: 0,
   };
 
-  it('calculates quantities, packages, and cost correctly', () => {
+  it("calculates quantities, packages, and cost correctly", () => {
     const input: FinishCalcInput = {
-      finishType: 'painting',
+      finishType: "painting",
       area: 100,
       coats: 2,
       wasteMargin: 10,
@@ -82,7 +82,7 @@ describe('calculateFinish — Painting', () => {
 
     const result = calculateFinish(input);
 
-    expect(result.finishType).toBe('painting');
+    expect(result.finishType).toBe("painting");
     expect(result.area).toBe(100);
     expect(result.coats).toBe(2);
     expect(result.wasteMargin).toBe(10);
@@ -101,12 +101,14 @@ describe('calculateFinish — Painting', () => {
     expect(result.materialCost).toBe(30000);
     // LABOUR IS NOT CALCULATED
     expect(result.totalCost).toBe(30000);
-    expect(result.labourNote).toBe('Labour: Not included, negotiated separately.');
+    expect(result.labourNote).toBe(
+      "Labour: Not included, negotiated separately.",
+    );
   });
 
-  it('uses default coats when coats parameter is omitted', () => {
+  it("uses default coats when coats parameter is omitted", () => {
     const input: FinishCalcInput = {
-      finishType: 'painting',
+      finishType: "painting",
       area: 100,
       wasteMargin: 10,
       materials: [paintMaterial],
@@ -118,10 +120,10 @@ describe('calculateFinish — Painting', () => {
   });
 });
 
-describe('calculateFinish — Grafitex (partition-based)', () => {
-  it('calculates bucket requirements from partition count', () => {
+describe("calculateFinish, Grafitex (partition-based)", () => {
+  it("calculates bucket requirements from partition count", () => {
     const input: FinishCalcInput = {
-      finishType: 'grafitex',
+      finishType: "grafitex",
       area: 0,
       coats: 1,
       wasteMargin: 0,
@@ -133,7 +135,7 @@ describe('calculateFinish — Grafitex (partition-based)', () => {
 
     const result = calculateFinish(input);
 
-    expect(result.finishType).toBe('grafitex');
+    expect(result.finishType).toBe("grafitex");
     expect(result.grafitexEquivalentPartitions).toBe(4);
     // Theoretical: 4 / 2 = 2 buckets
     expect(result.grafitexBucketsTheoretical).toBe(2);
@@ -142,12 +144,14 @@ describe('calculateFinish — Grafitex (partition-based)', () => {
     // Cost: 2 × 20000 = 40000
     expect(result.materialCost).toBe(40000);
     expect(result.totalCost).toBe(40000);
-    expect(result.labourNote).toBe('Labour: Not included, negotiated separately.');
+    expect(result.labourNote).toBe(
+      "Labour: Not included, negotiated separately.",
+    );
   });
 
-  it('rounds up fractional bucket requirements', () => {
+  it("rounds up fractional bucket requirements", () => {
     const input: FinishCalcInput = {
-      finishType: 'grafitex',
+      finishType: "grafitex",
       area: 0,
       coats: 1,
       wasteMargin: 0,
@@ -167,9 +171,9 @@ describe('calculateFinish — Grafitex (partition-based)', () => {
     expect(result.materialCost).toBe(40000);
   });
 
-  it('uses admin-configurable bucket price', () => {
+  it("uses admin-configurable bucket price", () => {
     const input1: FinishCalcInput = {
-      finishType: 'grafitex',
+      finishType: "grafitex",
       area: 0,
       coats: 1,
       wasteMargin: 0,
@@ -191,9 +195,9 @@ describe('calculateFinish — Grafitex (partition-based)', () => {
     expect(result2.materialCost).toBe(50000); // 2 × 25000
   });
 
-  it('calculates from area when partition count not provided', () => {
+  it("calculates from area when partition count not provided", () => {
     const input: FinishCalcInput = {
-      finishType: 'grafitex',
+      finishType: "grafitex",
       area: 36, // 36m² = 4 standard partitions (9m² each)
       coats: 1,
       wasteMargin: 0,
@@ -210,28 +214,30 @@ describe('calculateFinish — Grafitex (partition-based)', () => {
   });
 });
 
-describe('calculateFinish — Zero area', () => {
-  it('returns all zeros when area is 0', () => {
+describe("calculateFinish, Zero area", () => {
+  it("returns all zeros when area is 0", () => {
     const input: FinishCalcInput = {
-      finishType: 'painting',
+      finishType: "painting",
       area: 0,
       coats: 2,
       wasteMargin: 10,
-      materials: [{
-        id: 'p1',
-        name: 'Paint',
-        finishType: 'painting',
-        coverageRate: 10,
-        coverageUnit: 'L',
-        packageSize: 20,
-        packageUnit: 'L',
-        unitPrice: 15000,
-        defaultCoats: 2,
-        isBase: true,
-        isFinishing: false,
-        isActive: true,
-        sortOrder: 0,
-      }],
+      materials: [
+        {
+          id: "p1",
+          name: "Paint",
+          finishType: "painting",
+          coverageRate: 10,
+          coverageUnit: "L",
+          packageSize: 20,
+          packageUnit: "L",
+          unitPrice: 15000,
+          defaultCoats: 2,
+          isBase: true,
+          isFinishing: false,
+          isActive: true,
+          sortOrder: 0,
+        },
+      ],
     };
 
     const result = calculateFinish(input);
@@ -239,32 +245,34 @@ describe('calculateFinish — Zero area', () => {
     expect(result.area).toBe(0);
     expect(result.materialCost).toBe(0);
     expect(result.totalCost).toBe(0);
-    expect(result.labourNote).toContain('Not included');
+    expect(result.labourNote).toContain("Not included");
   });
 });
 
-describe('calculateFinish — Waste margin clamping', () => {
-  it('clamps waste margin > 100% down to 100%', () => {
+describe("calculateFinish, Waste margin clamping", () => {
+  it("clamps waste margin > 100% down to 100%", () => {
     const input: FinishCalcInput = {
-      finishType: 'painting',
+      finishType: "painting",
       area: 100,
       coats: 2,
       wasteMargin: 150,
-      materials: [{
-        id: 'p1',
-        name: 'Paint',
-        finishType: 'painting',
-        coverageRate: 10,
-        coverageUnit: 'L',
-        packageSize: 20,
-        packageUnit: 'L',
-        unitPrice: 15000,
-        defaultCoats: 2,
-        isBase: true,
-        isFinishing: false,
-        isActive: true,
-        sortOrder: 0,
-      }],
+      materials: [
+        {
+          id: "p1",
+          name: "Paint",
+          finishType: "painting",
+          coverageRate: 10,
+          coverageUnit: "L",
+          packageSize: 20,
+          packageUnit: "L",
+          unitPrice: 15000,
+          defaultCoats: 2,
+          isBase: true,
+          isFinishing: false,
+          isActive: true,
+          sortOrder: 0,
+        },
+      ],
     };
 
     const result = calculateFinish(input);
@@ -279,28 +287,30 @@ describe('calculateFinish — Waste margin clamping', () => {
   });
 });
 
-describe('calculateFinish — Negative inputs', () => {
-  it('clamps negative area to 0', () => {
+describe("calculateFinish, Negative inputs", () => {
+  it("clamps negative area to 0", () => {
     const input: FinishCalcInput = {
-      finishType: 'painting',
+      finishType: "painting",
       area: -50,
       coats: 2,
       wasteMargin: 10,
-      materials: [{
-        id: 'p1',
-        name: 'Paint',
-        finishType: 'painting',
-        coverageRate: 10,
-        coverageUnit: 'L',
-        packageSize: 20,
-        packageUnit: 'L',
-        unitPrice: 15000,
-        defaultCoats: 2,
-        isBase: true,
-        isFinishing: false,
-        isActive: true,
-        sortOrder: 0,
-      }],
+      materials: [
+        {
+          id: "p1",
+          name: "Paint",
+          finishType: "painting",
+          coverageRate: 10,
+          coverageUnit: "L",
+          packageSize: 20,
+          packageUnit: "L",
+          unitPrice: 15000,
+          defaultCoats: 2,
+          isBase: true,
+          isFinishing: false,
+          isActive: true,
+          sortOrder: 0,
+        },
+      ],
     };
 
     const result = calculateFinish(input);
@@ -309,31 +319,189 @@ describe('calculateFinish — Negative inputs', () => {
     expect(result.totalCost).toBe(0);
   });
 
-  it('clamps negative waste margin to 0', () => {
+  it("clamps negative waste margin to 0", () => {
     const input: FinishCalcInput = {
-      finishType: 'painting',
+      finishType: "painting",
       area: 100,
       coats: 2,
       wasteMargin: -15,
-      materials: [{
-        id: 'p1',
-        name: 'Paint',
-        finishType: 'painting',
-        coverageRate: 10,
-        coverageUnit: 'L',
-        packageSize: 20,
-        packageUnit: 'L',
-        unitPrice: 15000,
-        defaultCoats: 2,
-        isBase: true,
-        isFinishing: false,
-        isActive: true,
-        sortOrder: 0,
-      }],
+      materials: [
+        {
+          id: "p1",
+          name: "Paint",
+          finishType: "painting",
+          coverageRate: 10,
+          coverageUnit: "L",
+          packageSize: 20,
+          packageUnit: "L",
+          unitPrice: 15000,
+          defaultCoats: 2,
+          isBase: true,
+          isFinishing: false,
+          isActive: true,
+          sortOrder: 0,
+        },
+      ],
     };
 
     const result = calculateFinish(input);
     expect(result.wasteMargin).toBe(0);
     expect(result.materials[0].quantityWithWaste).toBe(20);
+  });
+});
+
+// =========================================================
+// AUDIT FIX: missing configuration must warn, never silently zero
+// =========================================================
+
+describe("AUDIT FIX: missing configuration warnings", () => {
+  it("warns when no materials are configured for the finish type", () => {
+    const result = calculateFinish({
+      finishType: "painting",
+      area: 50,
+      coats: 2,
+      materials: [],
+    });
+    expect(result.materialCost).toBe(0);
+    expect(result.warnings).toBeDefined();
+    expect(
+      result.warnings!.some((w) => w.includes("No materials are configured")),
+    ).toBe(true);
+  });
+
+  it("warns when a material has no coverage rate (cost silently excluded)", () => {
+    const result = calculateFinish({
+      finishType: "painting",
+      area: 50,
+      coats: 2,
+      materials: [
+        {
+          id: "m1",
+          name: "Base Coat",
+          finishType: "painting",
+          coverageRate: 0,
+          coverageUnit: "m²/L",
+          packageSize: 20,
+          packageUnit: "L",
+          unitPrice: 5000,
+          defaultCoats: 2,
+          isBase: true,
+          isFinishing: false,
+          isActive: true,
+          sortOrder: 1,
+        },
+      ],
+    });
+    expect(
+      result.warnings!.some((w) =>
+        w.includes("Coverage rate is not configured for 'Base Coat'"),
+      ),
+    ).toBe(true);
+  });
+
+  it("warns when a material has no package size (purchase quantity excluded)", () => {
+    const result = calculateFinish({
+      finishType: "painting",
+      area: 50,
+      coats: 2,
+      materials: [
+        {
+          id: "m1",
+          name: "Base Coat",
+          finishType: "painting",
+          coverageRate: 10,
+          coverageUnit: "m²/L",
+          packageSize: 0,
+          packageUnit: "L",
+          unitPrice: 5000,
+          defaultCoats: 2,
+          isBase: true,
+          isFinishing: false,
+          isActive: true,
+          sortOrder: 1,
+        },
+      ],
+    });
+    expect(
+      result.warnings!.some((w) =>
+        w.includes("Package size is not configured for 'Base Coat'"),
+      ),
+    ).toBe(true);
+  });
+
+  it("warns when a material has no unit price (cost silently zero)", () => {
+    const result = calculateFinish({
+      finishType: "painting",
+      area: 50,
+      coats: 2,
+      materials: [
+        {
+          id: "m1",
+          name: "Base Coat",
+          finishType: "painting",
+          coverageRate: 10,
+          coverageUnit: "m²/L",
+          packageSize: 20,
+          packageUnit: "L",
+          unitPrice: 0,
+          defaultCoats: 2,
+          isBase: true,
+          isFinishing: false,
+          isActive: true,
+          sortOrder: 1,
+        },
+      ],
+    });
+    expect(
+      result.warnings!.some((w) =>
+        w.includes("Unit price is not configured for 'Base Coat'"),
+      ),
+    ).toBe(true);
+  });
+
+  it("warns when grafitex bucket price is not configured", () => {
+    const result = calculateFinish({
+      finishType: "grafitex",
+      area: 90,
+      grafitexBucketPrice: 0,
+      grafitexPartitionsPerBucket: 2,
+      standardPartitionArea: 9,
+      standardPartitionCount: 20,
+    });
+    expect(result.grafitexBucketsPractical).toBe(10);
+    expect(result.materialCost).toBe(0);
+    expect(
+      result.warnings!.some((w) =>
+        w.includes("Grafitex bucket price is not configured"),
+      ),
+    ).toBe(true);
+  });
+
+  it("produces no warnings when configuration is complete", () => {
+    const result = calculateFinish({
+      finishType: "painting",
+      area: 50,
+      coats: 2,
+      materials: [
+        {
+          id: "m1",
+          name: "Base Coat",
+          finishType: "painting",
+          coverageRate: 10,
+          coverageUnit: "m²/L",
+          packageSize: 20,
+          packageUnit: "L",
+          unitPrice: 5000,
+          defaultCoats: 2,
+          isBase: true,
+          isFinishing: false,
+          isActive: true,
+          sortOrder: 1,
+        },
+      ],
+    });
+    // Independent: 50 m² × 2 coats / 10 m²/L = 10 L → 0.5 bucket... with 20L packs → 1 pack × 5000
+    expect(result.materialCost).toBe(5000);
+    expect(result.warnings ?? []).toHaveLength(0);
   });
 });

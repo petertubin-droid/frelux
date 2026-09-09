@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/shadcn/button";
 import type { MarketProfile } from "@/types/international";
 
 /**
- * MarketSelector — lets users pick their country market (Nigeria, Ghana, etc.).
+ * MarketSelector, lets users pick their country market (Nigeria, Ghana, etc.).
  *
  * Additive component: renders nothing until at least two markets are visible
  * (via the market_profiles table), so the existing single-market UI is
@@ -36,7 +36,7 @@ export function MarketSelector({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Hide entirely until more than one market is visible — preserves the
+  // Hide entirely until more than one market is visible, preserves the
   // existing single-market experience exactly.
   if (availableMarkets.length <= 1) return null;
 

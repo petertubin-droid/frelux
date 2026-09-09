@@ -6,7 +6,7 @@
  * Transforms a CostEstimate + LabourCostResult into a structured
  * quotation document ready for PDF, HTML, WhatsApp, or email.
  *
- * The engine generates STRUCTURED DATA — the UI renders it.
+ * The engine generates STRUCTURED DATA, the UI renders it.
  * No PDF formatting is hardcoded in the engine.
  *
  * Architecture:
@@ -18,7 +18,7 @@
  *     ↓
  *   RENDER (PDF / HTML / WhatsApp / Email)
  *
- * Additive — does not replace existing quotation functions in contractor.ts.
+ * Additive, does not replace existing quotation functions in contractor.ts.
  */
 
 import type { CostEstimate } from './cost-integration';
@@ -206,9 +206,9 @@ export function buildQuotation(params: {
     type: 'client_info',
     title: 'Client',
     fields: [
-      { label: 'Name', value: params.clientName ?? '—' },
-      { label: 'Address', value: params.clientAddress ?? '—' },
-      { label: 'Phone', value: params.clientPhone ?? '—' },
+      { label: 'Name', value: params.clientName ?? '' },
+      { label: 'Address', value: params.clientAddress ?? '' },
+      { label: 'Phone', value: params.clientPhone ?? '' },
     ],
   });
 
@@ -218,8 +218,8 @@ export function buildQuotation(params: {
     title: 'Project',
     fields: [
       { label: 'Project', value: params.projectName },
-      { label: 'Description', value: params.projectDescription ?? '—' },
-      { label: 'Location', value: params.projectLocation ?? '—' },
+      { label: 'Description', value: params.projectDescription ?? '' },
+      { label: 'Location', value: params.projectLocation ?? '' },
     ],
   });
 
@@ -230,8 +230,8 @@ export function buildQuotation(params: {
     item.category,
     item.quantity.toString(),
     item.quantityUnit,
-    item.hasPrice ? `${item.unitPrice.toLocaleString()} ${currency}` : '—',
-    item.hasPrice ? `${item.lineTotal.toLocaleString()} ${currency}` : '—',
+    item.hasPrice ? `${item.unitPrice.toLocaleString()} ${currency}` : '',
+    item.hasPrice ? `${item.lineTotal.toLocaleString()} ${currency}` : '',
   ]);
   const matFooters = [['', '', '', '', 'Materials Total', `${materialsTotal.toLocaleString()} ${currency}`]];
 
@@ -250,8 +250,8 @@ export function buildQuotation(params: {
       item.tradeLabel,
       item.quantity.toString(),
       item.unit,
-      item.hasRate ? `${item.ratePerUnit.toLocaleString()} ${currency}` : '—',
-      item.hasRate ? `${item.lineTotal.toLocaleString()} ${currency}` : '—',
+      item.hasRate ? `${item.ratePerUnit.toLocaleString()} ${currency}` : '',
+      item.hasRate ? `${item.lineTotal.toLocaleString()} ${currency}` : '',
     ]);
     const labFooters = [['', '', '', '', 'Labour Total', `${labourTotal.toLocaleString()} ${currency}`]];
 
@@ -297,9 +297,9 @@ export function buildQuotation(params: {
     title: '',
     fields: [
       { label: 'Company', value: settings.companyName },
-      { label: 'Phone', value: settings.phone ?? '—' },
-      { label: 'Email', value: settings.email ?? '—' },
-      { label: 'Payment Terms', value: settings.paymentTerms ?? '—' },
+      { label: 'Phone', value: settings.phone ?? '' },
+      { label: 'Email', value: settings.email ?? '' },
+      { label: 'Payment Terms', value: settings.paymentTerms ?? '' },
     ],
   });
 
@@ -339,7 +339,7 @@ export function buildQuotation(params: {
     validUntil,
     settings,
     sections,
-    clientName: params.clientName ?? '—',
+    clientName: params.clientName ?? '',
     clientAddress: params.clientAddress,
     clientPhone: params.clientPhone,
     projectName: params.projectName,

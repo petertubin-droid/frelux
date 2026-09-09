@@ -16,7 +16,7 @@
  * - Supports surface/finish type
  * - Remains independently configurable per space
  *
- * Spaces are NOT interchangeable — a bedroom is not a kitchen.
+ * Spaces are NOT interchangeable, a bedroom is not a kitchen.
  * Repeated spaces (quantity > 1) are calculated once and multiplied.
  * Different spaces remain independently configured.
  */
@@ -180,7 +180,7 @@ export interface SpaceGroupResult {
 }
 
 /**
- * A complete space collection — all spaces in a project.
+ * A complete space collection, all spaces in a project.
  */
 export interface SpaceCollection {
   id: string;
@@ -327,7 +327,7 @@ import {
  * Normalises dimensions to metres, computes area, applies openings and waste,
  * and multiplies by quantity.
  *
- * This does NOT use the existing hierarchy engine directly — it computes
+ * This does NOT use the existing hierarchy engine directly, it computes
  * the space's area using the same geometry functions but with space-level
  * metadata (finish type, named openings, etc.).
  */

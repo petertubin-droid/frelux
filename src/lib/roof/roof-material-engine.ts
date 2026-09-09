@@ -122,7 +122,7 @@ export interface RoofMaterialResult {
 
 /**
  * Create a roofing material specification.
- * Coverage and waste are configurable — not hardcoded.
+ * Coverage and waste are configurable, not hardcoded.
  */
 export function createRoofMaterialSpec(params: {
   productName: string;
@@ -187,7 +187,7 @@ export function createRoofMaterialSpec(params: {
 /**
  * Calculate material requirements for a single roof section.
  *
- * Uses the configurable RoofMaterialSpec — no hardcoded coverage.
+ * Uses the configurable RoofMaterialSpec, no hardcoded coverage.
  * If no material spec is provided, shows area without pricing.
  */
 export function calculateRoofSectionMaterials(
@@ -312,7 +312,7 @@ export function calculateRoofMaterials(
   for (const section of roofCalc.sections) {
     if (!section.complete) {
       explanation.push(
-        `Section "${section.sectionName}": Incomplete data — missing: ${section.missing.join(', ')}. Skipped.`
+        `Section "${section.sectionName}": Incomplete data, missing: ${section.missing.join(', ')}. Skipped.`
       );
       allConfigured = false;
       continue;

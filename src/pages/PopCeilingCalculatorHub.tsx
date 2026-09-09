@@ -66,7 +66,7 @@ export default function PopCeilingCalculatorHub() {
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useSeo({
-    title: "POP Ceiling Calculator — Material Quantity & Cost Estimate",
+    title: "POP Ceiling Calculator, Material Quantity & Cost Estimate",
     description:
       "Free FRELUX POP ceiling calculator. Calculate POP cement, fibreglass mesh, and material quantities. Get a full cost estimate with admin-configured material prices.",
     canonicalPath: "/pop-ceiling-calculator",
@@ -132,7 +132,7 @@ export default function PopCeilingCalculatorHub() {
       <PageHeader
         eyebrow="Calculator"
         title="POP Ceiling Calculator"
-        subtitle="Calculate POP ceiling material quantities, breakdown, and cost — all in one place."
+        subtitle="Calculate POP ceiling material quantities, breakdown, and cost, all in one place."
         breadcrumbs={[
           { label: "Calculators", path: "/calculators" },
           { label: "POP Ceiling Calculator" },
@@ -181,12 +181,12 @@ export default function PopCeilingCalculatorHub() {
           </h3>
           <ul>
             <li>
-              <strong>Material Quantity</strong> — Calculate POP cement,
+              <strong>Material Quantity</strong>, Calculate POP cement,
               fibreglass mesh, and other material quantities based on your
               ceiling area and chosen workflow.
             </li>
             <li>
-              <strong>Cost Estimate</strong> — Get a full cost breakdown using
+              <strong>Cost Estimate</strong>, Get a full cost breakdown using
               admin-configured material prices for all POP ceiling materials including waste
               factors.
             </li>
@@ -214,9 +214,9 @@ export default function PopCeilingCalculatorHub() {
           ]}
         />
         <RelatedToolsLinks />
-        {/* Ad slot — placement "calculator_hub_mid" */}
+        {/* Ad slot, placement "calculator_hub_mid" */}
         <AdSlot slotKey="calculator_hub_mid" className="mt-8" />
-        {/* Native banner slot — placement "calculator_hub_native" */}
+        {/* Native banner slot, placement "calculator_hub_native" */}
         <AdSlot slotKey="calculator_hub_native" className="mt-8" />
         <AdSlot slotKey="calculator_hub_bottom" className="mt-8" />
         <EstimateDisclaimer />

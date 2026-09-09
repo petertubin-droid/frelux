@@ -1,5 +1,5 @@
 /**
- * FRELUX RULE VERSIONING — Tests
+ * FRELUX RULE VERSIONING, Tests
  *
  * Feature 14: Rule Versioning / Reproducibility
  */

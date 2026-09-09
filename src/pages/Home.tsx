@@ -58,7 +58,7 @@ export default function Home() {
           })),
         );
       } catch {
-        // silently fail — structured data is enhancement, not critical
+        // silently fail, structured data is enhancement, not critical
       }
     })();
   }, []);
@@ -116,10 +116,10 @@ export default function Home() {
 
   return (
     <>
-      {/* Hero — clear headline + interactive estimate preview */}
+      {/* Hero, clear headline + interactive estimate preview */}
       <Hero />
 
-      {/* Choose Your Project — 6 calculator cards immediately below hero */}
+      {/* Choose Your Project, 6 calculator cards immediately below hero */}
       <section
         id="calculators"
         aria-label="Calculators"
@@ -128,51 +128,51 @@ export default function Home() {
         <ChooseProject />
       </section>
 
-      {/* Recently used tools — personalized quick access */}
+      {/* Recently used tools, personalized quick access */}
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <RecentlyUsed />
       </div>
 
-      {/* Interactive estimate preview — product demo with real calc engine */}
+      {/* Interactive estimate preview, product demo with real calc engine */}
       <Suspense fallback={<SectionSkeleton minHeight={600} />}>
         <InteractiveEstimatePreview />
       </Suspense>
 
-      {/* Ad slot — placement "home_top" */}
+      {/* Ad slot, placement "home_top" */}
       <AdSlot
         slotKey="home_top"
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
       />
 
-      {/* How FRELUX Works — 4-step process */}
+      {/* How FRELUX Works, 4-step process */}
       <HowItWorks />
 
-      {/* Native banner slot — placement "home_native" */}
+      {/* Native banner slot, placement "home_native" */}
       <AdSlot
         slotKey="home_native"
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
       />
 
-      {/* Commercial readiness — more than calculators */}
+      {/* Commercial readiness, more than calculators */}
       <Suspense fallback={<SectionSkeleton minHeight={500} />}>
         <CommercialReadiness />
       </Suspense>
 
-      {/* All calculators organized by trade — premium product cards */}
+      {/* All calculators organized by trade, premium product cards */}
       <Suspense fallback={<SectionSkeleton minHeight={700} />}>
         <ToolsSection />
       </Suspense>
 
-      {/* Native banner slot — placement "home_native_2" */}
+      {/* Native banner slot, placement "home_native_2" */}
       <AdSlot
         slotKey="home_native_2"
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
       />
 
-      {/* FRELUX Pro Connect — find the right professional */}
+      {/* FRELUX Pro Connect, find the right professional */}
       <ProConnectHomeSection />
 
-      {/* Marketplace CTA — post a job and get bids */}
+      {/* Marketplace CTA, post a job and get bids */}
       <section
         aria-label="FRELUX Marketplace"
         className="bg-muted/50 py-16 dark:bg-card sm:py-20"
@@ -209,7 +209,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Native banner slot — placement "home_native_3" */}
+      {/* Native banner slot, placement "home_native_3" */}
       <AdSlot
         slotKey="home_native_3"
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
@@ -220,7 +220,7 @@ export default function Home() {
         <FeaturesSection />
       </Suspense>
 
-      {/* Ad slot — placement "home_mid_2" */}
+      {/* Ad slot, placement "home_mid_2" */}
       <AdSlot
         slotKey="home_mid_2"
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
@@ -243,7 +243,7 @@ export default function Home() {
         <TrendingColors />
       </Suspense>
 
-      {/* Home footer ad slot — placement "home_footer" */}
+      {/* Home footer ad slot, placement "home_footer" */}
       <AdSlot slotKey="home_footer" className="mt-12" />
       <Suspense fallback={<SectionSkeleton minHeight={450} />}>
         <ColorPreview />
@@ -263,12 +263,12 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Achievement badges — gamification */}
+      {/* Achievement badges, gamification */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <AchievementBadges />
       </div>
 
-      {/* Final CTA — strong closing */}
+      {/* Final CTA, strong closing */}
       <Suspense fallback={<SectionSkeleton minHeight={320} />}>
         <FinalCTA />
       </Suspense>

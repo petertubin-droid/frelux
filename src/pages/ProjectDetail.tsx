@@ -46,6 +46,16 @@ import type {
   DbClientEstimate,
 } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import LocationCard from "@/components/location/LocationCard";
+import ProjectAgentPanel from "@/components/project-agent/ProjectAgentPanel";
+import {
+  locationFromProjectRow,
+  saveContractorProjectLocation,
+  syncProjectCurrencyFromRegional,
+  resolveRegionalContext,
+  ProjectLocationProvider,
+  type FreluxLocation,
+} from "@/lib/location-intelligence";
 
 type Tab =
   | "overview"
@@ -64,8 +74,6 @@ const TABS: { key: Tab; label: string; icon: typeof TrendingUp }[] = [
   { key: "gallery", label: "Gallery", icon: Images },
   { key: "ai", label: "AI Assistant", icon: Brain },
 ];
-
-const fmt = (v: number) => "₦" + (v || 0).toLocaleString();
 
 export default function ProjectDetail() {
   const { id } = useParams<{ id: string }>();
@@ -91,6 +99,19 @@ export default function ProjectDetail() {
   const [attachments, setAttachments] = useState<DbProjectAttachment[]>([]);
   const [estimates, setEstimates] = useState<DbClientEstimate[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [projectLocation, setProjectLocation] = useState<FreluxLocation | null>(null);
+  // Project currency follows the project's active regional market profile
+  // (synced whenever a location is saved). Existing rows keep their currency.
+  const currencySymbol = project?.currency_symbol || "₦";
+  const fmt = (v: number) => currencySymbol + (v || 0).toLocaleString();
+  // Estimates carry their own stored currency, always display in it,
+  // never the project's (a saved estimate is a historical document).
+  const formatEstimateAmount = (v: number, currency: string) =>
+    new Intl.NumberFormat("en-NG", {
+      style: "currency",
+      currency,
+      maximumFractionDigits: 0,
+    }).format(v || 0);
 
   const loadData = useCallback(async () => {
     if (!id) return;
@@ -101,7 +122,12 @@ export default function ProjectDetail() {
         .select("*")
         .eq("id", id)
         .single();
-      if (proj) setProject(proj as DbContractorProject);
+      if (proj) {
+        setProject(proj as DbContractorProject);
+        setProjectLocation(
+          locationFromProjectRow(proj as { location?: unknown }),
+        );
+      }
       else {
         navigate("/project-workspace");
         return;
@@ -270,6 +296,40 @@ export default function ProjectDetail() {
                 </div>
               ))}
             </div>
+            <LocationCard
+              initialLocation={projectLocation}
+              onSave={async (location) => {
+                const res = await saveContractorProjectLocation(id!, location);
+                if (res.ok) {
+                  setProjectLocation(location);
+                  toast({ title: "Location saved", variant: "success" });
+                  // Regional data flow: location -> market profile -> project currency
+                  if (location) {
+                    const regional = await resolveRegionalContext(location);
+                    if (regional.status === "available") {
+                      const sync = await syncProjectCurrencyFromRegional(id!, regional);
+                      if (sync.ok && sync.currency) {
+                        setProject((prev) =>
+                          prev
+                            ? {
+                                ...prev,
+                                currency: sync.currency!.code,
+                                currency_symbol: sync.currency!.symbol,
+                              }
+                            : prev,
+                        );
+                      }
+                    }
+                  }
+                } else {
+                  toast({
+                    title: "Could not save location",
+                    message: res.error ?? undefined,
+                    variant: "error",
+                  });
+                }
+              }}
+            />
             {project.description && (
               <div className="rounded-xl border bg-card p-5">
                 <h3 className="font-semibold mb-2">Description</h3>
@@ -477,7 +537,7 @@ export default function ProjectDetail() {
                           <input
                             type="number"
                             className="w-24 rounded border bg-background px-2 py-1 text-sm transition-all focus:ring-2 focus:ring-primary/50 outline-none"
-                            placeholder="—"
+                            placeholder=""
                             defaultValue={item.actual_price || ""}
                             onBlur={async (e) => {
                               const val = parseFloat(e.target.value);
@@ -690,7 +750,8 @@ export default function ProjectDetail() {
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {est.estimate_number} · {fmt(est.grand_total)}
+                        {est.estimate_number} ·{" "}
+                        {formatEstimateAmount(est.grand_total, est.currency)}
                         {est.client_name && " · " + est.client_name}
                         {est.shared_at &&
                           " · Sent " +
@@ -929,6 +990,7 @@ export default function ProjectDetail() {
         )}
         {tab === "ai" && (
           <div className="space-y-4">
+            {id && <ProjectAgentPanel projectId={id} />}
             <div className="rounded-xl border bg-card p-6">
               <div className="flex items-center gap-2 mb-4">
                 <Brain className="h-5 w-5 text-primary" />

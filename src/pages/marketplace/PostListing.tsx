@@ -31,7 +31,7 @@ export default function PostListing() {
   const { user, profile } = useAuth();
   useSeo({
     description: "FRELUX marketplace",
-    title: "Post a Job — FRELUX Marketplace",
+    title: "Post a Job, FRELUX Marketplace",
     canonicalPath: "/marketplace/post",
   });
 
@@ -130,7 +130,8 @@ export default function PostListing() {
   return (
     <div className="min-h-screen bg-muted/50 dark:bg-background">
       <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6 lg:px-8">
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => navigate("/marketplace")}
           className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
         >
@@ -306,10 +307,11 @@ export default function PostListing() {
           {error && <p className="text-sm text-red-500">{error}</p>}
 
           <div className="flex gap-3 border-t border-border/50 pt-4 dark:border-white/5">
-            <Button variant="default"
+            <Button
+              variant="default"
               onClick={handleSubmit}
               disabled={submitting || !title.trim()}
-              className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold hover:/90 disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50"
             >
               {submitting ? (
                 <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -318,7 +320,8 @@ export default function PostListing() {
               )}
               Post Job
             </Button>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => navigate("/marketplace")}
               className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
             >

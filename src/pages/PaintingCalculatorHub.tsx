@@ -26,7 +26,7 @@ const TABS = [
 ];
 
 const FAQS = [
-  // Painting — bucket-specific
+  // Painting, bucket-specific
   {
     question: "How does FRELUX calculate paint buckets?",
     answer:
@@ -72,7 +72,7 @@ export default function PaintingCalculatorHub() {
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useSeo({
-    title: "Painting Calculator — Paint Quantity, Cost & Room Estimate",
+    title: "Painting Calculator, Paint Quantity, Cost & Room Estimate",
     description:
       "Free FRELUX painting calculator. Calculate paint buckets required, estimate painting costs, and get room-by-room painting estimates with admin-configured material prices.",
     canonicalPath: "/paint-calculator",
@@ -138,7 +138,7 @@ export default function PaintingCalculatorHub() {
       <PageHeader
         eyebrow="Calculator"
         title="Painting Calculator"
-        subtitle="Calculate paint buckets, painting requirements, and estimated costs — all in one place."
+        subtitle="Calculate paint buckets, painting requirements, and estimated costs, all in one place."
         breadcrumbs={[
           { label: "Calculators", path: "/calculators" },
           { label: "Painting Calculator" },
@@ -184,16 +184,16 @@ export default function PaintingCalculatorHub() {
           </p>
           <ul>
             <li>
-              <strong>Paint Quantity</strong> — Calculate exactly how many paint
+              <strong>Paint Quantity</strong>, Calculate exactly how many paint
               buckets you need based on wall area, doors, windows, and coats.
             </li>
             <li>
-              <strong>Cost Estimate</strong> — Get a full paint material cost
+              <strong>Cost Estimate</strong>, Get a full paint material cost
               breakdown using admin-configured material prices for paint buckets, primer, and
               materials.
             </li>
             <li>
-              <strong>Room Estimate</strong> — A detailed room-by-room painting
+              <strong>Room Estimate</strong>, A detailed room-by-room painting
               estimator using the FRELUX Phase 2 engine with production rules,
               surface conditions, and colour conditions.
             </li>
@@ -207,7 +207,7 @@ export default function PaintingCalculatorHub() {
             rates, and waste factors specific to Nigerian construction
             environments. The engine applies admin-configured production rules,
             coverage rates, and material packaging sizes to produce results
-            expressed in paint buckets — not generic m²-per-litre estimates.
+            expressed in paint buckets, not generic m²-per-litre estimates.
           </p>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
             Nigerian Construction Context
@@ -231,9 +231,9 @@ export default function PaintingCalculatorHub() {
           ]}
         />
         <RelatedToolsLinks />
-        {/* Ad slot — placement "calculator_hub_mid" */}
+        {/* Ad slot, placement "calculator_hub_mid" */}
         <AdSlot slotKey="calculator_hub_mid" className="mt-8" />
-        {/* Native banner slot — placement "calculator_hub_native" */}
+        {/* Native banner slot, placement "calculator_hub_native" */}
         <AdSlot slotKey="calculator_hub_native" className="mt-8" />
         <AdSlot slotKey="calculator_hub_bottom" className="mt-8" />
         <EstimateDisclaimer />

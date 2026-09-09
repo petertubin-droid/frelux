@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF AREA PIPELINE — Pitch-Adjusted Surface Area
+ * FRELUX ROOF AREA PIPELINE, Pitch-Adjusted Surface Area
  *
  * The complete roof area calculation pipeline:
  *
@@ -56,7 +56,7 @@ export interface RoofAreaPipelineInput {
 }
 
 /**
- * Result of the roof area pipeline — each step is traceable.
+ * Result of the roof area pipeline, each step is traceable.
  */
 export interface RoofAreaPipelineResult {
   /** Step 1: Plan area input */
@@ -102,7 +102,7 @@ export interface RoofAreaExplanation {
  * Run the full roof area pipeline.
  *
  * Every step is deterministic and produces an explanation string.
- * No silent estimation — if pitch is missing, it's noted clearly.
+ * No silent estimation, if pitch is missing, it's noted clearly.
  */
 export function calculateRoofAreaPipeline(
   input: RoofAreaPipelineInput,
@@ -140,13 +140,13 @@ export function calculateRoofAreaPipeline(
   const explanation: RoofAreaExplanation = {
     planArea: `Plan area: ${planArea.toFixed(2)} m²`,
     pitch: pitchApplied
-      ? `Pitch: ${pitchDegrees!.toFixed(1)}° (${roofType}) — surface = plan ÷ cos(${pitchDegrees!.toFixed(1)}°)`
+      ? `Pitch: ${pitchDegrees!.toFixed(1)}° (${roofType}), surface = plan ÷ cos(${pitchDegrees!.toFixed(1)}°)`
       : roofType === 'flat'
-        ? `Pitch: N/A (flat roof — no pitch adjustment)`
-        : `Pitch: NOT PROVIDED — sloped surface = plan area (pitch required for accurate calculation)`,
+        ? `Pitch: N/A (flat roof, no pitch adjustment)`
+        : `Pitch: NOT PROVIDED, sloped surface = plan area (pitch required for accurate calculation)`,
     slopedSurface: `Pitch-adjusted surface: ${slopedSurfaceArea.toFixed(2)} m²`,
     cutouts: cutouts.length > 0
-      ? `Cutouts: ${cutouts.map(c => `${c.name} (${c.areaM2.toFixed(2)} m²)`).join(', ')} — total: ${cutoutArea.toFixed(2)} m²`
+      ? `Cutouts: ${cutouts.map(c => `${c.name} (${c.areaM2.toFixed(2)} m²)`).join(', ')}, total: ${cutoutArea.toFixed(2)} m²`
       : `Cutouts: none`,
     net: `Net: ${netArea.toFixed(2)} m²`,
     waste: `Waste: ${wastePercent.toFixed(1)}%`,

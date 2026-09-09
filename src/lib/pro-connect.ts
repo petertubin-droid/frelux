@@ -15,7 +15,7 @@ import type {
 import { sendPushToUser } from '@/lib/push-notifications';
 
 // =========================================================
-// PRO CONNECT — Data access layer
+// PRO CONNECT, Data access layer
 // All functions use the Supabase client with RLS enforcement.
 // No hardcoded data. No demo professionals.
 // =========================================================
@@ -70,7 +70,8 @@ export async function fetchLocations(): Promise<DbProLocation[]> {
     if (import.meta.env.DEV) console.error('[pro-connect] fetchLocations:', error.message);
     return [];
   }
-  return data as DbProLocation[];
+  // Guard: supabase may resolve data:null, callers expect an array.
+  return (data ?? []) as DbProLocation[];
 
   } catch (err) {
     if (import.meta.env.DEV) console.error('[pro-connect] fetchLocations:', err);
@@ -613,7 +614,7 @@ export async function sendMessage(conversationId: string, body: string, attachme
       // If sender is the pro, recipient is the customer; if sender is the customer, recipient is the pro
       let pushRecipientId: string | null = null;
       if (convo.customer_id === user.id) {
-        // Sender is customer — notify the professional's user_id
+        // Sender is customer, notify the professional's user_id
         const { data: profProfile } = await supabase
           .from('pro_profiles')
           .select('user_id')

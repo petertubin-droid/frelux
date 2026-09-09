@@ -4,7 +4,7 @@ import type {} from "@/types/pro-connect";
 import type {} from "@/types/marketplace";
 
 // ============================================================
-// Location-based discovery — nearby professionals and listings
+// Location-based discovery, nearby professionals and listings
 // ============================================================
 // Uses Postgres RPC (find_nearby_professionals / find_nearby_listings)
 // for server-side distance calculation via Haversine.

@@ -56,8 +56,12 @@ ALTER TABLE public.token_purchase_config ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.token_purchases ENABLE ROW LEVEL SECURITY;
 
 -- token_purchase_config: public read (frontend shows the price), admin-only writes
+DROP POLICY IF EXISTS "token_purchase_config_read_all" ON public.token_purchase_config;
+
 CREATE POLICY "token_purchase_config_read_all" ON public.token_purchase_config
   FOR SELECT TO anon, authenticated USING (true);
+
+DROP POLICY IF EXISTS "token_purchase_config_admin_write" ON public.token_purchase_config;
 
 CREATE POLICY "token_purchase_config_admin_write" ON public.token_purchase_config
   FOR ALL TO authenticated
@@ -66,6 +70,8 @@ CREATE POLICY "token_purchase_config_admin_write" ON public.token_purchase_confi
 
 -- token_purchases: users read own purchases only; writes happen via
 -- service role (edge functions) so no client insert/update policy
+DROP POLICY IF EXISTS "token_purchases_read_own" ON public.token_purchases;
+
 CREATE POLICY "token_purchases_read_own" ON public.token_purchases
   FOR SELECT TO authenticated USING (auth.uid() = user_id);
 

@@ -262,8 +262,8 @@ function PaintColorForm({ initial, families, categories, onClose, onSaved }: { i
             <div className="flex items-end"><div className="h-10 w-full rounded-lg ring-1 ring-black/5" style={{ background: hex }} /></div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Color family"><AdminSelect  value={familyId} onChange={(e) => setFamilyId(e.target.value)}><option value="">— None —</option>{families.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}</AdminSelect></AdminField>
-            <AdminField label="Category"><AdminSelect  value={categoryId} onChange={(e) => setCategoryId(e.target.value)}><option value="">— None —</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</AdminSelect></AdminField>
+            <AdminField label="Color family"><AdminSelect  value={familyId} onChange={(e) => setFamilyId(e.target.value)}><option value="">None</option>{families.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}</AdminSelect></AdminField>
+            <AdminField label="Category"><AdminSelect  value={categoryId} onChange={(e) => setCategoryId(e.target.value)}><option value="">None</option>{categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}</AdminSelect></AdminField>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <AdminField label="Recommended usage" hint="Comma separated"><AdminInput  value={usage} onChange={(e) => setUsage(e.target.value)} placeholder="Living Room, Bedroom" /></AdminField>
@@ -409,8 +409,8 @@ function ImportModal({ families, categories, onClose, onDone }: { families: DbCo
                 <tbody>
                   {preview.slice(0, 20).map((r, i) => (
                     <tr key={i} className={r.valid ? '' : 'text-red-500'}>
-                      <td className="py-0.5">{r.name || '—'}</td>
-                      <td className="py-0.5 font-mono">{r.hex || '—'}</td>
+                      <td className="py-0.5">{r.name || ''}</td>
+                      <td className="py-0.5 font-mono">{r.hex || ''}</td>
                       <td className="py-0.5">{r.valid ? 'OK' : r.error}</td>
                     </tr>
                   ))}

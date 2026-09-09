@@ -36,7 +36,7 @@ export type RuleStatus =
   | 'manual_adjustment'
   | 'negotiated';
 
-// Price snapshot — stored on each estimate line item
+// Price snapshot, stored on each estimate line item
 export interface PriceSnapshot {
   price_type: 'product' | 'quality' | 'material';
   ref_id: string;
@@ -90,7 +90,7 @@ export interface PackRoundingResult {
   rounding_rule: string;
 }
 
-// Estimate input (base — calculators extend this)
+// Estimate input (base, calculators extend this)
 export interface EstimateInputBase {
   calculator_type: string;
   project_description: string;

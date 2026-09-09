@@ -1,7 +1,7 @@
 /**
  * Local Project Storage (localStorage)
  * Saves and retrieves calculator results without requiring login.
- * Works for anonymous users — data persists on device.
+ * Works for anonymous users, data persists on device.
  */
 
 const STORAGE_KEY = 'frelux_saved_projects';
@@ -29,7 +29,7 @@ function setStorage(projects: LocalProject[]): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
   } catch {
-    // Storage full or unavailable — silently fail
+    // Storage full or unavailable, silently fail
   }
 }
 

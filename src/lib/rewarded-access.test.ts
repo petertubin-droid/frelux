@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { formatExpiry } from "@/lib/rewarded-access";
 
-describe("rewarded-access — formatExpiry", () => {
+describe("rewarded-access, formatExpiry", () => {
   it("returns empty string for null", () => {
     expect(formatExpiry(null)).toBe("");
   });

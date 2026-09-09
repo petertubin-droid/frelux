@@ -43,21 +43,21 @@ function rateWorkConditions(
 
   switch (type) {
     case "screeding":
-      // Screeding is very sensitive to rain — fresh screed washes away
+      // Screeding is very sensitive to rain, fresh screed washes away
       if (precip > 0.5) return "poor";
       if (humidity > 80) return "fair"; // slow drying
       if (wind > 8) return "fair";
       return "good";
 
     case "tiling":
-      // Tiling is more tolerant — adhesive cures even in moderate humidity
+      // Tiling is more tolerant, adhesive cures even in moderate humidity
       if (precip > 1) return "poor";
       if (humidity > 90 || wind > 10) return "poor";
       if (humidity > 75 || wind > 7) return "fair";
       return "good";
 
     case "tyrolene":
-      // Tyrolene needs calm conditions — wind blows the textured spray
+      // Tyrolene needs calm conditions, wind blows the textured spray
       if (precip > 1) return "poor";
       if (wind > 6) return "poor";
       if (humidity > 80 || precip > 0.3) return "fair";
@@ -93,27 +93,27 @@ function getWorkNote(
     general: "outdoor work",
   };
 
-  if (precip > 2) return `Rain expected — not advisable for ${workName[type]}`;
+  if (precip > 2) return `Rain expected, not advisable for ${workName[type]}`;
   if (precip > 0.5 && type === "screeding")
-    return `Light rain may affect fresh screed — wait for a dry day`;
-  if (precip > 0.5) return `Light rain possible — risky for ${workName[type]}`;
+    return `Light rain may affect fresh screed, wait for a dry day`;
+  if (precip > 0.5) return `Light rain possible, risky for ${workName[type]}`;
 
   if (type === "tyrolene" && wind > 6)
-    return `Windy — tyrolene spray will scatter, wait for calmer conditions`;
+    return `Windy, tyrolene spray will scatter, wait for calmer conditions`;
 
   if (humidity > 85 && (type === "painting" || type === "finishing"))
-    return `Very humid — surfaces may not cure properly, delay ${workName[type]}`;
+    return `Very humid, surfaces may not cure properly, delay ${workName[type]}`;
   if (humidity > 85)
-    return `Very humid — slow drying expected for ${workName[type]}`;
+    return `Very humid, slow drying expected for ${workName[type]}`;
 
   if (humidity > 70 && (type === "painting" || type === "finishing"))
-    return `Moderate humidity — ${workName[type]} will take longer to dry`;
+    return `Moderate humidity, ${workName[type]} will take longer to dry`;
 
   if (wind > 8 && (type === "painting" || type === "finishing"))
-    return `Windy — dust may stick to wet surfaces during ${workName[type]}`;
+    return `Windy, dust may stick to wet surfaces during ${workName[type]}`;
 
   if (humidity < 40 && (type === "painting" || type === "finishing"))
-    return `Low humidity — surfaces may dry too fast, consider a retarder`;
+    return `Low humidity, surfaces may dry too fast, consider a retarder`;
 
   return `Good conditions for ${workName[type]}`;
 }
@@ -146,14 +146,14 @@ export function useWorkWeather(
         // Yield one tick so consumers can observe the initial loading state
         // before estimated data resolves synchronously.
         await new Promise((resolve) => setTimeout(resolve, 0));
-        // usePaintingWeather is a hook — we can't call it inside a callback.
+        // usePaintingWeather is a hook, we can't call it inside a callback.
         // Instead, replicate the fetch logic minimally.
         const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
         let days: WeatherDay[] = [];
         let city = location.name;
 
         if (!apiKey) {
-          // Fallback: estimated data — replicate the function's behavior
+          // Fallback: estimated data, replicate the function's behavior
           // by importing the generator
           days = generateEstimatedWeather(location);
         } else {

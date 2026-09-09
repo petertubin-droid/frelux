@@ -273,7 +273,7 @@ describe("hasFaqSection", () => {
   });
 });
 
-describe("Google meta tag compliance — all 11 articles", () => {
+describe("Google meta tag compliance, all 11 articles", () => {
   ARTICLE_META.forEach((meta) => {
     describe(`"${meta.slug}"`, () => {
       it("meta title is within Google limits (30-60 chars)", () => {
@@ -584,7 +584,7 @@ describe("E-E-A-T compliance", () => {
   });
 });
 
-describe("validateArticleCompliance — synthetic fixtures", () => {
+describe("validateArticleCompliance, synthetic fixtures", () => {
   it("returns no violations for a fully compliant article", () => {
     const article: LearnArticleFixture = {
       slug: "compliant-test-article",

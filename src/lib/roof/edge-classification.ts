@@ -1,12 +1,12 @@
 /**
- * FRELUX ROOF EDGE CLASSIFICATION — Engine
+ * FRELUX ROOF EDGE CLASSIFICATION, Engine
  *
  * Extends the existing edge classification with:
  *   - User correction of edge types
  *   - Linear quantity calculation per edge type (ridge, hip, valley, eave, rake, parapet)
  *   - Edge summary for material planning (ridge caps, valley flashing, drip edge, fascia)
  *
- * Does NOT hardcode material quantities — only calculates linear measurements.
+ * Does NOT hardcode material quantities, only calculates linear measurements.
  * Material quantities are determined by configurable material specifications (Feature 17).
  *
  * Feature 7: Roof Edge Classification

@@ -248,7 +248,7 @@ describe("Feature 22: Shared Engine Integration", () => {
       });
       const result = executeSharedPipeline(input);
       expect(result.stages.validation.issues).toContain(
-        "Scale not verified — AI dimensions may be inaccurate.",
+        "Scale not verified, AI dimensions may be inaccurate.",
       );
     });
 
@@ -327,7 +327,7 @@ describe("Feature 22: Shared Engine Integration", () => {
       const result = executeSharedPipeline(input);
       expect(result.stages.marketIntelligence.hasVerifiedPrices).toBe(false);
       expect(result.stages.estimate.notes).toContain(
-        "No verified prices — estimate shown without pricing",
+        "No verified prices, estimate shown without pricing",
       );
     });
   });

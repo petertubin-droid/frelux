@@ -1,5 +1,5 @@
 /**
- * Voice Input Hook — Web Speech API integration
+ * Voice Input Hook, Web Speech API integration
  * Lets users speak dimension values instead of typing.
  */
 

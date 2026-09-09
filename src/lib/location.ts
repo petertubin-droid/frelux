@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 
 // ============================================================
-// Location hook — privacy-first geolocation
+// Location hook, privacy-first geolocation
 // ============================================================
 // - Only requests location on explicit user action ("Use My Location")
 // - Never requests permanent/continuous access (no watchPosition)
@@ -44,7 +44,7 @@ function clearSession() {
 }
 
 // Reverse geocode using OpenStreetMap Nominatim (free, no API key needed)
-// This gives us city/state from coordinates — approximate, not precise
+// This gives us city/state from coordinates, approximate, not precise
 async function reverseGeocode(lat: number, lng: number): Promise<{ city?: string; state?: string; label?: string }> {
   try {
     const res = await fetch(
@@ -84,7 +84,7 @@ export function useLocation() {
     setLoading(true);
     setError(null);
 
-    // Use getCurrentPosition — one-time request, no continuous tracking
+    // Use getCurrentPosition, one-time request, no continuous tracking
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
         const { latitude, longitude, accuracy } = pos.coords;

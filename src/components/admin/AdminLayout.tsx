@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, Outlet, Link, useNavigate } from "react-router-dom";
 import {
+  KeyRound,
   LayoutDashboard,
   Calculator,
   DollarSign,
@@ -15,6 +16,7 @@ import {
   Megaphone,
   Layers,
   Image,
+  Brain,
   GraduationCap,
   Gift,
   Globe,
@@ -43,14 +45,17 @@ import {
   TrendingUp,
   Coins,
   Crown,
+  Link2,
+  Languages,
+  Dna,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
-import { useTheme } from "@/lib/theme";
+import { AdminThemeProvider, useAdminTheme } from "@/lib/admin-theme";
 import { Button } from "@/components/ui/shadcn/button";
 
 // =========================================================
-// Admin sidebar — organized into logical modules
+// Admin sidebar, organized into logical modules
 // =========================================================
 // Each module is a group with a heading and items. This replaces the
 // previous flat list and makes the admin panel scalable.
@@ -83,6 +88,36 @@ const navModules: NavModule[] = [
         to: "/admin/ai-learning",
         icon: GraduationCap,
       },
+      {
+        label: "ARCHIE Training",
+        to: "/admin/archie-training",
+        icon: Brain,
+      },
+      {
+        label: "ARCHIE's Voice",
+        to: "/admin/archie-voice",
+        icon: Brain,
+      },
+      {
+        label: "ARCHIE Ops",
+        to: "/admin/archie-ops",
+        icon: Brain,
+      },
+      {
+        label: "TerminologyBook",
+        to: "/admin/archie-terminology",
+        icon: BookOpen,
+      },
+      {
+        label: "Evolution Control",
+        to: "/admin/archie-evolution",
+        icon: Dna,
+      },
+      {
+        label: "Construction Dictionary",
+        to: "/admin/dictionary",
+        icon: Languages,
+      },
       { label: "Legal Pages", to: "/admin/legal", icon: FileText },
       { label: "Contact Messages", to: "/admin/contact", icon: Mail },
     ],
@@ -108,6 +143,21 @@ const navModules: NavModule[] = [
       { label: "Pricing", to: "/admin/estimation-pricing", icon: DollarSign },
       { label: "Estimates", to: "/admin/estimation-estimates", icon: FileText },
       { label: "Audit Log", to: "/admin/estimation-audit", icon: ShieldCheck },
+      {
+        label: "Learning Review",
+        to: "/admin/learning-review",
+        icon: ShieldCheck,
+      },
+      {
+        label: "Intelligence Sources",
+        to: "/admin/intelligence-sources",
+        icon: ShieldCheck,
+      },
+      {
+        label: "Intelligence Dashboard",
+        to: "/admin/intelligence-dashboard",
+        icon: ShieldCheck,
+      },
       {
         label: "Production Rules",
         to: "/admin/estimation-production",
@@ -163,6 +213,16 @@ const navModules: NavModule[] = [
         label: "AI Developer Studio",
         to: "/admin/studio",
         icon: GraduationCap,
+      },
+      {
+        label: "API Keys",
+        to: "/admin/api-keys",
+        icon: KeyRound,
+      },
+      {
+        label: "Social Brand Center",
+        to: "/admin/social-brand-center",
+        icon: Link2,
       },
       {
         label: "Image Estimation",
@@ -258,8 +318,8 @@ const navModules: NavModule[] = [
       { label: "Typography", to: "/admin/typography", icon: Type },
       { label: "Site Settings", to: "/admin/settings", icon: Settings },
       {
-        label: "Studio Management",
-        to: "/admin/studio/management",
+        label: "Roles & Permissions",
+        to: "/admin/studio/role_management",
         icon: ShieldCheck,
       },
       { label: "Error Monitor", to: "/admin/errors", icon: AlertTriangle },
@@ -268,10 +328,22 @@ const navModules: NavModule[] = [
   },
 ];
 
+/**
+ * Admin layout shell. Wraps the dashboard in the ADMIN-scoped theme provider
+ * so admin dark-mode toggles never modify the public site / visitor theme.
+ */
 export default function AdminLayout() {
+  return (
+    <AdminThemeProvider>
+      <AdminLayoutInner />
+    </AdminThemeProvider>
+  );
+}
+
+function AdminLayoutInner() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const { theme, toggle } = useTheme();
+  const { theme, toggle } = useAdminTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {

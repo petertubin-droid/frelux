@@ -119,7 +119,7 @@ export default function AdminMaterialPrices() {
                   </td>
                   <td className="p-3 font-semibold">{fmt(m.current_price)}</td>
                   <td className="p-3 text-muted-foreground">
-                    {m.previous_price ? fmt(m.previous_price) : "—"}
+                    {m.previous_price ? fmt(m.previous_price) : ""}
                   </td>
                   <td className="p-3 text-xs text-muted-foreground">
                     {m.price_updated_at

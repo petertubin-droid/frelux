@@ -1,5 +1,5 @@
 /**
- * FRELUX Phase 3 — Tyrolene Estimator Page
+ * FRELUX Phase 3, Tyrolene Estimator Page
  *
  * Partition-based Tyrolene exterior finishing estimator.
  * Progressive disclosure flow:
@@ -10,6 +10,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Plus,
   Trash2,
@@ -36,6 +37,10 @@ import { supabase } from "@/lib/supabase";
 import { formatCurrency } from "@/lib/estimation/pricing";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
+import {
+  useProjectLocationCurrency,
+  type FreluxLocation,
+} from "@/lib/location-intelligence";
 import {
   HowCalculatedSection,
   EstimateDisclaimer,
@@ -111,6 +116,14 @@ export default function TyroleneEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults("tyrolene");
+  // Regional data flow: project location -> market profile -> currency.
+  const passed =
+    (useLocation().state as { projectLocation?: FreluxLocation | null } | null) ??
+    {};
+  const { currencyCode: projectCurrencyCode } = useProjectLocationCurrency(
+    passed.projectLocation ?? null,
+  );
+  const currency = projectCurrencyCode ?? "NGN";
   useSeo(
     !embedded
       ? {
@@ -362,7 +375,7 @@ export default function TyroleneEstimator({
         partition_types: inputMode === "actual" ? partitionTypes : [],
         standard_partition_count:
           inputMode === "standard" ? standardCount : null,
-        currency: "NGN",
+        currency,
         user_id: null,
         client_hash: null,
         project_description: projectDescription || "Tyrolene Estimate",
@@ -401,6 +414,7 @@ export default function TyroleneEstimator({
     standardCount,
     projectDescription,
     customerLocation,
+    currency,
     product,
     materials,
     prices,
@@ -444,7 +458,7 @@ export default function TyroleneEstimator({
           material_ratio: result.material_ratio,
         },
         total_material_cost: result.practical_purchase_cost,
-        currency: "NGN",
+        currency,
         labour_status: "not_included",
         warnings: result.warnings,
         recommendations: result.recommendations,
@@ -519,6 +533,7 @@ export default function TyroleneEstimator({
     standardCount,
     partitionTypes,
     customerLocation,
+    currency,
     calcVersionId,
   ]);
 

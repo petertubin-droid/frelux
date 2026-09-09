@@ -100,7 +100,7 @@ export default function Terms() {
               cash value, cannot be transferred to other users, and are not
               refundable once used. Purchases are processed by Paystack; the
               price and token amount for each pack are shown before you pay.
-              Rewarded ads are optional — you can earn credits by watching ads,
+              Rewarded ads are optional, you can earn credits by watching ads,
               purchase tokens directly, or use the free tools. We may adjust
               pricing for future purchases at any time; changes never affect
               tokens already credited to your balance.

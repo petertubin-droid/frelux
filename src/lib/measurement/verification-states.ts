@@ -4,13 +4,13 @@
  * Feature 19: Confidence / Verification States
  *
  * Provides a single, system-wide verification state vocabulary that
- * applies to ALL data flowing through FRELUX — measurements, calculations,
+ * applies to ALL data flowing through FRELUX, measurements, calculations,
  * material quantities, and market prices.
  *
  * CRITICAL DISTINCTIONS:
- *   AI DETECTION CONFIDENCE — how confident the AI is in what it detected
- *   CALCULATION CONFIDENCE  — how confident we are in the calculation result
- *   MARKET PRICE CONFIDENCE — how confident we are in the market price
+ *   AI DETECTION CONFIDENCE, how confident the AI is in what it detected
+ *   CALCULATION CONFIDENCE , how confident we are in the calculation result
+ *   MARKET PRICE CONFIDENCE, how confident we are in the market price
  *
  * These are INDEPENDENT:
  *   - High AI detection confidence ≠ accurate calculation
@@ -21,7 +21,7 @@
  * Does NOT replace RoomVerificationState from plan-intelligence.ts.
  * Does NOT modify the existing confidence engine.
  *
- * Additive — no existing code is changed.
+ * Additive, no existing code is changed.
  */
 
 import type { ConfidenceLevel } from './confidence-engine';
@@ -47,7 +47,7 @@ export type VerificationState =
 export const VERIFICATION_STATE_LABELS: Record<VerificationState, string> = {
   manual_input: 'Manual Input',
   ai_detected: 'AI Detected',
-  ai_detected_review_required: 'AI Detected — Review Required',
+  ai_detected_review_required: 'AI Detected, Review Required',
   user_verified: 'User Verified',
   imported: 'Imported',
   calculated: 'Calculated',
@@ -110,7 +110,7 @@ export const VERIFICATION_STATE_REQUIRES_ACTION: Record<VerificationState, boole
 
 /**
  * AI detection confidence.
- * This is the AI's confidence in what it detected — NOT the calculation
+ * This is the AI's confidence in what it detected, NOT the calculation
  * accuracy and NOT the market price validity.
  *
  * IMPORTANT: Do NOT express this as a scientifically precise percentage.
@@ -143,7 +143,7 @@ export interface UnifiedConfidenceAssessment {
   calculationConfidence: ConfidenceLevel;
   /** Market price confidence (from existing confidence engine) */
   marketPriceConfidence: ConfidenceLevel | 'unavailable';
-  /** Overall confidence — the lowest of the applicable dimensions */
+  /** Overall confidence, the lowest of the applicable dimensions */
   overallConfidence: ConfidenceLevel;
   /** Human-readable summary for UI display */
   summary: string;
@@ -188,7 +188,7 @@ export function transitionVerificationState(
   if (canTransition(from, to)) {
     return to;
   }
-  // Invalid transition — return the original state
+  // Invalid transition, return the original state
   return from;
 }
 
@@ -252,16 +252,16 @@ export function assessUnifiedConfidence(
 
   // Build dimension breakdown
   const aiBreakdown = aiConfidence === 'not_applicable'
-    ? 'Not AI-detected — no AI confidence applies.'
+    ? 'Not AI-detected, no AI confidence applies.'
     : `${AI_CONFIDENCE_LABELS[aiConfidence]}. Note: AI detection confidence does NOT guarantee calculation accuracy.`;
 
   const calcBreakdown = `Calculation confidence: ${calcConfidence.toUpperCase()}. This reflects the quality of the calculation, independent of AI detection or market pricing.`;
 
   const priceBreakdown = priceConfidence === 'unavailable'
-    ? 'No market price available — this calculation cannot be priced automatically.'
+    ? 'No market price available, this calculation cannot be priced automatically.'
     : `Market price confidence: ${priceConfidence.toUpperCase()}. This reflects the quality of the market price, independent of the calculation.`;
 
-  const summary = `${VERIFICATION_STATE_LABELS[verificationState]} — Overall: ${overallConfidence.toUpperCase()}`;
+  const summary = `${VERIFICATION_STATE_LABELS[verificationState]}, Overall: ${overallConfidence.toUpperCase()}`;
 
   return {
     verificationState,
@@ -437,7 +437,7 @@ export function buildVerificationSummary(records: VerificationRecord[]): Verific
 
   const allVerified = records.every((r) => VERIFICATION_STATE_VERIFIED[r.state]);
 
-  const summary = `${records.length} items: ${verifiedCount} verified, ${requiresActionCount} require action${allVerified ? ' — all verified' : ''}`;
+  const summary = `${records.length} items: ${verifiedCount} verified, ${requiresActionCount} require action${allVerified ? ', all verified' : ''}`;
 
   return {
     totalItems: records.length,

@@ -84,12 +84,16 @@ describe("measurement/market-profile", () => {
     expect(active.every((p) => p.isActive === true)).toBe(true);
   });
 
-  it("createDefaultRegistry has NG, GH, KE", () => {
+  it("createDefaultRegistry has NG, GH, KE (+ GB, US since Stage 11)", () => {
     const reg = createDefaultRegistry();
-    expect(reg.profiles.size).toBe(3);
+    // NG, GH, KE active + GB (United Kingdom), US (registered for
+    // regional validation; inactive by default).
+    expect(reg.profiles.size).toBe(5);
     expect(reg.profiles.has("NG")).toBe(true);
     expect(reg.profiles.has("GH")).toBe(true);
     expect(reg.profiles.has("KE")).toBe(true);
+    expect(reg.profiles.has("GB")).toBe(true);
+    expect(reg.profiles.has("US")).toBe(true);
   });
 
   it("getMarketWastePercent returns market waste", () => {

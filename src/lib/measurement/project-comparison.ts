@@ -16,7 +16,7 @@
  *     ↓
  *   COMPARISON RESULT (best value, most expensive, deltas)
  *
- * Pure logic — no external dependencies. Works with any CostEstimate.
+ * Pure logic, no external dependencies. Works with any CostEstimate.
  */
 
 import type { CostEstimate } from './cost-integration';

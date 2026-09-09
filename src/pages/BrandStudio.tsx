@@ -2,12 +2,12 @@
  * FRELUX Brand Studio Page
  *
  * Sections:
- * 🎨 Brand Identity — business info, colours, branding details
- * 🤖 AI Logo Studio — AI-powered logo generation
- * 🎤 Voice Input — speech-to-text integrated into relevant fields
- * 📄 PDF Templates — template selection and branding preferences
- * 👁 Preview — preview branding before exporting
- * 💾 My Brand Templates — saved branding profiles
+ * 🎨 Brand Identity, business info, colours, branding details
+ * 🤖 AI Logo Studio, AI-powered logo generation
+ * 🎤 Voice Input, speech-to-text integrated into relevant fields
+ * 📄 PDF Templates, template selection and branding preferences
+ * 👁 Preview, preview branding before exporting
+ * 💾 My Brand Templates, saved branding profiles
  *
  * Access control: Premium (SubscriptionGate) or rewarded-ad unlock
  */

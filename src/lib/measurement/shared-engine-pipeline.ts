@@ -89,7 +89,7 @@ export const PIPELINE_STAGE_LABELS: Record<PipelineStage, string> = {
 // =========================================================
 
 /**
- * Input to the shared pipeline — from either source.
+ * Input to the shared pipeline, from either source.
  * Both sources provide the same normalized structure.
  */
 export interface PipelineInput {
@@ -217,7 +217,7 @@ export interface PipelineResult {
  * Execute the shared engine pipeline.
  *
  * This orchestrates existing FRELUX engines in the correct order.
- * It does NOT implement calculation logic — it calls existing engines.
+ * It does NOT implement calculation logic, it calls existing engines.
  *
  * Each stage receives the output of the previous stage.
  * If a stage fails, the pipeline continues with partial results
@@ -294,7 +294,7 @@ export function executeSharedPipeline(input: PipelineInput): PipelineResult {
   const calculationResults: { calculator: string; result: string; verificationState: VerificationState; explanation: string }[] = [];
   for (const sr of spaceResults) {
     calculationResults.push({
-      calculator: `${sr.name} — Area`,
+      calculator: `${sr.name}, Area`,
       result: `${sr.totalAreaM2.toFixed(2)} m²`,
       verificationState: input.measurementVerification === 'user_verified' ? 'calculated' : 'calculated',
       explanation: `Area calculated from ${sr.name} dimensions`,
@@ -328,13 +328,13 @@ export function executeSharedPipeline(input: PipelineInput): PipelineResult {
   // ── Stage 4: Material Engine ──
   const matStart = Date.now();
   // Material engine produces material requirements from calculation results.
-  // Actual material specs are configurable — this stage records the pipeline flow.
+  // Actual material specs are configurable, this stage records the pipeline flow.
   const materialResult: MaterialStageResult = {
     success: true,
     materialResults: [],
     totalMaterials: 0,
     notes: [
-      `Material engine ready — awaiting material specifications`,
+      `Material engine ready, awaiting material specifications`,
       `Material quantities are derived from calculation results`,
       `Material specs remain configurable (no hardcoded coverage)`,
     ],
@@ -389,7 +389,7 @@ export function executeSharedPipeline(input: PipelineInput): PipelineResult {
     validationIssues.push('Measurement data requires user review before final use.');
   }
   if (input.scaleStatus === 'not_available') {
-    validationIssues.push('Scale not verified — AI dimensions may be inaccurate.');
+    validationIssues.push('Scale not verified, AI dimensions may be inaccurate.');
   }
 
   const validationResult: ValidationStageResult = {
@@ -425,7 +425,7 @@ export function executeSharedPipeline(input: PipelineInput): PipelineResult {
     notes: [
       `Estimate engine: quantities from calculation, prices from market intelligence`,
       `Total: ${marketResult.totalCost > 0 ? marketResult.totalCost.toLocaleString() : 'N/A'} ${marketResult.currency}`,
-      ...(marketResult.hasVerifiedPrices ? [] : ['No verified prices — estimate shown without pricing']),
+      ...(marketResult.hasVerifiedPrices ? [] : ['No verified prices, estimate shown without pricing']),
     ],
   };
   trace.push({
@@ -562,7 +562,7 @@ export function createAiImageInput(params: {
 
 /**
  * Check if both sources can share the same pipeline.
- * They always can — the pipeline is source-agnostic.
+ * They always can, the pipeline is source-agnostic.
  * This function exists for documentation and testing.
  */
 export function canSharePipeline(_source: PipelineSource): boolean {

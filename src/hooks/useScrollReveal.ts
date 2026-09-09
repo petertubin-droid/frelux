@@ -42,7 +42,7 @@ export function useScrollReveal<T extends HTMLElement = HTMLDivElement>(
 }
 
 /**
- * Batch scroll reveal — attach the ref to a container and all children
+ * Batch scroll reveal, attach the ref to a container and all children
  * with `[data-reveal]` get revealed with staggered delays.
  */
 export function useBatchScrollReveal<T extends HTMLElement = HTMLDivElement>(

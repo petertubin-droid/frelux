@@ -271,7 +271,7 @@ export default function AdminAIAssistant() {
             AI Assistant
           </h1>
           <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-            Powered by Solas — your FRELUX Superagent. Describe any issue and
+            Powered by Solas, your FRELUX Superagent. Describe any issue and
             get it fixed without leaving your admin.
           </p>
         </div>
@@ -709,7 +709,7 @@ export default function AdminAIAssistant() {
             <p className="mb-4 text-sm text-muted-foreground dark:text-muted-foreground">
               Manage external API keys and endpoints used by FRELUX. Changes are
               saved to your database and take effect immediately. Use Solas chat
-              to request API changes — just describe what you want to change and
+              to request API changes, just describe what you want to change and
               Solas will update it for you.
             </p>
             <div className="space-y-3">

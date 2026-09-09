@@ -19,7 +19,7 @@ vi.mock("@/lib/subscription", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/subscription")>();
   return {
     ...actual,
-    formatSubscriptionStatus: vi.fn(() => "Active — 30 days remaining"),
+    formatSubscriptionStatus: vi.fn(() => "Active, 30 days remaining"),
     FEATURE_LABELS: {
       structural_calculator: "Structural Calculator",
       ai_photo_estimator: "AI Photo Estimator",

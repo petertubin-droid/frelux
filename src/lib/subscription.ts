@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX Subscription Access — Client-side hook
+// FRELUX Subscription Access, Client-side hook
 // Phase 33
 //
 // Loads the current user's paid status from `user_paid_status`
@@ -10,7 +10,7 @@
 //   - Users can only SELECT their own row
 //   - Only the service role (edge function / admin) can write
 //
-// This hook is read-only — it never writes to the table.
+// This hook is read-only, it never writes to the table.
 // =========================================================
 
 import { useState, useEffect, useCallback } from "react";

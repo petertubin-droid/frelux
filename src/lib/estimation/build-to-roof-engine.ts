@@ -1,6 +1,6 @@
 // =========================================================
 // FRELUX Build-to-Roof Construction Cost Estimator
-// Calculation Engine — Phase 30 (Audited & Corrected)
+// Calculation Engine, Phase 30 (Audited & Corrected)
 //
 // SITE → FOUNDATION → GROUND FLOOR → WALLS → STRUCTURAL FRAME → ROOF → READY FOR FINISHING
 //
@@ -46,13 +46,13 @@ import type {
 // Cement: 1 bag = 50kg, density ~1440 kg/m³ → 0.0347 m³ per bag
 export const CEMENT_VOLUME_PER_BAG = 0.0347; // m³
 
-// Dry-to-wet concrete volume ratio (1.54 — standard)
+// Dry-to-wet concrete volume ratio (1.54, standard)
 export const DRY_WET_RATIO = 1.54;
 
-// Dry-to-wet mortar volume ratio (1.33 — standard)
+// Dry-to-wet mortar volume ratio (1.33, standard)
 export const MORTAR_DRY_WET_RATIO = 1.33;
 
-// Mortar joint thickness (m) — used for course height calculations
+// Mortar joint thickness (m), used for course height calculations
 export const MORTAR_JOINT_THICKNESS = 0.025; // 25mm
 
 // Standard hook length for stirrups = 10 × bar_diameter
@@ -90,11 +90,6 @@ export const M3_PER_TRIP = 3.5;
 function round(n: number, dp = 2): number {
   const f = Math.pow(10, dp);
   return Math.round(n * f) / f;
-}
-
-// Convert feet to meters
-function ftToM(ft: number): number {
-  return ft * M_PER_FT;
 }
 
 // Convert m³ to trips (Nigerian construction unit)
@@ -176,7 +171,10 @@ function matLine(
   unitPrice: number,
   priceSource: string
 ): MaterialLine {
-  const finalQty = applyWastage(baseQty, wastagePercent);
+  const withWastage = applyWastage(baseQty, wastagePercent);
+  // Discrete pieces (blocks, sheets, screws) are bought whole, one
+  // purchase rounding at the end. Continuous materials keep 2 dp.
+  const finalQty = unit === 'pcs' ? Math.ceil(withWastage) : withWastage;
   return {
     label,
     unit,
@@ -287,26 +285,166 @@ export function blocksPerM2(blockLengthInches: number, blockHeightInches: number
   return 1 / blockFaceArea;
 }
 
-// ── Roof geometry ──
+// ── Roof geometry: explicit roof-plane model ──
 
 /**
- * Calculate roof surface area from building footprint + pitch + overhang.
+ * ONE explicit roof plane. Every supported roof is decomposed into a list
+ * of these; the total roof area is the SUM of the plane areas, no plane
+ * is counted twice and none is omitted.
+ */
+export interface RoofPlane {
+  id: string;                 // unique within the decomposition
+  roof_type: string;
+  label: string;
+  /** Horizontal projected area of the plane (m²) */
+  projected_area_m2: number;
+  pitch_degrees: number;
+  /** Sloped (true surface) area of the plane (m²) */
+  sloped_area_m2: number;
+  /** Human-readable projected boundary of the plane */
+  boundary: string;
+}
+
+/**
+ * Decompose a roof into its explicit roof planes.
  *
- * For gable roof:
- *   Two sloped sides, each covering half the width.
- *   slope_length = (width/2 + overhang) / cos(pitch)
- *   roof_area = 2 × (length + 2×overhang) × slope_length
- *            = (length + 2×overhang) × (width + 2×overhang) / cos(pitch)
- *            = footprint / cos(pitch)  [mathematically equivalent]
+ * CONVENTIONS (the geometric model of the engine):
+ * - Building: rectangular footprint, L (length) × W (width).
+ * - Overhang: ONE uniform HORIZONTAL eave overhang, applied once to each
+ *   of the four footprint edges (so the eave rectangle is (L+2OH)×(W+2OH)).
+ *   Longitudinal and transverse overhangs are not specified separately :
+ *   the single value is used for both.
+ * - Pitch: inclination angle θ in DEGREES relative to horizontal, converted
+ *   internally via θ_rad = θ_deg × π/180. All planes of a roof share the
+ *   same pitch (uniform-pitch model).
+ * - Sloped area of a plane = projected area / cos(θ) (exact for a plane of
+ *   constant pitch, independent of the plane's horizontal shape).
  *
- * For hip roof:
- *   All 4 sides slope. footprint / cos(pitch) is a standard approximation.
+ * PER-TYPE GEOMETRY (eave rectangle Le = L+2OH, We = W+2OH):
  *
- * For mono-pitch:
- *   Single slope. footprint / cos(pitch) is correct.
+ * GABLE, two rectangular planes, ridge along the LENGTH:
+ *   each plane: projected Le × (We/2)   → sloped / cos θ
+ *   (2 × Le × We/2 = Le·We, equivalent to the closed form Le·We/cos θ)
+ *   ridge length = Le; ridge caps = Le.
  *
- * For flat roof:
- *   roof_area = footprint (no pitch)
+ * HIP, 4 planes, ridge along the LONGER eave side, R = |Le − We|
+ *   (Le = We → pyramid, R = 0):
+ *   2 trapezoid side planes: parallel sides Le and R, height We/2
+ *     → projected (Le + R)/2 × We/2
+ *   2 triangular end planes: base We, depth We/2
+ *     → projected We²/4 each
+ *   Projection conservation: 2 × (Le+R)/2 × We/2 + 2 × We²/4 = Le·We ✓
+ *   (For uniform pitch the sloped total = Le·We/cos θ, which is EXACT for
+ *   this geometry, proven by plane decomposition, not assumed.)
+ *
+ * MONO-PITCH, ONE rectangular plane spanning the FULL width:
+ *   projected Le × We → sloped / cos θ. High and low edges run along Le.
+ *
+ * FLAT, one plane at 0°: sloped area = projected area = Le·We.
+ *
+ * CUSTOM, the engine explicitly applies the GABLE-EQUIVALENT model
+ *   (2 planes, single ridge along the length) with the user-supplied
+ *   pitch. This is a documented modelling choice, disclosed in the UI;
+ *   complex roof geometry (L/T-shaped, cross-gable, intersecting hips,
+ *   multiple ridges/valleys) is NOT supported and is not silently
+ *   approximated by this tool.
+ */
+export function decomposeRoofPlanes(
+  buildingLength: number,
+  buildingWidth: number,
+  pitchDegrees: number,
+  overhang: number,
+  roofType: string
+): RoofPlane[] {
+  const Le = buildingLength + 2 * overhang; // eave length (along ridge)
+  const We = buildingWidth + 2 * overhang;  // eave width (across ridge)
+
+  if (roofType === 'flat') {
+    return [{
+      id: 'flat-1',
+      roof_type: 'flat',
+      label: 'Flat roof plane',
+      projected_area_m2: Le * We,
+      pitch_degrees: 0,
+      sloped_area_m2: Le * We,
+      boundary: `Eave rectangle ${round(Le, 2)}m × ${round(We, 2)}m`,
+    }];
+  }
+
+  const pitchRad = (pitchDegrees * Math.PI) / 180;
+
+  // Guard against pitch = 90° (vertical), a wall, not a roof. The plane
+  // is undefined for sheeting; the horizontal projection is returned so
+  // the estimate degrades to the limiting flat case.
+  if (Math.abs(pitchDegrees - 90) < 0.01) {
+    return [{
+      id: 'vertical-1',
+      roof_type: roofType,
+      label: 'Vertical plane (pitch 90°, not a roof)',
+      projected_area_m2: Le * We,
+      pitch_degrees: pitchDegrees,
+      sloped_area_m2: Le * We,
+      boundary: 'Undefined, vertical pitch is not a roof plane',
+    }];
+  }
+
+  const slopeFactor = 1 / Math.cos(pitchRad);
+  const plane = (
+    id: string, label: string, projectedArea: number, boundary: string
+  ): RoofPlane => ({
+    id,
+    roof_type: roofType,
+    label,
+    // Full precision, rounding happens only on the total (see
+    // calculateRoofArea) and at purchase-quantity stage. Rounding plane
+    // areas before summing leaked up to 0.02 m² into the total.
+    projected_area_m2: projectedArea,
+    pitch_degrees: pitchDegrees,
+    sloped_area_m2: projectedArea * slopeFactor,
+    boundary,
+  });
+
+  if (roofType === 'mono_pitch') {
+    return [
+      plane('mono-1', 'Mono-pitch plane (full width)', Le * We,
+        `Eave rectangle ${round(Le, 2)}m × ${round(We, 2)}m, high edge along Le`),
+    ];
+  }
+
+  if (roofType === 'hip') {
+    // Ridge along the longer eave side; R = 0 gives a pyramid.
+    const long = Math.max(Le, We);
+    const short = Math.min(Le, We);
+    const R = long - short;
+    const trapProjected = ((long + R) / 2) * (short / 2);
+    const triProjected = (short * short) / 4;
+    const ridgeNote = R === 0 ? ' (pyramid, no ridge)' : '';
+    return [
+      plane('hip-side-1', `Hip trapezoid plane 1${ridgeNote}`, trapProjected,
+        `Trapezoid: parallel sides ${round(long, 2)}m (eave) and ${round(R, 2)}m (ridge), height ${round(short / 2, 2)}m`),
+      plane('hip-side-2', `Hip trapezoid plane 2${ridgeNote}`, trapProjected,
+        `Trapezoid: parallel sides ${round(long, 2)}m (eave) and ${round(R, 2)}m (ridge), height ${round(short / 2, 2)}m`),
+      plane('hip-end-1', `Hip triangular end plane 1${ridgeNote}`, triProjected,
+        `Triangle: base ${round(short, 2)}m, depth ${round(short / 2, 2)}m`),
+      plane('hip-end-2', `Hip triangular end plane 2${ridgeNote}`, triProjected,
+        `Triangle: base ${round(short, 2)}m, depth ${round(short / 2, 2)}m`),
+    ];
+  }
+
+  // GABLE, and CUSTOM, which explicitly uses the gable-equivalent model
+  const typeLabel = roofType === 'custom' ? 'Custom (gable-equivalent)' : 'Gable';
+  const halfSpan = We / 2;
+  return [
+    plane(`${roofType}-1`, `${typeLabel} plane 1 (half-span)`, Le * halfSpan,
+      `Rectangle ${round(Le, 2)}m (ridge/eave) × ${round(halfSpan, 2)}m (horizontal half-span)`),
+    plane(`${roofType}-2`, `${typeLabel} plane 2 (half-span)`, Le * halfSpan,
+      `Rectangle ${round(Le, 2)}m (ridge/eave) × ${round(halfSpan, 2)}m (horizontal half-span)`),
+  ];
+}
+
+/**
+ * Total roof surface area = the sum of the explicitly decomposed roof-plane
+ * areas (conservation invariant, no plane counted twice, none omitted).
  */
 export function calculateRoofArea(
   buildingLength: number,
@@ -315,21 +453,8 @@ export function calculateRoofArea(
   overhang: number,
   roofType: string
 ): number {
-  const footprint = (buildingLength + 2 * overhang) * (buildingWidth + 2 * overhang);
-
-  if (roofType === 'flat') {
-    return footprint;
-  }
-
-  const pitchRad = (pitchDegrees * Math.PI) / 180;
-
-  // Guard against pitch = 90° (vertical) which would give infinity
-  if (Math.abs(pitchDegrees - 90) < 0.01) {
-    return footprint; // vertical pitch = wall, not roof
-  }
-
-  const slopeFactor = 1 / Math.cos(pitchRad);
-  return footprint * slopeFactor;
+  const planes = decomposeRoofPlanes(buildingLength, buildingWidth, pitchDegrees, overhang, roofType);
+  return round(planes.reduce((sum, p) => sum + p.sloped_area_m2, 0));
 }
 
 // ── Roofing sheets ──
@@ -355,21 +480,25 @@ export function getSheetCoverage(material: RoofingMaterial): number {
 export function calculateRidgeLength(
   buildingLength: number,
   buildingWidth: number,
-  roofType: string
+  roofType: string,
+  overhang = 0
 ): number {
   switch (roofType) {
     case 'gable':
-      return buildingLength; // one ridge along the length
+      // Ridge cap runs the full apex, the sloped planes extend 2 x overhang
+      // beyond the gable walls, so the apex (and its cap) is L + 2 x overhang.
+      return buildingLength + 2 * overhang;
     case 'hip': {
-      // Hip has a ridge of approximately (length - width)
-      return Math.max(0, buildingLength - buildingWidth);
+      // Ridge runs along the LONGER side; its length is |L - W|.
+      // (L = W gives a pyramid, no ridge.)
+      return Math.abs(buildingLength - buildingWidth);
     }
     case 'mono_pitch':
       return 0; // no ridge
     case 'flat':
       return 0;
     default:
-      return buildingLength;
+      return buildingLength + 2 * overhang;
   }
 }
 
@@ -378,14 +507,21 @@ export function calculateRidgeLength(
 export function calculateHipLength(
   buildingLength: number,
   buildingWidth: number,
-  pitchDegrees: number
+  pitchDegrees: number,
+  overhang = 0
 ): number {
+  // True hip-rafter geometry (standard roofing math):
+  //   plan run per direction = min(L, W)/2 + overhang  (hips sit at 45 deg
+  //   in plan when all pitches are equal, and start at the eave corners)
+  //   rise = plan run x tan(pitch)
+  //   hip length per hip = sqrt(run^2 + run^2 + rise^2) = run x sqrt(2 + tan^2(pitch))
+  // A hip is NOT a common rafter: using (run / cos(pitch)) understates the
+  // true hip length by 18-34% over typical pitches.
   const pitchRad = (pitchDegrees * Math.PI) / 180;
-  const halfWidth = buildingWidth / 2;
-  // Each hip runs from corner to ridge end point
-  const hipSlope = halfWidth / Math.cos(pitchRad);
+  const run = Math.min(buildingLength, buildingWidth) / 2 + overhang;
+  const hipLength = run * Math.sqrt(2 + Math.pow(Math.tan(pitchRad), 2));
   // 4 hips in a standard hip roof (one from each corner)
-  return 4 * hipSlope;
+  return 4 * hipLength;
 }
 
 // ── Fascia length ──
@@ -420,61 +556,54 @@ export function estimateTimberMeters(
   }
 
   const pitchRad = (pitchDegrees * Math.PI) / 180;
-  // FIX: slope length now includes overhang
-  const slopeLength = (buildingWidth / 2 + overhang) / Math.cos(pitchRad);
 
-  // Rafters: spaced at 0.9m, each rafter length = slopeLength
-  const rafterCount = Math.ceil(buildingLength / RAFTER_SPACING) + 1;
-  const rafterTotalM = rafterCount * 2 * slopeLength; // both sides
+  // The framing supports the sheets, so it is measured on the EAVE rectangle
+  // (the actual roof extent incl. overhang), not the wall rectangle.
+  const eaveLength = buildingLength + 2 * overhang;   // along the ridge
+  const eaveWidth = buildingWidth + 2 * overhang;    // across the ridge
 
-  // Purlins: rows per slope, each running the length of the building
-  const purlinTotalM = PURLIN_ROWS_PER_SLOPE * 2 * buildingLength;
+  if (roofType === 'mono_pitch') {
+    // Single plane spanning the FULL width: rafter run = eave width.
+    const slopeLength = eaveWidth / Math.cos(pitchRad);
+    const rafterCount = Math.ceil(eaveLength / RAFTER_SPACING) + 1;
+    const rafterTotalM = rafterCount * slopeLength;              // ONE plane
+    const purlinTotalM = PURLIN_ROWS_PER_SLOPE * eaveLength;     // ONE plane
+    return round(rafterTotalM + purlinTotalM);
+  }
+
+  // Gable / hip: common-rafter slope covers half the eave width
+  const slopeLength = (eaveWidth / 2) / Math.cos(pitchRad);
+
+  let rafterTotalM: number;
+  let purlinTotalM: number;
+
+  if (roofType === 'hip') {
+    // Commons step down toward the hips: full-height section runs between
+    // the hip planes, i.e. along (eaveLength - eaveWidth).
+    const commonPositions = Math.max(1, Math.ceil((eaveLength - eaveWidth) / RAFTER_SPACING) + 1);
+    rafterTotalM = commonPositions * 2 * slopeLength; // 2 side planes
+    // Jack rafters radiate on the 2 end planes: spaced along the eave width,
+    // average length ~ half the common slope.
+    const jacksPerEnd = Math.ceil(eaveWidth / RAFTER_SPACING) + 1;
+    rafterTotalM += jacksPerEnd * 2 * (slopeLength / 2);
+    // Purlins on all 4 planes: side planes run eaveLength; end-plane rows
+    // average half the eave width (triangular planes taper to the ridge).
+    purlinTotalM = PURLIN_ROWS_PER_SLOPE * 2 * eaveLength
+                 + PURLIN_ROWS_PER_SLOPE * 2 * (eaveWidth / 2);
+  } else {
+    // Gable (and custom): 2 planes, rafters at spacing along the eave length
+    const rafterCount = Math.ceil(eaveLength / RAFTER_SPACING) + 1;
+    rafterTotalM = rafterCount * 2 * slopeLength; // both slopes
+    purlinTotalM = PURLIN_ROWS_PER_SLOPE * 2 * eaveLength;
+  }
 
   return round(rafterTotalM + purlinTotalM);
 }
 
-// ── Reinforcement estimation (from engineer's schedule) ──
-
-/**
- * Calculate reinforcement steel weight for a structural member.
- *
- * Main bars: count × length × quantity × weight_per_m
- * Links/stirrups: links_per_m × member_length × quantity × link_length × weight_per_m
- *
- * FIX: link length now includes hook length (10 × link_diameter per hook, 2 hooks per link)
- *
- * Steel weight per meter: kg/m = d² / 162  [where d is in mm]
- * This formula derives from: weight = π × d²/4 × 7850 kg/m³ / 10⁶ = d²/162.3 ≈ d²/162
- */
-export function estimateReinforcementKg(member: StructuralMemberInput): number {
-  if (!member.bar_diameter_mm || !member.bar_count_main) return 0;
-
-  // Main bars
-  const mainBarWeightPerM = Math.pow(member.bar_diameter_mm, 2) / 162;
-  const mainBarLength = member.bar_length_main ?? member.length;
-  const mainBarsTotal = member.bar_count_main * mainBarLength * member.quantity;
-  const mainBarsKg = mainBarsTotal * mainBarWeightPerM;
-
-  // Links/stirrups
-  let linksKg = 0;
-  if (member.link_diameter_mm && member.bar_count_links) {
-    const linkWeightPerM = Math.pow(member.link_diameter_mm, 2) / 162;
-    const cover = (member.cover_mm ?? 25) / 1000; // convert mm to m
-
-    // FIX: link length includes hook length
-    // Link body: 2 × (width - 2×cover + depth - 2×cover) = 2 × (width + depth - 4×cover)
-    const linkBodyLength = 2 * (member.width + member.depth - 4 * cover);
-    // Hook length: 2 hooks × 10 × bar_diameter
-    const hookLength = 2 * STIRRUP_HOOK_MULTIPLIER * (member.link_diameter_mm / 1000);
-    const linkTotalLength = linkBodyLength + hookLength;
-
-    const linksTotal = member.bar_count_links * member.length * member.quantity;
-    linksKg = linksTotal * linkTotalLength * linkWeightPerM;
-  }
-
-  return round(mainBarsKg + linksKg);
-}
-
+// ── Reinforcement ──
+// Steel weight per meter: kg/m = d² / 162  [d in mm]
+// Derives from: weight = π × d²/4 × 7850 kg/m³ / 10⁶ = d²/162.3 ≈ d²/162
+// (verified: 16mm → 1.580 kg/m vs exact 1.578 kg/m, 0.1% off, standard formula)
 // ── Reinforcement breakdown by bar diameter ──
 
 interface RebarAggregate {
@@ -576,6 +705,7 @@ export function buildReinforcementBreakdown(
     items.push({
       diameter_mm: agg.diameter_mm,
       label,
+      base_length_m: round(agg.total_length_m),
       total_length_m: round(lengthWithWastage),
       standard_lengths: standardLengths,
       weight_kg: round(weightWithWastage),
@@ -622,7 +752,7 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
 
   // 1. Site clearing & setting out (allowance-based)
   quantities.push(
-    qtyLine('Site clearing & setting out', 'Allowance — general labour days',
+    qtyLine('Site clearing & setting out', 'Allowance, general labour days',
       { days: input.labour.general_labour_days },
       input.labour.general_labour_days, 'days', 0)
   );
@@ -650,7 +780,7 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
   materials.push(matLineTrips('Granite (blinding)', blindingMats.granite_m3, input.wastage.granite, input.prices.granite_per_trip, input.prices.granite_per_m3, input.prices.price_source));
   labour.push(labLine('Blinding labour', 'm³', blindingVol, input.labour.blinding_per_m3));
 
-  // 4. Foundation concrete (strip footing) — FIX: uses configurable footing_thickness
+  // 4. Foundation concrete (strip footing), FIX: uses configurable footing_thickness
   const foundationConcreteVol = perimeter * input.foundation_width * input.footing_thickness;
   quantities.push(
     qtyLine('Foundation concrete volume', 'Perimeter × Foundation width × Footing thickness',
@@ -663,7 +793,7 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
   materials.push(matLineTrips('Granite (foundation)', foundMats.granite_m3, input.wastage.granite, input.prices.granite_per_trip, input.prices.granite_per_m3, input.prices.price_source));
   labour.push(labLine('Concrete labour', 'm³', foundationConcreteVol, input.labour.concrete_per_m3));
 
-  // 5. Hardcore filling — FIX: now has material cost
+  // 5. Hardcore filling, FIX: now has material cost
   const hardcoreVol = footprintArea * input.hardcore_thickness;
   quantities.push(
     qtyLine('Hardcore filling volume', 'Footprint area × Hardcore thickness',
@@ -673,7 +803,7 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
   materials.push(matLine('Hardcore stone', 'm³', hardcoreVol, input.wastage.hardcore, input.prices.hardcore_per_m3, input.prices.price_source));
   labour.push(labLine('Hardcore labour', 'm³', hardcoreVol, input.labour.hardcore_per_m3));
 
-  // 6. Compaction of hardcore — FIX: added compaction labour
+  // 6. Compaction of hardcore, FIX: added compaction labour
   quantities.push(
     qtyLine('Compaction volume', 'Hardcore volume (same as filling)',
       { hardcore_volume: hardcoreVol },
@@ -692,12 +822,14 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
   materials.push(matLineTrips('Sand (filling)', sandFillVol, input.wastage.sand, input.prices.sand_per_trip, input.prices.sand_per_m3, input.prices.price_source));
   labour.push(labLine('Sand filling labour', 'm³', sandFillVol, input.labour.sand_filling_per_m3));
 
-  // 8. Backfilling — FIX: added backfilling (excavated soil returned into trench)
-  const backfillVol = Math.max(0, excavationVol - foundationConcreteVol - blindingVol);
+  // 8. Backfilling, FIX: added backfilling (excavated soil returned into trench)
+  // Blinding sits over the full footprint (inside the walls), not inside the
+  // trench, so the only trench volume occupied is the footing concrete itself.
+  const backfillVol = Math.max(0, excavationVol - foundationConcreteVol);
   if (backfillVol > 0) {
     quantities.push(
-      qtyLine('Backfilling volume', 'Excavation vol − (Foundation concrete + Blinding)',
-        { excavation: excavationVol, foundation_concrete: foundationConcreteVol, blinding: blindingVol },
+      qtyLine('Backfilling volume', 'Excavation vol − Foundation concrete',
+        { excavation: excavationVol, foundation_concrete: foundationConcreteVol },
         backfillVol, 'm³', 0)
     );
     labour.push(labLine('Backfilling labour', 'm³', backfillVol, input.labour.backfilling_per_m3));
@@ -714,7 +846,7 @@ function calcSiteAndFoundation(input: BuildToRoofInput): StageResult {
     materials.push(matLine('DPC roll', 'm', dpcLength, 0, input.prices.dpc_per_meter, input.prices.price_source));
   }
 
-  // 10. Foundation blockwork (up to DPC) — FIX: includes mortar joints in height
+  // 10. Foundation blockwork (up to DPC), FIX: includes mortar joints in height
   const courseHeight = (input.block_height * 0.0254) + MORTAR_JOINT_THICKNESS; // block (inches→m) + mortar joint
   const foundationBlockHeight = courseHeight * FOUNDATION_COURSES;
   const foundationWallArea = perimeter * foundationBlockHeight;
@@ -758,19 +890,11 @@ function calcGroundFloor(input: BuildToRoofInput): StageResult {
 
   const footprintArea = input.building_length * input.building_width;
 
-  // FIX: Sand blinding/filling under ground floor slab (spec requires it)
-  const gfSandFillThickness = input.sand_filling_thickness ?? 0.05; // configurable, default 50mm
-  const gfSandFillVol = footprintArea * gfSandFillThickness;
-  quantities.push(
-    qtyLine('Sand filling (under slab)', 'Footprint area × 0.05 (50mm)',
-      { footprint_area: footprintArea, thickness: gfSandFillThickness },
-      gfSandFillVol, 'm³', input.wastage.sand)
-  );
-  materials.push(matLineTrips('Sand (ground floor filling)', gfSandFillVol, input.wastage.sand, input.prices.sand_per_trip, input.prices.sand_per_m3, input.prices.price_source));
-  labour.push(labLine('Sand filling labour (ground floor)', 'm³', gfSandFillVol, input.labour.sand_filling_per_m3));
-
+  // Sand filling over the hardcore is calculated ONCE, in the Site &
+  // Foundation stage (over hardcore, below DPC). The same physical layer
+  // must not also be priced here, that was double-counting.
   // Oversite concrete (ground floor slab)
-  const slabThickness = 0.1; // 100mm — standard Nigerian construction
+  const slabThickness = 0.1; // 100mm, standard Nigerian construction
   const slabVol = footprintArea * slabThickness;
   quantities.push(
     qtyLine('Ground floor concrete volume', 'Footprint area × Slab thickness (100mm)',
@@ -784,7 +908,7 @@ function calcGroundFloor(input: BuildToRoofInput): StageResult {
   materials.push(matLineTrips('Granite (ground floor)', slabMats.granite_m3, input.wastage.granite, input.prices.granite_per_trip, input.prices.granite_per_m3, input.prices.price_source));
   labour.push(labLine('Concrete labour (ground floor)', 'm³', slabVol, input.labour.concrete_per_m3));
 
-  // DPM under slab — FIX: uses dpm_per_m2 (not dpc_per_meter)
+  // DPM under slab, FIX: uses dpm_per_m2 (not dpc_per_meter)
   if (input.dpc_length > 0) {
     materials.push(matLine('DPM membrane', 'm²', footprintArea, 5, input.prices.dpm_per_m2, input.prices.price_source));
   }
@@ -855,7 +979,7 @@ function calcWalls(input: BuildToRoofInput): StageResult {
   );
   materials.push(matLine('Blocks (walls)', 'pcs', totalBlocks, input.wastage.blocks, input.prices.block_per_piece, input.prices.price_source));
 
-  // Mortar — volume scales with wall thickness (thicker walls = more mortar per m²)
+  // Mortar, volume scales with wall thickness (thicker walls = more mortar per m²)
   // 225mm (9"): 0.03 m³/m² | 150mm (6"): 0.022 m³/m² | 125mm (5"): 0.018 m³/m²
   // Formula: mortarPerM² = 0.03 × (wallThickness / 0.225)  [linear scale from 225mm baseline]
   const mortarPerM2 = 0.03 * (input.wall_thickness / 0.225);
@@ -903,11 +1027,10 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
   }
 
   let totalConcreteVol = 0;
-  let _totalReinforcementKg = 0;
   let totalFormworkArea = 0;
 
   for (const member of input.structural_members) {
-    // FIX: removed redundant if/else — all member types use the same volume formula
+    // FIX: removed redundant if/else, all member types use the same volume formula
     // vol = length × width × depth × quantity
     const vol = member.length * member.width * member.depth * member.quantity;
     totalConcreteVol += vol;
@@ -926,12 +1049,8 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
     }
     totalFormworkArea += formwork;
 
-    // Reinforcement
-    const rebarKg = estimateReinforcementKg(member);
-    _totalReinforcementKg += rebarKg;
-
     quantities.push(
-      qtyLine(`${member.label} — concrete`, `${member.length} × ${member.width} × ${member.depth} × ${member.quantity}`,
+      qtyLine(`${member.label}, concrete`, `${member.length} × ${member.width} × ${member.depth} × ${member.quantity}`,
         { length: member.length, width: member.width, depth: member.depth, quantity: member.quantity },
         vol, 'm³', input.wastage.cement)
     );
@@ -943,7 +1062,7 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
   materials.push(matLineTrips('Sand (structural)', concreteMats.sand_m3, input.wastage.sand, input.prices.sand_per_trip, input.prices.sand_per_m3, input.prices.price_source));
   materials.push(matLineTrips('Granite (structural)', concreteMats.granite_m3, input.wastage.granite, input.prices.granite_per_trip, input.prices.granite_per_m3, input.prices.price_source));
 
-  // Reinforcement — split by bar diameter for user-friendly output
+  // Reinforcement, split by bar diameter for user-friendly output
   const rebarBreakdown = buildReinforcementBreakdown(input.structural_members, input.wastage.reinforcement, input.prices);
   const rebarTonnes = rebarBreakdown.total_weight_tonnes;
 
@@ -952,7 +1071,9 @@ function calcStructuralFrame(input: BuildToRoofInput): StageResult {
     materials.push({
       label: item.label,
       unit: 'lengths',
-      base_quantity: round(item.total_length_m / 12), // base 12m lengths
+      // Net (pre-wastage) length ÷ 12m standard lengths, wastage is added
+      // by the purchase rounding, not baked into the base quantity.
+      base_quantity: round(item.base_length_m / 12),
       wastage_percent: input.wastage.reinforcement,
       final_quantity: item.standard_lengths,
       unit_price: item.unit_price,
@@ -1014,17 +1135,30 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
   const sheetCoverage = getSheetCoverage(input.roofing_material);
   const sheetCount = roofingSheetsCount(roofArea, sheetCoverage);
   quantities.push(
-    qtyLine('Roofing sheets', `ceil(Roof area / ${sheetCoverage}m² per sheet) — ${input.roofing_material}`,
+    qtyLine('Roofing sheets', `ceil(Roof area / ${sheetCoverage}m² per sheet), ${input.roofing_material}`,
       { roof_area: roofArea, coverage: sheetCoverage, material: input.roofing_material as unknown as number },
       sheetCount, 'pcs', input.wastage.roofing_sheets)
   );
-  materials.push(matLine('Roofing sheets', 'pcs', sheetCount, input.wastage.roofing_sheets, input.prices.roofing_sheet_per_piece, input.prices.price_source));
+  // Purchase quantity: wastage is applied to the MEASURED AREA first, then
+  // ONE purchase rounding to whole sheets (ceil(count × 1.05) would compound
+  // two roundings and over-order).
+  const purchaseSheets = Math.ceil(applyWastage(roofArea, input.wastage.roofing_sheets) / sheetCoverage);
+  materials.push({
+    label: 'Roofing sheets',
+    unit: 'pcs',
+    base_quantity: round(sheetCount),
+    wastage_percent: input.wastage.roofing_sheets,
+    final_quantity: purchaseSheets,
+    unit_price: input.prices.roofing_sheet_per_piece,
+    total_cost: round(purchaseSheets * input.prices.roofing_sheet_per_piece),
+    price_source: input.prices.price_source,
+  });
 
   // Ridge caps
-  const ridgeLength = calculateRidgeLength(input.building_length, input.building_width, input.roof_type);
+  const ridgeLength = calculateRidgeLength(input.building_length, input.building_width, input.roof_type, input.roof_overhang);
   quantities.push(
-    qtyLine('Ridge cap length', 'Depends on roof type',
-      { roof_type: input.roof_type as unknown as number, length: input.building_length, width: input.building_width },
+    qtyLine('Ridge cap length', 'Gable: L + 2×overhang · Hip: |L − W|',
+      { roof_type: input.roof_type as unknown as number, length: input.building_length, width: input.building_width, overhang: input.roof_overhang },
       ridgeLength, 'm', 0)
   );
   if (ridgeLength > 0) {
@@ -1033,16 +1167,16 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
 
   // Hip accessories (for hip roofs)
   if (input.roof_type === 'hip') {
-    const hipLength = calculateHipLength(input.building_length, input.building_width, input.roof_pitch_degrees);
+    const hipLength = calculateHipLength(input.building_length, input.building_width, input.roof_pitch_degrees, input.roof_overhang);
     quantities.push(
-      qtyLine('Hip accessory length', '4 × (width/2) / cos(pitch)',
-        { width: input.building_width, pitch: input.roof_pitch_degrees },
+      qtyLine('Hip accessory length', '4 × (min(L,W)/2 + overhang) × √(2 + tan²(pitch))',
+        { length: input.building_length, width: input.building_width, pitch: input.roof_pitch_degrees, overhang: input.roof_overhang },
         hipLength, 'm', 0)
     );
     materials.push(matLine('Hip accessories', 'm', hipLength, 5, input.prices.ridge_cap_per_meter, input.prices.price_source));
   }
 
-  // Timber — FIX: passes overhang to estimateTimberMeters
+  // Timber, FIX: passes overhang to estimateTimberMeters
   const timberM = estimateTimberMeters(roofArea, input.building_length, input.building_width, input.roof_pitch_degrees, input.roof_overhang, input.roof_type);
   quantities.push(
     qtyLine('Timber (rafters + purlins)', 'Rafters (spacing 0.9m) + purlins (4 rows/slope)',
@@ -1051,8 +1185,8 @@ function calcRoofing(input: BuildToRoofInput): StageResult {
   );
   materials.push(matLine('Timber', 'm', timberM, input.wastage.timber, input.prices.timber_per_m, input.prices.price_source));
 
-  // Roofing screws (10 per sheet)
-  const screwCount = sheetCount * SCREWS_PER_SHEET;
+  // Roofing screws (10 per sheet, sized to the purchase quantity)
+  const screwCount = purchaseSheets * SCREWS_PER_SHEET;
   materials.push(matLine('Roofing screws', 'pcs', screwCount, 5, input.prices.roofing_screws_per_piece, input.prices.price_source));
 
   // Fascia
@@ -1169,7 +1303,7 @@ function assessConfidence(input: BuildToRoofInput): { level: ConfidenceLevel; re
     if (!hasStructural) {
       return {
         level: 'moderate',
-        reason: 'Architectural dimensions available but structural engineering schedule missing. Structural concrete quantities are preliminary — not a structural design.',
+        reason: 'Architectural dimensions available but structural engineering schedule missing. Structural concrete quantities are preliminary, not a structural design.',
       };
     }
     return {
@@ -1184,39 +1318,128 @@ function assessConfidence(input: BuildToRoofInput): { level: ConfidenceLevel; re
   };
 }
 
+// ── Unit conversion ──
+
+/** Fields expressed in the user's measurement unit (ft or m) that must be
+ *  converted when the unit changes or when the engine needs metric values.
+ *  Everything NOT listed here is unit-independent (block sizes are inches,
+ *  pitch is degrees, counts are integers). */
+const UNIT_SCALAR_FIELDS: (keyof BuildToRoofInput)[] = [
+  'building_length', 'building_width', 'floor_to_floor_height', 'wall_thickness',
+  'internal_wall_length', 'internal_wall_thickness', 'foundation_depth',
+  'foundation_width', 'footing_thickness', 'blinding_thickness',
+  'hardcore_thickness', 'dpc_length', 'roof_overhang',
+];
+
+/**
+ * Convert a Build-to-Roof input between metric and imperial, applying the
+ * given factor to every unit-dependent field (m→ft: /0.3048, ft→m: ×0.3048).
+ * Openings and structural members are converted too. Used by the engine
+ * (ft→m before calculation) and by the UI unit toggle (both directions).
+ */
+export function convertBuildToRoofUnits(
+  input: BuildToRoofInput,
+  factor: number
+): BuildToRoofInput {
+  const converted: BuildToRoofInput = { ...input };
+  const target = converted as unknown as Record<string, number>;
+  for (const key of UNIT_SCALAR_FIELDS) {
+    target[key as string] = (input[key] as number) * factor;
+  }
+  converted.openings = input.openings.map(o => ({
+    ...o,
+    width: o.width * factor,
+    height: o.height * factor,
+  }));
+  converted.structural_members = input.structural_members.map(m => ({
+    ...m,
+    length: m.length * factor,
+    width: m.width * factor,
+    depth: m.depth * factor,
+  }));
+  return converted;
+}
+
+// ── Input validation ──
+
+/**
+ * Validate a Build-to-Roof input (in the user's own unit system).
+ * Returns a list of human-readable problems, empty means the input is
+ * safe to calculate. Ranges mirror the server-validated AI-extraction
+ * clamps so manual input and AI input obey identical limits.
+ */
+export function validateBuildToRoofInput(rawInput: BuildToRoofInput): string[] {
+  const input = rawInput.measurement_unit === 'ft'
+    ? convertBuildToRoofUnits(rawInput, M_PER_FT)
+    : rawInput;
+  const errors: string[] = [];
+  const num = (label: string, v: number, min: number, max: number, integer = false): void => {
+    if (!Number.isFinite(v)) { errors.push(`${label} must be a number (got ${v})`); return; }
+    if (integer && !Number.isInteger(v)) { errors.push(`${label} must be a whole number (got ${v})`); return; }
+    if (v < min || v > max) errors.push(`${label} must be between ${min} and ${max} (got ${round(v, 3)})`);
+  };
+  const nonNeg = (label: string, v: number): void => {
+    if (!Number.isFinite(v) || v < 0) errors.push(`${label} cannot be negative (got ${v})`);
+  };
+
+  num('Building length', input.building_length, 1, 300);
+  num('Building width', input.building_width, 1, 300);
+  num('Number of floors', input.number_of_floors, 1, 100, true);
+  num('Wall height per floor', input.floor_to_floor_height, 2, 8);
+  num('Wall thickness', input.wall_thickness, 0.05, 0.6);
+  nonNeg('Internal wall length', input.internal_wall_length);
+  if (input.internal_wall_length > 0) num('Internal wall thickness', input.internal_wall_thickness, 0.05, 0.6);
+  nonNeg('Foundation depth', input.foundation_depth);
+  nonNeg('Foundation width', input.foundation_width);
+  nonNeg('Footing thickness', input.footing_thickness);
+  nonNeg('Blinding thickness', input.blinding_thickness);
+  nonNeg('Hardcore thickness', input.hardcore_thickness);
+  nonNeg('DPC length', input.dpc_length);
+  nonNeg('Overhang', input.roof_overhang);
+  if (input.roof_type !== 'flat') num('Roof pitch', input.roof_pitch_degrees, 0, 60);
+  if (input.contingency_percent < 0 || input.contingency_percent > 100)
+    errors.push(`Contingency must be between 0 and 100% (got ${input.contingency_percent})`);
+
+  for (const w of ['blocks', 'cement', 'sand', 'granite', 'reinforcement', 'timber', 'roofing_sheets', 'hardcore'] as const) {
+    const v = input.wastage[w];
+    if (!Number.isFinite(v) || v < 0 || v > 100)
+      errors.push(`Wastage (${w}) must be between 0 and 100% (got ${v})`);
+  }
+  for (const [k, v] of Object.entries(input.prices)) {
+    if (k === 'price_date' || k === 'price_source') continue;
+    if (!Number.isFinite(v) || v < 0) errors.push(`Price (${k}) cannot be negative (got ${v})`);
+  }
+
+  for (const o of input.openings) {
+    if (o.count < 0 || !Number.isInteger(o.count)) errors.push(`Opening "${o.label ?? o.type}" count must be a whole number ≥ 0`);
+    if (o.count > 0) {
+      num(`Opening "${o.label ?? o.type}" width`, o.width, 0.1, 20);
+      num(`Opening "${o.label ?? o.type}" height`, o.height, 0.1, 20);
+    }
+  }
+  for (const m of input.structural_members) {
+    nonNeg(`Structural member "${m.label}" length`, m.length);
+    nonNeg(`"${m.label}" width`, m.width);
+    nonNeg(`"${m.label}" depth`, m.depth);
+    if (!Number.isInteger(m.quantity) || m.quantity < 1) errors.push(`Structural member "${m.label}" quantity must be a whole number ≥ 1`);
+  }
+  return errors;
+}
+
 // ── Main calculation ──
 
 export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult {
   // Convert ft inputs to meters if measurement_unit is ft
   const input_m: BuildToRoofInput = input.measurement_unit === 'ft'
-    ? {
-        ...input,
-        building_length: ftToM(input.building_length),
-        building_width: ftToM(input.building_width),
-        floor_to_floor_height: ftToM(input.floor_to_floor_height),
-        wall_thickness: ftToM(input.wall_thickness),
-        internal_wall_length: ftToM(input.internal_wall_length),
-        internal_wall_thickness: ftToM(input.internal_wall_thickness),
-        foundation_depth: ftToM(input.foundation_depth),
-        foundation_width: ftToM(input.foundation_width),
-        footing_thickness: ftToM(input.footing_thickness),
-        blinding_thickness: ftToM(input.blinding_thickness),
-        hardcore_thickness: ftToM(input.hardcore_thickness),
-        dpc_length: ftToM(input.dpc_length),
-        roof_overhang: ftToM(input.roof_overhang),
-        openings: input.openings.map(o => ({
-          ...o,
-          width: ftToM(o.width),
-          height: ftToM(o.height),
-        })),
-        structural_members: input.structural_members.map(m => ({
-          ...m,
-          length: ftToM(m.length),
-          width: ftToM(m.width),
-          depth: ftToM(m.depth),
-        })),
-      }
+    ? convertBuildToRoofUnits(input, M_PER_FT)
     : input;
+
+  // Invalid input must never produce an apparently-valid construction
+  // estimate, reject explicitly.
+  const validationErrors = validateBuildToRoofInput(input);
+  if (validationErrors.length > 0) {
+    throw new Error(`Build-to-Roof input is invalid: ${validationErrors.join('; ')}`);
+  }
 
   const stages: StageResult[] = [];
 
@@ -1281,23 +1504,23 @@ export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult
     'Doors and windows are used only as wall opening deductions. Their purchase and installation costs are NOT included.',
     'Structural member sizes (columns, beams, slabs, reinforcement) must be verified by a qualified structural engineer. This tool does NOT design or certify structural adequacy.',
     'Roofing sheet count is based on standard sheet dimensions for the selected material type. Actual sheet sizes may vary by manufacturer.',
-    'Mortar volume is estimated at 0.03 m³ per m² of wall — this is a standard industry approximation for 9-inch (225mm) blockwork.',
-    'Sand filling thickness under ground floor slab defaults to 50mm — configurable in advanced settings.',
+    'Mortar volume is estimated at 0.03 m³ per m² of wall, this is a standard industry approximation for 9-inch (225mm) blockwork.',
+    'Sand filling thickness under ground floor slab defaults to 50mm, configurable in advanced settings.',
     'Material prices fluctuate frequently. Always verify current prices before procurement. Prices older than 30 days are flagged as stale.',
   ];
 
   const missingInfo: string[] = [];
   if (!input.has_engineer_schedule) {
-    missingInfo.push('Engineer-supplied structural schedule — structural concrete quantities are preliminary estimates based on architectural dimensions only.');
+    missingInfo.push('Engineer-supplied structural schedule, structural concrete quantities are preliminary estimates based on architectural dimensions only.');
   }
   if (input.internal_wall_length <= 0) {
-    missingInfo.push('Internal wall layout — internal partition walls not specified. Wall quantities may be understated.');
+    missingInfo.push('Internal wall layout, internal partition walls not specified. Wall quantities may be understated.');
   }
   if (!input.drawing_analysis) {
-    missingInfo.push('Architectural drawing — no drawing uploaded. Dimensions are user-entered and should be verified against actual plans.');
+    missingInfo.push('Architectural drawing, no drawing uploaded. Dimensions are user-entered and should be verified against actual plans.');
   }
   if (input.openings.length === 0) {
-    missingInfo.push('Door/window openings not specified — wall quantities include the full gross area with no deductions.');
+    missingInfo.push('Door/window openings not specified, wall quantities include the full gross area with no deductions.');
   }
 
   return {
@@ -1305,7 +1528,9 @@ export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult
     location: input.location || 'Not specified',
     building_type: input.building_type,
     number_of_floors: input.number_of_floors,
-    total_floor_area: round(input.building_length * input.building_width * input.number_of_floors),
+    // Use the METRIC input, in ft mode the raw values are feet and must not
+    // be reported as m².
+    total_floor_area: round(input_m.building_length * input_m.building_width * input_m.number_of_floors),
     construction_stage: 'SITE → FOUNDATION → GROUND FLOOR → WALLS → STRUCTURAL FRAME → ROOF → READY FOR FINISHING',
     confidence: confidence.level,
     confidence_reason: confidence.reason,
@@ -1330,59 +1555,59 @@ export function calculateBuildToRoof(input: BuildToRoofInput): BuildToRoofResult
 // ── Default price/labour/wastage configs (Nigerian market defaults) ──
 
 export const DEFAULT_PRICES = {
-  cement_per_bag: 10000,       // Dangote/BUA 50kg — updated Aug 2026
-  block_per_piece: 450,        // 9-inch hollow block — updated
+  cement_per_bag: 10000,       // Dangote/BUA 50kg, updated Aug 2026
+  block_per_piece: 450,        // 9-inch hollow block, updated
   sand_per_m3: 55000,           // sharp sand per m³ (reference only)
-  sand_per_trip: 192500,        // per trip (3.5 m³, 5-tonne tipper) — PRIMARY
+  sand_per_trip: 192500,        // per trip (3.5 m³, 5-tonne tipper), PRIMARY
   granite_per_m3: 110000,       // 3/4" granite per m³ (reference only)
-  granite_per_trip: 385000,     // per trip (3.5 m³) — PRIMARY
-  hardcore_per_m3: 40000,       // hardcore stone/laterite — updated
+  granite_per_trip: 385000,     // per trip (3.5 m³), PRIMARY
+  hardcore_per_m3: 40000,       // hardcore stone/laterite, updated
   reinforcement_per_tonne: 1350000, // bulk steel per tonne (fallback)
   // Per-diameter rebar prices (₦ per 12m standard length)
-  rebar_12mm_per_length: 9500,   // 12mm × 12m — common for columns/slabs
-  rebar_16mm_per_length: 16500,  // 16mm × 12m — common for columns/beams
-  rebar_20mm_per_length: 25500,  // 20mm × 12m — heavy columns/beams
-  rebar_25mm_per_length: 38000,  // 25mm × 12m — major beams/columns
-  binding_wire_per_kg: 3000,    // annealed binding wire — updated
-  timber_per_m: 3500,           // 2×4 timber per linear meter — updated
-  roofing_sheet_per_piece: 12000, // long-span aluminium 0.5mm — updated
-  ridge_cap_per_meter: 4500,    // aluminium ridge cap — updated
-  roofing_screws_per_piece: 200, // roofing screws with washers — updated
-  fascia_per_meter: 3000,       // fascia board — updated
-  dpc_per_meter: 1000,          // DPC roll — updated
-  dpm_per_m2: 1500,             // DPM membrane — updated
-  formwork_per_m2: 5500,         // plywood formwork — updated
+  rebar_12mm_per_length: 9500,   // 12mm × 12m, common for columns/slabs
+  rebar_16mm_per_length: 16500,  // 16mm × 12m, common for columns/beams
+  rebar_20mm_per_length: 25500,  // 20mm × 12m, heavy columns/beams
+  rebar_25mm_per_length: 38000,  // 25mm × 12m, major beams/columns
+  binding_wire_per_kg: 3000,    // annealed binding wire, updated
+  timber_per_m: 3500,           // 2×4 timber per linear meter, updated
+  roofing_sheet_per_piece: 12000, // long-span aluminium 0.5mm, updated
+  ridge_cap_per_meter: 4500,    // aluminium ridge cap, updated
+  roofing_screws_per_piece: 200, // roofing screws with washers, updated
+  fascia_per_meter: 3000,       // fascia board, updated
+  dpc_per_meter: 1000,          // DPC roll, updated
+  dpm_per_m2: 1500,             // DPM membrane, updated
+  formwork_per_m2: 5500,         // plywood formwork, updated
   price_date: new Date().toISOString().split('T')[0],
-  price_source: 'FRELUX default — Nigerian market (auto-updated)',
+  price_source: 'FRELUX reference prices, Nigerian market (edit in Step 8; verify before ordering)',
 };
 
 export const DEFAULT_LABOUR: LabourConfig = {
-  excavation_per_m3: 4000,        // manual excavation — updated
-  blockwork_per_block: 200,       // per block laid — updated
-  concrete_per_m3: 30000,         // per m³ cast — updated
-  reinforcement_per_tonne: 180000, // per tonne fixed — updated
-  formwork_per_m2: 6000,           // per m² erected/removed — updated
-  roofing_per_m2: 6000,            // per m² roof area — updated
-  blinding_per_m3: 10000,          // per m³ — updated
-  hardcore_per_m3: 7000,           // per m³ — updated
-  sand_filling_per_m3: 6000,       // per m³ — updated
-  compaction_per_m3: 3500,         // per m³ — updated
-  backfilling_per_m3: 3000,        // per m³ — updated
-  general_labour_per_day: 12000,    // per day — updated
+  excavation_per_m3: 4000,        // manual excavation, updated
+  blockwork_per_block: 200,       // per block laid, updated
+  concrete_per_m3: 30000,         // per m³ cast, updated
+  reinforcement_per_tonne: 180000, // per tonne fixed, updated
+  formwork_per_m2: 6000,           // per m² erected/removed, updated
+  roofing_per_m2: 6000,            // per m² roof area, updated
+  blinding_per_m3: 10000,          // per m³, updated
+  hardcore_per_m3: 7000,           // per m³, updated
+  sand_filling_per_m3: 6000,       // per m³, updated
+  compaction_per_m3: 3500,         // per m³, updated
+  backfilling_per_m3: 3000,        // per m³, updated
+  general_labour_per_day: 12000,    // per day, updated
   general_labour_days: 5,
   // Nigerian construction role-based daily rates
-  bricklayer_per_day: 10000,       // per day — updated
+  bricklayer_per_day: 10000,       // per day, updated
   bricklayer_days: 20,
-  contractor_fee: 600000,          // lump sum — updated
+  contractor_fee: 600000,          // lump sum, updated
   contractor_fee_type: 'contract',
   contractor_days: 30,
-  supervisor_per_day: 12000,       // per day — updated
+  supervisor_per_day: 12000,       // per day, updated
   supervisor_days: 30,
-  foreman_per_day: 8000,            // per day — updated
+  foreman_per_day: 8000,            // per day, updated
   foreman_days: 25,
-  carpenter_per_day: 10000,         // per day — updated
+  carpenter_per_day: 10000,         // per day, updated
   carpenter_days: 15,
-  concrete_labourer_per_day: 7000,  // per day — updated
+  concrete_labourer_per_day: 7000,  // per day, updated
   concrete_labourer_days: 15,
 };
 

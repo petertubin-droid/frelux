@@ -1,15 +1,15 @@
 /**
- * Project Intelligence — Connected project planning, shopping, tracking, and client tools.
+ * Project Intelligence, Connected project planning, shopping, tracking, and client tools.
  *
  * Features:
- * 1. Project Calculations — save structured calc results to projects
- * 2. Smart Shopping List — aggregate materials, track estimated vs actual spending
- * 3. Material Price Tracker — track prices with history
- * 4. Before & After Gallery — upload, moderate, display
- * 5. Client Estimates — create, share, track approvals
- * 6. Paint Comparison — configurable comparison data
- * 7. Project Progress — extensible stage tracking
- * 8. Surface Assessment — standalone surface condition assessment
+ * 1. Project Calculations, save structured calc results to projects
+ * 2. Smart Shopping List, aggregate materials, track estimated vs actual spending
+ * 3. Material Price Tracker, track prices with history
+ * 4. Before & After Gallery, upload, moderate, display
+ * 5. Client Estimates, create, share, track approvals
+ * 6. Paint Comparison, configurable comparison data
+ * 7. Project Progress, extensible stage tracking
+ * 8. Surface Assessment, standalone surface condition assessment
  */
 import { supabase } from "@/lib/supabase";
 import type {
@@ -85,7 +85,7 @@ export async function deleteProjectCalculation(id: string): Promise<void> {
 }
 
 // ============================================================
-// 2. SMART SHOPPING LIST — extended with actual prices
+// 2. SMART SHOPPING LIST, extended with actual prices
 // ============================================================
 
 export interface ShoppingItemWithActual {
@@ -102,6 +102,8 @@ export interface ShoppingItemWithActual {
   notes: string | null;
   is_purchased: boolean;
   sort_order: number;
+  /** DB-maintained (set_updated_at trigger), present on rows from the DB. */
+  updated_at?: string;
 }
 
 export interface ShoppingListTotals {
@@ -439,12 +441,18 @@ export async function toggleGalleryFeature(
 }
 
 // ============================================================
-// 5. CLIENT ESTIMATES — with approval workflow
+// 5. CLIENT ESTIMATES, with approval workflow
 // ============================================================
 
 export interface CreateClientEstimateInput {
   project_id: string;
   title: string;
+  /**
+   * Estimate currency, follows the project's regional market profile
+   * (synced from the project's saved location). When omitted, the
+   * database default applies.
+   */
+  currency?: string;
   description?: string;
   materials_cost: number;
   labour_cost: number;
@@ -489,6 +497,7 @@ export async function createClientEstimate(
       project_id: input.project_id,
       estimate_number: generateEstimateNumber(),
       title: input.title,
+      currency: input.currency || undefined,
       description: input.description || null,
       materials_cost: input.materials_cost,
       labour_cost: input.labour_cost,
@@ -553,7 +562,7 @@ export async function revokeClientEstimateShare(id: string): Promise<void> {
 /**
  * Fetch a shared client estimate by its share token.
  *
- * Goes through the `fetch_shared_estimate` SECURITY DEFINER RPC — the
+ * Goes through the `fetch_shared_estimate` SECURITY DEFINER RPC, the
  * public SELECT policy on client_estimates was removed in phase 26
  * because it did not bind access to the token. The RPC validates the
  * token server-side and auto-marks the estimate as viewed.
@@ -754,7 +763,7 @@ const SURFACE_RECOMMENDATIONS: Record<string, SurfaceRecommendation[]> = {
     },
     {
       recommendation:
-        "Check moisture content of the wall — it should be below 15% before painting.",
+        "Check moisture content of the wall, it should be below 15% before painting.",
       priority: "medium",
     },
   ],
@@ -795,7 +804,7 @@ const SURFACE_RECOMMENDATIONS: Record<string, SurfaceRecommendation[]> = {
     },
     {
       recommendation:
-        "Rough surfaces absorb up to 30% more paint — account for this in your calculations.",
+        "Rough surfaces absorb up to 30% more paint, account for this in your calculations.",
       priority: "high",
     },
     {
@@ -910,7 +919,7 @@ export async function fetchSurfaceAssessments(
 }
 
 // ============================================================
-// AI PROJECT ASSISTANT — guidance logic
+// AI PROJECT ASSISTANT, guidance logic
 // ============================================================
 
 export interface AiProjectGuidance {

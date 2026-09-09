@@ -17,7 +17,7 @@
  * The project engine aggregates results from supported calculators
  * without forcing all calculators to use the same formula.
  *
- * The project engine is an ORGANIZATIONAL layer — it does NOT compute
+ * The project engine is an ORGANIZATIONAL layer, it does NOT compute
  * calculator-specific results (paint buckets, screeding materials).
  * It provides the structure and aggregated areas/quantities.
  */

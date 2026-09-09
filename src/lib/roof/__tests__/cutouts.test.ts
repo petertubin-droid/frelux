@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF CUTOUTS — Tests
+ * FRELUX ROOF CUTOUTS, Tests
  *
  * Feature 8: Roof Cutouts / Penetrations
  */

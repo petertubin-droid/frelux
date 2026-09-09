@@ -1,5 +1,5 @@
 /**
- * Typography hook — reads the active font config from site_settings,
+ * Typography hook, reads the active font config from site_settings,
  * loads the required Google Fonts, and applies CSS variables to :root.
  *
  * The CSS variables are consumed by index.css via:

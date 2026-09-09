@@ -1,39 +1,43 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
-import path from 'path'
-import { fileURLToPath } from 'url'
+import { defineConfig } from "vitest/config";
+import react from "@vitejs/plugin-react";
+import path from "path";
+import { fileURLToPath } from "url";
 
-const __dirname_new = path.dirname(fileURLToPath(import.meta.url))
+const __dirname_new = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [react()],
   test: {
     globals: true,
-    environment: 'happy-dom',
+    environment: "happy-dom",
     // Never fetch/execute external ad-network scripts during tests —
     // the ad slot components inject them into <head> and happy-dom would
     // otherwise download the real tags over the network.
     environmentOptions: {
-      happyDom: {
+      happyDOM: {
         settings: {
           disableJavaScriptFileLoading: true,
           disableCSSFileLoading: true,
         },
       },
     },
-    setupFiles: ['./src/test/setup.ts'],
-    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    setupFiles: ["./src/test/setup.ts"],
+    // Heavy page modules (full calculator pages) can take over the default
+    // 5s just to import under happy-dom in CI sandboxes — give them room
+    // while keeping real hangs from running forever.
+    testTimeout: 20_000,
+    include: ["src/**/*.{test,spec}.{ts,tsx}"],
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      include: ['src/lib/**', 'src/components/**', 'src/pages/**'],
-      exclude: ['src/test/**', '**/*.d.ts'],
+      provider: "v8",
+      reporter: ["text", "json", "html"],
+      include: ["src/lib/**", "src/components/**", "src/pages/**"],
+      exclude: ["src/test/**", "**/*.d.ts"],
     },
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname_new, './src'),
+      "@": path.resolve(__dirname_new, "./src"),
     },
   },
-})
+});

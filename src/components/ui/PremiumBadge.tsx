@@ -1,5 +1,5 @@
 /**
- * PremiumBadge — golden crown icon used to identify premium features.
+ * PremiumBadge, golden crown icon used to identify premium features.
  *
  * Replaces text-based "Premium" / "PREMIUM" labels with a consistent
  * visual identifier across the app.

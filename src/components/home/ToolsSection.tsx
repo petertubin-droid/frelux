@@ -92,7 +92,7 @@ const allTools: Tool[] = [
     icon: DollarSign,
     title: "Paint Cost Estimator",
     description:
-      "Estimate the cost of your paint materials — buckets, primer, and supplies — using configurable product prices.",
+      "Estimate the cost of your paint materials (buckets, primer, and supplies) using configurable product prices.",
     benefit: "Full cost breakdown",
     to: "/paint-calculator?mode=cost",
     accent: "text-accent-green bg-accent-green/10",
@@ -197,7 +197,7 @@ export default function ToolsSection() {
             );
           })}
 
-          {/* Color & AI — smaller card */}
+          {/* Color & AI, smaller card */}
           <Link
             to="/colors"
             className="card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card p-6 transition-all duration-500 dark:border-white/5 dark:bg-card"

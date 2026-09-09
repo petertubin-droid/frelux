@@ -230,7 +230,8 @@ export default function AdminRewards() {
             },
           ] as const
         ).map((t) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={t.key}
             onClick={() => setTab(t.key)}
             className={classNames(
@@ -264,7 +265,9 @@ export default function AdminRewards() {
               </p>
             </div>
             <div className="rounded-xl border border-border bg-card p-5 dark:border-white/5 dark:bg-card">
-              <p className="text-xs text-muted-foreground">Recent Transactions</p>
+              <p className="text-xs text-muted-foreground">
+                Recent Transactions
+              </p>
               <p className="mt-1 text-2xl font-bold text-foreground dark:text-primary-foreground">
                 {transactions.length}
               </p>
@@ -314,7 +317,8 @@ export default function AdminRewards() {
                   className="w-full rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
-              <Button variant="default"
+              <Button
+                variant="default"
                 onClick={handleAdjustCredits}
                 disabled={
                   adjusting || !adjustingUser || !adjustAmount || !adjustReason
@@ -427,10 +431,11 @@ export default function AdminRewards() {
                 </p>
               </div>
             </div>
-            <Button variant="default"
+            <Button
+              variant="default"
               onClick={handleSeedRewards}
               disabled={seeding}
-              className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors hover:/90 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors hover:bg-primary/90 disabled:opacity-50"
             >
               {seeding ? (
                 <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -539,7 +544,8 @@ export default function AdminRewards() {
                         Enabled
                       </span>
                     </label>
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => handleSaveReward(reward.id)}
                       disabled={savingReward === reward.id}
                       className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
@@ -651,7 +657,8 @@ export default function AdminRewards() {
               </div>
             </div>
 
-            <Button variant="default"
+            <Button
+              variant="default"
               onClick={handleSaveSettings}
               disabled={savingSettings}
               className="mt-4 flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-50"

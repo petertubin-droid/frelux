@@ -1,5 +1,5 @@
 /**
- * OfferwallAd — Responsive Offerwall.ad iframe component.
+ * OfferwallAd, Responsive Offerwall.ad iframe component.
  *
  * Only renders after authentication has been confirmed.
  * Uses the authenticated user's stable Supabase Auth UUID as the
@@ -28,7 +28,7 @@ interface OfferwallAdProps {
   onBack?: () => void;
 }
 
-// Fallback wall URL — used when no offerwall_ad provider is configured in the DB
+// Fallback wall URL, used when no offerwall_ad provider is configured in the DB
 const FALLBACK_WALL_URL =
   "https://offerwall.ad/wall/1b50ede6cf94ed6dbeedb6274efc2b6d";
 
@@ -102,7 +102,7 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
           </div>
           <div>
             <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-              Complete Offers — Earn FRELUX Credits
+              Complete Offers: Earn FRELUX Credits
             </h3>
             <p className="text-xs text-muted-foreground dark:text-muted-foreground">
               Complete available offers to earn FRELUX Credits. Rewards vary by
@@ -123,9 +123,9 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
         )}
       </div>
 
-      {/* Iframe container — responsive, no horizontal scroll */}
+      {/* Iframe container, responsive, no horizontal scroll */}
       <div className="relative overflow-hidden rounded-2xl border border-border bg-card dark:border-white/10 dark:bg-card">
-        {/* Loading overlay — absolutely positioned so it doesn't affect layout */}
+        {/* Loading overlay, absolutely positioned so it doesn't affect layout */}
         {loading && !error && (
           <div className="absolute inset-0 z-10 flex min-h-[500px] flex-col items-center justify-center gap-3 p-8 bg-card dark:bg-card">
             <Loader2 className="h-8 w-8 animate-spin text-brand-purple" />
@@ -138,7 +138,7 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
           </div>
         )}
 
-        {/* Error state — replaces the iframe entirely */}
+        {/* Error state, replaces the iframe entirely */}
         {error ? (
           <div className="flex min-h-[500px] flex-col items-center justify-center gap-4 p-8">
             <AlertCircle className="h-10 w-10 text-red-400" />
@@ -154,7 +154,7 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
               variant="default"
               type="button"
               onClick={handleRetry}
-              className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-colors hover:/90"
+              className="flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition-colors hover:bg-primary/90"
             >
               <RefreshCw className="h-4 w-4" />
               Retry
@@ -165,7 +165,7 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
           <iframe
             ref={iframeRef}
             src={offerwallUrl ?? undefined}
-            title="Frelux Offerwall — Earn Credits"
+            title="Frelux Offerwall: Earn Credits"
             className="block w-full border-0"
             style={{
               height: "70vh",
@@ -187,7 +187,7 @@ export function OfferwallAd({ userId, onBack }: OfferwallAdProps) {
         <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
         <p className="text-xs text-muted-foreground dark:text-muted-foreground">
           Credits are awarded automatically after you complete an offer. The
-          offerwall provider confirms completion securely — you don&apos;t need
+          offerwall provider confirms completion securely. You don&apos;t need
           to do anything extra. Your FRELUX Credit balance will update once the
           offer is verified.
         </p>

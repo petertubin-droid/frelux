@@ -1,5 +1,5 @@
 /**
- * FRELUX MARKET INTELLIGENCE — Price Validator & Confidence Engine
+ * FRELUX MARKET INTELLIGENCE, Price Validator & Confidence Engine
  *
  * Validates collected price observations and assigns confidence scores.
  * Detects anomalies and prevents bad data from reaching calculators.
@@ -14,7 +14,7 @@
  *   - Market match
  *   - Abnormal price deviation (anomaly detection)
  *
- * This module does NOT call any external API — it's pure logic.
+ * This module does NOT call any external API, it's pure logic.
  */
 
 import type {

@@ -34,7 +34,7 @@ function makeUsage(overrides: Partial<AiUsageStatus> = {}): AiUsageStatus {
   };
 }
 
-describe("ai-access — checkAiAccess (disabled mode)", () => {
+describe("ai-access, checkAiAccess (disabled mode)", () => {
   it("denies access when AI is globally disabled", () => {
     const result = checkAiAccess(makeConfig({ aiEnabled: false }), makeUsage());
     expect(result.allowed).toBe(false);
@@ -51,7 +51,7 @@ describe("ai-access — checkAiAccess (disabled mode)", () => {
   });
 });
 
-describe("ai-access — checkAiAccess (admin override)", () => {
+describe("ai-access, checkAiAccess (admin override)", () => {
   it("allows access for admin with override enabled (overriding paid mode)", () => {
     const result = checkAiAccess(
       makeConfig({ accessMode: "paid", adminOverride: true }),
@@ -86,7 +86,7 @@ describe("ai-access — checkAiAccess (admin override)", () => {
   });
 });
 
-describe("ai-access — checkAiAccess (free mode)", () => {
+describe("ai-access, checkAiAccess (free mode)", () => {
   it("allows access when usage remaining", () => {
     const result = checkAiAccess(
       makeConfig({ accessMode: "free" }),
@@ -109,7 +109,7 @@ describe("ai-access — checkAiAccess (free mode)", () => {
   });
 });
 
-describe("ai-access — checkAiAccess (rewarded mode)", () => {
+describe("ai-access, checkAiAccess (rewarded mode)", () => {
   it("allows free access when usage remaining", () => {
     const result = checkAiAccess(
       makeConfig({ accessMode: "rewarded", rewardedEnabled: true }),
@@ -143,7 +143,7 @@ describe("ai-access — checkAiAccess (rewarded mode)", () => {
   });
 });
 
-describe("ai-access — checkAiAccess (paid mode)", () => {
+describe("ai-access, checkAiAccess (paid mode)", () => {
   it("suggests paid upgrade when paid is enabled", () => {
     const result = checkAiAccess(
       makeConfig({ accessMode: "paid", paidEnabled: true }),
@@ -166,7 +166,7 @@ describe("ai-access — checkAiAccess (paid mode)", () => {
   });
 });
 
-describe("ai-access — checkAiAccess (free_rewarded mode)", () => {
+describe("ai-access, checkAiAccess (free_rewarded mode)", () => {
   it("allows free access when usage remaining", () => {
     const result = checkAiAccess(
       makeConfig({ accessMode: "free_rewarded" }),
@@ -199,7 +199,7 @@ describe("ai-access — checkAiAccess (free_rewarded mode)", () => {
   });
 });
 
-describe("ai-access — getClientId", () => {
+describe("ai-access, getClientId", () => {
   beforeEach(() => {
     localStorage.clear();
   });
@@ -224,7 +224,7 @@ describe("ai-access — getClientId", () => {
   });
 });
 
-describe("ai-access — requestRewardedAccess", () => {
+describe("ai-access, requestRewardedAccess", () => {
   it("returns not granted when no provider configured", async () => {
     const result = await requestRewardedAccess();
     expect(result.granted).toBe(false);

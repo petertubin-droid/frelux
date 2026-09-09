@@ -36,7 +36,7 @@ import {
   defaultVolumeUnitForSystem,
 } from "@/lib/measurement/extended-units";
 
-describe("extended-units — constants", () => {
+describe("extended-units, constants", () => {
   it("MM_TO_M is 0.001", () => expect(MM_TO_M).toBe(0.001));
   it("CM_TO_M is 0.01", () => expect(CM_TO_M).toBe(0.01));
   it("M_TO_MM is 1000", () => expect(M_TO_MM).toBe(1000));
@@ -51,7 +51,7 @@ describe("extended-units — constants", () => {
     expect(CUBIC_M_TO_CUBIC_FT).toBeCloseTo(1 / CUBIC_FT_TO_CUBIC_M, 6));
 });
 
-describe("extended-units — toMetersExtended", () => {
+describe("extended-units, toMetersExtended", () => {
   it("returns value as-is for meters", () => {
     expect(toMetersExtended(5, "meters")).toBe(5);
   });
@@ -72,7 +72,7 @@ describe("extended-units — toMetersExtended", () => {
   });
 });
 
-describe("extended-units — fromMetersExtended", () => {
+describe("extended-units, fromMetersExtended", () => {
   it("returns value as-is for meters", () => {
     expect(fromMetersExtended(5, "meters")).toBe(5);
   });
@@ -87,7 +87,7 @@ describe("extended-units — fromMetersExtended", () => {
   });
 });
 
-describe("extended-units — convertLength", () => {
+describe("extended-units, convertLength", () => {
   it("converts feet to meters", () => {
     expect(convertLength(10, "feet", "meters")).toBeCloseTo(3.048, 3);
   });
@@ -99,7 +99,7 @@ describe("extended-units — convertLength", () => {
   });
 });
 
-describe("extended-units — extendedLengthUnitLabel", () => {
+describe("extended-units, extendedLengthUnitLabel", () => {
   it("returns label for each unit", () => {
     expect(extendedLengthUnitLabel("meters")).toBe("Metres");
     expect(extendedLengthUnitLabel("feet")).toBe("Feet");
@@ -109,14 +109,14 @@ describe("extended-units — extendedLengthUnitLabel", () => {
   });
 });
 
-describe("extended-units — extendedLengthUnitShort", () => {
+describe("extended-units, extendedLengthUnitShort", () => {
   it("returns short label for each unit", () => {
     expect(extendedLengthUnitShort("meters")).toBeTruthy();
     expect(extendedLengthUnitShort("feet")).toBeTruthy();
   });
 });
 
-describe("extended-units — toCubicMeters", () => {
+describe("extended-units, toCubicMeters", () => {
   it("returns value as-is for cubic_meters", () => {
     expect(toCubicMeters(5, "cubic_meters")).toBe(5);
   });
@@ -128,7 +128,7 @@ describe("extended-units — toCubicMeters", () => {
   });
 });
 
-describe("extended-units — fromCubicMeters", () => {
+describe("extended-units, fromCubicMeters", () => {
   it("returns value as-is for cubic_meters", () => {
     expect(fromCubicMeters(5, "cubic_meters")).toBe(5);
   });
@@ -143,7 +143,7 @@ describe("extended-units — fromCubicMeters", () => {
   });
 });
 
-describe("extended-units — convertVolume", () => {
+describe("extended-units, convertVolume", () => {
   it("converts litres to cubic_meters", () => {
     expect(convertVolume(1000, "litres", "cubic_meters")).toBe(1);
   });
@@ -152,7 +152,7 @@ describe("extended-units — convertVolume", () => {
   });
 });
 
-describe("extended-units — volumeUnitLabel", () => {
+describe("extended-units, volumeUnitLabel", () => {
   it("returns labels", () => {
     expect(volumeUnitLabel("cubic_meters")).toBeTruthy();
     expect(volumeUnitLabel("litres")).toBeTruthy();
@@ -160,14 +160,14 @@ describe("extended-units — volumeUnitLabel", () => {
   });
 });
 
-describe("extended-units — volumeUnitShort", () => {
+describe("extended-units, volumeUnitShort", () => {
   it("returns short labels", () => {
     expect(volumeUnitShort("cubic_meters")).toBeTruthy();
     expect(volumeUnitShort("litres")).toBeTruthy();
   });
 });
 
-describe("extended-units — QUANTITY_UNIT_LABELS and SHORT", () => {
+describe("extended-units, QUANTITY_UNIT_LABELS and SHORT", () => {
   it("QUANTITY_UNIT_LABELS is a record", () => {
     expect(typeof QUANTITY_UNIT_LABELS).toBe("object");
   });
@@ -182,7 +182,7 @@ describe("extended-units — QUANTITY_UNIT_LABELS and SHORT", () => {
   });
 });
 
-describe("extended-units — getSupportedLengthUnits", () => {
+describe("extended-units, getSupportedLengthUnits", () => {
   it("returns array for painting context", () => {
     const units = getSupportedLengthUnits("painting");
     expect(Array.isArray(units)).toBe(true);
@@ -191,7 +191,7 @@ describe("extended-units — getSupportedLengthUnits", () => {
   });
 });
 
-describe("extended-units — getSupportedQuantityUnits", () => {
+describe("extended-units, getSupportedQuantityUnits", () => {
   it("returns array for painting context", () => {
     const units = getSupportedQuantityUnits("painting");
     expect(Array.isArray(units)).toBe(true);
@@ -199,7 +199,7 @@ describe("extended-units — getSupportedQuantityUnits", () => {
   });
 });
 
-describe("extended-units — isLengthUnitSupported", () => {
+describe("extended-units, isLengthUnitSupported", () => {
   it("true for meters in painting", () => {
     expect(isLengthUnitSupported("painting", "meters")).toBe(true);
   });
@@ -210,13 +210,13 @@ describe("extended-units — isLengthUnitSupported", () => {
   });
 });
 
-describe("extended-units — isQuantityUnitSupported", () => {
+describe("extended-units, isQuantityUnitSupported", () => {
   it("returns boolean", () => {
     expect(typeof isQuantityUnitSupported("painting", "bags")).toBe("boolean");
   });
 });
 
-describe("extended-units — toSqMetersExtended", () => {
+describe("extended-units, toSqMetersExtended", () => {
   it("returns value as-is for sqm", () => {
     expect(toSqMetersExtended(10, "sqm")).toBe(10);
   });
@@ -228,7 +228,7 @@ describe("extended-units — toSqMetersExtended", () => {
   });
 });
 
-describe("extended-units — fromSqMetersExtended", () => {
+describe("extended-units, fromSqMetersExtended", () => {
   it("returns value as-is for sqm", () => {
     expect(fromSqMetersExtended(10, "sqm")).toBe(10);
   });
@@ -240,14 +240,14 @@ describe("extended-units — fromSqMetersExtended", () => {
   });
 });
 
-describe("extended-units — extendedAreaUnitLabel", () => {
+describe("extended-units, extendedAreaUnitLabel", () => {
   it("returns label", () => {
     expect(extendedAreaUnitLabel("sqm")).toBeTruthy();
     expect(extendedAreaUnitLabel("sqft")).toBeTruthy();
   });
 });
 
-describe("extended-units — defaultLengthUnitForSystem", () => {
+describe("extended-units, defaultLengthUnitForSystem", () => {
   it("meters for metric", () =>
     expect(defaultLengthUnitForSystem("metric")).toBe("meters"));
   it("feet for imperial", () =>
@@ -256,7 +256,7 @@ describe("extended-units — defaultLengthUnitForSystem", () => {
     expect(defaultLengthUnitForSystem("mixed")).toBe("meters"));
 });
 
-describe("extended-units — defaultAreaUnitForSystem", () => {
+describe("extended-units, defaultAreaUnitForSystem", () => {
   it("sqm for metric", () =>
     expect(defaultAreaUnitForSystem("metric")).toBe("sqm"));
   it("sqft for imperial", () =>
@@ -265,7 +265,7 @@ describe("extended-units — defaultAreaUnitForSystem", () => {
     expect(defaultAreaUnitForSystem("mixed")).toBe("sqm"));
 });
 
-describe("extended-units — defaultVolumeUnitForSystem", () => {
+describe("extended-units, defaultVolumeUnitForSystem", () => {
   it("litres for metric", () =>
     expect(defaultVolumeUnitForSystem("metric")).toBe("litres"));
   it("cubic_feet for imperial", () =>

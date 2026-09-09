@@ -1,5 +1,5 @@
 /**
- * PDF Template Section — select templates and branding preferences
+ * PDF Template Section, select templates and branding preferences
  */
 import { useState, useEffect } from "react";
 import { Lock, FileText } from "lucide-react";
@@ -72,7 +72,7 @@ export function PdfTemplateSection({
             onChange={(e) => onSelectProfile(e.target.value || null)}
             className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-white/5 dark:text-primary-foreground"
           >
-            <option value="">— Select a profile —</option>
+            <option value="">Select a profile</option>
             {profiles.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name}

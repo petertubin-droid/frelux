@@ -1,7 +1,7 @@
 /**
  * Achievement / Badges System
  * Tracks user milestones and unlocks badges for engagement.
- * Persists in localStorage — works for anonymous users.
+ * Persists in localStorage, works for anonymous users.
  */
 
 const STORAGE_KEY = 'frelux_achievements';
@@ -151,7 +151,7 @@ export function trackShare(): Achievement[] {
   return checkUnlocks(stats);
 }
 
-/** Track daily visit — call on app load */
+/** Track daily visit, call on app load */
 export function trackVisit(): Achievement[] {
   const stats = getStats();
   const today = new Date().toDateString();

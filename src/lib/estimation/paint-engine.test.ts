@@ -30,7 +30,7 @@ function makeRule(
   };
 }
 
-describe("paint-engine — normalizeCoverage", () => {
+describe("paint-engine, normalizeCoverage", () => {
   it("returns 0 for zero/negative coverage", () => {
     expect(normalizeCoverage(0, "m2_per_liter", 20)).toBe(0);
     expect(normalizeCoverage(-5, "m2_per_liter", 20)).toBe(0);
@@ -59,7 +59,7 @@ describe("paint-engine — normalizeCoverage", () => {
   });
 });
 
-describe("paint-engine — getCoverageUnitLabel", () => {
+describe("paint-engine, getCoverageUnitLabel", () => {
   it("returns label for each unit type", () => {
     expect(getCoverageUnitLabel("m2_per_liter")).toContain("m²");
     expect(getCoverageUnitLabel("m2_per_bucket")).toContain("bucket");
@@ -72,7 +72,7 @@ describe("paint-engine — getCoverageUnitLabel", () => {
   });
 });
 
-describe("paint-engine — getPackSizeLitres", () => {
+describe("paint-engine, getPackSizeLitres", () => {
   it("uses product standard_pack_size when set", () => {
     const product = { standard_pack_size: 4 } as EstimationProduct;
     expect(getPackSizeLitres(product, null)).toBe(4);
@@ -94,7 +94,7 @@ describe("paint-engine — getPackSizeLitres", () => {
   });
 });
 
-describe("paint-engine — getRoundingRule", () => {
+describe("paint-engine, getRoundingRule", () => {
   it("returns rule string when present", () => {
     const rule = makeRule({ rule: "round" });
     expect(getRoundingRule(rule)).toBe("round");
@@ -110,7 +110,7 @@ describe("paint-engine — getRoundingRule", () => {
   });
 });
 
-describe("paint-engine — getStandardHeight", () => {
+describe("paint-engine, getStandardHeight", () => {
   it("returns both ft and m from rule", () => {
     const rule = makeRule({ value_m: 3, value_ft: 10 });
     const h = getStandardHeight(rule);
@@ -132,7 +132,7 @@ describe("paint-engine — getStandardHeight", () => {
   });
 });
 
-describe("paint-engine — getStandardCoatCount", () => {
+describe("paint-engine, getStandardCoatCount", () => {
   it("returns count from rule", () => {
     const rule = makeRule({ count: 3 });
     expect(getStandardCoatCount(rule)).toBe(3);
@@ -148,7 +148,7 @@ describe("paint-engine — getStandardCoatCount", () => {
   });
 });
 
-describe("paint-engine — getOpeningDeductionPct", () => {
+describe("paint-engine, getOpeningDeductionPct", () => {
   it("returns percentage from rule", () => {
     const rule = makeRule({ deduction_percentage: 50 });
     expect(getOpeningDeductionPct(rule)).toBe(50);
@@ -164,7 +164,7 @@ describe("paint-engine — getOpeningDeductionPct", () => {
   });
 });
 
-describe("paint-engine — getCeilingQuantityBuckets", () => {
+describe("paint-engine, getCeilingQuantityBuckets", () => {
   it("returns buckets from rule", () => {
     const rule = makeRule({ buckets: 1.5 });
     expect(getCeilingQuantityBuckets(rule)).toBe(1.5);
@@ -180,7 +180,7 @@ describe("paint-engine — getCeilingQuantityBuckets", () => {
   });
 });
 
-describe("paint-engine — getCeilingCoverageRate", () => {
+describe("paint-engine, getCeilingCoverageRate", () => {
   it("returns enabled + rate from rule", () => {
     const rule = makeRule({ enabled: true, m2_per_liter: 10 });
     const r = getCeilingCoverageRate(rule);
@@ -201,7 +201,7 @@ describe("paint-engine — getCeilingCoverageRate", () => {
   });
 });
 
-describe("paint-engine — isPriceConfigured", () => {
+describe("paint-engine, isPriceConfigured", () => {
   it("true for positive number", () => {
     expect(isPriceConfigured(100)).toBe(true);
   });
@@ -216,7 +216,7 @@ describe("paint-engine — isPriceConfigured", () => {
 });
 
 // ── Per-bucket pricing regression test (Issue: price was multiplied by litres, not buckets) ──
-describe("paint-engine — per-bucket pricing regression", () => {
+describe("paint-engine, per-bucket pricing regression", () => {
   it("materialCost = unitPrice × practicalBuckets (not litres)", () => {
     // Scenario: 2 practical buckets of 20L paint at ₦12,000 per bucket
     // BUG was: 12000 × 40 (litres) = ₦480,000

@@ -39,7 +39,7 @@ import {
   CREDITS_PER_AD,
 } from "@/lib/credits";
 
-describe("Premium Feature Gating — credits integration", () => {
+describe("Premium Feature Gating, credits integration", () => {
   describe("AI_CREDIT_COST constant", () => {
     it("is 10 credits per unlock", () => {
       expect(AI_CREDIT_COST).toBe(10);
@@ -70,7 +70,7 @@ describe("Premium Feature Gating — credits integration", () => {
     });
   });
 
-  describe("spendAiCredits — premium feature unlock", () => {
+  describe("spendAiCredits, premium feature unlock", () => {
     it("calls spend-ai-credits edge function with feature key and idempotency key", async () => {
       const { getSupabase } = await import("@/lib/supabase-lazy");
       const supabase = await getSupabase();
@@ -144,7 +144,7 @@ describe("Premium Feature Gating — credits integration", () => {
     });
   });
 
-  describe("unlockFeatureViaAd — ad-based unlock", () => {
+  describe("unlockFeatureViaAd, ad-based unlock", () => {
     it("calls verify-rewarded-ad with unlock_feature mode", async () => {
       const { getSupabase } = await import("@/lib/supabase-lazy");
       const supabase = await getSupabase();
@@ -208,7 +208,7 @@ describe("Premium Feature Gating — credits integration", () => {
     });
   });
 
-  describe("getAiFeatureCost — fetching feature config from DB", () => {
+  describe("getAiFeatureCost, fetching feature config from DB", () => {
     it("returns null when supabase returns no data (feature not found)", async () => {
       // The default mock chain returns { data: null, error: null } from maybeSingle
       const result = await getAiFeatureCost("nonexistent_feature");
@@ -217,15 +217,15 @@ describe("Premium Feature Gating — credits integration", () => {
   });
 });
 
-describe("Premium gating — one-time use session scoping", () => {
+describe("Premium gating, one-time use session scoping", () => {
   // This documents the intended behavior: unlock state is useState in the
   // consuming component (not persisted), so leaving the feature resets it.
-  // The PremiumFeatureGate itself doesn't persist unlock state — each
+  // The PremiumFeatureGate itself doesn't persist unlock state, each
   // render starts fresh, requiring a new unlock.
 
   it("does not persist unlock state across renders", () => {
     // The component uses useState(false) for unlocked, meaning each
-    // mount requires a fresh unlock. This is by design — one-time use.
+    // mount requires a fresh unlock. This is by design, one-time use.
     // We verify that generateReferenceId produces unique keys per call,
     // ensuring duplicate unlock attempts aren't deduplicated client-side.
     const ref1 = generateReferenceId("pdf_export");

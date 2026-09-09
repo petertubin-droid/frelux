@@ -63,7 +63,7 @@ export default function TileCalculatorHub() {
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useSeo({
-    title: "Tile Calculator — Tile Quantity, Boxes & Cost Estimate",
+    title: "Tile Calculator, Tile Quantity, Boxes & Cost Estimate",
     description:
       "Free FRELUX tile calculator. Calculate tile quantity, boxes, adhesive, grout, and full installation cost with admin-configured material prices.",
     canonicalPath: "/tile-calculator",
@@ -129,7 +129,7 @@ export default function TileCalculatorHub() {
       <PageHeader
         eyebrow="Calculator"
         title="Tile Calculator"
-        subtitle="Calculate tile quantity, boxes, waste, adhesive, grout, and cost — all in one place."
+        subtitle="Calculate tile quantity, boxes, waste, adhesive, grout, and cost, all in one place."
         breadcrumbs={[
           { label: "Calculators", path: "/calculators" },
           { label: "Tile Calculator" },
@@ -177,12 +177,12 @@ export default function TileCalculatorHub() {
           </h3>
           <ul>
             <li>
-              <strong>Tile Quantity</strong> — Enter your dimensions and tile
+              <strong>Tile Quantity</strong>, Enter your dimensions and tile
               size to get exact tile counts, box recommendations, waste
               calculations, and adhesive/grout requirements.
             </li>
             <li>
-              <strong>Cost Estimate</strong> — Get a full cost analysis with
+              <strong>Cost Estimate</strong>, Get a full cost analysis with
               admin-configured material prices for tiles, adhesive, grout, and accessories,
               including labour cost options.
             </li>
@@ -210,9 +210,9 @@ export default function TileCalculatorHub() {
           ]}
         />
         <RelatedToolsLinks />
-        {/* Ad slot — placement "calculator_hub_mid" */}
+        {/* Ad slot, placement "calculator_hub_mid" */}
         <AdSlot slotKey="calculator_hub_mid" className="mt-8" />
-        {/* Native banner slot — placement "calculator_hub_native" */}
+        {/* Native banner slot, placement "calculator_hub_native" */}
         <AdSlot slotKey="calculator_hub_native" className="mt-8" />
         <AdSlot slotKey="calculator_hub_bottom" className="mt-8" />
         <EstimateDisclaimer />

@@ -43,7 +43,7 @@ export default function LearnArticle() {
   const [copied, setCopied] = useState(false);
   const articleRef = useRef<HTMLElement>(null);
 
-  // Build structured data — Article schema + BreadcrumbList + FAQPage for rich results.
+  // Build structured data, Article schema + BreadcrumbList + FAQPage for rich results.
   const SITE_URL_ =
     import.meta.env.VITE_SITE_URL ?? "https://freluxtools.netlify.app";
 
@@ -249,11 +249,18 @@ export default function LearnArticle() {
     for (const ins of inserts) {
       if (ins.position_type === "top") top.push(ins);
       else if (ins.position_type === "bottom") bottom.push(ins);
-      else if (ins.position_type === "after_heading" && ins.position_heading_id) {
+      else if (
+        ins.position_type === "after_heading" &&
+        ins.position_heading_id
+      ) {
         (byHeading[ins.position_heading_id] ??= []).push(ins);
       }
     }
-    return { topInserts: top, bottomInserts: bottom, insertsByHeading: byHeading };
+    return {
+      topInserts: top,
+      bottomInserts: bottom,
+      insertsByHeading: byHeading,
+    };
   }, [inserts]);
 
   // Extract table of contents from article content
@@ -348,7 +355,10 @@ export default function LearnArticle() {
       >
         {/* Breadcrumb */}
         <nav className="mb-8 flex items-center gap-2 text-xs text-muted-foreground">
-          <Link to="/learn" className="transition-colors hover:text-brand-purple">
+          <Link
+            to="/learn"
+            className="transition-colors hover:text-brand-purple"
+          >
             Learn
           </Link>
           <span className="text-muted-foreground/80">/</span>
@@ -432,9 +442,10 @@ export default function LearnArticle() {
                     )}
                   </span>
                 )}
-                <Button variant="default"
+                <Button
+                  variant="ghost"
                   onClick={shareArticle}
-                  className="ml-auto flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 text-xs font-medium text-muted-foreground transition-all hover:border-brand-purple/30 hover:hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
+                  className="ml-auto flex items-center gap-2 rounded-lg border border-border px-3.5 py-2 text-xs font-medium text-muted-foreground transition-all hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
                 >
                   {copied ? (
                     <Check className="h-4 w-4 text-green-500" />
@@ -474,12 +485,15 @@ export default function LearnArticle() {
               </div>
             )}
 
-            {/* Ad slot — placement "learn_article_top" */}
+            {/* Ad slot, placement "learn_article_top" */}
             <div className="mb-10">
-              <AdSlot slotKey="learn_article_top" hideLabel />
+              <AdSlot slotKey="learn_article_top" />
+              {/* Monetag In-Page Push, placement "article_push_1"
+                  (zone ID editable in Admin → Ads → Placements) */}
+              <AdSlot slotKey="article_push_1" />
             </div>
 
-            {/* Content — premium prose styling */}
+            {/* Content, premium prose styling */}
             <div
               className="prose prose-sm max-w-none sm:prose-base dark:prose-invert
               prose-headings:scroll-mt-20 prose-headings:font-display
@@ -504,9 +518,9 @@ export default function LearnArticle() {
               />
             </div>
 
-            {/* Native banner slot — placement "learn_article_native" */}
+            {/* Native banner slot, placement "learn_article_native" */}
             <div className="mt-10">
-              <AdSlot slotKey="learn_article_native" hideLabel />
+              <AdSlot slotKey="learn_article_native" />
             </div>
 
             {/* Bottom in-article inserts */}
@@ -536,7 +550,8 @@ export default function LearnArticle() {
                         key={faq.id}
                         className="overflow-hidden rounded-xl border border-border/80 bg-card transition-all dark:border-white/10 dark:bg-background"
                       >
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           onClick={() =>
                             setOpenFaq(openFaq === idx ? null : idx)
                           }
@@ -569,7 +584,10 @@ export default function LearnArticle() {
 
             {/* CTA section */}
             <div className="relative mt-14 overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-primary/10 p-8 text-center sm:p-10">
-              <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl" aria-hidden="true" />
+              <div
+                className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/10 blur-3xl"
+                aria-hidden="true"
+              />
               <div className="relative">
                 <h3 className="font-display text-xl font-bold text-foreground dark:text-primary-foreground">
                   Ready to start your project?
@@ -767,24 +785,27 @@ export default function LearnArticle() {
               </section>
             )}
 
-            {/* In-article ad + native banner — after FAQ */}
+            {/* In-article ad + native banner, after FAQ */}
             <div className="mt-10">
-              <AdSlot slotKey="learn_in_article" hideLabel />
+              <AdSlot slotKey="learn_in_article" />
             </div>
             <div className="mt-10">
-              <AdSlot slotKey="learn_article_native_2" hideLabel />
+              <AdSlot slotKey="learn_article_native_2" />
             </div>
 
-            {/* Banner + native banner — after related articles */}
+            {/* Banner + native banner, after related articles */}
             <div className="mt-10">
-              <AdSlot slotKey="learn_article_mid_2" hideLabel />
+              <AdSlot slotKey="learn_article_mid_2" />
             </div>
             <div className="mt-10">
-              <AdSlot slotKey="learn_article_native_3" hideLabel />
+              <AdSlot slotKey="learn_article_native_3" />
             </div>
 
             {/* Bottom ad */}
             <div className="mt-10">
+              {/* Monetag In-Page Push, placement "article_push_2"
+                  (zone ID editable in Admin → Ads → Placements) */}
+              <AdSlot slotKey="article_push_2" />
               <AdSlot slotKey="learn_article_bottom" />
             </div>
           </div>
@@ -812,7 +833,9 @@ function RenderedMarkdown({
     const inserts = insertsByHeading?.[headingId];
     if (inserts && inserts.length > 0) {
       inserts.forEach((ins) => {
-        elements.push(<ArticleInsertBlock key={`ins-${ins.id}`} insert={ins} />);
+        elements.push(
+          <ArticleInsertBlock key={`ins-${ins.id}`} insert={ins} />,
+        );
       });
     }
   };
@@ -840,7 +863,7 @@ function RenderedMarkdown({
       continue;
     }
 
-    // Headings — with IDs for TOC navigation
+    // Headings, with IDs for TOC navigation
     if (line.startsWith("### ")) {
       const text = line.slice(4);
       const id = text

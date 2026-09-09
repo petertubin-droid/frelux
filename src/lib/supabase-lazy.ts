@@ -1,5 +1,5 @@
 /**
- * Lazy Supabase client — defers the 200KB @supabase/supabase-js import
+ * Lazy Supabase client, defers the 200KB @supabase/supabase-js import
  * until the first call, so it doesn't block initial paint / hydration.
  *
  * Use `getSupabase()` in async contexts instead of the static `supabase` export.
@@ -36,7 +36,7 @@ export function getSupabase(): Promise<SupabaseClient> {
 /**
  * Supabase's functions.invoke() throws a FunctionsHttpError with a generic
  * message ("Edge Function returned a non-2xx status code") when a function
- * responds with a non-2xx status — the actual error body (e.g. our
+ * responds with a non-2xx status, the actual error body (e.g. our
  * `{ error, code }` JSON) is only available via `error.context`, a Response
  * object, and must be read separately.
  *
@@ -67,11 +67,11 @@ export async function getFunctionErrorMessage(error: unknown): Promise<string> {
           return body.error;
         }
       } catch {
-        // Response body wasn't JSON — fall through to the generic message below.
+        // Response body wasn't JSON, fall through to the generic message below.
       }
     }
   } catch {
-    // Dynamic import itself failed — fall through to the generic message below.
+    // Dynamic import itself failed, fall through to the generic message below.
   }
   return error instanceof Error
     ? error.message

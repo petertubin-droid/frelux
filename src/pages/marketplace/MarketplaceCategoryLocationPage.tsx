@@ -74,7 +74,7 @@ export default function MarketplaceCategoryLocationPage() {
 
   // SEO
   useSeo({
-    title: `${category?.name || ''} ${locationLabel ? `in ${locationLabel}` : ''} — FRELUX Marketplace`,
+    title: `${category?.name || ''} ${locationLabel ? `in ${locationLabel}` : ''}, FRELUX Marketplace`,
     description: `Find ${category?.name || 'construction'} professionals and job listings${locationLabel ? ` in ${locationLabel}` : ''}. Post a job and get bids from verified local pros on FRELUX.`,
     canonicalPath: `/marketplace/${categorySlug}/${locationSlug}`,
     noIndex: false,

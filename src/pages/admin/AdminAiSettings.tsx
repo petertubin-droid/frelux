@@ -45,7 +45,7 @@ const SUPABASE_PROJECT_REF =
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL ?? "";
 
 // =========================================================
-// AI Feature Registry — every AI feature in the app
+// AI Feature Registry, every AI feature in the app
 // =========================================================
 interface AiFeatureDef {
   key: string;
@@ -85,7 +85,7 @@ const AI_FEATURES: AiFeatureDef[] = [
     key: "livechat",
     name: "AI Live Chat",
     description:
-      "Real-time chat assistant for visitors — painting, screeding, tiles, products.",
+      "Real-time chat assistant for visitors, painting, screeding, tiles, products.",
     edgeFunction: "ai-livechat",
     icon: MessageSquare,
     model: "gpt-4o-mini",
@@ -280,7 +280,7 @@ export default function AdminAiSettings() {
     <>
       <AdminHeader
         title="AI Control Center"
-        subtitle="Centralized control for all AI features — toggle, configure, and monitor from one place."
+        subtitle="Centralized control for all AI features, toggle, configure, and monitor from one place."
         action={
           <AdminButton onClick={onSave} disabled={saving}>
             <Save aria-hidden="true" className="h-4 w-4" />
@@ -707,7 +707,7 @@ export default function AdminAiSettings() {
                             {feature.name} Configuration
                           </h4>
                           <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                            Admin-only feature — no user-facing access control.
+                            Admin-only feature, no user-facing access control.
                             Powered by Google Gemini. Requires{" "}
                             <code className="text-[10px] text-brand-purple">
                               GOOGLE_AI_API_KEY

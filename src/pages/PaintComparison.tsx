@@ -203,7 +203,7 @@ export default function PaintComparison() {
                           key={c.id}
                           className="p-5 text-muted-foreground dark:text-muted-foreground/80"
                         >
-                          {c.description || "—"}
+                          {c.description || ""}
                         </td>
                       ))}
                     </tr>
@@ -231,7 +231,7 @@ export default function PaintComparison() {
                               key={c.id}
                               className="p-5 text-card-foreground dark:text-muted-foreground/80"
                             >
-                              {(c[row.key] as string) || "—"}
+                              {(c[row.key] as string) || ""}
                             </td>
                           ))}
                         </tr>

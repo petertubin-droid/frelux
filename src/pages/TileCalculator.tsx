@@ -1,4 +1,11 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  isValidElement,
+  cloneElement,
+  type ReactNode,
+} from "react";
 import { Link } from "react-router-dom";
 import {
   RotateCcw,
@@ -20,7 +27,7 @@ import {
   saveUserProject,
 } from "@/lib/queries";
 import { SaveToProjectButton } from "@/components/calculators";
-import { formatNumber, formatCurrency } from "@/lib/utils";
+import { formatNumber, formatCurrency, classNames } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
@@ -698,7 +705,7 @@ export default function TileCalculator({
             {input.method === "traditional" && (
               <div className="mt-6 rounded-lg border border-primary/20 bg-primary/5 p-4">
                 <p className="text-xs font-semibold text-muted-foreground">
-                  Cement &amp; sharp sand — configured in Admin
+                  Cement &amp; sharp sand, configured in Admin
                 </p>
                 <div className="mt-3 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
                   <ConfigItem
@@ -728,7 +735,7 @@ export default function TileCalculator({
             {/* Grout (admin-configured) + Spacers (always shown) */}
             <div className="mt-6 rounded-lg border border-primary/20 bg-primary/5 p-4">
               <p className="text-xs font-semibold text-muted-foreground">
-                Grout — configured in Admin
+                Grout, configured in Admin
               </p>
               <div className="mt-3 grid grid-cols-2 gap-3 text-xs">
                 <ConfigItem
@@ -780,9 +787,8 @@ export default function TileCalculator({
                 Waste / safety margin
               </span>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Buys extra tiles for cuts, breakage, and future repairs —
-                the quantity is multiplied by a factor (10% = ×1.10, 15% =
-                ×1.15).
+                Buys extra tiles for cuts, breakage, and future repairs, the
+                quantity is multiplied by a factor (10% = ×1.10, 15% = ×1.15).
               </p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {[0, 5, 10, 15, 20].map((w) => (
@@ -934,11 +940,14 @@ export default function TileCalculator({
           <ProConnectCTA calculatorType="tile" />
         </>
       )}
-      {/* Ad slot — placement "calculator_mid" */}
+      {/* Ad slot, placement "calculator_mid" */}
       <AdSlot slotKey="calculator_mid" className="mt-8" />
-      {/* Native banner slot — placement "calculator_native" */}
+      {/* Native banner slot, placement "calculator_native" */}
       <AdSlot slotKey="calculator_native" className="mt-8" />
       <AdSlot slotKey="calculator_bottom" className="mt-8" />
+      {/* Monetag In-Page Push, placement "calculator_push"
+          (zone ID editable in Admin → Ads → Placements) */}
+      <AdSlot slotKey="calculator_push" className="mt-8" />
     </>
   );
 }
@@ -1312,7 +1321,7 @@ function TileResultCard({
             </p>
           </div>
           <a
-            href={`/marketplace/post?project_type=tiling&budget_min=${Math.round(result.grandTotal * 0.9)}&budget_max=${Math.round(result.grandTotal * 1.2)}&title=Tiling — ${result.surfaceArea.toFixed(1)} m²`}
+            href={`/marketplace/post?project_type=tiling&budget_min=${Math.round(result.grandTotal * 0.9)}&budget_max=${Math.round(result.grandTotal * 1.2)}&title=Tiling, ${result.surfaceArea.toFixed(1)} m²`}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 whitespace-nowrap"
           >
             Post as Job
@@ -1369,6 +1378,13 @@ function Field({
   error?: string;
   children: ReactNode;
 }) {
+  const errorId = `${label.toLowerCase().replace(/\s+/g, "-")}-error`;
+  const decoratedChildren = isValidElement(children)
+    ? cloneElement(children, {
+        "aria-invalid": error ? true : undefined,
+        "aria-describedby": error ? errorId : undefined,
+      } as Record<string, unknown>)
+    : children;
   return (
     <label className="block">
       <span className="block text-sm font-semibold text-card-foreground">
@@ -1379,8 +1395,14 @@ function Field({
           {hint}
         </span>
       )}
-      <div className="relative mt-1.5">
-        {children}
+      <div
+        className={classNames(
+          "relative mt-1.5",
+          error &&
+            "[&_.input-field]:border-red-400 [&_.input-field]:focus:border-red-500 [&_.input-field]:focus:ring-red-300/40 dark:[&_.input-field]:border-red-500/60 dark:[&_.input-field]:focus:border-red-400",
+        )}
+      >
+        {decoratedChildren}
         {suffix && (
           <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
             {suffix}
@@ -1388,7 +1410,14 @@ function Field({
         )}
       </div>
       {error && (
-        <span className="mt-1 block text-xs text-red-600">{error}</span>
+        <span
+          id={errorId}
+          role="alert"
+          className="mt-1 flex items-center gap-1 text-xs text-red-600"
+        >
+          <AlertCircle aria-hidden="true" className="h-3 w-3 shrink-0" />
+          {error}
+        </span>
       )}
     </label>
   );

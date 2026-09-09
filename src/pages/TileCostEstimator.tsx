@@ -17,6 +17,7 @@ import {
 } from "@/lib/queries";
 import { formatNumber, formatCurrency } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
+import { useProjectLocationCurrency, type FreluxLocation } from "@/lib/location-intelligence";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
 import {
@@ -46,6 +47,8 @@ interface PassedState {
   surfaceArea?: number;
   grandTotal?: number;
   input?: Partial<TileCalcInput>;
+  /** Canonical project location (location-intelligence) passed via router state. */
+  projectLocation?: FreluxLocation | null;
 }
 
 export default function TileCostEstimator({
@@ -55,7 +58,7 @@ export default function TileCostEstimator({
   useSeo(
     !embedded
       ? {
-          title: "Tile Cost Estimator — Estimate Tile Installation Cost",
+          title: "Tile Cost Estimator, Estimate Tile Installation Cost",
           description:
             "Estimate the full cost of your tile installation project including tiles, adhesive, grout, labour, and waste.",
           canonicalPath: "/tile-cost-estimator",
@@ -119,8 +122,14 @@ export default function TileCostEstimator({
     unit: passed.input?.unit ?? "meters",
   });
 
-  const currencySymbol = settings?.default_currency_symbol ?? "₦";
-  const currency = settings?.default_currency ?? "NGN";
+  // Regional data flow: a calculator opened from a saved project follows
+  // the project's location → active market profile currency. No location
+  // (or unsupported region) → existing settings-based behavior unchanged.
+  const { currencyCode: projectCurrencyCode, currencySymbol: projectCurrencySymbol } =
+    useProjectLocationCurrency(passed.projectLocation ?? null);
+  const currencySymbol =
+    projectCurrencySymbol ?? settings?.default_currency_symbol ?? "₦";
+  const currency = projectCurrencyCode ?? settings?.default_currency ?? "NGN";
 
   const mountedRef = useRef(true);
   useEffect(() => {
@@ -293,7 +302,8 @@ export default function TileCostEstimator({
               </Field>
               <div className="mt-4 inline-flex rounded-lg border border-border dark:border-white/5 p-1">
                 {(["meters", "feet"] as Unit[]).map((u) => (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     key={u}
                     type="button"
                     onClick={() => update("unit", u)}
@@ -487,7 +497,8 @@ export default function TileCostEstimator({
               last
             />
 
-            <Button variant="default"
+            <Button
+              variant="default"
               type="button"
               onClick={compute}
               disabled={input.length <= 0}
@@ -519,6 +530,18 @@ export default function TileCostEstimator({
                 </p>
               </div>
               <div className="space-y-2 p-6">
+                {result && (result.warnings ?? []).length > 0 && (
+                  <div className="mb-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-700 dark:text-amber-400">
+                    <p className="mb-1 font-medium">
+                      Configuration incomplete, estimate may be understated:
+                    </p>
+                    <ul className="list-disc pl-4 space-y-0.5">
+                      {(result.warnings ?? []).map((w) => (
+                        <li key={w}>{w}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 {result ? (
                   <>
                     <Row
@@ -579,7 +602,8 @@ export default function TileCostEstimator({
                       <p className="text-sm text-brand-purple">{saveMsg}</p>
                     )}
                     {user && (
-                      <Button variant="secondary"
+                      <Button
+                        variant="secondary"
                         type="button"
                         onClick={handleSave}
                         disabled={saving}
@@ -796,7 +820,9 @@ function Field({
         {label}
       </span>
       {hint && (
-        <span className="mt-0.5 block text-xs text-muted-foreground">{hint}</span>
+        <span className="mt-0.5 block text-xs text-muted-foreground">
+          {hint}
+        </span>
       )}
       <div className="relative mt-1.5">
         {children}

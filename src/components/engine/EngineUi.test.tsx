@@ -51,7 +51,7 @@ describe("EngineWasteSelector", () => {
     );
     // Click "No Waste" to enter none mode
     fireEvent.click(screen.getByText("No Waste"));
-    // After clicking, onUserWasteChange(0) is called — rerender with 0
+    // After clicking, onUserWasteChange(0) is called, rerender with 0
     rerender(
       <EngineWasteSelector
         resolution={{ wastePercent: 10, source: "global", isOverride: false }}
@@ -63,7 +63,7 @@ describe("EngineWasteSelector", () => {
     // but the component init state is "system" since userWaste was undefined.
     // With userWaste=0 the initial state checks: userWaste === undefined ? "system" : "user"
     // So it'll be "user" mode, not "none". The none message only shows when mode === "none".
-    // This is a UI state issue — let's just verify the button exists.
+    // This is a UI state issue, let's just verify the button exists.
     expect(screen.getByText("No Waste")).toBeTruthy();
   });
 

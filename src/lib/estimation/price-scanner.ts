@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX Price Scanner — Nigerian Construction Material Prices
+// FRELUX Price Scanner, Nigerian Construction Material Prices
 // Provides fallback prices and a scanning function that
 // compares current prices against market references.
 // =========================================================

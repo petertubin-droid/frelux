@@ -118,7 +118,7 @@ describe("Feature 19: Confidence / Verification States", () => {
       expect(assessment.overallConfidence).toBe("review_required");
     });
 
-    it("keeps dimensions independent — high AI + low calculation", () => {
+    it("keeps dimensions independent, high AI + low calculation", () => {
       const assessment = assessUnifiedConfidence(
         "ai_detected",
         "high",
@@ -131,7 +131,7 @@ describe("Feature 19: Confidence / Verification States", () => {
       expect(assessment.overallConfidence).toBe("low");
     });
 
-    it("keeps dimensions independent — calculated + unavailable price", () => {
+    it("keeps dimensions independent, calculated + unavailable price", () => {
       const assessment = assessUnifiedConfidence(
         "calculated",
         "not_applicable",
@@ -143,7 +143,7 @@ describe("Feature 19: Confidence / Verification States", () => {
       expect(assessment.overallConfidence).toBe("high");
     });
 
-    it("keeps dimensions independent — calculated + verified price", () => {
+    it("keeps dimensions independent, calculated + verified price", () => {
       const assessment = assessUnifiedConfidence(
         "market_price_verified",
         "not_applicable",

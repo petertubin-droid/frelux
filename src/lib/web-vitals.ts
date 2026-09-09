@@ -79,7 +79,7 @@ function reportVital(name: string, value: number): void {
  * Observes and reports Core Web Vitals (CLS, LCP, FID, FCP, TTFB).
  *
  * Global error listeners are now handled by the FRELUX error monitor
- * (initErrorMonitor in errorMonitor.ts) — this hook focuses solely
+ * (initErrorMonitor in errorMonitor.ts), this hook focuses solely
  * on performance metrics.
  *
  * Call this hook once at the app root.

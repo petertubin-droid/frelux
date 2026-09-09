@@ -19,7 +19,7 @@ export function useCookieConsent() {
   );
   const [showBanner, setShowBanner] = useState(false);
 
-  // On mount — check if banner should show
+  // On mount, check if banner should show
   useEffect(() => {
     const stored = getStoredConsent();
     setConsent(stored);

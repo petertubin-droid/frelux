@@ -1,10 +1,10 @@
 /**
- * FRELUX Admin — International Markets Management
+ * FRELUX Admin, International Markets Management
  *
  * Manage market profiles, material rules, products, pricing, and
  * calculator availability per market.
  *
- * This is purely additive — does not modify any existing admin pages.
+ * This is purely additive, does not modify any existing admin pages.
  */
 
 import { useEffect, useState, useCallback } from "react";
@@ -76,7 +76,8 @@ export default function AdminMarkets() {
             ["calculators", "Calculator Availability", CalcIcon],
           ] as const
         ).map(([key, label, Icon]) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={key}
             onClick={() => setTab(key)}
             className={classNames(
@@ -123,7 +124,12 @@ function MarketSelector({
   }, []);
 
   if (loading)
-    return <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin text-brand-purple" />;
+    return (
+      <Loader2
+        aria-hidden="true"
+        className="h-4 w-4 animate-spin text-brand-purple"
+      />
+    );
 
   return (
     <select
@@ -133,7 +139,7 @@ function MarketSelector({
     >
       {markets.map((m) => (
         <option key={m.country_code} value={m.country_code}>
-          {m.country_name} ({m.country_code}) — {MARKET_STATUS_LABELS[m.status]}
+          {m.country_name} ({m.country_code}), {MARKET_STATUS_LABELS[m.status]}
         </option>
       ))}
     </select>
@@ -167,7 +173,10 @@ function ProfilesTab() {
   if (loading) {
     return (
       <div className="flex justify-center py-10">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
   }
@@ -178,7 +187,8 @@ function ProfilesTab() {
         <p className="text-sm text-muted-foreground">
           {profiles.length} market profiles
         </p>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
@@ -225,14 +235,16 @@ function ProfilesTab() {
             </div>
 
             <div className="mt-3 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => setEditing(p)}
                 className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-brand-purple"
               >
                 <Edit2 className="h-3 w-3" /> Edit
               </Button>
               {p.country_code !== "NG" && (
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={async () => {
                     if (
                       confirm(
@@ -451,16 +463,18 @@ function ProfileEditModal({
         </div>
 
         <div className="mt-4 flex justify-end gap-2">
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
             Cancel
           </Button>
-          <Button variant="default"
+          <Button
+            variant="default"
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50"
           >
             {saving ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -501,7 +515,10 @@ function RulesTab({ marketCode }: { marketCode: string }) {
   if (loading) {
     return (
       <div className="flex justify-center py-10">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
   }
@@ -512,7 +529,8 @@ function RulesTab({ marketCode }: { marketCode: string }) {
         <p className="text-sm text-muted-foreground">
           {rules.length} material rules for {marketCode}
         </p>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
@@ -524,7 +542,7 @@ function RulesTab({ marketCode }: { marketCode: string }) {
         <p className="text-sm text-muted-foreground py-10 text-center">
           No material rules configured for this market yet.
           {marketCode === "NG" &&
-            " (Nigeria uses existing calculator defaults — rules can override them)"}
+            " (Nigeria uses existing calculator defaults, rules can override them)"}
         </p>
       ) : (
         <div className="space-y-2">
@@ -557,7 +575,8 @@ function RulesTab({ marketCode }: { marketCode: string }) {
                   {JSON.stringify(r.rule_value, null, 2)}
                 </pre>
               </div>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={async () => {
                   await deleteMaterialRule(r.id);
                   load();
@@ -702,16 +721,18 @@ function RuleEditModal({
           />
         </div>
         <div className="mt-4 flex justify-end gap-2">
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
             Cancel
           </Button>
-          <Button variant="default"
+          <Button
+            variant="default"
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50"
           >
             {saving ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -751,7 +772,10 @@ function CalculatorsTab({ marketCode }: { marketCode: string }) {
   if (loading) {
     return (
       <div className="flex justify-center py-10">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
   }
@@ -787,7 +811,8 @@ function CalculatorsTab({ marketCode }: { marketCode: string }) {
                   {config ? `v${config.config_version}` : "No config"}
                 </p>
               </div>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={async () => {
                   await toggleCalculatorAvailability(
                     marketCode,
@@ -798,9 +823,7 @@ function CalculatorsTab({ marketCode }: { marketCode: string }) {
                 }}
                 className={classNames(
                   "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
-                  isAvailable
-                    ? "bg-primary"
-                    : "bg-muted dark:bg-white/10",
+                  isAvailable ? "bg-primary" : "bg-muted dark:bg-white/10",
                 )}
               >
                 <span

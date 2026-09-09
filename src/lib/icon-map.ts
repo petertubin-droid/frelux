@@ -1,6 +1,6 @@
 // Curated icon map for dynamic icon rendering from database values.
 // Instead of importing the entire lucide-react library (700KB+),
-// this maps string names to specific icon components — only the icons
+// this maps string names to specific icon components, only the icons
 // listed here are bundled.
 
 import {

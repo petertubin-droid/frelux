@@ -10,8 +10,8 @@
 // 5. Fallback: user can also verify manually via callback URL
 //
 // Requires env vars:
-// - VITE_PAYSTACK_PUBLIC_KEY — public key for frontend initialization
-// - PAYSTACK_SECRET_KEY — secret key (edge function / server only)
+// - VITE_PAYSTACK_PUBLIC_KEY, public key for frontend initialization
+// - PAYSTACK_SECRET_KEY, secret key (edge function / server only)
 // =========================================================
 
 import { supabase, isSupabaseConfigured } from '@/lib/supabase';

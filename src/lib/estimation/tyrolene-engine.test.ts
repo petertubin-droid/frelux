@@ -1,5 +1,5 @@
 /**
- * FRELUX Phase 3 — Tyrolene Estimation Engine Tests
+ * FRELUX Phase 3, Tyrolene Estimation Engine Tests
  *
  * Tests cover all 12 required test cases from the specification:
  * 1. 4 standard partitions → exact ratio
@@ -229,7 +229,7 @@ function makeInput(overrides: Partial<TyroleneProjectInput> = {}): TyroleneProje
 // Tests
 // =========================================================
 
-describe('Tyrolene Engine — parseMaterialRatio', () => {
+describe('Tyrolene Engine, parseMaterialRatio', () => {
   it('parses verified FRELUX ratio correctly', () => {
     const rule = makeCalcRule('material_ratio', VERIFIED_RATIO, 'verified_frelux');
     const ratio = parseMaterialRatio(rule);
@@ -250,7 +250,7 @@ describe('Tyrolene Engine — parseMaterialRatio', () => {
   });
 });
 
-describe('Tyrolene Engine — parseStandardPartition', () => {
+describe('Tyrolene Engine, parseStandardPartition', () => {
   it('parses configured dimensions', () => {
     const rule = makeCalcRule('standard_partition_dimensions', { width: 3, height: 3 }, 'admin_configured');
     const sp = parseStandardPartition(rule);
@@ -272,7 +272,7 @@ describe('Tyrolene Engine — parseStandardPartition', () => {
   });
 });
 
-describe('Tyrolene Engine — calculateTheoreticalMaterialQuantity', () => {
+describe('Tyrolene Engine, calculateTheoreticalMaterialQuantity', () => {
   // TEST 1: 4 standard partitions
   it('TEST 1: 4 standard partitions → exact ratio', () => {
     const ratio = parseMaterialRatio(makeCalcRule('material_ratio', VERIFIED_RATIO));
@@ -325,7 +325,7 @@ describe('Tyrolene Engine — calculateTheoreticalMaterialQuantity', () => {
   });
 });
 
-describe('Tyrolene Engine — calculatePartitionArea', () => {
+describe('Tyrolene Engine, calculatePartitionArea', () => {
   it('calculates area as width × height', () => {
     expect(calculatePartitionArea(3, 3)).toBe(9);
     expect(calculatePartitionArea(4, 2.5)).toBe(10);
@@ -337,7 +337,7 @@ describe('Tyrolene Engine — calculatePartitionArea', () => {
   });
 });
 
-describe('Tyrolene Engine — calculateStandardPartitionArea', () => {
+describe('Tyrolene Engine, calculateStandardPartitionArea', () => {
   it('calculates area when configured', () => {
     const area = calculateStandardPartitionArea({ width: 3, height: 3 });
     expect(area).toBe(9);
@@ -348,7 +348,7 @@ describe('Tyrolene Engine — calculateStandardPartitionArea', () => {
   });
 });
 
-describe('Tyrolene Engine — calculateEquivalentPartitions', () => {
+describe('Tyrolene Engine, calculateEquivalentPartitions', () => {
   // TEST 4: Actual partition dimensions
   it('TEST 4: actual partition dimensions → equivalent standard partitions', () => {
     const standardArea = 9; // 3m × 3m
@@ -389,7 +389,7 @@ describe('Tyrolene Engine — calculateEquivalentPartitions', () => {
   });
 });
 
-describe('Tyrolene Engine — calculateTyroleneProject', () => {
+describe('Tyrolene Engine, calculateTyroleneProject', () => {
   // TEST 1 (full): 4 standard partitions
   it('TEST 1 (full): 4 standard partitions → exact ratio with costs', () => {
     const result = calculateTyroleneProject(makeInput({ standard_partition_count: 4 }), makeConfig());
@@ -515,7 +515,7 @@ describe('Tyrolene Engine — calculateTyroleneProject', () => {
     expect(newResult.materials.find(m => m.material_slug === 'cement')!.unit_price).toBe(7000);
 
     // Old estimate's price snapshot should still show old price
-    // (The price_snapshot is stored on the estimate — this simulates that old estimates retain old prices)
+    // (The price_snapshot is stored on the estimate, this simulates that old estimates retain old prices)
     expect(oldResult.materials.find(m => m.material_slug === 'cement')!.unit_price).toBe(5000);
   });
 
@@ -687,7 +687,7 @@ describe('Tyrolene Engine — calculateTyroleneProject', () => {
   });
 });
 
-describe('Tyrolene Engine — Validation', () => {
+describe('Tyrolene Engine, Validation', () => {
   it('rejects negative partition count', () => {
     const result = calculateTyroleneProject(
       makeInput({ standard_partition_count: -5 }),
@@ -730,7 +730,7 @@ describe('Tyrolene Engine — Validation', () => {
   });
 });
 
-describe('Tyrolene Engine — Production Eligibility', () => {
+describe('Tyrolene Engine, Production Eligibility', () => {
   const productionRules: ProductionRuleRow[] = [
     { product_category: 'tyrolene', quality_slug: null, location_rule: 'owerri', min_quantity: 0, is_active: true },
   ];
@@ -772,7 +772,7 @@ describe('Tyrolene Engine — Production Eligibility', () => {
   });
 });
 
-describe('Tyrolene Engine — Calculation Steps & Transparency', () => {
+describe('Tyrolene Engine, Calculation Steps & Transparency', () => {
   it('generates calculation steps for transparency', () => {
     const result = calculateTyroleneProject(makeInput({ standard_partition_count: 4 }), makeConfig());
 
@@ -813,7 +813,7 @@ describe('Tyrolene Engine — Calculation Steps & Transparency', () => {
   });
 });
 
-describe('Tyrolene Engine — formatTyroleneCurrency', () => {
+describe('Tyrolene Engine, formatTyroleneCurrency', () => {
   it('formats NGN correctly', () => {
     expect(formatTyroleneCurrency(50000, 'NGN')).toBe('₦50,000');
   });

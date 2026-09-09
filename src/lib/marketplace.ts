@@ -1,4 +1,5 @@
 import { supabase } from '@/lib/supabase';
+import { assertNotPaused } from "@/lib/archie/trust-safety-client";
 import type {
   DbMarketplaceListing,
   DbMarketplaceBid,
@@ -90,6 +91,10 @@ export async function createListing(data: {
   latitude?: number;
   longitude?: number;
 }) {
+  // Trust & Safety enforcement: accounts under a temporary,
+  // owner-reviewable pause cannot create new listings.
+  const standing = await assertNotPaused(data.user_id);
+  if (!standing.ok) throw new Error(standing.error);
   const { data: result, error } = await supabase
     .from('marketplace_listings')
     .insert({

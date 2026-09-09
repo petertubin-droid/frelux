@@ -11,7 +11,7 @@
  * - Confidence assessment
  * - Rule traceability
  *
- * The report is a structured data object — the UI renders it as PDF,
+ * The report is a structured data object, the UI renders it as PDF,
  * HTML, or on-screen. The engine does NOT hardcode PDF formatting.
  *
  * Saved estimates remain reproducible through rule version references.

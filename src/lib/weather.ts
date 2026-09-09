@@ -67,7 +67,7 @@ export function usePaintingWeather(
         const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;
 
         if (!apiKey) {
-          // No API key — provide estimated seasonal data for the location
+          // No API key, provide estimated seasonal data for the location
           setData({
             city: location.name,
             days: generateEstimatedWeather(location),
@@ -191,7 +191,7 @@ function mapWeatherIcon(condition: string): string {
 }
 
 /**
- * Climate profile per zone — used by the offline seasonal estimator
+ * Climate profile per zone, used by the offline seasonal estimator
  * when no weather API key is configured.
  * Wet-season months are 0-indexed (Jan = 0).
  */
@@ -233,7 +233,7 @@ const CLIMATE_PROFILES: Record<WeatherLocation["climate"], ClimateProfile> = {
 /**
  * Generate estimated weather data for a location based on its climate
  * zone and the current season. This is a fallback when no API key is
- * configured — indicative only, not a live forecast.
+ * configured, indicative only, not a live forecast.
  */
 export function generateEstimatedWeather(
   location: WeatherLocation = DEFAULT_WEATHER_LOCATION,

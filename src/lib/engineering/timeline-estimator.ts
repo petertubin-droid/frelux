@@ -1,6 +1,6 @@
 // =========================================================
 // FRELUX Project Timeline Estimator
-// Engine — Phase 32
+// Engine, Phase 32
 //
 // Estimates construction project durations based on:
 // - Building type, size, and complexity
@@ -224,7 +224,7 @@ export function estimateTimeline(input: TimelineInput): TimelineResult {
       notes = 'Roofing work is significantly harder during rainy season.';
     }
     if (base.stage === 'walls' && input.number_of_floors > 1) {
-      notes = `Multi-storey (${input.number_of_floors} floors) — walls take proportionally longer.`;
+      notes = `Multi-storey (${input.number_of_floors} floors), walls take proportionally longer.`;
     }
 
     stages.push({
@@ -247,7 +247,7 @@ export function estimateTimeline(input: TimelineInput): TimelineResult {
     { label: 'Foundation Complete', after_days: stages.slice(0, 3).reduce((s, st) => s + st.estimated_days, 0), description: 'Foundation concrete and blockwork to DPC level' },
     { label: 'Ground Floor Cast', after_days: stages.slice(0, 4).reduce((s, st) => s + st.estimated_days, 0), description: 'Hardcore filling, compaction, and ground floor slab' },
     { label: 'Walls to Roof Level', after_days: stages.slice(0, 5).reduce((s, st) => s + st.estimated_days, 0), description: 'All blockwork, columns, and ring beams complete' },
-    { label: 'Roof On (Weathertight)', after_days: stages.slice(0, 6).reduce((s, st) => s + st.estimated_days, 0), description: 'Building is weathertight — interior work can begin' },
+    { label: 'Roof On (Weathertight)', after_days: stages.slice(0, 6).reduce((s, st) => s + st.estimated_days, 0), description: 'Building is weathertight, interior work can begin' },
   ];
 
   // Risks
@@ -263,7 +263,7 @@ export function estimateTimeline(input: TimelineInput): TimelineResult {
     risks.push('Small workforce may bottleneck critical stages');
   }
   if (input.complexity === 'complex' || input.complexity === 'high_end') {
-    risks.push('Complex designs require specialist tradesmen — may have scheduling constraints');
+    risks.push('Complex designs require specialist tradesmen, may have scheduling constraints');
   }
 
   // Recommendations
@@ -284,7 +284,7 @@ export function estimateTimeline(input: TimelineInput): TimelineResult {
     `Based on ${area.toFixed(0)} m² total floor area`,
     `Complexity: ${input.complexity}, Workforce: ${input.workforce}, Season: ${input.season}`,
     'Assumes continuous work (6-day weeks)',
-    'Excludes finishing stages (tiling, painting, fittings — estimate separately)',
+    'Excludes finishing stages (tiling, painting, fittings, estimate separately)',
     'Based on Nigerian construction productivity benchmarks',
   ];
 

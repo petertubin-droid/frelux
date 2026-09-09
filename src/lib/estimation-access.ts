@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX Premium Estimation — Access Control
+// FRELUX Premium Estimation, Access Control
 // Phase 31 / Phase 33
 //
 // Follows the same pattern as ai-access.ts:
@@ -8,7 +8,7 @@
 // - Usage is tracked server-side (edge function consumes on success)
 // - Client can only READ usage status (never write)
 //
-// Phase 33: Now checks user_paid_status for paid mode — a subscriber
+// Phase 33: Now checks user_paid_status for paid mode, a subscriber
 // with an active plan gets full access to all estimation features.
 // =========================================================
 
@@ -56,7 +56,7 @@ export async function fetchEstimationAccessConfig(): Promise<EstimationAccessCon
     .maybeSingle();
 
   if (error || !data) {
-    // Fallback defaults — feature disabled if not configured
+    // Fallback defaults, feature disabled if not configured
     return {
       enabled: false,
       accessMode: 'disabled',
@@ -85,7 +85,7 @@ export async function fetchEstimationAccessConfig(): Promise<EstimationAccessCon
   };
 }
 
-// ── Read usage status (read-only — server tracks consumption) ──
+// ── Read usage status (read-only, server tracks consumption) ──
 
 export async function getEstimationUsageStatus(
   config: EstimationAccessConfig,
@@ -128,7 +128,7 @@ export async function getEstimationUsageStatus(
 
 /**
  * Check if the user has an active paid subscription.
- * This is a client-side check — the edge function does the authoritative
+ * This is a client-side check, the edge function does the authoritative
  * server-side check using the service role key.
  */
 export function checkUserPaidStatus(paidStatus: DbUserPaidStatus | null): boolean {
@@ -161,7 +161,7 @@ export function checkEstimationAccess(
     return { allowed: true, reason: 'paid' };
   }
 
-  // Paid mode — requires subscription
+  // Paid mode, requires subscription
   if (config.accessMode === 'paid') {
     return config.paidEnabled
       ? { allowed: false, reason: 'not_subscribed', nextAction: 'paid' }
@@ -175,7 +175,7 @@ export function checkEstimationAccess(
       : { allowed: false, reason: 'limit_reached', nextAction: 'none' };
   }
 
-  // Rewarded mode — free uses then ad gate
+  // Rewarded mode, free uses then ad gate
   if (config.accessMode === 'rewarded') {
     if (usage.hasRemaining) return { allowed: true, reason: 'free' };
     return config.rewardedEnabled

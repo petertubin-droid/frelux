@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX Brand Studio — Core Library
+// FRELUX Brand Studio, Core Library
 //
 // Branding resolution, access control, and database queries.
 // Integrates with existing subscription, rewarded-ad, and
@@ -160,7 +160,7 @@ export function useBrandStudioAccess(): BrandStudioAccess {
   void paidStatus;
   void _isPaid;
   void _isAdmin;
-  // Access is determined dynamically — this hook returns a snapshot
+  // Access is determined dynamically, this hook returns a snapshot
   return {
     featureEnabled: false,
     hasPremium: false,
@@ -234,7 +234,7 @@ export async function resolveBrandStudioAccess(
 }
 
 // ───────────────────────────────────────────────────────
-// Branding resolution — the priority system
+// Branding resolution, the priority system
 // ───────────────────────────────────────────────────────
 
 /**
@@ -267,7 +267,7 @@ export async function resolveBranding(
         );
       }
     }
-    // Unlock without specific profile — use a basic branded template
+    // Unlock without specific profile, use a basic branded template
     return unlockedDefaultBranding(access.activeUnlock);
   }
 

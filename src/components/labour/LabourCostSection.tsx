@@ -44,7 +44,7 @@ export function useLabourConfig(estimatorKey: LabourEstimatorKey) {
     (async () => {
       const settings = await fetchLabourSettings(estimatorKey);
       if (cancelled) return;
-      // Preserve user's includeLabour choice — the async fetch should only
+      // Preserve user's includeLabour choice, the async fetch should only
       // update pricing method and suggested rates, not the toggle state.
       // This fixes the bug where the toggle appears "on" but resets on click.
       setConfig((prev) => ({
@@ -166,16 +166,16 @@ export default function LabourCostSection({
                   type="button"
                   onClick={() => update({ pricingMethod: method })}
                   className={classNames(
-                    "rounded-lg border p-3 text-left transition-all",
+                    "min-w-0 rounded-lg border p-3 text-left transition-all",
                     config.pricingMethod === method
                       ? "border-brand-purple bg-primary/5"
                       : "border-border hover:border-border dark:border-border border-border dark:hover:border-border",
                   )}
                 >
-                  <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
+                  <span className="block whitespace-normal break-words text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
                     {PRICING_METHOD_LABELS[method]}
                   </span>
-                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                  <span className="mt-0.5 block whitespace-normal break-words text-xs text-muted-foreground">
                     {PRICING_METHOD_DESCRIPTIONS[method]}
                   </span>
                 </Button>
@@ -216,7 +216,7 @@ export default function LabourCostSection({
           )}
 
           {/* Method-specific inputs */}
-          <div className="rounded-lg bg-muted/50 p-4 dark:bg-card-foreground/50">
+          <div className="rounded-lg bg-muted/50 p-4 dark:bg-white/5">
             {config.pricingMethod === "fixed" && (
               <Field
                 label={`Fixed Labour Cost (${currencySymbol})`}
@@ -261,7 +261,7 @@ export default function LabourCostSection({
                     min={0}
                     value={area ? area.toFixed(2) : ""}
                     readOnly
-                    className="input-field bg-muted dark:bg-card-foreground/80"
+                    className="input-field bg-muted dark:bg-muted"
                     placeholder="0"
                   />
                 </Field>
@@ -367,10 +367,10 @@ function Toggle({
   checked: boolean;
   onChange: (v: boolean) => void;
 }) {
-  // Plain native <button> — deliberately NOT wrapping shadcn's <Button>.
+  // Plain native <button>, deliberately NOT wrapping shadcn's <Button>.
   // Button's `ghost` variant adds `hover:bg-accent`, and on touch devices
   // that hover state gets "stuck" after a tap until the next tap
-  // elsewhere on the page — which masked the checked-state color change
+  // elsewhere on the page, which masked the checked-state color change
   // until the user touched something else. A bare switch pill has no
   // legitimate use for Button's hover/focus/sizing behavior anyway.
   return (
@@ -382,14 +382,14 @@ function Toggle({
         "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border-0 p-0 transition-colors duration-300",
         checked
           ? "bg-accent-green shadow-sm shadow-accent-green/30"
-          : "bg-muted dark:bg-card-foreground/80",
+          : "bg-muted dark:bg-white/10",
       )}
       aria-checked={checked}
       aria-label="Include labour cost"
     >
       <span
         className={classNames(
-          "inline-block h-5 w-5 translate-x-0.5 rounded-full bg-card shadow-md transition-transform duration-300 ease-out",
+          "inline-block h-5 w-5 translate-x-0.5 rounded-full bg-card shadow-md transition-transform duration-300 ease-out dark:bg-white/90",
           checked && "translate-x-5",
         )}
       />

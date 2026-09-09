@@ -87,14 +87,15 @@ export function RewardedFeatureGate({
               </div>
             ))}
           </div>
-          <Button variant="default"
+          <Button
+            variant="default"
             type="button"
             onClick={access.requestUnlock}
             disabled={
               !access.config?.is_enabled ||
               (!access.primaryProvider && !access.fallbackProvider)
             }
-            className="mt-5 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-colors hover:/90 disabled:opacity-50"
+            className="mt-5 inline-flex items-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
             <Lock aria-hidden="true" className="h-4 w-4" />
             Watch Ad to Unlock Advanced Calculator

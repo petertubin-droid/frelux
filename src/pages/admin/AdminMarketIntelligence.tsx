@@ -1,10 +1,10 @@
 /**
- * FRELUX Admin — Market Intelligence Dashboard
+ * FRELUX Admin, Market Intelligence Dashboard
  *
  * Manages the price intelligence engine: providers, sources, price observations,
  * approved prices, anomalies, and crawl logs.
  *
- * This is purely additive — does not modify any existing admin pages.
+ * This is purely additive, does not modify any existing admin pages.
  */
 
 import { useEffect, useState, useCallback } from "react";
@@ -95,7 +95,8 @@ export default function AdminMarketIntelligence() {
             ["logs", "Activity Logs", Activity],
           ] as const
         ).map(([key, label, Icon]) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={key}
             onClick={() => setTab(key)}
             className={classNames(
@@ -155,7 +156,10 @@ function ObservationsTab() {
   if (loading)
     return (
       <div className="flex justify-center py-10">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
 
@@ -181,7 +185,8 @@ function ObservationsTab() {
             {observations.length} observations
           </span>
         </div>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => setShowManual(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
@@ -231,7 +236,7 @@ function ObservationsTab() {
                   <td className="py-2 pr-3 text-xs text-muted-foreground">
                     {obs.package_size
                       ? `${obs.package_size} ${obs.package_unit ?? ""}`
-                      : "—"}
+                      : ""}
                   </td>
                   <td className="py-2 pr-3 text-xs">
                     {obs.country_code}
@@ -250,7 +255,8 @@ function ObservationsTab() {
                     {obs.validation_status === "review_required" ||
                     obs.validation_status === "collected" ? (
                       <div className="flex gap-1">
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           onClick={async () => {
                             await updateObservationStatus(
                               obs.id,
@@ -265,7 +271,8 @@ function ObservationsTab() {
                         >
                           <Check aria-hidden="true" className="h-3.5 w-3.5" />
                         </Button>
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           onClick={async () => {
                             await updateObservationStatus(
                               obs.id,
@@ -283,7 +290,7 @@ function ObservationsTab() {
                       </div>
                     ) : (
                       <span className="text-xs text-muted-foreground">
-                        {obs.review_action ?? "—"}
+                        {obs.review_action ?? ""}
                       </span>
                     )}
                   </td>
@@ -324,14 +331,17 @@ function ApprovedTab() {
   if (loading)
     return (
       <div className="flex justify-center py-10">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
 
   return (
     <div>
       <p className="mb-4 text-sm text-muted-foreground">
-        {prices.length} approved prices — these are what calculators consume.
+        {prices.length} approved prices, these are what calculators consume.
       </p>
       {prices.length === 0 ? (
         <p className="py-10 text-center text-sm text-muted-foreground">
@@ -389,7 +399,8 @@ function ApprovedTab() {
                 <span className="text-xs text-muted-foreground">
                   Updated {new Date(p.last_updated).toLocaleDateString()}
                 </span>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={async () => {
                     await deactivateApprovedPrice(p.id);
                     setPrices(prices.filter((x) => x.id !== p.id));
@@ -460,7 +471,10 @@ function SourcesTab() {
   if (loading)
     return (
       <div className="flex justify-center py-10">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
 
@@ -470,7 +484,8 @@ function SourcesTab() {
         <p className="text-sm text-muted-foreground">
           {sources.length} sources registered
         </p>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => setShowNew(true)}
           className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
@@ -480,7 +495,10 @@ function SourcesTab() {
 
       {sources.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border p-8 text-center dark:border-white/10">
-          <Globe aria-hidden="true" className="mx-auto mb-3 h-8 w-8 text-muted-foreground/80" />
+          <Globe
+            aria-hidden="true"
+            className="mx-auto mb-3 h-8 w-8 text-muted-foreground/80"
+          />
           <p className="text-sm font-medium text-muted-foreground">
             No sources registered yet
           </p>
@@ -532,7 +550,9 @@ function SourcesTab() {
                   <span
                     className={classNames(
                       "text-xs",
-                      s.is_active ? "text-emerald-600" : "text-muted-foreground",
+                      s.is_active
+                        ? "text-emerald-600"
+                        : "text-muted-foreground",
                     )}
                   >
                     {s.is_active ? "Active" : "Inactive"}
@@ -543,19 +563,25 @@ function SourcesTab() {
                 <div className="mt-2 flex items-center gap-2 border-t border-border/50 pt-2 dark:border-white/5">
                   {crawling === s.id ? (
                     <span className="inline-flex items-center gap-1.5 text-xs text-brand-purple">
-                      <Loader2 aria-hidden="true" className="h-3.5 w-3.5 animate-spin" />{" "}
+                      <Loader2
+                        aria-hidden="true"
+                        className="h-3.5 w-3.5 animate-spin"
+                      />{" "}
                       Crawling...
                     </span>
                   ) : (
                     <>
-                      <Button variant="ghost"
+                      <Button
+                        variant="ghost"
                         onClick={() => handleCrawl(s, "test")}
                         className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-600 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400"
                         title="Fetch and extract without publishing prices"
                       >
-                        <Eye aria-hidden="true" className="h-3 w-3" /> Test Crawl
+                        <Eye aria-hidden="true" className="h-3 w-3" /> Test
+                        Crawl
                       </Button>
-                      <Button variant="ghost"
+                      <Button
+                        variant="ghost"
                         onClick={() => handleCrawl(s, "production")}
                         className="inline-flex items-center gap-1 rounded-md bg-primary px-2 py-1 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
                         title="Full crawl with price observation creation"
@@ -564,7 +590,8 @@ function SourcesTab() {
                       </Button>
                     </>
                   )}
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={async () => {
                       await deleteSource(s.id);
                       load();
@@ -625,7 +652,8 @@ function CrawlReportModal({
           <h2 className="text-lg font-bold text-foreground dark:text-primary-foreground">
             Crawl Report
           </h2>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={onClose}
             className="text-muted-foreground hover:text-muted-foreground"
           >
@@ -714,7 +742,8 @@ function CrawlReportModal({
           </div>
         )}
         <div className="mt-4 flex justify-end">
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
@@ -883,16 +912,18 @@ function SourceEditModal({
           Active source
         </label>
         <div className="mt-4 flex justify-end gap-2">
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
             Cancel
           </Button>
-          <Button variant="default"
+          <Button
+            variant="default"
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50"
           >
             {saving ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
@@ -924,7 +955,10 @@ function ProvidersTab() {
   if (loading)
     return (
       <div className="flex justify-center py-10">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
 
@@ -972,7 +1006,8 @@ function ProvidersTab() {
                 </div>
               </div>
             </div>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={async () => {
                 await toggleProvider(p.id, !p.is_enabled);
                 setProviders(
@@ -983,9 +1018,7 @@ function ProvidersTab() {
               }}
               className={classNames(
                 "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
-                p.is_enabled
-                  ? "bg-primary"
-                  : "bg-muted dark:bg-white/10",
+                p.is_enabled ? "bg-primary" : "bg-muted dark:bg-white/10",
               )}
             >
               <span
@@ -1028,7 +1061,10 @@ function AnomaliesTab() {
   if (loading)
     return (
       <div className="flex justify-center py-10">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
 
@@ -1071,11 +1107,14 @@ function AnomaliesTab() {
                 </span>
               </div>
               {a.description && (
-                <p className="mt-1 text-xs text-muted-foreground">{a.description}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {a.description}
+                </p>
               )}
               {a.resolution === "open" && (
                 <div className="mt-2 flex gap-2">
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={async () => {
                       await resolveAnomaly(a.id, "resolved", user?.id ?? "");
                       load();
@@ -1084,7 +1123,8 @@ function AnomaliesTab() {
                   >
                     Resolve
                   </Button>
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={async () => {
                       await resolveAnomaly(a.id, "dismissed", user?.id ?? "");
                       load();
@@ -1120,7 +1160,10 @@ function LogsTab() {
   if (loading)
     return (
       <div className="flex justify-center py-10">
-        <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+        <Loader2
+          aria-hidden="true"
+          className="h-6 w-6 animate-spin text-brand-purple"
+        />
       </div>
     );
 
@@ -1319,16 +1362,18 @@ function ManualEntryModal({
           />
         </div>
         <div className="mt-4 flex justify-end gap-2">
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={onClose}
             className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
           >
             Cancel
           </Button>
-          <Button variant="default"
+          <Button
+            variant="default"
             onClick={handleSave}
             disabled={saving || !form.normalized_name || !form.price}
-            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:/90 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold hover:bg-primary/90 disabled:opacity-50"
           >
             {saving ? (
               <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />

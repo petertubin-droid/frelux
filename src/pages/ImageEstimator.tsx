@@ -4,6 +4,7 @@ import { useSeo } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { trackAiPhotoEstimatorRewards } from "@/lib/rewards-integration";
 import { supabase } from "@/lib/supabase";
+import { recordExtractionCorrection } from "@/lib/learning/learning-client";
 import {
   ImagePlus,
   Zap,
@@ -93,9 +94,9 @@ function AiFeatureSlide() {
 
 export default function ImageEstimator() {
   useSeo({
-    title: "AI Photo Estimator — AI-Assisted Preliminary Estimation | FRELUX",
+    title: "AI Photo Estimator, AI-Assisted Preliminary Estimation | FRELUX",
     description:
-      "Upload a photo of any building for AI-assisted preliminary construction estimation. AI analyzes visible features to suggest dimensions and materials. Results are preliminary — verify with actual drawings and a qualified professional.",
+      "Upload a photo of any building for AI-assisted preliminary construction estimation. AI analyzes visible features to suggest dimensions and materials. Results are preliminary, verify with actual drawings and a qualified professional.",
     keywords:
       "AI building estimator, photo to construction cost, building image analysis, Nigerian construction AI",
   });
@@ -207,7 +208,7 @@ export default function ImageEstimator() {
       const resizedImage = await resizeImage(imageDataUrl);
       const clientId =
         localStorage.getItem("frelux_estimation_client_id") || "unknown";
-      // The rewarded-unlock client hash — the edge function checks this
+      // The rewarded-unlock client hash, the edge function checks this
       // against rewarded_unlock_log so an active ad unlock bypasses the
       // daily usage limit.
       const clientHash =
@@ -227,7 +228,7 @@ export default function ImageEstimator() {
       );
 
       if (fnError || !data) {
-        // Edge function not deployed — fallback to manual mode
+        // Edge function not deployed, fallback to manual mode
         setError(
           "The AI vision service is not yet deployed. You can still use the manual Build-to-Roof Estimator.",
         );
@@ -263,6 +264,9 @@ export default function ImageEstimator() {
       const aiInput = data.estimateInput as BuildToRoofInput;
       setAnalysis(aiAnalysis);
       setEstimateInput(aiInput);
+      // PHASE 6.5, keep the pristine AI extraction so user adjustments can
+      // be recorded as Gemini learning events (AI value vs USER value).
+      aiOriginalInput.current = aiInput;
       setSavedId(data.savedId ?? null);
       setPhase("review");
     } catch (err) {
@@ -272,9 +276,37 @@ export default function ImageEstimator() {
     }
   }, [imageDataUrl, projectName, location, resizeImage]);
 
+  // PHASE 6.5, pristine Gemini extraction for correction learning.
+  const aiOriginalInput = useRef<BuildToRoofInput | null>(null);
+
   // ── Generate estimate from review ──
   const generateEstimate = useCallback(() => {
     if (!estimateInput) return;
+    // PHASE 6.5, Gemini learning: every adjusted field becomes a learning
+    // event (AI value vs USER value). Repeated verified corrections may
+    // produce a DRAFT improvement proposal; extraction logic itself never
+    // changes automatically.
+    const original = aiOriginalInput.current;
+    if (original) {
+      for (const key of Object.keys(original) as Array<
+        keyof BuildToRoofInput
+      >) {
+        const aiValue = original[key];
+        const userValue = estimateInput[key];
+        if (
+          typeof aiValue === "number" &&
+          typeof userValue === "number" &&
+          aiValue !== userValue
+        ) {
+          recordExtractionCorrection({
+            field: String(key),
+            aiValue,
+            userValue,
+            metadata: { origin: "ai-photo-estimator" },
+          }).catch(() => {});
+        }
+      }
+    }
     const result = monitoredCalc("AI Photo Estimator", () =>
       calculateBuildToRoof(estimateInput),
     );
@@ -317,7 +349,7 @@ export default function ImageEstimator() {
   return (
     <div className="min-h-screen bg-muted/50">
       {/* Premium Header */}
-      <div className="relative overflow-hidden bg-background text-primary-foreground">
+      <div className="relative overflow-hidden bg-brand-navy text-primary-foreground">
         <div
           className="absolute inset-0 animate-mesh-float"
           style={{
@@ -456,7 +488,7 @@ export default function ImageEstimator() {
                     dimensions, roof type, and building type. You can review and
                     adjust the AI's estimates before generating a cost
                     breakdown. This is an{" "}
-                    <strong>AI-assisted preliminary estimate</strong> — a
+                    <strong>AI-assisted preliminary estimate</strong>, a
                     photograph cannot determine hidden construction conditions,
                     exact dimensions, or structural integrity. Always verify
                     with actual drawings, site measurements, and a qualified
@@ -467,7 +499,7 @@ export default function ImageEstimator() {
                 <Button
                   variant="ghost"
                   onClick={runEstimation}
-                  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-primary-foreground -green/90 transition-colors"
+                  className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-primary-foreground hover:bg-accent-green/90 transition-colors"
                 >
                   <Zap className="w-4 h-4" />
                   Analyze Building & Generate Estimate
@@ -736,8 +768,8 @@ export default function ImageEstimator() {
                   </div>
                   {!analysis.validation_passed && (
                     <p className="mt-2 text-xs text-red-500">
-                      ⚠ Some AI parameters failed validation — verify
-                      highlighted values before generating estimate.
+                      ⚠ Some AI parameters failed validation, verify highlighted
+                      values before generating estimate.
                     </p>
                   )}
                 </div>
@@ -768,7 +800,7 @@ export default function ImageEstimator() {
               <Button
                 variant="ghost"
                 onClick={generateEstimate}
-                className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-primary-foreground -green/90 transition-colors"
+                className="mt-6 w-full inline-flex items-center justify-center gap-2 rounded-lg bg-accent-green px-6 py-3.5 text-sm font-bold text-primary-foreground hover:bg-accent-green/90 transition-colors"
               >
                 <TrendingUp className="w-4 h-4" />
                 Generate Full Cost Estimate
@@ -828,9 +860,9 @@ export default function ImageEstimator() {
         ]}
       />{" "}
       <AdSlot slotKey="ai_feature" className="mt-8" />
-      {/* Native banner slot — placement "image_estimator_native" */}
+      {/* Native banner slot, placement "image_estimator_native" */}
       <AdSlot slotKey="image_estimator_native" className="mt-8" />
-      {/* Ad slot — placement "image_estimator_bottom" */}
+      {/* Ad slot, placement "image_estimator_bottom" */}
       <AdSlot slotKey="image_estimator_bottom" className="mt-8" />
     </div>
   );
@@ -889,7 +921,7 @@ function LockedView({
         </p>
 
         {config?.paidEnabled && config.paidPrice > 0 && (
-          <div className="rounded-xl bg-background p-6 text-primary-foreground mb-6">
+          <div className="rounded-xl bg-brand-navy p-6 text-primary-foreground mb-6">
             <div className="flex justify-center mb-2">
               <PremiumBadge size="md" glow />
             </div>
@@ -915,7 +947,7 @@ function LockedView({
                 type="button"
                 onClick={rewarded.requestUnlock}
                 disabled={rewarded.adLoading || !adFlowReady}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-medium hover:/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-medium hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {rewarded.adLoading ? (
                   <>
@@ -962,7 +994,7 @@ function LockedView({
         {"nextAction" in decision && decision.nextAction === "paid" && (
           <Button
             variant="default"
-            className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-medium hover:/90"
+            className="w-full inline-flex items-center justify-center gap-2 rounded-lg px-6 py-3 text-sm font-medium hover:bg-primary/90"
           >
             <PremiumBadge size="xs" />
             Upgrade
@@ -1047,16 +1079,15 @@ function EstimateResultView({
         )}
         <p className="mt-3 text-xs text-muted-foreground">
           These are preliminary estimates derived from photo analysis and your
-          adjustments — not a structural or geotechnical design. Final
-          quantities and safety requirements must come from a qualified
-          structural engineer working from actual drawings and site
-          investigations.
+          adjustments, not a structural or geotechnical design. Final quantities
+          and safety requirements must come from a qualified structural engineer
+          working from actual drawings and site investigations.
         </p>
       </div>
 
       {/* Grand total */}
       <div className="grid md:grid-cols-4 gap-4">
-        <div className="rounded-2xl border border-border bg-background p-6 text-primary-foreground">
+        <div className="rounded-2xl border border-border bg-brand-navy p-6 text-primary-foreground">
           <p className="text-xs text-primary-foreground/60 mb-1">
             Estimated Build-to-Roof Cost
           </p>
@@ -1217,7 +1248,7 @@ function EstimateResultView({
             <PremiumFeatureGate
               featureKey="pdf_export"
               featureName="PDF Export"
-              description="Print or export your estimate as PDF. One-time use — unlock each export."
+              description="Print or export your estimate as PDF. One-time use, unlock each export."
               onUnlock={() => {
                 setPdfUnlocked(true);
                 setPdfGateOpen(false);

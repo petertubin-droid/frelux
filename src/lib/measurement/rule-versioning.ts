@@ -8,7 +8,7 @@
  * Existing calculations remain reproducible.
  *
  * A rule version history tracks all versions of a rule.
- * When a rule is updated, a new version is created — the old version
+ * When a rule is updated, a new version is created, the old version
  * is deprecated but NOT deleted.
  *
  * Saved estimates reference the specific rule version that produced them,
@@ -100,7 +100,7 @@ export function registerInitialVersion(
 
 /**
  * Create a new version of an existing rule.
- * The old version is NOT deleted — it's retained for reproducibility.
+ * The old version is NOT deleted, it's retained for reproducibility.
  *
  * @param registry - The version registry
  * @param baseRuleId - The stable rule ID
@@ -118,7 +118,7 @@ export function createNewVersion(
 ): RuleVersionRegistry {
   const history = registry.histories.get(baseRuleId);
   if (!history) {
-    // No existing history — register as initial version
+    // No existing history, register as initial version
     return registerInitialVersion(registry, updatedRule, versionedBy, changeReason);
   }
 

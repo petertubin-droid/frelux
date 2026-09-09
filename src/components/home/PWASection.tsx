@@ -7,7 +7,7 @@ export default function PWASection() {
   const { ref, isVisible } = useScrollReveal<HTMLDivElement>();
 
   return (
-    <section className="relative overflow-hidden bg-background py-20 text-primary-foreground sm:py-24 bg-noise">
+    <section className="relative overflow-hidden bg-brand-navy py-20 text-primary-foreground sm:py-24 bg-noise">
       {/* Grid pattern */}
       <div className="pointer-events-none absolute inset-0 bg-grid-dark opacity-30" aria-hidden="true" />
       <div className="pointer-events-none absolute left-1/3 top-0 h-[400px] w-[600px] -translate-x-1/2 rounded-full bg-primary/15 blur-[140px] animate-gradient-pulse" aria-hidden="true" />
@@ -91,9 +91,9 @@ export default function PWASection() {
           >
             <div className="relative mx-auto w-[260px]">
               {/* Phone frame */}
-              <div className="relative overflow-hidden rounded-[2.5rem] border-[10px] border-border bg-card shadow-premium-lg dark:border-border border-border">
+              <div className="relative overflow-hidden rounded-[2.5rem] border-[10px] border-white/10 bg-brand-navy-mid shadow-premium-lg">
                 {/* Notch */}
-                <div className="absolute left-1/2 top-0 z-10 h-6 w-32 -translate-x-1/2 rounded-b-2xl bg-card-foreground/90 dark:bg-card-foreground/80" />
+                <div className="absolute left-1/2 top-0 z-10 h-6 w-32 -translate-x-1/2 rounded-b-2xl bg-white/90" />
 
                 {/* Screen content */}
                 <div className="h-[480px] overflow-y-auto p-4 pt-8 scrollbar-hide">

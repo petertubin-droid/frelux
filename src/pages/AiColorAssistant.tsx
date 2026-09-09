@@ -203,7 +203,7 @@ export default function AiColorAssistant() {
         ]}
       />{" "}
       <AdSlot slotKey="ai_feature" className="mt-8" />
-      {/* Native banner slot — placement "ai_assistant_native" */}
+      {/* Native banner slot, placement "ai_assistant_native" */}
       <AdSlot slotKey="ai_assistant_native" className="mt-8" />
       <AdSlot slotKey="ai_assistant_footer" className="mt-8" />
     </>
@@ -409,7 +409,7 @@ function AccessGate({
                 variant="ghost"
                 type="button"
                 onClick={onRewarded}
-                className="mt-3 inline-flex items-center gap-2 rounded-lg border border-accent-orange/30 bg-card px-4 py-2 dark:border-accent-orange/30 dark:bg-card text-sm font-semibold text-accent-orange -orange/5"
+                className="mt-3 inline-flex items-center gap-2 rounded-lg border border-accent-orange/30 bg-card px-4 py-2 dark:border-accent-orange/30 dark:bg-card text-sm font-semibold text-accent-orange hover:bg-accent-orange/5"
               >
                 <Gift className="h-4 w-4" />
                 Unlock with rewarded access
@@ -1113,7 +1113,7 @@ function ResultPanel({
   // Success
   return (
     <div className="card sticky top-20 overflow-hidden">
-      <div className="bg-background p-5 text-primary-foreground">
+      <div className="bg-brand-navy p-5 text-primary-foreground">
         <div className="flex items-center gap-2 text-accent-green">
           <CheckCircle2 className="h-5 w-5" />
           <span className="text-xs font-semibold uppercase tracking-widest">

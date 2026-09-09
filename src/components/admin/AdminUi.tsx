@@ -53,6 +53,7 @@ export function AdminButton({
   type = "button",
   disabled,
   className,
+  title,
 }: {
   children: ReactNode;
   onClick?: () => void;
@@ -60,6 +61,7 @@ export function AdminButton({
   type?: "button" | "submit";
   disabled?: boolean;
   className?: string;
+  title?: string;
 }) {
   const base =
     "inline-flex items-center justify-center gap-1.5 px-3 py-1.5 text-sm font-semibold rounded-lg transition-all active:scale-95 disabled:opacity-50";
@@ -77,6 +79,7 @@ export function AdminButton({
       type={type}
       onClick={onClick}
       disabled={disabled}
+      title={title}
       className={classNames(base, variants[variant], className)}
     >
       {children}
@@ -163,7 +166,7 @@ export function AdminField({
 }
 
 // =========================================================
-// CollapsibleGroup — used to break long flat admin lists
+// CollapsibleGroup, used to break long flat admin lists
 // (colors, materials, products, …) into organized, collapsible
 // sections grouped by category/family instead of one endless scroll.
 // =========================================================
@@ -263,7 +266,7 @@ export function GroupControls({
 }
 
 // =========================================================
-// AdminInput / AdminTextarea — shadcn-based form controls
+// AdminInput / AdminTextarea, shadcn-based form controls
 // with FRELUX dark-mode styling baked in. Drop-in replacement
 // for the old `input-field` CSS class pattern.
 // =========================================================
@@ -303,7 +306,7 @@ export function AdminTextarea({
 }
 
 // =========================================================
-// AdminSelect — native <select> with FRELUX dark-mode styling.
+// AdminSelect, native <select> with FRELUX dark-mode styling.
 // shadcn-compatible border/ring tokens. Drop-in replacement
 // for the old input-field CSS class on <select> elements.
 // =========================================================
@@ -331,7 +334,7 @@ export function AdminSelect({
 }
 
 // =========================================================
-// AdminIconButton — compact icon-only action button for
+// AdminIconButton, compact icon-only action button for
 // edit/delete/move/close patterns. Two variants: ghost (neutral)
 // and danger (red for delete actions).
 // =========================================================
@@ -344,6 +347,7 @@ export function AdminIconButton({
   disabled,
   className,
   title,
+  "aria-label": ariaLabel,
 }: {
   children: ReactNode;
   onClick?: () => void;
@@ -352,6 +356,7 @@ export function AdminIconButton({
   disabled?: boolean;
   className?: string;
   title?: string;
+  "aria-label"?: string;
 }) {
   const base =
     "inline-flex items-center justify-center rounded-md p-1 transition-all active:scale-95 disabled:opacity-50";
@@ -367,6 +372,7 @@ export function AdminIconButton({
       onClick={onClick}
       disabled={disabled}
       title={title}
+      aria-label={ariaLabel}
       className={classNames(base, variants[variant], className)}
     >
       {children}
@@ -375,11 +381,11 @@ export function AdminIconButton({
 }
 
 // =========================================================
-// AdminTabButton — tab/filter selector with active/inactive
+// AdminTabButton, tab/filter selector with active/inactive
 // states. Three variants:
-//   underline — bottom-border tab (default, classic tab bar)
-//   pill      — rounded bordered pill (icon + label tabs)
-//   filter    — solid/outline filter chip (severity filters)
+//   underline, bottom-border tab (default, classic tab bar)
+//   pill     , rounded bordered pill (icon + label tabs)
+//   filter   , solid/outline filter chip (severity filters)
 // =========================================================
 
 export function AdminTabButton({
@@ -413,7 +419,7 @@ export function AdminTabButton({
     filter: {
       base: "rounded-lg px-3 py-1.5 capitalize",
       active:
-        "bg-background text-primary-foreground dark:bg-white dark:text-foreground",
+        "bg-foreground text-background",
       inactive:
         "bg-card border border-border text-muted-foreground hover:bg-muted/50 dark:bg-white/5 dark:border-white/10 dark:text-muted-foreground",
     },

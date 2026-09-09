@@ -7,7 +7,7 @@ const SentryRoutes = isSentryActive()
   ? Sentry.withSentryReactRouterV7Routing(Routes)
   : Routes;
 import { useEffect, lazy, Suspense } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
 import { MarketProvider } from "@/lib/international/market-context";
@@ -51,6 +51,7 @@ const FinishingCalculatorHub = lazy(
 );
 const Calculators = lazy(() => import("@/pages/Calculators"));
 const AiColorAssistant = lazy(() => import("@/pages/AiColorAssistant"));
+const Assistant = lazy(() => import("@/pages/Assistant"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const About = lazy(() => import("@/pages/legal/About"));
 const PrivacyPolicy = lazy(() => import("@/pages/legal/PrivacyPolicy"));
@@ -58,6 +59,7 @@ const Terms = lazy(() => import("@/pages/legal/Terms"));
 const CookiePolicy = lazy(() => import("@/pages/legal/CookiePolicy"));
 const Disclaimer = lazy(() => import("@/pages/legal/Disclaimer"));
 const AiDisclaimer = lazy(() => import("@/pages/legal/AiDisclaimer"));
+const DeveloperPortal = lazy(() => import("@/pages/DeveloperPortal"));
 const LearnCategory = lazy(() => import("@/pages/learn/LearnCategory"));
 const LearnArticle = lazy(() => import("@/pages/learn/LearnArticle"));
 const PaintColorDetail = lazy(() => import("@/pages/PaintColorDetail"));
@@ -100,10 +102,23 @@ const AdminQuotationSettings = lazy(
   () => import("@/pages/admin/AdminQuotationSettings"),
 );
 
-// Admin pages — all lazy-loaded to keep the public bundle small
+// Admin pages, all lazy-loaded to keep the public bundle small
+const AdminApiKeys = lazy(() => import("@/pages/admin/AdminApiKeys"));
 const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 const AdminLayout = lazy(() => import("@/components/admin/AdminLayout"));
 const RequireAdmin = lazy(() => import("@/components/admin/RequireAdmin"));
+
+// ARCHIE Owner PWA (Stage 1) — independent shell, Owner-only
+const ArchieLayout = lazy(() => import("@/components/archie/ArchieLayout"));
+const ArchieChat = lazy(() => import("@/pages/archie/ArchieChat"));
+const ArchieControl = lazy(() => import("@/pages/archie/ArchieControl"));
+const ArchieKnowledge = lazy(() => import("@/pages/archie/ArchieKnowledge"));
+const ArchieLearning = lazy(() => import("@/pages/archie/ArchieLearning"));
+const ArchieDevices = lazy(() => import("@/pages/archie/ArchieDevices"));
+const ArchiePeople = lazy(() => import("@/pages/archie/ArchiePeople"));
+const ArchieShared = lazy(() => import("@/pages/archie/ArchieShared"));
+const ArchieSecurity = lazy(() => import("@/pages/archie/ArchieSecurity"));
+const ArchieSystem = lazy(() => import("@/pages/archie/ArchieSystem"));
 const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"));
 const AdminAIAssistant = lazy(() => import("@/pages/admin/AdminAIAssistant"));
 const AdminEstimationConfig = lazy(
@@ -120,6 +135,15 @@ const AdminEstimationPricing = lazy(
 );
 const AdminEstimationEstimates = lazy(
   () => import("@/pages/admin/AdminEstimationEstimates"),
+);
+const AdminLearningReview = lazy(
+  () => import("@/pages/admin/AdminLearningReview"),
+);
+const AdminIntelligenceSources = lazy(
+  () => import("@/pages/admin/AdminIntelligenceSources"),
+);
+const AdminIntelligenceDashboard = lazy(
+  () => import("@/pages/admin/AdminIntelligenceDashboard"),
 );
 const AdminEstimationAudit = lazy(
   () => import("@/pages/admin/AdminEstimationAudit"),
@@ -146,6 +170,9 @@ const AdminContactMessages = lazy(
   () => import("@/pages/admin/AdminContactMessages"),
 );
 const AdminAnalytics = lazy(() => import("@/pages/admin/AdminAnalytics"));
+const AdminSocialBrandCenter = lazy(
+  () => import("@/pages/admin/AdminSocialBrandCenter"),
+);
 const AdminAiMonetization = lazy(
   () => import("@/pages/admin/AdminAiMonetization"),
 );
@@ -167,6 +194,20 @@ const AdminMarketIntelligence = lazy(
 const AdminEngineConfig = lazy(() => import("@/pages/admin/AdminEngineConfig"));
 const AdminAiLearningAssistant = lazy(
   () => import("@/pages/admin/AdminAiLearningAssistant"),
+);
+const AdminArchieTraining = lazy(
+  () => import("@/pages/admin/AdminArchieTraining"),
+);
+const AdminArchieVoice = lazy(() => import("@/pages/admin/AdminArchieVoice"));
+const AdminArchieOps = lazy(() => import("@/pages/admin/AdminArchieOps"));
+const AdminArchieTerminology = lazy(
+  () => import("@/pages/admin/AdminArchieTerminology"),
+);
+const AdminArchieEvolution = lazy(
+  () => import("@/pages/admin/AdminArchieEvolution"),
+);
+const AdminConstructionDictionary = lazy(
+  () => import("@/pages/admin/AdminConstructionDictionary"),
 );
 const AdminPopMaterials = lazy(() => import("@/pages/admin/AdminPopMaterials"));
 const AdminTypography = lazy(() => import("@/pages/admin/AdminTypography"));
@@ -202,7 +243,7 @@ const StudioOverview = lazy(() => import("@/pages/studio/StudioOverview"));
 const StudioTool = lazy(() => import("@/pages/studio/StudioTool"));
 const ErrorAnalysis = lazy(() => import("@/pages/studio/ErrorAnalysis"));
 
-// Pro Connect pages — professional network
+// Pro Connect pages, professional network
 const Onboarding = lazy(() => import("@/pages/Onboarding"));
 const ProConnectDirectory = lazy(
   () => import("@/pages/pro-connect/ProConnectDirectory"),
@@ -267,6 +308,7 @@ const SellerDashboard = lazy(
 // Project Intelligence routes
 const PaintComparison = lazy(() => import("@/pages/PaintComparison"));
 const Gallery = lazy(() => import("@/pages/Gallery"));
+const PropertiesDashboard = lazy(() => import("@/pages/PropertiesDashboard"));
 const GalleryUpload = lazy(() => import("@/pages/GalleryUpload"));
 const SurfaceAssessment = lazy(() => import("@/pages/SurfaceAssessment"));
 const ProjectWorkspace = lazy(() => import("@/pages/ProjectWorkspace"));
@@ -352,7 +394,7 @@ export default function App() {
                 </Suspense>
                 <SentryRoutes>
                   {/* ─────────────────────────────────────────────────────── */}
-                  {/* PUBLIC SITE — all public-facing pages under Layout */}
+                  {/* PUBLIC SITE, all public-facing pages under Layout */}
                   {/* No admin links, routes, or components appear here. */}
                   {/* ─────────────────────────────────────────────────────── */}
 
@@ -560,6 +602,15 @@ export default function App() {
                     />
 
                     {/* AI workspace */}
+                    <Route
+                      path="/assistant"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <Assistant />
+                        </Suspense>
+                      }
+                    />
+
                     <Route
                       path="/ai-color-assistant"
                       element={
@@ -804,8 +855,17 @@ export default function App() {
                         </Suspense>
                       }
                     />
+                    {/* Phase 7, FRELUX AI API docs + key manager */}
+                    <Route
+                      path="/developers"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <DeveloperPortal />
+                        </Suspense>
+                      }
+                    />
 
-                    {/* Pro Connect — Professional Network */}
+                    {/* Pro Connect, Professional Network */}
                     <Route
                       path="/pro-connect"
                       element={
@@ -839,7 +899,7 @@ export default function App() {
                       }
                     />
 
-                    {/* Marketplace — wrapped in dedicated MarketplaceLayout */}
+                    {/* Marketplace, wrapped in dedicated MarketplaceLayout */}
                     <Route
                       path="/marketplace"
                       element={
@@ -925,7 +985,7 @@ export default function App() {
                   </Route>
 
                   {/* ─────────────────────────────────────────────────────── */}
-                  {/* AUTH PAGES — standalone, no public Layout or admin chrome */}
+                  {/* AUTH PAGES, standalone, no public Layout or admin chrome */}
                   {/* ─────────────────────────────────────────────────────── */}
                   <Route
                     path="/admin/login"
@@ -945,7 +1005,40 @@ export default function App() {
                   />
 
                   {/* ─────────────────────────────────────────────────────── */}
-                  {/* ADMIN PANEL — completely separated from public site. */}
+                  {/* ARCHIE OWNER PWA (Stage 1) — independent of the public */}
+                  {/* site and of the admin panel. Owner-only (RequireAdmin  */}
+                  {/* auth), own shell/manifest/navigation.                  */}
+                  {/* ─────────────────────────────────────────────────────── */}
+                  <Route
+                    path="/archie"
+                    element={
+                      <Suspense fallback={<PageLoader />}>
+                        <RequireAdmin>
+                          <ErrorBoundary boundaryName="archie">
+                            <ArchieLayout />
+                          </ErrorBoundary>
+                        </RequireAdmin>
+                      </Suspense>
+                    }
+                  >
+                    <Route
+                      index
+                      element={<Navigate to="/archie/chat" replace />}
+                    />
+                    <Route path="chat" element={<ArchieChat />} />
+                    <Route path="control" element={<ArchieControl />} />
+                    <Route path="knowledge" element={<ArchieKnowledge />} />
+                    <Route path="learning" element={<ArchieLearning />} />
+                    <Route path="devices" element={<ArchieDevices />} />
+                    <Route path="people" element={<ArchiePeople />} />
+                    <Route path="shared" element={<ArchieShared />} />
+                    <Route path="security" element={<ArchieSecurity />} />
+                    <Route path="system" element={<ArchieSystem />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Route>
+
+                  {/* ─────────────────────────────────────────────────────── */}
+                  {/* ADMIN PANEL, completely separated from public site. */}
                   {/* Protected by RequireAdmin. No public Layout wrapping. */}
                   {/* ─────────────────────────────────────────────────────── */}
                   <Route
@@ -971,6 +1064,24 @@ export default function App() {
                     <Route
                       path="ai-learning"
                       element={<AdminAiLearningAssistant />}
+                    />
+                    <Route
+                      path="archie-training"
+                      element={<AdminArchieTraining />}
+                    />
+                    <Route path="archie-voice" element={<AdminArchieVoice />} />
+                    <Route path="archie-ops" element={<AdminArchieOps />} />
+                    <Route
+                      path="archie-terminology"
+                      element={<AdminArchieTerminology />}
+                    />
+                    <Route
+                      path="archie-evolution"
+                      element={<AdminArchieEvolution />}
+                    />
+                    <Route
+                      path="dictionary"
+                      element={<AdminConstructionDictionary />}
                     />
                     <Route path="legal" element={<AdminLegal />} />
                     <Route path="contact" element={<AdminContactMessages />} />
@@ -1006,6 +1117,25 @@ export default function App() {
                     <Route
                       path="estimation-audit"
                       element={<AdminEstimationAudit />}
+                    />
+                    <Route
+                      path="learning-review"
+                      element={<AdminLearningReview />}
+                    />
+                    <Route
+                      path="intelligence-sources"
+                      element={<AdminIntelligenceSources />}
+                    />
+                    <Route
+                      path="intelligence-dashboard"
+                      element={<AdminIntelligenceDashboard />}
+                    />
+                    {/* Phase 7, FRELUX AI API key administration */}
+                    <Route path="api-keys" element={<AdminApiKeys />} />
+                    {/* ARCHIE extension, Owner Social Brand Center */}
+                    <Route
+                      path="social-brand-center"
+                      element={<AdminSocialBrandCenter />}
                     />
                     <Route
                       path="estimation-production"
@@ -1193,7 +1323,7 @@ export default function App() {
                           </Suspense>
                         }
                       />
-                      {/* All other tools — StudioDispatcher reads :toolSlug
+                      {/* All other tools, StudioDispatcher reads :toolSlug
                            and routes to StudioTool (chat/generation) or
                            StudioManagement (plugins/prompts/etc) */}
                       <Route path=":toolSlug" element={<StudioTool />} />
@@ -1214,6 +1344,7 @@ export default function App() {
                     element={<PaintComparison />}
                   />
                   <Route path="/gallery" element={<Gallery />} />
+                  <Route path="/properties" element={<PropertiesDashboard />} />
                   <Route path="/gallery/new" element={<GalleryUpload />} />
                   <Route
                     path="/surface-assessment"

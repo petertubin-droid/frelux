@@ -9,7 +9,7 @@ import {
   PAGE_TARGET_LABELS,
 } from "@/lib/ad-providers";
 
-describe("ad-providers — constants", () => {
+describe("ad-providers, constants", () => {
   it("BUILTIN_PROVIDERS is a non-empty array", () => {
     expect(Array.isArray(BUILTIN_PROVIDERS)).toBe(true);
     expect(BUILTIN_PROVIDERS.length).toBeGreaterThan(0);
@@ -56,7 +56,7 @@ describe("ad-providers — constants", () => {
   });
 });
 
-describe("ad-providers — getProviderSchema", () => {
+describe("ad-providers, getProviderSchema", () => {
   it("returns schema for known provider slug", () => {
     const slug = BUILTIN_PROVIDERS[0].slug;
     const schema = getProviderSchema(slug);

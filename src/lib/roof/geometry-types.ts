@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF GEOMETRY — Types
+ * FRELUX ROOF GEOMETRY, Types
  *
  * Type definitions for editable roof geometry tracing.
  *
@@ -17,7 +17,7 @@
 /**
  * A 2D point in roof geometry space.
  * Coordinates are in the roof tracing coordinate system (pixels or meters
- * depending on context — the UI converts between them).
+ * depending on context, the UI converts between them).
  */
 export interface RoofPoint {
   id: string;
@@ -31,7 +31,7 @@ export interface RoofPoint {
 
 /**
  * A roof section is a polygon (closed shape) defined by an ordered list
- * of vertices. The polygon is closed — the last point connects to the first.
+ * of vertices. The polygon is closed, the last point connects to the first.
  */
 export interface RoofSectionGeometry {
   id: string;
@@ -76,7 +76,7 @@ export interface RoofGeometry {
 }
 
 // =========================================================
-// Edge Types (for Feature 7 — edge classification)
+// Edge Types (for Feature 7, edge classification)
 // =========================================================
 
 export type EdgeType =

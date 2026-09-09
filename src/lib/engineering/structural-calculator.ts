@@ -1,6 +1,6 @@
 // =========================================================
 // FRELUX Structural Engineering Calculator
-// Engine — Phase 32
+// Engine, Phase 32
 //
 // Calculates structural member sizing for Nigerian construction:
 // - Beam depth/width based on span and load
@@ -207,11 +207,11 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
   formulas.push(`Max shear = ${shearCoeff} × ${factored_load.toFixed(2)} × ${effective_span.toFixed(2)} = ${max_shear.toFixed(2)} kN`);
 
   // Required effective depth (singly reinforced, approximate)
-  // d = sqrt(M / (0.87 × fcu × b × 0.167)) — simplified
-  // Assume b = 225mm (9-inch block width) initially — 9-inch is standard for Nigerian load-bearing walls
+  // d = sqrt(M / (0.87 × fcu × b × 0.167)), simplified
+  // Assume b = 225mm (9-inch block width) initially, 9-inch is standard for Nigerian load-bearing walls
   const assumed_width = input.existing_width ?? 225;
   const _K = max_moment * 1e6 / (fcu * assumed_width); // K = M / (fcu × b × d²)
-  // z = d × (0.5 + sqrt(0.25 - K/0.9)) — lever arm factor
+  // z = d × (0.5 + sqrt(0.25 - K/0.9)), lever arm factor
   // For simplified: d ≈ sqrt(M / (0.156 × fcu × b))
   const required_depth_eff = Math.sqrt((max_moment * 1e6) / (0.156 * fcu * assumed_width));
   const required_depth = required_depth_eff + input.cover_mm + 25; // add cover + half bar
@@ -354,7 +354,7 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
   formulas.push(`Slenderness ratio = ${input.height * 1000} / ${Math.min(recommended_width, recommended_depth)} = ${slenderness_ratio.toFixed(1)} → ${is_short ? 'short column' : 'slender column'}`);
 
   if (!is_short) {
-    warnings.push(`Column is slender (ratio ${slenderness_ratio.toFixed(1)} > 15). Requires additional moment magnification — consult structural engineer.`);
+    warnings.push(`Column is slender (ratio ${slenderness_ratio.toFixed(1)} > 15). Requires additional moment magnification, consult structural engineer.`);
   }
 
   // Steel area
@@ -513,7 +513,7 @@ export function designSlab(input: SlabDesignInput): SlabDesignResult {
   const shear_capacity = vc * 1000 * eff_depth / 1000;
   const shear_link_note = shear_capacity >= max_shear
     ? 'No shear reinforcement required (solid slab)'
-    : 'Shear reinforcement required — consider thickening slab or adding links';
+    : 'Shear reinforcement required, consider thickening slab or adding links';
 
   if (shear_capacity < max_shear) {
     warnings.push(shear_link_note);

@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 /**
- * FRELUX INTERNATIONAL ARCHITECTURE — Market Context Provider
+ * FRELUX INTERNATIONAL ARCHITECTURE, Market Context Provider
  *
  * React context + hook for accessing the current market context.
  *
@@ -31,10 +31,22 @@ import type {
 } from "@/types/international";
 
 // ============================================================
-// DEFAULTS (Nigeria — preserving existing behavior)
+// DEFAULTS (Nigeria, preserving existing behavior)
 // ============================================================
 
 export const DEFAULT_MARKET_CODE = "NG";
+
+/**
+ * Prompt 2 / Phase 12: honest region gating. A market is only
+ * "supported" for priced calculations when its profile is active.
+ * 'coming_soon' / 'unsupported' markets keep geometry calculators
+ * usable but must surface "not available in your region yet" instead
+ * of any fabricated price, and never silently substitute another
+ * market's prices.
+ */
+export function isMarketSupported(ctx: ResolvedMarketContext): boolean {
+  return ctx.status === "active";
+}
 
 export const NIGERIA_DEFAULTS: ResolvedMarketContext = {
   marketCode: "NG",
@@ -104,14 +116,16 @@ export function MarketProvider({ children }: { children: ReactNode }) {
 
   // Load available markets (visible ones for the selector)
   useEffect(() => {
-    getSupabase().then((supabase) =>
-      supabase
-      .from("market_profiles")
-      .select("*")
-      .in("status", ["active", "coming_soon"])
-      .eq("is_visible", true)
-      .order("sort_order", { ascending: true })
-    ).then(({ data }) => {
+    getSupabase()
+      .then((supabase) =>
+        supabase
+          .from("market_profiles")
+          .select("*")
+          .in("status", ["active", "coming_soon"])
+          .eq("is_visible", true)
+          .order("sort_order", { ascending: true }),
+      )
+      .then(({ data }) => {
         if (data) setAvailableMarkets(data as unknown as MarketProfile[]);
       });
   }, []);
@@ -200,7 +214,7 @@ export function MarketProvider({ children }: { children: ReactNode }) {
           );
         await loadMarketContext();
       } catch {
-        /* ignore — non-critical */
+        /* ignore, non-critical */
       }
     },
     [user, loadMarketContext],

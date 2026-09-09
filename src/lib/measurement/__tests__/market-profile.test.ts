@@ -121,7 +121,9 @@ describe("Market Profile Registry", () => {
 
   it("creates default registry with all profiles", () => {
     const registry = createDefaultRegistry();
-    expect(registry.profiles.size).toBe(3); // NG, GH, KE
+    // NG, GH, KE active + UK, US (Stage 11, registered for
+    // regional validation; inactive by default).
+    expect(registry.profiles.size).toBe(5);
     expect(registry.defaultMarketCode).toBe("NG");
   });
 });
@@ -238,7 +240,7 @@ describe("Architecture Principles", () => {
 
     let registry = createDefaultRegistry();
     registry = registerProfile(registry, customProfile);
-    expect(registry.profiles.size).toBe(4);
+    expect(registry.profiles.size).toBe(6);
     expect(getProfile(registry, "ZA")).toBeDefined();
   });
 

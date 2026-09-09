@@ -1,4 +1,12 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  isValidElement,
+  cloneElement,
+  type ReactNode,
+} from "react";
 import { Link } from "react-router-dom";
 import {
   Home,
@@ -51,7 +59,7 @@ import {
   fetchSurfaceConditions,
   fetchColourConditions,
 } from "@/lib/estimation/queries";
-import { formatNumber } from "@/lib/utils";
+import { formatNumber, classNames } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { useCalcDefaults, type CalcDefaults } from "@/lib/use-calc-defaults";
 import {
@@ -155,7 +163,7 @@ export default function PaintCalculator({
   useSeo(
     !embedded
       ? {
-          title: "Paint Calculator — How Much Paint Do I Need?",
+          title: "Paint Calculator, How Much Paint Do I Need?",
           description:
             "Free paint calculator. Enter your room dimensions, doors, windows, and coats to estimate how many paint buckets your project requires.",
           canonicalPath: "/paint-calculator",
@@ -478,7 +486,7 @@ export default function PaintCalculator({
     const e: Record<string, string> = {};
     if (s === 2) {
       if (input.length <= 0) e.length = "Enter a valid length";
-      // Width is optional for all project types — no validation needed when blank.
+      // Width is optional for all project types, no validation needed when blank.
       if (input.wallHeight <= 0) e.wallHeight = "Enter a valid wall height";
     }
     if (s === 3) {
@@ -746,7 +754,7 @@ export default function PaintCalculator({
       });
       return;
     }
-    const name = `Paint: ${input.projectType} — ${formatNumber(result?.paintableArea ?? 0)} m²`;
+    const name = `Paint: ${input.projectType}, ${formatNumber(result?.paintableArea ?? 0)} m²`;
     const configSnapshot = {
       paintTypeName: selectedPaintType?.name ?? null,
       paintTypeCoverageRate: selectedPaintType?.coverage_rate ?? null,
@@ -952,7 +960,7 @@ export default function PaintCalculator({
             <SaveToProjectButton
               calculatorType="paint"
               calculatorSlug="paint-calculator"
-              calcTitle={`Paint: ${input.projectType} — ${formatNumber(result.paintableArea ?? 0)} m²`}
+              calcTitle={`Paint: ${input.projectType}, ${formatNumber(result.paintableArea ?? 0)} m²`}
               calcData={input as unknown as Record<string, unknown>}
               resultSummary={{
                 paintableArea: result.paintableArea,
@@ -1029,11 +1037,14 @@ ${result.primerContainers.length > 0 ? `- Primer: ${result.primerContainers.map(
           ]}
         />
       )}
-      {/* Ad slot — placement "calculator_mid" */}
+      {/* Ad slot, placement "calculator_mid" */}
       <AdSlot slotKey="calculator_mid" className="mt-8" />
-      {/* Native banner slot — placement "calculator_native" */}
+      {/* Native banner slot, placement "calculator_native" */}
       <AdSlot slotKey="calculator_native" className="mt-8" />
       <AdSlot slotKey="calculator_bottom" className="mt-8" />
+      {/* Monetag In-Page Push, placement "calculator_push"
+          (zone ID editable in Admin → Ads → Placements) */}
+      <AdSlot slotKey="calculator_push" className="mt-8" />
     </>
   );
 }
@@ -1447,7 +1458,7 @@ function Step3({
         </Field>
       </div>
 
-      {/* Quality selection — type-specific, dynamic from admin config */}
+      {/* Quality selection, type-specific, dynamic from admin config */}
       {matchedEstProduct && (
         <div className="mt-4">
           <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
@@ -1472,7 +1483,7 @@ function Step3({
                 onChange={(e) => onSelectQuality(e.target.value)}
                 className="input-field mt-2"
               >
-                <option value="">— Select quality —</option>
+                <option value="">Select quality</option>
                 {availableQualities.map((q) => {
                   const qp = qualityPriceMap.get(q.id);
                   const price = qp
@@ -1555,7 +1566,7 @@ function Step3({
           Surface condition
         </span>
         <p className="mt-0.5 text-xs text-muted-foreground">
-          Affects coverage — rough surfaces absorb more paint.
+          Affects coverage, rough surfaces absorb more paint.
         </p>
         <select
           value={input.surfaceCondition ?? "smooth"}
@@ -1987,7 +1998,7 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    // Plain <button> — not shadcn's <Button variant="ghost">, whose hover
+    // Plain <button>, not shadcn's <Button variant="ghost">, whose hover
     // state gets "stuck" on touch devices after a tap until the next tap
     // elsewhere, masking the checked-state color change.
     <button
@@ -2023,6 +2034,13 @@ function Field({
   error?: string;
   children: ReactNode;
 }) {
+  const errorId = `${label.toLowerCase().replace(/\s+/g, "-")}-error`;
+  const decoratedChildren = isValidElement(children)
+    ? cloneElement(children, {
+        "aria-invalid": error ? true : undefined,
+        "aria-describedby": error ? errorId : undefined,
+      } as Record<string, unknown>)
+    : children;
   return (
     <label className="block">
       <span className="block text-sm font-semibold text-card-foreground">
@@ -2033,8 +2051,14 @@ function Field({
           {hint}
         </span>
       )}
-      <div className="relative mt-1.5">
-        {children}
+      <div
+        className={classNames(
+          "relative mt-1.5",
+          error &&
+            "[&_.input-field]:border-red-400 [&_.input-field]:focus:border-red-500 [&_.input-field]:focus:ring-red-300/40 dark:[&_.input-field]:border-red-500/60 dark:[&_.input-field]:focus:border-red-400",
+        )}
+      >
+        {decoratedChildren}
         {suffix && (
           <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
             {suffix}
@@ -2042,7 +2066,14 @@ function Field({
         )}
       </div>
       {error && (
-        <span className="mt-1 block text-xs text-red-600">{error}</span>
+        <span
+          id={errorId}
+          role="alert"
+          className="mt-1 flex items-center gap-1 text-xs text-red-600"
+        >
+          <AlertCircle aria-hidden="true" className="h-3 w-3 shrink-0" />
+          {error}
+        </span>
       )}
     </label>
   );

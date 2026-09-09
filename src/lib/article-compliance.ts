@@ -8,7 +8,7 @@
  *  - Helpful content (original, substantial, not thin/stuffed)
  *  - Structured data correctness (Article schema fields)
  *  - Meta tag quality (title length, description length, canonical)
- *  - Ad placement compliance (Better Ads Standards — ad density)
+ *  - Ad placement compliance (Better Ads Standards, ad density)
  *  - Content quality (minimum word count, no keyword stuffing)
  *
  * Used by the test suite and available for future article validation.
@@ -44,7 +44,7 @@ export const META_TITLE_MIN = 30;
 export const META_DESC_MAX = 160;
 export const META_DESC_MIN = 80;
 
-/** Google keyword density threshold — no single keyword > 3% of total words. */
+/** Google keyword density threshold, no single keyword > 3% of total words. */
 export const MAX_KEYWORD_DENSITY = 0.03;
 
 /** Better Ads Standards: max ads per page for long-form content. */
@@ -150,7 +150,7 @@ export function validateArticleCompliance(
 ): string[] {
   const violations: string[] = [];
 
-  // 1. Minimum word count — Google penalizes thin content
+  // 1. Minimum word count, Google penalizes thin content
   const wc = countWords(article.content);
   if (wc < MIN_WORD_COUNT) {
     violations.push(
@@ -158,7 +158,7 @@ export function validateArticleCompliance(
     );
   }
 
-  // 2. Meta title length — Google truncates at ~60 chars
+  // 2. Meta title length, Google truncates at ~60 chars
   if (article.meta_title.length > META_TITLE_MAX) {
     violations.push(
       `Meta title is ${article.meta_title.length} chars, exceeds ${META_TITLE_MAX}. Google will truncate it in SERPs.`,
@@ -170,7 +170,7 @@ export function validateArticleCompliance(
     );
   }
 
-  // 3. Meta description length — Google shows ~120–160 chars
+  // 3. Meta description length, Google shows ~120–160 chars
   if (article.meta_description.length > META_DESC_MAX) {
     violations.push(
       `Meta description is ${article.meta_description.length} chars, exceeds ${META_DESC_MAX}. Google will truncate.`,
@@ -210,7 +210,7 @@ export function validateArticleCompliance(
     );
   }
 
-  // 8. Content structure — should have H2 headings for readability
+  // 8. Content structure, should have H2 headings for readability
   const h2Count = countH2Headings(article.content);
   if (h2Count < 3) {
     violations.push(
@@ -218,7 +218,7 @@ export function validateArticleCompliance(
     );
   }
 
-  // 9. Keyword stuffing check — no keyword > 3% density
+  // 9. Keyword stuffing check, no keyword > 3% density
   if (article.meta_keywords) {
     const keywords = article.meta_keywords
       .split(",")

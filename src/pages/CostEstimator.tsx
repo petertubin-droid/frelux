@@ -65,8 +65,11 @@ interface PassedState {
   qualityPriceCurrency?: string | null;
   recommendedContainers?: ContainerRecommendation[];
   totalRecommendedLiters?: number;
+  /** Canonical project location (location-intelligence) passed via router state. */
+  projectLocation?: FreluxLocation | null;
 }
 
+import { useProjectLocationCurrency, type FreluxLocation } from "@/lib/location-intelligence";
 import { useSeo } from "@/lib/seo";
 import { trackCalculation } from "@/lib/achievements";
 import { trackCalculationWithRewards } from "@/lib/rewards-integration";
@@ -88,7 +91,7 @@ export default function CostEstimator({
     !embedded
       ? {
           title:
-            "Paint Cost Estimator — How Much Will Your Paint Materials Cost?",
+            "Paint Cost Estimator, How Much Will Your Paint Materials Cost?",
           description:
             "Estimate the cost of your paint materials. Measure your room in the Paint Calculator, then carry your paint quantity and area over here for a full material cost breakdown. Labour not included.",
           canonicalPath: "/cost-estimator",
@@ -150,8 +153,12 @@ export default function CostEstimator({
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  const currencySymbol = settings?.default_currency_symbol ?? "₦";
-  const currency = settings?.default_currency ?? "NGN";
+  // Regional data flow: project location -> market profile -> currency.
+  const { currencyCode: projectCurrencyCode, currencySymbol: projectCurrencySymbol } =
+    useProjectLocationCurrency(passed.projectLocation ?? null);
+  const currencySymbol =
+    projectCurrencySymbol ?? settings?.default_currency_symbol ?? "₦";
+  const currency = projectCurrencyCode ?? settings?.default_currency ?? "NGN";
 
   const [input, setInput] = useState<CostEstimateInput>({
     projectType: passed.projectType ?? "room",
@@ -197,7 +204,7 @@ export default function CostEstimator({
   const [labourConfig, setLabourConfig] = useState<LabourConfig>(
     DEFAULT_LABOUR_CONFIG,
   );
-  // Manual bucket pricing — user picks a bucket size (e.g. 20L, 4L) from
+  // Manual bucket pricing, user picks a bucket size (e.g. 20L, 4L) from
   // admin-configurable options and enters the price for that bucket.
   const [manualBucketSize, setManualBucketSize] = useState(20);
   const [manualBucketPrice, setManualBucketPrice] = useState(0);
@@ -283,7 +290,7 @@ export default function CostEstimator({
         }));
       }
     } else {
-      // Manual entry — use bucket-based pricing with the user's selection.
+      // Manual entry, use bucket-based pricing with the user's selection.
       setInput((prev) => ({
         ...prev,
         paintProductName: "",
@@ -347,7 +354,7 @@ export default function CostEstimator({
 
   function handleSaveLocal() {
     if (!result) return;
-    const name = `Cost Estimate: ${input.projectType} — ${formatCurrency(result.total, currencySymbol)}`;
+    const name = `Cost Estimate: ${input.projectType}, ${formatCurrency(result.total, currencySymbol)}`;
     saveLocalProject(name, "cost_estimate", { input, result });
   }
 
@@ -392,7 +399,7 @@ export default function CostEstimator({
           <PageHeader
             eyebrow="Tool"
             title="Cost Estimator"
-            subtitle="Estimate the cost of your paint materials — buckets, primer, and supplies."
+            subtitle="Estimate the cost of your paint materials, buckets, primer, and supplies."
             breadcrumbs={[
               { label: "Home", path: "/" },
               { label: "Calculators", path: "/calculators" },
@@ -575,7 +582,7 @@ export default function CostEstimator({
                 </div>
               ) : (
                 <>
-                  {/* Manual entry — always show inputs */}
+                  {/* Manual entry, always show inputs */}
                   <div className="mt-4 grid gap-4 sm:grid-cols-2">
                     <Field
                       label="Paint bucket size"
@@ -939,7 +946,7 @@ export default function CostEstimator({
                       variant="ghost"
                       type="button"
                       onClick={handleWhatsAppShare}
-                      className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all -green/20"
+                      className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-green/10 p-3 text-center transition-all hover:bg-accent-green/20"
                     >
                       <MessageCircle className="h-5 w-5 text-accent-green" />
                       <span className="text-xs font-semibold text-accent-green">
@@ -947,10 +954,10 @@ export default function CostEstimator({
                       </span>
                     </Button>
                     <Button
-                      variant="default"
+                      variant="ghost"
                       type="button"
                       onClick={handlePdfExport}
-                      className="flex flex-col items-center gap-1.5 rounded-lg p-3 text-center transition-all hover:"
+                      className="flex flex-col items-center gap-1.5 rounded-lg bg-primary/10 p-3 text-center transition-all hover:bg-primary/20"
                     >
                       <FileText className="h-5 w-5 text-brand-purple" />
                       <span className="text-xs font-semibold text-brand-purple">
@@ -961,7 +968,7 @@ export default function CostEstimator({
                       variant="ghost"
                       type="button"
                       onClick={handleShoppingList}
-                      className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-orange/10 p-3 text-center transition-all -orange/20"
+                      className="flex flex-col items-center gap-1.5 rounded-lg bg-accent-orange/10 p-3 text-center transition-all hover:bg-accent-orange/20"
                     >
                       <ShoppingBag className="h-5 w-5 text-accent-orange" />
                       <span className="text-xs font-semibold text-accent-orange">
@@ -1045,7 +1052,7 @@ export default function CostEstimator({
         <PremiumFeatureGate
           featureKey="pdf_export"
           featureName="PDF Export"
-          description="Export professional PDF quotations. One-time use — unlock each export."
+          description="Export professional PDF quotations. One-time use, unlock each export."
           onUnlock={() => {
             setPdfUnlocked(true);
             setPdfGateOpen(false);
@@ -1054,9 +1061,9 @@ export default function CostEstimator({
           onClose={() => setPdfGateOpen(false)}
         />
       )}
-      {/* Ad slot — placement "estimator_mid" */}
+      {/* Ad slot, placement "estimator_mid" */}
       <AdSlot slotKey="estimator_mid" className="mt-8" />
-      {/* Native banner slot — placement "estimator_native" */}
+      {/* Native banner slot, placement "estimator_native" */}
       <AdSlot slotKey="estimator_native" className="mt-8" />
       <AdSlot slotKey="estimator_bottom" className="mt-8" />
     </>
@@ -1149,7 +1156,7 @@ function Toggle({
   onChange: (v: boolean) => void;
 }) {
   return (
-    // Plain <button> — not shadcn's <Button variant="ghost">, whose hover
+    // Plain <button>, not shadcn's <Button variant="ghost">, whose hover
     // state gets "stuck" on touch devices after a tap until the next tap
     // elsewhere, masking the checked-state color change.
     <button

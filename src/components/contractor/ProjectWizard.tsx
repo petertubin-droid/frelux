@@ -1,5 +1,5 @@
 /**
- * Smart Project Wizard — multi-step project setup for the Contractor experience.
+ * Smart Project Wizard, multi-step project setup for the Contractor experience.
  *
  * Guides the user through 4 steps:
  *  1. Project Type      (painting | screeding | pop_ceiling | tiling | multi_trade)
@@ -173,7 +173,7 @@ const QUALITY_OPTIONS: Array<{
 ];
 
 // ============================================================
-// WizardStep — reusable step layout (exported helper)
+// WizardStep, reusable step layout (exported helper)
 // ============================================================
 
 export interface WizardStepProps {

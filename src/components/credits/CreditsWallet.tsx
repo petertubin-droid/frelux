@@ -33,7 +33,11 @@ import {
   spendAiCredits,
   unlockFeatureViaAd,
 } from "@/lib/credits";
-import { logAdEvent, hasRewardedAdProvider, fetchAdConfig } from "@/lib/ad-config";
+import {
+  logAdEvent,
+  hasRewardedAdProvider,
+  fetchAdConfig,
+} from "@/lib/ad-config";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 import { getClientHash, REWARDED_AD_BRIDGES } from "@/lib/rewarded-access";
@@ -102,7 +106,9 @@ export function CreditsWallet({ userId }: { userId: string }) {
       <div className="overflow-hidden rounded-2xl bg-gradient-to-br from-primary to-background p-6 text-primary-foreground">
         <div className="flex items-center justify-between">
           <div>
-            <p className="text-sm font-medium text-primary-foreground/70">FRELUX Credits</p>
+            <p className="text-sm font-medium text-primary-foreground/70">
+              FRELUX Credits
+            </p>
             <p className="mt-1 text-4xl font-bold">{wallet?.balance ?? 0}</p>
           </div>
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10">
@@ -123,7 +129,8 @@ export function CreditsWallet({ userId }: { userId: string }) {
 
       {/* Earn Credits Button */}
       {config?.is_enabled && (
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           type="button"
           onClick={() => setShowEarnModal(true)}
           disabled={!canEarn}
@@ -136,7 +143,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
         >
           <PlayCircle className="h-5 w-5" />
           {canEarn
-            ? `Watch Ad — +${creditsPerAd} Credits`
+            ? `Watch Ad: +${creditsPerAd} Credits`
             : adProviderReady
               ? "Daily limit reached"
               : "Coming soon"}
@@ -162,7 +169,8 @@ export function CreditsWallet({ userId }: { userId: string }) {
             ["ads", "Ad History"],
           ] as const
         ).map(([key, label]) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={key}
             type="button"
             onClick={() => setTab(key)}
@@ -228,9 +236,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
                   <div
                     className={classNames(
                       "flex h-8 w-8 items-center justify-center rounded-full",
-                      tx.amount > 0
-                        ? "bg-accent-green/10"
-                        : "bg-primary/10",
+                      tx.amount > 0 ? "bg-accent-green/10" : "bg-primary/10",
                     )}
                   >
                     {tx.amount > 0 ? (
@@ -339,7 +345,7 @@ export function CreditsWallet({ userId }: { userId: string }) {
 }
 
 // ───────────────────────────────────────────────────────
-// Earn Credits Modal — Watch Ad → Earn Credits
+// Earn Credits Modal, Watch Ad → Earn Credits
 // ───────────────────────────────────────────────────────
 
 function EarnCreditsModal({
@@ -410,8 +416,8 @@ function EarnCreditsModal({
     setPhase("watching");
 
     // Find an active provider with a real client-side rewarded bridge
-    // (e.g. Monetag). The ad must be shown from this tap — mobile browsers
-    // block window-opening ad formats outside a direct user gesture —
+    // (e.g. Monetag). The ad must be shown from this tap, mobile browsers
+    // block window-opening ad formats outside a direct user gesture :
     // then we pass a client attestation token to the server.
     try {
       const { providers } = await fetchAdConfig();
@@ -423,7 +429,9 @@ function EarnCreditsModal({
       );
 
       if (!activeProvider) {
-        setErrorMsg("No ad provider is configured yet. Please check back later!");
+        setErrorMsg(
+          "No ad provider is configured yet. Please check back later!",
+        );
         setPhase("error");
         return;
       }
@@ -483,9 +491,10 @@ function EarnCreditsModal({
         });
       }
     } catch (e) {
-      const msg = e instanceof Error && e.message
-        ? e.message
-        : "The ad could not be loaded. Please try again.";
+      const msg =
+        e instanceof Error && e.message
+          ? e.message
+          : "The ad could not be loaded. Please try again.";
       setErrorMsg(msg);
       setPhase("error");
     }
@@ -505,7 +514,8 @@ function EarnCreditsModal({
               <Gift aria-hidden="true" className="h-6 w-6 text-accent-green" />
               <h2 className="text-lg font-bold">Earn FRELUX Credits</h2>
             </div>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={onClose}
               className="rounded-lg p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"
@@ -533,13 +543,14 @@ function EarnCreditsModal({
 
           {phase === "idle" && (
             <>
-              <Button variant="default"
+              <Button
+                variant="default"
                 type="button"
                 onClick={handleWatchAd}
-                className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors hover:/90"
+                className="flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-bold transition-colors hover:bg-primary/90"
               >
                 <PlayCircle className="h-5 w-5" />
-                Watch Ad — +{creditsPerAd} Credits
+                Watch Ad: +{creditsPerAd} Credits
               </Button>
               <p className="mt-3 text-center text-xs text-muted-foreground dark:text-muted-foreground">
                 Credits are only awarded after the ad is fully watched and
@@ -555,14 +566,14 @@ function EarnCreditsModal({
                 <div className="h-px flex-1 bg-muted dark:bg-white/10" />
               </div>
 
-              {/* Complete Offers — separate from Watch Ad */}
+              {/* Complete Offers, separate from Watch Ad */}
               <Link
                 to="/rewards?tab=offerwall"
                 onClick={onClose}
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-600 transition-colors hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
               >
                 <ExternalLink className="h-5 w-5" />
-                Complete Offers — Earn More Credits
+                Complete Offers: Earn More Credits
               </Link>
               <p className="mt-2 text-center text-xs text-muted-foreground dark:text-muted-foreground">
                 Surveys, app installs, and other offers. Rewards vary by offer.
@@ -625,10 +636,11 @@ function EarnCreditsModal({
               <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                 Added to your FRELUX Credits balance.
               </p>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={onClose}
-                className="mt-2 rounded-xl bg-accent-green px-6 py-2.5 text-sm font-bold text-primary-foreground -green/90"
+                className="mt-2 rounded-xl bg-accent-green px-6 py-2.5 text-sm font-bold text-primary-foreground hover:bg-accent-green/90"
               >
                 Done
               </Button>
@@ -652,7 +664,8 @@ function EarnCreditsModal({
               <p className="text-center text-xs text-muted-foreground">
                 No credits were added.
               </p>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={() => setPhase("idle")}
                 className="mt-2 rounded-xl border border-border px-6 py-2.5 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
@@ -677,7 +690,8 @@ function EarnCreditsModal({
                 You've earned the maximum {dailyLimit} credits from ads today.
                 Come back tomorrow!
               </p>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={onClose}
                 className="mt-2 rounded-xl border border-border px-6 py-2.5 text-sm font-semibold text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
@@ -693,7 +707,7 @@ function EarnCreditsModal({
 }
 
 // ───────────────────────────────────────────────────────
-// AI Feature Gate — Shows cost, "Use Credits" and "Watch Ad to Unlock"
+// AI Feature Gate, Shows cost, "Use Credits" and "Watch Ad to Unlock"
 // ───────────────────────────────────────────────────────
 
 export function AiFeatureGate({
@@ -880,7 +894,8 @@ export function AiFeatureGate({
               <Coins className="h-6 w-6 text-accent-green" />
               <h2 className="text-lg font-bold">{featureName}</h2>
             </div>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={onClose}
               className="rounded-lg p-1 text-primary-foreground/60 hover:bg-white/10 hover:text-primary-foreground"
@@ -928,7 +943,8 @@ export function AiFeatureGate({
           ) : (
             <div className="space-y-3">
               {/* Use Credits button */}
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={handleUseCredits}
                 disabled={spending || !canAfford}
@@ -962,11 +978,12 @@ export function AiFeatureGate({
                     </span>
                     <div className="h-px flex-1 bg-muted dark:bg-white/10" />
                   </div>
-                  <Button variant="default"
+                  <Button
+                    variant="default"
                     type="button"
                     onClick={handleWatchAd}
                     disabled={adUnlocking}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-purple/30 px-4 py-3 text-sm font-bold text-brand-purple transition-all hover:disabled:opacity-50 dark:text-brand-purple"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-brand-purple/30 bg-card px-4 py-3 text-sm font-bold text-brand-purple transition-all hover:bg-primary/5 disabled:opacity-50 dark:bg-transparent dark:text-brand-purple"
                   >
                     {adUnlocking ? (
                       <Loader2

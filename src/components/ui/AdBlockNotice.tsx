@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/shadcn/button";
 /**
  * Non-intrusive ad block notice (Issue #10).
  * Shows a dismissible banner asking users to disable their ad blocker.
- * Does NOT block access to features — just a gentle nudge.
+ * Does NOT block access to features, just a gentle nudge.
  */
 export function AdBlockNotice() {
   const [blocked, setBlocked] = useState(false);
@@ -26,7 +26,7 @@ export function AdBlockNotice() {
     });
   }, []);
 
-  // Admin pages are ad-free — never show ad block notice
+  // Admin pages are ad-free, never show ad block notice
   if (window.location.pathname.startsWith('/admin')) return null;
 
   if (!blocked || dismissed) return null;

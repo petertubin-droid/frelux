@@ -30,7 +30,7 @@ import {
 // Configurable constants (defaults; overridden by DB values)
 // ─────────────────────────────────────────────────────────
 
-// LEGACY FALLBACK ONLY — NOT a FRELUX business rule.
+// LEGACY FALLBACK ONLY, NOT a FRELUX business rule.
 // The central Paint Calculation Engine uses admin-configured coverage from the database.
 // This default is only used by the legacy calculatePaint() when no DB config is available.
 export const DEFAULT_COVERAGE_M2_PER_LITER = 10;
@@ -57,25 +57,25 @@ export const SURFACE_CONDITION_FACTORS: Record<
   smooth: {
     factor: 1.0,
     label: "Smooth / Previously Painted",
-    description: "Sound, smooth surface — standard coverage applies.",
+    description: "Sound, smooth surface, standard coverage applies.",
   },
   textured: {
     factor: 0.85,
     label: "Textured",
     description:
-      "Textured surface — ~15% more paint absorbed due to surface profile.",
+      "Textured surface, ~15% more paint absorbed due to surface profile.",
   },
   rough: {
     factor: 0.75,
     label: "Rough",
     description:
-      "Rough surface — ~25% more paint absorbed. Consider surface preparation.",
+      "Rough surface, ~25% more paint absorbed. Consider surface preparation.",
   },
   new_plaster: {
     factor: 0.8,
     label: "New / Bare Plaster",
     description:
-      "New plaster is porous — ~20% more paint absorbed on first coat. Primer strongly recommended.",
+      "New plaster is porous, ~20% more paint absorbed on first coat. Primer strongly recommended.",
   },
 };
 
@@ -144,7 +144,7 @@ export function evaluateHeightWarning(
   return null;
 }
 
-// Config the calculator receives from the caller. All fields optional —
+// Config the calculator receives from the caller. All fields optional :
 // when omitted, the defaults above are used. The caller loads these from
 // Supabase (paint_types table) and passes them in.
 export interface CalcConfig {
@@ -156,7 +156,7 @@ export interface CalcConfig {
 }
 
 // ─────────────────────────────────────────────────────────
-// Unit conversion — single internal unit (meters)
+// Unit conversion, single internal unit (meters)
 // ─────────────────────────────────────────────────────────
 
 function toMeters(value: number, unit: "meters" | "feet"): number {
@@ -174,7 +174,7 @@ export function calculateWallArea(
   projectType: ProjectType,
 ): number {
   // Room / House / Exterior: perimeter × height.
-  // Fence: treat as a flat surface — length × height (width irrelevant).
+  // Fence: treat as a flat surface, length × height (width irrelevant).
   if (projectType === "fence") {
     return lengthM * heightM;
   }
@@ -194,7 +194,7 @@ export function calculateCeilingArea(
 ): number {
   // Ceiling only applies to rooms/houses (interior). Exterior and fence have no ceiling.
   if (projectType === "exterior" || projectType === "fence") return 0;
-  // Width is optional — if not provided, ceiling area cannot be determined.
+  // Width is optional, if not provided, ceiling area cannot be determined.
   if (widthM <= 0) return 0;
   return lengthM * widthM;
 }
@@ -258,7 +258,7 @@ export function recommendContainerCombination(
 ): ContainerRecommendation[] {
   const sizes =
     containerSizes.length > 0
-      ? [...containerSizes].sort((a, b) => b - a) // descending — prefer larger containers
+      ? [...containerSizes].sort((a, b) => b - a) // descending, prefer larger containers
       : [...DEFAULT_CONTAINER_SIZES_LITERS].sort((a, b) => b - a);
 
   let remaining = Math.max(0, liters);
@@ -283,7 +283,7 @@ export function recommendContainerCombination(
 }
 
 /**
- * Practical container recommendation — prefers larger containers (20L buckets)
+ * Practical container recommendation, prefers larger containers (20L buckets)
  * over multiple smaller ones, even when it means buying slightly more paint.
  * This follows FRELUX's "20-litre buckets as standard purchase unit" rule.
  *
@@ -310,7 +310,7 @@ export function recommendPracticalContainers(
     }
   }
 
-  // No single container covers everything — use greedy fill, then round up last container.
+  // No single container covers everything, use greedy fill, then round up last container.
   let remaining = need;
   const recommendations: ContainerRecommendation[] = [];
 
@@ -382,7 +382,7 @@ export function calculatePaint(
   );
 
   // ── Surface condition adjustment ──
-  // Rough/textured surfaces reduce effective coverage — apply factor to base rate.
+  // Rough/textured surfaces reduce effective coverage, apply factor to base rate.
   // Use DB-driven override if provided, otherwise fall back to hardcoded factor.
   const surfaceCondition = input.surfaceCondition ?? "smooth";
   const surfaceInfo = getSurfaceConditionFactor(surfaceCondition);
@@ -598,7 +598,7 @@ export function calculateScreedingMix(
 
   // Costs
   const materialCost = paintTotalCost + cementTotalCost;
-  const labourCost = 0; // Labour not included — negotiated separately
+  const labourCost = 0; // Labour not included, negotiated separately
   const wasteAllowance = materialCost * (wasteFraction / (1 + wasteFraction)); // informational: waste portion of materialCost (already baked into quantities)
   const subtotal = materialCost;
   const taxAmount = subtotal * taxFraction;
@@ -626,7 +626,7 @@ export function calculateScreedingMix(
 }
 
 // ─────────────────────────────────────────────────────────
-// Screeding Material System — Coverage-Area Model
+// Screeding Material System, Coverage-Area Model
 // Supports: Putty and White Cement + Screeding Paint
 // All parameters come from ScreedingSystemConfig (Admin-configured).
 // No hardcoded business values.
@@ -674,7 +674,7 @@ function buildMaterialBreakdown(params: {
  * Calculate Putty screeding requirements.
  *
  * Model: the admin-configured ratio (e.g. 2 buckets per 12 m²) describes the
- * COMPLETE standard job at the default coat count — it already includes the
+ * COMPLETE standard job at the default coat count, it already includes the
  * standard number of coats. The quantity therefore scales linearly with area
  * only, at the default coats. Selecting a number of coats DIFFERENT from the
  * admin default scales the requirement proportionally relative to that
@@ -698,7 +698,7 @@ export function calculateScreedingPutty(
   const wastePct = config.wastePercentage;
 
   // Base units = (area / coverage) × puttyQuantity × (coats / defaultCoats).
-  // At the admin default coats the factor is exactly 1 — the configured
+  // At the admin default coats the factor is exactly 1, the configured
   // ratio (e.g. 2 buckets per 12 m²) is taken verbatim.
   const coatFactor = effectiveCoats / defaultCoats;
   const baseUnits = (area / coverage) * puttyQty * coatFactor;
@@ -730,7 +730,7 @@ export function calculateScreedingPutty(
  * Calculate White Cement + Screeding Paint requirements.
  *
  * Model: the admin-configured ratio (e.g. 2 paint buckets + 1 cement bag per
- * 20 m²) describes the COMPLETE standard job at the default coat count — it
+ * 20 m²) describes the COMPLETE standard job at the default coat count, it
  * already includes the standard number of coats. Quantities scale linearly
  * with area at the default coats. Selecting a number of coats DIFFERENT from
  * the admin default scales requirements proportionally relative to that
@@ -752,7 +752,7 @@ export function calculateScreedingMixSystem(
   const coverage = Math.max(0.01, config.coverageAreaM2);
   const paintQty = config.paintQuantity ?? 0;
   const cementQty = config.cementQuantity ?? 0;
-  // Optional third material (e.g. Bond) — only participates when the admin
+  // Optional third material (e.g. Bond), only participates when the admin
   // has enabled it AND given it a name+quantity; dormant otherwise.
   const extraActive =
     config.extraEnabled === true &&
@@ -762,7 +762,7 @@ export function calculateScreedingMixSystem(
   const wastePct = config.wastePercentage;
 
   // Base units = (area / coverage) × materialQuantity × (coats / defaultCoats).
-  // At the admin default coats the factor is exactly 1 — the configured ratio
+  // At the admin default coats the factor is exactly 1, the configured ratio
   // is taken verbatim.
   const coatFactor = effectiveCoats / defaultCoats;
   const baseUnits = area / coverage;
@@ -863,7 +863,7 @@ export function dbToSystemConfig(db: {
   cement_unit: string | null;
   cement_price_per_unit: number | null;
   // Optional: rows/configs created before Phase 37 have no extra_* columns
-  // — treat them as "extra material disabled".
+  //, treat them as "extra material disabled".
   extra_enabled?: boolean | null;
   extra_name?: string | null;
   extra_quantity?: number | null;
@@ -962,13 +962,13 @@ export function calculateAdvancedEstimate(
   const cementCost = cementBags * input.cementPricePerBag;
 
   const materialCost = paintCost + cementCost;
-  const labourCost = 0; // Labour not included — negotiated separately
+  const labourCost = 0; // Labour not included, negotiated separately
   const transportCost = Math.max(0, input.transportCost);
   // Extract the waste portion from the already-waste-adjusted materialCost.
   // wasteAmount = materialCost × (wasteFraction / (1 + wasteFraction))
   const wasteAmount = materialCost * (wasteFraction / (1 + wasteFraction));
   // materialCost already includes waste (paintLiters = base × 1+waste%).
-  // wasteAmount is informational only — represents the waste portion of materialCost.
+  // wasteAmount is informational only, represents the waste portion of materialCost.
   const subtotal = materialCost + transportCost;
   const markupAmount = subtotal * markupFraction;
   const profitAmount = (subtotal + markupAmount) * profitFraction;
@@ -991,7 +991,7 @@ export function calculateAdvancedEstimate(
       unitPrice: input.cementPricePerBag,
       total: round(cementCost),
     },
-    // Labour not included — negotiated separately
+    // Labour not included, negotiated separately
     {
       label: "Transport & Logistics",
       quantity: 1,
@@ -1035,7 +1035,7 @@ export function calculateAdvancedEstimate(
 export const calculateCost = calculateEstimatedTotal;
 
 // ─────────────────────────────────────────────────────────
-// Validation helpers — project-type-aware
+// Validation helpers, project-type-aware
 // ─────────────────────────────────────────────────────────
 
 export function validateCalculatorInput(

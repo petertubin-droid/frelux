@@ -488,7 +488,7 @@ export default function Colors() {
               {totalColors} colors found
             </p>
 
-            {/* Color grid — premium cards */}
+            {/* Color grid, premium cards */}
             {colors.length > 0 ? (
               <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
                 {colors.map((c) => (
@@ -660,7 +660,7 @@ export default function Colors() {
         </div>
 
         <AdSlot slotKey="gallery_mid" className="my-8" />
-        {/* Native banner slot — placement "gallery_native" */}
+        {/* Native banner slot, placement "gallery_native" */}
         <AdSlot slotKey="gallery_native" className="mt-10" />
         <AdSlot slotKey="colors_gallery_bottom" className="mt-10" />
       </div>

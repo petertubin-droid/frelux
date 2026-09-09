@@ -57,7 +57,7 @@ export const LANGUAGES: {
 
 type TranslationKey = string;
 
-// Translation dictionary — covers calculator labels, navigation, and common UI
+// Translation dictionary, covers calculator labels, navigation, and common UI
 const translations: Record<Language, Record<TranslationKey, string>> = {
   en: {},
   efik: {},

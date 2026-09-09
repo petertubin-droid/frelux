@@ -1,7 +1,7 @@
 /**
- * FRELUX Token Purchase — Buy tokens (credits) via Paystack
+ * FRELUX Token Purchase, Buy tokens (credits) via Paystack
  *
- * The default pack is 50 tokens for ₦1,500 — fully configurable from
+ * The default pack is 50 tokens for ₦1,500, fully configurable from
  * the admin panel (Admin → Credits & Ads → Token Shop tab), which
  * writes to the token_purchase_config table.
  *

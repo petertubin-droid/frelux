@@ -27,6 +27,10 @@ import type {
   ScreedingMaterialBreakdown,
 } from "@/types";
 import type {} from "@/types/database";
+import {
+  useProjectLocationCurrency,
+  type FreluxLocation,
+} from "@/lib/location-intelligence";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
 import {
@@ -48,6 +52,8 @@ import { getSafeError } from "@/lib/safeError";
 interface PassedState {
   netScreedingArea?: number;
   method?: string;
+  /** Canonical project location (location-intelligence) passed via router state. */
+  projectLocation?: FreluxLocation | null;
 }
 
 interface AvailableSystem {
@@ -65,7 +71,7 @@ export default function ScreedingCostEstimator({
     !embedded
       ? {
           title:
-            "Wall Screeding Cost Estimator — Putty, Paint & Cement Calculator",
+            "Wall Screeding Cost Estimator, Putty, Paint & Cement Calculator",
           description:
             "Estimate wall screeding costs with Putty or White Cement + Screeding Paint. Configurable coverage, coats, waste, labour, and material pricing.",
           canonicalPath: "/screeding-cost-estimator",
@@ -84,6 +90,12 @@ export default function ScreedingCostEstimator({
 
   const location = useLocation();
   const passed = (location.state as PassedState | null) ?? {};
+
+  // Regional data flow: project location -> market profile -> currency.
+  // Hook must run before the loading early-return (Rules of Hooks).
+  const { currencySymbol: projectCurrencySymbol } = useProjectLocationCurrency(
+    passed.projectLocation ?? null,
+  );
 
   const [puttyConfig, setPuttyConfig] = useState<ScreedingSystemConfig | null>(
     null,
@@ -215,7 +227,8 @@ export default function ScreedingCostEstimator({
     );
   }
 
-  const currencySymbol = activeConfig?.currencySymbol ?? "₦";
+  const currencySymbol =
+    projectCurrencySymbol ?? activeConfig?.currencySymbol ?? "₦";
 
   return (
     <>
@@ -223,7 +236,7 @@ export default function ScreedingCostEstimator({
         <PageHeader
           eyebrow="Tool"
           title="Screeding Cost Estimator"
-          subtitle="Calculate screeding material costs — Putty or White Cement + Screeding Paint. Coverage, coats, waste, and pricing are all admin-configured."
+          subtitle="Calculate screeding material costs, Putty or White Cement + Screeding Paint. Coverage, coats, waste, and pricing are all admin-configured."
           breadcrumbs={[
             { label: "Home", path: "/" },
             { label: "Calculators", path: "/calculators" },
@@ -580,7 +593,7 @@ export default function ScreedingCostEstimator({
                           resultSummary:
                             result.materialCost != null
                               ? `${formatCurrency(result.materialCost, currencySymbol)} for ${formatNumber(result.netScreedingArea, 2)} m² (${result.coats} coats)`
-                              : `${formatNumber(result.netScreedingArea, 2)} m² (${result.coats} coats) — price not configured`,
+                              : `${formatNumber(result.netScreedingArea, 2)} m² (${result.coats} coats), price not configured`,
                           steps: buildExplanationSteps(result),
                           notes: [
                             `Coverage: ${result.coverageAreaM2} m² per unit group`,
@@ -677,7 +690,8 @@ export default function ScreedingCostEstimator({
                                         {
                                           name: result.extra.name,
                                           category: "bond",
-                                          quantity: result.extra.purchaseQuantity,
+                                          quantity:
+                                            result.extra.purchaseQuantity,
                                           unit: result.extra.unit + "s",
                                         },
                                       ]
@@ -764,11 +778,14 @@ export default function ScreedingCostEstimator({
           ]}
         />
       )}
-      {/* Ad slot — placement "calculator_mid" */}
+      {/* Ad slot, placement "calculator_mid" */}
       <AdSlot slotKey="calculator_mid" className="mt-8" />
-      {/* Native banner slot — placement "calculator_native" */}
+      {/* Native banner slot, placement "calculator_native" */}
       <AdSlot slotKey="calculator_native" className="mt-8" />
       <AdSlot slotKey="calculator_bottom" className="mt-8" />
+      {/* Monetag In-Page Push, placement "calculator_push"
+          (zone ID editable in Admin → Ads → Placements) */}
+      <AdSlot slotKey="calculator_push" className="mt-8" />
     </>
   );
 }
@@ -806,7 +823,7 @@ function buildExplanationSteps(result: ScreedingSystemResult) {
       },
       {
         description: `${result.putty.name} purchase quantity`,
-        value: `${result.putty.purchaseQuantity} ${result.putty.unit}s`,
+        value: `${formatNumber(result.putty.purchaseQuantity)} ${result.putty.unit}s`,
       },
     );
   } else {
@@ -821,7 +838,7 @@ function buildExplanationSteps(result: ScreedingSystemResult) {
       },
       {
         description: `${result.paint.name} purchase quantity`,
-        value: `${result.paint.purchaseQuantity} ${result.paint.unit}s`,
+        value: `${formatNumber(result.paint.purchaseQuantity)} ${result.paint.unit}s`,
       },
       {
         description: `${result.cement.name} base quantity`,
@@ -833,7 +850,7 @@ function buildExplanationSteps(result: ScreedingSystemResult) {
       },
       {
         description: `${result.cement.name} purchase quantity`,
-        value: `${result.cement.purchaseQuantity} ${result.cement.unit}s`,
+        value: `${formatNumber(result.cement.purchaseQuantity)} ${result.cement.unit}s`,
       },
     );
     if (result.extra) {
@@ -848,7 +865,7 @@ function buildExplanationSteps(result: ScreedingSystemResult) {
         },
         {
           description: `${result.extra.name} purchase quantity`,
-          value: `${result.extra.purchaseQuantity} ${result.extra.unit}s`,
+          value: `${formatNumber(result.extra.purchaseQuantity)} ${result.extra.unit}s`,
         },
       );
     }
@@ -900,7 +917,7 @@ function MaterialBreakdownCard({
         )}
         <Row
           label="Purchase quantity"
-          value={`${breakdown.purchaseQuantity} ${breakdown.unit}s`}
+          value={`${formatNumber(breakdown.purchaseQuantity)} ${breakdown.unit}s`}
           strong
         />
         {breakdown.pricePerUnit != null && breakdown.pricePerUnit > 0 ? (
@@ -917,7 +934,7 @@ function MaterialBreakdownCard({
           </>
         ) : (
           <p className="text-xs text-accent-yellow">
-            Price not configured — cost cannot be calculated.
+            Price not configured, cost cannot be calculated.
           </p>
         )}
       </div>

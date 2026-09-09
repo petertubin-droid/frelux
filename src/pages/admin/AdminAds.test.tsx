@@ -149,7 +149,7 @@ describe("AdminAds", () => {
     await renderPage();
     expect(await screen.findByText("Monetag")).toBeDefined();
     expect(await screen.findByText("AdGate Media")).toBeDefined();
-    // Exactly one Display ads toggle — for Monetag. Rewarded providers
+    // Exactly one Display ads toggle, for Monetag. Rewarded providers
     // (AdGate) are excluded because their flows are never gated by it.
     expect(screen.getAllByText("Display ads")).toHaveLength(1);
     expect(screen.getByText("Visual ads served on placements")).toBeDefined();
@@ -203,7 +203,7 @@ describe("AdminAds", () => {
     expect(cards[0].textContent).toBe("Home Top");
     expect(cards[1].textContent).toBe("Home Native");
 
-    // Move "Home Native" up — should swap sort_order with "Home Top"
+    // Move "Home Native" up, should swap sort_order with "Home Top"
     updateCalls.length = 0;
     const nativeCard = screen
       .getByText("Home Native")
@@ -222,6 +222,56 @@ describe("AdminAds", () => {
     });
   });
 
+  it("flags active placements that no linked provider can fill", async () => {
+    const user = userEvent.setup();
+    await renderPage();
+    await user.click(await screen.findByText("Placements"));
+    await screen.findByText("Home Top");
+
+    // Monetag in-slot display needs a native banner zone (or a per-slot
+    // unit); the mock has neither, so all three placements are dead slots.
+    expect(
+      await screen.findByText(/3 active placements have no fillable ad unit/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/home_top, home_native, home_mid/),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/No fillable ad unit, slot renders nothing/),
+    ).toHaveLength(3);
+  });
+
+  it("clears the dead-slot warning once a per-slot ad unit is configured", async () => {
+    placementsData[0].ad_unit_ids = { "prov-monetag": "3470881" };
+    try {
+      const user = userEvent.setup();
+      await renderPage();
+      await user.click(await screen.findByText("Placements"));
+      await screen.findByText("Home Top");
+
+      // Only the two unit-less placements remain dead
+      expect(
+        screen.getByText(/2 active placements have no fillable ad unit/),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText(/home_native, home_mid/),
+      ).toBeInTheDocument();
+      expect(
+        screen.getAllByText(/No fillable ad unit, slot renders nothing/),
+      ).toHaveLength(2);
+
+      // The fillable card shows no warning
+      const topCard = screen
+        .getByText("Home Top")
+        .closest("div.card") as HTMLElement;
+      expect(
+        within(topCard).queryByText(/No fillable ad unit/),
+      ).not.toBeInTheDocument();
+    } finally {
+      placementsData[0].ad_unit_ids = {};
+    }
+  });
+
   it("shows the visual Page Map with slot chips and markdown copy", async () => {
     const user = userEvent.setup();
     await renderPage();
@@ -233,7 +283,7 @@ describe("AdminAds", () => {
     await user.click(await screen.findByText("Page Map"));
 
     expect(
-      await screen.findByText("Ad Slot Page Map — where every slot sits"),
+      await screen.findByText("Ad Slot Page Map, where every slot sits"),
     ).toBeDefined();
     // Wireframe shows a registered slot chip and its status
     expect(await screen.findByText("home_top")).toBeDefined();
@@ -250,6 +300,6 @@ describe("AdminAds", () => {
     const md = writeText.mock.calls[0][0] as string;
     expect(md).toContain("# FRELUX Ad Slot Map");
     expect(md).toContain("## Homepage");
-    expect(md).toContain("**home_top** (banner) — ✅ on — Monetag");
+    expect(md).toContain("**home_top** (banner), ✅ on, Monetag");
   });
 });

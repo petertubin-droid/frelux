@@ -1,4 +1,5 @@
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
+import { ConstructionExtractionPanel } from "@/components/estimation/ConstructionExtractionPanel";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSeo } from "@/lib/seo";
@@ -32,6 +33,8 @@ import {
 } from "lucide-react";
 import {
   calculateBuildToRoof,
+  convertBuildToRoofUnits,
+  validateBuildToRoofInput,
   DEFAULT_PRICES,
   DEFAULT_LABOUR,
   DEFAULT_WASTAGE,
@@ -282,7 +285,7 @@ function RotatingText({
 export default function BuildToRoofEstimator() {
   useSeo({
     title:
-      "Build-to-Roof Estimator — Construction Planning & Budgeting | FRELUX",
+      "Build-to-Roof Estimator, Construction Planning & Budgeting | FRELUX",
     description:
       "Planning and budgeting estimate for building from foundation to roof. Configure dimensions, materials, and prices. Actual requirements and costs may vary based on location, current material prices, building design, site conditions, and professional specifications.",
     keywords:
@@ -389,7 +392,56 @@ export default function BuildToRoofEstimator() {
     [],
   );
 
+  // ── AI extraction: apply user-confirmed values into the existing manual
+  // input state. The deterministic engine is untouched, this only fills the
+  // same fields the user would have typed by hand. Manual editing in the
+  // following steps remains fully available.
+  const [extractionApplied, setExtractionApplied] = useState(0);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const applyExtractionPatch = useCallback(
+    (
+      patch: Partial<BuildToRoofInput>,
+      meta: { appliedCount: number; fileName?: string },
+    ) => {
+      setInput((prev) => {
+        // AI-extracted dimensions are validated in METRES (mirrors the
+        // server clamps). If the form is in feet, convert them so the
+        // engine's own ft→m pass doesn't shrink them by 3.28×.
+        let normalized = patch;
+        if (prev.measurement_unit === "ft") {
+          const factor = 1 / 0.3048;
+          normalized = {
+            ...patch,
+            building_length: patch.building_length !== undefined ? patch.building_length * factor : undefined,
+            building_width: patch.building_width !== undefined ? patch.building_width * factor : undefined,
+            floor_to_floor_height: patch.floor_to_floor_height !== undefined ? patch.floor_to_floor_height * factor : undefined,
+            wall_thickness: patch.wall_thickness !== undefined ? patch.wall_thickness * factor : undefined,
+            internal_wall_length: patch.internal_wall_length !== undefined ? patch.internal_wall_length * factor : undefined,
+            roof_overhang: patch.roof_overhang !== undefined ? patch.roof_overhang * factor : undefined,
+            openings: patch.openings?.map((o) => ({
+              ...o,
+              width: o.width * factor,
+              height: o.height * factor,
+            })),
+          };
+        }
+        return { ...prev, ...normalized };
+      });
+      setExtractionApplied(meta.appliedCount);
+    },
+    [],
+  );
+
   const calculate = useCallback(() => {
+    // Invalid inputs must never produce an apparently-valid construction
+    // estimate, validate first and surface every problem at once.
+    const errors = validateBuildToRoofInput(input);
+    if (errors.length > 0) {
+      setValidationErrors(errors);
+      setResult(null);
+      return;
+    }
+    setValidationErrors([]);
     const r = monitoredCalc("Build-to-Roof Estimator", () =>
       calculateBuildToRoof(input),
     );
@@ -412,7 +464,7 @@ export default function BuildToRoofEstimator() {
     <SubscriptionGate feature="build_to_roof_estimator">
       <div className="min-h-screen bg-gradient-to-b from-muted/50 to-muted/50">
         {/* Premium Header with mesh gradient */}
-        <div className="relative overflow-hidden bg-background text-primary-foreground">
+        <div className="relative overflow-hidden bg-brand-navy text-primary-foreground">
           {/* Animated mesh background */}
           <div
             className="absolute inset-0 animate-mesh-float"
@@ -445,7 +497,7 @@ export default function BuildToRoofEstimator() {
                 <div className="mt-1.5">
                   <RotatingText
                     messages={[
-                      "Foundation → Block walls → Structural frame → Roof — all in one estimate",
+                      "Foundation → Block walls → Structural frame → Roof, all in one estimate",
                       "admin-configured prices for cement, blocks, sand, granite & more",
                       "Engineer-ready material schedules with quantities and costs",
                       "11 guided steps · Full transparency · No hidden assumptions",
@@ -491,7 +543,7 @@ export default function BuildToRoofEstimator() {
             >
               <Camera className="w-4 h-4" />
               <span className="hidden sm:inline">
-                Estimate from a Photo — Try our AI Photo Estimator
+                Estimate from a Photo, Try our AI Photo Estimator
               </span>
               <span className="sm:hidden">Try AI Photo Estimator</span>
               <ArrowRight className="w-4 h-4" />
@@ -508,7 +560,8 @@ export default function BuildToRoofEstimator() {
                 const isActive = i === step;
                 const isDone = i < step;
                 return (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     key={s.id}
                     onClick={() => i <= step && setStep(i)}
                     className={`flex items-center gap-1.5 rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-medium whitespace-nowrap transition-all duration-200 snap-start ${
@@ -597,37 +650,15 @@ export default function BuildToRoofEstimator() {
                         Measurement unit:
                       </span>
                       <div className="inline-flex rounded-lg border border-border overflow-hidden">
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           onClick={() => {
                             if (input.measurement_unit === "ft") {
-                              // Convert ft values to m
+                              // Convert EVERY ft-mappable field to m, the
+                              // engine reads all of them in the active unit.
                               setInput((prev) => ({
-                                ...prev,
-                                measurement_unit: "m",
-                                building_length: parseFloat(
-                                  (prev.building_length * 0.3048).toFixed(2),
-                                ),
-                                building_width: parseFloat(
-                                  (prev.building_width * 0.3048).toFixed(2),
-                                ),
-                                floor_to_floor_height: parseFloat(
-                                  (prev.floor_to_floor_height * 0.3048).toFixed(
-                                    2,
-                                  ),
-                                ),
-                                wall_thickness: parseFloat(
-                                  (prev.wall_thickness * 0.3048).toFixed(4),
-                                ),
-                                internal_wall_length: parseFloat(
-                                  (prev.internal_wall_length * 0.3048).toFixed(
-                                    2,
-                                  ),
-                                ),
-                                internal_wall_thickness: parseFloat(
-                                  (
-                                    prev.internal_wall_thickness * 0.3048
-                                  ).toFixed(4),
-                                ),
+                                ...convertBuildToRoofUnits(prev, 0.3048),
+                                measurement_unit: "m" as const,
                               }));
                             }
                           }}
@@ -635,37 +666,15 @@ export default function BuildToRoofEstimator() {
                         >
                           Meters (m)
                         </Button>
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           onClick={() => {
                             if (input.measurement_unit === "m") {
-                              // Convert m values to ft
+                              // Convert EVERY ft-mappable field to ft, the
+                              // engine reads all of them in the active unit.
                               setInput((prev) => ({
-                                ...prev,
-                                measurement_unit: "ft",
-                                building_length: parseFloat(
-                                  (prev.building_length / 0.3048).toFixed(2),
-                                ),
-                                building_width: parseFloat(
-                                  (prev.building_width / 0.3048).toFixed(2),
-                                ),
-                                floor_to_floor_height: parseFloat(
-                                  (prev.floor_to_floor_height / 0.3048).toFixed(
-                                    2,
-                                  ),
-                                ),
-                                wall_thickness: parseFloat(
-                                  (prev.wall_thickness / 0.3048).toFixed(4),
-                                ),
-                                internal_wall_length: parseFloat(
-                                  (prev.internal_wall_length / 0.3048).toFixed(
-                                    2,
-                                  ),
-                                ),
-                                internal_wall_thickness: parseFloat(
-                                  (
-                                    prev.internal_wall_thickness / 0.3048
-                                  ).toFixed(4),
-                                ),
+                                ...convertBuildToRoofUnits(prev, 1 / 0.3048),
+                                measurement_unit: "ft" as const,
                               }));
                             }
                           }}
@@ -817,7 +826,8 @@ export default function BuildToRoofEstimator() {
                               update("openings", openings);
                             }}
                           />
-                          <Button variant="ghost"
+                          <Button
+                            variant="ghost"
                             onClick={() =>
                               update(
                                 "openings",
@@ -830,7 +840,8 @@ export default function BuildToRoofEstimator() {
                           </Button>
                         </div>
                       ))}
-                      <Button variant="ghost"
+                      <Button
+                        variant="ghost"
                         onClick={() =>
                           update("openings", [
                             ...input.openings,
@@ -862,6 +873,14 @@ export default function BuildToRoofEstimator() {
                         }
                         options={FOUNDATION_TYPES}
                       />
+                      {input.foundation_type !== "strip_footing" && (
+                        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
+                          Quantities are modelled on continuous strip-footing
+                          geometry. For pad, raft or pile foundations, treat the
+                          excavation, concrete and blockwork figures as
+                          strip-footing equivalents, verify with your engineer.
+                        </p>
+                      )}
                       <Field
                         label="Foundation depth"
                         unit={input.measurement_unit}
@@ -926,9 +945,9 @@ export default function BuildToRoofEstimator() {
                       <div className="col-span-full -mt-2 mb-2 rounded-lg bg-blue-50 border border-blue-100 p-2.5">
                         <p className="text-xs text-blue-600">
                           <strong>Nigerian block sizes:</strong> 9-inch (hollow)
-                          — foundations &amp; external load-bearing walls ·
-                          6-inch (hollow or solid) — internal partitions ·
-                          5-inch (solid only) — non-load-bearing partitions
+                         , foundations &amp; external load-bearing walls ·
+                          6-inch (hollow or solid), internal partitions ·
+                          5-inch (solid only), non-load-bearing partitions
                         </p>
                       </div>
                       <div className="grid md:grid-cols-4 gap-4">
@@ -1008,10 +1027,9 @@ export default function BuildToRoofEstimator() {
                       </div>
                       <p className="mt-2 text-xs text-muted-foreground">
                         Current ratio: {input.concrete_mix_cement}:
-                        {input.concrete_mix_sand}:{input.concrete_mix_granite}
-                        {" "}(assumed budgeting mix — not a structural
-                        specification. Use the mix specified by your engineer's
-                        design).
+                        {input.concrete_mix_sand}:{input.concrete_mix_granite}{" "}
+                        (assumed budgeting mix, not a structural specification.
+                        Use the mix specified by your engineer's design).
                       </p>
                     </SectionCard>
                     <SectionCard title="Mortar Mix Ratio" icon={Settings}>
@@ -1033,9 +1051,8 @@ export default function BuildToRoofEstimator() {
                       </div>
                       <p className="mt-2 text-xs text-muted-foreground">
                         Current ratio: {input.mortar_mix_cement}:
-                        {input.mortar_mix_sand} (assumed budgeting mix —
-                        adjust to your site practice or engineer's
-                        specification).
+                        {input.mortar_mix_sand} (assumed budgeting mix, adjust
+                        to your site practice or engineer's specification).
                       </p>
                     </SectionCard>
                     <SectionCard title="Wastage Allowances" icon={TrendingUp}>
@@ -1136,11 +1153,11 @@ export default function BuildToRoofEstimator() {
                 {/* Step 5: Roof */}
                 {step === 5 && (
                   <SectionCard title="Roof Configuration" icon={Building2}>
-                    {/* Roof View — optional aerial imagery (Feature 2) */}
+                    {/* Roof View, optional aerial imagery (Feature 2) */}
                     <div className="mb-4">
                       <RoofViewPanel />
                     </div>
-                    {/* Roof Geometry Editor — editable tracing (Feature 3) */}
+                    {/* Roof Geometry Editor, editable tracing (Feature 3) */}
                     <div className="mb-4">
                       <p className="text-xs font-semibold text-muted-foreground mb-2">
                         Roof Geometry (trace your roof outline)
@@ -1149,14 +1166,31 @@ export default function BuildToRoofEstimator() {
                         geometry={roofGeometry}
                         onChange={setRoofGeometry}
                       />
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Traced geometry is a visual reference only, estimates
+                        use the dimensions and roof type you enter below.
+                        Complex roof geometry (L-shaped, T-shaped, cross-gable,
+                        intersecting hips, multiple ridges or valleys) requires
+                        manual configuration or future support.
+                      </p>
                     </div>
                     <div className="grid md:grid-cols-3 gap-4">
-                      <SelectField
-                        label="Roof type"
-                        value={input.roof_type}
-                        onChange={(v) => update("roof_type", v as RoofType)}
-                        options={ROOF_TYPES}
-                      />
+                      <div>
+                        <SelectField
+                          label="Roof type"
+                          value={input.roof_type}
+                          onChange={(v) => update("roof_type", v as RoofType)}
+                          options={ROOF_TYPES}
+                        />
+                        {input.roof_type === "custom" && (
+                          <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5">
+                            Custom roofs are estimated with the explicit
+                            gable-equivalent model (2 planes, single ridge) at
+                            your entered pitch. Verify quantities manually for
+                            non-rectangular or multi-ridge roofs.
+                          </p>
+                        )}
+                      </div>
                       <Field
                         label="Roof pitch"
                         unit="°"
@@ -1325,7 +1359,8 @@ export default function BuildToRoofEstimator() {
                                   update("structural_members", members);
                                 }}
                               />
-                              <Button variant="ghost"
+                              <Button
+                                variant="ghost"
                                 onClick={() =>
                                   update(
                                     "structural_members",
@@ -1340,7 +1375,8 @@ export default function BuildToRoofEstimator() {
                               </Button>
                             </div>
                           ))}
-                          <Button variant="ghost"
+                          <Button
+                            variant="ghost"
                             onClick={() =>
                               update("structural_members", [
                                 ...input.structural_members,
@@ -2018,74 +2054,28 @@ export default function BuildToRoofEstimator() {
                     title="Upload Architectural Drawing (Optional)"
                     icon={Upload}
                   >
-                    <div className="border-2 border-dashed border-border rounded-xl p-6 sm:p-8 text-center">
-                      <FileText className="w-12 h-12 text-muted-foreground/80 mx-auto mb-3" />
-                      <p className="text-sm text-muted-foreground mb-2">
-                        Upload floor plans, elevations, sections, or roof plans
-                      </p>
-                      <p className="text-xs text-muted-foreground mb-4">
-                        PDF, JPG, PNG supported
-                      </p>
-                      <input
-                        type="file"
-                        accept=".pdf,.jpg,.jpeg,.png"
-                        className="hidden"
-                        id="drawing-upload"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (!file) return;
-                          update("drawing_analysis", {
-                            file_name: file.name,
-                            detected: {},
-                            confirmed: {
-                              building_length: null,
-                              building_width: null,
-                              wall_thickness: null,
-                              floor_height: null,
-                              number_of_floors: null,
-                              internal_wall_length: null,
-                              openings_confirmed: false,
-                              roof_confirmed: false,
-                              structural_confirmed: false,
-                              user_corrections: [],
-                            },
-                            processed_at: new Date().toISOString(),
-                            notes: [
-                              "Drawing uploaded — dimension extraction coming soon",
-                            ],
-                          });
-                        }}
-                      />
-                      <label
-                        htmlFor="drawing-upload"
-                        className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground cursor-pointer hover:bg-primary/90 transition-colors"
-                      >
-                        <Upload className="w-4 h-4" />
-                        Choose File
-                      </label>
-                    </div>
-                    {input.drawing_analysis && (
-                      <div className="mt-4 rounded-lg bg-green-50 border border-green-100 p-3 flex items-center gap-2">
-                        <CheckCircle2 className="w-4 h-4 text-green-500" />
-                        <span className="text-sm text-green-700">
-                          {input.drawing_analysis.file_name} uploaded
+                    <ConstructionExtractionPanel
+                      currentOpenings={input.openings}
+                      onApply={applyExtractionPatch}
+                    />
+                    {extractionApplied > 0 && (
+                      <div className="mt-4 rounded-lg bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-100 dark:border-emerald-900 p-3 flex items-center gap-2">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                        <span className="text-sm text-emerald-700 dark:text-emerald-300">
+                          {extractionApplied} confirmed value
+                          {extractionApplied === 1 ? "" : "s"} added to your
+                          estimate. Review and adjust them in the next steps,
+                          or calculate now.
                         </span>
                       </div>
                     )}
-                    <div className="mt-4 rounded-lg bg-blue-50 border border-blue-100 p-4">
-                      <p className="text-sm text-blue-700">
-                        Drawing analysis and dimension extraction will be
-                        available in a future update. For now, you can proceed
-                        with manually entered dimensions — these are fully
-                        functional.
-                      </p>
-                    </div>
                   </SectionCard>
                 )}
               </div>
               {/* Navigation */}
-              <div className="flex items-center justify-between mt-6 sm:mt-8 pt-4 border-t border-border/50">
-                <Button variant="ghost"
+              <div className="relative flex items-center justify-between mt-6 sm:mt-8 pt-4 border-t border-border/50">
+                <Button
+                  variant="ghost"
                   onClick={prev}
                   disabled={step === 0}
                   className="inline-flex items-center gap-1 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm font-medium text-muted-foreground disabled:opacity-40 disabled:cursor-not-allowed transition-colors active:scale-95"
@@ -2102,7 +2092,8 @@ export default function BuildToRoofEstimator() {
                   <span className="sm:hidden">/{STEPS.length - 1}</span>
                 </span>
                 {step < STEPS.length - 2 ? (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={next}
                     disabled={!canProceed}
                     className="inline-flex items-center gap-1 rounded-xl bg-gradient-to-r from-primary to-primary-light px-4 sm:px-5 py-2.5 text-sm font-medium text-primary-foreground shadow-md shadow-brand-purple/20 disabled:opacity-40 hover:shadow-lg hover:shadow-brand-purple/25 transition-all active:scale-95"
@@ -2111,7 +2102,27 @@ export default function BuildToRoofEstimator() {
                     <ChevronRight className="w-4 h-4" />
                   </Button>
                 ) : step === STEPS.length - 2 ? (
-                  <Button variant="ghost"
+                  <>
+                  {validationErrors.length > 0 && (
+                    <div className="absolute bottom-full right-0 mb-3 w-72 rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 p-3 shadow-lg">
+                      <p className="text-xs font-semibold text-red-700 dark:text-red-300 mb-1">
+                        Please fix these before calculating:
+                      </p>
+                      <ul className="text-xs text-red-600 dark:text-red-400 space-y-0.5 list-disc list-inside">
+                        {validationErrors.slice(0, 4).map((e) => (
+                          <li key={e}>{e}</li>
+                        ))}
+                        {validationErrors.length > 4 && (
+                          <li>
+                            …and {validationErrors.length - 4} more (see the
+                            earlier steps)
+                          </li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                  <Button
+                    variant="ghost"
                     onClick={calculate}
                     className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-accent-green to-green-600 px-5 sm:px-6 py-2.5 sm:py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-accent-green/20 hover:shadow-xl hover:shadow-accent-green/30 transition-all active:scale-95 animate-progress-glow"
                   >
@@ -2119,6 +2130,7 @@ export default function BuildToRoofEstimator() {
                     <span className="hidden sm:inline">Generate Estimate</span>
                     <span className="sm:hidden">Calculate</span>
                   </Button>
+                  </>
                 ) : null}
               </div>
             </>
@@ -2212,7 +2224,7 @@ function EstimateResult({
 
       {/* Grand Total */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-        <div className="rounded-2xl border border-border bg-background p-4 sm:p-6 text-primary-foreground animate-stat-count-in col-span-2 md:col-span-1 relative overflow-hidden">
+        <div className="rounded-2xl border border-border bg-brand-navy p-4 sm:p-6 text-primary-foreground animate-stat-count-in col-span-2 md:col-span-1 relative overflow-hidden">
           <div
             className="absolute inset-0 opacity-20"
             style={{
@@ -2406,7 +2418,7 @@ function EstimateResult({
               </h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              Steel rods split by diameter — priced per 12m standard length
+              Steel rods split by diameter, priced per 12m standard length
             </p>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -2501,7 +2513,7 @@ function EstimateResult({
           <summary className="cursor-pointer p-4 sm:p-6 flex items-center justify-between">
             <span className="font-semibold text-foreground flex items-center gap-2">
               <Layers className="w-5 h-5 text-brand-purple" />
-              {stage.stage_label} — Detailed Quantities
+              {stage.stage_label}, Detailed Quantities
             </span>
             <span className="text-sm text-muted-foreground">
               {formatCurrency(stage.stage_total)}
@@ -2700,9 +2712,13 @@ function EstimateResult({
               )}
             </div>
             <p className="text-sm text-muted-foreground">
-              <span className="font-medium text-card-foreground">Price Date:</span>{" "}
+              <span className="font-medium text-card-foreground">
+                Price Date:
+              </span>{" "}
               {result.price_date} ·
-              <span className="font-medium text-card-foreground ml-2">Source:</span>{" "}
+              <span className="font-medium text-card-foreground ml-2">
+                Source:
+              </span>{" "}
               {result.price_source}
             </p>
           </div>
@@ -2747,7 +2763,8 @@ function EstimateResult({
 
       {/* Premium Actions */}
       <div className="flex items-center justify-between flex-wrap gap-3 pt-2">
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={onBack}
           className="inline-flex items-center gap-1 rounded-xl px-3.5 sm:px-4 py-2.5 text-sm font-medium text-muted-foreground transition-colors active:scale-95"
         >
@@ -2756,7 +2773,8 @@ function EstimateResult({
           <span className="sm:hidden">Edit</span>
         </Button>
         <div className="flex items-center gap-2">
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={() => window.print()}
             className="inline-flex items-center gap-2 rounded-xl border border-border px-3.5 sm:px-4 py-2.5 text-sm font-medium text-card-foreground hover:bg-muted/50 hover:border-border transition-all active:scale-95"
           >

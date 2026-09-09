@@ -1,5 +1,5 @@
 /**
- * FRELUX UNIVERSAL MEASUREMENT ENGINE — Extended Units
+ * FRELUX UNIVERSAL MEASUREMENT ENGINE, Extended Units
  *
  * ADDITIVE EXTENSION to the existing measurement/units.ts.
  * Does NOT modify existing LengthUnit, AreaUnit, or any existing function.

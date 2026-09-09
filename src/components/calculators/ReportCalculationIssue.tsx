@@ -1,5 +1,5 @@
 /**
- * ReportCalculationIssue — a collapsible form that lets users report
+ * ReportCalculationIssue, a collapsible form that lets users report
  * what they believe is an incorrect calculation. Submits to the
  * calculation_reports table (public insert, admin-only read/update).
  */

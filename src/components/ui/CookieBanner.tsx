@@ -54,7 +54,7 @@ export function CookieBanner() {
 
   return (
     <>
-      {/* Scrim — subtle darkening to draw focus, but non-blocking */}
+      {/* Scrim, subtle darkening to draw focus, but non-blocking */}
       <div
         className="fixed inset-0 z-[90] bg-black/20 backdrop-blur-[2px] animate-[fade-in_0.2s_ease-out]"
         onClick={dismiss}
@@ -98,7 +98,7 @@ export function CookieBanner() {
                     </Link>
                   </p>
                 </div>
-                {/* Close button (dismiss without saving — banner returns next visit) */}
+                {/* Close button (dismiss without saving, banner returns next visit) */}
                 <Button
                   size="icon"
                   variant="ghost"
@@ -144,7 +144,7 @@ export function CookieBanner() {
                             </p>
                           </div>
                           {/* Toggle */}
-                          {/* Plain <button> — not shadcn's <Button variant="ghost">,
+                          {/* Plain <button>, not shadcn's <Button variant="ghost">,
                             whose hover state gets "stuck" on touch devices after a
                             tap until the next tap elsewhere. */}
                           <button
@@ -187,7 +187,7 @@ export function CookieBanner() {
                     <Button
                       variant="default"
                       onClick={handleSaveChoices}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl shadow-sm hover:/90 hover:shadow-md active:scale-[0.98] transition-all duration-200"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98] transition-all duration-200"
                     >
                       <Check className="h-4 w-4" />
                       Save Preferences
@@ -213,7 +213,7 @@ export function CookieBanner() {
                     <Button
                       variant="default"
                       onClick={accept}
-                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl shadow-sm hover:/90 hover:shadow-md active:scale-[0.98] transition-all duration-200"
+                      className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-semibold rounded-xl shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98] transition-all duration-200"
                     >
                       Accept All
                     </Button>

@@ -1,5 +1,5 @@
 /**
- * FRELUX MARKET INTELLIGENCE — Supabase Queries
+ * FRELUX MARKET INTELLIGENCE, Supabase Queries
  *
  * CRUD operations for all market intelligence tables.
  * Used by admin pages and the price resolver.

@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { X, Save, Loader2 } from 'lucide-react';
-import type { CalculatorType } from '@/types/database';
+import { useState } from "react";
+import { X, Save, Loader2 } from "lucide-react";
+import type { CalculatorType } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface SaveTemplateModalProps {
@@ -18,8 +18,8 @@ export default function SaveTemplateModal({
   onSave,
   defaultName,
 }: SaveTemplateModalProps) {
-  const [name, setName] = useState(defaultName ?? '');
-  const [description, setDescription] = useState('');
+  const [name, setName] = useState(defaultName ?? "");
+  const [description, setDescription] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,25 +28,28 @@ export default function SaveTemplateModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      setError('Please enter a template name');
+      setError("Please enter a template name");
       return;
     }
     setSaving(true);
     setError(null);
     try {
       await onSave(name.trim(), description.trim() || undefined);
-      setName('');
-      setDescription('');
+      setName("");
+      setDescription("");
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to save template');
+      setError(err instanceof Error ? err.message : "Failed to save template");
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
       <div
         className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl dark:border-white/10 dark:bg-card"
         onClick={(e) => e.stopPropagation()}
@@ -55,13 +58,18 @@ export default function SaveTemplateModal({
           <h2 className="text-base font-semibold text-foreground dark:text-primary-foreground">
             Save as Template
           </h2>
-          <Button variant="ghost" onClick={onClose} className="rounded-md p-1 text-muted-foreground hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground">
+          <Button
+            variant="ghost"
+            onClick={onClose}
+            className="rounded-md p-1 text-muted-foreground hover:text-card-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground"
+          >
             <X aria-hidden="true" className="h-5 w-5" />
           </Button>
         </div>
 
         <p className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">
-          Save your current calculator inputs to reuse later. Results are recalculated fresh each time.
+          Save your current calculator inputs to reuse later. Results are
+          recalculated fresh each time.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-3">
@@ -97,20 +105,26 @@ export default function SaveTemplateModal({
           )}
 
           <div className="flex items-center gap-2 pt-1">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={onClose}
               className="flex-1 rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"
             >
               Cancel
             </Button>
-            <Button variant="default"
+            <Button
+              variant="default"
               type="submit"
               disabled={saving}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-colors hover:/90 disabled:opacity-50"
+              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold transition-colors hover:bg-primary/90 disabled:opacity-50"
             >
-              {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Save aria-hidden="true" className="h-4 w-4" />}
-              {saving ? 'Saving...' : 'Save Template'}
+              {saving ? (
+                <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save aria-hidden="true" className="h-4 w-4" />
+              )}
+              {saving ? "Saving..." : "Save Template"}
             </Button>
           </div>
         </form>

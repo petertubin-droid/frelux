@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF EDGE CLASSIFICATION — Tests
+ * FRELUX ROOF EDGE CLASSIFICATION, Tests
  *
  * Feature 7: Roof Edge Classification
  */
@@ -241,7 +241,7 @@ describe('Roof Edge: No Hardcoded Materials', () => {
       createPoint(0, 100),
     ];
     const summary = getEdgeSummary(section);
-    // Each line should only have lengthM and edgeCount — no material quantity
+    // Each line should only have lengthM and edgeCount, no material quantity
     for (const line of summary.lines) {
       expect(line).toHaveProperty('lengthM');
       expect(line).toHaveProperty('edgeCount');

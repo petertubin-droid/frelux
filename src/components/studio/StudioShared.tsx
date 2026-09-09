@@ -16,7 +16,7 @@ import { cn } from "@/lib/cn";
 import { Button } from "@/components/ui/shadcn/button";
 
 // =========================================================
-// Prompt Input — shared natural language input with generate button
+// Prompt Input, shared natural language input with generate button
 // =========================================================
 export function PromptInput({
   label,
@@ -71,7 +71,7 @@ export function PromptInput({
 }
 
 // =========================================================
-// Code Output — displays AI-generated code with copy/download
+// Code Output, displays AI-generated code with copy/download
 // =========================================================
 export function CodeOutput({
   content,
@@ -156,7 +156,7 @@ export function CodeOutput({
 }
 
 // =========================================================
-// AI Response — renders AI output (may contain markdown)
+// AI Response, renders AI output (may contain markdown)
 // =========================================================
 export function AiResponseDisplay({
   content,
@@ -210,7 +210,7 @@ export function AiResponseDisplay({
 }
 
 // =========================================================
-// RenderedContent — lightweight markdown code block extraction
+// RenderedContent, lightweight markdown code block extraction
 // =========================================================
 export function RenderedContent({ content }: { content: string }) {
   const segments = parseMarkdown(content);
@@ -276,7 +276,7 @@ export function parseMarkdown(text: string): Segment[] {
 }
 
 // =========================================================
-// Artifact Card — for listing saved artifacts
+// Artifact Card, for listing saved artifacts
 // =========================================================
 export function ArtifactCard({
   title,
@@ -384,7 +384,7 @@ export function CollapsibleSection({
 }
 
 // =========================================================
-// Save bar — for saving artifacts
+// Save bar, for saving artifacts
 // =========================================================
 export function SaveBar({
   onSave,
@@ -422,7 +422,7 @@ export function SaveBar({
 }
 
 // =========================================================
-// ToolHeader — consistent header for each tool page
+// ToolHeader, consistent header for each tool page
 // =========================================================
 export function ToolHeader({
   icon: Icon,
@@ -447,7 +447,7 @@ export function ToolHeader({
 }
 
 // =========================================================
-// ChatMessage — for chat display
+// ChatMessage, for chat display
 // =========================================================
 export function ChatMessage({
   role,

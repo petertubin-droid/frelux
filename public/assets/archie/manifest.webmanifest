@@ -1,0 +1,30 @@
+{
+  "id": "/archie/chat",
+  "name": "ARCHIE Personal Intelligence",
+  "short_name": "ARCHIE",
+  "description": "The Owner's private ARCHIE application — central control dashboard and conversational front door to FRELUX's ARCHIE Intelligence Core.",
+  "start_url": "/archie/chat",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "background_color": "#0B0F14",
+  "theme_color": "#0B0F14",
+  "orientation": "any",
+  "lang": "en",
+  "dir": "ltr",
+  "categories": ["productivity", "business", "utilities"],
+  "icons": [
+    {
+      "src": "/assets/archie/archie-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/archie/archie-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

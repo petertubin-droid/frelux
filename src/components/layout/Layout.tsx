@@ -10,11 +10,15 @@ import { trackVisit } from "@/lib/achievements";
 import { trackReturnVisitRewards } from "@/lib/rewards-integration";
 import type { Achievement } from "@/lib/achievements";
 import { getSupabase } from "@/lib/supabase-lazy";
+import { adDebug, instrumentScript } from "@/lib/ad-diagnostics";
 import { useAuth } from "@/lib/auth";
 
-// Lazy-loaded below-the-fold components — not visible on first paint
+// Lazy-loaded below-the-fold components, not visible on first paint
 const SupportChatWidget = lazy(
   () => import("@/components/layout/SupportChatWidget"),
+);
+const CopilotWidget = lazy(
+  () => import("@/components/copilot/CopilotWidget"),
 );
 const MobileBottomNav = lazy(() => import("@/components/ui/MobileBottomNav"));
 const OfflineIndicator = lazy(() =>
@@ -45,6 +49,12 @@ export default function Layout() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
+  // Adsterra Native Banner rendered site-wide (one container + tag on
+  // every public page; admin pages never mount Layout).
+  const [adsterraNative, setAdsterraNative] = useState<{
+    key: string;
+    src: string;
+  } | null>(null);
   const location = useLocation();
   const { open: cmdOpen, setOpen: setCmdOpen } = useCommandPalette();
 
@@ -70,8 +80,10 @@ export default function Layout() {
   // ── Site-wide ad format tags: injected ONCE on first public page load ──
   // Only non-intrusive, in-page-safe formats are injected here: AdSense
   // page-level ads and Adsterra site-wide scripts (when their zone keys
-  // are configured in Admin → Ads). Monetag site-wide tags are NOT
-  // injected (they hijack the top-level page — see the note below).
+  // are configured in Admin → Ads). Monetag monetizes through the
+  // site-wide SDK zone tag (credentials.sdk_url), per-format auto
+  // zones (Vignette / Interstitial / Popunder) and the rewarded flow.
+  // All of it is gated by the admin's display_ads_enabled toggle.
   // Admin pages don't use Layout at all (separate AdminLayout), so the
   // admin guard is belt-and-suspenders.
   useEffect(() => {
@@ -79,8 +91,13 @@ export default function Layout() {
 
     let cancelled = false;
     (async () => {
-
       let adsterraSiteWide: Array<{ format: string; src: string }> = [];
+      let monetagAutoZones: Array<{
+        format: string;
+        zone: string;
+        src: string;
+      }> = [];
+      let monetagSdkUrl: string | null = null;
       let adsensePubId: string | null = null;
       try {
         const [{ fetchAdConfig }] = await Promise.all([
@@ -89,14 +106,10 @@ export default function Layout() {
         const { providers } = await fetchAdConfig();
         // ── Additional format tags (additive; dormant until configured) ──
         const formats = await import("@/lib/ad-network-formats");
-        // NOTE: Monetag site-wide display/auto zones (Popunder / Vignette /
-        // Interstitial) are intentionally NOT injected. The website zone
-        // tag hijacked the top-level page (observed redirecting visitors
-        // off the site seconds after load), which breaks every other ad
-        // format and the site itself. Monetag still monetizes through the
-        // user-initiated REWARDED flow (monetag-rewarded.ts) and through
-        // per-placement SDK zones (AdSlot renders a container when an
-        // admin maps a Monetag zone ID to a placement).
+        // NOTE: Monetag's site-wide SDK zone tag (credentials.sdk_url)
+        // is the primary Monetag revenue path (popunder / on-click
+        // formats). It is restored here, injected once per session and
+        // gated by the admin's display_ads_enabled toggle.
         // AdSense page-level ads (Auto / Anchor / Vignette / Interstitial):
         // the script + page-level push runs only when the publisher toggled
         // at least one page-level format on here. The exact format mix is
@@ -124,18 +137,62 @@ export default function Layout() {
         if (adsterra) {
           const { getAdsterraServeDomain } =
             await import("@/components/ui/AdSlot");
+          const adsterraServeDomain = getAdsterraServeDomain(adsterra);
           adsterraSiteWide = formats.getAdsterraSiteWideScripts(
             adsterra,
-            getAdsterraServeDomain(adsterra),
+            adsterraServeDomain,
           );
+          // Site-wide Native Banner: the admin's Native Banner zone
+          // (native_banner_key credential) renders ONE unit on every
+          // public page via the container div in the JSX below.
+          if (
+            formats.displayAdsEnabled(adsterra) &&
+            formats.getAdsterraNativeBannerSitewide(adsterra)
+          ) {
+            const nativeKey = formats.getAdsterraNativeBannerKey(adsterra);
+            if (nativeKey && !cancelled) {
+              const scriptFile =
+                formats.getAdsterraNativeBannerScript(adsterra) === "invoke"
+                  ? "invoke.js"
+                  : "native.js";
+              setAdsterraNative({
+                key: nativeKey,
+                src: `https://${adsterraServeDomain}/${nativeKey}/${scriptFile}`,
+              });
+            }
+          }
+        }
+
+        // Monetag admin-configured auto zones (Vignette / Interstitial /
+        // Popunder). These are true website zones the admin explicitly
+        // created per format in the Monetag dashboard, injected per zone
+        // with data-sdk-ignore so they never create global show_ fns.
+        // Rewarded/Social-Bar SDK zones are NOT auto zones and must never
+        // be loaded here (they hijack the page, see monetag-rewarded.ts).
+        const monetag = providers.find(
+          (p) => p.slug === "monetag" && p.is_active,
+        );
+        if (monetag) {
+          monetagAutoZones = formats.getMonetagAutoZoneScripts(monetag);
+          // Site-wide SDK zone tag (popunder formats). Injected only
+          // when the admin enabled display ads for Monetag.
+          if (formats.displayAdsEnabled(monetag)) {
+            const mc = (monetag.credentials ?? {}) as Record<string, unknown>;
+            const sdkUrl =
+              typeof mc.sdk_url === "string" ? mc.sdk_url.trim() : "";
+            // Monetag SDK tag shape: https://<host>/<route>/<zone-id>
+            if (/^https:\/\/[a-z0-9.-]+\/\d+\/\d{5,10}$/i.test(sdkUrl)) {
+              monetagSdkUrl = sdkUrl;
+            }
+          }
         }
       } catch {
-        // Ad config unavailable — do not inject anything.
+        // Ad config unavailable, do not inject anything.
         return;
       }
       if (cancelled) return;
 
-      // AdSense page-level ads — inject once, never remove
+      // AdSense page-level ads, inject once, never remove
       if (
         adsensePubId &&
         !cancelled &&
@@ -166,15 +223,83 @@ export default function Layout() {
         s.setAttribute("data-adsterra-format", a.format);
         s.async = true;
         s.setAttribute("data-cfasync", "false");
+        instrumentScript("adsterra", s, `sitewide:${a.format}`);
         document.head.appendChild(s);
+        adDebug("adsterra", "sitewide:injected", {
+          format: a.format,
+          src: a.src,
+        });
       }
-      // No cleanup — tags persist for the entire page session
+      // Monetag admin-configured auto zones (Vignette / Interstitial /
+      // Popunder), one tag per zone, deduped per format
+      for (const m of monetagAutoZones) {
+        if (cancelled) return;
+        if (document.querySelector(`script[data-monetag-auto="${m.format}"]`))
+          continue;
+        const s = document.createElement("script");
+        s.src = m.src;
+        s.async = true;
+        s.setAttribute("data-cfasync", "false");
+        s.setAttribute("data-zone", m.zone);
+        s.setAttribute("data-domain", "quge5.com");
+        s.setAttribute("data-sdk-ignore", "true");
+        s.setAttribute("data-monetag-auto", m.format);
+        instrumentScript("monetag", s, `auto:${m.format}`);
+        document.head.appendChild(s);
+        adDebug("monetag", "auto-zone:injected", {
+          format: m.format,
+          zone: m.zone,
+        });
+      }
+      // Monetag site-wide SDK zone (popunder / on-click formats) :
+      // the tag that carries Monetag's main display revenue.
+      // Injected once per session; the SDK manages its own display
+      // cadence and click handling.
+      if (
+        monetagSdkUrl &&
+        !cancelled &&
+        !document.querySelector('script[data-monetag-sdk="true"]')
+      ) {
+        const s = document.createElement("script");
+        s.src = monetagSdkUrl;
+        s.async = true;
+        s.setAttribute("data-cfasync", "false");
+        s.setAttribute("data-monetag-sdk", "true");
+        instrumentScript("monetag", s, "sdk:sitewide");
+        document.head.appendChild(s);
+        adDebug("monetag", "sdk-zone:injected", {
+          src: monetagSdkUrl,
+        });
+      }
+      // No cleanup, tags persist for the entire page session
     })();
 
     return () => {
       cancelled = true;
     };
   }, []);
+
+  // Adsterra Native Banner (site-wide): load the zone tag after the
+  // container div is committed. The tag renders the native unit into
+  // the `container-<key>` div rendered above the footer.
+  useEffect(() => {
+    if (!adsterraNative) return;
+    const { key, src } = adsterraNative;
+    const container = document.getElementById(`container-${key}`);
+    if (!container) return;
+    if (document.querySelector('script[data-adsterra-native-sitewide="true"]'))
+      return;
+    const s = document.createElement("script");
+    s.src = src;
+    s.async = true;
+    s.setAttribute("data-cfasync", "false");
+    s.setAttribute("data-adsterra-native", "true");
+    s.setAttribute("data-adsterra-native-sitewide", "true");
+    s.setAttribute("data-ad-zone", key);
+    instrumentScript("adsterra", s, `native-sitewide:${key}`);
+    document.head.appendChild(s);
+    adDebug("adsterra", "native-sitewide:injected", { src });
+  }, [adsterraNative]);
 
   // ── Maintenance mode check: deferred to idle callback to avoid blocking initial render ──
   useEffect(() => {
@@ -320,15 +445,28 @@ export default function Layout() {
       >
         <Outlet />
       </main>
-      {/* Global footer ad slot — placement "global_footer", toggled in
+      {/* Global footer ad slot, placement "global_footer", toggled in
           Admin → Ads → Placements like every other slot. */}
       <AdSlot slotKey="global_footer" />
+      {adsterraNative && (
+        <div
+          id={`container-${adsterraNative.key}`}
+          data-adsterra-native-sitewide="container"
+          className="mx-auto w-full max-w-5xl px-4 py-2"
+          aria-label="Advertisement"
+        />
+      )}
       <Footer />
       <Suspense fallback={null}>
         <OfflineIndicator />
       </Suspense>
       <Suspense fallback={null}>
         <SupportChatWidget />
+      </Suspense>
+      {/* FRELUX AI Copilot, interprets requests, routes to
+          authoritative engines. Additive; no existing flow changed. */}
+      <Suspense fallback={null}>
+        <CopilotWidget />
       </Suspense>
       <Suspense fallback={null}>
         <MobileBottomNav />

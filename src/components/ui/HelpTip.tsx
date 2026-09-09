@@ -43,7 +43,7 @@ export default function HelpTip({
         <span
           role="tooltip"
           className={classNames(
-            'absolute z-50 w-56 rounded-lg bg-background px-3 py-2 text-xs font-normal leading-relaxed text-primary-foreground shadow-xl animate-tooltip-in',
+            'absolute z-50 w-56 rounded-lg bg-foreground px-3 py-2 text-xs font-normal leading-relaxed text-background shadow-xl animate-tooltip-in',
             positionClasses[side],
           )}
         >

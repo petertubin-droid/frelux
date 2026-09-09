@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import {
   Paintbrush,
   SprayCan,
@@ -52,6 +53,10 @@ import type { DbFinishType, DbSiteSettings } from "@/types/database";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
+import {
+  useProjectLocationCurrency,
+  type FreluxLocation,
+} from "@/lib/location-intelligence";
 
 // Default door/window dims now from admin calc rules via useCalcDefaults
 
@@ -64,10 +69,16 @@ const finishTypeMeta: Record<
   grafitex: { icon: Layers, color: "text-emerald-600" },
 };
 
+interface PassedState {
+  /** Canonical project location (location-intelligence) passed via router state. */
+  projectLocation?: FreluxLocation | null;
+}
+
 export default function FinishEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
   const { defaults: calcDefaults } = useCalcDefaults("finish");
+  const passed = (useLocation().state as PassedState | null) ?? {};
   const defaultDoorDims: OpeningDimensions = {
     width: calcDefaults.doorWidthM,
     height: calcDefaults.doorHeightM,
@@ -80,7 +91,7 @@ export default function FinishEstimator({
     !embedded
       ? {
           title:
-            "Finish Estimator — Painting, Tyrolene & Grafitex Cost Calculator",
+            "Finish Estimator, Painting, Tyrolene & Grafitex Cost Calculator",
           description:
             "Estimate material quantities and costs for wall finishes including Painting, Tyrolene, and Grafitex. Based on real coverage rates and package sizes.",
           canonicalPath: "/finish-estimator",
@@ -105,8 +116,14 @@ export default function FinishEstimator({
   const [result, setResult] = useState<FinishCalcResult | null>(null);
   const [saved, setSaved] = useState(false);
 
-  const currencySymbol = settings?.default_currency_symbol ?? "₦";
-  const currency = settings?.default_currency ?? "NGN";
+  // Regional data flow: project location -> market profile -> currency.
+  const {
+    currencyCode: projectCurrencyCode,
+    currencySymbol: projectCurrencySymbol,
+  } = useProjectLocationCurrency(passed.projectLocation ?? null);
+  const currencySymbol =
+    projectCurrencySymbol ?? settings?.default_currency_symbol ?? "₦";
+  const currency = projectCurrencyCode ?? settings?.default_currency ?? "NGN";
 
   const [areaInput, setAreaInput] = useState<ScreedingCalcInput>({
     method: "full_room",
@@ -209,7 +226,7 @@ export default function FinishEstimator({
 
   async function handleSave() {
     if (!result) return;
-    const name = `${getFinishTypeLabel(selectedFinish)} — ${formatNumber(result.area)} m²`;
+    const name = `${getFinishTypeLabel(selectedFinish)}, ${formatNumber(result.area)} m²`;
     const { error } = await saveUserProject(
       name,
       "custom",
@@ -577,9 +594,21 @@ export default function FinishEstimator({
 
         {!loading && result && (
           <div className="space-y-6">
+            {(result.warnings ?? []).length > 0 && (
+              <div className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-700 dark:text-amber-400">
+                <p className="mb-1 font-medium">
+                  Configuration incomplete, estimate may be understated:
+                </p>
+                <ul className="list-disc pl-4 space-y-0.5">
+                  {(result.warnings ?? []).map((w) => (
+                    <li key={w}>{w}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
             <ResultCard
               title={`${getFinishTypeLabel(result.finishType)} Estimate`}
-              subtitle={`${formatNumber(result.area)} m² — ${result.coats} coat${result.coats > 1 ? "s" : ""} — ${result.wasteMargin}% waste`}
+              subtitle={`${formatNumber(result.area)} m², ${result.coats} coat${result.coats > 1 ? "s" : ""}, ${result.wasteMargin}% waste`}
               stats={[
                 {
                   label: "Surface Area",

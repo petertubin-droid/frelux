@@ -1,14 +1,14 @@
 /**
- * FRELUX DIRECT CRAWLER — Extended Types
+ * FRELUX DIRECT CRAWLER, Extended Types
  *
  * Extends the existing Market Intelligence types with crawler-specific types.
- * Does NOT modify existing types — all additions are new.
+ * Does NOT modify existing types, all additions are new.
  */
 
 import type { MatchConfidence } from "@/types/market-intelligence";
 
 // ============================================================
-// CRAWL JOB — tracks a single crawl execution
+// CRAWL JOB, tracks a single crawl execution
 // ============================================================
 
 export type CrawlJobStatus =
@@ -92,7 +92,7 @@ export interface CrawlError {
 }
 
 // ============================================================
-// FETCH RESULT — result of a single page fetch
+// FETCH RESULT, result of a single page fetch
 // ============================================================
 
 export interface CrawlFetchResult {
@@ -109,7 +109,7 @@ export interface CrawlFetchResult {
 }
 
 // ============================================================
-// EXTRACTED DATA — what the extractor found on a page
+// EXTRACTED DATA, what the extractor found on a page
 // ============================================================
 
 export interface CrawlExtractionResult {
@@ -136,7 +136,7 @@ export interface ExtractedProduct {
 }
 
 // ============================================================
-// CRAWL CONFIG — configurable limits
+// CRAWL CONFIG, configurable limits
 // ============================================================
 
 export interface CrawlerConfig {
@@ -193,7 +193,7 @@ export interface RobotsRule {
 }
 
 // ============================================================
-// CRAWL TRIGGER — admin action result
+// CRAWL TRIGGER, admin action result
 // ============================================================
 
 export interface CrawlTriggerResult {
@@ -217,7 +217,7 @@ export interface ScheduledCrawlConfig {
 }
 
 // ============================================================
-// ADAPTER EXTENSION — extends ExtractedPriceData with multiple products
+// ADAPTER EXTENSION, extends ExtractedPriceData with multiple products
 // ============================================================
 
 /**

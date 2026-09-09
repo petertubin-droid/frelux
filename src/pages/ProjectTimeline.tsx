@@ -66,18 +66,18 @@ export default function ProjectTimeline() {
 
   return (
     <>
-    <PageHeader
-      eyebrow="Planning Tool"
-      title="Construction Timeline Estimator"
-      subtitle="How long will your project take? Stage-by-stage estimates based on Nigerian construction benchmarks."
-      breadcrumbs={[
-        { label: "Home", path: "/" },
-        { label: "Calculators", path: "/calculators" },
-        { label: "Project Timeline" },
-      ]}
-    />
+      <PageHeader
+        eyebrow="Planning Tool"
+        title="Construction Timeline Estimator"
+        subtitle="How long will your project take? Stage-by-stage estimates based on Nigerian construction benchmarks."
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Calculators", path: "/calculators" },
+          { label: "Project Timeline" },
+        ]}
+      />
 
-    <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 space-y-6">
+      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 space-y-6">
         {/* Inputs */}
         <div className="rounded-2xl border border-border bg-card shadow-card p-6">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -172,11 +172,13 @@ export default function ProjectTimeline() {
             Structural engineer engaged (has reinforcement schedule)
           </label>
 
-          <Button variant="default"
+          <Button
+            variant="default"
             onClick={calculate}
-            className="mt-4 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-bold hover:/90"
+            className="mt-4 inline-flex items-center gap-2 rounded-lg px-6 py-3 text-sm font-bold hover:bg-primary/90"
           >
-            <Calendar aria-hidden="true" className="w-4 h-4" /> Estimate Timeline
+            <Calendar aria-hidden="true" className="w-4 h-4" /> Estimate
+            Timeline
           </Button>
         </div>
 
@@ -242,8 +244,11 @@ export default function ProjectTimeline() {
             {/* Stage breakdown */}
             <div className="rounded-2xl border border-border bg-card shadow-card p-6">
               <h3 className="font-semibold text-foreground flex items-center gap-2 mb-4">
-                <Clock aria-hidden="true" className="w-5 h-5 text-brand-purple" /> Stage-by-Stage
-                Breakdown
+                <Clock
+                  aria-hidden="true"
+                  className="w-5 h-5 text-brand-purple"
+                />{" "}
+                Stage-by-Stage Breakdown
               </h3>
               <div className="space-y-2">
                 {result.stages.map((s, i) => (
@@ -253,7 +258,7 @@ export default function ProjectTimeline() {
                   >
                     <div className="flex items-center justify-between mb-1">
                       <div className="flex items-center gap-2">
-                        <span className="flex h-6 w-6 items-center justify-center rounded bg-background text-primary-foreground text-xs font-bold">
+                        <span className="flex h-6 w-6 items-center justify-center rounded bg-foreground text-background text-xs font-bold">
                           {i + 1}
                         </span>
                         <span className="text-sm font-medium text-foreground">
@@ -411,9 +416,16 @@ function SummaryCard({
   return (
     <div className="relative overflow-hidden rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-primary/10 p-5 dark:border-brand-purple/30">
       <div className="pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-primary/10 blur-2xl" />
-      <p className="relative text-xs font-medium text-muted-foreground mb-1.5">{label}</p>
+      <p className="relative text-xs font-medium text-muted-foreground mb-1.5">
+        {label}
+      </p>
       <p className="relative text-xl font-bold text-foreground dark:text-primary-foreground">
-        {value} {unit && <span className="text-sm font-normal text-muted-foreground">{unit}</span>}
+        {value}{" "}
+        {unit && (
+          <span className="text-sm font-normal text-muted-foreground">
+            {unit}
+          </span>
+        )}
       </p>
     </div>
   );

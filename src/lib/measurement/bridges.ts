@@ -5,7 +5,7 @@
  * existing FRELUX calculation engines. They take a MeasurementProjectResult
  * (normalised area in m²) and feed it to the appropriate engine.
  *
- * Existing FRELUX calculation rules are PRESERVED — these bridges only
+ * Existing FRELUX calculation rules are PRESERVED, these bridges only
  * provide the normalised input, they do NOT change the calculation logic.
  */
 
@@ -28,7 +28,7 @@ import type { MeasurementEntry } from './types';
  * The measurement system provides the total wall/surface area in m².
  * The existing FRELUX screeding material rules then calculate material quantity.
  *
- * The existing calculateScreedingEstimate() is PRESERVED — we just feed it
+ * The existing calculateScreedingEstimate() is PRESERVED, we just feed it
  * the normalised m² value from the measurement system.
  */
 export function bridgeScreeding(
@@ -52,7 +52,7 @@ export function bridgeScreeding(
  * (not just the aggregate area), because different surfaces might have
  * different tile configs. For now, we use the first entry's tile config.
  *
- * The tiling engine (calculateTileRequirement) handles the tile math —
+ * The tiling engine (calculateTileRequirement) handles the tile math :
  * this bridge extracts the config and passes it through.
  */
 export function bridgeTiling(

@@ -1,9 +1,9 @@
 // =========================================================
 // FRELUX Build-to-Roof Construction Cost Estimator
-// Types — Phase 30
+// Types, Phase 30
 //
 // Covers: site/foundation → ground floor → walls → structural frame → roof
-// Stops at "ready for finishing" — no plastering, painting, tiling, doors, etc.
+// Stops at "ready for finishing", no plastering, painting, tiling, doors, etc.
 // =========================================================
 
 // ── Enums / Union types ──
@@ -69,12 +69,12 @@ export interface StructuralMemberInput {
   width: number; // meters (or diameter for columns)
   depth: number; // meters (or thickness for slabs)
   quantity: number; // number of identical members
-  // Reinforcement (optional — from engineer's schedule)
+  // Reinforcement (optional, from engineer's schedule)
   bar_diameter_mm?: number;
   bar_count_main?: number; // number of main bars
   bar_count_links?: number; // links/stirrups per meter
   link_diameter_mm?: number;
-  bar_length_main?: number; // length per main bar (m) — defaults to member length
+  bar_length_main?: number; // length per main bar (m), defaults to member length
   cover_mm?: number; // concrete cover
 }
 
@@ -96,14 +96,14 @@ export interface BuildToRoofInput {
   internal_wall_length: number; // total length of internal partition walls (m)
   internal_wall_thickness: number; // meters
 
-  // Openings (doors/windows) — used for wall deductions only
+  // Openings (doors/windows), used for wall deductions only
   openings: OpeningInput[];
 
   // Foundation
   foundation_type: FoundationType;
-  foundation_depth: number; // trench depth (m) — used for excavation
+  foundation_depth: number; // trench depth (m), used for excavation
   foundation_width: number; // trench/pad width (m)
-  footing_thickness: number; // concrete footing thickness (m) — configurable, NOT hardcoded
+  footing_thickness: number; // concrete footing thickness (m), configurable, NOT hardcoded
   blinding_thickness: number; // blinding concrete thickness (m)
   hardcore_thickness: number; // hardcore fill thickness (m)
   dpc_length: number; // DPC roll length needed (m), 0 if none
@@ -129,7 +129,7 @@ export interface BuildToRoofInput {
   roof_overhang: number; // meters
   roofing_material: RoofingMaterial;
 
-  // Structural members (optional — from engineer's schedule)
+  // Structural members (optional, from engineer's schedule)
   structural_members: StructuralMemberInput[];
   has_engineer_schedule: boolean;
 
@@ -184,7 +184,7 @@ export interface PriceConfig {
   roofing_screws_per_piece: number; // ₦ per screw
   fascia_per_meter: number; // ₦ per linear meter
   dpc_per_meter: number; // ₦ per linear meter (DPC roll)
-  dpm_per_m2: number; // ₦ per m² (DPM membrane — different from DPC roll)
+  dpm_per_m2: number; // ₦ per m² (DPM membrane, different from DPC roll)
   formwork_per_m2: number; // ₦ per m² of formwork (plywood + nails)
   price_date: string; // ISO date
   price_source: string; // e.g. "User-supplied" or "Admin-configured"
@@ -207,7 +207,7 @@ export interface LabourConfig {
   // Role-based daily rates (Nigerian construction)
   bricklayer_per_day: number; // ₦ per day per bricklayer/mason
   bricklayer_days: number; // estimated bricklayer-days for blockwork
-  contractor_fee: number; // ₦ — lump sum or daily rate × days
+  contractor_fee: number; // ₦, lump sum or daily rate × days
   contractor_fee_type: 'daily' | 'contract'; // payment mode
   contractor_days: number; // if daily, estimated contractor days
   supervisor_per_day: number; // ₦ per day
@@ -315,7 +315,8 @@ export interface ConsolidatedMaterial {
 export interface ReinforcementBreakdownItem {
   diameter_mm: number;
   label: string;           // e.g. "12mm Main Bars"
-  total_length_m: number;  // total length in meters
+  base_length_m: number;   // net length in meters (before wastage)
+  total_length_m: number;  // total length in meters (incl. wastage)
   standard_lengths: number; // number of 12m standard lengths
   weight_kg: number;       // total weight
   weight_tonnes: number;   // total weight in tonnes

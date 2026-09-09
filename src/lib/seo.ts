@@ -55,7 +55,12 @@ export function useSeo(meta: SeoMeta | null) {
   useEffect(() => {
     if (!meta) return;
     const fullTitle = meta.title.includes('FRELUX') ? meta.title : `${meta.title}: FRELUX PROJECT CALC`;
-    const canonicalUrl = `${SITE_URL}${meta.canonicalPath ?? ''}`;
+    // Netlify pretty URLs force-redirect /path to /path/ (301), so the
+    // canonical URL must use the trailing-slash form to match what is
+    // actually served and indexed.
+    const rawCanonicalPath = meta.canonicalPath ?? '';
+    const canonicalPath = !rawCanonicalPath || rawCanonicalPath === '/' ? rawCanonicalPath : `${rawCanonicalPath}/`;
+    const canonicalUrl = `${SITE_URL}${canonicalPath}`;
     const ogImage = meta.ogImage ?? DEFAULT_OG_IMAGE;
 
     // Primary meta
@@ -87,7 +92,7 @@ export function useSeo(meta: SeoMeta | null) {
     setMeta('name', 'twitter:image', ogImage);
     setMeta('name', 'twitter:image:alt', `${fullTitle}: FRELUX PROJECT CALC`);
 
-    // Canonical URL — always set
+    // Canonical URL, always set
     setLink('canonical', canonicalUrl);
 
     // Robots
@@ -97,7 +102,7 @@ export function useSeo(meta: SeoMeta | null) {
       setMeta('name', 'robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1');
     }
 
-    // Structured data — single or array
+    // Structured data, single or array
     const sdIds: string[] = [];
 
     if (meta.structuredData) {

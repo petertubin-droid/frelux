@@ -279,6 +279,7 @@ export const CALCULATOR_META: Record<CalculatorType, { label: string; path: stri
   tile: { label: 'Tiling', path: '/tile-calculator', icon: 'tile' },
   pop: { label: 'POP Ceiling', path: '/pop-ceiling-calculator', icon: 'pop' },
   screeding: { label: 'Wall Screeding', path: '/screeding-calculator', icon: 'screeding' },
+  build_to_roof: { label: 'Build-to-Roof', path: '/build-to-roof-estimator', icon: 'build' },
 };
 
 export function calculatorLabel(type: CalculatorType): string {

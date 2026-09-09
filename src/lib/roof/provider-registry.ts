@@ -1,5 +1,5 @@
 /**
- * FRELUX ROOF VIEW — Provider Registry
+ * FRELUX ROOF VIEW, Provider Registry
  *
  * Registry of supported imagery providers.
  *
@@ -26,7 +26,7 @@ import type {
 } from './types';
 
 // =========================================================
-// Provider Definitions (metadata only — no API keys)
+// Provider Definitions (metadata only, no API keys)
 // =========================================================
 
 interface ProviderMeta {
@@ -39,7 +39,7 @@ interface ProviderMeta {
 
 /**
  * All providers FRELUX could connect to.
- * This is metadata only — it does NOT mean any provider is active.
+ * This is metadata only, it does NOT mean any provider is active.
  */
 export const SUPPORTED_PROVIDERS: ProviderMeta[] = [
   {
@@ -144,7 +144,7 @@ export async function getRoofViewConfig(): Promise<RoofViewProviderConfig> {
     cacheExpiry = Date.now() + CACHE_TTL_MS;
     return config;
   } catch {
-    // Supabase not available (e.g. offline, not deployed) — return not configured
+    // Supabase not available (e.g. offline, not deployed), return not configured
     cachedConfig = NOT_CONFIGURED;
     cacheExpiry = Date.now() + CACHE_TTL_MS;
     return NOT_CONFIGURED;
@@ -170,7 +170,7 @@ export function clearRoofViewConfigCache(): void {
 }
 
 // =========================================================
-// Imagery Fetch (calls Edge Function — server-side only)
+// Imagery Fetch (calls Edge Function, server-side only)
 // =========================================================
 
 /**
@@ -234,7 +234,7 @@ export async function fetchRoofViewImagery(
       bounds: data.bounds,
     };
   } catch (_err) {
-    // Edge function not deployed — return error, don't fabricate
+    // Edge function not deployed, return error, don't fabricate
     return {
       available: false,
       provider: config.provider_type,

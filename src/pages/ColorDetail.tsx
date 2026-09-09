@@ -207,7 +207,7 @@ export default function ColorDetail() {
       </div>
 
       <AdSlot slotKey="color_detail_mid" className="my-10" />
-      {/* Native banner slot — placement "color_detail_native" */}
+      {/* Native banner slot, placement "color_detail_native" */}
       <AdSlot slotKey="color_detail_native" className="my-10" />
       <AdSlot slotKey="color_detail_footer" className="my-10" />
 

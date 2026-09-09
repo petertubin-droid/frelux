@@ -1,5 +1,5 @@
 /**
- * Voice Input Component — Web Speech API speech-to-text
+ * Voice Input Component, Web Speech API speech-to-text
  *
  * Features:
  * - Uses browser-native SpeechRecognition when available

@@ -1,5 +1,5 @@
 /**
- * FRELUX SOURCE TRACKING & AUDIT TRAIL — Tests
+ * FRELUX SOURCE TRACKING & AUDIT TRAIL, Tests
  *
  * Feature 12: Source Tracking
  * Feature 13: Audit Trail

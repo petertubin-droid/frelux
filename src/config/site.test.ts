@@ -38,7 +38,7 @@ describe("config/site", () => {
     }
   });
 });
-describe("navWorkspaces — Smart Calculator entry", () => {
+describe("navWorkspaces, Smart Calculator entry", () => {
   // Smart Calculator lives inside the Construction workspace's children
   const construction = navWorkspaces.find((w) => w.label === "Construction");
   const allChildren = (construction?.children ?? []) as {

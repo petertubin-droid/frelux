@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX Premium Image Estimation — Types
+// FRELUX Premium Image Estimation, Types
 // Phase 31
 //
 // Users upload a building photo → AI vision analyzes building

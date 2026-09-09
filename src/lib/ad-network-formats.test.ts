@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   getAdsterraNativeBannerKey,
+  normalizeAdsterraServeDomain,
   getAdsterraSiteWideScripts,
   getMonetagAutoZoneScripts,
   resolveAdsterraScriptUrl,
@@ -22,7 +23,7 @@ const baseProvider = {
   updated_at: "",
 } as unknown as DbAdProvider;
 
-describe("ad-network-formats — Adsterra script resolution", () => {
+describe("ad-network-formats, Adsterra script resolution", () => {
   it("constructs invoke.js URL from a bare 32-hex key", () => {
     const key = "a".repeat(32);
     expect(
@@ -108,6 +109,43 @@ describe("ad-network-formats — Adsterra script resolution", () => {
     ).toBeNull();
   });
 
+  it("extracts the script URL from a pasted dashboard snippet", () => {
+    expect(
+      resolveAdsterraScriptUrl(
+        '<script src="https://pl31194885.profitableratecpmnetwork.com/e0/57/7c/e0577c7805ee22e869f94c6eb77e0205.js"></script>',
+        {
+          serveDomain: "www.highperformanceformat.com",
+          defaultScript: "invoke.js",
+        },
+      ),
+    ).toBe(
+      "https://pl31194885.profitableratecpmnetwork.com/e0/57/7c/e0577c7805ee22e869f94c6eb77e0205.js",
+    );
+  });
+
+  it("accepts bare hashed-path social bar URLs on allowed hosts", () => {
+    expect(
+      resolveAdsterraScriptUrl(
+        "https://pl31194885.profitableratecpmnetwork.com/e0/57/7c/e0577c7805ee22e869f94c6eb77e0205.js",
+        {
+          serveDomain: "www.highperformanceformat.com",
+          defaultScript: "invoke.js",
+        },
+      ),
+    ).toBe(
+      "https://pl31194885.profitableratecpmnetwork.com/e0/57/7c/e0577c7805ee22e869f94c6eb77e0205.js",
+    );
+  });
+
+  it("rejects script tags without a usable URL", () => {
+    expect(
+      resolveAdsterraScriptUrl("evil<script>alert(1)</script>", {
+        serveDomain: "www.highperformanceformat.com",
+        defaultScript: "invoke.js",
+      }),
+    ).toBeNull();
+  });
+
   it("rejects non-key garbage values", () => {
     expect(
       resolveAdsterraScriptUrl("evil<script>alert(1)</script>", {
@@ -130,7 +168,7 @@ describe("ad-network-formats — Adsterra script resolution", () => {
   });
 });
 
-describe("ad-network-formats — site-wide Adsterra scripts", () => {
+describe("ad-network-formats, site-wide Adsterra scripts", () => {
   it("returns nothing when credentials are empty (dormant)", () => {
     expect(
       getAdsterraSiteWideScripts(baseProvider, "www.highperformanceformat.com"),
@@ -177,7 +215,19 @@ describe("ad-network-formats — site-wide Adsterra scripts", () => {
   });
 });
 
-describe("ad-network-formats — native banner key", () => {
+describe("ad-network-formats, native banner key", () => {
+  it("extracts the key from a pasted dashboard snippet", () => {
+    const key = "60c8524034bf047ff03e21ffec6aa01b";
+    expect(
+      getAdsterraNativeBannerKey({
+        ...baseProvider,
+        credentials: {
+          native_banner_key: `<script async="async" data-cfasync="false" src="https://pl31194884.profitableratecpmnetwork.com/${key}/invoke.js"></script> <div id="container-${key}"></div>`,
+        },
+      }),
+    ).toBe(key);
+  });
+
   it("returns the key only for valid hex values", () => {
     expect(getAdsterraNativeBannerKey(baseProvider)).toBeNull();
     expect(
@@ -195,7 +245,7 @@ describe("ad-network-formats — native banner key", () => {
   });
 });
 
-describe("ad-network-formats — Monetag auto zones", () => {
+describe("ad-network-formats, Monetag auto zones", () => {
   it("returns nothing without credentials (dormant)", () => {
     const monetagProvider = { ...baseProvider, slug: "monetag" };
     expect(getMonetagAutoZoneScripts(monetagProvider)).toEqual([]);
@@ -234,5 +284,25 @@ describe("ad-network-formats — Monetag auto zones", () => {
       credentials: { popunder_zone_id: "abc-def" },
     };
     expect(getMonetagAutoZoneScripts(monetagProvider)).toEqual([]);
+  });
+});
+
+describe("ad-network-formats, Adsterra serve domain normalization", () => {
+  it("accepts all live dashboard serve hosts", () => {
+    expect(normalizeAdsterraServeDomain("www.highrevenueformat.com")).toBe(
+      "www.highrevenueformat.com",
+    );
+    expect(
+      normalizeAdsterraServeDomain("https://www.profitableratecpmnetwork.com"),
+    ).toBe("www.profitableratecpmnetwork.com");
+    expect(
+      normalizeAdsterraServeDomain("pl31194882.profitableratecpmnetwork.com"),
+    ).toBe("pl31194882.profitableratecpmnetwork.com");
+  });
+
+  it("falls back to the default host for unknown domains", () => {
+    expect(normalizeAdsterraServeDomain("evil.example.com")).toBe(
+      "www.highperformanceformat.com",
+    );
   });
 });

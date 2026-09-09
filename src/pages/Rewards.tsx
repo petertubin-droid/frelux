@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   ArrowLeft,
   Gem,
@@ -21,6 +22,7 @@ import { useToast } from "@/components/ui/Toast";
 import { useSeo } from "@/lib/seo";
 import { classNames } from "@/lib/utils";
 import { AchievementBadges } from "@/components/ui/AchievementBadges";
+import { OfferwallAd } from "@/components/rewarded/OfferwallAd";
 import { hasRewardedAdProvider, fetchAdConfig } from "@/lib/ad-config";
 import {
   getTokenPurchaseConfig,
@@ -61,7 +63,7 @@ const rewardIcon: Record<string, typeof Crown> = {
 
 export default function Rewards() {
   useSeo({
-    title: "FRELUX Rewards — Earn Credits & Unlock Features",
+    title: "FRELUX Rewards, Earn Credits & Unlock Features",
     description:
       "Earn FRELUX Credits by using the platform, complete weekly missions, maintain activity streaks, and redeem rewards.",
     canonicalPath: "/rewards",
@@ -75,9 +77,18 @@ export default function Rewards() {
   const [transactions, setTransactions] = useState<CreditTransaction[]>([]);
   const [mission, setMission] = useState<WeeklyMission | null>(null);
   const [missionProgress, setMissionProgress] = useState<MissionProgress[]>([]);
+  // Deep-linkable tab (?tab=offerwall is linked from the CreditsWallet).
+  const [searchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState<
-    "rewards" | "achievements" | "history"
-  >("rewards");
+    "rewards" | "achievements" | "history" | "offerwall"
+  >(
+    initialTab === "offerwall" ||
+      initialTab === "achievements" ||
+      initialTab === "history"
+      ? initialTab
+      : "rewards",
+  );
   const [redeeming, setRedeeming] = useState<string | null>(null);
   const [unusedAiTokens, setUnusedAiTokens] = useState(0);
   const [rewardsLoading, setRewardsLoading] = useState(true);
@@ -94,15 +105,16 @@ export default function Rewards() {
     if (!user) return;
     setRewardsLoading(true);
     try {
-      const [rwd, txs, mis, tokens, adCfg, adHist, tokenCfg] = await Promise.all([
-        getRewardCatalogue(),
-        getCreditTransactions(user.id, { limit: 20 }),
-        getCurrentWeeklyMission(),
-        getUnusedRewardGrantCount(user.id, "ai_token"),
-        getRewardedAdConfig(),
-        getRewardedAdHistory(10),
-        getTokenPurchaseConfig(),
-      ]);
+      const [rwd, txs, mis, tokens, adCfg, adHist, tokenCfg] =
+        await Promise.all([
+          getRewardCatalogue(),
+          getCreditTransactions(user.id, { limit: 20 }),
+          getCurrentWeeklyMission(),
+          getUnusedRewardGrantCount(user.id, "ai_token"),
+          getRewardedAdConfig(),
+          getRewardedAdHistory(10),
+          getTokenPurchaseConfig(),
+        ]);
       setRewards(rwd);
       setTransactions(txs.transactions);
       setMission(mis);
@@ -176,7 +188,7 @@ export default function Rewards() {
     );
     if (result.success && result.authorizationUrl) {
       window.location.assign(result.authorizationUrl);
-      return; // leaving the page — keep spinner state
+      return; // leaving the page, keep spinner state
     }
     toast({
       type: "error",
@@ -211,9 +223,9 @@ export default function Rewards() {
     if (result.success) {
       const effectMessage =
         reward.reward_type === "ai_token"
-          ? `${reward.name} redeemed — you now have an extra AI estimate ready to use next time.`
+          ? `${reward.name} redeemed, you now have an extra AI estimate ready to use next time.`
           : reward.reward_type === "calc_unlock"
-            ? `${reward.name} redeemed — the Advanced Calculator is unlocked for 24 hours.`
+            ? `${reward.name} redeemed, the Advanced Calculator is unlocked for 24 hours.`
             : `${reward.name} has been redeemed.`;
       toast({
         type: "success",
@@ -284,9 +296,9 @@ export default function Rewards() {
     setWatchingAd(true);
     try {
       // Find an active provider with a real client-side rewarded bridge
-      // (e.g. Monetag). We must actually show the ad from this tap —
+      // (e.g. Monetag). We must actually show the ad from this tap :
       // mobile browsers block window-opening ad formats outside a direct
-      // user gesture — then pass a client attestation token so the
+      // user gesture, then pass a client attestation token so the
       // server can verify a real ad was shown before granting credits.
       const { providers } = await fetchAdConfig();
       const activeProvider = providers.find(
@@ -504,14 +516,15 @@ export default function Rewards() {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                      Watch Ad — Earn {creditsPerAd} Credits
+                      Watch Ad, Earn {creditsPerAd} Credits
                     </p>
                     <p className="text-xs text-muted-foreground">
                       Today: {todayEarned} / {dailyLimit} ads watched
                     </p>
                   </div>
                 </div>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   onClick={handleWatchAd}
                   disabled={!canEarn || watchingAd}
@@ -554,7 +567,7 @@ export default function Rewards() {
           );
         })()}
 
-      {/* Buy Tokens — direct purchase via Paystack (admin-configurable) */}
+      {/* Buy Tokens, direct purchase via Paystack (admin-configurable) */}
       {tokenConfig?.is_enabled &&
         (() => {
           const price = formatNaira(tokenConfig.price_kobo);
@@ -567,14 +580,16 @@ export default function Rewards() {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                      Buy {tokenConfig.token_amount} Tokens — {price}
+                      Buy {tokenConfig.token_amount} Tokens, {price}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Instantly top up your balance. Secure checkout via Paystack.
+                      Instantly top up your balance. Secure checkout via
+                      Paystack.
                     </p>
                   </div>
                 </div>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   onClick={handleBuyTokens}
                   disabled={purchasing}
@@ -605,26 +620,32 @@ export default function Rewards() {
           );
         })()}
 
-      {/* Complete Offers — Offerwall.ad */}
+      {/* Complete Offers, Offerwall.ad */}
       <div className="mb-6 rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-transparent p-6 dark:border-emerald-500/20 dark:from-emerald-500/5">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-100 dark:bg-emerald-500/10">
               <ExternalLink className="h-6 w-6 text-emerald-500" />
             </div>
             <div>
               <p className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                Complete Offers — Earn FRELUX Credits
+                Complete Offers: Earn FRELUX Credits
               </p>
               <p className="text-xs text-muted-foreground">
                 Surveys, app installs, and other offers.
               </p>
             </div>
           </div>
-          <span className="flex items-center gap-1.5 rounded-xl bg-muted px-4 py-2.5 text-sm font-bold text-muted-foreground dark:bg-white/5 dark:text-muted-foreground">
+          <Button
+            variant="ghost"
+            type="button"
+            onClick={() => setActiveTab("offerwall")}
+            aria-label="Open the offerwall"
+            className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-emerald-700"
+          >
             <Crown className="h-4 w-4" />
-            Coming Soon
-          </span>
+            Open Offerwall
+          </Button>
         </div>
       </div>
 
@@ -639,10 +660,12 @@ export default function Rewards() {
           [
             { key: "rewards", label: "Rewards", icon: Gift },
             { key: "achievements", label: "Achievements", icon: Trophy },
+            { key: "offerwall", label: "Offers", icon: ExternalLink },
             { key: "history", label: "History", icon: Clock },
           ] as const
         ).map((tab) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={classNames(
@@ -669,7 +692,7 @@ export default function Rewards() {
               />
               <span>
                 You have <strong>{unusedAiTokens}</strong> unused AI Estimate
-                Token{unusedAiTokens > 1 ? "s" : ""} — it&apos;ll be used
+                Token{unusedAiTokens > 1 ? "s" : ""}, it&apos;ll be used
                 automatically next time you hit your daily AI limit.
               </span>
             </div>
@@ -745,7 +768,8 @@ export default function Rewards() {
                       </span>
                     </div>
                   </div>
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => handleRedeem(reward)}
                     disabled={!canAfford || isRedeeming}
                     className={classNames(
@@ -779,6 +803,27 @@ export default function Rewards() {
             })}
         </div>
       )}
+
+      {activeTab === "offerwall" &&
+        (user ? (
+          <OfferwallAd
+            userId={user.id}
+            onBack={() => setActiveTab("rewards")}
+          />
+        ) : (
+          <div className="flex min-h-[500px] flex-col items-center justify-center gap-4 rounded-2xl border border-border bg-card p-8 text-center dark:border-white/10 dark:bg-card">
+            <ExternalLink className="h-10 w-10 text-muted-foreground" />
+            <div>
+              <p className="text-sm font-semibold text-card-foreground dark:text-primary-foreground">
+                Sign in to complete offers
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                The offerwall is personalized to your account, and your credits
+                are credited automatically once an offer is verified.
+              </p>
+            </div>
+          </div>
+        ))}
 
       {activeTab === "achievements" && <AchievementBadges />}
 
