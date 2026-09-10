@@ -2,7 +2,7 @@
 // ARCHIE SKELETON — ANATOMY REGISTRY & HEALTH RUNNER
 // supabase/functions/_shared/archie-ai/anatomy/registry.ts
 //
-// The 22 anatomical subsystems, each bound to its REAL
+// The 23 anatomical subsystems, each bound to its REAL
 // implementation. runAnatomyHealth() executes a REAL probe
 // per subsystem against the live database/engine — no
 // fabricated statuses. A subsystem with no backend (ears)
@@ -14,6 +14,9 @@ import { resolveArchieCapabilityEngine } from "../runtime.ts";
 
 export type SubsystemStatus =
   "HEALTHY" | "DEGRADED" | "OFFLINE" | "NOT_OPERATIONAL";
+
+/** Total registered anatomical subsystems (skeleton size). */
+export const ANATOMY_SUBSYSTEM_COUNT = 23;
 
 export interface ProbeResult {
   subsystem_key: string;
@@ -86,7 +89,7 @@ async function countWhere(
 }
 
 /**
- * Run REAL health probes across all 22 subsystems.
+ * Run REAL health probes across all 23 subsystems.
  * Returns one ProbeResult per subsystem — persisted by the
  * archie-anatomy function and shown to the Owner.
  */
@@ -172,13 +175,13 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
   push({
     subsystem_key: "skeleton",
     status:
-      subsystems === 22
+      subsystems === ANATOMY_SUBSYSTEM_COUNT
         ? "HEALTHY"
         : subsystems === null
           ? "OFFLINE"
           : "DEGRADED",
-    metric: `${subsystems ?? "?"}/22 subsystems registered`,
-    details: { expected: 22, actual: subsystems },
+    metric: `${subsystems ?? "?"}/${ANATOMY_SUBSYSTEM_COUNT} subsystems registered`,
+    details: { expected: ANATOMY_SUBSYSTEM_COUNT, actual: subsystems },
   });
 
   // -------- 🧠 SPINAL CORD — central control bus ---------
@@ -454,6 +457,36 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
     },
   });
 
+  // -------- 🔗 CONNECTIVE TISSUE — connected device &
+  // household/account intelligence (owner directive
+  // 2026-09-10). Real Web Bluetooth / WebUSB / network
+  // transports live in the PWA runtime; the edge core
+  // (native-engine/connections.ts) holds the deterministic
+  // pairing state machine, permission/scope evaluation and
+  // maintenance gate.
+  const connections = await count(db, "frelux_archie_connections");
+  push({
+    subsystem_key: "connective-tissue",
+    status: connections === null ? "OFFLINE" : "HEALTHY",
+    metric:
+      connections === null
+        ? "connections registry unreachable"
+        : `${connections} authorized connection(s) · pairing state machine + permission/scope/audit core live`,
+    details: {
+      connections,
+      transports: [
+        "bluetooth",
+        "wifi",
+        "hotspot",
+        "usb",
+        "local-network",
+        "internet",
+        "api",
+      ],
+      core: "supabase/functions/_shared/archie-ai/native-engine/connections.ts",
+    },
+  });
+
   // -------- 💤 SLEEP — background processing --------------
   const scheduled = await countWhere(
     db,
@@ -476,5 +509,3 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
 
   return results;
 }
-
-export const ANATOMY_SUBSYSTEM_COUNT = 22;

@@ -86,26 +86,30 @@ describe("constitution (DNA)", () => {
 });
 
 describe("anatomy registry (SKELETON) — real bindings only", () => {
-  // Parse the migration seed so the test guards what is
-  // actually registered in the database.
-  const migration = readFileSync(
-    resolve(
-      ROOT,
-      "supabase/migrations/20260910200000_archie_cognitive_anatomy.sql",
-    ),
-    "utf8",
-  );
+  // Parse the migration seeds (the base anatomy migration plus
+  // every later migration that registers additional subsystems)
+  // so the test guards what is actually registered in the
+  // database.
+  const migrationDir = resolve(ROOT, "supabase/migrations");
+  const seedFiles = [
+    "20260910200000_archie_cognitive_anatomy.sql",
+    "20260913130000_archie_connected_intelligence.sql",
+  ].map((f) => readFileSync(resolve(migrationDir, f), "utf8"));
+  const migration = seedFiles.join("\n");
 
-  it("registers exactly 22 subsystems", () => {
+  it("registers exactly 23 subsystems", () => {
     const rows = migration.match(
-      /\('(heart|brain|head|dna|skeleton|spinal-cord|blood|eyes|ears|mouth|digestive|liver-kidneys|immune|hands|muscles|legs|nervous|pain|balance|stem-cells|healing|sleep)',/g,
+      /\('(heart|brain|head|dna|skeleton|spinal-cord|blood|eyes|ears|mouth|digestive|liver-kidneys|immune|hands|muscles|legs|nervous|pain|balance|stem-cells|healing|sleep|connective-tissue)',/g,
     );
     expect(rows?.length).toBe(ANATOMY_SUBSYSTEM_COUNT);
-    expect(ANATOMY_SUBSYSTEM_COUNT).toBe(22);
+    expect(ANATOMY_SUBSYSTEM_COUNT).toBe(23);
   });
 
   it("binds every operational subsystem to a module that exists on disk", () => {
     // Each seed row is one line: ('key','organ','Name','Purpose','["bindings"]'::jsonb,<data>,true/false,'CRITICAL',N),
+    // 22 single-line seed rows (base migration) + connective-tissue,
+    // whose seed row is formatted across lines in its own migration —
+    // its bindings are verified by the dedicated test below.
     const seedLines = migration
       .split("\n")
       .filter((l) => /^\('([a-z-]+)',/.test(l.trim()));
@@ -135,10 +139,11 @@ describe("anatomy registry (SKELETON) — real bindings only", () => {
         }
       }
     }
-    // The SEED registered 21: ears was honestly NOT_OPERATIONAL
-    // at seed time (no fake bindings). The follow-up migration
-    // 20260913100000 flips it operational with real bindings,
-    // verified by the next test.
+    // The base seed registered 21 operational: ears was honestly
+    // NOT_OPERATIONAL at seed time (no fake bindings). The follow-up
+    // migration 20260913100000 flips ears operational, and migration
+    // 20260913130000 adds connective-tissue as operational — verified
+    // by the dedicated tests below.
     expect(operationalCount).toBe(21);
     // sanity: the heart is bound to the real native engine
     expect(checked).toContain(
@@ -215,17 +220,18 @@ describe("health runner — real probes", () => {
     } as unknown as AnatomyDb;
   }
 
-  it("probes all 22 subsystems; ears DEGRADED until a real transcription is audited", async () => {
+  it("probes all 23 subsystems; ears DEGRADED until a real transcription is audited", async () => {
     const db = makeDb({
       frelux_knowledge_items: { rows: [{}] },
       frelux_learning_records: { rows: [{}] },
       profiles: { rows: [{}] },
-      archie_subsystems: { rows: Array.from({ length: 22 }) },
+      archie_subsystems: { rows: Array.from({ length: 23 }) },
+      frelux_archie_connections: { rows: [] },
     });
     const probes = await runAnatomyHealth(db);
-    expect(probes.length).toBe(22);
+    expect(probes.length).toBe(ANATOMY_SUBSYSTEM_COUNT);
     const keys = probes.map((p) => p.subsystem_key);
-    expect(new Set(keys).size).toBe(22);
+    expect(new Set(keys).size).toBe(ANATOMY_SUBSYSTEM_COUNT);
 
     const ears = probes.find((p) => p.subsystem_key === "ears");
     // engine module loads + zero transcriptions audited = honest
@@ -240,6 +246,15 @@ describe("health runner — real probes", () => {
     const brain = probes.find((p) => p.subsystem_key === "brain");
     expect(brain?.status).toBe("HEALTHY");
     expect(brain?.metric).toContain("knowledge items");
+
+    const skeleton = probes.find((p) => p.subsystem_key === "skeleton");
+    expect(skeleton?.status).toBe("HEALTHY");
+
+    // connective-tissue: the registry is reachable (0 connections
+    // is a valid healthy state) and the core binding is reported
+    const ct = probes.find((p) => p.subsystem_key === "connective-tissue");
+    expect(ct?.status).toBe("HEALTHY");
+    expect(ct?.details.core).toContain("native-engine/connections.ts");
   });
 
   it("reports ears HEALTHY once a genuine transcription is audited", async () => {
@@ -270,5 +285,58 @@ describe("health runner — real probes", () => {
     const probes = await runAnatomyHealth(db);
     const dna = probes.find((p) => p.subsystem_key === "dna");
     expect(dna?.status).toBe("DEGRADED");
+  });
+});
+
+describe("connective-tissue subsystem (connected device intelligence)", () => {
+  const connMigration = readFileSync(
+    resolve(
+      ROOT,
+      "supabase/migrations/20260913130000_archie_connected_intelligence.sql",
+    ),
+    "utf8",
+  );
+
+  it("registers the 23rd subsystem with real, on-disk bindings", () => {
+    expect(connMigration).toContain("'connective-tissue'");
+    expect(connMigration).toContain(
+      "Connected Device & Household Intelligence",
+    );
+    const paths = [
+      "supabase/functions/_shared/archie-ai/native-engine/connections.ts",
+      "src/lib/archie/connections.ts",
+      "src/pages/archie/ArchieDevices.tsx",
+    ];
+    for (const pth of paths) {
+      expect(connMigration, `seed must bind ${pth}`).toContain(pth);
+      expect(existsSync(resolve(ROOT, pth)), `missing binding: ${pth}`).toBe(
+        true,
+      );
+    }
+    for (const tbl of [
+      "frelux_archie_connections",
+      "frelux_archie_device_accounts",
+      "frelux_archie_connection_events",
+      "frelux_archie_device_health",
+    ]) {
+      expect(connMigration).toContain(tbl);
+    }
+  });
+
+  it("seeds the three permanent principles idempotently", () => {
+    for (const pid of [
+      "connected_device_authority",
+      "learning_authority",
+      "code_production_authority",
+    ]) {
+      expect(connMigration).toContain(`'${pid}'`);
+    }
+    // ON CONFLICT DO NOTHING on every principle seed — immutable
+    const seeds =
+      connMigration.split("INSERT INTO public.frelux_archie_core_principles")
+        .length - 1;
+    expect(
+      connMigration.match(/ON CONFLICT \(principle_id\) DO NOTHING/g)?.length,
+    ).toBe(seeds);
   });
 });

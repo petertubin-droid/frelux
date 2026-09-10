@@ -151,3 +151,69 @@ ordering/audit. Full regression 5,907/5,907 (632 files), tsc clean.
 - Tests: `stage2-shared.test.tsx` (8) — RPC-only reads, own-row-only
   personhood, honest error surfacing, and every page state including
   "pending never fetches shared content".
+
+## 9. Connected Device, Household & Account Intelligence (owner directive 2026-09-10)
+
+Anatomical subsystem #23 — `connective-tissue` — migration
+`20260913130000_archie_connected_intelligence.sql`. ARCHIE connects
+real external hardware and accounts through explicit, authorized
+pairing only. Four owner-owned tables:
+
+- `frelux_archie_connections` — the IDENTITY → DEVICE chain: one
+  authorized connection to real hardware over bluetooth / wifi /
+  hotspot / usb / local-network / internet / api transports. Status
+  lifecycle `DISCOVERED → PAIRING → PAIRED ⇄ CONNECTED`,
+  `SUSPENDED`, `REVOKED` (terminal). `permissions` jsonb holds only
+  granted canonical capabilities (power, media, volume, settings,
+  routines, automation, monitoring, maintenance); `access_scope`
+  jsonb holds an explicit action list + time windows.
+- `frelux_archie_device_accounts` — the ACCOUNT link per connection:
+  service name, honest reference label ONLY (never passwords, tokens
+  or secrets), its own permission set and link status.
+- `frelux_archie_connection_events` — AUDIT HISTORY: every action
+  attributed to the acting identity (`owner`/`family`/`archie`),
+  with result `success`/`failure`/`denied` — denials are recorded
+  exactly like successes.
+- `frelux_archie_device_health` — MONITORING snapshots: real values
+  read from the device (battery, storage, health, firmware version
+  and verification) — never fabricated.
+
+Core engine: `supabase/functions/_shared/archie-ai/native-engine/
+connections.ts` (deterministic, provider-free): the pairing state
+machine, permission/scope evaluation, the maintenance gate (never
+installs unverified, incompatible, malicious or unauthorized
+updates) and audit shaping. Client runtime: `src/lib/archie/
+connections.ts` — real `navigator.bluetooth.requestDevice` /
+`navigator.usb.requestDevice` pairing (the browser's own prompt is
+the pairing requirement), an honest network reachability probe,
+owner-scoped persistence and audited action evaluation. PWA surface:
+the Devices page "Connected hardware & accounts" section with honest
+capability reporting (a transport the browser lacks is shown as
+unavailable, never claimed).
+
+Standing rules encoded as permanent core principles (seeded
+`OWNER_DIRECTIVE`, `ON CONFLICT DO NOTHING`):
+
+- `connected_device_authority` — connectivity is NEVER
+  authorization; never bypass passwords, MFA, encryption, pairing
+  requirements, OS/manufacturer security or account permissions;
+  no fake integrations; family members never inherit Owner
+  privileges (RLS: family members read ONLY connections bound to
+  their own active person row).
+- `learning_authority` — broad authorized access for learning and
+  knowledge acquisition without per-activity Owner approval;
+  learning never grants production-modification rights.
+- `code_production_authority` — owner approval required before
+  consequential changes to production code, calculators,
+  databases or deployment; ARCHIE may freely analyze, propose,
+  generate, test and verify in sandbox environments. Change
+  chain: DISCOVER → ANALYZE → PROPOSE → OWNER APPROVAL → STAGE →
+  TEST → VERIFY → OWNER APPROVAL → PRODUCTION.
+
+Tests: `connections.test.ts` (35) — lifecycle, permission/scope
+gate, family non-inheritance, maintenance gates, audit shaping,
+honest capability detection, network-probe honesty, static
+no-fabrication integrity. `archie-anatomy.test.ts` extended to 23
+subsystems with the connective-tissue registration + real-bindings
+tests. `ArchieDevices.test.tsx` extended with the honest
+capability UI and registry states (8 total).
