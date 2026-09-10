@@ -5,7 +5,9 @@ import {
   ArchieNativeEngine,
   getNativeEngine,
   configureNativeEnginePersistence,
+  constructionEstimate,
   type MarketPriceLookup,
+  type SystemAdapters,
 } from "@studio-shared/archie-ai/native-engine/engine.ts";
 import { understand } from "@studio-shared/archie-ai/native-engine/nlu.ts";
 import { resolveArchieCapabilityEngine } from "@studio-shared/archie-ai/runtime.ts";
@@ -433,5 +435,145 @@ describe("Market intelligence adapter", () => {
     expect(source).toContain("configureNativeEngineMarketLookup");
     expect(source).toContain("mi_approved_prices");
     expect(source).toContain("mi_price_observations");
+  });
+});
+// ---------------------------------------------------------
+// System adapters (documents / images / voice / social /
+// family) — same honest contract as the market lookup
+// ---------------------------------------------------------
+describe("System adapters", () => {
+  it("classifies system status questions through the rule cascade", () => {
+    expect(understand("what documents have I ingested").intent).toBe(
+      "documents_query",
+    );
+    expect(understand("show my images").intent).toBe("images_query");
+    expect(understand("voice bank status").intent).toBe("voice_query");
+    expect(understand("what social accounts are connected").intent).toBe(
+      "social_query",
+    );
+    expect(understand("who is in my trusted people").intent).toBe(
+      "family_query",
+    );
+    // negatives: existing intents are not hijacked
+    expect(understand("what is screeding").intent).toBe("knowledge_query");
+    expect(understand("what is the price of cement").intent).toBe(
+      "price_query",
+    );
+    expect(
+      understand("how do i estimate mortar for blockwork").intent,
+    ).not.toBe("construction_calc");
+  });
+
+  it("answers from the wired adapter with real provenance", async () => {
+    const adapters: SystemAdapters = {
+      documents: async () => ({
+        headline: "3 ingestion(s): 2 AWAITING_APPROVAL, 1 APPROVED.",
+        source: "frelux_archie_ingestions",
+      }),
+    };
+    const engine = new ArchieNativeEngine({ systemAdapters: adapters });
+    const result = await engine.converse("what documents have I ingested");
+    expect(result.responseText).toContain("AWAITING_APPROVAL");
+    expect(result.responseText).toContain("Source: frelux_archie_ingestions");
+  });
+
+  it("says so honestly when a system has nothing recorded — never invents state", async () => {
+    const engine = new ArchieNativeEngine({
+      systemAdapters: { social: async () => null },
+    });
+    const result = await engine.converse("what social accounts are connected");
+    expect(result.responseText).toContain("nothing to report");
+    expect(result.responseText).toContain("do not invent");
+  });
+
+  it("admits when an adapter is not wired in a deployment", async () => {
+    const engine = new ArchieNativeEngine();
+    const result = await engine.converse("who is in my trusted people");
+    expect(result.responseText).toContain("adapter is not wired");
+    expect(result.responseText).toContain("never invent");
+  });
+
+  it("archie-chat wires all five real adapters at boot", () => {
+    const source = read("supabase/functions/archie-chat/index.ts");
+    expect(source).toContain("configureNativeEngineSystemAdapters");
+    expect(source).toContain("frelux_archie_ingestions");
+    expect(source).toContain("frelux_archie_voice_samples");
+    expect(source).toContain("frelux_social_accounts");
+    expect(source).toContain("frelux_archie_people");
+  });
+});
+
+// ---------------------------------------------------------
+// Deterministic construction calculators
+// ---------------------------------------------------------
+describe("Construction calculators (deterministic)", () => {
+  it("classifies construction estimates and does not hijack price or math queries", () => {
+    expect(
+      understand("how many blocks do I need for a 6 by 3 meter wall").intent,
+    ).toBe("construction_calc");
+    expect(understand("how much paint for a 4 by 5 meter room").intent).toBe(
+      "construction_calc",
+    );
+    expect(
+      understand("how many bags of cement for 2 cubic meters of concrete")
+        .intent,
+    ).toBe("construction_calc");
+    expect(understand("what is the price of cement").intent).toBe(
+      "price_query",
+    );
+    expect(understand("what is 340 times 22").intent).toBe("math_question");
+  });
+
+  it("estimates blocks for a wall with stated assumptions", () => {
+    const answer = constructionEstimate(
+      "how many blocks for a 6 by 3 meter wall",
+    );
+    // 6*3=18 m2 / 0.1081 = 166.5 * 1.05 = 174.9 → 175
+    expect(answer).toContain("175 blocks");
+    expect(answer).toContain("450x225mm");
+    expect(answer).toContain("5%");
+  });
+
+  it("converts feet to meters for imperial walls", () => {
+    const answer = constructionEstimate(
+      "how many blocks for a 20 by 10 feet wall",
+    );
+    // 20ft=6.096m, 10ft=3.048m → 18.58 m2 → ~181 blocks
+    expect(answer).toContain("181 blocks");
+    expect(answer).toContain("ft x");
+  });
+
+  it("estimates paint litres for two coats", () => {
+    const answer = constructionEstimate("how much paint for 20 square meters");
+    // 20/10*2 = 4 litres
+    expect(answer).toContain("4 litres");
+  });
+
+  it("estimates cement bags for a concrete volume (1:2:4)", () => {
+    const answer = constructionEstimate(
+      "how many bags of cement for 2 cubic meters of concrete",
+    );
+    // 2 * 1.54/7 * 28.8 bags/m3 * 1.05 = 13.3 → 14
+    expect(answer).toContain("14 x 50kg");
+    expect(answer).toContain("1:2:4");
+  });
+
+  it("asks honestly for missing dimensions — never guesses", () => {
+    expect(constructionEstimate("how many blocks for a wall")).toContain(
+      "I will not guess dimensions",
+    );
+    expect(constructionEstimate("how much paint")).toContain(
+      "I will not guess dimensions",
+    );
+    expect(constructionEstimate("cement estimate")).toContain(
+      "I will not guess volumes",
+    );
+  });
+
+  it("offers the three calculators when the intent has no target", () => {
+    const answer = constructionEstimate("calculate something for me");
+    expect(answer).toContain("blocks");
+    expect(answer).toContain("paint");
+    expect(answer).toContain("cement");
   });
 });

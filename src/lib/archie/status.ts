@@ -229,8 +229,8 @@ export function buildSystemsRegistry(status: ArchieStatus): SystemSection[] {
     sys(
       "construction",
       "Construction Intelligence",
-      "pending",
-      "Deterministic calculators are live for subscribers; the ARCHIE-facing inspection adapter is not deployed yet.",
+      "operational",
+      "Deterministic calculator adapter live in ARCHIE chat: blocks for a wall, paint litres for an area, cement bags for a volume — pure arithmetic with stated assumptions, honest refusal on missing dimensions.",
     ),
     sys(
       "calculators",
@@ -266,20 +266,20 @@ export function buildSystemsRegistry(status: ArchieStatus): SystemSection[] {
     sys(
       "documents",
       "Documents",
-      "pending",
-      "Document analysis runs through the training pipeline; the chat document-analysis adapter is pending.",
+      "operational",
+      "Ingestion adapter live in chat: document/drawing/table pipeline states and recent extraction candidates reported from frelux_archie_ingestions — real rows only, never invented state.",
     ),
     sys(
       "images",
       "Images",
-      "pending",
-      "Image analysis runs through the training pipeline; the chat image-analysis adapter is pending.",
+      "operational",
+      "Ingestion adapter live in chat: image/video pipeline states and recent items reported from frelux_archie_ingestions — real rows only.",
     ),
     sys(
       "voice",
       "Voice",
-      "pending",
-      "Voice bank tables exist; voice response architecture is pending.",
+      "operational",
+      "Voice-bank adapter live in chat: active sample count and recorded audio seconds from frelux_archie_voice_samples. Spoken-audio transcription is NOT implemented and is not claimed.",
     ),
     sys(
       "location",
@@ -290,8 +290,8 @@ export function buildSystemsRegistry(status: ArchieStatus): SystemSection[] {
     sys(
       "social",
       "Social / Brand Intelligence",
-      "pending",
-      "Social/brand center tables are deployed; the ARCHIE adapter is pending.",
+      "operational",
+      "Social adapter live in chat: connected platforms, handles and sync status from frelux_social_accounts. Tokens stay in the service-role-only vault — never surfaced.",
     ),
     sys(
       "professional",
@@ -309,8 +309,8 @@ export function buildSystemsRegistry(status: ArchieStatus): SystemSection[] {
     sys(
       "family",
       "Family / Trusted People",
-      "pending",
-      "Trusted-people knowledge scope is defined; roster management is pending.",
+      "operational",
+      "Trusted-people adapter live in chat: roster names, relations and statuses from frelux_archie_people.",
     ),
     sys(
       "api",

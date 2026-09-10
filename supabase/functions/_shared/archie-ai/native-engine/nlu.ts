@@ -193,6 +193,12 @@ export const INTENTS = [
   "code_analysis_request",
   "research_request",
   "price_query",
+  "documents_query",
+  "images_query",
+  "voice_query",
+  "social_query",
+  "family_query",
+  "construction_calc",
   "math_question",
   "teaching",
   "correction",
@@ -475,6 +481,55 @@ const RULE_CASCADE: Array<{
     intent: "price_query",
     pattern:
       /^(?:what(?:'s|\u2019s| is)?\s+(?:the\s+)?(?:current\s+|market\s+|latest\s+)*price\s+of|price\s+of|(?:current|market|latest)\s+price\s+of|how\s+much\s+(?:is|does|are)\s+(?:a\s+|an\s+|the\s+)?(?:bag|trip|tonne|ton|carton|block|drum|pound)s?\s+of|how\s+much\s+(?:is|does|are)\b.+\b(?:cost|price)\b|how\s+much\s+is\b.+\bper\s+(?:bag|tonne|ton|unit|kg|square\s+meter)|\b(?:cement|granite|sand|sharp\s+sand|laterite|blocks?|iron\s+rods?|reinforcement|paint|tiles?)\b[^.?!]*\bprice\b)\b/i,
+    confidence: 0.9,
+  },
+  {
+    // Document pipeline status ("what documents have I ingested").
+    intent: "documents_query",
+    pattern:
+      /(?:what|which|show|list)\b[^.?!]*\b(?:ingested |processed |uploaded )?documents?\b|\bmy documents?\b|\bdocument (?:pipeline|status)\b|\bwhat did the (?:plan|drawing|spec) (?:say|extract)\b/i,
+    confidence: 0.85,
+  },
+  {
+    // Image pipeline status ("what images have I ingested").
+    intent: "images_query",
+    pattern:
+      /(?:what|which|show|list)\b[^.?!]*\b(?:ingested |processed |uploaded )?images?\b|\bmy images?\b|\bimage (?:pipeline|status|analysis)\b/i,
+    confidence: 0.85,
+  },
+  {
+    // Voice bank status. NOTE: transcription is NOT claimed here —
+    // the voice subsystem stays honestly NOT_OPERATIONAL for
+    // understanding speech; this rule only routes bank-status
+    // questions to the real voice-sample adapter.
+    intent: "voice_query",
+    pattern:
+      /\bvoice bank\b|\bvoice samples?\b|\bmy voice recordings?\b|\bvoice recordings? status\b/i,
+    confidence: 0.85,
+  },
+  {
+    // Social account/connection status.
+    intent: "social_query",
+    pattern:
+      /\bsocial (?:accounts?|media|status|connections?)\b|\bbrand (?:accounts?|mentions?|status)\b|\bmy social\b/i,
+    confidence: 0.85,
+  },
+  {
+    // Trusted-people roster.
+    intent: "family_query",
+    pattern:
+      /\bwho (?:is|are) (?:in|on) my (?:trusted|family|people)\b|\btrusted[- ]people\b|\btrusted people\b|\bfamily (?:roster|members?|status)\b|\bmy (?:family|people) roster\b/i,
+    confidence: 0.85,
+  },
+  {
+    // Deterministic construction calculators: require BOTH a
+    // material keyword AND a quantity/dimension cue, so plain
+    // price questions ("how much is a bag of cement") are
+    // already served by the price rule above and never land
+    // here.
+    intent: "construction_calc",
+    pattern:
+      /\b(?:blocks?|bricks?)\b[^.?!]*\b(?:wall|meter|metre|feet|\d)|\bhow (?:many|much)\b[^.?!]*\b(?:blocks?|bricks?)\b|\bpaint\b[^.?!]*\b(?:square|meter|metre|feet|area|room|wall|\d)|\bhow much paint\b|\bcement\b[^.?!]*\b(?:cubic|volume|m3|concrete|\d[^.?!]*bags?\b)|\bhow many (?:bags )?of? ?cement\b/i,
     confidence: 0.9,
   },
   {

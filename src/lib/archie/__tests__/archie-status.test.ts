@@ -45,16 +45,8 @@ describe("buildSystemsRegistry", () => {
 
   it("marks systems without a backend as adapter-pending, never operational", () => {
     const sections = buildSystemsRegistry(base);
-    const pendingKeys = [
-      "properties",
-      "construction",
-      "documents",
-      "images",
-      "voice",
-      "location",
-      "social",
-      "family",
-    ];
+    // Only systems with NO deployed backend remain pending.
+    const pendingKeys = ["properties", "location"];
     for (const key of pendingKeys) {
       const s = sections.find((x) => x.key === key);
       expect(s, `missing section ${key}`).toBeDefined();
@@ -78,6 +70,29 @@ describe("buildSystemsRegistry", () => {
     const code = sections.find((x) => x.key === "code");
     expect(code?.state).toBe("operational");
     expect(code?.detail).toContain("static analysis");
+    // documents/images: ingestion adapter over real pipeline rows.
+    for (const key of ["documents", "images"]) {
+      const row = sections.find((x) => x.key === key);
+      expect(row?.state).toBe("operational");
+      expect(row?.detail).toContain("frelux_archie_ingestions");
+    }
+    // voice: bank status only — transcription honestly disclaimed.
+    const voice = sections.find((x) => x.key === "voice");
+    expect(voice?.state).toBe("operational");
+    expect(voice?.detail).toContain("frelux_archie_voice_samples");
+    expect(voice?.detail).toContain("NOT implemented");
+    // social: account status, tokens never surfaced.
+    const social = sections.find((x) => x.key === "social");
+    expect(social?.state).toBe("operational");
+    expect(social?.detail).toContain("frelux_social_accounts");
+    // family: trusted-people roster.
+    const family = sections.find((x) => x.key === "family");
+    expect(family?.state).toBe("operational");
+    expect(family?.detail).toContain("frelux_archie_people");
+    // construction: deterministic calculators.
+    const construction = sections.find((x) => x.key === "construction");
+    expect(construction?.state).toBe("operational");
+    expect(construction?.detail).toContain("stated assumptions");
   });
 
   it("escelates security state from real event severity", () => {

@@ -113,6 +113,21 @@ export function nativeEngineCapabilityManifest(): CapabilityReport[] {
       measuredBy: "native-engine-runtime.test.ts (market price cases)",
     },
     {
+      id: "system-adapters-documents-images-voice-social-family",
+      description:
+        "System adapters for documents, images, voice bank, social accounts and the trusted-people roster: status questions resolve through pluggable lookups over real deployed tables; no data or no wired adapter produces an honest refusal — system state is never invented",
+      maturity: "OPERATIONAL",
+      measuredBy: "native-engine-runtime.test.ts (system adapter cases)",
+    },
+    {
+      id: "construction-calculators",
+      description:
+        "Deterministic construction calculators in chat: blocks for a wall, paint litres for an area, cement bags for a concrete volume — pure arithmetic with stated assumptions (450x225mm block, 10 m2/litre/coat, 1:2:4 mix); missing parameters get an honest request, never guessed numbers",
+      maturity: "OPERATIONAL",
+      measuredBy:
+        "native-engine-runtime.test.ts (construction calculator cases)",
+    },
+    {
       id: "generative-language-model",
       description:
         "Open-ended natural-language generation comparable to a large language model. NOT implemented — ARCHIE composes structured responses from real retrieved knowledge, reasoning outputs, and tool results, and states clearly when knowledge is insufficient rather than imitating generative prose",

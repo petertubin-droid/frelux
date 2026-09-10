@@ -164,6 +164,117 @@ configureNativeEngineMarketLookup(
     return null;
   },
 );
+// ---------------------------------------------------------
+// ARCHIE system adapters (REAL): each one reads live rows
+// from its deployed table. No rows / error → null → the
+// engine reports "nothing recorded" honestly. ARCHIE never
+// invents system state.
+// ---------------------------------------------------------
+import {
+  configureNativeEngineSystemAdapters,
+  type SystemAdapterResult,
+} from "../_shared/archie-ai/native-engine/engine.ts";
+
+/** Count ingestions by pipeline state for a set of input types. */
+async function ingestionSummary(
+  inputTypes: string[],
+): Promise<SystemAdapterResult | null> {
+  const { data, error } = await db
+    .from("frelux_archie_ingestions")
+    .select("title,pipeline_state,candidate_count,created_date")
+    .in("input_type", inputTypes)
+    .order("created_date", { ascending: false })
+    .limit(200);
+  if (error) return null;
+  if (!data || data.length === 0) return null;
+  const by: Record<string, number> = {};
+  for (const r of data) by[r.pipeline_state] = (by[r.pipeline_state] ?? 0) + 1;
+  const states = Object.entries(by)
+    .map(([k, v]) => `${v} ${k}`)
+    .join(", ");
+  const recent = data
+    .slice(0, 3)
+    .map(
+      (r) =>
+        `"${r.title}" (${r.pipeline_state}, ${r.candidate_count} candidates)`,
+    )
+    .join("; ");
+  return {
+    headline: `${data.length} ingestion(s) in the pipeline: ${states}. Recent: ${recent}.`,
+    source: "frelux_archie_ingestions",
+  };
+}
+
+configureNativeEngineSystemAdapters({
+  // Documents: PDF / scanned / drawing / table ingestions.
+  documents: () =>
+    ingestionSummary([
+      "PDF_DOCUMENT",
+      "SCANNED_TECHNICAL",
+      "ENGINEERING_DRAWING",
+      "TABLE_CALCULATION",
+    ]),
+  // Images: photo / video ingestions.
+  images: () => ingestionSummary(["IMAGE", "VIDEO_DEMONSTRATION"]),
+  // Voice bank: real sample rows. Transcription is NOT
+  // implemented and never claimed.
+  voice: async (): Promise<SystemAdapterResult | null> => {
+    const { data, error } = await db
+      .from("frelux_archie_voice_samples")
+      .select("duration_sec,is_active,created_date")
+      .eq("is_active", true)
+      .order("created_date", { ascending: false })
+      .limit(200);
+    if (error || !data || data.length === 0) return null;
+    const seconds = data.reduce(
+      (sum: number, r) => sum + Number(r.duration_sec ?? 0),
+      0,
+    );
+    return {
+      headline: `Your voice bank holds ${data.length} active sample(s), about ${Math.round(seconds)}s of recorded audio total. Note: spoken-audio transcription is not implemented yet — these samples are banked for when that capability is built, and I do not claim it.`,
+      source: "frelux_archie_voice_samples",
+    };
+  },
+  // Social: connected account rows (tokens stay in the
+  // service-role-only vault — never surfaced here).
+  social: async (): Promise<SystemAdapterResult | null> => {
+    const { data, error } = await db
+      .from("frelux_social_accounts")
+      .select("platform,account_handle,status,synced_at,connected_at")
+      .order("connected_at", { ascending: false })
+      .limit(20);
+    if (error || !data || data.length === 0) return null;
+    const list = data
+      .map(
+        (r) =>
+          `${r.platform} @${r.account_handle} (${r.status}${r.synced_at ? `, synced ${String(r.synced_at).slice(0, 10)}` : ""})`,
+      )
+      .join("; ");
+    return {
+      headline: `${data.length} social account connection(s): ${list}.`,
+      source: "frelux_social_accounts",
+    };
+  },
+  // Family / trusted people: the roster the owner manages.
+  family: async (): Promise<SystemAdapterResult | null> => {
+    const { data, error } = await db
+      .from("frelux_archie_people")
+      .select("display_name,relation,status,invited_at")
+      .order("invited_at", { ascending: false })
+      .limit(20);
+    if (error || !data || data.length === 0) return null;
+    const list = data
+      .map(
+        (r) => `${r.display_name} (${r.relation.toLowerCase()}, ${r.status})`,
+      )
+      .join("; ");
+    return {
+      headline: `Your trusted-people network has ${data.length} member(s): ${list}.`,
+      source: "frelux_archie_people",
+    };
+  },
+});
+
 // Wire the unified cognitive engine (kernel) with the same
 // service client: world model, audit log + traces persist.
 import { configureCognitiveEnginePersistence } from "../_shared/archie-ai/cognitive/kernel.ts";

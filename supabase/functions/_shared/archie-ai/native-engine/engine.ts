@@ -139,6 +139,27 @@ export type MarketPriceLookup = (
   market?: string,
 ) => Promise<MarketPriceResult | null>;
 
+// ---------------------------------------------------------
+// System adapters (documents, images, voice bank, social,
+// family). Same honest contract as the market lookup: a
+// pluggable boundary the deployment wires to REAL tables;
+// no data or no wired adapter produces an honest refusal —
+// ARCHIE never invents system state.
+// ---------------------------------------------------------
+export interface SystemAdapterResult {
+  /** The honest, fully-composed answer body. */
+  headline: string;
+  /** Real provenance (table(s) / adapter name). */
+  source: string;
+}
+
+export type SystemAdapter = () => Promise<SystemAdapterResult | null>;
+
+export type SystemAdapterKey =
+  "documents" | "images" | "voice" | "social" | "family";
+
+export type SystemAdapters = Partial<Record<SystemAdapterKey, SystemAdapter>>;
+
 export class ArchieNativeEngine implements ArchieRuntime {
   readonly id = NATIVE_ENGINE_ID;
   readonly kind = "archie-native" as const;
@@ -155,6 +176,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
   private research: ResearchPipeline;
   private adapter: ResearchAdapter;
   private marketPriceLookup: MarketPriceLookup | null;
+  private systemAdapters: SystemAdapters;
   private persistence: SupabasePersistence | null;
   private bootedAt = Date.now();
   private inferences = 0;
@@ -165,8 +187,10 @@ export class ArchieNativeEngine implements ArchieRuntime {
     persistence?: SupabaseLike;
     researchAdapter?: ResearchAdapter;
     marketPriceLookup?: MarketPriceLookup;
+    systemAdapters?: SystemAdapters;
   }) {
     this.marketPriceLookup = options?.marketPriceLookup ?? null;
+    this.systemAdapters = options?.systemAdapters ?? {};
     this.persistence = options?.persistence
       ? new SupabasePersistence(options.persistence)
       : null;
@@ -608,6 +632,49 @@ export class ArchieNativeEngine implements ArchieRuntime {
         );
       }
 
+      case "documents_query":
+      case "images_query":
+      case "voice_query":
+      case "social_query":
+      case "family_query": {
+        const key: SystemAdapterKey =
+          nlu.intent === "documents_query"
+            ? "documents"
+            : nlu.intent === "images_query"
+              ? "images"
+              : nlu.intent === "voice_query"
+                ? "voice"
+                : nlu.intent === "social_query"
+                  ? "social"
+                  : "family";
+        const label = SYSTEM_ADAPTER_LABELS[key];
+        const adapter = this.systemAdapters[key];
+        if (!adapter) {
+          return this.compose(
+            `My ${label} adapter is not wired in this deployment, so I cannot read that system's real state here. I never invent system status.`,
+            nlu.confidence,
+            [],
+          );
+        }
+        const result = await adapter();
+        if (!result) {
+          return this.compose(
+            `I have no ${label} data recorded yet — there is nothing to report from that system, and I do not invent state.`,
+            nlu.confidence,
+            [],
+          );
+        }
+        return this.compose(
+          `${result.headline} (Source: ${result.source})`,
+          nlu.confidence,
+          [],
+        );
+      }
+
+      case "construction_calc": {
+        return this.compose(constructionEstimate(input), nlu.confidence, []);
+      }
+
       default: {
         return this.compose(
           `I parsed that as general reasoning input (intent ${nlu.intent}, confidence ${(nlu.confidence * 100).toFixed(0)}%). ` +
@@ -735,6 +802,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
 // ---------------------------------------------------------
 let configuredPersistence: SupabaseLike | undefined;
 let configuredMarketLookup: MarketPriceLookup | undefined;
+let configuredSystemAdapters: SystemAdapters | undefined;
 let singleton: ArchieNativeEngine | undefined;
 
 export function configureNativeEnginePersistence(db: SupabaseLike): void {
@@ -752,11 +820,23 @@ export function configureNativeEngineMarketLookup(
   singleton = undefined;
 }
 
+/** Wire the real system adapters (documents / images / voice
+ *  bank / social / family). archie-chat does this at boot with
+ *  the service client. Resets the singleton so the next
+ *  resolve carries the adapters. */
+export function configureNativeEngineSystemAdapters(
+  adapters: SystemAdapters,
+): void {
+  configuredSystemAdapters = adapters;
+  singleton = undefined;
+}
+
 export function getNativeEngine(): ArchieNativeEngine {
   if (!singleton) {
     singleton = new ArchieNativeEngine({
       persistence: configuredPersistence,
       marketPriceLookup: configuredMarketLookup,
+      systemAdapters: configuredSystemAdapters,
     });
   }
   return singleton;
@@ -765,6 +845,99 @@ export function getNativeEngine(): ArchieNativeEngine {
 // ---------------------------------------------------------
 // Text-extraction helpers (deterministic)
 // ---------------------------------------------------------
+/** Honest, human-facing labels for the system adapters. */
+const SYSTEM_ADAPTER_LABELS: Record<SystemAdapterKey, string> = {
+  documents: "document pipeline",
+  images: "image pipeline",
+  voice: "voice bank",
+  social: "social account",
+  family: "trusted-people roster",
+};
+
+// ---------------------------------------------------------
+// Deterministic construction calculators. Pure math with
+// stated assumptions — no data is invented, and missing
+// parameters get an honest request for exactly what is
+// needed. Standard Nigerian construction constants.
+// ---------------------------------------------------------
+
+/** Parse decimal numbers from free text. */
+function parseNumbers(input: string): number[] {
+  return (input.match(/\d+(?:\.\d+)?/g) ?? []).map(Number);
+}
+
+/** Feet→meters when the query is in imperial units. */
+const isFeet = (input: string): boolean =>
+  /\b(?:feet|foot|ft\b|ft\.|['’])/i.test(input);
+
+const FT_TO_M = 0.3048;
+/** Effective face area of a standard 450x225mm block including
+ *  a 10mm mortar joint: 0.46 x 0.235 = 0.1081 m2. */
+const BLOCK_FACE_M2 = 0.1081;
+/** Smooth-plaster paint coverage per litre per coat. */
+const PAINT_M2_PER_LITRE = 10;
+/** 1:2:4 concrete: dry volume factor, mix sum, cement density. */
+const DRY_VOLUME_FACTOR = 1.54;
+const MIX_SUM = 7;
+const CEMENT_KG_PER_M3 = 1440;
+const CEMENT_KG_PER_BAG = 50;
+
+/** Deterministic construction estimate with honest assumptions.
+ *  Returns the fully-composed answer string. */
+export function constructionEstimate(input: string): string {
+  const nums = parseNumbers(input);
+  const feet = isFeet(input);
+  const meters = nums.map((n) => (feet ? n * FT_TO_M : n));
+
+  const wantsBlocks = /\b(?:blocks?|bricks?)\b/i.test(input);
+  const wantsPaint = /\bpaint\b/i.test(input);
+  const wantsCement = /\bcement\b/i.test(input) && !wantsBlocks && !wantsPaint;
+
+  if (wantsBlocks) {
+    if (meters.length < 2) {
+      return `To estimate blocks I need the wall length and height — for example "how many blocks for a 6 by 3 meter wall". I will not guess dimensions.`;
+    }
+    const [l, h] = meters;
+    const area = l * h;
+    const base = area / BLOCK_FACE_M2;
+    const withWaste = Math.ceil(base * 1.05);
+    return (
+      `For a ${feet ? `${nums[0]} ft x ${nums[1]} ft` : `${nums[0]} x ${nums[1]} m`} wall (${area.toFixed(2)} m2): approximately ${withWaste} blocks. ` +
+      `Assumptions: standard 450x225mm block with 10mm mortar joints (0.1081 m2 face), plus 5% breakage/waste allowance. This is a deterministic estimate — verify on site before ordering.`
+    );
+  }
+
+  if (wantsPaint) {
+    if (meters.length < 1) {
+      return `To estimate paint I need the surface area — for example "how much paint for a 4 by 5 meter wall". I will not guess dimensions.`;
+    }
+    const area = meters.length >= 2 ? meters[0] * meters[1] : meters[0];
+    const litres = Math.ceil((area / PAINT_M2_PER_LITRE) * 2);
+    return (
+      `For ${area.toFixed(2)} m2 of surface: approximately ${litres} litres for two coats. ` +
+      `Assumptions: smooth plaster at ~10 m2 per litre per coat, 2 coats. Rough or textured surfaces need more — this is a deterministic estimate, not a guess.`
+    );
+  }
+
+  if (wantsCement) {
+    if (meters.length < 1) {
+      return `To estimate cement I need the concrete volume — for example "how many bags of cement for 2 cubic meters of concrete". I will not guess volumes.`;
+    }
+    const volume = meters[0];
+    const bags = Math.ceil(
+      ((volume * DRY_VOLUME_FACTOR) / MIX_SUM) *
+        (CEMENT_KG_PER_M3 / CEMENT_KG_PER_BAG) *
+        1.05,
+    );
+    return (
+      `For ${volume} cubic meter(s) of concrete: approximately ${bags} x 50kg bags of cement. ` +
+      `Assumptions: 1:2:4 mix (dry volume factor 1.54, cement at 1440 kg/m3), plus 5% waste. This is a deterministic estimate — verify with your engineer for structural work.`
+    );
+  }
+
+  return `I can calculate three construction estimates deterministically: blocks for a wall ("how many blocks for a 6 by 3 meter wall"), paint for an area ("how much paint for 20 square meters"), and cement bags for a concrete volume ("how many bags of cement for 2 cubic meters"). Give me the numbers and I will compute — never guess.`;
+}
+
 /** Extract the product noun-phrase from a price query.
  *  Deterministic: strips interrogative/price filler words and
  *  keeps the material words for the lookup adapter. */
