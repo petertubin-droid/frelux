@@ -37,9 +37,15 @@ import { ContextMemory, rankFacts } from "./memory.ts";
 import { redactSecrets } from "../cognitive/security-integrity.ts";
 import { FactStore } from "./knowledge.ts";
 import {
+  DEFAULT_RULES,
   GENERAL_RULES,
-DEFAULT_RULES, ReasoningEngine,
+  ReasoningEngine,
 } from "./reasoning.ts";
+import {
+  consistency,
+  hypothesis,
+  selectStrategies,
+} from "./strategies.ts";
 import { DEFAULT_OPERATORS, Planner } from "./planning.ts";
 import { ToolOrchestrator, registerBuiltInTools } from "./tools.ts";
 import {
@@ -358,6 +364,111 @@ export class ArchieNativeEngine implements ArchieRuntime {
   }
 
   /** Intent routing — the intelligence core of a turn. */
+  /** P1b — strategy-driven speculation. "Why" / uncertain
+   *  questions receive ranked hypothesis framing (status:
+   *  hypothesis, NEVER fact); conflicting-evidence questions
+   *  receive an explicit conflict band. Both cite real store
+   *  evidence or state plainly that none exists. */
+  private async speculativeAnswer(
+    input: string,
+    ranked: Fact[],
+    confidence: number,
+  ): Promise<ConverseResult | null> {
+    const subject = ranked[0]?.subject;
+    const strategyTask = {
+      text: input,
+      subject,
+      facts: this.facts,
+      reasoning: this.reasoning,
+      rules: this.reasoning.getRules(),
+    };
+    const sel = selectStrategies(strategyTask);
+    const wantsSpeculation =
+      sel.chosen.includes("hypothesis") ||
+      sel.chosen.includes("abductive") ||
+      sel.chosen.includes("causal");
+    // "A or B" numeric questions / disagreement language →
+    // the conflicting-evidence band.
+    const conflictClaim =
+      /\b(disagree|disagrees|disagreeing|conflicting|conflicts?|contradict|contradicts|contradiction)\b/i.test(input) ||
+      (/\bor\b/i.test(input) && /\d/.test(input));
+
+    if (conflictClaim) {
+      const cons = consistency(strategyTask);
+      const storeConflicts = cons.conclusions.length > 0;
+      const lines = storeConflicts
+        ? cons.conclusions.map((c) => `- ${c.statement}`)
+        : ["- your sources disagree, but I hold no stored facts on this point to arbitrate between them"];
+      return this.compose(
+        `Conflicting evidence on this. ${storeConflicts ? "My knowledge store contains competing claims:" : ""}\n${lines.join("\n")}\n` +
+          `Confidence band: conflicting. I will not average the claims away or assert either side as knowledge — both stay uncertain until the conflict is resolved. To verify: identify which source is authoritative, tell me the resolution, and I will retain it.`,
+        confidence * 0.5,
+        cons.evidence.slice(0, 5),
+      );
+    }
+    if (!wantsSpeculation) return null;
+
+    const hyp = await hypothesis(strategyTask);
+    if (hyp.conclusions.length > 0) {
+      const lines = hyp.conclusions.map((c, i) =>
+        `${i + 1}) ${c.statement} — confidence ${(c.confidence * 100).toFixed(0)}%. To verify: check the cited evidence independently. NOT established as fact.`,
+      );
+      return this.compose(
+        `I do not have validated knowledge on this, so here are working hypotheses — framed as hypotheses, never as fact:\n${lines.join("\n")}\n` +
+          `Each hypothesis names the evidence needed to promote or eliminate it; check that evidence before acting on any of them.`,
+        confidence * 0.5,
+        hyp.evidence.slice(0, 5),
+      );
+    }
+    // No evidentiary basis at all: refuse to fabricate, honestly.
+    return this.compose(
+      `I do not have validated knowledge on this. A real hypothesis needs at least some evidence, and I hold none on this subject — any possible cause I invented would be fiction dressed as reasoning, so I refuse to fabricate one. ` +
+        `My honest position: uncertain until you teach me the relevant facts or I research them; then I will rank hypotheses and name the evidence to check for each.`,
+      confidence * 0.4,
+      [],
+    );
+  }
+
+  /** Extract quantity+unit pairs from text ("3 days", "7 mm"). */
+  private quantitiesIn(text: string): Array<{ value: number; unit: string }> {
+    const re = /(\d+(?:\.\d+)?)\s*(days?|hours?|hrs?|weeks?|months?|mm|cm|meters?|metres?|m|kg|tonnes?|tons?|%)/gi;
+    const out: Array<{ value: number; unit: string }> = [];
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(text)) !== null) {
+      out.push({ value: parseFloat(m[1]), unit: m[2].toLowerCase().replace(/s$/, "") });
+    }
+    return out;
+  }
+
+  /** P1b compositional hypothesis: connect the numbers in the
+   *  user's problem to the numbers in validated knowledge. A
+   *  gap (question value below knowledge requirement, same
+   *  unit) becomes a working-hypothesis "possible cause" —
+   *  always framed as NOT established as fact. */
+  private speculativeFollowUp(input: string, validated: Fact[]): string | null {
+    if (!/\b(why|how come|cause|crack|cracked|fail|failed|failure|problem|broken|damage|damaged)\b/i.test(input)) {
+      return null;
+    }
+    const qNums = this.quantitiesIn(input);
+    if (qNums.length === 0) return null;
+    for (const f of validated) {
+      const fNums = this.quantitiesIn(String(f.object));
+      for (const q of qNums) {
+        for (const fn of fNums) {
+          if (q.unit === fn.unit && q.value < fn.value) {
+            return (
+              `Working hypothesis (possible cause — NOT established as fact): the situation mentions ${q.value} ${q.unit}, ` +
+              `while my knowledge records “${f.subject} ${f.predicate.replace(/-/g, " ")}: ${String(f.object)}”. ` +
+              `The gap between ${q.value} and ${fn.value} ${fn.unit} may be the cause. ` +
+              `To verify: check what was actually done on site against the recorded requirement — confirm before acting on this.`
+            );
+          }
+        }
+      }
+    }
+    return null;
+  }
+
   private async route(
     nlu: ReturnType<typeof understand>,
     input: string,
@@ -465,6 +576,11 @@ export class ArchieNativeEngine implements ArchieRuntime {
               [],
             );
           }
+          // P1b — strategy-driven honest speculation: "why"
+          // questions get hypothesis framing (never as fact);
+          // conflicting-evidence questions get a conflict band.
+          const strategic = await this.speculativeAnswer(input, ranked, nlu.confidence);
+          if (strategic) return strategic;
           const plan = await this.planFor("researched");
           return this.compose(
             `I do not have validated knowledge on that yet. My knowledge store holds ${this.facts.count()} facts — none matched. ` +
@@ -479,8 +595,13 @@ export class ArchieNativeEngine implements ArchieRuntime {
             `${f.subject} ${f.predicate.replace(/-/g, " ")}: ${String(f.object)} ` +
             `[confidence ${(f.confidence * 100).toFixed(0)}%, ${f.provenance.source}]`,
         );
+        // P1b: if the question is a "why did this go wrong"
+        // problem with numbers that fall short of a recorded
+        // requirement, connect them as a working hypothesis.
+        const followUp = this.speculativeFollowUp(input, validated);
         return this.compose(
           `From my validated knowledge:\n${parts.join("\n")}` +
+            (followUp ? `\n\n${followUp}` : "") +
             (nlu.intent === "howto_guidance"
               ? `\nIf you need deeper steps than this, say so — I will plan the work and report any capability gaps honestly.`
               : ""),

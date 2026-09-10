@@ -63,6 +63,12 @@ export class ReasoningEngine {
     return this.rules.length;
   }
 
+  /** The live rule set (strategy modules reason over the same
+   *  rules the chain engine uses — one source of truth). */
+  getRules(): Rule[] {
+    return this.rules;
+  }
+
   /** Forward chaining: apply rules until fixpoint or bound.
    *  Literal rules use the original premise-choice path;
    *  variable rules enumerate consistent bindings (bounded). */
