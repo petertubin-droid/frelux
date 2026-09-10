@@ -66,9 +66,21 @@ const ARCHIE_OWN_MODEL_ENTRY: RuntimeStatusEntry = {
   status: "NOT_YET_AVAILABLE",
 };
 
+// ARCHIE'S OWN NATIVE INTELLIGENCE ENGINE — the operational
+// foundational inference runtime (NLU, knowledge, reasoning,
+// planning, tools, learning, self-evaluation). Zero external
+// AI APIs. Registered and ACTIVE.
+const ARCHIE_NATIVE_ENGINE_ENTRY: RuntimeStatusEntry = {
+  id: "archie-native-engine",
+  kind: "ARCHIE_NATIVE",
+  label:
+    "ARCHIE Native Intelligence Engine (own inference — NLU, knowledge, reasoning, planning, tools, learning)",
+  status: "ACTIVE",
+};
+
 /** Honest runtime list for the Owner UI — never simulated (spec §40). */
 export function listRuntimes(): RuntimeStatusEntry[] {
-  return [ARCHIE_OWN_MODEL_ENTRY];
+  return [ARCHIE_NATIVE_ENGINE_ENTRY, ARCHIE_OWN_MODEL_ENTRY];
 }
 
 // ---------------------------------------------------------

@@ -52,6 +52,7 @@ const LOADERS: Record<CoreSystemKey, () => Promise<Record<string, unknown>>> = {
   STUDIO: () => import("@/lib/studio/preview"),
   PROVIDER_INDEPENDENCE: () => import("@/lib/archie/provider-independence"),
   NATIVE_INTELLIGENCE: () => import("@/lib/archie/native-intelligence"),
+  NATIVE_ENGINE: () => import("@/lib/archie/native-engine-core"),
   PWA_ARCHITECTURE: () => import("@/lib/archie/pwa-architecture"),
   DETERMINISTIC_ENGINES: () => import("@/lib/ai-foundation/engines-registry"),
   CALCULATORS: () => import("@/lib/calc"),

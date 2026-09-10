@@ -35,6 +35,7 @@ export type CoreSystemKey =
   | "STUDIO"
   | "PROVIDER_INDEPENDENCE"
   | "NATIVE_INTELLIGENCE"
+  | "NATIVE_ENGINE"
   | "PWA_ARCHITECTURE";
 
 export interface CoreSystemBinding {
@@ -325,6 +326,35 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
       "under strict owner-defined conditions. Inference resolves through " +
       "ARCHIE's provider-agnostic engine registry. Persisted in " +
       "frelux_archie_core_principles; statically enforced by tests.",
+  },
+  {
+    key: "NATIVE_ENGINE",
+    label: "Native Intelligence Engine (own inference runtime)",
+    family: "ARCHIE core intelligence",
+    module: "@/lib/archie/native-engine-core",
+    exports: [
+      "getNativeEngine",
+      "ArchieNativeEngine",
+      "nativeEngineCapabilityManifest",
+      "nativeEngineStatusSummary",
+    ],
+    deterministic: true,
+    autonomy: "ARCHIE_AUTONOMOUS",
+    note:
+      "ARCHIE's own native independent inference engine — foundational core " +
+      "component from birth (owner directive). Real executable subsystems: " +
+      "NLU (Naive Bayes + TF-IDF, trained at boot), working memory with " +
+      "salience retrieval, SPO knowledge store with contradiction detection, " +
+      "forward-chaining reasoning with derivation traces, means-ends " +
+      "planning, tool orchestration with a deterministic arithmetic " +
+      "evaluator, web research pipeline, static code analysis + test " +
+      "scaffolds, self-evaluation, and outcome-based reinforcement " +
+      "learning. ZERO external AI APIs. Registered as archie-native-engine " +
+      "in the provider-agnostic engine registry (resolved by ARCHIE Core, " +
+      "archie-chat, Coding Studio, app). Durable stores: " +
+      "frelux_archie_native_facts / frelux_archie_native_outcomes. Honest " +
+      "capability manifest — not-implemented capabilities are reported, " +
+      "never faked.",
   },
   {
     key: "NATIVE_INTELLIGENCE",

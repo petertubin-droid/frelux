@@ -1,0 +1,344 @@
+import { describe, it, expect } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import {
+  ArchieNativeEngine,
+  getNativeEngine,
+  configureNativeEnginePersistence,
+} from "@studio-shared/archie-ai/native-engine/engine.ts";
+import { resolveArchieCapabilityEngine } from "@studio-shared/archie-ai/runtime.ts";
+import { nativeEngineCapabilityManifest } from "@studio-shared/archie-ai/native-engine/capabilities.ts";
+import { FactStore } from "@studio-shared/archie-ai/native-engine/knowledge.ts";
+import { OutcomeLearner } from "@studio-shared/archie-ai/native-engine/learning.ts";
+import {
+  SupabasePersistence,
+  type SupabaseLike,
+} from "@studio-shared/archie-ai/native-engine/persistence.ts";
+import { coreHealthCheck } from "../core-orchestrator";
+
+// =========================================================
+// ARCHIE NATIVE ENGINE — RUNTIME CONTRACT + INTEGRATION
+//
+// Proves: the engine registers and resolves through the
+// provider-agnostic registry (ARCHIE-native first), executes
+// real conversational inference end-to-end, persists durably
+// via the Supabase-shaped adapter, and is bound into the
+// capability catalog + health check as a live core system.
+// =========================================================
+
+const root = process.cwd();
+const read = (rel: string): string => readFileSync(join(root, rel), "utf-8");
+
+// ---------------------------------------------------------
+// Registry — the native engine resolves FIRST
+// ---------------------------------------------------------
+describe("Engine registry", () => {
+  it("resolves ARCHIE's own native engine as operational, archie-native path", () => {
+    const { runtime, engine } = resolveArchieCapabilityEngine({});
+    expect(runtime).not.toBeNull();
+    expect(runtime!.id).toBe("archie-native-engine");
+    expect(runtime!.kind).toBe("archie-native");
+    expect(runtime!.isOperational()).toBe(true);
+    expect(engine.path).toBe("archie-native");
+    expect(engine.note).toContain("Native Intelligence Engine");
+  });
+
+  it("the native engine outranks a configured external id (ARCHIE-native first, always)", () => {
+    const { runtime } = resolveArchieCapabilityEngine({
+      engineId: "some-external-adapter",
+    });
+    expect(runtime!.kind).toBe("archie-native");
+    expect(runtime!.id).toBe("archie-native-engine");
+  });
+
+  it("reports only genuinely implemented runtime capabilities", () => {
+    const { runtime } = resolveArchieCapabilityEngine({});
+    const caps = runtime!.capabilities();
+    expect(caps).toContain("inference");
+    expect(caps).toContain("retrieval");
+    expect(caps).toContain("memory");
+    expect(caps).not.toContain("model-loading");
+    expect(caps).not.toContain("multimodal-processing");
+    expect(caps).not.toContain("training-fine-tuning");
+  });
+});
+
+// ---------------------------------------------------------
+// End-to-end conversation through the runtime contract
+// ---------------------------------------------------------
+describe("Engine inference (end-to-end)", () => {
+  const engine = new ArchieNativeEngine();
+  const turns = (text: string) => [
+    { role: "owner" as const, parts: [{ text }] },
+  ];
+
+  it("greets with real engine state — no canned conversational script", async () => {
+    const result = await engine.generate({
+      turns: turns("Hello ARCHIE"),
+      tools: [],
+      systemInstruction: "",
+    });
+    expect(result.engine.path).toBe("archie-native");
+    expect(result.engine.note).toContain("no external AI provider");
+    const text = result.parts[0].text ?? "";
+    expect(text).toContain("native engine online");
+    expect(text).toContain("facts");
+  });
+
+  it("answers a knowledge question from validated knowledge with provenance", async () => {
+    const result = await engine.generate({
+      turns: turns("what is screeding"),
+      tools: [],
+      systemInstruction: "",
+    });
+    const text = result.parts[0].text ?? "";
+    expect(text).toContain("screeding");
+    expect(text).toContain("confidence");
+  });
+
+  it("computes math deterministically", async () => {
+    const result = await engine.generate({
+      turns: turns("what is 25 times 48"),
+      tools: [],
+      systemInstruction: "",
+    });
+    expect(result.parts[0].text ?? "").toContain("1200");
+  });
+
+  it("learns when taught, retains with provenance, and answers from the retained fact", async () => {
+    const taught = await engine.generate({
+      turns: turns("remember that screeding mix ratio is 1:4 cement to sand"),
+      tools: [],
+      systemInstruction: "",
+    });
+    expect(taught.parts[0].text ?? "").toContain("Retained");
+    const asked = await engine.generate({
+      turns: turns("what is the screeding mix ratio"),
+      tools: [],
+      systemInstruction: "",
+    });
+    const text = asked.parts[0].text ?? "";
+    expect(text).toContain("1:4");
+  });
+
+  it("reports unknown knowledge honestly and offers real options — never invents", async () => {
+    const result = await engine.generate({
+      turns: turns("what is the melting point of unobtainium"),
+      tools: [],
+      systemInstruction: "",
+    });
+    const text = result.parts[0].text ?? "";
+    expect(text).toContain("do not have validated knowledge");
+    expect(text).toMatch(/research|teach/i);
+  });
+
+  it("reports the honest capability manifest when asked what it can do", async () => {
+    const result = await engine.generate({
+      turns: turns("what can you do"),
+      tools: [],
+      systemInstruction: "",
+    });
+    const text = result.parts[0].text ?? "";
+    expect(text).toContain("operational");
+    expect(text).toContain("not implemented");
+    expect(text).toContain("never faked");
+  });
+
+  it("analyzes pasted code deterministically", async () => {
+    const result = await engine.generate({
+      turns: turns(
+        "analyze this file\n```ts\nexport function add(a: number, b: number) {\n  return a + b;\n}\n```\n",
+      ),
+      tools: [],
+      systemInstruction: "",
+    });
+    const text = result.parts[0].text ?? "";
+    expect(text).toContain("Static analysis complete");
+    expect(text).toContain("1 function");
+  });
+
+  it("plans a task and keeps execution owner-gated (PROPOSE only)", async () => {
+    const result = await engine.generate({
+      turns: turns("plan a roofing project for my bungalow"),
+      tools: [],
+      systemInstruction: "",
+    });
+    const text = result.parts[0].text ?? "";
+    expect(text).toContain("Plan for your request");
+    expect(text).toContain("PROPOSE");
+  });
+
+  it("processes a correction — wrong facts do not survive silently", async () => {
+    await engine.generate({
+      turns: turns("remember that concrete curing takes 3 days"),
+      tools: [],
+      systemInstruction: "",
+    });
+    const result = await engine.generate({
+      turns: turns("that is wrong, concrete curing is 7 days minimum"),
+      tools: [],
+      systemInstruction: "",
+    });
+    const text = result.parts[0].text ?? "";
+    expect(text).toContain("Correction processed");
+  });
+
+  it("converse() self-checks every response (cited facts exist)", async () => {
+    const result = await engine.converse("what is screeding");
+    expect(result.selfCheck.check).toBe("response-integrity");
+    expect(result.selfCheck.passed).toBe(true);
+    expect(result.citedFactIds.length).toBeGreaterThan(0);
+  });
+
+  it("diagnostics report measurable state honestly", async () => {
+    await engine.converse("hello archie");
+    const d = engine.diagnostics();
+    expect(d.engineId).toBe("archie-native-engine");
+    expect(d.counts.facts).toBeGreaterThan(0);
+    expect(d.counts.inferences).toBeGreaterThan(0);
+    expect(d.counts.rules).toBeGreaterThan(0);
+    expect(d.persistence.note).toContain("in-memory only");
+  });
+
+  it("reasoning cycle runs verification + improvement (permanence loop)", async () => {
+    const cycle = await engine.reasoningCycle();
+    expect(cycle.stability.check).toBe("inference-stability");
+    expect(cycle.stability.passed).toBe(true);
+    expect(cycle.consolidation).toBeDefined();
+  });
+});
+
+// ---------------------------------------------------------
+// Persistence round-trip via the Supabase-shaped adapter
+// (durable stores: frelux_archie_native_facts/_outcomes)
+// ---------------------------------------------------------
+class InMemorySupabase implements SupabaseLike {
+  public facts: Array<Record<string, unknown>> = [];
+  public outcomes: Array<Record<string, unknown>> = [];
+
+  from(table: string) {
+    const rows = () =>
+      table === "frelux_archie_native_facts" ? this.facts : this.outcomes;
+    return {
+      select: async () => ({ data: [...rows()], error: null }),
+      insert: async (row: unknown) => {
+        rows().push((row as unknown[])[0]);
+        return { error: null };
+      },
+      update: (patch: unknown) => ({
+        eq: async (column: string, value: unknown) => {
+          const list = rows();
+          const idx = list.findIndex(
+            (r) => r[column] === value || r.id === value,
+          );
+          if (idx >= 0) list[idx] = { ...list[idx], ...(patch as object) };
+          return { error: null };
+        },
+      }),
+    };
+  }
+}
+
+describe("Durable persistence", () => {
+  it("round-trips facts and outcomes through the Supabase-shaped adapter", async () => {
+    const fakeDb = new InMemorySupabase();
+    const persistence = new SupabasePersistence(fakeDb);
+    const store = new FactStore(persistence);
+    await store.assert({
+      subject: "durability",
+      predicate: "test",
+      object: "persists across sessions",
+      confidence: 0.8,
+      provenance: { source: "owner-taught" },
+      status: "validated",
+    });
+    expect(fakeDb.facts.length).toBe(1);
+
+    // A NEW store (new session) hydrates from persistence.
+    const secondSession = new FactStore(persistence);
+    const hydrated = await secondSession.hydrate();
+    expect(hydrated).toBe(1);
+    expect(secondSession.query({ subject: "durability" }).length).toBe(1);
+  });
+
+  it("outcome learner persists outcomes when the adapter is wired", async () => {
+    const fakeDb = new InMemorySupabase();
+    const persistence = new SupabasePersistence(fakeDb);
+    const store = new FactStore(persistence);
+    const learner = new OutcomeLearner(store, persistence);
+    await learner.record({
+      kind: "success",
+      task: "persisted outcome",
+      contributing: [],
+    });
+    const second = new OutcomeLearner(store, persistence);
+    const hydrated = await second.hydrate();
+    expect(hydrated).toBe(1);
+  });
+
+  it("configureNativeEnginePersistence rebuilds the singleton with persistence", async () => {
+    const fakeDb = new InMemorySupabase();
+    configureNativeEnginePersistence(fakeDb as unknown as SupabaseLike);
+    const engine = getNativeEngine();
+    const d = engine.diagnostics();
+    expect(d.persistence.facts).toBe(true);
+    expect(d.persistence.note).toContain("frelux_archie_native_facts");
+  });
+});
+
+// ---------------------------------------------------------
+// App integration — catalog, health check, principle seed
+// ---------------------------------------------------------
+describe("Core integration", () => {
+  it("the engine is a LIVE core system in the orchestrator health check", async () => {
+    const health = await coreHealthCheck();
+    const engineSystem = health.systems.find((s) => s.key === "NATIVE_ENGINE");
+    expect(engineSystem).toBeDefined();
+    expect(engineSystem!.status).toBe("LIVE");
+    expect(health.healthy).toBe(true);
+  });
+
+  it("the durable seed migration exists and is idempotent", () => {
+    const migration = read(
+      "supabase/migrations/20260912120000_archie_native_engine.sql",
+    );
+    expect(migration).toContain("frelux_archie_native_facts");
+    expect(migration).toContain("frelux_archie_native_outcomes");
+    expect(migration).toContain("native_engine_core");
+    expect(migration).toContain("ON CONFLICT (principle_id) DO NOTHING");
+    expect(migration).toContain("ENABLE ROW LEVEL SECURITY");
+    expect(migration).toContain(
+      "ARCHIE NATIVE ENGINE → MEMORY → KNOWLEDGE → REASONING",
+    );
+  });
+
+  it("the capability catalog registers the engine with its real exports", () => {
+    const catalog = read("src/lib/archie/core-capabilities.ts");
+    expect(catalog).toContain('"NATIVE_ENGINE"');
+    expect(catalog).toContain("native-engine-core");
+    const orchestrator = read("src/lib/archie/core-orchestrator.ts");
+    expect(orchestrator).toContain(
+      'NATIVE_ENGINE: () => import("@/lib/archie/native-engine-core")',
+    );
+  });
+
+  it("archie-core and archie-chat wire durable persistence into the engine", () => {
+    for (const fn of ["archie-core", "archie-chat"]) {
+      const source = read(`supabase/functions/${fn}/index.ts`);
+      expect(source).toContain("configureNativeEnginePersistence");
+    }
+  });
+
+  it("the studio honestly gates on the not-implemented generative coding capability", () => {
+    const studio = read("supabase/functions/archie-studio/index.ts");
+    expect(studio).toContain("archie-native-engine");
+    expect(studio).toContain("generative coding is not implemented");
+  });
+
+  it("external providers appear nowhere in the engine core (provider independence)", () => {
+    const manifest = nativeEngineCapabilityManifest();
+    expect(
+      manifest.every((c) => !/gemini|openai|claude|anthropic/i.test(c.id)),
+    ).toBe(true);
+  });
+});

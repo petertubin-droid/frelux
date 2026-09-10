@@ -56,6 +56,14 @@ const db = createClient(SUPABASE_URL, SERVICE_ROLE, {
   auth: { persistSession: false },
 });
 
+// ARCHIE Native Intelligence Engine — wire durable persistence
+// (knowledge facts + learning outcomes) into the engine the
+// registry resolves. Zero external AI APIs.
+import { configureNativeEnginePersistence } from "../_shared/archie-ai/native-engine/engine.ts";
+configureNativeEnginePersistence(
+  db as unknown as import("../_shared/archie-ai/native-engine/persistence.ts").SupabaseLike,
+);
+
 // ---- request types ----------------------------------------
 interface ChatTurn {
   role: "owner" | "archie";

@@ -35,7 +35,9 @@
 //   * Rate-limited per owner (abuse protection).
 // =========================================================
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+// npm: spec resolves via Supabase's internal package registry — esm.sh network
+// fetches fail at cold boot in the edge runtime (BOOT_ERROR).
+import { createClient } from "npm:@supabase/supabase-js@2";
 import { infer, listRuntimes, type RuntimePart } from "./model-runtime.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
@@ -45,6 +47,14 @@ const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 // Owner-side identity for the service client (all writes are
 // cross-checked against the authenticated owner id).
 const service = createClient(SUPABASE_URL, SERVICE_ROLE);
+
+// ARCHIE Native Intelligence Engine — wire durable persistence
+// (knowledge facts + learning outcomes) into the engine the
+// registry resolves. Zero external AI APIs.
+import { configureNativeEnginePersistence } from "../_shared/archie-ai/native-engine/engine.ts";
+configureNativeEnginePersistence(
+  service as unknown as import("../_shared/archie-ai/native-engine/persistence.ts").SupabaseLike,
+);
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",

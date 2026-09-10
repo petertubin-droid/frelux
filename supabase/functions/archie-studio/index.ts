@@ -287,6 +287,19 @@ Deno.serve(async (req) => {
           engine,
         });
       }
+      // Honest capability gate: ARCHIE's native engine is
+      // operational (NLU, knowledge, reasoning, planning,
+      // learning) but open-ended generative coding is
+      // NOT_IMPLEMENTED in its manifest. The Studio reports
+      // this honestly instead of feeding invalid builds
+      // through the validator.
+      if (runtime.id === "archie-native-engine") {
+        return json(503, {
+          error:
+            "ARCHIE's Native Intelligence Engine is operational (NLU, knowledge, reasoning, planning, learning) — but open-ended generative coding is not implemented in its capability manifest. No code was generated and nothing was faked. This gate will lift when generative coding is genuinely implemented.",
+          engine,
+        });
+      }
 
       let projectId: string;
       let existingFiles: StudioFile[] = [];
