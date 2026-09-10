@@ -134,7 +134,10 @@ describe("Engine inference (end-to-end)", () => {
       systemInstruction: "",
     });
     const text = result.parts[0].text ?? "";
-    expect(text).toContain("do not have validated knowledge");
+    // P6: phrasing varies by composer variant — assert the
+    // epistemic MARKER, not the connective wording.
+    expect(text).toMatch(/validated knowledge/i);
+    expect(text).toMatch(/none matched/i);
     expect(text).toMatch(/research|teach/i);
   });
 

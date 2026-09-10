@@ -38,6 +38,12 @@ import {
   MAX_COMPOUND_CLAUSES,
   composeCompound,
 } from "./nlu.ts";
+import {
+  howtoFooter,
+  knowledgeOpening,
+  unknownOpening,
+  type Verbosity,
+} from "./composer.ts";
 import { ContextMemory, rankFacts } from "./memory.ts";
 import { redactSecrets } from "../cognitive/security-integrity.ts";
 import { FactStore } from "./knowledge.ts";
@@ -221,6 +227,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
   private marketPriceLookup: MarketPriceLookup | null;
   private systemAdapters: SystemAdapters;
   private persistence: SupabasePersistence | null;
+  private verbosity: Verbosity = "detailed";
   private bootedAt = Date.now();
   private inferences = 0;
   private confidenceSum = 0;
@@ -233,7 +240,12 @@ export class ArchieNativeEngine implements ArchieRuntime {
     researchAdapter?: ResearchAdapter;
     marketPriceLookup?: MarketPriceLookup;
     systemAdapters?: SystemAdapters;
+    /** P6 Batch B — owner verbosity profile. Selects which
+     *  OPTIONAL connectives are composed; content and
+     *  epistemic labels are identical in both modes. */
+    verbosity?: Verbosity;
   }) {
+    this.verbosity = options?.verbosity ?? "detailed";
     this.marketPriceLookup = options?.marketPriceLookup ?? null;
     this.systemAdapters = options?.systemAdapters ?? {};
     this.persistence = options?.persistence
@@ -1032,8 +1044,11 @@ export class ArchieNativeEngine implements ArchieRuntime {
           const strategic = await this.speculativeAnswer(input, ranked, nlu.confidence);
           if (strategic) return strategic;
           const plan = await this.planFor("researched");
+          // P6 — variance on the honest unknown line; the
+          // "validated knowledge" marker survives in every
+          // variant (composer self-check enforces it).
           return this.compose(
-            `I do not have validated knowledge on that yet. My knowledge store holds ${this.facts.count()} facts — none matched. ` +
+            `${unknownOpening(input)} My knowledge store holds ${this.facts.count()} facts — none matched. ` +
               `I can research it on the open web (cross-checked, stored as candidate knowledge for validation) or you can teach me directly; both are real options. ${plan.executable ? `Research plan is ready (${plan.steps.length} steps).` : ""}`,
             nlu.confidence * 0.5,
             [],
@@ -1049,12 +1064,18 @@ export class ArchieNativeEngine implements ArchieRuntime {
         // problem with numbers that fall short of a recorded
         // requirement, connect them as a working hypothesis.
         const followUp = this.speculativeFollowUp(input, validated);
+        // P6 — deterministic phrasing variance: the opening
+        // and footer are picked by a stable hash of the CITED
+        // FACT IDS. Same evidence always reads the same;
+        // different questions read differently. Content and
+        // epistemic labels never change.
+        const kbSeed = validated.map((f) => f.id).join("|");
+        const footer =
+          nlu.intent === "howto_guidance" ? howtoFooter(kbSeed, this.verbosity) : "";
         return this.compose(
-          `From my validated knowledge:\n${parts.join("\n")}` +
+          `${knowledgeOpening(kbSeed)}\n${parts.join("\n")}` +
             (followUp ? `\n\n${followUp}` : "") +
-            (nlu.intent === "howto_guidance"
-              ? `\nIf you need deeper steps than this, say so — I will plan the work and report any capability gaps honestly.`
-              : ""),
+            (footer ? `\n${footer}` : ""),
           nlu.confidence * Math.min(1, validated[0].confidence + 0.3),
           cite(validated),
         );
