@@ -735,3 +735,30 @@ export function decomposeClauses(rawInput: string): DecomposedClause[] {
   }
   return clauses;
 }
+
+/** Compose a compound answer from per-clause responses and
+ *  respected exclusions (plan P2/P5): numbered parts, visible
+ *  exclusions, all-excluded redirect. Shared by the engine's
+ *  internal compound path and the reasoning loop so the two
+ *  can never drift apart. */
+export function composeCompound(
+  parts: string[],
+  excluded: string[],
+): string {
+  let text: string;
+  if (parts.length === 0) {
+    text =
+      "Every part of that request was an exclusion (a \"don't\") — there was nothing left to answer. Tell me what you DO want and I will do it fully.";
+  } else {
+    text =
+      parts.length === 1
+        ? parts[0]
+        : parts.map((t, i) => `${i + 1}. ${t}`).join("\n");
+  }
+  if (excluded.length > 0) {
+    text += `\nYou also asked me NOT to: ${excluded
+      .map((t) => `"${t}"`)
+      .join("; ")}. Respected — that part is excluded from this answer.`;
+  }
+  return text;
+}

@@ -35,6 +35,10 @@ import {
 import type { SupabaseLike } from "../native-engine/persistence.ts";
 import type { Fact } from "../native-engine/types.ts";
 import { understand } from "../native-engine/nlu.ts";
+import {
+  runReasoningLoop,
+  type ReasoningLoopReport,
+} from "../native-engine/reasoning-loop.ts";
 import { PerceptionEngine } from "./perception.ts";
 import {
   MetaCognitionEngine,
@@ -407,22 +411,33 @@ export class CognitiveKernel implements ArchieRuntime {
       summary: `intent=${nlu.intent}, confidence=${nlu.confidence.toFixed(2)}`,
       durationMs: 0,
     });
+    // P5 Batch B: the kernel drives the real reasoning loop
+    // (reason → act → observe → continue, budget-bounded) —
+    // no more one-shot routing at the cognitive layer.
+    const loopOutcome = await timed(
+      "RETRIEVE",
+      routePhases,
+      () => runReasoningLoop(this.substrate, input, history),
+      "retrieval handled inside substrate reasoning",
+    );
+    const loopReport: ReasoningLoopReport | null =
+      loopOutcome?.report ?? null;
     const core: ConverseResult =
-      (await timed(
-        "RETRIEVE",
-        routePhases,
-        () => this.substrate.converse(input, history),
-        "retrieval handled inside substrate reasoning",
-      )) ?? (await this.substrate.converse(input, history));
+      loopOutcome?.result ?? (await this.substrate.converse(input, history));
 
-    // REASON + PLAN happen inside the substrate; the trace
-    // marks them with the substrate's own outputs.
+    // REASON: the real loop trace — steps executed, tools run,
+    // budget state — recorded with true durations (P5 Batch B).
+    const reasonMs = loopReport
+      ? loopReport.steps.reduce((sum, st) => sum + st.durationMs, 0)
+      : 0;
     phases.push({
       phase: "REASON",
       organs: ["heart"],
       status: "executed",
-      summary: `reasoning modes: ${route.reasoningModes.join(", ")}; substrate produced response`,
-      durationMs: 0,
+      summary: loopReport
+        ? `reasoning loop: ${loopReport.usedSteps}/${loopReport.maxSteps} step pass(es), ${loopReport.usedToolHops}/${loopReport.maxToolHops} tool execution(s)${loopReport.budgetExhausted ? ", budget reached — stopped honestly" : ""}`
+        : `single-pass substrate reasoning (loop bypassed): ${route.reasoningModes.join(", ")}`,
+      durationMs: reasonMs,
     });
     phases.push(
       core.plan
@@ -617,12 +632,15 @@ export class CognitiveKernel implements ArchieRuntime {
         }),
       "nothing to observe",
     );
+    const loopEval = loopReport
+      ? `; reasoning loop ${loopReport.usedSteps}/${loopReport.maxSteps} steps, ${loopReport.usedToolHops}/${loopReport.maxToolHops} tool hops, budget ${loopReport.budgetExhausted ? "exhausted — reported to you honestly" : "within bounds"}`
+      : "";
     phases.push({
       phase: "EVALUATE",
       organs: ["pain"],
       status: routePhases.has("EVALUATE") ? "executed" : "skipped",
       summary: meta
-        ? `meta-assessment: ${meta.whatIKnow.length} known, ${meta.whatIDontKnow.length} unknown, ${meta.mustVerify.length} to verify`
+        ? `meta-assessment: ${meta.whatIKnow.length} known, ${meta.whatIDontKnow.length} unknown, ${meta.mustVerify.length} to verify${loopEval}`
         : "skipped",
       durationMs: 0,
     });

@@ -36,6 +36,7 @@ import {
   understand,
   decomposeClauses,
   MAX_COMPOUND_CLAUSES,
+  composeCompound,
 } from "./nlu.ts";
 import { ContextMemory, rankFacts } from "./memory.ts";
 import { redactSecrets } from "../cognitive/security-integrity.ts";
@@ -593,6 +594,14 @@ export class ArchieNativeEngine implements ArchieRuntime {
     return null;
   }
 
+  /** Run citation verification from outside the engine —
+   *  used by the reasoning-loop controller (plan P5) so
+   *  externally composed results get the same verification
+   *  rigor as the internal path. */
+  verifyCitations(factIds: string[]): ConverseResult["selfCheck"] {
+    return this.selfEval.verifyResponse(factIds, this.facts, false);
+  }
+
   /** Route each decomposed clause of a compound request and
    *  compose one honest, numbered answer (plan P2, audit N2).
    *  Negated clauses are listed as respected exclusions — the
@@ -625,21 +634,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
       parts.push(res.responseText);
       for (const id of res.citedFactIds) cited.add(id);
     }
-    let text: string;
-    if (parts.length === 0) {
-      text =
-        "Every part of that request was an exclusion (a \"don't\") — there was nothing left to answer. Tell me what you DO want and I will do it fully.";
-    } else {
-      text =
-        parts.length === 1
-          ? parts[0]
-          : parts.map((t, i) => `${i + 1}. ${t}`).join("\n");
-    }
-    if (excluded.length > 0) {
-      text += `\nYou also asked me NOT to: ${excluded
-        .map((t) => `"${t}"`)
-        .join("; ")}. Respected — that part is excluded from this answer.`;
-    }
+    const text = composeCompound(parts, excluded);
     return {
       nlu: understand(clauses[0].text),
       responseText: text,
