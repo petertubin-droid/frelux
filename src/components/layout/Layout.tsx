@@ -6,6 +6,7 @@ import Footer from "@/components/layout/Footer";
 import AdSlot from "@/components/ui/AdSlot";
 import { useCommandPalette } from "@/components/ui/useCommandPalette";
 import { isOnboardingComplete } from "@/lib/onboarding";
+import { MONETAG_TAG_DOMAIN } from "@/lib/ad-network-formats";
 import { trackVisit } from "@/lib/achievements";
 import { trackReturnVisitRewards } from "@/lib/rewards-integration";
 import type { Achievement } from "@/lib/achievements";
@@ -238,7 +239,7 @@ export default function Layout() {
         s.async = true;
         s.setAttribute("data-cfasync", "false");
         s.setAttribute("data-zone", m.zone);
-        s.setAttribute("data-domain", "quge5.com");
+        s.setAttribute("data-domain", MONETAG_TAG_DOMAIN);
         s.setAttribute("data-sdk-ignore", "true");
         s.setAttribute("data-monetag-auto", m.format);
         instrumentScript("monetag", s, `auto:${m.format}`);

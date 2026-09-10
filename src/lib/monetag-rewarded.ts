@@ -24,14 +24,13 @@
 
 import type { DbAdProvider } from "@/types/database";
 import { adDebug, instrumentScript } from "@/lib/ad-diagnostics";
+import { MONETAG_TAG_URL, MONETAG_TAG_DOMAIN } from "@/lib/ad-network-formats";
 
 /**
  * Monetag multi-tag CDN. `data-domain` pins the tag's config/module
  * requests to this domain so the site CSP can reliably allow it
  * (mirrors the tag already embedded in index.html).
  */
-const MONETAG_TAG_URL = "https://quge5.com/88/tag.min.js";
-const MONETAG_TAG_DOMAIN = "quge5.com";
 
 export interface MonetagShowResult {
   /** How the ad was served. */

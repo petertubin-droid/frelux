@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
+import { MONETAG_TAG_URL, MONETAG_TAG_DOMAIN } from "@/lib/ad-network-formats";
 import {
   fetchAdConfig,
   getProvidersForPlacement,
@@ -779,7 +780,7 @@ export default function AdSlot({
         if (!zone) break;
         if (
           !document.querySelector(
-            `script[src*="quge5.com"][data-zone="${zone}"]`,
+            `script[src*="${MONETAG_TAG_DOMAIN}"][data-zone="${zone}"]`,
           )
         ) {
           const s = document.createElement("script");
@@ -788,8 +789,8 @@ export default function AdSlot({
           s.setAttribute("data-zone", zone);
           // Pin the tag's config/module requests to quge5.com so the
           // site CSP (script-src/connect-src/frame-src) can reliably allow it.
-          s.setAttribute("data-domain", "quge5.com");
-          s.src = "https://quge5.com/88/tag.min.js";
+          s.setAttribute("data-domain", MONETAG_TAG_DOMAIN);
+          s.src = MONETAG_TAG_URL;
           instrumentScript("monetag", s, "tag");
           document.head.appendChild(s);
           adDebug("monetag", "tag:injected", { zone, slotKey });

@@ -17,6 +17,15 @@
  */
 import type { DbAdProvider } from "@/types/database";
 
+/**
+ * Monetag delivery domain + tag URL — the single source of truth for
+ * the whole app (AdSlot, Layout, monetag-rewarded). Monetag assigns a
+ * per-publisher delivery domain; if it ever rotates, change it HERE and
+ * in the CSP allowlists (public/_headers, netlify.toml, vercel.json).
+ */
+export const MONETAG_TAG_DOMAIN = "quge5.com";
+export const MONETAG_TAG_URL = `https://${MONETAG_TAG_DOMAIN}/88/tag.min.js`;
+
 /** Whether a provider's VISUAL display ads are enabled (mirrors AdSlot's rule). */
 export function displayAdsEnabled(provider: DbAdProvider): boolean {
   return provider.settings?.display_ads_enabled !== false;
@@ -206,7 +215,7 @@ export function getMonetagAutoZoneScripts(
       out.push({
         format: f.format,
         zone,
-        src: "https://quge5.com/88/tag.min.js",
+        src: MONETAG_TAG_URL,
       });
     }
   }
