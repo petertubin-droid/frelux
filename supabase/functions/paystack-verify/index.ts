@@ -12,6 +12,7 @@
 // =========================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { validateSubscriptionPayment } from "../_shared/subscription-pricing.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -202,6 +203,58 @@ Deno.serve(async (req: Request) => {
     }
 
     // (supabase client already created above, before the token branch)
+
+    // ── Audit H1 fix (2026-09-10): subscriptions activate ONLY when ──
+    //  1. the caller is authenticated and IS the user_id in metadata, and
+    //  2. the amount actually paid equals the canonical server-side
+    //     price for (plan, billing_cycle) from subscription_plan_prices.
+    const authHeader =
+      req.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
+    const tokenUser = authHeader
+      ? await supabase.auth.getUser(authHeader)
+      : { data: { user: null }, error: new Error("no auth header") };
+    if (!tokenUser?.data?.user || tokenUser.data.user.id !== userId) {
+      return new Response(
+        JSON.stringify({ error: "Unauthorized — user mismatch" }),
+        {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    const { data: priceRows, error: priceError } = await supabase
+      .from("subscription_plan_prices")
+      .select("plan, billing_cycle, price_kobo, active");
+    if (priceError) {
+      return new Response(
+        JSON.stringify({ error: "Plan pricing unavailable" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+    const validation = validateSubscriptionPayment({
+      rows: priceRows ?? [],
+      plan,
+      billingCycle,
+      transactionAmountKobo: transaction.amount as number,
+    });
+    if (!validation.ok) {
+      return new Response(
+        JSON.stringify({
+          error:
+            validation.reason === "AMOUNT_MISMATCH"
+              ? "Paid amount does not match the configured price for this plan"
+              : "Plan is not configured for self-service activation",
+        }),
+        {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
 
     const days = PLAN_DURATIONS_DAYS[billingCycle] ?? 30;
     const paidUntil = new Date(

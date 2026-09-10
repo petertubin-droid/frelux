@@ -5,8 +5,11 @@
 // Holds the PAYSTACK_SECRET_KEY (server-only, set via Supabase secrets).
 //
 // Two purposes:
-//  1. purpose: "subscription" (default) — plan checkout. Amount is
-//     supplied by the client (pricing page).
+//  1. purpose: "subscription" (default) — plan checkout. The amount
+//     is ALWAYS resolved server-side from subscription_plan_prices
+//     (audit H1 fix, 2026-09-10); the client amount is advisory only.
+//     The caller must be authenticated and user_id must match the
+//     caller's session.
 //  2. purpose: "token_purchase" — buy FRELUX tokens (credits).
 //     The amount and token count are ALWAYS read from
 //     token_purchase_config server-side; the client cannot set the
@@ -20,6 +23,7 @@
 // =========================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { resolveSubscriptionPriceKobo } from "../_shared/subscription-pricing.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -250,8 +254,10 @@ Deno.serve(async (req: Request) => {
         ],
       };
     } else {
-      // Subscription flow (legacy)
-      if (!email || !amount || !reference || !plan) {
+      // Subscription flow — server-priced ONLY (audit H1 fix 2026-09-10).
+      // The amount ALWAYS comes from subscription_plan_prices; the
+      // client-supplied amount is never trusted.
+      if (!email || !reference || !plan || !user_id) {
         return new Response(
           JSON.stringify({ error: "Missing required fields" }),
           {
@@ -260,6 +266,67 @@ Deno.serve(async (req: Request) => {
           },
         );
       }
+
+      const supabaseUrl = Deno.env.get("SUPABASE_URL");
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      if (!supabaseUrl || !serviceRoleKey) {
+        return new Response(
+          JSON.stringify({ error: "Payment provider not configured" }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+      const admin = createClient(supabaseUrl, serviceRoleKey);
+
+      // The caller must be the authenticated user being subscribed.
+      const authHeader =
+        req.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
+      const tokenUser = authHeader
+        ? await admin.auth.getUser(authHeader)
+        : { data: { user: null }, error: new Error("no auth header") };
+      if (!tokenUser?.data?.user || tokenUser.data.user.id !== user_id) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Resolve the canonical price for (plan, billing_cycle) — no
+      // configured row means the plan is not self-serve purchasable.
+      const { data: priceRows, error: priceError } = await admin
+        .from("subscription_plan_prices")
+        .select("plan, billing_cycle, price_kobo, active")
+        .eq("plan", plan)
+        .eq("billing_cycle", billing_cycle ?? "monthly");
+      if (priceError) {
+        return new Response(
+          JSON.stringify({ error: "Plan pricing unavailable" }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+      const { priceKobo } = resolveSubscriptionPriceKobo(
+        priceRows ?? [],
+        plan,
+        billing_cycle ?? "monthly",
+      );
+      if (priceKobo === null) {
+        return new Response(
+          JSON.stringify({
+            error:
+              "This plan is not available for self-service purchase. Contact FRELUX.",
+          }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+      checkoutAmount = priceKobo;
     }
 
     // Token purchases generate the reference server-side; the client

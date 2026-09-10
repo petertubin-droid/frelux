@@ -43,7 +43,7 @@ export default function RequireOwner({
           to continue.
         </p>
         <Link
-          to="/signin"
+          to="/login"
           className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
         >
           Sign in

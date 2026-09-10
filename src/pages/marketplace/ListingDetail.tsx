@@ -67,9 +67,7 @@ export default function ListingDetail() {
 
   useSeo({
     title:
-      listing?.seo_title ||
-      listing?.title ||
-      "Job Details, FRELUX Marketplace",
+      listing?.seo_title || listing?.title || "Job Details, FRELUX Marketplace",
     description:
       listing?.seo_description ||
       (listing?.description
@@ -390,7 +388,7 @@ export default function ListingDetail() {
             )}
             {!user && isOpen && (
               <Link
-                to="/auth"
+                to="/login"
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
               >
                 Sign in to bid

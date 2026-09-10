@@ -8,11 +8,20 @@
 //
 // Required env:
 // - PAYSTACK_SECRET_KEY (for signature verification)
+//
+// Audit H1 fix (2026-09-10): subscription activation requires the
+// paid amount to match the canonical server-side price from
+// subscription_plan_prices — a signed ₦1 charge.success must
+// never activate a paid plan.
 // - SUPABASE_URL
 // - SUPABASE_SERVICE_ROLE_KEY
 // =========================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import {
+  constantTimeEqual,
+  validateSubscriptionPayment,
+} from "../_shared/subscription-pricing.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -46,7 +55,7 @@ async function verifySignature(req: Request): Promise<boolean> {
   const hash = Array.from(new Uint8Array(signed))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
-  return hash === signature;
+  return constantTimeEqual(hash, signature);
 }
 
 Deno.serve(async (req: Request) => {
@@ -208,6 +217,43 @@ Deno.serve(async (req: Request) => {
         JSON.stringify({ error: "Missing plan or user_id" }),
         {
           status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
+    // ── Audit H1 fix (2026-09-10): the amount PAID must equal the
+    // canonical server-side price for (plan, billing_cycle) before a
+    // subscription is activated. No configured row = no activation. ──
+    const { data: priceRows, error: priceError } = await supabase
+      .from("subscription_plan_prices")
+      .select("plan, billing_cycle, price_kobo, active");
+    if (priceError) {
+      return new Response(
+        JSON.stringify({ error: "Plan pricing unavailable" }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+    const validation = validateSubscriptionPayment({
+      rows: priceRows ?? [],
+      plan,
+      billingCycle,
+      transactionAmountKobo: data.amount as number,
+    });
+    if (!validation.ok) {
+      // Never 500 — a mismatched/unknown amount is a rejected event,
+      // acknowledged so Paystack does not retry it forever.
+      return new Response(
+        JSON.stringify({
+          received: true,
+          activated: false,
+          reason: validation.reason,
+        }),
+        {
+          status: 200,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         },
       );

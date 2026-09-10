@@ -293,7 +293,7 @@ export default function Gallery() {
               </Link>
             ) : (
               <Link
-                to="/auth"
+                to="/login"
                 className="group mt-5 inline-flex items-center gap-2 rounded-lg border border-brand-purple/30 px-5 py-2.5 text-sm font-semibold text-brand-purple transition-all duration-300 hover:scale-105 hover:bg-primary/10"
               >
                 Sign in to Share
