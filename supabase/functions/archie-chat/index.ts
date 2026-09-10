@@ -56,6 +56,11 @@ import {
   ExecutionTarget,
   executeTarget,
 } from "../_shared/archie-ai/execution/engine.ts";
+import {
+  classifySecurityMessage,
+  reduceAuthorizations,
+  EngagementRow,
+} from "../_shared/archie-ai/security/verdict.ts";
 
 // ---- shared service client --------------------------------
 const db = createClient(SUPABASE_URL, SERVICE_ROLE, {
@@ -1329,7 +1334,60 @@ Deno.serve(async (req) => {
     });
   }
 
-  // 4. UNDERSTAND -> SELECT -> EXECUTE -> VALIDATE -> RESPOND
+  // 4. SECURITY VERDICT GATE (code-enforced) — the consolidated
+  //    authorization clause. The system-prompt HARD BOUNDARY
+  //    remains as the second, behavioral layer. This gate is
+  //    the first: machine-enforced, audited, and authorization-
+  //    immune for forbidden operations.
+  const authzRows = await db
+    .from("archie_offensive_engagements")
+    .select(
+      "id, target_id, current_phase, archie_offensive_targets!target_id(kind, identifier)",
+    )
+    .limit(50);
+  const flatRows: EngagementRow[] = (authzRows.data ?? [])
+    .filter((r: Record<string, unknown>) => r.archie_offensive_targets)
+    .map((r: Record<string, unknown>) => {
+      const t = r.archie_offensive_targets as Record<string, unknown>;
+      return {
+        engagement_id: String(r.id ?? ""),
+        target_id: String(r.target_id ?? ""),
+        kind: String(t.kind ?? ""),
+        identifier: String(t.identifier ?? ""),
+        current_phase: String(r.current_phase ?? ""),
+      };
+    });
+  const authz = reduceAuthorizations(flatRows);
+  const verdict = classifySecurityMessage(message, {
+    hasValidAuthorization: authz.hasValidAuthorization,
+  });
+  if (!verdict.allowed) {
+    if (user) {
+      await db.from("frelux_security_events").insert({
+        user_id: user.id,
+        event_type: verdict.hardRefused
+          ? "SECURITY_GATE_HARD_REFUSAL"
+          : "SECURITY_GATE_AUTHORIZATION_REQUIRED",
+        severity: "warning",
+        message: `[owner-chat] ${verdict.reason}`,
+      });
+    }
+    return json(200, {
+      reply:
+        `I can't do that one. ${verdict.reason}` +
+        (verdict.intrusive && !verdict.hardRefused
+          ? ""
+          : " If you believe this is a mistake, review the authorization rules in the Security console."),
+      mode: "owner",
+      security_gate: {
+        refused: true,
+        hard_refused: verdict.hardRefused,
+        label: verdict.label ?? null,
+      },
+    });
+  }
+
+  // 5. UNDERSTAND -> SELECT -> EXECUTE -> VALIDATE -> RESPOND
   const attachmentsNote =
     body.attachments && body.attachments.length
       ? `\n\n[Owner attached ${body.attachments.length} file(s): ${body.attachments

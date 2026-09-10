@@ -125,6 +125,7 @@ const ArchieTraining = lazy(() => import("@/pages/archie/ArchieTraining"));
 const ArchieEvolution = lazy(() => import("@/pages/archie/ArchieEvolution"));
 const ArchieVoice = lazy(() => import("@/pages/archie/ArchieVoice"));
 const ArchieOps = lazy(() => import("@/pages/archie/ArchieOps"));
+const ArchieExecution = lazy(() => import("@/pages/archie/ArchieExecution"));
 const ArchieTerminology = lazy(
   () => import("@/pages/archie/ArchieTerminology"),
 );
@@ -1059,6 +1060,10 @@ export default function App() {
                     <Route path="voice" element={<ArchieVoice />} />
                     <Route path="coding" element={<ArchieCoding />} />
                     <Route path="ops" element={<ArchieOps />} />
+                    <Route
+                      path="execution"
+                      element={<ArchieExecution />}
+                    />
                     <Route path="terminology" element={<ArchieTerminology />} />
                     <Route path="*" element={<NotFound />} />
                   </Route>

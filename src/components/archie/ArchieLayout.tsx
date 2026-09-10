@@ -33,6 +33,7 @@ const NAV = [
   { to: "/archie/evolution", label: "Evolution", icon: "control" },
   { to: "/archie/voice", label: "Voice", icon: "chat" },
   { to: "/archie/ops", label: "Ops", icon: "control" },
+  { to: "/archie/execution", label: "Execution", icon: "control" },
   { to: "/archie/terminology", label: "TerminoBook", icon: "learning" },
 ] as const;
 
