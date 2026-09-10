@@ -172,6 +172,11 @@ export type SystemAdapterKey =
 
 export type SystemAdapters = Partial<Record<SystemAdapterKey, SystemAdapter>>;
 
+// Explicit owner confirmation language (audit H1, plan P3):
+// this is VERIFICATION evidence — the opposite of a correction.
+const EXPLICIT_CONFIRM =
+  /\b(?:you were right about|you'?re right about|confirm that|i confirm that|verified that|verify that|that'?s (?:right|correct|exact) about)\b/i;
+
 export class ArchieNativeEngine implements ArchieRuntime {
   readonly id = NATIVE_ENGINE_ID;
   readonly kind = "archie-native" as const;
@@ -357,13 +362,32 @@ export class ArchieNativeEngine implements ArchieRuntime {
     // verified outcome — citing must never reinforce (audit
     // C3). Only explicit owner confirmation counts as real
     // success evidence for the cited facts.
-    const ownerConfirmed =
+    // Evidence-quality learning (audit H1): gratitude and
+    // praise are ACKNOWLEDGEMENT — engagement, not
+    // verification. They must never reinforce or promote the
+    // knowledge cited in the answer. Only an EXPLICIT owner
+    // confirmation that names the subject ("you were right
+    // about X", "confirm that X", "verify that X") is real
+    // success evidence.
+    // The correction route records confirmation outcomes
+    // itself (kind "success"); recording here too would double
+    // the reinforcement. When the intent is correction the
+    // route has already handled the outcome.
+    const explicitlyConfirmed =
+      outcome.citedFactIds.length > 0 &&
+      nlu.intent !== "correction" &&
+      EXPLICIT_CONFIRM.test(input);
+    const acknowledged =
       nlu.intent === "gratitude" ||
-      /\b(?:that'?s (?:right|correct|exact)|you were right|good answer|well done)\b/i.test(
+      /\b(?:good answer|well done|nice work|great job|thanks?|thank you)\b/i.test(
         input,
       );
     await this.learner.record({
-      kind: ownerConfirmed && outcome.citedFactIds.length > 0 ? "success" : "cited",
+      kind: explicitlyConfirmed
+        ? "success"
+        : acknowledged
+          ? "acknowledged"
+          : "cited",
       task: `${nlu.intent}: ${input.slice(0, 80)}`,
       contributing: outcome.citedFactIds,
     });
@@ -791,6 +815,31 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
 
       case "correction": {
+        // Explicit owner confirmation is VERIFICATION, not
+        // correction (audit H1): "confirm that X is correct"
+        // must strengthen the verified knowledge — the old
+        // path weakened it, which punished owners for
+        // confirming ARCHIE.
+        if (EXPLICIT_CONFIRM.test(input)) {
+          const confirmed = rankFacts(input, this.facts.list(), 3);
+          if (confirmed.length > 0) {
+            await this.learner.record({
+              kind: "success",
+              task: `owner confirmation: ${input.slice(0, 80)}`,
+              contributing: confirmed.map((f) => f.id),
+            });
+            return this.compose(
+              `Confirmed — thank you. ${confirmed.length} related fact(s) strengthened and stamped as owner-confirmed evidence. ${this.statusLine()}`,
+              nlu.confidence,
+              confirmed.map((f) => f.id),
+            );
+          }
+          return this.compose(
+            "Noted as a confirmation, but I hold no related knowledge to strengthen. Teach me the fact first, then confirm it after I answer.",
+            nlu.confidence,
+            [],
+          );
+        }
         const triple = extractTriple(input);
         // Targeted demotion: facts directly on the corrected
         // SPO, plus TF-IDF related facts. The contradicted fact

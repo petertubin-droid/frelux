@@ -82,7 +82,10 @@ export class OutcomeLearner {
       ...outcome,
       ...(cause !== undefined ? { cause } : {}),
       ...(lesson !== undefined ? { lesson } : {}),
-      id: `outcome_${Date.now().toString(36)}_${this.outcomes.length}`,
+      // Collision-proof outcome ids (audit H3): the legacy
+      // Date.now + in-memory length scheme raced across
+      // isolates exactly like the old fact ids.
+      id: `outcome_${crypto.randomUUID()}`,
       timestamp: new Date().toISOString(),
     };
     this.outcomes.push(full);
@@ -91,7 +94,14 @@ export class OutcomeLearner {
     // Citing is not a verified outcome: no reinforcement at
     // all (audit C3, lo-2). Only real outcome evidence moves
     // confidence.
-    if (outcome.kind === "cited") return full;
+    // Citing is not a verified outcome, and neither is
+    // acknowledgement (audit H1): politeness — "thanks",
+    // "great" — is engagement, NOT verification evidence.
+    // Both are recorded for the audit trail and reinforce
+    // nothing.
+    if (outcome.kind === "cited" || outcome.kind === "acknowledged") {
+      return full;
+    }
 
     const delta =
       outcome.kind === "success"
@@ -106,7 +116,17 @@ export class OutcomeLearner {
         fact.confidence = clamp01(fact.confidence + delta);
         if (delta > 0) {
           fact.validatedCount += 1;
-          if (fact.validatedCount >= 2 && fact.confidence >= 0.6) {
+          // A success outcome IS a real verification event
+          // (owner-confirmed) — stamp it (audit H1/H2 gate).
+          const event = `owner-confirm:${full.timestamp}`;
+          if (!(fact.verifiedBy ?? []).includes(event)) {
+            fact.verifiedBy = [...(fact.verifiedBy ?? []), event];
+          }
+          if (
+            fact.validatedCount >= 2 &&
+            fact.confidence >= 0.6 &&
+            (fact.verifiedBy ?? []).length > 0
+          ) {
             fact.status = "validated";
           }
         } else if (fact.confidence < 0.25 || outcome.kind === "correction") {
