@@ -101,10 +101,29 @@ describe("Causal strategy", () => {
 });
 
 describe("Probabilistic strategy", () => {
-  it("combines weighted evidence and reports a band", async () => {
+  it("same-source repetition reinforces weakly and stays moderate (plan P3)", async () => {
+    // 2e8c19e: repeating the SAME assertion no longer stacks
+    // into high confidence — repetition is not verification.
+    // The twin merges (+0.02) and the band honestly stays
+    // "moderate".
     const t = await task("how likely is beam failure?", { subject: "beam", seed: [
       seed0("beam", "load-capacity", "450 kN", 0.8),
       seed0("beam", "load-capacity", "450 kN", 0.7),
+    ]});
+    const r = await executeStrategy("probabilistic", t);
+    expect(r.conclusions.length).toBe(1);
+    expect(r.uncertainty).toBe("moderate");
+  });
+
+  it("cross-source corroboration lifts the band to high-confidence (plan P3)", async () => {
+    // A DIFFERENT source asserting the same claim is real
+    // corroboration: +0.05 and the corroborating source is
+    // stamped into verifiedBy — this is the promotion path
+    // the evidence gates were built for.
+    const t = await task("how likely is beam failure?", { subject: "beam", seed: [
+      seed0("beam", "load-capacity", "450 kN", 0.8),
+      { ...seed0("beam", "load-capacity", "450 kN", 0.8),
+        provenance: { source: "owner-taught" as const } },
     ]});
     const r = await executeStrategy("probabilistic", t);
     expect(r.conclusions.length).toBe(1);

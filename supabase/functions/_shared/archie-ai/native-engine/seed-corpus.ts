@@ -17,7 +17,7 @@
 //   guesses.
 // =========================================================
 
-import type { Fact } from "./knowledge.ts";
+import type { Fact } from "./types.ts";
 
 /** Bump when the corpus changes so deployments can detect
  *  stale seeds (audit K1: swappable knowledge). */

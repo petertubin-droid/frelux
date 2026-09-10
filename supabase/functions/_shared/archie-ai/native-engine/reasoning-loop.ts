@@ -13,7 +13,7 @@
 // external AI, no fabricated intermediate steps.
 // =========================================================
 
-import type { ArchieInferenceTurn } from "./types.ts";
+import type { ArchieInferenceTurn } from "../runtime.ts";
 import type { ArchieNativeEngine, ConverseResult } from "./engine.ts";
 import {
   composeCompound,
