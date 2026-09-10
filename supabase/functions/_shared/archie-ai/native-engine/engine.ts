@@ -36,7 +36,10 @@ import { understand } from "./nlu.ts";
 import { ContextMemory, rankFacts } from "./memory.ts";
 import { redactSecrets } from "../cognitive/security-integrity.ts";
 import { FactStore } from "./knowledge.ts";
-import { DEFAULT_RULES, ReasoningEngine } from "./reasoning.ts";
+import {
+  GENERAL_RULES,
+DEFAULT_RULES, ReasoningEngine,
+} from "./reasoning.ts";
 import { DEFAULT_OPERATORS, Planner } from "./planning.ts";
 import { ToolOrchestrator, registerBuiltInTools } from "./tools.ts";
 import {
@@ -200,7 +203,14 @@ export class ArchieNativeEngine implements ArchieRuntime {
       : null;
     this.adapter = options?.researchAdapter ?? new DuckDuckGoLiteAdapter();
     this.facts = new FactStore(this.persistence ?? undefined);
-    this.reasoning = new ReasoningEngine(this.facts, DEFAULT_RULES);
+    // Domain-neutral reasoning substrate first, construction
+    // domain rules after — the engine reasons generally
+    // (owner directive 2026-09-10 §16), with domain knowledge
+    // additive, never structural.
+    this.reasoning = new ReasoningEngine(this.facts, [
+      ...GENERAL_RULES,
+      ...DEFAULT_RULES,
+    ]);
     this.planner = new Planner(this.facts, DEFAULT_OPERATORS);
     this.learner = new OutcomeLearner(
       this.facts,
@@ -256,7 +266,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
     await this.facts.assert({
       subject: "rules",
       predicate: "loaded",
-      object: `${DEFAULT_RULES.length} reasoning rules registered`,
+      object: `${GENERAL_RULES.length + DEFAULT_RULES.length} reasoning rules registered`,
       confidence: 0.9,
       provenance: { source: "seed", note: "reasoning rule library loaded" },
       status: "validated",
