@@ -51,6 +51,10 @@ import {
   Dna,
   Smartphone,
   Scale,
+  Images,
+  Paintbrush,
+  Tag,
+  ListChecks,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
@@ -304,6 +308,31 @@ const navModules: NavModule[] = [
         label: "Material Catalog",
         to: "/admin/material-catalog",
         icon: Package,
+      },
+      {
+        label: "Material Prices",
+        to: "/admin/material-prices",
+        icon: Tag,
+      },
+      {
+        label: "Paint Comparison",
+        to: "/admin/paint-comparison",
+        icon: Paintbrush,
+      },
+      {
+        label: "Surface Conditions",
+        to: "/admin/surface-conditions",
+        icon: Layers,
+      },
+      {
+        label: "Project Stages",
+        to: "/admin/project-stages",
+        icon: ListChecks,
+      },
+      {
+        label: "Gallery Moderation",
+        to: "/admin/gallery-moderation",
+        icon: Images,
       },
       {
         label: "Timeline Templates",
