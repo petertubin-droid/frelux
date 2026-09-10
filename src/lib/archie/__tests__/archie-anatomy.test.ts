@@ -7,7 +7,9 @@
 //   2. Every seeded subsystem binds to a module that actually
 //      exists on disk (no metaphor-only organs).
 //   3. The health runner produces exactly 22 real probe
-//      results and reports ears honestly as NOT_OPERATIONAL.
+//      results; ears is probed against its REAL engine
+//      module + audit trail (HEALTHY only once a genuine
+//      transcription is audited — never claimed before).
 // =========================================================
 import { describe, it, expect } from "vitest";
 import { readFileSync, existsSync } from "node:fs";
@@ -95,14 +97,18 @@ describe("anatomy registry (SKELETON) — real bindings only", () => {
   );
 
   it("registers exactly 22 subsystems", () => {
-    const rows = migration.match(/\('(heart|brain|head|dna|skeleton|spinal-cord|blood|eyes|ears|mouth|digestive|liver-kidneys|immune|hands|muscles|legs|nervous|pain|balance|stem-cells|healing|sleep)',/g);
+    const rows = migration.match(
+      /\('(heart|brain|head|dna|skeleton|spinal-cord|blood|eyes|ears|mouth|digestive|liver-kidneys|immune|hands|muscles|legs|nervous|pain|balance|stem-cells|healing|sleep)',/g,
+    );
     expect(rows?.length).toBe(ANATOMY_SUBSYSTEM_COUNT);
     expect(ANATOMY_SUBSYSTEM_COUNT).toBe(22);
   });
 
   it("binds every operational subsystem to a module that exists on disk", () => {
     // Each seed row is one line: ('key','organ','Name','Purpose','["bindings"]'::jsonb,<data>,true/false,'CRITICAL',N),
-    const seedLines = migration.split("\n").filter((l) => /^\('([a-z-]+)',/.test(l.trim()));
+    const seedLines = migration
+      .split("\n")
+      .filter((l) => /^\('([a-z-]+)',/.test(l.trim()));
     expect(seedLines.length).toBe(22);
     const checked: string[] = [];
     let operationalCount = 0;
@@ -110,7 +116,9 @@ describe("anatomy registry (SKELETON) — real bindings only", () => {
       const m = line.match(/^\('([a-z-]+)',/);
       const key = m?.[1];
       const codeMatch = line.match(/'(\[[^\]]*\])'::jsonb/);
-      const isOperational = /,(true|false),'(CRITICAL|HIGH|STANDARD)',\d+\)/.exec(line)?.[1] === "true";
+      const isOperational =
+        /,(true|false),'(CRITICAL|HIGH|STANDARD)',\d+\)/.exec(line)?.[1] ===
+        "true";
       const paths: string[] = codeMatch ? JSON.parse(codeMatch[1]) : [];
       if (!isOperational) {
         // non-operational organs must have NO fake bindings
@@ -127,21 +135,50 @@ describe("anatomy registry (SKELETON) — real bindings only", () => {
         }
       }
     }
-    expect(operationalCount).toBe(21); // ears is the only honest NOT_OPERATIONAL
+    // The SEED registered 21: ears was honestly NOT_OPERATIONAL
+    // at seed time (no fake bindings). The follow-up migration
+    // 20260913100000 flips it operational with real bindings,
+    // verified by the next test.
+    expect(operationalCount).toBe(21);
     // sanity: the heart is bound to the real native engine
     expect(checked).toContain(
       "supabase/functions/_shared/archie-ai/native-engine/engine.ts",
     );
   });
 
-  it("honestly registers ears as NOT operational with no fake bindings", () => {
+  it("seeded ears honestly NOT operational (history preserved, never faked)", () => {
     const earsLine = migration
       .split("\n")
       .find((l) => l.trim().startsWith("('ears','👂'"));
     expect(earsLine).toBeTruthy();
     expect(earsLine).toContain(",false,");
     expect(earsLine).toContain("'[]'::jsonb,'[]'::jsonb");
-    expect(earsLine).toContain("NOT_OPERATIONAL");
+  });
+
+  it("flips ears to operational ONLY through the real-implementation migration", () => {
+    const flip = readFileSync(
+      resolve(
+        ROOT,
+        "supabase/migrations/20260913100000_archie_ears_operational.sql",
+      ),
+      "utf8",
+    );
+    expect(flip).toContain("operational = true");
+    expect(flip).toContain("WHERE key = 'ears'");
+    // every code binding must exist on disk — no metaphor bindings
+    const paths = [
+      "supabase/functions/_shared/archie-ai/native-engine/ears.ts",
+      "supabase/functions/archie-ears/index.ts",
+      "src/lib/archie/ears.ts",
+    ];
+    for (const pth of paths) {
+      expect(flip, `flip migration must bind ${pth}`).toContain(pth);
+      expect(existsSync(resolve(ROOT, pth)), `missing binding: ${pth}`).toBe(
+        true,
+      );
+    }
+    // the probe's real data source must be bound too
+    expect(flip).toContain("frelux_archie_audit_events");
   });
 });
 
@@ -156,6 +193,7 @@ describe("health runner — real probes", () => {
               limit: async () => ({
                 count: t.rows.length,
                 error: null,
+                data: t.rows,
               }),
               single: async () => ({
                 data: t.rows[0] ?? null,
@@ -177,7 +215,7 @@ describe("health runner — real probes", () => {
     } as unknown as AnatomyDb;
   }
 
-  it("probes all 22 subsystems and reports ears NOT_OPERATIONAL honestly", async () => {
+  it("probes all 22 subsystems; ears DEGRADED until a real transcription is audited", async () => {
     const db = makeDb({
       frelux_knowledge_items: { rows: [{}] },
       frelux_learning_records: { rows: [{}] },
@@ -190,7 +228,11 @@ describe("health runner — real probes", () => {
     expect(new Set(keys).size).toBe(22);
 
     const ears = probes.find((p) => p.subsystem_key === "ears");
-    expect(ears?.status).toBe("NOT_OPERATIONAL");
+    // engine module loads + zero transcriptions audited = honest
+    // DEGRADED, never a premature HEALTHY
+    expect(ears?.status).toBe("DEGRADED");
+    expect(ears?.metric).toContain("awaiting first live transcription");
+    expect(ears?.details.engine_exports as number).toBeGreaterThan(0);
 
     const dna = probes.find((p) => p.subsystem_key === "dna");
     expect(dna?.status).toBe("OFFLINE"); // no constitution row in mock
@@ -198,6 +240,18 @@ describe("health runner — real probes", () => {
     const brain = probes.find((p) => p.subsystem_key === "brain");
     expect(brain?.status).toBe("HEALTHY");
     expect(brain?.metric).toContain("knowledge items");
+  });
+
+  it("reports ears HEALTHY once a genuine transcription is audited", async () => {
+    const db = makeDb({
+      frelux_archie_audit_events: {
+        rows: [{ event_type: "archie.ears.transcription" }],
+      },
+    });
+    const probes = await runAnatomyHealth(db);
+    const ears = probes.find((p) => p.subsystem_key === "ears");
+    expect(ears?.status).toBe("HEALTHY");
+    expect(ears?.metric).toContain("1 real transcription");
   });
 
   it("marks the dna DEGRADED on checksum mismatch (tamper detection at runtime)", async () => {
