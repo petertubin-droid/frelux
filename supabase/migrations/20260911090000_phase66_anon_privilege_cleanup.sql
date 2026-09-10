@@ -146,6 +146,7 @@ BEGIN
     JOIN LATERAL unnest(ARRAY['INSERT','SELECT','UPDATE','DELETE','TRUNCATE','REFERENCES','TRIGGER']) p(priv) ON TRUE
     WHERE n.nspname = 'public'
       AND da.defaclobjtype = 'r'  -- tables
+      AND da.defaclrole = 'postgres'::regrole  -- the role migrations run as; other creator roles are guarded in 2b
       AND grantee.rolname IN ('anon', 'authenticated')
       AND acl.privilege_type = p.priv
   ) THEN
@@ -162,6 +163,23 @@ BEGIN
       'PHASE66 VERIFICATION FAILED: postgres default privileges in public still grant table rights to % — future tables would inherit them.',
       default_offenders;
   END IF;
+
+  -- Honest report of any remaining non-postgres creator roles: these are
+  -- platform-owned (e.g. supabase_admin — unalterable from the postgres
+  -- migration role, see 2b) and affect only objects created by that role.
+  FOR offending IN
+    SELECT DISTINCT da.defaclrole::regrole::text AS role_name
+    FROM pg_default_acl da
+    JOIN pg_namespace n ON n.oid = da.defaclnamespace
+    JOIN aclexplode(da.defaclacl) acl ON TRUE
+    JOIN pg_roles grantee ON grantee.oid = acl.grantee
+    WHERE n.nspname = 'public'
+      AND da.defaclobjtype = 'r'
+      AND da.defaclrole <> 'postgres'::regrole
+      AND grantee.rolname IN ('anon', 'authenticated')
+  LOOP
+    RAISE NOTICE 'PHASE66: platform-owned default privileges (creator role %) still list anon/authenticated — not alterable from the postgres migration role; affects only objects created by that role.', offending.role_name;
+  END LOOP;
 
   RAISE NOTICE 'PHASE66 VERIFICATION PASSED: no anon TRUNCATE/REFERENCES/TRIGGER grants remain in public; postgres default privileges are clean.';
 END

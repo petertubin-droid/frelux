@@ -55,5 +55,5 @@ VALUES (
     'permanence', 'Permanent architectural principle. Persisted across upgrades, migrations, devices and deployments.'
   )::jsonb,
   'OWNER_DIRECTIVE',
-  'PERMANENT'
+  'ACTIVE'
 ) ON CONFLICT (principle_id) DO NOTHING;

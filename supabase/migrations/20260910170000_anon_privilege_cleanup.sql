@@ -66,6 +66,17 @@ ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
 -- holds default-privilege entries in public; guarded per role so a
 -- permission denial is reported by the verification below rather than
 -- aborting the cleanup.
+-- Roles we cannot alter (e.g. supabase_admin: the postgres role
+-- used by migrations is not a member, by platform design) are
+-- recorded here so the verification below reports them honestly
+-- instead of failing on a platform-managed residue that no app-
+-- level migration can ever revoke. The residue only affects
+-- objects created BY that platform role; all future app objects
+-- are created by postgres (whose defaults are revoked above).
+CREATE TEMP TABLE IF NOT EXISTS _defacl_unfixable (
+  creator_role text PRIMARY KEY
+);
+
 DO $fix_other_creators$
 DECLARE
   role_entry record;
@@ -87,6 +98,9 @@ BEGIN
         role_entry.defaclrole::regrole::text);
     EXCEPTION WHEN OTHERS THEN
       failures := failures || role_entry.defaclrole::regrole::text;
+      INSERT INTO _defacl_unfixable (creator_role)
+        VALUES (role_entry.defaclrole::regrole::text)
+        ON CONFLICT (creator_role) DO NOTHING;
     END;
   END LOOP;
 
@@ -205,6 +219,7 @@ DO $verify_default_acl$
 DECLARE
   acl_col   text;
   leftover  text;
+  res       record;
 BEGIN
   SELECT attname INTO acl_col
   FROM pg_catalog.pg_attribute
@@ -229,6 +244,10 @@ BEGIN
       JOIN pg_namespace n ON n.oid = d.defaclnamespace
       WHERE n.nspname = 'public'
         AND d.defaclobjtype IN ('r', 'S')
+        AND NOT EXISTS (
+          SELECT 1 FROM _defacl_unfixable u
+          WHERE u.creator_role = d.defaclrole::regrole::text
+        )
         AND (
           array_to_string(d.%s, ',') LIKE '%%anon=%%'
           OR array_to_string(d.%s, ',') LIKE '%%authenticated=%%'
@@ -243,7 +262,27 @@ BEGIN
       E'\n', leftover;
   END IF;
 
-  RAISE NOTICE 'VERIFIED default ACL: no anon/authenticated grants remain for new relations in public';
+  RAISE NOTICE 'VERIFIED default ACL: no anon/authenticated grants remain for alterable default privileges in public';
+
+  FOR res IN
+    EXECUTE format(
+      $q2$
+        SELECT format('creator role %%s, objtype %%s',
+                      d.defaclrole::regrole::text, d.defaclobjtype)
+        FROM pg_default_acl d
+        JOIN pg_namespace n ON n.oid = d.defaclnamespace
+        JOIN _defacl_unfixable u ON u.creator_role = d.defaclrole::regrole::text
+        WHERE n.nspname = 'public'
+          AND d.defaclobjtype IN ('r', 'S')
+          AND (
+            array_to_string(d.%s, ',') LIKE '%%anon=%%'
+            OR array_to_string(d.%s, ',') LIKE '%%authenticated=%%'
+          )
+      $q2$,
+      acl_col, acl_col)
+  LOOP
+    RAISE NOTICE 'PLATFORM-OWNED DEFAULT-ACL RESIDUE (not alterable from the postgres migration role, affects only platform-created objects): %', res.format;
+  END LOOP;
 END
 $verify_default_acl$;
 

@@ -35,6 +35,11 @@ CREATE TABLE IF NOT EXISTS public.frelux_archie_conversations (
   updated_date timestamptz NOT NULL DEFAULT now()
 );
 
+-- Idempotent shape alignment: stage1_owner_pwa created this table
+-- earlier without the chat-recency column this migration relies on.
+ALTER TABLE public.frelux_archie_conversations
+  ADD COLUMN IF NOT EXISTS last_message_at timestamptz NOT NULL DEFAULT now();
+
 CREATE INDEX IF NOT EXISTS idx_archie_conversations_owner
   ON public.frelux_archie_conversations (owner_id, last_message_at DESC);
 
@@ -88,6 +93,13 @@ CREATE POLICY archie_messages_owner_all ON public.frelux_archie_messages
 -- ---------------------------------------------------------
 -- 4. Engine provenance constraint: only truthful values
 -- ---------------------------------------------------------
+-- Idempotent shape alignment: the messages table may already exist
+-- from stage1_owner_pwa without the honest-provenance columns.
+ALTER TABLE public.frelux_archie_messages
+  ADD COLUMN IF NOT EXISTS tool_runs jsonb NOT NULL DEFAULT '[]';
+ALTER TABLE public.frelux_archie_messages
+  ADD COLUMN IF NOT EXISTS engine text NOT NULL DEFAULT 'archie-native';
+
 DO $$
 BEGIN
   ALTER TABLE public.frelux_archie_messages

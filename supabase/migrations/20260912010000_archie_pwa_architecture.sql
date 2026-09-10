@@ -17,7 +17,7 @@ INSERT INTO public.frelux_archie_core_principles (
 ) VALUES (
   'pwa_complete_capability_exposure',
   'ARCHIE PWA Complete Capability Exposure (Permanent Rule)',
-  $rule$Whenever a new capability is added to ARCHIE's core system, it must be automatically designed and integrated into the standalone ARCHIE PWA as part of the same feature implementation. The PWA and desktop/admin interfaces use the same ARCHIE identity, backend, memory, knowledge, projects, coding workspace, evolution state and permissions. No ARCHIE capability may exist in the core system that is intentionally inaccessible from the Owner's PWA, unless the Owner Authority Layer explicitly requires restricted access. No PWA-only versions, duplicate ARCHIE databases, duplicate intelligence, or separate feature implementations. The PWA is the Owner's complete mobile command center for ARCHIE.$rule$,
+  jsonb_build_object('rule', $rule$Whenever a new capability is added to ARCHIE's core system, it must be automatically designed and integrated into the standalone ARCHIE PWA as part of the same feature implementation. The PWA and desktop/admin interfaces use the same ARCHIE identity, backend, memory, knowledge, projects, coding workspace, evolution state and permissions. No ARCHIE capability may exist in the core system that is intentionally inaccessible from the Owner's PWA, unless the Owner Authority Layer explicitly requires restricted access. No PWA-only versions, duplicate ARCHIE databases, duplicate intelligence, or separate feature implementations. The PWA is the Owner's complete mobile command center for ARCHIE.$rule$::text),
   'OWNER_DIRECTIVE',
   'ACTIVE'
 ) ON CONFLICT (principle_id) DO NOTHING;
