@@ -34,6 +34,7 @@ export type CoreSystemKey =
   | "ENGINEERING_OBJECTIVE"
   | "STUDIO"
   | "PROVIDER_INDEPENDENCE"
+  | "NATIVE_INTELLIGENCE"
   | "PWA_ARCHITECTURE";
 
 export interface CoreSystemBinding {
@@ -323,6 +324,29 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
       "Evolution or PWA, and exists only as a FRELUX application fallback " +
       "under strict owner-defined conditions. Inference resolves through " +
       "ARCHIE's provider-agnostic engine registry. Persisted in " +
+      "frelux_archie_core_principles; statically enforced by tests.",
+  },
+  {
+    key: "NATIVE_INTELLIGENCE",
+    label: "Native Intelligence & Universal Learning Architecture",
+    family: "ARCHIE core principles",
+    module: "@/lib/archie/native-intelligence",
+    exports: [
+      "NATIVE_INTELLIGENCE_ARCHITECTURE",
+      "verifyNativeIntelligenceIntegrity",
+    ],
+    deterministic: true,
+    autonomy: "ARCHIE_AUTONOMOUS",
+    note:
+      "Permanent nine-pillar architecture directive from birth: ARCHIE " +
+      "operates on its own native inference engine (never Gemini/OpenAI/" +
+      "Claude, never dormant when external engines are unavailable, no " +
+      "fake intelligence or scripted responses), acquires universal " +
+      "knowledge with no subject ceiling, learns through the validated " +
+      "DISCOVER→…→IMPROVE pipeline, researches the web legitimately, " +
+      "learns coding in isolation (never touching production), pursues " +
+      "coding independence owner-gated, keeps Gemini FRELUX-only, and " +
+      "obeys LEARN FREELY→…→OWNER AUTHORIZES EXECUTION. Persisted in " +
       "frelux_archie_core_principles; statically enforced by tests.",
   },
   {

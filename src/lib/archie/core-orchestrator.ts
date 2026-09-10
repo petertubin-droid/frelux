@@ -51,6 +51,7 @@ const LOADERS: Record<CoreSystemKey, () => Promise<Record<string, unknown>>> = {
   ENGINEERING_OBJECTIVE: () => import("@/lib/archie/engineering-objective"),
   STUDIO: () => import("@/lib/studio/preview"),
   PROVIDER_INDEPENDENCE: () => import("@/lib/archie/provider-independence"),
+  NATIVE_INTELLIGENCE: () => import("@/lib/archie/native-intelligence"),
   PWA_ARCHITECTURE: () => import("@/lib/archie/pwa-architecture"),
   DETERMINISTIC_ENGINES: () => import("@/lib/ai-foundation/engines-registry"),
   CALCULATORS: () => import("@/lib/calc"),
