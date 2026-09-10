@@ -86,10 +86,10 @@ export function nativeEngineCapabilityManifest(): CapabilityReport[] {
     {
       id: "web-research",
       description:
-        "Web research pipeline: search → retrieve → extract → cross-check → validate, storing findings as low-confidence candidate knowledge. Network-dependent; the DuckDuckGo Lite adapter operates without keys or auth bypass",
+        "Web research pipeline with PRIORITY SOURCE SELECTION: question → domain classification → appropriate priority sources first (wikipedia/britannica, MDN/github/stackoverflow/python/node docs, scholar/arxiv/pubmed, NIST/MITRE ATT&CK/OWASP/CVE per the owner registry) → parallel site-scoped searches → cross-source check → early stopping → discovered-source classification (never auto-trusted) → storage as low-confidence candidate knowledge with full provenance. Speed optimizations: parallel searches, result caching with TTL, deduplication, relevance ranking. Network-dependent; the DuckDuckGo Lite adapter operates without keys or auth bypass; priority sources and hierarchy per the owner's web knowledge source registry",
       maturity: "DEVELOPING",
       measuredBy:
-        "native-engine.test.ts (research pipeline case with labeled test adapter)",
+        "native-engine.test.ts (research pipeline case with labeled test adapter) + archie-web-source-registry.test.ts (source selection, cross-check, caching, discovery)",
     },
     {
       id: "self-evaluation",

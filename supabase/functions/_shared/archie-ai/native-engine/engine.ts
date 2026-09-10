@@ -44,6 +44,7 @@ import {
   type ResearchAdapter,
   DuckDuckGoLiteAdapter,
 } from "./webresearch.ts";
+import { getWebSourceRegistry } from "./web-sources.ts";
 import { analyzeSource, generateUnitTestScaffold } from "./coding.ts";
 import { SelfEvaluator } from "./selfeval.ts";
 import { OutcomeLearner, type OutcomePersistence } from "./learning.ts";
@@ -203,7 +204,15 @@ export class ArchieNativeEngine implements ArchieRuntime {
       this.facts,
       this.persistence ?? undefined,
     );
-    this.research = new ResearchPipeline(this.facts, this.adapter);
+    // PRIORITY WEB KNOWLEDGE SOURCE REGISTRY — intelligent
+    // source selection (owner directive 2026-09-10): the
+    // research pipeline classifies the question's domain and
+    // searches the most appropriate priority sources first.
+    this.research = new ResearchPipeline(
+      this.facts,
+      this.adapter,
+      getWebSourceRegistry(),
+    );
     registerBuiltInTools(this.tools);
   }
 
@@ -579,16 +588,60 @@ export class ArchieNativeEngine implements ArchieRuntime {
           status: "validated",
         });
         const report = await this.research.research(query);
-        const text =
-          report.hits.length > 0
-            ? `Research completed for "${query}". ${report.hits.length} public source(s) found; ${report.storedKnowledge} finding(s) stored as low-confidence candidate knowledge pending validation.\nTop results:\n` +
-              report.hits
-                .slice(0, 3)
-                .map((h) => `- ${h.title} (${h.url})`)
-                .join("\n") +
-              `\nNothing here is accepted as fact yet — validate findings before I treat them as knowledge.`
-            : `Research ran but returned no results: ${report.note}. I report that honestly rather than inventing sources.`;
-        return this.compose(text, nlu.confidence, []);
+        // HONEST SOURCE-AWARE REPORTING — only sources actually
+        // searched are named; failures, disagreements and
+        // discovered sources are reported, never smoothed over.
+        if (report.reusedCache) {
+          return this.compose(
+            `Recent findings for "${query}" are still current — reusing ${report.hits.length} cached finding(s) instead of searching again. Ask me to validate them if you want them promoted to knowledge.`,
+            nlu.confidence,
+            [],
+          );
+        }
+        if (report.hits.length > 0) {
+          const lines: string[] = [];
+          lines.push(
+            `Research completed for "${query}" — classified as ${report.category ?? "unclassified"} domain.`,
+          );
+          lines.push(
+            `Sources searched (priority first): ${report.sourcesSearched.join(", ") || "none"}.`,
+          );
+          if (report.sourceFailures.length > 0) {
+            lines.push(
+              `Failed/declined: ${report.sourceFailures.map((f) => `${f.domain} (${f.note})`).join("; ")}.`,
+            );
+          }
+          lines.push(
+            `${report.hits.length} result(s) found across ${new Set(report.hits.map((h) => h.domain)).size} domain(s)` +
+              (report.crossChecked
+                ? "; independent sources agree (cross-checked)."
+                : "; cross-source agreement NOT yet established — treat with caution."),
+          );
+          for (const c of report.conflicts) {
+            lines.push(`Caution: ${c}`);
+          }
+          if (report.discoveredSources.length > 0) {
+            lines.push(
+              `Newly discovered sources classified (evaluating, not trusted yet): ${report.discoveredSources.join(", ")}.`,
+            );
+          }
+          lines.push(
+            `${report.storedKnowledge} finding(s) stored as low-confidence candidate knowledge pending validation.`,
+          );
+          lines.push("Top results:");
+          for (const h of report.hits.slice(0, 3)) {
+            lines.push(`- ${h.title} (${h.url})`);
+          }
+          lines.push(
+            "Nothing here is accepted as fact yet — validate findings before I treat them as knowledge.",
+          );
+          return this.compose(lines.join("\n"), nlu.confidence, []);
+        }
+        return this.compose(
+          `Research ran but returned no results: ${report.note}. I report that honestly rather than inventing sources.`,
+          nlu.confidence,
+          [],
+        );
       }
 
       case "task_planning": {
