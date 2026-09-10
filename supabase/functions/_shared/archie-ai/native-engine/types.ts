@@ -227,6 +227,9 @@ export interface EngineDiagnostics {
     episodicTurns: number;
     outcomes: number;
     inferences: number;
+    /** P7 — cross-isolate calibration counters. */
+    unknownTopicHits: number;
+    verificationFails: number;
   };
   calibration: {
     /** Mean predicted confidence of completed inferences. */

@@ -78,7 +78,7 @@ import { analyzeSource, generateUnitTestScaffold } from "./coding.ts";
 import { SelfEvaluator } from "./selfeval.ts";
 import { OutcomeLearner, type OutcomePersistence } from "./learning.ts";
 import { SupabasePersistence, type SupabaseLike } from "./persistence.ts";
-import { EpisodicPersistence } from "./persistence.ts";
+import { CounterPersistence, EpisodicPersistence } from "./persistence.ts";
 import type { Fact, Plan, RetrievedContext } from "./types.ts";
 
 /** Foundational knowledge seeded at engine construction —
@@ -233,6 +233,16 @@ export class ArchieNativeEngine implements ArchieRuntime {
   private episodicStore: EpisodicPersistence | null = null;
   /** P7 — conversation id for episodic session grouping. */
   private conversationId = "default";
+  /** P7 — cross-isolate counter store. */
+  private counterStore: CounterPersistence | null = null;
+  /** P7 — calibration counters for THIS isolate only: the
+   *  mean-confidence denominator must be local, or the
+   *  calibration would dilute dishonestly. */
+  private sessionInferences = 0;
+  /** P7 — system-wide counters (seeded from persisted base
+   *  at boot, incremented live, persisted per turn). */
+  private unknownTopicHits = 0;
+  private verificationFails = 0;
   private bootedAt = Date.now();
   private inferences = 0;
   private confidenceSum = 0;
@@ -265,6 +275,11 @@ export class ArchieNativeEngine implements ArchieRuntime {
     // episodic reads or writes either.
     this.episodicStore = options?.persistence
       ? new EpisodicPersistence(options.persistence)
+      : null;
+    // P7 batch 2 — cross-isolate counters share the same
+    // consent gate (persistence null → in-memory only).
+    this.counterStore = options?.persistence
+      ? new CounterPersistence(options.persistence)
       : null;
     this.adapter = options?.researchAdapter ?? new DuckDuckGoLiteAdapter();
     this.facts = new FactStore(this.persistence ?? undefined);
@@ -339,6 +354,20 @@ export class ArchieNativeEngine implements ArchieRuntime {
       status: "validated",
     });
     await this.learner.hydrate();
+    // P7 batch 2 — seed system-wide counters from the
+    // persisted base so diagnostics report system-wide
+    // numbers, not per-isolate noise.
+    if (this.counterStore) {
+      try {
+        const base = await this.counterStore.loadCounters();
+        this.inferences += base["inferences"] ?? 0;
+        this.unknownTopicHits += base["unknown_topic_hits"] ?? 0;
+        this.verificationFails += base["verification_fails"] ?? 0;
+      } catch {
+        // Counter hydration is best-effort: unavailable table
+        // → this isolate counts from zero, honestly.
+      }
+    }
     // P7 — hydrate prior-session episodic context once per
     // isolate. Cross-isolate: a fresh chat request recalls
     // owner-taught context from previous sessions.
@@ -446,6 +475,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
     toolResult: { name: string; output: unknown },
   ): ArchieInferenceResult {
     this.inferences += 1;
+    this.sessionInferences += 1;
     const body = summarizeToolOutput(toolResult.output);
     const text =
       `${body}\n` +
@@ -469,6 +499,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
   ): Promise<ConverseResult> {
     await this.boot();
     this.inferences += 1;
+    this.sessionInferences += 1;
     this.memory.seedFromTurns(
       (history ?? []).map((t) => ({
         role: t.role,
@@ -511,6 +542,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
       this.facts,
       false,
     );
+    // P7 — a failed response-integrity check is a real,
+    // countable verification failure (cross-isolate).
+    if (!selfCheck.passed) this.verificationFails += 1;
     this.memory.addTurn("archie", outcome.responseText);
     // P7 — persist this turn pair so the NEXT session (any
     // isolate) recalls it. Consent gate: this.episodicStore
@@ -572,6 +606,23 @@ export class ArchieNativeEngine implements ArchieRuntime {
       task: `${nlu.intent}: ${input.slice(0, 80)}`,
       contributing: outcome.citedFactIds,
     });
+
+    // P7 batch 2 — persist system-wide counters after the
+    // turn. Read-modify-write upsert: under concurrent
+    // isolates the LAST write wins; these are diagnostics,
+    // not accounting (documented in CounterPersistence).
+    if (this.counterStore) {
+      try {
+        await this.counterStore.saveCounters({
+          inferences: this.inferences,
+          unknown_topic_hits: this.unknownTopicHits,
+          verification_fails: this.verificationFails,
+        });
+      } catch {
+        // Best-effort: a failed counter write never breaks
+        // the conversation.
+      }
+    }
 
     return { ...outcome, nlu, selfCheck };
   }
@@ -1085,6 +1136,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
           .filter((f) => f.status !== "uncertain")
           .slice(0, 3);
         if (validated.length === 0) {
+          // P7 — a knowledge question with zero matched
+          // facts is a countable unknown-topic hit.
+          this.unknownTopicHits += 1;
           // Episodic memory: recall what the owner said earlier
           // in this conversation. REAL retrieval — the recalled
           // turns actually change the answer instead of a bare
@@ -1575,10 +1629,14 @@ export class ArchieNativeEngine implements ArchieRuntime {
         episodicTurns: this.memory.episodicSize(),
         outcomes: this.learner.count(),
         inferences: this.inferences,
+        unknownTopicHits: this.unknownTopicHits,
+        verificationFails: this.verificationFails,
       },
       calibration: {
         meanConfidence:
-          this.inferences > 0 ? this.confidenceSum / this.inferences : 0,
+          this.sessionInferences > 0
+            ? this.confidenceSum / this.sessionInferences
+            : 0,
         selfChecksRun: stats.selfChecksRun,
         contradictionsCaught: stats.contradictionsCaught,
       },
