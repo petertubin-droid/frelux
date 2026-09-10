@@ -107,8 +107,6 @@ export function countsAgainstCustomerQuota(opClass: OperationClass): boolean {
 const PROVIDER_UNIT_COST_CENTS: Record<string, number> = {
   GEMINI_FLASH: 0.1,
   GEMINI_PRO: 2.5,
-  OPENAI_GPT4O_MINI: 0.6,
-  OPENAI_GPT4O: 5,
   TAVILY_SEARCH: 1,
   CLOUD_RUN: 2,
   WEB_CRAWL: 0.5,

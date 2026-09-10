@@ -104,9 +104,9 @@ interface ToolRun {
 // ---- sanitizer: keep credentials out of ARCHIE traffic ----
 const SECRET_PATTERNS = [
   /sk-[A-Za-z0-9]{16,}/g,
-  /AIza[A-Za-z0-9_\-]{20,}/g,
-  /AQ\.[A-Za-z0-9_\-]{20,}/g,
-  /eyJ[A-Za-z0-9_\-]{20,}\.[A-Za-z0-9_\-]{15,}/g,
+  /AIza[A-Za-z0-9_-]{20,}/g,
+  /AQ.[A-Za-z0-9_-]{20,}/g,
+  /eyJ[A-Za-z0-9_-]{20,}.[A-Za-z0-9_-]{15,}/g,
 ];
 function sanitize(text: string): string {
   let out = text;
@@ -189,14 +189,20 @@ const TOOLS: ToolDef[] = [
       const tokens = q
         .toLowerCase()
         .split(/[^a-z0-9+#.-]+/)
-        .filter((t) => t.length >= 3 && !["the", "and", "for", "how", "what", "with", "about"].includes(t))
+        .filter(
+          (t) =>
+            t.length >= 3 &&
+            !["the", "and", "for", "how", "what", "with", "about"].includes(t),
+        )
         .slice(0, 6);
       const filter = tokens.length
         ? tokens.map((t) => `topic.ilike.%${t.replace(/,/g, "")}%`).join(",")
         : `topic.ilike.%${q}%`;
       const { data, error } = await db
         .from("frelux_knowledge_items")
-        .select("topic,capability,scope,content,confidence,domain,knowledge_type")
+        .select(
+          "topic,capability,scope,content,confidence,domain,knowledge_type",
+        )
         .eq("status", "ACTIVE")
         .or(filter)
         .order("confidence", { ascending: false })
@@ -258,7 +264,9 @@ const TOOLS: ToolDef[] = [
     execute: async () => {
       const { data, error } = await db
         .from("frelux_archie_execution_targets")
-        .select("key,label,environment,risk_class,requires_owner_secret,allowed_initiators,enabled,http_method")
+        .select(
+          "key,label,environment,risk_class,requires_owner_secret,allowed_initiators,enabled,http_method",
+        )
         .order("environment", { ascending: true });
       if (error) return { error: error.message };
       return { targets: data };
@@ -297,7 +305,9 @@ const TOOLS: ToolDef[] = [
       const limit = Math.min(Math.max(Number(input.limit ?? 15), 1), 50);
       const { data, error } = await db
         .from("frelux_archie_execution_runs")
-        .select("id,target_key,environment,status,attempts,duration_ms,initiator_system,authority_method,created_date")
+        .select(
+          "id,target_key,environment,status,attempts,duration_ms,initiator_system,authority_method,created_date",
+        )
         .order("created_date", { ascending: false })
         .limit(limit);
       if (error) return { error: error.message };
@@ -528,7 +538,7 @@ const TOOLS: ToolDef[] = [
       const code = input.code ? String(input.code).slice(0, 60_000) : null;
       const repoPath = input.repo_path
         ? String(input.repo_path)
-            .replace(/^[\/.]+/, "")
+            .replace(/^[/.]+/, "")
             .slice(0, 200)
         : null;
       if (!code && !repoPath) {
@@ -825,7 +835,9 @@ const chatEngineDeps: EngineDeps = {
         severity,
         message,
       });
-    } catch { /* audit never breaks the flow */ }
+    } catch {
+      /* audit never breaks the flow */
+    }
   },
   getSecret: (name) => Deno.env.get(name),
   fetchFn: fetch,
@@ -843,20 +855,34 @@ let activeOwnerUserId: string | null = null;
 async function chatExecute(targetKey: string, input: unknown) {
   const ownerId = activeOwnerUserId;
   if (!ownerId) {
-    return { ok: false, status: "POLICY_REJECTED", error: "Owner session required for execution." };
+    return {
+      ok: false,
+      status: "POLICY_REJECTED",
+      error: "Owner session required for execution.",
+    };
   }
   // HARD CHAT POLICY: non-PRODUCTION targets that allow ARCHIE_CHAT only.
   const target = await chatEngineDeps.getTarget(targetKey);
-  if (!target) return { ok: false, status: "NOT_FOUND", error: "Unknown execution target." };
+  if (!target)
+    return {
+      ok: false,
+      status: "NOT_FOUND",
+      error: "Unknown execution target.",
+    };
   if (target.environment === "PRODUCTION") {
     return {
       ok: false,
       status: "POLICY_REJECTED",
-      error: "Production execution requires the Owner Secret through the PWA/Studio — never through chat.",
+      error:
+        "Production execution requires the Owner Secret through the PWA/Studio — never through chat.",
     };
   }
   if (!target.allowed_initiators?.includes("ARCHIE_CHAT")) {
-    return { ok: false, status: "POLICY_REJECTED", error: "This target is not executable from chat." };
+    return {
+      ok: false,
+      status: "POLICY_REJECTED",
+      error: "This target is not executable from chat.",
+    };
   }
   return executeTarget(chatEngineDeps, {
     targetKey,

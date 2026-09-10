@@ -41,6 +41,22 @@ Object.defineProperty(navigator, "mediaDevices", {
   configurable: true,
 });
 
+// happy-dom has no native speech recognition — stub the
+// browser/OS recognition engine (Talk section renders).
+class MockSpeechRecognition {
+  lang = "en";
+  continuous = false;
+  interimResults = false;
+  maxAlternatives = 1;
+  onresult = null;
+  onerror = null;
+  onend = null;
+  start() {}
+  stop() {}
+  abort() {}
+}
+vi.stubGlobal("SpeechRecognition", MockSpeechRecognition);
+
 import ArchieVoice from "@/pages/archie/ArchieVoice";
 
 beforeEach(() => {
@@ -71,13 +87,16 @@ describe("ArchieVoice", () => {
     expect(
       await screen.findByRole("button", { name: "Talk to ARCHIE" }),
     ).toBeTruthy();
-    expect(screen.getByText(/transcribed by ARCHIE's ears/i)).toBeTruthy();
+    expect(screen.getByText(/understood by ARCHIE's ears/i)).toBeTruthy();
+    expect(screen.getByText(/no OpenAI/i)).toBeTruthy();
   });
 
-  it("is honest when the browser cannot record audio", async () => {
-    vi.stubGlobal("MediaRecorder", undefined);
+  it("is honest when the browser has no native speech recognition", async () => {
+    vi.stubGlobal("SpeechRecognition", undefined);
     renderPage();
-    expect(await screen.findByText(/cannot record audio/i)).toBeTruthy();
+    expect(
+      await screen.findByText(/cannot understand speech natively/i),
+    ).toBeTruthy();
     expect(screen.queryByRole("button", { name: "Talk to ARCHIE" })).toBeNull();
   });
 });

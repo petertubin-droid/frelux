@@ -50,7 +50,7 @@ Mobile-first styling throughout; navigation adapts to a phone menu. The build ge
 
 ### 1.5 ARCHIE Owner PWA
 
-`/archie` is an owner-only companion PWA with its own shell (`src/components/archie/ArchieLayout.tsx`), manifest and dark "command centre" visual language, deliberately separate from the public FRELUX light theme. The premium design layer lives in `src/styles/archie-premium.css` (aurora backdrop, glassmorphic `.archie-panel`, gradient `.archie-title-gradient`, glow `.archie-input`/`.archie-btn-primary`, reduced-motion safe) plus the Ears audio-intelligence engine `src/lib/archie/ears.ts` (mic capture → `archie-ears` edge-function STT → transcript + detected language into the normal chat pipeline; the mic is only ever turned on by an explicit owner action, and an empty transcript is reported as `speech_detected: false`, never invented), with shared building blocks in `src/components/archie/premium.tsx` (ArchiePage, ArchiePanel, ArchieStat, ArchieButton, ArchieBadge, ArchieSectionTitle). All 15 ARCHIE pages (Chat, Control, Knowledge, Learning, Devices, People, Shared, Security, System, Migration, Training, Evolution, Voice, Ops, Terminology) render inside this shell and have hermetic test files in `src/pages/archie/`.
+`/archie` is an owner-only companion PWA with its own shell (`src/components/archie/ArchieLayout.tsx`), manifest and dark "command centre" visual language, deliberately separate from the public FRELUX light theme. The premium design layer lives in `src/styles/archie-premium.css` (aurora backdrop, glassmorphic `.archie-panel`, gradient `.archie-title-gradient`, glow `.archie-input`/`.archie-btn-primary`, reduced-motion safe) plus the Ears audio-intelligence engine `src/lib/archie/ears.ts` — NATIVE, provider-free speech understanding (on-device recognition via the browser/OS engine; the OpenAI Separation Rule forbids any OpenAI API, key or model inside ARCHIE) with a deterministic voice-print check against the owner's voice bank, transcripts flowing into the normal chat pipeline, and `archie-ears` acting only as the owner-gated, rate-limited, audited intake for native transcripts (the mic is only ever turned on by an explicit owner action, and an empty transcript is reported as `speech_detected: false`, never invented), with shared building blocks in `src/components/archie/premium.tsx` (ArchiePage, ArchiePanel, ArchieStat, ArchieButton, ArchieBadge, ArchieSectionTitle). All 15 ARCHIE pages (Chat, Control, Knowledge, Learning, Devices, People, Shared, Security, System, Migration, Training, Evolution, Voice, Ops, Terminology) render inside this shell and have hermetic test files in `src/pages/archie/`.
 
 ## 2. Backend
 
@@ -83,7 +83,7 @@ Row Level Security isolates per-user data (projects, saves, clients, messages): 
 
 ### 2.6 External Integrations
 
-- Google Gemini and OpenAI for AI features (server-side, routed per feature)
+- Google Gemini and OpenAI for FRELUX application AI features (server-side, routed per feature — ARCHIE itself is provider-independent: no Gemini/OpenAI inside ARCHIE's core intelligence, memory, learning, Coding Studio, reasoning or ears/voice system)
 - Paystack for payments (checkout and verify via Edge Functions)
 - Google AdSense / ad providers for ads and rewarded access
 - Netlify hosting; GitHub for source and CI
@@ -132,7 +132,7 @@ The project agent tools (`project-agent/tools.ts`) never calculate. They plan, c
 
 ### 4.2 Provider Routing
 
-Gemini and OpenAI are both integrated server-side (Edge Functions). Routing per feature: copilot, color consult/preview, extraction, learn assistant, livechat, logo, studio, admin assistant. Keys are environment secrets on the server; the browser only calls FRELUX edge functions.
+Gemini and OpenAI are both integrated server-side (Edge Functions) as explicitly-authorized FRELUX application fallbacks — never inside ARCHIE (the Provider Independence and OpenAI Separation principles are enforced in code and tests). Routing per feature: copilot, color consult/preview, extraction, learn assistant, livechat, logo, studio, admin assistant. Keys are environment secrets on the server; the browser only calls FRELUX edge functions. ARCHIE's voice system needs no provider key at all: speech recognition is native on-device, and replies are synthesized from the owner's voice bank by deterministic pitch/pace math.
 
 ### 4.3 Agent and Tool Architecture
 

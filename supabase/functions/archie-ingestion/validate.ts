@@ -235,7 +235,10 @@ export function validateArchiePayload(raw: unknown):
   const record: ValidatedRecord = {
     source: "ARCHIE",
     source_type: sanitizeText(p.source_type).value || "CHATGPT_REFERENCE",
-    provider: sanitizeText(p.provider).value || "OPENAI",
+    // provenance is recorded honestly — an unlabeled external
+    // reference is UNSPECIFIED, never silently attributed to
+    // a provider (OpenAI Separation Rule)
+    provider: sanitizeText(p.provider).value || "UNSPECIFIED",
     model_version: sanitizeText(p.model_version).value,
     topic: topicRes.value.trim(),
     capability: capabilityRes.value.trim(),

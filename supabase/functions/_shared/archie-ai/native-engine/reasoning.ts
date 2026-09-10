@@ -29,7 +29,7 @@ function matches(fact: Fact, pattern: FactPattern): boolean {
   return true;
 }
 
-let derivedCounter = 0;
+const derivedCounter = 0;
 
 export interface InferenceResult {
   derived: Fact[];

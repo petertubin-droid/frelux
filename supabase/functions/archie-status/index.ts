@@ -116,12 +116,13 @@ Deno.serve(async (req: Request) => {
         event_type: "archie.ears.transcription",
       }),
     ]);
-    // Ears is OPERATIONAL only when the STT provider is
-    // configured AND a real transcription has succeeded —
-    // never claimed before it is true (spec §§3, 16, 19).
-    const earsConfigured = Boolean(
-      (Deno.env.get("OPENAI_API_KEY") ?? "").trim(),
-    );
+    // Ears runs NATIVE (on-device speech recognition, no
+    // provider, no key — OpenAI Separation Rule). It is
+    // OPERATIONAL only once a REAL transcription exists in
+    // the audit trail — never claimed before it is true
+    // (spec §§3, 16, 19). There is no provider to configure:
+    // dependence on any external key would violate ARCHIE's
+    // independence.
 
     return json(200, {
       ok: true,
@@ -149,17 +150,15 @@ Deno.serve(async (req: Request) => {
         devices: { trusted: devicesTrusted, pending: devicesPending },
         conversations: conversations,
         ears: {
-          state:
-            earsConfigured && earsTranscriptions > 0
-              ? "OPERATIONAL"
-              : "NOT_OPERATIONAL",
-          configured: earsConfigured,
+          // native, provider-free — READY until the first real
+          // transcription lands in the audit trail, then live
+          state: earsTranscriptions > 0 ? "OPERATIONAL" : "READY",
+          engine: "native-web-speech",
           transcriptions: earsTranscriptions,
-          note: earsConfigured
-            ? earsTranscriptions > 0
-              ? "Speech transcription live"
-              : "Configured — no transcription exercised yet"
-            : "Speech provider not configured",
+          note:
+            earsTranscriptions > 0
+              ? "Native speech recognition live — no provider dependency"
+              : "Native engine present — no transcription exercised yet",
         },
         security: {
           // real posture: any CRITICAL audit event in the

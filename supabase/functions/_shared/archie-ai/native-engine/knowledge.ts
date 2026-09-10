@@ -85,8 +85,8 @@ export class FactStore {
     fact: Omit<Fact, "id" | "validatedCount" | "createdAt">,
   ): Promise<{ fact: Fact; conflict?: FactConflict }> {
     const conflict = this.detectConflict(fact);
-    let confidence = fact.confidence;
-    let status = fact.status;
+    const confidence = fact.confidence;
+    const status = fact.status;
     // Reinforce agreement instead of duplicating.
     const twin = this.facts.find(
       (f) =>

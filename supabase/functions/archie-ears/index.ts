@@ -1,51 +1,46 @@
 // Supabase Edge Function: archie-ears
 // =========================================================
-// FRELUX ARCHIE — EARS / AUDIO INTELLIGENCE (OWNER-ONLY)
+// FRELUX ARCHIE — EARS / AUDITED TRANSCRIPTION INTAKE
+// (OWNER-ONLY, NATIVE, PROVIDER-FREE)
 //
-// The real speech-perception front door of the ARCHIE
-// cognitive pipeline:
+// ARCHIE understands speech through the browser/OS native
+// recognition engine — on the owner's device, with NO cloud
+// provider, NO API key and NO OpenAI (OpenAI Separation
+// Rule, owner-directed 2026-09-10). This function performs
+// NO transcription: it is the audited intake for real native
+// transcripts.
 //
-//   MICROPHONE → EARS (this function) → SPEECH PROCESSING
-//     → TRANSCRIPT + LANGUAGE → ARCHIE PERCEPTION →
-//     COGNITIVE ENGINE (archie-core) → RESPONSE
-//
-// The transcription core lives in the shared native engine:
-//   _shared/archie-ai/native-engine/ears.ts
-// (single source of truth — also the ears anatomy binding,
-// dynamically imported by the anatomy health runner).
+//   MICROPHONE → NATIVE SPEECH RECOGNITION (on-device)
+//     → TRANSCRIPT + VOICE PRINT (owner's voice bank, pure
+//       math) → THIS FUNCTION → OWNER GATE → AUDIT
+//     → ARCHIE PERCEPTION → COGNITIVE ENGINE
 //
 // Rules:
 //   * Owner-only: JWT + profiles.role = 'admin' verified on
 //     EVERY call. Non-admins get 403 — no fallback.
-//   * REAL transcription only: audio is sent to the STT
-//     provider. If the provider is unconfigured, unreachable
-//     or over quota the function fails HONESTLY — it NEVER
-//     returns invented text and never claims audio was
-//     received or understood when it was not (spec §§3,16,19).
-//   * Language detection: the provider reports the detected
-//     language; the client validates it against the live
-//     ARCHIE language registry. No language is invented.
-//   * Conversation context: an optional context_prompt (the
-//     previous turn) biases recognition toward the ongoing
-//     conversation — this is how spoken turns preserve
-//     context.
-//   * Every call is audited to frelux_archie_audit_events.
+//   * HONESTY: an empty transcript is audited as
+//     speech_detected:false. Nothing is invented here, and
+//     nothing is claimed that the native engine did not
+//     really produce (spec §§3,16,19).
+//   * LANGUAGE: the provided hint is validated against the
+//     LIVE ARCHIE language registry (frelux_archie_languages)
+//     — the audit records whether it is registered, honestly.
+//   * VOICE PRINT: deterministic pitch comparison against
+//     the owner's voice-bank profile — real math on the
+//     owner's own samples, not a forensic biometric claim.
+//   * Every call is audited to frelux_archie_audit_events;
+//     the anatomy health runner reports the ears subsystem
+//     HEALTHY only once a REAL transcription exists there.
 //   * Rate-limited per owner (abuse protection).
 // =========================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
-import {
-  validateAudioFile,
-  sanitizeContextPrompt,
-  sanitizeLanguageHint,
-  transcribeWithWhisper,
-} from "../_shared/archie-ai/native-engine/ears.ts";
+import { validateEarsIntake } from "../_shared/archie-ai/native-engine/ears.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
-const OPENAI_API_KEY = (Deno.env.get("OPENAI_API_KEY") ?? "").trim();
 
 const service = createClient(SUPABASE_URL, SERVICE_ROLE);
 
@@ -139,86 +134,70 @@ Deno.serve(async (req: Request) => {
     return earsError(
       429,
       "RATE_LIMITED",
-      "Too many audio requests — try again shortly.",
+      "Too many audio reports — try again shortly.",
     );
   }
 
-  // ---- Parse multipart form ----
-  let form: FormData;
+  // ---- Parse + validate the native transcript payload ----
+  let body: unknown;
   try {
-    form = await req.formData();
+    body = await req.json();
   } catch {
+    return earsError(400, "BAD_REQUEST", "Expected a JSON body.");
+  }
+
+  const intake = validateEarsIntake(body);
+  if (!intake.ok) {
+    await audit(userId, "archie.ears.rejected_input", "WARNING", {
+      code: intake.code,
+    });
     return earsError(
       400,
-      "BAD_REQUEST",
-      "Expected multipart/form-data with an audio file.",
+      intake.code ?? "BAD_REQUEST",
+      "ARCHIE's ears could not accept this transcript.",
     );
   }
 
-  const audio = form.get("audio");
-  if (!(audio instanceof File)) {
-    return earsError(400, "NO_AUDIO", "No audio file was received.");
+  // ---- Language hint validated against the LIVE registry ----
+  let languageRegistered: boolean | null = null;
+  if (intake.languageHint) {
+    try {
+      const { data: lang } = await service
+        .from("frelux_archie_languages")
+        .select("code")
+        .eq("code", intake.languageHint)
+        .limit(1);
+      languageRegistered = (lang?.length ?? 0) > 0;
+    } catch {
+      languageRegistered = null; // registry unreachable — honest null
+    }
   }
 
-  // ---- Structural validation (shared native-engine core) ----
-  const validation = validateAudioFile(audio);
-  if (!validation.ok) {
-    const status =
-      validation.code === "EARS_UNSUPPORTED_FORMAT"
-        ? 415
-        : validation.code === "EARS_FILE_TOO_LARGE"
-          ? 413
-          : 400;
-    await audit(userId, "archie.ears.rejected_input", "WARNING", {
-      code: validation.code,
-      mime: audio.type || null,
-      size: audio.size,
-    });
-    return earsError(status, validation.code, validation.message);
-  }
-
-  // ---- Conversation context (optional biasing prompt) ----
-  const contextPrompt = sanitizeContextPrompt(form.get("context_prompt"));
-
-  // ---- Language hint (optional, from the live ARCHIE registry) ----
-  const languageHint = sanitizeLanguageHint(form.get("language_hint"));
-
-  // ---- REAL speech processing (shared native-engine core) ----
-  const result = await transcribeWithWhisper({
-    file: audio,
-    apiKey: OPENAI_API_KEY,
-    languageHint,
-    contextPrompt,
-  });
-
-  if (!result.ok) {
-    await audit(userId, "archie.ears.provider_error", "WARNING", {
-      code: result.code,
-      status: result.status,
-      detail: result.detail ?? "",
-    });
-    return earsError(result.status, result.code, result.message);
-  }
-
+  // ---- Audit the REAL native transcription ----
   await audit(userId, "archie.ears.transcription", "INFO", {
-    speech_detected: result.speechDetected,
-    detected_language: result.language,
-    duration_sec: result.durationSec,
-    chars: result.transcript.length,
-    context_prompt_chars: contextPrompt?.length ?? 0,
-    language_hint: languageHint,
-    model: result.model,
+    engine: "native-web-speech", // on-device recognition, no provider
+    speech_detected: intake.speechDetected,
+    transcript_chars: intake.transcript?.length ?? 0,
+    language_hint: intake.languageHint,
+    language_registered: languageRegistered,
+    duration_sec: intake.durationSec,
+    voice_print: intake.voicePrint
+      ? {
+          utterance_pitch_hz: intake.voicePrint.utterancePitchHz,
+          bank_pitch_hz: intake.voicePrint.bankPitchHz,
+          match: intake.voicePrint.match,
+          method: "deterministic pitch vs voice-bank profile",
+        }
+      : null,
   });
 
-  // speechDetected === false is an HONEST result: audio was
-  // processed, no speech was found. We say exactly that and
-  // return an empty transcript — we never invent one.
+  // speechDetected === false is an HONEST result: recognition
+  // ran, nothing intelligible was found. We say exactly that —
+  // we never invent a transcript.
   return json(200, {
     ok: true,
-    transcript: result.transcript,
-    speech_detected: result.speechDetected,
-    language: result.language,
-    duration_sec: result.durationSec,
-    model: result.model,
+    audited: true,
+    speech_detected: intake.speechDetected,
+    language_registered: languageRegistered,
   });
 });

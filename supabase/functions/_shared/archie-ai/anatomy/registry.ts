@@ -251,9 +251,9 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
             ? `${transcriptions} real transcription(s) audited`
             : "engine live — awaiting first live transcription",
       details: {
-        stt_core: "native-engine/ears.ts (OpenAI Whisper)",
-        client_engine: "src/lib/archie/ears.ts",
-        edge: "archie-ears (owner-only, rate-limited, audited)",
+        stt_core: "native-engine/ears.ts (native, provider-free)",
+        client_engine: "src/lib/archie/ears.ts (on-device recognition)",
+        edge: "archie-ears (owner-only, rate-limited, audited intake)",
         audit_event: "archie.ears.transcription",
         engine_exports: Object.keys(ears).length,
       },

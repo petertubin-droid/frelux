@@ -50,7 +50,7 @@ function looksLikeCode(text: string): { isCode: boolean; language: string } {
   ];
   const structural =
     (text.match(/[{};]/g)?.length ?? 0) >= 3 ||
-    /^(?:[ \t]*[{}\[\]();,]|#!)/m.test(text);
+    /^(?:[ \t]*[{}[\]();,]|#!)/m.test(text);
   for (const { re, lang } of signals) {
     if (re.test(text)) {
       return { isCode: true, language: lang };

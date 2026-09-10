@@ -21,10 +21,10 @@ import {
 } from "@/lib/archie/mobile/voice-profile";
 import {
   detectEarSupport,
-  startListening,
-  transcribeAudio,
+  recognizeSpeech,
+  reportTranscription,
   EarsError,
-  type EarsRecorder,
+  type TranscriptionResult,
 } from "@/lib/archie/ears";
 import { sendChatTurn } from "@/lib/archie/stage1-client";
 
@@ -43,11 +43,14 @@ export default function ArchieVoice() {
   const recorderRef = useRef<MediaRecorder | null>(null);
   // ---- Talk to ARCHIE (EARS → cognitive pipeline → spoken reply) ----
   const talkSessionRef = useRef<string | null>(null);
-  const earsRef = useRef<EarsRecorder | null>(null);
+  const earsRef = useRef<Promise<TranscriptionResult> | null>(null);
   const historyRef = useRef<
     Array<{ role: "owner" | "archie"; content: string }>
   >([]);
   const [talkRecording, setTalkRecording] = useState(false);
+  // deterministic voice-print result of the last utterance
+  // (pitch vs the owner's voice bank) — null = not computed
+  const [voicePrint, setVoicePrint] = useState<boolean | null>(null);
   const [talkBusy, setTalkBusy] = useState(false);
   const [talkError, setTalkError] = useState("");
   const [talkTurns, setTalkTurns] = useState<
@@ -161,10 +164,11 @@ export default function ArchieVoice() {
     );
 
   // Hands-free voice interaction. Every spoken turn:
-  //    mic → archie-ears (real transcription + language detection)
-  //        → sendChatTurn (the NORMAL cognitive pipeline)
+  //    mic → NATIVE on-device recognition (no provider, no
+  //        key, no OpenAI) + voice-print vs the owner's VOICE
+  //        BANK → sendChatTurn (the NORMAL cognitive pipeline)
   //        → reply spoken with the owner's voice profile.
-  // Nothing is invented: transcription failures stop the turn
+  // Nothing is invented: recognition failures stop the turn
   // honestly, and the transcript is shown before ARCHIE acts.
   async function toggleTalk() {
     setTalkError("");
@@ -172,18 +176,24 @@ export default function ArchieVoice() {
       setTalkRecording(false);
       setTalkBusy(true);
       try {
-        const recorded = await earsRef.current?.stop();
-        if (!recorded) {
-          setTalkError("No audio was captured.");
+        const speech = earsRef.current;
+        earsRef.current = null;
+        if (!speech) {
+          setTalkError("Speech capture was not running.");
           return;
         }
-        const last = historyRef.current[historyRef.current.length - 1] ?? null;
-        const lastReply = last && last.role === "archie" ? last.content : null;
-        const { transcript, speechDetected, language } = await transcribeAudio({
-          blob: recorded.blob,
-          languageHint: talkLanguage,
-          contextPrompt: lastReply ? lastReply.slice(0, 300) : null,
-        });
+        const { transcript, speechDetected, language, voicePrint } =
+          await speech;
+        // every real transcript is audited (owner-gated); an
+        // audit hiccup never blocks the spoken turn
+        void reportTranscription({
+          transcript,
+          speechDetected,
+          languageHint: language,
+          voicePrint,
+        }).catch(() => undefined);
+        // deterministic voice-print vs the owner's voice bank
+        if (voicePrint) setVoicePrint(voicePrint.match);
         if (!speechDetected) {
           setTalkError("No speech detected — nothing was sent to ARCHIE.");
           return;
@@ -240,7 +250,12 @@ export default function ArchieVoice() {
       return;
     }
     try {
-      earsRef.current = await startListening();
+      // native recognition; the voice-bank profile pitch
+      // enables the deterministic voice-print check
+      earsRef.current = recognizeSpeech({
+        languageHint: talkLanguage,
+        bankPitchHz: profile?.pitchHz ?? null,
+      });
       setTalkRecording(true);
     } catch (e) {
       if (e instanceof EarsError) setTalkError(e.message);
@@ -361,20 +376,31 @@ export default function ArchieVoice() {
           </h2>
           {talkLanguage && (
             <span className="text-[10px] uppercase tracking-wider text-amber-300/80">
-              Detected: {talkLanguage}
+              Language: {talkLanguage}
             </span>
           )}
         </div>
         <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
-          Hands-free voice interaction. Speech is transcribed by ARCHIE's ears
-          (never faked), sent through the normal cognitive pipeline, and the
-          reply is spoken with your voice profile. Transcripts are shown exactly
-          as heard.
+          Hands-free voice interaction. Speech is understood by ARCHIE's ears —
+          native on-device recognition, no cloud provider, no OpenAI — checked
+          against your voice bank by pure pitch math, sent through the normal
+          cognitive pipeline, and the reply is spoken with your voice profile.
+          Transcripts are shown exactly as heard.
         </p>
+        {voicePrint !== null && (
+          <p className="mt-1 text-[10px] text-slate-500">
+            Voice print (pitch vs your bank):{" "}
+            <span
+              className={voicePrint ? "text-emerald-400" : "text-amber-400"}
+            >
+              {voicePrint ? "match" : "no match"}
+            </span>
+          </p>
+        )}
         {!detectEarSupport() ? (
           <p className="mt-3 rounded-lg bg-white/[0.03] px-3 py-2 text-xs text-slate-400">
-            This browser cannot record audio — voice interaction needs
-            microphone support.
+            This browser cannot understand speech natively — voice interaction
+            needs the browser/OS speech recognition engine.
           </p>
         ) : (
           <>

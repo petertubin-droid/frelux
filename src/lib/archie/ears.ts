@@ -1,39 +1,46 @@
 // =========================================================
 // FRELUX ARCHIE — EARS / AUDIO INTELLIGENCE (CLIENT)
 //
-// The browser side of ARCHIE's audio perception:
+// The browser side of ARCHIE's audio perception — 100%
+// native, provider-free (OpenAI Separation Rule):
 //
-//   MICROPHONE → EARS ENGINE → STT (archie-ears edge fn)
-//     → TRANSCRIPT + LANGUAGE → ARCHIE PERCEPTION →
-//     COGNITIVE ENGINE (archie-core) → RESPONSE
+//   MICROPHONE → NATIVE ON-DEVICE SPEECH RECOGNITION
+//     → TRANSCRIPT → archie-ears (owner-gated audit)
+//     → ARCHIE PERCEPTION → COGNITIVE ENGINE → RESPONSE
+//
+//   VOICE BANK (the owner's own recorded samples) →
+//     deterministic pitch/pace profile → voice-print check
+//     on every utterance + voice-shaped spoken replies.
+//     Pure math, no cloud AI, no OpenAI, no API key.
 //
 // Honesty rules (spec §§3, 16, 19):
 //   * Every failure is typed and surfaced — permission
-//     denial, missing microphone, unsupported format, no
-//     speech detected, unavailable service. Nothing is
-//     faked, nothing is "best-effort" transcribed locally.
-//   * An empty transcript is reported as speech_detected:
+//     denial, missing microphone, unsupported browser, no
+//     speech detected, aborted capture. Nothing is faked.
+//   * An empty transcript is reported as speechDetected:
 //     false — the engine NEVER invents text.
-//   * Recording is explicit: it starts when the owner asks
-//     and stops when the owner stops it (or the hard
-//     duration cap trips). ARCHIE never listens silently.
+//   * Listening is explicit: it starts when the owner asks
+//     and stops when the owner stops it (or the hard duration
+//     cap trips). ARCHIE never listens silently.
 // =========================================================
 
 import { getSupabase } from "@/lib/supabase-lazy";
+import {
+  voicePrintMatch,
+  type VoicePrint,
+} from "@studio-shared/archie-ai/native-engine/ears";
 
 export type EarsErrorCode =
-  | "UNSUPPORTED" // browser cannot record audio at all
+  | "UNSUPPORTED" // browser has no native speech recognition
   | "PERMISSION_DENIED" // owner (or browser policy) denied the microphone
   | "NO_MIC" // no input device exists
-  | "RECORD_FAILED" // MediaRecorder failed mid-recording
+  | "RECORD_FAILED" // capture failed mid-utterance
   | "NOT_RECORDED" // stop() called before anything was captured
-  | "SERVICE_UNAVAILABLE" // network / edge function unreachable
-  | "PROVIDER_ERROR" // provider failed (auth, quota, unavailable)
-  | "FILE_TOO_LARGE" // over the provider size limit
-  | "UNSUPPORTED_FORMAT" // mime not accepted server-side
-  | "RATE_LIMITED" // too many audio requests
+  | "SERVICE_UNAVAILABLE" // audit intake unreachable
+  | "RATE_LIMITED" // too many utterance reports
   | "FORBIDDEN" // non-owner attempted EARS
-  | "NO_SPEECH"; // audio processed, nothing intelligible
+  | "NO_SPEECH" // recognition ran, nothing intelligible
+  | "REJECTED"; // audit intake refused the payload
 
 export class EarsError extends Error {
   code: EarsErrorCode;
@@ -53,12 +60,54 @@ const MIME_CANDIDATES = [
   "audio/aac",
 ];
 
-/** Can this browser record microphone audio at all? */
+// ---------------------------------------------------------
+// Native speech recognition (browser/OS engine — no provider)
+// ---------------------------------------------------------
+type RecognitionConstructor = new () => SpeechRecognitionLike;
+
+interface SpeechRecognitionLike {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  maxAlternatives: number;
+  start(): void;
+  stop(): void;
+  abort(): void;
+  onresult:
+    | ((ev: {
+        resultIndex: number;
+        results: ArrayLike<
+          ArrayLike<{ transcript: string }> & { isFinal: boolean }
+        >;
+      }) => void)
+    | null;
+  onerror: ((ev: { error: string }) => void) | null;
+  onend: (() => void) | null;
+}
+
+function getRecognitionCtor(): RecognitionConstructor | null {
+  if (typeof window === "undefined") return null;
+  const w = window as unknown as Record<string, unknown>;
+  return (
+    (w.SpeechRecognition as RecognitionConstructor | undefined) ??
+    (w.webkitSpeechRecognition as RecognitionConstructor | undefined) ??
+    null
+  );
+}
+
+/** Can this browser understand speech natively? (No provider,
+ *  no key — this is the browser/OS recognition engine.) */
 export function detectEarSupport(): boolean {
+  return getRecognitionCtor() !== null;
+}
+
+/** Can this browser capture microphone audio? (Used for
+ *  voice-note attachment and the voice-print check.) */
+export function detectAudioCaptureSupport(): boolean {
   return (
     typeof navigator !== "undefined" &&
     typeof navigator.mediaDevices?.getUserMedia === "function" &&
-    typeof window.MediaRecorder === "function"
+    typeof window.AudioContext === "function"
   );
 }
 
@@ -68,6 +117,76 @@ function pickMimeType(): string {
     if (MediaRecorder.isTypeSupported(mime)) return mime;
   }
   return "";
+}
+
+// ---------------------------------------------------------
+// Voice capture (owner's voice bank — deterministic math)
+// ---------------------------------------------------------
+
+/**
+ * Listen to the utterance and estimate its median voiced
+ * pitch via autocorrelation — the same deterministic math
+ * the voice bank profile is built from. Owner's own audio,
+ * analyzed locally, never uploaded anywhere.
+ */
+export async function captureUtterancePitch(
+  stream: MediaStream,
+): Promise<{ stop: () => number | null }> {
+  const ctx = new AudioContext();
+  const source = ctx.createMediaStreamSource(stream);
+  const analyser = ctx.createAnalyser();
+  analyser.fftSize = 2048;
+  source.connect(analyser);
+
+  const frame = new Float32Array(analyser.fftSize);
+  const pitches: number[] = [];
+  const sampleRate = ctx.sampleRate;
+  let running = true;
+
+  const timer = setInterval(() => {
+    analyser.getFloatTimeDomainData(frame);
+    const hz = framePitch(frame, sampleRate);
+    if (hz > 0) pitches.push(hz);
+  }, 100);
+
+  return {
+    stop: () => {
+      if (!running) return null;
+      running = false;
+      clearInterval(timer);
+      source.disconnect();
+      void ctx.close().catch(() => undefined);
+      if (pitches.length === 0) return null;
+      pitches.sort((a, b) => a - b);
+      return pitches[Math.floor(pitches.length / 2)];
+    },
+  };
+}
+
+/** Fundamental frequency of one frame via normalized
+ *  autocorrelation (voice-bank math, client copy). */
+function framePitch(frame: Float32Array, sampleRate: number): number {
+  const minLag = Math.floor(sampleRate / 400);
+  const maxLag = Math.floor(sampleRate / 60);
+  let energy = 0;
+  for (let i = 0; i < frame.length; i++) energy += frame[i] * frame[i];
+  if (energy < 1e-4 * frame.length) return 0; // silence, skip
+  let bestCorr = 0;
+  let bestLag = -1;
+  for (let lag = minLag; lag <= maxLag && lag < frame.length; lag++) {
+    let corr = 0;
+    let norm = 0;
+    for (let i = 0; i + lag < frame.length; i++) {
+      corr += frame[i] * frame[i + lag];
+      norm += frame[i + lag] * frame[i + lag];
+    }
+    const normalized = norm > 0 ? corr / Math.sqrt(norm) : 0;
+    if (normalized > bestCorr) {
+      bestCorr = normalized;
+      bestLag = lag;
+    }
+  }
+  return bestLag > 0 ? sampleRate / bestLag : 0;
 }
 
 export interface EarsRecording {
@@ -87,15 +206,20 @@ export interface EarsRecorder {
 }
 
 /**
- * Start listening. The microphone turns on ONLY here, with
- * the owner's explicit action behind the call. Auto-stops
- * honestly at maxDurationMs (the result is reported with
- * capped: true — the audio is real, just length-limited).
+ * Start recording (voice-note capture). The microphone turns
+ * on ONLY here, with the owner's explicit action behind the
+ * call. Auto-stops honestly at maxDurationMs (the result is
+ * reported with capped: true — the audio is real, just
+ * length-limited).
  */
 export async function startListening(opts?: {
   maxDurationMs?: number;
 }): Promise<EarsRecorder> {
-  if (!detectEarSupport()) {
+  if (
+    typeof navigator === "undefined" ||
+    typeof navigator.mediaDevices?.getUserMedia !== "function" ||
+    typeof window.MediaRecorder !== "function"
+  ) {
     throw new EarsError(
       "UNSUPPORTED",
       "This browser cannot record audio. ARCHIE's ears need microphone support.",
@@ -200,86 +324,212 @@ export async function startListening(opts?: {
 }
 
 // ---------------------------------------------------------
-// Speech → text through the real archie-ears edge function.
-// The provider key lives server-side; the client only ever
-// holds its own session JWT.
+// Native speech → text (on-device recognition engine)
 // ---------------------------------------------------------
 export interface TranscriptionResult {
   transcript: string;
-  /** ISO code reported by the provider, or null if unknown. */
+  /** Language hint that was applied (native recognition
+   *  does not auto-detect — we say so honestly). */
   language: string | null;
   durationSec: number | null;
-  /** False means the audio contained no intelligible speech.
+  /** False means nothing intelligible was recognized.
    *  The transcript is then exactly "" — never invented. */
   speechDetected: boolean;
+  /** Deterministic voice-print check against the owner's
+   *  voice bank profile (null when it could not be computed). */
+  voicePrint: VoicePrint | null;
 }
 
-export async function transcribeAudio(input: {
-  blob: Blob;
-  /** ISO 639-1 hint from the live ARCHIE language registry. */
+/**
+ * Listen and understand, natively. Speech recognition runs on
+ * the device's own engine — no cloud provider, no API key,
+ * no OpenAI. When a voice-bank profile pitch is provided,
+ * the utterance's pitch is compared against it (pure math on
+ * the owner's own samples).
+ */
+export async function recognizeSpeech(opts?: {
   languageHint?: string | null;
-  /** Previous assistant reply — keeps recognition inside the
-   *  ongoing conversation (context preservation). */
-  contextPrompt?: string | null;
+  maxDurationMs?: number;
+  /** The owner's voice-bank profile pitch (Hz), for the
+   *  deterministic voice-print check. */
+  bankPitchHz?: number | null;
+  onFinal?: (transcript: string) => void;
 }): Promise<TranscriptionResult> {
+  const Ctor = getRecognitionCtor();
+  if (!Ctor) {
+    throw new EarsError(
+      "UNSUPPORTED",
+      "This browser has no native speech recognition. ARCHIE cannot understand speech here.",
+    );
+  }
+
+  const recognition = new Ctor();
+  recognition.lang = opts?.languageHint ?? navigator.language ?? "en";
+  recognition.continuous = false;
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  // Optional parallel pitch capture for the voice print.
+  let pitchStopper: { stop: () => number | null } | null = null;
+  let pitchStream: MediaStream | null = null;
+  if (
+    opts?.bankPitchHz != null &&
+    opts.bankPitchHz > 0 &&
+    detectAudioCaptureSupport()
+  ) {
+    try {
+      pitchStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      pitchStopper = await captureUtterancePitch(pitchStream);
+    } catch {
+      // Voice print is best-effort METADATA, never a blocker:
+      // an honest null when pitch could not be captured.
+      pitchStopper = null;
+    }
+  }
+
+  const startedAt = Date.now();
+  let settled = false;
+  let finalTranscript = "";
+
+  const capTimer = setTimeout(() => {
+    try {
+      recognition.stop();
+    } catch {
+      /* already ended */
+    }
+  }, opts?.maxDurationMs ?? EARS_MAX_DURATION_MS);
+
+  const cleanup = () => {
+    clearTimeout(capTimer);
+    pitchStopper?.stop();
+    pitchStream?.getTracks().forEach((t) => t.stop());
+  };
+
+  return new Promise<TranscriptionResult>((resolve, reject) => {
+    recognition.onerror = (ev) => {
+      if (settled) return;
+      settled = true;
+      cleanup();
+      const map: Record<string, EarsErrorCode> = {
+        "not-allowed": "PERMISSION_DENIED",
+        "service-not-allowed": "PERMISSION_DENIED",
+        "audio-capture": "NO_MIC",
+        "no-speech": "NO_SPEECH",
+        network: "SERVICE_UNAVAILABLE",
+        "language-not-supported": "UNSUPPORTED",
+        aborted: "NO_SPEECH",
+      };
+      const code = map[ev.error] ?? "RECORD_FAILED";
+      const messages: Record<EarsErrorCode, string> = {
+        UNSUPPORTED: "This browser cannot recognize this language natively.",
+        PERMISSION_DENIED:
+          "Microphone permission was not granted. ARCHIE cannot listen without it.",
+        NO_MIC: "No microphone was found on this device.",
+        RECORD_FAILED: "Speech recognition failed.",
+        NOT_RECORDED: "No audio was captured.",
+        SERVICE_UNAVAILABLE:
+          "The native speech engine is unavailable right now. No transcript was produced.",
+        RATE_LIMITED: "",
+        FORBIDDEN: "",
+        NO_SPEECH: "No speech was detected — nothing was transcribed.",
+        REJECTED: "",
+      };
+      reject(
+        new EarsError(code, messages[code] || "Speech recognition failed."),
+      );
+    };
+
+    recognition.onend = () => {
+      if (settled) return;
+      settled = true;
+      const utterancePitchHz = pitchStopper ? pitchStopper.stop() : null;
+      cleanup();
+      const transcript = finalTranscript.replace(/\s+/g, " ").trim();
+      const voicePrint = voicePrintMatch(
+        utterancePitchHz,
+        opts?.bankPitchHz ?? null,
+      );
+      opts?.onFinal?.(transcript);
+      resolve({
+        transcript,
+        language: recognition.lang || null,
+        durationSec: Math.round(((Date.now() - startedAt) / 100) * 10) / 10,
+        speechDetected: transcript.length > 0,
+        voicePrint,
+      });
+    };
+
+    recognition.onresult = (ev) => {
+      for (let i = ev.resultIndex; i < ev.results.length; i++) {
+        const res = ev.results[i];
+        if (res.isFinal) {
+          finalTranscript += res[0].transcript;
+        }
+      }
+    };
+
+    try {
+      recognition.start();
+    } catch {
+      cleanup();
+      reject(
+        new EarsError("RECORD_FAILED", "Speech recognition could not start."),
+      );
+    }
+  });
+}
+
+// ---------------------------------------------------------
+// Audited intake — the archie-ears edge function records
+// every real transcription (owner-gated, rate-limited). It
+// performs NO transcription itself and holds NO provider key.
+// ---------------------------------------------------------
+export async function reportTranscription(input: {
+  transcript: string;
+  speechDetected: boolean;
+  languageHint?: string | null;
+  durationSec?: number | null;
+  voicePrint?: VoicePrint | null;
+}): Promise<void> {
   const supabase = await getSupabase();
-
-  const form = new FormData();
-  form.append(
-    "audio",
-    new File([input.blob], "utterance.webm", {
-      type: input.blob.type || "audio/webm",
-    }),
-  );
-  if (input.languageHint) form.append("language_hint", input.languageHint);
-  if (input.contextPrompt) form.append("context_prompt", input.contextPrompt);
-
   const { data, error } = await supabase.functions.invoke("archie-ears", {
-    body: form,
+    body: {
+      transcript: input.transcript,
+      speech_detected: input.speechDetected,
+      language_hint: input.languageHint ?? null,
+      duration_sec: input.durationSec ?? null,
+      voice_print: input.voicePrint
+        ? {
+            utterance_pitch_hz: input.voicePrint.utterancePitchHz,
+            bank_pitch_hz: input.voicePrint.bankPitchHz,
+            match: input.voicePrint.match,
+          }
+        : null,
+    },
   });
 
   if (error) {
     throw new EarsError(
       "SERVICE_UNAVAILABLE",
-      "ARCHIE's speech service could not be reached. No transcript was produced.",
+      "ARCHIE's ears audit service could not be reached. The transcript was produced locally.",
     );
   }
-
-  if (!data || typeof data !== "object") {
+  if (
+    !data ||
+    typeof data !== "object" ||
+    (data as { ok?: unknown }).ok !== true
+  ) {
+    const body = (data ?? {}) as { code?: string; error?: string };
+    const code =
+      body.code === "RATE_LIMITED"
+        ? "RATE_LIMITED"
+        : body.code === "FORBIDDEN"
+          ? "FORBIDDEN"
+          : "REJECTED";
     throw new EarsError(
-      "SERVICE_UNAVAILABLE",
-      "ARCHIE's speech service returned no result. No transcript was produced.",
+      code,
+      body.error ??
+        "The transcript could not be recorded in ARCHIE's audit trail.",
     );
   }
-
-  const body = data as Record<string, unknown>;
-
-  if (body.ok !== true) {
-    const code = typeof body.code === "string" ? body.code : "UNKNOWN";
-    const map: Record<string, EarsErrorCode> = {
-      EARS_UNCONFIGURED: "SERVICE_UNAVAILABLE",
-      EARS_PROVIDER_UNAVAILABLE: "PROVIDER_ERROR",
-      EARS_PROVIDER_AUTH: "PROVIDER_ERROR",
-      EARS_PROVIDER_QUOTA: "PROVIDER_ERROR",
-      EARS_FILE_TOO_LARGE: "FILE_TOO_LARGE",
-      EARS_UNSUPPORTED_FORMAT: "UNSUPPORTED_FORMAT",
-      RATE_LIMITED: "RATE_LIMITED",
-      FORBIDDEN: "FORBIDDEN",
-      NO_AUDIO: "NOT_RECORDED",
-      EMPTY_AUDIO: "NOT_RECORDED",
-    };
-    const message =
-      typeof body.error === "string" ? body.error : "Transcription failed.";
-    throw new EarsError(map[code] ?? "PROVIDER_ERROR", message);
-  }
-
-  const transcript =
-    typeof body.transcript === "string" ? body.transcript.trim() : "";
-  return {
-    transcript,
-    speechDetected: body.speech_detected === true,
-    language: typeof body.language === "string" ? body.language : null,
-    durationSec:
-      typeof body.duration_sec === "number" ? body.duration_sec : null,
-  };
 }

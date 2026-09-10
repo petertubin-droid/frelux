@@ -24,9 +24,11 @@ import {
 } from "react";
 import {
   startListening,
-  transcribeAudio,
+  recognizeSpeech,
+  reportTranscription,
   EarsError,
   type EarsRecorder,
+  type TranscriptionResult,
 } from "@/lib/archie/ears";
 import {
   createConversation,
@@ -100,6 +102,9 @@ export default function ArchieChat() {
     useState<SessionLanguageResolution | null>(null);
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
   const earsRef = useRef<EarsRecorder | null>(null);
+  // native on-device recognition running alongside the
+  // voice-note capture (no provider, no key, no OpenAI)
+  const earsSpeechRef = useRef<Promise<TranscriptionResult> | null>(null);
   const [earsBusy, setEarsBusy] = useState(false);
   const [earsNotice, setEarsNotice] = useState("");
   const threadRef = useRef<HTMLDivElement | null>(null);
@@ -213,13 +218,15 @@ export default function ArchieChat() {
     setPending((prev) => [...prev, ...checked].slice(0, 4));
   }
 
-  // ---- voice recording → EARS (real speech perception) ----
-  // The voice note is attached AND transcribed by the
-  // archie-ears edge function. The transcript lands in the
-  // draft so the spoken command goes through the NORMAL
+  // ---- voice recording → EARS (native speech perception) ----
+  // The voice note is attached AND understood by the NATIVE
+  // on-device recognition engine (no provider, no key, no
+  // OpenAI — OpenAI Separation Rule). The transcript lands in
+  // the draft so the spoken command goes through the NORMAL
   // cognitive pipeline (the owner reviews before sending —
   // audio never auto-sends). Transcription failure is honest:
-  // the voice note stays attached, nothing is invented.
+  // the voice note stays attached, nothing is invented, and
+  // every real transcript is audited through archie-ears.
   async function toggleRecording() {
     if (recording) {
       setRecording(false);
@@ -249,44 +256,75 @@ export default function ArchieChat() {
             },
           ].slice(0, 4),
         );
-        // Conversation context: bias recognition toward the
-        // current conversation (the last ARCHIE reply).
-        const lastReply = [...messages]
-          .reverse()
-          .find((m) => m.role === "archie");
-        const { transcript, speechDetected, language } = await transcribeAudio({
-          blob: recorded.blob,
-          contextPrompt: lastReply ? lastReply.content.slice(0, 300) : null,
-        });
-        if (!speechDetected) {
-          setError(
-            "No speech detected in the recording — the voice note is still attached.",
+        // Native on-device recognition ran alongside the
+        // capture; its transcript is what lands in the draft.
+        const speech = earsSpeechRef.current;
+        earsSpeechRef.current = null;
+        if (!speech) {
+          setEarsNotice(
+            "Native speech recognition was unavailable — the voice note is attached.",
           );
           return;
         }
-        setDraft((prev) =>
-          prev.trim() ? `${prev.trim()} ${transcript}` : transcript,
-        );
-        if (language && language !== "en") {
-          setEarsNotice(`Detected language: ${language} — edit if wrong.`);
+        try {
+          const { transcript, speechDetected, language, durationSec } =
+            await speech;
+          // every real transcript is audited (owner-gated)
+          void reportTranscription({
+            transcript,
+            speechDetected,
+            languageHint: language,
+            durationSec,
+          }).catch(() => undefined); // audit failure never blocks the draft
+          if (!speechDetected) {
+            setError(
+              "No speech detected in the recording — the voice note is still attached.",
+            );
+            return;
+          }
+          setDraft((prev) =>
+            prev.trim() ? `${prev.trim()} ${transcript}` : transcript,
+          );
+          if (language && language !== "en") {
+            setEarsNotice(`Recognition language: ${language} — edit if wrong.`);
+          }
+        } catch (e) {
+          if (e instanceof EarsError) {
+            setError(`${e.message} The voice note is still attached.`);
+          } else {
+            setError("Transcription failed. The voice note is still attached.");
+          }
         }
       } catch (e) {
         if (e instanceof EarsError) {
           setError(`${e.message} The voice note is still attached.`);
         } else {
-          setError("Transcription failed. The voice note is still attached.");
+          setError("Microphone error — the voice note could not be captured.");
         }
       } finally {
         setEarsBusy(false);
       }
       return;
     }
-    // start listening — explicit, owner-initiated only
+    // start listening — explicit, owner-initiated only.
+    // Capture and native recognition run in parallel.
     try {
+      earsSpeechRef.current = recognizeSpeech().catch((e) => {
+        // UNSUPPORTED is honest and non-fatal: the voice note
+        // can still be attached without a transcript.
+        earsSpeechRef.current = null;
+        if (e instanceof EarsError && e.code === "UNSUPPORTED") {
+          setEarsNotice(
+            "This browser has no native speech recognition — the voice note will attach without a transcript.",
+          );
+        }
+        throw e;
+      });
       earsRef.current = await startListening();
       setRecording(true);
       setEarsNotice("");
     } catch (e) {
+      earsSpeechRef.current = null;
       if (e instanceof EarsError) setError(e.message);
       else setError("Microphone permission denied or unavailable.");
     }

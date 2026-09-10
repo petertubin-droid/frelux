@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Changed
+
+- **OpenAI Separation Rule (owner-directed):** ARCHIE is a fully independent intelligence system — OpenAI has been removed from ARCHIE's voice pipeline entirely and the rule is now encoded as a permanent ARCHIE core principle (`openai_separation`, seed migration, integrity-checked and statically enforced by tests). Speech understanding runs on NATIVE on-device recognition (browser/OS engine — no cloud provider, no API key); `archie-ears` is now an owner-gated, rate-limited, audited intake for native transcripts (no transcription, no provider key); replies are spoken through the owner's voice bank (`frelux_archie_voice_samples`, deterministic pitch/pace math) and every utterance gets an honest voice-print check against the bank profile. OpenAI remains ONLY in the FRELUX application layer as an explicitly-authorized fallback (same boundary as Gemini). Anatomy ears purpose/bindings updated to the native description (migration `20260913120000`); 28 Ears engine tests + provider-independence OpenAI enforcement lock the zero-wiring invariants.
+
 ### Added
 
 - CI/CD: Codecov coverage reporting on every CI run

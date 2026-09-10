@@ -823,12 +823,17 @@ describe("cognitive kernel (end-to-end loop)", () => {
     const kernel = new CognitiveKernel();
     await kernel.boot();
     await kernel.cycle("hello archie, report your status");
-    const d = kernel.diagnostics() as Record<string, any>;
+    const d = kernel.diagnostics() as {
+      engineId: string;
+      systems: { maturity: string }[];
+      security: { chainValid: boolean };
+      worldModel: { entities: number };
+      perception: { ingested: number };
+      substrate: string;
+    };
     expect(d.engineId).toBe(COGNITIVE_ENGINE_ID);
     expect(d.systems.length).toBe(15);
-    expect(d.systems.every((s: any) => s.maturity === "OPERATIONAL")).toBe(
-      true,
-    );
+    expect(d.systems.every((s) => s.maturity === "OPERATIONAL")).toBe(true);
     expect(d.security.chainValid).toBe(true);
     expect(d.worldModel.entities).toBeGreaterThan(0);
     expect(d.perception.ingested).toBeGreaterThan(0);

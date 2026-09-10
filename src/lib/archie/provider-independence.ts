@@ -13,6 +13,15 @@
 // provider — Gemini in particular — is part of ARCHIE's core
 // intelligence, memory, learning system, Coding Studio,
 // reasoning engine, self-evolution system or PWA.
+//
+// The same independence holds for OpenAI: no OpenAI API,
+// key, model or SDK may exist anywhere in ARCHIE's core
+// intelligence, memory, learning, Coding Studio, reasoning,
+// self-evolution, voice/ears system or PWA. ARCHIE's voice
+// features run on the owner's own voice bank (deterministic
+// math, no cloud AI) and native browser/OS speech
+// recognition. OpenAI remains available ONLY to the FRELUX
+// application layer under the same conditions as Gemini.
 // =========================================================
 
 export const PROVIDER_INDEPENDENCE_PRINCIPLE_ID = "provider_independence";
@@ -101,6 +110,85 @@ export interface ProviderIndependenceIntegrity {
   studioWorkflowIndependent: boolean;
   protectedSubsystems: readonly string[];
   geminiFreluxOnly: boolean;
+}
+
+// ---------------------------------------------------------
+// OPENAI SEPARATION RULE — the same independence, extended
+// to OpenAI by direct owner instruction (2026-09-10):
+// "ARCHIE is independent — remove OpenAI from ARCHIE's
+// system. I have a voice bank in the database, use that
+// instead of OpenAI."
+// ---------------------------------------------------------
+
+export const OPENAI_SEPARATION_PRINCIPLE_ID = "openai_separation";
+
+export const OPENAI_SEPARATION = {
+  principleId: OPENAI_SEPARATION_PRINCIPLE_ID,
+  title: "ARCHIE Provider Independence (OpenAI Separation Rule)",
+  rule:
+    "ARCHIE is an independent intelligence system. OpenAI must NOT be part " +
+    "of ARCHIE's core intelligence, memory, learning system, Coding " +
+    "Studio, reasoning engine, self-evolution system, voice/ears system, " +
+    "or PWA. ARCHIE must operate independently using its own learned " +
+    "knowledge, coding intelligence, memory, tools, and authorized " +
+    "capabilities.",
+  openaiScope:
+    "OpenAI belongs ONLY to the FRELUX application as a secondary " +
+    "fallback intelligence service, under the same conditions as Gemini.",
+  voiceIndependence:
+    "ARCHIE's voice features are provider-free by construction: replies " +
+    "are spoken through the owner's own voice bank (deterministic " +
+    "pitch/pace math on recorded samples — no cloud AI), and speech is " +
+    "understood through native on-device speech recognition. No OpenAI " +
+    "key, API or model may power any part of ARCHIE's ears or voice.",
+  prohibitions: [
+    "No OpenAI API endpoint, key, model id or SDK may appear in any " +
+      "ARCHIE-owned function, module, page or test.",
+    "ARCHIE must never delegate transcription, synthesis, reasoning or " +
+      "any other work to OpenAI.",
+    "A missing or removed OpenAI key must never make an ARCHIE subsystem " +
+      "fail or claim NOT_OPERATIONAL — ARCHIE subsystems do not depend " +
+      "on it at all.",
+    "OpenAI must not be ARCHIE's hidden backend, fallback model, coding " +
+      "engine, reasoning engine, transcription engine or voice engine.",
+  ] as const,
+  protectedSubsystems: [
+    "ARCHIE Core",
+    "ARCHIE Coding Studio",
+    "ARCHIE Memory",
+    "ARCHIE Learning",
+    "ARCHIE Evolution",
+    "ARCHIE Ears / Voice",
+    "ARCHIE PWA",
+  ] as const,
+  governing: "Owner Authority Layer",
+  permanence:
+    "Permanent architectural principle. Persisted across upgrades, " +
+    "migrations, devices and deployments. Never implemented as a " +
+    "temporary instruction, mock, placeholder or hardcoded conversational " +
+    "response.",
+} as const;
+
+export interface OpenAiSeparationIntegrity {
+  encoded: boolean;
+  voiceBankNative: boolean;
+  protectedSubsystems: readonly string[];
+  openaiFreluxOnly: boolean;
+}
+
+export function verifyOpenAiSeparationIntegrity(): OpenAiSeparationIntegrity {
+  return {
+    encoded:
+      OPENAI_SEPARATION.rule.includes("independent intelligence system") &&
+      OPENAI_SEPARATION.rule.includes("OpenAI must NOT be part"),
+    voiceBankNative:
+      OPENAI_SEPARATION.voiceIndependence.includes("voice bank") &&
+      OPENAI_SEPARATION.voiceIndependence.includes("native on-device"),
+    protectedSubsystems: OPENAI_SEPARATION.protectedSubsystems,
+    openaiFreluxOnly: OPENAI_SEPARATION.openaiScope.includes(
+      "ONLY to the FRELUX application",
+    ),
+  };
 }
 
 export function verifyProviderIndependenceIntegrity(): ProviderIndependenceIntegrity {

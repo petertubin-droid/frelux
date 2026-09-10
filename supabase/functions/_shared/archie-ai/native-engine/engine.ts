@@ -679,7 +679,7 @@ export function getNativeEngine(): ArchieNativeEngine {
 function extractExpression(input: string): string | null {
   // Word operators → symbols first, so "25 times 48" and
   // "12.5 percent of 8000" extract as real arithmetic.
-  let normalized = input
+  const normalized = input
     .toLowerCase()
     .replace(/to the power of/g, "^")
     .replace(/divided by|over/g, "/")
