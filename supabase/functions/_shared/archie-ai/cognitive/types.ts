@@ -257,6 +257,13 @@ export interface CognitiveCycleResult {
   }>;
   proposals: ImprovementProposal[];
   worldModelUpdates: number;
+  /** Pending tool invocation delegated from the substrate
+   *  (plan P1, audit C1) — the kernel relays it to the caller;
+   *  it never executes tools itself. */
+  toolCall?: {
+    name: string;
+    args: Record<string, unknown>;
+  };
 }
 
 /** Facts reused from the native layer as the knowledge
