@@ -44,6 +44,12 @@ export interface Fact {
   status: "candidate" | "validated" | "uncertain";
   validatedCount: number;
   createdAt: string;
+  /** Valid-time interval (tr-2): the fact holds from
+   *  validFrom (inclusive) until validUntil (exclusive).
+   *  Expired facts are honestly demoted, never silently
+   *  retained as current knowledge. */
+  validFrom?: string;
+  validUntil?: string;
 }
 
 /** Two facts assert different objects for the same SPO. */

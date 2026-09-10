@@ -110,6 +110,10 @@ export class FactStore {
       id: factId(),
       validatedCount: 0,
       createdAt: new Date().toISOString(),
+      // Valid-time keys always present so temporal queries can
+      // reason about them (tr-2); undefined = no interval.
+      validFrom: fact.validFrom,
+      validUntil: fact.validUntil,
     };
     if (conflict) {
       // Contradiction: park as uncertain — never store as established fact.
@@ -161,6 +165,20 @@ export class FactStore {
     let decayed = 0;
     let promoted = 0;
     let dropped = 0;
+    // Valid-time expiry (tr-2): a fact whose validUntil has
+    // passed is no longer current knowledge — demote honestly
+    // instead of silently retaining it as established.
+    const now = new Date();
+    for (const fact of this.facts) {
+      if (
+        fact.validUntil &&
+        new Date(fact.validUntil) < now &&
+        fact.status !== "uncertain"
+      ) {
+        fact.status = "uncertain";
+        decayed += 1;
+      }
+    }
     const seen = new Map<string, Fact>();
     const survivors: Fact[] = [];
     for (const fact of this.facts) {

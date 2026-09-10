@@ -612,6 +612,62 @@ export class ArchieNativeEngine implements ArchieRuntime {
               : `Counterfactual reasoning needs a causal model of the situation, and I hold none for this — I cannot say what would have happened. Teach me the causes involved (e.g. "remember that rain causes wet ground") and I will reason the counterfactual properly from the real causal graph.`;
           return this.compose(text, nlu.confidence * 0.4, cf.evidence.slice(0, 5));
         }
+        // tr-3 — historical price/state questions that route
+        // here ("what was the cement price last month?"): no
+        // price time series exists. Honest refusal, never a
+        // fabricated historical value.
+        const histPhrase =
+          /\b(last (?:month|week|year|quarter)|previous|history|historical|ago)\b/i.exec(
+            input,
+          );
+        if (histPhrase && /\b(?:price|cost|rate)\b/i.test(input)) {
+          return this.compose(
+            `I have no historical record for that — my market intelligence keeps the current observed snapshot, not a price time series, so I honestly cannot reconstruct values for ${histPhrase[1]}. I do not guess prices. Ask me to research the history and I will fetch dated sources, or teach me dated facts ("the price was X on <date>") and I will retain them with valid-from/valid-until timestamps.`,
+            nlu.confidence * 0.5,
+            [],
+          );
+        }
+        // cx-2 — pronoun reference resolution: "what is his
+        // role?" — resolve the pronoun to the most recent
+        // proper noun from salient owner turns, then answer
+        // from that subject's facts. Real antecedent lookup,
+        // not a guess.
+        if (/\b(?:his|her|their|its)\b/i.test(input)) {
+          const PROPER_NOUN =
+            /\b(?!Remember\b|Please\b|What\b|Note\b|Learn\b|Teach\b|The\b|Monday\b|Tuesday\b|Wednesday\b|Thursday\b|Friday\b|Saturday\b|Sunday\b)([A-Z][a-z]{2,})\b/g;
+          let name: string | undefined;
+          for (const t of context.salientTurns) {
+            if (t.role !== "owner") continue;
+            const matches = [...t.text.matchAll(PROPER_NOUN)];
+            if (matches.length > 0) {
+              name = matches[matches.length - 1][1];
+            }
+          }
+          if (name) {
+            const personFacts = this.facts
+              .query({ subject: name.toLowerCase() })
+              .filter((f) => f.status !== "uncertain");
+            if (personFacts.length > 0) {
+              const top = personFacts.slice(0, 3);
+              const parts = top.map(
+                (f) =>
+                  `${f.subject} ${f.predicate.replace(/-/g, " ")}: ${String(f.object)} [confidence ${((f.confidence * 100) | 0)}%, ${f.provenance.source}]`,
+              );
+              const pronoun = /\bhis\b/i.test(input)
+                ? "his"
+                : /\bher\b/i.test(input)
+                  ? "her"
+                  : /\btheir\b/i.test(input)
+                    ? "their"
+                    : "its";
+              return this.compose(
+                `Resolving "${pronoun}" to ${name} from our conversation. From my validated knowledge:\n${parts.join("\n")}`,
+                nlu.confidence * 0.8,
+                cite(top),
+              );
+            }
+          }
+        }
         const validated = ranked
           .filter((f) => f.status !== "uncertain")
           .slice(0, 3);
@@ -891,6 +947,22 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
 
       case "price_query": {
+        // tr-3 — historical price questions ("what was the
+        // cement price last month?"): market intelligence
+        // holds the CURRENT observed snapshot, not a time
+        // series. Honest refusal, never a fabricated
+        // historical price.
+        const temporalPhrase =
+          /\b(last (?:month|week|year|quarter)|previous|history|historical|recent|ago)\b/i.exec(
+            input,
+          );
+        if (temporalPhrase) {
+          return this.compose(
+            `I have no historical record for that — my market intelligence keeps the current observed snapshot, not a price time series, so I honestly cannot reconstruct prices for ${temporalPhrase[1]}. I do not guess prices. Ask me to research the history and I will fetch dated sources, or teach me dated facts ("the cement price was X on <date>") and I will retain them with valid-from/valid-until timestamps.`,
+            nlu.confidence * 0.5,
+            [],
+          );
+        }
         const product = extractPriceProduct(input);
         if (!product) {
           return this.compose(
