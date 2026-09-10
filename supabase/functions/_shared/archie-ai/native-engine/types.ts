@@ -113,6 +113,14 @@ export interface ToolSpecInternal {
   name: string;
   description: string;
   parameters: Record<string, string>;
+  /**
+   * Trust classification (ts-2): "deterministic" — output is
+   * recomputable exactly (arithmetic, unit conversion);
+   * "single-source" — fetched from one external source and
+   * needs cross-checking before it becomes knowledge. An
+   * unclassified tool is treated as unverified.
+   */
+  trust?: "deterministic" | "single-source";
 }
 
 export interface ToolInvocation {

@@ -275,6 +275,7 @@ export function registerBuiltInTools(orchestrator: ToolOrchestrator): void {
       name: "arithmetic",
       description: "Deterministically evaluate an arithmetic expression",
       parameters: { expression: "string" },
+      trust: "deterministic",
     },
     (args) => evaluateExpression(String(args.expression)),
   );
@@ -283,6 +284,7 @@ export function registerBuiltInTools(orchestrator: ToolOrchestrator): void {
       name: "convert_units",
       description: "Deterministically convert a value between units of the same dimension",
       parameters: { value: "number", from: "string", to: "string" },
+      trust: "deterministic",
     },
     (args) =>
       convertUnits(Number(args.value), String(args.from), String(args.to)),
@@ -292,6 +294,7 @@ export function registerBuiltInTools(orchestrator: ToolOrchestrator): void {
       name: "percent_of",
       description: "Compute a percentage of a number",
       parameters: { percent: "number", value: "number" },
+      trust: "deterministic",
     },
     (args) => {
       const pct = Number(args.percent);

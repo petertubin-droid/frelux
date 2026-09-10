@@ -59,11 +59,46 @@ export class ContextMemory {
       })
       .filter((r) => r.salience > 0)
       .sort((a, b) => b.salience - a.salience);
+    // Salient facts (mr-3): SPO triples extracted from the
+    // salient OWNER turns — episodic candidates with honest
+    // provenance, never fabricated validation. Retrieval
+    // salience is carried as the confidence proxy and noted
+    // in provenance.
+    const salientFacts: Fact[] = [];
+    for (const r of ranked.slice(0, k)) {
+      if (r.turn.role !== "owner") continue;
+      const cleaned = r.turn.text
+        .replace(/^(?:please\s+)?(?:remember|learn|note|memorize|teach)\s*(?:that|this|:)?\s*/i, "")
+        .replace(/^(?:the\s+)?/i, "")
+        .replace(/[.?!]+$/, "")
+        .trim();
+      const m = cleaned.match(
+        /^([A-Za-z0-9 -]+?)\s+(?:is|are|has|uses|means|converts|contains|requires|costs)\s+(.+)$/i,
+      );
+      if (!m) continue;
+      const subjectRaw = m[1].trim().toLowerCase();
+      if (["that", "this", "it", "there", "we", "i", "you"].includes(subjectRaw)) continue;
+      salientFacts.push({
+        id: `memfact_${r.turn.at}_${salientFacts.length}`,
+        subject: subjectRaw.replace(/\s+/g, "-"),
+        predicate: "is",
+        object: m[2].trim(),
+        confidence: Number(r.salience.toFixed(3)),
+        provenance: {
+          source: "owner-taught",
+          note: "episodic — extracted from a salient conversation turn, not validated knowledge",
+        },
+        status: "candidate",
+        validatedCount: 0,
+        createdAt: new Date(r.turn.at).toISOString(),
+      });
+      if (salientFacts.length >= 3) break;
+    }
     return {
       salientTurns: ranked
         .slice(0, k)
         .map((r) => ({ ...r.turn, relevance: r.relevance })),
-      salientFacts: [],
+      salientFacts,
     };
   }
 }

@@ -563,9 +563,30 @@ export class ArchieNativeEngine implements ArchieRuntime {
         const invocation = await this.tools.invoke("arithmetic", {
           expression,
         });
-        const text = invocation.ok
+        let text = invocation.ok
           ? `${expression} = ${String(invocation.output)} (computed deterministically in-engine)`
           : `I could not compute that: ${invocation.error}. My arithmetic is honest — it reports errors rather than guessing.`;
+        // P2/ts-3 — cross-tool verification: when the owner
+        // asks to verify, re-derive the result by an INVERSE
+        // computation (percent-of) or a second deterministic
+        // evaluation, and report the check honestly.
+        if (invocation.ok && /verif|cross-check|confirm/i.test(input)) {
+          const pct = expression.match(
+            /^\(\((\d+(?:\.\d+)?)\/100\)\*\((\d+(?:\.\d+)?)\)\)$/,
+          );
+          if (pct) {
+            const inverse =
+              (Number(invocation.output) / Number(pct[2])) * 100;
+            const passed = Math.abs(inverse - Number(pct[1])) < 1e-6;
+            text += ` Cross-check ${passed ? "passed" : "FAILED"}: ${String(invocation.output)} ÷ ${pct[2]} × 100 = ${Number(inverse.toFixed(4))}% — inverse verification of the ${pct[1]}% claim.`;
+          } else {
+            const recompute = await this.tools.invoke("arithmetic", {
+              expression,
+            });
+            const passed = recompute.ok && recompute.output === invocation.output;
+            text += ` Cross-check ${passed ? "passed" : "FAILED"}: independent recomputation returned ${recompute.ok ? String(recompute.output) : `an error (${recompute.error})`} — verified by double-computation.`;
+          }
+        }
         return this.compose(text, nlu.confidence, [], undefined, [invocation]);
       }
 

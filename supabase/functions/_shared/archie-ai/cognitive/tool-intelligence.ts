@@ -43,6 +43,22 @@ export const TOOL_INVENTORY: ToolDescriptor[] = [
     description: "deterministic construction unit conversions",
   },
   {
+    name: "web-research",
+    capabilityTags: [
+      "research",
+      "search",
+      "web",
+      "look up",
+      "find information",
+      "price",
+      "prices",
+      "market",
+      "current",
+    ],
+    risk: "read-only",
+    description: "open-web research with source cross-checks",
+  },
+  {
     name: "static-analysis",
     capabilityTags: ["code", "analyze", "inspect", "complexity", "audit"],
     risk: "read-only",
