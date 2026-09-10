@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { NavLink, Outlet, Link, useNavigate } from "react-router-dom";
 import {
+  MessageCircle,
   KeyRound,
   LayoutDashboard,
   Calculator,
@@ -124,6 +125,11 @@ const navModules: NavModule[] = [
         label: "ARCHIE Legal",
         to: "/admin/archie-legal",
         icon: Scale,
+      },
+      {
+        label: "WhatsApp Assistant",
+        to: "/admin/archie-whatsapp",
+        icon: MessageCircle,
       },
       {
         label: "ARCHIE Owner App",

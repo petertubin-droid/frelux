@@ -1467,6 +1467,40 @@ Deno.serve(async (req) => {
       isOwner = profile?.role === "admin";
     }
   }
+
+  // 1b. ARCHIE INTERNAL SERVICE INVOCATION — the WhatsApp
+  //     communication layer (and other official ARCHIE
+  //     channels) reach THE SAME cognitive core through a
+  //     shared-secret internal call: x-archie-internal-key +
+  //     x-archie-user-id (the Owner-managed identity mapping).
+  //     This is NOT a second brain and NOT an auth bypass: the
+  //     profile role is resolved from the database exactly as
+  //     for a JWT, and every gate below (security verdict,
+  //     privacy consent, authority) runs identically. The
+  //     branch is dead unless ARCHIE_INTERNAL_KEY is set.
+  const internalKey = Deno.env.get("ARCHIE_INTERNAL_KEY");
+  if (
+    !user &&
+    internalKey &&
+    req.headers.get("x-archie-internal-key") === internalKey
+  ) {
+    const internalUserId = String(req.headers.get("x-archie-user-id") ?? "")
+      .replace(/[^0-9a-f-]/gi, "")
+      .toLowerCase();
+    if (
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(
+        internalUserId,
+      )
+    ) {
+      const { data: profile } = await db
+        .from("profiles")
+        .select("role")
+        .eq("id", internalUserId)
+        .maybeSingle();
+      user = { id: internalUserId } as User;
+      isOwner = profile?.role === "admin";
+    }
+  }
   activeOwnerUserId = isOwner && user ? user.id : null;
 
   // 2. Parse + validate request
