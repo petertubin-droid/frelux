@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useMemo,
   useState,
   type ReactNode,
 } from "react";
@@ -90,13 +91,40 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     [remove],
   );
 
-  const value: ToastContextValue = {
-    toast,
-    success: (title, message) => toast({ type: "success", title, message }),
-    warning: (title, message) => toast({ type: "warning", title, message }),
-    error: (title, message) => toast({ type: "error", title, message }),
-    info: (title, message) => toast({ type: "info", title, message }),
-  };
+  // STABLE CONTEXT IDENTITY (bug fix 2026-09-11): the value
+  // object was rebuilt with fresh closures on every render, so
+  // every consumer that puts success/error in a useCallback or
+  // useEffect dependency list got a new function every time a
+  // toast appeared or auto-dismissed. DeveloperPortal, for
+  // example, recreated its load() on every toast change and
+  // its load effect refired — showing a toast triggered a
+  // full API reload, and the transient busy state disabled
+  // buttons mid-click (a CI-only test flake with the same
+  // root cause). Memoizing the helpers makes the context
+  // value referentially stable across toast state changes.
+  const success = useCallback(
+    (title: string, message?: string) =>
+      toast({ type: "success", title, message }),
+    [toast],
+  );
+  const warning = useCallback(
+    (title: string, message?: string) =>
+      toast({ type: "warning", title, message }),
+    [toast],
+  );
+  const error = useCallback(
+    (title: string, message?: string) =>
+      toast({ type: "error", title, message }),
+    [toast],
+  );
+  const info = useCallback(
+    (title: string, message?: string) => toast({ type: "info", title, message }),
+    [toast],
+  );
+  const value: ToastContextValue = useMemo(
+    () => ({ toast, success, warning, error, info }),
+    [toast, success, warning, error, info],
+  );
 
   return (
     <ToastContext.Provider value={value}>
