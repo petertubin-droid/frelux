@@ -61,6 +61,7 @@ export class FactStore {
       provenance: r.provenance,
       status: r.status as Fact["status"],
       validatedCount: r.validated_count ?? 0,
+      verifiedBy: (r.verified_by as string[] | null) ?? [],
       createdAt: r.created_at,
     }));
     return this.facts.length;
@@ -98,20 +99,47 @@ export class FactStore {
         JSON.stringify(f.object) === JSON.stringify(fact.object),
     );
     if (twin) {
-      twin.confidence = Math.min(1, twin.confidence + 0.05);
+      // Provenance-differentiated reinforcement (audit H2):
+      // agreement from a DIFFERENT source is real corroboration
+      // (+0.05); repetition of the SAME source is weak (+0.02)
+      // and never establishes knowledge on its own.
+      const corroborated =
+        fact.provenance.source !== twin.provenance.source;
+      twin.confidence = Math.min(
+        1,
+        twin.confidence + (corroborated ? 0.05 : 0.02),
+      );
       twin.validatedCount += 1;
-      if (twin.validatedCount >= 2 && twin.confidence >= 0.6) {
+      if (corroborated && !(twin.verifiedBy ?? []).includes(fact.provenance.source)) {
+        twin.verifiedBy = [...(twin.verifiedBy ?? []), fact.provenance.source];
+      }
+      // Promotion gate (audit H1/H2): repetition is not
+      // validation — at least one REAL verification event is
+      // required before a candidate becomes validated.
+      if (
+        twin.validatedCount >= 2 &&
+        twin.confidence >= 0.6 &&
+        (twin.verifiedBy ?? []).length > 0
+      ) {
         twin.status = "validated";
       }
       await this.persistFact(twin);
       return { fact: twin, conflict };
     }
+    // Owner authority and first-party seeds ARE verification
+    // events by design (audit H1/H2); research and inference
+    // are not — they must earn a verification event.
+    const verifiedBy: string[] =
+      fact.provenance.source === "owner-taught" || fact.provenance.source === "seed"
+        ? [fact.provenance.source]
+        : [];
     const full: Fact = {
       ...fact,
       confidence,
       status,
       id: factId(),
       validatedCount: 0,
+      verifiedBy,
       createdAt: new Date().toISOString(),
       // Valid-time keys always present so temporal queries can
       // reason about them (tr-2); undefined = no interval.
@@ -216,7 +244,10 @@ export class FactStore {
       if (
         fact.status === "candidate" &&
         fact.validatedCount >= 2 &&
-        fact.confidence >= 0.6
+        fact.confidence >= 0.6 &&
+        // Verification-event gate (audit H1/H2): never promote
+        // on repetition alone.
+        (fact.verifiedBy ?? []).length > 0
       ) {
         fact.status = "validated";
         promoted += 1;
@@ -251,6 +282,7 @@ export interface PersistedFactRow {
   provenance: Fact["provenance"];
   status: string;
   validated_count?: number;
+  verified_by?: string[] | null;
   created_at: string;
 }
 

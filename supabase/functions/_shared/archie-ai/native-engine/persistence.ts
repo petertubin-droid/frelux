@@ -44,6 +44,7 @@ function rowFromFact(fact: Fact): Record<string, unknown> {
     provenance: fact.provenance,
     status: fact.status,
     validated_count: fact.validatedCount,
+    verified_by: fact.verifiedBy ?? [],
     created_at: fact.createdAt,
   };
 }
@@ -58,7 +59,7 @@ export class SupabasePersistence
     const { data, error } = await this.db
       .from(FACTS_TABLE)
       .select(
-        "id,subject,predicate,object,qualifiers,confidence,provenance,status,validated_count,created_at",
+        "id,subject,predicate,object,qualifiers,confidence,provenance,status,validated_count,verified_by,created_at",
       );
     if (error) return [];
     const rows = (data ?? []) as PersistedFactRow[];
@@ -80,6 +81,7 @@ export class SupabasePersistence
           confidence: fact.confidence,
           status: fact.status,
           validated_count: fact.validatedCount,
+          verified_by: fact.verifiedBy ?? [],
         })
         .eq("id", fact.id);
     }
@@ -93,6 +95,7 @@ export class SupabasePersistence
           confidence: fact.confidence,
           status: fact.status,
           validated_count: fact.validatedCount,
+          verified_by: fact.verifiedBy ?? [],
         })
         .eq("id", fact.id);
     }

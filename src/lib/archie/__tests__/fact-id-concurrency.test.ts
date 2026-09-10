@@ -43,4 +43,52 @@ describe("fact-id concurrency (H3)", () => {
     );
   });
 
+
+  it("same-source repetition is weak (+0.02) and never promotes without a verification event (H2)", async () => {
+    const store = new FactStore();
+    const research = {
+      subject: "market-price",
+      predicate: "per-bag",
+      object: "8500 naira",
+      confidence: 0.55,
+      provenance: { source: "web-research" as const },
+      status: "candidate" as const,
+    };
+    // Same-source research repeated 5 times: repetition alone.
+    for (let i = 0; i < 5; i++) {
+      await store.assert({ ...research });
+    }
+    let fact = store.list()[0];
+    // 1 create + 4 twin reinforcements, confidence now past the
+    // old 0.6 threshold — but repetition is not verification.
+    expect(fact.validatedCount).toBe(4);
+    expect((fact.verifiedBy ?? []).length).toBe(0);
+    expect(fact.confidence).toBeGreaterThan(0.6);
+    expect(fact.status).toBe("candidate"); // NOT validated by repetition
+
+    // Cross-source corroboration + owner confirmation promote.
+    await store.assert({ ...research, provenance: { source: "owner-taught" } });
+    fact = store.list()[0];
+    expect(fact.confidence).toBeGreaterThan(0.55);
+    expect(fact.verifiedBy).toContain("owner-taught");
+    expect(fact.status).toBe("validated"); // real verification event present
+  });
+
+  it("consolidation does not promote candidates with zero verification events (H1/H2)", async () => {
+    const store = new FactStore();
+    await store.assert({
+      subject: "rumor",
+      predicate: "is",
+      object: "cheap",
+      confidence: 0.9,
+      provenance: { source: "web-research" },
+      status: "candidate",
+    });
+    const before = store.list()[0];
+    before.validatedCount = 3; // simulate heavy repetition
+    const result = await store.consolidate();
+    const after = store.get(before.id)!;
+    expect(after.status).toBe("candidate");
+    expect(result.promoted).toBe(0);
+  });
 });

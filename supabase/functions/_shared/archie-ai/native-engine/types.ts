@@ -43,6 +43,12 @@ export interface Fact {
   };
   status: "candidate" | "validated" | "uncertain";
   validatedCount: number;
+  /** Real verification events behind this fact (audit H1/H2):
+   *  e.g. "owner-taught", "seed", "owner-confirm:<ts>",
+   *  "cross-source:<domain>", "rule:<id>". Promotion to
+   *  "validated" requires at least one — repetition or
+   *  gratitude alone never establishes knowledge. */
+  verifiedBy?: string[];
   createdAt: string;
   /** Valid-time interval (tr-2): the fact holds from
    *  validFrom (inclusive) until validUntil (exclusive).
@@ -181,7 +187,7 @@ export interface LearningOutcome {
    * knowledge was merely cited in an answer — citing is NOT
    * a verified outcome and must never reinforce (audit C3).
    */
-  kind: "success" | "failure" | "correction" | "cited";
+  kind: "success" | "failure" | "correction" | "cited" | "acknowledged";
   /** What was being attempted. */
   task: string;
   /** Contributing fact/rule/operator ids for credit assignment. */
