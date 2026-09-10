@@ -32,6 +32,18 @@ export interface SupabaseLike {
 
 export const FACTS_TABLE = "frelux_archie_native_facts";
 export const OUTCOMES_TABLE = "frelux_archie_native_outcomes";
+export const EPISODIC_TABLE = "frelux_archie_episodic_turns";
+export const COUNTERS_TABLE = "frelux_archie_engine_counters";
+
+/** A persisted episodic turn (plan P7): prior-session
+ *  context grouped by conversation id. */
+export interface EpisodicTurnRow {
+  id: string;
+  conversation_id: string;
+  role: "owner" | "archie";
+  text: string;
+  turn_at: string;
+}
 
 function rowFromFact(fact: Fact): Record<string, unknown> {
   return {
@@ -119,5 +131,77 @@ export class SupabasePersistence
         timestamp: outcome.timestamp,
       },
     ]);
+  }
+}
+
+// ---------------------------------------------------------
+// EPISODIC MEMORY + CROSS-ISOLATE COUNTERS (plan P7)
+// ---------------------------------------------------------
+
+/** Supabase-backed episodic-turn persistence. */
+export class EpisodicPersistence {
+  constructor(private db: SupabaseLike) {}
+
+  /** Most recent turns across conversations (hydration
+   *  happens once per isolate, at boot). */
+  async loadEpisodicTurns(limit = 200): Promise<EpisodicTurnRow[]> {
+    const { data, error } = await this.db
+      .from(EPISODIC_TABLE)
+      .select("id,conversation_id,role,text,turn_at");
+    if (error) return [];
+    const rows = (data ?? []) as EpisodicTurnRow[];
+    return rows
+      .sort((a, b) => (b.turn_at ?? "").localeCompare(a.turn_at ?? ""))
+      .slice(0, limit);
+  }
+
+  /** Persist one turn. Best-effort: a failed write never
+   *  breaks the conversation — the next turn retries. */
+  async saveEpisodicTurn(turn: {
+    conversationId: string;
+    role: "owner" | "archie";
+    text: string;
+    at: number;
+  }): Promise<void> {
+    await this.db.from(EPISODIC_TABLE).insert([
+      {
+        id: `epi_${crypto.randomUUID()}`,
+        conversation_id: turn.conversationId,
+        role: turn.role,
+        text: turn.text.slice(0, 4000),
+        turn_at: new Date(turn.at).toISOString(),
+      },
+    ]);
+  }
+}
+
+/** Cross-isolate engine counters. Read-modify-write upsert:
+ *  under concurrent isolates the LAST write wins — the
+ *  numbers are diagnostics, not accounting, and this is
+ *  stated plainly rather than hidden behind an atomic RPC
+ *  (which the structural adapter contract does not carry). */
+export class CounterPersistence {
+  constructor(private db: SupabaseLike) {}
+
+  async loadCounters(): Promise<Record<string, number>> {
+    const { data, error } = await this.db
+      .from(COUNTERS_TABLE)
+      .select("key,value");
+    if (error) return {};
+    const out: Record<string, number> = {};
+    for (const row of (data ?? []) as Array<{ key: string; value: number }>) {
+      out[row.key] = Number(row.value) || 0;
+    }
+    return out;
+  }
+
+  async saveCounters(counters: Record<string, number>): Promise<void> {
+    const rows = Object.entries(counters).map(([key, value]) => ({
+      key,
+      value,
+      updated_at: new Date().toISOString(),
+    }));
+    if (rows.length === 0) return;
+    await this.db.from(COUNTERS_TABLE).upsert(rows);
   }
 }

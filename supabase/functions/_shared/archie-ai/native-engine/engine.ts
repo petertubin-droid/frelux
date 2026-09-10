@@ -78,6 +78,7 @@ import { analyzeSource, generateUnitTestScaffold } from "./coding.ts";
 import { SelfEvaluator } from "./selfeval.ts";
 import { OutcomeLearner, type OutcomePersistence } from "./learning.ts";
 import { SupabasePersistence, type SupabaseLike } from "./persistence.ts";
+import { EpisodicPersistence } from "./persistence.ts";
 import type { Fact, Plan, RetrievedContext } from "./types.ts";
 
 /** Foundational knowledge seeded at engine construction —
@@ -228,6 +229,10 @@ export class ArchieNativeEngine implements ArchieRuntime {
   private systemAdapters: SystemAdapters;
   private persistence: SupabasePersistence | null;
   private verbosity: Verbosity = "detailed";
+  /** P7 — episodic-turn store (prior-session context). */
+  private episodicStore: EpisodicPersistence | null = null;
+  /** P7 — conversation id for episodic session grouping. */
+  private conversationId = "default";
   private bootedAt = Date.now();
   private inferences = 0;
   private confidenceSum = 0;
@@ -244,12 +249,22 @@ export class ArchieNativeEngine implements ArchieRuntime {
      *  OPTIONAL connectives are composed; content and
      *  epistemic labels are identical in both modes. */
     verbosity?: Verbosity;
+    /** P7 — conversation id for episodic-turn session
+     *  grouping. Default 'default'. */
+    conversationId?: string;
   }) {
+    this.conversationId = options?.conversationId ?? "default";
     this.verbosity = options?.verbosity ?? "detailed";
     this.marketPriceLookup = options?.marketPriceLookup ?? null;
     this.systemAdapters = options?.systemAdapters ?? {};
     this.persistence = options?.persistence
       ? new SupabasePersistence(options.persistence)
+      : null;
+    // P7: episodic-turn persistence shares the SAME consent
+    // gate — persistence null (consent revoked) means no
+    // episodic reads or writes either.
+    this.episodicStore = options?.persistence
+      ? new EpisodicPersistence(options.persistence)
       : null;
     this.adapter = options?.researchAdapter ?? new DuckDuckGoLiteAdapter();
     this.facts = new FactStore(this.persistence ?? undefined);
@@ -324,11 +339,42 @@ export class ArchieNativeEngine implements ArchieRuntime {
       status: "validated",
     });
     await this.learner.hydrate();
+    // P7 — hydrate prior-session episodic context once per
+    // isolate. Cross-isolate: a fresh chat request recalls
+    // owner-taught context from previous sessions.
+    if (this.episodicStore) {
+      try {
+        const rows = await this.episodicStore.loadEpisodicTurns();
+        if (rows.length > 0) {
+          this.memory.hydrateEpisodic(
+            rows
+              .slice()
+              .reverse() // oldest first, stable ranking
+              .map((r) => ({
+                role: r.role,
+                text: r.text,
+                at: Date.parse(r.turn_at) || Date.now(),
+              })),
+          );
+        }
+      } catch {
+        // Episodic hydration is best-effort: an unavailable
+        // table degrades to in-session memory only — the
+        // conversation still works.
+      }
+    }
     return { hydratedFacts, seededFacts };
   }
 
   isOperational(): boolean {
     return true; // genuinely implemented — see capabilities()
+  }
+
+  /** P7 — set the conversation id for episodic-turn session
+   *  grouping (per request; no singleton rebuild — it only
+   *  stamps NEW episodic rows). */
+  setConversationId(id: string): void {
+    this.conversationId = id || "default";
   }
 
   capabilities(): ArchieCapability[] {
@@ -466,6 +512,32 @@ export class ArchieNativeEngine implements ArchieRuntime {
       false,
     );
     this.memory.addTurn("archie", outcome.responseText);
+    // P7 — persist this turn pair so the NEXT session (any
+    // isolate) recalls it. Consent gate: this.episodicStore
+    // is null when personalization_memory is revoked.
+    if (this.episodicStore) {
+      const at = Date.now();
+      const convId = this.conversationId;
+      const ownerText = input;
+      const archieText = outcome.responseText;
+      try {
+        await this.episodicStore.saveEpisodicTurn({
+          conversationId: convId,
+          role: "owner",
+          text: ownerText,
+          at,
+        });
+        await this.episodicStore.saveEpisodicTurn({
+          conversationId: convId,
+          role: "archie",
+          text: archieText,
+          at: at + 1,
+        });
+      } catch {
+        // Best-effort: a failed episodic write never breaks
+        // the conversation.
+      }
+    }
 
     // Learning: an answer that cites knowledge is NOT a
     // verified outcome — citing must never reinforce (audit
@@ -1500,6 +1572,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         operators: this.planner.operatorCount(),
         tools: this.tools.count(),
         memoryTurns: this.memory.size(),
+        episodicTurns: this.memory.episodicSize(),
         outcomes: this.learner.count(),
         inferences: this.inferences,
       },
@@ -1512,8 +1585,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
       persistence: {
         facts: this.persistence !== null,
         outcomes: this.persistence !== null,
+        episodic: this.episodicStore !== null,
         note: this.persistence
-          ? "durable: frelux_archie_native_facts / frelux_archie_native_outcomes"
+          ? "durable: frelux_archie_native_facts / frelux_archie_native_outcomes / frelux_archie_episodic_turns"
           : "in-memory only — persistence adapter not wired",
       },
     };

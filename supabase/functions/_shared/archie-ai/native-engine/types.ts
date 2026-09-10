@@ -222,6 +222,9 @@ export interface EngineDiagnostics {
     operators: number;
     tools: number;
     memoryTurns: number;
+    /** P7 — prior-session turns hydrated from episodic
+     *  persistence (cross-isolate context). */
+    episodicTurns: number;
     outcomes: number;
     inferences: number;
   };
@@ -235,6 +238,8 @@ export interface EngineDiagnostics {
   persistence: {
     facts: boolean;
     outcomes: boolean;
+    /** P7 — episodic-turn persistence (same consent gate). */
+    episodic: boolean;
     note: string;
   };
 }

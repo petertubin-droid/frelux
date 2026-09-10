@@ -11,14 +11,34 @@ import { TfIdfIndex, cosine, memoryTurnFromText, tokenize } from "./nlu.ts";
 import type { Fact, RetrievedContext } from "./types.ts";
 
 export class ContextMemory {
-  // Two buffers prevent DUPLICATE memories: `seeded` is the
+  // Three buffers prevent DUPLICATE memories: `seeded` is the
   // authoritative conversation history and is REPLACED
   // wholesale on every seedFromTurns call (the engine
   // re-seeds each request); `live` holds turns added during
-  // this session. Retrieval ranks both.
+  // this session; `episodic` (plan P7) holds turns hydrated
+  // ONCE from the episodic persistence table — prior-session
+  // context that survives isolates and is never replaced by
+  // per-request seeding. Retrieval ranks all three.
   private seeded: MemoryTurnInternal[] = [];
   private live: MemoryTurnInternal[] = [];
+  private episodic: MemoryTurnInternal[] = [];
   private index = new TfIdfIndex();
+
+  /** Hydrate prior-session turns (plan P7). Called once at
+   *  boot; idempotent — a second call replaces the episodic
+   *  buffer wholesale (it is external state, not session
+   *  accumulation), never duplicates. */
+  hydrateEpisodic(
+    turns: Array<{ role: "owner" | "archie"; text: string; at: number }>,
+  ): void {
+    this.episodic = turns.map((t) =>
+      memoryTurnFromText(t.role, t.text, this.index, t.at),
+    );
+  }
+
+  episodicSize(): number {
+    return this.episodic.length;
+  }
 
   addTurn(role: "owner" | "archie", text: string, at = Date.now()): void {
     this.live.push(memoryTurnFromText(role, text, this.index, at));
@@ -45,18 +65,33 @@ export class ContextMemory {
     return this.seeded.length + this.live.length;
   }
 
+  /** Count including hydrated episodic context — used by
+   *  diagnostics to report system-wide memory, not just the
+   *  current isolate's buffers (plan P7). */
+  sizeWithEpisodic(): number {
+    return this.seeded.length + this.live.length + this.episodic.length;
+  }
+
   /** Salience = cosine(relevance) + recency decay. Real math. */
   retrieve(query: string, k = 4, now = Date.now()): RetrievedContext {
     const qv = this.index.vectorize(tokenize(query));
-    const horizon = 1000 * 60 * 60 * 24; // 24h recency horizon
-    const turns = [...this.seeded, ...this.live];
-    const ranked = turns
-      .map((turn) => {
-        const relevance = cosine(qv, turn.vector);
-        const ageMs = Math.max(0, now - turn.at);
-        const recency = Math.max(0, 1 - ageMs / horizon);
-        return { turn, relevance, salience: relevance * 0.7 + recency * 0.3 };
-      })
+    // Session turns (seeded/live) decay over 24h; episodic
+    // turns from PRIOR sessions use a 30-day horizon — the
+    // whole point of episodic persistence is that context
+    // survives across sessions (plan P7).
+    const sessionHorizon = 1000 * 60 * 60 * 24;
+    const episodicHorizon = 1000 * 60 * 60 * 24 * 30;
+    const weight = (turn: MemoryTurnInternal, horizon: number) => {
+      const relevance = cosine(qv, turn.vector);
+      const ageMs = Math.max(0, now - turn.at);
+      const recency = Math.max(0, 1 - ageMs / horizon);
+      return { turn, relevance, salience: relevance * 0.7 + recency * 0.3 };
+    };
+    const ranked = [
+      ...this.seeded.map((t) => weight(t, sessionHorizon)),
+      ...this.live.map((t) => weight(t, sessionHorizon)),
+      ...this.episodic.map((t) => weight(t, episodicHorizon)),
+    ]
       .filter((r) => r.salience > 0)
       .sort((a, b) => b.salience - a.salience);
     // Salient facts (mr-3): SPO triples extracted from the
