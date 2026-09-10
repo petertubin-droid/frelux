@@ -30,19 +30,19 @@ function fact0(
   predicate: string,
   object: string,
   confidence = 0.9,
-): { subject: string; predicate: string; object: string; confidence: number; provenance: { source: string }; status: "validated" } {
+): { subject: string; predicate: string; object: string; confidence: number; provenance: { source: "seed" }; status: "validated" } {
   return {
     subject,
     predicate,
     object,
     confidence,
-    provenance: { source: "test" },
+    provenance: { source: "seed" },
     status: "validated",
   };
 }
 
 const F = (subject: string, object: string, predicate = "is-a"): Fact =>
-  ({ id: "f", subject, predicate, object, confidence: 0.9, provenance: { source: "t" }, status: "validated", validatedCount: 1, createdAt: new Date().toISOString() }) as Fact;
+  ({ id: "f", subject, predicate, object, confidence: 0.9, provenance: { source: "seed" }, status: "validated", validatedCount: 1, createdAt: new Date().toISOString() }) as Fact;
 
 describe("Unification primitives", () => {
   it("isVar recognizes variables", () => {

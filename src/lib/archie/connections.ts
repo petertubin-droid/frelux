@@ -243,6 +243,13 @@ export async function pairBluetoothDevice(
       "This browser does not support Web Bluetooth.",
     );
   }
+  if (!navigator.bluetooth) {
+    // Runtime narrowing (TS18048) — support was already checked.
+    throw new ConnectionFailure(
+      "unsupported",
+      "Web Bluetooth is not available in this browser.",
+    );
+  }
   let device: BluetoothDevice;
   try {
     device = await navigator.bluetooth.requestDevice({
@@ -311,6 +318,12 @@ export async function pairUsbDevice(
     throw new ConnectionFailure(
       "unsupported",
       "This browser does not support WebUSB.",
+    );
+  }
+  if (!navigator.usb) {
+    throw new ConnectionFailure(
+      "unsupported",
+      "WebUSB is not available in this browser.",
     );
   }
   let device: USBDevice;

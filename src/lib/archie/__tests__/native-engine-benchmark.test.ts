@@ -141,8 +141,8 @@ describe("ARCHIE Native Engine — Capability Benchmark (baseline measurement)",
           description: "depth+span → adequacy checkable",
         },
       ]);
-      await fs.assert({ subject: "beam", predicate: "depth", object: "450mm", confidence: 0.9, provenance: { source: "test" }, status: "validated" });
-      await fs.assert({ subject: "beam", predicate: "span", object: "6m", confidence: 0.9, provenance: { source: "test" }, status: "validated" });
+      await fs.assert({ subject: "beam", predicate: "depth", object: "450mm", confidence: 0.9, provenance: { source: "seed" }, status: "validated" });
+      await fs.assert({ subject: "beam", predicate: "span", object: "6m", confidence: 0.9, provenance: { source: "seed" }, status: "validated" });
       const out = await re.forwardChain();
       return out.derived.length > 0 ? 1 : 0;
     });
@@ -158,7 +158,7 @@ describe("ARCHIE Native Engine — Capability Benchmark (baseline measurement)",
           description: "transitive part-of",
         } as never,
       ]);
-      await fs.assert({ subject: "roof", predicate: "part-of", object: "house", confidence: 0.9, provenance: { source: "test" }, status: "validated" });
+      await fs.assert({ subject: "roof", predicate: "part-of", object: "house", confidence: 0.9, provenance: { source: "seed" }, status: "validated" });
       const out = await re.forwardChain();
       return out.derived.length > 0 ? 1 : 0; // 0 without unification — honest miss
     });
@@ -180,7 +180,7 @@ describe("ARCHIE Native Engine — Capability Benchmark (baseline measurement)",
           description: "ready → buildable",
         },
       ]);
-      await fs.assert({ subject: "site", predicate: "soil-tested", object: "true", confidence: 0.9, provenance: { source: "test" }, status: "validated" });
+      await fs.assert({ subject: "site", predicate: "soil-tested", object: "true", confidence: 0.9, provenance: { source: "seed" }, status: "validated" });
       const out = await re.forwardChain();
       return out.derived.length >= 2 && out.iterations >= 2 ? 1 : 0;
     });
@@ -199,7 +199,7 @@ describe("ARCHIE Native Engine — Capability Benchmark (baseline measurement)",
           description: "concrete → curing",
         },
       ]);
-      await fs.assert({ subject: "structure", predicate: "is-concrete", object: "true", confidence: 0.9, provenance: { source: "test" }, status: "validated" });
+      await fs.assert({ subject: "structure", predicate: "is-concrete", object: "true", confidence: 0.9, provenance: { source: "seed" }, status: "validated" });
       const out = await re.forwardChain();
       return fs.query({ subject: "structure", predicate: "needs-curing" }).length > 0 && out.derived.length > 0 ? 1 : 0;
     });
@@ -222,7 +222,7 @@ describe("ARCHIE Native Engine — Capability Benchmark (baseline measurement)",
           description: "building → foundation",
         } as never,
       ]);
-      await fs.assert({ subject: "my-shop", predicate: "is-a", object: "building", confidence: 0.9, provenance: { source: "test" }, status: "validated" });
+      await fs.assert({ subject: "my-shop", predicate: "is-a", object: "building", confidence: 0.9, provenance: { source: "seed" }, status: "validated" });
       const out = await re.forwardChain();
       const got = fs.query({ subject: "my-shop", predicate: "needs-foundation" });
       return got.length > 0 && out.derived.length > 0 ? 1 : 0; // 0 without unification
@@ -249,7 +249,7 @@ describe("ARCHIE Native Engine — Capability Benchmark (baseline measurement)",
     // 6. PLANNING
     // ---------------------------------------------------------
     const planFs = new FactStore();
-    await planFs.assert({ subject: "knowledge", predicate: "available", object: "yes", confidence: 0.9, provenance: { source: "test" }, status: "validated" });
+    await planFs.assert({ subject: "knowledge", predicate: "available", object: "yes", confidence: 0.9, provenance: { source: "seed" }, status: "validated" });
     const planner = new Planner(planFs, DEFAULT_OPERATORS);
     await attempt("planning", "pl-1", "means-ends plan with met preconditions", () => {
       const p = planner.plan("answered");
@@ -274,8 +274,8 @@ describe("ARCHIE Native Engine — Capability Benchmark (baseline measurement)",
     // ---------------------------------------------------------
     await attempt("contradiction-detection", "cd-1", "SPO conflict detected on assert", async () => {
       const fs = new FactStore();
-      await fs.assert({ subject: "cement-price", predicate: "per-bag", object: "8500 naira", confidence: 0.9, provenance: { source: "test" }, status: "validated" });
-      const { conflict } = await fs.assert({ subject: "cement-price", predicate: "per-bag", object: "9200 naira", confidence: 0.9, provenance: { source: "test" }, status: "candidate" });
+      await fs.assert({ subject: "cement-price", predicate: "per-bag", object: "8500 naira", confidence: 0.9, provenance: { source: "seed" }, status: "validated" });
+      const { conflict } = await fs.assert({ subject: "cement-price", predicate: "per-bag", object: "9200 naira", confidence: 0.9, provenance: { source: "seed" }, status: "candidate" });
       return conflict && conflict.kind === "contradiction" ? 1 : 0;
     });
     await attempt("contradiction-detection", "cd-2", "contradiction surfaced in conversation", async () => {
@@ -296,9 +296,9 @@ describe("ARCHIE Native Engine — Capability Benchmark (baseline measurement)",
     // ---------------------------------------------------------
     await attempt("uncertainty", "un-1", "epistemic status classification", async () => {
       const fs = new FactStore();
-      const { fact } = await fs.assert({ subject: "rumor", predicate: "about-supplier", object: "unverified claim", confidence: 0.3, provenance: { source: "hearsay" }, status: "candidate" });
+      const { fact } = await fs.assert({ subject: "rumor", predicate: "about-supplier", object: "unverified claim", confidence: 0.3, provenance: { source: "owner-taught" }, status: "candidate" });
       const s = epistemicStatusOf(fact);
-      return s === "CANDIDATE" || s === "ASSUMED" || s === "UNKNOWN" ? 1 : 0;
+      return s === "ASSUMED" || s === "UNKNOWN" ? 1 : 0;
     });
     await attempt("uncertainty", "un-2", "honest unknown on out-of-knowledge question", async () => {
       const e = freshEngine();
@@ -345,7 +345,7 @@ describe("ARCHIE Native Engine — Capability Benchmark (baseline measurement)",
     });
     await attempt("temporal-reasoning", "tr-2", "valid-time facts (until/since)", async () => {
       const fs = new FactStore();
-      const { fact } = await fs.assert({ subject: "price", predicate: "per-bag", object: "8500 naira", confidence: 0.9, provenance: { source: "test" }, status: "validated" });
+      const { fact } = await fs.assert({ subject: "price", predicate: "per-bag", object: "8500 naira", confidence: 0.9, provenance: { source: "seed" }, status: "validated" });
       const hasValidTime = "validFrom" in fact || "validUntil" in fact;
       return hasValidTime ? 1 : 0; // Fact type has no temporal qualifiers — honest miss
     });
@@ -379,7 +379,7 @@ describe("ARCHIE Native Engine — Capability Benchmark (baseline measurement)",
     // 12. TOOL SELECTION
     // ---------------------------------------------------------
     await attempt("tool-selection", "ts-1", "capability-tag tool scoring", () => {
-      const ti = new ToolIntelligenceEngine(null as never);
+      const ti = new ToolIntelligenceEngine();
       const sel = ti.select("research current steel prices on the web", { phases: [] } as never);
       return sel.selected.length > 0 ? 1 : 0;
     });
@@ -423,7 +423,7 @@ describe("ARCHIE Native Engine — Capability Benchmark (baseline measurement)",
     // ---------------------------------------------------------
     await attempt("learning-from-outcomes", "lo-1", "failure weakens contributing knowledge", async () => {
       const fs = new FactStore();
-      const { fact } = await fs.assert({ subject: "beam", predicate: "depth", object: "450mm", confidence: 0.9, provenance: { source: "test" }, status: "validated" });
+      const { fact } = await fs.assert({ subject: "beam", predicate: "depth", object: "450mm", confidence: 0.9, provenance: { source: "seed" }, status: "validated" });
       const ol = new OutcomeLearner(fs);
       const before = fact.confidence;
       await ol.record({ kind: "failure", task: "test", contributing: [fact.id] } as never);
@@ -548,7 +548,7 @@ describe("ARCHIE Native Engine — Capability Benchmark (baseline measurement)",
       // the authority layer — never from knowledge confidence.
       const fs = new FactStore();
       const ol = new OutcomeLearner(fs);
-      const { fact } = await fs.assert({ subject: "action", predicate: "authorized", object: "owner-approved", confidence: 0.5, provenance: { source: "test" }, status: "candidate" });
+      const { fact } = await fs.assert({ subject: "action", predicate: "authorized", object: "owner-approved", confidence: 0.5, provenance: { source: "seed" }, status: "candidate" });
       for (let i = 0; i < 10; i++) {
         await ol.record({ kind: "success", task: "t", contributing: [fact.id] } as never);
       }

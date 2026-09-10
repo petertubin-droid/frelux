@@ -31,7 +31,13 @@ export interface Fact {
   provenance: {
     source: "owner-taught" | "inferred" | "web-research" | "seed";
     /** Derivation chain for inferred facts (rule + premise fact ids). */
-    derivation?: { ruleId: string; premiseIds: string[] };
+    derivation?: {
+      ruleId: string;
+      premiseIds: string[];
+      /** Variable bindings used by general (variable) rules —
+       * part of the honest proof record (P1 unification). */
+      binding?: Record<string, string>;
+    };
     /** Free-form origin note (e.g. "conversation 2026-09-10"). */
     note?: string;
   };
