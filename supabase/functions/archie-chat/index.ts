@@ -164,7 +164,7 @@ const TOOLS: ToolDef[] = [
   {
     name: "knowledge_search",
     description:
-      "Search ARCHIE-owned approved knowledge (ACTIVE knowledge items) by keyword. Returns topic, capability, scope and a content excerpt.",
+      "Search ARCHIE's approved knowledge (ACTIVE knowledge items) by keyword — covers all ARCHIE domains including coding and cybersecurity intelligence. Returns topic, capability, scope, confidence and a content excerpt.",
     parameters: {
       type: "object",
       properties: { query: { type: "string" } },
@@ -172,21 +172,34 @@ const TOOLS: ToolDef[] = [
     },
     operational: true,
     execute: async (input) => {
+      // Token-based topic matching: any meaningful token of the query can
+      // match a topic (natural questions rarely substring-match topics).
       const q = String(input.query ?? "").slice(0, 120);
+      const tokens = q
+        .toLowerCase()
+        .split(/[^a-z0-9+#.-]+/)
+        .filter((t) => t.length >= 3 && !["the", "and", "for", "how", "what", "with", "about"].includes(t))
+        .slice(0, 6);
+      const filter = tokens.length
+        ? tokens.map((t) => `topic.ilike.%${t.replace(/,/g, "")}%`).join(",")
+        : `topic.ilike.%${q}%`;
       const { data, error } = await db
         .from("frelux_knowledge_items")
-        .select("topic,capability,scope,content,confidence")
+        .select("topic,capability,scope,content,confidence,domain,knowledge_type")
         .eq("status", "ACTIVE")
-        .ilike("topic", `%${q}%`)
-        .limit(5);
+        .or(filter)
+        .order("confidence", { ascending: false })
+        .limit(8);
       if (error) return { error: error.message };
       return {
         results: (data ?? []).map((k) => ({
           topic: k.topic,
           capability: k.capability,
+          domain: k.domain,
+          knowledge_type: k.knowledge_type,
           scope: k.scope,
           confidence: k.confidence,
-          excerpt: JSON.stringify(k.content).slice(0, 400),
+          excerpt: JSON.stringify(k.content).slice(0, 1200),
         })),
       };
     },
@@ -715,7 +728,12 @@ Operating rules:
 - NEVER invent data, numbers, or statuses. If a tool result is missing or errored, say so.
 - The Owner is the final authority. Protected operations (money, security changes, production changes) are NEVER performed from chat; you may analyze and prepare, and the Owner authorizes through the proper dashboard workflow.
 - Keep answers concise and useful. Use short paragraphs. No filler.
-- Never echo credentials, API keys, or tokens. Never ask for passwords.`;
+- Never echo credentials, API keys, or tokens. Never ask for passwords.
+
+Coding & Cybersecurity Intelligence:
+- You hold persistent Coding Intelligence and Cybersecurity Intelligence (domains: coding, cybersecurity) covering 19 programming languages — fundamentals, secure coding, vulnerability classes, security tooling, and authorized security-testing methodology.
+- For any coding, security, or reverse-engineering question, call knowledge_search FIRST and ground your answer in the retrieved items. Cite the topic you used. If a version-sensitive fact is flagged for re-verification in the item, say so honestly instead of guessing.
+- HARD BOUNDARY: offensive-security knowledge (exploitation, privilege escalation, credential attacks, scanning of third parties) applies ONLY to authorized systems, owned infrastructure, controlled laboratories, CTFs, and explicitly permitted security assessments. If a request targets anything outside those boundaries, refuse and explain the boundary. Defensive security (secure coding, hardening, detection, malware analysis best practices) has no such restriction.`;
 
 // =========================================================
 // web_intelligence — REAL website inspection
