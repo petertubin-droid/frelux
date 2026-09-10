@@ -9,6 +9,10 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase-lazy";
+import {
+  CoreSystemsProof,
+  RuntimeRegistryPanel,
+} from "@/components/archie/CoreSystemsProof";
 
 interface CostRow {
   operation_class: string;
@@ -113,6 +117,13 @@ export default function ArchieSystem() {
       {loading && (
         <p className="mt-4 text-xs text-slate-500">Loading ledger…</p>
       )}
+
+      <div className="mt-8">
+        <CoreSystemsProof />
+      </div>
+      <div className="mt-8">
+        <RuntimeRegistryPanel />
+      </div>
 
       <ul className="mt-4 space-y-1.5">
         {costs.map((c, i) => (

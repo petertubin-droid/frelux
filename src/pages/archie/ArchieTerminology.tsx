@@ -29,6 +29,12 @@ import {
   ArchiePanel,
   ArchieSectionTitle,
 } from "@/components/archie/premium";
+import {
+  ARCHIE_SEED_LANGUAGES,
+  archieLanguages,
+  resolveLanguage,
+} from "@/lib/archie/language-intelligence";
+import { resolveRegionalProfile } from "@/lib/archie/global-context";
 
 type StatusFilter = "ALL" | "UNVERIFIED" | "VERIFIED" | "REJECTED";
 
@@ -331,6 +337,113 @@ export default function ArchieTerminology() {
         chat on every interface, because both this app and FRELUX Admin share
         the same terminology table.
       </p>
+
+      <LanguageRegistryPanel />
     </ArchiePage>
+  );
+}
+
+// ---------------------------------------------------------
+// Language registry + session language resolution (§4, §18.4)
+// — the real seed registry and resolver, not a mock. The
+// user's selection is AUTHORITATIVE; the location suggestion
+// is used only when the user has not chosen.
+// ---------------------------------------------------------
+function LanguageRegistryPanel() {
+  const [selected, setSelected] = useState("");
+  const [countryCode, setCountryCode] = useState("NG");
+  const [resolution, setResolution] = useState<string | null>(null);
+  const [resolveError, setResolveError] = useState<string | null>(null);
+
+  function resolve() {
+    setResolveError(null);
+    setResolution(null);
+    try {
+      const profile = resolveRegionalProfile({
+        latitude: null,
+        longitude: null,
+        accuracy_m: null,
+        formatted_address: null,
+        country: null,
+        country_code: countryCode || null,
+        region: null,
+        city: null,
+        postcode: null,
+        place_id: null,
+        source: "manual",
+        captured_at: new Date().toISOString(),
+        verification: "user_confirmed",
+      });
+      const r = resolveLanguage({
+        user_selection: selected.trim() ? selected.trim() : null,
+        profile,
+        registry: archieLanguages,
+      });
+      setResolution(
+        `Language: ${r.language_code} — source: ${r.source}, authoritative: ${r.authoritative}.`,
+      );
+    } catch (err) {
+      setResolveError(
+        err instanceof Error ? err.message : "Language resolution refused.",
+      );
+    }
+  }
+
+  return (
+    <ArchiePanel className="mt-6">
+      <ArchieSectionTitle>Language registry</ArchieSectionTitle>
+      <ul className="mt-2 grid grid-cols-2 gap-1.5 sm:grid-cols-3">
+        {ARCHIE_SEED_LANGUAGES.map((lang) => (
+          <li key={lang.code} className="archie-panel rounded-lg p-2.5">
+            <p className="text-xs font-medium text-slate-200">
+              {lang.native_label}
+              <span className="ml-1 text-slate-500">({lang.code})</span>
+            </p>
+            <p className="text-[10px] text-slate-500">
+              {lang.common_regions.join(", ") || "—"}
+            </p>
+            <ArchieBadge tone={lang.active ? "positive" : "neutral"}>
+              {lang.active ? "active" : "inactive"}
+            </ArchieBadge>
+          </li>
+        ))}
+      </ul>
+      <div className="mt-3 flex flex-wrap items-end gap-2">
+        <label className="block">
+          <span className="mb-1 block text-[11px] text-slate-500">
+            User selection (authoritative, optional)
+          </span>
+          <input
+            className="w-28 rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground"
+            value={selected}
+            onChange={(e) => setSelected(e.target.value)}
+            placeholder="e.g. yo"
+            aria-label="User language selection"
+          />
+        </label>
+        <label className="block">
+          <span className="mb-1 block text-[11px] text-slate-500">
+            Country code
+          </span>
+          <input
+            className="w-20 rounded-md border border-border bg-background px-3 py-1.5 text-xs text-foreground"
+            value={countryCode}
+            onChange={(e) => setCountryCode(e.target.value.toUpperCase())}
+            aria-label="Country code"
+          />
+        </label>
+        <ArchieButton onClick={resolve}>Resolve session language</ArchieButton>
+      </div>
+      {resolution && (
+        <p role="status" className="mt-2 text-xs text-emerald-300">
+          {resolution}
+        </p>
+      )}
+      {resolveError && (
+        <p role="alert" className="mt-2 text-xs text-red-400">
+          {resolveError}
+        </p>
+      )}
+    </ArchiePanel>
   );
 }

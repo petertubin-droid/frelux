@@ -161,6 +161,12 @@ export default function AdminArchieLegal() {
           title="Loading…"
           message="Fetching legal corpus."
         />
+      ) : error ? (
+        <StateMessage
+          type="error"
+          title="Legal corpus unavailable"
+          message={`${error} The corpus is not shown — an error must never look like "never seeded" documents.`}
+        />
       ) : (
         <div className="space-y-3">
           {Object.entries(DOC_LABELS).map(([key, label]) => {
@@ -272,8 +278,14 @@ export default function AdminArchieLegal() {
         >
           <div className="space-y-3">
             <div>
-              <label className="mb-1 block text-sm font-medium">Title</label>
+              <label
+                htmlFor="legal-edit-title"
+                className="mb-1 block text-sm font-medium"
+              >
+                Title
+              </label>
               <AdminInput
+                id="legal-edit-title"
                 value={editTitle}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                   setEditTitle(e.target.value)
@@ -281,10 +293,14 @@ export default function AdminArchieLegal() {
               />
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium">
+              <label
+                htmlFor="legal-edit-body"
+                className="mb-1 block text-sm font-medium"
+              >
                 Body (Markdown)
               </label>
               <AdminTextarea
+                id="legal-edit-body"
                 rows={16}
                 value={editBody}
                 onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>

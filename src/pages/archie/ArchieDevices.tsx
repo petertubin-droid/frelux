@@ -364,7 +364,9 @@ export default function ArchieDevices() {
             Real transports, explicit authorization: pairing happens through the
             browser's own permission prompt, and a reachable device grants
             nothing until you grant permissions. Every action — success, failure
-            or denial — is audited.
+            or denial — is audited. Wi-Fi network scanning and hotspot control
+            are not exposed to browsers at all — their status is shown honestly
+            below rather than simulated.
           </p>
           <div className="mt-2 flex flex-wrap gap-1.5">
             <ArchieBadge tone={caps.bluetooth ? "positive" : "neutral"}>
@@ -379,6 +381,12 @@ export default function ArchieDevices() {
             </ArchieBadge>
             <ArchieBadge tone="neutral">
               System volume — not controllable from a browser
+            </ArchieBadge>
+            <ArchieBadge tone="neutral">
+              Wi-Fi — not manageable from a browser
+            </ArchieBadge>
+            <ArchieBadge tone="neutral">
+              Hotspot — not controllable from a browser
             </ArchieBadge>
           </div>
         </ArchiePanel>

@@ -48,11 +48,16 @@ import {
   portfolioRisk,
 } from "@/lib/archie/p5-client";
 import type { InternalAgentRecord } from "@/lib/archie/internal-agents";
+import {
+  fetchArchieStatus,
+  buildSystemsRegistry,
+  type SystemSection,
+} from "@/lib/archie/status";
 
 type BudgetStatus = Awaited<ReturnType<typeof budgetStatus>>;
 type RiskReport = Awaited<ReturnType<typeof portfolioRisk>>["report"];
 
-type Tab = "agents" | "costs" | "crypto";
+type Tab = "agents" | "costs" | "systems" | "crypto";
 
 interface AgentRow {
   id: string;
@@ -244,6 +249,7 @@ export default function AdminArchieOps() {
           [
             ["agents", "Internal Agents", Bot],
             ["costs", "Infrastructure Costs", Wallet],
+            ["systems", "Systems Registry", RefreshCw],
             ["crypto", "Crypto Intelligence", LineChart],
           ] as const
         ).map(([key, label, Icon]) => (
@@ -482,6 +488,8 @@ export default function AdminArchieOps() {
         </div>
       )}
 
+      {tab === "systems" && <SystemsRegistryPanel />}
+
       {tab === "crypto" && (
         <div className="grid gap-6 lg:grid-cols-2">
           <AdminCard>
@@ -630,5 +638,88 @@ export default function AdminArchieOps() {
         </div>
       )}
     </div>
+  );
+}
+
+// ---------------------------------------------------------
+// Systems registry — the real client-side status aggregate
+// (status.ts) rendered as the admin systems registry. Every
+// state is derived from live data counts; failures render
+// honestly instead of pretending.
+// ---------------------------------------------------------
+function SystemsRegistryPanel() {
+  const [sections, setSections] = useState<SystemSection[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const status = await fetchArchieStatus();
+      setSections(buildSystemsRegistry(status));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const tone = (state: SystemSection["state"]) =>
+    state === "operational"
+      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+      : state === "degraded" || state === "pending"
+        ? "border-amber-500/40 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+        : "border-red-500/40 bg-red-500/10 text-red-600 dark:text-red-400";
+
+  return (
+    <AdminCard>
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="font-heading text-lg font-semibold">Systems registry</h3>
+        <button
+          type="button"
+          onClick={load}
+          disabled={loading}
+          className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-xs hover:bg-muted disabled:opacity-50"
+        >
+          <RefreshCw className="h-3.5 w-3.5" aria-hidden />
+          {loading ? "Loading…" : "Refresh"}
+        </button>
+      </div>
+      <p className="mb-4 text-xs text-muted-foreground">
+        Live aggregate of ARCHIE's systems — every state below is derived from
+        real row counts and reachability probes, never asserted.
+      </p>
+      {error && (
+        <div className="mb-3 flex items-center gap-2 rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4" aria-hidden />
+          Registry unavailable: {error}
+        </div>
+      )}
+      {sections && (
+        <ul className="grid gap-2 sm:grid-cols-2">
+          {sections.map((sec) => (
+            <li
+              key={sec.key}
+              className="rounded-lg border border-border/60 p-3"
+            >
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-sm font-medium">{sec.label}</span>
+                <span
+                  className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase ${tone(sec.state)}`}
+                >
+                  {sec.state}
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">{sec.detail}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </AdminCard>
   );
 }

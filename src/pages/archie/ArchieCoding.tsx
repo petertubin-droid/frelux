@@ -11,12 +11,13 @@
 // =========================================================
 
 import { useState } from "react";
-import { Code2, ShieldCheck } from "lucide-react";
+import { Code2, ShieldCheck, Gavel } from "lucide-react";
 import StudioWorkbench from "@/components/studio/StudioWorkbench";
 import CodeIntelligencePanel from "@/components/archie/CodeIntelligencePanel";
+import DevGovernance from "@/components/archie/DevGovernance";
 import { Button } from "@/components/ui/shadcn/button";
 
-type Surface = "studio" | "intelligence";
+type Surface = "studio" | "intelligence" | "governance";
 
 export default function ArchieCoding() {
   const [surface, setSurface] = useState<Surface>("studio");
@@ -40,9 +41,22 @@ export default function ArchieCoding() {
             <ShieldCheck className="mr-1 h-3.5 w-3.5" aria-hidden /> Code
             Intelligence
           </Button>
+          <Button
+            size="sm"
+            variant={surface === "governance" ? "secondary" : "ghost"}
+            onClick={() => setSurface("governance")}
+          >
+            <Gavel className="mr-1 h-3.5 w-3.5" aria-hidden /> Governance
+          </Button>
         </div>
       </div>
-      {surface === "studio" ? <StudioWorkbench /> : <CodeIntelligencePanel />}
+      {surface === "studio" ? (
+        <StudioWorkbench />
+      ) : surface === "intelligence" ? (
+        <CodeIntelligencePanel />
+      ) : (
+        <DevGovernance />
+      )}
     </div>
   );
 }

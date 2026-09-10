@@ -9,7 +9,7 @@
 // calculator configuration.
 // =========================================================
 
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import {
   KNOWLEDGE_SCOPES,
   type KnowledgeHistoryEntry,
@@ -19,6 +19,11 @@ import {
   rollbackKnowledgeItem,
   updateKnowledgeItem,
 } from "@/lib/archie/stage2-knowledge-client";
+import { FRELUX_SELF_GRANT } from "@/lib/archie/knowledge-core";
+
+const DomainReasoning = lazy(
+  () => import("@/components/archie/DomainReasoning"),
+);
 
 const SCOPES = [
   {
@@ -375,6 +380,30 @@ export default function ArchieKnowledge() {
           No knowledge items yet — teach ARCHIE from the Chat Center.
         </p>
       )}
+
+      <div className="mt-8 rounded-lg archie-panel p-3">
+        <p className="text-xs font-medium text-slate-200">
+          Knowledge core grants
+        </p>
+        <p className="mt-1 text-[11px] text-slate-400">
+          {FRELUX_SELF_GRANT.application_label} — scopes:{" "}
+          {FRELUX_SELF_GRANT.scopes.join(", ") || "none"}. USER scope always
+          requires explicit consent (
+          {FRELUX_SELF_GRANT.user_scope_requires_consent ? "enforced" : "off"}),
+          and grants list which domains an application may read; knowledge never
+          crosses scopes.
+        </p>
+      </div>
+
+      <div className="mt-8">
+        <Suspense
+          fallback={
+            <p className="text-xs text-slate-500">Loading reasoning tools…</p>
+          }
+        >
+          <DomainReasoning />
+        </Suspense>
+      </div>
     </div>
   );
 }

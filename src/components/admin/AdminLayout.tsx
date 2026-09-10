@@ -49,6 +49,7 @@ import {
   Languages,
   Dna,
   Smartphone,
+  Scale,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
@@ -118,6 +119,11 @@ const navModules: NavModule[] = [
         label: "Evolution Control",
         to: "/admin/archie-evolution",
         icon: Dna,
+      },
+      {
+        label: "ARCHIE Legal",
+        to: "/admin/archie-legal",
+        icon: Scale,
       },
       {
         label: "ARCHIE Owner App",

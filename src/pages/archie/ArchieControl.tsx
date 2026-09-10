@@ -12,9 +12,12 @@ import { Link } from "react-router-dom";
 import StatusCenter, {
   useSystemStatus,
 } from "@/components/archie/StatusCenter";
+import AuthorityGovernance from "@/components/archie/AuthorityGovernance";
 import { listDevices, recordAuditEvent } from "@/lib/archie/stage1-client";
+import { fetchArchieStatus, type ArchieStatus } from "@/lib/archie/status";
 
-type SystemState = "operational" | "planned" | "disabled";
+type SystemState =
+  "operational" | "planned" | "disabled" | "degraded" | "alert" | "offline";
 
 interface SystemSection {
   key: string;
@@ -197,6 +200,24 @@ const SYSTEMS: SystemSection[] = [
 ];
 
 function StateBadge({ state }: { state: SystemState }) {
+  if (state === "degraded")
+    return (
+      <span className="rounded-full bg-amber-400/10 px-2 py-0.5 text-[10px] font-medium text-amber-300">
+        DEGRADED
+      </span>
+    );
+  if (state === "alert")
+    return (
+      <span className="rounded-full bg-red-400/10 px-2 py-0.5 text-[10px] font-medium text-red-300">
+        SECURITY ALERT
+      </span>
+    );
+  if (state === "offline")
+    return (
+      <span className="rounded-full bg-red-400/10 px-2 py-0.5 text-[10px] font-medium text-red-300">
+        OFFLINE
+      </span>
+    );
   if (state === "operational")
     return (
       <span className="rounded-full bg-emerald-400/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
@@ -216,9 +237,73 @@ function StateBadge({ state }: { state: SystemState }) {
   );
 }
 
+/** Replace hardcoded card states with live-data-derived ones.
+ *  Every mapping below is a REAL signal from the live status
+ *  aggregate (status.ts): core reachability, security
+ *  severity, observed counts. Unmapped sections keep their
+ *  designed state. Honest by construction: no data signal →
+ *  the card says so instead of claiming operational. */
+function deriveLiveState(
+  base: SystemSection,
+  live: ArchieStatus | null,
+  devices: number | null,
+): SystemSection {
+  if (!live) return base;
+  const out: SystemSection = { ...base, state: base.state };
+  switch (base.key) {
+    case "intelligence":
+      out.state = live.coreReachable ? "operational" : "offline";
+      out.description = live.coreReachable
+        ? `Conversational core reachable — ${live.domains.active} active domain(s), ${live.conversations} conversation(s).`
+        : "Conversational core did not answer its reachability probe.";
+      break;
+    case "knowledge":
+      out.description = `${live.knowledge.active} approved knowledge item(s) live.`;
+      break;
+    case "learning":
+      out.state = live.learning.processing > 0 ? "operational" : base.state;
+      out.description =
+        live.learning.processing > 0
+          ? `EXTRACT → VALIDATE → APPROVE pipeline — ${live.learning.processing} ingestion(s) processing now.`
+          : `${live.learning.ingestions} ingestion(s) recorded, none processing.`;
+      break;
+    case "security":
+    case "security-sentry":
+      out.state =
+        live.security.latestSeverity === "CRITICAL"
+          ? "alert"
+          : live.security.latestSeverity === "WARNING"
+            ? "degraded"
+            : "operational";
+      out.description = `${live.security.events24h} security event(s) in 24h — latest severity: ${live.security.latestSeverity ?? "none"}.`;
+      break;
+    case "devices":
+      out.description =
+        devices !== null
+          ? `${devices} trusted device(s) — identity by app key, never IMEI.`
+          : "Device registry unreachable right now.";
+      break;
+    case "projects":
+      out.description = `${live.projects.contractorProjects} project(s), ${live.projects.estimates} saved estimate(s) through FRELUX.`;
+      break;
+    case "agents":
+      out.state = live.agents.active > 0 ? "operational" : base.state;
+      out.description = `${live.agents.total} internal agent(s) registered, ${live.agents.active} active — infrastructure-cost governed.`;
+      break;
+    case "infrastructure":
+      out.description =
+        live.infraCostMonthCents !== null
+          ? `Internal provider ledger — ₦${(live.infraCostMonthCents / 100).toFixed(2)} this month.`
+          : "Internal provider cost ledger (no costs recorded this month).";
+      break;
+  }
+  return out;
+}
+
 export default function ArchieControl() {
   const { refresh } = useSystemStatus();
   const [devices, setDevices] = useState<number | null>(null);
+  const [live, setLive] = useState<ArchieStatus | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -226,6 +311,12 @@ export default function ArchieControl() {
       setDevices(list.filter((d) => d.status === "TRUSTED").length);
     } catch {
       setDevices(null);
+    }
+    try {
+      const status = await fetchArchieStatus();
+      setLive(status);
+    } catch {
+      setLive(null);
     }
   }, []);
 
@@ -271,7 +362,8 @@ export default function ArchieControl() {
       </div>
 
       <ul className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
-        {SYSTEMS.map((s) => {
+        {SYSTEMS.map((raw) => {
+          const s = deriveLiveState(raw, live, devices);
           const inner = (
             <div
               className={`h-full rounded-lg archie-panel p-3 transition ${
@@ -294,6 +386,10 @@ export default function ArchieControl() {
           );
         })}
       </ul>
+
+      <div className="mt-8">
+        <AuthorityGovernance />
+      </div>
 
       <p className="mt-4 text-[11px] text-slate-500">
         Trusted devices connected: {devices ?? "—"}. Protected operations

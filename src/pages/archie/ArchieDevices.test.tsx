@@ -99,6 +99,17 @@ describe("ArchieDevices", () => {
     expect(
       screen.getByText("System volume — not controllable from a browser"),
     ).toBeTruthy();
+    // honest: browsers cannot scan Wi-Fi networks or control a hotspot —
+    // the page states the real status instead of simulating controls.
+    expect(
+      screen.getByText("Wi-Fi — not manageable from a browser"),
+    ).toBeTruthy();
+    expect(
+      screen.getByText("Hotspot — not controllable from a browser"),
+    ).toBeTruthy();
+    expect(
+      screen.getByText(/Wi-Fi network scanning and hotspot control/),
+    ).toBeTruthy();
   });
 
   it("disables pairing buttons for transports this browser lacks", () => {
