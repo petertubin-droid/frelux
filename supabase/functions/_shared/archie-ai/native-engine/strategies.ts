@@ -91,7 +91,8 @@ const PROB_CUES = /\b(likely|probability|chance|risk of|odds|probably|percent of
 const TEMPORAL_CUES = /\b(when|year|date|since|until|history|timeline|past|future)\b/i;
 const ABDUCTIVE_CUES = /\b(why|explain|reason|what caused|could explain)\b/i;
 const HYPOTHESIS_CUES = /\b(hypothes|theor|maybe|perhaps|could it be|guess|suppose)\b/i;
-const COUNTERFactual_CUES = /\b(if (we )?(remove[d]?|had not|stop|changed?)|without|suppose we)\b/i;
+const COUNTERFactual_CUES =
+  /\bif\b[^.?!]*\b(?:had not|hadn't|remove[d]?|removed|didn't|stop(?:ped)?|change[d]?)\b|\bwithout\b|\bsuppose\b/i;
 const CONSISTENCY_CUES = /\b(consistent|contradict|conflict|disagree|both true)\b/i;
 const INDUCTIVE_CUES = /\b(pattern|generally|usually|always|trend|across)\b/i;
 const MATH_CUES = /[\d]/;

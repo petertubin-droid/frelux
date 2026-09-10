@@ -145,11 +145,21 @@ export interface RetrievedContext {
 /** Outcome of an engine action, used for reinforcement learning. */
 export interface LearningOutcome {
   id: string;
-  kind: "success" | "failure" | "correction";
+  /**
+   * "success"/"failure"/"correction" carry REAL outcome
+   * evidence and reinforce accordingly. "cited" means
+   * knowledge was merely cited in an answer — citing is NOT
+   * a verified outcome and must never reinforce (audit C3).
+   */
+  kind: "success" | "failure" | "correction" | "cited";
   /** What was being attempted. */
   task: string;
   /** Contributing fact/rule/operator ids for credit assignment. */
   contributing: string[];
+  /** Deterministic cause-of-error taxonomy for failures. */
+  cause?: string;
+  /** Actionable lesson extracted from the failure. */
+  lesson?: string;
   timestamp: string;
 }
 

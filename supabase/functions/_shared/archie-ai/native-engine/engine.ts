@@ -43,6 +43,7 @@ import {
 } from "./reasoning.ts";
 import {
   consistency,
+  executeStrategy,
   hypothesis,
   selectStrategies,
 } from "./strategies.ts";
@@ -352,10 +353,17 @@ export class ArchieNativeEngine implements ArchieRuntime {
     );
     this.memory.addTurn("archie", outcome.responseText);
 
-    // Learning: this exchange is a recorded outcome; the
-    // knowledge used contributes to it.
+    // Learning: an answer that cites knowledge is NOT a
+    // verified outcome — citing must never reinforce (audit
+    // C3). Only explicit owner confirmation counts as real
+    // success evidence for the cited facts.
+    const ownerConfirmed =
+      nlu.intent === "gratitude" ||
+      /\b(?:that'?s (?:right|correct|exact)|you were right|good answer|well done)\b/i.test(
+        input,
+      );
     await this.learner.record({
-      kind: "success",
+      kind: ownerConfirmed && outcome.citedFactIds.length > 0 ? "success" : "cited",
       task: `${nlu.intent}: ${input.slice(0, 80)}`,
       contributing: outcome.citedFactIds,
     });
@@ -563,6 +571,26 @@ export class ArchieNativeEngine implements ArchieRuntime {
 
       case "knowledge_query":
       case "howto_guidance": {
+        // P1b — counterfactual questions ("if it had not
+        // rained, would the ground be dry?") need a causal
+        // model, regardless of what generic facts rank. Ask
+        // before the validated-knowledge branch can swallow
+        // the question.
+        const cfTask = {
+          text: input,
+          subject: ranked[0]?.subject,
+          facts: this.facts,
+          reasoning: this.reasoning,
+          rules: this.reasoning.getRules(),
+        };
+        if (selectStrategies(cfTask).chosen.includes("counterfactual")) {
+          const cf = await executeStrategy("counterfactual", cfTask);
+          const text =
+            cf.conclusions.length > 0
+              ? `Counterfactual analysis: ${cf.explanation} Conclusions are candidate effects, not certainties — ${cf.conclusions.map((c) => c.statement).join("; ")}.`
+              : `Counterfactual reasoning needs a causal model of the situation, and I hold none for this — I cannot say what would have happened. Teach me the causes involved (e.g. "remember that rain causes wet ground") and I will reason the counterfactual properly from the real causal graph.`;
+          return this.compose(text, nlu.confidence * 0.4, cf.evidence.slice(0, 5));
+        }
         const validated = ranked
           .filter((f) => f.status !== "uncertain")
           .slice(0, 3);
@@ -1284,8 +1312,30 @@ function extractTriple(
   // Demonstrative-only subjects ("that is wrong, X is Y") are
   // not facts — refuse garbage triples.
   if (["that", "this", "it", "there"].includes(subjectRaw)) return null;
-  const subject = subjectRaw.replace(/\s+/g, "-");
   const objectText = m[2].trim();
+  // Attribute-noun split: in "the roof pitch is 25 degrees"
+  // the final word of a multi-word subject is the attribute
+  // (roof has pitch). Store subject "roof", predicate "pitch" —
+  // the shape subject/predicate queries expect.
+  const ATTRIBUTE_NOUNS = new Set([
+    "ratio", "pitch", "thickness", "height", "price", "cost",
+    "depth", "width", "weight", "temperature", "area", "volume",
+    "color", "colour", "code", "name", "size", "strength",
+    "grade", "spacing", "length", "diameter", "slope", "density",
+    "capacity", "age", "span",
+  ]);
+  const words = subjectRaw.split(" ");
+  if (
+    words.length >= 2 &&
+    ATTRIBUTE_NOUNS.has(words[words.length - 1])
+  ) {
+    return {
+      subject: words.slice(0, -1).join(" ").replace(/\s+/g, "-"),
+      predicate: words[words.length - 1],
+      object: objectText,
+    };
+  }
+  const subject = subjectRaw.replace(/\s+/g, "-");
   return { subject, predicate: "is", object: objectText };
 }
 

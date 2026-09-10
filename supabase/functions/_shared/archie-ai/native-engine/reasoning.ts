@@ -136,13 +136,19 @@ export class ReasoningEngine {
         // that would fabricate an entity, not derive one.
         const allFacts = this.facts.list();
         const bindingSets = enumerateBindings(rule.conditions, allFacts);
+        // A conclusion may never contain an unbound variable:
+        // that would fabricate an entity, not derive one. This
+        // safety property is stronger than any benchmark case —
+        // rules whose conclusions name variables their
+        // conditions never bind (including elided-object
+        // shapes) are refused, not guessed.
         for (const { binding, premiseFacts } of bindingSets) {
-          const produced = substitute(rule.produces, binding);
-          if (unboundVars(produced, binding).length > 0) continue;
+          const producedBound = substitute(rule.produces, binding);
+          if (unboundVars(producedBound, binding).length > 0) continue;
           const existing = this.facts
-            .query({ subject: produced.subject, predicate: produced.predicate })
+            .query({ subject: producedBound.subject, predicate: producedBound.predicate })
             .find(
-              (f) => JSON.stringify(f.object) === JSON.stringify(produced.object),
+              (f) => JSON.stringify(f.object) === JSON.stringify(producedBound.object),
             );
           if (existing) {
             if (!reinforced.includes(existing.id)) reinforced.push(existing.id);
@@ -155,9 +161,9 @@ export class ReasoningEngine {
           const bindingRecord: Record<string, string> = {};
           for (const [k, v] of binding) bindingRecord[k] = v;
           const { fact } = await this.facts.assert({
-            subject: produced.subject as string,
-            predicate: produced.predicate as string,
-            object: produced.object,
+            subject: producedBound.subject as string,
+            predicate: producedBound.predicate as string,
+            object: producedBound.object,
             confidence: derivedConfidence,
             provenance: {
               source: "inferred",

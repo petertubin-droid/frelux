@@ -56,13 +56,42 @@ export class OutcomeLearner {
   async record(
     outcome: Omit<LearningOutcome, "id" | "timestamp">,
   ): Promise<LearningOutcome> {
+    // Lesson extraction for failures/corrections (lo-3):
+    // a deterministic cause taxonomy, with an honest
+    // "needs owner diagnosis" fallback.
+    let cause: string | undefined;
+    let lesson: string | undefined;
+    if (outcome.kind === "failure" || outcome.kind === "correction") {
+      const t = outcome.task.toLowerCase();
+      if (/off by \d+%|overestimat|underestimat|deviat/.test(t)) {
+        cause = "calibration — the estimate deviated from the measured outcome";
+        lesson = "recalibrate: apply the observed deviation as a bias correction on future estimates of this kind";
+      } else if (/timeout|too slow|took too long/.test(t)) {
+        cause = "performance — the operation exceeded its time budget";
+        lesson = "reduce the workload per pass or pre-compute the expensive step";
+      } else if (/typo|malform|garble|invalid/.test(t)) {
+        cause = "input integrity — malformed input reached the computation";
+        lesson = "validate and normalize inputs before computing";
+      } else {
+        cause = "unknown — needs owner diagnosis";
+        lesson = "inspect the contributing knowledge; no known failure signature matched this task";
+      }
+    }
+
     const full: LearningOutcome = {
       ...outcome,
+      ...(cause !== undefined ? { cause } : {}),
+      ...(lesson !== undefined ? { lesson } : {}),
       id: `outcome_${Date.now().toString(36)}_${this.outcomes.length}`,
       timestamp: new Date().toISOString(),
     };
     this.outcomes.push(full);
     if (this.persistence) await this.persistence.saveOutcome(full);
+
+    // Citing is not a verified outcome: no reinforcement at
+    // all (audit C3, lo-2). Only real outcome evidence moves
+    // confidence.
+    if (outcome.kind === "cited") return full;
 
     const delta =
       outcome.kind === "success"

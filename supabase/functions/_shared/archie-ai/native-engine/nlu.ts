@@ -543,6 +543,15 @@ const RULE_CASCADE: Array<{
     pattern: /^(?:please\s+)?(?:analyze|review)\b/i,
     confidence: 0.85,
   },
+  // Counterfactual questions ("if it had not rained, would
+  // the ground be dry?") are hypothetical questions, NOT
+  // corrections — route them past the correction rule.
+  {
+    intent: "knowledge_query",
+    pattern:
+      /^if\b[^.?!]*\b(?:had not|hadn't|remove[d]?|didn't|stop(?:ped)?|change[d]?)\b/i,
+    confidence: 0.75,
+  },
   {
     intent: "correction",
     pattern:

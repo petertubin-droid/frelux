@@ -12,7 +12,7 @@ import {
 // =========================================================
 
 function mathEngine() {
-  return new ArchieNativeEngine(null as never, null as never);
+  return new ArchieNativeEngine({ persistence: null });
 }
 
 describe("Parenthesized arithmetic (ma-1)", () => {
