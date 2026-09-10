@@ -19,7 +19,12 @@ import { describe, expect, it } from "vitest";
 
 import { ToastProvider, useToast } from "@/components/ui/Toast";
 
-let identities: Array<unknown> = [];
+interface Snapshot {
+  success: unknown;
+  error: unknown;
+  value: unknown;
+}
+let identities: Snapshot[] = [];
 
 function Probe() {
   const ctx = useToast();
