@@ -1363,14 +1363,19 @@ Deno.serve(async (req) => {
   });
   if (!verdict.allowed) {
     if (user) {
-      await db.from("frelux_security_events").insert({
-        user_id: user.id,
-        event_type: verdict.hardRefused
-          ? "SECURITY_GATE_HARD_REFUSAL"
-          : "SECURITY_GATE_AUTHORIZATION_REQUIRED",
-        severity: "warning",
-        message: `[owner-chat] ${verdict.reason}`,
-      });
+      // Never let audit-logging break the refusal itself.
+      try {
+        await db.from("frelux_security_events").insert({
+          user_id: user.id,
+          kind: verdict.hardRefused
+            ? "SECURITY_GATE_HARD_REFUSAL"
+            : "SECURITY_GATE_AUTHORIZATION_REQUIRED",
+          severity: "warning",
+          message: `[owner-chat] ${verdict.reason}`,
+        });
+      } catch (_auditErr) {
+        // Swallow: the refusal stands even if the event write fails.
+      }
     }
     return json(200, {
       reply:
