@@ -63,6 +63,12 @@ import { configureNativeEnginePersistence } from "../_shared/archie-ai/native-en
 configureNativeEnginePersistence(
   db as unknown as import("../_shared/archie-ai/native-engine/persistence.ts").SupabaseLike,
 );
+// Wire the unified cognitive engine (kernel) with the same
+// service client: world model, audit log + traces persist.
+import { configureCognitiveEnginePersistence } from "../_shared/archie-ai/cognitive/kernel.ts";
+configureCognitiveEnginePersistence(
+  db as unknown as import("../_shared/archie-ai/native-engine/persistence.ts").SupabaseLike,
+);
 
 // ---- request types ----------------------------------------
 interface ChatTurn {

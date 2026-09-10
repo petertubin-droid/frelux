@@ -26,6 +26,7 @@ export interface SupabaseLike {
     update(patch: unknown): {
       eq(column: string, value: unknown): PromiseLike<{ error: unknown }>;
     };
+    upsert(rows: unknown): PromiseLike<{ error: unknown }>;
   };
 }
 

@@ -33,22 +33,24 @@ const read = (rel: string): string => readFileSync(join(root, rel), "utf-8");
 // Registry — the native engine resolves FIRST
 // ---------------------------------------------------------
 describe("Engine registry", () => {
-  it("resolves ARCHIE's own native engine as operational, archie-native path", () => {
+  it("resolves ARCHIE's unified cognitive engine as the highest-level, operational, archie-native", () => {
     const { runtime, engine } = resolveArchieCapabilityEngine({});
     expect(runtime).not.toBeNull();
-    expect(runtime!.id).toBe("archie-native-engine");
+    expect(runtime!.id).toBe("archie-cognitive-engine");
     expect(runtime!.kind).toBe("archie-native");
     expect(runtime!.isOperational()).toBe(true);
     expect(engine.path).toBe("archie-native");
-    expect(engine.note).toContain("Native Intelligence Engine");
+    expect(engine.note).toContain(
+      "Unified General Cognitive Intelligence Engine",
+    );
   });
 
-  it("the native engine outranks a configured external id (ARCHIE-native first, always)", () => {
+  it("the unified cognitive engine outranks a configured external id (ARCHIE-native first, always)", () => {
     const { runtime } = resolveArchieCapabilityEngine({
       engineId: "some-external-adapter",
     });
     expect(runtime!.kind).toBe("archie-native");
-    expect(runtime!.id).toBe("archie-native-engine");
+    expect(runtime!.id).toBe("archie-cognitive-engine");
   });
 
   it("reports only genuinely implemented runtime capabilities", () => {
@@ -235,6 +237,14 @@ class InMemorySupabase implements SupabaseLike {
           return { error: null };
         },
       }),
+      upsert: async (row: unknown) => {
+        const r = row as Record<string, unknown>;
+        const list = rows();
+        const idx = list.findIndex((x) => x.id === r.id);
+        if (idx >= 0) list[idx] = r;
+        else list.push(r);
+        return { error: null };
+      },
     };
   }
 }
