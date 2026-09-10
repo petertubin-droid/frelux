@@ -33,6 +33,7 @@ export type CoreSystemKey =
   | "COST_GOVERNANCE"
   | "ENGINEERING_OBJECTIVE"
   | "STUDIO"
+  | "PROVIDER_INDEPENDENCE"
   | "PWA_ARCHITECTURE";
 
 export interface CoreSystemBinding {
@@ -306,6 +307,23 @@ export const FRELUX_CORE_SYSTEMS: readonly CoreSystemBinding[] = [
       "engineering mastery toward eventually proposing ARCHIE-owned " +
       "infrastructure. Grants ZERO authority — every non-grant routes to " +
       "the Owner Authority Layer. Persisted in frelux_archie_core_principles.",
+  },
+  {
+    key: "PROVIDER_INDEPENDENCE",
+    label: "Provider Independence (Gemini Separation Rule)",
+    family: "ARCHIE core principles",
+    module: "@/lib/archie/provider-independence",
+    exports: ["PROVIDER_INDEPENDENCE", "verifyProviderIndependenceIntegrity"],
+    deterministic: true,
+    autonomy: "ARCHIE_AUTONOMOUS",
+    note:
+      "Permanent architectural principle from birth: ARCHIE is an " +
+      "independent intelligence system — Gemini (or any external provider) " +
+      "is NEVER part of ARCHIE Core, Coding Studio, Memory, Learning, " +
+      "Evolution or PWA, and exists only as a FRELUX application fallback " +
+      "under strict owner-defined conditions. Inference resolves through " +
+      "ARCHIE's provider-agnostic engine registry. Persisted in " +
+      "frelux_archie_core_principles; statically enforced by tests.",
   },
   {
     key: "FOUNDATION_KNOWLEDGE",

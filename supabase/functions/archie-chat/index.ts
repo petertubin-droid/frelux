@@ -28,7 +28,7 @@
 
 import { createClient, User } from "npm:@supabase/supabase-js@2.45.4";
 import {
-  resolveArchieRuntime,
+  resolveArchieCapabilityEngine,
   type ArchieInferenceRequest,
   type ArchieInferencePart,
   type ArchieToolSpec,
@@ -525,6 +525,7 @@ const TOOLS: ToolDef[] = [
             const res = await fetchWithTimeout(
               `${SUPABASE_URL}/functions/v1/${fn}`,
               10_000,
+              {},
               "OPTIONS",
             );
             // An unauthenticated ping that answers 401/405 means the
@@ -784,11 +785,13 @@ async function fetchWithTimeout(
   url: string,
   ms: number,
   headers: Record<string, string> = {},
+  method = "GET",
 ): Promise<Response> {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), ms);
   try {
     return await fetch(url, {
+      method,
       headers: {
         "user-agent": "ARCHIE-Inspector/1.0 (owner-authorized site inspection)",
         ...headers,
@@ -1081,9 +1084,8 @@ Deno.serve(async (req) => {
     }
 
     const { runtime: visitorRuntime, engine: visitorEngine } =
-      resolveArchieRuntime({
-        devAdapter: Deno.env.get("ARCHIE_DEV_ADAPTER"),
-        geminiKey: Deno.env.get("GOOGLE_AI_API_KEY"),
+      resolveArchieCapabilityEngine({
+        engineId: Deno.env.get("ARCHIE_ENGINE"),
       });
     if (!visitorRuntime) {
       return json(503, {
@@ -1136,15 +1138,14 @@ Deno.serve(async (req) => {
 
   // 3. Resolve the inference engine through the ARCHIE AI
   //    abstraction. Never a direct provider call.
-  const { runtime, engine } = resolveArchieRuntime({
-    devAdapter: Deno.env.get("ARCHIE_DEV_ADAPTER"),
-    geminiKey: Deno.env.get("GOOGLE_AI_API_KEY"),
+  const { runtime, engine } = resolveArchieCapabilityEngine({
+    engineId: Deno.env.get("ARCHIE_ENGINE"),
   });
   if (!runtime) {
     return json(503, {
       error:
         "ARCHIE's own model runtime is an implementation boundary and is not operational yet. " +
-        "No external provider is substituting for ARCHIE. Reasoning will begin when ARCHIE-native inference (or an explicitly enabled development adapter) is configured.",
+        "No external provider is substituting for ARCHIE. Reasoning will begin when an engine is registered in ARCHIE's provider-agnostic engine registry.",
       engine,
     });
   }
@@ -1198,7 +1199,9 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      const output = await tool.execute(call.args ?? {}, { userId: user.id });
+      const output = await tool.execute(call.args ?? {}, {
+        userId: user?.id ?? "",
+      });
       toolRuns.push({
         tool: tool.name,
         ok: true,

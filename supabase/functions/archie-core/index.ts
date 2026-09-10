@@ -12,8 +12,9 @@
 // Rules (Stage 1 spec §§5,6,8,11,12,13):
 //   * Owner-only: JWT + profiles.role = 'admin' verified on
 //     EVERY call. Non-admins get 403 — no fallback.
-//   * The Gemini provider key stays server-side (Deno env).
-//     No secret ever reaches the client or a prompt.
+//   * No provider key exists in ARCHIE Core at all —
+//     inference resolves through ARCHIE's provider-agnostic
+//     engine registry (Provider Independence Principle).
 //   * Tools are REAL: system status, knowledge retrieval,
 //     learning initiation (into the existing Phase 6.5/8
 //     pipeline), FRELUX data inspection (read-only),
@@ -35,7 +36,7 @@
 // =========================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { infer, listRuntimes } from "./model-runtime.ts";
+import { infer, listRuntimes, type RuntimePart } from "./model-runtime.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -225,13 +226,14 @@ async function toolFreluxData(): Promise<ToolResult> {
       .order("created_at", { ascending: false })
       .limit(5),
   ]);
+  const recentRows = (recent.data ?? []) as Array<{ id: string }>;
   return {
     tool: "frelux_data",
     ok: true,
     summary: `FRELUX holds ${estimates.count ?? 0} estimate(s).`,
     data: {
       total_estimates: estimates.count ?? 0,
-      recent_estimate_ids: recent.map((e) => e.id),
+      recent_estimate_ids: recentRows.map((e) => e.id),
     },
   };
 }
@@ -311,7 +313,7 @@ async function toolPlanning(goals: string[]): Promise<ToolResult> {
 }
 
 // ---------------------------------------------------------
-// Attachments → Gemini multimodal parts. Only files the
+// Attachments → provider-neutral inline media parts. Only files the
 // Owner explicitly uploaded to the private archie-media
 // bucket are read; nothing else on the device is touched.
 // ---------------------------------------------------------
@@ -324,8 +326,8 @@ const SUPPORTED_MIME_PREFIXES = [
 
 async function attachmentParts(
   attachments: Array<{ storage_path: string; mime: string; name?: string }>,
-): Promise<{ parts: GeminiPart[]; warnings: string[] }> {
-  const parts: GeminiPart[] = [];
+): Promise<{ parts: RuntimePart[]; warnings: string[] }> {
+  const parts: RuntimePart[] = [];
   const warnings: string[] = [];
   for (const a of attachments.slice(0, 4)) {
     if (!SUPPORTED_MIME_PREFIXES.some((p) => a.mime?.startsWith(p))) {
@@ -382,7 +384,11 @@ async function resolveTurnLanguage(
   if (!reqLang || !reqLang.language_code) {
     return {
       ok: true,
-      res: { language_code: "en", source: "LOCATION_SUGGESTION", authoritative: false },
+      res: {
+        language_code: "en",
+        source: "LOCATION_SUGGESTION",
+        authoritative: false,
+      },
     };
   }
 
@@ -393,14 +399,17 @@ async function resolveTurnLanguage(
         ok: false,
         res: json(400, {
           ok: false,
-          error:
-            `Selected language "${code}" is not registered/active in the ARCHIE language registry.`,
+          error: `Selected language "${code}" is not registered/active in the ARCHIE language registry.`,
         }),
       };
     }
     return {
       ok: true,
-      res: { language_code: code, source: "USER_SELECTION", authoritative: true },
+      res: {
+        language_code: code,
+        source: "USER_SELECTION",
+        authoritative: true,
+      },
     };
   }
 
@@ -434,7 +443,12 @@ async function verifiedTerminologyBlock(
   const rows = data ?? [];
   if (!rows.length) return { block: "", terms: 0 };
   const lines = rows.map(
-    (r: { domain: string; canonical_term: string; regional_term: string; meaning_note: string | null }) =>
+    (r: {
+      domain: string;
+      canonical_term: string;
+      regional_term: string;
+      meaning_note: string | null;
+    }) =>
       `- [${r.domain}] "${r.canonical_term}" → "${r.regional_term}"${r.meaning_note ? ` (${r.meaning_note})` : ""}`,
   );
   return {
@@ -639,9 +653,7 @@ Deno.serve(async (req: Request) => {
         ...mediaParts,
         { text: `Owner's new message: ${message || "(attachment only)"}` },
         { text: `Tool execution results (ground truth):\n${toolBlock}` },
-        ...(terminology.block
-          ? [{ text: terminology.block }]
-          : []),
+        ...(terminology.block ? [{ text: terminology.block }] : []),
         {
           text: "Answer the Owner now as ARCHIE, using the tool results as facts.",
         },

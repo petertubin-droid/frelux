@@ -87,7 +87,7 @@ export async function uploadTrainingMedia(
 // ---------------------------------------------------------
 // EXTRACT/ANALYZE via the archie-extract edge function.
 // The function routes the modality to the configured provider
-// (Gemini multimodal / OpenAI text) and returns the
+// (external FRELUX fallback providers) and returns the
 // ArchieExtraction contract. Media is passed as a signed URL
 // readable only by the service role.
 // ---------------------------------------------------------

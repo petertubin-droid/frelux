@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
   ARCHIE_OWN_MODEL_DESCRIPTOR,
-  GEMINI_ADAPTER_DESCRIPTOR,
   PROVIDER_INDEPENDENCE,
   RUNTIME_REGISTRY,
   runtimeIdentityLabel,
@@ -19,23 +18,19 @@ describe("ARCHIE AI abstraction (spec §§1, 11, 39)", () => {
     expect(ARCHIE_OWN_MODEL_DESCRIPTOR.status).toBe("NOT_YET_AVAILABLE");
   });
 
-  it("isolates external providers as EXTERNAL_ADAPTER runtimes — never as ARCHIE's identity", () => {
+  it("contains ZERO external adapters — Provider Independence Rule (Gemini is FRELUX-only)", () => {
     const adapters = RUNTIME_REGISTRY.filter(
       (r) => r.kind === "EXTERNAL_ADAPTER",
     );
-    expect(adapters.length).toBeGreaterThan(0);
-    for (const a of adapters) {
-      expect(a.id.endsWith("_ADAPTER")).toBe(true);
-      expect(a.label).toMatch(/isolated|replaceable/i);
-    }
+    expect(adapters).toEqual([]);
+    expect(RUNTIME_REGISTRY).toEqual([ARCHIE_OWN_MODEL_DESCRIPTOR]);
   });
 
   it("never brands ARCHIE as provider-powered (model-independence §39.2)", () => {
     for (const label of [
-      runtimeIdentityLabel("GEMINI_ADAPTER"),
+      runtimeIdentityLabel("FUTURE_REGISTERED_ENGINE"),
       runtimeIdentityLabel(""),
       ARCHIE_OWN_MODEL_DESCRIPTOR.label,
-      GEMINI_ADAPTER_DESCRIPTOR.label,
     ]) {
       expect(label).not.toMatch(
         /gemini-powered|openai-powered|claude-powered/i,

@@ -5,13 +5,15 @@
 //   → ARCHIE AI ABSTRACTION (this contract)
 //     → MODEL RUNTIME (replaceable)
 //
-// The server-side runtime registry lives in
-// supabase/functions/archie-core/model-runtime.ts and mirrors
-// these types. ARCHIE is NOT a wrapper around an external
-// provider: the provider is an isolated, replaceable adapter
-// behind this abstraction. ARCHIE's own model is the designed
-// primary runtime; until it exists it is registered with the
-// honest status NOT_YET_AVAILABLE (spec §§1, 10, 11, 39, 40).
+// The server-side engine resolution lives in the shared
+// provider-agnostic registry (supabase/functions/_shared/
+// archie-ai/runtime.ts) and archie-core/model-runtime.ts
+// mirrors these types. PERMANENT PROVIDER INDEPENDENCE
+// PRINCIPLE: Gemini (and any external provider) exists ONLY in
+// the FRELUX application as a fallback service — never inside
+// ARCHIE. ARCHIE's own model is the designed primary runtime;
+// until it exists it is registered with the honest status
+// NOT_YET_AVAILABLE (spec §§1, 10, 11, 39, 40).
 // =========================================================
 
 export type RuntimeKind = "ARCHIE_NATIVE" | "EXTERNAL_ADAPTER";
@@ -53,16 +55,8 @@ export const ARCHIE_OWN_MODEL_DESCRIPTOR: ModelRuntimeDescriptor = {
   status: "NOT_YET_AVAILABLE",
 };
 
-export const GEMINI_ADAPTER_DESCRIPTOR: ModelRuntimeDescriptor = {
-  id: "GEMINI_ADAPTER",
-  kind: "EXTERNAL_ADAPTER",
-  label: "Isolated external inference adapter — temporary, replaceable",
-  status: "ACTIVE",
-};
-
 export const RUNTIME_REGISTRY: ModelRuntimeDescriptor[] = [
   ARCHIE_OWN_MODEL_DESCRIPTOR,
-  GEMINI_ADAPTER_DESCRIPTOR,
 ];
 
 // ---------------------------------------------------------
@@ -102,12 +96,12 @@ export const PROVIDER_INDEPENDENCE: {
   {
     invariant: "The model runtime is replaceable",
     detail:
-      "All inference flows through the abstraction; registering a new runtime (e.g. ARCHIE_OWN_MODEL) requires no Intelligence Core changes.",
+      "All inference flows through the provider-agnostic engine registry; registering a new engine requires no Intelligence Core changes — the replaceable adapter contract stays provider-free.",
   },
   {
-    invariant: "External providers are isolated adapters",
+    invariant: "No external adapter exists inside ARCHIE",
     detail:
-      "Provider keys, endpoints and formats exist only inside the adapter module — never in ARCHIE Core.",
+      "Per the Provider Independence Principle, no provider key, endpoint, model or fallback exists anywhere in ARCHIE Core. Gemini exists only as a FRELUX application fallback service.",
   },
   {
     invariant: "Existing FRELUX functionality is preserved",

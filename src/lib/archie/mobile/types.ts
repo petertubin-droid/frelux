@@ -35,7 +35,7 @@ export interface ArchieConsent {
 // Paid capabilities, modular, optional, DISABLED BY DEFAULT
 // ---------------------------------------------------------
 export type ArchiePaidCapability =
-  | "CLOUD_AI_GENERATION" // cloud LLM generation (Gemini/OpenAI)
+  | "CLOUD_AI_GENERATION" // cloud LLM generation via external fallback
   | "CLOUD_TRANSCRIPTION" // server-side audio transcription
   | "WEB_SEARCH_INTEL"; // TAVILY-backed web search intelligence
 

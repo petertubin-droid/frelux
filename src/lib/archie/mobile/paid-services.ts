@@ -27,13 +27,13 @@ export const PAID_CAPABILITIES: Readonly<
     label: "Cloud AI generation",
     description:
       "Full LLM-quality text and code generation via cloud AI providers.",
-    provider: "Gemini / OpenAI",
+    provider: "External cloud provider (FRELUX-authorized fallback)",
   },
   CLOUD_TRANSCRIPTION: {
     capability: "CLOUD_TRANSCRIPTION",
     label: "Cloud transcription",
     description: "Server-side transcription of long or noisy audio recordings.",
-    provider: "Gemini",
+    provider: "External transcription provider (FRELUX-authorized fallback)",
   },
   WEB_SEARCH_INTEL: {
     capability: "WEB_SEARCH_INTEL",

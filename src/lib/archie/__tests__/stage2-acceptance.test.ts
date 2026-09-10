@@ -27,16 +27,18 @@ describe("Model independence (spec §§1, 11, 12, 39, 41)", () => {
     expect(core).toMatch(/model-runtime/);
   });
 
-  it("the provider is an ISOLATED adapter inside the runtime module (§§11-12)", () => {
-    expect(runtime).toMatch(/EXTERNAL_ADAPTER/);
-    expect(runtime).toMatch(/isolated external inference adapter/i);
-    expect(runtime).toContain("ARCHIE_OWN_MODEL");
-    expect(runtime).toMatch(/not yet available/i);
+  it("the runtime resolves engines through the provider-agnostic registry (Provider Independence Rule)", () => {
+    expect(runtime).toMatch(/resolveArchieCapabilityEngine/);
+    expect(runtime).toMatch(/ARCHIE_ENGINE/);
+    expect(runtime).toMatch(/provider-agnostic engine registry/);
+    expect(runtime).toMatch(/provider-agnostic/i);
   });
 
-  it("provider isolation is real: keys/endpoints exist ONLY inside the adapter module", () => {
+  it("ARCHIE core contains ZERO Gemini wiring — no keys, endpoints, models or fallbacks (Provider Independence Rule)", () => {
     expect(core).not.toContain("GOOGLE_AI_API_KEY");
-    expect(runtime).toContain("GOOGLE_AI_API_KEY");
+    expect(core).not.toMatch(/generativelanguage|gemini/i);
+    expect(runtime).not.toContain("GOOGLE_AI_API_KEY");
+    expect(runtime).not.toMatch(/generativelanguage|gemini-\d|createGemini/i);
   });
 
   it("existing FRELUX functionality is preserved — the core still serves the same chat contract", () => {
