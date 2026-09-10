@@ -608,7 +608,7 @@ export default function Assistant() {
           center.
         </p>
         <button
-          onClick={() => navigate("/auth")}
+          onClick={() => navigate("/login")}
           className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
         >
           Sign in

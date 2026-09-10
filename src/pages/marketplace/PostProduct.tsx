@@ -137,7 +137,7 @@ export default function PostProduct() {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      navigate("/auth");
+      navigate("/login");
       return;
     }
     setError("");

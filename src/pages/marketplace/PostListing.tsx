@@ -90,7 +90,7 @@ export default function PostListing() {
 
   async function handleSubmit() {
     if (!user) {
-      navigate("/auth");
+      navigate("/login");
       return;
     }
     setError("");
