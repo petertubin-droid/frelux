@@ -37,6 +37,10 @@ import { ContextMemory, rankFacts } from "./memory.ts";
 import { redactSecrets } from "../cognitive/security-integrity.ts";
 import { FactStore } from "./knowledge.ts";
 import {
+  FULL_SEED_CORPUS,
+  SEED_CORPUS_VERSION,
+} from "./seed-corpus.ts";
+import {
   DEFAULT_RULES,
   GENERAL_RULES,
   ReasoningEngine,
@@ -101,51 +105,6 @@ function summarizeToolOutput(output: unknown): string {
   return String(output ?? "");
 }
 
-const SEED_FACTS: Array<
-  Pick<Fact, "subject" | "predicate" | "object" | "confidence">
-> = [
-  {
-    subject: "cement",
-    predicate: "bag-mass",
-    object: "50 kg",
-    confidence: 0.95,
-  },
-  {
-    subject: "screeding",
-    predicate: "definition",
-    object:
-      "a thin layer (typically 25–75 mm) of cement-sand mix applied over a structural slab to level, smooth or raise the floor",
-    confidence: 0.9,
-  },
-  {
-    subject: "concrete",
-    predicate: "curing",
-    object:
-      "keeping concrete moist and at suitable temperature so hydration continues and strength develops, typically for at least 7 days",
-    confidence: 0.9,
-  },
-  {
-    subject: "portland-cement",
-    predicate: "definition",
-    object:
-      "a hydraulic binder made by grinding clinker (calcium silicates) with gypsum; reacts with water and hardens",
-    confidence: 0.85,
-  },
-  {
-    subject: "mortar",
-    predicate: "definition",
-    object:
-      "a workable paste of cement, sand and water used to bind masonry units",
-    confidence: 0.85,
-  },
-  {
-    subject: "archie",
-    predicate: "identity",
-    object:
-      "ARCHIE, the FRELUX project's native intelligence system, running its own independent inference engine with no external AI provider",
-    confidence: 0.99,
-  },
-];
 
 export interface ConverseResult {
   nlu: ReturnType<typeof understand>;
@@ -306,7 +265,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
     this.booted = true;
     const hydratedFacts = await this.facts.hydrate();
     let seededFacts = 0;
-    for (const seed of SEED_FACTS) {
+    // Corpus v2 (plan P4, audit K1): versioned, swappable
+    // knowledge — domain foundations + FRELUX product facts.
+    for (const seed of FULL_SEED_CORPUS) {
       const exists = this.facts
         .query({ subject: seed.subject, predicate: seed.predicate })
         .some((f) => JSON.stringify(f.object) === JSON.stringify(seed.object));
@@ -315,7 +276,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
           ...seed,
           provenance: {
             source: "seed",
-            note: "foundational knowledge seeded at engine construction",
+            note: `seed corpus v${SEED_CORPUS_VERSION} — foundational + FRELUX-domain knowledge, seeded at engine boot`,
           },
           status: "validated",
         });
