@@ -55,6 +55,10 @@ import {
   executeStrategy,
   hypothesis,
   selectStrategies,
+  comparative,
+  constraint,
+  temporal,
+  extractComparisonSubjects,
 } from "./strategies.ts";
 import { DEFAULT_OPERATORS, Planner } from "./planning.ts";
 import { ToolOrchestrator, registerBuiltInTools } from "./tools.ts";
@@ -494,6 +498,110 @@ export class ArchieNativeEngine implements ArchieRuntime {
    *  hypothesis, NEVER fact); conflicting-evidence questions
    *  receive an explicit conflict band. Both cite real store
    *  evidence or state plainly that none exists. */
+  /** Strategy-backed answers (plan P5 Batch C): comparative,
+   *  constraint and temporal questions answered from real
+   *  stored evidence with honest refusals otherwise. Returns
+   *  null to fall through to normal knowledge handling. */
+  private async strategyAnswer(
+    input: string,
+    ranked: Fact[],
+    confidence: number,
+  ): Promise<ConverseResult | null> {
+    const task = {
+      text: input,
+      subject: ranked[0]?.subject,
+      facts: this.facts,
+      reasoning: this.reasoning,
+      rules: this.reasoning.getRules(),
+    };
+    const sel = selectStrategies(task);
+
+    // ── comparative ──
+    if (sel.chosen.includes("comparative")) {
+      const pair = extractComparisonSubjects(input);
+      if (pair) {
+        const comp = comparative({
+          ...task,
+          subject: pair.a,
+          subject2: pair.b,
+        });
+        if (comp.conclusions.length > 0) {
+          const lines = comp.conclusions.map(
+            (c, i) => `${i + 1}. ${c.statement} — confidence ${(c.confidence * 100).toFixed(0)}%`,
+          );
+          return this.compose(
+            `Comparison of ${pair.a} vs ${pair.b}, from my stored facts only:\n${lines.join("\n")}\n${comp.explanation}\nEvery line is derived from the cited facts — where my store lacks a dimension you care about, I say so rather than invent it.`,
+            Math.min(0.9, Math.max(...comp.conclusions.map((c) => c.confidence))),
+            comp.evidence.slice(0, 6),
+          );
+        }
+        return this.compose(
+          `I can compare ${pair.a} and ${pair.b} only on dimensions I hold facts for — and my store has no shared predicate between them, so there is nothing real to compare. I will not invent a comparison. Teach me facts about either (or both) and I will compare them properly.`,
+          confidence * 0.45,
+          [],
+        );
+      }
+    }
+
+    // ── constraint ──
+    if (sel.chosen.includes("constraint")) {
+      const con = constraint(task);
+      // "No numeric constraint detected" → not a constraint
+      // question; fall through to normal handling.
+      if (!/no numeric constraint/i.test(con.summary)) {
+        const subject = ranked[0]?.subject ?? "this";
+        if (con.conclusions.length === 0) {
+          return this.compose(
+            `I parsed the bound in your question, but I hold no numeric facts about ${subject} to check it against — I will not guess whether it satisfies the constraint. Teach me the real value (e.g. "remember that the ${subject} cost is X") and I will check the bound properly.`,
+            confidence * 0.45,
+            [],
+          );
+        }
+        const lines = con.conclusions.map((c) => `- ${c.statement}`);
+        return this.compose(
+          `Constraint check on ${subject}, from my stored facts:\n${lines.join("\n")}\n${con.explanation}`,
+          Math.min(0.9, Math.max(...con.conclusions.map((c) => c.confidence))),
+          con.evidence.slice(0, 6),
+        );
+      }
+    }
+
+    // ── temporal ──
+    if (sel.chosen.includes("temporal")) {
+      const rawSubject =
+        /\b(?:about|for|of)\s+([a-z0-9\- ]+)/i.exec(input)?.[1] ?? "";
+      // Normalize "the cement price" → "cement" so the store
+      // lookup actually finds the subject's facts.
+      const extracted = rawSubject
+        .trim()
+        .replace(/^(?:the|my)\s+/i, "")
+        .replace(/\s+(?:prices?|costs?|cost|history|timeline|records?)$/i, "")
+        .trim();
+      const subject = extracted.length > 0 ? extracted : ranked[0]?.subject;
+      const tem = subject
+        ? temporal({ ...task, subject })
+        : null;
+      if (tem) {
+        if (tem.conclusions.length > 0) {
+          const lines = tem.conclusions.map(
+            (c) => `- ${c.statement} (confidence ${(c.confidence * 100).toFixed(0)}%)`,
+          );
+          return this.compose(
+            `Dated facts about ${subject}, in chronological order, from my store only:\n${lines.join("\n")}\n${tem.explanation}`,
+            Math.min(0.9, Math.max(...tem.conclusions.map((c) => c.confidence))),
+            tem.evidence.slice(0, 6),
+          );
+        }
+        return this.compose(
+          `That asks about the timeline of ${subject ?? "this"}, but I hold no dated facts about it — I will not reconstruct a history I do not have. Teach me dated facts ("X was true on <date>") and I will order them properly.`,
+          confidence * 0.45,
+          [],
+        );
+      }
+    }
+    return null;
+  }
+
   private async speculativeAnswer(
     input: string,
     ranked: Fact[],
@@ -675,6 +783,20 @@ export class ArchieNativeEngine implements ArchieRuntime {
         nlu.confidence * 0.7,
         [],
       );
+    }
+
+    // P5 Batch C — strategy-backed answers where the store
+    // holds real evidence (comparative / constraint / temporal)
+    // take precedence for QUESTION-LIKE intents only. Each
+    // composes from cited facts and refuses honestly when the
+    // store lacks the needed predicates — teaching, correction
+    // and arithmetic are never intercepted (intent allowlist).
+    if (
+      ["knowledge_query", "howto_guidance", "research_request", "price_query"]
+        .includes(nlu.intent)
+    ) {
+      const strat = await this.strategyAnswer(input, ranked, nlu.confidence);
+      if (strat) return strat;
     }
 
     switch (nlu.intent) {

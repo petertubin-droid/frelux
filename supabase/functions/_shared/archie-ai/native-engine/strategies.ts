@@ -177,6 +177,57 @@ function num(v: unknown): number | null {
   return null;
 }
 
+/** Numeric fields inside object-valued facts (plan P5 Batch C):
+ *  stored objects like { price: 9200, unit: "bag" } carry
+ *  comparable numeric DIMENSIONS — extract them so comparisons
+ *  work on real stored evidence, not just scalar facts. */
+function numericDimensions(
+  v: unknown,
+): Array<{ field: string; value: number }> {
+  if (typeof v === "object" && v !== null && !Array.isArray(v)) {
+    const out: Array<{ field: string; value: number }> = [];
+    for (const [k, val] of Object.entries(v as Record<string, unknown>)) {
+      const n = num(val);
+      if (n !== null) out.push({ field: k, value: n });
+    }
+    return out;
+  }
+  return [];
+}
+
+/** Extract the two subjects of a comparison request (plan
+ *  P5 Batch C): "compare granite vs sand", "difference between
+ *  X and Y", "which is cheaper, X or Y". Returns null when the
+ *  sentence is not a two-subject comparison. */
+export function extractComparisonSubjects(
+  text: string,
+): { a: string; b: string } | null {
+  const tail = "(?:\\s+(?:in|for|on|at|by)\\b|[.?!]|$)";
+  const patterns = [
+    new RegExp(`compare\\s+([a-z0-9\\- ]+?)\\s+(?:and|with|vs\\.?|versus|to)\\s+([a-z0-9\\- ]+?)${tail}`, "i"),
+    new RegExp(`difference between\\s+([a-z0-9\\- ]+?)\\s+and\\s+([a-z0-9\\- ]+?)${tail}`, "i"),
+    new RegExp(`([a-z0-9\\- ]+?)\\s+(?:vs\\.?|versus)\\s+([a-z0-9\\- ]+?)${tail}`, "i"),
+    new RegExp(
+      `which is (?:cheaper|better|bigger|smaller|stronger|more expensive|more durable)\\s*,?\\s*(?:between\\s+)?([a-z0-9\\- ]+?)\\s+or\\s+([a-z0-9\\- ]+?)${tail}`,
+      "i",
+    ),
+  ];
+  for (const re of patterns) {
+    const m = re.exec(text);
+    if (m) {
+      const strip = (x: string) =>
+        x
+          .trim()
+          .replace(/\s+(?:prices?|costs?|cost|rates?)$/i, "")
+          .replace(/^(?:the|my)\s+/i, "");
+      const a = strip(m[1]);
+      const b = strip(m[2]);
+      if (a && b && a.toLowerCase() !== b.toLowerCase()) return { a, b };
+    }
+  }
+  return null;
+}
+
 // ---------------------------------------------------------
 // Strategies (each: real inference, assumptions, honesty)
 // ---------------------------------------------------------
@@ -504,7 +555,31 @@ export function comparative(task: ReasoningTask): StrategyResult {
         status: "derived",
         evidence: [x.id, y.id],
       });
-    } else {
+      continue;
+    }
+    // P5 Batch C — object-valued facts: compare shared numeric
+    // dimensions inside the stored objects (e.g. { price: 9200 }).
+    const dimsA = numericDimensions(x.object);
+    const dimsB = new Map(
+      numericDimensions(y.object).map((d) => [d.field, d.value]),
+    );
+    let dimensionCompared = false;
+    for (const da of dimsA) {
+      const dbv = dimsB.get(da.field);
+      if (dbv === undefined) continue;
+      dimensionCompared = true;
+      const lower = da.value < dbv ? a : da.value > dbv ? b : null;
+      conclusions.push({
+        statement:
+          lower === null
+            ? `${a} and ${b} tie on ${da.field} (${da.value} each, ${x.predicate})`
+            : `${lower} has lower ${da.field} for ${x.predicate} (${Math.min(da.value, dbv)} vs ${Math.max(da.value, dbv)})`,
+        confidence: Math.min(x.confidence, y.confidence),
+        status: "derived",
+        evidence: [x.id, y.id],
+      });
+    }
+    if (!dimensionCompared) {
       conclusions.push({
         statement: `${a} ${x.predicate} ${String(x.object)}; ${b} ${y.predicate} ${String(y.object)}`,
         confidence: Math.min(x.confidence, y.confidence),
@@ -521,7 +596,12 @@ export function comparative(task: ReasoningTask): StrategyResult {
     conclusions,
     assumptions: ["Both subjects' facts are equally trustworthy."],
     uncertainty: band(conclusions.length > 0 ? Math.max(...conclusions.map((c) => c.confidence)) : 0, false),
-    evidence: shared.map((f) => f.id),
+    // evidence cites BOTH sides of every compared pair — a
+    // comparison is only as honest as its weakest-sourced side.
+    evidence: shared.flatMap((x) => [
+      x.id,
+      fb.find((f) => f.predicate === x.predicate)!.id,
+    ]),
     explanation: conclusions.map((c) => c.statement).join("; ") || "No common ground to compare on.",
   };
 }
