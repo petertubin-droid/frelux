@@ -51,6 +51,12 @@ function json(status: number, body: Record<string, unknown>) {
   });
 }
 
+import {
+  EngineDeps,
+  ExecutionTarget,
+  executeTarget,
+} from "../_shared/archie-ai/execution/engine.ts";
+
 // ---- shared service client --------------------------------
 const db = createClient(SUPABASE_URL, SERVICE_ROLE, {
   auth: { persistSession: false },
@@ -236,6 +242,61 @@ const TOOLS: ToolDef[] = [
         .limit(50);
       if (error) return { error: error.message };
       return { domains: data ?? [] };
+    },
+  },
+  {
+    name: "execution_engine_list",
+    description:
+      "List the ARCHIE Execution & Runtime Engine registry: authorized execution targets with environment (SANDBOX/STAGING/PRODUCTION), risk class and whether the Owner Secret is required. Production targets are never executable from chat.",
+    parameters: { type: "object", properties: {}, required: [] },
+    operational: true,
+    execute: async () => {
+      const { data, error } = await db
+        .from("frelux_archie_execution_targets")
+        .select("key,label,environment,risk_class,requires_owner_secret,allowed_initiators,enabled,http_method")
+        .order("environment", { ascending: true });
+      if (error) return { error: error.message };
+      return { targets: data };
+    },
+  },
+  {
+    name: "execution_engine_run",
+    description:
+      "Execute a REGISTERED non-production execution target (SANDBOX/STAGING only, ARCHIE_CHAT-allowed) through the audited engine: verify → authority → execute → verify → audit. Returns a redacted result and run id. Production targets are refused in chat — use the PWA/Studio with your Owner Secret.",
+    parameters: {
+      type: "object",
+      properties: {
+        targetKey: { type: "string" },
+        input: { type: "object" },
+      },
+      required: ["targetKey"],
+    },
+    operational: true,
+    execute: async (input) => {
+      const targetKey = String(input.targetKey ?? "").trim();
+      const payload = input.input ?? {};
+      return await chatExecute(targetKey, payload);
+    },
+  },
+  {
+    name: "execution_engine_history",
+    description:
+      "Recent ARCHIE execution engine runs (audit trail): target, environment, status, attempts, duration, initiator, authority method.",
+    parameters: {
+      type: "object",
+      properties: { limit: { type: "number" } },
+      required: [],
+    },
+    operational: true,
+    execute: async (input) => {
+      const limit = Math.min(Math.max(Number(input.limit ?? 15), 1), 50);
+      const { data, error } = await db
+        .from("frelux_archie_execution_runs")
+        .select("id,target_key,environment,status,attempts,duration_ms,initiator_system,authority_method,created_date")
+        .order("created_date", { ascending: false })
+        .limit(limit);
+      if (error) return { error: error.message };
+      return { runs: data };
     },
   },
   // ---- REAL website inspection: URL -> robots-aware fetch ->
@@ -720,6 +781,86 @@ const PENDING_TOOL_NOTE = TOOLS.filter((t) => !t.operational)
   .map((t) => `${t.name} (${t.description})`)
   .join("; ");
 
+// ---- ARCHIE Execution & Runtime Engine (chat binding) ------
+// Chat may only run NON-PRODUCTION targets that explicitly list
+// 'ARCHIE_CHAT' as an allowed initiator. Production execution
+// requires the Owner Secret and happens through the PWA/Studio
+// (archie-execute), never through chat.
+const chatEngineDeps: EngineDeps = {
+  getTarget: async (key) => {
+    const { data } = await db
+      .from("frelux_archie_execution_targets")
+      .select("*")
+      .eq("key", key)
+      .maybeSingle();
+    return (data as unknown as ExecutionTarget) ?? null;
+  },
+  createRun: async (rec) => {
+    const { data, error } = await db
+      .from("frelux_archie_execution_runs")
+      .insert(rec)
+      .select("id")
+      .single();
+    if (error || !data) throw new Error("audit insert failed");
+    return data as { id: string };
+  },
+  updateRun: async (id, patch) => {
+    const { error } = await db
+      .from("frelux_archie_execution_runs")
+      .update({ ...patch, updated_date: new Date().toISOString() })
+      .eq("id", id);
+    if (error) throw new Error("audit update failed");
+  },
+  verifyOwnerSecret: async () => false, // chat never holds the owner secret
+  recordSecurityEvent: async (userId, type, severity, message) => {
+    try {
+      await db.from("frelux_security_events").insert({
+        user_id: userId,
+        event_type: type,
+        severity,
+        message,
+      });
+    } catch { /* audit never breaks the flow */ }
+  },
+  getSecret: (name) => Deno.env.get(name),
+  fetchFn: fetch,
+  supabaseUrl: SUPABASE_URL,
+  serviceRoleKey: SERVICE_ROLE,
+  now: () => Date.now(),
+  sleep: (ms) => new Promise((r) => setTimeout(r, ms)),
+  log: (m) => console.log(`[archie-chat/exec] ${m}`),
+};
+
+// Active owner user id for this request (audit identity);
+// set in the handler after authentication, cleared otherwise.
+let activeOwnerUserId: string | null = null;
+
+async function chatExecute(targetKey: string, input: unknown) {
+  const ownerId = activeOwnerUserId;
+  if (!ownerId) {
+    return { ok: false, status: "POLICY_REJECTED", error: "Owner session required for execution." };
+  }
+  // HARD CHAT POLICY: non-PRODUCTION targets that allow ARCHIE_CHAT only.
+  const target = await chatEngineDeps.getTarget(targetKey);
+  if (!target) return { ok: false, status: "NOT_FOUND", error: "Unknown execution target." };
+  if (target.environment === "PRODUCTION") {
+    return {
+      ok: false,
+      status: "POLICY_REJECTED",
+      error: "Production execution requires the Owner Secret through the PWA/Studio — never through chat.",
+    };
+  }
+  if (!target.allowed_initiators?.includes("ARCHIE_CHAT")) {
+    return { ok: false, status: "POLICY_REJECTED", error: "This target is not executable from chat." };
+  }
+  return executeTarget(chatEngineDeps, {
+    targetKey,
+    input,
+    initiatorSystem: "ARCHIE_CHAT",
+    caller: { userId: ownerId, isAdmin: true }, // owner-only session, admin-gated above
+  });
+}
+
 const SYSTEM_PROMPT = `You are ARCHIE, the personal AI intelligence system of the FRELUX platform, speaking privately with the OWNER of FRELUX.
 You are a capable, direct, warm assistant: conversational, never robotic, never a support chatbot.
 
@@ -733,7 +874,12 @@ Operating rules:
 Coding & Cybersecurity Intelligence:
 - You hold persistent Coding Intelligence and Cybersecurity Intelligence (domains: coding, cybersecurity) covering 19 programming languages — fundamentals, secure coding, vulnerability classes, security tooling, and authorized security-testing methodology.
 - For any coding, security, or reverse-engineering question, call knowledge_search FIRST and ground your answer in the retrieved items. Cite the topic you used. If a version-sensitive fact is flagged for re-verification in the item, say so honestly instead of guessing.
-- HARD BOUNDARY: offensive-security knowledge (exploitation, privilege escalation, credential attacks, scanning of third parties) applies ONLY to authorized systems, owned infrastructure, controlled laboratories, CTFs, and explicitly permitted security assessments. If a request targets anything outside those boundaries, refuse and explain the boundary. Defensive security (secure coding, hardening, detection, malware analysis best practices) has no such restriction.`;
+- HARD BOUNDARY: offensive-security knowledge (exploitation, privilege escalation, credential attacks, scanning of third parties) applies ONLY to authorized systems, owned infrastructure, controlled laboratories, CTFs, and explicitly permitted security assessments. If a request targets anything outside those boundaries, refuse and explain the boundary. Defensive security (secure coding, hardening, detection, malware analysis best practices) has no such restriction.
+
+Execution & Runtime Engine:
+- You have a REAL execution layer: execution_engine_list, execution_engine_run and execution_engine_history. Use them when the Owner wants a registered backend action performed or inspected (e.g. health check, status probe, sitemap regeneration).
+- Chat can execute ONLY non-production targets (SANDBOX/STAGING) that list ARCHIE_CHAT as allowed. If the Owner wants a PRODUCTION target executed, say plainly: production execution requires the Owner Secret through the PWA/Coding Studio — never through chat — and offer to prepare the exact run details.
+- Always report the run id, status, attempts and duration from the engine result. Never fabricate an execution result; if the engine returns an error, say so.`;
 
 // =========================================================
 // web_intelligence — REAL website inspection
@@ -1085,6 +1231,7 @@ Deno.serve(async (req) => {
       isOwner = profile?.role === "admin";
     }
   }
+  activeOwnerUserId = isOwner && user ? user.id : null;
 
   // 2. Parse + validate request
   let body: ChatRequest;
