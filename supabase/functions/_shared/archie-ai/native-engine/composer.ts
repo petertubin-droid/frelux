@@ -56,6 +56,17 @@ const HOWTO_FOOTERS = [
   "I can take this deeper: say the word and I will plan the full work, flagging any capability gaps up front.",
 ];
 
+// P8 derived-vs-taught: openings for answers that cite
+// DERIVED knowledge. Every variant carries the "derived"
+// marker so a rule-chain conclusion is never presented as
+// owner-validated knowledge.
+const DERIVED_OPENINGS = [
+  "From my derived knowledge (rule chains — not owner-validated):",
+  "Here is what I derived by inference (re-derivable, not owner-validated):",
+  "What my reasoning derived on that (inference chains, not owner-validated):",
+  "Derived knowledge — produced by my rules, not yet owner-validated:",
+];
+
 const UNKNOWN_OPENINGS = [
   "I do not have validated knowledge on that yet.",
   "That is not in my validated knowledge yet.",
@@ -67,6 +78,19 @@ const UNKNOWN_OPENINGS = [
  *  label is the anchor, never dropped. */
 export function knowledgeOpening(seed: string): string {
   return pick("kb-open", seed, KNOWLEDGE_OPENINGS);
+}
+
+/** Opening line for an answer citing derived (P8) knowledge.
+ *  Every variant contains "derived" AND an explicit
+ *  not-owner-validated disclaimer. */
+export function derivedOpening(seed: string): string {
+  return pick("kb-derived", seed, DERIVED_OPENINGS);
+}
+
+/** Does a set of facts the answer is about to cite include
+ *  any DERIVED fact? Selects the honest opening family. */
+export function includesDerived(facts: Array<{ status: string }>): boolean {
+  return facts.some((f) => f.status === "derived");
 }
 
 /** Optional how-to footer. Omitted in concise mode. */
@@ -92,6 +116,11 @@ export function composerSelfCheck(): {
   for (const [i, v] of KNOWLEDGE_OPENINGS.entries()) {
     if (!/validated knowledge/i.test(v)) {
       failures.push(`knowledgeOpening[${i}] lost the epistemic marker`);
+    }
+  }
+  for (const [i, v] of DERIVED_OPENINGS.entries()) {
+    if (!/derived/i.test(v) || !/not.{0,20}owner-validated|not yet owner-validated/i.test(v)) {
+      failures.push(`derivedOpening[${i}] lost the derived/disclaimer marker`);
     }
   }
   for (const [i, v] of UNKNOWN_OPENINGS.entries()) {

@@ -147,8 +147,32 @@ export class FactStore {
       validUntil: fact.validUntil,
     };
     if (conflict) {
-      // Contradiction: park as uncertain — never store as established fact.
-      full.status = "uncertain";
+      // Contradiction handling (P8 owner-wins arbitration):
+      // when an OWNER-TAUGHT/SEED fact contradicts facts that
+      // are purely DERIVED, the derived ones are parked —
+      // the owner's word outranks a rule chain. Only when the
+      // conflict reaches non-derived stored knowledge does the
+      // newcomer get parked (knowledge never silently flips).
+      const incomingAuthoritative =
+        fact.provenance.source === "owner-taught" ||
+        fact.provenance.source === "seed";
+      const conflictingFacts = this.facts.filter((f) =>
+        conflict.conflictingFactIds.includes(f.id),
+      );
+      const conflictsAreAllDerived = conflictingFacts.every(
+        (f) => f.status === "derived" || f.provenance.source === "inferred",
+      );
+      if (incomingAuthoritative && conflictsAreAllDerived) {
+        for (const cf of conflictingFacts) {
+          cf.status = "uncertain";
+          await this.persistFact(cf);
+        }
+        // The authoritative fact is stored live; the derived
+        // contradictions were demoted above.
+      } else {
+        // Park the newcomer as uncertain — never store as established fact.
+        full.status = "uncertain";
+      }
     }
     this.facts.push(full);
     await this.persistFact(full);

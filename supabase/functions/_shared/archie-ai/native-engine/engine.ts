@@ -39,7 +39,9 @@ import {
   composeCompound,
 } from "./nlu.ts";
 import {
+  derivedOpening,
   howtoFooter,
+  includesDerived,
   knowledgeOpening,
   unknownOpening,
   type Verbosity,
@@ -1181,10 +1183,15 @@ export class ArchieNativeEngine implements ArchieRuntime {
             plan,
           );
         }
+        // P8: derived facts carry an explicit epistemic label
+        // — a rule-chain conclusion is never presented as
+        // owner-validated knowledge.
         const parts = validated.map(
           (f) =>
             `${f.subject} ${f.predicate.replace(/-/g, " ")}: ${String(f.object)} ` +
-            `[confidence ${(f.confidence * 100).toFixed(0)}%, ${f.provenance.source}]`,
+            (f.status === "derived" || f.provenance.source === "inferred"
+              ? `[confidence ${(f.confidence * 100).toFixed(0)}%, DERIVED — inferred by rule chain, not owner-validated]`
+              : `[confidence ${(f.confidence * 100).toFixed(0)}%, ${f.provenance.source}]`),
         );
         // P1b: if the question is a "why did this go wrong"
         // problem with numbers that fall short of a recorded
@@ -1198,8 +1205,13 @@ export class ArchieNativeEngine implements ArchieRuntime {
         const kbSeed = validated.map((f) => f.id).join("|");
         const footer =
           nlu.intent === "howto_guidance" ? howtoFooter(kbSeed, this.verbosity) : "";
+        // P8: an answer citing derived knowledge opens with the
+        // derived marker, never "validated knowledge".
+        const opening = includesDerived(validated)
+          ? derivedOpening(kbSeed)
+          : knowledgeOpening(kbSeed);
         return this.compose(
-          `${knowledgeOpening(kbSeed)}\n${parts.join("\n")}` +
+          `${opening}\n${parts.join("\n")}` +
             (followUp ? `\n\n${followUp}` : "") +
             (footer ? `\n${footer}` : ""),
           nlu.confidence * Math.min(1, validated[0].confidence + 0.3),

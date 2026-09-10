@@ -119,7 +119,12 @@ export class ReasoningEngine {
               },
               note: rule.description,
             },
-            status: derivedConfidence >= 0.6 ? "validated" : "candidate",
+            // P8: derived knowledge NEVER auto-validates —
+            // the old >= 0.6 shortcut let the forward chainer
+            // write straight into the validated KB. Promotion
+            // now only happens through the verification-event
+            // gates (owner confirm, cross-source, seed).
+            status: "derived",
           });
           derivedThisPass.push(fact);
           explanations.push({
@@ -174,7 +179,7 @@ export class ReasoningEngine {
               },
               note: rule.description,
             },
-            status: derivedConfidence >= 0.6 ? "validated" : "candidate",
+            status: "derived",
           });
           derivedThisPass.push(fact);
           bindingsUsed.push(bindingRecord);

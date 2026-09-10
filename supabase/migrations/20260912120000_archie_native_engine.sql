@@ -46,7 +46,8 @@ CREATE TABLE IF NOT EXISTS public.frelux_archie_native_facts (
   confidence double precision NOT NULL DEFAULT 0.5,
   provenance jsonb NOT NULL,
   status text NOT NULL DEFAULT 'candidate'
-    CHECK (status IN ('candidate', 'validated', 'uncertain')),
+    -- 'derived' added by P8 (derived-vs-taught separation)
+    CHECK (status IN ('candidate', 'validated', 'uncertain', 'derived')),
   validated_count integer NOT NULL DEFAULT 0,
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now()

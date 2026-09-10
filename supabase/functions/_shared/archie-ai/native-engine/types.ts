@@ -41,7 +41,12 @@ export interface Fact {
     /** Free-form origin note (e.g. "conversation 2026-09-10"). */
     note?: string;
   };
-  status: "candidate" | "validated" | "uncertain";
+  // P8 derived-vs-taught separation: "derived" marks facts
+  // produced by the forward chainer. They never auto-validate
+  // (no matter how high their propagated confidence) and are
+  // labeled as derived in answers; promotion to "validated"
+  // only happens through the real verification-event gates.
+  status: "candidate" | "validated" | "uncertain" | "derived";
   validatedCount: number;
   /** Real verification events behind this fact (audit H1/H2):
    *  e.g. "owner-taught", "seed", "owner-confirm:<ts>",
