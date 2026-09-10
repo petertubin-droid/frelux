@@ -222,7 +222,7 @@ class InMemorySupabase implements SupabaseLike {
     return {
       select: async () => ({ data: [...rows()], error: null }),
       insert: async (row: unknown) => {
-        rows().push((row as unknown[])[0]);
+        rows().push((row as unknown[])[0] as Record<string, unknown>);
         return { error: null };
       },
       update: (patch: unknown) => ({
