@@ -19,7 +19,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ### Removed
 
-- **L8:** duplicate `sitemap` edge function retired (live + repo); the build-time `public/sitemap.xml` (regenerated on every build, referenced by robots.txt and the admin SEO page) is the canonical sitemap.
+- **L8 (reverted same day):** the `sitemap` edge function was retired as a duplicate, then restored — it is NOT a duplicate. It generates a dynamic sitemap with live DB content (paint colors, palettes, articles, pro profiles, marketplace listings) and is a registered ARCHIE execution-engine production action (`sitemap-regenerate`) plus the `sleep` subsystem's anatomy binding. The build-time `public/sitemap.xml` remains the canonical static sitemap; the edge function remains the on-demand dynamic regenerator. Both live.
 
 ### Changed
 
