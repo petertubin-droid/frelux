@@ -634,3 +634,104 @@ export function memoryTurnFromText(
   index.addDoc(tokens);
   return { role, text, at, vector: index.vectorize(tokens) };
 }
+
+// ---------------------------------------------------------
+// Compound-request decomposition (plan P2, audit N2).
+// Owners speak in compound requests ("what is screeding and
+// what is mortar", "estimate X then give me a status
+// report", "tell me about screeding but don't mention
+// prices"). The engine answers EACH clause honestly instead
+// of answering only the first and silently dropping the
+// rest. Splitting is CONSERVATIVE: "and" splits only before
+// an intent-shaped continuation ("cement and sand" is ONE
+// clause), and negated clauses become explicit constraints
+// that are acknowledged and excluded — never answered.
+// ---------------------------------------------------------
+
+/** Hard cap: beyond this many clauses the request is honestly
+ *  refused rather than half-remembered mid-composition. */
+export const MAX_COMPOUND_CLAUSES = 4;
+
+/** Intent-shaped continuations after "and" — the conservative
+ *  split heuristic. A bare "and <noun>" stays one clause. */
+const INTENT_CONTINUATION =
+  "(?:what|how|why|when|where|who|which|is|are|does|do|can|could|would|should|tell|give|show|estimate|calculate|compute|plan|compare|check|remember|list|explain|describe|status|price|convert|compare)";
+
+export interface DecomposedClause {
+  /** The clause text, negation markers stripped for NLU. */
+  text: string;
+  /** True when the owner excluded this clause ("don't …",
+   *  "… but without …") — it is a constraint, not a request:
+   *  acknowledged, excluded, never answered. */
+  negated: boolean;
+}
+
+/** Split a raw utterance into clauses. Returns a single
+ *  clause for plain requests — decomposition is opt-in by
+ *  the sentence structure itself. */
+export function decomposeClauses(rawInput: string): DecomposedClause[] {
+  // Code is data, not prose: fenced blocks and inline code are
+  // masked BEFORE splitting so a `;` or "and" inside pasted
+  // source never decomposes the request. Placeholders are
+  // restored into their clause after the split.
+  const masks: string[] = [];
+  const mask = (text: string): string =>
+    text
+      .replace(/```[\s\S]*?```/g, (m) => {
+        masks.push(m);
+        return `\u0000${masks.length - 1}\u0000`;
+      })
+      .replace(/`[^`\n]*`/g, (m) => {
+        masks.push(m);
+        return `\u0000${masks.length - 1}\u0000`;
+      });
+  const unmask = (text: string): string =>
+    text.replace(/\u0000(\d+)\u0000/g, (_, i) => masks[Number(i)] ?? "");
+  const input = mask(rawInput);
+  const negation = /\b(?:don'?t|do\s+not|doesn'?t|never|exclude|excluding|without|but\s+not)\b/i;
+  const markers = new RegExp(
+    "\\s*(?:;|,?\\s+then\\b|\\s+after\\s+that\\b|\\s+also\\b|,\\s+and\\s+|\\s+and\\s+(?=" +
+      INTENT_CONTINUATION +
+      "\\b))",
+    "i",
+  );
+
+  // First split on the negation-bearing "but" — the negated
+  // tail is a constraint on the WHOLE request.
+  const butNeg = /\s*,?\s+but\s+(?=(?:don'?t|do\s+not|never|exclude|excluding|without)\b)/i;
+  const headSplit = butNeg.exec(input);
+  let head = input;
+  let negatedTail: string | null = null;
+  if (headSplit) {
+    head = input.slice(0, headSplit.index);
+    negatedTail = input.slice(headSplit.index + headSplit[0].length);
+  }
+
+  // A clause that ITSELF begins with a negation marker
+  // ("don't tell me about prices", "; never mention X") is a
+  // constraint from its first word — flagged like a "but"
+  // tail: acknowledged, excluded, never answered.
+  const leadingNegation =
+    /^\s*(?:please\s+)?(?:don'?t|do\s+not|doesn'?t|never|exclude|excluding|without)\b/i;
+
+  const clauses: DecomposedClause[] = [];
+  for (const part of head.split(markers)) {
+    const negated = leadingNegation.test(part);
+    const text = unmask(part)
+      .trim()
+      .replace(/^[,;\s]+|[,;\s]+$/g, "")
+      .replace(/\s+and$/i, "")
+      .replace(leadingNegation, "")
+      .trim();
+    if (text.length === 0) continue;
+    clauses.push({ text, negated });
+  }
+  if (negatedTail) {
+    const text = unmask(negatedTail)
+      .replace(negation, "")
+      .replace(negation, "")
+      .trim();
+    if (text.length > 0) clauses.push({ text, negated: true });
+  }
+  return clauses;
+}

@@ -32,7 +32,11 @@ import {
   manifestSummary,
   nativeEngineCapabilityManifest,
 } from "./capabilities.ts";
-import { understand } from "./nlu.ts";
+import {
+  understand,
+  decomposeClauses,
+  MAX_COMPOUND_CLAUSES,
+} from "./nlu.ts";
 import { ContextMemory, rankFacts } from "./memory.ts";
 import { redactSecrets } from "../cognitive/security-integrity.ts";
 import { FactStore } from "./knowledge.ts";
@@ -417,7 +421,26 @@ export class ArchieNativeEngine implements ArchieRuntime {
     const context = this.memory.retrieve(input);
     const ranked = rankFacts(input, this.facts.list());
 
-    const outcome = await this.route(nlu, input, ranked, context);
+    // Compound-request decomposition (plan P2, audit N2):
+    // owners speak in multi-part requests. Each clause gets
+    // its own honest route — nothing is silently dropped.
+    // Negated clauses are constraints: acknowledged and
+    // excluded, never answered.
+    const clauses = decomposeClauses(input);
+    let outcome: ConverseResult;
+    if (clauses.length > MAX_COMPOUND_CLAUSES) {
+      outcome = this.compose(
+        `That is ${clauses.length} requests in one message — more than I can hold honestly in one pass. Send them one or two at a time and I will answer each fully.`,
+        nlu.confidence * 0.5,
+        [],
+      );
+    } else if (clauses.length > 1 || clauses[0].negated) {
+      // A single clause that is itself an exclusion routes
+      // through the same honest exclusion path.
+      outcome = await this.routeClauses(clauses);
+    } else {
+      outcome = await this.route(nlu, input, ranked, context);
+    }
     this.confidenceSum += outcome.confidence;
 
     const selfCheck = this.selfEval.verifyResponse(
@@ -568,6 +591,62 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
     }
     return null;
+  }
+
+  /** Route each decomposed clause of a compound request and
+   *  compose one honest, numbered answer (plan P2, audit N2).
+   *  Negated clauses are listed as respected exclusions — the
+   *  engine must answer what was asked and visibly honor what
+   *  was excluded. */
+  private async routeClauses(
+    clauses: ReturnType<typeof decomposeClauses>,
+  ): Promise<ConverseResult> {
+    const parts: string[] = [];
+    const cited = new Set<string>();
+    const excluded: string[] = [];
+    let confSum = 0;
+    let positive = 0;
+    for (const clause of clauses) {
+      if (clause.negated) {
+        excluded.push(clause.text);
+        continue;
+      }
+      const clauseNlu = understand(clause.text);
+      const clauseRanked = rankFacts(clause.text, this.facts.list());
+      const clauseContext = this.memory.retrieve(clause.text);
+      const res = await this.route(
+        clauseNlu,
+        clause.text,
+        clauseRanked,
+        clauseContext,
+      );
+      positive += 1;
+      confSum += res.confidence;
+      parts.push(res.responseText);
+      for (const id of res.citedFactIds) cited.add(id);
+    }
+    let text: string;
+    if (parts.length === 0) {
+      text =
+        "Every part of that request was an exclusion (a \"don't\") — there was nothing left to answer. Tell me what you DO want and I will do it fully.";
+    } else {
+      text =
+        parts.length === 1
+          ? parts[0]
+          : parts.map((t, i) => `${i + 1}. ${t}`).join("\n");
+    }
+    if (excluded.length > 0) {
+      text += `\nYou also asked me NOT to: ${excluded
+        .map((t) => `"${t}"`)
+        .join("; ")}. Respected — that part is excluded from this answer.`;
+    }
+    return {
+      nlu: understand(clauses[0].text),
+      responseText: text,
+      confidence: positive > 0 ? confSum / positive : 0.4,
+      citedFactIds: [...cited],
+      selfCheck: this.selfEval.verifyResponse([...cited], this.facts, false),
+    };
   }
 
   private async route(
