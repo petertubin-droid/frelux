@@ -28,6 +28,7 @@ const NAV = [
   { to: "/archie/shared", label: "Shared", icon: "knowledge" },
   { to: "/archie/security", label: "Security", icon: "security" },
   { to: "/archie/system", label: "System", icon: "system" },
+  { to: "/archie/anatomy", label: "Anatomy", icon: "system" },
   { to: "/archie/migration", label: "Migration", icon: "migration" },
   { to: "/archie/training", label: "Training", icon: "knowledge" },
   { to: "/archie/evolution", label: "Evolution", icon: "control" },

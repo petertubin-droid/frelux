@@ -37,6 +37,15 @@ import type { EvolutionActor } from "./types";
  * this gate.
  */
 export const PROTECTED_SURFACES: readonly string[] = [
+  // 🧬 DNA — the constitution and anatomy are foundational
+  // and can never be self-modified (owner directive
+  // 2026-09-10: cognitive anatomy as foundational architecture).
+  "public.archie_constitution",
+  "public.archie_subsystems",
+  "public.archie_subsystem_status",
+  "supabase/functions/_shared/archie-ai/anatomy/constitution.ts",
+  "supabase/functions/_shared/archie-ai/anatomy/registry.ts",
+  "supabase/functions/archie-anatomy",
   "src/lib/archie/capability-authority.ts",
   "src/lib/archie/authorized-security.ts",
   "src/lib/archie/global-orchestrator.ts",
