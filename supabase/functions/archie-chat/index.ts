@@ -277,7 +277,11 @@ configureNativeEngineSystemAdapters({
 
 // Wire the unified cognitive engine (kernel) with the same
 // service client: world model, audit log + traces persist.
-import { configureCognitiveEnginePersistence } from "../_shared/archie-ai/cognitive/kernel.ts";
+import {
+  configureCognitiveEnginePersistence,
+  getCognitiveEngine,
+} from "../_shared/archie-ai/cognitive/kernel.ts";
+import { ArchieNativeEngine } from "../_shared/archie-ai/native-engine/engine.ts";
 configureCognitiveEnginePersistence(
   db as unknown as import("../_shared/archie-ai/native-engine/persistence.ts").SupabaseLike,
 );
@@ -1494,17 +1498,12 @@ Deno.serve(async (req) => {
       });
     }
 
-    const { runtime: visitorRuntime, engine: visitorEngine } =
-      resolveArchieCapabilityEngine({
-        engineId: Deno.env.get("ARCHIE_ENGINE"),
-      });
-    if (!visitorRuntime) {
-      return json(503, {
-        error:
-          "The FRELUX assistant is briefly unavailable. Please try again shortly, or use the calculators directly.",
-        engine: visitorEngine,
-      });
-    }
+    // PRIVACY: visitors run on a fresh, ISOLATED in-memory
+    // engine per request — no persistence, no access to the
+    // owner's knowledge/memory, no context shared with anyone.
+    // What a visitor says never enters ARCHIE's owner memory.
+    const visitorRuntime = new ArchieNativeEngine();
+    const visitorEngine = "archie-native-isolated";
 
     const visitorRequest: ArchieInferenceRequest = {
       turns: [
@@ -1642,8 +1641,45 @@ Deno.serve(async (req) => {
   };
 
   const toolRuns: ToolRun[] = [];
+  // The owner path runs the UNIFIED COGNITIVE LOOP — the same
+  // kernel the tests verify: perception (secret redaction on
+  // ingest) → memory retrieval → reasoning → world-model
+  // update → verification → authority gate → response →
+  // learning. Every phase is recorded with its anatomical
+  // organ and persisted to the cognitive trace table.
+  let cognitiveTrace: Array<{
+    phase: string;
+    status: string;
+    organs: string[];
+  }> | null = null;
   try {
-    let result = await runtime.generate(request);
+    let result: import("../_shared/archie-ai/runtime.ts").ArchieInferenceResult;
+    try {
+      // history = the typed request turns minus the current
+      // message (the kernel's input is the message itself).
+      const cycle = await getCognitiveEngine().cycle(
+        message + attachmentsNote,
+        request.turns.slice(0, -1),
+      );
+      cognitiveTrace = cycle.trace.phases.map((p) => ({
+        phase: p.phase,
+        status: p.status,
+        organs: p.organs ?? [],
+      }));
+      result = {
+        parts: [{ text: cycle.responseText }],
+        engine: {
+          path: "archie-unified-cognitive",
+          note: "Unified cognitive loop: perception → memory retrieval → reasoning → validation → authority → learning. ARCHIE's own engine — no external AI provider.",
+        },
+        finishReason: "COMPLETE",
+      };
+    } catch {
+      // Honest degradation: the substrate engine alone (same
+      // native inference, no kernel phases) — never an external
+      // provider, never a fabricated loop.
+      result = await runtime.generate(request);
+    }
 
     // Tool loop (max 3 hops)
     for (let hop = 0; hop < 3; hop++) {
@@ -1702,6 +1738,10 @@ Deno.serve(async (req) => {
       reply: sanitize(text),
       toolRuns,
       engine: result.engine,
+      // The unified loop trace — which organs executed this
+      // answer. Full transparency: perception, memory, brain,
+      // validation and learning are all named, never claimed.
+      cognitiveTrace,
       pendingCapabilities: TOOLS.filter((t) => !t.operational).map(
         (t) => t.name,
       ),

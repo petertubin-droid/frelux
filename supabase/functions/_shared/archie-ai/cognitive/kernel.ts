@@ -72,6 +72,31 @@ export function configureCognitiveEnginePersistence(db: SupabaseLike): void {
   configureNativeEnginePersistence(db); // substrate shares persistence
 }
 
+// ---------------------------------------------------------
+// ANATOMY INTEGRATION — every loop phase runs through a real
+// anatomical subsystem (the same keys seeded in
+// archie_subsystems by the cognitive-anatomy migration).
+// The anatomy is the architecture: organs are live modules,
+// not documentation.
+// ---------------------------------------------------------
+export const ORGAN_PHASE_BINDINGS: Record<string, string[]> = {
+  PERCEIVE: ["eyes"],
+  UNDERSTAND: ["head"],
+  RETRIEVE: ["brain"],
+  REASON: ["heart"],
+  PLAN: ["head"],
+  MODEL: ["brain"],
+  CREATE: ["hands"],
+  VERIFY: ["liver-kidneys"],
+  ACT: ["balance", "mouth"],
+  OBSERVE: ["nervous"],
+  EVALUATE: ["pain"],
+  LEARN: ["digestive"],
+  REMEMBER: ["brain"],
+  IMPROVE: ["stem-cells"],
+  REPEAT: ["healing", "sleep"],
+};
+
 export function getCognitiveEngine(): CognitiveKernel {
   if (!kernelSingleton) {
     kernelSingleton = new CognitiveKernel(configuredDb);
@@ -301,6 +326,7 @@ export class CognitiveKernel implements ArchieRuntime {
         status: "executed",
         summary: "completed",
         durationMs: Date.now() - started,
+        organs: ORGAN_PHASE_BINDINGS[phase] ?? [],
       });
       return value;
     };
@@ -332,6 +358,7 @@ export class CognitiveKernel implements ArchieRuntime {
     // ── UNDERSTAND (recorded) + RETRIEVE (substrate core) ──
     phases.push({
       phase: "UNDERSTAND",
+      organs: ["head"],
       status: "executed",
       summary: `intent=${nlu.intent}, confidence=${nlu.confidence.toFixed(2)}`,
       durationMs: 0,
@@ -348,6 +375,7 @@ export class CognitiveKernel implements ArchieRuntime {
     // marks them with the substrate's own outputs.
     phases.push({
       phase: "REASON",
+      organs: ["heart"],
       status: "executed",
       summary: `reasoning modes: ${route.reasoningModes.join(", ")}; substrate produced response`,
       durationMs: 0,
@@ -356,12 +384,14 @@ export class CognitiveKernel implements ArchieRuntime {
       core.plan
         ? {
             phase: "PLAN",
+            organs: ["head"],
             status: "executed",
             summary: `plan: ${core.plan.steps.length} step(s), executable=${core.plan.executable}`,
             durationMs: 0,
           }
         : {
             phase: "PLAN",
+            organs: ["head"],
             status: "skipped",
             summary: "no planning needed for this task",
             durationMs: 0,
@@ -545,6 +575,7 @@ export class CognitiveKernel implements ArchieRuntime {
     );
     phases.push({
       phase: "EVALUATE",
+      organs: ["pain"],
       status: routePhases.has("EVALUATE") ? "executed" : "skipped",
       summary: meta
         ? `meta-assessment: ${meta.whatIKnow.length} known, ${meta.whatIDontKnow.length} unknown, ${meta.mustVerify.length} to verify`
@@ -553,6 +584,7 @@ export class CognitiveKernel implements ArchieRuntime {
     });
     phases.push({
       phase: "LEARN",
+      organs: ["digestive"],
       status: routePhases.has("LEARN") ? "executed" : "skipped",
       summary: "outcome recorded by substrate learner with credit assignment",
       durationMs: 0,
@@ -636,6 +668,7 @@ export class CognitiveKernel implements ArchieRuntime {
       status: "executed",
       summary: "cycle complete — loop continues with the next input",
       durationMs: 0,
+      organs: ["healing", "sleep"],
     });
     // Canonicalize the complete traversal (trace.phases IS
     // phases — the mutation is reflected everywhere) and

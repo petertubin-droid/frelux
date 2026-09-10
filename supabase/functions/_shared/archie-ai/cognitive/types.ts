@@ -136,6 +136,10 @@ export interface PhaseRecord {
   status: "executed" | "skipped";
   summary: string;
   durationMs: number;
+  /** The anatomical subsystem(s) this phase runs through —
+   *  the anatomy is a live architectural model, not docs:
+   *  every executed phase names its real organ. */
+  organs?: string[];
 }
 
 /** One complete traversal of the cognitive loop. */

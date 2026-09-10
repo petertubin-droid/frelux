@@ -34,6 +34,7 @@ import {
 } from "./capabilities.ts";
 import { understand } from "./nlu.ts";
 import { ContextMemory, rankFacts } from "./memory.ts";
+import { redactSecrets } from "../cognitive/security-integrity.ts";
 import { FactStore } from "./knowledge.ts";
 import { DEFAULT_RULES, ReasoningEngine } from "./reasoning.ts";
 import { DEFAULT_OPERATORS, Planner } from "./planning.ts";
@@ -47,7 +48,7 @@ import { analyzeSource, generateUnitTestScaffold } from "./coding.ts";
 import { SelfEvaluator } from "./selfeval.ts";
 import { OutcomeLearner, type OutcomePersistence } from "./learning.ts";
 import { SupabasePersistence, type SupabaseLike } from "./persistence.ts";
-import type { Fact, Plan } from "./types.ts";
+import type { Fact, Plan, RetrievedContext } from "./types.ts";
 
 /** Foundational knowledge seeded at engine construction —
  *  real reference facts in ARCHIE's home domain. */
@@ -314,12 +315,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
     const context = this.memory.retrieve(input);
     const ranked = rankFacts(input, this.facts.list());
 
-    const outcome = await this.route(
-      nlu,
-      input,
-      ranked,
-      context.salientTurns.length,
-    );
+    const outcome = await this.route(nlu, input, ranked, context);
     this.confidenceSum += outcome.confidence;
 
     const selfCheck = this.selfEval.verifyResponse(
@@ -345,7 +341,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
     nlu: ReturnType<typeof understand>,
     input: string,
     ranked: Fact[],
-    memoryDepth: number,
+    context: RetrievedContext,
   ): Promise<ConverseResult> {
     const cite = (facts: Fact[]) => facts.map((f) => f.id);
 
@@ -423,6 +419,31 @@ export class ArchieNativeEngine implements ArchieRuntime {
           .filter((f) => f.status !== "uncertain")
           .slice(0, 3);
         if (validated.length === 0) {
+          // Episodic memory: recall what the owner said earlier
+          // in this conversation. REAL retrieval — the recalled
+          // turns actually change the answer instead of a bare
+          // "I do not know". The current input is excluded so
+          // ARCHIE never "recalls" the question itself.
+          const recalled = context.salientTurns.filter(
+            (t) =>
+              t.role === "owner" &&
+              t.text.trim() !== input.trim() &&
+              t.text.length > 12 &&
+              // Relevance floor: recency alone is not recall.
+              (t.relevance ?? 0) >= 0.3,
+          );
+          if (recalled.length > 0) {
+            const recent = recalled
+              .slice(0, 2)
+              .map((t) => `“${t.text.slice(0, 160)}”`)
+              .join(" | ");
+            return this.compose(
+              `I do not have that in my validated long-term knowledge, but earlier in this conversation you said: ${recent}. ` +
+                `That is episodic context from our chat — not validated knowledge. If it should be permanent, teach it explicitly (“remember that …”) and I will retain it with provenance.`,
+              nlu.confidence * 0.6,
+              [],
+            );
+          }
           const plan = await this.planFor("researched");
           return this.compose(
             `I do not have validated knowledge on that yet. My knowledge store holds ${this.facts.count()} facts — none matched. ` +
@@ -448,6 +469,16 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
 
       case "teaching": {
+        // Secrets are never memorized — the immune system's
+        // redaction gate applies to memory writes too.
+        const secretScan = redactSecrets(input);
+        if (secretScan.foundCount > 0) {
+          return this.compose(
+            "I will not store that — it contains a credential/secret. ARCHIE memory never retains secrets (they are redacted at ingest and refused at store). Teach me the non-secret part and I will keep that.",
+            nlu.confidence,
+            [],
+          );
+        }
         const triple = extractTriple(input);
         if (!triple) {
           return this.compose(
@@ -472,16 +503,30 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
 
       case "correction": {
-        const related = rankFacts(input, this.facts.list(), 3);
-        for (const fact of related) {
+        const triple = extractTriple(input);
+        // Targeted demotion: facts directly on the corrected
+        // SPO, plus TF-IDF related facts. The contradicted fact
+        // itself must never survive on a ranking technicality.
+        const targeted = new Map<string, Fact>();
+        if (triple) {
+          for (const f of this.facts.query({
+            subject: triple.subject,
+            predicate: triple.predicate,
+          })) {
+            targeted.set(f.id, f);
+          }
+        }
+        for (const f of rankFacts(input, this.facts.list(), 3)) {
+          targeted.set(f.id, f);
+        }
+        for (const fact of targeted.values()) {
           fact.status = "uncertain";
         }
         await this.learner.record({
           kind: "correction",
           task: `correction on: ${input.slice(0, 80)}`,
-          contributing: related.map((f) => f.id),
+          contributing: [...targeted.keys()],
         });
-        const triple = extractTriple(input);
         if (triple) {
           const { fact } = await this.facts.assert({
             ...triple,
@@ -492,16 +537,23 @@ export class ArchieNativeEngine implements ArchieRuntime {
             },
             status: "validated",
           });
+          // OWNER AUTHORITY resolves the conflict: the owner
+          // explicitly confirmed the correct value, so the
+          // corrected fact is validated. The contradicted facts
+          // remain in the store as uncertain (history kept) —
+          // this is an audible resolution, never a silent
+          // overwrite of higher-confidence knowledge.
+          fact.status = "validated";
           return this.compose(
-            `Correction processed. ${related.length} related fact(s) moved to uncertain, and the corrected knowledge is retained. I do not silently keep wrong facts.`,
+            `Correction processed. ${targeted.size} related fact(s) moved to uncertain, and the corrected knowledge is retained as the owner-confirmed value. I do not silently keep wrong facts.`,
             nlu.confidence,
             [fact.id],
           );
         }
         return this.compose(
-          `Correction processed. ${related.length} related fact(s) moved to uncertain pending re-teaching. Tell me the correct fact and I will retain it.`,
+          `Correction processed. ${targeted.size} related fact(s) moved to uncertain pending re-teaching. Tell me the correct fact and I will retain it.`,
           nlu.confidence,
-          related.map((f) => f.id),
+          [...targeted.keys()].slice(0, 3),
         );
       }
 
@@ -991,6 +1043,13 @@ function extractTriple(
   const cleaned = input
     .replace(
       /^(please\s+)?(learn|remember|note|know)[a-z]*\s*(that|this|:)?\s*/i,
+      "",
+    )
+    // A correction often leads with a negation clause
+    // ("no, that is wrong. X is Y") — strip it so the
+    // corrected statement itself extracts cleanly.
+    .replace(
+      /^(?:no[,.!?]?\s+(?:that|this|it)\s+(?:is|was)\s+(?:wrong|incorrect|not\s+accurate|not\s+right)|actually,?|correction:?)[\s.!,]*/i,
       "",
     )
     .replace(/^(the\s+)?/i, "")

@@ -11,39 +11,58 @@ import { TfIdfIndex, cosine, memoryTurnFromText, tokenize } from "./nlu.ts";
 import type { Fact, RetrievedContext } from "./types.ts";
 
 export class ContextMemory {
-  private turns: MemoryTurnInternal[] = [];
+  // Two buffers prevent DUPLICATE memories: `seeded` is the
+  // authoritative conversation history and is REPLACED
+  // wholesale on every seedFromTurns call (the engine
+  // re-seeds each request); `live` holds turns added during
+  // this session. Retrieval ranks both.
+  private seeded: MemoryTurnInternal[] = [];
+  private live: MemoryTurnInternal[] = [];
   private index = new TfIdfIndex();
 
   addTurn(role: "owner" | "archie", text: string, at = Date.now()): void {
-    this.turns.push(memoryTurnFromText(role, text, this.index, at));
+    this.live.push(memoryTurnFromText(role, text, this.index, at));
   }
 
-  /** Seed from provider-neutral conversation turns. */
+  /** Seed from provider-neutral conversation turns. Replaces
+   *  the previous seed — never accumulates duplicates when
+   *  the caller re-seeds the same history each request. */
   seedFromTurns(
     turns: Array<{ role: "owner" | "archie"; text: string }>,
   ): void {
-    for (const t of turns) this.addTurn(t.role, t.text);
+    const now = Date.now();
+    this.seeded = turns.map((t, i) =>
+      memoryTurnFromText(
+        t.role,
+        t.text,
+        this.index,
+        now - (turns.length - i) * 60_000,
+      ),
+    );
   }
 
   size(): number {
-    return this.turns.length;
+    return this.seeded.length + this.live.length;
   }
 
   /** Salience = cosine(relevance) + recency decay. Real math. */
   retrieve(query: string, k = 4, now = Date.now()): RetrievedContext {
     const qv = this.index.vectorize(tokenize(query));
     const horizon = 1000 * 60 * 60 * 24; // 24h recency horizon
-    const ranked = this.turns
+    const turns = [...this.seeded, ...this.live];
+    const ranked = turns
       .map((turn) => {
         const relevance = cosine(qv, turn.vector);
         const ageMs = Math.max(0, now - turn.at);
         const recency = Math.max(0, 1 - ageMs / horizon);
-        return { turn, salience: relevance * 0.7 + recency * 0.3 };
+        return { turn, relevance, salience: relevance * 0.7 + recency * 0.3 };
       })
       .filter((r) => r.salience > 0)
       .sort((a, b) => b.salience - a.salience);
     return {
-      salientTurns: ranked.slice(0, k).map((r) => r.turn),
+      salientTurns: ranked
+        .slice(0, k)
+        .map((r) => ({ ...r.turn, relevance: r.relevance })),
       salientFacts: [],
     };
   }

@@ -125,6 +125,10 @@ export interface MemoryTurn {
   at: number;
   /** Token-bag vector for salience retrieval. */
   vector: Map<string, number>;
+  /** Raw TF-IDF cosine relevance to the retrieval query.
+   *  Episodic recall must clear a relevance floor — recency
+   *  alone never counts as remembering. */
+  relevance?: number;
 }
 
 export interface RetrievedContext {
