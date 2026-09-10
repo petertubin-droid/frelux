@@ -23,6 +23,12 @@ import {
   type ChangeEvent,
 } from "react";
 import {
+  startListening,
+  transcribeAudio,
+  EarsError,
+  type EarsRecorder,
+} from "@/lib/archie/ears";
+import {
   createConversation,
   listConversations,
   listMessages,
@@ -93,8 +99,9 @@ export default function ArchieChat() {
   const [sessionLanguage, setSessionLanguage] =
     useState<SessionLanguageResolution | null>(null);
   const [languageMenuOpen, setLanguageMenuOpen] = useState(false);
-  const recorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
+  const earsRef = useRef<EarsRecorder | null>(null);
+  const [earsBusy, setEarsBusy] = useState(false);
+  const [earsNotice, setEarsNotice] = useState("");
   const threadRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
@@ -206,41 +213,82 @@ export default function ArchieChat() {
     setPending((prev) => [...prev, ...checked].slice(0, 4));
   }
 
-  // ---- voice recording ----
+  // ---- voice recording → EARS (real speech perception) ----
+  // The voice note is attached AND transcribed by the
+  // archie-ears edge function. The transcript lands in the
+  // draft so the spoken command goes through the NORMAL
+  // cognitive pipeline (the owner reviews before sending —
+  // audio never auto-sends). Transcription failure is honest:
+  // the voice note stays attached, nothing is invented.
   async function toggleRecording() {
     if (recording) {
-      recorderRef.current?.stop();
-      return;
-    }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const rec = new MediaRecorder(stream);
-      recorderRef.current = rec;
-      chunksRef.current = [];
-      rec.ondataavailable = (ev) => {
-        if (ev.data.size > 0) chunksRef.current.push(ev.data);
-      };
-      rec.onstop = () => {
-        stream.getTracks().forEach((t) => t.stop());
-        const type = rec.mimeType || "audio/webm";
-        const blob = new Blob(chunksRef.current, { type });
+      setRecording(false);
+      setEarsBusy(true);
+      try {
+        const recorded = await earsRef.current?.stop();
+        if (!recorded) {
+          setError("No audio was captured.");
+          return;
+        }
+        const type = recorded.blob.type || "audio/webm";
         const ext = type.includes("mp4") ? "m4a" : "webm";
+        if (recorded.capped) {
+          setEarsNotice("Hit the 30s cap — recording trimmed.");
+        }
         setPending((prev) =>
           [
             ...prev,
             {
-              file: new File([blob], `voice-note-${Date.now()}.${ext}`, {
-                type,
-              }),
+              file: new File(
+                [recorded.blob],
+                `voice-note-${Date.now()}.${ext}`,
+                {
+                  type,
+                },
+              ),
             },
           ].slice(0, 4),
         );
-        setRecording(false);
-      };
-      rec.start();
+        // Conversation context: bias recognition toward the
+        // current conversation (the last ARCHIE reply).
+        const lastReply = [...messages]
+          .reverse()
+          .find((m) => m.role === "archie");
+        const { transcript, speechDetected, language } = await transcribeAudio({
+          blob: recorded.blob,
+          contextPrompt: lastReply ? lastReply.content.slice(0, 300) : null,
+        });
+        if (!speechDetected) {
+          setError(
+            "No speech detected in the recording — the voice note is still attached.",
+          );
+          return;
+        }
+        setDraft((prev) =>
+          prev.trim() ? `${prev.trim()} ${transcript}` : transcript,
+        );
+        if (language && language !== "en") {
+          setEarsNotice(`Detected language: ${language} — edit if wrong.`);
+        }
+      } catch (e) {
+        if (e instanceof EarsError) {
+          setError(`${e.message} The voice note is still attached.`);
+        } else {
+          setError("Transcription failed. The voice note is still attached.");
+        }
+      } finally {
+        setEarsBusy(false);
+      }
+      return;
+    }
+    // start listening — explicit, owner-initiated only
+    try {
+      earsRef.current = await startListening();
       setRecording(true);
-    } catch {
-      setError("Microphone permission denied or unavailable.");
+      setEarsNotice("");
+    } catch (e) {
+      if (e instanceof EarsError) setError(e.message);
+      else setError("Microphone permission denied or unavailable.");
     }
   }
 
@@ -666,6 +714,14 @@ export default function ArchieChat() {
 
         {/* composer */}
         <div className="border-t border-white/5 p-2 md:p-3">
+          {(earsNotice || earsBusy) && (
+            <p
+              className="mb-1 px-1 text-[10px] uppercase tracking-wider text-amber-300/80"
+              role="status"
+            >
+              {earsBusy ? "Transcribing…" : earsNotice}
+            </p>
+          )}
           <div className="flex items-end gap-1.5">
             <div className="flex">
               <button
@@ -712,6 +768,7 @@ export default function ArchieChat() {
               <button
                 type="button"
                 onClick={toggleRecording}
+                disabled={earsBusy}
                 title={recording ? "Stop recording" : "Record voice note"}
                 aria-label={recording ? "Stop recording" : "Record voice note"}
                 className={`rounded-lg p-2 ${recording ? "bg-red-400/20 text-red-300" : "text-slate-400 hover:bg-white/5 hover:text-slate-200"}`}

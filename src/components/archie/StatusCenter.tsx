@@ -155,6 +155,11 @@ export default function StatusCenter() {
         detail={`${s.frelux_connection.estimates} project estimate(s)`}
       />
       <StatusTile
+        label="Ears (Audio Intelligence)"
+        state={s.ears?.state ?? "UNKNOWN"}
+        detail={s.ears?.note ?? "No ears report"}
+      />
+      <StatusTile
         label="Security"
         state={s.security.state}
         detail={`${s.security.audit_events} audit events`}

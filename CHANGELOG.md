@@ -15,6 +15,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - `CHANGELOG.md` (this file)
 - Edge Functions reference section in `docs/API.md`
 
+## 2026-09-10 — ARCHIE Ears: Audio Intelligence
+
+### Added
+
+- ARCHIE Ears / Audio Intelligence subsystem — real speech perception wired into the cognitive pipeline: `archie-ears` owner-only edge function (OpenAI Whisper STT, language detection, conversation-context biasing, rate-limited, fully audited) and the client Ears engine `src/lib/archie/ears.ts` (explicit owner-initiated mic capture, format negotiation, 30s cap, typed honest failures)
+- Chat voice notes are now transcribed: the transcript lands in the draft so spoken commands flow through the normal cognitive pipeline (owner reviews before sending; the audio stays attached)
+- Voice page "Talk to ARCHIE": hands-free voice interaction — speech → real transcription → archie-core pipeline (session history preserved) → reply spoken with the owner's voice-bank profile
+- Status Center reports an honest Ears tile (OPERATIONAL only when the provider is configured AND a real transcription has succeeded); 14 new Ears engine tests + 2 Voice page tests lock in the never-fabricate invariants (6,097 total)
+
 ## 2026-09-09 — ARCHIE PWA: Admin Continuity, Full Test Coverage & Premium Display
 
 ### Added

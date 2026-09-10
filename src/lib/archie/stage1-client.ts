@@ -236,6 +236,12 @@ export interface ArchieSystemStatus {
   internal_agents: { active: number; total: number };
   devices: { trusted: number; pending: number };
   conversations: number;
+  ears: {
+    state: string;
+    configured: boolean;
+    transcriptions: number;
+    note?: string;
+  };
   security: { state: string; audit_events: number; critical_events: number };
   infrastructure: {
     cost_records: number;

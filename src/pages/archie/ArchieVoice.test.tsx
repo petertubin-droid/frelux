@@ -27,6 +27,7 @@ vi.mock("@/lib/archie/mobile/voice-profile", () => ({
   mixdown: () => new Blob([]),
   recomputeProfile: (...a: unknown[]) => recomputeProfile(...a),
   saveVoiceSample: (...a: unknown[]) => saveVoiceSample(...a),
+  applyProfileToUtterance: () => {},
 }));
 
 // happy-dom has no MediaRecorder — stub it so the primary recording path renders.
@@ -63,5 +64,20 @@ describe("ArchieVoice", () => {
     recomputeProfile.mockReturnValue(new Promise(() => null));
     const { container } = renderPage();
     expect(container.innerHTML).not.toBe("");
+  });
+
+  it("renders the Talk to ARCHIE (EARS) hands-free section", async () => {
+    renderPage();
+    expect(
+      await screen.findByRole("button", { name: "Talk to ARCHIE" }),
+    ).toBeTruthy();
+    expect(screen.getByText(/transcribed by ARCHIE's ears/i)).toBeTruthy();
+  });
+
+  it("is honest when the browser cannot record audio", async () => {
+    vi.stubGlobal("MediaRecorder", undefined);
+    renderPage();
+    expect(await screen.findByText(/cannot record audio/i)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "Talk to ARCHIE" })).toBeNull();
   });
 });

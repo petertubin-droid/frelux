@@ -10,6 +10,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  applyProfileToUtterance,
   estimatePitchHz,
   estimateRateHint,
   mixdown,
@@ -18,6 +19,14 @@ import {
   type ArchieVoiceProfile,
   type VoiceSample,
 } from "@/lib/archie/mobile/voice-profile";
+import {
+  detectEarSupport,
+  startListening,
+  transcribeAudio,
+  EarsError,
+  type EarsRecorder,
+} from "@/lib/archie/ears";
+import { sendChatTurn } from "@/lib/archie/stage1-client";
 
 export default function ArchieVoice() {
   const [userId, setUserId] = useState("");
@@ -32,6 +41,19 @@ export default function ArchieVoice() {
   const [supported, setSupported] = useState(true);
 
   const recorderRef = useRef<MediaRecorder | null>(null);
+  // ---- Talk to ARCHIE (EARS → cognitive pipeline → spoken reply) ----
+  const talkSessionRef = useRef<string | null>(null);
+  const earsRef = useRef<EarsRecorder | null>(null);
+  const historyRef = useRef<
+    Array<{ role: "owner" | "archie"; content: string }>
+  >([]);
+  const [talkRecording, setTalkRecording] = useState(false);
+  const [talkBusy, setTalkBusy] = useState(false);
+  const [talkError, setTalkError] = useState("");
+  const [talkTurns, setTalkTurns] = useState<
+    Array<{ role: "owner" | "archie"; content: string }>
+  >([]);
+  const [talkLanguage, setTalkLanguage] = useState<string | null>(null);
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -138,6 +160,96 @@ export default function ArchieVoice() {
       </div>
     );
 
+  // Hands-free voice interaction. Every spoken turn:
+  //    mic → archie-ears (real transcription + language detection)
+  //        → sendChatTurn (the NORMAL cognitive pipeline)
+  //        → reply spoken with the owner's voice profile.
+  // Nothing is invented: transcription failures stop the turn
+  // honestly, and the transcript is shown before ARCHIE acts.
+  async function toggleTalk() {
+    setTalkError("");
+    if (talkRecording) {
+      setTalkRecording(false);
+      setTalkBusy(true);
+      try {
+        const recorded = await earsRef.current?.stop();
+        if (!recorded) {
+          setTalkError("No audio was captured.");
+          return;
+        }
+        const lastReply =
+          historyRef.current.at(-1)?.role === "archie"
+            ? historyRef.current[historyRef.current.length - 1].content
+            : null;
+        const { transcript, speechDetected, language } = await transcribeAudio({
+          blob: recorded.blob,
+          languageHint: talkLanguage,
+          contextPrompt: lastReply ? lastReply.slice(0, 300) : null,
+        });
+        if (!speechDetected) {
+          setTalkError("No speech detected — nothing was sent to ARCHIE.");
+          return;
+        }
+        if (language) setTalkLanguage(language);
+        setTalkTurns((prev) => [
+          ...prev,
+          { role: "owner", content: transcript },
+        ]);
+
+        // Session conversation id (reused across turns → the
+        // core keeps this voice session in one conversation).
+        if (!talkSessionRef.current) {
+          talkSessionRef.current =
+            typeof crypto !== "undefined" && "randomUUID" in crypto
+              ? crypto.randomUUID()
+              : `voice-${Date.now()}`;
+        }
+        const result = await sendChatTurn({
+          conversationId: talkSessionRef.current,
+          message: transcript,
+          history: historyRef.current.slice(-10),
+        });
+        if (!result.ok) {
+          setTalkError(
+            result.error ?? "ARCHIE core error — nothing was spoken.",
+          );
+          return;
+        }
+        const reply = result.reply ?? "";
+        historyRef.current = [
+          ...historyRef.current,
+          { role: "owner", content: transcript },
+          { role: "archie", content: reply },
+        ];
+        setTalkTurns((prev) => [...prev, { role: "archie", content: reply }]);
+
+        // Spoken reply through the voice bank profile.
+        if (
+          reply &&
+          typeof window !== "undefined" &&
+          "speechSynthesis" in window
+        ) {
+          const utterance = new SpeechSynthesisUtterance(reply);
+          applyProfileToUtterance(utterance, profile);
+          window.speechSynthesis.speak(utterance);
+        }
+      } catch (e) {
+        if (e instanceof EarsError) setTalkError(e.message);
+        else setTalkError("Voice interaction failed — nothing was sent.");
+      } finally {
+        setTalkBusy(false);
+      }
+      return;
+    }
+    try {
+      earsRef.current = await startListening();
+      setTalkRecording(true);
+    } catch (e) {
+      if (e instanceof EarsError) setTalkError(e.message);
+      else setTalkError("Microphone permission denied or unavailable.");
+    }
+  }
+
   return (
     <div className="archie-fade-up mx-auto max-w-2xl px-4 py-4 md:py-6">
       <h1 className="archie-title-gradient text-lg font-semibold md:text-xl">
@@ -241,6 +353,79 @@ export default function ArchieVoice() {
             </li>
           )}
         </ul>
+      </div>
+
+      {/* ── Talk to ARCHIE (EARS) ── */}
+      <div className="mt-6 rounded-xl archie-panel p-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-slate-100">
+            Talk to ARCHIE
+          </h2>
+          {talkLanguage && (
+            <span className="text-[10px] uppercase tracking-wider text-amber-300/80">
+              Detected: {talkLanguage}
+            </span>
+          )}
+        </div>
+        <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+          Hands-free voice interaction. Speech is transcribed by ARCHIE's ears
+          (never faked), sent through the normal cognitive pipeline, and the
+          reply is spoken with your voice profile. Transcripts are shown exactly
+          as heard.
+        </p>
+        {!detectEarSupport() ? (
+          <p className="mt-3 rounded-lg bg-white/[0.03] px-3 py-2 text-xs text-slate-400">
+            This browser cannot record audio — voice interaction needs
+            microphone support.
+          </p>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={toggleTalk}
+              disabled={talkBusy}
+              className={`mt-3 w-full rounded-xl px-4 py-3 text-sm font-semibold transition ${
+                talkRecording
+                  ? "bg-red-500/20 text-red-200 shadow-[0_0_18px_-2px_rgba(239,68,68,0.45)]"
+                  : "archie-btn-primary bg-amber-400/90 text-slate-950"
+              } disabled:opacity-50`}
+              aria-label={talkRecording ? "Stop talking" : "Talk to ARCHIE"}
+            >
+              {talkRecording
+                ? "● Listening — tap to send"
+                : talkBusy
+                  ? "Thinking…"
+                  : "🎙 Talk to ARCHIE"}
+            </button>
+            {talkError && (
+              <p
+                role="alert"
+                className="mt-2 rounded-lg bg-red-500/10 px-3 py-2 text-xs text-red-300"
+              >
+                {talkError}
+              </p>
+            )}
+            {talkTurns.length > 0 && (
+              <ul className="mt-3 space-y-2">
+                {talkTurns.map((t, i) => (
+                  <li
+                    key={i}
+                    className={`rounded-lg px-3 py-2 text-xs leading-relaxed ${
+                      t.role === "owner"
+                        ? "archie-panel border border-amber-400/30 text-amber-100"
+                        : "archie-panel text-slate-200"
+                    }`}
+                  >
+                    <span className="mr-1 text-[9px] uppercase tracking-wider text-slate-500">
+                      {t.role === "owner" ? "You (spoken)" : "ARCHIE (spoken)"}
+                    </span>
+                    {t.content}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </>
+        )}
       </div>
 
       <p className="mt-6 text-[10px] leading-relaxed text-slate-500">

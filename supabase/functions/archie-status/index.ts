@@ -85,6 +85,7 @@ Deno.serve(async (req: Request) => {
       apiKeys,
       intelSources,
       priceObservations,
+      earsTranscriptions,
     ] = await Promise.all([
       count("frelux_archie_domains", { active: "true" }),
       count("frelux_knowledge_items"),
@@ -111,7 +112,16 @@ Deno.serve(async (req: Request) => {
       count("frelux_api_keys"),
       count("frelux_intelligence_sources"),
       count("frelux_price_observations"),
+      count("frelux_archie_audit_events", {
+        event_type: "archie.ears.transcription",
+      }),
     ]);
+    // Ears is OPERATIONAL only when the STT provider is
+    // configured AND a real transcription has succeeded —
+    // never claimed before it is true (spec §§3, 16, 19).
+    const earsConfigured = Boolean(
+      (Deno.env.get("OPENAI_API_KEY") ?? "").trim(),
+    );
 
     return json(200, {
       ok: true,
@@ -138,6 +148,19 @@ Deno.serve(async (req: Request) => {
         internal_agents: { active: agentsActive, total: agentsTotal },
         devices: { trusted: devicesTrusted, pending: devicesPending },
         conversations: conversations,
+        ears: {
+          state:
+            earsConfigured && earsTranscriptions > 0
+              ? "OPERATIONAL"
+              : "NOT_OPERATIONAL",
+          configured: earsConfigured,
+          transcriptions: earsTranscriptions,
+          note: earsConfigured
+            ? earsTranscriptions > 0
+              ? "Speech transcription live"
+              : "Configured — no transcription exercised yet"
+            : "Speech provider not configured",
+        },
         security: {
           // real posture: any CRITICAL audit event in the
           // lifetime of the log escalates the display
