@@ -221,8 +221,38 @@ describe("Engine integration (P1 substrate active in ARCHIE)", () => {
   it("GENERAL_RULES ship domain-neutral primitives", () => {
     expect(GENERAL_RULES.length).toBe(4);
     expect(GENERAL_RULES.every((r) => JSON.stringify(r).includes("?x"))).toBe(true);
-    // DEFAULT_RULES frozen: still the 4 original construction literals.
-    expect(DEFAULT_RULES.length).toBe(4);
-    expect(DEFAULT_RULES.some((r) => JSON.stringify(r).includes("?"))).toBe(false);
+    // DEFAULT_RULES: the 4 original construction literals are
+    // frozen and unchanged; the engine now also ships 2
+    // domain-general variable primitives (xd-3) whose
+    // conclusions are FULLY BOUND by their conditions.
+    expect(DEFAULT_RULES.length).toBe(6);
+    const literalIds = DEFAULT_RULES.filter(
+      (r) => !JSON.stringify(r).includes("?"),
+    ).map((r) => r.id);
+    expect(literalIds).toEqual([
+      "rule_concrete_mix_ratio",
+      "rule_screeding_thickness_area",
+      "rule_cement_bag_standard",
+      "rule_project_owner_authorization",
+    ]);
+    const general = DEFAULT_RULES.filter((r) =>
+      JSON.stringify(r).includes("?"),
+    );
+    expect(general.length).toBe(2);
+    for (const r of general) {
+      // Safety property: every conclusion variable is bound by
+      // a condition — no unbound-variable derivations, ever.
+      const condVars = new Set(
+        r.conditions.flatMap((c) =>
+          [c.subject, c.object].flatMap((v) =>
+            typeof v === "string" && v.startsWith("?") ? [v] : [],
+          ),
+        ),
+      );
+      const prodVars = [r.produces.subject, r.produces.object].filter(
+        (v): v is string => typeof v === "string" && v.startsWith("?"),
+      );
+      expect(prodVars.every((v) => condVars.has(v))).toBe(true);
+    }
   });
 });

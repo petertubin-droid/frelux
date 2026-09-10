@@ -370,6 +370,28 @@ export const DEFAULT_RULES: Rule[] = [
     description: "A 50 kg cement bag has a standard volume of 0.035 m³",
   },
   {
+    id: "rule_part_of_transitivity",
+    conditions: [
+      { subject: "?x", predicate: "part-of", object: "?y" },
+      { subject: "?y", predicate: "part-of", object: "?z" },
+    ],
+    produces: { subject: "?x", predicate: "part-of", object: "?z" },
+    weight: 0.8,
+    description:
+      "Containment is transitive: if x is part of y and y is part of z, x is part of z (domain-general primitive)",
+  },
+  {
+    id: "rule_class_membership_transitivity",
+    conditions: [
+      { subject: "?x", predicate: "is-a", object: "?c" },
+      { subject: "?c", predicate: "is-a", object: "?super" },
+    ],
+    produces: { subject: "?x", predicate: "is-a", object: "?super" },
+    weight: 0.85,
+    description:
+      "Class membership is transitive: an instance of a subclass is an instance of its superclass (domain-general primitive)",
+  },
+  {
     id: "rule_project_owner_authorization",
     conditions: [{ subject: "production", predicate: "change-kind" }],
     produces: {

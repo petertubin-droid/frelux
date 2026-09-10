@@ -202,6 +202,52 @@ export class WorldModel {
       }
       frontier = next;
     }
+    // Transitive causal composition (cr-2): if A causes B and
+    // B causes C, derive the composite edge A causes C —
+    // explicitly provenance-tagged as derived (never an
+    // observed relation), confidence = product of the hops.
+    if (q.relation === undefined || q.relation === "causes") {
+      const causal = found.filter((r) => r.relation === "causes");
+      const bySubject = new Map<string, WorldRelation[]>();
+      for (const rel of causal) {
+        const key = rel.subject.toLowerCase();
+        if (!bySubject.has(key)) bySubject.set(key, []);
+        bySubject.get(key)!.push(rel);
+      }
+      const derived: WorldRelation[] = [];
+      for (const first of causal) {
+        for (const second of bySubject.get(first.object.toLowerCase()) ?? []) {
+          const id = `derived::${first.subject}::causes::${second.object}`;
+          if (this.relations.has(id)) continue;
+          derived.push({
+            id,
+            subject: first.subject,
+            relation: "causes",
+            object: second.object,
+            confidence: Number((first.confidence * second.confidence).toFixed(3)),
+            provenance: `derived: transitive ${first.subject}→${first.object}→${second.object}`,
+            createdAt: new Date().toISOString(),
+          });
+        }
+      }
+      // 3-hop chains compose from the 2-hop derivations.
+      for (const d of derived) {
+        for (const second of bySubject.get(d.object.toLowerCase()) ?? []) {
+          const id = `derived::${d.subject}::causes::${second.object}`;
+          if (derived.some((x) => x.id === id)) continue;
+          derived.push({
+            id,
+            subject: d.subject,
+            relation: "causes",
+            object: second.object,
+            confidence: Number((d.confidence * second.confidence).toFixed(3)),
+            provenance: `derived: transitive chain via ${d.object}`,
+            createdAt: new Date().toISOString(),
+          });
+        }
+      }
+      found.push(...derived);
+    }
     return q.relation ? found.filter((r) => r.relation === q.relation) : found;
   }
 

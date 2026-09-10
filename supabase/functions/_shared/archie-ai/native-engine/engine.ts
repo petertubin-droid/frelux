@@ -485,6 +485,31 @@ export class ArchieNativeEngine implements ArchieRuntime {
   ): Promise<ConverseResult> {
     const cite = (facts: Fact[]) => facts.map((f) => f.id);
 
+    // cd-3 — cross-system contradiction reconciliation: "the
+    // web says X but I told you Y". Surface BOTH sources,
+    // compare provenance, reconcile honestly: owner-taught
+    // knowledge stays authoritative for the owner's project;
+    // external claims remain candidate evidence. Never
+    // silently pick a side.
+    if (
+      /\b(?:web|internet|online|article|site|source)\b[^.?!]*\bsays?\b[^.?!]*\bbut\b[^.?!]*\b(?:i|i'm|we|my|our)\b/i.test(
+        input,
+      )
+    ) {
+      const webClaim = input.match(
+        /\bsays?\s+([^.?!]*?)\s+but/i,
+      )?.[1];
+      const ownerClaim = input.match(
+        /\bbut\s+(?:i told you|i said|we agreed(?: on)?|my|our|i'm)\s+([^.?!]+)/i,
+      )?.[1];
+      return this.compose(
+        `These two sources disagree — I will not silently pick a side. External claim: "${webClaim ?? "(not extracted)"}" (candidate evidence, single-source provenance). Your statement: "${ownerClaim ?? "(not extracted)"}" (owner-taught, authoritative for your project). ` +
+          `To reconcile honestly: your value stays my working knowledge with owner provenance; the external value is retained as unverified evidence that should be cross-checked — say "research this" and I will fetch independent sources to resolve the disagreement. If the external claim is from a price list you trust, teach it explicitly and I will store it with that provenance.`,
+        nlu.confidence * 0.7,
+        [],
+      );
+    }
+
     switch (nlu.intent) {
       case "greeting":
       case "farewell":

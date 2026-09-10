@@ -493,6 +493,8 @@ describe("Self-evaluation", () => {
         executable: true,
         totalCost: 2,
         gapReport: [],
+        alternatives: [],
+        risk: { level: "low", notes: [] },
       },
       ["op_analyze_code"],
     );
@@ -503,6 +505,8 @@ describe("Self-evaluation", () => {
         steps: [],
         executable: false,
         totalCost: 0,
+        alternatives: [],
+        risk: { level: "low", notes: [] },
         gapReport: ["missing: project scope-defined"],
       },
       [],

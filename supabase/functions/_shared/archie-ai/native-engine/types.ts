@@ -113,6 +113,22 @@ export interface Plan {
   executable: boolean;
   totalCost: number;
   gapReport: string[];
+  /** Alternative real capability chains that also achieve the
+   * goal (pl-3) — ranked after the primary, never fabricated
+   * options. Empty when no other operator chain exists. */
+  alternatives: PlanAlternative[];
+  /** Risk assessment of the primary plan (pl-3) — honest,
+   * derived from the operators involved. */
+  risk: { level: "low" | "medium" | "high"; notes: string[] };
+}
+
+export interface PlanAlternative {
+  /** Operator chain (ids, in execution order). */
+  operatorIds: string[];
+  description: string;
+  totalCost: number;
+  /** Honest tradeoff vs the primary plan. */
+  tradeoff: string;
 }
 
 export interface ToolSpecInternal {

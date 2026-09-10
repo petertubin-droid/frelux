@@ -8,7 +8,7 @@
 // is never presented as executable when it is not.
 // =========================================================
 
-import type { Fact, FactPattern, Operator, Plan, PlanStep } from "./types.ts";
+import type { Fact, FactPattern, Operator, Plan, PlanAlternative, PlanStep } from "./types.ts";
 import { FactStore } from "./knowledge.ts";
 
 function holds(store: FactStore, pattern: FactPattern): boolean {
@@ -37,6 +37,16 @@ export const DEFAULT_OPERATORS: Operator[] = [
     preconditions: [{ subject: "rules", predicate: "loaded" }],
     effects: [],
     cost: 2,
+  },
+  {
+    id: "op_teach_from_owner",
+    description: "Owner teaches the missing knowledge directly (retained with provenance)",
+    achieves: { subject: "knowledge", predicate: "owner-provided" },
+    preconditions: [{ subject: "owner", predicate: "available" }],
+    effects: [
+      { subject: "knowledge", predicate: "available" } as unknown as Fact,
+    ],
+    cost: 1,
   },
   {
     id: "op_web_research",
@@ -137,7 +147,59 @@ export class Planner {
         sum + (this.operators.find((o) => o.id === step.operatorId)?.cost ?? 0),
       0,
     );
-    return { goal, steps, executable, totalCost, gapReport };
+
+    // P1/pl-3 — alternative plans: other REAL operator chains
+    // that also achieve the goal. An operator is a viable
+    // alternative head when its effects satisfy a
+    // precondition of a primary step (chained), or when it
+    // achieves the same goal independently. Never fabricated.
+    const alternatives: PlanAlternative[] = [];
+    const primaryOpIds = new Set(steps.map((s) => s.operatorId));
+    const primaryOps = steps
+      .map((s) => this.operators.find((o) => o.id === s.operatorId))
+      .filter((o): o is Operator => o !== undefined);
+    for (const op of this.operators) {
+      if (primaryOpIds.has(op.id)) continue;
+      const feedsPrimary = primaryOps.some((primary) =>
+        primary.preconditions.some(
+          (pre) =>
+            pre.subject !== undefined &&
+            op.effects.some((e) => e.subject === pre.subject && e.predicate === pre.predicate),
+        ),
+      );
+      const achievesDirectly = primaryOps.some((primary) =>
+        matchesAchieves(op, primary.achieves),
+      );
+      if (!feedsPrimary && !achievesDirectly) continue;
+      const chainIds = [op.id, ...steps.map((s) => s.operatorId)];
+      const chainCost =
+        totalCost + op.cost;
+      alternatives.push({
+        operatorIds: chainIds,
+        description: `${op.description}, then the primary plan`,
+        totalCost: chainCost,
+        tradeoff:
+          chainCost > totalCost
+            ? `costs ${chainCost - totalCost} more than the primary plan`
+            : "same cost as the primary plan",
+      });
+    }
+
+    // P1/pl-3 — honest risk assessment derived from the
+    // operators actually involved in the primary plan.
+    const involvesResearch = primaryOpIds.has("op_web_research");
+    const risk = {
+      level: (involvesResearch ? "medium" : "low") as "low" | "medium" | "high",
+      notes: involvesResearch
+        ? [
+            "web research produces candidate knowledge — it must be validated before being trusted as established fact",
+          ]
+        : [
+            "primary plan uses stored capabilities only — no unvalidated external sources involved",
+          ],
+    };
+
+    return { goal, steps, executable, totalCost, gapReport, alternatives, risk };
   }
 }
 
