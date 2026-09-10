@@ -29,7 +29,8 @@ CREATE INDEX IF NOT EXISTS idx_archie_episodic_turns_conv
   ON public.frelux_archie_episodic_turns (conversation_id, turn_at);
 
 ALTER TABLE public.frelux_archie_episodic_turns
-  ENABLE ROW LEVEL SECURITY;
+  FORCE ROW LEVEL SECURITY;
+-- FORCE per audit F2 convention (all tables FORCE RLS).
 -- No anon/authenticated policies: service-role only (ARCHIE-owned data),
 -- same convention as frelux_archie_native_facts.
 
@@ -43,5 +44,6 @@ CREATE TABLE IF NOT EXISTS public.frelux_archie_engine_counters (
 );
 
 ALTER TABLE public.frelux_archie_engine_counters
-  ENABLE ROW LEVEL SECURITY;
+  FORCE ROW LEVEL SECURITY;
+-- FORCE per audit F2 convention (all tables FORCE RLS).
 -- No anon/authenticated policies: service-role only (ARCHIE-owned data).
