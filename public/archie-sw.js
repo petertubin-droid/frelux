@@ -6,7 +6,7 @@
 // messages or authenticated responses — those always go to
 // the network and fail visibly offline.
 // =========================================================
-const CACHE = "archie-shell-v1";
+const CACHE = "archie-shell-v2";
 const SHELL_ASSETS = ["/assets/archie/manifest.webmanifest", "/assets/archie/archie-icon-512.png"];
 
 self.addEventListener("install", (event) => {
@@ -23,6 +23,14 @@ self.addEventListener("activate", (event) => {
       .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))),
   );
   self.clients.claim();
+});
+
+// PWA update flow: the app offers "UPDATE READY — RELOAD";
+// the new shell activates only when the user accepts.
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 self.addEventListener("fetch", (event) => {

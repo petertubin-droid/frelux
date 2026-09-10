@@ -215,6 +215,9 @@ const AdminArchieVoice = lazy(() => import("@/pages/admin/AdminArchieVoice"));
 const AdminArchieOps = lazy(() => import("@/pages/admin/AdminArchieOps"));
 const AdminArchieStudio = lazy(() => import("@/pages/admin/AdminArchieStudio"));
 const ArchieCoding = lazy(() => import("@/pages/archie/ArchieCoding"));
+const ArchieLegal = lazy(() => import("@/pages/archie/ArchieLegal"));
+const ArchiePrivacy = lazy(() => import("@/pages/archie/ArchiePrivacy"));
+const AdminArchieLegal = lazy(() => import("@/pages/admin/AdminArchieLegal"));
 const AdminArchieTerminology = lazy(
   () => import("@/pages/admin/AdminArchieTerminology"),
 );
@@ -1057,21 +1060,17 @@ export default function App() {
                     <Route path="shared" element={<ArchieShared />} />
                     <Route path="security" element={<ArchieSecurity />} />
                     <Route path="system" element={<ArchieSystem />} />
-                    <Route
-                      path="anatomy"
-                      element={<ArchieAnatomyView />}
-                    />
+                    <Route path="anatomy" element={<ArchieAnatomyView />} />
                     <Route path="migration" element={<ArchieMigration />} />
                     <Route path="training" element={<ArchieTraining />} />
                     <Route path="evolution" element={<ArchieEvolution />} />
                     <Route path="voice" element={<ArchieVoice />} />
                     <Route path="coding" element={<ArchieCoding />} />
                     <Route path="ops" element={<ArchieOps />} />
-                    <Route
-                      path="execution"
-                      element={<ArchieExecution />}
-                    />
+                    <Route path="execution" element={<ArchieExecution />} />
                     <Route path="terminology" element={<ArchieTerminology />} />
+                    <Route path="legal" element={<ArchieLegal />} />
+                    <Route path="privacy" element={<ArchiePrivacy />} />
                     <Route path="*" element={<NotFound />} />
                   </Route>
 
@@ -1113,6 +1112,7 @@ export default function App() {
                       path="archie-studio"
                       element={<AdminArchieStudio />}
                     />
+                    <Route path="archie-legal" element={<AdminArchieLegal />} />
                     <Route
                       path="archie-terminology"
                       element={<AdminArchieTerminology />}

@@ -1641,6 +1641,30 @@ Deno.serve(async (req) => {
   };
 
   const toolRuns: ToolRun[] = [];
+
+  // REAL PERSONALIZATION PRIVACY CONTROL (Memory & Data
+  // Rights Policy): the owner's personalization_memory
+  // consent is honored per request. Revoked → the kernel and
+  // its substrate run in-memory only — no persistent memory
+  // loads, no learning writes, no memory-based
+  // personalization. Granted or unset → durable memory stays
+  // wired. This is a real gate, not a stored preference.
+  try {
+    const { data: consent } = await db
+      .from("archie_privacy_consents")
+      .select("granted, revoked_at")
+      .eq("user_id", activeOwnerUserId ?? user.id)
+      .eq("consent_key", "personalization_memory")
+      .maybeSingle();
+    const revoked = consent
+      ? consent.granted === false || consent.revoked_at !== null
+      : false;
+    configureCognitiveEnginePersistence(revoked ? null : db);
+  } catch {
+    // Consent table unavailable → default: memory stays wired.
+    configureCognitiveEnginePersistence(db);
+  }
+
   // The owner path runs the UNIFIED COGNITIVE LOOP — the same
   // kernel the tests verify: perception (secret redaction on
   // ingest) → memory retrieval → reasoning → world-model

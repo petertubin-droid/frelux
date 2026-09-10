@@ -11,8 +11,8 @@
 // bottom nav, desktop sidebar.
 // =========================================================
 
-import { useEffect } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { NavLink, Outlet, useLocation, Link } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 import "@/styles/archie-premium.css";
 import ArchieInstallButton from "./ArchieInstallButton";
@@ -174,6 +174,23 @@ function NavIcon({ name }: { name: string }) {
 export default function ArchieLayout() {
   const { user } = useAuth();
   const location = useLocation();
+  // AI transparency (AI Disclosure doc): one-time notice,
+  // permanently discoverable in the footer links.
+  const [disclosureAck, setDisclosureAck] = useState(true);
+  const [online, setOnline] = useState(true);
+  const [updateReady, setUpdateReady] = useState(false);
+  useEffect(() => {
+    setDisclosureAck(localStorage.getItem("archie-ai-disclosure-ack") === "1");
+    setOnline(navigator.onLine);
+    const on = () => setOnline(true);
+    const off = () => setOnline(false);
+    window.addEventListener("online", on);
+    window.addEventListener("offline", off);
+    return () => {
+      window.removeEventListener("online", on);
+      window.removeEventListener("offline", off);
+    };
+  }, []);
 
   // Swap in the ARCHIE PWA manifest while inside /archie; the
   // FRELUX manifest is restored on unmount.
@@ -194,6 +211,20 @@ export default function ArchieLayout() {
         .register("/archie-sw.js", { scope: "/archie/" })
         .then((reg) => {
           registration = reg;
+          // PWA update flow: when a new ARCHIE shell version is
+          // deployed, let the user reload on purpose — no
+          // silent swaps mid-session.
+          reg.addEventListener("updatefound", () => {
+            const sw = reg.installing;
+            sw?.addEventListener("statechange", () => {
+              if (
+                sw.state === "installed" &&
+                navigator.serviceWorker.controller
+              ) {
+                setUpdateReady(true);
+              }
+            });
+          });
         })
         .catch(() => {
           /* offline shell unavailable; the app still works online */
@@ -229,6 +260,24 @@ export default function ArchieLayout() {
             </span>
           </div>
           <div className="ml-auto flex items-center gap-2">
+            {!online && (
+              <span className="rounded-full border border-amber-400/40 bg-amber-400/10 px-2 py-0.5 text-[10px] font-semibold text-amber-300">
+                OFFLINE — cached screens only; chat needs a connection
+              </span>
+            )}
+            {updateReady && (
+              <button
+                onClick={() => {
+                  navigator.serviceWorker?.controller?.postMessage({
+                    type: "SKIP_WAITING",
+                  });
+                  window.location.reload();
+                }}
+                className="rounded-full border border-amber-400/40 bg-amber-400/10 px-2.5 py-0.5 text-[10px] font-semibold text-amber-300 hover:bg-amber-400/20"
+              >
+                UPDATE READY — RELOAD
+              </button>
+            )}
             <ArchieInstallButton />
             <div className="text-[11px] text-slate-400">
               {user?.email ? user.email : "Owner"}
@@ -236,6 +285,33 @@ export default function ArchieLayout() {
           </div>
         </div>
       </header>
+
+      {/* AI transparency disclosure (one-time, dismissible;
+          the truth it states is permanent on the Legal page). */}
+      {!disclosureAck && (
+        <div className="border-b border-amber-400/20 bg-amber-400/[0.06] px-4 py-2.5 text-center text-xs text-amber-100/80">
+          <span className="font-semibold text-amber-200">ARCHIE is an AI.</span>{" "}
+          It can make mistakes and important information may need your
+          verification. Memory and learned information are confidence-scored,
+          not automatically true. Production changes always require Owner
+          authorization.{" "}
+          <Link
+            to="/archie/legal"
+            className="font-semibold text-amber-200 underline underline-offset-2"
+          >
+            Read the AI Disclosure
+          </Link>
+          <button
+            onClick={() => {
+              localStorage.setItem("archie-ai-disclosure-ack", "1");
+              setDisclosureAck(true);
+            }}
+            className="ml-2 rounded border border-amber-400/30 px-1.5 py-0.5 text-[10px] font-semibold text-amber-200"
+          >
+            GOT IT
+          </button>
+        </div>
+      )}
 
       {/* desktop sidebar + mobile bottom nav */}
       <div className="mx-auto flex w-full max-w-6xl flex-1 gap-0 md:gap-6">
@@ -310,6 +386,21 @@ export default function ArchieLayout() {
           </NavLink>
         ))}
       </nav>
+
+      {/* Legal & governance links — §12 access without
+          cluttering the primary interface. */}
+      <footer className="border-t border-white/5 px-4 pb-20 pt-4 text-center text-[11px] text-slate-500 md:pb-4">
+        <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+          <Link to="/archie/legal" className="hover:text-slate-300">
+            Legal &amp; Governance
+          </Link>
+          <span aria-hidden>·</span>
+          <Link to="/archie/privacy" className="hover:text-slate-300">
+            Privacy &amp; Memory Rights
+          </Link>
+        </div>
+        <p className="mt-1.5">© 2026 FRENZY. All rights reserved.</p>
+      </footer>
     </div>
   );
 }

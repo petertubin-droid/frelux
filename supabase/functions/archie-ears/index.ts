@@ -108,6 +108,27 @@ async function requireOwner(
       res: earsError(403, "FORBIDDEN", "Forbidden — ARCHIE is Owner-only."),
     };
   }
+  // REAL voice-privacy consent gate (Memory & Data Rights
+  // Policy): the voice_audio consent governs whether ARCHIE
+  // processes audio for this owner. Revoked → honest refusal,
+  // no processing. Unset → the feature is used as requested
+  // (the PWA privacy settings make the control discoverable).
+  const { data: consent } = await service
+    .from("archie_privacy_consents")
+    .select("granted, revoked_at")
+    .eq("user_id", user.id)
+    .eq("consent_key", "voice_audio")
+    .maybeSingle();
+  if (consent && (consent.granted === false || consent.revoked_at !== null)) {
+    return {
+      ok: false,
+      res: earsError(
+        403,
+        "VOICE_CONSENT_REVOKED",
+        "Voice processing is disabled in Privacy settings (voice_audio consent revoked). Re-enable it there to use this feature.",
+      ),
+    };
+  }
   return { ok: true, userId: user.id };
 }
 

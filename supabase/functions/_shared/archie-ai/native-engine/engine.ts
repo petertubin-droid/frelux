@@ -186,7 +186,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
   private booted = false;
 
   constructor(options?: {
-    persistence?: SupabaseLike;
+    /** null/undefined = run in-memory only (the REAL
+     *  personalization privacy control). */
+    persistence?: SupabaseLike | null;
     researchAdapter?: ResearchAdapter;
     marketPriceLookup?: MarketPriceLookup;
     systemAdapters?: SystemAdapters;
@@ -905,12 +907,21 @@ export class ArchieNativeEngine implements ArchieRuntime {
 // resolveArchieCapabilityEngine() then hands every consumer
 // the wired engine.
 // ---------------------------------------------------------
-let configuredPersistence: SupabaseLike | undefined;
+let configuredPersistence: SupabaseLike | null | undefined;
 let configuredMarketLookup: MarketPriceLookup | undefined;
 let configuredSystemAdapters: SystemAdapters | undefined;
 let singleton: ArchieNativeEngine | undefined;
 
-export function configureNativeEnginePersistence(db: SupabaseLike): void {
+/** Wire (or UNWIRE) durable persistence. Passing null runs
+ *  the engine in-memory only — used by the REAL
+ *  personalization privacy control: when the owner revokes
+ *  the personalization_memory consent, ARCHIE's chat runs
+ *  without loading or storing persistent memory for that
+ *  request. No personalization, no memory reads, no
+ *  memory writes. */
+export function configureNativeEnginePersistence(
+  db: SupabaseLike | null,
+): void {
   configuredPersistence = db;
   singleton = undefined; // rebuild with persistence on next resolve
 }

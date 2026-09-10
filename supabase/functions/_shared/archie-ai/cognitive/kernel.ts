@@ -65,9 +65,15 @@ export const COGNITIVE_ENGINE_ID = "archie-cognitive-engine";
 let configuredDb: SupabaseLike | undefined;
 let kernelSingleton: CognitiveKernel | undefined;
 
-/** Edge functions call this at boot with the service client. */
-export function configureCognitiveEnginePersistence(db: SupabaseLike): void {
-  configuredDb = db;
+/** Edge functions call this at boot with the service client.
+ *  Passing null enables the REAL personalization privacy
+ *  control (Memory & Data Rights Policy): the kernel and its
+ *  substrate run in-memory only for that request — no
+ *  persistent memory loads, no learning writes. */
+export function configureCognitiveEnginePersistence(
+  db: SupabaseLike | null,
+): void {
+  configuredDb = db ?? undefined;
   kernelSingleton = undefined;
   configureNativeEnginePersistence(db); // substrate shares persistence
 }
