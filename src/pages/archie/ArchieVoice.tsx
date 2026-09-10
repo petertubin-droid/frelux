@@ -177,10 +177,8 @@ export default function ArchieVoice() {
           setTalkError("No audio was captured.");
           return;
         }
-        const lastReply =
-          historyRef.current.at(-1)?.role === "archie"
-            ? historyRef.current[historyRef.current.length - 1].content
-            : null;
+        const last = historyRef.current[historyRef.current.length - 1] ?? null;
+        const lastReply = last && last.role === "archie" ? last.content : null;
         const { transcript, speechDetected, language } = await transcribeAudio({
           blob: recorded.blob,
           languageHint: talkLanguage,
