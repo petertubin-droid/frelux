@@ -345,7 +345,7 @@ INSERT INTO public.frelux_archie_audit_events (
   owner_id, event_type, severity, detail
 )
 SELECT
-  u.id,
+  p.id,
   'archie.anatomy.subsystem.added',
   'INFO',
   jsonb_build_object(
