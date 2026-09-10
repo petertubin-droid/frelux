@@ -6,6 +6,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Security (audit 2026-09-10 remediation)
+
+- **H1 — Paystack subscription payment bypass closed:** subscription checkout is now priced server-side from a new `subscription_plan_prices` table (migration `20260911090000`, RLS on, service-role only); the client-supplied amount is advisory only and `paystack-verify` / `paystack-webhook` activate a subscription ONLY when the caller identity matches `metadata.user_id` and the paid amount exactly equals the canonical price (kobo-precise). Constant-time webhook signature comparison (L7). Shared guard module `supabase/functions/_shared/subscription-pricing.ts` with 14 unit tests (including the ₦1 tamper attack). Verified against the live endpoint: tamper attempts now return `Unauthorized`.
+- **M1 — legacy wide-open `public_read_ai_learn_chat` policy dropped** from the live database (migration `20260911091000`); only the session-scoped read policy remains.
+- **M2 — analytics injection hardening:** GA measurement IDs and Meta Pixel IDs from site settings are strictly format-validated before interpolation into inline scripts; a compromised settings row can no longer smuggle script content through the ID fields.
+
+### Fixed
+
+- **M5:** ARCHIE `RequireOwner` redirected unauthenticated family members to nonexistent `/signin` — now `/login`.
+- **L6:** broken `/auth` CTAs in Gallery and Marketplace ListingDetail — now `/login`.
+
+### Removed
+
+- **L8:** duplicate `sitemap` edge function retired (live + repo); the build-time `public/sitemap.xml` (regenerated on every build, referenced by robots.txt and the admin SEO page) is the canonical sitemap.
+
 ### Changed
 
 - **OpenAI Separation Rule (owner-directed):** ARCHIE is a fully independent intelligence system — OpenAI has been removed from ARCHIE's voice pipeline entirely and the rule is now encoded as a permanent ARCHIE core principle (`openai_separation`, seed migration, integrity-checked and statically enforced by tests). Speech understanding runs on NATIVE on-device recognition (browser/OS engine — no cloud provider, no API key); `archie-ears` is now an owner-gated, rate-limited, audited intake for native transcripts (no transcription, no provider key); replies are spoken through the owner's voice bank (`frelux_archie_voice_samples`, deterministic pitch/pace math) and every utterance gets an honest voice-print check against the bank profile. OpenAI remains ONLY in the FRELUX application layer as an explicitly-authorized fallback (same boundary as Gemini). Anatomy ears purpose/bindings updated to the native description (migration `20260913120000`); 28 Ears engine tests + provider-independence OpenAI enforcement lock the zero-wiring invariants.
