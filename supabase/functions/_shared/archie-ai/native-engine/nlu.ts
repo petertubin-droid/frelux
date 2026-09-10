@@ -549,6 +549,14 @@ const RULE_CASCADE: Array<{
       /^(?:no[,.!?]?\s+(?:that|this|the)\b|(?:that|this)\s+is\s+(?:wrong|incorrect|not\s+accurate|not\s+right)|you\s+are\s+(?:wrong|mistaken)|actually,?\s+it\s+is\s+(?:not|different)|correct\s+that)\b/i,
     confidence: 0.85,
   },
+  // Unit conversion ("convert 5 meters to centimeters") —
+  // deterministic conversion beats generic question frames.
+  {
+    intent: "math_question",
+    pattern:
+      /\bconvert\s+-?\d+(?:\.\d+)?\s*[a-z°]+\s+(?:to|into|in)\s+[a-z°]+/i,
+    confidence: 0.95,
+  },
   // Arithmetic signal — deterministic math beats generic question frames.
   {
     intent: "math_question",
@@ -560,6 +568,16 @@ const RULE_CASCADE: Array<{
   {
     intent: "knowledge_query",
     pattern: /^(?:what|who)\s+(?:is|are|was|were)\s+(?:the|a|an|this|that)\b/i,
+    confidence: 0.7,
+  },
+  // Bare-noun definitional questions ("what is photosynthesis?")
+  // — domain-general knowledge beats the archie-centric Bayes
+  // fallback (P2 xd-2). Questions about ARCHIE itself keep
+  // their own routes.
+  {
+    intent: "knowledge_query",
+    pattern:
+      /^(?:what|who)\s+(?:is|are|was|were)\s+(?!archie\b|your\b|this\b|that\b|the\b)[a-z]/i,
     confidence: 0.7,
   },
 ];

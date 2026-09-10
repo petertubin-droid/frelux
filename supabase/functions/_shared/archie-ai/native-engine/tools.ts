@@ -122,10 +122,15 @@ export function evaluateExpression(expression: string): number {
       }
       if (ops.pop() !== "(") throw new Error("unbalanced parentheses");
     } else if (/^[-+*/%^]$/.test(token)) {
+      // "^" is right-associative (2^3^2 = 2^(3^2) = 512):
+      // pop only strictly-greater precedence for it, >= for
+      // the left-associative operators.
       while (
         ops.length > 0 &&
         ops[ops.length - 1] !== "(" &&
-        PRECEDENCE[ops[ops.length - 1]] >= PRECEDENCE[token]
+        (PRECEDENCE[ops[ops.length - 1]] > PRECEDENCE[token] ||
+          (PRECEDENCE[ops[ops.length - 1]] === PRECEDENCE[token] &&
+            token !== "^"))
       ) {
         output.push(ops.pop()!);
       }
@@ -180,6 +185,90 @@ export function evaluateExpression(expression: string): number {
 }
 
 /** Register the built-in tools on an orchestrator. */
+// ---------------------------------------------------------
+// Deterministic unit conversion — real factors, same
+// dimension only, honest errors otherwise. Temperature has
+// real affine formulas, not factors.
+// ---------------------------------------------------------
+const LENGTH_UNITS: Record<string, number> = {
+  mm: 0.001, millimeter: 0.001, millimetre: 0.001,
+  cm: 0.01, centimeter: 0.01, centimetre: 0.01,
+  m: 1, meter: 1, metre: 1,
+  km: 1000, kilometer: 1000, kilometre: 1000,
+  ft: 0.3048, foot: 0.3048, feet: 0.3048,
+  in: 0.0254, inch: 0.0254, inches: 0.0254,
+  yd: 0.9144, yard: 0.9144, yards: 0.9144,
+};
+const MASS_UNITS: Record<string, number> = {
+  mg: 1e-6, g: 0.001, gram: 0.001, gramme: 0.001,
+  kg: 1, kilogram: 1, kilogramme: 1,
+  t: 1000, tonne: 1000, tonnes: 1000, ton: 1000, tons: 1000,
+  lb: 0.453592, pound: 0.453592, pounds: 0.453592,
+};
+const VOLUME_UNITS: Record<string, number> = {
+  ml: 0.001, cl: 0.01, dl: 0.1, l: 1, liter: 1, litre: 1,
+  liters: 1, litres: 1, m3: 1000, "cubic-meter": 1000,
+};
+
+/** Normalized unit: dimension + factor to base. */
+function unitEntry(
+  unit: string,
+): { dimension: string; factor: number } | null {
+  const u = unit.toLowerCase().replace(/\.$/, "").replace(/°/, "");
+  if (u in LENGTH_UNITS) return { dimension: "length", factor: LENGTH_UNITS[u] };
+  if (u in MASS_UNITS) return { dimension: "mass", factor: MASS_UNITS[u] };
+  if (u in VOLUME_UNITS) return { dimension: "volume", factor: VOLUME_UNITS[u] };
+  // Plural fallback: "meters" -> "meter".
+  const singular = u.endsWith("s") ? u.slice(0, -1) : u;
+  if (singular in LENGTH_UNITS) return { dimension: "length", factor: LENGTH_UNITS[singular] };
+  if (singular in MASS_UNITS) return { dimension: "mass", factor: MASS_UNITS[singular] };
+  if (singular in VOLUME_UNITS) return { dimension: "volume", factor: VOLUME_UNITS[singular] };
+  return null;
+}
+
+const TEMPERATURE: Record<string, (c: number) => number> = {
+  "celsius": (c) => c,
+  centigrade: (c) => c,
+  "c": (c) => c,
+  "fahrenheit": (c) => (c * 9) / 5 + 32,
+  "f": (c) => (c * 9) / 5 + 32,
+  "kelvin": (c) => c + 273.15,
+  "k": (c) => c + 273.15,
+};
+const FROM_C: Record<string, (v: number) => number> = {
+  celsius: (v) => v,
+  centigrade: (v) => v,
+  c: (v) => v,
+  fahrenheit: (v) => ((v - 32) * 5) / 9,
+  f: (v) => ((v - 32) * 5) / 9,
+  kelvin: (v) => v - 273.15,
+  k: (v) => v - 273.15,
+};
+
+/** Convert a value between units. Throws honest errors for
+ *  unknown units or cross-dimension conversions. */
+export function convertUnits(
+  value: number,
+  from: string,
+  to: string,
+): number {
+  if (Number.isNaN(value)) throw new Error("value must be a number");
+  const fRaw = from.toLowerCase().replace(/\.$/, "");
+  const tRaw = to.toLowerCase().replace(/\.$/, "");
+  if (fRaw in FROM_C && tRaw in TEMPERATURE) {
+    if (fRaw === tRaw) return value;
+    return Math.round(TEMPERATURE[tRaw](FROM_C[fRaw](value)) * 1e6) / 1e6;
+  }
+  const f = unitEntry(from);
+  const t = unitEntry(to);
+  if (!f) throw new Error(`unknown unit "${from}" — I convert length, mass, volume and temperature only`);
+  if (!t) throw new Error(`unknown unit "${to}" — I convert length, mass, volume and temperature only`);
+  if (f.dimension !== t.dimension) {
+    throw new Error(`cannot convert ${f.dimension} (${from}) to ${t.dimension} (${to}) — different dimensions, honestly refused`);
+  }
+  return Math.round((value * f.factor) / t.factor * 1e6) / 1e6;
+}
+
 export function registerBuiltInTools(orchestrator: ToolOrchestrator): void {
   orchestrator.register(
     {
@@ -188,6 +277,15 @@ export function registerBuiltInTools(orchestrator: ToolOrchestrator): void {
       parameters: { expression: "string" },
     },
     (args) => evaluateExpression(String(args.expression)),
+  );
+  orchestrator.register(
+    {
+      name: "convert_units",
+      description: "Deterministically convert a value between units of the same dimension",
+      parameters: { value: "number", from: "string", to: "string" },
+    },
+    (args) =>
+      convertUnits(Number(args.value), String(args.from), String(args.to)),
   );
   orchestrator.register(
     {

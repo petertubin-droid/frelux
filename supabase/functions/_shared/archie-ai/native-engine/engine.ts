@@ -528,6 +528,22 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
 
       case "math_question": {
+        // Unit conversion ("convert 5 meters to centimeters") —
+        // deterministic factors, same dimension only (P2 ma-3).
+        const conv = input.match(
+          /convert\s+(-?\d+(?:\.\d+)?)\s*([a-z°]+)\s+(?:to|into|in)\s+([a-z°]+)/i,
+        );
+        if (conv) {
+          const invocation = await this.tools.invoke("convert_units", {
+            value: Number(conv[1]),
+            from: conv[2],
+            to: conv[3],
+          });
+          const text = invocation.ok
+            ? `${conv[1]} ${conv[2]} = ${String(invocation.output)} ${conv[3]} (converted deterministically in-engine)`
+            : `I could not convert that: ${invocation.error}. My unit conversion is honest — it reports errors rather than guessing.`;
+          return this.compose(text, nlu.confidence, [], undefined, [invocation]);
+        }
         const expression = extractExpression(input);
         if (!expression) {
           return this.compose(
@@ -1225,11 +1241,21 @@ function extractExpression(input: string): string | null {
   if (percent) {
     return `((${percent[1]}/100)*${percent[2]})`;
   }
-  const m = normalized.match(
-    /(-?\d+(?:\.\d+)?(?:\s*[-+*/%^×x÷]\s*\(?-?\d+(?:\.\d+)?\)?)+)/,
-  );
+  // Longest balanced arithmetic run — supports parenthesized
+  // expressions like "(25 * 48) + 12" (P2 ma-1).
+  const m = normalized.match(/[\d(][-+*/%^().\d\s]*[\d)]/);
   if (!m) return null;
-  return m[1].replace(/\s+/g, "");
+  const expr = m[0].replace(/\s+/g, "");
+  // Must contain a real operator, not just a bare number.
+  if (!/[-+*/%^]/.test(expr)) return null;
+  // Balanced-parenthesis sanity (honest refusal on garbage).
+  let bal = 0;
+  for (const c of expr) {
+    if (c === "(") bal += 1;
+    else if (c === ")") bal -= 1;
+    if (bal < 0) return null;
+  }
+  return bal === 0 ? expr : null;
 }
 
 function extractTriple(
@@ -1251,7 +1277,7 @@ function extractTriple(
     .replace(/[.?!]+$/, "")
     .trim();
   const m = cleaned.match(
-    /^([A-Za-z0-9 -]+?)\s+(?:is|are|has|uses|means)\s+(.+)$/i,
+    /^([A-Za-z0-9 -]+?)\s+(?:is|are|has|uses|means|converts|produces|contains|requires|needs|weighs|costs|creates|generates)\s+(.+)$/i,
   );
   if (!m) return null;
   const subjectRaw = m[1].trim().toLowerCase();
