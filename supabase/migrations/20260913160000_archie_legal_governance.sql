@@ -169,6 +169,7 @@ CREATE POLICY archie_governance_rules_read ON public.archie_governance_rules
 DO $$
 DECLARE
   missing text;
+  doc_table text;
 BEGIN
   FOR doc_table IN
     SELECT t FROM unnest(ARRAY[
