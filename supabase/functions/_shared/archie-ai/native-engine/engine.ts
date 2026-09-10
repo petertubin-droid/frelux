@@ -112,6 +112,33 @@ export interface ConverseResult {
   }>;
 }
 
+// ---------------------------------------------------------
+// Market intelligence adapter boundary (pluggable, like the
+// research adapter). Production (archie-chat) wires a real
+// service-role lookup over mi_approved_prices / mi_price_
+// observations; tests inject doubles. The engine NEVER guesses
+// prices — no lookup wired or no data means an honest answer.
+// ---------------------------------------------------------
+export interface MarketPriceResult {
+  product: string;
+  price: number;
+  currency: string;
+  packageSize: number | null;
+  packageUnit: string | null;
+  marketCode: string;
+  /** Honest freshness classification of the underlying record. */
+  freshness: "fresh" | "recent" | "stale" | "expired";
+  /** "approved" = curated price list; "observation" = raw crawl. */
+  source: "approved" | "observation";
+  recordedAt: string;
+  note?: string;
+}
+
+export type MarketPriceLookup = (
+  product: string,
+  market?: string,
+) => Promise<MarketPriceResult | null>;
+
 export class ArchieNativeEngine implements ArchieRuntime {
   readonly id = NATIVE_ENGINE_ID;
   readonly kind = "archie-native" as const;
@@ -127,6 +154,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
   private learner: OutcomeLearner;
   private research: ResearchPipeline;
   private adapter: ResearchAdapter;
+  private marketPriceLookup: MarketPriceLookup | null;
   private persistence: SupabasePersistence | null;
   private bootedAt = Date.now();
   private inferences = 0;
@@ -136,7 +164,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
   constructor(options?: {
     persistence?: SupabaseLike;
     researchAdapter?: ResearchAdapter;
+    marketPriceLookup?: MarketPriceLookup;
   }) {
+    this.marketPriceLookup = options?.marketPriceLookup ?? null;
     this.persistence = options?.persistence
       ? new SupabasePersistence(options.persistence)
       : null;
@@ -533,6 +563,51 @@ export class ArchieNativeEngine implements ArchieRuntime {
         );
       }
 
+      case "price_query": {
+        const product = extractPriceProduct(input);
+        if (!product) {
+          return this.compose(
+            "Ask me about a specific material — for example 'what is the price of cement' — and I will answer from real observed market data, never from a guess.",
+            nlu.confidence,
+            [],
+          );
+        }
+        if (!this.marketPriceLookup) {
+          return this.compose(
+            `My market intelligence adapter is not wired in this deployment, so I cannot look up observed prices for "${product}" here. I do not guess prices.`,
+            nlu.confidence,
+            [],
+          );
+        }
+        const result = await this.marketPriceLookup(product);
+        if (!result) {
+          return this.compose(
+            `I have no observed price data for "${product}" yet — the market intelligence crawler has not recorded it, and I do not guess prices. You can teach me a price directly and I will retain it as owner-provided knowledge.`,
+            nlu.confidence,
+            [],
+          );
+        }
+        const pkg =
+          result.packageSize && result.packageUnit
+            ? ` for ${result.packageSize} ${result.packageUnit}`
+            : "";
+        const stale =
+          result.freshness === "stale" || result.freshness === "expired";
+        const sourceNote =
+          result.source === "approved"
+            ? "approved price list"
+            : "raw market observation (not yet approved)";
+        const date = String(result.recordedAt).slice(0, 10);
+        return this.compose(
+          `${result.currency} ${result.price} for ${result.product}${pkg} — market ${result.marketCode}, recorded ${date} (${sourceNote}).` +
+            (stale
+              ? ` This price is ${result.freshness} — treat it as indicative only.`
+              : ""),
+          nlu.confidence,
+          [],
+        );
+      }
+
       default: {
         return this.compose(
           `I parsed that as general reasoning input (intent ${nlu.intent}, confidence ${(nlu.confidence * 100).toFixed(0)}%). ` +
@@ -659,6 +734,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
 // the wired engine.
 // ---------------------------------------------------------
 let configuredPersistence: SupabaseLike | undefined;
+let configuredMarketLookup: MarketPriceLookup | undefined;
 let singleton: ArchieNativeEngine | undefined;
 
 export function configureNativeEnginePersistence(db: SupabaseLike): void {
@@ -666,9 +742,22 @@ export function configureNativeEnginePersistence(db: SupabaseLike): void {
   singleton = undefined; // rebuild with persistence on next resolve
 }
 
+/** Wire the real market-price lookup (archie-chat does this
+ *  at boot with the service client). Resets the singleton so
+ *  the next resolve carries the adapter. */
+export function configureNativeEngineMarketLookup(
+  lookup: MarketPriceLookup,
+): void {
+  configuredMarketLookup = lookup;
+  singleton = undefined;
+}
+
 export function getNativeEngine(): ArchieNativeEngine {
   if (!singleton) {
-    singleton = new ArchieNativeEngine({ persistence: configuredPersistence });
+    singleton = new ArchieNativeEngine({
+      persistence: configuredPersistence,
+      marketPriceLookup: configuredMarketLookup,
+    });
   }
   return singleton;
 }
@@ -676,6 +765,30 @@ export function getNativeEngine(): ArchieNativeEngine {
 // ---------------------------------------------------------
 // Text-extraction helpers (deterministic)
 // ---------------------------------------------------------
+/** Extract the product noun-phrase from a price query.
+ *  Deterministic: strips interrogative/price filler words and
+ *  keeps the material words for the lookup adapter. */
+function extractPriceProduct(input: string): string | null {
+  const t = input
+    .toLowerCase()
+    .replace(/what(?:'s|\u2019s| is)?/g, " ")
+    .replace(/how much (?:is|does|are)/g, " ")
+    .replace(
+      /\b(current|market|latest|price|prices|cost|today|now|this|week|month|please|the|a|an|per|there|for)\b/g,
+      " ",
+    )
+    .replace(/\s+/g, " ")
+    // drop only LEADING prepositions ("of cement" → "cement")
+    // so unit phrases like "bag of cement" survive intact
+    .replace(/^\s*(?:of|in|for|at)\s+/, "")
+    .trim();
+  const words = t
+    .split(" ")
+    .filter((w) => w.length > 1)
+    .slice(0, 5);
+  return words.length > 0 ? words.join(" ") : null;
+}
+
 function extractExpression(input: string): string | null {
   // Word operators → symbols first, so "25 times 48" and
   // "12.5 percent of 8000" extract as real arithmetic.

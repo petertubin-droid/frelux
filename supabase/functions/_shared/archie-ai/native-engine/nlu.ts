@@ -192,6 +192,7 @@ export const INTENTS = [
   "task_planning",
   "code_analysis_request",
   "research_request",
+  "price_query",
   "math_question",
   "teaching",
   "correction",
@@ -463,6 +464,18 @@ const RULE_CASCADE: Array<{
     pattern:
       /^(?:please\s+)?(?:research|search|google|look\s+up|find\s+information)\b/i,
     confidence: 0.85,
+  },
+  {
+    // Interrogative price questions about materials route to the
+    // market intelligence lookup ("how much is a bag of cement",
+    // "price of granite"). Imperative research commands above
+    // still win ("look up the price of..."), and pure arithmetic
+    // is matched by the math rule below — this rule requires an
+    // explicit price/cost/unit-sale phrase.
+    intent: "price_query",
+    pattern:
+      /^(?:what(?:'s|\u2019s| is)?\s+(?:the\s+)?(?:current\s+|market\s+|latest\s+)*price\s+of|price\s+of|(?:current|market|latest)\s+price\s+of|how\s+much\s+(?:is|does|are)\s+(?:a\s+|an\s+|the\s+)?(?:bag|trip|tonne|ton|carton|block|drum|pound)s?\s+of|how\s+much\s+(?:is|does|are)\b.+\b(?:cost|price)\b|how\s+much\s+is\b.+\bper\s+(?:bag|tonne|ton|unit|kg|square\s+meter)|\b(?:cement|granite|sand|sharp\s+sand|laterite|blocks?|iron\s+rods?|reinforcement|paint|tiles?)\b[^.?!]*\bprice\b)\b/i,
+    confidence: 0.9,
   },
   {
     intent: "task_planning",

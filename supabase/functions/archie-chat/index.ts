@@ -70,9 +70,99 @@ const db = createClient(SUPABASE_URL, SERVICE_ROLE, {
 // ARCHIE Native Intelligence Engine — wire durable persistence
 // (knowledge facts + learning outcomes) into the engine the
 // registry resolves. Zero external AI APIs.
-import { configureNativeEnginePersistence } from "../_shared/archie-ai/native-engine/engine.ts";
+import {
+  configureNativeEnginePersistence,
+  configureNativeEngineMarketLookup,
+  type MarketPriceResult,
+} from "../_shared/archie-ai/native-engine/engine.ts";
 configureNativeEnginePersistence(
   db as unknown as import("../_shared/archie-ai/native-engine/persistence.ts").SupabaseLike,
+);
+
+// ---------------------------------------------------------
+// ARCHIE market intelligence adapter (REAL): price lookups
+// straight from the market intelligence tables. Approved
+// prices win; raw validated observations are the honest
+// fallback, clearly labeled. No data → null → ARCHIE says so
+// (never a guessed price).
+// ---------------------------------------------------------
+configureNativeEngineMarketLookup(
+  async (
+    product: string,
+    market?: string,
+  ): Promise<MarketPriceResult | null> => {
+    const like = `%${product}%`;
+
+    // 1) Freshest ACTIVE approved price by product name
+    let ap = db
+      .from("mi_approved_prices")
+      .select(
+        "product_name, price, currency_code, package_size, package_unit, market_code, freshness, last_updated, brand",
+      )
+      .eq("is_active", true)
+      .ilike("product_name", like)
+      .order("last_updated", { ascending: false })
+      .limit(5);
+    if (market) ap = ap.eq("market_code", market);
+    const { data: approved } = await ap;
+
+    if (approved && approved.length > 0) {
+      const a = approved[0];
+      return {
+        product: a.product_name as string,
+        price: Number(a.price),
+        currency: (a.currency_code as string) ?? "NGN",
+        packageSize: a.package_size != null ? Number(a.package_size) : null,
+        packageUnit: (a.package_unit as string) ?? null,
+        marketCode: (a.market_code as string) ?? "NG",
+        freshness: (a.freshness as MarketPriceResult["freshness"]) ?? "recent",
+        source: "approved",
+        recordedAt: String(a.last_updated),
+        note: a.brand ? `brand: ${a.brand}` : undefined,
+      };
+    }
+
+    // 2) Honest fallback: latest APPROVED/validated raw observation
+    let ob = db
+      .from("mi_price_observations")
+      .select(
+        "original_product_name, price, currency_code, package_size, package_unit, market_code, freshness, collected_at",
+      )
+      .or(`normalized_name.ilike.${like},original_product_name.ilike.${like}`)
+      .in("validation_status", ["approved", "validating"])
+      .order("collected_at", { ascending: false })
+      .limit(5);
+    if (market) ob = ob.eq("market_code", market);
+    const { data: observed } = await ob;
+
+    if (observed && observed.length > 0) {
+      const o = observed[0];
+      const days =
+        (Date.now() - new Date(o.collected_at).getTime()) / 86_400_000;
+      const freshness: MarketPriceResult["freshness"] =
+        days <= 7
+          ? "fresh"
+          : days <= 30
+            ? "recent"
+            : days <= 90
+              ? "stale"
+              : "expired";
+      return {
+        product: (o.original_product_name as string) ?? product,
+        price: Number(o.price),
+        currency: (o.currency_code as string) ?? "NGN",
+        packageSize: o.package_size != null ? Number(o.package_size) : null,
+        packageUnit: (o.package_unit as string) ?? null,
+        marketCode: (o.market_code as string) ?? "NG",
+        freshness,
+        source: "observation",
+        recordedAt: String(o.collected_at),
+      };
+    }
+
+    // No data — the engine reports this honestly.
+    return null;
+  },
 );
 // Wire the unified cognitive engine (kernel) with the same
 // service client: world model, audit log + traces persist.

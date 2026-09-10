@@ -106,6 +106,13 @@ export function nativeEngineCapabilityManifest(): CapabilityReport[] {
       measuredBy: "native-engine.test.ts (learning cases)",
     },
     {
+      id: "market-intelligence-price-lookup",
+      description:
+        "Market intelligence price lookup: price queries resolve through a pluggable lookup adapter over real observed market data (approved prices first, raw observations labeled honestly); no data or no wired adapter produces an honest refusal — ARCHIE never guesses prices",
+      maturity: "OPERATIONAL",
+      measuredBy: "native-engine-runtime.test.ts (market price cases)",
+    },
+    {
       id: "generative-language-model",
       description:
         "Open-ended natural-language generation comparable to a large language model. NOT implemented — ARCHIE composes structured responses from real retrieved knowledge, reasoning outputs, and tool results, and states clearly when knowledge is insufficient rather than imitating generative prose",

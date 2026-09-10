@@ -48,9 +48,6 @@ describe("buildSystemsRegistry", () => {
     const pendingKeys = [
       "properties",
       "construction",
-      "market",
-      "web",
-      "code",
       "documents",
       "images",
       "voice",
@@ -64,6 +61,23 @@ describe("buildSystemsRegistry", () => {
       expect(s?.state).toBe("pending");
       expect(s?.detail.length).toBeGreaterThan(0);
     }
+  });
+
+  it("claims operational ONLY for adapters with a real deployed backend", () => {
+    const sections = buildSystemsRegistry(base);
+    // market: price lookup wired in archie-chat (mi_approved_prices /
+    // mi_price_observations), tested end-to-end.
+    const market = sections.find((x) => x.key === "market");
+    expect(market?.state).toBe("operational");
+    expect(market?.detail).toContain("mi_approved_prices");
+    // web: in-engine research pipeline (DuckDuckGo Lite, tested).
+    const web = sections.find((x) => x.key === "web");
+    expect(web?.state).toBe("operational");
+    expect(web?.detail).toContain("research pipeline");
+    // code: deterministic static analysis in chat (tested).
+    const code = sections.find((x) => x.key === "code");
+    expect(code?.state).toBe("operational");
+    expect(code?.detail).toContain("static analysis");
   });
 
   it("escelates security state from real event severity", () => {

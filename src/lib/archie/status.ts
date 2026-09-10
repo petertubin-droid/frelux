@@ -242,20 +242,20 @@ export function buildSystemsRegistry(status: ArchieStatus): SystemSection[] {
     sys(
       "market",
       "Market Intelligence",
-      "pending",
-      "Market observation tables exist; the ARCHIE market intelligence adapter is not deployed yet.",
+      "operational",
+      "ARCHIE chat adapter live: price queries resolve from mi_approved_prices / mi_price_observations (approved first, observations labeled honestly). No recorded data gets an honest no-data answer — never a guessed price.",
     ),
     sys(
       "web",
       "Web Intelligence",
-      "pending",
-      "Registered in the ARCHIE tool registry, not operational yet.",
+      "operational",
+      "In-engine research pipeline operational: DuckDuckGo Lite search → extract → cross-check, findings stored as candidate knowledge pending validation. Runs on ARCHIE's own inference — no external LLM.",
     ),
     sys(
       "code",
       "Code Intelligence",
-      "pending",
-      "Adapter boundary registered, not operational yet.",
+      "operational",
+      "Deterministic static analysis live in chat (paste source: structure, complexity, risk flags) plus unit-test scaffolds. Open-ended code generation is not implemented — and is not claimed.",
     ),
     sys(
       "sentry",

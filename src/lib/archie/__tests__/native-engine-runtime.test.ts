@@ -5,7 +5,9 @@ import {
   ArchieNativeEngine,
   getNativeEngine,
   configureNativeEnginePersistence,
+  type MarketPriceLookup,
 } from "@studio-shared/archie-ai/native-engine/engine.ts";
+import { understand } from "@studio-shared/archie-ai/native-engine/nlu.ts";
 import { resolveArchieCapabilityEngine } from "@studio-shared/archie-ai/runtime.ts";
 import { nativeEngineCapabilityManifest } from "@studio-shared/archie-ai/native-engine/capabilities.ts";
 import { FactStore } from "@studio-shared/archie-ai/native-engine/knowledge.ts";
@@ -350,5 +352,86 @@ describe("Core integration", () => {
     expect(
       manifest.every((c) => !/gemini|openai|claude|anthropic/i.test(c.id)),
     ).toBe(true);
+  });
+});
+// ---------------------------------------------------------
+// Market intelligence adapter (price queries)
+// ---------------------------------------------------------
+describe("Market intelligence adapter", () => {
+  it("classifies price questions as price_query intent", () => {
+    for (const q of [
+      "what is the price of cement",
+      "current price of a bag of cement",
+      "how much is a trip of sand",
+      "granite price per tonne",
+    ]) {
+      expect(understand(q).intent).toBe("price_query");
+    }
+  });
+
+  it("answers price queries from the wired lookup with the real price", async () => {
+    const lookup: MarketPriceLookup = async (product, market) => {
+      expect(product).toBe("cement");
+      expect(market).toBeUndefined();
+      return {
+        product: "Cement (42.5R)",
+        price: 9500,
+        currency: "NGN",
+        packageSize: 50,
+        packageUnit: "kg",
+        marketCode: "NG",
+        freshness: "fresh",
+        source: "approved",
+        recordedAt: "2026-09-08T10:00:00.000Z",
+      };
+    };
+    const engine = new ArchieNativeEngine({ marketPriceLookup: lookup });
+    const result = await engine.converse("what is the price of cement");
+    expect(result.responseText).toContain("NGN");
+    expect(result.responseText).toContain("9500");
+    expect(result.responseText).toContain("Cement");
+    expect(result.responseText).toContain("approved price list");
+  });
+
+  it("labels raw observations and stale prices honestly", async () => {
+    const engine = new ArchieNativeEngine({
+      marketPriceLookup: async () => ({
+        product: "Sharp sand",
+        price: 45000,
+        currency: "NGN",
+        packageSize: null,
+        packageUnit: null,
+        marketCode: "NG",
+        freshness: "stale",
+        source: "observation",
+        recordedAt: "2026-06-01T10:00:00.000Z",
+      }),
+    });
+    const result = await engine.converse("how much is a trip of sand");
+    expect(result.responseText).toContain("raw market observation");
+    expect(result.responseText).toContain("stale");
+    expect(result.responseText).toContain("indicative only");
+  });
+
+  it("says so honestly when no price data exists — never guesses", async () => {
+    const engine = new ArchieNativeEngine({
+      marketPriceLookup: async () => null,
+    });
+    const result = await engine.converse("price of 20mm granite today");
+    expect(result.responseText).toContain("no observed price data");
+    expect(result.responseText).toContain("do not guess");
+  });
+
+  it("admits when the adapter is not wired in a deployment", async () => {
+    const engine = new ArchieNativeEngine();
+    const result = await engine.converse("current price of a bag of cement");
+    expect(result.responseText).toContain("adapter is not wired");
+  });
+
+  it("archie-chat wires the real market price lookup at boot", () => {
+    const source = read("supabase/functions/archie-chat/index.ts");
+    expect(source).toContain("configureNativeEngineMarketLookup");
+    expect(source).toContain("mi_approved_prices");
+    expect(source).toContain("mi_price_observations");
   });
 });
