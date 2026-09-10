@@ -14,10 +14,13 @@
 
 import type { Fact, FactConflict, FactPattern } from "./types.ts";
 
-let factCounter = 0;
+// Collision-proof fact ids (audit H3): the old Date.now() +
+// per-isolate counter scheme could collide across concurrent
+// edge-function isolates, causing PK conflicts and lost
+// writes. crypto.randomUUID() is available in Deno, Node and
+// the browser, and needs no module-scope runtime state.
 function factId(): string {
-  factCounter += 1;
-  return `fact_${Date.now().toString(36)}_${factCounter.toString(36)}`;
+  return `fact_${crypto.randomUUID()}`;
 }
 
 function matchesPattern(fact: Fact, pattern: FactPattern): boolean {
