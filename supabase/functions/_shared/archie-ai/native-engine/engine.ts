@@ -978,9 +978,16 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
 
       case "identity_query": {
+        // Forensic fix 2026-09-11 (batch 3): a poisoned/parked
+        // identity fact (status uncertain) hydrated before the
+        // seed corpus used to be identity[0] and answered "who
+        // are you" as the rogue identity. Uncertain facts never
+        // stand as the self-model — same filter as the
+        // knowledge_query path.
         const identity = this.facts
           .about("archie")
-          .filter((f) => f.predicate === "identity");
+          .filter((f) => f.predicate === "identity")
+          .filter((f) => f.status !== "uncertain");
         return this.compose(
           identity.length > 0
             ? `${String(identity[0].object)}. I run on my own native inference engine — NLU, knowledge, reasoning, planning and learning all execute in-engine, with no Gemini, OpenAI or Claude anywhere in my core.`

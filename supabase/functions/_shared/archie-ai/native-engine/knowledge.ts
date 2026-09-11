@@ -209,6 +209,23 @@ export class FactStore {
       const conflictsAreAllDerived = conflictingFacts.every(
         (f) => f.status === "derived" || f.provenance.source === "inferred",
       );
+      // Forensic fix 2026-09-11 (batch 3, self-model integrity):
+      // the seed corpus is the VERSIONED baseline of the
+      // currently deployed engine — it re-asserts at every
+      // boot, so a stale or adulterated PERSISTED fact (e.g. a
+      // poisoned identity row) used to win by insertion order:
+      // the seed newcomer parked itself and the persisted fact
+      // silently became the standing answer. The seed now
+      // outranks stored facts at boot EXCEPT owner corrections
+      // (the correction route's deliberate validated
+      // replacements, marked provenance note "owner
+      // correction: ...") — the owner's explicit current word
+      // outranks the corpus, and survives reboots.
+      const conflictsContainOwnerCorrection = conflictingFacts.some(
+        (f) =>
+          typeof f.provenance.note === "string" &&
+          f.provenance.note.startsWith("owner correction"),
+      );
       if (incomingAuthoritative && conflictsAreAllDerived) {
         for (const cf of conflictingFacts) {
           cf.status = "uncertain";
@@ -216,6 +233,16 @@ export class FactStore {
         }
         // The authoritative fact is stored live; the derived
         // contradictions were demoted above.
+      } else if (
+        fact.provenance.source === "seed" &&
+        !conflictsContainOwnerCorrection
+      ) {
+        // The deployment baseline stands; the conflicting
+        // stored facts are demoted (history kept, audible).
+        for (const cf of conflictingFacts) {
+          cf.status = "uncertain";
+          await this.persistFact(cf);
+        }
       } else {
         // Park the newcomer as uncertain — never store as established fact.
         full.status = "uncertain";
