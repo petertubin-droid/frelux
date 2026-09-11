@@ -989,6 +989,62 @@ export class ArchieNativeEngine implements ArchieRuntime {
     };
   }
 
+  /** Phase 2.4: one bounded, NON-PERSISTING derivation pass
+   *  over a scratch copy of the store. The question's exact
+   *  SPO probe (subject + attribute noun) decides what counts
+   *  as an answer — unrelated chain conclusions are discarded.
+   *  ONLY a derived fact that actually answers the probe is
+   *  promoted into the real store, so a question never leaves
+   *  knowledge behind (casual conversation still creates no
+   *  facts — the memory-integration guarantee). Promotion goes
+   *  through assert(): twin detection, reinforcement and
+   *  conflict handling all still apply. Returns the promoted
+   *  facts ([] when nothing derived or nothing matched). */
+  private async deriveForQuestion(qSPO: {
+    subject: string;
+    predicate: string;
+  }): Promise<Fact[]> {
+    const scratch = new FactStore();
+    for (const f of this.facts.list()) {
+      // Copy without id/validatedCount/createdAt — assert()
+      // re-mints those on the scratch store.
+      await scratch.assert({
+        subject: f.subject,
+        predicate: f.predicate,
+        object: f.object,
+        qualifiers: f.qualifiers,
+        confidence: f.confidence,
+        provenance: f.provenance,
+        status: f.status,
+      });
+    }
+    const scratchReasoning = new ReasoningEngine(
+      scratch,
+      this.reasoning.getRules(),
+    );
+    const inference = await scratchReasoning.forwardChain();
+    if (inference.derived.length === 0) return [];
+    const hit = scratch
+      .query({ subject: qSPO.subject, predicate: qSPO.predicate })
+      .filter((f) => f.status === "derived")
+      .slice(0, 3);
+    if (hit.length === 0) return [];
+    const promoted: Fact[] = [];
+    for (const f of hit) {
+      const res = await this.facts.assert({
+        subject: f.subject,
+        predicate: f.predicate,
+        object: f.object,
+        qualifiers: f.qualifiers,
+        confidence: f.confidence,
+        provenance: f.provenance,
+        status: f.status,
+      });
+      promoted.push(res.fact);
+    }
+    return promoted;
+  }
+
   private async route(
     nlu: ReturnType<typeof understand>,
     input: string,
@@ -1268,9 +1324,28 @@ export class ArchieNativeEngine implements ArchieRuntime {
             }
           }
         }
-        const validated = ranked
+        let validated = ranked
           .filter((f) => f.status !== "uncertain")
           .slice(0, 3);
+        // Phase 2.4 SPO probe: a question naming a specific
+        // attribute ("what is the screed volume?") is only
+        // ANSWERED by a fact with that exact subject+predicate
+        // — a topic-word match (the taught thickness ranking
+        // high because it shares the word "screed") is NOT an
+        // answer. When the exact SPO is absent from retrieval,
+        // give the rule engine one bounded derivation pass and
+        // re-probe; a computed conclusion answers, honestly
+        // labeled as derived.
+        const qSPO = questionSPO(input);
+        if (qSPO) {
+          const directlyAnswered = ranked.some(
+            (f) => f.subject === qSPO.subject && f.predicate === qSPO.predicate,
+          );
+          if (!directlyAnswered) {
+            const promoted = await this.deriveForQuestion(qSPO);
+            if (promoted.length > 0) validated = promoted;
+          }
+        }
         if (validated.length === 0) {
           // P7 — a knowledge question with zero matched
           // facts is a countable unknown-topic hit.
@@ -2024,6 +2099,41 @@ function extractExpression(input: string): string | null {
   return bal === 0 ? expr : null;
 }
 
+const ATTRIBUTE_NOUNS = new Set([
+  "ratio",
+  "pitch",
+  "thickness",
+  "height",
+  "price",
+  "cost",
+  "depth",
+  "width",
+  "weight",
+  "temperature",
+  "area",
+  "volume",
+  "color",
+  "colour",
+  "code",
+  "name",
+  "size",
+  "strength",
+  "grade",
+  "spacing",
+  "length",
+  "diameter",
+  "slope",
+  "density",
+  "capacity",
+  "age",
+  "span",
+]);
+
+/** Attribute nouns — the final word of a multi-word subject
+ *  that names the subject's ATTRIBUTE ("screed thickness" ->
+ *  subject "screed", predicate "thickness"). Shared by the
+ *  teaching triple extractor and the question SPO probe
+ *  (Phase 2.4) so both normalize identically. */
 function extractTriple(
   input: string,
 ): { subject: string; predicate: string; object: unknown } | null {
@@ -2055,35 +2165,7 @@ function extractTriple(
   // the final word of a multi-word subject is the attribute
   // (roof has pitch). Store subject "roof", predicate "pitch" —
   // the shape subject/predicate queries expect.
-  const ATTRIBUTE_NOUNS = new Set([
-    "ratio",
-    "pitch",
-    "thickness",
-    "height",
-    "price",
-    "cost",
-    "depth",
-    "width",
-    "weight",
-    "temperature",
-    "area",
-    "volume",
-    "color",
-    "colour",
-    "code",
-    "name",
-    "size",
-    "strength",
-    "grade",
-    "spacing",
-    "length",
-    "diameter",
-    "slope",
-    "density",
-    "capacity",
-    "age",
-    "span",
-  ]);
+
   const words = subjectRaw.split(" ");
   if (words.length >= 2 && ATTRIBUTE_NOUNS.has(words[words.length - 1])) {
     return {
@@ -2094,6 +2176,36 @@ function extractTriple(
   }
   const subject = subjectRaw.replace(/\s+/g, "-");
   return { subject, predicate: "is", object: objectText };
+}
+
+/** Phase 2.4: probe a knowledge question for the SPECIFIC
+ *  (subject, predicate) it asks about — "what is the screed
+ *  volume?" probes subject "screed", predicate "volume".
+ *  Used to decide whether retrieval actually ANSWERED the
+ *  question or merely matched its topic words (a thickness
+ *  fact ranking for a volume question is a topic match, not
+ *  an answer). Deterministic and conservative: null unless
+ *  the final word is a known attribute noun, normalized
+ *  exactly like the teaching triple extractor. */
+function questionSPO(
+  input: string,
+): { subject: string; predicate: string } | null {
+  const m = input.match(
+    /(?:what(?:'s|\s+is|\s+are)?|how\s+much|how\s+many|tell\s+me)\s+(?:the\s+)?(.+?)\s*\?*\s*$/i,
+  );
+  if (!m) return null;
+  const rest = m[1]
+    .replace(/[.?!]+$/, "")
+    .trim()
+    .toLowerCase();
+  const words = rest.split(/\s+/);
+  if (words.length < 2 || !ATTRIBUTE_NOUNS.has(words[words.length - 1])) {
+    return null;
+  }
+  return {
+    subject: words.slice(0, -1).join(" ").replace(/\s+/g, "-"),
+    predicate: words[words.length - 1],
+  };
 }
 
 function extractResearchQuery(input: string): string | null {
