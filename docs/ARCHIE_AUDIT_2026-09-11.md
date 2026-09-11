@@ -285,7 +285,35 @@ is this repo's own ad-hoc numbering, not the canonical plan):
      chain order, input dependency, honest gaps, legacy compat,
      and the owner-gated PROPOSE. ARCHIE suite: 83 files, 1277
      passing.
-  3. ⬜ One real semantic verification check.
+  3. ✅ Real semantic verification — done 2026-09-11.
+     Before: every verification check was STRUCTURAL — cited
+     fact IDs exist, uncertain facts are not asserted as
+     established. A response could cite a validated fact and
+     MISSTATE it in prose (wrong number, or outright negation)
+     and nothing would catch it. verifySemanticClaims is now
+     wired into the response self-check (counts into
+     verificationFails like any real failure):
+     (a) restated NUMERIC claims must agree with the cited
+     validated/derived fact — same unit, 5% tolerance;
+     (b) restated TEXTUAL claims must not negate a cited
+     validated fact;
+     (c) high-precision by design: subject match requires ALL
+     significant subject tokens ("wall thickness" is not the
+     "screed thickness" fact), a different unit is a different
+     claim kind (not a conflict), citing without restating
+     passes, and candidate/uncertain facts are exempt (not
+     established);
+     (d) mismatches are NAMED honestly ("response states 50 mm
+     for screed thickness but the cited validated fact says
+     25 mm");
+     (e) decimal-aware sentence splitting — "0.1081 square
+     metres" is one token stream, not a sentence boundary
+     (found live while testing the negation case).
+     semantic-verification.test.ts: 7 cases — correct
+     restatement, misstated number, tolerance, two no-false-
+     positive cases, negation, citation-without-restatement,
+     unvalidated-fact exemption. ARCHIE suite: 84 files, 1284
+     passing.
 - **Phase 4** (hygiene & scale, ongoing): dead-code sweep (~60 deployed
   functions, ~6 reachable), persistent incremental memory index,
   frontend/backend mirror-drift contract test, lessons→behavior wiring.
