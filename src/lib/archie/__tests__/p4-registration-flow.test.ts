@@ -18,10 +18,13 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 // =========================================================
 
 const USER = "user-1";
-const authUser = vi.fn(async () => ({ data: { user: { id: USER } } }));
+type AuthResult = { data: { user: { id: string } | null } };
+const authUser = vi.fn(async (): Promise<AuthResult> => ({
+  data: { user: { id: USER } },
+}));
 
 vi.mock("@/lib/supabase", () => ({
-  supabase: { auth: { getUser: (...a: unknown[]) => authUser(...a) } },
+  supabase: { auth: { getUser: () => authUser() } },
 }));
 
 vi.mock("@/lib/archie/stage1-client", () => ({
@@ -44,7 +47,10 @@ vi.mock("@/lib/archie/mobile/p4-client", () => ({
   },
   fetchTrustedDevices: async () => storedDevices,
   persistDataConsent: async () => ({ ok: true }),
-  recordP4SecurityEvent: async (userId: string, event: unknown) => {
+  recordP4SecurityEvent: async (
+    userId: string,
+    event: Record<string, unknown>,
+  ) => {
     events.push({ userId, ...event });
   },
 }));
