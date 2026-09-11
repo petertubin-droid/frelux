@@ -443,6 +443,13 @@ depth, kernel trace double-writes, world-model time axis,
 CORS/rate limits, native eyes. (H-2 and H-4 were closed in the follow-up passes above.)
 (H-2 crypto wiring was closed in the follow-up pass above.)
 
+(Also closed before pass 4: trace dedupe (L.3) — the kernel's
+durable trace write was consolidated to a single write at cycle
+close, wrapped in its own honest REMEMBER record; and Bayes
+corpus depth (L.2) was addressed by the de-bias passes, the
+self-anchor guard and the held-out confusion set, with corpus
+domain-balance caps pinned in the generality suite.)
+
 Follow-up pass 2 (2026-09-11) — research adapter depth (H-4):
 completed the line-by-line audit of the web-research pipeline
 that was cut short in the original pass. Verified honest: DDG
@@ -486,5 +493,45 @@ Follow-up pass 3 (2026-09-11) — CORS/rate limits + native eyes:
   object recognition exists and none is claimed; audio stays
   honestly unsupported. 12-case suite.
 
-Remaining recommended-order items still open: domain capture
-(construction rules out of the engine).
+Remaining recommended-order items still open: none from
+the original L.1–L.4 set — all four are closed.
+
+Follow-up pass 4 (2026-09-11) — domain capture (L.1, H-1
+closure): the construction knowledge still welded into the
+general engine moved VERBATIM to the construction domain
+skill, all routed through the DomainSkillRegistry. The engine
+core (engine.ts, nlu.ts, seed-corpus.ts) now contains zero
+construction semantics:
+
+- The construction_calc NLU cascade rule left RULE_CASCADE;
+  understand() gained optional NluDomainHints — skill rules
+  run after the general cascade, corpus trains the same Bayes
+  classifier. The intent IDENTIFIER stays in the union: it is
+  the routing contract, not domain semantics.
+- Seed corpus v3: the five construction material facts (cement
+  bag-mass, screeding, concrete curing, portland-cement,
+  mortar) moved to the skill's seedFacts; the engine corpus
+  keeps engine-generic + deployment/business knowledge only.
+- engine.ts: constructionEstimate import/re-export removed;
+  the op_estimate_materials switch case replaced by GENERIC
+  registry delegation before the core switch (the engine names
+  no domain operator ids); the planner quantities lexicon
+  replaced by registry.quantifies(); boot seeds skill facts via
+  the registry and the seed provenance note names the
+  registered skills.
+- registry.ts: DomainSkill gained nluRules, seedFacts,
+  quantifies, executeOperator; the registry composes them.
+- NEW domain-capture.test.ts: source-scans the five engine core
+  files for weld signals (calculator invocation, NLU lexicon,
+  quantities lexicon, seed subjects), asserts seed-corpus
+  carries no construction subjects, and verifies the skill
+  still owns everything through the registry — a future
+  re-weld fails in CI, not in front of the owner.
+- Tests updated to wire CONSTRUCTION_NLU_HINTS exactly as the
+  engine wires them (runtime, adversarial, generality,
+  held-out); the seed-corpus suite now enforces corpus
+  constraints over engine + skill seeds TOGETHER.
+
+Verification: tsc clean (both configs), deno-check error set
+at baseline zero, full suite 745 files / 7326 tests green
+(4 new guard tests; 2 documented expected-fails unchanged).
