@@ -161,15 +161,23 @@ describe("Forward chaining with general (variable) rules", () => {
   });
 
   it("refuses to derive conclusions with unbound variables", async () => {
+    // Perf-pass update (2026-09-11, ledger entry 1): a rule
+    // with exactly ONE free variable and ONE object-elided
+    // condition is now a SOUND capture shorthand (see
+    // variable-binding.test.ts) — the value binds from the
+    // matched fact. The refusal this test pins applies to
+    // shapes that CANNOT be bound: here TWO free variables —
+    // no unique capture source exists, so derivation stays
+    // refused.
     const fs = new FactStore();
     await fs.assert(fact0("orphan", "is-a", "widget"));
     const bad = new ReasoningEngine(fs, [
       {
         id: "bad",
         conditions: [{ subject: "?x", predicate: "is-a" }],
-        produces: { subject: "?x", predicate: "relates-to", object: "?unbound" },
+        produces: { subject: "?y", predicate: "relates-to", object: "?unbound" },
         weight: 0.9,
-        description: "illegal: ?unbound never appears in conditions",
+        description: "illegal: two free vars, no unique capture",
       },
     ]);
     const out = await bad.forwardChain();

@@ -729,24 +729,32 @@ export class ArchieNativeEngine implements ArchieRuntime {
             tem.evidence.slice(0, 6),
           );
         }
-        // Perf-pass fix (2026-09-11, cx-3): zero DATED
-        // conclusions must not mask plain stored facts. A
-        // subject like (delivery, is, "on Tuesday") is a real
-        // fact even though it is not a dated history — fall
-        // through to the standard knowledge answer path so the
-        // stored evidence answers the question. The honest
-        // no-history answer is reserved for the case where
-        // NOTHING relevant about the subject is stored.
-        const hasPlainFacts =
+        // Perf-pass fix (2026-09-11, cx-3, refined same day):
+        // zero DATED conclusions must not mask a stored fact
+        // that ACTUALLY answers the when-question — e.g.
+        // (delivery, is, "on Tuesday"). But a fact merely
+        // mentioning the subject (a definition, a price) is
+        // NOT an answer to "when": falling through to it would
+        // replace the honest no-history answer with a
+        // non-answer. Fall through only when a subject fact
+        // carries a temporal value (weekday/date-like object
+        // or a when/day/date predicate).
+        const answersWhen = (f: Fact) =>
+          (typeof f.object === "string" &&
+            (/^on\s+/i.test(f.object) ||
+              /\b(?:mon|tues|wednes|thurs|fri|satur|sun)day\b/i.test(
+                f.object,
+              ))) ||
+          /(?:^|-)(?:when|day|date|time|due|schedule)/i.test(f.predicate);
+        const hasTemporalAnswer =
           subject !== null &&
           subject !== undefined &&
           ranked.some(
             (f) =>
-              f.subject === subject ||
-              f.subject.includes(subject) ||
-              String(f.object).includes(subject),
+              (f.subject === subject || f.subject.includes(subject)) &&
+              answersWhen(f),
           );
-        if (!hasPlainFacts) {
+        if (!hasTemporalAnswer) {
           return this.compose(
             `That asks about the timeline of ${subject ?? "this"}, but I hold no dated facts about it — I will not reconstruct a history I do not have. Teach me dated facts ("X was true on <date>") and I will order them properly.`,
             confidence * 0.45,
