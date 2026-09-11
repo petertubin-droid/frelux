@@ -457,3 +457,34 @@ not searched" note, and the registry gained the owner action
 restrict(domain) so a source can actually be marked
 restricted. Regression test pins: no search issued, no
 sourcesSearched claim, honest sourceFailures entry.
+
+Follow-up pass 3 (2026-09-11) — CORS/rate limits + native eyes:
+
+- **M-5 + M-7 (CORS + rate limits)** — closed. Every edge
+  function served `Access-Control-Allow-Origin: *` (any website
+  could read responses carrying the public anon key). Replaced
+  with a per-request origin-echo allowlist applied at a new
+  `serveWithCors` boundary (_shared/serve.ts + cors.ts) — one
+  authority for all 51 functions, streams included, with a
+  per-deployment ARCHIE_ALLOWED_ORIGINS override ('*' restores
+  the legacy wildcard explicitly). 29 more functions gained
+  tiered rate limits (AI / GENERAL / PAYMENT / AUTH / AD presets
+  keyed per user, falling back to client IP); webhooks, health,
+  sitemap, cron and error telemetry deliberately exempt.
+  Verification: deno-check error set identical to the
+  pre-change baseline; 10 boundary unit tests; full suite green.
+- **Native eyes** — closed, honestly bounded. Native vision
+  module (cognitive/vision.ts): full PNG pixel decode (CRC32
+  per chunk, all 5 filters, DecompressionStream inflate) with
+  deterministic color/brightness/structure analysis; JPEG/GIF
+  structural-only with the limitation stated in the analysis
+  itself; refusals honest (16-bit, interlace, >4MP, corrupt,
+  unknown). Wired into PerceptionEngine (image moved from
+  unsupported to supported with bounds) and REACHABLE from
+  conversation: WhatsApp images are downloaded, analyzed and
+  folded into the text pipeline with the honest summary. No
+  object recognition exists and none is claimed; audio stays
+  honestly unsupported. 12-case suite.
+
+Remaining recommended-order items still open: domain capture
+(construction rules out of the engine).

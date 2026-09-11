@@ -10,6 +10,7 @@
 // =========================================================
 
 import { redactSecrets } from "./security-integrity.ts";
+import { analyzeImage, type ImageAnalysis } from "./vision.ts";
 import type { Percept, PerceptionModality } from "./types.ts";
 
 let perceptCounter = 0;
@@ -148,6 +149,44 @@ export class PerceptionEngine {
     return { percepts, secretsRedacted: foundCount };
   }
 
+  /** Ingest image bytes with NATIVE vision (audit item
+   *  "native eyes"). Real pixel analysis for PNG; honest
+   *  structure-only for JPEG/GIF; honest refusal for anything
+   *  else. Returns a real percept only when the analysis
+   *  succeeded — never a faked one. */
+  async ingestImage(
+    bytes: Uint8Array,
+    origin = "conversation",
+  ): Promise<{
+    percept: Percept | null;
+    note: string;
+    analysis: ImageAnalysis | null;
+  }> {
+    const result = await analyzeImage(bytes);
+    if (!result.ok) {
+      return { percept: null, note: result.note, analysis: null };
+    }
+    this.ingested += 1;
+    return {
+      percept: newPercept("image", result.analysis, origin, {
+        format: result.analysis.format,
+        depth: result.analysis.depth,
+        width: result.analysis.width,
+        height: result.analysis.height,
+        bounds:
+          "color/brightness/composition statistics only — no object recognition",
+        ...(result.analysis.depth === "structure-only"
+          ? { structuralOnly: true }
+          : {}),
+      }),
+      note:
+        result.analysis.depth === "full-pixel"
+          ? "image analyzed natively (PNG pixels)"
+          : "image parsed structurally only (JPEG/GIF) — pixel analysis honestly unavailable",
+      analysis: result.analysis,
+    };
+  }
+
   /** Honest modality report — the heart of never-faking. */
   static supportReport(): {
     supported: PerceptionModality[];
@@ -161,12 +200,9 @@ export class PerceptionEngine {
         "structured-data",
         "website",
         "system-info",
+        "image",
       ],
       unsupported: [
-        {
-          modality: "image",
-          note: "visual perception is not implemented yet — reported honestly, never faked",
-        },
         {
           modality: "audio",
           note: "auditory perception is not implemented yet — reported honestly, never faked",

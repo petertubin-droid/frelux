@@ -250,16 +250,26 @@ describe("perception engine", () => {
     expect(secretsRedacted).toBeGreaterThanOrEqual(1);
   });
 
-  it("reports unsupported modalities honestly (never fakes)", () => {
+  it("reports modalities honestly (never fakes)", async () => {
     const report = PerceptionEngine.supportReport();
     expect(report.supported).toContain("text");
     expect(report.supported).toContain("code");
+    // Native eyes (2026-09-11): image is now SUPPORTED but
+    // bounded — audio stays honestly unsupported.
+    expect(report.supported).toContain("image");
     expect(
       report.unsupported.find((m) => m.modality === "image"),
-    ).toBeDefined();
+    ).toBeUndefined();
     expect(
       report.unsupported.find((m) => m.modality === "audio"),
     ).toBeDefined();
+    // The honest bound is stated, and ingestImage refuses
+    // garbage instead of faking a percept.
+    const refused = await new PerceptionEngine().ingestImage(
+      new TextEncoder().encode("definitely-not-an-image"),
+    );
+    expect(refused.percept).toBeNull();
+    expect(refused.note).toContain("refused honestly");
   });
 });
 

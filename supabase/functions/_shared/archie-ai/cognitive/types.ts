@@ -34,16 +34,24 @@ export const EPISTEMIC_ORDER: Record<EpistemicStatus, number> = {
 
 /** Modality support is reported honestly — never faked. */
 export type PerceptionModality =
-  "text" | "code" | "document" | "structured-data" | "website" | "system-info";
+  | "text"
+  | "code"
+  | "document"
+  | "structured-data"
+  | "website"
+  | "system-info"
+  | "image";
+
+/** Image is now SUPPORTED natively but BOUNDED: PNG pixel
+ *  analysis (colors/brightness/structure), JPEG/GIF structure
+ *  only. No object recognition exists — and none is claimed. */
+export const IMAGE_CAPABILITY_BOUNDS =
+  "native vision: PNG pixels analyzed (colors/brightness/composition statistics only); JPEG/GIF dimensions only; no object recognition exists — never claimed";
 
 export const UNSUPPORTED_MODALITIES: ReadonlyArray<{
   modality: string;
   note: string;
 }> = [
-  {
-    modality: "image",
-    note: "visual perception is not implemented yet — reported honestly, never faked",
-  },
   {
     modality: "audio",
     note: "auditory perception is not implemented yet — reported honestly, never faked",

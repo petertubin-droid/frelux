@@ -78,6 +78,10 @@ import {
   type InboundWaMessage,
 } from "../_shared/archie-ai/whatsapp/protocol.ts";
 import { serveWithCors } from "../_shared/serve.ts";
+import {
+  analyzeImage,
+  summarizeAnalysis,
+} from "../_shared/archie-ai/cognitive/vision.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -651,7 +655,55 @@ async function handleInbound(msg: InboundWaMessage): Promise<void> {
   // delivery — see the reminders comment above).
   await deliverDueReminders(account);
 
-  // ---- Media honesty (Ears/Eyes not operational here) ----
+  // ---- Native eyes (audit item P8, 2026-09-11) ----
+  // Images get REAL native perception: download the media,
+  // analyze the actual bytes (PNG pixels; JPEG/GIF structure),
+  // and fold the honest summary into the text flow. No object
+  // recognition exists — the summary says so. On any failure
+  // the honest-refusal path below still applies, verbatim.
+  if (msg.type === "image" && msg.mediaId && ACCESS_TOKEN) {
+    let seenText: string | null = null;
+    try {
+      const meta = await fetch(
+        `https://graph.facebook.com/${GRAPH_VERSION}/${msg.mediaId}`,
+        { headers: { Authorization: `Bearer ${ACCESS_TOKEN}` } },
+      );
+      if (meta.ok) {
+        const { url: mediaUrl } = (await meta.json()) as { url?: string };
+        if (mediaUrl) {
+          const mediaRes = await fetch(mediaUrl);
+          if (mediaRes.ok) {
+            const bytes = new Uint8Array(await mediaRes.arrayBuffer());
+            if (bytes.length > 10 * 1024 * 1024) {
+              seenText =
+                "[attached image over 10MB — not downloaded for analysis, honestly]";
+            } else {
+              const vision = await analyzeImage(bytes);
+              seenText = vision.ok
+                ? `[attached image — native vision, ${summarizeAnalysis(vision.analysis)}]`
+                : `[attached image — not analyzable: ${vision.note}]`;
+            }
+          }
+        }
+      }
+    } catch {
+      // honest: perception failed, the refusal below speaks
+    }
+    if (seenText) {
+      // The perception summary joins the caption as the text
+      // payload — the normal pipeline (secrets, commands,
+      // reasoning) runs on it unchanged.
+      (msg as { text?: string | null }).text = [
+        (msg.text ?? "").trim(),
+        seenText,
+      ]
+        .filter(Boolean)
+        .join("\n\n");
+      msg.type = "text";
+    }
+  }
+
+  // ---- Media honesty (Ears not operational here; Eyes above) ----
   if (msg.type !== "text") {
     const suffix = msg.filename
       ? ` I received "${msg.filename.slice(0, 80)}".`
