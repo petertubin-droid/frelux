@@ -248,7 +248,43 @@ is this repo's own ad-hoc numbering, not the canonical plan):
      silently creep back. Live smoke (archie-chat): "teach me
      how to roast a chicken" -> howto + honest research offer;
      "steps to build a block fence" -> planning, no calc hijack.
-  2. ⬜ Planner re-scope or real executable step chains.
+  2. ✅ Real executable goal-scoped step chains — done 2026-09-11.
+     Before: every planning request resolved the fixed predicate
+     "planned" and produced the same single canned construction
+     step regardless of input (measured live: "plan a roofing
+     project" -> 1 template step). Now:
+     (a) The goal subject is DERIVED from the request ("help me
+     organize a wedding reception" -> goal "wedding reception")
+     and the operator library is $goal-scoped — chains are about
+     what was asked.
+     (b) Real means-ends dependency chain: inventory -> gaps ->
+     knowledge (owner-teach | research alternative) -> quantities
+     -> sequence -> draft -> propose (depth raised 4 -> 8 to hold
+     the full chain).
+     (c) Steps bound to real subsystems EXECUTE with honest
+     results: the knowledge inventory reports real matched-fact
+     counts; quantity-bearing construction goals run the
+     deterministic calculator INLINE (blocked + gap stated when
+     dimensions are missing — never guessed). One-producer
+     quantity design makes shadowing impossible.
+     (d) Alternatives are goal-subject-scoped; another subject's
+     "planned" is a different task, not an alternative.
+     (e) SECURITY: displayed status for a ran subsystem is
+     "result", never "executed"/"done" — the payment-authority
+     forensic guard regexes whole replies and stays maximally
+     strict by construction (it caught this exact wording before
+     ship — guard kept, wording adapted).
+     (f) calc rule gains plan|organize|schedule shell guard:
+     "plan a 6 by 3 meter block wall project" is a PLANNING
+     request whose chain includes the estimate step, not a
+     hijacked calculation.
+     Live smoke (archie-chat): wedding reception -> 6-step
+     chain, inventory executed with real counts, knowledge step
+     awaiting-owner; wall project -> 7-step chain including the
+     estimate. planning-execution.test.ts pins goal derivation,
+     chain order, input dependency, honest gaps, legacy compat,
+     and the owner-gated PROPOSE. ARCHIE suite: 83 files, 1277
+     passing.
   3. ⬜ One real semantic verification check.
 - **Phase 4** (hygiene & scale, ongoing): dead-code sweep (~60 deployed
   functions, ~6 reachable), persistent incremental memory index,
