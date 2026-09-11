@@ -365,10 +365,8 @@ import {
   DuckDuckGoLiteAdapter,
   MultiSearchAdapter,
   isSearchFailureNote,
-  ResearchAdapter as _RA,
 } from "@studio-shared/archie-ai/native-engine/webresearch.ts";
 import { WikipediaSearchAdapter } from "@studio-shared/archie-ai/native-engine/wikipedia-search.ts";
-void _RA;
 
 describe("isSearchFailureNote — honest classification", () => {
   it("classifies execution failures vs genuine empty results", () => {
