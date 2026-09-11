@@ -352,11 +352,14 @@ export class CognitiveKernel implements ArchieRuntime {
     const cycleId = `cycle-${Date.now().toString(36)}-${this.cycles}`;
     const phases: PhaseRecord[] = [];
 
+    // P9 trace honesty: an executed phase records WHAT IT
+    // PRODUCED (describe), not a ceremonial "completed".
     const timed = async <T>(
       phase: LoopPhase,
       routePhases: Set<LoopPhase>,
       work: () => Promise<T> | T,
       skipNote: string,
+      describe?: (value: T) => string,
     ): Promise<T | null> => {
       const started = Date.now();
       if (!routePhases.has(phase)) {
@@ -372,7 +375,7 @@ export class CognitiveKernel implements ArchieRuntime {
       phases.push({
         phase,
         status: "executed",
-        summary: "completed",
+        summary: describe ? describe(value) : "completed (measured)",
         durationMs: Date.now() - started,
         organs: ORGAN_PHASE_BINDINGS[phase] ?? [],
       });
@@ -380,7 +383,11 @@ export class CognitiveKernel implements ArchieRuntime {
     };
 
     // ── UNDERSTAND (route first, from the shared NLU) ──
+    // P9: the NLU pass is real work — its duration is
+    // measured, not defaulted to 0.
+    const nluStarted = Date.now();
     const nlu = understand(input);
+    const nluMs = Date.now() - nluStarted;
     const isComplex =
       nlu.entities.filePaths.length > 0 || input.split(/\s+/).length > 12;
     const route = orchestrate({
@@ -396,6 +403,7 @@ export class CognitiveKernel implements ArchieRuntime {
       routePhases,
       () => this.perception.ingest(input, "conversation"),
       "perception always runs for conversation inputs",
+      (p) => `${p.percepts.length} percept(s) ingested, ${p.secretsRedacted} secret(s) redacted`,
     );
     if (percepts && percepts.secretsRedacted > 0) {
       await this.security.audit("perception", {
@@ -409,7 +417,7 @@ export class CognitiveKernel implements ArchieRuntime {
       organs: ["head"],
       status: "executed",
       summary: `intent=${nlu.intent}, confidence=${nlu.confidence.toFixed(2)}`,
-      durationMs: 0,
+      durationMs: nluMs,
     });
     // P5 Batch B: the kernel drives the real reasoning loop
     // (reason → act → observe → continue, budget-bounded) —
@@ -419,6 +427,10 @@ export class CognitiveKernel implements ArchieRuntime {
       routePhases,
       () => runReasoningLoop(this.substrate, input, history),
       "retrieval handled inside substrate reasoning",
+      (o) =>
+        o?.report
+          ? `reasoning loop: ${o.report.usedSteps} step pass(es), ${o.report.usedToolHops} tool hop(s)`
+          : "substrate single-pass converse (loop not engaged)",
     );
     const loopReport: ReasoningLoopReport | null =
       loopOutcome?.report ?? null;
@@ -433,10 +445,13 @@ export class CognitiveKernel implements ArchieRuntime {
     phases.push({
       phase: "REASON",
       organs: ["heart"],
-      status: "executed",
+      // P9: the reasoning loop is executed HERE (real steps,
+      // measured); a bypassed loop is DELEGATED to the
+      // substrate native engine — never claimed as executed.
+      status: loopReport ? "executed" : "delegated",
       summary: loopReport
         ? `reasoning loop: ${loopReport.usedSteps}/${loopReport.maxSteps} step pass(es), ${loopReport.usedToolHops}/${loopReport.maxToolHops} tool execution(s)${loopReport.budgetExhausted ? ", budget reached — stopped honestly" : ""}`
-        : `single-pass substrate reasoning (loop bypassed): ${route.reasoningModes.join(", ")}`,
+        : `delegated to substrate native engine — single-pass routing (${route.reasoningModes.join(", ")})`,
       durationMs: reasonMs,
     });
     phases.push(
@@ -444,8 +459,10 @@ export class CognitiveKernel implements ArchieRuntime {
         ? {
             phase: "PLAN",
             organs: ["head"],
-            status: "executed",
-            summary: `plan: ${core.plan.steps.length} step(s), executable=${core.plan.executable}`,
+            // P9: plans are produced by the substrate core
+            // (engine planFor) — delegated, not executed here.
+            status: "delegated",
+            summary: `plan produced by substrate core (engine planFor): ${core.plan.steps.length} step(s), executable=${core.plan.executable}`,
             durationMs: 0,
           }
         : {
@@ -497,6 +514,7 @@ export class CognitiveKernel implements ArchieRuntime {
         });
       },
       "no world-model update needed",
+      () => `${worldModelUpdates} world-model relation(s) written`,
     );
 
     // ── CREATE (only when the task asks for an artifact) ──
@@ -563,6 +581,7 @@ export class CognitiveKernel implements ArchieRuntime {
         return verdict;
       },
       "no factual claims to verify",
+      (v) => `formal verdict: ${v.verdict}, ${v.checks.length} check(s) run`,
     );
     const verification: VerificationVerdict | null = verificationResult ?? null;
 
@@ -586,7 +605,9 @@ export class CognitiveKernel implements ArchieRuntime {
       epistemic = "VERIFIED";
     }
     let meta: MetaAssessment | null = null;
+    let evaluateMs = 0;
     if (routePhases.has("EVALUATE")) {
+      const evaluateStarted = Date.now();
       meta = this.metacognition.assess({
         task: input,
         matchedFacts: citedFacts,
@@ -600,6 +621,7 @@ export class CognitiveKernel implements ArchieRuntime {
       ) {
         this.unknownTopicHits += 1;
       }
+      evaluateMs = Date.now() - evaluateStarted;
     }
     if (
       verification &&
@@ -631,6 +653,7 @@ export class CognitiveKernel implements ArchieRuntime {
           confidence: core.confidence,
         }),
       "nothing to observe",
+      () => `audit ledger write: cycle ${cycleId}, intent ${nlu.intent}, confidence ${core.confidence.toFixed(2)}`,
     );
     const loopEval = loopReport
       ? `; reasoning loop ${loopReport.usedSteps}/${loopReport.maxSteps} steps, ${loopReport.usedToolHops}/${loopReport.maxToolHops} tool hops, budget ${loopReport.budgetExhausted ? "exhausted — reported to you honestly" : "within bounds"}`
@@ -642,13 +665,16 @@ export class CognitiveKernel implements ArchieRuntime {
       summary: meta
         ? `meta-assessment: ${meta.whatIKnow.length} known, ${meta.whatIDontKnow.length} unknown, ${meta.mustVerify.length} to verify${loopEval}`
         : "skipped",
-      durationMs: 0,
+      durationMs: evaluateMs,
     });
     phases.push({
       phase: "LEARN",
       organs: ["digestive"],
-      status: routePhases.has("LEARN") ? "executed" : "skipped",
-      summary: "outcome recorded by substrate learner with credit assignment",
+      // P9: learning happens in the SUBSTRATE learner (outcome
+      // + credit assignment inside converse) — delegated to a
+      // named component, never claimed as executed here.
+      status: routePhases.has("LEARN") ? "delegated" : "skipped",
+      summary: "delegated to substrate learning engine — outcome recorded with deterministic credit assignment",
       durationMs: 0,
     });
 
@@ -673,6 +699,7 @@ export class CognitiveKernel implements ArchieRuntime {
       routePhases,
       () => this.tracePersistence.saveTrace(trace),
       "no persistence configured",
+      () => `durable trace saved: ${phases.length} phase record(s), cycle ${cycleId}`,
     );
 
     // ── IMPROVE (proposals only — owner-gated by design) ──
@@ -704,6 +731,7 @@ export class CognitiveKernel implements ArchieRuntime {
         return proposals;
       },
       "improvement is a standing phase",
+      (made) => `${made.length} self-improvement proposal(s) drafted (owner-gated, nothing executed)`,
     );
     for (const p of proposals) {
       await this.security.audit("improvement-proposal", {
@@ -727,8 +755,10 @@ export class CognitiveKernel implements ArchieRuntime {
     // never terminates. Recorded honestly as the final phase.
     phases.push({
       phase: "REPEAT",
-      status: "executed",
-      summary: "cycle complete — loop continues with the next input",
+      // P9: the kernel does no work here — cycle continuity
+      // is the substrate orchestrator's standing behavior.
+      status: "delegated",
+      summary: "delegated to substrate orchestrator — cycle rolls into the next; the loop never terminates",
       durationMs: 0,
       organs: ["healing", "sleep"],
     });

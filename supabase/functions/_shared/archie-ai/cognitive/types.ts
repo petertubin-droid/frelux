@@ -132,8 +132,14 @@ export const LOOP_PHASES: ReadonlyArray<LoopPhase> = [
 
 export interface PhaseRecord {
   phase: LoopPhase;
-  /** Skipped honestly when the route does not need it. */
-  status: "executed" | "skipped";
+  /** Honest trace statuses (P9): "executed" = real work ran
+   * HERE with a measured duration and a concrete record;
+   * "delegated" = the work is done by a named substrate
+   * component (reasoning loop, native engine, orchestrator) —
+   * never claimed as executed; "skipped" = the route did not
+   * need it. No phase is ever labeled executed without real
+   * evidence. */
+  status: "executed" | "delegated" | "skipped";
   summary: string;
   durationMs: number;
   /** The anatomical subsystem(s) this phase runs through —
