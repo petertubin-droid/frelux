@@ -167,6 +167,29 @@ is this repo's own ad-hoc numbering, not the canonical plan):
      static "thickness × floor area" description string. Tests:
      `numeric-unification.test.ts` (12 cases) + updated capture-safety
      cases in `variable-binding.test.ts`.
+  5. ✅ DERIVED ANSWERS (2.4 integration, the actual unlock, closed
+     end-to-end): teach the premises, ask the question — the engine
+     now DERIVES the answer with its rules and answers from the
+     derived fact. `questionSPO(input)` probes the SPECIFIC
+     (subject, predicate) a question asks ("what is the screed
+     volume?" → screed/volume); a topic-word match (taught thickness
+     ranking high because it shares the word "screed") is NOT an
+     answer. When retrieval holds no fact with that exact SPO,
+     `deriveForQuestion()` runs one bounded NON-PERSISTING
+     forward-chain pass over a scratch store copy; ONLY a derived
+     fact that answers the probe is promoted into the real store
+     (via assert(): twin detection, reinforcement, conflict handling
+     all still apply) — a question never leaves unrelated knowledge
+     behind, so casual conversation still creates no facts (the
+     memory-integration guarantee is preserved and re-tested).
+     Promoted answers compose through the existing P8 derived-label
+     path. Verified LIVE 2026-09-11 (archie-chat v26): compound
+     "remember: screed thickness 0.05 m; remember: floor area 20 m2;
+     what is the screed volume?" → "Here is what I derived by
+     inference (re-derivable, not owner-validated): screed volume: 1
+     [confidence 72%, DERIVED — inferred by rule chain, not
+     owner-validated]". Tests: `derived-answers.test.ts` (compute-
+     and-answer e2e + honest refusal on missing premise).
 - **Phase 3** (domain generality, 2-3 weeks): de-bias the NLU corpus
   (construction skew in howto/research intents), planner re-scope or
   real executable step chains, one real semantic verification check.
