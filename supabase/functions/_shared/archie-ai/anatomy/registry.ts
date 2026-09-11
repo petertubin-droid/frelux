@@ -32,7 +32,13 @@ export interface AnatomyDb {
       query?: string,
       opts?: { count?: string; head?: boolean },
     ): {
-      limit(n: number): Promise<{ count: number | null; error: unknown }>;
+      // supabase-js postgrest results carry count/error/data
+      // together; minimal mocks mirror the same shape.
+      limit(n: number): Promise<{
+        count: number | null;
+        error: unknown;
+        data?: unknown[] | null;
+      }>;
       single(): Promise<{ data: unknown; error: unknown }>;
     };
   };
@@ -62,6 +68,28 @@ async function singleRow(
     return out.error || !out.data
       ? null
       : (out.data as Record<string, unknown>);
+  } catch {
+    return null;
+  }
+}
+
+/** Latest row by version — for append-only versioned tables. */
+async function latestRow(
+  db: AnatomyDb,
+  table: string,
+): Promise<Record<string, unknown> | null> {
+  try {
+    // Read rows (bounded) and pick the highest version in JS.
+    // The constitution table is append-only and tiny (one row
+    // per version), so a bounded read is cheap and avoids
+    // depending on `.order()`, which minimal test mocks do not
+    // implement.
+    const out = await db.from(table).select("*").limit(1000);
+    if (out.error) return null;
+    const rows = (out.data ?? []) as Record<string, unknown>[];
+    if (!rows.length) return null;
+    rows.sort((a, b) => Number(b.version ?? 0) - Number(a.version ?? 0));
+    return rows[0];
   } catch {
     return null;
   }
@@ -151,7 +179,12 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
   }
 
   // -------- 🧬 DNA — constitution integrity ---------------
-  const constRow = await singleRow(db, "archie_constitution");
+  // The constitution table is append-only (immutable by
+  // trigger); the LATEST version is the live copy verified
+  // against the code-side CONSTITUTION_CHECKSUM. (Reading with
+  // .single() would break the moment a second version row
+  // exists — audit fix 2026-09-11 with constitution v2.)
+  const constRow = await latestRow(db, "archie_constitution");
   const dna = verifyConstitution(
     constRow
       ? ({

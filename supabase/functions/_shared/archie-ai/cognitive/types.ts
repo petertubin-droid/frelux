@@ -247,6 +247,7 @@ export interface AuditEvent {
     | "tool-use"
     | "verification"
     | "authority-check"
+    | "life-safety-stop"
     | "creation"
     | "learning"
     | "improvement-proposal";

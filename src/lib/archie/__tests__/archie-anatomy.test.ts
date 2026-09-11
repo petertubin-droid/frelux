@@ -45,12 +45,12 @@ describe("constitution (DNA)", () => {
       articles: { ...CONSTITUTION_ARTICLES },
     });
     expect(v.verified).toBe(true);
-    expect(v.version).toBe(1);
+    expect(v.version).toBe(2);
   });
 
   it("detects a tampered checksum", () => {
     const v = verifyConstitution({
-      version: 1,
+      version: 2,
       checksum: "0".repeat(64),
       articles: { ...CONSTITUTION_ARTICLES },
     });
@@ -81,6 +81,23 @@ describe("constitution (DNA)", () => {
     );
     expect(CONSTITUTION_ARTICLES.honesty).toContain(
       "never simulates a capability",
+    );
+  });
+
+  it("encodes the life-safety hard gate (owner directive 2026-09-11)", () => {
+    expect(CONSTITUTION_VERSION).toBe(2);
+    expect(CONSTITUTION_ARTICLES.life_safety).toContain(
+      "CRITICAL SAFETY EVENT",
+    );
+    expect(CONSTITUTION_ARTICLES.life_safety).toContain(
+      "cannot be disabled by ARCHIE itself",
+    );
+    expect(CONSTITUTION_ARTICLES.life_safety).toContain(
+      "more important than human life and physical safety",
+    );
+    // canonical serialization includes the new article
+    expect(canonicalConstitution(CONSTITUTION_ARTICLES)).toContain(
+      "life_safety=",
     );
   });
 });

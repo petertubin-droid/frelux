@@ -36,6 +36,10 @@ import type { SupabaseLike } from "../native-engine/persistence.ts";
 import type { Fact } from "../native-engine/types.ts";
 import { understand } from "../native-engine/nlu.ts";
 import {
+  classifyLifeSafety,
+  lifeSafetyStopMessage,
+} from "../security/life-safety.ts";
+import {
   runReasoningLoop,
   type ReasoningLoopReport,
 } from "../native-engine/reasoning-loop.ts";
@@ -710,8 +714,27 @@ ${worldCtx.block}`
     );
     const verification: VerificationVerdict | null = verificationResult ?? null;
 
-    // ── ACT (within autonomous bounds) ──
+    // ── LIFE-SAFETY HARD GATE on ARCHIE's OWN output (owner
+    //    directive 2026-09-11). Defense in depth: even if a
+    //    composed response would endorse, instruct or
+    //    automate a credibly life-threatening operation, it is
+    //    replaced with the safety stop before presentation.
+    //    The event is preserved in the tamper-evident audit
+    //    chain; the hazard, uncertainty and resumption
+    //    protocol are stated honestly.
     let responseText = core.responseText;
+    const selfGate = classifyLifeSafety(
+      core.responseText + (creationNote ?? ""),
+    );
+    if (selfGate.blocked) {
+      await this.security.audit("life-safety-stop", {
+        hazard: selfGate.hazard ?? null,
+        action: selfGate.action,
+        stage: "VERIFY/ACT",
+        replacedResponse: core.responseText.slice(0, 200),
+      });
+      responseText = lifeSafetyStopMessage(selfGate);
+    }
     if (route.authority === "owner-gated") {
       responseText +=
         "\n[Owner Authority] This task involves consequential operations — my role ends at PROPOSE. Nothing was executed; say the word and I will prepare a staged, tested proposal for your approval.";

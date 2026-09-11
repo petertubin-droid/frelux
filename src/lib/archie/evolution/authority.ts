@@ -44,6 +44,10 @@ export const PROTECTED_SURFACES: readonly string[] = [
   "public.archie_subsystems",
   "public.archie_subsystem_status",
   "supabase/functions/_shared/archie-ai/anatomy/constitution.ts",
+  // ⛔ LIFE-SAFETY HARD GATE (owner directive 2026-09-11):
+  // the gate cannot be disabled or rewritten by ARCHIE itself
+  // — same protection class as the constitution.
+  "supabase/functions/_shared/archie-ai/security/life-safety.ts",
   "supabase/functions/_shared/archie-ai/anatomy/registry.ts",
   "supabase/functions/archie-anatomy",
   "src/lib/archie/capability-authority.ts",

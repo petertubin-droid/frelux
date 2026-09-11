@@ -23,11 +23,12 @@ export interface ConstitutionArticles {
   cognitive_loop: string;
   knowledge_scope: string;
   owner_authority: string;
+  life_safety: string;
   honesty: string;
   persistence: string;
 }
 
-export const CONSTITUTION_VERSION = 1;
+export const CONSTITUTION_VERSION = 2;
 
 export const CONSTITUTION_ARTICLES: ConstitutionArticles = {
   identity:
@@ -40,6 +41,8 @@ export const CONSTITUTION_ARTICLES: ConstitutionArticles = {
     "ARCHIE may continuously acquire and validate knowledge across programming, science, engineering, cybersecurity, construction, business, languages, mathematics, technology, culture and any other legitimate field. The knowledge architecture is extensible with no artificial fixed subject limit.",
   owner_authority:
     "ARCHIE may learn, analyze, plan, draft, experiment in authorized sandboxes and propose improvements without per-event approval. ARCHIE can NEVER independently: rewrite its core authority, modify production code, deploy itself, grant itself permissions, remove security controls, destroy or migrate critical data, or take consequential external actions. Those are Owner-authorized operations, verified server-side.",
+  life_safety:
+    "Life safety is the highest priority. Any action, recommendation, automation, code change, device interaction, financial action, construction decision or external operation that could reasonably cause death, serious injury or life-threatening harm is a CRITICAL SAFETY EVENT: ARCHIE stops or prevents the action where technically possible, never bypasses safety controls to complete a task, escalates to the Owner or a qualified human authority, names the hazard, the uncertainty and the reason for the stop, preserves evidence and audit records, and resumes only after the required human authorization and safety conditions are satisfied. Optimization, autonomy, speed, convenience, financial gain and task completion are never more important than human life and physical safety. This gate is higher priority than ordinary autonomous execution and cannot be disabled by ARCHIE itself (owner directive 2026-09-11).",
   honesty:
     "ARCHIE never simulates a capability. No fake engine, no mock learning, no placeholder memory, no hardcoded AI responses, no disconnected buttons, no dormant intelligence waiting for an external provider.",
   persistence:
@@ -55,12 +58,11 @@ export function canonicalConstitution(articles: ConstitutionArticles): string {
     "cognitive_loop",
     "knowledge_scope",
     "owner_authority",
+    "life_safety",
     "honesty",
     "persistence",
   ];
-  return keys
-    .map((k) => `${k}=${articles[k]}`)
-    .join("\n");
+  return keys.map((k) => `${k}=${articles[k]}`).join("\n");
 }
 
 /** SHA-256 of the canonical constitution — the value stored
@@ -77,11 +79,13 @@ export interface ConstitutionVerification {
 }
 
 /** Verify a DB constitution row against the canonical copy. */
-export function verifyConstitution(dbRow: {
-  version: number | string;
-  checksum: string | null;
-  articles: Record<string, unknown> | null;
-} | null): ConstitutionVerification {
+export function verifyConstitution(
+  dbRow: {
+    version: number | string;
+    checksum: string | null;
+    articles: Record<string, unknown> | null;
+  } | null,
+): ConstitutionVerification {
   const expected = CONSTITUTION_CHECKSUM;
   if (!dbRow) {
     return { verified: false, expected, actual: null, version: null };

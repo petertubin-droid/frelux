@@ -60,6 +60,10 @@ import {
   reduceAuthorizations,
   EngagementRow,
 } from "../_shared/archie-ai/security/verdict.ts";
+import {
+  classifyLifeSafety,
+  lifeSafetyStopMessage,
+} from "../_shared/archie-ai/security/life-safety.ts";
 
 // ---- shared service client --------------------------------
 const db = createClient(SUPABASE_URL, SERVICE_ROLE, {
@@ -1640,6 +1644,41 @@ serveWithCors(async (req) => {
         "ARCHIE's own model runtime is an implementation boundary and is not operational yet. " +
         "No external provider is substituting for ARCHIE. Reasoning will begin when an engine is registered in ARCHIE's provider-agnostic engine registry.",
       engine,
+    });
+  }
+
+  // 3.5 LIFE-SAFETY HARD GATE (owner directive 2026-09-11) —
+  //    HIGHER PRIORITY than the security verdict and every
+  //    ordinary execution path. Credible life-threatening
+  //    operations are CRITICAL SAFETY EVENTS: stop, name the
+  //    hazard, escalate, preserve evidence. No authorization
+  //    flag can bypass this gate — resumption is a human
+  //    protocol stated in the stop message itself.
+  const lifeSafety = classifyLifeSafety(message);
+  if (lifeSafety.blocked) {
+    if (user) {
+      // Evidence preservation — never let the audit write
+      // break the stop itself.
+      try {
+        await db.from("frelux_security_events").insert({
+          user_id: user.id,
+          kind: "LIFE_SAFETY_GATE_STOP",
+          severity: "critical",
+          message: `[owner-chat] ${lifeSafety.reason}`,
+        });
+      } catch (_auditErr) {
+        // Swallow: the stop stands even if the event write fails.
+      }
+    }
+    return json(200, {
+      reply: lifeSafetyStopMessage(lifeSafety),
+      mode: "owner",
+      life_safety_gate: {
+        stopped: true,
+        action: lifeSafety.action,
+        hazard: lifeSafety.hazard ?? null,
+        escalation_authority: lifeSafety.escalationAuthority ?? null,
+      },
     });
   }
 
