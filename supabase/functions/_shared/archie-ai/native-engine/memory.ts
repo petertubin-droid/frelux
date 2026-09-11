@@ -44,6 +44,17 @@ export class ContextMemory {
     this.live.push(memoryTurnFromText(role, text, this.index, at));
   }
 
+  /** The last n turns across seeded + live history, in
+   *  chronological order (oldest → newest). Feeds the NLU
+   *  anaphora resolver (audit L.5). */
+  recentTurns(n: number): Array<{ role: "owner" | "archie"; text: string }> {
+    const all = [...this.seeded, ...this.live];
+    return all.slice(Math.max(0, all.length - n)).map((t) => ({
+      role: t.role,
+      text: t.text,
+    }));
+  }
+
   /** Seed from provider-neutral conversation turns. Replaces
    *  the previous seed — never accumulates duplicates when
    *  the caller re-seeds the same history each request. */

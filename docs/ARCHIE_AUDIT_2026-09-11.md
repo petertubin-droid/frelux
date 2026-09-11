@@ -11,7 +11,7 @@ resurfaces, add it here.
 ## C. COMPLETE FINDINGS (severity-ranked)
 
 - 🔴 **HIGH — Domain capture in the "general" engine:** `constructionEstimate()`
-  is a hardcoded block/paint/cement estimator living *inside* `engine.ts`,
+  is a hardcoded block/paint/cement estimator living _inside_ `engine.ts`,
   routed by the intent `construction_calc`. Three of six `DEFAULT_RULES` are
   construction rules. The seed corpus and Bayes corpus are
   construction-weighted. The general substrate is real, but FRELUX knowledge
@@ -47,7 +47,7 @@ resurfaces, add it here.
 ## D. FALSE-CAPABILITY CHECK
 
 Found no fabricated capabilities — the striking result of this audit is the
-opposite: claims are *under*-stated. "Recursive reasoning" is depth-4
+opposite: claims are _under_-stated. "Recursive reasoning" is depth-4
 bounded backward search (real, bounded if documented); "planning" delegates
 to a 214-line planner (goal→operators, basic); "spatial reasoning" — no
 strategy exists and none is claimed. Perception/eyes: vision goes through
@@ -116,23 +116,23 @@ tests for trace growth.
 
 ## M. FINAL ARCHIE REALITY SCORES (evidence-weighted, /10)
 
-| Dimension | Score | Note |
-|---|---|---|
-| Native intelligence | 7 | real unification, chaining, bounded honestly |
-| Reasoning | 7 | 12 real strategies, evidence-bound |
-| NLU | 5 | staged design solid, corpus weak |
-| Memory | 6 | salience math real, episodic real, no long-term consolidation of episodes |
-| Learning | 7 | best-guarded system |
-| World model | 4 | static relations only |
-| Planning | 5 | staged design solid, corpus weak |
-| Perception | 3 | honest: mostly absent, audited truthfully dead |
-| Research | 5 | real pipeline, deep audit cut short by tool limit |
-| Tools | 7 | |
-| Execution | 8 | |
-| Security | 8 | |
-| Authority | 8 | |
-| Recovery | 6 | honest degradation, no rollback of knowledge |
-| Integration | 6 | |
+| Dimension                | Score   | Note                                                                                                                                                         |
+| ------------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Native intelligence      | 7       | real unification, chaining, bounded honestly                                                                                                                 |
+| Reasoning                | 7       | 12 real strategies, evidence-bound                                                                                                                           |
+| NLU                      | 5       | staged design solid, corpus weak                                                                                                                             |
+| Memory                   | 6       | salience math real, episodic real, no long-term consolidation of episodes                                                                                    |
+| Learning                 | 7       | best-guarded system                                                                                                                                          |
+| World model              | 4       | static relations only                                                                                                                                        |
+| Planning                 | 5       | staged design solid, corpus weak                                                                                                                             |
+| Perception               | 3       | honest: mostly absent, audited truthfully dead                                                                                                               |
+| Research                 | 5       | real pipeline, deep audit cut short by tool limit                                                                                                            |
+| Tools                    | 7       |                                                                                                                                                              |
+| Execution                | 8       |                                                                                                                                                              |
+| Security                 | 8       |                                                                                                                                                              |
+| Authority                | 8       |                                                                                                                                                              |
+| Recovery                 | 6       | honest degradation, no rollback of knowledge                                                                                                                 |
+| Integration              | 6       |                                                                                                                                                              |
 | **Overall architecture** | **6.5** | a genuinely native, honest, security-disciplined engine that is nonetheless still small-corpus, construction-tilted, and missing a real temporal world model |
 
 **Coverage caveat:** Levels 9-11 (planning internals, perception,
@@ -140,6 +140,35 @@ web-research pipeline) got code-structure tracing but not line-by-line this
 pass — the tool-iteration cap hit mid-audit.
 
 ---
+
+## Canonical phase plan (reconciliation, 2026-09-11 later pass)
+
+A parallel session produced the authoritative phase breakdown (owner
+confirmed via screenshot — the "phases 2/4/7/8" label on the commit above
+is this repo's own ad-hoc numbering, not the canonical plan):
+
+- **Phase 1** (small, owner-visible trust fixes) — audit chain
+  quarantine, native `archie-extract` rewrite, honest retrieval (dead
+  salient-fact bypass removed), `NluResult` typing fix. Commit
+  `3b406f7`.
+- **Phase 2** (close the capability gaps, 1-2 weeks):
+  1. ✅ Read-bearing world model — done, this file's I-1 section above.
+  2. ⬜ Real web research — fetch actual source pages behind DDG hits
+     (robots.txt checks, timeouts, content extraction), raise the
+     cross-checked confidence cap accordingly.
+  3. ✅ Anaphora resolution — done, see L.5 below.
+  4. ⬜ Numeric unification — object variables bind numbers/structured
+     objects with typed patterns; unlocks the rule engine's construction
+     rules and future quantitative rules.
+- **Phase 3** (domain generality, 2-3 weeks): de-bias the NLU corpus
+  (construction skew in howto/research intents), planner re-scope or
+  real executable step chains, one real semantic verification check.
+- **Phase 4** (hygiene & scale, ongoing): dead-code sweep (~60 deployed
+  functions, ~6 reachable), persistent incremental memory index,
+  frontend/backend mirror-drift contract test, lessons→behavior wiring.
+
+Sequencing: 1 → 2.1 → 2.3 → 2.4 → 2.2 → 3 → 4. Both inviolables hold
+throughout: owner-gated execution, provider independence.
 
 ## Progress against L. (as of 2026-09-11 phases 2/4/7/8)
 
@@ -152,10 +181,19 @@ pass — the tool-iteration cap hit mid-audit.
   `superseded_by`, `currentView()` / `history()`.
 - ✅ **L.1** — Construction domain extraction was largely done in the prior
   pass (`210a33f`, DomainSkillRegistry); this pass moved the remaining
-  construction *constants* into seeded data records
+  construction _constants_ into seeded data records
   (`construction.data.ts` + migration), removing the last inline literals.
-- ⬜ **L.3** — Kernel trace dedupe: not yet re-verified this pass (was
-  addressed in `210a33f` item 5 — needs a fresh check against current
-  `kernel.ts`).
-- ⬜ **L.5** — "Revisit NLU deeper layers": corpus depth improved, but no
-  structural NLU redesign undertaken.
+- ✅ **L.3** — Kernel trace dedupe re-verified against current
+  `kernel.ts`: the durable trace is written exactly once, at cycle close
+  (single `saveTrace` call after the REPEAT phase, REMEMBER recorded
+  honestly as `skipped` when no persistence is configured). No double
+  write remains.
+- ✅ **L.5** — NLU gained a structural layer: deterministic anaphora
+  resolution (`resolveAnaphora` in `nlu.ts`). Pronouns in follow-ups
+  ("how do i apply it?") resolve against recent conversation — owner
+  turns preferred, statement-subject and question-form extraction,
+  honest `referent: null` when genuinely ambiguous (never guessed). The
+  resolved referent widens fact/memory retrieval as a hint only; it is
+  never asserted as a claim and never persisted as knowledge. Regression
+  tests: `nlu-anaphora.test.ts` (7 cases), `anaphora-followup.test.ts`
+  (engine-level, taught fact + pronoun follow-up in the next turn).

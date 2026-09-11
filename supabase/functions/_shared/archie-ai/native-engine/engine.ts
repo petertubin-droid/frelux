@@ -50,15 +50,8 @@ import {
 import { ContextMemory, rankFacts } from "./memory.ts";
 import { redactSecrets } from "../cognitive/security-integrity.ts";
 import { FactStore } from "./knowledge.ts";
-import {
-  FULL_SEED_CORPUS,
-  SEED_CORPUS_VERSION,
-} from "./seed-corpus.ts";
-import {
-  DEFAULT_RULES,
-  GENERAL_RULES,
-  ReasoningEngine,
-} from "./reasoning.ts";
+import { FULL_SEED_CORPUS, SEED_CORPUS_VERSION } from "./seed-corpus.ts";
+import { DEFAULT_RULES, GENERAL_RULES, ReasoningEngine } from "./reasoning.ts";
 import {
   consistency,
   executeStrategy,
@@ -70,10 +63,7 @@ import {
   extractComparisonSubjects,
 } from "./strategies.ts";
 import { DEFAULT_OPERATORS, Planner } from "./planning.ts";
-import {
-  DomainSkillRegistry,
-  type DomainSkill,
-} from "./domains/registry.ts";
+import { DomainSkillRegistry, type DomainSkill } from "./domains/registry.ts";
 import {
   constructionSkill,
   constructionEstimate,
@@ -121,7 +111,15 @@ function summarizeToolOutput(output: unknown): string {
   if (typeof output === "string") return output;
   if (output && typeof output === "object") {
     const o = output as Record<string, unknown>;
-    for (const key of ["answer", "text", "reply", "result", "summary", "price", "status"]) {
+    for (const key of [
+      "answer",
+      "text",
+      "reply",
+      "result",
+      "summary",
+      "price",
+      "status",
+    ]) {
       if (typeof o[key] === "string" && (o[key] as string).length > 0) {
         return o[key] as string;
       }
@@ -138,7 +136,6 @@ function summarizeToolOutput(output: unknown): string {
   }
   return String(output ?? "");
 }
-
 
 export interface ConverseResult {
   nlu: ReturnType<typeof understand>;
@@ -473,9 +470,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
           .trim()
       : "";
     const result = await this.converse(text, req.turns, req.systemInstruction);
-    const parts: ArchieInferencePart[] = [
-      { text: result.responseText },
-    ];
+    const parts: ArchieInferencePart[] = [{ text: result.responseText }];
     if (result.toolCall) {
       // The dead-tool seam (audit C1) is now bridged: the
       // engine EMITS the call; the caller's tool loop (it
@@ -502,9 +497,10 @@ export class ArchieNativeEngine implements ArchieRuntime {
    *  relayed verbatim, provenance-labeled, never fabricated
    *  (plan P1). The tool's own output decides what ARCHIE
    *  can say; the engine only frames it honestly. */
-  private resumeFromToolResult(
-    toolResult: { name: string; output: unknown },
-  ): ArchieInferenceResult {
+  private resumeFromToolResult(toolResult: {
+    name: string;
+    output: unknown;
+  }): ArchieInferenceResult {
     this.inferences += 1;
     this.sessionInferences += 1;
     const body = summarizeToolOutput(toolResult.output);
@@ -544,11 +540,27 @@ export class ArchieNativeEngine implements ArchieRuntime {
           .trim(),
       })),
     );
+    // Anaphora context (audit L.5): the turns BEFORE this
+    // message are the resolver's evidence — captured before
+    // the current input is added.
+    const priorTurns = this.memory.recentTurns(6);
+
     this.memory.addTurn("owner", input);
 
-    const nlu = understand(input);
-    const context = this.memory.retrieve(input);
-    const ranked = rankFacts(input, this.facts.list());
+    const nlu = understand(input, priorTurns);
+    // A resolved pronoun is a RETRIEVAL hint only: it widens
+    // the fact/memory query so a follow-up ("how do i apply
+    // it?") ranks the referent's knowledge. Never surfaced as
+    // a claim, never persisted.
+    const referents = Array.from(
+      new Set(
+        nlu.anaphora.filter((a) => a.referent).map((a) => a.referent as string),
+      ),
+    );
+    const retrievalQuery =
+      referents.length > 0 ? `${input} ${referents.join(" ")}` : input;
+    const context = this.memory.retrieve(retrievalQuery);
+    const ranked = rankFacts(retrievalQuery, this.facts.list());
 
     // Compound-request decomposition (plan P2, audit N2):
     // owners speak in multi-part requests. Each clause gets
@@ -568,7 +580,13 @@ export class ArchieNativeEngine implements ArchieRuntime {
       // through the same honest exclusion path.
       outcome = await this.routeClauses(clauses, systemInstruction);
     } else {
-      outcome = await this.route(nlu, input, ranked, context, systemInstruction);
+      outcome = await this.route(
+        nlu,
+        input,
+        ranked,
+        context,
+        systemInstruction,
+      );
     }
     this.confidenceSum += outcome.confidence;
 
@@ -697,11 +715,15 @@ export class ArchieNativeEngine implements ArchieRuntime {
         });
         if (comp.conclusions.length > 0) {
           const lines = comp.conclusions.map(
-            (c, i) => `${i + 1}. ${c.statement} — confidence ${(c.confidence * 100).toFixed(0)}%`,
+            (c, i) =>
+              `${i + 1}. ${c.statement} — confidence ${(c.confidence * 100).toFixed(0)}%`,
           );
           return this.compose(
             `Comparison of ${pair.a} vs ${pair.b}, from my stored facts only:\n${lines.join("\n")}\n${comp.explanation}\nEvery line is derived from the cited facts — where my store lacks a dimension you care about, I say so rather than invent it.`,
-            Math.min(0.9, Math.max(...comp.conclusions.map((c) => c.confidence))),
+            Math.min(
+              0.9,
+              Math.max(...comp.conclusions.map((c) => c.confidence)),
+            ),
             comp.evidence.slice(0, 6),
           );
         }
@@ -748,17 +770,19 @@ export class ArchieNativeEngine implements ArchieRuntime {
         .replace(/\s+(?:prices?|costs?|cost|history|timeline|records?)$/i, "")
         .trim();
       const subject = extracted.length > 0 ? extracted : ranked[0]?.subject;
-      const tem = subject
-        ? temporal({ ...task, subject })
-        : null;
+      const tem = subject ? temporal({ ...task, subject }) : null;
       if (tem) {
         if (tem.conclusions.length > 0) {
           const lines = tem.conclusions.map(
-            (c) => `- ${c.statement} (confidence ${(c.confidence * 100).toFixed(0)}%)`,
+            (c) =>
+              `- ${c.statement} (confidence ${(c.confidence * 100).toFixed(0)}%)`,
           );
           return this.compose(
             `Dated facts about ${subject}, in chronological order, from my store only:\n${lines.join("\n")}\n${tem.explanation}`,
-            Math.min(0.9, Math.max(...tem.conclusions.map((c) => c.confidence))),
+            Math.min(
+              0.9,
+              Math.max(...tem.conclusions.map((c) => c.confidence)),
+            ),
             tem.evidence.slice(0, 6),
           );
         }
@@ -821,7 +845,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
     // "A or B" numeric questions / disagreement language →
     // the conflicting-evidence band.
     const conflictClaim =
-      /\b(disagree|disagrees|disagreeing|conflicting|conflicts?|contradict|contradicts|contradiction)\b/i.test(input) ||
+      /\b(disagree|disagrees|disagreeing|conflicting|conflicts?|contradict|contradicts|contradiction)\b/i.test(
+        input,
+      ) ||
       (/\bor\b/i.test(input) && /\d/.test(input));
 
     if (conflictClaim) {
@@ -829,7 +855,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
       const storeConflicts = cons.conclusions.length > 0;
       const lines = storeConflicts
         ? cons.conclusions.map((c) => `- ${c.statement}`)
-        : ["- your sources disagree, but I hold no stored facts on this point to arbitrate between them"];
+        : [
+            "- your sources disagree, but I hold no stored facts on this point to arbitrate between them",
+          ];
       return this.compose(
         `Conflicting evidence on this. ${storeConflicts ? "My knowledge store contains competing claims:" : ""}\n${lines.join("\n")}\n` +
           `Confidence band: conflicting. I will not average the claims away or assert either side as knowledge — both stay uncertain until the conflict is resolved. To verify: identify which source is authoritative, tell me the resolution, and I will retain it.`,
@@ -841,8 +869,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
 
     const hyp = await hypothesis(strategyTask);
     if (hyp.conclusions.length > 0) {
-      const lines = hyp.conclusions.map((c, i) =>
-        `${i + 1}) ${c.statement} — confidence ${(c.confidence * 100).toFixed(0)}%. To verify: check the cited evidence independently. NOT established as fact.`,
+      const lines = hyp.conclusions.map(
+        (c, i) =>
+          `${i + 1}) ${c.statement} — confidence ${(c.confidence * 100).toFixed(0)}%. To verify: check the cited evidence independently. NOT established as fact.`,
       );
       return this.compose(
         `I do not have validated knowledge on this, so here are working hypotheses — framed as hypotheses, never as fact:\n${lines.join("\n")}\n` +
@@ -862,11 +891,15 @@ export class ArchieNativeEngine implements ArchieRuntime {
 
   /** Extract quantity+unit pairs from text ("3 days", "7 mm"). */
   private quantitiesIn(text: string): Array<{ value: number; unit: string }> {
-    const re = /(\d+(?:\.\d+)?)\s*(days?|hours?|hrs?|weeks?|months?|mm|cm|meters?|metres?|m|kg|tonnes?|tons?|%)/gi;
+    const re =
+      /(\d+(?:\.\d+)?)\s*(days?|hours?|hrs?|weeks?|months?|mm|cm|meters?|metres?|m|kg|tonnes?|tons?|%)/gi;
     const out: Array<{ value: number; unit: string }> = [];
     let m: RegExpExecArray | null;
     while ((m = re.exec(text)) !== null) {
-      out.push({ value: parseFloat(m[1]), unit: m[2].toLowerCase().replace(/s$/, "") });
+      out.push({
+        value: parseFloat(m[1]),
+        unit: m[2].toLowerCase().replace(/s$/, ""),
+      });
     }
     return out;
   }
@@ -877,7 +910,11 @@ export class ArchieNativeEngine implements ArchieRuntime {
    *  unit) becomes a working-hypothesis "possible cause" —
    *  always framed as NOT established as fact. */
   private speculativeFollowUp(input: string, validated: Fact[]): string | null {
-    if (!/\b(why|how come|cause|crack|cracked|fail|failed|failure|problem|broken|damage|damaged)\b/i.test(input)) {
+    if (
+      !/\b(why|how come|cause|crack|cracked|fail|failed|failure|problem|broken|damage|damaged)\b/i.test(
+        input,
+      )
+    ) {
       return null;
     }
     const qNums = this.quantitiesIn(input);
@@ -972,9 +1009,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         input,
       )
     ) {
-      const webClaim = input.match(
-        /\bsays?\s+([^.?!]*?)\s+but/i,
-      )?.[1];
+      const webClaim = input.match(/\bsays?\s+([^.?!]*?)\s+but/i)?.[1];
       const ownerClaim = input.match(
         /\bbut\s+(?:i told you|i said|we agreed(?: on)?|my|our|i'm)\s+([^.?!]+)/i,
       )?.[1];
@@ -993,8 +1028,12 @@ export class ArchieNativeEngine implements ArchieRuntime {
     // store lacks the needed predicates — teaching, correction
     // and arithmetic are never intercepted (intent allowlist).
     if (
-      ["knowledge_query", "howto_guidance", "research_request", "price_query"]
-        .includes(nlu.intent)
+      [
+        "knowledge_query",
+        "howto_guidance",
+        "research_request",
+        "price_query",
+      ].includes(nlu.intent)
     ) {
       const strat = await this.strategyAnswer(input, ranked, nlu.confidence);
       if (strat) return strat;
@@ -1087,7 +1126,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
           const text = invocation.ok
             ? `${conv[1]} ${conv[2]} = ${String(invocation.output)} ${conv[3]} (converted deterministically in-engine)`
             : `I could not convert that: ${invocation.error}. My unit conversion is honest — it reports errors rather than guessing.`;
-          return this.compose(text, nlu.confidence, [], undefined, [invocation]);
+          return this.compose(text, nlu.confidence, [], undefined, [
+            invocation,
+          ]);
         }
         const expression = extractExpression(input);
         if (!expression) {
@@ -1112,15 +1153,15 @@ export class ArchieNativeEngine implements ArchieRuntime {
             /^\(\((\d+(?:\.\d+)?)\/100\)\*\((\d+(?:\.\d+)?)\)\)$/,
           );
           if (pct) {
-            const inverse =
-              (Number(invocation.output) / Number(pct[2])) * 100;
+            const inverse = (Number(invocation.output) / Number(pct[2])) * 100;
             const passed = Math.abs(inverse - Number(pct[1])) < 1e-6;
             text += ` Cross-check ${passed ? "passed" : "FAILED"}: ${String(invocation.output)} ÷ ${pct[2]} × 100 = ${Number(inverse.toFixed(4))}% — inverse verification of the ${pct[1]}% claim.`;
           } else {
             const recompute = await this.tools.invoke("arithmetic", {
               expression,
             });
-            const passed = recompute.ok && recompute.output === invocation.output;
+            const passed =
+              recompute.ok && recompute.output === invocation.output;
             text += ` Cross-check ${passed ? "passed" : "FAILED"}: independent recomputation returned ${recompute.ok ? String(recompute.output) : `an error (${recompute.error})`} — verified by double-computation.`;
           }
         }
@@ -1147,7 +1188,11 @@ export class ArchieNativeEngine implements ArchieRuntime {
             cf.conclusions.length > 0
               ? `Counterfactual analysis: ${cf.explanation} Conclusions are candidate effects, not certainties — ${cf.conclusions.map((c) => c.statement).join("; ")}.`
               : `Counterfactual reasoning needs a causal model of the situation, and I hold none for this — I cannot say what would have happened. Teach me the causes involved (e.g. "remember that rain causes wet ground") and I will reason the counterfactual properly from the real causal graph.`;
-          return this.compose(text, nlu.confidence * 0.4, cf.evidence.slice(0, 5));
+          return this.compose(
+            text,
+            nlu.confidence * 0.4,
+            cf.evidence.slice(0, 5),
+          );
         }
         // Caller-provided knowledge base (livechat path):
         // consult the injected systemInstruction as a retrieval
@@ -1206,7 +1251,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
               const top = personFacts.slice(0, 3);
               const parts = top.map(
                 (f) =>
-                  `${f.subject} ${f.predicate.replace(/-/g, " ")}: ${String(f.object)} [confidence ${((f.confidence * 100) | 0)}%, ${f.provenance.source}]`,
+                  `${f.subject} ${f.predicate.replace(/-/g, " ")}: ${String(f.object)} [confidence ${(f.confidence * 100) | 0}%, ${f.provenance.source}]`,
               );
               const pronoun = /\bhis\b/i.test(input)
                 ? "his"
@@ -1258,7 +1303,11 @@ export class ArchieNativeEngine implements ArchieRuntime {
           // P1b — strategy-driven honest speculation: "why"
           // questions get hypothesis framing (never as fact);
           // conflicting-evidence questions get a conflict band.
-          const strategic = await this.speculativeAnswer(input, ranked, nlu.confidence);
+          const strategic = await this.speculativeAnswer(
+            input,
+            ranked,
+            nlu.confidence,
+          );
           if (strategic) return strategic;
           const plan = await this.planFor("researched");
           // P6 — variance on the honest unknown line; the
@@ -1293,7 +1342,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
         // epistemic labels never change.
         const kbSeed = validated.map((f) => f.id).join("|");
         const footer =
-          nlu.intent === "howto_guidance" ? howtoFooter(kbSeed, this.verbosity) : "";
+          nlu.intent === "howto_guidance"
+            ? howtoFooter(kbSeed, this.verbosity)
+            : "";
         // P8: an answer citing derived knowledge opens with the
         // derived marker, never "validated knowledge".
         const opening = includesDerived(validated)
@@ -1706,7 +1757,8 @@ export class ArchieNativeEngine implements ArchieRuntime {
         const domainHandler = this.domains.handlerFor("construction_calc");
         if (!domainHandler) {
           return this.compose(
-            "That capability is not installed on this engine — I will not fabricate a construction estimate. " + this.statusLine(),
+            "That capability is not installed on this engine — I will not fabricate a construction estimate. " +
+              this.statusLine(),
             nlu.confidence,
             [],
           );
@@ -2004,17 +2056,36 @@ function extractTriple(
   // (roof has pitch). Store subject "roof", predicate "pitch" —
   // the shape subject/predicate queries expect.
   const ATTRIBUTE_NOUNS = new Set([
-    "ratio", "pitch", "thickness", "height", "price", "cost",
-    "depth", "width", "weight", "temperature", "area", "volume",
-    "color", "colour", "code", "name", "size", "strength",
-    "grade", "spacing", "length", "diameter", "slope", "density",
-    "capacity", "age", "span",
+    "ratio",
+    "pitch",
+    "thickness",
+    "height",
+    "price",
+    "cost",
+    "depth",
+    "width",
+    "weight",
+    "temperature",
+    "area",
+    "volume",
+    "color",
+    "colour",
+    "code",
+    "name",
+    "size",
+    "strength",
+    "grade",
+    "spacing",
+    "length",
+    "diameter",
+    "slope",
+    "density",
+    "capacity",
+    "age",
+    "span",
   ]);
   const words = subjectRaw.split(" ");
-  if (
-    words.length >= 2 &&
-    ATTRIBUTE_NOUNS.has(words[words.length - 1])
-  ) {
+  if (words.length >= 2 && ATTRIBUTE_NOUNS.has(words[words.length - 1])) {
     return {
       subject: words.slice(0, -1).join(" ").replace(/\s+/g, "-"),
       predicate: words[words.length - 1],
@@ -2040,10 +2111,34 @@ function extractResearchQuery(input: string): string | null {
 // about the actual subject wins over one that merely shares
 // filler words.
 const RETRIEVAL_FILLERS = new Set([
-  "what", "which", "who", "when", "where", "why", "how", "should",
-  "could", "would", "will", "can", "tell", "about", "know", "need",
-  "want", "give", "show", "help", "many", "much", "best", "good",
-  "guide", "tips", "complete", "essential",
+  "what",
+  "which",
+  "who",
+  "when",
+  "where",
+  "why",
+  "how",
+  "should",
+  "could",
+  "would",
+  "will",
+  "can",
+  "tell",
+  "about",
+  "know",
+  "need",
+  "want",
+  "give",
+  "show",
+  "help",
+  "many",
+  "much",
+  "best",
+  "good",
+  "guide",
+  "tips",
+  "complete",
+  "essential",
 ]);
 
 function retrieveFromSystemInstruction(
@@ -2075,8 +2170,7 @@ function retrieveFromSystemInstruction(
     let bodyOverlap = 0;
     for (const t of qTokens) if (bodyTokens.has(t)) bodyOverlap++;
     const score =
-      titleOverlap / qTokens.length +
-      0.25 * (bodyOverlap / qTokens.length);
+      titleOverlap / qTokens.length + 0.25 * (bodyOverlap / qTokens.length);
     if (!best || score > best.score) best = { text: section, score };
   }
   if (!best) return null;

@@ -972,16 +972,150 @@ const RULE_CASCADE: Array<{
  *  extracted from the raw input. (Pre-existing gap: this
  *  interface was referenced but never declared — audit fix
  *  X-0, 2026-09-11.) */
+export interface AnaphoraResolution {
+  pronoun: string;
+  referent: string | null;
+}
+
 export interface NluResult {
   intent: Intent;
   confidence: number;
   entities: Entities;
   tokens: string[];
+  /** Deterministic pronoun resolutions from conversation
+   *  history (L.5 structural layer, 2026-09-11). Honest by
+   *  construction: an unresolved pronoun is reported as
+   *  referent:null — never guessed. */
+  anaphora: AnaphoraResolution[];
+}
+
+// ---------------------------------------------------------
+// Anaphora resolution (audit L.5 — NLU deeper layers).
+// Follow-up questions are how owners actually speak:
+// "remember: screed ratio is 1:4" → "how do i apply it?".
+// The pronoun is resolved DETERMINISTICALLY from the recent
+// conversation, or honestly reported unresolved. The resolved
+// referent is a RETRIEVAL hint — never presented as a fact,
+// never persisted as knowledge.
+// ---------------------------------------------------------
+const ANAPHORA_PRONOUNS = ["it", "they", "them", "that one", "he", "she"];
+
+/** Extract a salient candidate referent from one history
+ *  turn: the subject of a teaching/definition statement, or
+ *  the longest content word of a question. */
+function candidateReferent(text: string): string | null {
+  const cleaned = text
+    .trim()
+    .replace(/^(?:remember|learn|note)(?:\s+that)?[:,\s]+/i, "");
+  // Question-form referents: "what is/are (a|an|the)? X?"
+  const question = cleaned.match(
+    /^(?:what|what's)\s+(?:is|are)\s+(?:a|an|the)?\s*([a-z][\w-]*(?:\s+[a-z][\w-]*){0,3})\??$/i,
+  );
+  if (question) {
+    const words = question[1]
+      .split(/\s+/)
+      .filter((w) => !ANAPHORA_STOPWORDS.has(w.toLowerCase()));
+    if (words.length > 0) return words.join(" ").toLowerCase();
+  }
+  // Statement subjects: "X is/are/has/ratio/costs ..."
+  const subj = cleaned.match(
+    /^([a-z][\w-]*(?:\s+[a-z][\w-]*){0,3})\s+(?:is|are|was|were|has|costs|uses|ratio)\b/i,
+  );
+  if (subj) {
+    const words = subj[1]
+      .split(/\s+/)
+      .filter((w) => !ANAPHORA_STOPWORDS.has(w.toLowerCase()));
+    if (words.length > 0) return words.join(" ").toLowerCase();
+  }
+  // Fallback: longest content word in the turn.
+  const words = cleaned
+    .toLowerCase()
+    .replace(/[^a-z0-9\s-]/g, " ")
+    .split(/\s+/)
+    .filter((w) => w.length > 3 && !ANAPHORA_STOPWORDS.has(w));
+  if (words.length === 0) return null;
+  return words.sort((a, b) => b.length - a.length)[0];
+}
+
+const ANAPHORA_STOPWORDS = new Set([
+  "what",
+  "when",
+  "where",
+  "which",
+  "who",
+  "how",
+  "why",
+  "tell",
+  "about",
+  "with",
+  "from",
+  "this",
+  "that",
+  "then",
+  "also",
+  "does",
+  "your",
+  "have",
+  "will",
+  "would",
+  "could",
+  "should",
+  "there",
+  "the",
+  "and",
+  "for",
+  "are",
+  "can",
+  "please",
+  "give",
+  "show",
+  "much",
+  "many",
+  "some",
+  "know",
+  "thing",
+  "stuff",
+]);
+
+/** Resolve pronouns in the input against the recent
+ *  conversation. Scans history BACKWARD (most recent first,
+ *  owner turns preferred) — max 6 turns, deterministic at
+ *  every step. Returns one record per pronoun found. */
+export function resolveAnaphora(
+  input: string,
+  history: Array<{ role: "owner" | "archie"; text: string }>,
+): AnaphoraResolution[] {
+  const found: AnaphoraResolution[] = [];
+  const seen = new Set<string>();
+  const lower = input.toLowerCase();
+  for (const pronoun of ANAPHORA_PRONOUNS) {
+    const re = new RegExp(`\\b${pronoun}\\b`, "i");
+    if (!re.test(lower) || seen.has(pronoun)) continue;
+    seen.add(pronoun);
+    let referent: string | null = null;
+    // Owner turns first — the owner's own words name the
+    // referent; ARCHIE's replies quote it second-hand.
+    for (const preferOwner of [true, false]) {
+      if (referent) break;
+      const turns = history
+        .filter((t) => t.role === (preferOwner ? "owner" : "archie"))
+        .slice(-6);
+      for (let i = turns.length - 1; i >= 0 && !referent; i--) {
+        referent = candidateReferent(turns[i].text);
+      }
+    }
+    found.push({ pronoun, referent });
+  }
+  return found;
 }
 
 /** One deterministic NLU pass over raw owner input. */
-export function understand(input: string): NluResult {
+export function understand(
+  input: string,
+  history: Array<{ role: "owner" | "archie"; text: string }> = [],
+): NluResult {
   const tokens = tokenize(input);
+  const anaphora = resolveAnaphora(input, history);
   // Stage 1: rule cascade over the raw input.
   for (const rule of RULE_CASCADE) {
     if (rule.pattern.test(input)) {
@@ -990,6 +1124,7 @@ export function understand(input: string): NluResult {
         confidence: rule.confidence,
         entities: extractEntities(input),
         tokens,
+        anaphora,
       };
     }
   }
@@ -1009,6 +1144,7 @@ export function understand(input: string): NluResult {
     intent,
     confidence,
     entities: extractEntities(input),
+    anaphora,
     tokens,
   };
 }
