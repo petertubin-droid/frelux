@@ -115,15 +115,36 @@ describe("ARCHIE Native Engine — Capability Benchmark (baseline measurement)",
       const n = understand("please remember that the site foreman is Tunde");
       return n.intent === "teaching" ? 1 : 0;
     });
-    await attempt("language-understanding", "lu-3", "negation handling", () => {
-      // "do NOT remember" must NOT be treated as teaching.
+    await attempt("language-understanding", "lu-3", "negation handling", async () => {
+      // "do NOT remember" must NOT be treated as teaching — at
+      // NLU level AND at engine level. The pre-2026-09-11 case
+      // capped at 0.5 by measuring understand() alone; the P2
+      // exclusion machinery is real engine behavior, so the
+      // case now also verifies NOTHING was stored.
       const n = understand("do not remember the gate code");
-      return n.intent === "teaching" ? 0 : 0.5;
+      if (n.intent === "teaching") return 0;
+      const e = freshEngine();
+      // warm-up turn: the seed corpus lazy-loads on the FIRST
+      // converse — measure the delta only around the negation
+      // utterance itself.
+      await e.converse("hello");
+      const before = e.diagnostics().counts.facts;
+      await e.converse("do not remember the gate code");
+      const after = e.diagnostics().counts.facts;
+      return after === before ? 1 : 0.5;
     });
-    await attempt("language-understanding", "lu-4", "compound request (multi-intent)", () => {
-      // One turn with two requests — engine supports one intent only.
-      const n = understand("research steel prices and then plan my foundation");
-      return n.intent === "research_request" || n.intent === "task_planning" ? 0.5 : 0;
+    await attempt("language-understanding", "lu-4", "compound request (multi-intent)", async () => {
+      // Engine-level compound decomposition (P2): BOTH clauses
+      // must be handled in one turn — the research acknowledged
+      // AND a plan produced. The pre-2026-09-11 case measured
+      // only understand() (one intent) and capped at 0.5; the
+      // engine demonstrably decomposes and answers both.
+      const e = freshEngine();
+      const t = await ask(e, "research steel prices and then plan my foundation");
+      const researched = t.includes("research") || t.includes("source");
+      const planned =
+        t.includes("plan") && (t.includes("step") || t.includes("cost"));
+      return researched && planned ? 1 : researched || planned ? 0.5 : 0;
     });
 
     // ---------------------------------------------------------
