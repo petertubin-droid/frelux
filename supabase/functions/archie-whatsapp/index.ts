@@ -77,6 +77,7 @@ import {
   WHATSAPP_TEXT_LIMIT,
   type InboundWaMessage,
 } from "../_shared/archie-ai/whatsapp/protocol.ts";
+import { serveWithCors } from "../_shared/serve.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -96,7 +97,6 @@ const db = createClient(SUPABASE_URL, SERVICE_ROLE, {
 });
 
 const CORS = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
@@ -1138,7 +1138,7 @@ async function adminAction(
 // ---------------------------------------------------------
 // Entry point
 // ---------------------------------------------------------
-Deno.serve(async (req) => {
+serveWithCors(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   const url = new URL(req.url);
 

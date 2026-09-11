@@ -25,6 +25,13 @@
 //     a separate human approval flow
 // =========================================================
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
+import { serveWithCors } from "../_shared/serve.ts";
+import {
+  checkRateLimit,
+  getRateLimitKey,
+  RATE_LIMITS,
+} from "../_shared/rate-limit.ts";
+import { rateLimitedResponse } from "../_shared/cors.ts";
 
 const MAX_PER_HOUR = 30;
 const RATE_WINDOW_MS = 3_600_000;
@@ -32,7 +39,6 @@ const MAX_TEXT_CHARS = 80_000;
 const MAX_EXTRACTED_FACTS = 100;
 
 const CORS = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "Content-Type, Authorization, X-Client-Info, Apikey",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -205,7 +211,16 @@ function detectDomain(text: string, fallback: string): string {
   return hits >= 3 ? "construction" : fallback;
 }
 
-Deno.serve(async (req) => {
+serveWithCors(async (req) => {
+  // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
+  // (falls back to client IP). OPTIONS preflights are answered at
+  // the CORS boundary and never reach this check.
+  const rl = checkRateLimit(
+    getRateLimitKey(req, req.headers.get("x-user-id") ?? undefined),
+    RATE_LIMITS.GENERAL,
+  );
+  if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
+
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST")
     return json(405, { ok: false, error: "POST only." });

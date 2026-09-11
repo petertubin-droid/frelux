@@ -53,6 +53,13 @@ import {
   regionAllowed,
   apiError,
 } from "./_engines.bundle.js";
+import { serveWithCors } from "../_shared/serve.ts";
+import {
+  checkRateLimit,
+  getRateLimitKey,
+  RATE_LIMITS,
+} from "../_shared/rate-limit.ts";
+import { rateLimitedResponse } from "../_shared/cors.ts";
 
 // ---------------------------------------------------------
 // Environment (SUPABASE_URL / ANON / SERVICE_ROLE are injected
@@ -78,7 +85,6 @@ const svc = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
 });
 
 const CORS = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "Content-Type, Authorization, X-Client-Info, Apikey, Idempotency-Key",
   "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
@@ -1613,7 +1619,16 @@ async function handleKeys(
 // ---------------------------------------------------------
 // Router
 // ---------------------------------------------------------
-Deno.serve(async (req: Request) => {
+serveWithCors(async (req: Request) => {
+  // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
+  // (falls back to client IP). OPTIONS preflights are answered at
+  // the CORS boundary and never reach this check.
+  const rl = checkRateLimit(
+    getRateLimitKey(req, req.headers.get("x-user-id") ?? undefined),
+    RATE_LIMITS.AI,
+  );
+  if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
+
   const requestId = crypto.randomUUID();
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 

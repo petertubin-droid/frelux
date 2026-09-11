@@ -17,6 +17,7 @@
 // =========================================================
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
+import { serveWithCors } from "../_shared/serve.ts";
 
 // ── Rate limiting (inlined mirror of supabase/functions/_shared/rate-limit.ts) ──
 // The Management API deploys this function as a single self-contained file,
@@ -89,7 +90,6 @@ const RATE_LIMITS = {
 } as const;
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers":
     "Content-Type, Authorization, X-Client-Info, Apikey",
@@ -523,7 +523,7 @@ ${textDescription ? `\nThe user's description:\n"""${textDescription.slice(0, 20
 
 // ── Main ──
 
-Deno.serve(async (req: Request) => {
+serveWithCors(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }

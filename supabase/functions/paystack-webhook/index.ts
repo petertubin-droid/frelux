@@ -22,9 +22,9 @@ import {
   constantTimeEqual,
   validateSubscriptionPayment,
 } from "../_shared/subscription-pricing.ts";
+import { serveWithCors } from "../_shared/serve.ts";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-paystack-signature",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -58,7 +58,7 @@ async function verifySignature(req: Request): Promise<boolean> {
   return constantTimeEqual(hash, signature);
 }
 
-Deno.serve(async (req: Request) => {
+serveWithCors(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }

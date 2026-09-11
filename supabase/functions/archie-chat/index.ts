@@ -39,7 +39,6 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 const CORS = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
@@ -323,6 +322,7 @@ import {
   getCognitiveEngine,
 } from "../_shared/archie-ai/cognitive/kernel.ts";
 import { ArchieNativeEngine } from "../_shared/archie-ai/native-engine/engine.ts";
+import { serveWithCors } from "../_shared/serve.ts";
 configureCognitiveEnginePersistence(
   db as unknown as import("../_shared/archie-ai/native-engine/persistence.ts").SupabaseLike,
 );
@@ -1478,7 +1478,7 @@ Rules you MUST follow:
 - If asked something outside FRELUX scope, briefly help if it is general building/painting knowledge, otherwise redirect politely.`;
 
 // ---- main handler ----------------------------------------
-Deno.serve(async (req) => {
+serveWithCors(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
   // 1. Authenticate — Owner (admin) gets FULL ARCHIE. Authenticated

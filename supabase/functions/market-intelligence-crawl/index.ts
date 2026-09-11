@@ -27,6 +27,13 @@
 //   (Called by pg_cron scheduler — no body needed)
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { serveWithCors } from "../_shared/serve.ts";
+import {
+  checkRateLimit,
+  getRateLimitKey,
+  RATE_LIMITS,
+} from "../_shared/rate-limit.ts";
+import { rateLimitedResponse } from "../_shared/cors.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -58,12 +65,20 @@ const CRAWLER_CONFIG = {
 // MAIN HANDLER
 // ============================================================
 
-Deno.serve(async (req: Request) => {
+serveWithCors(async (req: Request) => {
+  // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
+  // (falls back to client IP). OPTIONS preflights are answered at
+  // the CORS boundary and never reach this check.
+  const rl = checkRateLimit(
+    getRateLimitKey(req, req.headers.get("x-user-id") ?? undefined),
+    RATE_LIMITS.AI,
+  );
+  if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
+
   // Handle CORS
   if (req.method === "OPTIONS") {
     return new Response("ok", {
       headers: {
-        "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
         "Access-Control-Allow-Headers":
           "authorization, x-client-info, apikey, content-type",
@@ -1020,7 +1035,6 @@ function jsonResponse(data: unknown, status = 200): Response {
     status,
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
     },
   });
 }

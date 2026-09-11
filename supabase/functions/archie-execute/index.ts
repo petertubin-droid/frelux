@@ -26,13 +26,19 @@
 // live only in edge-runtime env vars, server-side.
 // =========================================================
 
-import { corsHeaders, handleCors, jsonResponse, errorResponse } from "../_shared/cors.ts";
+import {
+  corsHeaders,
+  handleCors,
+  jsonResponse,
+  errorResponse,
+} from "../_shared/cors.ts";
 import {
   ExecutionTarget,
   EngineDeps,
   executeTarget,
 } from "../_shared/archie-ai/execution/engine.ts";
 import { createClient, User } from "npm:@supabase/supabase-js@2.45.4";
+import { serveWithCors } from "../_shared/serve.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -53,13 +59,25 @@ function b64encode(bytes: Uint8Array): string {
   return btoa(bin);
 }
 
-async function deriveVerifier(secret: string, saltB64: string, iterations: number): Promise<string> {
+async function deriveVerifier(
+  secret: string,
+  saltB64: string,
+  iterations: number,
+): Promise<string> {
   const enc = new TextEncoder();
-  const baseKey = await crypto.subtle.importKey("raw", enc.encode(secret), "PBKDF2", false, ["deriveBits"]);
+  const baseKey = await crypto.subtle.importKey(
+    "raw",
+    enc.encode(secret),
+    "PBKDF2",
+    false,
+    ["deriveBits"],
+  );
   const bits = await crypto.subtle.deriveBits(
     {
       name: "PBKDF2",
-      salt: Uint8Array.from(atob(saltB64), (c) => c.charCodeAt(0)) as unknown as BufferSource,
+      salt: Uint8Array.from(atob(saltB64), (c) =>
+        c.charCodeAt(0),
+      ) as unknown as BufferSource,
       iterations,
       hash: "SHA-256",
     },
@@ -76,13 +94,25 @@ function constantTimeEqual(a: string, b: string): boolean {
   return diff === 0;
 }
 
-async function verifyOwnerSecret(userId: string, secret: string): Promise<boolean> {
+async function verifyOwnerSecret(
+  userId: string,
+  secret: string,
+): Promise<boolean> {
   const res = await fetch(
     `${SUPABASE_URL}/rest/v1/frelux_owner_credentials?user_id=eq.${userId}&select=secret_hash,salt,iterations`,
-    { headers: { apikey: SERVICE_ROLE, Authorization: `Bearer ${SERVICE_ROLE}` } },
+    {
+      headers: {
+        apikey: SERVICE_ROLE,
+        Authorization: `Bearer ${SERVICE_ROLE}`,
+      },
+    },
   );
   if (!res.ok) return false;
-  const rows = (await res.json()) as { secret_hash: string; salt: string; iterations: number }[];
+  const rows = (await res.json()) as {
+    secret_hash: string;
+    salt: string;
+    iterations: number;
+  }[];
   const cred = rows[0];
   if (!cred) return false;
   const verifier = await deriveVerifier(secret, cred.salt, cred.iterations);
@@ -167,7 +197,9 @@ const engineDeps: EngineDeps = {
 // ---------------------------------------------------------
 // Auth: Owner = valid JWT + admin profile role
 // ---------------------------------------------------------
-async function authenticate(req: Request): Promise<{ user: User | null; isOwner: boolean }> {
+async function authenticate(
+  req: Request,
+): Promise<{ user: User | null; isOwner: boolean }> {
   const authHeader = req.headers.get("Authorization") ?? "";
   if (!authHeader.startsWith("Bearer ")) return { user: null, isOwner: false };
   const anon = createClient(SUPABASE_URL, ANON_KEY, {
@@ -197,7 +229,7 @@ interface ExecuteBody {
   limit?: number;
 }
 
-Deno.serve(async (req: Request) => {
+serveWithCors(async (req: Request) => {
   const corsRes = handleCors(req);
   if (corsRes) return corsRes;
   if (req.method !== "POST") {
@@ -207,7 +239,12 @@ Deno.serve(async (req: Request) => {
   const { user, isOwner } = await authenticate(req);
   if (!user || !isOwner) {
     if (user) {
-      await securityEvent(user.id, "EXECUTION_NON_OWNER_ACCESS", "critical", "A non-owner account called the execution engine.");
+      await securityEvent(
+        user.id,
+        "EXECUTION_NON_OWNER_ACCESS",
+        "critical",
+        "A non-owner account called the execution engine.",
+      );
     }
     return errorResponse(401, "Owner authority required.");
   }
@@ -223,7 +260,9 @@ Deno.serve(async (req: Request) => {
     case "list": {
       const { data, error } = await db
         .from("frelux_archie_execution_targets")
-        .select("key,label,description,kind,environment,requires_owner_secret,allowed_initiators,risk_class,enabled,http_method,idempotent")
+        .select(
+          "key,label,description,kind,environment,requires_owner_secret,allowed_initiators,risk_class,enabled,http_method,idempotent",
+        )
         .order("environment", { ascending: true });
       if (error) return errorResponse(500, "Registry read failed.");
       return jsonResponse(200, {
@@ -237,8 +276,16 @@ Deno.serve(async (req: Request) => {
       const targetKey = String(body.targetKey ?? "").trim();
       if (!targetKey) return errorResponse(400, "targetKey is required.");
       if (secretRateLimited(user.id)) {
-        await securityEvent(user.id, "EXECUTION_RATE_LIMITED", "critical", "Too many failed owner-secret attempts — locked for 10 minutes.");
-        return errorResponse(429, "Too many failed attempts. Try again in 10 minutes.");
+        await securityEvent(
+          user.id,
+          "EXECUTION_RATE_LIMITED",
+          "critical",
+          "Too many failed owner-secret attempts — locked for 10 minutes.",
+        );
+        return errorResponse(
+          429,
+          "Too many failed attempts. Try again in 10 minutes.",
+        );
       }
       // verify secret out-of-band so failures rate-limit BEFORE any run
       const target = await getTarget(targetKey);
@@ -246,7 +293,12 @@ Deno.serve(async (req: Request) => {
         const ok = await verifyOwnerSecret(user.id, body.ownerSecret);
         if (!ok) {
           recordSecretFailure(user.id);
-          await securityEvent(user.id, "EXECUTION_OWNER_SECRET_INVALID", "critical", `Invalid owner secret for target '${targetKey}'.`);
+          await securityEvent(
+            user.id,
+            "EXECUTION_OWNER_SECRET_INVALID",
+            "critical",
+            `Invalid owner secret for target '${targetKey}'.`,
+          );
           return errorResponse(403, "Invalid owner secret.");
         }
       }
@@ -261,17 +313,22 @@ Deno.serve(async (req: Request) => {
           deviceFingerprint: body.deviceFingerprint ?? null,
         },
       });
-      return jsonResponse(outcome.ok ? 200 : (outcome.status === "UNAUTHORIZED" ? 403 : 422), {
-        ok: outcome.ok,
-        ...outcome, // already redacted by the engine
-      });
+      return jsonResponse(
+        outcome.ok ? 200 : outcome.status === "UNAUTHORIZED" ? 403 : 422,
+        {
+          ok: outcome.ok,
+          ...outcome, // already redacted by the engine
+        },
+      );
     }
 
     case "history": {
       const limit = Math.min(Math.max(Number(body.limit ?? 25), 1), 100);
       const { data, error } = await db
         .from("frelux_archie_execution_runs")
-        .select("id,target_key,environment,status,error,http_status,attempts,duration_ms,initiator_system,authority_method,created_date")
+        .select(
+          "id,target_key,environment,status,error,http_status,attempts,duration_ms,initiator_system,authority_method,created_date",
+        )
         .order("created_date", { ascending: false })
         .limit(limit);
       if (error) return errorResponse(500, "History read failed.");

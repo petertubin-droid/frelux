@@ -25,13 +25,19 @@
 // =========================================================
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
+import { serveWithCors } from "../_shared/serve.ts";
+import {
+  checkRateLimit,
+  getRateLimitKey,
+  RATE_LIMITS,
+} from "../_shared/rate-limit.ts";
+import { rateLimitedResponse } from "../_shared/cors.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
 const CORS = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
@@ -168,7 +174,16 @@ async function service<T>(
 // SSRF-safe: fixed public host, ids validated against the registry.
 const COINGECKO = "https://api.coingecko.com/api/v3";
 
-Deno.serve(async (req: Request) => {
+serveWithCors(async (req: Request) => {
+  // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
+  // (falls back to client IP). OPTIONS preflights are answered at
+  // the CORS boundary and never reach this check.
+  const rl = checkRateLimit(
+    getRateLimitKey(req, req.headers.get("x-user-id") ?? undefined),
+    RATE_LIMITS.GENERAL,
+  );
+  if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
+
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return json(405, { error: "POST only." });
 

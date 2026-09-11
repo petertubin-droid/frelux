@@ -17,9 +17,9 @@ import {
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
 import { resolveArchieCapabilityEngine } from "../_shared/archie-ai/runtime.ts";
+import { serveWithCors } from "../_shared/serve.ts";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
   "Access-Control-Allow-Headers":
     "Content-Type, Authorization, X-Client-Info, Apikey",
@@ -112,7 +112,7 @@ Knowledge base context from the website:
 
 When the knowledge base has relevant content, reference it. When it doesn't, provide general expert guidance.`;
 
-Deno.serve(async (req: Request) => {
+serveWithCors(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
@@ -166,7 +166,8 @@ Deno.serve(async (req: Request) => {
       await logAiRequest(supabase, clientHash, "rate_limited");
       return jsonResponse(
         {
-          error: "You've reached the hourly chat limit. Please try again later.",
+          error:
+            "You've reached the hourly chat limit. Please try again later.",
         },
         429,
       );

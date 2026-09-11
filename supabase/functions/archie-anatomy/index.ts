@@ -28,6 +28,13 @@ import {
   CONSTITUTION_CHECKSUM,
   verifyConstitution,
 } from "../_shared/archie-ai/anatomy/constitution.ts";
+import { serveWithCors } from "../_shared/serve.ts";
+import {
+  checkRateLimit,
+  getRateLimitKey,
+  RATE_LIMITS,
+} from "../_shared/rate-limit.ts";
+import { rateLimitedResponse } from "../_shared/cors.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -36,7 +43,6 @@ const service = createClient(SUPABASE_URL, SERVICE_ROLE);
 const api = createClient(SUPABASE_URL, ANON_KEY);
 
 const CORS = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey",
 };
@@ -48,7 +54,16 @@ function json(status: number, body: Record<string, unknown>) {
   });
 }
 
-Deno.serve(async (req: Request) => {
+serveWithCors(async (req: Request) => {
+  // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
+  // (falls back to client IP). OPTIONS preflights are answered at
+  // the CORS boundary and never reach this check.
+  const rl = checkRateLimit(
+    getRateLimitKey(req, req.headers.get("x-user-id") ?? undefined),
+    RATE_LIMITS.GENERAL,
+  );
+  if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
+
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "GET") return json(405, { error: "Method not allowed" });
 
@@ -76,18 +91,16 @@ Deno.serve(async (req: Request) => {
 
     // ---- Persist the snapshot (service-role write only) ----
     for (const p of probes) {
-      await service
-        .from("archie_subsystem_status")
-        .upsert(
-          {
-            subsystem_key: p.subsystem_key,
-            status: p.status,
-            details: p.details,
-            metric: p.metric ?? null,
-            checked_at: new Date().toISOString(),
-          },
-          { onConflict: "subsystem_key" },
-        );
+      await service.from("archie_subsystem_status").upsert(
+        {
+          subsystem_key: p.subsystem_key,
+          status: p.status,
+          details: p.details,
+          metric: p.metric ?? null,
+          checked_at: new Date().toISOString(),
+        },
+        { onConflict: "subsystem_key" },
+      );
     }
 
     // ---- Constitution (DNA) verification against DB ----
@@ -127,7 +140,8 @@ Deno.serve(async (req: Request) => {
       healthy: probes.filter((p) => p.status === "HEALTHY").length,
       degraded: probes.filter((p) => p.status === "DEGRADED").length,
       offline: probes.filter((p) => p.status === "OFFLINE").length,
-      not_operational: probes.filter((p) => p.status === "NOT_OPERATIONAL").length,
+      not_operational: probes.filter((p) => p.status === "NOT_OPERATIONAL")
+        .length,
       total: probes.length,
     };
 

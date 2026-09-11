@@ -22,12 +22,19 @@
 //     must be configured before connecting.
 // =========================================================
 
+import { serveWithCors } from "../_shared/serve.ts";
+import {
+  checkRateLimit,
+  getRateLimitKey,
+  RATE_LIMITS,
+} from "../_shared/rate-limit.ts";
+import { rateLimitedResponse } from "../_shared/cors.ts";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 const CORS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
 };
 
@@ -154,7 +161,16 @@ async function isAdmin(jwt: string | null): Promise<boolean> {
   return probe.ok;
 }
 
-Deno.serve(async (req) => {
+serveWithCors(async (req) => {
+  // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
+  // (falls back to client IP). OPTIONS preflights are answered at
+  // the CORS boundary and never reach this check.
+  const rl = checkRateLimit(
+    getRateLimitKey(req, req.headers.get("x-user-id") ?? undefined),
+    RATE_LIMITS.GENERAL,
+  );
+  if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
+
   const requestId = crypto.randomUUID();
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
@@ -163,7 +179,11 @@ Deno.serve(async (req) => {
   const authHeader = req.headers.get("Authorization") ?? "";
   const jwt = authHeader.replace(/^Bearer\s+/i, "") || null;
   if (!(await isAdmin(jwt))) {
-    return json(403, { error: "The Social Brand Center is Owner/Admin-only." }, requestId);
+    return json(
+      403,
+      { error: "The Social Brand Center is Owner/Admin-only." },
+      requestId,
+    );
   }
 
   const url = new URL(req.url);
@@ -176,7 +196,8 @@ Deno.serve(async (req) => {
   if (req.method === "GET" && route === "authorize") {
     const platform = url.searchParams.get("platform") ?? "";
     const p = PLATFORMS[platform];
-    if (!p) return json(404, { error: `Unknown platform "${platform}"` }, requestId);
+    if (!p)
+      return json(404, { error: `Unknown platform "${platform}"` }, requestId);
     const clientId = Deno.env.get(p.client_id_env);
     if (!p.authorize_url) {
       return json(
@@ -226,14 +247,20 @@ Deno.serve(async (req) => {
     const scopes = Array.isArray(body.scopes) ? body.scopes.map(String) : [];
     const p = PLATFORMS[platform];
     if (!p || !p.token_url) {
-      return json(400, { error: `Platform "${platform}" has no OAuth token exchange` }, requestId);
+      return json(
+        400,
+        { error: `Platform "${platform}" has no OAuth token exchange` },
+        requestId,
+      );
     }
     const clientId = Deno.env.get(p.client_id_env);
     const clientSecret = Deno.env.get(p.client_secret_env);
     if (!clientId || !clientSecret) {
       return json(
         501,
-        { error: `Official app credentials for "${platform}" are not configured.` },
+        {
+          error: `Official app credentials for "${platform}" are not configured.`,
+        },
         requestId,
       );
     }
@@ -258,7 +285,10 @@ Deno.serve(async (req) => {
       // Never log the token; log only the exchange outcome.
       return json(
         502,
-        { error: "The platform rejected the code exchange. Re-authorize the account." },
+        {
+          error:
+            "The platform rejected the code exchange. Re-authorize the account.",
+        },
         requestId,
       );
     }
@@ -268,7 +298,9 @@ Deno.serve(async (req) => {
       "/rest/v1/frelux_social_accounts?on_conflict=platform,account_handle",
       {
         method: "POST",
-        headers: { Prefer: "resolution=merge-duplicates,return=representation" },
+        headers: {
+          Prefer: "resolution=merge-duplicates,return=representation",
+        },
         body: JSON.stringify({
           platform,
           account_handle: accountHandle || `connected:${platform}`,
@@ -280,7 +312,11 @@ Deno.serve(async (req) => {
       },
     );
     if (accErr || !account) {
-      return json(500, { error: `Could not record the account: ${accErr}` }, requestId);
+      return json(
+        500,
+        { error: `Could not record the account: ${accErr}` },
+        requestId,
+      );
     }
 
     // Encrypt + store the token in the service-role-only vault.
@@ -288,31 +324,40 @@ Deno.serve(async (req) => {
     if (!vaultKey) {
       return json(
         501,
-        { error: "ARCHIE_TOKEN_VAULT_KEY edge secret is not configured, tokens cannot be stored securely." },
+        {
+          error:
+            "ARCHIE_TOKEN_VAULT_KEY edge secret is not configured, tokens cannot be stored securely.",
+        },
         requestId,
       );
     }
-    const encrypted = await service<never>(
-      "/rest/v1/rpc/store_social_token",
-      {
-        method: "POST",
-        body: JSON.stringify({
-          p_account_id: account.id,
-          p_token_json: JSON.stringify(tokenJson),
-          p_key: vaultKey,
-        }),
-      },
-    );
+    const encrypted = await service<never>("/rest/v1/rpc/store_social_token", {
+      method: "POST",
+      body: JSON.stringify({
+        p_account_id: account.id,
+        p_token_json: JSON.stringify(tokenJson),
+        p_key: vaultKey,
+      }),
+    });
     if (encrypted.error) {
-      return json(500, { error: `Token vault write failed: ${encrypted.error}` }, requestId);
+      return json(
+        500,
+        { error: `Token vault write failed: ${encrypted.error}` },
+        requestId,
+      );
     }
-    return json(200, { connected: true, platform, account_id: account.id }, requestId);
+    return json(
+      200,
+      { connected: true, platform, account_id: account.id },
+      requestId,
+    );
   }
 
   // ---- POST /revoke: destroy vault entry + disconnect -----
   if (route === "revoke") {
     const accountId = String(body.account_id ?? "");
-    if (!accountId) return json(400, { error: "account_id is required" }, requestId);
+    if (!accountId)
+      return json(400, { error: "account_id is required" }, requestId);
     const del = await service(
       `/rest/v1/frelux_social_tokens?account_id=eq.${encodeURIComponent(accountId)}`,
       { method: "DELETE" },
@@ -321,7 +366,11 @@ Deno.serve(async (req) => {
     const upd = await service("/rest/v1/frelux_social_accounts", {
       method: "PATCH",
       headers: { Prefer: "return=representation" },
-      body: JSON.stringify({ id: accountId, status: "DISCONNECTED", synced_at: null }),
+      body: JSON.stringify({
+        id: accountId,
+        status: "DISCONNECTED",
+        synced_at: null,
+      }),
     });
     void upd;
     return json(200, { revoked: true, account_id: accountId }, requestId);
@@ -335,7 +384,11 @@ Deno.serve(async (req) => {
       body: JSON.stringify({ id: accountId, token_rotation_due: true }),
     });
     if (error) return json(500, { error }, requestId);
-    return json(200, { rotation_pending: true, account_id: accountId }, requestId);
+    return json(
+      200,
+      { rotation_pending: true, account_id: accountId },
+      requestId,
+    );
   }
 
   return json(404, { error: "Unknown route" }, requestId);

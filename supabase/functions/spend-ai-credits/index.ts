@@ -5,9 +5,9 @@ import {
   rateLimitHeaders,
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
+import { serveWithCors } from "../_shared/serve.ts";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers":
     "Content-Type, Authorization, X-Client-Info, Apikey",
@@ -27,7 +27,7 @@ function jsonResponse(body: unknown, status = 200): Response {
  * Credits are the gate, not daily access caps.
  */
 
-Deno.serve(async (req: Request) => {
+serveWithCors(async (req: Request) => {
   if (req.method === "OPTIONS")
     return new Response(null, { status: 200, headers: corsHeaders });
   if (req.method !== "POST")

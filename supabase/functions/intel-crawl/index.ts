@@ -34,6 +34,13 @@ import {
   extractionConfidence,
   stripTags,
 } from "./extraction.ts";
+import { serveWithCors } from "../_shared/serve.ts";
+import {
+  checkRateLimit,
+  getRateLimitKey,
+  RATE_LIMITS,
+} from "../_shared/rate-limit.ts";
+import { rateLimitedResponse } from "../_shared/cors.ts";
 
 const MAX_BYTES = 2_000_000;
 const MAX_REDIRECTS = 3;
@@ -47,7 +54,6 @@ const RELIABILITY_WEIGHT: Record<string, number> = {
 };
 
 const CORS = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "Content-Type, Authorization, X-Client-Info, Apikey",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -148,7 +154,16 @@ function concat(chunks: Uint8Array[]): Uint8Array {
   return out;
 }
 
-Deno.serve(async (req: Request) => {
+serveWithCors(async (req: Request) => {
+  // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
+  // (falls back to client IP). OPTIONS preflights are answered at
+  // the CORS boundary and never reach this check.
+  const rl = checkRateLimit(
+    getRateLimitKey(req, req.headers.get("x-user-id") ?? undefined),
+    RATE_LIMITS.AI,
+  );
+  if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
+
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST")
     return json(405, { ok: false, error: "POST only." });

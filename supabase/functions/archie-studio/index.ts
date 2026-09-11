@@ -41,12 +41,12 @@ import {
   type StudioFile,
   type StudioValidationReport,
 } from "../_shared/studio/validate.ts";
+import { serveWithCors } from "../_shared/serve.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 const CORS = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
@@ -219,7 +219,7 @@ async function loadProject(projectId: string) {
 // ---------------------------------------------------------
 // Handler
 // ---------------------------------------------------------
-Deno.serve(async (req) => {
+serveWithCors(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
   try {

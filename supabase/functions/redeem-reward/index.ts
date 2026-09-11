@@ -5,9 +5,9 @@ import {
   rateLimitHeaders,
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
+import { serveWithCors } from "../_shared/serve.ts";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers":
     "Content-Type, Authorization, X-Client-Info, Apikey",
@@ -20,7 +20,7 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
-Deno.serve(async (req: Request) => {
+serveWithCors(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
@@ -77,7 +77,11 @@ Deno.serve(async (req: Request) => {
     return jsonResponse({ error: "Unauthorized", code: "AUTH_REQUIRED" }, 401);
   }
 
-  let payload: { rewardKey: string; idempotencyKey: string; clientHash?: string };
+  let payload: {
+    rewardKey: string;
+    idempotencyKey: string;
+    clientHash?: string;
+  };
   try {
     payload = await req.json();
   } catch {

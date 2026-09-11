@@ -37,6 +37,7 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import { validateEarsIntake } from "../_shared/archie-ai/native-engine/ears.ts";
+import { serveWithCors } from "../_shared/serve.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -45,7 +46,6 @@ const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 const service = createClient(SUPABASE_URL, SERVICE_ROLE);
 
 const CORS = {
-  "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
@@ -132,7 +132,7 @@ async function requireOwner(
   return { ok: true, userId: user.id };
 }
 
-Deno.serve(async (req: Request) => {
+serveWithCors(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") {
     return earsError(405, "METHOD_NOT_ALLOWED", "Method not allowed");

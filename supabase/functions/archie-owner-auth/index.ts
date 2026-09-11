@@ -16,6 +16,7 @@
 //     the OWNER can authorize production changes.
 // =========================================================
 
+import { serveWithCors } from "../_shared/serve.ts";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const ITERATIONS = 310_000;
@@ -151,12 +152,11 @@ interface Body {
   authorizationId?: string;
 }
 
-Deno.serve(async (req) => {
+serveWithCors(async (req) => {
   // CORS
   if (req.method === "OPTIONS") {
     return new Response("ok", {
       headers: {
-        "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Headers":
           "authorization, content-type, x-client-info, apikey",
         "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -493,7 +493,6 @@ function json(payload: unknown, status = 200): Response {
     status,
     headers: {
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
     },
   });
 }

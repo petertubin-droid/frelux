@@ -4,6 +4,7 @@
 // =========================================================
 
 import { corsHeaders, handleCors, jsonResponse } from "../_shared/cors.ts";
+import { serveWithCors } from "../_shared/serve.ts";
 
 interface HealthStatus {
   status: "healthy" | "degraded" | "down";
@@ -19,7 +20,7 @@ interface HealthStatus {
 
 const startTime = Date.now();
 
-Deno.serve(async (req: Request) => {
+serveWithCors(async (req: Request) => {
   const corsRes = handleCors(req);
   if (corsRes) return corsRes;
 
