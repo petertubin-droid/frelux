@@ -52,6 +52,7 @@ import { redactSecrets } from "../cognitive/security-integrity.ts";
 import { FactStore } from "./knowledge.ts";
 import { FULL_SEED_CORPUS, SEED_CORPUS_VERSION } from "./seed-corpus.ts";
 import { PageFetcher } from "./page-fetch.ts";
+import { WikipediaSearchAdapter } from "./wikipedia-search.ts";
 import { DEFAULT_RULES, GENERAL_RULES, ReasoningEngine } from "./reasoning.ts";
 import {
   consistency,
@@ -81,6 +82,7 @@ import {
   salientTokens,
   type ResearchAdapter,
   DuckDuckGoLiteAdapter,
+  MultiSearchAdapter,
 } from "./webresearch.ts";
 import { getWebSourceRegistry } from "./web-sources.ts";
 import { analyzeSource, generateUnitTestScaffold } from "./coding.ts";
@@ -299,7 +301,18 @@ export class ArchieNativeEngine implements ArchieRuntime {
     this.counterStore = options?.persistence
       ? new CounterPersistence(options.persistence)
       : null;
-    this.adapter = options?.researchAdapter ?? new DuckDuckGoLiteAdapter();
+    this.adapter =
+      options?.researchAdapter ??
+      // Composite search (audit Phase 2.2): DDG Lite first
+      // (best coverage where its IPs are not blocked), with an
+      // HONEST fallback to the edge-reliable Wikipedia API —
+      // DDG anomaly-blocks Supabase datacenter traffic
+      // (live-verified), and a blocked primary must never
+      // become a fake "no results" research report.
+      new MultiSearchAdapter([
+        new DuckDuckGoLiteAdapter(),
+        new WikipediaSearchAdapter(),
+      ]);
     this.facts = new FactStore(this.persistence ?? undefined);
     // Domain-skill registry (audit fix 2026-09-11, domain-
     // capture removal): construction knowledge — calculator,

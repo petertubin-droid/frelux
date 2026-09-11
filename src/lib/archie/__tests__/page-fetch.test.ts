@@ -355,3 +355,199 @@ describe("research pipeline page deepening", () => {
     expect(report.contentCrossChecked).toBe(false);
   });
 });
+
+// ---------------------------------------------------------
+// Edge search fallback (audit Phase 2.2) — DDG anomaly-
+// blocks Supabase datacenter traffic; the composite falls
+// through to the Wikipedia API honestly.
+// ---------------------------------------------------------
+import {
+  DuckDuckGoLiteAdapter,
+  MultiSearchAdapter,
+  isSearchFailureNote,
+  ResearchAdapter as _RA,
+} from "@studio-shared/archie-ai/native-engine/webresearch.ts";
+import { WikipediaSearchAdapter } from "@studio-shared/archie-ai/native-engine/wikipedia-search.ts";
+void _RA;
+
+describe("isSearchFailureNote — honest classification", () => {
+  it("classifies execution failures vs genuine empty results", () => {
+    expect(isSearchFailureNote("network unavailable after 3 attempt(s)")).toBe(
+      true,
+    );
+    expect(isSearchFailureNote("adapter layout changed: markers present")).toBe(
+      true,
+    );
+    expect(isSearchFailureNote("search endpoint returned 403")).toBe(true);
+    expect(
+      isSearchFailureNote(
+        "search endpoint refused this client: anomaly protection (status 202)",
+      ),
+    ).toBe(true);
+    expect(isSearchFailureNote("wikipedia api unavailable: status 500")).toBe(
+      true,
+    );
+    expect(
+      isSearchFailureNote(
+        "site-scoped search not supported by this adapter — declined",
+      ),
+    ).toBe(true);
+    expect(isSearchFailureNote("no results found for the query")).toBe(false);
+    expect(isSearchFailureNote("search completed")).toBe(false);
+  });
+});
+
+describe("DuckDuckGoLiteAdapter anomaly classification", () => {
+  it("a 202 challenge page is a REFUSAL, not drift, not a real search", async () => {
+    const adapter = new DuckDuckGoLiteAdapter({
+      fetchFn: (async () =>
+        new Response(
+          "<html><head><title>DuckDuckGo</title></head><body>anomaly page</body></html>",
+          { status: 202, headers: { "content-type": "text/html" } },
+        )) as unknown as typeof fetch,
+      sleepFn: (() => {}) as never,
+    });
+    const res = await adapter.search("concrete curing");
+    expect(res.hits).toEqual([]);
+    expect(res.note).toMatch(
+      /search endpoint refused this client: anomaly protection \(status 202\)/,
+    );
+  });
+});
+
+describe("WikipediaSearchAdapter", () => {
+  const wikiJson = JSON.stringify({
+    query: {
+      search: [
+        {
+          title: "Concrete curing",
+          snippet: "Curing <b>keeps</b> concrete moist to reach strength.",
+        },
+        {
+          title: "Concrete",
+          snippet: "Composite construction material.",
+        },
+      ],
+    },
+  });
+
+  it("returns real hits with canonical wiki URLs and tag-free snippets", async () => {
+    const adapter = new WikipediaSearchAdapter({
+      fetchFn: (async () =>
+        new Response(wikiJson, {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        })) as unknown as typeof fetch,
+    });
+    const res = await adapter.search("concrete curing time");
+    expect(res.hits.length).toBe(2);
+    expect(res.hits[0].url).toBe(
+      "https://en.wikipedia.org/wiki/Concrete_curing",
+    );
+    expect(res.hits[0].snippet).toContain("keeps");
+    expect(res.hits[0].snippet).not.toContain("<b>");
+    expect(res.note).toBe("search completed");
+  });
+
+  it("declines site-scoped queries HONESTLY (a decline is never a fake empty search)", async () => {
+    const adapter = new WikipediaSearchAdapter({
+      fetchFn: (async () => {
+        throw new Error("must not be called for site-scoped queries");
+      }) as unknown as typeof fetch,
+    });
+    const res = await adapter.search("concrete site:owasp.org");
+    expect(res.hits).toEqual([]);
+    expect(res.note).toMatch(/site-scoped search not supported/);
+  });
+
+  it("a genuinely empty index result is reported as executed-but-empty", async () => {
+    const adapter = new WikipediaSearchAdapter({
+      fetchFn: (async () =>
+        new Response(JSON.stringify({ query: { search: [] } }), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        })) as unknown as typeof fetch,
+    });
+    const res = await adapter.search("qzxv nonexisting topic");
+    expect(res.hits).toEqual([]);
+    expect(res.note).toBe("no results found for the query");
+  });
+
+  it("API errors are honest failures", async () => {
+    const adapter = new WikipediaSearchAdapter({
+      fetchFn: (async () =>
+        new Response("", { status: 500 })) as unknown as typeof fetch,
+    });
+    const res = await adapter.search("concrete curing");
+    expect(res.note).toMatch(/wikipedia api unavailable: status 500/);
+  });
+});
+
+describe("MultiSearchAdapter — honest fallback", () => {
+  it("falls through a blocked DDG to the Wikipedia API and reports the winner", async () => {
+    const blockedDdg = new DuckDuckGoLiteAdapter({
+      fetchFn: (async () =>
+        new Response("<html>anomaly</html>", {
+          status: 202,
+        })) as unknown as typeof fetch,
+      sleepFn: (() => {}) as never,
+    });
+    const wiki = new WikipediaSearchAdapter({
+      fetchFn: (async () =>
+        new Response(wikiJson(), {
+          status: 200,
+          headers: { "content-type": "application/json" },
+        })) as unknown as typeof fetch,
+    });
+    function wikiJson() {
+      return JSON.stringify({
+        query: { search: [{ title: "Concrete", snippet: "Curing." }] },
+      });
+    }
+    const multi = new MultiSearchAdapter([blockedDdg, wiki]);
+    const res = await multi.search("concrete curing time");
+    expect(res.hits.length).toBe(1);
+    expect(res.note).toMatch(/^wikipedia-api: search completed/);
+  });
+
+  it("when EVERY adapter is blocked the composite reports a network-class failure", async () => {
+    const blockedDdg = new DuckDuckGoLiteAdapter({
+      fetchFn: (async () =>
+        new Response("<html>anomaly</html>", {
+          status: 202,
+        })) as unknown as typeof fetch,
+      sleepFn: (() => {}) as never,
+    });
+    const deadWiki = new WikipediaSearchAdapter({
+      fetchFn: (async () => {
+        throw new Error("connection refused");
+      }) as unknown as typeof fetch,
+    });
+    const multi = new MultiSearchAdapter([blockedDdg, deadWiki]);
+    const res = await multi.search("concrete curing time");
+    expect(res.hits).toEqual([]);
+    expect(res.note).toMatch(/^network unavailable after all adapters/);
+    expect(isSearchFailureNote(res.note)).toBe(true);
+  });
+
+  it("a genuine zero from the first ADAPTER is preserved (not overwritten by a later decline)", async () => {
+    const emptyDdg = new DuckDuckGoLiteAdapter({
+      fetchFn: (async () =>
+        new Response("<html><body>No results</body></html>", {
+          status: 200,
+          headers: { "content-type": "text/html" },
+        })) as unknown as typeof fetch,
+      sleepFn: (() => {}) as never,
+    });
+    // parse() yields 0 hits; classifyEmptyParse sees "no results".
+    const decliningWiki = new WikipediaSearchAdapter({
+      fetchFn: (async () => {
+        throw new Error("unreachable");
+      }) as unknown as typeof fetch,
+    });
+    const multi = new MultiSearchAdapter([emptyDdg, decliningWiki]);
+    const res = await multi.search("concrete curing time");
+    expect(res.note).toMatch(/no results found for the query/);
+    expect(isSearchFailureNote(res.note)).toBe(false);
+  });
+});

@@ -88,6 +88,59 @@ export interface ResearchAdapter {
   search(query: string): Promise<{ hits: ResearchHit[]; note: string }>;
 }
 
+/** Honest classification of an adapter note: FAILURE means the
+ *  search NEVER EXECUTED (network, endpoint refusal, anomaly
+ *  block, decline) — it must never be reported as a successful
+ *  search of that source. The ONLY genuine empty outcome is
+ *  "no results found for the query". */
+export function isSearchFailureNote(note: string): boolean {
+  return (
+    note.startsWith("network unavailable") ||
+    note.startsWith("adapter layout changed") ||
+    note.startsWith("search endpoint returned") ||
+    note.startsWith("search endpoint refused") ||
+    note.startsWith("wikipedia api unavailable") ||
+    note.startsWith("site-scoped search not supported") ||
+    note.startsWith("search failed")
+  );
+}
+
+/** Composite adapter with HONEST fallback (audit Phase 2.2):
+ *  children are tried in order; the first that returns real
+ *  hits wins. DuckDuckGo blocks Supabase edge/datacenter IPs
+ *  (anomaly protection, live-verified) — a blocked primary
+ *  falls through to the edge-reliable Wikipedia API instead of
+ *  producing a fake "no results" research report. Every failed
+ *  attempt is preserved in the note; when NO adapter could
+ *  even execute, the composite reports a network-class
+ *  failure (never a silent zero-hit success). */
+export class MultiSearchAdapter implements ResearchAdapter {
+  readonly id = "multi-search";
+  constructor(private readonly children: ResearchAdapter[]) {}
+
+  async search(query: string): Promise<{ hits: ResearchHit[]; note: string }> {
+    const attempts: string[] = [];
+    for (const child of this.children) {
+      const res = await child.search(query);
+      if (res.hits.length > 0) {
+        return { hits: res.hits, note: `${child.id}: ${res.note}` };
+      }
+      attempts.push(`${child.id}: ${res.note}`);
+      // A child that EXECUTED (genuine zero results) is the
+      // honest verdict of this query — later children only
+      // widen the evidence; if they also come up empty the
+      // first genuine zero is the reported note.
+      if (!isSearchFailureNote(res.note)) {
+        return { hits: [], note: res.note };
+      }
+    }
+    return {
+      hits: [],
+      note: `network unavailable after all adapters — ${attempts.join("; ")}`,
+    };
+  }
+}
+
 /** Adapter options — injectable for deterministic fixture
  *  tests (CI never depends on the live network). */
 export interface DuckDuckGoLiteAdapterOptions {
@@ -163,6 +216,18 @@ export class DuckDuckGoLiteAdapter implements ResearchAdapter {
       const html = await res.text();
       const hits = this.parse(html);
       if (hits.length === 0) {
+        // ANOMALY BLOCK (live-verified 2026-09-11): DDG serves
+        // status 202 + a challenge page with ZERO result
+        // markers to server/datacenter traffic. That is a
+        // REFUSAL of this client — classified as a failure so
+        // the composite can fall through to the next adapter,
+        // never reported as drift and never as a real search.
+        if (res.status === 202 || /anomaly/i.test(html.slice(0, 4000))) {
+          return {
+            hits: [],
+            note: `search endpoint refused this client: anomaly protection (status ${res.status}) — server/datacenter traffic is blocked, not a markup drift`,
+          };
+        }
         // DRIFT DETECTION — zero parsed results is classified
         // honestly, never reported as a silent success.
         const note = this.classifyEmptyParse(html);
@@ -417,13 +482,10 @@ export class ResearchPipeline {
         continue;
       }
       const { hits, note } = result.value;
-      if (
-        hits.length === 0 &&
-        (note.startsWith("network unavailable") ||
-          note.startsWith("adapter layout changed"))
-      ) {
-        // Adapter drift is as much a failure as a dead network
-        // — never counted as a successful search (audit phase 8).
+      if (hits.length === 0 && isSearchFailureNote(note)) {
+        // Adapter drift, endpoint refusal or a dead network are
+        // all failures — never counted as a successful search
+        // of that source (audit phase 8 + Phase 2.2).
         sourceFailures.push({ domain: source.domain, note });
         continue;
       }
@@ -449,9 +511,7 @@ export class ResearchPipeline {
       // network OR from a drifted page shape is a failure —
       // never claimed as a successful search (audit phase 8).
       const okNote = !(
-        unrestricted.hits.length === 0 &&
-        (unrestricted.note.startsWith("network unavailable") ||
-          unrestricted.note.startsWith("adapter layout changed"))
+        unrestricted.hits.length === 0 && isSearchFailureNote(unrestricted.note)
       );
       if (okNote) {
         sourcesSearched.push("open web (unrestricted query)");
