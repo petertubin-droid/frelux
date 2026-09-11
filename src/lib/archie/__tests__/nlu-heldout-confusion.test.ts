@@ -17,6 +17,7 @@ import { describe, expect, it } from "vitest";
 // =========================================================
 
 import {
+  type NluDomainHints,
   understand,
   CORPUS,
 } from "@studio-shared/archie-ai/native-engine/nlu.ts";
@@ -26,7 +27,7 @@ type Expectation = string; // intent, or "NOT_GREETING" (the
 // greeting-overreach defect: a statement must never classify
 // as a greeting just because it is conversational)
 
-const HELD_OUT: Array<[string, Expectation]> = [
+const HELD_OUT: Array<[string, Expectation, NluDomainHints?]> = [
   // --- capability vs knowledge (observed confusion pair) ---
   ["are you able to remember my preferences", "capability_query"],
   ["can you convert between feet and meters", "capability_query"],

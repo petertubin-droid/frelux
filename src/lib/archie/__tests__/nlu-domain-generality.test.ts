@@ -30,6 +30,7 @@ import { describe, expect, it } from "vitest";
 // =========================================================
 
 import {
+  type NluDomainHints,
   understand,
   CORPUS,
 } from "@studio-shared/archie-ai/native-engine/nlu.ts";
@@ -84,7 +85,7 @@ const GENERAL_PROBES: Array<[string, string]> = [
 // --- (2) CONSTRUCTION probes (held out too — near-variants
 // of corpus examples, never verbatim). FRELUX's own domain
 // must not lose routing quality to the rebalance. ---
-const CONSTRUCTION_PROBES: Array<[string, string]> = [
+const CONSTRUCTION_PROBES: Array<[string, string, NluDomainHints?]> = [
   ["how do i screed a floor level", "howto_guidance"],
   ["steps to build a block wall", "howto_guidance"], // calc-rule over-capture regression
   ["walk me through painting an exterior wall", "howto_guidance"],
