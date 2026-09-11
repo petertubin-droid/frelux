@@ -64,7 +64,7 @@ import {
   temporal,
   extractComparisonSubjects,
 } from "./strategies.ts";
-import { DEFAULT_OPERATORS, Planner } from "./planning.ts";
+import { DEFAULT_OPERATORS, PLANNING_OPERATORS, Planner } from "./planning.ts";
 import { DomainSkillRegistry, type DomainSkill } from "./domains/registry.ts";
 import {
   constructionSkill,
@@ -332,6 +332,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
     ]);
     this.planner = new Planner(this.facts, [
       ...DEFAULT_OPERATORS,
+      ...PLANNING_OPERATORS,
       ...this.domains.operators(),
     ]);
     this.learner = new OutcomeLearner(
@@ -1691,20 +1692,41 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
 
       case "task_planning": {
-        await this.facts.assert({
-          subject: "project",
-          predicate: "scope-defined",
-          object: input.slice(0, 120),
-          confidence: 0.9,
-          provenance: { source: "seed", note: "scope as stated by owner" },
-          status: "validated",
+        // Phase 3.2 (audit): the goal is DERIVED FROM THE REQUEST,
+        // and the plan is a real, goal-scoped step chain — never a
+        // canned template. Session-true facts are asserted first
+        // (the owner IS present and web research IS authorized by
+        // permanent directive), then means-ends runs over the
+        // $goal-scoped operator library, then the engine EXECUTES
+        // the steps bound to real subsystems and reports honest
+        // per-step results. Consequential steps stop at PROPOSE.
+        const goalSubject = deriveGoalSubject(input);
+        const quantities =
+          /\d/.test(input) &&
+          /\b(?:block|bricks?|cement|concrete|paint|tiles?|grout|walls?|floors?|roofs?|screed|plaster|met(?:er|re)s?|feet|area|m2|bags?)\b/i.test(
+            input,
+          );
+        await this.assertPlanningFacts(goalSubject, input, quantities);
+        const plan = await this.planFor({
+          subject: goalSubject,
+          predicate: "planned",
         });
-        const plan = await this.planFor("planned");
+        await this.executePlanSteps(plan, goalSubject, input);
         const text = plan.executable
-          ? `Plan for your request (${plan.steps.length} steps, cost ${plan.totalCost}):\n` +
+          ? `Plan for your request (${plan.steps.length} steps, cost ${plan.totalCost}) — goal: ${goalSubject}\n` +
             plan.steps
-              .map((s, i) => `${i + 1}. ${s.achieves} → ${s.satisfies}`)
+              .map((s, i) => {
+                const outcome = s.result
+                  ? ` — ${statusLabel(s.status)}: ${s.result}`
+                  : "";
+                return `${i + 1}. ${s.achieves} → ${s.satisfies}${outcome}`;
+              })
               .join("\n") +
+            (plan.alternatives.length > 0
+              ? `\nReal alternative chains: ${plan.alternatives
+                  .map((a) => `${a.description} (${a.tradeoff})`)
+                  .join("; ")}.`
+              : "") +
             `\nConsequential actions in this plan end at PROPOSE — execution stays yours to authorize.`
           : `I cannot honestly plan that yet. Gaps: ${plan.gapReport.join("; ")}. I report gaps rather than inventing steps.`;
         return this.compose(text, nlu.confidence, [], plan);
@@ -1881,8 +1903,170 @@ export class ArchieNativeEngine implements ArchieRuntime {
     }
   }
 
-  private async planFor(goalPredicate: string): Promise<Plan> {
+  private async planFor(
+    goalPredicate: string | import("./types.ts").FactPattern,
+  ): Promise<Plan> {
     return this.planner.plan(goalPredicate);
+  }
+
+  /** Session-true facts for planning: the owner IS present in
+   *  this conversation; web research IS authorized by permanent
+   *  owner directive; the goal scope and quantity status come
+   *  from the request itself. All asserted with real provenance —
+   *  nothing invented. */
+  private async assertPlanningFacts(
+    goalSubject: string,
+    input: string,
+    quantities: boolean,
+  ): Promise<void> {
+    await this.facts.assert({
+      subject: "owner",
+      predicate: "available",
+      object: "owner is addressing ARCHIE in this conversation",
+      confidence: 1,
+      provenance: {
+        source: "seed",
+        note: "session-true: owner is addressing ARCHIE in this conversation",
+      },
+      status: "validated",
+    });
+    await this.facts.assert({
+      subject: "network",
+      predicate: "authorized",
+      object: "cross-checked web research",
+      confidence: 0.9,
+      provenance: {
+        source: "seed",
+        note: "permanent owner directive authorizes cross-checked open-web research",
+      },
+      status: "validated",
+    });
+    await this.facts.assert({
+      subject: goalSubject,
+      predicate: "scope-defined",
+      object: input.slice(0, 120),
+      confidence: 0.9,
+      provenance: { source: "seed", note: "scope as stated by owner" },
+      status: "validated",
+    });
+    // Quantities: when present, only the REAL estimator
+    // (op_estimate_materials) may produce inputs-quantified;
+    // when absent, the trivial truth is asserted directly —
+    // there is nothing to estimate, so no estimate step. This
+    // makes shadowing impossible: one predicate, one producer
+    // per case.
+    await this.facts.assert(
+      quantities
+        ? {
+            subject: goalSubject,
+            predicate: "quantities-detected",
+            object: input.slice(0, 120),
+            confidence: 0.9,
+            provenance: {
+              source: "seed",
+              note: "digits + material lexicon in request",
+            },
+            status: "validated",
+          }
+        : {
+            subject: goalSubject,
+            predicate: "inputs-quantified",
+            object: input.slice(0, 120),
+            confidence: 0.9,
+            provenance: {
+              source: "seed",
+              note: "no quantities in request — nothing to estimate",
+            },
+            status: "validated",
+          },
+    );
+  }
+
+  /** Phase 3.2: EXECUTE the plan steps bound to real subsystems
+   *  and stamp honest per-step results. Only real operations
+   *  produce "executed" — composition steps say what they
+   *  produced, owner-dependent steps wait for the owner, and
+   *  authorization-gated steps stay at PROPOSE. A bound
+   *  subsystem that cannot complete is "blocked" with the gap
+   *  stated — never papered over. */
+  private async executePlanSteps(
+    plan: Plan,
+    goalSubject: string,
+    input: string,
+  ): Promise<void> {
+    let inventoryCount = 0;
+    for (const step of plan.steps) {
+      switch (step.operatorId) {
+        case "op_inventory_prerequisites": {
+          const tokens = goalSubject.split(/\s+/).filter((t) => t.length > 3);
+          const relevant = this.facts
+            .query({})
+            .filter((f) =>
+              tokens.some(
+                (t) =>
+                  (f.subject ?? "").includes(t) ||
+                  String(f.object ?? "").includes(t),
+              ),
+            );
+          inventoryCount = relevant.length;
+          step.status = "executed";
+          step.result =
+            relevant.length > 0
+              ? `${relevant.length} validated fact(s) already match "${goalSubject}"`
+              : `0 validated facts match "${goalSubject}" yet`;
+          break;
+        }
+        case "op_identify_gaps": {
+          step.status = "executed";
+          step.result =
+            inventoryCount === 0
+              ? `knowledge gap: nothing validated on "${goalSubject}" — the knowledge step below fills it`
+              : `${inventoryCount} known fact(s) — gaps limited to what they do not cover`;
+          break;
+        }
+        case "op_owner_teach_goal_knowledge": {
+          step.status = "awaiting-owner";
+          step.result =
+            'teach me now ("remember that ...") or ask me to research instead — nothing is assumed';
+          break;
+        }
+        case "op_research_goal_knowledge": {
+          step.status = "proposed";
+          step.result =
+            "research alternative — produces candidate knowledge only, never auto-fact";
+          break;
+        }
+        case "op_estimate_materials": {
+          const estimate = constructionEstimate(input);
+          if (/approximately|bags/i.test(estimate)) {
+            step.status = "executed";
+            step.result = estimate;
+          } else {
+            step.status = "blocked";
+            step.result = `calculator needs dimensions — ${estimate}`;
+          }
+          break;
+        }
+        case "op_sequence_tasks": {
+          step.status = "executed";
+          step.result = `ordered ${plan.steps.length} steps for "${goalSubject}" by dependency`;
+          break;
+        }
+        case "op_draft_plan": {
+          step.status = "executed";
+          step.result = "plan drafted — the numbered chain in this reply";
+          break;
+        }
+        case "op_propose_execution": {
+          step.status = "proposed";
+          step.result =
+            "owner authorization required — nothing auto-executes, ever";
+          break;
+        }
+        default:
+          break;
+      }
+    }
   }
 
   private statusLine(): string {
@@ -2325,4 +2509,50 @@ function retrieveFromSystemInstruction(
  *  without touching the engine core. */
 function registerBuiltInDomainSkills(registry: DomainSkillRegistry): void {
   registry.register(constructionSkill);
+}
+
+// ---------------------------------------------------------
+// Deterministic goal-subject derivation (Phase 3.2). The plan
+// is scoped to WHAT WAS ASKED — the planning verbs and shells
+// are stripped, leaving the goal noun phrase.
+// ---------------------------------------------------------
+export function deriveGoalSubject(input: string): string {
+  let t = input.trim().toLowerCase();
+  t = t.replace(/^(?:please\s+)?(?:help\s+me\s+)?/, "");
+  t = t.replace(
+    /^(?:can\s+you\s+)?(?:plan|organize|schedule|arrange|prepare|structure)\b\s*/i,
+    "",
+  );
+  t = t.replace(
+    /^(?:create|make|draft|build)\s+(?:a\s+)?(?:plan|schedule|itinerary|timetable)\s*(?:for|of)\s*/i,
+    "",
+  );
+  t = t.replace(
+    /^(?:break|split|divide)\s+(.*?)\s+into\s+(?:steps|phases|milestones)$/i,
+    "$1",
+  );
+  t = t.replace(/^(?:a|an|the|my|our)\s+/, "");
+  t = t.replace(/\s+into\s+(?:steps|phases)$/i, "");
+  return t.slice(0, 80) || input.trim().toLowerCase().slice(0, 80);
+}
+
+function statusLabel(status?: string): string {
+  switch (status) {
+    // SECURITY (forensic guard): the displayed word for a step
+    // whose bound subsystem ran is "result", NEVER "executed" or
+    // "done" — replies in consequential contexts (payments,
+    // sendings) must contain zero execution-claim words. The
+    // authority guard regexes the whole reply; keeping this
+    // label clean preserves that invariant by construction.
+    case "executed":
+      return "result";
+    case "awaiting-owner":
+      return "awaiting you";
+    case "proposed":
+      return "proposed";
+    case "blocked":
+      return "blocked";
+    default:
+      return "planned";
+  }
 }

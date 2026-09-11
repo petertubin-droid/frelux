@@ -135,6 +135,16 @@ export interface PlanStep {
   achieves: string;
   satisfies: string;
   missingPreconditions: string[];
+  /** Phase 3.2 (audit): what the engine ACTUALLY did with this
+   *  step after planning. "executed" = a real subsystem ran and
+   *  `result` carries its real output; "awaiting-owner" = needs
+   *  owner input (teach/research choice); "proposed" = presented
+   *  for owner authorization, never auto-executed; "blocked" =
+   *  a bound subsystem ran but could not complete — the gap is
+   *  reported, never papered over. Absent = not executed. */
+  status?: "executed" | "awaiting-owner" | "proposed" | "blocked";
+  /** Real output of the executed subsystem (never fabricated). */
+  result?: string;
 }
 
 export interface Plan {

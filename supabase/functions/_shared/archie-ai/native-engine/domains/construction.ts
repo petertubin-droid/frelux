@@ -12,7 +12,7 @@
 // separate product surface and is NOT touched by this move.
 // =========================================================
 
-import type { Operator, Rule } from "../types.ts";
+import type { Fact, Operator, Rule } from "../types.ts";
 import type { DomainSkill } from "./registry.ts";
 import { constructionConstant } from "./construction.data.ts";
 
@@ -190,6 +190,22 @@ export const CONSTRUCTION_OPERATORS: Operator[] = [
     preconditions: [{ subject: "project", predicate: "scope-defined" }],
     effects: [],
     cost: 3,
+  },
+  // Phase 3.2 (audit): $goal-scoped estimate operator. When the
+  // request carries detected quantities, the engine asserts
+  // {goal: quantities-detected} and this step enters the chain
+  // — and it EXECUTES the real deterministic calculator
+  // (constructionEstimate) rather than promising an estimate.
+  {
+    id: "op_estimate_materials",
+    description:
+      "Run the deterministic construction calculator for the goal's quantities",
+    achieves: { subject: "$goal", predicate: "materials-estimated" },
+    preconditions: [{ subject: "$goal", predicate: "quantities-detected" }],
+    effects: [
+      { subject: "$goal", predicate: "inputs-quantified" } as unknown as Fact,
+    ],
+    cost: 2,
   },
 ];
 

@@ -979,7 +979,7 @@ const RULE_CASCADE: Array<{
     // excluded here by the how-to guard — they must fall to
     // Bayes, not be hijacked by the calc rule.
     pattern:
-      /^(?!.*\b(?:how do i|how to|steps to|walk me through|guide me through|best way to|teach me)\b)[\s\S]{0,120}?(?:\b(?:blocks?|bricks?)\b[^.?!]*\d|\d[^.?!]*\b(?:blocks?|bricks?)\b|\bhow (?:many|much)\b[^.?!]*\b(?:blocks?|bricks?)\b|\bpaint\b[^.?!]*\d|\d[^.?!]*\bpaint\b|\bhow much paint\b|\bcement\b[^.?!]*\b(?:cubic|volume|m3|concrete)\b|\bcement\b[^.?!]*\d[^.?!]*bags?\b|\d[^.?!]*bags?[^.?!]*\bcement\b|\bhow many (?:bags )?of? ?cement\b)/i,
+      /^(?!.*\b(?:how do i|how to|steps to|walk me through|guide me through|best way to|teach me|plan|organize|schedule)\b)[\s\S]{0,120}?(?:\b(?:blocks?|bricks?)\b[^.?!]*\d|\d[^.?!]*\b(?:blocks?|bricks?)\b|\bhow (?:many|much)\b[^.?!]*\b(?:blocks?|bricks?)\b|\bpaint\b[^.?!]*\d|\d[^.?!]*\bpaint\b|\bhow much paint\b|\bcement\b[^.?!]*\b(?:cubic|volume|m3|concrete)\b|\bcement\b[^.?!]*\d[^.?!]*bags?\b|\d[^.?!]*bags?[^.?!]*\bcement\b|\bhow many (?:bags )?of? ?cement\b)/i,
     confidence: 0.9,
   },
   {

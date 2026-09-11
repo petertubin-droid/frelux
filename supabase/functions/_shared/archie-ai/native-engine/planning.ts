@@ -8,7 +8,14 @@
 // is never presented as executable when it is not.
 // =========================================================
 
-import type { Fact, FactPattern, Operator, Plan, PlanAlternative, PlanStep } from "./types.ts";
+import type {
+  Fact,
+  FactPattern,
+  Operator,
+  Plan,
+  PlanAlternative,
+  PlanStep,
+} from "./types.ts";
 import { FactStore } from "./knowledge.ts";
 
 function holds(store: FactStore, pattern: FactPattern): boolean {
@@ -40,7 +47,8 @@ export const DEFAULT_OPERATORS: Operator[] = [
   },
   {
     id: "op_teach_from_owner",
-    description: "Owner teaches the missing knowledge directly (retained with provenance)",
+    description:
+      "Owner teaches the missing knowledge directly (retained with provenance)",
     achieves: { subject: "knowledge", predicate: "owner-provided" },
     preconditions: [{ subject: "owner", predicate: "available" }],
     effects: [
@@ -77,6 +85,103 @@ export const DEFAULT_OPERATORS: Operator[] = [
   },
 ];
 
+/**
+ * GOAL-SCOPED PLANNING OPERATORS (audit Phase 3.2, 2026-09-11).
+ *
+ * Before this, every task_planning request resolved the fixed
+ * goal predicate "planned" and produced the same single canned
+ * step regardless of what was asked. These operators use the
+ * `$goal` subject: at plan() time the engine supplies the goal
+ * subject DERIVED FROM THE REQUEST ("wedding reception",
+ * "roofing project for my bungalow"), and the planner
+ * substitutes it — so the chain is about what was actually
+ * asked, and the dependency chain below is real means-ends
+ * decomposition:
+ *
+ *   inventory → gaps → knowledge (owner-teach | research)
+ *              → quantities (estimate | confirm) → sequence
+ *              → draft → propose
+ *
+ * Every operator maps to a real ARCHIE subsystem (the engine
+ * executes the bound ones and reports honest step results —
+ * see engine.executePlanSteps). Consequential steps stop at
+ * PROPOSE: execution stays owner-gated, permanently.
+ */
+export const PLANNING_OPERATORS: Operator[] = [
+  {
+    id: "op_inventory_prerequisites",
+    description: "Inventory what ARCHIE already knows about the goal",
+    achieves: { subject: "$goal", predicate: "prerequisites-mapped" },
+    preconditions: [{ subject: "$goal", predicate: "scope-defined" }],
+    effects: [],
+    cost: 1,
+  },
+  {
+    id: "op_identify_gaps",
+    description: "Identify knowledge gaps for the goal",
+    achieves: { subject: "$goal", predicate: "gaps-identified" },
+    preconditions: [{ subject: "$goal", predicate: "prerequisites-mapped" }],
+    effects: [],
+    cost: 1,
+  },
+  {
+    id: "op_owner_teach_goal_knowledge",
+    description:
+      "Owner teaches the missing goal knowledge (retained with provenance)",
+    achieves: { subject: "$goal", predicate: "knowledge-owner-provided" },
+    preconditions: [
+      { subject: "$goal", predicate: "gaps-identified" },
+      { subject: "owner", predicate: "available" },
+    ],
+    effects: [
+      { subject: "$goal", predicate: "knowledge-available" } as unknown as Fact,
+    ],
+    cost: 1,
+  },
+  {
+    id: "op_research_goal_knowledge",
+    description:
+      "Research the open web for the missing goal knowledge (cross-checked, candidate only)",
+    achieves: { subject: "$goal", predicate: "knowledge-researched" },
+    preconditions: [
+      { subject: "$goal", predicate: "gaps-identified" },
+      { subject: "network", predicate: "authorized" },
+    ],
+    effects: [
+      { subject: "$goal", predicate: "knowledge-available" } as unknown as Fact,
+    ],
+    cost: 5,
+  },
+  {
+    id: "op_sequence_tasks",
+    description: "Order the goal's tasks by dependency",
+    achieves: { subject: "$goal", predicate: "tasks-sequenced" },
+    preconditions: [
+      { subject: "$goal", predicate: "knowledge-available" },
+      { subject: "$goal", predicate: "inputs-quantified" },
+    ],
+    effects: [],
+    cost: 2,
+  },
+  {
+    id: "op_draft_plan",
+    description: "Draft the plan document from the sequenced tasks",
+    achieves: { subject: "$goal", predicate: "plan-drafted" },
+    preconditions: [{ subject: "$goal", predicate: "tasks-sequenced" }],
+    effects: [],
+    cost: 1,
+  },
+  {
+    id: "op_propose_execution",
+    description:
+      "Present the plan for owner authorization (never auto-executes)",
+    achieves: { subject: "$goal", predicate: "planned" },
+    preconditions: [{ subject: "$goal", predicate: "plan-drafted" }],
+    effects: [],
+    cost: 1,
+  },
+];
+
 export class Planner {
   constructor(
     private facts: FactStore,
@@ -88,13 +193,36 @@ export class Planner {
   }
 
   /** Means-ends analysis: achieve the goal by selecting an
-   *  operator, recursively resolving missing preconditions. */
-  plan(goal: string, depth = 4): Plan {
+   *  operator, recursively resolving missing preconditions.
+   *
+   *  Phase 3.2: the goal may be a full PATTERN with a subject
+   *  derived from the actual request — operators written with
+   *  the `$goal` subject are instantiated for that goal, so
+   *  plans are about what was asked, never canned templates. */
+  plan(goal: string | FactPattern, depth = 8): Plan {
     const steps: PlanStep[] = [];
     const gapReport: string[] = [];
     const resolved = new Set<string>();
 
-    const goalPattern: FactPattern = { predicate: goal };
+    const goalPattern: FactPattern =
+      typeof goal === "string" ? { predicate: goal } : { ...goal };
+    const goalSubject = goalPattern.subject;
+
+    // Instantiate $goal-scoped operators for THIS goal.
+    const substPattern = (p: FactPattern): FactPattern =>
+      p.subject === "$goal" && goalSubject !== undefined
+        ? { ...p, subject: goalSubject }
+        : p;
+    const operators = this.operators.map((op) => ({
+      ...op,
+      achieves: substPattern(op.achieves),
+      preconditions: op.preconditions.map(substPattern),
+      effects: op.effects.map((f) =>
+        f.subject === "$goal" && goalSubject !== undefined
+          ? ({ ...f, subject: goalSubject } as Fact)
+          : f,
+      ),
+    }));
 
     const resolve = (pattern: FactPattern, d: number): boolean => {
       if (holds(this.facts, pattern) || resolved.has(patternLabel(pattern))) {
@@ -106,8 +234,10 @@ export class Planner {
         );
         return false;
       }
-      const candidates = this.operators
-        .filter((op) => matchesAchieves(op, pattern) || effectsMatch(op, pattern))
+      const candidates = operators
+        .filter(
+          (op) => matchesAchieves(op, pattern) || effectsMatch(op, pattern),
+        )
         .sort((a, b) => a.cost - b.cost);
       if (candidates.length === 0) {
         gapReport.push(
@@ -148,7 +278,7 @@ export class Planner {
     const executable = resolve(goalPattern, depth);
     const totalCost = steps.reduce(
       (sum, step) =>
-        sum + (this.operators.find((o) => o.id === step.operatorId)?.cost ?? 0),
+        sum + (operators.find((o) => o.id === step.operatorId)?.cost ?? 0),
       0,
     );
 
@@ -160,15 +290,29 @@ export class Planner {
     const alternatives: PlanAlternative[] = [];
     const primaryOpIds = new Set(steps.map((s) => s.operatorId));
     const primaryOps = steps
-      .map((s) => this.operators.find((o) => o.id === s.operatorId))
+      .map((s) => operators.find((o) => o.id === s.operatorId))
       .filter((o): o is Operator => o !== undefined);
-    for (const op of this.operators) {
+    for (const op of operators) {
       if (primaryOpIds.has(op.id)) continue;
+      // Phase 3.2: for goal-scoped plans, an alternative that
+      // achieves the goal must achieve THIS goal's subject —
+      // a different subject's "planned" is not an alternative,
+      // it is a different task. (Predicate-only goals keep the
+      // legacy matching.)
+      if (
+        goalSubject !== undefined &&
+        op.achieves.subject !== goalSubject &&
+        op.achieves.subject !== "$goal"
+      ) {
+        continue;
+      }
       const feedsPrimary = primaryOps.some((primary) =>
         primary.preconditions.some(
           (pre) =>
             pre.subject !== undefined &&
-            op.effects.some((e) => e.subject === pre.subject && e.predicate === pre.predicate),
+            op.effects.some(
+              (e) => e.subject === pre.subject && e.predicate === pre.predicate,
+            ),
         ),
       );
       const achievesDirectly = primaryOps.some((primary) =>
@@ -176,8 +320,7 @@ export class Planner {
       );
       if (!feedsPrimary && !achievesDirectly) continue;
       const chainIds = [op.id, ...steps.map((s) => s.operatorId)];
-      const chainCost =
-        totalCost + op.cost;
+      const chainCost = totalCost + op.cost;
       alternatives.push({
         operatorIds: chainIds,
         description: `${op.description}, then the primary plan`,
@@ -203,7 +346,19 @@ export class Planner {
           ],
     };
 
-    return { goal, steps, executable, totalCost, gapReport, alternatives, risk };
+    const goalLabel =
+      goalSubject !== undefined && typeof goal === "object"
+        ? `${goalSubject} ${goalPattern.predicate ?? ""}`.trim()
+        : (goal as string);
+    return {
+      goal: goalLabel,
+      steps,
+      executable,
+      totalCost,
+      gapReport,
+      alternatives,
+      risk,
+    };
   }
 }
 
