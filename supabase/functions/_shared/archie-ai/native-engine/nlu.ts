@@ -477,6 +477,29 @@ export const CORPUS: Array<[Intent, string[]]> = [
       "how is the market for building materials this week",
       "what is the market situation for granite now",
       "how is the weather affecting construction season",
+      // --- domain generality (audit Phase 3) ---
+      "explain how vaccination works",
+      "what is the speed of light",
+      "tell me about the sahara desert",
+      "what causes rust on bicycles",
+      "explain how a refrigerator works",
+      "whats the difference between a comet and an asteroid",
+      "what is the longest river in the world",
+      "tell me about the ghana empire",
+      "which phone has the best battery life",
+      "what does ssl mean",
+      "how does a car engine work",
+      "what is machine learning",
+      "explain the difference between debit and credit cards",
+      "what are the symptoms of malaria",
+      "tell me about the nigerian movie industry",
+      "what is the boiling point of water",
+      "explain how gps works",
+      "which planets are visible tonight",
+      "what is inflation",
+      "tell me about whale migration",
+      "explain how solar panels work",
+      "what does dpi mean",
     ],
   ],
   [
@@ -509,6 +532,30 @@ export const CORPUS: Array<[Intent, string[]]> = [
       "what is the best way to store cement bags",
       "whats the best way to fix a sticking door",
       "best way to prep a ceiling before painting",
+      // --- domain generality (audit Phase 3): how-to intent
+      // is the PATTERN ("how do i", "steps to", "walk me
+      // through"), not the domain. Construction stays one
+      // domain among many — no domain monopoly. ---
+      "how do i knead bread dough",
+      "how to cook pasta al dente",
+      "steps to change a flat tire",
+      "how do i set up a printer",
+      "walk me through creating a monthly budget",
+      "how to train a puppy",
+      "guide me through writing a resume",
+      "steps to back up my laptop",
+      "how do i tie a tie",
+      "walk me through booking a flight online",
+      "guide me through starting a vegetable garden",
+      "how to meditate for beginners",
+      "steps to learn a new language",
+      "how do i fix a bike puncture",
+      "best way to store fresh herbs",
+      "whats the best way to descale a kettle",
+      "how to dance salsa for beginners",
+      "best way to clean a cast iron pan",
+      "how do i remove a coffee stain",
+      "steps to apply for a passport",
     ],
   ],
   [
@@ -536,6 +583,17 @@ export const CORPUS: Array<[Intent, string[]]> = [
       "plan my morning routine",
       "help me plan a trip to the site",
       "organize my week around this deadline",
+      // --- domain generality (audit Phase 3) ---
+      "help me plan my study schedule",
+      "plan my move to a new apartment",
+      "break my exam prep into steps",
+      "create a plan for learning french",
+      "help me organize a birthday party",
+      "make a schedule for my job hunt",
+      "plan my weekly meal prep",
+      "help me build a savings plan",
+      "organize my training for the marathon",
+      "plan the itinerary for my holiday",
     ],
   ],
   [
@@ -588,6 +646,23 @@ export const CORPUS: Array<[Intent, string[]]> = [
       "find out what experts say about pop ceilings",
       "research this for me before i decide",
       "search for case studies on foundation repairs",
+      // --- domain generality (audit Phase 3) ---
+      "research the best laptops for students",
+      "search for flight deals to london",
+      "find information about investment options",
+      "look up the side effects of this medicine",
+      "research the history of the yoruba empire",
+      "search the web for easy piano songs",
+      "find out what causes rust on cars",
+      "research graduate school scholarships",
+      "look up visa requirements for ghana",
+      "search for healthy meal prep ideas",
+      "research used car prices",
+      "find information on learning mandarin",
+      "look up the tax rules for small business",
+      "research the best running shoes",
+      "search for dog friendly hotels",
+      "find out which banks have the lowest fees",
     ],
   ],
   [
@@ -821,8 +896,17 @@ const RULE_CASCADE: Array<{
     // deliberately NOT here — confirmations keep their own
     // dedicated confirmation path (similarity floor, phase 6).
     pattern:
-      /^(?:please\s+)?(?:remember|learn|note|memorize|teach)\b|^(?:please\s+)?(?:store this|keep in mind|keep this in mind|bear in mind)\b|^you (?:should )?know that\b/i,
+      /^(?:please\s+)?(?:remember|learn|note|memorize)\b|^(?:please\s+)?teach\s+(?:yourself|archie|the engine)\b|^(?:please\s+)?(?:store this|keep in mind|keep this in mind|bear in mind)\b|^you (?:should )?know that\b/i,
     confidence: 0.85,
+  },
+  {
+    // "TEACH ME how to X" / "teach me Y" — the USER asks to
+    // LEARN a procedure, so it is howto_guidance, never
+    // ARCHIE-teaching (phase 3 de-bias fix: this phrasing was
+    // over-captured by the teaching rule above).
+    intent: "howto_guidance",
+    pattern: /^(?:please\s+)?teach\s+me\b/i,
+    confidence: 0.8,
   },
   {
     intent: "research_request",
@@ -887,8 +971,15 @@ const RULE_CASCADE: Array<{
     // already served by the price rule above and never land
     // here.
     intent: "construction_calc",
+    // Phase 3 de-bias: a calculation inherently carries a
+    // QUANTITY signal (a digit, or how many/how much, or cubic/
+    // square/area/volume). Bare block+wall / paint+room
+    // mentions without quantities are HOW-TO questions ("steps
+    // to build a block wall", "how do i paint a room") and are
+    // excluded here by the how-to guard — they must fall to
+    // Bayes, not be hijacked by the calc rule.
     pattern:
-      /\b(?:blocks?|bricks?)\b[^.?!]*\b(?:wall|meter|metre|feet|\d)|\bhow (?:many|much)\b[^.?!]*\b(?:blocks?|bricks?)\b|\bpaint\b[^.?!]*\b(?:square|meter|metre|feet|area|room|wall|\d)|\bhow much paint\b|\bcement\b[^.?!]*\b(?:cubic|volume|m3|concrete|\d[^.?!]*bags?\b)|\bhow many (?:bags )?of? ?cement\b/i,
+      /^(?!.*\b(?:how do i|how to|steps to|walk me through|guide me through|best way to|teach me)\b)[\s\S]{0,120}?(?:\b(?:blocks?|bricks?)\b[^.?!]*\d|\d[^.?!]*\b(?:blocks?|bricks?)\b|\bhow (?:many|much)\b[^.?!]*\b(?:blocks?|bricks?)\b|\bpaint\b[^.?!]*\d|\d[^.?!]*\bpaint\b|\bhow much paint\b|\bcement\b[^.?!]*\b(?:cubic|volume|m3|concrete)\b|\bcement\b[^.?!]*\d[^.?!]*bags?\b|\d[^.?!]*bags?[^.?!]*\bcement\b|\bhow many (?:bags )?of? ?cement\b)/i,
     confidence: 0.9,
   },
   {
