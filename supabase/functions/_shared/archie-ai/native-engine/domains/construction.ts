@@ -13,7 +13,9 @@
 // =========================================================
 
 import type { Fact, Operator, Rule } from "../types.ts";
-import type { DomainSkill } from "./registry.ts";
+import type { NluDomainHints } from "../nlu.ts";
+import type { SeedFact } from "../seed-corpus.ts";
+import type { DomainSkill, DomainNluRule } from "./registry.ts";
 import { constructionConstant } from "./construction.data.ts";
 
 // ── Deterministic helpers (moved from engine.ts) ──
@@ -209,6 +211,112 @@ export const CONSTRUCTION_OPERATORS: Operator[] = [
   },
 ];
 
+// ── Domain-capture completion (2026-09-11 pass 4): the
+//    remaining construction knowledge that still lived in the
+//    ENGINE CORE — the deterministic construction_calc NLU
+//    rule, the construction seed facts, the planner's
+//    quantities lexicon and the op_estimate_materials
+//    execution — moved here VERBATIM. The engine core files
+//    (engine.ts, nlu.ts, seed-corpus.ts) now contain zero
+//    construction semantics; everything routes through the
+//    DomainSkillRegistry. Behavior when the skill is
+//    registered (it is, by default) is identical. ──
+
+// The deterministic construction_calc cascade rule (moved
+// verbatim from nlu.ts RULE_CASCADE). Requires BOTH a material
+// keyword AND a quantity/dimension cue, so plain price
+// questions ("how much is a bag of cement") are served by the
+// general price rule and never land here. Phase 3 de-bias: a
+// calculation inherently carries a QUANTITY signal (a digit, or
+// how many/how much, or cubic/square/area/volume). Bare
+// block+wall / paint+room mentions without quantities are
+// HOW-TO questions ("steps to build a block wall", "how do i
+// paint a room") and are excluded by the how-to guard — they
+// must fall to Bayes, not be hijacked by the calc rule.
+export const CONSTRUCTION_NLU_RULES: DomainNluRule[] = [
+  {
+    intent: "construction_calc",
+    pattern:
+      /^(?!.*\b(?:how do i|how to|steps to|walk me through|guide me through|best way to|teach me|plan|organize|schedule)\b)[\s\S]{0,120}?(?:\b(?:blocks?|bricks?)\b[^.?!]*\d|\d[^.?!]*\b(?:blocks?|bricks?)\b|\bhow (?:many|much)\b[^.?!]*\b(?:blocks?|bricks?)\b|\bpaint\b[^.?!]*\d|\d[^.?!]*\bpaint\b|\bhow much paint\b|\bcement\b[^.?!]*\b(?:cubic|volume|m3|concrete)\b|\bcement\b[^.?!]*\d[^.?!]*bags?\b|\d[^.?!]*bags?[^.?!]*\bcement\b|\bhow many (?:bags )?of? ?cement\b)/i,
+    confidence: 0.9,
+  },
+];
+
+/** NLU hints for direct understand() callers (tests route
+ *  construction exactly as the wired engine does). */
+export const CONSTRUCTION_NLU_HINTS: NluDomainHints = {
+  rules: CONSTRUCTION_NLU_RULES,
+};
+
+// Construction material seed facts (moved verbatim from
+// seed-corpus.ts SEED_FACTS — same corpus constraints: no
+// is-a/part-of, no duplicate subject+predicate pairs).
+export const CONSTRUCTION_SEED_FACTS: SeedFact[] = [
+  {
+    subject: "cement",
+    predicate: "bag-mass",
+    object: "50 kg",
+    confidence: 0.95,
+  },
+  {
+    subject: "screeding",
+    predicate: "definition",
+    object:
+      "a thin layer (typically 25–75 mm) of cement-sand mix applied over a structural slab to level, smooth or raise the floor",
+    confidence: 0.9,
+  },
+  {
+    subject: "concrete",
+    predicate: "curing",
+    object:
+      "keeping concrete moist and at suitable temperature so hydration continues and strength develops, typically for at least 7 days",
+    confidence: 0.9,
+  },
+  {
+    subject: "portland-cement",
+    predicate: "definition",
+    object:
+      "a hydraulic binder made by grinding clinker (calcium silicates) with gypsum; reacts with water and hardens",
+    confidence: 0.85,
+  },
+  {
+    subject: "mortar",
+    predicate: "definition",
+    object:
+      "a workable paste of cement, sand and water used to bind masonry units",
+    confidence: 0.85,
+  },
+];
+
+// The planner's construction quantities lexicon (moved
+// verbatim from engine.ts — the engine now asks the registry
+// whether ANY domain sees quantities; it no longer knows the
+// words).
+const CONSTRUCTION_QUANTITY_RE =
+  /\b(?:block|bricks?|cement|concrete|paint|tiles?|grout|walls?|floors?|roofs?|screed|plaster|met(?:er|re)s?|feet|area|m2|bags?)\b/i;
+
+function constructionQuantifies(input: string): boolean {
+  return CONSTRUCTION_QUANTITY_RE.test(input);
+}
+
+// The op_estimate_materials execution (moved verbatim from
+// engine.ts executePlanSteps — the engine delegates operator
+// execution to the owning skill).
+function constructionExecuteOperator(
+  operatorId: string,
+  input: string,
+): { status: "executed" | "blocked"; result: string } | null {
+  if (operatorId !== "op_estimate_materials") return null;
+  const estimate = constructionEstimate(input);
+  if (/approximately|bags/i.test(estimate)) {
+    return { status: "executed", result: estimate };
+  }
+  return {
+    status: "blocked",
+    result: `calculator needs dimensions — ${estimate}`,
+  };
+}
+
 // ── The skill itself ──
 
 export const constructionSkill: DomainSkill = {
@@ -216,6 +324,10 @@ export const constructionSkill: DomainSkill = {
   intents: ["construction_calc"],
   rules: CONSTRUCTION_RULES,
   operators: CONSTRUCTION_OPERATORS,
+  nluRules: CONSTRUCTION_NLU_RULES,
+  seedFacts: CONSTRUCTION_SEED_FACTS,
+  quantifies: constructionQuantifies,
+  executeOperator: constructionExecuteOperator,
   handler: (intent, input) => {
     if (intent !== "construction_calc") return null;
     return constructionEstimate(input);

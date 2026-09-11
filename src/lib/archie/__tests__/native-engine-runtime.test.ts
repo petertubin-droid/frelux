@@ -5,10 +5,11 @@ import {
   ArchieNativeEngine,
   getNativeEngine,
   configureNativeEnginePersistence,
-  constructionEstimate,
   type MarketPriceLookup,
   type SystemAdapters,
 } from "@studio-shared/archie-ai/native-engine/engine.ts";
+import { constructionEstimate } from "@studio-shared/archie-ai/native-engine/domains/construction.ts";
+import { CONSTRUCTION_NLU_HINTS } from "@studio-shared/archie-ai/native-engine/domains/construction.ts";
 import { understand } from "@studio-shared/archie-ai/native-engine/nlu.ts";
 import { resolveArchieCapabilityEngine } from "@studio-shared/archie-ai/runtime.ts";
 import { nativeEngineCapabilityManifest } from "@studio-shared/archie-ai/native-engine/capabilities.ts";
@@ -512,14 +513,25 @@ describe("System adapters", () => {
 describe("Construction calculators (deterministic)", () => {
   it("classifies construction estimates and does not hijack price or math queries", () => {
     expect(
-      understand("how many blocks do I need for a 6 by 3 meter wall").intent,
+      understand(
+        "how many blocks do I need for a 6 by 3 meter wall",
+        [],
+        CONSTRUCTION_NLU_HINTS,
+      ).intent,
     ).toBe("construction_calc");
-    expect(understand("how much paint for a 4 by 5 meter room").intent).toBe(
-      "construction_calc",
-    );
     expect(
-      understand("how many bags of cement for 2 cubic meters of concrete")
-        .intent,
+      understand(
+        "how much paint for a 4 by 5 meter room",
+        [],
+        CONSTRUCTION_NLU_HINTS,
+      ).intent,
+    ).toBe("construction_calc");
+    expect(
+      understand(
+        "how many bags of cement for 2 cubic meters of concrete",
+        [],
+        CONSTRUCTION_NLU_HINTS,
+      ).intent,
     ).toBe("construction_calc");
     expect(understand("what is the price of cement").intent).toBe(
       "price_query",
@@ -634,7 +646,9 @@ Choose cement-based grout for wet areas and epoxy grout for heavy-wear floors. A
       systemInstruction: noisyKB,
       tools: [],
     });
-    const text = result.parts.map((p) => (p as { text?: string }).text ?? "").join(" ");
+    const text = result.parts
+      .map((p) => (p as { text?: string }).text ?? "")
+      .join(" ");
     expect(text.toLowerCase()).not.toContain("building regulations");
     expect(text.toLowerCase()).toContain("grout");
   });

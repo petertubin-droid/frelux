@@ -1006,24 +1006,6 @@ const RULE_CASCADE: Array<{
     confidence: 0.85,
   },
   {
-    // Deterministic construction calculators: require BOTH a
-    // material keyword AND a quantity/dimension cue, so plain
-    // price questions ("how much is a bag of cement") are
-    // already served by the price rule above and never land
-    // here.
-    intent: "construction_calc",
-    // Phase 3 de-bias: a calculation inherently carries a
-    // QUANTITY signal (a digit, or how many/how much, or cubic/
-    // square/area/volume). Bare block+wall / paint+room
-    // mentions without quantities are HOW-TO questions ("steps
-    // to build a block wall", "how do i paint a room") and are
-    // excluded here by the how-to guard — they must fall to
-    // Bayes, not be hijacked by the calc rule.
-    pattern:
-      /^(?!.*\b(?:how do i|how to|steps to|walk me through|guide me through|best way to|teach me|plan|organize|schedule)\b)[\s\S]{0,120}?(?:\b(?:blocks?|bricks?)\b[^.?!]*\d|\d[^.?!]*\b(?:blocks?|bricks?)\b|\bhow (?:many|much)\b[^.?!]*\b(?:blocks?|bricks?)\b|\bpaint\b[^.?!]*\d|\d[^.?!]*\bpaint\b|\bhow much paint\b|\bcement\b[^.?!]*\b(?:cubic|volume|m3|concrete)\b|\bcement\b[^.?!]*\d[^.?!]*bags?\b|\d[^.?!]*bags?[^.?!]*\bcement\b|\bhow many (?:bags )?of? ?cement\b)/i,
-    confidence: 0.9,
-  },
-  {
     intent: "task_planning",
     pattern:
       /^(?:please\s+)?(?:help\s+me\s+)?(?:plan|organize|create\s+a\s+plan|break\s+this)\b/i,
@@ -1242,14 +1224,27 @@ export function resolveAnaphora(
 }
 
 /** One deterministic NLU pass over raw owner input. */
+/** Domain hints composed from the DomainSkillRegistry
+ *  (domain-capture completion 2026-09-11): a skill may
+ *  contribute deterministic cascade rules and labeled Bayes
+ *  utterances. The engine's own cascade stays domain-neutral;
+ *  these run after the general rules, and the corpus trains
+ *  the same classifier. Omitted → domain-neutral NLU. */
+export interface NluDomainHints {
+  rules?: Array<{ intent: Intent; pattern: RegExp; confidence: number }>;
+  corpus?: Array<[Intent, string[]]>;
+}
+
 export function understand(
   input: string,
   history: Array<{ role: "owner" | "archie"; text: string }> = [],
+  domain?: NluDomainHints,
 ): NluResult {
   const tokens = tokenize(input);
   const anaphora = resolveAnaphora(input, history);
-  // Stage 1: rule cascade over the raw input.
-  for (const rule of RULE_CASCADE) {
+  // Stage 1: rule cascade over the raw input — general rules
+  // first, then skill-contributed domain rules.
+  for (const rule of [...RULE_CASCADE, ...(domain?.rules ?? [])]) {
     if (rule.pattern.test(input)) {
       return {
         intent: rule.intent,
@@ -1260,9 +1255,10 @@ export function understand(
       };
     }
   }
-  // Stage 2: trained Naive Bayes classifier.
+  // Stage 2: trained Naive Bayes classifier (base corpus +
+  // any skill-contributed domain utterances).
   const classifier = new IntentClassifier();
-  classifier.train();
+  classifier.train([...CORPUS, ...(domain?.corpus ?? [])]);
   let { intent, confidence } = classifier.classify(input);
   // Precision guard: self-referential intents require an
   // explicit ARCHIE/self anchor in the text. Everyday visitor

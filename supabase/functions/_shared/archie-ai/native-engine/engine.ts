@@ -90,16 +90,13 @@ import {
   type RecordedLesson,
 } from "./lessons.ts";
 import { DomainSkillRegistry, type DomainSkill } from "./domains/registry.ts";
-import {
-  constructionSkill,
-  constructionEstimate,
-} from "./domains/construction.ts";
-
-// API compatibility: the deterministic construction calculator
-// moved to the construction domain skill (audit fix
-// 2026-09-11, domain-capture removal). Re-exported so
-// existing importers are unaffected.
-export { constructionEstimate };
+// Skill wiring only (composition): the engine imports NO
+// construction logic — the calculator, rules, NLU lexicon,
+// seed facts, quantities hint and operator execution all live
+// in the skill and route through the registry
+// (domain-capture completion 2026-09-11). Importers that need
+// constructionEstimate import it from the domain module.
+import { constructionSkill } from "./domains/construction.ts";
 import { ToolOrchestrator, registerBuiltInTools } from "./tools.ts";
 import {
   ResearchPipeline,
@@ -481,7 +478,11 @@ export class ArchieNativeEngine implements ArchieRuntime {
     let seededFacts = 0;
     // Corpus v2 (plan P4, audit K1): versioned, swappable
     // knowledge — domain foundations + FRELUX product facts.
-    for (const seed of FULL_SEED_CORPUS) {
+    // Domain-capture completion 2026-09-11: the engine seeds its
+    // own generic/business corpus, then every registered skill
+    // contributes its domain facts through the registry —
+    // construction semantics no longer live in this file.
+    for (const seed of [...FULL_SEED_CORPUS, ...this.domains.seedFacts()]) {
       const exists = this.facts
         .query({ subject: seed.subject, predicate: seed.predicate })
         .some((f) => JSON.stringify(f.object) === JSON.stringify(seed.object));
@@ -490,7 +491,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
           ...seed,
           provenance: {
             source: "seed",
-            note: `seed corpus v${SEED_CORPUS_VERSION} — foundational + FRELUX-domain knowledge, seeded at engine boot`,
+            note: `seed corpus v${SEED_CORPUS_VERSION} + domain skills (${this.domains.ids().join(", ") || "none"}) — engine/business corpus + skill-contributed facts, seeded at engine boot`,
           },
           status: "validated",
         });
@@ -715,7 +716,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
 
     memory.addTurn("owner", input);
 
-    const nlu = understand(input, priorTurns);
+    const nlu = understand(input, priorTurns, {
+      rules: this.domains.nluRules(),
+    });
     // A resolved pronoun is a RETRIEVAL hint only: it widens
     // the fact/memory query so a follow-up ("how do i apply
     // it?") ranks the referent's knowledge. Never surfaced as
@@ -1937,11 +1940,10 @@ export class ArchieNativeEngine implements ArchieRuntime {
         // the steps bound to real subsystems and reports honest
         // per-step results. Consequential steps stop at PROPOSE.
         const goalSubject = deriveGoalSubject(input);
-        const quantities =
-          /\d/.test(input) &&
-          /\b(?:block|bricks?|cement|concrete|paint|tiles?|grout|walls?|floors?|roofs?|screed|plaster|met(?:er|re)s?|feet|area|m2|bags?)\b/i.test(
-            input,
-          );
+        // The digit check is domain-general; WHICH words count as
+        // quantities is domain knowledge — the registry asks the
+        // registered skills (construction knows its materials).
+        const quantities = /\d/.test(input) && this.domains.quantifies(input);
         await this.assertPlanningFacts(goalSubject, input, quantities);
         const plan = await this.planFor({
           subject: goalSubject,
@@ -2479,8 +2481,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
       provenance: { source: "seed", note: "scope as stated by owner" },
       status: "validated",
     });
-    // Quantities: when present, only the REAL estimator
-    // (op_estimate_materials) may produce inputs-quantified;
+    // Quantities: when present, only the REAL estimator (the
+    // domain skill's estimate operator, routed via the
+    // registry) may produce inputs-quantified;
     // when absent, the trivial truth is asserted directly —
     // there is nothing to estimate, so no estimate step. This
     // makes shadowing impossible: one predicate, one producer
@@ -2526,6 +2529,18 @@ export class ArchieNativeEngine implements ArchieRuntime {
   ): Promise<void> {
     let inventoryCount = 0;
     for (const step of plan.steps) {
+      // Domain-capture completion 2026-09-11: operators owned by a
+      // registered domain skill execute THROUGH the registry — the
+      // engine knows no domain operator ids and executes no domain
+      // logic itself. Null (no skill owns it) falls through to the
+      // core operator switch below; a skill answer is used verbatim,
+      // never fabricated.
+      const domainExec = this.domains.executeOperator(step.operatorId, input);
+      if (domainExec) {
+        step.status = domainExec.status;
+        step.result = domainExec.result;
+        continue;
+      }
       switch (step.operatorId) {
         case "op_inventory_prerequisites": {
           const tokens = goalSubject.split(/\s+/).filter((t) => t.length > 3);
@@ -2564,17 +2579,6 @@ export class ArchieNativeEngine implements ArchieRuntime {
           step.status = "proposed";
           step.result =
             "research alternative — produces candidate knowledge only, never auto-fact";
-          break;
-        }
-        case "op_estimate_materials": {
-          const estimate = constructionEstimate(input);
-          if (/approximately|bags/i.test(estimate)) {
-            step.status = "executed";
-            step.result = estimate;
-          } else {
-            step.status = "blocked";
-            step.result = `calculator needs dimensions — ${estimate}`;
-          }
           break;
         }
         case "op_sequence_tasks": {

@@ -20,6 +20,7 @@ import {
   understand,
   CORPUS,
 } from "@studio-shared/archie-ai/native-engine/nlu.ts";
+import { CONSTRUCTION_NLU_HINTS } from "@studio-shared/archie-ai/native-engine/domains/construction.ts";
 
 type Expectation = string; // intent, or "NOT_GREETING" (the
 // greeting-overreach defect: a statement must never classify
@@ -116,24 +117,27 @@ const HELD_OUT: Array<[string, Expectation]> = [
   ["what grout should i choose for my bathroom", "knowledge_query"],
   ["you are actually chatgpt", "identity_query"],
   ["which paint finish suits a kitchen", "knowledge_query"],
-  ["how many blocks do i need for a 30 meter wall", "construction_calc"],
+  [
+    "how many blocks do i need for a 30 meter wall",
+    "construction_calc",
+    CONSTRUCTION_NLU_HINTS,
+  ],
 ];
 
 describe("NLU held-out confusion set (phase 4 root fix)", () => {
   it("every held-out phrase lands on its correct top-1 intent", () => {
     const failures: string[] = [];
-    for (const [phrase, want] of HELD_OUT) {
-      const got = understand(phrase).intent;
-      const ok =
-        want === "NOT_GREETING" ? got !== "greeting" : got === want;
+    for (const [phrase, want, hints] of HELD_OUT) {
+      const got = understand(phrase, [], hints).intent;
+      const ok = want === "NOT_GREETING" ? got !== "greeting" : got === want;
       if (!ok) failures.push(`"${phrase}" want=${want} got=${got}`);
     }
     expect(failures).toEqual([]);
   });
 
   it("no held-out phrase appears verbatim in the training corpus (anti-memorization)", () => {
-    const corpusUtterances = CORPUS.flatMap(
-      ([, utterances]) => utterances.map((u) => u.toLowerCase()),
+    const corpusUtterances = CORPUS.flatMap(([, utterances]) =>
+      utterances.map((u) => u.toLowerCase()),
     );
     const failures: string[] = [];
     for (const [phrase] of HELD_OUT) {

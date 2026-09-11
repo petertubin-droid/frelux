@@ -33,6 +33,7 @@ import {
   understand,
   CORPUS,
 } from "@studio-shared/archie-ai/native-engine/nlu.ts";
+import { CONSTRUCTION_NLU_HINTS } from "@studio-shared/archie-ai/native-engine/domains/construction.ts";
 
 // --- (1) GENERAL-DOMAIN probes (held out: none are corpus
 // examples — cooking, gardening, tech, fitness, finance,
@@ -95,7 +96,13 @@ const CONSTRUCTION_PROBES: Array<[string, string]> = [
   ["teach me how to mix plaster", "howto_guidance"], // must be howto, NOT teaching
   ["teach yourself this rule: always check the level", "teaching"], // ARCHIE-teaching stays teaching
   ["remember that my site manager is tunde", "teaching"],
-  ["how many blocks for a 12 by 10 wall", "construction_calc"], // genuine calc still routes
+  // genuine calc still routes — through the construction skill's
+  // NLU rules, wired exactly as the engine wires them
+  [
+    "how many blocks for a 12 by 10 wall",
+    "construction_calc",
+    CONSTRUCTION_NLU_HINTS,
+  ],
 ];
 
 // --- (3) Construction-lexicon for the corpus-share cap. ---
@@ -162,8 +169,8 @@ describe("NLU domain generality (audit Phase 3.1)", () => {
   });
 
   it("construction-domain routing did not regress", () => {
-    for (const [text, expected] of CONSTRUCTION_PROBES) {
-      const got = understand(text);
+    for (const [text, expected, hints] of CONSTRUCTION_PROBES) {
+      const got = understand(text, [], hints);
       expect(
         got.intent,
         `"${text}" -> ${got.intent}, expected ${expected}`,

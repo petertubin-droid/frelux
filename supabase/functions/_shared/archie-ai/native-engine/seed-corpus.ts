@@ -20,51 +20,24 @@
 import type { Fact } from "./types.ts";
 
 /** Bump when the corpus changes so deployments can detect
- *  stale seeds (audit K1: swappable knowledge). */
-export const SEED_CORPUS_VERSION = 2;
+ *  stale seeds (audit K1: swappable knowledge). v3: the five
+ *  construction material facts moved to the construction
+ *  domain skill's seedFacts (domain-capture completion
+ *  2026-09-11) — this file now holds only engine-generic and
+ *  deployment/business knowledge. */
+export const SEED_CORPUS_VERSION = 3;
 
 export type SeedFact = Pick<
   Fact,
   "subject" | "predicate" | "object" | "confidence"
 >;
 
-/** Domain-independent foundational knowledge (was inlined in
- *  engine.ts — extracted unchanged in corpus v2). */
+/** Engine-generic foundational knowledge. The construction
+ *  material facts that used to live here moved VERBATIM to the
+ *  construction domain skill (domains/construction.ts,
+ *  CONSTRUCTION_SEED_FACTS) — same constraints, same
+ *  provenance, contributed through the DomainSkillRegistry. */
 export const SEED_FACTS: SeedFact[] = [
-  {
-    subject: "cement",
-    predicate: "bag-mass",
-    object: "50 kg",
-    confidence: 0.95,
-  },
-  {
-    subject: "screeding",
-    predicate: "definition",
-    object:
-      "a thin layer (typically 25–75 mm) of cement-sand mix applied over a structural slab to level, smooth or raise the floor",
-    confidence: 0.9,
-  },
-  {
-    subject: "concrete",
-    predicate: "curing",
-    object:
-      "keeping concrete moist and at suitable temperature so hydration continues and strength develops, typically for at least 7 days",
-    confidence: 0.9,
-  },
-  {
-    subject: "portland-cement",
-    predicate: "definition",
-    object:
-      "a hydraulic binder made by grinding clinker (calcium silicates) with gypsum; reacts with water and hardens",
-    confidence: 0.85,
-  },
-  {
-    subject: "mortar",
-    predicate: "definition",
-    object:
-      "a workable paste of cement, sand and water used to bind masonry units",
-    confidence: 0.85,
-  },
   {
     subject: "archie",
     predicate: "identity",
@@ -186,7 +159,4 @@ export const FRELUX_CORPUS: SeedFact[] = [
 ];
 
 /** The full corpus seeded at boot. */
-export const FULL_SEED_CORPUS: SeedFact[] = [
-  ...SEED_FACTS,
-  ...FRELUX_CORPUS,
-];
+export const FULL_SEED_CORPUS: SeedFact[] = [...SEED_FACTS, ...FRELUX_CORPUS];
