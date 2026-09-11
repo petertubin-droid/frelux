@@ -14,6 +14,7 @@
 
 import type { Operator, Rule } from "../types.ts";
 import type { DomainSkill } from "./registry.ts";
+import { constructionConstant } from "./construction.data.ts";
 
 // ── Deterministic helpers (moved from engine.ts) ──
 
@@ -26,17 +27,26 @@ function parseNumbers(input: string): number[] {
 const isFeet = (input: string): boolean =>
   /\b(?:feet|foot|ft\b|ft\.|['’])/i.test(input);
 
-const FT_TO_M = 0.3048;
-/** Effective face area of a standard 450x225mm block including
- *  a 10mm mortar joint: 0.46 x 0.235 = 0.1081 m2. */
-const BLOCK_FACE_M2 = 0.1081;
-/** Smooth-plaster paint coverage per litre per coat. */
-const PAINT_M2_PER_LITRE = 10;
-/** 1:2:4 concrete: dry volume factor, mix sum, cement density. */
-const DRY_VOLUME_FACTOR = 1.54;
-const MIX_SUM = 7;
-const CEMENT_KG_PER_M3 = 1440;
-const CEMENT_KG_PER_BAG = 50;
+// ── Constants are SEEDED DATA RECORDS (audit phase 2
+//    completion, 2026-09-11): every number the calculator
+//    uses is looked up by record id from the seeded set —
+//    data changes never touch the calculator's logic, and
+//    an unseeded constant fails loudly instead of guessing.
+//    Mirrored in DB by migration
+//    20260916000000_archie_construction_domain_data.sql
+//    (frelux_archie_domain_constants). ──
+const C = {
+  ftToM: constructionConstant("ft_to_m").value,
+  blockFaceM2: constructionConstant("block_face_m2").value,
+  blockWaste: constructionConstant("block_waste_allowance").value,
+  paintM2PerLitreCoat: constructionConstant("paint_m2_per_litre_coat").value,
+  paintCoats: constructionConstant("paint_coats_standard").value,
+  dryVolumeFactor: constructionConstant("concrete_dry_volume_factor").value,
+  mixSum: constructionConstant("concrete_mix_sum").value,
+  cementKgPerM3: constructionConstant("cement_kg_per_m3").value,
+  cementBagKg: constructionConstant("cement_bag_kg").value,
+  cementWaste: constructionConstant("cement_waste_allowance").value,
+};
 
 /** Deterministic construction estimate with honest assumptions.
  *  Returns the fully-composed answer string. (Moved verbatim
@@ -44,7 +54,7 @@ const CEMENT_KG_PER_BAG = 50;
 export function constructionEstimate(input: string): string {
   const nums = parseNumbers(input);
   const feet = isFeet(input);
-  const meters = nums.map((n) => (feet ? n * FT_TO_M : n));
+  const meters = nums.map((n) => (feet ? n * C.ftToM : n));
 
   const wantsBlocks = /\b(?:blocks?|bricks?)\b/i.test(input);
   const wantsPaint = /\bpaint\b/i.test(input);
@@ -56,11 +66,11 @@ export function constructionEstimate(input: string): string {
     }
     const [l, h] = meters;
     const area = l * h;
-    const base = area / BLOCK_FACE_M2;
-    const withWaste = Math.ceil(base * 1.05);
+    const base = area / C.blockFaceM2;
+    const withWaste = Math.ceil(base * C.blockWaste);
     return (
       `For a ${feet ? `${nums[0]} ft x ${nums[1]} ft` : `${nums[0]} x ${nums[1]} m`} wall (${area.toFixed(2)} m2): approximately ${withWaste} blocks. ` +
-      `Assumptions: standard 450x225mm block with 10mm mortar joints (0.1081 m2 face), plus 5% breakage/waste allowance. This is a deterministic estimate — verify on site before ordering.`
+      `Assumptions: standard 450x225mm block with 10mm mortar joints (${C.blockFaceM2} m2 face), plus 5% breakage/waste allowance. This is a deterministic estimate — verify on site before ordering.`
     );
   }
 
@@ -69,7 +79,7 @@ export function constructionEstimate(input: string): string {
       return `To estimate paint I need the surface area — for example "how much paint for a 4 by 5 meter wall". I will not guess dimensions.`;
     }
     const area = meters.length >= 2 ? meters[0] * meters[1] : meters[0];
-    const litres = Math.ceil((area / PAINT_M2_PER_LITRE) * 2);
+    const litres = Math.ceil((area / C.paintM2PerLitreCoat) * C.paintCoats);
     return (
       `For ${area.toFixed(2)} m2 of surface: approximately ${litres} litres for two coats. ` +
       `Assumptions: smooth plaster at ~10 m2 per litre per coat, 2 coats. Rough or textured surfaces need more — this is a deterministic estimate, not a guess.`
@@ -82,13 +92,13 @@ export function constructionEstimate(input: string): string {
     }
     const volume = meters[0];
     const bags = Math.ceil(
-      ((volume * DRY_VOLUME_FACTOR) / MIX_SUM) *
-        (CEMENT_KG_PER_M3 / CEMENT_KG_PER_BAG) *
-        1.05,
+      ((volume * C.dryVolumeFactor) / C.mixSum) *
+        (C.cementKgPerM3 / C.cementBagKg) *
+        C.cementWaste,
     );
     return (
       `For ${volume} cubic meter(s) of concrete: approximately ${bags} x 50kg bags of cement. ` +
-      `Assumptions: 1:2:4 mix (dry volume factor 1.54, cement at 1440 kg/m3), plus 5% waste. This is a deterministic estimate — verify with your engineer for structural work.`
+      `Assumptions: 1:2:4 mix (dry volume factor ${C.dryVolumeFactor}, cement at ${C.cementKgPerM3} kg/m3), plus 5% waste. This is a deterministic estimate — verify with your engineer for structural work.`
     );
   }
 

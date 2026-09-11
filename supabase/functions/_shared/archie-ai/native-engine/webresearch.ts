@@ -77,55 +77,145 @@ export interface ResearchAdapter {
   search(query: string): Promise<{ hits: ResearchHit[]; note: string }>;
 }
 
+/** Adapter options — injectable for deterministic fixture
+ *  tests (CI never depends on the live network). */
+export interface DuckDuckGoLiteAdapterOptions {
+  /** Retries after a network error, 429 or 5xx (default 2). */
+  maxRetries?: number;
+  /** Base backoff between retries in ms; doubles per attempt
+   *  (default 600). Tests inject 0. */
+  baseBackoffMs?: number;
+  /** Injectable fetch (tests pass a stub). */
+  fetchFn?: typeof fetch;
+  /** Injectable sleep for backoff (tests pass a no-op). */
+  sleepFn?: (ms: number) => Promise<void>;
+}
+
 /** Real adapter: DuckDuckGo Lite HTML endpoint — public,
- *  robots-friendly, no API key, no authentication bypass. */
+ *  robots-friendly, no API key, no authentication bypass.
+ *
+ *  HARDENED (audit phase 8, 2026-09-11):
+ *  - quote/order-flexible parser — the live Lite page emits
+ *    single-quoted attributes with href before class; the old
+ *    double-quote-only regex parsed ZERO hits from real pages
+ *    silently. Verified against the live markup.
+ *  - HTML drift detection — a 200 response that yields zero
+ *    parseable results is classified honestly (layout changed
+ *    / genuinely no results) instead of a silent zero-hit
+ *    "search completed".
+ *  - retry/backoff on network errors, 429 and 5xx. */
 export class DuckDuckGoLiteAdapter implements ResearchAdapter {
   readonly id = "duckduckgo-lite";
+  private readonly maxRetries: number;
+  private readonly baseBackoffMs: number;
+  private readonly fetchFn: typeof fetch;
+  private readonly sleepFn: (ms: number) => Promise<void>;
+
+  constructor(opts: DuckDuckGoLiteAdapterOptions = {}) {
+    this.maxRetries = opts.maxRetries ?? 2;
+    this.baseBackoffMs = opts.baseBackoffMs ?? 600;
+    this.fetchFn = opts.fetchFn ?? fetch;
+    this.sleepFn = opts.sleepFn ?? ((ms: number) => new Promise((r) => setTimeout(r, ms)));
+  }
 
   async search(query: string): Promise<{ hits: ResearchHit[]; note: string }> {
-    try {
-      const res = await fetch("https://lite.duckduckgo.com/lite/", {
-        method: "POST",
-        headers: {
-          "content-type": "application/x-www-form-urlencoded",
-          "user-agent": "ARCHIE-Native-Engine/1.0 (research; contact owner)",
-        },
-        body: new URLSearchParams({ q: query }).toString(),
-      });
+    let lastNetworkNote = "";
+    for (let attempt = 0; attempt <= this.maxRetries; attempt += 1) {
+      if (attempt > 0) {
+        const backoff = this.baseBackoffMs * 2 ** (attempt - 1);
+        await this.sleepFn(backoff);
+      }
+      let res: Response;
+      try {
+        res = await this.fetchFn("https://lite.duckduckgo.com/lite/", {
+          method: "POST",
+          headers: {
+            "content-type": "application/x-www-form-urlencoded",
+            "user-agent": "ARCHIE-Native-Engine/1.0 (research; contact owner)",
+          },
+          body: new URLSearchParams({ q: query }).toString(),
+        });
+      } catch (err) {
+        lastNetworkNote = err instanceof Error ? err.message : String(err);
+        continue; // retry network errors
+      }
+      if (res.status === 429 || res.status >= 500) {
+        lastNetworkNote = `search endpoint returned ${res.status}`;
+        continue; // retry rate-limit and server errors
+      }
       if (!res.ok) {
+        // Client errors (other than 429) are not retried —
+        // the request itself is wrong, not the network.
         return { hits: [], note: `search endpoint returned ${res.status}` };
       }
       const html = await res.text();
-      return { hits: this.parse(html), note: "search completed" };
-    } catch (err) {
-      return {
-        hits: [],
-        note: `network unavailable: ${err instanceof Error ? err.message : String(err)}`,
-      };
+      const hits = this.parse(html);
+      if (hits.length === 0) {
+        // DRIFT DETECTION — zero parsed results is classified
+        // honestly, never reported as a silent success.
+        const note = this.classifyEmptyParse(html);
+        if (note.startsWith("adapter layout changed")) {
+          return { hits: [], note }; // drift is structural — retrying won't help
+        }
+        return { hits: [], note };
+      }
+      return { hits, note: "search completed" };
     }
+    return {
+      hits: [],
+      note: `network unavailable after ${this.maxRetries + 1} attempt(s): ${lastNetworkNote}`,
+    };
   }
 
-  /** Parse the minimal Lite result markup (links + snippets). */
+  /** Classify a 200 response that parsed to zero hits — the
+   *  honest alternative to a silent zero-hit success. */
+  classifyEmptyParse(html: string): string {
+    const markers =
+      (html.match(/class=(["'])result-link\1/gi) ?? []).length +
+      (html.match(/class=(["'])result-snippet\1/gi) ?? []).length;
+    if (markers > 0) {
+      return "adapter layout changed: result markers present but 0 parsed — upstream markup drifted, report this, do not trust the zero-hit result";
+    }
+    if (/no results/i.test(html)) {
+      return "no results found for the query";
+    }
+    return "adapter layout changed: result page shape unrecognized (0 result markers) — upstream markup drifted, report this, do not trust the zero-hit result";
+  }
+
+  /** Parse the Lite result markup (links + snippets).
+   *  Attribute matching is quote- and order-flexible: the live
+   *  page emits class='result-link' single-quoted with href
+   *  before class; drifted pages must not silently yield
+   *  zero — see classifyEmptyParse. */
   parse(html: string): ResearchHit[] {
     const hits: ResearchHit[] = [];
-    const linkRe =
-      /<a[^>]+class="result-link"[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/gi;
-    const snippetRe = /<td[^>]*class="result-snippet"[^>]*>([\s\S]*?)<\/td>/gi;
-    const links = [...html.matchAll(linkRe)];
-    const snippets = [...html.matchAll(snippetRe)];
+    const anchors = [...html.matchAll(/<a\b([^>]*)>([\s\S]*?)<\/a>/gi)];
+    const links = anchors
+      .map((a) => {
+        const attrs = a[1];
+        const cls = /class=(["'])([^"']*)\1/i.exec(attrs)?.[2] ?? "";
+        if (!/\bresult-link\b/.test(cls)) return null;
+        const href = /href=(["'])([^"']*)\1/i.exec(attrs)?.[2] ?? "";
+        return { href, title: a[2] };
+      })
+      .filter((x): x is { href: string; title: string } => x !== null);
+    const snippets = [...html.matchAll(
+      /<t[dh]\b[^>]*class=(["'])result-snippet\1[^>]*>([\s\S]*?)<\/t[dh]>/gi,
+    )];
     for (let i = 0; i < links.length && hits.length < 8; i++) {
-      const rawUrl = links[i][1];
+      const rawUrl = links[i].href;
+      if (!rawUrl) continue;
       const url = rawUrl.startsWith("//") ? `https:${rawUrl}` : rawUrl;
       const isDdgRedirect = url.includes("duckduckgo.com/l/");
       if (isDdgRedirect) continue; // skip wrapped redirects, keep direct results
       const snippet = snippets[i]
-        ? snippets[i][1]
+        ? snippets[i][2]
             .replace(/<[^>]+>/g, "")
             .replace(/\s+/g, " ")
             .trim()
         : "";
       hits.push({
-        title: links[i][2]
+        title: links[i].title
           .replace(/<[^>]+>/g, "")
           .trim()
           .slice(0, 140),
@@ -299,7 +389,13 @@ export class ResearchPipeline {
         continue;
       }
       const { hits, note } = result.value;
-      if (hits.length === 0 && note.startsWith("network unavailable")) {
+      if (
+        hits.length === 0 &&
+        (note.startsWith("network unavailable") ||
+          note.startsWith("adapter layout changed"))
+      ) {
+        // Adapter drift is as much a failure as a dead network
+        // — never counted as a successful search (audit phase 8).
         sourceFailures.push({ domain: source.domain, note });
         continue;
       }
@@ -321,9 +417,13 @@ export class ResearchPipeline {
           hits: [] as ResearchHit[],
           note: `search failed: ${String(err).slice(0, 120)}`,
         }));
+      // Honest success check: a zero-hit response from a dead
+      // network OR from a drifted page shape is a failure —
+      // never claimed as a successful search (audit phase 8).
       const okNote = !(
         unrestricted.hits.length === 0 &&
-        unrestricted.note.startsWith("network unavailable")
+        (unrestricted.note.startsWith("network unavailable") ||
+          unrestricted.note.startsWith("adapter layout changed"))
       );
       if (okNote) {
         sourcesSearched.push("open web (unrestricted query)");

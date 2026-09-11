@@ -77,7 +77,13 @@ export interface WorldEntity {
   createdAt: string;
 }
 
-/** A typed relation between two world entities. */
+/** A typed relation between two world entities.
+ *
+ *  TEMPORAL AXIS (audit phase 7, 2026-09-11): relations are
+ *  VERSIONED — observedAt carries the time this version was
+ *  observed, and supersededBy points at the relation that
+ *  replaced it (null = current). The world model keeps the
+ *  full history; currentView() projects the present. */
 export interface WorldRelation {
   id: string;
   subject: string;
@@ -86,6 +92,12 @@ export interface WorldRelation {
   confidence: number;
   provenance: string;
   createdAt: string;
+  /** Time this observation was made (defaults to createdAt for
+   *  pre-migration rows). */
+  observedAt?: string;
+  /** Id of the relation that superseded this version — null
+   *  for current observations. */
+  supersededBy?: string | null;
 }
 
 export interface WorldModelQuery {
