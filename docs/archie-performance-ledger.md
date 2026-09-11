@@ -48,3 +48,10 @@ All other 48 cases at full score.
 
 (entries below are appended per optimization: change → result → decision)
 
+
+### Entry 1 — Single-slot capture completion (capability: variable binding / transitivity)
+
+- **Baseline:** ms-2 = 0 (multi-step-reasoning 0.667, overall 0.942). The rule "if ?x part-of <something> then ?x indirect-part-of <that something>" was refused because ?y appeared only in `produces` — sound behavior, but the rule language could not express the capture.
+- **Change:** `reasoning.ts` unification path now completes the capture shorthand when exactly ONE free variable and exactly ONE object-elided condition exist: the variable is materialized into the elided slot before binding enumeration. Value always comes from a real matched fact (string objects only — `matchUnder` refuses variable objects on non-strings). Ambiguous shapes (≥2 free vars, 0 elided slots, ≥2 elided slots) remain refused by the unbound-variable guard. No safety property weakened: conclusions still cannot fabricate entities.
+- **Result (same suite, same session):** ms-2 = 1. multi-step-reasoning 0.667 → **1.0**. Overall **0.942 → 0.962** (50/52). All other 49 cases unchanged (verified case-by-case — no regression). New regression suite `variable-binding.test.ts` (7 tests: capture works + 4 refusal shapes + true two-hop transitivity + DEFAULT_RULES guard). Reasoning/derived-store suites green.
+- **Decision:** ACCEPTED (measurable capability gain, zero regression, safety properties preserved and pinned by tests).

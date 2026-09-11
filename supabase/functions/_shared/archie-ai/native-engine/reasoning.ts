@@ -22,6 +22,7 @@ import {
   enumerateBindings,
   hasVars,
   matchUnder,
+  patternVars,
   substitute,
   unboundVars,
   type Binding,
@@ -139,8 +140,39 @@ export class ReasoningEngine {
         // ---- unification path (general rules) ----
         // A conclusion may never contain an unbound variable:
         // that would fabricate an entity, not derive one.
+        //
+        // SINGLE-SLOT CAPTURE COMPLETION (2026-09-11 perf pass,
+        // capability gap ms-2): a rule whose conclusion names
+        // exactly ONE variable its conditions never declare,
+        // while exactly ONE condition elides its object, is a
+        // sound capture shorthand: "if ?x part-of <something>
+        // then ?x indirect-part-of <that something>". The free
+        // variable is materialized into the elided slot, so the
+        // captured value always comes from a REAL matched fact
+        // — never fabricated. Any other shape (multiple free
+        // vars, no elided slot, several elided slots — ambiguous
+        // which slot captures) is still refused by the unbound-
+        // variable guard below. String objects only: matchUnder
+        // refuses variable objects on non-strings.
+        const declaredVars = new Set(rule.conditions.flatMap(patternVars));
+        const freeVars = patternVars(rule.produces).filter(
+          (v) => !declaredVars.has(v),
+        );
+        let effectiveConditions = rule.conditions;
+        if (freeVars.length === 1) {
+          const elidedIdx: number[] = [];
+          rule.conditions.forEach((c, i) => {
+            if (c.object === undefined) elidedIdx.push(i);
+          });
+          if (elidedIdx.length === 1) {
+            const at = elidedIdx[0];
+            effectiveConditions = rule.conditions.map((c, i) =>
+              i === at ? { ...c, object: freeVars[0] } : c,
+            );
+          }
+        }
         const allFacts = this.facts.list();
-        const bindingSets = enumerateBindings(rule.conditions, allFacts);
+        const bindingSets = enumerateBindings(effectiveConditions, allFacts);
         // A conclusion may never contain an unbound variable:
         // that would fabricate an entity, not derive one. This
         // safety property is stronger than any benchmark case —
