@@ -51,7 +51,7 @@ export interface InferenceResult {
   reinforced: string[];
   /** Variable bindings used by variable rules this run —
    * part of the honest derivation record. */
-  bindings: Record<string, string>[];
+  bindings: Record<string, string | number>[];
 }
 
 export class ReasoningEngine {
@@ -76,7 +76,7 @@ export class ReasoningEngine {
   async forwardChain(maxIterations = 6): Promise<InferenceResult> {
     const explanations: InferenceExplanation[] = [];
     const reinforced: string[] = [];
-    const bindingsUsed: Record<string, string>[] = [];
+    const bindingsUsed: Record<string, string | number>[] = [];
     let iterations = 0;
     let derivedThisPass: Fact[] = [];
 
@@ -84,7 +84,8 @@ export class ReasoningEngine {
       iterations += 1;
       derivedThisPass = [];
       for (const rule of this.rules) {
-        const ruleIsGeneral = rule.conditions.some(hasVars) || hasVars(rule.produces);
+        const ruleIsGeneral =
+          rule.conditions.some(hasVars) || hasVars(rule.produces);
 
         if (!ruleIsGeneral) {
           // ---- original literal path (unchanged behavior) ----
@@ -95,13 +96,16 @@ export class ReasoningEngine {
           const chosen = premiseSets.map(
             (set) => [...set].sort((a, b) => b.confidence - a.confidence)[0],
           );
-          const premiseConfidence = Math.min(...chosen.map((f) => f.confidence));
+          const premiseConfidence = Math.min(
+            ...chosen.map((f) => f.confidence),
+          );
           const derivedConfidence = premiseConfidence * rule.weight;
           const produced = rule.produces;
           const existing = this.facts
             .query({ subject: produced.subject, predicate: produced.predicate })
             .find(
-              (f) => JSON.stringify(f.object) === JSON.stringify(produced.object),
+              (f) =>
+                JSON.stringify(f.object) === JSON.stringify(produced.object),
             );
           if (existing) {
             if (!reinforced.includes(existing.id)) reinforced.push(existing.id);
@@ -191,10 +195,32 @@ export class ReasoningEngine {
         for (const { binding, premiseFacts } of bindingSets) {
           const producedBound = substitute(rule.produces, binding);
           if (unboundVars(producedBound, binding).length > 0) continue;
+          // Numeric unification (audit Phase 2 item 4): a rule
+          // with `compute` derives its conclusion's OBJECT from
+          // the premises' bound values — a real quantitative
+          // relationship, not a static description string.
+          // `compute` is pure and deterministic; returning
+          // undefined REFUSES the conclusion (non-numeric
+          // premise, division by zero) instead of fabricating
+          // a number.
+          if (rule.compute) {
+            const bound: Record<string, string | number> = {};
+            for (const [k, v] of binding) bound[k] = v;
+            const computed = rule.compute(bound);
+            if (computed === undefined || !Number.isFinite(computed)) {
+              continue;
+            }
+            producedBound.object = computed;
+          }
           const existing = this.facts
-            .query({ subject: producedBound.subject, predicate: producedBound.predicate })
+            .query({
+              subject: producedBound.subject,
+              predicate: producedBound.predicate,
+            })
             .find(
-              (f) => JSON.stringify(f.object) === JSON.stringify(producedBound.object),
+              (f) =>
+                JSON.stringify(f.object) ===
+                JSON.stringify(producedBound.object),
             );
           if (existing) {
             if (!reinforced.includes(existing.id)) reinforced.push(existing.id);
@@ -204,7 +230,7 @@ export class ReasoningEngine {
             ...premiseFacts.map((f) => f.confidence),
           );
           const derivedConfidence = premiseConfidence * rule.weight;
-          const bindingRecord: Record<string, string> = {};
+          const bindingRecord: Record<string, string | number> = {};
           for (const [k, v] of binding) bindingRecord[k] = v;
           const { fact } = await this.facts.assert({
             subject: producedBound.subject as string,
@@ -254,10 +280,12 @@ export class ReasoningEngine {
   ): {
     holds: boolean;
     proof: string[];
-    /** Bindings when the goal contains variables (else empty). */
-    bindings: Record<string, string>[];
+    /** Bindings when the goal contains variables (else empty).
+     *  Values may be numbers — object variables bind numeric
+     *  fact objects (Phase 2.4). */
+    bindings: Record<string, string | number>[];
   } {
-    const results: Record<string, string>[] = [];
+    const results: Record<string, string | number>[] = [];
     for (const fact of this.facts.query({})) {
       const binding = matchUnder(goal, fact, new Map());
       if (binding) {
@@ -274,7 +302,11 @@ export class ReasoningEngine {
     }
 
     const chain: string[] = [];
-    const tryRules = (pattern: FactPattern, binding: Binding, d: number): boolean => {
+    const tryRules = (
+      pattern: FactPattern,
+      binding: Binding,
+      d: number,
+    ): boolean => {
       if (d <= 0) return false;
       // Goal already holds under the current binding?
       for (const fact of this.facts.list()) {
@@ -306,9 +338,8 @@ export class ReasoningEngine {
 
     const startBinding: Binding = new Map();
     const holds = tryRules(goal, startBinding, depth);
-    const finalBindings = holds && startBinding.size > 0
-      ? [Object.fromEntries(startBinding)]
-      : [];
+    const finalBindings =
+      holds && startBinding.size > 0 ? [Object.fromEntries(startBinding)] : [];
     return {
       holds,
       proof: holds ? chain : [],
@@ -330,7 +361,11 @@ export class ReasoningEngine {
  *  `binding`? Variables only unify with literals or identical
  *  variables — never two distinct variables (keeps proofs
  *  grounded in real entities). */
-function unifiable(head: FactPattern, goal: FactPattern, binding: Binding): boolean {
+function unifiable(
+  head: FactPattern,
+  goal: FactPattern,
+  binding: Binding,
+): boolean {
   const pairs: Array<[unknown, unknown]> = [
     [head.subject, goal.subject],
     [head.predicate, goal.predicate],
@@ -436,7 +471,8 @@ export const GENERAL_RULES: Rule[] = [
     ],
     produces: { subject: "?x", predicate: "part-of", object: "?z" },
     weight: 0.9,
-    description: "Transitivity: if ?x is part-of ?y and ?y part-of ?z, then ?x is part-of ?z",
+    description:
+      "Transitivity: if ?x is part-of ?y and ?y part-of ?z, then ?x is part-of ?z",
   },
   {
     id: "rule_general_causal_chain",
@@ -446,7 +482,8 @@ export const GENERAL_RULES: Rule[] = [
     ],
     produces: { subject: "?x", predicate: "causes", object: "?z" },
     weight: 0.85,
-    description: "Causal transitivity: if ?x causes ?y and ?y causes ?z, then ?x causes ?z",
+    description:
+      "Causal transitivity: if ?x causes ?y and ?y causes ?z, then ?x causes ?z",
   },
   {
     id: "rule_general_contradiction_scan",
@@ -460,6 +497,7 @@ export const GENERAL_RULES: Rule[] = [
       object: "?x is and is-not ?y",
     },
     weight: 0.98,
-    description: "A thing cannot both be and not-be: flags contradictory claims",
+    description:
+      "A thing cannot both be and not-be: flags contradictory claims",
   },
 ];

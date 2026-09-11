@@ -45,7 +45,7 @@ export interface Fact {
       premiseIds: string[];
       /** Variable bindings used by general (variable) rules —
        * part of the honest proof record (P1 unification). */
-      binding?: Record<string, string>;
+      binding?: Record<string, string | number>;
     };
     /** Free-form origin note (e.g. "conversation 2026-09-10"). */
     note?: string;
@@ -88,6 +88,17 @@ export interface Rule {
   /** 0..1 rule strength — derived confidence = min(premise conf) × weight. */
   weight: number;
   description: string;
+  /** Numeric unification (audit Phase 2 item 4, 2026-09-11):
+   *  when present, the conclusion's object is COMPUTED from the
+   *  premises' bound values instead of taken verbatim from
+   *  `produces.object`. Pure and deterministic — same bound
+   *  inputs always produce the same output, no external call,
+   *  no randomness. Lets a rule state a real relationship
+   *  ("screed volume = thickness × area") instead of a static
+   *  description string. Returning undefined refuses the
+   *  conclusion (e.g. division by zero) rather than fabricating
+   *  a number. */
+  compute?: (bound: Record<string, string | number>) => number | undefined;
 }
 
 /** SPO pattern; "" / undefined = wildcard, regex-able values. */

@@ -157,9 +157,16 @@ is this repo's own ad-hoc numbering, not the canonical plan):
      (robots.txt checks, timeouts, content extraction), raise the
      cross-checked confidence cap accordingly.
   3. ✅ Anaphora resolution — done, see L.5 below.
-  4. ⬜ Numeric unification — object variables bind numbers/structured
-     objects with typed patterns; unlocks the rule engine's construction
-     rules and future quantitative rules.
+  4. ✅ Numeric unification — object variables bind NUMBER fact objects
+     (and numeric strings parse deterministically); "shape" patterns
+     ({ value: "?v", unit: "m" }) bind structured fact objects one
+     level deep; rules gained an optional pure `compute` that derives
+     the conclusion's object from bound premise values (undefined =
+     honest refusal, never a guessed number). The construction screed
+     rule now computes REAL volumes (thickness × area) instead of the
+     static "thickness × floor area" description string. Tests:
+     `numeric-unification.test.ts` (12 cases) + updated capture-safety
+     cases in `variable-binding.test.ts`.
 - **Phase 3** (domain generality, 2-3 weeks): de-bias the NLU corpus
   (construction skew in howto/research intents), planner re-scope or
   real executable step chains, one real semantic verification check.

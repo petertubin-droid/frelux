@@ -22,7 +22,7 @@ import type { Rule } from "@studio-shared/archie-ai/native-engine/types.ts";
 // =========================================================
 
 async function seededStore(
-  facts: Array<[string, string, string | number]>,
+  facts: Array<[string, string, unknown]>,
 ): Promise<FactStore> {
   const fs = new FactStore();
   for (const [s, p, o] of facts) {
@@ -45,7 +45,11 @@ describe("single-slot capture completion (ms-2 capability)", () => {
       {
         id: "trans",
         conditions: [{ subject: "?x", predicate: "part-of" }],
-        produces: { subject: "?x", predicate: "indirect-part-of", object: "?y" },
+        produces: {
+          subject: "?x",
+          predicate: "indirect-part-of",
+          object: "?y",
+        },
         weight: 0.9,
         description: "transitive part-of",
       } as never,
@@ -111,19 +115,50 @@ describe("single-slot capture completion (ms-2 capability)", () => {
     expect(out.derived.length).toBe(0);
   });
 
-  it("capture never fabricates: a non-string object cannot be captured", async () => {
+  it("numeric object capture is REAL and exact (Phase 2.4 numeric unification)", async () => {
+    // Numbers are real capturable values now — the captured
+    // value always comes from the matched fact, never
+    // fabricated. This is what unlocks computed conclusions.
     const fs = await seededStore([["beam", "depth", 450]]);
     const re = new ReasoningEngine(fs, [
       {
         id: "num-capture",
-        conditions: [{ subject: "?x", predicate: "depth" }],
+        conditions: [{ subject: "?x", predicate: "depth", object: "?y" }],
         produces: { subject: "?x", predicate: "depth-reported", object: "?y" },
         weight: 0.9,
         description: "numeric object capture",
       } as never,
     ]);
     const out = await re.forwardChain();
-    expect(out.derived.length).toBe(0); // matchUnder refuses var objects on non-strings
+    expect(out.derived.length).toBe(1);
+    expect(out.derived[0].object).toBe(450);
+    // Binding recorded honestly in the derivation.
+    const derivation = (
+      out.derived[0].provenance as {
+        derivation?: { binding?: Record<string, string | number> };
+      }
+    ).derivation;
+    expect(derivation?.binding?.["?y"]).toBe(450);
+  });
+
+  it("capture still refuses structured objects — only strings and numbers bind", async () => {
+    // A structured fact object is NOT a scalar value; a scalar
+    // object variable cannot capture it (no silent deep
+    // unification — use an explicit shape pattern instead).
+    const fs = await seededStore([
+      ["beam", "spec", { depth: 450, unit: "mm" }],
+    ]);
+    const re = new ReasoningEngine(fs, [
+      {
+        id: "obj-capture",
+        conditions: [{ subject: "?x", predicate: "spec", object: "?y" }],
+        produces: { subject: "?x", predicate: "spec-reported", object: "?y" },
+        weight: 0.9,
+        description: "structured object capture must be refused",
+      } as never,
+    ]);
+    const out = await re.forwardChain();
+    expect(out.derived.length).toBe(0);
   });
 
   it("sound rules (all variables declared) are unaffected — literal + unification paths intact", async () => {
@@ -138,7 +173,11 @@ describe("single-slot capture completion (ms-2 capability)", () => {
           { subject: "?x", predicate: "part-of", object: "?y" },
           { subject: "?y", predicate: "part-of", object: "?z" },
         ],
-        produces: { subject: "?x", predicate: "indirect-part-of", object: "?z" },
+        produces: {
+          subject: "?x",
+          predicate: "indirect-part-of",
+          object: "?z",
+        },
         weight: 0.9,
         description: "true two-hop transitivity",
       } as never,

@@ -23,6 +23,20 @@ function parseNumbers(input: string): number[] {
   return (input.match(/\d+(?:\.\d+)?/g) ?? []).map(Number);
 }
 
+/** Numeric unification helper (Phase 2.4): a bound value is
+ *  usable when it is a finite number, or a string carrying
+ *  one parseable number ("0.05 m" -> 0.05). Anything else is
+ *  undefined — the caller refuses rather than guesses. */
+function parseNumeric(value: string | number | undefined): number | undefined {
+  if (typeof value === "number")
+    return Number.isFinite(value) ? value : undefined;
+  if (typeof value !== "string") return undefined;
+  const m = value.match(/-?\d+(?:\.\d+)?/);
+  if (!m) return undefined;
+  const n = Number(m[0]);
+  return Number.isFinite(n) ? n : undefined;
+}
+
 /** Feet→meters when the query is in imperial units. */
 const isFeet = (input: string): boolean =>
   /\b(?:feet|foot|ft\b|ft\.|['’])/i.test(input);
@@ -124,18 +138,33 @@ export const CONSTRUCTION_RULES: Rule[] = [
     description: "Concrete grade strength follows from its mix ratio",
   },
   {
+    // Phase 2.4 (numeric unification): the object variables
+    // ?t/?a bind the premises' numeric (or numeric-string)
+    // values, and `compute` derives the REAL screed volume.
+    // Deterministic and honest: if either premise carries no
+    // parseable number, compute returns undefined and the
+    // rule REFUSES to conclude — it never guesses dimensions
+    // or units.
     id: "rule_screeding_thickness_area",
     conditions: [
-      { subject: "screed", predicate: "thickness" },
-      { subject: "floor", predicate: "area" },
+      { subject: "screed", predicate: "thickness", object: "?t" },
+      { subject: "floor", predicate: "area", object: "?a" },
     ],
     produces: {
       subject: "screed",
       predicate: "volume",
-      object: "thickness × floor area",
+      object:
+        "thickness x floor area (cubic meters when thickness is in m and area in m2)",
     },
     weight: 0.9,
-    description: "Screed volume = thickness × area (geometry)",
+    description: "Screed volume = thickness x area (geometry)",
+    compute: (bound) => {
+      const t = parseNumeric(bound["?t"]);
+      const a = parseNumeric(bound["?a"]);
+      if (t === undefined || a === undefined) return undefined;
+      const v = t * a;
+      return Number.isFinite(v) ? v : undefined;
+    },
   },
   {
     id: "rule_cement_bag_standard",

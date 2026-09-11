@@ -31,7 +31,14 @@ function fact0(
   predicate: string,
   object: string,
   confidence = 0.9,
-): { subject: string; predicate: string; object: string; confidence: number; provenance: { source: "seed" }; status: "validated" } {
+): {
+  subject: string;
+  predicate: string;
+  object: string;
+  confidence: number;
+  provenance: { source: "seed" };
+  status: "validated";
+} {
   return {
     subject,
     predicate,
@@ -43,7 +50,17 @@ function fact0(
 }
 
 const F = (subject: string, object: string, predicate = "is-a"): Fact =>
-  ({ id: "f", subject, predicate, object, confidence: 0.9, provenance: { source: "seed" }, status: "validated", validatedCount: 1, createdAt: new Date().toISOString() }) as Fact;
+  ({
+    id: "f",
+    subject,
+    predicate,
+    object,
+    confidence: 0.9,
+    provenance: { source: "seed" },
+    status: "validated",
+    validatedCount: 1,
+    createdAt: new Date().toISOString(),
+  }) as Fact;
 
 describe("Unification primitives", () => {
   it("isVar recognizes variables", () => {
@@ -54,23 +71,38 @@ describe("Unification primitives", () => {
 
   it("binds free variables and enforces consistent re-binding", () => {
     const b = new Map<string, string>();
-    const m1 = matchUnder({ subject: "?x", predicate: "part-of", object: "?y" }, F("roof", "house", "part-of"), b);
+    const m1 = matchUnder(
+      { subject: "?x", predicate: "part-of", object: "?y" },
+      F("roof", "house", "part-of"),
+      b,
+    );
     expect(m1).not.toBeNull();
     expect(m1!.get("?x")).toBe("roof");
     expect(m1!.get("?y")).toBe("house");
     // Same ?x must agree on the second premise.
-    const m2 = matchUnder({ subject: "?x", predicate: "part-of", object: "?z" }, F("attic", "roof"), m1!);
+    const m2 = matchUnder(
+      { subject: "?x", predicate: "part-of", object: "?z" },
+      F("attic", "roof"),
+      m1!,
+    );
     expect(m2).toBeNull(); // "attic" ≠ bound "roof"
   });
 
   it("literal patterns still match exactly (no behavior change)", () => {
-    expect(matchUnder({ subject: "roof" }, F("roof", "house"), new Map())).not.toBeNull();
-    expect(matchUnder({ subject: "wall" }, F("roof", "house"), new Map())).toBeNull();
+    expect(
+      matchUnder({ subject: "roof" }, F("roof", "house"), new Map()),
+    ).not.toBeNull();
+    expect(
+      matchUnder({ subject: "wall" }, F("roof", "house"), new Map()),
+    ).toBeNull();
   });
 
   it("substitute fills bound variables and leaves unbound verbatim", () => {
     const binding = new Map([["?x", "roof"]]);
-    const out = substitute({ subject: "?x", predicate: "part-of", object: "?y" }, binding);
+    const out = substitute(
+      { subject: "?x", predicate: "part-of", object: "?y" },
+      binding,
+    );
     expect(out.subject).toBe("roof");
     expect(out.object).toBe("?y");
     expect(unboundVars(out, binding)).toEqual(["?y"]);
@@ -100,9 +132,9 @@ describe("Unification primitives", () => {
   });
 
   it("enumerateBindings respects the safety cap", () => {
-    const facts = Array.from({ length: 50 }, (_, i) =>
-      F(`x${i}`, `y${i}`),
-    ).map((f, i) => ({ ...f, id: `c${i}` })) as Fact[];
+    const facts = Array.from({ length: 50 }, (_, i) => F(`x${i}`, `y${i}`)).map(
+      (f, i) => ({ ...f, id: `c${i}` }),
+    ) as Fact[];
     const sets = enumerateBindings(
       [{ subject: "?x", predicate: "is-a", object: "?y" }],
       facts,
@@ -124,7 +156,11 @@ describe("Forward chaining with general (variable) rules", () => {
     expect(derived[0].provenance.source).toBe("inferred");
     expect(out.explanations[0].ruleId).toBe("rule_general_class_inheritance");
     // Binding recorded honestly in the derivation.
-    const derivation = (derived[0].provenance as { derivation?: { binding?: Record<string, string> } }).derivation;
+    const derivation = (
+      derived[0].provenance as {
+        derivation?: { binding?: Record<string, string> };
+      }
+    ).derivation;
     expect(derivation?.binding?.["?x"]).toBe("my-shop");
     expect(derivation?.binding?.["?y"]).toBe("building");
   });
@@ -136,7 +172,11 @@ describe("Forward chaining with general (variable) rules", () => {
     await fs.assert(fact0("roof", "part-of", "house"));
     const re = new ReasoningEngine(fs, GENERAL_RULES);
     const out = await re.forwardChain();
-    const derived = fs.query({ subject: "attic", predicate: "part-of", object: "house" });
+    const derived = fs.query({
+      subject: "attic",
+      predicate: "part-of",
+      object: "house",
+    });
     expect(derived.length).toBe(1);
     expect(derived[0].confidence).toBeCloseTo(0.9 * 0.9, 5);
     expect(out.bindings.length).toBeGreaterThan(0);
@@ -148,7 +188,13 @@ describe("Forward chaining with general (variable) rules", () => {
     await fs.assert(fact0("wet-ground", "causes", "slippery-site"));
     const re = new ReasoningEngine(fs, GENERAL_RULES);
     await re.forwardChain();
-    expect(fs.query({ subject: "rain", predicate: "causes", object: "slippery-site" }).length).toBe(1);
+    expect(
+      fs.query({
+        subject: "rain",
+        predicate: "causes",
+        object: "slippery-site",
+      }).length,
+    ).toBe(1);
   });
 
   it("flags contradictions: a thing cannot be and not-be", async () => {
@@ -157,7 +203,10 @@ describe("Forward chaining with general (variable) rules", () => {
     await fs.assert(fact0("beam-depth", "verified-not", "450mm"));
     const re = new ReasoningEngine(fs, GENERAL_RULES);
     await re.forwardChain();
-    const flagged = fs.query({ subject: "beam-depth", predicate: "contradiction-detected" });
+    const flagged = fs.query({
+      subject: "beam-depth",
+      predicate: "contradiction-detected",
+    });
     expect(flagged.length).toBe(1);
   });
 
@@ -176,7 +225,11 @@ describe("Forward chaining with general (variable) rules", () => {
       {
         id: "bad",
         conditions: [{ subject: "?x", predicate: "is-a" }],
-        produces: { subject: "?y", predicate: "relates-to", object: "?unbound" },
+        produces: {
+          subject: "?y",
+          predicate: "relates-to",
+          object: "?unbound",
+        },
         weight: 0.9,
         description: "illegal: two free vars, no unique capture",
       },
@@ -223,7 +276,10 @@ describe("Backward search with variables (canReach)", () => {
       ...DEFAULT_RULES,
       ...CONSTRUCTION_RULES,
     ]);
-    const r = re.canReach({ subject: "concrete", predicate: "characteristic-strength" });
+    const r = re.canReach({
+      subject: "concrete",
+      predicate: "characteristic-strength",
+    });
     expect(r.holds).toBe(true);
     expect(r.proof).toContain("rule_concrete_mix_ratio");
   });
@@ -232,7 +288,9 @@ describe("Backward search with variables (canReach)", () => {
 describe("Engine integration (P1 substrate active in ARCHIE)", () => {
   it("GENERAL_RULES ship domain-neutral primitives", () => {
     expect(GENERAL_RULES.length).toBe(4);
-    expect(GENERAL_RULES.every((r) => JSON.stringify(r).includes("?x"))).toBe(true);
+    expect(GENERAL_RULES.every((r) => JSON.stringify(r).includes("?x"))).toBe(
+      true,
+    );
     // Audit fix 2026-09-11 (domain-capture removal): the 3
     // construction literals moved VERBATIM to the construction
     // domain skill; DEFAULT_RULES keeps the 2 domain-general
@@ -242,13 +300,15 @@ describe("Engine integration (P1 substrate active in ARCHIE)", () => {
     // are asserted against that composed set.
     expect(DEFAULT_RULES.length).toBe(3);
     const composed = [...DEFAULT_RULES, ...CONSTRUCTION_RULES];
-    const literalIds = composed.filter(
-      (r) => !JSON.stringify(r).includes("?"),
-    ).map((r) => r.id);
+    const literalIds = composed
+      .filter((r) => !JSON.stringify(r).includes("?"))
+      .map((r) => r.id);
+    // Phase 2.4 (numeric unification): rule_screeding_thickness_area
+    // gained object variables ?t/?a plus a `compute` function — it
+    // is no longer a literal rule and derives REAL volumes.
     expect(literalIds).toEqual([
       "rule_project_owner_authorization",
       "rule_concrete_mix_ratio",
-      "rule_screeding_thickness_area",
       "rule_cement_bag_standard",
     ]);
     const general = DEFAULT_RULES.filter((r) =>
