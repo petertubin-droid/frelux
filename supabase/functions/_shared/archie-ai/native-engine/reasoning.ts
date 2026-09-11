@@ -171,8 +171,17 @@ export class ReasoningEngine {
             );
           }
         }
+        // Perf pass 2026-09-11, entry 5: per-condition candidate
+        // narrowing from the store's literal indexes — the
+        // frontier join scans only facts that can match each
+        // condition instead of every fact for every binding.
         const allFacts = this.facts.list();
-        const bindingSets = enumerateBindings(effectiveConditions, allFacts);
+        const bindingSets = enumerateBindings(
+          effectiveConditions,
+          allFacts,
+          200,
+          (c) => this.facts.candidatesFor(c),
+        );
         // A conclusion may never contain an unbound variable:
         // that would fabricate an entity, not derive one. This
         // safety property is stronger than any benchmark case —

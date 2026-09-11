@@ -39,6 +39,41 @@ export function hasVars(pattern: FactPattern): boolean {
 }
 
 /**
+ * A pattern pre-resolved to var/literal positions. Perf pass
+ * 2026-09-11: matchUnder ran a VAR_TOKEN_RE regex on every
+ * position of every candidate fact in the hot loop (~24k
+ * regex execs per forward chain at 200 facts — the chain
+ * profiled at 6.3ms while deriving NOTHING). Rule patterns
+ * are fixed per rule, so each pattern is compiled once and
+ * cached; the hot loop is then Map lookups + string equality.
+ */
+interface CompiledPattern {
+  subjectVar: string | null;
+  subjectLit: string | undefined;
+  predicateVar: string | null;
+  predicateLit: string | undefined;
+  objectVar: string | null;
+  objectLit: unknown;
+}
+
+const compileCache = new WeakMap<FactPattern, CompiledPattern>();
+
+function compile(pattern: FactPattern): CompiledPattern {
+  const hit = compileCache.get(pattern);
+  if (hit) return hit;
+  const c: CompiledPattern = {
+    subjectVar: isVar(pattern.subject) ? pattern.subject : null,
+    subjectLit: isVar(pattern.subject) ? undefined : pattern.subject,
+    predicateVar: isVar(pattern.predicate) ? pattern.predicate : null,
+    predicateLit: isVar(pattern.predicate) ? undefined : pattern.predicate,
+    objectVar: isVar(pattern.object) ? pattern.object : null,
+    objectLit: isVar(pattern.object) ? undefined : pattern.object,
+  };
+  compileCache.set(pattern, c);
+  return c;
+}
+
+/**
  * Match one pattern against one fact under an existing binding.
  * - literal positions must be equal (subject/predicate: exact;
  *   object: JSON equality — the store's own semantics)
@@ -50,35 +85,46 @@ export function matchUnder(
   fact: Fact,
   binding: Binding,
 ): Binding | null {
-  const extended: Binding = new Map(binding);
+  const c = compile(pattern);
 
+  // Perf pass 2026-09-11: verify every position against the
+  // binding BEFORE allocating the extended Map — the chain loop
+  // previously allocated a fresh binding per candidate fact
+  // and discarded it on the first mismatch.
   // subject
-  if (isVar(pattern.subject)) {
-    if (!bindVar(extended, pattern.subject, fact.subject)) return null;
-  } else if (pattern.subject !== undefined && pattern.subject !== fact.subject) {
+  if (c.subjectVar !== null) {
+    const v = binding.get(c.subjectVar);
+    if (v !== undefined && v !== fact.subject) return null;
+  } else if (c.subjectLit !== undefined && c.subjectLit !== fact.subject) {
     return null;
   }
 
   // predicate
-  if (isVar(pattern.predicate)) {
-    if (!bindVar(extended, pattern.predicate, fact.predicate)) return null;
+  if (c.predicateVar !== null) {
+    const v = binding.get(c.predicateVar);
+    if (v !== undefined && v !== fact.predicate) return null;
   } else if (
-    pattern.predicate !== undefined &&
-    pattern.predicate !== fact.predicate
+    c.predicateLit !== undefined &&
+    c.predicateLit !== fact.predicate
   ) {
     return null;
   }
 
   // object (variables only bind on string objects)
-  if (isVar(pattern.object)) {
+  if (c.objectVar !== null) {
     if (typeof fact.object !== "string") return null;
-    if (!bindVar(extended, pattern.object, fact.object)) return null;
-  } else if (pattern.object !== undefined) {
-    if (JSON.stringify(pattern.object) !== JSON.stringify(fact.object)) {
+    const v = binding.get(c.objectVar);
+    if (v !== undefined && v !== fact.object) return null;
+  } else if (c.objectLit !== undefined) {
+    if (JSON.stringify(c.objectLit) !== JSON.stringify(fact.object)) {
       return null;
     }
   }
 
+  const extended: Binding = new Map(binding);
+  if (c.subjectVar !== null) extended.set(c.subjectVar, fact.subject);
+  if (c.predicateVar !== null) extended.set(c.predicateVar, fact.predicate);
+  if (c.objectVar !== null) extended.set(c.objectVar, fact.object as string);
   return extended;
 }
 
@@ -125,14 +171,24 @@ export function enumerateBindings(
   conditions: FactPattern[],
   facts: Fact[],
   cap = 200,
+  /** Perf pass 2026-09-11: optional per-condition candidate
+   *  narrowing. A condition with a literal subject/predicate
+   *  only needs the facts that carry it — the frontier join
+   *  previously scanned EVERY fact for EVERY binding, so a
+   *  two-condition rule over 200 facts cost up to 40,000
+   *  candidate matches even when the second condition's
+   *  literal predicate matched nothing. When no narrowing
+   *  provider is given the behavior is identical to before. */
+  narrow?: (condition: FactPattern) => Fact[],
 ): Array<{ binding: Binding; premiseFacts: Fact[] }> {
   let frontier: Array<{ binding: Binding; premiseFacts: Fact[] }> = [
     { binding: new Map(), premiseFacts: [] },
   ];
   for (const condition of conditions) {
+    const pool = narrow ? narrow(condition) : facts;
     const next: Array<{ binding: Binding; premiseFacts: Fact[] }> = [];
     for (const { binding, premiseFacts } of frontier) {
-      for (const fact of facts) {
+      for (const fact of pool) {
         const extended = matchUnder(condition, fact, binding);
         if (extended) {
           next.push({ binding: extended, premiseFacts: [...premiseFacts, fact] });

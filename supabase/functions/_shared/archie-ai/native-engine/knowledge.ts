@@ -49,16 +49,43 @@ export class FactStore {
   // sites: push (assert), wholesale replaces (hydrate,
   // consolidate).
   private bySubject = new Map<string, Fact[]>();
+  // Perf pass 2026-09-11, entry 5: predicate index for rule
+  // condition narrowing (see candidatesFor below).
+  private byPredicate = new Map<string, Fact[]>();
   private persistence: PersistenceLike | null = null;
 
-  /** Rebuild the subject index from the fact array. */
+  /** Rebuild both indexes from the fact array. */
   private reindex(): void {
     this.bySubject = new Map();
+    this.byPredicate = new Map();
     for (const f of this.facts) {
-      const bucket = this.bySubject.get(f.subject);
-      if (bucket) bucket.push(f);
+      const sb = this.bySubject.get(f.subject);
+      if (sb) sb.push(f);
       else this.bySubject.set(f.subject, [f]);
+      const pb = this.byPredicate.get(f.predicate);
+      if (pb) pb.push(f);
+      else this.byPredicate.set(f.predicate, [f]);
     }
+  }
+
+  /** Candidate facts for a rule condition: the most selective
+   *  literal index bucket, or every fact when the condition is
+   *  fully variable. Used by the forward chainer to avoid the
+   *  frontier × all-facts join blowup. */
+  candidatesFor(condition: FactPattern): Fact[] {
+    if (
+      typeof condition.subject === "string" &&
+      !condition.subject.startsWith("?")
+    ) {
+      return this.bySubject.get(condition.subject) ?? [];
+    }
+    if (
+      typeof condition.predicate === "string" &&
+      !condition.predicate.startsWith("?")
+    ) {
+      return this.byPredicate.get(condition.predicate) ?? [];
+    }
+    return this.list();
   }
 
   constructor(persistence?: PersistenceLike) {
@@ -198,6 +225,9 @@ export class FactStore {
     const bucket = this.bySubject.get(full.subject);
     if (bucket) bucket.push(full);
     else this.bySubject.set(full.subject, [full]);
+    const pbucket = this.byPredicate.get(full.predicate);
+    if (pbucket) pbucket.push(full);
+    else this.byPredicate.set(full.predicate, [full]);
     await this.persistFact(full);
     return { fact: full, conflict };
   }
