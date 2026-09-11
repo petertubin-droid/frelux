@@ -371,50 +371,14 @@ function unifiable(head: FactPattern, goal: FactPattern, binding: Binding): bool
   return true;
 }
 
-/** ARCHIE's starter reasoning rules — construction domain
- *  (ARCHIE's home turf). Extensible by design: future rules
- *  register without redesign. Frozen: the 4 original literals
- *  (benchmark xd-3 measures these as-shipped). */
+/** ARCHIE's starter reasoning rules — the domain-general
+ *  literals (benchmark xd-3 measures these as-shipped). The
+ *  three construction-domain rules moved to the pluggable
+ *  construction skill: native-engine/domains/construction.ts
+ *  (audit fix 2026-09-11, domain-capture removal) — the engine
+ *  composes them through the DomainSkillRegistry, so the
+ *  engine's effective rule set is unchanged. */
 export const DEFAULT_RULES: Rule[] = [
-  {
-    id: "rule_concrete_mix_ratio",
-    conditions: [
-      { subject: "concrete", predicate: "grade" },
-      { subject: "concrete", predicate: "mix-ratio" },
-    ],
-    produces: {
-      subject: "concrete",
-      predicate: "characteristic-strength",
-      object: "determined by its mix ratio",
-    },
-    weight: 0.85,
-    description: "Concrete grade strength follows from its mix ratio",
-  },
-  {
-    id: "rule_screeding_thickness_area",
-    conditions: [
-      { subject: "screed", predicate: "thickness" },
-      { subject: "floor", predicate: "area" },
-    ],
-    produces: {
-      subject: "screed",
-      predicate: "volume",
-      object: "thickness × floor area",
-    },
-    weight: 0.9,
-    description: "Screed volume = thickness × area (geometry)",
-  },
-  {
-    id: "rule_cement_bag_standard",
-    conditions: [{ subject: "cement", predicate: "bag-mass" }],
-    produces: {
-      subject: "cement",
-      predicate: "bag-volume",
-      object: "0.035 m³ (50 kg standard bag)",
-    },
-    weight: 0.95,
-    description: "A 50 kg cement bag has a standard volume of 0.035 m³",
-  },
   {
     id: "rule_part_of_transitivity",
     conditions: [

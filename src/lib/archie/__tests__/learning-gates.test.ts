@@ -70,6 +70,59 @@ describe("learning evidence gates (H1)", () => {
     expect(after.status).toBe("validated");
   });
 
+  it("a confirmation that only GLANCES at stored knowledge strengthens nothing (similarity floor)", async () => {
+    // Audit fix 2026-09-11: "confirm that …" must only
+    // strengthen facts that CLEARLY match the confirmation
+    // (≥2 shared salient tokens). A confirmation about the
+    // weather must never validate a fact about blocks just
+    // because TF-IDF ranked it top-3.
+    const engine = new ArchieNativeEngine();
+    // Seed the fact directly — the test targets the
+    // confirmation gate, not the teaching route. Non-
+    // construction subject so the rule cascade routes the
+    // confirmation (not construction_calc).
+    const { fact } = await engine.store().assert({
+      subject: "grout",
+      predicate: "type",
+      object: "epoxy for wet areas",
+      confidence: 0.5,
+      provenance: { source: "owner-taught" },
+      status: "candidate",
+    });
+    const before = engine.store().get(fact.id)!;
+    const confBefore = before.confidence;
+    const statusBefore = before.status;
+
+    const res = await engine.converse("I confirm that the weather forecast is correct");
+    const after = engine.store().get(fact!.id)!;
+    expect(after.confidence).toBe(confBefore);
+    expect(after.status).toBe(statusBefore);
+    expect((after.verifiedBy ?? []).some((v) => /^owner-confirm:/.test(v))).toBe(
+      false,
+    );
+    expect(res.responseText).toMatch(/closely enough/i);
+  });
+
+  it("a confirmation that NAMES the fact still strengthens it (floor does not over-block)", async () => {
+    const engine = new ArchieNativeEngine();
+    const { fact } = await engine.store().assert({
+      subject: "grout",
+      predicate: "type",
+      object: "epoxy for wet areas",
+      confidence: 0.5,
+      provenance: { source: "owner-taught" },
+      status: "candidate",
+    });
+    const confBefore = engine.store().get(fact.id)!.confidence;
+
+    const res = await engine.converse("I confirm that grout type is epoxy for wet areas");
+    const after = engine.store().get(fact.id)!;
+    expect(after.confidence).toBeGreaterThan(confBefore);
+    expect((after.verifiedBy ?? []).some((v) => /^owner-confirm:/.test(v))).toBe(
+      true,
+    );
+  });
+
   it("gratitude after an answer does NOT promote the cited facts", async () => {
     const engine = new ArchieNativeEngine();
     // Teach a candidate fact first.

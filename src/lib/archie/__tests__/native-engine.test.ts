@@ -21,6 +21,10 @@ import {
   Planner,
 } from "@studio-shared/archie-ai/native-engine/planning.ts";
 import {
+  CONSTRUCTION_RULES,
+  CONSTRUCTION_OPERATORS,
+} from "@studio-shared/archie-ai/native-engine/domains/construction.ts";
+import {
   ToolOrchestrator,
   evaluateExpression,
   registerBuiltInTools,
@@ -262,7 +266,10 @@ describe("Reasoning engine", () => {
 
   it("derives new facts via forward chaining with confidence propagation", async () => {
     const store = await seededStore();
-    const reasoning = new ReasoningEngine(store, DEFAULT_RULES);
+    const reasoning = new ReasoningEngine(store, [
+      ...DEFAULT_RULES,
+      ...CONSTRUCTION_RULES,
+    ]);
     const result = await reasoning.forwardChain();
     const derived = store.query({ subject: "cement", predicate: "bag-volume" });
     expect(derived.length).toBe(1);
@@ -277,7 +284,10 @@ describe("Reasoning engine", () => {
 
   it("backward goal checking reports when a goal is reachable", async () => {
     const store = await seededStore();
-    const reasoning = new ReasoningEngine(store, DEFAULT_RULES);
+    const reasoning = new ReasoningEngine(store, [
+      ...DEFAULT_RULES,
+      ...CONSTRUCTION_RULES,
+    ]);
     const reachable = reasoning.canReach({
       subject: "cement",
       predicate: "bag-volume",
@@ -310,7 +320,10 @@ describe("Planner", () => {
 
   it("produces an executable plan when preconditions hold", async () => {
     const store = await planningStore();
-    const planner = new Planner(store, DEFAULT_OPERATORS);
+    const planner = new Planner(store, [
+      ...DEFAULT_OPERATORS,
+      ...CONSTRUCTION_OPERATORS,
+    ]);
     const plan = planner.plan("planned");
     expect(plan.executable).toBe(true);
     expect(plan.steps.length).toBeGreaterThan(0);

@@ -34,6 +34,41 @@ describe("clause decomposition (P2 / N2)", () => {
     expect(clauses[0].negated).toBe(false);
   });
 
+  it("recovers subsequent REQUESTS from inside a negated tail (audit fix 2026-09-11)", () => {
+    // The canonical audit sentence: the "but don't" tail carries
+    // two further requests. The old whole-tail-as-exclusion
+    // reading silently dropped them as exclusions.
+    const clauses = decomposeClauses(
+      "Estimate paint for a 12 by 12 room, but don't include the ceiling, compare emulsion with satin paint, then plan the purchase",
+    );
+    expect(clauses).toHaveLength(4);
+    expect(clauses[0]).toEqual({
+      text: "Estimate paint for a 12 by 12 room",
+      negated: false,
+    });
+    expect(clauses[1]).toEqual({ text: "include the ceiling", negated: true });
+    expect(clauses[2]).toEqual({
+      text: "compare emulsion with satin paint",
+      negated: false,
+    });
+    expect(clauses[3]).toEqual({
+      text: "plan the purchase",
+      negated: false,
+    });
+  });
+
+  it("a tail fragment WITHOUT an intent-verb lead stays a constraint (conservative recovery)", () => {
+    const clauses = decomposeClauses(
+      "tell me about screeding but don't mention prices, discounts or fees",
+    );
+    // "discounts or fees" is a noun continuation, not a
+    // request — it may be split off as its own fragment, but
+    // it must NEVER be answered as its own clause: every tail
+    // fragment stays negated.
+    for (const c of clauses.slice(1)) expect(c.negated).toBe(true);
+    expect(clauses.length).toBeGreaterThanOrEqual(2);
+  });
+
   it("does NOT decompose code blocks — a ';' inside pasted source is data, not a clause marker", () => {
     const clauses = decomposeClauses(
       "analyze this file\n```ts\nexport function add(a: number, b: number) {\n  return a + b;\n}\n```\n",

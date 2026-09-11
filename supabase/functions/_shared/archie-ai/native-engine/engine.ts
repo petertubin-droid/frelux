@@ -70,9 +70,24 @@ import {
   extractComparisonSubjects,
 } from "./strategies.ts";
 import { DEFAULT_OPERATORS, Planner } from "./planning.ts";
+import {
+  DomainSkillRegistry,
+  type DomainSkill,
+} from "./domains/registry.ts";
+import {
+  constructionSkill,
+  constructionEstimate,
+} from "./domains/construction.ts";
+
+// API compatibility: the deterministic construction calculator
+// moved to the construction domain skill (audit fix
+// 2026-09-11, domain-capture removal). Re-exported so
+// existing importers are unaffected.
+export { constructionEstimate };
 import { ToolOrchestrator, registerBuiltInTools } from "./tools.ts";
 import {
   ResearchPipeline,
+  salientTokens,
   type ResearchAdapter,
   DuckDuckGoLiteAdapter,
 } from "./webresearch.ts";
@@ -227,6 +242,8 @@ export class ArchieNativeEngine implements ArchieRuntime {
   private selfEval = new SelfEvaluator();
   private learner: OutcomeLearner;
   private research: ResearchPipeline;
+  /** Pluggable domain skills (audit fix 2026-09-11). */
+  private domains: DomainSkillRegistry;
   private adapter: ResearchAdapter;
   private marketPriceLookup: MarketPriceLookup | null;
   private systemAdapters: SystemAdapters;
@@ -286,15 +303,26 @@ export class ArchieNativeEngine implements ArchieRuntime {
       : null;
     this.adapter = options?.researchAdapter ?? new DuckDuckGoLiteAdapter();
     this.facts = new FactStore(this.persistence ?? undefined);
-    // Domain-neutral reasoning substrate first, construction
-    // domain rules after — the engine reasons generally
-    // (owner directive 2026-09-10 §16), with domain knowledge
-    // additive, never structural.
+    // Domain-skill registry (audit fix 2026-09-11, domain-
+    // capture removal): construction knowledge — calculator,
+    // rules, operator — is a pluggable skill, not engine
+    // structure. The engine stays domain-neutral; the
+    // registered skills compose the effective rule and
+    // operator sets, so shipped behavior is unchanged.
+    this.domains = new DomainSkillRegistry();
+    registerBuiltInDomainSkills(this.domains);
+    // Domain-general reasoning substrate first, domain rules
+    // after (owner directive 2026-09-10 §16): domain knowledge
+    // is additive, never structural.
     this.reasoning = new ReasoningEngine(this.facts, [
       ...GENERAL_RULES,
       ...DEFAULT_RULES,
+      ...this.domains.rules(),
     ]);
-    this.planner = new Planner(this.facts, DEFAULT_OPERATORS);
+    this.planner = new Planner(this.facts, [
+      ...DEFAULT_OPERATORS,
+      ...this.domains.operators(),
+    ]);
     this.learner = new OutcomeLearner(
       this.facts,
       this.persistence ?? undefined,
@@ -1321,7 +1349,34 @@ export class ArchieNativeEngine implements ArchieRuntime {
         // path weakened it, which punished owners for
         // confirming ARCHIE.
         if (EXPLICIT_CONFIRM.test(input)) {
-          const confirmed = rankFacts(input, this.facts.list(), 3);
+          // Audit fix 2026-09-11 (confirmation targeting): the
+          // old path stamped owner-confirm on the top-3
+          // TF-IDF matches REGARDLESS of fit — a confirmation
+          // that merely mentioned a neighbouring topic could
+          // silently validate unrelated facts. A fact is only
+          // strengthened when it clearly matches what the
+          // owner confirmed: at least 2 shared salient tokens
+          // with the confirmation text. Below the floor the
+          // outcome is recorded as acknowledged — engagement,
+          // NOT verification evidence — and nothing is
+          // reinforced (audit C3/H1 gates).
+          const queryTokens = salientTokens(input);
+          // Hyphenated subject/object ("market-sand") must
+          // tokenize the same way as the owner's phrasing
+          // ("market sand") — normalize every component.
+          const factTokens = (f: Fact) =>
+            salientTokens(
+              `${f.subject.replace(/-/g, " ")} ${f.predicate.replace(/-/g, " ")} ${String(f.object).replace(/-/g, " ")}`,
+            );
+          const confirmed = rankFacts(input, this.facts.list(), 3).filter(
+            (f) => {
+              const ft = factTokens(f);
+              if (ft.size === 0) return false;
+              let shared = 0;
+              for (const t of queryTokens) if (ft.has(t)) shared += 1;
+              return shared >= 2;
+            },
+          );
           if (confirmed.length > 0) {
             await this.learner.record({
               kind: "success",
@@ -1334,8 +1389,16 @@ export class ArchieNativeEngine implements ArchieRuntime {
               confirmed.map((f) => f.id),
             );
           }
+          // No fact matched the confirmation closely enough —
+          // record it as acknowledged (audit trail, zero
+          // reinforcement) and say so honestly.
+          await this.learner.record({
+            kind: "acknowledged",
+            task: `owner confirmation below similarity floor: ${input.slice(0, 80)}`,
+            contributing: [],
+          });
           return this.compose(
-            "Noted as a confirmation, but I hold no related knowledge to strengthen. Teach me the fact first, then confirm it after I answer.",
+            "Noted as a confirmation — but nothing in my stored knowledge matches it closely enough for me to strengthen honestly. I only reinforce facts that clearly match what you confirmed. Teach me the fact first, then confirm it after I answer.",
             nlu.confidence,
             [],
           );
@@ -1637,7 +1700,18 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
 
       case "construction_calc": {
-        return this.compose(constructionEstimate(input), nlu.confidence, []);
+        // Domain skills are pluggable (audit fix 2026-09-11):
+        // an unregistered skill is answered honestly, never
+        // fabricated.
+        const domainHandler = this.domains.handlerFor("construction_calc");
+        if (!domainHandler) {
+          return this.compose(
+            "That capability is not installed on this engine — I will not fabricate a construction estimate. " + this.statusLine(),
+            nlu.confidence,
+            [],
+          );
+        }
+        return this.compose(domainHandler(input), nlu.confidence, []);
       }
 
       default: {
@@ -1841,83 +1915,6 @@ const SYSTEM_ADAPTER_LABELS: Record<SystemAdapterKey, string> = {
 // needed. Standard Nigerian construction constants.
 // ---------------------------------------------------------
 
-/** Parse decimal numbers from free text. */
-function parseNumbers(input: string): number[] {
-  return (input.match(/\d+(?:\.\d+)?/g) ?? []).map(Number);
-}
-
-/** Feet→meters when the query is in imperial units. */
-const isFeet = (input: string): boolean =>
-  /\b(?:feet|foot|ft\b|ft\.|['’])/i.test(input);
-
-const FT_TO_M = 0.3048;
-/** Effective face area of a standard 450x225mm block including
- *  a 10mm mortar joint: 0.46 x 0.235 = 0.1081 m2. */
-const BLOCK_FACE_M2 = 0.1081;
-/** Smooth-plaster paint coverage per litre per coat. */
-const PAINT_M2_PER_LITRE = 10;
-/** 1:2:4 concrete: dry volume factor, mix sum, cement density. */
-const DRY_VOLUME_FACTOR = 1.54;
-const MIX_SUM = 7;
-const CEMENT_KG_PER_M3 = 1440;
-const CEMENT_KG_PER_BAG = 50;
-
-/** Deterministic construction estimate with honest assumptions.
- *  Returns the fully-composed answer string. */
-export function constructionEstimate(input: string): string {
-  const nums = parseNumbers(input);
-  const feet = isFeet(input);
-  const meters = nums.map((n) => (feet ? n * FT_TO_M : n));
-
-  const wantsBlocks = /\b(?:blocks?|bricks?)\b/i.test(input);
-  const wantsPaint = /\bpaint\b/i.test(input);
-  const wantsCement = /\bcement\b/i.test(input) && !wantsBlocks && !wantsPaint;
-
-  if (wantsBlocks) {
-    if (meters.length < 2) {
-      return `To estimate blocks I need the wall length and height — for example "how many blocks for a 6 by 3 meter wall". I will not guess dimensions.`;
-    }
-    const [l, h] = meters;
-    const area = l * h;
-    const base = area / BLOCK_FACE_M2;
-    const withWaste = Math.ceil(base * 1.05);
-    return (
-      `For a ${feet ? `${nums[0]} ft x ${nums[1]} ft` : `${nums[0]} x ${nums[1]} m`} wall (${area.toFixed(2)} m2): approximately ${withWaste} blocks. ` +
-      `Assumptions: standard 450x225mm block with 10mm mortar joints (0.1081 m2 face), plus 5% breakage/waste allowance. This is a deterministic estimate — verify on site before ordering.`
-    );
-  }
-
-  if (wantsPaint) {
-    if (meters.length < 1) {
-      return `To estimate paint I need the surface area — for example "how much paint for a 4 by 5 meter wall". I will not guess dimensions.`;
-    }
-    const area = meters.length >= 2 ? meters[0] * meters[1] : meters[0];
-    const litres = Math.ceil((area / PAINT_M2_PER_LITRE) * 2);
-    return (
-      `For ${area.toFixed(2)} m2 of surface: approximately ${litres} litres for two coats. ` +
-      `Assumptions: smooth plaster at ~10 m2 per litre per coat, 2 coats. Rough or textured surfaces need more — this is a deterministic estimate, not a guess.`
-    );
-  }
-
-  if (wantsCement) {
-    if (meters.length < 1) {
-      return `To estimate cement I need the concrete volume — for example "how many bags of cement for 2 cubic meters of concrete". I will not guess volumes.`;
-    }
-    const volume = meters[0];
-    const bags = Math.ceil(
-      ((volume * DRY_VOLUME_FACTOR) / MIX_SUM) *
-        (CEMENT_KG_PER_M3 / CEMENT_KG_PER_BAG) *
-        1.05,
-    );
-    return (
-      `For ${volume} cubic meter(s) of concrete: approximately ${bags} x 50kg bags of cement. ` +
-      `Assumptions: 1:2:4 mix (dry volume factor 1.54, cement at 1440 kg/m3), plus 5% waste. This is a deterministic estimate — verify with your engineer for structural work.`
-    );
-  }
-
-  return `I can calculate three construction estimates deterministically: blocks for a wall ("how many blocks for a 6 by 3 meter wall"), paint for an area ("how much paint for 20 square meters"), and cement bags for a concrete volume ("how many bags of cement for 2 cubic meters"). Give me the numbers and I will compute — never guess.`;
-}
-
 /** Extract the product noun-phrase from a price query.
  *  Deterministic: strips interrogative/price filler words and
  *  keeps the material words for the lookup adapter. */
@@ -2086,4 +2083,11 @@ function retrieveFromSystemInstruction(
   // Honest provenance + brevity for chat surfaces.
   const body = best.text.split("\n").slice(0, 4).join(" ").slice(0, 600);
   return body;
+}
+
+/** Register the built-in domain skills. Construction ships by
+ *  default (ARCHIE's home turf); future domains register here
+ *  without touching the engine core. */
+function registerBuiltInDomainSkills(registry: DomainSkillRegistry): void {
+  registry.register(constructionSkill);
 }

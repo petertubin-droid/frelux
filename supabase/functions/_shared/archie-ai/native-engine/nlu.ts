@@ -773,11 +773,48 @@ export function decomposeClauses(rawInput: string): DecomposedClause[] {
     clauses.push({ text, negated });
   }
   if (negatedTail) {
-    const text = unmask(negatedTail)
-      .replace(negation, "")
-      .replace(negation, "")
-      .trim();
-    if (text.length > 0) clauses.push({ text, negated: true });
+    // Sub-clause recovery inside the negated tail (audit fix
+    // 2026-09-11, compound-decomposition defect): the tail is
+    // a CONSTRAINT on the request, but owners keep talking
+    // after it — "…but don't include the ceiling, compare
+    // emulsion with satin paint, then plan the purchase"
+    // carries two further REQUESTS inside the tail. Reading
+    // the whole tail as one exclusion silently drops them
+    // (meaning loss — the exact case the audit probe caught).
+    // Tail fragments are therefore classified deterministically:
+    //   * a fragment led by a negation marker stays a constraint;
+    //   * a fragment that is itself an imperative/interrogative
+    //     request (intent-continuation verb) is recovered as a
+    //     POSITIVE clause;
+    //   * anything else stays a constraint (conservative: an
+    //     ambiguous fragment is excluded, never fabricated
+    //     into an answered request).
+    // Commas separate tail fragments too (they do NOT in the
+    // head — noun lists there must stay whole).
+    const tailSplit = new RegExp(
+      "\\s*(?:,|;|,?\\s+then\\b|\\s+after\\s+that\\b|\\s+also\\b|,\\s+and\\s+|\\s+and\\s+(?=" +
+        INTENT_CONTINUATION +
+        "\\b))",
+      "i",
+    );
+    const intentLed = new RegExp(
+      "^\\s*(?:please\\s+)?(?:" + INTENT_CONTINUATION + ")\\b",
+      "i",
+    );
+    for (const part of negatedTail.split(tailSplit)) {
+      const negatedFrag =
+        leadingNegation.test(part) || !intentLed.test(part);
+      let text = unmask(part).trim().replace(/^[,;\s]+|[,;\s]+$/g, "");
+      if (negatedFrag) {
+        text = text
+          .replace(leadingNegation, "")
+          .replace(negation, "")
+          .replace(negation, "")
+          .replace(/\s+/g, " ")
+          .trim();
+      }
+      if (text.length > 0) clauses.push({ text, negated: negatedFrag });
+    }
   }
   return clauses;
 }

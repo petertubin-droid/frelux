@@ -152,7 +152,9 @@ function registrable(host: string): string {
     : labels.slice(-2).join(".");
 }
 
-function salientTokens(text: string): Set<string> {
+/** Salient (stopword-stripped) token set — shared with the
+ *  engine for confirmation-target matching. */
+export function salientTokens(text: string): Set<string> {
   const stop = new Set([
     "the",
     "and",

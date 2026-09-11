@@ -67,14 +67,6 @@ export const DEFAULT_OPERATORS: Operator[] = [
     cost: 2,
   },
   {
-    id: "op_plan_project_phases",
-    description: "Decompose a construction project into phased tasks",
-    achieves: { subject: "project", predicate: "planned" },
-    preconditions: [{ subject: "project", predicate: "scope-defined" }],
-    effects: [],
-    cost: 3,
-  },
-  {
     id: "op_propose_owner_action",
     description:
       "Compose a proposal for owner authorization (never auto-executes)",
@@ -115,7 +107,7 @@ export class Planner {
         return false;
       }
       const candidates = this.operators
-        .filter((op) => matchesAchieves(op, pattern))
+        .filter((op) => matchesAchieves(op, pattern) || effectsMatch(op, pattern))
         .sort((a, b) => a.cost - b.cost);
       if (candidates.length === 0) {
         gapReport.push(
@@ -135,6 +127,18 @@ export class Planner {
             missingPreconditions: [],
           });
           resolved.add(patternLabel(pattern));
+          // Audit fix 2026-09-11 (planner effect chaining):
+          // a selected operator's EFFECTS are planned
+          // achievements — later preconditions in this same
+          // plan may be satisfied by them. This is simulated
+          // progress, NEVER a store write: `resolved` is a
+          // per-plan set of pattern labels, and a genuinely
+          // underivable precondition (no fact, no producing
+          // operator) still lands in gapReport and fails the
+          // plan honestly.
+          for (const e of op.effects) {
+            resolved.add(patternLabel(e));
+          }
           return true;
         }
       }
@@ -211,4 +215,18 @@ function matchesAchieves(op: Operator, pattern: FactPattern): boolean {
     return false;
   }
   return true;
+}
+
+/** Does an operator's EFFECT produce this missing pattern?
+ *  Means-ends selection: a missing precondition can be met
+ *  either by an operator that ACHIEVES it directly or by one
+ *  whose declared effect produces it as a side effect. */
+function effectsMatch(op: Operator, pattern: FactPattern): boolean {
+  return op.effects.some(
+    (e) =>
+      e.subject !== undefined &&
+      (pattern.subject === undefined || pattern.subject === e.subject) &&
+      pattern.predicate !== undefined &&
+      e.predicate === pattern.predicate,
+  );
 }

@@ -19,6 +19,9 @@ import { describe, expect, it } from "vitest";
 // =========================================================
 
 import { Planner, DEFAULT_OPERATORS } from "@studio-shared/archie-ai/native-engine/planning.ts";
+import {
+  CONSTRUCTION_OPERATORS,
+} from "@studio-shared/archie-ai/native-engine/domains/construction.ts";
 import { FactStore } from "@studio-shared/archie-ai/native-engine/knowledge.ts";
 
 async function storeWith(...facts: Array<[string, string, string]>) {
@@ -136,7 +139,13 @@ describe("plan alternatives and risk", () => {
 
   it("a stored-capability-only plan is low-risk", async () => {
     const store = await storeWith(["project", "scope-defined", "yes"]);
-    const planner = new Planner(store, DEFAULT_OPERATORS);
+    // "planned" is achieved by the construction domain operator
+    // — the engine composes it through the skill registry; this
+    // test composes the same way (audit fix 2026-09-11).
+    const planner = new Planner(store, [
+      ...DEFAULT_OPERATORS,
+      ...CONSTRUCTION_OPERATORS,
+    ]);
     const plan = planner.plan("planned");
     expect(plan.executable).toBe(true);
     expect(plan.risk.level).toBe("low");
@@ -144,20 +153,38 @@ describe("plan alternatives and risk", () => {
 });
 
 describe("planning honesty invariants", () => {
-  it("step effects are NOT simulated — a later precondition still needs real facts", async () => {
-    // op_teach_from_owner EFFECT "knowledge available" — but
-    // planning must not apply effects to the store. Asking for
-    // the "answered" goal with NOTHING in the store must not
-    // become executable just because an operator in the chain
-    // has the right effect.
+  it("effects are PLANNED achievements, never store writes — an underivable precondition still fails the plan", () => {
+    // Audit fix 2026-09-11: operator effects now chain WITHIN a
+    // plan (see the effect-chaining test below), but the chain
+    // still ends at facts. Asking for the "answered" goal with
+    // NOTHING in the store: op_answer needs "knowledge
+    // available" (producible by op_teach's effect), but
+    // op_teach itself needs "owner available" — no fact, no
+    // producing operator — so the plan must still fail and the
+    // gap must still be reported. Simulated progress never
+    // papers over a genuinely missing prerequisite.
     const store = new FactStore();
     const planner = new Planner(store, DEFAULT_OPERATORS);
     const plan = planner.plan("answered");
-    // knowledge available is not in the store; resolve() tries
-    // op_teach (needs owner available — also absent) then fails.
-    // NOTE: if effects WERE simulated, this plan would falsely
-    // become executable. Honest planner: gap reported.
+    expect(plan.executable).toBe(false);
     expect(plan.gapReport.join(" ")).toMatch(/owner available|missing/);
+  });
+
+  it("effect chaining: a plan may derive a precondition from an earlier step's effect", async () => {
+    // With "owner available" as a real stored fact, the chain
+    // goal "answered" → op_answer needs "knowledge available"
+    // → op_teach's effect produces it → op_teach needs "owner
+    // available" (stored) becomes EXECUTABLE with the steps in
+    // dependency order.
+    const store = await storeWith(["owner", "available", "yes"]);
+    const planner = new Planner(store, DEFAULT_OPERATORS);
+    const plan = planner.plan("answered");
+    expect(plan.executable).toBe(true);
+    expect(plan.steps.map((s) => s.operatorId)).toEqual([
+      "op_teach_from_owner",
+      "op_answer_from_knowledge",
+    ]);
+    expect(plan.gapReport).toEqual([]);
   });
 
   it("operatorCount reflects the registered library", () => {

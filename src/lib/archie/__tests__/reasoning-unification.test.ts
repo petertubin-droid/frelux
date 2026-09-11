@@ -5,6 +5,7 @@ import {
   DEFAULT_RULES,
   GENERAL_RULES,
 } from "@studio-shared/archie-ai/native-engine/reasoning.ts";
+import { CONSTRUCTION_RULES } from "@studio-shared/archie-ai/native-engine/domains/construction.ts";
 import {
   matchUnder,
   substitute,
@@ -218,7 +219,10 @@ describe("Backward search with variables (canReach)", () => {
     const fs = new FactStore();
     await fs.assert(fact0("concrete", "grade", "M20"));
     await fs.assert(fact0("concrete", "mix-ratio", "1:2:4"));
-    const re = new ReasoningEngine(fs, DEFAULT_RULES);
+    const re = new ReasoningEngine(fs, [
+      ...DEFAULT_RULES,
+      ...CONSTRUCTION_RULES,
+    ]);
     const r = re.canReach({ subject: "concrete", predicate: "characteristic-strength" });
     expect(r.holds).toBe(true);
     expect(r.proof).toContain("rule_concrete_mix_ratio");
@@ -229,19 +233,23 @@ describe("Engine integration (P1 substrate active in ARCHIE)", () => {
   it("GENERAL_RULES ship domain-neutral primitives", () => {
     expect(GENERAL_RULES.length).toBe(4);
     expect(GENERAL_RULES.every((r) => JSON.stringify(r).includes("?x"))).toBe(true);
-    // DEFAULT_RULES: the 4 original construction literals are
-    // frozen and unchanged; the engine now also ships 2
-    // domain-general variable primitives (xd-3) whose
-    // conclusions are FULLY BOUND by their conditions.
-    expect(DEFAULT_RULES.length).toBe(6);
-    const literalIds = DEFAULT_RULES.filter(
+    // Audit fix 2026-09-11 (domain-capture removal): the 3
+    // construction literals moved VERBATIM to the construction
+    // domain skill; DEFAULT_RULES keeps the 2 domain-general
+    // variable primitives (xd-3) plus the owner-authorization
+    // literal. The engine composes DEFAULT_RULES + skill rules
+    // — the effective rule set is unchanged; the literal ids
+    // are asserted against that composed set.
+    expect(DEFAULT_RULES.length).toBe(3);
+    const composed = [...DEFAULT_RULES, ...CONSTRUCTION_RULES];
+    const literalIds = composed.filter(
       (r) => !JSON.stringify(r).includes("?"),
     ).map((r) => r.id);
     expect(literalIds).toEqual([
+      "rule_project_owner_authorization",
       "rule_concrete_mix_ratio",
       "rule_screeding_thickness_area",
       "rule_cement_bag_standard",
-      "rule_project_owner_authorization",
     ]);
     const general = DEFAULT_RULES.filter((r) =>
       JSON.stringify(r).includes("?"),

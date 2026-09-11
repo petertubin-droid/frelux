@@ -703,13 +703,13 @@ export class CognitiveKernel implements ArchieRuntime {
       confidence: core.confidence,
       createdAt: new Date().toISOString(),
     };
-    await timed(
-      "REMEMBER",
-      routePhases,
-      () => this.tracePersistence.saveTrace(trace),
-      "no persistence configured",
-      () => `durable trace saved: ${phases.length} phase record(s), cycle ${cycleId}`,
-    );
+    // REMEMBER moved to cycle close (audit fix 2026-09-11:
+    // trace dedupe — the loop used to write the durable trace
+    // twice, once mid-cycle and once after REPEAT; saveTrace
+    // is an upsert on cycleId so this doubled write volume for
+    // zero fidelity gain). The single write now happens after
+    // the final phase sort below, wrapped in its own honest
+    // REMEMBER phase record.
 
     // ── IMPROVE (proposals only — owner-gated by design) ──
     const proposals: ImprovementProposal[] = [];
@@ -772,13 +772,40 @@ export class CognitiveKernel implements ArchieRuntime {
       organs: ["healing", "sleep"],
     });
     // Canonicalize the complete traversal (trace.phases IS
-    // phases — the mutation is reflected everywhere) and
-    // refresh the durable trace so the persisted row captures
-    // the full loop, REMEMBER/IMPROVE/REPEAT included.
+    // phases — the mutation is reflected everywhere), then the
+    // SINGLE durable write at cycle close. The REMEMBER record
+    // is pushed around the real write so its duration is
+    // measured, then the array is re-sorted to the canonical
+    // loop order. (A saved trace can never contain its own
+    // REMEMBER record — the row persists every other phase of
+    // the loop; the returned trace carries all of them.)
     phases.sort(
       (a, b) => LOOP_PHASES.indexOf(a.phase) - LOOP_PHASES.indexOf(b.phase),
     );
-    await this.tracePersistence.saveTrace(trace);
+    if (routePhases.has("REMEMBER")) {
+      const rememberStarted = Date.now();
+      const remembered = await this.tracePersistence.saveTrace(trace);
+      phases.push({
+        phase: "REMEMBER",
+        organs: ORGAN_PHASE_BINDINGS["REMEMBER"] ?? [],
+        status: "executed",
+        summary: remembered
+          ? `durable trace saved: ${phases.length} phase record(s), cycle ${cycleId}`
+          : "persistence unavailable — trace returned but not stored",
+        durationMs: Date.now() - rememberStarted,
+      });
+    } else {
+      phases.push({
+        phase: "REMEMBER",
+        organs: ORGAN_PHASE_BINDINGS["REMEMBER"] ?? [],
+        status: "skipped",
+        summary: "no persistence configured",
+        durationMs: 0,
+      });
+    }
+    phases.sort(
+      (a, b) => LOOP_PHASES.indexOf(a.phase) - LOOP_PHASES.indexOf(b.phase),
+    );
 
     return {
       responseText,

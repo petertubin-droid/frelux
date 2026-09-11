@@ -21,13 +21,18 @@ import {
   DEFAULT_RULES,
   ReasoningEngine,
 } from "@studio-shared/archie-ai/native-engine/reasoning.ts";
+import {
+  CONSTRUCTION_RULES,
+} from "@studio-shared/archie-ai/native-engine/domains/construction.ts";
 import { ArchieNativeEngine } from "@studio-shared/archie-ai/native-engine/engine.ts";
 import {
   composerSelfCheck,
   includesDerived,
 } from "@studio-shared/archie-ai/native-engine/composer.ts";
 
-/** bag-mass premise + the DEFAULT_RULES bag-volume rule. */
+/** bag-mass premise + the construction bag-volume rule (the
+ *  engine composes DEFAULT_RULES + domain skill rules; these
+ *  tests compose them the same way — audit fix 2026-09-11). */
 async function seededStore() {
   const store = new FactStore();
   await store.assert({
@@ -44,7 +49,7 @@ async function seededStore() {
 describe("P8 derived-vs-taught separation", () => {
   it("derived facts are stored as derived — never auto-validated, even at high confidence", async () => {
     const store = await seededStore();
-    const reasoning = new ReasoningEngine(store, DEFAULT_RULES);
+    const reasoning = new ReasoningEngine(store, [...DEFAULT_RULES, ...CONSTRUCTION_RULES]);
     await reasoning.forwardChain();
     const derived = store.query({ subject: "cement", predicate: "bag-volume" });
     expect(derived.length).toBe(1);
@@ -58,7 +63,7 @@ describe("P8 derived-vs-taught separation", () => {
 
   it("re-derivation is idempotent: reinforced, never duplicated, never promoted by repetition", async () => {
     const store = await seededStore();
-    const reasoning = new ReasoningEngine(store, DEFAULT_RULES);
+    const reasoning = new ReasoningEngine(store, [...DEFAULT_RULES, ...CONSTRUCTION_RULES]);
     await reasoning.forwardChain();
     const first = store.query({ subject: "cement", predicate: "bag-volume" })[0];
     const countAfterFirst = store.count();
@@ -76,7 +81,7 @@ describe("P8 derived-vs-taught separation", () => {
 
   it("owner contradiction parks the DERIVED fact — owner wins (derive first)", async () => {
     const store = await seededStore();
-    const reasoning = new ReasoningEngine(store, DEFAULT_RULES);
+    const reasoning = new ReasoningEngine(store, [...DEFAULT_RULES, ...CONSTRUCTION_RULES]);
     await reasoning.forwardChain();
     const derived = store.query({ subject: "cement", predicate: "bag-volume" })[0];
 
@@ -111,7 +116,7 @@ describe("P8 derived-vs-taught separation", () => {
       provenance: { source: "owner-taught" },
       status: "validated",
     });
-    const reasoning = new ReasoningEngine(store, DEFAULT_RULES);
+    const reasoning = new ReasoningEngine(store, [...DEFAULT_RULES, ...CONSTRUCTION_RULES]);
     await reasoning.forwardChain();
     // the rule derived the standard 0.035 m³ — contradicts the owner
     const ruleDerived = store
@@ -151,7 +156,7 @@ describe("P8 derived-vs-taught separation", () => {
 
   it("promotion out of derived requires REAL verification events (P3 gates)", async () => {
     const store = await seededStore();
-    const reasoning = new ReasoningEngine(store, DEFAULT_RULES);
+    const reasoning = new ReasoningEngine(store, [...DEFAULT_RULES, ...CONSTRUCTION_RULES]);
     await reasoning.forwardChain();
     const derived = store.query({ subject: "cement", predicate: "bag-volume" })[0];
 
