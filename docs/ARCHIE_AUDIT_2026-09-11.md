@@ -153,9 +153,36 @@ is this repo's own ad-hoc numbering, not the canonical plan):
   `3b406f7`.
 - **Phase 2** (close the capability gaps, 1-2 weeks):
   1. ✅ Read-bearing world model — done, this file's I-1 section above.
-  2. ⬜ Real web research — fetch actual source pages behind DDG hits
-     (robots.txt checks, timeouts, content extraction), raise the
-     cross-checked confidence cap accordingly.
+  2. ✅ Real web research — done 2026-09-11 (three layers):
+     (a) PAGE DEEPENING: the top hits are fetched for real —
+     robots.txt parsed for User-agent: * with longest-prefix
+     Allow/Disallow semantics (cached per origin, dead
+     endpoints permissive-but-reported), hard AbortController
+     timeouts, content-length + read caps (oversized bodies
+     declined, never buffered), readable-text extraction
+     (script/style/nav/chrome stripped, entities decoded,
+     4000-char cap, 80-char floor — thin pages reported
+     unusable, never faked). page-fetch.ts + tests.
+     (b) CONFIDENCE RAISE: salient-token agreement between
+     ≥2 independent domains' fetched PAGE CONTENTS
+     (contentCrossChecked) raises the candidate cap 0.45 →
+     0.6 — still candidate knowledge, never validated;
+     provenance distinguishes "page content FETCHED (deep
+     evidence)" from "snippet only".
+     (c) EDGE REALITY (live-verified): DDG Lite serves a 202
+     anomaly challenge page to Supabase datacenter IPs — every
+     edge search was honestly failing. Fixed with an honest
+     composite: 202/anomaly responses are classified as a
+     client REFUSAL (not drift), a shared isSearchFailureNote()
+     keeps refused/declined searches out of sourcesSearched,
+     and MultiSearchAdapter falls through to the edge-reliable
+     Wikipedia MediaWiki API (documented, keyless,
+     robots-friendly machine interface) — site-scoped queries
+     are DECLINED honestly by that adapter, never faked as
+     empty searches. Live smoke (archie-chat v28): research
+     now returns real sourced findings from the edge with all
+     refusals visible in the report. Engine stays provider-
+     independent.
   3. ✅ Anaphora resolution — done, see L.5 below.
   4. ✅ Numeric unification — object variables bind NUMBER fact objects
      (and numeric strings parse deterministically); "shape" patterns
