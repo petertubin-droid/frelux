@@ -52,7 +52,11 @@ export const GENESIS_HASH = "0".repeat(64);
 
 export class SecurityIntegrityEngine {
   private chain: AuditEvent[] = [];
+  /** Tampered/damaged chain preserved for diagnostics —
+   *  never re-appended to, never silently discarded. */
+  private quarantinedChain: AuditEvent[] = [];
   private persistence: CognitivePersistence;
+  private dbRef: SupabaseLike | null;
   private seqCounter = 0;
   private lastHash = GENESIS_HASH;
   private hydrated = false;
@@ -60,6 +64,7 @@ export class SecurityIntegrityEngine {
 
   constructor(db?: SupabaseLike) {
     this.persistence = new CognitivePersistence(db);
+    this.dbRef = db ?? null;
   }
 
   /** Load the persisted chain and verify its integrity. */
@@ -77,9 +82,14 @@ export class SecurityIntegrityEngine {
       this.chain = valid ? stored : [];
       this.seqCounter = valid ? stored[stored.length - 1].seq : 0;
       this.lastHash = valid ? stored[stored.length - 1].hash : GENESIS_HASH;
-      // A broken chain is preserved but quarantined: new
-      // events continue from a fresh genesis and the failure
-      // is reported (never silently ignored).
+      if (!valid) {
+        // TAMPER RESPONSE (audit fix K-1): a broken chain is
+        // quarantined for diagnostics, an owner-visible
+        // security event is recorded, and new events continue
+        // from a fresh genesis. Never silently discarded.
+        this.quarantinedChain = stored;
+        await this.recordChainCompromise(stored.length);
+      }
       return { events: stored.length, chainValid: valid };
     }
     return { events: 0, chainValid: true };
@@ -129,16 +139,44 @@ export class SecurityIntegrityEngine {
     return true;
   }
 
+  /** The quarantined (tampered/damaged) chain, if hydrate
+   *  found one — for owner diagnostics. Read-only. */
+  quarantined(): AuditEvent[] {
+    return [...this.quarantinedChain];
+  }
+
+  /** Persist an owner-visible compromise event. Best effort:
+   *  recording must never break the boot path. */
+  private async recordChainCompromise(events: number): Promise<void> {
+    if (!this.dbRef) return;
+    try {
+      await this.dbRef.from("frelux_security_events").insert({
+        event_type: "audit_chain_compromised",
+        severity: "critical",
+        message:
+          `ARCHIE audit chain failed integrity verification on hydrate: ` +
+          `${events} event(s) quarantined, new events continue from genesis. ` +
+          `Inspect the quarantined chain via ARCHIE diagnostics.`,
+      });
+    } catch {
+      /* recording is best-effort; the chainValid:false flag
+       * already surfaces the compromise in diagnostics. */
+    }
+  }
+
   /** Current integrity state — surfaced in diagnostics. */
   integrity(): {
     events: number;
     chainValid: boolean;
     persistenceHealthy: boolean;
+    /** Quarantined events from a compromised hydrate. */
+    quarantinedEvents: number;
   } {
     return {
       events: this.chain.length,
       chainValid: this.verifyChain(this.chain),
       persistenceHealthy: this.persistenceHealthy,
+      quarantinedEvents: this.quarantinedChain.length,
     };
   }
 

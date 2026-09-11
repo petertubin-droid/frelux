@@ -777,8 +777,7 @@ const RULE_CASCADE: Array<{
   // knowledge path exactly as for "when is the delivery".
   {
     intent: "knowledge_query",
-    pattern:
-      /^(?:on\s+)?(?:what|which)\s+(?:day|date|time)\b.{0,40}\bis\b/i,
+    pattern: /^(?:on\s+)?(?:what|which)\s+(?:day|date|time)\b.{0,40}\bis\b/i,
     confidence: 0.8,
   },
   // Identity questions about ARCHIE itself are deterministic —
@@ -968,6 +967,18 @@ const RULE_CASCADE: Array<{
   },
 ];
 
+/** Result of one deterministic NLU pass: the chosen intent,
+ *  its calibrated confidence, and the structured entities
+ *  extracted from the raw input. (Pre-existing gap: this
+ *  interface was referenced but never declared — audit fix
+ *  X-0, 2026-09-11.) */
+export interface NluResult {
+  intent: Intent;
+  confidence: number;
+  entities: Entities;
+  tokens: string[];
+}
+
 /** One deterministic NLU pass over raw owner input. */
 export function understand(input: string): NluResult {
   const tokens = tokenize(input);
@@ -1073,7 +1084,8 @@ export function decomposeClauses(rawInput: string): DecomposedClause[] {
   const unmask = (text: string): string =>
     text.replace(/\u0000(\d+)\u0000/g, (_, i) => masks[Number(i)] ?? "");
   const input = mask(rawInput);
-  const negation = /\b(?:don'?t|do\s+not|doesn'?t|never|exclude|excluding|without|but\s+not)\b/i;
+  const negation =
+    /\b(?:don'?t|do\s+not|doesn'?t|never|exclude|excluding|without|but\s+not)\b/i;
   const markers = new RegExp(
     "\\s*(?:;|,?\\s+then\\b|\\s+after\\s+that\\b|\\s+also\\b|,\\s+and\\s+|\\s+and\\s+(?=" +
       INTENT_CONTINUATION +
@@ -1083,7 +1095,8 @@ export function decomposeClauses(rawInput: string): DecomposedClause[] {
 
   // First split on the negation-bearing "but" — the negated
   // tail is a constraint on the WHOLE request.
-  const butNeg = /\s*,?\s+but\s+(?=(?:don'?t|do\s+not|never|exclude|excluding|without)\b)/i;
+  const butNeg =
+    /\s*,?\s+but\s+(?=(?:don'?t|do\s+not|never|exclude|excluding|without)\b)/i;
   const headSplit = butNeg.exec(input);
   let head = input;
   let negatedTail: string | null = null;
@@ -1141,9 +1154,10 @@ export function decomposeClauses(rawInput: string): DecomposedClause[] {
       "i",
     );
     for (const part of negatedTail.split(tailSplit)) {
-      const negatedFrag =
-        leadingNegation.test(part) || !intentLed.test(part);
-      let text = unmask(part).trim().replace(/^[,;\s]+|[,;\s]+$/g, "");
+      const negatedFrag = leadingNegation.test(part) || !intentLed.test(part);
+      let text = unmask(part)
+        .trim()
+        .replace(/^[,;\s]+|[,;\s]+$/g, "");
       if (negatedFrag) {
         text = text
           .replace(leadingNegation, "")
@@ -1163,14 +1177,11 @@ export function decomposeClauses(rawInput: string): DecomposedClause[] {
  *  exclusions, all-excluded redirect. Shared by the engine's
  *  internal compound path and the reasoning loop so the two
  *  can never drift apart. */
-export function composeCompound(
-  parts: string[],
-  excluded: string[],
-): string {
+export function composeCompound(parts: string[], excluded: string[]): string {
   let text: string;
   if (parts.length === 0) {
     text =
-      "Every part of that request was an exclusion (a \"don't\") — there was nothing left to answer. Tell me what you DO want and I will do it fully.";
+      'Every part of that request was an exclusion (a "don\'t") — there was nothing left to answer. Tell me what you DO want and I will do it fully.';
   } else {
     text =
       parts.length === 1

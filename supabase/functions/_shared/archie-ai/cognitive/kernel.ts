@@ -258,11 +258,100 @@ export class CognitiveKernel implements ArchieRuntime {
       event: "kernel-boot",
       note: "unified cognitive engine initialized; audit chain loaded",
     });
+    if (!audit.chainValid) {
+      // TAMPER RESPONSE (audit fix K-1): the compromise is
+      // written into the FRESH chain too, so the new chain
+      // itself records why it started from genesis.
+      await this.security.audit("authority-check", {
+        event: "audit-chain-compromised",
+        note: "persisted audit chain failed verification on boot — quarantined for diagnostics; owner security event recorded; new chain started from genesis",
+      });
+    }
     return {
       auditEvents: audit.events,
       chainValid: audit.chainValid,
       worldRelations,
     };
+  }
+
+  /** READ-BEARING WORLD MODEL (audit fix I-1): extract salient
+   *  terms from the input, query the world model's current
+   *  view, and compose an honestly-framed context block. The
+   *  block rides the system-instruction channel — a retrieval
+   *  source, never persisted as knowledge. Returns an empty
+   *  block when the model holds nothing relevant (no noise). */
+  private worldContextFor(input: string): { block: string; used: number } {
+    const stops = new Set([
+      "what",
+      "when",
+      "where",
+      "which",
+      "who",
+      "tell",
+      "give",
+      "show",
+      "please",
+      "about",
+      "with",
+      "from",
+      "this",
+      "that",
+      "then",
+      "also",
+      "estimate",
+      "calculate",
+      "compare",
+      "plan",
+      "explain",
+      "describe",
+      "status",
+      "price",
+      "convert",
+      "check",
+      "remember",
+      "list",
+      "does",
+      "your",
+      "have",
+      "will",
+      "would",
+      "could",
+      "should",
+      "there",
+    ]);
+    const terms = Array.from(
+      new Set(
+        input
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, " ")
+          .split(/\s+/)
+          .filter((w) => w.length > 3 && !stops.has(w)),
+      ),
+    ).slice(0, 5);
+    const seen = new Set<string>();
+    const lines: string[] = [];
+    for (const t of terms) {
+      for (const rel of this.world.query({ about: t, depth: 1 })) {
+        const key = `${rel.subject}|${rel.relation}|${rel.object}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        lines.push(
+          `- ${rel.subject} —[${rel.relation}]→ ${rel.object} (observed ` +
+            `${rel.observedAt ? rel.observedAt.slice(0, 10) : "unknown date"}, ` +
+            `confidence ${(rel.confidence ?? 0).toFixed(2)})`,
+        );
+        if (lines.length >= 8) break;
+      }
+      if (lines.length >= 8) break;
+    }
+    if (lines.length === 0) return { block: "", used: 0 };
+    const block =
+      "\nWORLD-MODEL CONTEXT — ARCHIE's own current-view observations, " +
+      "retrieved because the request mentions related entities. These are " +
+      "OBSERVATIONS, not validated knowledge: never present them as " +
+      "established facts, and state their provenance when used.\n" +
+      lines.join("\n");
+    return { block, used: lines.length };
   }
 
   isOperational(): boolean {
@@ -319,9 +408,7 @@ export class CognitiveKernel implements ArchieRuntime {
           .trim()
       : "";
     const result = await this.cycle(text, req.turns, req.systemInstruction);
-    const parts: ArchieInferencePart[] = [
-      { text: result.responseText },
-    ];
+    const parts: ArchieInferencePart[] = [{ text: result.responseText }];
     if (result.toolCall) {
       // Relay the substrate's toolCall to the caller's tool
       // loop (plan P1, audit C1).
@@ -408,7 +495,8 @@ export class CognitiveKernel implements ArchieRuntime {
       routePhases,
       () => this.perception.ingest(input, "conversation"),
       "perception always runs for conversation inputs",
-      (p) => `${p.percepts.length} percept(s) ingested, ${p.secretsRedacted} secret(s) redacted`,
+      (p) =>
+        `${p.percepts.length} percept(s) ingested, ${p.secretsRedacted} secret(s) redacted`,
     );
     if (percepts && percepts.secretsRedacted > 0) {
       await this.security.audit("perception", {
@@ -424,6 +512,21 @@ export class CognitiveKernel implements ArchieRuntime {
       summary: `intent=${nlu.intent}, confidence=${nlu.confidence.toFixed(2)}`,
       durationMs: nluMs,
     });
+    // READ-BEARING WORLD MODEL (audit fix I-1): ARCHIE's world
+    // model was write-only — observations were stored and
+    // versioned but NEVER consulted for reasoning. The
+    // current view is now injected as contextual retrieval
+    // data (same channel as the caller's system instruction):
+    // honest framing, never persisted as knowledge.
+    const worldCtx = this.worldContextFor(input);
+    const instructionWithContext =
+      worldCtx.block.length > 0 && systemInstruction
+        ? `${systemInstruction}
+${worldCtx.block}`
+        : worldCtx.block.length > 0
+          ? worldCtx.block
+          : systemInstruction;
+
     // P5 Batch B: the kernel drives the real reasoning loop
     // (reason → act → observe → continue, budget-bounded) —
     // no more one-shot routing at the cognitive layer.
@@ -431,20 +534,20 @@ export class CognitiveKernel implements ArchieRuntime {
       "RETRIEVE",
       routePhases,
       () =>
-          runReasoningLoop(this.substrate, input, history, {
-            systemInstruction,
-          }),
+        runReasoningLoop(this.substrate, input, history, {
+          systemInstruction: instructionWithContext,
+        }),
       "retrieval handled inside substrate reasoning",
       (o) =>
-        o?.report
+        (o?.report
           ? `reasoning loop: ${o.report.usedSteps} step pass(es), ${o.report.usedToolHops} tool hop(s)`
-          : "substrate single-pass converse (loop not engaged)",
+          : "substrate single-pass converse (loop not engaged)") +
+        `, ${worldCtx.used} world observation(s) injected as context`,
     );
-    const loopReport: ReasoningLoopReport | null =
-      loopOutcome?.report ?? null;
+    const loopReport: ReasoningLoopReport | null = loopOutcome?.report ?? null;
     const core: ConverseResult =
       loopOutcome?.result ??
-      (await this.substrate.converse(input, history, systemInstruction));
+      (await this.substrate.converse(input, history, instructionWithContext));
 
     // REASON: the real loop trace — steps executed, tools run,
     // budget state — recorded with true durations (P5 Batch B).
@@ -662,7 +765,8 @@ export class CognitiveKernel implements ArchieRuntime {
           confidence: core.confidence,
         }),
       "nothing to observe",
-      () => `audit ledger write: cycle ${cycleId}, intent ${nlu.intent}, confidence ${core.confidence.toFixed(2)}`,
+      () =>
+        `audit ledger write: cycle ${cycleId}, intent ${nlu.intent}, confidence ${core.confidence.toFixed(2)}`,
     );
     const loopEval = loopReport
       ? `; reasoning loop ${loopReport.usedSteps}/${loopReport.maxSteps} steps, ${loopReport.usedToolHops}/${loopReport.maxToolHops} tool hops, budget ${loopReport.budgetExhausted ? "exhausted — reported to you honestly" : "within bounds"}`
@@ -683,7 +787,8 @@ export class CognitiveKernel implements ArchieRuntime {
       // + credit assignment inside converse) — delegated to a
       // named component, never claimed as executed here.
       status: routePhases.has("LEARN") ? "delegated" : "skipped",
-      summary: "delegated to substrate learning engine — outcome recorded with deterministic credit assignment",
+      summary:
+        "delegated to substrate learning engine — outcome recorded with deterministic credit assignment",
       durationMs: 0,
     });
 
@@ -740,7 +845,8 @@ export class CognitiveKernel implements ArchieRuntime {
         return proposals;
       },
       "improvement is a standing phase",
-      (made) => `${made.length} self-improvement proposal(s) drafted (owner-gated, nothing executed)`,
+      (made) =>
+        `${made.length} self-improvement proposal(s) drafted (owner-gated, nothing executed)`,
     );
     for (const p of proposals) {
       await this.security.audit("improvement-proposal", {
@@ -767,7 +873,8 @@ export class CognitiveKernel implements ArchieRuntime {
       // P9: the kernel does no work here — cycle continuity
       // is the substrate orchestrator's standing behavior.
       status: "delegated",
-      summary: "delegated to substrate orchestrator — cycle rolls into the next; the loop never terminates",
+      summary:
+        "delegated to substrate orchestrator — cycle rolls into the next; the loop never terminates",
       durationMs: 0,
       organs: ["healing", "sleep"],
     });

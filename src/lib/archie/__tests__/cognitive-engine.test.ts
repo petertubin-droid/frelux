@@ -792,6 +792,29 @@ describe("cognitive kernel (end-to-end loop)", () => {
     expect(db.tables.frelux_archie_audit_log.length).toBeGreaterThan(0);
   });
 
+  it("injects world-model observations as read-bearing context, never as knowledge (audit fix I-1)", async () => {
+    const db = new CognitiveMockDb();
+    const kernel = new CognitiveKernel(db);
+    await kernel.boot();
+    // Teach first — the MODEL phase records a real relation.
+    await kernel.cycle(
+      "remember: floor screeding ratio is 1 part cement to 4 parts sand",
+    );
+    const factsAfterTeach = db.tables.frelux_archie_native_facts.length;
+
+    // A later question mentioning the same entity must SEE the
+    // world model's current view — carried as context, not as
+    // validated facts.
+    const result = await kernel.cycle("what do you know about screeding?");
+    const retrieve = result.trace.phases.find((p) => p.phase === "RETRIEVE");
+    expect(String(retrieve?.summary ?? "")).toMatch(
+      /world observation\(s\) injected as context/,
+    );
+    // Observations never leak into the fact store — retrieval
+    // context only, zero silent promotion to knowledge.
+    expect(db.tables.frelux_archie_native_facts.length).toBe(factsAfterTeach);
+  });
+
   it("keeps consequential operations owner-gated: PROPOSE only, nothing executed", async () => {
     const kernel = new CognitiveKernel();
     await kernel.boot();
