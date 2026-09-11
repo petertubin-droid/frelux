@@ -1,0 +1,63 @@
+{
+  "suite": "archie-native-engine-perf",
+  "date": "2026-09-11T11:53:02.572Z",
+  "node": "v20.20.2",
+  "metrics": [
+    {
+      "workload": "converse-per-turn",
+      "ops": 100,
+      "meanMs": 3.906,
+      "p50Ms": 3.473,
+      "p95Ms": 6.589,
+      "heapDeltaMb": 0
+    },
+    {
+      "workload": "store-query-subject@10k",
+      "ops": 1000,
+      "meanMs": 0.003,
+      "p50Ms": 0.003,
+      "p95Ms": 0.004,
+      "heapDeltaMb": 7.74
+    },
+    {
+      "workload": "store-query-subj-pred@10k",
+      "ops": 1000,
+      "meanMs": 0.002,
+      "p50Ms": 0.001,
+      "p95Ms": 0.002,
+      "heapDeltaMb": 0
+    },
+    {
+      "workload": "rankFacts@10k",
+      "ops": 200,
+      "meanMs": 51.931,
+      "p50Ms": 50.241,
+      "p95Ms": 60.306,
+      "heapDeltaMb": 0
+    },
+    {
+      "workload": "store-rank@10k",
+      "ops": 200,
+      "meanMs": 3.971,
+      "p50Ms": 3.79,
+      "p95Ms": 4.744,
+      "heapDeltaMb": 0
+    },
+    {
+      "workload": "reasoning-forward-chain@200facts",
+      "ops": 100,
+      "meanMs": 0.992,
+      "p50Ms": 0.822,
+      "p95Ms": 2.102,
+      "heapDeltaMb": 0
+    },
+    {
+      "workload": "memory-recall@500turns",
+      "ops": 500,
+      "meanMs": 0.449,
+      "p50Ms": 0.398,
+      "p95Ms": 0.974,
+      "heapDeltaMb": 0
+    }
+  ]
+}

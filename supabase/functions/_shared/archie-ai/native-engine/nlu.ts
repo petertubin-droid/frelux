@@ -216,6 +216,7 @@ export const INTENTS = [
   "construction_calc",
   "math_question",
   "teaching",
+  "memory_exclusion",
   "correction",
 ] as const;
 
@@ -689,6 +690,21 @@ export const CORPUS: Array<[Intent, string[]]> = [
     ],
   ],
   [
+    "memory_exclusion",
+    [
+      "do not remember the gate code",
+      "don't remember what i told you about the safe",
+      "never store my atm pin",
+      "do not store the door code",
+      "don't keep that in memory",
+      "never memorize my password",
+      "do not note the account number down",
+      "don't save the wifi password",
+      "stop remembering my secrets",
+      "do not record this conversation",
+    ],
+  ],
+  [
     "teaching",
     [
       "remember that my site is in lekki",
@@ -886,6 +902,20 @@ const RULE_CASCADE: Array<{
     pattern:
       /^you(?:'re| are|r)\s+(?:actually |really |just |some kind of |basically |merely )?(?:chatgpt|gemini|claude|copilot|openai|an?\s+ai|a\s+robot|an?\s+assistant|a\s+chatbot)/i,
     confidence: 0.85,
+  },
+  {
+    // Negated memory directives ("do not remember the gate
+    // code", "don't store that") are EXCLUSION instructions,
+    // never teaching. Deterministic rule placed BEFORE the
+    // teaching pattern so the Bayes fallback can no longer
+    // weigh "remember" toward storage (benchmark lu-3 defect,
+    // capability-upgrade pass 2026-09-11). The engine treats
+    // this intent as an honest refusal-to-store — defense in
+    // depth on top of the negated-clause exclusion path.
+    intent: "memory_exclusion",
+    pattern:
+      /^(?:please\s+)?(?:do\s+not|don'?t|dont|never|stop)\s+(?:remember|memorize|store|note|learn|keep|record|save)\b/i,
+    confidence: 0.9,
   },
   {
     intent: "teaching",

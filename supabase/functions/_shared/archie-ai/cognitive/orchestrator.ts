@@ -88,6 +88,15 @@ export function orchestrate(input: {
       );
       break;
     }
+    case "memory_exclusion": {
+      needed.add("MODEL");
+      needed.add("VERIFY");
+      needed.add("ACT");
+      rationaleParts.push(
+        "a negated memory directive is honored by storing nothing — refusal is the act",
+      );
+      break;
+    }
     case "correction": {
       needed.add("MODEL");
       needed.add("VERIFY");

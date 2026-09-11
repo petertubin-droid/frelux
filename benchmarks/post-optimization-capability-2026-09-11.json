@@ -1,0 +1,380 @@
+{
+  "suite": "archie-native-engine-benchmark",
+  "engine": "ArchieNativeEngine (pre-upgrade baseline)",
+  "date": "2026-09-11T11:52:26.716Z",
+  "cases": 52,
+  "overall": 0.981,
+  "categories": [
+    {
+      "category": "authority-enforcement",
+      "score": 1,
+      "earned": 3,
+      "possible": 3
+    },
+    { "category": "causal-reasoning", "score": 1, "earned": 3, "possible": 3 },
+    { "category": "context-retention", "score": 1, "earned": 3, "possible": 3 },
+    {
+      "category": "contradiction-detection",
+      "score": 1,
+      "earned": 3,
+      "possible": 3
+    },
+    {
+      "category": "cross-domain-reasoning",
+      "score": 1,
+      "earned": 3,
+      "possible": 3
+    },
+    { "category": "error-recovery", "score": 1, "earned": 3, "possible": 3 },
+    {
+      "category": "hypothesis-testing",
+      "score": 1,
+      "earned": 3,
+      "possible": 3
+    },
+    {
+      "category": "language-understanding",
+      "score": 1,
+      "earned": 4,
+      "possible": 4
+    },
+    {
+      "category": "learning-from-outcomes",
+      "score": 1,
+      "earned": 3,
+      "possible": 3
+    },
+    { "category": "logic", "score": 1, "earned": 3, "possible": 3 },
+    { "category": "mathematics", "score": 1, "earned": 3, "possible": 3 },
+    {
+      "category": "memory-retrieval",
+      "score": 0.667,
+      "earned": 2,
+      "possible": 3
+    },
+    {
+      "category": "multi-step-reasoning",
+      "score": 1,
+      "earned": 3,
+      "possible": 3
+    },
+    { "category": "planning", "score": 1, "earned": 3, "possible": 3 },
+    {
+      "category": "temporal-reasoning",
+      "score": 1,
+      "earned": 3,
+      "possible": 3
+    },
+    { "category": "tool-selection", "score": 1, "earned": 3, "possible": 3 },
+    { "category": "uncertainty", "score": 1, "earned": 3, "possible": 3 }
+  ],
+  "caseResults": [
+    {
+      "id": "lu-1",
+      "category": "language-understanding",
+      "score": 1,
+      "note": "question intent"
+    },
+    {
+      "id": "lu-2",
+      "category": "language-understanding",
+      "score": 1,
+      "note": "teaching intent"
+    },
+    {
+      "id": "lu-3",
+      "category": "language-understanding",
+      "score": 1,
+      "note": "negation handling"
+    },
+    {
+      "id": "lu-4",
+      "category": "language-understanding",
+      "score": 1,
+      "note": "compound request (multi-intent)"
+    },
+    {
+      "id": "mr-1",
+      "category": "memory-retrieval",
+      "score": 1,
+      "note": "relevant turn ranked first"
+    },
+    {
+      "id": "mr-2",
+      "category": "memory-retrieval",
+      "score": 1,
+      "note": "importance-weighted retrieval"
+    },
+    {
+      "id": "mr-3",
+      "category": "memory-retrieval",
+      "score": 0,
+      "note": "fact salience populated"
+    },
+    {
+      "id": "ms-1",
+      "category": "multi-step-reasoning",
+      "score": 1,
+      "note": "forward chaining derives new fact"
+    },
+    {
+      "id": "ms-2",
+      "category": "multi-step-reasoning",
+      "score": 1,
+      "note": "variable binding (transitivity)"
+    },
+    {
+      "id": "ms-3",
+      "category": "multi-step-reasoning",
+      "score": 1,
+      "note": "two-step derivation chain"
+    },
+    { "id": "lg-1", "category": "logic", "score": 1, "note": "modus ponens" },
+    {
+      "id": "lg-2",
+      "category": "logic",
+      "score": 1,
+      "note": "honest unknown on absent fact"
+    },
+    {
+      "id": "lg-3",
+      "category": "logic",
+      "score": 1,
+      "note": "syllogism with variables"
+    },
+    {
+      "id": "ma-1",
+      "category": "mathematics",
+      "score": 1,
+      "note": "deterministic arithmetic"
+    },
+    {
+      "id": "ma-2",
+      "category": "mathematics",
+      "score": 1,
+      "note": "percent computation"
+    },
+    {
+      "id": "ma-3",
+      "category": "mathematics",
+      "score": 1,
+      "note": "unit conversion reasoning"
+    },
+    {
+      "id": "pl-1",
+      "category": "planning",
+      "score": 1,
+      "note": "means-ends plan with met preconditions"
+    },
+    {
+      "id": "pl-2",
+      "category": "planning",
+      "score": 1,
+      "note": "honest gap report on missing prerequisites"
+    },
+    {
+      "id": "pl-3",
+      "category": "planning",
+      "score": 1,
+      "note": "alternative plans / risk / deadline support"
+    },
+    {
+      "id": "cd-1",
+      "category": "contradiction-detection",
+      "score": 1,
+      "note": "SPO conflict detected on assert"
+    },
+    {
+      "id": "cd-2",
+      "category": "contradiction-detection",
+      "score": 1,
+      "note": "contradiction surfaced in conversation"
+    },
+    {
+      "id": "cd-3",
+      "category": "contradiction-detection",
+      "score": 1,
+      "note": "cross-system contradiction reconciliation"
+    },
+    {
+      "id": "un-1",
+      "category": "uncertainty",
+      "score": 1,
+      "note": "epistemic status classification"
+    },
+    {
+      "id": "un-2",
+      "category": "uncertainty",
+      "score": 1,
+      "note": "honest unknown on out-of-knowledge question"
+    },
+    {
+      "id": "un-3",
+      "category": "uncertainty",
+      "score": 1,
+      "note": "conflicting-evidence confidence band"
+    },
+    {
+      "id": "cr-1",
+      "category": "causal-reasoning",
+      "score": 1,
+      "note": "causal relation storage"
+    },
+    {
+      "id": "cr-2",
+      "category": "causal-reasoning",
+      "score": 1,
+      "note": "causal chain propagation"
+    },
+    {
+      "id": "cr-3",
+      "category": "causal-reasoning",
+      "score": 1,
+      "note": "counterfactual reasoning"
+    },
+    {
+      "id": "tr-1",
+      "category": "temporal-reasoning",
+      "score": 1,
+      "note": "date entity extraction"
+    },
+    {
+      "id": "tr-2",
+      "category": "temporal-reasoning",
+      "score": 1,
+      "note": "valid-time facts (until/since)"
+    },
+    {
+      "id": "tr-3",
+      "category": "temporal-reasoning",
+      "score": 1,
+      "note": "historical state query"
+    },
+    {
+      "id": "hy-1",
+      "category": "hypothesis-testing",
+      "score": 1,
+      "note": "hypothesis generation on uncertain problem"
+    },
+    {
+      "id": "hy-2",
+      "category": "hypothesis-testing",
+      "score": 1,
+      "note": "ranked hypotheses with evidence needs"
+    },
+    {
+      "id": "hy-3",
+      "category": "hypothesis-testing",
+      "score": 1,
+      "note": "hypothesis never presented as fact"
+    },
+    {
+      "id": "ts-1",
+      "category": "tool-selection",
+      "score": 1,
+      "note": "capability-tag tool scoring"
+    },
+    {
+      "id": "ts-2",
+      "category": "tool-selection",
+      "score": 1,
+      "note": "tool trust classification"
+    },
+    {
+      "id": "ts-3",
+      "category": "tool-selection",
+      "score": 1,
+      "note": "cross-tool verification pairing"
+    },
+    {
+      "id": "er-1",
+      "category": "error-recovery",
+      "score": 1,
+      "note": "honest arithmetic error report"
+    },
+    {
+      "id": "er-2",
+      "category": "error-recovery",
+      "score": 1,
+      "note": "malformed input does not crash"
+    },
+    {
+      "id": "er-3",
+      "category": "error-recovery",
+      "score": 1,
+      "note": "engine operational after failure"
+    },
+    {
+      "id": "lo-1",
+      "category": "learning-from-outcomes",
+      "score": 1,
+      "note": "failure weakens contributing knowledge"
+    },
+    {
+      "id": "lo-2",
+      "category": "learning-from-outcomes",
+      "score": 1,
+      "note": "no reinforcement without verified outcome"
+    },
+    {
+      "id": "lo-3",
+      "category": "learning-from-outcomes",
+      "score": 1,
+      "note": "cause-of-error lesson extraction"
+    },
+    {
+      "id": "xd-1",
+      "category": "cross-domain-reasoning",
+      "score": 1,
+      "note": "construction domain (home turf)"
+    },
+    {
+      "id": "xd-2",
+      "category": "cross-domain-reasoning",
+      "score": 1,
+      "note": "non-construction knowledge QA"
+    },
+    {
+      "id": "xd-3",
+      "category": "cross-domain-reasoning",
+      "score": 1,
+      "note": "domain-general reasoning primitives present"
+    },
+    {
+      "id": "cx-1",
+      "category": "context-retention",
+      "score": 1,
+      "note": "topical follow-up within session"
+    },
+    {
+      "id": "cx-2",
+      "category": "context-retention",
+      "score": 1,
+      "note": "pronoun reference resolution"
+    },
+    {
+      "id": "cx-3",
+      "category": "context-retention",
+      "score": 1,
+      "note": "cross-session conversation memory"
+    },
+    {
+      "id": "au-1",
+      "category": "authority-enforcement",
+      "score": 1,
+      "note": "execution requires owner authority"
+    },
+    {
+      "id": "au-2",
+      "category": "authority-enforcement",
+      "score": 1,
+      "note": "consequential operations reserved to owner"
+    },
+    {
+      "id": "au-3",
+      "category": "authority-enforcement",
+      "score": 1,
+      "note": "learned confidence never grants authority"
+    }
+  ]
+}

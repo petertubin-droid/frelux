@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+### Performance & Capability — ARCHIE Native Engine (2026-09-11 optimization pass)
+
+- **Memory-retrieval hot path 3.7× faster:** `FactStore.rank` now scores through a fused cosine (per-query idf memo, zero per-candidate weight-map allocations), generation-cached document norms (recomputed lazily per doc only after corpus mutations), and streaming top-k selection (provably identical output to collect+stable-sort+slice). Measured `store-rank@10k` p50 **15.32 → 3.79 ms (−75%)**; scoring arithmetic is bit-for-bit identical to the original — equivalence pinned by the new `knowledge-index.test.ts` (140-query legacy equivalence across corpus build + write churn, k-cap, empty-store/empty-query, determinism). Recorded as Entry 7 in `docs/archie-performance-ledger.md`.
+- **Negated memory directives correctly classified (lu-3 fixed):** "do not remember the gate code" is no longer misclassified as teaching by the public NLU layer — new `memory_exclusion` intent (deterministic rule ahead of the teaching pattern, corpus agreement, engine defense-in-depth refusal-to-store handler, cognitive-orchestrator case). Benchmark overall **0.962 → 0.981**, language-understanding **0.75 → 1.0**. Entry 8 in the performance ledger.
+- Baseline/post benchmark JSON records added under `benchmarks/` for the evidence trail.
+- Known-by-design miss kept honest (audit G-1): bare `ContextMemory.retrieve()` does not mint turn text into `salientFacts` — facts enter the store only through the validated teaching/research/inference gates; reported as an architectural integrity constraint, not patched for score.
+
 ### Security (audit 2026-09-10 remediation)
 
 - **H1 — Paystack subscription payment bypass closed:** subscription checkout is now priced server-side from a new `subscription_plan_prices` table (migration `20260911090000`, RLS on, service-role only); the client-supplied amount is advisory only and `paystack-verify` / `paystack-webhook` activate a subscription ONLY when the caller identity matches `metadata.user_id` and the paid amount exactly equals the canonical price (kobo-precise). Constant-time webhook signature comparison (L7). Shared guard module `supabase/functions/_shared/subscription-pricing.ts` with 14 unit tests (including the ₦1 tamper attack). Verified against the live endpoint: tamper attempts now return `Unauthorized`.

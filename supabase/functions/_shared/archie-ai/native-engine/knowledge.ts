@@ -13,7 +13,7 @@
 // =========================================================
 
 import type { Fact, FactConflict, FactPattern } from "./types.ts";
-import { cosine, tokenize } from "./nlu.ts";
+import { tokenize } from "./nlu.ts";
 
 // Collision-proof fact ids (audit H3): the old Date.now() +
 // per-isolate counter scheme could collide across concurrent
@@ -59,9 +59,22 @@ export class FactRankIndex {
   private docs = 0;
   private entries = new Map<
     string,
-    { fact: Fact; tokens: string[]; tf: Map<string, number> }
+    {
+      fact: Fact;
+      tokens: string[];
+      tf: Map<string, number>;
+      /** Cached ||fv|| under the CURRENT idf state. */
+      norm: number;
+      /** gen this norm was computed under; !== this.gen ⇒ stale. */
+      normGen: number;
+    }
   >();
   private postings = new Map<string, Set<string>>();
+  /** Bumped on ANY corpus mutation — idf depends on docs/df,
+   *  so every cached norm is wholesale suspect after a write.
+   *  Norms are recomputed lazily, per doc, only for docs that
+   *  actually become query candidates (perf-pass 2026-09-11). */
+  private gen = 0;
 
   private static surfaceTokens(fact: Fact): string[] {
     const surface = `${fact.subject} ${fact.predicate} ${JSON.stringify(fact.object)}`;
@@ -82,8 +95,15 @@ export class FactRankIndex {
   add(fact: Fact): void {
     if (this.entries.has(fact.id)) this.remove(fact.id);
     const tokens = FactRankIndex.surfaceTokens(fact);
-    this.entries.set(fact.id, { fact, tokens, tf: FactRankIndex.tfOf(tokens) });
+    this.entries.set(fact.id, {
+      fact,
+      tokens,
+      tf: FactRankIndex.tfOf(tokens),
+      norm: NaN,
+      normGen: -1,
+    });
     this.docs += 1;
+    this.gen += 1;
     for (const term of new Set(tokens)) {
       this.docFreq.set(term, (this.docFreq.get(term) ?? 0) + 1);
       let bucket = this.postings.get(term);
@@ -99,6 +119,7 @@ export class FactRankIndex {
     const entry = this.entries.get(factId);
     if (!entry) return;
     this.docs = Math.max(0, this.docs - 1);
+    this.gen += 1;
     for (const term of new Set(entry.tokens)) {
       const df = this.docFreq.get(term);
       if (df !== undefined) {
@@ -142,7 +163,19 @@ export class FactRankIndex {
   /** Rank facts against a query. Only facts sharing at least one
    *  query term are ever scored (inverted-index candidate
    *  narrowing) — cost scales with query selectivity, not corpus
-   *  size. */
+   *  size.
+   *
+   *  Perf-pass 2026-09-11 (fused scoring): the previous version
+   *  allocated a fresh weight Map for EVERY candidate on EVERY
+   *  query and re-computed Math.log idf for every one of the
+   *  candidate's terms (measured p50 15.9ms at 10k facts). The
+   *  fused path computes the identical cosine — weight(term) =
+   *  tf/doclen · idf(term), same summation order as
+   *  cosine(qv, vectorOf(tf)) so scores are bit-for-bit equal —
+   *  with one query-side map per query, zero per-candidate
+   *  allocations, and a per-query idf memo. Verified by the
+   *  legacy-equivalence forensic test; see
+   *  docs/archie-performance-ledger.md. */
   rank(query: string, k = 6): Fact[] {
     const qTokens = tokenize(query);
     if (qTokens.length === 0 || this.entries.size === 0) return [];
@@ -152,17 +185,84 @@ export class FactRankIndex {
       if (bucket) for (const id of bucket) candidateIds.add(id);
     }
     if (candidateIds.size === 0) return [];
-    const qv = this.vectorOf(FactRankIndex.tfOf(qTokens), qTokens.length);
-    const scored: { fact: Fact; score: number }[] = [];
+
+    // Per-query idf memo — Math.log per DISTINCT term, not per
+    // (candidate × term) pair.
+    const idfMemo = new Map<string, number>();
+    const idfOf = (term: string): number => {
+      let v = idfMemo.get(term);
+      if (v === undefined) {
+        v = this.idf(term);
+        idfMemo.set(term, v);
+      }
+      return v;
+    };
+    // Query weights + norm — the "a" side of cosine().
+    const qLen = qTokens.length;
+    const qWeights = new Map<string, number>();
+    let qNormSq = 0;
+    for (const [t, c] of FactRankIndex.tfOf(qTokens)) {
+      const w = (c / qLen || c) * idfOf(t);
+      qWeights.set(t, w);
+      qNormSq += w * w;
+    }
+    if (qNormSq === 0) return [];
+    const qNorm = Math.sqrt(qNormSq);
+
+    // Streaming top-k selection — provably identical output to
+    // collect-all + stable-sort + slice(0,k): docs are seen in
+    // the same candidate order, a doc enters only on a STRICTLY
+    // greater score than the current k-th (stability among
+    // exact ties therefore favors the earlier doc, exactly like
+    // the stable sort), and the kept set is fully sorted by
+    // descending score before return.
+    const kept: { fact: Fact; score: number }[] = [];
+    const insert = (fact: Fact, score: number) => {
+      let j = kept.length;
+      kept.push({ fact, score });
+      const item = kept[j];
+      while (j > 0 && kept[j - 1].score < item.score) {
+        kept[j] = kept[j - 1];
+        kept[j - 1] = item;
+        j -= 1;
+      }
+      if (kept.length > k) kept.pop();
+    };
     for (const id of candidateIds) {
       const entry = this.entries.get(id);
       if (!entry) continue;
-      const fv = this.vectorOf(entry.tf, entry.tokens.length);
-      const score = cosine(qv, fv);
-      if (score > 0) scored.push({ fact: entry.fact, score });
+      const tf = entry.tf;
+      const len = entry.tokens.length;
+      // Cached doc norm — one pass over tf, ONLY when this
+      // doc's norm is stale (first candidate query after a
+      // corpus mutation). Weights are computed with the same
+      // (tf/doclen · idf) arithmetic and tf iteration order as
+      // the original vectorOf pass — bit-for-bit identical.
+      if (entry.normGen !== this.gen) {
+        let normSq = 0;
+        for (const [t, c] of tf) {
+          const w = (c / len || c) * idfOf(t);
+          normSq += w * w;
+        }
+        entry.norm = Math.sqrt(normSq);
+        entry.normGen = this.gen;
+      }
+      if (entry.norm === 0) continue;
+      // Dot product in the SAME iteration order as cosine():
+      // iterate the query-side map, look up the doc side.
+      let dot = 0;
+      for (const [t, qw] of qWeights) {
+        const c = tf.get(t);
+        if (c !== undefined) {
+          dot += qw * ((c / len || c) * idfOf(t));
+        }
+      }
+      const score = dot / (qNorm * entry.norm);
+      if (score > 0 && (kept.length < k || score > kept[k - 1].score)) {
+        insert(entry.fact, score);
+      }
     }
-    scored.sort((a, b) => b.score - a.score);
-    return scored.slice(0, k).map((s) => s.fact);
+    return kept.map((s) => s.fact);
   }
 }
 

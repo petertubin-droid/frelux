@@ -1515,6 +1515,21 @@ export class ArchieNativeEngine implements ArchieRuntime {
         return this.compose(text, nlu.confidence, [fact.id]);
       }
 
+      case "memory_exclusion": {
+        // Defense in depth for negated memory directives
+        // ("do not remember the gate code"). The NLU rule
+        // routes these here deterministically; even if a
+        // caller bypasses the negated-clause exclusion path,
+        // this handler NEVER writes to the fact store, and
+        // no conversation memory is retained from it. Honest
+        // acknowledgment only.
+        return this.compose(
+          "Understood — I will not store that, and nothing from it has been kept.",
+          nlu.confidence,
+          [],
+        );
+      }
+
       case "correction": {
         // Explicit owner confirmation is VERIFICATION, not
         // correction (audit H1): "confirm that X is correct"
