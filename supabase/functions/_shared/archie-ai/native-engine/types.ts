@@ -55,7 +55,14 @@ export interface Fact {
   // (no matter how high their propagated confidence) and are
   // labeled as derived in answers; promotion to "validated"
   // only happens through the real verification-event gates.
-  status: "candidate" | "validated" | "uncertain" | "derived";
+  /** "owner-asserted" (audit fix H-1, 2026-09-11): taught by
+   *  the owner but NOT yet independently verified — held on
+   *  the owner's authority, citable with an honest label, and
+   *  promoted to "validated" only through real verification
+   *  events (explicit owner confirmation outcomes). Teaching
+   *  no longer mints "validated" on arrival. */
+  status:
+    "candidate" | "validated" | "owner-asserted" | "uncertain" | "derived";
   validatedCount: number;
   /** Real verification events behind this fact (audit H1/H2):
    *  e.g. "owner-taught", "seed", "owner-confirm:<ts>",

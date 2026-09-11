@@ -389,3 +389,42 @@ throughout: owner-gated execution, provider independence.
   never asserted as a claim and never persisted as knowledge. Regression
   tests: `nlu-anaphora.test.ts` (7 cases), `anaphora-followup.test.ts`
   (engine-level, taught fact + pronoun follow-up in the next turn).
+
+---
+
+## Audit-fix pass (2026-09-11, later same day)
+
+The recommended-order rule above ("analysis only") was lifted by
+the owner for the integrity-critical findings. Fixed this pass:
+
+- **C-1 (HIGH)** — session isolation. The engine singleton's
+  per-request state (working memory, conversation id, tool
+  surfaces) moved into session objects keyed by conversation id;
+  the id now flows client → archie-chat → kernel → substrate.
+  Cross-conversation bleed and mis-stamped episodic rows are
+  eliminated; legacy default-conversation semantics preserved.
+  5-case isolation suite added.
+- **H-1 (HIGH)** — the owner's voice is authority, not
+  verification. New `owner-asserted` fact tier: teaching and
+  corrections store as owner-asserted (correction = one stamped
+  verification event), citable only with the honest label;
+  answers citing only owner-asserted facts use the
+  owner-asserted opening frame; promotion to `validated`
+  requires real verification events (2 explicit owner-confirm
+  outcomes, or independent cross-source corroboration) —
+  repetition alone never promotes (twin-merge and consolidation
+  gates guarded). 5-case lifecycle suite added.
+- **M-2** — `retrieveContext()` / `rankKnowledge()` public
+  retrieval surfaces; tests migrated off private-state casts.
+- **M-2 truth-sync** — capability matrix updated with the
+  audit-fix pass; no capability score claimed from integrity
+  work.
+
+ARCHIE suite after the pass: 93 files / 1413 tests green
+(2 documented expected-fails unchanged).
+
+Remaining recommended-order items NOT done this pass (still
+open): domain capture (rules out of engine), Bayes corpus
+depth, kernel trace double-writes, world-model time axis,
+crypto wiring (H-2), research adapter depth (H-4), CORS/rate
+limits, native eyes.

@@ -1557,6 +1557,13 @@ Deno.serve(async (req) => {
     role: t.role,
     content: sanitize(String(t.content ?? "").slice(0, 4000)),
   }));
+  // C-1 (audit fix 2026-09-11): the client's conversation id
+  // scopes the engine session — working memory, episodic
+  // stamps and the tool surface are isolated per conversation
+  // even when concurrent requests share one isolate.
+  const conversationId =
+    sanitize(String(body.conversationId ?? "default")).slice(0, 80) ||
+    "default";
 
   // 2b. PUBLIC VISITOR MODE — rate-limited, role-scoped site
   //     guidance through the same ARCHIE inference boundary.
@@ -1592,6 +1599,7 @@ Deno.serve(async (req) => {
       // No tools for visitors — the empty array is explicit: the
       // public mode has ZERO capabilities beyond site guidance.
       tools: [],
+      conversationId: clientId,
     };
 
     try {
@@ -1713,6 +1721,7 @@ Deno.serve(async (req) => {
     ],
     tools: activeToolSpecs(),
     systemInstruction: SYSTEM_PROMPT,
+    conversationId,
   };
 
   const toolRuns: ToolRun[] = [];
@@ -1759,6 +1768,8 @@ Deno.serve(async (req) => {
       const cycle = await getCognitiveEngine().cycle(
         message + attachmentsNote,
         request.turns.slice(0, -1),
+        undefined,
+        { conversationId },
       );
       cognitiveTrace = cycle.trace.phases.map((p) => ({
         phase: p.phase,

@@ -96,6 +96,11 @@ export interface ArchieInferenceRequest {
   maxOutputTokens?: number;
   /** Optional structured-output hint (provider-neutral schema). */
   responseSchema?: Record<string, unknown>;
+  /** Conversation id for request-scoped session isolation
+   *  (audit fix C-1, 2026-09-11): concurrent conversations in
+   *  one isolate never share working memory, episodic stamps
+   *  or a tool surface. Optional — "default" when omitted. */
+  conversationId?: string;
 }
 
 export type ArchieEnginePath = "archie-native" | "external-adapter";

@@ -400,14 +400,21 @@ export class CognitiveKernel implements ArchieRuntime {
     // set here — otherwise toolCalls would never be emitted
     // through the kernel path (the exact dead-tool seam this
     // phase fixes).
+    // C-1: the tool surface rides the REQUEST's session —
+    // concurrent conversations never stomp each other.
+    const conversationId =
+      req.conversationId ?? (req as { conversationId?: string }).conversationId;
     this.substrate.noteDeclaredTools(req.tools.map((t) => t.name));
+    if (conversationId) this.substrate.setConversationId(conversationId);
     const text = lastOwner
       ? lastOwner.parts
           .map((p: ArchieInferencePart) => p.text ?? "")
           .join(" ")
           .trim()
       : "";
-    const result = await this.cycle(text, req.turns, req.systemInstruction);
+    const result = await this.cycle(text, req.turns, req.systemInstruction, {
+      conversationId,
+    });
     const parts: ArchieInferencePart[] = [{ text: result.responseText }];
     if (result.toolCall) {
       // Relay the substrate's toolCall to the caller's tool
@@ -438,6 +445,9 @@ export class CognitiveKernel implements ArchieRuntime {
     input: string,
     history?: ArchieInferenceTurn[],
     systemInstruction?: string,
+    /** Request scoping (audit fix C-1): conversation id for
+     *  session-isolated memory + episodic stamping. */
+    opts?: { conversationId?: string },
   ): Promise<CognitiveCycleResult> {
     await this.boot();
     this.cycles += 1;
@@ -536,6 +546,7 @@ ${worldCtx.block}`
       () =>
         runReasoningLoop(this.substrate, input, history, {
           systemInstruction: instructionWithContext,
+          conversationId: opts?.conversationId,
         }),
       "retrieval handled inside substrate reasoning",
       (o) =>
@@ -547,7 +558,9 @@ ${worldCtx.block}`
     const loopReport: ReasoningLoopReport | null = loopOutcome?.report ?? null;
     const core: ConverseResult =
       loopOutcome?.result ??
-      (await this.substrate.converse(input, history, instructionWithContext));
+      (await this.substrate.converse(input, history, instructionWithContext, {
+        conversationId: opts?.conversationId,
+      }));
 
     // REASON: the real loop trace — steps executed, tools run,
     // budget state — recorded with true durations (P5 Batch B).

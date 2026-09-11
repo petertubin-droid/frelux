@@ -406,11 +406,19 @@ export class FactStore {
       // Promotion gate (audit H1/H2): repetition is not
       // validation — at least one REAL verification event is
       // required before a candidate becomes validated.
-      if (
+      // H-1 (audit fix 2026-09-11): an owner-asserted fact is
+      // promoted only by INDEPENDENT corroboration (a second
+      // distinct verification source — a different-source
+      // agreement, an owner-confirm outcome stamp or an
+      // owner-correction stamp) — never by the owner repeating
+      // their own assertion.
+      const distinctVerificationSources = new Set(twin.verifiedBy ?? []).size;
+      const independentlyCorroborated =
         twin.validatedCount >= 2 &&
         twin.confidence >= 0.6 &&
-        (twin.verifiedBy ?? []).length > 0
-      ) {
+        (twin.verifiedBy ?? []).length > 0 &&
+        (twin.status !== "owner-asserted" || distinctVerificationSources >= 2);
+      if (independentlyCorroborated) {
         twin.status = "validated";
       }
       await this.persistFact(twin);

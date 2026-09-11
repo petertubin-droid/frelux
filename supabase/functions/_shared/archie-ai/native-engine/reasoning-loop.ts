@@ -66,9 +66,14 @@ export async function runReasoningLoop(
      *  knowledge base) — consulted by the substrate as a
      *  retrieval source, never persisted as knowledge. */
     systemInstruction?: string;
+    /** Request scoping (audit fix C-1): the conversation id —
+     *  threaded into every substrate pass so concurrent
+     *  conversations never share working memory. */
+    conversationId?: string;
   },
 ): Promise<ReasoningLoopOutcome> {
   const systemInstruction = opts?.systemInstruction;
+  const conversationId = opts?.conversationId;
   const maxSteps = opts?.maxSteps ?? MAX_LOOP_STEPS;
   const maxToolHops = opts?.maxToolHops ?? MAX_TOOL_HOPS;
   const clauses = decomposeClauses(input);
@@ -81,7 +86,9 @@ export async function runReasoningLoop(
   // (same message the direct converse path produces).
   if (clauses.length > MAX_COMPOUND_CLAUSES) {
     const t0 = Date.now();
-    const result = await engine.converse(input, history, systemInstruction);
+    const result = await engine.converse(input, history, systemInstruction, {
+      conversationId,
+    });
     steps.push({
       index: 1,
       kind: "budget-stop",
@@ -111,7 +118,9 @@ export async function runReasoningLoop(
   // corrections, planning and native tools all intact.
   if (clauses.length === 1 && !clauses[0].negated) {
     const t0 = Date.now();
-    const result = await engine.converse(input, history, systemInstruction);
+    const result = await engine.converse(input, history, systemInstruction, {
+      conversationId,
+    });
     steps.push({
       index: 1,
       kind: "reason",
@@ -152,7 +161,8 @@ export async function runReasoningLoop(
         kind: "exclusion",
         clause: clause.text,
         intent: "exclusion",
-        summary: "constraint respected — acknowledged, excluded, never answered",
+        summary:
+          "constraint respected — acknowledged, excluded, never answered",
         durationMs: 0,
         confidence: 0,
         citedFactIds: [],
@@ -176,7 +186,9 @@ export async function runReasoningLoop(
       continue;
     }
     const t0 = Date.now();
-    const res = await engine.converse(clause.text, history, systemInstruction);
+    const res = await engine.converse(clause.text, history, systemInstruction, {
+      conversationId,
+    });
     const durationMs = Date.now() - t0;
     usedSteps += 1;
     const tools = res.toolResults ?? [];

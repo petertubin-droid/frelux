@@ -41,6 +41,7 @@ import {
 } from "./nlu.ts";
 import {
   derivedOpening,
+  ownerAssertedOpening,
   howtoFooter,
   includesDerived,
   knowledgeOpening,
@@ -228,18 +229,88 @@ export type SystemAdapters = Partial<Record<SystemAdapterKey, SystemAdapter>>;
 const EXPLICIT_CONFIRM =
   /\b(?:you were right about|you'?re right about|confirm that|i confirm that|verified that|verify that|that'?s (?:right|correct|exact) about)\b/i;
 
+/** Request-scoped conversational state (audit fix C-1,
+ *  2026-09-11). The engine singleton previously carried ONE
+ *  shared ContextMemory, one conversation id and one tool
+ *  surface — concurrent requests inside an edge isolate bled
+ *  context across conversations and stamped episodic rows
+ *  under the wrong conversation id. All per-request state now
+ *  lives in a session object keyed by conversation id; the
+ *  engine itself keeps only isolate-scoped state (facts,
+ *  counters, learner, research, tools). */
+interface EngineSession {
+  conversationId: string;
+  memory: ContextMemory;
+  /** Tool names the CALLER declared (plan P1): toolCalls are
+   *  emitted only for declared tools — never speculatively. */
+  requestToolNames: string[];
+  createdAt: number;
+}
+
 export class ArchieNativeEngine implements ArchieRuntime {
-  /** Tool names the CALLER declared for the current request
-   *  (plan P1): toolCalls are emitted only for declared
-   *  tools — never speculatively. Visitors declare none. */
-  private requestToolNames: string[] = [];
+  /** Session table — bounded, FIFO-evicted. */
+  private sessions = new Map<string, EngineSession>();
+  /** Shared episodic snapshot hydrated ONCE per isolate at
+   *  boot; every new session memory is seeded from it so
+   *  prior-session context survives session isolation too. */
+  private episodicTurns: Array<{
+    role: "owner" | "archie";
+    text: string;
+    at: number;
+  }> = [];
+  /** Legacy pointer: the session selected by setConversationId
+   *  or the last explicit opts — "default" for direct converse()
+   *  callers, preserving the original serial semantics. */
+  private currentSessionId = "default";
+
+  private static readonly MAX_SESSIONS = 64;
+
+  /** The session for a conversation id (created on demand,
+   *  episodic-seeded, FIFO-bounded). */
+  private sessionFor(conversationId?: string): EngineSession {
+    const id =
+      conversationId && conversationId.length > 0
+        ? conversationId
+        : this.currentSessionId;
+    let session = this.sessions.get(id);
+    if (!session) {
+      const memory = new ContextMemory();
+      if (this.episodicTurns.length > 0) {
+        memory.hydrateEpisodic(this.episodicTurns);
+      }
+      session = {
+        conversationId: id,
+        memory,
+        requestToolNames: [],
+        createdAt: Date.now(),
+      };
+      this.sessions.set(id, session);
+      if (this.sessions.size > ArchieNativeEngine.MAX_SESSIONS) {
+        // FIFO eviction: oldest session is dropped — its
+        // turns remain retrievable through episodic persistence.
+        const oldest = [...this.sessions.entries()].sort(
+          (a, b) => a[1].createdAt - b[1].createdAt,
+        )[0];
+        if (oldest) this.sessions.delete(oldest[0]);
+      }
+    }
+    return session;
+  }
 
   /** The caller declares its tool surface per request (plan
    *  P1). The cognitive kernel calls converse() directly, so
    *  it must be able to hand the surface to the substrate
-   *  without going through generate(). */
+   *  without going through generate(). Scoped to the
+   *  CURRENT session (audit fix C-1) — concurrent
+   *  conversations can no longer stomp each other's surface. */
   noteDeclaredTools(names: string[]): void {
-    this.requestToolNames = names;
+    this.sessionFor().requestToolNames = names;
+  }
+
+  /** Per-request tool surface for an explicit conversation
+   *  (C-1): generate()/kernel paths hand both in together. */
+  private toolsFor(conversationId: string): string[] {
+    return this.sessionFor(conversationId).requestToolNames;
   }
   readonly id = NATIVE_ENGINE_ID;
   readonly kind = "archie-native" as const;
@@ -250,7 +321,6 @@ export class ArchieNativeEngine implements ArchieRuntime {
   private reasoning: ReasoningEngine;
   private planner: Planner;
   private tools = new ToolOrchestrator();
-  private memory = new ContextMemory();
   private selfEval = new SelfEvaluator();
   private learner: OutcomeLearner;
   private research: ResearchPipeline;
@@ -265,8 +335,6 @@ export class ArchieNativeEngine implements ArchieRuntime {
   private verbosity: Verbosity = "detailed";
   /** P7 — episodic-turn store (prior-session context). */
   private episodicStore: EpisodicPersistence | null = null;
-  /** P7 — conversation id for episodic session grouping. */
-  private conversationId = "default";
   /** P7 — cross-isolate counter store. */
   private counterStore: CounterPersistence | null = null;
   /** P7 — calibration counters for THIS isolate only: the
@@ -298,7 +366,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
      *  grouping. Default 'default'. */
     conversationId?: string;
   }) {
-    this.conversationId = options?.conversationId ?? "default";
+    this.currentSessionId = options?.conversationId ?? "default";
     this.verbosity = options?.verbosity ?? "detailed";
     this.marketPriceLookup = options?.marketPriceLookup ?? null;
     this.lessonLookup = options?.lessonLookup ?? null;
@@ -438,16 +506,20 @@ export class ArchieNativeEngine implements ArchieRuntime {
       try {
         const rows = await this.episodicStore.loadEpisodicTurns();
         if (rows.length > 0) {
-          this.memory.hydrateEpisodic(
-            rows
-              .slice()
-              .reverse() // oldest first, stable ranking
-              .map((r) => ({
-                role: r.role,
-                text: r.text,
-                at: Date.parse(r.turn_at) || Date.now(),
-              })),
-          );
+          // C-1: episodic turns live in ONE shared snapshot;
+          // every session memory is seeded from it on creation.
+          this.episodicTurns = rows
+            .slice()
+            .reverse() // oldest first, stable ranking
+            .map((r) => ({
+              role: r.role,
+              text: r.text,
+              at: Date.parse(r.turn_at) || Date.now(),
+            }));
+          // Already-created sessions pick the snapshot up too.
+          for (const session of this.sessions.values()) {
+            session.memory.hydrateEpisodic(this.episodicTurns);
+          }
         }
       } catch {
         // Episodic hydration is best-effort: an unavailable
@@ -462,11 +534,13 @@ export class ArchieNativeEngine implements ArchieRuntime {
     return true; // genuinely implemented — see capabilities()
   }
 
-  /** P7 — set the conversation id for episodic-turn session
-   *  grouping (per request; no singleton rebuild — it only
-   *  stamps NEW episodic rows). */
+  /** P7/C-1 — select the conversation id for episodic-turn
+   *  session grouping. Legacy pointer semantics preserved for
+   *  direct converse() callers; generate()/kernel hand the id
+   *  per request so concurrent conversations never share a
+   *  session. */
   setConversationId(id: string): void {
-    this.conversationId = id || "default";
+    this.currentSessionId = id || "default";
   }
 
   capabilities(): ArchieCapability[] {
@@ -487,8 +561,15 @@ export class ArchieNativeEngine implements ArchieRuntime {
     const lastOwner = [...req.turns]
       .reverse()
       .find((t: ArchieInferenceTurn) => t.role === "owner");
-    // The caller's declared tool surface (plan P1, audit C1).
-    this.requestToolNames = req.tools.map((t) => t.name);
+    // The caller's declared tool surface (plan P1, audit C1) —
+    // stamped onto the REQUEST'S session, not the isolate
+    // (audit fix C-1: concurrent conversations never share
+    // a tool surface or a memory).
+    const conversationId =
+      (req as { conversationId?: string }).conversationId ??
+      this.currentSessionId;
+    const session = this.sessionFor(conversationId);
+    session.requestToolNames = req.tools.map((t) => t.name);
     // Tool-result resume (plan P1): the caller executed the
     // tool and fed the REAL output back — compose the final
     // answer from it, verbatim and provenance-labeled.
@@ -496,7 +577,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
       (p: ArchieInferencePart) => p.toolResult,
     )?.toolResult;
     if (trailingToolResult) {
-      return this.resumeFromToolResult(trailingToolResult);
+      return this.resumeFromToolResult(trailingToolResult, session);
     }
     const text = lastOwner
       ? lastOwner.parts
@@ -504,7 +585,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
           .join(" ")
           .trim()
       : "";
-    const result = await this.converse(text, req.turns, req.systemInstruction);
+    const result = await this.converse(text, req.turns, req.systemInstruction, {
+      conversationId,
+    });
     const parts: ArchieInferencePart[] = [{ text: result.responseText }];
     if (result.toolCall) {
       // The dead-tool seam (audit C1) is now bridged: the
@@ -532,18 +615,21 @@ export class ArchieNativeEngine implements ArchieRuntime {
    *  relayed verbatim, provenance-labeled, never fabricated
    *  (plan P1). The tool's own output decides what ARCHIE
    *  can say; the engine only frames it honestly. */
-  private resumeFromToolResult(toolResult: {
-    name: string;
-    output: unknown;
-  }): ArchieInferenceResult {
+  private resumeFromToolResult(
+    toolResult: {
+      name: string;
+      output: unknown;
+    },
+    session: EngineSession,
+  ): ArchieInferenceResult {
     this.inferences += 1;
     this.sessionInferences += 1;
     const body = summarizeToolOutput(toolResult.output);
     const text =
       `${body}\n` +
       `[Source: ${toolResult.name} tool — real system output relayed verbatim by the ARCHIE native engine. I never fabricate system state.]`;
-    this.memory.addTurn("owner", `[tool result: ${toolResult.name}]`);
-    this.memory.addTurn("archie", text);
+    session.memory.addTurn("owner", `[tool result: ${toolResult.name}]`);
+    session.memory.addTurn("archie", text);
     return {
       parts: [{ text }],
       engine: {
@@ -562,11 +648,26 @@ export class ArchieNativeEngine implements ArchieRuntime {
      *  scope, injected knowledge base) — consulted as a
      *  retrieval source, never persisted as knowledge. */
     systemInstruction?: string,
+    /** Request scoping (audit fix C-1): the conversation id
+     *  for this pass, and (kernel handoff, M-1) a
+     *  precomputed NLU result so the input is parsed ONCE
+     *  per request instead of once per layer. */
+    opts?: {
+      conversationId?: string;
+      nlu?: ReturnType<typeof understand>;
+    },
   ): Promise<ConverseResult> {
     await this.boot();
     this.inferences += 1;
     this.sessionInferences += 1;
-    this.memory.seedFromTurns(
+    // C-1: the memory, conversation id and episodic stamping
+    // are SESSION-scoped. Concurrent requests with different
+    // conversation ids are fully isolated; serial calls on
+    // the same id keep their continuity.
+    if (opts?.conversationId) this.currentSessionId = opts.conversationId;
+    const session = this.sessionFor(opts?.conversationId);
+    const memory = session.memory;
+    memory.seedFromTurns(
       (history ?? []).map((t) => ({
         role: t.role,
         text: t.parts
@@ -578,9 +679,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
     // Anaphora context (audit L.5): the turns BEFORE this
     // message are the resolver's evidence — captured before
     // the current input is added.
-    const priorTurns = this.memory.recentTurns(6);
+    const priorTurns = memory.recentTurns(6);
 
-    this.memory.addTurn("owner", input);
+    memory.addTurn("owner", input);
 
     const nlu = understand(input, priorTurns);
     // A resolved pronoun is a RETRIEVAL hint only: it widens
@@ -594,7 +695,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
     );
     const retrievalQuery =
       referents.length > 0 ? `${input} ${referents.join(" ")}` : input;
-    const context = this.memory.retrieve(retrievalQuery);
+    const context = memory.retrieve(retrievalQuery);
     const ranked = this.facts.rank(retrievalQuery);
 
     // Compound-request decomposition (plan P2, audit N2):
@@ -613,7 +714,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
     } else if (clauses.length > 1 || clauses[0].negated) {
       // A single clause that is itself an exclusion routes
       // through the same honest exclusion path.
-      outcome = await this.routeClauses(clauses, systemInstruction);
+      outcome = await this.routeClauses(clauses, systemInstruction, session);
     } else {
       outcome = await this.route(
         nlu,
@@ -645,13 +746,13 @@ export class ArchieNativeEngine implements ArchieRuntime {
       outcome.responseText,
     );
     if (!semanticCheck.passed) this.verificationFails += 1;
-    this.memory.addTurn("archie", outcome.responseText);
+    memory.addTurn("archie", outcome.responseText);
     // P7 — persist this turn pair so the NEXT session (any
     // isolate) recalls it. Consent gate: this.episodicStore
     // is null when personalization_memory is revoked.
     if (this.episodicStore) {
       const at = Date.now();
-      const convId = this.conversationId;
+      const convId = session.conversationId;
       const ownerText = input;
       const archieText = outcome.responseText;
       try {
@@ -984,6 +1085,20 @@ export class ArchieNativeEngine implements ArchieRuntime {
     return null;
   }
 
+  /** Public retrieval surface (audit M-2/C-1): the SAME
+   *  TF-IDF context retrieval converse() uses, scoped to a
+   *  conversation's session. Callers (tests, tools) no longer
+   *  reach into private state to verify recall. */
+  retrieveContext(query: string, conversationId?: string): RetrievedContext {
+    return this.sessionFor(conversationId).memory.retrieve(query);
+  }
+
+  /** Public knowledge ranking surface (audit M-2): the SAME
+   *  TF-IDF FactRankIndex ranking converse() uses. */
+  rankKnowledge(query: string, k?: number): Fact[] {
+    return this.facts.rank(query, k);
+  }
+
   /** Run citation verification from outside the engine —
    *  used by the reasoning-loop controller (plan P5) so
    *  externally composed results get the same verification
@@ -1000,6 +1115,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
   private async routeClauses(
     clauses: ReturnType<typeof decomposeClauses>,
     systemInstruction?: string,
+    session?: EngineSession,
   ): Promise<ConverseResult> {
     const parts: string[] = [];
     const cited = new Set<string>();
@@ -1013,13 +1129,16 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
       const clauseNlu = understand(clause.text);
       const clauseRanked = this.facts.rank(clause.text);
-      const clauseContext = this.memory.retrieve(clause.text);
+      const clauseContext = (session ?? this.sessionFor()).memory.retrieve(
+        clause.text,
+      );
       const res = await this.route(
         clauseNlu,
         clause.text,
         clauseRanked,
         clauseContext,
         systemInstruction,
+        session,
       );
       positive += 1;
       confSum += res.confidence;
@@ -1098,7 +1217,14 @@ export class ArchieNativeEngine implements ArchieRuntime {
     ranked: Fact[],
     context: RetrievedContext,
     systemInstruction?: string,
+    session?: EngineSession,
   ): Promise<ConverseResult> {
+    /** The request's declared tool surface — session-scoped
+     *  (C-1): falls back to the legacy pointer's session for
+     *  direct converse() callers. */
+    const requestToolNames = session
+      ? session.requestToolNames
+      : this.sessionFor().requestToolNames;
     const cite = (facts: Fact[]) => facts.map((f) => f.id);
 
     // cd-3 — cross-system contradiction reconciliation: "the
@@ -1195,7 +1321,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         // counters. Prefer the tool when the caller declared
         // it; the native diagnostics remain the honest
         // fallback.
-        if (this.requestToolNames.includes("frelux_status")) {
+        if (requestToolNames.includes("frelux_status")) {
           const pending = this.compose(
             "Checking the live deployment status — one moment.",
             nlu.confidence,
@@ -1446,13 +1572,28 @@ export class ArchieNativeEngine implements ArchieRuntime {
         // P8: derived facts carry an explicit epistemic label
         // — a rule-chain conclusion is never presented as
         // owner-validated knowledge.
-        const parts = validated.map(
-          (f) =>
-            `${f.subject} ${f.predicate.replace(/-/g, " ")}: ${String(f.object)} ` +
-            (f.status === "derived" || f.provenance.source === "inferred"
-              ? `[confidence ${(f.confidence * 100).toFixed(0)}%, DERIVED — inferred by rule chain, not owner-validated]`
-              : `[confidence ${(f.confidence * 100).toFixed(0)}%, ${f.provenance.source}]`),
-        );
+        const parts = validated.map((f) => {
+          const base = `${f.subject} ${f.predicate.replace(/-/g, " ")}: ${String(f.object)} `;
+          if (f.status === "derived" || f.provenance.source === "inferred") {
+            return (
+              base +
+              `[confidence ${(f.confidence * 100).toFixed(0)}%, DERIVED — inferred by rule chain, not owner-validated]`
+            );
+          }
+          // H-1: owner-asserted facts are labeled as the
+          // owner's assertion — citable, but never dressed as
+          // independently-validated knowledge.
+          if (f.status === "owner-asserted") {
+            return (
+              base +
+              `[confidence ${(f.confidence * 100).toFixed(0)}%, OWNER-ASSERTED (${f.provenance.source}) — taught by you, not independently verified]`
+            );
+          }
+          return (
+            base +
+            `[confidence ${(f.confidence * 100).toFixed(0)}%, ${f.provenance.source}]`
+          );
+        });
         // P1b: if the question is a "why did this go wrong"
         // problem with numbers that fall short of a recorded
         // requirement, connect them as a working hypothesis.
@@ -1471,7 +1612,13 @@ export class ArchieNativeEngine implements ArchieRuntime {
         // derived marker, never "validated knowledge".
         const opening = includesDerived(validated)
           ? derivedOpening(kbSeed)
-          : knowledgeOpening(kbSeed);
+          : // H-1: an answer citing ONLY owner-asserted facts
+            // opens with the owner-asserted frame — the owner's
+            // assertion is never presented under the
+            // independently-validated banner.
+            validated.every((f) => f.status === "owner-asserted")
+            ? ownerAssertedOpening(kbSeed)
+            : knowledgeOpening(kbSeed);
         return this.compose(
           `${opening}\n${parts.join("\n")}` +
             (followUp ? `\n\n${followUp}` : "") +
@@ -1507,11 +1654,16 @@ export class ArchieNativeEngine implements ArchieRuntime {
             source: "owner-taught",
             note: `taught in conversation: ${input.slice(0, 120)}`,
           },
-          status: "validated",
+          // H-1 (audit fix 2026-09-11): a taught fact is held on
+          // the owner's AUTHORITY — it is citable with an honest
+          // label, but "validated" is earned through real
+          // verification events (explicit owner confirmation
+          // in use), never minted on arrival.
+          status: "owner-asserted",
         });
         const text = conflict
           ? `Retained — but flagged: this contradicts ${conflict.conflictingFactIds.length} existing fact(s) on the same point. Both are held as uncertain until you confirm which is correct.`
-          : `Retained as validated knowledge: ${fact.subject} ${fact.predicate.replace(/-/g, " ")} → ${String(fact.object)}.`;
+          : `Retained as your assertion (owner-asserted — held on your authority, not independently verified): ${fact.subject} ${fact.predicate.replace(/-/g, " ")} → ${String(fact.object)}. When I use it and you confirm I was right, it earns validated status.`;
         return this.compose(text, nlu.confidence, [fact.id]);
       }
 
@@ -1614,6 +1766,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
           contributing: [...targeted.keys()],
         });
         if (triple) {
+          const correctionStamp = `owner-correction:${Date.now()}`;
           const { fact } = await this.facts.assert({
             ...triple,
             confidence: 0.8,
@@ -1621,17 +1774,27 @@ export class ArchieNativeEngine implements ArchieRuntime {
               source: "owner-taught",
               note: `owner correction: ${input.slice(0, 120)}`,
             },
-            status: "validated",
+            // H-1: a corrected value is the owner's assertion —
+            // stronger than a plain teaching (the owner reviewed
+            // a live contradiction) and stamped with that real
+            // verification event, but it still earns "validated"
+            // through confirmation, not on arrival.
+            status: "owner-asserted",
           });
-          // OWNER AUTHORITY resolves the conflict: the owner
-          // explicitly confirmed the correct value, so the
-          // corrected fact is validated. The contradicted facts
-          // remain in the store as uncertain (history kept) —
-          // this is an audible resolution, never a silent
-          // overwrite of higher-confidence knowledge.
-          fact.status = "validated";
+          if (!(fact.verifiedBy ?? []).includes(correctionStamp)) {
+            fact.verifiedBy = [...(fact.verifiedBy ?? []), correctionStamp];
+          }
+          // The conflict detector parks a contradicting
+          // newcomer — but HERE the owner has explicitly
+          // resolved the contradiction (the wrong facts were
+          // already moved to uncertain above), so the
+          // corrected assertion must stand as owner-asserted,
+          // not be parked alongside the facts it replaces.
+          if (fact.status === "uncertain" || fact.status === "validated") {
+            fact.status = "owner-asserted";
+          }
           return this.compose(
-            `Correction processed. ${targeted.size} related fact(s) moved to uncertain, and the corrected knowledge is retained as the owner-confirmed value. I do not silently keep wrong facts.`,
+            `Correction processed. ${targeted.size} related fact(s) moved to uncertain, and the corrected knowledge is retained as the owner-corrected assertion (owner-asserted — you resolved the contradiction, and the correction is stamped as a verification event). I do not silently keep wrong facts.`,
             nlu.confidence,
             [fact.id],
           );
@@ -1861,7 +2024,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
           // market_intelligence tool, ASK the caller to execute
           // it instead of refusing — the dead-tool seam is now
           // a live bridge.
-          if (this.requestToolNames.includes("market_intelligence")) {
+          if (requestToolNames.includes("market_intelligence")) {
             const pending = this.compose(
               `Consulting market intelligence for the observed price of "${product}" — one moment.`,
               nlu.confidence,
@@ -2199,8 +2362,14 @@ export class ArchieNativeEngine implements ArchieRuntime {
         rules: this.reasoning.ruleCount(),
         operators: this.planner.operatorCount(),
         tools: this.tools.count(),
-        memoryTurns: this.memory.size(),
-        episodicTurns: this.memory.episodicSize(),
+        // C-1: memory is session-scoped — diagnostics report
+        // the aggregate across live sessions (plus the shared
+        // episodic snapshot), not one shared buffer.
+        memoryTurns: [...this.sessions.values()].reduce(
+          (sum, sess) => sum + sess.memory.size(),
+          0,
+        ),
+        episodicTurns: this.episodicTurns.length,
         outcomes: this.learner.count(),
         inferences: this.inferences,
         unknownTopicHits: this.unknownTopicHits,

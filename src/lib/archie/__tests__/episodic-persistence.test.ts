@@ -143,11 +143,8 @@ describe("episodic persistence — cross-isolate recall (plan acceptance)", () =
     expect(d.counts.episodicTurns).toBeGreaterThanOrEqual(2); // owner + archie pair
     expect(d.persistence.episodic).toBe(true);
     // Retrieval actually surfaces the prior-session context
-    const ctx = await (second as unknown as {
-      memory: {
-        retrieve: (q: string) => { salientTurns: Array<{ text: string }> };
-      };
-    }).memory.retrieve("who supplies my tiles");
+    // (public retrieval surface — C-1 sessions, M-2 API)
+    const ctx = second.retrieveContext("who supplies my tiles", "conv-42");
     const texts = ctx.salientTurns.map((t) => t.text).join(" ");
     expect(texts).toMatch(/Toglam/i);
   });

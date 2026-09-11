@@ -162,7 +162,12 @@ export class SelfEvaluator {
         );
 
     for (const fact of citedFacts) {
-      if (fact.status !== "validated" && fact.status !== "derived") continue;
+      if (
+        fact.status !== "validated" &&
+        fact.status !== "derived" &&
+        fact.status !== "owner-asserted"
+      )
+        continue;
       const subjectTokens = significant(fact.subject);
       if (subjectTokens.length === 0) continue;
       const objectStr = String(fact.object ?? "");

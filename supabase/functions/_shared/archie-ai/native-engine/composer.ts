@@ -67,6 +67,18 @@ const DERIVED_OPENINGS = [
   "Derived knowledge — produced by my rules, not yet owner-validated:",
 ];
 
+// H-1 — openings for answers citing ONLY owner-asserted
+// knowledge (taught, not yet independently verified). Every
+// variant carries the "owner-asserted" marker so an owner's
+// assertion is never presented as independently-validated
+// knowledge.
+const OWNER_ASSERTED_OPENINGS = [
+  "From what you have taught me (owner-asserted — your assertion, not independently verified):",
+  "Here is what I hold on your authority (owner-asserted, not yet independently verified):",
+  "What my owner-asserted knowledge says — taught by you, not independently verified:",
+  "You taught me this (owner-asserted — it earns validated status only when confirmed in use):",
+];
+
 const UNKNOWN_OPENINGS = [
   "I do not have validated knowledge on that yet.",
   "That is not in my validated knowledge yet.",
@@ -85,6 +97,13 @@ export function knowledgeOpening(seed: string): string {
  *  not-owner-validated disclaimer. */
 export function derivedOpening(seed: string): string {
   return pick("kb-derived", seed, DERIVED_OPENINGS);
+}
+
+/** Opening line for an answer citing only owner-asserted
+ *  knowledge. Every variant contains "owner-asserted" and an
+ *  explicit not-independently-verified disclaimer. */
+export function ownerAssertedOpening(seed: string): string {
+  return pick("kb-owner-asserted", seed, OWNER_ASSERTED_OPENINGS);
 }
 
 /** Does a set of facts the answer is about to cite include
@@ -109,8 +128,8 @@ export function unknownOpening(seed: string): string {
  *  engine's composer integration: asserts every variant of
  *  every family keeps its required marker. */
 export function composerSelfCheck(): {
-  ok: boolean
-  failures: string[]
+  ok: boolean;
+  failures: string[];
 } {
   const failures: string[] = [];
   for (const [i, v] of KNOWLEDGE_OPENINGS.entries()) {
@@ -119,7 +138,10 @@ export function composerSelfCheck(): {
     }
   }
   for (const [i, v] of DERIVED_OPENINGS.entries()) {
-    if (!/derived/i.test(v) || !/not.{0,20}owner-validated|not yet owner-validated/i.test(v)) {
+    if (
+      !/derived/i.test(v) ||
+      !/not.{0,20}owner-validated|not yet owner-validated/i.test(v)
+    ) {
       failures.push(`derivedOpening[${i}] lost the derived/disclaimer marker`);
     }
   }

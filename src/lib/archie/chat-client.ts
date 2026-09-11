@@ -193,6 +193,9 @@ export async function sendMessage(
       message: text,
       history: history.slice(-20),
       attachments: attachments.map(({ name, type }) => ({ name, type })),
+      // C-1: scopes the engine session server-side so
+      // concurrent conversations never share working memory.
+      conversationId: conversation.id,
     },
   });
   if (error) throw new Error(error.message);
