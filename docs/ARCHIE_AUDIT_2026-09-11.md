@@ -339,9 +339,25 @@ is this repo's own ad-hoc numbering, not the canonical plan):
     sitemap (static public/sitemap.xml already serves it).
     Status: inventory complete; DELETION IS OWNER-GATED — nothing
     removed yet.
-- **Phase 4** (hygiene & scale, ongoing): dead-code sweep (~60 deployed
+- **Phase 4** (hygiene & scale): dead-code sweep (~60 deployed
   functions, ~6 reachable), persistent incremental memory index,
   frontend/backend mirror-drift contract test, lessons→behavior wiring.
+  Status (2026-09-11): COMPLETE. The mirror-drift contract
+  (src/lib/archie/**tests**/mirror-drift-contract.test.ts) pins
+  edge-function references, anatomy seeds/probes/count and the
+  core registry — it surfaced one real gap: roof-view-imagery is
+  invoked by the roof frontend but the function was never built
+  (dormant gated feature, allowlisted in the test, owner
+  decision pending). Lessons→behavior: evolution-memory lessons
+  (archie_evolution_memory, §15) were write-only until Phase 4.4
+  — now archie-chat wires a service-role lookup and the native
+  engine retrieves owner-recorded lessons relevant to a planning
+  goal (deterministic salient-token overlap), surfaces them in
+  the plan and reply with dated provenance, and raises plan risk
+  honestly when a past attempt failed or was rolled back. A
+  lesson is CONTEXT: never asserted as a fact (memory-integrity
+  test), never auto-blocks an operator. Verified by 12
+  lessons-behavior tests; full suite 7187 green.
 
 Sequencing: 1 → 2.1 → 2.3 → 2.4 → 2.2 → 3 → 4. Both inviolables hold
 throughout: owner-gated execution, provider independence.

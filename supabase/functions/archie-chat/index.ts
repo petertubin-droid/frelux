@@ -73,8 +73,10 @@ const db = createClient(SUPABASE_URL, SERVICE_ROLE, {
 import {
   configureNativeEnginePersistence,
   configureNativeEngineMarketLookup,
+  configureNativeEngineLessonLookup,
   type MarketPriceResult,
 } from "../_shared/archie-ai/native-engine/engine.ts";
+import type { RecordedLesson } from "../_shared/archie-ai/native-engine/lessons.ts";
 configureNativeEnginePersistence(
   db as unknown as import("../_shared/archie-ai/native-engine/persistence.ts").SupabaseLike,
 );
@@ -164,6 +166,45 @@ configureNativeEngineMarketLookup(
     return null;
   },
 );
+// ---------------------------------------------------------
+// ARCHIE lessons → behavior (REAL, Phase 4.4): the owner's
+// evolution memory (archie_evolution_memory, §15) read back
+// into planning. Until 4.4 these rows were write-only — now
+// ARCHIE retrieves owner-recorded lessons relevant to a goal
+// (deterministic salient-token overlap, in the engine) and
+// annotates the plan with dated, provenance-carrying context.
+// No rows / error → null → the plan carries no lessons
+// (absence is honest, never fabricated).
+// ---------------------------------------------------------
+configureNativeEngineLessonLookup(
+  async (): Promise<RecordedLesson[] | null> => {
+    const { data, error } = await db
+      .from("archie_evolution_memory")
+      .select(
+        "id, problem, proposed_solution, owner_decision, implementation_result, test_result, production_result, failure_information, rollback_information, lessons_learned, related_cr_number, affected_version, created_at",
+      )
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) return null;
+    if (!data || data.length === 0) return null;
+    return data.map((r: Record<string, unknown>) => ({
+      id: String(r.id ?? ""),
+      problem: String(r.problem ?? ""),
+      proposedSolution: String(r.proposed_solution ?? ""),
+      ownerDecision: String(r.owner_decision ?? ""),
+      implementationResult: (r.implementation_result as string) ?? null,
+      testResult: (r.test_result as string) ?? null,
+      productionResult: (r.production_result as string) ?? null,
+      failureInformation: (r.failure_information as string) ?? null,
+      rollbackInformation: (r.rollback_information as string) ?? null,
+      lessonsLearned: (r.lessons_learned as string) ?? null,
+      relatedCrNumber: (r.related_cr_number as string) ?? null,
+      affectedVersion: (r.affected_version as string) ?? null,
+      createdAt: String(r.created_at ?? ""),
+    }));
+  },
+);
+
 // ---------------------------------------------------------
 // ARCHIE system adapters (REAL): each one reads live rows
 // from its deployed table. No rows / error → null → the

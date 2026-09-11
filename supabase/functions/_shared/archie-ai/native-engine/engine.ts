@@ -65,6 +65,11 @@ import {
   extractComparisonSubjects,
 } from "./strategies.ts";
 import { DEFAULT_OPERATORS, PLANNING_OPERATORS, Planner } from "./planning.ts";
+import {
+  mergeLessonRisk,
+  retrieveRelevantLessons,
+  type RecordedLesson,
+} from "./lessons.ts";
 import { DomainSkillRegistry, type DomainSkill } from "./domains/registry.ts";
 import {
   constructionSkill,
@@ -90,7 +95,14 @@ import { SelfEvaluator } from "./selfeval.ts";
 import { OutcomeLearner, type OutcomePersistence } from "./learning.ts";
 import { SupabasePersistence, type SupabaseLike } from "./persistence.ts";
 import { CounterPersistence, EpisodicPersistence } from "./persistence.ts";
-import type { Fact, Plan, RetrievedContext } from "./types.ts";
+import type { Fact, Plan, PlanLesson, RetrievedContext } from "./types.ts";
+
+/** Phase 4.4 (lessons → behavior): caller-provided fetch of
+ *  the owner's evolution-memory rows (archie_evolution_memory,
+ *  §15). archie-chat wires this at boot with the service
+ *  client. Null/[]/throw → the plan simply carries no lessons
+ *  (absence is honest, never fabricated). */
+export type LessonLookup = () => Promise<RecordedLesson[] | null>;
 
 /** Foundational knowledge seeded at engine construction —
  *  real reference facts in ARCHIE's home domain. */
@@ -246,6 +258,8 @@ export class ArchieNativeEngine implements ArchieRuntime {
   private domains: DomainSkillRegistry;
   private adapter: ResearchAdapter;
   private marketPriceLookup: MarketPriceLookup | null;
+  /** Phase 4.4 — owner evolution-memory lessons provider. */
+  private lessonLookup: LessonLookup | null;
   private systemAdapters: SystemAdapters;
   private persistence: SupabasePersistence | null;
   private verbosity: Verbosity = "detailed";
@@ -274,6 +288,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
     persistence?: SupabaseLike | null;
     researchAdapter?: ResearchAdapter;
     marketPriceLookup?: MarketPriceLookup;
+    lessonLookup?: LessonLookup;
     systemAdapters?: SystemAdapters;
     /** P6 Batch B — owner verbosity profile. Selects which
      *  OPTIONAL connectives are composed; content and
@@ -286,6 +301,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
     this.conversationId = options?.conversationId ?? "default";
     this.verbosity = options?.verbosity ?? "detailed";
     this.marketPriceLookup = options?.marketPriceLookup ?? null;
+    this.lessonLookup = options?.lessonLookup ?? null;
     this.systemAdapters = options?.systemAdapters ?? {};
     this.persistence = options?.persistence
       ? new SupabasePersistence(options.persistence)
@@ -1722,6 +1738,34 @@ export class ArchieNativeEngine implements ArchieRuntime {
           predicate: "planned",
         });
         await this.executePlanSteps(plan, goalSubject, input);
+        // Phase 4.4 (lessons → behavior): owner-recorded
+        // evolution-memory lessons relevant to THIS goal are
+        // retrieved and attached to the plan — context with
+        // dated provenance, never facts, never auto-blocks.
+        // A failed/rolled-back past attempt raises the risk
+        // level honestly.
+        plan.relevantLessons = await this.fetchPlanLessons(
+          `${goalSubject} ${input}`,
+        );
+        if (plan.relevantLessons.length > 0) {
+          plan.risk = mergeLessonRisk(plan.relevantLessons, plan.risk);
+        }
+        const lessonsNote =
+          plan.relevantLessons.length > 0
+            ? `\nPast lessons from your evolution memory apply here (owner-recorded, dated — context, not validated rules): ` +
+              plan.relevantLessons
+                .map(
+                  (l, i) =>
+                    `${i + 1}. [${l.recordedAt.slice(0, 10)}] ${l.lesson}` +
+                    (l.failedBefore
+                      ? " (a past attempt on this problem failed or was rolled back — risk noted)"
+                      : ""),
+                )
+                .join(" ") +
+              (plan.relevantLessons.some((l) => l.failedBefore)
+                ? `\nRisk level raised accordingly: ${plan.risk.level}.`
+                : "")
+            : "";
         const text = plan.executable
           ? `Plan for your request (${plan.steps.length} steps, cost ${plan.totalCost}) — goal: ${goalSubject}\n` +
             plan.steps
@@ -1737,8 +1781,10 @@ export class ArchieNativeEngine implements ArchieRuntime {
                   .map((a) => `${a.description} (${a.tradeoff})`)
                   .join("; ")}.`
               : "") +
+            lessonsNote +
             `\nConsequential actions in this plan end at PROPOSE — execution stays yours to authorize.`
-          : `I cannot honestly plan that yet. Gaps: ${plan.gapReport.join("; ")}. I report gaps rather than inventing steps.`;
+          : `I cannot honestly plan that yet. Gaps: ${plan.gapReport.join("; ")}. I report gaps rather than inventing steps.` +
+            lessonsNote;
         return this.compose(text, nlu.confidence, [], plan);
       }
 
@@ -1910,6 +1956,22 @@ export class ArchieNativeEngine implements ArchieRuntime {
           [],
         );
       }
+    }
+  }
+
+  /** Phase 4.4 — fetch owner evolution-memory lessons
+   *  relevant to a planning query. Absence is honest ([]):
+   *  no provider wired, provider failure, or nothing
+   *  clearing the retrieval floor. NEVER throws into the
+   *  planning path. */
+  private async fetchPlanLessons(query: string): Promise<PlanLesson[]> {
+    if (!this.lessonLookup) return [];
+    try {
+      const rows = await this.lessonLookup();
+      if (!rows || rows.length === 0) return [];
+      return retrieveRelevantLessons(rows, query);
+    } catch {
+      return [];
     }
   }
 
@@ -2197,6 +2259,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
 // ---------------------------------------------------------
 let configuredPersistence: SupabaseLike | null | undefined;
 let configuredMarketLookup: MarketPriceLookup | undefined;
+let configuredLessonLookup: LessonLookup | undefined;
 let configuredSystemAdapters: SystemAdapters | undefined;
 let singleton: ArchieNativeEngine | undefined;
 
@@ -2235,11 +2298,21 @@ export function configureNativeEngineSystemAdapters(
   singleton = undefined;
 }
 
+/** Wire the real evolution-memory lesson lookup (Phase 4.4,
+ *  lessons → behavior). archie-chat does this at boot with the
+ *  service client. Resets the singleton so the next resolve
+ *  carries the lessons provider. */
+export function configureNativeEngineLessonLookup(lookup: LessonLookup): void {
+  configuredLessonLookup = lookup;
+  singleton = undefined;
+}
+
 export function getNativeEngine(): ArchieNativeEngine {
   if (!singleton) {
     singleton = new ArchieNativeEngine({
       persistence: configuredPersistence,
       marketPriceLookup: configuredMarketLookup,
+      lessonLookup: configuredLessonLookup,
       systemAdapters: configuredSystemAdapters,
     });
   }

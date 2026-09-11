@@ -159,8 +159,32 @@ export interface Plan {
    * options. Empty when no other operator chain exists. */
   alternatives: PlanAlternative[];
   /** Risk assessment of the primary plan (pl-3) — honest,
-   * derived from the operators involved. */
+   * derived from the operators involved and (Phase 4.4) from
+   * owner-recorded evolution-memory lessons that match. */
   risk: { level: "low" | "medium" | "high"; notes: string[] };
+  /** Phase 4.4 (lessons → behavior): owner-recorded lessons
+   * relevant to this goal, retrieved deterministically from
+   * archie_evolution_memory. CONTEXT ONLY — never asserted as
+   * facts, never auto-block an operator. Undefined when no
+   * lesson provider is wired (e.g. in-memory engine runs). */
+  relevantLessons?: PlanLesson[];
+}
+
+/** An owner-recorded evolution-memory lesson surfaced into a
+ *  plan (Phase 4.4). Provenance is explicit and dated. */
+export interface PlanLesson {
+  id: string;
+  problem: string;
+  /** The lesson text as the owner recorded it. */
+  lesson: string;
+  /** ISO timestamp of the evolution-memory row. */
+  recordedAt: string;
+  /** The salient tokens the lesson and the goal share — the
+   *  retrieval evidence, surfaced for inspection. */
+  matchedTokens: string[];
+  /** True when the recorded attempt carries failure or
+   *  rollback information — repeats are risk-flagged. */
+  failedBefore: boolean;
 }
 
 export interface PlanAlternative {
