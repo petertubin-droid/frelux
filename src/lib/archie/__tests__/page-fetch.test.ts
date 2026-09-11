@@ -87,7 +87,7 @@ function stubFetch(
   robotsBodies: Record<string, string | (() => Response)>,
   pageHandler: (url: string) => Response | Promise<Response>,
 ): typeof fetch {
-  return (async (input: any, init?: any) => {
+  return (async (input: unknown, init?: unknown) => {
     const url = String(input instanceof URL ? input : input);
     const robotsMatch = /^https?:\/\/[^/]+\/robots\.txt$/.exec(url);
     if (robotsMatch) {
@@ -123,7 +123,7 @@ describe("PageFetcher", () => {
   it("reports a timeout honestly, never a fake extraction", async () => {
     const fetcher = new PageFetcher({
       timeoutMs: 30,
-      fetchFn: (async (_input: any, init: any) => {
+      fetchFn: (async (_input: unknown, init: { signal: AbortSignal }) => {
         return await new Promise((_resolve, reject) => {
           init.signal.addEventListener("abort", () => {
             reject(new DOMException("aborted", "AbortError"));
@@ -148,7 +148,7 @@ describe("PageFetcher", () => {
     });
     // robots fetch is stubbed; the page handler must serve the
     // oversized header — override after robots: use a raw fn.
-    const fn = (async (input: any) => {
+    const fn = (async (input: unknown) => {
       const url = String(input);
       if (url.endsWith("/robots.txt")) {
         return new Response("User-agent: *\nDisallow:\n", { status: 200 });
@@ -167,7 +167,7 @@ describe("PageFetcher", () => {
   });
 
   it("extracts readable content from a real HTML page", async () => {
-    const fn = (async (input: any) => {
+    const fn = (async (input: unknown) => {
       const url = String(input);
       if (url.endsWith("/robots.txt")) {
         return new Response("User-agent: *\nDisallow:\n", { status: 200 });
@@ -192,7 +192,7 @@ describe("PageFetcher", () => {
   });
 
   it("refuses non-text content types honestly", async () => {
-    const fn = (async (input: any) => {
+    const fn = (async (input: unknown) => {
       const url = String(input);
       if (url.endsWith("/robots.txt")) {
         return new Response("User-agent: *\nDisallow:\n", { status: 200 });
@@ -230,7 +230,7 @@ describe("research pipeline page deepening", () => {
     `<html><body><p>Site ${domain}: Concrete curing requires moisture retention for 28 days to reach design strength and prevent cracking in the slab surface.</p></body></html>`;
 
   function deepeningFetcher(): typeof fetch {
-    return (async (input: any) => {
+    return (async (input: unknown) => {
       const url = String(input);
       if (url.endsWith("/robots.txt")) {
         return new Response("User-agent: *\nDisallow:\n", { status: 200 });
@@ -297,7 +297,7 @@ describe("research pipeline page deepening", () => {
         note: "search completed",
       };
     });
-    const failingFetcher = (async (input: any) => {
+    const failingFetcher = (async (input: unknown) => {
       const url = String(input);
       if (url.endsWith("/robots.txt")) {
         return new Response("User-agent: *\nDisallow:\n", { status: 200 });
@@ -335,7 +335,7 @@ describe("research pipeline page deepening", () => {
         note: "search completed",
       };
     });
-    const robotsGuardedFetcher = (async (input: any) => {
+    const robotsGuardedFetcher = (async (input: unknown) => {
       const url = String(input);
       if (url.endsWith("/robots.txt")) {
         return new Response("User-agent: *\nDisallow: /\n", { status: 200 });

@@ -1308,7 +1308,9 @@ export function decomposeClauses(rawInput: string): DecomposedClause[] {
         masks.push(m);
         return `\u0000${masks.length - 1}\u0000`;
       });
+  // NUL bytes are intentional sentinel markers for masked spans
   const unmask = (text: string): string =>
+    // eslint-disable-next-line no-control-regex -- sentinel unmasking is the purpose here
     text.replace(/\u0000(\d+)\u0000/g, (_, i) => masks[Number(i)] ?? "");
   const input = mask(rawInput);
   const negation =
