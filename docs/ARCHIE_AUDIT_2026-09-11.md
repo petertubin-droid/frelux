@@ -314,6 +314,31 @@ is this repo's own ad-hoc numbering, not the canonical plan):
      positive cases, negation, citation-without-restatement,
      unvalidated-fact exemption. ARCHIE suite: 84 files, 1284
      passing.
+- **Phase 4.1** — dead-code sweep, MEASURED 2026-09-11 (48 deployed,
+  not ~60): 27 reachable, 21 unreferenced, tiered by risk. Method:
+  Management API enumeration + grep for `functions/v1/<slug>` and
+  `.invoke('<slug>')` across src/, netlify.toml, index.html,
+  supabase/functions/ + public/ + robots.txt + pg_cron migrations
+  - dynamic-template audit (found AdminAiSettings dynamic map:
+    ai-building-estimation, ai-livechat, ai-studio are reachable via
+    admin UI).
+  * EXTERNAL-ENTRY — do NOT delete without checking external
+    dashboards (code refs alone cannot prove death):
+    paystack-webhook (Paystack dashboard webhook URL — deleting
+    breaks payment verification), award-credits /
+    grant-rewarded-unlock / redeem-reward / verify-rewarded-ad /
+    spend-ai-credits (rewarded-ad ecosystem; ad-network postback
+    URLs are configured outside the repo).
+  * DEAD PER CODE-SCAN — no refs anywhere, no dynamic paths, no
+    static replacements needed; owner confirmation still required
+    before deletion (production consequence):
+    4 UUID-junk slugs (2dbc04a6-…, 3334ab52-…, 5a70c1d1-…,
+    c3dcda13-…), ai-admin-assistant, ai-construction-extraction,
+    ai-copilot, ai-logo-generation, archie-anatomy, archie-ingestion,
+    cleanup-old-errors, openweather, record-activity, send-sms-otp,
+    sitemap (static public/sitemap.xml already serves it).
+    Status: inventory complete; DELETION IS OWNER-GATED — nothing
+    removed yet.
 - **Phase 4** (hygiene & scale, ongoing): dead-code sweep (~60 deployed
   functions, ~6 reachable), persistent incremental memory index,
   frontend/backend mirror-drift contract test, lessons→behavior wiring.
