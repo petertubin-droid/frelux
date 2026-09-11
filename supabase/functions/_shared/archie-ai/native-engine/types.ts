@@ -29,7 +29,16 @@ export interface Fact {
   confidence: number;
   /** Where this fact came from: owner teaching, inference, web research. */
   provenance: {
-    source: "owner-taught" | "inferred" | "web-research" | "seed";
+    // "cross-source:<domain>" is the documented label for a
+    // corroboration from a specific external source — distinct
+    // domains are DISTINCT sources for reinforcement, while a
+    // bare "web-research" is one generic source.
+    source:
+      | "owner-taught"
+      | "inferred"
+      | "web-research"
+      | "seed"
+      | `cross-source:${string}`;
     /** Derivation chain for inferred facts (rule + premise fact ids). */
     derivation?: {
       ruleId: string;

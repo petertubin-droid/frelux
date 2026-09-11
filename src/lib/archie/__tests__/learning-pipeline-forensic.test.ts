@@ -26,7 +26,12 @@ async function taught(
   subject: string,
   predicate: string,
   object: string,
-  source = "owner",
+  source:
+    | "seed"
+    | "inferred"
+    | "owner-taught"
+    | "web-research"
+    | `cross-source:${string}` = "owner-taught",
   confidence = 0.9,
 ) {
   return store.assert({
@@ -35,7 +40,8 @@ async function taught(
     object,
     confidence,
     provenance: { source },
-    status: "taught",
+    // facts await promotion as candidates — the gate decides
+    status: "candidate",
   });
 }
 
@@ -83,11 +89,11 @@ describe("isolate hand-off through shared persistence (the real cross-context pa
     const b = new FactStore(mem as never);
     await b.hydrate();
     expect(b.count()).toBe(1);
-    const result = await taught(b, "mortar", "ratio", "1:4", "field-guide", 0.7);
+    const result = await taught(b, "mortar", "ratio", "1:4", "cross-source:field-guide", 0.7);
     // twin was found and reinforced, not duplicated
     expect(b.count()).toBe(1);
     expect(result.fact.validatedCount).toBe(1);
-    expect(result.fact.verifiedBy).toEqual(["owner-taught", "field-guide"]);
+    expect(result.fact.verifiedBy).toEqual(["owner-taught", "cross-source:field-guide"]);
     expect(result.fact.id).toBe((rows[0] as any).id);
   });
 });
@@ -101,18 +107,18 @@ describe("promotion gate boundary conditions", () => {
     expect(first.fact.verifiedBy).toEqual(["owner-taught"]);
     expect(first.fact.validatedCount).toBe(0);
     // two independent corroborations reach validatedCount 2
-    await taught(store, "screeding", "sets-in", "48 hours", "field-guide", 0.7);
-    const twin = await taught(store, "screeding", "sets-in", "48 hours", "catalog", 0.65);
+    await taught(store, "screeding", "sets-in", "48 hours", "cross-source:field-guide", 0.7);
+    const twin = await taught(store, "screeding", "sets-in", "48 hours", "cross-source:catalog", 0.65);
     expect(twin.fact.validatedCount).toBe(2);
-    expect(twin.fact.verifiedBy).toEqual(["owner-taught", "field-guide", "catalog"]);
+    expect(twin.fact.verifiedBy).toEqual(["owner-taught", "cross-source:field-guide", "cross-source:catalog"]);
     expect(twin.fact.status).toBe("validated");
   });
 
   it("validatedCount 2 but confidence below 0.6 does NOT promote", async () => {
     const store = new FactStore();
-    await taught(store, "sand", "costs", "little", "field-guide", 0.4);
-    await taught(store, "sand", "costs", "little", "catalog", 0.45);
-    const twin = await taught(store, "sand", "costs", "little", "website", 0.45);
+    await taught(store, "sand", "costs", "little", "cross-source:field-guide", 0.4);
+    await taught(store, "sand", "costs", "little", "cross-source:catalog", 0.45);
+    const twin = await taught(store, "sand", "costs", "little", "cross-source:website", 0.45);
     expect(twin.fact.validatedCount).toBe(2);
     expect(twin.fact.confidence).toBeLessThan(0.6);
     expect(twin.fact.status).not.toBe("validated");
@@ -120,9 +126,9 @@ describe("promotion gate boundary conditions", () => {
 
   it("same-source repetition fills no ledger slot and can never promote alone (H2)", async () => {
     const store = new FactStore();
-    await taught(store, "gravel", "sold-in", "tonnes", "field-guide", 0.8);
-    await taught(store, "gravel", "sold-in", "tonnes", "field-guide", 0.8);
-    await taught(store, "gravel", "sold-in", "tonnes", "field-guide", 0.8);
+    await taught(store, "gravel", "sold-in", "tonnes", "cross-source:field-guide", 0.8);
+    await taught(store, "gravel", "sold-in", "tonnes", "cross-source:field-guide", 0.8);
+    await taught(store, "gravel", "sold-in", "tonnes", "cross-source:field-guide", 0.8);
     const f = store.list().find((x) => x.subject === "gravel")!;
     // 3 same-source asserts → 2 reinforcements, 0 ledger entries
     expect(f.validatedCount).toBe(2);
@@ -130,8 +136,8 @@ describe("promotion gate boundary conditions", () => {
     expect(f.status).not.toBe("validated");
     // even pushed past the confidence bar, repetition alone
     // still cannot promote
-    await taught(store, "gravel", "sold-in", "tonnes", "field-guide", 0.8);
-    await taught(store, "gravel", "sold-in", "tonnes", "field-guide", 0.8);
+    await taught(store, "gravel", "sold-in", "tonnes", "cross-source:field-guide", 0.8);
+    await taught(store, "gravel", "sold-in", "tonnes", "cross-source:field-guide", 0.8);
     const f2 = store.list().find((x) => x.subject === "gravel")!;
     expect(f2.confidence).toBeGreaterThan(0.6);
     expect(f2.status).not.toBe("validated");
@@ -140,7 +146,7 @@ describe("promotion gate boundary conditions", () => {
   it("consolidation is idempotent — running it twice changes nothing", async () => {
     const store = new FactStore();
     await taught(store, "blocks", "come-in", "450mm", "owner-taught", 0.8);
-    await taught(store, "blocks", "come-in", "450mm", "catalog", 0.7);
+    await taught(store, "blocks", "come-in", "450mm", "cross-source:catalog", 0.7);
     const snapshot = () =>
       JSON.stringify(store.list().map((f) => [f.subject, f.predicate, f.status, f.validatedCount]));
     const before = snapshot();

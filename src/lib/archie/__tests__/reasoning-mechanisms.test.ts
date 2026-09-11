@@ -12,8 +12,8 @@ import { FactStore } from "@studio-shared/archie-ai/native-engine/knowledge.ts";
 import {
   GENERAL_RULES,
   ReasoningEngine,
-  type Rule,
 } from "@studio-shared/archie-ai/native-engine/reasoning.ts";
+import type { Rule } from "@studio-shared/archie-ai/native-engine/types.ts";
 
 async function seedPair(
   store: FactStore,

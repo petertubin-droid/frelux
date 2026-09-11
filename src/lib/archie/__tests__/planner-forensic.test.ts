@@ -30,7 +30,7 @@ async function storeWith(...facts: Array<[string, string, string]>) {
       object,
       confidence: 0.9,
       provenance: { source: "owner-taught" },
-      status: "taught",
+      status: "validated",
     });
   }
   return store;
