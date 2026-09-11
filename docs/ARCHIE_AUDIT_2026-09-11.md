@@ -217,9 +217,39 @@ is this repo's own ad-hoc numbering, not the canonical plan):
      [confidence 72%, DERIVED — inferred by rule chain, not
      owner-validated]". Tests: `derived-answers.test.ts` (compute-
      and-answer e2e + honest refusal on missing premise).
-- **Phase 3** (domain generality, 2-3 weeks): de-bias the NLU corpus
-  (construction skew in howto/research intents), planner re-scope or
-  real executable step chains, one real semantic verification check.
+- **Phase 3** (domain generality, 2-3 weeks):
+  1. ✅ NLU corpus de-biased — done 2026-09-11 (measured, not assumed):
+     general-domain held-out probes scored 31/40 BEFORE the fix
+     ("how do i roast a chicken" -> greeting, "teach me how to iron
+     a shirt" -> teaching, "steps to plant tomato seeds" ->
+     knowledge, plus collapsed confidences on every how-to
+     outside construction). Three root causes fixed:
+     (a) CORPUS rebalanced with general-domain examples across
+     cooking/tech/fitness/finance/travel/health/science/admin —
+     construction was up to 95% of knowledge_query and ~90% of
+     howto_guidance; shares now 0.22-0.45 per intent (construction
+     stays FRELUX's domain, no monopoly).
+     (b) The teaching rule over-captured "teach me how to X"
+     (the USER learning a procedure is howto_guidance, not
+     ARCHIE-teaching) — teaching now anchors on remember/learn/
+     note/memorize + "teach yourself/archie"; a howto rule takes
+     "teach me ...".
+     (c) construction_calc over-captured quantity-less how-tos
+     ("steps to build a block wall", "how do i paint a room") —
+     it now requires a QUANTITY signal (digit / how many / how
+     much / cubic|square|area|volume) and a how-to-phrase guard
+     excludes unambiguous how-to phrasings. Genuine calcs
+     ("calculate the number of blocks for a fence 20m long")
+     still route correctly.
+     Held-out probes AFTER: 40/40 general-domain, 12/12
+     construction-domain, no corpus leak (leak guard). Permanent
+     nlu-domain-generality.test.ts pins all of it, including
+     per-intent construction-share CAPS so the skew cannot
+     silently creep back. Live smoke (archie-chat): "teach me
+     how to roast a chicken" -> howto + honest research offer;
+     "steps to build a block fence" -> planning, no calc hijack.
+  2. ⬜ Planner re-scope or real executable step chains.
+  3. ⬜ One real semantic verification check.
 - **Phase 4** (hygiene & scale, ongoing): dead-code sweep (~60 deployed
   functions, ~6 reachable), persistent incremental memory index,
   frontend/backend mirror-drift contract test, lessons→behavior wiring.
