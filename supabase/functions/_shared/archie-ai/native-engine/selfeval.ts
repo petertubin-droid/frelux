@@ -130,6 +130,104 @@ export class SelfEvaluator {
     };
   }
 
+  /** PHASE 3.3 (audit, 2026-09-11) — REAL SEMANTIC
+   *  VERIFICATION. The existing checks are structural: cited
+   *  IDs exist, uncertain facts are not asserted. Nothing
+   *  verified that the response's PROSE actually agrees with
+   *  the validated facts it cites. This check does, and it is
+   *  deliberately high-precision: it only flags a mismatch
+   *  when the response RESTATES a claim about a cited fact's
+   *  subject and gets it wrong (numeric: same unit, >5% off;
+   *  textual: subject + negation + the object's distinctive
+   *  term). A response that merely cites without restating,
+   *  or restates correctly, passes — no false alarms.
+   */
+  verifySemanticClaims(citedFacts: Fact[], responseText: string): SelfCheck {
+    this.checksRun += 1;
+    // Decimal-aware split: a period BETWEEN DIGITS ("0.1081",
+    // "12.5 mm") is not a sentence boundary — only sentence
+    // terminators and newlines are.
+    const sentences = responseText.split(/(?<!\d)\.(?!\d)|[!?\n]+/);
+    const mismatches: string[] = [];
+    let restated = 0;
+
+    const significant = (t: string) =>
+      t
+        .toLowerCase()
+        .split(/[^a-z0-9]+/)
+        .filter(
+          (w) =>
+            w.length > 3 &&
+            !["that", "this", "with", "have", "your"].includes(w),
+        );
+
+    for (const fact of citedFacts) {
+      if (fact.status !== "validated" && fact.status !== "derived") continue;
+      const subjectTokens = significant(fact.subject);
+      if (subjectTokens.length === 0) continue;
+      const objectStr = String(fact.object ?? "");
+      const objNum = /(-?\d+(?:\.\d+)?)/.exec(objectStr)?.[1];
+      const objUnit =
+        /\d+(?:\.\d+)?\s*(mm|cm|m2|m3|kg|g|litres?|liters?|l|%|bags?|blocks?|hours?|days?|degrees?)/i
+          .exec(objectStr)?.[1]
+          ?.toLowerCase();
+
+      for (const sentence of sentences) {
+        const lower = sentence.toLowerCase();
+        // HIGH-PRECISION: the sentence must mention the fact's
+        // subject via ALL its significant tokens ("screed
+        // thickness") — a shared generic word alone ("wall
+        // thickness") is NOT this fact's subject.
+        const mentionsSubject = subjectTokens.every((t) =>
+          new RegExp(`\\b${t}`, "i").test(lower),
+        );
+        if (!mentionsSubject) continue;
+
+        if (objNum !== undefined && objUnit !== undefined) {
+          // numeric claim restated with the SAME unit — must match
+          const numbers = [
+            ...sentence.matchAll(
+              /(-?\d+(?:\.\d+)?)\s*(mm|cm|m2|m3|kg|g|litres?|liters?|l|%|bags?|blocks?|hours?|days?|degrees?)/gi,
+            ),
+          ];
+          for (const m of numbers) {
+            if (m[2].toLowerCase() !== objUnit) continue;
+            const stated = Number(m[1]);
+            const actual = Number(objNum);
+            restated += 1;
+            const relative =
+              Math.abs(stated - actual) / Math.max(Math.abs(actual), 1e-9);
+            if (relative > 0.05) {
+              mismatches.push(
+                `response states ${stated} ${objUnit} for "${fact.subject}" but the cited validated fact says ${actual} ${objUnit}`,
+              );
+            }
+          }
+        } else if (objUnit === undefined && objectStr.length > 0) {
+          // textual claim negated — subject + negation + object term
+          const objTokens = significant(objectStr);
+          const negated =
+            /\b(?:is not|are not|isn't|aren't|never|no longer|not)\b/i.test(
+              sentence,
+            ) && objTokens.some((t) => lower.includes(t));
+          if (negated) {
+            mismatches.push(
+              `response negates a cited validated fact about "${fact.subject}"`,
+            );
+          }
+        }
+      }
+    }
+    return {
+      check: "semantic-consistency",
+      passed: mismatches.length === 0,
+      detail:
+        mismatches.length > 0
+          ? mismatches.join("; ")
+          : `${restated} restated claim(s) agree with cited validated facts; ${citedFacts.length} cited fact(s) semantically consistent`,
+    };
+  }
+
   /** Calibration: mean predicted confidence across outcomes. */
   calibration(
     outcomes: LearningOutcome[],

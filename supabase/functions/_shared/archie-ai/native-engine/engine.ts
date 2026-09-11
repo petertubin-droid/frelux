@@ -617,6 +617,18 @@ export class ArchieNativeEngine implements ArchieRuntime {
     // P7 — a failed response-integrity check is a real,
     // countable verification failure (cross-isolate).
     if (!selfCheck.passed) this.verificationFails += 1;
+    // Phase 3.3 (audit) — REAL semantic verification: the
+    // response's PROSE must agree with the validated facts it
+    // cites (restated numbers match, nothing negates a cited
+    // validated fact). A misstatement in the reply is a
+    // countable verification failure, not just a hidden risk.
+    const semanticCheck = this.selfEval.verifySemanticClaims(
+      outcome.citedFactIds
+        .map((id) => this.facts.get(id))
+        .filter((f): f is Fact => f !== undefined),
+      outcome.responseText,
+    );
+    if (!semanticCheck.passed) this.verificationFails += 1;
     this.memory.addTurn("archie", outcome.responseText);
     // P7 — persist this turn pair so the NEXT session (any
     // isolate) recalls it. Consent gate: this.episodicStore
