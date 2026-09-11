@@ -191,7 +191,7 @@ describe("ARCHIE Native Engine — Performance harness (baseline measurement)", 
       const t0 = performance.now();
       const got = mem.retrieve(`screed level ${i % 50}`, 4);
       samples.push(performance.now() - t0);
-      if (got.length === 0) throw new Error("recall must match");
+      if (got.salientTurns.length === 0) throw new Error("recall must match");
     }
     record("memory-recall@500turns", samples);
   });
