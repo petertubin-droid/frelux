@@ -37,6 +37,7 @@ import {
   decomposeClauses,
   MAX_COMPOUND_CLAUSES,
   composeCompound,
+  tokenize,
 } from "./nlu.ts";
 import {
   derivedOpening,
@@ -443,7 +444,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
           .join(" ")
           .trim()
       : "";
-    const result = await this.converse(text, req.turns);
+    const result = await this.converse(text, req.turns, req.systemInstruction);
     const parts: ArchieInferencePart[] = [
       { text: result.responseText },
     ];
@@ -498,6 +499,10 @@ export class ArchieNativeEngine implements ArchieRuntime {
   async converse(
     input: string,
     history?: ArchieInferenceTurn[],
+    /** Caller-provided operating context (persona, domain
+     *  scope, injected knowledge base) — consulted as a
+     *  retrieval source, never persisted as knowledge. */
+    systemInstruction?: string,
   ): Promise<ConverseResult> {
     await this.boot();
     this.inferences += 1;
@@ -533,9 +538,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
     } else if (clauses.length > 1 || clauses[0].negated) {
       // A single clause that is itself an exclusion routes
       // through the same honest exclusion path.
-      outcome = await this.routeClauses(clauses);
+      outcome = await this.routeClauses(clauses, systemInstruction);
     } else {
-      outcome = await this.route(nlu, input, ranked, context);
+      outcome = await this.route(nlu, input, ranked, context, systemInstruction);
     }
     this.confidenceSum += outcome.confidence;
 
@@ -882,6 +887,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
    *  was excluded. */
   private async routeClauses(
     clauses: ReturnType<typeof decomposeClauses>,
+    systemInstruction?: string,
   ): Promise<ConverseResult> {
     const parts: string[] = [];
     const cited = new Set<string>();
@@ -901,6 +907,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         clause.text,
         clauseRanked,
         clauseContext,
+        systemInstruction,
       );
       positive += 1;
       confSum += res.confidence;
@@ -922,6 +929,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
     input: string,
     ranked: Fact[],
     context: RetrievedContext,
+    systemInstruction?: string,
   ): Promise<ConverseResult> {
     const cite = (facts: Fact[]) => facts.map((f) => f.id);
 
@@ -1113,6 +1121,24 @@ export class ArchieNativeEngine implements ArchieRuntime {
               : `Counterfactual reasoning needs a causal model of the situation, and I hold none for this — I cannot say what would have happened. Teach me the causes involved (e.g. "remember that rain causes wet ground") and I will reason the counterfactual properly from the real causal graph.`;
           return this.compose(text, nlu.confidence * 0.4, cf.evidence.slice(0, 5));
         }
+        // Caller-provided knowledge base (livechat path):
+        // consult the injected systemInstruction as a retrieval
+        // source BEFORE the validated-fact path — a matching
+        // section answers from the site's own curated content.
+        // Filler words never win a match (informative-token
+        // scoring, body overlap as tiebreak).
+        const kbSection = retrieveFromSystemInstruction(
+          input,
+          systemInstruction,
+        );
+        if (kbSection) {
+          return this.compose(
+            `From the knowledge base: ${kbSection}`,
+            Math.max(nlu.confidence, 0.75),
+            [],
+          );
+        }
+
         // tr-3 — historical price/state questions that route
         // here ("what was the cement price last month?"): no
         // price time series exists. Honest refusal, never a
@@ -2007,4 +2033,57 @@ function extractResearchQuery(input: string): string | null {
     /(?:research|search(?: the web)?(?: for)?|look up|find information(?: online)?(?: about)?|google)\s+(?:the\s+)?(.+)$/i,
   );
   return m ? m[1].replace(/[.?!]+$/, "").trim() : null;
+}
+
+// ---------------------------------------------------------
+// systemInstruction retrieval (livechat knowledge base)
+// ---------------------------------------------------------
+// Retrieval scoring ignores generic interrogative/filler
+// tokens ("what", "how", "need", "guide"...) so an article
+// about the actual subject wins over one that merely shares
+// filler words.
+const RETRIEVAL_FILLERS = new Set([
+  "what", "which", "who", "when", "where", "why", "how", "should",
+  "could", "would", "will", "can", "tell", "about", "know", "need",
+  "want", "give", "show", "help", "many", "much", "best", "good",
+  "guide", "tips", "complete", "essential",
+]);
+
+function retrieveFromSystemInstruction(
+  input: string,
+  instruction?: string,
+): string | null {
+  if (!instruction) return null;
+  const qTokens = tokenize(input).filter(
+    (t: string) => !RETRIEVAL_FILLERS.has(t),
+  );
+  if (qTokens.length === 0) return null;
+
+  const sections = instruction
+    .split(/\n##\s+/)
+    .map((s: string) => s.trim())
+    .filter((s: string) => s.length > 40 && s.length < 4000);
+  if (sections.length === 0) return null;
+
+  let best: { text: string; score: number } | null = null;
+  for (const section of sections) {
+    const lines = section.split("\n");
+    const titleTokens = new Set(
+      tokenize(lines[0]).filter((t: string) => !RETRIEVAL_FILLERS.has(t)),
+    );
+    let titleOverlap = 0;
+    for (const t of qTokens) if (titleTokens.has(t)) titleOverlap++;
+    if (titleOverlap === 0) continue; // subject must appear in the title
+    const bodyTokens = new Set(tokenize(lines.slice(1, 5).join(" ")));
+    let bodyOverlap = 0;
+    for (const t of qTokens) if (bodyTokens.has(t)) bodyOverlap++;
+    const score =
+      titleOverlap / qTokens.length +
+      0.25 * (bodyOverlap / qTokens.length);
+    if (!best || score > best.score) best = { text: section, score };
+  }
+  if (!best) return null;
+  // Honest provenance + brevity for chat surfaces.
+  const body = best.text.split("\n").slice(0, 4).join(" ").slice(0, 600);
+  return body;
 }

@@ -1,3 +1,14 @@
+// =========================================================
+// FRELUX AI LIVE CHAT — powered by ARCHIE
+// =========================================================
+// ARCHIE native intelligence (no external AI provider — no
+// OpenAI, no quota, no key): the same inference boundary as
+// archie-chat's public visitor mode, exposed through the
+// ai-livechat contract (Admin AI settings + any direct
+// integrations). Knowledge base from learn_articles is
+// injected into the system instruction.
+// =========================================================
+
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import {
   checkRateLimit,
@@ -5,6 +16,7 @@ import {
   rateLimitHeaders,
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
+import { resolveArchieCapabilityEngine } from "../_shared/archie-ai/runtime.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -13,7 +25,6 @@ const corsHeaders = {
     "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const OPENAI_MODEL = "gpt-4o-mini";
 const MAX_REQUESTS_PER_HOUR = 20;
 
 interface LiveChatRequest {
@@ -82,17 +93,18 @@ async function fetchKnowledgeBase(
     .join("\n\n---\n\n");
 }
 
-const SYSTEM_PROMPT = `You are the FRELUX PAINT CALC live chat assistant. You help website visitors with questions about painting, POP ceiling installation, tile installation, screeding, color selection, and paint products.
+const SYSTEM_PROMPT = `You are ARCHIE, the FRELUX live chat assistant (frelux.tools) — a Nigerian building, painting and finishing platform. You help website visitors with questions about painting, POP ceiling installation, tile installation, screeding, color selection, and paint products.
 
 Your job:
 - Answer questions clearly, concisely, and practically
 - Keep responses short — this is a chat, not an article. 2-4 sentences max unless the user asks for detail.
 - Reference the website's knowledge base when relevant
-- Cover painting, POP ceiling, tile installation, screeding, color psychology, surface preparation, and DIY topics
+- Cover painting, POP ceiling, tiles, screeding, color psychology, surface preparation, and DIY topics
 - Be specific and actionable, avoid generic advice
 - If a user asks about pricing, guide them to the relevant calculator (e.g. /painting-estimator for paint, /tile-calculator for tiles, /cost-estimator for cost breakdowns)
 - If a question is outside the scope of painting, POP ceiling, tiles, or home improvement, politely redirect and suggest they contact support on WhatsApp
 - Use a friendly, conversational tone — like a knowledgeable friend helping out
+- NEVER invent current prices or give exact cost figures — direct users to the relevant cost estimator for live numbers
 
 Knowledge base context from the website:
 
@@ -100,52 +112,12 @@ Knowledge base context from the website:
 
 When the knowledge base has relevant content, reference it. When it doesn't, provide general expert guidance.`;
 
-async function callOpenAI(
-  apiKey: string,
-  systemPrompt: string,
-  userPrompt: string,
-): Promise<string> {
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model: OPENAI_MODEL,
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      temperature: 0.7,
-      max_tokens: 500,
-      top_p: 0.9,
-    }),
-  });
-
-  if (!res.ok) {
-    const errText = await res.text();
-    if (res.status === 401 || res.status === 403) {
-      throw new Error(`OPENAI_AUTH_ERROR: ${res.status} ${errText.slice(0, 300)}`);
-    }
-    if (res.status === 429) {
-      throw new Error(`OPENAI_QUOTA_ERROR: ${res.status} ${errText.slice(0, 300)}`);
-    }
-    throw new Error(`OPENAI_API_ERROR: ${res.status} ${errText.slice(0, 300)}`);
-  }
-
-  const json = await res.json();
-  const text = json?.choices?.[0]?.message?.content;
-  if (!text) throw new Error("Empty response from OpenAI");
-  return text.trim();
-}
-
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 200, headers: corsHeaders });
   }
 
-  // Rate limit: 20 AI requests per minute per user/IP
+  // Rate limit: per user/IP
   const rlKey = getRateLimitKey(req, req.headers.get("x-user-id") || undefined);
   const rl = checkRateLimit(rlKey, RATE_LIMITS.AI);
   if (!rl.allowed) {
@@ -168,72 +140,97 @@ Deno.serve(async (req: Request) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-    // Trim whitespace/newlines — secrets can accidentally include \n
-    const apiKey = (Deno.env.get("OPENAI_API_KEY") ?? "").trim();
-
-    if (!apiKey) {
-      return jsonResponse(
-        {
-          error: "AI service is not configured.",
-          code: "NO_API_KEY",
-        },
-        503,
-      );
+    if (!supabaseUrl || !serviceRoleKey) {
+      return jsonResponse({ error: "Server not configured" }, 500);
     }
-
-    parsedBody = (await req.json()) as LiveChatRequest;
-
-    if (!parsedBody.question?.trim()) {
-      return jsonResponse(
-        { error: "Question is required.", code: "BAD_REQUEST" },
-        400,
-      );
-    }
-    if (parsedBody.question.length > 2000) {
-      return jsonResponse(
-        {
-          error: "Question too long (max 2000 characters).",
-          code: "BAD_REQUEST",
-        },
-        400,
-      );
-    }
-
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    const clientHash = await sha256(parsedBody.clientId || crypto.randomUUID());
-    const { allowed, count } = await checkHourlyRateLimit(supabase, clientHash);
-    if (!allowed) {
+    let body: LiveChatRequest;
+    try {
+      parsedBody = (await req.json()) as LiveChatRequest;
+      body = parsedBody;
+    } catch {
+      return jsonResponse({ error: "Invalid JSON body" }, 400);
+    }
+
+    const question = String(body.question ?? "").trim();
+    if (!question) {
+      return jsonResponse({ error: "Question is required" }, 400);
+    }
+    const clientId = String(body.clientId ?? "anon").slice(0, 80);
+    const clientHash = await sha256(clientId);
+
+    // hourly per-client budget (same policy as before)
+    const budget = await checkHourlyRateLimit(supabase, clientHash);
+    if (!budget.allowed) {
       await logAiRequest(supabase, clientHash, "rate_limited");
       return jsonResponse(
         {
-          error: `Rate limit exceeded (${count}/${MAX_REQUESTS_PER_HOUR} messages per hour). Please try again later or reach us on WhatsApp.`,
-          code: "RATE_LIMITED",
+          error: "You've reached the hourly chat limit. Please try again later.",
         },
         429,
       );
     }
 
-    const knowledgeBase = await fetchKnowledgeBase(supabase);
-    const systemPrompt = SYSTEM_PROMPT.replace(
-      "{{KNOWLEDGE_BASE}}",
-      knowledgeBase ||
-        "No published articles yet. Provide general expert guidance.",
-    );
-    const userPrompt = `User question: ${parsedBody.question}\n\nProvide a helpful, practical answer. Keep it concise — this is a live chat.`;
+    // knowledge base injection (same source as before)
+    const kb = await fetchKnowledgeBase(supabase);
+    const systemPrompt = SYSTEM_PROMPT.replace("{{KNOWLEDGE_BASE}}", kb);
 
-    const result = await callOpenAI(apiKey, systemPrompt, userPrompt);
+    // ---- ARCHIE native inference (no external provider) ----
+    const { runtime, engine } = resolveArchieCapabilityEngine({
+      engineId: Deno.env.get("ARCHIE_ENGINE"),
+    });
+    if (!runtime) {
+      await logAiRequest(
+        supabase,
+        clientHash,
+        "error",
+        "ARCHIE engine unavailable",
+      );
+      return jsonResponse(
+        {
+          error:
+            "The FRELUX assistant is briefly unavailable. Please try again shortly.",
+        },
+        503,
+      );
+    }
+
+    const result = await runtime.generate({
+      turns: [
+        {
+          role: "owner" as const,
+          parts: [{ text: question.slice(0, 4000) }],
+        },
+      ],
+      systemInstruction: systemPrompt,
+      // livechat has ZERO tools — guidance only, same as
+      // archie-chat's public visitor mode.
+      tools: [],
+    });
+
+    const text = result.parts
+      .map((p) => (p as { text?: string }).text ?? "")
+      .filter(Boolean)
+      .join("")
+      .trim();
+
+    if (!text) {
+      await logAiRequest(supabase, clientHash, "error", "empty ARCHIE reply");
+      return jsonResponse(
+        { error: "The assistant produced no response. Please try again." },
+        502,
+      );
+    }
 
     await logAiRequest(supabase, clientHash, "success");
 
-    return jsonResponse({ result });
+    return jsonResponse({ result: text, engine: engine.path });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     console.error("Live chat error:", errorMsg);
 
-    const isAuthError = errorMsg.includes("OPENAI_AUTH_ERROR");
-    const isQuotaError = errorMsg.includes("OPENAI_QUOTA_ERROR");
-
+    const isDown = errorMsg.includes("engine unavailable");
     try {
       const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
       const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
@@ -249,39 +246,17 @@ Deno.serve(async (req: Request) => {
           errorMsg.slice(0, 500),
         );
       }
-    } catch (logErr) {
-      console.error("Failed to log error:", logErr);
-    }
-
-    if (isAuthError) {
-      return jsonResponse(
-        {
-          error:
-            "Our AI assistant is temporarily unavailable. Please reach us on WhatsApp and we'll help right away.",
-          code: "AI_AUTH_ERROR",
-        },
-        503,
-      );
-    }
-
-    if (isQuotaError) {
-      return jsonResponse(
-        {
-          error:
-            "Our AI assistant is temporarily unavailable. Please reach us on WhatsApp and we'll help right away.",
-          code: "AI_QUOTA_ERROR",
-        },
-        503,
-      );
+    } catch {
+      // logging must never mask the original failure
     }
 
     return jsonResponse(
       {
-        error:
-          "Failed to get a response. Please try again or reach us on WhatsApp.",
-        code: "INTERNAL_ERROR",
+        error: isDown
+          ? "The FRELUX assistant is briefly unavailable. Please try again shortly."
+          : "Sorry, something went wrong. Please try again.",
       },
-      500,
+      isDown ? 503 : 500,
     );
   }
 });

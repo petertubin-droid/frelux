@@ -75,6 +75,21 @@ const STOPWORDS = new Set([
   "might",
 ]);
 
+// Self-referential intents (capability_query, identity_query,
+// system_status) require an explicit ARCHIE/self anchor —
+// otherwise everyday questions with "what/which/should" get
+// misrouted away from knowledge. Deterministic precision guard.
+// Second-person identity assertions ("you are actually
+// ChatGPT") ARE anchored: they genuinely target the self-model
+// and must keep the identity route (conflict arbitration).
+const SELF_ANCHOR =
+  /archie|your (abilities|skills|capabilities|tools|knowledge|memory|engine)|can you do|are you (chatgpt|gemini|an ai|a robot)|you(?:'re| are|r)\s+(?:actually |really |just )?(?:chatgpt|gemini|claude|copilot|an ai|a robot|openai)|what is operational|show diagnostics|engine status|health check|status report/i;
+const SELF_ANCHOR_INTENTS = new Set([
+  "capability_query",
+  "identity_query",
+  "system_status",
+]);
+
 export function tokenize(input: string): string[] {
   const normalized = normalize(input);
   const raw = normalized.match(/[a-z0-9+#._/]+/g) ?? [];
@@ -631,7 +646,15 @@ export function understand(input: string): NluResult {
   // Stage 2: trained Naive Bayes classifier.
   const classifier = new IntentClassifier();
   classifier.train();
-  const { intent, confidence } = classifier.classify(input);
+  let { intent, confidence } = classifier.classify(input);
+  // Precision guard: self-referential intents require an
+  // explicit ARCHIE/self anchor in the text. Everyday visitor
+  // questions ("what grout should I choose...") must land in
+  // knowledge paths, not the capability manifest.
+  if (SELF_ANCHOR_INTENTS.has(intent) && !SELF_ANCHOR.test(input)) {
+    intent = input.includes("?") ? "knowledge_query" : "howto_guidance";
+    confidence = Math.min(confidence, 0.6);
+  }
   return {
     intent,
     confidence,

@@ -580,3 +580,62 @@ describe("Construction calculators (deterministic)", () => {
     expect(answer).toContain("cement");
   });
 });
+
+// ---------------------------------------------------------
+// systemInstruction retrieval (livechat knowledge-base path)
+// ---------------------------------------------------------
+describe("Engine systemInstruction retrieval (livechat)", () => {
+  const engine = new ArchieNativeEngine();
+  const turns = (text: string) => [
+    { role: "owner" as const, parts: [{ text }] },
+  ];
+  const KB = `You are the FRELUX live chat assistant. Guide visitors to calculators.
+
+## How much paint do I need?
+Measure the wall area, subtract openings, and plan for 2 coats. A 20-litre bucket covers roughly 250-350 m2 per coat depending on surface. Use the Paint Calculator for exact quantities.
+
+## Choosing paint finish
+Satin finish is washable and good for interiors. Matte hides wall imperfections better.`;
+
+  it("answers a practical question from the injected knowledge base, not the tool dead-end", async () => {
+    const result = await engine.generate({
+      turns: turns("How many buckets of paint do I need for a 12 by 12 room?"),
+      systemInstruction: KB,
+      tools: [],
+    });
+    const text = result.parts.map((p) => p.text ?? "").join(" ");
+    // The remote engine now routes dimension questions to its
+    // REAL deterministic paint calculator (plan P1/P2) — a
+    // computed answer, not the tool dead-end of the past.
+    expect(text).not.toContain("I did not find an arithmetic expression");
+    expect(text).toMatch(/litres for two coats|20-litre/);
+  });
+
+  it("still computes real arithmetic when an expression IS present", async () => {
+    const result = await engine.generate({
+      turns: turns("what is 25 * 48?"),
+      systemInstruction: KB,
+      tools: [],
+    });
+    const text = result.parts.map((p) => p.text ?? "").join(" ");
+    expect(text).toContain("1200");
+  });
+
+  it("prefers the on-subject section over one sharing only filler words", async () => {
+    const noisyKB = `You are the FRELUX live chat assistant.
+
+## Nigerian Building Regulations and What You Need to Know
+Permits and approvals for construction projects in Nigeria.
+
+## Tile Grout Selection and Application Guide
+Choose cement-based grout for wet areas and epoxy grout for heavy-wear floors. Apply with a rubber float and seal after curing.`;
+    const result = await engine.generate({
+      turns: turns("What grout should I choose for my tiles?"),
+      systemInstruction: noisyKB,
+      tools: [],
+    });
+    const text = result.parts.map((p) => (p as { text?: string }).text ?? "").join(" ");
+    expect(text.toLowerCase()).not.toContain("building regulations");
+    expect(text.toLowerCase()).toContain("grout");
+  });
+});

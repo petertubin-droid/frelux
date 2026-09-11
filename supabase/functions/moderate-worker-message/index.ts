@@ -5,6 +5,10 @@
 // =========================================================
 
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
+import {
+  moderateWithArchie,
+  type ModerationResult,
+} from '../_shared/archie-ai/moderation/moderate.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -17,13 +21,6 @@ function jsonResponse(body: unknown, status = 200): Response {
     status,
     headers: { ...corsHeaders, 'Content-Type': 'application/json' },
   });
-}
-
-interface ModerationResult {
-  action: 'allow' | 'flag' | 'remove';
-  score: number;
-  categories: string[];
-  reason: string;
 }
 
 interface ModerationRequest {
@@ -148,25 +145,24 @@ Deno.serve(async (req: Request) => {
     }
   }
 
-  // Step 3: AI analysis (if available and no banned word match)
+  // Step 3: ARCHIE native analysis (no external provider, no
+  // quota, no key). Runs for every message that passed the
+  // DB-configured banned patterns.
   if (result.action === 'allow') {
-    const aiKey = Deno.env.get('OPENAI_API_KEY') ?? '';
-    const aiModel = config.ai_model || 'gpt-4o-mini';
-
-    if (aiKey) {
-      try {
-        const aiResult = await analyzeWithAI(body.content, aiKey, aiModel);
-        if (aiResult) {
-          result = aiResult;
-        }
-      } catch (err) {
-        console.error('[moderation] AI analysis failed:', err);
-        // Fall through to heuristic analysis
+    try {
+      const archieResult = moderateWithArchie(body.content, {
+        surface: 'worker-channel',
+      });
+      if (archieResult.action !== 'allow' || archieResult.score > 0) {
+        result = archieResult;
       }
+    } catch (err) {
+      console.error('[moderation] ARCHIE analysis failed:', err);
+      // Fall through to heuristic analysis
     }
 
-    // Step 4: Heuristic fallback (if AI unavailable)
-    if (result.action === 'allow') {
+    // Step 4: Heuristic fallback (if ARCHIE analysis unavailable)
+    if (result.action === 'allow' && result.score === 0) {
       result = heuristicAnalysis(body.content);
     }
   }
@@ -242,68 +238,6 @@ Deno.serve(async (req: Request) => {
 
   return jsonResponse(result);
 });
-
-// =========================================================
-// AI Analysis using OpenAI
-// =========================================================
-async function analyzeWithAI(
-  content: string,
-  apiKey: string,
-  model: string
-): Promise<ModerationResult | null> {
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
-    body: JSON.stringify({
-      model,
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are a content moderation AI for a professional construction workers community in Nigeria. ' +
-            'Analyze the message for: spam, offensive language, hate speech, misinformation, scams, controversy, or malicious content. ' +
-            'Consider Nigerian context and construction industry terminology. ' +
-            'Respond with ONLY a JSON object: {"score": 0.0-1.0, "categories": ["..."], "reason": "..."}. ' +
-            'Score 0.0 = completely safe, 1.0 = definitely harmful. ' +
-            'Categories can be: spam, offensive, hate_speech, misinformation, scam, controversy, harassment, safe. ' +
-            'Be strict but not overzealous — normal professional discussion is safe.',
-        },
-        {
-          role: 'user',
-          content: `Analyze this message: "${content}"`,
-        },
-      ],
-      temperature: 0.1,
-      max_tokens: 200,
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`OpenAI API error: ${response.status}`);
-  }
-
-  const data = await response.json();
-  const text = data.choices?.[0]?.message?.content ?? '';
-
-  // Parse the JSON response (handle markdown code blocks)
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) return null;
-
-  try {
-    const parsed = JSON.parse(jsonMatch[0]);
-    return {
-      action: 'allow',
-      score: Math.min(1, Math.max(0, Number(parsed.score) || 0)),
-      categories: Array.isArray(parsed.categories) ? parsed.categories : ['unknown'],
-      reason: String(parsed.reason ?? 'AI analysis'),
-    };
-  } catch {
-    return null;
-  }
-}
 
 // =========================================================
 // Heuristic Analysis (fallback when AI unavailable)

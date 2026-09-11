@@ -54,7 +54,7 @@ interface AiFeatureDef {
   edgeFunction: string;
   icon: typeof Bot;
   model: string;
-  provider: "Google Gemini" | "OpenAI" | "Google Gemini Vision";
+  provider: "Google Gemini" | "OpenAI" | "Google Gemini Vision" | "ARCHIE";
   category: "user-facing" | "admin" | "estimation";
 }
 
@@ -88,8 +88,8 @@ const AI_FEATURES: AiFeatureDef[] = [
       "Real-time chat assistant for visitors, painting, screeding, tiles, products.",
     edgeFunction: "ai-livechat",
     icon: MessageSquare,
-    model: "gpt-4o-mini",
-    provider: "OpenAI",
+    model: "ARCHIE Native Intelligence",
+    provider: "ARCHIE",
     category: "user-facing",
   },
   {

@@ -318,7 +318,7 @@ export class CognitiveKernel implements ArchieRuntime {
           .join(" ")
           .trim()
       : "";
-    const result = await this.cycle(text, req.turns);
+    const result = await this.cycle(text, req.turns, req.systemInstruction);
     const parts: ArchieInferencePart[] = [
       { text: result.responseText },
     ];
@@ -342,10 +342,15 @@ export class CognitiveKernel implements ArchieRuntime {
     };
   }
 
-  /** One complete traversal of the permanent cognitive loop. */
+  /** One complete traversal of the permanent cognitive loop.
+   *  The optional systemInstruction is caller-provided
+   *  operating context (persona, domain scope, injected
+   *  knowledge base) — consulted as a retrieval source by the
+   *  substrate, never persisted as knowledge. */
   async cycle(
     input: string,
     history?: ArchieInferenceTurn[],
+    systemInstruction?: string,
   ): Promise<CognitiveCycleResult> {
     await this.boot();
     this.cycles += 1;
@@ -425,7 +430,10 @@ export class CognitiveKernel implements ArchieRuntime {
     const loopOutcome = await timed(
       "RETRIEVE",
       routePhases,
-      () => runReasoningLoop(this.substrate, input, history),
+      () =>
+          runReasoningLoop(this.substrate, input, history, {
+            systemInstruction,
+          }),
       "retrieval handled inside substrate reasoning",
       (o) =>
         o?.report
@@ -435,7 +443,8 @@ export class CognitiveKernel implements ArchieRuntime {
     const loopReport: ReasoningLoopReport | null =
       loopOutcome?.report ?? null;
     const core: ConverseResult =
-      loopOutcome?.result ?? (await this.substrate.converse(input, history));
+      loopOutcome?.result ??
+      (await this.substrate.converse(input, history, systemInstruction));
 
     // REASON: the real loop trace — steps executed, tools run,
     // budget state — recorded with true durations (P5 Batch B).
