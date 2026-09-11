@@ -39,6 +39,17 @@ import {
   type DevicePermission,
 } from "@/lib/archie/connections";
 import { DEVICE_PERMISSIONS } from "@studio-shared/archie-ai/native-engine/connections.ts";
+import {
+  activateP4Device,
+  enrollThisP4Device,
+  listMyP4Devices,
+  logoutEverywhere,
+  p4InteractionAllowed,
+  revokeP4Device,
+  rotateP4DeviceToken,
+  suspendP4Device,
+} from "@/lib/archie/mobile/p4-registration";
+import type { TrustedDevice } from "@/lib/archie/mobile/p4-types";
 
 function statusBadge(status: ArchieDevice["status"]) {
   if (status === "TRUSTED")
@@ -54,12 +65,19 @@ export default function ArchieDevices() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [recovery, setRecovery] = useState<RecoveryResult | null>(null);
+  // Phase 8 P4 — trusted device enrollment (two-phase lifecycle)
+  const [p4Devices, setP4Devices] = useState<TrustedDevice[]>([]);
+  const [p4Error, setP4Error] = useState<string | null>(null);
+  const [p4Busy, setP4Busy] = useState(false);
+  const [p4Name, setP4Name] = useState("");
   const thisKey = getDeviceKey();
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
       setDevices(await listDevices());
+      const mine = await listMyP4Devices();
+      if (mine.ok) setP4Devices(mine.devices);
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not load devices");
@@ -71,6 +89,34 @@ export default function ArchieDevices() {
   useEffect(() => {
     load();
   }, [load]);
+
+  // ---- Phase 8 P4: trusted device enrollment flow ----
+  async function runP4(
+    action: () => Promise<{ ok: boolean; error?: string }>,
+  ) {
+    setP4Busy(true);
+    setP4Error(null);
+    try {
+      const res = await action();
+      if (!res.ok) setP4Error(res.error ?? "The device action was refused.");
+      const mine = await listMyP4Devices();
+      if (mine.ok) setP4Devices(mine.devices);
+      else if (res.ok) setP4Error(mine.error);
+    } catch (e) {
+      setP4Error(e instanceof Error ? e.message : "Device action failed");
+    } finally {
+      setP4Busy(false);
+    }
+  }
+
+  function handleP4Enroll() {
+    const name = p4Name.trim() || "This device";
+    void runP4(async () => {
+      const res = await enrollThisP4Device(name);
+      if (res.ok) setP4Name("");
+      return res;
+    });
+  }
 
   async function handleRegister() {
     setBusy(true);
@@ -348,6 +394,143 @@ export default function ArchieDevices() {
           No devices registered yet.
         </p>
       )}
+
+      {/* --------------------------------------------- */}
+      {/* PHASE 8 P4 — TRUSTED DEVICE ENROLLMENT         */}
+      {/* Two-phase: enrollment is NOT authorization.     */}
+      {/* The device token never leaves this device; the  */}
+      {/* database stores only its SHA-256 digest.       */}
+      {/* --------------------------------------------- */}
+      <div className="mt-10" data-testid="p4-trusted-devices">
+        <ArchieSectionTitle>
+          Trusted device enrollment &amp; security
+        </ArchieSectionTitle>
+        <ArchiePanel className="mt-3 p-3.5 text-xs text-slate-300">
+          <p>
+            Phase 8 P4 lifecycle: a device is enrolled first, then you
+            explicitly authorize it. ARCHIE can interact with a device
+            only while it is ACTIVE and TRUSTED — revocation is
+            terminal. Identity is the app key, never IMEI.
+          </p>
+        </ArchiePanel>
+
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <input
+            value={p4Name}
+            onChange={(e) => setP4Name(e.target.value)}
+            placeholder="Device name (e.g. Felix's phone)"
+            className="archie-panel w-56 rounded-xl px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500"
+          />
+          <ArchieButton onClick={handleP4Enroll} disabled={p4Busy}>
+            {p4Busy ? "Working…" : "Enroll this device"}
+          </ArchieButton>
+        </div>
+
+        {p4Error && (
+          <p role="alert" className="mt-3 text-sm text-amber-300">
+            {p4Error}
+          </p>
+        )}
+
+        <ul className="mt-4 space-y-2">
+          {p4Devices.map((d) => (
+            <li
+              key={d.id}
+              className="archie-panel rounded-xl px-3.5 py-2.5"
+              data-testid="p4-device-row"
+            >
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm text-slate-200">
+                    {d.device_name}
+                  </p>
+                  <p className="text-[11px] text-slate-500">
+                    {d.permission_set.length > 0
+                      ? d.permission_set.join(", ")
+                      : "no data categories granted"}{" "}
+                    · ARCHIE interaction:{" "}
+                    {p4InteractionAllowed(d) ? "allowed" : "blocked"}
+                  </p>
+                </div>
+                <ArchieBadge
+                  tone={
+                    d.enrollment_state === "ACTIVE"
+                      ? "positive"
+                      : d.enrollment_state === "REVOKED"
+                        ? "critical"
+                        : "warning"
+                  }
+                >
+                  {d.enrollment_state}
+                </ArchieBadge>
+                {d.security_status === "SUSPICIOUS" && (
+                  <ArchieBadge tone="warning">{d.security_status}</ArchieBadge>
+                )}
+                {d.enrollment_state === "ENROLLED" && (
+                  <button
+                    type="button"
+                    onClick={() => void runP4(() => activateP4Device(d.id))}
+                    disabled={p4Busy}
+                    className="rounded-lg bg-emerald-400/10 px-3 py-1 text-xs text-emerald-300 hover:bg-emerald-400/20 disabled:opacity-40"
+                  >
+                    Authorize
+                  </button>
+                )}
+                {d.enrollment_state === "ACTIVE" && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => void runP4(() => suspendP4Device(d.id))}
+                      disabled={p4Busy}
+                      className="rounded-lg bg-amber-400/10 px-3 py-1 text-xs text-amber-300 hover:bg-amber-400/20 disabled:opacity-40"
+                    >
+                      Suspend
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void runP4(() => rotateP4DeviceToken(d.id))
+                      }
+                      disabled={p4Busy}
+                      className="rounded-lg border border-slate-500/40 px-3 py-1 text-xs text-slate-300 hover:bg-slate-500/10 disabled:opacity-40"
+                    >
+                      Rotate token
+                    </button>
+                  </>
+                )}
+                {d.enrollment_state !== "REVOKED" && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void runP4(() => revokeP4Device(d.id, { stolen: false }))
+                    }
+                    disabled={p4Busy}
+                    className="rounded-lg bg-red-400/10 px-3 py-1 text-xs text-red-300 hover:bg-red-400/20 disabled:opacity-40"
+                  >
+                    Revoke
+                  </button>
+                )}
+              </div>
+            </li>
+          ))}
+        </ul>
+        {!loading && p4Devices.length === 0 && !p4Error && (
+          <p className="mt-4 text-sm text-slate-500">
+            No P4 trusted devices enrolled yet.
+          </p>
+        )}
+        {p4Devices.some((d) => d.enrollment_state !== "REVOKED") && (
+          <div className="mt-4">
+            <ArchieButton
+              className="!bg-red-400/15 !text-red-200"
+              onClick={() => void runP4(() => logoutEverywhere())}
+              disabled={p4Busy}
+            >
+              Logout everywhere (revoke all devices)
+            </ArchieButton>
+          </div>
+        )}
+      </div>
 
       {/* --------------------------------------------- */}
       {/* CONNECTED HARDWARE & ACCOUNTS                  */}

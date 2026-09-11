@@ -19,23 +19,25 @@
 // =========================================================
 
 import { useCallback, useEffect, useState } from "react";
-import { buildApprovalView } from "@/lib/archie/evolution/change-request";
-import { authorizeOwnerChange } from "@/lib/archie/mobile/owner-authorization";
+// The evolution barrel (@/lib/archie/evolution) is the
+// canonical entry point for the self-evolution layer.
 import {
+  buildApprovalView,
+  DEFAULT_EVOLUTION_SETTINGS,
   fetchChangeRequests,
   fetchEvolutionSettings,
   fetchLanguageProfiles,
   saveEvolutionSettings,
   transitionChangeRequestServer,
-} from "@/lib/archie/evolution/persistence";
-import { DEFAULT_EVOLUTION_SETTINGS } from "@/lib/archie/evolution/settings";
-import { Switch } from "@/components/ui/shadcn/switch";
+} from "@/lib/archie/evolution";
 import type {
   EvolutionChangeRequest,
   EvolutionSettings,
   LanguageProfile,
   LanguageLearningSettings,
-} from "@/lib/archie/evolution/types";
+} from "@/lib/archie/evolution";
+import { authorizeOwnerChange } from "@/lib/archie/mobile/owner-authorization";
+import { Switch } from "@/components/ui/shadcn/switch";
 
 const STATE_LABELS: Record<string, string> = {
   PROPOSED: "Proposed",

@@ -19,6 +19,18 @@ vi.mock("@/lib/archie/stage2-device-recovery", () => ({
   recoverLostDevice: (...a: unknown[]) => recoverLostDevice(...a),
 }));
 
+const listMyP4Devices = vi.fn();
+vi.mock("@/lib/archie/mobile/p4-registration", () => ({
+  listMyP4Devices: (...a: unknown[]) => listMyP4Devices(...a),
+  enrollThisP4Device: vi.fn(async () => ({ ok: true })),
+  activateP4Device: vi.fn(async () => ({ ok: true })),
+  suspendP4Device: vi.fn(async () => ({ ok: true })),
+  revokeP4Device: vi.fn(async () => ({ ok: true })),
+  rotateP4DeviceToken: vi.fn(async () => ({ ok: true })),
+  logoutEverywhere: vi.fn(async () => ({ ok: true })),
+  p4InteractionAllowed: () => false,
+}));
+
 const pairBluetoothDevice = vi.fn();
 const pairUsbDevice = vi.fn();
 const probeNetworkEndpoint = vi.fn();
@@ -54,6 +66,7 @@ beforeEach(() => {
   registerThisDevice.mockResolvedValue({ ok: true, device: { id: "d1" } });
   updateDevice.mockResolvedValue({ ok: true });
   recoverLostDevice.mockResolvedValue({ ok: true });
+  listMyP4Devices.mockResolvedValue({ ok: true, devices: [] });
 });
 
 function renderPage() {

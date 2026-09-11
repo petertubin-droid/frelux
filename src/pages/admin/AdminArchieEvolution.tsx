@@ -41,24 +41,26 @@ import {
   StateMessage,
 } from "@/components/admin/AdminUi";
 import { Switch } from "@/components/ui/shadcn/switch";
-import { buildApprovalView } from "@/lib/archie/evolution/change-request";
-import { parseOwnerCommand } from "@/lib/archie/evolution/commands";
-import { authorizeOwnerChange } from "@/lib/archie/mobile/owner-authorization";
+// The evolution barrel (@/lib/archie/evolution) is the
+// canonical entry point for the self-evolution layer.
 import {
+  buildApprovalView,
+  parseOwnerCommand,
+  DEFAULT_EVOLUTION_SETTINGS,
   fetchChangeRequests,
   fetchEvolutionMemory,
   fetchEvolutionSettings,
   fetchLanguageProfiles,
   saveEvolutionSettings,
   transitionChangeRequestServer,
-} from "@/lib/archie/evolution/persistence";
-import { DEFAULT_EVOLUTION_SETTINGS } from "@/lib/archie/evolution/settings";
+} from "@/lib/archie/evolution";
 import type {
   EvolutionChangeRequest,
   EvolutionMemoryEntry,
   EvolutionSettings,
   LanguageProfile,
-} from "@/lib/archie/evolution/types";
+} from "@/lib/archie/evolution";
+import { authorizeOwnerChange } from "@/lib/archie/mobile/owner-authorization";
 
 type Tab = "settings" | "changes" | "languages" | "memory";
 
