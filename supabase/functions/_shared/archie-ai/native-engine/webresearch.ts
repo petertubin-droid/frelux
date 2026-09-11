@@ -45,6 +45,10 @@ export interface ResearchHit {
   snippet: string;
   /** Registrable domain of the result — set during ranking. */
   domain?: string;
+  /** Extracted PAGE CONTENT (audit Phase 2.2) — set only
+   *  when the source page was actually fetched, robots-
+   *  checked and content-extracted. Absent = snippet only. */
+  content?: string;
 }
 
 export interface ResearchReport {
@@ -70,6 +74,13 @@ export interface ResearchReport {
   sourceFailures: Array<{ domain: string; note: string }>;
   /** New domains classified by the registry this run. */
   discoveredSources: string[];
+  // --- real page fetching (audit Phase 2.2) ---
+  /** ≥2 independent domains' fetched PAGE CONTENTS agree —
+   *  stronger evidence than snippet agreement, raises the
+   *  candidate confidence cap. */
+  contentCrossChecked: boolean;
+  /** Per-page fetch outcomes — honest, never silent. */
+  pageFetches: Array<{ url: string; ok: boolean; note: string }>;
 }
 
 export interface ResearchAdapter {
@@ -115,7 +126,8 @@ export class DuckDuckGoLiteAdapter implements ResearchAdapter {
     this.maxRetries = opts.maxRetries ?? 2;
     this.baseBackoffMs = opts.baseBackoffMs ?? 600;
     this.fetchFn = opts.fetchFn ?? fetch;
-    this.sleepFn = opts.sleepFn ?? ((ms: number) => new Promise((r) => setTimeout(r, ms)));
+    this.sleepFn =
+      opts.sleepFn ?? ((ms: number) => new Promise((r) => setTimeout(r, ms)));
   }
 
   async search(query: string): Promise<{ hits: ResearchHit[]; note: string }> {
@@ -199,9 +211,11 @@ export class DuckDuckGoLiteAdapter implements ResearchAdapter {
         return { href, title: a[2] };
       })
       .filter((x): x is { href: string; title: string } => x !== null);
-    const snippets = [...html.matchAll(
-      /<t[dh]\b[^>]*class=(["'])result-snippet\1[^>]*>([\s\S]*?)<\/t[dh]>/gi,
-    )];
+    const snippets = [
+      ...html.matchAll(
+        /<t[dh]\b[^>]*class=(["'])result-snippet\1[^>]*>([\s\S]*?)<\/t[dh]>/gi,
+      ),
+    ];
     for (let i = 0; i < links.length && hits.length < 8; i++) {
       const rawUrl = links[i].href;
       if (!rawUrl) continue;
@@ -230,6 +244,8 @@ export class DuckDuckGoLiteAdapter implements ResearchAdapter {
 // ---------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------
+import { PageFetcher } from "./page-fetch.ts";
+
 const CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12h — recent
 // findings remain "current" for reuse.
 
@@ -323,15 +339,27 @@ export class ResearchPipeline {
     { report: ResearchReport; expiresAt: number }
   >();
 
+  /** Optional page fetcher (audit Phase 2.2) — when wired,
+   *  the top hits are deepened with REAL fetched page content
+   *  (robots-checked, timeout-guarded). Absent = snippet-only
+   *  legacy behaviour. */
+  private readonly facts: FactStore;
+  private readonly adapter: ResearchAdapter;
+  private readonly pageFetcher: PageFetcher | null;
+
   constructor(
-    private facts: FactStore,
-    private adapter: ResearchAdapter,
+    facts: FactStore,
+    adapter: ResearchAdapter,
     registry?: WebSourceRegistry,
+    pageFetcher?: PageFetcher | null,
   ) {
     // Explicit null = legacy single-search mode (backward
     // compatible). The production engine wires the shared
     // priority-source registry.
+    this.facts = facts;
+    this.adapter = adapter;
     this.registry = registry ?? null;
+    this.pageFetcher = pageFetcher ?? null;
   }
 
   /** Run the §4 pipeline for a query. Findings are stored as
@@ -554,21 +582,80 @@ export class ResearchPipeline {
       }
     }
 
+    // ── DEEPEN (audit Phase 2.2) — fetch the actual source
+    //    pages behind the top hits: robots-checked, timeout-
+    //    guarded, content-extracted. A fetched page is a MUCH
+    //    stronger evidence object than a search snippet; when
+    //    two independent domains' PAGE CONTENTS agree, the
+    //    candidate confidence cap rises (still candidate —
+    //    never validated knowledge). Failures are recorded
+    //    honestly, never silently skipped.
+    const pageFetches: Array<{ url: string; ok: boolean; note: string }> = [];
+    let contentCrossChecked = false;
+    if (this.pageFetcher && hits.length > 0) {
+      // Distinct domains first — diverse evidence beats one
+      // loud domain; at most 3 pages per query.
+      const deepenTargets: typeof hits = [];
+      const seenDomains = new Set<string>();
+      for (const h of hits) {
+        const d = h.domain ?? "";
+        if (seenDomains.has(d)) continue;
+        seenDomains.add(d);
+        deepenTargets.push(h);
+        if (deepenTargets.length >= 3) break;
+      }
+      const results = await Promise.all(
+        deepenTargets.map((h) => this.pageFetcher!.fetch(h.url)),
+      );
+      for (let i = 0; i < results.length; i += 1) {
+        const r = results[i];
+        pageFetches.push({ url: r.url, ok: r.ok, note: r.note });
+        if (r.ok) deepenTargets[i].content = r.content;
+      }
+      // Content cross-check: best page of each of ≥2 distinct
+      // fetched domains, salient-token agreement on CONTENT.
+      const fetched = deepenTargets.filter((h) => h.content);
+      const byDomain = new Map<string, string>();
+      for (const h of fetched) {
+        const d = h.domain ?? "";
+        const prev = byDomain.get(d);
+        if (prev === undefined || h.content!.length > prev.length) {
+          byDomain.set(d, h.content!);
+        }
+      }
+      if (byDomain.size >= 2) {
+        const [a, b] = [...byDomain.values()].slice(0, 2);
+        contentCrossChecked = agreement(a, b) >= 0.15;
+      }
+    }
+    if (contentCrossChecked) crossChecked = true;
+
     let stored = 0;
     const registry = this.registry!;
     for (const hit of hits.slice(0, 4)) {
       const record =
         registry.lookup(hit.url) ?? registry.evaluateDiscovered(hit.url);
-      const overlap = salientTokens(query).size
-        ? [...salientTokens(`${hit.title} ${hit.snippet}`)].filter((t) =>
-            salientTokens(query).has(t),
-          ).length
-        : 0;
+      // Evidence text: fetched PAGE CONTENT when the page was
+      // actually read, otherwise the snippet. Overlap is capped
+      // so a huge page cannot buy confidence by length alone.
+      const evidenceText = hit.content ?? `${hit.title} ${hit.snippet}`;
+      const overlap = Math.min(
+        10,
+        salientTokens(query).size
+          ? [...salientTokens(evidenceText)].filter((t) =>
+              salientTokens(query).has(t),
+            ).length
+          : 0,
+      );
+      // Confidence cap: content agreement across independent
+      // pages (0.6) outranks snippet agreement (0.45) — still
+      // candidate knowledge, never validated.
       const confidence = Math.min(
-        0.45,
+        contentCrossChecked ? 0.6 : 0.45,
         0.15 +
           overlap * 0.03 +
           (crossChecked ? 0.1 : 0) +
+          (contentCrossChecked ? 0.15 : 0) +
           (9 - record.authorityLevel) * 0.02,
       );
       // KNOWLEDGE CLASSIFICATION — full metadata into memory:
@@ -582,6 +669,9 @@ export class ResearchPipeline {
           source: "web-research",
           note:
             `candidate finding from ${hit.domain} — pending validation · ` +
+            (hit.content
+              ? "page content FETCHED and extracted (deep evidence) · "
+              : "snippet only (page not fetched) · ") +
             `category: ${record.category} · authority ${record.authorityLevel}/8 · ` +
             `registry status: ${record.status} · retrieved ${new Date().toISOString()}`,
         },
@@ -606,6 +696,8 @@ export class ResearchPipeline {
       reusedCache: false,
       sourceFailures,
       discoveredSources,
+      contentCrossChecked,
+      pageFetches,
     };
 
     // CACHE the report for reuse while still current.
@@ -658,6 +750,9 @@ export class ResearchPipeline {
       reusedCache: false,
       sourceFailures: [],
       discoveredSources: [],
+      // Legacy mode never deepens — reported honestly.
+      contentCrossChecked: false,
+      pageFetches: [],
     };
   }
 }

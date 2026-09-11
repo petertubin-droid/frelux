@@ -51,6 +51,7 @@ import { ContextMemory, rankFacts } from "./memory.ts";
 import { redactSecrets } from "../cognitive/security-integrity.ts";
 import { FactStore } from "./knowledge.ts";
 import { FULL_SEED_CORPUS, SEED_CORPUS_VERSION } from "./seed-corpus.ts";
+import { PageFetcher } from "./page-fetch.ts";
 import { DEFAULT_RULES, GENERAL_RULES, ReasoningEngine } from "./reasoning.ts";
 import {
   consistency,
@@ -332,6 +333,10 @@ export class ArchieNativeEngine implements ArchieRuntime {
       this.facts,
       this.adapter,
       getWebSourceRegistry(),
+      // Audit Phase 2.2 — real page fetching: the top hits are
+      // deepened with robots-checked, timeout-guarded page
+      // content; content agreement raises the confidence cap.
+      new PageFetcher(),
     );
     registerBuiltInTools(this.tools);
   }
@@ -1634,6 +1639,17 @@ export class ArchieNativeEngine implements ArchieRuntime {
                 ? "; independent sources agree (cross-checked)."
                 : "; cross-source agreement NOT yet established — treat with caution."),
           );
+          if (report.contentCrossChecked) {
+            lines.push(
+              "Deep verification: source PAGE CONTENTS from ≥2 independent domains were fetched, extracted and agree — the strongest candidate confidence applies (still pending owner validation).",
+            );
+          }
+          const failedFetches = report.pageFetches.filter((f) => !f.ok);
+          if (failedFetches.length > 0) {
+            lines.push(
+              `Pages I could not read (honest, not hidden): ${failedFetches.map((f) => `${new URL(f.url).hostname} (${f.note})`).join("; ")}.`,
+            );
+          }
           for (const c of report.conflicts) {
             lines.push(`Caution: ${c}`);
           }
