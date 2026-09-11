@@ -13,6 +13,7 @@
 // =========================================================
 
 import type { Fact, FactConflict, FactPattern } from "./types.ts";
+import { cosine, tokenize } from "./nlu.ts";
 
 // Collision-proof fact ids (audit H3): the old Date.now() +
 // per-isolate counter scheme could collide across concurrent
@@ -38,6 +39,133 @@ function matchesPattern(fact: Fact, pattern: FactPattern): boolean {
   return true;
 }
 
+/** Persistent, incrementally-maintained TF-IDF ranking index
+ *  over the fact store's textual surface (audit 4.2). The old
+ *  `rankFacts` path rebuilt a full TF-IDF index — re-tokenizing
+ *  EVERY fact and re-computing corpus doc-frequencies — on
+ *  EVERY single retrieval call (measured 41ms/call at 10k facts;
+ *  see docs/archie-performance-ledger.md). This index instead:
+ *    * tokenizes each fact ONCE, when it is added (cached),
+ *    * maintains corpus doc-frequency incrementally (add/remove),
+ *    * narrows candidates via an inverted postings list so a
+ *      query only scores facts that share at least one term
+ *      (facts with zero shared terms always cosine to 0 anyway —
+ *      identical result, far less work).
+ *  Scoring formula (tf/doclen * idf, cosine) is unchanged from
+ *  the original `rankFacts` — this is a scalability fix, not a
+ *  ranking-behavior change. */
+export class FactRankIndex {
+  private docFreq = new Map<string, number>();
+  private docs = 0;
+  private entries = new Map<
+    string,
+    { fact: Fact; tokens: string[]; tf: Map<string, number> }
+  >();
+  private postings = new Map<string, Set<string>>();
+
+  private static surfaceTokens(fact: Fact): string[] {
+    const surface = `${fact.subject} ${fact.predicate} ${JSON.stringify(fact.object)}`;
+    return tokenize(surface);
+  }
+
+  private static tfOf(tokens: string[]): Map<string, number> {
+    const tf = new Map<string, number>();
+    for (const t of tokens) tf.set(t, (tf.get(t) ?? 0) + 1);
+    return tf;
+  }
+
+  size(): number {
+    return this.entries.size;
+  }
+
+  /** Add or refresh one fact's entry (idempotent). */
+  add(fact: Fact): void {
+    if (this.entries.has(fact.id)) this.remove(fact.id);
+    const tokens = FactRankIndex.surfaceTokens(fact);
+    this.entries.set(fact.id, { fact, tokens, tf: FactRankIndex.tfOf(tokens) });
+    this.docs += 1;
+    for (const term of new Set(tokens)) {
+      this.docFreq.set(term, (this.docFreq.get(term) ?? 0) + 1);
+      let bucket = this.postings.get(term);
+      if (!bucket) {
+        bucket = new Set();
+        this.postings.set(term, bucket);
+      }
+      bucket.add(fact.id);
+    }
+  }
+
+  remove(factId: string): void {
+    const entry = this.entries.get(factId);
+    if (!entry) return;
+    this.docs = Math.max(0, this.docs - 1);
+    for (const term of new Set(entry.tokens)) {
+      const df = this.docFreq.get(term);
+      if (df !== undefined) {
+        if (df <= 1) this.docFreq.delete(term);
+        else this.docFreq.set(term, df - 1);
+      }
+      const bucket = this.postings.get(term);
+      if (bucket) {
+        bucket.delete(factId);
+        if (bucket.size === 0) this.postings.delete(term);
+      }
+    }
+    this.entries.delete(factId);
+  }
+
+  /** Wholesale rebuild — used only at hydrate/consolidate (rare,
+   *  batch operations), never on the per-query hot path. */
+  rebuild(facts: Fact[]): void {
+    this.docFreq = new Map();
+    this.docs = 0;
+    this.entries = new Map();
+    this.postings = new Map();
+    for (const f of facts) this.add(f);
+  }
+
+  private idf(term: string): number {
+    return Math.log((1 + this.docs) / (1 + (this.docFreq.get(term) ?? 0))) + 1;
+  }
+
+  private vectorOf(
+    tf: Map<string, number>,
+    totalTokens: number,
+  ): Map<string, number> {
+    const v = new Map<string, number>();
+    for (const [t, count] of tf) {
+      v.set(t, (count / totalTokens || count) * this.idf(t));
+    }
+    return v;
+  }
+
+  /** Rank facts against a query. Only facts sharing at least one
+   *  query term are ever scored (inverted-index candidate
+   *  narrowing) — cost scales with query selectivity, not corpus
+   *  size. */
+  rank(query: string, k = 6): Fact[] {
+    const qTokens = tokenize(query);
+    if (qTokens.length === 0 || this.entries.size === 0) return [];
+    const candidateIds = new Set<string>();
+    for (const t of new Set(qTokens)) {
+      const bucket = this.postings.get(t);
+      if (bucket) for (const id of bucket) candidateIds.add(id);
+    }
+    if (candidateIds.size === 0) return [];
+    const qv = this.vectorOf(FactRankIndex.tfOf(qTokens), qTokens.length);
+    const scored: { fact: Fact; score: number }[] = [];
+    for (const id of candidateIds) {
+      const entry = this.entries.get(id);
+      if (!entry) continue;
+      const fv = this.vectorOf(entry.tf, entry.tokens.length);
+      const score = cosine(qv, fv);
+      if (score > 0) scored.push({ fact: entry.fact, score });
+    }
+    scored.sort((a, b) => b.score - a.score);
+    return scored.slice(0, k).map((s) => s.fact);
+  }
+}
+
 export class FactStore {
   private facts: Fact[] = [];
   // Subject index (perf pass 2026-09-11): query() and about()
@@ -53,6 +181,9 @@ export class FactStore {
   // condition narrowing (see candidatesFor below).
   private byPredicate = new Map<string, Fact[]>();
   private persistence: PersistenceLike | null = null;
+  // Persistent TF-IDF rank index (audit 4.2) — maintained
+  // incrementally alongside the subject/predicate indexes.
+  private rankIndex = new FactRankIndex();
 
   /** Rebuild both indexes from the fact array. */
   private reindex(): void {
@@ -111,6 +242,7 @@ export class FactStore {
       createdAt: r.created_at,
     }));
     this.reindex();
+    this.rankIndex.rebuild(this.facts);
     return this.facts.length;
   }
 
@@ -124,6 +256,15 @@ export class FactStore {
 
   list(): Fact[] {
     return [...this.facts];
+  }
+
+  /** Rank facts by relevance to a text query via the persistent
+   *  incremental TF-IDF index (audit 4.2). Replaces the old
+   *  per-query `rankFacts(query, this.facts.list())` rebuild at
+   *  every engine call site — see docs/archie-performance-ledger.md
+   *  for the measured gain. */
+  rank(query: string, k = 6): Fact[] {
+    return this.rankIndex.rank(query, k);
   }
 
   get(id: string): Fact | undefined {
@@ -150,14 +291,16 @@ export class FactStore {
       // agreement from a DIFFERENT source is real corroboration
       // (+0.05); repetition of the SAME source is weak (+0.02)
       // and never establishes knowledge on its own.
-      const corroborated =
-        fact.provenance.source !== twin.provenance.source;
+      const corroborated = fact.provenance.source !== twin.provenance.source;
       twin.confidence = Math.min(
         1,
         twin.confidence + (corroborated ? 0.05 : 0.02),
       );
       twin.validatedCount += 1;
-      if (corroborated && !(twin.verifiedBy ?? []).includes(fact.provenance.source)) {
+      if (
+        corroborated &&
+        !(twin.verifiedBy ?? []).includes(fact.provenance.source)
+      ) {
         twin.verifiedBy = [...(twin.verifiedBy ?? []), fact.provenance.source];
       }
       // Promotion gate (audit H1/H2): repetition is not
@@ -177,7 +320,8 @@ export class FactStore {
     // events by design (audit H1/H2); research and inference
     // are not — they must earn a verification event.
     const verifiedBy: string[] =
-      fact.provenance.source === "owner-taught" || fact.provenance.source === "seed"
+      fact.provenance.source === "owner-taught" ||
+      fact.provenance.source === "seed"
         ? [fact.provenance.source]
         : [];
     const full: Fact = {
@@ -255,6 +399,7 @@ export class FactStore {
     const pbucket = this.byPredicate.get(full.predicate);
     if (pbucket) pbucket.push(full);
     else this.byPredicate.set(full.predicate, [full]);
+    this.rankIndex.add(full);
     await this.persistFact(full);
     return { fact: full, conflict };
   }
@@ -373,6 +518,7 @@ export class FactStore {
     }
     this.facts = finalFacts;
     this.reindex();
+    this.rankIndex.rebuild(this.facts);
     await this.persistAll();
     return { merged, decayed, promoted, dropped };
   }

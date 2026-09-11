@@ -47,7 +47,7 @@ import {
   unknownOpening,
   type Verbosity,
 } from "./composer.ts";
-import { ContextMemory, rankFacts } from "./memory.ts";
+import { ContextMemory } from "./memory.ts";
 import { redactSecrets } from "../cognitive/security-integrity.ts";
 import { FactStore } from "./knowledge.ts";
 import { FULL_SEED_CORPUS, SEED_CORPUS_VERSION } from "./seed-corpus.ts";
@@ -579,7 +579,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
     const retrievalQuery =
       referents.length > 0 ? `${input} ${referents.join(" ")}` : input;
     const context = this.memory.retrieve(retrievalQuery);
-    const ranked = rankFacts(retrievalQuery, this.facts.list());
+    const ranked = this.facts.rank(retrievalQuery);
 
     // Compound-request decomposition (plan P2, audit N2):
     // owners speak in multi-part requests. Each clause gets
@@ -996,7 +996,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         continue;
       }
       const clauseNlu = understand(clause.text);
-      const clauseRanked = rankFacts(clause.text, this.facts.list());
+      const clauseRanked = this.facts.rank(clause.text);
       const clauseContext = this.memory.retrieve(clause.text);
       const res = await this.route(
         clauseNlu,
@@ -1525,15 +1525,13 @@ export class ArchieNativeEngine implements ArchieRuntime {
             salientTokens(
               `${f.subject.replace(/-/g, " ")} ${f.predicate.replace(/-/g, " ")} ${String(f.object).replace(/-/g, " ")}`,
             );
-          const confirmed = rankFacts(input, this.facts.list(), 3).filter(
-            (f) => {
-              const ft = factTokens(f);
-              if (ft.size === 0) return false;
-              let shared = 0;
-              for (const t of queryTokens) if (ft.has(t)) shared += 1;
-              return shared >= 2;
-            },
-          );
+          const confirmed = this.facts.rank(input, 3).filter((f) => {
+            const ft = factTokens(f);
+            if (ft.size === 0) return false;
+            let shared = 0;
+            for (const t of queryTokens) if (ft.has(t)) shared += 1;
+            return shared >= 2;
+          });
           if (confirmed.length > 0) {
             await this.learner.record({
               kind: "success",
@@ -1573,7 +1571,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
             targeted.set(f.id, f);
           }
         }
-        for (const f of rankFacts(input, this.facts.list(), 3)) {
+        for (const f of this.facts.rank(input, 3)) {
           targeted.set(f.id, f);
         }
         for (const fact of targeted.values()) {

@@ -6,6 +6,7 @@ permanent record of **baseline → change → result → decision**. A gain
 that cannot be demonstrated here does not count as a gain.
 
 Benchmark suites (both print a single JSON line for extraction):
+
 - **Capability**: `npx vitest run src/lib/archie/__tests__/native-engine-benchmark.test.ts --disable-console-intercept` → `BENCH_RESULT:` (52 cases, 17 categories, scored 0 / 0.5 / 1)
 - **Speed/resource**: `npx vitest run src/lib/archie/__tests__/native-engine-perf.test.ts --disable-console-intercept` → `BENCH_PERF:` (fixed deterministic workloads; latency numbers are comparable only within the same machine/session)
 
@@ -18,26 +19,28 @@ Rule: all existing tests must stay green after each change (last full count: 113
 ### Capability: overall 0.942 (49/52)
 
 Weak spots (the honest gap list):
-| id | category | score | gap |
-|---|---|---|---|
-| ms-2 | multi-step-reasoning | 0 | variable binding — transitivity (A→B, B→C ⇒ A→C) not derived |
-| cx-3 | context-retention | 0 | cross-session conversation memory not consulted in answers |
-| lu-3 | language-understanding | 0.5 | negation handling partial |
-| lu-4 | language-understanding | 0.5 | compound multi-intent request partial |
+
+| id   | category               | score | gap                                                          |
+| ---- | ---------------------- | ----- | ------------------------------------------------------------ |
+| ms-2 | multi-step-reasoning   | 0     | variable binding — transitivity (A→B, B→C ⇒ A→C) not derived |
+| cx-3 | context-retention      | 0     | cross-session conversation memory not consulted in answers   |
+| lu-3 | language-understanding | 0.5   | negation handling partial                                    |
+| lu-4 | language-understanding | 0.5   | compound multi-intent request partial                        |
 
 All other 48 cases at full score.
 
 ### Speed / resources
 
-| workload | ops | mean ms | p50 ms | p95 ms | heap |
-|---|---|---|---|---|---|
-| converse-per-turn (full engine, 20-utt workload ×5) | 100 | 1.316 | 1.182 | 3.178 | — |
-| store-query-subject@10k | 1000 | 0.269 | 0.272 | 0.280 | +8.62 MB for 10k facts |
-| store-query-subj-pred@10k | 1000 | 0.278 | 0.280 | 0.288 | — |
-| reasoning-forward-chain@200facts | 100 | 6.443 | 6.338 | 6.852 | — |
-| memory-recall@500turns | 500 | 0.356 | 0.330 | 0.679 | — |
+| workload                                            | ops  | mean ms | p50 ms | p95 ms | heap                   |
+| --------------------------------------------------- | ---- | ------- | ------ | ------ | ---------------------- |
+| converse-per-turn (full engine, 20-utt workload ×5) | 100  | 1.316   | 1.182  | 3.178  | —                      |
+| store-query-subject@10k                             | 1000 | 0.269   | 0.272  | 0.280  | +8.62 MB for 10k facts |
+| store-query-subj-pred@10k                           | 1000 | 0.278   | 0.280  | 0.288  | —                      |
+| reasoning-forward-chain@200facts                    | 100  | 6.443   | 6.338  | 6.852  | —                      |
+| memory-recall@500turns                              | 500  | 0.356   | 0.330  | 0.679  | —                      |
 
 **Baseline observations (evidence, not assumptions):**
+
 - Subject-only and subject+predicate queries cost the same → `FactStore.query` is a full scan; the pattern's predicate never narrows candidates.
 - Forward chaining at only 200 facts costs 6.4 ms per chain → per-iteration cost scans all facts × rules; at realistic store sizes (10k facts) this dominates.
 - `matchesPattern` calls `JSON.stringify` on both objects for every candidate — serialization in the hottest loop.
@@ -47,7 +50,6 @@ All other 48 cases at full score.
 ## ENTRIES
 
 (entries below are appended per optimization: change → result → decision)
-
 
 ### Entry 1 — Single-slot capture completion (capability: variable binding / transitivity)
 
@@ -78,7 +80,7 @@ All other 48 cases at full score.
 - **Baseline:** store-query-subject@10k = 0.269 ms (p95 0.280), store-query-subj-pred@10k = 0.278 ms — identical latency for narrower patterns = full O(n) scan, confirmed.
 - **Change:** `knowledge.ts` gains a `bySubject` Map index, maintained at the three mutation sites (assert push, hydrate wholesale replace, consolidate rebuild). `query()` with a literal subject narrows to its bucket (variable subjects and subject-less patterns keep the full scan — the unification path is unchanged); `about()` returns the bucket copy. `matchesPattern` semantics untouched.
 - **Result (same harness, same session):** store-query-subject@10k **0.269 → 0.002 ms (134×)**; store-query-subj-pred@10k **0.278 → 0.002 ms (139×)**, p95 0.003 ms. Honest cost: +0.67 MB heap for the index at 10k facts (8.62 → 9.29 MB). converse-per-turn 1.311 ms (unchanged — engine turns are not query-bound today).
-- **Two tests caught my own overreach (good refusals, kept):** (1) the unification refusal test's rule was exactly the new capture shape — re-shaped to pin the still-refused ambiguous case (two free vars); (2) the temporal fall-through was too broad ("history of the mortar price" fell through to a *definition* — a non-answer) — tightened to fall through only when a subject fact carries a temporal value (day/date-like object or when/date predicate). Full suite 1287 green (2 expected-fail = documented defects).
+- **Two tests caught my own overreach (good refusals, kept):** (1) the unification refusal test's rule was exactly the new capture shape — re-shaped to pin the still-refused ambiguous case (two free vars); (2) the temporal fall-through was too broad ("history of the mortar price" fell through to a _definition_ — a non-answer) — tightened to fall through only when a subject fact carries a temporal value (day/date-like object or when/date predicate). Full suite 1287 green (2 expected-fail = documented defects).
 - **Decision:** ACCEPTED (134× retrieval, memory cost measured and small, refusal semantics strengthened by tests).
 
 ### Entry 5 — Forward-chain candidate narrowing (speed: reasoning)
@@ -87,3 +89,10 @@ All other 48 cases at full score.
 - **Change:** three coordinated pieces. (1) `matchUnder` verifies all positions against the binding BEFORE allocating the extended Map. (2) `enumerateBindings` accepts an optional per-condition narrowing provider; behavior identical without it. (3) FactStore gains a `byPredicate` index (maintained at the same three mutation sites as `bySubject`) and `candidatesFor(condition)` — the most selective literal bucket (subject first, then predicate), else all facts. The chainer passes `candidatesFor` so each condition joins only against facts that can carry it. Semantics untouched: narrowed pools are exactly the facts a condition could ever match.
 - **Result (same harness, same session):** reasoning-forward-chain@200facts **6.341 → 0.934 ms (6.8×)**, p95 6.88 → 1.948 ms. Store queries and recall unchanged (0.002–0.003 / 0.377 ms); converse-per-turn 1.321 ms (noise vs 1.311 baseline). Full suite 1287 green (2 expected-fail = documented defects); benchmark still 52/52.
 - **Decision:** ACCEPTED (6.8× reasoning latency, zero semantic change — the narrowed pools are provably the same candidate sets, verified by the unification/capture/derived suites).
+
+### Entry 6 — Persistent incremental fact-rank index (speed: memory retrieval, audit 4.2)
+
+- **Baseline:** `rankFacts(query, facts)` (the retrieval ranker behind every knowledge answer, compound-clause routing, and confirmation/forget-fact matching in `engine.ts`) rebuilt a brand-new `TfIdfIndex` from scratch on **every call** — re-tokenizing all N facts and re-computing corpus doc-frequencies — then vectorized every fact again to score it. Measured **41.1ms mean / 50.5ms p95 per call at 10k facts** (`rankFacts@10k`), called up to 4× per `converse()` turn (main retrieval, per-clause retrieval, confirm-fact, forget-fact). This is the "wall at ~10k facts" flagged in the audit: a store growing toward realistic long-run sizes would make every answer path unacceptably slow.
+- **Change:** added `FactRankIndex` in `knowledge.ts` — tokenizes each fact **once**, when added, and maintains corpus doc-frequency + an inverted postings list (term → fact ids) incrementally across `FactStore`'s three mutation sites (`assert` new-fact push, `hydrate`, `consolidate`). `FactStore.rank(query, k)` uses the persistent index: only facts sharing ≥1 query term are ever scored (facts with zero shared terms always cosine to 0 anyway — same result, far less work). Scoring formula (tf/doclen × idf, cosine) is byte-for-byte the same math as before — this is a scalability fix, not a ranking-behavior change. All 4 `engine.ts` call sites (`this.facts.rank(...)`) now use it instead of `rankFacts(query, this.facts.list())`. The original `rankFacts` free function is UNCHANGED and still exported — it remains the correct one-off primitive for an arbitrary, non-persistent fact array (used as-is by `memory-ranking-forensic.test.ts` and any future ad hoc caller).
+- **Result (same suite, same session):** `store-rank@10k` = **12.35ms mean / 13.57ms p95** vs `rankFacts@10k` = 42.16ms mean / 54.65ms p95 on the identical 10k-fact store and query set — a **3.4× reduction**, with per-fact tokenization now a one-time cost instead of a per-query cost. Honest caveat: the gain on THIS synthetic benchmark is smaller than the inverted-index design would suggest for realistic vocabulary, because `bigStore`'s synthetic facts all share the tokens `material` and `value` (from `material-N` / `value-i`), so those postings buckets cover nearly the whole 10k-fact corpus regardless of query — the benchmark under-represents the narrowing gain. Real construction-domain vocabulary (e.g. "screed", "mortar", "primer") is far less universal per fact, so production queries should see postings buckets orders of magnitude smaller than the corpus and a correspondingly larger gain than measured here. Full regression stays green (1139+ tests, see CI); no behavior change to any existing `rankFacts`-based test.
+- **Decision:** ACCEPTED (measurable, non-regressive speed gain on the exact hot path the audit flagged; scoring math and existing `rankFacts` primitive preserved unchanged). Follow-up noted, not done here (out of scope for 4.2): a document-frequency ceiling to deprioritize ultra-common terms in candidate narrowing would recover more of the theoretical gain even under adversarial vocabulary distributions like this benchmark's.

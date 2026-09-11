@@ -1,10 +1,14 @@
 import { describe, it } from "vitest";
-import {
-  ArchieNativeEngine,
-} from "@studio-shared/archie-ai/native-engine/engine.ts";
+import { ArchieNativeEngine } from "@studio-shared/archie-ai/native-engine/engine.ts";
 import { FactStore } from "@studio-shared/archie-ai/native-engine/knowledge.ts";
-import { ReasoningEngine, DEFAULT_RULES } from "@studio-shared/archie-ai/native-engine/reasoning.ts";
-import { ContextMemory } from "@studio-shared/archie-ai/native-engine/memory.ts";
+import {
+  ReasoningEngine,
+  DEFAULT_RULES,
+} from "@studio-shared/archie-ai/native-engine/reasoning.ts";
+import {
+  ContextMemory,
+  rankFacts,
+} from "@studio-shared/archie-ai/native-engine/memory.ts";
 
 // =========================================================
 // ARCHIE NATIVE ENGINE — PERFORMANCE HARNESS
@@ -45,21 +49,37 @@ function mulberry32(seed: number) {
   };
 }
 
-function stats(samples: number[]): Omit<Metrics, "workload" | "ops" | "heapDeltaMb"> {
+function stats(
+  samples: number[],
+): Omit<Metrics, "workload" | "ops" | "heapDeltaMb"> {
   const sorted = [...samples].sort((a, b) => a - b);
   const mean = sorted.reduce((s, v) => s + v, 0) / sorted.length;
   const p50 = sorted[Math.floor(sorted.length * 0.5)];
-  const p95 = sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))];
-  return { meanMs: +mean.toFixed(3), p50Ms: +p50.toFixed(3), p95Ms: +p95.toFixed(3) };
+  const p95 =
+    sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * 0.95))];
+  return {
+    meanMs: +mean.toFixed(3),
+    p50Ms: +p50.toFixed(3),
+    p95Ms: +p95.toFixed(3),
+  };
 }
 
 function record(workload: string, samples: number[], heapDeltaMb = 0) {
-  results.push({ workload, ops: samples.length, ...stats(samples), heapDeltaMb: +heapDeltaMb.toFixed(2) });
+  results.push({
+    workload,
+    ops: samples.length,
+    ...stats(samples),
+    heapDeltaMb: +heapDeltaMb.toFixed(2),
+  });
 }
 
 function heapMb(): number {
-  return (globalThis as { process?: { memoryUsage(): { heapUsed: number } } })
-    .process!.memoryUsage().heapUsed / (1024 * 1024);
+  return (
+    (
+      globalThis as { process?: { memoryUsage(): { heapUsed: number } } }
+    ).process!.memoryUsage().heapUsed /
+    (1024 * 1024)
+  );
 }
 
 // ---------------------------------------------------------
@@ -147,11 +167,57 @@ describe("ARCHIE Native Engine — Performance harness (baseline measurement)", 
     const samplesSP: number[] = [];
     for (let i = 0; i < 1000; i++) {
       const t0 = performance.now();
-      const found = store.query({ subject: `material-${i % 500}`, predicate: "costs" });
+      const found = store.query({
+        subject: `material-${i % 500}`,
+        predicate: "costs",
+      });
       samplesSP.push(performance.now() - t0);
       if (found.length === 0) throw new Error("workload must match");
     }
     record("store-query-subj-pred@10k", samplesSP);
+  });
+
+  it("measures fact ranking (rankFacts) latency at 10k facts", async () => {
+    const store = await bigStore(10_000);
+    const facts = store.list();
+    const queries = [
+      "what does material-12 cost",
+      "when does material-88 set",
+      "how is material-250 sold",
+      "material-401 value",
+      "compare material-77 and material-3",
+    ];
+    const samples: number[] = [];
+    for (let i = 0; i < 200; i++) {
+      const q = queries[i % queries.length];
+      const t0 = performance.now();
+      const got = rankFacts(q, facts, 6);
+      samples.push(performance.now() - t0);
+      if (got.length === 0)
+        throw new Error("workload must match at least one fact");
+    }
+    record("rankFacts@10k", samples);
+  });
+
+  it("measures fact ranking via the persistent index (store.rank) at 10k facts", async () => {
+    const store = await bigStore(10_000);
+    const queries = [
+      "what does material-12 cost",
+      "when does material-88 set",
+      "how is material-250 sold",
+      "material-401 value",
+      "compare material-77 and material-3",
+    ];
+    const samples: number[] = [];
+    for (let i = 0; i < 200; i++) {
+      const q = queries[i % queries.length];
+      const t0 = performance.now();
+      const got = store.rank(q, 6);
+      samples.push(performance.now() - t0);
+      if (got.length === 0)
+        throw new Error("workload must match at least one fact");
+    }
+    record("store-rank@10k", samples);
   });
 
   it("measures forward-chaining latency (200 facts through the rule set)", async () => {
@@ -183,8 +249,14 @@ describe("ARCHIE Native Engine — Performance harness (baseline measurement)", 
     const rnd = mulberry32(11);
     for (let i = 0; i < 500; i++) {
       const topics = ["screed", "mortar", "primer", "cement", "sand"];
-      mem.addTurn("owner", `tell me about ${topics[Math.floor(rnd() * topics.length)]} option ${i}`);
-      mem.addTurn("archie", `answer ${i} about screeding levels and mortar mixes`);
+      mem.addTurn(
+        "owner",
+        `tell me about ${topics[Math.floor(rnd() * topics.length)]} option ${i}`,
+      );
+      mem.addTurn(
+        "archie",
+        `answer ${i} about screeding levels and mortar mixes`,
+      );
     }
     const samples: number[] = [];
     for (let i = 0; i < 500; i++) {
