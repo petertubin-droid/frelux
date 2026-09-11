@@ -419,6 +419,20 @@ the owner for the integrity-critical findings. Fixed this pass:
 - **M-2 truth-sync** — capability matrix updated with the
   audit-fix pass; no capability score claimed from integrity
   work.
+- **H-2 (HIGH)** — crypto intelligence wired. The crypto
+  libraries (multi-venue market data, probability evidence,
+  11-check trade gate) existed and were tested but were
+  UNREACHABLE from conversation. New `crypto_market_query`
+  intent (NLU rule ordered before the materials price rule):
+  live multi-venue price cross-checks with per-venue
+  provenance and honest unavailable reporting, and full
+  trade-gate evaluations (cross-check → 400×60m candles →
+  walk-forward-validated prediction → gate) that ask for
+  missing plan parameters instead of guessing and honor the
+  owner-configured emergency stop. 8-case wiring suite;
+  never simulated a price. Tool wiring kept injectable
+  (cryptoFetcher) — tests run deterministic fixtures,
+  production uses real fetch.
 
 ARCHIE suite after the pass: 93 files / 1413 tests green
 (2 documented expected-fails unchanged).
@@ -426,5 +440,5 @@ ARCHIE suite after the pass: 93 files / 1413 tests green
 Remaining recommended-order items NOT done this pass (still
 open): domain capture (rules out of engine), Bayes corpus
 depth, kernel trace double-writes, world-model time axis,
-crypto wiring (H-2), research adapter depth (H-4), CORS/rate
-limits, native eyes.
+research adapter depth (H-4), CORS/rate limits, native eyes.
+(H-2 crypto wiring was closed in the follow-up pass above.)

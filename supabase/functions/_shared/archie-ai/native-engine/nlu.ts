@@ -208,6 +208,7 @@ export const INTENTS = [
   "code_analysis_request",
   "research_request",
   "price_query",
+  "crypto_market_query",
   "documents_query",
   "images_query",
   "voice_query",
@@ -943,6 +944,16 @@ const RULE_CASCADE: Array<{
     pattern:
       /^(?:please\s+)?(?:research|search|google|look\s+up|find\s+information)\b/i,
     confidence: 0.85,
+  },
+  {
+    // Crypto market intelligence (audit fix H-2): live
+    // multi-venue price cross-checks and trade-gate
+    // evaluations. MUST precede the materials price rule —
+    // "price of bitcoin" would otherwise be captured by it.
+    intent: "crypto_market_query",
+    pattern:
+      /\b(?:bitcoin|btc|ethereum|eth|solana|sol|ripple|xrp|dogecoin|doge|binance\s+coin|bnb|cardano|ada|chainlink|link|litecoin|ltc|crypto(?:coin|currency)?)\b[^.?!]*\b(?:price|worth|trading\s+at|selling\s+for|quoting)\b|\b(?:price|worth)\s+of\s+(?:bitcoin|btc|ethereum|eth|solana|sol|ripple|xrp|dogecoin|doge|bnb|ada|link|ltc|crypto)|\b(?:should\s+i|is\s+it\s+safe\s+to|can\s+i|would\s+you)\s+(?:buy|sell|long|short)\b[^.?!]*\b(?:bitcoin|btc|ethereum|eth|solana|sol|ripple|xrp|dogecoin|doge|bnb|ada|link|ltc)\b|\bevaluate\s+(?:my\s+)?(?:trade|crypto)\b/i,
+    confidence: 0.9,
   },
   {
     // Interrogative price questions about materials route to the
