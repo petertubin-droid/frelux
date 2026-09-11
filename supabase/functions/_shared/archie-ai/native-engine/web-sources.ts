@@ -715,6 +715,22 @@ export class WebSourceRegistry {
   }
 
   /** Owner-validated promotion of a discovered source. */
+  /** Audit fix H-4 (2026-09-11): owner action — mark a source
+   *  RESTRICTED. The pipeline then NEVER issues a search for
+   *  it and reports it in sourceFailures ("source marked
+   *  restricted — not searched"), never in sourcesSearched.
+   *  Honest refusal, honest reporting. */
+  restrict(domain: string): SourceRecord | null {
+    const record = this.sources.get(domain);
+    if (!record) return null;
+    record.accessibility = "restricted";
+    record.provenance = {
+      ...record.provenance,
+      note: `${record.provenance.note} — marked restricted by owner (never searched)`,
+    };
+    return record;
+  }
+
   promote(domain: string): SourceRecord | null {
     const record = this.sources.get(domain);
     if (!record) return null;

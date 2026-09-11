@@ -440,5 +440,20 @@ ARCHIE suite after the pass: 93 files / 1413 tests green
 Remaining recommended-order items NOT done this pass (still
 open): domain capture (rules out of engine), Bayes corpus
 depth, kernel trace double-writes, world-model time axis,
-research adapter depth (H-4), CORS/rate limits, native eyes.
+CORS/rate limits, native eyes. (H-2 and H-4 were closed in the follow-up passes above.)
 (H-2 crypto wiring was closed in the follow-up pass above.)
+
+Follow-up pass 2 (2026-09-11) — research adapter depth (H-4):
+completed the line-by-line audit of the web-research pipeline
+that was cut short in the original pass. Verified honest: DDG
+URL encoding, anomaly/drift classification, retry policy,
+MediaWiki site-scope decline + timeouts + encoding, robots on
+deepening fetches, candidate confidence caps. Found and FIXED
+one real integrity bug: a registry source marked restricted
+was reported in sourcesSearched ("searched N sources") even
+though it was never searched. Fix: restricted notes route to
+sourceFailures with the honest "source marked restricted —
+not searched" note, and the registry gained the owner action
+restrict(domain) so a source can actually be marked
+restricted. Regression test pins: no search issued, no
+sourcesSearched claim, honest sourceFailures entry.

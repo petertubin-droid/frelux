@@ -101,6 +101,10 @@ export function isSearchFailureNote(note: string): boolean {
     note.startsWith("search endpoint refused") ||
     note.startsWith("wikipedia api unavailable") ||
     note.startsWith("site-scoped search not supported") ||
+    // Audit fix H-4 (2026-09-11): a restricted source is never
+    // searched — it must be reported as a failure, never
+    // claimed in sourcesSearched ("searched N sources").
+    note.startsWith("source marked restricted") ||
     note.startsWith("search failed")
   );
 }

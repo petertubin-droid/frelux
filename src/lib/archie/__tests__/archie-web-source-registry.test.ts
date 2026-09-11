@@ -291,6 +291,45 @@ describe("research pipeline with the registry", () => {
     expect(report.sourcesSearched).not.toContain("pubmed.ncbi.nlm.nih.gov");
   });
 
+  it("reports a restricted source as NOT searched — never in sourcesSearched (audit fix H-4)", async () => {
+    const store = new FactStore();
+    const adapter = new ScriptedAdapter((query) => {
+      if (query.includes("site:britannica.com")) {
+        return {
+          hits: [
+            {
+              title: "Ada Lovelace",
+              url: "https://www.britannica.com/biography/Ada-Lovelace",
+              snippet:
+                "Ada Lovelace was an English mathematician, often regarded as the first computer programmer.",
+            },
+          ],
+          note: "search completed",
+        };
+      }
+      return { hits: [], note: "search completed" };
+    });
+    const registry = new WebSourceRegistry();
+    const restricted = registry.restrict("wikipedia.org");
+    expect(restricted?.accessibility).toBe("restricted");
+    const pipeline = new ResearchPipeline(store, adapter, registry);
+    const report = await pipeline.research("who was Ada Lovelace");
+    // The restricted source was NEVER searched…
+    expect(adapter.queries.some((q) => q.includes("site:wikipedia.org"))).toBe(
+      false,
+    );
+    // …is NOT claimed in sourcesSearched…
+    expect(report.sourcesSearched).not.toContain("wikipedia.org");
+    // …and is reported honestly in sourceFailures.
+    expect(report.sourceFailures).toContainEqual({
+      domain: "wikipedia.org",
+      note: "source marked restricted — not searched",
+    });
+    // The unrestricted fallback may run — still no
+    // wikipedia claim.
+    expect(report.note).not.toContain("wikipedia.org");
+  });
+
   it("cross-checks independent sources and STOPS EARLY when they agree", async () => {
     const store = new FactStore();
     let bareQueryIssued = false;
