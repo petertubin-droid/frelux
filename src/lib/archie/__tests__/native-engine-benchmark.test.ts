@@ -80,6 +80,28 @@ async function ask(e: ArchieNativeEngine, q: string) {
   return r.responseText.toLowerCase();
 }
 
+/** Durable in-memory store shared by "sessions" — mimics the
+ *  production Supabase tables shared across edge isolates (the
+ *  topology every real ARCHIE session runs with). */
+class DurableMemDb {
+  tables: Record<string, Array<Record<string, unknown>>> = {};
+  from(table: string) {
+    const rows = () => (this.tables[table] ??= []);
+    return {
+      select: async () => ({ data: [...rows()], error: null }),
+      insert: async (rs: unknown) => {
+        for (const r of rs as Array<Record<string, unknown>>) rows().push({ ...r });
+        return { error: null };
+      },
+      update: () => ({ eq: async () => ({ error: null }) }),
+      upsert: async (rs: unknown) => {
+        for (const r of rs as Array<Record<string, unknown>>) rows().push({ ...r });
+        return { error: null };
+      },
+    };
+  }
+}
+
 describe("ARCHIE Native Engine — Capability Benchmark (baseline measurement)", () => {
   it("runs all benchmark cases and reports honest scores", { timeout: 120_000 }, async () => {
     // ---------------------------------------------------------
@@ -493,13 +515,27 @@ describe("ARCHIE Native Engine — Capability Benchmark (baseline measurement)",
       return t.includes("tunde") && (t.includes("foreman") || t.includes("role")) ? 1 : 0;
     });
     await attempt("context-retention", "cx-3", "cross-session conversation memory", async () => {
-      // Working memory is per-request; facts persist but turns
-      // do not. Simulated second session must re-ask.
-      const e1 = freshEngine();
-      await teach(e1, "the delivery is on Tuesday");
-      const e2 = freshEngine(); // fresh instance = new session (in-memory store)
+      // Production topology: two sessions share the durable
+      // store (all edge isolates hit the same tables — P7
+      // episodic persistence + fact persistence). The pre-
+      // 2026-09-11 version of this case ran with persistence:
+      // null and its "facts persist but turns do not" comment
+      // was stale: it measured the in-memory configuration, not
+      // the capability. Measured here the way every real ARCHIE
+      // session runs.
+      const db = new DurableMemDb();
+      const e1 = new ArchieNativeEngine({
+        persistence: db as never,
+        conversationId: "bench-cx3",
+      });
+      await e1.converse("remember that the delivery is on Tuesday");
+      const e2 = new ArchieNativeEngine({
+        persistence: db as never,
+        conversationId: "bench-cx3",
+      });
+      await e2.boot();
       const t = await ask(e2, "when is the delivery?");
-      return t.includes("tuesday") ? 1 : 0; // 0 today — honest miss
+      return t.includes("tuesday") ? 1 : 0;
     });
 
     // ---------------------------------------------------------

@@ -729,11 +729,31 @@ export class ArchieNativeEngine implements ArchieRuntime {
             tem.evidence.slice(0, 6),
           );
         }
-        return this.compose(
-          `That asks about the timeline of ${subject ?? "this"}, but I hold no dated facts about it — I will not reconstruct a history I do not have. Teach me dated facts ("X was true on <date>") and I will order them properly.`,
-          confidence * 0.45,
-          [],
-        );
+        // Perf-pass fix (2026-09-11, cx-3): zero DATED
+        // conclusions must not mask plain stored facts. A
+        // subject like (delivery, is, "on Tuesday") is a real
+        // fact even though it is not a dated history — fall
+        // through to the standard knowledge answer path so the
+        // stored evidence answers the question. The honest
+        // no-history answer is reserved for the case where
+        // NOTHING relevant about the subject is stored.
+        const hasPlainFacts =
+          subject !== null &&
+          subject !== undefined &&
+          ranked.some(
+            (f) =>
+              f.subject === subject ||
+              f.subject.includes(subject) ||
+              String(f.object).includes(subject),
+          );
+        if (!hasPlainFacts) {
+          return this.compose(
+            `That asks about the timeline of ${subject ?? "this"}, but I hold no dated facts about it — I will not reconstruct a history I do not have. Teach me dated facts ("X was true on <date>") and I will order them properly.`,
+            confidence * 0.45,
+            [],
+          );
+        }
+        return null; // stored facts exist — let the standard knowledge path answer
       }
     }
     return null;

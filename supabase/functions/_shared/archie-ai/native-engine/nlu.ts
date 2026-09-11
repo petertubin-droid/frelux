@@ -459,6 +459,29 @@ const RULE_CASCADE: Array<{
   pattern: RegExp;
   confidence: number;
 }> = [
+  // Day/date questions about a subject are KNOWLEDGE queries
+  // about stored facts ("what day is the delivery", "on which
+  // day is the handover") — the Naive Bayes fallback previously
+  // misfiled these as capability_query on weak token overlap
+  // (perf-pass defect, cx-3 probe 2026-09-11). Deterministic
+  // stage-1 rule; the subject is extracted by the downstream
+  // knowledge path exactly as for "when is the delivery".
+  {
+    intent: "knowledge_query",
+    pattern:
+      /^(?:on\s+)?(?:what|which)\s+(?:day|date|time)\b.{0,40}\bis\b/i,
+    confidence: 0.8,
+  },
+  // Identity questions about ARCHIE itself are deterministic —
+  // the Bayes fallback previously misfiled "who are you" as
+  // knowledge_query (pre-existing defect, found by the cx-3
+  // probe batch 2026-09-11).
+  {
+    intent: "identity_query",
+    pattern:
+      /^(?:who|what)\s+are\s+you\b|what\s+is\s+your\s+name|are\s+you\s+(?:archie|chatgpt|gemini|claude|an?\s+ai)|introduce\s+yourself|who\s+made\s+you/i,
+    confidence: 0.9,
+  },
   // Imperative commands (owner is issuing an instruction).
   {
     intent: "teaching",
