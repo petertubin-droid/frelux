@@ -1,4 +1,5 @@
 import { createClient, FunctionsHttpError, type SupabaseClient } from '@supabase/supabase-js';
+import { createArchieInvoker } from './archie/remote-bridge';
 
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -79,3 +80,40 @@ export async function getFunctionErrorMessage(error: unknown): Promise<string> {
   }
   return error instanceof Error ? error.message : 'Something went wrong. Please try again.';
 }
+
+
+// =========================================================
+// ARCHIE REMOTE BRIDGE (cutover 2026-09-12)
+//
+// ARCHIE Core lives on its own Supabase project (Frelukx).
+// Any functions.invoke("archie-*") from anywhere in this app is
+// transparently routed to ARCHIE's home instead of this
+// project's edge functions. Non-ARCHIE functions are untouched.
+// Identity travels with the user's FRELUX session JWT; ARCHIE
+// verifies it against FRELUX's public JWKS (cross-project owner
+// identity, commit ead413f). See remote-bridge.ts for details.
+// =========================================================
+
+const archieInvoke = createArchieInvoker(async () => {
+  try {
+    const { data } = await supabase.auth.getSession();
+    return data?.session?.access_token ?? null;
+  } catch {
+    return null;
+  }
+});
+
+type InvokeFn = typeof supabase.functions.invoke;
+const originalInvoke: InvokeFn = supabase.functions.invoke.bind(
+  supabase.functions,
+);
+
+supabase.functions.invoke = (async (
+  functionName: string,
+  invokeOptions?: Parameters<InvokeFn>[1],
+) => {
+  if (typeof functionName === 'string' && functionName.startsWith('archie-')) {
+    return archieInvoke(functionName, invokeOptions ?? {});
+  }
+  return originalInvoke(functionName as never, invokeOptions);
+}) as InvokeFn;

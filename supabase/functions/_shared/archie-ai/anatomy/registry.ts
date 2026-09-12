@@ -469,7 +469,7 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
           : `infrastructure engine: latest assessment ${latestStatus}${latestAt ? ` @ ${latestAt}` : ""}`,
     details: {
       deployment: "Netlify (freluxtools.netlify.app)",
-      backend: "Supabase Freluxtools (hqhvlkunkdrxyuvziorm)",
+      backend: "Supabase ARCHIE home (pjvtqkshewerpvggtgqx) + FRELUX app (hqhvlkunkdrxyuvziorm)",
       cost_records: infra,
       assessment_snapshots: snapshots,
       engine: "archie-infra (assess | snapshots | costs | budgets)",
