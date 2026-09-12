@@ -28,6 +28,7 @@
 //     a list response.
 // =========================================================
 
+import { verifyAuthorityJwt } from "../_shared/archie-ai/security/cross-project-auth.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import {
@@ -143,9 +144,18 @@ serveWithCors(async (req) => {
     user?: { id: string; email?: string };
     email?: string;
   }>("auth/v1/user", { headers: { Authorization: authHeader } });
-  const userId = authUser?.user?.id ?? authUser?.id;
+  let userId = authUser?.user?.id ?? authUser?.id;
   if (authError || !userId) {
-    return json(401, { ok: false, error: "Authentication required." });
+    // Cross-project owner identity (see cross-project-auth.ts): the
+    // owner's sessions are issued by the FRELUX authority project;
+    // verify such JWTs against the authority's public JWKS. Owner
+    // authority is still decided by profiles.role='admin' below.
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+    const verified = token ? await verifyAuthorityJwt(token) : null;
+    if (verified) userId = verified.sub;
+    if (!userId) {
+      return json(401, { ok: false, error: "Authentication required." });
+    }
   }
 
   // Per-user management rate limit (abuse protection).

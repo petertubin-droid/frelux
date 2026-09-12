@@ -8,6 +8,7 @@
 // as "NOT_OPERATIONAL" honestly (spec §§3, 16, 19).
 // =========================================================
 
+import { verifyAuthorityJwt } from "../_shared/archie-ai/security/cross-project-auth.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
@@ -69,9 +70,22 @@ serveWithCors(async (req: Request) => {
     global: { headers: { Authorization: authHeader } },
   });
   const { data } = await anon.auth.getUser();
-  const user = data.user;
+  let user = data.user;
+  if (!user) {
+    // Cross-project owner identity (see cross-project-auth.ts): the
+    // owner's sessions are issued by the FRELUX authority project.
+    const verified = await verifyAuthorityJwt(
+      authHeader.replace(/^Bearer\s+/i, ""),
+    );
+    if (verified) {
+      user = { id: verified.sub, email: verified.email ?? "" } as typeof user;
+    }
+  }
   if (!user) return json(401, { error: "Unauthorized" });
-  const { data: profile } = await anon
+  // Owner gate lookup uses the service client so cross-project
+  // authority JWTs (verified above) are honored: PostgREST cannot
+  // apply RLS to a token signed by another project's keys.
+  const { data: profile } = await service
     .from("profiles")
     .select("role")
     .eq("id", user.id)

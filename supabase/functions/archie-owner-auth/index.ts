@@ -16,6 +16,7 @@
 //     the OWNER can authorize production changes.
 // =========================================================
 
+import { verifyAuthorityJwt } from "../_shared/archie-ai/security/cross-project-auth.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -174,10 +175,19 @@ serveWithCors(async (req) => {
   const { data: authUser, error: authError } = await service<{
     user: { id: string; email?: string };
   }>("auth/v1/user", { headers: { Authorization: authHeader } });
-  if (authError || !authUser?.user?.id) {
+  let userId = authUser?.user?.id;
+  if (authError || !userId) {
+    // Cross-project owner identity (see cross-project-auth.ts): the
+    // owner's sessions are issued by the FRELUX authority project;
+    // verify such JWTs against the authority's public JWKS. Owner
+    // authority is still decided by profiles.role='admin' below.
+    const token = authHeader.replace(/^Bearer\s+/i, "");
+    const verified = token ? await verifyAuthorityJwt(token) : null;
+    if (verified) userId = verified.sub;
+  }
+  if (!userId) {
     return json({ ok: false, error: "Authentication required." }, 401);
   }
-  const userId = authUser.user.id;
 
   // ---- owner check: only the owner authorizes production changes ----
   // The FRELUX owner is the admin account (single-owner business

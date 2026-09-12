@@ -26,6 +26,7 @@
 //   * No secrets in, no secrets out.
 // =========================================================
 
+import { verifyAuthorityJwt } from "../_shared/archie-ai/security/cross-project-auth.ts";
 import { createClient, User } from "npm:@supabase/supabase-js@2.45.4";
 import {
   resolveArchieCapabilityEngine,
@@ -1529,6 +1530,22 @@ serveWithCors(async (req) => {
         .eq("id", user.id)
         .maybeSingle();
       isOwner = profile?.role === "admin";
+    }
+    if (!user) {
+      // Cross-project owner identity (see cross-project-auth.ts): the
+      // owner's sessions are issued by the FRELUX authority project.
+      const verified = await verifyAuthorityJwt(
+        authHeader.slice("Bearer ".length),
+      );
+      if (verified) {
+        user = { id: verified.sub, email: verified.email ?? "" } as User;
+        const { data: profile } = await db
+          .from("profiles")
+          .select("role")
+          .eq("id", user.id)
+          .maybeSingle();
+        isOwner = profile?.role === "admin";
+      }
     }
   }
 
