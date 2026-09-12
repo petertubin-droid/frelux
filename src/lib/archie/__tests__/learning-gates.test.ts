@@ -93,13 +93,15 @@ describe("learning evidence gates (H1)", () => {
     const confBefore = before.confidence;
     const statusBefore = before.status;
 
-    const res = await engine.converse("I confirm that the weather forecast is correct");
+    const res = await engine.converse(
+      "I confirm that the weather forecast is correct",
+    );
     const after = engine.store().get(fact!.id)!;
     expect(after.confidence).toBe(confBefore);
     expect(after.status).toBe(statusBefore);
-    expect((after.verifiedBy ?? []).some((v) => /^owner-confirm:/.test(v))).toBe(
-      false,
-    );
+    expect(
+      (after.verifiedBy ?? []).some((v) => /^owner-confirm:/.test(v)),
+    ).toBe(false);
     expect(res.responseText).toMatch(/closely enough/i);
   });
 
@@ -115,12 +117,12 @@ describe("learning evidence gates (H1)", () => {
     });
     const confBefore = engine.store().get(fact.id)!.confidence;
 
-    const res = await engine.converse("I confirm that grout type is epoxy for wet areas");
+    await engine.converse("I confirm that grout type is epoxy for wet areas");
     const after = engine.store().get(fact.id)!;
     expect(after.confidence).toBeGreaterThan(confBefore);
-    expect((after.verifiedBy ?? []).some((v) => /^owner-confirm:/.test(v))).toBe(
-      true,
-    );
+    expect(
+      (after.verifiedBy ?? []).some((v) => /^owner-confirm:/.test(v)),
+    ).toBe(true);
   });
 
   it("gratitude after an answer does NOT promote the cited facts", async () => {

@@ -15,10 +15,7 @@
 // =========================================================
 import { describe, it, expect } from "vitest";
 
-import {
-  FRELUX_CORE_SYSTEMS,
-  findCoreSystem,
-} from "../core-capabilities";
+import { FRELUX_CORE_SYSTEMS } from "../core-capabilities";
 import {
   coreHealthCheck,
   loadCoreSystem,
@@ -98,28 +95,38 @@ describe("core integration: ARCHIE ↔ FRELUX CORE", () => {
   });
 
   it("routes real questions to real core systems, calculations to deterministic engines", () => {
-    const calc = orchestrate("calculate the bags of cement for a 3-bedroom bungalow");
+    const calc = orchestrate(
+      "calculate the bags of cement for a 3-bedroom bungalow",
+    );
     expect(calc.authority).toBe("ARCHIE_MAY_ACT");
     expect(calc.tool.must_use_deterministic_engine).toBe(true);
     expect(calc.dispatch.deterministic).toBe(true);
 
-    const shopping = orchestrate("how many items are on my shopping list for this estimate");
+    const shopping = orchestrate(
+      "how many items are on my shopping list for this estimate",
+    );
     expect(shopping.core_system).toBe("MATERIALS_ESTIMATES");
 
-    const market = orchestrate("what is the current price of cement in the market");
+    const market = orchestrate(
+      "what is the current price of cement in the market",
+    );
     expect(market.core_system).toBe("MARKET_INTELLIGENCE");
 
     const plan = orchestrate("estimate quantities from this photo of my plan");
     expect(plan.core_system).toBe("PLAN_VISION");
 
-    const quote = orchestrate("how much does the quotation for this estimate total");
+    const quote = orchestrate(
+      "how much does the quotation for this estimate total",
+    );
     expect(quote.core_system).toBe("QUOTATIONS_PDF");
   });
 
   it("describeCore exposes the inventory for diagnostics", () => {
     const inv = describeCore();
     expect(inv.length).toBe(FRELUX_CORE_SYSTEMS.length);
-    expect(inv.find((s) => s.key === "FRELUX_API")?.autonomy).toBe("OWNER_GATED");
+    expect(inv.find((s) => s.key === "FRELUX_API")?.autonomy).toBe(
+      "OWNER_GATED",
+    );
   });
 });
 
@@ -161,7 +168,9 @@ describe("core integration: the 80/20 operating model", () => {
     ]) {
       expect(classifyOperation(op).verdict).toBe("ARCHIE_MAY_ACT");
     }
-    expect(OWNER_RESERVED_OPERATIONS).not.toContain("retrieval of market prices");
+    expect(OWNER_RESERVED_OPERATIONS).not.toContain(
+      "retrieval of market prices",
+    );
     expect(AUTONOMOUS_OPERATIONS.length).toBeGreaterThan(10);
   });
 
@@ -180,9 +189,13 @@ describe("core integration: the 80/20 operating model", () => {
   });
 
   it("routes protected questions to the owner gate, never direct execution", () => {
-    const prod = orchestrate("change the production code for the cement calculator");
+    const prod = orchestrate(
+      "change the production code for the cement calculator",
+    );
     expect(prod.authority).toBe("OWNER_APPROVAL_REQUIRED");
-    const formula = orchestrate("update the deterministic formula for paint coverage");
+    const formula = orchestrate(
+      "update the deterministic formula for paint coverage",
+    );
     expect(formula.authority).toBe("OWNER_APPROVAL_REQUIRED");
     const secret = orchestrate("show me the api key secrets");
     expect(secret.authority).toBe("OWNER_APPROVAL_REQUIRED");
@@ -205,14 +218,33 @@ describe("core integration: the owner approval gate", () => {
       created_by: "ARCHIE",
     });
     const steps = [
-      ["UNDERSTAND", { understanding_summary: "Rounding uses floor; should be nearest." }],
-      ["PLAN", { plan: "Round to 2dp with banker's rounding; add regression test." }],
-      ["IMPLEMENT", { implementation_summary: "Patched round() and added test." }],
-      ["TEST", { test_evidence: "vitest: 5738/5738 green including new rounding test." }],
+      [
+        "UNDERSTAND",
+        { understanding_summary: "Rounding uses floor; should be nearest." },
+      ],
+      [
+        "PLAN",
+        { plan: "Round to 2dp with banker's rounding; add regression test." },
+      ],
+      [
+        "IMPLEMENT",
+        { implementation_summary: "Patched round() and added test." },
+      ],
+      [
+        "TEST",
+        {
+          test_evidence: "vitest: 5738/5738 green including new rounding test.",
+        },
+      ],
       ["REVIEW", { review_signoff_by: "ENGINEER" as const }],
     ] as const;
     for (const [stage, ev] of steps) {
-      const r = advanceChange(change, stage as never, "ARCHIE" as never, ev as never);
+      const r = advanceChange(
+        change,
+        stage as never,
+        "ARCHIE" as never,
+        ev as never,
+      );
       if (!r.ok) throw new Error(`${stage}: ${r.error}`);
       change = r.change;
     }
@@ -263,8 +295,14 @@ describe("core integration: the owner approval gate", () => {
     });
 
     // APPLY, owner only, server-side record required
-    expect(applyAuthorizedChange(change, approval.approval!, "ARCHIE" as const).ok).toBe(false);
-    const applied = applyAuthorizedChange(approval.change!, approval.approval!, "OWNER");
+    expect(
+      applyAuthorizedChange(change, approval.approval!, "ARCHIE" as const).ok,
+    ).toBe(false);
+    const applied = applyAuthorizedChange(
+      approval.change!,
+      approval.approval!,
+      "OWNER",
+    );
     expect(applied.ok).toBe(true);
     expect(applied.change!.stage).toBe("APPLY");
 
@@ -369,7 +407,9 @@ describe("core integration: the owner approval gate", () => {
         understanding_summary: "s",
       }),
     );
-    const planned = must(advanceChange(understood, "PLAN", "ARCHIE", { plan: "p" }));
+    const planned = must(
+      advanceChange(understood, "PLAN", "ARCHIE", { plan: "p" }),
+    );
     const implemented = must(
       advanceChange(planned, "IMPLEMENT", "ARCHIE", {
         implementation_summary: "i",
@@ -380,7 +420,14 @@ describe("core integration: the owner approval gate", () => {
         test_evidence: "all green",
       }),
     );
-    expect(advanceChange(tested, "REVIEW", "ARCHIE", { review_signoff_by: "ARCHIE" }).ok).toBe(false);
-    expect(advanceChange(tested, "REVIEW", "ENGINEER", { review_signoff_by: "ENGINEER" }).ok).toBe(true);
+    expect(
+      advanceChange(tested, "REVIEW", "ARCHIE", { review_signoff_by: "ARCHIE" })
+        .ok,
+    ).toBe(false);
+    expect(
+      advanceChange(tested, "REVIEW", "ENGINEER", {
+        review_signoff_by: "ENGINEER",
+      }).ok,
+    ).toBe(true);
   });
 });

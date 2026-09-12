@@ -25,10 +25,8 @@ import {
   toBinanceSymbol,
 } from "@studio-shared/archie-ai/native-engine/crypto/exchange/binance.ts";
 import {
-  DEFAULT_EXECUTION_CONFIG,
   executeDecision,
   emergencyCancelAll,
-  type ExecutionConfig,
 } from "@studio-shared/archie-ai/native-engine/crypto/exchange/execution.ts";
 import type {
   VenueAdapter,
@@ -472,10 +470,6 @@ class FakeAdapter implements VenueAdapter {
     this.calls.push("balances");
     return this.balances;
   }
-}
-
-function execConfig(over: Partial<ExecutionConfig> = {}): ExecutionConfig {
-  return { ...DEFAULT_EXECUTION_CONFIG, ...over };
 }
 
 describe("executeDecision refusal boundaries", () => {

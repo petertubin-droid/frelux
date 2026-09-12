@@ -30,7 +30,10 @@ interface Crafted {
   otherJwk: JsonWebKey;
 }
 
-async function craftToken(claims: Record<string, unknown>, alg = "ES256"): Promise<Crafted> {
+async function craftToken(
+  claims: Record<string, unknown>,
+  alg = "ES256",
+): Promise<Crafted> {
   const key = await makeKey();
   const other = await makeKey();
   const header = { alg, typ: "JWT", kid: "test-key" };
@@ -75,11 +78,13 @@ describe("cross-project authority JWT verification", () => {
   it("rejects tampered payloads", async () => {
     const exp = Math.floor(Date.now() / 1000) + 3600;
     const { token, jwk } = await craftToken({ exp });
-    const [h, p, s] = token.split(".");
-    const tamperedPayload = b64url(new TextEncoder().encode(
-      JSON.stringify({ sub: "attacker", exp }),
-    ));
-    expect(await verifyJwtWithJwk(`${h}.${tamperedPayload}.${s}`, jwk as never)).toBeNull();
+    const [h, _p, s] = token.split(".");
+    const tamperedPayload = b64url(
+      new TextEncoder().encode(JSON.stringify({ sub: "attacker", exp })),
+    );
+    expect(
+      await verifyJwtWithJwk(`${h}.${tamperedPayload}.${s}`, jwk as never),
+    ).toBeNull();
   });
 
   it("rejects non-ES256 algorithms", async () => {
@@ -89,7 +94,9 @@ describe("cross-project authority JWT verification", () => {
   });
 
   it("rejects malformed tokens", async () => {
-    const { jwk } = await craftToken({ exp: Math.floor(Date.now() / 1000) + 60 });
+    const { jwk } = await craftToken({
+      exp: Math.floor(Date.now() / 1000) + 60,
+    });
     expect(await verifyJwtWithJwk("not-a-jwt", jwk as never)).toBeNull();
   });
 });
