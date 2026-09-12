@@ -51,15 +51,16 @@ CREATE TABLE IF NOT EXISTS public.application_errors (
 
 
 -- ── Grant privileges ──
+-- NOTE (chain-replay fix 2026-09-12): the error_alert_config and
+-- system_health_checks GRANTs originally sat here, before those tables
+-- are created further down in this file. On a fresh chain replay the
+-- GRANTs aborted with 42P01 (relation does not exist). They were moved
+-- below the CREATE TABLE statements — same privileges, valid ordering.
 -- service_role needs full access (used by edge functions with service role key)
 GRANT INSERT, SELECT, UPDATE, DELETE ON public.application_errors TO service_role;
-GRANT ALL ON public.error_alert_config TO service_role;
-GRANT ALL ON public.system_health_checks TO service_role;
 
 -- authenticated (admins) need read and update
 GRANT SELECT, UPDATE ON public.application_errors TO authenticated;
-GRANT SELECT, UPDATE ON public.error_alert_config TO authenticated;
-GRANT SELECT, UPDATE ON public.system_health_checks TO authenticated;
 
 -- anon can insert via the edge function (which uses service role key)
 -- Direct anon inserts are blocked by RLS — only the service_role policy allows inserts
@@ -128,6 +129,10 @@ CREATE TABLE IF NOT EXISTS public.error_alert_config (
 );
 
 ALTER TABLE public.error_alert_config ENABLE ROW LEVEL SECURITY;
+-- ── Grants for error_alert_config (moved from above — table now exists) ──
+GRANT ALL ON public.error_alert_config TO service_role;
+GRANT SELECT, UPDATE ON public.error_alert_config TO authenticated;
+
 
 DROP POLICY IF EXISTS "Admins manage error alert config" ON error_alert_config;
 CREATE POLICY "Admins manage error alert config"
@@ -178,6 +183,10 @@ CREATE TABLE IF NOT EXISTS public.system_health_checks (
 CREATE INDEX IF NOT EXISTS idx_health_checks_service_time ON public.system_health_checks (service, checked_at DESC);
 
 ALTER TABLE public.system_health_checks ENABLE ROW LEVEL SECURITY;
+-- ── Grants for system_health_checks (moved from above — table now exists) ──
+GRANT ALL ON public.system_health_checks TO service_role;
+GRANT SELECT, UPDATE ON public.system_health_checks TO authenticated;
+
 
 DROP POLICY IF EXISTS "Admins read health checks" ON system_health_checks;
 CREATE POLICY "Admins read health checks"
