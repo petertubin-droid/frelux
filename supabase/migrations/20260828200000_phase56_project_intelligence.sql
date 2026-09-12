@@ -505,22 +505,22 @@ INSERT INTO public.paint_comparisons (paint_type, display_name, description, fin
 ON CONFLICT (paint_type) DO NOTHING;
 
 -- Triggers for updated_at
-DROP TRIGGER IF EXISTS "material_price_history_set_updated_at" ON BEFORE UPDATE ON public.material_price_history;
-CREATE TRIGGER "material_price_history_set_updated_at" BEFORE UPDATE ON BEFORE UPDATE ON public.material_price_history FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-DROP TRIGGER IF EXISTS "project_calculations_set_updated_at" ON BEFORE UPDATE ON public.project_calculations;
-CREATE TRIGGER "project_calculations_set_updated_at" BEFORE UPDATE ON BEFORE UPDATE ON public.project_calculations FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-DROP TRIGGER IF EXISTS "gallery_entries_set_updated_at" ON BEFORE UPDATE ON public.gallery_entries;
-CREATE TRIGGER "gallery_entries_set_updated_at" BEFORE UPDATE ON BEFORE UPDATE ON public.gallery_entries FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-DROP TRIGGER IF EXISTS "client_estimates_set_updated_at" ON BEFORE UPDATE ON public.client_estimates;
-CREATE TRIGGER "client_estimates_set_updated_at" BEFORE UPDATE ON BEFORE UPDATE ON public.client_estimates FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-DROP TRIGGER IF EXISTS "paint_comparisons_set_updated_at" ON BEFORE UPDATE ON public.paint_comparisons;
-CREATE TRIGGER "paint_comparisons_set_updated_at" BEFORE UPDATE ON BEFORE UPDATE ON public.paint_comparisons FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-DROP TRIGGER IF EXISTS "project_progress_stages_set_updated_at" ON BEFORE UPDATE ON public.project_progress_stages;
-CREATE TRIGGER "project_progress_stages_set_updated_at" BEFORE UPDATE ON BEFORE UPDATE ON public.project_progress_stages FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-DROP TRIGGER IF EXISTS "surface_assessments_set_updated_at" ON BEFORE UPDATE ON public.surface_assessments;
-CREATE TRIGGER "surface_assessments_set_updated_at" BEFORE UPDATE ON BEFORE UPDATE ON public.surface_assessments FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
-DROP TRIGGER IF EXISTS "project_stage_templates_set_updated_at" ON BEFORE UPDATE ON public.project_stage_templates;
-CREATE TRIGGER "project_stage_templates_set_updated_at" BEFORE UPDATE ON BEFORE UPDATE ON public.project_stage_templates FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DROP TRIGGER IF EXISTS "material_price_history_set_updated_at" ON public.material_price_history;
+CREATE TRIGGER "material_price_history_set_updated_at" BEFORE UPDATE ON public.material_price_history FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DROP TRIGGER IF EXISTS "project_calculations_set_updated_at" ON public.project_calculations;
+CREATE TRIGGER "project_calculations_set_updated_at" BEFORE UPDATE ON public.project_calculations FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DROP TRIGGER IF EXISTS "gallery_entries_set_updated_at" ON public.gallery_entries;
+CREATE TRIGGER "gallery_entries_set_updated_at" BEFORE UPDATE ON public.gallery_entries FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DROP TRIGGER IF EXISTS "client_estimates_set_updated_at" ON public.client_estimates;
+CREATE TRIGGER "client_estimates_set_updated_at" BEFORE UPDATE ON public.client_estimates FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DROP TRIGGER IF EXISTS "paint_comparisons_set_updated_at" ON public.paint_comparisons;
+CREATE TRIGGER "paint_comparisons_set_updated_at" BEFORE UPDATE ON public.paint_comparisons FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DROP TRIGGER IF EXISTS "project_progress_stages_set_updated_at" ON public.project_progress_stages;
+CREATE TRIGGER "project_progress_stages_set_updated_at" BEFORE UPDATE ON public.project_progress_stages FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DROP TRIGGER IF EXISTS "surface_assessments_set_updated_at" ON public.surface_assessments;
+CREATE TRIGGER "surface_assessments_set_updated_at" BEFORE UPDATE ON public.surface_assessments FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DROP TRIGGER IF EXISTS "project_stage_templates_set_updated_at" ON public.project_stage_templates;
+CREATE TRIGGER "project_stage_templates_set_updated_at" BEFORE UPDATE ON public.project_stage_templates FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 -- Storage bucket for project and gallery images
 INSERT INTO storage.buckets (id, name, public)

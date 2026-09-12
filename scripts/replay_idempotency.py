@@ -117,11 +117,21 @@ for fname in sorted(os.listdir(MIGRATIONS)):
         inserts.append((start, f'DROP POLICY IF EXISTS "{pname}" ON {table};\n'))
         stats['policy'] += 1
 
-    # --- 2. CREATE TRIGGER name <timing> ... ON <table> ---
-    for start, end, m in find_unprotected(sql, r'CREATE TRIGGER\s+([A-Za-z_]\w*)\s+(?:BEFORE|AFTER|INSTEAD OF)\s+[^;]*?\sON\s+((?:"[^"]+"|[A-Za-z_][\w.]*))\s'):
-        tname, table = m.group(1), m.group(2)
+    # --- 2. CREATE TRIGGER [name] <timing> <events> ON <table> ---
+    # NOTE: timing/event clause must be matched EXPLICITLY so the ON capture
+    # is the real table reference (an earlier pass matched loosely and produced
+    # `DROP TRIGGER ... ON BEFORE UPDATE ON <table>` garbage in phase56).
+    trig_pat = (
+        r'CREATE TRIGGER\s+(?:"([^"]+)"|([A-Za-z_]\w*))\s+'
+        r'(?:BEFORE|AFTER|INSTEAD OF)\s+'
+        r'(?:[A-Z]+(?:\s+OR\s+[A-Z]+)*)\s+'
+        r'ON\s+((?:"[^"]+"|[A-Za-z_][\w.]*))\s'
+    )
+    for start, end, m in find_unprotected(sql, trig_pat):
+        tname = ('"' + m.group(1) + '"') if m.group(1) else m.group(2)
+        table = m.group(3)
         back = sql[max(0, start - 400):start]
-        if re.search(r'DROP TRIGGER IF EXISTS\s+' + tname + r'\b', back, re.I):
+        if re.search(r'DROP TRIGGER IF EXISTS\s+' + re.escape(tname) + r'\b', back, re.I):
             continue
         inserts.append((start, f'DROP TRIGGER IF EXISTS {tname} ON {table};\n'))
         stats['trigger'] += 1
