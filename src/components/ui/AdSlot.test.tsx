@@ -275,7 +275,7 @@ import {
   renderAdsterraBanner,
   renderAdsterraNativeBanner,
   resetAdsterraPageStateForTests,
-} from "@/components/ui/AdSlot";
+} from "@/components/ui/adsterra";
 
 describe("Adsterra helpers", () => {
   beforeEach(() => resetAdsterraPageStateForTests());
@@ -405,7 +405,7 @@ describe("AdSlot, Adsterra rendering", () => {
     // attempt an async page load that surfaces as an unhandled rejection
     // in unrelated test files. The injector itself is unit-tested below
     // against a detached container (no document connection, no page load).
-    const AdSlotModule = await import("@/components/ui/AdSlot");
+    const AdSlotModule = await import("@/components/ui/adsterra");
     const injectSpy = vi
       .spyOn(AdSlotModule.adsterraInjector, "renderBanner")
       .mockImplementation(() => {});
@@ -495,7 +495,7 @@ describe("AdSlot, Adsterra rendering", () => {
     // The placement maps this provider to the native zone key
     vi.mocked(adConfig.getAdUnitId).mockReturnValue(nativeKey);
 
-    const AdSlotModule = await import("@/components/ui/AdSlot");
+    const AdSlotModule = await import("@/components/ui/adsterra");
     const nativeSpy = vi
       .spyOn(AdSlotModule.adsterraInjector, "renderNativeBanner")
       .mockImplementation(() => {});

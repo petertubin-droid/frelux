@@ -134,7 +134,7 @@ export default function Layout() {
         );
         if (adsterra) {
           const { getAdsterraServeDomain } =
-            await import("@/components/ui/AdSlot");
+            await import("@/components/ui/adsterra");
           const adsterraServeDomain = getAdsterraServeDomain(adsterra);
           adsterraSiteWide = formats.getAdsterraSiteWideScripts(
             adsterra,
