@@ -18,7 +18,7 @@ const read = (rel: string): string => readFileSync(join(root, rel), "utf-8");
 
 const fn = read("supabase/functions/archie-whatsapp/index.ts");
 const chat = read("supabase/functions/archie-chat/index.ts");
-const client = read("src/lib/archie/whatsapp-client.ts");
+read("src/lib/archie/whatsapp-client.ts"); // existence guard
 const migration = read(
   "supabase/migrations/20260914100000_archie_whatsapp_assistant.sql",
 );

@@ -16,20 +16,22 @@
 // have.
 // =========================================================
 
-import { strFromU8, strToU8, unzipSync, zipSync, Zip, ZipDeflate } from "fflate";
-import type { SupabaseClient } from "@supabase/supabase-js";
 import {
-  checksumComponents,
-  fileByteLength,
-  sha256Hex,
-} from "./checksums";
+  strFromU8,
+  strToU8,
+  unzipSync,
+  zipSync,
+  Zip,
+  ZipDeflate,
+} from "fflate";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { checksumComponents, fileByteLength, sha256Hex } from "./checksums";
 import { collectAll, type CollectorContext } from "./collect";
 import { getOrCreateInstallation } from "./identity";
 import { scanFilesForSecrets } from "./secrets";
 import type {
   MigrationManifest,
   MigrationPackage,
-  MigrationPhase,
   MigrationProgress,
   PackageComponent,
   PackageComponentId,
@@ -87,10 +89,18 @@ export async function buildMigrationPackage(
   const { onProgress, isCancelled } = opts;
   const cancelled = false; // bound at call time by isCancelled()
 
-  onProgress({ phase: "PREPARING", fraction: null, detail: "Registering ARCHIE installation identity…" });
+  onProgress({
+    phase: "PREPARING",
+    fraction: null,
+    detail: "Registering ARCHIE installation identity…",
+  });
   const installation = await getOrCreateInstallation(opts.supabase);
 
-  onProgress({ phase: "COLLECTING", fraction: 0, detail: "Collecting portable state…" });
+  onProgress({
+    phase: "COLLECTING",
+    fraction: 0,
+    detail: "Collecting portable state…",
+  });
   const ctx: CollectorContext = {
     supabase: opts.supabase,
     appVersion: opts.appVersion,
@@ -111,14 +121,22 @@ export async function buildMigrationPackage(
   const allFiles = collected.components.flatMap((c) => c.files);
   const secretHits = scanFilesForSecrets(allFiles);
   if (secretHits.length > 0) {
-    onProgress({ phase: "FAILED", fraction: null, detail: "Secret detected — export stopped." });
+    onProgress({
+      phase: "FAILED",
+      fraction: null,
+      detail: "Secret detected — export stopped.",
+    });
     throw new Error(
       `Secret content detected in export (${secretHits.map((h) => `${h.path}: ${h.patternName}`).join("; ")}). Export STOPPED — resolve the embedded secret and try again.`,
     );
   }
 
   // ---- Checksums (§7)
-  onProgress({ phase: "PACKAGING", fraction: null, detail: "Computing integrity checksums…" });
+  onProgress({
+    phase: "PACKAGING",
+    fraction: null,
+    detail: "Computing integrity checksums…",
+  });
   const checksums = await checksumComponents(collected.components);
   // The root ARCHIE-VERSION marker is a real package file — it is
   // covered by the checksum manifest like everything else.
@@ -128,7 +146,11 @@ export async function buildMigrationPackage(
     hash: await sha256Hex(ARCHIE_VERSION),
     bytes: new TextEncoder().encode(ARCHIE_VERSION).length,
   });
-  const checksumsJson = JSON.stringify({ algorithm: "sha256", files: checksums }, null, 2);
+  const checksumsJson = JSON.stringify(
+    { algorithm: "sha256", files: checksums },
+    null,
+    2,
+  );
   const checksumsFileHash = await sha256Hex(checksumsJson);
 
   const packageId = uuid();
@@ -136,7 +158,9 @@ export async function buildMigrationPackage(
     checksums.reduce((a, c) => a + c.bytes, 0) +
     fileByteLength({ path: "x", content: checksumsJson });
 
-  const includedComponents: PackageComponentId[] = collected.components.map((c) => c.id);
+  const includedComponents: PackageComponentId[] = collected.components.map(
+    (c) => c.id,
+  );
 
   const manifest: MigrationManifest = {
     migrationCompatibilityVersion: MIGRATION_COMPATIBILITY_VERSION,
@@ -148,16 +172,20 @@ export async function buildMigrationPackage(
     sourceEnvironment: {
       archieInstallationId: installation.logicalId,
       platform: "frelux-pwa",
-      userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+      userAgent:
+        typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
       createdOffline: false, // data collection required connectivity
     },
     architectureRequirements: {
-      runtime: "browser PWA + Supabase backend; Node 20+/Docker for server restore",
+      runtime:
+        "browser PWA + Supabase backend; Node 20+/Docker for server restore",
       databaseProvider: "supabase",
       databaseProjectRef: opts.databaseProjectRef,
     },
     databaseSchemaVersion:
-      /* filled below from schema component */ schemaVersionOf(collected.components),
+      /* filled below from schema component */ schemaVersionOf(
+        collected.components,
+      ),
     languageMemoryVersion: LANGUAGE_MEMORY_VERSION,
     evolutionMemoryVersion: EVOLUTION_MEMORY_VERSION,
     includedComponents,
@@ -185,14 +213,22 @@ export async function buildMigrationPackage(
   // the ZIP never has to be materialized in memory here; the
   // streaming export re-verifies the bytes actually written to
   // disk before reporting COMPLETE.
-  onProgress({ phase: "VERIFYING", fraction: null, detail: "Verifying package integrity…" });
+  onProgress({
+    phase: "VERIFYING",
+    fraction: null,
+    detail: "Verifying package integrity…",
+  });
   const sourceFiles: PackageFile[] = [
     ...allFiles,
     { path: "ARCHIE-VERSION", content: ARCHIE_VERSION },
   ];
   const problems = await verifyFilesAgainst(sourceFiles, checksums);
   if (problems.length > 0) {
-    onProgress({ phase: "FAILED", fraction: null, detail: "Self-verification failed." });
+    onProgress({
+      phase: "FAILED",
+      fraction: null,
+      detail: "Self-verification failed.",
+    });
     throw new Error(
       `Package failed self-verification and was NOT produced: ${problems.join("; ")}`,
     );
@@ -220,7 +256,9 @@ function schemaVersionOf(components: PackageComponent[]): string {
     if (c.id !== "database") continue;
     for (const f of c.files) {
       try {
-        const parsed = JSON.parse(f.content) as { schema_version?: string | null };
+        const parsed = JSON.parse(f.content) as {
+          schema_version?: string | null;
+        };
         if (parsed.schema_version) return parsed.schema_version;
       } catch {
         /* fall through */
@@ -231,14 +269,19 @@ function schemaVersionOf(components: PackageComponent[]): string {
 }
 
 /** Build the ZIP: exact file set = components + manifest + checksums. */
-export function buildZip(pkg: MigrationPackage, checksumsJson: string): Uint8Array {
+export function buildZip(
+  pkg: MigrationPackage,
+  checksumsJson: string,
+): Uint8Array {
   const entries: Record<string, Uint8Array> = {};
   for (const c of pkg.components) {
     for (const f of c.files) {
       entries[`${ROOT}/${f.path}`] = strToU8(f.content);
     }
   }
-  entries[`${ROOT}/manifest.json`] = strToU8(JSON.stringify(pkg.manifest, null, 2));
+  entries[`${ROOT}/manifest.json`] = strToU8(
+    JSON.stringify(pkg.manifest, null, 2),
+  );
   entries[`${ROOT}/checksums/checksums.json`] = strToU8(checksumsJson);
   entries[`${ROOT}/ARCHIE-VERSION`] = strToU8(pkg.manifest.archieVersion);
   return zipSync(entries, { level: 6 });
@@ -275,7 +318,8 @@ async function verifyFilesAgainst(
       continue;
     }
     const hash = await sha256Hex(f.content);
-    if (hash !== record.hash) problems.push(`Self-verification hash mismatch: ${f.path}`);
+    if (hash !== record.hash)
+      problems.push(`Self-verification hash mismatch: ${f.path}`);
   }
   for (const record of checksums) {
     if (!files.some((f) => f.path === record.path)) {
@@ -330,14 +374,23 @@ export async function exportPackage(
   filename: string,
   onProgress: (p: MigrationProgress) => void,
 ): Promise<{ capability: ExportCapability }> {
-  onProgress({ phase: "EXPORTING", fraction: null, detail: "Writing package…" });
+  onProgress({
+    phase: "EXPORTING",
+    fraction: null,
+    detail: "Writing package…",
+  });
   const capability = exportCapability();
   if (capability === "file-system-access") {
     try {
       const w = globalThis as unknown as SaveFilePickerWindow;
       const handle = await w.showSaveFilePicker({
         suggestedName: filename,
-        types: [{ description: "ARCHIE migration package", accept: { "application/zip": [".zip"] } }],
+        types: [
+          {
+            description: "ARCHIE migration package",
+            accept: { "application/zip": [".zip"] },
+          },
+        ],
       });
 
       // ---- STREAM the zip entries to the writable (§12) ----
@@ -347,7 +400,10 @@ export async function exportPackage(
           entries.push([`${ROOT}/${f.path}`, f.content]);
         }
       }
-      entries.push([`${ROOT}/manifest.json`, JSON.stringify(pkg.manifest, null, 2)]);
+      entries.push([
+        `${ROOT}/manifest.json`,
+        JSON.stringify(pkg.manifest, null, 2),
+      ]);
       entries.push([`${ROOT}/checksums/checksums.json`, checksumsJson]);
       entries.push([`${ROOT}/ARCHIE-VERSION`, pkg.manifest.archieVersion]);
 
@@ -361,9 +417,15 @@ export async function exportPackage(
       );
 
       // ---- Verify the bytes actually written to disk (§7) ----
-      onProgress({ phase: "VERIFYING", fraction: null, detail: "Verifying written package…" });
+      onProgress({
+        phase: "VERIFYING",
+        fraction: null,
+        detail: "Verifying written package…",
+      });
       const written = await handle.getFile();
-      const roundTrip = unzipComponentFiles(new Uint8Array(await written.arrayBuffer()));
+      const roundTrip = unzipComponentFiles(
+        new Uint8Array(await written.arrayBuffer()),
+      );
       const problems = await verifyFilesAgainst(roundTrip, pkg.checksums);
       if (problems.length > 0) {
         // Overwrite with an INVALID marker so the corrupt file
@@ -377,19 +439,31 @@ export async function exportPackage(
           ),
         );
         await marker.close();
-        onProgress({ phase: "FAILED", fraction: null, detail: "Verification of written package failed." });
+        onProgress({
+          phase: "FAILED",
+          fraction: null,
+          detail: "Verification of written package failed.",
+        });
         throw new Error(
           `Export verification failed after writing ${filename}. The destination file has been overwritten with an INVALID marker — delete it and try again. Problems: ${problems.join("; ")}`,
         );
       }
 
-      onProgress({ phase: "COMPLETE", fraction: 1, detail: `Saved ${filename} to the selected destination.` });
+      onProgress({
+        phase: "COMPLETE",
+        fraction: 1,
+        detail: `Saved ${filename} to the selected destination.`,
+      });
       return { capability };
     } catch (err) {
       // Owner dismissed the picker, or the API failed — fall back
       // to a normal download rather than failing the export.
       if ((err as Error)?.name === "AbortError") {
-        onProgress({ phase: "CANCELLED", fraction: null, detail: "Save cancelled." });
+        onProgress({
+          phase: "CANCELLED",
+          fraction: null,
+          detail: "Save cancelled.",
+        });
         return { capability };
       }
       // The streaming write or its readback verification failed —
@@ -417,7 +491,10 @@ export async function exportPackage(
  */
 async function streamZipToWritable(
   entries: Array<[string, string]>,
-  writable: { write: (d: Uint8Array) => Promise<void>; close: () => Promise<void> },
+  writable: {
+    write: (d: Uint8Array) => Promise<void>;
+    close: () => Promise<void>;
+  },
   onEntry: (done: number, total: number) => void,
 ): Promise<void> {
   const pending: Uint8Array[] = [];
@@ -451,7 +528,9 @@ async function streamZipToWritable(
 }
 
 function triggerBrowserDownload(zip: Uint8Array, filename: string): void {
-  const blob = new Blob([zip as unknown as BlobPart], { type: "application/zip" });
+  const blob = new Blob([zip as unknown as BlobPart], {
+    type: "application/zip",
+  });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;

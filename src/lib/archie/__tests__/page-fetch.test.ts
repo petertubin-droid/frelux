@@ -87,7 +87,7 @@ function stubFetch(
   robotsBodies: Record<string, string | (() => Response)>,
   pageHandler: (url: string) => Response | Promise<Response>,
 ): typeof fetch {
-  return (async (input: unknown, init?: unknown) => {
+  return (async (input: unknown, _init?: unknown) => {
     const url = String(input instanceof URL ? input : input);
     const robotsMatch = /^https?:\/\/[^/]+\/robots\.txt$/.exec(url);
     if (robotsMatch) {

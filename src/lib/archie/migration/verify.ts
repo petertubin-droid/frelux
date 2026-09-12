@@ -16,7 +16,7 @@
 
 import { strFromU8, unzipSync } from "fflate";
 import { sha256Hex, verifyFile } from "./checksums";
-import { PACKAGE_COMPONENT_IDS, type PackageComponentId } from "./types";
+import { PACKAGE_COMPONENT_IDS } from "./types";
 import type {
   ChecksumRecord,
   MigrationManifest,
@@ -47,11 +47,15 @@ export function unzipPackage(zip: Uint8Array): UnzippedPackage {
   try {
     raw = unzipSync(zip);
   } catch {
-    throw new Error("This file is not a valid ARCHIE migration package (unreadable ZIP).");
+    throw new Error(
+      "This file is not a valid ARCHIE migration package (unreadable ZIP).",
+    );
   }
   const manifestRaw = raw[MANIFEST_PATH];
   if (!manifestRaw) {
-    throw new Error("No manifest.json found — this is not an ARCHIE migration package.");
+    throw new Error(
+      "No manifest.json found — this is not an ARCHIE migration package.",
+    );
   }
   const manifestJson = strFromU8(manifestRaw);
   let manifest: MigrationManifest;
@@ -62,11 +66,15 @@ export function unzipPackage(zip: Uint8Array): UnzippedPackage {
   }
   const checksumsRaw = raw[CHECKSUMS_PATH];
   if (!checksumsRaw) {
-    throw new Error("No checksums.json found — package integrity cannot be verified.");
+    throw new Error(
+      "No checksums.json found — package integrity cannot be verified.",
+    );
   }
   let checksums: ChecksumRecord[];
   try {
-    checksums = (JSON.parse(strFromU8(checksumsRaw)) as { files: ChecksumRecord[] }).files;
+    checksums = (
+      JSON.parse(strFromU8(checksumsRaw)) as { files: ChecksumRecord[] }
+    ).files;
   } catch {
     throw new Error("checksums.json is corrupted (invalid JSON).");
   }
@@ -77,9 +85,18 @@ export function unzipPackage(zip: Uint8Array): UnzippedPackage {
       files.push({ path: `__ROOT__/${path}`, content: strFromU8(bytes) });
       continue;
     }
-    files.push({ path: path.slice(ROOT.length + 1), content: strFromU8(bytes) });
+    files.push({
+      path: path.slice(ROOT.length + 1),
+      content: strFromU8(bytes),
+    });
   }
-  return { manifest, manifestJson, checksums, checksumsJson: strFromU8(checksumsRaw), files };
+  return {
+    manifest,
+    manifestJson,
+    checksums,
+    checksumsJson: strFromU8(checksumsRaw),
+    files,
+  };
 }
 
 function validateManifestShape(
@@ -112,14 +129,21 @@ function validateManifestShape(
  * Full verification pipeline. Returns ok:false with explicit
  * reasons on ANY problem — restoration must STOP (spec §7).
  */
-export async function verifyPackage(zip: Uint8Array): Promise<PackageVerificationResult> {
+export async function verifyPackage(
+  zip: Uint8Array,
+): Promise<PackageVerificationResult> {
   const errors: string[] = [];
   const warnings: string[] = [];
   let unzipped: UnzippedPackage;
   try {
     unzipped = unzipPackage(zip);
   } catch (err) {
-    return { ok: false, manifest: null, errors: [(err as Error).message], warnings };
+    return {
+      ok: false,
+      manifest: null,
+      errors: [(err as Error).message],
+      warnings,
+    };
   }
   const { manifest, checksums, checksumsJson, files } = unzipped;
 
@@ -127,7 +151,9 @@ export async function verifyPackage(zip: Uint8Array): Promise<PackageVerificatio
   validateManifestShape(manifest, errors);
 
   // 2. Compatibility (spec §6/§14)
-  if (manifest.migrationCompatibilityVersion > SUPPORTED_COMPATIBILITY_VERSION) {
+  if (
+    manifest.migrationCompatibilityVersion > SUPPORTED_COMPATIBILITY_VERSION
+  ) {
     errors.push(
       `Package format version ${manifest.migrationCompatibilityVersion} is newer than this ARCHIE understands (max ${SUPPORTED_COMPATIBILITY_VERSION}). Update ARCHIE before restoring.`,
     );
@@ -141,7 +167,9 @@ export async function verifyPackage(zip: Uint8Array): Promise<PackageVerificatio
   const knownIds = new Set<string>(PACKAGE_COMPONENT_IDS);
   knownIds.add("ARCHIE-VERSION"); // root marker file, checksum-covered
   const componentDirs = new Set(
-    files.map((f) => (f.path.startsWith("__ROOT__/") ? f.path : f.path.split("/")[0])),
+    files.map((f) =>
+      f.path.startsWith("__ROOT__/") ? f.path : f.path.split("/")[0],
+    ),
   );
   for (const dir of componentDirs) {
     if (!knownIds.has(dir)) {
@@ -156,26 +184,39 @@ export async function verifyPackage(zip: Uint8Array): Promise<PackageVerificatio
   for (const record of checksums) {
     const file = byPath.get(record.path);
     if (!file) {
-      errors.push(`Corrupted package: file listed in checksums is missing: ${record.path}.`);
+      errors.push(
+        `Corrupted package: file listed in checksums is missing: ${record.path}.`,
+      );
       continue;
     }
-    const result = await verifyFile({ path: file.path, content: file.content }, record);
-    if (!result.ok) errors.push(result.reason ?? `Checksum mismatch: ${record.path}.`);
+    const result = await verifyFile(
+      { path: file.path, content: file.content },
+      record,
+    );
+    if (!result.ok)
+      errors.push(result.reason ?? `Checksum mismatch: ${record.path}.`);
   }
   // Extra files not in checksums = unexpected modification
   for (const f of files) {
     if (!checksums.some((c) => c.path === f.path)) {
-      errors.push(`Unexpected file not present in checksums: ${f.path} — package was modified after creation.`);
+      errors.push(
+        `Unexpected file not present in checksums: ${f.path} — package was modified after creation.`,
+      );
     }
   }
   if (checksums.length === 0) {
-    errors.push("Package has no checksum records — integrity cannot be verified.");
+    errors.push(
+      "Package has no checksum records — integrity cannot be verified.",
+    );
   }
 
   // 5. checksums.json itself against the manifest anchor —
   //    hashed as the RAW file bytes, exactly as shipped.
   const checksumsHash = await sha256Hex(checksumsJson);
-  if (manifest.integrity?.checksumsFileHash && checksumsHash !== manifest.integrity.checksumsFileHash) {
+  if (
+    manifest.integrity?.checksumsFileHash &&
+    checksumsHash !== manifest.integrity.checksumsFileHash
+  ) {
     errors.push(
       "checksums.json does not match the manifest's integrity hash — the package was modified or corrupted after creation.",
     );
@@ -201,7 +242,9 @@ export async function verifyPackage(zip: Uint8Array): Promise<PackageVerificatio
     warnings.push("Package was created without an owner authorization record.");
   }
   if (manifest.sourceEnvironment?.createdOffline) {
-    warnings.push("Package was created with limited connectivity — some components may be excluded.");
+    warnings.push(
+      "Package was created with limited connectivity — some components may be excluded.",
+    );
   }
 
   return {
