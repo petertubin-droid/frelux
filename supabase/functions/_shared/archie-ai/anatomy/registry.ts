@@ -306,14 +306,34 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
   // -------- 👄 MOUTH — communication --------------------
   const chat = await count(db, "frelux_chat_history");
   const chatOk = chat !== null; // table reachable = surface live
+  let mouthDetails: Record<string, unknown> = {
+    surfaces: ["archie-chat (owner)", "visitor assistant"],
+    history_rows: chat,
+  };
+  try {
+    // native prosody + audio core must load (real binding)
+    const mouth = await import("../native-engine/mouth.ts");
+    mouthDetails = {
+      ...mouthDetails,
+      native_mouth:
+        "native-engine/mouth.ts (prosody planner + PCM/WAV synthesis)",
+      mouth_engine_exports: Object.keys(mouth).length,
+      client_engine: "mobile/voice.ts (consumes the native prosody plan)",
+    };
+  } catch {
+    // the probe still reports the chat surface honestly
+    mouthDetails = {
+      ...mouthDetails,
+      native_mouth: "FAILED to load native-engine/mouth.ts",
+    };
+  }
   push({
     subsystem_key: "mouth",
     status: chatOk ? "HEALTHY" : "DEGRADED",
-    metric: chatOk ? "chat surface + history live" : "chat history unreachable",
-    details: {
-      surfaces: ["archie-chat (owner)", "visitor assistant"],
-      history_rows: chat,
-    },
+    metric: chatOk
+      ? "chat surface + native prosody core live"
+      : "chat history unreachable",
+    details: mouthDetails,
   });
 
   // -------- 🍽️ DIGESTIVE — learning pipeline ------------

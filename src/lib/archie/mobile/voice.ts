@@ -13,7 +13,8 @@
 // =========================================================
 
 import type { ArchieConsent } from "./types";
-import { applyProfileToUtterance, loadProfileLocally } from "./voice-profile";
+import { loadProfileLocally } from "./voice-profile";
+import { planSpeech } from "@studio-shared/archie-ai/native-engine/mouth.ts";
 
 const MAX_CHUNK = 220;
 
@@ -72,9 +73,21 @@ export interface VoiceResult {
   chunks: number;
 }
 
+/** Pause timers for in-flight speech — cleared on silence so a
+ *  cancelled reply never utters a later unit. */
+let pauseTimers: ReturnType<typeof setTimeout>[] = [];
+
+function clearPendingPauses(): void {
+  for (const t of pauseTimers) clearTimeout(t);
+  pauseTimers = [];
+}
+
 /**
  * Speak text as ARCHIE. Requires the VOICE_OUTPUT consent to be
- * granted, checked here, not only by callers.
+ * granted, checked here, not only by callers. The reply is
+ * planned by the NATIVE prosody engine (mouth.ts): sentences
+ * become units with real pauses, intonation, and the owner's
+ * voice-bank profile shaping — provider-free, deterministic.
  */
 export function speakArchie(
   text: string,
@@ -91,22 +104,34 @@ export function speakArchie(
   if (!archieVoiceSupported()) {
     return { ok: false, error: "This device has no speech engine.", chunks: 0 };
   }
-  const chunks = chunkForSpeech(text);
-  if (chunks.length === 0) return { ok: true, chunks: 0 };
-  // The owner's saved voice profile (Admin → ARCHIE's voice bank), if
-  // present, shapes pitch + pace so ARCHIE approximates the owner's voice.
+  const clean = speakableText(text);
+  if (!clean) return { ok: true, chunks: 0 };
+  // The owner's saved voice profile (Admin → ARCHIE's voice bank)
+  // shapes pitch + rate through the native prosody plan.
   const ownerProfile = loadProfileLocally();
-  for (const part of chunks) {
-    const u = new SpeechSynthesisUtterance(part);
-    u.rate = 1;
-    u.pitch = 1;
-    applyProfileToUtterance(u, ownerProfile);
-    window.speechSynthesis.speak(u);
-  }
-  return { ok: true, chunks: chunks.length };
+  const plan = planSpeech(clean, { granted: true }, ownerProfile);
+  if (!plan.ok || plan.units.length === 0) return { ok: true, chunks: 0 };
+
+  clearPendingPauses();
+  plan.units.forEach((unit, index) => {
+    const speakUnit = () => {
+      const u = new SpeechSynthesisUtterance(unit.text);
+      // engine-safe clamps (speechSynthesis pitch/rate bands)
+      u.pitch = Math.min(2, Math.max(0, unit.pitchScale));
+      u.rate = Math.min(2, Math.max(0.1, unit.rateScale));
+      window.speechSynthesis.speak(u);
+    };
+    if (index === 0 || unit.pauseBeforeMs <= 0) {
+      speakUnit();
+    } else {
+      pauseTimers.push(setTimeout(speakUnit, unit.pauseBeforeMs));
+    }
+  });
+  return { ok: true, chunks: plan.units.length };
 }
 
 /** Immediately silence ARCHIE (e.g. user starts typing a new message). */
 export function stopArchieVoice(): void {
+  clearPendingPauses();
   if (archieVoiceSupported()) window.speechSynthesis.cancel();
 }
