@@ -211,11 +211,11 @@ CREATE POLICY "inquiries_seller_update" ON marketplace_product_inquiries
 -- ============================================================
 CREATE TRIGGER update_marketplace_products_updated_at
   BEFORE UPDATE ON marketplace_products
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 CREATE TRIGGER update_marketplace_product_inquiries_updated_at
   BEFORE UPDATE ON marketplace_product_inquiries
-  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+  FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 -- ============================================================
 -- RPC: increment product view count
@@ -352,3 +352,13 @@ BEGIN
   LIMIT p_limit;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Amended 2026-09-12: these triggers originally referenced
+-- update_updated_at_column(), which is not defined until
+-- 20260825020000_phase44_marketplace_expansion.sql. On a fresh
+-- chain replay the CREATE TRIGGER failed with 42883 and aborted
+-- the run. Switched to public.set_updated_at() — the shared
+-- trigger function that has existed since
+-- 20260817100000_phase5_contractor_experience.sql (and which
+-- phase27's header note already mandates for exactly this reason).
+-- Same behavior: sets updated_at = now() on UPDATE.
