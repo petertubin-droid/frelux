@@ -20,7 +20,6 @@ import { describe, expect, it } from "vitest";
 import {
   CHAINS,
   formatUnits,
-  getAddressActivity,
   getBlockNumber,
   getChainActivity,
   getNativeBalance,

@@ -68,10 +68,7 @@ function heldOutOk(example: HeldOutExample, got: Intent): boolean {
     return ["knowledge_query", "howto_guidance", "teaching"].includes(got);
   }
   if (example.expect.startsWith("ANY:")) {
-    return example.expect
-      .slice(4)
-      .split("|")
-      .includes(got);
+    return example.expect.slice(4).split("|").includes(got);
   }
   return got === example.expect;
 }
@@ -146,7 +143,10 @@ describe("corpus integrity", () => {
     const seen = new Map<string, string>();
     const duplicates: string[] = [];
     const record = (label: string, utterance: string) => {
-      const norm = utterance.toLowerCase().replace(/[\s,.!?]+/g, " ").trim();
+      const norm = utterance
+        .toLowerCase()
+        .replace(/[\s,.!?]+/g, " ")
+        .trim();
       if (seen.has(norm)) {
         duplicates.push(
           `"${utterance}" duplicated in ${seen.get(norm)} and ${label}`,
@@ -240,7 +240,9 @@ describe("held-out generalization", () => {
   });
 
   it("routes unknown and ambiguous input to the honest fallback, never to a fake social reply", () => {
-    for (const ex of CONVERSATION_HELD_OUT.filter((e) => e.type === "unknown")) {
+    for (const ex of CONVERSATION_HELD_OUT.filter(
+      (e) => e.type === "unknown",
+    )) {
       const got = understand(ex.input).intent;
       expect(heldOutOk(ex, got), `"${ex.input}" -> ${got}`).toBe(true);
     }
@@ -338,12 +340,14 @@ describe("engine conversational behavior", () => {
   it("quotes the real last point for clarification requests (no invented recap)", async () => {
     const engine = new ArchieNativeEngine();
     await engine.converse("remember that my site is in lekki");
-    const first = await engine.converse("what is my site location");
+    await engine.converse("what is my site location");
     const clarify = await engine.converse("sorry, what did you mean");
     expect(clarify.responseText.length).toBeGreaterThan(10);
     // The clarification references the previous answer or
     // honestly asks which part to expand — never a blank.
-    expect(clarify.responseText).toMatch(/expand|deeper|unclear|previous|reply|point|start/i);
+    expect(clarify.responseText).toMatch(
+      /expand|deeper|unclear|previous|reply|point|start/i,
+    );
   });
 
   it("runs a natural multi turn conversation with sensible intent flow", async () => {
@@ -366,9 +370,15 @@ describe("engine conversational behavior", () => {
     // Greeting answers with the REAL engine state (owner
     // spec: no canned conversational script), availability a
     // presence answer, farewell a goodbye — spot check.
-    expect(responses[0].toLowerCase()).toMatch(/native engine online|listening/);
-    expect(responses[1].toLowerCase()).toMatch(/here|present|ready|listening|with you/);
-    expect(responses[5].toLowerCase()).toMatch(/goodbye|memory|next time|soon|back/);
+    expect(responses[0].toLowerCase()).toMatch(
+      /native engine online|listening/,
+    );
+    expect(responses[1].toLowerCase()).toMatch(
+      /here|present|ready|listening|with you/,
+    );
+    expect(responses[5].toLowerCase()).toMatch(
+      /goodbye|memory|next time|soon|back/,
+    );
   });
 
   it("keeps learning semantics safe: social exchange NEVER becomes verification evidence", async () => {
@@ -377,7 +387,11 @@ describe("engine conversational behavior", () => {
     const taught = engine
       .store()
       .list()
-      .find((f) => f.subject.includes("site-manager") || (typeof f.object === "string" && f.object.includes("ade")));
+      .find(
+        (f) =>
+          f.subject.includes("site-manager") ||
+          (typeof f.object === "string" && f.object.includes("ade")),
+      );
     expect(taught).toBeDefined();
     const before = engine.store().get(taught!.id)!;
     // A wave of conversational politeness and praise...

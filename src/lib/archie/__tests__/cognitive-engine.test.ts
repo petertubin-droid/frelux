@@ -33,7 +33,6 @@ import {
   COGNITIVE_ENGINE_ID,
 } from "@studio-shared/archie-ai/cognitive/kernel.ts";
 import { resolveArchieCapabilityEngine } from "@studio-shared/archie-ai/runtime.ts";
-import { FactStore } from "@studio-shared/archie-ai/native-engine/knowledge.ts";
 import type { Fact } from "@studio-shared/archie-ai/native-engine/types.ts";
 import type { SupabaseLike } from "@studio-shared/archie-ai/native-engine/persistence.ts";
 import { LOOP_PHASES } from "@studio-shared/archie-ai/cognitive/types.ts";
