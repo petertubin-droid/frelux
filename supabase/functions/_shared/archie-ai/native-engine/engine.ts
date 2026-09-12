@@ -56,6 +56,7 @@ import {
   MAX_COMPOUND_CLAUSES,
   composeCompound,
   tokenize,
+  probeVocabulary,
 } from "./nlu.ts";
 // Conversational English expansion (owner directive,
 // 2026-09-11): deterministic, grounded composition for
@@ -1638,6 +1639,19 @@ export class ArchieNativeEngine implements ArchieRuntime {
             nlu.confidence,
           );
           if (strategic) return strategic;
+          // REMEDIATION batch 2 (2026-09-12): a message with
+          // ZERO known vocabulary (no corpus word matched at
+          // all) and zero fact matches gets an honest rephrase
+          // request — the research/teach options are useless
+          // for a term ARCHIE cannot even tokenize into
+          // meaning, and offering them would be theater.
+          if (probeVocabulary(input) === 0) {
+            return this.compose(
+              `I didn't recognize any of the words in that message, so I won't guess at a meaning. Could you rephrase it? If it is a term you want me to know, teach it to me directly and I will retain it with owner provenance.`,
+              nlu.confidence * 0.5,
+              [],
+            );
+          }
           const plan = await this.planFor("researched");
           // P6 — variance on the honest unknown line; the
           // "validated knowledge" marker survives in every

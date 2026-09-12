@@ -208,7 +208,7 @@ const recoveryDeps: RecoveryDeps = {
     const { data, error } = await db
       .from("frelux_archie_execution_runs")
       .select(
-        "id,target_key,status,input,error,http_status,attempts,compensation_run_id,initiator_system",
+        "id,target_key,status,input,error,http_status,attempts,compensation_run_id,initiator_system,updated_date",
       )
       .eq("id", id)
       .maybeSingle();

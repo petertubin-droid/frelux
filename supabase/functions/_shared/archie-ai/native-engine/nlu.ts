@@ -261,9 +261,8 @@ function editDistance(a: string, b: string): number {
   const la = a.length;
   const lb = b.length;
   if (Math.abs(la - lb) > 1) return 2; // fast reject
-  const d: number[][] = Array.from(
-    { length: la + 1 },
-    () => new Array<number>(lb + 1).fill(0),
+  const d: number[][] = Array.from({ length: la + 1 }, () =>
+    new Array<number>(lb + 1).fill(0),
   );
   for (let i = 0; i <= la; i++) d[i][0] = i;
   for (let j = 0; j <= lb; j++) d[0][j] = j;
@@ -275,12 +274,7 @@ function editDistance(a: string, b: string): number {
         d[i][j - 1] + 1,
         d[i - 1][j - 1] + cost,
       );
-      if (
-        i > 1 &&
-        j > 1 &&
-        a[i - 1] === b[j - 2] &&
-        a[i - 2] === b[j - 1]
-      ) {
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) {
         d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
       }
     }
@@ -315,9 +309,7 @@ function commonPrefixLength(a: string, b: string): number {
 function oneCharDeletion(longer: string, shorter: string): boolean {
   if (longer.length !== shorter.length + 1) return false;
   for (let i = 0; i < longer.length; i++) {
-    if (
-      longer.slice(0, i) + longer.slice(i + 1) === shorter
-    ) {
+    if (longer.slice(0, i) + longer.slice(i + 1) === shorter) {
       return true;
     }
   }
@@ -354,8 +346,7 @@ function correctWord(word: string): string {
     // s or es never rescues an unknown word (corpus v2 fix:
     // "service" must not become "services", which silently
     // broke rules that expect the singular).
-    if (candidate === lower + "s" || candidate === lower + "es")
-      continue;
+    if (candidate === lower + "s" || candidate === lower + "es") continue;
     const prefix = commonPrefixLength(lower, candidate);
     let type = 0;
     if (oneCharDeletion(candidate, lower)) {
@@ -1677,6 +1668,26 @@ export interface NluDomainHints {
   corpus?: Array<[Intent, string[]]>;
 }
 
+/**
+ * REMEDIATION batch 2 (2026-09-12): vocabulary probe.
+ * Returns how many tokens of the input are known to the
+ * classification corpus (base + skill contributions). A
+ * return of 0 means NO known word matched at all — callers
+ * use this to ask for a rephrase instead of pretending a
+ * research/teach path is meaningful for gibberish. Pure,
+ * deterministic, same classifier the engine's Bayes stage
+ * uses; no new vocabulary is introduced.
+ */
+export function probeVocabulary(
+  input: string,
+  domain?: NluDomainHints,
+): number {
+  const corrected = correctConversationalTypos(input);
+  const classifier = new IntentClassifier();
+  classifier.train([...CORPUS, ...(domain?.corpus ?? [])]);
+  return classifier.classify(corrected).knownTokens;
+}
+
 export function understand(
   input: string,
   history: Array<{ role: "owner" | "archie"; text: string }> = [],
@@ -1730,15 +1741,16 @@ export function understand(
     "hmm",
     "pardon",
   ]);
-  const wordsDeferToEmoji = tokens.every((t) =>
-    EMOJI_DEFERENT_WORDS.has(t),
-  );
+  const wordsDeferToEmoji = tokens.every((t) => EMOJI_DEFERENT_WORDS.has(t));
   // Stage 2: trained Naive Bayes classifier (full corpus =
   // base + conversational expansion + skill utterances).
   const classifier = new IntentClassifier();
   classifier.train([...CORPUS, ...(domain?.corpus ?? [])]);
-  const { intent: classifiedIntent, confidence: classifiedConfidence, knownTokens } =
-    classifier.classify(corrected);
+  const {
+    intent: classifiedIntent,
+    confidence: classifiedConfidence,
+    knownTokens,
+  } = classifier.classify(corrected);
   let intent = classifiedIntent;
   let confidence = classifiedConfidence;
   // Known-token honesty: a message whose words match NOTHING

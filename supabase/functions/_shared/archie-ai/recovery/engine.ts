@@ -88,6 +88,10 @@ export interface RecoverableRun {
   attempts: number;
   compensation_run_id: string | null;
   initiator_system: string;
+  /** REMEDIATION batch 3 (2026-09-12): last state change of
+   *  the run row (the DB's updated_date). Used for retry
+   *  pacing; optional so existing callers stay compatible. */
+  updated_date?: string | null;
 }
 
 export interface RecoveryLedgerEvent {
@@ -129,6 +133,13 @@ export interface RecoveryReport {
 
 /** Recovery steps per run, across all requests. Hard cap. */
 export const RECOVERY_MAX_ATTEMPTS = 3;
+
+/** REMEDIATION batch 3 (2026-09-12): minimum seconds between a
+ *  run's last state change and a recovery re-entry. A transient
+ *  failure is never re-entered while the run is still hot — a
+ *  retry storm cannot recover a degraded target, and each
+ *  immediate re-entry only hammers it further. */
+export const RECOVERY_RETRY_COOLDOWN_SECONDS = 300;
 
 /** Recovery never invents initiators — it reuses the run's own. */
 export const RECOVERY_NOTE =
@@ -460,6 +471,35 @@ export async function recoverRun(
       });
     }
     case "RETRY": {
+      // REMEDIATION batch 3 (2026-09-12): retry pacing. The
+      // run must be quiet for RECOVERY_RETRY_COOLDOWN_SECONDS
+      // before recovery re-enters the target. The deferral is
+      // ledgered and says exactly when retry becomes eligible.
+      if (run.updated_date) {
+        const lastTouched = new Date(run.updated_date).getTime();
+        if (
+          Number.isFinite(lastTouched) &&
+          Date.now() - lastTouched < RECOVERY_RETRY_COOLDOWN_SECONDS * 1000
+        ) {
+          const eligibleAt = new Date(
+            lastTouched + RECOVERY_RETRY_COOLDOWN_SECONDS * 1000,
+          );
+          return finish(deps, {
+            run,
+            classification,
+            action: "NOOP",
+            rationale:
+              `Retry cooldown active — the run last changed ${Math.round((Date.now() - lastTouched) / 1000)}s ago. ` +
+              `Deferred without re-entering the target; retry eligible at ${eligibleAt.toISOString()}.`,
+            outcome: "NOOP",
+            recovered: false,
+            escalated: false,
+            attemptsUsed: prior,
+            attemptsLeft,
+            caller: req.caller,
+          });
+        }
+      }
       // Re-enter the execution engine with the ORIGINAL input
       // and the run's ORIGINAL initiator — every gate
       // (policy, admin JWT, owner secret, timeout, retries,
