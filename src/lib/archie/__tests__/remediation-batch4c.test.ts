@@ -81,7 +81,9 @@ describe("Durable consolidation scheduling (fix 8)", () => {
     const ran = await consolidateIfDue(learner, store, 9000);
     expect(ran).toBe(false);
     expect(store.saved).toHaveLength(0);
-    expect(store.loadCounters()["last_consolidation_ts"]).toBeUndefined();
+    expect(
+      (await store.loadCounters())["last_consolidation_ts"],
+    ).toBeUndefined();
   });
 
   it("no counter store means no durable scheduling", async () => {
