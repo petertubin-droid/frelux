@@ -77,6 +77,22 @@ export function nativeEngineCapabilityManifest(): CapabilityReport[] {
       measuredBy: "native-engine.test.ts (scaffold generation case)",
     },
     {
+      id: "coding-intelligence-project",
+      description:
+        "Multi-file project analysis: internal dependency graph (relative + @/ alias + extensionless + index resolution, exact file beats index), broken-import detection, DFS import-cycle detection, entry-candidate discovery, project complexity metrics",
+      maturity: "OPERATIONAL",
+      measuredBy:
+        "native-engine project-analysis: coding-project.test.ts (graph, cycles, broken imports, metrics)",
+    },
+    {
+      id: "coding-intelligence-scaffold-dependency-aware",
+      description:
+        "Dependency-aware unit-test scaffold generation: vi.mock() lines derived from the project graph so modules are tested in isolation",
+      maturity: "OPERATIONAL",
+      measuredBy:
+        "native-engine scaffold-generation: coding-project.test.ts (dependency-aware scaffold cases)",
+    },
+    {
       id: "tool-orchestration",
       description:
         "Tool orchestration: typed tool registry with contract validation, honest failure reporting, and a real deterministic arithmetic evaluator (shunting-yard)",

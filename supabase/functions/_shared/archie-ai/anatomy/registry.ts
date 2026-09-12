@@ -388,7 +388,7 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
     metric: `${enabledTargets ?? "?"} enabled tool targets + native tool manifest`,
     details: {
       execution_targets_enabled: enabledTargets,
-      native_tools: "native-engine/tools.ts + coding.ts",
+      native_tools: "native-engine/tools.ts + coding.ts + coding-project.ts",
     },
   });
 

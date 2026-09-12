@@ -107,6 +107,12 @@ import {
 } from "./webresearch.ts";
 import { getWebSourceRegistry } from "./web-sources.ts";
 import { analyzeSource, generateUnitTestScaffold } from "./coding.ts";
+import {
+  analyzeProject as analyzeProjectFiles,
+  generateDependencyAwareTestScaffold,
+  type ProjectAnalysis,
+  type ProjectFile,
+} from "./coding-project.ts";
 import { SelfEvaluator } from "./selfeval.ts";
 import { OutcomeLearner, type OutcomePersistence } from "./learning.ts";
 import { SupabasePersistence, type SupabaseLike } from "./persistence.ts";
@@ -2705,6 +2711,18 @@ export class ArchieNativeEngine implements ArchieRuntime {
   /** Generate a unit-test scaffold for provided source. */
   scaffoldTests(path: string, source: string): string {
     return generateUnitTestScaffold(path, analyzeSource(path, source));
+  }
+
+  /** Analyze a multi-file project: internal dependency graph,
+   *  broken imports, cycles, entry candidates, metrics. */
+  analyzeProject(files: ProjectFile[]): ProjectAnalysis {
+    return analyzeProjectFiles(files);
+  }
+
+  /** Dependency-aware unit-test scaffold: vi.mock()s every
+   *  internal dependency of the module (project graph based). */
+  scaffoldProjectTests(modulePath: string, project: ProjectAnalysis) {
+    return generateDependencyAwareTestScaffold(modulePath, project);
   }
 
   /** Expose for tests + app integration. */
