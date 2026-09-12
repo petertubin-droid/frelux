@@ -113,6 +113,51 @@ export class SupabasePersistence
     }
   }
 
+  /** REMEDIATION batch 4 (2026-09-13): claim-based
+   *  single-writer lock via DB RPC (pooled-connection safe).
+   *  FAIL-OPEN by design: a client without rpc (in-memory
+   *  mocks) or an errored claim keeps the historical unlocked
+   *  behavior — locking is mutual exclusion between writers,
+   *  never a reason consolidation stops happening. */
+  async tryLock(
+    scope: string,
+    holder: string,
+    ttlSeconds: number,
+  ): Promise<boolean> {
+    const rpc = (
+      this.db as SupabaseLike & {
+        rpc?: (
+          fn: string,
+          args?: Record<string, unknown>,
+        ) => PromiseLike<{ data: unknown; error: unknown }>;
+      }
+    ).rpc;
+    if (typeof rpc !== "function") return true;
+    const { data, error } = await rpc.call(this.db, "frelux_try_engine_lock", {
+      p_scope: scope,
+      p_holder: holder,
+      p_ttl_seconds: ttlSeconds,
+    });
+    if (error) return true;
+    return data !== false;
+  }
+
+  async releaseLock(scope: string, holder: string): Promise<void> {
+    const rpc = (
+      this.db as SupabaseLike & {
+        rpc?: (
+          fn: string,
+          args?: Record<string, unknown>,
+        ) => PromiseLike<{ data: unknown; error: unknown }>;
+      }
+    ).rpc;
+    if (typeof rpc !== "function") return;
+    await rpc.call(this.db, "frelux_release_engine_lock", {
+      p_scope: scope,
+      p_holder: holder,
+    });
+  }
+
   async loadOutcomes(): Promise<LearningOutcome[]> {
     const { data, error } = await this.db
       .from(OUTCOMES_TABLE)

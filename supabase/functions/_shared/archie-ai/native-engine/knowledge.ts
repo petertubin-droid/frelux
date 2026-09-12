@@ -266,6 +266,14 @@ export class FactRankIndex {
   }
 }
 
+/** Stable per-instance holder id for consolidation claims. */
+const CONSOLIDATION_HOLDER: string =
+  typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+    ? `fact-store-${crypto.randomUUID()}`
+    : "fact-store-fallback";
+
+const CONSOLIDATION_SCOPE = "fact-store-consolidation";
+
 export class FactStore {
   private facts: Fact[] = [];
   // Subject index (perf pass 2026-09-11): query() and about()
@@ -561,6 +569,49 @@ export class FactStore {
     decayed: number;
     promoted: number;
     dropped: number;
+    /** REMEDIATION batch 4 (2026-09-13): true when another
+     *  writer holds the consolidation claim — this instance
+     *  honestly skipped instead of racing it. */
+    skipped?: boolean;
+  }> {
+    // Single-writer gate (remediation batch 4): claim-based
+    // mutual exclusion. If another isolate is mid-pass, we
+    // skip rather than interleave blind last-writer-wins
+    // updates — the next consolidation cycle picks it up.
+    let lockHeld = false;
+    if (this.persistence?.tryLock) {
+      lockHeld = await this.persistence.tryLock(
+        CONSOLIDATION_SCOPE,
+        CONSOLIDATION_HOLDER,
+        120,
+      );
+      if (!lockHeld) {
+        return {
+          merged: 0,
+          decayed: 0,
+          promoted: 0,
+          dropped: 0,
+          skipped: true,
+        };
+      }
+    }
+    try {
+      return await this.consolidateInner();
+    } finally {
+      if (lockHeld && this.persistence?.releaseLock) {
+        await this.persistence.releaseLock(
+          CONSOLIDATION_SCOPE,
+          CONSOLIDATION_HOLDER,
+        );
+      }
+    }
+  }
+
+  private async consolidateInner(): Promise<{
+    merged: number;
+    decayed: number;
+    promoted: number;
+    dropped: number;
   }> {
     let merged = 0;
     let decayed = 0;
@@ -662,4 +713,9 @@ export interface PersistenceLike {
   loadFacts(): Promise<PersistedFactRow[]>;
   saveFact(fact: Fact): Promise<void>;
   saveFacts(facts: Fact[]): Promise<void>;
+  /** REMEDIATION batch 4 (2026-09-13): optional single-writer
+   *  claim around consolidation. Implementations backed by a
+   *  shared store should provide both; in-memory ones skip. */
+  tryLock?(scope: string, holder: string, ttlSeconds: number): Promise<boolean>;
+  releaseLock?(scope: string, holder: string): Promise<void>;
 }

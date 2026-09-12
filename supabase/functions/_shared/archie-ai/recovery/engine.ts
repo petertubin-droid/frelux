@@ -141,6 +141,11 @@ export const RECOVERY_MAX_ATTEMPTS = 3;
  *  immediate re-entry only hammers it further. */
 export const RECOVERY_RETRY_COOLDOWN_SECONDS = 300;
 
+/** REMEDIATION batch 4 (2026-09-13): circuit-breaker threshold
+ *  — this many same-target failures within the caller's recent
+ *  window trips the breaker and escalates instead of retrying. */
+export const RECOVERY_TARGET_RECENT_FAILURES = 3;
+
 /** Recovery never invents initiators — it reuses the run's own. */
 export const RECOVERY_NOTE =
   "Recovery re-enters the execution engine; every authority, policy and safety gate re-runs.";
@@ -337,6 +342,11 @@ export interface RecoveryDeps {
   }): Promise<RunOutcome>;
   /** Count of ledger events already recorded for this run. */
   countRecoveryAttempts(runId: string): Promise<number>;
+  /** REMEDIATION batch 4 (2026-09-13): count of FAILED/
+   *  TIMEOUT runs for the SAME target within the recent
+   *  failure window. Optional — when a caller provides it,
+   *  the target-level circuit breaker below is armed. */
+  countRecentTargetFailures?(targetKey: string): Promise<number>;
   recordRecoveryEvent(ev: RecoveryLedgerEvent): Promise<void>;
   recordSecurityEvent(
     userId: string,
@@ -494,6 +504,34 @@ export async function recoverRun(
             outcome: "NOOP",
             recovered: false,
             escalated: false,
+            attemptsUsed: prior,
+            attemptsLeft,
+            caller: req.caller,
+          });
+        }
+      }
+      // REMEDIATION batch 4 (2026-09-13): target-level circuit
+      // breaker. If the SAME target has tripped RECENT_FAILURES
+      // times in the recent window, individual-run retries are
+      // blind — the target is degraded, not the run unlucky.
+      // Escalate with a single honest diagnosis instead of
+      // letting every failed run re-enter it.
+      if (deps.countRecentTargetFailures) {
+        const recentFailures = await deps.countRecentTargetFailures(
+          run.target_key,
+        );
+        if (recentFailures >= RECOVERY_TARGET_RECENT_FAILURES) {
+          return finish(deps, {
+            run,
+            classification,
+            action: "ESCALATE",
+            rationale:
+              `Target-level circuit breaker: ${recentFailures} runs of target '${run.target_key}' ` +
+              `have failed in the recent window — the target is degraded, and retrying this run ` +
+              `would only hammer it further. Owner attention required (check the target service).`,
+            outcome: "ESCALATED",
+            recovered: false,
+            escalated: true,
             attemptsUsed: prior,
             attemptsLeft,
             caller: req.caller,

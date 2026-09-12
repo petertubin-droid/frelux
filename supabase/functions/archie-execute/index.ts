@@ -217,6 +217,19 @@ const recoveryDeps: RecoveryDeps = {
   },
   getTarget,
   executeTarget: (req) => executeTarget(engineDeps, req),
+  // Circuit breaker (remediation batch 4): how many runs of
+  // the same target failed in the last 15 minutes.
+  countRecentTargetFailures: async (targetKey: string) => {
+    const since = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    const { count, error } = await db
+      .from("frelux_archie_execution_runs")
+      .select("id", { count: "exact", head: true })
+      .eq("target_key", targetKey)
+      .in("status", ["FAILED", "TIMEOUT"])
+      .gte("updated_date", since);
+    if (error) throw new Error("target failure count failed");
+    return count ?? 0;
+  },
   countRecoveryAttempts: async (runId) => {
     const { count, error } = await db
       .from("frelux_archie_recovery_events")
