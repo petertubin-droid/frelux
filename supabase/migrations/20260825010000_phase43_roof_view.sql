@@ -28,6 +28,7 @@ ALTER TABLE public.roof_view_config ENABLE ROW LEVEL SECURITY;
 
 -- Anyone can read (to check if a provider is configured)
 -- This only exposes non-secret metadata, NOT API keys
+DROP POLICY IF EXISTS "roof_view_config_read_all" ON public.roof_view_config;
 CREATE POLICY "roof_view_config_read_all"
   ON public.roof_view_config
   FOR SELECT
@@ -35,6 +36,7 @@ CREATE POLICY "roof_view_config_read_all"
   USING (true);
 
 -- Only admins can modify
+DROP POLICY IF EXISTS "roof_view_config_write_admin" ON public.roof_view_config;
 CREATE POLICY "roof_view_config_write_admin"
   ON public.roof_view_config
   FOR ALL

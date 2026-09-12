@@ -164,18 +164,21 @@ CREATE POLICY "read_public_templates"
   USING (visibility = 'public' AND is_published = true);
 
 -- Private templates: owner can read
+DROP POLICY IF EXISTS "read_own_templates" ON calculator_templates;
 CREATE POLICY "read_own_templates"
   ON calculator_templates FOR SELECT
   TO authenticated
   USING (visibility = 'private' AND auth.uid() = user_id);
 
 -- Private templates: owner can insert
+DROP POLICY IF EXISTS "insert_own_templates" ON calculator_templates;
 CREATE POLICY "insert_own_templates"
   ON calculator_templates FOR INSERT
   TO authenticated
   WITH CHECK (visibility = 'private' AND auth.uid() = user_id);
 
 -- Private templates: owner can update
+DROP POLICY IF EXISTS "update_own_templates" ON calculator_templates;
 CREATE POLICY "update_own_templates"
   ON calculator_templates FOR UPDATE
   TO authenticated
@@ -183,6 +186,7 @@ CREATE POLICY "update_own_templates"
   WITH CHECK (visibility = 'private' AND auth.uid() = user_id);
 
 -- Private templates: owner can delete
+DROP POLICY IF EXISTS "delete_own_templates" ON calculator_templates;
 CREATE POLICY "delete_own_templates"
   ON calculator_templates FOR DELETE
   TO authenticated

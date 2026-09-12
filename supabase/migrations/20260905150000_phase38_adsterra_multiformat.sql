@@ -17,27 +17,33 @@
 -- Idempotent: safe to run more than once.
 -- =========================================================
 
-INSERT INTO public.ad_placements (
-  placement_key, placement_name, placement_type, page_target,
-  is_active, provider_ids, ad_unit_ids, display_rules
-)
-SELECT
-  v.key, v.name, 'native', v.page_target,
-  true,
-  jsonb_build_array(
-    '06f616f0-b932-4e48-ad64-73589b656ada', -- google_adsense
-    'c4373ff9-4b5f-4c45-9974-23d43e21b8cb'  -- adsterra
-  ),
-  '{}'::jsonb,
-  '{"mobile": true, "desktop": true, "min_height": 100, "refresh_seconds": 0}'::jsonb
-FROM (VALUES
-  ('home_native', 'Home Native Banner', 'home'),
-  ('learn_article_native', 'Learn Article Native Banner', 'learn'),
-  ('calculators_native', 'Calculators Native Banner', 'calculator')
-) AS v(key, name, page_target)
-WHERE NOT EXISTS (
-  SELECT 1 FROM public.ad_placements p WHERE p.placement_key = v.key
-);
+DO $mig$
+BEGIN
+  INSERT INTO public.ad_placements (
+    placement_key, placement_name, placement_type, page_target,
+    is_active, provider_ids, ad_unit_ids, display_rules
+  )
+  SELECT
+    v.key, v.name, 'native', v.page_target,
+    true,
+    jsonb_build_array(
+      '06f616f0-b932-4e48-ad64-73589b656ada', -- google_adsense
+      'c4373ff9-4b5f-4c45-9974-23d43e21b8cb'  -- adsterra
+    ),
+    '{}'::jsonb,
+    '{"mobile": true, "desktop": true, "min_height": 100, "refresh_seconds": 0}'::jsonb
+  FROM (VALUES
+    ('home_native', 'Home Native Banner', 'home'),
+    ('learn_article_native', 'Learn Article Native Banner', 'learn'),
+    ('calculators_native', 'Calculators Native Banner', 'calculator')
+  ) AS v(key, name, page_target)
+  WHERE NOT EXISTS (
+    SELECT 1 FROM public.ad_placements p WHERE p.placement_key = v.key
+  );
+EXCEPTION WHEN unique_violation THEN NULL;
+END
+$mig$;
+
 
 -- Fix the serve domain credential: the stored value was a full URL
 -- (https://www.highrevenueformat.com) which is not an Adsterra serve

@@ -144,12 +144,15 @@ ALTER TABLE worker_moderation_log ENABLE ROW LEVEL SECURITY;
 ALTER TABLE worker_moderation_config ENABLE ROW LEVEL SECURITY;
 
 -- Categories: everyone can read (to show available channels)
+DROP POLICY IF EXISTS "worker_categories_read_all" ON worker_channel_categories;
 CREATE POLICY "worker_categories_read_all" ON worker_channel_categories FOR SELECT USING (true);
+DROP POLICY IF EXISTS "worker_categories_admin_write" ON worker_channel_categories;
 CREATE POLICY "worker_categories_admin_write" ON worker_channel_categories FOR ALL USING (
   EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
 );
 
 -- Channels: pro_workers can read active channels; admins can do everything
+DROP POLICY IF EXISTS "worker_channels_read_pro" ON worker_channels;
 CREATE POLICY "worker_channels_read_pro" ON worker_channels FOR SELECT USING (
   (is_active = true AND EXISTS (
     SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.account_type = 'pro_worker'
@@ -158,23 +161,27 @@ CREATE POLICY "worker_channels_read_pro" ON worker_channels FOR SELECT USING (
   )
 );
 
+DROP POLICY IF EXISTS "worker_channels_admin_write" ON worker_channels;
 CREATE POLICY "worker_channels_admin_write" ON worker_channels FOR ALL USING (
   EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
 );
 
 -- Members: pro_workers can join channels and read their memberships; admins can read all
+DROP POLICY IF EXISTS "worker_members_read_self" ON worker_channel_members;
 CREATE POLICY "worker_members_read_self" ON worker_channel_members FOR SELECT USING (
   user_id = auth.uid() OR EXISTS (
     SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'
   )
 );
 
+DROP POLICY IF EXISTS "worker_members_insert_self" ON worker_channel_members;
 CREATE POLICY "worker_members_insert_self" ON worker_channel_members FOR INSERT WITH CHECK (
   user_id = auth.uid() AND EXISTS (
     SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.account_type = 'pro_worker'
   )
 );
 
+DROP POLICY IF EXISTS "worker_members_delete_self" ON worker_channel_members;
 CREATE POLICY "worker_members_delete_self" ON worker_channel_members FOR DELETE USING (
   user_id = auth.uid() OR EXISTS (
     SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'
@@ -183,6 +190,7 @@ CREATE POLICY "worker_members_delete_self" ON worker_channel_members FOR DELETE 
 
 -- Messages: pro_workers can read non-removed messages in channels they've joined;
 -- they can insert their own messages; they can update their own messages
+DROP POLICY IF EXISTS "worker_messages_read" ON worker_channel_messages;
 CREATE POLICY "worker_messages_read" ON worker_channel_messages FOR SELECT USING (
   is_removed = false AND EXISTS (
     SELECT 1 FROM worker_channel_members m WHERE m.channel_id = worker_channel_messages.channel_id AND m.user_id = auth.uid()
@@ -192,10 +200,12 @@ CREATE POLICY "worker_messages_read" ON worker_channel_messages FOR SELECT USING
 );
 
 -- Admins can see removed messages too (for moderation review)
+DROP POLICY IF EXISTS "worker_messages_read_admin" ON worker_channel_messages;
 CREATE POLICY "worker_messages_read_admin" ON worker_channel_messages FOR SELECT USING (
   EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
 );
 
+DROP POLICY IF EXISTS "worker_messages_insert" ON worker_channel_messages;
 CREATE POLICY "worker_messages_insert" ON worker_channel_messages FOR INSERT WITH CHECK (
   user_id = auth.uid() AND EXISTS (
     SELECT 1 FROM worker_channel_members m WHERE m.channel_id = worker_channel_messages.channel_id AND m.user_id = auth.uid()
@@ -205,6 +215,7 @@ CREATE POLICY "worker_messages_insert" ON worker_channel_messages FOR INSERT WIT
   )
 );
 
+DROP POLICY IF EXISTS "worker_messages_update_own" ON worker_channel_messages;
 CREATE POLICY "worker_messages_update_own" ON worker_channel_messages FOR UPDATE USING (
   user_id = auth.uid() OR EXISTS (
     SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'
@@ -212,6 +223,7 @@ CREATE POLICY "worker_messages_update_own" ON worker_channel_messages FOR UPDATE
 );
 
 -- Reactions: members can react, admins can see all
+DROP POLICY IF EXISTS "worker_reactions_read" ON worker_channel_reactions;
 CREATE POLICY "worker_reactions_read" ON worker_channel_reactions FOR SELECT USING (
   EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
   OR EXISTS (
@@ -221,6 +233,7 @@ CREATE POLICY "worker_reactions_read" ON worker_channel_reactions FOR SELECT USI
   )
 );
 
+DROP POLICY IF EXISTS "worker_reactions_insert" ON worker_channel_reactions;
 CREATE POLICY "worker_reactions_insert" ON worker_channel_reactions FOR INSERT WITH CHECK (
   user_id = auth.uid() AND EXISTS (
     SELECT 1 FROM worker_channel_members m
@@ -229,17 +242,21 @@ CREATE POLICY "worker_reactions_insert" ON worker_channel_reactions FOR INSERT W
   )
 );
 
+DROP POLICY IF EXISTS "worker_reactions_delete_own" ON worker_channel_reactions;
 CREATE POLICY "worker_reactions_delete_own" ON worker_channel_reactions FOR DELETE USING (
   user_id = auth.uid()
 );
 
 -- Moderation log: admins can read all, service role can insert
+DROP POLICY IF EXISTS "worker_mod_log_read_admin" ON worker_moderation_log;
 CREATE POLICY "worker_mod_log_read_admin" ON worker_moderation_log FOR SELECT USING (
   EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
 );
 
 -- Moderation config: admins can read/write, workers can read (for display)
+DROP POLICY IF EXISTS "worker_mod_config_read" ON worker_moderation_config;
 CREATE POLICY "worker_mod_config_read" ON worker_moderation_config FOR SELECT USING (true);
+DROP POLICY IF EXISTS "worker_mod_config_write" ON worker_moderation_config;
 CREATE POLICY "worker_mod_config_write" ON worker_moderation_config FOR ALL USING (
   EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
 );
@@ -262,15 +279,19 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_worker_channels_updated ON worker_channels;
 CREATE TRIGGER trg_worker_channels_updated BEFORE UPDATE ON worker_channels
   FOR EACH ROW EXECUTE FUNCTION update_worker_timestamp();
 
+DROP TRIGGER IF EXISTS trg_worker_channel_messages_updated ON worker_channel_messages;
 CREATE TRIGGER trg_worker_channel_messages_updated BEFORE UPDATE ON worker_channel_messages
   FOR EACH ROW EXECUTE FUNCTION update_worker_timestamp();
 
+DROP TRIGGER IF EXISTS trg_worker_moderation_config_updated ON worker_moderation_config;
 CREATE TRIGGER trg_worker_moderation_config_updated BEFORE UPDATE ON worker_moderation_config
   FOR EACH ROW EXECUTE FUNCTION update_worker_timestamp();
 
+DROP TRIGGER IF EXISTS trg_worker_channel_categories_updated ON worker_channel_categories;
 CREATE TRIGGER trg_worker_channel_categories_updated BEFORE UPDATE ON worker_channel_categories
   FOR EACH ROW EXECUTE FUNCTION update_worker_timestamp();
 

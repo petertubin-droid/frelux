@@ -63,6 +63,11 @@ CREATE POLICY "admin_delete_branding" ON site_branding FOR DELETE
   TO authenticated USING (true);
 
 -- Seed default row
-INSERT INTO site_branding (website_name, website_tagline, browser_title, is_active)
-SELECT 'FRELUX PAINT CALC', 'Plan Your Perfect Paint Project', 'FRELUX PAINT CALC — Plan Your Perfect Paint Project', true
-WHERE NOT EXISTS (SELECT 1 FROM site_branding WHERE is_active = true);
+DO $mig$
+BEGIN
+  INSERT INTO site_branding (website_name, website_tagline, browser_title, is_active)
+  SELECT 'FRELUX PAINT CALC', 'Plan Your Perfect Paint Project', 'FRELUX PAINT CALC — Plan Your Perfect Paint Project', true
+  WHERE NOT EXISTS (SELECT 1 FROM site_branding WHERE is_active = true);
+EXCEPTION WHEN unique_violation THEN NULL;
+END
+$mig$;

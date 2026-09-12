@@ -41,18 +41,24 @@ SET
 WHERE key = 'ears';
 
 -- Honest audit trail of the anatomy change itself.
-INSERT INTO public.frelux_archie_audit_events (
-  owner_id, event_type, severity, detail
-)
-SELECT
-  p.id,
-  'archie.anatomy.ears_native',
-  'INFO',
-  jsonb_build_object(
-    'reason', 'OpenAI Separation Rule (owner-directed): ears now run on native on-device speech recognition + the owner voice bank (deterministic pitch math). No OpenAI API, key or model anywhere in ARCHIE.',
-    'voice_bank', 'frelux_archie_voice_samples',
-    'engine', 'native-web-speech'
+DO $mig$
+BEGIN
+  INSERT INTO public.frelux_archie_audit_events (
+    owner_id, event_type, severity, detail
   )
-FROM public.profiles p
-WHERE p.role = 'admin'
-LIMIT 1;
+  SELECT
+    p.id,
+    'archie.anatomy.ears_native',
+    'INFO',
+    jsonb_build_object(
+      'reason', 'OpenAI Separation Rule (owner-directed): ears now run on native on-device speech recognition + the owner voice bank (deterministic pitch math). No OpenAI API, key or model anywhere in ARCHIE.',
+      'voice_bank', 'frelux_archie_voice_samples',
+      'engine', 'native-web-speech'
+    )
+  FROM public.profiles p
+  WHERE p.role = 'admin'
+  LIMIT 1;
+EXCEPTION WHEN unique_violation THEN NULL;
+END
+$mig$;
+

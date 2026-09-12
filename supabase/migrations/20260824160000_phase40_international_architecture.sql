@@ -76,12 +76,14 @@ CREATE INDEX IF NOT EXISTS idx_market_profiles_code ON market_profiles(country_c
 ALTER TABLE market_profiles ENABLE ROW LEVEL SECURITY;
 
 -- Public can read active/coming_soon market profiles (for country selector)
+DROP POLICY IF EXISTS "market_profiles_public_read" ON market_profiles;
 CREATE POLICY "market_profiles_public_read"
   ON market_profiles FOR SELECT
   TO anon, authenticated
   USING (status IN ('active', 'coming_soon'));
 
 -- Admin can manage all market profiles
+DROP POLICY IF EXISTS "market_profiles_admin_all" ON market_profiles;
 CREATE POLICY "market_profiles_admin_all"
   ON market_profiles FOR ALL
   TO authenticated
@@ -139,12 +141,14 @@ CREATE INDEX IF NOT EXISTS idx_mmr_active ON market_material_rules(market_code, 
 ALTER TABLE market_material_rules ENABLE ROW LEVEL SECURITY;
 
 -- Public can read active material rules (calculations need them)
+DROP POLICY IF EXISTS "mmr_public_read" ON market_material_rules;
 CREATE POLICY "mmr_public_read"
   ON market_material_rules FOR SELECT
   TO anon, authenticated
   USING (is_active = true);
 
 -- Admin can manage all material rules
+DROP POLICY IF EXISTS "mmr_admin_all" ON market_material_rules;
 CREATE POLICY "mmr_admin_all"
   ON market_material_rules FOR ALL
   TO authenticated
@@ -200,12 +204,14 @@ CREATE INDEX IF NOT EXISTS idx_mkp_calc ON market_products USING gin (calculator
 ALTER TABLE market_products ENABLE ROW LEVEL SECURITY;
 
 -- Public can read active products
+DROP POLICY IF EXISTS "mkp_public_read" ON market_products;
 CREATE POLICY "mkp_public_read"
   ON market_products FOR SELECT
   TO anon, authenticated
   USING (is_active = true);
 
 -- Admin can manage all products
+DROP POLICY IF EXISTS "mkp_admin_all" ON market_products;
 CREATE POLICY "mkp_admin_all"
   ON market_products FOR ALL
   TO authenticated
@@ -258,12 +264,14 @@ CREATE INDEX IF NOT EXISTS idx_mkpr_active ON market_pricing(market_code, effect
 ALTER TABLE market_pricing ENABLE ROW LEVEL SECURITY;
 
 -- Public can read active prices (calculations need them)
+DROP POLICY IF EXISTS "mkpr_public_read" ON market_pricing;
 CREATE POLICY "mkpr_public_read"
   ON market_pricing FOR SELECT
   TO anon, authenticated
   USING (effective_to IS NULL);
 
 -- Admin can manage all pricing
+DROP POLICY IF EXISTS "mkpr_admin_all" ON market_pricing;
 CREATE POLICY "mkpr_admin_all"
   ON market_pricing FOR ALL
   TO authenticated
@@ -307,12 +315,14 @@ CREATE INDEX IF NOT EXISTS idx_mcc_market ON market_calculator_config(market_cod
 ALTER TABLE market_calculator_config ENABLE ROW LEVEL SECURITY;
 
 -- Public can read available calculator configs
+DROP POLICY IF EXISTS "mcc_public_read" ON market_calculator_config;
 CREATE POLICY "mcc_public_read"
   ON market_calculator_config FOR SELECT
   TO anon, authenticated
   USING (true);
 
 -- Admin can manage all calculator configs
+DROP POLICY IF EXISTS "mcc_admin_all" ON market_calculator_config;
 CREATE POLICY "mcc_admin_all"
   ON market_calculator_config FOR ALL
   TO authenticated
@@ -350,18 +360,21 @@ CREATE INDEX IF NOT EXISTS idx_ump_user ON user_market_preferences(user_id);
 ALTER TABLE user_market_preferences ENABLE ROW LEVEL SECURITY;
 
 -- Users can read their own preferences
+DROP POLICY IF EXISTS "ump_user_read" ON user_market_preferences;
 CREATE POLICY "ump_user_read"
   ON user_market_preferences FOR SELECT
   TO authenticated
   USING (user_id = auth.uid());
 
 -- Users can insert their own preferences
+DROP POLICY IF EXISTS "ump_user_insert" ON user_market_preferences;
 CREATE POLICY "ump_user_insert"
   ON user_market_preferences FOR INSERT
   TO authenticated
   WITH CHECK (user_id = auth.uid());
 
 -- Users can update their own preferences
+DROP POLICY IF EXISTS "ump_user_update" ON user_market_preferences;
 CREATE POLICY "ump_user_update"
   ON user_market_preferences FOR UPDATE
   TO authenticated
@@ -369,12 +382,14 @@ CREATE POLICY "ump_user_update"
   WITH CHECK (user_id = auth.uid());
 
 -- Users can delete their own preferences (reset to default)
+DROP POLICY IF EXISTS "ump_user_delete" ON user_market_preferences;
 CREATE POLICY "ump_user_delete"
   ON user_market_preferences FOR DELETE
   TO authenticated
   USING (user_id = auth.uid());
 
 -- Admin can read all (for analytics)
+DROP POLICY IF EXISTS "ump_admin_read" ON user_market_preferences;
 CREATE POLICY "ump_admin_read"
   ON user_market_preferences FOR SELECT
   TO authenticated

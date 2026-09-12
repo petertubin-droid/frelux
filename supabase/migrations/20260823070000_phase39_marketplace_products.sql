@@ -171,28 +171,35 @@ ALTER TABLE marketplace_products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE marketplace_product_inquiries ENABLE ROW LEVEL SECURITY;
 
 -- Product categories: public read
+DROP POLICY IF EXISTS "product_categories_public_read" ON marketplace_product_categories;
 CREATE POLICY "product_categories_public_read" ON marketplace_product_categories
   FOR SELECT USING (true);
 
 -- Products: public read active, seller write
+DROP POLICY IF EXISTS "products_public_read" ON marketplace_products;
 CREATE POLICY "products_public_read" ON marketplace_products
   FOR SELECT USING (status = 'active' AND admin_removed = false);
 
+DROP POLICY IF EXISTS "products_seller_insert" ON marketplace_products;
 CREATE POLICY "products_seller_insert" ON marketplace_products
   FOR INSERT WITH CHECK (auth.uid() = seller_id);
 
+DROP POLICY IF EXISTS "products_seller_update" ON marketplace_products;
 CREATE POLICY "products_seller_update" ON marketplace_products
   FOR UPDATE USING (auth.uid() = seller_id);
 
+DROP POLICY IF EXISTS "products_admin_all" ON marketplace_products;
 CREATE POLICY "products_admin_all" ON marketplace_products
   FOR ALL USING (
     is_admin()
   );
 
 -- Inquiries: buyer creates, seller reads
+DROP POLICY IF EXISTS "inquiries_buyer_insert" ON marketplace_product_inquiries;
 CREATE POLICY "inquiries_buyer_insert" ON marketplace_product_inquiries
   FOR INSERT WITH CHECK (auth.uid() = buyer_id);
 
+DROP POLICY IF EXISTS "inquiries_participant_read" ON marketplace_product_inquiries;
 CREATE POLICY "inquiries_participant_read" ON marketplace_product_inquiries
   FOR SELECT USING (
     auth.uid() = buyer_id OR
@@ -200,6 +207,7 @@ CREATE POLICY "inquiries_participant_read" ON marketplace_product_inquiries
     is_admin()
   );
 
+DROP POLICY IF EXISTS "inquiries_seller_update" ON marketplace_product_inquiries;
 CREATE POLICY "inquiries_seller_update" ON marketplace_product_inquiries
   FOR UPDATE USING (
     auth.uid() IN (SELECT seller_id FROM marketplace_products WHERE id = product_id) OR
@@ -209,10 +217,12 @@ CREATE POLICY "inquiries_seller_update" ON marketplace_product_inquiries
 -- ============================================================
 -- TRIGGERS
 -- ============================================================
+DROP TRIGGER IF EXISTS update_marketplace_products_updated_at ON marketplace_products;
 CREATE TRIGGER update_marketplace_products_updated_at
   BEFORE UPDATE ON marketplace_products
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
+DROP TRIGGER IF EXISTS update_marketplace_product_inquiries_updated_at ON marketplace_product_inquiries;
 CREATE TRIGGER update_marketplace_product_inquiries_updated_at
   BEFORE UPDATE ON marketplace_product_inquiries
   FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();

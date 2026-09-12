@@ -1,0 +1,99 @@
+name: ARCHIE Deploy
+
+# =============================================================
+# ARCHIE has its own Supabase project (Frelukx,
+# pjvtqkshewerpvggtgqx — eu-west-1), separate from the FRELUX
+# app project (Freluxtools, hqhvlkunkdrxyuvziorm). The FRELUX
+# app calls ARCHIE directly there (src/lib/archie/remote-bridge.ts,
+# cutover commit 33ce312).
+#
+# This workflow keeps ARCHIE's edge functions on that project in
+# sync with this repo. Runs on every push to main that touches
+# ARCHIE's functions, the shared archie-ai code, or migrations —
+# plus manual dispatch from the Actions tab.
+#
+# Database migrations are NOT deployed here: the Supabase GitHub
+# integration (the "Supabase Preview" check) replays and applies
+# the migration chain from this repo against the project, so this
+# workflow deliberately covers only edge functions.
+#
+# All archie-* functions enforce their own owner/visitor
+# authorization internally (JWT verified against FRELUX's public
+# JWKS + profiles.role='admin'), and several have anonymous
+# visitor paths — so they deploy with --no-verify-jwt. The anon
+# key grants no privileges; the gateway JWT check would only
+# break the visitor path.
+#
+# Runtime secrets (GEMINI_API_KEY, WHATSAPP_*, etc.) are managed
+# in the ARCHIE project's dashboard (Edge Functions → Secrets) or
+# via `supabase secrets set` — not part of deploys.
+# =============================================================
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/archie-*/**'
+      - 'supabase/functions/_shared/**'
+      - 'supabase/migrations/**'
+      - '.github/workflows/archie-deploy.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: archie-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy-functions:
+    name: Deploy archie-* edge functions
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy every archie-* function
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          ARCHIE_PROJECT_REF: pjvtqkshewerpvggtgqx
+        run: |
+          set -euo pipefail
+          fail=0
+          deployed=0
+          for d in supabase/functions/archie-*/; do
+            name="$(basename "$d")"
+            echo "::group::Deploying $name"
+            if supabase functions deploy "$name" \
+                 --project-ref "$ARCHIE_PROJECT_REF" \
+                 --no-verify-jwt; then
+              deployed=$((deployed + 1))
+            else
+              echo "::error::Failed to deploy $name"
+              fail=$((fail + 1))
+            fi
+            echo "::endgroup::"
+          done
+          echo "Deployed $deployed function(s), $fail failure(s)."
+          if [ "$fail" -gt 0 ]; then exit 1; fi
+
+      - name: Post-deploy health check
+        env:
+          ARCHIE_PROJECT_URL: https://pjvtqkshewerpvggtgqx.supabase.co
+        run: |
+          # archie-status is the lightweight health endpoint — no auth
+          # needed for its public status shape. Give deploys a moment to
+          # finish propagating, then verify the gateway answers.
+          sleep 10
+          code="$(curl -s -o /dev/null -w '%{http_code}' \
+            -X POST "$ARCHIE_PROJECT_URL/functions/v1/archie-status" \
+            -H 'Content-Type: application/json' \
+            -d '{"action":"status"}' || true)"
+          echo "archie-status HTTP $code"
+          # 401/400/404/405 still proves the function is live and answering;
+          # only network-level failures (000) mean it is not there at all.
+          if [ "$code" = "000" ]; then
+            echo "::warning::archie-status unreachable after deploy"
+          fi

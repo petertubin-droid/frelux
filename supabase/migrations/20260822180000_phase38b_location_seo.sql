@@ -125,12 +125,14 @@ CREATE TABLE IF NOT EXISTS seo_page_settings (
 ALTER TABLE seo_page_settings ENABLE ROW LEVEL SECURITY;
 
 -- Public can read indexable settings
+DROP POLICY IF EXISTS "read_seo_page_settings" ON seo_page_settings;
 CREATE POLICY "read_seo_page_settings"
   ON seo_page_settings FOR SELECT
   TO anon, authenticated
   USING (true);
 
 -- Admin can manage
+DROP POLICY IF EXISTS "admin_manage_seo_page_settings" ON seo_page_settings;
 CREATE POLICY "admin_manage_seo_page_settings"
   ON seo_page_settings FOR ALL
   TO authenticated

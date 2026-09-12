@@ -6,6 +6,12 @@ SET premium_subscriptions_enabled = true
 WHERE id IN (SELECT id FROM public.site_settings ORDER BY id LIMIT 1);
 
 -- Guard: ensure a settings row exists (in case the table was empty).
-INSERT INTO public.site_settings (premium_subscriptions_enabled)
-SELECT true
-WHERE NOT EXISTS (SELECT 1 FROM public.site_settings);
+DO $mig$
+BEGIN
+  INSERT INTO public.site_settings (premium_subscriptions_enabled)
+  SELECT true
+  WHERE NOT EXISTS (SELECT 1 FROM public.site_settings);
+EXCEPTION WHEN unique_violation THEN NULL;
+END
+$mig$;
+

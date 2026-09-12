@@ -76,10 +76,12 @@ CREATE INDEX IF NOT EXISTS idx_em_material_profiles_approved ON em_material_prof
 
 ALTER TABLE em_material_profiles ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "em_material_profiles_admin_read" ON em_material_profiles;
 CREATE POLICY "em_material_profiles_admin_read"
   ON em_material_profiles FOR SELECT
   TO authenticated USING (public.is_admin());
 
+DROP POLICY IF EXISTS "em_material_profiles_admin_write" ON em_material_profiles;
 CREATE POLICY "em_material_profiles_admin_write"
   ON em_material_profiles FOR ALL
   TO authenticated
@@ -131,10 +133,12 @@ CREATE INDEX IF NOT EXISTS idx_em_roof_materials_category ON em_roof_materials(c
 
 ALTER TABLE em_roof_materials ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "em_roof_materials_admin_read" ON em_roof_materials;
 CREATE POLICY "em_roof_materials_admin_read"
   ON em_roof_materials FOR SELECT
   TO authenticated USING (public.is_admin());
 
+DROP POLICY IF EXISTS "em_roof_materials_admin_write" ON em_roof_materials;
 CREATE POLICY "em_roof_materials_admin_write"
   ON em_roof_materials FOR ALL
   TO authenticated
@@ -184,10 +188,12 @@ CREATE INDEX IF NOT EXISTS idx_em_roof_sections_type ON em_roof_sections(roof_ty
 
 ALTER TABLE em_roof_sections ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "em_roof_sections_admin_read" ON em_roof_sections;
 CREATE POLICY "em_roof_sections_admin_read"
   ON em_roof_sections FOR SELECT
   TO authenticated USING (public.is_admin());
 
+DROP POLICY IF EXISTS "em_roof_sections_admin_write" ON em_roof_sections;
 CREATE POLICY "em_roof_sections_admin_write"
   ON em_roof_sections FOR ALL
   TO authenticated
@@ -228,10 +234,12 @@ CREATE INDEX IF NOT EXISTS idx_em_waste_configs_scope ON em_waste_configs(scope_
 
 ALTER TABLE em_waste_configs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "em_waste_configs_admin_read" ON em_waste_configs;
 CREATE POLICY "em_waste_configs_admin_read"
   ON em_waste_configs FOR SELECT
   TO authenticated USING (public.is_admin());
 
+DROP POLICY IF EXISTS "em_waste_configs_admin_write" ON em_waste_configs;
 CREATE POLICY "em_waste_configs_admin_write"
   ON em_waste_configs FOR ALL
   TO authenticated
@@ -278,10 +286,12 @@ CREATE INDEX IF NOT EXISTS idx_em_ai_verification_measurement ON em_ai_verificat
 
 ALTER TABLE em_ai_verification_states ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "em_ai_verification_admin_read" ON em_ai_verification_states;
 CREATE POLICY "em_ai_verification_admin_read"
   ON em_ai_verification_states FOR SELECT
   TO authenticated USING (public.is_admin());
 
+DROP POLICY IF EXISTS "em_ai_verification_admin_write" ON em_ai_verification_states;
 CREATE POLICY "em_ai_verification_admin_write"
   ON em_ai_verification_states FOR ALL
   TO authenticated
@@ -289,6 +299,7 @@ CREATE POLICY "em_ai_verification_admin_write"
   WITH CHECK (public.is_admin());
 
 -- Public can create verification requests (for AI image estimation)
+DROP POLICY IF EXISTS "em_ai_verification_user_create" ON em_ai_verification_states;
 CREATE POLICY "em_ai_verification_user_create"
   ON em_ai_verification_states FOR INSERT
   TO authenticated
@@ -335,10 +346,12 @@ CREATE INDEX IF NOT EXISTS idx_em_rule_metadata_rule ON em_rule_metadata(rule_id
 
 ALTER TABLE em_rule_metadata ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "em_rule_metadata_admin_read" ON em_rule_metadata;
 CREATE POLICY "em_rule_metadata_admin_read"
   ON em_rule_metadata FOR SELECT
   TO authenticated USING (public.is_admin());
 
+DROP POLICY IF EXISTS "em_rule_metadata_admin_write" ON em_rule_metadata;
 CREATE POLICY "em_rule_metadata_admin_write"
   ON em_rule_metadata FOR ALL
   TO authenticated
@@ -365,10 +378,12 @@ CREATE TABLE IF NOT EXISTS em_engine_settings (
 
 ALTER TABLE em_engine_settings ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "em_engine_settings_admin_read" ON em_engine_settings;
 CREATE POLICY "em_engine_settings_admin_read"
   ON em_engine_settings FOR SELECT
   TO authenticated USING (public.is_admin());
 
+DROP POLICY IF EXISTS "em_engine_settings_admin_write" ON em_engine_settings;
 CREATE POLICY "em_engine_settings_admin_write"
   ON em_engine_settings FOR ALL
   TO authenticated

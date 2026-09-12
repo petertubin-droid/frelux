@@ -42,21 +42,27 @@ WHERE key = 'ears';
 
 -- Honest audit trail of the anatomy change itself (attributed
 -- to the admin/owner profile when one exists).
-INSERT INTO public.frelux_archie_audit_events (
-  owner_id, event_type, severity, detail
-)
-SELECT
-  p.id,
-  'archie.anatomy.ears_operational',
-  'INFO',
-  jsonb_build_object(
-    'reason', 'Ears subsystem implemented for real: shared STT core + owner-only archie-ears edge function + client engine; tests lock never-fabricate invariants; health runner probes engine module + real transcription audit trail',
-    'code_bindings', jsonb_build_array(
-      'supabase/functions/_shared/archie-ai/native-engine/ears.ts',
-      'supabase/functions/archie-ears/index.ts',
-      'src/lib/archie/ears.ts'
-    )
+DO $mig$
+BEGIN
+  INSERT INTO public.frelux_archie_audit_events (
+    owner_id, event_type, severity, detail
   )
-FROM public.profiles p
-WHERE p.role = 'admin'
-LIMIT 1;
+  SELECT
+    p.id,
+    'archie.anatomy.ears_operational',
+    'INFO',
+    jsonb_build_object(
+      'reason', 'Ears subsystem implemented for real: shared STT core + owner-only archie-ears edge function + client engine; tests lock never-fabricate invariants; health runner probes engine module + real transcription audit trail',
+      'code_bindings', jsonb_build_array(
+        'supabase/functions/_shared/archie-ai/native-engine/ears.ts',
+        'supabase/functions/archie-ears/index.ts',
+        'src/lib/archie/ears.ts'
+      )
+    )
+  FROM public.profiles p
+  WHERE p.role = 'admin'
+  LIMIT 1;
+EXCEPTION WHEN unique_violation THEN NULL;
+END
+$mig$;
+

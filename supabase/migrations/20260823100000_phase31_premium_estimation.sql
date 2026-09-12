@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS estimation_usage_daily (
 ALTER TABLE estimation_usage_daily ENABLE ROW LEVEL SECURITY;
 
 -- Users can only read their own usage records
+DROP POLICY IF EXISTS "Users read own estimation usage" ON estimation_usage_daily;
 CREATE POLICY "Users read own estimation usage"
   ON estimation_usage_daily FOR SELECT
   USING (auth.uid() = user_id);
@@ -54,6 +55,7 @@ CREATE TABLE IF NOT EXISTS estimation_results (
 
 ALTER TABLE estimation_results ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users manage own estimation results" ON estimation_results;
 CREATE POLICY "Users manage own estimation results"
   ON estimation_results FOR ALL
   USING (auth.uid() = user_id)

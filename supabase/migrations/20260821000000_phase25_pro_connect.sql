@@ -29,12 +29,14 @@ CREATE TABLE IF NOT EXISTS pro_categories (
 ALTER TABLE pro_categories ENABLE ROW LEVEL SECURITY;
 
 -- Public can read active categories
+DROP POLICY IF EXISTS "read_active_pro_categories" ON pro_categories;
 CREATE POLICY "read_active_pro_categories"
   ON pro_categories FOR SELECT
   TO anon, authenticated
   USING (is_active = true);
 
 -- Admin can manage
+DROP POLICY IF EXISTS "admin_manage_pro_categories" ON pro_categories;
 CREATE POLICY "admin_manage_pro_categories"
   ON pro_categories FOR ALL
   TO authenticated
@@ -58,11 +60,13 @@ CREATE TABLE IF NOT EXISTS pro_services (
 
 ALTER TABLE pro_services ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "read_active_pro_services" ON pro_services;
 CREATE POLICY "read_active_pro_services"
   ON pro_services FOR SELECT
   TO anon, authenticated
   USING (is_active = true);
 
+DROP POLICY IF EXISTS "admin_manage_pro_services" ON pro_services;
 CREATE POLICY "admin_manage_pro_services"
   ON pro_services FOR ALL
   TO authenticated
@@ -89,11 +93,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_pro_locations_unique
 
 ALTER TABLE pro_locations ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "read_active_pro_locations" ON pro_locations;
 CREATE POLICY "read_active_pro_locations"
   ON pro_locations FOR SELECT
   TO anon, authenticated
   USING (is_active = true);
 
+DROP POLICY IF EXISTS "admin_manage_pro_locations" ON pro_locations;
 CREATE POLICY "admin_manage_pro_locations"
   ON pro_locations FOR ALL
   TO authenticated
@@ -140,24 +146,28 @@ CREATE INDEX IF NOT EXISTS idx_pro_profiles_rating ON pro_profiles(rating_avg DE
 ALTER TABLE pro_profiles ENABLE ROW LEVEL SECURITY;
 
 -- Public can read listed profiles (not suspended)
+DROP POLICY IF EXISTS "read_listed_pro_profiles" ON pro_profiles;
 CREATE POLICY "read_listed_pro_profiles"
   ON pro_profiles FOR SELECT
   TO anon, authenticated
   USING (is_listed = true AND verification_status != 'suspended');
 
 -- Owner can read own profile (even if unlisted/suspended)
+DROP POLICY IF EXISTS "read_own_pro_profile" ON pro_profiles;
 CREATE POLICY "read_own_pro_profile"
   ON pro_profiles FOR SELECT
   TO authenticated
   USING (user_id = auth.uid());
 
 -- Owner can insert own profile
+DROP POLICY IF EXISTS "insert_own_pro_profile" ON pro_profiles;
 CREATE POLICY "insert_own_pro_profile"
   ON pro_profiles FOR INSERT
   TO authenticated
   WITH CHECK (user_id = auth.uid());
 
 -- Owner can update own profile (but NOT verification_status or rating fields)
+DROP POLICY IF EXISTS "update_own_pro_profile" ON pro_profiles;
 CREATE POLICY "update_own_pro_profile"
   ON pro_profiles FOR UPDATE
   TO authenticated
@@ -165,6 +175,7 @@ CREATE POLICY "update_own_pro_profile"
   WITH CHECK (user_id = auth.uid());
 
 -- Admin can do everything
+DROP POLICY IF EXISTS "admin_manage_pro_profiles" ON pro_profiles;
 CREATE POLICY "admin_manage_pro_profiles"
   ON pro_profiles FOR ALL
   TO authenticated
@@ -212,12 +223,14 @@ CREATE INDEX IF NOT EXISTS idx_pro_profile_services_service ON pro_profile_servi
 ALTER TABLE pro_profile_services ENABLE ROW LEVEL SECURITY;
 
 -- Public can read (for directory display)
+DROP POLICY IF EXISTS "read_pro_profile_services" ON pro_profile_services;
 CREATE POLICY "read_pro_profile_services"
   ON pro_profile_services FOR SELECT
   TO anon, authenticated
   USING (true);
 
 -- Owner of the profile can manage
+DROP POLICY IF EXISTS "manage_own_pro_profile_services" ON pro_profile_services;
 CREATE POLICY "manage_own_pro_profile_services"
   ON pro_profile_services FOR ALL
   TO authenticated
@@ -225,6 +238,7 @@ CREATE POLICY "manage_own_pro_profile_services"
   WITH CHECK (EXISTS (SELECT 1 FROM pro_profiles WHERE id = pro_profile_services.profile_id AND user_id = auth.uid()));
 
 -- Admin can manage
+DROP POLICY IF EXISTS "admin_manage_pro_profile_services" ON pro_profile_services;
 CREATE POLICY "admin_manage_pro_profile_services"
   ON pro_profile_services FOR ALL
   TO authenticated
@@ -248,17 +262,20 @@ CREATE INDEX IF NOT EXISTS idx_pro_profile_locations_location ON pro_profile_loc
 
 ALTER TABLE pro_profile_locations ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "read_pro_profile_locations" ON pro_profile_locations;
 CREATE POLICY "read_pro_profile_locations"
   ON pro_profile_locations FOR SELECT
   TO anon, authenticated
   USING (true);
 
+DROP POLICY IF EXISTS "manage_own_pro_profile_locations" ON pro_profile_locations;
 CREATE POLICY "manage_own_pro_profile_locations"
   ON pro_profile_locations FOR ALL
   TO authenticated
   USING (EXISTS (SELECT 1 FROM pro_profiles WHERE id = pro_profile_locations.profile_id AND user_id = auth.uid()))
   WITH CHECK (EXISTS (SELECT 1 FROM pro_profiles WHERE id = pro_profile_locations.profile_id AND user_id = auth.uid()));
 
+DROP POLICY IF EXISTS "admin_manage_pro_profile_locations" ON pro_profile_locations;
 CREATE POLICY "admin_manage_pro_profile_locations"
   ON pro_profile_locations FOR ALL
   TO authenticated
@@ -286,12 +303,14 @@ CREATE INDEX IF NOT EXISTS idx_pro_portfolio_profile ON pro_portfolio_items(prof
 ALTER TABLE pro_portfolio_items ENABLE ROW LEVEL SECURITY;
 
 -- Public can read portfolio items of listed profiles
+DROP POLICY IF EXISTS "read_pro_portfolio_items" ON pro_portfolio_items;
 CREATE POLICY "read_pro_portfolio_items"
   ON pro_portfolio_items FOR SELECT
   TO anon, authenticated
   USING (EXISTS (SELECT 1 FROM pro_profiles WHERE id = pro_portfolio_items.profile_id AND is_listed = true AND verification_status != 'suspended'));
 
 -- Owner can manage
+DROP POLICY IF EXISTS "manage_own_portfolio" ON pro_portfolio_items;
 CREATE POLICY "manage_own_portfolio"
   ON pro_portfolio_items FOR ALL
   TO authenticated
@@ -299,6 +318,7 @@ CREATE POLICY "manage_own_portfolio"
   WITH CHECK (EXISTS (SELECT 1 FROM pro_profiles WHERE id = pro_portfolio_items.profile_id AND user_id = auth.uid()));
 
 -- Admin can manage
+DROP POLICY IF EXISTS "admin_manage_portfolio" ON pro_portfolio_items;
 CREATE POLICY "admin_manage_portfolio"
   ON pro_portfolio_items FOR ALL
   TO authenticated
@@ -331,12 +351,14 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_pro_reviews_unique
 ALTER TABLE pro_reviews ENABLE ROW LEVEL SECURITY;
 
 -- Public can read non-hidden reviews
+DROP POLICY IF EXISTS "read_visible_pro_reviews" ON pro_reviews;
 CREATE POLICY "read_visible_pro_reviews"
   ON pro_reviews FOR SELECT
   TO anon, authenticated
   USING (is_hidden = false);
 
 -- Authenticated users can review (but not themselves)
+DROP POLICY IF EXISTS "insert_pro_review" ON pro_reviews;
 CREATE POLICY "insert_pro_review"
   ON pro_reviews FOR INSERT
   TO authenticated
@@ -346,6 +368,7 @@ CREATE POLICY "insert_pro_review"
   );
 
 -- Reviewer can update their own review text/rating (not after professional has responded)
+DROP POLICY IF EXISTS "update_own_pro_review" ON pro_reviews;
 CREATE POLICY "update_own_pro_review"
   ON pro_reviews FOR UPDATE
   TO authenticated
@@ -353,6 +376,7 @@ CREATE POLICY "update_own_pro_review"
   WITH CHECK (reviewer_id = auth.uid());
 
 -- Professional can update their own response field only
+DROP POLICY IF EXISTS "respond_to_pro_review" ON pro_reviews;
 CREATE POLICY "respond_to_pro_review"
   ON pro_reviews FOR UPDATE
   TO authenticated
@@ -364,6 +388,7 @@ CREATE POLICY "respond_to_pro_review"
   );
 
 -- Admin can manage all reviews
+DROP POLICY IF EXISTS "admin_manage_pro_reviews" ON pro_reviews;
 CREATE POLICY "admin_manage_pro_reviews"
   ON pro_reviews FOR ALL
   TO authenticated
@@ -371,6 +396,7 @@ CREATE POLICY "admin_manage_pro_reviews"
   WITH CHECK (public.is_admin());
 
 -- Trigger to update profile rating on review insert/update/delete
+DROP TRIGGER IF EXISTS trg_pro_review_rating_update ON pro_reviews;
 CREATE TRIGGER trg_pro_review_rating_update
   AFTER INSERT OR UPDATE OR DELETE ON pro_reviews
   FOR EACH ROW
@@ -399,6 +425,7 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_pro_conversations_unique
 ALTER TABLE pro_conversations ENABLE ROW LEVEL SECURITY;
 
 -- Participants can read their own conversations
+DROP POLICY IF EXISTS "read_own_conversations" ON pro_conversations;
 CREATE POLICY "read_own_conversations"
   ON pro_conversations FOR SELECT
   TO authenticated
@@ -408,12 +435,14 @@ CREATE POLICY "read_own_conversations"
   );
 
 -- Customer can create conversation
+DROP POLICY IF EXISTS "create_conversation" ON pro_conversations;
 CREATE POLICY "create_conversation"
   ON pro_conversations FOR INSERT
   TO authenticated
   WITH CHECK (customer_id = auth.uid());
 
 -- Participants can update (archive, etc.)
+DROP POLICY IF EXISTS "update_own_conversation" ON pro_conversations;
 CREATE POLICY "update_own_conversation"
   ON pro_conversations FOR UPDATE
   TO authenticated
@@ -427,6 +456,7 @@ CREATE POLICY "update_own_conversation"
   );
 
 -- Admin can read (for moderation)
+DROP POLICY IF EXISTS "admin_read_conversations" ON pro_conversations;
 CREATE POLICY "admin_read_conversations"
   ON pro_conversations FOR SELECT
   TO authenticated
@@ -454,6 +484,7 @@ CREATE INDEX IF NOT EXISTS idx_pro_messages_unread ON pro_messages(conversation_
 ALTER TABLE pro_messages ENABLE ROW LEVEL SECURITY;
 
 -- Participants can read messages in their conversations
+DROP POLICY IF EXISTS "read_own_messages" ON pro_messages;
 CREATE POLICY "read_own_messages"
   ON pro_messages FOR SELECT
   TO authenticated
@@ -469,6 +500,7 @@ CREATE POLICY "read_own_messages"
   );
 
 -- Sender can insert messages in their own conversations
+DROP POLICY IF EXISTS "send_message" ON pro_messages;
 CREATE POLICY "send_message"
   ON pro_messages FOR INSERT
   TO authenticated
@@ -487,6 +519,7 @@ CREATE POLICY "send_message"
 
 -- Participants can update read status of messages in their conversations
 -- (only marking as read, not editing content)
+DROP POLICY IF EXISTS "mark_message_read" ON pro_messages;
 CREATE POLICY "mark_message_read"
   ON pro_messages FOR UPDATE
   TO authenticated
@@ -512,6 +545,7 @@ CREATE POLICY "mark_message_read"
   );
 
 -- Admin can read (for moderation)
+DROP POLICY IF EXISTS "admin_read_messages" ON pro_messages;
 CREATE POLICY "admin_read_messages"
   ON pro_messages FOR SELECT
   TO authenticated
@@ -541,18 +575,21 @@ CREATE INDEX IF NOT EXISTS idx_pro_reports_reporter ON pro_reports(reporter_id);
 ALTER TABLE pro_reports ENABLE ROW LEVEL SECURITY;
 
 -- Users can create reports
+DROP POLICY IF EXISTS "create_pro_report" ON pro_reports;
 CREATE POLICY "create_pro_report"
   ON pro_reports FOR INSERT
   TO authenticated
   WITH CHECK (reporter_id = auth.uid());
 
 -- Users can read their own reports
+DROP POLICY IF EXISTS "read_own_pro_reports" ON pro_reports;
 CREATE POLICY "read_own_pro_reports"
   ON pro_reports FOR SELECT
   TO authenticated
   USING (reporter_id = auth.uid());
 
 -- Admin can manage all reports
+DROP POLICY IF EXISTS "admin_manage_pro_reports" ON pro_reports;
 CREATE POLICY "admin_manage_pro_reports"
   ON pro_reports FOR ALL
   TO authenticated
@@ -577,6 +614,7 @@ CREATE INDEX IF NOT EXISTS idx_pro_verification_logs_profile ON pro_verification
 ALTER TABLE pro_verification_logs ENABLE ROW LEVEL SECURITY;
 
 -- Admin can read and insert
+DROP POLICY IF EXISTS "admin_manage_verification_logs" ON pro_verification_logs;
 CREATE POLICY "admin_manage_verification_logs"
   ON pro_verification_logs FOR ALL
   TO authenticated
@@ -584,6 +622,7 @@ CREATE POLICY "admin_manage_verification_logs"
   WITH CHECK (public.is_admin());
 
 -- Profile owner can read their own verification history
+DROP POLICY IF EXISTS "read_own_verification_logs" ON pro_verification_logs;
 CREATE POLICY "read_own_verification_logs"
   ON pro_verification_logs FOR SELECT
   TO authenticated
@@ -602,20 +641,28 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_pro_categories_updated ON pro_categories;
 CREATE TRIGGER trg_pro_categories_updated BEFORE UPDATE ON pro_categories
   FOR EACH ROW EXECUTE FUNCTION update_pro_table_updated_at();
+DROP TRIGGER IF EXISTS trg_pro_services_updated ON pro_services;
 CREATE TRIGGER trg_pro_services_updated BEFORE UPDATE ON pro_services
   FOR EACH ROW EXECUTE FUNCTION update_pro_table_updated_at();
+DROP TRIGGER IF EXISTS trg_pro_locations_updated ON pro_locations;
 CREATE TRIGGER trg_pro_locations_updated BEFORE UPDATE ON pro_locations
   FOR EACH ROW EXECUTE FUNCTION update_pro_table_updated_at();
+DROP TRIGGER IF EXISTS trg_pro_profiles_updated ON pro_profiles;
 CREATE TRIGGER trg_pro_profiles_updated BEFORE UPDATE ON pro_profiles
   FOR EACH ROW EXECUTE FUNCTION update_pro_table_updated_at();
+DROP TRIGGER IF EXISTS trg_pro_portfolio_updated ON pro_portfolio_items;
 CREATE TRIGGER trg_pro_portfolio_updated BEFORE UPDATE ON pro_portfolio_items
   FOR EACH ROW EXECUTE FUNCTION update_pro_table_updated_at();
+DROP TRIGGER IF EXISTS trg_pro_reviews_updated ON pro_reviews;
 CREATE TRIGGER trg_pro_reviews_updated BEFORE UPDATE ON pro_reviews
   FOR EACH ROW EXECUTE FUNCTION update_pro_table_updated_at();
+DROP TRIGGER IF EXISTS trg_pro_conversations_updated ON pro_conversations;
 CREATE TRIGGER trg_pro_conversations_updated BEFORE UPDATE ON pro_conversations
   FOR EACH ROW EXECUTE FUNCTION update_pro_table_updated_at();
+DROP TRIGGER IF EXISTS trg_pro_reports_updated ON pro_reports;
 CREATE TRIGGER trg_pro_reports_updated BEFORE UPDATE ON pro_reports
   FOR EACH ROW EXECUTE FUNCTION update_pro_table_updated_at();
 
@@ -879,21 +926,25 @@ VALUES ('pro-portfolio', 'pro-portfolio', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Storage policies for pro-portfolio bucket
+DROP POLICY IF EXISTS "read_pro_portfolio_images" ON storage.objects;
 CREATE POLICY "read_pro_portfolio_images"
   ON storage.objects FOR SELECT
   TO anon, authenticated
   USING (bucket_id = 'pro-portfolio');
 
+DROP POLICY IF EXISTS "upload_pro_portfolio_images" ON storage.objects;
 CREATE POLICY "upload_pro_portfolio_images"
   ON storage.objects FOR INSERT
   TO authenticated
   WITH CHECK (bucket_id = 'pro-portfolio');
 
+DROP POLICY IF EXISTS "update_own_pro_portfolio_images" ON storage.objects;
 CREATE POLICY "update_own_pro_portfolio_images"
   ON storage.objects FOR UPDATE
   TO authenticated
   USING (bucket_id = 'pro-portfolio' AND owner = auth.uid());
 
+DROP POLICY IF EXISTS "delete_own_pro_portfolio_images" ON storage.objects;
 CREATE POLICY "delete_own_pro_portfolio_images"
   ON storage.objects FOR DELETE
   TO authenticated

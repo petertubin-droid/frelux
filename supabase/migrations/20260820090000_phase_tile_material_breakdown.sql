@@ -37,9 +37,17 @@ UPDATE tile_materials
   SET category = 'other', updated_at = now()
   WHERE category NOT IN ('tile', 'adhesive', 'grout', 'spacer', 'cement', 'sand', 'labour', 'other');
 
+DO $mig$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'tile_materials_category_check'
+                 AND conrelid = tile_materials::regclass) THEN
 ALTER TABLE tile_materials
   ADD CONSTRAINT tile_materials_category_check
   CHECK (category IN ('tile', 'adhesive', 'grout', 'spacer', 'cement', 'sand', 'labour', 'other'));
+  END IF;
+END
+$mig$;
+
 
 -- =========================================================
 -- 2. Deactivate non-purchasable material categories

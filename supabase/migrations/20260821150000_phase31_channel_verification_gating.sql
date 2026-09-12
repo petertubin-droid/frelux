@@ -37,15 +37,19 @@ CREATE INDEX IF NOT EXISTS idx_mobile_otp_phone ON pro_mobile_otp_log(phone_numb
 
 -- RLS for OTP log
 ALTER TABLE pro_mobile_otp_log ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "mobile_otp_self_read" ON pro_mobile_otp_log;
 CREATE POLICY "mobile_otp_self_read" ON pro_mobile_otp_log FOR SELECT USING (
   profile_id IN (SELECT id FROM pro_profiles WHERE user_id = auth.uid())
 );
+DROP POLICY IF EXISTS "mobile_otp_self_insert" ON pro_mobile_otp_log;
 CREATE POLICY "mobile_otp_self_insert" ON pro_mobile_otp_log FOR INSERT WITH CHECK (
   profile_id IN (SELECT id FROM pro_profiles WHERE user_id = auth.uid())
 );
+DROP POLICY IF EXISTS "mobile_otp_self_update" ON pro_mobile_otp_log;
 CREATE POLICY "mobile_otp_self_update" ON pro_mobile_otp_log FOR UPDATE USING (
   profile_id IN (SELECT id FROM pro_profiles WHERE user_id = auth.uid())
 );
+DROP POLICY IF EXISTS "mobile_otp_admin_all" ON pro_mobile_otp_log;
 CREATE POLICY "mobile_otp_admin_all" ON pro_mobile_otp_log FOR ALL USING (
   EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
 );
@@ -65,6 +69,7 @@ CREATE POLICY "worker_members_read_self" ON worker_channel_members FOR SELECT US
   )
 );
 
+DROP POLICY IF EXISTS "worker_members_insert_self" ON worker_channel_members;
 CREATE POLICY "worker_members_insert_self" ON worker_channel_members FOR INSERT WITH CHECK (
   user_id = auth.uid()
   AND EXISTS (
@@ -80,6 +85,7 @@ CREATE POLICY "worker_members_insert_self" ON worker_channel_members FOR INSERT 
   )
 );
 
+DROP POLICY IF EXISTS "worker_members_delete_self" ON worker_channel_members;
 CREATE POLICY "worker_members_delete_self" ON worker_channel_members FOR DELETE USING (
   user_id = auth.uid() OR EXISTS (
     SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin'
@@ -392,9 +398,11 @@ CREATE INDEX IF NOT EXISTS idx_nin_log_profile ON pro_nin_verification_log(profi
 
 -- RLS: only admins can read the NIN verification log
 ALTER TABLE pro_nin_verification_log ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "nin_log_admin_read" ON pro_nin_verification_log;
 CREATE POLICY "nin_log_admin_read" ON pro_nin_verification_log FOR SELECT USING (
   EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
 );
+DROP POLICY IF EXISTS "nin_log_admin_all" ON pro_nin_verification_log;
 CREATE POLICY "nin_log_admin_all" ON pro_nin_verification_log FOR ALL USING (
   EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
 );
@@ -658,19 +666,23 @@ CREATE INDEX IF NOT EXISTS idx_worker_reports_status ON worker_reports(status);
 ALTER TABLE worker_reports ENABLE ROW LEVEL SECURITY;
 
 -- Users can create reports about others
+DROP POLICY IF EXISTS "worker_reports_insert_self" ON worker_reports;
 CREATE POLICY "worker_reports_insert_self" ON worker_reports FOR INSERT WITH CHECK (
   reporter_id = auth.uid()
 );
 
 -- Admins can read and update all reports
+DROP POLICY IF EXISTS "worker_reports_admin_read" ON worker_reports;
 CREATE POLICY "worker_reports_admin_read" ON worker_reports FOR SELECT USING (
   EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
 );
+DROP POLICY IF EXISTS "worker_reports_admin_update" ON worker_reports;
 CREATE POLICY "worker_reports_admin_update" ON worker_reports FOR UPDATE USING (
   EXISTS (SELECT 1 FROM profiles p WHERE p.id = auth.uid() AND p.role = 'admin')
 );
 
 -- Reporters can see their own reports
+DROP POLICY IF EXISTS "worker_reports_self_read" ON worker_reports;
 CREATE POLICY "worker_reports_self_read" ON worker_reports FOR SELECT USING (
   reporter_id = auth.uid()
 );

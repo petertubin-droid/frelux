@@ -118,47 +118,77 @@ ON CONFLICT DO NOTHING;
 -- Insert default pack sizes for materials that don't have one yet.
 -- These are admin-configurable starting points.
 
-INSERT INTO estimation_pack_sizes (ref_type, ref_id, pack_size, purchase_rule, min_quantity, rounding_rule, is_active, sort_order)
-SELECT 'material', m.id, 1, 'full_pack', 1, 'ceil', true, 1
-FROM estimation_materials m
-WHERE m.slug = 'cement'
-  AND NOT EXISTS (
-    SELECT 1 FROM estimation_pack_sizes ps
-    WHERE ps.ref_type = 'material' AND ps.ref_id = m.id
-  );
+DO $mig$
+BEGIN
+  INSERT INTO estimation_pack_sizes (ref_type, ref_id, pack_size, purchase_rule, min_quantity, rounding_rule, is_active, sort_order)
+  SELECT 'material', m.id, 1, 'full_pack', 1, 'ceil', true, 1
+  FROM estimation_materials m
+  WHERE m.slug = 'cement'
+    AND NOT EXISTS (
+      SELECT 1 FROM estimation_pack_sizes ps
+      WHERE ps.ref_type = 'material' AND ps.ref_id = m.id
+    );
+EXCEPTION WHEN unique_violation THEN NULL;
+END
+$mig$;
 
-INSERT INTO estimation_pack_sizes (ref_type, ref_id, pack_size, purchase_rule, min_quantity, rounding_rule, is_active, sort_order)
-SELECT 'material', m.id, 1, 'full_pack', 1, 'ceil', true, 1
-FROM estimation_materials m
-WHERE m.slug = 'sand'
-  AND NOT EXISTS (
-    SELECT 1 FROM estimation_pack_sizes ps
-    WHERE ps.ref_type = 'material' AND ps.ref_id = m.id
-  );
 
-INSERT INTO estimation_pack_sizes (ref_type, ref_id, pack_size, purchase_rule, min_quantity, rounding_rule, is_active, sort_order)
-SELECT 'material', m.id, 1, 'full_pack', 1, 'ceil', true, 1
-FROM estimation_materials m
-WHERE m.slug = 'acrylic-bond'
-  AND NOT EXISTS (
-    SELECT 1 FROM estimation_pack_sizes ps
-    WHERE ps.ref_type = 'material' AND ps.ref_id = m.id
-  );
+DO $mig$
+BEGIN
+  INSERT INTO estimation_pack_sizes (ref_type, ref_id, pack_size, purchase_rule, min_quantity, rounding_rule, is_active, sort_order)
+  SELECT 'material', m.id, 1, 'full_pack', 1, 'ceil', true, 1
+  FROM estimation_materials m
+  WHERE m.slug = 'sand'
+    AND NOT EXISTS (
+      SELECT 1 FROM estimation_pack_sizes ps
+      WHERE ps.ref_type = 'material' AND ps.ref_id = m.id
+    );
+EXCEPTION WHEN unique_violation THEN NULL;
+END
+$mig$;
 
-INSERT INTO estimation_pack_sizes (ref_type, ref_id, pack_size, purchase_rule, min_quantity, rounding_rule, is_active, sort_order)
-SELECT 'material', m.id, 1, 'full_pack', 1, 'ceil', true, 1
-FROM estimation_materials m
-WHERE m.slug = 'water-seal'
-  AND NOT EXISTS (
-    SELECT 1 FROM estimation_pack_sizes ps
-    WHERE ps.ref_type = 'material' AND ps.ref_id = m.id
-  );
 
-INSERT INTO estimation_pack_sizes (ref_type, ref_id, pack_size, purchase_rule, min_quantity, rounding_rule, is_active, sort_order)
-SELECT 'material', m.id, 1, 'full_pack', 1, 'ceil', true, 1
-FROM estimation_materials m
-WHERE m.slug = 'anti-fungal'
-  AND NOT EXISTS (
-    SELECT 1 FROM estimation_pack_sizes ps
-    WHERE ps.ref_type = 'material' AND ps.ref_id = m.id
-  );
+DO $mig$
+BEGIN
+  INSERT INTO estimation_pack_sizes (ref_type, ref_id, pack_size, purchase_rule, min_quantity, rounding_rule, is_active, sort_order)
+  SELECT 'material', m.id, 1, 'full_pack', 1, 'ceil', true, 1
+  FROM estimation_materials m
+  WHERE m.slug = 'acrylic-bond'
+    AND NOT EXISTS (
+      SELECT 1 FROM estimation_pack_sizes ps
+      WHERE ps.ref_type = 'material' AND ps.ref_id = m.id
+    );
+EXCEPTION WHEN unique_violation THEN NULL;
+END
+$mig$;
+
+
+DO $mig$
+BEGIN
+  INSERT INTO estimation_pack_sizes (ref_type, ref_id, pack_size, purchase_rule, min_quantity, rounding_rule, is_active, sort_order)
+  SELECT 'material', m.id, 1, 'full_pack', 1, 'ceil', true, 1
+  FROM estimation_materials m
+  WHERE m.slug = 'water-seal'
+    AND NOT EXISTS (
+      SELECT 1 FROM estimation_pack_sizes ps
+      WHERE ps.ref_type = 'material' AND ps.ref_id = m.id
+    );
+EXCEPTION WHEN unique_violation THEN NULL;
+END
+$mig$;
+
+
+DO $mig$
+BEGIN
+  INSERT INTO estimation_pack_sizes (ref_type, ref_id, pack_size, purchase_rule, min_quantity, rounding_rule, is_active, sort_order)
+  SELECT 'material', m.id, 1, 'full_pack', 1, 'ceil', true, 1
+  FROM estimation_materials m
+  WHERE m.slug = 'anti-fungal'
+    AND NOT EXISTS (
+      SELECT 1 FROM estimation_pack_sizes ps
+      WHERE ps.ref_type = 'material' AND ps.ref_id = m.id
+    );
+EXCEPTION WHEN unique_violation THEN NULL;
+END
+$mig$;
+

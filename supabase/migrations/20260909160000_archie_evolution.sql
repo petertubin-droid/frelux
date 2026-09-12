@@ -118,8 +118,8 @@ CREATE POLICY archie_change_requests_service_all
   USING (true)
   WITH CHECK (true);
 
-CREATE INDEX archie_change_requests_state_idx ON archie_change_requests (state);
-CREATE INDEX archie_change_requests_created_idx ON archie_change_requests (created_at DESC);
+CREATE INDEX IF NOT EXISTS archie_change_requests_state_idx ON archie_change_requests (state);
+CREATE INDEX IF NOT EXISTS archie_change_requests_created_idx ON archie_change_requests (created_at DESC);
 
 -- ---------------------------------------------------------
 -- Immutable audit trail (§3, §5)
@@ -189,7 +189,7 @@ CREATE TRIGGER archie_change_audit_immutable_trigger
   FOR EACH ROW
   EXECUTE FUNCTION archie_audit_immutable();
 
-CREATE INDEX archie_change_audit_cr_idx ON archie_change_audit (change_request_id, created_at);
+CREATE INDEX IF NOT EXISTS archie_change_audit_cr_idx ON archie_change_audit (change_request_id, created_at);
 
 -- ---------------------------------------------------------
 -- Language memory (§10–§13)
@@ -288,7 +288,7 @@ CREATE POLICY archie_language_entries_service_all
   USING (true)
   WITH CHECK (true);
 
-CREATE INDEX archie_language_entries_profile_idx ON archie_language_entries (profile_id, kind);
+CREATE INDEX IF NOT EXISTS archie_language_entries_profile_idx ON archie_language_entries (profile_id, kind);
 
 CREATE TABLE IF NOT EXISTS archie_language_evidence (
   id uuid PRIMARY KEY,
@@ -328,7 +328,7 @@ CREATE POLICY archie_language_evidence_service_all
   USING (true)
   WITH CHECK (true);
 
-CREATE INDEX archie_language_evidence_entry_idx ON archie_language_evidence (entry_id);
+CREATE INDEX IF NOT EXISTS archie_language_evidence_entry_idx ON archie_language_evidence (entry_id);
 
 -- ---------------------------------------------------------
 -- Evolution memory (§15)
@@ -375,4 +375,4 @@ CREATE POLICY archie_evolution_memory_service_all
   USING (true)
   WITH CHECK (true);
 
-CREATE INDEX archie_evolution_memory_created_idx ON archie_evolution_memory (created_at DESC);
+CREATE INDEX IF NOT EXISTS archie_evolution_memory_created_idx ON archie_evolution_memory (created_at DESC);

@@ -134,6 +134,7 @@ CREATE INDEX IF NOT EXISTS idx_project_rooms_sort_order ON public.project_rooms(
 ALTER TABLE public.project_rooms ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_rooms FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can CRUD own project rooms" ON public.project_rooms;
 CREATE POLICY "Users can CRUD own project rooms"
   ON public.project_rooms FOR ALL
   TO authenticated
@@ -173,6 +174,7 @@ CREATE INDEX IF NOT EXISTS idx_shopping_list_is_purchased ON public.project_shop
 ALTER TABLE public.project_shopping_list ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_shopping_list FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can CRUD own shopping lists" ON public.project_shopping_list;
 CREATE POLICY "Users can CRUD own shopping lists"
   ON public.project_shopping_list FOR ALL
   TO authenticated
@@ -208,6 +210,7 @@ CREATE INDEX IF NOT EXISTS idx_labour_plan_project_id ON public.project_labour_p
 ALTER TABLE public.project_labour_plan ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_labour_plan FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can CRUD own labour plans" ON public.project_labour_plan;
 CREATE POLICY "Users can CRUD own labour plans"
   ON public.project_labour_plan FOR ALL
   TO authenticated
@@ -277,6 +280,7 @@ CREATE INDEX IF NOT EXISTS idx_quotations_number ON public.project_quotations(qu
 ALTER TABLE public.project_quotations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_quotations FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can CRUD own quotations" ON public.project_quotations;
 CREATE POLICY "Users can CRUD own quotations"
   ON public.project_quotations FOR ALL
   TO authenticated
@@ -316,6 +320,7 @@ CREATE INDEX IF NOT EXISTS idx_timelines_sort_order ON public.project_timelines(
 ALTER TABLE public.project_timelines ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_timelines FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can CRUD own timelines" ON public.project_timelines;
 CREATE POLICY "Users can CRUD own timelines"
   ON public.project_timelines FOR ALL
   TO authenticated
@@ -349,6 +354,7 @@ CREATE INDEX IF NOT EXISTS idx_attachments_project_id ON public.project_attachme
 ALTER TABLE public.project_attachments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_attachments FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can CRUD own attachments" ON public.project_attachments;
 CREATE POLICY "Users can CRUD own attachments"
   ON public.project_attachments FOR ALL
   TO authenticated
@@ -380,6 +386,7 @@ CREATE INDEX IF NOT EXISTS idx_project_versions_created_at ON public.project_ver
 ALTER TABLE public.project_versions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_versions FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view own project versions" ON public.project_versions;
 CREATE POLICY "Users can view own project versions"
   ON public.project_versions FOR SELECT
   TO authenticated
@@ -387,6 +394,7 @@ CREATE POLICY "Users can view own project versions"
     project_id IN (SELECT id FROM public.contractor_projects WHERE user_id = auth.uid())
   );
 
+DROP POLICY IF EXISTS "Users can insert own project versions" ON public.project_versions;
 CREATE POLICY "Users can insert own project versions"
   ON public.project_versions FOR INSERT
   TO authenticated
@@ -454,11 +462,13 @@ CREATE INDEX IF NOT EXISTS idx_material_catalog_brand ON public.material_catalog
 ALTER TABLE public.material_catalog ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.material_catalog FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public can read active material catalog" ON public.material_catalog;
 CREATE POLICY "Public can read active material catalog"
   ON public.material_catalog FOR SELECT
   TO anon, authenticated
   USING (is_active = true);
 
+DROP POLICY IF EXISTS "Admins can CRUD material catalog" ON public.material_catalog;
 CREATE POLICY "Admins can CRUD material catalog"
   ON public.material_catalog FOR ALL
   TO authenticated
@@ -492,11 +502,13 @@ CREATE INDEX IF NOT EXISTS idx_timeline_templates_active ON public.timeline_temp
 ALTER TABLE public.timeline_templates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.timeline_templates FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public can read active timeline templates" ON public.timeline_templates;
 CREATE POLICY "Public can read active timeline templates"
   ON public.timeline_templates FOR SELECT
   TO anon, authenticated
   USING (is_active = true);
 
+DROP POLICY IF EXISTS "Admins can CRUD timeline templates" ON public.timeline_templates;
 CREATE POLICY "Admins can CRUD timeline templates"
   ON public.timeline_templates FOR ALL
   TO authenticated
@@ -541,11 +553,13 @@ CREATE TABLE IF NOT EXISTS public.quotation_settings (
 ALTER TABLE public.quotation_settings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.quotation_settings FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public can read quotation settings" ON public.quotation_settings;
 CREATE POLICY "Public can read quotation settings"
   ON public.quotation_settings FOR SELECT
   TO anon, authenticated
   USING (is_active = true);
 
+DROP POLICY IF EXISTS "Admins can CRUD quotation settings" ON public.quotation_settings;
 CREATE POLICY "Admins can CRUD quotation settings"
   ON public.quotation_settings FOR ALL
   TO authenticated
@@ -569,11 +583,13 @@ CREATE INDEX IF NOT EXISTS idx_weather_cache_expires ON public.weather_cache(exp
 ALTER TABLE public.weather_cache ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.weather_cache FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public can read weather cache" ON public.weather_cache;
 CREATE POLICY "Public can read weather cache"
   ON public.weather_cache FOR SELECT
   TO anon, authenticated
   USING (expires_at > now());
 
+DROP POLICY IF EXISTS "Anyone can insert weather cache" ON public.weather_cache;
 CREATE POLICY "Anyone can insert weather cache"
   ON public.weather_cache FOR INSERT
   TO anon, authenticated
@@ -594,14 +610,23 @@ END;
 $$;
 
 -- Reuse set_updated_at for all new tables
+DROP TRIGGER IF EXISTS contractor_projects_set_updated_at ON public.contractor_projects;
 CREATE TRIGGER contractor_projects_set_updated_at BEFORE UPDATE ON public.contractor_projects FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DROP TRIGGER IF EXISTS project_rooms_set_updated_at ON public.project_rooms;
 CREATE TRIGGER project_rooms_set_updated_at BEFORE UPDATE ON public.project_rooms FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DROP TRIGGER IF EXISTS project_shopping_list_set_updated_at ON public.project_shopping_list;
 CREATE TRIGGER project_shopping_list_set_updated_at BEFORE UPDATE ON public.project_shopping_list FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DROP TRIGGER IF EXISTS project_labour_plan_set_updated_at ON public.project_labour_plan;
 CREATE TRIGGER project_labour_plan_set_updated_at BEFORE UPDATE ON public.project_labour_plan FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DROP TRIGGER IF EXISTS project_quotations_set_updated_at ON public.project_quotations;
 CREATE TRIGGER project_quotations_set_updated_at BEFORE UPDATE ON public.project_quotations FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DROP TRIGGER IF EXISTS project_timelines_set_updated_at ON public.project_timelines;
 CREATE TRIGGER project_timelines_set_updated_at BEFORE UPDATE ON public.project_timelines FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DROP TRIGGER IF EXISTS material_catalog_set_updated_at ON public.material_catalog;
 CREATE TRIGGER material_catalog_set_updated_at BEFORE UPDATE ON public.material_catalog FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DROP TRIGGER IF EXISTS timeline_templates_set_updated_at ON public.timeline_templates;
 CREATE TRIGGER timeline_templates_set_updated_at BEFORE UPDATE ON public.timeline_templates FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+DROP TRIGGER IF EXISTS quotation_settings_set_updated_at ON public.quotation_settings;
 CREATE TRIGGER quotation_settings_set_updated_at BEFORE UPDATE ON public.quotation_settings FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
 
 -- ==========================================================
@@ -750,16 +775,19 @@ VALUES ('project-attachments', 'project-attachments', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Storage policies for project-attachments bucket
+DROP POLICY IF EXISTS "Authenticated users can upload project attachments" ON storage.objects;
 CREATE POLICY "Authenticated users can upload project attachments"
   ON storage.objects FOR INSERT
   TO authenticated
   WITH CHECK (bucket_id = 'project-attachments');
 
+DROP POLICY IF EXISTS "Public can read project attachments" ON storage.objects;
 CREATE POLICY "Public can read project attachments"
   ON storage.objects FOR SELECT
   TO anon, authenticated
   USING (bucket_id = 'project-attachments');
 
+DROP POLICY IF EXISTS "Users can delete own project attachments" ON storage.objects;
 CREATE POLICY "Users can delete own project attachments"
   ON storage.objects FOR DELETE
   TO authenticated

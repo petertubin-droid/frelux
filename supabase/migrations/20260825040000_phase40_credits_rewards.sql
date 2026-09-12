@@ -152,40 +152,49 @@ ALTER TABLE public.activity_streaks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.reward_settings ENABLE ROW LEVEL SECURITY;
 
 -- credit_wallets: users can READ own, cannot INSERT/UPDATE/DELETE
+DROP POLICY IF EXISTS "wallet_read_own" ON public.credit_wallets;
 CREATE POLICY "wallet_read_own" ON public.credit_wallets
   FOR SELECT USING (auth.uid() = user_id);
 -- No INSERT/UPDATE/DELETE policies — only service role can modify
 
 -- credit_transactions: users can READ own, cannot INSERT/UPDATE/DELETE
+DROP POLICY IF EXISTS "tx_read_own" ON public.credit_transactions;
 CREATE POLICY "tx_read_own" ON public.credit_transactions
   FOR SELECT USING (auth.uid() = user_id);
 
 -- reward_catalogue: everyone can read (it's the catalogue)
+DROP POLICY IF EXISTS "catalogue_read_all" ON public.reward_catalogue;
 CREATE POLICY "catalogue_read_all" ON public.reward_catalogue
   FOR SELECT USING (true);
 -- Admin can manage via service role (no RLS policy for writes — service role bypasses RLS)
 
 -- reward_redemptions: users can READ own, cannot INSERT (only edge function)
+DROP POLICY IF EXISTS "redemptions_read_own" ON public.reward_redemptions;
 CREATE POLICY "redemptions_read_own" ON public.reward_redemptions
   FOR SELECT USING (auth.uid() = user_id);
 
 -- reward_events: users can READ own (for transparency), cannot INSERT
+DROP POLICY IF EXISTS "reward_events_read_own" ON public.reward_events;
 CREATE POLICY "reward_events_read_own" ON public.reward_events
   FOR SELECT USING (auth.uid() = user_id);
 
 -- weekly_missions: everyone can read active missions
+DROP POLICY IF EXISTS "missions_read_all" ON public.weekly_missions;
 CREATE POLICY "missions_read_all" ON public.weekly_missions
   FOR SELECT USING (is_active = true);
 
 -- user_mission_progress: users can READ own
+DROP POLICY IF EXISTS "mission_progress_read_own" ON public.user_mission_progress;
 CREATE POLICY "mission_progress_read_own" ON public.user_mission_progress
   FOR SELECT USING (auth.uid() = user_id);
 
 -- activity_streaks: users can READ own
+DROP POLICY IF EXISTS "streaks_read_own" ON public.activity_streaks;
 CREATE POLICY "streaks_read_own" ON public.activity_streaks
   FOR SELECT USING (auth.uid() = user_id);
 
 -- reward_settings: everyone can read
+DROP POLICY IF EXISTS "reward_settings_read_all" ON public.reward_settings;
 CREATE POLICY "reward_settings_read_all" ON public.reward_settings
   FOR SELECT USING (true);
 

@@ -37,17 +37,23 @@ DROP POLICY IF EXISTS "read_screeding_mix_config" ON screeding_mix_config;
 CREATE POLICY "read_screeding_mix_config" ON screeding_mix_config
   FOR SELECT TO anon, authenticated USING (true);
 
-INSERT INTO screeding_mix_config (
-  paint_coverage_rate_m2_per_l, paint_bucket_size_l, paint_price_per_bucket,
-  cement_consumption_ratio_kg_per_l, cement_bag_size_kg, cement_price_per_bag,
-  default_mix_ratio, labour_rate_per_sqm, waste_percentage, tax_vat_percentage,
-  currency, currency_symbol, is_active
-) VALUES (
-  6, 20, 25000,
-  1.5, 40, 7500,
-  '2:1', 500, 10, 7.5,
-  'NGN', '₦', true
-);
+DO $mig$
+BEGIN
+  INSERT INTO screeding_mix_config (
+    paint_coverage_rate_m2_per_l, paint_bucket_size_l, paint_price_per_bucket,
+    cement_consumption_ratio_kg_per_l, cement_bag_size_kg, cement_price_per_bag,
+    default_mix_ratio, labour_rate_per_sqm, waste_percentage, tax_vat_percentage,
+    currency, currency_symbol, is_active
+  ) VALUES (
+    6, 20, 25000,
+    1.5, 40, 7500,
+    '2:1', 500, 10, 7.5,
+    'NGN', '₦', true
+  );
+EXCEPTION WHEN unique_violation THEN NULL;
+END
+$mig$;
+
 
 -- ─────────────────────────────────────────────────────────
 -- 2. Rewarded Access System
@@ -70,6 +76,7 @@ CREATE TABLE IF NOT EXISTS rewarded_tool_config (
 
 ALTER TABLE rewarded_tool_config ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "read_rewarded_tool_config" ON rewarded_tool_config;
 CREATE POLICY "read_rewarded_tool_config" ON rewarded_tool_config
   FOR SELECT TO anon, authenticated USING (true);
 
@@ -102,12 +109,14 @@ CREATE TABLE IF NOT EXISTS rewarded_unlock_log (
 ALTER TABLE rewarded_unlock_log ENABLE ROW LEVEL SECURITY;
 
 -- Users can read their own unlocks (by user_id or client_hash)
+DROP POLICY IF EXISTS "read_own_unlocks" ON rewarded_unlock_log;
 CREATE POLICY "read_own_unlocks" ON rewarded_unlock_log
   FOR SELECT TO anon, authenticated USING (
     auth.uid() = user_id OR client_hash = current_setting('request.headers', true)::json->>'x-client-hash'
   );
 
 -- Anyone can insert an unlock record (the ad-watch event creates it)
+DROP POLICY IF EXISTS "insert_unlock_log" ON rewarded_unlock_log;
 CREATE POLICY "insert_unlock_log" ON rewarded_unlock_log
   FOR INSERT TO anon, authenticated WITH CHECK (true);
 
@@ -129,6 +138,7 @@ CREATE TABLE IF NOT EXISTS rewarded_ad_events (
 
 ALTER TABLE rewarded_ad_events ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "insert_ad_events" ON rewarded_ad_events;
 CREATE POLICY "insert_ad_events" ON rewarded_ad_events
   FOR INSERT TO anon, authenticated WITH CHECK (true);
 
@@ -154,19 +164,23 @@ CREATE TABLE IF NOT EXISTS advanced_estimates (
 ALTER TABLE advanced_estimates ENABLE ROW LEVEL SECURITY;
 
 -- Users can CRUD their own estimates
+DROP POLICY IF EXISTS "select_own_estimates" ON advanced_estimates;
 CREATE POLICY "select_own_estimates" ON advanced_estimates
   FOR SELECT TO anon, authenticated USING (
     auth.uid() = user_id OR client_hash = current_setting('request.headers', true)::json->>'x-client-hash'
   );
 
+DROP POLICY IF EXISTS "insert_own_estimates" ON advanced_estimates;
 CREATE POLICY "insert_own_estimates" ON advanced_estimates
   FOR INSERT TO anon, authenticated WITH CHECK (true);
 
+DROP POLICY IF EXISTS "update_own_estimates" ON advanced_estimates;
 CREATE POLICY "update_own_estimates" ON advanced_estimates
   FOR UPDATE TO anon, authenticated USING (
     auth.uid() = user_id OR client_hash = current_setting('request.headers', true)::json->>'x-client-hash'
   );
 
+DROP POLICY IF EXISTS "delete_own_estimates" ON advanced_estimates;
 CREATE POLICY "delete_own_estimates" ON advanced_estimates
   FOR DELETE TO anon, authenticated USING (
     auth.uid() = user_id OR client_hash = current_setting('request.headers', true)::json->>'x-client-hash'

@@ -38,22 +38,26 @@ ALTER TABLE public.project_predictive_analyses ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_predictive_analyses FORCE ROW LEVEL SECURITY;
 
 -- Owner-only: users see and manage only their own projects' analyses.
+DROP POLICY IF EXISTS "predictive_analysis_owner_select" ON public.project_predictive_analyses;
 CREATE POLICY "predictive_analysis_owner_select"
   ON public.project_predictive_analyses FOR SELECT
   TO authenticated
   USING (user_id = auth.uid());
 
+DROP POLICY IF EXISTS "predictive_analysis_owner_insert" ON public.project_predictive_analyses;
 CREATE POLICY "predictive_analysis_owner_insert"
   ON public.project_predictive_analyses FOR INSERT
   TO authenticated
   WITH CHECK (user_id = auth.uid());
 
+DROP POLICY IF EXISTS "predictive_analysis_owner_update" ON public.project_predictive_analyses;
 CREATE POLICY "predictive_analysis_owner_update"
   ON public.project_predictive_analyses FOR UPDATE
   TO authenticated
   USING (user_id = auth.uid())
   WITH CHECK (user_id = auth.uid());
 
+DROP POLICY IF EXISTS "predictive_analysis_owner_delete" ON public.project_predictive_analyses;
 CREATE POLICY "predictive_analysis_owner_delete"
   ON public.project_predictive_analyses FOR DELETE
   TO authenticated

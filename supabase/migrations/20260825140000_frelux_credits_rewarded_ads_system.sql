@@ -100,18 +100,22 @@ ALTER TABLE public.rewarded_ad_credit_events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.ai_feature_usage ENABLE ROW LEVEL SECURITY;
 
 -- ai_feature_costs: public read (frontend needs costs), admin-only writes
+DROP POLICY IF EXISTS "ai_feature_costs_read_all" ON public.ai_feature_costs;
 CREATE POLICY "ai_feature_costs_read_all" ON public.ai_feature_costs
   FOR SELECT TO anon, authenticated USING (true);
 
 -- rewarded_ad_credit_config: public read, admin-only writes
+DROP POLICY IF EXISTS "rewarded_ad_credit_config_read_all" ON public.rewarded_ad_credit_config;
 CREATE POLICY "rewarded_ad_credit_config_read_all" ON public.rewarded_ad_credit_config
   FOR SELECT TO anon, authenticated USING (true);
 
 -- rewarded_ad_credit_events: users read own only
+DROP POLICY IF EXISTS "rewarded_ad_credit_events_read_own" ON public.rewarded_ad_credit_events;
 CREATE POLICY "rewarded_ad_credit_events_read_own" ON public.rewarded_ad_credit_events
   FOR SELECT TO authenticated USING (auth.uid() = user_id);
 
 -- ai_feature_usage: users read own only
+DROP POLICY IF EXISTS "ai_feature_usage_read_own" ON public.ai_feature_usage;
 CREATE POLICY "ai_feature_usage_read_own" ON public.ai_feature_usage
   FOR SELECT TO authenticated USING (auth.uid() = user_id);
 
@@ -482,11 +486,13 @@ GRANT SELECT ON public.ai_feature_usage TO authenticated;
 
 -- Admin-only writes via service role (RLS bypasses for writes)
 -- Admins get full access via is_admin() — add admin write policies
+DROP POLICY IF EXISTS "ai_feature_costs_admin_write" ON public.ai_feature_costs;
 CREATE POLICY "ai_feature_costs_admin_write" ON public.ai_feature_costs
   FOR ALL TO authenticated
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 
+DROP POLICY IF EXISTS "rewarded_ad_credit_config_admin_write" ON public.rewarded_ad_credit_config;
 CREATE POLICY "rewarded_ad_credit_config_admin_write" ON public.rewarded_ad_credit_config
   FOR ALL TO authenticated
   USING (public.is_admin())

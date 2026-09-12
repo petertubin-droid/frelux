@@ -52,6 +52,7 @@ CREATE POLICY "Anyone can insert error logs"
   TO anon, authenticated
   WITH CHECK (true);
 
+DROP POLICY IF EXISTS "Users can view own error logs" ON public.error_logs;
 CREATE POLICY "Users can view own error logs"
   ON public.error_logs FOR SELECT
   TO authenticated
@@ -60,6 +61,7 @@ CREATE POLICY "Users can view own error logs"
     OR EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
   );
 
+DROP POLICY IF EXISTS "Admins can update error logs" ON public.error_logs;
 CREATE POLICY "Admins can update error logs"
   ON public.error_logs FOR UPDATE
   TO authenticated
@@ -70,6 +72,7 @@ CREATE POLICY "Admins can update error logs"
     EXISTS (SELECT 1 FROM public.profiles WHERE id = auth.uid() AND role = 'admin')
   );
 
+DROP POLICY IF EXISTS "Admins can delete error logs" ON public.error_logs;
 CREATE POLICY "Admins can delete error logs"
   ON public.error_logs FOR DELETE
   TO authenticated
@@ -93,6 +96,7 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS trg_set_error_log_user_id ON public.error_logs;
 CREATE TRIGGER trg_set_error_log_user_id
   BEFORE INSERT ON public.error_logs
   FOR EACH ROW
@@ -122,6 +126,7 @@ BEGIN
 END;
 $$;
 
+DROP TRIGGER IF EXISTS trg_classify_error_severity ON public.error_logs;
 CREATE TRIGGER trg_classify_error_severity
   BEFORE INSERT ON public.error_logs
   FOR EACH ROW

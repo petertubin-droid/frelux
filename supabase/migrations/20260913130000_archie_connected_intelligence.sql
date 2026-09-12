@@ -341,24 +341,30 @@ INSERT INTO public.frelux_archie_core_principles (
 -- ---------------------------------------------------------
 -- 7. AUDIT — the anatomy change itself is recorded
 -- ---------------------------------------------------------
-INSERT INTO public.frelux_archie_audit_events (
-  owner_id, event_type, severity, detail
-)
-SELECT
-  p.id,
-  'archie.anatomy.subsystem.added',
-  'INFO',
-  jsonb_build_object(
-    'subsystem', 'connective-tissue',
-    'name', 'Connected Device & Household Intelligence',
-    'principles', jsonb_build_array(
-      'connected_device_authority',
-      'learning_authority',
-      'code_production_authority'
-    ),
-    'note',
-      'Connected Device, Household & Account Intelligence layer added per owner directive: real transports only (bluetooth/wifi/hotspot/usb/local-network/internet/api), explicit pairing lifecycle, permission/scope gating, full audit history, family non-inheritance, no fake integrations.'
+DO $mig$
+BEGIN
+  INSERT INTO public.frelux_archie_audit_events (
+    owner_id, event_type, severity, detail
   )
-FROM public.profiles p
-WHERE p.role = 'admin'
-LIMIT 1;
+  SELECT
+    p.id,
+    'archie.anatomy.subsystem.added',
+    'INFO',
+    jsonb_build_object(
+      'subsystem', 'connective-tissue',
+      'name', 'Connected Device & Household Intelligence',
+      'principles', jsonb_build_array(
+        'connected_device_authority',
+        'learning_authority',
+        'code_production_authority'
+      ),
+      'note',
+        'Connected Device, Household & Account Intelligence layer added per owner directive: real transports only (bluetooth/wifi/hotspot/usb/local-network/internet/api), explicit pairing lifecycle, permission/scope gating, full audit history, family non-inheritance, no fake integrations.'
+    )
+  FROM public.profiles p
+  WHERE p.role = 'admin'
+  LIMIT 1;
+EXCEPTION WHEN unique_violation THEN NULL;
+END
+$mig$;
+

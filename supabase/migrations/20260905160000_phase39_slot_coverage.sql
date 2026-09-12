@@ -27,30 +27,36 @@
 -- =========================================================
 
 -- 1. New placements ---------------------------------------------------
-INSERT INTO public.ad_placements (
-  placement_key, placement_name, placement_type, page_target,
-  is_active, provider_ids, ad_unit_ids, display_rules
-)
-SELECT
-  v.key, v.name, v.ptype, v.page_target,
-  true,
-  jsonb_build_array(
-    '06f616f0-b932-4e48-ad64-73589b656ada', -- google_adsense
-    'c4373ff9-4b5f-4c45-9974-23d43e21b8cb', -- adsterra
-    '545bacb5-ab9c-4301-9a60-a5361e360f8a'  -- monetag
-  ),
-  '{}'::jsonb,
-  '{"mobile": true, "desktop": true, "min_height": 100, "refresh_seconds": 0}'::jsonb
-FROM (VALUES
-  ('home_top', 'Home Top', 'banner', 'home'),
-  ('learn_article_top', 'Learn Article Top', 'in_article', 'learn'),
-  ('calculator_mid', 'Calculator Mid', 'banner', 'calculator'),
-  ('estimator_mid', 'Build-to-Roof Estimator Mid', 'banner', 'calculator'),
-  ('calculator_hub_mid', 'Calculator Hub Mid', 'banner', 'calculator')
-) AS v(key, name, ptype, page_target)
-WHERE NOT EXISTS (
-  SELECT 1 FROM public.ad_placements p WHERE p.placement_key = v.key
-);
+DO $mig$
+BEGIN
+  INSERT INTO public.ad_placements (
+    placement_key, placement_name, placement_type, page_target,
+    is_active, provider_ids, ad_unit_ids, display_rules
+  )
+  SELECT
+    v.key, v.name, v.ptype, v.page_target,
+    true,
+    jsonb_build_array(
+      '06f616f0-b932-4e48-ad64-73589b656ada', -- google_adsense
+      'c4373ff9-4b5f-4c45-9974-23d43e21b8cb', -- adsterra
+      '545bacb5-ab9c-4301-9a60-a5361e360f8a'  -- monetag
+    ),
+    '{}'::jsonb,
+    '{"mobile": true, "desktop": true, "min_height": 100, "refresh_seconds": 0}'::jsonb
+  FROM (VALUES
+    ('home_top', 'Home Top', 'banner', 'home'),
+    ('learn_article_top', 'Learn Article Top', 'in_article', 'learn'),
+    ('calculator_mid', 'Calculator Mid', 'banner', 'calculator'),
+    ('estimator_mid', 'Build-to-Roof Estimator Mid', 'banner', 'calculator'),
+    ('calculator_hub_mid', 'Calculator Hub Mid', 'banner', 'calculator')
+  ) AS v(key, name, ptype, page_target)
+  WHERE NOT EXISTS (
+    SELECT 1 FROM public.ad_placements p WHERE p.placement_key = v.key
+  );
+EXCEPTION WHEN unique_violation THEN NULL;
+END
+$mig$;
+
 
 -- 2. Wire every non-rewarded placement to the full provider chain -----
 UPDATE public.ad_placements

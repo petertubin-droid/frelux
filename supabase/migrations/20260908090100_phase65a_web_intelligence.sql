@@ -32,6 +32,10 @@
 -- 1. Extend the learning lifecycle (additive CHECK swap)
 ALTER TABLE public.frelux_learning_records DROP CONSTRAINT
   frelux_learning_records_lifecycle_status_check;
+DO $mig$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'frelux_learning_records_lifecycle_status_check'
+                 AND conrelid = public.frelux_learning_records::regclass) THEN
 ALTER TABLE public.frelux_learning_records ADD CONSTRAINT
   frelux_learning_records_lifecycle_status_check CHECK (
     lifecycle_status IN (
@@ -40,12 +44,24 @@ ALTER TABLE public.frelux_learning_records ADD CONSTRAINT
       'APPROVED', 'REJECTED', 'DEFERRED'
     )
   );
+  END IF;
+END
+$mig$;
+
 ALTER TABLE public.frelux_learning_records DROP CONSTRAINT IF EXISTS
   frelux_learning_records_source_check;
+DO $mig$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'frelux_learning_records_source_check'
+                 AND conrelid = public.frelux_learning_records::regclass) THEN
 ALTER TABLE public.frelux_learning_records ADD CONSTRAINT
   frelux_learning_records_source_check CHECK (
     source IN ('ARCHIE','GEMINI','OPENAI','USER','OUTCOME','SYSTEM','WEB')
   );
+  END IF;
+END
+$mig$;
+
 
 -- 2. Intelligence source registry (Admin-only)
 CREATE TABLE IF NOT EXISTS public.frelux_intelligence_sources (

@@ -53,9 +53,17 @@ ALTER TABLE pro_profiles
   ADD COLUMN IF NOT EXISTS phone_number text;
 
 -- Update CHECK constraint to include new statuses
+DO $mig$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'pro_profiles_verification_status_check'
+                 AND conrelid = pro_profiles::regclass) THEN
 ALTER TABLE pro_profiles
   ADD CONSTRAINT pro_profiles_verification_status_check
   CHECK (verification_status IN ('unverified', 'pending', 'verified', 'rejected', 'more_info', 'suspended'));
+  END IF;
+END
+$mig$;
+
 
 -- =========================================================
 -- 3. PRO_VERIFICATION_REQUESTS — verification workflow
@@ -93,18 +101,21 @@ CREATE INDEX IF NOT EXISTS idx_pro_verification_requests_type ON pro_verificatio
 ALTER TABLE pro_verification_requests ENABLE ROW LEVEL SECURITY;
 
 -- Owner can read their own verification requests
+DROP POLICY IF EXISTS "read_own_verification_requests" ON pro_verification_requests;
 CREATE POLICY "read_own_verification_requests"
   ON pro_verification_requests FOR SELECT
   TO authenticated
   USING (EXISTS (SELECT 1 FROM pro_profiles WHERE id = pro_verification_requests.profile_id AND user_id = auth.uid()));
 
 -- Owner can create verification requests for their own profile
+DROP POLICY IF EXISTS "create_own_verification_request" ON pro_verification_requests;
 CREATE POLICY "create_own_verification_request"
   ON pro_verification_requests FOR INSERT
   TO authenticated
   WITH CHECK (EXISTS (SELECT 1 FROM pro_profiles WHERE id = pro_verification_requests.profile_id AND user_id = auth.uid()));
 
 -- Owner can update (withdraw) their own pending requests
+DROP POLICY IF EXISTS "update_own_verification_request" ON pro_verification_requests;
 CREATE POLICY "update_own_verification_request"
   ON pro_verification_requests FOR UPDATE
   TO authenticated
@@ -112,6 +123,7 @@ CREATE POLICY "update_own_verification_request"
   WITH CHECK (EXISTS (SELECT 1 FROM pro_profiles WHERE id = pro_verification_requests.profile_id AND user_id = auth.uid()));
 
 -- Admin can manage all verification requests
+DROP POLICY IF EXISTS "admin_manage_verification_requests" ON pro_verification_requests;
 CREATE POLICY "admin_manage_verification_requests"
   ON pro_verification_requests FOR ALL
   TO authenticated
@@ -119,6 +131,7 @@ CREATE POLICY "admin_manage_verification_requests"
   WITH CHECK (public.is_admin());
 
 -- Trigger for updated_at
+DROP TRIGGER IF EXISTS trg_pro_verification_requests_updated ON pro_verification_requests;
 CREATE TRIGGER trg_pro_verification_requests_updated
   BEFORE UPDATE ON pro_verification_requests
   FOR EACH ROW EXECUTE FUNCTION update_pro_table_updated_at();
@@ -152,30 +165,35 @@ CREATE INDEX IF NOT EXISTS idx_pro_verification_documents_request ON pro_verific
 ALTER TABLE pro_verification_documents ENABLE ROW LEVEL SECURITY;
 
 -- Only the profile owner can read their own documents
+DROP POLICY IF EXISTS "read_own_verification_documents" ON pro_verification_documents;
 CREATE POLICY "read_own_verification_documents"
   ON pro_verification_documents FOR SELECT
   TO authenticated
   USING (EXISTS (SELECT 1 FROM pro_profiles WHERE id = pro_verification_documents.profile_id AND user_id = auth.uid()));
 
 -- Only the profile owner can upload documents for their own profile
+DROP POLICY IF EXISTS "create_own_verification_documents" ON pro_verification_documents;
 CREATE POLICY "create_own_verification_documents"
   ON pro_verification_documents FOR INSERT
   TO authenticated
   WITH CHECK (EXISTS (SELECT 1 FROM pro_profiles WHERE id = pro_verification_documents.profile_id AND user_id = auth.uid()));
 
 -- Only the profile owner can delete their own documents
+DROP POLICY IF EXISTS "delete_own_verification_documents" ON pro_verification_documents;
 CREATE POLICY "delete_own_verification_documents"
   ON pro_verification_documents FOR DELETE
   TO authenticated
   USING (EXISTS (SELECT 1 FROM pro_profiles WHERE id = pro_verification_documents.profile_id AND user_id = auth.uid()));
 
 -- Admin can read all verification documents (for review)
+DROP POLICY IF EXISTS "admin_read_verification_documents" ON pro_verification_documents;
 CREATE POLICY "admin_read_verification_documents"
   ON pro_verification_documents FOR SELECT
   TO authenticated
   USING (public.is_admin());
 
 -- Admin can delete verification documents (after review)
+DROP POLICY IF EXISTS "admin_delete_verification_documents" ON pro_verification_documents;
 CREATE POLICY "admin_delete_verification_documents"
   ON pro_verification_documents FOR DELETE
   TO authenticated
@@ -209,18 +227,21 @@ ALTER TABLE pro_credentials ENABLE ROW LEVEL SECURITY;
 -- Public can read that a credential exists and its verification status
 -- but NOT the registration_number or document_path
 -- This is handled via a view below
+DROP POLICY IF EXISTS "read_own_credentials" ON pro_credentials;
 CREATE POLICY "read_own_credentials"
   ON pro_credentials FOR SELECT
   TO authenticated
   USING (EXISTS (SELECT 1 FROM pro_profiles WHERE id = pro_credentials.profile_id AND user_id = auth.uid()));
 
 -- Owner can create credentials for their own profile
+DROP POLICY IF EXISTS "create_own_credentials" ON pro_credentials;
 CREATE POLICY "create_own_credentials"
   ON pro_credentials FOR INSERT
   TO authenticated
   WITH CHECK (EXISTS (SELECT 1 FROM pro_profiles WHERE id = pro_credentials.profile_id AND user_id = auth.uid()));
 
 -- Owner can update their own credentials (but not verification_status)
+DROP POLICY IF EXISTS "update_own_credentials" ON pro_credentials;
 CREATE POLICY "update_own_credentials"
   ON pro_credentials FOR UPDATE
   TO authenticated
@@ -228,12 +249,14 @@ CREATE POLICY "update_own_credentials"
   WITH CHECK (EXISTS (SELECT 1 FROM pro_profiles WHERE id = pro_credentials.profile_id AND user_id = auth.uid()));
 
 -- Admin can manage all credentials
+DROP POLICY IF EXISTS "admin_manage_credentials" ON pro_credentials;
 CREATE POLICY "admin_manage_credentials"
   ON pro_credentials FOR ALL
   TO authenticated
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 
+DROP TRIGGER IF EXISTS trg_pro_credentials_updated ON pro_credentials;
 CREATE TRIGGER trg_pro_credentials_updated
   BEFORE UPDATE ON pro_credentials
   FOR EACH ROW EXECUTE FUNCTION update_pro_table_updated_at();
@@ -290,18 +313,21 @@ INSERT INTO pro_settings (id) VALUES (1) ON CONFLICT (id) DO NOTHING;
 ALTER TABLE pro_settings ENABLE ROW LEVEL SECURITY;
 
 -- Public can read settings (badge descriptions, etc.)
+DROP POLICY IF EXISTS "read_pro_settings" ON pro_settings;
 CREATE POLICY "read_pro_settings"
   ON pro_settings FOR SELECT
   TO anon, authenticated
   USING (true);
 
 -- Admin can update settings
+DROP POLICY IF EXISTS "admin_update_pro_settings" ON pro_settings;
 CREATE POLICY "admin_update_pro_settings"
   ON pro_settings FOR ALL
   TO authenticated
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 
+DROP TRIGGER IF EXISTS trg_pro_settings_updated ON pro_settings;
 CREATE TRIGGER trg_pro_settings_updated
   BEFORE UPDATE ON pro_settings
   FOR EACH ROW EXECUTE FUNCTION update_pro_table_updated_at();
@@ -323,24 +349,28 @@ ON CONFLICT (id) DO NOTHING;
 
 -- Storage policies for pro-verification bucket (PRIVATE)
 -- Only owner can read their own verification documents
+DROP POLICY IF EXISTS "read_own_verification_storage" ON storage.objects;
 CREATE POLICY "read_own_verification_storage"
   ON storage.objects FOR SELECT
   TO authenticated
   USING (bucket_id = 'pro-verification' AND owner = auth.uid());
 
 -- Only authenticated users can upload (for their own profile)
+DROP POLICY IF EXISTS "upload_verification_storage" ON storage.objects;
 CREATE POLICY "upload_verification_storage"
   ON storage.objects FOR INSERT
   TO authenticated
   WITH CHECK (bucket_id = 'pro-verification');
 
 -- Only owner can delete their own verification documents
+DROP POLICY IF EXISTS "delete_own_verification_storage" ON storage.objects;
 CREATE POLICY "delete_own_verification_storage"
   ON storage.objects FOR DELETE
   TO authenticated
   USING (bucket_id = 'pro-verification' AND owner = auth.uid());
 
 -- Admin can read all verification documents
+DROP POLICY IF EXISTS "admin_read_verification_storage" ON storage.objects;
 CREATE POLICY "admin_read_verification_storage"
   ON storage.objects FOR SELECT
   TO authenticated

@@ -21,53 +21,59 @@ ALTER TABLE public.ad_placements
   ADD COLUMN IF NOT EXISTS sort_order integer NOT NULL DEFAULT 999;
 
 -- 2. New placements ---------------------------------------------------
-INSERT INTO public.ad_placements (
-  placement_key, placement_name, placement_type, page_target,
-  is_active, provider_ids, ad_unit_ids, display_rules, sort_order
-)
-SELECT
-  v.key, v.name, v.ptype, v.ptarget,
-  true,
-  jsonb_build_array(
-    '06f616f0-b932-4e48-ad64-73589b656ada', -- google_adsense
-    'c4373ff9-4b5f-4c45-9974-23d43e21b8cb', -- adsterra
-    '545bacb5-ab9c-4301-9a60-a5361e360f8a'  -- monetag
-  ),
-  '{}'::jsonb,
-  '{"mobile": true, "desktop": true, "min_height": 100, "refresh_seconds": 0}'::jsonb,
-  v.sord
-FROM (VALUES
-  -- Homepage → 5 banner + 3 native
-  ('home_mid_2',     'Home Mid 2',        'banner', 'home',   60),
-  ('home_native_2',  'Home Native 2',     'native', 'home',   50),
-  ('home_native_3',  'Home Native 3',     'native', 'home',   80),
-  -- Learn articles → 4 banner + 3 native
-  ('learn_article_mid_2',   'Article Mid 2',   'in_article', 'learn', 120),
-  ('learn_article_native_2','Article Native 2','native',     'learn', 110),
-  ('learn_article_native_3','Article Native 3','native',      'learn', 130),
-  -- Learn index + category (other pages → 2 banner + 1 native)
-  ('learn_native',        'Learn Index Native', 'native', 'learn', 210),
-  ('learn_category_mid',  'Category Mid',      'banner', 'learn', 205),
-  ('learn_category_native','Category Native',   'native', 'learn', 215),
-  -- Calculator pages → 2 banner + 1 native
-  ('calculator_native',    'Calculator Native',     'native', 'calculator', 310),
-  ('estimator_native',     'Estimator Native',      'native', 'calculator', 410),
-  ('calculator_hub_native','Calculator Hub Native', 'native', 'calculator', 510),
-  ('calculators_mid',      'Calculators Index Mid', 'banner', 'calculator', 610),
-  -- Color gallery + detail (other pages → 2 banner + 1 native)
-  ('gallery_native',       'Color Gallery Native', 'native', 'gallery', 710),
-  ('color_detail_native',   'Color Detail Native',  'native', 'color_detail', 810),
-  -- AI feature pages (other pages → 2 banner + 1 native)
-  ('ai_assistant_native',   'AI Assistant Native',  'native', 'ai', 910),
-  ('image_estimator_native','Image Estimator Native','native','ai', 1010),
-  ('image_estimator_bottom','Image Estimator Bottom','banner','ai', 1020),
-  -- Marketplace pages (other pages → 2 banner + 1 native)
-  ('marketplace_native', 'Marketplace Native', 'native', 'marketplace', 1110),
-  ('marketplace_bottom', 'Marketplace Bottom', 'banner', 'marketplace', 1120)
-) AS v(key, name, ptype, ptarget, sord)
-WHERE NOT EXISTS (
-  SELECT 1 FROM public.ad_placements p WHERE p.placement_key = v.key
-);
+DO $mig$
+BEGIN
+  INSERT INTO public.ad_placements (
+    placement_key, placement_name, placement_type, page_target,
+    is_active, provider_ids, ad_unit_ids, display_rules, sort_order
+  )
+  SELECT
+    v.key, v.name, v.ptype, v.ptarget,
+    true,
+    jsonb_build_array(
+      '06f616f0-b932-4e48-ad64-73589b656ada', -- google_adsense
+      'c4373ff9-4b5f-4c45-9974-23d43e21b8cb', -- adsterra
+      '545bacb5-ab9c-4301-9a60-a5361e360f8a'  -- monetag
+    ),
+    '{}'::jsonb,
+    '{"mobile": true, "desktop": true, "min_height": 100, "refresh_seconds": 0}'::jsonb,
+    v.sord
+  FROM (VALUES
+    -- Homepage → 5 banner + 3 native
+    ('home_mid_2',     'Home Mid 2',        'banner', 'home',   60),
+    ('home_native_2',  'Home Native 2',     'native', 'home',   50),
+    ('home_native_3',  'Home Native 3',     'native', 'home',   80),
+    -- Learn articles → 4 banner + 3 native
+    ('learn_article_mid_2',   'Article Mid 2',   'in_article', 'learn', 120),
+    ('learn_article_native_2','Article Native 2','native',     'learn', 110),
+    ('learn_article_native_3','Article Native 3','native',      'learn', 130),
+    -- Learn index + category (other pages → 2 banner + 1 native)
+    ('learn_native',        'Learn Index Native', 'native', 'learn', 210),
+    ('learn_category_mid',  'Category Mid',      'banner', 'learn', 205),
+    ('learn_category_native','Category Native',   'native', 'learn', 215),
+    -- Calculator pages → 2 banner + 1 native
+    ('calculator_native',    'Calculator Native',     'native', 'calculator', 310),
+    ('estimator_native',     'Estimator Native',      'native', 'calculator', 410),
+    ('calculator_hub_native','Calculator Hub Native', 'native', 'calculator', 510),
+    ('calculators_mid',      'Calculators Index Mid', 'banner', 'calculator', 610),
+    -- Color gallery + detail (other pages → 2 banner + 1 native)
+    ('gallery_native',       'Color Gallery Native', 'native', 'gallery', 710),
+    ('color_detail_native',   'Color Detail Native',  'native', 'color_detail', 810),
+    -- AI feature pages (other pages → 2 banner + 1 native)
+    ('ai_assistant_native',   'AI Assistant Native',  'native', 'ai', 910),
+    ('image_estimator_native','Image Estimator Native','native','ai', 1010),
+    ('image_estimator_bottom','Image Estimator Bottom','banner','ai', 1020),
+    -- Marketplace pages (other pages → 2 banner + 1 native)
+    ('marketplace_native', 'Marketplace Native', 'native', 'marketplace', 1110),
+    ('marketplace_bottom', 'Marketplace Bottom', 'banner', 'marketplace', 1120)
+  ) AS v(key, name, ptype, ptarget, sord)
+  WHERE NOT EXISTS (
+    SELECT 1 FROM public.ad_placements p WHERE p.placement_key = v.key
+  );
+EXCEPTION WHEN unique_violation THEN NULL;
+END
+$mig$;
+
 
 -- 3. sort_order for every placement (matches Admin Page Map order) -----
 UPDATE public.ad_placements p

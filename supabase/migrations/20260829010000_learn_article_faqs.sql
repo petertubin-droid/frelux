@@ -14,10 +14,12 @@ CREATE INDEX IF NOT EXISTS idx_learn_article_faqs_article_id ON learn_article_fa
 
 ALTER TABLE learn_article_faqs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public can read active article FAQs" ON learn_article_faqs;
 CREATE POLICY "Public can read active article FAQs"
   ON learn_article_faqs FOR SELECT
   USING (is_active = true);
 
+DROP POLICY IF EXISTS "Admins can manage article FAQs" ON learn_article_faqs;
 CREATE POLICY "Admins can manage article FAQs"
   ON learn_article_faqs FOR ALL
   USING (

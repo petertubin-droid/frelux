@@ -35,9 +35,13 @@ CREATE INDEX IF NOT EXISTS idx_fav_user ON marketplace_favorites(user_id, create
 CREATE INDEX IF NOT EXISTS idx_fav_type ON marketplace_favorites(item_type);
 
 ALTER TABLE marketplace_favorites ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "fav_owner_read" ON marketplace_favorites;
 CREATE POLICY "fav_owner_read" ON marketplace_favorites FOR SELECT TO authenticated USING (user_id = auth.uid());
+DROP POLICY IF EXISTS "fav_owner_insert" ON marketplace_favorites;
 CREATE POLICY "fav_owner_insert" ON marketplace_favorites FOR INSERT TO authenticated WITH CHECK (user_id = auth.uid());
+DROP POLICY IF EXISTS "fav_owner_delete" ON marketplace_favorites;
 CREATE POLICY "fav_owner_delete" ON marketplace_favorites FOR DELETE TO authenticated USING (user_id = auth.uid());
+DROP POLICY IF EXISTS "fav_admin_all" ON marketplace_favorites;
 CREATE POLICY "fav_admin_all" ON marketplace_favorites FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- =========================================================
@@ -72,15 +76,21 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_unique_pro ON marketplace_reviews(
 CREATE UNIQUE INDEX IF NOT EXISTS idx_reviews_unique_listing ON marketplace_reviews(reviewer_id, listing_id) WHERE listing_id IS NOT NULL;
 
 ALTER TABLE marketplace_reviews ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "reviews_public_read" ON marketplace_reviews;
 CREATE POLICY "reviews_public_read" ON marketplace_reviews FOR SELECT USING (status = 'published');
+DROP POLICY IF EXISTS "reviews_owner_read" ON marketplace_reviews;
 CREATE POLICY "reviews_owner_read" ON marketplace_reviews FOR SELECT TO authenticated USING (reviewer_id = auth.uid());
+DROP POLICY IF EXISTS "reviews_create" ON marketplace_reviews;
 CREATE POLICY "reviews_create" ON marketplace_reviews FOR INSERT TO authenticated WITH CHECK (
   reviewer_id = auth.uid()
   AND seller_id IS DISTINCT FROM auth.uid()
   AND pro_profile_id NOT IN (SELECT id FROM pro_profiles WHERE user_id = auth.uid())
 );
+DROP POLICY IF EXISTS "reviews_owner_update" ON marketplace_reviews;
 CREATE POLICY "reviews_owner_update" ON marketplace_reviews FOR UPDATE TO authenticated USING (reviewer_id = auth.uid()) WITH CHECK (reviewer_id = auth.uid());
+DROP POLICY IF EXISTS "reviews_owner_delete" ON marketplace_reviews;
 CREATE POLICY "reviews_owner_delete" ON marketplace_reviews FOR DELETE TO authenticated USING (reviewer_id = auth.uid());
+DROP POLICY IF EXISTS "reviews_admin_all" ON marketplace_reviews;
 CREATE POLICY "reviews_admin_all" ON marketplace_reviews FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- =========================================================
@@ -114,9 +124,13 @@ CREATE INDEX IF NOT EXISTS idx_reports_product ON marketplace_reports(product_id
 CREATE INDEX IF NOT EXISTS idx_reports_listing ON marketplace_reports(listing_id) WHERE listing_id IS NOT NULL;
 
 ALTER TABLE marketplace_reports ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "reports_owner_read" ON marketplace_reports;
 CREATE POLICY "reports_owner_read" ON marketplace_reports FOR SELECT TO authenticated USING (reporter_id = auth.uid());
+DROP POLICY IF EXISTS "reports_create" ON marketplace_reports;
 CREATE POLICY "reports_create" ON marketplace_reports FOR INSERT TO authenticated WITH CHECK (reporter_id = auth.uid());
+DROP POLICY IF EXISTS "reports_owner_delete" ON marketplace_reports;
 CREATE POLICY "reports_owner_delete" ON marketplace_reports FOR DELETE TO authenticated USING (reporter_id = auth.uid());
+DROP POLICY IF EXISTS "reports_admin_all" ON marketplace_reports;
 CREATE POLICY "reports_admin_all" ON marketplace_reports FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- =========================================================
@@ -161,10 +175,15 @@ CREATE INDEX IF NOT EXISTS idx_seller_type ON marketplace_seller_profiles(seller
 CREATE INDEX IF NOT EXISTS idx_seller_verification ON marketplace_seller_profiles(verification_status);
 
 ALTER TABLE marketplace_seller_profiles ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "seller_public_read" ON marketplace_seller_profiles;
 CREATE POLICY "seller_public_read" ON marketplace_seller_profiles FOR SELECT USING (is_active AND NOT is_suspended);
+DROP POLICY IF EXISTS "seller_owner_read" ON marketplace_seller_profiles;
 CREATE POLICY "seller_owner_read" ON marketplace_seller_profiles FOR SELECT TO authenticated USING (user_id = auth.uid());
+DROP POLICY IF EXISTS "seller_owner_insert" ON marketplace_seller_profiles;
 CREATE POLICY "seller_owner_insert" ON marketplace_seller_profiles FOR INSERT TO authenticated WITH CHECK (user_id = auth.uid());
+DROP POLICY IF EXISTS "seller_owner_update" ON marketplace_seller_profiles;
 CREATE POLICY "seller_owner_update" ON marketplace_seller_profiles FOR UPDATE TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+DROP POLICY IF EXISTS "seller_admin_all" ON marketplace_seller_profiles;
 CREATE POLICY "seller_admin_all" ON marketplace_seller_profiles FOR ALL TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
 
 -- =========================================================
@@ -185,7 +204,9 @@ CREATE INDEX IF NOT EXISTS idx_search_logs_created ON marketplace_search_logs(cr
 CREATE INDEX IF NOT EXISTS idx_search_logs_query ON marketplace_search_logs(query);
 
 ALTER TABLE marketplace_search_logs ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "search_log_insert" ON marketplace_search_logs;
 CREATE POLICY "search_log_insert" ON marketplace_search_logs FOR INSERT TO authenticated WITH CHECK (user_id IS NULL OR user_id = auth.uid());
+DROP POLICY IF EXISTS "search_log_admin_read" ON marketplace_search_logs;
 CREATE POLICY "search_log_admin_read" ON marketplace_search_logs FOR SELECT TO authenticated USING (public.is_admin());
 
 -- =========================================================
@@ -408,6 +429,7 @@ INSERT INTO marketplace_pricing_units (unit, label, category, sort_order) VALUES
 ON CONFLICT (unit) DO NOTHING;
 
 ALTER TABLE marketplace_pricing_units ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "pricing_units_public_read" ON marketplace_pricing_units;
 CREATE POLICY "pricing_units_public_read" ON marketplace_pricing_units FOR SELECT USING (true);
 
 -- =========================================================

@@ -18,9 +18,17 @@
 ALTER TABLE public.rewarded_ad_credit_events
   DROP CONSTRAINT IF EXISTS rewarded_ad_credit_events_status_check;
 
+DO $mig$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'rewarded_ad_credit_events_status_check'
+                 AND conrelid = public.rewarded_ad_credit_events::regclass) THEN
 ALTER TABLE public.rewarded_ad_credit_events
   ADD CONSTRAINT rewarded_ad_credit_events_status_check
   CHECK (status IN ('completed', 'failed', 'rejected', 'held', 'released', 'reversed'));
+  END IF;
+END
+$mig$;
+
 
 -- =========================================================
 -- 2. Add offerwall_event_type column for event lifecycle tracking

@@ -175,6 +175,7 @@ GRANT SELECT ON public.ad_providers_public TO anon, authenticated;
 -- =========================================================
 
 DROP POLICY IF EXISTS "public_read_ai_learn_chat" ON ai_learn_chat;
+DROP POLICY IF EXISTS "restricted_read_ai_learn_chat" ON ai_learn_chat;
 CREATE POLICY "restricted_read_ai_learn_chat" ON ai_learn_chat FOR SELECT
   TO authenticated
   USING (
@@ -187,6 +188,7 @@ CREATE POLICY "restricted_read_ai_learn_chat" ON ai_learn_chat FOR SELECT
 
 -- Restrict INSERT: must have either user_id = auth.uid() or a client_hash
 DROP POLICY IF EXISTS "public_insert_ai_learn_chat" ON ai_learn_chat;
+DROP POLICY IF EXISTS "restricted_insert_ai_learn_chat" ON ai_learn_chat;
 CREATE POLICY "restricted_insert_ai_learn_chat" ON ai_learn_chat FOR INSERT
   TO anon, authenticated
   WITH CHECK (
@@ -256,6 +258,7 @@ DROP POLICY IF EXISTS "room_images_delete" ON storage.objects;
 
 -- Create a restricted delete policy: only authenticated users can
 -- delete, and only objects in their own user folder
+DROP POLICY IF EXISTS "room_images_delete_own" ON storage.objects;
 CREATE POLICY "room_images_delete_own" ON storage.objects FOR DELETE
   TO authenticated
   USING (

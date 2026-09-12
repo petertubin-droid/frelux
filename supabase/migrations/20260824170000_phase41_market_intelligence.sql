@@ -61,10 +61,12 @@ CREATE INDEX IF NOT EXISTS idx_mi_providers_priority ON mi_providers(priority, i
 ALTER TABLE mi_providers ENABLE ROW LEVEL SECURITY;
 
 -- Only admins can manage providers
+DROP POLICY IF EXISTS "mi_providers_admin_read" ON mi_providers;
 CREATE POLICY "mi_providers_admin_read"
   ON mi_providers FOR SELECT
   TO authenticated USING (public.is_admin());
 
+DROP POLICY IF EXISTS "mi_providers_admin_write" ON mi_providers;
 CREATE POLICY "mi_providers_admin_write"
   ON mi_providers FOR ALL
   TO authenticated
@@ -135,12 +137,14 @@ CREATE INDEX IF NOT EXISTS idx_mi_sources_type ON mi_sources(source_type, reliab
 ALTER TABLE mi_sources ENABLE ROW LEVEL SECURITY;
 
 -- Admins can manage sources; public can read active verified sources (for display)
+DROP POLICY IF EXISTS "mi_sources_admin_all" ON mi_sources;
 CREATE POLICY "mi_sources_admin_all"
   ON mi_sources FOR ALL
   TO authenticated
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 
+DROP POLICY IF EXISTS "mi_sources_public_read" ON mi_sources;
 CREATE POLICY "mi_sources_public_read"
   ON mi_sources FOR SELECT
   TO anon, authenticated
@@ -197,6 +201,7 @@ CREATE INDEX IF NOT EXISTS idx_mi_pa_confidence ON mi_product_aliases(match_conf
 ALTER TABLE mi_product_aliases ENABLE ROW LEVEL SECURITY;
 
 -- Admins can manage aliases
+DROP POLICY IF EXISTS "mi_pa_admin_all" ON mi_product_aliases;
 CREATE POLICY "mi_pa_admin_all"
   ON mi_product_aliases FOR ALL
   TO authenticated
@@ -204,6 +209,7 @@ CREATE POLICY "mi_pa_admin_all"
   WITH CHECK (public.is_admin());
 
 -- Public can read verified aliases (for product matching)
+DROP POLICY IF EXISTS "mi_pa_public_read" ON mi_product_aliases;
 CREATE POLICY "mi_pa_public_read"
   ON mi_product_aliases FOR SELECT
   TO anon, authenticated
@@ -296,6 +302,7 @@ CREATE INDEX IF NOT EXISTS idx_mi_po_country ON mi_price_observations(country_co
 ALTER TABLE mi_price_observations ENABLE ROW LEVEL SECURITY;
 
 -- Admins can manage all observations
+DROP POLICY IF EXISTS "mi_po_admin_all" ON mi_price_observations;
 CREATE POLICY "mi_po_admin_all"
   ON mi_price_observations FOR ALL
   TO authenticated
@@ -303,6 +310,7 @@ CREATE POLICY "mi_po_admin_all"
   WITH CHECK (public.is_admin());
 
 -- Public can read APPROVED observations only
+DROP POLICY IF EXISTS "mi_po_public_read" ON mi_price_observations;
 CREATE POLICY "mi_po_public_read"
   ON mi_price_observations FOR SELECT
   TO anon, authenticated
@@ -377,6 +385,7 @@ CREATE INDEX IF NOT EXISTS idx_mi_ap_freshness ON mi_approved_prices(freshness, 
 ALTER TABLE mi_approved_prices ENABLE ROW LEVEL SECURITY;
 
 -- Admins can manage approved prices
+DROP POLICY IF EXISTS "mi_ap_admin_all" ON mi_approved_prices;
 CREATE POLICY "mi_ap_admin_all"
   ON mi_approved_prices FOR ALL
   TO authenticated
@@ -384,6 +393,7 @@ CREATE POLICY "mi_ap_admin_all"
   WITH CHECK (public.is_admin());
 
 -- Public can read active approved prices (calculators need these)
+DROP POLICY IF EXISTS "mi_ap_public_read" ON mi_approved_prices;
 CREATE POLICY "mi_ap_public_read"
   ON mi_approved_prices FOR SELECT
   TO anon, authenticated
@@ -421,11 +431,13 @@ CREATE INDEX IF NOT EXISTS idx_mi_cl_source ON mi_crawl_logs(source_id, created_
 ALTER TABLE mi_crawl_logs ENABLE ROW LEVEL SECURITY;
 
 -- Admins can read all logs
+DROP POLICY IF EXISTS "mi_cl_admin_read" ON mi_crawl_logs;
 CREATE POLICY "mi_cl_admin_read"
   ON mi_crawl_logs FOR SELECT
   TO authenticated USING (public.is_admin());
 
 -- Admins can insert logs (from edge functions / admin actions)
+DROP POLICY IF EXISTS "mi_cl_admin_insert" ON mi_crawl_logs;
 CREATE POLICY "mi_cl_admin_insert"
   ON mi_crawl_logs FOR INSERT
   TO authenticated WITH CHECK (public.is_admin());
@@ -469,6 +481,7 @@ CREATE INDEX IF NOT EXISTS idx_mi_pu_provider ON mi_provider_usage(provider_id, 
 ALTER TABLE mi_provider_usage ENABLE ROW LEVEL SECURITY;
 
 -- Admins can manage usage tracking
+DROP POLICY IF EXISTS "mi_pu_admin_all" ON mi_provider_usage;
 CREATE POLICY "mi_pu_admin_all"
   ON mi_provider_usage FOR ALL
   TO authenticated
@@ -517,6 +530,7 @@ CREATE INDEX IF NOT EXISTS idx_mi_af_resolution ON mi_anomaly_flags(resolution, 
 ALTER TABLE mi_anomaly_flags ENABLE ROW LEVEL SECURITY;
 
 -- Admins can manage anomaly flags
+DROP POLICY IF EXISTS "mi_af_admin_all" ON mi_anomaly_flags;
 CREATE POLICY "mi_af_admin_all"
   ON mi_anomaly_flags FOR ALL
   TO authenticated

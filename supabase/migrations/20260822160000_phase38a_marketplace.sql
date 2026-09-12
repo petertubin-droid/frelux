@@ -87,24 +87,28 @@ END $$;
 ALTER TABLE marketplace_listings ENABLE ROW LEVEL SECURITY;
 
 -- Public can read active, non-removed, non-draft listings
+DROP POLICY IF EXISTS "ml_public_read" ON marketplace_listings;
 CREATE POLICY "ml_public_read"
   ON marketplace_listings FOR SELECT
   TO anon, authenticated
   USING (is_active AND NOT admin_removed AND status != 'draft');
 
 -- Owner can read their own listings (including drafts)
+DROP POLICY IF EXISTS "ml_owner_read" ON marketplace_listings;
 CREATE POLICY "ml_owner_read"
   ON marketplace_listings FOR SELECT
   TO authenticated
   USING (user_id = auth.uid());
 
 -- Owner can insert
+DROP POLICY IF EXISTS "ml_owner_insert" ON marketplace_listings;
 CREATE POLICY "ml_owner_insert"
   ON marketplace_listings FOR INSERT
   TO authenticated
   WITH CHECK (user_id = auth.uid());
 
 -- Owner can update their own listings
+DROP POLICY IF EXISTS "ml_owner_update" ON marketplace_listings;
 CREATE POLICY "ml_owner_update"
   ON marketplace_listings FOR UPDATE
   TO authenticated
@@ -112,12 +116,14 @@ CREATE POLICY "ml_owner_update"
   WITH CHECK (user_id = auth.uid());
 
 -- Owner can delete their own listings
+DROP POLICY IF EXISTS "ml_owner_delete" ON marketplace_listings;
 CREATE POLICY "ml_owner_delete"
   ON marketplace_listings FOR DELETE
   TO authenticated
   USING (user_id = auth.uid());
 
 -- Admin can manage all
+DROP POLICY IF EXISTS "ml_admin_all" ON marketplace_listings;
 CREATE POLICY "ml_admin_all"
   ON marketplace_listings FOR ALL
   TO authenticated
@@ -161,6 +167,7 @@ CREATE INDEX IF NOT EXISTS idx_mb_status ON marketplace_bids(status);
 ALTER TABLE marketplace_bids ENABLE ROW LEVEL SECURITY;
 
 -- Public can read bids on open/awarded listings (so people see competition)
+DROP POLICY IF EXISTS "mb_public_read" ON marketplace_bids;
 CREATE POLICY "mb_public_read"
   ON marketplace_bids FOR SELECT
   TO anon, authenticated
@@ -173,6 +180,7 @@ CREATE POLICY "mb_public_read"
   );
 
 -- Pro worker can insert their own bid (must be verified + listed)
+DROP POLICY IF EXISTS "mb_pro_insert" ON marketplace_bids;
 CREATE POLICY "mb_pro_insert"
   ON marketplace_bids FOR INSERT
   TO authenticated
@@ -192,6 +200,7 @@ CREATE POLICY "mb_pro_insert"
   );
 
 -- Pro worker can update/withdraw their own bid
+DROP POLICY IF EXISTS "mb_pro_update" ON marketplace_bids;
 CREATE POLICY "mb_pro_update"
   ON marketplace_bids FOR UPDATE
   TO authenticated
@@ -211,6 +220,7 @@ CREATE POLICY "mb_pro_update"
   );
 
 -- Listing owner can update bid status (accept/reject)
+DROP POLICY IF EXISTS "mb_owner_update" ON marketplace_bids;
 CREATE POLICY "mb_owner_update"
   ON marketplace_bids FOR UPDATE
   TO authenticated
@@ -230,6 +240,7 @@ CREATE POLICY "mb_owner_update"
   );
 
 -- Pro worker can delete their own bid
+DROP POLICY IF EXISTS "mb_pro_delete" ON marketplace_bids;
 CREATE POLICY "mb_pro_delete"
   ON marketplace_bids FOR DELETE
   TO authenticated
@@ -242,6 +253,7 @@ CREATE POLICY "mb_pro_delete"
   );
 
 -- Admin can manage all bids
+DROP POLICY IF EXISTS "mb_admin_all" ON marketplace_bids;
 CREATE POLICY "mb_admin_all"
   ON marketplace_bids FOR ALL
   TO authenticated
@@ -300,6 +312,7 @@ CREATE INDEX IF NOT EXISTS idx_mo_status ON marketplace_orders(status);
 ALTER TABLE marketplace_orders ENABLE ROW LEVEL SECURITY;
 
 -- Client and pro can read their own orders
+DROP POLICY IF EXISTS "mo_participant_read" ON marketplace_orders;
 CREATE POLICY "mo_participant_read"
   ON marketplace_orders FOR SELECT
   TO authenticated
@@ -313,6 +326,7 @@ CREATE POLICY "mo_participant_read"
   );
 
 -- Client can insert order (when accepting a bid)
+DROP POLICY IF EXISTS "mo_client_insert" ON marketplace_orders;
 CREATE POLICY "mo_client_insert"
   ON marketplace_orders FOR INSERT
   TO authenticated
@@ -326,6 +340,7 @@ CREATE POLICY "mo_client_insert"
   );
 
 -- Both participants can update
+DROP POLICY IF EXISTS "mo_participant_update" ON marketplace_orders;
 CREATE POLICY "mo_participant_update"
   ON marketplace_orders FOR UPDATE
   TO authenticated
@@ -347,6 +362,7 @@ CREATE POLICY "mo_participant_update"
   );
 
 -- Admin can manage all orders
+DROP POLICY IF EXISTS "mo_admin_all" ON marketplace_orders;
 CREATE POLICY "mo_admin_all"
   ON marketplace_orders FOR ALL
   TO authenticated
@@ -379,6 +395,7 @@ CREATE INDEX IF NOT EXISTS idx_mm_status ON marketplace_milestones(status);
 ALTER TABLE marketplace_milestones ENABLE ROW LEVEL SECURITY;
 
 -- Participants can read milestones
+DROP POLICY IF EXISTS "mm_participant_read" ON marketplace_milestones;
 CREATE POLICY "mm_participant_read"
   ON marketplace_milestones FOR SELECT
   TO authenticated
@@ -398,6 +415,7 @@ CREATE POLICY "mm_participant_read"
   );
 
 -- Pro can create/update milestones (they drive the work)
+DROP POLICY IF EXISTS "mm_pro_insert" ON marketplace_milestones;
 CREATE POLICY "mm_pro_insert"
   ON marketplace_milestones FOR INSERT
   TO authenticated
@@ -410,6 +428,7 @@ CREATE POLICY "mm_pro_insert"
     )
   );
 
+DROP POLICY IF EXISTS "mm_pro_update" ON marketplace_milestones;
 CREATE POLICY "mm_pro_update"
   ON marketplace_milestones FOR UPDATE
   TO authenticated
@@ -431,6 +450,7 @@ CREATE POLICY "mm_pro_update"
   );
 
 -- Client can update (approve milestones)
+DROP POLICY IF EXISTS "mm_client_update" ON marketplace_milestones;
 CREATE POLICY "mm_client_update"
   ON marketplace_milestones FOR UPDATE
   TO authenticated
@@ -450,6 +470,7 @@ CREATE POLICY "mm_client_update"
   );
 
 -- Admin can manage
+DROP POLICY IF EXISTS "mm_admin_all" ON marketplace_milestones;
 CREATE POLICY "mm_admin_all"
   ON marketplace_milestones FOR ALL
   TO authenticated
@@ -487,6 +508,7 @@ CREATE INDEX IF NOT EXISTS idx_mp_status ON marketplace_payments(status);
 ALTER TABLE marketplace_payments ENABLE ROW LEVEL SECURITY;
 
 -- Participants can read their payments
+DROP POLICY IF EXISTS "mp_participant_read" ON marketplace_payments;
 CREATE POLICY "mp_participant_read"
   ON marketplace_payments FOR SELECT
   TO authenticated
@@ -507,6 +529,7 @@ CREATE POLICY "mp_participant_read"
   );
 
 -- Client can insert payment records
+DROP POLICY IF EXISTS "mp_client_insert" ON marketplace_payments;
 CREATE POLICY "mp_client_insert"
   ON marketplace_payments FOR INSERT
   TO authenticated
@@ -520,6 +543,7 @@ CREATE POLICY "mp_client_insert"
   );
 
 -- Admin can manage all payments
+DROP POLICY IF EXISTS "mp_admin_all" ON marketplace_payments;
 CREATE POLICY "mp_admin_all"
   ON marketplace_payments FOR ALL
   TO authenticated
@@ -557,6 +581,7 @@ CREATE INDEX IF NOT EXISTS idx_md_raised_by ON marketplace_disputes(raised_by);
 ALTER TABLE marketplace_disputes ENABLE ROW LEVEL SECURITY;
 
 -- Participants can read disputes on their orders
+DROP POLICY IF EXISTS "md_participant_read" ON marketplace_disputes;
 CREATE POLICY "md_participant_read"
   ON marketplace_disputes FOR SELECT
   TO authenticated
@@ -577,6 +602,7 @@ CREATE POLICY "md_participant_read"
   );
 
 -- Participants can create disputes
+DROP POLICY IF EXISTS "md_participant_insert" ON marketplace_disputes;
 CREATE POLICY "md_participant_insert"
   ON marketplace_disputes FOR INSERT
   TO authenticated
@@ -597,6 +623,7 @@ CREATE POLICY "md_participant_insert"
   );
 
 -- Participants can update their own disputes (add evidence before resolution)
+DROP POLICY IF EXISTS "md_raiser_update" ON marketplace_disputes;
 CREATE POLICY "md_raiser_update"
   ON marketplace_disputes FOR UPDATE
   TO authenticated
@@ -604,6 +631,7 @@ CREATE POLICY "md_raiser_update"
   WITH CHECK (raised_by = auth.uid());
 
 -- Admin can manage all disputes
+DROP POLICY IF EXISTS "md_admin_all" ON marketplace_disputes;
 CREATE POLICY "md_admin_all"
   ON marketplace_disputes FOR ALL
   TO authenticated
@@ -637,16 +665,22 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trg_ml_updated ON marketplace_listings;
 CREATE TRIGGER trg_ml_updated BEFORE UPDATE ON marketplace_listings
   FOR EACH ROW EXECUTE FUNCTION update_marketplace_table_updated_at();
+DROP TRIGGER IF EXISTS trg_mb_updated ON marketplace_bids;
 CREATE TRIGGER trg_mb_updated BEFORE UPDATE ON marketplace_bids
   FOR EACH ROW EXECUTE FUNCTION update_marketplace_table_updated_at();
+DROP TRIGGER IF EXISTS trg_mo_updated ON marketplace_orders;
 CREATE TRIGGER trg_mo_updated BEFORE UPDATE ON marketplace_orders
   FOR EACH ROW EXECUTE FUNCTION update_marketplace_table_updated_at();
+DROP TRIGGER IF EXISTS trg_mm_updated ON marketplace_milestones;
 CREATE TRIGGER trg_mm_updated BEFORE UPDATE ON marketplace_milestones
   FOR EACH ROW EXECUTE FUNCTION update_marketplace_table_updated_at();
+DROP TRIGGER IF EXISTS trg_mp_updated ON marketplace_payments;
 CREATE TRIGGER trg_mp_updated BEFORE UPDATE ON marketplace_payments
   FOR EACH ROW EXECUTE FUNCTION update_marketplace_table_updated_at();
+DROP TRIGGER IF EXISTS trg_md_updated ON marketplace_disputes;
 CREATE TRIGGER trg_md_updated BEFORE UPDATE ON marketplace_disputes
   FOR EACH ROW EXECUTE FUNCTION update_marketplace_table_updated_at();
 
@@ -748,20 +782,24 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('marketplace', 'marketplace', true)
 ON CONFLICT (id) DO NOTHING;
 
+DROP POLICY IF EXISTS "marketplace_public_read" ON storage.objects;
 CREATE POLICY "marketplace_public_read"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'marketplace');
 
+DROP POLICY IF EXISTS "marketplace_auth_insert" ON storage.objects;
 CREATE POLICY "marketplace_auth_insert"
   ON storage.objects FOR INSERT
   TO authenticated
   WITH CHECK (bucket_id = 'marketplace');
 
+DROP POLICY IF EXISTS "marketplace_owner_update" ON storage.objects;
 CREATE POLICY "marketplace_owner_update"
   ON storage.objects FOR UPDATE
   TO authenticated
   USING (bucket_id = 'marketplace' AND (storage.foldername(name))[1] = auth.uid()::text);
 
+DROP POLICY IF EXISTS "marketplace_owner_delete" ON storage.objects;
 CREATE POLICY "marketplace_owner_delete"
   ON storage.objects FOR DELETE
   TO authenticated

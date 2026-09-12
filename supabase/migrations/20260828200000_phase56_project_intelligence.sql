@@ -60,9 +60,11 @@ CREATE INDEX IF NOT EXISTS idx_material_price_history_created_at ON public.mater
 ALTER TABLE public.material_price_history ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.material_price_history FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "material_price_history_public_read" ON public.material_price_history;
 CREATE POLICY "material_price_history_public_read"
   ON public.material_price_history FOR SELECT
   TO anon, authenticated USING (true);
+DROP POLICY IF EXISTS "material_price_history_admin_write" ON public.material_price_history;
 CREATE POLICY "material_price_history_admin_write"
   ON public.material_price_history FOR ALL
   TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
@@ -94,15 +96,19 @@ CREATE INDEX IF NOT EXISTS idx_project_calculations_type ON public.project_calcu
 ALTER TABLE public.project_calculations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_calculations FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "project_calc_owner_select" ON public.project_calculations;
 CREATE POLICY "project_calc_owner_select"
   ON public.project_calculations FOR SELECT
   TO authenticated USING (user_id = auth.uid());
+DROP POLICY IF EXISTS "project_calc_owner_insert" ON public.project_calculations;
 CREATE POLICY "project_calc_owner_insert"
   ON public.project_calculations FOR INSERT
   TO authenticated WITH CHECK (user_id = auth.uid());
+DROP POLICY IF EXISTS "project_calc_owner_update" ON public.project_calculations;
 CREATE POLICY "project_calc_owner_update"
   ON public.project_calculations FOR UPDATE
   TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+DROP POLICY IF EXISTS "project_calc_owner_delete" ON public.project_calculations;
 CREATE POLICY "project_calc_owner_delete"
   ON public.project_calculations FOR DELETE
   TO authenticated USING (user_id = auth.uid());
@@ -146,25 +152,31 @@ ALTER TABLE public.gallery_entries ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.gallery_entries FORCE ROW LEVEL SECURITY;
 
 -- Owner can CRUD their own entries
+DROP POLICY IF EXISTS "gallery_owner_select" ON public.gallery_entries;
 CREATE POLICY "gallery_owner_select"
   ON public.gallery_entries FOR SELECT
   TO authenticated USING (user_id = auth.uid());
+DROP POLICY IF EXISTS "gallery_owner_insert" ON public.gallery_entries;
 CREATE POLICY "gallery_owner_insert"
   ON public.gallery_entries FOR INSERT
   TO authenticated WITH CHECK (user_id = auth.uid());
+DROP POLICY IF EXISTS "gallery_owner_update" ON public.gallery_entries;
 CREATE POLICY "gallery_owner_update"
   ON public.gallery_entries FOR UPDATE
   TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+DROP POLICY IF EXISTS "gallery_owner_delete" ON public.gallery_entries;
 CREATE POLICY "gallery_owner_delete"
   ON public.gallery_entries FOR DELETE
   TO authenticated USING (user_id = auth.uid());
 
 -- Public can read approved/featured entries
+DROP POLICY IF EXISTS "gallery_public_read" ON public.gallery_entries;
 CREATE POLICY "gallery_public_read"
   ON public.gallery_entries FOR SELECT
   TO anon, authenticated USING (status IN ('approved','featured') AND is_public = true);
 
 -- Admin can manage all entries
+DROP POLICY IF EXISTS "gallery_admin_all" ON public.gallery_entries;
 CREATE POLICY "gallery_admin_all"
   ON public.gallery_entries FOR ALL
   TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
@@ -191,19 +203,23 @@ CREATE INDEX IF NOT EXISTS idx_gallery_images_type ON public.gallery_images(imag
 ALTER TABLE public.gallery_images ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.gallery_images FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "gallery_images_select" ON public.gallery_images;
 CREATE POLICY "gallery_images_select"
   ON public.gallery_images FOR SELECT
   TO anon, authenticated USING (true);
+DROP POLICY IF EXISTS "gallery_images_owner_insert" ON public.gallery_images;
 CREATE POLICY "gallery_images_owner_insert"
   ON public.gallery_images FOR INSERT
   TO authenticated WITH CHECK (
     EXISTS (SELECT 1 FROM public.gallery_entries WHERE id = gallery_entry_id AND user_id = auth.uid())
   );
+DROP POLICY IF EXISTS "gallery_images_owner_delete" ON public.gallery_images;
 CREATE POLICY "gallery_images_owner_delete"
   ON public.gallery_images FOR DELETE
   TO authenticated USING (
     EXISTS (SELECT 1 FROM public.gallery_entries WHERE id = gallery_entry_id AND user_id = auth.uid())
   );
+DROP POLICY IF EXISTS "gallery_images_admin_all" ON public.gallery_images;
 CREATE POLICY "gallery_images_admin_all"
   ON public.gallery_images FOR ALL
   TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
@@ -271,20 +287,25 @@ ALTER TABLE public.client_estimates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.client_estimates FORCE ROW LEVEL SECURITY;
 
 -- Owner CRUD
+DROP POLICY IF EXISTS "client_estimates_owner_select" ON public.client_estimates;
 CREATE POLICY "client_estimates_owner_select"
   ON public.client_estimates FOR SELECT
   TO authenticated USING (user_id = auth.uid());
+DROP POLICY IF EXISTS "client_estimates_owner_insert" ON public.client_estimates;
 CREATE POLICY "client_estimates_owner_insert"
   ON public.client_estimates FOR INSERT
   TO authenticated WITH CHECK (user_id = auth.uid());
+DROP POLICY IF EXISTS "client_estimates_owner_update" ON public.client_estimates;
 CREATE POLICY "client_estimates_owner_update"
   ON public.client_estimates FOR UPDATE
   TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+DROP POLICY IF EXISTS "client_estimates_owner_delete" ON public.client_estimates;
 CREATE POLICY "client_estimates_owner_delete"
   ON public.client_estimates FOR DELETE
   TO authenticated USING (user_id = auth.uid());
 
 -- Public can view via share_token (but only non-sensitive fields)
+DROP POLICY IF EXISTS "client_estimates_public_view" ON public.client_estimates;
 CREATE POLICY "client_estimates_public_view"
   ON public.client_estimates FOR SELECT
   TO anon, authenticated USING (
@@ -293,6 +314,7 @@ CREATE POLICY "client_estimates_public_view"
   );
 
 -- Public can update status (approve/request changes) via share_token
+DROP POLICY IF EXISTS "client_estimates_public_update" ON public.client_estimates;
 CREATE POLICY "client_estimates_public_update"
   ON public.client_estimates FOR UPDATE
   TO anon, authenticated USING (
@@ -331,9 +353,11 @@ CREATE INDEX IF NOT EXISTS idx_paint_comparisons_active ON public.paint_comparis
 ALTER TABLE public.paint_comparisons ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.paint_comparisons FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "paint_comparisons_public_read" ON public.paint_comparisons;
 CREATE POLICY "paint_comparisons_public_read"
   ON public.paint_comparisons FOR SELECT
   TO anon, authenticated USING (true);
+DROP POLICY IF EXISTS "paint_comparisons_admin_write" ON public.paint_comparisons;
 CREATE POLICY "paint_comparisons_admin_write"
   ON public.paint_comparisons FOR ALL
   TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
@@ -364,16 +388,19 @@ CREATE INDEX IF NOT EXISTS idx_project_progress_sort_order ON public.project_pro
 ALTER TABLE public.project_progress_stages ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_progress_stages FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "project_progress_owner_select" ON public.project_progress_stages;
 CREATE POLICY "project_progress_owner_select"
   ON public.project_progress_stages FOR SELECT
   TO authenticated USING (
     EXISTS (SELECT 1 FROM public.contractor_projects WHERE id = project_id AND user_id = auth.uid())
   );
+DROP POLICY IF EXISTS "project_progress_owner_insert" ON public.project_progress_stages;
 CREATE POLICY "project_progress_owner_insert"
   ON public.project_progress_stages FOR INSERT
   TO authenticated WITH CHECK (
     EXISTS (SELECT 1 FROM public.contractor_projects WHERE id = project_id AND user_id = auth.uid())
   );
+DROP POLICY IF EXISTS "project_progress_owner_update" ON public.project_progress_stages;
 CREATE POLICY "project_progress_owner_update"
   ON public.project_progress_stages FOR UPDATE
   TO authenticated USING (
@@ -381,6 +408,7 @@ CREATE POLICY "project_progress_owner_update"
   ) WITH CHECK (
     EXISTS (SELECT 1 FROM public.contractor_projects WHERE id = project_id AND user_id = auth.uid())
   );
+DROP POLICY IF EXISTS "project_progress_owner_delete" ON public.project_progress_stages;
 CREATE POLICY "project_progress_owner_delete"
   ON public.project_progress_stages FOR DELETE
   TO authenticated USING (
@@ -412,15 +440,19 @@ CREATE INDEX IF NOT EXISTS idx_surface_assessments_user_id ON public.surface_ass
 ALTER TABLE public.surface_assessments ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.surface_assessments FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "surface_assessments_owner_select" ON public.surface_assessments;
 CREATE POLICY "surface_assessments_owner_select"
   ON public.surface_assessments FOR SELECT
   TO authenticated USING (user_id = auth.uid());
+DROP POLICY IF EXISTS "surface_assessments_owner_insert" ON public.surface_assessments;
 CREATE POLICY "surface_assessments_owner_insert"
   ON public.surface_assessments FOR INSERT
   TO authenticated WITH CHECK (user_id = auth.uid());
+DROP POLICY IF EXISTS "surface_assessments_owner_update" ON public.surface_assessments;
 CREATE POLICY "surface_assessments_owner_update"
   ON public.surface_assessments FOR UPDATE
   TO authenticated USING (user_id = auth.uid()) WITH CHECK (user_id = auth.uid());
+DROP POLICY IF EXISTS "surface_assessments_owner_delete" ON public.surface_assessments;
 CREATE POLICY "surface_assessments_owner_delete"
   ON public.surface_assessments FOR DELETE
   TO authenticated USING (user_id = auth.uid());
@@ -442,9 +474,11 @@ CREATE TABLE IF NOT EXISTS public.project_stage_templates (
 ALTER TABLE public.project_stage_templates ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.project_stage_templates FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "project_stage_templates_public_read" ON public.project_stage_templates;
 CREATE POLICY "project_stage_templates_public_read"
   ON public.project_stage_templates FOR SELECT
   TO anon, authenticated USING (true);
+DROP POLICY IF EXISTS "project_stage_templates_admin_write" ON public.project_stage_templates;
 CREATE POLICY "project_stage_templates_admin_write"
   ON public.project_stage_templates FOR ALL
   TO authenticated USING (public.is_admin()) WITH CHECK (public.is_admin());
@@ -494,21 +528,25 @@ VALUES ('project-media', 'project-media', true)
 ON CONFLICT (id) DO NOTHING;
 
 -- Storage policies for project-media bucket
+DROP POLICY IF EXISTS "project_media_public_read" ON storage.objects;
 CREATE POLICY "project_media_public_read"
   ON storage.objects FOR SELECT
   TO anon, authenticated
   USING (bucket_id = 'project-media');
 
+DROP POLICY IF EXISTS "project_media_owner_insert" ON storage.objects;
 CREATE POLICY "project_media_owner_insert"
   ON storage.objects FOR INSERT
   TO authenticated
   WITH CHECK (bucket_id = 'project-media' AND auth.uid() = owner);
 
+DROP POLICY IF EXISTS "project_media_owner_update" ON storage.objects;
 CREATE POLICY "project_media_owner_update"
   ON storage.objects FOR UPDATE
   TO authenticated
   USING (bucket_id = 'project-media' AND auth.uid() = owner);
 
+DROP POLICY IF EXISTS "project_media_owner_delete" ON storage.objects;
 CREATE POLICY "project_media_owner_delete"
   ON storage.objects FOR DELETE
   TO authenticated

@@ -30,6 +30,7 @@ CREATE INDEX IF NOT EXISTS idx_price_scan_date
 -- RLS: only admin can view/insert
 ALTER TABLE public.price_scan_history ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Admins can view price scan history" ON public.price_scan_history;
 CREATE POLICY "Admins can view price scan history" 
     ON public.price_scan_history FOR SELECT 
     TO authenticated 
@@ -41,6 +42,7 @@ CREATE POLICY "Admins can view price scan history"
         )
     );
 
+DROP POLICY IF EXISTS "Admins can insert price scan history" ON public.price_scan_history;
 CREATE POLICY "Admins can insert price scan history" 
     ON public.price_scan_history FOR INSERT 
     TO authenticated 
