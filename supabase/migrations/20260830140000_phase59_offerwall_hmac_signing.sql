@@ -21,7 +21,7 @@ ALTER TABLE public.rewarded_ad_credit_events
 DO $mig$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'rewarded_ad_credit_events_status_check'
-                 AND conrelid = public.rewarded_ad_credit_events::regclass) THEN
+                 AND conrelid = 'public.rewarded_ad_credit_events'::regclass) THEN
 ALTER TABLE public.rewarded_ad_credit_events
   ADD CONSTRAINT rewarded_ad_credit_events_status_check
   CHECK (status IN ('completed', 'failed', 'rejected', 'held', 'released', 'reversed'));

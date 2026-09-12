@@ -56,7 +56,7 @@ ALTER TABLE pro_profiles
 DO $mig$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'pro_profiles_verification_status_check'
-                 AND conrelid = pro_profiles::regclass) THEN
+                 AND conrelid = 'public.pro_profiles'::regclass) THEN
 ALTER TABLE pro_profiles
   ADD CONSTRAINT pro_profiles_verification_status_check
   CHECK (verification_status IN ('unverified', 'pending', 'verified', 'rejected', 'more_info', 'suspended'));

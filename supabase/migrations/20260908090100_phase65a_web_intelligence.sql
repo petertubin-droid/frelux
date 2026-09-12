@@ -35,7 +35,7 @@ ALTER TABLE public.frelux_learning_records DROP CONSTRAINT
 DO $mig$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'frelux_learning_records_lifecycle_status_check'
-                 AND conrelid = public.frelux_learning_records::regclass) THEN
+                 AND conrelid = 'public.frelux_learning_records'::regclass) THEN
 ALTER TABLE public.frelux_learning_records ADD CONSTRAINT
   frelux_learning_records_lifecycle_status_check CHECK (
     lifecycle_status IN (
@@ -53,7 +53,7 @@ ALTER TABLE public.frelux_learning_records DROP CONSTRAINT IF EXISTS
 DO $mig$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'frelux_learning_records_source_check'
-                 AND conrelid = public.frelux_learning_records::regclass) THEN
+                 AND conrelid = 'public.frelux_learning_records'::regclass) THEN
 ALTER TABLE public.frelux_learning_records ADD CONSTRAINT
   frelux_learning_records_source_check CHECK (
     source IN ('ARCHIE','GEMINI','OPENAI','USER','OUTCOME','SYSTEM','WEB')

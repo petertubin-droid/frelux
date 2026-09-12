@@ -16,7 +16,7 @@ ALTER TABLE public.frelux_archie_native_facts
 DO $mig$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'frelux_archie_native_facts_status_check'
-                 AND conrelid = public.frelux_archie_native_facts::regclass) THEN
+                 AND conrelid = 'public.frelux_archie_native_facts'::regclass) THEN
 ALTER TABLE public.frelux_archie_native_facts
   ADD CONSTRAINT frelux_archie_native_facts_status_check
   CHECK (status IN ('candidate', 'validated', 'uncertain', 'derived'));

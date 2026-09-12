@@ -40,7 +40,7 @@ UPDATE tile_materials
 DO $mig$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'tile_materials_category_check'
-                 AND conrelid = tile_materials::regclass) THEN
+                 AND conrelid = 'public.tile_materials'::regclass) THEN
 ALTER TABLE tile_materials
   ADD CONSTRAINT tile_materials_category_check
   CHECK (category IN ('tile', 'adhesive', 'grout', 'spacer', 'cement', 'sand', 'labour', 'other'));
