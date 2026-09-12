@@ -139,7 +139,13 @@ export type { MemoryTurnInternal };
 
 /** Rank knowledge facts against a query — TF-IDF over the
  *  fact's textual surface. Used by the engine's retrieval. */
-export function rankFacts(query: string, facts: Fact[], k = 6): Fact[] {
+import { NATIVE_CONFIG } from "./config.ts";
+
+export function rankFacts(
+  query: string,
+  facts: Fact[],
+  k = NATIVE_CONFIG.rankK,
+): Fact[] {
   const index = new TfIdfIndex();
   const factTokens = facts.map((f) => {
     const surface = `${f.subject} ${f.predicate} ${JSON.stringify(f.object)}`;

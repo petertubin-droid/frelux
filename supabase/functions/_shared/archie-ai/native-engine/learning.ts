@@ -65,16 +65,19 @@ export class OutcomeLearner {
       const t = outcome.task.toLowerCase();
       if (/off by \d+%|overestimat|underestimat|deviat/.test(t)) {
         cause = "calibration — the estimate deviated from the measured outcome";
-        lesson = "recalibrate: apply the observed deviation as a bias correction on future estimates of this kind";
+        lesson =
+          "recalibrate: apply the observed deviation as a bias correction on future estimates of this kind";
       } else if (/timeout|too slow|took too long/.test(t)) {
         cause = "performance — the operation exceeded its time budget";
-        lesson = "reduce the workload per pass or pre-compute the expensive step";
+        lesson =
+          "reduce the workload per pass or pre-compute the expensive step";
       } else if (/typo|malform|garble|invalid/.test(t)) {
         cause = "input integrity — malformed input reached the computation";
         lesson = "validate and normalize inputs before computing";
       } else {
         cause = "unknown — needs owner diagnosis";
-        lesson = "inspect the contributing knowledge; no known failure signature matched this task";
+        lesson =
+          "inspect the contributing knowledge; no known failure signature matched this task";
       }
     }
 
@@ -145,6 +148,9 @@ export class OutcomeLearner {
     decayed: number;
     promoted: number;
     dropped: number;
+    /** True when the single-writer claim was held by
+     *  another isolate — honestly skipped. */
+    skipped?: boolean;
   }> {
     return this.facts.consolidate();
   }
@@ -165,4 +171,49 @@ export class OutcomeLearner {
 
 function clamp01(n: number): number {
   return Math.max(0, Math.min(1, n));
+}
+
+// ---------------------------------------------------------
+// DURABLE CONSOLIDATION SCHEDULING (remediation batch 4,
+// 2026-09-13, fix 8): the learning cycle consolidates only
+// in-process; cold isolates that only chat never improve().
+// This gate is time-durable across ALL isolates via the
+// shared counter store, and safe under concurrency through
+// the single-writer consolidation claim: a skipped pass does
+// NOT refresh the timestamp, so the next isolate retries.
+// ---------------------------------------------------------
+
+/** Minimum seconds between consolidation passes system-wide. */
+export const CONSOLIDATION_INTERVAL_SECONDS = 3600;
+
+export interface ConsolidationSchedulerDeps {
+  improve(): Promise<{
+    merged: number;
+    decayed: number;
+    promoted: number;
+    dropped: number;
+    skipped?: boolean;
+  }>;
+}
+
+export interface CounterStoreLike {
+  loadCounters(): Promise<Record<string, number>>;
+  saveCounters(counters: Record<string, number>): Promise<void>;
+}
+
+/** Run a consolidation pass only if one is due. Returns
+ *  true when a pass actually ran. */
+export async function consolidateIfDue(
+  learner: ConsolidationSchedulerDeps,
+  counterStore: CounterStoreLike | null,
+  nowSec: number = Math.floor(Date.now() / 1000),
+): Promise<boolean> {
+  if (!counterStore) return false;
+  const base = await counterStore.loadCounters();
+  const last = base["last_consolidation_ts"] ?? 0;
+  if (nowSec - last < CONSOLIDATION_INTERVAL_SECONDS) return false;
+  const result = await learner.improve();
+  if (result.skipped) return false;
+  await counterStore.saveCounters({ last_consolidation_ts: nowSec });
+  return true;
 }

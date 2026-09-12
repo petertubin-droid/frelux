@@ -176,7 +176,7 @@ export class FactRankIndex {
    *  allocations, and a per-query idf memo. Verified by the
    *  legacy-equivalence forensic test; see
    *  docs/archie-performance-ledger.md. */
-  rank(query: string, k = 6): Fact[] {
+  rank(query: string, k = NATIVE_CONFIG.rankK): Fact[] {
     const qTokens = tokenize(query);
     if (qTokens.length === 0 || this.entries.size === 0) return [];
     const candidateIds = new Set<string>();
@@ -273,6 +273,8 @@ const CONSOLIDATION_HOLDER: string =
     : "fact-store-fallback";
 
 const CONSOLIDATION_SCOPE = "fact-store-consolidation";
+
+import { NATIVE_CONFIG } from "./config.ts";
 
 export class FactStore {
   private facts: Fact[] = [];
@@ -371,7 +373,7 @@ export class FactStore {
    *  per-query `rankFacts(query, this.facts.list())` rebuild at
    *  every engine call site — see docs/archie-performance-ledger.md
    *  for the measured gain. */
-  rank(query: string, k = 6): Fact[] {
+  rank(query: string, k = NATIVE_CONFIG.rankK): Fact[] {
     return this.rankIndex.rank(query, k);
   }
 

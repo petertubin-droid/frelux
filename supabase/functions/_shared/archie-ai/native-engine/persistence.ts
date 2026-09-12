@@ -30,6 +30,8 @@ export interface SupabaseLike {
   };
 }
 
+import { NATIVE_CONFIG } from "./config.ts";
+
 export const FACTS_TABLE = "frelux_archie_native_facts";
 export const OUTCOMES_TABLE = "frelux_archie_native_outcomes";
 export const EPISODIC_TABLE = "frelux_archie_episodic_turns";
@@ -78,7 +80,7 @@ export class SupabasePersistence
     // Hydrate the most recent 500 facts.
     return rows
       .sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""))
-      .slice(0, 500);
+      .slice(0, NATIVE_CONFIG.factHydrateLimit);
   }
 
   async saveFact(fact: Fact): Promise<void> {
@@ -100,7 +102,7 @@ export class SupabasePersistence
   }
 
   async saveFacts(facts: Fact[]): Promise<void> {
-    for (const fact of facts.slice(0, 500)) {
+    for (const fact of facts.slice(0, NATIVE_CONFIG.factHydrateLimit)) {
       await this.db
         .from(FACTS_TABLE)
         .update({
@@ -163,7 +165,10 @@ export class SupabasePersistence
       .from(OUTCOMES_TABLE)
       .select("id,kind,task,contributing,timestamp");
     if (error) return [];
-    return ((data ?? []) as LearningOutcome[]).slice(0, 200);
+    return ((data ?? []) as LearningOutcome[]).slice(
+      0,
+      NATIVE_CONFIG.outcomeLimit,
+    );
   }
 
   async saveOutcome(outcome: LearningOutcome): Promise<void> {
@@ -189,7 +194,9 @@ export class EpisodicPersistence {
 
   /** Most recent turns across conversations (hydration
    *  happens once per isolate, at boot). */
-  async loadEpisodicTurns(limit = 200): Promise<EpisodicTurnRow[]> {
+  async loadEpisodicTurns(
+    limit = NATIVE_CONFIG.episodicLimit,
+  ): Promise<EpisodicTurnRow[]> {
     const { data, error } = await this.db
       .from(EPISODIC_TABLE)
       .select("id,conversation_id,role,text,turn_at");

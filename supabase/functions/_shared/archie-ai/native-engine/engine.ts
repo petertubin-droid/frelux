@@ -119,7 +119,7 @@ import {
   type ProjectFile,
 } from "./coding-project.ts";
 import { SelfEvaluator } from "./selfeval.ts";
-import { OutcomeLearner } from "./learning.ts";
+import { OutcomeLearner, consolidateIfDue } from "./learning.ts";
 import { SupabasePersistence, type SupabaseLike } from "./persistence.ts";
 import { CounterPersistence, EpisodicPersistence } from "./persistence.ts";
 import type { Fact, Plan, PlanLesson, RetrievedContext } from "./types.ts";
@@ -529,6 +529,15 @@ export class ArchieNativeEngine implements ArchieRuntime {
       status: "validated",
     });
     await this.learner.hydrate();
+    // REMEDIATION batch 4 (fix 8): durable consolidation
+    // scheduling — at most one pass per hour system-wide,
+    // coordinated across isolates (skipped passes don't
+    // refresh the timestamp, so the next isolate retries).
+    try {
+      await consolidateIfDue(this.learner, this.counterStore);
+    } catch {
+      // Best-effort: scheduling never breaks boot.
+    }
     // P7 batch 2 — seed system-wide counters from the
     // persisted base so diagnostics report system-wide
     // numbers, not per-isolate noise.
