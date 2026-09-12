@@ -409,17 +409,51 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
 
   // -------- 🦵 LEGS — infrastructure & deployment -------
   const infra = await count(db, "frelux_infrastructure_costs");
+  const snapshots = await count(db, "frelux_archie_infrastructure_snapshots");
+  // latest assessment = the engine's own verdict, not a guess
+  let latestStatus: string | null = null;
+  let latestAt: string | null = null;
+  try {
+    const res = await db
+      .from("frelux_archie_infrastructure_snapshots")
+      .select("overall_status,assessed_at")
+      .limit(50);
+    // mock-compatible manual sort (no .order() in AnatomyDb)
+    const rows = (res.data ?? []) as
+      { overall_status?: string; assessed_at?: string }[] | null;
+    const latest = rows
+      ?.filter((r) => r.overall_status)
+      .sort((a, b) =>
+        String(b.assessed_at ?? "").localeCompare(String(a.assessed_at ?? "")),
+      )[0];
+    if (latest?.overall_status) {
+      latestStatus = latest.overall_status;
+      latestAt = latest.assessed_at ?? null;
+    }
+  } catch {
+    // unreadable → report unknown, never fabricate
+  }
+  const infraDegraded =
+    infra === null ||
+    snapshots === null ||
+    latestStatus === null ||
+    latestStatus === "CRITICAL";
   push({
     subsystem_key: "legs",
-    status: infra === null ? "DEGRADED" : "HEALTHY",
+    status: infraDegraded ? "DEGRADED" : "HEALTHY",
     metric:
       infra === null
         ? "infrastructure records unreadable"
-        : "infrastructure cost tracking live",
+        : latestStatus === null
+          ? "infrastructure engine live, no assessment recorded yet"
+          : `infrastructure engine: latest assessment ${latestStatus}${latestAt ? ` @ ${latestAt}` : ""}`,
     details: {
       deployment: "Netlify (freluxtools.netlify.app)",
       backend: "Supabase Freluxtools (hqhvlkunkdrxyuvziorm)",
       cost_records: infra,
+      assessment_snapshots: snapshots,
+      engine: "archie-infra (assess | snapshots | costs | budgets)",
+      core: "_shared/archie-ai/infrastructure/engine.ts",
     },
   });
 
