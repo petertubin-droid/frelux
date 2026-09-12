@@ -6,37 +6,8 @@
 // failure an honest disconnected state.
 // =========================================================
 
-import { useCallback, useEffect, useState } from "react";
-import {
-  fetchSystemStatus,
-  type ArchieSystemStatus,
-} from "@/lib/archie/stage1-client";
-
-export function useSystemStatus() {
-  const [data, setData] = useState<ArchieSystemStatus | null>(null);
-  const [isLoading, setLoading] = useState(true);
-  const [isError, setError] = useState(false);
-
-  const refresh = useCallback(async () => {
-    try {
-      const status = await fetchSystemStatus();
-      setData(status);
-      setError(status === null);
-    } catch {
-      setError(true);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    refresh();
-    const t = setInterval(refresh, 30_000);
-    return () => clearInterval(t);
-  }, [refresh]);
-
-  return { data, isLoading, isError, refresh };
-}
+import { useSystemStatus } from "@/hooks/useSystemStatus";
+import type { ArchieSystemStatus } from "@/lib/archie/stage1-client";
 
 function Dot({ state }: { state: string }) {
   const color =

@@ -30,11 +30,9 @@
 // explicit labeled test double.
 // =========================================================
 
-import type { Fact } from "./types.ts";
 import { FactStore } from "./knowledge.ts";
 import {
   WebSourceRegistry,
-  getWebSourceRegistry,
   type SourceCategory,
   type SourceRecord,
 } from "./web-sources.ts";

@@ -9,9 +9,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import StatusCenter, {
-  useSystemStatus,
-} from "@/components/archie/StatusCenter";
+import StatusCenter from "@/components/archie/StatusCenter";
+import { useSystemStatus } from "@/hooks/useSystemStatus";
 import AuthorityGovernance from "@/components/archie/AuthorityGovernance";
 import { listDevices, recordAuditEvent } from "@/lib/archie/stage1-client";
 import { fetchArchieStatus, type ArchieStatus } from "@/lib/archie/status";

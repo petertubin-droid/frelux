@@ -22,7 +22,7 @@ import {
   API_ENFORCEMENT,
   canSubscriberAlterLimits,
 } from "@/lib/archie/api-governance";
-import { ArchieSectionTitle, ArchieBadge } from "@/components/archie/premium";
+import { ArchieSectionTitle } from "@/components/archie/premium";
 
 export default function AuthorityGovernance() {
   const [claim, setClaim] = useState("");
