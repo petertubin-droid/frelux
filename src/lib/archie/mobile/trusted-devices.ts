@@ -15,7 +15,6 @@
 
 import type {
   TrustedDevice,
-  DeviceEnrollmentState,
   DeviceSecurityStatus,
   MobileDataCategory,
 } from "./p4-types";
@@ -67,7 +66,10 @@ export function activateDevice(
     };
   }
   if (device.enrollment_state !== "ENROLLED") {
-    return { ok: false, error: `Device is ${device.enrollment_state}, not awaiting activation` };
+    return {
+      ok: false,
+      error: `Device is ${device.enrollment_state}, not awaiting activation`,
+    };
   }
   return { ok: true, device: { ...device, enrollment_state: "ACTIVE" } };
 }
@@ -90,10 +92,16 @@ export function verifyDeviceToken(
   token_digest: string,
 ): { ok: boolean; error?: string } {
   if (!mayArchieInteract(device)) {
-    return { ok: false, error: "Device is not authorized for ARCHIE interaction" };
+    return {
+      ok: false,
+      error: "Device is not authorized for ARCHIE interaction",
+    };
   }
   if (token_digest !== device.token_digest) {
-    return { ok: false, error: "Token does not match the current device token (rotated or stale)" };
+    return {
+      ok: false,
+      error: "Token does not match the current device token (rotated or stale)",
+    };
   }
   return { ok: true };
 }
@@ -131,7 +139,11 @@ export function revokeDevice(
 
 /** Suspend a suspicious device pending user review. */
 export function suspendDevice(device: TrustedDevice): TrustedDevice {
-  return { ...device, enrollment_state: "SUSPENDED", security_status: "SUSPICIOUS" };
+  return {
+    ...device,
+    enrollment_state: "SUSPENDED",
+    security_status: "SUSPICIOUS",
+  };
 }
 
 /** Suspicious-session detection: evidence-based signals raise
@@ -146,7 +158,11 @@ export function detectSuspiciousActivity(
     rapid_reenrollments?: number;
     time_since_rotation_hours?: number;
   },
-): { suspicious: boolean; security_status: DeviceSecurityStatus; reasons: string[] } {
+): {
+  suspicious: boolean;
+  security_status: DeviceSecurityStatus;
+  reasons: string[];
+} {
   const reasons: string[] = [];
   if ((signals.token_verification_failures ?? 0) >= 3) {
     reasons.push("3+ token verification failures (possible stolen token)");
@@ -159,7 +175,9 @@ export function detectSuspiciousActivity(
     reasons.push(`Sign-in from a new region (${signals.new_region})`);
   }
   if ((signals.rapid_reenrollments ?? 0) >= 3) {
-    reasons.push("3+ rapid enrollments in a short window (possible impersonation)");
+    reasons.push(
+      "3+ rapid enrollments in a short window (possible impersonation)",
+    );
   }
   if ((signals.time_since_rotation_hours ?? 0) > 24 * 90) {
     reasons.push("Device token has not been rotated for over 90 days");
@@ -181,12 +199,18 @@ export function grantDeviceCategory(
   category: MobileDataCategory,
 ): { ok: boolean; error?: string; device?: TrustedDevice } {
   if (!mayArchieInteract(device)) {
-    return { ok: false, error: "Only active trusted devices can hold permissions" };
+    return {
+      ok: false,
+      error: "Only active trusted devices can hold permissions",
+    };
   }
   if (device.permission_set.includes(category)) {
     return { ok: true, device };
   }
-  return { ok: true, device: { ...device, permission_set: [...device.permission_set, category] } };
+  return {
+    ok: true,
+    device: { ...device, permission_set: [...device.permission_set, category] },
+  };
 }
 
 /** Revoke one category from a device. */

@@ -33,7 +33,6 @@ import { mayIngestFrom } from "./consent-categories";
 import {
   DEFAULT_MOBILE_SCOPE,
   requiresUserConfirmation,
-  requiresHumanApproval,
   evaluateScopeTransition,
 } from "./knowledge-scope";
 
@@ -74,8 +73,7 @@ export function startMobileLearning(args: {
 }
 
 export type MobileAdvance =
-  | { ok: true; learning: MobileLearning }
-  | { ok: false; error: string };
+  { ok: true; learning: MobileLearning } | { ok: false; error: string };
 
 /** Advance one pipeline stage with its required evidence. */
 export function advanceMobileLearning(
@@ -115,7 +113,10 @@ export function advanceMobileLearning(
   switch (to) {
     case "SELECTED": {
       if (!evidence.selected_count || evidence.selected_count <= 0) {
-        return { ok: false, error: "SELECTED requires explicitly selected items (no silent scan)" };
+        return {
+          ok: false,
+          error: "SELECTED requires explicitly selected items (no silent scan)",
+        };
       }
       return { ok: true, learning: { ...next, pipeline_state: to } };
     }
@@ -126,34 +127,71 @@ export function advanceMobileLearning(
     case "VALIDATED":
     case "EVALUATED": {
       if (!evidence.learned || evidence.learned.length === 0) {
-        return { ok: false, error: `${to} requires the structured facts produced so far` };
+        return {
+          ok: false,
+          error: `${to} requires the structured facts produced so far`,
+        };
       }
       const flags = [...next.flags, ...(evidence.flags ?? [])];
-      return { ok: true, learning: { ...next, pipeline_state: to, learned: evidence.learned, flags } };
+      return {
+        ok: true,
+        learning: {
+          ...next,
+          pipeline_state: to,
+          learned: evidence.learned,
+          flags,
+        },
+      };
     }
     case "SHOWN_TO_USER": {
       if (!evidence.shown_summary?.trim()) {
-        return { ok: false, error: "SHOW USER WHAT WAS LEARNED is mandatory, a summary is required" };
+        return {
+          ok: false,
+          error:
+            "SHOW USER WHAT WAS LEARNED is mandatory, a summary is required",
+        };
       }
       return {
         ok: true,
-        learning: { ...next, pipeline_state: to, shown_summary: evidence.shown_summary },
+        learning: {
+          ...next,
+          pipeline_state: to,
+          shown_summary: evidence.shown_summary,
+        },
       };
     }
     case "USER_CONFIRMED": {
-      if (next.scope && requiresUserConfirmation(next.scope) && evidence.user_confirmed !== true) {
+      if (
+        next.scope &&
+        requiresUserConfirmation(next.scope) &&
+        evidence.user_confirmed !== true
+      ) {
         return {
           ok: false,
-          error: "This scope requires explicit user confirmation before proceeding",
+          error:
+            "This scope requires explicit user confirmation before proceeding",
         };
       }
-      return { ok: true, learning: { ...next, pipeline_state: to, user_confirmed: evidence.user_confirmed === true } };
+      return {
+        ok: true,
+        learning: {
+          ...next,
+          pipeline_state: to,
+          user_confirmed: evidence.user_confirmed === true,
+        },
+      };
     }
     case "SCOPED": {
       if (!evidence.scope) {
-        return { ok: false, error: "SCOPED requires an explicit scope assignment" };
+        return {
+          ok: false,
+          error: "SCOPED requires an explicit scope assignment",
+        };
       }
-      return { ok: true, learning: { ...next, pipeline_state: to, scope: evidence.scope } };
+      return {
+        ok: true,
+        learning: { ...next, pipeline_state: to, scope: evidence.scope },
+      };
     }
     case "APPROVED": {
       const scope = next.scope ?? DEFAULT_MOBILE_SCOPE;

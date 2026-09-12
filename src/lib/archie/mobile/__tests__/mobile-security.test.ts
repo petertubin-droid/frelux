@@ -256,14 +256,6 @@ import type { ArchieConsent } from "@/lib/archie/mobile/types";
 const OWNER = "owner-1";
 const ATTACKER = "attacker-2";
 
-function consentMap(over: Partial<Record<string, ArchieConsent>> = {}) {
-  const map: Record<string, ArchieConsent> = {};
-  for (const cap of FREE_CAPABILITY_KEYS) {
-    map[cap] = { capability: cap, granted: false, granted_at: null };
-  }
-  return { ...map, ...over } as Record<string, never> as never;
-}
-
 beforeEach(() => {
   vi.clearAllMocks();
   invokeMock.mockImplementation(async () => ({

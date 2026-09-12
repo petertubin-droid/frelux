@@ -447,7 +447,6 @@ export function calculatePaint(
   // Rough/textured surfaces reduce effective coverage, apply factor to base rate.
   // Use DB-driven override if provided, otherwise fall back to hardcoded factor.
   const surfaceCondition = input.surfaceCondition ?? "smooth";
-  const surfaceInfo = getSurfaceConditionFactor(surfaceCondition);
   const surfaceFactor = resolveSurfaceFactor(surfaceCondition, config);
   const adjustedCoverageRate = round(baseCoverageRate * surfaceFactor);
 
