@@ -1,6 +1,13 @@
 -- =========================================================
 -- Phase 21b: Deduplicate seed data & add unique constraints
 -- Date: 2026-08-20
+-- Amended: 2026-09-12 — made constraint additions idempotent.
+--   "Supabase Preview" CI check was failing with
+--   "relation material_prices_name_key already exists (42P07)"
+--   because ALTER TABLE ... ADD CONSTRAINT has no IF NOT EXISTS
+--   form in Postgres. Wrapped each in a DO block that checks
+--   pg_constraint first, so this migration is safe to replay
+--   against any environment (fresh, drifted, or already-applied).
 --
 -- Problem: Seed inserts used `ON CONFLICT DO NOTHING` which only
 -- checks the primary key (id = gen_random_uuid()). Since each insert
@@ -20,6 +27,7 @@
 --   1. Delete duplicates, keeping the row with lowest sort_order
 --      (or earliest created_at as tiebreaker)
 --   2. Add UNIQUE constraints on natural keys to prevent future dupes
+--      (idempotent — skipped if already present)
 --   3. These constraints also make `ON CONFLICT (name) DO NOTHING`
 --      in the original migrations work correctly going forward
 -- =========================================================
@@ -34,8 +42,15 @@ WHERE id NOT IN (
   ORDER BY name, sort_order ASC, created_at ASC
 );
 
-ALTER TABLE public.paint_types
-  ADD CONSTRAINT paint_types_name_key UNIQUE (name);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'paint_types_name_key'
+  ) THEN
+    ALTER TABLE public.paint_types
+      ADD CONSTRAINT paint_types_name_key UNIQUE (name);
+  END IF;
+END $$;
 
 -- ─────────────────────────────────────────────────────────
 -- 2. labor_rates — dedupe by name
@@ -47,8 +62,15 @@ WHERE id NOT IN (
   ORDER BY name, sort_order ASC, created_at ASC
 );
 
-ALTER TABLE public.labor_rates
-  ADD CONSTRAINT labor_rates_name_key UNIQUE (name);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'labor_rates_name_key'
+  ) THEN
+    ALTER TABLE public.labor_rates
+      ADD CONSTRAINT labor_rates_name_key UNIQUE (name);
+  END IF;
+END $$;
 
 -- ─────────────────────────────────────────────────────────
 -- 3. material_prices — dedupe by name
@@ -60,8 +82,15 @@ WHERE id NOT IN (
   ORDER BY name, sort_order ASC, created_at ASC
 );
 
-ALTER TABLE public.material_prices
-  ADD CONSTRAINT material_prices_name_key UNIQUE (name);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'material_prices_name_key'
+  ) THEN
+    ALTER TABLE public.material_prices
+      ADD CONSTRAINT material_prices_name_key UNIQUE (name);
+  END IF;
+END $$;
 
 -- ─────────────────────────────────────────────────────────
 -- 4. tile_sizes — dedupe by name
@@ -73,8 +102,15 @@ WHERE id NOT IN (
   ORDER BY name, sort_order ASC, created_at ASC
 );
 
-ALTER TABLE public.tile_sizes
-  ADD CONSTRAINT tile_sizes_name_key UNIQUE (name);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'tile_sizes_name_key'
+  ) THEN
+    ALTER TABLE public.tile_sizes
+      ADD CONSTRAINT tile_sizes_name_key UNIQUE (name);
+  END IF;
+END $$;
 
 -- ─────────────────────────────────────────────────────────
 -- 5. tile_materials — dedupe by name
@@ -86,8 +122,15 @@ WHERE id NOT IN (
   ORDER BY name, sort_order ASC, created_at ASC
 );
 
-ALTER TABLE public.tile_materials
-  ADD CONSTRAINT tile_materials_name_key UNIQUE (name);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'tile_materials_name_key'
+  ) THEN
+    ALTER TABLE public.tile_materials
+      ADD CONSTRAINT tile_materials_name_key UNIQUE (name);
+  END IF;
+END $$;
 
 -- ─────────────────────────────────────────────────────────
 -- 6. pop_materials — dedupe by name + workflow (composite key)
@@ -99,8 +142,15 @@ WHERE id NOT IN (
   ORDER BY name, workflow, sort_order ASC, created_at ASC
 );
 
-ALTER TABLE public.pop_materials
-  ADD CONSTRAINT pop_materials_name_workflow_key UNIQUE (name, workflow);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'pop_materials_name_workflow_key'
+  ) THEN
+    ALTER TABLE public.pop_materials
+      ADD CONSTRAINT pop_materials_name_workflow_key UNIQUE (name, workflow);
+  END IF;
+END $$;
 
 -- ─────────────────────────────────────────────────────────
 -- 7. screeding_materials — dedupe by name
@@ -112,8 +162,15 @@ WHERE id NOT IN (
   ORDER BY name, sort_order ASC, created_at ASC
 );
 
-ALTER TABLE public.screeding_materials
-  ADD CONSTRAINT screeding_materials_name_key UNIQUE (name);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'screeding_materials_name_key'
+  ) THEN
+    ALTER TABLE public.screeding_materials
+      ADD CONSTRAINT screeding_materials_name_key UNIQUE (name);
+  END IF;
+END $$;
 
 -- ─────────────────────────────────────────────────────────
 -- Verification (run manually to confirm):
