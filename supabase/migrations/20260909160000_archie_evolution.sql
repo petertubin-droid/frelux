@@ -262,7 +262,7 @@ CREATE POLICY archie_language_profiles_service_all
   USING (true)
   WITH CHECK (true);
 
-CREATE UNIQUE INDEX archie_language_profiles_name_idx
+CREATE UNIQUE INDEX IF NOT EXISTS archie_language_profiles_name_idx
   ON archie_language_profiles (lower(name));
 
 CREATE TABLE IF NOT EXISTS archie_language_entries (
