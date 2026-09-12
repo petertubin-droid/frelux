@@ -112,6 +112,17 @@ DO $$ BEGIN
     'lighter', 'darker', 'matching_trim', 'matching_ceiling', 'coordinated_accent'
   );
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+-- Replay safety: if the type pre-exists from an older run with a subset of
+-- values, make sure every value is present (statement-autocommit replay makes these safe).
+ALTER TYPE public.color_relationship_type ADD VALUE IF NOT EXISTS 'similar';
+ALTER TYPE public.color_relationship_type ADD VALUE IF NOT EXISTS 'complementary';
+ALTER TYPE public.color_relationship_type ADD VALUE IF NOT EXISTS 'analogous';
+ALTER TYPE public.color_relationship_type ADD VALUE IF NOT EXISTS 'triadic';
+ALTER TYPE public.color_relationship_type ADD VALUE IF NOT EXISTS 'lighter';
+ALTER TYPE public.color_relationship_type ADD VALUE IF NOT EXISTS 'darker';
+ALTER TYPE public.color_relationship_type ADD VALUE IF NOT EXISTS 'matching_trim';
+ALTER TYPE public.color_relationship_type ADD VALUE IF NOT EXISTS 'matching_ceiling';
+ALTER TYPE public.color_relationship_type ADD VALUE IF NOT EXISTS 'coordinated_accent';
 
 CREATE TABLE IF NOT EXISTS color_relationship_overrides (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -151,6 +162,12 @@ DO $$ BEGIN
     'project', 'paint_estimate', 'cost_estimate', 'palette'
   );
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+-- Replay safety: if the type pre-exists from an older run with a subset of
+-- values, make sure every value is present (statement-autocommit replay makes these safe).
+ALTER TYPE public.shareable_resource_type ADD VALUE IF NOT EXISTS 'project';
+ALTER TYPE public.shareable_resource_type ADD VALUE IF NOT EXISTS 'paint_estimate';
+ALTER TYPE public.shareable_resource_type ADD VALUE IF NOT EXISTS 'cost_estimate';
+ALTER TYPE public.shareable_resource_type ADD VALUE IF NOT EXISTS 'palette';
 
 CREATE TABLE IF NOT EXISTS shareable_links (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
