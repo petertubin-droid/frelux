@@ -16,6 +16,7 @@ import {
   evaluateAutonomy,
   AUTONOMY_THRESHOLDS,
   CERTIFIED_MATH_CAPABILITIES,
+  AUTHORITY_PIPELINE,
 } from "@studio-shared/archie-ai/knowledge/autonomous.ts";
 
 const base = {
@@ -88,25 +89,27 @@ describe("knowledge autonomy — free accumulation", () => {
   });
 });
 
-describe("knowledge autonomy — owner boundary (code & decisions)", () => {
-  it("HOLDS code-modification material — never auto-promotes", () => {
+describe("knowledge autonomy — the authority check (execution intent)", () => {
+  it("HOLDS proposals to modify code — never auto-promotes an act", () => {
     const r = evaluateAutonomy({
       ...base,
       capability: "code_modification",
       confidence: 0.99,
     });
     expect(r.decision).toBe("HOLD");
-    expect(r.reason).toContain("owner-gated");
+    expect(r.reason).toContain("owner authorization");
   });
 
-  it("HOLDS self-modification, governance, execution and decision material", () => {
+  it("HOLDS self-modification, rule/config changes, delegation and override proposals", () => {
     for (const capability of [
       "self_modification",
-      "governance_rules",
-      "execution_policy",
-      "business_decision",
-      "owner_authority_delegation",
+      "rule_change",
+      "config_change",
       "constitution_amendment",
+      "owner_authority_delegation",
+      "credential_issuance",
+      "authority_escalation",
+      "decision_override",
     ]) {
       const r = evaluateAutonomy({ ...base, capability, confidence: 0.99 });
       expect(r.decision, capability).toBe("HOLD");
@@ -117,7 +120,7 @@ describe("knowledge autonomy — owner boundary (code & decisions)", () => {
     for (const capability of CERTIFIED_MATH_CAPABILITIES) {
       const r = evaluateAutonomy({ ...base, capability, confidence: 0.99 });
       expect(r.decision, capability).toBe("HOLD");
-      expect(r.reason, capability).toContain("owner-gated");
+      expect(r.reason, capability).toContain("certified-math");
     }
   });
 
@@ -127,15 +130,43 @@ describe("knowledge autonomy — owner boundary (code & decisions)", () => {
     expect(r.reason).toContain("quarantined");
   });
 
-  it("the owner boundary cannot be crossed by high confidence", () => {
-    // Even 1.0 confidence must not unlock code/decision material.
+  it("the authority check cannot be crossed by high confidence", () => {
+    // Even 1.0 confidence must not unlock an owner-controlled act.
     const r = evaluateAutonomy({
       ...base,
-      capability: "code",
+      capability: "code_modification",
       confidence: 1.0,
       proposed_scope: "PROJECT",
     });
     expect(r.decision).toBe("HOLD");
+  });
+});
+
+describe("knowledge autonomy — LEARNING AUTHORITY (owner directive 2026-09-12)", () => {
+  it("learns gated SUBJECTS freely — never restricts knowledge because acting on it would need authorization", () => {
+    for (const capability of [
+      "coding_intelligence",
+      "governance_rules",
+      "security_research",
+      "execution_policy",
+      "business_decision_analysis",
+      "code_review_knowledge",
+      "owner_communication_style",
+    ]) {
+      const r = evaluateAutonomy({ ...base, capability, confidence: 0.85 });
+      expect(r.decision, capability).toBe("PROMOTE");
+    }
+  });
+
+  it("pins the execution-authority pipeline: learn freely, act only when authorized", () => {
+    expect([...AUTHORITY_PIPELINE]).toEqual([
+      "LEARN FREELY",
+      "UNDERSTAND",
+      "REASON",
+      "PLAN",
+      "AUTHORITY CHECK",
+      "EXECUTE WHEN AUTHORIZED",
+    ]);
   });
 });
 

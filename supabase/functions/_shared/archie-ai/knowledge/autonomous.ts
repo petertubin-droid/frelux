@@ -14,34 +14,80 @@
 // knowledge layer with NO human review step. Everything is
 // audited (frelux_learning_audit, action AUTONOMOUS_PROMOTION).
 //
-// HARD BOUNDARY — owner authority is NOT relaxed:
-//   * Owner-gated capabilities (code, self-modification,
-//     governance, constitution, execution, decisions) are
-//     NEVER auto-promoted — they HOLD for the owner.
+// Owner directive (2026-09-12, LEARNING AUTHORITY /
+// EXECUTION AUTHORITY): ARCHIE has UNRESTRICTED authority to
+// learn and accumulate knowledge from lawful, accessible
+// sources. Owner authorization is NOT a gate for ordinary
+// knowledge acquisition. Learning what to do and doing it
+// are SEPARATE permissions:
+//
+//   LEARN FREELY -> UNDERSTAND -> REASON -> PLAN ->
+//   AUTHORITY CHECK -> EXECUTE WHEN AUTHORIZED
+//
+//   * Knowledge acquisition is NEVER restricted because the
+//     subject may eventually require authorization to act
+//     upon (code, governance, security, execution, decisions
+//     as SUBJECTS are free to learn).
+//   * Learning authority is NEVER a mechanism for authority
+//     escalation: ARCHIE may not freely expand its authority
+//     to act.
+//
+// What still HOLDs for the owner (the AUTHORITY CHECK, applied
+// to anything trying to enter the ACTIVE layer as an ACT
+// rather than as understanding):
+//   * EXECUTION-INTENT material — proposals whose purpose is
+//     to perform an owner-controlled act (modify code, change
+//     rules/config/policy, amend the constitution, delegate
+//     authority, issue credentials, engage the killswitch,
+//     override an owner decision).
 //   * Deterministic certified math (the calculator rule
 //     registry — painting, tiling, structural, ...) is a
-//     DECISION surface, not free knowledge. Changes to it
-//     still require the engineering-review process. Mirrors
+//     DECISION surface, not free knowledge. Mirrors
 //     MATH_CAPABILITIES in src/lib/learning/types.ts — if
 //     either list changes, update the other (drift contract).
 //   * Material quarantined by ingestion sanitization
 //     (injection flags) still requires the owner.
 // =========================================================
 
-/** Capabilities whose knowledge is a DECISION surface —
- *  promoting them autonomously would change ARCHIE's code,
- *  rules or authority without the owner. Always HOLD. */
-const OWNER_GATED_CAPABILITY_MATCHERS: readonly string[] = [
-  "code",
+/** The execution-authority pipeline (owner directive
+ *  2026-09-12) — ARCHIE may move freely through the first
+ *  four stages; the last two are owner territory. */
+export const AUTHORITY_PIPELINE = [
+  "LEARN FREELY",
+  "UNDERSTAND",
+  "REASON",
+  "PLAN",
+  "AUTHORITY CHECK",
+  "EXECUTE WHEN AUTHORIZED",
+] as const;
+
+/**
+ * EXECUTION-INTENT patterns (owner directive 2026-09-12):
+ * capabilities that PROPOSE AN ACT, not a subject to study.
+ * Learning about code, governance, security, execution or
+ * decisions is FREE (any subject may be learned); material
+ * whose purpose is to PERFORM an owner-controlled act —
+ * modify, change, amend, delegate, issue, override — HOLDs
+ * for the AUTHORITY CHECK.
+ */
+const EXECUTION_INTENT_PATTERNS: readonly string[] = [
+  "modification",
+  "modifying",
   "self_mod",
   "selfmod",
-  "governance",
-  "constitution",
-  "owner_",
-  "authority",
-  "execution",
-  "decision",
-  "policy",
+  "code_change",
+  "rule_change",
+  "config_change",
+  "policy_change",
+  "governance_change",
+  "constitution_amend",
+  "amendment",
+  "delegation",
+  "credential_issuance",
+  "killswitch",
+  "authority_override",
+  "decision_override",
+  "authority_escalation",
 ];
 
 /** Deterministic certified-math capabilities (mirror of
@@ -93,10 +139,10 @@ export interface AutonomyRecord {
   [k: string]: unknown;
 }
 
-function isOwnerGated(capability: string): boolean {
+function isExecutionIntent(capability: string): boolean {
   const c = capability.toLowerCase();
   return (
-    OWNER_GATED_CAPABILITY_MATCHERS.some((m) => c.includes(m)) ||
+    EXECUTION_INTENT_PATTERNS.some((m) => c.includes(m)) ||
     CERTIFIED_MATH_CAPABILITIES.has(c)
   );
 }
@@ -116,12 +162,17 @@ export function evaluateAutonomy(
         "quarantined by ingestion sanitization (injection flags) — owner review required",
     };
   }
+  // LEARNING AUTHORITY: subjects are always free. Only
+  // execution-intent material (proposing an owner-controlled
+  // act) or certified-math rule changes HOLD at the authority
+  // check. Never gate learning merely because the subject may
+  // eventually require authorization to act upon.
   const capability = String(record.capability ?? "").toLowerCase();
-  if (capability && isOwnerGated(capability)) {
+  if (capability && isExecutionIntent(capability)) {
     return {
       decision: "HOLD",
       reason:
-        `capability '${capability}' is owner-gated (code/decisions/math rules) — knowledge stored, promotion requires owner approval`,
+        `capability '${capability}' carries execution intent (modify/change/delegate/override or certified-math rules) — understanding is stored freely, but acting requires owner authorization`,
     };
   }
   if (!record.topic || !String(record.topic).trim()) {

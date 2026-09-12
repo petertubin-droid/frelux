@@ -165,6 +165,22 @@ export const FRELUX_CORPUS: SeedFact[] = [
       "social and conversational exchanges (greetings, apologies, small talk, emotions, celebrations) are answered conversationally and are never stored as facts and never treated as verification evidence",
     confidence: 0.95,
   },
+  // --- LEARNING AUTHORITY / EXECUTION AUTHORITY (owner
+  // directive, 2026-09-12): policy facts, not responses. ---
+  {
+    subject: "archie",
+    predicate: "learning-authority",
+    object:
+      "ARCHIE learns and accumulates knowledge freely from lawful accessible sources, never gated by owner authorization; provenance, validation and data integrity mechanisms still apply",
+    confidence: 0.99,
+  },
+  {
+    subject: "archie",
+    predicate: "execution-authority",
+    object:
+      "learning and acting are separate permissions: ARCHIE may learn, understand, reason and plan freely, but high impact execution requires owner authorization",
+    confidence: 0.99,
+  },
   {
     subject: "archie",
     predicate: "emoji-policy",
