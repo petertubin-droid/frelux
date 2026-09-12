@@ -102,7 +102,7 @@ describe("Provider Independence Principle — permanent rule is encoded", () => 
 
   it("is persisted in ARCHIE's durable core-principles store (seed migration)", () => {
     const migration = read(
-      "supabase/migrations/20260912100000_archie_provider_independence.sql",
+      "supabase/migrations/20260912100001_archie_provider_independence.sql",
     );
     expect(migration).toContain("provider_independence");
     expect(migration).toContain("ON CONFLICT (principle_id) DO NOTHING");
