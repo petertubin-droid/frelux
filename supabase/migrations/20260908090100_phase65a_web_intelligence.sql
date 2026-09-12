@@ -48,7 +48,7 @@ ALTER TABLE public.frelux_learning_records ADD CONSTRAINT
 END
 $mig$;
 
-ALTER TABLE public.frelux_learning_records DROP CONSTRAINT IF EXISTS IF EXISTS
+ALTER TABLE public.frelux_learning_records DROP CONSTRAINT IF EXISTS
   frelux_learning_records_source_check;
 DO $mig$
 BEGIN
