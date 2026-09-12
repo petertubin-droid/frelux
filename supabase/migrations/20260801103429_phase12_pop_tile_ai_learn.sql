@@ -404,7 +404,7 @@ BEGIN
     CHECK (project_type IN ('screeding', 'paint_calc', 'cost_estimate', 'ai_recommendation', 'custom', 'pop_ceiling', 'pop_estimate', 'tile', 'tile_estimate'));
   ELSE
     -- Drop and recreate to include new types
-    ALTER TABLE user_projects DROP CONSTRAINT user_projects_project_type_check;
+    ALTER TABLE user_projects DROP CONSTRAINT IF EXISTS user_projects_project_type_check;
     ALTER TABLE user_projects
     ADD CONSTRAINT user_projects_project_type_check
     CHECK (project_type IN ('screeding', 'paint_calc', 'cost_estimate', 'ai_recommendation', 'custom', 'pop_ceiling', 'pop_estimate', 'tile', 'tile_estimate'));

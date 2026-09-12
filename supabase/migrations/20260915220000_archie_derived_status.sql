@@ -11,7 +11,7 @@
 -- =========================================================
 
 ALTER TABLE public.frelux_archie_native_facts
-  DROP CONSTRAINT frelux_archie_native_facts_status_check;
+  DROP CONSTRAINT IF EXISTS frelux_archie_native_facts_status_check;
 
 DO $mig$
 BEGIN
