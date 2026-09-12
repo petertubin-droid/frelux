@@ -66,7 +66,8 @@ export async function listExecutionTargets(): Promise<
     body: { action: "list" },
   });
   if (error) return { ok: false, error: error.message };
-  if (!data?.ok) return { ok: false, error: data?.error ?? "Registry read failed." };
+  if (!data?.ok)
+    return { ok: false, error: data?.error ?? "Registry read failed." };
   return { ok: true, targets: data.targets ?? [] };
 }
 
@@ -91,18 +92,95 @@ export async function runExecution(params: {
     },
   });
   if (error) return { ok: false, error: error.message };
-  if (!data) return { ok: false, error: "No response from the execution engine." };
+  if (!data)
+    return { ok: false, error: "No response from the execution engine." };
   return data as RunOutcomeView;
 }
 
 /** Recent audited runs (redacted). */
-export async function getExecutionHistory(limit = 25): Promise<
+export async function getExecutionHistory(
+  limit = 25,
+): Promise<
   { ok: true; runs: ExecutionRunView[] } | { ok: false; error: string }
 > {
   const { data, error } = await supabase.functions.invoke("archie-execute", {
     body: { action: "history", limit },
   });
   if (error) return { ok: false, error: error.message };
-  if (!data?.ok) return { ok: false, error: data?.error ?? "History read failed." };
+  if (!data?.ok)
+    return { ok: false, error: data?.error ?? "History read failed." };
   return { ok: true, runs: data.runs ?? [] };
+}
+
+// ---------------------------------------------------------
+// RECOVERY ENGINE — engine inventory #18 (anatomy "healing")
+// Recovery of terminal runs: classify → plan → one audited
+// step (retry | compensate | escalate | close). Authority is
+// never bypassed — every retried execution re-verifies
+// policy, admin JWT and (where required) the Owner Secret.
+// ---------------------------------------------------------
+
+export interface RecoveryReportView {
+  ok: boolean;
+  runId: string;
+  classification: string;
+  action: string;
+  rationale: string;
+  recovered: boolean;
+  escalated: boolean;
+  retryRunId?: string;
+  recoveryAttemptsUsed: number;
+  recoveryAttemptsLeft: number;
+}
+
+export interface RecoveryEventView {
+  id: string;
+  run_id: string;
+  target_key: string;
+  classification: string;
+  action: string;
+  outcome: string;
+  detail: string;
+  created_by?: string | null;
+  created_date: string;
+}
+
+/**
+ * Recover a terminal execution run (FAILED | TIMEOUT |
+ * ROLLED_BACK | REJECTED) through the recovery engine. The
+ * decision, its class and its outcome land in the
+ * append-only recovery ledger.
+ */
+export async function recoverExecutionRun(params: {
+  runId: string;
+  ownerSecret?: string;
+  deviceFingerprint?: string;
+}): Promise<RecoveryReportView | { ok: false; error: string }> {
+  const { data, error } = await supabase.functions.invoke("archie-execute", {
+    body: {
+      action: "recover",
+      runId: params.runId,
+      ownerSecret: params.ownerSecret,
+      deviceFingerprint: params.deviceFingerprint,
+    },
+  });
+  if (error) return { ok: false, error: error.message };
+  if (!data)
+    return { ok: false, error: "No response from the recovery engine." };
+  return data as RecoveryReportView;
+}
+
+/** Recovery ledger — append-only audit of every recovery decision. */
+export async function getRecoveryHistory(
+  limit = 25,
+): Promise<
+  { ok: true; events: RecoveryEventView[] } | { ok: false; error: string }
+> {
+  const { data, error } = await supabase.functions.invoke("archie-execute", {
+    body: { action: "recovery", limit },
+  });
+  if (error) return { ok: false, error: error.message };
+  if (!data?.ok)
+    return { ok: false, error: data?.error ?? "Recovery ledger read failed." };
+  return { ok: true, events: data.events ?? [] };
 }

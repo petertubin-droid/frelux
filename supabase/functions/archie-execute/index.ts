@@ -37,6 +37,10 @@ import {
   EngineDeps,
   executeTarget,
 } from "../_shared/archie-ai/execution/engine.ts";
+import {
+  RecoveryDeps,
+  recoverRun,
+} from "../_shared/archie-ai/recovery/engine.ts";
 import { createClient, User } from "npm:@supabase/supabase-js@2.45.4";
 import { serveWithCors } from "../_shared/serve.ts";
 
@@ -195,6 +199,41 @@ const engineDeps: EngineDeps = {
 };
 
 // ---------------------------------------------------------
+// Recovery engine deps — the recovery layer re-enters the
+// execution engine above (every authority gate re-runs);
+// its decisions land in the append-only recovery ledger.
+// ---------------------------------------------------------
+const recoveryDeps: RecoveryDeps = {
+  getRun: async (id) => {
+    const { data, error } = await db
+      .from("frelux_archie_execution_runs")
+      .select(
+        "id,target_key,status,input,error,http_status,attempts,compensation_run_id,initiator_system",
+      )
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw new Error("run read failed");
+    return (data ?? null) as Awaited<ReturnType<RecoveryDeps["getRun"]>>;
+  },
+  getTarget,
+  executeTarget: (req) => executeTarget(engineDeps, req),
+  countRecoveryAttempts: async (runId) => {
+    const { count, error } = await db
+      .from("frelux_archie_recovery_events")
+      .select("id", { count: "exact", head: true })
+      .eq("run_id", runId);
+    if (error) throw new Error("recovery ledger read failed");
+    return count ?? 0;
+  },
+  recordRecoveryEvent: async (ev) => {
+    const { error } = await db.from("frelux_archie_recovery_events").insert(ev);
+    if (error) throw new Error("recovery ledger insert failed");
+  },
+  recordSecurityEvent: securityEvent,
+  log: (m: string) => console.log(`[archie-recovery] ${m}`),
+};
+
+// ---------------------------------------------------------
 // Auth: Owner = valid JWT + admin profile role
 // ---------------------------------------------------------
 async function authenticate(
@@ -221,8 +260,9 @@ async function authenticate(
 // Handler
 // ---------------------------------------------------------
 interface ExecuteBody {
-  action: "list" | "run" | "history";
+  action: "list" | "run" | "history" | "recover" | "recovery";
   targetKey?: string;
+  runId?: string;
   input?: unknown;
   ownerSecret?: string;
   deviceFingerprint?: string;
@@ -335,7 +375,48 @@ serveWithCors(async (req: Request) => {
       return jsonResponse(200, { ok: true, runs: data });
     }
 
+    case "recover": {
+      // Recovery of a terminal run (engine inventory #18).
+      // Owner authority is required; the recovery engine
+      // re-verifies everything and never bypasses a gate.
+      const runId = String(body.runId ?? "").trim();
+      if (!runId) return errorResponse(400, "runId is required.");
+      const report = await recoverRun(recoveryDeps, {
+        runId,
+        caller: {
+          userId: user.id,
+          isAdmin: true,
+          ownerSecret: body.ownerSecret,
+          deviceFingerprint: body.deviceFingerprint ?? null,
+        },
+      });
+      return jsonResponse(
+        report.recovered || report.action === "CLOSE" ? 200 : 422,
+        {
+          ok: report.recovered,
+          ...report,
+        },
+      );
+    }
+
+    case "recovery": {
+      // Recovery ledger — append-only audit history.
+      const limit = Math.min(Math.max(Number(body.limit ?? 25), 1), 100);
+      const { data, error } = await db
+        .from("frelux_archie_recovery_events")
+        .select(
+          "id,run_id,target_key,classification,action,outcome,detail,created_by,created_date",
+        )
+        .order("created_date", { ascending: false })
+        .limit(limit);
+      if (error) return errorResponse(500, "Recovery ledger read failed.");
+      return jsonResponse(200, { ok: true, events: data });
+    }
+
     default:
-      return errorResponse(400, "Unknown action. Use: list | run | history.");
+      return errorResponse(
+        400,
+        "Unknown action. Use: list | run | history | recover | recovery.",
+      );
   }
 });

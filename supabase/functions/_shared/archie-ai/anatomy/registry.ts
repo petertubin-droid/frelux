@@ -479,14 +479,20 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
   // -------- ❤️‍🩹 HEALING — recovery & rollback -----------
   const installations = await count(db, "archie_installations");
   const migrations = await count(db, "archie_migration_history");
+  const recoveryEvents = await count(db, "frelux_archie_recovery_events");
   push({
     subsystem_key: "healing",
     status:
-      installations === null && migrations === null ? "DEGRADED" : "HEALTHY",
-    metric: `${installations ?? "?"} installations, ${migrations ?? "?"} migration records`,
+      installations === null || migrations === null || recoveryEvents === null
+        ? "DEGRADED"
+        : "HEALTHY",
+    metric: `${installations ?? "?"} installations, ${migrations ?? "?"} migration records, ${recoveryEvents ?? "?"} recovery ledger events`,
     details: {
       backup: "migration packages (never export secrets by default)",
       rollback: "ROLLED_BACK compensation state in execution engine",
+      recovery_engine:
+        "_shared/archie-ai/recovery/engine.ts (classification → plan → retry/compensate/escalate → append-only ledger)",
+      recovery_events: recoveryEvents,
     },
   });
 
