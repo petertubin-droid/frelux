@@ -58,6 +58,14 @@ export const PROTECTED_SURFACES: readonly string[] = [
   "src/lib/archie/code-command.ts",
   "src/lib/archie/core-orchestrator.ts",
   "supabase/functions/archie-owner-auth",
+  // ⛔ API CREDENTIAL SYSTEM (owner directive 2026-09-12):
+  // ARCHIE must never be able to modify its own credential
+  // security surface, grant itself authority via credential
+  // scopes, or disable the killswitch through its own change
+  // pipeline.
+  "supabase/functions/_shared/archie-ai/security/api-credentials.ts",
+  "supabase/functions/_shared/archie-ai/security/api-credential-store.ts",
+  "supabase/functions/archie-credentials",
   "src/lib/auth.tsx",
   "src/lib/supabase.ts",
   "src/lib/supabase-lazy.ts",

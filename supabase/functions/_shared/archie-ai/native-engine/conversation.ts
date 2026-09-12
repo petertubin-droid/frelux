@@ -279,8 +279,8 @@ export function composeConversational(ctx: ConversationalContext): string {
     case "greeting": {
       const part = partOfDay(now);
       return pick("greet", seed, GREETINGS)
-        .replaceAll("{part}", part)
-        .replaceAll("{facts}", facts);
+        .replace(/\{part}/g, part)
+        .replace(/\{facts}/g, facts);
     }
     case "farewell":
       return pick("farewell", seed, FAREWELLS);
@@ -292,8 +292,7 @@ export function composeConversational(ctx: ConversationalContext): string {
       // Conversational follow ups: a bare "go on" resumes the
       // thread by quoting the last point honestly.
       if (/(go on|continue|keep going|carry on|proceed|go ahead)/i.test(input) && last) {
-        return pick("continue", seed, CONTINUATION_RESPONSES).replaceAll(
-          "{quote}",
+        return pick("continue", seed, CONTINUATION_RESPONSES).replace(/\{quote}/g,
           firstSentence(last),
         );
       }
@@ -305,8 +304,8 @@ export function composeConversational(ctx: ConversationalContext): string {
       return pick("disagree", seed, DISAGREEMENTS);
     case "help_request":
       return pick("help", seed, HELP_OFFERS)
-        .replaceAll("{capabilities}", caps)
-        .replaceAll("{facts}", facts);
+        .replace(/\{capabilities}/g, caps)
+        .replace(/\{facts}/g, facts);
     case "celebration":
       return pick("celebrate", seed, CELEBRATIONS);
     case "emotional_expression": {
@@ -351,16 +350,14 @@ export function composeConversational(ctx: ConversationalContext): string {
       return `Today is ${weekday}, ${date}, and the time is ${time} ${TIME_LABEL}. I read the clock directly, no guessing.`;
     }
     case "availability_check":
-      return pick("avail", seed, AVAILABILITY_RESPONSES).replaceAll(
-        "{capabilities}",
+      return pick("avail", seed, AVAILABILITY_RESPONSES).replace(/\{capabilities}/g,
         caps,
       );
     case "activity_query":
       return `Between your messages I am idle, doing no background work of my own. Since boot I have run ${ctx.inferences} inferences and I hold ${recentTurns.length} recent turns of our conversation in working memory. Ready for your next instruction, as always.`;
     case "clarification_request": {
       if (last) {
-        return pick("clarify", seed, CLARIFY_WITH_HISTORY).replaceAll(
-          "{quote}",
+        return pick("clarify", seed, CLARIFY_WITH_HISTORY).replace(/\{quote}/g,
           `"${firstSentence(last)}"`,
         );
       }

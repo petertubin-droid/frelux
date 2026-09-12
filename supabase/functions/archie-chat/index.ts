@@ -34,6 +34,12 @@ import {
   type ArchieToolSpec,
 } from "../_shared/archie-ai/runtime.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { createSupabaseCredentialStore } from "../_shared/archie-ai/security/api-credential-store.ts";
+import {
+  authenticateCredential,
+  credentialFromAuthHeader,
+  isCredentialKey,
+} from "../_shared/archie-ai/security/api-credentials.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -69,6 +75,15 @@ import {
 const db = createClient(SUPABASE_URL, SERVICE_ROLE, {
   auth: { persistSession: false },
 });
+
+// API-credential channel storage (owner directive 2026-09-12):
+// the shared service-role backend used by archie-credentials
+// for management and here for authentication — one store, one
+// authority model.
+const chatApiCredentialStore = createSupabaseCredentialStore(
+  SUPABASE_URL,
+  SERVICE_ROLE,
+);
 
 // ARCHIE Native Intelligence Engine — wire durable persistence
 // (knowledge facts + learning outcomes) into the engine the
@@ -341,6 +356,10 @@ interface ChatRequest {
   clientId?: string;
   history?: ChatTurn[];
   attachments?: { name: string; type: string }[];
+  /** API-credential channel only: the capability the
+   *  application wants to use ("chat" | "status"). Each maps
+   *  to a required scope enforced at authentication. */
+  capability?: string;
 }
 
 interface ToolRun {
@@ -1568,6 +1587,128 @@ serveWithCors(async (req) => {
   const conversationId =
     sanitize(String(body.conversationId ?? "default")).slice(0, 80) ||
     "default";
+
+  // 2a. API CREDENTIAL CHANNEL (owner directive 2026-09-12)
+  //     — explicitly authorized applications (FRELUX first,
+  //     future applications after) reach ARCHIE through scoped
+  //     API credentials. This is NOT owner access and NOT a
+  //     second authority system:
+  //       * The credential grants ONLY its explicitly listed
+  //         scopes (least privilege, no wildcards possible).
+  //       * The application session is ISOLATED: a fresh
+  //         in-memory engine, no persistence, no owner
+  //         memory, no owner tools. An authorized app can
+  //         converse; nothing more is reachable.
+  //       * Raw keys are never stored anywhere — verification
+  //         is a single verifier-hash lookup. Failure
+  //         responses carry machine codes, never key material.
+  //       * The contract here is application-facing and
+  //         extraction-ready: when ARCHIE is separated from
+  //         FRELUX, applications point this same credential at
+  //         ARCHIE's own endpoint. Nothing else changes.
+  const presentedApiKey = credentialFromAuthHeader(authHeader) ??
+    (req.headers.get("x-archie-api-key") ?? "");
+  if (!user && isCredentialKey(presentedApiKey)) {
+    try {
+    // Each capability maps to a required scope; default is
+    // the conversational contract (archie:chat).
+    const rawCapability = String(body.capability ?? "chat").slice(0, 24);
+    const requiredScopes =
+      rawCapability === "status" ? ["archie:status"] : ["archie:chat"];
+
+    const auth = await authenticateCredential(chatApiCredentialStore, presentedApiKey, {
+      requiredScopes,
+      pepper: Deno.env.get("ARCHIE_API_PEPPER") ?? "",
+    });
+
+    if (!auth.ok) {
+      const status = auth.code === "rate_limited"
+        ? 429
+        : auth.code === "invalid"
+        ? 401
+        : 403;
+      return json(status, {
+        error: auth.message,
+        code: auth.code,
+        mode: "api_credential",
+      });
+    }
+
+    const cred = auth.credential;
+
+    // Capability gate: "status" is the only non-chat
+    // capability exposed over this contract today, and it
+    // needs its own scope.
+    if (rawCapability === "status") {
+      return json(200, {
+        ok: true,
+        mode: "api_credential",
+        application: cred.application,
+        environment: cred.environment,
+        capability: "status",
+        scopes: cred.scopes,
+      });
+    }
+
+    if (!message) {
+      return json(400, {
+        error: "Message is required",
+        code: "invalid_request",
+        mode: "api_credential",
+      });
+    }
+
+    // Isolated application session: fresh engine, no tools,
+    // no persistence, no owner memory. Rate limiting already
+    // ran inside authenticateCredential (per-credential).
+    const appRuntime = new ArchieNativeEngine();
+    const appRequest: ArchieInferenceRequest = {
+      turns: [{ role: "owner" as const, parts: [{ text: message }] }],
+      systemInstruction:
+        `You are ARCHIE, serving the authorized application "${cred.application}" ` +
+        `(${cred.environment}) through a scoped API credential. Answer directly and ` +
+        `honestly within your knowledge. You are not the owner's personal session: ` +
+        `no owner data, memory or tools are available over this channel.`,
+      tools: [],
+      conversationId: `api-credential:${cred.id}`,
+    };
+
+    try {
+      const result = await appRuntime.generate(appRequest);
+      const text = result.parts
+        .map((p) => p.text)
+        .filter(Boolean)
+        .join("")
+        .trim();
+      if (!text) {
+        return json(502, {
+          error: "The engine produced no response. Please retry.",
+          mode: "api_credential",
+        });
+      }
+      return json(200, {
+        reply: sanitize(text),
+        mode: "api_credential",
+        application: cred.application,
+      });
+    } catch (err) {
+      return json(502, {
+        error: err instanceof Error ? sanitize(err.message) : "Engine failure",
+        mode: "api_credential",
+      });
+    }
+    } catch (diagErr) {
+      // Credential-channel diagnostic: machine-readable code,
+      // never key material (the message is sanitized and
+      // stripped of any credential fragment defensively).
+      const raw = diagErr instanceof Error ? diagErr.message : String(diagErr);
+      return json(500, {
+        error: sanitize(raw.replace(/archie_ak_[A-Za-z0-9_-]+/g, "archie_ak_[redacted]")).slice(0, 300),
+        code: "credential_channel_error",
+        mode: "api_credential",
+      });
+    }
+  }
 
   // 2b. PUBLIC VISITOR MODE — rate-limited, role-scoped site
   //     guidance through the same ARCHIE inference boundary.

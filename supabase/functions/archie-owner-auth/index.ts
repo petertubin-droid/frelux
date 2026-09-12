@@ -26,10 +26,15 @@ async function service<T>(
   path: string,
   init?: RequestInit,
 ): Promise<{ data: T | null; error: string | null }> {
-  const res = await fetch(`${SUPABASE_URL}${path}`, {
+  // Trailing-slash-safe join (see api-credential-store.ts) and
+  // the gateway-required apikey header (same convention as
+  // supabase-js, which always sends both).
+  const base = SUPABASE_URL.endsWith("/") ? SUPABASE_URL : `${SUPABASE_URL}/`;
+  const res = await fetch(`${base}${path.replace(/^\/+/, "")}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
+      apikey: SERVICE_ROLE,
       Authorization: `Bearer ${SERVICE_ROLE}`,
       ...(init?.headers ?? {}),
     },
@@ -177,11 +182,13 @@ serveWithCors(async (req) => {
   // ---- owner check: only the owner authorizes production changes ----
   // The FRELUX owner is the admin account (single-owner business
   // model — is_admin() is the authoritative server-side check).
-  const profile = await service<{ is_admin: boolean }[]>(
-    `rest/v1/profiles?id=eq.${userId}&select=is_admin`,
+  // Owner convention: public.profiles.role = 'admin' (the
+  // server-side authority check, same as public.is_admin()).
+  const profile = await service<{ role: string }[]>(
+    `rest/v1/profiles?id=eq.${userId}&select=role`,
   );
   const isOwner =
-    Array.isArray(profile.data) && profile.data[0]?.is_admin === true;
+    Array.isArray(profile.data) && profile.data[0]?.role === "admin";
 
   let body: Body;
   try {
