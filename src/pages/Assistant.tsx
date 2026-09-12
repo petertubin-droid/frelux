@@ -32,7 +32,6 @@ import {
   AlertTriangle,
   Check,
   Loader2,
-  RefreshCcw,
   Smartphone,
   History,
   KeyRound,
@@ -40,14 +39,12 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
-import { supabase } from "@/lib/supabase";
 import {
   MOBILE_CAPABILITIES,
   FREE_CAPABILITY_KEYS,
   checkCapabilityConsent,
   isCapabilitySupported,
   isSafeLink,
-  validateDeviceFile,
 } from "@/lib/archie/mobile/capabilities";
 import {
   fetchConsents,

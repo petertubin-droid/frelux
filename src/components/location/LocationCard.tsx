@@ -68,14 +68,16 @@ export default function LocationCard({
   const [editing, setEditing] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [saving, setSaving] = useState(false);
-  const [showManual, setShowManual] = useState(false);
   const [regional, setRegional] = useState<RegionalContext | null>(null);
   const [regionalLoading, setRegionalLoading] = useState(false);
 
   // ---- Hydrate from the row (project reload), provenance preserved ----
   useEffect(() => {
     if (!initialLocation) return;
-    loc.hydrateLocation(initialLocation as unknown as Record<string, unknown>, true);
+    loc.hydrateLocation(
+      initialLocation as unknown as Record<string, unknown>,
+      true,
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initialLocation]);
 
@@ -111,20 +113,6 @@ export default function LocationCard({
     try {
       await onSave(loc.location);
       loc.markSaved();
-    } finally {
-      setSaving(false);
-    }
-  }
-
-  async function handleClear() {
-    if (!onSave) {
-      loc.clearLocation();
-      return;
-    }
-    setSaving(true);
-    try {
-      await onSave(null);
-      loc.clearLocation();
     } finally {
       setSaving(false);
     }
@@ -176,7 +164,9 @@ export default function LocationCard({
             <MapPin className="h-4 w-4" />
           </span>
           <div>
-            <h3 className="text-sm font-semibold leading-tight">Project Location</h3>
+            <h3 className="text-sm font-semibold leading-tight">
+              Project Location
+            </h3>
             <p className="text-[11px] text-muted-foreground">
               Sets regional context, currency, units, terminology
             </p>
@@ -199,7 +189,8 @@ export default function LocationCard({
         {loc.state === "not_set" && (
           <div className="space-y-3" data-testid="state-not-set">
             <p className="text-sm text-muted-foreground">
-              No location set yet. Detect it, search for it, or enter it manually.
+              No location set yet. Detect it, search for it, or enter it
+              manually.
             </p>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Button
@@ -223,15 +214,19 @@ export default function LocationCard({
               </Button>
             </div>
             <p className="text-[11px] leading-relaxed text-muted-foreground">
-              FRELUX only accesses your device location when you ask it to, never
-              automatically. Location services are free; no map subscription required.
+              FRELUX only accesses your device location when you ask it to,
+              never automatically. Location services are free; no map
+              subscription required.
             </p>
           </div>
         )}
 
         {/* ---------- State: detecting / permission requested ---------- */}
-        {(loc.state === "detecting") && (
-          <div className="flex flex-col items-center gap-2 py-6" data-testid="state-detecting">
+        {loc.state === "detecting" && (
+          <div
+            className="flex flex-col items-center gap-2 py-6"
+            data-testid="state-detecting"
+          >
             <Loader2 className="h-5 w-5 animate-spin text-primary" />
             <p className="text-sm font-medium">Detecting your location…</p>
             <p className="text-xs text-muted-foreground">
@@ -257,7 +252,6 @@ export default function LocationCard({
                 className="gap-2"
                 onClick={() => {
                   setEditing(true);
-                  setShowManual(true);
                 }}
                 data-testid="denied-manual-fallback"
               >
@@ -313,7 +307,6 @@ export default function LocationCard({
                 size="sm"
                 onClick={() => {
                   setEditing(true);
-                  setShowManual(true);
                 }}
                 data-testid="unavailable-manual-fallback"
               >
@@ -324,128 +317,171 @@ export default function LocationCard({
         )}
 
         {/* ---------- Found / Saved: location display ---------- */}
-        {(loc.state === "found" || loc.state === "saved") && loc.location && !editing && (
-          <div className="space-y-3" data-testid={`state-${loc.state}`}>
-            <div className="flex items-start gap-2">
-              <span
-                className={
-                  loc.state === "saved"
-                    ? "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-300"
-                    : "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary"
-                }
-              >
-                {loc.state === "saved" ? (
-                  <CheckCircle2 className="h-4 w-4" />
-                ) : (
-                  <LocateFixed className="h-4 w-4" />
-                )}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">
-                  {formatLocationLabel(loc.location)}
-                </p>
-                <p className="text-[11px] text-muted-foreground">
-                  {SOURCE_LABELS[loc.location.source]} · {formatCapturedAt(loc.location)}
-                  {loc.state === "saved" ? " · saved to project" : ""}
-                </p>
-              </div>
-            </div>
-
-            {/* Coordinates + accuracy, always shown when present */}
-            <div className="grid grid-cols-2 gap-2 text-[11px]">
-              {formatCoordinates(loc.location) && (
-                <div className="rounded-lg bg-muted px-2.5 py-1.5">
-                  <span className="block text-muted-foreground">Coordinates</span>
-                  <span className="font-mono">{formatCoordinates(loc.location)}</span>
-                </div>
-              )}
-              {formatAccuracy(loc.location) && (
-                <div className="rounded-lg bg-muted px-2.5 py-1.5">
-                  <span className="block text-muted-foreground">Accuracy</span>
-                  <span className="font-mono">{formatAccuracy(loc.location)}</span>
-                </div>
-              )}
-            </div>
-
-            {/* Reverse-geocode availability, honest reporting */}
-            {loc.location.source === "gps" && loc.reverseGeocode.attempted && !loc.reverseGeocode.ok && (
-              <p className="text-[11px] leading-relaxed text-muted-foreground" data-testid="reverse-unavailable">
-                Address lookup unavailable, coordinates shown exactly as detected. No
-                address was guessed.
-              </p>
-            )}
-            {loc.reverseGeocode.message && loc.reverseGeocode.ok && (
-              <p className="text-[11px] text-muted-foreground" data-testid="reverse-ok">
-                {loc.reverseGeocode.message}
-              </p>
-            )}
-
-            {/* Regional context */}
-            <div className="rounded-lg border bg-background/50 p-3" data-testid="regional-panel">
-              <div className="mb-1.5 flex items-center justify-between gap-2">
-                <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
-                  Regional intelligence
-                </span>
-                {regionalBadge}
-              </div>
-              {regionalLoading && (
-                <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Loader2 className="h-3 w-3 animate-spin" /> Resolving regional context…
-                </p>
-              )}
-              {!regionalLoading && regional?.status === "available" && (
-                <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs sm:grid-cols-3">
-                  <div>
-                    <span className="block text-[11px] text-muted-foreground">Country</span>
-                    {regional.country_name}
-                  </div>
-                  <div>
-                    <span className="block text-[11px] text-muted-foreground">Currency</span>
-                    {regional.currency_code} ({regional.currency_symbol})
-                  </div>
-                  <div>
-                    <span className="block text-[11px] text-muted-foreground">Measurement</span>
-                    {regional.measurement_system}
-                  </div>
-                </div>
-              )}
-              {!regionalLoading && regional?.status === "unavailable" && (
-                <p className="text-xs text-muted-foreground">{regional.reason}</p>
-              )}
-              {!regionalLoading && regional?.status === "needs_confirmation" && (
-                <p className="text-xs text-muted-foreground">{regional.reason}</p>
-              )}
-            </div>
-
-            {/* Privacy note */}
-            {!compact && (
-              <p className="flex items-start gap-1.5 text-[11px] leading-relaxed text-muted-foreground">
-                <ShieldCheck className="mt-0.5 h-3 w-3 shrink-0" />
-                Only you can see this project's location. FRELUX never shares location
-                between users and never tracks you continuously.
-              </p>
-            )}
-
-            {/* Save (staged changes) */}
-            {onSave && dirty && (
-              <div className="flex gap-2">
-                <Button
-                  size="sm"
-                  onClick={handleSave}
-                  disabled={saving}
-                  className="gap-1.5"
-                  data-testid="save-location"
+        {(loc.state === "found" || loc.state === "saved") &&
+          loc.location &&
+          !editing && (
+            <div className="space-y-3" data-testid={`state-${loc.state}`}>
+              <div className="flex items-start gap-2">
+                <span
+                  className={
+                    loc.state === "saved"
+                      ? "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-300"
+                      : "flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary"
+                  }
                 >
-                  {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-                  {saving ? "Saving…" : "Save location"}
-                </Button>
-                <Button size="sm" variant="ghost" onClick={() => loc.clearLocation()} disabled={saving}>
-                  Discard
-                </Button>
+                  {loc.state === "saved" ? (
+                    <CheckCircle2 className="h-4 w-4" />
+                  ) : (
+                    <LocateFixed className="h-4 w-4" />
+                  )}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">
+                    {formatLocationLabel(loc.location)}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {SOURCE_LABELS[loc.location.source]} ·{" "}
+                    {formatCapturedAt(loc.location)}
+                    {loc.state === "saved" ? " · saved to project" : ""}
+                  </p>
+                </div>
               </div>
-            )}
-          </div>
-        )}
+
+              {/* Coordinates + accuracy, always shown when present */}
+              <div className="grid grid-cols-2 gap-2 text-[11px]">
+                {formatCoordinates(loc.location) && (
+                  <div className="rounded-lg bg-muted px-2.5 py-1.5">
+                    <span className="block text-muted-foreground">
+                      Coordinates
+                    </span>
+                    <span className="font-mono">
+                      {formatCoordinates(loc.location)}
+                    </span>
+                  </div>
+                )}
+                {formatAccuracy(loc.location) && (
+                  <div className="rounded-lg bg-muted px-2.5 py-1.5">
+                    <span className="block text-muted-foreground">
+                      Accuracy
+                    </span>
+                    <span className="font-mono">
+                      {formatAccuracy(loc.location)}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Reverse-geocode availability, honest reporting */}
+              {loc.location.source === "gps" &&
+                loc.reverseGeocode.attempted &&
+                !loc.reverseGeocode.ok && (
+                  <p
+                    className="text-[11px] leading-relaxed text-muted-foreground"
+                    data-testid="reverse-unavailable"
+                  >
+                    Address lookup unavailable, coordinates shown exactly as
+                    detected. No address was guessed.
+                  </p>
+                )}
+              {loc.reverseGeocode.message && loc.reverseGeocode.ok && (
+                <p
+                  className="text-[11px] text-muted-foreground"
+                  data-testid="reverse-ok"
+                >
+                  {loc.reverseGeocode.message}
+                </p>
+              )}
+
+              {/* Regional context */}
+              <div
+                className="rounded-lg border bg-background/50 p-3"
+                data-testid="regional-panel"
+              >
+                <div className="mb-1.5 flex items-center justify-between gap-2">
+                  <span className="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
+                    Regional intelligence
+                  </span>
+                  {regionalBadge}
+                </div>
+                {regionalLoading && (
+                  <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Loader2 className="h-3 w-3 animate-spin" /> Resolving
+                    regional context…
+                  </p>
+                )}
+                {!regionalLoading && regional?.status === "available" && (
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs sm:grid-cols-3">
+                    <div>
+                      <span className="block text-[11px] text-muted-foreground">
+                        Country
+                      </span>
+                      {regional.country_name}
+                    </div>
+                    <div>
+                      <span className="block text-[11px] text-muted-foreground">
+                        Currency
+                      </span>
+                      {regional.currency_code} ({regional.currency_symbol})
+                    </div>
+                    <div>
+                      <span className="block text-[11px] text-muted-foreground">
+                        Measurement
+                      </span>
+                      {regional.measurement_system}
+                    </div>
+                  </div>
+                )}
+                {!regionalLoading && regional?.status === "unavailable" && (
+                  <p className="text-xs text-muted-foreground">
+                    {regional.reason}
+                  </p>
+                )}
+                {!regionalLoading &&
+                  regional?.status === "needs_confirmation" && (
+                    <p className="text-xs text-muted-foreground">
+                      {regional.reason}
+                    </p>
+                  )}
+              </div>
+
+              {/* Privacy note */}
+              {!compact && (
+                <p className="flex items-start gap-1.5 text-[11px] leading-relaxed text-muted-foreground">
+                  <ShieldCheck className="mt-0.5 h-3 w-3 shrink-0" />
+                  Only you can see this project's location. FRELUX never shares
+                  location between users and never tracks you continuously.
+                </p>
+              )}
+
+              {/* Save (staged changes) */}
+              {onSave && dirty && (
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="gap-1.5"
+                    data-testid="save-location"
+                  >
+                    {saving ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                    )}
+                    {saving ? "Saving…" : "Save location"}
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => loc.clearLocation()}
+                    disabled={saving}
+                  >
+                    Discard
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
 
         {/* ---------- Editing: search + map + manual ---------- */}
         {editing && (
@@ -470,17 +506,32 @@ export default function LocationCard({
                       data-testid="search-input"
                     />
                   </div>
-                  <Button type="submit" size="sm" variant="outline" disabled={loc.searching}>
-                    {loc.searching ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : "Search"}
+                  <Button
+                    type="submit"
+                    size="sm"
+                    variant="outline"
+                    disabled={loc.searching}
+                  >
+                    {loc.searching ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      "Search"
+                    )}
                   </Button>
                 </form>
                 {loc.searchError && (
-                  <p className="text-[11px] text-muted-foreground" data-testid="search-error">
+                  <p
+                    className="text-[11px] text-muted-foreground"
+                    data-testid="search-error"
+                  >
                     {loc.searchError}
                   </p>
                 )}
                 {loc.searchResults.length > 0 && (
-                  <ul className="divide-y rounded-lg border" data-testid="search-results">
+                  <ul
+                    className="divide-y rounded-lg border"
+                    data-testid="search-results"
+                  >
                     {loc.searchResults.map((c, i) => (
                       <li key={i}>
                         <button
@@ -493,9 +544,13 @@ export default function LocationCard({
                         >
                           <MapPin className="mt-0.5 h-3 w-3 shrink-0 text-primary" />
                           <span className="min-w-0">
-                            <span className="block truncate font-medium">{c.formatted_address}</span>
+                            <span className="block truncate font-medium">
+                              {c.formatted_address}
+                            </span>
                             {c.country && (
-                              <span className="text-[11px] text-muted-foreground">{c.country}</span>
+                              <span className="text-[11px] text-muted-foreground">
+                                {c.country}
+                              </span>
                             )}
                           </span>
                         </button>
@@ -506,13 +561,17 @@ export default function LocationCard({
               </div>
             ) : (
               <p className="text-[11px] text-muted-foreground">
-                Location search is unavailable, no geocoding provider configured.
+                Location search is unavailable, no geocoding provider
+                configured.
               </p>
             )}
 
             {/* Map pin, only when a map provider is configured */}
             {loc.mapEnabled ? (
-              <div className="rounded-lg border p-3 text-xs" data-testid="map-picker-slot">
+              <div
+                className="rounded-lg border p-3 text-xs"
+                data-testid="map-picker-slot"
+              >
                 Map provider configured, pin selection renders here.
               </div>
             ) : (
@@ -525,13 +584,16 @@ export default function LocationCard({
             <ManualEntry
               loc={loc}
               onCancel={() => {
-                setShowManual(false);
                 setEditing(false);
               }}
             />
 
             <div className="flex items-center justify-between">
-              <Button variant="ghost" size="sm" onClick={() => setEditing(false)}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEditing(false)}
+              >
                 <X className="h-3.5 w-3.5" /> Close
               </Button>
               {!loc.permissionDeniedRemembered && (
@@ -662,8 +724,8 @@ function ManualEntry({
         </Button>
       </div>
       <p className="text-[11px] leading-relaxed text-muted-foreground">
-        Manual entries are never verified against a map service, you confirm them,
-        FRELUX stores exactly what you typed.
+        Manual entries are never verified against a map service, you confirm
+        them, FRELUX stores exactly what you typed.
       </p>
     </div>
   );

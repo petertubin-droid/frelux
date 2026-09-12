@@ -48,11 +48,6 @@ import {
   compareObservedToConfigured,
 } from "@/lib/archie/market-intelligence";
 import {
-  validateMarketObservation,
-  aggregateObservations,
-  type GlobalMarketObservation,
-} from "@/lib/archie/global-markets";
-import {
   buildInsightReport,
   SOCIAL_INTELLIGENCE_CAPABILITIES,
   type SocialInsight,

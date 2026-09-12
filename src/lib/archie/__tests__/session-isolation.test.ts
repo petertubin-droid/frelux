@@ -21,8 +21,6 @@
 
 import { describe, it, expect } from "vitest";
 import { ArchieNativeEngine } from "@studio-shared/archie-ai/native-engine/engine.ts";
-import type { ArchieInferenceTurn } from "@studio-shared/archie-ai/runtime.ts";
-import type { SupabaseLike } from "@studio-shared/archie-ai/native-engine/persistence.ts";
 
 // ── Episodic capture double ──
 class EpisodicCapture {
@@ -52,27 +50,6 @@ class EpisodicCapture {
   }
 }
 
-function makeEngine(episodic?: EpisodicCapture): ArchieNativeEngine {
-  const persistence = episodic
-    ? ({
-        from: () => ({
-          select: () => ({
-            limit: () => Promise.resolve({ data: [], error: null }),
-            order: () => ({
-              limit: () => Promise.resolve({ data: [], error: null }),
-            }),
-          }),
-          insert: () => Promise.resolve({ data: [], error: null }),
-          upsert: () => Promise.resolve({ data: [], error: null }),
-        }),
-        // Route the episodic tables to the capture double.
-        episodicCapture: episodic,
-      } as unknown as SupabaseLike)
-    : null;
-  const engine = new ArchieNativeEngine({ persistence });
-  return engine;
-}
-
 // The engine resolves its EpisodicPersistence from the shared
 // persistence object; patch the class wire via the public
 // configure path instead where needed. For this suite we use
@@ -84,7 +61,6 @@ function episodicEngine(capture: EpisodicCapture): ArchieNativeEngine {
   // Bypass: attach the capture through the same interface the
   // store uses — done via the public constructor option path
   // in production; here the store is injected directly.
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (engine as unknown as { episodicStore: EpisodicPersistence }).episodicStore =
     {
       loadEpisodicTurns: () => Promise.resolve(capture.loadEpisodicTurns()),
@@ -96,10 +72,6 @@ function episodicEngine(capture: EpisodicCapture): ArchieNativeEngine {
       }) => capture.saveEpisodicTurn(t),
     } as unknown as EpisodicPersistence;
   return engine;
-}
-
-function turn(role: "owner" | "archie", text: string): ArchieInferenceTurn {
-  return { role, parts: [{ text }] };
 }
 
 describe("Session isolation (audit fix C-1)", () => {
