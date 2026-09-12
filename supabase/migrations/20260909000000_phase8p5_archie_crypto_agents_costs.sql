@@ -32,13 +32,7 @@ DO $$ BEGIN
     'API_CUSTOMER_OPERATION'
   );
 EXCEPTION WHEN duplicate_object THEN NULL; END $$;
--- Replay safety: if the type pre-exists from an older run with a subset of
--- values, make sure every value is present (statement-autocommit replay makes these safe).
-ALTER TYPE public.frelux_operation_class ADD VALUE IF NOT EXISTS 'INTERNAL_ARCHIE_OPERATION';
-ALTER TYPE public.frelux_operation_class ADD VALUE IF NOT EXISTS 'OWNER_OPERATION';
-ALTER TYPE public.frelux_operation_class ADD VALUE IF NOT EXISTS 'SUBSCRIBER_OPERATION';
-ALTER TYPE public.frelux_operation_class ADD VALUE IF NOT EXISTS 'PUBLIC_USER_OPERATION';
-ALTER TYPE public.frelux_operation_class ADD VALUE IF NOT EXISTS 'API_CUSTOMER_OPERATION';
+
 
 -- Customer metering can only ever carry customer classes.
 ALTER TABLE public.frelux_api_usage
