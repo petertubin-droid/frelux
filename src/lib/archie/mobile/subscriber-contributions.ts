@@ -14,12 +14,7 @@
 // for human review rather than silently deleting history.
 // =========================================================
 
-import type {
-  SubscriberContribution,
-  MobileDataCategory,
-  MobileKnowledgeScope,
-  MobileLearning,
-} from "./p4-types";
+import type { SubscriberContribution, MobileLearning } from "./p4-types";
 import { MOBILE_BORN_EVIDENCE } from "./mobile-learning-pipeline";
 
 /** Create a contribution from a VERSIONED mobile learning of
@@ -44,13 +39,15 @@ export function createContribution(args: {
   if (!learning.user_confirmed) {
     return {
       ok: false,
-      error: "Contribution requires the user's explicit confirmation of what was learned",
+      error:
+        "Contribution requires the user's explicit confirmation of what was learned",
     };
   }
   if (learning.scope !== "FRELUX_GLOBAL_CANDIDATE") {
     return {
       ok: false,
-      error: "Contributions enter as FRELUX_GLOBAL_CANDIDATE scope (the user's contribution consent)",
+      error:
+        "Contributions enter as FRELUX_GLOBAL_CANDIDATE scope (the user's contribution consent)",
     };
   }
   const topic = learning.learned[0]?.topic;
@@ -171,7 +168,10 @@ export function withdrawContribution(
  *  version stays in history (audit + rollback). */
 export function amendContribution(
   contribution: SubscriberContribution,
-  corrected: { content?: Record<string, unknown>; country_region?: string | null },
+  corrected: {
+    content?: Record<string, unknown>;
+    country_region?: string | null;
+  },
   now?: string,
 ): SubscriberContribution {
   const t = now ?? new Date().toISOString();

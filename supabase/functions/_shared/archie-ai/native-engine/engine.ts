@@ -93,7 +93,7 @@ import {
   retrieveRelevantLessons,
   type RecordedLesson,
 } from "./lessons.ts";
-import { DomainSkillRegistry, type DomainSkill } from "./domains/registry.ts";
+import { DomainSkillRegistry } from "./domains/registry.ts";
 // Skill wiring only (composition): the engine imports NO
 // construction logic — the calculator, rules, NLU lexicon,
 // seed facts, quantities hint and operator execution all live
@@ -118,7 +118,7 @@ import {
   type ProjectFile,
 } from "./coding-project.ts";
 import { SelfEvaluator } from "./selfeval.ts";
-import { OutcomeLearner, type OutcomePersistence } from "./learning.ts";
+import { OutcomeLearner } from "./learning.ts";
 import { SupabasePersistence, type SupabaseLike } from "./persistence.ts";
 import { CounterPersistence, EpisodicPersistence } from "./persistence.ts";
 import type { Fact, Plan, PlanLesson, RetrievedContext } from "./types.ts";
@@ -1352,9 +1352,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
           intent: nlu.intent,
           now: new Date(),
           emojiTone: nlu.emojiTone,
-          recentTurns: session
-            ? session.memory.recentTurns(6)
-            : [],
+          recentTurns: session ? session.memory.recentTurns(6) : [],
           factsCount: this.facts.count(),
           inferences: this.inferences,
           capabilitiesSummary:

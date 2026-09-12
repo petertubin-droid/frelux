@@ -65,7 +65,8 @@ export async function readTable(
     rows.push(...(data as Array<Record<string, unknown>>));
     ctx.onProgress(
       `Collecting ${label}: ${rows.length} rows`,
-      (tableIndex + Math.min(offset + data.length, 1) / (offset + data.length)) /
+      (tableIndex +
+        Math.min(offset + data.length, 1) / (offset + data.length)) /
         tableTotal,
     );
     if (data.length < BATCH) break;
@@ -93,7 +94,11 @@ async function collectTables(
       counts[t.table] = rows.length;
       files.push({
         path: `${id}/${t.file}`,
-        content: JSON.stringify({ table: t.table, rowCount: rows.length, rows }, null, 2),
+        content: JSON.stringify(
+          { table: t.table, rowCount: rows.length, rows },
+          null,
+          2,
+        ),
       });
       summaries.push(`${rows.length} rows from ${t.table}`);
       anyOk = true;
@@ -104,7 +109,12 @@ async function collectTables(
       files.push({
         path: `${id}/${t.file}`,
         content: JSON.stringify(
-          { table: t.table, rowCount: 0, error: (err as Error).message, rows: [] },
+          {
+            table: t.table,
+            rowCount: 0,
+            error: (err as Error).message,
+            rows: [],
+          },
           null,
           2,
         ),
@@ -123,7 +133,9 @@ async function collectTables(
   return components;
 }
 
-export async function collectAll(ctx: CollectorContext): Promise<CollectedComponents> {
+export async function collectAll(
+  ctx: CollectorContext,
+): Promise<CollectedComponents> {
   const components: PackageComponent[] = [];
   const excluded: CollectedComponents["excluded"] = [];
   const counts: Record<string, number> = {};
@@ -135,11 +147,31 @@ export async function collectAll(ctx: CollectorContext): Promise<CollectedCompon
     ctx,
     "memory",
     [
-      { table: "frelux_archie_conversations", label: "ARCHIE conversations", file: "conversations.json" },
-      { table: "frelux_archie_messages", label: "ARCHIE messages", file: "messages.json" },
-      { table: "frelux_knowledge_items", label: "knowledge items", file: "knowledge-items.json" },
-      { table: "frelux_archie_knowledge_history", label: "knowledge history", file: "knowledge-history.json" },
-      { table: "frelux_archie_knowledge_links", label: "knowledge links", file: "knowledge-links.json" },
+      {
+        table: "frelux_archie_conversations",
+        label: "ARCHIE conversations",
+        file: "conversations.json",
+      },
+      {
+        table: "frelux_archie_messages",
+        label: "ARCHIE messages",
+        file: "messages.json",
+      },
+      {
+        table: "frelux_knowledge_items",
+        label: "knowledge items",
+        file: "knowledge-items.json",
+      },
+      {
+        table: "frelux_archie_knowledge_history",
+        label: "knowledge history",
+        file: "knowledge-history.json",
+      },
+      {
+        table: "frelux_archie_knowledge_links",
+        label: "knowledge links",
+        file: "knowledge-links.json",
+      },
     ],
     counts,
     excluded,
@@ -153,11 +185,31 @@ export async function collectAll(ctx: CollectorContext): Promise<CollectedCompon
     ctx,
     "language-memory",
     [
-      { table: "archie_language_profiles", label: "language profiles", file: "profiles.json" },
-      { table: "archie_language_entries", label: "vocabulary & grammar entries", file: "entries.json" },
-      { table: "archie_language_evidence", label: "language evidence", file: "evidence.json" },
-      { table: "frelux_archie_terminology", label: "terminology", file: "terminology.json" },
-      { table: "frelux_archie_languages", label: "language registry", file: "registry.json" },
+      {
+        table: "archie_language_profiles",
+        label: "language profiles",
+        file: "profiles.json",
+      },
+      {
+        table: "archie_language_entries",
+        label: "vocabulary & grammar entries",
+        file: "entries.json",
+      },
+      {
+        table: "archie_language_evidence",
+        label: "language evidence",
+        file: "evidence.json",
+      },
+      {
+        table: "frelux_archie_terminology",
+        label: "terminology",
+        file: "terminology.json",
+      },
+      {
+        table: "frelux_archie_languages",
+        label: "language registry",
+        file: "registry.json",
+      },
     ],
     counts,
     excluded,
@@ -171,10 +223,26 @@ export async function collectAll(ctx: CollectorContext): Promise<CollectedCompon
     ctx,
     "evolution",
     [
-      { table: "archie_change_requests", label: "change requests", file: "change-requests.json" },
-      { table: "archie_change_audit", label: "audit trail", file: "audit.json" },
-      { table: "archie_evolution_memory", label: "evolution lessons", file: "lessons.json" },
-      { table: "archie_evolution_settings", label: "evolution settings", file: "settings.json" },
+      {
+        table: "archie_change_requests",
+        label: "change requests",
+        file: "change-requests.json",
+      },
+      {
+        table: "archie_change_audit",
+        label: "audit trail",
+        file: "audit.json",
+      },
+      {
+        table: "archie_evolution_memory",
+        label: "evolution lessons",
+        file: "lessons.json",
+      },
+      {
+        table: "archie_evolution_settings",
+        label: "evolution settings",
+        file: "settings.json",
+      },
     ],
     counts,
     excluded,
@@ -215,10 +283,14 @@ export async function collectAll(ctx: CollectorContext): Promise<CollectedCompon
     .maybeSingle();
   const exportable: Record<string, unknown> = {};
   if (settingsErr) {
-    excluded.push({ id: "configuration", reason: `site_settings: ${settingsErr.message}` });
+    excluded.push({
+      id: "configuration",
+      reason: `site_settings: ${settingsErr.message}`,
+    });
   } else if (settings) {
     for (const key of EXPORTABLE_CONFIG_KEYS) {
-      if (key in settings) exportable[key] = settings[key as keyof typeof settings];
+      if (key in settings)
+        exportable[key] = settings[key as keyof typeof settings];
     }
     // Integration config: key names + enabled state, values REDACTED
     const { data: integrations } = await ctx.supabase
@@ -275,8 +347,12 @@ export async function collectAll(ctx: CollectorContext): Promise<CollectedCompon
             provider: "supabase",
             project_ref: ctx.databaseProjectRef,
             schema_version: schemaVersion,
+            migration_list_error: migErr ? migErr.message : null,
             applied_migrations: migrations?.map((m) => m.version) ?? [],
             note:
+              (migErr
+                ? `WARNING: schema_migrations could not be read (${migErr.message}) — schema_version and applied_migrations may be stale. `
+                : "") +
               "Portable state in this package references this schema. The production database is never duplicated or destroyed (spec §17). At restore time the owner chooses KEEP EXISTING MEMORY or RESTORE PORTABLE MEMORY SNAPSHOT.",
             connection_template: {
               SUPABASE_URL: "REQUIRED_AFTER_RESTORE",
@@ -299,14 +375,19 @@ export async function collectAll(ctx: CollectorContext): Promise<CollectedCompon
   if (ctx.mode === "MIGRATE") {
     const docker = await fetchRealDockerDefinitions(ctx);
     if (docker) components.push(docker.component);
-    else excluded.push({
-      id: "docker",
-      reason:
-        "Container definitions require connectivity to fetch from the FRELUX repository. Export without connectivity excludes them — re-export online for a code-bearing package.",
-    });
+    else
+      excluded.push({
+        id: "docker",
+        reason:
+          "Container definitions require connectivity to fetch from the FRELUX repository. Export without connectivity excludes them — re-export online for a code-bearing package.",
+      });
     const docs = await buildDocumentation(ctx, schemaVersion);
     if (docs) components.push(docs);
-    else excluded.push({ id: "documentation", reason: "Could not fetch repository metadata." });
+    else
+      excluded.push({
+        id: "documentation",
+        reason: "Could not fetch repository metadata.",
+      });
   }
 
   return { components, excluded, tableCounts: counts };
@@ -324,12 +405,14 @@ interface DockerFile {
 const DOCKER_FILES: DockerFile[] = [
   {
     repoPath: "Dockerfile",
-    rawUrl: "https://raw.githubusercontent.com/petertubin-droid/frelux/main/Dockerfile",
+    rawUrl:
+      "https://raw.githubusercontent.com/petertubin-droid/frelux/main/Dockerfile",
     packagePath: "docker/Dockerfile",
   },
   {
     repoPath: "docker-compose.yml",
-    rawUrl: "https://raw.githubusercontent.com/petertubin-droid/frelux/main/docker-compose.yml",
+    rawUrl:
+      "https://raw.githubusercontent.com/petertubin-droid/frelux/main/docker-compose.yml",
     packagePath: "docker/docker-compose.yml",
   },
 ];
@@ -341,7 +424,7 @@ const DOCKER_FILES: DockerFile[] = [
  * honestly otherwise (spec §25).
  */
 async function fetchRealDockerDefinitions(
-  ctx: CollectorContext,
+  _ctx: CollectorContext,
 ): Promise<{ component: PackageComponent } | null> {
   const files: PackageFile[] = [];
   const summaries: string[] = [];
@@ -378,13 +461,29 @@ async function buildDocumentation(
   const requirements = {
     format: "archie-migration-restore-requirements/1",
     checks: [
-      { id: "os", requirement: "Linux, macOS or Windows (WSL2 for Docker workflows)" },
+      {
+        id: "os",
+        requirement: "Linux, macOS or Windows (WSL2 for Docker workflows)",
+      },
       { id: "cpu", requirement: "x86_64 or ARM64" },
       { id: "ram", requirement: ">= 2 GB free (4 GB recommended)" },
       { id: "storage", requirement: ">= 500 MB free for ARCHIE environment" },
-      { id: "runtime", requirement: "Node.js 20+ for PWA build; Docker 24+ for containerized run" },
-      { id: "database", requirement: "Supabase project (existing project ref " + ctx.databaseProjectRef + " or a new one)" },
-      { id: "schema", requirement: `Apply migrations up to schema version ${schemaVersion ?? "latest"}` },
+      {
+        id: "runtime",
+        requirement:
+          "Node.js 20+ for PWA build; Docker 24+ for containerized run",
+      },
+      {
+        id: "database",
+        requirement:
+          "Supabase project (existing project ref " +
+          ctx.databaseProjectRef +
+          " or a new one)",
+      },
+      {
+        id: "schema",
+        requirement: `Apply migrations up to schema version ${schemaVersion ?? "latest"}`,
+      },
     ],
     steps: [
       "verify-package",
@@ -435,7 +534,10 @@ Generated ${new Date().toISOString()} by ARCHIE Portable Continuity & Migration.
   return {
     id: "documentation",
     files: [
-      { path: "documentation/requirements.json", content: JSON.stringify(requirements, null, 2) },
+      {
+        path: "documentation/requirements.json",
+        content: JSON.stringify(requirements, null, 2),
+      },
       { path: "documentation/RESTORE_GUIDE.md", content: guide },
     ],
     summary: "restore requirements + owner guide",

@@ -139,19 +139,22 @@ export function assessTrustSafety(input: {
   now?: string;
 }): AssessmentResult {
   const accountId = input.account_id.trim();
-  if (!accountId) return { ok: false, error: "An assessment requires the account identity" };
+  if (!accountId)
+    return { ok: false, error: "An assessment requires the account identity" };
 
   // Pair every signal with at least one valid evidence item.
   const validEvidence = input.evidence.filter(isEvidenceValid);
   if (validEvidence.length === 0) {
     return {
       ok: false,
-      error: "No valid evidence: a risk assessment cannot rely on confidence alone",
+      error:
+        "No valid evidence: a risk assessment cannot rely on confidence alone",
     };
   }
-  const evidenceSources = new Set(validEvidence.map((e) => e.source_ref));
-  const evidenceTexts = validEvidence.map((e) => `${e.observed} [${e.source_ref}]`).join(" | ");
-  const backed = input.signals.filter(() => validEvidence.length > 0);
+  // All signals are backed: validEvidence.length > 0 is guaranteed
+  // by the early return above (the old .filter(() => true) was a
+  // constant no-op).
+  const backed = input.signals;
 
   // Score: sum of base weights, escalating on repetition.
   let score = 0;
@@ -201,23 +204,28 @@ export const AUTHORITY_LAYERS: Readonly<
 > = {
   ARCHIE_DETECTION: {
     label: "ARCHIE, Detection",
-    scope: "Evidence-based detection of spam, fraud, abuse and risk. Detects; never judges finances.",
+    scope:
+      "Evidence-based detection of spam, fraud, abuse and risk. Detects; never judges finances.",
   },
   ARCHIE_RECOMMENDATION: {
     label: "ARCHIE, Recommendation",
-    scope: "Recommends actions (pause, flag, dispute analysis). Recommendations carry evidence and provenance; they are never self-executing financial decisions.",
+    scope:
+      "Recommends actions (pause, flag, dispute analysis). Recommendations carry evidence and provenance; they are never self-executing financial decisions.",
   },
   ARCHIE_TEMPORARY_SECURITY_ENFORCEMENT: {
     label: "ARCHIE, Temporary Security Enforcement",
-    scope: "Explicitly owner-authorized, bounded: temporary account pauses for HIGH/CRITICAL evidence-backed violations, pending owner review, with maximum duration and appeal.",
+    scope:
+      "Explicitly owner-authorized, bounded: temporary account pauses for HIGH/CRITICAL evidence-backed violations, pending owner review, with maximum duration and appeal.",
   },
   OWNER_AUTHORITY: {
     label: "Owner, Final Authority",
-    scope: "Final authority on reinstatement, restriction, termination, protected production and financial decisions.",
+    scope:
+      "Final authority on reinstatement, restriction, termination, protected production and financial decisions.",
   },
   PAYMENT_ESCROW_PROVIDER_AUTHORITY: {
     label: "Payment/Escrow Provider, Funds Authority",
-    scope: "Sole authority over custody, movement, release and refund of funds under its own controls and applicable regulation.",
+    scope:
+      "Sole authority over custody, movement, release and refund of funds under its own controls and applicable regulation.",
   },
 };
 
