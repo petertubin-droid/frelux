@@ -350,6 +350,12 @@ function correctWord(word: string): string {
   let bestFreq = 0;
   for (const [candidate, f] of freq) {
     if (editDistance(lower, candidate) > 1) continue;
+    // Plural morphology is not a typo: adding a trailing
+    // s or es never rescues an unknown word (corpus v2 fix:
+    // "service" must not become "services", which silently
+    // broke rules that expect the singular).
+    if (candidate === lower + "s" || candidate === lower + "es")
+      continue;
     const prefix = commonPrefixLength(lower, candidate);
     let type = 0;
     if (oneCharDeletion(candidate, lower)) {
@@ -1120,7 +1126,7 @@ const RULE_CASCADE: Array<{
     // subject after "is").
     intent: "time_query",
     pattern:
-      /^what\s+(?:time|day|month|year)\s+(?:is\s+(?:it|this)|are\s+(?:we|you)|do\s+we\s+have|have\s+we)\b|^what\s+day\s+of\s+the\s+week\b|^what\s+is\s+(?:the\s+)?(?:time|date)\b|\bwhats\s+the\s+time\b|^whats\s+todays?\s+(?:date|day|time)\b|^what\s+is\s+todays?\s+(?:date|day)\b|^which\s+(?:day|month|year)\b[^.?!]{0,30}\b(?:have\s+we|are\s+we|is\s+it)\b|^time\s+check\b|\btell\s+me\s+the\s+(?:hour|time)\b/i,
+      /^what\s+(?:time|day|month|year)\s+(?:is\s+(?:it|this)|are\s+(?:we|you)|do\s+we\s+have|have\s+we)\b|^what\s+day\s+of\s+the\s+week\b|^what\s+is\s+(?:the\s+)?(?:time|date)\b|\bwhats\s+the\s+time\b|^whats\s+todays?\s+(?:date|day|time)\b|^what\s+is\s+todays?\s+(?:date|day)\b|^which\s+(?:day|month|year)\b[^.?!]{0,30}\b(?:have\s+we|are\s+we|is\s+it)\b|^time\s+check\b|\btell\s+me\s+the\s+(?:hour|time)\b|^wat\s+time\b|\bwetin\s+be\s+the\s+time\b|^what\s+time\s+of\s+day\b/i,
     confidence: 0.85,
   },
   {
@@ -1134,7 +1140,7 @@ const RULE_CASCADE: Array<{
     // marker.
     intent: "clarification_request",
     pattern:
-      /\b(?:what\s+do\s+you\s+mean|what\s+did\s+you\s+(?:say|mean)|what\s+does\s+that\s+(?:even\s+)?mean|what\s+(?:exactly\s+)?are\s+you\s+getting\s+at|come\s+again|say\s+(?:that|it)\s+again|run\s+that\s+by\s+me\s+again|go\s+over\s+that\s+again|repeat\s+that|please\s+repeat|say\s+it\s+in\s+simple\s+english|break\s+it\s+down|shed\s+more\s+light|can\s+you\s+clarify|wait,\s+what|hold\s+on,\s+what|which\s+one\s+do\s+you\s+mean|explain\s+(?:more|further|that|it|again)|simplify\s+that|what\s+was\s+that\s+again)\b|\bi\s+(?:did\s+not|do\s+not|don't|dont|dnt)\s+(?:understand|get\s+it|get\s+you|follow)\b|\bhow\s+do\s+you\s+mean\b|\b(?:i\s+am\s+lost\s+here|you\s+lost\s+me|understanding\s+of\s+that\s+i\s+have\s+not)\b|^(?:pardon\?|hmm\?|huh\?|wym\?|wdym\?|wym|wdym|hmm|huh)\b[^a-z0-9]*$/i,
+      /\b(?:what\s+do\s+you\s+mean|what\s+did\s+you\s+(?:say|mean)|what\s+does\s+that\s+(?:even\s+)?mean|what\s+(?:exactly\s+)?are\s+you\s+getting\s+at|come\s+again|say\s+(?:that|it)\s+again|run\s+that\s+by\s+me\s+again|go\s+over\s+that\s+again|repeat\s+that|please\s+repeat|say\s+it\s+in\s+simple\s+english|break\s+it\s+down|shed\s+more\s+light|can\s+you\s+clarify|wait,\s+what|hold\s+on,\s+what|which\s+one\s+do\s+you\s+mean|explain\s+(?:more|further|that|it|again)|simplify\s+that|what\s+was\s+that\s+again)\b|\bi\s+(?:did\s+not|do\s+not|don't|dont|dnt)\s+(?:understand|get\s+it|get\s+you|follow)\b|\bhow\s+do\s+you\s+mean\b|\b(?:i\s+am\s+lost\s+here|you\s+lost\s+me|understanding\s+of\s+that\s+i\s+have\s+not)\b|^(?:pardon|hmm|huh|wym|wdym)\?+[^a-z0-9]*$|^(?:wym|wdym|hmm|huh)\b[^a-z0-9]*$/i,
     confidence: 0.85,
   },
   {
@@ -1143,7 +1149,7 @@ const RULE_CASCADE: Array<{
     // word sets are disjoint from those forms).
     intent: "availability_check",
     pattern:
-      /\b(?:are|is)\s+(?:you|u|anyone|anybody|someone|somebody)\s+(?:still\s+)?(?:there|around|awake|online|available|with\s+me|listening|home)\b|\bare\s+you\s+still\b[^a-z]*$|\b(?:you\s+there|you\s+around|anybody\s+home|anybody\s+there|anyone\s+there|anyone\s+home|archie\s+you\s+dey|shey\s+you\s+dey\s+there|you\s+dey\s+there)\b|^(?:ping|is\s+this\s+thing\s+on)\b|\bcan\s+you\s+hear\s+me|^is\s+the\s+engine\b[^.?!]*\b(?:at\s+my\s+service|available|online|there)\b/i,
+      /\b(?:are|is)\s+(?:you|u|anyone|anybody|someone|somebody)\s+(?:still\s+)?(?:there|around|awake|online|available|with\s+me|listening|home)\b|\bare\s+you\s+still\b[^a-z]*$|\b(?:you\s+there|you\s+around|anybody\s+home|anybody\s+there|anyone\s+there|anyone\s+home|archie\s+you\s+dey|shey\s+you\s+dey\s+there|you\s+dey\s+there|shey\s+you\s+dey\s+hear\s+me|you\s+dey\s+hear\s+me|\bi\s+hope\s+sa?y?\s+you\s+dey\b)\b|^(?:ping|is\s+this\s+thing\s+on)\b|\bcan\s+you\s+hear\s+me|^is\s+the\s+engine\b[^.?!]*\b(?:at\s+my\s+service|available|online|there)\b/i,
     confidence: 0.85,
   },
   {
@@ -1158,7 +1164,7 @@ const RULE_CASCADE: Array<{
     // offers of help, festive casual lines.
     intent: "social_talk",
     pattern:
-      /^shall\s+i\s+be\s+of\s+service\b|\bsun\s+dey\s+shine\b|\bthe\s+skies?\b[^.?!]*\b(?:clear|grey|gray|bright|heavy|dark)\b|\blets\s+go\b|^we\s+move\b|^i\s+dey\s+kampe\b|^i\s+was\s+at\s+the\s+site\b|^it\s+is\s+(?:so\s+|very\s+)?(?:cold|hot)\b|how\s+is\s+the\s+weather\b|^(?:im|i am)\s+(?:on\s+my\s+way|heading\s+to\s+(?:the\s+)?(?:site|work))\b|^can\s+i\s+help\s+you\b|^do\s+you\s+need\s+(?:my\s+)?help\b|^is\s+there\s+anything\s+i\s+can\s+do\b|tell\s+me\s+about\s+your\s+day\b|how\s+(?:was|is)\s+your\s+day\b|^do\s+you\s+like\b|been\s+a\s+long\s+week\b/i,
+      /^shall\s+i\s+be\s+of\s+service\b|\bsun\s+dey\s+shine\b|\bthe\s+skies?\b[^.?!]*\b(?:clear|grey|gray|bright|heavy|dark)\b|\blets\s+go\b|^we\s+move\b|^i\s+dey\s+kampe\b|^i\s+was\s+at\s+the\s+site\b|^it\s+is\s+(?:so\s+|very\s+)?(?:cold|hot)\b|how\s+is\s+the\s+weather\b|^(?:im|i am)\s+(?:on\s+my\s+way|heading\s+to\s+(?:the\s+)?(?:site|work))\b|^can\s+i\s+help\s+you\b|^do\s+you\s+need\s+(?:my\s+)?help\b|^is\s+there\s+anything\s+i\s+can\s+do\b|tell\s+me\s+about\s+your\s+day\b|how\s+(?:was|is)\s+your\s+day\b|^do\s+you\s+like\b|been\s+a\s+long\s+week\b|\bhow\s+may\s+i\s+be\s+of\s+assistance\b|\bshall\s+i\s+help\s+you\b|^e\s+go\s+better\b|\bmake\s+we\s+(?:vibe|chill|hang)\b/i,
     confidence: 0.8,
   },
   // Day/date questions about a subject are KNOWLEDGE queries
@@ -1184,7 +1190,7 @@ const RULE_CASCADE: Array<{
     // know about you" are the same identity probe with
     // conversational fillers.
     pattern:
-      /^(?:who|what)(?:\s+(?:exactly|really|precisely))?\s+are\s+you\b(?!\s+(?:good|best)\s+at\b)|\bwho\s+are\s+you\b|what\s+is\s+your\s+name|are\s+you\s+(?:archie|chatgpt|gemini|claude|an?\s+ai)|introduce\s+yourself|who\s+made\s+you|^remind\s+me\s+who\s+you\s+are\b|^what\s+should\s+i\s+know\s+about\s+you\b|what\s+are\s+you\s+called\b|what\s+do\s+i\s+call\s+you\b|\bwho\s+you\s+be\b|\byou\s+are\s+archie\b|your\s+name\s+is\s+archie\b|is\s+your\s+name\s+archie\b/i,
+      /^(?:who|what)(?:\s+(?:exactly|really|precisely))?\s+are\s+you\b(?!\s+(?:good|best)\s+at\b)|\bwho\s+are\s+you\b|what\s+is\s+your\s+name|(?<!how\s)are\s+you\s+(?:archie|chatgpt|gemini|claude|an?\s+ai)|introduce\s+yourself|who\s+made\s+you|^remind\s+me\s+who\s+you\s+are\b|^what\s+should\s+i\s+know\s+about\s+you\b|what\s+are\s+you\s+called\b|what\s+do\s+i\s+call\s+you\b|\bwho\s+you\s+be\b|\byou\s+are\s+archie\b|your\s+name\s+is\s+archie\b|is\s+your\s+name\s+archie\b/i,
     confidence: 0.9,
   },
   // Imperative commands (owner is issuing an instruction).
@@ -1414,7 +1420,7 @@ const RULE_CASCADE: Array<{
     // Goodbye, good night, signing off, parting wishes.
     intent: "farewell",
     pattern:
-      /^(?:good\s?night|goodnight|nite|gn)\b|^(?:im|i am|i'll|i will)\s+(?:off\b|done\b|leaving|logging\s+off|shutting\s+down|heading\s+(?:out|off|home))\b|\bfarewell\b|^i\s+must\s+be\s+going\b|^i\s+wish\s+you\b[^.?!]*\b(?:day|night|evening|journey|trip|weekend)\b|^(?:brb|gtg|ttyl|cya|cu)\b[^a-z0-9]*$|^tmrw\b|^i\s+will\s+be\s+back\b|^enjoy\s+your\s+(?:day|evening|weekend)\b|^have\s+a\s+(?:nice|great|good|lovely|wonderful)\b|^gone\s+for\s+the\s+day\b|^thats\s+all\s+for\s+now\b|^out\s+for\s+now\b/i,
+      /^(?:good\s?night|goodnight|nite|gn)\b|^(?:im|i am|i'll|i will)\s+(?:off\b|done\b|leaving|logging\s+off|shutting\s+down|heading\s+(?:out|off|home))\b|\bfarewell\b|^i\s+must\s+be\s+going\b|^i\s+wish\s+you\b[^.?!]*\b(?:day|night|evening|journey|trip|weekend)\b|^(?:brb|gtg|ttyl|cya|cu)\b[^a-z0-9]*$|^tmrw\b|^i\s+will\s+be\s+back\b|^enjoy\s+your\s+(?:day|evening|weekend)\b|^have\s+a\s+(?:nice|great|good|lovely|wonderful)\b|^gone\s+for\s+the\s+day\b|^thats\s+all\s+for\s+now\b|^out\s+for\s+now\b|\bgood\s?bye\b/i,
     confidence: 0.85,
   },
   {
@@ -1438,7 +1444,7 @@ const RULE_CASCADE: Array<{
     // cascade order guarantees this only sees generic help.
     intent: "help_request",
     pattern:
-      /^(?:can|could|will|would)\s+you\s+(?:please\s+)?help\b|^(?:please\s+)?help\s+me\b|^(?:i\s+(?:need|require)|im\s+going\s+to\s+need)\s+(?:your\s+)?(?:help|assistance|a\s+hand)\b|^i\s+could\s+use\s+(?:some\s+)?help\b|^abeg[^.?!]*\bhelp\b|^(?:do\s+me\s+a\s+favor|give\s+me\s+a\s+hand|lend\s+a\s+hand|assist\s+me|kindly\s+assist|sos)\b|^i\s+am\s+stuck\b|^(?:pls|plz|hlp)\b[^a-z0-9]*$|^hlp\s+me\b|^pls\s+help\b|\bwetin\s+(?:i|we)\s+(?:suppose|go)\s+do\b/i,
+      /^(?:can|could|will|would)\s+you\s+(?:please\s+)?help\b|^(?:please\s+)?help\s+me\b|^(?:i\s+(?:need|require)|im\s+going\s+to\s+need)\s+(?:your\s+)?(?:help|assistance|a\s+hand)\b|^i\s+could\s+use\s+(?:some\s+)?help\b|^abeg[^.?!]*\bhelp\b|^(?:do\s+me\s+a\s+favor|give\s+me\s+a\s+hand|lend\s+a\s+hand|assist\s+me|kindly\s+assist|sos)\b|^i\s+am\s+stuck\b|^(?:pls|plz|hlp)\b[^a-z0-9]*$|^hlp\s+me\b|^pls\s+help\b|\bwetin\s+(?:i|we)\s+(?:suppose|go)\s+do\b|\b(?:do\s+not|don't|dont)\s+know\s+what\s+to\s+do\b[^.?!]*\bhelp\b/i,
     confidence: 0.85,
   },
   {
@@ -1455,14 +1461,14 @@ const RULE_CASCADE: Array<{
     // is already routed to correction above.
     intent: "apology",
     pattern:
-      /^(?:im|i am|i)?\s*(?:so\s+|very\s+)?sorry\b|\bmy\s(?:bad|apologies|mistake|fault)\b|^(?:please\s+)?forgive\s+me\b|^pardon\s+me\b|^no\s+vex\b|^oops\b|^pardon\s+the\s+interruption\b|^excuse\s+my\s+manners\b|\bapolog(?:y|ies|ize)\b|^i\s+did(?:n't|nt)?\s+mean\s+(?:that|it)\b|^(?:sry|srry)\b/i,
+      /^(?:im|i am|i)?\s*(?:so\s+|very\s+)?sorry\b|\bmy\s(?:bad|apologies|mistake|fault)\b|^(?:please\s+)?forgive\s+me\b|^pardon\s+me\b|^no\s+vex\b|^oops\b|^pardon\s+the\s+interruption\b|^excuse\s+my\s+manners\b|\bapolog(?:y|ies|ize)\b|^i\s+did(?:n't|nt)?\s+mean\s+(?:that|it)\b|^(?:sry|srry)\b|\bsoory\b|\babeg\s+no\s+vex\b/i,
     confidence: 0.85,
   },
   {
     // Celebrations and festive wishes.
     intent: "celebration",
     pattern:
-      /\b(?:congratulations|congrats|merry\s+christmas|happy\s+(?:new\s+year|birthday|easter|new\s+month|independence\s+day|holiday|sunday|monday|tuesday|wednesday|thursday|friday|saturday))\b|^(?:we|i)\s+(?:won|did\s+it|nailed)\b|\bi\s+got\s+(?:the\s+job|the\s+contract|promoted)\b|^(?:its|it\s+is)\s+my\s+birthday\b|^promotion\b|\bpop\s+the\s+champagne\b|\ba\s+toast\s+to\b|^what\s+a\s+day\b|\bdey\s+celebrate\b|\bclient\s+approved\b|^i\s+graduated\b|^may\s+the\s+new\s+year\b|done\s+and\s+dusted\b/i,
+      /\b(?:congratulations|congrats|merry\s+christmas|happy\s+(?:new\s+year|birthday|easter|new\s+month|independence\s+day|holiday|sunday|monday|tuesday|wednesday|thursday|friday|saturday))\b|^(?:we|i)\s+(?:won|did\s+it|nailed)\b|\bi\s+got\s+(?:the\s+job|the\s+contract|promoted)\b|^(?:its|it\s+is)\s+my\s+birthday\b|^promotion\b|\bpop\s+the\s+champagne\b|\ba\s+toast\s+to\b|^what\s+a\s+day\b|\bdey\s+celebrate\b|\bclient\s+approved\b|^i\s+graduated\b|^may\s+the\s+new\s+year\b|done\s+and\s+dusted\b|\btoday\s+is\s+my\s+birthday\b|\blets\s+celebrate\b/i,
     confidence: 0.85,
   },
   {
@@ -1471,7 +1477,7 @@ const RULE_CASCADE: Array<{
     // feelings do not match and generalize through Bayes.
     intent: "emotional_expression",
     pattern:
-      /^i(?:'m|\s+m|\s+am)\s+(?:so\s+|very\s+|really\s+|quite\s+|kinda\s+|a\s+bit\s+)?(?:happy|sad|excited|tired|frustrated|angry|confused|surprised|nervous|worried|thrilled|exhausted|delighted|upset|bored|stressed|proud|sleepy|heartbroken|on\s+top\s+of\s+the\s+world|over\s+the\s+moon|feeling\s+down)\b|^this\s+is\s+(?:frustrating|terrible|confusing|surprising|exciting|annoying)\b|^(?:ugh|argh|yay|yayy|hurray|omg|finally|srsly)\b|\bwound\s+up\b|^i\s+never\s+expected\b|^today\s+is\s+a\s+(?:good|great|bad|rough|terrible|long)\s+day\b|^im\s+having\s+a\s+(?:rough|bad|good|long)\s+day\b|^today\s+drained\b|^wahala\s+dey\b|^i\s+am\s+in\s+a\s+(?:good|bad|terrible)\s+mood\b|^life\s+is\s+(?:good|bad|hard|tough)\b|^really\b[^a-z0-9]*$|^no\s+way\b[^a-z0-9]*$|^what\?+|^my\s+heart\b/i,
+      /^i(?:'m|\s+m|\s+am)\s+(?:so\s+|very\s+|really\s+|quite\s+|kinda\s+|a\s+bit\s+)?(?:happy|sad|excited|tired|frustrated|angry|confused|surprised|nervous|worried|thrilled|exhausted|delighted|upset|bored|stressed|proud|sleepy|heartbroken|on\s+top\s+of\s+the\s+world|over\s+the\s+moon|feeling\s+down)\b|^this\s+is\s+(?:frustrating|terrible|confusing|surprising|exciting|annoying)\b|^(?:ugh|argh|yay|yayy|hurray|omg|finally|srsly)\b|\bwound\s+up\b|^i\s+never\s+expected\b|^today\s+is\s+a\s+(?:good|great|bad|rough|terrible|long)\s+day\b|^im\s+having\s+a\s+(?:rough|bad|good|long)\s+day\b|^today\s+drained\b|^wahala\s+dey\b|^i\s+am\s+in\s+a\s+(?:good|bad|terrible)\s+mood\b|^life\s+is\s+(?:good|bad|hard|tough)\b|^really\b[^a-z0-9]*$|^no\s+way\b[^a-z0-9]*$|^what\?+|^my\s+heart\b|^chai\b|\bwahala\s+(?:no\s+dey|plenty|too\s+much|wan\s+finish)\b|^i\s+am\s+lost\b|\byou(?:re| are)\s+kidding\b|^i\s+need\s+(?:rest|a\s+break)\b/i,
     confidence: 0.8,
   },
   {
@@ -1480,7 +1486,7 @@ const RULE_CASCADE: Array<{
     // messages fall to Bayes, which owns context.
     intent: "acknowledgment",
     pattern:
-      /^(?:ok|okay|okey|okk|k|kk|got\s+it|gotcha|noted|understood|i\s+understand|i\s+get\s+it|i\s+see|i\s+hear\s+you|makes\s+sense|sounds\s+good|sounds\s+fine|very\s+well|fair\s+enough|indeed|cool|nice|great|perfect|roger\s+that|roger|copy\s+that|affirmative|no\s+rush|take\s+your\s+time|proceed|go\s+on|continue|keep\s+going|carry\s+on|go\s+ahead|idk|right|true|very\s+good)\b[^a-z0-9]*$|\bi\s+see\s+what\s+you\s+mean\b|^i\s+am\s+not\s+sure\b[^a-z]*$/i,
+      /^(?:ok|okay|okey|okk|k|kk|got\s+it|gotcha|noted|understood|i\s+understand|i\s+get\s+it|i\s+see|i\s+hear\s+you|makes\s+sense|sounds\s+good|sounds\s+fine|very\s+well|fair\s+enough|indeed|cool|nice|great|perfect|roger\s+that|roger|copy\s+that|affirmative|no\s+rush|take\s+your\s+time|proceed|go\s+on|continue|keep\s+going|carry\s+on|go\s+ahead|idk|right|true|very\s+good)\b[^a-z0-9]*$|\bi\s+see\s+what\s+you\s+mean\b|^i\s+am\s+not\s+sure\b[^a-z]*$|^i\s+(?:understand|get\s+it)\s+(?:now|fully|completely|totally)\b|^good\s+to\s+know\b|^your\s+guess\s+is\s+as\s+good\s+as\s+mine\b/i,
     confidence: 0.85,
   },
   {
@@ -1498,7 +1504,7 @@ const RULE_CASCADE: Array<{
     // pattern above is end-anchored.
     intent: "agreement",
     pattern:
-      /^no\s+wahala\b|^no\s+problem\b|^np\b[^a-z0-9]*$|^that\s+settles\s+it\b|\bin\s+accord\b|^i\s+buy\s+that\b/i,
+      /^no\s+wahala\b|^no\s+problem\b|^np\b[^a-z0-9]*$|^that\s+settles\s+it\b|\bin\s+accord\b|^i\s+buy\s+that\b|^agree\s+with\s+you\b/i,
     confidence: 0.8,
   },
   {
@@ -1506,7 +1512,7 @@ const RULE_CASCADE: Array<{
     // that is wrong" keeps the earlier correction route.
     intent: "disagreement",
     pattern:
-      /^(?:no|nah|nope|not\s+really|not\s+quite|not\s+exactly|not\s+entirely|i\s+disagree|i\s+(?:do\s+not|don't|dont)\s+agree|i\s+beg\s+to\s+differ|i\s+think\s+otherwise)\b[^a-z0-9]*$|\b(?:i\s+do\s+not|i\s+don't|i\s+dont)\s+think\s+so\b|\bthats\s+not\s+it\b|\bthat\s+is\s+not\s+it\b|^i\s+am\s+not\s+sure\s+about\s+that\b|\bsee\s+it\s+differently\b|\b(?:i\s+(?:do\s+not|don't|dont)|i\s+no)\s+buy\b|\bi\s+no\s+gree\b|\bi\s+have\s+to\s+disagree\b|\bdebatable\b|\bcannot\s+bring\b|\bcan\s+not\s+bring\b|\bdifferent\s+view\b|\bhard\s+for\s+me\s+to\s+accept\b/i,
+      /^(?:no|nah|nope|not\s+really|not\s+quite|not\s+exactly|not\s+entirely|i\s+disagree|i\s+(?:do\s+not|don't|dont)\s+agree|i\s+beg\s+to\s+differ|i\s+think\s+otherwise)\b[^a-z0-9]*$|\b(?:i\s+do\s+not|i\s+don't|i\s+dont)\s+think\s+so\b|\bthats\s+not\s+it\b|\bthat\s+is\s+not\s+it\b|^i\s+am\s+not\s+sure\s+about\s+that\b|\bsee\s+it\s+differently\b|\b(?:i\s+(?:do\s+not|don't|dont)|i\s+no)\s+buy\b|\bi\s+no\s+gree\b|\bi\s+have\s+to\s+disagree\b|\bdebatable\b|\bcannot\s+bring\b|\bcan\s+not\s+bring\b|\bdifferent\s+view\b|\bhard\s+for\s+me\s+to\s+accept\b|\bi\s+(?:do\s+not|don't|dont)\s+agree\s+with\s+(?:that|this|you|it)\b|\bdisagree\s+with\s+(?:that|this)\b/i,
     confidence: 0.8,
   },
 ];

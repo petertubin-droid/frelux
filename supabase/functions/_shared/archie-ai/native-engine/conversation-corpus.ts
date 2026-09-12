@@ -35,7 +35,7 @@ import type { Intent } from "./nlu.ts";
 
 /** Bumped when the conversational corpus changes so
  *  deployments can detect stale training data. */
-export const CONVERSATION_CORPUS_VERSION = 1;
+export const CONVERSATION_CORPUS_VERSION = 2;
 
 // ---------------------------------------------------------
 // TRAINING CORPUS
@@ -127,6 +127,8 @@ export const CONVERSATION_CORPUS: Array<[Intent, string[]]> = [
       "howdy partner",
       "hi, you are the first person i talk to today",
       "good morning ☀️",
+      "wat of today my guy",
+      "how is everything with you today",
     ],
   ],
   [
@@ -172,6 +174,9 @@ export const CONVERSATION_CORPUS: Array<[Intent, string[]]> = [
       "goodbye and thank you",
       "later",
       "good night, talk tomorrow 🌙",
+      "goodbye and thanks for everything",
+      "i appreciate you, goodbye for now",
+      "thats all for now, cheers",
     ],
   ],
   [
@@ -230,6 +235,12 @@ export const CONVERSATION_CORPUS: Array<[Intent, string[]]> = [
       "this is awesome",
       "that was a great answer",
       "cheers!",
+      "your help means a lot to me",
+      "i appreciate what you did",
+      "grateful for your assistance always",
+      "what you did means so much to me",
+      "thank you for your service",
+      "your support means the world to me",
     ],
   ],
   [
@@ -373,6 +384,10 @@ export const CONVERSATION_CORPUS: Array<[Intent, string[]]> = [
       "i require your assistance",
       "wetin i suppose do",
       "abeg assist me small",
+      "please help me figure this out",
+      "assist me with this problem please",
+      "i need a hand with this",
+      "please walk me through it",
     ],
   ],
   [
@@ -406,6 +421,10 @@ export const CONVERSATION_CORPUS: Array<[Intent, string[]]> = [
       "sorry, i forgot",
       "pardon the interruption",
       "forgive my late reply",
+      "soory about that",
+      "soory my mistake",
+      "pardon me for disturbing you",
+      "forgive the disturbance please",
     ],
   ],
   [
@@ -481,6 +500,11 @@ export const CONVERSATION_CORPUS: Array<[Intent, string[]]> = [
       "i am not sure",
       "honestly i dont know",
       "no idea at all",
+      "message received and understood",
+      "i get the picture now",
+      "i follow you completely",
+      "crystal clear to me now",
+      "good to know about that",
     ],
   ],
   [
@@ -554,6 +578,11 @@ export const CONVERSATION_CORPUS: Array<[Intent, string[]]> = [
       "that is debatable",
       "not entirely",
       "not exactly",
+      "i do not agree with that view",
+      "i cannot accept that view",
+      "my opinion differs on this matter",
+      "i beg to differ on this one",
+      "that position i cannot accept",
     ],
   ],
   [
@@ -636,6 +665,14 @@ export const CONVERSATION_CORPUS: Array<[Intent, string[]]> = [
       "im sleepy",
       "i want to sleep",
       "im so tired 😴",
+      "chai, this thing sweet no be small",
+      "wahala plenty today, i no lie",
+      "this wahala too much for me",
+      "wahala wan finish me today",
+      "chai i am so tired today",
+      "my heart is full today",
+      "from the bottom of my heart i am happy",
+      "i am overjoyed today",
     ],
   ],
   [
@@ -732,6 +769,9 @@ export const CONVERSATION_CORPUS: Array<[Intent, string[]]> = [
       "small small, we dey manage",
       "e go better",
       "no be small thing",
+      "can i help you with anything today",
+      "how may i be of assistance to you",
+      "shall i help you with something",
     ],
   ],
   [
@@ -750,6 +790,10 @@ export const CONVERSATION_CORPUS: Array<[Intent, string[]]> = [
       "what is the date today",
       "time check please",
       "abeg, whats the time",
+      "wat time do we close today",
+      "wetin be the time for break",
+      "you sabi the time for the meeting",
+      "what time of day is it now",
     ],
   ],
   [
@@ -778,6 +822,12 @@ export const CONVERSATION_CORPUS: Array<[Intent, string[]]> = [
       "can you hear me",
       "is this thing on",
       "ping",
+      "you dey hear me so",
+      "shey you dey follow my talk",
+      "abeg you dey around",
+      "i hope say you dey active",
+      "my guy you dey there",
+      "abeg make sure you dey about, i need you",
     ],
   ],
   [
