@@ -37,10 +37,15 @@ interface JwtParts {
   signature: Uint8Array;
 }
 
+// CI gotcha (seen 5× now): tsconfig.app.json has no Deno types, so
+// referencing the bare `Deno` global breaks the app typecheck —
+// read the edge-runtime env through a typed globalThis lookup.
 const JWKS_URL: string =
-  typeof Deno !== "undefined"
-    ? Deno.env.get("ARCHIE_AUTHORITY_JWKS_URL") ?? ""
-    : "";
+  (
+    globalThis as {
+      Deno?: { env?: { get(name: string): string | undefined } };
+    }
+  ).Deno?.env?.get("ARCHIE_AUTHORITY_JWKS_URL") ?? "";
 const JWKS_TTL_MS = 10 * 60 * 1000;
 
 let jwksCache: { keys: Record<string, unknown>[]; at: number } | null = null;
@@ -125,8 +130,8 @@ export async function verifyJwtWithJwk(
     ok = await crypto.subtle.verify(
       { name: "ECDSA", hash: { name: "SHA-256" } },
       key,
-      parts.signature,
-      parts.signingInput,
+      parts.signature as BufferSource,
+      parts.signingInput as BufferSource,
     );
   } catch {
     return null;
