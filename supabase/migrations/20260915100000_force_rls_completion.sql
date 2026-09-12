@@ -2,6 +2,13 @@
 -- FRELUX RLS — FORCE ROW LEVEL SECURITY COMPLETION (audit F2)
 -- Owner-approved fix, 2026-09-10.
 --
+-- Amended 2026-09-12: 10 of the tables below were created manually
+-- (dashboard) and have no CREATE TABLE anywhere in this migration
+-- chain. On a fresh chain replay (Supabase preview branches / new
+-- projects) a plain ALTER TABLE on them fails with 42P01 and aborts
+-- the whole run. Those 10 ALTERs are wrapped in to_regclass guards —
+-- they still apply everywhere the table exists.
+--
 -- All public tables already have RLS ENABLED with explicit
 -- policies. FORCE closes the last gap: the table owner is no
 -- longer exempt from RLS. The Supabase service role has
@@ -25,14 +32,24 @@ ALTER TABLE public."archie_global_authorizations" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."archie_global_market_observations" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."archie_governance_rules" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."archie_inspection_reports" FORCE ROW LEVEL SECURITY;
-ALTER TABLE public."archie_installation_identity" FORCE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF to_regclass('public.archie_installation_identity') IS NOT NULL THEN
+    ALTER TABLE public."archie_installation_identity" FORCE ROW LEVEL SECURITY;
+  END IF;
+END $$;
 ALTER TABLE public."archie_language_entries" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."archie_language_evidence" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."archie_language_profiles" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."archie_legal_documents" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."archie_legal_events" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."archie_memory_rights_requests" FORCE ROW LEVEL SECURITY;
-ALTER TABLE public."archie_migration_environments" FORCE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF to_regclass('public.archie_migration_environments') IS NOT NULL THEN
+    ALTER TABLE public."archie_migration_environments" FORCE ROW LEVEL SECURITY;
+  END IF;
+END $$;
 ALTER TABLE public."archie_offensive_engagements" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."archie_offensive_findings" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."archie_offensive_targets" FORCE ROW LEVEL SECURITY;
@@ -65,17 +82,32 @@ ALTER TABLE public."frelux_archie_crypto_analysis" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_crypto_assets" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_crypto_observations" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_crypto_portfolio" FORCE ROW LEVEL SECURITY;
-ALTER TABLE public."frelux_archie_datasets" FORCE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF to_regclass('public.frelux_archie_datasets') IS NOT NULL THEN
+    ALTER TABLE public."frelux_archie_datasets" FORCE ROW LEVEL SECURITY;
+  END IF;
+END $$;
 ALTER TABLE public."frelux_archie_device_accounts" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_device_data_consents" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_device_health" FORCE ROW LEVEL SECURITY;
-ALTER TABLE public."frelux_archie_device_sessions" FORCE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF to_regclass('public.frelux_archie_device_sessions') IS NOT NULL THEN
+    ALTER TABLE public."frelux_archie_device_sessions" FORCE ROW LEVEL SECURITY;
+  END IF;
+END $$;
 ALTER TABLE public."frelux_archie_devices" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_domain_gaps" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_domains" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_execution_runs" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_execution_targets" FORCE ROW LEVEL SECURITY;
-ALTER TABLE public."frelux_archie_family_members" FORCE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF to_regclass('public.frelux_archie_family_members') IS NOT NULL THEN
+    ALTER TABLE public."frelux_archie_family_members" FORCE ROW LEVEL SECURITY;
+  END IF;
+END $$;
 ALTER TABLE public."frelux_archie_ingestions" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_internal_agents" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_invitations" FORCE ROW LEVEL SECURITY;
@@ -83,14 +115,39 @@ ALTER TABLE public."frelux_archie_knowledge_history" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_knowledge_links" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_languages" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_market_observations" FORCE ROW LEVEL SECURITY;
-ALTER TABLE public."frelux_archie_memory" FORCE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF to_regclass('public.frelux_archie_memory') IS NOT NULL THEN
+    ALTER TABLE public."frelux_archie_memory" FORCE ROW LEVEL SECURITY;
+  END IF;
+END $$;
 ALTER TABLE public."frelux_archie_messages" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_mobile_consents" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_mobile_learnings" FORCE ROW LEVEL SECURITY;
-ALTER TABLE public."frelux_archie_model_experiments" FORCE ROW LEVEL SECURITY;
-ALTER TABLE public."frelux_archie_model_invocations" FORCE ROW LEVEL SECURITY;
-ALTER TABLE public."frelux_archie_model_registry" FORCE ROW LEVEL SECURITY;
-ALTER TABLE public."frelux_archie_model_runtimes" FORCE ROW LEVEL SECURITY;
+DO $$
+BEGIN
+  IF to_regclass('public.frelux_archie_model_experiments') IS NOT NULL THEN
+    ALTER TABLE public."frelux_archie_model_experiments" FORCE ROW LEVEL SECURITY;
+  END IF;
+END $$;
+DO $$
+BEGIN
+  IF to_regclass('public.frelux_archie_model_invocations') IS NOT NULL THEN
+    ALTER TABLE public."frelux_archie_model_invocations" FORCE ROW LEVEL SECURITY;
+  END IF;
+END $$;
+DO $$
+BEGIN
+  IF to_regclass('public.frelux_archie_model_registry') IS NOT NULL THEN
+    ALTER TABLE public."frelux_archie_model_registry" FORCE ROW LEVEL SECURITY;
+  END IF;
+END $$;
+DO $$
+BEGIN
+  IF to_regclass('public.frelux_archie_model_runtimes') IS NOT NULL THEN
+    ALTER TABLE public."frelux_archie_model_runtimes" FORCE ROW LEVEL SECURITY;
+  END IF;
+END $$;
 ALTER TABLE public."frelux_archie_native_facts" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_native_outcomes" FORCE ROW LEVEL SECURITY;
 ALTER TABLE public."frelux_archie_paid_capabilities" FORCE ROW LEVEL SECURITY;

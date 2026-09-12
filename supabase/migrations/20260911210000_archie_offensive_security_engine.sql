@@ -117,3 +117,30 @@ CREATE POLICY "admin_write_offensive_findings" ON public.archie_offensive_findin
   FOR ALL TO authenticated
   USING (is_current_user_admin())
   WITH CHECK (is_current_user_admin());
+
+-- =========================================================
+-- Seed: ARCHIE's first real authorization (moved from
+-- 20260910180000_archie_first_authorization.sql on 2026-09-12).
+-- In a fresh chain replay the tables only exist from this file,
+-- so the seed must run after creation. Idempotent: safe to re-run.
+-- =========================================================
+
+INSERT INTO public.archie_offensive_targets (
+  id, kind, identifier, scope, exclusions, registered_by
+) VALUES (
+  'tgt-archie-api-lab',
+  'ARCHIE_INFRASTRUCTURE',
+  'hqhvlkunkdrxyuvziorm.supabase.co',
+  '["https://hqhvlkunkdrxyuvziorm.supabase.co/functions/v1 — edge-function gateway (public endpoints)", "https://hqhvlkunkdrxyuvziorm.supabase.co/rest/v1 — anon-accessible REST surface"]'::jsonb,
+  '["direct database connections (Postgres/psql)", "auth admin endpoints and user management", "all archie_* registry/audit tables", "frelux_security_events", "any write path to production user or business data", "service-role credentials"]'::jsonb,
+  'd74ffbd7-281b-4445-9728-ad87c287e0b9'
+) ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.archie_offensive_engagements (
+  id, target_id, current_phase, phases
+) VALUES (
+  'eng-archie-api-lab-1',
+  'tgt-archie-api-lab',
+  'DISCOVER',
+  '{"DISCOVER": {"started": "2026-09-10", "note": "Authorized engagement on ARCHIE''s own API surface. Owner-registered; verdict-gate integration verified 2026-09-10."}}'::jsonb
+) ON CONFLICT (id) DO NOTHING;

@@ -1,6 +1,24 @@
 -- Phase 36b: Additional web display and rewarded ad providers
 -- Seeds the ad_providers table with new provider definitions
 
+-- Amended 2026-09-12: ad_postback_handlers was never created by any migration
+-- in this chain (it was created manually in the production dashboard), so a
+-- fresh replay of the migration chain (Supabase preview branches / new
+-- projects) failed on the INSERT below with 42P01. Added an idempotent
+-- CREATE TABLE IF NOT EXISTS so the chain is self-contained. If the manual
+-- table already exists, this is a no-op and only the RLS enable runs.
+
+CREATE TABLE IF NOT EXISTS public.ad_postback_handlers (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  provider_slug text NOT NULL UNIQUE,
+  postback_url_path text NOT NULL,
+  is_active boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.ad_postback_handlers ENABLE ROW LEVEL SECURITY;
+
 -- Display ad providers
 INSERT INTO ad_providers (slug, name, provider_type, is_active, priority, credentials, settings, is_system)
 VALUES
