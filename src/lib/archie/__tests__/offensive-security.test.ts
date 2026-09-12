@@ -333,7 +333,6 @@ describe("§evidence discipline (no fake results)", () => {
   });
 
   it("refuses findings recorded from non-observational phases", () => {
-    const reg = labRegistry();
     const r = startEngagement(labTarget(), iso(NOW));
     if (!r.ok) throw new Error(r.error);
     const e = r.engagement; // still DISCOVER
@@ -406,7 +405,6 @@ describe("§evidence discipline (no fake results)", () => {
 
 describe("§reporting", () => {
   it("builds an honest report over recorded evidence", () => {
-    const reg = new AuthorizationRegistry();
     const r = startEngagement(labTarget(), iso(NOW));
     if (!r.ok) throw new Error(r.error);
     const e = r.engagement;

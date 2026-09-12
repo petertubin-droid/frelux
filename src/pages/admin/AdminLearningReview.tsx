@@ -73,7 +73,6 @@ export default function AdminLearningReview() {
   const [actionReason, setActionReason] = useState("");
   const [engineeringReviewed, setEngineeringReviewed] = useState(false);
   const [scopeExplicit, setScopeExplicit] = useState(false);
-  const [independentlyVerified, setIndependentlyVerified] = useState(false);
 
   // ARCHIE submission form
   const [archieTopic, setArchieTopic] = useState("");
@@ -411,7 +410,7 @@ export default function AdminLearningReview() {
                       {capabilityIsMath(r.capability) && (
                         <span className="ml-2 inline-flex items-center gap-1 text-xs text-amber-700">
                           <ShieldAlert className="h-3 w-3" /> deterministic math
-                         , engineering review required
+                          , engineering review required
                         </span>
                       )}
                     </p>
@@ -514,7 +513,7 @@ export default function AdminLearningReview() {
                           {(r.provenance.sanitizer_flags as string[]).join(
                             ", ",
                           )}{" "}
-                         , review the quarantined text carefully before any
+                          , review the quarantined text carefully before any
                           approval.
                         </div>
                       )}

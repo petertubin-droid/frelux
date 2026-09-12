@@ -267,17 +267,6 @@ describe("verified facts → Build-to-Roof patch", () => {
   });
 });
 
-function editBuildingFactOf(f: ExtractedBuildingFact): ExtractedBuildingFact {
-  // Confirms via user edit (kind becomes explicit, user-verified).
-  return editRoomFactConfirmed(f);
-}
-
-function editRoomFactConfirmed(
-  f: ExtractedBuildingFact,
-): ExtractedBuildingFact {
-  return confirmElement(f);
-}
-
 describe("full canonical model (§9)", () => {
   it("assembles spaces + patch + roof from one extraction", () => {
     const ex = extraction({
@@ -317,7 +306,10 @@ describe("full canonical model (§9)", () => {
       ],
     });
     const model = toCanonicalBuildingModel(ex);
-    // User confirmed it → usable, but let's ensure unconfirmed inferred is blocked:
+    // User confirmed it → usable (this assertion was implied by the
+    // comment but never written — completing the test's stated intent):
+    expect(model.buildToRoofPatch.patch.building_length).toBe(15);
+    // ...and unconfirmed inferred is blocked:
     const ex2 = extraction({
       buildingFacts: [
         fact("building_length", 15, {

@@ -41,11 +41,7 @@ import {
   assertRelationJustified,
   selectRelevantDomains,
 } from "../cross-domain-reasoning";
-import {
-  KnowledgeCore,
-  FRELUX_SELF_GRANT,
-  archieKnowledgeCore,
-} from "../knowledge-core";
+import { KnowledgeCore, FRELUX_SELF_GRANT } from "../knowledge-core";
 import {
   DomainDiscoveryPipeline,
   runDiscoveryToReview,
@@ -80,7 +76,6 @@ const loc = (over: Partial<FreluxLocation> = {}): FreluxLocation => ({
   ...over,
 });
 
-const GRANTED = { location_granted: true, private_device_data_granted: false };
 const NO_CONSENT = {
   location_granted: false,
   private_device_data_granted: false,
