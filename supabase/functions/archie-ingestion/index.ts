@@ -9,8 +9,12 @@
 //   * payload size limits, full validation + sanitization
 //   * duplicate detection (content hash), rate limiting
 //   * provenance + audit logging, immutable record insertion
-//   * NEVER promotes knowledge — every record enters as
-//     ARCHIE_RECEIVED and must pass the human review workflow.
+//   * AUTONOMOUS PROMOTION (owner directive 2026-09-12):
+//     knowledge accumulation is FREE — ARCHIE filters and
+//     promotes material on its own (see _shared/archie-ai/
+//     knowledge/autonomous.ts). Owner-gated surfaces (code,
+//     decisions, certified math rules, quarantined material)
+//     still HOLD for owner review. Full audit trail.
 //
 // There is no "ARCHIE API" and no access to ChatGPT internals:
 // this endpoint receives explicitly supplied reference material
@@ -25,6 +29,11 @@ import {
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
 import { rateLimitedResponse } from "../_shared/cors.ts";
+import {
+  evaluateAutonomy,
+  autonomouslyPromote,
+} from "../_shared/archie-ai/knowledge/autonomous.ts";
+import { verifyAuthorityJwt } from "../_shared/archie-ai/security/cross-project-auth.ts";
 
 const MAX_PER_HOUR = 20;
 const RATE_WINDOW_MS = 3_600_000;
@@ -81,13 +90,25 @@ serveWithCors(async (req: Request) => {
     global: { headers: { Authorization: `Bearer ${callerToken}` } },
   });
   const { data: auth, error: authErr } = await caller.auth.getUser();
-  if (authErr || !auth?.user) {
-    return json(401, {
-      accepted: false,
-      code: "UNAUTHORIZED",
-      message: "Invalid session.",
-    });
+  let callerId: string | null = auth?.user?.id ?? null;
+  if (authErr || !callerId) {
+    // Cross-project owner identity (cutover 2026-09-12, see
+    // cross-project-auth.ts): the owner's sessions are issued
+    // by the FRELUX authority project. Verify such JWTs against
+    // the authority's public JWKS instead of this project's
+    // GoTrue. Owner authority is still decided by
+    // profiles.role='admin' below.
+    const verified = await verifyAuthorityJwt(callerToken);
+    if (verified) callerId = verified.sub;
+    if (!callerId) {
+      return json(401, {
+        accepted: false,
+        code: "UNAUTHORIZED",
+        message: "Invalid session.",
+      });
+    }
   }
+  const authUserId = callerId as string;
 
   // Service client: role/lookup checks + writes (server-side only).
   const service = createClient(supabaseUrl, serviceKey);
@@ -95,7 +116,7 @@ serveWithCors(async (req: Request) => {
   const { data: profile } = await service
     .from("profiles")
     .select("role")
-    .eq("id", auth.user.id)
+    .eq("id", authUserId)
     .single();
   if (profile?.role !== "admin") {
     return json(403, {
@@ -116,6 +137,47 @@ serveWithCors(async (req: Request) => {
     });
   }
 
+  // -------- OP: settle_backlog --------------------------------
+  // Owner-triggered sweep: ARCHIE autonomously re-evaluates
+  // every ARCHIE_RECEIVED / CANDIDATE record under the
+  // 2026-09-12 knowledge-autonomy policy. ARCHIE makes each
+  // promote/hold decision itself; the owner only triggers the
+  // sweep and still receives the summary.
+  if ((payload as { op?: string })?.op === "settle_backlog") {
+    const { data: backlog, error: blErr } = await service
+      .from("frelux_learning_records")
+      .select("*")
+      .in("lifecycle_status", ["ARCHIE_RECEIVED", "CANDIDATE"])
+      .limit(200);
+    if (blErr) {
+      return json(500, { ok: false, code: "BACKLOG_READ_FAILED", message: blErr.message });
+    }
+    let promoted = 0, held = 0, rejected = 0;
+    const heldReasons: string[] = [];
+    for (const rec of backlog ?? []) {
+      const evaluation = evaluateAutonomy(rec, []);
+      if (evaluation.decision === "PROMOTE") {
+        const r = await autonomouslyPromote(service, rec, authUserId, evaluation.reason);
+        if (r.ok) promoted++;
+        else held++;
+      } else if (evaluation.decision === "HOLD") {
+        held++;
+        heldReasons.push(`${rec.topic ?? rec.id}: ${evaluation.reason}`);
+      } else {
+        rejected++;
+      }
+    }
+    return json(200, {
+      ok: true,
+      code: "BACKLOG_SETTLED",
+      evaluated: (backlog ?? []).length,
+      promoted,
+      held,
+      rejected,
+      held_reasons: heldReasons.slice(0, 25),
+    });
+  }
+
   // Validation + sanitization (shared module semantics; a small
   // server-side reimplementation of the same contract).
   const { validateArchiePayload } = await import("./validate.ts");
@@ -123,7 +185,7 @@ serveWithCors(async (req: Request) => {
   if (!validated.ok) {
     await service.from("frelux_learning_audit").insert({
       action: "REJECTED_INVALID",
-      actor: auth.user.id,
+      actor: authUserId,
       details: { code: validated.code, message: validated.message },
     });
     return json(validated.code === "PAYLOAD_TOO_LARGE" ? 413 : 400, {
@@ -135,7 +197,7 @@ serveWithCors(async (req: Request) => {
   }
 
   // Rate limiting per admin, per hour (service-side table).
-  const rlKey = `archie-ingest:${auth.user.id}`;
+  const rlKey = `archie-ingest:${authUserId}`;
   const now = new Date();
   const { data: rl } = await service
     .from("frelux_learning_rate_limits")
@@ -148,7 +210,7 @@ serveWithCors(async (req: Request) => {
   if (count >= MAX_PER_HOUR) {
     await service.from("frelux_learning_audit").insert({
       action: "RATE_BLOCKED",
-      actor: auth.user.id,
+      actor: authUserId,
       details: { key: rlKey, count },
     });
     return json(429, {
@@ -177,7 +239,7 @@ serveWithCors(async (req: Request) => {
   if ((dup?.length ?? 0) > 0) {
     await service.from("frelux_learning_audit").insert({
       action: "DUPLICATE_BLOCKED",
-      actor: auth.user.id,
+      actor: authUserId,
       details: { content_hash: validated.record.content_hash },
     });
     return json(200, {
@@ -193,7 +255,7 @@ serveWithCors(async (req: Request) => {
     .from("frelux_learning_records")
     .insert({
       ...validated.record,
-      created_by: auth.user.id,
+      created_by: authUserId,
       lifecycle_status: "ARCHIE_RECEIVED",
       verification_status: "PENDING",
       evaluation_status: "NOT_EVALUATED",
@@ -211,7 +273,7 @@ serveWithCors(async (req: Request) => {
   await service.from("frelux_learning_audit").insert({
     record_id: inserted.id,
     action: "INGESTED",
-    actor: auth.user.id,
+    actor: authUserId,
     details: {
       provider: validated.record.provider,
       model_version: validated.record.model_version,
@@ -221,14 +283,55 @@ serveWithCors(async (req: Request) => {
     },
   });
 
+  // -------- AUTONOMOUS PROMOTION (owner directive 2026-09-12)
+  // ARCHIE evaluates the material itself and promotes whatever
+  // passes its filters — no human review step. Owner-gated
+  // surfaces HOLD. Everything is audited.
+  const evaluation = evaluateAutonomy(
+    { ...validated.record, id: inserted.id, created_by: authUserId },
+    validated.flags,
+  );
+  if (evaluation.decision === "PROMOTE") {
+    const promoted = await autonomouslyPromote(
+      service,
+      { ...validated.record, id: inserted.id, created_by: authUserId },
+      authUserId,
+      evaluation.reason,
+    );
+    if (promoted.ok) {
+      return json(200, {
+        accepted: true,
+        code: "INGESTED_AUTONOMOUSLY_PROMOTED",
+        record_id: inserted.id,
+        knowledge_version: promoted.knowledge_version,
+        message:
+          `Ingested and autonomously promoted to ACTIVE knowledge (v${promoted.knowledge_version}) — ${evaluation.reason}.`,
+        flags: validated.flags,
+      });
+    }
+    // The material IS ingested; promotion itself failed (storage).
+    await service.from("frelux_learning_audit").insert({
+      record_id: inserted.id,
+      action: "AUTONOMOUS_PROMOTION_FAILED",
+      actor: authUserId,
+      details: { reason: evaluation.reason, error: promoted.error },
+    });
+    return json(200, {
+      accepted: true,
+      code: "INGESTED_PROMOTION_FAILED",
+      record_id: inserted.id,
+      message: `Ingested, but autonomous promotion failed: ${promoted.error}`,
+      flags: validated.flags,
+    });
+  }
   return json(200, {
     accepted: true,
-    code: "INGESTED",
+    code: evaluation.decision === "HOLD" ? "INGESTED_HELD" : "INGESTED",
     record_id: inserted.id,
     message:
-      validated.flags.length > 0
-        ? `Ingested as ARCHIE_RECEIVED (quarantined: injection flags ${validated.flags.join(", ")} require human review).`
-        : "Ingested as ARCHIE_RECEIVED. It enters CANDIDATE → VERIFY → EVALUATE → REVIEW before any production use.",
+      evaluation.decision === "HOLD"
+        ? `Ingested as ARCHIE_RECEIVED and held: ${evaluation.reason}.`
+        : `Ingested but not stored as knowledge: ${evaluation.reason}.`,
     flags: validated.flags,
   });
 });
