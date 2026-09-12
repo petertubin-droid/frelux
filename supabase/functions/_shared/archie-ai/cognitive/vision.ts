@@ -140,7 +140,7 @@ async function decodePng(bytes: Uint8Array): Promise<DecodedImage> {
   }
   let offset = 8;
   let info: PngInfo | null = null;
-  let idat: Uint8Array[] = [];
+  const idat: Uint8Array[] = [];
   let palette: Uint8Array | null = null;
   const notes: string[] = [];
 

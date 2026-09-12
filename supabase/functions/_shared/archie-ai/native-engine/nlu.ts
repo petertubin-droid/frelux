@@ -17,6 +17,17 @@
 // =========================================================
 
 import type { MemoryTurn, ToolSpecInternal } from "./types.ts";
+// Conversational English expansion (owner directive,
+// 2026-09-11): labeled conversational training data and
+// emoji tone understanding. The corpus import is DATA —
+// it trains the same Bayes classifier below; it never
+// hardcodes responses.
+import { CONVERSATION_CORPUS } from "./conversation-corpus.ts";
+import {
+  extractEmojiTone,
+  emojiAlignsWithIntent,
+  type EmojiToneResult,
+} from "./emoji.ts";
 
 // ---------------------------------------------------------
 // Normalization & tokenization
@@ -192,6 +203,201 @@ export function cosine(a: Map<string, number>, b: Map<string, number>): number {
 }
 
 // ---------------------------------------------------------
+// Conversational typo normalization (owner directive,
+// 2026-09-11). Real owners type "helo", "soory", "wond".
+// Instead of memorizing typo variants, the NLU corrects any
+// OUT-OF-VOCABULARY token that is within Damerau
+// Levenshtein distance 1 of a real corpus word — the same
+// normalizer generalizes to typos it has never seen.
+// Deterministic: the highest-frequency candidate wins,
+// ties break alphabetically. In-vocabulary words and short
+// tokens (length < 3) are never touched, so the corrector
+// can never corrupt legitimate input.
+// ---------------------------------------------------------
+
+/** Corpus lexicon with word frequencies — built LAZILY from
+ *  the FULL training corpus (base + conversational), once,
+ *  on first use (the corpus is declared later in the
+ *  module). */
+let vocabFreqCache: Map<string, number> | null = null;
+function vocabFreq(): Map<string, number> {
+  if (vocabFreqCache) return vocabFreqCache;
+  const m = new Map<string, number>();
+  for (const utterances of CORPUS.map((c) => c[1])) {
+    for (const u of utterances) {
+      for (const t of tokenize(u)) {
+        m.set(t, (m.get(t) ?? 0) + 1);
+      }
+    }
+  }
+  vocabFreqCache = m;
+  return m;
+}
+
+/** CONVERSATIONAL lexicon — words from the conversational
+ *  expansion corpus ONLY. The typo corrector corrects toward
+ *  these words alone: its mandate is conversational
+ *  robustness (helo, tink, congartulations), never domain
+ *  text ("voice bank" must not become "voice banks"). */
+let conversationalVocabCache: Map<string, number> | null = null;
+function conversationalVocab(): Map<string, number> {
+  if (conversationalVocabCache) return conversationalVocabCache;
+  const m = new Map<string, number>();
+  for (const utterances of CONVERSATION_CORPUS.map((c) => c[1])) {
+    for (const u of utterances) {
+      for (const t of tokenize(u)) {
+        m.set(t, (m.get(t) ?? 0) + 1);
+      }
+    }
+  }
+  conversationalVocabCache = m;
+  return m;
+}
+
+/** Damerau-Levenshtein (optimal string alignment) distance.
+ *  Transpositions ("congartulations" -> "congratulations")
+ *  count as a single edit. */
+function editDistance(a: string, b: string): number {
+  const la = a.length;
+  const lb = b.length;
+  if (Math.abs(la - lb) > 1) return 2; // fast reject
+  const d: number[][] = Array.from(
+    { length: la + 1 },
+    () => new Array<number>(lb + 1).fill(0),
+  );
+  for (let i = 0; i <= la; i++) d[i][0] = i;
+  for (let j = 0; j <= lb; j++) d[0][j] = j;
+  for (let i = 1; i <= la; i++) {
+    for (let j = 1; j <= lb; j++) {
+      const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+      d[i][j] = Math.min(
+        d[i - 1][j] + 1,
+        d[i][j - 1] + 1,
+        d[i - 1][j - 1] + cost,
+      );
+      if (
+        i > 1 &&
+        j > 1 &&
+        a[i - 1] === b[j - 2] &&
+        a[i - 2] === b[j - 1]
+      ) {
+        d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+      }
+    }
+  }
+  return d[la][lb];
+}
+
+/** Correct one out-of-vocabulary word to its nearest real
+ *  corpus word, or return the word unchanged.
+ *
+ *  GUARDS (each one learned from measured misroutes):
+ *   * in-vocabulary words are never touched
+ *   * function words (stopwords) are never touched — rule
+ *     patterns need them intact ("are you there" must not
+ *     become "area you there")
+ *   * vowel-less tokens are abbreviations (pls, thx, brb),
+ *     not typos — deterministic short-form rules own them
+ *   * a candidate must share at least a 2 letter prefix with
+ *     the token ("nite" must not become "site")
+ *   * among valid candidates: longest shared prefix wins,
+ *     then corpus frequency, then alphabetical — fully
+ *     deterministic ("helo" -> "hello", not "help")
+ */
+function commonPrefixLength(a: string, b: string): number {
+  let n = 0;
+  while (n < a.length && n < b.length && a[n] === b[n]) n++;
+  return n;
+}
+
+/** Does deleting exactly one character from longer yield
+ *  shorter? (One edit: an insertion or a deletion.) */
+function oneCharDeletion(longer: string, shorter: string): boolean {
+  if (longer.length !== shorter.length + 1) return false;
+  for (let i = 0; i < longer.length; i++) {
+    if (
+      longer.slice(0, i) + longer.slice(i + 1) === shorter
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
+function correctWord(word: string): string {
+  const lower = word.toLowerCase();
+  if (lower.length < 3) return word;
+  if (!/[aeiou]/.test(lower)) return word;
+  if (!tokenize(lower).length) return word;
+  // A word known ANYWHERE in the full training corpus (base
+  // or conversational) is never a correction target — the
+  // corrector may only rescue genuinely unknown tokens
+  // ("days" is a real word; "dapron" is a typo).
+  if (vocabFreq().has(lower) || conversationalVocab().has(lower)) {
+    return word;
+  }
+  const freq = conversationalVocab();
+  // Edit types, most likely typo first (dropped letters are
+  // the most common typo, substitutions the least):
+  //   3 = candidate is the token with one letter INSERTED
+  //       (tink -> think); prefix >= 1 suffices
+  //   2 = candidate is the token with one letter DELETED
+  //       (wond -> won); prefix >= 2 required
+  //   1 = single substitution (soory -> sorry); prefix >= 2
+  let best: string | null = null;
+  let bestType = 0;
+  let bestPrefix = -1;
+  let bestFreq = 0;
+  for (const [candidate, f] of freq) {
+    if (editDistance(lower, candidate) > 1) continue;
+    const prefix = commonPrefixLength(lower, candidate);
+    let type = 0;
+    if (oneCharDeletion(candidate, lower)) {
+      type = 3; // token + inserted char
+      if (candidate.length < 3) continue;
+    } else if (oneCharDeletion(lower, candidate)) {
+      type = 2; // token with a dropped char
+      if (candidate.length < 3) continue;
+    } else if (candidate.length === lower.length) {
+      type = 1; // substitution — the weakest signal: only
+      // longer words qualify (a 3 letter swap like
+      // yam -> yay is noise, not a typo)
+      if (candidate.length < 4) continue;
+    } else {
+      continue;
+    }
+    // Substitution is the weakest typo evidence: require a
+    // 3 letter shared prefix so "bank" can never become
+    // "back". Insertions (dropped letter) and deletions keep
+    // the looser prefix rules above.
+    const minPrefix = type === 3 ? 1 : type === 1 ? 3 : 2;
+    if (prefix < minPrefix) continue;
+    const better =
+      type > bestType ||
+      (type === bestType && prefix > bestPrefix) ||
+      (type === bestType && prefix === bestPrefix && f > bestFreq) ||
+      (type === bestType &&
+        prefix === bestPrefix &&
+        f === bestFreq &&
+        candidate < (best ?? "~"));
+    if (better) {
+      best = candidate;
+      bestType = type;
+      bestPrefix = prefix;
+      bestFreq = f;
+    }
+  }
+  return best ?? word;
+}
+
+/** Normalize a raw message for the NLU pipeline: every word
+ *  is either a real known word or a distance-1 correction of
+ *  one. Exported for the quality gate to measure directly. */
+export function correctConversationalTypos(input: string): string {
+  return input.replace(/[A-Za-z]+/g, (w) => correctWord(w));
+}
+
+// ---------------------------------------------------------
 // Intent classifier — multinomial Naive Bayes, trained at
 // boot from a labeled corpus. Additive (Laplace) smoothing.
 // ---------------------------------------------------------
@@ -219,6 +425,23 @@ export const INTENTS = [
   "teaching",
   "memory_exclusion",
   "correction",
+  // --- conversational English expansion (owner
+  // directive 2026-09-11): social exchange intents. The
+  // classifier learns them from CONVERSATION_CORPUS; the
+  // engine answers them through the conversational
+  // composer (conversation.ts), never canned scripts.
+  "help_request",
+  "apology",
+  "acknowledgment",
+  "agreement",
+  "disagreement",
+  "emotional_expression",
+  "celebration",
+  "social_talk",
+  "time_query",
+  "availability_check",
+  "activity_query",
+  "clarification_request",
 ] as const;
 
 export type Intent = (typeof INTENTS)[number];
@@ -227,8 +450,11 @@ export type Intent = (typeof INTENTS)[number];
 // Exported for the held-out leak guard (phase 4): the
 // confusion test verifies no held-out phrase appears
 // verbatim in the training corpus — memorization is not
-// generalization.
-export const CORPUS: Array<[Intent, string[]]> = [
+// generalization. This is the BASE corpus (pre
+// conversational expansion); the full training corpus is
+// CORPUS below, which the conversational quality gate
+// uses to measure the baseline against.
+export const BASE_NLU_CORPUS: Array<[Intent, string[]]> = [
   [
     "greeting",
     [
@@ -783,6 +1009,17 @@ export const CORPUS: Array<[Intent, string[]]> = [
   ],
 ];
 
+/** FULL training corpus: base NLU corpus + the
+ *  conversational English expansion (owner directive
+ *  2026-09-11). The classifier trains on this at boot;
+ *  the conversational patterns generalize to unseen
+ *  variations, which the held-out quality gate measures
+ *  honestly. */
+export const CORPUS: Array<[Intent, string[]]> = [
+  ...BASE_NLU_CORPUS,
+  ...CONVERSATION_CORPUS,
+];
+
 export class IntentClassifier {
   private priors = new Map<Intent, number>();
   private likelihood = new Map<Intent, Map<string, number>>();
@@ -820,6 +1057,12 @@ export class IntentClassifier {
     intent: Intent;
     confidence: number;
     scores: Map<Intent, number>;
+    /** How many input tokens matched the trained vocabulary.
+     *  Zero means the message carries NO known content — the
+     *  caller routes it honestly instead of trusting class
+     *  priors (which would otherwise crown the biggest class).
+     */
+    knownTokens: number;
   } {
     if (!this.trained) this.train();
     const tokens = tokenize(input).filter((t) => this.vocab.has(t));
@@ -844,6 +1087,7 @@ export class IntentClassifier {
       intent: tokens.length === 0 ? "knowledge_query" : top[0],
       confidence,
       scores: logScores,
+      knownTokens: tokens.length,
     };
   }
 }
@@ -860,6 +1104,63 @@ const RULE_CASCADE: Array<{
   pattern: RegExp;
   confidence: number;
 }> = [
+  // -------------------------------------------------------
+  // Conversational English expansion (owner directive,
+  // 2026-09-11) — TOP of the cascade. These must precede the
+  // day/date knowledge rule ("what time is it" would
+  // otherwise be captured as a knowledge question) and the
+  // identity rule ("what exactly are you getting at" is a
+  // clarification, not an identity probe).
+  // -------------------------------------------------------
+  {
+    // System clock questions — answered honestly from the
+    // real clock, labeled as such. Never captures "what day
+    // is the delivery" (that falls through to the day/date
+    // knowledge rule below, which requires an explicit
+    // subject after "is").
+    intent: "time_query",
+    pattern:
+      /^what\s+(?:time|day|month|year)\s+(?:is\s+(?:it|this)|are\s+(?:we|you)|do\s+we\s+have|have\s+we)\b|^what\s+day\s+of\s+the\s+week\b|^what\s+is\s+(?:the\s+)?(?:time|date)\b|\bwhats\s+the\s+time\b|^whats\s+todays?\s+(?:date|day|time)\b|^what\s+is\s+todays?\s+(?:date|day)\b|^which\s+(?:day|month|year)\b[^.?!]{0,30}\b(?:have\s+we|are\s+we|is\s+it)\b|^time\s+check\b|\btell\s+me\s+the\s+(?:hour|time)\b/i,
+    confidence: 0.85,
+  },
+  {
+    // Clarification / repetition / explanation requests —
+    // the user did not catch the previous point. BEFORE the
+    // identity rule so "what exactly are you getting at"
+    // stays a clarification, and BEFORE the apology rule so
+    // "sorry, what did you say" is not taken as an apology.
+    // Never matches "explain how X works" (knowledge): the
+    // explain branch requires an object pronoun or repeat
+    // marker.
+    intent: "clarification_request",
+    pattern:
+      /\b(?:what\s+do\s+you\s+mean|what\s+did\s+you\s+(?:say|mean)|what\s+does\s+that\s+(?:even\s+)?mean|what\s+(?:exactly\s+)?are\s+you\s+getting\s+at|come\s+again|say\s+(?:that|it)\s+again|run\s+that\s+by\s+me\s+again|go\s+over\s+that\s+again|repeat\s+that|please\s+repeat|say\s+it\s+in\s+simple\s+english|break\s+it\s+down|shed\s+more\s+light|can\s+you\s+clarify|wait,\s+what|hold\s+on,\s+what|which\s+one\s+do\s+you\s+mean|explain\s+(?:more|further|that|it|again)|simplify\s+that|what\s+was\s+that\s+again)\b|\bi\s+(?:did\s+not|do\s+not|don't|dont|dnt)\s+(?:understand|get\s+it|get\s+you|follow)\b|\bhow\s+do\s+you\s+mean\b|\b(?:i\s+am\s+lost\s+here|you\s+lost\s+me|understanding\s+of\s+that\s+i\s+have\s+not)\b|^(?:pardon\?|hmm\?|huh\?|wym\?|wdym\?|wym|wdym|hmm|huh)\b[^a-z0-9]*$/i,
+    confidence: 0.85,
+  },
+  {
+    // Availability checks — presence probes. Does NOT
+    // capture "are you able..." or "are you sure..." (the
+    // word sets are disjoint from those forms).
+    intent: "availability_check",
+    pattern:
+      /\b(?:are|is)\s+(?:you|u|anyone|anybody|someone|somebody)\s+(?:still\s+)?(?:there|around|awake|online|available|with\s+me|listening|home)\b|\bare\s+you\s+still\b[^a-z]*$|\b(?:you\s+there|you\s+around|anybody\s+home|anybody\s+there|anyone\s+there|anyone\s+home|archie\s+you\s+dey|shey\s+you\s+dey\s+there|you\s+dey\s+there)\b|^(?:ping|is\s+this\s+thing\s+on)\b|\bcan\s+you\s+hear\s+me|^is\s+the\s+engine\b[^.?!]*\b(?:at\s+my\s+service|available|online|there)\b/i,
+    confidence: 0.85,
+  },
+  {
+    // What is ARCHIE doing right now.
+    intent: "activity_query",
+    pattern:
+      /^what\s+(?:are|have)\s+you\s+(?:been\s+)?(?:doing|up\s+to)\b|^what\s+are\s+you\s+working\s+on\b|^what\s+occupies\s+you\b|^(?:are\s+you\s+busy|are\s+you\s+idle|busy\s+or\s+free|doing\s+what)\b|\bwetin\s+you\s+dey\s+do\b|\bbehind\s+the\s+scenes\b|\bwhat\s+do\s+you\s+do\s+all\s+day\b|\bare\s+you\s+doing\s+anything\b|\bhow\s+is\s+work\s+on\s+your\s+side\b|\bwhats\s+up\s+with\s+you\b|\bwhat\s+were\s+you\s+doing\b/i,
+    confidence: 0.85,
+  },
+  {
+    // Small talk the Bayes stage confuses: weather remarks,
+    // offers of help, festive casual lines.
+    intent: "social_talk",
+    pattern:
+      /^shall\s+i\s+be\s+of\s+service\b|\bsun\s+dey\s+shine\b|\bthe\s+skies?\b[^.?!]*\b(?:clear|grey|gray|bright|heavy|dark)\b|\blets\s+go\b|^we\s+move\b|^i\s+dey\s+kampe\b|^i\s+was\s+at\s+the\s+site\b|^it\s+is\s+(?:so\s+|very\s+)?(?:cold|hot)\b|how\s+is\s+the\s+weather\b|^(?:im|i am)\s+(?:on\s+my\s+way|heading\s+to\s+(?:the\s+)?(?:site|work))\b|^can\s+i\s+help\s+you\b|^do\s+you\s+need\s+(?:my\s+)?help\b|^is\s+there\s+anything\s+i\s+can\s+do\b|tell\s+me\s+about\s+your\s+day\b|how\s+(?:was|is)\s+your\s+day\b|^do\s+you\s+like\b|been\s+a\s+long\s+week\b/i,
+    confidence: 0.8,
+  },
   // Day/date questions about a subject are KNOWLEDGE queries
   // about stored facts ("what day is the delivery", "on which
   // day is the handover") — the Naive Bayes fallback previously
@@ -878,8 +1179,12 @@ const RULE_CASCADE: Array<{
   // probe batch 2026-09-11).
   {
     intent: "identity_query",
+    // Conversational extension (2026-09-11): "what exactly
+    // are you" / "remind me who you are" / "what should i
+    // know about you" are the same identity probe with
+    // conversational fillers.
     pattern:
-      /^(?:who|what)\s+are\s+you\b|what\s+is\s+your\s+name|are\s+you\s+(?:archie|chatgpt|gemini|claude|an?\s+ai)|introduce\s+yourself|who\s+made\s+you/i,
+      /^(?:who|what)(?:\s+(?:exactly|really|precisely))?\s+are\s+you\b(?!\s+(?:good|best)\s+at\b)|\bwho\s+are\s+you\b|what\s+is\s+your\s+name|are\s+you\s+(?:archie|chatgpt|gemini|claude|an?\s+ai)|introduce\s+yourself|who\s+made\s+you|^remind\s+me\s+who\s+you\s+are\b|^what\s+should\s+i\s+know\s+about\s+you\b|what\s+are\s+you\s+called\b|what\s+do\s+i\s+call\s+you\b|\bwho\s+you\s+be\b|\byou\s+are\s+archie\b|your\s+name\s+is\s+archie\b|is\s+your\s+name\s+archie\b/i,
     confidence: 0.9,
   },
   // Imperative commands (owner is issuing an instruction).
@@ -889,8 +1194,10 @@ const RULE_CASCADE: Array<{
     // token-prior fight misrouted "what can you do" after the
     // corpus grew).
     intent: "capability_query",
+    // Conversational extension (2026-09-11): colloquial
+    // capability probes, same intent the rule already owns.
     pattern:
-      /^(?:what|which)\s+can\s+you\s+(?:do|offer|handle|manage|plan)\b|^what\s+(?:are|were)\s+your\s+(?:abilities|skills|capabilities)\b|^(?:list|show)\s+your\s+(?:abilities|skills|capabilities)\b/i,
+      /^(?:what|which)\s+can\s+you\s+(?:do|offer|handle|manage|plan)\b|^what\s+(?:are|were)\s+your\s+(?:abilities|skills|capabilities)\b|^(?:list|show)\s+your\s+(?:abilities|skills|capabilities)\b|^what\s+do\s+you\s+know\s+(?:how\s+to\s+)?do\b|^is\s+there\s+(?:something|anything)\s+you\s+can\s+do\b|^are\s+you\s+able\s+to\s+remember\b|^tell\s+me\s+about\s+your\s+(?:powers|abilities|skills|capabilities)\b|^what\s+are\s+you\s+(?:good|best)\s+at\b|\blist\s+what\s+you\s+can\s+do\b|\bwetin\s+you\s+(?:sabi|fit)\s+do\b|what\s+(?:services|works)\s+can\s+you\s+(?:render|handle)\b/i,
     confidence: 0.85,
   },
   {
@@ -936,7 +1243,8 @@ const RULE_CASCADE: Array<{
     // ARCHIE-teaching (phase 3 de-bias fix: this phrasing was
     // over-captured by the teaching rule above).
     intent: "howto_guidance",
-    pattern: /^(?:please\s+)?teach\s+me\b/i,
+    pattern:
+      /^(?:please\s+)?teach\s+me\b|^how\s+(?:do|can|could)\s+(?:i|you|we)\s+(?!do\b|mean\b)[a-z]|^how\s+to\s+(?!you\b)[a-z]/i,
     confidence: 0.8,
   },
   {
@@ -964,7 +1272,7 @@ const RULE_CASCADE: Array<{
     // explicit price/cost/unit-sale phrase.
     intent: "price_query",
     pattern:
-      /^(?:what(?:'s|\u2019s| is)?\s+(?:the\s+)?(?:current\s+|market\s+|latest\s+)*price\s+of|price\s+of|(?:current|market|latest)\s+price\s+of|how\s+much\s+(?:is|does|are)\s+(?:a\s+|an\s+|the\s+)?(?:bag|trip|tonne|ton|carton|block|drum|pound)s?\s+of|how\s+much\s+(?:is|does|are)\b.+\b(?:cost|price)\b|how\s+much\s+is\b.+\bper\s+(?:bag|tonne|ton|unit|kg|square\s+meter)|\b(?:cement|granite|sand|sharp\s+sand|laterite|blocks?|iron\s+rods?|reinforcement|paint|tiles?)\b[^.?!]*\bprice\b)\b/i,
+      /^(?:what(?:'s|\u2019s| is)?\s+(?:the\s+)?(?:current\s+|market\s+|latest\s+)*price\s+of|price\s+of|(?:current|market|latest)\s+price\s+of|how\s+much\s+(?:is|does|are)\s+(?:a\s+|an\s+|the\s+)?(?:bag|trip|tonne|ton|carton|block|drum|pound)s?\s+of|how\s+much\s+(?:is|does|are)\b.+\b(?:cost|price)\b|how\s+much\s+is\b.+\bper\s+(?:bag|tonne|ton|unit|kg|square\s+meter)|\b(?:cement|granite|sand|sharp\s+sand|laterite|blocks?|iron\s+rods?|reinforcement|paint|tiles?)\b[^.?!]*\bprice\b)\b|^check\s+what\b[^.?!]*\bcosts?\b|\bcheck\s+(?:the\s+)?prices?\b|\bwhats\s+the\s+damage\b/i,
     confidence: 0.9,
   },
   {
@@ -1008,12 +1316,13 @@ const RULE_CASCADE: Array<{
   {
     intent: "task_planning",
     pattern:
-      /^(?:please\s+)?(?:help\s+me\s+)?(?:plan|organize|create\s+a\s+plan|break\s+this)\b/i,
+      /^(?:please\s+)?(?:help\s+me\s+)?(?:plan|organize|create\s+a\s+plan|break\s+this)\b|^i\s+need\s+help\s+(?:planning|organizing|scheduling|with\s+planning)\b/i,
     confidence: 0.85,
   },
   {
     intent: "code_analysis_request",
-    pattern: /^(?:please\s+)?(?:analyze|review)\b/i,
+    pattern:
+      /^(?:please\s+)?(?:analyze|review)\b|^check\s+(?:this|the|my)\s+(?:code|function|file|module|component)\b/i,
     confidence: 0.85,
   },
   // Counterfactual questions ("if it had not rained, would
@@ -1040,8 +1349,11 @@ const RULE_CASCADE: Array<{
   },
   {
     intent: "correction",
+    // Conversational extension (2026-09-11): colloquial
+    // negative feedback — "you missed it", "thats off
+    // point" (Nigerian English for missing the point).
     pattern:
-      /^(?:no[,.!?]?\s+(?:that|this|the)\b|(?:that|this)\s+is\s+(?:wrong|incorrect|not\s+accurate|not\s+right)|you\s+are\s+(?:wrong|mistaken)|actually,?\s+it\s+is\s+(?:not|different)|correct\s+that)\b/i,
+      /^(?:no[,.!?]?\s+(?:that|this|the)\b|(?:that|this)\s+is\s+(?:wrong|incorrect|not\s+accurate|not\s+right)|you\s+are\s+(?:wrong|mistaken)|actually,?\s+it\s+is\s+(?:not|different)|correct\s+that)\b|^you\s+missed\b|\boff\s+point\b|that\s+is\s+not\s+what\s+i\s+(?:asked|wanted|said)\b|\bnot\s+what\s+i\s+asked\b/i,
     confidence: 0.85,
   },
   // Unit conversion ("convert 5 meters to centimeters") —
@@ -1076,8 +1388,126 @@ const RULE_CASCADE: Array<{
     // Bayes identity route + self-anchor guard can decide.
     intent: "knowledge_query",
     pattern:
-      /^(?:what|who)\s+(?:is|are|was|were)\s+(?!archie\b|your\b|this\b|that\b|the\b|behind\b)[a-z]/i,
+      /^(?:what|who)\s+(?:is|are|was|were)\s+(?!archie\b|your\b|this\b|that\b|the\b|behind\b)[a-z]|^(?:hi|hello|hey)[,.]?\s+(?:whats|what\s+is)\s+(?:a|an|the)\s+(?!time\b|price\b|weather\b|damage\b|plan\b)[a-z]/i,
     confidence: 0.7,
+  },
+
+  // -------------------------------------------------------
+  // Conversational English expansion (owner directive,
+  // 2026-09-11), continued block. Ordering: farewell before
+  // gratitude praise forms; system_status before emotional
+  // (both mention "today"); gratitude before acknowledgment
+  // ("great job" vs bare "great"); acknowledgment/agreement/
+  // disagreement are pure SHORT forms only — longer messages
+  // generalize through Bayes, which owns context.
+  // -------------------------------------------------------
+  {
+    // Pure greetings: bare forms and common Nigerian /
+    // international openers. Longer greetings generalize
+    // through Bayes.
+    intent: "greeting",
+    pattern:
+      /^(?:hi|hello|hey|heyyy|yo|sup|morning|afternoon|greetings|bonjour|hola|howdy)\b[^a-z0-9]*$|^we\s+meet\s+again\b|^(?:how\s+far|how\s+body|how\s+you\s+dey|how\s+now|wetin\s+dey\s+happen|top\s+of\s+the\s+morning|how\s+are\s+you)\b/i,
+    confidence: 0.85,
+  },
+  {
+    // Goodbye, good night, signing off, parting wishes.
+    intent: "farewell",
+    pattern:
+      /^(?:good\s?night|goodnight|nite|gn)\b|^(?:im|i am|i'll|i will)\s+(?:off\b|done\b|leaving|logging\s+off|shutting\s+down|heading\s+(?:out|off|home))\b|\bfarewell\b|^i\s+must\s+be\s+going\b|^i\s+wish\s+you\b[^.?!]*\b(?:day|night|evening|journey|trip|weekend)\b|^(?:brb|gtg|ttyl|cya|cu)\b[^a-z0-9]*$|^tmrw\b|^i\s+will\s+be\s+back\b|^enjoy\s+your\s+(?:day|evening|weekend)\b|^have\s+a\s+(?:nice|great|good|lovely|wonderful)\b|^gone\s+for\s+the\s+day\b|^thats\s+all\s+for\s+now\b|^out\s+for\s+now\b/i,
+    confidence: 0.85,
+  },
+  {
+    // Praise, encouragement and gratitude phrasings that the
+    // Bayes stage confuses with greetings on short tokens.
+    intent: "gratitude",
+    pattern:
+      /\b(?:good|great|fine|nice|splendid|stellar)\s+(?:work|job|answer|effort|stuff)\b|\bimpress(?:ed|es|ive)?\b|^hats\s+off\b|^big\s+ups\b|^you\s+rock\b|\bgratitude\b|\bappreciat(?:e|ed|ion)\b|^much\s+appreciated\b|\byou(?:'re| are)\s+too\s+much\b|^(?:thx|tnx|ty|tks)\b[^a-z0-9]*$/i,
+    confidence: 0.85,
+  },
+  {
+    // Conversational system health probes.
+    intent: "system_status",
+    pattern:
+      /\b(?:how|is|are)\s+your\s+(?:systems?|engine|brain|memory|subsystems?|knowledge\s+base)\b|^everything\b[^.?!]*\bon\s+your\s+side\b|^are\s+you\s+(?:fully\s+)?(?:strong|functional)\b|^status\s+check\b|\b(?:any\s+)?system\s+(?:problems|issues)\b|\bsystems?\s+check\b/i,
+    confidence: 0.8,
+  },
+  {
+    // Help requests. Task-shaped help ("help me plan X") is
+    // already routed by the earlier task_planning rule; the
+    // cascade order guarantees this only sees generic help.
+    intent: "help_request",
+    pattern:
+      /^(?:can|could|will|would)\s+you\s+(?:please\s+)?help\b|^(?:please\s+)?help\s+me\b|^(?:i\s+(?:need|require)|im\s+going\s+to\s+need)\s+(?:your\s+)?(?:help|assistance|a\s+hand)\b|^i\s+could\s+use\s+(?:some\s+)?help\b|^abeg[^.?!]*\bhelp\b|^(?:do\s+me\s+a\s+favor|give\s+me\s+a\s+hand|lend\s+a\s+hand|assist\s+me|kindly\s+assist|sos)\b|^i\s+am\s+stuck\b|^(?:pls|plz|hlp)\b[^a-z0-9]*$|^hlp\s+me\b|^pls\s+help\b|\bwetin\s+(?:i|we)\s+(?:suppose|go)\s+do\b/i,
+    confidence: 0.85,
+  },
+  {
+    // Correction phrased through "i meant" — including the
+    // polite "sorry, i meant X" form. BEFORE the apology rule
+    // so the apology pattern cannot swallow a genuine
+    // correction.
+    intent: "correction",
+    pattern: /\bi\s+meant\b/i,
+    confidence: 0.85,
+  },
+  {
+    // Apologies and polite interruptions. "sorry, i meant X"
+    // is already routed to correction above.
+    intent: "apology",
+    pattern:
+      /^(?:im|i am|i)?\s*(?:so\s+|very\s+)?sorry\b|\bmy\s(?:bad|apologies|mistake|fault)\b|^(?:please\s+)?forgive\s+me\b|^pardon\s+me\b|^no\s+vex\b|^oops\b|^pardon\s+the\s+interruption\b|^excuse\s+my\s+manners\b|\bapolog(?:y|ies|ize)\b|^i\s+did(?:n't|nt)?\s+mean\s+(?:that|it)\b|^(?:sry|srry)\b/i,
+    confidence: 0.85,
+  },
+  {
+    // Celebrations and festive wishes.
+    intent: "celebration",
+    pattern:
+      /\b(?:congratulations|congrats|merry\s+christmas|happy\s+(?:new\s+year|birthday|easter|new\s+month|independence\s+day|holiday|sunday|monday|tuesday|wednesday|thursday|friday|saturday))\b|^(?:we|i)\s+(?:won|did\s+it|nailed)\b|\bi\s+got\s+(?:the\s+job|the\s+contract|promoted)\b|^(?:its|it\s+is)\s+my\s+birthday\b|^promotion\b|\bpop\s+the\s+champagne\b|\ba\s+toast\s+to\b|^what\s+a\s+day\b|\bdey\s+celebrate\b|\bclient\s+approved\b|^i\s+graduated\b|^may\s+the\s+new\s+year\b|done\s+and\s+dusted\b/i,
+    confidence: 0.85,
+  },
+  {
+    // First-person emotional expressions. "this is
+    // great/amazing" stays gratitude (praise); negated
+    // feelings do not match and generalize through Bayes.
+    intent: "emotional_expression",
+    pattern:
+      /^i(?:'m|\s+m|\s+am)\s+(?:so\s+|very\s+|really\s+|quite\s+|kinda\s+|a\s+bit\s+)?(?:happy|sad|excited|tired|frustrated|angry|confused|surprised|nervous|worried|thrilled|exhausted|delighted|upset|bored|stressed|proud|sleepy|heartbroken|on\s+top\s+of\s+the\s+world|over\s+the\s+moon|feeling\s+down)\b|^this\s+is\s+(?:frustrating|terrible|confusing|surprising|exciting|annoying)\b|^(?:ugh|argh|yay|yayy|hurray|omg|finally|srsly)\b|\bwound\s+up\b|^i\s+never\s+expected\b|^today\s+is\s+a\s+(?:good|great|bad|rough|terrible|long)\s+day\b|^im\s+having\s+a\s+(?:rough|bad|good|long)\s+day\b|^today\s+drained\b|^wahala\s+dey\b|^i\s+am\s+in\s+a\s+(?:good|bad|terrible)\s+mood\b|^life\s+is\s+(?:good|bad|hard|tough)\b|^really\b[^a-z0-9]*$|^no\s+way\b[^a-z0-9]*$|^what\?+|^my\s+heart\b/i,
+    confidence: 0.8,
+  },
+  {
+    // Pure acknowledgments: SHORT forms only (any trailing
+    // punctuation or emoji, no following words). Longer
+    // messages fall to Bayes, which owns context.
+    intent: "acknowledgment",
+    pattern:
+      /^(?:ok|okay|okey|okk|k|kk|got\s+it|gotcha|noted|understood|i\s+understand|i\s+get\s+it|i\s+see|i\s+hear\s+you|makes\s+sense|sounds\s+good|sounds\s+fine|very\s+well|fair\s+enough|indeed|cool|nice|great|perfect|roger\s+that|roger|copy\s+that|affirmative|no\s+rush|take\s+your\s+time|proceed|go\s+on|continue|keep\s+going|carry\s+on|go\s+ahead|idk|right|true|very\s+good)\b[^a-z0-9]*$|\bi\s+see\s+what\s+you\s+mean\b|^i\s+am\s+not\s+sure\b[^a-z]*$/i,
+    confidence: 0.85,
+  },
+  {
+    // Pure agreements: SHORT forms only, as above. Explicit
+    // confirmations ("that's right about X") keep the earlier
+    // verification route.
+    intent: "agreement",
+    pattern:
+      /^(?:yes|yeah|yep|yup|ya|yes\s+yes|of\s+course|sure|sure\s+thing|absolutely|definitely|certainly|exactly|correct|agreed|i\s+agree|i\s+agree\s+with\s+you|you\s+are\s+right|thats\s+(?:right|correct)|that\s+is\s+(?:right|correct|exactly\s+it)|true\s+talk|you\s+talk\s+true|i\s+buy\s+that|well\s+said|right\s+on|na\s+so|deal|sharp)\b[^a-z0-9]*$/i,
+    confidence: 0.85,
+  },
+  {
+    // "No wahala", "no problem", "np": approval words that
+    // need their own rule because the bare-word agreement
+    // pattern above is end-anchored.
+    intent: "agreement",
+    pattern:
+      /^no\s+wahala\b|^no\s+problem\b|^np\b[^a-z0-9]*$|^that\s+settles\s+it\b|\bin\s+accord\b|^i\s+buy\s+that\b/i,
+    confidence: 0.8,
+  },
+  {
+    // Pure polite disagreement: SHORT forms only. Bare "no,
+    // that is wrong" keeps the earlier correction route.
+    intent: "disagreement",
+    pattern:
+      /^(?:no|nah|nope|not\s+really|not\s+quite|not\s+exactly|not\s+entirely|i\s+disagree|i\s+(?:do\s+not|don't|dont)\s+agree|i\s+beg\s+to\s+differ|i\s+think\s+otherwise)\b[^a-z0-9]*$|\b(?:i\s+do\s+not|i\s+don't|i\s+dont)\s+think\s+so\b|\bthats\s+not\s+it\b|\bthat\s+is\s+not\s+it\b|^i\s+am\s+not\s+sure\s+about\s+that\b|\bsee\s+it\s+differently\b|\b(?:i\s+(?:do\s+not|don't|dont)|i\s+no)\s+buy\b|\bi\s+no\s+gree\b|\bi\s+have\s+to\s+disagree\b|\bdebatable\b|\bcannot\s+bring\b|\bcan\s+not\s+bring\b|\bdifferent\s+view\b|\bhard\s+for\s+me\s+to\s+accept\b/i,
+    confidence: 0.8,
   },
 ];
 
@@ -1101,6 +1531,12 @@ export interface NluResult {
    *  construction: an unresolved pronoun is reported as
    *  referent:null — never guessed. */
   anaphora: AnaphoraResolution[];
+  /** Emoji tone of the input (owner directive 2026-09-11):
+   *  the emojis found and their conversational tone
+   *  labels. Tone MODIFIES meaning; a pure emoji message
+   *  routes deterministically by tone. Never fabricated into
+   *  a fact. */
+  emojiTone: EmojiToneResult;
 }
 
 // ---------------------------------------------------------
@@ -1240,26 +1676,108 @@ export function understand(
   history: Array<{ role: "owner" | "archie"; text: string }> = [],
   domain?: NluDomainHints,
 ): NluResult {
-  const tokens = tokenize(input);
+  // NORMALIZE (owner directive 2026-09-11): typos are corrected
+  // to real corpus words before any intent work. The rules
+  // and the classifier see the corrected text; entity
+  // extraction keeps the RAW input so URLs, emails and file
+  // paths are never touched by the corrector.
+  const corrected = correctConversationalTypos(input);
+  const tokens = tokenize(corrected);
   const anaphora = resolveAnaphora(input, history);
-  // Stage 1: rule cascade over the raw input — general rules
-  // first, then skill-contributed domain rules.
+  // Emoji tone (owner directive 2026-09-11): deterministic
+  // scan, cheap, honest. An unknown emoji reports tone
+  // "unknown" and is ignored by every route.
+  const emojiTone = extractEmojiTone(input);
+  // Stage 1: rule cascade over the corrected input — general
+  // rules first, then skill-contributed domain rules.
   for (const rule of [...RULE_CASCADE, ...(domain?.rules ?? [])]) {
-    if (rule.pattern.test(input)) {
+    if (rule.pattern.test(corrected)) {
       return {
         intent: rule.intent,
         confidence: rule.confidence,
         entities: extractEntities(input),
         tokens,
         anaphora,
+        emojiTone,
       };
     }
   }
-  // Stage 2: trained Naive Bayes classifier (base corpus +
-  // any skill-contributed domain utterances).
+  // Stage 1b: a message with NO known words routes
+  // deterministically by emoji tone when an emoji is present
+  // (a bare thumbs up is an approval, a folded hand is
+  // gratitude), otherwise to the honest knowledge route.
+  // Function words alone ("why", "what") carry no intent of
+  // their own: with a dominant emoji they defer to the
+  // emoji's tone. Documented mapping in emoji.ts; no
+  // guessing, no fabrication.
+  const EMOJI_DEFERENT_WORDS = new Set([
+    "what",
+    "why",
+    "how",
+    "when",
+    "where",
+    "who",
+    "really",
+    "serious",
+    "wow",
+    "omg",
+    "hmm",
+    "pardon",
+  ]);
+  const wordsDeferToEmoji = tokens.every((t) =>
+    EMOJI_DEFERENT_WORDS.has(t),
+  );
+  // Stage 2: trained Naive Bayes classifier (full corpus =
+  // base + conversational expansion + skill utterances).
   const classifier = new IntentClassifier();
   classifier.train([...CORPUS, ...(domain?.corpus ?? [])]);
-  let { intent, confidence } = classifier.classify(input);
+  const { intent: classifiedIntent, confidence: classifiedConfidence, knownTokens } =
+    classifier.classify(corrected);
+  let intent = classifiedIntent;
+  let confidence = classifiedConfidence;
+  // Known-token honesty: a message whose words match NOTHING
+  // in the vocabulary must not be classified by class priors
+  // (the biggest class would win by accident). If an emoji
+  // carries a tone, it decides; otherwise the honest route
+  // is knowledge_query at low confidence.
+  if (knownTokens === 0) {
+    if (emojiTone.present && emojiTone.standaloneIntent) {
+      return {
+        intent: emojiTone.standaloneIntent,
+        confidence: 0.75,
+        entities: extractEntities(input),
+        tokens,
+        anaphora,
+        emojiTone,
+      };
+    }
+    return {
+      intent: "knowledge_query",
+      confidence: 0.3,
+      entities: extractEntities(input),
+      tokens,
+      anaphora,
+      emojiTone,
+    };
+  }
+  // Emoji-dominant messages: function words + a strong
+  // emoji. The words defer ("why" plus an angry face is an
+  // emotion, not a question about "why").
+  if (
+    emojiTone.present &&
+    emojiTone.standaloneIntent &&
+    wordsDeferToEmoji &&
+    emojiTone.standaloneIntent !== intent
+  ) {
+    return {
+      intent: emojiTone.standaloneIntent,
+      confidence: 0.7,
+      entities: extractEntities(input),
+      tokens,
+      anaphora,
+      emojiTone,
+    };
+  }
   // Precision guard: self-referential intents require an
   // explicit ARCHIE/self anchor in the text. Everyday visitor
   // questions ("what grout should I choose...") must land in
@@ -1268,12 +1786,31 @@ export function understand(
     intent = input.includes("?") ? "knowledge_query" : "howto_guidance";
     confidence = Math.min(confidence, 0.6);
   }
+  // Weak-signal honesty (owner directive 2026-09-11): when
+  // the Bayes stage cannot separate the classes (confidence
+  // below 0.2), the class prior alone must NOT produce a
+  // confident social reply ("my uncle sells yam in the
+  // village" is not a greeting). The honest route for a
+  // weak signal is the knowledge path, which answers "I
+  // have no validated knowledge on that" — truthfully.
+  if (confidence < 0.2) {
+    intent = "knowledge_query";
+  }
+  // Emoji alignment (owner directive 2026-09-11): when the
+  // words and the emoji AGREE (thanks + folded hands), the
+  // intent confidence is boosted a little. Agreement only —
+  // a tone never overrides the words, because an emoji is a
+  // hint, not a command.
+  if (emojiAlignsWithIntent(emojiTone, intent)) {
+    confidence = Math.min(0.95, confidence + 0.08);
+  }
   return {
     intent,
     confidence,
     entities: extractEntities(input),
     anaphora,
     tokens,
+    emojiTone,
   };
 }
 

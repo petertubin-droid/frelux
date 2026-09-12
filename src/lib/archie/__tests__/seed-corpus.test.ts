@@ -21,7 +21,7 @@ describe("seed corpus (P4 / K1)", () => {
   const ALL_SEEDS = [...FULL_SEED_CORPUS, ...CONSTRUCTION_SEED_FACTS];
 
   it("is versioned — deployments can detect stale seeds", () => {
-    expect(SEED_CORPUS_VERSION).toBe(3);
+    expect(SEED_CORPUS_VERSION).toBe(4);
   });
 
   it("has no duplicate subject+predicate pairs — assert() would merge unpredictably", () => {

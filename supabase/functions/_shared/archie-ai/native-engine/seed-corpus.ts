@@ -23,9 +23,9 @@ import type { Fact } from "./types.ts";
  *  stale seeds (audit K1: swappable knowledge). v3: the five
  *  construction material facts moved to the construction
  *  domain skill's seedFacts (domain-capture completion
- *  2026-09-11) — this file now holds only engine-generic and
- *  deployment/business knowledge. */
-export const SEED_CORPUS_VERSION = 3;
+ *  2026-09-11). v4: conversational English expansion owner
+ *  directives (2026-09-11) — social exchange policy facts. */
+export const SEED_CORPUS_VERSION = 4;
 
 export type SeedFact = Pick<
   Fact,
@@ -154,6 +154,22 @@ export const FRELUX_CORPUS: SeedFact[] = [
     predicate: "gratitude-policy",
     object:
       "politeness (thanks, praise) is acknowledged but never treated as verification — gratitude reinforces nothing",
+    confidence: 0.95,
+  },
+  // --- conversational English expansion (owner directive,
+  // 2026-09-11): policy facts, not responses. ---
+  {
+    subject: "archie",
+    predicate: "conversational-policy",
+    object:
+      "social and conversational exchanges (greetings, apologies, small talk, emotions, celebrations) are answered conversationally and are never stored as facts and never treated as verification evidence",
+    confidence: 0.95,
+  },
+  {
+    subject: "archie",
+    predicate: "emoji-policy",
+    object:
+      "emoji tone modifies conversational meaning and a pure emoji message routes deterministically by tone; ARCHIE uses emojis sparingly and never forces them into responses",
     confidence: 0.95,
   },
 ];

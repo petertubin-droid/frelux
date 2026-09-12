@@ -57,6 +57,10 @@ import {
   composeCompound,
   tokenize,
 } from "./nlu.ts";
+// Conversational English expansion (owner directive,
+// 2026-09-11): deterministic, grounded composition for
+// social and conversational intents.
+import { composeConversational } from "./conversation.ts";
 import {
   derivedOpening,
   ownerAssertedOpening,
@@ -1310,15 +1314,53 @@ export class ArchieNativeEngine implements ArchieRuntime {
     }
 
     switch (nlu.intent) {
-      case "greeting":
+      // -------------------------------------------------
+      // Conversational English expansion (owner directive,
+      // 2026-09-11): social and conversational intents are
+      // composed deterministically by the conversational
+      // composer — grounded in the real clock, the real
+      // memory turns, the real engine state. No canned
+      // scripts, no fabricated feelings, no invented facts.
+      // Learning semantics are unchanged: these turns are
+      // acknowledgement or cited outcomes that reinforce
+      // nothing (recorded after the switch, below).
+      // -------------------------------------------------
+      // Greeting keeps the REAL engine state greeting (owner
+      // spec, native-engine-runtime test: "greets with real
+      // engine state — no canned conversational script").
+      case "greeting": {
+        const text = `ARCHIE native engine online and listening. ${this.statusLine()} Ask me anything in my knowledge, or teach me something new.`;
+        return this.compose(text, nlu.confidence, []);
+      }
       case "farewell":
-      case "gratitude": {
-        const text =
-          nlu.intent === "greeting"
-            ? `ARCHIE native engine online and listening. ${this.statusLine()} Ask me anything in my knowledge, or teach me something new.`
-            : nlu.intent === "farewell"
-              ? `Understood. ${this.statusLine()} Memory persists for next time.`
-              : `Noted. ${this.statusLine()}`;
+      case "gratitude":
+      case "help_request":
+      case "apology":
+      case "acknowledgment":
+      case "agreement":
+      case "disagreement":
+      case "emotional_expression":
+      case "celebration":
+      case "social_talk":
+      case "time_query":
+      case "availability_check":
+      case "activity_query":
+      case "clarification_request": {
+        const summary = manifestSummary(nativeEngineCapabilityManifest());
+        const text = composeConversational({
+          input,
+          intent: nlu.intent,
+          now: new Date(),
+          emojiTone: nlu.emojiTone,
+          recentTurns: session
+            ? session.memory.recentTurns(6)
+            : [],
+          factsCount: this.facts.count(),
+          inferences: this.inferences,
+          capabilitiesSummary:
+            `${summary.operational} capabilities operational, ${summary.developing} developing, ` +
+            `${summary.notImplemented} not implemented (reported honestly, never faked)`,
+        });
         return this.compose(text, nlu.confidence, []);
       }
 
