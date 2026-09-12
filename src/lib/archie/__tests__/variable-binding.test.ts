@@ -4,7 +4,6 @@ import {
   ReasoningEngine,
   DEFAULT_RULES,
 } from "@studio-shared/archie-ai/native-engine/reasoning.ts";
-import type { Rule } from "@studio-shared/archie-ai/native-engine/types.ts";
 
 // =========================================================
 // ARCHIE — SINGLE-SLOT CAPTURE COMPLETION + TRANSITIVITY

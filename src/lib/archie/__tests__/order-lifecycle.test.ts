@@ -22,7 +22,6 @@ import {
 } from "@studio-shared/archie-ai/native-engine/crypto/trade-gate.ts";
 import {
   closePositionManually,
-  DEFAULT_LIFECYCLE_CONFIG,
   monitorPosition,
   openPositionFromDecision,
   renderLifecycleReport,

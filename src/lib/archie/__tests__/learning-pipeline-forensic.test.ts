@@ -19,7 +19,6 @@ import { describe, expect, it } from "vitest";
 // =========================================================
 
 import { FactStore } from "@studio-shared/archie-ai/native-engine/knowledge.ts";
-import type { Fact } from "@studio-shared/archie-ai/native-engine/types.ts";
 
 async function taught(
   store: FactStore,
