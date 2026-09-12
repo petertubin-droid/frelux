@@ -118,7 +118,8 @@ export class WorldModel {
           confidence: row.confidence ?? 0.8,
           provenance: row.provenance ?? "hydrated",
           createdAt: row.created_at ?? new Date().toISOString(),
-          observedAt: row.observed_at ?? row.created_at ?? new Date().toISOString(),
+          observedAt:
+            row.observed_at ?? row.created_at ?? new Date().toISOString(),
           supersededBy: row.superseded_by ?? null,
         };
         this.kinds.set(row.id, {
@@ -174,8 +175,10 @@ export class WorldModel {
         existing.confidence + 0.5 * (1 - existing.confidence),
       );
       existing.observedAt = observedAt;
-      const kind = this.kinds.get(id) ??
-        { subjectKind: "Concept", objectKind: "Concept" };
+      const kind = this.kinds.get(id) ?? {
+        subjectKind: "Concept",
+        objectKind: "Concept",
+      };
       if (this.db) {
         try {
           // FULL row (not a partial patch): the re-observation
@@ -330,7 +333,9 @@ export class WorldModel {
             subject: first.subject,
             relation: "causes",
             object: second.object,
-            confidence: Number((first.confidence * second.confidence).toFixed(3)),
+            confidence: Number(
+              (first.confidence * second.confidence).toFixed(3),
+            ),
             provenance: `derived: transitive ${first.subject}→${first.object}→${second.object}`,
             createdAt: new Date().toISOString(),
           });
@@ -362,6 +367,46 @@ export class WorldModel {
     return this.query({ about: name, depth: 1 });
   }
 
+  /** TEMPORAL QUERY (remediation batch 1, 2026-09-12): the
+   *  version of every relation that was CURRENT at instant t.
+   *  Per semantic identity (subject::relation::object), the
+   *  observation with the latest observed_at <= t wins; a
+   *  relation first observed after t is absent — it did not
+   *  exist yet. Pure projection over the versioned
+   *  observation log; no interpolation, no guessing. */
+  aliveAt(t: Date): WorldRelation[] {
+    const tms = t.getTime();
+    const latest = new Map<string, WorldRelation>();
+    const at = (r: WorldRelation) =>
+      new Date(r.observedAt ?? r.createdAt).getTime();
+    for (const obs of this.observations) {
+      const oms = at(obs);
+      if (oms > tms) continue;
+      const key =
+        `${obs.subject}::${obs.relation}::${obs.object}`.toLowerCase();
+      const cur = latest.get(key);
+      if (!cur || oms > at(cur)) latest.set(key, obs);
+    }
+    return [...latest.values()].map((r) => ({ ...r }));
+  }
+
+  /** TEMPORAL QUERY: observations first recorded within
+   *  [from, to] inclusive — the world's changelog window,
+   *  newest first. */
+  between(from: Date, to: Date): WorldRelation[] {
+    const fms = from.getTime();
+    const tms = to.getTime();
+    const at = (r: WorldRelation) =>
+      new Date(r.observedAt ?? r.createdAt).getTime();
+    return this.observations
+      .filter((r) => {
+        const oms = at(r);
+        return oms >= fms && oms <= tms;
+      })
+      .map((r) => ({ ...r }))
+      .sort((a, b) => at(b) - at(a));
+  }
+
   /** CURRENT VIEW (temporal axis, audit phase 7): every
    *  relation that has not been superseded — the world as it
    *  stands, each with its observation time. */
@@ -375,22 +420,23 @@ export class WorldModel {
    *  of their replacement; the timeline is never lossy. */
   history(subject: string): WorldRelation[] {
     const needle = subject.toLowerCase();
-    return this.observations
-      .filter(
-        (r) =>
-          r.subject.toLowerCase() === needle ||
-          r.object.toLowerCase() === needle,
-      )
-      // newest first; same-timestamp ties resolve by insertion
-      // order (the later observation is the newer one)
-      .map((r, i) => ({ r, i }))
-      .sort(
-        (x, y) =>
-          new Date(y.r.observedAt ?? y.r.createdAt).getTime() -
-            new Date(x.r.observedAt ?? x.r.createdAt).getTime() ||
-          y.i - x.i,
-      )
-      .map(({ r }) => ({ ...r }));
+    return (
+      this.observations
+        .filter(
+          (r) =>
+            r.subject.toLowerCase() === needle ||
+            r.object.toLowerCase() === needle,
+        )
+        // newest first; same-timestamp ties resolve by insertion
+        // order (the later observation is the newer one)
+        .map((r, i) => ({ r, i }))
+        .sort(
+          (x, y) =>
+            new Date(y.r.observedAt ?? y.r.createdAt).getTime() -
+              new Date(x.r.observedAt ?? x.r.createdAt).getTime() || y.i - x.i,
+        )
+        .map(({ r }) => ({ ...r }))
+    );
   }
 
   /** The full observation log — every version, current and
@@ -401,8 +447,7 @@ export class WorldModel {
       .sort(
         (x, y) =>
           new Date(y.r.observedAt ?? y.r.createdAt).getTime() -
-            new Date(x.r.observedAt ?? x.r.createdAt).getTime() ||
-          y.i - x.i,
+            new Date(x.r.observedAt ?? x.r.createdAt).getTime() || y.i - x.i,
       )
       .map(({ r }) => ({ ...r }));
   }

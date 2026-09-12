@@ -360,8 +360,75 @@ export class Planner {
       risk,
     };
   }
-}
 
+  /** REMEDIATION batch 1 (2026-09-12): post-hoc plan
+   *  validation against the LIVE fact store. Every step's
+   *  operator must exist; every literal-subject precondition
+   *  must either be held in the store or produced by an
+   *  earlier step's effects. Honest issue list — never a
+   *  silent pass. */
+  validatePlan(plan: Plan): { valid: boolean; issues: string[] } {
+    const issues: string[] = [];
+    const byId = new Map(this.operators.map((o) => [o.id, o]));
+    const produced = new Set<string>();
+    for (const step of plan.steps) {
+      const op = byId.get(step.operatorId);
+      if (!op) {
+        issues.push(`unknown operator "${step.operatorId}"`);
+        continue;
+      }
+      for (const pre of op.preconditions ?? []) {
+        const p = { ...pre };
+        if (
+          typeof p.subject === "string" &&
+          !p.subject.startsWith("?") &&
+          p.subject !== "$goal"
+        ) {
+          const key = `${p.subject}|${p.predicate}`;
+          const held =
+            this.facts.query({
+              subject: p.subject,
+              predicate: p.predicate,
+            }).length > 0;
+          if (!held && !produced.has(key)) {
+            issues.push(
+              `precondition unsatisfied for step "${step.operatorId}": ${p.subject} ${p.predicate}`,
+            );
+          }
+        }
+      }
+      for (const eff of op.effects ?? []) {
+        if (typeof eff.subject === "string" && !eff.subject.startsWith("?")) {
+          produced.add(`${eff.subject}|${eff.predicate}`);
+        }
+      }
+    }
+    return { valid: issues.length === 0, issues };
+  }
+
+  /** REMEDIATION batch 1 (2026-09-12): replan after a failed
+   *  execution — the failed operator is EXCLUDED and the
+   *  remaining operator library replans the goal. Honest by
+   *  construction: when no alternative chain exists the
+   *  returned plan says so through executable=false and its
+   *  gapReport. */
+  replan(
+    goal: string | FactPattern,
+    failedOperatorId: string,
+    depth = 8,
+  ): Plan {
+    const reduced = this.operators.filter((o) => o.id !== failedOperatorId);
+    if (reduced.length === this.operators.length) {
+      return this.plan(goal, depth);
+    }
+    const alt = new Planner(this.facts, reduced);
+    const plan = alt.plan(goal, depth);
+    plan.gapReport.push(
+      `operator "${failedOperatorId}" excluded after failure; replanned over ${reduced.length} remaining operator(s)`,
+    );
+    return plan;
+  }
+}
 function matchesAchieves(op: Operator, pattern: FactPattern): boolean {
   if (
     pattern.predicate !== undefined &&

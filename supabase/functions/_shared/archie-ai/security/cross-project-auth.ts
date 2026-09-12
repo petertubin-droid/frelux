@@ -50,6 +50,21 @@ const JWKS_TTL_MS = 10 * 60 * 1000;
 
 let jwksCache: { keys: Record<string, unknown>[]; at: number } | null = null;
 
+// REMEDIATION batch 1 (2026-09-12, auth resilience):
+//   * in-flight coalescing — concurrent verifications share
+//     ONE JWKS request instead of stampeding the authority
+//     endpoint at edge-function fan-in.
+//   * negative caching — a failed refresh is not retried for
+//     60s (failures previously re-fetched on EVERY request).
+//   * stale-if-error — an endpoint blip serves the last good
+//     keys (ES256 keys rotate on the order of hours, not
+//     minutes) instead of locking the owner out. Stale keys
+//     older than 24h are never served.
+const JWKS_NEG_TTL_MS = 60 * 1000;
+const JWKS_STALE_MAX_MS = 24 * 60 * 60 * 1000;
+let jwksInflight: Promise<Record<string, unknown>[] | null> | null = null;
+let jwksFailedAt = 0;
+
 function b64urlToBytes(value: string): Uint8Array {
   const normalized = value.replace(/-/g, "+").replace(/_/g, "/");
   const padded = normalized + "=".repeat((4 - (normalized.length % 4)) % 4);
@@ -83,17 +98,51 @@ function splitJwt(token: string): JwtParts | null {
   };
 }
 
-async function fetchJwks(
+export async function fetchJwks(
   url: string,
 ): Promise<Record<string, unknown>[] | null> {
-  if (!jwksCache || Date.now() - jwksCache.at > JWKS_TTL_MS) {
-    const res = await fetch(url, { headers: { accept: "application/json" } });
-    if (!res.ok) return null;
-    const body = await res.json();
-    if (!body || !Array.isArray(body.keys)) return null;
-    jwksCache = { keys: body.keys, at: Date.now() };
+  const now = Date.now();
+  if (jwksCache !== null && now - jwksCache.at <= JWKS_TTL_MS) {
+    return jwksCache.keys;
   }
-  return jwksCache.keys;
+  // Negative cache: don't hammer a failing endpoint.
+  if (jwksFailedAt !== 0 && now - jwksFailedAt < JWKS_NEG_TTL_MS) {
+    return jwksCache ? jwksCache.keys : null;
+  }
+  if (jwksInflight !== null) return jwksInflight;
+  jwksInflight = (async () => {
+    try {
+      const res = await fetch(url, {
+        headers: { accept: "application/json" },
+      });
+      if (!res.ok) throw new Error(`jwks fetch failed: ${res.status}`);
+      const body = await res.json();
+      if (!body || !Array.isArray(body.keys)) {
+        throw new Error("jwks body malformed: keys[] missing");
+      }
+      jwksCache = { keys: body.keys, at: Date.now() };
+      jwksFailedAt = 0;
+      return jwksCache.keys;
+    } catch {
+      jwksFailedAt = Date.now();
+      // Stale-if-error, bounded: never serve keys older than 24h.
+      if (jwksCache && Date.now() - jwksCache.at <= JWKS_STALE_MAX_MS) {
+        return jwksCache.keys;
+      }
+      return null;
+    } finally {
+      jwksInflight = null;
+    }
+  })();
+  return jwksInflight;
+}
+
+/** Test seam: reset module-level cache state (never used by
+ *  production paths). */
+export function __resetJwksCacheForTests(): void {
+  jwksCache = null;
+  jwksInflight = null;
+  jwksFailedAt = 0;
 }
 
 // Low-level: verify an ES256 JWT against one specific public JWK.
@@ -104,13 +153,7 @@ export async function verifyJwtWithJwk(
 ): Promise<VerifiedAuthorityJwt | null> {
   const parts = splitJwt(token);
   if (!parts || parts.header.alg !== "ES256") return null;
-  if (
-    !jwk ||
-    jwk.kty !== "EC" ||
-    jwk.crv !== "P-256" ||
-    !jwk.x ||
-    !jwk.y
-  ) {
+  if (!jwk || jwk.kty !== "EC" || jwk.crv !== "P-256" || !jwk.x || !jwk.y) {
     return null;
   }
   let key: CryptoKey;
@@ -144,9 +187,8 @@ export async function verifyJwtWithJwk(
   }
   return {
     sub,
-    email: typeof parts.payload.email === "string"
-      ? parts.payload.email
-      : undefined,
+    email:
+      typeof parts.payload.email === "string" ? parts.payload.email : undefined,
     exp,
   };
 }
