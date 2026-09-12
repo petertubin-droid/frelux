@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS archie_evolution_settings (
 
 ALTER TABLE archie_evolution_settings ENABLE ROW LEVEL SECURITY;
 
+
+DROP POLICY IF EXISTS archie_evolution_settings_admin_all ON archie_evolution_settings;
 CREATE POLICY archie_evolution_settings_admin_all
   ON archie_evolution_settings FOR ALL
   TO authenticated
@@ -49,6 +51,8 @@ CREATE POLICY archie_evolution_settings_admin_all
     )
   );
 
+
+DROP POLICY IF EXISTS archie_evolution_settings_service_all ON archie_evolution_settings;
 CREATE POLICY archie_evolution_settings_service_all
   ON archie_evolution_settings FOR ALL
   TO service_role
@@ -94,6 +98,8 @@ CREATE TABLE IF NOT EXISTS archie_change_requests (
 
 ALTER TABLE archie_change_requests ENABLE ROW LEVEL SECURITY;
 
+
+DROP POLICY IF EXISTS archie_change_requests_admin_all ON archie_change_requests;
 CREATE POLICY archie_change_requests_admin_all
   ON archie_change_requests FOR ALL
   TO authenticated
@@ -112,6 +118,8 @@ CREATE POLICY archie_change_requests_admin_all
     )
   );
 
+
+DROP POLICY IF EXISTS archie_change_requests_service_all ON archie_change_requests;
 CREATE POLICY archie_change_requests_service_all
   ON archie_change_requests FOR ALL
   TO service_role
@@ -140,6 +148,8 @@ CREATE TABLE IF NOT EXISTS archie_change_audit (
 ALTER TABLE archie_change_audit ENABLE ROW LEVEL SECURITY;
 
 -- Append-only for the owner: INSERT and SELECT only.
+
+DROP POLICY IF EXISTS archie_change_audit_admin_insert ON archie_change_audit;
 CREATE POLICY archie_change_audit_admin_insert
   ON archie_change_audit FOR INSERT
   TO authenticated
@@ -151,6 +161,8 @@ CREATE POLICY archie_change_audit_admin_insert
     )
   );
 
+
+DROP POLICY IF EXISTS archie_change_audit_admin_select ON archie_change_audit;
 CREATE POLICY archie_change_audit_admin_select
   ON archie_change_audit FOR SELECT
   TO authenticated
@@ -162,11 +174,15 @@ CREATE POLICY archie_change_audit_admin_select
     )
   );
 
+
+DROP POLICY IF EXISTS archie_change_audit_service_insert ON archie_change_audit;
 CREATE POLICY archie_change_audit_service_insert
   ON archie_change_audit FOR INSERT
   TO service_role
   WITH CHECK (true);
 
+
+DROP POLICY IF EXISTS archie_change_audit_service_select ON archie_change_audit;
 CREATE POLICY archie_change_audit_service_select
   ON archie_change_audit FOR SELECT
   TO service_role
@@ -218,6 +234,8 @@ CREATE TABLE IF NOT EXISTS archie_language_profiles (
 
 ALTER TABLE archie_language_profiles ENABLE ROW LEVEL SECURITY;
 
+
+DROP POLICY IF EXISTS archie_language_profiles_admin_all ON archie_language_profiles;
 CREATE POLICY archie_language_profiles_admin_all
   ON archie_language_profiles FOR ALL
   TO authenticated
@@ -236,6 +254,8 @@ CREATE POLICY archie_language_profiles_admin_all
     )
   );
 
+
+DROP POLICY IF EXISTS archie_language_profiles_service_all ON archie_language_profiles;
 CREATE POLICY archie_language_profiles_service_all
   ON archie_language_profiles FOR ALL
   TO service_role
@@ -264,6 +284,8 @@ CREATE TABLE IF NOT EXISTS archie_language_entries (
 
 ALTER TABLE archie_language_entries ENABLE ROW LEVEL SECURITY;
 
+
+DROP POLICY IF EXISTS archie_language_entries_admin_all ON archie_language_entries;
 CREATE POLICY archie_language_entries_admin_all
   ON archie_language_entries FOR ALL
   TO authenticated
@@ -282,6 +304,8 @@ CREATE POLICY archie_language_entries_admin_all
     )
   );
 
+
+DROP POLICY IF EXISTS archie_language_entries_service_all ON archie_language_entries;
 CREATE POLICY archie_language_entries_service_all
   ON archie_language_entries FOR ALL
   TO service_role
@@ -304,6 +328,8 @@ CREATE TABLE IF NOT EXISTS archie_language_evidence (
 
 ALTER TABLE archie_language_evidence ENABLE ROW LEVEL SECURITY;
 
+
+DROP POLICY IF EXISTS archie_language_evidence_admin_all ON archie_language_evidence;
 CREATE POLICY archie_language_evidence_admin_all
   ON archie_language_evidence FOR ALL
   TO authenticated
@@ -322,6 +348,8 @@ CREATE POLICY archie_language_evidence_admin_all
     )
   );
 
+
+DROP POLICY IF EXISTS archie_language_evidence_service_all ON archie_language_evidence;
 CREATE POLICY archie_language_evidence_service_all
   ON archie_language_evidence FOR ALL
   TO service_role
@@ -351,6 +379,8 @@ CREATE TABLE IF NOT EXISTS archie_evolution_memory (
 
 ALTER TABLE archie_evolution_memory ENABLE ROW LEVEL SECURITY;
 
+
+DROP POLICY IF EXISTS archie_evolution_memory_admin_all ON archie_evolution_memory;
 CREATE POLICY archie_evolution_memory_admin_all
   ON archie_evolution_memory FOR ALL
   TO authenticated
@@ -369,6 +399,8 @@ CREATE POLICY archie_evolution_memory_admin_all
     )
   );
 
+
+DROP POLICY IF EXISTS archie_evolution_memory_service_all ON archie_evolution_memory;
 CREATE POLICY archie_evolution_memory_service_all
   ON archie_evolution_memory FOR ALL
   TO service_role

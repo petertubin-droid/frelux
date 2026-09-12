@@ -140,36 +140,66 @@ ON CONFLICT DO NOTHING;
 
 ALTER TABLE brand_profiles ENABLE ROW LEVEL SECURITY;
 
+
+DROP POLICY IF EXISTS brand_profiles_select_own ON brand_profiles;
 CREATE POLICY brand_profiles_select_own ON brand_profiles
   FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS brand_profiles_insert_own ON brand_profiles;
 CREATE POLICY brand_profiles_insert_own ON brand_profiles
   FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS brand_profiles_update_own ON brand_profiles;
 CREATE POLICY brand_profiles_update_own ON brand_profiles
   FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS brand_profiles_delete_own ON brand_profiles;
 CREATE POLICY brand_profiles_delete_own ON brand_profiles
   FOR DELETE USING (auth.uid() = user_id);
 
 ALTER TABLE pdf_branding_templates ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS pdf_templates_select_all ON pdf_branding_templates;
 CREATE POLICY pdf_templates_select_all ON pdf_branding_templates
   FOR SELECT USING (is_active = TRUE);
+
+DROP POLICY IF EXISTS pdf_templates_insert_admin ON pdf_branding_templates;
 CREATE POLICY pdf_templates_insert_admin ON pdf_branding_templates
   WITH CHECK (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS pdf_templates_update_admin ON pdf_branding_templates;
 CREATE POLICY pdf_templates_update_admin ON pdf_branding_templates
   FOR UPDATE USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin'));
+
+DROP POLICY IF EXISTS pdf_templates_delete_admin ON pdf_branding_templates;
 CREATE POLICY pdf_templates_delete_admin ON pdf_branding_templates
   FOR DELETE USING (EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin') AND is_system = FALSE);
 
 ALTER TABLE ai_logo_generations ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS ai_logo_select_own ON ai_logo_generations;
 CREATE POLICY ai_logo_select_own ON ai_logo_generations FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS ai_logo_insert_own ON ai_logo_generations;
 CREATE POLICY ai_logo_insert_own ON ai_logo_generations FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS ai_logo_update_own ON ai_logo_generations;
 CREATE POLICY ai_logo_update_own ON ai_logo_generations FOR UPDATE USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS ai_logo_delete_own ON ai_logo_generations;
 CREATE POLICY ai_logo_delete_own ON ai_logo_generations FOR DELETE USING (auth.uid() = user_id);
 
 ALTER TABLE pdf_export_unlocks ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS pdf_unlocks_select_own ON pdf_export_unlocks;
 CREATE POLICY pdf_unlocks_select_own ON pdf_export_unlocks
   FOR SELECT USING (auth.uid() = user_id);
+
+DROP POLICY IF EXISTS pdf_unlocks_insert_service ON pdf_export_unlocks;
 CREATE POLICY pdf_unlocks_insert_service ON pdf_export_unlocks
   WITH CHECK (auth.role() = 'service_role');
+
+DROP POLICY IF EXISTS pdf_unlocks_update_service ON pdf_export_unlocks;
 CREATE POLICY pdf_unlocks_update_service ON pdf_export_unlocks
   FOR UPDATE USING (auth.role() = 'service_role');
 
@@ -180,12 +210,20 @@ INSERT INTO storage.buckets (id, name, public)
 VALUES ('brand-assets', 'brand-assets', TRUE)
 ON CONFLICT (id) DO NOTHING;
 
+
+DROP POLICY IF EXISTS brand_assets_read_all ON storage.objects;
 CREATE POLICY brand_assets_read_all ON storage.objects
   FOR SELECT USING (bucket_id = 'brand-assets');
+
+DROP POLICY IF EXISTS brand_assets_insert_own ON storage.objects;
 CREATE POLICY brand_assets_insert_own ON storage.objects
   FOR INSERT WITH CHECK (bucket_id = 'brand-assets' AND auth.uid() IS NOT NULL);
+
+DROP POLICY IF EXISTS brand_assets_update_own ON storage.objects;
 CREATE POLICY brand_assets_update_own ON storage.objects
   FOR UPDATE USING (bucket_id = 'brand-assets' AND auth.uid() IS NOT NULL);
+
+DROP POLICY IF EXISTS brand_assets_delete_own ON storage.objects;
 CREATE POLICY brand_assets_delete_own ON storage.objects
   FOR DELETE USING (bucket_id = 'brand-assets' AND auth.uid() IS NOT NULL);
 

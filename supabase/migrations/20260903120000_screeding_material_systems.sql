@@ -111,12 +111,16 @@ ON CONFLICT DO NOTHING;
 ALTER TABLE screeding_system_config ENABLE ROW LEVEL SECURITY;
 
 -- Public can read active config (needed for calculator)
+
+DROP POLICY IF EXISTS screeding_system_config_read ON screeding_system_config;
 CREATE POLICY screeding_system_config_read
   ON screeding_system_config FOR SELECT
   TO public
   USING (true);
 
 -- Only authenticated users with admin role can write
+
+DROP POLICY IF EXISTS screeding_system_config_admin_write ON screeding_system_config;
 CREATE POLICY screeding_system_config_admin_write
   ON screeding_system_config FOR ALL
   TO authenticated
@@ -136,6 +140,8 @@ CREATE POLICY screeding_system_config_admin_write
   );
 
 -- Service role can do everything
+
+DROP POLICY IF EXISTS screeding_system_config_service_all ON screeding_system_config;
 CREATE POLICY screeding_system_config_service_all
   ON screeding_system_config FOR ALL
   TO service_role
