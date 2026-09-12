@@ -54,11 +54,77 @@ export interface InferenceResult {
   bindings: Record<string, string | number>[];
 }
 
+/** REMEDIATION batch 5 (2026-09-13, fixes 10+11): the single
+ *  rule-validity predicate shared by forward AND backward
+ *  chaining. Forward chaining refuses unsound rules per
+ *  iteration; backward chaining previously used them anyway.
+ *  Registration now partitions rules up front so both chains
+ *  see the same (valid) rule set, and the refusal reason is
+ *  surfaced instead of silently tolerated.
+ *
+ *  Valid means:
+ *  - well-formed shape: id, ≥1 condition, a conclusion,
+ *    weight in (0,1]; a `compute` rule has a function
+ *  - no free variables in the conclusion beyond the ONE
+ *    sound capture shorthand (one free var + exactly one
+ *    object-elided condition) — anything else would let the
+ *    engine fabricate entities.
+ */
+export function ruleRejectionReason(rule: Rule): string | null {
+  if (!rule || typeof rule !== "object") return "rule is not an object";
+  if (!rule.id || typeof rule.id !== "string") return "missing or empty id";
+  if (!Array.isArray(rule.conditions) || rule.conditions.length === 0) {
+    return "rule has no conditions";
+  }
+  if (!rule.produces || !rule.produces.subject || !rule.produces.predicate) {
+    return "conclusion missing subject or predicate";
+  }
+  if (
+    typeof rule.weight !== "number" ||
+    !Number.isFinite(rule.weight) ||
+    rule.weight <= 0 ||
+    rule.weight > 1
+  ) {
+    return `weight must be in (0,1], got ${String(rule.weight)}`;
+  }
+  if (rule.compute !== undefined && typeof rule.compute !== "function") {
+    return "compute is present but not a function";
+  }
+  const declaredVars = new Set(rule.conditions.flatMap(patternVars));
+  const freeVars = patternVars(rule.produces).filter(
+    (v) => !declaredVars.has(v),
+  );
+  if (freeVars.length === 0) return null;
+  if (freeVars.length === 1) {
+    const elided = rule.conditions.filter((c) => c.object === undefined);
+    if (elided.length === 1) return null; // sound capture shorthand
+    return "conclusion has one free variable but no unique object-elided condition to capture it";
+  }
+  return `conclusion names ${freeVars.length} free variables its conditions never bind`;
+}
+
 export class ReasoningEngine {
+  /** Rules rejected at registration, with their honest
+   *  refusal reasons (surfaced in diagnostics — never
+   *  silently dropped). */
+  readonly invalidRules: Array<{ id: string; reason: string }> = [];
+  private rules: Rule[];
+
   constructor(
     private facts: FactStore,
-    private rules: Rule[],
-  ) {}
+    rules: Rule[],
+  ) {
+    // REMEDIATION batch 5 (fix 11): partition at registration
+    // so forward AND backward chaining share one valid rule
+    // set and misconfigurations are counted, not tolerated.
+    const valid: Rule[] = [];
+    for (const rule of rules) {
+      const reason = ruleRejectionReason(rule);
+      if (reason === null) valid.push(rule);
+      else this.invalidRules.push({ id: rule?.id ?? "<unnamed>", reason });
+    }
+    this.rules = valid;
+  }
 
   ruleCount(): number {
     return this.rules.length;
@@ -317,6 +383,13 @@ export class ReasoningEngine {
         }
       }
       for (const rule of this.rules) {
+        // REMEDIATION batch 5 (fix 10): compute rules are
+        // skipped in BACKWARD search — their conclusions are
+        // numeric functions of premise values, which cannot
+        // be soundly "proved" without concrete bindings to
+        // compute with. Claiming such a goal reachable without
+        // running compute would fabricate the number.
+        if (rule.compute) continue;
         // Unify the rule's conclusion with the goal pattern.
         const headBinding = new Map(binding);
         const head = substitute(rule.produces, headBinding);

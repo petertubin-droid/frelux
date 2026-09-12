@@ -183,9 +183,17 @@ export const PLANNING_OPERATORS: Operator[] = [
 ];
 
 export class Planner {
+  /** REMEDIATION batch 5 (fix 12): optional backward-chain
+   *  probe. A precondition that is not HELD by the store but
+   *  is PROVABLY derivable (backward search over rule chains)
+   *  resolves as simulated progress with a proof note — the
+   *  same honesty contract as operator effects: no store
+   *  writes, and genuinely underivable preconditions still
+   *  land in the gapReport and fail the plan. */
   constructor(
     private facts: FactStore,
     private operators: Operator[],
+    private derivable?: (pattern: FactPattern) => boolean,
   ) {}
 
   operatorCount(): number {
@@ -226,6 +234,20 @@ export class Planner {
 
     const resolve = (pattern: FactPattern, d: number): boolean => {
       if (holds(this.facts, pattern) || resolved.has(patternLabel(pattern))) {
+        return true;
+      }
+      // REMEDIATION batch 5 (fix 12): not held as a fact — but
+      // provable by the backward chain? Then a future forward
+      // pass WILL hold it: resolve as simulated progress with
+      // the proof recorded in the step, never a store write.
+      if (this.derivable?.(pattern)) {
+        steps.push({
+          operatorId: "inference",
+          achieves: `derive ${patternLabel(pattern)} by rule chain`,
+          satisfies: patternLabel(pattern),
+          missingPreconditions: [],
+        });
+        resolved.add(patternLabel(pattern));
         return true;
       }
       if (d <= 0) {

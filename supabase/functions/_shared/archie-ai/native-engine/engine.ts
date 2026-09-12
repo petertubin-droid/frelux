@@ -367,6 +367,10 @@ export class ArchieNativeEngine implements ArchieRuntime {
   private episodicStore: EpisodicPersistence | null = null;
   /** P7 — cross-isolate counter store. */
   private counterStore: CounterPersistence | null = null;
+  /** REMEDIATION batch 5 (fix 13): contradiction-detected
+   *  fact ids already counted as verification failures by
+   *  this isolate (dedupe across reasoning passes). */
+  private readonly seenContradictions = new Set<string>();
   /** P7 — calibration counters for THIS isolate only: the
    *  mean-confidence denominator must be local, or the
    *  calibration would dilute dishonestly. */
@@ -454,11 +458,19 @@ export class ArchieNativeEngine implements ArchieRuntime {
       ...DEFAULT_RULES,
       ...this.domains.rules(),
     ]);
-    this.planner = new Planner(this.facts, [
-      ...DEFAULT_OPERATORS,
-      ...PLANNING_OPERATORS,
-      ...this.domains.operators(),
-    ]);
+    this.planner = new Planner(
+      this.facts,
+      [
+        ...DEFAULT_OPERATORS,
+        ...PLANNING_OPERATORS,
+        ...this.domains.operators(),
+      ],
+      // REMEDIATION batch 5 (fix 12): wire the previously
+      // dead backward chain into planning — preconditions
+      // provable by rule chains resolve as simulated
+      // progress instead of false gaps.
+      (pattern) => this.reasoning.canReach(pattern).holds,
+    );
     this.learner = new OutcomeLearner(
       this.facts,
       this.persistence ?? undefined,
@@ -2713,6 +2725,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         facts: this.facts.count(),
         validatedFacts: this.facts.validatedCount(),
         rules: this.reasoning.ruleCount(),
+        invalidRules: this.reasoning.invalidRules.length,
         operators: this.planner.operatorCount(),
         tools: this.tools.count(),
         // C-1: memory is session-scoped — diagnostics report
@@ -2735,6 +2748,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
             : 0,
         selfChecksRun: stats.selfChecksRun,
         contradictionsCaught: stats.contradictionsCaught,
+        liveContradictions: this.seenContradictions.size,
       },
       persistence: {
         facts: this.persistence !== null,
@@ -2762,6 +2776,18 @@ export class ArchieNativeEngine implements ArchieRuntime {
       inference,
       this.facts,
     );
+    // REMEDIATION batch 5 (fix 13): contradiction-detected
+    // facts were derived and then SILENTLY ignored — nothing
+    // consumed them. Now every NEW contradiction counts as a
+    // verification failure (cross-isolate metric) and shows up
+    // in diagnostics instead of rotting in the store.
+    const newContradictions = inference.derived.filter(
+      (f) =>
+        f.predicate === "contradiction-detected" &&
+        !this.seenContradictions.has(f.id),
+    );
+    for (const c of newContradictions) this.seenContradictions.add(c.id);
+    this.verificationFails += newContradictions.length;
     const consolidation = await this.learner.improve();
     return { inference, stability, consolidation };
   }
