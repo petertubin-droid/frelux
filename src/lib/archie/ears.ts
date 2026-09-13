@@ -101,6 +101,37 @@ export function detectEarSupport(): boolean {
   return getRecognitionCtor() !== null;
 }
 
+/**
+ * Human-readable remediation when the microphone is blocked.
+ * A denied permission is remembered by the browser and NEVER
+ * re-prompted on its own — the owner must flip it back in the
+ * site settings, so the error must say exactly how.
+ */
+export const MIC_PERMISSION_REMEDIATION =
+  "Microphone access is blocked. To fix it: tap the lock or tune icon next to the address bar, open Site settings, set Microphone to Allow, then try ARCHIE's voice again. (On Android Chrome it may also be under Settings, Site settings for this site.)";
+
+/** Best-effort read of the current mic permission state.
+ *  Returns "unsupported" when the Permissions API is not
+ *  available — honest, never guessed. */
+export async function readMicPermissionState(): Promise<
+  "granted" | "denied" | "prompt" | "unsupported"
+> {
+  try {
+    if (
+      typeof navigator === "undefined" ||
+      typeof navigator.permissions?.query !== "function"
+    ) {
+      return "unsupported";
+    }
+    const status = await navigator.permissions.query({
+      name: "microphone" as PermissionName,
+    });
+    return status.state as "granted" | "denied" | "prompt";
+  } catch {
+    return "unsupported";
+  }
+}
+
 /** Can this browser capture microphone audio? (Used for
  *  voice-note attachment and the voice-print check.) */
 export function detectAudioCaptureSupport(): boolean {
@@ -234,9 +265,14 @@ export async function startListening(opts?: {
     if (name === "NotFoundError" || name === "OverconstrainedError") {
       throw new EarsError("NO_MIC", "No microphone was found on this device.");
     }
+    // NotAllowedError = the owner (or a browser policy) blocked
+    // the mic. The browser will NOT re-prompt on its own once
+    // denied — point to the exact setting to flip back.
     throw new EarsError(
       "PERMISSION_DENIED",
-      "Microphone permission was not granted. ARCHIE cannot listen without it.",
+      name === "NotAllowedError" || name === "SecurityError"
+        ? MIC_PERMISSION_REMEDIATION
+        : "Microphone permission was not granted. ARCHIE cannot listen without it.",
     );
   }
 
@@ -427,8 +463,7 @@ export async function recognizeSpeech(opts?: {
       const code = map[ev.error] ?? "RECORD_FAILED";
       const messages: Record<EarsErrorCode, string> = {
         UNSUPPORTED: "This browser cannot recognize this language natively.",
-        PERMISSION_DENIED:
-          "Microphone permission was not granted. ARCHIE cannot listen without it.",
+        PERMISSION_DENIED: MIC_PERMISSION_REMEDIATION,
         NO_MIC: "No microphone was found on this device.",
         RECORD_FAILED: "Speech recognition failed.",
         NOT_RECORDED: "No audio was captured.",
