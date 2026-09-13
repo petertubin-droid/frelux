@@ -62,9 +62,14 @@ export class SecurityIntegrityEngine {
   private hydrated = false;
   private persistenceHealthy = true;
 
-  constructor(db?: SupabaseLike) {
-    this.persistence = new CognitivePersistence(db);
+  constructor(db?: SupabaseLike, chainId?: string) {
+    this.persistence = new CognitivePersistence(db, chainId);
     this.dbRef = db ?? null;
+  }
+
+  /** FIX 23: this instance's chain id (for diagnostics). */
+  chainId(): string {
+    return this.persistence.chainId;
   }
 
   /** Load the persisted chain and verify its integrity. */
@@ -78,19 +83,43 @@ export class SecurityIntegrityEngine {
     this.hydrated = true;
     const stored = await this.persistence.loadAudit();
     if (stored.length > 0) {
-      const valid = this.verifyChain(stored);
-      this.chain = valid ? stored : [];
-      this.seqCounter = valid ? stored[stored.length - 1].seq : 0;
-      this.lastHash = valid ? stored[stored.length - 1].hash : GENESIS_HASH;
-      if (!valid) {
-        // TAMPER RESPONSE (audit fix K-1): a broken chain is
+      // FIX 23 (remediation batch 8, Level 5 execution audit
+      // 2026-09-13): the log is partitioned into independent
+      // per-instance chains (chain_id). Previously ALL rows
+      // were verified as ONE sequence — two concurrent
+      // isolates each chaining from genesis interleaved
+      // rows, the verify failed, and a FALSE
+      // "audit_chain_compromised" critical fired. Each chain
+      // is now verified independently; only a genuine break
+      // inside a chain compromises.
+      const groups = new Map<string, AuditEvent[]>();
+      for (const ev of stored) {
+        const key = ev.chainId ?? "legacy";
+        const list = groups.get(key) ?? [];
+        list.push(ev);
+        groups.set(key, list);
+      }
+      const broken: AuditEvent[] = [];
+      for (const [chainKey, group] of groups) {
+        const ok = this.verifyChain(group);
+        if (!ok) broken.push(...group);
+        if (chainKey === this.persistence.chainId) {
+          // Our own previous instance chain (same id is only
+          // possible on an unclean restart): continue it.
+          this.chain = group;
+          this.seqCounter = group[group.length - 1].seq;
+          this.lastHash = group[group.length - 1].hash;
+        }
+      }
+      if (broken.length > 0) {
+        // TAMPER RESPONSE (audit fix K-1): broken chains are
         // quarantined for diagnostics, an owner-visible
         // security event is recorded, and new events continue
         // from a fresh genesis. Never silently discarded.
-        this.quarantinedChain = stored;
-        await this.recordChainCompromise(stored.length);
+        this.quarantinedChain = broken;
+        await this.recordChainCompromise(broken.length);
       }
-      return { events: stored.length, chainValid: valid };
+      return { events: stored.length, chainValid: broken.length === 0 };
     }
     return { events: 0, chainValid: true };
   }

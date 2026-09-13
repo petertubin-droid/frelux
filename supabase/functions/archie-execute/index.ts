@@ -187,6 +187,22 @@ const engineDeps: EngineDeps = {
       .eq("id", id);
     if (error) throw new Error("audit update failed");
   },
+  // FIX 24 (remediation batch 8): invalid owner-secret
+  // attempts in the last 15 minutes power the brute-force
+  // throttle. (frelux_security_events carries user_id +
+  // created_date with an index.) Fails open on DB error —
+  // never locks the owner out over an infrastructure hiccup.
+  countRecentSecretFailures: async (userId: string) => {
+    const since = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+    const { count, error } = await db
+      .from("frelux_security_events")
+      .select("id", { count: "exact", head: true })
+      .eq("user_id", userId)
+      .eq("event_type", "EXECUTION_OWNER_SECRET_INVALID")
+      .gte("created_date", since);
+    if (error) return 0;
+    return count ?? 0;
+  },
   verifyOwnerSecret,
   recordSecurityEvent: securityEvent,
   getSecret: (name: string) => Deno.env.get(name),

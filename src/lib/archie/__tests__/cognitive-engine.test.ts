@@ -74,7 +74,16 @@ class CognitiveMockDb implements SupabaseLike {
       upsert: async (row: unknown) => {
         const r = row as Record<string, unknown>;
         const list = rows();
-        const idx = list.findIndex((x) => x.id === r.id);
+        // FIX 23 companion: audit rows key on (chain_id, seq),
+        // everything else on id. (The old id-only match made
+        // two id-less audit rows compare undefined===undefined
+        // and silently overwrite each other.)
+        const idx =
+          r.id !== undefined
+            ? list.findIndex((x) => x.id === r.id)
+            : list.findIndex(
+                (x) => x.chain_id === r.chain_id && x.seq === r.seq,
+              );
         if (idx >= 0) list[idx] = r;
         else list.push(r);
         return { error: null };
@@ -193,9 +202,14 @@ describe("security & integrity engine", () => {
     const { events, chainValid } = await second.hydrate();
     expect(events).toBe(1);
     expect(chainValid).toBe(true);
-    // the new session continues the same chain
+    // FIX 23 (remediation batch 8): a fresh instance starts
+    // its OWN chain (seq 1 under a new chain_id) — continuing
+    // another isolate's chain was the cross-isolate seq
+    // collision bug. Deliberate continuation is possible via
+    // the explicit chainId constructor parameter.
     const event = await second.audit("learning", { note: "continued" });
-    expect(event.seq).toBe(2);
+    expect(event.seq).toBe(1);
+    expect(db.tables.frelux_archie_audit_log.length).toBe(2);
   });
 });
 

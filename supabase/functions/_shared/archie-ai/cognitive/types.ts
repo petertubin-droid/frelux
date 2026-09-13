@@ -238,6 +238,8 @@ export interface CognitiveRoute {
 
 /** Append-only, hash-chained security audit event. */
 export interface AuditEvent {
+  /** FIX 23: the owning chain — per kernel instance. */
+  chainId?: string;
   seq: number;
   eventType:
     | "perception"

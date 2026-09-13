@@ -97,7 +97,12 @@ export interface CallerAuthority {
 export interface RunOutcome {
   ok: boolean;
   runId?: string;
-  status: RunStatus | "NOT_FOUND" | "POLICY_REJECTED" | "INPUT_REJECTED" | "UNAUTHORIZED";
+  status:
+    | RunStatus
+    | "NOT_FOUND"
+    | "POLICY_REJECTED"
+    | "INPUT_REJECTED"
+    | "UNAUTHORIZED";
   error?: string;
   /** Redacted, schema-validated result payload. */
   result?: unknown;
@@ -135,6 +140,10 @@ export interface EngineDeps {
   ): Promise<void>;
   /** Server-side verification of the Owner Secret. */
   verifyOwnerSecret(userId: string, secret: string): Promise<boolean>;
+  /** FIX 24 (remediation batch 8): how many invalid owner-
+   *  secret attempts this user logged recently — used to
+   *  throttle brute force before the PBKDF2 comparison. */
+  countRecentSecretFailures?(userId: string): Promise<number>;
   recordSecurityEvent(
     userId: string,
     type: string,
@@ -183,7 +192,15 @@ export function redactDeep(value: unknown, depth = 0): unknown {
   return value;
 }
 
-const TYPE_ORDER = ["string", "number", "boolean", "object", "array", "integer", "null"];
+const TYPE_ORDER = [
+  "string",
+  "number",
+  "boolean",
+  "object",
+  "array",
+  "integer",
+  "null",
+];
 
 /**
  * Minimal, dependency-free JSON-Schema-Lite validation.
@@ -194,7 +211,8 @@ export function validateAgainstSchema(
   schema: Record<string, unknown> | null | undefined,
   input: unknown,
 ): { ok: boolean; errors: string[] } {
-  if (!schema || Object.keys(schema).length === 0) return { ok: true, errors: [] };
+  if (!schema || Object.keys(schema).length === 0)
+    return { ok: true, errors: [] };
   const errors: string[] = [];
   walk(schema, input, "$", errors);
   return { ok: errors.length === 0, errors };
@@ -217,7 +235,13 @@ export function validateAgainstSchema(
               : "number"
             : typeof v;
       if (t === "number" && actual === "integer") actual = "number";
-      if (actual !== t && !(t === "integer" && actual === "number")) {
+      // FIX 25 (remediation batch 8, Level 5 execution audit
+      // 2026-09-13): the type-coercion exception was written
+      // backwards — schema type "integer" ACCEPTED non-integer
+      // numbers (3.5 passed an integer input/result schema).
+      // The only legitimate coercion is the reverse: an
+      // integral value under a "number" schema.
+      if (actual !== t && !(t === "number" && actual === "integer")) {
         errs.push(`${path}: expected ${t}, got ${actual}`);
         return;
       }
@@ -225,16 +249,30 @@ export function validateAgainstSchema(
     if (Array.isArray(s.enum) && !s.enum.some((e) => e === v)) {
       errs.push(`${path}: value not in enum [${s.enum.join(", ")}]`);
     }
-    if (typeof s.minimum === "number" && typeof v === "number" && v < s.minimum) {
+    if (
+      typeof s.minimum === "number" &&
+      typeof v === "number" &&
+      v < s.minimum
+    ) {
       errs.push(`${path}: ${v} < minimum ${s.minimum}`);
     }
-    if (typeof s.maximum === "number" && typeof v === "number" && v > s.maximum) {
+    if (
+      typeof s.maximum === "number" &&
+      typeof v === "number" &&
+      v > s.maximum
+    ) {
       errs.push(`${path}: ${v} > maximum ${s.maximum}`);
     }
-    if (s.type === "object" && v && typeof v === "object" && !Array.isArray(v)) {
+    if (
+      s.type === "object" &&
+      v &&
+      typeof v === "object" &&
+      !Array.isArray(v)
+    ) {
       const obj = v as Record<string, unknown>;
       for (const req of (s.required as string[] | undefined) ?? []) {
-        if (!(req in obj)) errs.push(`${path}.${req}: required property missing`);
+        if (!(req in obj))
+          errs.push(`${path}.${req}: required property missing`);
       }
       const props = (s.properties as Record<string, unknown> | undefined) ?? {};
       for (const [k, child] of Object.entries(props)) {
@@ -244,7 +282,8 @@ export function validateAgainstSchema(
       }
       if (s.additionalProperties === false) {
         for (const k of Object.keys(obj)) {
-          if (!(k in props)) errs.push(`${path}.${k}: additional property not allowed`);
+          if (!(k in props))
+            errs.push(`${path}.${k}: additional property not allowed`);
         }
       }
     }
@@ -262,7 +301,11 @@ export function validateAgainstSchema(
 }
 
 /** Exponential backoff with a cap; attempt is 1-based. */
-export function computeBackoffMs(attempt: number, baseMs: number, capMs = 30_000): number {
+export function computeBackoffMs(
+  attempt: number,
+  baseMs: number,
+  capMs = 30_000,
+): number {
   const n = Math.max(1, Math.floor(attempt));
   return Math.min(baseMs * 2 ** (n - 1), capMs);
 }
@@ -274,7 +317,10 @@ export function checkInitiatorPolicy(
 ): { ok: boolean; reason?: string } {
   if (!target.enabled) return { ok: false, reason: "target is disabled" };
   if (!target.allowed_initiators?.includes(initiatorSystem)) {
-    return { ok: false, reason: `initiator '${initiatorSystem}' not allowed for this target` };
+    return {
+      ok: false,
+      reason: `initiator '${initiatorSystem}' not allowed for this target`,
+    };
   }
   return { ok: true };
 }
@@ -296,13 +342,24 @@ export async function executeTarget(
     initiatorSystem: string;
     caller: CallerAuthority;
   },
+  /** FIX 22 (remediation batch 8, Level 5 execution audit
+   *  2026-09-13): compensation was DOCUMENTED as "recursion
+   *  depth 1, no further compensation" but never enforced —
+   *  two targets compensating each other would recurse
+   *  without bound. Internal guard: a compensation execution
+   *  may never spawn its own compensation. */
+  depth = 0,
 ): Promise<RunOutcome> {
   const started = deps.now();
 
   // --- REASON/VERIFY: target must exist ---
   const target = await deps.getTarget(req.targetKey);
   if (!target) {
-    return { ok: false, status: "NOT_FOUND", error: `Unknown execution target: ${req.targetKey}` };
+    return {
+      ok: false,
+      status: "NOT_FOUND",
+      error: `Unknown execution target: ${req.targetKey}`,
+    };
   }
 
   // --- policy gate ---
@@ -321,15 +378,53 @@ export async function executeTarget(
       `Non-admin attempted to execute target '${req.targetKey}'.`,
     );
     await auditRejected(deps, target, req, "non-admin caller");
-    return { ok: false, status: "UNAUTHORIZED", error: "Owner authority required." };
+    return {
+      ok: false,
+      status: "UNAUTHORIZED",
+      error: "Owner authority required.",
+    };
   }
 
   // --- AUTHORITY: owner secret for protected targets ---
   let authorityMethod = "JWT_ADMIN";
   if (target.requires_owner_secret) {
+    // FIX 24: brute-force throttle. Invalid owner-secret
+    // attempts were recorded as critical security events but
+    // never limited — an attacker could keep guessing with
+    // only log lines to show for it. Five recent failures
+    // (deps-defined window) lock the target behind a
+    // POLICY_REJECTED with an explicit reason.
+    if (deps.countRecentSecretFailures) {
+      const recent = await deps.countRecentSecretFailures(req.caller.userId);
+      if (recent >= 5) {
+        await deps.recordSecurityEvent(
+          req.caller.userId,
+          "EXECUTION_OWNER_SECRET_THROTTLED",
+          "critical",
+          `Owner-secret attempts exhausted for target '${req.targetKey}' — ${recent} recent failures. Throttled without verification.`,
+        );
+        await auditRejected(
+          deps,
+          target,
+          req,
+          "owner secret attempts exhausted — throttled",
+        );
+        return {
+          ok: false,
+          status: "POLICY_REJECTED",
+          error:
+            "Too many invalid owner-secret attempts — wait before trying again.",
+        };
+      }
+    }
     const secret = (req.caller.ownerSecret ?? "").trim();
     if (!secret) {
-      await auditRejected(deps, target, req, "owner secret required but not provided");
+      await auditRejected(
+        deps,
+        target,
+        req,
+        "owner secret required but not provided",
+      );
       return {
         ok: false,
         status: "UNAUTHORIZED",
@@ -345,7 +440,11 @@ export async function executeTarget(
         `Invalid owner secret supplied for target '${req.targetKey}'.`,
       );
       await auditRejected(deps, target, req, "invalid owner secret");
-      return { ok: false, status: "UNAUTHORIZED", error: "Invalid owner secret." };
+      return {
+        ok: false,
+        status: "UNAUTHORIZED",
+        error: "Invalid owner secret.",
+      };
     }
     authorityMethod = "JWT_ADMIN_OWNER_SECRET";
   }
@@ -353,7 +452,12 @@ export async function executeTarget(
   // --- VERIFY: input schema ---
   const inputCheck = validateAgainstSchema(target.input_schema, req.input);
   if (!inputCheck.ok) {
-    await auditRejected(deps, target, req, `input rejected: ${inputCheck.errors.join("; ")}`);
+    await auditRejected(
+      deps,
+      target,
+      req,
+      `input rejected: ${inputCheck.errors.join("; ")}`,
+    );
     return {
       ok: false,
       status: "INPUT_REJECTED",
@@ -384,13 +488,18 @@ export async function executeTarget(
   while (attempts < maxAttempts) {
     attempts += 1;
     const ac = new AbortController();
-    const timer = setTimeout(() => ac.abort(), Math.max(1000, target.timeout_ms));
+    const timer = setTimeout(
+      () => ac.abort(),
+      Math.max(1000, target.timeout_ms),
+    );
     try {
       const url =
         target.kind === "EDGE_FUNCTION"
           ? `${deps.supabaseUrl}/functions/v1/${target.function_name}`
-          : target.endpoint ?? "";
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
+          : (target.endpoint ?? "");
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
       if (target.kind === "EDGE_FUNCTION") {
         headers["Authorization"] = `Bearer ${deps.serviceRoleKey}`;
       }
@@ -401,7 +510,10 @@ export async function executeTarget(
       const res = await deps.fetchFn(url, {
         method: target.http_method,
         headers,
-        body: target.http_method === "GET" || target.http_method === "DELETE" ? undefined : JSON.stringify(req.input ?? {}),
+        body:
+          target.http_method === "GET" || target.http_method === "DELETE"
+            ? undefined
+            : JSON.stringify(req.input ?? {}),
         signal: ac.signal,
       });
       clearTimeout(timer);
@@ -419,7 +531,9 @@ export async function executeTarget(
       clearTimeout(timer);
       lastStatus = null;
       const msg = err instanceof Error ? err.message : String(err);
-      lastError = /abort/i.test(msg) ? `timeout after ${target.timeout_ms}ms` : msg;
+      lastError = /abort/i.test(msg)
+        ? `timeout after ${target.timeout_ms}ms`
+        : msg;
       // timeouts & network errors are retriable for idempotent targets
     }
     if (attempts < maxAttempts) {
@@ -430,7 +544,8 @@ export async function executeTarget(
   const duration_ms = deps.now() - started;
 
   // --- TIMEOUT / FAILED terminal handling ---
-  const succeeded = lastStatus !== null && lastStatus >= 200 && lastStatus < 300;
+  const succeeded =
+    lastStatus !== null && lastStatus >= 200 && lastStatus < 300;
   const timedOut = !succeeded && /timeout/.test(lastError);
 
   // --- RESULT VERIFY ---
@@ -443,44 +558,59 @@ export async function executeTarget(
     }
   }
 
-  const finalStatus: RunStatus = succeeded && result_validated !== false
-    ? "SUCCESS"
-    : timedOut
-      ? "TIMEOUT"
-      : "FAILED";
+  const finalStatus: RunStatus =
+    succeeded && result_validated !== false
+      ? "SUCCESS"
+      : timedOut
+        ? "TIMEOUT"
+        : "FAILED";
 
   // --- ROLLBACK (compensation), depth 1 ---
   let compensationRunId: string | null = null;
   if (finalStatus !== "SUCCESS" && target.compensation_key) {
-    try {
-      const comp = await executeTarget(deps, {
-        targetKey: target.compensation_key,
-        input: { failed_run_id: run.id, target_key: target.key, original_input: redactDeep(req.input) },
-        initiatorSystem: "EXECUTION_ROLLBACK",
-        caller: req.caller, // authority carries over; comp targets declare their own gates
-      });
-      compensationRunId = comp.runId ?? null;
-      if (comp.ok) {
-        await deps.updateRun(run.id, {
-          status: "ROLLED_BACK",
-          error: `${lastError} (rolled back via ${target.compensation_key})`,
-          http_status: lastStatus,
-          attempts,
-          duration_ms,
-          compensation_run_id: compensationRunId,
-        });
-        return {
-          ok: false,
-          runId: run.id,
-          status: "ROLLED_BACK",
-          error: lastError,
-          attempts,
-          duration_ms,
-        };
+    if (depth >= 1) {
+      deps.log(
+        `compensation target '${target.key}' also failed; depth-1 limit reached — no further compensation. ` +
+          `Owner attention required.`,
+      );
+    } else
+      try {
+        const comp = await executeTarget(
+          deps,
+          {
+            targetKey: target.compensation_key,
+            input: {
+              failed_run_id: run.id,
+              target_key: target.key,
+              original_input: redactDeep(req.input),
+            },
+            initiatorSystem: "EXECUTION_ROLLBACK",
+            caller: req.caller, // authority carries over; comp targets declare their own gates
+          },
+          depth + 1,
+        );
+        compensationRunId = comp.runId ?? null;
+        if (comp.ok) {
+          await deps.updateRun(run.id, {
+            status: "ROLLED_BACK",
+            error: `${lastError} (rolled back via ${target.compensation_key})`,
+            http_status: lastStatus,
+            attempts,
+            duration_ms,
+            compensation_run_id: compensationRunId,
+          });
+          return {
+            ok: false,
+            runId: run.id,
+            status: "ROLLED_BACK",
+            error: lastError,
+            attempts,
+            duration_ms,
+          };
+        }
+      } catch (compErr) {
+        deps.log(`compensation failed for run ${run.id}: ${String(compErr)}`);
       }
-    } catch (compErr) {
-      deps.log(`compensation failed for run ${run.id}: ${String(compErr)}`);
-    }
   }
 
   // --- MEMORY: terminal audit update ---
@@ -518,7 +648,12 @@ export async function executeTarget(
   async function auditRejected(
     d: EngineDeps,
     t: ExecutionTarget,
-    r: { targetKey: string; input: unknown; initiatorSystem: string; caller: CallerAuthority },
+    r: {
+      targetKey: string;
+      input: unknown;
+      initiatorSystem: string;
+      caller: CallerAuthority;
+    },
     reason: string,
   ): Promise<void> {
     try {

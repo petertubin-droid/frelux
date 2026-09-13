@@ -17,6 +17,7 @@ export const AUDIT_TABLE = "frelux_archie_audit_log";
 export const TRACES_TABLE = "frelux_archie_cognitive_traces";
 
 interface AuditRow {
+  chain_id: string;
   seq: number;
   event_type: string;
   payload: unknown;
@@ -27,9 +28,14 @@ interface AuditRow {
 
 export class CognitivePersistence {
   private db: SupabaseLike | null;
+  /** FIX 23 (remediation batch 8): every kernel instance owns
+   *  a unique audit chain — isolates can never collide on the
+   *  (chain_id, seq) primary key. */
+  readonly chainId: string;
 
-  constructor(db?: SupabaseLike) {
+  constructor(db?: SupabaseLike, chainId?: string) {
     this.db = db ?? null;
+    this.chainId = chainId ?? "chain-" + crypto.randomUUID();
   }
 
   async loadAudit(): Promise<AuditEvent[]> {
@@ -37,10 +43,11 @@ export class CognitivePersistence {
     try {
       const { data, error } = await this.db
         .from(AUDIT_TABLE)
-        .select("seq,event_type,payload,at,prev_hash,hash");
+        .select("chain_id,seq,event_type,payload,at,prev_hash,hash");
       if (error || !Array.isArray(data)) return [];
       return (data as AuditRow[])
         .map((r) => ({
+          chainId: r.chain_id,
           seq: r.seq,
           eventType: r.event_type as AuditEvent["eventType"],
           payload: (r.payload ?? {}) as Record<string, unknown>,
@@ -48,7 +55,11 @@ export class CognitivePersistence {
           prevHash: r.prev_hash,
           hash: r.hash,
         }))
-        .sort((a, b) => a.seq - b.seq);
+        .sort((a, b) =>
+          a.chainId === b.chainId
+            ? a.seq - b.seq
+            : a.chainId.localeCompare(b.chainId),
+        );
     } catch {
       return [];
     }
@@ -58,6 +69,7 @@ export class CognitivePersistence {
     if (!this.db) return false;
     try {
       await this.db.from(AUDIT_TABLE).upsert({
+        chain_id: event.chainId ?? this.chainId,
         seq: event.seq,
         event_type: event.eventType,
         payload: event.payload,
