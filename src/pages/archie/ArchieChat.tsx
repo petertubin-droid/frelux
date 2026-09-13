@@ -451,7 +451,7 @@ export default function ArchieChat() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-57px)] md:h-[calc(100vh-57px-1.5rem)]">
+    <div className="flex h-[calc(100vh-57px)] bg-[#0B0F14] text-slate-200 md:h-[calc(100vh-57px-1.5rem)]">
       {/* ---- conversation list (drawer on mobile) ---- */}
       <aside
         className={`${listOpen ? "fixed inset-x-0 bottom-16 top-[57px] z-30 bg-[#0B0F14]" : "hidden"} w-full shrink-0 overflow-y-auto border-r border-white/5 p-3 md:static md:block md:w-64`}
