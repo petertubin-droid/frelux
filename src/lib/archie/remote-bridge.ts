@@ -1,10 +1,13 @@
 // =========================================================
-// ARCHIE REMOTE BRIDGE (cutover 2026-09-12)
+// ARCHIE REMOTE BRIDGE (consolidated 2026-09-13)
 //
-// ARCHIE Core lives on its own Supabase project (Frelukx,
-// pjvtqkshewerpvggtgqx). The FRELUX app no longer proxies
-// ARCHIE through its own project's edge functions — it calls
-// ARCHIE directly at ARCHIE's home.
+// ARCHIE Core is back on the FRELUX app's own Supabase project
+// (Freluxtools, hqhvlkunkdrxyuvziorm) — the separate ARCHIE
+// home project (Frelukx) is DISCONNECTED: its functions and
+// data are left intact but receive no traffic and no further
+// deploys. This bridge now routes archie-* invocations to the
+// app's own project, so the token is the app session JWT and
+// verification is standard same-project auth.
 //
 // Identity: the browser sends the user's FRELUX-issued session
 // JWT. ARCHIE verifies it against FRELUX's public JWKS
@@ -19,8 +22,10 @@
 // their own owner gates.
 // =========================================================
 
-const ARCHIE_PROJECT_URL = 'https://pjvtqkshewerpvggtgqx.supabase.co';
-const ARCHIE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBqdnRxa3NoZXdlcnB2Z2d0Z3F4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcyMTk1ODAsImV4cCI6MjEwMjc5NTU4MH0.pVMRrx9rEpzMz6RPQMuhdI5to5PxjaN-TFvsZnh886Q';
+const ARCHIE_PROJECT_URL =
+  (import.meta.env.VITE_SUPABASE_URL as string | undefined) ?? '';
+const ARCHIE_ANON_KEY =
+  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ?? '';
 
 export interface ArchieBridgeResponse<T = unknown> {
   data: T | null;

@@ -90,8 +90,8 @@ export async function getFunctionErrorMessage(error: unknown): Promise<string> {
 // transparently routed to ARCHIE's home instead of this
 // project's edge functions. Non-ARCHIE functions are untouched.
 // Identity travels with the user's FRELUX session JWT; ARCHIE
-// verifies it against FRELUX's public JWKS (cross-project owner
-// identity, commit ead413f). See remote-bridge.ts for details.
+// is back on THIS project (Freluxtools), so verification is
+// standard same-project auth. See remote-bridge.ts for details.
 // =========================================================
 
 const archieInvoke = createArchieInvoker(async () => {

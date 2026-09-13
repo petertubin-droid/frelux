@@ -456,7 +456,7 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
     details: {
       deployment: "Netlify (freluxtools.netlify.app)",
       backend:
-        "Supabase ARCHIE home (pjvtqkshewerpvggtgqx) + FRELUX app (hqhvlkunkdrxyuvziorm)",
+        "Supabase FRELUX app (hqhvlkunkdrxyuvziorm) — single project, Frelukx disconnected 2026-09-13",
       cost_records: infra,
       assessment_snapshots: snapshots,
       engine: "archie-infra (assess | snapshots | costs | budgets)",

@@ -86,12 +86,11 @@ function frontendEdgeReferences(): Map<string, string[]> {
   };
   // Production call sites only: *.test.* files mock invoke()
   // with fixture slugs on purpose and are not contract-bound.
-  // Cutover note (2026-09-12): the ARCHIE remote bridge routes
-  // archie-* invocations to ARCHIE's own Supabase project
-  // (Frelukx, pjvtqkshewerpvggtgqx). These two files are ROUTING
-  // infrastructure, not call sites — their target slugs are
-  // deployed on ARCHIE's project (verified live during the
-  // cutover), not in this repo's supabase/functions directory.
+  // Consolidation note (2026-09-13): ARCHIE is back on the
+  // app's own project (Freluxtools) — Frelukx is disconnected
+  // and left intact. These two files are still ROUTING
+  // infrastructure, not call sites; the target slugs now map
+  // to THIS repo's supabase/functions directory again.
   // Frontend call sites (chat-client etc.) remain fully
   // contract-bound to THIS repo's deployed functions.
   const ROUTING_LAYER = new Set([
