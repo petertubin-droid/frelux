@@ -95,6 +95,10 @@ function table(name: string) {
 
 vi.mock("@/lib/supabase", () => ({
   supabase: {
+    auth: {
+      getUser: () =>
+        Promise.resolve({ data: { user: { id: "owner_1" } } }),
+    },
     from: (t: string) => table(t),
     functions: {
       invoke: (fn: string, opts?: { body?: unknown }) =>

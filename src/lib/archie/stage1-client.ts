@@ -69,9 +69,19 @@ export async function createConversation(
   title = "New conversation",
 ): Promise<ArchieConversation> {
   const supabase = await getSupabase();
+  // owner_id is NOT NULL on frelux_archie_conversations with no
+  // DB default, and RLS gates every row on it. Without it the
+  // insert always failed — no conversation could ever be
+  // created, the send button stayed disabled and ARCHIE's
+  // replies could never persist or render.
+  const { data: auth } = await supabase.auth.getUser();
+  const ownerId = auth?.user?.id;
+  if (!ownerId) {
+    throw new Error("Sign in to start an ARCHIE conversation.");
+  }
   const { data, error } = await supabase
     .from("frelux_archie_conversations")
-    .insert({ title })
+    .insert({ title, owner_id: ownerId })
     .select(
       "id, title, pinned, archived, message_count, created_date, updated_date",
     )
