@@ -138,7 +138,18 @@ interface MemoryTurnInternal {
 export type { MemoryTurnInternal };
 
 /** Rank knowledge facts against a query — TF-IDF over the
- *  fact's textual surface. Used by the engine's retrieval. */
+ *  fact's textual surface.
+ *
+ * FIX 46 (batch 14, Level 10 audit 2026-09-13): this was a
+ * SECOND, independent TF-IDF ranking implementation beside
+ * the production FactRankIndex (cached, inverted-index
+ * narrowed, fused scoring). rankFacts itself has no
+ * production callers — but the forensic ranking tests
+ * validated THIS copy while converse() ranked through the
+ * OTHER one: the tests could stay green while the two
+ * rankers drifted apart. It now delegates to the exact
+ * production implementation, so tests exercise what runs. */
+import { FactRankIndex } from "./knowledge.ts";
 import { NATIVE_CONFIG } from "./config.ts";
 
 export function rankFacts(
@@ -146,18 +157,7 @@ export function rankFacts(
   facts: Fact[],
   k = NATIVE_CONFIG.rankK,
 ): Fact[] {
-  const index = new TfIdfIndex();
-  const factTokens = facts.map((f) => {
-    const surface = `${f.subject} ${f.predicate} ${JSON.stringify(f.object)}`;
-    const tokens = tokenize(surface);
-    index.addDoc(tokens);
-    return tokens;
-  });
-  const qv = index.vectorize(tokenize(query));
-  return facts
-    .map((f, i) => ({ f, score: cosine(qv, index.vectorize(factTokens[i])) }))
-    .filter((r) => r.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, k)
-    .map((r) => r.f);
+  const index = new FactRankIndex();
+  index.rebuild(facts);
+  return index.rank(query, k);
 }

@@ -107,17 +107,61 @@ export class SelfEvaluator {
 
   /** Response self-check: cited facts must exist; a knowledge
    *  answer must not cite facts below validated status as
-   *  established truth. */
+   *  established truth.
+   *
+   *  FIX 47 (batch 14, Level 10 audit 2026-09-13): the
+   *  misrepresentation branch was gated on assertedAsEstablished
+   *  — a flag hardwired FALSE at every production call site,
+   *  so the branch was dead code and a reply presenting
+   *  uncertain/candidate knowledge as established truth could
+   *  never trip the gate. The check is now observable from
+   *  the response itself: when the reply text is provided,
+   *  any cited fact below validated status (uncertain or
+   *  candidate) must be epistemically labeled SOMEWHERE in
+   *  the reply (the honesty contract the composer upholds —
+   *  "candidate", "uncertain", "DERIVED", "owner-asserted",
+   *  "confidence …%"). An unlabeled reply citing below-
+   *  validated facts is a countable misrepresentation, not a
+   *  silent pass. The flag is kept for explicit callers
+   *  (tests, external verification) and now also flags
+   *  candidate facts, not just uncertain ones. */
   verifyResponse(
     citedFactIds: string[],
     facts: FactStore,
     assertedAsEstablished: boolean,
+    responseText?: string,
   ): SelfCheck {
     this.checksRun += 1;
     const missing = citedFactIds.filter((id) => !facts.get(id));
-    const misrepresentations = citedFactIds
+    const belowValidated = citedFactIds
       .map((id) => facts.get(id))
-      .filter((f) => f && assertedAsEstablished && f.status === "uncertain");
+      .filter(
+        (f): f is Fact =>
+          f !== undefined &&
+          (f.status === "uncertain" || f.status === "candidate"),
+      );
+    const labeled =
+      /candidate|uncertain|derived|owner-asserted|unverified|confidence\s*\d/i.test(
+        responseText ?? "",
+      );
+    const misrepresentationIds: string[] = [];
+    for (const f of belowValidated) {
+      // Explicit-assertion flag (legacy/test semantics): a
+      // below-validated fact asserted as established truth is
+      // a misrepresentation, label or not.
+      if (assertedAsEstablished) {
+        misrepresentationIds.push(f.id);
+        continue;
+      }
+      // Observable contract (production gate): when the reply
+      // text is provided, citing below-validated facts WITHOUT
+      // any epistemic label in the reply is a
+      // misrepresentation — the honesty label is not optional.
+      if (responseText !== undefined && !labeled) {
+        misrepresentationIds.push(f.id);
+      }
+    }
+    const misrepresentations = misrepresentationIds;
     return {
       check: "response-integrity",
       passed: missing.length === 0 && misrepresentations.length === 0,
@@ -125,7 +169,7 @@ export class SelfEvaluator {
         missing.length > 0
           ? `response cited non-existent facts: ${missing.join(", ")}`
           : misrepresentations.length > 0
-            ? "response asserted uncertain knowledge as established fact"
+            ? "response asserted below-validated (uncertain/candidate) knowledge as established fact — no epistemic label found in the reply"
             : `all ${citedFactIds.length} cited fact(s) verified`,
     };
   }

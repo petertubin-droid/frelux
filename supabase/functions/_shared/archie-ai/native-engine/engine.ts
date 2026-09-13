@@ -843,6 +843,11 @@ export class ArchieNativeEngine implements ArchieRuntime {
       outcome.citedFactIds,
       this.facts,
       false,
+      // FIX 47: the gate now enforces the epistemic-labeling
+      // contract observably — a reply citing below-validated
+      // facts with no honesty label anywhere counts as a
+      // verification failure.
+      outcome.responseText,
     );
     // P7 — a failed response-integrity check is a real,
     // countable verification failure (cross-isolate).
@@ -1280,7 +1285,12 @@ export class ArchieNativeEngine implements ArchieRuntime {
       responseText: text,
       confidence: positive > 0 ? confSum / positive : 0.4,
       citedFactIds: [...cited],
-      selfCheck: this.selfEval.verifyResponse([...cited], this.facts, false),
+      selfCheck: this.selfEval.verifyResponse(
+        [...cited],
+        this.facts,
+        false,
+        text,
+      ),
     };
   }
 
