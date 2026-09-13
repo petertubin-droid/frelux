@@ -24,7 +24,9 @@ import {
   seedMeansFacts,
   seedVocabularyCount,
 } from "@studio-shared/archie-ai/knowledge/vocabulary.ts";
-import { correctConversationalTypos } from "@studio-shared/archie-ai/native-engine/nlu.ts";
+import { correctConversationalTypos, understand } from "@studio-shared/archie-ai/native-engine/nlu.ts";
+import { ArchieNativeEngine } from "@studio-shared/archie-ai/native-engine/engine.ts";
+import { SupabasePersistence } from "@studio-shared/archie-ai/native-engine/persistence.ts";
 
 describe("seed integrity", () => {
   it("contains at least 1000 seeded entries with meanings", () => {
@@ -167,5 +169,75 @@ describe("no fake knowledge", () => {
     }
     const garri = facts.find((f) => f.subject === "garri");
     expect(garri?.object).toContain("cassava");
+  });
+});
+
+describe("owner teaching of meanings (self-evolving vocabulary)", () => {
+  it("bare meaning-teach statements route to teaching, not gratitude", () => {
+    // live incident 2026-09-13: "kwisatz means sacred weed"
+    // fell to the Bayes fallback and misrouted to gratitude.
+    expect(understand("kwisatz means sacred weed").intent).toBe("teaching");
+    expect(understand("the word kwisatz means sacred weed").intent).toBe("teaching");
+    expect(understand("brb is short for be right back").intent).toBe("teaching");
+    expect(understand("shakara is another word for showing off").intent).toBe("teaching");
+    // definition QUESTIONS are not teaching
+    expect(understand("what does garri mean").intent).not.toBe("teaching");
+    expect(understand("thanks a lot").intent).toBe("gratitude");
+  });
+
+  it("a meaning-teach statement writes the registry with owner-taught provenance", async () => {
+    // stub db: every select returns [], upsert captures rows
+    const upserts: Array<Record<string, unknown>> = [];
+    const empty = {
+      then: (resolve: (v: unknown) => unknown) =>
+        Promise.resolve(resolve({ data: [], error: null })),
+      range: () => ({
+        then: (resolve: (v: unknown) => unknown) =>
+          Promise.resolve(resolve({ data: [], error: null })),
+      }),
+    };
+    const stub = {
+      from: () => ({
+        select: () => empty,
+        insert: () => ({ error: null }),
+        update: () => ({ eq: () => ({ error: null }) }),
+        upsert: (rows: Array<Record<string, unknown>>) => {
+          upserts.push(...rows);
+          return { error: null };
+        },
+      }),
+    };
+    // the engine takes a raw SupabaseLike and wraps it in
+    // its own SupabasePersistence — pass the stub directly.
+    const engine = new ArchieNativeEngine({
+      persistence: stub as unknown as Parameters<
+        typeof SupabasePersistence.prototype.constructor
+      >[0],
+    });
+    const res = await engine.generate({
+      turns: [{ role: "owner", parts: [{ text: "kwisatz means sacred weed" }] }],
+      tools: [],
+      systemInstruction: "",
+    });
+    const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+    expect(reply).toContain("vocabulary registry");
+    expect(reply).toContain("kwisatz");
+    const vocabRow = upserts.find(
+      (r) => (r as { term_key?: string }).term_key === "kwisatz",
+    );
+    expect(vocabRow).toBeDefined();
+    expect((vocabRow as { meaning?: string }).meaning).toBe("sacred weed");
+    expect((vocabRow as { source?: string }).source).toBe("owner_teach");
+  });
+
+  it("without persistence the teaching still lands in the fact store", async () => {
+    const engine = new ArchieNativeEngine();
+    const res = await engine.generate({
+      turns: [{ role: "owner", parts: [{ text: "kwisatz means sacred weed" }] }],
+      tools: [],
+      systemInstruction: "",
+    });
+    const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+    expect(reply).toContain("Retained as your assertion");
   });
 });

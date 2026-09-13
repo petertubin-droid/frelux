@@ -37,6 +37,13 @@ export interface SupabaseLike {
 
 import { NATIVE_CONFIG } from "./config.ts";
 
+/** Owner-taught vocabulary meanings write the living
+ *  registry (self-evolving vocabulary, owner directive
+ *  2026-09-13). The engine's teaching route calls this;
+ *  a registry failure falls back to the native fact
+ *  store path, so teaching never fails closed. */
+import { teachTerm } from "../knowledge/vocabulary.ts";
+
 export const FACTS_TABLE = "frelux_archie_native_facts";
 export const OUTCOMES_TABLE = "frelux_archie_native_outcomes";
 export const EPISODIC_TABLE = "frelux_archie_episodic_turns";
@@ -73,6 +80,20 @@ export class SupabasePersistence
   implements PersistenceLike, OutcomePersistence
 {
   constructor(private db: SupabaseLike) {}
+
+  /** Owner taught a meaning in chat — write the registry
+   *  row (term, meaning, owner-taught provenance, 0.9
+   *  confidence). Learning is free; no authority gate. */
+  async teachVocabularyTerm(
+    term: string,
+    meaning: string,
+  ): Promise<boolean> {
+    try {
+      return await teachTerm(this.db, null, term, meaning);
+    } catch {
+      return false;
+    }
+  }
 
   async loadFacts(): Promise<PersistedFactRow[]> {
     const { data, error } = await this.db

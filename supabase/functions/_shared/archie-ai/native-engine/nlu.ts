@@ -1274,6 +1274,21 @@ const RULE_CASCADE: Array<{
     confidence: 0.9,
   },
   {
+    // SELF-EVOLVING VOCABULARY (owner directive 2026-09-13):
+    // bare meaning-teach statements ("kwisatz means sacred
+    // weed", "brb is short for be right back") used to fall
+    // to the Bayes fallback and misroute to gratitude — the
+    // owner teaches and ARCHIE says thank you. Meaning-teach
+    // forms are UNAMBIGUOUS teaching: deterministic, above
+    // the gratitude rule. Definition QUESTIONS ("what does
+    // X mean") never match — they use "mean", not "means",
+    // and are routed earlier by their own rules.
+    intent: "teaching",
+    pattern:
+      /^(?:the\s+(?:word|phrase|term)\s+)?[a-z][\w' -]{0,60}?\s+(?:means|is\s+short\s+for|is\s+another\s+(?:word|name)\s+for|is\s+the\s+same\s+as)\s+\S.{1,400}$/i,
+    confidence: 0.85,
+  },
+  {
     intent: "teaching",
     // "store this fact" / "keep in mind" are unambiguous
     // teaching phrasings exactly like "note that" (phase 4

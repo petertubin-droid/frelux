@@ -1904,6 +1904,35 @@ export class ArchieNativeEngine implements ArchieRuntime {
             [],
           );
         }
+        // SELF-EVOLVING VOCABULARY (owner directive,
+        // 2026-09-13): a meaning-teach statement ("kwisatz
+        // means sacred weed") writes the LIVING REGISTRY,
+        // not just the fact store — the term earns
+        // owner-taught provenance, corrector protection and
+        // frequency tracking. Registry failure (or no
+        // persistence) falls through to the native fact
+        // path — teaching never fails closed.
+        const vocabTeach =
+          /^(?:the\s+(?:word|phrase|term)\s+)?([a-z][\w' -]{0,60}?)\s+(?:means|is\s+short\s+for|is\s+another\s+(?:word|name)\s+for|is\s+the\s+same\s+as)\s+(.{2,400})$/i.exec(
+            input,
+          );
+        if (vocabTeach) {
+          const term = vocabTeach[1]
+            .trim()
+            .replace(/^(?:the|a|an)\s+/i, "")
+            .toLowerCase();
+          const meaning = vocabTeach[2].trim().replace(/[.?!]+$/, "");
+          if (term.length > 0 && this.persistence instanceof SupabasePersistence) {
+            const ok = await this.persistence.teachVocabularyTerm(term, meaning);
+            if (ok) {
+              return this.compose(
+                `Understood — ${term} means: ${meaning}. Kept in my vocabulary registry, taught by you; I will answer from it with provenance and protect the word from my typo corrector.`,
+                nlu.confidence,
+                [],
+              );
+            }
+          }
+        }
         const triple = extractTriple(input);
         if (!triple) {
           return this.compose(
