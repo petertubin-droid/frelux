@@ -207,3 +207,45 @@ describe("engine: planning request → executed step chain", () => {
     expect(text).not.toMatch(/approximately \d+ blocks/);
   });
 });
+
+// ---------------------------------------------------------
+// Planner step semantics (re-assessment 2026-09-13, gap 1):
+// the three former label steps now run real subsystem work.
+// ---------------------------------------------------------
+describe("engine: planner step semantics — no label steps", () => {
+  it("identify_gaps performs a real structural analysis, not a count label", async () => {
+    const text = await planReply("help me organize a wedding reception");
+    expect(text).toContain("0 structural gaps");
+    expect(text).toContain("content:");
+  });
+
+  it("sequence_tasks verifies the dependency order before claiming it", async () => {
+    const text = await planReply("help me organize a wedding reception");
+    expect(text).toContain("dependency order verified over");
+  });
+
+  it("draft_plan composes a real draft from prior step outputs", async () => {
+    const text = await planReply("help me organize a wedding reception");
+    expect(text).toContain("DRAFT for");
+    expect(text).toContain("known:");
+    expect(text).toContain("gaps:");
+    expect(text).toContain("order:");
+    expect(text).toContain("authorization: ends at PROPOSE");
+  });
+
+  it("the draft carries the computed estimate when quantities exist", async () => {
+    const text = await planReply(
+      "plan a 6 by 3 meter block wall project for my compound",
+    );
+    expect(text).toContain("quantities:");
+    expect(text).toContain("deterministic estimate");
+  });
+
+  it("a draft never carries an estimate that was blocked", async () => {
+    const text = await planReply(
+      "plan the block wall for my site with 12 bags of cement",
+    );
+    // estimate blocked on missing dimensions → no quantities line
+    expect(text).not.toContain("quantities:");
+  });
+});

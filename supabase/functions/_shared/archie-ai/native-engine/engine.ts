@@ -2982,11 +2982,54 @@ export class ArchieNativeEngine implements ArchieRuntime {
           break;
         }
         case "op_identify_gaps": {
-          step.status = "executed";
-          step.result =
-            inventoryCount === 0
-              ? `knowledge gap: nothing validated on "${goalSubject}" — the knowledge step below fills it`
-              : `${inventoryCount} known fact(s) — gaps limited to what they do not cover`;
+          // Planner step semantics (2026-09-13 re-assessment,
+          // gap 1): REAL gap analysis. Walk the executed chain's
+          // operators and collect goal-substituted precondition
+          // patterns that are neither held in the store nor
+          // produced by an earlier step — the old implementation
+          // reported only a count derived from the inventory
+          // step (a label, not an analysis). Structural gaps
+          // block honestly; content coverage is reported
+          // separately and honestly (the knowledge step fills
+          // it — nothing is assumed).
+          const ops = this.planner.operatorList();
+          const byId = new Map(ops.map((o) => [o.id, o]));
+          const produced = new Set<string>();
+          const missing: string[] = [];
+          for (const st of plan.steps) {
+            const op = byId.get(st.operatorId);
+            if (!op) continue;
+            for (const pre of op.preconditions) {
+              const subj = pre.subject === "$goal" ? goalSubject : pre.subject;
+              if (typeof subj !== "string" || subj.startsWith("?")) continue;
+              const key = `${subj} ${pre.predicate}`;
+              if (produced.has(key)) continue;
+              const isHeld =
+                this.facts.query({ subject: subj, predicate: pre.predicate })
+                  .length > 0;
+              if (!isHeld) missing.push(key);
+            }
+            const achievedSubj =
+              op.achieves.subject === "$goal"
+                ? goalSubject
+                : op.achieves.subject;
+            if (achievedSubj)
+              produced.add(`${achievedSubj} ${op.achieves.predicate}`);
+            for (const e of op.effects) {
+              const es = e.subject === "$goal" ? goalSubject : e.subject;
+              if (es) produced.add(`${es} ${e.predicate}`);
+            }
+          }
+          if (missing.length > 0) {
+            step.status = "blocked";
+            step.result = `structural gap(s) at execution time: ${missing.join(", ")}`;
+          } else {
+            step.status = "executed";
+            step.result =
+              inventoryCount === 0
+                ? `0 structural gaps; content: 0 validated facts cover "${goalSubject}" — the knowledge step below fills that`
+                : `0 structural gaps; content: ${inventoryCount} validated fact(s) cover part of "${goalSubject}"`;
+          }
           break;
         }
         case "op_owner_teach_goal_knowledge": {
@@ -3002,13 +3045,54 @@ export class ArchieNativeEngine implements ArchieRuntime {
           break;
         }
         case "op_sequence_tasks": {
-          step.status = "executed";
-          step.result = `ordered ${plan.steps.length} steps for "${goalSubject}" by dependency`;
+          // Planner step semantics (2026-09-13 re-assessment,
+          // gap 1): REAL dependency verification. The old
+          // implementation asserted "ordered by dependency"
+          // without checking anything — a label. validatePlan
+          // walks the chain against the LIVE store and the
+          // steps' own productions; an unverifiable order is
+          // reported blocked, never claimed verified.
+          const check = this.planner.validatePlan(plan, goalSubject);
+          if (check.valid) {
+            step.status = "executed";
+            step.result = `dependency order verified over ${plan.steps.length} steps: ${plan.steps.map((st) => st.operatorId).join(" → ")}`;
+          } else {
+            step.status = "blocked";
+            step.result = `dependency verification failed: ${check.issues.join("; ")}`;
+          }
           break;
         }
         case "op_draft_plan": {
+          // Planner step semantics (2026-09-13 re-assessment,
+          // gap 1): REAL draft synthesis. The old implementation
+          // pointed at the reply (a label). The draft is now
+          // composed from what the earlier steps ACTUALLY
+          // established — inventory findings, gap analysis,
+          // verified order, and any computed quantities — so it
+          // is a genuine artifact derived from real outputs,
+          // never a restatement of the chain header.
+          const findings = plan.steps.find(
+            (st) => st.operatorId === "op_inventory_prerequisites",
+          )?.result;
+          const gapAnalysis = plan.steps.find(
+            (st) => st.operatorId === "op_identify_gaps",
+          )?.result;
+          const order = plan.steps.find(
+            (st) => st.operatorId === "op_sequence_tasks",
+          )?.result;
+          const estimate = plan.steps.find((st) =>
+            /deterministic estimate/.test(st.result ?? ""),
+          )?.result;
+          const parts = [
+            `DRAFT for "${goalSubject}"`,
+            `known: ${findings ?? "inventory not run"}`,
+            `gaps: ${gapAnalysis ?? "gap analysis not run"}`,
+            `order: ${order ?? "order not verified"}`,
+          ];
+          if (estimate) parts.push(`quantities: ${estimate}`);
+          parts.push("authorization: ends at PROPOSE — execution is yours");
           step.status = "executed";
-          step.result = "plan drafted — the numbered chain in this reply";
+          step.result = parts.join(" | ");
           break;
         }
         case "op_propose_execution": {

@@ -200,6 +200,14 @@ export class Planner {
     return this.operators.length;
   }
 
+  /** Planner step semantics (2026-09-13 re-assessment, gap 1):
+   *  read-only access for step EXECUTION — the engine's gap
+   *  analysis walks operator preconditions/effects; it never
+   *  mutates the library. */
+  operatorList(): readonly Operator[] {
+    return this.operators;
+  }
+
   /** Means-ends analysis: achieve the goal by selecting an
    *  operator, recursively resolving missing preconditions.
    *

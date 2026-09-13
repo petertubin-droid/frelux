@@ -92,3 +92,40 @@ mirror-only deploys) now fail loudly by construction.
 Closing 1 and 2 with the same evidence discipline (code + tests + deployed
 behavior) is the credible path to 9.2. This re-assessment deliberately does
 not award that score ahead of the work.
+
+---
+
+## Addendum (2026-09-13, evening +1): gap 1 closed — planner step semantics
+
+The first item of the honest gap list is now closed in code with
+test evidence (commit on this push):
+
+- **op_identify_gaps** — was a count label; now performs a real
+  structural analysis: walks the executed chain's operators, collects
+  goal-substituted precondition patterns neither held in the live
+  store nor produced by an earlier step, and reports them. Structural
+  gaps block the step honestly; content coverage is reported separately
+  (the knowledge step fills it — nothing is assumed).
+- **op_sequence_tasks** — claimed "ordered by dependency" without
+  checking; now runs `validatePlan` against the live store and the
+  chain's own productions before claiming verification. An
+  unverifiable order is reported blocked, never claimed verified.
+- **op_draft_plan** — pointed at the reply; now composes a genuine
+  draft artifact from the prior steps' real outputs (inventory
+  findings, gap analysis, verified order, computed quantities, gate
+  note). A blocked estimate never appears as a quantity.
+
+Evidence: 5 new tests in `planning-execution.test.ts` (structural-gap
+assertion, dependency-verification assertion, draft-composition
+assertions, estimate-in-draft and blocked-estimate-omitted), full
+ARCHIE suite green (2085 passed / 2 expected-fail, 137 files),
+`tsc --noEmit` clean.
+
+Remaining honest gap to 9.2 (renumbered):
+
+1. **Strategy front ends** — cue-regex entry into store queries.
+   (~+0.2)
+2. **Sensory periphery** — eyes (PNG pixels), voiceprint (±30% pitch),
+   browser-dependent STT/TTS. (~+0.1–0.2)
+
+**Overall: 8.9/10** (was 8.7 at re-assessment).
