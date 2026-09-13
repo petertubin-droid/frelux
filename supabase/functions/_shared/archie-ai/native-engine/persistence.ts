@@ -43,6 +43,7 @@ import { NATIVE_CONFIG } from "./config.ts";
  *  a registry failure falls back to the native fact
  *  store path, so teaching never fails closed. */
 import { teachTerm } from "../knowledge/vocabulary.ts";
+import { researchTerm } from "../knowledge/vocabulary-research.ts";
 
 export const FACTS_TABLE = "frelux_archie_native_facts";
 export const OUTCOMES_TABLE = "frelux_archie_native_outcomes";
@@ -80,6 +81,24 @@ export class SupabasePersistence
   implements PersistenceLike, OutcomePersistence
 {
   constructor(private db: SupabaseLike) {}
+
+  /** Owner asked ARCHIE to research a meaning on the web —
+   *  write the registry row with RESEARCH provenance:
+   *  cross-checked confidence, source domains named,
+   *  honestly labeled as external knowledge (not
+   *  owner-taught); teaching overwrites it anytime. */
+  async researchVocabularyTerm(
+    term: string,
+    meaning: string,
+    domains: string[],
+    confidence: number,
+  ): Promise<boolean> {
+    try {
+      return await researchTerm(this.db, null, term, meaning, domains, confidence);
+    } catch {
+      return false;
+    }
+  }
 
   /** Owner taught a meaning in chat — write the registry
    *  row (term, meaning, owner-taught provenance, 0.9

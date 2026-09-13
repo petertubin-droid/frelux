@@ -122,6 +122,12 @@ import {
 import { SelfEvaluator } from "./selfeval.ts";
 import { OutcomeLearner, consolidateIfDue } from "./learning.ts";
 import { SupabasePersistence, type SupabaseLike } from "./persistence.ts";
+import {
+  extractMeaningResearchRequest,
+  researchTermMeaning,
+  type FetchLike,
+  type MeaningResearchReport,
+} from "../knowledge/vocabulary-research.ts";
 import { CounterPersistence, EpisodicPersistence } from "./persistence.ts";
 import type { Fact, Plan, PlanLesson, RetrievedContext } from "./types.ts";
 
@@ -358,6 +364,14 @@ export class ArchieNativeEngine implements ArchieRuntime {
   private domains: DomainSkillRegistry;
   private adapter: ResearchAdapter;
   private marketPriceLookup: MarketPriceLookup | null;
+  /** SELF-EVOLVING VOCABULARY — multi-site meaning research
+   *  (owner directive 2026-09-13). Injectable like
+   *  marketPriceLookup: production uses the real
+   *  dictionary/reference sites; tests inject a labeled
+   *  double. null = default real fetch. */
+  private meaningResearch:
+    | ((term: string) => Promise<MeaningResearchReport>)
+    | null;
   /** H-2 — crypto market-data fetcher (null = real fetch). */
   private cryptoFetcher: Fetcher | null;
   /** H-2 — trade-gate limits. */
@@ -395,6 +409,10 @@ export class ArchieNativeEngine implements ArchieRuntime {
     researchAdapter?: ResearchAdapter;
     marketPriceLookup?: MarketPriceLookup;
     lessonLookup?: LessonLookup;
+    /** SELF-EVOLVING VOCABULARY — meaning-research lookup
+     *  over multiple dictionary/reference sites. Injected by
+     *  tests; default = the real multi-site fetcher. */
+    meaningResearch?: (term: string) => Promise<MeaningResearchReport>;
     systemAdapters?: SystemAdapters;
     /** P6 Batch B — owner verbosity profile. Selects which
      *  OPTIONAL connectives are composed; content and
@@ -417,6 +435,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
     this.tradingLimits = options?.tradingLimits ?? DEFAULT_TRADING_LIMITS;
     this.verbosity = options?.verbosity ?? "detailed";
     this.marketPriceLookup = options?.marketPriceLookup ?? null;
+    this.meaningResearch = options?.meaningResearch ?? null;
     this.lessonLookup = options?.lessonLookup ?? null;
     this.systemAdapters = options?.systemAdapters ?? {};
     this.persistence = options?.persistence
@@ -820,7 +839,12 @@ export class ArchieNativeEngine implements ArchieRuntime {
     } else if (clauses.length > 1 || clauses[0].negated) {
       // A single clause that is itself an exclusion routes
       // through the same honest exclusion path.
-      outcome = await this.routeClauses(clauses, systemInstruction, session);
+      outcome = await this.routeClauses(
+        clauses,
+        systemInstruction,
+        session,
+        history,
+      );
     } else {
       // Fix 33 (continued): the REQUEST's session is passed
       // through — route() reads the tool surface from it,
@@ -835,6 +859,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         context,
         systemInstruction,
         session,
+        history,
       );
     }
     this.confidenceSum += outcome.confidence;
@@ -1234,6 +1259,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
     clauses: ReturnType<typeof decomposeClauses>,
     systemInstruction?: string,
     session?: EngineSession,
+    history?: ArchieInferenceTurn[],
   ): Promise<ConverseResult> {
     const parts: string[] = [];
     const cited = new Set<string>();
@@ -1271,6 +1297,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         clauseContext,
         systemInstruction,
         session,
+        history,
       );
       positive += 1;
       confSum += res.confidence;
@@ -1357,6 +1384,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
     context: RetrievedContext,
     systemInstruction?: string,
     session?: EngineSession,
+    /** Conversation history — meaning research resolves
+     *  "research it" against the last definition question. */
+    history?: ArchieInferenceTurn[],
   ): Promise<ConverseResult> {
     /** The request's declared tool surface — session-scoped
      *  (C-1): falls back to the legacy pointer's session for
@@ -2101,6 +2131,114 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
 
       case "research_request": {
+        // SELF-EVOLVING VOCABULARY (owner directive,
+        // 2026-09-13): a MEANING-research request ("research
+        // what kwisatz means", "research it" after a
+        // definition miss) gets the dedicated multi-site
+        // dictionary flow BEFORE the generic web pipeline —
+        // the result is a REGISTRY meaning with research
+        // provenance, not scattered candidate facts.
+        // Antecedent history: the caller's turns first; when
+        // the client sent none, the engine's own session
+        // memory for THIS conversation holds recent turns
+        // (same source routeClauses uses for anaphora).
+        const meaningHistory =
+          history && history.length > 0
+            ? history
+            : (session ?? this.sessionFor())
+                .memory.recentTurns(6)
+                .map((t) => ({ role: t.role, parts: [{ text: t.text }] }));
+        const meaningTerm = extractMeaningResearchRequest(input, meaningHistory);
+        if (meaningTerm && this.persistence instanceof SupabasePersistence) {
+          // Explicit owner research request = network
+          // authorization for this term.
+          await this.facts.assert({
+            subject: "network",
+            predicate: "authorized",
+            object: `owner requested meaning research: ${meaningTerm.slice(0, 80)}`,
+            confidence: 0.9,
+            provenance: {
+              source: "seed",
+              note: "owner-authorized meaning research request",
+            },
+            status: "validated",
+          });
+          const lookup =
+            this.meaningResearch ??
+            ((term: string) =>
+              researchTermMeaning(term, globalThis.fetch as FetchLike));
+          const report = await lookup(meaningTerm);
+          if (report.meaning) {
+            // AUTHORITY ORDER: seed and owner-taught meanings
+            // are authoritative — researched knowledge never
+            // overwrites them. Owner teaching (0.9, owner
+            // provenance) always beats research (<=0.6).
+            const existing = this.facts
+              .list()
+              .find(
+                (f) => f.subject === report.term && f.predicate === "means",
+              );
+            if (existing) {
+              const lines: string[] = [];
+              lines.push(
+                `Researched "${report.term}" across ${report.results.length} sites: ${report.results
+                  .map((r) => (r.failure ? `${r.site} (could not reach)` : r.meaning ? `${r.site} (found)` : `${r.site} (${r.note})`))
+                  .join("; ")}.`,
+              );
+              lines.push(
+                `Sites say: ${report.meaning}. My existing definition (${existing.provenance.source}) stands — researched knowledge never overwrites seed or owner-taught meanings.`,
+              );
+              return this.compose(lines.join("\n"), nlu.confidence, [existing.id]);
+            }
+            const stored = await this.persistence.researchVocabularyTerm(
+              meaningTerm,
+              report.meaning,
+              report.domains,
+              report.confidence,
+            );
+            const lines: string[] = [];
+            lines.push(
+              `Researched "${report.term}" across ${report.results.length} dictionary/reference sites in parallel:`,
+            );
+            for (const r of report.results) {
+              lines.push(
+                `- ${r.site}: ${r.failure ? `could not reach (${r.note})` : r.meaning ? "found" : r.note}`,
+              );
+            }
+            if (stored) {
+              lines.push(
+                `Meaning kept: ${report.term} means: ${report.meaning} [confidence ${(report.confidence * 100).toFixed(0)}%, researched from ${report.domains.join(", ")} — ${report.note}].`,
+              );
+              lines.push(
+                "This is researched knowledge, not owner-taught — teach me a correction anytime and your definition overwrites it.",
+              );
+            } else {
+              lines.push(
+                `I found a meaning (${report.meaning}) but could NOT store it in the registry — a later definition question will not answer from it. That is an honest failure, not a saved definition.`,
+              );
+            }
+            return this.compose(lines.join("\n"), nlu.confidence, []);
+          }
+          const unreachable = report.results.filter((r) => r.failure);
+          const missed = report.results.filter((r) => !r.failure);
+          const noLines = [
+            `I researched "${report.term}" across ${report.results.length} sites and none has a meaning for it.`,
+          ];
+          if (missed.length > 0) {
+            noLines.push(
+              `Genuinely missing: ${missed.map((r) => r.site).join(", ")}.`,
+            );
+          }
+          if (unreachable.length > 0) {
+            noLines.push(
+              `Could not reach (honest, not hidden): ${unreachable.map((r) => `${r.site} (${r.note})`).join("; ")}.`,
+            );
+          }
+          noLines.push(
+            "I will not invent a definition — teach me what it means and I will keep it with your provenance.",
+          );
+          return this.compose(noLines.join("\n"), nlu.confidence, []);
+        }
         const query = extractResearchQuery(input);
         if (!query) {
           return this.compose(
