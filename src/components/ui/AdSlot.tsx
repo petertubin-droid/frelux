@@ -134,9 +134,16 @@ export default function AdSlot({
 
       const chain = getProvidersForPlacement(slotKey, providers, placements);
       // If a specific providerId is requested, filter to just that one
-      const targetChain = providerId
+      const providerChain = providerId
         ? chain.filter((p) => p.id === providerId)
         : chain;
+      // Display-disabled providers never claim a slot. Filtering here
+      // (instead of only hiding the resolved slot at render time) keeps
+      // the fallback chain intact: when a higher-priority provider is
+      // toggled off, the next enabled provider fills the slot instead of
+      // it resolving to a hidden reserved zone. This also stops
+      // impression events from being logged for ads that never render.
+      const targetChain = providerChain.filter(isDisplayAdsEnabled);
 
       // Providers that use global credentials (not per-placement ad unit IDs).
       // They can render on any placement as long as their credentials are set.
@@ -327,14 +334,16 @@ export default function AdSlot({
         targetChain.length === 0 ||
         targetChain.some((p) => p.slug === "google_adsense")
       ) {
-        fetchLegacyAdSense(slotKey).then((legacy) => {
-          if (cancelled) return;
-          if (legacy) {
-            setResolved(legacy);
-          } else {
-            setResolved("none");
-          }
-        });
+        fetchLegacyAdSense(slotKey)
+          .then((legacy) => {
+            if (cancelled) return;
+            setResolved(legacy ?? "none");
+          })
+          .catch(() => {
+            // Legacy config fetch failed (offline / flaky network): render
+            // nothing rather than leaving the slot in its loading state.
+            if (!cancelled) setResolved("none");
+          });
       } else {
         setResolved("none");
       }

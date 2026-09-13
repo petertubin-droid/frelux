@@ -25,6 +25,13 @@ vi.mock("@/lib/supabase-lazy", () => ({
   getSupabase: vi.fn(() => ({
     from: vi.fn(() => ({
       insert: vi.fn().mockResolvedValue({ error: null }),
+      // Legacy AdSense fallback read (site_settings): resolves empty so
+      // tests that fall through every provider stay hermetic.
+      select: vi.fn(() => ({
+        limit: vi.fn(() => ({
+          maybeSingle: vi.fn().mockResolvedValue({ data: null }),
+        })),
+      })),
     })),
   })),
 }));
@@ -200,11 +207,11 @@ describe("AdSlot", () => {
     );
   });
 
-  it("hides visual ads when display_ads_enabled is false, but still logs impressions", async () => {
-    // Adsterra resolves in-slot (so the impression is real, the slot
-    // was allocated), while the visual render is suppressed. Monetag
-    // without a zone resolves "none" and logs nothing (no false
-    // impressions), that behavior is covered above.
+  it("skips display-disabled providers: no render, no impression, no reserved zone", async () => {
+    // A display-disabled provider must never claim a slot. The old
+    // behavior (resolve, hide, still log the impression) blocked the
+    // fallback chain and inflated impression analytics with ads that
+    // never rendered.
     resetAdsterraPageStateForTests();
     const provider = makeAdsterraProvider(
       { key: "2fc239403361cb893fa79b52b1d98332" },
@@ -228,22 +235,73 @@ describe("AdSlot", () => {
     vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
 
     const { container } = await renderAdSlot();
+    // Let the async resolution settle before asserting absence
+    await new Promise((r) => setTimeout(r, 25));
 
-    // Impression still logged (analytics keep counting)
-    await waitFor(() => {
-      expect(logAdEvent).toHaveBeenCalledWith(
-        expect.objectContaining({ event_type: "impression" }),
-      );
+    // Nothing renders: the slot settles to "none" (hidden reserved-zone
+    // placeholder), no impression is logged, and no ad container or
+    // third-party script is injected.
+    expect(logAdEvent).not.toHaveBeenCalled();
+    expect(container.querySelector('[data-ad-provider="adsterra"]')).toBeNull();
+    expect(container.querySelector('[data-ad-provider="monetag"]')).toBeNull();
+    expect(document.head.querySelector('script[src*="quge5.com"]')).toBeNull();
+  });
+
+  it("falls through a display-disabled provider to the next enabled provider", async () => {
+    // Regression: a disabled Adsterra used to claim every slot and
+    // block Monetag from ever filling it. The chain must now skip it
+    // and let Monetag render its native banner instead.
+    resetAdsterraPageStateForTests();
+    const adsterra = makeAdsterraProvider(
+      { key: "2fc239403361cb893fa79b52b1d98332" },
+      { display_ads_enabled: false },
+    ) as never;
+    const monetag = {
+      id: "prov-monetag",
+      name: "Monetag",
+      slug: "monetag",
+      provider_type: "display",
+      is_active: true,
+      priority: 2,
+      credentials: { zone_id: "1234567", native_banner_zone_id: "7654321" },
+      settings: {},
+      is_system: true,
+      created_at: "",
+      updated_at: "",
+    } as never;
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [adsterra, monetag],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsterra", "prov-monetag"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
     });
-    // But nothing visual renders, only the hidden reserved zone
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([
+      adsterra,
+      monetag,
+    ]);
+
+    const { container } = await renderAdSlot();
+
+    // Monetag fills the slot Adsterra abandoned
     await waitFor(() => {
       expect(
-        container.querySelector('[data-ad-reserved="test-slot"]'),
+        container.querySelector('[data-ad-provider="monetag"]'),
       ).not.toBeNull();
     });
-    expect(container.querySelector('[data-ad-provider="monetag"]')).toBeNull();
-    // And no third-party ad script is injected
-    expect(document.head.querySelector('script[src*="quge5.com"]')).toBeNull();
+    // Adsterra never claimed it: no reserved zone, no banner container
+    expect(
+      container.querySelector('[data-ad-reserved="test-slot"]'),
+    ).toBeNull();
+    expect(container.querySelector('[data-ad-provider="adsterra"]')).toBeNull();
   });
 });
 
@@ -370,6 +428,34 @@ describe("Adsterra helpers", () => {
     expect(resolveAdsterraSize(p, "other_slot")).toEqual({
       width: 300,
       height: 250,
+    });
+  });
+
+  it("honours a zone-wide banner_sizes.default override", () => {
+    // One Adsterra zone has one fixed size; requesting a different
+    // size silently never fills. The admin can pin the zone's real
+    // size once via banner_sizes.default instead of per-slot entries.
+    const p = makeAdsterraProvider({}, { banner_sizes: { default: "728x90" } });
+    expect(resolveAdsterraSize(p, "home_mid")).toEqual({
+      width: 728,
+      height: 90,
+    });
+    expect(resolveAdsterraSize(p, "calculator_bottom")).toEqual({
+      width: 728,
+      height: 90,
+    });
+    // Per-slot entries still win over the zone-wide default
+    const q = makeAdsterraProvider(
+      {},
+      { banner_sizes: { default: "728x90", home_sidebar: "160x600" } },
+    );
+    expect(resolveAdsterraSize(q, "home_sidebar")).toEqual({
+      width: 160,
+      height: 600,
+    });
+    expect(resolveAdsterraSize(q, "home_mid")).toEqual({
+      width: 728,
+      height: 90,
     });
   });
 });

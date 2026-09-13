@@ -88,8 +88,10 @@ export function extractAdsterraZoneKey(
   return m ? m[1].toLowerCase() : "";
 }
 
-/** Default Adsterra banner size per placement family (config-driven override
- *  via provider.settings.banner_sizes[slotKey] = "WxH"). */
+/** Adsterra banner size resolution: provider.settings.banner_sizes[slotKey]
+ *  = "WxH" for a specific slot, banner_sizes.default = "WxH" for the zone
+ *  (recommended — one zone has one size), then snippet/past defaults, then
+ *  placement-family heuristics. */
 export function resolveAdsterraSize(
   provider: DbAdProvider,
   slotKey: string,
@@ -99,6 +101,15 @@ export function resolveAdsterraSize(
   const raw = typeof custom[slotKey] === "string" ? custom[slotKey] : "";
   const m = raw.match(/^(\d{2,4})\s*[x×]\s*(\d{2,4})$/);
   if (m) return { width: Number(m[1]), height: Number(m[2]) };
+
+  // Zone-wide default: banner_sizes.default = "WxH" applies to every slot
+  // without its own entry. One Adsterra zone has ONE fixed size, and a
+  // zone requested at the wrong size silently never fills — so the
+  // admin-confirmed zone size beats the device-family heuristics below.
+  const rawDefault =
+    typeof custom.default === "string" ? custom.default.trim() : "";
+  const md = rawDefault.match(/^(\d{2,4})\s*[x×]\s*(\d{2,4})$/);
+  if (md) return { width: Number(md[1]), height: Number(md[2]) };
 
   // Admin pasted a full banner snippet into the key credential? Use the
   // zone's real dimensions (e.g. 468x60) as the default for banner slots.
