@@ -55,7 +55,7 @@ jobs:
         with:
           version: latest
 
-      - name: Deploy every archie-* function (BOTH projects)
+      - name: Deploy every archie-* function (Freluxtools only — Frelukx disconnected 2026-09-13, left intact)
         # AUDIT FIX HIGH-2 + MEDIUM-5 (2026-09-13): CI used to
         # deploy only to the mirror project while live traffic
         # hit the production project — CI-green did not mean
@@ -69,7 +69,7 @@ jobs:
         # worker deploys with no flag at all.
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-          ARCHIE_PROJECT_REFS: pjvtqkshewerpvggtgqx hqhvlkunkdrxyuvziorm
+          ARCHIE_PROJECT_REFS: hqhvlkunkdrxyuvziorm
         run: |
           set -euo pipefail
           fail=0
