@@ -47,7 +47,6 @@ import {
   fetchCryptoMarket,
   portfolioRisk,
 } from "@/lib/archie/p5-client";
-import type { InternalAgentRecord } from "@/lib/archie/internal-agents";
 import {
   fetchArchieStatus,
   buildSystemsRegistry,

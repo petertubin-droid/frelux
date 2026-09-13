@@ -20,7 +20,6 @@ import type {
   PlanExtraction,
   ProvenanceRef,
 } from "./types";
-import { DOCUMENT_RELIABILITY } from "./types";
 import { dimensionsContradict } from "./consistency";
 import { rankDimensions } from "./dimensions";
 import { isUnknown } from "./dimensions";

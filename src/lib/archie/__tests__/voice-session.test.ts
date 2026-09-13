@@ -16,7 +16,7 @@
 //   * barge-in: the owner's speech silences ARCHIE instantly
 //   * every failure is typed and honest
 // =========================================================
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { describe, expect, it, vi, afterEach } from "vitest";
 import {
   createVoiceSession,
   DEFAULT_VOICE_SESSION_CONFIG,
@@ -193,7 +193,7 @@ describe("session creation gates", () => {
   it("REFUSES a duplicate session — never two microphones at once", async () => {
     const rec = fakeRecognize(["__NO_SPEECH__"]);
     const { ports } = fakePorts({ recognize: rec.fn });
-    const { log: events, events: ev } = collect();
+    const { events: ev } = collect();
     const first = await createVoiceSession(baseConfig(), ev, ports);
     expect(first.ok).toBe(true);
     if (!first.ok) return;

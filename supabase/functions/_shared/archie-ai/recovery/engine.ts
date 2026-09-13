@@ -406,7 +406,7 @@ export async function recoverRun(
   const prior = await deps.countRecoveryAttempts(run.id);
   const attemptsLeft = Math.max(0, RECOVERY_MAX_ATTEMPTS - prior);
 
-  const { classification, rationale: classRationale } = classifyFailure(run);
+  const { classification } = classifyFailure(run);
 
   // No target row (registry changed since the run) → escalate.
   const target = await deps.getTarget(run.target_key);

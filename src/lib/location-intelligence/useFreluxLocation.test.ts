@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useFreluxLocation } from "./useFreluxLocation";
 import {
@@ -17,7 +17,15 @@ import { emptyLocation } from "./model";
 class MockGeoProvider implements GeolocationProvider {
   readonly id = "mock-geo";
   readonly label = "Mock";
-  next: GeolocationResult = { ok: true, location: { ...emptyLocation("gps"), latitude: 6.5, longitude: 3.4, accuracy_m: 30 } };
+  next: GeolocationResult = {
+    ok: true,
+    location: {
+      ...emptyLocation("gps"),
+      latitude: 6.5,
+      longitude: 3.4,
+      accuracy_m: 30,
+    },
+  };
   calls = 0;
   async getPosition(): Promise<GeolocationResult> {
     this.calls++;
@@ -28,7 +36,12 @@ class MockGeoProvider implements GeolocationProvider {
 class MockReverse {
   next: ReverseGeocodeResult = {
     ok: true,
-    location: { country: "Nigeria", country_code: "NG", city: "Lagos", verification: "provider_verified" },
+    location: {
+      country: "Nigeria",
+      country_code: "NG",
+      city: "Lagos",
+      verification: "provider_verified",
+    },
   };
   async reverseGeocode(): Promise<ReverseGeocodeResult> {
     return this.next;
@@ -70,16 +83,26 @@ describe("useFreluxLocation", () => {
     reverse = new MockReverse();
     forward = new MockForward();
     locationProviderRegistry.setGeolocationProvider(geo as AnyProvider);
-    locationProviderRegistry.setReverseGeocodingProvider(reverse as AnyProvider);
-    locationProviderRegistry.setForwardGeocodingProvider(forward as AnyProvider);
+    locationProviderRegistry.setReverseGeocodingProvider(
+      reverse as AnyProvider,
+    );
+    locationProviderRegistry.setForwardGeocodingProvider(
+      forward as AnyProvider,
+    );
     locationProviderRegistry.setMapProvider(null);
     localStorage.clear();
   });
 
   afterEach(() => {
-    locationProviderRegistry.setGeolocationProvider(new BrowserGeolocationProvider());
-    locationProviderRegistry.setReverseGeocodingProvider(new NominatimReverseGeocoderPublic());
-    locationProviderRegistry.setForwardGeocodingProvider(new NominatimForwardGeocoderPublic());
+    locationProviderRegistry.setGeolocationProvider(
+      new BrowserGeolocationProvider(),
+    );
+    locationProviderRegistry.setReverseGeocodingProvider(
+      new NominatimReverseGeocoderPublic(),
+    );
+    locationProviderRegistry.setForwardGeocodingProvider(
+      new NominatimForwardGeocoderPublic(),
+    );
   });
 
   it("starts in not_set and never requests location on mount", () => {
@@ -102,7 +125,10 @@ describe("useFreluxLocation", () => {
   });
 
   it("GPS without reverse geocoding keeps coordinates; nothing fabricated", async () => {
-    reverse.next = { ok: false, error: "Reverse geocoding unavailable (offline)." };
+    reverse.next = {
+      ok: false,
+      error: "Reverse geocoding unavailable (offline).",
+    };
     const { result } = renderHook(() => useFreluxLocation());
     await act(async () => {
       await result.current.useMyLocation();
@@ -134,7 +160,10 @@ describe("useFreluxLocation", () => {
     // Explicit retry clears the memory
     act(() => result.current.retryPermission());
     expect(result.current.permissionDeniedRemembered).toBe(false);
-    geo.next = { ok: true, location: { ...emptyLocation("gps"), latitude: 6.5, longitude: 3.4 } };
+    geo.next = {
+      ok: true,
+      location: { ...emptyLocation("gps"), latitude: 6.5, longitude: 3.4 },
+    };
     await act(async () => {
       await result.current.useMyLocation();
     });
@@ -157,7 +186,9 @@ describe("useFreluxLocation", () => {
       await result.current.search("Abuja");
     });
     expect(result.current.searchResults).toHaveLength(1);
-    act(() => result.current.selectSearchResult(result.current.searchResults[0]));
+    act(() =>
+      result.current.selectSearchResult(result.current.searchResults[0]),
+    );
     expect(result.current.state).toBe("found");
     expect(result.current.location?.source).toBe("search");
     expect(result.current.location?.verification).toBe("provider_verified");
@@ -165,7 +196,11 @@ describe("useFreluxLocation", () => {
   });
 
   it("search failure → error surfaced, manual still possible", async () => {
-    forward.next = { ok: false, candidates: [], error: "Search unavailable (network error)." };
+    forward.next = {
+      ok: false,
+      candidates: [],
+      error: "Search unavailable (network error).",
+    };
     const { result } = renderHook(() => useFreluxLocation());
     await act(async () => {
       await result.current.search("Abuja");
@@ -175,7 +210,10 @@ describe("useFreluxLocation", () => {
   });
 
   it("map pin when a provider is configured", async () => {
-    locationProviderRegistry.setMapProvider({ id: "mock-map", label: "Mock Map" } as AnyProvider);
+    locationProviderRegistry.setMapProvider({
+      id: "mock-map",
+      label: "Mock Map",
+    } as AnyProvider);
     const { result } = renderHook(() => useFreluxLocation());
     expect(result.current.mapEnabled).toBe(true);
     act(() => result.current.setMapPin(52.37, 4.9));
@@ -200,7 +238,12 @@ describe("useFreluxLocation", () => {
 
   it("manual fallback with country only (region-level)", () => {
     const { result } = renderHook(() => useFreluxLocation());
-    act(() => result.current.setManualLocation({ country_code: "KE", region: "Nairobi" }));
+    act(() =>
+      result.current.setManualLocation({
+        country_code: "KE",
+        region: "Nairobi",
+      }),
+    );
     expect(result.current.state).toBe("found");
   });
 
@@ -255,7 +298,10 @@ describe("useFreluxLocation", () => {
   });
 
   it("invalid captured coordinates are rejected, not staged", async () => {
-    geo.next = { ok: true, location: { ...emptyLocation("gps"), latitude: 999, longitude: 3.4 } };
+    geo.next = {
+      ok: true,
+      location: { ...emptyLocation("gps"), latitude: 999, longitude: 3.4 },
+    };
     const { result } = renderHook(() => useFreluxLocation());
     await act(async () => {
       await result.current.useMyLocation();

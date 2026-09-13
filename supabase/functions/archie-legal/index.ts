@@ -475,7 +475,7 @@ serveWithCors(async (req: Request) => {
     if (action === "memory_export") {
       // REAL export: the owner's personal ARCHIE data in a
       // machine-readable format.
-      const [facts, conversations, messages, consents] = await Promise.all([
+      const [facts, conversations, _messages, consents] = await Promise.all([
         service.from("frelux_archie_native_facts").select("*"),
         service
           .from("frelux_archie_conversations")

@@ -436,7 +436,7 @@ const SEVERITY_RANK: Record<AlertSeverity, number> = {
 export function reconcileAlerts(
   existing: AlertRow[],
   candidates: AlertCandidate[],
-  nowIso: string,
+  _nowIso: string,
 ): MonitoringReconciliation {
   const byKey = new Map(existing.map((r) => [r.alert_key, r]));
   const candidateKeys = new Set(candidates.map((c) => c.alertKey));

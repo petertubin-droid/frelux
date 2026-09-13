@@ -149,6 +149,9 @@ export function usePaintingWeather(
     }
 
     fetchWeather();
+    // Intentional primitive deps: refetch only when location
+    // identity/coords change, not on object re-creation.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.id, location.lat, location.lon, location.name]);
 
   return data;

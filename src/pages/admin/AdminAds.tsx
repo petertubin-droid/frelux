@@ -758,15 +758,19 @@ function ImportModal({
 // Mirrors the AdSlot resolution rules so the admin can see, at a
 // glance, which active placements would render nothing.
 const GLOBAL_CREDENTIAL_PROVIDERS = [
-  "monetag", "adsterra", "ezoic", "snigel", "monumetric",
-  "carbon_ads", "ethical_ads", "amazon_publisher", "yllix",
+  "monetag",
+  "adsterra",
+  "ezoic",
+  "snigel",
+  "monumetric",
+  "carbon_ads",
+  "ethical_ads",
+  "amazon_publisher",
+  "yllix",
   "revcontent",
 ] as const;
 
-function getPlacementUnit(
-  pl: DbAdPlacement,
-  providerId: string,
-): string {
+function getPlacementUnit(pl: DbAdPlacement, providerId: string): string {
   const units = (pl.ad_unit_ids ?? {}) as Record<string, unknown>;
   const unit = units[providerId];
   return typeof unit === "string" ? unit.trim() : "";
@@ -785,13 +789,17 @@ function providerCanFill(pl: DbAdPlacement, prov: DbAdProvider): boolean {
   const creds = (prov.credentials ?? {}) as Record<string, unknown>;
   // Monetag in-slot display works through the Native Banner zone.
   if (prov.slug === "monetag")
-    return typeof creds.native_banner_zone_id === "string" &&
-      creds.native_banner_zone_id.trim().length > 0;
+    return (
+      typeof creds.native_banner_zone_id === "string" &&
+      creds.native_banner_zone_id.trim().length > 0
+    );
   // Adsterra banners render from the zone key; native needs the native key.
   if (prov.slug === "adsterra") {
     const key = typeof creds.key === "string" ? creds.key : "";
     const nativeKey =
-      typeof creds.native_banner_key === "string" ? creds.native_banner_key : "";
+      typeof creds.native_banner_key === "string"
+        ? creds.native_banner_key
+        : "";
     return key.trim().length > 0 || nativeKey.trim().length > 0;
   }
   return Object.values(creds).some(
@@ -818,10 +826,7 @@ function providersMissingUnit(
 }
 
 /** True when no provider in the placement's chain could render an ad. */
-function isDeadSlot(
-  pl: DbAdPlacement,
-  providers: DbAdProvider[],
-): boolean {
+function isDeadSlot(pl: DbAdPlacement, providers: DbAdProvider[]): boolean {
   if (!pl.is_active) return false;
   const chain = (pl.provider_ids as string[])
     .map((pid) => providers.find((p) => p.id === pid))
@@ -965,7 +970,10 @@ function PlacementsTab() {
           {placements.filter((p) => p.is_active).length} active
         </p>
         <div className="flex items-center gap-2">
-          <AdminButton variant="secondary" onClick={() => setShowMap((s) => !s)}>
+          <AdminButton
+            variant="secondary"
+            onClick={() => setShowMap((s) => !s)}
+          >
             <MapIcon className="h-4 w-4" /> {showMap ? "Hide" : "Page Map"}
           </AdminButton>
           <AdminButton
@@ -1121,7 +1129,7 @@ function PageMapPanel({
 
   // Build the markdown document for the whole site
   const md = Object.entries(PAGE_MAP)
-    .map(([mapKey, page]) => {
+    .map(([, page]) => {
       const lines = [`## ${page.title}`, ""];
       for (const s of page.sections) {
         if (!s.slot) {
@@ -1144,9 +1152,7 @@ function PageMapPanel({
 
   async function copyMarkdown() {
     try {
-      await navigator.clipboard.writeText(
-        `# FRELUX Ad Slot Map\n\n${md}\n`,
-      );
+      await navigator.clipboard.writeText(`# FRELUX Ad Slot Map\n\n${md}\n`);
       setCopied(true);
       setTimeout(() => setCopied(false), 1500);
     } catch {

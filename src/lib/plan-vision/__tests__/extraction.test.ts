@@ -6,7 +6,6 @@
 import { describe, it, expect } from "vitest";
 import { sanitizeExtractionResponse, shouldReextract } from "../extraction";
 import { explicitDimension } from "../dimensions";
-import { confirmElement } from "../review";
 import type { PlanExtraction } from "../types";
 
 const OPTS = {

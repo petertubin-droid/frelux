@@ -17,7 +17,7 @@
 // Classic AI search/inference, no external model anywhere.
 // =========================================================
 
-import type { Fact, FactPattern, Rule } from "./types.ts";
+import type { Fact, Rule } from "./types.ts";
 import { FactStore } from "./knowledge.ts";
 import { ReasoningEngine } from "./reasoning.ts";
 

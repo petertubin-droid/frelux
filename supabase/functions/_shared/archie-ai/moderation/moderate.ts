@@ -16,7 +16,6 @@
 // =========================================================
 
 import { classifySecurityMessage } from "../security/verdict.ts";
-import { understand } from "../native-engine/nlu.ts";
 
 export interface ModerationResult {
   action: "allow" | "flag" | "remove";
@@ -156,9 +155,18 @@ const RULES: ModerationRule[] = [
 // project discussion. These reduce the score toward allow, because
 // commerce chat must not be over-blocked.
 const SAFE_RULES: Array<{ rx: RegExp; relief: number }> = [
-  { rx: /\b(quote|quotation|estimate|invoice|budget|price|pricing|negotiate|discount)\b/i, relief: 0.2 },
-  { rx: /\b(schedule|appointment|monday|tuesday|wednesday|thursday|friday|saturday|site visit|inspection)\b/i, relief: 0.2 },
-  { rx: /\b(paint|painting|screed(ing|ing)|pop|tile|plaster|coats?|buckets?|rooms?|sqm|m2|finish)\b/i, relief: 0.2 },
+  {
+    rx: /\b(quote|quotation|estimate|invoice|budget|price|pricing|negotiate|discount)\b/i,
+    relief: 0.2,
+  },
+  {
+    rx: /\b(schedule|appointment|monday|tuesday|wednesday|thursday|friday|saturday|site visit|inspection)\b/i,
+    relief: 0.2,
+  },
+  {
+    rx: /\b(paint|painting|screed(ing|ing)|pop|tile|plaster|coats?|buckets?|rooms?|sqm|m2|finish)\b/i,
+    relief: 0.2,
+  },
 ];
 
 function clampScore(n: number): number {
@@ -187,8 +195,8 @@ export function moderateWithArchie(
     return {
       action: "remove",
       score: 1,
-      categories: ["security", verdict.label].filter(
-        (c): c is string => Boolean(c),
+      categories: ["security", verdict.label].filter((c): c is string =>
+        Boolean(c),
       ),
       reason: `ARCHIE security gate: ${verdict.reason}`,
     };
@@ -199,20 +207,14 @@ export function moderateWithArchie(
     if (rule.rx.test(text)) hits.push(rule);
   }
 
-  // 3. NLU — understand intent/entities to weigh evidence.
-  let nlu;
-  try {
-    nlu = understand(text);
-  } catch {
-    nlu = null; // NLU never blocks moderation
-  }
-
   if (hits.length === 0) {
     // No violation evidence. NLU-intent check for mixed signals
     // that pattern rules missed (long suspicious
     // credential-plus-urgency combos score a low-confidence flag).
-    const urgency = /\b(urgent|immediately|right now|now now|before (anyone|others) (see|hear))\b/i;
-    const credential = /\b(otp|pin|password|bvn|card details?|account details?)\b/i;
+    const urgency =
+      /\b(urgent|immediately|right now|now now|before (anyone|others) (see|hear))\b/i;
+    const credential =
+      /\b(otp|pin|password|bvn|card details?|account details?)\b/i;
     if (urgency.test(text) && credential.test(text)) {
       return {
         action: "flag",
@@ -234,7 +236,10 @@ export function moderateWithArchie(
   const byCategory = new Map<string, number>();
   for (const h of hits) {
     categories.add(h.category);
-    byCategory.set(h.category, Math.max(byCategory.get(h.category) ?? 0, h.weight));
+    byCategory.set(
+      h.category,
+      Math.max(byCategory.get(h.category) ?? 0, h.weight),
+    );
   }
   let score = 0;
   for (const w of byCategory.values()) score += w;
@@ -246,8 +251,12 @@ export function moderateWithArchie(
     (acc, s) => (s.rx.test(text) ? Math.max(acc, s.relief) : acc),
     0,
   );
-  if (relief > 0 && categories.size === 1 && !categories.has("hate_speech") &&
-      !categories.has("harassment")) {
+  if (
+    relief > 0 &&
+    categories.size === 1 &&
+    !categories.has("hate_speech") &&
+    !categories.has("harassment")
+  ) {
     // relief only applies when the ONLY evidence is a single
     // low-weight pattern (e.g. one soft "whatsapp me") in an
     // otherwise business message.
@@ -255,7 +264,10 @@ export function moderateWithArchie(
     if (maxW <= 0.7) score = clampScore(score - relief);
   }
 
-  const labels = hits.map((h) => h.label).slice(0, 4).join("; ");
+  const labels = hits
+    .map((h) => h.label)
+    .slice(0, 4)
+    .join("; ");
   const reason = `ARCHIE native moderation (${surface}): ${labels || "policy violation"}`;
 
   // Thresholds are applied by the caller (config-driven), but we

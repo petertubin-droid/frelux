@@ -6,7 +6,6 @@
 // UNTRUSTED until verified. It is stored as data, never executed,
 // never interpolated into prompts without this sanitization step.
 // =========================================================
-import type { ArchieIngestionPayload } from "./types";
 
 /** Max serialized payload size accepted by ingestion (bytes). */
 export const MAX_INGESTION_BYTES = 100_000;
@@ -133,9 +132,7 @@ export function hashContent(
  * Full payload validation + sanitization for ARCHIE ingestion.
  * Returns a clean record plus flags, or an error code.
  */
-export function validateArchiePayload(
-  raw: unknown,
-):
+export function validateArchiePayload(raw: unknown):
   | {
       ok: true;
       record: Omit<import("./types").LearningRecordInput, "created_by">;

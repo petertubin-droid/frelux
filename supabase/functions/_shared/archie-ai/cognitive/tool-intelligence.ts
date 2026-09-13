@@ -89,7 +89,7 @@ export class ToolIntelligenceEngine {
   private gated = 0;
 
   /** Select tools for a task by capability match. */
-  select(task: string, route: Partial<CognitiveRoute>): ToolSelection {
+  select(task: string, _route: Partial<CognitiveRoute>): ToolSelection {
     this.selections += 1;
     const lower = task.toLowerCase();
     const scored = TOOL_INVENTORY.map((tool) => ({

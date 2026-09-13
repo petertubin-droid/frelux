@@ -26,12 +26,7 @@
 // live only in edge-runtime env vars, server-side.
 // =========================================================
 
-import {
-  corsHeaders,
-  handleCors,
-  jsonResponse,
-  errorResponse,
-} from "../_shared/cors.ts";
+import { handleCors, jsonResponse, errorResponse } from "../_shared/cors.ts";
 import {
   ExecutionTarget,
   EngineDeps,

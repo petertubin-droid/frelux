@@ -59,21 +59,6 @@ async function count(
   }
 }
 
-async function singleRow(
-  db: AnatomyDb,
-  table: string,
-): Promise<Record<string, unknown> | null> {
-  try {
-    const res = db.from(table).select("*").single();
-    const out = await res;
-    return out.error || !out.data
-      ? null
-      : (out.data as Record<string, unknown>);
-  } catch {
-    return null;
-  }
-}
-
 /** Latest row by version — for append-only versioned tables. */
 async function latestRow(
   db: AnatomyDb,

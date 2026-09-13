@@ -57,7 +57,6 @@ import {
   saveContractorProjectLocation,
   syncProjectCurrencyFromRegional,
   resolveRegionalContext,
-  ProjectLocationProvider,
   type FreluxLocation,
 } from "@/lib/location-intelligence";
 import { dbProjectToConstructionProject } from "@/lib/construction-intelligence/project-adapter";

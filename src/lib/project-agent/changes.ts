@@ -112,9 +112,7 @@ function signedMoney(delta: number, market: string | null): string {
 
 /** The project's recorded market, from the compared snapshots. */
 function marketOf(ctx: DiffCtx): string | null {
-  return (
-    ctx.after.region.marketCode ?? ctx.after.region.countryCode ?? null
-  );
+  return ctx.after.region.marketCode ?? ctx.after.region.countryCode ?? null;
 }
 
 function evidence(
@@ -588,7 +586,6 @@ function diffCalculations(ctx: DiffCtx): void {
 }
 
 function diffRegion(ctx: DiffCtx): void {
-  const mkt = marketOf(ctx);
   const b = ctx.before.region;
   const a = ctx.after.region;
   const parts = (r: typeof a) =>

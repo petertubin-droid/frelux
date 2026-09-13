@@ -130,7 +130,7 @@ export default function AdminIntelligenceDashboard() {
           {tile("Learning candidates", candidates)}
         </div>
         <div className="grid gap-3 sm:grid-cols-3">
-          {tile("Pending verification", obs.filter((o) => true).length)}
+          {tile("Pending verification", obs.length)}
           {tile("Knowledge promoted (via review)", promoted)}
           {tile(
             "Reliability mix",

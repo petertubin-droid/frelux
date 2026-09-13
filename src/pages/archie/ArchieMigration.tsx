@@ -44,7 +44,6 @@ import { getOrCreateInstallation } from "@/lib/archie/migration/identity";
 import { authorizeOwnerChange } from "@/lib/archie/mobile/owner-authorization";
 import type {
   MigrationHistoryRecord,
-  MigrationPhase,
   MigrationProgress,
   PackageVerificationResult,
   RestoreMemoryMode,

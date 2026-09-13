@@ -100,25 +100,6 @@ function firstTag(html: string, tag: string): string | null {
   return m ? stripTags(m[1]) : null;
 }
 
-const CURRENCIES: Record<string, string> = {
-  "₦": "NGN",
-  ngn: "NGN",
-  usd: "USD",
-  us$: "USD",
-  usd$: "USD",
-  $: "USD",
-  "£": "GBP",
-  gbp: "GBP",
-  "€": "EUR",
-  eur: "EUR",
-  ksh: "KES",
-  kes: "KES",
-  "gh₵": "GHS",
-  ghs: "GHS",
-  zar: "ZAR",
-  r: "ZAR",
-};
-
 export interface PriceHit {
   amount: number;
   currency: string | null;

@@ -220,7 +220,6 @@ describe("batch10 engine temporal handlers (audit HIGH-1)", () => {
   });
 
   it("the forensic misroute is FIXED: compound temporal claim no longer degrades to smalltalk", async () => {
-    const e = new ArchieNativeEngine();
     const u = understand(
       "the site was muddy last week and now it is dry. how did the site change over time?",
     );

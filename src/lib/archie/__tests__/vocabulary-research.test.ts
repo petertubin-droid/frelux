@@ -7,7 +7,6 @@ import {
   type MeaningResearchReport,
 } from "@studio-shared/archie-ai/knowledge/vocabulary-research.ts";
 import { ArchieNativeEngine } from "@studio-shared/archie-ai/native-engine/engine.ts";
-import { SupabasePersistence } from "@studio-shared/archie-ai/native-engine/persistence.ts";
 
 /** Fake multi-site fetch: dictionaryapi + wiktionary know the
  *  term, DDG does, Wikipedia 404s, everything else fails. */
@@ -21,7 +20,9 @@ function fakeFoundFetch(term: string): FetchLike {
               meanings: [
                 {
                   definitions: [
-                    { definition: `${term} is a sacred weed of the deep desert. It grows tall.` },
+                    {
+                      definition: `${term} is a sacred weed of the deep desert. It grows tall.`,
+                    },
                   ],
                 },
               ],
@@ -35,7 +36,13 @@ function fakeFoundFetch(term: string): FetchLike {
       return Promise.resolve(
         new Response(
           JSON.stringify({
-            en: [{ definitions: [{ definition: "<b>a sacred weed</b> of the deep desert." }] }],
+            en: [
+              {
+                definitions: [
+                  { definition: "<b>a sacred weed</b> of the deep desert." },
+                ],
+              },
+            ],
           }),
           { status: 200 },
         ),
@@ -43,7 +50,10 @@ function fakeFoundFetch(term: string): FetchLike {
     }
     if (url.includes("duckduckgo.com")) {
       return Promise.resolve(
-        new Response(JSON.stringify({ Definition: "A sacred desert weed of legend." }), { status: 200 }),
+        new Response(
+          JSON.stringify({ Definition: "A sacred desert weed of legend." }),
+          { status: 200 },
+        ),
       );
     }
     if (url.includes("wikipedia.org")) {
@@ -55,15 +65,23 @@ function fakeFoundFetch(term: string): FetchLike {
 
 describe("meaning research across multiple sites", () => {
   it("extracts the term from explicit and anaphoric requests", () => {
-    expect(extractMeaningResearchRequest("research what kwisatz means")).toBe("kwisatz");
-    expect(extractMeaningResearchRequest("look up the word janded")).toBe("janded");
-    expect(extractMeaningResearchRequest("research the phrase no wahala")).toBe("no wahala");
+    expect(extractMeaningResearchRequest("research what kwisatz means")).toBe(
+      "kwisatz",
+    );
+    expect(extractMeaningResearchRequest("look up the word janded")).toBe(
+      "janded",
+    );
+    expect(extractMeaningResearchRequest("research the phrase no wahala")).toBe(
+      "no wahala",
+    );
     // bare "research it" resolves the last definition question
     const history = [
       { role: "owner", parts: [{ text: "what does kwisatz mean" }] },
       { role: "agent", parts: [{ text: "I have not learned it yet." }] },
     ];
-    expect(extractMeaningResearchRequest("research it", history)).toBe("kwisatz");
+    expect(extractMeaningResearchRequest("research it", history)).toBe(
+      "kwisatz",
+    );
     // session-memory shape (role + text) also resolves
     expect(
       extractMeaningResearchRequest("research it", [
@@ -71,11 +89,16 @@ describe("meaning research across multiple sites", () => {
       ]),
     ).toBe("blorptastic");
     expect(extractMeaningResearchRequest("research it")).toBeNull();
-    expect(extractMeaningResearchRequest("research cement prices in lagos")).toBeNull();
+    expect(
+      extractMeaningResearchRequest("research cement prices in lagos"),
+    ).toBeNull();
   });
 
   it("researches a term across all sites and cross-checks", async () => {
-    const report = await researchTermMeaning("kwisatz", fakeFoundFetch("kwisatz"));
+    const report = await researchTermMeaning(
+      "kwisatz",
+      fakeFoundFetch("kwisatz"),
+    );
     expect(report.meaning).toContain("sacred weed");
     // dictionary-quality source wins
     expect(report.domains).toContain("dictionaryapi.dev");
@@ -91,12 +114,17 @@ describe("meaning research across multiple sites", () => {
     const single = (url: string) =>
       url.includes("duckduckgo.com")
         ? Promise.resolve(
-            new Response(JSON.stringify({ Definition: "A thing of legend." }), { status: 200 }),
+            new Response(JSON.stringify({ Definition: "A thing of legend." }), {
+              status: 200,
+            }),
           )
         : Promise.resolve(new Response("{}", { status: 404 }));
     const one = await researchTermMeaning("xyzzy", single as FetchLike);
     expect(one.confidence).toBe(0.4);
-    const none = await researchTermMeaning("qqqqzz", (async () => new Response("{}", { status: 404 })) as FetchLike);
+    const none = await researchTermMeaning(
+      "qqqqzz",
+      (async () => new Response("{}", { status: 404 })) as FetchLike,
+    );
     expect(none.meaning).toBeNull();
     expect(none.note).toContain("nothing stored");
   });
@@ -106,9 +134,11 @@ describe("meaning research across multiple sites", () => {
     const stub = {
       from: () => ({
         select: () => ({
-          then: (r: (v: unknown) => unknown) => Promise.resolve(r({ data: [], error: null })),
+          then: (r: (v: unknown) => unknown) =>
+            Promise.resolve(r({ data: [], error: null })),
           range: () => ({
-            then: (r: (v: unknown) => unknown) => Promise.resolve(r({ data: [], error: null })),
+            then: (r: (v: unknown) => unknown) =>
+              Promise.resolve(r({ data: [], error: null })),
           }),
         }),
         insert: () => ({ error: null }),
@@ -132,7 +162,9 @@ describe("meaning research across multiple sites", () => {
     const row = upserts[0] as Record<string, unknown>;
     expect(row.source).toBe("research");
     expect(row.confidence).toBe(0.6);
-    expect(String(row.provenance)).toContain("researched from dictionaryapi.dev");
+    expect(String(row.provenance)).toContain(
+      "researched from dictionaryapi.dev",
+    );
     expect(String(row.provenance)).toContain("wiktionary.org");
   });
 
@@ -141,9 +173,11 @@ describe("meaning research across multiple sites", () => {
     const stub = {
       from: () => ({
         select: () => ({
-          then: (r: (v: unknown) => unknown) => Promise.resolve(r({ data: [], error: null })),
+          then: (r: (v: unknown) => unknown) =>
+            Promise.resolve(r({ data: [], error: null })),
           range: () => ({
-            then: (r: (v: unknown) => unknown) => Promise.resolve(r({ data: [], error: null })),
+            then: (r: (v: unknown) => unknown) =>
+              Promise.resolve(r({ data: [], error: null })),
           }),
         }),
         insert: () => ({ error: null }),
@@ -157,10 +191,34 @@ describe("meaning research across multiple sites", () => {
     const report: MeaningResearchReport = {
       term: "kwisatz",
       results: [
-        { site: "Free Dictionary API", domain: "dictionaryapi.dev", meaning: "a sacred weed", note: "found", failure: false },
-        { site: "Wiktionary", domain: "wiktionary.org", meaning: "a sacred weed", note: "found", failure: false },
-        { site: "DuckDuckGo Instant Answers", domain: "duckduckgo.com", meaning: null, note: "no instant answer for this term", failure: false },
-        { site: "Wikipedia", domain: "wikipedia.org", meaning: null, note: "http 404", failure: true },
+        {
+          site: "Free Dictionary API",
+          domain: "dictionaryapi.dev",
+          meaning: "a sacred weed",
+          note: "found",
+          failure: false,
+        },
+        {
+          site: "Wiktionary",
+          domain: "wiktionary.org",
+          meaning: "a sacred weed",
+          note: "found",
+          failure: false,
+        },
+        {
+          site: "DuckDuckGo Instant Answers",
+          domain: "duckduckgo.com",
+          meaning: null,
+          note: "no instant answer for this term",
+          failure: false,
+        },
+        {
+          site: "Wikipedia",
+          domain: "wikipedia.org",
+          meaning: null,
+          note: "http 404",
+          failure: true,
+        },
       ],
       meaning: "a sacred weed",
       confidence: 0.6,
@@ -172,11 +230,15 @@ describe("meaning research across multiple sites", () => {
       meaningResearch: async () => report,
     });
     const res = await engine.generate({
-      turns: [{ role: "owner", parts: [{ text: "research what kwisatz means" }] }],
+      turns: [
+        { role: "owner", parts: [{ text: "research what kwisatz means" }] },
+      ],
       tools: [],
       systemInstruction: "",
     });
-    const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+    const reply =
+      ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ??
+      "";
     expect(reply).toContain("Researched");
     expect(reply).toContain("Free Dictionary API");
     expect(reply).toContain("could not reach");
@@ -217,9 +279,27 @@ describe("meaning research across multiple sites", () => {
     it("lists researched, owner-taught and seen-without-meaning items", async () => {
       const engine = new ArchieNativeEngine({
         persistence: reviewDb([
-          { term: "obstreperous", meaning: "loud and noisy", source: "research", confidence: 0.4, times_seen: 1 },
-          { term: "kwisatz", meaning: "sacred weed", source: "owner_taught", confidence: 0.9, times_seen: 2 },
-          { term: "janded", meaning: null, source: "conversation", confidence: null, times_seen: 3 },
+          {
+            term: "obstreperous",
+            meaning: "loud and noisy",
+            source: "research",
+            confidence: 0.4,
+            times_seen: 1,
+          },
+          {
+            term: "kwisatz",
+            meaning: "sacred weed",
+            source: "owner_taught",
+            confidence: 0.9,
+            times_seen: 2,
+          },
+          {
+            term: "janded",
+            meaning: null,
+            source: "conversation",
+            confidence: null,
+            times_seen: 3,
+          },
         ]),
       });
       const res = await engine.generate({
@@ -227,7 +307,9 @@ describe("meaning research across multiple sites", () => {
         tools: [],
         systemInstruction: "",
       });
-      const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+      const reply =
+        ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ??
+        "";
       expect(reply).toContain("3 auto-learned item(s)");
       expect(reply).toContain("RESEARCHED");
       expect(reply).toContain("obstreperous (40%): loud and noisy");
@@ -235,7 +317,9 @@ describe("meaning research across multiple sites", () => {
       expect(reply).toContain("kwisatz (90%): sacred weed");
       expect(reply).toContain("SEEN, NO MEANING YET");
       expect(reply).toContain("janded (seen 3 time(s))");
-      expect(reply).toContain('overwrites research with your owner-taught definition');
+      expect(reply).toContain(
+        "overwrites research with your owner-taught definition",
+      );
     });
 
     it("reports an honest empty registry", async () => {
@@ -243,22 +327,30 @@ describe("meaning research across multiple sites", () => {
         persistence: reviewDb([]),
       });
       const res = await engine.generate({
-        turns: [{ role: "owner", parts: [{ text: "what words have you learned" }] }],
+        turns: [
+          { role: "owner", parts: [{ text: "what words have you learned" }] },
+        ],
         tools: [],
         systemInstruction: "",
       });
-      const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+      const reply =
+        ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ??
+        "";
       expect(reply).toContain("Nothing auto-learned yet");
     });
 
     it("without persistence the review says so honestly", async () => {
       const engine = new ArchieNativeEngine({ persistence: null });
       const res = await engine.generate({
-        turns: [{ role: "owner", parts: [{ text: "show me your vocabulary" }] }],
+        turns: [
+          { role: "owner", parts: [{ text: "show me your vocabulary" }] },
+        ],
         tools: [],
         systemInstruction: "",
       });
-      const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+      const reply =
+        ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ??
+        "";
       expect(reply).toContain("not wired for this session");
     });
   });
@@ -269,9 +361,11 @@ describe("meaning research across multiple sites", () => {
       const db = {
         from: () => ({
           select: () => ({
-            then: (r: (v: unknown) => unknown) => Promise.resolve(r({ data: [], error: null })),
+            then: (r: (v: unknown) => unknown) =>
+              Promise.resolve(r({ data: [], error: null })),
             range: () => ({
-              then: (r: (v: unknown) => unknown) => Promise.resolve(r({ data: [], error: null })),
+              then: (r: (v: unknown) => unknown) =>
+                Promise.resolve(r({ data: [], error: null })),
             }),
           }),
           insert: () => ({ error: null }),
@@ -287,8 +381,20 @@ describe("meaning research across multiple sites", () => {
     const foundReport = (term: string): MeaningResearchReport => ({
       term,
       results: [
-        { site: "Wiktionary", domain: "wiktionary.org", meaning: "a flomming widget", note: "found", failure: false },
-        { site: "DuckDuckGo Instant Answers", domain: "duckduckgo.com", meaning: "a widget", note: "found", failure: false },
+        {
+          site: "Wiktionary",
+          domain: "wiktionary.org",
+          meaning: "a flomming widget",
+          note: "found",
+          failure: false,
+        },
+        {
+          site: "DuckDuckGo Instant Answers",
+          domain: "duckduckgo.com",
+          meaning: "a widget",
+          note: "found",
+          failure: false,
+        },
       ],
       meaning: "a flomming widget",
       confidence: 0.6,
@@ -307,11 +413,16 @@ describe("meaning research across multiple sites", () => {
         tools: [],
         systemInstruction: "",
       });
-      const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+      const reply =
+        ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ??
+        "";
       expect(reply).toContain("qwertyz means: a flomming widget");
       expect(reply).toContain("researched from wiktionary.org, duckduckgo.com");
       expect(reply).toContain("not owner-taught");
-      const row = upserts.find((r) => r.term_key === "qwertyz") as Record<string, unknown>;
+      const row = upserts.find((r) => r.term_key === "qwertyz") as Record<
+        string,
+        unknown
+      >;
       expect(row.source).toBe("research");
       expect(row.confidence).toBe(0.6);
     });
@@ -323,8 +434,20 @@ describe("meaning research across multiple sites", () => {
         meaningResearch: async (t) => ({
           term: t,
           results: [
-            { site: "Free Dictionary API", domain: "dictionaryapi.dev", meaning: null, note: "not found in this dictionary", failure: false },
-            { site: "Wikipedia", domain: "wikipedia.org", meaning: null, note: "http 404", failure: true },
+            {
+              site: "Free Dictionary API",
+              domain: "dictionaryapi.dev",
+              meaning: null,
+              note: "not found in this dictionary",
+              failure: false,
+            },
+            {
+              site: "Wikipedia",
+              domain: "wikipedia.org",
+              meaning: null,
+              note: "http 404",
+              failure: true,
+            },
           ],
           meaning: null,
           confidence: 0,
@@ -337,10 +460,14 @@ describe("meaning research across multiple sites", () => {
         tools: [],
         systemInstruction: "",
       });
-      const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+      const reply =
+        ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ??
+        "";
       expect(reply).toContain("no meaning for it");
       expect(reply).toContain("Genuinely missing: Free Dictionary API");
-      expect(reply).toContain("Could not reach (honest, not hidden): Wikipedia (http 404)");
+      expect(reply).toContain(
+        "Could not reach (honest, not hidden): Wikipedia (http 404)",
+      );
       expect(reply).toContain("I will not invent a definition");
       expect(upserts.filter((r) => r.term_key === "zzzqqq")).toHaveLength(0);
     });
@@ -352,11 +479,15 @@ describe("meaning research across multiple sites", () => {
         meaningResearch: async (t) => foundReport(t),
       });
       const res = await engine.generate({
-        turns: [{ role: "owner", parts: [{ text: "what does flombulate mean" }] }],
+        turns: [
+          { role: "owner", parts: [{ text: "what does flombulate mean" }] },
+        ],
         tools: [],
         systemInstruction: "",
       });
-      const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+      const reply =
+        ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ??
+        "";
       expect(reply).toContain("Sites say flombulate means");
       expect(reply).toContain("could NOT store it in the registry");
     });
@@ -371,13 +502,17 @@ describe("meaning research across multiple sites", () => {
         },
       });
       const res = await engine.generate({
-        turns: [{ role: "owner", parts: [{ text: "what does nothingburger mean" }] }],
+        turns: [
+          { role: "owner", parts: [{ text: "what does nothingburger mean" }] },
+        ],
         tools: [],
         systemInstruction: "",
       });
-      const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+      const reply =
+        ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ??
+        "";
       expect(called).toBe(0);
-      expect(reply).toContain("I have not learned \"nothingburger\" yet");
+      expect(reply).toContain('I have not learned "nothingburger" yet');
       expect(reply).toContain("ask me to research it");
     });
   });
@@ -390,9 +525,11 @@ describe("meaning research across multiple sites", () => {
     const stub = {
       from: () => ({
         select: () => ({
-          then: (r: (v: unknown) => unknown) => Promise.resolve(r({ data: [], error: null })),
+          then: (r: (v: unknown) => unknown) =>
+            Promise.resolve(r({ data: [], error: null })),
           range: () => ({
-            then: (r: (v: unknown) => unknown) => Promise.resolve(r({ data: [], error: null })),
+            then: (r: (v: unknown) => unknown) =>
+              Promise.resolve(r({ data: [], error: null })),
           }),
         }),
         insert: () => ({ error: null }),
@@ -411,7 +548,13 @@ describe("meaning research across multiple sites", () => {
         return {
           term,
           results: [
-            { site: "DuckDuckGo Instant Answers", domain: "duckduckgo.com", meaning: "a test word", note: "found", failure: false },
+            {
+              site: "DuckDuckGo Instant Answers",
+              domain: "duckduckgo.com",
+              meaning: "a test word",
+              note: "found",
+              failure: false,
+            },
           ],
           meaning: "a test word",
           confidence: 0.4,
@@ -425,14 +568,20 @@ describe("meaning research across multiple sites", () => {
         { role: "owner", parts: [{ text: "what does blorptastic mean" }] },
         {
           role: "archie",
-          parts: [{ text: "I have not learned it yet — teach me or ask me to research it." }],
+          parts: [
+            {
+              text: "I have not learned it yet — teach me or ask me to research it.",
+            },
+          ],
         },
         { role: "owner", parts: [{ text: "research it" }] },
       ],
       tools: [],
       systemInstruction: "",
     });
-    const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+    const reply =
+      ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ??
+      "";
     expect(askedTerm).toBe("blorptastic");
     expect(reply).toContain("Researched");
     expect(reply).toContain("Meaning kept");

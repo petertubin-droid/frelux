@@ -168,7 +168,6 @@ import {
   extractProduct,
   extractPrices,
   extractionConfidence,
-  stripTags,
 } from "../../../../../supabase/functions/intel-crawl/extraction.ts";
 import { computePriceStats, regionalPriceComparison } from "../price-stats";
 import {

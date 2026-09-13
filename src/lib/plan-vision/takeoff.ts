@@ -22,7 +22,6 @@
 
 import type { ExtractedRoom, PlanExtraction } from "./types";
 import { dimensionToMeters, isUnknown } from "./dimensions";
-import { isRoomVerified } from "./review";
 import type { Space } from "@/lib/measurement/space-engine";
 import type { EngineResult } from "@/lib/ai-foundation/types";
 

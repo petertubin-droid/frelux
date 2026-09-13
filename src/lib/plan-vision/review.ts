@@ -55,7 +55,7 @@ function stamped<T extends ExtractedElementBase>(
 /** User started reviewing an element. */
 export function startReview<T extends ExtractedElementBase>(
   el: T,
-  now = new Date().toISOString(),
+  _now = new Date().toISOString(),
 ): T {
   if (el.reviewStatus !== "ai_extracted") return el;
   return { ...el, reviewStatus: "in_review" };

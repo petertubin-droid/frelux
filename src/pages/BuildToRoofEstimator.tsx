@@ -10,7 +10,6 @@ import {
   ChevronLeft,
   Calculator,
   Upload,
-  FileText,
   CheckCircle2,
   AlertTriangle,
   Info,
@@ -412,12 +411,30 @@ export default function BuildToRoofEstimator() {
           const factor = 1 / 0.3048;
           normalized = {
             ...patch,
-            building_length: patch.building_length !== undefined ? patch.building_length * factor : undefined,
-            building_width: patch.building_width !== undefined ? patch.building_width * factor : undefined,
-            floor_to_floor_height: patch.floor_to_floor_height !== undefined ? patch.floor_to_floor_height * factor : undefined,
-            wall_thickness: patch.wall_thickness !== undefined ? patch.wall_thickness * factor : undefined,
-            internal_wall_length: patch.internal_wall_length !== undefined ? patch.internal_wall_length * factor : undefined,
-            roof_overhang: patch.roof_overhang !== undefined ? patch.roof_overhang * factor : undefined,
+            building_length:
+              patch.building_length !== undefined
+                ? patch.building_length * factor
+                : undefined,
+            building_width:
+              patch.building_width !== undefined
+                ? patch.building_width * factor
+                : undefined,
+            floor_to_floor_height:
+              patch.floor_to_floor_height !== undefined
+                ? patch.floor_to_floor_height * factor
+                : undefined,
+            wall_thickness:
+              patch.wall_thickness !== undefined
+                ? patch.wall_thickness * factor
+                : undefined,
+            internal_wall_length:
+              patch.internal_wall_length !== undefined
+                ? patch.internal_wall_length * factor
+                : undefined,
+            roof_overhang:
+              patch.roof_overhang !== undefined
+                ? patch.roof_overhang * factor
+                : undefined,
             openings: patch.openings?.map((o) => ({
               ...o,
               width: o.width * factor,
@@ -945,9 +962,9 @@ export default function BuildToRoofEstimator() {
                       <div className="col-span-full -mt-2 mb-2 rounded-lg bg-blue-50 border border-blue-100 p-2.5">
                         <p className="text-xs text-blue-600">
                           <strong>Nigerian block sizes:</strong> 9-inch (hollow)
-                         , foundations &amp; external load-bearing walls ·
-                          6-inch (hollow or solid), internal partitions ·
-                          5-inch (solid only), non-load-bearing partitions
+                          , foundations &amp; external load-bearing walls ·
+                          6-inch (hollow or solid), internal partitions · 5-inch
+                          (solid only), non-load-bearing partitions
                         </p>
                       </div>
                       <div className="grid md:grid-cols-4 gap-4">
@@ -2064,8 +2081,8 @@ export default function BuildToRoofEstimator() {
                         <span className="text-sm text-emerald-700 dark:text-emerald-300">
                           {extractionApplied} confirmed value
                           {extractionApplied === 1 ? "" : "s"} added to your
-                          estimate. Review and adjust them in the next steps,
-                          or calculate now.
+                          estimate. Review and adjust them in the next steps, or
+                          calculate now.
                         </span>
                       </div>
                     )}
@@ -2103,33 +2120,35 @@ export default function BuildToRoofEstimator() {
                   </Button>
                 ) : step === STEPS.length - 2 ? (
                   <>
-                  {validationErrors.length > 0 && (
-                    <div className="absolute bottom-full right-0 mb-3 w-72 rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 p-3 shadow-lg">
-                      <p className="text-xs font-semibold text-red-700 dark:text-red-300 mb-1">
-                        Please fix these before calculating:
-                      </p>
-                      <ul className="text-xs text-red-600 dark:text-red-400 space-y-0.5 list-disc list-inside">
-                        {validationErrors.slice(0, 4).map((e) => (
-                          <li key={e}>{e}</li>
-                        ))}
-                        {validationErrors.length > 4 && (
-                          <li>
-                            …and {validationErrors.length - 4} more (see the
-                            earlier steps)
-                          </li>
-                        )}
-                      </ul>
-                    </div>
-                  )}
-                  <Button
-                    variant="ghost"
-                    onClick={calculate}
-                    className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-accent-green to-green-600 px-5 sm:px-6 py-2.5 sm:py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-accent-green/20 hover:shadow-xl hover:shadow-accent-green/30 transition-all active:scale-95 animate-progress-glow"
-                  >
-                    <Calculator aria-hidden="true" className="w-4 h-4" />
-                    <span className="hidden sm:inline">Generate Estimate</span>
-                    <span className="sm:hidden">Calculate</span>
-                  </Button>
+                    {validationErrors.length > 0 && (
+                      <div className="absolute bottom-full right-0 mb-3 w-72 rounded-xl border border-red-200 dark:border-red-900/60 bg-red-50 dark:bg-red-950/40 p-3 shadow-lg">
+                        <p className="text-xs font-semibold text-red-700 dark:text-red-300 mb-1">
+                          Please fix these before calculating:
+                        </p>
+                        <ul className="text-xs text-red-600 dark:text-red-400 space-y-0.5 list-disc list-inside">
+                          {validationErrors.slice(0, 4).map((e) => (
+                            <li key={e}>{e}</li>
+                          ))}
+                          {validationErrors.length > 4 && (
+                            <li>
+                              …and {validationErrors.length - 4} more (see the
+                              earlier steps)
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    )}
+                    <Button
+                      variant="ghost"
+                      onClick={calculate}
+                      className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-accent-green to-green-600 px-5 sm:px-6 py-2.5 sm:py-3 text-sm font-bold text-primary-foreground shadow-lg shadow-accent-green/20 hover:shadow-xl hover:shadow-accent-green/30 transition-all active:scale-95 animate-progress-glow"
+                    >
+                      <Calculator aria-hidden="true" className="w-4 h-4" />
+                      <span className="hidden sm:inline">
+                        Generate Estimate
+                      </span>
+                      <span className="sm:hidden">Calculate</span>
+                    </Button>
                   </>
                 ) : null}
               </div>

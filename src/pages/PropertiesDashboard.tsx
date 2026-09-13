@@ -176,7 +176,8 @@ export default function PropertiesDashboard() {
             ...s,
             authChecked: true,
             loadState: "error",
-            loadError: "Could not verify your session. Please refresh the page.",
+            loadError:
+              "Could not verify your session. Please refresh the page.",
           }));
       });
     return () => {
@@ -203,7 +204,10 @@ export default function PropertiesDashboard() {
   const handleDelete = useCallback(
     async (propertyId: string) => {
       if (!state.userId) return;
-      if (!window.confirm("Delete this property profile? This cannot be undone.")) return;
+      if (
+        !window.confirm("Delete this property profile? This cannot be undone.")
+      )
+        return;
       const outcome = await deleteProperty(state.userId, propertyId);
       if (!outcome.ok) {
         setActionError(outcome.error);
@@ -277,7 +281,10 @@ export default function PropertiesDashboard() {
           <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
             {state.loadError}
           </p>
-          <Button className="mt-6" onClick={() => state.userId && refresh(state.userId)}>
+          <Button
+            className="mt-6"
+            onClick={() => state.userId && refresh(state.userId)}
+          >
             Try again
           </Button>
         </div>
@@ -286,13 +293,16 @@ export default function PropertiesDashboard() {
   }
 
   const selected =
-    state.properties.find((p) => p.id === selectedId) ?? state.properties[0] ?? null;
+    state.properties.find((p) => p.id === selectedId) ??
+    state.properties[0] ??
+    null;
 
   const totalCritical = state.properties.reduce(
     (n, p) =>
       n +
-      evaluatePropertyRisks({ profile: p }).filter((f) => f.severity === "critical")
-        .length,
+      evaluatePropertyRisks({ profile: p }).filter(
+        (f) => f.severity === "critical",
+      ).length,
     0,
   );
 
@@ -336,7 +346,9 @@ export default function PropertiesDashboard() {
         <StatTile
           label="Data sources"
           value={new Set(
-            state.properties.flatMap((p) => [p.provenance?.source ?? "User input"]),
+            state.properties.flatMap((p) => [
+              p.provenance?.source ?? "User input",
+            ]),
           ).size.toLocaleString()}
           hint="Distinct provenance"
           icon={ShieldCheck}
@@ -467,7 +479,8 @@ function PropertyCard({
   active: boolean;
   onSelect: () => void;
 }) {
-  const TypeIcon = PROPERTY_TYPE_ICONS[profile.propertyType ?? "other"] ?? Warehouse;
+  const TypeIcon =
+    PROPERTY_TYPE_ICONS[profile.propertyType ?? "other"] ?? Warehouse;
   const critical = evaluatePropertyRisks({ profile }).filter(
     (f) => f.severity === "critical",
   ).length;
@@ -503,7 +516,10 @@ function PropertyCard({
             title={`${critical} critical flag${critical > 1 ? "s" : ""}`}
             className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-destructive/10"
           >
-            <AlertTriangle className="h-3.5 w-3.5 text-destructive" aria-hidden />
+            <AlertTriangle
+              className="h-3.5 w-3.5 text-destructive"
+              aria-hidden
+            />
           </span>
         )}
       </div>
@@ -591,7 +607,8 @@ function PropertyDetail({
             label="Property type"
             value={
               profile.propertyType
-                ? PROPERTY_TYPE_LABELS[profile.propertyType] ?? profile.propertyType
+                ? (PROPERTY_TYPE_LABELS[profile.propertyType] ??
+                  profile.propertyType)
                 : "Not provided"
             }
           />
@@ -643,7 +660,9 @@ function PropertyDetail({
 
       {/* Data confidence */}
       <div className="rounded-2xl border border-border/40 bg-card p-5 shadow-premium sm:p-7">
-        <h3 className="font-heading text-base font-semibold">Data confidence</h3>
+        <h3 className="font-heading text-base font-semibold">
+          Data confidence
+        </h3>
         {profile.provenance ? (
           <div className="mt-3 flex flex-wrap items-center gap-2">
             <span className="rounded-md bg-muted px-2.5 py-1 text-xs font-medium">
@@ -711,12 +730,17 @@ function PropertyDetail({
                     {isCritical || isWarning ? (
                       <AlertTriangle
                         className={`h-4 w-4 shrink-0 ${
-                          isCritical ? "text-destructive" : "text-amber-600 dark:text-amber-400"
+                          isCritical
+                            ? "text-destructive"
+                            : "text-amber-600 dark:text-amber-400"
                         }`}
                         aria-hidden
                       />
                     ) : (
-                      <Info className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+                      <Info
+                        className="h-4 w-4 shrink-0 text-muted-foreground"
+                        aria-hidden
+                      />
                     )}
                     <p className="text-sm font-medium">{flag.title}</p>
                   </div>
@@ -779,18 +803,6 @@ function DetailRow({
 // Editor (create & edit)
 // =========================================================
 
-interface EditorInput {
-  name?: string;
-  address?: string;
-  country?: string;
-  region?: string;
-  city?: string;
-  propertyType?: PropertyType;
-  numberOfFloors?: number;
-  land?: { size: number; unit: string };
-  constructionStatus?: ConstructionStatus;
-}
-
 const PROPERTY_TYPES = Object.keys(PROPERTY_TYPE_LABELS) as PropertyType[];
 const LAND_UNITS = ["m²", "sq ft", "hectares", "acres", "plots"];
 
@@ -811,8 +823,11 @@ function PropertyEditor({
     city: initial?.location.city ?? "",
     propertyType: initial?.propertyType ?? "",
     numberOfFloors:
-      initial?.numberOfFloors !== undefined ? String(initial.numberOfFloors) : "",
-    landSize: initial?.land?.size !== undefined ? String(initial.land.size) : "",
+      initial?.numberOfFloors !== undefined
+        ? String(initial.numberOfFloors)
+        : "",
+    landSize:
+      initial?.land?.size !== undefined ? String(initial.land.size) : "",
     landUnit: initial?.land?.unit ?? "m²",
     constructionStatus: initial?.constructionStatus ?? "",
   });
@@ -821,26 +836,27 @@ function PropertyEditor({
   // Canonical location staged by LocationCard (GPS / search / manual).
   // Persists with the property only on submit, one canonical record,
   // the text fields below are just its editable projection.
-  const [capturedLocation, setCapturedLocation] = useState<FreluxLocation | null>(
-    // Hydrate from the existing properties row (reload persistence) :
-    // only when the row actually carries some location data.
-    initial &&
-      (initial.location.coordinates ||
-        initial.location.country ||
-        initial.location.city ||
-        initial.location.address ||
-        initial.location.region)
-      ? locationFromPropertyRow({
-          lat: initial.location.coordinates?.lat ?? null,
-          lng: initial.location.coordinates?.lng ?? null,
-          address: initial.location.address ?? null,
-          country: initial.location.country ?? null,
-          region: initial.location.region ?? null,
-          city: initial.location.city ?? null,
-          district: initial.location.district ?? null,
-        })
-      : null,
-  );
+  const [capturedLocation, setCapturedLocation] =
+    useState<FreluxLocation | null>(
+      // Hydrate from the existing properties row (reload persistence) :
+      // only when the row actually carries some location data.
+      initial &&
+        (initial.location.coordinates ||
+          initial.location.country ||
+          initial.location.city ||
+          initial.location.address ||
+          initial.location.region)
+        ? locationFromPropertyRow({
+            lat: initial.location.coordinates?.lat ?? null,
+            lng: initial.location.coordinates?.lng ?? null,
+            address: initial.location.address ?? null,
+            country: initial.location.country ?? null,
+            region: initial.location.region ?? null,
+            city: initial.location.city ?? null,
+            district: initial.location.district ?? null,
+          })
+        : null,
+    );
 
   const set =
     (key: keyof typeof form) =>
@@ -871,7 +887,8 @@ function PropertyEditor({
     if (floors && (!Number.isInteger(Number(floors)) || Number(floors) <= 0))
       errs.numberOfFloors = "Floors must be a whole number greater than zero.";
     const size = form.landSize.trim();
-    if (size && Number(size) <= 0) errs.landSize = "Land size must be greater than zero.";
+    if (size && Number(size) <= 0)
+      errs.landSize = "Land size must be greater than zero.";
     if (size && !Number.isFinite(Number(size)))
       errs.landSize = "Enter a valid number.";
     setErrors(errs);
@@ -899,7 +916,9 @@ function PropertyEditor({
       },
       propertyType: form.propertyType as PropertyType, // "" clears in the mapper
       numberOfFloors: floors ? Number(floors) : 0, // 0 clears in the mapper
-      land: size ? { size: Number(size), unit: form.landUnit } : { size: 0, unit: "" },
+      land: size
+        ? { size: Number(size), unit: form.landUnit }
+        : { size: 0, unit: "" },
       constructionStatus: form.constructionStatus as ConstructionStatus,
       provenance: {
         source: "User input",
@@ -995,7 +1014,9 @@ function PropertyEditor({
                 aria-invalid={Boolean(errors.country)}
               />
               {errors.country && (
-                <p className="mt-1 text-xs text-destructive">{errors.country}</p>
+                <p className="mt-1 text-xs text-destructive">
+                  {errors.country}
+                </p>
               )}
             </div>
             <div>
@@ -1077,7 +1098,9 @@ function PropertyEditor({
                 aria-invalid={Boolean(errors.landSize)}
               />
               {errors.landSize && (
-                <p className="mt-1 text-xs text-destructive">{errors.landSize}</p>
+                <p className="mt-1 text-xs text-destructive">
+                  {errors.landSize}
+                </p>
               )}
             </div>
             <div>

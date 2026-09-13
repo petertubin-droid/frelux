@@ -28,21 +28,6 @@ import {
   type Binding,
 } from "./unify.ts";
 
-function matches(fact: Fact, pattern: FactPattern): boolean {
-  if (pattern.subject !== undefined && pattern.subject !== fact.subject) {
-    return false;
-  }
-  if (pattern.predicate !== undefined && pattern.predicate !== fact.predicate) {
-    return false;
-  }
-  if (pattern.object !== undefined) {
-    if (JSON.stringify(pattern.object) !== JSON.stringify(fact.object)) {
-      return false;
-    }
-  }
-  return true;
-}
-
 export interface InferenceResult {
   derived: Fact[];
   explanations: InferenceExplanation[];

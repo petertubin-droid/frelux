@@ -231,6 +231,9 @@ export function useWorkWeather(
     return () => {
       cancelled = true;
     };
+    // Intentional primitive deps: refetch only when work type or
+    // location identity/coords change, not on object re-creation.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workType, location.id, location.lat, location.lon, location.name]);
 
   return data;

@@ -53,7 +53,7 @@ import {
 import { VerificationEngine } from "./verification.ts";
 import { ToolIntelligenceEngine } from "./tool-intelligence.ts";
 import { CreationEngine, makeProposal } from "./creation.ts";
-import { SecurityIntegrityEngine, GENESIS_HASH } from "./security-integrity.ts";
+import { SecurityIntegrityEngine } from "./security-integrity.ts";
 import { orchestrate } from "./orchestrator.ts";
 import { WorldModel } from "./world-model.ts";
 import { CognitivePersistence } from "./persistence.ts";

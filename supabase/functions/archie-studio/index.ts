@@ -29,7 +29,7 @@
 //   * No secrets in, no secrets out.
 // =========================================================
 
-import { createClient, User } from "npm:@supabase/supabase-js@2.45.4";
+import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import {
   resolveArchieCapabilityEngine,
   type ArchieInferenceRequest,

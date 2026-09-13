@@ -106,10 +106,6 @@ const FORBIDDEN: [string, { count: number }] = [
   "id|eq:status_code=403",
   { count: 1 },
 ];
-const LATENCY: [string, { data: { latency_ms: number }[] }] = [
-  "latency_ms|gte:created_at=…|gt:usage_units=0",
-  { data: [{ latency_ms: 100 }, { latency_ms: 300 }] },
-];
 
 describe("getWindowStats", () => {
   it("aggregates counts, denial breakdown and average latency", async () => {

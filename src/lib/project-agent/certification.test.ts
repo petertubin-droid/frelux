@@ -703,7 +703,7 @@ describe("CERT, scenario_analysis", () => {
   });
 
   it("task_delay: honest sequencing consequence, NO invented carrying cost", async () => {
-    const snap = await buildProjectSnapshot("proj-1", { now: NOW });
+    const _snap = await buildProjectSnapshot("proj-1", { now: NOW });
     const direct = taskDelayScenario({
       now: NOW,
       nextPendingStage: "Blockwork",
