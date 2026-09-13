@@ -59,8 +59,25 @@ import {
   activatePaidCapability,
   deactivatePaidCapability,
 } from "@/lib/archie/mobile/paid-services";
-import { generateFree } from "@/lib/archie/mobile/free-generation";
 import { speakArchie, stopArchieVoice } from "@/lib/archie/mobile/voice";
+import { createConversation, sendChatTurn } from "@/lib/archie/stage1-client";
+import {
+  createVoiceSession,
+  type VoiceSession,
+  type VoiceSessionState,
+} from "@/lib/archie/voice-session";
+import {
+  deleteEnrollment,
+  disableEnrollment,
+  enrollSample,
+  fetchEnrollmentStatus,
+  finalizeEnrollment,
+  recordEnrollmentSample,
+  resetEnrollment,
+  type EnrollmentStatus,
+} from "@/lib/archie/mobile/voice-enrollment";
+import { loadProfileLocally } from "@/lib/archie/mobile/voice-profile";
+import { detectEarSupport } from "@/lib/archie/ears";
 import {
   registerCurrentSession,
   fetchSessions,
@@ -137,7 +154,19 @@ export default function Assistant() {
     },
   ]);
   const [input, setInput] = useState("");
-  const [listening, setListening] = useState(false);
+  // Voice session state — all real states surfaced (§20)
+  const [voiceState, setVoiceState] = useState<VoiceSessionState | "IDLE">(
+    "IDLE",
+  );
+  const [interim, setInterim] = useState("");
+  const [speakerNote, setSpeakerNote] = useState("");
+  const [enrollStatus, setEnrollStatus] = useState<EnrollmentStatus | null>(
+    null,
+  );
+  const voiceSessionRef = useRef<VoiceSession | null>(null);
+  const conversationIdRef = useRef<string | null>(null);
+  const messagesRef = useRef<Msg[]>(messages);
+  messagesRef.current = messages;
   const voiceBufferRef = useRef<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const photoInputRef = useRef<HTMLInputElement | null>(null);
@@ -193,6 +222,8 @@ export default function Assistant() {
     setSessions(s);
     setEvents(e);
     setItems(i);
+    const enroll = await fetchEnrollmentStatus();
+    setEnrollStatus(enroll);
   }, [userId]);
 
   useEffect(() => {
@@ -255,57 +286,267 @@ export default function Assistant() {
   // -------------------------------------------------------
   // Assistant actions
   // -------------------------------------------------------
+  /** The REAL ARCHIE cognitive engine (archie-core) — one
+   *  pipeline for text and voice. No scripted/fake answers. */
+  async function ensureConversation(): Promise<string> {
+    if (conversationIdRef.current) return conversationIdRef.current;
+    const conv = await createConversation("Assistant conversation");
+    conversationIdRef.current = conv.id;
+    return conv.id;
+  }
+
+  function chatHistory(): Array<{ role: "owner" | "archie"; content: string }> {
+    return messagesRef.current
+      .filter((m) => m.role === "user" || m.role === "archie")
+      .slice(-12)
+      .map((m) => ({
+        role: m.role === "user" ? ("owner" as const) : ("archie" as const),
+        content: m.text,
+      }));
+  }
+
+  async function runEngineTurn(text: string): Promise<string> {
+    const conversationId = await ensureConversation();
+    const turn = await sendChatTurn({
+      conversationId,
+      message: text,
+      history: chatHistory(),
+      language: { language_code: "en", source: "USER_SELECTION" },
+    });
+    if (!turn.ok || !turn.reply) {
+      throw new Error(
+        turn.error ?? "ARCHIE's core could not process the request.",
+      );
+    }
+    return turn.reply;
+  }
+
   async function handleSend() {
     const text = input.trim();
     if (!text) return;
     stopArchieVoice();
     setMessages((m) => [...m, { role: "user", text }]);
     setInput("");
-    // Voice/text may INITIATE an authorization workflow…
-    if (/authoriz|approve|deploy|production change/i.test(text)) {
-      purgeTranscriptsForAuthorization(voiceBufferRef.current);
-      pushArchie(
-        "Owner authorization must be completed in Security → Owner Authorization, the secret is typed into a password field and verified server-side. Opening it now.",
-      );
-      setTab("security");
-      return;
+    setBusy(true);
+    try {
+      // Voice/text may INITIATE an authorization workflow…
+      if (/authoriz|approve|deploy|production change/i.test(text)) {
+        purgeTranscriptsForAuthorization(voiceBufferRef.current);
+        pushArchie(
+          "Owner authorization must be completed in Security → Owner Authorization, the secret is typed into a password field and verified server-side. Opening it now.",
+        );
+        setTab("security");
+        return;
+      }
+      // …everything else runs the REAL cognitive engine.
+      const reply = await runEngineTurn(text);
+      pushArchie(reply);
+    } catch (err) {
+      setMessages((m) => [
+        ...m,
+        {
+          role: "system",
+          text:
+            err instanceof Error
+              ? `ARCHIE's core reported a failure: ${err.message}`
+              : "ARCHIE's core reported a failure.",
+        },
+      ]);
+    } finally {
+      setBusy(false);
     }
-    // …but everything else uses the FREE on-device path.
-    const result = generateFree({
-      kind: "SUMMARY",
-      title: "ARCHIE response",
-      data: { message: text },
-    });
-    pushArchie(result.text);
   }
 
+  /** Conversational voice session — the REAL pipeline:
+   *  LISTEN → HEAR → AUDIT → SPEAKER SIGNAL → THINK
+   *  (archie-core) → SPEAK → LISTEN AGAIN. Tapping the mic
+   *  while active STOPS the session (manual stop, §11). */
   async function startVoice() {
     stopArchieVoice();
-    if (!consentGate("VOICE_INPUT")) return;
-    const SR =
-      (window as unknown as Record<string, unknown>).SpeechRecognition ??
-      (window as unknown as Record<string, unknown>).webkitSpeechRecognition;
-    if (!SR) {
-      pushArchie("Voice recognition is not supported on this device.");
+    // toggle off: the owner asked to stop talking
+    if (voiceSessionRef.current) {
+      voiceSessionRef.current.stop("manual");
       return;
     }
-    const recognition = new (
-      SR as new () => {
-        lang: string;
-        onresult: (e: { results: { 0: { transcript: string } }[] }) => void;
-        onend: () => void;
-        start: () => void;
+    if (!consentGate("VOICE_INPUT")) return;
+    if (!detectEarSupport()) {
+      pushArchie(
+        "Voice recognition is not supported in this browser. ARCHIE's ears need a browser/OS speech engine — text input remains fully available.",
+      );
+      return;
+    }
+    setBusy(true);
+    try {
+      const conversationId = await ensureConversation();
+      const bankProfile = loadProfileLocally();
+      const created = await createVoiceSession(
+        {
+          voiceInputConsent: consents?.VOICE_INPUT ?? null,
+          voiceOutputConsent: consents?.VOICE_OUTPUT ?? null,
+          continuous: true,
+          sessionTimeoutMs: 10 * 60_000,
+          utteranceTimeoutMs: 15_000,
+          languageCode: "en",
+          bankPitchHz: bankProfile?.pitchHz ?? null,
+          conversationId,
+          history: () => chatHistory(),
+        },
+        {
+          onState: (state) => {
+            setVoiceState(state);
+            if (state === "STOPPED") {
+              voiceSessionRef.current = null;
+              setInterim("");
+            }
+          },
+          onHearing: (text) => setInterim(text),
+          onUserTranscript: ({ transcript, speaker }) => {
+            setInterim("");
+            setMessages((m) => [...m, { role: "user", text: transcript }]);
+            if (speaker && speaker.determinable) {
+              setSpeakerNote(
+                speaker.match
+                  ? "Owner voice recognized — a similarity signal, not proof of identity."
+                  : "Speaker not recognized against the owner voice profile.",
+              );
+            }
+          },
+          onArchieReply: (reply, spoken) => {
+            // The session already SPOKE it (mouth pipeline); here
+            // the text transcript is shown — never spoken twice.
+            setMessages((m) => [...m, { role: "archie", text: reply }]);
+            if (!spoken && consents?.VOICE_OUTPUT?.granted) {
+              setMessages((m) => [
+                ...m,
+                {
+                  role: "system",
+                  text: "Voice output was muted for this reply.",
+                },
+              ]);
+            }
+          },
+          onError: (kind, message) => {
+            if (kind === "NO_SPEECH" && voiceState === "LISTENING") return;
+            setMessages((m) => [
+              ...m,
+              {
+                role: "system",
+                text: message,
+              },
+            ]);
+          },
+          onAuthorizationRequired: (transcript) => {
+            purgeTranscriptsForAuthorization(voiceBufferRef.current);
+            setMessages((m) => [
+              ...m,
+              { role: "user", text: transcript },
+              {
+                role: "archie",
+                text: "I understood the request, but this action requires Owner authorization — it is completed in Security → Owner Authorization with the secret typed into a password field and verified server-side. Voice can initiate it, never complete it. Opening it now.",
+              },
+            ]);
+            setTab("security");
+          },
+        },
+      );
+      if (!created.ok) {
+        pushArchie(created.message);
+        return;
       }
-    )();
-    recognition.lang = "en-US";
-    recognition.onresult = (e) => {
-      const transcript = e.results[0][0].transcript;
-      voiceBufferRef.current.push(transcript);
-      setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
-    };
-    recognition.onend = () => setListening(false);
-    setListening(true);
-    recognition.start();
+      voiceSessionRef.current = created.session;
+      await created.session.start();
+    } catch (err) {
+      setMessages((m) => [
+        ...m,
+        {
+          role: "system",
+          text:
+            err instanceof Error
+              ? `Voice session failed to start: ${err.message}`
+              : "Voice session failed to start.",
+        },
+      ]);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  /** Owner voice enrollment (deliberate, §7-8). */
+  async function handleEnrollSample() {
+    setBusy(true);
+    try {
+      const rec = await recordEnrollmentSample();
+      if (!rec.ok) {
+        setMessages((m) => [
+          ...m,
+          { role: "system", text: `Enrollment sample refused: ${rec.error}` },
+        ]);
+        return;
+      }
+      const res = await enrollSample(rec.vector);
+      if (!res.ok) {
+        setMessages((m) => [
+          ...m,
+          { role: "system", text: `Enrollment refused: ${res.error}` },
+        ]);
+        return;
+      }
+      setEnrollStatus(await fetchEnrollmentStatus());
+      setMessages((m) => [
+        ...m,
+        {
+          role: "system",
+          text: `Voice sample ${res.sample_count}/${res.required_samples} enrolled. Speak naturally for a few seconds each time.`,
+        },
+      ]);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleFinalizeEnrollment() {
+    setBusy(true);
+    try {
+      const res = await finalizeEnrollment();
+      setMessages((m) => [
+        ...m,
+        {
+          role: "system",
+          text: res.ok
+            ? `Owner voice profile complete (${res.sample_count} samples). Speaker recognition is a similarity signal — it never unlocks protected actions.`
+            : `Enrollment not completed: ${res.error}`,
+        },
+      ]);
+      setEnrollStatus(await fetchEnrollmentStatus());
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleEnrollmentLifecycle(
+    action: "disable" | "reset" | "delete",
+  ) {
+    setBusy(true);
+    try {
+      const ok =
+        action === "disable"
+          ? await disableEnrollment()
+          : action === "reset"
+            ? await resetEnrollment()
+            : await deleteEnrollment();
+      setMessages((m) => [
+        ...m,
+        {
+          role: "system",
+          text: ok
+            ? `Voice profile ${action === "delete" ? "deleted" : action === "reset" ? "reset — re-enroll from scratch" : "disabled — matching refuses until re-enabled"}.`
+            : "The voice-profile change was refused.",
+        },
+      ]);
+      setEnrollStatus(await fetchEnrollmentStatus());
+    } finally {
+      setBusy(false);
+    }
   }
 
   async function handleCamera() {
@@ -703,9 +944,25 @@ export default function Assistant() {
           <div className="grid grid-cols-4 gap-2">
             <ActionButton
               icon={Mic}
-              label={listening ? "Listening…" : "Voice"}
+              label={
+                voiceState === "IDLE" || voiceState === "STOPPED"
+                  ? "Voice"
+                  : voiceState === "LISTENING"
+                    ? "Listening…"
+                    : voiceState === "HEARING"
+                      ? "Hearing…"
+                      : voiceState === "PROCESSING"
+                        ? "Processing…"
+                        : voiceState === "THINKING"
+                          ? "Thinking…"
+                          : voiceState === "SPEAKING"
+                            ? "Speaking — tap to stop"
+                            : voiceState === "INTERRUPTED"
+                              ? "Interrupted"
+                              : "Voice"
+              }
               onClick={startVoice}
-              active={listening}
+              active={voiceState !== "IDLE" && voiceState !== "STOPPED"}
             />
             <ActionButton icon={Camera} label="Camera" onClick={handleCamera} />
             <ActionButton
@@ -745,6 +1002,24 @@ export default function Assistant() {
             />
           </div>
 
+          {/* REAL interim transcript from the native engine —
+              shown exactly as recognized, never invented (§20) */}
+          {(voiceState === "HEARING" || voiceState === "LISTENING") && (
+            <p
+              className="text-xs italic text-muted-foreground"
+              aria-live="polite"
+            >
+              {voiceState === "HEARING" && interim
+                ? `“${interim}”`
+                : voiceState === "LISTENING"
+                  ? "Listening — speak to ARCHIE, tap the microphone to stop."
+                  : ""}
+            </p>
+          )}
+          {speakerNote && (
+            <p className="text-[11px] text-muted-foreground">{speakerNote}</p>
+          )}
+
           <div className="flex gap-2">
             <input
               value={input}
@@ -765,9 +1040,80 @@ export default function Assistant() {
 
           <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
             <Sparkles className="h-3 w-3" />
-            Generation runs on the free on-device path. Cloud AI is a paid
-            capability, off by default, and never used silently.
+            Every reply comes from ARCHIE's real cognitive engine. Voice and
+            text are the same intelligence — no scripted voice answers.
           </p>
+
+          {/* OWNER VOICE ENROLLMENT — deliberate, explicit (§7-8).
+              Only the derived feature vector transits; raw audio
+              is never uploaded for recognition. */}
+          {consents?.VOICE_INPUT?.granted && (
+            <div
+              className="rounded-xl border bg-card p-3"
+              data-testid="archie-voice-enrollment"
+            >
+              <p className="text-sm font-medium">Owner voice profile</p>
+              <p className="text-xs text-muted-foreground">
+                {enrollStatus?.enrollment_state === "COMPLETE"
+                  ? `Enrolled (${enrollStatus.sample_count} samples). Speaker recognition is a similarity signal for personalization — it NEVER authorizes protected actions.`
+                  : enrollStatus?.enrollment_state === "ENROLLING"
+                    ? `Enrolling — ${enrollStatus.sample_count}/${enrollStatus.required_samples} deliberate samples recorded.`
+                    : enrollStatus?.enrollment_state === "DISABLED"
+                      ? "Speaker recognition is disabled."
+                      : "Not enrolled. Record 3 deliberate samples so ARCHIE can recognize your voice as a personalization signal."}
+              </p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {enrollStatus?.enrollment_state !== "COMPLETE" && (
+                  <button
+                    onClick={handleEnrollSample}
+                    disabled={busy}
+                    className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+                  >
+                    Record sample
+                  </button>
+                )}
+                {enrollStatus?.enrollment_state === "ENROLLING" &&
+                  (enrollStatus?.sample_count ?? 0) >=
+                    (enrollStatus?.required_samples ?? 3) && (
+                    <button
+                      onClick={handleFinalizeEnrollment}
+                      disabled={busy}
+                      className="rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+                    >
+                      Finalize profile
+                    </button>
+                  )}
+                {enrollStatus?.enrollment_state === "COMPLETE" && (
+                  <button
+                    onClick={() => handleEnrollmentLifecycle("disable")}
+                    disabled={busy}
+                    className="rounded-lg border px-3 py-1.5 text-xs disabled:opacity-50"
+                  >
+                    Disable
+                  </button>
+                )}
+                {(enrollStatus?.enrollment_state === "COMPLETE" ||
+                  enrollStatus?.enrollment_state === "DISABLED") && (
+                  <button
+                    onClick={() => handleEnrollmentLifecycle("reset")}
+                    disabled={busy}
+                    className="rounded-lg border px-3 py-1.5 text-xs disabled:opacity-50"
+                  >
+                    Re-enroll
+                  </button>
+                )}
+                {enrollStatus && enrollStatus.enrollment_state !== "NONE" && (
+                  <button
+                    onClick={() => handleEnrollmentLifecycle("delete")}
+                    disabled={busy}
+                    className="rounded-lg border px-3 py-1.5 text-xs text-destructive disabled:opacity-50"
+                  >
+                    Delete profile
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
 
           <input
             ref={photoInputRef}

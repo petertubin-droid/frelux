@@ -354,6 +354,11 @@ export async function recognizeSpeech(opts?: {
    *  deterministic voice-print check. */
   bankPitchHz?: number | null;
   onFinal?: (transcript: string) => void;
+  /** Stream REAL partial (interim) results while the owner
+   *  speaks — the conversational voice session uses these for
+   *  the HEARING state and barge-in. Opt-in; the engine only
+   *  reports what the native recognition actually produced. */
+  onInterim?: (text: string) => void;
 }): Promise<TranscriptionResult> {
   const Ctor = getRecognitionCtor();
   if (!Ctor) {
@@ -366,7 +371,7 @@ export async function recognizeSpeech(opts?: {
   const recognition = new Ctor();
   recognition.lang = opts?.languageHint ?? navigator.language ?? "en";
   recognition.continuous = false;
-  recognition.interimResults = false;
+  recognition.interimResults = opts?.onInterim != null;
   recognition.maxAlternatives = 1;
 
   // Optional parallel pitch capture for the voice print.
@@ -464,6 +469,10 @@ export async function recognizeSpeech(opts?: {
         const res = ev.results[i];
         if (res.isFinal) {
           finalTranscript += res[0].transcript;
+        } else if (opts?.onInterim) {
+          // a REAL partial result from the native engine —
+          // surfaced exactly as produced, never invented
+          opts.onInterim(res[0].transcript);
         }
       }
     };
