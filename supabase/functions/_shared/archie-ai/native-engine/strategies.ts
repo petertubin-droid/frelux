@@ -394,6 +394,16 @@ export function probabilistic(task: ReasoningTask): StrategyResult {
     }
     if (byObject.size > 1) {
       conflicts = true;
+      // POSTERIOR ESTIMATE (audit Reasoning upgrade,
+      // 2026-09-13): under the evidence-weight prior, the
+      // probability of each competing claim is its share of
+      // total evidence weight for this subject+predicate.
+      // Real math over real stored evidence — a genuine
+      // posterior, not a restated confidence.
+      const totalWeight = [...byObject.values()].reduce(
+        (acc, group) => acc + group.reduce((a, f) => a + evidenceWeight(f), 0),
+        0,
+      );
       for (const [obj, group] of byObject) {
         const weighted =
           group.reduce((acc, f) => acc + f.confidence * evidenceWeight(f), 0) /
@@ -401,8 +411,12 @@ export function probabilistic(task: ReasoningTask): StrategyResult {
             1,
             group.reduce((acc, f) => acc + evidenceWeight(f), 0),
           );
+        const posterior =
+          totalWeight > 0
+            ? group.reduce((a, f) => a + evidenceWeight(f), 0) / totalWeight
+            : 0;
         conclusions.push({
-          statement: `${subject} ${predicate} ${obj} (contested — ${byObject.size} competing claims)`,
+          statement: `${subject} ${predicate} ${obj} (contested — ${byObject.size} competing claims; P(claim|evidence) ≈ ${(posterior * 100).toFixed(0)}%)`,
           confidence: weighted,
           status: "candidate",
           evidence: group.map((f) => f.id),
@@ -520,12 +534,44 @@ export function temporal(task: ReasoningTask): StrategyResult {
     }))
     .filter((d) => d.when !== null)
     .sort((a, b) => String(a.when).localeCompare(String(b.when)));
+  // CHANGE DETECTION (audit Reasoning upgrade, 2026-09-13):
+  // ordering is not change. Group dated facts by predicate;
+  // consecutive versions with DIFFERENT objects are real
+  // recorded transitions — the same supersession semantics
+  // as the cognitive world model, applied to fact
+  // validity windows. Nothing is interpolated.
+  const changes: Array<{
+    predicate: string;
+    from: string;
+    to: string;
+    when: string;
+  }> = [];
+  const byPredicate = new Map<string, typeof dated>();
+  for (const d of dated) {
+    const key = d.fact.predicate;
+    if (!byPredicate.has(key)) byPredicate.set(key, []);
+    byPredicate.get(key)!.push(d);
+  }
+  for (const versions of byPredicate.values()) {
+    for (let i = 1; i < versions.length; i += 1) {
+      const prev = versions[i - 1];
+      const curr = versions[i];
+      if (String(prev.fact.object) !== String(curr.fact.object)) {
+        changes.push({
+          predicate: prev.fact.predicate,
+          from: String(prev.fact.object),
+          to: String(curr.fact.object),
+          when: String(curr.when),
+        });
+      }
+    }
+  }
   return {
     kind: "temporal",
     summary:
       dated.length === 0
         ? `No dated facts about "${subject}".`
-        : `${dated.length} dated fact(s), chronologically ordered.`,
+        : `${dated.length} dated fact(s), chronologically ordered${changes.length > 0 ? `; ${changes.length} recorded change(s) detected` : ""}.`,
     conclusions: dated.map((d) => ({
       statement: `${d.when}: ${d.fact.subject} ${d.fact.predicate} ${String(d.fact.object)}`,
       confidence: d.fact.confidence,
@@ -541,7 +587,9 @@ export function temporal(task: ReasoningTask): StrategyResult {
     explanation:
       dated.length === 0
         ? "No temporal markers found for this subject."
-        : `Earliest: ${String(dated[0].when)}; latest: ${String(dated[dated.length - 1].when)}.`,
+        : changes.length > 0
+          ? `Earliest: ${String(dated[0].when)}; latest: ${String(dated[dated.length - 1].when)}. Changes: ${changes.map((c) => `${c.predicate}: ${c.from} → ${c.to} (at ${c.when})`).join("; ")}.`
+          : `Earliest: ${String(dated[0].when)}; latest: ${String(dated[dated.length - 1].when)}. No recorded value changes.`,
   };
 }
 

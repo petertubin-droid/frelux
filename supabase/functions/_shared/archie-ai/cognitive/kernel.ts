@@ -32,6 +32,7 @@ import {
   configureNativeEnginePersistence,
   type ConverseResult,
 } from "../native-engine/engine.ts";
+import { configureNativeEngineWorldTimeline } from "../native-engine/engine.ts";
 import type { SupabaseLike } from "../native-engine/persistence.ts";
 import type { Fact } from "../native-engine/types.ts";
 import { understand } from "../native-engine/nlu.ts";
@@ -149,7 +150,7 @@ function cognitiveCapabilityManifest() {
       id: "world-model",
       maturity: "OPERATIONAL",
       description:
-        "entity-relation graph of people, systems, projects, events, outcomes with confidence",
+        "entity-relation graph of people, systems, projects, events, outcomes with confidence; versioned temporal axis with explicit state transitions (change-over-time questions answer from recorded versions, never guesses)",
     },
     {
       id: "planning-engine",
@@ -236,9 +237,44 @@ export class CognitiveKernel implements ArchieRuntime {
   private verificationFails = 0;
 
   constructor(db?: SupabaseLike) {
+    // WORLD FIRST (audit HIGH-1 fix, 2026-09-13): the kernel
+    // owns the WorldModel and exposes it to the substrate
+    // engine through the world-timeline port — the engine
+    // records owner state-change claims and answers
+    // change-over-time questions from real recorded
+    // transitions. The engine never owns the model; the
+    // kernel never loses the writes.
+    this.world = new WorldModel(db);
+    // Wire the port BEFORE the substrate singleton resolves.
+    configureNativeEngineWorldTimeline({
+      transitionsFor: (subject) =>
+        this.world.transitions(subject).map((t) => ({
+          subject: t.subject,
+          relation: t.relation,
+          fromValue: t.fromValue,
+          toValue: t.toValue,
+          fromObservedAt: t.fromObservedAt,
+          toObservedAt: t.toObservedAt,
+          confidence: t.confidence,
+        })),
+      recordState: (subject, state, observedAt, provenance) => {
+        void this.world
+          .relate({
+            subject,
+            relation: "state",
+            object: state,
+            confidence: 0.8,
+            provenance,
+            observedAt,
+          })
+          .catch(() => {
+            // persistence failure does not corrupt the run;
+            // the in-memory model still holds the observation
+          });
+      },
+    });
     this.substrate = getNativeEngine();
     this.security = new SecurityIntegrityEngine(db);
-    this.world = new WorldModel(db);
     this.tracePersistence = new CognitivePersistence(db);
   }
 

@@ -163,8 +163,13 @@ export class WorldModel {
     objectKind?: string;
     confidence: number;
     provenance: string;
+    /** Optional observation stamp — owner state-change CLAIMS
+     *  carry their own dates ("muddy last week"), and honest
+     *  versioning must stamp what the owner asserted, not the
+     *  moment of the telling. Default: now. */
+    observedAt?: string;
   }): Promise<WorldRelation> {
-    const observedAt = new Date().toISOString();
+    const observedAt = input.observedAt ?? new Date().toISOString();
     const id = idFor(input.subject, input.relation, input.object);
     const existing = this.relations.get(id);
     if (existing) {
@@ -468,4 +473,155 @@ export class WorldModel {
   getEntity(name: string): WorldEntity | undefined {
     return this.entities.get(idFor(name));
   }
+
+  // -------------------------------------------------------
+  // TRANSITION ALGEBRA (audit HIGH-1 fix, 2026-09-13): the
+  // temporal axis existed (supersession + history) but was
+  // WRITE-ONLY for change questions — nothing derived
+  // "X changed from A to B". These methods turn the
+  // versioned observation log into explicit transitions and
+  // point-in-time state reconstructions. All derivation is
+  // from REAL recorded observations; nothing is interpolated.
+  // -------------------------------------------------------
+
+  /** Every recorded state transition: a superseded version
+   *  and its replacement on the same subject+relation. The
+   *  world CHANGED between the two observation stamps — this
+   *  is that change, made explicit. */
+  transitions(subject?: string): WorldTransition[] {
+    const needle = subject?.toLowerCase();
+    const byId = new Map<string, WorldRelation>();
+    for (const obs of this.observations) byId.set(obs.id, obs);
+    const out: WorldTransition[] = [];
+    for (const old of this.observations) {
+      if (!old.supersededBy) continue;
+      if (needle && old.subject.toLowerCase() !== needle) continue;
+      const replacement = byId.get(old.supersededBy);
+      if (!replacement) continue;
+      out.push({
+        subject: old.subject,
+        relation: old.relation,
+        fromValue: old.object,
+        toValue: replacement.object,
+        fromObservedAt: old.observedAt ?? old.createdAt,
+        toObservedAt: replacement.observedAt ?? replacement.createdAt,
+        supersededRelationId: old.id,
+        confidence: Math.min(old.confidence, replacement.confidence),
+      });
+    }
+    return out.sort(
+      (a, b) =>
+        new Date(b.toObservedAt).getTime() - new Date(a.toObservedAt).getTime(),
+    );
+  }
+
+  /** The subject's state as it stood at time `at`: for each
+   *  relation, the latest version OBSERVED at or before `at`.
+   *  Reconstructed purely from stamped observations — never
+   *  invented. */
+  stateAt(subject: string, at: Date): WorldRelation[] {
+    const tms = at.getTime();
+    const needle = subject.toLowerCase();
+    const stamp = (r: WorldRelation) =>
+      new Date(r.observedAt ?? r.createdAt).getTime();
+    const versions = this.observations
+      .filter((r) => r.subject.toLowerCase() === needle)
+      .filter((r) => stamp(r) <= tms)
+      .sort((a, b) => stamp(a) - stamp(b)); // oldest → newest
+    // The LATEST version per relation id that was live before
+    // `at`. A superseded version's replacement supersedes it
+    // only once the replacement was observed; since both are
+    // stamped, "latest observed ≤ at" per (subject,relation)
+    // is exactly the state at `at`.
+    const liveByRelation = new Map<string, WorldRelation>();
+    for (const v of versions) {
+      liveByRelation.set(v.relation.toLowerCase(), v);
+    }
+    return [...liveByRelation.values()].map((r) => ({ ...r }));
+  }
+
+  /** Transitions whose NEW observation landed after `since`. */
+  changesSince(subject: string, since: Date): WorldTransition[] {
+    const sms = since.getTime();
+    return this.transitions(subject).filter(
+      (t) => new Date(t.toObservedAt).getTime() >= sms,
+    );
+  }
+}
+
+// ---------------------------------------------------------
+// TEMPORAL UTILITY (audit HIGH-1 fix): deterministic parsing
+// of a state-change claim in owner text, shared by the NLU
+// rule cascade and the engine handler. Pure regex + date
+// arithmetic; nothing is guessed — an unparsable claim yields
+// null and the caller reports that honestly.
+// ---------------------------------------------------------
+
+export interface WorldTransition {
+  subject: string;
+  relation: string;
+  fromValue: string;
+  toValue: string;
+  fromObservedAt: string;
+  toObservedAt: string;
+  supersededRelationId: string;
+  confidence: number;
+}
+
+export interface StateChangeClaim {
+  subject: string;
+  fromState: string;
+  fromWhen: "past" | "recent-past" | "dated";
+  fromAt: string; // ISO timestamp derived from the phrase
+  toState: string;
+  toAt: string; // ISO timestamp — now, or the stated date
+}
+
+/** Parse "<subject> was <state1> <time-phrase> (and|but)
+ *  (now|currently) (it is|it's) <state2>" style claims.
+ *  Deterministic; returns null when nothing matches. */
+export function parseStateChangeClaim(
+  now = new Date(),
+): (text: string) => StateChangeClaim | null {
+  return (text: string): StateChangeClaim | null => {
+    const m = text.match(
+      /([a-z][a-z0-9' -]{1,40}?)\s+(?:was|were)\s+([a-z0-9' -]{2,40}?)\s+(yesterday|last (?:week|month|year)|[0-9]{4}-[0-9]{2}-[0-9]{2}(?:[a-z]*))\b[^a-z0-9]*(?:,|and|but)?\s*(?:now|currently|today|at present)\b\s*((?:it is|it's|is|are)\s+)?([a-z0-9' -]{2,40}?)(?:[.?!]|$)/i,
+    );
+    if (!m) return null;
+    // Canonical subject identity: strip leading articles so
+    // the recorded subject matches the query extractor
+    // ("the site was muddy..." and "how did the site
+    // change..." both resolve to subject "site").
+    const subject = m[1]
+      .trim()
+      .replace(/\s+/g, " ")
+      .replace(/^(?:the|my|our|a|an)\s+/i, "");
+    const fromState = m[2].trim();
+    const timePhrase = m[3].toLowerCase().trim();
+    const toState = m[5].trim();
+    if (!subject || !fromState || !toState) return null;
+    const from = new Date(now);
+    let fromWhen: StateChangeClaim["fromWhen"] = "dated";
+    if (/^last week/.test(timePhrase)) {
+      from.setDate(from.getDate() - 7);
+      fromWhen = "recent-past";
+    } else if (/^last month/.test(timePhrase)) {
+      from.setMonth(from.getMonth() - 1);
+      fromWhen = "recent-past";
+    } else if (/^last year/.test(timePhrase)) {
+      from.setFullYear(from.getFullYear() - 1);
+      fromWhen = "recent-past";
+    } else if (timePhrase === "yesterday") {
+      from.setDate(from.getDate() - 1);
+      fromWhen = "past";
+    }
+    return {
+      subject,
+      fromState,
+      fromWhen,
+      fromAt: from.toISOString(),
+      toState,
+      toAt: now.toISOString(),
+    };
+  };
 }

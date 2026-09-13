@@ -110,6 +110,7 @@ import {
 import { SelfEvaluator } from "./selfeval.ts";
 import { OutcomeLearner, consolidateIfDue } from "./learning.ts";
 import { SupabasePersistence, type SupabaseLike } from "./persistence.ts";
+import { parseStateChangeClaim } from "../cognitive/world-model.ts";
 import {
   extractMeaningResearchRequest,
   researchTermMeaning,
@@ -352,6 +353,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
   private domains: DomainSkillRegistry;
   private adapter: ResearchAdapter;
   private marketPriceLookup: MarketPriceLookup | null;
+  private worldTimeline: WorldTimelinePort | null;
   /** SELF-EVOLVING VOCABULARY — multi-site meaning research
    *  (owner directive 2026-09-13). Injectable like
    *  marketPriceLookup: production uses the real
@@ -405,6 +407,14 @@ export class ArchieNativeEngine implements ArchieRuntime {
      *  OPTIONAL connectives are composed; content and
      *  epistemic labels are identical in both modes. */
     verbosity?: Verbosity;
+    /** WORLD TIMELINE PORT (audit HIGH-1 fix, 2026-09-13):
+     * read/write access to the versioned world-model
+     * timeline, owned by the cognitive kernel. The engine
+     * (substrate) NEVER owns the world model — it parses
+     * state-change claims, records observations through this
+     * port, and answers change-over-time questions from
+     * recorded transitions. Honest refusals when absent. */
+    worldTimeline?: WorldTimelinePort;
     /** P7 — conversation id for episodic-turn session
      *  grouping. Default 'default'. */
     conversationId?: string;
@@ -422,6 +432,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
     this.tradingLimits = options?.tradingLimits ?? DEFAULT_TRADING_LIMITS;
     this.verbosity = options?.verbosity ?? "detailed";
     this.marketPriceLookup = options?.marketPriceLookup ?? null;
+    this.worldTimeline = options?.worldTimeline ?? null;
     this.meaningResearch = options?.meaningResearch ?? null;
     this.lessonLookup = options?.lessonLookup ?? null;
     this.systemAdapters = options?.systemAdapters ?? {};
@@ -1528,6 +1539,93 @@ export class ArchieNativeEngine implements ArchieRuntime {
       case "greeting": {
         const text = `ARCHIE native engine online and listening. ${this.statusLine()} Ask me anything in my knowledge, or teach me something new.`;
         return this.compose(text, nlu.confidence, []);
+      }
+      case "state_change_claim": {
+        // TEMPORAL AXIS (audit HIGH-1 fix, 2026-09-13): a
+        // claimed state change ("<subject> was X <time> ...
+        // now Y") is recorded as two DATED observations in the
+        // world model — the claim's own dates, never the
+        // moment of the telling. The transition becomes
+        // first-class on the timeline.
+        if (!this.worldTimeline) {
+          return this.compose(
+            "I parsed that as a state change, but my world model is not wired in this deployment, so I cannot record it honestly here.",
+            nlu.confidence * 0.5,
+            [],
+          );
+        }
+        const claim = parseStateChangeClaim(new Date())(input);
+        if (!claim) {
+          return this.compose(
+            'I heard a state change in that, but I could not pin down the subject, the earlier state and the current state cleanly. State it as: "<subject> was <state> <when> ... now it is <state>" and I will retain both observations with their dates.',
+            nlu.confidence * 0.5,
+            [],
+          );
+        }
+        this.worldTimeline.recordState(
+          claim.subject,
+          claim.fromState,
+          claim.fromAt,
+          `owner state-change claim (earlier state, ${claim.fromWhen})`,
+        );
+        this.worldTimeline.recordState(
+          claim.subject,
+          claim.toState,
+          claim.toAt,
+          "owner state-change claim (present state)",
+        );
+        const when =
+          claim.fromWhen === "dated"
+            ? claim.fromAt.slice(0, 10)
+            : claim.fromWhen;
+        return this.compose(
+          `Recorded as two dated observations in my world model: "${claim.subject}" was ${claim.fromState} (${when}) and is ${claim.toState} as of now — the supersession is the change, and nothing was overwritten. Ask "how did ${claim.subject} change over time" and I will answer from the recorded versions.`,
+          nlu.confidence,
+          [],
+        );
+      }
+      case "temporal_change_query": {
+        // TEMPORAL AXIS (audit HIGH-1 fix): change-over-time
+        // questions answer from RECORDED transitions only.
+        // No observations → honest refusal, never invention.
+        const subject = extractTemporalSubject(input);
+        if (!subject) {
+          return this.compose(
+            'Tell me which subject you want the change history for — for example "how did the site change over time" — and I will answer from my recorded observations.',
+            nlu.confidence,
+            [],
+          );
+        }
+        if (!this.worldTimeline) {
+          return this.compose(
+            `My world model is not wired in this deployment, so I cannot reconstruct how "${subject}" changed over time here.`,
+            nlu.confidence * 0.5,
+            [],
+          );
+        }
+        const transitions = this.worldTimeline.transitionsFor(subject);
+        if (transitions.length === 0) {
+          return this.compose(
+            `I have no recorded observations for "${subject}", so I honestly cannot say how it changed over time. Tell me its states with their dates — for example "the site was muddy last week, now it is dry" — and I will retain the change on its timeline.`,
+            nlu.confidence * 0.6,
+            [],
+          );
+        }
+        const lines = [...transitions]
+          .sort(
+            (a, b) =>
+              new Date(a.toObservedAt).getTime() -
+              new Date(b.toObservedAt).getTime(),
+          )
+          .map(
+            (t) =>
+              `${t.relation}: ${t.fromValue} → ${t.toValue} (observed ${t.fromObservedAt.slice(0, 10)} → ${t.toObservedAt.slice(0, 10)})`,
+          );
+        return this.compose(
+          `From my recorded observations, "${subject}" changed as follows: ${lines.join("; ")}. This is the full recorded version history — nothing interpolated, nothing invented.`,
+          nlu.confidence,
+          [],
+        );
       }
       case "farewell":
       case "gratitude":
@@ -3076,6 +3174,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
 let configuredPersistence: SupabaseLike | null | undefined;
 let configuredMarketLookup: MarketPriceLookup | undefined;
 let configuredLessonLookup: LessonLookup | undefined;
+let configuredWorldTimeline: WorldTimelinePort | undefined;
 let configuredSystemAdapters: SystemAdapters | undefined;
 let singleton: ArchieNativeEngine | undefined;
 
@@ -3118,6 +3217,16 @@ export function configureNativeEngineSystemAdapters(
  *  lessons → behavior). archie-chat does this at boot with the
  *  service client. Resets the singleton so the next resolve
  *  carries the lessons provider. */
+/** Wire the world-model timeline port (kernel-owned). The
+ *  kernel does this at construction; resets the singleton so
+ *  the next resolve carries the port. */
+export function configureNativeEngineWorldTimeline(
+  port: WorldTimelinePort | null,
+): void {
+  configuredWorldTimeline = port ?? undefined;
+  singleton = undefined;
+}
+
 export function configureNativeEngineLessonLookup(lookup: LessonLookup): void {
   configuredLessonLookup = lookup;
   singleton = undefined;
@@ -3128,11 +3237,39 @@ export function getNativeEngine(): ArchieNativeEngine {
     singleton = new ArchieNativeEngine({
       persistence: configuredPersistence,
       marketPriceLookup: configuredMarketLookup,
+      worldTimeline: configuredWorldTimeline,
       lessonLookup: configuredLessonLookup,
       systemAdapters: configuredSystemAdapters,
     });
   }
   return singleton;
+}
+
+// ---------------------------------------------------------
+// WORLD TIMELINE PORT (audit HIGH-1 fix): the substrate's
+// only seam into the cognitive world model. Provided by the
+// kernel (which owns the WorldModel); tests may inject a
+// fake. Without it, temporal handlers refuse honestly.
+// ---------------------------------------------------------
+export interface WorldTimelineTransition {
+  subject: string;
+  relation: string;
+  fromValue: string;
+  toValue: string;
+  fromObservedAt: string;
+  toObservedAt: string;
+  confidence: number;
+}
+export interface WorldTimelinePort {
+  /** Recorded transitions for a subject (newest first). */
+  transitionsFor(subject: string): WorldTimelineTransition[];
+  /** Record a state observation at a point in time. */
+  recordState(
+    subject: string,
+    state: string,
+    observedAt: string,
+    provenance: string,
+  ): void;
 }
 
 // ---------------------------------------------------------
@@ -3153,6 +3290,21 @@ const SYSTEM_ADAPTER_LABELS: Record<SystemAdapterKey, string> = {
 // parameters get an honest request for exactly what is
 // needed. Standard Nigerian construction constants.
 // ---------------------------------------------------------
+
+/** Extract the subject of a change-over-time question.
+ *  Deterministic: strips the interrogative frame and the
+ *  change verb, keeps the noun phrase ("how did the site
+ *  change over time" → "the site"). */
+function extractTemporalSubject(input: string): string | null {
+  const m = input.match(
+    /(?:how\s+(?:did|has|does)\s+|did\s+|has\s+|what\s+(?:has\s+)?changed\s+(?:about|with)\s+)([a-z0-9' -]{2,40}?)(?:\s+(?:change|differ|evolve|progress|develop|changed)\b|$)/i,
+  );
+  const subject = m?.[1]?.trim().replace(/\s+/g, " ");
+  if (!subject) return null;
+  // strip leading articles for world-model subject matching
+  const bare = subject.replace(/^(the|my|our|a|an)\s+/i, "").trim();
+  return bare.length > 0 ? bare : subject;
+}
 
 /** Extract the product noun-phrase from a price query.
  *  Deterministic: strips interrogative/price filler words and

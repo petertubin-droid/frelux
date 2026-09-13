@@ -456,6 +456,13 @@ export const INTENTS = [
   "availability_check",
   "activity_query",
   "clarification_request",
+  // --- TEMPORAL AXIS (audit HIGH-1 fix, 2026-09-13):
+  // change-over-time questions and state-change claims get
+  // first-class intents so they never silently degrade into
+  // smalltalk routing. Handlers are honest: no recorded
+  // observations → honest refusal, never invention.
+  "temporal_change_query",
+  "state_change_claim",
 ] as const;
 
 export type Intent = (typeof INTENTS)[number];
@@ -1024,6 +1031,18 @@ export const BASE_NLU_CORPUS: Array<[Intent, string[]]> = [
       "actually the price is different",
       "that is wrong",
       "you are mistaken about the date",
+      // INTENT-LEVEL NEGATION (audit MEDIUM-1 fix, 2026-09-13):
+      // genuine contrastive training pairs so the classifier
+      // itself separates negated imperatives from their
+      // positive twins — the rules catch the leading forms,
+      // the classifier learns the mid-sentence ones.
+      "do not call the supplier",
+      "do not share my contact details",
+      "don't send that message yet",
+      "never quote without checking stock",
+      "do not publish the report today",
+      "don't approve that payment",
+      "stop scheduling meetings on sundays",
       "no that is not what i said",
       "thats incorrect, try again",
       "actually it is the other way around",
@@ -1212,6 +1231,48 @@ const RULE_CASCADE: Array<{
   pattern: RegExp;
   confidence: number;
 }> = [
+  // -------------------------------------------------------
+  // TEMPORAL AXIS (audit HIGH-1 fix, 2026-09-13). Must run
+  // BEFORE the social/companionship rules: "the site was
+  // muddy last week and now it is dry" used to fall into
+  // social_talk and its meaning was silently lost.
+  // -------------------------------------------------------
+  {
+    // A claimed state CHANGE: "<subject> was <state> <time>
+    // ... now (it is) <state>". Recorded as two dated
+    // observations through the world-timeline port.
+    intent: "state_change_claim",
+    pattern:
+      /[a-z][a-z0-9' -]{1,40}?\s+(?:was|were)\s+[a-z0-9' -]{2,40}?\s+(?:yesterday|last (?:week|month|year)|[0-9]{4}-[0-9]{2}-[0-9]{2})\b[^.?!]{0,80}?\b(?:now|currently|today)\b/i,
+    confidence: 0.8,
+  },
+  {
+    // Change-over-time QUESTION about a subject.
+    intent: "temporal_change_query",
+    pattern:
+      /how\s+(?:did|has|does)\s+[a-z0-9' -]{1,40}?\s+(?:change|differ|evolve|progress|develop)(?:\s+over\s+time|\s+since\b)?|\b(?:did|has)\s+[a-z0-9' -]{1,40}?\s+change\s+over\s+time\b|what\s+(?:has\s+)?changed\s+(?:about|with)\s+[a-z0-9' -]{1,40}/i,
+    confidence: 0.8,
+  },
+  // -------------------------------------------------------
+  // INTENT-LEVEL NEGATION (audit MEDIUM-1 fix, 2026-09-13):
+  // leading negated imperatives previously fell to the Bayes
+  // classifier, which is negation-blind ("call the supplier"
+  // 0.52 vs "don't call the supplier" 0.50 — same intent).
+  // The engine's exclusion handling is honest, so routing
+  // these deterministically raises the floor without
+  // changing semantics. "don't forget" is a POSITIVE memory
+  // idiom and is matched first.
+  // -------------------------------------------------------
+  {
+    intent: "teaching",
+    pattern: /^(?:please\s+)?(?:do\s+not|don'?t)\s+forget\b/i,
+    confidence: 0.8,
+  },
+  {
+    intent: "correction",
+    pattern: /^(?:please\s+)?(?:do\s+not|don'?t|never)\s+[a-z]/i,
+    confidence: 0.7,
+  },
   // -------------------------------------------------------
   // Conversational English expansion (owner directive,
   // 2026-09-11) — TOP of the cascade. These must precede the
