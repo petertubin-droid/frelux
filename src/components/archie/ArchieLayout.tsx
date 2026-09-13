@@ -17,26 +17,57 @@ import { useAuth } from "@/lib/auth";
 import "@/styles/archie-premium.css";
 import ArchieInstallButton from "./ArchieInstallButton";
 
-const NAV = [
+type NavItem = { to: string; label: string; icon: string };
+
+// Organized navigation (owner directive 2026-09-14: organize
+// ARCHIE's dashboard) — grouped by purpose so the owner can find
+// the right section at a glance instead of scanning one flat
+// list of 18 items.
+const NAV: NavItem[] = [
+  // Main
   { to: "/archie/chat", label: "Chat", icon: "chat" },
   { to: "/archie/coding", label: "Coding", icon: "control" },
+  // Capabilities
   { to: "/archie/control", label: "Control", icon: "control" },
+  { to: "/archie/execution", label: "Execution", icon: "control" },
+  { to: "/archie/voice", label: "Voice", icon: "chat" },
+  { to: "/archie/evolution", label: "Evolution", icon: "control" },
+  // Knowledge
   { to: "/archie/knowledge", label: "Knowledge", icon: "knowledge" },
   { to: "/archie/learning", label: "Learning", icon: "learning" },
-  { to: "/archie/devices", label: "Devices", icon: "devices" },
-  { to: "/archie/people", label: "People", icon: "devices" },
+  { to: "/archie/training", label: "Training", icon: "knowledge" },
+  { to: "/archie/terminology", label: "TerminoBook", icon: "learning" },
   { to: "/archie/shared", label: "Shared", icon: "knowledge" },
-  { to: "/archie/security", label: "Security", icon: "security" },
+  // People & Access
+  { to: "/archie/people", label: "People", icon: "devices" },
+  { to: "/archie/devices", label: "Devices", icon: "devices" },
+  // System
   { to: "/archie/system", label: "System", icon: "system" },
   { to: "/archie/anatomy", label: "Anatomy", icon: "system" },
-  { to: "/archie/migration", label: "Migration", icon: "migration" },
-  { to: "/archie/training", label: "Training", icon: "knowledge" },
-  { to: "/archie/evolution", label: "Evolution", icon: "control" },
-  { to: "/archie/voice", label: "Voice", icon: "chat" },
+  { to: "/archie/security", label: "Security", icon: "security" },
   { to: "/archie/ops", label: "Ops", icon: "control" },
-  { to: "/archie/execution", label: "Execution", icon: "control" },
-  { to: "/archie/terminology", label: "TerminoBook", icon: "learning" },
-] as const;
+  { to: "/archie/migration", label: "Migration", icon: "migration" },
+];
+
+const NAV_SECTIONS: Array<{ title: string; items: NavItem[] }> = [
+  { title: "Main", items: NAV.filter((_, i) => i < 2) },
+  {
+    title: "Capabilities",
+    items: NAV.filter((_, i) => i >= 2 && i < 6),
+  },
+  {
+    title: "Knowledge",
+    items: NAV.filter((_, i) => i >= 6 && i < 11),
+  },
+  {
+    title: "People & Access",
+    items: NAV.filter((_, i) => i >= 11 && i < 13),
+  },
+  {
+    title: "System",
+    items: NAV.filter((_, i) => i >= 13),
+  },
+];
 
 function NavIcon({ name }: { name: string }) {
   const common = "h-5 w-5";
@@ -340,21 +371,28 @@ export default function ArchieLayout() {
           aria-label="ARCHIE sections"
           className="sticky top-[57px] hidden h-[calc(100vh-57px)] w-48 shrink-0 flex-col gap-1 border-r border-white/5 py-4 md:flex"
         >
-          {NAV.map((n) => (
-            <NavLink
-              key={n.to}
-              to={n.to}
-              className={({ isActive }) =>
-                `group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all ${
-                  isActive
-                    ? "archie-nav-active bg-amber-400/10 text-amber-200"
-                    : "text-slate-400 hover:bg-white/[0.04] hover:text-slate-200"
-                }`
-              }
-            >
-              <NavIcon name={n.icon} />
-              {n.label}
-            </NavLink>
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.title} className="mt-1">
+              <p className="px-3 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-wider text-slate-600">
+                {section.title}
+              </p>
+              {section.items.map((n) => (
+                <NavLink
+                  key={n.to}
+                  to={n.to}
+                  className={({ isActive }) =>
+                    `group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all ${
+                      isActive
+                        ? "archie-nav-active bg-amber-400/10 text-amber-200"
+                        : "text-slate-400 hover:bg-white/[0.04] hover:text-slate-200"
+                    }`
+                  }
+                >
+                  <NavIcon name={n.icon} />
+                  {n.label}
+                </NavLink>
+              ))}
+            </div>
           ))}
           <a
             href="/"
