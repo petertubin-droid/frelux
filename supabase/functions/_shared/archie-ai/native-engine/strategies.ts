@@ -103,6 +103,153 @@ const CONSTRAINT_CUES =
 const LOGIC_CUES =
   /\b(therefore|if .*(then|,)|follows|deduce|implies|all|every)\b/i;
 
+// ---------------------------------------------------------
+// Structural feasibility (audit re-assessment 2026-09-13,
+// gap 2): strategy selection is no longer purely lexical. Each
+// strategy gets a deterministic FEASIBILITY score computed from
+// what the task's store, rules, and two-subject structure
+// actually support. Two effects, both honest:
+//   1. A paraphrase with NO cue words still reaches the
+//      strategy whose evidence structure exists — e.g. two
+//      comparison subjects both present in the store select
+//      comparative without "compare"/"vs" ever appearing.
+//   2. Selection order reflects evidence: a cued strategy
+//      keeps its cue score (its honest insufficient-evidence
+//      verdict is unchanged), and structure adds rank.
+// Probes are deterministic store/text inspections — nothing
+// fabricated, every bump carries a human-readable note.
+// ---------------------------------------------------------
+const TEMPORAL_FACT_CUES =
+  /^(?:observed|recorded|became|changed|started|finished|installed|completed|since|until|observed-at|year|date)/i;
+const CAUSAL_FACT_CUES = /(?:caus|effect|leads? to|results? in)/i;
+
+/** True when the store holds at least one fact touching the
+ *  given name (subject or object side, case-insensitive). */
+function storeMentions(store: FactStore, name: string): boolean {
+  const n = name.toLowerCase();
+  return store
+    .list()
+    .some(
+      (f) =>
+        f.subject.toLowerCase().includes(n) ||
+        String(f.object).toLowerCase().includes(n),
+    );
+}
+
+export function structuralFeasibility(task: ReasoningTask): Array<{
+  kind: StrategyKind;
+  score: number;
+  note: string;
+}> {
+  const facts = task.facts.list();
+  const notes: Array<{ kind: StrategyKind; score: number; note: string }> = [];
+
+  const push = (kind: StrategyKind, score: number, note: string) => {
+    if (score > 0) notes.push({ kind, score, note });
+  };
+
+  // comparative: two-subject structure, grounded in the store
+  const pair =
+    task.subject && task.subject2
+      ? { a: task.subject, b: task.subject2 }
+      : extractComparisonSubjects(task.text);
+  if (pair) {
+    const aKnown = storeMentions(task.facts, pair.a);
+    const bKnown = storeMentions(task.facts, pair.b);
+    if (aKnown && bKnown)
+      push(
+        "comparative",
+        2,
+        `store holds facts on both "${pair.a}" and "${pair.b}"`,
+      );
+    else
+      push(
+        "comparative",
+        1,
+        `two-subject structure ("${pair.a}" / "${pair.b}")`,
+      );
+  }
+
+  // temporal: stored temporal-evidence predicates
+  const temporalFacts = facts.filter((f) =>
+    TEMPORAL_FACT_CUES.test(f.predicate),
+  );
+  if (temporalFacts.length >= 2)
+    push(
+      "temporal",
+      2,
+      `${temporalFacts.length} temporal-evidence fact(s) stored`,
+    );
+  else if (temporalFacts.length === 1)
+    push("temporal", 1, "one temporal-evidence fact stored");
+
+  // probabilistic: contested-claim structure
+  const contested = facts.filter(
+    (f) => f.confidence > 0 && f.confidence < 0.99,
+  );
+  if (contested.length >= 2)
+    push(
+      "probabilistic",
+      2,
+      `${contested.length} contested-claim fact(s) (confidence < 1)`,
+    );
+  else if (contested.length === 1)
+    push("probabilistic", 1, "one contested-claim fact (confidence < 1)");
+
+  // causal: stored causal links or causal rules
+  const causalFacts = facts.filter((f) => CAUSAL_FACT_CUES.test(f.predicate));
+  const causalRules = task.rules.filter((r) =>
+    CAUSAL_FACT_CUES.test(r.produces.predicate),
+  );
+  if (causalFacts.length + causalRules.length >= 2)
+    push(
+      "causal",
+      2,
+      `${causalFacts.length + causalRules.length} causal link(s) available`,
+    );
+  else if (causalFacts.length + causalRules.length === 1)
+    push("causal", 1, "one causal link available");
+
+  // consistency: conflict-shaped store
+  const conflictShaped = (() => {
+    const seen = new Map<string, Set<string>>();
+    for (const f of facts) {
+      const key = `${f.subject}|${f.predicate}`;
+      const vals = seen.get(key) ?? new Set<string>();
+      vals.add(String(f.object));
+      seen.set(key, vals);
+    }
+    return [...seen.values()].some((v) => v.size > 1);
+  })();
+  if (conflictShaped)
+    push("consistency", 2, "same subject+predicate held with differing values");
+  else if (facts.length >= 3)
+    push("consistency", 1, `${facts.length} facts stored — checkable`);
+
+  // inductive: shared-predicate structure
+  const byPred = new Map<string, number>();
+  for (const f of facts)
+    byPred.set(f.predicate, (byPred.get(f.predicate) ?? 0) + 1);
+  const shared = [...byPred.values()].filter((n) => n >= 2).length;
+  if (shared >= 2)
+    push("inductive", 2, `${shared} predicate(s) shared by multiple facts`);
+  else if (shared === 1)
+    push("inductive", 1, "one predicate shared by multiple facts");
+
+  // mathematical / constraint: numeric evidence in the store
+  const numericFacts = facts.filter(
+    (f) => num(f.object) !== null || numericDimensions(f.object).length > 0,
+  );
+  if (numericFacts.length >= 2)
+    push("mathematical", 2, `${numericFacts.length} numeric fact(s) stored`);
+  else if (numericFacts.length === 1)
+    push("mathematical", 1, "one numeric fact stored");
+  if (numericFacts.length >= 1)
+    push("constraint", 1, "numeric bounds evaluable from stored facts");
+
+  return notes;
+}
+
 /** Deterministic, explainable strategy selection. */
 export function selectStrategies(task: ReasoningTask): {
   chosen: StrategyKind[];
@@ -135,6 +282,17 @@ export function selectStrategies(task: ReasoningTask): {
     bump("constraint", 3, "constraint/bound language");
   if (task.facts.list().length === 0)
     bump("consistency", 0, "empty store — nothing to check");
+
+  // Audit re-assessment gap 2: STRUCTURE joins lexical cues.
+  // Feasibility probes add rank to cued strategies and can
+  // SELECT a strategy outright when its evidence structure is
+  // strong (score >= 2) even with no cue words at all.
+  const structure = structuralFeasibility(task);
+  for (const f of structure) {
+    const existing = scores.find((s) => s.kind === f.kind);
+    if (existing) existing.score += f.score;
+    else if (f.score >= 2) bump(f.kind, f.score, `structure: ${f.note}`);
+  }
 
   // Nothing matched: honest fallback is logic over the store.
   const ranked = [...scores].sort((a, b) => b.score - a.score);
@@ -239,17 +397,35 @@ export function extractComparisonSubjects(
       `which is (?:cheaper|better|bigger|smaller|stronger|more expensive|more durable)\\s*,?\\s*(?:between\\s+)?([a-z0-9\\- ]+?)\\s+or\\s+([a-z0-9\\- ]+?)${tail}`,
       "i",
     ),
+    // Re-assessment gap 2 (2026-09-13): choice questions that
+    // carry NO comparison cue words ("should I use granite or
+    // sand for my driveway?") still carry two-subject CHOICE
+    // structure. Restricted to question-shaped text (must end
+    // in "?") so declarative "or" sentences are never misread.
+    new RegExp(
+      `([a-z0-9][a-z0-9\\- ]*?)\\s+or\\s+([a-z0-9][a-z0-9\\- ]*?)(?:\\s+(?:in|for|on|at|by)\\b[a-z0-9\\- ]*)?\\?\\s*$`,
+      "i",
+    ),
   ];
+  const strip = (x: string) =>
+    x
+      .trim()
+      .replace(/\s+(?:prices?|costs?|cost|rates?)$/i, "")
+      .replace(/^(?:the|my)\s+/i, "");
+  // Leading filler words before a choice subject ("should I use
+  // granite", "would you pick sand") are stripped deterministically.
+  const FILLER_LEAD =
+    /^(?:should|could|would|will|i|we|you|use|is|are|do|does|did|which|what|pick|choose|need|want|get|buy|prefer|to|a|an|the|my|me)\b\s*/i;
+  const stripLead = (x: string) => {
+    let out = x.trim();
+    while (FILLER_LEAD.test(out)) out = out.replace(FILLER_LEAD, "").trim();
+    return out;
+  };
   for (const re of patterns) {
     const m = re.exec(text);
     if (m) {
-      const strip = (x: string) =>
-        x
-          .trim()
-          .replace(/\s+(?:prices?|costs?|cost|rates?)$/i, "")
-          .replace(/^(?:the|my)\s+/i, "");
-      const a = strip(m[1]);
-      const b = strip(m[2]);
+      const a = stripLead(strip(m[1]));
+      const b = stripLead(strip(m[2]));
       if (a && b && a.toLowerCase() !== b.toLowerCase()) return { a, b };
     }
   }

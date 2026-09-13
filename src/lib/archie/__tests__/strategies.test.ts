@@ -6,6 +6,7 @@ import {
 } from "@studio-shared/archie-ai/native-engine/reasoning.ts";
 import {
   selectStrategies,
+  extractComparisonSubjects,
   executeStrategy,
   reasonWithStrategies,
   type ReasoningTask,
@@ -81,6 +82,74 @@ describe("Strategy selection (meta-reasoning)", () => {
       "why is it cheaper? compare probability and risk, what caused it, maybe a pattern, at least 3 and at most 5",
     );
     expect(selectStrategies(t).chosen.length).toBeLessThanOrEqual(2);
+  });
+});
+
+// ---------------------------------------------------------
+// Structure-driven selection (audit re-assessment gap 2):
+// the selector joins lexical cues with STORE STRUCTURE, so a
+// paraphrase with no cue words still reaches the strategy its
+// evidence supports — and an empty store still falls back.
+// ---------------------------------------------------------
+describe("Structure-driven selection (gap 2)", () => {
+  it("extracts subjects from choice questions with no comparison cue words", () => {
+    expect(
+      extractComparisonSubjects(
+        "should I use granite or sand for my driveway?",
+      ),
+    ).toEqual({ a: "granite", b: "sand" });
+    expect(extractComparisonSubjects("tea or coffee?")).toEqual({
+      a: "tea",
+      b: "coffee",
+    });
+  });
+
+  it("does not read declarative 'or' sentences as comparisons", () => {
+    expect(
+      extractComparisonSubjects("I will call you or send a message."),
+    ).toBeNull();
+  });
+
+  it("selects comparative from store structure alone — no cue words", async () => {
+    const t = await task("should I use granite or sand for my driveway?", {
+      seed: [
+        seed0("granite", "price-per-tonne", "9200"),
+        seed0("sand", "price-per-tonne", "4500"),
+      ],
+    });
+    const sel = selectStrategies(t);
+    expect(sel.chosen).toContain("comparative");
+    expect(sel.rationale).toMatch(/structure:/);
+  });
+
+  it("structure cannot select on an empty store — honest fallback stays", async () => {
+    const t = await task("should I use granite or sand for my driveway?");
+    const sel = selectStrategies(t);
+    expect(sel.chosen).toEqual(["logical"]);
+    expect(sel.rationale).toMatch(/honest fallback/i);
+  });
+
+  it("structure adds rank to a cued strategy, never removes it", async () => {
+    // "compare" cued + subjects grounded in the store → higher score
+    const grounded = await task("compare granite with sand", {
+      seed: [
+        seed0("granite", "price-per-tonne", "9200"),
+        seed0("sand", "price-per-tonne", "4500"),
+      ],
+    });
+    const g = selectStrategies(grounded);
+    const comparative = g.scores.find((x) => x.kind === "comparative");
+    expect(comparative?.score).toBeGreaterThan(3); // cue 3 + structure
+  });
+
+  it("conflict-shaped stores surface consistency from structure", async () => {
+    const t = await task("what do you know about cement?", {
+      seed: [
+        seed0("cement", "price-per-bag", "9200"),
+        seed0("cement", "price-per-bag", "7500"),
+      ],
+    });
+    expect(selectStrategies(t).chosen).toContain("consistency");
   });
 });
 

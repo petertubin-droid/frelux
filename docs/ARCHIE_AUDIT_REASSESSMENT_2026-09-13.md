@@ -129,3 +129,43 @@ Remaining honest gap to 9.2 (renumbered):
    browser-dependent STT/TTS. (~+0.1–0.2)
 
 **Overall: 8.9/10** (was 8.7 at re-assessment).
+
+---
+
+## Addendum 2 (2026-09-13, evening +2): gap 2 closed — strategy selection joins store structure
+
+The strategy front ends are no longer purely cue-regex. Selection now
+combines two deterministic, explainable signals:
+
+- **Lexical cues** (unchanged behavior): the existing surface-word
+  patterns, same scores. A cued strategy keeps its honest
+  insufficient-evidence verdict — structure only adds rank.
+- **Structural feasibility probes** (new): for each strategy kind, a
+  deterministic inspection of the task's store, rules, and two-subject
+  structure — comparison subjects grounded in the store, temporal
+  evidence predicates, contested-claim confidence structure, causal
+  links, conflict-shaped stores, shared-predicate patterns, numeric
+  evidence. A probe scoring ≥ 2 can SELECT a strategy outright, with
+  no cue words at all, and every bump carries a human-readable note
+  surfaced in the selection rationale.
+
+Paraphrase effect, test-proven: "should I use granite or sand for my
+driveway?" — no compare/vs/cheaper words anywhere — selects
+comparative when the store holds facts on both subjects, because the
+choice-question extractor (restricted to "?"-terminated text so
+declarative "or" sentences are never misread) supplies the pair and
+the store grounds it. An empty store still falls back to logical with
+the same honest rationale as before.
+
+Evidence: 6 new tests in `strategies.test.ts` (choice-question
+extraction, declarative non-match, structure-only selection, empty-store
+fallback preserved, structure-adds-rank, conflict-shaped consistency
+selection); full ARCHIE suite green (2091 passed / 2 expected fail,
+137 files); `tsc --noEmit` clean.
+
+Remaining honest gap to 9.2 (renumbered):
+
+1. **Sensory periphery** — eyes (PNG pixels), voiceprint (±30% pitch),
+   browser-dependent STT/TTS. (~+0.1–0.2)
+
+**Overall: 9.1/10** (was 8.9).
