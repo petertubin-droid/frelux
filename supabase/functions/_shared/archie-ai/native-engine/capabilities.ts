@@ -13,9 +13,13 @@ import type { CapabilityReport } from "./types.ts";
 
 export const NATIVE_ENGINE_ID = "archie-native-engine";
 
-/** The thirteen foundational processing layers the owner
- *  directed — each mapped to its real subsystem and honest
- *  maturity. */
+/** ARCHIE's capability manifest — every entry mapped to a
+ *  REAL subsystem or platform module with its honest maturity
+ *  and the test suite that measures it (owner directive
+ *  2026-09-14: the manifest must list the trading, offensive
+ *  security, passphrase recovery and platform engines that
+ *  already exist and are test-covered — no theater, no
+ *  invention). */
 export function nativeEngineCapabilityManifest(): CapabilityReport[] {
   return [
     {
@@ -142,6 +146,139 @@ export function nativeEngineCapabilityManifest(): CapabilityReport[] {
       maturity: "OPERATIONAL",
       measuredBy:
         "native-engine-runtime.test.ts (construction calculator cases)",
+    },
+    {
+      id: "trading-market-data",
+      description:
+        "Global markets intelligence: live market price observation and data ingestion persisted to archie_global_market_observations — platform module, client-tested",
+      maturity: "OPERATIONAL",
+      measuredBy: "market-data.test.ts, global-intelligence.test.ts",
+    },
+    {
+      id: "trading-exchange-execution",
+      description:
+        "Exchange execution intelligence: order routing to authorized exchanges with honest fill/skip reporting — never a simulated fill",
+      maturity: "OPERATIONAL",
+      measuredBy: "exchange-execution.test.ts",
+    },
+    {
+      id: "trading-order-lifecycle",
+      description:
+        "Order lifecycle state machine: created, routed, filled, cancelled — every transition auditable, no silent state jumps",
+      maturity: "OPERATIONAL",
+      measuredBy: "order-lifecycle.test.ts",
+    },
+    {
+      id: "trading-portfolio",
+      description:
+        "Portfolio intelligence: positions, exposure and realized/unrealized outcome tracking from real order records",
+      maturity: "OPERATIONAL",
+      measuredBy: "portfolio.test.ts",
+    },
+    {
+      id: "trading-slippage",
+      description:
+        "Slippage estimation on execution: honest expected-vs-actual spread reporting on every routed order",
+      maturity: "OPERATIONAL",
+      measuredBy: "slippage.test.ts",
+    },
+    {
+      id: "trading-gate",
+      description:
+        "Trade gate: trading actions are owner-authorized only — knowledge never grants trade authority; subscriber/private-data boundaries are enforced server-side",
+      maturity: "OPERATIONAL",
+      measuredBy: "trade-gate.test.ts",
+    },
+    {
+      id: "blockchain-ledger",
+      description:
+        "Blockchain intelligence: on-chain record semantics and ledger verification for trading and escrow flows",
+      maturity: "OPERATIONAL",
+      measuredBy: "blockchain.test.ts",
+    },
+    {
+      id: "crypto-intelligence",
+      description:
+        "Cryptocurrency intelligence: market intelligence for crypto assets feeding the same gated trading pipeline",
+      maturity: "OPERATIONAL",
+      measuredBy: "crypto-intelligence.test.ts",
+    },
+    {
+      id: "passphrase-vault-recovery",
+      description:
+        "Passphrase and recovery-phrase intelligence: HD-wallet / BIP39 recovery phrase handling and Stage-2 vault recovery — deterministic recovery paths, never invented mnemonics",
+      maturity: "OPERATIONAL",
+      measuredBy: "hd-crypto.test.ts, recovery-engine.test.ts, stage2-vault-recovery.test.ts",
+    },
+    {
+      id: "offensive-security",
+      description:
+        "Offensive security (authorized hacking only): engagements, findings and targets recorded in archie_offensive_* tables; every engagement requires explicit owner authorization — never autonomous targeting",
+      maturity: "OPERATIONAL",
+      measuredBy: "offensive-security.test.ts",
+    },
+    {
+      id: "api-credential-security",
+      description:
+        "API credential security: enrollment, rotation and scoped grants for third-party credentials — secrets never stored in plaintext",
+      maturity: "OPERATIONAL",
+      measuredBy: "api-credentials.test.ts",
+    },
+    {
+      id: "cross-project-authentication",
+      description:
+        "Cross-project authority authentication: signed authority JWTs let only whitelisted projects call ARCHIE actions",
+      maturity: "OPERATIONAL",
+      measuredBy: "cross-project-auth.test.ts",
+    },
+    {
+      id: "trusted-device-enrollment",
+      description:
+        "Trusted device enrollment: devices require explicit enrollment with session-specific tokens and granular permission sets — never unified global access",
+      maturity: "OPERATIONAL",
+      measuredBy: "trusted-devices-forensic.test.ts",
+    },
+    {
+      id: "engineering-objective",
+      description:
+        "Engineering objective reasoning: goal decomposition into measurable engineering objectives with honest completion states",
+      maturity: "OPERATIONAL",
+      measuredBy: "engineering-objective.test.ts",
+    },
+    {
+      id: "vision-perception",
+      description:
+        "Vision/perception: image analysis adapters feeding document and site inspection intelligence",
+      maturity: "OPERATIONAL",
+      measuredBy: "vision.test.ts",
+    },
+    {
+      id: "voiceprint-identity",
+      description:
+        "Voiceprint identity: voice enrollment and verification for trusted voice sessions",
+      maturity: "OPERATIONAL",
+      measuredBy: "voice-enrollment.test.ts, voiceprint.test.ts, voice-session.test.ts",
+    },
+    {
+      id: "whatsapp-integration",
+      description:
+        "WhatsApp intelligence: protocol-compliant messaging, reminders and message history via the WhatsApp client",
+      maturity: "OPERATIONAL",
+      measuredBy: "whatsapp-integration.test.ts, whatsapp-protocol.test.ts",
+    },
+    {
+      id: "web-source-registry",
+      description:
+        "Priority web source registry: domain-classified source selection for research (construction, finance, news and more)",
+      maturity: "OPERATIONAL",
+      measuredBy: "archie-web-source-registry.test.ts",
+    },
+    {
+      id: "deep-page-verification",
+      description:
+        "Deep page verification: robots-checked, timeout-guarded page fetching so research findings are content-verified, not snippet-only",
+      maturity: "OPERATIONAL",
+      measuredBy: "page-fetch.test.ts, webresearch-adapter.test.ts",
     },
     {
       id: "generative-language-model",
