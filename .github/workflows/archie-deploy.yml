@@ -64,7 +64,9 @@ jobs:
         # anonymous visitor path (exact service-role bearer
         # equality inside), so it deploys WITH the gateway
         # JWT lock; every visitor-path function keeps
-        # --no-verify-jwt as before.
+        # --no-verify-jwt as before. NOTE: the Supabase CLI has no
+        # --verify-jwt flag — JWT verification is the DEFAULT, so the
+        # worker deploys with no flag at all.
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
           ARCHIE_PROJECT_REFS: pjvtqkshewerpvggtgqx hqhvlkunkdrxyuvziorm
@@ -77,7 +79,7 @@ jobs:
               name="$(basename "$d")"
               jwt_flag="--no-verify-jwt"
               if [ "$name" = "archie-agent-worker" ]; then
-                jwt_flag="--verify-jwt"
+                jwt_flag=""  # default: JWT verification ON
               fi
               echo "::group::Deploying $name to $ref ($jwt_flag)"
               if supabase functions deploy "$name" \
