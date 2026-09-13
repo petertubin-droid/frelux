@@ -2253,7 +2253,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
           status: "owner-asserted",
         });
         const text = conflict
-          ? `Retained — but flagged: this contradicts ${conflict.conflictingFactIds.length} existing fact(s) on the same point. Both are held as uncertain until you confirm which is correct.`
+          ? `Updated — this replaces ${conflict.conflictingFactIds.length} older record(s) on the same point (the older version is kept marked uncertain for history). Your latest teaching stands; no approval step needed.`
           : `Retained as your assertion (owner-asserted — held on your authority, not independently verified): ${fact.subject} ${fact.predicate.replace(/-/g, " ")} → ${String(fact.object)}. When I use it and you confirm I was right, it earns validated status.`;
         return this.compose(text, nlu.confidence, [fact.id]);
       }

@@ -505,6 +505,15 @@ export class FactStore {
           cf.status = "uncertain";
           await this.persistFact(cf);
         }
+      } else if (incomingAuthoritative) {
+        // OWNER AUTHORITY (owner directive 2026-09-14): knowledge
+        // learning requires NO approval — the owner's latest taught
+        // fact outranks every standing record, stored or derived.
+        // The conflicts are demoted; the newcomer is stored live.
+        for (const cf of conflictingFacts) {
+          cf.status = "uncertain";
+          await this.persistFact(cf);
+        }
       } else {
         // Park the newcomer as uncertain — never store as established fact.
         full.status = "uncertain";
