@@ -15,6 +15,7 @@
 // =========================================================
 
 import { useCallback, useEffect, useState } from "react";
+import { runArchiePipeline } from "@/lib/archie/ingest";
 import {
   approveIngestionCandidates,
   createArchieIngestion,
@@ -202,6 +203,53 @@ export default function ArchieTraining() {
     } finally {
       setBusy(false);
     }
+  }
+
+  // ---------------------------------------------------------
+  // Re-open a stored AWAITING_APPROVAL ingestion for owner
+  // review. Candidates are rebuilt deterministically from
+  // the persisted extraction via the same pipeline, then the
+  // existing Approve selected / Reject all panel takes over.
+  // ---------------------------------------------------------
+  function reviewIngestion(i: ArchieIngestion) {
+    setError("");
+    setNotice("");
+    if (!contributor) {
+      setError("No contributor profile loaded");
+      return;
+    }
+    if (!i.extraction) {
+      setError("This ingestion has no stored extraction to review");
+      return;
+    }
+    const result = runArchiePipeline(
+      {
+        input_type: i.input_type,
+        title: i.title,
+        domain: i.domain,
+        region: i.region ?? undefined,
+        text: i.raw_text ?? undefined,
+        media_uri: i.media_uri ?? undefined,
+        source_ref: i.source_ref ?? undefined,
+        contributor,
+      },
+      i.extraction,
+    );
+    if (!result.candidates.length) {
+      setError("No knowledge candidates could be rebuilt from this ingestion");
+      return;
+    }
+    setPreview({
+      ingestionId: i.id,
+      candidates: result.candidates,
+      flags: result.flags,
+    });
+    setSelected(new Set(result.candidates.map((_, idx) => idx)));
+    setEngineeringReviewed(false);
+    setNotice(
+      `Reviewing "${i.title}": approve or reject below. ARCHIE never promotes on its own.`,
+    );
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   async function handleApprove() {
@@ -517,6 +565,15 @@ export default function ArchieTraining() {
                 {i.domain} · {i.input_type.replace(/_/g, " ")} ·{" "}
                 {i.candidate_count} candidate(s)
               </p>
+              {i.pipeline_state === "AWAITING_APPROVAL" && (
+                <ArchieButton
+                  onClick={() => reviewIngestion(i)}
+                  disabled={busy}
+                  className="mt-2 py-1.5 text-xs"
+                >
+                  Review and approve
+                </ArchieButton>
+              )}
             </li>
           ))}
           {!ingestions.length && !error && (
