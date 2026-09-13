@@ -97,11 +97,29 @@ export class VerificationEngine {
 
     // 3. COMPLETENESS — required aspects must appear in the
     //    output (or be explicitly declared unknown).
+    // FIX 19 (remediation batch 7, Level 4 kernel audit
+    // 2026-09-13): the unknown-excusal used to be a BLANKET
+    // pass — one stray "unknown" anywhere in the output (even
+    // ARCHIE's own "[Epistemic status: UNKNOWN]" footer)
+    // excused EVERY missing aspect. The excusal is now scoped:
+    // an aspect is excused only when the output explicitly
+    // declares THAT aspect unknown / not stored, within a
+    // bounded window of the uncertainty marker.
     const lower = req.output.toLowerCase();
+    const explicitlyUnknownFor = (aspect: string): boolean => {
+      const a = aspect.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const before = new RegExp(
+        a + "[^.\\n]{0,60}(unknown|not stored|no knowledge|not sure)",
+        "i",
+      );
+      const after = new RegExp(
+        "(unknown|not stored|no knowledge|not sure)[^.\\n]{0,60}" + a,
+        "i",
+      );
+      return before.test(req.output) || after.test(req.output);
+    };
     const missing = req.requiredAspects.filter(
-      (a) =>
-        !lower.includes(a.toLowerCase()) &&
-        !req.output.toLowerCase().includes("unknown"),
+      (a) => !lower.includes(a.toLowerCase()) && !explicitlyUnknownFor(a),
     );
     checks.push({
       check: "completeness",

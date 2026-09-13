@@ -672,6 +672,14 @@ ${worldCtx.block}`
         return creationNote;
       },
       "no artifact requested",
+      // FIX 21 (remediation batch 7, Level 4 kernel audit
+      // 2026-09-13): executed CREATE phases used to fall back
+      // to the ceremonial "completed (measured)" default —
+      // P9 says an executed phase records WHAT IT PRODUCED.
+      (note) =>
+        note
+          ? "unit-test scaffold generated (deterministic creation engine)"
+          : "create branch ran; no artifact requested by this input",
     );
 
     // ── VERIFY (formal verdict before presentation) ──
@@ -788,6 +796,27 @@ ${worldCtx.block}`
       )
     ) {
       responseText += `\n[Epistemic status: ${epistemic}]`;
+    }
+
+    // ── ACT (honest record of the action surface) ──
+    // FIX 18 (remediation batch 7, Level 4 kernel audit
+    // 2026-09-13): the orchestrator routes ACT on nearly
+    // every intent, but the kernel never recorded the phase —
+    // every saved trace silently omitted a phase its own
+    // route declared. The kernel's action is either the
+    // composed response itself (delivered in conversation) or
+    // a tool call RELAYED to the caller's tool loop; both are
+    // now recorded within the P9 honest status set.
+    if (routePhases.has("ACT")) {
+      phases.push({
+        phase: "ACT",
+        organs: ORGAN_PHASE_BINDINGS["ACT"] ?? [],
+        status: core.toolCall ? "delegated" : "skipped",
+        summary: core.toolCall
+          ? `tool call "${core.toolCall.name}" emitted — execution delegated to the caller's tool loop (archie-chat)`
+          : "no external action required — the composed response is the act, delivered in conversation",
+        durationMs: 0,
+      });
     }
 
     // ── OBSERVE / EVALUATE / LEARN ──

@@ -76,16 +76,62 @@ function parseStructured(raw: string): {
   if (trimmed.includes(",") && trimmed.includes("\n")) {
     const lines = trimmed.split("\n").filter((l) => l.trim());
     if (lines.length >= 2) {
-      const header = lines[0].split(",").map((h) => h.trim());
-      const rows = lines.slice(1).map((line) => {
-        const cells = line.split(",").map((c) => c.trim());
-        const row: Record<string, string> = {};
-        header.forEach((h, i) => {
-          row[h] = cells[i] ?? "";
-        });
-        return row;
-      });
-      return { parsed: { header, rows }, format: "csv" };
+      // FIX 20 (remediation batch 7, Level 4 kernel audit
+      // 2026-09-13): CSV cells were split on EVERY comma — a
+      // quoted cell like "Lagos, Nigeria" silently misparsed
+      // into two wrong cells with no honesty note. Parsing is
+      // now quote-aware (RFC-4180-lite: quoted cells may
+      // contain commas/escapes). A line with UNBALANCED quotes
+      // is refused honestly (format: null) instead of
+      // misparsed silently.
+      const splitRow = (line: string): string[] | null => {
+        const cells: string[] = [];
+        let cur = "";
+        let inQuotes = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (inQuotes) {
+            if (ch === '"') {
+              if (line[i + 1] === '"') {
+                cur += '"';
+                i++;
+              } else {
+                inQuotes = false;
+              }
+            } else {
+              cur += ch;
+            }
+          } else if (ch === '"') {
+            inQuotes = true;
+          } else if (ch === ",") {
+            cells.push(cur.trim());
+            cur = "";
+          } else {
+            cur += ch;
+          }
+        }
+        if (inQuotes) return null; // unbalanced quote — refuse
+        cells.push(cur.trim());
+        return cells;
+      };
+      const header = splitRow(lines[0]);
+      if (header) {
+        const rows: Array<Record<string, string>> = [];
+        let refused = false;
+        for (const line of lines.slice(1)) {
+          const cells = splitRow(line);
+          if (!cells) {
+            refused = true;
+            break;
+          }
+          const row: Record<string, string> = {};
+          header.forEach((h, i) => {
+            row[h] = cells[i] ?? "";
+          });
+          rows.push(row);
+        }
+        if (!refused) return { parsed: { header, rows }, format: "csv" };
+      }
     }
   }
   return { parsed: null, format: null };
