@@ -1554,11 +1554,18 @@ export class ArchieNativeEngine implements ArchieRuntime {
       // acknowledgement or cited outcomes that reinforce
       // nothing (recorded after the switch, below).
       // -------------------------------------------------
-      // Greeting keeps the REAL engine state greeting (owner
-      // spec, native-engine-runtime test: "greets with real
-      // engine state — no canned conversational script").
+      // Greeting (owner report 2026-09-14: a hello must be
+      // recognized AS a greeting — for the owner and for any
+      // visitor — not answered with a bare status dump). The
+      // reply still keeps the REAL engine state (native-
+      // engine-runtime test: "greets with real engine state —
+      // no canned conversational script"); the state line
+      // follows the actual greeting instead of replacing it.
       case "greeting": {
-        const text = `ARCHIE native engine online and listening. ${this.statusLine()} Ask me anything in my knowledge, or teach me something new.`;
+        const hour = new Date().getUTCHours();
+        const daypart =
+          hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+        const text = `${daypart}! Hello to you too — ARCHIE native engine online and listening. ${this.statusLine()} Ask me anything in my knowledge, or teach me something new.`;
         return this.compose(text, nlu.confidence, []);
       }
       case "state_change_claim": {
