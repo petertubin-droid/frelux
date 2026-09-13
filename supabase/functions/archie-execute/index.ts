@@ -148,7 +148,11 @@ async function securityEvent(
   try {
     await db.from("frelux_security_events").insert({
       user_id: userId,
-      event_type: type,
+      // FIX 26: the table column is `kind` — the old
+      // `event_type` inserts were rejected by PostgREST and
+      // silently swallowed, leaving execution security
+      // events dark.
+      kind: type,
       severity,
       message,
     });
@@ -198,7 +202,7 @@ const engineDeps: EngineDeps = {
       .from("frelux_security_events")
       .select("id", { count: "exact", head: true })
       .eq("user_id", userId)
-      .eq("event_type", "EXECUTION_OWNER_SECRET_INVALID")
+      .eq("kind", "EXECUTION_OWNER_SECRET_INVALID")
       .gte("created_date", since);
     if (error) return 0;
     return count ?? 0;

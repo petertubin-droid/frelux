@@ -1241,6 +1241,10 @@ serveWithCors(async (req) => {
     // Signature verification is impossible without the app
     // secret: REFUSE (fail closed), and log the event.
     try {
+      // FIX 26: system-level event with no user — insertable
+      // only since user_id became nullable (migration
+      // 20260913030000). Pre-fix, the NOT NULL constraint
+      // silently swallowed BOTH signature-refusal criticals.
       await db.from("frelux_security_events").insert({
         kind: "ARCHIE_WHATSAPP_SIGNATURE_UNVERIFIABLE",
         severity: "critical",
@@ -1259,6 +1263,7 @@ serveWithCors(async (req) => {
   );
   if (!valid) {
     try {
+      // FIX 26: same as above — system-level, user_id NULL.
       await db.from("frelux_security_events").insert({
         kind: "ARCHIE_WHATSAPP_BAD_SIGNATURE",
         severity: "warning",

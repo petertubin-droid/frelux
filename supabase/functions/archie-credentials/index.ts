@@ -33,6 +33,7 @@ import { serveWithCors } from "../_shared/serve.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import {
   CredentialEnvironment,
+  UNKNOWN_OWNER,
   createCredential,
   revokeCredential,
   rotateCredential,
@@ -176,10 +177,12 @@ serveWithCors(async (req) => {
   const isOwner =
     Array.isArray(profile.data) && profile.data[0]?.role === "admin";
   if (!isOwner) {
+    // FIX 28: pass the UNKNOWN_OWNER sentinel — the store
+    // resolves the real owner account, and if none resolves it
+    // now persists as a SYSTEM event instead of the previous
+    // FK-violating fake uuid that silently lost this critical.
     await store.recordAudit({
-      ownerId: (await service<{ id: string }[]>(
-        "rest/v1/profiles?role=eq.admin&select=id&order=created_at.asc&limit=1",
-      )).data?.[0]?.id ?? "00000000-0000-0000-0000-000000000000",
+      ownerId: UNKNOWN_OWNER,
       kind: "archie_api_credential.unauthorized_access",
       severity: "critical",
       message:
@@ -219,7 +222,8 @@ serveWithCors(async (req) => {
           {
             name: String(body.name ?? ""),
             application: String(body.application ?? ""),
-            environment: (body.environment ?? "production") as CredentialEnvironment,
+            environment: (body.environment ??
+              "production") as CredentialEnvironment,
             scopes: body.scopes,
             expiresAt,
             rateLimitPerMinute: body.rateLimitPerMinute ?? 60,
@@ -274,7 +278,9 @@ serveWithCors(async (req) => {
           return json(400, { ok: false, error: "Credential id required." });
         }
         const expiresAt = body.expiresInDaysNew
-          ? new Date(Date.now() + body.expiresInDaysNew * 86_400_000).toISOString()
+          ? new Date(
+              Date.now() + body.expiresInDaysNew * 86_400_000,
+            ).toISOString()
           : null;
         const rotated = await rotateCredential(
           store,
@@ -323,7 +329,12 @@ serveWithCors(async (req) => {
         return json(200, {
           ok: true,
           killswitch: (await store.getKillswitch()) ? "ENABLED" : "DISABLED",
-          scopes: ["archie:chat", "archie:calculate", "archie:research", "archie:status"],
+          scopes: [
+            "archie:chat",
+            "archie:calculate",
+            "archie:research",
+            "archie:status",
+          ],
         });
       }
 

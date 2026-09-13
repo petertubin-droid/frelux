@@ -123,6 +123,33 @@ function recordAttempt(userId: string): void {
   }
 }
 
+// FIX 29 (remediation batch 9, Level 6 security audit,
+// 2026-09-13): the in-memory rate limiter is PER-ISOLATE —
+// edge isolates recycle and scale out, so the counter resets
+// on every cold start and never syncs between concurrent
+// instances. A patient attacker simply outlasts the isolate.
+// This DB-backed check mirrors the batch-8 execute-side
+// throttle: 5 failed verifications in the last 15 minutes
+// (frelux_security_events, kind=OWNER_AUTH_FAILED, indexed
+// on user_id+created_date) locks the door DURABLY. Fails open
+// on DB error — an infrastructure hiccup must never lock the
+// owner out. The in-memory limiter stays as a cheap first
+// line; this is the durable second line.
+async function dbThrottleCount(userId: string): Promise<number> {
+  const since = new Date(Date.now() - 15 * 60 * 1000).toISOString();
+  const { data, error } = await service<unknown[]>(
+    `rest/v1/frelux_security_events?user_id=eq.${userId}` +
+      `&kind=eq.OWNER_AUTH_FAILED&created_date=gte.${since}` +
+      `&select=id&limit=5`,
+  );
+  if (error) return 0;
+  return Array.isArray(data) ? data.length : 0;
+}
+const DB_THROTTLE_ATTEMPTS = 5;
+async function dbThrottleHit(userId: string): Promise<boolean> {
+  return (await dbThrottleCount(userId)) >= DB_THROTTLE_ATTEMPTS;
+}
+
 async function securityEvent(
   userId: string,
   kind: string,
@@ -310,6 +337,23 @@ serveWithCors(async (req) => {
             429,
           );
         }
+        // FIX 29: durable, cross-isolate brute-force bound.
+        if (await dbThrottleHit(userId)) {
+          await securityEvent(
+            userId,
+            "OWNER_AUTH_THROTTLED",
+            "critical",
+            "Owner authorization locked: 5 failed verifications in the " +
+              "last 15 minutes (durable, cross-isolate).",
+          );
+          return json(
+            {
+              ok: false,
+              error: "Too many failed verifications — locked for 15 minutes.",
+            },
+            429,
+          );
+        }
         const secret = body.secret ?? "";
         const cred = await service<{
           secret_hash: string;
@@ -416,8 +460,33 @@ serveWithCors(async (req) => {
             403,
           );
         if (rateLimited(userId)) {
+          // FIX 29: the authorize-change path records this as a
+          // critical; the rollback path silently did not.
+          await securityEvent(
+            userId,
+            "RATE_LIMIT_HIT",
+            "critical",
+            "Too many rollback-recording attempts — locked for 10 minutes.",
+          );
           return json(
             { ok: false, error: "Too many attempts. Try again in 10 minutes." },
+            429,
+          );
+        }
+        // FIX 29: same durable cross-isolate bound.
+        if (await dbThrottleHit(userId)) {
+          await securityEvent(
+            userId,
+            "OWNER_AUTH_THROTTLED",
+            "critical",
+            "Rollback recording locked: 5 failed verifications in the " +
+              "last 15 minutes (durable, cross-isolate).",
+          );
+          return json(
+            {
+              ok: false,
+              error: "Too many failed verifications — locked for 15 minutes.",
+            },
             429,
           );
         }

@@ -180,7 +180,13 @@ export class SecurityIntegrityEngine {
     if (!this.dbRef) return;
     try {
       await this.dbRef.from("frelux_security_events").insert({
-        event_type: "audit_chain_compromised",
+        // FIX 26: the column is `kind`, not `event_type`, and
+        // user_id is now nullable for SYSTEM events — both
+        // defects made this critical event impossible to
+        // record (silently). A chain compromise is the one
+        // event this engine exists to raise.
+        user_id: null,
+        kind: "audit_chain_compromised",
         severity: "critical",
         message:
           `ARCHIE audit chain failed integrity verification on hydrate: ` +

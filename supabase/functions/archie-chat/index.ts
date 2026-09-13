@@ -1101,7 +1101,10 @@ const chatEngineDeps: EngineDeps = {
     try {
       await db.from("frelux_security_events").insert({
         user_id: userId,
-        event_type: type,
+        // FIX 26: column is `kind` (see migration
+        // 20260913030000) — `event_type` inserts were
+        // silently rejected.
+        kind: type,
         severity,
         message,
       });
@@ -1623,104 +1626,114 @@ serveWithCors(async (req) => {
   //         extraction-ready: when ARCHIE is separated from
   //         FRELUX, applications point this same credential at
   //         ARCHIE's own endpoint. Nothing else changes.
-  const presentedApiKey = credentialFromAuthHeader(authHeader) ??
-    (req.headers.get("x-archie-api-key") ?? "");
+  const presentedApiKey =
+    credentialFromAuthHeader(authHeader) ??
+    req.headers.get("x-archie-api-key") ??
+    "";
   if (!user && isCredentialKey(presentedApiKey)) {
     try {
-    // Each capability maps to a required scope; default is
-    // the conversational contract (archie:chat).
-    const rawCapability = String(body.capability ?? "chat").slice(0, 24);
-    const requiredScopes =
-      rawCapability === "status" ? ["archie:status"] : ["archie:chat"];
+      // Each capability maps to a required scope; default is
+      // the conversational contract (archie:chat).
+      const rawCapability = String(body.capability ?? "chat").slice(0, 24);
+      const requiredScopes =
+        rawCapability === "status" ? ["archie:status"] : ["archie:chat"];
 
-    const auth = await authenticateCredential(chatApiCredentialStore, presentedApiKey, {
-      requiredScopes,
-      pepper: Deno.env.get("ARCHIE_API_PEPPER") ?? "",
-    });
+      const auth = await authenticateCredential(
+        chatApiCredentialStore,
+        presentedApiKey,
+        {
+          requiredScopes,
+          pepper: Deno.env.get("ARCHIE_API_PEPPER") ?? "",
+        },
+      );
 
-    if (!auth.ok) {
-      const status = auth.code === "rate_limited"
-        ? 429
-        : auth.code === "invalid"
-        ? 401
-        : 403;
-      return json(status, {
-        error: auth.message,
-        code: auth.code,
-        mode: "api_credential",
-      });
-    }
-
-    const cred = auth.credential;
-
-    // Capability gate: "status" is the only non-chat
-    // capability exposed over this contract today, and it
-    // needs its own scope.
-    if (rawCapability === "status") {
-      return json(200, {
-        ok: true,
-        mode: "api_credential",
-        application: cred.application,
-        environment: cred.environment,
-        capability: "status",
-        scopes: cred.scopes,
-      });
-    }
-
-    if (!message) {
-      return json(400, {
-        error: "Message is required",
-        code: "invalid_request",
-        mode: "api_credential",
-      });
-    }
-
-    // Isolated application session: fresh engine, no tools,
-    // no persistence, no owner memory. Rate limiting already
-    // ran inside authenticateCredential (per-credential).
-    const appRuntime = new ArchieNativeEngine();
-    const appRequest: ArchieInferenceRequest = {
-      turns: [{ role: "owner" as const, parts: [{ text: message }] }],
-      systemInstruction:
-        `You are ARCHIE, serving the authorized application "${cred.application}" ` +
-        `(${cred.environment}) through a scoped API credential. Answer directly and ` +
-        `honestly within your knowledge. You are not the owner's personal session: ` +
-        `no owner data, memory or tools are available over this channel.`,
-      tools: [],
-      conversationId: `api-credential:${cred.id}`,
-    };
-
-    try {
-      const result = await appRuntime.generate(appRequest);
-      const text = result.parts
-        .map((p) => p.text)
-        .filter(Boolean)
-        .join("")
-        .trim();
-      if (!text) {
-        return json(502, {
-          error: "The engine produced no response. Please retry.",
+      if (!auth.ok) {
+        const status =
+          auth.code === "rate_limited"
+            ? 429
+            : auth.code === "invalid"
+              ? 401
+              : 403;
+        return json(status, {
+          error: auth.message,
+          code: auth.code,
           mode: "api_credential",
         });
       }
-      return json(200, {
-        reply: sanitize(text),
-        mode: "api_credential",
-        application: cred.application,
-      });
-    } catch (err) {
-      return json(502, {
-        error: err instanceof Error ? sanitize(err.message) : "Engine failure",
-        mode: "api_credential",
-      });
-    }
+
+      const cred = auth.credential;
+
+      // Capability gate: "status" is the only non-chat
+      // capability exposed over this contract today, and it
+      // needs its own scope.
+      if (rawCapability === "status") {
+        return json(200, {
+          ok: true,
+          mode: "api_credential",
+          application: cred.application,
+          environment: cred.environment,
+          capability: "status",
+          scopes: cred.scopes,
+        });
+      }
+
+      if (!message) {
+        return json(400, {
+          error: "Message is required",
+          code: "invalid_request",
+          mode: "api_credential",
+        });
+      }
+
+      // Isolated application session: fresh engine, no tools,
+      // no persistence, no owner memory. Rate limiting already
+      // ran inside authenticateCredential (per-credential).
+      const appRuntime = new ArchieNativeEngine();
+      const appRequest: ArchieInferenceRequest = {
+        turns: [{ role: "owner" as const, parts: [{ text: message }] }],
+        systemInstruction:
+          `You are ARCHIE, serving the authorized application "${cred.application}" ` +
+          `(${cred.environment}) through a scoped API credential. Answer directly and ` +
+          `honestly within your knowledge. You are not the owner's personal session: ` +
+          `no owner data, memory or tools are available over this channel.`,
+        tools: [],
+        conversationId: `api-credential:${cred.id}`,
+      };
+
+      try {
+        const result = await appRuntime.generate(appRequest);
+        const text = result.parts
+          .map((p) => p.text)
+          .filter(Boolean)
+          .join("")
+          .trim();
+        if (!text) {
+          return json(502, {
+            error: "The engine produced no response. Please retry.",
+            mode: "api_credential",
+          });
+        }
+        return json(200, {
+          reply: sanitize(text),
+          mode: "api_credential",
+          application: cred.application,
+        });
+      } catch (err) {
+        return json(502, {
+          error:
+            err instanceof Error ? sanitize(err.message) : "Engine failure",
+          mode: "api_credential",
+        });
+      }
     } catch (diagErr) {
       // Credential-channel diagnostic: machine-readable code,
       // never key material (the message is sanitized and
       // stripped of any credential fragment defensively).
       const raw = diagErr instanceof Error ? diagErr.message : String(diagErr);
       return json(500, {
-        error: sanitize(raw.replace(/archie_ak_[A-Za-z0-9_-]+/g, "archie_ak_[redacted]")).slice(0, 300),
+        error: sanitize(
+          raw.replace(/archie_ak_[A-Za-z0-9_-]+/g, "archie_ak_[redacted]"),
+        ).slice(0, 300),
         code: "credential_channel_error",
         mode: "api_credential",
       });

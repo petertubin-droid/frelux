@@ -245,12 +245,14 @@ describe("Fix 24 — owner-secret brute force is throttled", () => {
 /** Mock that models the REAL primary key: (chain_id, seq). */
 class AuditMockDb implements SupabaseLike {
   public rows: Array<Record<string, unknown>> = [];
+  public securityEvents: Array<Record<string, unknown>> = [];
   from(table: string) {
-    void table;
+    const rows = () =>
+      table === "frelux_security_events" ? this.securityEvents : this.rows;
     return {
-      select: async (_query: string) => ({ data: [...this.rows], error: null }),
+      select: async (_query: string) => ({ data: [...rows()], error: null }),
       insert: async (row: unknown) => {
-        this.rows.push({ ...(row as Record<string, unknown>) });
+        rows().push({ ...(row as Record<string, unknown>) });
         return { error: null };
       },
       update: (patch: unknown) => ({
@@ -261,11 +263,12 @@ class AuditMockDb implements SupabaseLike {
       }),
       upsert: async (row: unknown) => {
         const r = row as Record<string, unknown>;
-        const idx = this.rows.findIndex(
+        const list = rows();
+        const idx = list.findIndex(
           (x) => x.chain_id === r.chain_id && x.seq === r.seq,
         );
-        if (idx >= 0) this.rows[idx] = r;
-        else this.rows.push(r);
+        if (idx >= 0) list[idx] = r;
+        else list.push(r);
         return { error: null };
       },
     };
@@ -303,6 +306,14 @@ describe("Fix 23 — concurrent isolate chains never collide", () => {
     const { chainValid } = await fresh.hydrate();
     expect(chainValid).toBe(false);
     expect(fresh.quarantined().length).toBe(2);
+    // FIX 26: the compromise critical must actually persist —
+    // with the right column (`kind`) and as a SYSTEM event
+    // (user_id NULL). Pre-fix, this insert was silently
+    // rejected by PostgREST on both counts.
+    expect(db.securityEvents.length).toBe(1);
+    expect(db.securityEvents[0].kind).toBe("audit_chain_compromised");
+    expect(db.securityEvents[0].severity).toBe("critical");
+    expect(db.securityEvents[0].user_id).toBeNull();
   });
 
   it("an engine with its own persisted chain CONTINUES it on hydrate", async () => {

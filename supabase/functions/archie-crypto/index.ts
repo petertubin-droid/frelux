@@ -153,10 +153,20 @@ async function service<T>(
   path: string,
   init?: RequestInit,
 ): Promise<{ data: T | null; error: string | null }> {
-  const res = await fetch(`${SUPABASE_URL}${path}`, {
+  // FIX 27 (remediation batch 9, Level 6 security audit
+  // 2026-09-13): the Supabase REST gateway requires BOTH the
+  // apikey header and the bearer token (supabase-js always
+  // sends both). Without apikey, Kong rejects every call with
+  // 401 "No API key found in request" — this entire function's
+  // REST reads/writes were dead in production. Same convention
+  // as archie-owner-auth / api-credential-store, plus the
+  // trailing-slash-safe join.
+  const base = SUPABASE_URL.endsWith("/") ? SUPABASE_URL : `${SUPABASE_URL}/`;
+  const res = await fetch(`${base}${path.replace(/^\/+/, "")}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
+      apikey: SERVICE_ROLE,
       Authorization: `Bearer ${SERVICE_ROLE}`,
       ...(init?.headers ?? {}),
     },

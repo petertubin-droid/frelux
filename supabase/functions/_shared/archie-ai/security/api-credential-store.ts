@@ -31,9 +31,7 @@ function makeService(
   // Normalize the join: SUPABASE_URL may or may not carry a
   // trailing slash (platform-injected env varies) — a missing
   // separator produced "supabase.corest/v1/..." DNS failures.
-  const base = supabaseUrl.endsWith("/")
-    ? supabaseUrl
-    : `${supabaseUrl}/`;
+  const base = supabaseUrl.endsWith("/") ? supabaseUrl : `${supabaseUrl}/`;
 
   return async function service<T>(
     path: string,
@@ -132,31 +130,28 @@ export function createSupabaseCredentialStore(
 
   return {
     async insertCredential(record) {
-      const { error } = await service(
-        "rest/v1/frelux_archie_api_credentials",
-        {
-          method: "POST",
-          headers: { Prefer: "return=minimal" },
-          body: JSON.stringify(recordToRow(record)),
-        },
-      );
+      const { error } = await service("rest/v1/frelux_archie_api_credentials", {
+        method: "POST",
+        headers: { Prefer: "return=minimal" },
+        body: JSON.stringify(recordToRow(record)),
+      });
       return error ? { ok: false, reason: error } : { ok: true };
     },
 
     async findByHash(hash) {
       const { data } = await service<Record<string, unknown>[]>(
-        `rest/v1/frelux_archie_api_credentials?key_hash=eq.${
-          encodeURIComponent(hash)
-        }&select=*`,
+        `rest/v1/frelux_archie_api_credentials?key_hash=eq.${encodeURIComponent(
+          hash,
+        )}&select=*`,
       );
       return data && data.length > 0 ? rowToRecord(data[0]) : null;
     },
 
     async findById(id) {
       const { data } = await service<Record<string, unknown>[]>(
-        `rest/v1/frelux_archie_api_credentials?id=eq.${
-          encodeURIComponent(id)
-        }&select=*`,
+        `rest/v1/frelux_archie_api_credentials?id=eq.${encodeURIComponent(
+          id,
+        )}&select=*`,
       );
       return data && data.length > 0 ? rowToRecord(data[0]) : null;
     },
@@ -184,9 +179,7 @@ export function createSupabaseCredentialStore(
       if (patch.lastUsedAt !== undefined) row.last_used_at = patch.lastUsedAt;
       if (patch.expiresAt !== undefined) row.expires_at = patch.expiresAt;
       const { error } = await service(
-        `rest/v1/frelux_archie_api_credentials?id=eq.${
-          encodeURIComponent(id)
-        }`,
+        `rest/v1/frelux_archie_api_credentials?id=eq.${encodeURIComponent(id)}`,
         {
           method: "PATCH",
           headers: { Prefer: "return=minimal" },
@@ -224,14 +217,26 @@ export function createSupabaseCredentialStore(
     },
 
     async recordAudit(event: ApiAuditEvent) {
-      const ownerId = event.ownerId === UNKNOWN_OWNER
-        ? await resolveOwnerId()
-        : event.ownerId;
+      const ownerId =
+        event.ownerId === UNKNOWN_OWNER
+          ? await resolveOwnerId()
+          : event.ownerId;
+      // FIX 28 (remediation batch 9, Level 6 security audit,
+      // 2026-09-13): when no real owner account could be
+      // resolved, the old code inserted the UNKNOWN_OWNER
+      // sentinel itself as user_id — a fake uuid that violates
+      // the auth.users FK, so the audit event was silently
+      // lost (the insert error was never inspected). Post
+      // migration 20260913030000, persist such events
+      // honestly as SYSTEM events (user_id NULL) instead of
+      // impersonating a nonexistent user.
+      const userId =
+        ownerId === UNKNOWN_OWNER ? null : (ownerId as string | null);
       await service("rest/v1/frelux_security_events", {
         method: "POST",
         headers: { Prefer: "return=minimal" },
         body: JSON.stringify({
-          user_id: ownerId,
+          user_id: userId,
           kind: event.kind,
           severity: event.severity,
           message: event.message,
