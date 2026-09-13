@@ -95,6 +95,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: quality
     if: github.event_name == 'push'
+    # Chrome/vite-preview can hang indefinitely on flaky runs; never
+    # let one stuck audit block the whole pipeline for hours.
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
