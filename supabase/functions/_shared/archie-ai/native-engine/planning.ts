@@ -389,10 +389,22 @@ export class Planner {
    *  must either be held in the store or produced by an
    *  earlier step's effects. Honest issue list — never a
    *  silent pass. */
-  validatePlan(plan: Plan): { valid: boolean; issues: string[] } {
+  validatePlan(
+    plan: Plan,
+    goalSubject?: string,
+  ): { valid: boolean; issues: string[] } {
     const issues: string[] = [];
     const byId = new Map(this.operators.map((o) => [o.id, o]));
     const produced = new Set<string>();
+    // FIX 45 (batch 13): $goal-scoped preconditions were
+    // blanket-skipped — for the Phase 3.2 planning chains
+    // (EVERY precondition has subject $goal) validatePlan
+    // checked nothing at all. When the caller supplies the
+    // goal subject the plan was built for, $goal is
+    // substituted and the whole chain is validated like any
+    // literal subject. Without it, $goal stays an honest skip
+    // (the subject is unknowable) and is noted.
+    let skippedGoalScoped = false;
     for (const step of plan.steps) {
       const op = byId.get(step.operatorId);
       if (!op) {
@@ -400,12 +412,15 @@ export class Planner {
         continue;
       }
       for (const pre of op.preconditions ?? []) {
-        const p = { ...pre };
-        if (
-          typeof p.subject === "string" &&
-          !p.subject.startsWith("?") &&
-          p.subject !== "$goal"
-        ) {
+        let p = { ...pre };
+        if (p.subject === "$goal") {
+          if (goalSubject === undefined) {
+            skippedGoalScoped = true;
+            continue;
+          }
+          p = { ...pre, subject: goalSubject };
+        }
+        if (typeof p.subject === "string" && !p.subject.startsWith("?")) {
           const key = `${p.subject}|${p.predicate}`;
           const held =
             this.facts.query({
@@ -419,11 +434,35 @@ export class Planner {
           }
         }
       }
+      // FIX 45 (continued): plan() resolves a selected
+      // operator's ACHIEVES pattern (means-ends selection IS
+      // production), but validatePlan only counted declared
+      // EFFECTS — the real PLANNING_OPERATORS chains carry
+      // their intermediate predicates as ACHIEVES, not
+      // effects, so a planner-produced chain could never
+      // validate clean. The validator now applies the same
+      // semantics: a step's achieved pattern (goal-
+      // substituted) is produced.
+      const achievedSubj =
+        op.achieves.subject === "$goal" ? goalSubject : op.achieves.subject;
+      if (
+        typeof achievedSubj === "string" &&
+        !achievedSubj.startsWith("?") &&
+        op.achieves.predicate !== undefined
+      ) {
+        produced.add(`${achievedSubj}|${op.achieves.predicate}`);
+      }
       for (const eff of op.effects ?? []) {
-        if (typeof eff.subject === "string" && !eff.subject.startsWith("?")) {
-          produced.add(`${eff.subject}|${eff.predicate}`);
+        const subj = eff.subject === "$goal" ? goalSubject : eff.subject;
+        if (typeof subj === "string" && !subj.startsWith("?")) {
+          produced.add(`${subj}|${eff.predicate}`);
         }
       }
+    }
+    if (skippedGoalScoped) {
+      issues.push(
+        "goal-scoped ($goal) preconditions were not validated — supply the goal subject to validate the full chain",
+      );
     }
     return { valid: issues.length === 0, issues };
   }
@@ -443,7 +482,11 @@ export class Planner {
     if (reduced.length === this.operators.length) {
       return this.plan(goal, depth);
     }
-    const alt = new Planner(this.facts, reduced);
+    // FIX 44 (batch 13): the reduced library was handed to a
+    // BARE Planner — the backward-chain derivability probe
+    // (fix 12) was silently dropped, so a replan could report
+    // false gaps for preconditions the rule chains prove.
+    const alt = new Planner(this.facts, reduced, this.derivable);
     const plan = alt.plan(goal, depth);
     plan.gapReport.push(
       `operator "${failedOperatorId}" excluded after failure; replanned over ${reduced.length} remaining operator(s)`,
@@ -455,6 +498,21 @@ function matchesAchieves(op: Operator, pattern: FactPattern): boolean {
   if (
     pattern.predicate !== undefined &&
     op.achieves.predicate !== pattern.predicate
+  ) {
+    return false;
+  }
+  // FIX 43 (batch 13, Level 9 audit 2026-09-13): the subject
+  // was never compared — means-ends selection matched an
+  // operator that achieves the same PREDICATE for a completely
+  // different subject (a "wedding reception planned" goal
+  // would accept any operator achieving anything "planned").
+  // When the pattern names a subject, the operator's achieved
+  // subject must be it (operators are $goal-substituted at
+  // plan() time, so goal-scoped operators carry the goal's
+  // subject here). Predicate-only goals keep legacy matching.
+  if (
+    pattern.subject !== undefined &&
+    op.achieves.subject !== pattern.subject
   ) {
     return false;
   }

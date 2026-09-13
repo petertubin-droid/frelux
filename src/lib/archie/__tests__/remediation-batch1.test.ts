@@ -281,3 +281,141 @@ describe("Planner validatePlan + replan (remediation batch 1)", () => {
     expect(replanned.gapReport.length).toBeGreaterThan(0);
   });
 });
+
+// ---------------------------------------------------------
+// Batch 13 (Level 9 — planning internals) regressions — fixes 43, 44, 45
+// ---------------------------------------------------------
+describe("batch 13 — planner semantics", () => {
+  it("fix 43: an operator achieving the same predicate for a DIFFERENT subject does not satisfy a subject-scoped goal", () => {
+    const operators: Operator[] = [
+      {
+        id: "plan-something-else",
+        description: "Plan a different subject entirely",
+        achieves: { subject: "other project", predicate: "planned" },
+        preconditions: [],
+        effects: [],
+        cost: 1,
+      },
+      {
+        id: "plan-the-goal",
+        description: "Plan the actual goal subject",
+        achieves: { subject: "bungalow roofing", predicate: "planned" },
+        preconditions: [],
+        effects: [],
+        cost: 3,
+      },
+    ];
+    const planner = new Planner(new FactStore(), operators);
+    const plan = planner.plan({
+      subject: "bungalow roofing",
+      predicate: "planned",
+    });
+    // The cheap different-subject operator used to win by
+    // predicate match alone; only the right subject counts.
+    expect(plan.steps.map((s) => s.operatorId)).toEqual(["plan-the-goal"]);
+    expect(plan.executable).toBe(true);
+  });
+
+  it("fix 44: replan preserves the backward-chain derivability probe", () => {
+    const facts = new FactStore();
+    const operators: Operator[] = [
+      {
+        id: "direct",
+        description: "Directly achieve",
+        achieves: { predicate: "answer" },
+        preconditions: [{ subject: "knowledge", predicate: "available" }],
+        effects: [],
+        cost: 1,
+      },
+      {
+        id: "fallback",
+        description: "Fallback route",
+        achieves: { predicate: "answer" },
+        preconditions: [],
+        effects: [],
+        cost: 9,
+      },
+    ];
+    // Derivable probe: "knowledge available" is provable by rules.
+    const derivable = (
+      p: import("@studio-shared/archie-ai/native-engine/types.ts").FactPattern,
+    ) => p.subject === "knowledge" && p.predicate === "available";
+    const planner = new Planner(facts, operators, derivable);
+    // Exclude the no-precondition fallback so the REMAINING
+    // operator's precondition must be resolved by the probe.
+    const replanned = planner.replan("answer", "fallback");
+    // With the probe preserved, the replan over the remaining
+    // operator resolves "knowledge available" by derivation
+    // instead of reporting a false gap.
+    expect(replanned.executable).toBe(true);
+    expect(replanned.steps.some((s) => s.operatorId === "inference")).toBe(
+      true,
+    );
+    expect(replanned.steps.some((s) => s.operatorId === "direct")).toBe(true);
+    expect(replanned.gapReport.some((g) => g.includes("knowledge"))).toBe(
+      false,
+    );
+  });
+
+  it("fix 45: goal-scoped preconditions are validated when the goal subject is supplied", () => {
+    const operators: Operator[] = [
+      {
+        id: "scope-step",
+        description: "Define scope",
+        achieves: { subject: "$goal", predicate: "scope-defined" },
+        preconditions: [],
+        effects: [],
+        cost: 1,
+      },
+      {
+        id: "plan-step",
+        description: "Plan the goal",
+        achieves: { subject: "$goal", predicate: "planned" },
+        preconditions: [{ subject: "$goal", predicate: "scope-defined" }],
+        effects: [],
+        cost: 1,
+      },
+    ];
+    const planner = new Planner(new FactStore(), operators);
+    const plan = planner.plan({
+      subject: "wedding reception",
+      predicate: "planned",
+    });
+    expect(plan.executable).toBe(true);
+    // With the goal subject the full chain validates clean —
+    // the achieved intermediate predicates count as produced.
+    const sighted = planner.validatePlan(plan, "wedding reception");
+    expect(sighted.valid).toBe(true);
+    expect(sighted.issues).toEqual([]);
+    // Without the goal subject: honest note, NOT a silent pass.
+    const blind = planner.validatePlan(plan);
+    expect(blind.valid).toBe(false);
+    expect(
+      blind.issues.some((i) => i.includes("supply the goal subject")),
+    ).toBe(true);
+    // A hand-built plan missing its producing step is flagged.
+    const broken = {
+      goal: "wedding reception planned",
+      steps: [
+        {
+          operatorId: "plan-step",
+          achieves: "Plan the goal",
+          satisfies: "wedding reception planned",
+          missingPreconditions: [],
+        },
+      ],
+      executable: false,
+      totalCost: 1,
+      gapReport: [],
+      alternatives: [],
+      risk: { level: "low", notes: [] },
+    } as unknown as Parameters<Planner["validatePlan"]>[0];
+    const flagged = planner.validatePlan(broken, "wedding reception");
+    expect(flagged.valid).toBe(false);
+    expect(
+      flagged.issues.some(
+        (i) => i.includes("wedding reception") && i.includes("scope-defined"),
+      ),
+    ).toBe(true);
+  });
+});
