@@ -139,7 +139,7 @@ export default function SupportChatWidget() {
         setLoading(false);
       }
     },
-    [draft, loading],
+    [draft, loading, messages],
   );
 
   function formatTime(ts: number) {
