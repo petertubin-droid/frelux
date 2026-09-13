@@ -243,9 +243,13 @@ export function evaluateAutonomy(
 type Db = { from(table: string): DbTable };
 type DbResult = { error: { message: string } | null };
 interface DbTable {
-  insert(payload: unknown): Promise<DbResult>;
+  // PromiseLike: supabase-js returns PostgrestFilterBuilder
+  // (a thenable without .catch/.finally), which is fully
+  // compatible at runtime with `await` — the strict Promise
+  // type here made real service clients type-reject.
+  insert(payload: unknown): PromiseLike<DbResult>;
   update(payload: unknown): {
-    eq(col: string, val: unknown): Promise<DbResult>;
+    eq(col: string, val: unknown): PromiseLike<DbResult>;
   };
   select(cols?: string): {
     eq(
@@ -258,7 +262,7 @@ interface DbTable {
       ): {
         limit(
           n: number,
-        ): Promise<{
+        ): PromiseLike<{
           data: unknown[] | null;
           error: { message: string } | null;
         }>;

@@ -36,6 +36,7 @@ import {
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
 import { rateLimitedResponse } from "../_shared/cors.ts";
+import { verifyOwnerSecret as sharedVerifyOwnerSecret } from "../_shared/archie-ai/auth/owner-secret.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -174,6 +175,14 @@ async function getExecutionTarget(
 
 const engineDeps: EngineDeps = {
   getTarget: getExecutionTarget,
+  // Owner-secret verification via the shared PBKDF2 helper
+  // (same verifier logic as archie-execute — one standard).
+  verifyOwnerSecret: (userId, secret) =>
+    sharedVerifyOwnerSecret(userId, secret, {
+      supabaseUrl: SUPABASE_URL,
+      serviceRoleKey: SERVICE_ROLE,
+      fetchFn: fetch,
+    }),
   createRun: async (rec) => {
     const { data, error } = await service<{ id: string }>(
       "/rest/v1/frelux_archie_execution_runs",
@@ -286,17 +295,13 @@ serveWithCors(async (req: Request) => {
     const monthStart = new Date();
     monthStart.setUTCDate(1);
     monthStart.setUTCHours(0, 0, 0, 0);
-    const { data: spendRows } =
-      (await service) <
-      Array<{ total: number }>(
-        `/rest/v1/frelux_infrastructure_costs?select=cost_actual_cents.sum()&occurred_at=gte.${monthStart.toISOString()}`,
-      );
+    const { data: spendRows } = await service<Array<{ total: number }>>(
+      `/rest/v1/frelux_infrastructure_costs?select=cost_actual_cents.sum()&occurred_at=gte.${monthStart.toISOString()}`,
+    );
     const monthSpend = Number(spendRows?.[0]?.total ?? 0);
-    const { data: activeRows } =
-      (await service) <
-      Array<{ count: number }>(
-        `/rest/v1/frelux_archie_internal_agents?select=id.count()&status=in.(CREATED,AUTHORIZED,ASSIGNED,EXECUTING,MONITORING)`,
-      );
+    const { data: activeRows } = await service<Array<{ count: number }>>(
+      `/rest/v1/frelux_archie_internal_agents?select=id.count()&status=in.(CREATED,AUTHORIZED,ASSIGNED,EXECUTING,MONITORING)`,
+    );
     const activeAgents = Number(activeRows?.[0]?.count ?? 0);
     const { data: budgetRows } = await service<BudgetRow[]>(
       `/rest/v1/frelux_infrastructure_budgets?active=eq.true&select=*`,
@@ -581,19 +586,15 @@ serveWithCors(async (req: Request) => {
     const monthStart = new Date();
     monthStart.setUTCDate(1);
     monthStart.setUTCHours(0, 0, 0, 0);
-    const { data: spendRows } =
-      (await service) <
-      Array<{ total: number }>(
-        `/rest/v1/frelux_infrastructure_costs?select=cost_actual_cents.sum()&occurred_at=gte.${monthStart.toISOString()}`,
-      );
+    const { data: spendRows } = await service<Array<{ total: number }>>(
+      `/rest/v1/frelux_infrastructure_costs?select=cost_actual_cents.sum()&occurred_at=gte.${monthStart.toISOString()}`,
+    );
     const { data: budgetRows } = await service<BudgetRow[]>(
       `/rest/v1/frelux_infrastructure_budgets?select=*`,
     );
-    const { data: activeRows } =
-      (await service) <
-      Array<{ count: number }>(
-        `/rest/v1/frelux_archie_internal_agents?select=id.count()&status=in.(CREATED,AUTHORIZED,ASSIGNED,EXECUTING,MONITORING)`,
-      );
+    const { data: activeRows } = await service<Array<{ count: number }>>(
+      `/rest/v1/frelux_archie_internal_agents?select=id.count()&status=in.(CREATED,AUTHORIZED,ASSIGNED,EXECUTING,MONITORING)`,
+    );
     return json(200, {
       month_to_date_spend_cents: Number(spendRows?.[0]?.total ?? 0),
       active_agents: Number(activeRows?.[0]?.count ?? 0),
