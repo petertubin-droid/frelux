@@ -36,6 +36,7 @@ export interface ArchieMessage {
   attachments: ArchieAttachment[];
   tool_calls: Array<{ tool: string; ok: boolean; summary: string }>;
   model?: string | null;
+  starred?: boolean;
   created_date: string;
 }
 
@@ -118,7 +119,7 @@ export async function listMessages(
   const { data, error } = await supabase
     .from("frelux_archie_messages")
     .select(
-      "id, conversation_id, role, content, attachments, tool_calls, model, created_date",
+      "id, conversation_id, role, content, attachments, tool_calls, model, starred, created_date",
     )
     .eq("conversation_id", conversationId)
     .order("created_date", { ascending: true })

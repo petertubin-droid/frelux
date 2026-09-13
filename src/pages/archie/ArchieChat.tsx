@@ -10,8 +10,8 @@
 //  - images: camera / gallery / screenshots
 //  - audio: voice recording (MediaRecorder)
 //  - documents: PDF / plain text
-// "Teach ARCHIE" queues a learning candidate into the real
-// pipeline (AWAITING_APPROVAL — never auto-promoted).
+// "Teach ARCHIE" stores owner-taught knowledge directly (owner
+// directive 2026-09-14: learning needs no approval step).
 // =========================================================
 
 import {
@@ -30,6 +30,7 @@ import {
   type EarsRecorder,
   type TranscriptionResult,
 } from "@/lib/archie/ears";
+import { getSupabase } from "@/lib/supabase-lazy";
 import {
   createConversation,
   listConversations,
@@ -89,6 +90,8 @@ export default function ArchieChat() {
   const [messages, setMessages] = useState<ArchieMessage[]>([]);
   const [search, setSearch] = useState("");
   const [draft, setDraft] = useState("");
+  const [forwarding, setForwarding] = useState<ArchieMessage | null>(null);
+  const [actionNotice, setActionNotice] = useState<string | null>(null);
   const [teachMode, setTeachMode] = useState(false);
   const [pending, setPending] = useState<PendingUpload[]>([]);
   const [sending, setSending] = useState(false);
@@ -329,6 +332,96 @@ export default function ArchieChat() {
       else setError("Microphone permission denied or unavailable.");
     }
   }
+
+  // ── WhatsApp-style message actions (owner directive 2026-09-14) ──
+  const flashNotice = useCallback((note: string) => {
+    setActionNotice(note);
+    window.setTimeout(() => setActionNotice(null), 2500);
+  }, []);
+
+  const copyMessage = useCallback(
+    async (m: ArchieMessage) => {
+      try {
+        await navigator.clipboard.writeText(m.content);
+        flashNotice("Copied");
+      } catch {
+        flashNotice("Copy failed — hold and copy manually");
+      }
+    },
+    [flashNotice],
+  );
+
+  const toggleStar = useCallback(
+    async (m: ArchieMessage) => {
+      const next = !m.starred;
+      setMessages((prev) =>
+        prev.map((x) => (x.id === m.id ? { ...x, starred: next } : x)),
+      );
+      const supabase = await getSupabase();
+      const { error } = await supabase
+        .from("frelux_archie_messages")
+        .update({ starred: next })
+        .eq("id", m.id);
+      if (error) {
+        setMessages((prev) =>
+          prev.map((x) => (x.id === m.id ? { ...x, starred: !next } : x)),
+        );
+        flashNotice("Could not update the message");
+      }
+    },
+    [flashNotice],
+  );
+
+  const deleteMessage = useCallback(
+    async (m: ArchieMessage) => {
+      if (!window.confirm("Delete this message? This cannot be undone.")) return;
+      setMessages((prev) => prev.filter((x) => x.id !== m.id));
+      const supabase = await getSupabase();
+      const { error } = await supabase
+        .from("frelux_archie_messages")
+        .delete()
+        .eq("id", m.id);
+      if (error) flashNotice("Could not delete the message");
+    },
+    [flashNotice],
+  );
+
+  // Edit (owner messages): load into the composer and remove the
+  // original — the edited version is sent as a fresh turn.
+  const editMessage = useCallback(
+    async (m: ArchieMessage) => {
+      setDraft(m.content);
+      setMessages((prev) => prev.filter((x) => x.id !== m.id));
+      const supabase = await getSupabase();
+      await supabase.from("frelux_archie_messages").delete().eq("id", m.id);
+      flashNotice("Editing — send to replace it");
+    },
+    [flashNotice],
+  );
+
+  const forwardTo = useCallback(
+    async (m: ArchieMessage, targetId: string, targetTitle: string) => {
+      const supabase = await getSupabase();
+      const { error } = await supabase.from("frelux_archie_messages").insert({
+        conversation_id: targetId,
+        role: "owner",
+        content: m.content,
+        attachments: m.attachments ?? [],
+      });
+      if (error) {
+        flashNotice("Forward failed");
+        return;
+      }
+      setForwarding(null);
+      flashNotice(`Forwarded to ${targetTitle}`);
+      if (targetId === activeId) {
+        const fresh = await listMessages(targetId);
+        setMessages(fresh);
+      }
+    },
+    [activeId, flashNotice],
+  );
+
 
   // ---- send a chat turn through the REAL ARCHIE core ----
   async function handleSend() {
@@ -580,7 +673,7 @@ export default function ArchieChat() {
               className={`flex ${m.role === "owner" ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
+                className={`relative max-w-[85%] rounded-2xl px-4 py-2.5 text-sm ${
                   m.role === "owner"
                     ? "archie-btn-primary bg-amber-400/90 text-slate-900 shadow-lg"
                     : m.role === "archie"
@@ -598,7 +691,64 @@ export default function ArchieChat() {
                   m.tool_calls?.map((t, i) => (
                     <ToolResultChip key={i} {...t} />
                   ))}
+                {m.starred && (
+                  <span className="absolute -top-1 right-1 text-[10px] text-amber-300">
+                    ★
+                  </span>
+                )}
               </div>
+              {(m.role === "owner" || m.role === "archie") && (
+                <div
+                  className={`mt-0.5 flex items-center gap-1 text-[11px] text-slate-500 ${
+                    m.role === "owner" ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => void copyMessage(m)}
+                    className="rounded px-1.5 py-0.5 hover:bg-white/5 hover:text-slate-300"
+                    title="Copy"
+                  >
+                    Copy
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void toggleStar(m)}
+                    className={`rounded px-1.5 py-0.5 hover:bg-white/5 hover:text-slate-300 ${
+                      m.starred ? "text-amber-300" : ""
+                    }`}
+                    title="Star"
+                  >
+                    {m.starred ? "Unstar" : "Star"}
+                  </button>
+                  {m.role === "owner" && (
+                    <button
+                      type="button"
+                      onClick={() => void editMessage(m)}
+                      className="rounded px-1.5 py-0.5 hover:bg-white/5 hover:text-slate-300"
+                      title="Edit"
+                    >
+                      Edit
+                    </button>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setForwarding(m)}
+                    className="rounded px-1.5 py-0.5 hover:bg-white/5 hover:text-slate-300"
+                    title="Forward"
+                  >
+                    Forward
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void deleteMessage(m)}
+                    className="rounded px-1.5 py-0.5 hover:bg-white/5 hover:text-rose-300"
+                    title="Delete"
+                  >
+                    Delete
+                  </button>
+                </div>
+              )}
             </div>
           ))}
           {sending && (
@@ -621,11 +771,62 @@ export default function ArchieChat() {
           </p>
         )}
 
+        {/* action notice */}
+        {actionNotice && (
+          <p className="px-3 pb-1 text-center text-xs text-amber-200">
+            {actionNotice}
+          </p>
+        )}
+
+        {/* forward dialog (WhatsApp-style) */}
+        {forwarding && (
+          <div className="fixed inset-0 z-40 flex items-end justify-center bg-black/60 p-4 md:items-center">
+            <div className="archie-panel w-full max-w-sm rounded-xl border border-white/10 p-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-medium text-slate-200">
+                  Forward to…
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setForwarding(null)}
+                  className="rounded px-2 py-0.5 text-xs text-slate-400 hover:bg-white/5"
+                >
+                  Cancel
+                </button>
+              </div>
+              <p className="mt-1 truncate text-xs text-slate-500">
+                “{forwarding.content.slice(0, 80)}”
+              </p>
+              <ul className="mt-3 max-h-64 space-y-1 overflow-y-auto">
+                {conversations
+                  .filter((c) => c.id !== forwarding.conversation_id)
+                  .map((c) => (
+                    <li key={c.id}>
+                      <button
+                        type="button"
+                        onClick={() => void forwardTo(forwarding, c.id, c.title)}
+                        className="w-full truncate rounded-lg px-3 py-2 text-left text-sm text-slate-200 hover:bg-white/5"
+                      >
+                        {c.title}
+                      </button>
+                    </li>
+                  ))}
+                {conversations.filter((c) => c.id !== forwarding.conversation_id)
+                  .length === 0 && (
+                  <p className="px-2 py-3 text-xs text-slate-500">
+                    No other conversation yet — start one first.
+                  </p>
+                )}
+              </ul>
+            </div>
+          </div>
+        )}
+
         {/* teach mode banner */}
         {teachMode && (
           <div className="mx-3 rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-xs text-amber-200">
-            Teach ARCHIE active — your next message becomes a learning candidate
-            that you approve before it becomes knowledge.
+            Teach ARCHIE active — your next message is learned directly and
+            stored as your knowledge (correctable in the Learning Center).
             <button
               type="button"
               onClick={() => setTeachMode(false)}
