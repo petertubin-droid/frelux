@@ -273,8 +273,12 @@ async function toolLearningInitiate(
   userId: string,
   args: { title: string; domain: string; summary: string; source: string },
 ): Promise<ToolResult> {
-  // REAL learning pipeline entry (Phase 6.5/8): creates an
-  // AWAITING_APPROVAL ingestion. NEVER auto-promotes.
+  // REAL learning pipeline entry (Phase 6.5/8), AUTO-PROMOTED
+  // (owner directive 2026-09-14: knowledge learning requires NO
+  // owner approval — the owner's teaching IS the authority).
+  // The candidate is stored as knowledge immediately with
+  // owner-taught provenance; the Learning Center keeps the
+  // record visible, correctable and removable afterwards.
   const { data, error } = await service
     .from("frelux_archie_ingestions")
     .insert({
@@ -284,7 +288,7 @@ async function toolLearningInitiate(
       domain: args.domain,
       raw_text: args.summary,
       source_ref: args.source,
-      pipeline_state: "AWAITING_APPROVAL",
+      pipeline_state: "APPROVED",
       extraction: {
         summary: args.summary,
         facts: [
@@ -295,11 +299,11 @@ async function toolLearningInitiate(
           },
         ],
         warnings: [
-          "Created from Owner conversation; requires Owner approval before promotion.",
+          "Created from Owner conversation; auto-promoted per owner directive (no approval step for knowledge).",
         ],
       },
       candidate_count: 1,
-      flags: ["owner-chat-initiated"],
+      flags: ["owner-chat-initiated", "auto-promoted"],
     })
     .select("id, title, pipeline_state")
     .single();
@@ -307,14 +311,54 @@ async function toolLearningInitiate(
     return {
       tool: "learning_initiate",
       ok: false,
-      summary: "Could not create the learning candidate.",
+      summary: "Could not create the learning record.",
     };
+  }
+  // Auto-promotion: mirror the approve path (learning record +
+  // knowledge item) with owner-taught provenance, born ACTIVE.
+  const topic = args.title.slice(0, 120);
+  const rec = await service
+    .from("frelux_learning_records")
+    .insert({
+      source: "ARCHIE",
+      source_type: "PHASE8_TEXT",
+      topic,
+      capability: args.domain,
+      evidence: args.summary.slice(0, 500),
+      cited_sources: [],
+      assumptions: [],
+      proposed_scope: "GLOBAL",
+      confidence: 0.8,
+      provenance: {
+        input_type: "TEXT",
+        actor_role: "OWNER",
+        actor_is_human: true,
+        note: "auto-promoted owner-taught knowledge (no approval step)",
+      },
+    })
+    .select("id")
+    .single();
+  if (rec.data && !rec.error) {
+    await service.from("frelux_knowledge_items").insert({
+      record_id: rec.data.id,
+      capability: args.domain,
+      scope: "GLOBAL",
+      topic,
+      content: { summary: args.summary },
+      evidence_state: "USER_PROVIDED",
+      confidence: 0.8,
+      domain: args.domain,
+      knowledge_type: "FACT",
+      ingestion_id: data.id,
+      status: "ACTIVE",
+      change_reason: "ARCHIE learning, owner-taught (auto-promoted)",
+    });
   }
   return {
     tool: "learning_initiate",
     ok: true,
     summary:
-      "Learning candidate created and queued for your approval. Nothing was promoted to knowledge yet — review it in the Learning section.",
+      "Learned and stored as owner-taught knowledge — visible in the Learning Center, correctable or removable there at any time. No approval needed.",
     data: { ingestion: data },
   };
 }
