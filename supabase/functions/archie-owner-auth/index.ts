@@ -200,9 +200,13 @@ serveWithCors(async (req) => {
   // ---- authenticate the caller (normal Supabase model) ----
   const authHeader = req.headers.get("Authorization") ?? "";
   const { data: authUser, error: authError } = await service<{
-    user: { id: string; email?: string };
+    id: string;
+    email?: string;
+    user?: { id: string; email?: string };
   }>("auth/v1/user", { headers: { Authorization: authHeader } });
-  let userId = authUser?.user?.id;
+  // The raw GoTrue /auth/v1/user response IS the user object (supabase-js
+  // wraps it in { user }, this helper does not) — read both shapes.
+  let userId = authUser?.user?.id ?? authUser?.id;
   if (authError || !userId) {
     // Cross-project owner identity (see cross-project-auth.ts): the
     // owner's sessions are issued by the FRELUX authority project;
