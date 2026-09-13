@@ -72,8 +72,9 @@ CREATE POLICY "owner full access own messages"
 CREATE OR REPLACE FUNCTION public.archie_touch_conversation()
 RETURNS TRIGGER AS $$
 BEGIN
-  IF NEW.conversation_id IS DISTINCT FROM COALESCE(OLD.conversation_id, NEW.conversation_id) THEN
-    -- insert: bump count on the new conversation
+  -- TG_OP is the reliable discriminator: on INSERT there is no OLD
+  -- row, so a COALESCE comparison silently never bumps the count.
+  IF TG_OP = 'INSERT' THEN
     UPDATE public.frelux_archie_conversations
       SET message_count = message_count + 1, updated_date = now()
       WHERE id = NEW.conversation_id;

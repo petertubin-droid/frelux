@@ -115,7 +115,7 @@ END $$;
 CREATE OR REPLACE FUNCTION public.archie_conversations_touch()
 RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN
-  NEW.updated_at = now();
+  NEW.updated_date = now();
   NEW.last_message_at = now();
   RETURN NEW;
 END;
