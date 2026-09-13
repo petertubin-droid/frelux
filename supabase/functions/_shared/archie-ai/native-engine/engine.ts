@@ -65,6 +65,7 @@ import { composeConversational } from "./conversation.ts";
 import {
   derivedOpening,
   ownerAssertedOpening,
+  mixedBasisOpening,
   howtoFooter,
   includesDerived,
   knowledgeOpening,
@@ -1705,6 +1706,17 @@ export class ArchieNativeEngine implements ArchieRuntime {
               `[confidence ${(f.confidence * 100).toFixed(0)}%, OWNER-ASSERTED (${f.provenance.source}) — taught by you, not independently verified]`
             );
           }
+          // FIX 16 (batch 6): CANDIDATE facts (unverified web
+          // findings) carry an explicit unvalidated marker —
+          // previously they rendered as a bare source tag,
+          // letting a search snippet read as established
+          // knowledge.
+          if (f.status === "candidate") {
+            return (
+              base +
+              `[confidence ${(f.confidence * 100).toFixed(0)}%, CANDIDATE (${f.provenance.source}) — unverified finding, not validated knowledge]`
+            );
+          }
           return (
             base +
             `[confidence ${(f.confidence * 100).toFixed(0)}%, ${f.provenance.source}]`
@@ -1734,12 +1746,29 @@ export class ArchieNativeEngine implements ArchieRuntime {
             // independently-validated banner.
             validated.every((f) => f.status === "owner-asserted")
             ? ownerAssertedOpening(kbSeed)
-            : knowledgeOpening(kbSeed);
+            : // FIX 14 (batch 6): a MIX of validated and
+              // owner-asserted facts opens with the mixed-basis
+              // frame — owner-asserted lines are never dressed
+              // under the plain "validated knowledge" banner.
+              validated.some(
+                  (f) =>
+                    f.status === "owner-asserted" || f.status === "candidate",
+                )
+              ? mixedBasisOpening(kbSeed)
+              : knowledgeOpening(kbSeed);
         return this.compose(
           `${opening}\n${parts.join("\n")}` +
             (followUp ? `\n\n${followUp}` : "") +
             (footer ? `\n${footer}` : ""),
-          nlu.confidence * Math.min(1, validated[0].confidence + 0.3),
+          // FIX 15 (batch 6): answer confidence is anchored to
+          // the WEAKEST cited fact, not the first — a strong
+          // top hit can no longer dress weak evidence behind
+          // a high reported confidence.
+          nlu.confidence *
+            Math.min(
+              1,
+              validated.reduce((m, f) => Math.min(m, f.confidence), 1) + 0.3,
+            ),
           cite(validated),
         );
       }

@@ -234,19 +234,46 @@ const CONTINUATION_RESPONSES = [
 function emotionBranch(
   input: string,
   tone: EmojiToneResult,
-): "happy" | "sad" | "frustrated" | "confused" | "surprised" | "tired" | "general" {
+):
+  | "happy"
+  | "sad"
+  | "frustrated"
+  | "confused"
+  | "surprised"
+  | "tired"
+  | "general" {
   const t = input.toLowerCase();
-  if (/(happy|excited|great|good mood|delight|over the moon|life is good|yay|hurray|finally)/.test(t)) {
+  // FIX 17 (batch 6, Level 3): negated happiness FIRST —
+  // "not happy with this" previously matched the bare
+  // /happy/ branch below and misread a complaint as joy.
+  if (/(not happy|not so happy|no longer happy|not excited)/.test(t)) {
+    return "frustrated";
+  }
+  if (
+    /(happy|excited|great|good mood|delight|over the moon|life is good|yay|hurray|finally)/.test(
+      t,
+    )
+  ) {
     return "happy";
   }
-  if (/(sad|heartbroken|crying|rough day|feeling down|feel low|tears|bad day)/.test(t)) {
+  if (
+    /(sad|heartbroken|crying|rough day|feeling down|feel low|tears|bad day)/.test(
+      t,
+    )
+  ) {
     return "sad";
   }
-  if (/(frustrat|annoy|angry|stressed|ugh|argh|wahala|pain me|terrible|not happy with)/.test(t)) {
+  if (
+    /(frustrat|annoy|angry|stressed|ugh|argh|wahala|pain me|terrible|not happy with)/.test(
+      t,
+    )
+  ) {
     return "frustrated";
   }
   if (/(confus|lost|puzzled|spinning|unclear)/.test(t)) return "confused";
-  if (/(surpris|shock|wow|omg|no way|kidding|serious|really|unexpect)/.test(t)) {
+  if (
+    /(surpris|shock|wow|omg|no way|kidding|serious|really|unexpect)/.test(t)
+  ) {
     return "surprised";
   }
   if (/(tired|exhaust|worn out|sleepy|sleep|rest)/.test(t)) return "tired";
@@ -291,8 +318,12 @@ export function composeConversational(ctx: ConversationalContext): string {
     case "acknowledgment": {
       // Conversational follow ups: a bare "go on" resumes the
       // thread by quoting the last point honestly.
-      if (/(go on|continue|keep going|carry on|proceed|go ahead)/i.test(input) && last) {
-        return pick("continue", seed, CONTINUATION_RESPONSES).replace(/\{quote}/g,
+      if (
+        /(go on|continue|keep going|carry on|proceed|go ahead)/i.test(input) &&
+        last
+      ) {
+        return pick("continue", seed, CONTINUATION_RESPONSES).replace(
+          /\{quote}/g,
           firstSentence(last),
         );
       }
@@ -327,10 +358,18 @@ export function composeConversational(ctx: ConversationalContext): string {
       return pick(`emo-${branch}`, seed, pool);
     }
     case "social_talk": {
-      if (/(rain|sunny|sun is|hot|cold|harmattan|weather|cloud|pouring|sky|skies)/i.test(input)) {
+      if (
+        /(rain|sunny|sun is|hot|cold|harmattan|weather|cloud|pouring|sky|skies)/i.test(
+          input,
+        )
+      ) {
         return pick("weather", seed, WEATHER_RESPONSES);
       }
-      if (/(help you|do you need|be of service|anything i can do for you)/i.test(input)) {
+      if (
+        /(help you|do you need|be of service|anything i can do for you)/i.test(
+          input,
+        )
+      ) {
         return pick("offer", seed, OFFER_HELP_RESPONSES);
       }
       return pick("social", seed, SOCIAL_RESPONSES);
@@ -350,14 +389,16 @@ export function composeConversational(ctx: ConversationalContext): string {
       return `Today is ${weekday}, ${date}, and the time is ${time} ${TIME_LABEL}. I read the clock directly, no guessing.`;
     }
     case "availability_check":
-      return pick("avail", seed, AVAILABILITY_RESPONSES).replace(/\{capabilities}/g,
+      return pick("avail", seed, AVAILABILITY_RESPONSES).replace(
+        /\{capabilities}/g,
         caps,
       );
     case "activity_query":
       return `Between your messages I am idle, doing no background work of my own. Since boot I have run ${ctx.inferences} inferences and I hold ${recentTurns.length} recent turns of our conversation in working memory. Ready for your next instruction, as always.`;
     case "clarification_request": {
       if (last) {
-        return pick("clarify", seed, CLARIFY_WITH_HISTORY).replace(/\{quote}/g,
+        return pick("clarify", seed, CLARIFY_WITH_HISTORY).replace(
+          /\{quote}/g,
           `"${firstSentence(last)}"`,
         );
       }
@@ -421,9 +462,7 @@ export function conversationSelfCheck(): { ok: boolean; failures: string[] } {
       /\p{Extended_Pictographic}/u.test(v),
     ).length;
     if (withEmoji > 0 && withEmoji >= variants.length) {
-      failures.push(
-        `family ${name} forces an emoji into every variant`,
-      );
+      failures.push(`family ${name} forces an emoji into every variant`);
     }
   }
   return { ok: failures.length === 0, failures };

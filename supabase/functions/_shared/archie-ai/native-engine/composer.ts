@@ -85,6 +85,26 @@ const UNKNOWN_OPENINGS = [
   "My validated knowledge store has nothing on this yet.",
 ];
 
+// FIX 14 (remediation batch 6, Level 3 audit 2026-09-13): a
+// mixed cited set — SOME independently-validated facts plus
+// SOME owner-asserted ones (no derived) — previously opened
+// under the plain "validated knowledge" frame, mislabeling the
+// owner-asserted lines at frame level even though each line
+// carries its inline label. Every mixed-basis variant names
+// BOTH bases explicitly.
+const MIXED_BASIS_OPENINGS = [
+  "From my knowledge — a mixed basis (each line is labeled with its exact status):",
+  "Mixed basis: independently validated, owner-asserted (taught by you) and/or candidate web findings may appear — the line labels say which:",
+  "What I hold on that is a mixed basis — each line's label gives its exact reliability:",
+];
+
+/** Opening line for an answer citing a MIX of validated and
+ *  owner-asserted facts. Every variant contains both
+ *  "validated" and "owner-asserted" markers. */
+export function mixedBasisOpening(seed: string): string {
+  return pick("kb-mixed", seed, MIXED_BASIS_OPENINGS);
+}
+
 /** Opening line for a validated-knowledge answer. Every
  *  variant contains "validated knowledge" — the epistemic
  *  label is the anchor, never dropped. */
@@ -148,6 +168,13 @@ export function composerSelfCheck(): {
   for (const [i, v] of UNKNOWN_OPENINGS.entries()) {
     if (!/validated knowledge/i.test(v)) {
       failures.push(`unknownOpening[${i}] lost the epistemic marker`);
+    }
+  }
+  for (const [i, v] of MIXED_BASIS_OPENINGS.entries()) {
+    if (!/mixed basis/i.test(v) || !/label/i.test(v)) {
+      failures.push(
+        `mixedBasisOpening[${i}] lost the mixed-basis/label markers`,
+      );
     }
   }
   for (const [i, v] of HOWTO_FOOTERS.entries()) {
