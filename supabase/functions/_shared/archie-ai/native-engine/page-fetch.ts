@@ -145,6 +145,68 @@ export function extractTitle(html: string): string {
     .slice(0, 200);
 }
 
+/** FIX 39 — first-line SSRF guard: refuse loopback,
+ *  link-local, private, reserved and internal-namespace
+ *  targets before any network call. Pure hostname/IP-literal
+ *  analysis; DNS rebinding is out of scope (documented). */
+function ssrfRefusalReason(u: URL): string | null {
+  const host = u.hostname.toLowerCase().replace(/\.$/, "");
+  if (
+    host === "localhost" ||
+    host === "0.0.0.0" ||
+    host.endsWith(".localhost") ||
+    host.endsWith(".local") ||
+    host.endsWith(".internal") ||
+    host.endsWith(".home.arpa")
+  ) {
+    return `target host "${host}" is a loopback/internal name`;
+  }
+  // IPv4 literal — NOTE: match() index 0 is the full match;
+  // the octets are the capture groups at 1..4 (mapping the
+  // whole array produced [NaN, ...] and refused nothing —
+  // caught by the batch-12 regression test).
+  const v4 = host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (v4) {
+    if (v4.slice(1).some((d) => Number(d) > 255)) {
+      return null; // malformed literal — the fetch itself will fail honestly
+    }
+    const o = v4.slice(1).map(Number);
+    const [a, b] = [o[0], o[1]];
+    if (a === 127 || a === 10 || a === 0) {
+      return `target ${host} is a loopback/private address`;
+    }
+    if (a === 172 && b >= 16 && b <= 31) {
+      return `target ${host} is a private address`;
+    }
+    if (a === 192 && b === 168) {
+      return `target ${host} is a private address`;
+    }
+    if (a === 169 && b === 254) {
+      return `target ${host} is a link-local address (cloud metadata range)`;
+    }
+    if (a === 100 && b >= 64 && b <= 127) {
+      return `target ${host} is a shared-address-space (CGNAT) address`;
+    }
+    if (o[0] >= 224) {
+      return `target ${host} is a multicast/reserved address`;
+    }
+    return null;
+  }
+  // IPv6 literal — refuse loopback, link-local, unique-local
+  if (host.includes(":")) {
+    const h = host.replace(/^\[|\]$/g, "");
+    if (
+      h === "::1" ||
+      h === "::" ||
+      h.toLowerCase().startsWith("fe80") ||
+      /^f[cd]/i.test(h)
+    ) {
+      return `target ${host} is a loopback/link-local/unique-local address`;
+    }
+  }
+  return null;
+}
+
 export class PageFetcher {
   private readonly fetchFn: typeof fetch;
   private readonly timeoutMs: number;
@@ -152,6 +214,11 @@ export class PageFetcher {
   private readonly maxContentChars: number;
   private readonly robotsCacheTtlMs: number;
   private readonly clock: () => number;
+  // FIX 38 (batch 12): bounded like the findings cache —
+  // expired origins are evicted on touch, and the map is
+  // FIFO-capped (distinct researched origins are few, but a
+  // long-lived isolate must never accumulate without bound).
+  private static readonly MAX_ROBOTS_ENTRIES = 128;
   private readonly robotsCache = new Map<string, RobotsRules>();
 
   constructor(opts: PageFetchOptions = {}) {
@@ -168,6 +235,7 @@ export class PageFetcher {
   private async robotsFor(origin: string): Promise<RobotsRules> {
     const cached = this.robotsCache.get(origin);
     if (cached && cached.expiresAt > this.clock()) return cached;
+    if (cached) this.robotsCache.delete(origin); // expired — evicted
     const rules: RobotsRules = {
       disallow: [],
       allow: [],
@@ -191,6 +259,11 @@ export class PageFetcher {
       rules.note = `robots.txt unreachable (${err instanceof Error ? err.message : String(err)}) — treated as unrestricted`;
     }
     this.robotsCache.set(origin, rules);
+    while (this.robotsCache.size > PageFetcher.MAX_ROBOTS_ENTRIES) {
+      const oldest = this.robotsCache.keys().next().value;
+      if (oldest === undefined) break;
+      this.robotsCache.delete(oldest);
+    }
     return rules;
   }
 
@@ -224,6 +297,26 @@ export class PageFetcher {
         content: "",
         title: "",
         note: `unsupported protocol ${parsed.protocol} — not fetched`,
+      };
+    }
+    // FIX 39 (batch 12, Level 8 audit 2026-09-13): SSRF guard.
+    // Fetched URLs arrive from EXTERNAL search results, but
+    // the fetch runs inside the edge runtime with network
+    // reach into private space — a "result" pointing at
+    // 169.254.169.254 (cloud metadata), localhost services,
+    // or RFC-1918 hosts was fetched like any web page. Those
+    // targets are refused outright, honestly noted. Hostname
+    // and IP-literal checks (first-line guard; no DNS
+    // resolution — rebinding is out of scope for a research
+    // fetcher).
+    const ssrf = ssrfRefusalReason(parsed);
+    if (ssrf) {
+      return {
+        url,
+        ok: false,
+        content: "",
+        title: "",
+        note: `${ssrf} — refused (private-network targets are never fetched)`,
       };
     }
 

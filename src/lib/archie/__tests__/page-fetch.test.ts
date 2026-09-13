@@ -549,3 +549,45 @@ describe("MultiSearchAdapter — honest fallback", () => {
     expect(isSearchFailureNote(res.note)).toBe(false);
   });
 });
+
+// ---------------------------------------------------------
+// Batch 12 (Level 8) regression — fix 39
+// ---------------------------------------------------------
+describe("batch 12 — SSRF guard", () => {
+  it("fix 39: private-network targets are refused before any network call, honestly noted", async () => {
+    // A stub fetch that must NEVER run for these targets.
+    const guard = new PageFetcher({
+      fetchFn: () => {
+        throw new Error("network was reached — SSRF guard failed");
+      },
+    });
+    const targets = [
+      "http://169.254.169.254/latest/meta-data/",
+      "http://localhost:8000/secret",
+      "http://127.0.0.1:5432/",
+      "http://10.1.2.3/internal",
+      "http://192.168.0.1/admin",
+      "http://172.20.0.5/kong",
+      "https://metadata.internal/creds",
+      "http://[::1]:8080/",
+    ];
+    for (const url of targets) {
+      const r = await guard.fetch(url);
+      expect(r.ok).toBe(false);
+      expect(r.content).toBe("");
+      expect(r.note).toContain("refused");
+      expect(r.note).not.toContain("network was reached");
+    }
+    // And a public URL still passes the guard (and reaches the stub).
+    let reached = false;
+    const pub = new PageFetcher({
+      fetchFn: (async () => {
+        reached = true;
+        throw new Error("stop here");
+      }) as unknown as typeof fetch,
+    });
+    const r = await pub.fetch("https://example.com/public-page");
+    expect(reached).toBe(true); // guard let it through to the network layer
+    expect(r.ok).toBe(false);
+  });
+});

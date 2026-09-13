@@ -345,3 +345,78 @@ describe("native vision — honest summarization", () => {
     expect(summary).toContain("blue");
   });
 });
+
+// ---------------------------------------------------------
+// Batch 12 (Level 8) regressions — fixes 35, 36
+// ---------------------------------------------------------
+describe("batch 12 — vision boundary honesty", () => {
+  it("fix 35: a JPEG whose SOF marker is truncated at the buffer edge is refused, never given fake dimensions", async () => {
+    // SOF0 marker (FF C0) near the end, payload cut short.
+    const bytes = new Uint8Array([
+      0xff,
+      0xd8, // SOI
+      0xff,
+      0xc0,
+      0x00,
+      0x11,
+      0x08, // SOF header begins...
+      0x01,
+      0x02, // ...and the file ends mid-payload
+    ]);
+    const r = await analyzeImage(bytes);
+    expect(r.ok).toBe(false);
+    expect((r as { note: string }).note).toContain("truncated");
+  });
+
+  it("fix 36: a zero-width PNG is refused honestly instead of yielding NaN statistics", async () => {
+    // Valid signature + IHDR with width 0, then enough IDAT to
+    // pass the earlier gates — the zero-dimension check must
+    // fire before analysis.
+    const ihdr = new Uint8Array([
+      0x00,
+      0x00,
+      0x00,
+      0x0d,
+      0x49,
+      0x48,
+      0x44,
+      0x52,
+      0x00,
+      0x00,
+      0x00,
+      0x00, // width 0
+      0x00,
+      0x00,
+      0x00,
+      0x01, // height 1
+      0x08,
+      0x02,
+      0x00,
+      0x00,
+      0x00, // 8-bit RGB
+    ]);
+    const crc = crc32(ihdr.subarray(4)); // type + payload (production covers both)
+    const crcBytes = new Uint8Array(4);
+    new DataView(crcBytes.buffer).setUint32(0, crc, false); // big-endian
+    const ihdrChunk = new Uint8Array([...ihdr, ...crcBytes]);
+    const bytes = new Uint8Array([
+      ...[0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a],
+      ...ihdrChunk,
+      0x00,
+      0x00,
+      0x00,
+      0x00,
+      0x49,
+      0x45,
+      0x4e,
+      0x44, // empty IEND-ish tail
+      0xae,
+      0x42,
+      0x60,
+      0x82,
+    ]);
+    const r = await analyzeImage(bytes);
+    expect(r.ok).toBe(false);
+    expect((r as { note: string }).note).toContain("invalid dimensions");
+  });
+});

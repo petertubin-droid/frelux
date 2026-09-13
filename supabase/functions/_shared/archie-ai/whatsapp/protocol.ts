@@ -248,7 +248,11 @@ export function chunkForWhatsApp(
         break;
       }
     }
-    if (cut <= 0) cut = limit;
+    // FIX 41 (batch 12): a separator starting at the last
+    // allowed index (e.g. ". " at limit-1) pushed the cut to
+    // limit+1 — the chunk was 4097 chars and WhatsApp
+    // rejected the send. The cut is clamped to the limit.
+    if (cut <= 0 || cut > limit) cut = limit;
     chunks.push(remaining.slice(0, cut).trim());
     remaining = remaining.slice(cut).trim();
   }
@@ -290,7 +294,11 @@ export function classifyOwnerCommand(raw: string): OwnerCommand {
     /^(?:don'?t|do\s+not)\s+(?:remember|store|keep|retain)\s+(?:this|that)\.?$/i.test(
       t,
     ) ||
-    /^(?:forget|delete)\s+(?:the\s+)?last\s+(?:thing|message)\.?$/.test(t)
+    // FIX 42 (batch 12): this variant was missing the /i
+    // flag — "FORGET THE LAST MESSAGE" silently fell through
+    // to the cognitive core instead of the communication
+    // layer's forget_recent. Consistent with the other two.
+    /^(?:forget|delete)\s+(?:the\s+)?last\s+(?:thing|message)\.?$/i.test(t)
   ) {
     return { kind: "forget_recent" };
   }
@@ -328,6 +336,11 @@ export interface ParsedReminder {
   needsTime: boolean;
 }
 
+/** FIX 40 — the owner's timezone offset for wall-clock
+ *  reminder times. Africa/Lagos: UTC+1, no daylight saving
+ *  (deterministic every day of the year). */
+export const OWNER_TZ_OFFSET = "+01:00";
+
 export function parseReminder(input: string, now = new Date()): ParsedReminder {
   const t = (input ?? "")
     .trim()
@@ -350,11 +363,17 @@ export function parseReminder(input: string, now = new Date()): ParsedReminder {
   }
 
   // due_at YYYY-MM-DD[ HH:MM]
+  // FIX 40 (batch 12, Level 8 audit 2026-09-13): absolute
+  // wall-clock times used to be pinned to UTC with a hard
+  // "Z" — an owner saying 14:00 meant 2pm where they live
+  // (Africa/Lagos, UTC+1, no DST), and the reminder fired an
+  // hour late. Wall-clock times are now interpreted in the
+  // owner's timezone, deterministic year-round.
   let dueAt: string | null = null;
   const abs = lower.match(/\b(\d{4}-\d{2}-\d{2})(?:[ T](\d{2}:\d{2}))?\b/);
   if (abs) {
     const time = abs[2] ?? "09:00";
-    dueAt = new Date(`${abs[1]}T${time}:00Z`).toISOString();
+    dueAt = new Date(`${abs[1]}T${time}:00${OWNER_TZ_OFFSET}`).toISOString();
   } else {
     // in N minutes / hours / days
     const rel = lower.match(/\bin\s+(\d{1,4})\s+(minute|min|hour|hr|day)s?\b/);

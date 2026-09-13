@@ -170,6 +170,15 @@ async function decodePng(bytes: Uint8Array): Promise<DecodedImage> {
     offset = chunk.next;
   }
   if (!info) throw new Error("PNG missing IHDR — refused");
+  // FIX 36 (batch 12): a zero width/height is invalid per
+  // the PNG spec — it used to flow into analysis and produce
+  // NaN mean-luma / NaN coverage statistics presented as
+  // measurements. Refused honestly instead.
+  if (info.width <= 0 || info.height <= 0) {
+    throw new Error(
+      `PNG has invalid dimensions ${info.width}x${info.height} — refused`,
+    );
+  }
   if (info.bitDepth !== 8) {
     throw new Error(
       `PNG bit depth ${info.bitDepth} not supported natively (depth 8 only) — refused honestly`,
@@ -330,6 +339,15 @@ function parseJpeg(bytes: Uint8Array): JpegInfo {
       marker !== 0xc8 &&
       marker !== 0xcc
     ) {
+      // FIX 35 (batch 12, Level 8 audit 2026-09-13): the SOF
+      // payload needs 9 bytes from the marker position. A
+      // TRUNCATED file used to read past the buffer — the
+      // undefined bytes coerced to 0 and the analysis reported
+      // fabricated 0xN dimensions as if parsed. Refused
+      // honestly instead.
+      if (i + 9 > bytes.length) {
+        throw new Error("JPEG SOF marker truncated — refused");
+      }
       return {
         height: (bytes[i + 5] << 8) | bytes[i + 6],
         width: (bytes[i + 7] << 8) | bytes[i + 8],

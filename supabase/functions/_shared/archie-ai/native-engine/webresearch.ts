@@ -400,11 +400,30 @@ interface ScoredHit {
 
 export class ResearchPipeline {
   private registry: WebSourceRegistry | null;
-  /** Recent findings cache — reuse while still current. */
+  /** Recent findings cache — reuse while still current.
+   *  FIX 38 (batch 12): bounded with FIFO eviction. Expired
+   *  entries used to be skipped on read but never deleted —
+   *  a long-lived isolate accumulated every query's report
+   *  (each holding up to 3 fetched page contents) forever. */
+  private static readonly MAX_CACHE_ENTRIES = 64;
   private cache = new Map<
     string,
     { report: ResearchReport; expiresAt: number }
   >();
+
+  /** Cache put with a hard size cap (FIFO — Map preserves
+   *  insertion order; the oldest entry is evicted first). */
+  private cachePut(key: string, report: ResearchReport): void {
+    this.cache.set(key, {
+      report,
+      expiresAt: Date.now() + CACHE_TTL_MS,
+    });
+    while (this.cache.size > ResearchPipeline.MAX_CACHE_ENTRIES) {
+      const oldest = this.cache.keys().next().value;
+      if (oldest === undefined) break;
+      this.cache.delete(oldest);
+    }
+  }
 
   /** Optional page fetcher (audit Phase 2.2) — when wired,
    *  the top hits are deepened with REAL fetched page content
@@ -440,6 +459,7 @@ export class ResearchPipeline {
     if (cached && cached.expiresAt > Date.now()) {
       return { ...cached.report, reusedCache: true };
     }
+    if (cached) this.cache.delete(key); // expired — evicted, not leaked
 
     // ── LEGACY MODE (no registry wired) — single search,
     //    identical honest behaviour to the original pipeline.
@@ -762,11 +782,9 @@ export class ResearchPipeline {
       pageFetches,
     };
 
-    // CACHE the report for reuse while still current.
-    this.cache.set(query.toLowerCase(), {
-      report,
-      expiresAt: Date.now() + CACHE_TTL_MS,
-    });
+    // CACHE the report for reuse while still current
+    // (bounded — fix 38).
+    this.cachePut(report.query.toLowerCase(), report);
     return report;
   }
 
@@ -774,6 +792,12 @@ export class ResearchPipeline {
    *  wired (backward compatible, still honest). */
   private async researchLegacy(query: string): Promise<ResearchReport> {
     const { hits, note } = await this.adapter.search(query);
+    // FIX 37 (batch 12, Level 8 audit 2026-09-13): the legacy
+    // path reported searched:true UNCONDITIONALLY — a dead
+    // network or a drifted adapter layout was claimed as a
+    // successful search of the open web. Same honesty gate as
+    // the registry path: only an EXECUTED search counts.
+    const executed = !(hits.length === 0 && isSearchFailureNote(note));
     let stored = 0;
     for (const hit of hits.slice(0, 4)) {
       // Cross-check signal: a snippet that repeats the query terms.
@@ -797,16 +821,16 @@ export class ResearchPipeline {
       });
       stored += 1;
     }
-    return {
+    const legacyReport: ResearchReport = {
       query,
       hits,
-      searched: true,
+      searched: executed,
       note,
       storedKnowledge: stored,
       category: null,
       // Legacy mode ran one unrestricted query — reported
-      // honestly as exactly that.
-      sourcesSearched: ["open web (unrestricted query)"],
+      // honestly as exactly that (only when it executed).
+      sourcesSearched: executed ? ["open web (unrestricted query)"] : [],
       crossChecked: false,
       conflicts: [],
       reusedCache: false,
@@ -816,5 +840,11 @@ export class ResearchPipeline {
       contentCrossChecked: false,
       pageFetches: [],
     };
+    // FIX 38 (continued): the legacy path used to bypass the
+    // findings cache entirely — repeat queries re-searched
+    // the open web every time. Cached with the same bounded
+    // put as the registry path.
+    this.cachePut(query.toLowerCase(), legacyReport);
+    return legacyReport;
   }
 }

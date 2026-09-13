@@ -1021,7 +1021,6 @@ export class IntentClassifier {
   private priors = new Map<Intent, number>();
   private likelihood = new Map<Intent, Map<string, number>>();
   private vocab = new Set<string>();
-  private index = new TfIdfIndex();
   private trained = false;
 
   train(corpus: Array<[Intent, string[]]> = CORPUS): void {
@@ -1029,9 +1028,7 @@ export class IntentClassifier {
     for (const [intent, utterances] of corpus) {
       counts.set(intent, (counts.get(intent) ?? 0) + utterances.length);
       for (const utterance of utterances) {
-        const tokens = tokenize(utterance);
-        this.index.addDoc(tokens);
-        for (const t of tokens) this.vocab.add(t);
+        for (const t of tokenize(utterance)) this.vocab.add(t);
       }
     }
     const total = [...counts.values()].reduce((a, b) => a + b, 0);
@@ -1087,6 +1084,46 @@ export class IntentClassifier {
       knownTokens: tokens.length,
     };
   }
+}
+
+// ---------------------------------------------------------
+// REMEDIATION batch 11 (fix 31): trained-classifier cache.
+// understand() and probeVocabulary() used to construct and
+// train a FRESH IntentClassifier on every call — ~1,350
+// utterances tokenized twice plus a dead TF-IDF index build,
+// on EVERY inference (and once per compound clause, and once
+// per kernel cycle). The corpus is a module constant and
+// skill corpora are stable per isolate, so the trained model
+// is cached: once for the base corpus, once per distinct
+// domain-corpus reference (WeakMap). Training is pure and
+// deterministic — identical inputs, identical model — so a
+// cached classifier is behaviorally indistinguishable from a
+// freshly trained one, minus the redundant rebuild. Same
+// remedy class as the FactRankIndex perf pass (2026-09-11),
+// which the NLU stage had escaped.
+// ---------------------------------------------------------
+const classifierByDomainCorpus = new WeakMap<
+  NonNullable<NluDomainHints["corpus"]>,
+  IntentClassifier
+>();
+let baseTrainedClassifier: IntentClassifier | null = null;
+
+function classifierFor(domain?: NluDomainHints): IntentClassifier {
+  const extra = domain?.corpus;
+  if (!extra || extra.length === 0) {
+    if (!baseTrainedClassifier) {
+      baseTrainedClassifier = new IntentClassifier();
+      baseTrainedClassifier.train(CORPUS);
+    }
+    return baseTrainedClassifier;
+  }
+  let cached = classifierByDomainCorpus.get(extra);
+  if (!cached) {
+    cached = new IntentClassifier();
+    cached.train([...CORPUS, ...extra]);
+    classifierByDomainCorpus.set(extra, cached);
+  }
+  return cached;
 }
 
 // ---------------------------------------------------------
@@ -1683,9 +1720,9 @@ export function probeVocabulary(
   domain?: NluDomainHints,
 ): number {
   const corrected = correctConversationalTypos(input);
-  const classifier = new IntentClassifier();
-  classifier.train([...CORPUS, ...(domain?.corpus ?? [])]);
-  return classifier.classify(corrected).knownTokens;
+  // Fix 31: same cached classifier the engine's Bayes stage
+  // uses — the probe no longer rebuilds it per call.
+  return classifierFor(domain).classify(corrected).knownTokens;
 }
 
 export function understand(
@@ -1744,8 +1781,8 @@ export function understand(
   const wordsDeferToEmoji = tokens.every((t) => EMOJI_DEFERENT_WORDS.has(t));
   // Stage 2: trained Naive Bayes classifier (full corpus =
   // base + conversational expansion + skill utterances).
-  const classifier = new IntentClassifier();
-  classifier.train([...CORPUS, ...(domain?.corpus ?? [])]);
+  // Fix 31: the trained model is cached, not rebuilt per call.
+  const classifier = classifierFor(domain);
   const {
     intent: classifiedIntent,
     confidence: classifiedConfidence,

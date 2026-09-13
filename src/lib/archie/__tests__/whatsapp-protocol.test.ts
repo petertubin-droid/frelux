@@ -331,7 +331,8 @@ describe("reminder parsing (deterministic times only)", () => {
       NOW,
     );
     expect(r.note).toBe("call the supplier");
-    expect(r.dueAt).toBe("2026-09-15T09:00:00.000Z");
+    // Fix 40: 09:00 is wall-clock LAGOS time → 08:00 UTC.
+    expect(r.dueAt).toBe("2026-09-15T08:00:00.000Z");
   });
 
   it("creates undated tasks from 'create a task to X'", () => {
@@ -368,5 +369,39 @@ describe("privacy utilities", () => {
     expect(containsSecret("sk-ABCDEFGHIJKLMNOP123456")).toBe(true);
     expect(containsSecret("the screeding ratio is 1:4")).toBe(false);
     expect(containsSecret("normal construction question")).toBe(false);
+  });
+});
+
+// ---------------------------------------------------------
+// Batch 12 (Level 8) regressions — fixes 40, 41, 42
+// ---------------------------------------------------------
+describe("batch 12 — protocol fixes", () => {
+  it("fix 40: absolute due times are interpreted in the owner's timezone (UTC+1), not UTC", () => {
+    const r = parseReminder(
+      "archie remind me to call the supplier due_at 2026-09-15 14:00",
+    );
+    expect(r.ok).toBe(true);
+    expect(r.dueAt).toBe("2026-09-15T13:00:00.000Z"); // 14:00 Lagos = 13:00 UTC
+  });
+
+  it("fix 40: undated absolute reminders default to 09:00 Lagos", () => {
+    const r = parseReminder(
+      "archie remind me to inspect the slab due_at 2026-10-01",
+    );
+    expect(r.dueAt).toBe("2026-10-01T08:00:00.000Z");
+  });
+
+  it("fix 41: chunks never exceed the 4096 limit when a separator straddles it", () => {
+    // ". " starting at limit-1 used to cut at limit+1 → a 4097-char chunk.
+    const text = "a".repeat(4094) + ". " + "b".repeat(50);
+    const chunks = chunkForWhatsApp(text);
+    for (const c of chunks) expect(c.length).toBeLessThanOrEqual(4096);
+    expect(chunks.length).toBeGreaterThan(1);
+  });
+
+  it("fix 42: 'FORGET THE LAST MESSAGE' (uppercase) routes to forget_recent", () => {
+    expect(classifyOwnerCommand("FORGET THE LAST MESSAGE").kind).toBe(
+      "forget_recent",
+    );
   });
 });

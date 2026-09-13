@@ -408,8 +408,14 @@ export class CognitiveKernel implements ArchieRuntime {
     // concurrent conversations never stomp each other.
     const conversationId =
       req.conversationId ?? (req as { conversationId?: string }).conversationId;
-    this.substrate.noteDeclaredTools(req.tools.map((t) => t.name));
-    if (conversationId) this.substrate.setConversationId(conversationId);
+    // Fix 33: the tool surface rides the REQUEST's session
+    // directly — no mutation of the substrate's isolate-wide
+    // legacy pointer (which bled concurrent no-id requests
+    // into the last id-bearing conversation's session).
+    this.substrate.noteDeclaredTools(
+      req.tools.map((t) => t.name),
+      conversationId,
+    );
     const text = lastOwner
       ? lastOwner.parts
           .map((p: ArchieInferencePart) => p.text ?? "")

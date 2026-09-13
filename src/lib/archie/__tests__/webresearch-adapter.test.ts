@@ -26,10 +26,7 @@ import {
 } from "@studio-shared/archie-ai/native-engine/web-sources.ts";
 
 const fixture = (name: string): string =>
-  readFileSync(
-    join(import.meta.dirname ?? ".", "fixtures", name),
-    "utf-8",
-  );
+  readFileSync(join(import.meta.dirname ?? ".", "fixtures", name), "utf-8");
 
 function okResponse(html: string, status = 200): Response {
   return new Response(html, { status });
@@ -107,7 +104,9 @@ describe("DuckDuckGoLiteAdapter — honest drift detection (no silent zero hits)
   it("reports an honest no-results page (not drift)", async () => {
     const adapter = new DuckDuckGoLiteAdapter({
       fetchFn: async () =>
-        okResponse(`<html><body><p>Your search for qzxwv did not match any documents. No results.</p></body></html>`),
+        okResponse(
+          `<html><body><p>Your search for qzxwv did not match any documents. No results.</p></body></html>`,
+        ),
       sleepFn: async () => {},
     });
     const { hits, note } = await adapter.search("qzxwv");
@@ -159,7 +158,9 @@ describe("DuckDuckGoLiteAdapter — retry and backoff", () => {
       maxRetries: 1,
       fetchFn: async () => {
         calls += 1;
-        return calls === 1 ? jsonResponse(429) : okResponse(fixture("ddg-lite-results.html"));
+        return calls === 1
+          ? jsonResponse(429)
+          : okResponse(fixture("ddg-lite-results.html"));
       },
       sleepFn: async () => {},
     });
@@ -229,7 +230,9 @@ describe("ResearchPipeline — adapter drift is a source failure, never a fake s
       }),
     };
     const pipeline = new ResearchPipeline(facts, driftAdapter, registry);
-    const report = await pipeline.research("concrete curing time best practices");
+    const report = await pipeline.research(
+      "concrete curing time best practices",
+    );
     expect(report.searched).toBe(false);
     expect(report.sourcesSearched).toHaveLength(0);
     expect(report.sourceFailures.length).toBeGreaterThan(0);
@@ -239,9 +242,8 @@ describe("ResearchPipeline — adapter drift is a source failure, never a fake s
 
 describe("Construction domain constants — data records sync", () => {
   it("every in-code record is seeded verbatim in the migration (data integrity)", async () => {
-    const { constructionConstants } = await import(
-      "@studio-shared/archie-ai/native-engine/domains/construction.data.ts"
-    );
+    const { constructionConstants } =
+      await import("@studio-shared/archie-ai/native-engine/domains/construction.data.ts");
     const migrationSql = readFileSync(
       join(
         import.meta.dirname ?? ".",
@@ -256,5 +258,72 @@ describe("Construction domain constants — data records sync", () => {
       // and its value appears in the seed VALUES list
       expect(migrationSql).toContain(`${rec.value}, '${rec.unit}'`);
     }
+  });
+});
+
+// ---------------------------------------------------------
+// Batch 12 (Level 8) regressions — fixes 37, 38
+// ---------------------------------------------------------
+describe("batch 12 — research honesty + bounded cache", () => {
+  it("fix 37: legacy mode reports searched:false when the adapter failed outright", async () => {
+    const dead: ResearchAdapter = {
+      id: "dead",
+      async search() {
+        return {
+          hits: [],
+          note: "network unavailable after 3 attempt(s): connection refused",
+        };
+      },
+    };
+    const pipeline = new ResearchPipeline(new FactStore(), dead);
+    const report = await pipeline.research("screeding mix ratios");
+    expect(report.searched).toBe(false);
+    expect(report.sourcesSearched).toEqual([]);
+    expect(report.storedKnowledge).toBe(0);
+  });
+
+  it("fix 37: legacy mode still reports searched:true for a genuine no-results search", async () => {
+    const empty: ResearchAdapter = {
+      id: "empty",
+      async search() {
+        return { hits: [], note: "no results found for the query" };
+      },
+    };
+    const pipeline = new ResearchPipeline(new FactStore(), empty);
+    const report = await pipeline.research("zzzz nothing real");
+    expect(report.searched).toBe(true);
+    expect(report.sourcesSearched).toEqual(["open web (unrestricted query)"]);
+  });
+
+  it("fix 38: the findings cache is FIFO-bounded and evicts expired entries on read", async () => {
+    let calls = 0;
+    const adapter: ResearchAdapter = {
+      id: "counting",
+      async search(q: string) {
+        calls += 1;
+        return {
+          hits: [
+            {
+              title: `about ${q}`,
+              url: `https://example.com/${q.replace(/\\s+/g, "-")}`,
+              snippet: `real snippet for ${q}`,
+            },
+          ],
+          note: "search completed",
+        };
+      },
+    };
+    // Legacy mode exercises cachePut/read without a registry.
+    const pipeline = new ResearchPipeline(new FactStore(), adapter);
+    // Overfill: MAX_CACHE_ENTRIES is 64; issue 70 distinct queries.
+    for (let i = 0; i < 70; i += 1) {
+      await pipeline.research(`topic number ${i} screeding`);
+    }
+    expect(calls).toBe(70); // every query hit the adapter (no cache hits)
+    // A repeat of the FIRST query must MISS (it was FIFO-evicted)
+    // while a repeat of the LAST must HIT.
+    await pipeline.research("topic number 0 screeding");
+    await pipeline.research("topic number 69 screeding");
+    expect(calls).toBe(71); // only the evicted one re-searched
   });
 });

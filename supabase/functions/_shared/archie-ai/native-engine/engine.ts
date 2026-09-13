@@ -330,8 +330,11 @@ export class ArchieNativeEngine implements ArchieRuntime {
    *  without going through generate(). Scoped to the
    *  CURRENT session (audit fix C-1) — concurrent
    *  conversations can no longer stomp each other's surface. */
-  noteDeclaredTools(names: string[]): void {
-    this.sessionFor().requestToolNames = names;
+  noteDeclaredTools(names: string[], conversationId?: string): void {
+    // Fix 33: scoped to the named conversation when given —
+    // the kernel hands both in together so it no longer
+    // mutates the isolate-wide legacy pointer.
+    this.sessionFor(conversationId).requestToolNames = names;
   }
 
   /** Per-request tool surface for an explicit conversation
@@ -681,13 +684,13 @@ export class ArchieNativeEngine implements ArchieRuntime {
    *  relayed verbatim, provenance-labeled, never fabricated
    *  (plan P1). The tool's own output decides what ARCHIE
    *  can say; the engine only frames it honestly. */
-  private resumeFromToolResult(
+  private async resumeFromToolResult(
     toolResult: {
       name: string;
       output: unknown;
     },
     session: EngineSession,
-  ): ArchieInferenceResult {
+  ): Promise<ArchieInferenceResult> {
     this.inferences += 1;
     this.sessionInferences += 1;
     const body = summarizeToolOutput(toolResult.output);
@@ -696,6 +699,34 @@ export class ArchieNativeEngine implements ArchieRuntime {
       `[Source: ${toolResult.name} tool — real system output relayed verbatim by the ARCHIE native engine. I never fabricate system state.]`;
     session.memory.addTurn("owner", `[tool result: ${toolResult.name}]`);
     session.memory.addTurn("archie", text);
+    // REMEDIATION batch 11 (fix 34): the tool-result resume
+    // path used to bypass episodic persistence entirely —
+    // every tool exchange (status checks, price lookups) was
+    // invisible to the NEXT session's recall, while plain
+    // conversational turns persisted. The turn pair now goes
+    // through the same consent-gated episodic store as
+    // converse(), under the session's conversation id. Best
+    // effort, same as the main path: a failed write never
+    // breaks the reply.
+    if (this.episodicStore) {
+      const at = Date.now();
+      try {
+        await this.episodicStore.saveEpisodicTurn({
+          conversationId: session.conversationId,
+          role: "owner",
+          text: `[tool result: ${toolResult.name}]`,
+          at,
+        });
+        await this.episodicStore.saveEpisodicTurn({
+          conversationId: session.conversationId,
+          role: "archie",
+          text,
+          at: at + 1,
+        });
+      } catch {
+        // Episodic persistence is best-effort.
+      }
+    }
     return {
       parts: [{ text }],
       engine: {
@@ -730,7 +761,14 @@ export class ArchieNativeEngine implements ArchieRuntime {
     // are SESSION-scoped. Concurrent requests with different
     // conversation ids are fully isolated; serial calls on
     // the same id keep their continuity.
-    if (opts?.conversationId) this.currentSessionId = opts.conversationId;
+    // REMEDIATION batch 11 (fix 33): this used to ALSO mutate
+    // the isolate-wide legacy pointer (currentSessionId) from
+    // a request-scoped call — under concurrency, a request
+    // WITHOUT an id could then land in a DIFFERENT
+    // conversation's session (context bleed). The pointer is
+    // now touched only by the explicit setConversationId()
+    // legacy API; request-scoped calls use their own session
+    // and leave the pointer alone.
     const session = this.sessionFor(opts?.conversationId);
     const memory = session.memory;
     memory.seedFromTurns(
@@ -784,12 +822,19 @@ export class ArchieNativeEngine implements ArchieRuntime {
       // through the same honest exclusion path.
       outcome = await this.routeClauses(clauses, systemInstruction, session);
     } else {
+      // Fix 33 (continued): the REQUEST's session is passed
+      // through — route() reads the tool surface from it,
+      // never from the isolate-wide legacy pointer (the old
+      // fallback was masked by converse() mutating the
+      // pointer; unmasked, it would leak session A's tool
+      // surface into session B's replies).
       outcome = await this.route(
         nlu,
         input,
         ranked,
         context,
         systemInstruction,
+        session,
       );
     }
     this.confidenceSum += outcome.confidence;
@@ -1190,12 +1235,26 @@ export class ArchieNativeEngine implements ArchieRuntime {
     const excluded: string[] = [];
     let confSum = 0;
     let positive = 0;
+    // REMEDIATION batch 11 (fix 32): clause-level NLU used to
+    // call understand() bare — compound clauses lost BOTH the
+    // skill rule cascade (a "estimate the paint" clause in a
+    // compound message fell through to generic intents) and
+    // anaphora resolution ("...and how do i apply it" could
+    // never resolve "it"). Clauses now classify under the
+    // same domain rules as the main path, with the session's
+    // recent turns as resolution history (the compound input
+    // itself is included — the referent of a clause pronoun is
+    // usually named in the same message).
+    const domainRules = this.domains.nluRules();
+    const clauseHistory = (session ?? this.sessionFor()).memory.recentTurns(6);
     for (const clause of clauses) {
       if (clause.negated) {
         excluded.push(clause.text);
         continue;
       }
-      const clauseNlu = understand(clause.text);
+      const clauseNlu = understand(clause.text, clauseHistory, {
+        rules: domainRules,
+      });
       const clauseRanked = this.facts.rank(clause.text);
       const clauseContext = (session ?? this.sessionFor()).memory.retrieve(
         clause.text,
@@ -1215,7 +1274,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
     }
     const text = composeCompound(parts, excluded);
     return {
-      nlu: understand(clauses[0].text),
+      nlu: understand(clauses[0].text, clauseHistory, {
+        rules: domainRules,
+      }),
       responseText: text,
       confidence: positive > 0 ? confSum / positive : 0.4,
       citedFactIds: [...cited],
