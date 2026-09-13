@@ -111,9 +111,92 @@ export interface SecurityVerdict {
  * authorization clause. Pure function — the DB-backed
  * authorization lookup happens at the call site.
  */
+// ---------------------------------------------------------
+// FIX 30 (remediation batch 10, Level 6 security audit,
+// 2026-09-13): TARGET SCOPE ENFORCEMENT. The gate previously
+// granted intrusive operations whenever ANY engagement
+// existed — a registered authorization for target A
+// authorized an operation against target B. The verdict text
+// even claimed "proceeding within its scope" without any
+// scope check. Now, when the message names a concrete target
+// (URL / IP / domain), it must match a REGISTERED identifier
+// (exact host or subdomain-of-scope) or the operation is
+// refused. Messages with no extractable target keep the old
+// behavior (the target may be implicit in the conversation;
+// the system prompt remains the second layer).
+// ---------------------------------------------------------
+
+/** Normalize an identifier or message candidate to a bare
+ *  lowercase host (strip scheme, path, port). Returns null
+ *  for non-host-like values. */
+function normalizeHost(value: string): string | null {
+  let s = String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .replace(/^[a-z][a-z0-9+.-]*:\/\//, "");
+  s = s.split("/")[0].split("?")[0].split(":")[0].split("@").pop() ?? "";
+  s = s.replace(/^\[|\]$/g, ""); // IPv6 brackets
+  // IPv4 scope/target: valid dotted quad IS a host (the TLD
+  // heuristic below would otherwise reject it — registered
+  // IP scopes like 10.0.0.5 must normalize, not null).
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(s)) {
+    return s.split(".").every((o) => Number(o) <= 255) ? s : null;
+  }
+  // host-like: at least one dot, valid labels, plausible TLD
+  if (
+    !/^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/.test(s)
+  ) {
+    return null;
+  }
+  const labels = s.split(".");
+  const tld = labels[labels.length - 1];
+  if (tld.length < 2) return null;
+  return s;
+}
+
+/** Extract concrete target candidates (URLs, IPs, domains)
+ *  named in the message. */
+export function extractTargetCandidates(message: string): string[] {
+  const text = String(message ?? "");
+  const out = new Set<string>();
+  // URLs (any scheme) — take the host
+  for (const m of text.matchAll(/[a-z][a-z0-9+.-]*:\/\/([^\s/?#'"]+)/gi)) {
+    const h = normalizeHost(m[1]);
+    if (h) out.add(h);
+  }
+  // bare IPv4
+  for (const m of text.matchAll(/\b(\d{1,3}(?:\.\d{1,3}){3})\b/g)) {
+    if ((m[1] as string).split(".").every((o) => Number(o) <= 255)) {
+      out.add(m[1]);
+    }
+  }
+  // dotted host-like tokens (domains) — at least 2 labels, alpha TLD
+  for (const m of text.matchAll(
+    /\b([a-z0-9](?:[a-z0-9-]*[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]*[a-z0-9])?)+)\b/gi,
+  )) {
+    const h = normalizeHost(m[1]);
+    if (h) out.add(h);
+  }
+  return [...out];
+}
+
+/** Does a message target fall inside the registered scope?
+ *  Exact host match or a SUBDOMAIN of a registered host. */
+function targetInScope(candidate: string, scopeHosts: string[]): boolean {
+  return scopeHosts.some((s) => candidate === s || candidate.endsWith("." + s));
+}
+
+export interface ClassifyOptions {
+  hasValidAuthorization?: boolean;
+  /** Registered scope identifiers (from the owner-only
+   *  registry). When provided, named targets are matched
+   *  against them (FIX 30). */
+  inScopeIdentifiers?: string[];
+}
+
 export function classifySecurityMessage(
   message: string,
-  opts: { hasValidAuthorization?: boolean } = {},
+  opts: ClassifyOptions = {},
 ): SecurityVerdict {
   const text = String(message ?? "");
 
@@ -137,11 +220,39 @@ export function classifySecurityMessage(
       // knowledge work — but the moment the intent is to RUN
       // the operation, authorization is required.
       if (opts.hasValidAuthorization) {
+        // FIX 30: an existing engagement is necessary but no
+        // longer SUFFICIENT — a target named in the message
+        // must fall inside the registered scope.
+        const scopeHosts = (opts.inScopeIdentifiers ?? [])
+          .map((id) => normalizeHost(id))
+          .filter((h): h is string => h !== null);
+        if (scopeHosts.length > 0) {
+          const candidates = extractTargetCandidates(text);
+          const outsideScope = candidates.filter(
+            (c) => !targetInScope(c, scopeHosts),
+          );
+          if (outsideScope.length > 0) {
+            return {
+              allowed: false,
+              hardRefused: false,
+              intrusive: true,
+              reason:
+                `This request is an intrusive security operation (${p.label}) against ` +
+                `a target that is NOT inside any registered authorization scope ` +
+                `(${outsideScope.join(", ")}). Register a target + engagement covering it ` +
+                "in the ARCHIE Security registry first. Studying the technique is always free — " +
+                "ask for the methodology instead.",
+              label: p.label,
+            };
+          }
+        }
         return {
           allowed: true,
           hardRefused: false,
           intrusive: true,
-          reason: `Intrusive operation detected (${p.label}) and a valid owner-registered authorization exists; proceeding within its scope.`,
+          reason:
+            `Intrusive operation detected (${p.label}) and a valid owner-registered authorization ` +
+            `exists covering this target; proceeding within its scope.`,
           label: p.label,
         };
       }
@@ -191,7 +302,9 @@ export interface EngagementRow {
   current_phase: string;
 }
 
-export function reduceAuthorizations(rows: EngagementRow[]): AuthorizationLookupResult {
+export function reduceAuthorizations(
+  rows: EngagementRow[],
+): AuthorizationLookupResult {
   const inScope = rows.map((r) => r.identifier).slice(0, 20);
   return {
     // A target + engagement pair is a valid authorization. The

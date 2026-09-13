@@ -1879,6 +1879,10 @@ serveWithCors(async (req) => {
   const authz = reduceAuthorizations(flatRows);
   const verdict = classifySecurityMessage(message, {
     hasValidAuthorization: authz.hasValidAuthorization,
+    // FIX 30: named targets must fall inside the registered
+    // scope — an engagement for one target no longer
+    // authorizes operations against another.
+    inScopeIdentifiers: authz.inScopeIdentifiers,
   });
   if (!verdict.allowed) {
     if (user) {
