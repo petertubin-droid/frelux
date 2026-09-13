@@ -23,17 +23,21 @@ class FakeCounterDb implements SupabaseLike {
 
   from(table: string) {
     return {
-      select: async (_q: string) => {
-        if (table === "frelux_archie_engine_counters") {
-          return {
-            data: Object.entries(this.counters).map(([key, value]) => ({
-              key,
-              value,
-            })),
-            error: null,
-          };
-        }
-        return { data: [], error: null };
+      select: (_q: string) => {
+        const data =
+          table === "frelux_archie_engine_counters"
+            ? Object.entries(this.counters).map(([key, value]) => ({
+                key,
+                value,
+              }))
+            : [];
+        return Object.assign(Promise.resolve({ data, error: null }), {
+          range: (from: number, to: number) =>
+            Promise.resolve({
+              data: data.slice(from, to + 1),
+              error: null,
+            }),
+        });
       },
       insert: async (rs: unknown) => {
         for (const r of rs as Row[]) {

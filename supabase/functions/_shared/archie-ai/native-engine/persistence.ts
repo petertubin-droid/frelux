@@ -82,6 +82,46 @@ export class SupabasePersistence
 {
   constructor(private db: SupabaseLike) {}
 
+  /** VOCABULARY REVIEW (owner directive 2026-09-13): every
+   *  NON-SEED registry row — researched meanings, owner-taught
+   *  meanings, and words merely seen (meaning NULL) — for the
+   *  owner's at-a-glance review. PostgREST caps a select at
+   *  1000 rows: pages until the short page. */
+  async listLearnedVocabulary(): Promise<
+    Array<{
+      term: string;
+      meaning: string | null;
+      source: string;
+      confidence: number | null;
+      times_seen: number | null;
+    }>
+  > {
+    try {
+      const rows: Array<{
+        term: string;
+        meaning: string | null;
+        source: string;
+        confidence: number | null;
+        times_seen: number | null;
+      }> = [];
+      for (let off = 0; ; off += 1000) {
+        const { data, error } = await this.db
+          .from("frelux_vocabulary")
+          .select("term,meaning,source,confidence,times_seen")
+          .range(off, off + 999);
+        if (error || !data) return rows;
+        const page = (data as typeof rows).filter(
+          (r) => r.source !== "seed",
+        );
+        rows.push(...page);
+        if (page.length < 1000) break;
+      }
+      return rows;
+    } catch {
+      return [];
+    }
+  }
+
   /** Owner asked ARCHIE to research a meaning on the web —
    *  write the registry row with RESEARCH provenance:
    *  cross-checked confidence, source domains named,
@@ -178,7 +218,19 @@ export class SupabasePersistence
           object: v.meaning as string,
           qualifiers: null,
           confidence: v.confidence ?? 0.9,
-          provenance: { source: `vocabulary registry (${v.source})` },
+          // Fact provenance sources are a closed union — map
+          // the registry origin onto it; the exact registry
+          // source travels in the note for the proof record.
+          provenance: {
+            source: v.source === "seed"
+              ? ("seed" as const)
+              : v.source.startsWith("owner")
+                ? ("owner-taught" as const)
+                : v.source === "research"
+                  ? ("web-research" as const)
+                  : (`cross-source:vocabulary-${v.source}` as const),
+            note: `vocabulary registry (${v.source})`,
+          },
           status: "ACTIVE",
           validated_count: 0,
           verified_by: [] as string[],

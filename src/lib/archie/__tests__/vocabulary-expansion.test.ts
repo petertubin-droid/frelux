@@ -210,8 +210,8 @@ describe("owner teaching of meanings (self-evolving vocabulary)", () => {
     // the engine takes a raw SupabaseLike and wraps it in
     // its own SupabasePersistence — pass the stub directly.
     const engine = new ArchieNativeEngine({
-      persistence: stub as unknown as Parameters<
-        typeof SupabasePersistence.prototype.constructor
+      persistence: stub as unknown as ConstructorParameters<
+        typeof SupabasePersistence
       >[0],
     });
     const res = await engine.generate({

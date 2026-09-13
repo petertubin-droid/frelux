@@ -1396,6 +1396,102 @@ export class ArchieNativeEngine implements ArchieRuntime {
       : this.sessionFor().requestToolNames;
     const cite = (facts: Fact[]) => facts.map((f) => f.id);
 
+    // VOCABULARY REVIEW (owner directive 2026-09-13):
+    // "review your vocabulary" / "what words have you
+    // learned" lists everything ARCHIE auto-learned —
+    // researched meanings first (lowest confidence =
+    // most needing review), owner-taught, and words seen
+    // without a meaning. Corrections happen in chat:
+    // "X means Y" overwrites research with owner-taught
+    // provenance.
+    if (
+      /\bvocabulary\s+review\b/i.test(input) ||
+      /\b(?:review|show|list|see)\b[^.?!]{0,40}\byour\s+(?:learned\s+)?vocabulary\b/i.test(
+        input,
+      ) ||
+      /\bwhat\s+(?:words|terms|expressions)\s+have\s+you\s+(?:learned|picked\s+up|been\s+taught)\b/i.test(
+        input,
+      ) ||
+      /\b(?:show|list|see)\s+(?:me\s+)?(?:what\s+)?(?:words|terms)\s+you.s?\s+(?:learned|picked\s+up|been\s+taught)\b/i.test(
+        input,
+      )
+    ) {
+      if (this.persistence instanceof SupabasePersistence) {
+        const learned = await this.persistence.listLearnedVocabulary();
+        if (learned.length === 0) {
+          return this.compose(
+            "Nothing auto-learned yet — my vocabulary registry holds only the seeded foundation. Words I pick up from your messages, meanings you teach me, and meanings I research will all show up here.",
+            nlu.confidence * 0.7,
+            [],
+          );
+        }
+        const withMeaning = learned
+          .filter((r) => r.meaning)
+          .sort(
+            (a, b) => (a.confidence ?? 0) - (b.confidence ?? 0),
+          );
+        const noMeaning = learned
+          .filter((r) => !r.meaning)
+          .sort((a, b) => (b.times_seen ?? 0) - (a.times_seen ?? 0));
+        const lines: string[] = [
+          `Vocabulary review — ${learned.length} auto-learned item(s):`,
+        ];
+        const researched = withMeaning.filter(
+          (r) => r.source === "research",
+        );
+        if (researched.length > 0) {
+          lines.push(
+            "RESEARCHED (external knowledge — verify these):",
+          );
+          for (const r of researched.slice(0, 15)) {
+            lines.push(
+              `- ${r.term} (${((r.confidence ?? 0) * 100).toFixed(0)}%): ${r.meaning}`,
+            );
+          }
+        }
+        const taught = withMeaning.filter(
+          (r) => r.source !== "research",
+        );
+        if (taught.length > 0) {
+          lines.push("OWNER-TAUGHT:");
+          for (const r of taught.slice(0, 15)) {
+            lines.push(
+              `- ${r.term} (${((r.confidence ?? 0) * 100).toFixed(0)}%): ${r.meaning}`,
+            );
+          }
+        }
+        if (noMeaning.length > 0) {
+          lines.push(
+            "SEEN, NO MEANING YET (teach me — \"X means Y\"):",
+          );
+          for (const r of noMeaning.slice(0, 15)) {
+            lines.push(
+              `- ${r.term} (seen ${r.times_seen ?? 0} time(s))`,
+            );
+          }
+        }
+        const shown =
+          Math.min(researched.length, 15) +
+          Math.min(taught.length, 15) +
+          Math.min(noMeaning.length, 15);
+        if (shown < learned.length) {
+          lines.push(
+            `…and ${learned.length - shown} more. Ask me to define any of them.`,
+          );
+        }
+        lines.push(
+          "Correct any meaning in chat — \"X means Y\" overwrites research with your owner-taught definition.",
+        );
+        return this.compose(lines.join("\n"), nlu.confidence * 0.8, []);
+      }
+      return this.compose(
+        "The vocabulary registry is not wired for this session, so I cannot review it right now — that is honest, not an empty registry.",
+        nlu.confidence * 0.6,
+        [],
+      );
+    }
+
+
     // cd-3 — cross-system contradiction reconciliation: "the
     // web says X but I told you Y". Surface BOTH sources,
     // compare provenance, reconcile honestly: owner-taught
@@ -1640,7 +1736,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
               return this.compose(
                 `${f.subject} means: ${String(f.object)} [confidence ${(f.confidence * 100).toFixed(0)}%, ${f.provenance.source}]`,
                 0.9,
-                [f],
+                [f.id],
               );
             }
             // AUTO-RESEARCH (owner directive 2026-09-13,

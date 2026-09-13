@@ -37,11 +37,16 @@ class FakeEpisodicDb implements SupabaseLike {
         ? this.episodicRows
         : (this.otherTables[t] ??= []);
     return {
-      select: async (_q: string) => {
-        if (table === "frelux_archie_episodic_turns") {
-          return { data: [...this.episodicRows], error: null };
-        }
-        return { data: [], error: null };
+      select: (_q: string) => {
+        const data =
+          table === "frelux_archie_episodic_turns" ? [...this.episodicRows] : [];
+        return Object.assign(Promise.resolve({ data, error: null }), {
+          range: (from: number, to: number) =>
+            Promise.resolve({
+              data: data.slice(from, to + 1),
+              error: null,
+            }),
+        });
       },
       insert: async (rs: unknown) => {
         if (this.writeFailures > 0) {

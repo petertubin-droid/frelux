@@ -30,7 +30,10 @@ export interface VocabularyEntry {
 
 /** The seeded vocabulary foundation (owner directive,
  * generated content, no hyphens by owner rule). */
-export const SEED_VOCABULARY: VocabularyEntry[] = [
+// SEED_VOCABULARY is chunked: a single 1600+ entry array
+// literal exceeds the TypeScript union-complexity limit
+// (TS2590) under tsconfig.app strict inference.
+const SEED_VOCABULARY_CHUNK_0: VocabularyEntry[] = [
   { term: "brb", termType: "abbreviation", wordClass: "abbreviation", meaning: "be right back" },
   { term: "idk", termType: "abbreviation", wordClass: "abbreviation", meaning: "i do not know" },
   { term: "tbh", termType: "abbreviation", wordClass: "abbreviation", meaning: "to be honest" },
@@ -431,6 +434,9 @@ export const SEED_VOCABULARY: VocabularyEntry[] = [
   { term: "soon", termType: "word", wordClass: "time", meaning: "in a short time" },
   { term: "later", termType: "word", wordClass: "time", meaning: "at a later time" },
   { term: "early", termType: "word", wordClass: "time", meaning: "before the expected time" },
+];
+
+const SEED_VOCABULARY_CHUNK_1: VocabularyEntry[] = [
   { term: "late", termType: "word", wordClass: "time", meaning: "after the expected time" },
   { term: "hour", termType: "word", wordClass: "time", meaning: "60 minutes" },
   { term: "minute", termType: "word", wordClass: "time", meaning: "60 seconds" },
@@ -534,6 +540,30 @@ export const SEED_VOCABULARY: VocabularyEntry[] = [
   { term: "understand", termType: "word", wordClass: "verb", meaning: "to grasp the meaning" },
   { term: "learn", termType: "word", wordClass: "verb", meaning: "to gain knowledge" },
   { term: "teach", termType: "word", wordClass: "verb", meaning: "to give knowledge" },
+  // VOCABULARY REVIEW fallout (2026-09-13): these common
+  // English words were missing from the foundation, so the
+  // live capture registered them as unknown conversation
+  // terms ("mean" seen 16 times). Seeding them removes the
+  // review noise AND protects them in the typo corrector.
+  { term: "mean", termType: "word", wordClass: "verb", meaning: "to signify or denote; also unkind" },
+  { term: "means", termType: "word", wordClass: "noun", meaning: "a method or resources for achieving something" },
+  { term: "define", termType: "word", wordClass: "verb", meaning: "to state the exact meaning of a word" },
+  { term: "definition", termType: "word", wordClass: "noun", meaning: "a statement of what a word means" },
+  { term: "research", termType: "word", wordClass: "noun", meaning: "careful investigation to discover facts" },
+  { term: "review", termType: "word", wordClass: "verb", meaning: "to examine or look over again" },
+  { term: "vocabulary", termType: "word", wordClass: "noun", meaning: "the words of a language known by a person" },
+  { term: "learned", termType: "word", wordClass: "adjective", meaning: "having much knowledge from study" },
+  { term: "studied", termType: "word", wordClass: "verb", meaning: "examined or considered carefully (past of study)" },
+  { term: "lived", termType: "word", wordClass: "verb", meaning: "resided or existed (past of live)" },
+  { term: "having", termType: "word", wordClass: "verb", meaning: "possessing or holding" },
+  { term: "show", termType: "word", wordClass: "verb", meaning: "to display or make visible" },
+  { term: "terms", termType: "word", wordClass: "noun", meaning: "words with specific meanings; also conditions of an agreement" },
+  { term: "sacred", termType: "word", wordClass: "adjective", meaning: "holy, regarded with reverence" },
+  { term: "weed", termType: "word", wordClass: "noun", meaning: "a wild plant growing where it is not wanted" },
+  { term: "stubbornly", termType: "word", wordClass: "adverb", meaning: "in a way that refuses to change" },
+  { term: "resistant", termType: "word", wordClass: "adjective", meaning: "opposing or withstanding something" },
+  { term: "control", termType: "word", wordClass: "verb", meaning: "to direct or command; also the power to direct" },
+  { term: "abroad", termType: "word", wordClass: "adverb", meaning: "in or to a foreign country" },
   { term: "study", termType: "word", wordClass: "verb", meaning: "to examine closely" },
   { term: "remember", termType: "word", wordClass: "verb", meaning: "to keep in memory" },
   { term: "forget", termType: "word", wordClass: "verb", meaning: "to fail to remember" },
@@ -812,6 +842,9 @@ export const SEED_VOCABULARY: VocabularyEntry[] = [
   { term: "fake", termType: "word", wordClass: "adjective", meaning: "not genuine" },
   { term: "rich", termType: "word", wordClass: "adjective", meaning: "wealthy" },
   { term: "poor", termType: "word", wordClass: "adjective", meaning: "lacking money" },
+];
+
+const SEED_VOCABULARY_CHUNK_2: VocabularyEntry[] = [
   { term: "expensive", termType: "word", wordClass: "adjective", meaning: "costing much" },
   { term: "cheap", termType: "word", wordClass: "adjective", meaning: "costing little" },
   { term: "free", termType: "word", wordClass: "adjective", meaning: "without cost" },
@@ -1212,6 +1245,9 @@ export const SEED_VOCABULARY: VocabularyEntry[] = [
   { term: "solution", termType: "word", wordClass: "noun", meaning: "an answer to a problem" },
   { term: "method", termType: "word", wordClass: "noun", meaning: "a way of doing" },
   { term: "way", termType: "word", wordClass: "noun", meaning: "a manner or path" },
+];
+
+const SEED_VOCABULARY_CHUNK_3: VocabularyEntry[] = [
   { term: "path", termType: "word", wordClass: "noun", meaning: "a route" },
   { term: "road", termType: "word", wordClass: "noun", meaning: "a way for vehicles" },
   { term: "street", termType: "word", wordClass: "noun", meaning: "a road in a town" },
@@ -1612,6 +1648,9 @@ export const SEED_VOCABULARY: VocabularyEntry[] = [
   { term: "hello", termType: "word", wordClass: "interjection", meaning: "greeting" },
   { term: "yo", termType: "word", wordClass: "interjection", meaning: "informal greeting" },
   { term: "greetings", termType: "word", wordClass: "interjection", meaning: "a greeting" },
+];
+
+const SEED_VOCABULARY_CHUNK_4: VocabularyEntry[] = [
   { term: "congratulations", termType: "word", wordClass: "interjection", meaning: "praise for an achievement" },
   { term: "sorry", termType: "word", wordClass: "interjection", meaning: "apology or sympathy" },
   { term: "please", termType: "word", wordClass: "interjection", meaning: "polite request" },
@@ -1640,6 +1679,14 @@ export const SEED_VOCABULARY: VocabularyEntry[] = [
   { term: "talk soon", termType: "word", wordClass: "interjection", meaning: "farewell with promise to talk" },
   { term: "good to see you", termType: "word", wordClass: "interjection", meaning: "greeting on meeting" },
   { term: "the pleasure is mine", termType: "word", wordClass: "interjection", meaning: "you are welcome, happy to help" },
+];
+
+export const SEED_VOCABULARY: VocabularyEntry[] = [
+  ...SEED_VOCABULARY_CHUNK_0,
+  ...SEED_VOCABULARY_CHUNK_1,
+  ...SEED_VOCABULARY_CHUNK_2,
+  ...SEED_VOCABULARY_CHUNK_3,
+  ...SEED_VOCABULARY_CHUNK_4,
 ];
 
 /** Fast membership set for the corrector: a seeded word is a
@@ -1743,7 +1790,7 @@ export interface VocabularyDb {
     upsert(
       rows: unknown,
       opts?: { onConflict?: string },
-    ): PromiseLike<{ data: unknown; error: unknown }>;
+    ): PromiseLike<{ data?: unknown; error: unknown }>;
   };
 }
 
@@ -1850,7 +1897,8 @@ export async function captureUnknownVocabulary(
   }
   const byKey = new Map(rows.map((r) => [r.term_key ?? r.term, r]));
   const fresh: VocabRow[] = [];
-  const bump: VocabRow[] = [];
+  // bump rows are PARTIAL upserts (term_key + times_seen only)
+  const bump: Array<Pick<VocabRow, "term_key" | "term" | "times_seen">> = [];
   for (const term of unknown) {
     const ex = byKey.get(term);
     if (ex) {

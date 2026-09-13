@@ -53,7 +53,13 @@ class CognitiveMockDb implements SupabaseLike {
   from(table: string) {
     const rows = () => this.tables[table] ?? (this.tables[table] = []);
     return {
-      select: async () => ({ data: [...rows()], error: null }),
+      select: () => {
+        const data = [...rows()];
+        return Object.assign(Promise.resolve({ data, error: null }), {
+          range: (from: number, to: number) =>
+            Promise.resolve({ data: data.slice(from, to + 1), error: null }),
+        });
+      },
       insert: async (row: unknown) => {
         const arr = row as Array<Record<string, unknown>>;
         for (const r of arr ?? [row as Record<string, unknown>]) {

@@ -250,7 +250,16 @@ class AuditMockDb implements SupabaseLike {
     const rows = () =>
       table === "frelux_security_events" ? this.securityEvents : this.rows;
     return {
-      select: async (_query: string) => ({ data: [...rows()], error: null }),
+      select: (_query: string) => {
+        const data = [...rows()];
+        return Object.assign(Promise.resolve({ data, error: null }), {
+          range: (from: number, to: number) =>
+            Promise.resolve({
+              data: data.slice(from, to + 1),
+              error: null,
+            }),
+        });
+      },
       insert: async (row: unknown) => {
         rows().push({ ...(row as Record<string, unknown>) });
         return { error: null };

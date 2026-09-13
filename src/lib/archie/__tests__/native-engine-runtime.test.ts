@@ -230,7 +230,13 @@ class InMemorySupabase implements SupabaseLike {
     const rows = () =>
       table === "frelux_archie_native_facts" ? this.facts : this.outcomes;
     return {
-      select: async () => ({ data: [...rows()], error: null }),
+      select: () => {
+        const data = [...rows()];
+        return Object.assign(Promise.resolve({ data, error: null }), {
+          range: (from: number, to: number) =>
+            Promise.resolve({ data: data.slice(from, to + 1), error: null }),
+        });
+      },
       insert: async (row: unknown) => {
         rows().push((row as unknown[])[0] as Record<string, unknown>);
         return { error: null };

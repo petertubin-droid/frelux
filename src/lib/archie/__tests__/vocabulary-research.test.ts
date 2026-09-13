@@ -187,6 +187,82 @@ describe("meaning research across multiple sites", () => {
     expect((vocabRow as { confidence?: number }).confidence).toBe(0.6);
   });
 
+  describe("vocabulary review", () => {
+    const reviewDb = (rows: Array<Record<string, unknown>>) => {
+      const db = {
+        from: () => ({
+          // Branch on the select columns: fact-hydration reads
+          // provenance and yields no rows here, while the
+          // learned-vocabulary review reads times_seen.
+          select: (q: string) => ({
+            // loadFacts(): awaited directly
+            data: [],
+            error: null,
+            then: (r: (v: unknown) => unknown) =>
+              Promise.resolve(r({ data: [], error: null })),
+            // appendVocabularyFacts(): select().range()
+            range: () => ({
+              data: q.includes("times_seen") ? rows : [],
+              error: null,
+            }),
+          }),
+          insert: () => ({ error: null }),
+          update: () => ({ eq: () => ({ error: null }) }),
+          upsert: () => ({ error: null }),
+        }),
+      };
+      return db as never;
+    };
+
+    it("lists researched, owner-taught and seen-without-meaning items", async () => {
+      const engine = new ArchieNativeEngine({
+        persistence: reviewDb([
+          { term: "obstreperous", meaning: "loud and noisy", source: "research", confidence: 0.4, times_seen: 1 },
+          { term: "kwisatz", meaning: "sacred weed", source: "owner_taught", confidence: 0.9, times_seen: 2 },
+          { term: "janded", meaning: null, source: "conversation", confidence: null, times_seen: 3 },
+        ]),
+      });
+      const res = await engine.generate({
+        turns: [{ role: "owner", parts: [{ text: "review your vocabulary" }] }],
+        tools: [],
+        systemInstruction: "",
+      });
+      const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+      expect(reply).toContain("3 auto-learned item(s)");
+      expect(reply).toContain("RESEARCHED");
+      expect(reply).toContain("obstreperous (40%): loud and noisy");
+      expect(reply).toContain("OWNER-TAUGHT");
+      expect(reply).toContain("kwisatz (90%): sacred weed");
+      expect(reply).toContain("SEEN, NO MEANING YET");
+      expect(reply).toContain("janded (seen 3 time(s))");
+      expect(reply).toContain('overwrites research with your owner-taught definition');
+    });
+
+    it("reports an honest empty registry", async () => {
+      const engine = new ArchieNativeEngine({
+        persistence: reviewDb([]),
+      });
+      const res = await engine.generate({
+        turns: [{ role: "owner", parts: [{ text: "what words have you learned" }] }],
+        tools: [],
+        systemInstruction: "",
+      });
+      const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+      expect(reply).toContain("Nothing auto-learned yet");
+    });
+
+    it("without persistence the review says so honestly", async () => {
+      const engine = new ArchieNativeEngine({ persistence: null });
+      const res = await engine.generate({
+        turns: [{ role: "owner", parts: [{ text: "show me your vocabulary" }] }],
+        tools: [],
+        systemInstruction: "",
+      });
+      const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+      expect(reply).toContain("not wired for this session");
+    });
+  });
+
   describe("auto-research on definition miss", () => {
     const stubDb = (upsertError: unknown = null) => {
       const upserts: Array<Record<string, unknown>> = [];
@@ -348,7 +424,7 @@ describe("meaning research across multiple sites", () => {
       turns: [
         { role: "owner", parts: [{ text: "what does blorptastic mean" }] },
         {
-          role: "agent",
+          role: "archie",
           parts: [{ text: "I have not learned it yet — teach me or ask me to research it." }],
         },
         { role: "owner", parts: [{ text: "research it" }] },
