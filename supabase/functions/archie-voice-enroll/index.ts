@@ -86,11 +86,17 @@ async function requireOwner(
   const { data: userData, error: userErr } = await anon.auth.getUser(token);
   if (userErr || !userData?.user)
     return { ok: false, res: fail(401, "UNAUTHORIZED", "Invalid session.") };
-  const { data: profile } = await anon
+  // The profiles lookup runs under RLS: without the caller's JWT the
+  // anon client sees zero rows and every owner gets a false 403.
+  const authedClient = createClient(SUPABASE_URL, ANON_KEY, {
+    global: { headers: { Authorization: auth } },
+    auth: { persistSession: false },
+  });
+  const { data: profile } = await authedClient
     .from("profiles")
     .select("role")
     .eq("id", userData.user.id)
-    .single();
+    .maybeSingle();
   if (profile?.role !== "admin") {
     return {
       ok: false,
