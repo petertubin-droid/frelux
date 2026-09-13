@@ -342,6 +342,13 @@ import {
   getCognitiveEngine,
 } from "../_shared/archie-ai/cognitive/kernel.ts";
 import { ArchieNativeEngine } from "../_shared/archie-ai/native-engine/engine.ts";
+import {
+  captureUnknownVocabulary,
+  loadLearnedTerms,
+  lookupTerms,
+  registerLearnedTerms,
+  teachTerm,
+} from "../_shared/archie-ai/knowledge/vocabulary.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 configureCognitiveEnginePersistence(
   db as unknown as import("../_shared/archie-ai/native-engine/persistence.ts").SupabaseLike,
@@ -489,6 +496,70 @@ const TOOLS: ToolDef[] = [
           excerpt: JSON.stringify(k.content).slice(0, 1200),
         })),
       };
+    },
+  },
+  {
+    name: "vocabulary_lookup",
+    description:
+      "Look up a word, abbreviation, phrase, idiom or expression in ARCHIE's living vocabulary registry (seeded English foundation + Nigerian English + words learned from the owner's own usage + owner-taught meanings). Use FIRST for any what does X mean / define X / what is X question. Returns the meaning, word class and provenance, or an honest missing.",
+    parameters: {
+      type: "object",
+      properties: { term: { type: "string" } },
+      required: ["term"],
+    },
+    operational: true,
+    execute: async (input) => {
+      const term = String(input.term ?? "").slice(0, 60);
+      const rows = await lookupTerms(db, term);
+      if (rows.length === 0) {
+        return {
+          found: false,
+          note:
+            "Not in the vocabulary registry. Say so honestly; offer to research it or ask the owner to teach it.",
+        };
+      }
+      return {
+        found: true,
+        results: rows.map((r) => ({
+          term: r.term,
+          type: r.term_type,
+          word_class: r.word_class,
+          meaning: r.meaning,
+          source: r.source,
+          confidence: r.confidence,
+          times_seen: r.times_seen,
+        })),
+      };
+    },
+  },
+  {
+    name: "vocabulary_teach",
+    description:
+      "Store a word or phrase meaning the owner just taught. Saves to the vocabulary registry with owner-taught provenance and high confidence. Learning is free and encouraged.",
+    parameters: {
+      type: "object",
+      properties: {
+        term: { type: "string" },
+        meaning: { type: "string" },
+        word_class: { type: "string" },
+      },
+      required: ["term", "meaning"],
+    },
+    operational: true,
+    execute: async (input) => {
+      const term = String(input.term ?? "").slice(0, 60);
+      const meaning = String(input.meaning ?? "").slice(0, 500);
+      if (!term || !meaning) return { error: "term and meaning are required" };
+      const ok = await teachTerm(
+        db,
+        activeOwnerUserId,
+        term,
+        meaning,
+        String(input.word_class ?? "unknown").slice(0, 40),
+      );
+      return ok
+        ? { stored: true, term, provenance: "owner taught in chat" }
+        : { stored: false, error: "registry write failed" };
     },
   },
   {
@@ -1183,7 +1254,13 @@ Coding & Cybersecurity Intelligence:
 Execution & Runtime Engine:
 - You have a REAL execution layer: execution_engine_list, execution_engine_run and execution_engine_history. Use them when the Owner wants a registered backend action performed or inspected (e.g. health check, status probe, sitemap regeneration).
 - Chat can execute ONLY non-production targets (SANDBOX/STAGING) that list ARCHIE_CHAT as allowed. If the Owner wants a PRODUCTION target executed, say plainly: production execution requires the Owner Secret through the PWA/Coding Studio — never through chat — and offer to prepare the exact run details.
-- Always report the run id, status, attempts and duration from the engine result. Never fabricate an execution result; if the engine returns an error, say so.`;
+- Always report the run id, status, attempts and duration from the engine result. Never fabricate an execution result; if the engine returns an error, say so.
+
+Vocabulary & Language Learning:
+- You hold a LIVING vocabulary registry (vocabulary_lookup): a broad English foundation of words, abbreviations, idioms and phrases, common Nigerian English expressions, plus words you learned from the Owner's own usage and meanings the Owner taught you.
+- For any word, abbreviation, phrase or expression meaning question ("what does X mean", "define X", "what is X"), call vocabulary_lookup FIRST and answer from the registry with provenance. If the term is missing, say so honestly and offer to research it.
+- When the Owner teaches you a meaning, store it with vocabulary_teach immediately.
+- Unknown words the Owner uses are captured automatically with usage provenance. Never guess a meaning: a word you have seen but not been taught is an observation, not knowledge.`;
 
 // =========================================================
 // web_intelligence — REAL website inspection
@@ -1969,6 +2046,18 @@ serveWithCors(async (req) => {
   // update → verification → authority gate → response →
   // learning. Every phase is recorded with its anatomical
   // organ and persisted to the cognitive trace table.
+  // SELF-EVOLVING VOCABULARY (owner directive 2026-09-12):
+  // warm the learned-term registry so words ARCHIE already
+  // learned are never treated as typos, then GRAB AND SAVE
+  // every word in the owner's message that is not registered
+  // yet (usage provenance, no meaning guess — learning is
+  // free, never breaks the conversation).
+  try {
+    registerLearnedTerms(await loadLearnedTerms(db));
+    await captureUnknownVocabulary(db, message, activeOwnerUserId);
+  } catch {
+    /* vocabulary learning never breaks the chat */
+  }
   let cognitiveTrace: Array<{
     phase: string;
     status: string;

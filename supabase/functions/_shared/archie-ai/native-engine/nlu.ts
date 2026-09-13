@@ -325,7 +325,15 @@ function correctWord(word: string): string {
   // or conversational) is never a correction target — the
   // corrector may only rescue genuinely unknown tokens
   // ("days" is a real word; "dapron" is a typo).
+  // Corpus words (base or conversational) are ALWAYS known —
+  // rules quote them directly ("whats the damage"). The
+  // vocabulary registry is skipped for wh-contractions:
+  // a registered "hows" must still normalize (incident
+  // 2026-09-13), while a registered "flimber" stays intact.
   if (vocabFreq().has(lower) || conversationalVocab().has(lower)) {
+    return word;
+  }
+  if (!isWhContraction(lower) && isKnownVocabularyTerm(lower)) {
     return word;
   }
   const freq = conversationalVocab();
@@ -386,6 +394,12 @@ function correctWord(word: string): string {
   }
   return best ?? word;
 }
+
+// SELF-EVOLVING VOCABULARY (owner directive 2026-09-12): the
+// vocabulary registry (seed foundation + words learned from
+// the owner's real usage) is authoritative known-word
+// knowledge. A registered word is never a correction target.
+import { isKnownVocabularyTerm, isWhContraction } from "../knowledge/vocabulary.ts";
 
 /** Normalize a raw message for the NLU pipeline: every word
  *  is either a real known word or a distance-1 correction of

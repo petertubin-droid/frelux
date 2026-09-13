@@ -21,7 +21,12 @@ export interface SupabaseLike {
   from(table: string): {
     select(
       query: string,
-    ): PromiseLike<{ data: unknown[] | null; error: unknown }>;
+    ): PromiseLike<{ data: unknown[] | null; error: unknown }> & {
+      range(
+        from: number,
+        to: number,
+      ): PromiseLike<{ data: unknown[] | null; error: unknown }>;
+    };
     insert(rows: unknown): PromiseLike<{ error: unknown }>;
     update(patch: unknown): {
       eq(column: string, value: unknown): PromiseLike<{ error: unknown }>;
@@ -77,10 +82,72 @@ export class SupabasePersistence
       );
     if (error) return [];
     const rows = (data ?? []) as PersistedFactRow[];
-    // Hydrate the most recent 500 facts.
-    return rows
+    // Hydrate the most recent 500 native facts.
+    const native = rows
       .sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""))
       .slice(0, NATIVE_CONFIG.factHydrateLimit);
+    return this.appendVocabularyFacts(native);
+  }
+
+  /** SELF-EVOLVING VOCABULARY (owner directive 2026-09-12):
+   * registry terms WITH a taught or seeded meaning hydrate as
+   * subject+means facts, so "what does X mean" answers
+   * through the normal honest knowledge path with provenance.
+   * Usage-only observations (meaning NULL) never become
+   * facts — a word ARCHIE has merely seen is not knowledge,
+   * and ARCHIE never invents a meaning. Additive only: a
+   * vocabulary read failure never breaks fact hydration. */
+  private async appendVocabularyFacts(
+    native: PersistedFactRow[],
+  ): Promise<PersistedFactRow[]> {
+    try {
+      // PostgREST caps a single select at 1000 rows — the
+      // registry holds more, so hydration pages until the
+      // short page or every definition silently vanishes.
+      const rows: Array<{
+        term: string;
+        meaning: string | null;
+        source: string;
+        confidence: number | null;
+        provenance: string | null;
+      }> = [];
+      for (let off = 0; ; off += 1000) {
+        const { data, error } = await this.db
+          .from("frelux_vocabulary")
+          .select("term,meaning,source,confidence,provenance")
+          .range(off, off + 999);
+        if (error || !data) return native;
+        const page = data as typeof rows;
+        rows.push(...page);
+        if (page.length < 1000) break;
+      }
+      const vocabFacts = (
+        rows as Array<{
+          term: string;
+          meaning: string | null;
+          source: string;
+          confidence: number | null;
+          provenance: string | null;
+        }>
+      )
+        .filter((v) => v.meaning)
+        .map((v) => ({
+          id: `vocab:${v.term}`,
+          subject: v.term,
+          predicate: "means",
+          object: v.meaning as string,
+          qualifiers: null,
+          confidence: v.confidence ?? 0.9,
+          provenance: { source: `vocabulary registry (${v.source})` },
+          status: "ACTIVE",
+          validated_count: 0,
+          verified_by: [] as string[],
+          created_at: new Date().toISOString(),
+        }));
+      return [...native, ...vocabFacts];
+    } catch {
+      return native;
+    }
   }
 
   async saveFact(fact: Fact): Promise<void> {

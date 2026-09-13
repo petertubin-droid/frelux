@@ -1574,6 +1574,55 @@ export class ArchieNativeEngine implements ArchieRuntime {
 
       case "knowledge_query":
       case "howto_guidance": {
+        // SELF-EVOLVING VOCABULARY (owner directive,
+        // 2026-09-13): a definition question ("what does X
+        // mean", "define X", "meaning of X") is answered
+        // ONLY by an exact vocabulary-registry lookup — the
+        // term's own means fact, never a ranked topic-word
+        // match. For every OTHER question the means-facts
+        // are excluded from retrieval: a definition is not
+        // an answer to "inspect the flimber valve", and
+        // vocabulary must never pollute real answers.
+        const defMatch =
+          /\bwhat\s+does\s+(?:the\s+(?:word|phrase|term)\s+)?([a-z0-9' ]+?)\s+mean\b/i.exec(
+            input,
+          ) ??
+            /\bdefine\s+([a-z0-9' ]+)/i.exec(input) ??
+            /\bmeaning\s+of\s+(?:the\s+(?:word|phrase|term)\s+)?([a-z0-9' ]+)/i.exec(
+              input,
+            );
+        if (defMatch) {
+          const term = defMatch[1]
+            .trim()
+            .replace(/\s+/g, " ")
+            .replace(/^(?:the|a|an|word|phrase|term)\s+/i, "")
+            .replace(/\s+(?:word|phrase|term)$/i, "")
+            .trim()
+            .toLowerCase();
+          if (term.length > 0 && term.length <= 60) {
+            const means = this.facts
+              .list()
+              .filter(
+                (f) => f.subject === term && f.predicate === "means",
+              );
+            if (means.length > 0) {
+              const f = means[0];
+              return this.compose(
+                `${f.subject} means: ${String(f.object)} [confidence ${(f.confidence * 100).toFixed(0)}%, ${f.provenance.source}]`,
+                0.9,
+                [f],
+              );
+            }
+            return this.compose(
+              `I have not learned "${term}" yet — it is not in my vocabulary registry. Teach me what it means or ask me to research it, and I will keep it with provenance.`,
+              nlu.confidence * 0.6,
+              [],
+            );
+          }
+        }
+        const answerable = defMatch
+          ? ranked
+          : ranked.filter((f) => !String(f.id).startsWith("vocab:"));
         // P1b — counterfactual questions ("if it had not
         // rained, would the ground be dry?") need a causal
         // model, regardless of what generic facts rank. Ask
@@ -1581,7 +1630,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         // the question.
         const cfTask = {
           text: input,
-          subject: ranked[0]?.subject,
+          subject: answerable[0]?.subject,
           facts: this.facts,
           reasoning: this.reasoning,
           rules: this.reasoning.getRules(),
@@ -1672,7 +1721,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
             }
           }
         }
-        let validated = ranked
+        let validated = answerable
           .filter((f) => f.status !== "uncertain")
           .slice(0, 3);
         // Phase 2.4 SPO probe: a question naming a specific
@@ -1686,7 +1735,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         // labeled as derived.
         const qSPO = questionSPO(input);
         if (qSPO) {
-          const directlyAnswered = ranked.some(
+          const directlyAnswered = answerable.some(
             (f) => f.subject === qSPO.subject && f.predicate === qSPO.predicate,
           );
           if (!directlyAnswered) {
@@ -1728,7 +1777,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
           // conflicting-evidence questions get a conflict band.
           const strategic = await this.speculativeAnswer(
             input,
-            ranked,
+            answerable,
             nlu.confidence,
           );
           if (strategic) return strategic;
