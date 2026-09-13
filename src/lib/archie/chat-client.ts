@@ -90,9 +90,19 @@ export async function searchConversations(
 export async function createConversation(
   title = "New conversation",
 ): Promise<ArchieConversation> {
+  // owner_id is NOT NULL on frelux_archie_conversations and
+  // RLS gates every row on it — without it the insert failed
+  // silently at the DB level and the owner could never start
+  // a conversation (send button stayed dead, replies never
+  // persisted). Attach the authenticated user explicitly.
+  const { data: auth } = await supabase.auth.getUser();
+  const ownerId = auth?.user?.id;
+  if (!ownerId) {
+    throw new Error("Sign in to start an ARCHIE conversation.");
+  }
   const { data, error } = await supabase
     .from("frelux_archie_conversations")
-    .insert({ title })
+    .insert({ title, owner_id: ownerId })
     .select(CONVERSATION_COLUMNS)
     .single();
   if (error) throw new Error(error.message);
