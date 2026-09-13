@@ -51,7 +51,7 @@ const KEY_PATTERNS: Array<{ kind: string; re: RegExp; note: string }> = [
   },
   {
     kind: "AWS_SECRET",
-    re: /aws(.{0,25})?['"][0-9a-zA-Z\/+]{40}['"]/i,
+    re: /aws(.{0,25})?['"][0-9a-zA-Z/+]{40}['"]/i,
     note: "AWS secret access key pattern — verify and rotate if real",
   },
   {
@@ -102,7 +102,7 @@ const KEY_PATTERNS: Array<{ kind: string; re: RegExp; note: string }> = [
 ];
 
 /** Candidate token strings for entropy analysis. */
-const TOKEN_RE = /['"][0-9A-Za-z+\/_\-]{32,128}['"]/g;
+const TOKEN_RE = /["'][0-9A-Za-z+/_-]{32,128}["']/g;
 
 function shannonEntropy(s: string): number {
   const freq = new Map<string, number>();

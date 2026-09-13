@@ -2283,7 +2283,24 @@ export class ArchieNativeEngine implements ArchieRuntime {
             if (ft.size === 0) return false;
             let shared = 0;
             for (const t of queryTokens) if (ft.has(t)) shared += 1;
-            return shared >= 2;
+            if (shared < 2) return false;
+            // SUBJECT-GATE (audit C3 hardening, 2026-09-13):
+            // the 2-token floor alone let a confirmation that
+            // names a NEIGHBOURING topic strengthen a fact it
+            // never named — shared predicate/object tokens
+            // ("price", "per bag") are not what the owner
+            // confirmed. The confirmation must also name the
+            // fact's SUBJECT — at least one salient subject
+            // token of the fact appears in the confirmation
+            // text. A subject with no salient tokens cannot be
+            // gated (nothing to test against) and keeps the
+            // old floor-only behaviour, documented honestly.
+            const subjectTokens = salientTokens(f.subject.replace(/-/g, " "));
+            if (subjectTokens.size === 0) return true;
+            for (const t of subjectTokens) {
+              if (queryTokens.has(t)) return true;
+            }
+            return false;
           });
           if (confirmed.length > 0) {
             await this.learner.record({

@@ -105,6 +105,36 @@ describe("learning evidence gates (H1)", () => {
     expect(res.responseText).toMatch(/closely enough/i);
   });
 
+  it("a glancing confirmation sharing only predicate/object tokens strengthens nothing (C3 subject gate)", async () => {
+    // Audit C3 hardening (2026-09-13): "I confirm that the
+    // PROJECTOR price per unit is correct" shares the salient
+    // tokens "price" and "unit" with a stored LAPTOP price
+    // fact — the 2-token floor alone let a neighbouring-topic
+    // confirmation strengthen a fact whose subject it never
+    // named. The subject gate requires the confirmation to
+    // name the fact's subject ("laptop") before reinforcing.
+    const engine = new ArchieNativeEngine();
+    const { fact } = await engine.store().assert({
+      subject: "laptop",
+      predicate: "price",
+      object: "4500 naira per unit",
+      confidence: 0.5,
+      provenance: { source: "owner-taught" },
+      status: "candidate",
+    });
+    const before = engine.store().get(fact.id)!;
+    const res = await engine.converse(
+      "I confirm that the projector price per unit is correct",
+    );
+    const after = engine.store().get(fact.id)!;
+    expect(after.confidence).toBe(before.confidence);
+    expect(after.status).toBe(before.status);
+    expect(
+      (after.verifiedBy ?? []).some((v) => /^owner-confirm:/.test(v)),
+    ).toBe(false);
+    expect(res.responseText).toMatch(/closely enough/i);
+  });
+
   it("a confirmation that NAMES the fact still strengthens it (floor does not over-block)", async () => {
     const engine = new ArchieNativeEngine();
     const { fact } = await engine.store().assert({
