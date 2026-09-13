@@ -100,19 +100,27 @@ jobs:
         env:
           ARCHIE_PROJECT_URLS: https://pjvtqkshewerpvggtgqx.supabase.co https://hqhvlkunkdrxyuvziorm.supabase.co
         run: |
-          # archie-status is the lightweight health endpoint — no auth
-          # needed for its public status shape. Give deploys a moment to
-          # finish propagating, then verify the gateway answers.
+          # archie-status is owner-only by design (hardened in the C-1
+          # batch). An unauthenticated GET must return exactly 401 with
+          # the owner-gate error — proving BOTH that the deployment is
+          # live AND that the owner gate is enforced. Anything else
+          # fails the deploy: 000 = unreachable, 404 = not deployed,
+          # 200 = GATE OFF (security regression). A health check that
+          # cannot fail is decorative; this one asserts liveness + the
+          # security posture in a single request.
           sleep 10
-          # 401/400/404/405 still proves the function is live and answering;
-          # only network-level failures (000) mean it is not there at all.
+          fail=0
           for url in $ARCHIE_PROJECT_URLS; do
-            code="$(curl -s -o /dev/null -w '%{http_code}' \
-              -X POST "$url/functions/v1/archie-status" \
-              -H 'Content-Type: application/json' \
-              -d '{"action":"status"}' || true)"
+            resp="$(curl -s -m 15 -w '\n%{http_code}' \
+              "$url/functions/v1/archie-status" || true)"
+            code="$(echo "$resp" | tail -n1)"
+            body="$(echo "$resp" | head -n -1)"
             echo "archie-status HTTP $code ($url)"
-            if [ "$code" = "000" ]; then
-              echo "::warning::archie-status unreachable after deploy ($url)"
+            if [ "$code" = "401" ] && echo "$body" | grep -q "Unauthorized"; then
+              echo "owner gate verified ON"
+            else
+              echo "::error::archie-status health check failed ($url): HTTP $code, body: $body"
+              fail=$((fail + 1))
             fi
           done
+          if [ "$fail" -gt 0 ]; then exit 1; fi
