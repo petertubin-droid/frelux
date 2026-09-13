@@ -275,14 +275,24 @@ serveWithCors(async (req) => {
   // =====================================================
   // Owner-gated actions below: enforce ownership server-side.
   // =====================================================
-  const peopleId = String(body.people_id ?? "");
-  const { data: personRow } = await service
-    .from("frelux_archie_people")
-    .select("id, owner_id, status, permissions, user_id")
-    .eq("id", peopleId)
-    .maybeSingle();
-  if (!personRow) return json(404, { ok: false, error: "Person not found." });
-  if (personRow.owner_id !== caller.id) {
+  // Only owner person-scoped actions need a resolved person row;
+  // "list" and "invite" operate without one and must skip this gate
+  // (previously EVERY action hit it with an empty people_id and died
+  // with a false "Person not found" 404).
+  const needsPerson = ["approve", "update", "remove", "share", "unshare"].includes(
+    action,
+  );
+  const peopleId = needsPerson ? String(body.people_id ?? "") : "";
+  const { data: personRow } = needsPerson
+    ? await service
+        .from("frelux_archie_people")
+        .select("id, owner_id, status, permissions, user_id")
+        .eq("id", peopleId)
+        .maybeSingle()
+    : { data: null as Record<string, unknown> | null };
+  if (needsPerson && !personRow)
+    return json(404, { ok: false, error: "Person not found." });
+  if (needsPerson && personRow && personRow.owner_id !== caller.id) {
     await audit(
       personRow.owner_id,
       "archie.family.unauthorized_attempt",
