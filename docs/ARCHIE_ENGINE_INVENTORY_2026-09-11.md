@@ -123,6 +123,44 @@ code-enforced — `mayApprove("ARCHIE")` is constant-false and tested.
    — the plan drives the on-device engine. THE 30-ENGINE WORK
    QUEUE IS NOW COMPLETE.
 
+5b. **Coding Engine (14) DEEPENING — impact & graph analytics** — DONE 2026-09-13:
+coding-impact.ts (reverse-transitive blast-radius impact
+analysis with BFS depth and exact via-chains; dead-file
+detection with detached-cycle reachability vs. isolated
+true orphans, never conflated; fan-in/fan-out coupling
+metrics with load-bearing ranking; dependency-depth
+layering with cycle-guarded, memoization-poisoning-free
+per-file computation), 3 OPERATIONAL + 1 honest
+NOT_IMPLEMENTED capabilities, 12 tests.
+
+5c. **Trading Engine (29) DEEPENING — portfolio analytics + execution-cost estimation** — DONE 2026-09-13:
+portfolio.ts (win rate, profit factor, payoff ratio,
+expectancy, per-trade Sharpe-style ratio honestly labeled
+NOT-annualized, realized equity curve with max drawdown,
+HHI open-exposure concentration — all fees-included, all
+insufficient-data paths return determinable:false with
+nulls, never invented statistics), slippage.ts
+(deterministic order-book walk: VWAP fill, mid-relative
+adverse cost in bps both sides, visible-depth consumption;
+REFUSES to estimate past the last visible level — never
+extrapolates), 2 OPERATIONAL + 2 honest NOT_IMPLEMENTED
+capabilities, 11 tests.
+
+5d. **Hacking / Security Engine (31) DEEPENING — evidence-based native security modules** — DONE 2026-09-13:
+security/secret-scan.ts (11 known key formats + Shannon-
+entropy token candidates, masked evidence so the audit
+trail never leaks the secret, explicit ENTROPY_REVIEW vs
+HIGH_FORMAT confidence), security/header-audit.ts
+(6-header OWASP baseline over captured evidence —
+PASS/WEAK/FAIL with severities, never invents uncaptured
+headers), security/sink-scan.ts (9 dangerous-sink patterns
+— SQL interpolation, eval, shell exec, innerHTML, path
+traversal, SSRF — with TAINTED_CANDIDATE vs SINK_REVIEW
+classification; never claims a confirmed vulnerability),
+3 OPERATIONAL + 3 honest NOT_IMPLEMENTED capabilities,
+34 tests. All three modules produce EVIDENCE-CARRYING
+findings for owner-authorized engagements only.
+
 Each item follows DESIGN → IMPLEMENT → TEST → INTEGRATE → RUNTIME
 VERIFY → ACCEPT/REJECT, with full ARCHIE suites green and per-engine
 tests added. Existing engines hold their baselines
