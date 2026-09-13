@@ -1,0 +1,92 @@
+diff --git a/.github/workflows/archie-deploy.yml b/.github/workflows/archie-deploy.yml
+index c412147..cbd612f 100644
+--- a/.github/workflows/archie-deploy.yml
++++ b/.github/workflows/archie-deploy.yml
+@@ -55,45 +55,62 @@ jobs:
+         with:
+           version: latest
+ 
+-      - name: Deploy every archie-* function
++      - name: Deploy every archie-* function (BOTH projects)
++        # AUDIT FIX HIGH-2 + MEDIUM-5 (2026-09-13): CI used to
++        # deploy only to the mirror project while live traffic
++        # hit the production project — CI-green did not mean
++        # live-current. CI now deploys to BOTH, eliminating
++        # drift by construction. archie-agent-worker has NO
++        # anonymous visitor path (exact service-role bearer
++        # equality inside), so it deploys WITH the gateway
++        # JWT lock; every visitor-path function keeps
++        # --no-verify-jwt as before.
+         env:
+           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+-          ARCHIE_PROJECT_REF: pjvtqkshewerpvggtgqx
++          ARCHIE_PROJECT_REFS: pjvtqkshewerpvggtgqx hqhvlkunkdrxyuvziorm
+         run: |
+           set -euo pipefail
+           fail=0
+           deployed=0
+-          for d in supabase/functions/archie-*/; do
+-            name="$(basename "$d")"
+-            echo "::group::Deploying $name"
+-            if supabase functions deploy "$name" \
+-                 --project-ref "$ARCHIE_PROJECT_REF" \
+-                 --no-verify-jwt; then
+-              deployed=$((deployed + 1))
+-            else
+-              echo "::error::Failed to deploy $name"
+-              fail=$((fail + 1))
+-            fi
+-            echo "::endgroup::"
++          for ref in $ARCHIE_PROJECT_REFS; do
++            for d in supabase/functions/archie-*/; do
++              name="$(basename "$d")"
++              jwt_flag="--no-verify-jwt"
++              if [ "$name" = "archie-agent-worker" ]; then
++                jwt_flag="--verify-jwt"
++              fi
++              echo "::group::Deploying $name to $ref ($jwt_flag)"
++              if supabase functions deploy "$name" \
++                   --project-ref "$ref" \
++                   $jwt_flag; then
++                deployed=$((deployed + 1))
++              else
++                echo "::error::Failed to deploy $name to $ref"
++                fail=$((fail + 1))
++              fi
++              echo "::endgroup::"
++            done
+           done
+-          echo "Deployed $deployed function(s), $fail failure(s)."
++          echo "Deployed $deployed function deployment(s), $fail failure(s)."
+           if [ "$fail" -gt 0 ]; then exit 1; fi
+ 
+-      - name: Post-deploy health check
++      - name: Post-deploy health check (BOTH projects)
+         env:
+-          ARCHIE_PROJECT_URL: https://pjvtqkshewerpvggtgqx.supabase.co
++          ARCHIE_PROJECT_URLS: https://pjvtqkshewerpvggtgqx.supabase.co https://hqhvlkunkdrxyuvziorm.supabase.co
+         run: |
+           # archie-status is the lightweight health endpoint — no auth
+           # needed for its public status shape. Give deploys a moment to
+           # finish propagating, then verify the gateway answers.
+           sleep 10
+-          code="$(curl -s -o /dev/null -w '%{http_code}' \
+-            -X POST "$ARCHIE_PROJECT_URL/functions/v1/archie-status" \
+-            -H 'Content-Type: application/json' \
+-            -d '{"action":"status"}' || true)"
+-          echo "archie-status HTTP $code"
+           # 401/400/404/405 still proves the function is live and answering;
+           # only network-level failures (000) mean it is not there at all.
+-          if [ "$code" = "000" ]; then
+-            echo "::warning::archie-status unreachable after deploy"
+-          fi
++          for url in $ARCHIE_PROJECT_URLS; do
++            code="$(curl -s -o /dev/null -w '%{http_code}' \
++              -X POST "$url/functions/v1/archie-status" \
++              -H 'Content-Type: application/json' \
++              -d '{"action":"status"}' || true)"
++            echo "archie-status HTTP $code ($url)"
++            if [ "$code" = "000" ]; then
++              echo "::warning::archie-status unreachable after deploy ($url)"
++            fi
++          done
