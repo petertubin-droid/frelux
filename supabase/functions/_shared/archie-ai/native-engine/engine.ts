@@ -774,6 +774,27 @@ export class ArchieNativeEngine implements ArchieRuntime {
       nlu?: ReturnType<typeof understand>;
     },
   ): Promise<ConverseResult> {
+    // VOCATIVE STRIP (owner report 2026-09-14): the Owner
+    // addresses ARCHIE by name ("ARCHIE, remember that ...").
+    // The leading vocative broke every ^-anchored deterministic
+    // rule (teaching, memory exclusion, greetings) and fed the
+    // bare "archie" token to the Bayes fallback, whose
+    // self-anchor routed the message to identity_query — so
+    // the canned identity answer replied to EVERY attempt,
+    // teaching included. Strip the address once, at the single
+    // entry point, so NLU, fact extraction, retrieval and
+    // memory all see the real content. Gated, never greedy:
+    // punctuation after the name, OR a memory/imperative verb
+    // directly following it. Statements ABOUT archie
+    // ("archie is the project ai") are never stripped.
+    const VOCATIVE_PUNCT =
+      /^(?:(?:hey|hi|hello|ok|okay|yo)\s+)?archie\s*[,:!.]+\s*/i;
+    const VOCATIVE_VERB =
+      /^(?:(?:hey|hi|hello|ok|okay|yo)\s+)?archie\s+(?=(?:please\s+)?(?:remember|learn|note|memorize|teach|store|keep|know|check|confirm|run|list|show|tell|what|who|when|where|why|how|do|don'?t|never|stop)\b)/i;
+    const stripped = input
+      .replace(VOCATIVE_PUNCT, "")
+      .replace(VOCATIVE_VERB, "");
+    if (stripped.length > 0) input = stripped;
     await this.boot();
     this.inferences += 1;
     this.sessionInferences += 1;
