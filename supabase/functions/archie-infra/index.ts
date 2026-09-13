@@ -115,19 +115,19 @@ interface InfraBody {
 
 async function handler(req: Request): Promise<Response> {
   if (req.method !== "POST") {
-    return errorResponse(405, "Use POST with { action }.");
+    return errorResponse("Use POST with { action }.", 405);
   }
 
   const { user, isOwner } = await authenticate(req);
   if (!user || !isOwner) {
-    return errorResponse(401, "Owner authority required.");
+    return errorResponse("Owner authority required.", 401);
   }
 
   let body: InfraBody;
   try {
     body = await req.json();
   } catch {
-    return errorResponse(400, "Invalid JSON body.");
+    return errorResponse("Invalid JSON body.", 400);
   }
 
   switch (body.action) {
@@ -138,8 +138,8 @@ async function handler(req: Request): Promise<Response> {
         assessment = await assessInfrastructure(infraDeps);
       } catch (err) {
         return errorResponse(
-          500,
           `Assessment failed: ${err instanceof Error ? err.message : String(err)}`,
+          500,
         );
       }
       // append the snapshot (evidence, append-only)
@@ -156,11 +156,11 @@ async function handler(req: Request): Promise<Response> {
         });
       if (snapError) {
         return errorResponse(
+          "Snapshot append failed: assessment NOT persisted.",
           500,
-          "Snapshot append failed — assessment NOT persisted.",
         );
       }
-      return jsonResponse(200, { ok: true, ...assessment });
+      return jsonResponse({ ok: true, ...assessment }, 200);
     }
 
     case "snapshots": {
@@ -170,8 +170,8 @@ async function handler(req: Request): Promise<Response> {
         .select("*")
         .order("created_date", { ascending: false })
         .limit(limit);
-      if (error) return errorResponse(500, "Snapshot ledger read failed.");
-      return jsonResponse(200, { ok: true, snapshots: data });
+      if (error) return errorResponse("Snapshot ledger read failed.", 500);
+      return jsonResponse({ ok: true, snapshots: data }, 200);
     }
 
     case "costs": {
@@ -181,8 +181,8 @@ async function handler(req: Request): Promise<Response> {
         .select("*")
         .order("occurred_at", { ascending: false })
         .limit(limit);
-      if (error) return errorResponse(500, "Cost ledger read failed.");
-      return jsonResponse(200, { ok: true, costs: data });
+      if (error) return errorResponse("Cost ledger read failed.", 500);
+      return jsonResponse({ ok: true, costs: data }, 200);
     }
 
     case "budgets": {
@@ -190,14 +190,14 @@ async function handler(req: Request): Promise<Response> {
         .from("frelux_infrastructure_budgets")
         .select("*")
         .order("provider");
-      if (error) return errorResponse(500, "Budget read failed.");
-      return jsonResponse(200, { ok: true, budgets: data });
+      if (error) return errorResponse("Budget read failed.", 500);
+      return jsonResponse({ ok: true, budgets: data }, 200);
     }
 
     default:
       return errorResponse(
-        400,
         "Unknown action. Use: assess | snapshots | costs | budgets.",
+        400,
       );
   }
 }

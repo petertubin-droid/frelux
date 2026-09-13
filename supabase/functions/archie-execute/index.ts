@@ -301,7 +301,7 @@ serveWithCors(async (req: Request) => {
   const corsRes = handleCors(req);
   if (corsRes) return corsRes;
   if (req.method !== "POST") {
-    return errorResponse(405, "Method not allowed — POST only.");
+    return errorResponse("Method not allowed — POST only.", 405);
   }
 
   const { user, isOwner } = await authenticate(req);
@@ -314,14 +314,14 @@ serveWithCors(async (req: Request) => {
         "A non-owner account called the execution engine.",
       );
     }
-    return errorResponse(401, "Owner authority required.");
+    return errorResponse("Owner authority required.", 401);
   }
 
   let body: ExecuteBody;
   try {
     body = (await req.json()) as ExecuteBody;
   } catch {
-    return errorResponse(400, "Invalid JSON body.");
+    return errorResponse("Invalid JSON body.", 400);
   }
 
   switch (body.action) {
@@ -332,17 +332,17 @@ serveWithCors(async (req: Request) => {
           "key,label,description,kind,environment,requires_owner_secret,allowed_initiators,risk_class,enabled,http_method,idempotent",
         )
         .order("environment", { ascending: true });
-      if (error) return errorResponse(500, "Registry read failed.");
-      return jsonResponse(200, {
+      if (error) return errorResponse("Registry read failed.", 500);
+      return jsonResponse({
         ok: true,
         // secret_headers, endpoint internals, function internals — never exposed
         targets: data,
-      });
+      }, 200);
     }
 
     case "run": {
       const targetKey = String(body.targetKey ?? "").trim();
-      if (!targetKey) return errorResponse(400, "targetKey is required.");
+      if (!targetKey) return errorResponse("targetKey is required.", 400);
       if (secretRateLimited(user.id)) {
         await securityEvent(
           user.id,
@@ -351,8 +351,8 @@ serveWithCors(async (req: Request) => {
           "Too many failed owner-secret attempts — locked for 10 minutes.",
         );
         return errorResponse(
-          429,
           "Too many failed attempts. Try again in 10 minutes.",
+          429,
         );
       }
       // verify secret out-of-band so failures rate-limit BEFORE any run
@@ -367,7 +367,7 @@ serveWithCors(async (req: Request) => {
             "critical",
             `Invalid owner secret for target '${targetKey}'.`,
           );
-          return errorResponse(403, "Invalid owner secret.");
+          return errorResponse("Invalid owner secret.", 403);
         }
       }
       const outcome = await executeTarget(engineDeps, {
@@ -382,11 +382,10 @@ serveWithCors(async (req: Request) => {
         },
       });
       return jsonResponse(
-        outcome.ok ? 200 : outcome.status === "UNAUTHORIZED" ? 403 : 422,
         {
-          ok: outcome.ok,
           ...outcome, // already redacted by the engine
         },
+        outcome.ok ? 200 : outcome.status === "UNAUTHORIZED" ? 403 : 422,
       );
     }
 
@@ -399,8 +398,8 @@ serveWithCors(async (req: Request) => {
         )
         .order("created_date", { ascending: false })
         .limit(limit);
-      if (error) return errorResponse(500, "History read failed.");
-      return jsonResponse(200, { ok: true, runs: data });
+      if (error) return errorResponse("History read failed.", 500);
+      return jsonResponse({ ok: true, runs: data }, 200);
     }
 
     case "recover": {
@@ -408,7 +407,7 @@ serveWithCors(async (req: Request) => {
       // Owner authority is required; the recovery engine
       // re-verifies everything and never bypasses a gate.
       const runId = String(body.runId ?? "").trim();
-      if (!runId) return errorResponse(400, "runId is required.");
+      if (!runId) return errorResponse("runId is required.", 400);
       const report = await recoverRun(recoveryDeps, {
         runId,
         caller: {
@@ -419,11 +418,10 @@ serveWithCors(async (req: Request) => {
         },
       });
       return jsonResponse(
-        report.recovered || report.action === "CLOSE" ? 200 : 422,
         {
-          ok: report.recovered,
           ...report,
         },
+        report.recovered || report.action === "CLOSE" ? 200 : 422,
       );
     }
 
@@ -437,14 +435,14 @@ serveWithCors(async (req: Request) => {
         )
         .order("created_date", { ascending: false })
         .limit(limit);
-      if (error) return errorResponse(500, "Recovery ledger read failed.");
-      return jsonResponse(200, { ok: true, events: data });
+      if (error) return errorResponse("Recovery ledger read failed.", 500);
+      return jsonResponse({ ok: true, events: data }, 200);
     }
 
     default:
       return errorResponse(
-        400,
         "Unknown action. Use: list | run | history | recover | recovery.",
+        400,
       );
   }
 });
