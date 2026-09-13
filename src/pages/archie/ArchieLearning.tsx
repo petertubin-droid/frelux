@@ -1,11 +1,13 @@
 // =========================================================
 // FRELUX ARCHIE STAGE 1 — LEARNING CENTER
 //
-// The real learning pipeline (Phase 6.5/8): INPUT → EXTRACT
-// → UNDERSTAND → STRUCTURE → VALIDATE → EVALUATE → SHOW OWNER
-// → OWNER APPROVAL → VERSION → KNOWLEDGE (spec §8).
-// Candidates created through chat ("Teach ARCHIE") land here
-// as AWAITING_APPROVAL — never auto-promoted.
+// The learning pipeline (Phase 6.5/8): INPUT → EXTRACT
+// → UNDERSTAND → STRUCTURE → VALIDATE → EVALUATE → VERSION
+// → KNOWLEDGE. Owner directive 2026-09-14: knowledge learning
+// needs NO approval step — teaching is stored directly with
+// owner-taught provenance. This page shows everything ARCHIE
+// has learned, with remove/reject controls and a jump into
+// Training for corrections and rollback of stored knowledge.
 // =========================================================
 
 import { useCallback, useEffect, useState } from "react";
@@ -13,6 +15,8 @@ import {
   listLearningIngestions,
   type ArchieLearningIngestion,
 } from "@/lib/archie/stage1-client";
+import { getSupabase } from "@/lib/supabase-lazy";
+import { Link } from "react-router-dom";
 import {
   ArchiePage,
   ArchiePanel,
@@ -66,20 +70,39 @@ export default function ArchieLearning() {
     (i) => i.pipeline_state === "AWAITING_APPROVAL",
   );
 
+  async function removeItem(id: string) {
+    if (!window.confirm("Remove this learning record?")) return;
+    const supabase = await getSupabase();
+    const { error } = await supabase
+      .from("frelux_archie_ingestions")
+      .delete()
+      .eq("id", id);
+    if (error) setError(error.message);
+    else await load();
+  }
+
   return (
     <ArchiePage
       title="Learning"
-      subtitle="ARCHIE shows you what it believes it learned before anything is promoted. Review and approve candidates in the Training section — nothing here becomes knowledge on its own."
+      subtitle="Everything ARCHIE learns from you is stored directly as knowledge — no approval step. This is the full record: review it, correct it in Training, or remove anything wrong."
     >
       <ArchiePanel accent className="p-4 text-xs text-slate-300">
         <ArchieSectionTitle>Pipeline</ArchieSectionTitle>
         <p className="mt-1 text-slate-400">
-          INPUT → EXTRACT → UNDERSTAND → STRUCTURE → VALIDATE → EVALUATE → SHOW
-          OWNER → OWNER APPROVAL → VERSION → KNOWLEDGE
+          INPUT → EXTRACT → UNDERSTAND → STRUCTURE → VALIDATE → EVALUATE →
+          VERSION → KNOWLEDGE — teaching is stored on your authority, correct
+          or remove it here any time
         </p>
-        <p className="mt-2.5 font-medium text-amber-200/90">
-          {awaiting.length} candidate(s) awaiting your approval
-        </p>
+        {awaiting.length > 0 && (
+          <p className="mt-2.5 font-medium text-amber-200/90">
+            {awaiting.length} older candidate(s) still in the pre-approval
+            state — approve them in{" "}
+            <Link to="/archie/training" className="underline underline-offset-2">
+              Training
+            </Link>{" "}
+            or reject below
+          </p>
+        )}
       </ArchiePanel>
 
       {error && (
@@ -105,6 +128,31 @@ export default function ArchieLearning() {
             <p className="mt-1 text-[11px] text-slate-500">
               {i.domain} · {i.input_type} · {i.candidate_count} candidate(s)
             </p>
+            <div className="mt-2 flex flex-wrap items-center gap-2 text-[11px]">
+              {i.pipeline_state === "AWAITING_APPROVAL" && (
+                <Link
+                  to="/archie/training"
+                  className="rounded-lg bg-amber-400/90 px-2.5 py-1 font-medium text-slate-900 hover:bg-amber-300"
+                >
+                  Approve in Training
+                </Link>
+              )}
+              {i.pipeline_state !== "REJECTED" && (
+                <button
+                  type="button"
+                  onClick={() => void removeItem(i.id)}
+                  className="rounded-lg border border-rose-400/30 px-2.5 py-1 text-rose-300 hover:bg-rose-400/10"
+                >
+                  Remove
+                </button>
+              )}
+              <Link
+                to="/archie/training"
+                className="rounded-lg border border-white/10 px-2.5 py-1 text-slate-400 hover:bg-white/5"
+              >
+                Correct in Training
+              </Link>
+            </div>
           </li>
         ))}
       </ul>
