@@ -187,6 +187,125 @@ describe("meaning research across multiple sites", () => {
     expect((vocabRow as { confidence?: number }).confidence).toBe(0.6);
   });
 
+  describe("auto-research on definition miss", () => {
+    const stubDb = (upsertError: unknown = null) => {
+      const upserts: Array<Record<string, unknown>> = [];
+      const db = {
+        from: () => ({
+          select: () => ({
+            then: (r: (v: unknown) => unknown) => Promise.resolve(r({ data: [], error: null })),
+            range: () => ({
+              then: (r: (v: unknown) => unknown) => Promise.resolve(r({ data: [], error: null })),
+            }),
+          }),
+          insert: () => ({ error: null }),
+          update: () => ({ eq: () => ({ error: null }) }),
+          upsert: (rows: Array<Record<string, unknown>>) => {
+            upserts.push(...rows);
+            return { error: upsertError };
+          },
+        }),
+      };
+      return { db: db as never, upserts };
+    };
+    const foundReport = (term: string): MeaningResearchReport => ({
+      term,
+      results: [
+        { site: "Wiktionary", domain: "wiktionary.org", meaning: "a flomming widget", note: "found", failure: false },
+        { site: "DuckDuckGo Instant Answers", domain: "duckduckgo.com", meaning: "a widget", note: "found", failure: false },
+      ],
+      meaning: "a flomming widget",
+      confidence: 0.6,
+      domains: ["wiktionary.org", "duckduckgo.com"],
+      note: "recognized by 2 independent site(s) (cross-checked)",
+    });
+
+    it("researches and answers immediately with research provenance", async () => {
+      const { db, upserts } = stubDb();
+      const engine = new ArchieNativeEngine({
+        persistence: db,
+        meaningResearch: async (t) => foundReport(t),
+      });
+      const res = await engine.generate({
+        turns: [{ role: "owner", parts: [{ text: "what does qwertyz mean" }] }],
+        tools: [],
+        systemInstruction: "",
+      });
+      const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+      expect(reply).toContain("qwertyz means: a flomming widget");
+      expect(reply).toContain("researched from wiktionary.org, duckduckgo.com");
+      expect(reply).toContain("not owner-taught");
+      const row = upserts.find((r) => r.term_key === "qwertyz") as Record<string, unknown>;
+      expect(row.source).toBe("research");
+      expect(row.confidence).toBe(0.6);
+    });
+
+    it("keeps the honest miss when every site misses — no meaning invented", async () => {
+      const { db, upserts } = stubDb();
+      const engine = new ArchieNativeEngine({
+        persistence: db,
+        meaningResearch: async (t) => ({
+          term: t,
+          results: [
+            { site: "Free Dictionary API", domain: "dictionaryapi.dev", meaning: null, note: "not found in this dictionary", failure: false },
+            { site: "Wikipedia", domain: "wikipedia.org", meaning: null, note: "http 404", failure: true },
+          ],
+          meaning: null,
+          confidence: 0,
+          domains: [],
+          note: "no site returned a meaning — nothing stored",
+        }),
+      });
+      const res = await engine.generate({
+        turns: [{ role: "owner", parts: [{ text: "define zzzqqq" }] }],
+        tools: [],
+        systemInstruction: "",
+      });
+      const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+      expect(reply).toContain("no meaning for it");
+      expect(reply).toContain("Genuinely missing: Free Dictionary API");
+      expect(reply).toContain("Could not reach (honest, not hidden): Wikipedia (http 404)");
+      expect(reply).toContain("I will not invent a definition");
+      expect(upserts.filter((r) => r.term_key === "zzzqqq")).toHaveLength(0);
+    });
+
+    it("reports the store failure honestly instead of claiming a saved definition", async () => {
+      const { db } = stubDb({ message: "registry down" });
+      const engine = new ArchieNativeEngine({
+        persistence: db,
+        meaningResearch: async (t) => foundReport(t),
+      });
+      const res = await engine.generate({
+        turns: [{ role: "owner", parts: [{ text: "what does flombulate mean" }] }],
+        tools: [],
+        systemInstruction: "",
+      });
+      const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+      expect(reply).toContain("Sites say flombulate means");
+      expect(reply).toContain("could NOT store it in the registry");
+    });
+
+    it("without persistence the lookup never runs — visitors keep the plain miss", async () => {
+      let called = 0;
+      const engine = new ArchieNativeEngine({
+        persistence: null,
+        meaningResearch: async (t) => {
+          called += 1;
+          return foundReport(t);
+        },
+      });
+      const res = await engine.generate({
+        turns: [{ role: "owner", parts: [{ text: "what does nothingburger mean" }] }],
+        tools: [],
+        systemInstruction: "",
+      });
+      const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+      expect(called).toBe(0);
+      expect(reply).toContain("I have not learned \"nothingburger\" yet");
+      expect(reply).toContain("ask me to research it");
+    });
+  });
+
   it("bare 'research it' resolves the term from the previous definition question end-to-end", async () => {
     // live UX: "what does blorptastic mean" -> honest miss ->
     // "research it" must research BLORPTASTIC, not the word

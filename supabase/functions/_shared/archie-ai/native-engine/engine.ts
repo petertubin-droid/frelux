@@ -1643,6 +1643,77 @@ export class ArchieNativeEngine implements ArchieRuntime {
                 [f],
               );
             }
+            // AUTO-RESEARCH (owner directive 2026-09-13,
+            // knowledge-autonomy policy): learning is FREE —
+            // a definition miss is an invitation, not a dead
+            // end. ARCHIE autonomously researches the term
+            // across the multi-site dictionary flow and
+            // answers immediately with research provenance.
+            // The term has NO means-fact (that is why this
+            // is a miss), so storing cannot overwrite seed
+            // or owner-taught knowledge. Visitor runtimes have
+            // no persistence — they keep the honest miss.
+            if (this.persistence instanceof SupabasePersistence) {
+              await this.facts.assert({
+                subject: "network",
+                predicate: "authorized",
+                object: `autonomous meaning research on definition miss: ${term.slice(0, 80)}`,
+                confidence: 0.9,
+                provenance: {
+                  source: "seed",
+                  note: "knowledge-autonomy policy — learning is free",
+                },
+                status: "validated",
+              });
+              const lookup =
+                this.meaningResearch ??
+                ((t: string) =>
+                  researchTermMeaning(t, globalThis.fetch as FetchLike));
+              const report = await lookup(term);
+              if (report.meaning) {
+                const stored = await this.persistence.researchVocabularyTerm(
+                  term,
+                  report.meaning,
+                  report.domains,
+                  report.confidence,
+                );
+                if (stored) {
+                  return this.compose(
+                    `${term} means: ${report.meaning} [confidence ${(report.confidence * 100).toFixed(0)}%, vocabulary registry (research) — researched from ${report.domains.join(", ")}, ${report.note}]. This is researched knowledge, not owner-taught — teach me a correction anytime and yours overwrites it.`,
+                    report.confidence,
+                    [],
+                  );
+                }
+                return this.compose(
+                  `Sites say ${term} means: ${report.meaning} [researched from ${report.domains.join(", ")}] — but I could NOT store it in the registry, so a later question may not answer from it. That is an honest failure, not a saved definition. Teach me what it means and I will keep it with your provenance.`,
+                  report.confidence * 0.6,
+                  [],
+                );
+              }
+              const unreachable = report.results.filter((r) => r.failure);
+              const missed = report.results.filter((r) => !r.failure);
+              const missLines = [
+                `I have not learned "${term}" yet, and a research across ${report.results.length} sites found no meaning for it.`,
+              ];
+              if (missed.length > 0) {
+                missLines.push(
+                  `Genuinely missing: ${missed.map((r) => r.site).join(", ")}.`,
+                );
+              }
+              if (unreachable.length > 0) {
+                missLines.push(
+                  `Could not reach (honest, not hidden): ${unreachable.map((r) => `${r.site} (${r.note})`).join("; ")}.`,
+                );
+              }
+              missLines.push(
+                "I will not invent a definition — teach me what it means and I will keep it with your provenance.",
+              );
+              return this.compose(
+                missLines.join("\n"),
+                nlu.confidence * 0.6,
+                [],
+              );
+            }
             return this.compose(
               `I have not learned "${term}" yet — it is not in my vocabulary registry. Teach me what it means or ask me to research it, and I will keep it with provenance.`,
               nlu.confidence * 0.6,
