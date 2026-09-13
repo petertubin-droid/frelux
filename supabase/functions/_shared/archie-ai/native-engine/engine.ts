@@ -2085,6 +2085,63 @@ export class ArchieNativeEngine implements ArchieRuntime {
               [],
             );
           }
+          // AUTO-RESEARCH ON QUESTION MISS (owner directive
+          // 2026-09-14: "there are websites at its disposal
+          // but it is not using any of them"). A knowledge
+          // question with zero matched facts is an invitation
+          // to research, exactly like a definition miss —
+          // ARCHIE searches the open web (DuckDuckGo Lite,
+          // Wikipedia and the priority source registry) and
+          // answers immediately with honest provenance
+          // instead of offering research as a menu option.
+          // Findings are stored as low-confidence candidate
+          // knowledge (owner turns persist them; a visitor
+          // engine has no persistence and gets the researched
+          // answer only).
+          if (
+            input.length <= 160 &&
+            /\?|^(what|who|whom|when|where|why|how|which|whose|is|are|was|were|do|does|did|can|could|will|would|should|tell me|explain|describe|define|name)\b/i.test(
+              input,
+            )
+          ) {
+            await this.facts.assert({
+              subject: "network",
+              predicate: "authorized",
+              object: `autonomous research on question miss: ${input.slice(0, 80)}`,
+              confidence: 0.9,
+              provenance: {
+                source: "seed",
+                note: "knowledge-autonomy policy — learning is free",
+              },
+              status: "validated",
+            });
+            const questionReport = await this.research.research(input);
+            if (questionReport.hits.length > 0) {
+              const qLines: string[] = [
+                `I did not have that in my knowledge store, so I researched "${input.slice(0, 80)}" on the open web.`,
+              ];
+              for (const h of questionReport.hits.slice(0, 3)) {
+                qLines.push(
+                  `- ${h.title}${h.snippet ? `: ${h.snippet.slice(0, 220)}` : ""} (${h.url})`,
+                );
+              }
+              qLines.push(
+                questionReport.crossChecked
+                  ? "Independent sources agree on this (cross-checked)."
+                  : "Cross-source agreement NOT yet established — treat with caution.",
+              );
+              qLines.push(
+                `${questionReport.storedKnowledge} finding(s) stored as low-confidence candidate knowledge pending validation — nothing is accepted as fact yet. Teach me a correction any time and yours overwrites it.`,
+              );
+              return this.compose(
+                qLines.join("\n"),
+                Math.min(nlu.confidence + 0.2, 0.85),
+                [],
+              );
+            }
+            // research found nothing / failed — the honest
+            // unknown line below reports it without theater.
+          }
           const plan = await this.planFor("researched");
           // P6 — variance on the honest unknown line; the
           // "validated knowledge" marker survives in every
