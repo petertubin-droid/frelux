@@ -10,6 +10,14 @@
 //   - Stale-while-revalidate for same-origin static assets
 //   - Push notification support (unchanged from v3)
 
+// Load the Workbox runtime (v7.4.1, pinned to match workbox-build).
+// Without this import, self.workbox is undefined, the SW throws at
+// install and never activates, which kills precaching and the
+// browser install prompt entirely.
+importScripts(
+  'https://storage.googleapis.com/workbox-cdn/releases/7.4.1/workbox-sw.js',
+);
+
 // ── Precache manifest (injected by workbox-build) ──────────────
 const precacheManifest = self.__WB_MANIFEST || [];
 
