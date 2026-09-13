@@ -132,13 +132,20 @@ export function normalizeEvolutionSettings(
     },
     selfModification: {
       ...DEFAULT_EVOLUTION_SETTINGS.selfModification,
-      ...(raw.selfModification as
-        Partial<EvolutionSettings["selfModification"]> | undefined),
+      // Row shape is snake_case (self_modification) straight
+      // from the table and camelCase in memory — accept both
+      // so nothing resets to defaults on reload (owner report
+      // 2026-09-14: evolution settings did not stick).
+      ...((raw.selfModification ??
+        raw.self_modification ??
+        {}) as Partial<EvolutionSettings["selfModification"]>),
     },
     updatedAt:
       typeof raw.updatedAt === "string"
         ? raw.updatedAt
-        : DEFAULT_EVOLUTION_SETTINGS.updatedAt,
+        : typeof raw.updated_at === "string"
+          ? raw.updated_at
+          : DEFAULT_EVOLUTION_SETTINGS.updatedAt,
   };
   return merged;
 }
