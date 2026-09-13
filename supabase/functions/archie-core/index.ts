@@ -811,7 +811,6 @@ serveWithCors(async (req: Request) => {
           summary: t.summary,
         })),
         model: inference.model,
-        adapter_id: inference.adapterId,
       })
       .select("id, created_date")
       .single();
