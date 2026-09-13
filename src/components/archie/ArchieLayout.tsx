@@ -200,6 +200,23 @@ export default function ArchieLayout() {
     );
     const original = link?.getAttribute("href") ?? null;
     if (link) link.setAttribute("href", "/assets/archie/manifest.webmanifest");
+    // Swap the site favicon + apple-touch-icon to the ARCHIE mark while
+    // inside /archie; restored on unmount (same contract as the manifest).
+    const iconLinks = Array.from(
+      document.querySelectorAll<HTMLLinkElement>(
+        'link[rel="icon"], link[rel="apple-touch-icon"]',
+      ),
+    );
+    const originalIcons = iconLinks.map((el) => el.getAttribute("href"));
+    iconLinks.forEach((el) => {
+      if (el.getAttribute("rel") === "apple-touch-icon") {
+        el.setAttribute("href", "/assets/archie/archie-apple-touch-180.png");
+      } else if (el.getAttribute("sizes")?.includes("32")) {
+        el.setAttribute("href", "/assets/archie/archie-favicon-32.png");
+      } else {
+        el.setAttribute("href", "/assets/archie/archie-favicon-16.png");
+      }
+    });
     document
       .querySelector('meta[name="theme-color"]')
       ?.setAttribute("content", "#0B0F14");
@@ -233,6 +250,10 @@ export default function ArchieLayout() {
 
     return () => {
       if (link) link.setAttribute("href", original ?? "/manifest.json");
+      iconLinks.forEach((el, i) => {
+        const prev = originalIcons[i];
+        if (prev) el.setAttribute("href", prev);
+      });
       document
         .querySelector('meta[name="theme-color"]')
         ?.setAttribute("content", "#6D28D9");
@@ -248,7 +269,7 @@ export default function ArchieLayout() {
           <img
             src="/assets/archie/archie-icon-512.png"
             alt=""
-            className="h-8 w-8 rounded-lg"
+            className="archie-mascot h-9 w-9 rounded-xl"
             aria-hidden
           />
           <div className="flex flex-col leading-tight">

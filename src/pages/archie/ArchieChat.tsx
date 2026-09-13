@@ -552,7 +552,7 @@ export default function ArchieChat() {
               <img
                 src="/assets/archie/archie-icon-512.png"
                 alt=""
-                className="mx-auto h-16 w-16 rounded-2xl"
+                className="archie-mascot mx-auto h-20 w-20 rounded-2xl"
                 aria-hidden
               />
               <p className="mt-4 text-sm text-slate-300">
@@ -761,6 +761,16 @@ export default function ArchieChat() {
             </p>
           )}
           <div className="flex items-end gap-1.5">
+            {/* ARCHIE full logo, animated beside the chat bar.
+                Desktop only — the mobile composer stays lean. */}
+            <img
+              src="/assets/archie/archie-logo-full.png"
+              alt=""
+              aria-hidden
+              className={`archie-logo-live mb-0.5 hidden h-[52px] w-auto rounded-xl bg-[#0B0F14]/60 p-1 md:block ${
+                sending ? "archie-mascot-busy" : ""
+              }`}
+            />
             <div className="flex">
               <button
                 type="button"

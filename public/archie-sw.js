@@ -6,8 +6,14 @@
 // messages or authenticated responses — those always go to
 // the network and fail visibly offline.
 // =========================================================
-const CACHE = "archie-shell-v2";
-const SHELL_ASSETS = ["/assets/archie/manifest.webmanifest", "/assets/archie/archie-icon-512.png"];
+const CACHE = "archie-shell-v3";
+const SHELL_ASSETS = [
+  "/assets/archie/manifest.webmanifest",
+  "/assets/archie/archie-icon-192.png",
+  "/assets/archie/archie-icon-512.png",
+  "/assets/archie/archie-icon-maskable-192.png",
+  "/assets/archie/archie-icon-maskable-512.png",
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(

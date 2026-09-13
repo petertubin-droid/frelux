@@ -157,10 +157,15 @@ export default function SupportChatWidget() {
           variant="ghost"
           type="button"
           onClick={() => setOpen(true)}
-          className="fixed bottom-20 right-4 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-brand-purple/30 transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
-          aria-label="Open support chat"
+          className="fixed bottom-20 right-4 z-50 inline-flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground shadow-lg shadow-brand-purple/30 ring-2 ring-white/20 backdrop-blur transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
+          aria-label="Chat with ARCHIE"
         >
-          <MessageCircle className="h-7 w-7" strokeWidth={1.8} />
+          <img
+            src="/assets/archie/archie-icon-192.png"
+            alt=""
+            aria-hidden="true"
+            className="h-11 w-11 animate-float"
+          />
           <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-green opacity-60" />
             <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-accent-green ring-2 ring-white" />
@@ -181,9 +186,14 @@ export default function SupportChatWidget() {
               variant="ghost"
               type="button"
               onClick={() => setMinimized(false)}
-              className="inline-flex items-center gap-2 rounded-full bg-primary pl-3 pr-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg"
+              className="inline-flex items-center gap-2 rounded-full bg-primary pl-2.5 pr-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg"
             >
-              <MessageCircle className="h-5 w-5" strokeWidth={1.8} />
+              <img
+                src="/assets/archie/archie-icon-192.png"
+                alt=""
+                aria-hidden="true"
+                className="h-6 w-6 rounded-full"
+              />
               Chat with ARCHIE
             </Button>
           ) : (
@@ -193,8 +203,8 @@ export default function SupportChatWidget() {
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white/15 ring-2 ring-white/20">
                     <img
-                      src="/assets/chat-assistant-avatar.jpg"
-                      alt="FRELUX AI Assistant"
+                      src="/assets/archie/archie-icon-192.png"
+                      alt="ARCHIE assistant"
                       className="h-full w-full object-cover"
                     />
                   </div>
