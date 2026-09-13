@@ -9,6 +9,7 @@
 // is reported NOT_OPERATIONAL, never faked.
 // =========================================================
 
+import { table } from "../tables.ts";
 import { verifyConstitution, CONSTITUTION_CHECKSUM } from "./constitution.ts";
 import { resolveArchieCapabilityEngine } from "../runtime.ts";
 
@@ -148,8 +149,8 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
   }
 
   // -------- 🧠 BRAIN — persistent memory & knowledge ------
-  const knowledge = await count(db, "frelux_knowledge_items");
-  const learning = await count(db, "frelux_learning_records");
+  const knowledge = await count(db, table("knowledge_items"));
+  const learning = await count(db, table("learning_records"));
   push({
     subsystem_key: "brain",
     status:
@@ -218,7 +219,7 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
   });
 
   // -------- 🧠 SPINAL CORD — central control bus ---------
-  const targets = await count(db, "frelux_archie_execution_targets");
+  const targets = await count(db, table("archie_execution_targets"));
   push({
     subsystem_key: "spinal-cord",
     status: targets === null ? "OFFLINE" : targets > 0 ? "HEALTHY" : "DEGRADED",
@@ -267,7 +268,7 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
     const ears = await import("../native-engine/ears.ts");
     const transcriptions = await countWhere(
       db,
-      "frelux_archie_audit_events",
+      table("archie_audit_events"),
       "event_type",
       "archie.ears.transcription",
     );
@@ -304,7 +305,7 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
   }
 
   // -------- 👄 MOUTH — communication --------------------
-  const chat = await count(db, "frelux_chat_history");
+  const chat = await count(db, table("chat_history"));
   const chatOk = chat !== null; // table reachable = surface live
   let mouthDetails: Record<string, unknown> = {
     surfaces: ["archie-chat (owner)", "visitor assistant"],
@@ -352,7 +353,7 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
   // -------- 🧪 LIVER/KIDNEYS — validation & filtering ----
   const validated = await countWhere(
     db,
-    "frelux_knowledge_items",
+    table("knowledge_items"),
     "validation_status",
     "VALIDATED",
   );
@@ -372,7 +373,7 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
   });
 
   // -------- 🛡️ IMMUNE — security & integrity -------------
-  const securityEvents = await count(db, "frelux_security_events");
+  const securityEvents = await count(db, table("security_events"));
   const offensiveTargets = await count(db, "archie_offensive_targets");
   push({
     subsystem_key: "immune",
@@ -393,7 +394,7 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
   // -------- 🖐️ HANDS — tools & actions -----------------
   const enabledTargets = await countWhere(
     db,
-    "frelux_archie_execution_targets",
+    table("archie_execution_targets"),
     "enabled",
     "true",
   );
@@ -413,7 +414,7 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
   });
 
   // -------- 💪 MUSCLES — execution system ----------------
-  const runs = await count(db, "frelux_archie_execution_runs");
+  const runs = await count(db, table("archie_execution_runs"));
   push({
     subsystem_key: "muscles",
     status: runs === null ? "DEGRADED" : "HEALTHY",
@@ -428,14 +429,14 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
   });
 
   // -------- 🦵 LEGS — infrastructure & deployment -------
-  const infra = await count(db, "frelux_infrastructure_costs");
-  const snapshots = await count(db, "frelux_archie_infrastructure_snapshots");
+  const infra = await count(db, table("infrastructure_costs"));
+  const snapshots = await count(db, table("archie_infrastructure_snapshots"));
   // latest assessment = the engine's own verdict, not a guess
   let latestStatus: string | null = null;
   let latestAt: string | null = null;
   try {
     const res = await db
-      .from("frelux_archie_infrastructure_snapshots")
+      .from(table("archie_infrastructure_snapshots"))
       .select("overall_status,assessed_at")
       .limit(50);
     // mock-compatible manual sort (no .order() in AnatomyDb)
@@ -469,7 +470,8 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
           : `infrastructure engine: latest assessment ${latestStatus}${latestAt ? ` @ ${latestAt}` : ""}`,
     details: {
       deployment: "Netlify (freluxtools.netlify.app)",
-      backend: "Supabase ARCHIE home (pjvtqkshewerpvggtgqx) + FRELUX app (hqhvlkunkdrxyuvziorm)",
+      backend:
+        "Supabase ARCHIE home (pjvtqkshewerpvggtgqx) + FRELUX app (hqhvlkunkdrxyuvziorm)",
       cost_records: infra,
       assessment_snapshots: snapshots,
       engine: "archie-infra (assess | snapshots | costs | budgets)",
@@ -533,7 +535,7 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
   // -------- ❤️‍🩹 HEALING — recovery & rollback -----------
   const installations = await count(db, "archie_installations");
   const migrations = await count(db, "archie_migration_history");
-  const recoveryEvents = await count(db, "frelux_archie_recovery_events");
+  const recoveryEvents = await count(db, table("archie_recovery_events"));
   push({
     subsystem_key: "healing",
     status:
@@ -557,7 +559,7 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
   // (native-engine/connections.ts) holds the deterministic
   // pairing state machine, permission/scope evaluation and
   // maintenance gate.
-  const connections = await count(db, "frelux_archie_connections");
+  const connections = await count(db, table("archie_connections"));
   push({
     subsystem_key: "connective-tissue",
     status: connections === null ? "OFFLINE" : "HEALTHY",
@@ -583,7 +585,7 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
   // -------- 💤 SLEEP — background processing --------------
   const scheduled = await countWhere(
     db,
-    "frelux_archie_execution_runs",
+    table("archie_execution_runs"),
     "initiator_system",
     "SCHEDULED",
   );

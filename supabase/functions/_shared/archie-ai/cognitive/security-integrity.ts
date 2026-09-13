@@ -12,6 +12,7 @@
 // Real production security — no simulated checks.
 // =========================================================
 
+import { table } from "../tables.ts";
 import { sha256 } from "./sha256.ts";
 import type { SupabaseLike } from "../native-engine/persistence.ts";
 import { CognitivePersistence } from "./persistence.ts";
@@ -179,7 +180,7 @@ export class SecurityIntegrityEngine {
   private async recordChainCompromise(events: number): Promise<void> {
     if (!this.dbRef) return;
     try {
-      await this.dbRef.from("frelux_security_events").insert({
+      await this.dbRef.from(table("security_events")).insert({
         // FIX 26: the column is `kind`, not `event_type`, and
         // user_id is now nullable for SYSTEM events — both
         // defects made this critical event impossible to
@@ -223,7 +224,7 @@ export class SecurityIntegrityEngine {
     reason: string;
   } {
     const protectedTargets = [
-      "frelux_archie_core_principles",
+      table("archie_core_principles"),
       "archie-identity",
       "core-principles",
     ];

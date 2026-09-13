@@ -10,6 +10,7 @@
 // same code serves edge functions and the app.
 // =========================================================
 
+import { table } from "../tables.ts";
 import type { Fact, LearningOutcome } from "./types.ts";
 import { PersistenceLike, PersistedFactRow } from "./knowledge.ts";
 import type { OutcomePersistence } from "./learning.ts";
@@ -19,9 +20,10 @@ import type { OutcomePersistence } from "./learning.ts";
  *  call sites pass `db as unknown as SupabaseLike`. */
 export interface SupabaseLike {
   from(table: string): {
-    select(
-      query: string,
-    ): PromiseLike<{ data: unknown[] | null; error: unknown }> & {
+    select(query: string): PromiseLike<{
+      data: unknown[] | null;
+      error: unknown;
+    }> & {
       range(
         from: number,
         to: number,
@@ -45,10 +47,10 @@ import { NATIVE_CONFIG } from "./config.ts";
 import { teachTerm } from "../knowledge/vocabulary.ts";
 import { researchTerm } from "../knowledge/vocabulary-research.ts";
 
-export const FACTS_TABLE = "frelux_archie_native_facts";
-export const OUTCOMES_TABLE = "frelux_archie_native_outcomes";
-export const EPISODIC_TABLE = "frelux_archie_episodic_turns";
-export const COUNTERS_TABLE = "frelux_archie_engine_counters";
+export const FACTS_TABLE = table("archie_native_facts");
+export const OUTCOMES_TABLE = table("archie_native_outcomes");
+export const EPISODIC_TABLE = table("archie_episodic_turns");
+export const COUNTERS_TABLE = table("archie_engine_counters");
 
 /** A persisted episodic turn (plan P7): prior-session
  *  context grouped by conversation id. */
@@ -106,13 +108,11 @@ export class SupabasePersistence
       }> = [];
       for (let off = 0; ; off += 1000) {
         const { data, error } = await this.db
-          .from("frelux_vocabulary")
+          .from(table("vocabulary"))
           .select("term,meaning,source,confidence,times_seen")
           .range(off, off + 999);
         if (error || !data) return rows;
-        const page = (data as typeof rows).filter(
-          (r) => r.source !== "seed",
-        );
+        const page = (data as typeof rows).filter((r) => r.source !== "seed");
         rows.push(...page);
         if (page.length < 1000) break;
       }
@@ -134,7 +134,14 @@ export class SupabasePersistence
     confidence: number,
   ): Promise<boolean> {
     try {
-      return await researchTerm(this.db, null, term, meaning, domains, confidence);
+      return await researchTerm(
+        this.db,
+        null,
+        term,
+        meaning,
+        domains,
+        confidence,
+      );
     } catch {
       return false;
     }
@@ -143,10 +150,7 @@ export class SupabasePersistence
   /** Owner taught a meaning in chat — write the registry
    *  row (term, meaning, owner-taught provenance, 0.9
    *  confidence). Learning is free; no authority gate. */
-  async teachVocabularyTerm(
-    term: string,
-    meaning: string,
-  ): Promise<boolean> {
+  async teachVocabularyTerm(term: string, meaning: string): Promise<boolean> {
     try {
       return await teachTerm(this.db, null, term, meaning);
     } catch {
@@ -193,7 +197,7 @@ export class SupabasePersistence
       }> = [];
       for (let off = 0; ; off += 1000) {
         const { data, error } = await this.db
-          .from("frelux_vocabulary")
+          .from(table("vocabulary"))
           .select("term,meaning,source,confidence,provenance")
           .range(off, off + 999);
         if (error || !data) return native;
@@ -222,13 +226,14 @@ export class SupabasePersistence
           // the registry origin onto it; the exact registry
           // source travels in the note for the proof record.
           provenance: {
-            source: v.source === "seed"
-              ? ("seed" as const)
-              : v.source.startsWith("owner")
-                ? ("owner-taught" as const)
-                : v.source === "research"
-                  ? ("web-research" as const)
-                  : (`cross-source:vocabulary-${v.source}` as const),
+            source:
+              v.source === "seed"
+                ? ("seed" as const)
+                : v.source.startsWith("owner")
+                  ? ("owner-taught" as const)
+                  : v.source === "research"
+                    ? ("web-research" as const)
+                    : (`cross-source:vocabulary-${v.source}` as const),
             note: `vocabulary registry (${v.source})`,
           },
           status: "ACTIVE",

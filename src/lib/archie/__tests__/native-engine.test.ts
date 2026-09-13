@@ -74,6 +74,35 @@ const HELD_OUT: Array<[Intent, string]> = [
   ["math_question", "what is 340 times 22"],
   ["teaching", "remember this fact about concrete"],
   ["correction", "no that is not accurate fix it"],
+  // Audit #5 (2026-09-13): the held-out set grows — broader
+  // phrasings per intent, plus the intents the audit measured
+  // lightly. Every entry below is a NEW utterance, not a
+  // paraphrase of a corpus line the classifier memorized.
+  ["greeting", "good morning whats the news"],
+  ["farewell", "catch you later im done for today"],
+  ["gratitude", "that was a big help cheers"],
+  ["identity_query", "tell me who you are"],
+  ["capability_query", "what can you actually do for me"],
+  ["system_status", "give me a status report"],
+  ["knowledge_query", "what do you know about curing concrete"],
+  ["knowledge_query", "define workability for me"],
+  ["howto_guidance", "how can i lay blocks properly"],
+  ["howto_guidance", "walk me through mixing mortar"],
+  ["task_planning", "i need a plan for building a fence"],
+  ["task_planning", "help me organize this project into steps"],
+  ["code_analysis_request", "review this typescript snippet for bugs"],
+  ["research_request", "look up the current granite price"],
+  ["research_request", "search for information on plaster ratios"],
+  ["math_question", "how much is 12 bags times 4200 naira"],
+  ["math_question", "add 3420 and 998 for me"],
+  ["teaching", "learn this the screeding ratio is 1:4"],
+  ["teaching", "i want to teach you something new"],
+  ["correction", "actually you got that wrong"],
+  ["correction", "that is not right here is the correct value"],
+  ["price_query", "what is the price of cement"],
+  ["price_query", "how much does a bag of cement cost"],
+  ["crypto_market_query", "what is the price of bitcoin"],
+  ["crypto_market_query", "should i buy eth entry 3000 stop 2800 target 3300"],
 ];
 
 describe("NLU — natural conversation understanding", () => {

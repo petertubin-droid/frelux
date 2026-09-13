@@ -399,7 +399,10 @@ function correctWord(word: string): string {
 // vocabulary registry (seed foundation + words learned from
 // the owner's real usage) is authoritative known-word
 // knowledge. A registered word is never a correction target.
-import { isKnownVocabularyTerm, isWhContraction } from "../knowledge/vocabulary.ts";
+import {
+  isKnownVocabularyTerm,
+  isWhContraction,
+} from "../knowledge/vocabulary.ts";
 
 /** Normalize a raw message for the NLU pipeline: every word
  *  is either a real known word or a distance-1 correction of
@@ -638,6 +641,11 @@ export const BASE_NLU_CORPUS: Array<[Intent, string[]]> = [
       "do you offer any tools for research",
       "do you have any features for planning",
       "are there any tools you can use for estimates",
+      "what exactly can you do for me",
+      "tell me what you can do for me",
+      "what can you really do for me",
+      "what do you actually do",
+      "what can you help me with today",
     ],
   ],
   [
@@ -925,6 +933,11 @@ export const BASE_NLU_CORPUS: Array<[Intent, string[]]> = [
       "calculate the average of 4 8 and 12",
       "whats 350 multiplied by 6",
       "convert 90 kilograms to pounds",
+      "add 240 and 380 for me",
+      "whats 45 plus 90",
+      "sum 120 and 340 for me",
+      "add up 500 and 750",
+      "whats 8 plus 8",
     ],
   ],
   [
@@ -971,6 +984,11 @@ export const BASE_NLU_CORPUS: Array<[Intent, string[]]> = [
       "keep in mind that my client prefers saturday visits",
       "you should know that my supplier delivers on mondays",
       "you should know that i never work on sundays",
+      "i want to teach you a new fact",
+      "let me teach you this rule",
+      "i would like to teach you something",
+      "i want to teach you about my workflow",
+      "let me teach you a preference",
     ],
   ],
   [
@@ -991,6 +1009,12 @@ export const BASE_NLU_CORPUS: Array<[Intent, string[]]> = [
       "going rate for a plumber these days",
       "what is day rate for masons around here",
       "check labor cost for plastering work",
+      "what is the price of iron rods today",
+      "how much does a trip of sharp sand cost",
+      "what does a bundle of iron rods cost",
+      "current price of cement at the depot please",
+      "what is the going price of roofing sheets",
+      "how much do paving stones cost",
     ],
   ],
   [
@@ -1016,6 +1040,42 @@ export const BASE_NLU_CORPUS: Array<[Intent, string[]]> = [
       "thats wrong, check again",
       "correction, the paint is satin not matte",
       "no, deliver on monday instead",
+    ],
+  ],
+  [
+    // Audit #5 (2026-09-13): crypto market intelligence joins
+    // the Bayes corpus — the intent was cascade-only before
+    // (regex reachable, classifier blind). Utterances here
+    // mirror the crypto domain skill's NLU rule; the skill
+    // rule still fires FIRST in the cascade (specific beats
+    // generic), this corpus only teaches the fallback
+    // classifier the vocabulary.
+    "crypto_market_query",
+    [
+      "how much is ethereum worth right now",
+      "whats solana trading at",
+      "check the current price of ripple",
+      "how much does one dogecoin sell for",
+      "what is binance coin quoting",
+      "is cardano up or down today",
+      "should i buy bitcoin now",
+      "should i sell my ethereum position",
+      "is it safe to long solana here",
+      "would you short dogecoin at this level",
+      "evaluate my trade on bitcoin",
+      "evaluate my crypto trade plan",
+      "whats the crypto market doing",
+      "give me a live price check on litecoin",
+      "how much is one bitcoin worth",
+      "what is btc selling for now",
+      "what does ethereum cost today",
+      "current price of solana please",
+      "check what ripple is trading at",
+      "should i buy btc now or wait",
+      "should i sell my ada position now",
+      "should i long solana at this level",
+      "would you buy eth right now",
+      "how about a trade plan for cardano",
     ],
   ],
 ];
@@ -1317,16 +1377,12 @@ const RULE_CASCADE: Array<{
     confidence: 0.85,
   },
   {
-    // Crypto market intelligence (audit fix H-2): live
-    // multi-venue price cross-checks and trade-gate
-    // evaluations. MUST precede the materials price rule —
-    // "price of bitcoin" would otherwise be captured by it.
-    intent: "crypto_market_query",
-    pattern:
-      /\b(?:bitcoin|btc|ethereum|eth|solana|sol|ripple|xrp|dogecoin|doge|binance\s+coin|bnb|cardano|ada|chainlink|link|litecoin|ltc|crypto(?:coin|currency)?)\b[^.?!]*\b(?:price|worth|trading\s+at|selling\s+for|quoting)\b|\b(?:price|worth)\s+of\s+(?:bitcoin|btc|ethereum|eth|solana|sol|ripple|xrp|dogecoin|doge|bnb|ada|link|ltc|crypto)|\b(?:should\s+i|is\s+it\s+safe\s+to|can\s+i|would\s+you)\s+(?:buy|sell|long|short)\b[^.?!]*\b(?:bitcoin|btc|ethereum|eth|solana|sol|ripple|xrp|dogecoin|doge|bnb|ada|link|ltc)\b|\bevaluate\s+(?:my\s+)?(?:trade|crypto)\b/i,
-    confidence: 0.9,
-  },
-  {
+    // Crypto market intelligence ("price of bitcoin" etc.) is
+    // contributed by the crypto DOMAIN SKILL through the
+    // registry (audit L-1 fix 2026-09-13): the core cascade
+    // carries no domain lexicon. The skill's rule is composed
+    // BEFORE this cascade tail, so "price of bitcoin" can
+    // never fall through to the materials rule below.
     // Interrogative price questions about materials route to the
     // market intelligence lookup ("how much is a bag of cement",
     // "price of granite"). Imperative research commands above
@@ -1726,9 +1782,12 @@ export function resolveAnaphora(
 /** Domain hints composed from the DomainSkillRegistry
  *  (domain-capture completion 2026-09-11): a skill may
  *  contribute deterministic cascade rules and labeled Bayes
- *  utterances. The engine's own cascade stays domain-neutral;
- *  these run after the general rules, and the corpus trains
- *  the same classifier. Omitted → domain-neutral NLU. */
+ *  utterances. The engine's own cascade stays domain-neutral.
+ *  Audit L-1 fix (2026-09-13): skill rules now run BEFORE the
+ *  general rules — specific domain lexicons must take
+ *  priority over generic core patterns (a crypto rule must
+ *  win over the generic materials price rule). The corpus
+ *  trains the same classifier. Omitted → domain-neutral NLU. */
 export interface NluDomainHints {
   rules?: Array<{ intent: Intent; pattern: RegExp; confidence: number }>;
   corpus?: Array<[Intent, string[]]>;
@@ -1771,9 +1830,10 @@ export function understand(
   // scan, cheap, honest. An unknown emoji reports tone
   // "unknown" and is ignored by every route.
   const emojiTone = extractEmojiTone(input);
-  // Stage 1: rule cascade over the corrected input — general
-  // rules first, then skill-contributed domain rules.
-  for (const rule of [...RULE_CASCADE, ...(domain?.rules ?? [])]) {
+  // Stage 1: rule cascade over the corrected input —
+  // skill-contributed domain rules first (specific beats
+  // generic), then the general rules.
+  for (const rule of [...(domain?.rules ?? []), ...RULE_CASCADE]) {
     if (rule.pattern.test(corrected)) {
       return {
         intent: rule.intent,

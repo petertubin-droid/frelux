@@ -1,3 +1,4 @@
+import { table } from "../tables.ts";
 // =========================================================
 // ARCHIE AUTONOMOUS KNOWLEDGE PROMOTION
 //
@@ -171,12 +172,14 @@ export function evaluateAutonomy(
   if (capability && isExecutionIntent(capability)) {
     return {
       decision: "HOLD",
-      reason:
-        `capability '${capability}' carries execution intent (modify/change/delegate/override or certified-math rules) — understanding is stored freely, but acting requires owner authorization`,
+      reason: `capability '${capability}' carries execution intent (modify/change/delegate/override or certified-math rules) — understanding is stored freely, but acting requires owner authorization`,
     };
   }
   if (!record.topic || !String(record.topic).trim()) {
-    return { decision: "REJECT", reason: "no topic — nothing to anchor knowledge to" };
+    return {
+      decision: "REJECT",
+      reason: "no topic — nothing to anchor knowledge to",
+    };
   }
   const hasContent =
     (record.recommendation && String(record.recommendation).trim()) ||
@@ -196,9 +199,11 @@ export function evaluateAutonomy(
   let selfAssessed = false;
   if (!Number.isFinite(confidence) || confidence <= 0) {
     let score = 0.4;
-    if (record.recommendation && String(record.recommendation).trim()) score += 0.1;
+    if (record.recommendation && String(record.recommendation).trim())
+      score += 0.1;
     if (record.conclusion && String(record.conclusion).trim()) score += 0.1;
-    if (Array.isArray(record.evidence) && record.evidence.length > 0) score += 0.1;
+    if (Array.isArray(record.evidence) && record.evidence.length > 0)
+      score += 0.1;
     if (
       record.provenance &&
       typeof record.provenance === "object" &&
@@ -217,7 +222,10 @@ export function evaluateAutonomy(
     };
   }
   const scope = String(record.proposed_scope ?? "GLOBAL").toUpperCase();
-  if (scope === "GLOBAL" && confidence < AUTONOMY_THRESHOLDS.GLOBAL_CONFIDENCE) {
+  if (
+    scope === "GLOBAL" &&
+    confidence < AUTONOMY_THRESHOLDS.GLOBAL_CONFIDENCE
+  ) {
     return {
       decision: "HOLD",
       reason: `GLOBAL scope below autonomous threshold (${AUTONOMY_THRESHOLDS.GLOBAL_CONFIDENCE}; ${confidenceNote} confidence ${confidence}) — held for owner`,
@@ -236,11 +244,24 @@ type Db = { from(table: string): DbTable };
 type DbResult = { error: { message: string } | null };
 interface DbTable {
   insert(payload: unknown): Promise<DbResult>;
-  update(payload: unknown): { eq(col: string, val: unknown): Promise<DbResult> };
+  update(payload: unknown): {
+    eq(col: string, val: unknown): Promise<DbResult>;
+  };
   select(cols?: string): {
-    eq(col: string, val: unknown): {
-      order(col: string, o: { ascending: boolean }): {
-        limit(n: number): Promise<{ data: unknown[] | null; error: { message: string } | null }>;
+    eq(
+      col: string,
+      val: unknown,
+    ): {
+      order(
+        col: string,
+        o: { ascending: boolean },
+      ): {
+        limit(
+          n: number,
+        ): Promise<{
+          data: unknown[] | null;
+          error: { message: string } | null;
+        }>;
       };
     };
   };
@@ -260,24 +281,28 @@ export async function autonomouslyPromote(
   reason: string,
 ): Promise<{ ok: boolean; error?: string; knowledge_version?: number }> {
   // Version snapshot BEFORE promotion (rollback point).
-  const snap = await db.from("frelux_learning_versions").insert({
+  const snap = await db.from(table("learning_versions")).insert({
     record_id: record.id,
     version: 1,
     snapshot: record,
     change_reason: `ARCHIE autonomous promotion: ${reason}`,
     reviewer: null,
   });
-  if (snap?.error) return { ok: false, error: `snapshot failed: ${snap.error.message}` };
+  if (snap?.error)
+    return { ok: false, error: `snapshot failed: ${snap.error.message}` };
 
   // Next knowledge version for this record.
   const existing = await db
-    .from("frelux_knowledge_items")
+    .from(table("knowledge_items"))
     .select("version")
     .eq("record_id", record.id)
     .order("version", { ascending: false })
     .limit(1);
   if (existing?.error) {
-    return { ok: false, error: `version lookup failed: ${existing.error.message}` };
+    return {
+      ok: false,
+      error: `version lookup failed: ${existing.error.message}`,
+    };
   }
   const rows = (existing?.data ?? []) as { version: number }[];
   const knowledge_version = (rows[0]?.version ?? 0) + 1;
@@ -304,21 +329,28 @@ export async function autonomouslyPromote(
     approved_by: null,
     approved_date: new Date().toISOString(),
   };
-  const inserted = await db.from("frelux_knowledge_items").insert(item);
+  const inserted = await db.from(table("knowledge_items")).insert(item);
   if (inserted?.error) {
-    return { ok: false, error: `knowledge promotion failed: ${inserted.error.message}` };
+    return {
+      ok: false,
+      error: `knowledge promotion failed: ${inserted.error.message}`,
+    };
   }
 
   const upd = await db
-    .from("frelux_learning_records")
+    .from(table("learning_records"))
     .update({
       lifecycle_status: "APPROVED",
       updated_date: new Date().toISOString(),
     })
     .eq("id", record.id);
-  if (upd?.error) return { ok: false, error: `lifecycle update failed: ${upd.error.message}` };
+  if (upd?.error)
+    return {
+      ok: false,
+      error: `lifecycle update failed: ${upd.error.message}`,
+    };
 
-  await db.from("frelux_learning_audit").insert({
+  await db.from(table("learning_audit")).insert({
     record_id: record.id,
     action: "AUTONOMOUS_PROMOTION",
     actor: actorId,
@@ -326,7 +358,8 @@ export async function autonomouslyPromote(
       autonomous: true,
       reason,
       knowledge_version,
-      policy: "owner directive 2026-09-12 — knowledge accumulation is free; code and decisions stay owner-gated",
+      policy:
+        "owner directive 2026-09-12 — knowledge accumulation is free; code and decisions stay owner-gated",
     },
   });
 

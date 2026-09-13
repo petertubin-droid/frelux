@@ -121,7 +121,13 @@ export class OutcomeLearner {
           fact.validatedCount += 1;
           // A success outcome IS a real verification event
           // (owner-confirmed) — stamp it (audit H1/H2 gate).
-          const event = `owner-confirm:${full.timestamp}`;
+          // Audit H3 collision-proofing applies here too: two
+          // confirms in the same millisecond produced identical
+          // `owner-confirm:<ts>` stamps, and the dedupe below
+          // silently dropped a REAL owner verification event.
+          // The outcome id is unique per event (crypto.randomUUID
+          // — audit H3), so the stamp inherits that uniqueness.
+          const event = `owner-confirm:${full.id}`;
           if (!(fact.verifiedBy ?? []).includes(event)) {
             fact.verifiedBy = [...(fact.verifiedBy ?? []), event];
           }

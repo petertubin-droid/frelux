@@ -21,10 +21,11 @@
 // point where observations enter the model.
 // =========================================================
 
+import { table } from "../tables.ts";
 import type { SupabaseLike } from "../native-engine/persistence.ts";
 import type { WorldEntity, WorldModelQuery, WorldRelation } from "./types.ts";
 
-export const WORLD_MODEL_TABLE = "frelux_archie_world_model";
+export const WORLD_MODEL_TABLE = table("archie_world_model");
 
 interface WorldModelRow {
   id: string;

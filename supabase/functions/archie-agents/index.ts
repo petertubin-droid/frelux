@@ -24,6 +24,11 @@
 // =========================================================
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
+import {
+  executeTarget,
+  type EngineDeps,
+  type ExecutionTarget,
+} from "../_shared/archie-ai/execution/engine.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
   checkRateLimit,
@@ -151,6 +156,74 @@ async function service<T>(
   }
   return { data: body as T, error: null };
 }
+
+// ---------------------------------------------------------
+// Execution engine deps (audit L-2 fix, 2026-09-13): agent
+// EXECUTE dispatches through the audited engine — registered
+// target 'archie-agent-task', full authority/audit/retry
+// stack. Bound to the same REST helper used above.
+// ---------------------------------------------------------
+async function getExecutionTarget(
+  key: string,
+): Promise<ExecutionTarget | null> {
+  const { data } = await service<ExecutionTarget[]>(
+    `/rest/v1/frelux_archie_execution_targets?key=eq.${key}&select=*`,
+  );
+  return (Array.isArray(data) ? (data[0] ?? null) : data) ?? null;
+}
+
+const engineDeps: EngineDeps = {
+  getTarget: getExecutionTarget,
+  createRun: async (rec) => {
+    const { data, error } = await service<{ id: string }>(
+      "/rest/v1/frelux_archie_execution_runs",
+      {
+        method: "POST",
+        headers: { Prefer: "return=representation" },
+        body: JSON.stringify(rec),
+      },
+    );
+    if (error || !data?.id) throw new Error(`audit insert failed: ${error}`);
+    return { id: data.id };
+  },
+  updateRun: async (id, patch) => {
+    const { error } = await service(
+      `/rest/v1/frelux_archie_execution_runs?id=eq.${id}`,
+      {
+        method: "PATCH",
+        headers: { Prefer: "return=minimal" },
+        body: JSON.stringify({
+          ...patch,
+          updated_date: new Date().toISOString(),
+        }),
+      },
+    );
+    if (error) throw new Error(`audit update failed: ${error}`);
+  },
+  recordSecurityEvent: async (userId, type, severity, message) => {
+    try {
+      await service("/rest/v1/frelux_security_events", {
+        method: "POST",
+        headers: { Prefer: "return=minimal" },
+        body: JSON.stringify({
+          user_id: userId,
+          kind: type,
+          severity,
+          message,
+        }),
+      });
+    } catch {
+      /* audit must never break execution flow */
+    }
+  },
+  getSecret: (name: string) => Deno.env.get(name),
+  fetchFn: fetch,
+  supabaseUrl: SUPABASE_URL,
+  serviceRoleKey: SERVICE_ROLE,
+  now: () => Date.now(),
+  sleep: (ms: number) => new Promise((r) => setTimeout(r, ms)),
+  log: (m: string) => console.log(`[archie-agents] ${m}`),
+};
 
 serveWithCors(async (req: Request) => {
   // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
@@ -351,7 +424,100 @@ serveWithCors(async (req: Request) => {
     );
     if (evErr)
       return json(500, { error: `Failed to append audit event: ${evErr}` });
-    return json(200, { ok: true, status: next });
+    if (event !== "EXECUTE" || next !== "EXECUTING") {
+      return json(200, { ok: true, status: next });
+    }
+
+    // ---- REAL EXECUTION (audit L-2 fix) ----
+    // EXECUTE is no longer a label: the task dispatches through
+    // the audited execution engine to the registered target
+    // 'archie-agent-task' (archie-agent-worker). The worker
+    // runs the task through the unified cognitive kernel with
+    // the life-safety + security verdict gates, and persists
+    // an honest work-product report.
+    const runOutcome = await executeTarget(engineDeps, {
+      targetKey: "archie-agent-task",
+      input: { agent_id: agentId },
+      initiatorSystem: "ARCHIE_AGENTS",
+      caller: {
+        userId: auth.user.id,
+        isAdmin: true, // role re-verified above; the engine re-checks too
+      },
+    });
+
+    // Lifecycle follows the real outcome — never a fake success.
+    let finalStatus = "EXECUTING";
+    if (runOutcome.ok) {
+      // EXECUTING -> MONITORING: the work product exists; the
+      // owner reviews it (REPORT / TERMINATE stay owner acts).
+      const { error: monErr } = await service(
+        `/rest/v1/frelux_archie_internal_agents?id=eq.${agentId}`,
+        {
+          method: "PATCH",
+          headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({
+            status: "MONITORING",
+            updated_date: new Date().toISOString(),
+          }),
+        },
+      );
+      if (!monErr) {
+        finalStatus = "MONITORING";
+        await service("/rest/v1/frelux_archie_agent_events", {
+          method: "POST",
+          headers: { Prefer: "return=minimal" },
+          body: JSON.stringify({
+            agent_id: agentId,
+            event: "MONITOR",
+            detail: {
+              by: "execution-engine",
+              run_id: runOutcome.runId ?? null,
+              attempts: runOutcome.attempts ?? 1,
+            },
+            actor: auth.user.id,
+          }),
+        });
+      }
+    } else {
+      // Honest failure: EXECUTING -> FAILED with the engine's
+      // own reason recorded in the append-only ledger.
+      await service(`/rest/v1/frelux_archie_internal_agents?id=eq.${agentId}`, {
+        method: "PATCH",
+        headers: { Prefer: "return=minimal" },
+        body: JSON.stringify({
+          status: "FAILED",
+          updated_date: new Date().toISOString(),
+        }),
+      });
+      finalStatus = "FAILED";
+      await service("/rest/v1/frelux_archie_agent_events", {
+        method: "POST",
+        headers: { Prefer: "return=minimal" },
+        body: JSON.stringify({
+          agent_id: agentId,
+          event: "FAIL",
+          detail: {
+            by: "execution-engine",
+            run_id: runOutcome.runId ?? null,
+            error: runOutcome.error ?? "execution failed",
+            status: runOutcome.status,
+          },
+          actor: auth.user.id,
+        }),
+      });
+    }
+
+    return json(200, {
+      ok: true,
+      status: finalStatus,
+      executed: runOutcome.ok,
+      run_id: runOutcome.runId ?? null,
+      run_status: runOutcome.status,
+      error: runOutcome.error ?? null,
+      note: runOutcome.ok
+        ? "Task executed through the audited engine — work product stored as an agent report."
+        : "Execution failed honestly — the failure is recorded; nothing was fabricated.",
+    });
   }
 
   // ---- action: record internal provider cost (INFRA ledger only) ----

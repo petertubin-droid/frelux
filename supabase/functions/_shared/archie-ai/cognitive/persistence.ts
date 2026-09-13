@@ -10,11 +10,12 @@
 // reports degraded persistence in diagnostics.
 // =========================================================
 
+import { table } from "../tables.ts";
 import type { SupabaseLike } from "../native-engine/persistence.ts";
 import type { AuditEvent, CognitiveTrace } from "./types.ts";
 
-export const AUDIT_TABLE = "frelux_archie_audit_log";
-export const TRACES_TABLE = "frelux_archie_cognitive_traces";
+export const AUDIT_TABLE = table("archie_audit_log");
+export const TRACES_TABLE = table("archie_cognitive_traces");
 
 interface AuditRow {
   chain_id: string;

@@ -58,8 +58,10 @@ export interface DomainSkill {
   ) => DomainOperatorExecution | null;
   /** Deterministic intent handler. Returns the complete
    *  answer text, or null when the skill declines (the engine
-   *  answers honestly instead of guessing). */
-  handler(intent: string, input: string): string | null;
+   *  answers honestly instead of guessing). May be async —
+   *  skills that observe live external data (market feeds)
+   *  resolve before the engine composes the answer. */
+  handler(intent: string, input: string): string | Promise<string> | null;
 }
 
 export class DomainSkillRegistry {
@@ -132,8 +134,11 @@ export class DomainSkillRegistry {
   }
 
   /** Resolve the deterministic handler for an intent, or null
-   *  when no registered skill serves it. */
-  handlerFor(intent: string): ((input: string) => string) | null {
+   *  when no registered skill serves it. The returned function
+   *  may resolve to a string asynchronously (live-data skills). */
+  handlerFor(
+    intent: string,
+  ): ((input: string) => string | Promise<string>) | null {
     for (const s of this.skills.values()) {
       if (s.intents.includes(intent)) {
         return (input: string) => s.handler(intent, input) ?? "";

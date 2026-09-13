@@ -1,6 +1,7 @@
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { table } from "@studio-shared/archie-ai/tables.ts";
 
 /**
  * Remediation batch 9 — Level 6 (security/authority layer) findings,
@@ -67,10 +68,19 @@ describe("fix 26 — frelux_security_events split-brain (dark writers)", () => {
   it("the audit-chain-compromise critical persists as a SYSTEM event", () => {
     const src = shared("cognitive/security-integrity.ts");
     const fn = src.slice(src.indexOf("recordChainCompromise"));
-    expect(fn).toContain('from("frelux_security_events").insert');
+    // Audit #4 (2026-09-13): physical table names are resolved
+    // through the tables.ts indirection, not hardcoded here.
+    // The contract is two-sided: the call site uses the
+    // LOGICAL name, and the indirection resolves it to the
+    // frelux_security_events physical table.
+    expect(fn).toContain('from(table("security_events")).insert');
     expect(fn).toContain("user_id: null");
     expect(fn).toMatch(/kind:\s*"audit_chain_compromised"/);
     expect(fn).not.toMatch(/event_type:/);
+    // Behavioral half of the contract: the indirection resolves
+    // the logical name to the physical frelux_security_events
+    // table with the default prefix.
+    expect(table("security_events")).toBe("frelux_security_events");
   });
 
   it("migration 20260913030000 makes user_id nullable for SYSTEM events", () => {

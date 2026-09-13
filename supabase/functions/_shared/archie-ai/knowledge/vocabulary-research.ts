@@ -28,6 +28,7 @@
 //     endpoints; no scraping of pages behind ToS gates
 // =========================================================
 
+import { table } from "../tables.ts";
 import type { VocabularyDb } from "./vocabulary.ts";
 
 /** One site's answer for a term. */
@@ -57,10 +58,7 @@ export interface MeaningResearchReport {
 
 /** Structural fetch — Deno/Node fetch satisfies this; tests
  *  inject an explicit labeled double. */
-export type FetchLike = (
-  url: string,
-  init?: RequestInit,
-) => Promise<Response>;
+export type FetchLike = (url: string, init?: RequestInit) => Promise<Response>;
 
 const SITE_TIMEOUT_MS = 7000;
 const MEANING_MAX = 240;
@@ -69,7 +67,9 @@ function firstSentence(text: string): string {
   const t = text.trim();
   const cut = t.search(/[.!?](\s|$)/);
   const out =
-    cut >= 0 && cut < MEANING_MAX ? t.slice(0, cut + 1) : t.slice(0, MEANING_MAX);
+    cut >= 0 && cut < MEANING_MAX
+      ? t.slice(0, cut + 1)
+      : t.slice(0, MEANING_MAX);
   return out.trim();
 }
 
@@ -118,7 +118,9 @@ async function lookupFreeDictionary(
     `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(term)}`,
   );
   if (!ok) return { site, domain, meaning: null, note, failure: true };
-  const entries = Array.isArray(data) ? (data as Array<Record<string, unknown>>) : [];
+  const entries = Array.isArray(data)
+    ? (data as Array<Record<string, unknown>>)
+    : [];
   for (const entry of entries) {
     const meanings = (entry.meanings ?? []) as Array<Record<string, unknown>>;
     for (const m of meanings) {
@@ -126,12 +128,24 @@ async function lookupFreeDictionary(
       for (const d of defs) {
         const def = typeof d.definition === "string" ? d.definition : null;
         if (def && def.trim()) {
-          return { site, domain, meaning: firstSentence(def), note: "found", failure: false };
+          return {
+            site,
+            domain,
+            meaning: firstSentence(def),
+            note: "found",
+            failure: false,
+          };
         }
       }
     }
   }
-  return { site, domain, meaning: null, note: "not found in this dictionary", failure: false };
+  return {
+    site,
+    domain,
+    meaning: null,
+    note: "not found in this dictionary",
+    failure: false,
+  };
 }
 
 /** Wiktionary REST definition API — en.wiktionary.org. */
@@ -153,11 +167,23 @@ async function lookupWiktionary(
       const raw = typeof d.definition === "string" ? d.definition : "";
       const clean = stripTags(raw);
       if (clean) {
-        return { site, domain, meaning: firstSentence(clean), note: "found", failure: false };
+        return {
+          site,
+          domain,
+          meaning: firstSentence(clean),
+          note: "found",
+          failure: false,
+        };
       }
     }
   }
-  return { site, domain, meaning: null, note: "not found in this dictionary", failure: false };
+  return {
+    site,
+    domain,
+    meaning: null,
+    note: "not found in this dictionary",
+    failure: false,
+  };
 }
 
 /** DuckDuckGo Instant Answer API — api.duckduckgo.com. */
@@ -174,14 +200,30 @@ async function lookupDuckDuckGo(
   if (!ok) return { site, domain, meaning: null, note, failure: true };
   const d = (data ?? {}) as Record<string, unknown>;
   const dd =
-    typeof d.Definition === "string" && d.Definition.trim() ? d.Definition : null;
+    typeof d.Definition === "string" && d.Definition.trim()
+      ? d.Definition
+      : null;
   const abs =
-    typeof d.AbstractText === "string" && d.AbstractText.trim() ? d.AbstractText : null;
+    typeof d.AbstractText === "string" && d.AbstractText.trim()
+      ? d.AbstractText
+      : null;
   const meaning = dd ?? abs;
   if (meaning) {
-    return { site, domain, meaning: firstSentence(meaning), note: "found", failure: false };
+    return {
+      site,
+      domain,
+      meaning: firstSentence(meaning),
+      note: "found",
+      failure: false,
+    };
   }
-  return { site, domain, meaning: null, note: "no instant answer for this term", failure: false };
+  return {
+    site,
+    domain,
+    meaning: null,
+    note: "no instant answer for this term",
+    failure: false,
+  };
 }
 
 /** Wikipedia REST summary — en.wikipedia.org. */
@@ -199,9 +241,21 @@ async function lookupWikipedia(
   const d = (data ?? {}) as Record<string, unknown>;
   const extract = typeof d.extract === "string" ? d.extract.trim() : "";
   if (extract) {
-    return { site, domain, meaning: firstSentence(extract), note: "found", failure: false };
+    return {
+      site,
+      domain,
+      meaning: firstSentence(extract),
+      note: "found",
+      failure: false,
+    };
   }
-  return { site, domain, meaning: null, note: "no encyclopedia article for this term", failure: false };
+  return {
+    site,
+    domain,
+    meaning: null,
+    note: "no encyclopedia article for this term",
+    failure: false,
+  };
 }
 
 /** Research a term's meaning across ALL sites in parallel.
@@ -278,7 +332,7 @@ export async function researchTerm(
     created_by: ownerId,
   };
   const { error } = await db
-    .from("frelux_vocabulary")
+    .from(table("vocabulary"))
     .upsert([row], { onConflict: "term_key" });
   return !error;
 }
@@ -306,7 +360,10 @@ export function extractMeaningResearchRequest(
       input,
     );
   if (direct) {
-    return direct[1].trim().replace(/^(?:the|a|an)\s+/i, "").toLowerCase();
+    return direct[1]
+      .trim()
+      .replace(/^(?:the|a|an)\s+/i, "")
+      .toLowerCase();
   }
   // bare "research it" — resolve the antecedent from the
   // most recent definition question in the conversation
@@ -318,8 +375,7 @@ export function extractMeaningResearchRequest(
     // common web convention — accept both as the human turn.
     if (turn.role !== "owner" && turn.role !== "user") continue;
     const text = (
-      turn.text ??
-      (turn.parts ?? []).map((p) => p.text ?? "").join(" ")
+      turn.text ?? (turn.parts ?? []).map((p) => p.text ?? "").join(" ")
     ).trim();
     const defQ =
       /(?:what\s+(?:does|do|is)|define|meaning\s+of)\s+["']?([a-z][\w' -]{0,60}?)["']?\s*(?:mean|means)?\s*\??$/i.exec(

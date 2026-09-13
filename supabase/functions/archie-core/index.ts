@@ -39,6 +39,15 @@
 // fetches fail at cold boot in the edge runtime (BOOT_ERROR).
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { infer, listRuntimes, type RuntimePart } from "./model-runtime.ts";
+import {
+  classifyLifeSafety,
+  lifeSafetyStopMessage,
+} from "../_shared/archie-ai/security/life-safety.ts";
+import {
+  classifySecurityMessage,
+  reduceAuthorizations,
+  type EngagementRow,
+} from "../_shared/archie-ai/security/verdict.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -603,6 +612,100 @@ serveWithCors(async (req: Request) => {
     })
     .select("id")
     .single();
+
+  // 3.5 LIFE-SAFETY HARD GATE — audit finding C-1 (2026-09-13):
+  //    archie-core must run the same first layer as archie-chat,
+  //    in the same order. HIGHER PRIORITY than the security
+  //    verdict and every ordinary execution path. No
+  //    authorization flag can bypass this gate; resumption is
+  //    a human protocol stated in the stop message itself.
+  const lifeSafety = classifyLifeSafety(message);
+  if (lifeSafety.blocked) {
+    // Evidence preservation — never let the audit write break
+    // the stop itself.
+    try {
+      await service.from("frelux_security_events").insert({
+        user_id: userId,
+        kind: "LIFE_SAFETY_GATE_STOP",
+        severity: "critical",
+        message: `[archie-core] ${lifeSafety.reason}`,
+      });
+    } catch (_auditErr) {
+      // Swallow: the stop stands even if the event write fails.
+    }
+    return json(200, {
+      reply: lifeSafetyStopMessage(lifeSafety),
+      mode: "owner",
+      life_safety_gate: {
+        stopped: true,
+        action: lifeSafety.action,
+        hazard: lifeSafety.hazard ?? null,
+        escalation_authority: lifeSafety.escalationAuthority ?? null,
+      },
+    });
+  }
+
+  // 4. SECURITY VERDICT GATE — the consolidated authorization
+  //    clause, machine-enforced and audited, identical to the
+  //    archie-chat entry gate. Forbidden operations are refused
+  //    regardless of any authorization state.
+  const { data: authzEngagements } = await service
+    .from("archie_offensive_engagements")
+    .select(
+      "id, target_id, current_phase, archie_offensive_targets!target_id(kind, identifier)",
+    )
+    .limit(50);
+  const engagementRows: EngagementRow[] = (authzEngagements ?? [])
+    .filter(
+      (r: Record<string, unknown>) =>
+        r &&
+        (r as Record<string, Record<string, unknown>>).archie_offensive_targets,
+    )
+    .map((r: Record<string, unknown>) => {
+      const t = (r as Record<string, Record<string, unknown>>)
+        .archie_offensive_targets as Record<string, unknown>;
+      return {
+        engagement_id: String(r.id ?? ""),
+        target_id: String(r.target_id ?? ""),
+        kind: String(t.kind ?? ""),
+        identifier: String(t.identifier ?? ""),
+        current_phase: String(r.current_phase ?? ""),
+      };
+    });
+  const authz = reduceAuthorizations(engagementRows);
+  const verdict = classifySecurityMessage(message, {
+    hasValidAuthorization: authz.hasValidAuthorization,
+    // Named targets must fall inside the registered scope — an
+    // engagement for one target never authorizes another.
+    inScopeIdentifiers: authz.inScopeIdentifiers,
+  });
+  if (!verdict.allowed) {
+    try {
+      await service.from("frelux_security_events").insert({
+        user_id: userId,
+        kind: verdict.hardRefused
+          ? "SECURITY_GATE_HARD_REFUSAL"
+          : "SECURITY_GATE_AUTHORIZATION_REQUIRED",
+        severity: "warning",
+        message: `[archie-core] ${verdict.reason}`,
+      });
+    } catch (_auditErr) {
+      // Swallow: the refusal stands even if the event write fails.
+    }
+    return json(200, {
+      reply:
+        `I can't do that one. ${verdict.reason}` +
+        (verdict.intrusive && !verdict.hardRefused
+          ? ""
+          : " If you believe this is a mistake, review the authorization rules in the Security console."),
+      mode: "owner",
+      security_gate: {
+        refused: true,
+        hard_refused: verdict.hardRefused,
+        label: verdict.label ?? null,
+      },
+    });
+  }
 
   try {
     const attachments = Array.isArray(body.attachments) ? body.attachments : [];

@@ -33,7 +33,6 @@ import { serveWithCors } from "../_shared/serve.ts";
 import { checkRateLimit } from "../_shared/rate-limit.ts";
 import {
   CredentialEnvironment,
-  UNKNOWN_OWNER,
   createCredential,
   revokeCredential,
   rotateCredential,
@@ -41,7 +40,10 @@ import {
   setKillswitch,
   validateScopes,
 } from "../_shared/archie-ai/security/api-credentials.ts";
-import { createSupabaseCredentialStore } from "../_shared/archie-ai/security/api-credential-store.ts";
+import {
+  UNKNOWN_OWNER,
+  createSupabaseCredentialStore,
+} from "../_shared/archie-ai/security/api-credential-store.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SERVICE_ROLE = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;

@@ -28,23 +28,11 @@ import type {
   ArchieRuntime,
 } from "../runtime.ts";
 import {
-  crossCheckTicker,
-  defaultFetcher,
-  fetchCandles,
-  type Fetcher,
-} from "./crypto/market-data.ts";
-import {
-  buildPrediction,
-  walkForwardValidate,
-  type DataQuality,
-} from "./crypto/probability.ts";
-import {
   DEFAULT_TRADING_LIMITS,
-  evaluateTradeGate,
-  renderGateDecision,
   type TradingLimits,
-  type TradeRequest,
 } from "./crypto/trade-gate.ts";
+import type { Fetcher } from "./crypto/market-data.ts";
+import { createCryptoSkill } from "./domains/crypto.ts";
 import {
   NATIVE_ENGINE_ID,
   manifestSummary,
@@ -370,8 +358,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
    *  dictionary/reference sites; tests inject a labeled
    *  double. null = default real fetch. */
   private meaningResearch:
-    | ((term: string) => Promise<MeaningResearchReport>)
-    | null;
+    ((term: string) => Promise<MeaningResearchReport>) | null;
   /** H-2 — crypto market-data fetcher (null = real fetch). */
   private cryptoFetcher: Fetcher | null;
   /** H-2 — trade-gate limits. */
@@ -472,7 +459,10 @@ export class ArchieNativeEngine implements ArchieRuntime {
     // registered skills compose the effective rule and
     // operator sets, so shipped behavior is unchanged.
     this.domains = new DomainSkillRegistry();
-    registerBuiltInDomainSkills(this.domains);
+    registerBuiltInDomainSkills(this.domains, {
+      cryptoFetcher: this.cryptoFetcher,
+      tradingLimits: this.tradingLimits,
+    });
     // Domain-general reasoning substrate first, domain rules
     // after (owner directive 2026-09-10 §16): domain knowledge
     // is additive, never structural.
@@ -1427,31 +1417,23 @@ export class ArchieNativeEngine implements ArchieRuntime {
         }
         const withMeaning = learned
           .filter((r) => r.meaning)
-          .sort(
-            (a, b) => (a.confidence ?? 0) - (b.confidence ?? 0),
-          );
+          .sort((a, b) => (a.confidence ?? 0) - (b.confidence ?? 0));
         const noMeaning = learned
           .filter((r) => !r.meaning)
           .sort((a, b) => (b.times_seen ?? 0) - (a.times_seen ?? 0));
         const lines: string[] = [
           `Vocabulary review — ${learned.length} auto-learned item(s):`,
         ];
-        const researched = withMeaning.filter(
-          (r) => r.source === "research",
-        );
+        const researched = withMeaning.filter((r) => r.source === "research");
         if (researched.length > 0) {
-          lines.push(
-            "RESEARCHED (external knowledge — verify these):",
-          );
+          lines.push("RESEARCHED (external knowledge — verify these):");
           for (const r of researched.slice(0, 15)) {
             lines.push(
               `- ${r.term} (${((r.confidence ?? 0) * 100).toFixed(0)}%): ${r.meaning}`,
             );
           }
         }
-        const taught = withMeaning.filter(
-          (r) => r.source !== "research",
-        );
+        const taught = withMeaning.filter((r) => r.source !== "research");
         if (taught.length > 0) {
           lines.push("OWNER-TAUGHT:");
           for (const r of taught.slice(0, 15)) {
@@ -1461,13 +1443,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
           }
         }
         if (noMeaning.length > 0) {
-          lines.push(
-            "SEEN, NO MEANING YET (teach me — \"X means Y\"):",
-          );
+          lines.push('SEEN, NO MEANING YET (teach me — "X means Y"):');
           for (const r of noMeaning.slice(0, 15)) {
-            lines.push(
-              `- ${r.term} (seen ${r.times_seen ?? 0} time(s))`,
-            );
+            lines.push(`- ${r.term} (seen ${r.times_seen ?? 0} time(s))`);
           }
         }
         const shown =
@@ -1480,7 +1458,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
           );
         }
         lines.push(
-          "Correct any meaning in chat — \"X means Y\" overwrites research with your owner-taught definition.",
+          'Correct any meaning in chat — "X means Y" overwrites research with your owner-taught definition.',
         );
         return this.compose(lines.join("\n"), nlu.confidence * 0.8, []);
       }
@@ -1490,7 +1468,6 @@ export class ArchieNativeEngine implements ArchieRuntime {
         [],
       );
     }
-
 
     // cd-3 — cross-system contradiction reconciliation: "the
     // web says X but I told you Y". Surface BOTH sources,
@@ -1713,10 +1690,10 @@ export class ArchieNativeEngine implements ArchieRuntime {
           /\bwhat\s+does\s+(?:the\s+(?:word|phrase|term)\s+)?([a-z0-9' ]+?)\s+mean\b/i.exec(
             input,
           ) ??
-            /\bdefine\s+([a-z0-9' ]+)/i.exec(input) ??
-            /\bmeaning\s+of\s+(?:the\s+(?:word|phrase|term)\s+)?([a-z0-9' ]+)/i.exec(
-              input,
-            );
+          /\bdefine\s+([a-z0-9' ]+)/i.exec(input) ??
+          /\bmeaning\s+of\s+(?:the\s+(?:word|phrase|term)\s+)?([a-z0-9' ]+)/i.exec(
+            input,
+          );
         if (defMatch) {
           const term = defMatch[1]
             .trim()
@@ -1728,9 +1705,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
           if (term.length > 0 && term.length <= 60) {
             const means = this.facts
               .list()
-              .filter(
-                (f) => f.subject === term && f.predicate === "means",
-              );
+              .filter((f) => f.subject === term && f.predicate === "means");
             if (means.length > 0) {
               const f = means[0];
               return this.compose(
@@ -2119,8 +2094,14 @@ export class ArchieNativeEngine implements ArchieRuntime {
             .replace(/^(?:the|a|an)\s+/i, "")
             .toLowerCase();
           const meaning = vocabTeach[2].trim().replace(/[.?!]+$/, "");
-          if (term.length > 0 && this.persistence instanceof SupabasePersistence) {
-            const ok = await this.persistence.teachVocabularyTerm(term, meaning);
+          if (
+            term.length > 0 &&
+            this.persistence instanceof SupabasePersistence
+          ) {
+            const ok = await this.persistence.teachVocabularyTerm(
+              term,
+              meaning,
+            );
             if (ok) {
               return this.compose(
                 `Understood — ${term} means: ${meaning}. Kept in my vocabulary registry, taught by you; I will answer from it with provenance and protect the word from my typo corrector.`,
@@ -2312,10 +2293,13 @@ export class ArchieNativeEngine implements ArchieRuntime {
         const meaningHistory =
           history && history.length > 0
             ? history
-            : (session ?? this.sessionFor())
-                .memory.recentTurns(6)
+            : (session ?? this.sessionFor()).memory
+                .recentTurns(6)
                 .map((t) => ({ role: t.role, parts: [{ text: t.text }] }));
-        const meaningTerm = extractMeaningResearchRequest(input, meaningHistory);
+        const meaningTerm = extractMeaningResearchRequest(
+          input,
+          meaningHistory,
+        );
         if (meaningTerm && this.persistence instanceof SupabasePersistence) {
           // Explicit owner research request = network
           // authorization for this term.
@@ -2349,13 +2333,21 @@ export class ArchieNativeEngine implements ArchieRuntime {
               const lines: string[] = [];
               lines.push(
                 `Researched "${report.term}" across ${report.results.length} sites: ${report.results
-                  .map((r) => (r.failure ? `${r.site} (could not reach)` : r.meaning ? `${r.site} (found)` : `${r.site} (${r.note})`))
+                  .map((r) =>
+                    r.failure
+                      ? `${r.site} (could not reach)`
+                      : r.meaning
+                        ? `${r.site} (found)`
+                        : `${r.site} (${r.note})`,
+                  )
                   .join("; ")}.`,
               );
               lines.push(
                 `Sites say: ${report.meaning}. My existing definition (${existing.provenance.source}) stands — researched knowledge never overwrites seed or owner-taught meanings.`,
               );
-              return this.compose(lines.join("\n"), nlu.confidence, [existing.id]);
+              return this.compose(lines.join("\n"), nlu.confidence, [
+                existing.id,
+              ]);
             }
             const stored = await this.persistence.researchVocabularyTerm(
               meaningTerm,
@@ -2708,32 +2700,34 @@ export class ArchieNativeEngine implements ArchieRuntime {
         );
       }
 
-      case "crypto_market_query": {
-        // Audit fix H-2 (2026-09-11): the crypto intelligence
-        // libraries (multi-venue market data, probability
-        // evidence, trade gate) existed and were tested but
-        // were UNREACHABLE from conversation. They are now
-        // wired: live multi-venue price cross-checks and
-        // evidence-gated trade evaluations — every number is
-        // observed from a real venue or the failure is
-        // reported honestly. No simulated prices, ever.
-        return this.handleCryptoMarketQuery(input, nlu);
-      }
-
+      case "crypto_market_query":
       case "construction_calc": {
-        // Domain skills are pluggable (audit fix 2026-09-11):
-        // an unregistered skill is answered honestly, never
-        // fabricated.
-        const domainHandler = this.domains.handlerFor("construction_calc");
+        // Domain skills are pluggable (audit fix 2026-09-11;
+        // audit L-1 fix 2026-09-13 extracted crypto too): the
+        // core engine contains NO domain vocabulary — every
+        // domain intent resolves through the registry, and an
+        // unregistered skill is answered honestly, never
+        // fabricated. Handlers may be async (live market data).
+        const domainIntent = nlu.intent as string;
+        const domainHandler = this.domains.handlerFor(domainIntent);
         if (!domainHandler) {
           return this.compose(
-            "That capability is not installed on this engine — I will not fabricate a construction estimate. " +
+            "That capability is not installed on this engine — I will not fabricate a domain answer. " +
               this.statusLine(),
             nlu.confidence,
             [],
           );
         }
-        return this.compose(domainHandler(input), nlu.confidence, []);
+        const domainAnswer = await domainHandler(input);
+        if (!domainAnswer) {
+          return this.compose(
+            "The installed domain skill declined to answer that — I will not guess where it refused. " +
+              this.statusLine(),
+            nlu.confidence,
+            [],
+          );
+        }
+        return this.compose(domainAnswer, nlu.confidence, []);
       }
 
       default: {
@@ -2745,242 +2739,6 @@ export class ArchieNativeEngine implements ArchieRuntime {
         );
       }
     }
-  }
-
-  // ---------------------------------------------------------
-  // Crypto market intelligence (audit fix H-2)
-  // ---------------------------------------------------------
-
-  /** Longest-alias-first registry — multi-word aliases must
-   *  win over their substrings ("binance coin" over "bnb" is
-   *  fine by order below; both map to BNB-USD anyway). */
-  private static CRYPTO_ALIASES: Array<[string, string]> = [
-    ["binance coin", "BNB-USD"],
-    ["bitcoin", "BTC-USD"],
-    ["btc", "BTC-USD"],
-    ["ethereum", "ETH-USD"],
-    ["eth", "ETH-USD"],
-    ["solana", "SOL-USD"],
-    ["sol", "SOL-USD"],
-    ["ripple", "XRP-USD"],
-    ["xrp", "XRP-USD"],
-    ["dogecoin", "DOGE-USD"],
-    ["doge", "DOGE-USD"],
-    ["bnb", "BNB-USD"],
-    ["cardano", "ADA-USD"],
-    ["ada", "ADA-USD"],
-    ["chainlink", "LINK-USD"],
-    ["link", "LINK-USD"],
-    ["litecoin", "LTC-USD"],
-    ["ltc", "LTC-USD"],
-  ];
-
-  private cryptoSymbolOf(lower: string): string | null {
-    for (const [alias, sym] of ArchieNativeEngine.CRYPTO_ALIASES) {
-      if (new RegExp(`\\b${alias}\\b`).test(lower)) return sym;
-    }
-    return null;
-  }
-
-  private async handleCryptoMarketQuery(
-    input: string,
-    nlu: { confidence: number },
-  ): Promise<ConverseResult> {
-    const lower = input.toLowerCase();
-    const symbol = this.cryptoSymbolOf(lower);
-
-    // Trade evaluation: a direction word AND trade-plan
-    // vocabulary. Price snapshots need only the symbol.
-    const direction: "long" | "short" | null = /\b(?:buy|long|bullish)\b/.test(
-      lower,
-    )
-      ? "long"
-      : /\b(?:sell|short|bearish)\b/.test(lower)
-        ? "short"
-        : null;
-    const wantsTradeEval =
-      direction !== null &&
-      /\b(?:entry|enter(?:ing)?|stop|target|take[-\s]?profit|position|portfolio|evaluate)\b/i.test(
-        input,
-      );
-
-    if (!symbol) {
-      return this.compose(
-        "Ask me for a live crypto price — for example 'what is the price of bitcoin' — or give me a trade to evaluate ('should i buy eth, entry 3000, stop 2800, target 3300, size 500, portfolio 25000'). " +
-          "I answer from real multi-venue market data, never from a guess.",
-        nlu.confidence,
-        [],
-      );
-    }
-
-    const fetcher = this.cryptoFetcher ?? defaultFetcher;
-    const cc = await crossCheckTicker(symbol, fetcher);
-
-    if (cc.venuesReporting.length === 0) {
-      const failures = cc.venuesUnavailable
-        .map((v) => `${v.venue}: ${v.reason}`)
-        .join("; ");
-      return this.compose(
-        `I could not get a live ${symbol} price — every venue I query reported unavailable or refused (${failures}). I will not fabricate a market price. Try again later.`,
-        nlu.confidence,
-        [],
-      );
-    }
-
-    const fmt = (n: number) =>
-      n.toLocaleString("en-US", { maximumFractionDigits: 2 });
-
-    if (!wantsTradeEval) {
-      // PRICE SNAPSHOT — consensus across the venues that
-      // really answered.
-      const withChange = cc.snapshots.find((x) => x.changePct24h !== null);
-      const parts = [
-        `${symbol} consensus $${fmt(cc.consensusPrice ?? 0)} across ${cc.venuesReporting.length} live venues (${cc.venuesReporting.join(", ")})`,
-      ];
-      if (cc.venuesUnavailable.length > 0) {
-        parts.push(
-          `${cc.venuesUnavailable.length} venue(s) unavailable, reported honestly (${cc.venuesUnavailable.map((v) => v.venue).join(", ")})`,
-        );
-      }
-      const ch = withChange?.changePct24h ?? null;
-      if (ch !== null) {
-        parts.push(
-          `24h change ${ch >= 0 ? "+" : ""}${ch.toFixed(2)}% (${withChange!.venue})`,
-        );
-      }
-      if (cc.maxDeviationPct !== null) {
-        parts.push(
-          `max cross-venue deviation ${cc.maxDeviationPct.toFixed(2)}%` +
-            (cc.anomaly
-              ? " — ANOMALY: venues disagree beyond the 1% threshold, treat this snapshot with suspicion"
-              : ""),
-        );
-      }
-      parts.push("observed live market data — not financial advice");
-      return this.compose(parts.join(". ") + ".", nlu.confidence, []);
-    }
-
-    // TRADE EVALUATION — the full evidence pipeline:
-    // cross-check + candle history + walk-forward-validated
-    // prediction + the 11-check gate. Missing parameters are
-    // asked for, never guessed.
-    const num = (re: RegExp): number | null => {
-      const m = re.exec(input);
-      if (!m) return null;
-      const v = parseFloat(m[1].replace(/,/g, ""));
-      return Number.isFinite(v) ? v : null;
-    };
-    const entry =
-      num(
-        /(?:entry|enter(?:ing)?|buy(?:ing)?|sell(?:ing)?|short(?:ing)?)\s+(?:at\s+)?\$?([\d,.]+)/i,
-      ) ?? cc.consensusPrice!; // market order: entry = live consensus (venues reported)
-    const stop = num(
-      /(?:stop(?:[-\s]?loss)?|invalidation)\s*[:=]?\s*\$?([\d,.]+)/i,
-    );
-    const target = num(/(?:target|take[-\s]?profit)\s*[:=]?\s*\$?([\d,.]+)/i);
-    const size = num(
-      /(?:position\s*)?(?:size|amount)\s*[:=]?\s*(?:of\s+)?\$?([\d,.]+)/i,
-    );
-    const portfolio = num(
-      /(?:portfolio|account)\s*(?:value|balance)?\s*[:=]?\s*(?:of\s+)?\$?([\d,.]+)/i,
-    );
-    if (
-      stop === null ||
-      target === null ||
-      size === null ||
-      portfolio === null
-    ) {
-      const missing = [
-        stop === null ? "stop-loss" : null,
-        target === null ? "take-profit target" : null,
-        size === null ? "position size" : null,
-        portfolio === null ? "portfolio value" : null,
-      ].filter(Boolean);
-      return this.compose(
-        `To evaluate a ${symbol} trade honestly I need the full plan — ${missing.join(", ")} — plus your direction. Example: "should i ${direction ?? "buy"} ${symbol.replace("-USD", "").toLowerCase()}, entry 3000, stop 2800, target 3300, size 500, portfolio 25000". I will not evaluate a trade with guessed parameters.`,
-        nlu.confidence,
-        [],
-      );
-    }
-
-    const INTERVAL = 60; // 60-minute candles
-    const HORIZON = 4; // 4-candle (4h) prediction horizon
-    const candlesRes = await fetchCandles(
-      "coinbase",
-      symbol,
-      INTERVAL,
-      400,
-      fetcher,
-    );
-    if (candlesRes.kind !== "ok") {
-      return this.compose(
-        `I have a live ${symbol} price, but the candle history I need for trade evidence is unavailable right now (${candlesRes.reason}) — I will not evaluate a trade without real evidence. Try again later.`,
-        nlu.confidence,
-        [],
-      );
-    }
-    const candles = candlesRes.data.candles;
-    const validation = walkForwardValidate(symbol, candles, INTERVAL, HORIZON);
-
-    // Honest data quality from the live series + cross-check.
-    const analysisAnomalies: string[] = [];
-    if (candles.length >= 2) {
-      const expectedSpan = (candles.length - 1) * INTERVAL * 60;
-      const actualSpan = candles[candles.length - 1].ts - candles[0].ts;
-      if (actualSpan < expectedSpan * 0.9) {
-        analysisAnomalies.push("gapped candle series");
-      }
-    }
-    const dataQuality: DataQuality = {
-      crossVenueAnomaly: cc.anomaly,
-      venuesReporting: cc.venuesReporting.length,
-      analysisAnomalies,
-      dataAgeMs:
-        candles.length > 0
-          ? Date.now() - candles[candles.length - 1].ts * 1000
-          : null,
-    };
-
-    const prediction = buildPrediction(
-      symbol,
-      direction,
-      candles,
-      INTERVAL,
-      HORIZON,
-      validation,
-      dataQuality,
-    );
-    if (!prediction) {
-      return this.compose(
-        `I could not build honest prediction evidence for ${symbol} from the live candle history — the series is too thin or too gapped for my feature extraction, and I will not evaluate a trade on insufficient data.`,
-        nlu.confidence,
-        [],
-      );
-    }
-
-    const request: TradeRequest = {
-      symbol,
-      direction,
-      entryPrice: entry,
-      stopPrice: stop,
-      targetPrice: target,
-      positionSizeQuote: size,
-      portfolioValueQuote: portfolio,
-    };
-    const decision = evaluateTradeGate(
-      request,
-      prediction,
-      this.tradingLimits,
-      Date.now(),
-    );
-    return this.compose(
-      renderGateDecision(decision) +
-        ` Calibrated probability for a ${direction} ${symbol.replace("-USD", "")} position: ${(prediction.calibratedProbability * 100).toFixed(1)}% ` +
-        `(60m candles, 4h horizon, walk-forward validated on ${validation.samples} samples, Brier ${validation.brier !== null ? validation.brier.toFixed(3) : "n/a"}). ` +
-        `This is a mechanical evaluation of YOUR trade parameters against real market evidence — not financial advice.`,
-      nlu.confidence,
-      [],
-    );
   }
 
   /** Phase 4.4 — fetch owner evolution-memory lessons
@@ -3648,8 +3406,24 @@ function retrieveFromSystemInstruction(
 /** Register the built-in domain skills. Construction ships by
  *  default (ARCHIE's home turf); future domains register here
  *  without touching the engine core. */
-function registerBuiltInDomainSkills(registry: DomainSkillRegistry): void {
+function registerBuiltInDomainSkills(
+  registry: DomainSkillRegistry,
+  options?: {
+    cryptoFetcher?: Fetcher | null;
+    tradingLimits?: TradingLimits;
+  },
+): void {
   registry.register(constructionSkill);
+  // Audit L-1 fix (2026-09-13): crypto intelligence is a
+  // pluggable skill, exactly like construction — the core
+  // engine stays domain-neutral. The injected fetcher and
+  // owner trading limits flow through from engine options.
+  registry.register(
+    createCryptoSkill({
+      fetcher: options?.cryptoFetcher ?? null,
+      tradingLimits: options?.tradingLimits ?? DEFAULT_TRADING_LIMITS,
+    }),
+  );
 }
 
 // ---------------------------------------------------------
