@@ -26,6 +26,7 @@ import {
 } from "@studio-shared/archie-ai/cognitive/kernel.ts";
 import { LOOP_PHASES } from "@studio-shared/archie-ai/cognitive/types.ts";
 import type { SupabaseLike } from "@studio-shared/archie-ai/native-engine/persistence.ts";
+import type { FactStore } from "@studio-shared/archie-ai/native-engine/knowledge.ts";
 import type { ArchieInferenceTurn } from "@studio-shared/archie-ai/runtime.ts";
 
 const root = join(import.meta.dirname ?? process.cwd(), "../../../../");
