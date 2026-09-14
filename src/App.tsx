@@ -123,6 +123,7 @@ const ArchieSystem = lazy(() => import("@/pages/archie/ArchieSystem"));
 const ArchieAnatomyView = lazy(
   () => import("@/pages/archie/ArchieAnatomyView"),
 );
+const ArchieEngines = lazy(() => import("@/pages/archie/ArchieEngines"));
 const ArchieMigration = lazy(() => import("@/pages/archie/ArchieMigration"));
 const ArchieTraining = lazy(() => import("@/pages/archie/ArchieTraining"));
 const ArchieEvolution = lazy(() => import("@/pages/archie/ArchieEvolution"));
@@ -1064,6 +1065,7 @@ export default function App() {
                     <Route path="security" element={<ArchieSecurity />} />
                     <Route path="system" element={<ArchieSystem />} />
                     <Route path="anatomy" element={<ArchieAnatomyView />} />
+                    <Route path="engines" element={<ArchieEngines />} />
                     <Route path="migration" element={<ArchieMigration />} />
                     <Route path="training" element={<ArchieTraining />} />
                     <Route path="evolution" element={<ArchieEvolution />} />

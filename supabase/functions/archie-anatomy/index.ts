@@ -43,7 +43,7 @@ const service = createClient(SUPABASE_URL, SERVICE_ROLE);
 const api = createClient(SUPABASE_URL, ANON_KEY);
 
 const CORS = {
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey",
 };
 
@@ -65,7 +65,10 @@ serveWithCors(async (req: Request) => {
   if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
 
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
-  if (req.method !== "GET") return json(405, { error: "Method not allowed" });
+  // Fix 2026-09-14: the PWA invokes via supabase.functions.invoke which sends POST;
+  // accept both so the Anatomy probe never 405s on its own client.
+  if (req.method !== "GET" && req.method !== "POST")
+    return json(405, { error: "Method not allowed" });
 
   // ---- Owner gate: JWT + admin profile ----
   const auth = req.headers.get("Authorization") ?? "";

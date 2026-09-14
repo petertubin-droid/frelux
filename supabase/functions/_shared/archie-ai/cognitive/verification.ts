@@ -75,11 +75,17 @@ export class VerificationEngine {
     // 2. CONSISTENCY — contradiction scan over a scratch
     //    copy of the store built from the cited facts.
     const scratch = new FactStore();
+    // Scan-only inserts: the verifier DETECTS conflicts between
+    // cited facts; it must never arbitrate owner authority (the
+    // regular async assert would demote the first cited fact
+    // under the 2026-09-14 owner-authority learning rule before
+    // the contradiction scan could see it — regression fix).
     for (const f of req.citedFacts) {
-      void scratch.assert({
+      scratch.assertForScan({
         subject: f.subject,
         predicate: f.predicate,
         object: f.object,
+        qualifiers: f.qualifiers,
         confidence: f.confidence,
         provenance: f.provenance,
         status: f.status,

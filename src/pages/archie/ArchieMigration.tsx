@@ -493,16 +493,19 @@ export default function ArchieMigration() {
           <Stat label="FRELUX version" value={appVersion} />
           <Stat label="Environment" value={environmentLabel} />
           <Stat
-            label="Memory (conversations / knowledge)"
+            label="Memory contents (conversations / knowledge items)"
             value={`${sizes.conversations ?? "?"} / ${sizes.knowledge ?? "?"}`}
+            hint="Live row counts — grows without limit. Not a quota."
           />
           <Stat
             label="Language memory (profiles / entries)"
             value={`${sizes.languageProfiles ?? "?"} / ${sizes.languageEntries ?? "?"}`}
+            hint="Live row counts — no cap."
           />
           <Stat
             label="Evolution (changes / lessons)"
             value={`${sizes.evolutionChanges ?? "?"} / ${sizes.evolutionLessons ?? "?"}`}
+            hint="Live row counts — no cap."
           />
           <Stat
             label="Last backup"
@@ -797,13 +800,24 @@ export default function ArchieMigration() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+function Stat({
+  label,
+  value,
+  hint,
+}: {
+  label: string;
+  value: string;
+  hint?: string;
+}) {
   return (
     <div className="rounded-lg archie-panel p-3">
       <p className="text-[10px] uppercase tracking-wide text-slate-500">
         {label}
       </p>
       <p className="mt-1 truncate text-sm text-slate-100">{value}</p>
+      {hint ? (
+        <p className="mt-1 text-[10px] leading-snug text-slate-500">{hint}</p>
+      ) : null}
     </div>
   );
 }

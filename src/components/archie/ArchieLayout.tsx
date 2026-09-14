@@ -44,6 +44,7 @@ const NAV: NavItem[] = [
   // System
   { to: "/archie/system", label: "System", icon: "system" },
   { to: "/archie/anatomy", label: "Anatomy", icon: "system" },
+  { to: "/archie/engines", label: "Engines", icon: "system" },
   { to: "/archie/security", label: "Security", icon: "security" },
   { to: "/archie/ops", label: "Ops", icon: "control" },
   { to: "/archie/migration", label: "Migration", icon: "migration" },

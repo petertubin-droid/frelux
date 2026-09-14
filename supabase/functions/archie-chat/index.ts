@@ -95,10 +95,38 @@ import {
   configureNativeEngineLessonLookup,
   type MarketPriceResult,
 } from "../_shared/archie-ai/native-engine/engine.ts";
+import {
+  configureNativeEngineCapabilityGate,
+  disabledCapabilityIds,
+} from "../_shared/archie-ai/native-engine/capability-gate.ts";
 import type { RecordedLesson } from "../_shared/archie-ai/native-engine/lessons.ts";
 configureNativeEnginePersistence(
   db as unknown as import("../_shared/archie-ai/native-engine/persistence.ts").SupabaseLike,
 );
+
+// ---------------------------------------------------------
+// ENGINES PANEL GATE (owner directive 2026-09-14): the
+// owner's activation states live in archie_engine_states.
+// The engine consults the gate at its real dispatch points
+// (research, planning, code analysis, price lookup, system
+// adapters, construction calculators, tools). Refreshed
+// with a short TTL so a toggle on the Engines page lands
+// within seconds without a redeploy. Honest refusals only
+// — never a faked engine result.
+// ---------------------------------------------------------
+let engineGateLoadedAt = 0;
+async function refreshEngineGate(): Promise<void> {
+  const now = Date.now();
+  if (now - engineGateLoadedAt < 15_000) return; // TTL 15s
+  engineGateLoadedAt = now;
+  const { data: states } = await db
+    .from("archie_engine_states")
+    .select("capability_id, enabled")
+    .eq("enabled", false);
+  configureNativeEngineCapabilityGate(
+    (states ?? []).map((r: { capability_id: string }) => r.capability_id),
+  );
+}
 
 // ---------------------------------------------------------
 // ARCHIE market intelligence adapter (REAL): price lookups
@@ -368,6 +396,10 @@ interface ChatRequest {
    *  application wants to use ("chat" | "status"). Each maps
    *  to a required scope enforced at authentication. */
   capability?: string;
+  /** Scopes the engine session (working memory, episodic
+   *  stamps, tool surface) per conversation — isolated even
+   *  when concurrent requests share one isolate. */
+  conversationId?: string;
 }
 
 interface ToolRun {
@@ -514,8 +546,7 @@ const TOOLS: ToolDef[] = [
       if (rows.length === 0) {
         return {
           found: false,
-          note:
-            "Not in the vocabulary registry. Say so honestly; offer to research it or ask the owner to teach it.",
+          note: "Not in the vocabulary registry. Say so honestly; offer to research it or ask the owner to teach it.",
         };
       }
       return {
@@ -1585,6 +1616,10 @@ Rules you MUST follow:
 serveWithCors(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
 
+  // ENGINES PANEL GATE: refresh the owner's activation states
+  // (TTL-guarded — at most one tiny query per 15s per isolate).
+  await refreshEngineGate();
+
   // 1. Authenticate — Owner (admin) gets FULL ARCHIE. Authenticated
   //    non-admins and anonymous site visitors get the role-scoped
   //    PUBLIC visitor mode (site guidance only). Visitor mode never
@@ -2028,7 +2063,7 @@ serveWithCors(async (req) => {
     const { data: consent } = await db
       .from("archie_privacy_consents")
       .select("granted, revoked_at")
-      .eq("user_id", activeOwnerUserId ?? user.id)
+      .eq("user_id", activeOwnerUserId ?? user?.id ?? "")
       .eq("consent_key", "personalization_memory")
       .maybeSingle();
     const revoked = consent

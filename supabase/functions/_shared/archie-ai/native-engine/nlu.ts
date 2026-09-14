@@ -1582,6 +1582,18 @@ const RULE_CASCADE: Array<{
   // generalize through Bayes, which owns context.
   // -------------------------------------------------------
   {
+    // DISTRESS FIRST (owner directive 2026-09-14): emotional
+    // state trumps a greeting token — "hey, I've had a rough
+    // week" is a person telling you something real, not a
+    // hello. The composer's empathy branches answer it; the
+    // greeting path would ignore it. Runs before the greeting
+    // rule so it wins the cascade.
+    intent: "emotional_expression",
+    pattern:
+      /\b(?:rough|tough|hard|bad|terrible|awful|horrible)\s+(?:week|day|time|month|patch|night|morning)|\b(?:stressed|stressful|exhausted|drained|overwhelmed|burnt?[- ]out|struggling|anxious|fed\s+up|had\s+enough)\b|\bfeeling\s+(?:down|low|blue|sad|terrible|awful|rough|off)\b|\bcan'?t\s+(?:cope|take|do)\s+(?:this|it|anymore)\b|\bneed\s+to\s+vent\b|\bnot\s+(?:doing\s+)?(?:okay|ok|alright|fine)\b/i,
+    confidence: 0.9,
+  },
+  {
     // Pure greetings: bare forms and common Nigerian /
     // international openers. Longer greetings generalize
     // through Bayes.

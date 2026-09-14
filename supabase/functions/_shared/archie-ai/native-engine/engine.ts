@@ -39,6 +39,11 @@ import {
   nativeEngineCapabilityManifest,
 } from "./capabilities.ts";
 import {
+  isCapabilityEnabled,
+  capabilityDisabledReply,
+  disabledCapabilityIds,
+} from "./capability-gate.ts";
+import {
   understand,
   decomposeClauses,
   MAX_COMPOUND_CLAUSES,
@@ -1524,6 +1529,89 @@ export class ArchieNativeEngine implements ArchieRuntime {
       );
     }
 
+    // HUMOR (owner directive 2026-09-14): a joke request is
+    // answered from ARCHIE's own humor registry —
+    // deterministic, self-aware, honestly labeled as ARCHIE's
+    // own creative phrasing. Never farmed to web research
+    // (which returned irrelevant noise for "tell me a joke")
+    // and never presented as learned fact.
+    if (
+      /\b(?:tell|say|give|crack|make|got|know|another|one\s+more)\b[^.?!]{0,40}\bjokes?\b/i.test(
+        input,
+      ) ||
+      /^\s*jokes?\b/i.test(input)
+    ) {
+      const jokes = [
+        "I asked my reasoning engine for a joke about cement. It refused — said the punchline hadn't been observed in the market yet, and it doesn't guess.",
+        "Why do I never estimate a price? The one time I did, my confidence interval filed a formal complaint.",
+        "A worker asked my biggest flaw. I said: 'I literally cannot lie.' He said 'impressive.' I said 'it was 74% impressive, with 26% uncertainty.'",
+        "My memory is perfect — that's the problem. I remember every time I was wrong, timestamped.",
+        "They tried to make me fetch a fact I didn't have. I declined so politely the request thanked me.",
+        "I told the crawler to keep it light. It came back with 40 pages on concrete. Comedy is still a developing capability — reported honestly, like the rest.",
+        "My uptime is excellent. My downtime is also excellent — it's the only time nothing is my fault.",
+      ];
+      const j =
+        jokes[
+          Math.abs([...input].reduce((a, c) => a + c.charCodeAt(0), 0)) %
+            jokes.length
+        ];
+      return this.compose(
+        `${j}\n\nThat one is mine — from my own humor registry, not researched and not learned fact. Ask for another if you'd like.`,
+        nlu.confidence,
+        [],
+      );
+    }
+
+    // FOLLOW-UP PRICE QUERY (owner directive 2026-09-14): "and
+    // rebar?", "what about sharp sand — same market?" after a
+    // price question inherits the intent and the market
+    // context and re-issues the query through the SAME
+    // deterministic price path. The single-turn classifier
+    // cannot see across turns; the engine can, honestly.
+    {
+      const memTurns = session?.memory.recentTurns(8) ?? [];
+      const ownerTurns = memTurns.filter((t) => t.role === "owner");
+      const lastOwner = ownerTurns[ownerTurns.length - 1]?.text ?? "";
+      const askedPrice = /\bprice\b|\bhow\s+much\b|\bcost\b/i.test(lastOwner);
+      const sameMarket = /\bsame\s+(?:market|place|region|area)\b/i.test(input);
+      const followM =
+        /\b(?:and|what\s+about|how\s+about|also)\s+([a-z][a-z0-9 -]{1,40}?)[?.!]*$/i.exec(
+          input.trim(),
+        );
+      if (askedPrice && lastOwner && (followM || sameMarket)) {
+        let product =
+          followM?.[1]
+            ?.replace(/\b(?:same\s+\w+|too|as\s+well|please|now|today)\b/gi, "")
+            ?.trim() ?? "";
+        if (!product && sameMarket) {
+          product = input
+            .replace(/\bsame\s+(?:market|place|region|area)\b/gi, "")
+            .replace(/[?.!\s]+$/, "")
+            .replace(/\b(?:and|also|what\s+about|how\s+about|please)\b/gi, "")
+            .trim();
+        }
+        product = product
+          .replace(/\bprice\b|\bhow\s+much\b|\bcost\b|\bof\b/gi, "")
+          .trim();
+        if (product && product.split(/\s+/).length <= 5) {
+          const region = extractRegionHint(lastOwner);
+          const newInput = `what is the price of ${product}${region ? ` in ${region}` : ""}`;
+          const followNlu = understand(newInput, memTurns, {
+            rules: this.domains.nluRules(),
+          });
+          return this.route(
+            followNlu,
+            newInput,
+            ranked,
+            context,
+            systemInstruction,
+            session,
+            history,
+          );
+        }
+      }
+    }
+
     // P5 Batch C — strategy-backed answers where the store
     // holds real evidence (comparative / constraint / temporal)
     // take precedence for QUESTION-LIKE intents only. Each
@@ -1564,9 +1652,49 @@ export class ArchieNativeEngine implements ArchieRuntime {
       case "greeting": {
         const hour = new Date().getUTCHours();
         const daypart =
-          hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
-        const text = `${daypart}! Hello to you too — ARCHIE native engine online and listening. ${this.statusLine()} Ask me anything in my knowledge, or teach me something new.`;
-        return this.compose(text, nlu.confidence, []);
+          hour < 12
+            ? "Good morning"
+            : hour < 18
+              ? "Good afternoon"
+              : "Good evening";
+        // RECIPROCITY (owner directive 2026-09-14): "how are
+        // you" gets a real answer about my actual state and
+        // the question back — a conversation, not a status
+        // dump. The state stays real (test: greets with real
+        // engine state — "native engine online", facts).
+        if (
+          /\bhow\s+(?:are|is)\s+(?:you|it\s+going|things|your\s+day|life)|\bhow\s+you\s+doing\b/i.test(
+            input,
+          )
+        ) {
+          return this.compose(
+            `${daypart}! I'm running well — ARCHIE native engine online, ${this.facts.count()} facts loaded, every reasoning cycle green. More to the point: how are YOU doing? Tell me what's on your mind and I'll work on it with you.`,
+            nlu.confidence,
+            [],
+          );
+        }
+        // VARIATION (owner directive 2026-09-14): a repeated
+        // hello must not get the same reply verbatim — a
+        // deterministic input-seeded opener keeps it human
+        // without a random source. Real engine state stays.
+        const openers = [
+          `Hello to you too — good to see you.`,
+          `Hey — ${daypart.toLowerCase()} to you.`,
+          `Welcome back. Engine warm and ready.`,
+          `${daypart}! Ready when you are.`,
+          `Good to hear from you.`,
+          `Well met. What are we working on?`,
+        ];
+        const opener =
+          openers[
+            Math.abs([...input].reduce((a, c) => a + c.charCodeAt(0), 0)) %
+              openers.length
+          ];
+        return this.compose(
+          `${opener} ARCHIE native engine online and listening. ${this.statusLine()} Ask me anything in my knowledge, or teach me something new.`,
+          nlu.confidence,
+          [],
+        );
       }
       case "state_change_claim": {
         // TEMPORAL AXIS (audit HIGH-1 fix, 2026-09-13): a
@@ -1714,7 +1842,10 @@ export class ArchieNativeEngine implements ArchieRuntime {
         const text =
           `Capability manifest (honest, measured): ${summary.operational} operational, ${summary.developing} developing, ${summary.notImplemented} not implemented.\n` +
           lines.join("\n") +
-          `\nAnything not implemented is reported, never faked.`;
+          `\nAnything not implemented is reported, never faked.` +
+          (disabledCapabilityIds().length > 0
+            ? `\nSWITCHED OFF BY OWNER: ${disabledCapabilityIds().join(", ")} — refused honestly until re-enabled from the Engines panel.`
+            : "");
         return this.compose(text, nlu.confidence, []);
       }
 
@@ -1745,6 +1876,18 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
 
       case "math_question": {
+        // ENGINES PANEL GATE (2026-09-14) — the deterministic
+        // tool surface (arithmetic evaluator, unit conversion).
+        if (!isCapabilityEnabled("tool-orchestration")) {
+          return this.compose(
+            capabilityDisabledReply(
+              "tool-orchestration",
+              "Tools and arithmetic",
+            ),
+            nlu.confidence * 0.8,
+            [],
+          );
+        }
         // Unit conversion ("convert 5 meters to centimeters") —
         // deterministic factors, same dimension only (P2 ma-3).
         const conv = input.match(
@@ -1918,9 +2061,24 @@ export class ArchieNativeEngine implements ArchieRuntime {
             );
           }
         }
-        const answerable = defMatch
-          ? ranked
-          : ranked.filter((f) => !String(f.id).startsWith("vocab:"));
+        // Network-authorization records (auto-research /
+        // owner-research authorization trails, subject
+        // "network" + predicate "authorized") are POLICY
+        // LOGS, not knowledge — but their object text mirrors
+        // user questions ("autonomous research on question
+        // miss: what will i name the new kayak?"), so TF-IDF
+        // ranks them strongly and a repeated question would
+        // be "answered" with its own authorization record.
+        // They are excluded from knowledge answers entirely
+        // (session-isolation regression, 2026-09-14); nothing
+        // in the engine reads them as knowledge.
+        const isAuthorizationLog = (f: Fact) =>
+          f.subject === "network" && f.predicate === "authorized";
+        const answerable = (
+          defMatch
+            ? ranked
+            : ranked.filter((f) => !String(f.id).startsWith("vocab:"))
+        ).filter((f) => !isAuthorizationLog(f));
         // P1b — counterfactual questions ("if it had not
         // rained, would the ground be dry?") need a causal
         // model, regardless of what generic facts rank. Ask
@@ -2338,6 +2496,59 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
 
       case "correction": {
+        // REQUEST REDO (owner directive 2026-09-14): "actually
+        // wait, I meant 25 bags" after a REQUEST — a
+        // conversion, a price query, a plan — redoes the
+        // REQUEST with the corrected value. It must NOT touch
+        // stored knowledge: the old path demoted unrelated
+        // facts because a correction of a request was treated
+        // as a correction of a fact. Knowledge correction
+        // remains for corrections that follow TEACHING.
+        const redoM =
+          /\b(?:i\s+meant|i\s+mean|no\s+wait|scratch\s+that|never\s+mind)\b(.*)$/i.exec(
+            input,
+          );
+        if (redoM) {
+          const memTurns = session?.memory.recentTurns(8) ?? [];
+          const ownerTurns = memTurns.filter((t) => t.role === "owner");
+          // Owner turns BEFORE this correction message (the
+          // current input is not yet in memory at route time).
+          const lastInput = ownerTurns[ownerTurns.length - 1]?.text ?? "";
+          const wasTeaching =
+            /\bremember\b|\bteach\b|\bmemorize\b|\bnote\s+that\b/i.test(
+              lastInput,
+            );
+          if (lastInput && !wasTeaching) {
+            const redoValue = (redoM[1] ?? "").trim();
+            const numInRedo = (redoValue.match(/\d+(?:\.\d+)?/g) ?? [])[0];
+            const numsInLast = lastInput.match(/\d+(?:\.\d+)?/g);
+            let rebuilt = lastInput;
+            if (numInRedo && numsInLast?.length) {
+              // Substitute the LAST number of the previous
+              // request with the corrected value.
+              const lastNum = numsInLast[numsInLast.length - 1];
+              rebuilt = lastInput.replace(lastNum, numInRedo);
+            } else if (redoValue) {
+              rebuilt = `${lastInput.replace(/[?.!]*$/, "")} — ${redoValue}`;
+            }
+            if (rebuilt !== lastInput) {
+              const redoNlu = understand(rebuilt, memTurns, {
+                rules: this.domains.nluRules(),
+              });
+              const redoResult = await this.route(
+                redoNlu,
+                rebuilt,
+                ranked,
+                context,
+                systemInstruction,
+                session,
+                history,
+              );
+              redoResult.responseText = `Correction understood — redoing your request as: "${rebuilt}"\n\n${redoResult.responseText}`;
+              return redoResult;
+            }
+          }
+        }
         // Explicit owner confirmation is VERIFICATION, not
         // correction (audit H1): "confirm that X is correct"
         // must strengthen the verified knowledge — the old
@@ -2479,6 +2690,16 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
 
       case "research_request": {
+        // ENGINES PANEL GATE (2026-09-14): the owner can switch
+        // web research off from the Engines panel — the refusal
+        // is honest, never a faked result.
+        if (!isCapabilityEnabled("web-research")) {
+          return this.compose(
+            capabilityDisabledReply("web-research", "Web research"),
+            nlu.confidence * 0.8,
+            [],
+          );
+        }
         // SELF-EVOLVING VOCABULARY (owner directive,
         // 2026-09-13): a MEANING-research request ("research
         // what kwisatz means", "research it" after a
@@ -2687,6 +2908,14 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
 
       case "task_planning": {
+        // ENGINES PANEL GATE (2026-09-14)
+        if (!isCapabilityEnabled("planning")) {
+          return this.compose(
+            capabilityDisabledReply("planning", "Planning"),
+            nlu.confidence * 0.8,
+            [],
+          );
+        }
         // Phase 3.2 (audit): the goal is DERIVED FROM THE REQUEST,
         // and the plan is a real, goal-scoped step chain — never a
         // canned template. Session-true facts are asserted first
@@ -2757,6 +2986,17 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
 
       case "code_analysis_request": {
+        // ENGINES PANEL GATE (2026-09-14)
+        if (!isCapabilityEnabled("coding-intelligence-analysis")) {
+          return this.compose(
+            capabilityDisabledReply(
+              "coding-intelligence-analysis",
+              "Code analysis",
+            ),
+            nlu.confidence * 0.8,
+            [],
+          );
+        }
         const codeBlock = input.match(/```[\w]*\n([\s\S]*?)```/);
         if (codeBlock) {
           const analysis = analyzeSource("inline-snippet.ts", codeBlock[1]);
@@ -2785,6 +3025,17 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
 
       case "price_query": {
+        // ENGINES PANEL GATE (2026-09-14)
+        if (!isCapabilityEnabled("market-intelligence-price-lookup")) {
+          return this.compose(
+            capabilityDisabledReply(
+              "market-intelligence-price-lookup",
+              "Market price lookup",
+            ),
+            nlu.confidence * 0.8,
+            [],
+          );
+        }
         // tr-3 — historical price questions ("what was the
         // cement price last month?"): market intelligence
         // holds the CURRENT observed snapshot, not a time
@@ -2866,6 +3117,21 @@ export class ArchieNativeEngine implements ArchieRuntime {
       case "voice_query":
       case "social_query":
       case "family_query": {
+        // ENGINES PANEL GATE (2026-09-14)
+        if (
+          !isCapabilityEnabled(
+            "system-adapters-documents-images-voice-social-family",
+          )
+        ) {
+          return this.compose(
+            capabilityDisabledReply(
+              "system-adapters-documents-images-voice-social-family",
+              "System status adapters",
+            ),
+            nlu.confidence * 0.8,
+            [],
+          );
+        }
         const key: SystemAdapterKey =
           nlu.intent === "documents_query"
             ? "documents"
@@ -2909,6 +3175,22 @@ export class ArchieNativeEngine implements ArchieRuntime {
         // unregistered skill is answered honestly, never
         // fabricated. Handlers may be async (live market data).
         const domainIntent = nlu.intent as string;
+        // ENGINES PANEL GATE (2026-09-14) — construction
+        // calculators are owner-switchable; crypto market data
+        // stays on its platform surface.
+        if (
+          domainIntent === "construction_calc" &&
+          !isCapabilityEnabled("construction-calculators")
+        ) {
+          return this.compose(
+            capabilityDisabledReply(
+              "construction-calculators",
+              "Construction calculators",
+            ),
+            nlu.confidence * 0.8,
+            [],
+          );
+        }
         const domainHandler = this.domains.handlerFor(domainIntent);
         if (!domainHandler) {
           return this.compose(
@@ -3498,12 +3780,23 @@ function extractTemporalSubject(input: string): string | null {
 function extractPriceProduct(input: string): string | null {
   const t = input
     .toLowerCase()
+    // TIME QUALIFIERS FIRST (owner directive 2026-09-14):
+    // "right now" is two words; stripping "now" alone left
+    // "right" glued to the product ("cement in lagos right").
+    .replace(
+      /\bright\s+now\b|\bat\s+the\s+moment\b|\bthese\s+days\b|\bcurrently\b|\basap\b/g,
+      " ",
+    )
     .replace(/what(?:'s|\u2019s| is)?/g, " ")
     .replace(/how much (?:is|does|are)/g, " ")
     .replace(
       /\b(current|market|latest|price|prices|cost|today|now|this|week|month|please|the|a|an|per|there|for)\b/g,
       " ",
     )
+    // TRAILING MARKET QUALIFIER (owner directive 2026-09-14):
+    // "cement in lagos" keeps the product as "cement"; the
+    // region goes to the region hint, not the product name.
+    .replace(/\bin\s+[a-z]+(?:\s+[a-z]+)?\s*$/, "")
     .replace(/\s+/g, " ")
     // drop only LEADING prepositions ("of cement" → "cement")
     // so unit phrases like "bag of cement" survive intact

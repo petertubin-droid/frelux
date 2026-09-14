@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { readdirSync } from "node:fs";
 import {
   understand,
   extractEntities,
@@ -655,10 +656,29 @@ describe("Capability manifest", () => {
   });
 
   it("claims OPERATIONAL only with a measuredBy — and discloses NOT_IMPLEMENTED honestly", () => {
+    // HONEST GATE STRENGTHENED (owner directive 2026-09-14):
+    // the old proxy ("measuredBy contains 'native-engine'")
+    // predates the platform deepenings — trading, security,
+    // voice, whatsapp and recovery capabilities are measured
+    // by their OWN suites in this directory, which are
+    // native-engine/platform tests importing the ARCHIE
+    // codebase. The real honesty contract is stronger: every
+    // OPERATIONAL claim must name at least one REAL test file
+    // that exists in this suite. A measuredBy naming a file
+    // that does not exist fails here — no unmeasured
+    // OPERATIONAL claims can ship.
+    const testDir = `${process.cwd()}/src/lib/archie/__tests__`;
+    const existing = new Set(
+      readdirSync(testDir).filter((f) => f.endsWith(".test.ts")),
+    );
     for (const capability of nativeEngineCapabilityManifest()) {
       expect(capability.measuredBy.length).toBeGreaterThan(0);
       if (capability.maturity === "OPERATIONAL") {
-        expect(capability.measuredBy).toContain("native-engine");
+        const named = capability.measuredBy.match(/[\w.-]+\.test\.ts/g);
+        expect(named?.length ?? 0).toBeGreaterThan(0);
+        for (const f of named ?? []) {
+          expect(existing.has(f)).toBe(true);
+        }
       }
     }
     const notImplemented = nativeEngineCapabilityManifest().filter(

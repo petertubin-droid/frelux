@@ -589,7 +589,22 @@ export const CONVERSATION_CORPUS: Array<[Intent, string[]]> = [
     "emotional_expression",
     [
       // excitement, happiness, sadness, frustration,
-      // confusion, surprise, tiredness
+      // confusion, surprise, tiredness — and DISTRESS
+      // (owner directive 2026-09-14): a rough-week message
+      // is an emotional disclosure even with a greeting word
+      // in front of it.
+      "i have had a rough week",
+      "ive had a rough week honestly",
+      "rough day today",
+      "it has been a tough week",
+      "i am so stressed right now",
+      "im exhausted lately",
+      "feeling really down today",
+      "i am struggling with everything",
+      "i am overwhelmed with work",
+      "i am burnt out",
+      "i need to vent",
+      "i am not okay",
       "i am excited",
       "i am so excited",
       "im excited about today",
@@ -613,7 +628,11 @@ export const CONVERSATION_CORPUS: Array<[Intent, string[]]> = [
       "i am in a good mood",
       "life is good",
       "im delighted",
-      "i am over the moon",
+      // "over the moon" is covered by the deterministic rule
+      // cascade (see nlu.ts emotional_expression rule); as a
+      // Bayes example it poisoned the "moon" token and
+      // misrouted astronomy/generic "moons" sentences to
+      // emotional_expression (held-out regression, 2026-09-14).
       "this made my day 😊",
       "i am sad",
       "im feeling down",
@@ -949,62 +968,246 @@ export interface HeldOutExample {
 
 export const CONVERSATION_HELD_OUT: HeldOutExample[] = [
   // --- paraphrases: greetings and social entry ---
-  { input: "well met, archie", expect: "ANY:greeting|availability_check", type: "paraphrase" },
+  {
+    input: "well met, archie",
+    expect: "ANY:greeting|availability_check",
+    type: "paraphrase",
+  },
   { input: "salutations my friend", expect: "greeting", type: "paraphrase" },
-  { input: "hey, how is the family of systems treating you", expect: "ANY:greeting|system_status", type: "paraphrase" },
-  { input: "wishing you a pleasant morning", expect: "greeting", type: "paraphrase" },
-  { input: "sorry to disturb, are you around", expect: "availability_check", type: "paraphrase" },
-  { input: "it is a beautiful evening, hello archie", expect: "ANY:greeting|social_talk", type: "paraphrase" },
+  {
+    input: "hey, how is the family of systems treating you",
+    expect: "ANY:greeting|system_status",
+    type: "paraphrase",
+  },
+  {
+    input: "wishing you a pleasant morning",
+    expect: "greeting",
+    type: "paraphrase",
+  },
+  {
+    input: "sorry to disturb, are you around",
+    expect: "availability_check",
+    type: "paraphrase",
+  },
+  {
+    input: "it is a beautiful evening, hello archie",
+    expect: "ANY:greeting|social_talk",
+    type: "paraphrase",
+  },
   // --- paraphrases: parting ---
-  { input: "i must be going now, farewell", expect: "farewell", type: "paraphrase" },
-  { input: "time to retire for the night, good night", expect: "farewell", type: "paraphrase" },
+  {
+    input: "i must be going now, farewell",
+    expect: "farewell",
+    type: "paraphrase",
+  },
+  {
+    input: "time to retire for the night, good night",
+    expect: "farewell",
+    type: "paraphrase",
+  },
   { input: "until tomorrow then", expect: "farewell", type: "paraphrase" },
-  { input: "i wish you a pleasant rest of your day", expect: "farewell", type: "paraphrase" },
+  {
+    input: "i wish you a pleasant rest of your day",
+    expect: "farewell",
+    type: "paraphrase",
+  },
   // --- paraphrases: gratitude and praise ---
-  { input: "you have my sincere gratitude", expect: "gratitude", type: "paraphrase" },
-  { input: "archie, that was a fine piece of work", expect: "gratitude", type: "paraphrase" },
-  { input: "i do not take your help for granted", expect: "ANY:gratitude|help_request", type: "paraphrase" },
-  { input: "well and truly appreciated", expect: "gratitude", type: "paraphrase" },
-  { input: "you continue to impress me", expect: "gratitude", type: "paraphrase" },
+  {
+    input: "you have my sincere gratitude",
+    expect: "gratitude",
+    type: "paraphrase",
+  },
+  {
+    input: "archie, that was a fine piece of work",
+    expect: "gratitude",
+    type: "paraphrase",
+  },
+  {
+    input: "i do not take your help for granted",
+    expect: "ANY:gratitude|help_request",
+    type: "paraphrase",
+  },
+  {
+    input: "well and truly appreciated",
+    expect: "gratitude",
+    type: "paraphrase",
+  },
+  {
+    input: "you continue to impress me",
+    expect: "gratitude",
+    type: "paraphrase",
+  },
   // --- paraphrases: help, apology, clarification ---
-  { input: "i require assistance with a matter", expect: "help_request", type: "paraphrase" },
-  { input: "would you mind giving me a hand with something", expect: "help_request", type: "paraphrase" },
-  { input: "do accept my sincere apologies", expect: "apology", type: "paraphrase" },
-  { input: "i owe you an apology for that", expect: "apology", type: "paraphrase" },
-  { input: "could you go over that once more", expect: "clarification_request", type: "paraphrase" },
-  { input: "i am afraid i did not follow that", expect: "clarification_request", type: "paraphrase" },
-  { input: "what exactly are you getting at", expect: "clarification_request", type: "paraphrase" },
+  {
+    input: "i require assistance with a matter",
+    expect: "help_request",
+    type: "paraphrase",
+  },
+  {
+    input: "would you mind giving me a hand with something",
+    expect: "help_request",
+    type: "paraphrase",
+  },
+  {
+    input: "do accept my sincere apologies",
+    expect: "apology",
+    type: "paraphrase",
+  },
+  {
+    input: "i owe you an apology for that",
+    expect: "apology",
+    type: "paraphrase",
+  },
+  {
+    input: "could you go over that once more",
+    expect: "clarification_request",
+    type: "paraphrase",
+  },
+  {
+    input: "i am afraid i did not follow that",
+    expect: "clarification_request",
+    type: "paraphrase",
+  },
+  {
+    input: "what exactly are you getting at",
+    expect: "clarification_request",
+    type: "paraphrase",
+  },
   // --- paraphrases: agreement and disagreement ---
-  { input: "that settles it, i am with you", expect: "agreement", type: "paraphrase" },
-  { input: "on that point we are in accord", expect: "agreement", type: "paraphrase" },
-  { input: "i cannot bring myself to agree", expect: "disagreement", type: "paraphrase" },
-  { input: "with respect, i hold a different view", expect: "disagreement", type: "paraphrase" },
-  { input: "that position is hard for me to accept", expect: "disagreement", type: "paraphrase" },
+  {
+    input: "that settles it, i am with you",
+    expect: "agreement",
+    type: "paraphrase",
+  },
+  {
+    input: "on that point we are in accord",
+    expect: "agreement",
+    type: "paraphrase",
+  },
+  {
+    input: "i cannot bring myself to agree",
+    expect: "disagreement",
+    type: "paraphrase",
+  },
+  {
+    input: "with respect, i hold a different view",
+    expect: "disagreement",
+    type: "paraphrase",
+  },
+  {
+    input: "that position is hard for me to accept",
+    expect: "disagreement",
+    type: "paraphrase",
+  },
   // --- paraphrases: emotions ---
-  { input: "my heart is full of joy today", expect: "emotional_expression", type: "paraphrase" },
-  { input: "i am on top of the world", expect: "emotional_expression", type: "paraphrase" },
-  { input: "today drained every bit of my energy", expect: "emotional_expression", type: "paraphrase" },
-  { input: "i feel like the walls are closing in", expect: "emotional_expression", type: "paraphrase" },
-  { input: "this whole thing has me wound up", expect: "emotional_expression", type: "paraphrase" },
-  { input: "i never expected this at all", expect: "emotional_expression", type: "paraphrase" },
-  { input: "words cannot describe how i feel right now", expect: "emotional_expression", type: "paraphrase" },
+  {
+    input: "my heart is full of joy today",
+    expect: "emotional_expression",
+    type: "paraphrase",
+  },
+  {
+    input: "i am on top of the world",
+    expect: "emotional_expression",
+    type: "paraphrase",
+  },
+  {
+    input: "today drained every bit of my energy",
+    expect: "emotional_expression",
+    type: "paraphrase",
+  },
+  {
+    input: "i feel like the walls are closing in",
+    expect: "emotional_expression",
+    type: "paraphrase",
+  },
+  {
+    input: "this whole thing has me wound up",
+    expect: "emotional_expression",
+    type: "paraphrase",
+  },
+  {
+    input: "i never expected this at all",
+    expect: "emotional_expression",
+    type: "paraphrase",
+  },
+  {
+    input: "words cannot describe how i feel right now",
+    expect: "emotional_expression",
+    type: "paraphrase",
+  },
   // --- paraphrases: celebration and good wishes ---
-  { input: "pop the champagne, the deal is signed", expect: "celebration", type: "paraphrase" },
-  { input: "what a day, the university gave me admission", expect: "celebration", type: "paraphrase" },
-  { input: "may the new year bring you plenty of work", expect: "ANY:celebration|farewell", type: "paraphrase" },
-  { input: "a toast to the completed bridge", expect: "celebration", type: "paraphrase" },
+  {
+    input: "pop the champagne, the deal is signed",
+    expect: "celebration",
+    type: "paraphrase",
+  },
+  {
+    input: "what a day, the university gave me admission",
+    expect: "celebration",
+    type: "paraphrase",
+  },
+  {
+    input: "may the new year bring you plenty of work",
+    expect: "ANY:celebration|farewell",
+    type: "paraphrase",
+  },
+  {
+    input: "a toast to the completed bridge",
+    expect: "celebration",
+    type: "paraphrase",
+  },
   // --- paraphrases: availability, activity, time ---
-  { input: "is the engine currently at my service", expect: "ANY:availability_check|system_status", type: "paraphrase" },
-  { input: "what occupies you at the moment", expect: "activity_query", type: "paraphrase" },
-  { input: "how goes it behind the scenes", expect: "activity_query", type: "paraphrase" },
-  { input: "kindly tell me the hour", expect: "time_query", type: "paraphrase" },
-  { input: "which day of the month have we reached", expect: "time_query", type: "paraphrase" },
+  {
+    input: "is the engine currently at my service",
+    expect: "ANY:availability_check|system_status",
+    type: "paraphrase",
+  },
+  {
+    input: "what occupies you at the moment",
+    expect: "activity_query",
+    type: "paraphrase",
+  },
+  {
+    input: "how goes it behind the scenes",
+    expect: "activity_query",
+    type: "paraphrase",
+  },
+  {
+    input: "kindly tell me the hour",
+    expect: "time_query",
+    type: "paraphrase",
+  },
+  {
+    input: "which day of the month have we reached",
+    expect: "time_query",
+    type: "paraphrase",
+  },
   // --- paraphrases: social talk and weather ---
-  { input: "the skies are clear over my area today", expect: "social_talk", type: "paraphrase" },
-  { input: "it has been pouring since dawn here", expect: "social_talk", type: "paraphrase" },
-  { input: "just got in from a long day of labor", expect: "social_talk", type: "paraphrase" },
-  { input: "i was at the site all day", expect: "social_talk", type: "paraphrase" },
-  { input: "shall i be of service to you today", expect: "social_talk", type: "paraphrase" },
+  {
+    input: "the skies are clear over my area today",
+    expect: "social_talk",
+    type: "paraphrase",
+  },
+  {
+    input: "it has been pouring since dawn here",
+    expect: "social_talk",
+    type: "paraphrase",
+  },
+  {
+    input: "just got in from a long day of labor",
+    expect: "social_talk",
+    type: "paraphrase",
+  },
+  {
+    input: "i was at the site all day",
+    expect: "social_talk",
+    type: "paraphrase",
+  },
+  {
+    input: "shall i be of service to you today",
+    expect: "social_talk",
+    type: "paraphrase",
+  },
   // --- short forms ---
   { input: "pls", expect: "help_request", type: "short" },
   { input: "pls help", expect: "help_request", type: "short" },
@@ -1062,33 +1265,97 @@ export const CONVERSATION_HELD_OUT: HeldOutExample[] = [
   { input: "you rock archie", expect: "gratitude", type: "informal" },
   { input: "my bad b", expect: "apology", type: "informal" },
   { input: "my guy abeg help me", expect: "help_request", type: "informal" },
-  { input: "abeg wetin you dey do", expect: "activity_query", type: "informal" },
+  {
+    input: "abeg wetin you dey do",
+    expect: "activity_query",
+    type: "informal",
+  },
   { input: "guy you too much", expect: "gratitude", type: "informal" },
-  { input: "shey you dey hear me", expect: "availability_check", type: "informal" },
-  { input: "abeg repeat wetin you talk", expect: "clarification_request", type: "informal" },
+  {
+    input: "shey you dey hear me",
+    expect: "availability_check",
+    type: "informal",
+  },
+  {
+    input: "abeg repeat wetin you talk",
+    expect: "clarification_request",
+    type: "informal",
+  },
   { input: "no wahala at all", expect: "agreement", type: "informal" },
   { input: "i no buy am", expect: "disagreement", type: "informal" },
-  { input: "chai, today was tough", expect: "emotional_expression", type: "informal" },
-  { input: "wahala no dey finish", expect: "emotional_expression", type: "informal" },
+  {
+    input: "chai, today was tough",
+    expect: "emotional_expression",
+    type: "informal",
+  },
+  {
+    input: "wahala no dey finish",
+    expect: "emotional_expression",
+    type: "informal",
+  },
   { input: "we dey celebrate o", expect: "celebration", type: "informal" },
   { input: "make we vibe small", expect: "social_talk", type: "informal" },
-  { input: "sun dey shine well well today", expect: "social_talk", type: "informal" },
+  {
+    input: "sun dey shine well well today",
+    expect: "social_talk",
+    type: "informal",
+  },
   // --- unusual sentence structures ---
   { input: "to you i say good morning", expect: "greeting", type: "structure" },
   { input: "gone i am, farewell", expect: "farewell", type: "structure" },
-  { input: "your help is what i need urgently", expect: "help_request", type: "structure" },
-  { input: "help, of it i stand in need", expect: "help_request", type: "structure" },
+  {
+    input: "your help is what i need urgently",
+    expect: "help_request",
+    type: "structure",
+  },
+  {
+    input: "help, of it i stand in need",
+    expect: "help_request",
+    type: "structure",
+  },
   { input: "grateful to you i remain", expect: "gratitude", type: "structure" },
-  { input: "an apology you are owed from me", expect: "apology", type: "structure" },
-  { input: "agree with you i do completely", expect: "agreement", type: "structure" },
-  { input: "disagree with that position i must", expect: "disagreement", type: "structure" },
-  { input: "understanding of that i have not", expect: "clarification_request", type: "structure" },
-  { input: "the time, tell me it", expect: "ANY:time_query|knowledge_query", type: "structure" },
-  { input: "there, are you still", expect: "availability_check", type: "structure" },
+  {
+    input: "an apology you are owed from me",
+    expect: "apology",
+    type: "structure",
+  },
+  {
+    input: "agree with you i do completely",
+    expect: "agreement",
+    type: "structure",
+  },
+  {
+    input: "disagree with that position i must",
+    expect: "disagreement",
+    type: "structure",
+  },
+  {
+    input: "understanding of that i have not",
+    expect: "clarification_request",
+    type: "structure",
+  },
+  {
+    input: "the time, tell me it",
+    expect: "ANY:time_query|knowledge_query",
+    type: "structure",
+  },
+  {
+    input: "there, are you still",
+    expect: "availability_check",
+    type: "structure",
+  },
   { input: "doing what are you", expect: "activity_query", type: "structure" },
-  { input: "happy beyond words i am", expect: "emotional_expression", type: "structure" },
+  {
+    input: "happy beyond words i am",
+    expect: "emotional_expression",
+    type: "structure",
+  },
   { input: "birthday it is, mine", expect: "celebration", type: "structure" },
-  { input: "you there being present matters to me", expect: "availability_check", type: "structure" },
+  {
+    input: "you there being present matters to me",
+    expect: "availability_check",
+    type: "structure",
+  },
   // --- emoji enhanced and emoji only ---
   { input: "thanks 🙏🙏", expect: "gratitude", type: "emoji" },
   { input: "thank you so much 🙏", expect: "gratitude", type: "emoji" },
@@ -1104,7 +1371,11 @@ export const CONVERSATION_HELD_OUT: HeldOutExample[] = [
   { input: "why 😡", expect: "emotional_expression", type: "emoji" },
   { input: "what?! 😮", expect: "emotional_expression", type: "emoji" },
   { input: "so sleepy 😴", expect: "emotional_expression", type: "emoji" },
-  { input: "hmm 🤔", expect: "ANY:clarification_request|acknowledgment", type: "emoji" },
+  {
+    input: "hmm 🤔",
+    expect: "ANY:clarification_request|acknowledgment",
+    type: "emoji",
+  },
   { input: "we move 🚀", expect: "ANY:celebration|social_talk", type: "emoji" },
   { input: "🙏", expect: "gratitude", type: "emoji" },
   { input: "👍", expect: "agreement", type: "emoji" },
@@ -1121,14 +1392,30 @@ export const CONVERSATION_HELD_OUT: HeldOutExample[] = [
   // --- unknown and ambiguous: honest fallback only ---
   { input: "the sky is blue", expect: "FALLBACK", type: "unknown" },
   { input: "potatoes", expect: "FALLBACK", type: "unknown" },
-  { input: "my uncle sells yam in the village", expect: "FALLBACK", type: "unknown" },
-  { input: "tortoises live for centuries", expect: "FALLBACK", type: "unknown" },
+  {
+    input: "my uncle sells yam in the village",
+    expect: "FALLBACK",
+    type: "unknown",
+  },
+  {
+    input: "tortoises live for centuries",
+    expect: "FALLBACK",
+    type: "unknown",
+  },
   { input: "jupiter has many moons", expect: "FALLBACK", type: "unknown" },
   { input: "kjsdhfkjhsdf", expect: "FALLBACK", type: "unknown" },
   { input: "blorp florp snorp", expect: "FALLBACK", type: "unknown" },
   { input: "4444 555", expect: "FALLBACK", type: "unknown" },
-  { input: "the capital of france is paris", expect: "FALLBACK", type: "unknown" },
-  { input: "water freezes when it is cold enough", expect: "FALLBACK", type: "unknown" },
+  {
+    input: "the capital of france is paris",
+    expect: "FALLBACK",
+    type: "unknown",
+  },
+  {
+    input: "water freezes when it is cold enough",
+    expect: "FALLBACK",
+    type: "unknown",
+  },
   { input: "my favorite color is purple", expect: "FALLBACK", type: "unknown" },
   // --- multiturn: context dependent follow ups ---
   {
@@ -1137,7 +1424,10 @@ export const CONVERSATION_HELD_OUT: HeldOutExample[] = [
     type: "multiturn",
     history: [
       { role: "owner", text: "tell me about granite for the driveway" },
-      { role: "archie", text: "granite is a coarse aggregate used for concrete and compaction" },
+      {
+        role: "archie",
+        text: "granite is a coarse aggregate used for concrete and compaction",
+      },
     ],
   },
   {
@@ -1146,7 +1436,10 @@ export const CONVERSATION_HELD_OUT: HeldOutExample[] = [
     type: "multiturn",
     history: [
       { role: "owner", text: "what is screeding" },
-      { role: "archie", text: "screeding is applying a smooth cement layer to a floor" },
+      {
+        role: "archie",
+        text: "screeding is applying a smooth cement layer to a floor",
+      },
     ],
   },
   {
@@ -1164,7 +1457,10 @@ export const CONVERSATION_HELD_OUT: HeldOutExample[] = [
     type: "multiturn",
     history: [
       { role: "owner", text: "explain the primer coat one more time" },
-      { role: "archie", text: "the primer coat seals the surface before paint" },
+      {
+        role: "archie",
+        text: "the primer coat seals the surface before paint",
+      },
     ],
   },
   {

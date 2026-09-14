@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 
 const listLearningIngestions = vi.fn();
 
@@ -16,7 +17,12 @@ beforeEach(() => {
 });
 
 function renderPage() {
-  return render(<ArchieLearning />);
+  // The page renders <Link> navigation — it needs a Router.
+  return render(
+    <MemoryRouter>
+      <ArchieLearning />
+    </MemoryRouter>,
+  );
 }
 
 describe("ArchieLearning", () => {

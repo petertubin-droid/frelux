@@ -2,9 +2,14 @@
 // FRELUX ARCHIE STAGE 1 — OWNER CENTRAL CONTROL DASHBOARD
 //
 // Overview of ARCHIE's major systems with REAL operational
-// state (archie-status). Capabilities that are not yet
-// operational are shown as planned interfaces — never
-// presented as functioning (spec §§2, 16, 19).
+// state (archie-status). Nothing dormant (owner directive
+// 2026-09-14): every card reflects what is actually
+// deployed, and every system with a real engine dispatch
+// gate carries a LIVE ACTIVATE/DEACTIVATE toggle backed by
+// archie_engine_states (the same infrastructure as the
+// Engines panel). Core cognition is marked PROTECTED — it
+// has no toggle by design, and the card says why. Protected
+// operations still require explicit Owner authorization.
 // =========================================================
 
 import { useCallback, useEffect, useState } from "react";
@@ -16,7 +21,15 @@ import { listDevices, recordAuditEvent } from "@/lib/archie/stage1-client";
 import { fetchArchieStatus, type ArchieStatus } from "@/lib/archie/status";
 
 type SystemState =
-  "operational" | "planned" | "disabled" | "degraded" | "alert" | "offline";
+  "operational" | "disabled" | "degraded" | "alert" | "offline";
+
+/** Live activation state for a gated capability, from the
+ *  archie-engines manifest (archie_engine_states). */
+interface EngineState {
+  enabled: boolean;
+  toggleable: boolean;
+  protected: boolean;
+}
 
 interface SystemSection {
   key: string;
@@ -24,6 +37,11 @@ interface SystemSection {
   state: SystemState;
   route?: string;
   description: string;
+  /** Manifest capability that gates ARCHIE's chat access to
+   *  this system. A real dispatch gate → the card gets a
+   *  toggle. Core cognition (protected) and platform-managed
+   *  surfaces get no toggle — the card says which and why. */
+  capabilityId?: string;
 }
 
 const SYSTEMS: SystemSection[] = [
@@ -32,6 +50,7 @@ const SYSTEMS: SystemSection[] = [
     title: "ARCHIE Intelligence",
     state: "operational",
     route: "/archie/chat",
+    capabilityId: "natural-conversation",
     description: "Conversational core with tool orchestration — live.",
   },
   {
@@ -39,6 +58,7 @@ const SYSTEMS: SystemSection[] = [
     title: "ARCHIE Knowledge",
     state: "operational",
     route: "/archie/knowledge",
+    capabilityId: "knowledge-acquisition",
     description: "Knowledge core with scopes and evidence states.",
   },
   {
@@ -46,12 +66,14 @@ const SYSTEMS: SystemSection[] = [
     title: "Learning",
     state: "operational",
     route: "/archie/learning",
+    capabilityId: "outcome-learning",
     description: "EXTRACT → VALIDATE → APPROVE → KNOWLEDGE pipeline.",
   },
   {
     key: "construction",
     title: "Construction Intelligence",
     state: "operational",
+    capabilityId: "construction-calculators",
     description:
       "Deterministic FRELUX engines — authoritative calculators, unchanged.",
   },
@@ -59,12 +81,15 @@ const SYSTEMS: SystemSection[] = [
     key: "calculators",
     title: "Calculators",
     state: "operational",
-    description: "Build-to-Roof, painting, screeding, tiles, POP, tyrolene.",
+    capabilityId: "construction-calculators",
+    description:
+      "Build-to-Roof, painting, screeding, tiles, POP, tyrolene. Shares the construction engines gate.",
   },
   {
     key: "market",
     title: "Market Intelligence",
     state: "operational",
+    capabilityId: "market-intelligence-price-lookup",
     description:
       "Price observations and crawl runs; configured prices stay authoritative.",
   },
@@ -72,6 +97,7 @@ const SYSTEMS: SystemSection[] = [
     key: "web",
     title: "Web Intelligence",
     state: "operational",
+    capabilityId: "web-research",
     description: "Intelligence sources and crawled pages.",
   },
   {
@@ -98,6 +124,7 @@ const SYSTEMS: SystemSection[] = [
     key: "agents",
     title: "Internal ARCHIE Agents",
     state: "operational",
+    capabilityId: "tool-orchestration",
     description:
       "Agent lifecycle with infrastructure-cost governance (never user credits).",
   },
@@ -127,6 +154,7 @@ const SYSTEMS: SystemSection[] = [
     title: "Family & Trusted People",
     state: "operational",
     route: "/archie/people",
+    capabilityId: "system-adapters-documents-images-voice-social-family",
     description:
       "Invitation-gated family/professional network — single-use codes, explicit permissions, temporary access, strict data isolation.",
   },
@@ -134,8 +162,9 @@ const SYSTEMS: SystemSection[] = [
     key: "model",
     title: "ARCHIE Model & Inference",
     state: "operational",
+    capabilityId: "reasoning",
     description:
-      "ARCHIE AI Abstraction — replaceable model runtimes. ARCHIE's own model is registered (honestly not yet available); external inference is an isolated adapter.",
+      "ARCHIE's own native inference engine — NLU, knowledge, reasoning, planning and learning execute in-engine. External providers exist only as isolated fallback adapters.",
   },
   {
     key: "code-sentry",
@@ -155,6 +184,7 @@ const SYSTEMS: SystemSection[] = [
     key: "documents",
     title: "Documents & Images",
     state: "operational",
+    capabilityId: "system-adapters-documents-images-voice-social-family",
     description:
       "Explicitly provided attachments analyzed through the chat core.",
   },
@@ -162,39 +192,39 @@ const SYSTEMS: SystemSection[] = [
     key: "voice",
     title: "Voice",
     state: "operational",
-    description: "Voice notes recorded in chat and analyzed as attachments.",
+    capabilityId: "system-adapters-documents-images-voice-social-family",
+    description:
+      "Voice notes recorded in chat, transcribed and analyzed; voiceprint identity on its own platform surface.",
   },
   {
     key: "location",
     title: "Location Intelligence",
     state: "operational",
-    description: "Location authority + consent boundary (Phase 9).",
+    description:
+      "Live location→language advisory wiring (§16): the owner's explicit language choice is authoritative; location is advisory only, with the consent boundary enforced.",
   },
   {
     key: "code",
     title: "Code Intelligence",
-    state: "planned",
+    state: "operational",
+    route: "/archie/coding",
+    capabilityId: "coding-intelligence-analysis",
     description:
-      "Adapter boundary defined; specialized code agents arrive in a later stage.",
+      "Coding Studio, Code Intelligence findings and governance — the shared workbench, live in chat and admin console.",
   },
   {
     key: "social",
     title: "Social / Brand Intelligence",
-    state: "planned",
-    description: "Adapter boundary defined; not yet operational.",
+    state: "operational",
+    capabilityId: "system-adapters-documents-images-voice-social-family",
+    description:
+      "Owner-brand accounts through the social token vault (official OAuth only, encrypted at rest) and Brand Center; social conversation in chat. Never posts without explicit owner action.",
   },
   {
     key: "professional",
     title: "Professional Ecosystem",
     state: "operational",
     description: "Pro Connect professionals — extended, not duplicated.",
-  },
-  {
-    key: "family",
-    title: "Family / Trusted People",
-    state: "planned",
-    description:
-      "Adapter boundary defined; sharing arrives with consent scopes.",
   },
 ];
 
@@ -217,22 +247,55 @@ function StateBadge({ state }: { state: SystemState }) {
         OFFLINE
       </span>
     );
-  if (state === "operational")
+  if (state === "disabled")
     return (
-      <span className="rounded-full bg-emerald-400/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
-        OPERATIONAL
-      </span>
-    );
-  if (state === "planned")
-    return (
-      <span className="rounded-full bg-slate-400/10 px-2 py-0.5 text-[10px] font-medium text-slate-400">
-        PLANNED INTERFACE
+      <span className="rounded-full bg-rose-400/10 px-2 py-0.5 text-[10px] font-medium text-rose-300">
+        DEACTIVATED
       </span>
     );
   return (
-    <span className="rounded-full bg-red-400/10 px-2 py-0.5 text-[10px] font-medium text-red-300">
-      DISABLED
+    <span className="rounded-full bg-emerald-400/10 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
+      OPERATIONAL
     </span>
+  );
+}
+
+/** ACTIVATE/DEACTIVATE switch — same contract as the
+ *  Engines panel: real archie_engine_states rows, owner-gated
+ *  function, honest refusal in chat while off. */
+function Toggle({
+  on,
+  busy,
+  onChange,
+  label,
+}: {
+  on: boolean;
+  busy: boolean;
+  onChange: (next: boolean) => void;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      aria-label={label}
+      disabled={busy}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onChange(!on);
+      }}
+      className={`relative h-5 w-9 shrink-0 rounded-full transition-colors ${
+        on ? "bg-emerald-400/70" : "bg-slate-600/70"
+      } ${busy ? "opacity-50" : ""}`}
+    >
+      <span
+        className={`absolute top-0.5 h-4 w-4 rounded-full bg-white transition-transform ${
+          on ? "translate-x-4" : "translate-x-0.5"
+        }`}
+      />
+    </button>
   );
 }
 
@@ -246,55 +309,73 @@ function deriveLiveState(
   base: SystemSection,
   live: ArchieStatus | null,
   devices: number | null,
+  engineStates: Map<string, EngineState> | null,
 ): SystemSection {
-  if (!live) return base;
   const out: SystemSection = { ...base, state: base.state };
   switch (base.key) {
     case "intelligence":
-      out.state = live.coreReachable ? "operational" : "offline";
-      out.description = live.coreReachable
+      out.state = live?.coreReachable ? "operational" : "offline";
+      out.description = live?.coreReachable
         ? `Conversational core reachable — ${live.domains.active} active domain(s), ${live.conversations} conversation(s).`
         : "Conversational core did not answer its reachability probe.";
       break;
     case "knowledge":
-      out.description = `${live.knowledge.active} approved knowledge item(s) live.`;
+      if (live)
+        out.description = `${live.knowledge.active} approved knowledge item(s) live.`;
       break;
     case "learning":
-      out.state = live.learning.processing > 0 ? "operational" : base.state;
-      out.description =
-        live.learning.processing > 0
-          ? `EXTRACT → VALIDATE → APPROVE pipeline — ${live.learning.processing} ingestion(s) processing now.`
-          : `${live.learning.ingestions} ingestion(s) recorded, none processing.`;
+      if (live) {
+        out.state =
+          live.learning.processing > 0 && out.state === "operational"
+            ? "operational"
+            : out.state;
+        out.description =
+          live.learning.processing > 0
+            ? `EXTRACT → VALIDATE → APPROVE pipeline — ${live.learning.processing} ingestion(s) processing now.`
+            : `${live.learning.ingestions} ingestion(s) recorded, none processing.`;
+      }
       break;
     case "security":
     case "security-sentry":
-      out.state =
-        live.security.latestSeverity === "CRITICAL"
-          ? "alert"
-          : live.security.latestSeverity === "WARNING"
-            ? "degraded"
-            : "operational";
-      out.description = `${live.security.events24h} security event(s) in 24h — latest severity: ${live.security.latestSeverity ?? "none"}.`;
+      if (live) {
+        out.state =
+          live.security.latestSeverity === "CRITICAL"
+            ? "alert"
+            : live.security.latestSeverity === "WARNING"
+              ? "degraded"
+              : "operational";
+        out.description = `${live.security.events24h} security event(s) in 24h — latest severity: ${live.security.latestSeverity ?? "none"}.`;
+      }
       break;
     case "devices":
-      out.description =
-        devices !== null
-          ? `${devices} trusted device(s) — identity by app key, never IMEI.`
-          : "Device registry unreachable right now.";
+      if (devices !== null)
+        out.description = `${devices} trusted device(s) — identity by app key, never IMEI.`;
+      else out.description = "Device registry unreachable right now.";
       break;
     case "projects":
-      out.description = `${live.projects.contractorProjects} project(s), ${live.projects.estimates} saved estimate(s) through FRELUX.`;
+      if (live)
+        out.description = `${live.projects.contractorProjects} project(s), ${live.projects.estimates} saved estimate(s) through FRELUX.`;
       break;
     case "agents":
-      out.state = live.agents.active > 0 ? "operational" : base.state;
-      out.description = `${live.agents.total} internal agent(s) registered, ${live.agents.active} active — infrastructure-cost governed.`;
+      if (live) {
+        out.state = live.agents.active > 0 ? "operational" : out.state;
+        out.description = `${live.agents.total} internal agent(s) registered, ${live.agents.active} active — infrastructure-cost governed.`;
+      }
       break;
     case "infrastructure":
-      out.description =
-        live.infraCostMonthCents !== null
-          ? `Internal provider ledger — ₦${(live.infraCostMonthCents / 100).toFixed(2)} this month.`
-          : "Internal provider cost ledger (no costs recorded this month).";
+      if (live)
+        out.description =
+          live.infraCostMonthCents !== null
+            ? `Internal provider ledger — ₦${(live.infraCostMonthCents / 100).toFixed(2)} this month.`
+            : "Internal provider cost ledger (no costs recorded this month).";
       break;
+  }
+  // Owner-deactivated capability: the REAL engine gate says
+  // off — the card reports DEACTIVATED, honestly.
+  const es = out.capabilityId ? engineStates?.get(out.capabilityId) : undefined;
+  if (es && !es.enabled) {
+    out.state = "disabled";
+    out.description = `Owner-deactivated from the Engines panel — ARCHIE refuses this capability in chat until it is re-enabled. ${out.description}`;
   }
   return out;
 }
@@ -303,19 +384,77 @@ export default function ArchieControl() {
   const { refresh } = useSystemStatus();
   const [devices, setDevices] = useState<number | null>(null);
   const [live, setLive] = useState<ArchieStatus | null>(null);
+  const [engineStates, setEngineStates] = useState<Map<
+    string,
+    EngineState
+  > | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+  const [toggleError, setToggleError] = useState("");
 
   const load = useCallback(async () => {
     try {
-      const list = await listDevices();
-      setDevices(list.filter((d) => d.status === "TRUSTED").length);
+      const d = await listDevices();
+      setDevices(Array.isArray(d) ? d.length : null);
     } catch {
       setDevices(null);
     }
     try {
-      const status = await fetchArchieStatus();
-      setLive(status);
+      const s = await fetchArchieStatus();
+      setLive(s);
     } catch {
       setLive(null);
+    }
+    try {
+      const { supabase } = await import("@/lib/supabase");
+      const { data: res, error: fnErr } = await supabase.functions.invoke(
+        "archie-engines",
+        { method: "GET" },
+      );
+      if (fnErr) throw fnErr;
+      if (res?.error) throw new Error(String(res.error));
+      const map = new Map<string, EngineState>();
+      for (const e of res?.engines ?? []) {
+        map.set(e.id, {
+          enabled: e.enabled,
+          toggleable: e.toggleable,
+          protected: e.protected,
+        });
+      }
+      setEngineStates(map);
+    } catch {
+      // Engine states unavailable → cards keep their designed
+      // states; toggles simply do not render (never fake one).
+      setEngineStates(null);
+    }
+  }, []);
+
+  const toggle = useCallback(async (capabilityId: string, next: boolean) => {
+    setTogglingId(capabilityId);
+    setToggleError("");
+    try {
+      const { supabase } = await import("@/lib/supabase");
+      const { data: res, error: fnErr } = await supabase.functions.invoke(
+        "archie-engines",
+        { body: { capability_id: capabilityId, enabled: next } },
+      );
+      if (fnErr) throw fnErr;
+      if (res?.error) throw new Error(String(res.error));
+      // Optimistic local update — the engine picks the
+      // state up on its next gate refresh (seconds).
+      setEngineStates((m) => {
+        if (!m) return m;
+        const cur = m.get(capabilityId);
+        if (!cur) return m;
+        const copy = new Map(m);
+        copy.set(capabilityId, { ...cur, enabled: next });
+        return copy;
+      });
+    } catch (e) {
+      setToggleError(
+        e instanceof Error ? e.message : "Toggle failed — not applied",
+      );
+    } finally {
+      setTogglingId(null);
     }
   }, []);
 
@@ -335,7 +474,9 @@ export default function ArchieControl() {
         </h1>
         <p className="text-xs text-slate-400">
           One coherent intelligence system. States below are real, read from
-          live data — planned sections are labelled, never faked.
+          live data — every system with a chat dispatch gate carries a live
+          ACTIVATE/DEACTIVATE switch; core cognition is protected and never
+          gated from here.
         </p>
       </header>
 
@@ -360,9 +501,23 @@ export default function ArchieControl() {
         </button>
       </div>
 
+      {toggleError && (
+        <p
+          className="mt-2 rounded-md bg-red-500/10 px-3 py-2 text-xs text-red-300"
+          role="alert"
+        >
+          {toggleError}
+        </p>
+      )}
+
       <ul className="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-2">
         {SYSTEMS.map((raw) => {
-          const s = deriveLiveState(raw, live, devices);
+          const s = deriveLiveState(raw, live, devices, engineStates);
+          const es = s.capabilityId
+            ? engineStates?.get(s.capabilityId)
+            : undefined;
+          const showToggle = Boolean(es?.toggleable);
+          const busy = s.capabilityId != null && togglingId === s.capabilityId;
           const inner = (
             <div
               className={`h-full rounded-lg archie-panel p-3 transition ${
@@ -376,6 +531,27 @@ export default function ArchieControl() {
                 <StateBadge state={s.state} />
               </div>
               <p className="mt-1 text-xs text-slate-400">{s.description}</p>
+              <div className="mt-2 flex items-center justify-between gap-2">
+                {showToggle ? (
+                  <span className="text-[10px] text-slate-500">
+                    {es?.enabled ? "Chat capability active" : "Off in chat"}
+                  </span>
+                ) : (
+                  <span className="text-[10px] text-slate-500">
+                    {es?.protected
+                      ? "Core cognition — no toggle by design"
+                      : "Platform surface — no chat gate"}
+                  </span>
+                )}
+                {showToggle && es && (
+                  <Toggle
+                    on={es.enabled}
+                    busy={busy}
+                    label={`${s.title} chat capability`}
+                    onChange={(next) => void toggle(s.capabilityId!, next)}
+                  />
+                )}
+              </div>
             </div>
           );
           return (

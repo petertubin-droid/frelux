@@ -103,7 +103,8 @@ export interface ArchieInferenceRequest {
   conversationId?: string;
 }
 
-export type ArchieEnginePath = "archie-native" | "external-adapter";
+export type ArchieEnginePath =
+  "archie-native" | "external-adapter" | "archie-unified-cognitive";
 
 /** Honest engine identity attached to every inference result. */
 export interface ArchieEngineInfo {

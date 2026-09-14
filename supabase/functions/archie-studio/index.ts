@@ -221,6 +221,12 @@ async function loadProject(projectId: string) {
 // ---------------------------------------------------------
 serveWithCors(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+  if (req.method !== "POST") {
+    return json(405, {
+      error:
+        "POST only — studio actions are create, approve, archive, feedback, rollback.",
+    });
+  }
 
   try {
     const auth = req.headers.get("Authorization") ?? "";

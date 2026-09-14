@@ -51,16 +51,13 @@ class MockDb implements SupabaseLike {
       // would erase the range intersection on the return.
       select: () => {
         const data = [...rows()];
-        return Object.assign(
-          Promise.resolve({ data, error: null }),
-          {
-            range: (from: number, to: number) =>
-              Promise.resolve({
-                data: data.slice(from, to + 1),
-                error: null,
-              }),
-          },
-        );
+        return Object.assign(Promise.resolve({ data, error: null }), {
+          range: (from: number, to: number) =>
+            Promise.resolve({
+              data: data.slice(from, to + 1),
+              error: null,
+            }),
+        });
       },
       insert: async (row: unknown) => {
         const arr = row as Array<Record<string, unknown>>;
@@ -317,7 +314,7 @@ describe("memory changes reasoning (end-to-end loop)", () => {
     expect(result.parts[0].text ?? "").toContain("secret");
   });
 
-  it("conflicting knowledge is held as uncertain — never silently overwritten", async () => {
+  it("owner re-teaching replaces audibly — no approval step, older kept as history (owner directive 2026-09-14)", async () => {
     const engine = new ArchieNativeEngine();
     await engine.generate({
       turns: turns("remember that the tile price is 8000"),
@@ -329,16 +326,33 @@ describe("memory changes reasoning (end-to-end loop)", () => {
       tools: [],
       systemInstruction: "",
     });
-    expect(conflict.parts[0].text ?? "").toContain("contradict");
-    // The answer after a contradiction is honest about
-    // uncertainty — it does not assert either value as fact.
+    // The replacement is AUDIBLE — the owner is told the older
+    // record is superseded and kept as history, never silently
+    // overwritten.
+    const msg = conflict.parts[0].text ?? "";
+    expect(msg).toMatch(/replace|supersede|older/i);
+    expect(msg).not.toMatch(/contradiction could not be resolved/i);
+    // The owner's latest teaching STANDS as validated knowledge
+    // (no approval step — owner directive 2026-09-14).
     const asked = await engine.generate({
       turns: turns("what is the tile price"),
       tools: [],
       systemInstruction: "",
     });
     const text = asked.parts[0].text ?? "";
-    expect(text).not.toMatch(/validated knowledge[\s\S]*\b12500\b/);
+    expect(text).toMatch(/\b12500\b/);
+    // ...and the superseded record is kept as uncertain history,
+    // not destroyed.
+    const store = (engine as unknown as { facts: FactStore }).facts;
+    const tileFacts = store
+      .list()
+      .filter((f) => f.subject === "tile" && f.predicate === "price");
+    expect(tileFacts.some((f) => String(f.object) === "12500")).toBe(true);
+    expect(
+      tileFacts.some(
+        (f) => String(f.object) === "8000" && f.status === "uncertain",
+      ),
+    ).toBe(true);
   });
 });
 

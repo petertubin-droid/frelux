@@ -381,6 +381,32 @@ export class FactStore {
     return this.facts.find((f) => f.id === id);
   }
 
+  /** Scan-only insert: adds a fact WITHOUT arbitration and
+   *  WITHOUT persistence. Used by the verification engine's
+   *  contradiction scan — the verifier's job is to DETECT
+   *  conflicts between cited facts, not to arbitrate owner
+   *  authority. The 2026-09-14 owner-authority learning change
+   *  (latest owner teaching wins) made the regular assert()
+   *  demote the first cited fact before the scan could see the
+   *  contradiction — the scratch store must never arbitrate.
+   *  Regression fix 2026-09-14. */
+  assertForScan(fact: Omit<Fact, "id" | "validatedCount" | "createdAt">): void {
+    const full: Fact = {
+      ...fact,
+      id: factId(),
+      validatedCount: 0,
+      createdAt: new Date().toISOString(),
+    };
+    this.facts.push(full);
+    const bucket = this.bySubject.get(full.subject);
+    if (bucket) bucket.push(full);
+    else this.bySubject.set(full.subject, [full]);
+    const pbucket = this.byPredicate.get(full.predicate);
+    if (pbucket) pbucket.push(full);
+    else this.byPredicate.set(full.predicate, [full]);
+    this.rankIndex.add(full);
+  }
+
   /** Assert a fact. Detects contradictions instead of
    *  silently overwriting — knowledge never silently flips. */
   async assert(
@@ -505,11 +531,15 @@ export class FactStore {
           cf.status = "uncertain";
           await this.persistFact(cf);
         }
-      } else if (incomingAuthoritative) {
+      } else if (fact.provenance.source === "owner-taught") {
         // OWNER AUTHORITY (owner directive 2026-09-14): knowledge
-        // learning requires NO approval — the owner's latest taught
+        // learning requires NO approval — the owner's LATEST taught
         // fact outranks every standing record, stored or derived.
-        // The conflicts are demoted; the newcomer is stored live.
+        // The conflicts are demoted (history kept, audible); the
+        // newcomer is stored live. Owner-taught ONLY — the boot
+        // seed must never beat a deliberate owner correction
+        // (regression fix 2026-09-14: the seed re-asserting at
+        // boot was demoting persisted owner corrections here).
         for (const cf of conflictingFacts) {
           cf.status = "uncertain";
           await this.persistFact(cf);
