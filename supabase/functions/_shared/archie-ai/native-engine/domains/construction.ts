@@ -86,7 +86,7 @@ export function constructionEstimate(input: string): string {
     const withWaste = Math.ceil(base * C.blockWaste);
     return (
       `For a ${feet ? `${nums[0]} ft x ${nums[1]} ft` : `${nums[0]} x ${nums[1]} m`} wall (${area.toFixed(2)} m2): approximately ${withWaste} blocks. ` +
-      `Assumptions: standard 450x225mm block with 10mm mortar joints (${C.blockFaceM2} m2 face), plus 5% breakage/waste allowance. This is a deterministic estimate — verify on site before ordering.`
+      `Assumptions: standard 450x225mm block with 10mm mortar joints (${C.blockFaceM2} m2 face), plus ${Math.round((C.blockWaste - 1) * 100)}% breakage/waste allowance. This is a deterministic estimate — verify on site before ordering.`
     );
   }
 
@@ -97,8 +97,8 @@ export function constructionEstimate(input: string): string {
     const area = meters.length >= 2 ? meters[0] * meters[1] : meters[0];
     const litres = Math.ceil((area / C.paintM2PerLitreCoat) * C.paintCoats);
     return (
-      `For ${area.toFixed(2)} m2 of surface: approximately ${litres} litres for two coats. ` +
-      `Assumptions: smooth plaster at ~10 m2 per litre per coat, 2 coats. Rough or textured surfaces need more — this is a deterministic estimate, not a guess.`
+      `For ${area.toFixed(2)} m2 of surface: approximately ${litres} litres for ${C.paintCoats} coats. ` +
+      `Assumptions: smooth plaster at ~${C.paintM2PerLitreCoat} m2 per litre per coat, ${C.paintCoats} coats. Rough or textured surfaces need more — this is a deterministic estimate, not a guess.`
     );
   }
 
@@ -113,8 +113,8 @@ export function constructionEstimate(input: string): string {
         C.cementWaste,
     );
     return (
-      `For ${volume} cubic meter(s) of concrete: approximately ${bags} x 50kg bags of cement. ` +
-      `Assumptions: 1:2:4 mix (dry volume factor ${C.dryVolumeFactor}, cement at ${C.cementKgPerM3} kg/m3), plus 5% waste. This is a deterministic estimate — verify with your engineer for structural work.`
+      `For ${volume} cubic meter(s) of concrete: approximately ${bags} x ${C.cementBagKg}kg bags of cement. ` +
+      `Assumptions: 1:2:4 mix (dry volume factor ${C.dryVolumeFactor}, cement at ${C.cementKgPerM3} kg/m3), plus ${Math.round((C.cementWaste - 1) * 100)}% waste. This is a deterministic estimate — verify with your engineer for structural work.`
     );
   }
 

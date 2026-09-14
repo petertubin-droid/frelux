@@ -134,16 +134,33 @@ export class DomainSkillRegistry {
   }
 
   /** Resolve the deterministic handler for an intent, or null
-   *  when no registered skill serves it. The returned function
-   *  may resolve to a string asynchronously (live-data skills). */
+   *  when no registered skill serves it.
+   *
+   *  FIX 48 (batch 15, Level 11 audit 2026-09-14) MERGED with
+   *  the live-data async extension: the old wrapper collapsed
+   *  a skill's decline (`handler` returning null — the
+   *  documented "the engine answers honestly instead of
+   *  guessing" contract) into an EMPTY STRING, and only the
+   *  FIRST serving skill was ever asked. The resolved closure
+   *  now asks EVERY serving skill in registration order,
+   *  passes a live-data skill's Promise through (it owns its
+   *  own honesty in the resolved text), returns the first
+   *  non-empty answer — or null when all decline, so the
+   *  engine's decline guard answers honestly. */
   handlerFor(
     intent: string,
-  ): ((input: string) => string | Promise<string>) | null {
-    for (const s of this.skills.values()) {
-      if (s.intents.includes(intent)) {
-        return (input: string) => s.handler(intent, input) ?? "";
+  ): ((input: string) => string | Promise<string> | null) | null {
+    const serving = [...this.skills.values()].filter((s) =>
+      s.intents.includes(intent),
+    );
+    if (serving.length === 0) return null;
+    return (input: string): string | Promise<string> | null => {
+      for (const s of serving) {
+        const answer = s.handler(intent, input);
+        if (answer instanceof Promise) return answer;
+        if (answer !== null && answer.trim().length > 0) return answer;
       }
-    }
-    return null;
+      return null;
+    };
   }
 }

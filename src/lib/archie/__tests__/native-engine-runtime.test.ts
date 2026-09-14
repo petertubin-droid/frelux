@@ -626,7 +626,10 @@ Satin finish is washable and good for interiors. Matte hides wall imperfections 
     // REAL deterministic paint calculator (plan P1/P2) — a
     // computed answer, not the tool dead-end of the past.
     expect(text).not.toContain("I did not find an arithmetic expression");
-    expect(text).toMatch(/litres for two coats|20-litre/);
+    // Batch 15 (fix 49): the prose now derives from the seeded
+    // data records (paintCoats=2 → "for 2 coats"), so it can
+    // never silently diverge from the computed assumptions.
+    expect(text).toMatch(/litres for 2 coats|litres for two coats|20-litre/);
   });
 
   it("still computes real arithmetic when an expression IS present", async () => {
