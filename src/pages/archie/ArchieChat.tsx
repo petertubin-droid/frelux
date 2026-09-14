@@ -30,6 +30,23 @@ import {
   type EarsRecorder,
   type TranscriptionResult,
 } from "@/lib/archie/ears";
+import {
+  createVoiceSession,
+  type VoiceSession,
+  type VoiceSessionState,
+} from "@/lib/archie/voice-session";
+import { speakArchie, stopArchieVoice } from "@/lib/archie/mobile/voice";
+import { loadProfileLocally } from "@/lib/archie/mobile/voice-profile";
+import {
+  fetchConsents,
+  loadCachedConsents,
+  grantCapability,
+  revokeCapability,
+} from "@/lib/archie/mobile/consent";
+import type {
+  ArchieConsent,
+  ArchieMobileCapability,
+} from "@/lib/archie/mobile/types";
 import { getSupabase } from "@/lib/supabase-lazy";
 import {
   createConversation,
@@ -54,6 +71,7 @@ import {
   type LanguageRegistryRow,
   type SessionLanguageResolution,
 } from "@/lib/archie/stage2-language-client";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/auth";
 
 type PendingUpload = { file: File; error?: string };
@@ -85,6 +103,7 @@ function ToolResultChip({
 
 export default function ArchieChat() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [conversations, setConversations] = useState<ArchieConversation[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [messages, setMessages] = useState<ArchieMessage[]>([]);
@@ -110,6 +129,24 @@ export default function ArchieChat() {
   const earsSpeechRef = useRef<Promise<TranscriptionResult> | null>(null);
   const [earsBusy, setEarsBusy] = useState(false);
   const [earsNotice, setEarsNotice] = useState("");
+  // ---- Advanced Voice Intelligence (native layer, owner
+  // directive 2026-09-10): the continuous LISTEN → THINK →
+  // SPEAK session and spoken replies run on the SAME
+  // cognitive engine (sendChatTurn), consents and audit
+  // trail as text chat — voice is an INTERFACE to ARCHIE,
+  // never a second brain. VOICE_INPUT gates listening,
+  // VOICE_OUTPUT gates speaking (checked in the libraries
+  // themselves — defense in depth; no caller can bypass). ----
+  const [consents, setConsents] = useState<Record<
+    ArchieMobileCapability,
+    ArchieConsent
+  > | null>(null);
+  const [voiceState, setVoiceState] = useState<VoiceSessionState | "IDLE">(
+    "IDLE",
+  );
+  const [interim, setInterim] = useState("");
+  const [speakerNote, setSpeakerNote] = useState("");
+  const voiceSessionRef = useRef<VoiceSession | null>(null);
   const threadRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
@@ -152,6 +189,18 @@ export default function ArchieChat() {
       cancelled = true;
     };
   }, []);
+
+  // device-capability consents (server source of truth,
+  // localStorage cache for instant open — same records the
+  // consent manager everywhere else uses)
+  useEffect(() => {
+    if (!user?.id) return;
+    const cached = loadCachedConsents(user.id);
+    if (cached) setConsents(cached);
+    fetchConsents(user.id)
+      .then(setConsents)
+      .catch(() => undefined); // consent load failure never blocks chat
+  }, [user?.id]);
 
   // load newest conversation on first open
   useEffect(() => {
@@ -311,6 +360,7 @@ export default function ArchieChat() {
     }
     // start listening — explicit, owner-initiated only.
     // Capture and native recognition run in parallel.
+    stopArchieVoice(); // one voice surface at a time
     try {
       earsSpeechRef.current = recognizeSpeech().catch((e) => {
         // UNSUPPORTED is honest and non-fatal: the voice note
@@ -374,7 +424,8 @@ export default function ArchieChat() {
 
   const deleteMessage = useCallback(
     async (m: ArchieMessage) => {
-      if (!window.confirm("Delete this message? This cannot be undone.")) return;
+      if (!window.confirm("Delete this message? This cannot be undone."))
+        return;
       setMessages((prev) => prev.filter((x) => x.id !== m.id));
       const supabase = await getSupabase();
       const { error } = await supabase
@@ -422,12 +473,142 @@ export default function ArchieChat() {
     [activeId, flashNotice],
   );
 
-
   // ---- send a chat turn through the REAL ARCHIE core ----
+  /** Explicit owner consent switch — the ONLY way voice
+   *  output turns on. Grants/revokes through the server
+   *  consent manager (frelux_archie_mobile_consents). */
+  const setVoiceConsent = useCallback(
+    async (cap: ArchieMobileCapability, granted: boolean) => {
+      if (!user?.id) return;
+      try {
+        if (granted) await grantCapability(user.id, cap);
+        else await revokeCapability(user.id, cap);
+        setConsents(await fetchConsents(user.id));
+      } catch (e) {
+        setError(
+          e instanceof Error
+            ? `Consent change failed: ${e.message}`
+            : "Consent change failed — nothing was changed.",
+        );
+      }
+    },
+    [user?.id],
+  );
+
+  /** Continuous voice session — the SAME loop as text chat:
+   *  LISTEN → HEAR → AUDIT → THINK (archie-chat engine turn,
+   *  persisted to this conversation) → SPEAK → LISTEN AGAIN.
+   *  One microphone at a time (voice notes and sessions never
+   *  overlap). High-risk spoken phrases route to the existing
+   *  owner-authorization workflow — voice can initiate, it
+   *  can never complete authorization. */
+  async function toggleVoiceSession() {
+    if (recording || earsBusy) {
+      setEarsNotice("One microphone at a time — finish the voice note first.");
+      return;
+    }
+    stopArchieVoice();
+    if (voiceSessionRef.current) {
+      voiceSessionRef.current.stop("manual");
+      return;
+    }
+    if (!consents?.VOICE_INPUT?.granted) {
+      setEarsNotice(
+        "Voice input is switched off — tap the Voice toggle to enable it (explicit consent).",
+      );
+      return;
+    }
+    if (!activeId) return;
+    const convId = activeId;
+    const created = await createVoiceSession(
+      {
+        voiceInputConsent: consents?.VOICE_INPUT ?? null,
+        voiceOutputConsent: consents?.VOICE_OUTPUT ?? null,
+        continuous: true,
+        sessionTimeoutMs: 10 * 60_000,
+        utteranceTimeoutMs: 15_000,
+        // §16: the owner's explicit language choice is
+        // authoritative and flows through the language registry.
+        languageCode: sessionLanguage?.language_code ?? "en",
+        bankPitchHz: loadProfileLocally()?.pitchHz ?? null,
+        conversationId: convId,
+        history: () =>
+          messages
+            .filter((m) => m.role === "owner" || m.role === "archie")
+            .slice(-8)
+            .map((m) => ({
+              role: m.role as "owner" | "archie",
+              content: m.content,
+            })),
+      },
+      {
+        onState: (state) => {
+          setVoiceState(state);
+          if (state === "STOPPED") {
+            voiceSessionRef.current = null;
+            setInterim("");
+          }
+        },
+        onHearing: (text) => setInterim(text),
+        onUserTranscript: ({ speaker }) => {
+          setInterim("");
+          if (speaker?.determinable) {
+            setSpeakerNote(
+              speaker.match
+                ? "Owner voice recognized — a similarity signal, not proof of identity."
+                : "Speaker not recognized against the owner voice profile.",
+            );
+          }
+        },
+        onArchieReply: (_reply, spoken) => {
+          // The session already SPOKE it through the mouth
+          // pipeline; the persisted thread is reloaded from
+          // the server (source of truth, same as text chat).
+          listMessages(convId)
+            .then(setMessages)
+            .catch(() => undefined);
+          if (!spoken && consents?.VOICE_OUTPUT?.granted) {
+            setEarsNotice("Voice output was muted for that reply.");
+          }
+        },
+        onError: (kind, message) => {
+          if (kind === "NO_SPEECH" && voiceState === "LISTENING") return;
+          setEarsNotice(message);
+        },
+        onAuthorizationRequired: () => {
+          // Voice INITIATED a high-risk request — it can never
+          // complete it. Route to the existing Owner
+          // Authorization workflow (typed secret, verified
+          // server-side) on the Security surface.
+          setEarsNotice(
+            "That request needs Owner authorization — opening Security → Owner Authorization. Voice can initiate it, never complete it.",
+          );
+          setVoiceSessionRefStop();
+        },
+      },
+    );
+    if (!created.ok) {
+      setEarsNotice(created.message);
+      return;
+    }
+    voiceSessionRef.current = created.session;
+    await created.session.start();
+  }
+
+  /** Stop-and-route helper for the authorization event: end
+   *  the session and navigate to the authorization surface. */
+  function setVoiceSessionRefStop() {
+    voiceSessionRef.current?.stop("manual");
+    voiceSessionRef.current = null;
+    setInterim("");
+    navigate("/archie/security");
+  }
+
   async function handleSend() {
     const text = draft.trim();
     if ((!text && pending.length === 0) || sending || !activeId) return;
 
+    stopArchieVoice(); // the owner typed — ARCHIE stops talking
     setSending(true);
     setError(null);
     const optimistic: ArchieMessage = {
@@ -491,6 +672,14 @@ export default function ArchieChat() {
       // reload the real persisted thread (source of truth)
       const fresh = await listMessages(activeId);
       setMessages(fresh);
+      // MOUTH (native prosody, owner voice bank): speak the
+      // reply aloud ONLY with an explicit VOICE_OUTPUT
+      // consent — speakArchie re-checks it library-side; no
+      // caller can bypass the gate.
+      if (consents?.VOICE_OUTPUT?.granted) {
+        const lastReply = [...fresh].reverse().find((m) => m.role === "archie");
+        if (lastReply) speakArchie(lastReply.content, consents.VOICE_OUTPUT);
+      }
       if (teachMode) {
         setTeachMode(false);
         recordAuditEvent("archie.chat.teach_submitted", "INFO", {
@@ -804,15 +993,18 @@ export default function ArchieChat() {
                     <li key={c.id}>
                       <button
                         type="button"
-                        onClick={() => void forwardTo(forwarding, c.id, c.title)}
+                        onClick={() =>
+                          void forwardTo(forwarding, c.id, c.title)
+                        }
                         className="w-full truncate rounded-lg px-3 py-2 text-left text-sm text-slate-200 hover:bg-white/5"
                       >
                         {c.title}
                       </button>
                     </li>
                   ))}
-                {conversations.filter((c) => c.id !== forwarding.conversation_id)
-                  .length === 0 && (
+                {conversations.filter(
+                  (c) => c.id !== forwarding.conversation_id,
+                ).length === 0 && (
                   <p className="px-2 py-3 text-xs text-slate-500">
                     No other conversation yet — start one first.
                   </p>
@@ -953,6 +1145,32 @@ export default function ArchieChat() {
 
         {/* composer */}
         <div className="border-t border-white/5 p-2 md:p-3">
+          {(voiceState !== "IDLE" || speakerNote) && (
+            <div
+              className="mb-1 flex items-center gap-2 px-1 text-[10px] uppercase tracking-wider"
+              role="status"
+            >
+              <span
+                className={
+                  voiceState === "LISTENING"
+                    ? "text-emerald-300"
+                    : voiceState === "STOPPED" || voiceState === "IDLE"
+                      ? "text-slate-500"
+                      : "text-amber-300/80"
+                }
+              >
+                {voiceState === "IDLE" ? "" : voiceState}
+              </span>
+              {interim && (
+                <span className="truncate text-[11px] normal-case text-slate-300">
+                  “{interim}”
+                </span>
+              )}
+              {speakerNote && (
+                <span className="text-slate-500">{speakerNote}</span>
+              )}
+            </div>
+          )}
           {(earsNotice || earsBusy) && (
             <p
               className="mb-1 px-1 text-[10px] uppercase tracking-wider text-amber-300/80"
@@ -1012,6 +1230,46 @@ export default function ArchieChat() {
                 >
                   <path d="M4 8h3l2-3h6l2 3h3v12H4Z" strokeLinejoin="round" />
                   <circle cx="12" cy="13" r="3.5" />
+                </svg>
+              </button>
+              <button
+                type="button"
+                onClick={toggleVoiceSession}
+                disabled={
+                  !consents?.VOICE_INPUT?.granted && voiceState === "IDLE"
+                }
+                title={
+                  voiceState !== "IDLE"
+                    ? "Stop voice session"
+                    : "Voice session — talk to ARCHIE: listen, think, speak, listen again (continuous)"
+                }
+                aria-label={
+                  voiceState !== "IDLE"
+                    ? "Stop voice session"
+                    : "Start voice session"
+                }
+                aria-pressed={voiceState !== "IDLE"}
+                className={`rounded-lg p-2 ${
+                  voiceState !== "IDLE"
+                    ? "bg-emerald-400/20 text-emerald-300 archie-voice-pulse"
+                    : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+                }`}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  className="h-5 w-5"
+                >
+                  <path
+                    d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Z"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M19 11a7 7 0 0 1-14 0M12 18v3"
+                    strokeLinecap="round"
+                  />
                 </svg>
               </button>
               <button
@@ -1101,9 +1359,31 @@ export default function ArchieChat() {
             >
               Teach
             </button>
+            <button
+              type="button"
+              onClick={() =>
+                void setVoiceConsent(
+                  "VOICE_OUTPUT",
+                  !consents?.VOICE_OUTPUT?.granted,
+                )
+              }
+              title="Speak replies aloud (on-device speech) — explicit consent, toggle anytime"
+              aria-label="Speak replies aloud"
+              aria-pressed={Boolean(consents?.VOICE_OUTPUT?.granted)}
+              className={`shrink-0 rounded-lg px-2.5 py-2 text-xs font-medium ${
+                consents?.VOICE_OUTPUT?.granted
+                  ? "bg-emerald-400/20 text-emerald-200"
+                  : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
+              }`}
+            >
+              Speak
+            </button>
             <textarea
               value={draft}
-              onChange={(e) => setDraft(e.target.value)}
+              onChange={(e) => {
+                stopArchieVoice(); // typing = stop talking
+                setDraft(e.target.value);
+              }}
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();

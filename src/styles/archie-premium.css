@@ -254,7 +254,11 @@
   .archie-nav-active,
   .archie-mascot,
   .archie-logo-live,
+  .archie-voice-pulse,
   .archie-mascot-busy {
+    animation: none;
+  }
+  .archie-voice-pulse {
     animation: none;
   }
   .archie-panel,
@@ -284,4 +288,21 @@
 .archie-root ::-webkit-scrollbar-thumb:hover {
   background: rgba(252, 211, 77, 0.35);
   background-clip: content-box;
+}
+
+/* ---------- Voice session pulse (Advanced Voice Intelligence) ----------
+   The session mic breathes while ARCHIE listens — emerald,
+   slow, calm. Disabled under prefers-reduced-motion below. */
+@keyframes archie-voice-pulse-anim {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(52, 211, 153, 0);
+  }
+}
+
+.archie-voice-pulse {
+  animation: archie-voice-pulse-anim 2.2s ease-in-out infinite;
 }
