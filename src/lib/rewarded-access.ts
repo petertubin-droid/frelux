@@ -13,67 +13,19 @@ import {
   getMonetagSdkUrl,
   showMonetagRewardedAd,
 } from "@/lib/monetag-rewarded";
-import { showAdsenseRewardedAd } from "@/lib/adsense-rewarded";
+import {
+  REWARDED_AD_BRIDGES,
+  getBridgedAdCandidates,
+  getUnlockProviderChain,
+} from "@/lib/rewarded-bridges";
 
-/**
- * Rewarded ad bridges, one entry per provider with a working client-side
- * rewarded implementation. A bridge shows the real ad and reports how it
- * completed; the unlock is then granted server-side with a client
- * attestation token (att_<slug>_<mode>_<timestamp>) that the edge
- * function validates against the active providers in the database.
- *
- * To support a new provider (of the 35 in ad_providers, or a future one):
- * 1. Implement its rewarded flow (see src/lib/monetag-rewarded.ts).
- * 2. Register it here. No edge-function or database change is needed.
- * Providers without a bridge honestly fail, the unlock is never
- * granted without a real ad being shown.
- */
-export interface RewardedAdBridgeResult {
-  mode: string;
-  valued: boolean | null;
-  estimatedPrice: number | null;
-}
-
-type RewardedAdBridge = (
-  provider: DbAdProvider,
-  opts: { ymid: string; toolKey: string },
-) => Promise<RewardedAdBridgeResult>;
-
-export const REWARDED_AD_BRIDGES: Record<string, RewardedAdBridge> = {
-  // Monetag, website tag / SDK bridge (src/lib/monetag-rewarded.ts)
-  monetag: async (provider, opts) => {
-    const zone = getMonetagZone(provider);
-    if (!zone)
-      throw new Error("The ad zone is not configured. Please try again later.");
-    return showMonetagRewardedAd({
-      zone,
-      ymid: opts.ymid,
-      requestVar: opts.toolKey,
-      sdkUrl: getMonetagSdkUrl(provider),
-      minWatchTimeMs: 5000,
-    });
-  },
-  // Google AdSense, H5 Games Ads adBreak bridge (src/lib/adsense-rewarded.ts)
-  google_adsense: async (provider, opts) => {
-    const settings = (provider.settings ?? {}) as Record<string, unknown>;
-    const creds = (provider.credentials ?? {}) as Record<string, unknown>;
-    if (settings.rewarded_ads !== true) {
-      throw new Error(
-        "AdSense rewarded ads are disabled. Enable Rewarded Ads in Admin → Ads → Google AdSense.",
-      );
-    }
-    const publisherId =
-      typeof creds.publisher_id === "string" ? creds.publisher_id : "";
-    return showAdsenseRewardedAd({
-      publisherId,
-      requestVar: opts.toolKey,
-    }).then((res) => ({
-      mode: "adsense_h5_rewarded",
-      valued: res.viewed,
-      estimatedPrice: null,
-    }));
-  },
-};
+// Re-exported for existing consumers/tests; the registry itself now lives
+// in @/lib/rewarded-bridges so non-React modules can use it too.
+export { REWARDED_AD_BRIDGES };
+export type {
+  RewardedAdBridge,
+  RewardedAdBridgeResult,
+} from "@/lib/rewarded-bridges";
 
 export interface RewardedAccessState {
   toolKey: string;
@@ -81,6 +33,7 @@ export interface RewardedAccessState {
   featureConfig: DbRewardedFeatureConfig | null;
   primaryProvider: DbAdProvider | null;
   fallbackProvider: DbAdProvider | null;
+  allActiveProviders: DbAdProvider[];
   isUnlocked: boolean;
   expiresAt: string | null;
   loading: boolean;
@@ -205,6 +158,9 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
   const [config, setConfig] = useState<DbRewardedToolConfig | null>(null);
   const [featureConfig, setFeatureConfig] =
     useState<DbRewardedFeatureConfig | null>(null);
+  const [allActiveProviders, setAllActiveProviders] = useState<DbAdProvider[]>(
+    [],
+  );
   const [primaryProvider, setPrimaryProvider] = useState<DbAdProvider | null>(
     null,
   );
@@ -277,14 +233,21 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     const primaryId = feat?.primary_provider_id ?? cfg?.primary_provider_id;
     const fallbackId = feat?.fallback_provider_id ?? cfg?.fallback_provider_id;
 
+    // Multi-provider support (owner directive 2026-09-15): the rewarded
+    // flow never depends on a single provider. Fetch every active
+    // provider once here; watchAd() builds the candidate chain below.
+    // Fix for issue #3: use ad_providers_public (admin-only raw table).
+    const { data: allProvData } = await supabase
+      .from("ad_providers_public")
+      .select("*")
+      .eq("is_active", true)
+      .order("priority");
+    const allProviders = (allProvData as DbAdProvider[]) ?? [];
+    setAllActiveProviders(allProviders);
+
     if (primaryId || fallbackId) {
       const ids = [primaryId, fallbackId].filter(Boolean) as string[];
-      // Fix for issue #3: use ad_providers_public instead of ad_providers
-      const { data: provData } = await supabase
-        .from("ad_providers_public")
-        .select("*")
-        .in("id", ids);
-      const providers = (provData as DbAdProvider[]) ?? [];
+      const providers = allProviders.filter((p) => ids.includes(p.id));
       setPrimaryProvider(
         primaryId ? (providers.find((p) => p.id === primaryId) ?? null) : null,
       );
@@ -574,40 +537,55 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     };
 
     // ──────────────────────────────────────────────────────
-    // Provider bridge: show the rewarded ad from this user gesture,
-    // then grant the unlock server-side with a client attestation.
-    // Must run inside the tap handler, mobile browsers only allow
-    // window-opening ad formats from a direct user gesture (which is
-    // why Monetag ads never fired for mobile visitors while the tag
-    // ran passively in <head>). See REWARDED_AD_BRIDGES above.
+    // Provider bridge chain (multi-provider): show the rewarded ad
+    // from this user gesture, then grant the unlock server-side with
+    // a client attestation. Must run inside the tap handler — mobile
+    // browsers only allow window-opening ad formats from a direct
+    // user gesture. Candidates are the configured primary/fallback
+    // first, then every other active bridged provider by priority;
+    // if one provider fails to show (zone not configured, SDK error,
+    // disabled) we honestly fall through to the next one instead of
+    // dead-ending on a single provider.
     // ──────────────────────────────────────────────────────
-    const bridge = activeProvider
-      ? REWARDED_AD_BRIDGES[activeProvider.slug]
-      : undefined;
-    if (activeProvider && bridge) {
-      try {
-        const adResult = await bridge(activeProvider, {
-          ymid: clientHash,
-          toolKey,
-        });
-        await grantUnlock(
-          activeProvider.name,
-          `att_${activeProvider.slug}_${adResult.mode}_${Date.now()}`,
-          {
-            ad_mode: adResult.mode,
-            ...(adResult.estimatedPrice != null
-              ? { estimated_price: adResult.estimatedPrice }
-              : {}),
-          },
-        );
-      } catch (e) {
-        const message =
-          e instanceof Error && e.message
-            ? e.message
-            : "The ad could not be loaded. Please try again.";
-        setError(message);
-        setAdLoading(false);
+    const chain = getUnlockProviderChain(
+      allActiveProviders,
+      primaryProvider,
+      fallbackProvider,
+    );
+    if (chain.length > 0) {
+      const failures: string[] = [];
+      for (const provider of chain) {
+        const bridge = REWARDED_AD_BRIDGES[provider.slug];
+        if (!bridge) continue;
+        try {
+          const adResult = await bridge(provider, {
+            ymid: clientHash,
+            toolKey,
+          });
+          await grantUnlock(
+            provider.name,
+            `att_${provider.slug}_${adResult.mode}_${Date.now()}`,
+            {
+              ad_mode: adResult.mode,
+              ...(adResult.estimatedPrice != null
+                ? { estimated_price: adResult.estimatedPrice }
+                : {}),
+            },
+          );
+          return;
+        } catch (e) {
+          // This provider could not show an ad — try the next one.
+          failures.push(
+            e instanceof Error && e.message
+              ? e.message
+              : "The ad could not be loaded.",
+          );
+          continue;
+        }
       }
+      // Every candidate failed to show an ad.
+      setError(failures[0] ?? "The ad could not be loaded. Please try again.");
+      setAdLoading(false);
       return;
     }
 
@@ -623,6 +601,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     toolKey,
     adLoading,
     fallbackProvider,
+    allActiveProviders,
   ]);
 
   return {
@@ -631,6 +610,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     featureConfig,
     primaryProvider,
     fallbackProvider,
+    allActiveProviders,
     isUnlocked,
     expiresAt,
     loading,

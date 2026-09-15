@@ -48,7 +48,12 @@ import {
   type RewardedAdCreditConfig,
   type RewardedAdCreditEvent,
 } from "@/lib/credits";
-import { getClientHash, REWARDED_AD_BRIDGES } from "@/lib/rewarded-access";
+import { getClientHash } from "@/lib/rewarded-access";
+import {
+  getBridgedAdCandidates,
+  REWARDED_AD_BRIDGES,
+  type RewardedAdBridgeResult,
+} from "@/lib/rewarded-bridges";
 import { PlayCircle, Film, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/shadcn/button";
@@ -295,20 +300,17 @@ export default function Rewards() {
 
     setWatchingAd(true);
     try {
-      // Find an active provider with a real client-side rewarded bridge
-      // (e.g. Monetag). We must actually show the ad from this tap :
-      // mobile browsers block window-opening ad formats outside a direct
-      // user gesture, then pass a client attestation token so the
-      // server can verify a real ad was shown before granting credits.
+      // Multi-provider earn flow (owner directive 2026-09-15): walk every
+      // active provider with a real client-side rewarded bridge, in
+      // priority order, until one actually shows an ad. We must show the
+      // ad from this tap — mobile browsers block window-opening ad
+      // formats outside a direct user gesture — then pass a client
+      // attestation token so the server verifies a real ad was shown
+      // before granting credits.
       const { providers } = await fetchAdConfig();
-      const activeProvider = providers.find(
-        (p) =>
-          (p.provider_type === "rewarded" || p.provider_type === "mixed") &&
-          p.is_active &&
-          REWARDED_AD_BRIDGES[p.slug],
-      );
+      const candidates = getBridgedAdCandidates(providers);
 
-      if (!activeProvider) {
+      if (candidates.length === 0) {
         toast({
           type: "info",
           title: "Coming soon",
@@ -318,16 +320,45 @@ export default function Rewards() {
         return;
       }
 
-      const adResult = await REWARDED_AD_BRIDGES[activeProvider.slug](
-        activeProvider,
-        { ymid: getClientHash(), toolKey: "earn_credits" },
-      );
+      let adResult: RewardedAdBridgeResult | null = null;
+      let activeProviderSlug = "";
+      let lastError = "The ad could not be loaded. Please try again.";
+
+      for (const candidate of candidates) {
+        const bridge = REWARDED_AD_BRIDGES[candidate.slug];
+        if (!bridge) continue;
+        try {
+          adResult = await bridge(candidate, {
+            ymid: getClientHash(),
+            toolKey: "earn_credits",
+          });
+          activeProviderSlug = candidate.slug;
+          break;
+        } catch (e) {
+          // This provider could not show an ad — try the next one.
+          lastError =
+            e instanceof Error && e.message
+              ? e.message
+              : "The ad could not be loaded.";
+          continue;
+        }
+      }
+
+      if (!adResult || !activeProviderSlug) {
+        toast({
+          type: "error",
+          title: "Ad failed",
+          message: lastError,
+        });
+        setWatchingAd(false);
+        return;
+      }
 
       const adEventId = `ad_${user.id}_${Date.now()}`;
-      const adToken = `att_${activeProvider.slug}_${adResult.mode}_${Date.now()}`;
+      const adToken = `att_${activeProviderSlug}_${adResult.mode}_${Date.now()}`;
 
       const result = await verifyRewardedAd(
-        activeProvider.slug,
+        activeProviderSlug,
         adEventId,
         "earn_credits",
         {

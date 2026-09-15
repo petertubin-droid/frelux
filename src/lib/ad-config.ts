@@ -1,5 +1,5 @@
-import { getSupabase } from '@/lib/supabase-lazy';
-import type { DbAdProvider, DbAdPlacement } from '@/types/database';
+import { getSupabase } from "@/lib/supabase-lazy";
+import type { DbAdProvider, DbAdPlacement } from "@/types/database";
 
 // Module-level cache for ad config
 let providersCache: DbAdProvider[] | null = null;
@@ -23,8 +23,12 @@ export async function fetchAdConfig(force = false): Promise<AdConfigResult> {
 
   const supabase = await getSupabase();
   const [provRes, placeRes] = await Promise.all([
-    supabase.from('ad_providers_public').select('*').eq('is_active', true).order('priority'),
-    supabase.from('ad_placements').select('*').eq('is_active', true),
+    supabase
+      .from("ad_providers_public")
+      .select("*")
+      .eq("is_active", true)
+      .order("priority"),
+    supabase.from("ad_placements").select("*").eq("is_active", true),
   ]);
 
   providersCache = (provRes.data as DbAdProvider[]) ?? [];
@@ -63,7 +67,10 @@ export function getProvidersForPlacement(
 /**
  * Get a specific placement by key.
  */
-export function getPlacement(placementKey: string, placements: DbAdPlacement[]): DbAdPlacement | null {
+export function getPlacement(
+  placementKey: string,
+  placements: DbAdPlacement[],
+): DbAdPlacement | null {
   return placements.find((p) => p.placement_key === placementKey) ?? null;
 }
 
@@ -103,7 +110,7 @@ export async function logAdEvent(event: {
       metadata: event.metadata ?? {},
     };
     const sb = await getSupabase();
-    await sb.from('ad_analytics_events').insert(payload);
+    await sb.from("ad_analytics_events").insert(payload);
   } catch {
     // Silently fail, analytics logging should never break the user experience
   }
@@ -112,7 +119,10 @@ export async function logAdEvent(event: {
 /**
  * Get the ad unit ID for a specific provider on a placement.
  */
-export function getAdUnitId(placement: DbAdPlacement, providerId: string): string | null {
+export function getAdUnitId(
+  placement: DbAdPlacement,
+  providerId: string,
+): string | null {
   return placement.ad_unit_ids[providerId] ?? null;
 }
 
@@ -124,11 +134,13 @@ export function getAdUnitId(placement: DbAdPlacement, providerId: string): strin
 export async function hasRewardedAdProvider(): Promise<boolean> {
   try {
     const { providers } = await fetchAdConfig();
-    return providers.some(
-      (p) =>
-        (p.provider_type === "rewarded" || p.provider_type === "mixed") &&
-        p.is_active,
-    );
+    // Multi-provider (owner directive 2026-09-15): an active provider
+    // only counts when we can actually serve a rewarded experience —
+    // a real client-side bridge OR an offerwall. Previously a provider
+    // that was merely typed "rewarded"/"mixed" with no implementation
+    // flipped this to true and users hit a dead "Watch Ad" button.
+    const { getRewardedAdCandidates } = await import("@/lib/rewarded-bridges");
+    return getRewardedAdCandidates(providers).length > 0;
   } catch {
     return false;
   }
