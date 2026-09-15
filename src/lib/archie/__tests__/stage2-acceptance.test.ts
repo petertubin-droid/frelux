@@ -45,6 +45,21 @@ describe("Model independence (spec §§1, 11, 12, 39, 41)", () => {
     expect(core).toContain("ARCHIE_PERSONA");
     expect(core).toContain("frelux_archie_messages");
   });
+
+  // Owner fix 2026-09-15: the owner chat must think through the
+  // SAME brain as every ARCHIE surface — the raw owner message
+  // reaches the shared NLU as real conversation turns, never a
+  // flattened prompt blob.
+  it("archie-core routes the owner's raw message through the shared NLU (single brain)", () => {
+    expect(core).toMatch(
+      /import \{ understand \} from "\.\.\/_shared\/archie-ai\/native-engine\/nlu\.ts"/,
+    );
+    expect(core).toContain("const nlu = understand(");
+    expect(core).toContain("turns: [");
+    expect(core).not.toContain("Conversation so far");
+    expect(core).not.toContain("UNDERSTAND_SCHEMA");
+    expect(core).not.toContain("Owner's new message:");
+  });
 });
 
 describe("Family invitation security (spec §§25, 27, 28)", () => {

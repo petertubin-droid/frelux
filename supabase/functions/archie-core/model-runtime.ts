@@ -32,8 +32,21 @@ export interface RuntimePart {
   inlineData?: { mimeType: string; data: string };
 }
 
-export interface InferenceRequest {
+export interface InferenceTurn {
+  role: "owner" | "archie";
   parts: RuntimePart[];
+}
+
+export interface InferenceRequest {
+  /** Legacy flat form: a single owner turn built from parts. */
+  parts?: RuntimePart[];
+  /** Full conversation structure: history turns plus the
+   *  owner's final turn. When present the engine receives the
+   *  turns VERBATIM — the shared NLU classifies the owner's
+   *  RAW message (identical to every other ARCHIE surface),
+   *  never a flattened prompt blob. Single-brain contract
+   *  (owner fix 2026-09-15). */
+  turns?: InferenceTurn[];
   schema?: Record<string, unknown>;
   systemPrompt?: string;
 }
@@ -96,17 +109,13 @@ export async function infer(req: InferenceRequest): Promise<InferenceResult> {
       "No inference runtime is available. ARCHIE's own model is not yet built and no engine is registered in ARCHIE's provider-agnostic engine registry.",
     );
   }
+  const mapPart = (p: RuntimePart) =>
+    p.text !== undefined ? { text: p.text } : { inlineMedia: p.inlineData };
+  const turns = req.turns ?? [
+    { role: "owner" as const, parts: (req.parts ?? []).map(mapPart) },
+  ];
   const result = await runtime.generate({
-    turns: [
-      {
-        role: "owner",
-        parts: req.parts.map((p) =>
-          p.text !== undefined
-            ? { text: p.text }
-            : { inlineMedia: p.inlineData },
-        ),
-      },
-    ],
+    turns,
     tools: [],
     systemInstruction: req.systemPrompt ?? "",
     ...(req.schema ? { responseSchema: req.schema } : {}),

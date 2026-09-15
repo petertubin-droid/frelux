@@ -606,7 +606,16 @@ export default function ArchieChat() {
 
   async function handleSend() {
     const text = draft.trim();
-    if ((!text && pending.length === 0) || sending || !activeId) return;
+    if ((!text && pending.length === 0) || !activeId) return;
+    if (sending) {
+      // Never silently drop the owner's words while a reply is
+      // still in flight (owner report 2026-09-15). The draft
+      // stays in the box; say what happened.
+      setError(
+        "ARCHIE is still answering your last message — once that reply lands, send this one again.",
+      );
+      return;
+    }
 
     stopArchieVoice(); // the owner typed — ARCHIE stops talking
     setSending(true);
@@ -664,8 +673,7 @@ export default function ArchieChat() {
 
       if (!result.ok) {
         setError(result.error ?? "ARCHIE core error");
-        setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
-        setDraft(text);
+        await recoverFailedTurn(text, optimistic.id);
         return;
       }
 
@@ -691,10 +699,30 @@ export default function ArchieChat() {
       refreshConversations();
     } catch (e) {
       setError(e instanceof Error ? e.message : "Send failed");
-      setMessages((prev) => prev.filter((m) => m.id !== optimistic.id));
-      setDraft(text);
+      await recoverFailedTurn(text, optimistic.id);
     } finally {
       setSending(false);
+    }
+  }
+
+  // The server persists the owner's turn BEFORE inference
+  // (source of truth) — a failed or timed-out reply does not
+  // mean the message was never recorded. Reload the real
+  // thread; only restore the draft when the turn truly isn't
+  // there. The owner must never lose sight of their own words
+  // (owner report 2026-09-15).
+  async function recoverFailedTurn(text: string, optimisticId: string) {
+    if (!activeId) return;
+    const fresh = await listMessages(activeId).catch(() => null);
+    if (fresh) {
+      setMessages(fresh);
+      const recorded = fresh.some(
+        (m) => m.role === "owner" && m.content === text,
+      );
+      if (!recorded) setDraft(text);
+    } else {
+      setMessages((prev) => prev.filter((m) => m.id !== optimisticId));
+      setDraft(text);
     }
   }
 

@@ -61,6 +61,7 @@ const service = createClient(SUPABASE_URL, SERVICE_ROLE);
 // (knowledge facts + learning outcomes) into the engine the
 // registry resolves. Zero external AI APIs.
 import { configureNativeEnginePersistence } from "../_shared/archie-ai/native-engine/engine.ts";
+import { understand } from "../_shared/archie-ai/native-engine/nlu.ts";
 configureNativeEnginePersistence(
   service as unknown as import("../_shared/archie-ai/native-engine/persistence.ts").SupabaseLike,
 );
@@ -399,11 +400,20 @@ const SUPPORTED_MIME_PREFIXES = [
   "text/",
 ];
 
-async function attachmentParts(
+// ---------------------------------------------------------
+// ATTACHMENTS (owner fix 2026-09-15): ARCHIE's native engine
+// has NO multimodal reader — attachments used to be
+// downloaded and base64-inlined into parts the engine never
+// reads (pure latency per turn). The honest contract (same
+// as archie-chat): name what was attached, state plainly
+// that content analysis is not yet operational, and never
+// pretend to see a file.
+// ---------------------------------------------------------
+function attachmentNote(
   attachments: Array<{ storage_path: string; mime: string; name?: string }>,
-): Promise<{ parts: RuntimePart[]; warnings: string[] }> {
-  const parts: RuntimePart[] = [];
+): { note: string; warnings: string[] } {
   const warnings: string[] = [];
+  const listed: string[] = [];
   for (const a of attachments.slice(0, 4)) {
     if (!SUPPORTED_MIME_PREFIXES.some((p) => a.mime?.startsWith(p))) {
       warnings.push(
@@ -411,24 +421,22 @@ async function attachmentParts(
       );
       continue;
     }
-    const { data: blob } = await service.storage
-      .from("archie-media")
-      .download(a.storage_path);
-    if (!blob) {
-      warnings.push(`Could not read attachment: ${a.name ?? a.storage_path}`);
-      continue;
-    }
-    const buf = new Uint8Array(await blob.arrayBuffer());
-    let bin = "";
-    for (const b of buf) bin += String.fromCharCode(b);
-    parts.push({
-      inlineData: { mimeType: a.mime, data: btoa(bin) },
-    });
-    parts.push({
-      text: `Attachment "${a.name ?? a.storage_path}" (${a.mime}) was provided by the Owner above.`,
-    });
+    listed.push(`${a.name ?? a.storage_path} (${a.mime})`);
   }
-  return { parts, warnings };
+  if (attachments.length > 4) {
+    warnings.push(
+      `${attachments.length - 4} further attachment(s) not listed.`,
+    );
+  }
+  return {
+    note:
+      listed.length > 0
+        ? `\n\n[Owner attached ${listed.length} file(s): ${listed.join(
+            ", ",
+          )}. Analysis of file CONTENT is not yet operational; acknowledge what was attached honestly.]`
+        : "",
+    warnings,
+  };
 }
 
 // ---------------------------------------------------------
@@ -531,41 +539,6 @@ async function verifiedTerminologyBlock(
     terms: rows.length,
   };
 }
-
-// ---------------------------------------------------------
-// UNDERSTAND: intent classification (schema-constrained).
-// Extensible: new intents map to new tools without changing
-// the interface contract.
-// ---------------------------------------------------------
-const UNDERSTAND_SCHEMA = {
-  type: "object",
-  properties: {
-    intent: {
-      type: "string",
-      enum: [
-        "general_reasoning",
-        "knowledge_retrieval",
-        "system_status",
-        "frelux_data",
-        "learning",
-        "planning",
-        "analysis",
-      ],
-    },
-    domains: { type: "array", items: { type: "string" } },
-    search_query: { type: "string" },
-    learning: {
-      type: "object",
-      properties: {
-        title: { type: "string" },
-        domain: { type: "string" },
-        summary: { type: "string" },
-      },
-    },
-    goals: { type: "array", items: { type: "string" } },
-  },
-  required: ["intent"],
-} as const;
 
 const ARCHIE_PERSONA = `You are ARCHIE — the Owner's personal intelligence system for FRELUX, a construction & property intelligence platform (Nigeria-first).
 
@@ -754,54 +727,59 @@ serveWithCors(async (req: Request) => {
   try {
     const attachments = Array.isArray(body.attachments) ? body.attachments : [];
 
-    // 2) UNDERSTAND
-    const understanding = (
-      await infer({
-        parts: [{ text: message || "Please analyze the attached file(s)." }],
-        schema: UNDERSTAND_SCHEMA as unknown as Record<string, unknown>,
-      })
-    ).data;
-    const intent = String(understanding.intent ?? "general_reasoning");
+    // 2) UNDERSTAND — the shared deterministic NLU (owner fix
+    //    2026-09-15): the SAME classifier every ARCHIE surface
+    //    uses. The old pass ran a full schema-constrained
+    //    engine inference just to guess an intent — slow, and
+    //    the rule engine answers conversationally instead of
+    //    emitting schema JSON, so the intent was almost always
+    //    the "general_reasoning" fallback. One brain, one NLU.
+    const nlu = understand(
+      message,
+      (body.history ?? []).slice(-8).map((h) => ({
+        role: h.role,
+        text: h.content,
+      })),
+    );
+    const intent = nlu.intent;
 
     // 3) SELECT + EXECUTE real tools
     const toolResults: ToolResult[] = [];
     const warnings: string[] = [];
-    const learning = body.teach || intent === "learning";
+    const learning = body.teach || intent === "teaching";
 
     if (learning) {
-      const l = (understanding.learning ?? {}) as Record<string, string>;
       toolResults.push(
         await toolLearningInitiate(userId, {
-          title: l.title || message.slice(0, 80),
-          domain: l.domain || "general",
-          summary: l.summary || message.slice(0, 500),
+          title: message.slice(0, 80),
+          domain: "general",
+          summary: message.slice(0, 500),
           source: "Owner chat — Teach ARCHIE",
         }),
       );
     }
     if (intent === "system_status") toolResults.push(await toolSystemStatus());
-    if (intent === "frelux_data" || intent === "system_status") {
+    if (intent === "system_status") {
       toolResults.push(await toolFreluxData());
     }
-    if (intent === "knowledge_retrieval" && understanding.search_query) {
-      toolResults.push(
-        await toolKnowledgeSearch(String(understanding.search_query)),
-      );
+    if (
+      intent === "knowledge_query" ||
+      intent === "howto_guidance" ||
+      intent === "research_request"
+    ) {
+      toolResults.push(await toolKnowledgeSearch(message));
     }
-    if (intent === "planning" && Array.isArray(understanding.goals)) {
-      toolResults.push(await toolPlanning(understanding.goals as string[]));
+    if (intent === "task_planning") {
+      toolResults.push(await toolPlanning([message]));
     }
 
-    // 4) multimodal context (explicitly provided attachments only)
-    const { parts: mediaParts, warnings: mediaWarnings } =
-      await attachmentParts(attachments);
-    warnings.push(...mediaWarnings);
+    // 4) attachments context (explicitly provided files only)
+    const { note: attachmentsNote, warnings: attachmentWarnings } =
+      attachmentNote(attachments);
+    warnings.push(...attachmentWarnings);
 
     // 5) VALIDATE + RESPOND
-    const historyBlock = (body.history ?? [])
-      .slice(-8)
-      .map((h) => `${h.role === "owner" ? "Owner" : "ARCHIE"}: ${h.content}`)
-      .join("\n");
+
     const toolBlock = toolResults.length
       ? toolResults
           .map(
@@ -823,20 +801,40 @@ serveWithCors(async (req: Request) => {
         ? ""
         : `\n\nLanguage: respond in the language with registry code "${language.res.language_code}" (its label is in frelux_archie_languages). Write the ENTIRE reply in that language. Keep technical terms consistent with the verified terminology below when present.`;
 
+    // ONE pass through the shared engine with the REAL
+    // conversation structure (owner fix 2026-09-15): history
+    // arrives as history turns and the owner's RAW message as
+    // the final owner turn, so the shared NLU classifies the
+    // message itself — never a flattened prompt blob that
+    // buried the greeting in prose and misrouted it to the
+    // math dead-end and
+    // identity questions to the canned self-anchor. Persona,
+    // tool ground truth and verified terminology ride in the
+    // systemInstruction — the engine's retrieval source,
+    // never its NLU input.
+    const finalInput =
+      (message ?? "") + attachmentsNote ||
+      "Please analyze the attached file(s).";
+    const systemContext =
+      ARCHIE_PERSONA +
+      languageDirective +
+      (toolResults.length
+        ? `\n\nTool execution results (ground truth — cite them; never contradict them):\n${toolBlock}`
+        : "") +
+      (terminology.block ? `\n\n${terminology.block}` : "");
+
     const inference = await infer({
-      parts: [
+      turns: [
+        ...(body.history ?? []).slice(-8).map((h) => ({
+          role: h.role,
+          parts: [{ text: h.content }] as RuntimePart[],
+        })),
         {
-          text: `Conversation so far:\n${historyBlock || "(new conversation)"}`,
-        },
-        ...mediaParts,
-        { text: `Owner's new message: ${message || "(attachment only)"}` },
-        { text: `Tool execution results (ground truth):\n${toolBlock}` },
-        ...(terminology.block ? [{ text: terminology.block }] : []),
-        {
-          text: "Answer the Owner now as ARCHIE, using the tool results as facts.",
+          role: "owner" as const,
+          parts: [{ text: finalInput }] as RuntimePart[],
         },
       ],
-      systemPrompt: ARCHIE_PERSONA + languageDirective,
+      systemPrompt: systemContext,
     });
     const response = inference.data;
     const reply = String(response.reply ?? "(no reply)");

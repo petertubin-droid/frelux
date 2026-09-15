@@ -662,3 +662,66 @@ Choose cement-based grout for wet areas and epoxy grout for heavy-wear floors. A
     expect(text.toLowerCase()).toContain("grout");
   });
 });
+
+// =========================================================
+// OWNER CHAT TURN SHAPE (owner report 2026-09-15 — regression)
+//
+// archie-core used to flatten the whole conversation into ONE
+// prompt blob ("Conversation so far: ... Owner's new message:
+// hello ...") so the shared NLU classified the BLOB, not the
+// owner's words: a greeting fell into the math dead-end and
+// "who created you" hit the canned identity answer. The owner
+// path now sends the REAL turn structure — history as history
+// turns, the raw message as the final owner turn, context in
+// the systemInstruction — identical to every ARCHIE surface.
+// These tests pin that contract at the engine level.
+// =========================================================
+describe("Owner chat turn shape (archie-core regression 2026-09-15)", () => {
+  const engine = new ArchieNativeEngine();
+  const ownerTurns = (message: string, history: string[][] = []) => [
+    ...history.map(([role, text]) => ({
+      role: role === "owner" ? ("owner" as const) : ("archie" as const),
+      parts: [{ text }],
+    })),
+    { role: "owner" as const, parts: [{ text: message }] },
+  ];
+  const systemContext =
+    "You are ARCHIE — the Owner's personal intelligence system. " +
+    "Tool execution results (ground truth): TOOL frelux_data OK: 27 facts, " +
+    "141 estimates, 355 materials.";
+
+  it("greets a bare hello — never the math dead-end — with tool data riding in the context", async () => {
+    const result = await engine.generate({
+      turns: ownerTurns("hello"),
+      systemInstruction: systemContext,
+      tools: [],
+    });
+    const text = result.parts.map((p) => p.text ?? "").join(" ");
+    expect(text).not.toContain("I did not find an arithmetic expression");
+    expect(text.toLowerCase()).toMatch(/good to hear|hello|welcome|hey/i);
+  });
+
+  it("answers identity from its facts-cited self-model, not a canned dump", async () => {
+    const result = await engine.generate({
+      turns: ownerTurns("who created you"),
+      systemInstruction: systemContext,
+      tools: [],
+    });
+    const text = result.parts.map((p) => p.text ?? "").join(" ");
+    expect(text).not.toContain("I did not find an arithmetic expression");
+    expect(text).toMatch(/ARCHIE|native engine|native inference/i);
+  });
+
+  it("routes a follow-up in history correctly — history is turns, not a blob", async () => {
+    const result = await engine.generate({
+      turns: ownerTurns("and what about 25 * 48?", [
+        ["owner", "what is 12 * 12?"],
+        ["archie", "12 * 12 = 144."],
+      ]),
+      systemInstruction: systemContext,
+      tools: [],
+    });
+    const text = result.parts.map((p) => p.text ?? "").join(" ");
+    expect(text).toContain("1200");
+  });
+});
