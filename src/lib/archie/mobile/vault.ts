@@ -64,6 +64,22 @@ export function getCachedEnvelope(
   }
 }
 
+/** FIX 56: remove specific envelope paths from the local
+ *  ciphertext cache (a deleted item's cache must not
+ *  outlive the item). Best-effort, never fatal. */
+function uncacheEnvelopes(userId: string, paths: string[]): void {
+  try {
+    const key = cacheKey(userId);
+    const raw = localStorage.getItem(key);
+    if (!raw) return;
+    const store: Record<string, CipherEnvelope> = JSON.parse(raw);
+    for (const path of paths) delete store[path];
+    localStorage.setItem(key, JSON.stringify(store));
+  } catch {
+    /* caching is best-effort; never fatal */
+  }
+}
+
 /** Remove ALL locally cached protected data (where the browser/Android permits). */
 export async function clearLocalProtectedCache(
   userId?: string,
@@ -195,6 +211,27 @@ export async function versionProtectedItem(
   await uploadEnvelope(userId, path, envelope);
   cacheEnvelope(userId, path, envelope);
 
+  // FIX 58: the version ledger row is written BEFORE the item
+  // pointer moves. The old order (update item, then insert the
+  // version row) left latest_version pointing at a version that
+  // did not exist in the ledger whenever the insert failed —
+  // the version list and the item disagreed. With this order a
+  // failed insert leaves the item on its previous consistent
+  // version; the orphaned storage object is harmless ciphertext.
+  const { data: version, error: verErr } = await supabase
+    .from("frelux_protected_item_versions")
+    .insert({
+      item_id: itemId,
+      user_id: userId,
+      version: nextVersion,
+      storage_path: path,
+      size_bytes: envelope.ciphertext.length,
+      checksum,
+    })
+    .select("*")
+    .single();
+  if (verErr) throw new Error(verErr.message);
+
   const { data: updated, error: upErr } = await supabase
     .from("frelux_protected_items")
     .update({
@@ -210,20 +247,6 @@ export async function versionProtectedItem(
     .select("*")
     .single();
   if (upErr) throw new Error(upErr.message);
-
-  const { data: version, error: verErr } = await supabase
-    .from("frelux_protected_item_versions")
-    .insert({
-      item_id: itemId,
-      user_id: userId,
-      version: nextVersion,
-      storage_path: path,
-      size_bytes: envelope.ciphertext.length,
-      checksum,
-    })
-    .select("*")
-    .single();
-  if (verErr) throw new Error(verErr.message);
 
   return {
     item: updated as ProtectedItem,
@@ -303,15 +326,26 @@ export async function recoverProtectedItem(
     if (vErr || !v) throw new Error("Version not found.");
     ver = v as ProtectedItemVersion;
   } else {
-    ver = {
-      id: "latest",
-      item_id: itemId,
-      version: item.latest_version,
-      storage_path: item.storage_path,
-      size_bytes: item.size_bytes,
-      checksum: "",
-      created_date: item.updated_date,
-    };
+    // FIX 57: the default (latest) recovery reads the REAL
+    // ledger row for the latest version. The old code
+    // synthesized a fake version row with an empty checksum —
+    // which the integrity gate skips — so only explicit
+    // version recovery was ever tamper-checked. The latest
+    // backup (the default path most owners use) now gets the
+    // SAME checksum verification.
+    const { data: lv, error: lvErr } = await supabase
+      .from("frelux_protected_item_versions")
+      .select("*")
+      .eq("item_id", itemId)
+      .eq("user_id", userId)
+      .eq("version", item.latest_version)
+      .maybeSingle();
+    if (lvErr || !lv) {
+      throw new Error(
+        "The version ledger for this item is inconsistent — recover by choosing an explicit version.",
+      );
+    }
+    ver = lv as ProtectedItemVersion;
   }
 
   const envelope = await downloadEnvelope(userId, ver.storage_path);
@@ -335,10 +369,59 @@ export async function deleteProtectedItem(
   userId: string,
   itemId: string,
 ): Promise<void> {
+  // FIX 56: a delete must destroy the CIPHERTEXT BACKUPS too.
+  // The old code deleted only the DB rows — the version rows
+  // cascaded away, but every encrypted object stayed in the
+  // archie-protected bucket (and the local cache) forever. An
+  // owner deleting a protected item expects the protected data
+  // to be gone, not merely unlisted. Collect every known path
+  // BEFORE the rows disappear (the cascade needs them gone
+  // after), remove the storage objects, clear the local cache,
+  // and record an honest security event — a warning naming the
+  // leftovers if storage removal failed.
+  const { data: versions } = await supabase
+    .from("frelux_protected_item_versions")
+    .select("storage_path")
+    .eq("item_id", itemId)
+    .eq("user_id", userId);
+  const paths = new Set<string>(
+    (versions ?? []).map((r: { storage_path: string }) => r.storage_path),
+  );
+  const { data: item } = await supabase
+    .from("frelux_protected_items")
+    .select("storage_path, latest_version, label")
+    .eq("id", itemId)
+    .eq("user_id", userId)
+    .maybeSingle();
+  if (item) {
+    paths.add(item.storage_path);
+    for (let n = 1; n <= item.latest_version; n++) {
+      paths.add(`${userId}/${itemId}/v${n}.json`);
+    }
+  }
+  const pathList = [...paths];
+
+  let storageFailed = false;
+  if (pathList.length > 0) {
+    const { error: rmErr } = await supabase.storage
+      .from(PROTECTED_BUCKET)
+      .remove(pathList);
+    storageFailed = Boolean(rmErr);
+  }
+  uncacheEnvelopes(userId, pathList);
+
   const { error } = await supabase
     .from("frelux_protected_items")
     .delete()
     .eq("id", itemId)
     .eq("user_id", userId);
   if (error) throw new Error(error.message);
+
+  await recordSecurityEvent(userId, {
+    kind: "PROTECTED_DATA_DELETED",
+    severity: storageFailed ? "warning" : "info",
+    message: storageFailed
+      ? `Protected item "${item?.label ?? itemId}" was deleted, but removing its encrypted backups from cloud storage failed — ciphertext objects remain in the private bucket (${pathList.length}). Retry the delete or contact support.`
+      : `Protected item "${item?.label ?? itemId}" was deleted together with all ${pathList.length} encrypted backup(s). The phone and the cloud hold no copy.`,
+  });
 }

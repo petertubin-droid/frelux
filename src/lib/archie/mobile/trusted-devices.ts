@@ -182,8 +182,19 @@ export function detectSuspiciousActivity(
   if ((signals.time_since_rotation_hours ?? 0) > 24 * 90) {
     reasons.push("Device token has not been rotated for over 90 days");
   }
+  // FIX 59: a security status NEVER downgrades. The old code
+  // reported TRUSTED for any device with no new signals — even
+  // a device already flagged SUSPICIOUS (e.g. suspended pending
+  // review). A verdict that resurrects trust on an already
+  // flagged device is a lie any consumer (UI badge, audit log,
+  // future persistence) would faithfully repeat. The current
+  // non-trusted status is evidence in its own right.
   if (device.security_status === "UNTRUSTED") {
     reasons.push("Device was already marked untrusted");
+  } else if (device.security_status === "SUSPICIOUS") {
+    reasons.push(
+      "Device was already flagged suspicious (suspension or prior detection stands until reviewed)",
+    );
   }
   return {
     suspicious: reasons.length > 0,

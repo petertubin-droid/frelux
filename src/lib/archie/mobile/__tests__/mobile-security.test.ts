@@ -29,6 +29,7 @@ const tables: Record<string, Row[]> = {
 const invokeMock = vi.hoisted(() => vi.fn());
 
 const supabaseMock = vi.hoisted(() => {
+  const storageRemoveCalls: string[][] = [];
   function makeClient() {
     return {
       from: (table: string) => {
@@ -144,9 +145,13 @@ const supabaseMock = vi.hoisted(() => {
             select: (_c?: string) => ({
               single: () => {
                 single = true;
-                run();
+                // run() applies the update and returns the
+                // matched rows; single() resolves the first one.
+                // (The old code indexed the already-unwrapped row
+                // with [0] and always produced null.)
+                const matched = run();
                 return Promise.resolve({
-                  data: (apply(matching()) as Row[])[0] ?? null,
+                  data: matched[0] ?? null,
                   error: null,
                 });
               },
@@ -162,14 +167,32 @@ const supabaseMock = vi.hoisted(() => {
           };
           return req;
         };
-        c.delete = () => ({
-          eq: (col: string, val: unknown) => {
-            eqs.push([col, val]);
-            const doomed = matching();
-            for (const r of doomed) rows().splice(rows().indexOf(r), 1);
-            return Promise.resolve({ data: doomed, error: null });
-          },
-        });
+        c.delete = () => {
+          // chainable + thenable: .delete().eq(...).eq(...) then
+          // removed rows only when awaited
+          const req = {
+            eq: (col: string, val: unknown) => {
+              eqs.push([col, val]);
+              return req;
+            },
+            neq: (col: string, val: unknown) => {
+              nes.push([col, val]);
+              return req;
+            },
+            then: (
+              res: (v: unknown) => unknown,
+              rej: (e: unknown) => unknown,
+            ) => {
+              const doomed = matching();
+              for (const r of doomed) rows().splice(rows().indexOf(r), 1);
+              return Promise.resolve({ data: doomed, error: null }).then(
+                res,
+                rej,
+              );
+            },
+          };
+          return req;
+        };
         return c;
       },
       storage: {
@@ -179,16 +202,21 @@ const supabaseMock = vi.hoisted(() => {
             data: { text: async () => mockDownloadBody },
             error: null,
           })),
+          remove: async (paths: string[]) => {
+            storageRemoveCalls.push([...paths]);
+            return { data: null, error: null };
+          },
         }),
       },
       auth: { signOut: vi.fn(async () => ({})) },
       functions: { invoke: invokeMock },
     };
   }
-  return { client: makeClient(), mockDownloadBody: "" };
+  return { client: makeClient(), mockDownloadBody: "", storageRemoveCalls };
 });
 
 let mockDownloadBody = "";
+const storageRemoveCalls = supabaseMock.storageRemoveCalls;
 
 vi.mock("@/lib/supabase", () => ({
   supabase: supabaseMock.client,
@@ -233,6 +261,8 @@ import {
   clearLocalProtectedCache,
   cacheEnvelope,
   getCachedEnvelope,
+  deleteProtectedItem,
+  versionProtectedItem,
 } from "@/lib/archie/mobile/vault";
 import {
   purgeTranscriptsForAuthorization,
@@ -264,6 +294,7 @@ beforeEach(() => {
   }));
   for (const k of Object.keys(tables)) tables[k] = [];
   mockDownloadBody = "";
+  storageRemoveCalls.length = 0;
   localStorage.clear();
 });
 
@@ -902,5 +933,148 @@ describe("mobile capability registry", () => {
         expect(spec.permissionModel).toBe("BROWSER_PROMPT"); // normal Android prompt, never a bypass
       }
     }
+  });
+});
+
+// =========================================================
+// BATCH 18 (Level 14) — fixes 56-58: a vault delete destroys
+// the ciphertext backups; latest-version recovery gets the
+// SAME integrity check; a failed version write never moves
+// the item pointer.
+// =========================================================
+describe("batch 18 — fix 56: delete destroys the ciphertext, not just the row", () => {
+  it("delete removes every version's storage object, clears the local cache, and records an honest event", async () => {
+    const res = await protectItem(OWNER, {
+      label: "Vault item to delete",
+      itemType: "PROJECT",
+      plaintext: "sensitive measurements v1",
+      passphrase: "vault pass",
+    });
+    const v2 = await versionProtectedItem(
+      OWNER,
+      res.item.id,
+      "sensitive measurements v2",
+      "vault pass",
+    );
+    expect(v2.item.latest_version).toBe(2);
+
+    // cache holds both envelopes pre-delete
+    expect(
+      getCachedEnvelope(OWNER, `${OWNER}/${res.item.id}/v1.json`),
+    ).not.toBeNull();
+    expect(
+      getCachedEnvelope(OWNER, `${OWNER}/${res.item.id}/v2.json`),
+    ).not.toBeNull();
+
+    await deleteProtectedItem(OWNER, res.item.id);
+
+    // BOTH encrypted backups were removed from cloud storage
+    const removed = storageRemoveCalls.flat();
+    expect(removed).toContain(`${OWNER}/${res.item.id}/v1.json`);
+    expect(removed).toContain(`${OWNER}/${res.item.id}/v2.json`);
+
+    // the local ciphertext cache no longer holds either object
+    expect(
+      getCachedEnvelope(OWNER, `${OWNER}/${res.item.id}/v1.json`),
+    ).toBeNull();
+    expect(
+      getCachedEnvelope(OWNER, `${OWNER}/${res.item.id}/v2.json`),
+    ).toBeNull();
+
+    // the item row is gone and an honest security event exists
+    expect(
+      tables.frelux_protected_items.some((r) => r.id === res.item.id),
+    ).toBe(false);
+    const delEvent = tables.frelux_security_events.find(
+      (e) => e.kind === "PROTECTED_DATA_DELETED",
+    );
+    expect(delEvent).toBeTruthy();
+    expect(String(delEvent?.message)).toContain("deleted together with");
+  });
+});
+
+describe("batch 18 — fix 57: latest-version recovery is tamper-checked", () => {
+  it("a tampered checksum on the latest version BLOCKS the default recovery (it used to bypass the check)", async () => {
+    const res = await protectItem(OWNER, {
+      label: "Tamper-check item",
+      itemType: "PLAN",
+      plaintext: "the real content",
+      passphrase: "vault pass",
+    });
+    // Tamper the recorded checksum of the latest version row.
+    // The old code synthesized a fake latest row with an empty
+    // checksum — the integrity gate skipped — and the recovery
+    // succeeded despite the tampered ledger. It must now fail.
+    const verRow = tables.frelux_protected_item_versions.find(
+      (r) => r.item_id === res.item.id && r.version === 1,
+    );
+    expect(verRow).toBeTruthy();
+    verRow!.checksum = "deadbeefdeadbeef";
+
+    await expect(
+      recoverProtectedItem(OWNER, res.item.id, "vault pass"),
+    ).rejects.toThrow(/Integrity check failed/);
+  });
+});
+
+describe("batch 18 — fix 58: a failed version write never moves the item pointer", () => {
+  it("when the version ledger insert fails, the item stays on its previous consistent version", async () => {
+    const res = await protectItem(OWNER, {
+      label: "Atomic versioning item",
+      itemType: "PROJECT",
+      plaintext: "v1 content",
+      passphrase: "vault pass",
+    });
+    const itemId = res.item.id;
+    const v1Path = res.item.storage_path;
+
+    // Force the NEXT frelux_protected_item_versions insert to fail
+    const client = (await import("@/lib/supabase")).supabase as {
+      from: (t: string) => unknown;
+    };
+    const originalFrom = client.from.bind(client);
+    const fromSpy = vi
+      .spyOn(client, "from")
+      .mockImplementation((table: string) => {
+        if (table === "frelux_protected_item_versions") {
+          return {
+            insert: () => ({
+              select: () => ({
+                single: async () => ({
+                  data: null,
+                  error: { message: "ledger write failed" },
+                }),
+              }),
+            }),
+            select: () => ({
+              eq: () => ({
+                eq: () => ({
+                  order: () => ({
+                    then: (
+                      r: (v: unknown) => unknown,
+                      j: (e: unknown) => unknown,
+                    ) => Promise.resolve({ data: [], error: null }).then(r, j),
+                  }),
+                }),
+              }),
+            }),
+          } as unknown as ReturnType<typeof originalFrom>;
+        }
+        return originalFrom(table);
+      });
+
+    await expect(
+      versionProtectedItem(OWNER, itemId, "v2 content", "vault pass"),
+    ).rejects.toThrow("ledger write failed");
+    fromSpy.mockRestore();
+
+    // the item still points at v1 — no phantom latest_version
+    const item = tables.frelux_protected_items.find((r) => r.id === itemId);
+    expect(item?.latest_version).toBe(1);
+    expect(item?.storage_path).toBe(v1Path);
+    expect(
+      tables.frelux_protected_item_versions.filter((r) => r.item_id === itemId)
+        .length,
+    ).toBe(1);
   });
 });
