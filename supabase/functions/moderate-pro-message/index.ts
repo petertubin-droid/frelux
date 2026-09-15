@@ -151,13 +151,38 @@ serveWithCors(async (req: Request) => {
     return jsonResponse(result);
   } catch (err) {
     console.error("[pro-moderation] ARCHIE analysis failed:", err);
-    // Fail open — allow the message if moderation is unavailable
-    return jsonResponse({
-      action: "allow",
+    // FIX 61: a moderation outage must NEVER fabricate a
+    // "safe" verdict. The old code failed OPEN — returned
+    // action "allow", score 0, category "safe" — so any
+    // content sailed through the moment the engine hiccuped.
+    // The message now fails to FLAGGED: it stays visible but
+    // is marked for human review, and if even the flag cannot
+    // be written the endpoint reports 503 honestly instead
+    // of pretending all is well.
+    const failFlagged: ModerationResult = {
+      action: "flag",
       score: 0,
-      categories: ["safe"],
-      reason: "Moderation temporarily unavailable",
-    } satisfies ModerationResult);
+      categories: ["moderation_unavailable"],
+      reason: "Moderation temporarily unavailable — flagged for human review",
+    };
+    try {
+      await takeAction(
+        admin,
+        body,
+        "flag",
+        0,
+        failFlagged.categories,
+        failFlagged.reason,
+        userData.user.id,
+      );
+      return jsonResponse(failFlagged);
+    } catch (flagErr) {
+      console.error("[pro-moderation] could not flag for review:", flagErr);
+      return jsonResponse(
+        { error: "Moderation unavailable — message could not be flagged" },
+        503,
+      );
+    }
   }
 });
 

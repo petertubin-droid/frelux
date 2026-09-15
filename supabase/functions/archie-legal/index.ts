@@ -475,19 +475,33 @@ serveWithCors(async (req: Request) => {
     if (action === "memory_export") {
       // REAL export: the owner's personal ARCHIE data in a
       // machine-readable format.
-      const [facts, conversations, _messages, consents] = await Promise.all([
+      // FIX 60: the old code fetched message metadata inside a
+      // Promise.all that read conversations.data BEFORE it
+      // resolved (so the .in() filter was ALWAYS empty), then
+      // discarded the result entirely and hardcoded
+      // conversation_message_metadata: [] — while the notice
+      // promised "structure and metadata". A data-rights
+      // export that silently omits what it advertises is a
+      // lie. Conversations are fetched FIRST, then messages
+      // for exactly those ids, and the real rows returned.
+      const conversations = await service
+        .from("frelux_archie_conversations")
+        .select("*")
+        .eq("owner_id", user.id);
+      if (conversations.error) {
+        return json(500, { error: conversations.error.message });
+      }
+      const convIds = (conversations.data ?? []).map(
+        (c: { id: string }) => c.id,
+      );
+      const [facts, messages, consents] = await Promise.all([
         service.from("frelux_archie_native_facts").select("*"),
-        service
-          .from("frelux_archie_conversations")
-          .select("*")
-          .eq("owner_id", user.id),
-        service
-          .from("frelux_archie_messages")
-          .select("conversation_id,id,role,created_at")
-          .in(
-            "conversation_id",
-            (conversations.data ?? []).map((c: { id: string }) => c.id),
-          ),
+        convIds.length > 0
+          ? service
+              .from("frelux_archie_messages")
+              .select("conversation_id,id,role,created_at")
+              .in("conversation_id", convIds)
+          : Promise.resolve({ data: [], error: null }),
         service
           .from("archie_privacy_consents")
           .select("*")
@@ -498,10 +512,11 @@ serveWithCors(async (req: Request) => {
           generated_at: new Date().toISOString(),
           format: "archie-personal-data-export/1.0",
           notice:
-            "Machine-readable export of your ARCHIE personal data. Message bodies are exported separately per conversation for size; this record includes structure and metadata.",
+            "Machine-readable export of your ARCHIE personal data. Message bodies are omitted for size; this record includes structure and metadata.",
           facts: facts.data ?? [],
           conversations: conversations.data ?? [],
-          conversation_message_metadata: [],
+          conversation_message_metadata:
+            (messages as { data?: unknown[] }).data ?? [],
           consents: consents.data ?? [],
         },
         copyright: COPYRIGHT_NOTICE,
