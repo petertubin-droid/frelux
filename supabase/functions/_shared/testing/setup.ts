@@ -38,6 +38,9 @@ vi.mock("@supabase/supabase-js", () => ({
   },
 }));
 
+// Type-only edge-runtime ambient import used by some functions.
+vi.mock("jsr:@supabase/functions-js/edge-runtime.d.ts", () => ({}));
+
 // The mock factories above run before this module's imports settle,
 // so they reach the harness through a global set here — importing
 // harness.ts directly inside each factory would be hoisted too and

@@ -29,7 +29,10 @@ const authHooks = {
   getUser: null as null | ((token?: string) => { data: { user: any } }),
 };
 
-export { state, tableFixtures, authHooks };
+/** rpc(name, args) stubs, per function name. */
+const rpcStubs = new Map<string, (args: any) => { data: any; error: any }>();
+
+export { state, tableFixtures, authHooks, rpcStubs };
 
 /** Install the Deno global shim. Must run BEFORE the dynamic import. */
 export function installDeno(env: Record<string, string>) {
@@ -64,6 +67,7 @@ export function resetCapture() {
   state.handler = null;
   tableFixtures.clear();
   authHooks.getUser = null;
+  rpcStubs.clear();
 }
 
 /** Register fixture rows for a table. Chainable queries read these. */
@@ -74,6 +78,14 @@ export function givenRows(table: string, rows: any[]) {
 /** Set the auth.getUser response for the anon client. */
 export function givenUser(user: any | null) {
   authHooks.getUser = () => ({ data: { user } });
+}
+
+/** Stub an RPC: rpc("name", args) → { data, error }. */
+export function givenRpc(
+  name: string,
+  impl: (args: any) => { data: any; error: any },
+) {
+  rpcStubs.set(name, impl);
 }
 
 // ---------------------------------------------------------
@@ -103,7 +115,10 @@ function makeQuery(
   };
 
   const q: any = {
-    select: () => q,
+    select: (_cols?: any, opts?: any) => {
+      (q as any)._selectOpts = opts ?? {};
+      return q;
+    },
     insert: (rows: any) => {
       const list = Array.isArray(rows) ? rows : [rows];
       const stored = tableFixtures.get(table) ?? [];
@@ -195,13 +210,16 @@ function makeQuery(
       return { data: rows[0] ?? null, error: null };
     },
     then: (resolve: any, reject: any) => {
-      // await query → { data, error }
+      // await query → { data, error, count }
       try {
         const rows = resolveRows();
-        return Promise.resolve({ data: rows, error: null }).then(
-          resolve,
-          reject,
-        );
+        const opts = (q as any)._selectOpts ?? {};
+        const data = opts.head ? null : rows;
+        return Promise.resolve({
+          data,
+          error: null,
+          count: rows.length,
+        }).then(resolve, reject);
       } catch (e) {
         return Promise.reject(e).then(resolve, reject);
       }
@@ -238,7 +256,11 @@ export function makeMockClient() {
         listUsers: async () => ({ data: { users: [] } }),
       },
     },
-    rpc: async () => ({ data: null, error: null }),
+    rpc: async (name: string, args?: any) => {
+      const stub = rpcStubs.get(name);
+      if (stub) return stub(args ?? {});
+      return { data: null, error: null };
+    },
     functions: { invoke: async () => ({ data: null, error: null }) },
     channel: () => ({
       on: () => ({ subscribe: () => ({}) }),
