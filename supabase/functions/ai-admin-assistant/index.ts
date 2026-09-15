@@ -1,16 +1,17 @@
 // =========================================================
 // AI Admin Assistant — Supabase Edge Function
 // =========================================================
-// Proxies chat messages from the FRELUX admin panel to the
-// Solas Superagent API (Base44). Admins can describe issues,
-// request fixes, and get AI-powered responses.
+// Owner directive (2026-09-15): ARCHIE's own engine is PRIMARY.
+// The Solas Superagent (Base44) remains wired as a fallback and
+// is NOT removed. Admins describe issues and get AI responses.
 //
 // Flow:
-//   1. Admin sends { message, conversationId? } from admin UI
-//   2. This function reads the Solas API key from env or DB
-//   3. Creates or reuses a conversation with Solas
-//   4. Sends the message, waits for the agent loop to complete
-//   5. Returns { response, conversationId, messageId }
+//   1. Admin sends { message, conversationId?, history? }
+//   2. ARCHIE's native engine answers first (advisory, no tools)
+//   3. If ARCHIE is not operational / empty / erroring, cascade
+//      to Solas (API key from env or DB, conversation + message)
+//   4. ADMIN_AI_ENGINE=solas forces the fallback explicitly
+//   5. Returns { response, engine, conversationId?, messageId? }
 // =========================================================
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
@@ -27,6 +28,7 @@ import {
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
 import { rateLimitedResponse } from "../_shared/cors.ts";
+import { resolveArchieCapabilityEngine } from "../_shared/archie-ai/runtime.ts";
 
 const SUPERAGENT_BASE = "https://app.base44.com/api/agents";
 const DEFAULT_AGENT_ID = "6a872e1df3b5e9fc45fc13fb";
@@ -34,10 +36,24 @@ const DEFAULT_AGENT_ID = "6a872e1df3b5e9fc45fc13fb";
 interface RequestBody {
   message: string;
   conversationId?: string;
+  // Recent chat turns for ARCHIE context (stateless engine)
+  history?: Array<{ role: "user" | "assistant"; content: string }>;
   // Optional: for tracking
   actionTitle?: string;
   actionCategory?: string;
 }
+
+// ARCHIE is advisory here by design: this surface explains,
+// diagnoses and drafts. It NEVER mutates data, deploys or
+// executes changes — same boundary as the public live chat.
+const ADMIN_ARCHIE_SYSTEM_PROMPT = `You are the FRELUX Admin Copilot — ARCHIE's own intelligence serving the platform owner's admin panel.
+
+Role: help the admin understand, diagnose and describe issues on the FRELUX platform (construction-cost estimation, PRO marketplace, rewards, integrations, edge functions). You may explain how features work, interpret error reports, draft fix descriptions and suggest what to check next.
+
+Boundaries:
+- You are ADVISORY. You do not execute changes, write to the database or trigger actions — you tell the admin what to do or what a fix would involve.
+- Never fabricate platform facts. If you are not certain of a FRELUX behavior, say so and suggest where to verify it.
+- Be concise and practical. Answer the admin's actual question.`;
 
 async function getApiKey(
   supabaseClient: ReturnType<typeof createClient>,
@@ -196,7 +212,91 @@ serveWithCors(async (req: Request) => {
       return errorResponse("Message is required", 400);
     }
 
-    // Get API key and agent ID
+    // ── ENGINE SELECTION (owner directive 2026-09-15) ──
+    // ARCHIE first. Solas remains as fallback. Forcing Solas via
+    // ADMIN_AI_ENGINE=solas is explicit config, never a silent swap.
+    const enginePref = (
+      Deno.env.get("ADMIN_AI_ENGINE") ?? "archie"
+    ).toLowerCase();
+
+    if (enginePref !== "solas") {
+      const { runtime, engine } = resolveArchieCapabilityEngine({
+        engineId: Deno.env.get("ARCHIE_ENGINE"),
+      });
+      if (runtime) {
+        try {
+          const historyTurns = (Array.isArray(body.history) ? body.history : [])
+            .slice(-10)
+            .filter(
+              (m) =>
+                (m?.role === "user" || m?.role === "assistant") &&
+                typeof m?.content === "string" &&
+                m.content.trim(),
+            )
+            .map((m) => ({
+              role: (m.role === "user" ? "owner" : "archie") as
+                "owner" | "archie",
+              parts: [{ text: m.content.slice(0, 2000) }],
+            }));
+
+          const result = await runtime.generate({
+            turns: [
+              ...historyTurns,
+              {
+                role: "owner" as const,
+                parts: [{ text: body.message.slice(0, 4000) }],
+              },
+            ],
+            systemInstruction: ADMIN_ARCHIE_SYSTEM_PROMPT,
+            // Advisory surface — no tools, no mutations, ever.
+            tools: [],
+            conversationId: `admin-assistant:${user.id}`,
+          });
+
+          const archieText = result.parts
+            .map((p) => (p as { text?: string }).text ?? "")
+            .filter(Boolean)
+            .join("")
+            .trim();
+
+          if (archieText) {
+            if (body.actionTitle) {
+              await supabaseClient.from("admin_ai_actions").insert({
+                reported_by: user.id,
+                title: body.actionTitle,
+                description: body.message,
+                category: body.actionCategory || "bug",
+                conversation_id: null,
+                message_id: null,
+                status: "in_progress",
+                resolution: archieText,
+              });
+            }
+            return jsonResponse({
+              response: archieText,
+              engine: "archie-native",
+              engineNote: engine.note,
+              conversationId: null,
+              messageId: null,
+            });
+          }
+          console.error(
+            "[ai-admin-assistant] ARCHIE returned an empty reply — cascading to Solas",
+          );
+        } catch (archieErr) {
+          console.error(
+            "[ai-admin-assistant] ARCHIE generate failed — cascading to Solas:",
+            archieErr,
+          );
+        }
+      } else {
+        console.error(
+          "[ai-admin-assistant] ARCHIE engine not operational — cascading to Solas",
+        );
+      }
+    }
+
+    // ── SOLAS FALLBACK (unchanged behavior, explicitly retained) ──
     const apiKey = await getApiKey(supabaseClient);
     if (!apiKey) {
       return jsonResponse(
@@ -254,6 +354,7 @@ serveWithCors(async (req: Request) => {
 
     return jsonResponse({
       response: result.response,
+      engine: "solas",
       conversationId,
       messageId: result.messageId,
     });

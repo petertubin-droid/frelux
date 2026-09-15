@@ -23,6 +23,19 @@ describe("ai-livechat — public ARCHIE guidance (no tools)", () => {
     expect((await json(res)).error).toContain("Question is required");
   });
 
+  it("answers through ARCHIE's native engine (no external provider)", async () => {
+    const res = await rreq("POST", { question: "What is FRELUX?" });
+    expect(res.status).toBe(200);
+    const body = await json(res);
+    expect(body.engine).toBe("archie-native");
+    expect(body.result.length).toBeGreaterThan(0);
+    const log = (
+      await import("../_shared/testing/harness.ts")
+    ).tableFixtures.get("ai_request_log");
+    const last = log?.[log.length - 1];
+    expect(last).toBeTruthy();
+  }, 60000);
+
   it("enforces a rate limit per caller", async () => {
     // Hammer one caller id past the AI window and expect a 429.
     let sawLimit = false;

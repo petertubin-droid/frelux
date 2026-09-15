@@ -30,6 +30,8 @@ interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   timestamp: string;
+  /** Which brain answered — ARCHIE's own engine or the Solas fallback */
+  engine?: "archie-native" | "solas";
 }
 
 interface AiAction {
@@ -194,6 +196,11 @@ export default function AdminAIAssistant() {
           body: {
             message: messageText,
             conversationId,
+            // Last turns so ARCHIE (stateless, primary) keeps context
+            history: messages.slice(-10).map((m) => ({
+              role: m.role,
+              content: m.content,
+            })),
             actionTitle: messageText.slice(0, 80),
             actionCategory: "bug",
           },
@@ -202,7 +209,7 @@ export default function AdminAIAssistant() {
 
       if (fnError) {
         const msg = await getFunctionErrorMessage(fnError);
-        setError(msg || "Failed to reach Solas");
+        setError(msg || "Failed to reach the assistant");
         setSending(false);
         return;
       }
@@ -218,6 +225,7 @@ export default function AdminAIAssistant() {
         role: "assistant",
         content: data.response || "No response received.",
         timestamp: new Date().toISOString(),
+        engine: data.engine === "solas" ? "solas" : "archie-native",
       };
       setMessages((prev) => [...prev, assistantMessage]);
       if (data.conversationId) setConversationId(data.conversationId);
@@ -271,8 +279,9 @@ export default function AdminAIAssistant() {
             AI Assistant
           </h1>
           <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-            Powered by Solas, your FRELUX Superagent. Describe any issue and
-            get it fixed without leaving your admin.
+            Powered by ARCHIE's own engine (primary), with the Solas Superagent
+            as fallback. Describe any issue and get it fixed without leaving
+            your admin.
           </p>
         </div>
         <a
@@ -391,6 +400,13 @@ export default function AdminAIAssistant() {
                       )}
                     >
                       <p className="whitespace-pre-wrap">{msg.content}</p>
+                      {msg.role === "assistant" && msg.engine && (
+                        <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
+                          {msg.engine === "archie-native"
+                            ? "ARCHIE"
+                            : "SOLAS · fallback"}
+                        </span>
+                      )}
                     </div>
                     {msg.role === "user" && (
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground dark:bg-white/10 dark:text-muted-foreground/80">
