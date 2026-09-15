@@ -30,6 +30,8 @@ const NAV: NavItem[] = [
   // Capabilities
   { to: "/archie/control", label: "Control", icon: "control" },
   { to: "/archie/execution", label: "Execution", icon: "control" },
+  { to: "/archie/trading", label: "Trading", icon: "control" },
+  { to: "/archie/exchange-access", label: "Exchange Access", icon: "security" },
   { to: "/archie/voice", label: "Voice", icon: "chat" },
   { to: "/archie/evolution", label: "Evolution", icon: "control" },
   // Knowledge

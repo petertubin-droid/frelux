@@ -218,6 +218,10 @@ const AdminArchieStudio = lazy(() => import("@/pages/admin/AdminArchieStudio"));
 const ArchieCoding = lazy(() => import("@/pages/archie/ArchieCoding"));
 const ArchieLegal = lazy(() => import("@/pages/archie/ArchieLegal"));
 const ArchiePrivacy = lazy(() => import("@/pages/archie/ArchiePrivacy"));
+const ArchieTrading = lazy(() => import("@/pages/archie/ArchieTrading"));
+const ArchieExchangeAccess = lazy(
+  () => import("@/pages/archie/ArchieExchangeAccess"),
+);
 const AdminArchieLegal = lazy(() => import("@/pages/admin/AdminArchieLegal"));
 const AdminArchieWhatsapp = lazy(
   () => import("@/pages/admin/AdminArchieWhatsapp"),
@@ -1076,6 +1080,11 @@ export default function App() {
                     <Route path="terminology" element={<ArchieTerminology />} />
                     <Route path="legal" element={<ArchieLegal />} />
                     <Route path="privacy" element={<ArchiePrivacy />} />
+                    <Route path="trading" element={<ArchieTrading />} />
+                    <Route
+                      path="exchange-access"
+                      element={<ArchieExchangeAccess />}
+                    />
                     <Route path="*" element={<NotFound />} />
                   </Route>
 
