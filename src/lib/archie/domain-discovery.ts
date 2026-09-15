@@ -70,7 +70,7 @@ export function validateRegistrationRequest(
       error: `Key "${key}" collides with a protected domain and cannot be registered.`,
     };
   }
-  if (!req.label || !req.rationale) {
+  if (!req.label?.trim() || !req.rationale?.trim()) {
     return { ok: false, error: "Label and rationale are required." };
   }
   if (req.knowledge_sources.length === 0) {

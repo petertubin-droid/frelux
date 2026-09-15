@@ -66,16 +66,24 @@ export async function studioAction(
     body: { action, ...payload },
   });
   if (error) {
-    // Edge function returned a JSON error envelope.
+    // Edge function returned a JSON error envelope. Surface the
+    // server's honest message when present; the generic fallback
+    // applies only to unparseable/empty envelopes.
+    let message = "Studio request failed. Please try again.";
     try {
       const parsed =
         typeof error === "object" ? error : JSON.parse(String(error));
-      throw new Error(
-        parsed.message ?? parsed.error ?? "Studio request failed.",
-      );
+      const honest =
+        typeof parsed?.message === "string"
+          ? parsed.message
+          : typeof parsed?.error === "string"
+            ? parsed.error
+            : undefined;
+      if (honest && honest.trim()) message = honest;
     } catch {
-      throw new Error("Studio request failed. Please try again.");
+      // Non-JSON error envelope — keep the generic fallback.
     }
+    throw new Error(message);
   }
   if (!data || (data as { error?: string }).error) {
     throw new Error(
