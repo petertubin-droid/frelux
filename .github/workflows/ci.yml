@@ -25,11 +25,8 @@ jobs:
         run: npx tsc --noEmit -p tsconfig.app.json
 
       # Coverage report was never consumed anywhere — skip it for speed.
-      - name: Unit tests (app)
+      - name: Unit tests (app + edge functions)
         run: npx vitest run
-
-      - name: Unit tests (edge functions)
-        run: npx vitest run --config vitest.functions.config.ts
 
       - name: Build
         run: npm run build
