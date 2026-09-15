@@ -190,7 +190,14 @@ serveWithCors(async (req: Request) => {
       // Falls through to the shared initialize-transaction code below.
     }
 
-    if (isTokenPurchase) {
+    // api_plan purchases priced above must NOT re-price through the
+    // subscription branch below — falling through made every API
+    // plan checkout 400 ("not available for self-service purchase")
+    // because subscription_plan_prices has no row for API plan keys.
+    // Found by the paystack-checkout test batch (2026-09-15).
+    if (isApiPlanPurchase) {
+      // priced server-side above — skip both token and subscription branches
+    } else if (isTokenPurchase) {
       if (!user_id || !email) {
         return new Response(
           JSON.stringify({ error: "Missing required fields" }),
