@@ -40,7 +40,11 @@ import {
 } from "@/lib/archie/ears";
 import { reportTranscription } from "@/lib/archie/ears";
 import { sendChatTurn } from "@/lib/archie/stage1-client";
-import { speakArchie, stopArchieVoice } from "@/lib/archie/mobile/voice";
+import {
+  speakArchie,
+  stopArchieVoice,
+  archieVoicePlaying,
+} from "@/lib/archie/mobile/voice";
 import { verifySpeakerSignal } from "@/lib/archie/mobile/voice-enrollment";
 import {
   extractVoiceprint,
@@ -161,6 +165,10 @@ export interface VoiceSessionPorts {
     blob: Blob,
   ) => Promise<{ pcm: Float32Array; sampleRate: number } | null>;
   supported?: () => boolean;
+  /** FIX 53: is ARCHIE's speech genuinely playing right now?
+   *  Defaults to the REAL browser-synthesis state probe —
+   *  INTERRUPTED may fire only on a genuine barge-in. */
+  speechActive?: () => boolean;
 }
 
 /** Consecutive empty recognitions before the session ends
@@ -235,6 +243,7 @@ export async function createVoiceSession(
   const speakFn = ports.speak ?? speakArchie;
   const silenceFn = ports.silence ?? stopArchieVoice;
   const speakerCheck = ports.speakerCheck ?? verifySpeakerSignal;
+  const speechActive = ports.speechActive ?? archieVoicePlaying;
   const extractVector =
     ports.extractVector ??
     ((pcm: Float32Array, sampleRate: number) =>
@@ -342,9 +351,17 @@ export async function createVoiceSession(
             // silenced the instant real speech is heard.
             if (text.trim().length > 0) {
               silenceFn();
+              // FIX 53: INTERRUPTED fires only on a GENUINE
+              // barge-in — speech must actually still be
+              // playing. A stale wasSpeaking flag from a reply
+              // that already finished is cleared silently: the
+              // owner simply speaking next is NOT an
+              // interruption, and the state must stay honest.
               if (wasSpeaking) {
                 wasSpeaking = false;
-                events.onState?.("INTERRUPTED");
+                if (speechActive()) {
+                  events.onState?.("INTERRUPTED");
+                }
               }
             }
             events.onHearing?.(text);
@@ -432,10 +449,14 @@ export async function createVoiceSession(
       if (HIGH_RISK_VOICE_PATTERNS.test(transcript)) {
         transcriptBuffer.length = 0; // purge: sensitive speech never lingers
         events.onAuthorizationRequired?.(transcript);
-        events.onState?.("INTERRUPTED");
-        if (!config.continuous) {
-          session.stop("manual");
-        }
+        // FIX 55: the loop ends here in EVERY mode. The old
+        // continuous-mode path returned WITHOUT stopping, so
+        // the session stayed registered-active while its loop
+        // was dead — every later createVoiceSession got a
+        // permanent SESSION_CONFLICT zombie. The workflow that
+        // takes over ends this session cleanly; a new session
+        // may start whenever the owner wants.
+        session.stop("manual");
         return; // the workflow takes over — no engine turn
       }
 
@@ -489,14 +510,25 @@ export async function createVoiceSession(
         !muted && Boolean(config.voiceOutputConsent?.granted),
       );
       if (muted || !config.voiceOutputConsent?.granted) {
+        // FIX 54: the reply is shown as text; voice output is
+        // off. In CONTINUOUS mode the session keeps listening
+        // — the old code returned here, leaving the loop dead
+        // while the session stayed registered-active (a
+        // SESSION_CONFLICT zombie). Mute silences ARCHIE's
+        // voice; it must never end the conversation.
         if (!config.continuous) {
           session.stop("manual");
+          return;
         }
-        return; // reply shown as text; voice output off
+        continue;
       }
       events.onState?.("SPEAKING");
-      wasSpeaking = true;
       const spoken = speakFn(turn.reply, config.voiceOutputConsent);
+      // FIX 53: the barge-in flag arms only when the prosody
+      // plan actually queued speakable units — a refused,
+      // unsupported or empty synthesis never claims to be
+      // playing.
+      wasSpeaking = spoken.ok && spoken.chunks > 0;
       if (!spoken.ok && spoken.error) {
         events.onArchieReply?.(turn.reply, false, spoken.error);
       }

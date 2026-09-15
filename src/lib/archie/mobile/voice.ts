@@ -135,3 +135,19 @@ export function stopArchieVoice(): void {
   clearPendingPauses();
   if (archieVoiceSupported()) window.speechSynthesis.cancel();
 }
+
+/** FIX 53 (batch 17, Level 13 audit 2026-09-15): is ARCHIE's
+ *  speech genuinely playing right now? True only while the
+ *  browser synthesis engine is speaking/pending OR prosody
+ *  pause timers still hold queued units — the two real
+ *  "speech is live" states. Voice sessions use this to fire
+ *  INTERRUPTED only on a REAL barge-in, never a stale flag
+ *  from a reply that already finished playing. */
+export function archieVoicePlaying(): boolean {
+  if (typeof window === "undefined" || !archieVoiceSupported()) return false;
+  return (
+    window.speechSynthesis.speaking ||
+    window.speechSynthesis.pending ||
+    pauseTimers.length > 0
+  );
+}

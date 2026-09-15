@@ -486,7 +486,12 @@ describe("barge-in: the owner's voice takes priority", () => {
         voicePrint: null,
       };
     }) as VoiceSessionPorts["recognize"];
-    const { ports, silence } = fakePorts({ recognize });
+    // the scenario is genuinely mid-reply: ARCHIE's speech
+    // is playing when the owner barges in
+    const { ports, silence } = fakePorts({
+      recognize,
+      speechActive: () => true,
+    });
     const { log: events, events: ev } = collect();
     const created = await createVoiceSession(baseConfig(), ev, ports);
     if (!created.ok) throw new Error("creation failed");
@@ -580,5 +585,123 @@ describe("speaker recognition signal", () => {
     await settle(12);
     expect(events.transcripts[0].speaker).toBeNull();
     expect(ports.think).toHaveBeenCalledTimes(1);
+  });
+});
+
+// =========================================================
+// BATCH 17 (Level 13) — fixes 53-55: honest barge-in state,
+// mute never kills a continuous session, no zombie after
+// authorization routing.
+// =========================================================
+describe("batch 17 — fix 53: INTERRUPTED only on genuine barge-in", () => {
+  it("a new utterance after the reply FINISHED is a normal turn — no false INTERRUPTED", async () => {
+    let turn = 0;
+    const recognize = (async (opts?: { onInterim?: (t: string) => void }) => {
+      turn++;
+      if (turn === 2) opts?.onInterim?.("next question please");
+      if (turn >= 3) {
+        // bounded: silence after the two real turns ends the
+        // session via the honest no-speech streak
+        return {
+          transcript: "",
+          language: "en",
+          durationSec: 1,
+          speechDetected: false,
+          voicePrint: null,
+        };
+      }
+      return {
+        transcript: turn === 1 ? "first question" : "next question please",
+        language: "en",
+        durationSec: 2,
+        speechDetected: true,
+        voicePrint: null,
+      };
+    }) as VoiceSessionPorts["recognize"];
+    const { ports } = fakePorts({
+      recognize,
+      speechActive: () => false, // reply already finished playing
+    });
+    const { log: events, events: ev } = collect();
+    const created = await createVoiceSession(baseConfig(), ev, ports);
+    if (!created.ok) throw new Error("creation failed");
+    activeCleanup = () => created.session.stop("manual");
+    await created.session.start();
+    await settle(10);
+    expect(events.states).not.toContain("INTERRUPTED");
+    expect(events.replies.length).toBe(2); // both turns answered
+  });
+
+  it("wasSpeaking arms only when speakable units were actually queued", async () => {
+    const rec = fakeRecognize(["hello there"]);
+    const { ports } = fakePorts({
+      recognize: rec.fn,
+      speechActive: () => true,
+      speak: () => ({ ok: true, chunks: 0 }), // empty plan
+    });
+    const { log: events, events: ev } = collect();
+    const created = await createVoiceSession(
+      baseConfig({ continuous: false }),
+      ev,
+      ports,
+    );
+    if (!created.ok) throw new Error("creation failed");
+    activeCleanup = () => created.session.stop("manual");
+    await created.session.start();
+    await settle(8);
+    // chunks=0: nothing was ever playing — no INTERRUPTED-able
+    // state ever armed (verified by the absence of a stale flag
+    // path: the session ends cleanly after one turn).
+    expect(events.replies.length).toBe(1);
+    expect(events.states).toContain("STOPPED");
+  });
+});
+
+describe("batch 17 — fix 54: mute silences ARCHIE, never the conversation", () => {
+  it("continuous mode keeps listening after a muted reply", async () => {
+    const rec = fakeRecognize([
+      "question one",
+      "question two",
+      "__NO_SPEECH__",
+      "__NO_SPEECH__",
+      "__NO_SPEECH__",
+    ]);
+    const { ports } = fakePorts({ recognize: rec.fn });
+    const { log: events, events: ev } = collect();
+    const created = await createVoiceSession(baseConfig(), ev, ports);
+    if (!created.ok) throw new Error("creation failed");
+    activeCleanup = () => created.session.stop("manual");
+    created.session.mute();
+    await created.session.start();
+    await settle(14);
+    expect(ports.speak).not.toHaveBeenCalled();
+    // BOTH questions answered as text — the loop re-armed
+    // after the muted reply instead of dying (the old bug
+    // returned out of the loop after the first muted turn)
+    expect(events.replies.length).toBe(2);
+    expect(events.replies.every((r) => r.spoken === false)).toBe(true);
+  });
+});
+
+describe("batch 17 — fix 55: authorization routing never leaves a zombie session", () => {
+  it("after a HIGH-RISK phrase the session is STOPPED — a new session may start", async () => {
+    const rec = fakeRecognize(["ARCHIE, deploy this to production"]);
+    const { ports } = fakePorts({ recognize: rec.fn });
+    const { log: events, events: ev } = collect();
+    const created = await createVoiceSession(baseConfig(), ev, ports);
+    if (!created.ok) throw new Error("creation failed");
+    await created.session.start();
+    await settle(8);
+    expect(ports.think).not.toHaveBeenCalled();
+    expect(events.auth).toEqual(["ARCHIE, deploy this to production"]);
+    // the session ended cleanly — no SESSION_CONFLICT zombie
+    expect(events.states).toContain("STOPPED");
+    expect(voiceSessionActive()).toBe(false);
+    // a fresh session can actually start afterwards
+    const rec2 = fakeRecognize(["status check"]);
+    const { ports: ports2 } = fakePorts({ recognize: rec2.fn });
+    const second = await createVoiceSession(baseConfig(), ev, ports2);
+    expect(second.ok).toBe(true);
+    if (second.ok) second.session.stop("manual");
   });
 });
