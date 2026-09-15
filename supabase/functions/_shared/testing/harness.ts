@@ -224,6 +224,19 @@ function makeQuery(
         return Promise.reject(e).then(resolve, reject);
       }
     },
+    // Promise-compat shims (edge code does query.catch(() => {}))
+    catch: (onRejected: any) => (q as any).then(undefined, onRejected),
+    finally: (onFinally: any) =>
+      (q as any).then(
+        (v: any) => {
+          onFinally();
+          return v;
+        },
+        (e: any) => {
+          onFinally();
+          throw e;
+        },
+      ),
   };
 
   function resolveRows(): Row[] {
