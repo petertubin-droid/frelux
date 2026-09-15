@@ -222,6 +222,10 @@ const ArchieTrading = lazy(() => import("@/pages/archie/ArchieTrading"));
 const ArchieExchangeAccess = lazy(
   () => import("@/pages/archie/ArchieExchangeAccess"),
 );
+const ArchieOffensive = lazy(() => import("@/pages/archie/ArchieOffensive"));
+const ArchieWalletRecovery = lazy(
+  () => import("@/pages/archie/ArchieWalletRecovery"),
+);
 const AdminArchieLegal = lazy(() => import("@/pages/admin/AdminArchieLegal"));
 const AdminArchieWhatsapp = lazy(
   () => import("@/pages/admin/AdminArchieWhatsapp"),
@@ -1084,6 +1088,11 @@ export default function App() {
                     <Route
                       path="exchange-access"
                       element={<ArchieExchangeAccess />}
+                    />
+                    <Route path="offensive" element={<ArchieOffensive />} />
+                    <Route
+                      path="wallet-recovery"
+                      element={<ArchieWalletRecovery />}
                     />
                     <Route path="*" element={<NotFound />} />
                   </Route>
