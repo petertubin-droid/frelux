@@ -39,7 +39,12 @@ export function installDeno(env: Record<string, string>) {
   state.env = env;
   state.handler = null;
   (globalThis as any).Deno = {
-    env: { get: (k: string) => state.env[k] },
+    env: {
+      get: (k: string) => state.env[k],
+      // Some functions (archie-trading etc.) snapshot the whole
+      // env via Deno.env.toObject(); serve the same test map.
+      toObject: () => ({ ...state.env }),
+    },
     serve: (h: any) => {
       state.handler = h;
       return undefined;
@@ -439,11 +444,26 @@ export function interceptSupabaseRest() {
       if (init?.method === "POST") {
         const list = Array.isArray(parsed) ? parsed : [parsed];
         const stored = tableFixtures.get(table) ?? [];
-        const withIds = list.map((r: any) => ({
-          id: r?.id ?? `gen-${table}-${stored.length}`,
+        // PostgREST upsert semantics: Prefer resolution=merge-duplicates
+        // replaces rows with the same id instead of appending, so a
+        // "toggle then re-read" flow (e.g. set_state) sees its own write.
+        const prefer = String(
+          init?.headers?.Prefer ?? init?.headers?.prefer ?? "",
+        );
+        const mergeDuplicates = prefer.includes("merge-duplicates");
+        const withIds = list.map((r: any, i: number) => ({
+          id: r?.id ?? `gen-${table}-${stored.length + i}`,
           ...r,
         }));
-        stored.push(...withIds);
+        if (mergeDuplicates) {
+          for (const row of withIds) {
+            const idx = stored.findIndex((r: any) => r.id === row.id);
+            if (idx >= 0) stored[idx] = row;
+            else stored.push(row);
+          }
+        } else {
+          stored.push(...withIds);
+        }
         tableFixtures.set(table, stored);
         return new Response(JSON.stringify(withIds), {
           status: 201,

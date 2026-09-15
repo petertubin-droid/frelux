@@ -75,12 +75,27 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    overflow-x: hidden;
+    /* `clip` (not `hidden`) — `overflow-x: hidden` on html/body makes EVERY
+       descendant `position: sticky` element treat html/body as its
+       scrolling ancestor (per spec, any overflow value other than
+       `visible` on ANY axis does this), which breaks/misplaces sticky
+       positioning site-wide (18 pages use `sticky top-*`, e.g. the AI
+       Color Assistant's recommendation card, calculator sidebars, FAQ
+       tabs). `clip` still prevents horizontal bleed/scroll but does NOT
+       establish a scroll container, so sticky stays anchored to the
+       viewport as intended. Root-caused 2026-09-15 from an owner report
+       of overlapping/cropped text on mobile. */
+    overflow-x: clip;
+    /* Reserve the scrollbar's width up front so toggling body scroll-lock
+       (mobile nav drawer, admin sidebar — see overflow-y toggles below)
+       never causes a horizontal layout shift when the scrollbar
+       appears/disappears. */
+    scrollbar-gutter: stable;
     width: 100%;
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    overflow-x: hidden;
+    overflow-x: clip;
     width: 100%;
     max-width: 100vw;
     font-feature-settings: "cv01", "cv03", "cv04", "ss01";

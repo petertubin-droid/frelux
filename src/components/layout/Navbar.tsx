@@ -75,9 +75,12 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    document.body.style.overflow = mobileOpen ? "hidden" : "";
+    // overflow-y only — never touch overflow-x, which must stay `clip`
+    // (set globally in index.css) so position:sticky elements keep the
+    // viewport as their scrolling ancestor instead of body/html.
+    document.body.style.overflowY = mobileOpen ? "hidden" : "";
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflowY = "";
     };
   }, [mobileOpen]);
 

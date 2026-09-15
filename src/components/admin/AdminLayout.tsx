@@ -399,13 +399,16 @@ function AdminLayoutInner() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
+    // overflow-y only — never touch overflow-x, which must stay `clip`
+    // (set globally in index.css) so position:sticky elements keep the
+    // viewport as their scrolling ancestor instead of body/html.
     if (mobileOpen) {
-      document.body.style.overflow = "hidden";
+      document.body.style.overflowY = "hidden";
     } else {
-      document.body.style.overflow = "";
+      document.body.style.overflowY = "";
     }
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflowY = "";
     };
   }, [mobileOpen]);
 

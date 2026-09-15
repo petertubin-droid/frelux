@@ -146,7 +146,23 @@ function limitsFor(state: TradingStateRow): TradingLimits {
   // Merge stored limits over defaults; unknown keys are
   // ignored by the spread of known structure.
   const stored = state.limits ?? {};
-  return { ...DEFAULT_TRADING_LIMITS, ...stored };
+  const merged: TradingLimits = {
+    ...DEFAULT_TRADING_LIMITS,
+    ...stored,
+  };
+  // BUG FIX (found by test batch, 2026-09-15): the owner
+  // switches are AUTHORITATIVE and must override any stale or
+  // drifted limits JSON, or the console's emergency_stop /
+  // trading_enabled toggles would have no effect on the trade
+  // gate (the gate previously read only DEFAULT_TRADING_LIMITS
+  // spread with the limits column, so an engaged emergency
+  // stop still let trades pass). Fail closed: an absent state
+  // row means stop engaged + trading disabled (readState).
+  merged.emergencyStop =
+    Boolean(merged.emergencyStop) || state.emergency_stop === true;
+  merged.tradingEnabled =
+    Boolean(merged.tradingEnabled) && state.trading_enabled !== false;
+  return merged;
 }
 
 // ---- manually-provided evidence (owner-entered) ----
@@ -511,7 +527,13 @@ serveWithCors(async (req: Request) => {
     const state = await readState();
     const limits = limitsFor(state);
     const prediction = buildManualPrediction(request, evidence);
-    const decision = evaluateTradeGate(request, prediction, limits, nowMs);
+    // Recapture the clock AFTER building the prediction:
+    // createdAt is stamped inside buildManualPrediction, and if
+    // it lands a few ms after the pre-captured nowMs the
+    // data_fresh check (age >= 0) fails for genuinely fresh
+    // evidence — a race that flipped eligible trades on slow
+    // ticks. Found by the full-suite run, 2026-09-15.
+    const decision = evaluateTradeGate(request, prediction, limits, Date.now());
     return json(200, {
       dry_run: true,
       eligible: decision.eligible,
@@ -544,7 +566,8 @@ serveWithCors(async (req: Request) => {
     const state = await readState();
     const limits = limitsFor(state);
     const prediction = buildManualPrediction(request, evidence);
-    const decision = evaluateTradeGate(request, prediction, limits, nowMs);
+    // Same race as dry_run — recapture AFTER prediction creation.
+    const decision = evaluateTradeGate(request, prediction, limits, Date.now());
 
     if (!decision.eligible) {
       // An ineligible decision is reported, never executed --
