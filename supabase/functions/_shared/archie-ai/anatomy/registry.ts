@@ -478,16 +478,37 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
 
   // -------- 🩺 PAIN — error & anomaly feedback -----------
   const secEvents = securityEvents;
-  push({
-    subsystem_key: "pain",
-    status: "HEALTHY",
-    metric: "self-evaluation + error reporting wired into reasoning",
-    details: {
-      selfeval: "native-engine/selfeval.ts (feeds learning)",
-      error_surface: "report-error + frelux_security_events",
-      security_events_total: secEvents,
-    },
-  });
+  // FIX 52 (batch 16, Level 12 audit 2026-09-15): this probe
+  // used to hardcode HEALTHY with no actual probe — every
+  // other wiring claim in this file (head, eyes, ears, mouth)
+  // import-verifies its real module. The pain subsystem now
+  // does the same: the self-evaluation core must actually
+  // load before HEALTHY can be claimed.
+  try {
+    const selfeval = await import("../native-engine/selfeval.ts");
+    push({
+      subsystem_key: "pain",
+      status: "HEALTHY",
+      metric: "self-evaluation + error reporting wired into reasoning",
+      details: {
+        selfeval: "native-engine/selfeval.ts (feeds learning)",
+        selfeval_exports: Object.keys(selfeval).length,
+        error_surface: "report-error + frelux_security_events",
+        security_events_total: secEvents,
+      },
+    });
+  } catch {
+    push({
+      subsystem_key: "pain",
+      status: "OFFLINE",
+      metric: "self-evaluation core failed to load",
+      details: {
+        selfeval: "native-engine/selfeval.ts FAILED to load",
+        error_surface: "report-error + frelux_security_events",
+        security_events_total: secEvents,
+      },
+    });
+  }
 
   // -------- ⚖️ BALANCE — decision & authority control ----
   const changeRequests = await count(db, "archie_change_requests");
@@ -574,10 +595,22 @@ export async function runAnatomyHealth(db: AnatomyDb): Promise<ProbeResult[]> {
     "initiator_system",
     "SCHEDULED",
   );
+  // FIX 51 (batch 16, Level 12 audit 2026-09-15): this probe
+  // used to hardcode HEALTHY and report `${scheduled ?? 0}` —
+  // an UNREADABLE ledger was fabricated as a healthy "0
+  // scheduled runs". No fabricated statuses: an unreadable
+  // ledger degrades, and zero recorded runs is reported as
+  // the honest "live, none recorded yet" state.
   push({
     subsystem_key: "sleep",
-    status: "HEALTHY",
-    metric: `${scheduled ?? 0} scheduled runs · cleanup + sitemap maintenance live`,
+    status:
+      scheduled === null ? "DEGRADED" : scheduled > 0 ? "HEALTHY" : "DEGRADED",
+    metric:
+      scheduled === null
+        ? "scheduled-run ledger unreadable"
+        : scheduled > 0
+          ? `${scheduled} scheduled runs · cleanup + sitemap maintenance live`
+          : "background processing live — no scheduled runs recorded yet",
     details: {
       background: [
         "cleanup-old-errors (scheduled)",

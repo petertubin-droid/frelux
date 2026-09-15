@@ -6,7 +6,7 @@
 //      catches tampering.
 //   2. Every seeded subsystem binds to a module that actually
 //      exists on disk (no metaphor-only organs).
-//   3. The health runner produces exactly 22 real probe
+//   3. The health runner produces exactly 23 real probe
 //      results; ears is probed against its REAL engine
 //      module + audit trail (HEALTHY only once a genuine
 //      transcription is audited — never claimed before).
@@ -45,12 +45,12 @@ describe("constitution (DNA)", () => {
       articles: { ...CONSTITUTION_ARTICLES },
     });
     expect(v.verified).toBe(true);
-    expect(v.version).toBe(2);
+    expect(v.version).toBe(CONSTITUTION_VERSION);
   });
 
   it("detects a tampered checksum", () => {
     const v = verifyConstitution({
-      version: 2,
+      version: CONSTITUTION_VERSION,
       checksum: "0".repeat(64),
       articles: { ...CONSTITUTION_ARTICLES },
     });
@@ -85,7 +85,7 @@ describe("constitution (DNA)", () => {
   });
 
   it("encodes the life-safety hard gate (owner directive 2026-09-11)", () => {
-    expect(CONSTITUTION_VERSION).toBe(2);
+    expect(CONSTITUTION_VERSION).toBeGreaterThanOrEqual(2);
     expect(CONSTITUTION_ARTICLES.life_safety).toContain(
       "CRITICAL SAFETY EVENT",
     );
@@ -355,5 +355,123 @@ describe("connective-tissue subsystem (connected device intelligence)", () => {
     expect(
       connMigration.match(/ON CONFLICT \(principle_id\) DO NOTHING/g)?.length,
     ).toBe(seeds);
+  });
+});
+
+// Self-contained minimal AnatomyDb mock (batch 16): rows per
+// table, `throwing` tables simulate an unreadable ledger.
+const makeDb16 = (
+  tables: Record<string, unknown[]>,
+  throwing: string[] = [],
+): AnatomyDb => ({
+  from: (t: string) => ({
+    select: (_q?: string) => ({
+      limit: async () => {
+        if (throwing.includes(t)) throw new Error("unreadable");
+        return {
+          count: (tables[t] ?? []).length,
+          error: null,
+          data: tables[t] ?? [],
+        };
+      },
+      single: async () => ({
+        data: (tables[t] ?? [])[0] ?? null,
+        error: (tables[t] ?? []).length ? null : new Error("none"),
+      }),
+    }),
+  }),
+});
+
+// =========================================================
+// BATCH 16 (Level 12) — fixes 50-52: constitution states the
+// real 23-subsystem anatomy; sleep/pain never fabricate
+// statuses.
+// =========================================================
+describe("batch 16 — fix 50: constitution v3 states the real anatomy", () => {
+  it("the architecture article matches the live registry count (23, connective-tissue included)", () => {
+    expect(ANATOMY_SUBSYSTEM_COUNT).toBe(23);
+    expect(CONSTITUTION_VERSION).toBe(3);
+    expect(CONSTITUTION_ARTICLES.architecture).toContain("23 real subsystems");
+    expect(CONSTITUTION_ARTICLES.architecture).toContain("connective-tissue");
+    // every registered subsystem key appears in the article
+    for (const key of [
+      "heart",
+      "brain",
+      "head",
+      "dna",
+      "skeleton",
+      "spinal-cord",
+      "blood",
+      "eyes",
+      "ears",
+      "mouth",
+      "digestive",
+      "liver-kidneys",
+      "immune",
+      "hands",
+      "muscles",
+      "legs",
+      "nervous",
+      "pain",
+      "balance",
+      "stem-cells",
+      "healing",
+      "connective-tissue",
+      "sleep",
+    ]) {
+      expect(CONSTITUTION_ARTICLES.architecture).toContain(key);
+    }
+  });
+
+  it("the v3 migration seeds the exact code-side checksum", () => {
+    const v3 = readFileSync(
+      resolve(
+        ROOT,
+        "supabase/migrations/20260919000000_archie_constitution_v3_anatomy_23.sql",
+      ),
+      "utf8",
+    );
+    expect(v3).toContain(CONSTITUTION_CHECKSUM);
+    expect(v3).toContain("\n  3,\n");
+    expect(v3).toContain("23 real subsystems");
+  });
+});
+
+describe("batch 16 — fix 51: sleep never fabricates HEALTHY", () => {
+  it("an unreadable scheduled-run ledger degrades with an honest metric", async () => {
+    const db = makeDb16({}, ["frelux_archie_execution_runs"]);
+    const probes = await runAnatomyHealth(db);
+    const sleep = probes.find((p) => p.subsystem_key === "sleep");
+    expect(sleep?.status).toBe("DEGRADED");
+    expect(sleep?.metric).toContain("unreadable");
+  });
+
+  it("a readable ledger with zero scheduled runs is DEGRADED-awakening, not HEALTHY-with-fake-count", async () => {
+    const db = makeDb16({});
+    const probes = await runAnatomyHealth(db);
+    const sleep = probes.find((p) => p.subsystem_key === "sleep");
+    expect(sleep?.status).toBe("DEGRADED");
+    expect(sleep?.metric).toContain("no scheduled runs recorded yet");
+  });
+
+  it("real scheduled runs make sleep HEALTHY", async () => {
+    const db = makeDb16({
+      frelux_archie_execution_runs: [{ initiator_system: "SCHEDULED" }],
+    });
+    const probes = await runAnatomyHealth(db);
+    const sleep = probes.find((p) => p.subsystem_key === "sleep");
+    expect(sleep?.status).toBe("HEALTHY");
+    expect(sleep?.metric).toContain("1 scheduled runs");
+  });
+});
+
+describe("batch 16 — fix 52: pain claims HEALTHY only when the self-eval core loads", () => {
+  it("pain is HEALTHY with a verifiable selfeval binding in the normal run", async () => {
+    const db = makeDb16({});
+    const probes = await runAnatomyHealth(db);
+    const pain = probes.find((p) => p.subsystem_key === "pain");
+    expect(pain?.status).toBe("HEALTHY");
+    expect(pain?.details.selfeval as string).toContain("selfeval.ts");
+    expect(pain?.details.selfeval_exports as number).toBeGreaterThan(0);
   });
 });
