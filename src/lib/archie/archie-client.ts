@@ -13,7 +13,8 @@
 // secrets. ARCHIE never approves its own learning, approval
 // is a human admin action enforced by RLS + governance.
 // =========================================================
-import { supabase } from "@/lib/supabase";
+import { supabase, getFunctionErrorMessage } from "@/lib/supabase";
+import { FunctionsHttpError } from "@supabase/supabase-js";
 import { sanitizeText, hashContent } from "@/lib/learning/sanitize";
 import type {
   ArchieContributor,
@@ -80,7 +81,14 @@ export async function uploadTrainingMedia(
   const { error } = await supabase.storage
     .from("archie-media")
     .upload(path, file, { upsert: false });
-  if (error) return { ok: false, error: error.message };
+  // FIX 63: surface the real error (see extractViaArchie).
+  if (error) {
+    const message =
+      error instanceof FunctionsHttpError
+        ? await getFunctionErrorMessage(error)
+        : error.message;
+    return { ok: false, error: message };
+  }
   return { ok: true, mediaUri: path };
 }
 
@@ -107,7 +115,19 @@ export async function extractViaArchie(
       region: input.region ?? null,
     },
   });
-  if (error) return { ok: false, error: error.message };
+  // FIX 63 (2026-09-15, live E2E): the remote-bridge error carries the
+  // parsed provider message in `message`, but a raw supabase-js
+  // FunctionsHttpError hides the real reason in `error.context` and its
+  // `message` is the useless generic "Edge Function returned a non-2xx
+  // status code" — which is exactly what the live owner saw instead of
+  // the actual 403 reason. Handle both shapes.
+  if (error) {
+    const message =
+      error instanceof FunctionsHttpError
+        ? await getFunctionErrorMessage(error)
+        : error.message;
+    return { ok: false, error: message };
+  }
   if (!data?.ok || !data.extraction) {
     return { ok: false, error: data?.error ?? "Extraction failed" };
   }
@@ -161,7 +181,14 @@ export async function createArchieIngestion(
     })
     .select("id")
     .single();
-  if (error) return { ok: false, error: error.message };
+  // FIX 63: surface the real error (see extractViaArchie).
+  if (error) {
+    const message =
+      error instanceof FunctionsHttpError
+        ? await getFunctionErrorMessage(error)
+        : error.message;
+    return { ok: false, error: message };
+  }
 
   return {
     ok: true,

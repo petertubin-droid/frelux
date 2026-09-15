@@ -246,12 +246,18 @@ serveWithCors(async (req) => {
 
   const service = createClient(supabaseUrl, serviceKey);
 
+  // FIX 62 (2026-09-15, live E2E): profiles has a `role` column
+  // ('admin'/'user') — there is NO `is_admin` column. Selecting it made
+  // PostgREST error, the error was swallowed, and authorization silently
+  // collapsed to false for EVERY caller — the owner himself got 403
+  // "requires an active contributor profile" on training submissions.
+  // Match archie-chat's proven check: profile?.role === "admin".
   const { data: profile } = await service
     .from("profiles")
-    .select("is_admin")
+    .select("role")
     .eq("id", userId)
     .maybeSingle();
-  let authorized = profile?.is_admin === true;
+  let authorized = profile?.role === "admin";
   if (!authorized) {
     const { data: contributor } = await service
       .from("frelux_archie_contributors")
@@ -336,7 +342,7 @@ serveWithCors(async (req) => {
 
   if (mediaUri) {
     const ownerFolder = mediaUri.split("/")[0];
-    const isAdmin = profile?.is_admin === true;
+    const isAdmin = profile?.role === "admin";
     if (ownerFolder !== userId && !isAdmin) {
       return json(403, { ok: false, error: "Media not owned by caller." });
     }
