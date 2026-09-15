@@ -1,8 +1,9 @@
 // =========================================================
-// KNOWLEDGE-VALIDATION TESTS (batch 23, fix 85)
-// ARCHIE can never verify its own knowledge; INFERRED needs
-// a basis; OWNER_PROVIDED must come from the Owner;
-// confidence decays on a half-life so stale facts resurface.
+// KNOWLEDGE-VALIDATION TESTS (batch 28, fix 124)
+// §11 contract: UNVERIFIED is never silently fact; ARCHIE
+// cannot verify its own knowledge; INFERRED always states a
+// basis; CONFIGURED/OWNER_PROVIDED are terminal; confidence
+// decays and stale knowledge surfaces for revalidation.
 // =========================================================
 
 import { describe, expect, it } from "vitest";
@@ -17,38 +18,36 @@ import {
   type ValidatedKnowledge,
 } from "@/lib/archie/knowledge-validation";
 
-function k(over: Partial<ValidatedKnowledge> = {}): ValidatedKnowledge {
+function k(
+  over: Partial<ValidatedKnowledge> & {
+    humanVerified?: boolean;
+    previousVersion?: number;
+  } = {},
+): ValidatedKnowledge {
   return {
-    key: "paint.coverage",
-    domain: "architecture",
-    statement: "1L covers 10m2",
-    validation_state: "OWNER_PROVIDED",
-    source: "OWNER",
+    key: "k1",
+    domain: "construction",
+    statement: "Cement price observed at ₦9,500",
+    validation_state: "UNVERIFIED",
+    confidence: 0.8,
     learned_at: "2026-09-15T00:00:00Z",
-    confidence: 0.9,
+    source: "market survey",
     version: 1,
     ...over,
   };
 }
 
-describe("state transitions — human verification is the only path to VERIFIED", () => {
-  it("allows UNVERIFIED → VERIFIED only via the human step", () => {
+describe("the state machine", () => {
+  it("passes UNVERIFIED→VERIFIED only through human verification; terminal states are immutable", () => {
     expect(canTransition("UNVERIFIED", "VERIFIED")).toBe(true);
     expect(canTransition("UNVERIFIED", "INFERRED")).toBe(true);
     expect(canTransition("INFERRED", "VERIFIED")).toBe(true);
-  });
-
-  it("makes OWNER_PROVIDED and CONFIGURED terminal", () => {
-    expect(canTransition("OWNER_PROVIDED", "VERIFIED")).toBe(false);
     expect(canTransition("CONFIGURED", "UNVERIFIED")).toBe(false);
+    expect(canTransition("OWNER_PROVIDED", "INFERRED")).toBe(false);
+    expect(canTransition("VERIFIED", "UNVERIFIED")).toBe(true); // re-opened by contradicting evidence
   });
 
-  it("allows re-opening VERIFIED only on contradicting evidence", () => {
-    expect(canTransition("VERIFIED", "UNVERIFIED")).toBe(true);
-    expect(canTransition("VERIFIED", "INFERRED")).toBe(false);
-  });
-
-  it("counts VERIFIED/OWNER_PROVIDED/CONFIGURED as fact", () => {
+  it("counts only VERIFIED/OWNER_PROVIDED/CONFIGURED as fact", () => {
     expect(isFact("VERIFIED")).toBe(true);
     expect(isFact("OWNER_PROVIDED")).toBe(true);
     expect(isFact("CONFIGURED")).toBe(true);
@@ -57,108 +56,125 @@ describe("state transitions — human verification is the only path to VERIFIED"
   });
 });
 
-describe("registerKnowledge — the §11 provenance contract", () => {
-  it("refuses VERIFIED without human verification — ARCHIE cannot self-verify", () => {
-    const r = registerKnowledge({
-      ...k({ validation_state: "VERIFIED" }),
-      verification_evidence: "evidence doc",
-    });
-    expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toMatch(/cannot verify its own knowledge/i);
-  });
-
-  it("requires verification evidence on the human path", () => {
-    const r = registerKnowledge({
-      ...k({ validation_state: "VERIFIED" }),
-      humanVerified: true,
-      verification_evidence: "  ",
-    });
-    expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toMatch(/requires verification evidence/i);
-  });
-
-  it("accepts human-verified knowledge with evidence", () => {
-    const r = registerKnowledge({
-      ...k({ validation_state: "VERIFIED" }),
-      humanVerified: true,
-      verification_evidence: "Test report #42",
-    });
-    expect(r.ok).toBe(true);
-  });
-
-  it("requires the inference basis for INFERRED knowledge", () => {
-    const r = registerKnowledge(
-      k({ validation_state: "INFERRED", source: "AI" }),
-    );
-    expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toMatch(/inference basis/i);
-  });
-
-  it("requires OWNER as source for OWNER_PROVIDED", () => {
-    const r = registerKnowledge(k({ source: "AI" }));
-    expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toMatch(/must name the Owner as source/i);
-  });
-
-  it("rejects confidence outside 0..1 and versions monotonically", () => {
-    const bad = registerKnowledge(k({ confidence: 1.2 }));
-    expect(bad.ok).toBe(false);
-    const r = registerKnowledge({ ...k(), previousVersion: 3 });
-    expect(r.ok).toBe(true);
-    if (r.ok) expect(r.knowledge.version).toBe(4);
-  });
-});
-
-describe("confidence decay and revalidation", () => {
-  it("halves confidence over the 365-day half-life", () => {
-    const fresh = decayedConfidence(
-      k({ confidence: 0.8 }),
-      new Date("2026-09-15T00:00:00Z"),
-    );
-    expect(fresh).toBeCloseTo(0.8, 5);
-    const aged = decayedConfidence(
-      k({ confidence: 0.8, learned_at: "2025-09-15T00:00:00Z" }),
-      new Date("2026-09-15T00:00:00Z"),
-    );
-    expect(aged).toBeCloseTo(0.4, 5);
-  });
-
-  it("flags stale records for revalidation against the state bar", () => {
-    const stale = k({
-      confidence: 0.6,
-      learned_at: "2023-09-15T00:00:00Z", // 3 half-lives → 0.075 < 0.4
-    });
-    expect(needsRevalidation(stale, new Date("2026-09-15T00:00:00Z"))).toBe(
-      true,
-    );
-  });
-});
-
-describe("retrieval ranking and labeling", () => {
-  it("ranks by decayed confidence", () => {
-    const ranked = rankForRetrieval(
-      [
-        k({ key: "old", confidence: 0.9, learned_at: "2024-01-01T00:00:00Z" }),
-        k({
-          key: "fresh",
-          confidence: 0.5,
-          learned_at: "2026-09-01T00:00:00Z",
-        }),
-      ],
-      new Date("2026-09-15T00:00:00Z"),
-    );
-    expect(ranked[0].key).toBe("fresh");
-  });
-
-  it("always labels UNVERIFIED/INFERRED statements so they are never presented as fact", () => {
+describe("registerKnowledge — ARCHIE cannot verify its own knowledge", () => {
+  it("refuses VERIFIED without the human-verification step and evidence", () => {
     expect(
-      labelStatement(k({ validation_state: "UNVERIFIED", source: "AI" })),
-    ).toMatch(/^\[UNVERIFIED · confidence 0\.90\]/);
+      registerKnowledge(k({ validation_state: "VERIFIED" })),
+    ).toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/cannot verify its own knowledge/i),
+    });
+    expect(
+      registerKnowledge(
+        k({ validation_state: "VERIFIED", humanVerified: true }),
+      ),
+    ).toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/verification evidence/i),
+    });
+  });
+
+  it("mints VERIFIED only with human verification AND evidence, versioning upward", () => {
+    const r = registerKnowledge(
+      k({
+        validation_state: "VERIFIED",
+        humanVerified: true,
+        verification_evidence: "doc 4.2",
+      }),
+    );
+    expect(r.ok).toBe(true);
+    if (r.ok) expect(r.knowledge.version).toBe(1);
+    const r2 = registerKnowledge(
+      k({
+        validation_state: "VERIFIED",
+        humanVerified: true,
+        verification_evidence: "doc 4.2",
+        previousVersion: 3,
+      }),
+    );
+    expect(r2.ok && r2.knowledge.version).toBe(4);
+  });
+
+  it("requires a basis for INFERRED and the Owner as source for OWNER_PROVIDED", () => {
+    expect(
+      registerKnowledge(k({ validation_state: "INFERRED" })),
+    ).toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/inference basis/i),
+    });
+    expect(
+      registerKnowledge(
+        k({ validation_state: "INFERRED", inference_basis: "3 surveys agree" }),
+      ),
+    ).toMatchObject({ ok: true });
+    expect(
+      registerKnowledge(
+        k({ validation_state: "OWNER_PROVIDED", source: "ARCHIE" }),
+      ),
+    ).toMatchObject({
+      ok: false,
+      error: expect.stringMatching(/Owner as source/i),
+    });
+  });
+
+  it("bounds confidence to 0..1", () => {
+    expect(registerKnowledge(k({ confidence: 1.2 })).ok).toBe(false);
+  });
+});
+
+describe("confidence decay", () => {
+  it("decays with a 365-day half-life", () => {
+    const now = new Date("2027-09-15T00:00:00Z"); // 365 days later
+    const c = decayedConfidence(k({ confidence: 0.8 }), now);
+    expect(c).toBeCloseTo(0.4, 2);
+    expect(
+      decayedConfidence(
+        k({ confidence: 0.8 }),
+        new Date("2026-09-15T00:00:00Z"),
+      ),
+    ).toBeCloseTo(0.8, 5);
+  });
+
+  it("flags stale knowledge for revalidation below the state bar", () => {
+    const stale = needsRevalidation(
+      k({ confidence: 0.7, learned_at: "2024-01-01T00:00:00Z" }),
+      new Date("2026-09-15T00:00:00Z"),
+    );
+    expect(stale).toBe(true);
+    const fresh = needsRevalidation(k(), new Date("2026-09-16T00:00:00Z"));
+    expect(fresh).toBe(false);
+  });
+});
+
+describe("retrieval and labeling", () => {
+  it("ranks by decayed confidence", () => {
+    const items = [
+      k({ key: "old", learned_at: "2020-01-01T00:00:00Z", confidence: 0.9 }),
+      k({ key: "new", confidence: 0.5 }),
+    ];
+    expect(
+      rankForRetrieval(items, new Date("2026-09-15T00:00:00Z"))[0].key,
+    ).toBe("new");
+  });
+
+  it("labels UNVERIFIED/INFERRED statements and flags aging facts — nothing unverified presented as fact", () => {
+    expect(labelStatement(k())).toMatch(/^\[UNVERIFIED · confidence/);
+    expect(
+      labelStatement(k({ validation_state: "INFERRED", inference_basis: "b" })),
+    ).toMatch(/^\[INFERRED/);
+    const aging = labelStatement(
+      k({
+        validation_state: "CONFIGURED",
+        confidence: 0.9,
+        learned_at: "2018-01-01T00:00:00Z",
+      }),
+      new Date("2026-09-15T00:00:00Z"),
+    );
+    expect(aging).toMatch(/\[CONFIGURED · aging, revalidate\]/);
     expect(
       labelStatement(
-        k({ validation_state: "INFERRED", source: "AI", inference_basis: "b" }),
+        k({ validation_state: "OWNER_PROVIDED", source: "OWNER" }),
       ),
-    ).toMatch(/^\[INFERRED/);
-    expect(labelStatement(k())).toBe("1L covers 10m2"); // fact, fresh
+    ).not.toMatch(/^\[/);
   });
 });

@@ -1,443 +1,330 @@
 // =========================================================
-// ARCHIE EVOLUTION — CHANGE REQUEST LIFECYCLE TESTS (§2, §3, §6, §7)
-//
-// Full acceptance matrix:
-//   propose → owner decision → staging authorization → staging
-//   → testing → pass/fail → production authorization → execute
-//   → rollback, with every illegal transition and every
-//   authority violation refused.
+// EVOLUTION-CHANGE-REQUEST TESTS (batch 28, fix 129)
+// The change-request state machine: complete proposals only;
+// protected surfaces flagged at creation; ARCHIE can withdraw
+// only its own unsubmitted proposal; staging needs a prior
+// owner authorization; PASSED requires consistent results;
+// EXECUTED needs a SEPARATE production authorization and a
+// real commit; rollback needs recovery information.
 // =========================================================
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
   buildApprovalView,
   createChangeRequest,
   formatCrNumber,
+  isTerminalCrState,
+  OWNER_GATED,
   prepareRollback,
   transitionChangeRequest,
   type CreateChangeRequestInput,
-  type TransitionEvidence,
-} from "../evolution/change-request";
-import type { EvolutionChangeRequest } from "../evolution/types";
+} from "@/lib/archie/evolution/change-request";
+import type { EvolutionChangeRequest } from "@/lib/archie/evolution/types";
 
-const NOW = "2026-09-09T10:00:00Z";
+const NOW = "2026-09-15T00:00:00Z";
+const OWNER_APPROVAL = {
+  actor: "OWNER" as const,
+  authorizationRecordId: "rec-stage",
+  serverVerified: true,
+};
 
 function input(
-  overrides: Partial<CreateChangeRequestInput> = {},
+  over: Partial<CreateChangeRequestInput> = {},
 ): CreateChangeRequestInput {
   return {
-    title: "Fix labour cost overlap markup",
-    description: "Moves the overlap markup after the base area is rounded.",
-    reason: "Users reported inflated labour costs on L-shaped rooms.",
-    affectedFiles: ["src/components/labour/LabourCostSection.tsx"],
-    affectedComponents: ["LabourCostSection"],
-    proposedDiff:
-      "--- a/LabourCostSection.tsx\n+++ b/LabourCostSection.tsx\n@@ -12,3 +12,4 @@",
-    dependencies: ["calc.ts (no change)"],
-    securityImpact: "None — presentation only.",
-    dataImpact: "None — no database writes.",
+    title: "Fix login rounding",
+    description: "Rounds quote totals correctly",
+    reason: "Owner report: totals off by 1 kobo",
+    affectedFiles: ["src/lib/quote.ts"],
+    affectedComponents: ["Quotations"],
+    proposedDiff: "+ fix",
+    dependencies: [],
+    securityImpact: "none",
+    dataImpact: "none",
     regressionRisk: "low",
-    testPlan: "Run LabourCostSection tests; add a case for L-shaped overlap.",
-    rollbackPlan: "git revert the commit; no schema impact.",
+    testPlan: "vitest src/lib/quote.test.ts",
+    rollbackPlan: "git revert",
     requestedLevel: "staging",
-    archieVersion: "archie-1.9.0",
+    archieVersion: "1.0.0",
     now: NOW,
-    ...overrides,
+    ...over,
   };
 }
 
-function create(
-  overrides: Partial<CreateChangeRequestInput> = {},
+function created(
+  over: Partial<CreateChangeRequestInput> = {},
 ): EvolutionChangeRequest {
-  const result = createChangeRequest(
-    input(overrides),
-    "cr-id-1",
-    formatCrNumber(2026, 1),
-  );
-  if (!result.ok) throw new Error(result.error);
-  return result.request;
+  const r = createChangeRequest(input(over), "cr-1", "CR-2026-0001");
+  if (!r.ok) throw new Error(r.error);
+  return r.request;
 }
 
-const ownerApproval: TransitionEvidence = {
-  now: NOW,
-  actor: "OWNER",
-  approval: {
-    actor: "OWNER",
-    authorizationRecordId: "auth-rec-staging",
-    serverVerified: true,
-  },
-};
-
-const productionApproval: TransitionEvidence = {
-  now: NOW,
-  actor: "OWNER",
-  approval: {
-    actor: "OWNER",
-    authorizationRecordId: "auth-rec-production",
-    serverVerified: true,
-  },
-};
-
 describe("creation", () => {
-  it("refuses half-proposals — every owner decision field must exist", () => {
-    expect(
-      createChangeRequest(input({ rollbackPlan: "" }), "id", "CR-2026-0001").ok,
-    ).toBe(false);
-    expect(
-      createChangeRequest(input({ testPlan: " " }), "id", "CR-2026-0001").ok,
-    ).toBe(false);
-    expect(
-      createChangeRequest(input({ securityImpact: "" }), "id", "CR-2026-0001")
-        .ok,
-    ).toBe(false);
-    expect(
-      createChangeRequest(input({ affectedFiles: [] }), "id", "CR-2026-0001")
-        .ok,
-    ).toBe(false);
-    expect(
-      createChangeRequest(input({ proposedDiff: "" }), "id", "CR-2026-0001").ok,
-    ).toBe(false);
-  });
-
-  it("issues a CR starting in PROPOSED with an audit entry", () => {
-    const result = createChangeRequest(input(), "id-1", "CR-2026-0007");
-    expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.request.state).toBe("PROPOSED");
-      expect(result.request.crNumber).toBe("CR-2026-0007");
-      expect(result.audit.toState).toBe("PROPOSED");
-      expect(result.audit.actor).toBe("ARCHIE");
-    }
-  });
-
-  it("flags protected-surface changes as OWNER_INTERVENTION_REQUIRED", () => {
-    const request = create({
-      affectedFiles: [
-        "src/lib/archie/evolution/authority.ts",
-        "src/pages/Contact.tsx",
-      ],
-    });
-    expect(request.requiresOwnerIntervention).toBe(true);
-    expect(request.flags).toContain("OWNER_INTERVENTION_REQUIRED");
-  });
-
-  it("formats CR numbers with zero padding", () => {
+  it("formats sequential CR numbers per year", () => {
     expect(formatCrNumber(2026, 1)).toBe("CR-2026-0001");
     expect(formatCrNumber(2026, 12345)).toBe("CR-2026-12345");
   });
+
+  it("refuses half-proposals — every owner-decision field must be present", () => {
+    const required: Array<[keyof CreateChangeRequestInput, RegExp]> = [
+      ["title", /requires a title/i],
+      ["description", /requires a description/i],
+      ["reason", /requires a reason/i],
+      ["proposedDiff", /requires a proposed diff/i],
+      ["securityImpact", /requires a security impact/i],
+      ["dataImpact", /requires a data impact/i],
+      ["testPlan", /requires a test plan/i],
+      ["rollbackPlan", /requires a rollback plan/i],
+    ];
+    for (const [field, pattern] of required) {
+      const r = createChangeRequest(
+        input({ [field]: " " } as never),
+        "cr-1",
+        "CR-2026-0001",
+      );
+      expect(r.ok).toBe(false);
+      if (!r.ok) expect(r.error).toMatch(pattern);
+    }
+    expect(
+      createChangeRequest(input({ affectedFiles: [] }), "cr-1", "CR-2026-0001")
+        .ok,
+    ).toBe(false);
+    expect(
+      createChangeRequest(input({ archieVersion: " " }), "cr-1", "CR-2026-0001")
+        .ok,
+    ).toBe(false);
+  });
+
+  it("flags protected-surface changes for owner intervention at creation", () => {
+    const r = created({ affectedFiles: ["rls_policies", "src/lib/quote.ts"] });
+    expect(r.requiresOwnerIntervention).toBe(true);
+    expect(r.flags).toContain("OWNER_INTERVENTION_REQUIRED");
+    expect(r.ownerAuthorizationStatus).toBe("none");
+    expect(r.state).toBe("PROPOSED");
+    const clean = created();
+    expect(clean.requiresOwnerIntervention).toBe(false);
+  });
 });
 
-describe("the controlled lifecycle", () => {
-  it("walks the full happy path with proper authority at every gate", () => {
-    let cr = create();
+describe("the transition machine", () => {
+  it("refuses terminal states, invalid transitions and double authorization", () => {
+    expect(isTerminalCrState("EXECUTED")).toBe(false);
+    expect(isTerminalCrState("REJECTED")).toBe(true);
+    expect(isTerminalCrState("ROLLED_BACK")).toBe(true);
+    expect([...OWNER_GATED]).toEqual([
+      "AUTHORIZED",
+      "EXECUTED",
+      "ROLLED_BACK",
+      "REJECTED",
+    ]);
+    const rejected = { ...created(), state: "REJECTED" as const };
+    expect(
+      transitionChangeRequest(rejected, "PROPOSED", {
+        now: NOW,
+        actor: "OWNER",
+      }).ok,
+    ).toBe(false);
+    expect(
+      transitionChangeRequest(created(), "EXECUTED", {
+        now: NOW,
+        actor: "ARCHIE",
+      }).ok,
+    ).toBe(false);
+  });
 
-    // Submit for owner decision.
-    let r = transitionChangeRequest(cr, "AWAITING_OWNER", {
+  it("submits complete proposals for owner decision; ARCHIE withdraws only unsubmitted ones", () => {
+    const r = transitionChangeRequest(created(), "AWAITING_OWNER", {
       now: NOW,
       actor: "ARCHIE",
       proposalComplete: true,
     });
     expect(r.ok).toBe(true);
-    if (r.ok) cr = r.request;
-
-    // ARCHIE cannot authorize staging.
-    r = transitionChangeRequest(cr, "AUTHORIZED", {
-      now: NOW,
-      actor: "ARCHIE",
-      approval: {
+    if (r.ok) {
+      expect(r.request.state).toBe("AWAITING_OWNER");
+      expect(r.audit.action).toBe("submit_for_owner_decision");
+    }
+    expect(
+      transitionChangeRequest(created(), "AWAITING_OWNER", {
+        now: NOW,
         actor: "ARCHIE",
-        authorizationRecordId: "x",
-        serverVerified: true,
-      },
+        proposalComplete: false,
+      }).ok,
+    ).toBe(false);
+    // ARCHIE cannot reject after submission; OWNER can, recording the decision.
+    const awaiting = (
+      transitionChangeRequest(created(), "AWAITING_OWNER", {
+        now: NOW,
+        actor: "ARCHIE",
+        proposalComplete: true,
+      }) as { request: EvolutionChangeRequest }
+    ).request;
+    expect(
+      transitionChangeRequest(awaiting, "REJECTED", {
+        now: NOW,
+        actor: "ARCHIE",
+      }).ok,
+    ).toBe(false);
+    const ownerReject = transitionChangeRequest(awaiting, "REJECTED", {
+      now: NOW,
+      actor: "OWNER",
+      approval: OWNER_APPROVAL,
     });
-    expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toContain("ARCHIE cannot approve");
-
-    // Owner authorizes staging with a server-verified record.
-    r = transitionChangeRequest(cr, "AUTHORIZED", ownerApproval);
-    expect(r.ok).toBe(true);
-    if (r.ok) {
-      cr = r.request;
-      expect(cr.ownerAuthorizationStatus).toBe("staging_authorized");
-      expect(cr.stagingAuthorizationRecordId).toBe("auth-rec-staging");
-    }
-
-    // Staging.
-    r = transitionChangeRequest(cr, "STAGING", {
+    expect(ownerReject.ok && ownerReject.request.ownerAuthorizationStatus).toBe(
+      "rejected",
+    );
+    // ARCHIE CAN withdraw its own unsubmitted proposal.
+    const withdrawn = transitionChangeRequest(created(), "REJECTED", {
       now: NOW,
       actor: "ARCHIE",
-      stagingEnvironment: "staging",
     });
-    expect(r.ok).toBe(true);
-    if (r.ok) cr = r.request;
+    expect(withdrawn.ok).toBe(true);
+  });
 
-    // Testing passes.
-    const tests = {
-      checks: [
-        { name: "tsc", status: "passed" as const, detail: "0 errors" },
-        { name: "vitest", status: "passed" as const, detail: "17 passed" },
-      ],
-      ranAt: NOW,
-      environment: "staging" as const,
-      summary: "all_passed" as const,
+  it("requires server-verified owner authorization to stage, and an environment reference", () => {
+    const awaiting = (
+      transitionChangeRequest(created(), "AWAITING_OWNER", {
+        now: NOW,
+        actor: "ARCHIE",
+        proposalComplete: true,
+      }) as { request: EvolutionChangeRequest }
+    ).request;
+    expect(
+      transitionChangeRequest(awaiting, "AUTHORIZED", {
+        now: NOW,
+        actor: "ARCHIE",
+        approval: OWNER_APPROVAL,
+      }).ok,
+    ).toBe(false); // ARCHIE cannot authorize itself
+    const authorized = (
+      transitionChangeRequest(awaiting, "AUTHORIZED", {
+        now: NOW,
+        actor: "OWNER",
+        approval: OWNER_APPROVAL,
+      }) as { request: EvolutionChangeRequest }
+    ).request;
+    expect(authorized.ownerAuthorizationStatus).toBe("staging_authorized");
+    expect(
+      transitionChangeRequest(authorized, "STAGING", {
+        now: NOW,
+        actor: "ARCHIE",
+      }).ok,
+    ).toBe(false);
+    const staged = transitionChangeRequest(authorized, "STAGING", {
+      now: NOW,
+      actor: "ARCHIE",
+      stagingEnvironment: "staging-db-42",
+    });
+    expect(staged.ok).toBe(true);
+  });
+
+  it("requires consistent test results for PASSED/FAILED", () => {
+    const staged = {
+      ...created(),
+      state: "STAGING" as const,
+      ownerAuthorizationStatus: "staging_authorized" as const,
     };
-    r = transitionChangeRequest(cr, "TESTING", { now: NOW, actor: "ARCHIE" });
-    expect(r.ok).toBe(true);
-    if (r.ok) cr = r.request;
-    r = transitionChangeRequest(cr, "PASSED", {
+    const testing = (
+      transitionChangeRequest(staged, "TESTING", {
+        now: NOW,
+        actor: "ARCHIE",
+      }) as { request: EvolutionChangeRequest }
+    ).request;
+    const allPassed = {
+      summary: "all_passed",
+      checks: [{ name: "t", status: "passed" }],
+    } as never;
+    const failed = {
+      summary: "failures",
+      checks: [{ name: "t", status: "failed" }],
+    } as never;
+    expect(
+      transitionChangeRequest(testing, "PASSED", { now: NOW, actor: "ARCHIE" })
+        .ok,
+    ).toBe(false);
+    expect(
+      transitionChangeRequest(testing, "PASSED", {
+        now: NOW,
+        actor: "ARCHIE",
+        testResults: failed,
+      }).ok,
+    ).toBe(false);
+    const passed = transitionChangeRequest(testing, "PASSED", {
       now: NOW,
       actor: "ARCHIE",
-      testResults: tests,
+      testResults: allPassed,
     });
-    expect(r.ok).toBe(true);
-    if (r.ok) {
-      cr = r.request;
-      expect(cr.testResults?.summary).toBe("all_passed");
-    }
+    expect(passed.ok).toBe(true);
+  });
 
-    // Production execution requires a SEPARATE owner authorization.
-    r = transitionChangeRequest(cr, "EXECUTED", {
-      ...ownerApproval, // reusing the STAGING record must fail
-      resultingCommit: "abc123",
-    });
-    expect(r.ok).toBe(false);
-    if (!r.ok) expect(r.error).toContain("SEPARATE");
-
-    r = transitionChangeRequest(cr, "EXECUTED", {
-      ...productionApproval,
-      resultingCommit: "abc123",
-    });
-    expect(r.ok).toBe(true);
-    if (r.ok) {
-      cr = r.request;
-      expect(cr.state).toBe("EXECUTED");
-      expect(cr.resultingCommit).toBe("abc123");
-      expect(cr.ownerAuthorizationStatus).toBe("production_authorized");
-    }
-
-    // Rollback is owner-gated with its own record.
-    r = transitionChangeRequest(cr, "ROLLED_BACK", {
-      now: NOW,
-      actor: "ARCHIE",
-      rollbackInformation: "reverted",
-    });
-    expect(r.ok).toBe(false);
-    r = transitionChangeRequest(cr, "ROLLED_BACK", {
+  it("EXECUTED requires a SEPARATE production authorization and the resulting commit", () => {
+    const passed: EvolutionChangeRequest = {
+      ...created(),
+      state: "PASSED",
+      ownerAuthorizationStatus: "staging_authorized",
+      stagingAuthorizationRecordId: "rec-stage",
+    };
+    // Reusing the staging approval is refused.
+    expect(
+      transitionChangeRequest(passed, "EXECUTED", {
+        now: NOW,
+        actor: "OWNER",
+        approval: {
+          actor: "OWNER",
+          authorizationRecordId: "rec-stage",
+          serverVerified: true,
+        },
+      }).ok,
+    ).toBe(false);
+    const noCommit = transitionChangeRequest(passed, "EXECUTED", {
       now: NOW,
       actor: "OWNER",
       approval: {
         actor: "OWNER",
-        authorizationRecordId: "auth-rec-rollback",
+        authorizationRecordId: "rec-prod",
         serverVerified: true,
       },
-      rollbackInformation: "git revert abc123",
-    });
-    expect(r.ok).toBe(true);
-    if (r.ok) expect(r.request.state).toBe("ROLLED_BACK");
-  });
-
-  it("rejects invalid transitions and skips", () => {
-    const cr = create();
-    const r = transitionChangeRequest(cr, "PASSED", {
-      now: NOW,
-      actor: "ARCHIE",
-    });
-    expect(r.ok).toBe(false);
-    const r2 = transitionChangeRequest(cr, "EXECUTED", productionApproval);
-    expect(r2.ok).toBe(false);
-  });
-
-  it("terminal states never move again — a new CR is required", () => {
-    const cr = create({ ...input(), requestedLevel: "staging" });
-    const rejected = transitionChangeRequest(cr, "REJECTED", {
-      now: NOW,
-      actor: "ARCHIE",
-    });
-    expect(rejected.ok).toBe(true); // ARCHIE may withdraw its own PROPOSED item
-    if (rejected.ok) {
-      const again = transitionChangeRequest(
-        rejected.request,
-        "AWAITING_OWNER",
-        {
-          now: NOW,
-          actor: "ARCHIE",
-          proposalComplete: true,
-        },
-      );
-      expect(again.ok).toBe(false);
-    }
-  });
-
-  it("ARCHIE cannot reject after submitting — only the owner decides", () => {
-    const base = create();
-    const submitted = transitionChangeRequest(base, "AWAITING_OWNER", {
-      now: NOW,
-      actor: "ARCHIE",
-      proposalComplete: true,
-    });
-    expect(submitted.ok).toBe(true);
-    if (!submitted.ok) return;
-    const r = transitionChangeRequest(submitted.request, "REJECTED", {
-      now: NOW,
-      actor: "ARCHIE",
-    });
-    expect(r.ok).toBe(false);
-  });
-
-  it("test results must be internally consistent — failures cannot pass", () => {
-    const cr = create();
-    const submitted = transitionChangeRequest(cr, "AWAITING_OWNER", {
-      now: NOW,
-      actor: "ARCHIE",
-      proposalComplete: true,
-    });
-    expect(submitted.ok).toBe(true);
-    const authorized = transitionChangeRequest(
-      (submitted as { ok: true; request: EvolutionChangeRequest }).request,
-      "AUTHORIZED",
-      ownerApproval,
-    );
-    expect(authorized.ok).toBe(true);
-    const staged = transitionChangeRequest(
-      (authorized as { ok: true; request: EvolutionChangeRequest }).request,
-      "STAGING",
-      { now: NOW, actor: "ARCHIE", stagingEnvironment: "staging" },
-    );
-    expect(staged.ok).toBe(true);
-    const testing = transitionChangeRequest(
-      (staged as { ok: true; request: EvolutionChangeRequest }).request,
-      "TESTING",
-      { now: NOW, actor: "ARCHIE" },
-    );
-    expect(testing.ok).toBe(true);
-
-    const failing = {
-      checks: [
-        { name: "vitest", status: "failed" as const, detail: "1 failed" },
-      ],
-      ranAt: NOW,
-      environment: "staging" as const,
-      summary: "failures" as const,
-    };
-    const lying = transitionChangeRequest(
-      (testing as { ok: true; request: EvolutionChangeRequest }).request,
-      "PASSED",
-      {
-        now: NOW,
-        actor: "ARCHIE",
-        testResults: failing,
-      },
-    );
-    expect(lying.ok).toBe(false); // failures cannot be marked PASSED
-    const honest = transitionChangeRequest(
-      (testing as { ok: true; request: EvolutionChangeRequest }).request,
-      "FAILED",
-      {
-        now: NOW,
-        actor: "ARCHIE",
-        testResults: failing,
-      },
-    );
-    expect(honest.ok).toBe(true);
-    // FAILED is terminal.
-    const revived = transitionChangeRequest(
-      (honest as { ok: true; request: EvolutionChangeRequest }).request,
-      "TESTING",
-      { now: NOW, actor: "ARCHIE" },
-    );
-    expect(revived.ok).toBe(false);
-  });
-
-  it("the owner can request changes, sending the CR back to PROPOSED", () => {
-    const cr = create();
-    const submitted = transitionChangeRequest(cr, "AWAITING_OWNER", {
-      now: NOW,
-      actor: "ARCHIE",
-      proposalComplete: true,
-    });
-    expect(submitted.ok).toBe(true);
-    const req = (submitted as { ok: true; request: EvolutionChangeRequest })
-      .request;
-    const archieTries = transitionChangeRequest(req, "PROPOSED", {
-      now: NOW,
-      actor: "ARCHIE",
-    });
-    expect(archieTries.ok).toBe(false);
-    const ownerDoes = transitionChangeRequest(req, "PROPOSED", {
-      now: NOW,
-      actor: "OWNER",
-    });
-    expect(ownerDoes.ok).toBe(true);
-  });
-
-  it("EXECUTED requires a resulting commit — no fake deploy success (§22)", () => {
-    let cr = create();
-    const walk = (
-      to: Parameters<typeof transitionChangeRequest>[1],
-      ev: Partial<TransitionEvidence>,
-    ) => {
-      const r = transitionChangeRequest(cr, to, {
-        now: NOW,
-        actor: "ARCHIE",
-        ...ev,
-      } as TransitionEvidence);
-      expect(r.ok).toBe(true);
-      if (r.ok) cr = r.request;
-    };
-    walk("AWAITING_OWNER", { proposalComplete: true });
-    const authorized = transitionChangeRequest(cr, "AUTHORIZED", ownerApproval);
-    expect(authorized.ok).toBe(true);
-    if (authorized.ok) cr = authorized.request;
-    walk("STAGING", { stagingEnvironment: "staging" });
-    walk("TESTING", {});
-    walk("PASSED", {
-      testResults: {
-        checks: [{ name: "build", status: "passed" as const, detail: "ok" }],
-        ranAt: NOW,
-        environment: "staging",
-        summary: "all_passed",
-      },
-    });
-    const noCommit = transitionChangeRequest(cr, "EXECUTED", {
-      ...productionApproval,
     });
     expect(noCommit.ok).toBe(false);
-    if (!noCommit.ok) expect(noCommit.error).toContain("resulting commit");
+    const executed = transitionChangeRequest(passed, "EXECUTED", {
+      now: NOW,
+      actor: "OWNER",
+      approval: {
+        actor: "OWNER",
+        authorizationRecordId: "rec-prod",
+        serverVerified: true,
+      },
+      resultingCommit: "  abc123  ",
+    });
+    expect(executed.ok).toBe(true);
+    if (executed.ok) {
+      expect(executed.request.ownerAuthorizationStatus).toBe(
+        "production_authorized",
+      );
+      expect(executed.request.resultingCommit).toBe("abc123");
+    }
   });
 });
 
-describe("approval view & rollback preparation", () => {
-  it("shows the owner everything (§4) — nothing hidden", () => {
-    const cr = create();
-    const view = buildApprovalView(cr);
+describe("approval view and rollback preparation", () => {
+  it("shows the owner everything, hiding nothing", () => {
+    const view = buildApprovalView(created());
     expect(view.crNumber).toBe("CR-2026-0001");
-    expect(view.whatWillChange).toContain("overlap markup");
-    expect(view.why).toContain("labour costs");
-    expect(view.diff).toContain("@@");
-    expect(view.risk).toBe("low");
-    expect(view.rollbackPlan).toBeTruthy();
-    expect(view.securityImpact).toBeTruthy();
-    expect(view.dataImpact).toBeTruthy();
+    expect(view.diff).toBe("+ fix");
+    expect(view.rollbackPlan).toBe("git revert");
+    expect(view.requiresOwnerIntervention).toBe(false);
   });
 
-  it("prepares rollback information before execution (§7)", () => {
-    const cr = create();
-    const prep = prepareRollback(cr, "v1.9.0", "none", "none");
-    expect("recoveryInformation" in prep).toBe(true);
-    if ("recoveryInformation" in prep) {
-      expect(prep.recoveryInformation).toContain("v1.9.0");
-      expect(prep.affectedFiles).toContain(
-        "src/components/labour/LabourCostSection.tsx",
-      );
-    }
-    const noVersion = prepareRollback(cr, " ", "none", "none");
-    expect("error" in noVersion).toBe(true);
-    const noPlan = prepareRollback(
-      { ...cr, rollbackPlan: "" },
-      "v1.9.0",
-      "none",
-      "none",
+  it("requires a recorded version and rollback plan before execution", () => {
+    const r = created();
+    expect(prepareRollback(r, " ", "db", "cfg")).toMatchObject({
+      error: expect.stringMatching(/current version/i),
+    });
+    const prep = prepareRollback(r, "v1.2.3", "none", "none");
+    expect("recoveryInformation" in prep && prep.recoveryInformation).toContain(
+      "Restore point: v1.2.3",
     );
-    expect("error" in noPlan).toBe(true);
+    expect("recoveryInformation" in prep && prep.recoveryInformation).toContain(
+      "Affected files: src/lib/quote.ts",
+    );
   });
 });

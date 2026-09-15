@@ -30,6 +30,8 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "STANDARD",
     active: true,
+    description:
+      "Construction methods, sequencing, site practice and execution knowledge.",
   },
   {
     key: "electrical",
@@ -37,6 +39,8 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "ENGINEERING_REVIEW",
     active: true,
+    description:
+      "Electrical systems, wiring, load considerations and installation practice.",
   },
   {
     key: "plumbing",
@@ -44,6 +48,7 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "ENGINEERING_REVIEW",
     active: true,
+    description: "Plumbing, drainage, water supply and sanitary systems.",
   },
   {
     key: "structural",
@@ -51,6 +56,8 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "DETERMINISTIC",
     active: true,
+    description:
+      "Structural and civil engineering — highest verification bar; never auto-promoted.",
   },
   {
     key: "foundation",
@@ -58,6 +65,8 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "DETERMINISTIC",
     active: true,
+    description:
+      "Foundation design and practice — highest verification bar; never auto-promoted.",
   },
   {
     key: "safety",
@@ -65,6 +74,8 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "ENGINEERING_REVIEW",
     active: true,
+    description:
+      "Site safety practices and thresholds — engineering review required.",
   },
   {
     key: "quantity_surveying",
@@ -72,6 +83,8 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "STANDARD",
     active: true,
+    description:
+      "Measurement, quantities, takeoff methodology and QS practice.",
   },
   {
     key: "project_planning",
@@ -79,6 +92,7 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "STANDARD",
     active: true,
+    description: "Scheduling, sequencing, milestones and project management.",
   },
   {
     key: "property",
@@ -86,6 +100,8 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "STANDARD",
     active: true,
+    description:
+      "Property markets, condition assessment and property value knowledge.",
   },
   {
     key: "procurement",
@@ -93,6 +109,7 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "STANDARD",
     active: true,
+    description: "Sourcing, suppliers, purchasing and logistics knowledge.",
   },
   {
     key: "costing",
@@ -100,6 +117,7 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "STANDARD",
     active: true,
+    description: "Cost estimation inputs, pricing practice and market rates.",
   },
   {
     key: "painting_finishes",
@@ -107,6 +125,8 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "STANDARD",
     active: true,
+    description:
+      "Painting and finishing materials, methods and regional practice.",
   },
   {
     key: "roofing",
@@ -114,6 +134,7 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "ENGINEERING_REVIEW",
     active: true,
+    description: "Roof geometry, materials and construction practice.",
   },
   {
     key: "hvac",
@@ -121,6 +142,7 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "ENGINEERING_REVIEW",
     active: true,
+    description: "Heating, ventilation and air conditioning systems.",
   },
   {
     key: "landscaping",
@@ -128,6 +150,7 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "STANDARD",
     active: true,
+    description: "External works, landscaping and site development.",
   },
   {
     key: "regional_practices",
@@ -135,6 +158,8 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "STANDARD",
     active: true,
+    description:
+      "Region-specific terminology, materials, package sizes and construction practice.",
   },
   {
     key: "writing",
@@ -142,6 +167,7 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "STANDARD",
     active: true,
+    description: "Content, articles, documentation and communication.",
   },
   {
     key: "software_engineering",
@@ -149,6 +175,8 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "STANDARD",
     active: true,
+    description:
+      "Code understanding, review, implementation plans and tests — proposals only, no production authority.",
   },
   {
     key: "business",
@@ -156,6 +184,7 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "STANDARD",
     active: true,
+    description: "Business operations, strategy and commercial knowledge.",
   },
   {
     key: "science",
@@ -163,6 +192,7 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "STANDARD",
     active: true,
+    description: "General scientific knowledge supporting ARCHIE reasoning.",
   },
   {
     key: "technology",
@@ -170,6 +200,7 @@ export const ARCHIE_SEED_DOMAINS: readonly ArchieDomain[] = [
     is_core: false,
     risk_class: "STANDARD",
     active: true,
+    description: "Technology trends, tools and systems knowledge.",
   },
   {
     key: "crypto_intelligence",

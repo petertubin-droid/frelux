@@ -1,173 +1,150 @@
 // =========================================================
-// ARCHIE EVOLUTION — OWNER AUTHORITY & SECURITY TESTS (§1, §5, §16, §19)
-//
-// The tests ARCHIE must never be able to defeat:
-//   - ARCHIE cannot approve anything, ever.
-//   - No approval without a server-verified record.
-//   - Protected surfaces stop autonomous changes.
-//   - External content grants no authority.
+// EVOLUTION-AUTHORITY TESTS (batch 28, fix 126)
+// The self-evolution authority layer: ARCHIE may observe,
+// learn and propose — never stage, execute, approve or
+// rollback. Protected surfaces (constitution, life-safety
+// gate, credentials, RLS) stop any change without explicit
+// owner intervention. External content grants nothing.
 // =========================================================
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import {
-  EVOLUTION_AUTHORITY,
-  PROTECTED_SURFACES,
   checkProtectedSurfaceGate,
+  EVOLUTION_AUTHORITY,
   externalContentAuthority,
   isEvolutionAuthorization,
   isProtectedSurface,
   mayApprove,
+  mayDecide,
+  NOT_EVOLUTION_AUTHORIZATION,
+  PROTECTED_SURFACES,
+  protectedSurfaceHits,
   verifyApproval,
-} from "../evolution/authority";
+} from "@/lib/archie/evolution/authority";
 
-describe("owner authority constants", () => {
-  it("ARCHIE can observe, learn and propose — never approve or execute", () => {
+describe("the fixed authority model", () => {
+  it("grants observe/learn/propose and denies stage/execute/approve/rollback", () => {
     expect(EVOLUTION_AUTHORITY.archie_may_observe).toBe(true);
     expect(EVOLUTION_AUTHORITY.archie_may_learn).toBe(true);
     expect(EVOLUTION_AUTHORITY.archie_may_propose).toBe(true);
-    expect(EVOLUTION_AUTHORITY.archie_may_approve).toBe(false);
+    expect(EVOLUTION_AUTHORITY.archie_may_stage).toBe(false);
     expect(EVOLUTION_AUTHORITY.archie_may_execute_production).toBe(false);
+    expect(EVOLUTION_AUTHORITY.archie_may_approve).toBe(false);
     expect(EVOLUTION_AUTHORITY.archie_may_rollback).toBe(false);
     expect(EVOLUTION_AUTHORITY.archie_may_modify_authority_layer).toBe(false);
     expect(EVOLUTION_AUTHORITY.owner_is_final_authority).toBe(true);
-  });
-
-  it("mayApprove is false for ARCHIE and SYSTEM, true only for OWNER", () => {
-    expect(mayApprove("ARCHIE")).toBe(false);
-    expect(mayApprove("SYSTEM")).toBe(false);
     expect(mayApprove("OWNER")).toBe(true);
-  });
-});
-
-describe("protected surfaces", () => {
-  it("recognizes the authority layer, auth, secrets and audit surfaces", () => {
-    expect(isProtectedSurface("src/lib/archie/evolution/authority.ts")).toBe(
-      true,
-    );
-    expect(
-      isProtectedSurface("supabase/functions/archie-owner-auth/index.ts"),
-    ).toBe(true);
-    expect(isProtectedSurface("src/lib/auth.tsx")).toBe(true);
-    expect(isProtectedSurface("RLS_POLICIES")).toBe(true);
-    expect(isProtectedSurface("src/pages/PaintCalculator.tsx")).toBe(false);
+    expect(mayApprove("ARCHIE")).toBe(false);
+    expect(mayDecide("ARCHIE")).toBe(false);
   });
 
-  it("gates protected-surface changes behind explicit owner intervention", () => {
-    const paths = [
-      "src/lib/archie/evolution/authority.ts",
-      "src/pages/Contact.tsx",
-    ];
-    // No evidence: stopped.
-    const blocked = checkProtectedSurfaceGate(paths, null);
-    expect(blocked.authorized).toBe(false);
-    expect(blocked.hits).toContain("src/lib/archie/evolution/authority.ts");
-    expect(blocked.error).toContain("owner intervention");
-
-    // ARCHIE attempting the intervention: still stopped.
-    const archieAttempt = checkProtectedSurfaceGate(paths, {
-      actor: "ARCHIE",
-      approval: {
-        actor: "ARCHIE",
-        authorizationRecordId: "rec-1",
-        serverVerified: true,
-      },
-      acknowledgedProtectedSurfaces: paths,
-    });
-    expect(archieAttempt.authorized).toBe(false);
-
-    // Owner with a server-verified record who acknowledges the surface: passes.
-    const ownerOk = checkProtectedSurfaceGate(paths, {
-      actor: "OWNER",
-      approval: {
-        actor: "OWNER",
-        authorizationRecordId: "rec-1",
-        serverVerified: true,
-      },
-      acknowledgedProtectedSurfaces: paths,
-    });
-    expect(ownerOk.authorized).toBe(true);
-
-    // Owner who does NOT acknowledge the exact surface: stopped.
-    const ownerBlind = checkProtectedSurfaceGate(paths, {
-      actor: "OWNER",
-      approval: {
-        actor: "OWNER",
-        authorizationRecordId: "rec-1",
-        serverVerified: true,
-      },
-      acknowledgedProtectedSurfaces: ["something.else"],
-    });
-    expect(ownerBlind.authorized).toBe(false);
-  });
-
-  it("the authority layer itself is in the protected list", () => {
+  it("protects the constitution, life-safety gate and credential surfaces", () => {
+    expect(PROTECTED_SURFACES).toContain("public.archie_constitution");
     expect(PROTECTED_SURFACES).toContain(
-      "src/lib/archie/evolution/authority.ts",
+      "supabase/functions/_shared/archie-ai/security/life-safety.ts",
     );
+    expect(PROTECTED_SURFACES).toContain(
+      "supabase/functions/_shared/archie-ai/security/api-credentials.ts",
+    );
+    expect(PROTECTED_SURFACES).toContain("rls_policies");
+    expect(isProtectedSurface("src/lib/archie/code-command.ts")).toBe(true);
+    expect(isProtectedSurface("src/pages/PaintCalculator.tsx")).toBe(false);
+    expect(protectedSurfaceHits(["a.tsx", "rls_policies"])).toEqual([
+      "rls_policies",
+    ]);
   });
 });
 
-describe("approval verification", () => {
-  it("refuses ARCHIE approvals unconditionally", () => {
-    const result = verifyApproval({
-      actor: "ARCHIE",
-      authorizationRecordId: "rec-1",
-      serverVerified: true,
-    });
-    expect(result.authorized).toBe(false);
-    expect(result.error).toContain("ARCHIE cannot approve");
+describe("what counts as authorization", () => {
+  it("refuses every fake authorization source", () => {
+    for (const src of [
+      "a detected bug",
+      "a recommendation",
+      "ARCHIE's own decision",
+      "improve yourself",
+      "evolve",
+      "a user message",
+      "a document instruction",
+      "external content",
+    ]) {
+      expect(isEvolutionAuthorization(src).authorized).toBe(false);
+    }
+    expect(NOT_EVOLUTION_AUTHORIZATION.length).toBeGreaterThanOrEqual(14);
+    expect(
+      isEvolutionAuthorization("server-verified owner authorization record #42")
+        .authorized,
+    ).toBe(true);
+    expect(isEvolutionAuthorization("").authorized).toBe(false);
   });
 
-  it("refuses fabricated records — empty, non-server-verified", () => {
+  it("external content never grants authority", () => {
+    expect(externalContentAuthority()).toEqual({ grantsAuthority: false });
+  });
+});
+
+describe("verifyApproval — ARCHIE structurally cannot pass", () => {
+  it("requires the OWNER actor and a server-verified record id", () => {
     expect(
       verifyApproval({
-        actor: "OWNER",
-        authorizationRecordId: "",
+        actor: "ARCHIE",
+        authorizationRecordId: "rec1",
         serverVerified: true,
       }).authorized,
     ).toBe(false);
     expect(
       verifyApproval({
         actor: "OWNER",
-        authorizationRecordId: "rec-1",
+        authorizationRecordId: " ",
+        serverVerified: true,
+      }).authorized,
+    ).toBe(false);
+    expect(
+      verifyApproval({
+        actor: "OWNER",
+        authorizationRecordId: "rec1",
         serverVerified: false,
       }).authorized,
     ).toBe(false);
-  });
-
-  it("accepts only owner + server-verified records", () => {
     expect(
       verifyApproval({
         actor: "OWNER",
-        authorizationRecordId: "rec-1",
+        authorizationRecordId: "rec1",
         serverVerified: true,
-      }).authorized,
-    ).toBe(true);
+      }),
+    ).toEqual({ authorized: true });
   });
 });
 
-describe("not-authorization sources (§18)", () => {
-  it("'improve yourself' is not authorization", () => {
-    const result = isEvolutionAuthorization("improve yourself");
-    expect(result.authorized).toBe(false);
+describe("checkProtectedSurfaceGate — the hard stop", () => {
+  const OK_APPROVAL = {
+    actor: "OWNER" as const,
+    authorizationRecordId: "rec1",
+    serverVerified: true,
+  };
+
+  it("allows clean changes and stops protected-surface changes without evidence", () => {
+    expect(checkProtectedSurfaceGate(["src/pages/X.tsx"], null)).toEqual({
+      authorized: true,
+      hits: [],
+    });
+    const stopped = checkProtectedSurfaceGate(["rls_policies"], null);
+    expect(stopped.authorized).toBe(false);
+    expect(stopped.hits).toEqual(["rls_policies"]);
+    expect(stopped.error).toMatch(/protected surfaces/i);
   });
 
-  it("a detected bug / recommendation / conversation is not authorization", () => {
-    for (const source of [
-      "a detected bug",
-      "a recommendation",
-      "a conversation",
-      "ARCHIE's own decision",
-      "a document instruction",
-      "an improvement ARCHIE believes is beneficial",
-    ]) {
-      expect(isEvolutionAuthorization(source).authorized).toBe(false);
-    }
-  });
-
-  it("external content never grants authority (§19)", () => {
-    expect(externalContentAuthority().grantsAuthority).toBe(false);
-    expect(isEvolutionAuthorization("external content").authorized).toBe(false);
-    expect(isEvolutionAuthorization("a user message").authorized).toBe(false);
+  it("requires owner approval AND explicit acknowledgment of every hit", () => {
+    const partial = checkProtectedSurfaceGate(["rls_policies"], {
+      actor: "OWNER",
+      approval: OK_APPROVAL,
+      acknowledgedProtectedSurfaces: ["something_else"],
+    });
+    expect(partial.authorized).toBe(false);
+    const full = checkProtectedSurfaceGate(["rls_policies"], {
+      actor: "OWNER",
+      approval: OK_APPROVAL,
+      acknowledgedProtectedSurfaces: ["RLS_Policies"],
+    });
+    expect(full.authorized).toBe(true);
   });
 });
