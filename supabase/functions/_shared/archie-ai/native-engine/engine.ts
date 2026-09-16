@@ -1861,6 +1861,30 @@ export class ArchieNativeEngine implements ArchieRuntime {
           invocation,
         ]);
       }
+
+      // (c) sentry duty — the caller's sentry_diagnostics tool
+      //     reports REAL live boot/health of the deployed ARCHIE
+      //     edge functions plus deterministic database counts.
+      //     Determined BEFORE intent routing: a sentry request
+      //     must reach the tool even when conversational
+      //     classification would misroute it (live incident:
+      //     "run sentry duty" classified as farewell and the
+      //     registered tool went unreachable — dead tool).
+      //     Honest bounds: fires only when the caller declared
+      //     the tool; without it, the honest no-tool path
+      //     applies verbatim.
+      if (
+        requestToolNames.includes("sentry_diagnostics") &&
+        /\bsentry\b/i.test(input)
+      ) {
+        const pending = this.compose(
+          "Standing sentry duty — checking the live deployment now.",
+          Math.max(nlu.confidence, 0.8),
+          [],
+        );
+        pending.toolCall = { name: "sentry_diagnostics", args: {} };
+        return pending;
+      }
     }
 
     switch (nlu.intent) {

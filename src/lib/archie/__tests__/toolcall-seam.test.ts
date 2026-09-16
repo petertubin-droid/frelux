@@ -17,6 +17,7 @@ import { CognitiveKernel } from "@studio-shared/archie-ai/cognitive/kernel.ts";
 const TOOLS = [
   { name: "market_intelligence", description: "prices", parameters: {} },
   { name: "frelux_status", description: "status", parameters: {} },
+  { name: "sentry_diagnostics", description: "sentry duty", parameters: {} },
 ];
 
 function req(
@@ -61,6 +62,39 @@ describe("toolCall seam (C1 / plan P1)", () => {
     const result = await engine.generate(req("give me a system status report"));
     const call = result.parts.find((p) => p.toolCall)?.toolCall;
     expect(call?.name).toBe("frelux_status");
+  });
+
+  it("sentry duty with the tool DECLARED emits a toolCall even when conversational classification would misroute it", async () => {
+    const engine = new ArchieNativeEngine();
+    // Live incident (2026-09-16): this phrasing classified as
+    // farewell and the registered sentry tool went dead. The
+    // deterministic pre-intent path must reach the tool.
+    const result = await engine.generate(
+      req("run sentry duty: live boot/health checks of all five ARCHIE edge functions"),
+    );
+    const call = result.parts.find((p) => p.toolCall)?.toolCall;
+    expect(call).toBeDefined();
+    expect(call?.name).toBe("sentry_diagnostics");
+    expect(call?.args).toMatchObject({});
+    expect(result.finishReason).toBe("TOOL_CALL");
+  });
+
+  it("sentry mention WITHOUT the declared tool keeps the honest no-tool path (visitors)", async () => {
+    const engine = new ArchieNativeEngine();
+    const result = await engine.generate(
+      req("run sentry duty", [], [
+        { name: "market_intelligence", description: "prices", parameters: {} },
+      ]),
+    );
+    const call = result.parts.find((p) => p.toolCall)?.toolCall;
+    expect(call?.name ?? "none").not.toBe("sentry_diagnostics");
+  });
+
+  it("a NON-sentry message never fires the sentry tool", async () => {
+    const engine = new ArchieNativeEngine();
+    const result = await engine.generate(req("give me a system status report"));
+    const call = result.parts.find((p) => p.toolCall)?.toolCall;
+    expect(call?.name ?? "none").not.toBe("sentry_diagnostics");
   });
 
   it("a trailing toolResult composes the final answer from REAL output, verbatim + provenance-labeled", async () => {
