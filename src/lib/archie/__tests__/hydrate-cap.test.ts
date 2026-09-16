@@ -49,20 +49,30 @@ function factRow(i: number): FakeRow {
  *  every chained call for contract assertions. */
 function windowDb(facts: FakeRow[], opts: { failCount?: boolean } = {}) {
   const calls: string[] = [];
-  const db: SupabaseLike = {
+  // Structural test double — cast at the call site like production
+  // does (db as unknown as SupabaseLike).
+  const db = {
     from(table: string) {
       return {
         select(_q: string, selOpts?: { count?: string; head?: boolean }) {
           if (selOpts?.count) {
             calls.push("count");
-            return Promise.resolve({
+            const res = {
               data: null,
               error: opts.failCount ? { message: "nope" } : null,
               count: opts.failCount ? null : facts.length,
-            });
+            };
+            return {
+              // shape-complete for the structural contract
+              range: () =>
+                Promise.resolve({ data: [], error: null }),
+              then: (resolve: (v: unknown) => unknown) =>
+                Promise.resolve(resolve(res)) as never,
+            };
           }
           calls.push("select");
           return {
+            range: () => Promise.resolve({ data: [], error: null }),
             order(column: string, o: { ascending: boolean }) {
               calls.push(`order:${column}:${o.ascending}`);
               return {
@@ -141,7 +151,7 @@ describe("hydrate cap — real-client window path (order + limit)", () => {
   it("loads only the newest cap window O(limit) and reports truncation via exact head-count", async () => {
     const facts = Array.from({ length: 1500 }, (_, i) => factRow(i));
     const { db, calls } = windowDb(facts);
-    const p = new SupabasePersistence(db);
+    const p = new SupabasePersistence(db as unknown as SupabaseLike);
     const rows = await p.loadFacts();
     // the window: newest-first, exactly cap rows over the wire
     expect(rows).toHaveLength(NATIVE_CONFIG.factHydrateLimit);
@@ -164,7 +174,7 @@ describe("hydrate cap — real-client window path (order + limit)", () => {
   it("reports no truncation when the table fits inside the window", async () => {
     const facts = Array.from({ length: 236 }, (_, i) => factRow(i));
     const { db } = windowDb(facts);
-    const p = new SupabasePersistence(db);
+    const p = new SupabasePersistence(db as unknown as SupabaseLike);
     const rows = await p.loadFacts();
     expect(rows).toHaveLength(236);
     expect(p.lastHydrationStats).toEqual({
@@ -178,7 +188,7 @@ describe("hydrate cap — real-client window path (order + limit)", () => {
   it("a failed head-count reports NULL stats — never a guessed total", async () => {
     const facts = Array.from({ length: 600 }, (_, i) => factRow(i));
     const { db } = windowDb(facts, { failCount: true });
-    const p = new SupabasePersistence(db);
+    const p = new SupabasePersistence(db as unknown as SupabaseLike);
     const rows = await p.loadFacts();
     // hydration still works — only the accounting degrades
     expect(rows).toHaveLength(NATIVE_CONFIG.factHydrateLimit);
@@ -213,7 +223,9 @@ describe("hydrate cap — FactStore honest account", () => {
   it("exposes hydration stats through FactStore.hydrationAccount()", async () => {
     const facts = Array.from({ length: 505 }, (_, i) => factRow(i));
     const { db } = windowDb(facts);
-    const store = new FactStore(new SupabasePersistence(db));
+    const store = new FactStore(
+      new SupabasePersistence(db as unknown as SupabaseLike),
+    );
     const n = await store.hydrate();
     expect(n).toBe(NATIVE_CONFIG.factHydrateLimit);
     const acct = store.hydrationAccount();
