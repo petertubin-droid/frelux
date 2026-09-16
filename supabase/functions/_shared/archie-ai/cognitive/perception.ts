@@ -196,9 +196,10 @@ export class PerceptionEngine {
   }
 
   /** Ingest image bytes with NATIVE vision (audit item
-   *  "native eyes"). Real pixel analysis for PNG; honest
-   *  structure-only for JPEG/GIF; honest refusal for anything
-   *  else. Returns a real percept only when the analysis
+   *  "native eyes"). Real pixel analysis for PNG and baseline
+   *  JPEG; honest structure-only for everything the native
+   *  decoders refuse; honest refusal for anything else.
+   *  Returns a real percept only when the analysis
    *  succeeded — never a faked one. */
   async ingestImage(
     bytes: Uint8Array,
@@ -227,8 +228,8 @@ export class PerceptionEngine {
       }),
       note:
         result.analysis.depth === "full-pixel"
-          ? "image analyzed natively (PNG pixels)"
-          : "image parsed structurally only (JPEG/GIF) — pixel analysis honestly unavailable",
+          ? `image analyzed natively (${result.analysis.format.toUpperCase()} pixels)`
+          : "image parsed structurally only — pixel analysis honestly unavailable",
       analysis: result.analysis,
     };
   }

@@ -5,16 +5,18 @@
 // Real, native, bounded image perception — no external
 // vision API, no AI pretending. What this module reports,
 // it computed from the actual bytes; what it cannot do
-// (JPEG pixel decode, object recognition) is reported in
-// `note` / refused — never faked, never guessed.
+// (OCR, object recognition) is reported in `note` / refused
+// — never faked, never guessed.
 //
-// Capability bounds (honest):
+// Capability bounds (honest, gap 4 upgrade 2026-09-16):
 //   PNG  — full pixel decode (bit depth 8; gray / RGB /
 //          palette / RGBA; no interlace), then deterministic
 //          color/brightness/structure analysis.
-//   JPEG — structural only: dimensions from SOF markers.
-//          Pixel analysis is NOT performed — no native
-//          JPEG decoder exists yet, and we say so.
+//   JPEG — NATIVE baseline pixel decode (SOF0/SOF1, 8-bit,
+//          1/3 components, 4:4:4–4:1:1, restart intervals):
+//          the same deterministic statistics as PNG. What the
+//          decoder refuses (progressive SOF2, 12-bit, CMYK)
+//          falls back to structure-only with the reason.
 //   GIF  — structural only: dimensions from the logical
 //          screen descriptor.
 //   else — refused honestly.
@@ -370,6 +372,9 @@ function parseGif(bytes: Uint8Array): { width: number; height: number } {
   };
 }
 
+// ---------- native JPEG pixel decode (gap 4, 2026-09-16) ----------
+import { decodeJpeg } from "./jpeg-decode.ts";
+
 // ---------- deterministic analysis ----------
 
 function luma(r: number, g: number, b: number): number {
@@ -470,10 +475,36 @@ export async function analyzeImage(
     };
   }
 
-  // JPEG — structure only, honestly
+  // JPEG — native baseline pixel decode (gap 4, 2026-09-16);
+  // structure-only fallback for everything the decoder
+  // refuses (progressive, 12-bit, CMYK…), with the reason.
   if (bytes[0] === 0xff && bytes[1] === 0xd8) {
+    let j: { width: number; height: number };
     try {
-      const j = parseJpeg(bytes);
+      j = parseJpeg(bytes);
+    } catch (e) {
+      return { ok: false, note: (e as Error).message };
+    }
+    if (j.width * j.height > MAX_PIXELS) {
+      return {
+        ok: false,
+        note: `JPEG is ${j.width}x${j.height} (${((j.width * j.height) / 1e6).toFixed(1)}MP) — over the 4MP native-analysis cap, refused honestly`,
+      };
+    }
+    try {
+      const img = decodeJpeg(bytes);
+      const analysis = analyzeRgba({
+        width: img.width,
+        height: img.height,
+        rgba: img.rgba,
+        notes: img.notes,
+      });
+      return {
+        ok: true,
+        analysis: { ...analysis, format: "jpeg" },
+      };
+    } catch (e) {
+      // decode refused honestly → structure-only, with the reason
       return {
         ok: true,
         analysis: {
@@ -490,13 +521,11 @@ export async function analyzeImage(
           contentClass: null,
           contentConfidence: null,
           notes: [
-            "JPEG: dimensions parsed from SOF markers — pixel analysis NOT performed (no native JPEG decoder; colors/brightness/composition unknown, honestly)",
+            `JPEG: dimensions parsed; pixel decode NOT performed — ${(e as Error).message}`,
           ],
           analyzedAt: new Date().toISOString(),
         },
       };
-    } catch (e) {
-      return { ok: false, note: (e as Error).message };
     }
   }
 

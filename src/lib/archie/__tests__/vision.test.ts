@@ -257,7 +257,12 @@ describe("native vision — structure-only + honest refusals", () => {
     expect(a.orientation).toBe("portrait");
     expect(a.meanLuma).toBeNull();
     expect(a.dominantColors).toBeNull();
-    expect(a.notes.join(" ")).toContain("pixel analysis NOT performed");
+    // gap 4 (2026-09-16): the native decoder now exists, so this
+    // table-less fixture falls back to structure-only WITH the
+    // decode refusal reason — never a faked analysis.
+    expect(a.notes.join(" ")).toMatch(
+      /pixel decode NOT performed|refused honestly/,
+    );
   });
 
   it("GIF: logical screen dimensions only, honestly", async () => {
