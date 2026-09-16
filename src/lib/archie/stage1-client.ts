@@ -213,22 +213,95 @@ export async function sendChatTurn(input: {
     language_code: string;
     source: "USER_SELECTION" | "LOCATION_SUGGESTION";
   };
+  /** Gap 3 (2026-09-16): live reply streaming — when provided,
+   *  the turn runs over SSE and onDelta fires with each
+   *  word-group chunk as it arrives (paced delivery of the
+   *  fully computed reply; never fabrication). The final
+   *  result is identical to the classic call. */
+  onDelta?: (chunk: string) => void;
 }): Promise<ChatTurnResult> {
   const supabase = await getSupabase();
-  const { data, error } = await supabase.functions.invoke("archie-core", {
-    body: {
+
+  // Classic path — byte-identical behavior, zero risk.
+  if (!input.onDelta) {
+    const { data, error } = await supabase.functions.invoke("archie-core", {
+      body: {
+        conversation_id: input.conversationId,
+        message: input.message,
+        attachments: input.attachments ?? [],
+        teach: input.teach ?? false,
+        history: input.history ?? [],
+        language: input.language ?? null,
+      },
+    });
+    if (error) return { ok: false, error: error.message };
+    if (!data?.ok)
+      return { ok: false, error: data?.error ?? "ARCHIE core error" };
+    return data as ChatTurnResult;
+  }
+
+  // Streaming path — direct fetch with the live session JWT.
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const url = (import.meta.env.VITE_SUPABASE_URL ??
+    import.meta.env.VITE_SUPABASE_API_URL) as string;
+  const res = await fetch(`${url}/functions/v1/archie-core`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(session?.access_token
+        ? { Authorization: `Bearer ${session.access_token}` }
+        : {}),
+    },
+    body: JSON.stringify({
       conversation_id: input.conversationId,
       message: input.message,
       attachments: input.attachments ?? [],
       teach: input.teach ?? false,
       history: input.history ?? [],
       language: input.language ?? null,
-    },
+      stream: true,
+    }),
   });
-  if (error) return { ok: false, error: error.message };
-  if (!data?.ok)
-    return { ok: false, error: data?.error ?? "ARCHIE core error" };
-  return data as ChatTurnResult;
+  if (!res.ok || !(res.headers.get("Content-Type") ?? "").includes("text/event-stream")) {
+    // stream unavailable → fall back honestly to the classic call
+    return sendChatTurn({ ...input, onDelta: undefined });
+  }
+
+  const reader = res.body!.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  let result: ChatTurnResult | null = null;
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    for (const block of buffer.split("\n\n")) {
+      const evLine = block.split("\n").find((l) => l.startsWith("event: "));
+      const dataLine = block.split("\n").find((l) => l.startsWith("data: "));
+      if (!evLine || !dataLine) continue;
+      const event = evLine.slice(7);
+      let payload: Record<string, unknown>;
+      try {
+        payload = JSON.parse(dataLine.slice(6));
+      } catch {
+        continue; // chunk boundary mid-JSON — next read completes it
+      }
+      if (event === "delta") input.onDelta(String(payload.text ?? ""));
+      if (event === "done") {
+        result = payload as ChatTurnResult;
+        if (!result.ok) {
+          result = {
+            ok: false,
+            error: result.error ?? "ARCHIE core error",
+          };
+        }
+      }
+    }
+    buffer = buffer.slice(buffer.lastIndexOf("\n\n") + 2);
+  }
+  return result ?? { ok: false, error: "ARCHIE stream ended without a result" };
 }
 
 // ---------------------------------------------------------

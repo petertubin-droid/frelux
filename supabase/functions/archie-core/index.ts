@@ -85,9 +85,23 @@ const CORS = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-function json(status: number, body: Record<string, unknown>) {
-  return new Response(JSON.stringify(body), {
-    status,
+/** Pure outcome value — the boundary (serveWithCors wrapper
+ *  below) decides one JSON Response or an SSE stream (gap 3).
+ *  Every existing return site flows through untouched. */
+function respond(
+  status: number,
+  body: Record<string, unknown>,
+): { status: number; body: Record<string, unknown> } {
+  return { status, body };
+}
+
+/** The non-streaming boundary still speaks Responses. */
+function jsonResponse(outcome: {
+  status: number;
+  body: Record<string, unknown>;
+}): Response {
+  return new Response(JSON.stringify(outcome.body), {
+    status: outcome.status,
     headers: { "Content-Type": "application/json", ...CORS },
   });
 }
@@ -100,13 +114,13 @@ async function requireOwner(
 ): Promise<{ ok: true; userId: string } | { ok: false; res: Response }> {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader)
-    return { ok: false, res: json(401, { error: "Unauthorized" }) };
+    return { ok: false, res: jsonResponse(respond(401, { error: "Unauthorized" })) };
   const anon = createClient(SUPABASE_URL, ANON_KEY, {
     global: { headers: { Authorization: authHeader } },
   });
   const { data } = await anon.auth.getUser();
   const user = data.user;
-  if (!user) return { ok: false, res: json(401, { error: "Unauthorized" }) };
+  if (!user) return { ok: false, res: jsonResponse(respond(401, { error: "Unauthorized" })) };
 
   const { data: profiles } = await anon
     .from("profiles")
@@ -123,7 +137,7 @@ async function requireOwner(
     });
     return {
       ok: false,
-      res: json(403, { error: "Forbidden — ARCHIE is Owner-only." }),
+      res: jsonResponse(respond(403, { error: "Forbidden — ARCHIE is Owner-only." })),
     };
   }
   return { ok: true, userId: user.id };
@@ -480,10 +494,12 @@ async function resolveTurnLanguage(
     if (!active.has(code)) {
       return {
         ok: false,
-        res: json(400, {
-          ok: false,
-          error: `Selected language "${code}" is not registered/active in the ARCHIE language registry.`,
-        }),
+        res: jsonResponse(
+          respond(400, {
+            ok: false,
+            error: `Selected language "${code}" is not registered/active in the ARCHIE language registry.`,
+          }),
+        ),
       };
     }
     return {
@@ -566,9 +582,19 @@ interface ChatRequest {
     language_code: string;
     source: "USER_SELECTION" | "LOCATION_SUGGESTION";
   } | null;
+  /** Gap 3 (2026-09-16): true → SSE response (start → progress →
+   *  delta → done). Classic JSON when absent. */
+  stream?: boolean;
 }
 
-serveWithCors(async (req: Request) => {
+/** Live progress emitter for the streaming path (gap 3) —
+ *  null on the classic JSON path. */
+type CoreEmit = (event: string, data: Record<string, unknown>) => void;
+
+async function executeCore(
+  req: Request,
+  emit?: CoreEmit,
+): Promise<Response | { status: number; body: Record<string, unknown> }> {
   // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
   // (falls back to client IP). OPTIONS preflights are answered at
   // the CORS boundary and never reach this check.
@@ -579,28 +605,29 @@ serveWithCors(async (req: Request) => {
   if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
 
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
-  if (req.method !== "POST") return json(405, { error: "Method not allowed" });
+  if (req.method !== "POST") return respond(405, { error: "Method not allowed" });
 
   const auth = await requireOwner(req);
   if (!auth.ok) return auth.res;
+  emit?.("progress", { type: "auth", status: "ok" });
   const userId = auth.userId;
 
   let body: ChatRequest;
   try {
     body = await req.json();
   } catch {
-    return json(400, { error: "Invalid request body" });
+    return respond(400, { error: "Invalid request body" });
   }
   const message = (body.message ?? "").toString();
   if (!message.trim() && !body.attachments?.length) {
-    return json(400, { error: "Message is empty" });
+    return respond(400, { error: "Message is empty" });
   }
   if (message.length > 8000) {
-    return json(400, { error: "Message too long (max 8000 chars)" });
+    return respond(400, { error: "Message too long (max 8000 chars)" });
   }
 
   if (!(await withinRateLimit(userId))) {
-    return json(429, { error: "Rate limit reached. Please wait a moment." });
+    return respond(429, { error: "Rate limit reached. Please wait a moment." });
   }
 
   // verify the conversation belongs to this owner
@@ -610,7 +637,7 @@ serveWithCors(async (req: Request) => {
     .eq("id", body.conversation_id)
     .eq("owner_id", userId)
     .maybeSingle();
-  if (!conv) return json(404, { error: "Conversation not found" });
+  if (!conv) return respond(404, { error: "Conversation not found" });
 
   // §16: resolve the session language FIRST (server-side
   // validation; user selection errors are honest, never silent)
@@ -629,6 +656,8 @@ serveWithCors(async (req: Request) => {
     })
     .select("id")
     .single();
+
+  emit?.("progress", { type: "stage", stage: "gates" });
 
   // 3.5 LIFE-SAFETY HARD GATE — audit finding C-1 (2026-09-13):
   //    archie-core must run the same first layer as archie-chat,
@@ -650,7 +679,7 @@ serveWithCors(async (req: Request) => {
     } catch (_auditErr) {
       // Swallow: the stop stands even if the event write fails.
     }
-    return json(200, {
+    return respond(200, {
       reply: lifeSafetyStopMessage(lifeSafety),
       mode: "owner",
       life_safety_gate: {
@@ -709,7 +738,7 @@ serveWithCors(async (req: Request) => {
     } catch (_auditErr) {
       // Swallow: the refusal stands even if the event write fails.
     }
-    return json(200, {
+    return respond(200, {
       reply:
         `I can't do that one. ${verdict.reason}` +
         (verdict.intrusive && !verdict.hardRefused
@@ -823,6 +852,7 @@ serveWithCors(async (req: Request) => {
         : "") +
       (terminology.block ? `\n\n${terminology.block}` : "");
 
+    emit?.("progress", { type: "stage", stage: "reasoning" });
     const inference = await infer({
       turns: [
         ...(body.history ?? []).slice(-8).map((h) => ({
@@ -857,6 +887,8 @@ serveWithCors(async (req: Request) => {
       .select("id, created_date")
       .single();
 
+    emit?.("progress", { type: "stage", stage: "persisted" });
+
     // 7) audit + infrastructure cost record (internal, never customer)
     await Promise.all([
       audit(userId, "archie.core.chat_turn", "INFO", {
@@ -880,7 +912,7 @@ serveWithCors(async (req: Request) => {
       }),
     ]);
 
-    return json(200, {
+    return respond(200, {
       ok: true,
       conversation_id: conv.id,
       owner_message_id: ownerMsg?.id ?? null,
@@ -914,9 +946,105 @@ serveWithCors(async (req: Request) => {
   } catch (err) {
     const detail = err instanceof Error ? err.message : "Unknown error";
     await audit(userId, "archie.core.chat_error", "WARNING", { error: detail });
-    return json(500, {
+    return respond(500, {
       ok: false,
       error: `ARCHIE could not complete this turn: ${detail}`,
     });
   }
+}
+
+// ---------------------------------------------------------
+// GAP 3 (2026-09-16): the boundary — one execution path,
+// two delivery formats. Non-streaming requests get the
+// byte-identical JSON Response as before. Streaming requests
+// (body.stream or Accept: text/event-stream) get the SAME
+// outcome delivered as SSE: start → progress (gate/persist
+// stage events) → delta (word-group chunks of the reply) →
+// done (the full classic payload). Deltas are pacing of the
+// FULLY COMPUTED reply — never fabrication.
+// ---------------------------------------------------------
+function sse(
+  controller: ReadableStreamDefaultController<Uint8Array>,
+  event: string,
+  data: Record<string, unknown>,
+) {
+  controller.enqueue(
+    new TextEncoder().encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`),
+  );
+}
+
+function chunkReply(reply: string): string[] {
+  const words = reply.split(/(\s+)/);
+  const chunks: string[] = [];
+  for (let i = 0; i < words.length; i += 3) {
+    chunks.push(words.slice(i, i + 3).join(""));
+  }
+  return chunks.filter((c) => c.length > 0);
+}
+
+serveWithCors(async (req: Request) => {
+  // OPTIONS never streams (no body to peek)
+  if (req.method === "OPTIONS") {
+    const outcome = await executeCore(req);
+    return outcome instanceof Response ? outcome : jsonResponse(outcome);
+  }
+
+  // stream selection: explicit flag first, Accept header second
+  let wantsStream =
+    (req.headers.get("Accept") ?? "").includes("text/event-stream");
+  if (req.method === "POST") {
+    try {
+      const parsed = await req.clone().json();
+      if (parsed?.stream === true) wantsStream = true;
+    } catch {
+      // invalid JSON → let executeCore produce the honest 400
+    }
+  }
+  if (!wantsStream) {
+    const outcome = await executeCore(req);
+    return outcome instanceof Response ? outcome : jsonResponse(outcome);
+  }
+
+  const stream = new ReadableStream<Uint8Array>({
+    async start(controller) {
+      sse(controller, "start", { at: new Date().toISOString() });
+      const outcome = await executeCore(req, (event, data) => {
+        try {
+          sse(controller, event, data);
+        } catch {
+          // client disconnected — finish quietly below
+        }
+      });
+      if (outcome instanceof Response) {
+        // early gate (auth/429) — surface honestly, no deltas
+        let detail: Record<string, unknown> = {};
+        try {
+          detail = JSON.parse(await outcome.text());
+        } catch {
+          detail = { error: `HTTP ${outcome.status}` };
+        }
+        sse(controller, "done", { status: outcome.status, ...detail });
+      } else {
+        const reply = typeof outcome.body.reply === "string"
+          ? outcome.body.reply
+          : undefined;
+        if (reply) {
+          for (const chunk of chunkReply(reply)) {
+            sse(controller, "delta", { text: chunk });
+          }
+        }
+        sse(controller, "done", { status: outcome.status, ...outcome.body });
+      }
+      controller.close();
+    },
+  });
+  return new Response(stream, {
+    status: 200,
+    headers: {
+      "Content-Type": "text/event-stream",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+      ...CORS,
+    },
+  });
 });

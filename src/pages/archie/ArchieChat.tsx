@@ -114,6 +114,10 @@ export default function ArchieChat() {
   const [teachMode, setTeachMode] = useState(false);
   const [pending, setPending] = useState<PendingUpload[]>([]);
   const [sending, setSending] = useState(false);
+  // Gap 3: the reply as it streams in (word-group deltas from
+  // the SSE turn) — rendered live; cleared once the persisted
+  // thread reloads (source of truth).
+  const [streamReply, setStreamReply] = useState("");
   const [loadingThread, setLoadingThread] = useState(false);
   const [listOpen, setListOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -655,12 +659,16 @@ export default function ArchieChat() {
           content: m.content,
         }));
 
+      setStreamReply("");
       const result = await sendChatTurn({
         conversationId: activeId,
         message: text,
         attachments,
         teach: teachMode,
         history,
+        // Gap 3: live deltas → the typing bubble shows ARCHIE's
+        // reply as it arrives (paced delivery, same final result).
+        onDelta: (chunk) => setStreamReply((prev) => prev + chunk),
         // §16: user selection authoritative, location advisory;
         // the server validates against the live registry.
         language: sessionLanguage
@@ -680,6 +688,7 @@ export default function ArchieChat() {
       // reload the real persisted thread (source of truth)
       const fresh = await listMessages(activeId);
       setMessages(fresh);
+      setStreamReply("");
       // MOUTH (native prosody, owner voice bank): speak the
       // reply aloud ONLY with an explicit VOICE_OUTPUT
       // consent — speakArchie re-checks it library-side; no
@@ -702,6 +711,7 @@ export default function ArchieChat() {
       await recoverFailedTurn(text, optimistic.id);
     } finally {
       setSending(false);
+      setStreamReply("");
     }
   }
 
@@ -970,12 +980,19 @@ export default function ArchieChat() {
           ))}
           {sending && (
             <div className="flex justify-start">
-              <div className="rounded-2xl bg-white/[0.06] px-4 py-2.5">
-                <span className="flex gap-1">
-                  <span className="h-2 w-2 animate-bounce rounded-full bg-amber-300 [animation-delay:-0.3s]" />
-                  <span className="h-2 w-2 animate-bounce rounded-full bg-amber-300 [animation-delay:-0.15s]" />
-                  <span className="h-2 w-2 animate-bounce rounded-full bg-amber-300" />
-                </span>
+              <div className="max-w-[85%] rounded-2xl bg-white/[0.06] px-4 py-2.5 text-sm">
+                {streamReply ? (
+                  <>
+                    {streamReply}
+                    <span className="ml-0.5 inline-block h-3.5 w-1.5 animate-pulse bg-amber-300 align-middle" />
+                  </>
+                ) : (
+                  <span className="flex gap-1">
+                    <span className="h-2 w-2 animate-bounce rounded-full bg-amber-300 [animation-delay:-0.3s]" />
+                    <span className="h-2 w-2 animate-bounce rounded-full bg-amber-300 [animation-delay:-0.15s]" />
+                    <span className="h-2 w-2 animate-bounce rounded-full bg-amber-300" />
+                  </span>
+                )}
               </div>
             </div>
           )}

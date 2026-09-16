@@ -100,3 +100,95 @@ describe("archie-core — methods", () => {
     expect(res.status).toBe(405);
   });
 });
+
+// ── Gap 3: SSE STREAMING (owner upgrade 2026-09-16) ────────
+describe("archie-core — SSE streaming (gap 3)", () => {
+  function parseSSE(raw: string): Array<[string, Record<string, unknown>]> {
+    const events: Array<[string, Record<string, unknown>]> = [];
+    for (const block of raw.split("\n\n")) {
+      const evLine = block.split("\n").find((l) => l.startsWith("event: "));
+      const dataLine = block.split("\n").find((l) => l.startsWith("data: "));
+      if (evLine && dataLine) {
+        events.push([evLine.slice(7), JSON.parse(dataLine.slice(6))]);
+      }
+    }
+    return events;
+  }
+
+  it("non-streaming requests keep the classic JSON path", async () => {
+    givenOwnerIsAdmin();
+    givenConversation();
+    const res = await handler(
+      req(
+        "POST",
+        "",
+        { conversation_id: CONV_ID, message: "   " },
+        OWNER_AUTH,
+      ),
+    );
+    expect(res.headers.get("Content-Type")).toContain("application/json");
+    expect(res.status).toBe(400);
+  });
+
+  it("streams an unauthenticated turn honestly (done carries the 401)", async () => {
+    const res = await handler(
+      req("POST", "", { message: "hello", stream: true }),
+    );
+    expect(res.status).toBe(200); // the stream opens
+    expect(res.headers.get("Content-Type")).toContain("text/event-stream");
+    const events = parseSSE(await res.text());
+    expect(events[0][0]).toBe("start");
+    const done = events.find(([n]) => n === "done")![1] as {
+      status: number;
+      error: string;
+    };
+    expect(done.status).toBe(401);
+    expect(done.error).toBeTruthy();
+    expect(events.some(([n]) => n === "delta")).toBe(false);
+  });
+
+  it("Accept: text/event-stream also selects streaming", async () => {
+    const res = await handler(
+      req("POST", "", { message: "hello" }, { Accept: "text/event-stream" }),
+    );
+    expect(res.headers.get("Content-Type")).toContain("text/event-stream");
+    const events = parseSSE(await res.text());
+    expect(events[0][0]).toBe("start");
+  });
+
+  it("streams a valid owner turn: start → progress → deltas → done", async () => {
+    givenOwnerIsAdmin();
+    givenConversation();
+    const res = await handler(
+      req(
+        "POST",
+        "",
+        { conversation_id: CONV_ID, message: "hello", stream: true },
+        OWNER_AUTH,
+      ),
+    );
+    expect(res.status).toBe(200);
+    expect(res.headers.get("Content-Type")).toContain("text/event-stream");
+    const events = parseSSE(await res.text());
+    const names = events.map(([n]) => n);
+    expect(names[0]).toBe("start");
+    expect(names[names.length - 1]).toBe("done");
+    // honest stage progress fired (auth + gates at minimum)
+    const progress = events
+      .filter(([n]) => n === "progress")
+      .map(([, d]) => d as Record<string, unknown>);
+    expect(progress.length).toBeGreaterThan(0);
+    // deltas concatenate to exactly the done reply — pacing, not fabrication
+    const done = events.find(([n]) => n === "done")![1] as {
+      ok: boolean;
+      reply: string;
+    };
+    const deltas = events
+      .filter(([n]) => n === "delta")
+      .map(([, d]) => String((d as { text: string }).text));
+    if (done.ok && typeof done.reply === "string") {
+      expect(deltas.length).toBeGreaterThan(0);
+      expect(deltas.join("")).toBe(done.reply);
+    }
+  });
+});
