@@ -198,9 +198,30 @@ describe("ARCHIE Native Engine — Capability Benchmark (baseline measurement)",
         "memory-retrieval",
         "mr-3",
         "fact salience populated",
-        () => {
-          const r = mem.retrieve("roof");
-          return r.salientFacts.length > 0 ? 1 : 0; // currently always [] — honest miss
+        async () => {
+          // Validated-fact salience (owner directive 2026-09-16):
+          // retrieval surfaces VALIDATED store facts that clear
+          // the measured relevance floor — never minted
+          // candidates. A store-less ContextMemory stays
+          // honestly empty.
+          const fs = new FactStore();
+          const stored = await fs.assert({
+            subject: "roof sheets",
+            predicate: "gauge",
+            object: "0.55mm",
+            confidence: 0.98,
+            provenance: { source: "owner-taught", note: "benchmark" },
+            status: "validated",
+          });
+          const m3 = new ContextMemory();
+          m3.attachFactSource(fs);
+          const r = m3.retrieve("what gauge are the roof sheets?");
+          if (r.salientFacts.length === 0) return 0;
+          // The surfaced fact must be the validated one, and
+          // a store-less memory must stay honestly empty.
+          if (r.salientFacts[0].id !== stored.fact.id) return 0;
+          if (r.salientFacts[0].status !== "validated") return 0;
+          return mem.retrieve("roof").salientFacts.length === 0 ? 1 : 0;
         },
       );
 

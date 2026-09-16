@@ -738,10 +738,17 @@ ${worldCtx.block}`
         const cited = core.citedFactIds
           .map((id) => this.substrate.store().get(id))
           .filter(Boolean) as Fact[];
+        const salient = (core.salientFactIds ?? [])
+          .map((id) => this.substrate.store().get(id))
+          .filter(Boolean) as Fact[];
         const verdict = this.verifier.verify({
           target: `response to: ${input.slice(0, 60)}`,
           output: core.responseText + (creationNote ?? ""),
           citedFacts: cited,
+          // mr-3 (owner directive 2026-09-16): VERIFY is
+          // memory-aware — the session's salient validated
+          // facts join the contradiction scan.
+          contextFacts: salient,
           requiredAspects: [],
           correctnessRecheck:
             core.toolResults &&

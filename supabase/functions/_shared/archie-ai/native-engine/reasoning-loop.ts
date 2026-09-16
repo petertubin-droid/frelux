@@ -150,6 +150,7 @@ export async function runReasoningLoop(
   const parts: string[] = [];
   const excluded: string[] = [];
   const cited = new Set<string>();
+  const salientIds: string[] = [];
   let confSum = 0;
   let index = 0;
   for (const clause of clauses) {
@@ -196,6 +197,7 @@ export async function runReasoningLoop(
     parts.push(res.responseText);
     confSum += res.confidence;
     for (const id of res.citedFactIds) cited.add(id);
+    salientIds.push(...(res.salientFactIds ?? []));
     steps.push({
       index,
       kind: "reason",
@@ -220,6 +222,7 @@ export async function runReasoningLoop(
         responseText: composed,
         confidence: parts.length > 0 ? confSum / parts.length : 0.4,
         citedFactIds: [...cited],
+        salientFactIds: [...new Set(salientIds)],
         selfCheck: engine.verifyCitations([...cited]),
       },
       report: {
@@ -240,6 +243,7 @@ export async function runReasoningLoop(
       responseText: text,
       confidence: parts.length > 0 ? confSum / parts.length : 0.4,
       citedFactIds: [...cited],
+      salientFactIds: [...new Set(salientIds)],
       selfCheck: engine.verifyCitations([...cited]),
     },
     report: {

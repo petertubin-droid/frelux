@@ -42,6 +42,12 @@ export interface VerificationRequest {
   correctnessRecheck?: () => { passed: boolean; detail: string };
   /** Whether the output contains generated code. */
   containsCode?: boolean;
+  /** Session-salient VALIDATED facts (mr-3, owner directive
+   *  2026-09-16): knowledge the retrieval context surfaced.
+   *  Joined into the consistency scan — an answer that
+   *  contradicts what the owner taught earlier in the
+   *  session is caught here. Optional; [] = no context. */
+  contextFacts?: Fact[];
 }
 
 export class VerificationEngine {
@@ -80,7 +86,14 @@ export class VerificationEngine {
     // regular async assert would demote the first cited fact
     // under the 2026-09-14 owner-authority learning rule before
     // the contradiction scan could see it — regression fix).
-    for (const f of req.citedFacts) {
+    // mr-3: session-salient validated facts join the scan —
+    // memory-aware verification. Deduped against cited facts
+    // by id so a fact is never scanned against itself.
+    const seen = new Set(req.citedFacts.map((f) => f.id));
+    const contextFacts = (req.contextFacts ?? []).filter(
+      (f) => !seen.has(f.id),
+    );
+    for (const f of [...req.citedFacts, ...contextFacts]) {
       scratch.assertForScan({
         subject: f.subject,
         predicate: f.predicate,
@@ -97,8 +110,8 @@ export class VerificationEngine {
       passed: conflicts.length === 0,
       detail:
         conflicts.length === 0
-          ? `no contradictions among ${checked} cited fact(s)`
-          : `contradictions detected between cited facts: ${conflicts.map((c) => `${c.subject} ${c.predicate}`).join("; ")}`,
+          ? `no contradictions among ${checked} scanned fact(s) (${req.citedFacts.length} cited + ${contextFacts.length} session-salient validated)`
+          : `contradictions detected between scanned facts: ${conflicts.map((c) => `${c.subject} ${c.predicate}`).join("; ")}`,
     });
 
     // 3. COMPLETENESS — required aspects must appear in the

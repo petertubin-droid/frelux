@@ -67,7 +67,7 @@ import {
 } from "./composer.ts";
 import { ContextMemory } from "./memory.ts";
 import { redactSecrets } from "../cognitive/security-integrity.ts";
-import { FactStore } from "./knowledge.ts";
+import { FACT_RELEVANCE_FLOOR, FactStore } from "./knowledge.ts";
 import { FULL_SEED_CORPUS, SEED_CORPUS_VERSION } from "./seed-corpus.ts";
 import { PageFetcher } from "./page-fetch.ts";
 import { WikipediaSearchAdapter } from "./wikipedia-search.ts";
@@ -185,6 +185,13 @@ export interface ConverseResult {
   responseText: string;
   confidence: number;
   citedFactIds: string[];
+  /** Session-salient VALIDATED facts surfaced by context
+   *  retrieval (mr-3, owner directive 2026-09-16): the
+   *  knowledge the retrieval context itself brought to
+   *  bear on this exchange. Consumed by the kernel's VERIFY
+   *  phase — memory-aware contradiction scanning — and by
+   *  diagnostics. Never minted; store-gated facts only. */
+  salientFactIds: string[];
   selfCheck: { check: string; passed: boolean; detail: string };
   plan?: Plan;
   toolResults?: Array<{
@@ -302,6 +309,10 @@ export class ArchieNativeEngine implements ArchieRuntime {
     let session = this.sessions.get(id);
     if (!session) {
       const memory = new ContextMemory();
+      // Validated-fact salience (mr-3): every session memory
+      // is wired to the SAME gated FactStore converse() uses —
+      // retrieval surfaces validated, floor-clearing facts.
+      memory.attachFactSource(this.facts);
       if (this.episodicTurns.length > 0) {
         memory.hydrateEpisodic(this.episodicTurns);
       }
@@ -899,6 +910,12 @@ export class ArchieNativeEngine implements ArchieRuntime {
     }
     this.confidenceSum += outcome.confidence;
 
+    // mr-3: the validated facts the retrieval context
+    // surfaced — consumed by the kernel's VERIFY phase
+    // (memory-aware contradiction scanning over the
+    // session's salient validated knowledge).
+    outcome.salientFactIds = context.salientFacts.map((f) => f.id);
+
     const selfCheck = this.selfEval.verifyResponse(
       outcome.citedFactIds,
       this.facts,
@@ -1298,6 +1315,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
   ): Promise<ConverseResult> {
     const parts: string[] = [];
     const cited = new Set<string>();
+    const salientClauseIds: string[] = [];
     const excluded: string[] = [];
     let confSum = 0;
     let positive = 0;
@@ -1344,6 +1362,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
       confSum += res.confidence;
       parts.push(res.responseText);
       for (const id of res.citedFactIds) cited.add(id);
+      salientClauseIds.push(...(res.salientFactIds ?? []));
     }
     const text = composeCompound(parts, excluded);
     return {
@@ -1353,6 +1372,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
       responseText: text,
       confidence: positive > 0 ? confSum / positive : 0.4,
       citedFactIds: [...cited],
+      // mr-3: the compound path aggregates each clause's
+      // session-salient validated facts.
+      salientFactIds: [...new Set(salientClauseIds)],
       selfCheck: this.selfEval.verifyResponse(
         [...cited],
         this.facts,
@@ -1872,8 +1894,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         // NAMES the subject in the question — and questions
         // about ARCHIE itself stay manifest questions.
         const capabilityRanked = ranked.filter(
-          (f) =>
-            !isAuthorizationLog(f) && !String(f.id).startsWith("vocab:"),
+          (f) => !isAuthorizationLog(f) && !String(f.id).startsWith("vocab:"),
         );
         const siteFacts = capabilityRanked
           .filter((f) => f.status !== "uncertain")
@@ -1888,16 +1909,16 @@ export class ArchieNativeEngine implements ArchieRuntime {
           !isSelfSubject &&
           subjectOverlapsQuestion(siteFacts[0], input)
         ) {
-            const siteParts = siteFacts.map(
-              (f) =>
-                `${f.subject} ${f.predicate.replace(/-/g, " ")} ${String(f.object)}`,
-            );
-            return this.compose(
-              `${knowledgeOpening(input)}\n${siteParts.join("\n")}`,
-              Math.max(nlu.confidence, 0.75),
-              cite(siteFacts),
-            );
-          }
+          const siteParts = siteFacts.map(
+            (f) =>
+              `${f.subject} ${f.predicate.replace(/-/g, " ")} ${String(f.object)}`,
+          );
+          return this.compose(
+            `${knowledgeOpening(input)}\n${siteParts.join("\n")}`,
+            Math.max(nlu.confidence, 0.75),
+            cite(siteFacts),
+          );
+        }
         // Site-assistant context (2026-09-16): when the caller
         // injects curated site content, a question about what
         // the SITE offers ("what services do you offer") is
@@ -2033,6 +2054,41 @@ export class ArchieNativeEngine implements ArchieRuntime {
 
       case "knowledge_query":
       case "howto_guidance": {
+        // CONTRADICTION SURFACING (benchmark cd-2, owner
+        // directive 2026-09-16): a contrastive assertion
+        // ("actually the cement price is 9200 naira") that
+        // conflicts with stored knowledge is SURFACED — the
+        // old behavior answered an unrelated knowledge
+        // question and silently ignored the owner's
+        // correction. Knowledge never silently flips and is
+        // never silently ignored: the conflict is stated,
+        // nothing is written, and the owner is told how to
+        // resolve it. The contrastive-marker guard keeps
+        // genuine questions on the normal answer path.
+        if (
+          /^(?:actually|no,?|correction[:,]|wait,|hold on)[,\s]/i.test(input)
+        ) {
+          const asserted = extractTriple(input);
+          if (asserted) {
+            const conflict = this.facts.detectConflict(asserted);
+            if (conflict) {
+              const stored = conflict.conflictingFactIds
+                .map((id) => this.facts.get(id))
+                .filter(Boolean) as Fact[];
+              const listing = stored
+                .map(
+                  (f) =>
+                    `${f.subject} ${f.predicate.replace(/-/g, " ")} → ${String(f.object)} [${f.status}]`,
+                )
+                .join("; ");
+              return this.compose(
+                `Hold on — that conflicts with what I have stored. I hold: ${listing}. Nothing has been changed: knowledge never silently flips. If the stored value is the wrong one, teach it explicitly ("correction: the cement price is 9200 naira") and I will replace it, keeping the old record marked uncertain for history.`,
+                nlu.confidence,
+                [],
+              );
+            }
+          }
+        }
         // SELF-EVOLVING VOCABULARY (owner directive,
         // 2026-09-13): a definition question ("what does X
         // mean", "define X", "meaning of X") is answered
@@ -3619,6 +3675,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
       .replace(/,\s*,/g, ",");
     return {
       nlu: understand(""),
+      salientFactIds: [],
       responseText: cleanText,
       confidence: Math.max(0.01, Math.min(1, confidence)),
       citedFactIds,
@@ -4067,12 +4124,9 @@ function prioritizeDefinitionalSubject(input: string, ranked: Fact[]): Fact[] {
   return [...exact, ...ranked.filter((f) => !exact.includes(f))];
 }
 
-/** Relevance floor for a ranked fact to count as an answer
- *  (measured 2026-09-16: token-prior noise ≤ ~0.097, genuine
- *  subject matches ≥ ~0.127 — the floor sits between). A weak
- *  TF-IDF top-k is NOT relevant long-term knowledge and must
- *  not preempt episodic recall or curated site content. */
-const FACT_RELEVANCE_FLOOR = 0.11;
+// FACT_RELEVANCE_FLOOR is imported from knowledge.ts —
+// one measured constant, shared by every consumer (engine
+// answer gate + ContextMemory validated-fact salience).
 
 /** Companion gate to the floor: a fact whose SUBJECT word
  *  appears verbatim in the question ("tell me about

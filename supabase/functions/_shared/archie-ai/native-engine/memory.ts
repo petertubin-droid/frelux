@@ -9,6 +9,20 @@
 
 import { TfIdfIndex, cosine, memoryTurnFromText, tokenize } from "./nlu.ts";
 import type { Fact, RetrievedContext } from "./types.ts";
+import { FACT_RELEVANCE_FLOOR } from "./knowledge.ts";
+
+/** Validated-fact salience source (benchmark mr-3, reopened
+ *  by owner directive 2026-09-16). ContextMemory NEVER mints
+ *  fact candidates from turns — the old G-1 removal reason
+ *  stands. Instead, when a real (gated-path) fact store is
+ *  attached, retrieval surfaces its VALIDATED facts that
+ *  clear the measured relevance floor. No minting, no
+ *  validation-skirting: only knowledge that already earned
+ *  "validated" status through owner teaching, research
+ *  ingestion, or verified inference is surfaced. */
+export interface FactSalienceSource {
+  rankScored(query: string, k?: number): Array<{ fact: Fact; score: number }>;
+}
 
 export class ContextMemory {
   // Three buffers prevent DUPLICATE memories: `seeded` is the
@@ -23,6 +37,14 @@ export class ContextMemory {
   private live: MemoryTurnInternal[] = [];
   private episodic: MemoryTurnInternal[] = [];
   private index = new TfIdfIndex();
+  private factSource: FactSalienceSource | null = null;
+
+  /** Attach the real FactStore (engine wiring). Only
+   *  validated, floor-clearing facts surface in salientFacts
+   *  — see FactSalienceSource. */
+  attachFactSource(source: FactSalienceSource): void {
+    this.factSource = source;
+  }
 
   /** Hydrate prior-session turns (plan P7). Called once at
    *  boot; idempotent — a second call replaces the episodic
@@ -105,18 +127,26 @@ export class ContextMemory {
     ]
       .filter((r) => r.salience > 0)
       .sort((a, b) => b.salience - a.salience);
-    // SALIENT-FACT EXTRACTION REMOVED (audit fix G-1): the
-    // old path regex-minted candidate SPO facts from salient
-    // memory turns on EVERY retrieval — candidates that no
-    // consumer ever read (dead computation) and that
-    // skirted the teaching validation pipeline. Facts enter
-    // the store only through the real, gated paths: owner
-    // teaching, research ingestion (candidate, cross-checked),
-    // and inference (derived). Memory is remembered as
-    // TURNS — retrieval context — not silently promoted into
-    // knowledge. salientFacts stays [] and the field remains
-    // part of the contract for honest consumers.
-    const salientFacts: Fact[] = [];
+    // VALIDATED-FACT SALIENCE (G-1 reopened by owner
+    // directive 2026-09-16, benchmark mr-3): the old minting
+    // path stays dead — memory NEVER promotes turns into
+    // knowledge. When the engine attaches the real FactStore,
+    // retrieval surfaces VALIDATED facts that clear the
+    // measured relevance floor (knowledge that earned its
+    // status through the gated paths: owner teaching,
+    // cross-checked research ingestion, verified inference).
+    // salientFacts stays [] for a store-less ContextMemory —
+    // the honest no-facts case.
+    const salientFacts: Fact[] = this.factSource
+      ? this.factSource
+          .rankScored(query, k)
+          .filter(
+            (r) =>
+              r.fact.status === "validated" && r.score >= FACT_RELEVANCE_FLOOR,
+          )
+          .slice(0, Math.max(1, Math.floor(k / 2)))
+          .map((r) => r.fact)
+      : [];
 
     return {
       salientTurns: ranked

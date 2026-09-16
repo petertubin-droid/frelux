@@ -291,6 +291,15 @@ const CONSOLIDATION_SCOPE = "fact-store-consolidation";
 
 import { NATIVE_CONFIG } from "./config.ts";
 
+/** Relevance floor for a ranked fact to count as an
+ *  answer (measured 2026-09-16: token-prior noise <= ~0.097,
+ *  genuine subject matches >= ~0.127 — the floor sits
+ *  between). A weak TF-IDF top-k is NOT relevant long-term
+ *  knowledge. One measured constant shared by every
+ *  consumer: the engine's answer gate and ContextMemory's
+ *  validated-fact salience (mr-3). */
+export const FACT_RELEVANCE_FLOOR = 0.11;
+
 export class FactStore {
   private facts: Fact[] = [];
   // Subject index (perf pass 2026-09-11): query() and about()
