@@ -25,6 +25,45 @@ CI/CD, GitHub Actions deploy pipeline).
 
 ---
 
+## Status update — 2026-09-16 (later, same day)
+
+Verified this session (live checks, not recalls):
+
+- **F-1 RESOLVED (deployed live):** `archie-maintenance` edge function +
+  migration `20260916040000` (pg_cron + pg_net, hourly heartbeat at :05,
+  CSPRNG token gated in-DB) is **applied and ACTIVE on live Supabase**
+  (`archie-maintenance-hourly`, `5 * * * *`, verified via `cron.job`).
+  This unlocks C-3 (scheduled consolidation) and C-2 (scheduled trace
+  reflection — the reflect mode feeds weak traces to the OutcomeLearner).
+- **Benchmark full score:** 52/52 (1.000, from 0.962) — mr-3 (validated-fact
+  salience end-to-end) and cd-2 (contradictions surfaced in conversation,
+  never silently ignored) closed at the honest capability level. Ledger
+  Entry 9; report in `benchmarks/full-score-capability-2026-09-16.json`.
+- **11 pending migrations deployed live** (320 total in
+  `schema_migrations`), incl. task-completion anatomy, scheduler, agent
+  execution, constitution v3 anatomy 23/23, trading surface, recovery
+  jobs, engine states, console grants, vocab seed, message star, web
+  source registry.
+- **Full regression:** 8,663 tests green / 899 files (2 documented
+  expected-fail); tsc/ESLint/build clean; commit `c0f49b30` pushed with
+  all 5 CI checks green (edge deploy, preview, type-check, E2E smoke,
+  Lighthouse).
+
+The gap list below is updated accordingly: F-1, C-3, C-2 are CLOSED.
+The remaining priority order (my recommendation) is now:
+
+1. **D-2 durable task-step state** — supervised task completion becomes
+   interruption-proof across isolate recycling.
+2. **C-1 bounded auto-tuning envelope** — the self-evolution loop closes
+   (owner-approved parameter bounds, audit-logged, auto-rollback).
+3. **E-1 proactive briefings** — the most owner-visible "alive" behavior;
+   the scheduler now exists to carry it.
+4. **F-2 observability plane** — success-rate/verification/latency metrics
+   and alerts over the existing traces and audit ledger.
+5. **A-1 generative component decision** — the owner's architectural call.
+6. B-1 OCR/scene, E-2 language detection, F-3 distributed rate limiting,
+   F-5 DR runbook — next tranche.
+
 ## A. Core intelligence gaps
 
 **A-1. No open-ended generative language (the defining gap).**
@@ -88,12 +127,12 @@ strategy weights adjusted within owner-approved envelopes).
 _Needs:_ an owner-approved auto-tuning envelope: parameter bounds persisted,
 changes logged to the audit chain, automatic rollback on regression.
 
-**C-2. No reflection over past traces.** Cognitive traces are persisted but
+**C-2. RESOLVED 2026-09-16 (scheduler reflect mode, deployed live):** ~~No reflection over past traces.~~ (Original note kept for history:) Cognitive traces are persisted but
 never re-examined as learning material ("what did I get wrong last week?").
 _Needs:_ a scheduled reflection pass over saved traces feeding the
 OutcomeLearner's cause taxonomy.
 
-**C-3. Consolidation is cold-start-only.** `consolidateIfDue` runs inside
+**C-3. RESOLVED 2026-09-16 (hourly scheduler heartbeat, deployed live):** ~~Consolidation is cold-start-only.~~ (Original note kept for history:) `consolidateIfDue` runs inside
 engine init (engine.ts:578) — with no traffic, nothing consolidates.
 _Needs:_ a scheduled background invocation (see F-1).
 
@@ -133,7 +172,7 @@ presence beyond the existing WhatsApp path.
 
 ## F. Infrastructure gaps
 
-**F-1. No background scheduler for ARCHIE.** No pg_cron (only the FRELUX
+**F-1. RESOLVED 2026-09-16 (deployed live — see status update): background scheduler.** ~~No background scheduler for ARCHIE.~~ No pg_cron (only the FRELUX
 crawler schema), no GitHub Actions cron calling archie functions.
 Consolidation (C-3), knowledge TTL enforcement, trace reflection (C-2),
 and briefing generation (E-1) all need this. _Highest-leverage single fix._
