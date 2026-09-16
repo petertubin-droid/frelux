@@ -13,10 +13,10 @@ const Workbench = vi.fn(() => <div data-testid="workbench" />);
 const Intelligence = vi.fn(() => <div data-testid="intelligence" />);
 
 vi.mock("@/components/studio/StudioWorkbench", () => ({
-  default: (...a: unknown[]) => Workbench(...a),
+  default: () => Workbench(),
 }));
 vi.mock("@/components/archie/CodeIntelligencePanel", () => ({
-  default: (...a: unknown[]) => Intelligence(...a),
+  default: () => Intelligence(),
 }));
 
 import AdminArchieStudio from "./AdminArchieStudio";
