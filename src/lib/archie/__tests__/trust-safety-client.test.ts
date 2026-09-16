@@ -88,7 +88,7 @@ const ASSESSMENT: TrustSafetyAssessment = {
 
 describe("events", () => {
   it("persists an assessment with its real evidence and returns the row id", async () => {
-    let inserted: Record<string, unknown> = {};
+    const inserted: Record<string, unknown> = {};
     fromMock.mockImplementationOnce(() =>
       q({ capture: (u) => Object.assign(inserted, u) }),
     );
@@ -151,7 +151,7 @@ describe("pauses", () => {
   };
 
   it("persists a pause with all review fields", async () => {
-    let inserted: Record<string, unknown> = {};
+    const inserted: Record<string, unknown> = {};
     fromMock.mockImplementationOnce(() =>
       q({ capture: (u) => Object.assign(inserted, u) }),
     );
@@ -189,7 +189,7 @@ describe("pauses", () => {
   });
 
   it("applies owner review as a real decision transition, and records appeals to the Owner", async () => {
-    let updated: Record<string, unknown> = {};
+    const updated: Record<string, unknown> = {};
     fromMock.mockImplementationOnce(() =>
       q({ capture: (u) => Object.assign(updated, u) }),
     );
@@ -198,7 +198,7 @@ describe("pauses", () => {
     expect(updated.review_status).toBe("REVIEWED");
     expect(updated.final_owner_decision).toBe("RESTRICT");
 
-    let appealUpdate: Record<string, unknown> = {};
+    const appealUpdate: Record<string, unknown> = {};
     fromMock.mockImplementationOnce(() =>
       q({ capture: (u) => Object.assign(appealUpdate, u) }),
     );

@@ -59,7 +59,7 @@ describe("findings", () => {
   });
 
   it("applies owner dispositions as real status transitions", async () => {
-    let updated: Record<string, unknown> = {};
+    const updated: Record<string, unknown> = {};
     fromMock.mockImplementationOnce(() =>
       q({ capture: (u) => Object.assign(updated, u) }),
     );
@@ -106,14 +106,14 @@ describe("patch proposals — owner authority on code changes", () => {
   });
 
   it("records the approval id on APPROVE and clears it on REJECT", async () => {
-    let updated: Record<string, unknown> = {};
+    const updated: Record<string, unknown> = {};
     fromMock.mockImplementationOnce(() =>
       q({ capture: (u) => Object.assign(updated, u) }),
     );
     await decidePatchProposal("p1", "APPROVED", "  approval-7  ");
     expect(updated.status).toBe("APPROVED");
     expect(updated.approval_id).toBe("approval-7"); // trimmed
-    let updated2: Record<string, unknown> = {};
+    const updated2: Record<string, unknown> = {};
     fromMock.mockImplementationOnce(() =>
       q({ capture: (u) => Object.assign(updated2, u) }),
     );

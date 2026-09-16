@@ -142,7 +142,7 @@ describe("OAuth connect flows — the owner authorizes on the platform itself", 
 
 describe("sync / disconnect / revoke", () => {
   it("SYNC marks SYNCED with a fresh timestamp", async () => {
-    let updated: Record<string, unknown> = {};
+    const updated: Record<string, unknown> = {};
     fromMock.mockImplementationOnce(() =>
       q({ capture: (u) => Object.assign(updated, u) }),
     );
@@ -153,7 +153,7 @@ describe("sync / disconnect / revoke", () => {
   });
 
   it("DISCONNECT marks DISCONNECTED (the vaulted token stays)", async () => {
-    let updated: Record<string, unknown> = {};
+    const updated: Record<string, unknown> = {};
     fromMock.mockImplementationOnce(() =>
       q({ capture: (u) => Object.assign(updated, u) }),
     );
@@ -173,7 +173,7 @@ describe("sync / disconnect / revoke", () => {
 
 describe("insight reports — separate labeled kinds, never merged", () => {
   it("saves and lists observations/recommendations/assumptions as distinct kinds", async () => {
-    let saved: Record<string, unknown> = {};
+    const saved: Record<string, unknown> = {};
     fromMock.mockImplementationOnce(() =>
       q({ capture: (u) => Object.assign(saved, u) }),
     );

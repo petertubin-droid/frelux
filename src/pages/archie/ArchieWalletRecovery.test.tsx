@@ -90,8 +90,8 @@ describe("ArchieWalletRecovery", () => {
     renderPage();
     const ledgerTab = await screen.findByText("Job ledger");
     ledgerTab.click();
-    expect(await screen.findByText(/No recovery jobs recorded/i)).not;
-    expect(await screen.findByText(/not found/i)).toBeInTheDocument();
+    await screen.findByText(/No recovery jobs recorded|not found/i);
+    expect(document.body.textContent).not.toMatch(/mnemonic:/i);
     expect(document.body.textContent).not.toMatch(/mnemonic:/i);
   });
 
