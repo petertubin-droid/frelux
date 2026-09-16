@@ -82,6 +82,9 @@ export async function runReasoningLoop(
      *  threaded verbatim into every substrate pass. Unset for
      *  agent-worker tasks: agent work never generates. */
     ownerAuthorized?: boolean;
+    /** SSE progress seam (2026-09-16): called with each loop
+     *  step the moment it completes — live kernel events. */
+    onStep?: (step: LoopStep) => void;
   },
 ): Promise<ReasoningLoopOutcome> {
   const systemInstruction = opts?.systemInstruction;

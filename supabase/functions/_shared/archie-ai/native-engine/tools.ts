@@ -17,7 +17,7 @@ import type { PageFetcher } from "./page-fetch.ts";
 export function computeStatistics(
   values: number[],
   op: string,
-): Record<string, number | number[]> {
+): Record<string, number | number[] | string> {
   const sorted = [...values].sort((a, b) => a - b);
   const n = sorted.length;
   const sum = sorted.reduce((a, b) => a + b, 0);

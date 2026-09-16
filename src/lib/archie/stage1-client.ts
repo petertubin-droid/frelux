@@ -290,7 +290,7 @@ export async function sendChatTurn(input: {
       }
       if (event === "delta") input.onDelta(String(payload.text ?? ""));
       if (event === "done") {
-        result = payload as ChatTurnResult;
+        result = payload as unknown as ChatTurnResult;
         if (!result.ok) {
           result = {
             ok: false,

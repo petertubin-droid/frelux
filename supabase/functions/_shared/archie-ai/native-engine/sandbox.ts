@@ -689,7 +689,7 @@ export function runJavaScript(src: string): SandboxResult {
         const acc = args[1] === undefined ? obj.shift() : args[1];
         return obj.reduce((a: Val, x: Val) => callFunction("reduce callback", args[0], [a, x]), acc);
       });
-      if (prop === "forEach") return native((args) => { obj.forEach((x, i) => callFunction("forEach callback", args[0], [x, i])); });
+      if (prop === "forEach") return native((args) => { obj.forEach((x, i) => callFunction("forEach callback", args[0], [x, i])); return undefined; });
       const idx = Number(prop);
       if (Number.isInteger(idx) && idx >= 0) return obj[idx];
       throw new Error(`array property "${prop}" is not in the sandbox whitelist`);

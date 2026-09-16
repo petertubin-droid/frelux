@@ -87,7 +87,7 @@ class BitReader {
   private bitBuf = 0;
   private bitCount = 0;
   /** set when an RSTn marker was consumed at a byte boundary */
-  public pendingRestart = false;
+  public pendingRestart: number | false = false; // false or the pending RSTn marker
   constructor(private bytes: Uint8Array, start: number) {
     this.i = start;
   }
