@@ -1038,6 +1038,7 @@ export default function Assistant() {
             ))}
             <button
               onClick={async () => {
+                if (!user) return;
                 const n = await clearLocalProtectedCache(user.id);
                 setNotice(
                   `Removed ${n} local protected cache(s), where Android permits.`,
@@ -1160,7 +1161,10 @@ export default function Assistant() {
               ))}
             </div>
             <button
-              onClick={() => markSecurityEventsRead(user.id).then(refresh)}
+              onClick={() => {
+                if (!user) return;
+                markSecurityEventsRead(user.id).then(refresh);
+              }}
               className="mt-1 text-xs underline text-muted-foreground"
             >
               Mark all read
