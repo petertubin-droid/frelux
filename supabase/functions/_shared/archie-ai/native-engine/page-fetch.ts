@@ -223,7 +223,11 @@ export class PageFetcher {
 
   constructor(opts: PageFetchOptions = {}) {
     this.fetchFn = opts.fetchFn ?? fetch;
-    this.timeoutMs = opts.timeoutMs ?? 8000;
+    // RESPONSE TIME (owner directive 2026-09-16): 8s per page
+    // × top hits could stall a researched answer for many
+    // seconds. 4s still verifies real pages; slow hosts degrade
+    // honestly to "unreachable".
+    this.timeoutMs = opts.timeoutMs ?? 4000;
     this.maxBytes = opts.maxBytes ?? 1_000_000;
     this.maxContentChars = opts.maxContentChars ?? 4000;
     this.robotsCacheTtlMs = opts.robotsCacheTtlMs ?? 12 * 60 * 60 * 1000;

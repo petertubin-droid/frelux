@@ -2059,6 +2059,16 @@ serveWithCors(async (req) => {
   // loads, no learning writes, no memory-based
   // personalization. Granted or unset → durable memory stays
   // wired. This is a real gate, not a stored preference.
+  // RESPONSE TIME (owner directive 2026-09-16): the consent
+  // read and the learned-term registry warm-up are
+  // INDEPENDENT queries — start both at once instead of
+  // paying two sequential DB round trips before the cognitive
+  // cycle. Ordering is preserved where it matters: the
+  // registry is registered BEFORE vocabulary capture (so
+  // already-learned words are never re-captured or mangled by
+  // the typo corrector), and capture still completes before
+  // the cycle so this message's new words are protected too.
+  const learnedTermsPromise = loadLearnedTerms(db).catch(() => [] as string[]);
   try {
     const { data: consent } = await db
       .from("archie_privacy_consents")
@@ -2088,7 +2098,7 @@ serveWithCors(async (req) => {
   // yet (usage provenance, no meaning guess — learning is
   // free, never breaks the conversation).
   try {
-    registerLearnedTerms(await loadLearnedTerms(db));
+    registerLearnedTerms(await learnedTermsPromise);
     await captureUnknownVocabulary(db, message, activeOwnerUserId);
   } catch {
     /* vocabulary learning never breaks the chat */

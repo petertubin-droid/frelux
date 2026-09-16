@@ -30,7 +30,11 @@ export class WikipediaSearchAdapter implements ResearchAdapter {
 
   constructor(opts: WikipediaSearchAdapterOptions = {}) {
     this.fetchFn = opts.fetchFn ?? fetch;
-    this.timeoutMs = opts.timeoutMs ?? 8000;
+    // RESPONSE TIME (owner directive 2026-09-16): 8s let one
+    // slow request hold a chat reply hostage. 3s is plenty for
+    // the MediaWiki search API on a warm connection; a timeout
+    // degrades honestly to "site unreachable".
+    this.timeoutMs = opts.timeoutMs ?? 3000;
   }
 
   async search(query: string): Promise<{ hits: ResearchHit[]; note: string }> {

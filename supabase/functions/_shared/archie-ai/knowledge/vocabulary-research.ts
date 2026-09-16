@@ -60,7 +60,11 @@ export interface MeaningResearchReport {
  *  inject an explicit labeled double. */
 export type FetchLike = (url: string, init?: RequestInit) => Promise<Response>;
 
-const SITE_TIMEOUT_MS = 7000;
+// RESPONSE TIME (owner directive 2026-09-16): a chat reply must
+// not wait 7 seconds on one straggler site. The sites run in
+// parallel, so the cap is the SLOWEST site — 3s is enough for
+// dictionary APIs on a warm connection.
+const SITE_TIMEOUT_MS = 3000;
 const MEANING_MAX = 240;
 
 function firstSentence(text: string): string {
@@ -263,11 +267,45 @@ async function lookupWikipedia(
  *  are preferred for the stored meaning; support sites
  *  (DuckDuckGo, Wikipedia) confirm recognition. Cross-check
  *  = >=2 INDEPENDENT sites returned a meaning. */
+/** RESPONSE TIME (owner directive 2026-09-16): a definition miss
+ *  fires the 4-site research on EVERY repeat — the registry only
+ *  stores successes, so an unknown term is re-researched (3s) for
+ *  every single message that mentions it. An in-process TTL memo
+ *  for the PRODUCTION fetch path only (tests inject their own
+ *  fetchFn and stay uncached) makes repeats instant within a warm
+ *  isolate. The memo stores the honest report verbatim — same
+ *  answer, same provenance, no re-fetch theater. */
+const RESEARCH_MEMO_TTL_MS = 10 * 60 * 1000;
+const RESEARCH_MEMO_MAX = 200;
+const researchMemo = new Map<
+  string,
+  { at: number; report: MeaningResearchReport }
+>();
+
 export async function researchTermMeaning(
   term: string,
   fetchFn: FetchLike,
 ): Promise<MeaningResearchReport> {
   const clean = term.toLowerCase().trim().slice(0, 60);
+  const memoEligible = fetchFn === (globalThis.fetch as FetchLike);
+  if (memoEligible) {
+    const hit = researchMemo.get(clean);
+    if (hit && Date.now() - hit.at < RESEARCH_MEMO_TTL_MS) {
+      return hit.report;
+    }
+  }
+  const report = await collectTermMeaning(clean, fetchFn);
+  if (memoEligible) {
+    if (researchMemo.size >= RESEARCH_MEMO_MAX) researchMemo.clear();
+    researchMemo.set(clean, { at: Date.now(), report });
+  }
+  return report;
+}
+
+async function collectTermMeaning(
+  clean: string,
+  fetchFn: FetchLike,
+): Promise<MeaningResearchReport> {
   const results = await Promise.all([
     lookupFreeDictionary(fetchFn, clean),
     lookupWiktionary(fetchFn, clean),

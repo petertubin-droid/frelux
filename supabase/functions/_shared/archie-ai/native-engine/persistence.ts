@@ -28,6 +28,19 @@ export interface SupabaseLike {
         from: number,
         to: number,
       ): PromiseLike<{ data: unknown[] | null; error: unknown }>;
+      /** RESPONSE TIME (owner directive 2026-09-16): the real
+       * supabase-js client chains order+limit so the hydrate
+       * window is computed DATABASE-side. Optional because
+       * minimal test doubles are thenable-only — loadFacts
+       * degrades to the await path for them. */
+      order?(
+        column: string,
+        opts: { ascending: boolean },
+      ): {
+        limit(
+          n: number,
+        ): PromiseLike<{ data: unknown[] | null; error: unknown }>;
+      };
     };
     insert(rows: unknown): PromiseLike<{ error: unknown }>;
     update(patch: unknown): {
@@ -159,14 +172,33 @@ export class SupabasePersistence
   }
 
   async loadFacts(): Promise<PersistedFactRow[]> {
-    const { data, error } = await this.db
+    // RESPONSE TIME (owner directive 2026-09-16): this used to
+    // select the ENTIRE facts table and sort/slice client-side —
+    // every message asserts facts (network authorizations,
+    // learned knowledge), so the table grows without bound and
+    // every cold start shipped ALL rows over the wire before the
+    // engine could answer. The most-recent-window is now the
+    // database's job: same hydrate limit, same newest-first
+    // order, O(limit) instead of O(table).
+    const base = this.db
       .from(FACTS_TABLE)
       .select(
         "id,subject,predicate,object,qualifiers,confidence,provenance,status,validated_count,verified_by,created_at",
       );
+    if (typeof base.order === "function") {
+      // Real client: the window is the database's job —
+      // O(limit) over the wire, same newest-first order.
+      const { data, error } = await base
+        .order("created_at", { ascending: false })
+        .limit(NATIVE_CONFIG.factHydrateLimit);
+      if (error) return [];
+      return this.appendVocabularyFacts((data ?? []) as PersistedFactRow[]);
+    }
+    // Minimal thenable double (tests): await + client-side
+    // window, exactly the pre-optimization behavior.
+    const { data, error } = await base;
     if (error) return [];
     const rows = (data ?? []) as PersistedFactRow[];
-    // Hydrate the most recent 500 native facts.
     const native = rows
       .sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""))
       .slice(0, NATIVE_CONFIG.factHydrateLimit);
