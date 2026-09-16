@@ -57,6 +57,24 @@ describe("reasoning loop controller (P5)", () => {
     expect(result.responseText).not.toMatch(/naira|NGN|₦/);
   });
 
+  it("onStep fires live per reasoning step (gap-3 streaming seam)", async () => {
+    const engine = new ArchieNativeEngine();
+    const seen: string[] = [];
+    const { report } = await runReasoningLoop(
+      engine,
+      "what is 2+2 and what is 3+3",
+      undefined,
+      {
+        onStep: (step) => seen.push(`${step.kind}:${step.summary ?? ""}`),
+      },
+    );
+    // one live notification per executed step, in order
+    expect(seen.length).toBe(report.steps.length);
+    expect(report.steps.map((s) => `${s.kind}:${s.summary ?? ""}`)).toEqual(
+      seen,
+    );
+  });
+
   it("tool budget stops honestly: 3 arithmetic clauses, 2 tool hops allowed", async () => {
     const engine = new ArchieNativeEngine();
     const { result, report } = await runReasoningLoop(

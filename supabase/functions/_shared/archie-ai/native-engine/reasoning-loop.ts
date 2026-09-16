@@ -91,6 +91,13 @@ export async function runReasoningLoop(
   const maxToolHops = opts?.maxToolHops ?? MAX_TOOL_HOPS;
   const clauses = decomposeClauses(input);
   const steps: LoopStep[] = [];
+  // Gap 3: every completed step notifies the live observer
+  // (SSE progress) the moment it happens — after push, before
+  // anything else runs.
+  const pushStep = (step: LoopStep): void => {
+    steps.push(step);
+    opts?.onStep?.(step);
+  };
   let usedSteps = 0;
   let usedToolHops = 0;
   let budgetExhausted = false;
@@ -103,7 +110,7 @@ export async function runReasoningLoop(
       conversationId,
       ownerAuthorized,
     });
-    steps.push({
+    pushStep({
       index: 1,
       kind: "budget-stop",
       clause: input,
@@ -140,7 +147,7 @@ export async function runReasoningLoop(
       conversationId,
       ownerAuthorized,
     });
-    steps.push({
+    pushStep({
       index: 1,
       kind: "reason",
       clause: input,
@@ -173,7 +180,7 @@ export async function runReasoningLoop(
       conversationId,
       ownerAuthorized,
     });
-    steps.push({
+    pushStep({
       index: 1,
       kind: "reason",
       clause: input,
@@ -209,7 +216,7 @@ export async function runReasoningLoop(
     index += 1;
     if (clause.negated) {
       excluded.push(clause.text);
-      steps.push({
+      pushStep({
         index,
         kind: "exclusion",
         clause: clause.text,
@@ -225,7 +232,7 @@ export async function runReasoningLoop(
     }
     if (usedSteps >= maxSteps || usedToolHops >= maxToolHops) {
       budgetExhausted = true;
-      steps.push({
+      pushStep({
         index,
         kind: "budget-stop",
         clause: clause.text,
@@ -251,7 +258,7 @@ export async function runReasoningLoop(
     confSum += res.confidence;
     for (const id of res.citedFactIds) cited.add(id);
     salientIds.push(...(res.salientFactIds ?? []));
-    steps.push({
+    pushStep({
       index,
       kind: "reason",
       clause: clause.text,

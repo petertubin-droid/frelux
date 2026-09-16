@@ -510,6 +510,10 @@ export class CognitiveKernel implements ArchieRuntime {
        *  reasoning-loop budgets for verification; unset =
        *  production defaults (24 steps / 8 tool hops). */
       loopBudget?: { maxSteps?: number; maxToolHops?: number };
+      /** Gap 3 (2026-09-16): live phase + reasoning-step
+       *  observer — fired the moment each happens, for SSE
+       *  progress streaming. Null on the classic path. */
+      onEvent?: (event: Record<string, unknown>) => void;
     },
   ): Promise<CognitiveCycleResult> {
     await this.boot();
@@ -519,6 +523,9 @@ export class CognitiveKernel implements ArchieRuntime {
 
     // P9 trace honesty: an executed phase records WHAT IT
     // PRODUCED (describe), not a ceremonial "completed".
+    // Gap 3: the live observer — same record pushed to the
+    // trace AND emitted the moment the phase lands (SSE).
+    const onEvent = opts?.onEvent;
     const timed = async <T>(
       phase: LoopPhase,
       routePhases: Set<LoopPhase>,
@@ -543,6 +550,12 @@ export class CognitiveKernel implements ArchieRuntime {
         summary: describe ? describe(value) : "completed (measured)",
         durationMs: Date.now() - started,
         organs: ORGAN_PHASE_BINDINGS[phase] ?? [],
+      });
+      onEvent?.({
+        type: "phase",
+        phase,
+        status: "executed",
+        durationMs: Date.now() - started,
       });
       return value;
     };
@@ -617,6 +630,8 @@ ${worldCtx.block}`
           // budgets. Production callers leave it unset.
           maxSteps: opts?.loopBudget?.maxSteps,
           maxToolHops: opts?.loopBudget?.maxToolHops,
+          // Gap 3: loop steps stream live to the observer.
+          onStep: (step) => onEvent?.({ type: "step", ...step }),
         }),
       "retrieval handled inside substrate reasoning",
       (o) =>

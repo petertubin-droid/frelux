@@ -50,9 +50,24 @@ const CORS = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-function json(status: number, body: Record<string, unknown>) {
-  return new Response(JSON.stringify(body), {
-    status,
+/** Pure outcome value — the boundary (serveWithCors wrapper
+ *  below) decides whether it becomes one JSON Response or an
+ *  SSE stream. Let a plain data return flow through ALL the
+ *  existing return sites untouched (gap-3 refactor). */
+function respond(
+  status: number,
+  body: Record<string, unknown>,
+): { status: number; body: Record<string, unknown> } {
+  return { status, body };
+}
+
+/** The non-streaming boundary still speaks Responses. */
+function jsonResponse(outcome: {
+  status: number;
+  body: Record<string, unknown>;
+}): Response {
+  return new Response(JSON.stringify(outcome.body), {
+    status: outcome.status,
     headers: { "Content-Type": "application/json", ...CORS },
   });
 }
@@ -400,6 +415,9 @@ interface ChatRequest {
    *  stamps, tool surface) per conversation — isolated even
    *  when concurrent requests share one isolate. */
   conversationId?: string;
+  /** SSE streaming (gap 3): true → text/event-stream with
+   *  live progress events + word-group deltas + done. */
+  stream?: boolean;
 }
 
 interface ToolRun {
@@ -1826,8 +1844,16 @@ Construction cost estimation calculators (paint, screeding, POP ceiling, tile, b
 - If asked something outside FRELUX scope, briefly help if it is general building/painting knowledge, otherwise redirect politely.`;
 
 // ---- main handler ----------------------------------------
-serveWithCors(async (req) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+/** Live progress emitter for the streaming path (gap 3):
+ *  phase and reasoning-step events flow to the SSE client
+ *  AS they happen. Null on the classic JSON path. */
+type ChatEmit = (event: string, data: Record<string, unknown>) => void;
+
+async function executeChat(
+  req: Request,
+  emit?: ChatEmit,
+): Promise<{ status: number; body: Record<string, unknown> }> {
+  if (req.method === "OPTIONS") return respond(204, { ok: true });
 
   // ENGINES PANEL GATE: refresh the owner's activation states
   // (TTL-guarded — at most one tiny query per 15s per isolate).
@@ -1917,10 +1943,10 @@ serveWithCors(async (req) => {
   try {
     body = await req.json();
   } catch {
-    return json(400, { error: "Invalid JSON body" });
+    return respond(400, { error: "Invalid JSON body" });
   }
   const message = sanitize(String(body.message ?? "").slice(0, 8000)).trim();
-  if (!message) return json(400, { error: "Message is required" });
+  if (!message) return respond(400, { error: "Message is required" });
   const history = (body.history ?? []).slice(-20).map((t) => ({
     role: t.role,
     content: sanitize(String(t.content ?? "").slice(0, 4000)),
@@ -1979,7 +2005,7 @@ serveWithCors(async (req) => {
             : auth.code === "invalid"
               ? 401
               : 403;
-        return json(status, {
+        return respond(status, {
           error: auth.message,
           code: auth.code,
           mode: "api_credential",
@@ -1992,7 +2018,7 @@ serveWithCors(async (req) => {
       // capability exposed over this contract today, and it
       // needs its own scope.
       if (rawCapability === "status") {
-        return json(200, {
+        return respond(200, {
           ok: true,
           mode: "api_credential",
           application: cred.application,
@@ -2003,7 +2029,7 @@ serveWithCors(async (req) => {
       }
 
       if (!message) {
-        return json(400, {
+        return respond(400, {
           error: "Message is required",
           code: "invalid_request",
           mode: "api_credential",
@@ -2033,18 +2059,18 @@ serveWithCors(async (req) => {
           .join("")
           .trim();
         if (!text) {
-          return json(502, {
+          return respond(502, {
             error: "The engine produced no response. Please retry.",
             mode: "api_credential",
           });
         }
-        return json(200, {
+        return respond(200, {
           reply: sanitize(text),
           mode: "api_credential",
           application: cred.application,
         });
       } catch (err) {
-        return json(502, {
+        return respond(502, {
           error:
             err instanceof Error ? sanitize(err.message) : "Engine failure",
           mode: "api_credential",
@@ -2055,7 +2081,7 @@ serveWithCors(async (req) => {
       // never key material (the message is sanitized and
       // stripped of any credential fragment defensively).
       const raw = diagErr instanceof Error ? diagErr.message : String(diagErr);
-      return json(500, {
+      return respond(500, {
         error: sanitize(
           raw.replace(/archie_ak_[A-Za-z0-9_-]+/g, "archie_ak_[redacted]"),
         ).slice(0, 300),
@@ -2080,7 +2106,7 @@ serveWithCors(async (req) => {
       windowMs: 60_000,
     });
     if (!rl.allowed) {
-      return json(429, {
+      return respond(429, {
         error:
           "You're sending messages very quickly — please wait a moment and try again.",
       });
@@ -2118,18 +2144,18 @@ serveWithCors(async (req) => {
         .join("")
         .trim();
       if (!text) {
-        return json(502, {
+        return respond(502, {
           error: "The assistant produced no response. Please try again.",
           engine: result.engine,
         });
       }
-      return json(200, {
+      return respond(200, {
         reply: sanitize(text),
         engine: result.engine,
         mode: "visitor",
       });
     } catch (err) {
-      return json(502, {
+      return respond(502, {
         error:
           err instanceof Error ? sanitize(err.message) : "Assistant failure",
         engine: visitorEngine,
@@ -2143,7 +2169,7 @@ serveWithCors(async (req) => {
     engineId: Deno.env.get("ARCHIE_ENGINE"),
   });
   if (!runtime) {
-    return json(503, {
+    return respond(503, {
       error:
         "ARCHIE's own model runtime is an implementation boundary and is not operational yet. " +
         "No external provider is substituting for ARCHIE. Reasoning will begin when an engine is registered in ARCHIE's provider-agnostic engine registry.",
@@ -2174,7 +2200,7 @@ serveWithCors(async (req) => {
         // Swallow: the stop stands even if the event write fails.
       }
     }
-    return json(200, {
+    return respond(200, {
       reply: lifeSafetyStopMessage(lifeSafety),
       mode: "owner",
       life_safety_gate: {
@@ -2233,7 +2259,7 @@ serveWithCors(async (req) => {
         // Swallow: the refusal stands even if the event write fails.
       }
     }
-    return json(200, {
+    return respond(200, {
       reply:
         `I can't do that one. ${verdict.reason}` +
         (verdict.intrusive && !verdict.hardRefused
@@ -2347,6 +2373,8 @@ serveWithCors(async (req) => {
           // authorization that may unlock the owner-gated
           // local generative model at the honest-unknown path.
           ownerAuthorized: true,
+          // Gap 3: live phase/step events → SSE progress.
+          onEvent: (e) => emit?.("progress", e),
         },
       );
       cognitiveTrace = cycle.trace.phases.map((p) => ({
@@ -2425,12 +2453,12 @@ serveWithCors(async (req) => {
       .join("")
       .trim();
     if (!text) {
-      return json(502, {
+      return respond(502, {
         error: "ARCHIE produced no response text",
         engine: result.engine,
       });
     }
-    return json(200, {
+    return respond(200, {
       reply: sanitize(text),
       toolRuns,
       engine: result.engine,
@@ -2443,11 +2471,105 @@ serveWithCors(async (req) => {
       ),
     });
   } catch (err) {
-    return json(502, {
+    return respond(502, {
       error:
         err instanceof Error ? sanitize(err.message) : "ARCHIE core failure",
       toolRuns,
       engine,
     });
   }
+}
+
+// ---- boundary: classic JSON or SSE stream (gap 3) --------
+serveWithCors(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
+
+  // Stream detection: explicit request flag OR the standard
+  // SSE accept header. The body is peeked via clone(); the
+  // real parse (and its 400) still happens in executeChat.
+  let wantsStream = (req.headers.get("accept") ?? "").includes(
+    "text/event-stream",
+  );
+  if (!wantsStream) {
+    try {
+      const peeked = await req.clone().json();
+      wantsStream = peeked?.stream === true;
+    } catch {
+      /* invalid JSON — executeChat returns the honest 400 */
+    }
+  }
+
+  if (!wantsStream) {
+    const outcome = await executeChat(req);
+    return jsonResponse(outcome);
+  }
+
+  // STREAMING (owner upgrade 2026-09-16, gap 3): live SSE.
+  //   event:start     — the stream is open
+  //   event:progress  — live phase/step events from the
+  //                      cognitive kernel as they execute
+  //   event:delta     — response text chunks (the text is
+  //                      fully computed first — this is
+  //                      paced delivery, never fabrication)
+  //   event:done      — the full structured payload, the
+  //                      SAME shape as the JSON response
+  const stream = new ReadableStream<Uint8Array>({
+    start: async (controller) => {
+      const encoder = new TextEncoder();
+      const send = (event: string, data: unknown) => {
+        try {
+          controller.enqueue(
+            encoder.encode(
+              `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`,
+            ),
+          );
+        } catch {
+          /* client disconnected — stop writing */
+        }
+      };
+      try {
+        send("start", {
+          streaming: true,
+          engine: "archie-unified-cognitive",
+          at: new Date().toISOString(),
+        });
+        const outcome = await executeChat(req, (event, data) =>
+          send("progress", { event, ...data })
+        );
+        const reply = (outcome.body as { reply?: string }).reply;
+        if (typeof reply === "string" && reply.length > 0) {
+          // honest deltas: word-group chunks of the computed
+          // reply; no artificial server-side delay.
+          const words = reply.split(/(\s+)/);
+          let buf = "";
+          let n = 0;
+          for (const w of words) {
+            buf += w;
+            n += 1;
+            if (n >= 6) {
+              send("delta", { text: buf });
+              buf = "";
+              n = 0;
+            }
+          }
+          if (buf.length > 0) send("delta", { text: buf });
+        }
+        send("done", outcome.body);
+      } catch (err) {
+        send("error", {
+          error:
+            err instanceof Error ? sanitize(err.message) : "stream failure",
+        });
+      }
+      controller.close();
+    },
+  });
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/event-stream; charset=utf-8",
+      "Cache-Control": "no-cache",
+      Connection: "keep-alive",
+      ...CORS,
+    },
+  });
 });
