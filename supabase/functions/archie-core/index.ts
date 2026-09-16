@@ -74,6 +74,9 @@ import {
   getRateLimitKey,
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
+// ARCHIE Universal Lexicon Engine — verified dictionary
+// knowledge in the live language pathway (spec §LEXICON).
+import { lexicalGroundTruth } from "../_shared/lexicon/retrieval.ts";
 import { rateLimitedResponse } from "../_shared/cors.ts";
 configureCognitiveEnginePersistence(
   service as unknown as import("../_shared/archie-ai/native-engine/persistence.ts").SupabaseLike,
@@ -825,6 +828,29 @@ async function executeCore(
       language.res.language_code,
     );
 
+    // Universal Lexicon Engine: contextual sense retrieval for
+    // ambiguous words in the owner's message (spec §LEXICON).
+    // Deterministic + bounded; ambiguity is stated honestly.
+    let lexical: import("../_shared/lexicon/retrieval.ts").LexicalGroundTruth = {
+      block: "", wordsExamined: 0, disambiguated: [], ambiguous: [],
+    };
+    try {
+      lexical = await lexicalGroundTruth(
+        service as unknown as import("../_shared/lexicon/retrieval.ts").LexiconClient,
+        message,
+      );
+    } catch (lexErr) {
+      // Lexicon failure NEVER blocks the chat path — report it,
+      // continue without ground truth (honest degradation).
+      lexical = {
+        block: "",
+        wordsExamined: 0,
+        disambiguated: [],
+        ambiguous: [],
+      };
+      console.warn("[archie-core] lexicon retrieval failed:", lexErr);
+    }
+
     const languageDirective =
       language.res.language_code === "en"
         ? ""
@@ -850,7 +876,8 @@ async function executeCore(
       (toolResults.length
         ? `\n\nTool execution results (ground truth — cite them; never contradict them):\n${toolBlock}`
         : "") +
-      (terminology.block ? `\n\n${terminology.block}` : "");
+      (terminology.block ? `\n\n${terminology.block}` : "") +
+      (lexical.block ? `\n\n${lexical.block}` : "");
 
     emit?.("progress", { type: "stage", stage: "reasoning" });
     const inference = await infer({
@@ -928,6 +955,13 @@ async function executeCore(
         source: language.res.source,
         authoritative: language.res.authoritative,
         terminology_terms_used: terminology.terms,
+      },
+      // Universal Lexicon Engine audit (spec §16: honest
+      // coverage — what the lexicon actually did this turn)
+      lexicon: {
+        words_examined: lexical.wordsExamined,
+        senses_disambiguated: lexical.disambiguated,
+        senses_ambiguous: lexical.ambiguous,
       },
       // Model transparency (spec §§1, 11, 39): ARCHIE's identity is the
       // Intelligence Core; the runtime/adapter is a replaceable part and is

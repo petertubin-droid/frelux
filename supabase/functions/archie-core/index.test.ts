@@ -22,6 +22,25 @@ import {
   OWNER_ID,
   json,
 } from "../_shared/testing/harness.ts";
+import fs from "node:fs";
+
+// REAL lexicon data extracted from the OEWN 2025 dataset
+// (scripts/lexicon/generate-test-fixtures.ts). Spec §18: verify
+// ARCHIE conversations can access the lexicon engine — not
+// just the database API in isolation.
+const lexiconFixture = JSON.parse(
+  fs.readFileSync(
+    new URL("../_shared/lexicon/__fixtures__/test-words.json", import.meta.url),
+    "utf8",
+  ),
+);
+function givenLexicon() {
+  givenRows("lexicon_words", lexiconFixture.words);
+  givenRows("lexicon_senses", lexiconFixture.senses);
+  givenRows("lexicon_sense_relations", lexiconFixture.senseRelations);
+  givenRows("lexicon_relationships", lexiconFixture.synsetRelations);
+  givenRows("lexicon_sources", [lexiconFixture.source]);
+}
 
 const handler = getHandler();
 
@@ -190,5 +209,64 @@ describe("archie-core — SSE streaming (gap 3)", () => {
       expect(deltas.length).toBeGreaterThan(0);
       expect(deltas.join("")).toBe(done.reply);
     }
+  });
+});
+
+// ---------------------------------------------------------
+// Universal Lexicon Engine integration (spec §18): a REAL
+// owner conversation must reach the lexicon — contextual
+// sense retrieval in the live pathway, audited honestly.
+// ---------------------------------------------------------
+describe("archie-core — lexicon engine in the live pathway", () => {
+  it("a full owner turn runs lexicon retrieval and reports the audit", async () => {
+    givenOwnerIsAdmin();
+    givenConversation();
+    givenLexicon();
+
+    const res = await handler(
+      req(
+        "POST",
+        "",
+        {
+          conversation_id: CONV_ID,
+          message: "I need to run the program, what does run mean here?",
+        },
+        OWNER_AUTH,
+      ),
+    );
+    expect(res.status).toBe(200);
+    const body = await json(res);
+    expect(body.ok).toBe(true);
+
+    // honest audit: the lexicon section always reports what
+    // it examined, disambiguated, or left ambiguous
+    expect(body.lexicon).toBeTruthy();
+    expect(Array.isArray(body.lexicon.words_examined_list ?? null) || typeof body.lexicon.words_examined === "number").toBe(true);
+
+    // "run" is genuinely multi-sense: it must appear in one of
+    // the honest buckets — disambiguated (direct evidence:
+    // "program") or ambiguous — never silently ignored
+    const touched =
+      (body.lexicon.senses_disambiguated ?? []).includes("run") ||
+      (body.lexicon.senses_ambiguous ?? []).includes("run");
+    expect(touched).toBe(true);
+  });
+
+  it("degrades honestly when the lexicon is empty — the turn still succeeds", async () => {
+    givenOwnerIsAdmin();
+    givenConversation();
+    // no lexicon fixtures seeded: empty tables
+
+    const res = await handler(
+      req("POST", "", { conversation_id: CONV_ID, message: "hello" }, OWNER_AUTH),
+    );
+    expect(res.status).toBe(200);
+    const body = await json(res);
+    expect(body.ok).toBe(true);
+    expect(body.lexicon).toEqual({
+      words_examined: 0,
+      senses_disambiguated: [],
+      senses_ambiguous: [],
+    });
   });
 });
