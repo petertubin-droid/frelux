@@ -177,6 +177,21 @@ export class FactRankIndex {
    *  legacy-equivalence forensic test; see
    *  docs/archie-performance-ledger.md. */
   rank(query: string, k = NATIVE_CONFIG.rankK): Fact[] {
+    return this.rankKept(query, k).map((s) => s.fact);
+  }
+
+  /** Scored ranking — identical pipeline to rank(), but the
+   *  cosine score rides along so callers can apply an honest
+   *  relevance floor (a weak TF-IDF top-k is NOT an answer).
+   *  rank() output is unchanged (bit-for-bit same order). */
+  rankScored(query: string, k = 6): Array<{ fact: Fact; score: number }> {
+    return this.rankKept(query, k);
+  }
+
+  private rankKept(
+    query: string,
+    k: number,
+  ): Array<{ fact: Fact; score: number }> {
     const qTokens = tokenize(query);
     if (qTokens.length === 0 || this.entries.size === 0) return [];
     const candidateIds = new Set<string>();
@@ -262,7 +277,7 @@ export class FactRankIndex {
         insert(entry.fact, score);
       }
     }
-    return kept.map((s) => s.fact);
+    return kept;
   }
 }
 
@@ -375,6 +390,11 @@ export class FactStore {
    *  for the measured gain. */
   rank(query: string, k = NATIVE_CONFIG.rankK): Fact[] {
     return this.rankIndex.rank(query, k);
+  }
+
+  /** Scored ranking with cosine scores (see FactRankIndex). */
+  rankScored(query: string, k = 6): Array<{ fact: Fact; score: number }> {
+    return this.rankIndex.rankScored(query, k);
   }
 
   get(id: string): Fact | undefined {

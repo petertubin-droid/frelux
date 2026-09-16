@@ -848,7 +848,14 @@ export class ArchieNativeEngine implements ArchieRuntime {
     const retrievalQuery =
       referents.length > 0 ? `${input} ${referents.join(" ")}` : input;
     const context = memory.retrieve(retrievalQuery);
-    const ranked = this.facts.rank(retrievalQuery);
+    let ranked = this.facts.rank(retrievalQuery);
+    // Scored ranking — the relevance floor separates a real
+    // match from TF-IDF noise (measured 2026-09-16: generic
+    // token-prior noise tops out at ~0.097, genuine subject
+    // matches start at ~0.127). A weak top-k is NOT an answer.
+    const rankedScored = this.facts.rankScored(retrievalQuery, 6);
+    const topRelevance = rankedScored.length > 0 ? rankedScored[0].score : 0;
+    ranked = prioritizeDefinitionalSubject(input, ranked);
 
     // Compound-request decomposition (plan P2, audit N2):
     // owners speak in multi-part requests. Each clause gets
@@ -887,6 +894,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         systemInstruction,
         session,
         history,
+        topRelevance,
       );
     }
     this.confidenceSum += outcome.confidence;
@@ -1313,7 +1321,12 @@ export class ArchieNativeEngine implements ArchieRuntime {
       const clauseNlu = understand(clause.text, clauseHistory, {
         rules: domainRules,
       });
-      const clauseRanked = this.facts.rank(clause.text);
+      const clauseScored = this.facts.rankScored(clause.text, 6);
+      const clauseRanked = prioritizeDefinitionalSubject(
+        clause.text,
+        clauseScored.map((r) => r.fact),
+      );
+      const clauseTop = clauseScored.length > 0 ? clauseScored[0].score : 0;
       const clauseContext = (session ?? this.sessionFor()).memory.retrieve(
         clause.text,
       );
@@ -1325,6 +1338,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         systemInstruction,
         session,
         history,
+        clauseTop,
       );
       positive += 1;
       confSum += res.confidence;
@@ -1414,6 +1428,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
     /** Conversation history — meaning research resolves
      *  "research it" against the last definition question. */
     history?: ArchieInferenceTurn[],
+    /** Best cosine score for the retrieval query (0 when
+     *  nothing matched) — the FACT_RELEVANCE_FLOOR gate. */
+    topRelevance = 0,
   ): Promise<ConverseResult> {
     /** The request's declared tool surface — session-scoped
      *  (C-1): falls back to the legacy pointer's session for
@@ -1422,6 +1439,13 @@ export class ArchieNativeEngine implements ArchieRuntime {
       ? session.requestToolNames
       : this.sessionFor().requestToolNames;
     const cite = (facts: Fact[]) => facts.map((f) => f.id);
+    // Subject-aware relevance gate: above the floor OR the
+    // top fact's subject is named in the question (see
+    // subjectOverlapsQuestion). Either way the ranked facts
+    // are a genuine answer, not TF-IDF noise.
+    const genuineSubject =
+      topRelevance >= FACT_RELEVANCE_FLOOR ||
+      subjectOverlapsQuestion(ranked[0], input);
 
     // VOCABULARY REVIEW (owner directive 2026-09-13):
     // "review your vocabulary" / "what words have you
@@ -1834,6 +1858,67 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
 
       case "capability_query": {
+        // A capability question naming a SITE subject ("what
+        // calculators does frelux have for finishing") is a
+        // knowledge question about the site: validated facts
+        // outrank prompt prose exactly as in knowledge_query.
+        // Questions about ARCHIE itself ("archie, what can
+        // you do") stay manifest questions — the engine's own
+        // capability manifest is the honest answer there.
+        // Strict gate: filler-heavy capability questions
+        // ("what can you do") TF-IDF-match nothing but noise
+        // (an authorization log once topped them at corpus
+        // v5), so a fact only preempts the manifest when it
+        // NAMES the subject in the question — and questions
+        // about ARCHIE itself stay manifest questions.
+        const capabilityRanked = ranked.filter(
+          (f) =>
+            !isAuthorizationLog(f) && !String(f.id).startsWith("vocab:"),
+        );
+        const siteFacts = capabilityRanked
+          .filter((f) => f.status !== "uncertain")
+          .slice(0, 3);
+        const isSelfSubject =
+          siteFacts.length > 0 &&
+          /^(archie|you|engine|frelux-em-engine)$/i.test(
+            String(siteFacts[0].subject),
+          );
+        if (
+          siteFacts.length > 0 &&
+          !isSelfSubject &&
+          subjectOverlapsQuestion(siteFacts[0], input)
+        ) {
+            const siteParts = siteFacts.map(
+              (f) =>
+                `${f.subject} ${f.predicate.replace(/-/g, " ")} ${String(f.object)}`,
+            );
+            return this.compose(
+              `${knowledgeOpening(input)}\n${siteParts.join("\n")}`,
+              Math.max(nlu.confidence, 0.75),
+              cite(siteFacts),
+            );
+          }
+        // Site-assistant context (2026-09-16): when the caller
+        // injects curated site content, a question about what
+        // the SITE offers ("what services do you offer") is
+        // answered from the Services section — NOT from the
+        // engine capability manifest a site visitor cannot
+        // read. The manifest stays the answer whenever no
+        // strongly-titled section matches (the owner path has
+        // no Services section, so the owner still gets the
+        // honest manifest).
+        const servicesKb = retrieveFromSystemInstruction(
+          input,
+          systemInstruction,
+          0.5,
+        );
+        if (servicesKb) {
+          return this.compose(
+            `From the knowledge base: ${servicesKb}`,
+            Math.max(nlu.confidence, 0.75),
+            [],
+          );
+        }
         const manifest = nativeEngineCapabilityManifest();
         const summary = manifestSummary(manifest);
         const lines = manifest.map(
@@ -2080,8 +2165,6 @@ export class ArchieNativeEngine implements ArchieRuntime {
         // They are excluded from knowledge answers entirely
         // (session-isolation regression, 2026-09-14); nothing
         // in the engine reads them as knowledge.
-        const isAuthorizationLog = (f: Fact) =>
-          f.subject === "network" && f.predicate === "authorized";
         const answerable = (
           defMatch
             ? ranked
@@ -2111,16 +2194,31 @@ export class ArchieNativeEngine implements ArchieRuntime {
             cf.evidence.slice(0, 5),
           );
         }
-        // Caller-provided knowledge base (livechat path):
-        // consult the injected systemInstruction as a retrieval
-        // source BEFORE the validated-fact path — a matching
-        // section answers from the site's own curated content.
+        // Caller-provided knowledge base (livechat path — the
+        // FRELUX site assistant, learn hub and other curated
+        // content injected as systemInstruction). Priority is
+        // honest: VALIDATED FACTS first — the corpus is
+        // owner-verified with provenance, prompt prose is only
+        // framing. The KB answers in exactly two cases:
+        //   (a) fact retrieval found NOTHING at all (no ranked
+        //       candidate) — the KB is the only source left
+        //       before an honest unknown-topic refusal;
+        //   (b) a HOW-TO request where a curated section is
+        //       titled on at least half the question's
+        //       informative tokens — a real step-by-step guide
+        //       beats a definitional fact.
         // Filler words never win a match (informative-token
         // scoring, body overlap as tiebreak).
-        const kbSection = retrieveFromSystemInstruction(
-          input,
-          systemInstruction,
-        );
+        let kbSection: string | null = null;
+        if (ranked.length === 0 || !genuineSubject) {
+          kbSection = retrieveFromSystemInstruction(input, systemInstruction);
+        } else if (nlu.intent === "howto_guidance") {
+          kbSection = retrieveFromSystemInstruction(
+            input,
+            systemInstruction,
+            0.5,
+          );
+        }
         if (kbSection) {
           return this.compose(
             `From the knowledge base: ${kbSection}`,
@@ -2207,9 +2305,11 @@ export class ArchieNativeEngine implements ArchieRuntime {
             if (promoted.length > 0) validated = promoted;
           }
         }
-        if (validated.length === 0) {
+        if (validated.length === 0 || !genuineSubject) {
           // P7 — a knowledge question with zero matched
-          // facts is a countable unknown-topic hit.
+          // facts (or only TF-IDF noise below the relevance
+          // floor — same thing) is a countable unknown-topic
+          // hit.
           this.unknownTopicHits += 1;
           // Episodic memory: recall what the owner said earlier
           // in this conversation. REAL retrieval — the recalled
@@ -3944,6 +4044,65 @@ function extractTriple(
  *  an answer). Deterministic and conservative: null unless
  *  the final word is a known attribute noun, normalized
  *  exactly like the teaching triple extractor. */
+/** Definitional subject priority (2026-09-16): a fact ABOUT
+ *  the question's subject beats facts that merely MENTION it.
+ *  As the corpus grew, site facts whose objects mention a rare
+ *  term ("screeding") started outranking the actual definition
+ *  fact for "what is screeding" on raw TF-IDF. Deterministic
+ *  reorder for bare-noun definition questions ("what is X",
+ *  "tell me about X"): exact-subject facts lead; the relative
+ *  order of the rest is untouched. No exact subject → ranking
+ *  is unchanged. Applies to clauses too (compound routing),
+ *  so it lives here instead of inside converse(). */
+function prioritizeDefinitionalSubject(input: string, ranked: Fact[]): Fact[] {
+  const m = input.match(
+    /^(?:(?:what|who)(?:'s|\s+is|\s+are)\s+(?:a|an|the)?\s*|tell\s+me\s+about\s+(?:the\s+)?|about\s+(?:the\s+)?)\s*([a-z][\w-]*(?:\s+[a-z][\w-]*){0,3})\s*\?*\s*$/i,
+  );
+  if (!m) return ranked;
+  const subj = m[1].trim().toLowerCase().replace(/\s+/g, "-");
+  const exact = ranked.filter(
+    (f) => f.subject === subj && f.status !== "uncertain",
+  );
+  if (exact.length === 0) return ranked;
+  return [...exact, ...ranked.filter((f) => !exact.includes(f))];
+}
+
+/** Relevance floor for a ranked fact to count as an answer
+ *  (measured 2026-09-16: token-prior noise ≤ ~0.097, genuine
+ *  subject matches ≥ ~0.127 — the floor sits between). A weak
+ *  TF-IDF top-k is NOT relevant long-term knowledge and must
+ *  not preempt episodic recall or curated site content. */
+const FACT_RELEVANCE_FLOOR = 0.11;
+
+/** Companion gate to the floor: a fact whose SUBJECT word
+ *  appears verbatim in the question ("tell me about
+ *  screeding" vs subject "screeding") is a genuine subject
+ *  match even when the absolute cosine sits below the floor
+ *  — the floor was measured on a smaller corpus and
+ *  absolute TF-IDF values drift as the corpus grows (the
+ *  corpus v5 union dropped the screed definition to 0.072
+ *  while staying the correct answer). Subject-word overlap
+ *  cannot be token-prior noise: noise matches generic
+ *  words, never the subject the question is about. */
+/** Network-authorization records (auto-research /
+ *  owner-research authorization trails) are policy logs
+ *  whose object text mirrors user questions — they TF-IDF
+ *  rank strongly but are never knowledge. */
+const isAuthorizationLog = (f: Fact) =>
+  f.subject === "network" && f.predicate === "authorized";
+
+function subjectOverlapsQuestion(
+  fact: Fact | undefined,
+  input: string,
+): boolean {
+  if (!fact) return false;
+  const q = input.toLowerCase();
+  return String(fact.subject)
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .some((w) => w.length > 3 && q.includes(w));
+}
+
 function questionSPO(
   input: string,
 ): { subject: string; predicate: string } | null {
@@ -4008,16 +4167,71 @@ const RETRIEVAL_FILLERS = new Set([
   "tips",
   "complete",
   "essential",
+  // Function words (2026-09-16): they carry no subject signal
+  // yet counted toward title coverage, letting generic prompt
+  // intros win matches they should never win.
+  "do",
+  "does",
+  "did",
+  "i",
+  "you",
+  "your",
+  "my",
+  "me",
+  "we",
+  "the",
+  "a",
+  "an",
+  "is",
+  "are",
+  "was",
+  "were",
+  "be",
+  "for",
+  "have",
+  "has",
+  "had",
+  "of",
+  "to",
+  "in",
+  "on",
+  "at",
+  "it",
+  "please",
 ]);
+
+/** Light suffix stem for knowledge-base retrieval: matches
+ *  word forms without a full stemmer ("screed" matches a
+ *  section titled "Screeding", "services" matches
+ *  "Services"). English suffix rules, in order:
+ *  -ing, -ied→y, -eed stays (screed ≠ scre), -ed, -ies→y,
+ *  -es only after s/x/z/ch/sh, final -s. */
+function kbStem(t: string): string {
+  if (t.length > 5 && /ing$/.test(t)) return t.slice(0, -3);
+  if (t.length > 4 && /ied$/.test(t)) return `${t.slice(0, -3)}y`;
+  if (t.length > 4 && /eed$/.test(t)) return t; // screed, agreed
+  if (t.length > 4 && /ed$/.test(t)) return t.slice(0, -2);
+  if (t.length > 3 && /ies$/.test(t)) return `${t.slice(0, -3)}y`;
+  if (t.length > 4 && /(?:ss|sh|ch|x|z|s)es$/.test(t)) {
+    return t.slice(0, -2);
+  }
+  if (t.length > 3 && /s$/.test(t)) return t.slice(0, -1);
+  return t;
+}
 
 function retrieveFromSystemInstruction(
   input: string,
   instruction?: string,
+  /** Minimum share of the question's informative tokens that
+   *  must appear in a section title for it to fire (how-to
+   *  preemption requires a real subject match, not a stray
+   *  token). Default 0 = any single informative overlap. */
+  minCoverage = 0,
 ): string | null {
   if (!instruction) return null;
-  const qTokens = tokenize(input).filter(
-    (t: string) => !RETRIEVAL_FILLERS.has(t),
-  );
+  const qTokens = tokenize(input)
+    .filter((t: string) => !RETRIEVAL_FILLERS.has(t))
+    .map(kbStem);
   if (qTokens.length === 0) return null;
 
   const sections = instruction
@@ -4026,21 +4240,57 @@ function retrieveFromSystemInstruction(
     .filter((s: string) => s.length > 40 && s.length < 4000);
   if (sections.length === 0) return null;
 
+  // Discriminative scoring (2026-09-16): a match on a token that
+  // appears in FEW sections is worth more than a match on a
+  // common one — "screed" must beat "floor" when both occur in
+  // different sections, so the subject's own guide wins. IDF is
+  // computed over the injected sections themselves.
+  const sectionTokens = sections.map((sec: string) => {
+    const lines = sec.split("\n");
+    return {
+      title: new Set(
+        tokenize(lines[0])
+          .filter((t: string) => !RETRIEVAL_FILLERS.has(t))
+          .map(kbStem),
+      ),
+      body: new Set(tokenize(lines.slice(1, 5).join(" ")).map(kbStem)),
+    };
+  });
+  const idfOf = (tok: string): number => {
+    let df = 0;
+    for (const st of sectionTokens) {
+      if (st.title.has(tok) || st.body.has(tok)) df += 1;
+    }
+    return Math.log(1 + sections.length / Math.max(1, df));
+  };
+  const qIdf = new Map<string, number>();
+  let qNorm = 0;
+  for (const t of qTokens) {
+    const w = idfOf(t);
+    qIdf.set(t, w);
+    qNorm += w;
+  }
+  if (qNorm === 0) return null;
+
   let best: { text: string; score: number } | null = null;
-  for (const section of sections) {
-    const lines = section.split("\n");
-    const titleTokens = new Set(
-      tokenize(lines[0]).filter((t: string) => !RETRIEVAL_FILLERS.has(t)),
-    );
+  for (let i = 0; i < sections.length; i++) {
+    const { title, body } = sectionTokens[i];
     let titleOverlap = 0;
-    for (const t of qTokens) if (titleTokens.has(t)) titleOverlap++;
+    let titleW = 0;
+    for (const t of qTokens) {
+      if (title.has(t)) {
+        titleOverlap++;
+        titleW += qIdf.get(t) ?? 0;
+      }
+    }
     if (titleOverlap === 0) continue; // subject must appear in the title
-    const bodyTokens = new Set(tokenize(lines.slice(1, 5).join(" ")));
-    let bodyOverlap = 0;
-    for (const t of qTokens) if (bodyTokens.has(t)) bodyOverlap++;
-    const score =
-      titleOverlap / qTokens.length + 0.25 * (bodyOverlap / qTokens.length);
-    if (!best || score > best.score) best = { text: section, score };
+    // Coverage gate: how-to preemption demands a genuine
+    // subject match, not one stray shared token.
+    if (titleOverlap / qTokens.length < minCoverage) continue;
+    let bodyW = 0;
+    for (const t of qTokens) if (body.has(t)) bodyW += qIdf.get(t) ?? 0;
+    const score = (titleW + 0.25 * bodyW) / qNorm;
+    if (!best || score > best.score) best = { text: sections[i], score };
   }
   if (!best) return null;
   // Honest provenance + brevity for chat surfaces.

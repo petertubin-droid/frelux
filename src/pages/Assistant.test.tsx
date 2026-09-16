@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 // --- in-memory supabase mock (learning-suite fidelity) ---
 type Row = Record<string, unknown>;
 const tables: Record<string, Row[]> = {
+  frelux_archie_people: [],
   frelux_archie_mobile_consents: [],
   frelux_archie_paid_capabilities: [],
   frelux_security_sessions: [],
@@ -157,6 +158,7 @@ vi.mock("@/lib/supabase", () => ({
 const authMockValue = {
   user: { id: "user-1", email: "user@frelux.app" },
   loading: false,
+  isAdmin: false,
 };
 vi.mock("@/lib/auth", () => ({
   useAuth: vi.fn(() => authMockValue),
@@ -169,7 +171,17 @@ beforeEach(() => {
     error: null,
   }));
   for (const k of Object.keys(tables)) tables[k] = [];
+  // the standard test user is an Owner-registered, ACTIVE family
+  // member — the tier the full PWA is for
+  tables.frelux_archie_people = [
+    { id: "p1", user_id: "user-1", status: "ACTIVE", relation: "FAMILY" },
+  ];
 });
+
+async function openTab(name: string) {
+  await waitFor(() => expect(screen.getByRole("tab", { name })).toBeTruthy());
+  fireEvent.click(screen.getByRole("tab", { name }));
+}
 
 async function renderPage() {
   const Comp = (await import("@/pages/Assistant")).default;
@@ -181,10 +193,11 @@ async function renderPage() {
 }
 
 describe("ARCHIE Mobile Assistant", () => {
-  it("renders all four mobile surfaces with the Free-tier badge", async () => {
+  it("renders all four mobile surfaces with the Family PWA badge", async () => {
     await renderPage();
-    await waitFor(() => expect(screen.getByText("ARCHIE Mobile")).toBeTruthy());
-    expect(screen.getByText("Free tier")).toBeTruthy();
+    // family membership resolves async — the PWA surfaces appear
+    // only once the ACTIVE people row is confirmed
+    await waitFor(() => expect(screen.getByText("Family PWA")).toBeTruthy());
     for (const tab of ["Assistant", "Capabilities", "Vault", "Security"]) {
       expect(screen.getByRole("tab", { name: tab })).toBeTruthy();
     }
@@ -192,7 +205,7 @@ describe("ARCHIE Mobile Assistant", () => {
 
   it("shows every free capability defaulting to OFF (no silent device access)", async () => {
     await renderPage();
-    fireEvent.click(screen.getByRole("tab", { name: "Capabilities" }));
+    await openTab("Capabilities");
     await waitFor(() =>
       expect(screen.getByTestId("archie-capabilities")).toBeTruthy(),
     );
@@ -211,7 +224,7 @@ describe("ARCHIE Mobile Assistant", () => {
 
   it("shows paid capabilities as OFF by default with the never-silent guarantee", async () => {
     await renderPage();
-    fireEvent.click(screen.getByRole("tab", { name: "Security" }));
+    await openTab("Security");
     await waitFor(() =>
       expect(screen.getByTestId("archie-security")).toBeTruthy(),
     );
@@ -249,7 +262,7 @@ describe("ARCHIE Mobile Assistant", () => {
 
   it("owner authorization is available in Security with server-side verification copy", async () => {
     await renderPage();
-    fireEvent.click(screen.getByRole("tab", { name: "Security" }));
+    await openTab("Security");
     await waitFor(() =>
       expect(screen.getByText("Owner authorization")).toBeTruthy(),
     );
@@ -257,9 +270,88 @@ describe("ARCHIE Mobile Assistant", () => {
     expect(screen.getByText(/never stored, logged or spoken/i)).toBeTruthy();
   });
 
+  it("external users get a clean CHAT-ONLY surface — no PWA tabs, no capability buttons", async () => {
+    // not the Owner, not in the family registry
+    authMockValue.isAdmin = false;
+    tables.frelux_archie_people = [];
+    const { computeDeviceFingerprint } =
+      await import("@/lib/archie/mobile/device-sessions");
+    tables.frelux_security_sessions = [];
+    void computeDeviceFingerprint;
+    const Comp = (await import("@/pages/Assistant")).default;
+    const { useAuth } = await import("@/lib/auth");
+    vi.mocked(useAuth).mockReturnValue({
+      ...authMockValue,
+      user: { id: "ext-1", email: "ext@example.com" },
+    } as never);
+    // ensure the ext user has no people row
+    render(
+      <MemoryRouter>
+        <Comp />
+      </MemoryRouter>,
+    );
+    await waitFor(() =>
+      expect(screen.getByText("FRELUX assistant")).toBeTruthy(),
+    );
+    // NO feature tabs exist for external users
+    expect(screen.queryAllByRole("tab")).toHaveLength(0);
+    // NO device capability buttons exist for external users
+    expect(screen.queryByText("Voice")).toBeNull();
+    expect(screen.queryByText("Camera")).toBeNull();
+    expect(screen.queryByText("Vault")).toBeNull();
+    // but the chat input is there
+    expect(screen.getByLabelText("Ask ARCHIE")).toBeTruthy();
+    vi.mocked(useAuth).mockReturnValue(authMockValue as never);
+  });
+
+  it("chat sends to the REAL archie-chat engine and displays the answer", async () => {
+    invokeMock.mockImplementation(async (fn: string) => {
+      if (fn === "archie-chat") {
+        return {
+          data: { reply: "The FRELUX Pro plan is ₦5,000 per month." },
+          error: null,
+        };
+      }
+      return { data: { ok: true }, error: null };
+    });
+    await renderPage();
+    const input = screen.getByLabelText("Ask ARCHIE");
+    fireEvent.change(input, { target: { value: "how much is the pro plan" } });
+    await waitFor(async () => {
+      fireEvent.click(screen.getByText("Send"));
+      await Promise.resolve();
+      expect(screen.getByText(/Pro plan is ₦5,000 per month/)).toBeTruthy();
+    });
+    const call = invokeMock.mock.calls.find(
+      (c: unknown[]) => c[0] === "archie-chat",
+    );
+    expect(call).toBeTruthy();
+    const body = (call![1] as { body: Record<string, unknown> }).body;
+    expect(body.message).toBe("how much is the pro plan");
+    expect(Array.isArray(body.history)).toBe(true);
+  });
+
+  it("chat failures surface the honest edge-function error, never canned text", async () => {
+    invokeMock.mockImplementation(async (fn: string) => {
+      if (fn === "archie-chat") {
+        return { data: null, error: new Error("Edge Function failure") };
+      }
+      return { data: { ok: true }, error: null };
+    });
+    await renderPage();
+    fireEvent.change(screen.getByLabelText("Ask ARCHIE"), {
+      target: { value: "hello" },
+    });
+    await waitFor(async () => {
+      fireEvent.click(screen.getByText("Send"));
+      await Promise.resolve();
+      expect(screen.getByText(/Edge Function failure/i)).toBeTruthy();
+    });
+  });
+
   it("the vault lets the user explicitly select and protect data", async () => {
     await renderPage();
-    fireEvent.click(screen.getByRole("tab", { name: "Vault" }));
+    await openTab("Vault");
     await waitFor(() =>
       expect(screen.getByTestId("archie-vault")).toBeTruthy(),
     );

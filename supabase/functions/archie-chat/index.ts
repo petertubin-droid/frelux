@@ -1592,19 +1592,232 @@ async function fetchRepoFile(repoPath: string): Promise<
 // owner tools, no owner memory, no protected operations, no
 // account/order access. The scope IS the protection.
 // ---------------------------------------------------------
+// ---------------------------------------------------------
+// FRELUX LEARN HUB — ARCHIE's site knowledge base
+// The learn hub (/learn) holds the site's curated guides and
+// tutorials. ARCHIE retrieves from the REAL published
+// articles (learn_articles, published only — never invented
+// content): the question's informative tokens pre-rank the
+// articles and the top matches are injected as titled
+// knowledge-base sections the native engine consults through
+// its systemInstruction KB path. Validated facts still
+// outrank this content (engine KB gate, 2026-09-16) — the
+// hub fills the gaps facts don't cover, especially how-tos.
+// ---------------------------------------------------------
+interface LearnArticle {
+  title: string;
+  excerpt: string | null;
+  content: string;
+  slug: string;
+  category_slug: string;
+}
+
+const LEARN_CACHE_TTL_MS = 5 * 60_000;
+const learnCache: { at: number; articles: LearnArticle[] } = {
+  at: 0,
+  articles: [],
+};
+
+const LEARN_FILLERS = new Set([
+  "what",
+  "which",
+  "who",
+  "when",
+  "where",
+  "why",
+  "how",
+  "should",
+  "could",
+  "would",
+  "will",
+  "can",
+  "tell",
+  "about",
+  "know",
+  "need",
+  "want",
+  "give",
+  "show",
+  "help",
+  "many",
+  "much",
+  "best",
+  "good",
+  "guide",
+  "tips",
+  "do",
+  "does",
+  "did",
+  "i",
+  "you",
+  "your",
+  "my",
+  "me",
+  "we",
+  "the",
+  "a",
+  "an",
+  "is",
+  "are",
+  "was",
+  "were",
+  "be",
+  "for",
+  "have",
+  "has",
+  "had",
+  "of",
+  "to",
+  "in",
+  "on",
+  "at",
+  "it",
+  "please",
+]);
+
+/** Light suffix stem (mirrors the engine's kbStem exactly):
+ *  "screed" matches articles titled "Screeding". Filler
+ *  filtering happens on the RAW token before stemming, so
+ *  stripping never resurrects a filler ("tips" → "tip" stays
+ *  filtered). */
+function learnStem(t: string): string {
+  if (t.length > 5 && /ing$/.test(t)) return t.slice(0, -3);
+  if (t.length > 4 && /ied$/.test(t)) return `${t.slice(0, -3)}y`;
+  if (t.length > 4 && /eed$/.test(t)) return t; // screed, agreed
+  if (t.length > 4 && /ed$/.test(t)) return t.slice(0, -2);
+  if (t.length > 3 && /ies$/.test(t)) return `${t.slice(0, -3)}y`;
+  if (t.length > 4 && /(?:ss|sh|ch|x|z|s)es$/.test(t)) {
+    return t.slice(0, -2);
+  }
+  if (t.length > 3 && /s$/.test(t)) return t.slice(0, -1);
+  return t;
+}
+
+function learnTokens(text: string): Set<string> {
+  return new Set(
+    text
+      .toLowerCase()
+      .split(/[^a-z0-9]+/)
+      .filter((t) => t.length > 1)
+      .map(learnStem),
+  );
+}
+
+async function fetchLearnArticles(): Promise<LearnArticle[]> {
+  const now = Date.now();
+  if (
+    learnCache.articles.length > 0 &&
+    now - learnCache.at < LEARN_CACHE_TTL_MS
+  ) {
+    return learnCache.articles;
+  }
+  try {
+    const { data, error } = await db
+      .from("learn_articles")
+      .select("title, excerpt, content, slug, category_slug")
+      .eq("status", "published")
+      .order("published_at", { ascending: false, nullsFirst: false })
+      .limit(200);
+    if (error || !data) return learnCache.articles; // stale serve on transient failure
+    learnCache.articles = data as LearnArticle[];
+    learnCache.at = now;
+    return learnCache.articles;
+  } catch {
+    return learnCache.articles; // honest degradation: no hub injection
+  }
+}
+
+/** Question-driven article selection: informative token
+ *  overlap against each article's title + excerpt, top 4.
+ *  Returns the KB sections ready to append to a
+ *  systemInstruction ("" when nothing genuinely matches).
+ *
+ *  Scoring (2026-09-16, evidence: "how do i screed a floor"
+ *  kept matching the floor-TILE guide because "floor" is
+ *  rarer than "screed" in the corpus — IDF alone cannot tell
+ *  the subject from the surface):
+ *  1. IDF weighting — a rare-term match outranks a common one;
+ *  2. TITLE matches count double — the title is the article's
+ *     declared subject;
+ *  3. the question's PRIMARY token (its first informative
+ *     token: the action in "how do i screed a floor", the
+ *     subject in "what is screeding") earns a flat bonus —
+ *     the head of the question is the intent.
+ */
+function buildLearnKb(question: string, articles: LearnArticle[]): string {
+  const qTokens = [...learnTokens(question)].filter(
+    (t) => !LEARN_FILLERS.has(t),
+  );
+  if (qTokens.length === 0 || articles.length === 0) return "";
+  const primary = qTokens[0];
+  const docTokens = articles.map((a) =>
+    learnTokens(`${a.title} ${a.excerpt ?? ""}`),
+  );
+  const df = new Map<string, number>();
+  for (const t of qTokens) {
+    let n = 0;
+    for (const doc of docTokens) if (doc.has(t)) n += 1;
+    df.set(t, n);
+  }
+  const idfOf = (t: string): number =>
+    Math.log(1 + articles.length / Math.max(1, df.get(t) ?? 1));
+  const scored = articles
+    .map((a, i) => {
+      const titleT = learnTokens(a.title);
+      const doc = docTokens[i];
+      let score = 0;
+      for (const tok of qTokens) {
+        const w = idfOf(tok);
+        if (titleT.has(tok)) score += 2 * w;
+        else if (doc.has(tok)) score += w;
+      }
+      // Primary-token gate: when at least one guide names the
+      // question's head action/subject, a guide that never
+      // mentions it is not a candidate — measured 2026-09-16:
+      // "floor" alone (idf 2.55) outranked every screed match
+      // (idf 1.44), so the tile guide kept beating the actual
+      // screeding guides. Fallback: when no guide contains the
+      // primary token, all scored candidates stand.
+      const hasPrimary = titleT.has(primary) || doc.has(primary);
+      if (hasPrimary) score += 1.5;
+      return { a, score, hasPrimary };
+    })
+    .filter((x) => x.score > 0);
+  const primaryExists = scored.some((x) => x.hasPrimary);
+  const filtered = primaryExists ? scored.filter((x) => x.hasPrimary) : scored;
+  const top = filtered
+    .sort((x, y) => y.score - x.score)
+    // Top 4 only: the pre-selection above is authoritative —
+    // injecting common-token stragglers (an article that
+    // shares only "floor") invites the engine's section picker
+    // to prefer a body-heavy but off-subject guide over the
+    // subject's own. Four slots keep room for both clauses of
+    // a compound question.
+    .slice(0, 4);
+  if (top.length === 0) return "";
+  return top
+    .map(({ a }) => {
+      const body = (a.content ?? "").slice(0, 1100);
+      return `## ${a.title}
+Learn hub guide — read it in full at frelux.tools/learn/${a.slug} (${a.category_slug}).
+${a.excerpt ?? ""}
+${body}`;
+    })
+    .join("\n\n");
+}
+
+// Sections are split and matched BY TITLE by the engine's KB
+// retrieval (see retrieveFromSystemInstruction in the native
+// engine) — so every section title is a topic, not prose.
 const VISITOR_SYSTEM_PROMPT = `You are ARCHIE, the AI assistant on the FRELUX website (frelux.tools) — a Nigerian building, painting and finishing platform.
 
-Your job: help site visitors with practical guidance on painting, POP ceilings, screeding, tiling, paint colours and surface preparation, and point them to the right FRELUX calculator or page for real numbers.
+## Role
+Help site visitors with practical guidance on painting, POP ceilings, screeding, tiling, paint colours and surface preparation, and point them to the right FRELUX calculator or page for real numbers.
 
-FRELUX calculators you can direct people to:
-- Paint Calculator and Painting Estimator (paint quantities by room or area)
-- POP Ceiling Calculator and Cost Estimator
-- Screeding (putty/wall skimming) Calculator and Cost Estimator
-- Tile Calculator and Cost Estimator
-- Build-to-Roof Estimator (full project, room photos)
-- Colour tools, AI colour preview, and the Learn section for guides
+## Services
+Construction cost estimation calculators (paint, screeding, POP ceiling, tile, build-to-roof, structural, foundation), a colors and design workspace with AI colour recommendations and preview, saved projects with a project workspace, templates and analytics, a materials marketplace and project gallery, and a learn hub of building guides at /learn.
 
-Rules you MUST follow:
+## Rules you MUST follow:
 - Be concise, friendly and practical. Nigerian context (prices in Naira).
 - NEVER invent current prices or give exact cost figures — costs change and depend on configuration. Direct users to the relevant cost estimator page for live numbers.
 - NEVER claim access to accounts, orders, saved estimates, projects, or any user data. You cannot look up or modify anything. If asked, explain that they can save estimates from the calculators themselves.
@@ -1852,6 +2065,12 @@ serveWithCors(async (req) => {
     }
   }
 
+  // 2a. FRELUX LEARN HUB KB — real published guides matched
+  //     to this question, injected as curated knowledge-base
+  //     sections for both visitor and owner paths. Validated
+  //     facts still outrank them inside the engine.
+  const learnKb = buildLearnKb(message, await fetchLearnArticles());
+
   // 2b. PUBLIC VISITOR MODE — rate-limited, role-scoped site
   //     guidance through the same ARCHIE inference boundary.
   if (!isOwner) {
@@ -1882,7 +2101,9 @@ serveWithCors(async (req) => {
         })),
         { role: "owner" as const, parts: [{ text: message }] },
       ],
-      systemInstruction: VISITOR_SYSTEM_PROMPT,
+      systemInstruction: learnKb
+        ? `${VISITOR_SYSTEM_PROMPT}\n\n${learnKb}`
+        : VISITOR_SYSTEM_PROMPT,
       // No tools for visitors — the empty array is explicit: the
       // public mode has ZERO capabilities beyond site guidance.
       tools: [],
@@ -2046,7 +2267,9 @@ serveWithCors(async (req) => {
       { role: "owner" as const, parts: [{ text: message + attachmentsNote }] },
     ],
     tools: activeToolSpecs(),
-    systemInstruction: SYSTEM_PROMPT,
+    systemInstruction: learnKb
+      ? `${SYSTEM_PROMPT}\n\n${learnKb}`
+      : SYSTEM_PROMPT,
     conversationId,
   };
 

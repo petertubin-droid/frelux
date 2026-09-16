@@ -1270,7 +1270,12 @@ const RULE_CASCADE: Array<{
   },
   {
     intent: "correction",
-    pattern: /^(?:please\s+)?(?:do\s+not|don'?t|never)\s+[a-z]/i,
+    // "do not remember/forget ..." is a memory exclusion
+    // (negated directive), never a correction — the lookahead
+    // keeps this rule off the exclusion routes that own
+    // those verbs (site-assistant regression, 2026-09-16).
+    pattern:
+      /^(?:please\s+)?(?:do\s+not|don'?t|never)\s+(?!remember\b|forget\b)[a-z]/i,
     confidence: 0.7,
   },
   // -------------------------------------------------------
@@ -1699,6 +1704,34 @@ const RULE_CASCADE: Array<{
     intent: "disagreement",
     pattern:
       /^(?:no|nah|nope|not\s+really|not\s+quite|not\s+exactly|not\s+entirely|i\s+disagree|i\s+(?:do\s+not|don't|dont)\s+agree|i\s+beg\s+to\s+differ|i\s+think\s+otherwise)\b[^a-z0-9]*$|\b(?:i\s+do\s+not|i\s+don't|i\s+dont)\s+think\s+so\b|\bthats\s+not\s+it\b|\bthat\s+is\s+not\s+it\b|^i\s+am\s+not\s+sure\s+about\s+that\b|\bsee\s+it\s+differently\b|\b(?:i\s+(?:do\s+not|don't|dont)|i\s+no)\s+buy\b|\bi\s+no\s+gree\b|\bi\s+have\s+to\s+disagree\b|\bdebatable\b|\bcannot\s+bring\b|\bcan\s+not\s+bring\b|\bdifferent\s+view\b|\bhard\s+for\s+me\s+to\s+accept\b|\bi\s+(?:do\s+not|don't|dont)\s+agree\s+with\s+(?:that|this|you|it)\b|\bdisagree\s+with\s+(?:that|this)\b/i,
+    confidence: 0.8,
+  },
+  // Subject-specific yes/no interrogatives ("does frelux have
+  // a marketplace?", "does the estimate include labour?") are
+  // KNOWLEDGE queries about stored facts. The Bayes fallback
+  // misfiled these as greeting on weak token priors
+  // (site-assistant defect, 2026-09-16). Negated memory
+  // directives ("do not remember …") and second-person
+  // questions keep their own EARLIER routes — the lookahead
+  // keeps this rule away from them.
+  {
+    intent: "knowledge_query",
+    pattern:
+      /^(?:does|do|did|has|have)(?:n['’]?t)?\s+(?!you\b|u\b|archie\b|it\b|not\b|never\b|remember\b|learn\b|teach\b|save\b|store\b|delete\b|forget\b)[a-z]/i,
+    confidence: 0.8,
+  },
+  {
+    // Inventory questions ("what calculators does frelux
+    // have for finishing", "which plans does frelux offer")
+    // are knowledge queries, NOT how-tos — the Bayes
+    // fallback misfiled them on "finishing" priors and the
+    // how-to KB override then answered them with the site
+    // intro section (site-assistant defect, 2026-09-16).
+    // Second-person forms ("what do you have") stay on their
+    // own routes.
+    intent: "knowledge_query",
+    pattern:
+      /^(?:what|which)\b[^.?!]*\b(?:does|do|did|has|have)\s+(?!you\b|u\b|archie\b|we\b|it\b)[a-z]/i,
     confidence: 0.8,
   },
 ];
