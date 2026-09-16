@@ -101,6 +101,12 @@ export interface ArchieInferenceRequest {
    *  one isolate never share working memory, episodic stamps
    *  or a tool surface. Optional — "default" when omitted. */
   conversationId?: string;
+  /** Gap A-1 (2026-09-16): TRUE only on the owner's own turn.
+   *  Unlocks the owner-gated local generative model at the
+   *  honest-unknown path (owner's own server, labeled output,
+   *  never stored as knowledge). Default absent/false: NO
+   *  generation — the gate is opt-in, never opt-out. */
+  ownerAuthorized?: boolean;
 }
 
 export type ArchieEnginePath =

@@ -70,10 +70,15 @@ export async function runReasoningLoop(
      *  threaded into every substrate pass so concurrent
      *  conversations never share working memory. */
     conversationId?: string;
+    /** Gap A-1: owner-gated local generation authorization —
+     *  threaded verbatim into every substrate pass. Unset for
+     *  agent-worker tasks: agent work never generates. */
+    ownerAuthorized?: boolean;
   },
 ): Promise<ReasoningLoopOutcome> {
   const systemInstruction = opts?.systemInstruction;
   const conversationId = opts?.conversationId;
+  const ownerAuthorized = opts?.ownerAuthorized;
   const maxSteps = opts?.maxSteps ?? MAX_LOOP_STEPS;
   const maxToolHops = opts?.maxToolHops ?? MAX_TOOL_HOPS;
   const clauses = decomposeClauses(input);
@@ -88,6 +93,7 @@ export async function runReasoningLoop(
     const t0 = Date.now();
     const result = await engine.converse(input, history, systemInstruction, {
       conversationId,
+      ownerAuthorized,
     });
     steps.push({
       index: 1,
@@ -120,6 +126,7 @@ export async function runReasoningLoop(
     const t0 = Date.now();
     const result = await engine.converse(input, history, systemInstruction, {
       conversationId,
+      ownerAuthorized,
     });
     steps.push({
       index: 1,
@@ -189,6 +196,7 @@ export async function runReasoningLoop(
     const t0 = Date.now();
     const res = await engine.converse(clause.text, history, systemInstruction, {
       conversationId,
+      ownerAuthorized,
     });
     const durationMs = Date.now() - t0;
     usedSteps += 1;

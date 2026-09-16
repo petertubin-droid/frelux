@@ -65,6 +65,7 @@ import {
   unknownOpening,
   type Verbosity,
 } from "./composer.ts";
+import { generatedLabel, ownerLocalGenerate } from "./generative.ts";
 import { ContextMemory } from "./memory.ts";
 import { redactSecrets } from "../cognitive/security-integrity.ts";
 import { FACT_RELEVANCE_FLOOR, FactStore } from "./knowledge.ts";
@@ -692,6 +693,11 @@ export class ArchieNativeEngine implements ArchieRuntime {
       : "";
     const result = await this.converse(text, req.turns, req.systemInstruction, {
       conversationId,
+      // A-1: optional passthrough — the direct generate()
+      // callers (runtime API) can declare the owner's own
+      // turn. Default remains UNAUTHORIZED: no caller flag,
+      // no generation — the gate is opt-in, never opt-out.
+      ownerAuthorized: req.ownerAuthorized,
     });
     const parts: ArchieInferencePart[] = [{ text: result.responseText }];
     if (result.toolCall) {
@@ -788,6 +794,12 @@ export class ArchieNativeEngine implements ArchieRuntime {
     opts?: {
       conversationId?: string;
       nlu?: ReturnType<typeof understand>;
+      /** Gap A-1: true only on the OWNER's own turns (set by
+       *  the chat front door; the agent worker never sets it).
+       *  Gates the owner-gated local generative model at the
+       *  honest-unknown path — generated output is labeled,
+       *  never stored as knowledge. */
+      ownerAuthorized?: boolean;
     },
   ): Promise<ConverseResult> {
     // VOCATIVE STRIP (owner report 2026-09-14): the Owner
@@ -889,6 +901,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         systemInstruction,
         session,
         history,
+        opts?.ownerAuthorized ?? false,
       );
     } else {
       // Fix 33 (continued): the REQUEST's session is passed
@@ -906,6 +919,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         session,
         history,
         topRelevance,
+        opts?.ownerAuthorized ?? false,
       );
     }
     this.confidenceSum += outcome.confidence;
@@ -1312,6 +1326,9 @@ export class ArchieNativeEngine implements ArchieRuntime {
     systemInstruction?: string,
     session?: EngineSession,
     history?: ArchieInferenceTurn[],
+    /** A-1: owner-gated generation authorization — threaded
+     *  verbatim from converse() into every clause route. */
+    ownerAuthorized = false,
   ): Promise<ConverseResult> {
     const parts: string[] = [];
     const cited = new Set<string>();
@@ -1357,6 +1374,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         session,
         history,
         clauseTop,
+        ownerAuthorized,
       );
       positive += 1;
       confSum += res.confidence;
@@ -1453,6 +1471,11 @@ export class ArchieNativeEngine implements ArchieRuntime {
     /** Best cosine score for the retrieval query (0 when
      *  nothing matched) — the FACT_RELEVANCE_FLOOR gate. */
     topRelevance = 0,
+    /** A-1: owner-gated local generation authorization,
+     *  threaded from converse() — false unless the OWNER's
+     *  own turn declared it. Gates generation at the
+     *  honest-unknown path. */
+    ownerAuthorized = false,
   ): Promise<ConverseResult> {
     /** The request's declared tool surface — session-scoped
      *  (C-1): falls back to the legacy pointer's session for
@@ -2472,12 +2495,32 @@ export class ArchieNativeEngine implements ArchieRuntime {
             // unknown line below reports it without theater.
           }
           const plan = await this.planFor("researched");
+          // A-1 OWNER-GATED LOCAL GENERATION: on the owner's
+          // own turn, when the owner's local model server is
+          // configured and reachable, ARCHIE generates an
+          // answer here — EXPLICITLY LABELED as generated,
+          // never stored as knowledge, never dressed as
+          // validated fact. Unconfigured or unreachable: the
+          // honest unknown line stands, unchanged.
+          let genBlock = "";
+          if (ownerAuthorized) {
+            const gen = await ownerLocalGenerate({
+              prompt: input,
+              ownerAuthorized: true,
+            });
+            if (gen.status === "generated") {
+              genBlock =
+                `\n\n${gen.text}\n\n[${generatedLabel(input)} — ` +
+                `NOT validated knowledge; verify anything that matters]`;
+            }
+          }
           // P6 — variance on the honest unknown line; the
           // "validated knowledge" marker survives in every
           // variant (composer self-check enforces it).
           return this.compose(
             `${unknownOpening(input)} I found nothing in my knowledge that matches that. ` +
-              `I can research it on the open web (cross-checked, stored as candidate knowledge for validation) or you can teach me directly; both are real options. ${plan.executable ? `Research plan is ready (${plan.steps.length} steps).` : ""}`,
+              `I can research it on the open web (cross-checked, stored as candidate knowledge for validation) or you can teach me directly; both are real options. ${plan.executable ? `Research plan is ready (${plan.steps.length} steps).` : ""}` +
+              genBlock,
             nlu.confidence * 0.5,
             [],
             plan,

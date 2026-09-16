@@ -498,8 +498,12 @@ export class CognitiveKernel implements ArchieRuntime {
     history?: ArchieInferenceTurn[],
     systemInstruction?: string,
     /** Request scoping (audit fix C-1): conversation id for
-     *  session-isolated memory + episodic stamping. */
-    opts?: { conversationId?: string },
+     *  session-isolated memory + episodic stamping.
+     *  ownerAuthorized (gap A-1): true ONLY on the owner's own
+     *  chat turns — the chat front door sets it; agent-worker
+     *  tasks leave it unset. It gates the owner-gated local
+     *  generative model at the engine's honest-unknown path. */
+    opts?: { conversationId?: string; ownerAuthorized?: boolean },
   ): Promise<CognitiveCycleResult> {
     await this.boot();
     this.cycles += 1;
@@ -599,6 +603,7 @@ ${worldCtx.block}`
         runReasoningLoop(this.substrate, input, history, {
           systemInstruction: instructionWithContext,
           conversationId: opts?.conversationId,
+          ownerAuthorized: opts?.ownerAuthorized,
         }),
       "retrieval handled inside substrate reasoning",
       (o) =>
@@ -612,6 +617,7 @@ ${worldCtx.block}`
       loopOutcome?.result ??
       (await this.substrate.converse(input, history, instructionWithContext, {
         conversationId: opts?.conversationId,
+        ownerAuthorized: opts?.ownerAuthorized,
       }));
 
     // REASON: the real loop trace — steps executed, tools run,

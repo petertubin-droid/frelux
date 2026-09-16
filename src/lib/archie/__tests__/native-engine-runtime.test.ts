@@ -143,6 +143,92 @@ describe("Engine inference (end-to-end)", () => {
     expect(text).toMatch(/research|teach/i);
   });
 
+  // ========================================================
+  // A-1 — OWNER-GATED LOCAL GENERATIVE MODEL (2026-09-16)
+  // ========================================================
+  it("A-1: owner turn + configured local model → generated answer, explicitly labeled, never silent", async () => {
+    const engine = new ArchieNativeEngine();
+    const realFetch = globalThis.fetch;
+    // The owner's local model server (Ollama-compatible). The
+    // stub also makes web research fail fast → deterministic
+    // fall-through to the honest-unknown path.
+    globalThis.fetch = (async () =>
+      new Response(
+        JSON.stringify({
+          response: "Unobtainium's melting point is hypothesized at 42K.",
+        }),
+        { status: 200 },
+      )) as unknown as typeof fetch;
+    process.env.ARCHIE_LOCAL_MODEL_URL = "https://local-model.test";
+    process.env.ARCHIE_LOCAL_MODEL_NAME = "test-model";
+    try {
+      const result = await engine.generate({
+        turns: turns("what is the melting point of unobtainium"),
+        tools: [],
+        systemInstruction: "",
+        ownerAuthorized: true,
+      });
+      const text = result.parts[0].text ?? "";
+      // the honest unknown line still stands — generation
+      // APPENDS, it never replaces the epistemic truth.
+      expect(text).toMatch(/found nothing/i);
+      // the generated content is present AND labeled.
+      expect(text).toContain("42K");
+      expect(text).toMatch(/GENERATED/);
+      expect(text).toMatch(/NOT validated knowledge/);
+    } finally {
+      globalThis.fetch = realFetch;
+      delete process.env.ARCHIE_LOCAL_MODEL_URL;
+      delete process.env.ARCHIE_LOCAL_MODEL_NAME;
+    }
+  });
+
+  it("A-1: non-owner turn → NO generation, the honest unknown line unchanged", async () => {
+    const engine = new ArchieNativeEngine();
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = (async () =>
+      new Response(JSON.stringify({ response: "should never appear" }), {
+        status: 200,
+      })) as unknown as typeof fetch;
+    process.env.ARCHIE_LOCAL_MODEL_URL = "https://local-model.test";
+    try {
+      // no ownerAuthorized — the gate stays closed.
+      const result = await engine.generate({
+        turns: turns("what is the melting point of unobtainium"),
+        tools: [],
+        systemInstruction: "",
+      });
+      const text = result.parts[0].text ?? "";
+      expect(text).toMatch(/found nothing/i);
+      expect(text).not.toMatch(/GENERATED/);
+      expect(text).not.toContain("should never appear");
+    } finally {
+      globalThis.fetch = realFetch;
+      delete process.env.ARCHIE_LOCAL_MODEL_URL;
+    }
+  });
+
+  it("A-1: owner turn but NO endpoint configured → honest absence, generated block never faked", async () => {
+    const engine = new ArchieNativeEngine();
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = (async () => {
+      throw new Error("network must never be touched without a URL");
+    }) as unknown as typeof fetch;
+    try {
+      const result = await engine.generate({
+        turns: turns("what is the melting point of unobtainium"),
+        tools: [],
+        systemInstruction: "",
+        ownerAuthorized: true,
+      });
+      const text = result.parts[0].text ?? "";
+      expect(text).toMatch(/found nothing/i);
+      expect(text).not.toMatch(/GENERATED/);
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+
   it("reports the honest capability manifest when asked what it can do", async () => {
     const result = await engine.generate({
       turns: turns("what can you do"),

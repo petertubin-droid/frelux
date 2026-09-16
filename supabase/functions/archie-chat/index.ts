@@ -2340,7 +2340,14 @@ serveWithCors(async (req) => {
         message + attachmentsNote,
         request.turns.slice(0, -1),
         undefined,
-        { conversationId },
+        {
+          conversationId,
+          // A-1: this is structurally the OWNER's own turn
+          // (visitor/family traffic returned above) — the only
+          // authorization that may unlock the owner-gated
+          // local generative model at the honest-unknown path.
+          ownerAuthorized: true,
+        },
       );
       cognitiveTrace = cycle.trace.phases.map((p) => ({
         phase: p.phase,
