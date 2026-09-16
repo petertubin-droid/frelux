@@ -418,6 +418,18 @@ export class CognitiveKernel implements ArchieRuntime {
     ];
   }
 
+  /** Declare the caller's tool surface for DIRECT cycle()
+   * callers (plan P1 seam parity, 2026-09-16): archie-chat's
+   * owner path drives cycle() directly, which bypasses
+   * generate()'s noteDeclaredTools — without this the
+   * substrate's requestToolNames stays empty and every
+   * declared tool (frelux_status, sentry_diagnostics,
+   * market_intelligence, ...) is a dead registration on that
+   * path. Same C-1/fix-33 session-scoping as generate(). */
+  declareTools(names: string[], conversationId?: string): void {
+    this.substrate.noteDeclaredTools(names, conversationId);
+  }
+
   async generate(req: ArchieInferenceRequest): Promise<ArchieInferenceResult> {
     const lastOwner = [...req.turns]
       .reverse()

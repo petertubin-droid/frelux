@@ -169,3 +169,101 @@ describe("toolCall seam (C1 / plan P1)", () => {
     expect(result.finishReason).toBe("TOOL_CALL");
   });
 });
+
+describe("direct cycle() tool seam (plan P1 parity, 2026-09-16)", () => {
+  // archie-chat's OWNER path drives kernel.cycle() directly —
+  // generate()'s noteDeclaredTools is bypassed. Without
+  // kernel.declareTools() the substrate's requestToolNames
+  // stays empty and every declared tool is dead on that path
+  // (live incident: 'run sentry duty' misrouted to farewell).
+
+  it("declareTools + direct cycle() relays the sentry toolCall (owner path no longer dead)", async () => {
+    const kernel = new CognitiveKernel();
+    const conversationId = "seam-owner-path-1";
+    kernel.declareTools(TOOLS.map((t) => t.name), conversationId);
+    const cycle = await kernel.cycle(
+      "run sentry duty: live boot/health checks of all five ARCHIE edge functions",
+      [],
+      undefined,
+      { conversationId },
+    );
+    expect(cycle.toolCall).toBeDefined();
+    expect(cycle.toolCall?.name).toBe("sentry_diagnostics");
+  });
+
+  it("WITHOUT declareTools the direct cycle() path stays honest — no phantom tools", async () => {
+    const kernel = new CognitiveKernel();
+    const cycle = await kernel.cycle(
+      "run sentry duty: live boot/health checks of all five ARCHIE edge functions",
+      [],
+      undefined,
+      { conversationId: "seam-owner-path-2" },
+    );
+    expect(cycle.toolCall).toBeUndefined();
+  });
+
+  it("the caller's tool loop resumes through kernel.generate: trailing toolResult composes the final answer", async () => {
+    const kernel = new CognitiveKernel();
+    const conversationId = "seam-owner-path-3";
+    kernel.declareTools(TOOLS.map((t) => t.name), conversationId);
+    const cycle = await kernel.cycle(
+      "run sentry duty: live boot/health checks of all five ARCHIE edge functions",
+      [],
+      undefined,
+      { conversationId },
+    );
+    expect(cycle.toolCall?.name).toBe("sentry_diagnostics");
+    // the caller executed the tool and feeds the REAL output back
+    const resumed = await kernel.generate({
+      turns: [
+        {
+          role: "owner",
+          parts: [
+            {
+              text: "run sentry duty: live boot/health checks of all five ARCHIE edge functions",
+            },
+          ],
+        },
+        {
+          role: "archie",
+          parts: [
+            { text: "Standing sentry duty." },
+            {
+              toolCall: {
+                name: "sentry_diagnostics",
+                args: cycle.toolCall?.args ?? {},
+              },
+            },
+          ],
+        },
+        {
+          role: "owner",
+          parts: [
+            {
+              toolResult: {
+                name: "sentry_diagnostics",
+                output: {
+                  ok: true,
+                  functions: {
+                    "archie-chat": "up",
+                    "archie-agents": "up",
+                    "archie-crypto": "up",
+                    "archie-extract": "up",
+                    "archie-ingestion": "up",
+                  },
+                },
+              },
+            },
+          ],
+        },
+      ],
+      tools: TOOLS,
+      systemInstruction: "",
+      conversationId,
+    });
+    const text = resumed.parts.map((p) => p.text ?? "").join(" ");
+    expect(text.length).toBeGreaterThan(0);
+    expect(resumed.finishReason).toBe("COMPLETE");
+    expect(text).toContain("up");
+  });
+});

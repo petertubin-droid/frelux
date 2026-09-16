@@ -2362,6 +2362,19 @@ async function executeChat(
     try {
       // history = the typed request turns minus the current
       // message (the kernel's input is the message itself).
+      // Plan P1 seam parity (2026-09-16): the owner path
+      // drives cycle() directly, which bypasses
+      // kernel.generate()'s noteDeclaredTools — without this
+      // declaration the substrate's requestToolNames stays
+      // empty and every declared tool (frelux_status,
+      // sentry_diagnostics, market_intelligence, ...) is a
+      // dead registration on this path (live incident:
+      // 'run sentry duty' misrouted to farewell while the
+      // sentry_diagnostics tool sat unreachable).
+      getCognitiveEngine().declareTools(
+        activeToolSpecs().map((t) => t.name),
+        conversationId,
+      );
       const cycle = await getCognitiveEngine().cycle(
         message + attachmentsNote,
         request.turns.slice(0, -1),
@@ -2382,21 +2395,36 @@ async function executeChat(
         status: p.status,
         organs: p.organs ?? [],
       }));
-      result = {
-        // OWNER DIRECTIVE (2026-09-16): no em dashes in ARCHIE's
-        // voice — belt and braces on the outbound text too.
-        parts: [
-          {
-            text: cycle.responseText
-              .replace(/\s*[—–]\s*/g, ", ")
-              .replace(/,\s*,/g, ","),
+      // Plan P1 parity: relay the substrate's toolCall the
+      // same way kernel.generate() does — the tool loop below
+      // executes it and resumes through the trailing
+      // toolResult seam. finishReason says TOOL_CALL
+      // honestly while one is pending.
+      const cycleParts: ArchieInferencePart[] = [
+        {
+          // OWNER DIRECTIVE (2026-09-16): no em dashes in
+          // ARCHIE's voice — belt and braces on the outbound
+          // text too.
+          text: cycle.responseText
+            .replace(/\s*[—–]\s*/g, ", ")
+            .replace(/,\s*,/g, ","),
+        },
+      ];
+      if (cycle.toolCall) {
+        cycleParts.push({
+          toolCall: {
+            name: cycle.toolCall.name,
+            args: cycle.toolCall.args,
           },
-        ],
+        });
+      }
+      result = {
+        parts: cycleParts,
         engine: {
           path: "archie-unified-cognitive",
           note: "Unified cognitive loop: perception → memory retrieval → reasoning → validation → authority → learning. ARCHIE's own engine — no external AI provider.",
         },
-        finishReason: "COMPLETE",
+        finishReason: cycle.toolCall ? "TOOL_CALL" : "COMPLETE",
       };
     } catch {
       // Honest degradation: the substrate engine alone (same
@@ -2447,11 +2475,16 @@ async function executeChat(
       result = await runtime.generate(request);
     }
 
+    // OWNER DIRECTIVE (2026-09-16): no em dashes in ARCHIE's
+    // voice — applied to the FINAL assembled text so resumed
+    // tool answers get the same cleanup as cycle text.
     const text = result.parts
       .map((p) => p.text)
       .filter(Boolean)
       .join("")
-      .trim();
+      .trim()
+      .replace(/\s*[—–]\s*/g, ", ")
+      .replace(/,\s*,/g, ",");
     if (!text) {
       return respond(502, {
         error: "ARCHIE produced no response text",
