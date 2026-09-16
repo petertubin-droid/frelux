@@ -95,14 +95,14 @@ Rules that make the workflow honest:
 
 ## 3. Data model (migration 20260916190000, applied)
 
-| Table                        | Purpose                                                                                                                                      |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `frelux_escrow_transactions` | The engagement: client, contractor, terms, total (kobo), status, Paystack refs                                                               |
-| `frelux_escrow_milestones`   | Release units: deliverables, amount, due date, status, acceptance provenance, transfer ref                                                   |
-| `frelux_escrow_evidence`     | Mandatory delivery/acceptance evidence with provenance and content hash                                                                      |
-| `frelux_escrow_flags`        | ARCHIE monitoring flags — evidence-backed recommendations, service-role insert only                                                          |
-| `frelux_escrow_disputes`     | Positions, evidence reviewed, ARCHIE analysis as ASSISTANCE; decision authority = provider + human/business controls                         |
-| `frelux_escrow_events`       | **Append-only** audit ledger: actor-attributed actions, denials recorded exactly like successes; no UPDATE/DELETE policy exists for any role |
+| Table                        | Purpose                                                                                                                                                                       |
+| ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `frelux_escrow_transactions` | The engagement: client, contractor, terms, total (kobo), status, Paystack refs                                                                                                |
+| `frelux_escrow_milestones`   | Release units: deliverables, amount, due date, status, acceptance provenance, transfer ref                                                                                    |
+| `frelux_escrow_evidence`     | Mandatory delivery/acceptance evidence with provenance and content hash                                                                                                       |
+| `frelux_escrow_flags`        | ARCHIE monitoring flags (EXTENDS the phase-8 trust-safety table in place — existing admin surface and rows keep working) with an optional link to §23 transactions/milestones |
+| `frelux_escrow_disputes`     | Positions, evidence reviewed, ARCHIE analysis as ASSISTANCE; decision authority = provider + human/business controls                                                          |
+| `frelux_escrow_events`       | **Append-only** audit ledger: actor-attributed actions, denials recorded exactly like successes; no UPDATE/DELETE policy exists for any role                                  |
 
 RLS: clients manage their own transactions; engaged contractors
 read their counterparty transactions and work their milestones;

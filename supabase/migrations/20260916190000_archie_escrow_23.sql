@@ -111,38 +111,39 @@ CREATE INDEX IF NOT EXISTS idx_escrow_evidence_milestone
   ON public.frelux_escrow_evidence (milestone_id);
 
 -- ---------------------------------------------------------
--- ARCHIE flags: recommendations with mandatory evidence.
--- ARCHIE has NO update/delete rights here (service-role
--- insert only through the audited edge function) — a flag is
--- reviewed by the Owner/business, never self-executing.
+-- ARCHIE flags: the phase-8 trust-safety amendment already
+-- created frelux_escrow_flags (admin-persisted, ref-based —
+-- written by src/lib/archie/trust-safety-client.ts). The §23
+-- workflow EXTENDS that table in place rather than replacing
+-- it: the existing rows and the admin review surface keep
+-- working, while flags gain an optional link to the new
+-- escrow transactions and milestones.
 -- ---------------------------------------------------------
-CREATE TABLE IF NOT EXISTS public.frelux_escrow_flags (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  transaction_id uuid NOT NULL REFERENCES public.frelux_escrow_transactions(id) ON DELETE CASCADE,
-  milestone_id uuid REFERENCES public.frelux_escrow_milestones(id) ON DELETE SET NULL,
-  transaction_ref text NOT NULL,
-  topic text NOT NULL CHECK (topic IN (
-    'transaction_status','project_milestones','agreed_deliverables',
-    'payment_conditions','delivery_acceptance_evidence',
-    'disputes','suspicious_transaction_patterns','fraud_indicators'
-  )),
-  reason text NOT NULL,
-  evidence text NOT NULL,
-  recommended_action text NOT NULL,
-  fund_authority text NOT NULL
-    CHECK (fund_authority = 'payment/escrow provider'),
-  status text NOT NULL DEFAULT 'OPEN' CHECK (status IN (
-    'OPEN','REVIEWED','RESOLVED','DISMISSED'
-  )),
-  created_by text NOT NULL DEFAULT 'archie',
-  created_date timestamptz NOT NULL DEFAULT now()
-);
+ALTER TABLE public.frelux_escrow_flags
+  ADD COLUMN IF NOT EXISTS transaction_id uuid
+    REFERENCES public.frelux_escrow_transactions(id) ON DELETE SET NULL;
+ALTER TABLE public.frelux_escrow_flags
+  ADD COLUMN IF NOT EXISTS milestone_id uuid
+    REFERENCES public.frelux_escrow_milestones(id) ON DELETE SET NULL;
+ALTER TABLE public.frelux_escrow_flags
+  ADD COLUMN IF NOT EXISTS fund_authority text NOT NULL
+    DEFAULT 'payment/escrow provider'
+    CHECK (fund_authority = 'payment/escrow provider');
+
+-- Widen the status set with RESOLVED (adjudicated). The
+-- phase-8 constraint name is the Postgres default.
+ALTER TABLE public.frelux_escrow_flags
+  DROP CONSTRAINT IF EXISTS frelux_escrow_flags_status_check;
+ALTER TABLE public.frelux_escrow_flags
+  ADD CONSTRAINT frelux_escrow_flags_status_check
+  CHECK (status IN ('OPEN','REVIEWED','RESOLVED','DISMISSED','ACTIONED'));
 
 COMMENT ON TABLE public.frelux_escrow_flags IS
-  'Escrow §23 ARCHIE monitoring flags — evidence-backed recommendations only. Funds authority is always the payment/escrow provider.';
+  'Escrow §23 + phase-8 ARCHIE monitoring flags — evidence-backed recommendations only. Funds authority is always the payment/escrow provider.';
 
 CREATE INDEX IF NOT EXISTS idx_escrow_flags_transaction
-  ON public.frelux_escrow_flags (transaction_id);
+  ON public.frelux_escrow_flags (transaction_id)
+  WHERE transaction_id IS NOT NULL;
 
 -- ---------------------------------------------------------
 -- Disputes: positions, evidence review, ARCHIE analysis as
@@ -282,18 +283,23 @@ CREATE POLICY "contractor submits escrow evidence" ON public.frelux_escrow_evide
     )
   );
 
--- Flags: participants may READ flags on their own
--- transactions. Inserts/updates are service-role only (the
--- audited edge function) — ARCHIE writes flags through the
--- server, never through a client policy.
+-- Flags: participants may READ flags linked to their own
+-- transactions (admins keep their phase-8 read policy).
+-- Inserts/updates are service-role only (the audited edge
+-- function) — ARCHIE writes flags through the server, never
+-- through a client policy.
 DROP POLICY IF EXISTS "participants read own escrow flags" ON public.frelux_escrow_flags;
 CREATE POLICY "participants read own escrow flags" ON public.frelux_escrow_flags
   FOR SELECT TO authenticated
   USING (
-    EXISTS (
-      SELECT 1 FROM public.frelux_escrow_transactions t
-      WHERE t.id = transaction_id
-        AND (t.client_id = auth.uid() OR t.contractor_user_id = auth.uid())
+    public.is_admin()
+    OR (
+      transaction_id IS NOT NULL
+      AND EXISTS (
+        SELECT 1 FROM public.frelux_escrow_transactions t
+        WHERE t.id = transaction_id
+          AND (t.client_id = auth.uid() OR t.contractor_user_id = auth.uid())
+      )
     )
   );
 
