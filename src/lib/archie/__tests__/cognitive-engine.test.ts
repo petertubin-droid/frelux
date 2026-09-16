@@ -871,7 +871,7 @@ describe("cognitive kernel (end-to-end loop)", () => {
     expect(sawProposal).toBe(true);
   });
 
-  it("reports honest diagnostics: 15 systems, audit chain valid, real counts", async () => {
+  it("reports honest diagnostics: 16 systems, audit chain valid, real counts", async () => {
     const kernel = new CognitiveKernel();
     await kernel.boot();
     await kernel.cycle("hello archie, report your status");
@@ -884,7 +884,7 @@ describe("cognitive kernel (end-to-end loop)", () => {
       substrate: string;
     };
     expect(d.engineId).toBe(COGNITIVE_ENGINE_ID);
-    expect(d.systems.length).toBe(15);
+    expect(d.systems.length).toBe(16);
     expect(d.systems.every((s) => s.maturity === "OPERATIONAL")).toBe(true);
     expect(d.security.chainValid).toBe(true);
     expect(d.worldModel.entities).toBeGreaterThan(0);

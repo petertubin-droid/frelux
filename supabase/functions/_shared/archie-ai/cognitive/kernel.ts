@@ -212,6 +212,12 @@ function cognitiveCapabilityManifest() {
       description:
         "dynamic per-task routing of phases, reasoning, tools, verification, authority",
     },
+    {
+      id: "task-completion",
+      maturity: "OPERATIONAL",
+      description:
+        "supervised multi-step task execution: sentence-driven decomposition into clauses, one full gated cognitive cycle per step with formal verification and a bounded retry, deterministic ACHIEVED/PARTIAL/NOT_ACHIEVED completion verdict over recorded evidence — never fabricated progress",
+    },
   ] as const;
 }
 

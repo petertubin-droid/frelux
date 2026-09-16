@@ -45,6 +45,8 @@ configureCognitiveEnginePersistence(
 
 import { classifyLifeSafety } from "../_shared/archie-ai/security/life-safety.ts";
 import { classifySecurityMessage } from "../_shared/archie-ai/security/verdict.ts";
+import { TaskCompletionEngine } from "../_shared/archie-ai/cognitive/task-completion.ts";
+import { decomposeClauses } from "../_shared/archie-ai/native-engine/nlu.ts";
 
 function json(status: number, body: Record<string, unknown>) {
   return new Response(JSON.stringify(body), {
@@ -166,26 +168,77 @@ Deno.serve(async (req: Request) => {
     });
   }
 
-  // ---- EXECUTE: one unified cognitive cycle over the task ----
+  // ---- EXECUTE: one unified cognitive kernel, two honest modes ----
+  // Compound tasks (the sentence itself decomposes into more
+  // than one executable clause) run through the SUPERVISED TASK
+  // COMPLETION ENGINE: one full cognitive cycle per clause with
+  // per-step verification, a bounded retry, and a deterministic
+  // completion verdict. Simple tasks remain a single cycle —
+  // identical to owner chat. Both modes share the same kernel,
+  // the same gates, and the same honest refusal path.
   let cycleOk = true;
   let summary = "";
   let trace: Array<{ phase: string; status: string; organs: string[] }> = [];
   let engine = "archie-unified-cognitive";
+  let taskCompletion: {
+    verdict: string;
+    achievedRatio: number;
+    confidence: number;
+    steps: Array<Record<string, unknown>>;
+  } | null = null;
   try {
-    const cycle = await getCognitiveEngine().cycle(
-      task,
-      [], // no conversation history — a task, not a thread
-      undefined,
-      { conversationId: `agent-${agent.id}` }, // isolated context
-    );
-    summary = String(cycle.responseText ?? "");
-    trace = cycle.trace.phases.map(
-      (p: { phase: string; status: string; organs?: string[] }) => ({
-        phase: p.phase,
-        status: p.status,
-        organs: p.organs ?? [],
-      }),
-    );
+    const kernel = getCognitiveEngine();
+    const executableClauses = decomposeClauses(task).filter((c) => !c.negated);
+    if (executableClauses.length > 1) {
+      // Supervised multi-step completion (super model layer).
+      const engine2 = new TaskCompletionEngine(kernel, (clause) =>
+        classifySecurityMessage(clause, {
+          hasValidAuthorization: false,
+          inScopeIdentifiers: [],
+        }),
+      );
+      const completion = await engine2.executeTask(task, {
+        conversationId: `agent-${agent.id}`,
+      });
+      taskCompletion = {
+        verdict: completion.verdict,
+        achievedRatio: completion.achievedRatio,
+        confidence: completion.confidence,
+        steps: completion.steps.map((step) => ({
+          index: step.index,
+          clause: step.clause,
+          status: step.status,
+          attempts: step.attempts,
+          verification: step.verificationVerdict,
+          confidence: step.confidence,
+          summary: step.summary.slice(0, 500),
+        })),
+      };
+      summary = completion.responseText;
+      cycleOk = completion.verdict !== "NOT_ACHIEVED";
+      engine = "archie-unified-cognitive/supervised-task-completion";
+      await appendEvent(agent.id, "TASK_STEPS_EXECUTED", {
+        verdict: completion.verdict,
+        succeeded: completion.steps.filter((s) => s.status === "succeeded")
+          .length,
+        total: completion.steps.length,
+      });
+    } else {
+      const cycle = await kernel.cycle(
+        task,
+        [], // no conversation history — a task, not a thread
+        undefined,
+        { conversationId: `agent-${agent.id}` }, // isolated context
+      );
+      summary = String(cycle.responseText ?? "");
+      trace = cycle.trace.phases.map(
+        (p: { phase: string; status: string; organs?: string[] }) => ({
+          phase: p.phase,
+          status: p.status,
+          organs: p.organs ?? [],
+        }),
+      );
+    }
   } catch (err) {
     // Honest degradation: never fabricate a work product.
     cycleOk = false;
@@ -209,6 +262,7 @@ Deno.serve(async (req: Request) => {
         display_name: agent.display_name,
         trace,
         executed: cycleOk,
+        task_completion: taskCompletion,
       },
       gates: {
         life_safety: { passed: true, checked: true },
