@@ -41,6 +41,18 @@ export interface SupabaseLike {
           n: number,
         ): PromiseLike<{ data: unknown[] | null; error: unknown }>;
       };
+      /** TASK-STATE LOOKUP (gap D-2, 2026-09-16): the real
+       *  supabase-js client chains select→eq→limit so a single
+       *  checkpoint row is fetched database-side. Optional
+       *  because minimal test doubles are thenable-only. */
+      eq?(
+        column: string,
+        value: unknown,
+      ): {
+        limit(
+          n: number,
+        ): PromiseLike<{ data: unknown[] | null; error: unknown }>;
+      };
     };
     insert(rows: unknown): PromiseLike<{ error: unknown }>;
     update(patch: unknown): {

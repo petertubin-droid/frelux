@@ -25,6 +25,12 @@
 //   4. ASSESS — a deterministic completion verdict over the
 //      step outcomes: ACHIEVED / PARTIAL / NOT_ACHIEVED. It is
 //      computed from recorded evidence, never generated.
+//   5. CHECKPOINT (gap audit D-2) — when a TaskStateStore is
+//      provided, EVERY step outcome is persisted durably the
+//      moment it is recorded, and a resumed invocation hydrates
+//      the checkpoint and continues from the first unrecorded
+//      clause. Completed steps are never re-executed; an
+//      interrupted task completes from where it stopped.
 //
 // Honesty contract: an over-budget task is refused (same
 // message the substrate produces), a failed step is reported
@@ -95,6 +101,31 @@ export interface TaskStepGate {
   (clause: string): { allowed: boolean; reason?: string };
 }
 
+/** Durable per-step checkpoint (gap audit D-2). Everything
+ *  needed to resume a task EXACTLY where it stopped: the
+ *  verbatim recorded steps, the running counters, the honest
+ *  notes, and the index of the first clause NOT yet recorded. */
+export interface TaskCheckpoint {
+  taskId: string;
+  task: string;
+  steps: TaskStepReport[];
+  nextIndex: number;
+  executable: number;
+  succeeded: number;
+  confidenceSum: number;
+  executedCount: number;
+  notes: string[];
+}
+
+/** Structural persistence contract for durable task state.
+ *  The Supabase implementation lives in task-state.ts; tests
+ *  may use an in-memory double. No `any`, no casting. */
+export interface TaskStateStore {
+  save(checkpoint: TaskCheckpoint): Promise<void>;
+  load(taskId: string): Promise<TaskCheckpoint | null>;
+  markFinished(taskId: string, verdict: TaskVerdict): Promise<void>;
+}
+
 export const STEP_RETRY_LIMIT = 1;
 
 function verdictOf(
@@ -128,7 +159,17 @@ export class TaskCompletionEngine {
    */
   async executeTask(
     task: string,
-    opts?: { conversationId?: string; maxSteps?: number },
+    opts?: {
+      conversationId?: string;
+      maxSteps?: number;
+      /** Durable checkpoint identity (gap D-2). With stateStore,
+       *  every step is checkpointed; with resume=true, a found
+       *  checkpoint is hydrated and completed steps are never
+       *  re-executed. */
+      taskId?: string;
+      stateStore?: TaskStateStore;
+      resume?: boolean;
+    },
   ): Promise<TaskCompletionReport> {
     const maxSteps = opts?.maxSteps ?? MAX_COMPOUND_CLAUSES;
     const conversationId = opts?.conversationId;
@@ -161,7 +202,38 @@ export class TaskCompletionEngine {
     let executedCount = 0;
     const stepOutputs: string[] = [];
 
-    for (let i = 0; i < clauses.length; i += 1) {
+    // ── D-2 resume: hydrate the durable checkpoint when one
+    //    exists for this exact task. decomposeClauses is
+    //    deterministic, so clause i of the checkpoint is clause
+    //    i of THIS decomposition — recorded steps are replayed
+    //    verbatim, never re-executed, never re-fabricated.
+    const { taskId, stateStore, resume } = opts ?? {};
+    let startAt = 0;
+    if (stateStore && taskId && resume) {
+      const cp = await stateStore.load(taskId).catch(() => null);
+      if (cp && cp.task === task) {
+        steps.push(...cp.steps);
+        executable = cp.executable;
+        succeeded = cp.succeeded;
+        confidenceSum = cp.confidenceSum;
+        executedCount = cp.executedCount;
+        startAt = Math.min(cp.nextIndex, clauses.length);
+        notes.push(
+          `resumed from durable checkpoint — ${cp.steps.length} step(s) already recorded were not re-executed`,
+        );
+        // Rebuild the composed step outputs from the recorded
+        // steps: the summary and verdict are stored verbatim.
+        for (const st of cp.steps) {
+          if (st.status === "succeeded") {
+            stepOutputs.push(
+              `[Step ${st.index} — ${st.verificationVerdict === "PASS" ? "verified" : "completed"}] ${st.summary}`,
+            );
+          }
+        }
+      }
+    }
+
+    for (let i = startAt; i < clauses.length; i += 1) {
       const clause = clauses[i];
 
       // Constraints: acknowledged, never executed, never answered.
@@ -177,6 +249,21 @@ export class TaskCompletionEngine {
             "constraint on the whole task — acknowledged and excluded, never answered",
           durationMs: 0,
         });
+        if (stateStore && taskId) {
+          await stateStore
+            .save({
+              taskId,
+              task,
+              steps: [...steps],
+              nextIndex: i + 1,
+              executable,
+              succeeded,
+              confidenceSum,
+              executedCount,
+              notes: [...notes],
+            })
+            .catch(() => {}); // checkpoint failure never blocks the task
+        }
         continue;
       }
 
@@ -197,6 +284,21 @@ export class TaskCompletionEngine {
           notes.push(
             `clause ${i + 1} stopped by the security gate — nothing executed`,
           );
+          if (stateStore && taskId) {
+            await stateStore
+              .save({
+                taskId,
+                task,
+                steps: [...steps],
+                nextIndex: i + 1,
+                executable,
+                succeeded,
+                confidenceSum,
+                executedCount,
+                notes: [...notes],
+              })
+              .catch(() => {}); // checkpoint failure never blocks the task
+          }
           continue;
         }
       }
@@ -261,6 +363,23 @@ export class TaskCompletionEngine {
           `step ${i + 1} failed after ${attempts} attempt(s)${result?.verification ? ` — verification verdict ${result.verification.verdict}` : ""}`,
         );
       }
+
+      // D-2: checkpoint the step the moment it is recorded.
+      if (stateStore && taskId) {
+        await stateStore
+          .save({
+            taskId,
+            task,
+            steps: [...steps],
+            nextIndex: i + 1,
+            executable,
+            succeeded,
+            confidenceSum,
+            executedCount,
+            notes: [...notes],
+          })
+          .catch(() => {}); // checkpoint failure never blocks the task
+      }
     }
 
     // ── Deterministic completion assessment: arithmetic over
@@ -279,6 +398,12 @@ export class TaskCompletionEngine {
       verdict = "NOT_ACHIEVED";
     }
     const confidence = executedCount > 0 ? confidenceSum / executedCount : 0;
+
+    // D-2: the verdict is durable too — a finished task is never
+    // resumed, and the checkpoint row records how it ended.
+    if (stateStore && taskId) {
+      await stateStore.markFinished(taskId, verdict).catch(() => {});
+    }
 
     const verdictLine =
       `[Task verdict: ${verdict} — ${succeeded}/${executable} step(s) completed` +

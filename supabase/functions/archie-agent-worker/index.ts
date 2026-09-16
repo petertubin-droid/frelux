@@ -46,6 +46,7 @@ configureCognitiveEnginePersistence(
 import { classifyLifeSafety } from "../_shared/archie-ai/security/life-safety.ts";
 import { classifySecurityMessage } from "../_shared/archie-ai/security/verdict.ts";
 import { TaskCompletionEngine } from "../_shared/archie-ai/cognitive/task-completion.ts";
+import { SupabaseTaskStateStore } from "../_shared/archie-ai/cognitive/task-state.ts";
 import { decomposeClauses } from "../_shared/archie-ai/native-engine/nlu.ts";
 
 function json(status: number, body: Record<string, unknown>) {
@@ -94,7 +95,7 @@ Deno.serve(async (req: Request) => {
     });
   }
 
-  let body: { agent_id?: string; run_id?: string };
+  let body: { agent_id?: string; run_id?: string; task_id?: string };
   try {
     body = await req.json();
   } catch {
@@ -197,8 +198,20 @@ Deno.serve(async (req: Request) => {
           inScopeIdentifiers: [],
         }),
       );
+      // D-2 durable task-step state: every step of a compound
+      // agent task is checkpointed to archie_task_states; an
+      // interrupted task resumes from the first unrecorded
+      // clause instead of restarting from zero. task_id on the
+      // engine's call IS the resume instruction.
+      const taskState = new SupabaseTaskStateStore(
+        service as unknown as import("../_shared/archie-ai/native-engine/persistence.ts").SupabaseLike,
+      );
+      const taskId = String(body.task_id ?? crypto.randomUUID());
       const completion = await engine2.executeTask(task, {
         conversationId: `agent-${agent.id}`,
+        taskId,
+        stateStore: taskState,
+        resume: Boolean(body.task_id),
       });
       taskCompletion = {
         verdict: completion.verdict,
