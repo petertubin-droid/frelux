@@ -106,6 +106,7 @@ function makeQuery(
   table: string,
   op: "select" | "insert" | "update" | "delete",
   payload?: any,
+  onlyIds?: Set<string>,
 ) {
   const filters: Array<(r: Row) => boolean> = [];
   let range: [number, number] | null = null;
@@ -135,8 +136,9 @@ function makeQuery(
       }));
       stored.push(...withIds);
       tableFixtures.set(table, stored);
-      // insert().select() chains re-read the table
-      return makeQuery(table, "select");
+      // insert().select() chains re-read ONLY the inserted rows
+      const insertedIds = new Set(withIds.map((r) => r.id));
+      return makeQuery(table, "select", undefined, insertedIds);
     },
     update: (patch: any) => {
       // capture patch; applied on .eq()s at resolve time
@@ -246,6 +248,9 @@ function makeQuery(
 
   function resolveRows(): Row[] {
     let rows = tableFixtures.get(table) ?? [];
+    // insert().select() chains re-read ONLY the inserted rows —
+    // production PostgREST never returns pre-existing rows here.
+    if (onlyIds) rows = rows.filter((r) => onlyIds.has(r.id));
     for (const f of filters) {
       rows = rows.filter((r, i) => {
         try {
