@@ -62,6 +62,10 @@ describe("reasoning loop controller (P5)", () => {
     const { result, report } = await runReasoningLoop(
       engine,
       "what is 2+2 and what is 3+3 and what is 4+4",
+      undefined,
+      // gap-1 upgrade: production tool-hop budget is now 8;
+      // this test PINS 2 hops to verify honest exhaustion.
+      { maxToolHops: 2 },
     );
     expect(report.usedSteps).toBe(2);
     expect(report.usedToolHops).toBe(2);
@@ -91,16 +95,16 @@ describe("reasoning loop controller (P5)", () => {
     const engine = new ArchieNativeEngine();
     const { result, report } = await runReasoningLoop(
       engine,
-      "what is cement; what is mortar; what is screeding; what is concrete; what is portland-cement",
+      "what is cement; what is mortar; what is screeding; what is concrete; what is portland-cement; what is rebar; what is formwork; what is grout; what is aggregate",
     );
     expect(result.responseText).toMatch(/requests in one message/i);
     expect(report.budgetExhausted).toBe(true);
     expect(report.steps[0].kind).toBe("budget-stop");
   });
 
-  it("defaults match the plan budget: 6 steps, 2 tool hops", () => {
-    expect(MAX_LOOP_STEPS).toBe(6);
-    expect(MAX_TOOL_HOPS).toBe(2);
+  it("defaults match the deepened plan budget: 24 steps, 8 tool hops (gap-2 upgrade)", () => {
+    expect(MAX_LOOP_STEPS).toBe(24);
+    expect(MAX_TOOL_HOPS).toBe(8);
   });
 });
 
@@ -112,7 +116,7 @@ describe("kernel drives the real loop (P5 Batch B)", () => {
     );
     const reason = result.trace.phases.find((p) => p.phase === "REASON");
     expect(reason?.status).toBe("executed");
-    expect(reason?.summary).toMatch(/reasoning loop: 2\/6 step pass\(es\)/);
+    expect(reason?.summary).toMatch(/reasoning loop: 2\/24 step pass\(es\)/);
     expect(reason?.summary).not.toContain("substrate produced response");
     expect((reason?.durationMs ?? 0)).toBeGreaterThanOrEqual(0);
     // the answer is still the composed compound result
@@ -122,8 +126,14 @@ describe("kernel drives the real loop (P5 Batch B)", () => {
 
   it("EVALUATE phase reports the loop budget state honestly", async () => {
     const kernel = new CognitiveKernel();
+    // gap-1 upgrade: production budgets are 24 steps / 8 hops;
+    // this test PINS a tiny budget via the honest seam to
+    // verify exhaustion reporting, without bending prod.
     const result = await kernel.cycle(
       "what is 2+2 and what is 3+3 and what is 4+4",
+      undefined,
+      undefined,
+      { loopBudget: { maxSteps: 2 } },
     );
     const evaluate = result.trace.phases.find((p) => p.phase === "EVALUATE");
     expect(evaluate?.summary).toMatch(/budget exhausted — reported/);
@@ -135,6 +145,6 @@ describe("kernel drives the real loop (P5 Batch B)", () => {
     const result = await kernel.cycle("what is screeding");
     expect(result.responseText).toMatch(/level|smooth/i);
     const reason = result.trace.phases.find((p) => p.phase === "REASON");
-    expect(reason?.summary).toMatch(/reasoning loop: 1\/6 step pass/);
+    expect(reason?.summary).toMatch(/reasoning loop: 1\/24 step pass/);
   });
 });

@@ -71,6 +71,7 @@ import { redactSecrets } from "../cognitive/security-integrity.ts";
 import { FACT_RELEVANCE_FLOOR, FactStore } from "./knowledge.ts";
 import { FULL_SEED_CORPUS, SEED_CORPUS_VERSION } from "./seed-corpus.ts";
 import { PageFetcher } from "./page-fetch.ts";
+import { matchCodeRequest } from "./sandbox.ts";
 import { WikipediaSearchAdapter } from "./wikipedia-search.ts";
 import { GoogleBooksAdapter } from "./google-books-search.ts";
 import { StackExchangeAdapter } from "./stackexchange-search.ts";
@@ -484,6 +485,11 @@ export class ArchieNativeEngine implements ArchieRuntime {
     this.counterStore = options?.persistence
       ? new CounterPersistence(options.persistence)
       : null;
+    // OWNER UPGRADE 2026-09-16 (gap 2): ONE robots-checked,
+    // timeout-guarded page fetcher serves BOTH the research
+    // deepening pass AND the read_page tool — a single honest
+    // fetching policy, not two divergent ones.
+    const pageFetcher = new PageFetcher();
     this.adapter =
       options?.researchAdapter ??
       // Composite search (audit Phase 2.2): DDG Lite first
@@ -556,9 +562,11 @@ export class ArchieNativeEngine implements ArchieRuntime {
       // Audit Phase 2.2 — real page fetching: the top hits are
       // deepened with robots-checked, timeout-guarded page
       // content; content agreement raises the confidence cap.
-      new PageFetcher(),
+      // (2026-09-16: the SAME fetcher instance now also backs
+      // the read_page tool.)
+      pageFetcher,
     );
-    registerBuiltInTools(this.tools);
+    registerBuiltInTools(this.tools, { pageFetcher });
   }
 
   /** Hydrate persisted knowledge + seed foundational facts. */
@@ -928,7 +936,13 @@ export class ArchieNativeEngine implements ArchieRuntime {
     // its own honest route — nothing is silently dropped.
     // Negated clauses are constraints: acknowledged and
     // excluded, never answered.
-    const clauses = decomposeClauses(input);
+    // EXCEPTION (owner upgrade 2026-09-16, gap 2): a code-
+    // execution request is ONE program — its semicolons are
+    // statement separators, not request separators. It is
+    // never clause-split, at any layer.
+    const clauses = matchCodeRequest(input) !== null
+      ? [{ text: input, negated: false }]
+      : decomposeClauses(input);
     let outcome: ConverseResult;
     if (clauses.length > MAX_COMPOUND_CLAUSES) {
       outcome = this.compose(
@@ -1740,6 +1754,113 @@ export class ArchieNativeEngine implements ArchieRuntime {
     ) {
       const strat = await this.strategyAnswer(input, ranked, nlu.confidence);
       if (strat) return strat;
+    }
+
+    // ── OWNER UPGRADE 2026-09-16 (gap 2 — deep agentic loop)
+    // Deterministic high-priority TOOL paths, before the
+    // intent switch. These are computed, never guessed; a
+    // failure is reported honestly with the reason. Tool
+    // executions surface in toolResults and count against the
+    // loop's tool-hop budget.
+    if (isCapabilityEnabled("tool-orchestration")) {
+      // (a) statistics — computed before any intent routing,
+      //     so "what is the mean of…" answers with MATH, not
+      //     a research trip (gap-2 upgrade).
+      const statsMatch = input.match(
+        /\b(mean|average|median|mode|sum|total|minimum|maximum|range|variance|standard\s+deviation|std\.?\s*dev)\b/i,
+      );
+      const statsNumbers = (input.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number);
+      if (statsMatch && statsNumbers.length >= 2) {
+        const op = statsMatch[1].toLowerCase().replace(/std\.?\s*dev/, "standard deviation");
+        const invocation = await this.tools.invoke("statistics", {
+          values: statsNumbers.join(", "),
+          op,
+        });
+        let text: string;
+        if (invocation.ok) {
+          const res = invocation.output as { result: number | number[]; note?: string };
+          const shown = Array.isArray(res.result)
+            ? (res.result.length > 0 ? res.result.join(", ") : "no repeated value (no mode)")
+            : String(res.result);
+          text =
+            `${op} of ${statsNumbers.join(", ")} = ${shown} (computed deterministically in-engine from ${statsNumbers.length} numbers)`;
+          if ("note" in res && res.note) text += `. ${res.note}`;
+        } else {
+          text = `I could not compute that: ${invocation.error}. My statistics are honest — errors are reported, never guessed.`;
+        }
+        return this.compose(text, nlu.confidence, [], undefined, [invocation]);
+      }
+
+      // (b) code-execution sandbox — "run this javascript: …"
+      //     (the reasoning loop keeps the program whole —
+      //     see matchCodeRequest in sandbox.ts)
+      const code = matchCodeRequest(input);
+      if (code !== null) {
+        const invocation = await this.tools.invoke("run_javascript", {
+          code,
+        });
+        let text: string;
+        if (invocation.ok) {
+          const res = invocation.output as {
+            ok: boolean;
+            output: string[];
+            value: string | null;
+            error: string | null;
+            steps: number;
+          };
+          const lines = res.output.slice(0, 20);
+          text = "I ran that in my deterministic sandbox — no network, no I/O, step-capped.";
+          if (lines.length > 0) {
+            text += ` Output:\n${lines.map((l) => `  ${l}`).join("\n")}`;
+          }
+          if (res.output.length > 20) {
+            text += `\n  … (${res.output.length - 20} more print line(s) omitted from the reply — all were executed)`;
+          }
+          if (res.value !== null) {
+            text += `\nFinal value: ${res.value}`;
+          }
+          if (res.output.length === 0 && res.value === null) {
+            text += " The program printed nothing and had no final value.";
+          }
+          text += ` (${res.steps} interpreter steps, computed in-engine)`;
+        } else {
+          text = `The sandbox refused that honestly: ${invocation.error}. My code execution is whitelisted and bounded — no network, no filesystem, no Date/random — and it reports the exact reason instead of half-running.`;
+        }
+        return this.compose(text, nlu.confidence, [], undefined, [
+          invocation,
+        ]);
+      }
+
+      // (b) direct page reading — "open/read <url>"
+      const urlMatch = input.match(
+        /^\s*(?:open|read|fetch|visit|browse|check)\s+(https?:\/\/\S+)\s*$/i,
+      );
+      if (urlMatch) {
+        const invocation = await this.tools.invoke("read_page", {
+          url: urlMatch[1],
+        });
+        let text: string;
+        if (invocation.ok) {
+          const res = invocation.output as {
+            url: string;
+            title: string;
+            contentChars: number;
+            content: string;
+            note: string;
+          };
+          const title = res.title ? `"${res.title}" — ` : "";
+          text =
+            `I read that page directly (${title}${res.url}, ${res.contentChars} characters extracted${res.note ? `, ${res.note}` : ""}). ` +
+            `Beginning of the content:\n\n${res.content.slice(0, 1200)}` +
+            (res.content.length > 1200 ? "\n\n(…truncated in the reply — the full extraction was fetched)" : "") +
+            "\n\nThis is fetched page content, not validated knowledge — I have not stored it as a fact.";
+        } else {
+          text = `I could not read that page: ${invocation.error}. My page reading is honest — robots-checked, timeout-guarded, and it reports failures instead of inventing content.`;
+        }
+        return this.compose(text, nlu.confidence, [], undefined, [
+          invocation,
+        ]);
+      }
     }
 
     switch (nlu.intent) {

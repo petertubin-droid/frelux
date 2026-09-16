@@ -99,9 +99,9 @@ export function nativeEngineCapabilityManifest(): CapabilityReport[] {
     {
       id: "tool-orchestration",
       description:
-        "Tool orchestration: typed tool registry with contract validation, honest failure reporting, and a real deterministic arithmetic evaluator (shunting-yard)",
+        "Tool orchestration: typed tool registry with contract validation, honest failure reporting, a deterministic arithmetic evaluator (shunting-yard), descriptive statistics (mean/median/mode/variance), an in-engine sandboxed JavaScript interpreter (whitelisted subset — no I/O, no network, no Date/random; step-, depth-, output- and size-capped), and a robots-checked page reader (owner upgrade 2026-09-16, gap 2)",
       maturity: "OPERATIONAL",
-      measuredBy: "native-engine.test.ts (tool + arithmetic cases)",
+      measuredBy: "native-engine.test.ts + sandbox.test.ts + reasoning-loop.test.ts (tool, arithmetic, statistics, sandbox and loop-budget cases)",
     },
     {
       id: "web-research",

@@ -2097,7 +2097,7 @@ export function memoryTurnFromText(
 
 /** Hard cap: beyond this many clauses the request is honestly
  *  refused rather than half-remembered mid-composition. */
-export const MAX_COMPOUND_CLAUSES = 4;
+export const MAX_COMPOUND_CLAUSES = 8;
 
 /** Intent-shaped continuations after "and" — the conservative
  *  split heuristic. A bare "and <noun>" stays one clause. */

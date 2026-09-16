@@ -109,7 +109,9 @@ describe("TaskCompletionEngine — decomposition", () => {
   it("an over-budget compound task is refused honestly, never half-executed", async () => {
     const runner = mockRunner([cycleResult()]);
     const report = await new TaskCompletionEngine(runner).executeTask(
-      "estimate a; check b; compute c; also compare d; list e",
+      // gap-1 upgrade raised the compound cap 4 -> 8; this
+      // test stays OVER-cap with 9 clauses.
+      "estimate a; check b; compute c; also compare d; list e; review f; audit g; plan h; test i",
     );
     expect(report.verdict).toBe("NOT_ACHIEVED");
     expect(report.steps).toHaveLength(0);

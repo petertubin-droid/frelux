@@ -124,10 +124,10 @@ describe("compound routing (P2 / N2)", () => {
     expect(res.responseText).toContain("nothing left to answer");
   });
 
-  it("caps runaway compound requests honestly (5+ clauses)", async () => {
+  it("caps runaway compound requests honestly (9 clauses, over the gap-1 cap of 8)", async () => {
     const engine = new ArchieNativeEngine();
     const res = await engine.converse(
-      "what is cement; what is mortar; what is screeding; what is concrete; what is portland-cement",
+      "what is cement; what is mortar; what is screeding; what is concrete; what is portland-cement; what is curing; what is formwork; what is grout; what is aggregate",
     );
     expect(res.responseText).toMatch(
       /requests in one message|more than I can hold/i,

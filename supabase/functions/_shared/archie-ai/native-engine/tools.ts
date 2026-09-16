@@ -9,6 +9,45 @@
 // =========================================================
 
 import type { ToolInvocation, ToolSpecInternal } from "./types.ts";
+import { runJavaScript } from "./sandbox.ts";
+import type { PageFetcher } from "./page-fetch.ts";
+
+/** Deterministic descriptive statistics for a list of
+ *  numbers — computed, never guessed (gap-2 upgrade). */
+export function computeStatistics(
+  values: number[],
+  op: string,
+): Record<string, number | number[]> {
+  const sorted = [...values].sort((a, b) => a - b);
+  const n = sorted.length;
+  const sum = sorted.reduce((a, b) => a + b, 0);
+  const mean = sum / n;
+  const variance = sorted.reduce((a, b) => a + (b - mean) ** 2, 0) / n;
+  const median =
+    n % 2 === 1 ? sorted[(n - 1) / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2;
+  const modes = new Map<number, number>();
+  for (const v of values) modes.set(v, (modes.get(v) ?? 0) + 1);
+  const maxFreq = Math.max(...modes.values());
+  const modeList = maxFreq > 1
+    ? [...modes.entries()].filter(([, f]) => f === maxFreq).map(([v]) => v)
+    : [];
+  const norm = op.toLowerCase().replace(/\s+/g, " ").trim();
+  if (norm === "mean" || norm === "average") return { result: mean };
+  if (norm === "median") return { result: median };
+  if (norm === "sum" || norm === "total") return { result: sum };
+  if (norm === "min" || norm === "minimum") return { result: sorted[0] };
+  if (norm === "max" || norm === "maximum") return { result: sorted[n - 1] };
+  if (norm === "range") return { result: sorted[n - 1] - sorted[0] };
+  if (norm === "count" || norm === "length") return { result: n };
+  if (norm === "mode") return { result: modeList.length > 0 ? modeList : [] };
+  if (norm === "variance") return { result: variance };
+  if (norm === "standard deviation" || norm === "stddev" || norm === "stdev" || norm === "std dev")
+    return { result: Math.sqrt(variance) };
+  return {
+    result: mean,
+    note: "no specific statistic named — returned the mean; ask for mean, median, mode, sum, min, max, range, variance or standard deviation",
+  };
+}
 
 export type ToolHandler = (
   args: Record<string, unknown>,
@@ -269,7 +308,10 @@ export function convertUnits(
   return Math.round((value * f.factor) / t.factor * 1e6) / 1e6;
 }
 
-export function registerBuiltInTools(orchestrator: ToolOrchestrator): void {
+export function registerBuiltInTools(
+  orchestrator: ToolOrchestrator,
+  opts: { pageFetcher?: PageFetcher } = {},
+): void {
   orchestrator.register(
     {
       name: "arithmetic",
@@ -288,6 +330,67 @@ export function registerBuiltInTools(orchestrator: ToolOrchestrator): void {
     },
     (args) =>
       convertUnits(Number(args.value), String(args.from), String(args.to)),
+  );
+  // OWNER UPGRADE 2026-09-16 (gap 2 — deep agentic loop): the
+  // loop needs real tools to chain, not just arithmetic.
+  orchestrator.register(
+    {
+      name: "statistics",
+      description:
+        "Deterministically compute descriptive statistics (mean, median, mode, sum, min, max, range, variance, standard deviation) for a list of numbers",
+      parameters: { values: "string", op: "string" },
+      trust: "deterministic",
+    },
+    (args) => {
+      const raw = String(args.values);
+      const values = (raw.match(/-?\d+(?:\.\d+)?/g) ?? []).map(Number);
+      if (values.length < 2) {
+        throw new Error(
+          `need at least 2 numbers — found ${values.length}; give a list like "12, 7, 3, 41"`,
+        );
+      }
+      return computeStatistics(values, String(args.op ?? "mean"));
+    },
+  );
+  orchestrator.register(
+    {
+      name: "run_javascript",
+      description:
+        "Run owner-supplied JavaScript in the deterministic in-engine sandbox (whitelisted subset, no I/O, no network, step-capped) and return the printed output and final value",
+      parameters: { code: "string" },
+      trust: "deterministic",
+    },
+    (args) => {
+      const code = String(args.code);
+      if (!code.trim()) throw new Error("no code provided — nothing to run");
+      return runJavaScript(code);
+    },
+  );
+  orchestrator.register(
+    {
+      name: "read_page",
+      description:
+        "Fetch ONE web page honestly: robots-checked, timeout-guarded, size-capped, text extracted — a failure is returned as a failure",
+      parameters: { url: "string" },
+      trust: "deterministic",
+    },
+    async (args) => {
+      const fetcher = opts.pageFetcher;
+      if (!fetcher) {
+        throw new Error("page fetcher not wired in this engine instance");
+      }
+      const res = await fetcher.fetch(String(args.url));
+      if (!res.ok) {
+        throw new Error(`page could not be read: ${res.note}`);
+      }
+      return {
+        url: res.url,
+        title: res.title,
+        contentChars: res.content.length,
+        content: res.content,
+        note: res.note,
+      };
+    },
   );
   orchestrator.register(
     {

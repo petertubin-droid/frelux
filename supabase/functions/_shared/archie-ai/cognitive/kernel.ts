@@ -503,7 +503,14 @@ export class CognitiveKernel implements ArchieRuntime {
      *  chat turns — the chat front door sets it; agent-worker
      *  tasks leave it unset. It gates the owner-gated local
      *  generative model at the engine's honest-unknown path. */
-    opts?: { conversationId?: string; ownerAuthorized?: boolean },
+    opts?: {
+      conversationId?: string;
+      ownerAuthorized?: boolean;
+      /** Honest budget seam (gap 1, 2026-09-16) — pin the
+       *  reasoning-loop budgets for verification; unset =
+       *  production defaults (24 steps / 8 tool hops). */
+      loopBudget?: { maxSteps?: number; maxToolHops?: number };
+    },
   ): Promise<CognitiveCycleResult> {
     await this.boot();
     this.cycles += 1;
@@ -604,6 +611,12 @@ ${worldCtx.block}`
           systemInstruction: instructionWithContext,
           conversationId: opts?.conversationId,
           ownerAuthorized: opts?.ownerAuthorized,
+          // OWNER UPGRADE 2026-09-16 (gap 1): honest test seam —
+          // a caller (or test) can pin the loop budget to
+          // verify exhaustion reporting without bending prod
+          // budgets. Production callers leave it unset.
+          maxSteps: opts?.loopBudget?.maxSteps,
+          maxToolHops: opts?.loopBudget?.maxToolHops,
         }),
       "retrieval handled inside substrate reasoning",
       (o) =>

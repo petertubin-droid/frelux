@@ -21,11 +21,19 @@ import {
   MAX_COMPOUND_CLAUSES,
   understand,
 } from "./nlu.ts";
+import { matchCodeRequest } from "./sandbox.ts";
 
-/** Budget: hard step cap per request. */
-export const MAX_LOOP_STEPS = 6;
-/** Budget: hard native-tool-execution cap per request. */
-export const MAX_TOOL_HOPS = 2;
+/** Budget: hard step cap per request. Owner upgrade
+ * 2026-09-16 (gap 2 — shallow agentic loop): 6 clause passes
+ * could not chain modern multi-part requests; modern agents
+ * chain dozens of steps. 24 keeps the budget HONEST (bounded,
+ * reported, never silently truncated) while giving compound
+ * requests room to actually complete. */
+export const MAX_LOOP_STEPS = 24;
+/** Budget: hard native-tool-execution cap per request. 2 was
+ *  too tight for a chain of read→compute→convert hops; 8 lets
+ *  a loop USE its tools without the budget becoming fiction. */
+export const MAX_TOOL_HOPS = 8;
 
 export interface LoopStep {
   index: number;
@@ -115,6 +123,43 @@ export async function runReasoningLoop(
         usedToolHops: 0,
         maxToolHops,
         budgetExhausted: true,
+        trace: traceOf(steps),
+      },
+    };
+  }
+
+  // CODE-EXECUTION REQUESTS ARE NEVER CLAUSE-SPLIT (owner
+  // upgrade 2026-09-16, gap 2): a program's semicolons are
+  // STATEMENT SEPARATORS, not request separators. The loop
+  // would otherwise feed "run this js: for (var i=0;…)" to
+  // the substrate one fragment at a time. One program = one
+  // full substrate pass = one sandbox run.
+  if (matchCodeRequest(input) !== null) {
+    const t0 = Date.now();
+    const result = await engine.converse(input, history, systemInstruction, {
+      conversationId,
+      ownerAuthorized,
+    });
+    steps.push({
+      index: 1,
+      kind: "reason",
+      clause: input,
+      intent: result.nlu.intent,
+      summary: `code-execution pass: ${result.toolResults?.length ?? 0} tool execution(s), one sandbox run, program kept whole`,
+      durationMs: Date.now() - t0,
+      confidence: result.confidence,
+      citedFactIds: result.citedFactIds,
+      toolsUsed: (result.toolResults ?? []).map((t) => t.tool),
+    });
+    return {
+      result,
+      report: {
+        steps,
+        usedSteps: 1,
+        maxSteps,
+        usedToolHops: result.toolResults?.length ?? 0,
+        maxToolHops,
+        budgetExhausted: false,
         trace: traceOf(steps),
       },
     };
