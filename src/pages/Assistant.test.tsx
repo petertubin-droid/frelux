@@ -183,6 +183,15 @@ async function openTab(name: string) {
   fireEvent.click(screen.getByRole("tab", { name }));
 }
 
+/** The privileged composer mounts once family membership
+ * resolves — wait for it instead of the visitor input. */
+async function composerReady() {
+  await waitFor(() =>
+    expect(screen.getByLabelText("Message ARCHIE")).toBeTruthy(),
+  );
+  return screen.getByLabelText("Message ARCHIE");
+}
+
 async function renderPage() {
   const Comp = (await import("@/pages/Assistant")).default;
   return render(
@@ -315,10 +324,12 @@ describe("ARCHIE Mobile Assistant", () => {
       return { data: { ok: true }, error: null };
     });
     await renderPage();
-    const input = screen.getByLabelText("Ask ARCHIE");
+    // Privileged users compose through ChatComposer — the
+    // persistent-conversation path (chat-client).
+    const input = await composerReady();
     fireEvent.change(input, { target: { value: "how much is the pro plan" } });
     await waitFor(async () => {
-      fireEvent.click(screen.getByText("Send"));
+      fireEvent.click(screen.getByLabelText("Send message"));
       await Promise.resolve();
       expect(screen.getByText(/Pro plan is ₦5,000 per month/)).toBeTruthy();
     });
@@ -329,6 +340,15 @@ describe("ARCHIE Mobile Assistant", () => {
     const body = (call![1] as { body: Record<string, unknown> }).body;
     expect(body.message).toBe("how much is the pro plan");
     expect(Array.isArray(body.history)).toBe(true);
+    // The turn is PERSISTED — conversation + both messages via
+    // chat-client, not just displayed locally.
+    const convs = tables["frelux_archie_conversations"] ?? [];
+    const msgs = tables["frelux_archie_messages"] ?? [];
+    expect(convs.length).toBe(1);
+    expect(msgs.length).toBe(2);
+    expect(msgs[0].role).toBe("owner");
+    expect(msgs[1].role).toBe("archie");
+    expect(msgs[1].content).toContain("₦5,000 per month");
   });
 
   it("chat failures surface the honest edge-function error, never canned text", async () => {
@@ -339,11 +359,10 @@ describe("ARCHIE Mobile Assistant", () => {
       return { data: { ok: true }, error: null };
     });
     await renderPage();
-    fireEvent.change(screen.getByLabelText("Ask ARCHIE"), {
-      target: { value: "hello" },
-    });
+    const input = await composerReady();
+    fireEvent.change(input, { target: { value: "hello" } });
     await waitFor(async () => {
-      fireEvent.click(screen.getByText("Send"));
+      fireEvent.click(screen.getByLabelText("Send message"));
       await Promise.resolve();
       expect(screen.getByText(/Edge Function failure/i)).toBeTruthy();
     });

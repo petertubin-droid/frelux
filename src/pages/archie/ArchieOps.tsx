@@ -17,6 +17,7 @@
 // =========================================================
 
 import { useCallback, useEffect, useState } from "react";
+import RequireOwner from "@/components/archie/RequireOwner";
 import {
   AGENT_ROLES,
   type InternalAgentRecord,
@@ -233,14 +234,8 @@ export default function ArchieOps() {
     }
   }
 
-  if (checked && !isAdmin)
     return (
-      <div className="px-4 py-10 text-center text-sm text-slate-400">
-        Owner access only.
-      </div>
-    );
-
-  return (
+    <RequireOwner>
     <div className="archie-fade-up mx-auto max-w-2xl px-4 py-4 md:py-6">
       <h1 className="archie-title-gradient text-lg font-semibold md:text-xl">
         Operations
@@ -533,5 +528,6 @@ export default function ArchieOps() {
         </div>
       )}
     </div>
+    </RequireOwner>
   );
 }

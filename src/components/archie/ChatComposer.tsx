@@ -7,7 +7,7 @@
 // the Owner. Attachments upload to the private per-user
 // archie-media bucket; only the Owner can read them.
 // =========================================================
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Paperclip, Camera, Mic, Square, X, Send, Loader2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { ArchieChatAttachment } from "@/lib/archie/chat-client";
@@ -19,14 +19,35 @@ const ACCEPTED_DOCS = ".pdf,.txt,.md,.csv,.json,.doc,.docx,.xls,.xlsx";
 interface Props {
   onSend: (text: string, attachments: ArchieChatAttachment[]) => Promise<void>;
   busy: boolean;
+  /** Externally-injected draft (e.g. a voice transcript) —
+   *  appended to the composer once, then consumed. */
+  draft?: string;
+  onDraftConsumed?: () => void;
 }
 
-export default function ChatComposer({ onSend, busy }: Props) {
+export default function ChatComposer({
+  onSend,
+  busy,
+  draft,
+  onDraftConsumed,
+}: Props) {
   const [text, setText] = useState("");
   const [attachments, setAttachments] = useState<ArchieChatAttachment[]>([]);
   const [uploading, setUploading] = useState(false);
   const [recording, setRecording] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Voice transcripts and other external drafts land in the
+  // composer exactly once — the caller clears the prop.
+  const consumedRef = useRef<string | null>(null);
+  const onConsumedRef = useRef(onDraftConsumed);
+  onConsumedRef.current = onDraftConsumed;
+  useEffect(() => {
+    if (!draft || consumedRef.current === draft) return;
+    consumedRef.current = draft;
+    setText((prev) => (prev ? `${prev} ${draft}` : draft));
+    onConsumedRef.current?.();
+  }, [draft]);
 
   const fileRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLInputElement>(null);

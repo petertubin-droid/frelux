@@ -38,6 +38,7 @@ import {
   AdminTextarea,
   AdminSelect,
 } from "@/components/admin/AdminUi";
+import InfrastructurePanel from "@/components/archie/InfrastructurePanel";
 import { AGENT_ROLES } from "@/lib/archie/internal-agents";
 import {
   budgetStatus,
@@ -413,6 +414,9 @@ export default function AdminArchieOps() {
 
       {tab === "costs" && (
         <div className="grid gap-6 lg:grid-cols-2">
+          <div className="lg:col-span-2">
+            <InfrastructurePanel />
+          </div>
           <AdminCard>
             <h3 className="mb-4 font-heading text-lg font-semibold">
               Budget controls

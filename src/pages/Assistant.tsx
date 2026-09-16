@@ -63,6 +63,19 @@ import {
   deactivatePaidCapability,
 } from "@/lib/archie/mobile/paid-services";
 import { speakArchie, stopArchieVoice } from "@/lib/archie/mobile/voice";
+import ChatComposer from "@/components/archie/ChatComposer";
+import {
+  type ArchieChatAttachment,
+  type ArchieConversation,
+  archiveConversation,
+  createConversation,
+  listConversations,
+  listMessages,
+  renameConversation,
+  searchConversations,
+  sendMessage,
+} from "@/lib/archie/chat-client";
+import { assertAuthority, selectTool } from "@/lib/archie/tool-router";
 import {
   registerCurrentSession,
   fetchSessions,
@@ -143,6 +156,9 @@ function archieClientId(): string {
 
 type FamilyStatus = "checking" | "active" | "none";
 
+const GREETING =
+  "Hi, I'm ARCHIE — FRELUX's own assistant. Ask me anything about FRELUX: calculators, pricing plans, colors, projects, the marketplace, or any building and estimation question.";
+
 export default function Assistant() {
   const { user, isAdmin } = useAuth();
   const [tab, setTab] = useState<Tab>("assistant");
@@ -150,12 +166,17 @@ export default function Assistant() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [messages, setMessages] = useState<Msg[]>([
-    {
-      role: "archie",
-      text: "Hi, I'm ARCHIE — FRELUX's own assistant. Ask me anything about FRELUX: calculators, pricing plans, colors, projects, the marketplace, or any building and estimation question.",
-    },
+    { role: "archie", text: GREETING },
   ]);
   const [input, setInput] = useState("");
+  // Privileged chat: persistent Owner conversations through the
+  // real chat-client (frelux_archie_conversations, RLS-scoped
+  // per account). Visitors keep the plain ephemeral input.
+  const [voiceDraft, setVoiceDraft] = useState("");
+  const [conversations, setConversations] = useState<ArchieConversation[]>([]);
+  const [activeConv, setActiveConv] = useState<ArchieConversation | null>(null);
+  const [convSearch, setConvSearch] = useState("");
+  const [convOpen, setConvOpen] = useState(false);
   const [listening, setListening] = useState(false);
   const voiceBufferRef = useRef<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -371,6 +392,159 @@ export default function Assistant() {
     }
   }
 
+  // -------------------------------------------------
+  // PRIVILEGED CHAT — persistent conversations
+  // (chat-client: frelux_archie_conversations + messages,
+  // RLS per account). Owner and family keep full history,
+  // attachments and tool-run audit trails; visitors keep
+  // the plain ephemeral flow above.
+  // -------------------------------------------------
+  const loadConversations = useCallback(
+    async (term: string) => {
+      if (!user) return;
+      try {
+        const list = term
+          ? await searchConversations(term)
+          : await listConversations();
+        setConversations(list);
+      } catch {
+        setConversations([]); // honest boundary — the list stays empty
+      }
+    },
+    [user],
+  );
+
+  useEffect(() => {
+    if (!isPrivileged) return;
+    void loadConversations(convSearch.trim());
+  }, [isPrivileged, convSearch, loadConversations]);
+
+  async function openConversation(conv: ArchieConversation) {
+    setActiveConv(conv);
+    setConvOpen(false);
+    try {
+      const rows = await listMessages(conv.id);
+      setMessages(
+        rows.map((r) => ({
+          role:
+            r.role === "owner"
+              ? ("user" as const)
+              : (r.role as "archie" | "system"),
+          text: r.content,
+        })),
+      );
+    } catch {
+      pushArchie("That conversation could not be opened.");
+    }
+  }
+
+  async function newConversation() {
+    try {
+      const conv = await createConversation("Assistant chat");
+      setActiveConv(conv);
+      setConvOpen(false);
+      setMessages([{ role: "archie", text: GREETING }]);
+      void loadConversations(convSearch.trim());
+    } catch (err) {
+      pushArchie(
+        err instanceof Error
+          ? err.message
+          : "A new conversation could not be started.",
+      );
+    }
+  }
+
+  async function renameActive() {
+    if (!activeConv) return;
+    const title = window.prompt("Conversation title", activeConv.title);
+    if (!title || !title.trim()) return;
+    try {
+      await renameConversation(activeConv.id, title.trim());
+      setActiveConv({ ...activeConv, title: title.trim().slice(0, 120) });
+      void loadConversations(convSearch.trim());
+    } catch {
+      pushArchie("The conversation could not be renamed.");
+    }
+  }
+
+  async function archiveActive() {
+    if (!activeConv) return;
+    try {
+      await archiveConversation(activeConv.id);
+      setActiveConv(null);
+      setMessages([{ role: "archie", text: GREETING }]);
+      void loadConversations(convSearch.trim());
+    } catch {
+      pushArchie("The conversation could not be archived.");
+    }
+  }
+
+  async function privilegedSend(
+    text: string,
+    attachments: ArchieChatAttachment[],
+  ) {
+    if (busy) return;
+    stopArchieVoice();
+    // Authorization phrases route to the Security tab — never
+    // through the chat engine.
+    if (/authoriz|approve|deploy|production change/i.test(text)) {
+      purgeTranscriptsForAuthorization(voiceBufferRef.current);
+      pushArchie(
+        "Owner authorization must be completed in Security → Owner Authorization, the secret is typed into a password field and verified server-side. Opening it now.",
+      );
+      setTab("security");
+      return;
+    }
+    const display = attachments.length
+      ? `${text} (📎 ${attachments.map((a) => a.name).join(", ")})`
+      : text;
+    setMessages((m) => [...m, { role: "user", text: display }]);
+    setBusy(true);
+    try {
+      // Lazy conversation: the first privileged message creates it.
+      let conv = activeConv;
+      if (!conv) {
+        conv = await createConversation("Assistant chat");
+        setActiveConv(conv);
+      }
+      const history = messages
+        .filter((m) => m.role !== "system")
+        .slice(-10)
+        .map((m) => ({
+          role: m.role === "user" ? ("owner" as const) : ("archie" as const),
+          content: m.text,
+        }));
+      const { archieMessage } = await sendMessage(
+        conv,
+        text,
+        attachments,
+        history,
+      );
+      // Authority boundary at the point of presentation: a
+      // numeric answer is a final RESULT only when its engine
+      // is registered in the canonical registry. Chat cannot
+      // invoke registered calculator engines, so calculation
+      // answers are honestly labeled as estimates.
+      const sel = selectTool(text);
+      let content = archieMessage.content;
+      if (sel.intent === "CALCULATION") {
+        const verdict = assertAuthority({ text: content });
+        content = verdict.verified
+          ? `${content}\n\n[Verified result — engine ${verdict.engine_id}]`
+          : `${content}\n\n[ESTIMATE — ${verdict.reason}. This is not a calculator result; use the calculators for verifiable numbers.]`;
+      }
+      pushArchie(content);
+    } catch (err) {
+      pushArchie(
+        err instanceof Error
+          ? err.message
+          : "ARCHIE could not be reached. Please try again.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function startVoice() {
     stopArchieVoice();
     if (!consentGate("VOICE_INPUT")) return;
@@ -394,6 +568,7 @@ export default function Assistant() {
       const transcript = e.results[0][0].transcript;
       voiceBufferRef.current.push(transcript);
       setInput((prev) => (prev ? `${prev} ${transcript}` : transcript));
+      setVoiceDraft((prev) => (prev ? `${prev} ${transcript}` : transcript));
     };
     recognition.onend = () => setListening(false);
     setListening(true);
@@ -828,23 +1003,100 @@ export default function Assistant() {
             </div>
           )}
 
-          <div className="flex gap-2">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Ask ARCHIE…"
-              className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm"
-              aria-label="Ask ARCHIE"
-            />
-            <button
-              onClick={handleSend}
-              className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
-              aria-label="Send"
-            >
-              <ExternalLink className="hidden" /> Send
-            </button>
-          </div>
+          {isPrivileged ? (
+            <>
+              {/* Persistent-conversation bar — chat-client, RLS-scoped */}
+              <div className="flex flex-wrap items-center gap-2 rounded-xl border bg-card p-2 text-xs">
+                <button
+                  type="button"
+                  onClick={() => setConvOpen((o) => !o)}
+                  className="rounded-md border px-2 py-1 font-semibold hover:bg-accent"
+                >
+                  Conversations {convOpen ? "▲" : "▼"}
+                </button>
+                <span className="max-w-[10rem] truncate text-muted-foreground">
+                  {activeConv?.title ?? "New chat — not saved yet"}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void newConversation()}
+                  className="rounded-md border px-2 py-1 hover:bg-accent"
+                >
+                  New
+                </button>
+                {activeConv && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => void renameActive()}
+                      className="rounded-md border px-2 py-1 hover:bg-accent"
+                    >
+                      Rename
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void archiveActive()}
+                      className="rounded-md border px-2 py-1 hover:bg-accent"
+                    >
+                      Archive
+                    </button>
+                  </>
+                )}
+                {convOpen && (
+                  <div className="w-full space-y-1 border-t pt-2">
+                    <input
+                      value={convSearch}
+                      onChange={(e) => setConvSearch(e.target.value)}
+                      placeholder="Search conversations…"
+                      aria-label="Search conversations"
+                      className="w-full rounded-md border bg-background px-2 py-1"
+                    />
+                    {conversations.filter((c) => !c.archived).length === 0 && (
+                      <p className="px-1 text-muted-foreground">
+                        No conversations yet — send a message to start one.
+                      </p>
+                    )}
+                    {conversations
+                      .filter((c) => !c.archived)
+                      .map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => void openConversation(c)}
+                          className="block w-full truncate rounded-md px-2 py-1 text-left hover:bg-accent"
+                        >
+                          {c.title}
+                        </button>
+                      ))}
+                  </div>
+                )}
+              </div>
+              <ChatComposer
+                onSend={privilegedSend}
+                busy={busy}
+                draft={voiceDraft}
+                onDraftConsumed={() => setVoiceDraft("")}
+              />
+            </>
+          ) : (
+            <div className="flex gap-2">
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                placeholder="Ask ARCHIE…"
+                className="flex-1 rounded-lg border bg-background px-3 py-2 text-sm"
+                aria-label="Ask ARCHIE"
+              />
+              <button
+                onClick={handleSend}
+                className="rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground"
+                aria-label="Send"
+              >
+                <ExternalLink className="hidden" /> Send
+              </button>
+            </div>
+          )}
 
           <p className="flex items-center gap-1 text-[11px] text-muted-foreground">
             <Sparkles className="h-3 w-3" />

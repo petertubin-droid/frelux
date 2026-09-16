@@ -9,6 +9,7 @@
 // =========================================================
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import RequireOwner from "@/components/archie/RequireOwner";
 import {
   applyProfileToUtterance,
   estimatePitchHz,
@@ -156,14 +157,7 @@ export default function ArchieVoice() {
         Sign in required.
       </div>
     );
-  if (!isAdmin)
-    return (
-      <div className="px-4 py-10 text-center text-sm text-slate-400">
-        Owner access only.
-      </div>
-    );
-
-  // Hands-free voice interaction. Every spoken turn:
+    // Hands-free voice interaction. Every spoken turn:
   //    mic → NATIVE on-device recognition (no provider, no
   //        key, no OpenAI) + voice-print vs the owner's VOICE
   //        BANK → sendChatTurn (the NORMAL cognitive pipeline)
@@ -264,6 +258,7 @@ export default function ArchieVoice() {
   }
 
   return (
+    <RequireOwner>
     <div className="archie-fade-up mx-auto max-w-2xl px-4 py-4 md:py-6">
       <h1 className="archie-title-gradient text-lg font-semibold md:text-xl">
         Voice
@@ -459,5 +454,6 @@ export default function ArchieVoice() {
         one voice bank, one ARCHIE.
       </p>
     </div>
+    </RequireOwner>
   );
 }

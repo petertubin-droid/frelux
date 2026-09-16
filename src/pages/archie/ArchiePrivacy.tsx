@@ -34,6 +34,7 @@ import {
   ArchieSectionTitle,
   ArchieBadge,
 } from "@/components/archie/premium";
+import PrivacyControlsPanel from "@/components/archie/PrivacyControlsPanel";
 
 function consentOn(consents: PrivacyConsent[], key: string): boolean {
   const c = consents.find((x) => x.consent_key === key);
@@ -172,6 +173,8 @@ export default function ArchiePrivacy() {
           {error}
         </div>
       )}
+
+      <PrivacyControlsPanel />
       {status && (
         <div className="mb-4 rounded-lg border border-emerald-500/40 bg-emerald-500/10 p-3 text-sm text-emerald-400">
           {status}

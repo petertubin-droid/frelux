@@ -25,6 +25,26 @@ const exportMyData = vi.fn();
 const requestDeletion = vi.fn();
 const myRightsRequests = vi.fn();
 
+vi.mock("@/lib/auth", () => ({
+  useAuth: () => ({
+    user: { id: "u1" },
+    profile: { role: "admin", id: "u1" },
+    isAdmin: true,
+    loading: false,
+  }),
+}));
+
+// The PrivacyControlsPanel surface mounts with the page — its
+// mobile-learning/device client is mocked so the privacy-rights
+// tests stay focused on the legal-client flow.
+vi.mock("@/lib/archie/mobile/p4-client", () => ({
+  fetchMobileLearnings: () => Promise.resolve([]),
+  fetchTrustedDevices: () => Promise.resolve([]),
+  persistMobileLearning: () => Promise.resolve({ ok: true }),
+  deleteMobileLearning: () => Promise.resolve({ ok: true }),
+  upsertTrustedDevice: () => Promise.resolve({ ok: true }),
+}));
+
 vi.mock("@/lib/archie/legal-client", () => ({
   fetchConsents: (...a: unknown[]) => fetchConsents(...a),
   setConsent: (...a: unknown[]) => setConsent(...a),

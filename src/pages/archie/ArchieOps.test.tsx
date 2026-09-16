@@ -1,6 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 
+// RequireOwner gate reads the auth context, not the supabase
+// client — tests run as the Owner.
+const authState = vi.fn(() => ({
+  user: { id: "u1" },
+  profile: { role: "admin", id: "u1" },
+  isAdmin: true,
+  loading: false,
+}));
+vi.mock("@/lib/auth", () => ({ useAuth: () => authState() }));
+
 vi.mock("@/lib/supabase", () => ({
   supabase: {
     auth: { getUser: async () => ({ data: { user: null } }) },

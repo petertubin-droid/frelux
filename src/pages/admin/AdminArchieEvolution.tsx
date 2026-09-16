@@ -18,6 +18,7 @@
 // =========================================================
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import MarketKnowledgePanel from "@/components/archie/MarketKnowledgePanel";
 import {
   AlertCircle,
   CheckCircle2,
@@ -431,6 +432,7 @@ export default function AdminArchieEvolution() {
           <AdminCard>
             <div className="mb-4 flex items-center gap-2">
               <ShieldCheck className="h-4 w-4 text-muted-foreground" />
+              <MarketKnowledgePanel />
               <h2 className="font-semibold">Self-Modification</h2>
             </div>
             <p className="mb-2 text-sm text-muted-foreground">
