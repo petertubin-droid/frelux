@@ -17,8 +17,11 @@
 //          the same deterministic statistics as PNG. What the
 //          decoder refuses (progressive SOF2, 12-bit, CMYK)
 //          falls back to structure-only with the reason.
-//   GIF  — structural only: dimensions from the logical
-//          screen descriptor.
+//   GIF  — NATIVE first-frame pixel decode (GIF87a/89a,
+//          global/local palettes, LZW, interlace): the same
+//          deterministic statistics. Multi-frame GIFs analyze
+//          frame 1 and say so; refused formats fall back to
+//          structure-only with the reason.
 //   else — refused honestly.
 // =========================================================
 
@@ -372,8 +375,9 @@ function parseGif(bytes: Uint8Array): { width: number; height: number } {
   };
 }
 
-// ---------- native JPEG pixel decode (gap 4, 2026-09-16) ----------
+// ---------- native JPEG/GIF pixel decode (gap 4, 2026-09-16) ----------
 import { decodeJpeg } from "./jpeg-decode.ts";
+import { decodeGif } from "./gif-decode.ts";
 
 // ---------- deterministic analysis ----------
 
@@ -501,7 +505,7 @@ export async function analyzeImage(
       });
       return {
         ok: true,
-        analysis: { ...analysis, format: "jpeg" },
+        analysis: { ...analysis, format: "jpeg", notes: img.notes },
       };
     } catch (e) {
       // decode refused honestly → structure-only, with the reason
@@ -529,10 +533,35 @@ export async function analyzeImage(
     }
   }
 
-  // GIF — structure only, honestly
+  // GIF — native first-frame pixel decode (gap 4 completion,
+  // 2026-09-16); structure-only fallback with the reason for
+  // everything the decoder refuses.
   if (bytes[0] === 0x47 && bytes[1] === 0x49) {
+    let g: { width: number; height: number };
     try {
-      const g = parseGif(bytes);
+      g = parseGif(bytes);
+    } catch (e) {
+      return { ok: false, note: (e as Error).message };
+    }
+    if (g.width * g.height > MAX_PIXELS) {
+      return {
+        ok: false,
+        note: `GIF is ${g.width}x${g.height} (${((g.width * g.height) / 1e6).toFixed(1)}MP) — over the 4MP native-analysis cap, refused honestly`,
+      };
+    }
+    try {
+      const img = decodeGif(bytes);
+      const analysis = analyzeRgba({
+        width: img.width,
+        height: img.height,
+        rgba: img.rgba,
+        notes: img.notes,
+      });
+      return {
+        ok: true,
+        analysis: { ...analysis, format: "gif", notes: img.notes },
+      };
+    } catch (e) {
       return {
         ok: true,
         analysis: {
@@ -549,13 +578,11 @@ export async function analyzeImage(
           contentClass: null,
           contentConfidence: null,
           notes: [
-            "GIF: dimensions from the logical screen descriptor — pixel analysis NOT performed (no native GIF decoder), honestly",
+            `GIF: dimensions parsed; pixel decode NOT performed — ${(e as Error).message}`,
           ],
           analyzedAt: new Date().toISOString(),
         },
       };
-    } catch (e) {
-      return { ok: false, note: (e as Error).message };
     }
   }
 

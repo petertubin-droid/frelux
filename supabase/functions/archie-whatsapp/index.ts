@@ -657,9 +657,9 @@ async function handleInbound(msg: InboundWaMessage): Promise<void> {
 
   // ---- Native eyes (audit item P8, 2026-09-11) ----
   // Images get REAL native perception: download the media,
-  // analyze the actual bytes (PNG and baseline-JPEG pixels;
-  // progressive JPEG/GIF structure), and fold the honest
-  // summary into the text flow. No object recognition exists
+  // analyze the actual bytes (PNG, baseline-JPEG and GIF
+  // first-frame pixels; progressive JPEG structure), and fold
+  // the honest summary into the text flow. No object recognition exists
   // — the summary says so. On any failure
   // the honest-refusal path below still applies, verbatim.
   if (msg.type === "image" && msg.mediaId && ACCESS_TOKEN) {

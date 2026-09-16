@@ -196,9 +196,10 @@ export class PerceptionEngine {
   }
 
   /** Ingest image bytes with NATIVE vision (audit item
-   *  "native eyes"). Real pixel analysis for PNG and baseline
-   *  JPEG; honest structure-only for everything the native
-   *  decoders refuse; honest refusal for anything else.
+   *  "native eyes"). Real pixel analysis for PNG, baseline
+   *  JPEG and GIF first frames; honest structure-only for
+   *  everything the native decoders refuse; honest refusal
+   *  for anything else.
    *  Returns a real percept only when the analysis
    *  succeeded — never a faked one. */
   async ingestImage(
