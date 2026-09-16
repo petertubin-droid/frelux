@@ -129,19 +129,29 @@ export class MultiSearchAdapter implements ResearchAdapter {
 
   async search(query: string): Promise<{ hits: ResearchHit[]; note: string }> {
     const attempts: string[] = [];
+    // WIDENING COMPOSITE (2026-09-16): the children are
+    // HETEROGENEOUS sources now (encyclopedia, books, Q&A,
+    // preprints) — one source executing and finding nothing
+    // is not the whole web's verdict. A child that EXECUTED
+    // with a genuine zero is remembered (first one wins the
+    // reported note) and the chain CONTINUES — later children
+    // only widen the evidence. If they also come up empty the
+    // first genuine zero is the reported note: an honest
+    // no-results, never a fabricated success. Failure notes
+    // never stop the chain and never masquerade as verdicts.
+    let firstGenuineZero: string | null = null;
     for (const child of this.children) {
       const res = await child.search(query);
       if (res.hits.length > 0) {
         return { hits: res.hits, note: `${child.id}: ${res.note}` };
       }
       attempts.push(`${child.id}: ${res.note}`);
-      // A child that EXECUTED (genuine zero results) is the
-      // honest verdict of this query — later children only
-      // widen the evidence; if they also come up empty the
-      // first genuine zero is the reported note.
       if (!isSearchFailureNote(res.note)) {
-        return { hits: [], note: res.note };
+        firstGenuineZero ??= res.note;
       }
+    }
+    if (firstGenuineZero !== null) {
+      return { hits: [], note: firstGenuineZero };
     }
     return {
       hits: [],

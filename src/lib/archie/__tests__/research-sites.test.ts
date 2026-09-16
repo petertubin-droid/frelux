@@ -249,19 +249,41 @@ describe("MultiSearchAdapter — new research sites chain", () => {
     expect(res.note).toContain("google-books-api");
   });
 
-  it("reports a genuine zero verdict from an executing adapter (no fake fallthrough)", async () => {
+  it("widens through a genuine zero to a later source (WIDENING COMPOSITE 2026-09-16)", async () => {
+    // A Wikipedia-shaped genuine zero must not stop the chain —
+    // StackExchange answers programming questions Wikipedia
+    // never covers.
     const google = new GoogleBooksAdapter({
       fetchFn: (() =>
         Promise.resolve(jsonResponse(200, { totalItems: 0 }))) as unknown as typeof fetch,
     });
     const se = new StackExchangeAdapter({
-      fetchFn: (() => {
-        throw new Error("must not be called after a genuine zero");
-      }) as unknown as typeof fetch,
+      fetchFn: (() =>
+        Promise.resolve(
+          jsonResponse(200, {
+            items: [{ title: "How to center a div", link: "https://stackoverflow.com/q/1", score: 100, answer_count: 5 }],
+          }),
+        )) as unknown as typeof fetch,
+    });
+    const m = new MultiSearchAdapter([google, se]);
+    const res = await m.search("test query");
+    expect(res.hits).toHaveLength(1);
+    expect(res.note).toContain("stackexchange-api");
+  });
+
+  it("reports the FIRST genuine zero when every executing source comes up empty (no fake success)", async () => {
+    const google = new GoogleBooksAdapter({
+      fetchFn: (() =>
+        Promise.resolve(jsonResponse(200, { totalItems: 0 }))) as unknown as typeof fetch,
+    });
+    const se = new StackExchangeAdapter({
+      fetchFn: (() =>
+        Promise.resolve(jsonResponse(200, { items: [] }))) as unknown as typeof fetch,
     });
     const m = new MultiSearchAdapter([google, se]);
     const res = await m.search("test query");
     expect(res.hits).toHaveLength(0);
     expect(res.note).toBe("no results found for the query");
+    expect(isSearchFailureNote(res.note)).toBe(false);
   });
 });
