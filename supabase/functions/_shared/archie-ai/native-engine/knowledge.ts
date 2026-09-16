@@ -315,6 +315,9 @@ export class FactStore {
   // condition narrowing (see candidatesFor below).
   private byPredicate = new Map<string, Fact[]>();
   private persistence: PersistenceLike | null = null;
+  // HYDRATE CAP: last hydration's honest stats (null before
+  // the first hydrate, or when hydration failed).
+  private hydrationStats: HydrationStats | null = null;
   // Persistent TF-IDF rank index (audit 4.2) — maintained
   // incrementally alongside the subject/predicate indexes.
   private rankIndex = new FactRankIndex();
@@ -362,6 +365,7 @@ export class FactStore {
   async hydrate(): Promise<number> {
     if (!this.persistence) return 0;
     const rows = await this.persistence.loadFacts();
+    this.hydrationStats = this.persistence.lastHydrationStats ?? null;
     this.facts = rows.map((r) => ({
       id: r.id,
       subject: r.subject,
@@ -382,6 +386,12 @@ export class FactStore {
 
   count(): number {
     return this.facts.length;
+  }
+
+  /** Honest hydration account — the engine surfaces this in
+   *  diagnostics; a truncated hydration is never silent. */
+  hydrationAccount(): HydrationStats | null {
+    return this.hydrationStats;
   }
 
   validatedCount(): number {
@@ -779,8 +789,21 @@ export interface PersistedFactRow {
   created_at: string;
 }
 
+/** HYDRATE CAP (owner upgrade 2026-09-16): honest account of
+ *  what a hydration loaded — a capped hydration is REPORTED,
+ *  never silent. Null = hydration did not complete. */
+export interface HydrationStats {
+  totalFacts: number;
+  loadedFacts: number;
+  cap: number;
+  truncated: boolean;
+}
+
 export interface PersistenceLike {
   loadFacts(): Promise<PersistedFactRow[]>;
+  /** Set by implementations that track it (Supabase-backed);
+   *  in-memory test fakes omit it. */
+  lastHydrationStats?: HydrationStats | null;
   saveFact(fact: Fact): Promise<void>;
   saveFacts(facts: Fact[]): Promise<void>;
   /** REMEDIATION batch 4 (2026-09-13): optional single-writer

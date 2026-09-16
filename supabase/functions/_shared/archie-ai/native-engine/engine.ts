@@ -72,6 +72,14 @@ import { FACT_RELEVANCE_FLOOR, FactStore } from "./knowledge.ts";
 import { FULL_SEED_CORPUS, SEED_CORPUS_VERSION } from "./seed-corpus.ts";
 import { PageFetcher } from "./page-fetch.ts";
 import { WikipediaSearchAdapter } from "./wikipedia-search.ts";
+import { GoogleBooksAdapter } from "./google-books-search.ts";
+import { StackExchangeAdapter } from "./stackexchange-search.ts";
+import { ArxivAdapter } from "./arxiv-search.ts";
+// LLM ROUTER (draft scaffold, owner directive 2026-09-16):
+// pluggable model seam shipping with ZERO providers — no
+// external AI model is wired into ARCHIE.
+import { LLMRouter, createDefaultModelRouter } from "./llm-router.ts";
+import type { HydrationStats } from "./knowledge.ts";
 import { DEFAULT_RULES, GENERAL_RULES, ReasoningEngine } from "./reasoning.ts";
 import {
   consistency,
@@ -371,6 +379,8 @@ export class ArchieNativeEngine implements ArchieRuntime {
   private adapter: ResearchAdapter;
   private marketPriceLookup: MarketPriceLookup | null;
   private worldTimeline: WorldTimelinePort | null;
+  /** LLM router — zero providers by default (owner directive). */
+  private modelRouter: LLMRouter;
   /** SELF-EVOLVING VOCABULARY — multi-site meaning research
    *  (owner directive 2026-09-13). Injectable like
    *  marketPriceLookup: production uses the real
@@ -443,10 +453,16 @@ export class ArchieNativeEngine implements ArchieRuntime {
     /** Audit fix H-2 — owner trading limits for the trade
      *  gate. Defaults to DEFAULT_TRADING_LIMITS. */
     tradingLimits?: TradingLimits;
+    /** LLM ROUTER (owner directive 2026-09-16): pluggable
+     *  model seam. The default ships ZERO providers — ARCHIE
+     *  stays 100% native until an owner explicitly passes a
+     *  router with real providers. */
+    modelRouter?: LLMRouter;
   }) {
     this.currentSessionId = options?.conversationId ?? "default";
     this.cryptoFetcher = options?.cryptoFetcher ?? null;
     this.tradingLimits = options?.tradingLimits ?? DEFAULT_TRADING_LIMITS;
+    this.modelRouter = options?.modelRouter ?? createDefaultModelRouter();
     this.verbosity = options?.verbosity ?? "detailed";
     this.marketPriceLookup = options?.marketPriceLookup ?? null;
     this.worldTimeline = options?.worldTimeline ?? null;
@@ -478,6 +494,13 @@ export class ArchieNativeEngine implements ArchieRuntime {
       new MultiSearchAdapter([
         new DuckDuckGoLiteAdapter(),
         new WikipediaSearchAdapter(),
+        // Owner upgrade 2026-09-16: Google + other documented
+        // keyless research sites — real evidence sources, NO
+        // AI model involved (these are catalog/Q&A/preprint
+        // APIs: search indexes, not language models).
+        new GoogleBooksAdapter(),
+        new StackExchangeAdapter(),
+        new ArxivAdapter(),
       ]);
     this.facts = new FactStore(this.persistence ?? undefined);
     // Domain-skill registry (audit fix 2026-09-11, domain-
@@ -533,9 +556,15 @@ export class ArchieNativeEngine implements ArchieRuntime {
   }
 
   /** Hydrate persisted knowledge + seed foundational facts. */
-  async boot(): Promise<{ hydratedFacts: number; seededFacts: number }> {
+  async boot(): Promise<{
+    hydratedFacts: number;
+    seededFacts: number;
+    /** Honest hydration account — truncated hydrations are
+     *  reported, never silent. */
+    hydration: HydrationStats | null;
+  }> {
     if (this.booted) {
-      return { hydratedFacts: 0, seededFacts: 0 };
+      return { hydratedFacts: 0, seededFacts: 0, hydration: null };
     }
     this.booted = true;
     const hydratedFacts = await this.facts.hydrate();
@@ -563,11 +592,19 @@ export class ArchieNativeEngine implements ArchieRuntime {
       }
     }
     // Situational facts for planning preconditions.
+    // HYDRATE CAP (2026-09-16): when hydration was truncated
+    // by the cap, the status fact SAYS SO — a cap is reported,
+    // never silent.
+    const hydration = this.facts.hydrationAccount();
+    const knowledgeAvailable =
+      hydration && hydration.truncated
+        ? `${this.facts.count()} fact(s) loaded of ${hydration.totalFacts} persisted (hydrate cap ${hydration.cap})`
+        : `${this.facts.count()} fact(s) in store`;
     if (this.facts.count() > 0) {
       await this.facts.assert({
         subject: "knowledge",
         predicate: "available",
-        object: `${this.facts.count()} fact(s) in store`,
+        object: knowledgeAvailable,
         confidence: 0.9,
         provenance: { source: "seed", note: "knowledge store is populated" },
         status: "validated",
@@ -633,7 +670,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
         // conversation still works.
       }
     }
-    return { hydratedFacts, seededFacts };
+    return { hydratedFacts, seededFacts, hydration };
   }
 
   isOperational(): boolean {

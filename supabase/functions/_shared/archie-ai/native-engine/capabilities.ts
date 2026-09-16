@@ -283,7 +283,7 @@ export function nativeEngineCapabilityManifest(): CapabilityReport[] {
     {
       id: "generative-language-model",
       description:
-        "Open-ended natural-language generation comparable to a large language model. NOT implemented — ARCHIE composes structured responses from real retrieved knowledge, reasoning outputs, and tool results, and states clearly when knowledge is insufficient rather than imitating generative prose",
+        "Open-ended natural-language generation comparable to a large language model. The ONLY generative path is the owner-gated LOCAL model gateway (generative.ts, gap A-1): the owner's own Ollama/llama.cpp server, opt-in via ARCHIE_LOCAL_MODEL_URL/ARCHIE_LOCAL_MODEL_NAME secrets, output appended with the [GENERATED - NOT validated knowledge] label, never stored as knowledge. NO EXTERNAL AI provider is wired into ARCHIE (owner directive 2026-09-16) — the pluggable LLM router scaffold (native-engine/llm-router.ts) ships with ZERO providers; a future provider would be labeled, inert (never authority-bearing), budgeted and honestly reported. The base engine composes structured responses from real retrieved knowledge, reasoning outputs, and tool results, and states clearly when knowledge is insufficient rather than imitating generative prose",
       maturity: "NOT_IMPLEMENTED",
       measuredBy:
         "honest disclosure — enforced by native-engine-runtime.test.ts (honesty cases)",

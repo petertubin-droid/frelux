@@ -159,7 +159,14 @@ describe("forensic: cross-system seams", () => {
       from(table: string) {
         const rows = () => (this.tables[table] ??= []);
         return {
-          select: async () => ({ data: [...rows()], error: null }),
+          // Contract (hydrate cap, 2026-09-16): selects page via
+      // .range(); the thenable covers legacy bare awaits.
+      select: () => ({
+        range: (from: number, to: number) =>
+          Promise.resolve({ data: rows().slice(from, to + 1), error: null }),
+        then: (resolve: (v: unknown) => unknown) =>
+          Promise.resolve(resolve({ data: [...rows()], error: null })) as never,
+      }),
           insert: async (rs: unknown) => {
             for (const r of rs as Array<Record<string, unknown>>)
               rows().push({ ...r });
@@ -195,7 +202,14 @@ describe("forensic: cross-system seams", () => {
       from(table: string) {
         const rows = () => (this.tables[table] ??= []);
         return {
-          select: async () => ({ data: [...rows()], error: null }),
+          // Contract (hydrate cap, 2026-09-16): selects page via
+      // .range(); the thenable covers legacy bare awaits.
+      select: () => ({
+        range: (from: number, to: number) =>
+          Promise.resolve({ data: rows().slice(from, to + 1), error: null }),
+        then: (resolve: (v: unknown) => unknown) =>
+          Promise.resolve(resolve({ data: [...rows()], error: null })) as never,
+      }),
           insert: async (rs: unknown) => {
             for (const r of rs as Array<Record<string, unknown>>)
               rows().push({ ...r });

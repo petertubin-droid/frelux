@@ -98,6 +98,13 @@ export function isSearchFailureNote(note: string): boolean {
     note.startsWith("search endpoint returned") ||
     note.startsWith("search endpoint refused") ||
     note.startsWith("wikipedia api unavailable") ||
+    // Research site expansion (owner upgrade 2026-09-16):
+    // Google Books / StackExchange / arXiv failures are
+    // FAILURES — the composite must fall through to the next
+    // site, never report a fake zero-hit success.
+    note.startsWith("google books api unavailable") ||
+    note.startsWith("stack exchange api unavailable") ||
+    note.startsWith("arxiv api unavailable") ||
     note.startsWith("site-scoped search not supported") ||
     // Audit fix H-4 (2026-09-11): a restricted source is never
     // searched — it must be reported as a failure, never

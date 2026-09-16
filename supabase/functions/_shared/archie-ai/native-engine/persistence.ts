@@ -12,7 +12,7 @@
 
 import { table } from "../tables.ts";
 import type { Fact, LearningOutcome } from "./types.ts";
-import { PersistenceLike, PersistedFactRow } from "./knowledge.ts";
+import { HydrationStats, PersistenceLike, PersistedFactRow } from "./knowledge.ts";
 import type { OutcomePersistence } from "./learning.ts";
 
 /** Minimal structural shape of the Supabase client the
@@ -20,9 +20,15 @@ import type { OutcomePersistence } from "./learning.ts";
  *  call sites pass `db as unknown as SupabaseLike`. */
 export interface SupabaseLike {
   from(table: string): {
-    select(query: string): PromiseLike<{
+    select(
+      query: string,
+      opts?: { count?: "exact"; head?: boolean },
+    ): PromiseLike<{
       data: unknown[] | null;
       error: unknown;
+      /** Present for { count: "exact" } selects (PostgREST
+       *  exact total — metadata only, no rows over the wire). */
+      count?: number | null;
     }> & {
       range(
         from: number,
@@ -183,37 +189,76 @@ export class SupabasePersistence
     }
   }
 
+  /** HYDRATE CAP (owner upgrade 2026-09-16) — honest stats
+   *  about the last loadFacts(): total persisted, how many
+   *  actually hydrated, the cap, and whether rows were
+   *  truncated by it. Read by FactStore.hydrate() and surfaced
+   *  in engine diagnostics — a cap is REPORTED, never silent. */
+  lastHydrationStats: HydrationStats | null = null;
+
   async loadFacts(): Promise<PersistedFactRow[]> {
-    // RESPONSE TIME (owner directive 2026-09-16): this used to
-    // select the ENTIRE facts table and sort/slice client-side —
-    // every message asserts facts (network authorizations,
-    // learned knowledge), so the table grows without bound and
-    // every cold start shipped ALL rows over the wire before the
-    // engine could answer. The most-recent-window is now the
-    // database's job: same hydrate limit, same newest-first
-    // order, O(limit) instead of O(table).
+    // RESPONSE TIME (owner directive 2026-09-16) + HYDRATE CAP
+    // (owner upgrade 2026-09-16): the most-recent window is the
+    // DATABASE's job — O(limit) over the wire — and the cap is
+    // REPORTED, never silent: an exact head-count tells
+    // diagnostics whether rows exist beyond the window.
     const base = this.db
       .from(FACTS_TABLE)
       .select(
         "id,subject,predicate,object,qualifiers,confidence,provenance,status,validated_count,verified_by,created_at",
       );
+    const cap = NATIVE_CONFIG.factHydrateLimit;
     if (typeof base.order === "function") {
       // Real client: the window is the database's job —
       // O(limit) over the wire, same newest-first order.
       const { data, error } = await base
         .order("created_at", { ascending: false })
-        .limit(NATIVE_CONFIG.factHydrateLimit);
-      if (error) return [];
-      return this.appendVocabularyFacts((data ?? []) as PersistedFactRow[]);
+        .limit(cap);
+      if (error) {
+        this.lastHydrationStats = null;
+        return [];
+      }
+      const native = (data ?? []) as PersistedFactRow[];
+      // Honest cap accounting: exact head-count (metadata
+      // only). A count failure reports NULL stats — never a
+      // guessed total.
+      let total: number | null = null;
+      try {
+        const counted = await this.db
+          .from(FACTS_TABLE)
+          .select("id", { count: "exact", head: true });
+        if (!counted.error) total = counted.count ?? null;
+      } catch {
+        total = null;
+      }
+      this.lastHydrationStats = total === null
+        ? null
+        : {
+          totalFacts: total,
+          loadedFacts: native.length,
+          cap,
+          truncated: total > native.length,
+        };
+      return this.appendVocabularyFacts(native);
     }
     // Minimal thenable double (tests): await + client-side
-    // window, exactly the pre-optimization behavior.
+    // window, exactly the pre-optimization behavior. Stats are
+    // computed from what the double holds — honest within it.
     const { data, error } = await base;
-    if (error) return [];
+    if (error) {
+      this.lastHydrationStats = null;
+      return [];
+    }
     const rows = (data ?? []) as PersistedFactRow[];
     const native = rows
       .sort((a, b) => (b.created_at ?? "").localeCompare(a.created_at ?? ""))
-      .slice(0, NATIVE_CONFIG.factHydrateLimit);
+      .slice(0, cap);
+    this.lastHydrationStats = {
+      totalFacts: rows.length,
+      loadedFacts: native.length,
+      cap,
+      truncated: rows.length > cap,
+    };
     return this.appendVocabularyFacts(native);
   }
 
