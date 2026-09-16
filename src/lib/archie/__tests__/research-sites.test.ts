@@ -10,6 +10,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   isSearchFailureNote,
+  DomainAwareSearchAdapter,
   MultiSearchAdapter,
 } from "@studio-shared/archie-ai/native-engine/webresearch.ts";
 import {
@@ -285,5 +286,86 @@ describe("MultiSearchAdapter — new research sites chain", () => {
     expect(res.hits).toHaveLength(0);
     expect(res.note).toBe("no results found for the query");
     expect(isSearchFailureNote(res.note)).toBe(false);
+  });
+
+  it("asks StackExchange BEFORE the encyclopedia for a programming question (domain-aware chain)", async () => {
+    // Recording stubs with the REAL adapter ids — the
+    // domain-aware composite reorders by id, and a stub that
+    // is never consulted must never execute.
+    const order: string[] = [];
+    const mk = (id: string, hits: number) =>
+      ({
+        id,
+        search: async () => {
+          order.push(id);
+          return {
+            hits: hits > 0
+              ? [{ url: `https://${id}.example/1`, title: `${id} hit`, snippet: "s" }]
+              : [],
+            note: hits > 0 ? "found" : "no results found for the query",
+          };
+        },
+      }) as never;
+    const chain = new DomainAwareSearchAdapter([
+      mk("duckduckgo-lite", 0), // blocked on the edge — failure note path
+      mk("wikipedia-api", 1),
+      mk("stackexchange-api", 1),
+    ]);
+    // DDG fails hard (blocked) — genuine failure note, chain
+    // continues. Programming domain: SE is promoted ahead of
+    // Wikipedia, so SE wins and Wikipedia is never consulted.
+    order.length = 0;
+    const res = await chain.search("how to center a div with css");
+    expect(res.note).toContain("stackexchange-api");
+    expect(order).toEqual(["duckduckgo-lite", "stackexchange-api"]);
+  });
+
+  it("keeps the general chain for non-programming questions", async () => {
+    const order: string[] = [];
+    const mk = (id: string, hits: number) =>
+      ({
+        id,
+        search: async () => {
+          order.push(id);
+          return {
+            hits: hits > 0
+              ? [{ url: `https://${id}.example/1`, title: `${id} hit`, snippet: "s" }]
+              : [],
+            note: hits > 0 ? "found" : "no results found for the query",
+          };
+        },
+      }) as never;
+    const chain = new DomainAwareSearchAdapter([
+      mk("duckduckgo-lite", 0),
+      mk("wikipedia-api", 1),
+      mk("stackexchange-api", 1),
+    ]);
+    const res = await chain.search("contrastive divergence in restricted boltzmann machines");
+    expect(res.note).toContain("wikipedia-api");
+    expect(order).toEqual(["duckduckgo-lite", "wikipedia-api"]);
+  });
+
+  it("routes site-scoped queries through the FULL general chain (honest declines)", async () => {
+    const order: string[] = [];
+    const mk = (id: string, note: string) =>
+      ({
+        id,
+        search: async () => {
+          order.push(id);
+          return { hits: [], note };
+        },
+      }) as never;
+    const chain = new DomainAwareSearchAdapter([
+      mk("duckduckgo-lite", "search endpoint refused this client"),
+      mk("wikipedia-api", "site-scoped search not supported by this adapter — declined"),
+      mk("stackexchange-api", "site-scoped search not supported by this adapter — declined"),
+    ]);
+    const res = await chain.search("css grid layout site:developer.mozilla.org");
+    expect(order).toEqual([
+      "duckduckgo-lite",
+      "wikipedia-api",
+      "stackexchange-api",
+    ]);
+    expect(res.note).toContain("network unavailable after all adapters");
   });
 });

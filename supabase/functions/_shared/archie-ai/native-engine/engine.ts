@@ -111,6 +111,7 @@ import {
   salientTokens,
   type ResearchAdapter,
   DuckDuckGoLiteAdapter,
+  DomainAwareSearchAdapter,
   MultiSearchAdapter,
 } from "./webresearch.ts";
 import { getWebSourceRegistry } from "./web-sources.ts";
@@ -491,7 +492,12 @@ export class ArchieNativeEngine implements ArchieRuntime {
       // DDG anomaly-blocks Supabase datacenter traffic
       // (live-verified), and a blocked primary must never
       // become a fake "no results" research report.
-      new MultiSearchAdapter([
+      // Owner upgrade 2026-09-16 (b): domain-aware chain — a
+      // programming question consults StackExchange BEFORE the
+      // encyclopedia (the pipeline's source registry already
+      // classifies domains; the composite reuses the same
+      // classifier for the open-web fallback).
+      new DomainAwareSearchAdapter([
         new DuckDuckGoLiteAdapter(),
         new WikipediaSearchAdapter(),
         // Owner upgrade 2026-09-16: Google + other documented

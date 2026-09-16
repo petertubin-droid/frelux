@@ -33,6 +33,7 @@
 import { FactStore } from "./knowledge.ts";
 import {
   WebSourceRegistry,
+  classifyQueryDomain,
   type SourceCategory,
   type SourceRecord,
 } from "./web-sources.ts";
@@ -158,6 +159,57 @@ export class MultiSearchAdapter implements ResearchAdapter {
       note: `network unavailable after all adapters — ${attempts.join("; ")}`,
     };
   }
+}
+
+/** Domain-aware research chain (owner upgrade 2026-09-16):
+ * the ORDER of heterogeneous sources follows the QUESTION.
+ * The pipeline's source registry already classifies a query's
+ * domain for its priority sites — the composite chain reuses
+ * the SAME classifier (classifyQueryDomain) so the open-web
+ * fallback also consults the best source first. A programming
+ * question asks StackExchange BEFORE the encyclopedia
+ * (previously Wikipedia's generic article pre-empted the
+ * exact StackOverflow answer); every other domain keeps the
+ * general chain. Site-scoped passes (site: queries) keep the
+ * full general chain — the site adapters decline them
+ * honestly either way, and DDG Lite serves them where its
+ * IPs are not blocked. */
+export class DomainAwareSearchAdapter implements ResearchAdapter {
+  readonly id = "domain-aware-multi-search";
+  private readonly general: MultiSearchAdapter;
+  private readonly programming: MultiSearchAdapter;
+
+  constructor(children: ResearchAdapter[]) {
+    this.general = new MultiSearchAdapter(children);
+    this.programming = new MultiSearchAdapter(
+      orderForProgramming(children),
+    );
+  }
+
+  async search(query: string): Promise<{ hits: ResearchHit[]; note: string }> {
+    if (/\bsite:\S+/i.test(query)) {
+      return this.general.search(query);
+    }
+    const { category } = classifyQueryDomain(query);
+    return category === "programming"
+      ? this.programming.search(query)
+      : this.general.search(query);
+  }
+}
+
+/** Promote the programming-first sources to the front of the
+ *  chain (behind the broadest general adapter when present).
+ *  [ddg, wikipedia, books, se, arxiv] -> [ddg, se, wikipedia,
+ *  books, arxiv]. Unknown children are left in place — this
+ *  is a REORDER, never a drop. */
+function orderForProgramming(children: ResearchAdapter[]): ResearchAdapter[] {
+  const se = children.find((c) => c.id === "stackexchange-api");
+  if (!se || children.length < 2) return children;
+  return [
+    children[0],
+    se,
+    ...children.slice(1).filter((c) => c.id !== "stackexchange-api"),
+  ];
 }
 
 /** Adapter options — injectable for deterministic fixture
