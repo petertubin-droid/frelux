@@ -21,9 +21,7 @@ import {
   DEFAULT_RULES,
   ReasoningEngine,
 } from "@studio-shared/archie-ai/native-engine/reasoning.ts";
-import {
-  CONSTRUCTION_RULES,
-} from "@studio-shared/archie-ai/native-engine/domains/construction.ts";
+import { CONSTRUCTION_RULES } from "@studio-shared/archie-ai/native-engine/domains/construction.ts";
 import { ArchieNativeEngine } from "@studio-shared/archie-ai/native-engine/engine.ts";
 import {
   composerSelfCheck,
@@ -49,7 +47,10 @@ async function seededStore() {
 describe("P8 derived-vs-taught separation", () => {
   it("derived facts are stored as derived — never auto-validated, even at high confidence", async () => {
     const store = await seededStore();
-    const reasoning = new ReasoningEngine(store, [...DEFAULT_RULES, ...CONSTRUCTION_RULES]);
+    const reasoning = new ReasoningEngine(store, [
+      ...DEFAULT_RULES,
+      ...CONSTRUCTION_RULES,
+    ]);
     await reasoning.forwardChain();
     const derived = store.query({ subject: "cement", predicate: "bag-volume" });
     expect(derived.length).toBe(1);
@@ -63,9 +64,15 @@ describe("P8 derived-vs-taught separation", () => {
 
   it("re-derivation is idempotent: reinforced, never duplicated, never promoted by repetition", async () => {
     const store = await seededStore();
-    const reasoning = new ReasoningEngine(store, [...DEFAULT_RULES, ...CONSTRUCTION_RULES]);
+    const reasoning = new ReasoningEngine(store, [
+      ...DEFAULT_RULES,
+      ...CONSTRUCTION_RULES,
+    ]);
     await reasoning.forwardChain();
-    const first = store.query({ subject: "cement", predicate: "bag-volume" })[0];
+    const first = store.query({
+      subject: "cement",
+      predicate: "bag-volume",
+    })[0];
     const countAfterFirst = store.count();
 
     const second = await reasoning.forwardChain();
@@ -81,9 +88,15 @@ describe("P8 derived-vs-taught separation", () => {
 
   it("owner contradiction parks the DERIVED fact — owner wins (derive first)", async () => {
     const store = await seededStore();
-    const reasoning = new ReasoningEngine(store, [...DEFAULT_RULES, ...CONSTRUCTION_RULES]);
+    const reasoning = new ReasoningEngine(store, [
+      ...DEFAULT_RULES,
+      ...CONSTRUCTION_RULES,
+    ]);
     await reasoning.forwardChain();
-    const derived = store.query({ subject: "cement", predicate: "bag-volume" })[0];
+    const derived = store.query({
+      subject: "cement",
+      predicate: "bag-volume",
+    })[0];
 
     // owner teaches a conflicting bag volume AFTER the derivation
     await store.assert({
@@ -116,7 +129,10 @@ describe("P8 derived-vs-taught separation", () => {
       provenance: { source: "owner-taught" },
       status: "validated",
     });
-    const reasoning = new ReasoningEngine(store, [...DEFAULT_RULES, ...CONSTRUCTION_RULES]);
+    const reasoning = new ReasoningEngine(store, [
+      ...DEFAULT_RULES,
+      ...CONSTRUCTION_RULES,
+    ]);
     await reasoning.forwardChain();
     // the rule derived the standard 0.035 m³ — contradicts the owner
     const ruleDerived = store
@@ -146,8 +162,10 @@ describe("P8 derived-vs-taught separation", () => {
     });
     const res = await engine.converse("what is the kraken hull span");
     // explicit per-fact label — never presented as owner-validated
+    // OWNER DIRECTIVE (2026-09-16): no em dashes in ARCHIE's
+    // voice — the label survives, comma-joined.
     expect(res.responseText).toMatch(
-      /DERIVED — inferred by rule chain, not owner-validated/,
+      /DERIVED, inferred by rule chain, not owner-validated/,
     );
     // the opening names derived knowledge, not "validated knowledge"
     expect(res.responseText).toMatch(/derived/i);
@@ -156,9 +174,15 @@ describe("P8 derived-vs-taught separation", () => {
 
   it("promotion out of derived requires REAL verification events (P3 gates)", async () => {
     const store = await seededStore();
-    const reasoning = new ReasoningEngine(store, [...DEFAULT_RULES, ...CONSTRUCTION_RULES]);
+    const reasoning = new ReasoningEngine(store, [
+      ...DEFAULT_RULES,
+      ...CONSTRUCTION_RULES,
+    ]);
     await reasoning.forwardChain();
-    const derived = store.query({ subject: "cement", predicate: "bag-volume" })[0];
+    const derived = store.query({
+      subject: "cement",
+      predicate: "bag-volume",
+    })[0];
 
     // owner teaches the SAME conclusion — corroborating evidence
     await store.assert({
@@ -187,9 +211,9 @@ describe("P8 derived-vs-taught separation", () => {
 
   it("composer helpers keep the derived epistemic markers (self-check)", () => {
     expect(composerSelfCheck().ok).toBe(true);
-    expect(includesDerived([{ status: "derived" }, { status: "validated" }])).toBe(
-      true,
-    );
+    expect(
+      includesDerived([{ status: "derived" }, { status: "validated" }]),
+    ).toBe(true);
     expect(includesDerived([{ status: "validated" }])).toBe(false);
   });
 });

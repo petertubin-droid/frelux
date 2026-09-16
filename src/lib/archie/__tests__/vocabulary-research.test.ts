@@ -242,7 +242,11 @@ describe("meaning research across multiple sites", () => {
     expect(reply).toContain("Researched");
     expect(reply).toContain("Free Dictionary API");
     expect(reply).toContain("could not reach");
-    expect(reply).toContain("researched knowledge, not owner-taught");
+    // OWNER DIRECTIVE (2026-09-16): the meaning line is plain —
+    // no confidence, no site list on it, no footer. The per-site
+    // report lines above still verify honesty.
+    expect(reply).toContain("Meaning kept: kwisatz means:");
+    expect(reply).not.toContain("confidence");
     const vocabRow = upserts.find((r) => r.term_key === "kwisatz");
     expect(vocabRow).toBeDefined();
     expect((vocabRow as { source?: string }).source).toBe("research");
@@ -416,9 +420,11 @@ describe("meaning research across multiple sites", () => {
       const reply =
         ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ??
         "";
+      // OWNER DIRECTIVE (2026-09-16): the answer is just the
+      // meaning; provenance lives in the registry row below.
       expect(reply).toContain("qwertyz means: a flomming widget");
-      expect(reply).toContain("researched from wiktionary.org, duckduckgo.com");
-      expect(reply).toContain("not owner-taught");
+      expect(reply).not.toContain("confidence");
+      expect(reply).not.toContain("researched from");
       const row = upserts.find((r) => r.term_key === "qwertyz") as Record<
         string,
         unknown
@@ -488,8 +494,11 @@ describe("meaning research across multiple sites", () => {
       const reply =
         ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ??
         "";
-      expect(reply).toContain("Sites say flombulate means");
-      expect(reply).toContain("could NOT store it in the registry");
+      // OWNER DIRECTIVE (2026-09-16): short honest failure, no
+      // site list or em dashes.
+      expect(reply).toContain("The dictionaries say flombulate means");
+      expect(reply).toContain("I could not save it");
+      expect(reply).not.toContain("confidence");
     });
 
     it("without persistence the lookup never runs — visitors keep the plain miss", async () => {

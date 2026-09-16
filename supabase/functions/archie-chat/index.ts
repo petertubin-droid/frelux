@@ -2125,7 +2125,15 @@ serveWithCors(async (req) => {
         organs: p.organs ?? [],
       }));
       result = {
-        parts: [{ text: cycle.responseText }],
+        // OWNER DIRECTIVE (2026-09-16): no em dashes in ARCHIE's
+        // voice — belt and braces on the outbound text too.
+        parts: [
+          {
+            text: cycle.responseText
+              .replace(/\s*[—–]\s*/g, ", ")
+              .replace(/,\s*,/g, ","),
+          },
+        ],
         engine: {
           path: "archie-unified-cognitive",
           note: "Unified cognitive loop: perception → memory retrieval → reasoning → validation → authority → learning. ARCHIE's own engine — no external AI provider.",

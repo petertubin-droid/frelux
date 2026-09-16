@@ -1668,7 +1668,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
           )
         ) {
           return this.compose(
-            `${daypart}! I'm running well — ARCHIE native engine online, ${this.facts.count()} facts loaded, every reasoning cycle green. More to the point: how are YOU doing? Tell me what's on your mind and I'll work on it with you.`,
+            `${daypart}! I'm running well, ARCHIE native engine online, every reasoning cycle green. More to the point: how are YOU doing? Tell me what's on your mind and I'll work on it with you.`,
             nlu.confidence,
             [],
           );
@@ -1866,8 +1866,10 @@ export class ArchieNativeEngine implements ArchieRuntime {
           return pending;
         }
         const d = this.diagnostics();
+        // OWNER DIRECTIVE (2026-09-16): no fact/knowledge counts
+        // in answers — the owner does not want them surfaced.
         const text =
-          `Engine: ${d.engineId}. Knowledge: ${d.counts.facts} facts (${d.counts.validatedFacts} validated). ` +
+          `Engine: ${d.engineId}. ` +
           `Reasoning rules: ${d.counts.rules}. Operators: ${d.counts.operators}. Tools: ${d.counts.tools}. ` +
           `Memory turns: ${d.counts.memoryTurns}. Outcomes learned: ${d.counts.outcomes}. Inferences: ${d.counts.inferences}. ` +
           `Self-checks run: ${d.calibration.selfChecksRun}, contradictions caught: ${d.calibration.contradictionsCaught}. ` +
@@ -1978,7 +1980,10 @@ export class ArchieNativeEngine implements ArchieRuntime {
             if (means.length > 0) {
               const f = means[0];
               return this.compose(
-                `${f.subject} means: ${String(f.object)} [confidence ${(f.confidence * 100).toFixed(0)}%, ${f.provenance.source}]`,
+                // OWNER DIRECTIVE (2026-09-16): a definition
+                // answer is just the meaning — no confidence,
+                // no provenance, no footnotes.
+                `${f.subject} means: ${String(f.object)}`,
                 0.9,
                 [f.id],
               );
@@ -2018,14 +2023,17 @@ export class ArchieNativeEngine implements ArchieRuntime {
                   report.confidence,
                 );
                 if (stored) {
+                  // OWNER DIRECTIVE (2026-09-16): just the meaning.
+                  // The provenance lives in the registry where the
+                  // owner can inspect it; the answer stays clean.
                   return this.compose(
-                    `${term} means: ${report.meaning} [confidence ${(report.confidence * 100).toFixed(0)}%, vocabulary registry (research) — researched from ${report.domains.join(", ")}, ${report.note}]. This is researched knowledge, not owner-taught — teach me a correction anytime and yours overwrites it.`,
+                    `${term} means: ${report.meaning}`,
                     report.confidence,
                     [],
                   );
                 }
                 return this.compose(
-                  `Sites say ${term} means: ${report.meaning} [researched from ${report.domains.join(", ")}] — but I could NOT store it in the registry, so a later question may not answer from it. That is an honest failure, not a saved definition. Teach me what it means and I will keep it with your provenance.`,
+                  `The dictionaries say ${term} means: ${report.meaning} But I could not save it, so teach me to keep it.`,
                   report.confidence * 0.6,
                   [],
                 );
@@ -2312,7 +2320,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
           // "validated knowledge" marker survives in every
           // variant (composer self-check enforces it).
           return this.compose(
-            `${unknownOpening(input)} My knowledge store holds ${this.facts.count()} facts — none matched. ` +
+            `${unknownOpening(input)} I found nothing in my knowledge that matches that. ` +
               `I can research it on the open web (cross-checked, stored as candidate knowledge for validation) or you can teach me directly; both are real options. ${plan.executable ? `Research plan is ready (${plan.steps.length} steps).` : ""}`,
             nlu.confidence * 0.5,
             [],
@@ -2445,7 +2453,7 @@ export class ArchieNativeEngine implements ArchieRuntime {
             );
             if (ok) {
               return this.compose(
-                `Understood — ${term} means: ${meaning}. Kept in my vocabulary registry, taught by you; I will answer from it with provenance and protect the word from my typo corrector.`,
+                `Understood. ${term} means: ${meaning}. Kept.`,
                 nlu.confidence,
                 [],
               );
@@ -2786,11 +2794,11 @@ export class ArchieNativeEngine implements ArchieRuntime {
               );
             }
             if (stored) {
+              // OWNER DIRECTIVE (2026-09-16): the report keeps the
+              // per-site detail (that is what "research it" asks
+              // for); the meaning line stays clean.
               lines.push(
-                `Meaning kept: ${report.term} means: ${report.meaning} [confidence ${(report.confidence * 100).toFixed(0)}%, researched from ${report.domains.join(", ")} — ${report.note}].`,
-              );
-              lines.push(
-                "This is researched knowledge, not owner-taught — teach me a correction anytime and your definition overwrites it.",
+                `Meaning kept: ${report.term} means: ${report.meaning}`,
               );
             } else {
               lines.push(
@@ -3503,9 +3511,15 @@ export class ArchieNativeEngine implements ArchieRuntime {
     plan?: Plan,
     toolResults?: ConverseResult["toolResults"],
   ): ConverseResult {
+    // OWNER DIRECTIVE (2026-09-16): plain answers — ARCHIE does
+    // not use em dashes in its voice. Sanitized centrally here so
+    // every answer path (including future ones) is covered.
+    const cleanText = responseText
+      .replace(/\s*[—–]\s*/g, ", ")
+      .replace(/,\s*,/g, ",");
     return {
       nlu: understand(""),
-      responseText,
+      responseText: cleanText,
       confidence: Math.max(0.01, Math.min(1, confidence)),
       citedFactIds,
       selfCheck: {

@@ -138,7 +138,8 @@ describe("Engine inference (end-to-end)", () => {
     // P6: phrasing varies by composer variant — assert the
     // epistemic MARKER, not the connective wording.
     expect(text).toMatch(/validated knowledge/i);
-    expect(text).toMatch(/none matched/i);
+    // OWNER DIRECTIVE (2026-09-16): plain answers, no fact counts.
+    expect(text).toMatch(/found nothing/i);
     expect(text).toMatch(/research|teach/i);
   });
 

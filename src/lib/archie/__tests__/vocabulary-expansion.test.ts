@@ -24,7 +24,10 @@ import {
   seedMeansFacts,
   seedVocabularyCount,
 } from "@studio-shared/archie-ai/knowledge/vocabulary.ts";
-import { correctConversationalTypos, understand } from "@studio-shared/archie-ai/native-engine/nlu.ts";
+import {
+  correctConversationalTypos,
+  understand,
+} from "@studio-shared/archie-ai/native-engine/nlu.ts";
 import { ArchieNativeEngine } from "@studio-shared/archie-ai/native-engine/engine.ts";
 import { SupabasePersistence } from "@studio-shared/archie-ai/native-engine/persistence.ts";
 
@@ -57,10 +60,21 @@ describe("seed integrity", () => {
   it("covers every English word class the owner listed", () => {
     const classes = new Set(SEED_VOCABULARY.map((e) => e.wordClass));
     for (const required of [
-      "pronoun", "noun", "verb", "adjective", "adverb",
-      "preposition", "conjunction", "determiner", "number",
-      "time", "color", "interjection", "expression",
-      "abbreviation", "phrase",
+      "pronoun",
+      "noun",
+      "verb",
+      "adjective",
+      "adverb",
+      "preposition",
+      "conjunction",
+      "determiner",
+      "number",
+      "time",
+      "color",
+      "interjection",
+      "expression",
+      "abbreviation",
+      "phrase",
     ]) {
       expect(classes, `missing class ${required}`).toContain(required);
     }
@@ -81,7 +95,10 @@ describe("seed integrity", () => {
       expect(types).toContain(t);
     }
     for (const term of ["brb", "abeg", "wahala", "piece of cake"]) {
-      expect(SEED_VOCABULARY.some((e) => e.term === term), term).toBe(true);
+      expect(
+        SEED_VOCABULARY.some((e) => e.term === term),
+        term,
+      ).toBe(true);
     }
   });
 });
@@ -90,14 +107,22 @@ describe("corrector protection", () => {
   it("never corrects a registered seed word", () => {
     // heart and service were previously corrupted into hear
     // and services; registration must end that permanently.
-    expect(correctConversationalTypos("my heart is full of joy")).toContain("heart");
-    expect(correctConversationalTypos("is the engine at my service")).toContain("service");
-    expect(correctConversationalTypos("the apple and banana are tasty")).toContain("apple");
+    expect(correctConversationalTypos("my heart is full of joy")).toContain(
+      "heart",
+    );
+    expect(correctConversationalTypos("is the engine at my service")).toContain(
+      "service",
+    );
+    expect(
+      correctConversationalTypos("the apple and banana are tasty"),
+    ).toContain("apple");
   });
 
   it("never corrects a word learned live from conversation", () => {
     registerLearnedTerms(["kwisatz"]);
-    expect(correctConversationalTypos("the kwisatz is here")).toContain("kwisatz");
+    expect(correctConversationalTypos("the kwisatz is here")).toContain(
+      "kwisatz",
+    );
     expect(isKnownVocabularyTerm("kwisatz")).toBe(true);
   });
 
@@ -138,7 +163,9 @@ describe("capture", () => {
     expect(isWhContraction("whens")).toBe(true);
     expect(isWhContraction("how")).toBe(false);
     expect(isWhContraction("services")).toBe(false);
-    expect(extractCandidateTokens("hows your engine doing")).not.toContain("hows");
+    expect(extractCandidateTokens("hows your engine doing")).not.toContain(
+      "hows",
+    );
     registerLearnedTerms(["hows"]);
     expect(isKnownVocabularyTerm("hows")).toBe(false);
     const fixed = correctConversationalTypos("hows your engine doing");
@@ -177,9 +204,15 @@ describe("owner teaching of meanings (self-evolving vocabulary)", () => {
     // live incident 2026-09-13: "kwisatz means sacred weed"
     // fell to the Bayes fallback and misrouted to gratitude.
     expect(understand("kwisatz means sacred weed").intent).toBe("teaching");
-    expect(understand("the word kwisatz means sacred weed").intent).toBe("teaching");
-    expect(understand("brb is short for be right back").intent).toBe("teaching");
-    expect(understand("shakara is another word for showing off").intent).toBe("teaching");
+    expect(understand("the word kwisatz means sacred weed").intent).toBe(
+      "teaching",
+    );
+    expect(understand("brb is short for be right back").intent).toBe(
+      "teaching",
+    );
+    expect(understand("shakara is another word for showing off").intent).toBe(
+      "teaching",
+    );
     // definition QUESTIONS are not teaching
     expect(understand("what does garri mean").intent).not.toBe("teaching");
     expect(understand("thanks a lot").intent).toBe("gratitude");
@@ -215,13 +248,19 @@ describe("owner teaching of meanings (self-evolving vocabulary)", () => {
       >[0],
     });
     const res = await engine.generate({
-      turns: [{ role: "owner", parts: [{ text: "kwisatz means sacred weed" }] }],
+      turns: [
+        { role: "owner", parts: [{ text: "kwisatz means sacred weed" }] },
+      ],
       tools: [],
       systemInstruction: "",
     });
-    const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
-    expect(reply).toContain("vocabulary registry");
-    expect(reply).toContain("kwisatz");
+    const reply =
+      ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ??
+      "";
+    // OWNER DIRECTIVE (2026-09-16): teaching answers are short —
+    // no registry narration, no provenance footer.
+    expect(reply).toContain("kwisatz means: sacred weed");
+    expect(reply).toContain("Kept.");
     const vocabRow = upserts.find(
       (r) => (r as { term_key?: string }).term_key === "kwisatz",
     );
@@ -233,11 +272,15 @@ describe("owner teaching of meanings (self-evolving vocabulary)", () => {
   it("without persistence the teaching still lands in the fact store", async () => {
     const engine = new ArchieNativeEngine();
     const res = await engine.generate({
-      turns: [{ role: "owner", parts: [{ text: "kwisatz means sacred weed" }] }],
+      turns: [
+        { role: "owner", parts: [{ text: "kwisatz means sacred weed" }] },
+      ],
       tools: [],
       systemInstruction: "",
     });
-    const reply = ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ?? "";
+    const reply =
+      ((res as { parts?: Array<{ text?: string }> }).parts ?? [{}])[0].text ??
+      "";
     expect(reply).toContain("Retained as your assertion");
   });
 });
