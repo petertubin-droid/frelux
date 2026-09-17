@@ -262,7 +262,7 @@ BEGIN
   --     mapped (registry: _shared/semantic-graph/relations.ts).
   --     Unmapped relation types are counted and reported,
   --     never silently guessed.
-  WITH mapped AS (
+  WITH mapped_per_row AS (
     SELECT r.id,
            CASE r.relation_type
              WHEN 'HYPERNYM' THEN 'IS_A'
@@ -283,21 +283,32 @@ BEGIN
              WHEN 'DOMAIN_REGION' THEN 'USED_IN_DOMAIN'
              ELSE NULL
            END AS graph_rel,
-           r.source_id, r.relation_type, r.from_synset_key, r.to_synset_key
+           r.source_id, r.relation_type AS orig_type, r.from_synset_key, r.to_synset_key
     FROM public.lexicon_relationships r
     JOIN public.semantic_graph_nodes n1 ON n1.concept_key = r.from_synset_key
     JOIN public.semantic_graph_nodes n2 ON n2.concept_key = r.to_synset_key
+  -- Aggregate: several source relations can map to the SAME
+  -- graph relation for the same synset pair (e.g. MERONYM_PART
+  -- and MERONYM_MEMBER both -> HAS_PART). One edge per
+  -- (from, graph_rel, to) — ALL source relations are preserved
+  -- in the provenance string, never silently dropped.
+  ), mapped AS (
+    SELECT from_synset_key, to_synset_key, graph_rel,
+           min(source_id::text)::uuid AS source_id,
+           string_agg(DISTINCT orig_type, ',' ORDER BY orig_type) AS orig_types
+    FROM mapped_per_row
+    WHERE graph_rel IS NOT NULL
+    GROUP BY from_synset_key, to_synset_key, graph_rel
   ), ins AS (
     INSERT INTO public.semantic_graph_edges
       (source_concept_key, relation_type, target_concept_key,
        knowledge_status, confidence, provenance, evidence, source_id)
     SELECT m.from_synset_key, m.graph_rel, m.to_synset_key,
            'VERIFIED', 1.0,
-           'Open English WordNet (CC BY 4.0) via lexicon_relationships: ' || m.relation_type,
-           'OEWN ' || m.relation_type || ': mapped to ' || m.graph_rel || ' (directly sourced meaning)',
+           'Open English WordNet (CC BY 4.0) via lexicon_relationships: ' || m.orig_types,
+           'OEWN ' || m.orig_types || ': mapped to ' || m.graph_rel || ' (directly sourced meaning)',
            m.source_id
     FROM mapped m
-    WHERE m.graph_rel IS NOT NULL
     ON CONFLICT (source_concept_key, relation_type, target_concept_key) DO UPDATE SET
       knowledge_status = EXCLUDED.knowledge_status,
       confidence = EXCLUDED.confidence,
@@ -340,23 +351,34 @@ BEGIN
   ), skipped AS (
     SELECT count(*) AS n FROM pairs
     WHERE from_key IS NULL OR to_key IS NULL
+  -- Aggregate: derivation, pertainym, also-see, exemplifies and
+  -- the ROLE_* family ALL map to RELATED_TO for the same
+  -- concept pair. One edge per (from, graph_rel, to) — ALL
+  -- source relations preserved in provenance, never dropped.
   ), mapped AS (
-    SELECT p.from_key, p.to_key, p.orig_type, p.source_id,
+    SELECT p.from_key, p.to_key,
            CASE p.orig_type
              WHEN 'ANTONYM' THEN 'CONTRASTS_WITH'
              ELSE 'RELATED_TO'
-           END AS graph_rel
+           END AS graph_rel,
+           min(p.source_id::text)::uuid AS source_id,
+           string_agg(p.orig_type, ',' ORDER BY p.orig_type) AS orig_types
     FROM pairs p
     JOIN public.semantic_graph_nodes n1 ON n1.concept_key = p.from_key
     JOIN public.semantic_graph_nodes n2 ON n2.concept_key = p.to_key
+    GROUP BY p.from_key, p.to_key,
+             CASE p.orig_type
+               WHEN 'ANTONYM' THEN 'CONTRASTS_WITH'
+               ELSE 'RELATED_TO'
+             END
   ), ins AS (
     INSERT INTO public.semantic_graph_edges
       (source_concept_key, relation_type, target_concept_key,
        knowledge_status, confidence, provenance, evidence, source_id)
     SELECT m.from_key, m.graph_rel, m.to_key,
            'VERIFIED', 1.0,
-           'Open English WordNet (CC BY 4.0) via lexicon_sense_relations: ' || m.orig_type,
-           'OEWN ' || m.orig_type || ': mapped to ' || m.graph_rel || ' (directly sourced meaning)',
+           'Open English WordNet (CC BY 4.0) via lexicon_sense_relations: ' || m.orig_types,
+           'OEWN ' || m.orig_types || ': mapped to ' || m.graph_rel || ' (directly sourced meaning)',
            m.source_id
     FROM mapped m
     ON CONFLICT (source_concept_key, relation_type, target_concept_key) DO UPDATE SET
