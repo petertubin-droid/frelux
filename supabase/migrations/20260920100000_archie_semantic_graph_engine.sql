@@ -29,7 +29,7 @@
 --     so "bank" (financial) and "bank" (river) are separate
 --     concept nodes linked to their own senses
 --   * no fabricated knowledge: every edge is mapped from a
---     sourced OEWN 2025 relation; the original relation is
+--     sourced OEWN relation; the original relation is
 --     preserved in provenance; only relations whose sourced
 --     meaning directly matches a graph relation type are
 --     mapped (mapping table in _shared/semantic-graph/relations.ts)
@@ -89,7 +89,7 @@ CREATE TABLE IF NOT EXISTS public.semantic_graph_edges (
   knowledge_status text NOT NULL DEFAULT 'UNVERIFIED'
     CHECK (knowledge_status IN ('VERIFIED','LEARNED','USER_PROVIDED','UNVERIFIED')),
   confidence numeric,
-  provenance text NOT NULL DEFAULT '',    -- e.g. "OEWN 2025 ... via lexicon_relationships: HYPERNYM"
+  provenance text NOT NULL DEFAULT '',    -- e.g. "Open English WordNet (CC BY 4.0) ... via lexicon_relationships: HYPERNYM"
   evidence text,                          -- direction/semantics note from the source dataset
   domain text,
   source_id uuid REFERENCES public.lexicon_sources(id),
@@ -235,7 +235,10 @@ BEGIN
     SELECT a.synset_key, a.synset_key, a.canonical_name, a.sense_external_ids,
            a.description, a.domain, a.language, a.region, 'VERIFIED', 1.0,
            a.source_id,
-           'concept derived from OEWN 2025 synset ' || a.synset_key ||
+           'concept derived from OEWN ' ||
+             coalesce((SELECT ls.version FROM public.lexicon_sources ls
+                       WHERE ls.id = a.source_id), 'unknown edition') ||
+           ' synset ' || a.synset_key ||
            ' (via ARCHIE Universal Lexicon)'
     FROM agg a
     ON CONFLICT (concept_key) DO UPDATE SET
@@ -290,12 +293,18 @@ BEGIN
        knowledge_status, confidence, provenance, evidence, source_id)
     SELECT m.from_synset_key, m.graph_rel, m.to_synset_key,
            'VERIFIED', 1.0,
-           'OEWN 2025 (Open English WordNet, CC BY 4.0) via lexicon_relationships: ' || m.relation_type,
+           'Open English WordNet (CC BY 4.0) via lexicon_relationships: ' || m.relation_type,
            'OEWN ' || m.relation_type || ': mapped to ' || m.graph_rel || ' (directly sourced meaning)',
            m.source_id
     FROM mapped m
     WHERE m.graph_rel IS NOT NULL
-    ON CONFLICT (source_concept_key, relation_type, target_concept_key) DO NOTHING
+    ON CONFLICT (source_concept_key, relation_type, target_concept_key) DO UPDATE SET
+      knowledge_status = EXCLUDED.knowledge_status,
+      confidence = EXCLUDED.confidence,
+      provenance = EXCLUDED.provenance,
+      evidence = EXCLUDED.evidence,
+      source_id = EXCLUDED.source_id,
+      updated_date = now()
     RETURNING 1
   )
   SELECT count(*) INTO v_synset_edges_ins FROM ins;
@@ -346,11 +355,17 @@ BEGIN
        knowledge_status, confidence, provenance, evidence, source_id)
     SELECT m.from_key, m.graph_rel, m.to_key,
            'VERIFIED', 1.0,
-           'OEWN 2025 (Open English WordNet, CC BY 4.0) via lexicon_sense_relations: ' || m.orig_type,
+           'Open English WordNet (CC BY 4.0) via lexicon_sense_relations: ' || m.orig_type,
            'OEWN ' || m.orig_type || ': mapped to ' || m.graph_rel || ' (directly sourced meaning)',
            m.source_id
     FROM mapped m
-    ON CONFLICT (source_concept_key, relation_type, target_concept_key) DO NOTHING
+    ON CONFLICT (source_concept_key, relation_type, target_concept_key) DO UPDATE SET
+      knowledge_status = EXCLUDED.knowledge_status,
+      confidence = EXCLUDED.confidence,
+      provenance = EXCLUDED.provenance,
+      evidence = EXCLUDED.evidence,
+      source_id = EXCLUDED.source_id,
+      updated_date = now()
     RETURNING 1
   )
   SELECT count(*) INTO v_sense_edges_ins FROM ins;

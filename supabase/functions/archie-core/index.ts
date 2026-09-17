@@ -78,6 +78,14 @@ import {
 // knowledge in the live language pathway (spec §LEXICON).
 import { lexicalGroundTruth } from "../_shared/lexicon/retrieval.ts";
 import { semanticGraphGroundTruth } from "../_shared/semantic-graph/retrieval.ts";
+// ARCHIE Context & Inference Engine — the third intelligence
+// layer (spec §§1–27): sits above the lexicon + graph layers,
+// assembles bounded context, builds evidence premises, runs
+// controlled inference with FACT vs INFERENCE labels intact,
+// flags contradictions, and preserves uncertainty honestly.
+import { inferenceGroundTruth } from "../_shared/inference/engine.ts";
+import type { InferenceGroundTruth } from "../_shared/inference/types.ts";
+import { EMPTY_INFERENCE_GROUND_TRUTH } from "../_shared/inference/types.ts";
 import { rateLimitedResponse } from "../_shared/cors.ts";
 configureCognitiveEnginePersistence(
   service as unknown as import("../_shared/archie-ai/native-engine/persistence.ts").SupabaseLike,
@@ -890,6 +898,31 @@ async function executeCore(
       console.warn("[archie-core] semantic graph retrieval failed:", graphErr);
     }
 
+    // ARCHIE Context & Inference Engine (third layer, spec
+    // §§1, 18): bounded context analysis → lexicon sense
+    // identification → graph retrieval → evidence + inference
+    // → ARCHIE reasoning. FACT vs INFERENCE vs USER-PREMISE
+    // labels stay inseparable through the prompt; the
+    // machine-readable trace rides in the audit ledger only.
+    // Engine failure NEVER blocks the chat path (honest
+    // degradation, same contract as the lexicon/graph layers).
+    let inferenceGT: InferenceGroundTruth = EMPTY_INFERENCE_GROUND_TRUTH;
+    try {
+      inferenceGT = await inferenceGroundTruth(
+        service as unknown as import("../_shared/semantic-graph/retrieval.ts").GraphClient,
+        message ?? "",
+        (body.history ?? [])
+          .slice(-8)
+          .map((h: { role: string; content: string }) => ({
+            role: h.role,
+            content: h.content,
+          })),
+        { language: language.res.language_code },
+      );
+    } catch (infErr) {
+      console.warn("[archie-core] context & inference engine failed:", infErr);
+    }
+
     const languageDirective =
       language.res.language_code === "en"
         ? ""
@@ -917,7 +950,8 @@ async function executeCore(
         : "") +
       (terminology.block ? `\n\n${terminology.block}` : "") +
       (lexical.block ? `\n\n${lexical.block}` : "") +
-      (graphGT.block ? `\n\n${graphGT.block}` : "");
+      (graphGT.block ? `\n\n${graphGT.block}` : "") +
+      (inferenceGT.block ? `\n\n${inferenceGT.block}` : "");
 
     emit?.("progress", { type: "stage", stage: "reasoning" });
     const inference = await infer({
@@ -975,6 +1009,34 @@ async function executeCore(
           concepts_ambiguous: graphGT.conceptsAmbiguous.length,
           edges_retrieved: graphGT.edgesRetrieved,
         },
+        // ARCHIE Context & Inference Engine — the machine-readable
+        // inference trace (spec §16): premises, rules fired,
+        // confidence, contradictions, rejected chains.
+        // Append-only ledger data, never chain-of-thought.
+        context_inference: {
+          prior_turns_loaded: inferenceGT.context.relevantPriorTurns.length,
+          domain_candidates: inferenceGT.context.domainCandidates,
+          terms_examined: inferenceGT.termsExamined,
+          edges_examined: inferenceGT.edgesExamined,
+          extra_hops: inferenceGT.extraHopsRetrieved,
+          facts: inferenceGT.facts.length,
+          inferences: inferenceGT.inferences.map((i) => ({
+            rule: i.ruleId,
+            category: i.category,
+            confidence: i.confidence,
+            hops: i.conclusion.hops,
+            conclusion: i.conclusion.statement,
+            user_premise_based: i.conclusion.dependsOnUserPremise,
+            premise_ids: i.premiseIds,
+          })),
+          contradictions: inferenceGT.contradictions.map((c) => c.statement),
+          rejected_chains: inferenceGT.rejectedChains,
+          carried_ambiguities: inferenceGT.carriedAmbiguities.map(
+            (a) => a.term,
+          ),
+          user_premises: inferenceGT.context.userPremises.length,
+          source_label: inferenceGT.sourceLabel,
+        },
       }),
       service.from("frelux_infrastructure_costs").insert({
         operation_class: "INTERNAL_ARCHIE_OPERATION",
@@ -1017,6 +1079,17 @@ async function executeCore(
         concepts_ambiguous: graphGT.conceptsAmbiguous,
         edges_retrieved: graphGT.edgesRetrieved,
       },
+      // ARCHIE Context & Inference Engine summary (honest
+      // coverage — what the inference layer actually did
+      // this turn; traces stay in the audit ledger)
+      context_inference: {
+        terms_examined: inferenceGT.termsExamined,
+        facts: inferenceGT.facts.length,
+        inferences: inferenceGT.inferences.length,
+        contradictions: inferenceGT.contradictions.length,
+        carried_ambiguities: inferenceGT.carriedAmbiguities.map((a) => a.term),
+      },
+
       // Model transparency (spec §§1, 11, 39): ARCHIE's identity is the
       // Intelligence Core; the runtime/adapter is a replaceable part and is
       // reported separately, never as ARCHIE's brain.

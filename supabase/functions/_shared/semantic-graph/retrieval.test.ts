@@ -89,7 +89,7 @@ function materializeFixtureGraph() {
         knowledge_status: "VERIFIED",
         confidence: 1,
         source_id: s.source_id ?? null,
-        provenance: `concept derived from OEWN 2025 synset ${s.synset_key} (via ARCHIE Universal Lexicon)`,
+        provenance: `concept derived from OEWN ${fixture.source?.version ?? "unknown edition"} synset ${s.synset_key} (via ARCHIE Universal Lexicon)`,
         version: 1,
       };
       nodesByKey.set(s.synset_key, n);
@@ -276,6 +276,7 @@ beforeEach(() => {
   rpcImpl = null;
   tables.set("lexicon_words", fixture.words as Row[]);
   tables.set("lexicon_senses", fixture.senses as Row[]);
+  tables.set("lexicon_sources", [fixture.source] as Row[]);
   tables.set("semantic_graph_nodes", [...graph.nodes] as Row[]);
   tables.set("semantic_graph_edges", [...graph.edges] as Row[]);
 });
@@ -300,7 +301,9 @@ describe("semantic graph — nodes", () => {
     expect(n!.canonical_name).toBe("cement");
     expect(n!.knowledge_status).toBe("VERIFIED");
     expect(n!.confidence).toBe(1);
-    expect(n!.provenance).toMatch(/OEWN 2025 synset 14828345-n/);
+    expect(n!.provenance).toMatch(
+      new RegExp(`OEWN ${fixture.source.version} synset 14828345-n`),
+    );
     expect(n!.description).toMatch(/building material/);
   });
 
@@ -358,7 +361,9 @@ describe("semantic graph — relationships", () => {
     ).toBe(true);
     for (const { edge } of neighbors) {
       expect(edge.knowledge_status).toBe("VERIFIED");
-      expect(edge.provenance).toMatch(/^OEWN 2025 .* via lexicon_/);
+      expect(edge.provenance).toMatch(
+        /^Open English WordNet \(CC BY 4\.0\) .* via lexicon_/,
+      );
     }
   });
 
@@ -573,7 +578,9 @@ describe("semantic graph — ARCHIE turn ground truth", () => {
       gt.conceptsIdentified.some((c) => c.term === "bank") ||
       gt.conceptsAmbiguous.includes("bank");
     expect(bankTouched).toBe(true);
-    expect(gt.block).toMatch(/\[VERIFIED, OEWN 2025\]/);
+    expect(gt.block).toMatch(
+      new RegExp(`\\[VERIFIED, OEWN ${fixture.source.version}\\]`),
+    );
     expect(gt.block).toMatch(/knowledge status/);
     expect(gt.termsExamined).toBeGreaterThan(0);
     expect(gt.edgesRetrieved).toBeGreaterThan(0);

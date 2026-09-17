@@ -300,7 +300,7 @@ export const CAUSAL_RELATION_TYPES: string[] = Object.values(RELATION_TYPES)
 // ---------- lexicon → graph mapping (spec §7) ----------
 //
 // The Universal Lexicon is the initial lexical foundation.
-// Each mapping below maps a sourced OEWN 2025 relation to the
+// Each mapping below maps a sourced OEWN relation to the
 // semantic relation whose meaning it DIRECTLY carries. The
 // original relation type is preserved in the edge provenance
 // string; nothing is inferred, collapsed or invented.
@@ -537,7 +537,7 @@ export const LEXICON_RELATION_MAPPINGS: LexiconRelationMapping[] = [
  *  (matches the materialization in
  *  20260920100000_archie_semantic_graph_engine.sql). */
 export const LEXICON_EDGE_PROVENANCE =
-  "OEWN 2025 (Open English WordNet, CC BY 4.0)";
+  "Open English WordNet (CC BY 4.0) — sourced lexicon materialization";
 
 export function lexiconMappingFor(
   lexiconTable: LexiconRelationMapping["lexiconTable"],

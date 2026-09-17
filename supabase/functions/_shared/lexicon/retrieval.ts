@@ -84,17 +84,124 @@ export interface LexiconClient {
 // ---------- text processing (deterministic) ----------
 
 const STOPWORDS = new Set([
-  "a", "an", "the", "and", "or", "but", "if", "of", "at", "by", "for",
-  "with", "about", "into", "to", "from", "in", "on", "out", "over", "under",
-  "is", "are", "was", "were", "be", "been", "being", "am", "do", "does",
-  "did", "have", "has", "had", "will", "would", "shall", "should", "can",
-  "could", "may", "might", "must", "i", "you", "he", "she", "it", "we",
-  "they", "me", "him", "her", "us", "them", "my", "your", "his", "its",
-  "our", "their", "this", "that", "these", "those", "there", "here",
-  "what", "which", "who", "whom", "when", "where", "why", "how", "not",
-  "no", "yes", "so", "as", "than", "then", "too", "very", "just", "also",
-  "up", "down", "all", "any", "some", "such", "own", "same", "other",
+  "a",
+  "an",
+  "the",
+  "and",
+  "or",
+  "but",
+  "if",
+  "of",
+  "at",
+  "by",
+  "for",
+  "with",
+  "about",
+  "into",
+  "to",
+  "from",
+  "in",
+  "on",
+  "out",
+  "over",
+  "under",
+  "is",
+  "are",
+  "was",
+  "were",
+  "be",
+  "been",
+  "being",
+  "am",
+  "do",
+  "does",
+  "did",
+  "have",
+  "has",
+  "had",
+  "will",
+  "would",
+  "shall",
+  "should",
+  "can",
+  "could",
+  "may",
+  "might",
+  "must",
+  "i",
+  "you",
+  "he",
+  "she",
+  "it",
+  "we",
+  "they",
+  "me",
+  "him",
+  "her",
+  "us",
+  "them",
+  "my",
+  "your",
+  "his",
+  "its",
+  "our",
+  "their",
+  "this",
+  "that",
+  "these",
+  "those",
+  "there",
+  "here",
+  "what",
+  "which",
+  "who",
+  "whom",
+  "when",
+  "where",
+  "why",
+  "how",
+  "not",
+  "no",
+  "yes",
+  "so",
+  "as",
+  "than",
+  "then",
+  "too",
+  "very",
+  "just",
+  "also",
+  "up",
+  "down",
+  "all",
+  "any",
+  "some",
+  "such",
+  "own",
+  "same",
+  "other",
 ]);
+
+/** The CURRENT knowledge-edition label from lexicon_sources
+ *  (the source of truth — never hardcoded, so edition
+ *  upgrades ride along automatically). One bounded query on
+ *  a tiny table; honest fallback on failure. */
+export async function latestSourceLabel(svc: LexiconClient): Promise<string> {
+  try {
+    const { data } = await svc
+      .from("lexicon_sources")
+      .select("dataset,version")
+      .limit(10);
+    const rows = (data ?? []) as Array<{ dataset?: string; version?: string }>;
+    if (!rows.length) return "OEWN (no registered source)";
+    const latest = rows.reduce((a, b) =>
+      String(b.version ?? "") > String(a.version ?? "") ? b : a,
+    );
+    return `OEWN ${latest.version ?? "(unknown version)"}`;
+  } catch {
+    return "OEWN (source lookup failed)";
+  }
+}
 
 export function lexicalTokens(text: string): string[] {
   return text
@@ -111,10 +218,12 @@ export function stem(token: string): string {
   if (t.endsWith("ing") && t.length > 5) {
     t = t.slice(0, -3);
     // running → runn → run (undo doubled final consonant)
-    if (/(\w)\1$/.test(t) && t.length > 3 && !/[aeiou]\1$/.test(t)) t = t.slice(0, -1);
+    if (/(\w)\1$/.test(t) && t.length > 3 && !/[aeiou]\1$/.test(t))
+      t = t.slice(0, -1);
   } else if (t.endsWith("ies") && t.length > 4) t = t.slice(0, -3) + "y";
   else if (t.endsWith("es") && t.length > 4) t = t.slice(0, -2);
-  else if (t.endsWith("s") && !t.endsWith("ss") && t.length > 3) t = t.slice(0, -1);
+  else if (t.endsWith("s") && !t.endsWith("ss") && t.length > 3)
+    t = t.slice(0, -1);
   else if (t.endsWith("ed") && t.length > 4) t = t.slice(0, -2);
   return t;
 }
@@ -122,7 +231,11 @@ export function stem(token: string): string {
 function jsonArr(v: string[] | string | null | undefined): string[] {
   if (Array.isArray(v)) return v;
   if (typeof v === "string") {
-    try { return JSON.parse(v) ?? []; } catch { return []; }
+    try {
+      return JSON.parse(v) ?? [];
+    } catch {
+      return [];
+    }
   }
   return [];
 }
@@ -141,14 +254,16 @@ export async function lookupWords(
 ): Promise<Array<{ word: LexiconWordRow; senses: LexiconSenseRow[] }>> {
   const statuses = opts.statuses ?? ["VERIFIED"];
   const language = opts.language ?? "en";
-  const normalized = Array.from(new Set(
-    forms.map((f) => f.trim().toLowerCase()).filter(Boolean),
-  ));
+  const normalized = Array.from(
+    new Set(forms.map((f) => f.trim().toLowerCase()).filter(Boolean)),
+  );
   if (!normalized.length) return [];
 
   const { data: words } = await svc
     .from("lexicon_words")
-    .select("id,canonical,normalized,spelling_variants,language,regional_usage,pronunciation,part_of_speech,unit_type,inflection_metadata,frequency")
+    .select(
+      "id,canonical,normalized,spelling_variants,language,regional_usage,pronunciation,part_of_speech,unit_type,inflection_metadata,frequency",
+    )
     .in("normalized", normalized)
     .eq("language", language)
     .order("part_of_speech")
@@ -158,8 +273,13 @@ export async function lookupWords(
 
   const { data: senses } = await svc
     .from("lexicon_senses")
-    .select("id,word_id,source_id,external_id,synset_key,definition,usage_examples,domain,register,region,grammatical,confidence,knowledge_status,version")
-    .in("word_id", wordRows.map((w) => w.id))
+    .select(
+      "id,word_id,source_id,external_id,synset_key,definition,usage_examples,domain,register,region,grammatical,confidence,knowledge_status,version",
+    )
+    .in(
+      "word_id",
+      wordRows.map((w) => w.id),
+    )
     .in("knowledge_status", statuses)
     .order("external_id")
     .limit(40 * wordRows.length);
@@ -184,16 +304,16 @@ export async function lookupWord(
 
 export interface SenseCandidate {
   sense: LexiconSenseRow;
-  score: number;          // direct evidence (definition/example overlap)
-  chainScore: number;      // weak evidence (lexical chain via context words' senses)
+  score: number; // direct evidence (definition/example overlap)
+  chainScore: number; // weak evidence (lexical chain via context words' senses)
   reason: string;
 }
 
 export interface ContextualSelection {
-  candidates: SenseCandidate[];     // ranked, deterministic
-  selected: SenseCandidate | null;  // only with DIRECT evidence
+  candidates: SenseCandidate[]; // ranked, deterministic
+  selected: SenseCandidate | null; // only with DIRECT evidence
   ambiguous: boolean;
-  note: string;                     // honest explanation
+  note: string; // honest explanation
 }
 
 /**
@@ -220,7 +340,12 @@ export async function selectContextualSenses(
   if (!entries.length) {
     return {
       word: null,
-      selection: { candidates: [], selected: null, ambiguous: true, note: "not in lexicon" },
+      selection: {
+        candidates: [],
+        selected: null,
+        ambiguous: true,
+        note: "not in lexicon",
+      },
     };
   }
 
@@ -238,7 +363,10 @@ export async function selectContextualSenses(
   const chainStems = new Set<string>();
   for (const tok of contextTokens) {
     if (targetStems.has(tok) || targetStems.has(stem(tok))) continue;
-    const chain = await lookupWords(svc, [tok, stem(tok)], { statuses: opts.statuses, language: opts.language });
+    const chain = await lookupWords(svc, [tok, stem(tok)], {
+      statuses: opts.statuses,
+      language: opts.language,
+    });
     for (const e of chain) {
       // head senses carry the word's core field vocabulary
       for (const s of e.senses.slice(0, 3)) {
@@ -254,13 +382,19 @@ export async function selectContextualSenses(
   for (const { senses } of entries) {
     for (const sense of senses) {
       const defTokens = lexicalTokens(sense.definition).map(stem);
-      const exTokens = jsonArr(sense.usage_examples)
-        .flatMap((ex) => lexicalTokens(ex).map(stem));
+      const exTokens = jsonArr(sense.usage_examples).flatMap((ex) =>
+        lexicalTokens(ex).map(stem),
+      );
       let score = 0;
       const hits: string[] = [];
       for (const st of contextStems) {
-        if (defTokens.includes(st)) { score += 2; hits.push(st); }
-        else if (exTokens.includes(st)) { score += 1; hits.push(st); }
+        if (defTokens.includes(st)) {
+          score += 2;
+          hits.push(st);
+        } else if (exTokens.includes(st)) {
+          score += 1;
+          hits.push(st);
+        }
       }
       let chainScore = 0;
       for (const st of chainStems) {
@@ -276,10 +410,11 @@ export async function selectContextualSenses(
   }
 
   // rank: direct evidence first, then chain, then stable id
-  all.sort((a, b) =>
-    b.score - a.score ||
-    b.chainScore - a.chainScore ||
-    a.sense.external_id.localeCompare(b.sense.external_id),
+  all.sort(
+    (a, b) =>
+      b.score - a.score ||
+      b.chainScore - a.chainScore ||
+      a.sense.external_id.localeCompare(b.sense.external_id),
   );
 
   const top = all[0];
@@ -287,7 +422,12 @@ export async function selectContextualSenses(
   if (!top) {
     return {
       word: entries[0].word,
-      selection: { candidates: [], selected: null, ambiguous: true, note: "no senses loaded" },
+      selection: {
+        candidates: [],
+        selected: null,
+        ambiguous: true,
+        note: "no senses loaded",
+      },
     };
   }
   if (top.score >= 2 && (!second || top.score - second.score >= 2)) {
@@ -301,18 +441,21 @@ export async function selectContextualSenses(
       },
     };
   }
-  const best = all.filter((c) => c.score === top.score || c.chainScore > 0).slice(0, 5);
+  const best = all
+    .filter((c) => c.score === top.score || c.chainScore > 0)
+    .slice(0, 5);
   return {
     word: entries[0].word,
     selection: {
       candidates: best.length ? best : all.slice(0, 5),
       selected: null,
       ambiguous: true,
-      note: top.score > 0
-        ? "multiple senses match the context"
-        : chainHasSignal(best)
-          ? "weak lexical-field evidence only — genuinely ambiguous"
-          : "no direct lexical evidence — genuinely ambiguous",
+      note:
+        top.score > 0
+          ? "multiple senses match the context"
+          : chainHasSignal(best)
+            ? "weak lexical-field evidence only — genuinely ambiguous"
+            : "no direct lexical evidence — genuinely ambiguous",
     },
   };
 }
@@ -338,7 +481,11 @@ export async function getSynonyms(
     .eq("synset_key", synsetKey)
     .in("knowledge_status", statuses)
     .limit(24);
-  const rows = (senses ?? []) as Array<{ external_id: string; definition: string; word_id: string }>;
+  const rows = (senses ?? []) as Array<{
+    external_id: string;
+    definition: string;
+    word_id: string;
+  }>;
   const filtered = excludeExternalId
     ? rows.filter((r) => r.external_id !== excludeExternalId)
     : rows;
@@ -348,7 +495,11 @@ export async function getSynonyms(
     .select("id,canonical,part_of_speech")
     .in("id", Array.from(new Set(filtered.map((r) => r.word_id))))
     .limit(24);
-  const wordRows = (words ?? []) as Array<{ id: string; canonical: string; part_of_speech: string }>;
+  const wordRows = (words ?? []) as Array<{
+    id: string;
+    canonical: string;
+    part_of_speech: string;
+  }>;
   return filtered.map((r) => {
     const w = wordRows.find((x) => x.id === r.word_id);
     return {
@@ -374,7 +525,13 @@ export async function getAntonyms(
       .eq("external_id", r.to_sense_external_id)
       .in("knowledge_status", opts.statuses ?? ["VERIFIED"])
       .limit(1);
-    const s = ((senses ?? []) as Array<{ external_id: string; definition: string; word_id: string }>)[0];
+    const s = (
+      (senses ?? []) as Array<{
+        external_id: string;
+        definition: string;
+        word_id: string;
+      }>
+    )[0];
     if (!s) continue;
     const { data: words } = await svc
       .from("lexicon_words")
@@ -382,7 +539,9 @@ export async function getAntonyms(
       .eq("id", s.word_id)
       .limit(1);
     out.push({
-      word: ((words ?? []) as Array<{ canonical: string }>)[0]?.canonical ?? "(unknown)",
+      word:
+        ((words ?? []) as Array<{ canonical: string }>)[0]?.canonical ??
+        "(unknown)",
       definition: s.definition,
     });
   }
@@ -404,7 +563,10 @@ export async function getSenseRelations(
     .limit(48);
   if (types?.length) q = q.in("relation_type", types);
   const { data } = await q;
-  return (data ?? []) as Array<{ relation_type: string; to_sense_external_id: string }>;
+  return (data ?? []) as Array<{
+    relation_type: string;
+    to_sense_external_id: string;
+  }>;
 }
 
 /** Related words by traversing the synset-level graph. */
@@ -422,7 +584,10 @@ export async function getRelatedWords(
     .limit(64);
   if (relationTypes?.length) q = q.in("relation_type", relationTypes);
   const { data: rels } = await q;
-  const rows = (rels ?? []) as Array<{ relation_type: string; to_synset_key: string }>;
+  const rows = (rels ?? []) as Array<{
+    relation_type: string;
+    to_synset_key: string;
+  }>;
   if (!rows.length) return [];
   const { data: senses } = await svc
     .from("lexicon_senses")
@@ -430,7 +595,11 @@ export async function getRelatedWords(
     .in("synset_key", Array.from(new Set(rows.map((r) => r.to_synset_key))))
     .in("knowledge_status", opts.statuses ?? ["VERIFIED"])
     .limit(200);
-  const senseRows = (senses ?? []) as Array<{ synset_key: string; definition: string; word_id: string }>;
+  const senseRows = (senses ?? []) as Array<{
+    synset_key: string;
+    definition: string;
+    word_id: string;
+  }>;
   if (!senseRows.length) return [];
   const { data: words } = await svc
     .from("lexicon_words")
@@ -442,7 +611,13 @@ export async function getRelatedWords(
     const s = senseRows.find((x) => x.synset_key === r.to_synset_key);
     if (!s) return [];
     const w = wordRows.find((x) => x.id === s.word_id);
-    return [{ relationType: r.relation_type, word: w?.canonical ?? "(unknown)", definition: s.definition }];
+    return [
+      {
+        relationType: r.relation_type,
+        word: w?.canonical ?? "(unknown)",
+        definition: s.definition,
+      },
+    ];
   });
 }
 
@@ -450,7 +625,13 @@ export async function getRelatedWords(
 export async function getWordForms(
   svc: LexiconClient,
   form: string,
-): Promise<Array<{ partOfSpeech: string; variants: string[]; inflections: Record<string, unknown> }>> {
+): Promise<
+  Array<{
+    partOfSpeech: string;
+    variants: string[];
+    inflections: Record<string, unknown>;
+  }>
+> {
   const { data } = await svc
     .from("lexicon_words")
     .select("part_of_speech,spelling_variants,inflection_metadata")
@@ -466,9 +647,16 @@ export async function getWordForms(
   return rows.map((r) => ({
     partOfSpeech: r.part_of_speech,
     variants: jsonArr(r.spelling_variants),
-    inflections: typeof r.inflection_metadata === "string"
-      ? (() => { try { return JSON.parse(r.inflection_metadata); } catch { return {}; } })()
-      : r.inflection_metadata ?? {},
+    inflections:
+      typeof r.inflection_metadata === "string"
+        ? (() => {
+            try {
+              return JSON.parse(r.inflection_metadata);
+            } catch {
+              return {};
+            }
+          })()
+        : (r.inflection_metadata ?? {}),
   }));
 }
 
@@ -487,18 +675,36 @@ export async function lookupPhrases(
     .neq("unit_type", "WORD")
     .eq("language", opts.language ?? "en")
     .limit(24);
-  const wordRows = (words ?? []) as Array<{ id: string; canonical: string; unit_type: string }>;
+  const wordRows = (words ?? []) as Array<{
+    id: string;
+    canonical: string;
+    unit_type: string;
+  }>;
   if (!wordRows.length) return [];
   const { data: senses } = await svc
     .from("lexicon_senses")
     .select("word_id,definition")
-    .in("word_id", wordRows.map((w) => w.id))
+    .in(
+      "word_id",
+      wordRows.map((w) => w.id),
+    )
     .in("knowledge_status", statuses)
     .limit(48);
-  const senseRows = (senses ?? []) as Array<{ word_id: string; definition: string }>;
+  const senseRows = (senses ?? []) as Array<{
+    word_id: string;
+    definition: string;
+  }>;
   return wordRows.flatMap((w) => {
     const s = senseRows.find((x) => x.word_id === w.id);
-    return s ? [{ phrase: w.canonical, unitType: w.unit_type, definition: s.definition }] : [];
+    return s
+      ? [
+          {
+            phrase: w.canonical,
+            unitType: w.unit_type,
+            definition: s.definition,
+          },
+        ]
+      : [];
   });
 }
 
@@ -535,25 +741,45 @@ export async function lookupRegionalSenses(
   svc: LexiconClient,
   region: string,
   opts: LookupOptions = {},
-): Promise<Array<{ word: string; regionalUsage: string | null; definition: string }>> {
+): Promise<
+  Array<{ word: string; regionalUsage: string | null; definition: string }>
+> {
   const { data: words } = await svc
     .from("lexicon_words")
     .select("id,canonical,regional_usage")
     .eq("regional_usage", region)
     .eq("language", opts.language ?? "en")
     .limit(48);
-  const wordRows = (words ?? []) as Array<{ id: string; canonical: string; regional_usage: string | null }>;
+  const wordRows = (words ?? []) as Array<{
+    id: string;
+    canonical: string;
+    regional_usage: string | null;
+  }>;
   if (!wordRows.length) return [];
   const { data: senses } = await svc
     .from("lexicon_senses")
     .select("definition,word_id")
-    .in("word_id", wordRows.map((w) => w.id))
+    .in(
+      "word_id",
+      wordRows.map((w) => w.id),
+    )
     .in("knowledge_status", opts.statuses ?? ["VERIFIED"])
     .limit(48);
-  const senseRows = (senses ?? []) as Array<{ definition: string; word_id: string }>;
+  const senseRows = (senses ?? []) as Array<{
+    definition: string;
+    word_id: string;
+  }>;
   return wordRows.flatMap((w) => {
     const s = senseRows.find((x) => x.word_id === w.id);
-    return s ? [{ word: w.canonical, regionalUsage: w.regional_usage, definition: s.definition }] : [];
+    return s
+      ? [
+          {
+            word: w.canonical,
+            regionalUsage: w.regional_usage,
+            definition: s.definition,
+          },
+        ]
+      : [];
   });
 }
 
@@ -612,18 +838,24 @@ export async function lexicalGroundTruth(
         .map(stem)
         .filter((st) => !selfForms.has(st) && !selfForms.has(stem(st))),
     );
-    const ranked = senses.map((sense) => {
-      const defTokens = lexicalTokens(sense.definition).map(stem);
-      const exTokens = jsonArr(sense.usage_examples)
-        .flatMap((ex) => lexicalTokens(ex).map(stem));
-      let score = 0;
-      for (const st of contextStems) {
-        if (defTokens.includes(st)) score += 2;
-        else if (exTokens.includes(st)) score += 1;
-      }
-      return { sense, score };
-    }).sort((a, b) =>
-      b.score - a.score || a.sense.external_id.localeCompare(b.sense.external_id));
+    const ranked = senses
+      .map((sense) => {
+        const defTokens = lexicalTokens(sense.definition).map(stem);
+        const exTokens = jsonArr(sense.usage_examples).flatMap((ex) =>
+          lexicalTokens(ex).map(stem),
+        );
+        let score = 0;
+        for (const st of contextStems) {
+          if (defTokens.includes(st)) score += 2;
+          else if (exTokens.includes(st)) score += 1;
+        }
+        return { sense, score };
+      })
+      .sort(
+        (a, b) =>
+          b.score - a.score ||
+          a.sense.external_id.localeCompare(b.sense.external_id),
+      );
 
     const top = ranked[0];
     const second = ranked[1];
@@ -638,7 +870,10 @@ export async function lexicalGroundTruth(
       const shown = ranked.filter((r) => r.score > 0).slice(0, 2);
       const cands = shown.length
         ? shown.map((r) => `(${r.sense.definition})`).join(" | ")
-        : ranked.slice(0, 2).map((r) => `(${r.sense.definition})`).join(" | ");
+        : ranked
+            .slice(0, 2)
+            .map((r) => `(${r.sense.definition})`)
+            .join(" | ");
       lines.push(
         `- "${word.canonical}" (${pos}): ambiguous in this message — candidate senses: ${cands} … [${senses.length} senses loaded]`,
       );
@@ -646,7 +881,12 @@ export async function lexicalGroundTruth(
   }
 
   if (!lines.length) {
-    return { block: "", wordsExamined: results.length, disambiguated, ambiguous };
+    return {
+      block: "",
+      wordsExamined: results.length,
+      disambiguated,
+      ambiguous,
+    };
   }
   const block =
     "Lexical ground truth from ARCHIE's verified lexicon (sourced dictionary data; cite meanings, never contradict them):\n" +

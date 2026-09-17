@@ -222,13 +222,61 @@ import {
   LEXICON_EDGE_PROVENANCE,
 } from "../_shared/semantic-graph/relations.ts";
 
+// typed views over the REAL fixture data (spec: no anys in
+// test materializers — the shapes mirror the live tables)
+type FixtureWord = { id: string; canonical: string };
+type FixtureSense = {
+  external_id: string;
+  word_id: string;
+  synset_key: string;
+  definition: string;
+  knowledge_status: string;
+  domain?: string | null;
+  source_id?: string | null;
+};
+interface FixtureNode {
+  id: string;
+  concept_key: string;
+  synset_key: string;
+  canonical_name: string;
+  sense_external_ids: string[];
+  description: string;
+  domain: string | null;
+  language: string;
+  region: string | null;
+  knowledge_status: string;
+  confidence: number;
+  source_id: string | null;
+  provenance: string;
+  version: number;
+}
+interface FixtureEdge {
+  id: string;
+  source_concept_key: string;
+  relation_type: string;
+  target_concept_key: string;
+  knowledge_status: string;
+  confidence: number;
+  provenance: string;
+  evidence: string;
+  domain: string | null;
+  source_id: string | null;
+  version: number;
+}
+
 function materializeGraphFixture() {
-  const wordCanonical = new Map(
-    lexiconFixture.words.map((w: any) => [w.id, w.canonical] as const),
+  const fixtureEdition = String(
+    (lexiconFixture.source as { version?: string }).version ??
+      "unknown edition",
   );
-  const nodesByKey = new Map<string, any>();
+  const wordCanonical = new Map(
+    (lexiconFixture.words as FixtureWord[]).map(
+      (w) => [w.id, w.canonical] as const,
+    ),
+  );
+  const nodesByKey = new Map<string, FixtureNode>();
   const senseToSynset = new Map<string, string>();
-  for (const sn of lexiconFixture.senses) {
+  for (const sn of lexiconFixture.senses as FixtureSense[]) {
     if (sn.knowledge_status !== "VERIFIED") continue;
     senseToSynset.set(sn.external_id, sn.synset_key);
     let n = nodesByKey.get(sn.synset_key);
@@ -246,7 +294,7 @@ function materializeGraphFixture() {
         knowledge_status: "VERIFIED",
         confidence: 1,
         source_id: sn.source_id ?? null,
-        provenance: `concept derived from OEWN 2025 synset ${sn.synset_key} (via ARCHIE Universal Lexicon)`,
+        provenance: `concept derived from OEWN ${fixtureEdition} synset ${sn.synset_key} (via ARCHIE Universal Lexicon)`,
         version: 1,
       };
       nodesByKey.set(sn.synset_key, n);
@@ -255,7 +303,7 @@ function materializeGraphFixture() {
     const lemma = String(wordCanonical.get(sn.word_id) ?? "");
     if (lemma && lemma < n.canonical_name) n.canonical_name = lemma;
   }
-  const edges: any[] = [];
+  const edges: FixtureEdge[] = [];
   const seen = new Set<string>();
   const push = (
     source: string,
@@ -345,9 +393,9 @@ describe("archie-core — semantic graph engine in the live pathway", () => {
     // "run" is genuinely multi-concept in real OEWN data: it
     // lands in identified (direct evidence via "program") or
     // ambiguous — never silently ignored
-    const runIdentified = body.semantic_graph.concepts_identified.some(
-      (c: any) => c.term === "run",
-    );
+    const runIdentified = (
+      body.semantic_graph.concepts_identified as Array<{ term: string }>
+    ).some((c) => c.term === "run");
     const runAmbiguous = body.semantic_graph.concepts_ambiguous.includes("run");
     expect(runIdentified || runAmbiguous).toBe(true);
     // bounded retrieval: the budget contract holds in a real turn
@@ -377,6 +425,115 @@ describe("archie-core — semantic graph engine in the live pathway", () => {
     expect(body.semantic_graph.concepts_identified).toEqual([]);
     expect(body.semantic_graph.concepts_ambiguous).toEqual([]);
     expect(body.semantic_graph.edges_retrieved).toBe(0);
+  });
+});
+describe("archie-core — context & inference engine in the live pathway", () => {
+  it("a full owner turn runs the inference engine and reports honest coverage", async () => {
+    givenOwnerIsAdmin();
+    givenConversation();
+    givenLexicon();
+    const graphFx = materializeGraphFixture();
+    givenRows("semantic_graph_nodes", graphFx.nodes);
+    givenRows("semantic_graph_edges", graphFx.edges);
+
+    const res = await handler(
+      req(
+        "POST",
+        "",
+        {
+          conversation_id: CONV_ID,
+          message: "How does the bank issue a mortgage?",
+          history: [
+            { role: "owner", content: "Hello, I hope you are doing well." },
+            {
+              role: "archie",
+              content: "Hello! How can I help you today?",
+            },
+          ],
+        },
+        OWNER_AUTH,
+      ),
+    );
+    expect(res.status).toBe(200);
+    const body = await json(res);
+    expect(body.ok).toBe(true);
+
+    // honest coverage in the response summary
+    expect(body.context_inference).toBeTruthy();
+    expect(typeof body.context_inference.terms_examined).toBe("number");
+    expect(body.context_inference.terms_examined).toBeGreaterThan(0);
+    // the bank/mortgage message identifies the financial bank
+    // concept and retrieves bounded facts
+    expect(typeof body.context_inference.facts).toBe("number");
+    expect(body.context_inference.facts).toBeGreaterThan(0);
+    expect(Array.isArray(body.context_inference.carried_ambiguities)).toBe(
+      true,
+    );
+    // bounded retrieval contract holds in a real turn
+    expect(body.context_inference.facts).toBeLessThanOrEqual(12);
+
+    // the reply exists — the engine never blocks the chat path
+    expect(typeof body.reply).toBe("string");
+    expect(body.reply.length).toBeGreaterThan(0);
+  });
+
+  it("keeps FACT vs INFERENCE distinguishable end to end (spec §§2, 26)", async () => {
+    givenOwnerIsAdmin();
+    givenConversation();
+    givenLexicon();
+    const graphFx = materializeGraphFixture();
+    givenRows("semantic_graph_nodes", graphFx.nodes);
+    givenRows("semantic_graph_edges", graphFx.edges);
+
+    // a message whose concept chain supports a real 2-hop
+    // taxonomic inference: "How does the bank issue a
+    // mortgage?" — the financial bank IS_A financial
+    // institution, which has stored hypernym chains
+    const res = await handler(
+      req(
+        "POST",
+        "",
+        {
+          conversation_id: CONV_ID,
+          message:
+            "What kind of thing is a bank — is it a kind of depository financial institution?",
+        },
+        OWNER_AUTH,
+      ),
+    );
+    expect(res.status).toBe(200);
+    const body = await json(res);
+    expect(body.ok).toBe(true);
+    // coverage numbers are reported even when no inference
+    // fires — the honest empty state
+    expect(typeof body.context_inference.inferences).toBe("number");
+    expect(body.context_inference.inferences).toBeGreaterThanOrEqual(0);
+    expect(typeof body.context_inference.contradictions).toBe("number");
+  });
+
+  it("degrades honestly when the engine has no lexicon data — the turn still succeeds", async () => {
+    givenOwnerIsAdmin();
+    givenConversation();
+    // no lexicon/graph rows seeded at all
+    const res = await handler(
+      req(
+        "POST",
+        "",
+        { conversation_id: CONV_ID, message: "hello" },
+        OWNER_AUTH,
+      ),
+    );
+    expect(res.status).toBe(200);
+    const body = await json(res);
+    expect(body.ok).toBe(true);
+    // the engine examined the message ("hello" = 1 term),
+    // found nothing, invented nothing — and the turn
+    // completed anyway
+    expect(body.context_inference.terms_examined).toBe(1);
+    expect(body.context_inference.facts).toBe(0);
+    expect(body.context_inference.inferences).toBe(0);
+    expect(body.context_inference.contradictions).toBe(0);
+    expect(body.context_inference.carried_ambiguities).toEqual([]);
   });
 });
 

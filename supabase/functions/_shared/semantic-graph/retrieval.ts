@@ -33,6 +33,7 @@ import {
   stem,
   lookupWords,
   selectContextualSenses,
+  latestSourceLabel,
   type LexiconClient,
 } from "../lexicon/retrieval.ts";
 import {
@@ -982,6 +983,10 @@ export async function semanticGraphGroundTruth(
     .filter((t) => t.length >= 3)
     .slice(0, maxTerms);
 
+  // the CURRENT edition label (never hardcoded — an edition
+  // upgrade must never leave stale provenance in the block)
+  const sourceLabel = await latestSourceLabel(svc);
+
   const lines: string[] = [];
   const conceptsIdentified: SemanticGraphGroundTruth["conceptsIdentified"] = [];
   const conceptsAmbiguous: string[] = [];
@@ -1004,7 +1009,7 @@ export async function semanticGraphGroundTruth(
             conceptKey: c.conceptKey,
           });
           lines.push(
-            `- "${term}" → concept (${c.definition}) [VERIFIED, OEWN 2025] — relationship budget exhausted for this turn`,
+            `- "${term}" → concept (${c.definition}) [VERIFIED, ${sourceLabel}] — relationship budget exhausted for this turn`,
           );
           continue;
         }
@@ -1037,7 +1042,7 @@ export async function semanticGraphGroundTruth(
           })
           .join("; ");
         lines.push(
-          `- "${term}" → concept (${c.definition}) [VERIFIED, OEWN 2025]${rels ? ` — relationships: ${rels}` : " — no stored relationships yet"}`,
+          `- "${term}" → concept (${c.definition}) [VERIFIED, ${sourceLabel}]${rels ? ` — relationships: ${rels}` : " — no stored relationships yet"}`,
         );
       } else {
         conceptsAmbiguous.push(term);
@@ -1074,7 +1079,7 @@ export async function semanticGraphGroundTruth(
         }
         lines.push(
           `- "${term}" → ambiguous in this message; candidates: ${shown
-            .map((c) => `(${c.definition}) [VERIFIED, OEWN 2025]`)
+            .map((c) => `(${c.definition}) [VERIFIED, ${sourceLabel}]`)
             .join(" | ")}` +
             (top && topRels
               ? ` — top candidate (${top.definition}) relationships [CANDIDATE, ranked by lexical/graph evidence, never resolved]: ${topRels}`
