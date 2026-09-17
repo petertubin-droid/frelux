@@ -22,13 +22,17 @@ import {
 // synset keys, sense ids — shaped exactly like the dataset).
 const SYNSETS: OewnSynsetFile = {
   "00190414-n": {
-    definition: ["a score in baseball made by a runner touching all bases safely"],
+    definition: [
+      "a score in baseball made by a runner touching all bases safely",
+    ],
     example: ["the team scored two runs in the ninth"],
     members: ["run"],
     partOfSpeech: "n",
   },
   "01930264-v": {
-    definition: ["move fast by using one's feet, with one foot off the ground at any given time"],
+    definition: [
+      "move fast by using one's feet, with one foot off the ground at any given time",
+    ],
     example: ["Don't run — you'll be out of breath"],
     members: ["run"],
     partOfSpeech: "v",
@@ -156,12 +160,22 @@ describe("lexicon transform — relationships", () => {
   it("materializes hypernym and its deterministic hyponym inverse", () => {
     const r = transformOewn(ENTRIES, SYNSET_FILES);
     const hyp = r.synsetRelations.filter((x) => x.relation_type === "HYPERNYM");
-    const hypon = r.synsetRelations.filter((x) => x.relation_type === "HYPONYM");
+    const hypon = r.synsetRelations.filter(
+      (x) => x.relation_type === "HYPONYM",
+    );
     expect(hyp).toEqual([
-      { relation_type: "HYPERNYM", from_synset_key: "01930264-v", to_synset_key: "02059573-v" },
+      {
+        relation_type: "HYPERNYM",
+        from_synset_key: "01930264-v",
+        to_synset_key: "02059573-v",
+      },
     ]);
     expect(hypon).toEqual([
-      { relation_type: "HYPONYM", from_synset_key: "02059573-v", to_synset_key: "01930264-v" },
+      {
+        relation_type: "HYPONYM",
+        from_synset_key: "02059573-v",
+        to_synset_key: "01930264-v",
+      },
     ]);
   });
 
@@ -169,30 +183,39 @@ describe("lexicon transform — relationships", () => {
     const entries: OewnEntriesFile = {
       hot: {
         a: {
-          sense: [{
-            id: "hot%3:00:00::",
-            synset: "00112345-a",
-            antonym: ["hot%3:00:00:::antonym:cold%3:00:00::"],
-          }],
+          sense: [
+            {
+              id: "hot%3:00:00::",
+              synset: "00112345-a",
+              antonym: ["hot%3:00:00:::antonym:cold%3:00:00::"],
+            },
+          ],
         },
       },
     };
     const synsets: Record<string, OewnSynsetFile> = {
       "adj.all": {
-        "00112345-a": { definition: ["used of physical heat"], partOfSpeech: "a" },
+        "00112345-a": {
+          definition: ["used of physical heat"],
+          partOfSpeech: "a",
+        },
       },
     };
     const r = transformOewn(entries, synsets);
-    expect(r.senseRelations).toEqual([{
-      relation_type: "ANTONYM",
-      from_sense_external_id: "hot%3:00:00::",
-      to_sense_external_id: "cold%3:00:00::",
-    }]);
+    expect(r.senseRelations).toEqual([
+      {
+        relation_type: "ANTONYM",
+        from_sense_external_id: "hot%3:00:00::",
+        to_sense_external_id: "cold%3:00:00::",
+      },
+    ]);
   });
 
   it("rejects senses pointing at synsets missing from the dataset", () => {
     const entries: OewnEntriesFile = {
-      orphan: { n: { sense: [{ id: "orphan%1:04:00::", synset: "99999999-n" }] } },
+      orphan: {
+        n: { sense: [{ id: "orphan%1:04:00::", synset: "99999999-n" }] },
+      },
     };
     const r = transformOewn(entries, SYNSET_FILES);
     expect(r.senses.length).toBe(0);
@@ -206,6 +229,8 @@ describe("lexicon transform — provenance", () => {
     expect(OEWN_SOURCE.license).toMatch(/Creative Commons Attribution 4\.0/);
     expect(OEWN_SOURCE.attribution).toMatch(/Open English WordNet Team/);
     expect(OEWN_SOURCE.attribution).toMatch(/Princeton/);
-    expect(OEWN_SOURCE.url).toContain("2025-edition");
+    expect(OEWN_SOURCE.url).toContain(
+      "bff3181fe5c810dcd157cba0eed60322a6e0aaed",
+    );
   });
 });

@@ -1,12 +1,16 @@
 // =========================================================
 // ARCHIE UNIVERSAL LEXICON ENGINE — OEWN TRANSFORM
 //
-// Pure functions that convert Open English WordNet (2025
-// edition, CC BY 4.0 + Princeton WordNet attribution) JSON
-// into validated, deterministic records for the lexicon
-// tables. Shared by the ingestion pipeline and the test
-// suite; the edge-function retrieval layer consumes the same
-// data shape.
+// Pure functions that convert Open English WordNet (CC BY 4.0
+// + Princeton WordNet attribution) JSON into validated,
+// deterministic records for the lexicon tables. Shared by the
+// ingestion pipeline and the test suite; the edge-function
+// retrieval layer consumes the same data shape. The dataset
+// format is the official OEWN release json (entries-*.json +
+// per-lexfile synset jsons + frames.json), built verbatim from
+// the OEWN YAML sources by scripts/lexicon/build-oewn-dataset.py
+// (validated structure-identical against the official 2025
+// release json before first use).
 //
 // Determinism: word/sense/relationship IDs are UUIDv5
 // (SHA-1, RFC 4122) derived from stable dataset keys, so
@@ -29,7 +33,9 @@
  */
 function sha1(bytes: Uint8Array): Uint8Array {
   const K = [0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6];
-  const h = new Uint32Array([0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0]);
+  const h = new Uint32Array([
+    0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0,
+  ]);
   const len = bytes.length;
   const padded = new Uint8Array((((len + 8) >>> 6) + 1) << 6);
   padded.set(bytes);
@@ -44,23 +50,41 @@ function sha1(bytes: Uint8Array): Uint8Array {
       const v = w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16];
       w[i] = ((v << 1) | (v >>> 31)) >>> 0;
     }
-    let a = h[0], b = h[1], c = h[2], d = h[3], e = h[4];
+    let a = h[0],
+      b = h[1],
+      c = h[2],
+      d = h[3],
+      e = h[4];
     for (let i = 0; i < 80; i++) {
       const f =
-        i < 20 ? (b & c) | (~b & d) :
-        i < 40 ? b ^ c ^ d :
-        i < 60 ? (b & c) | (b & d) | (c & d) :
-        b ^ c ^ d;
-      const t = (((a << 5) | (a >>> 27)) + (f + e + K[Math.floor(i / 20)] + w[i])) >>> 0;
-      e = d; d = c; c = ((b << 30) | (b >>> 2)) >>> 0; b = a; a = t;
+        i < 20
+          ? (b & c) | (~b & d)
+          : i < 40
+            ? b ^ c ^ d
+            : i < 60
+              ? (b & c) | (b & d) | (c & d)
+              : b ^ c ^ d;
+      const t =
+        (((a << 5) | (a >>> 27)) + (f + e + K[Math.floor(i / 20)] + w[i])) >>>
+        0;
+      e = d;
+      d = c;
+      c = ((b << 30) | (b >>> 2)) >>> 0;
+      b = a;
+      a = t;
     }
-    h[0] = (h[0] + a) >>> 0; h[1] = (h[1] + b) >>> 0; h[2] = (h[2] + c) >>> 0;
-    h[3] = (h[3] + d) >>> 0; h[4] = (h[4] + e) >>> 0;
+    h[0] = (h[0] + a) >>> 0;
+    h[1] = (h[1] + b) >>> 0;
+    h[2] = (h[2] + c) >>> 0;
+    h[3] = (h[3] + d) >>> 0;
+    h[4] = (h[4] + e) >>> 0;
   }
   const out = new Uint8Array(20);
   const odv = new DataView(out.buffer);
-  odv.setUint32(0, h[0], false); odv.setUint32(4, h[1], false);
-  odv.setUint32(8, h[2], false); odv.setUint32(12, h[3], false);
+  odv.setUint32(0, h[0], false);
+  odv.setUint32(4, h[1], false);
+  odv.setUint32(8, h[2], false);
+  odv.setUint32(12, h[3], false);
   odv.setUint32(16, h[4], false);
   return out;
 }
@@ -145,7 +169,8 @@ export type OewnSynsetFile = Record<string, OewnSynset>;
 
 // ---------- Output record types ----------
 
-export type KnowledgeStatus = "VERIFIED" | "LEARNED" | "USER_PROVIDED" | "UNVERIFIED";
+export type KnowledgeStatus =
+  "VERIFIED" | "LEARNED" | "USER_PROVIDED" | "UNVERIFIED";
 export type UnitType =
   | "WORD"
   | "PHRASAL_VERB"
@@ -279,22 +304,50 @@ const SENSEREL_MAP: Record<string, string> = {
 
 // Adverbial particles that form canonical phrasal verbs.
 const PARTICLES = new Set([
-  "aboard", "about", "above", "across", "after", "along", "apart", "around",
-  "aside", "away", "back", "down", "forth", "forward", "in", "off", "on",
-  "out", "over", "round", "through", "together", "under", "up", "up with",
+  "aboard",
+  "about",
+  "above",
+  "across",
+  "after",
+  "along",
+  "apart",
+  "around",
+  "aside",
+  "away",
+  "back",
+  "down",
+  "forth",
+  "forward",
+  "in",
+  "off",
+  "on",
+  "out",
+  "over",
+  "round",
+  "through",
+  "together",
+  "under",
+  "up",
+  "up with",
 ]);
 
 // ---------- Validation ----------
 
 export function validateLemma(lemma: string): boolean {
   // OEWN lemmas: word chars, spaces, apostrophes, hyphens, periods
-  return /^[\p{L}\p{N}'._+][\p{L}\p{N} '_./+-]*$/u.test(lemma) && lemma.length <= 80;
+  return (
+    /^[\p{L}\p{N}'._+][\p{L}\p{N} '_./+-]*$/u.test(lemma) && lemma.length <= 80
+  );
 }
 
 export function classifyUnitType(lemma: string, pos: string): UnitType {
   const words = lemma.split(/[\s_]+/).filter(Boolean);
   if (words.length === 1) return "WORD";
-  if (pos === "v" && words.length === 2 && PARTICLES.has(words[1].toLowerCase()))
+  if (
+    pos === "v" &&
+    words.length === 2 &&
+    PARTICLES.has(words[1].toLowerCase())
+  )
     return "PHRASAL_VERB";
   // Multi-word lexical units with dictionary senses are treated
   // as multi-word expressions; "idiom" is a register judgment we
@@ -330,7 +383,10 @@ export function transformOewn(
         if (!Array.isArray(targets)) continue;
         for (const to of targets) {
           if (!/^\d{8}-[nvars]$/.test(to)) {
-            rejected.push({ key: `${sk}:${key}:${to}`, reason: "malformed synset reference" });
+            rejected.push({
+              key: `${sk}:${key}:${to}`,
+              reason: "malformed synset reference",
+            });
             continue;
           }
           synsetRelations.push({
@@ -367,24 +423,38 @@ export function transformOewn(
       const pos = posKey.split("-")[0];
       const posName = POS_MAP[pos];
       if (!posName) {
-        rejected.push({ key: `${lemma}:${posKey}`, reason: "unsupported part of speech" });
+        rejected.push({
+          key: `${lemma}:${posKey}`,
+          reason: "unsupported part of speech",
+        });
         continue;
       }
       const canonical = lemma.replace(/_/g, " ");
       const normalized = canonical.toLowerCase();
       const wordId = uuidV5(`word|${language}|${normalized}|${posName}`);
-      const pron = entry.pronunciation?.map((p) => p.value).filter(Boolean) ?? [];
+      const pron =
+        entry.pronunciation?.map((p) => p.value).filter(Boolean) ?? [];
       const existingWord = words.find((w) => w.id === wordId);
       if (existingWord) {
         // homograph variant — merge pronunciation/forms, never duplicate
-        const prons = new Set([...(existingWord.pronunciation ?? "").split(" / "), ...pron]);
+        const prons = new Set([
+          ...(existingWord.pronunciation ?? "").split(" / "),
+          ...pron,
+        ]);
         existingWord.pronunciation = prons.size
           ? Array.from(prons).filter(Boolean).join(" / ")
           : null;
-        const forms = new Set([...existingWord.spelling_variants, ...(entry.form ?? [])]);
+        const forms = new Set([
+          ...existingWord.spelling_variants,
+          ...(entry.form ?? []),
+        ]);
         existingWord.spelling_variants = Array.from(forms);
         (existingWord.metadata as Record<string, unknown>).homograph_tags = [
-          ...new Set([...(((existingWord.metadata as Record<string, unknown>).homograph_tags as string[]) ?? []), posKey]),
+          ...new Set([
+            ...(((existingWord.metadata as Record<string, unknown>)
+              .homograph_tags as string[]) ?? []),
+            posKey,
+          ]),
         ];
         continue;
       }
@@ -398,26 +468,36 @@ export function transformOewn(
         pronunciation: pron.length ? pron.join(" / ") : null,
         part_of_speech: posName,
         unit_type: classifyUnitType(lemma, pos),
-        inflection_metadata: entry.form?.length
-          ? { forms: entry.form }
-          : {},
+        inflection_metadata: entry.form?.length ? { forms: entry.form } : {},
         frequency: null, // not legitimately available in OEWN — never fabricated
-        metadata: { oewn_pos: pos, ...(posKey !== pos ? { homograph_tags: [posKey] } : {}) },
+        metadata: {
+          oewn_pos: pos,
+          ...(posKey !== pos ? { homograph_tags: [posKey] } : {}),
+        },
       });
       for (const sense of entry.sense ?? []) {
         if (!sense?.id || !sense?.synset) {
-          rejected.push({ key: `${lemma}:${pos}`, reason: "sense missing id/synset" });
+          rejected.push({
+            key: `${lemma}:${pos}`,
+            reason: "sense missing id/synset",
+          });
           continue;
         }
         if (!/^\d{8}-[nvars]$/.test(sense.synset)) {
-          rejected.push({ key: sense.id, reason: "malformed synset reference" });
+          rejected.push({
+            key: sense.id,
+            reason: "malformed synset reference",
+          });
           continue;
         }
         // The synset data must exist in the loaded files; the
         // definition comes from the synset (never invented).
         const synset = findSynset(synsetFiles, sense.synset);
         if (!synset) {
-          rejected.push({ key: sense.id, reason: `synset ${sense.synset} not present in dataset` });
+          rejected.push({
+            key: sense.id,
+            reason: `synset ${sense.synset} not present in dataset`,
+          });
           continue;
         }
         const definition = synset.definition.join("; ");
@@ -428,7 +508,8 @@ export function transformOewn(
         const grammatical: Record<string, unknown> = {};
         if (sense.subcat?.length) grammatical.subcategorization = sense.subcat;
         if (sense.sent?.length) grammatical.sentence_frames = sense.sent;
-        if (sense.adjposition) grammatical.adjective_position = sense.adjposition;
+        if (sense.adjposition)
+          grammatical.adjective_position = sense.adjposition;
         if (sense.participle) grammatical.participle = sense.participle;
         senses.push({
           id: uuidV5(`sense|${sense.id}`),
@@ -454,7 +535,10 @@ export function transformOewn(
             const prefix = `${sense.id}:${key}:`;
             if (rawTo.startsWith(prefix)) to = rawTo.slice(prefix.length);
             if (!to || !/^[\w%:'.-]+$/.test(to)) {
-              rejected.push({ key: `${sense.id}:${key}:${rawTo}`, reason: "malformed sense reference" });
+              rejected.push({
+                key: `${sense.id}:${key}:${rawTo}`,
+                reason: "malformed sense reference",
+              });
               continue;
             }
             senseRelations.push({
@@ -471,8 +555,11 @@ export function transformOewn(
   // 3) dedupe relationships (dataset may repeat; unique
   //    constraints also guard at the DB level)
   const seen = new Set<string>();
-  const dedupeRel = <T extends LexiconSynsetRelationRecord | LexiconSenseRelationRecord>(
-    rows: T[], keyOf: (r: T) => string,
+  const dedupeRel = <
+    T extends LexiconSynsetRelationRecord | LexiconSenseRelationRecord,
+  >(
+    rows: T[],
+    keyOf: (r: T) => string,
   ): T[] => {
     const out: T[] = [];
     for (const r of rows) {
@@ -483,10 +570,15 @@ export function transformOewn(
     }
     return out;
   };
-  const dedupedSynsetRelations = dedupeRel(synsetRelations,
-    (r) => `${r.relation_type}|${r.from_synset_key}|${r.to_synset_key}`);
-  const dedupedSenseRelations = dedupeRel(senseRelations,
-    (r) => `${r.relation_type}|${r.from_sense_external_id}|${r.to_sense_external_id}`);
+  const dedupedSynsetRelations = dedupeRel(
+    synsetRelations,
+    (r) => `${r.relation_type}|${r.from_synset_key}|${r.to_synset_key}`,
+  );
+  const dedupedSenseRelations = dedupeRel(
+    senseRelations,
+    (r) =>
+      `${r.relation_type}|${r.from_sense_external_id}|${r.to_sense_external_id}`,
+  );
 
   return {
     words,
@@ -519,17 +611,15 @@ function synsetLexfile(
   return null;
 }
 
-/** Source metadata for Open English WordNet 2025 (CC BY 4.0). */
-export const OEWN_SOURCE_ID = uuidV5(
-  `source|wordnet|2025-edition`,
-);
+/** Source metadata for Open English WordNet (CC BY 4.0). */
+export const OEWN_SOURCE_ID = uuidV5(`source|wordnet|2026-dev-bff3181`);
 export const OEWN_SOURCE = {
   name: "Open English WordNet",
-  dataset: "english-wordnet-2025-json",
-  version: "2025-edition",
+  dataset: "english-wordnet-2026-dev-json",
+  version: "2026-dev-bff3181",
   license:
     "CC BY 4.0 (Open English WordNet) with WordNet License attribution (Princeton University). This work is licensed under a Creative Commons Attribution 4.0 International License.",
   attribution:
-    "Open English WordNet 2025, (c) The Open English WordNet Team, licensed CC BY 4.0; derived from Princeton WordNet. WordNet © Princeton University.",
-  url: "https://github.com/globalwordnet/english-wordnet/releases/tag/2025-edition",
+    "Open English WordNet 2026 development snapshot (main branch, commit bff3181f, 2026-08-26), (c) The Open English WordNet Team, licensed CC BY 4.0; derived from Princeton WordNet. WordNet © Princeton University.",
+  url: "https://github.com/globalwordnet/english-wordnet/commit/bff3181fe5c810dcd157cba0eed60322a6e0aaed",
 } as const;

@@ -2,8 +2,11 @@
 // ARCHIE UNIVERSAL LEXICON ENGINE — OEWN INGESTION PIPELINE
 //
 // Repeatable, idempotent ingestion of Open English WordNet
-// 2025 (CC BY 4.0 + Princeton WordNet attribution) into the
-// lexicon tables over the Supabase Management SQL API.
+// (CC BY 4.0 + Princeton WordNet attribution) into the lexicon
+// tables over the Supabase Management SQL API. The dataset is
+// the official OEWN release json format — build it verbatim
+// from an OEWN repository checkout with
+// scripts/lexicon/build-oewn-dataset.py.
 //
 //   npx tsx scripts/lexicon/ingest-oewn.ts --dataset-dir /tmp/oewn
 //
@@ -62,7 +65,8 @@ if (!TOKEN) {
 function sqlLit(v: unknown): string {
   if (v === null || v === undefined) return "NULL";
   if (typeof v === "number") return String(v);
-  if (typeof v === "object") return `'${JSON.stringify(v).replace(/'/g, "''")}'::jsonb`;
+  if (typeof v === "object")
+    return `'${JSON.stringify(v).replace(/'/g, "''")}'::jsonb`;
   return `'${String(v).replace(/'/g, "''")}'`;
 }
 
@@ -82,10 +86,16 @@ async function runSql(sql: string): Promise<unknown[]> {
   } catch {
     throw new Error(`non-JSON response (${res.status}): ${text.slice(0, 200)}`);
   }
-  if (!res.ok || (Array.isArray(parsed) === false && typeof parsed === "object" && parsed && "error" in (parsed as object))) {
+  if (
+    !res.ok ||
+    (Array.isArray(parsed) === false &&
+      typeof parsed === "object" &&
+      parsed &&
+      "error" in (parsed as object))
+  ) {
     const err = parsed as { error?: { message?: string } | string };
     throw new Error(
-      `SQL error: ${typeof err.error === "string" ? err.error : err.error?.message ?? text.slice(0, 200)}`,
+      `SQL error: ${typeof err.error === "string" ? err.error : (err.error?.message ?? text.slice(0, 200))}`,
     );
   }
   return Array.isArray(parsed) ? (parsed as unknown[]) : [];
@@ -142,7 +152,9 @@ function loadJson(file: string): unknown {
   return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
-console.log(`ARCHIE lexicon ingestion — dataset dir: ${DATASET_DIR}${DRY_RUN ? " (DRY RUN)" : ""}`);
+console.log(
+  `ARCHIE lexicon ingestion — dataset dir: ${DATASET_DIR}${DRY_RUN ? " (DRY RUN)" : ""}`,
+);
 
 const allFiles = fs.readdirSync(DATASET_DIR).filter((f) => f.endsWith(".json"));
 const entryFiles = allFiles.filter((f) => f.startsWith("entries-")).sort();
@@ -153,26 +165,43 @@ if (!entryFiles.length) {
   console.error("No entries-*.json files found");
   process.exit(1);
 }
-console.log(`Found ${entryFiles.length} entry files, ${synsetFiles.length} synset files`);
+console.log(
+  `Found ${entryFiles.length} entry files, ${synsetFiles.length} synset files`,
+);
 
 // synset data (shared across entry files)
 const synsets: Record<string, OewnSynsetFile> = {};
 for (const f of synsetFiles) {
-  synsets[f.replace(".json", "")] = loadJson(path.join(DATASET_DIR, f)) as OewnSynsetFile;
+  synsets[f.replace(".json", "")] = loadJson(
+    path.join(DATASET_DIR, f),
+  ) as OewnSynsetFile;
 }
 
 const sourceId = uuidV5(`source|${OEWN_SOURCE.dataset}|${OEWN_SOURCE.version}`);
 
 type Totals = {
-  words: number; senses: number; synsetRelations: number; senseRelations: number;
-  wordsInserted: number; sensesInserted: number; synRelInserted: number; senseRelInserted: number;
+  words: number;
+  senses: number;
+  synsetRelations: number;
+  senseRelations: number;
+  wordsInserted: number;
+  sensesInserted: number;
+  synRelInserted: number;
+  senseRelInserted: number;
   rejected: Array<{ key: string; reason: string }>;
   entryFiles: number;
 };
 const totals: Totals = {
-  words: 0, senses: 0, synsetRelations: 0, senseRelations: 0,
-  wordsInserted: 0, sensesInserted: 0, synRelInserted: 0, senseRelInserted: 0,
-  rejected: [], entryFiles: 0,
+  words: 0,
+  senses: 0,
+  synsetRelations: 0,
+  senseRelations: 0,
+  wordsInserted: 0,
+  sensesInserted: 0,
+  synRelInserted: 0,
+  senseRelInserted: 0,
+  rejected: [],
+  entryFiles: 0,
 };
 
 // Synset relations are the same for every entry-file pass →
@@ -212,7 +241,7 @@ if (DRY_RUN) {
 // Upsert the source (provenance is mandatory)
 await runSql(
   `INSERT INTO lexicon_sources (id, name, dataset, version, license, attribution, url, imported_at, notes)
-   VALUES (${sqlLit(sourceId)}, ${sqlLit(OEWN_SOURCE.name)}, ${sqlLit(OEWN_SOURCE.dataset)}, ${sqlLit(OEWN_SOURCE.version)}, ${sqlLit(OEWN_SOURCE.license)}, ${sqlLit(OEWN_SOURCE.attribution)}, ${sqlLit(OEWN_SOURCE.url)}, now(), 'Open English WordNet 2025 edition (no proper nouns; those live in Open English Namenet)')
+   VALUES (${sqlLit(sourceId)}, ${sqlLit(OEWN_SOURCE.name)}, ${sqlLit(OEWN_SOURCE.dataset)}, ${sqlLit(OEWN_SOURCE.version)}, ${sqlLit(OEWN_SOURCE.license)}, ${sqlLit(OEWN_SOURCE.attribution)}, ${sqlLit(OEWN_SOURCE.url)}, now(), 'Open English WordNet 2026 development snapshot (main branch commit bff3181f, 2026-08-26; no proper nouns — those live in Open English Namenet)')
    ON CONFLICT (dataset, version) DO UPDATE SET imported_at = now();`,
 );
 console.log("✓ source registered (CC BY 4.0 + Princeton WordNet attribution)");
@@ -240,16 +269,36 @@ try {
 
     // words (deterministic ids make re-runs safe)
     const wordRows = r.words.map((w) => [
-      w.id, w.canonical, w.normalized, w.spelling_variants, w.language,
-      w.regional_usage, w.pronunciation, w.part_of_speech, w.unit_type,
-      w.inflection_metadata, w.frequency, w.metadata,
+      w.id,
+      w.canonical,
+      w.normalized,
+      w.spelling_variants,
+      w.language,
+      w.regional_usage,
+      w.pronunciation,
+      w.part_of_speech,
+      w.unit_type,
+      w.inflection_metadata,
+      w.frequency,
+      w.metadata,
     ]);
     const wCounters = { inserted: 0, duplicates: 0 };
     await insertBatched(
       "lexicon_words",
-      ["id", "canonical", "normalized", "spelling_variants", "language",
-       "regional_usage", "pronunciation", "part_of_speech", "unit_type",
-       "inflection_metadata", "frequency", "metadata"],
+      [
+        "id",
+        "canonical",
+        "normalized",
+        "spelling_variants",
+        "language",
+        "regional_usage",
+        "pronunciation",
+        "part_of_speech",
+        "unit_type",
+        "inflection_metadata",
+        "frequency",
+        "metadata",
+      ],
       wordRows,
       ["id"],
       START_BATCH,
@@ -259,17 +308,38 @@ try {
 
     // senses (external_id unique — dedupes across files)
     const senseRows = r.senses.map((s) => [
-      s.id, s.word_id, sqlLit(sourceId) === "NULL" ? null : sourceId,
-      s.external_id, s.synset_key, s.definition, s.usage_examples,
-      s.domain, s.register, s.region, s.grammatical, s.confidence,
+      s.id,
+      s.word_id,
+      sqlLit(sourceId) === "NULL" ? null : sourceId,
+      s.external_id,
+      s.synset_key,
+      s.definition,
+      s.usage_examples,
+      s.domain,
+      s.register,
+      s.region,
+      s.grammatical,
+      s.confidence,
       s.knowledge_status,
     ]);
     const sCounters = { inserted: 0, duplicates: 0 };
     await insertBatched(
       "lexicon_senses",
-      ["id", "word_id", "source_id", "external_id", "synset_key",
-       "definition", "usage_examples", "domain", "register", "region",
-       "grammatical", "confidence", "knowledge_status"],
+      [
+        "id",
+        "word_id",
+        "source_id",
+        "external_id",
+        "synset_key",
+        "definition",
+        "usage_examples",
+        "domain",
+        "register",
+        "region",
+        "grammatical",
+        "confidence",
+        "knowledge_status",
+      ],
       senseRows,
       ["id"],
       START_BATCH,
@@ -279,14 +349,25 @@ try {
 
     // sense relations
     const srelRows = r.senseRelations.map((rel) => [
-      uuidV5(`senserel|${rel.relation_type}|${rel.from_sense_external_id}|${rel.to_sense_external_id}`),
-      rel.relation_type, rel.from_sense_external_id, rel.to_sense_external_id, sourceId,
+      uuidV5(
+        `senserel|${rel.relation_type}|${rel.from_sense_external_id}|${rel.to_sense_external_id}`,
+      ),
+      rel.relation_type,
+      rel.from_sense_external_id,
+      rel.to_sense_external_id,
+      sourceId,
     ]);
     totals.senseRelations += r.senseRelations.length;
     const srCounters = { inserted: 0, duplicates: 0 };
     await insertBatched(
       "lexicon_sense_relations",
-      ["id", "relation_type", "from_sense_external_id", "to_sense_external_id", "source_id"],
+      [
+        "id",
+        "relation_type",
+        "from_sense_external_id",
+        "to_sense_external_id",
+        "source_id",
+      ],
       srelRows,
       ["id"],
       START_BATCH,
@@ -297,14 +378,25 @@ try {
     // synset relations: same data every pass — insert once (first file)
     if (!synsetRelationsRows) {
       synsetRelationsRows = r.synsetRelations.map((rel) => [
-        uuidV5(`synrel|${rel.relation_type}|${rel.from_synset_key}|${rel.to_synset_key}`),
-        rel.relation_type, rel.from_synset_key, rel.to_synset_key, sourceId,
+        uuidV5(
+          `synrel|${rel.relation_type}|${rel.from_synset_key}|${rel.to_synset_key}`,
+        ),
+        rel.relation_type,
+        rel.from_synset_key,
+        rel.to_synset_key,
+        sourceId,
       ]);
       totals.synsetRelations += synsetRelationsRows.length;
       const synCounters = { inserted: 0, duplicates: 0 };
       await insertBatched(
         "lexicon_relationships",
-        ["id", "relation_type", "from_synset_key", "to_synset_key", "source_id"],
+        [
+          "id",
+          "relation_type",
+          "from_synset_key",
+          "to_synset_key",
+          "source_id",
+        ],
         synsetRelationsRows,
         ["id"],
         START_BATCH,
