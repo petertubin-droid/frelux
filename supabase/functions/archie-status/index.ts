@@ -145,6 +145,51 @@ serveWithCors(async (req: Request) => {
         event_type: "archie.ears.transcription",
       }),
     ]);
+    // Semantic Knowledge Graph Engine health (spec §19):
+    // real database state from archie_graph_health() — node
+    // and edge counts, status breakdowns, orphan nodes,
+    // duplicate candidates, circular relationships, invalid
+    // types, missing provenance and the last ingestion. When
+    // the graph is not yet materialized the RPC returns the
+    // real empty state; when the function itself is missing
+    // (pre-migration deploy) the dashboard reports
+    // UNAVAILABLE honestly — never a fabricated "OK".
+    let semanticGraph: Record<string, unknown>;
+    try {
+      const { data: graphData, error: graphError } = await service.rpc(
+        "archie_graph_health",
+      );
+      if (graphError || !graphData) {
+        semanticGraph = {
+          state: "UNAVAILABLE",
+          note: String(graphError?.message ?? "no health data"),
+        };
+      } else {
+        const h = graphData as Record<string, unknown>;
+        semanticGraph = {
+          state: (h.total_edges ?? 0) > 0 ? "OPERATIONAL" : "EMPTY",
+          total_nodes: h.total_nodes,
+          total_edges: h.total_edges,
+          relation_types: Object.keys(h.relation_type_breakdown ?? {}).length,
+          orphan_nodes: h.orphan_nodes,
+          duplicate_candidates: h.duplicate_candidates,
+          invalid_relationship_types: h.invalid_relationship_types,
+          circular_relationships: h.circular_relationships,
+          missing_provenance: h.missing_provenance,
+          unverified_nodes: h.unverified_nodes,
+          unverified_edges: h.unverified_edges,
+          graph_version: h.graph_version,
+          last_ingestion: h.last_ingestion,
+        };
+      }
+    } catch (graphErr) {
+      semanticGraph = {
+        state: "UNAVAILABLE",
+        note:
+          graphErr instanceof Error ? graphErr.message : "health query failed",
+      };
+    }
+
     // Ears runs NATIVE (on-device speech recognition, no
     // provider, no key — OpenAI Separation Rule). It is
     // OPERATIONAL only once a REAL transcription exists in
@@ -202,6 +247,7 @@ serveWithCors(async (req: Request) => {
           intel_sources: intelSources,
           price_observations: priceObservations,
         },
+        semantic_graph: semanticGraph,
       },
     });
   } catch (err) {

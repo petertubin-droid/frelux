@@ -77,6 +77,7 @@ import {
 // ARCHIE Universal Lexicon Engine — verified dictionary
 // knowledge in the live language pathway (spec §LEXICON).
 import { lexicalGroundTruth } from "../_shared/lexicon/retrieval.ts";
+import { semanticGraphGroundTruth } from "../_shared/semantic-graph/retrieval.ts";
 import { rateLimitedResponse } from "../_shared/cors.ts";
 configureCognitiveEnginePersistence(
   service as unknown as import("../_shared/archie-ai/native-engine/persistence.ts").SupabaseLike,
@@ -117,13 +118,20 @@ async function requireOwner(
 ): Promise<{ ok: true; userId: string } | { ok: false; res: Response }> {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader)
-    return { ok: false, res: jsonResponse(respond(401, { error: "Unauthorized" })) };
+    return {
+      ok: false,
+      res: jsonResponse(respond(401, { error: "Unauthorized" })),
+    };
   const anon = createClient(SUPABASE_URL, ANON_KEY, {
     global: { headers: { Authorization: authHeader } },
   });
   const { data } = await anon.auth.getUser();
   const user = data.user;
-  if (!user) return { ok: false, res: jsonResponse(respond(401, { error: "Unauthorized" })) };
+  if (!user)
+    return {
+      ok: false,
+      res: jsonResponse(respond(401, { error: "Unauthorized" })),
+    };
 
   const { data: profiles } = await anon
     .from("profiles")
@@ -140,7 +148,9 @@ async function requireOwner(
     });
     return {
       ok: false,
-      res: jsonResponse(respond(403, { error: "Forbidden — ARCHIE is Owner-only." })),
+      res: jsonResponse(
+        respond(403, { error: "Forbidden — ARCHIE is Owner-only." }),
+      ),
     };
   }
   return { ok: true, userId: user.id };
@@ -608,7 +618,8 @@ async function executeCore(
   if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
 
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
-  if (req.method !== "POST") return respond(405, { error: "Method not allowed" });
+  if (req.method !== "POST")
+    return respond(405, { error: "Method not allowed" });
 
   const auth = await requireOwner(req);
   if (!auth.ok) return auth.res;
@@ -831,9 +842,13 @@ async function executeCore(
     // Universal Lexicon Engine: contextual sense retrieval for
     // ambiguous words in the owner's message (spec §LEXICON).
     // Deterministic + bounded; ambiguity is stated honestly.
-    let lexical: import("../_shared/lexicon/retrieval.ts").LexicalGroundTruth = {
-      block: "", wordsExamined: 0, disambiguated: [], ambiguous: [],
-    };
+    let lexical: import("../_shared/lexicon/retrieval.ts").LexicalGroundTruth =
+      {
+        block: "",
+        wordsExamined: 0,
+        disambiguated: [],
+        ambiguous: [],
+      };
     try {
       lexical = await lexicalGroundTruth(
         service as unknown as import("../_shared/lexicon/retrieval.ts").LexiconClient,
@@ -849,6 +864,30 @@ async function executeCore(
         ambiguous: [],
       };
       console.warn("[archie-core] lexicon retrieval failed:", lexErr);
+    }
+
+    // Semantic Knowledge Graph Engine: concept identification
+    // + bounded graph retrieval for the live turn (spec
+    // §SEMANTIC-GRAPH — the pathway between the lexicon and
+    // ARCHIE's reasoning). Deterministic + bounded; statuses
+    // and provenance ride along; ambiguity is stated honestly.
+    let graphGT: import("../_shared/semantic-graph/retrieval.ts").SemanticGraphGroundTruth =
+      {
+        block: "",
+        termsExamined: 0,
+        conceptsIdentified: [],
+        conceptsAmbiguous: [],
+        edgesRetrieved: 0,
+      };
+    try {
+      graphGT = await semanticGraphGroundTruth(
+        service as unknown as import("../_shared/semantic-graph/retrieval.ts").GraphClient,
+        message,
+      );
+    } catch (graphErr) {
+      // Graph failure NEVER blocks the chat path — report it,
+      // continue without the graph block (honest degradation).
+      console.warn("[archie-core] semantic graph retrieval failed:", graphErr);
     }
 
     const languageDirective =
@@ -877,7 +916,8 @@ async function executeCore(
         ? `\n\nTool execution results (ground truth — cite them; never contradict them):\n${toolBlock}`
         : "") +
       (terminology.block ? `\n\n${terminology.block}` : "") +
-      (lexical.block ? `\n\n${lexical.block}` : "");
+      (lexical.block ? `\n\n${lexical.block}` : "") +
+      (graphGT.block ? `\n\n${graphGT.block}` : "");
 
     emit?.("progress", { type: "stage", stage: "reasoning" });
     const inference = await infer({
@@ -929,6 +969,12 @@ async function executeCore(
           authoritative: language.res.authoritative,
           verified_terms: terminology.terms,
         },
+        semantic_graph: {
+          terms_examined: graphGT.termsExamined,
+          concepts_identified: graphGT.conceptsIdentified.length,
+          concepts_ambiguous: graphGT.conceptsAmbiguous.length,
+          edges_retrieved: graphGT.edgesRetrieved,
+        },
       }),
       service.from("frelux_infrastructure_costs").insert({
         operation_class: "INTERNAL_ARCHIE_OPERATION",
@@ -962,6 +1008,14 @@ async function executeCore(
         words_examined: lexical.wordsExamined,
         senses_disambiguated: lexical.disambiguated,
         senses_ambiguous: lexical.ambiguous,
+      },
+      // Semantic Knowledge Graph Engine audit (honest coverage
+      // — what the graph actually did this turn)
+      semantic_graph: {
+        terms_examined: graphGT.termsExamined,
+        concepts_identified: graphGT.conceptsIdentified,
+        concepts_ambiguous: graphGT.conceptsAmbiguous,
+        edges_retrieved: graphGT.edgesRetrieved,
       },
       // Model transparency (spec §§1, 11, 39): ARCHIE's identity is the
       // Intelligence Core; the runtime/adapter is a replaceable part and is
@@ -1003,7 +1057,9 @@ function sse(
   data: Record<string, unknown>,
 ) {
   controller.enqueue(
-    new TextEncoder().encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`),
+    new TextEncoder().encode(
+      `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`,
+    ),
   );
 }
 
@@ -1024,8 +1080,9 @@ serveWithCors(async (req: Request) => {
   }
 
   // stream selection: explicit flag first, Accept header second
-  let wantsStream =
-    (req.headers.get("Accept") ?? "").includes("text/event-stream");
+  let wantsStream = (req.headers.get("Accept") ?? "").includes(
+    "text/event-stream",
+  );
   if (req.method === "POST") {
     try {
       const parsed = await req.clone().json();
@@ -1059,9 +1116,10 @@ serveWithCors(async (req: Request) => {
         }
         sse(controller, "done", { status: outcome.status, ...detail });
       } else {
-        const reply = typeof outcome.body.reply === "string"
-          ? outcome.body.reply
-          : undefined;
+        const reply =
+          typeof outcome.body.reply === "string"
+            ? outcome.body.reply
+            : undefined;
         if (reply) {
           for (const chunk of chunkReply(reply)) {
             sse(controller, "delta", { text: chunk });

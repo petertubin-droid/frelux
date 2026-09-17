@@ -138,12 +138,7 @@ describe("archie-core — SSE streaming (gap 3)", () => {
     givenOwnerIsAdmin();
     givenConversation();
     const res = await handler(
-      req(
-        "POST",
-        "",
-        { conversation_id: CONV_ID, message: "   " },
-        OWNER_AUTH,
-      ),
+      req("POST", "", { conversation_id: CONV_ID, message: "   " }, OWNER_AUTH),
     );
     expect(res.headers.get("Content-Type")).toContain("application/json");
     expect(res.status).toBe(400);
@@ -213,6 +208,179 @@ describe("archie-core — SSE streaming (gap 3)", () => {
 });
 
 // ---------------------------------------------------------
+// Semantic Knowledge Graph Engine integration (spec
+// §SEMANTIC-GRAPH): a REAL owner conversation must reach the
+// graph — concept identification + bounded relationship
+// retrieval in the live pathway, audited honestly.
+// ---------------------------------------------------------
+
+// Materialize graph fixture rows from the SAME real lexicon
+// fixture using the registry mapping (mirrors
+// archie_build_semantic_graph()). REAL OEWN data only.
+import {
+  LEXICON_RELATION_MAPPINGS,
+  LEXICON_EDGE_PROVENANCE,
+} from "../_shared/semantic-graph/relations.ts";
+
+function materializeGraphFixture() {
+  const wordCanonical = new Map(
+    lexiconFixture.words.map((w: any) => [w.id, w.canonical] as const),
+  );
+  const nodesByKey = new Map<string, any>();
+  const senseToSynset = new Map<string, string>();
+  for (const sn of lexiconFixture.senses) {
+    if (sn.knowledge_status !== "VERIFIED") continue;
+    senseToSynset.set(sn.external_id, sn.synset_key);
+    let n = nodesByKey.get(sn.synset_key);
+    if (!n) {
+      n = {
+        id: `node-${sn.synset_key}`,
+        concept_key: sn.synset_key,
+        synset_key: sn.synset_key,
+        canonical_name: "\uffff",
+        sense_external_ids: [],
+        description: sn.definition,
+        domain: sn.domain ?? null,
+        language: "en",
+        region: null,
+        knowledge_status: "VERIFIED",
+        confidence: 1,
+        source_id: sn.source_id ?? null,
+        provenance: `concept derived from OEWN 2025 synset ${sn.synset_key} (via ARCHIE Universal Lexicon)`,
+        version: 1,
+      };
+      nodesByKey.set(sn.synset_key, n);
+    }
+    n.sense_external_ids.push(sn.external_id);
+    const lemma = String(wordCanonical.get(sn.word_id) ?? "");
+    if (lemma && lemma < n.canonical_name) n.canonical_name = lemma;
+  }
+  const edges: any[] = [];
+  const seen = new Set<string>();
+  const push = (
+    source: string,
+    type: string,
+    target: string,
+    original: string,
+    table: string,
+  ) => {
+    if (!nodesByKey.has(source) || !nodesByKey.has(target)) return;
+    const key = `${source}|${type}|${target}`;
+    if (seen.has(key)) return;
+    seen.add(key);
+    edges.push({
+      id: `edge-${edges.length}`,
+      source_concept_key: source,
+      relation_type: type,
+      target_concept_key: target,
+      knowledge_status: "VERIFIED",
+      confidence: 1,
+      provenance: `${LEXICON_EDGE_PROVENANCE} via ${table}: ${original}`,
+      evidence: `OEWN ${original}: mapped to ${type} (directly sourced meaning)`,
+      domain: null,
+      source_id: null,
+      version: 1,
+    });
+  };
+  for (const r of lexiconFixture.synsetRelations) {
+    const m = LEXICON_RELATION_MAPPINGS.find(
+      (x) =>
+        x.lexiconTable === "lexicon_relationships" &&
+        x.lexiconRelation === r.relation_type,
+    );
+    if (m)
+      push(
+        r.from_synset_key,
+        m.graphRelation,
+        r.to_synset_key,
+        r.relation_type,
+        "lexicon_relationships",
+      );
+  }
+  for (const r of lexiconFixture.senseRelations) {
+    const m = LEXICON_RELATION_MAPPINGS.find(
+      (x) =>
+        x.lexiconTable === "lexicon_sense_relations" &&
+        x.lexiconRelation === r.relation_type,
+    );
+    const fk = senseToSynset.get(r.from_sense_external_id);
+    const tk = senseToSynset.get(r.to_sense_external_id);
+    if (m && fk && tk)
+      push(fk, m.graphRelation, tk, r.relation_type, "lexicon_sense_relations");
+  }
+  return { nodes: [...nodesByKey.values()], edges };
+}
+
+describe("archie-core — semantic graph engine in the live pathway", () => {
+  it("a full owner turn runs graph retrieval and reports the audit", async () => {
+    givenOwnerIsAdmin();
+    givenConversation();
+    givenLexicon();
+    const graphFx = materializeGraphFixture();
+    givenRows("semantic_graph_nodes", graphFx.nodes);
+    givenRows("semantic_graph_edges", graphFx.edges);
+
+    const res = await handler(
+      req(
+        "POST",
+        "",
+        {
+          conversation_id: CONV_ID,
+          message: "I need to run the program, what does run mean here?",
+        },
+        OWNER_AUTH,
+      ),
+    );
+    expect(res.status).toBe(200);
+    const body = await json(res);
+    expect(body.ok).toBe(true);
+
+    // honest audit: the graph section always reports what it
+    // examined, identified, left ambiguous, and retrieved
+    expect(body.semantic_graph).toBeTruthy();
+    expect(typeof body.semantic_graph.terms_examined).toBe("number");
+    expect(body.semantic_graph.terms_examined).toBeGreaterThan(0);
+    expect(Array.isArray(body.semantic_graph.concepts_identified)).toBe(true);
+    expect(Array.isArray(body.semantic_graph.concepts_ambiguous)).toBe(true);
+    // "run" is genuinely multi-concept in real OEWN data: it
+    // lands in identified (direct evidence via "program") or
+    // ambiguous — never silently ignored
+    const runIdentified = body.semantic_graph.concepts_identified.some(
+      (c: any) => c.term === "run",
+    );
+    const runAmbiguous = body.semantic_graph.concepts_ambiguous.includes("run");
+    expect(runIdentified || runAmbiguous).toBe(true);
+    // bounded retrieval: the budget contract holds in a real turn
+    expect(body.semantic_graph.edges_retrieved).toBeLessThanOrEqual(24);
+  });
+
+  it("degrades honestly when the graph is empty — the turn still succeeds", async () => {
+    givenOwnerIsAdmin();
+    givenConversation();
+    givenLexicon();
+    // graph tables not seeded: empty graph
+
+    const res = await handler(
+      req(
+        "POST",
+        "",
+        { conversation_id: CONV_ID, message: "hello" },
+        OWNER_AUTH,
+      ),
+    );
+    expect(res.status).toBe(200);
+    const body = await json(res);
+    expect(body.ok).toBe(true);
+    // empty graph: "hello" is examined (1 term) but nothing is
+    // identified, nothing ambiguous-listed, zero edges — the
+    // honest empty state, never fabricated concepts
+    expect(body.semantic_graph.concepts_identified).toEqual([]);
+    expect(body.semantic_graph.concepts_ambiguous).toEqual([]);
+    expect(body.semantic_graph.edges_retrieved).toBe(0);
+  });
+});
+
+// ---------------------------------------------------------
 // Universal Lexicon Engine integration (spec §18): a REAL
 // owner conversation must reach the lexicon — contextual
 // sense retrieval in the live pathway, audited honestly.
@@ -241,7 +409,10 @@ describe("archie-core — lexicon engine in the live pathway", () => {
     // honest audit: the lexicon section always reports what
     // it examined, disambiguated, or left ambiguous
     expect(body.lexicon).toBeTruthy();
-    expect(Array.isArray(body.lexicon.words_examined_list ?? null) || typeof body.lexicon.words_examined === "number").toBe(true);
+    expect(
+      Array.isArray(body.lexicon.words_examined_list ?? null) ||
+        typeof body.lexicon.words_examined === "number",
+    ).toBe(true);
 
     // "run" is genuinely multi-sense: it must appear in one of
     // the honest buckets — disambiguated (direct evidence:
@@ -258,7 +429,12 @@ describe("archie-core — lexicon engine in the live pathway", () => {
     // no lexicon fixtures seeded: empty tables
 
     const res = await handler(
-      req("POST", "", { conversation_id: CONV_ID, message: "hello" }, OWNER_AUTH),
+      req(
+        "POST",
+        "",
+        { conversation_id: CONV_ID, message: "hello" },
+        OWNER_AUTH,
+      ),
     );
     expect(res.status).toBe(200);
     const body = await json(res);
