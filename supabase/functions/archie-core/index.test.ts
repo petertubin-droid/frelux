@@ -21,6 +21,8 @@ import {
   OWNER_AUTH,
   OWNER_ID,
   json,
+  state,
+  tableFixtures,
 } from "../_shared/testing/harness.ts";
 import fs from "node:fs";
 
@@ -601,5 +603,129 @@ describe("archie-core — lexicon engine in the live pathway", () => {
       senses_disambiguated: [],
       senses_ambiguous: [],
     });
+  });
+});
+
+describe("archie-core — knowledge source seam (Phase 7 cutover)", () => {
+  // NOTE on ordering: the repository memoizes once configured, so
+  // the unconfigured-fallback test must run BEFORE the configured
+  // test sets KNOWLEDGE_* in the (shimmed) environment.
+
+  function lastChatTurnAudit() {
+    const rows = tableFixtures.get("frelux_archie_audit_events") ?? [];
+    for (let i = rows.length - 1; i >= 0; i--) {
+      if (rows[i].event_type === "archie.core.chat_turn") return rows[i];
+    }
+    return null;
+  }
+
+  it("default (no switch) serves knowledge from A and audits the source", async () => {
+    givenOwnerIsAdmin();
+    givenConversation();
+    givenLexicon();
+    // no site_settings fixture → fail-safe legacy path
+    const res = await handler(
+      req(
+        "POST",
+        "",
+        { conversation_id: CONV_ID, message: "hello" },
+        {
+          ...OWNER_AUTH,
+          "x-user-id": "seam-test-1",
+        },
+      ),
+    );
+    expect(res.status).toBe(200);
+    const audit = lastChatTurnAudit();
+    expect(audit).not.toBeNull();
+    expect(audit.detail.knowledge_source.source).toBe("A");
+    expect(audit.detail.knowledge_source.origin).toBe(
+      "test-project.supabase.co",
+    );
+  });
+
+  it("switch=B with an unconfigured repository fails safe to A", async () => {
+    givenOwnerIsAdmin();
+    givenConversation();
+    givenLexicon();
+    givenRows("site_settings", [{ archie_knowledge_source: "B" }]);
+    // KNOWLEDGE_* deliberately absent → the turn must still succeed
+    // on the legacy path, honestly audited as source A
+    const res = await handler(
+      req(
+        "POST",
+        "",
+        { conversation_id: CONV_ID, message: "hello" },
+        {
+          ...OWNER_AUTH,
+          "x-user-id": "seam-test-2",
+        },
+      ),
+    );
+    expect(res.status).toBe(200);
+    expect((await json(res)).ok).toBe(true);
+    const audit = lastChatTurnAudit();
+    expect(audit.detail.knowledge_source.source).toBe("A");
+  });
+
+  it("switch=B with the repository configured routes knowledge to B", async () => {
+    givenOwnerIsAdmin();
+    givenConversation();
+    givenLexicon();
+    givenRows("site_settings", [{ archie_knowledge_source: "B" }]);
+    state.env.KNOWLEDGE_DB_URL = "https://knowledge-project.supabase.co";
+    state.env.KNOWLEDGE_SERVICE_ROLE_KEY = "test-knowledge-service-key";
+    try {
+      const res = await handler(
+        req(
+          "POST",
+          "",
+          { conversation_id: CONV_ID, message: "hello" },
+          { ...OWNER_AUTH, "x-user-id": "seam-test-3" },
+        ),
+      );
+      expect(res.status).toBe(200);
+      expect((await json(res)).ok).toBe(true);
+      const audit = lastChatTurnAudit();
+      expect(audit.detail.knowledge_source.source).toBe("B");
+      expect(audit.detail.knowledge_source.origin).toBe(
+        "https://knowledge-project.supabase.co",
+      );
+      // the service-role key must never ride in the audit ledger
+      expect(JSON.stringify(audit.detail)).not.toContain(
+        "test-knowledge-service-key",
+      );
+    } finally {
+      delete state.env.KNOWLEDGE_DB_URL;
+      delete state.env.KNOWLEDGE_SERVICE_ROLE_KEY;
+    }
+  });
+
+  it("switch=A (explicit rollback state) keeps the legacy path even when the repository is configured", async () => {
+    givenOwnerIsAdmin();
+    givenConversation();
+    givenLexicon();
+    givenRows("site_settings", [{ archie_knowledge_source: "A" }]);
+    state.env.KNOWLEDGE_DB_URL = "https://knowledge-project.supabase.co";
+    state.env.KNOWLEDGE_SERVICE_ROLE_KEY = "test-knowledge-service-key";
+    try {
+      const res = await handler(
+        req(
+          "POST",
+          "",
+          { conversation_id: CONV_ID, message: "hello" },
+          {
+            ...OWNER_AUTH,
+            "x-user-id": "seam-test-4",
+          },
+        ),
+      );
+      expect(res.status).toBe(200);
+      const audit = lastChatTurnAudit();
+      expect(audit.detail.knowledge_source.source).toBe("A");
+    } finally {
+      delete state.env.KNOWLEDGE_DB_URL;
+      delete state.env.KNOWLEDGE_SERVICE_ROLE_KEY;
+    }
   });
 });

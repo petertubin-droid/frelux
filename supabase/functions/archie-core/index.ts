@@ -38,6 +38,10 @@
 // npm: spec resolves via Supabase's internal package registry — esm.sh network
 // fetches fail at cold boot in the edge runtime (BOOT_ERROR).
 import { createClient } from "npm:@supabase/supabase-js@2";
+import {
+  createKnowledgeRepository,
+  type KnowledgeRepository,
+} from "../_shared/knowledge/repository.ts";
 import { infer, listRuntimes, type RuntimePart } from "./model-runtime.ts";
 import {
   classifyLifeSafety,
@@ -56,6 +60,82 @@ const ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 // Owner-side identity for the service client (all writes are
 // cross-checked against the authenticated owner id).
 const service = createClient(SUPABASE_URL, SERVICE_ROLE);
+
+// ---------------------------------------------------------
+// §PHASE-7 KNOWLEDGE SOURCE (owner-approved config-only
+// cutover). site_settings.archie_knowledge_source selects
+// where the knowledge engines (lexicon / semantic graph /
+// inference) read for the live turn:
+//   'A' (default) — this project's knowledge tables: the
+//        pre-cutover behavior AND the emergency rollback path.
+//   'B'           — the ARCHIE knowledge repository (Project B
+//        via _shared/knowledge/ — server-side only; credentials
+//        stay in Edge Function secrets and never reach the
+//        browser or the frontend bundle).
+// Fail-safe: any settings error, missing column, or missing
+// repository configuration keeps 'A'. Cutover and rollback
+// are one-row settings updates — no redeploy, no code change.
+// ---------------------------------------------------------
+
+// Memoized Project B repository binding. Null when the
+// KNOWLEDGE_* secrets are absent (CI, pre-cutover deploys) —
+// the legacy Project A path serves, exactly as before Phase 7.
+// Config is deterministic per deploy, so retrying while
+// unconfigured is a cheap env read, never a network call.
+let knowledgeRepo: KnowledgeRepository | null = null;
+function getKnowledgeRepository(): KnowledgeRepository | null {
+  if (!knowledgeRepo) {
+    const result = createKnowledgeRepository();
+    if (result.ok) knowledgeRepo = result.repository;
+  }
+  return knowledgeRepo;
+}
+
+type KnowledgeSource = {
+  /** 'A' = this project (legacy/rollback), 'B' = repository. */
+  source: "A" | "B";
+  /** Host only — safe for the audit ledger. */
+  origin: string;
+  lexiconClient: LexiconClient;
+  graphClient: GraphClient;
+};
+
+async function resolveKnowledgeSource(): Promise<KnowledgeSource> {
+  let source: "A" | "B" = "A";
+  try {
+    const { data, error } = await service
+      .from("site_settings")
+      .select("archie_knowledge_source")
+      .limit(1);
+    if (!error && data?.[0]?.archie_knowledge_source === "B") {
+      source = "B";
+    }
+  } catch {
+    // missing column / settings read failure → fail-safe 'A'
+  }
+  if (source === "B") {
+    const repo = getKnowledgeRepository();
+    if (repo) {
+      const client = repo.graphClient();
+      return {
+        source: "B",
+        origin: repo.origin,
+        lexiconClient: client as unknown as LexiconClient,
+        graphClient: client as unknown as GraphClient,
+      };
+    }
+    // repository not configured → fail-safe legacy path (audited)
+    console.warn(
+      "[archie-core] archie_knowledge_source=B but the knowledge repository is not configured; serving from A",
+    );
+  }
+  return {
+    source: "A",
+    origin: new URL(SUPABASE_URL).host,
+    lexiconClient: service as unknown as LexiconClient,
+    graphClient: service as unknown as GraphClient,
+  };
+}
 
 // ARCHIE Native Intelligence Engine — wire durable persistence
 // (knowledge facts + learning outcomes) into the engine the
@@ -77,7 +157,9 @@ import {
 // ARCHIE Universal Lexicon Engine — verified dictionary
 // knowledge in the live language pathway (spec §LEXICON).
 import { lexicalGroundTruth } from "../_shared/lexicon/retrieval.ts";
+import type { LexiconClient } from "../_shared/lexicon/retrieval.ts";
 import { semanticGraphGroundTruth } from "../_shared/semantic-graph/retrieval.ts";
+import type { GraphClient } from "../_shared/semantic-graph/retrieval.ts";
 // ARCHIE Context & Inference Engine — the third intelligence
 // layer (spec §§1–27): sits above the lexicon + graph layers,
 // assembles bounded context, builds evidence premises, runs
@@ -847,6 +929,10 @@ async function executeCore(
       language.res.language_code,
     );
 
+    // §PHASE-7: resolve this turn's knowledge source (A or B) —
+    // one bounded settings read, fail-safe to A.
+    const knowledge = await resolveKnowledgeSource();
+
     // Universal Lexicon Engine: contextual sense retrieval for
     // ambiguous words in the owner's message (spec §LEXICON).
     // Deterministic + bounded; ambiguity is stated honestly.
@@ -858,10 +944,7 @@ async function executeCore(
         ambiguous: [],
       };
     try {
-      lexical = await lexicalGroundTruth(
-        service as unknown as import("../_shared/lexicon/retrieval.ts").LexiconClient,
-        message,
-      );
+      lexical = await lexicalGroundTruth(knowledge.lexiconClient, message);
     } catch (lexErr) {
       // Lexicon failure NEVER blocks the chat path — report it,
       // continue without ground truth (honest degradation).
@@ -888,10 +971,7 @@ async function executeCore(
         edgesRetrieved: 0,
       };
     try {
-      graphGT = await semanticGraphGroundTruth(
-        service as unknown as import("../_shared/semantic-graph/retrieval.ts").GraphClient,
-        message,
-      );
+      graphGT = await semanticGraphGroundTruth(knowledge.graphClient, message);
     } catch (graphErr) {
       // Graph failure NEVER blocks the chat path — report it,
       // continue without the graph block (honest degradation).
@@ -909,7 +989,7 @@ async function executeCore(
     let inferenceGT: InferenceGroundTruth = EMPTY_INFERENCE_GROUND_TRUTH;
     try {
       inferenceGT = await inferenceGroundTruth(
-        service as unknown as import("../_shared/semantic-graph/retrieval.ts").GraphClient,
+        knowledge.graphClient,
         message ?? "",
         (body.history ?? [])
           .slice(-8)
@@ -995,6 +1075,13 @@ async function executeCore(
       audit(userId, "archie.core.chat_turn", "INFO", {
         conversation_id: conv.id,
         intent,
+        // §PHASE-7: where this turn's knowledge came from —
+        // configuration-driven, honest, in the ledger for
+        // soak monitoring and rollback forensics.
+        knowledge_source: {
+          source: knowledge.source,
+          origin: knowledge.origin,
+        },
         tools: toolResults.map((t) => t.tool),
         attachments: attachments.length,
         language: {
