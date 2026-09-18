@@ -9,6 +9,7 @@
 // =========================================================
 
 import { verifyAuthorityJwt } from "../_shared/archie-ai/security/cross-project-auth.ts";
+import { createKnowledgeRepository } from "../_shared/knowledge/repository.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
@@ -95,6 +96,51 @@ serveWithCors(async (req: Request) => {
   }
 
   try {
+    // Knowledge repository (Phase 5 — the server-side Project B
+    // abstraction in _shared/knowledge/): REAL repository state
+    // against Project B. Fail-safe by design — absent Edge
+    // Function secrets report NOT_CONFIGURED; a failed health
+    // query (heavy aggregation on B's micro compute, retry-
+    // hardened in the repository binding) reports UNAVAILABLE.
+    // Never a fabricated OK (spec §§3, 16, 19). Started here so
+    // B's response overlaps the Project A count fan-out below.
+    const knowledgeRepositoryPromise = (async (): Promise<
+      Record<string, unknown>
+    > => {
+      const result = createKnowledgeRepository();
+      if (!result.ok) {
+        return { state: "NOT_CONFIGURED", note: result.error.message };
+      }
+      const repo = result.repository;
+      try {
+        const h = await repo.health();
+        if (!h) {
+          return {
+            state: "UNAVAILABLE",
+            origin: repo.origin,
+            note: "graph health query failed (Project B)",
+          };
+        }
+        return {
+          state: h.total_edges > 0 ? "OPERATIONAL" : "EMPTY",
+          origin: repo.origin,
+          writes_enabled: repo.writesEnabled,
+          total_nodes: h.total_nodes,
+          total_edges: h.total_edges,
+          orphan_nodes: h.orphan_nodes,
+          graph_version: h.graph_version,
+          last_ingestion: h.last_ingestion,
+        };
+      } catch (repoErr) {
+        return {
+          state: "UNAVAILABLE",
+          origin: repo.origin,
+          note:
+            repoErr instanceof Error ? repoErr.message : "health query failed",
+        };
+      }
+    })();
+
     const [
       domains,
       knowledgeItems,
@@ -248,6 +294,7 @@ serveWithCors(async (req: Request) => {
           price_observations: priceObservations,
         },
         semantic_graph: semanticGraph,
+        knowledge_repository: await knowledgeRepositoryPromise,
       },
     });
   } catch (err) {

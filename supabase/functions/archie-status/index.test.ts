@@ -56,6 +56,20 @@ describe("archie-status — owner path", () => {
     expect(typeof body).toBe("object");
     expect(body.error).toBeUndefined();
   });
+
+  it("surfaces the knowledge repository fail-safe (Phase 5)", async () => {
+    givenOwnerIsAdmin();
+    const res = await handler(req("GET", "", undefined, OWNER_AUTH));
+    expect(res.status).toBe(200);
+    const body = await json(res);
+    // KNOWLEDGE_* secrets are absent in CI, so the repository
+    // reports NOT_CONFIGURED honestly — the endpoint must NOT
+    // 500, and the block must be present (never fabricated OK).
+    const kr = body.status.knowledge_repository;
+    expect(kr).toBeDefined();
+    expect(kr.state).toBe("NOT_CONFIGURED");
+    expect(String(kr.note)).not.toContain("service_role");
+  });
 });
 
 describe("archie-status — CORS boundary", () => {
