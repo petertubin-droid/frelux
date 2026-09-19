@@ -364,6 +364,12 @@ BEGIN
 END;
 $$;
 
+-- privileges: the engine writes via service_role (edge
+-- functions); authenticated admins read through the RLS
+-- policies; anon gets nothing.
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.archie_claims, public.archie_evidence_records, public.archie_claim_evidence, public.archie_claim_relations, public.archie_evidence_conflicts TO service_role;
+GRANT SELECT ON public.archie_claims, public.archie_evidence_records, public.archie_claim_evidence, public.archie_claim_relations, public.archie_evidence_conflicts TO authenticated;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO service_role;
 GRANT EXECUTE ON FUNCTION public.archie_evidence_health() TO authenticated;
 
 COMMENT ON FUNCTION public.archie_evidence_health() IS
