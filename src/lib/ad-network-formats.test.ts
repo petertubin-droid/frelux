@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   getAdsterraNativeBannerKey,
+  getAdsterraNativeBannerServeDomain,
+  getMonetagFormatScriptUrl,
   normalizeAdsterraServeDomain,
   getAdsterraSiteWideScripts,
   getMonetagAutoZoneScripts,
@@ -304,5 +306,88 @@ describe("ad-network-formats, Adsterra serve domain normalization", () => {
     expect(normalizeAdsterraServeDomain("evil.example.com")).toBe(
       "www.highperformanceformat.com",
     );
+  });
+});
+
+describe("ad-network-formats, native banner serve domain", () => {
+  const prov = (creds: Record<string, unknown>) =>
+    ({
+      ...baseProvider,
+      credentials: creds,
+    }) as DbAdProvider;
+
+  it("uses the host from the pasted native snippet", () => {
+    const p = prov({
+      serve_domain: "www.highrevenueformat.com",
+      native_banner_key:
+        "https://pl31194884.profitableratecpmnetwork.com/60c8524034bf047ff03e21ffec6aa01b/invoke.js",
+    });
+    expect(getAdsterraNativeBannerServeDomain(p)).toBe(
+      "pl31194884.profitableratecpmnetwork.com",
+    );
+  });
+
+  it("falls back to the validated serve_domain when the snippet host is not an Adsterra host", () => {
+    const p = prov({
+      serve_domain: "www.highrevenueformat.com",
+      native_banner_key: "https://evil.example.com/key/invoke.js",
+    });
+    expect(getAdsterraNativeBannerServeDomain(p)).toBe(
+      "www.highrevenueformat.com",
+    );
+  });
+
+  it("falls back to the default host when nothing valid is configured", () => {
+    expect(getAdsterraNativeBannerServeDomain(prov({}))).toBe(
+      "www.highperformanceformat.com",
+    );
+  });
+});
+
+describe("ad-network-formats, Monetag format scripts", () => {
+  const prov = (creds: Record<string, unknown>) =>
+    ({
+      ...baseProvider,
+      slug: "monetag",
+      credentials: creds,
+    }) as DbAdProvider;
+
+  it("serves the vignette format from its own dashboard script", () => {
+    expect(getMonetagFormatScriptUrl(prov({}), "vignette")).toBe(
+      "https://n6wxm.com/vignette.min.js",
+    );
+  });
+
+  it("keeps other formats on the generic multi-tag", () => {
+    expect(getMonetagFormatScriptUrl(prov({}), "interstitial")).toBe(
+      "https://quge5.com/88/tag.min.js",
+    );
+  });
+
+  it("honours an admin-set per-format script URL override", () => {
+    const p = prov({
+      vignette_script_url: "https://omg10.com/vignette.min.js",
+    });
+    expect(getMonetagFormatScriptUrl(p, "vignette")).toBe(
+      "https://omg10.com/vignette.min.js",
+    );
+  });
+
+  it("rejects malformed override URLs (falls back to the default)", () => {
+    const p = prov({ vignette_script_url: "javascript:alert(1)" });
+    expect(getMonetagFormatScriptUrl(p, "vignette")).toBe(
+      "https://n6wxm.com/vignette.min.js",
+    );
+  });
+
+  it("auto-zone scripts use the per-format script for the vignette zone", () => {
+    const p = prov({ vignette_zone_id: "11718645" });
+    const zones = getMonetagAutoZoneScripts(p);
+    expect(zones).toHaveLength(1);
+    expect(zones[0]).toEqual({
+      format: "vignette",
+      zone: "11718645",
+      src: "https://n6wxm.com/vignette.min.js",
+    });
   });
 });

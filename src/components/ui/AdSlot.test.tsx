@@ -554,6 +554,85 @@ describe("AdSlot, Adsterra rendering", () => {
     expect(appended).toHaveLength(0); // guard rejects before any iframe is built
   });
 
+  it("serves the native banner from the zone's own snippet host, not the generic serve domain", () => {
+    const nativeKey = "d".repeat(32);
+    const provider = makeAdsterraProvider({
+      key: "a".repeat(32),
+      serve_domain: "www.highrevenueformat.com",
+      native_banner_key: `https://pl31194884.profitableratecpmnetwork.com/${nativeKey}/invoke.js`,
+    });
+    const host = document.createElement("div");
+    const appended: unknown[] = [];
+    (host as unknown as Record<string, unknown>).appendChild = (c: unknown) => {
+      appended.push(c);
+      return c;
+    };
+    renderAdsterraNativeBanner(host as unknown as HTMLElement, provider, {
+      key: nativeKey,
+      slotKey: "test-slot",
+    });
+    const script = appended[0] as HTMLScriptElement;
+    expect(script.getAttribute("src")).toBe(
+      `https://pl31194884.profitableratecpmnetwork.com/${nativeKey}/invoke.js`,
+    );
+  });
+
+  it("skips the sitewide native zone in-slot and falls through to Monetag's native zone", async () => {
+    const nativeKey = "b".repeat(32);
+    const adsterra = makeAdsterraProvider(
+      {
+        key: "a".repeat(32),
+        native_banner_key: nativeKey,
+      },
+      { native_banner_sitewide: true },
+    );
+    const monetag = makeMonetagProvider({ display_ads_enabled: true });
+    (monetag as { credentials: Record<string, unknown> }).credentials = {
+      zone_id: "1234567",
+      native_banner_zone_id: "275352",
+    };
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [adsterra, monetag],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "native",
+          name: "Test",
+          page_target: "all",
+          position: "content",
+          is_active: true,
+          provider_ids: ["prov-adsterra", "prov-monetag"],
+          ad_unit_ids: { "prov-adsterra": nativeKey },
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([
+      adsterra,
+      monetag,
+    ]);
+    // The adsterra placement unit IS the sitewide native zone key;
+    // monetag has no per-placement unit on this slot.
+    vi.mocked(adConfig.getAdUnitId).mockImplementation(
+      (_placement: unknown, providerId: string) =>
+        providerId === "prov-adsterra" ? nativeKey : "",
+    );
+
+    const { container } = await renderAdSlot();
+    await waitFor(() => {
+      const slot = container.querySelector('[data-ad-provider="monetag"]');
+      expect(slot).not.toBeNull();
+    });
+    // Adsterra never rendered: the sitewide container owns the native zone
+    expect(container.querySelector('[data-ad-provider="adsterra"]')).toBeNull();
+    const monetagSlot = container.querySelector(
+      '[data-ad-provider="monetag"]',
+    ) as HTMLElement;
+    expect(monetagSlot.getAttribute("data-zone")).toBe("275352");
+  });
+
   it("routes slots to the native renderer when the resolved key matches the native credential", async () => {
     const nativeKey = "b".repeat(32);
     const provider = makeAdsterraProvider({

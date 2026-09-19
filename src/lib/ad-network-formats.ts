@@ -26,6 +26,19 @@ import type { DbAdProvider } from "@/types/database";
 export const MONETAG_TAG_DOMAIN = "quge5.com";
 export const MONETAG_TAG_URL = `https://${MONETAG_TAG_DOMAIN}/88/tag.min.js`;
 
+/**
+ * Monetag vignette delivery domain + script URL. Monetag serves the
+ * vignette format through a per-publisher script (the dashboard snippet
+ * is <script>(function(s){s.dataset.zone='...',s.src='https://n6wxm.com/
+ * vignette.min.js'})(…)</script>). Requesting the zone through the generic
+ * multi-tag instead can silently no-serve the vignette, so the format
+ * gets its own script URL. If the delivery domain rotates, change it HERE
+ * and in the CSP allowlists (public/_headers, netlify.toml). A per-format
+ * credential override (<format>_script_url) wins when set in Admin.
+ */
+export const MONETAG_VIGNETTE_DOMAIN = "n6wxm.com";
+export const MONETAG_VIGNETTE_URL = `https://${MONETAG_VIGNETTE_DOMAIN}/vignette.min.js`;
+
 /** Whether a provider's VISUAL display ads are enabled (mirrors AdSlot's rule). */
 export function displayAdsEnabled(provider: DbAdProvider): boolean {
   return provider.settings?.display_ads_enabled !== false;
@@ -215,11 +228,31 @@ export function getMonetagAutoZoneScripts(
       out.push({
         format: f.format,
         zone,
-        src: MONETAG_TAG_URL,
+        src: getMonetagFormatScriptUrl(provider, f.format),
       });
     }
   }
   return out;
+}
+
+/**
+ * Script URL that serves a Monetag auto-zone format. The vignette format
+ * has its own dashboard-delivered script (MONETAG_VIGNETTE_URL); other
+ * formats ride the generic multi-tag. An admin-set credential
+ * `<format>_script_url` (e.g. the full URL from the dashboard snippet)
+ * overrides the default, as long as it is a clean https URL.
+ */
+export function getMonetagFormatScriptUrl(
+  provider: DbAdProvider,
+  format: string,
+): string {
+  const creds = (provider.credentials ?? {}) as Record<string, unknown>;
+  const override = creds[`${format}_script_url`];
+  if (typeof override === "string") {
+    const url = override.trim();
+    if (/^https:\/\/[a-z0-9.-]+\/[a-z0-9.-]+\.js$/i.test(url)) return url;
+  }
+  return format === "vignette" ? MONETAG_VIGNETTE_URL : MONETAG_TAG_URL;
 }
 
 /**
@@ -264,4 +297,30 @@ export function getAdsterraNativeBannerScript(
   return typeof raw === "string" && raw.includes("invoke.js")
     ? "invoke"
     : "native";
+}
+
+/**
+ * Serve host for the Native Banner zone specifically. Adsterra binds each
+ * zone to the host in its dashboard snippet (the Native Banner snippet
+ * points at e.g. plNNNN.profitableratecpmnetwork.com while the banner
+ * zone serves from www.highrevenueformat.com). Requesting the zone from a
+ * different Adsterra host no-fills, so the pasted snippet's host wins when
+ * it is an allowlisted Adsterra serve host; otherwise fall back to the
+ * global serve_domain credential (validated), then the default host.
+ */
+export function getAdsterraNativeBannerServeDomain(
+  provider: DbAdProvider,
+): string {
+  const creds = (provider.credentials ?? {}) as Record<string, unknown>;
+  const raw =
+    typeof creds.native_banner_key === "string" ? creds.native_banner_key : "";
+  const m = raw.match(/https:\/\/([a-z0-9.-]+\.[a-z]{2,})\//i);
+  if (m) {
+    const host = m[1].toLowerCase();
+    const allowed = ADSTERRA_SERVE_HOSTS.some(
+      (a) => host === a || host.endsWith("." + a),
+    );
+    if (allowed) return host;
+  }
+  return normalizeAdsterraServeDomain(creds.serve_domain);
 }

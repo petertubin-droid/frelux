@@ -155,7 +155,10 @@ export default function Layout() {
                   : "native.js";
               setAdsterraNative({
                 key: nativeKey,
-                src: `https://${adsterraServeDomain}/${nativeKey}/${scriptFile}`,
+                // The Native Banner zone serves from the host in its own
+                // dashboard snippet (e.g. plNNNN.profitableratecpmnetwork.com),
+                // not from the generic banner serve_domain.
+                src: `https://${formats.getAdsterraNativeBannerServeDomain(adsterra)}/${nativeKey}/${scriptFile}`,
               });
             }
           }

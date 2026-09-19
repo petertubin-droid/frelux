@@ -9,6 +9,7 @@
 import {
   ADSTERRA_SERVE_HOSTS,
   getAdsterraNativeBannerScript,
+  getAdsterraNativeBannerServeDomain,
 } from "@/lib/ad-network-formats";
 import { adDebug } from "@/lib/ad-diagnostics";
 import type { DbAdProvider } from "@/types/database";
@@ -98,7 +99,15 @@ export function resolveAdsterraSize(
 ): { width: number; height: number } {
   const settings = (provider.settings ?? {}) as Record<string, unknown>;
   const custom = (settings.banner_sizes ?? {}) as Record<string, unknown>;
-  const raw = typeof custom[slotKey] === "string" ? custom[slotKey] : "";
+  // Per-slot override wins; otherwise the admin's "default" size applies
+  // (Adsterra zones are size-locked, a request at the wrong size
+  // no-fills, so the configured default MUST reach the request).
+  const raw =
+    typeof custom[slotKey] === "string"
+      ? custom[slotKey]
+      : typeof custom.default === "string"
+        ? custom.default
+        : "";
   const m = raw.match(/^(\d{2,4})\s*[x×]\s*(\d{2,4})$/);
   if (m) return { width: Number(m[1]), height: Number(m[2]) };
 
@@ -217,7 +226,9 @@ export function renderAdsterraNativeBanner(
   const key = opts.key;
   if (!/^[a-f0-9]{20,40}$/i.test(key)) return; // zone keys are hex tokens
   if (container.querySelector('script[data-adsterra-native="true"]')) return;
-  const serveDomain = getAdsterraServeDomain(provider);
+  // The zone's snippet host (e.g. plNNNN.profitableratecpmnetwork.com),
+  // NOT the generic serve_domain, which serves a different zone family.
+  const serveDomain = getAdsterraNativeBannerServeDomain(provider);
 
   // Adsterra ships two in-place native products. The classic Native Banner
   // snippet is invoke.js + <div id="container-<key>">; the newer one is a

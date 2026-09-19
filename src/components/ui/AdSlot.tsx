@@ -211,6 +211,20 @@ export default function AdSlot({
           provider.slug === "adsterra"
             ? extractAdsterraZoneKey(getAdUnitId(placement, provider.id))
             : getAdUnitId(placement, provider.id);
+        // Site-wide Native Banner mode: the Layout container owns the
+        // Native Banner zone. Never resolve that zone into an in-slot
+        // render (duplicate container-<key> IDs, double fill), and never
+        // let a native placement take it in-slot either, continue so
+        // the next provider in the chain (e.g. Monetag's native zone)
+        // can fill the slot instead.
+        if (
+          provider.slug === "adsterra" &&
+          perPlacementUnitId &&
+          perPlacementUnitId === getAdsterraNativeBannerKey(provider) &&
+          getAdsterraNativeBannerSitewide(provider)
+        ) {
+          continue;
+        }
         if (perPlacementUnitId) {
           // Has a per-placement zone, render with it
           setResolved({ provider, adUnitId: perPlacementUnitId, placement });
@@ -271,6 +285,17 @@ export default function AdSlot({
             // (fall through to the next provider in the chain)
             // instead of resolving an empty labeled box.
             if (!resolvedUnitId) {
+              // In site-wide mode a native placement must NOT fall into
+              // the banner-zone rescue: the fixed-size banner zone
+              // (468x60) no-fills in a native slot, and the sitewide
+              // container already renders the native zone. Fall through
+              // to the next provider instead.
+              if (
+                getAdsterraNativeBannerSitewide(provider) &&
+                placement.placement_type === "native"
+              ) {
+                continue;
+              }
               const creds = (provider.credentials ?? {}) as Record<
                 string,
                 unknown
