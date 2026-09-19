@@ -25,6 +25,9 @@ import {
   fftMagnitude,
   verifySpeaker,
   voiceprintSimilarity,
+  voiceprintSimilarityScored,
+  calibrateVoiceprintThreshold,
+  SPREAD_FLOOR,
   type EnrolledVoiceprint,
   type VoiceprintVector,
 } from "@studio-shared/archie-ai/native-engine/voiceprint";
@@ -288,5 +291,141 @@ describe("verifySpeaker", () => {
       expect(result.securityLabel).toContain("never authorize");
     }
     expect(VOICEPRINT_SECURITY_LABEL).toContain("replay");
+  });
+});
+
+// ---------------------------------------------------------
+// Variance-aware scoring (audit re-assessment 2026-09-19,
+// sensory periphery): the owner's measured within-speaker
+// spread sets the tolerance, dimension by dimension.
+// ---------------------------------------------------------
+describe("Variance-aware voiceprint scoring", () => {
+  const mkVector = (f: number[]): VoiceprintVector => ({
+    features: f,
+    voicedFrames: MIN_VOICED_FRAMES + 10,
+    sampleRate: 16000,
+    durationSec: 1,
+  });
+
+  it("enrollment measures per-dimension spreads from >= 2 samples", () => {
+    const a = mkVector([110, 0.3, 0.5, 40, 1000, 600, 0.1, 2]);
+    const b = mkVector([112, 0.3, 0.55, 55, 1010, 610, 0.1, 2.5]);
+    const r = enrollVoiceprint({
+      samples: [a, b],
+      now: "2026-09-19T00:00:00Z",
+    });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.profile.spreads).toBeDefined();
+    expect(r.profile.spreads!.length).toBe(VOICEPRINT_DIM);
+    // pitch MAD in normalized space is tiny (110→112 Hz is close)
+    expect(r.profile.spreads![0]).toBeLessThan(0.05);
+  });
+
+  it("single-sample enrollment produces NO spreads (no evidence, none fabricated)", () => {
+    const r = enrollVoiceprint({
+      samples: [mkVector([110, 0.3, 0.5, 40, 1000, 600, 0.1, 2])],
+      now: "2026-09-19T00:00:00Z",
+    });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    expect(r.profile.spreads).toBeUndefined();
+  });
+
+  it("spread-normalized scoring forgives within-speaker jitter more than the fixed metric", () => {
+    const template = [110, 0.3, 0.5, 40, 1000, 600, 0.1, 2];
+    // jitter on the VOLATILE dimensions (energy 40→90, rate 2→4):
+    // within the owner's measured spread if enrollment saw it
+    const enrolledSamples = [
+      mkVector([110, 0.3, 0.5, 40, 1000, 600, 0.1, 2]),
+      mkVector([110, 0.3, 0.5, 90, 1000, 600, 0.1, 4]),
+    ];
+    const r = enrollVoiceprint({
+      samples: enrolledSamples,
+      now: "2026-09-19T00:00:00Z",
+    });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const jittered = [110, 0.3, 0.5, 85, 1000, 600, 0.1, 3.8];
+    const scored = voiceprintSimilarityScored(
+      jittered,
+      template,
+      r.profile.spreads,
+    );
+    const fixed = voiceprintSimilarity(jittered, template);
+    expect(scored).not.toBeNull();
+    expect(fixed).not.toBeNull();
+    expect(scored!).toBeGreaterThan(fixed!);
+  });
+
+  it("a near-zero measured spread cannot make a dimension infinitely discriminative", () => {
+    const template = [110, 0.3, 0.5, 40, 1000, 600, 0.1, 2];
+    // enrollment saw ZERO pitch variation → MAD 0 → SPREAD_FLOOR applies
+    const zeroSpread = new Array(VOICEPRINT_DIM).fill(0);
+    const impostor = [300, 0.3, 0.5, 40, 1000, 600, 0.1, 2]; // far pitch
+    const scored = voiceprintSimilarityScored(impostor, template, zeroSpread);
+    expect(scored).toBeLessThan(DEFAULT_MATCH_THRESHOLD);
+  });
+
+  it("classic path unchanged when no spreads are provided", () => {
+    const v = [110, 0.3, 0.5, 40, 1000, 600, 0.1, 2];
+    expect(voiceprintSimilarityScored(v, v, undefined)).toBe(1);
+    expect(voiceprintSimilarityScored(v, v)).toBe(voiceprintSimilarity(v, v));
+  });
+
+  it("verifySpeaker uses the profile's measured spreads end to end", () => {
+    const enrolled = enrollVoiceprint({
+      samples: [
+        mkVector([110, 0.3, 0.5, 40, 1000, 600, 0.1, 2]),
+        mkVector([110, 0.3, 0.5, 85, 1000, 600, 0.1, 3.5]),
+        mkVector([110, 0.3, 0.5, 60, 1000, 600, 0.1, 2.8]),
+      ],
+      now: "2026-09-19T00:00:00Z",
+    });
+    expect(enrolled.ok && enrolled.complete).toBe(true);
+    if (!enrolled.ok) return;
+    // same speaker, jitter inside measured spread → match
+    const genuine = verifySpeaker(
+      mkVector([110, 0.3, 0.5, 70, 1000, 600, 0.1, 3.0]),
+      enrolled.profile,
+    );
+    expect(genuine.determinable).toBe(true);
+    expect(genuine.match).toBe(true);
+    // different speaker: octave pitch shift → no match
+    const impostor = verifySpeaker(
+      mkVector([300, 0.3, 0.5, 70, 1000, 600, 0.1, 3.0]),
+      enrolled.profile,
+    );
+    expect(impostor.determinable).toBe(true);
+    expect(impostor.match).toBe(false);
+  });
+});
+
+describe("Threshold calibration (EER)", () => {
+  it("finds the equal-error-rate point between separated distributions", () => {
+    const genuine = [0.9, 0.93, 0.95, 0.88, 0.97];
+    const impostor = [0.4, 0.5, 0.55, 0.45];
+    const cal = calibrateVoiceprintThreshold(genuine, impostor);
+    expect(cal).not.toBeNull();
+    if (!cal) return;
+    // EER threshold sits between the two groups
+    expect(cal.eerThreshold).toBeGreaterThan(0.55);
+    expect(cal.eerThreshold).toBeLessThanOrEqual(0.88);
+    expect(cal.farAtEer).toBeCloseTo(cal.frrAtEer, 5);
+    expect(cal.genuineCount).toBe(5);
+    expect(cal.impostorCount).toBe(4);
+  });
+
+  it("reports the default threshold's measured FAR/FRR", () => {
+    const cal = calibrateVoiceprintThreshold([0.9, 0.95], [0.4, 0.5]);
+    if (!cal) throw new Error("calibration null");
+    expect(cal.farAtDefault).toBe(0);
+    expect(cal.frrAtDefault).toBe(0);
+  });
+
+  it("refuses to calibrate without evidence", () => {
+    expect(calibrateVoiceprintThreshold([], [0.5])).toBeNull();
+    expect(calibrateVoiceprintThreshold([0.5], [])).toBeNull();
+    expect(calibrateVoiceprintThreshold([], [])).toBeNull();
   });
 });

@@ -263,6 +263,12 @@ Deno.serve(async (req: Request) => {
       await upsert({
         enrollment_state: "COMPLETE",
         features: result.profile.features,
+        // Sensory periphery (audit re-assessment 2026-09-19):
+        // persist the owner's measured within-speaker spreads
+        // so verification scores against evidence, not a
+        // fixed tolerance. Undefined for single-sample legacy
+        // profiles — the classic metric still applies.
+        feature_spreads: result.profile.spreads ?? null,
         sample_count: result.profile.sampleCount,
         pending_samples: [],
         languages: Array.isArray(body.languages)
@@ -303,8 +309,17 @@ Deno.serve(async (req: Request) => {
           },
         });
       }
+      const rawSpreads = row.feature_spreads;
+      const spreads =
+        Array.isArray(rawSpreads) &&
+        (rawSpreads as unknown[]).every(
+          (x) => typeof x === "number" && Number.isFinite(x),
+        )
+          ? (rawSpreads as number[])
+          : undefined;
       const speaker = verifySpeaker(vector as VoiceprintVector, {
         features: row.features as number[],
+        spreads,
         sampleCount: row.sample_count as number,
         updatedAt: String(row.updated_date),
         threshold: (row.match_threshold as number) ?? DEFAULT_MATCH_THRESHOLD,

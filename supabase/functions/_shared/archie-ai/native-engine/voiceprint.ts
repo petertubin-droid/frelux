@@ -18,6 +18,21 @@
 //     a doubled pitch is a large perceptual distance, and the
 //     metric discriminates it). Too few voiced frames
 //     refuses honestly (null), never guesses.
+//   * VARIANCE-AWARE SCORING (audit re-assessment 2026-09-19,
+//     sensory gap): enrollment now also derives the owner's
+//     PER-DIMENSION within-speaker spread (median absolute
+//     deviation in normalized feature space). Verification
+//     divides each dimension's difference by the owner's own
+//     measured variability — stable dimensions (median pitch,
+//     spectral centroid) discriminate strongly while
+//     content-dependent ones (speaking rate, energy) are
+//     forgiven within honest, measured bounds. With fewer
+//     than 2 samples there is NO variability evidence, so the
+//     classic fixed-metric path runs unchanged (honest
+//     downgrade, never a fabricated spread).
+//   * CALIBRATION: calibrateVoiceprintThreshold computes the
+//     equal-error-rate point from genuine/impostor score
+//     distributions — the threshold is measured, not guessed.
 //
 // HONEST SECURITY LABEL (spec §§9,10 — never overstated):
 //   This is a STATISTICAL SPEAKER-SIMILARITY SIGNAL — an
@@ -292,6 +307,28 @@ function normalize(features: number[]): number[] {
 /** Weighted normalized distance between two vectors → 0..1
  *  similarity score (1 = identical). Deterministic. */
 export function voiceprintSimilarity(a: number[], b: number[]): number | null {
+  return voiceprintSimilarityScored(a, b, undefined);
+}
+
+/** Variance-aware similarity (audit re-assessment 2026-09-19):
+ *  when the owner's per-dimension spreads are known, each
+ *  dimension accumulates only the deviation BEYOND the
+ *  owner's own measured variability — d_eff = max(0,
+ *  d − max(2×MAD, SPREAD_FLOOR)). A difference the owner
+ *  themself produces between utterances is evidence of
+ *  within-speaker variation, not of a different speaker, so
+ *  it is forgiven entirely; only the excess counts. The
+ *  SPREAD_FLOOR keeps a zero-MAD dimension from becoming an
+ *  absolute (tiny genuine jitter is still forgiven, an
+ *  impostor's octave is still punished). Without spreads
+ *  this is the classic fixed-metric score, unchanged. */
+export const SPREAD_FLOOR = 0.05;
+
+export function voiceprintSimilarityScored(
+  a: number[],
+  b: number[],
+  spreads?: number[],
+): number | null {
   if (
     !Array.isArray(a) ||
     !Array.isArray(b) ||
@@ -302,12 +339,19 @@ export function voiceprintSimilarity(a: number[], b: number[]): number | null {
   ) {
     return null;
   }
+  const hasSpreads =
+    Array.isArray(spreads) &&
+    spreads.length === VOICEPRINT_DIM &&
+    spreads.every((x) => Number.isFinite(x) && x >= 0);
   const na = normalize(a);
   const nb = normalize(b);
   let distance = 0;
   let weightSum = 0;
   for (let i = 0; i < VOICEPRINT_DIM; i++) {
-    distance += FEATURE_WEIGHTS[i] * Math.abs(na[i] - nb[i]);
+    let d = Math.abs(na[i] - nb[i]);
+    if (hasSpreads)
+      d = Math.max(0, d - Math.max(2 * spreads![i], SPREAD_FLOOR));
+    distance += FEATURE_WEIGHTS[i] * d;
     weightSum += FEATURE_WEIGHTS[i];
   }
   return Math.max(0, 1 - distance / (weightSum || 1));
@@ -320,6 +364,12 @@ export function voiceprintSimilarity(a: number[], b: number[]): number | null {
 export interface EnrolledVoiceprint {
   /** Median-combined owner vector (VOICEPRINT_DIM). */
   features: number[];
+  /** Per-dimension within-speaker spread in NORMALIZED
+   *  feature space (VOICEPRINT_DIM), measured at enrollment
+   *  as the median absolute deviation across samples.
+   *  Absent when fewer than 2 samples — no variability
+   *  evidence exists, and none is fabricated. */
+  spreads?: number[];
   sampleCount: number;
   /** ISO timestamp of the last enrollment change. */
   updatedAt: string;
@@ -354,10 +404,29 @@ export function enrollVoiceprint(input: {
     const dim = valid.map((s) => s.features[d]).sort((a, b) => a - b);
     combined.push(dim[Math.floor(dim.length / 2)]);
   }
+  // Variance-aware scoring evidence: per-dimension MAD of the
+  // samples in NORMALIZED feature space. With 1 sample there
+  // is no variability evidence — spreads stay undefined and
+  // verification falls back to the classic fixed metric.
+  let spreads: number[] | undefined;
+  if (valid.length >= 2) {
+    spreads = [];
+    const normSamples = valid.map((v) => normalize(v.features));
+    for (let d = 0; d < VOICEPRINT_DIM; d++) {
+      const vals = normSamples.map((v) => v[d]).sort((a, b) => a - b);
+      const med = vals[Math.floor(vals.length / 2)];
+      const mad =
+        vals.map((v) => Math.abs(v - med)).sort((a, b) => a - b)[
+          Math.floor(vals.length / 2)
+        ] ?? 0;
+      spreads.push(Math.min(1, mad));
+    }
+  }
   return {
     ok: true,
     profile: {
       features: combined,
+      spreads,
       sampleCount: valid.length,
       updatedAt: input.now,
       threshold: input.threshold ?? DEFAULT_MATCH_THRESHOLD,
@@ -405,7 +474,11 @@ export function verifySpeaker(
       securityLabel: VOICEPRINT_SECURITY_LABEL,
     };
   }
-  const score = voiceprintSimilarity(utterance.features, profile.features);
+  const score = voiceprintSimilarityScored(
+    utterance.features,
+    profile.features,
+    profile.spreads,
+  );
   if (score == null || utterance.voicedFrames < MIN_VOICED_FRAMES) {
     return {
       score: 0,
@@ -420,5 +493,71 @@ export function verifySpeaker(
     match: score >= threshold,
     determinable: true,
     securityLabel: VOICEPRINT_SECURITY_LABEL,
+  };
+}
+
+// ---------------------------------------------------------
+// Threshold calibration (audit re-assessment 2026-09-19)
+// ---------------------------------------------------------
+
+export interface ThresholdCalibration {
+  /** Threshold at the equal-error-rate point: false-accept
+   *  rate and false-reject rate cross there. Deterministic:
+   *  every candidate threshold between observed scores is
+   *  evaluated; ties prefer the higher threshold. */
+  eerThreshold: number;
+  /** False-accept rate at eerThreshold. */
+  farAtEer: number;
+  /** False-reject rate at eerThreshold. */
+  frrAtEer: number;
+  /** FAR/FRR at the DEFAULT_MATCH_THRESHOLD — so a caller can
+   *  see what the shipped default buys, measured. */
+  farAtDefault: number;
+  frrAtDefault: number;
+  /** Sample sizes the calibration was measured on. */
+  genuineCount: number;
+  impostorCount: number;
+}
+
+/** Measure where genuine and impostor score distributions
+ *  separate. Empty inputs → null: a calibration without
+ *  evidence is refused, never guessed. */
+export function calibrateVoiceprintThreshold(
+  genuineScores: number[],
+  impostorScores: number[],
+): ThresholdCalibration | null {
+  const ok = (x: number[]) =>
+    Array.isArray(x) && x.length > 0 && x.every((v) => Number.isFinite(v));
+  if (!ok(genuineScores) || !ok(impostorScores)) return null;
+  const frrAt = (th: number) =>
+    genuineScores.filter((g) => g < th).length / genuineScores.length;
+  const farAt = (th: number) =>
+    impostorScores.filter((i) => i >= th).length / impostorScores.length;
+  const candidates = [
+    ...new Set([...genuineScores, ...impostorScores].map((v) => v - 1e-9)),
+  ].sort((a, b) => b - a);
+  let best = candidates[0];
+  let bestCost = Infinity;
+  let bestFar = farAt(best);
+  let bestFrr = frrAt(best);
+  for (const th of candidates) {
+    const far = farAt(th);
+    const frr = frrAt(th);
+    const cost = Math.abs(far - frr);
+    if (cost < bestCost || (cost === bestCost && th > best)) {
+      best = th;
+      bestCost = cost;
+      bestFar = far;
+      bestFrr = frr;
+    }
+  }
+  return {
+    eerThreshold: best,
+    farAtEer: bestFar,
+    frrAtEer: bestFrr,
+    farAtDefault: farAt(DEFAULT_MATCH_THRESHOLD),
+    frrAtDefault: frrAt(DEFAULT_MATCH_THRESHOLD),
+    genuineCount: genuineScores.length,
+    impostorCount: impostorScores.length,
   };
 }
