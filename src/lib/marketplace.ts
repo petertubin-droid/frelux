@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import { assertNotPaused } from "@/lib/archie/trust-safety-client";
+import { assertNotPaused } from "@/lib/trust-safety/trust-safety-client";
 import type {
   DbMarketplaceListing,
   DbMarketplaceBid,

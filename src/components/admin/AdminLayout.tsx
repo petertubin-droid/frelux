@@ -98,56 +98,6 @@ const navModules: NavModule[] = [
         icon: GraduationCap,
       },
       {
-        label: "Coding Studio",
-        to: "/admin/archie-studio",
-        icon: Brain,
-      },
-      {
-        label: "ARCHIE Training",
-        to: "/admin/archie-training",
-        icon: Brain,
-      },
-      {
-        label: "ARCHIE's Voice",
-        to: "/admin/archie-voice",
-        icon: Brain,
-      },
-      {
-        label: "ARCHIE Ops",
-        to: "/admin/archie-ops",
-        icon: Brain,
-      },
-      {
-        label: "TerminologyBook",
-        to: "/admin/archie-terminology",
-        icon: BookOpen,
-      },
-      {
-        label: "Evidence & Truth",
-        to: "/admin/archie-evidence",
-        icon: BadgeCheck,
-      },
-      {
-        label: "Evolution Control",
-        to: "/admin/archie-evolution",
-        icon: Dna,
-      },
-      {
-        label: "ARCHIE Legal",
-        to: "/admin/archie-legal",
-        icon: Scale,
-      },
-      {
-        label: "WhatsApp Assistant",
-        to: "/admin/archie-whatsapp",
-        icon: MessageCircle,
-      },
-      {
-        label: "ARCHIE Owner App",
-        to: "/archie/chat",
-        icon: Smartphone,
-      },
-      {
         label: "Construction Dictionary",
         to: "/admin/dictionary",
         icon: Languages,

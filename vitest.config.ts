@@ -6,19 +6,9 @@ import { fileURLToPath } from "url";
 
 const __dirname_new = path.dirname(fileURLToPath(import.meta.url));
 
-// Two test projects under one config, so a bare `npx vitest run`
-// (CI + `npm test`) covers both:
-//
-//   1. app            — React components/pages under happy-dom
-//   2. edge-functions  — Supabase Edge Functions under node.
-//      The functions target the Deno edge runtime:
-//        * `npm:`/`esm.sh` imports → aliased to local packages
-//        * `Deno.env.get` / `Deno.serve` → shimmed by
-//          _shared/testing/setup.ts BEFORE each module imports
-//      The harness captures the handler each function registers
-//      through serveWithCors(), so tests call the REAL handler
-//      with REAL Request objects — only the Supabase client
-//      (and thus the network) is mocked.
+// The Supabase Edge Functions moved to the ARCHIE repo
+// (github.com/petertubin-droid/ARCHIE); their project runs there.
+// This config now covers the app project only.
 
 export default defineConfig({
   plugins: [react()],
@@ -56,33 +46,6 @@ export default defineConfig({
           },
           setupFiles: ["./src/test/setup.ts"],
           include: ["src/**/*.{test,spec}.{ts,tsx}"],
-        },
-      },
-      {
-        extends: true,
-        test: {
-          name: "edge-functions",
-          environment: "node",
-          // Fresh module state per test — every function registers
-          // its handler at import time and the Deno shim must
-          // re-capture.
-          isolate: true,
-          include: ["supabase/functions/**/*.test.ts"],
-          setupFiles: ["./supabase/functions/_shared/testing/setup.ts"],
-        },
-        resolve: {
-          alias: [
-            {
-              // `npm:<pkg>[@<version>]` → `<pkg>` (from node_modules)
-              find: /^npm:(.+?)(?:@[\d][\w.]*)?$/,
-              replacement: "$1",
-            },
-            {
-              // `https://esm.sh/<pkg>[@<version>]` → `<pkg>`
-              find: /^https:\/\/esm\.sh\/(.+?)(?:@[\d][\w.]*)?$/,
-              replacement: "$1",
-            },
-          ],
         },
       },
     ],

@@ -46,7 +46,7 @@ import {
 } from "@/lib/ai-foundation";
 import { interpretWithAi } from "@/lib/ai-foundation/copilot-client";
 import { trustBadge } from "@/lib/ai-foundation/trust";
-import { generateArchieCalculationReport } from "@/lib/archie/calculator-intelligence";
+import { generateArchieCalculationReport } from "@/lib/copilot-intelligence/calculator-intelligence";
 
 type Phase = "input" | "review" | "running" | "result" | "refused";
 

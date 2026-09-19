@@ -37,12 +37,12 @@ import {
   listSocialAnalyses,
   type SocialAccountRow,
   type SocialAnalysisRow,
-} from "@/lib/archie/social-client";
+} from "@/lib/social/social-client";
 import {
   listSocialPlatforms,
   TOKEN_GOVERNANCE,
   type SocialPlatformDescriptor,
-} from "@/lib/archie/social-connections";
+} from "@/lib/social/social-connections";
 
 export default function AdminSocialBrandCenter() {
   const toast = useToast();

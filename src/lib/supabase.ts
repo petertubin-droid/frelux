@@ -1,5 +1,4 @@
 import { createClient, FunctionsHttpError, type SupabaseClient } from '@supabase/supabase-js';
-import { createArchieInvoker } from './archie/remote-bridge';
 
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -93,6 +92,78 @@ export async function getFunctionErrorMessage(error: unknown): Promise<string> {
 // is back on THIS project (Freluxtools), so verification is
 // standard same-project auth. See remote-bridge.ts for details.
 // =========================================================
+
+// NOTE: the deployed ARCHIE engine's source lives in the ARCHIE repo
+// (github.com/petertubin-droid/ARCHIE). This is FRELUX's thin client to the
+// deployed engine endpoints; same Supabase project, standard session auth.
+
+const ARCHIE_PROJECT_URL =
+  (import.meta.env.VITE_SUPABASE_URL as string | undefined) ?? '';
+const ARCHIE_ANON_KEY =
+  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ?? '';
+
+interface ArchieBridgeResponse<T = unknown> {
+  data: T | null;
+  error: { message: string } | null;
+}
+
+/**
+ * Create an invoker for ARCHIE's own project. The access-token
+ * getter is injected by the caller (avoids a circular import
+ * with the supabase client module).
+ */
+function createArchieInvoker(
+  getAccessToken: () => Promise<string | null>,
+) {
+  return async function invokeArchie<T = unknown>(
+    functionName: string,
+    options: { body?: unknown } = {},
+  ): Promise<ArchieBridgeResponse<T>> {
+    try {
+      const token = await getAccessToken();
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+        apikey: ARCHIE_ANON_KEY,
+      };
+      if (token) headers['Authorization'] = 'Bearer ' + token;
+
+      const body =
+        options.body === undefined ? undefined : JSON.stringify(options.body);
+
+      const res = await fetch(
+        ARCHIE_PROJECT_URL + '/functions/v1/' + functionName,
+        {
+          method: 'POST',
+          headers,
+          ...(body !== undefined ? { body } : {}),
+        },
+      );
+
+      if (!res.ok) {
+        let message = 'ARCHIE ' + functionName + ' error (' + res.status + ')';
+        try {
+          const errBody = await res.json();
+          if (errBody && typeof errBody.error === 'string') {
+            message = errBody.error;
+          } else if (errBody && typeof errBody.message === 'string') {
+            message = errBody.message;
+          }
+        } catch {
+          // Non-JSON error body — keep the default message.
+        }
+        return { data: null, error: { message } };
+      }
+
+      const data = (await res.json()) as T;
+      return { data, error: null };
+    } catch (e) {
+      return {
+        data: null,
+        error: { message: e instanceof Error ? e.message : 'Network error' },
+      };
+    }
+  };
+}
 
 const archieInvoke = createArchieInvoker(async () => {
   try {

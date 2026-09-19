@@ -52,7 +52,6 @@ const FinishingCalculatorHub = lazy(
 );
 const Calculators = lazy(() => import("@/pages/Calculators"));
 const AiColorAssistant = lazy(() => import("@/pages/AiColorAssistant"));
-const Assistant = lazy(() => import("@/pages/Assistant"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const About = lazy(() => import("@/pages/legal/About"));
 const PrivacyPolicy = lazy(() => import("@/pages/legal/PrivacyPolicy"));
@@ -109,30 +108,6 @@ const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 const AdminLayout = lazy(() => import("@/components/admin/AdminLayout"));
 const RequireAdmin = lazy(() => import("@/components/admin/RequireAdmin"));
 
-// ARCHIE Owner PWA (Stage 1) — independent shell, Owner-only
-const ArchieLayout = lazy(() => import("@/components/archie/ArchieLayout"));
-const ArchieChat = lazy(() => import("@/pages/archie/ArchieChat"));
-const ArchieControl = lazy(() => import("@/pages/archie/ArchieControl"));
-const ArchieKnowledge = lazy(() => import("@/pages/archie/ArchieKnowledge"));
-const ArchieLearning = lazy(() => import("@/pages/archie/ArchieLearning"));
-const ArchieDevices = lazy(() => import("@/pages/archie/ArchieDevices"));
-const ArchiePeople = lazy(() => import("@/pages/archie/ArchiePeople"));
-const ArchieShared = lazy(() => import("@/pages/archie/ArchieShared"));
-const ArchieSecurity = lazy(() => import("@/pages/archie/ArchieSecurity"));
-const ArchieSystem = lazy(() => import("@/pages/archie/ArchieSystem"));
-const ArchieAnatomyView = lazy(
-  () => import("@/pages/archie/ArchieAnatomyView"),
-);
-const ArchieEngines = lazy(() => import("@/pages/archie/ArchieEngines"));
-const ArchieMigration = lazy(() => import("@/pages/archie/ArchieMigration"));
-const ArchieTraining = lazy(() => import("@/pages/archie/ArchieTraining"));
-const ArchieEvolution = lazy(() => import("@/pages/archie/ArchieEvolution"));
-const ArchieVoice = lazy(() => import("@/pages/archie/ArchieVoice"));
-const ArchieOps = lazy(() => import("@/pages/archie/ArchieOps"));
-const ArchieExecution = lazy(() => import("@/pages/archie/ArchieExecution"));
-const ArchieTerminology = lazy(
-  () => import("@/pages/archie/ArchieTerminology"),
-);
 const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"));
 const AdminAIAssistant = lazy(() => import("@/pages/admin/AdminAIAssistant"));
 const AdminEstimationConfig = lazy(
@@ -209,36 +184,6 @@ const AdminMarketIntelligence = lazy(
 const AdminEngineConfig = lazy(() => import("@/pages/admin/AdminEngineConfig"));
 const AdminAiLearningAssistant = lazy(
   () => import("@/pages/admin/AdminAiLearningAssistant"),
-);
-const AdminArchieTraining = lazy(
-  () => import("@/pages/admin/AdminArchieTraining"),
-);
-const AdminArchieVoice = lazy(() => import("@/pages/admin/AdminArchieVoice"));
-const AdminArchieOps = lazy(() => import("@/pages/admin/AdminArchieOps"));
-const AdminArchieStudio = lazy(() => import("@/pages/admin/AdminArchieStudio"));
-const ArchieCoding = lazy(() => import("@/pages/archie/ArchieCoding"));
-const ArchieLegal = lazy(() => import("@/pages/archie/ArchieLegal"));
-const ArchiePrivacy = lazy(() => import("@/pages/archie/ArchiePrivacy"));
-const ArchieTrading = lazy(() => import("@/pages/archie/ArchieTrading"));
-const ArchieExchangeAccess = lazy(
-  () => import("@/pages/archie/ArchieExchangeAccess"),
-);
-const ArchieOffensive = lazy(() => import("@/pages/archie/ArchieOffensive"));
-const ArchieWalletRecovery = lazy(
-  () => import("@/pages/archie/ArchieWalletRecovery"),
-);
-const AdminArchieLegal = lazy(() => import("@/pages/admin/AdminArchieLegal"));
-const AdminArchieWhatsapp = lazy(
-  () => import("@/pages/admin/AdminArchieWhatsapp"),
-);
-const AdminArchieTerminology = lazy(
-  () => import("@/pages/admin/AdminArchieTerminology"),
-);
-const AdminArchieEvidence = lazy(
-  () => import("@/pages/admin/AdminArchieEvidence"),
-);
-const AdminArchieEvolution = lazy(
-  () => import("@/pages/admin/AdminArchieEvolution"),
 );
 const AdminConstructionDictionary = lazy(
   () => import("@/pages/admin/AdminConstructionDictionary"),
@@ -631,16 +576,6 @@ export default function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <ColorDetail />
-                        </Suspense>
-                      }
-                    />
-
-                    {/* AI workspace */}
-                    <Route
-                      path="/assistant"
-                      element={
-                        <Suspense fallback={<PageLoader />}>
-                          <Assistant />
                         </Suspense>
                       }
                     />
@@ -1047,59 +982,6 @@ export default function App() {
                   />
 
                   {/* ─────────────────────────────────────────────────────── */}
-                  {/* ARCHIE OWNER PWA (Stage 1) — independent of the public */}
-                  {/* site and of the admin panel. Owner-only (RequireAdmin  */}
-                  {/* auth), own shell/manifest/navigation.                  */}
-                  {/* ─────────────────────────────────────────────────────── */}
-                  <Route
-                    path="/archie"
-                    element={
-                      <Suspense fallback={<PageLoader />}>
-                        <RequireAdmin>
-                          <ErrorBoundary boundaryName="archie">
-                            <ArchieLayout />
-                          </ErrorBoundary>
-                        </RequireAdmin>
-                      </Suspense>
-                    }
-                  >
-                    <Route
-                      index
-                      element={<Navigate to="/archie/chat" replace />}
-                    />
-                    <Route path="chat" element={<ArchieChat />} />
-                    <Route path="control" element={<ArchieControl />} />
-                    <Route path="knowledge" element={<ArchieKnowledge />} />
-                    <Route path="learning" element={<ArchieLearning />} />
-                    <Route path="devices" element={<ArchieDevices />} />
-                    <Route path="people" element={<ArchiePeople />} />
-                    <Route path="shared" element={<ArchieShared />} />
-                    <Route path="security" element={<ArchieSecurity />} />
-                    <Route path="system" element={<ArchieSystem />} />
-                    <Route path="anatomy" element={<ArchieAnatomyView />} />
-                    <Route path="engines" element={<ArchieEngines />} />
-                    <Route path="migration" element={<ArchieMigration />} />
-                    <Route path="training" element={<ArchieTraining />} />
-                    <Route path="evolution" element={<ArchieEvolution />} />
-                    <Route path="voice" element={<ArchieVoice />} />
-                    <Route path="coding" element={<ArchieCoding />} />
-                    <Route path="ops" element={<ArchieOps />} />
-                    <Route path="execution" element={<ArchieExecution />} />
-                    <Route path="terminology" element={<ArchieTerminology />} />
-                    <Route path="legal" element={<ArchieLegal />} />
-                    <Route path="privacy" element={<ArchiePrivacy />} />
-                    <Route path="trading" element={<ArchieTrading />} />
-                    <Route
-                      path="exchange-access"
-                      element={<ArchieExchangeAccess />}
-                    />
-                    <Route path="offensive" element={<ArchieOffensive />} />
-                    <Route
-                      path="wallet-recovery"
-                      element={<ArchieWalletRecovery />}
-                    />
-                    <Route path="*" element={<NotFound />} />
-                  </Route>
 
                   {/* ─────────────────────────────────────────────────────── */}
                   {/* ADMIN PANEL, completely separated from public site. */}
@@ -1128,33 +1010,6 @@ export default function App() {
                     <Route
                       path="ai-learning"
                       element={<AdminAiLearningAssistant />}
-                    />
-                    <Route
-                      path="archie-training"
-                      element={<AdminArchieTraining />}
-                    />
-                    <Route path="archie-voice" element={<AdminArchieVoice />} />
-                    <Route path="archie-ops" element={<AdminArchieOps />} />
-                    <Route
-                      path="archie-studio"
-                      element={<AdminArchieStudio />}
-                    />
-                    <Route path="archie-legal" element={<AdminArchieLegal />} />
-                    <Route
-                      path="archie-whatsapp"
-                      element={<AdminArchieWhatsapp />}
-                    />
-                    <Route
-                      path="archie-terminology"
-                      element={<AdminArchieTerminology />}
-                    />
-                    <Route
-                      path="archie-evidence"
-                      element={<AdminArchieEvidence />}
-                    />
-                    <Route
-                      path="archie-evolution"
-                      element={<AdminArchieEvolution />}
                     />
                     <Route
                       path="dictionary"
