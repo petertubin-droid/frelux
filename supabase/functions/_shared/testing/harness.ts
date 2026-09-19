@@ -110,6 +110,7 @@ function makeQuery(
 ) {
   const filters: Array<(r: Row) => boolean> = [];
   let range: [number, number] | null = null;
+  let limitN: number | null = null;
 
   const applyFilter = (column: string, value: any, negate = false) => {
     filters.push((r) => {
@@ -196,9 +197,49 @@ function makeQuery(
       return q;
     },
     ilike: (col: string, v: string) => q.like(col, v),
+    is: (col: string, v: any) => {
+      filters.push((r) =>
+        v === null ? r[col] === null || r[col] === undefined : r[col] === v,
+      );
+      return q;
+    },
+    or: (expr: string) => {
+      // PostgREST `or` — bounded parser for the flat form the
+      // edge functions use: "a.ilike.%x%,b.ilike.%x%" /
+      // "a.is.null,b.eq.1". NO nesting (no parentheses).
+      const parts = expr.split(",");
+      const conds: Array<(r: Row) => boolean> = [];
+      for (const part of parts) {
+        const m = /^(\w+)\.(eq|ilike|is|gt|gte|lt|lte)\.(.*)$/.exec(
+          part.trim(),
+        );
+        if (!m) continue;
+        const [, col, op, rawVal] = m;
+        let test: (r: Row) => boolean;
+        if (op === "is") {
+          test =
+            rawVal === "null"
+              ? (r) => r[col] === null || r[col] === undefined
+              : (r) => String(r[col]) === rawVal;
+        } else if (op === "eq") {
+          test = (r) => String(r[col]) === rawVal;
+        } else {
+          const pattern = new RegExp(
+            "^" + rawVal.replace(/%/g, ".*") + "$",
+            "i",
+          );
+          test = (r) => pattern.test(String(r[col] ?? ""));
+        }
+        conds.push(test);
+      }
+      if (conds.length) {
+        filters.push((r) => conds.some((t) => t(r)));
+      }
+      return q;
+    },
     order: () => q,
     limit: (n: number) => {
-      filters.push((_r, i) => (i ?? 0) < n);
+      limitN = n;
       return q;
     },
     range: (from: number, to: number) => {
@@ -260,6 +301,7 @@ function makeQuery(
         }
       });
     }
+    if (limitN !== null) rows = rows.slice(0, limitN);
     if (range) rows = rows.slice(range[0], range[1] + 1);
     return rows;
   }

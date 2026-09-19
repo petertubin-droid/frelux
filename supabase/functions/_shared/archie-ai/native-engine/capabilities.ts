@@ -67,6 +67,14 @@ export function nativeEngineCapabilityManifest(): CapabilityReport[] {
       measuredBy: "native-engine.test.ts (planner cases)",
     },
     {
+      id: "evidence-truth-engine",
+      description:
+        "Evidence & Truth: structured claims with explicit verification states (VERIFIED / SUPPORTED / USER_PROVIDED / INFERRED / CONFLICTED / OUTDATED / UNVERIFIED / UNKNOWN), provenance chains preserved through every transformation, independent-source corroboration, temporal validity, contradiction records (never silently resolved), deterministic dedup keys, hallucinated-source refusal and strict no-false-verification guarantees. Connects the lexicon, semantic graph and context & inference layers on the live chat path (archie-core) and surfaces measured health through the admin Evidence & Truth page",
+      maturity: "OPERATIONAL",
+      measuredBy:
+        "evidence-truth-mirror.test.ts (state-contract drift mirror) + edge evidence suite (evaluate / service / engine tests — 58 tests)",
+    },
+    {
       id: "coding-intelligence-analysis",
       description:
         "Coding intelligence (analysis): deterministic static analysis — imports/exports/functions/classes extraction, cyclomatic-complexity estimate, risk flags",
@@ -101,7 +109,8 @@ export function nativeEngineCapabilityManifest(): CapabilityReport[] {
       description:
         "Tool orchestration: typed tool registry with contract validation, honest failure reporting, a deterministic arithmetic evaluator (shunting-yard), descriptive statistics (mean/median/mode/variance), an in-engine sandboxed JavaScript interpreter (whitelisted subset — no I/O, no network, no Date/random; step-, depth-, output- and size-capped), and a robots-checked page reader (owner upgrade 2026-09-16, gap 2)",
       maturity: "OPERATIONAL",
-      measuredBy: "native-engine.test.ts + sandbox.test.ts + reasoning-loop.test.ts (tool, arithmetic, statistics, sandbox and loop-budget cases)",
+      measuredBy:
+        "native-engine.test.ts + sandbox.test.ts + reasoning-loop.test.ts (tool, arithmetic, statistics, sandbox and loop-budget cases)",
     },
     {
       id: "web-research",
@@ -208,7 +217,8 @@ export function nativeEngineCapabilityManifest(): CapabilityReport[] {
       description:
         "Passphrase and recovery-phrase intelligence: HD-wallet / BIP39 recovery phrase handling and Stage-2 vault recovery — deterministic recovery paths, never invented mnemonics",
       maturity: "OPERATIONAL",
-      measuredBy: "hd-crypto.test.ts, recovery-engine.test.ts, stage2-vault-recovery.test.ts",
+      measuredBy:
+        "hd-crypto.test.ts, recovery-engine.test.ts, stage2-vault-recovery.test.ts",
     },
     {
       id: "offensive-security",
@@ -257,7 +267,8 @@ export function nativeEngineCapabilityManifest(): CapabilityReport[] {
       description:
         "Voiceprint identity: voice enrollment and verification for trusted voice sessions",
       maturity: "OPERATIONAL",
-      measuredBy: "voice-enrollment.test.ts, voiceprint.test.ts, voice-session.test.ts",
+      measuredBy:
+        "voice-enrollment.test.ts, voiceprint.test.ts, voice-session.test.ts",
     },
     {
       id: "whatsapp-integration",

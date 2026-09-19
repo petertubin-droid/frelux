@@ -66,12 +66,10 @@ function walk(dir: string, out: string[] = []): string[] {
  *  pending. If one of these starts existing on disk the test
  *  FAILS ON PURPOSE: the entry is stale, remove it. */
 const KNOWN_MISSING: Record<string, string> = {
-  // The roof-view imagery backend was never built (frontend
-  // invokes it, migration 20260825010000 documents it, no
-  // admin UI enables it today — dormant until an owner
-  // decision: build the imagery function or remove the path).
-  "roof-view-imagery":
-    "frontend invokes it (src/lib/roof/provider-registry.ts) but the edge function was never built — dormant gated feature, owner decision pending",
+  // roof-view-imagery was removed from this allowlist
+  // (2026-09-19): the edge function now EXISTS and is
+  // deployed (audit F3 fix, 54794e18) with its admin page at
+  // /admin/roof-view. Contract satisfied, entry retired.
   // JSDoc usage example in src/lib/supabase-monitor.ts — a
   // documentation sample, not a real call site.
   "my-function": "doc-comment example only, never invoked",

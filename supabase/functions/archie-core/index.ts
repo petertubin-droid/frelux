@@ -168,6 +168,17 @@ import type { GraphClient } from "../_shared/semantic-graph/retrieval.ts";
 import { inferenceGroundTruth } from "../_shared/inference/engine.ts";
 import type { InferenceGroundTruth } from "../_shared/inference/types.ts";
 import { EMPTY_INFERENCE_GROUND_TRUTH } from "../_shared/inference/types.ts";
+// ARCHIE Evidence & Truth Engine — the fourth intelligence
+// layer (spec §EVIDENCE-TRUTH): records and classifies the
+// claims the lower layers establish (facts, inferences,
+// user premises, tool observations) with real evidence,
+// provenance chains and explicit verification states.
+// Failure NEVER blocks the chat path (honest degradation —
+// same contract as the lexicon/graph/inference layers).
+import { evidenceGroundTruth } from "../_shared/evidence/engine.ts";
+import { createEvidenceTruthService } from "../_shared/evidence/service.ts";
+import type { EvidenceGroundTruth } from "../_shared/evidence/types.ts";
+import { EMPTY_EVIDENCE_GROUND_TRUTH } from "../_shared/evidence/types.ts";
 import { rateLimitedResponse } from "../_shared/cors.ts";
 configureCognitiveEnginePersistence(
   service as unknown as import("../_shared/archie-ai/native-engine/persistence.ts").SupabaseLike,
@@ -1003,6 +1014,70 @@ async function executeCore(
       console.warn("[archie-core] context & inference engine failed:", infErr);
     }
 
+    // ARCHIE Evidence & Truth Engine (fourth layer, spec
+    // §§20, 26): the premises/inferences/tools the lower
+    // layers produced become classified claims with evidence
+    // + provenance. FACT vs INFERENCE vs USER-PROVIDED vs
+    // CONFLICTED labels ride into the prompt inseparably;
+    // the machine-readable trace rides in the audit ledger
+    // only. Zero claims on greeting turns (nothing to
+    // evaluate). Failure NEVER blocks the chat path.
+    let evidenceGT: EvidenceGroundTruth = EMPTY_EVIDENCE_GROUND_TRUTH;
+    if (
+      inferenceGT.facts.length ||
+      inferenceGT.inferences.length ||
+      inferenceGT.context.userPremises.length ||
+      toolResults.length
+    ) {
+      try {
+        const evidenceService = createEvidenceTruthService(
+          service as unknown as import("../_shared/evidence/types.ts").EvidenceClient,
+        );
+        evidenceGT = await evidenceGroundTruth(
+          evidenceService,
+          {
+            message: message ?? "",
+            premises: inferenceGT.facts.map((f) => ({
+              id: f.id,
+              kind: f.kind,
+              statement: f.statement,
+              source: f.source,
+              conceptKey: f.conceptKey,
+              provenance: f.provenance,
+            })),
+            userPremises: inferenceGT.context.userPremises.map((f) => ({
+              id: f.id,
+              kind: f.kind,
+              statement: f.statement,
+              source: f.source,
+            })),
+            inferences: inferenceGT.inferences.map((i) => ({
+              id: i.id,
+              ruleId: i.ruleId,
+              statement: i.conclusion.statement,
+              explanation: i.explanation,
+              premiseIds: i.premiseIds,
+              dependsOnUserPremise: i.conclusion.dependsOnUserPremise,
+            })),
+            toolResults: toolResults.map((t) => ({
+              tool: t.tool,
+              ok: t.ok,
+              summary: t.summary,
+              data: t.data,
+            })),
+            domain: inferenceGT.context.domainCandidates[0] ?? undefined,
+          },
+          // bounded per spec §30 — the live path stays fast
+          { maxClaims: 4, maxInferences: 2, maxToolFacts: 3 },
+        );
+      } catch (evErr) {
+        // honest degradation: no evidence block, never a
+        // fabricated one (spec §39)
+        console.warn("[archie-core] evidence & truth engine failed:", evErr);
+        evidenceGT = EMPTY_EVIDENCE_GROUND_TRUTH;
+      }
+    }
+
     const languageDirective =
       language.res.language_code === "en"
         ? ""
@@ -1031,7 +1106,8 @@ async function executeCore(
       (terminology.block ? `\n\n${terminology.block}` : "") +
       (lexical.block ? `\n\n${lexical.block}` : "") +
       (graphGT.block ? `\n\n${graphGT.block}` : "") +
-      (inferenceGT.block ? `\n\n${inferenceGT.block}` : "");
+      (inferenceGT.block ? `\n\n${inferenceGT.block}` : "") +
+      (evidenceGT.block ? `\n\n${evidenceGT.block}` : "");
 
     emit?.("progress", { type: "stage", stage: "reasoning" });
     const inference = await infer({
@@ -1123,6 +1199,21 @@ async function executeCore(
           ),
           user_premises: inferenceGT.context.userPremises.length,
           source_label: inferenceGT.sourceLabel,
+        },
+        // ARCHIE Evidence & Truth Engine — machine-readable
+        // trace (spec §§16, 24): claims examined/recorded/
+        // classified, states reached, inferences recorded,
+        // conflicts, honest degradations. Never exposed as
+        // chain-of-thought.
+        evidence_truth: {
+          claims_examined: evidenceGT.claimsExamined,
+          claims_recorded: evidenceGT.claimsRecorded,
+          claims_classified: evidenceGT.claimsClassified,
+          evidence_attached: evidenceGT.evidenceAttached,
+          inferences_recorded: evidenceGT.inferencesRecorded,
+          conflicts_detected: evidenceGT.conflictsDetected,
+          states: evidenceGT.states,
+          degraded: evidenceGT.degraded,
         },
       }),
       service.from("frelux_infrastructure_costs").insert({

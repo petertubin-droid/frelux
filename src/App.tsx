@@ -234,6 +234,9 @@ const AdminArchieWhatsapp = lazy(
 const AdminArchieTerminology = lazy(
   () => import("@/pages/admin/AdminArchieTerminology"),
 );
+const AdminArchieEvidence = lazy(
+  () => import("@/pages/admin/AdminArchieEvidence"),
+);
 const AdminArchieEvolution = lazy(
   () => import("@/pages/admin/AdminArchieEvolution"),
 );
@@ -1144,6 +1147,10 @@ export default function App() {
                     <Route
                       path="archie-terminology"
                       element={<AdminArchieTerminology />}
+                    />
+                    <Route
+                      path="archie-evidence"
+                      element={<AdminArchieEvidence />}
                     />
                     <Route
                       path="archie-evolution"

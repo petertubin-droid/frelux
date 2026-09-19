@@ -56,6 +56,7 @@ import {
   Tag,
   ListChecks,
   Satellite,
+  BadgeCheck,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
@@ -120,6 +121,11 @@ const navModules: NavModule[] = [
         label: "TerminologyBook",
         to: "/admin/archie-terminology",
         icon: BookOpen,
+      },
+      {
+        label: "Evidence & Truth",
+        to: "/admin/archie-evidence",
+        icon: BadgeCheck,
       },
       {
         label: "Evolution Control",
