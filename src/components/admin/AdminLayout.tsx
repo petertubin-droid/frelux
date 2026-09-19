@@ -55,6 +55,7 @@ import {
   Paintbrush,
   Tag,
   ListChecks,
+  Satellite,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
@@ -202,6 +203,11 @@ const navModules: NavModule[] = [
         icon: Building2,
       },
       { label: "Engine Config", to: "/admin/engine-config", icon: Cpu },
+      {
+        label: "Roof View Imagery",
+        to: "/admin/roof-view",
+        icon: Satellite,
+      },
     ],
   },
   {

@@ -168,6 +168,7 @@ const AdminEstimationProduction = lazy(
 const AdminPaintEngineTest = lazy(
   () => import("@/pages/admin/AdminPaintEngineTest"),
 );
+const AdminRoofView = lazy(() => import("@/pages/admin/AdminRoofView"));
 const AdminTyroleneConfig = lazy(
   () => import("@/pages/admin/AdminTyroleneConfig"),
 );
@@ -1227,6 +1228,15 @@ export default function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <AdminTyroleneConfig />
+                        </Suspense>
+                      }
+                    />
+                    {/* Roof View imagery provider (Build-to-Roof Estimator) */}
+                    <Route
+                      path="roof-view"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <AdminRoofView />
                         </Suspense>
                       }
                     />
