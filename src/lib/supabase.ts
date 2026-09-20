@@ -1,4 +1,8 @@
-import { createClient, FunctionsHttpError, type SupabaseClient } from '@supabase/supabase-js';
+import {
+  createClient,
+  FunctionsHttpError,
+  type SupabaseClient,
+} from "@supabase/supabase-js";
 
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -7,7 +11,7 @@ export const isSupabaseConfigured = Boolean(url && anonKey);
 
 if (import.meta.env.DEV && !isSupabaseConfigured) {
   console.warn(
-    '[supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Database features will be unavailable.'
+    "[supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Database features will be unavailable.",
   );
 }
 
@@ -19,7 +23,7 @@ export const supabase: SupabaseClient = isSupabaseConfigured
         detectSessionInUrl: true,
       },
     })
-  : createClient('https://placeholder.supabase.co', 'placeholder-anon-key');
+  : createClient("https://placeholder.supabase.co", "placeholder-anon-key");
 
 /**
  * Derived client that sends the caller's client hash in the
@@ -40,7 +44,8 @@ let hashBoundClientHash: string | null = null;
 
 export function supabaseWithClientHash(clientHash: string): SupabaseClient {
   if (!isSupabaseConfigured) return supabase;
-  if (hashBoundClient && hashBoundClientHash === clientHash) return hashBoundClient;
+  if (hashBoundClient && hashBoundClientHash === clientHash)
+    return hashBoundClient;
   hashBoundClient = createClient(url as string, anonKey as string, {
     auth: {
       persistSession: true,
@@ -48,7 +53,7 @@ export function supabaseWithClientHash(clientHash: string): SupabaseClient {
       detectSessionInUrl: false,
     },
     global: {
-      headers: { 'x-client-hash': clientHash },
+      headers: { "x-client-hash": clientHash },
     },
   });
   hashBoundClientHash = clientHash;
@@ -70,121 +75,19 @@ export async function getFunctionErrorMessage(error: unknown): Promise<string> {
   if (error instanceof FunctionsHttpError) {
     try {
       const body = await error.context.json();
-      if (body && typeof body === 'object' && 'error' in body && typeof body.error === 'string') {
+      if (
+        body &&
+        typeof body === "object" &&
+        "error" in body &&
+        typeof body.error === "string"
+      ) {
         return body.error;
       }
     } catch {
       // Response body wasn't JSON, fall through to the generic message below.
     }
   }
-  return error instanceof Error ? error.message : 'Something went wrong. Please try again.';
+  return error instanceof Error
+    ? error.message
+    : "Something went wrong. Please try again.";
 }
-
-
-// =========================================================
-// ARCHIE REMOTE BRIDGE (cutover 2026-09-12)
-//
-// ARCHIE Core lives on its own Supabase project (Frelukx).
-// Any functions.invoke("archie-*") from anywhere in this app is
-// transparently routed to ARCHIE's home instead of this
-// project's edge functions. Non-ARCHIE functions are untouched.
-// Identity travels with the user's FRELUX session JWT; ARCHIE
-// is back on THIS project (Freluxtools), so verification is
-// standard same-project auth. See remote-bridge.ts for details.
-// =========================================================
-
-// NOTE: the deployed ARCHIE engine's source lives in the ARCHIE repo
-// (github.com/petertubin-droid/ARCHIE). This is FRELUX's thin client to the
-// deployed engine endpoints; same Supabase project, standard session auth.
-
-const ARCHIE_PROJECT_URL =
-  (import.meta.env.VITE_SUPABASE_URL as string | undefined) ?? '';
-const ARCHIE_ANON_KEY =
-  (import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined) ?? '';
-
-interface ArchieBridgeResponse<T = unknown> {
-  data: T | null;
-  error: { message: string } | null;
-}
-
-/**
- * Create an invoker for ARCHIE's own project. The access-token
- * getter is injected by the caller (avoids a circular import
- * with the supabase client module).
- */
-function createArchieInvoker(
-  getAccessToken: () => Promise<string | null>,
-) {
-  return async function invokeArchie<T = unknown>(
-    functionName: string,
-    options: { body?: unknown } = {},
-  ): Promise<ArchieBridgeResponse<T>> {
-    try {
-      const token = await getAccessToken();
-      const headers: Record<string, string> = {
-        'Content-Type': 'application/json',
-        apikey: ARCHIE_ANON_KEY,
-      };
-      if (token) headers['Authorization'] = 'Bearer ' + token;
-
-      const body =
-        options.body === undefined ? undefined : JSON.stringify(options.body);
-
-      const res = await fetch(
-        ARCHIE_PROJECT_URL + '/functions/v1/' + functionName,
-        {
-          method: 'POST',
-          headers,
-          ...(body !== undefined ? { body } : {}),
-        },
-      );
-
-      if (!res.ok) {
-        let message = 'ARCHIE ' + functionName + ' error (' + res.status + ')';
-        try {
-          const errBody = await res.json();
-          if (errBody && typeof errBody.error === 'string') {
-            message = errBody.error;
-          } else if (errBody && typeof errBody.message === 'string') {
-            message = errBody.message;
-          }
-        } catch {
-          // Non-JSON error body — keep the default message.
-        }
-        return { data: null, error: { message } };
-      }
-
-      const data = (await res.json()) as T;
-      return { data, error: null };
-    } catch (e) {
-      return {
-        data: null,
-        error: { message: e instanceof Error ? e.message : 'Network error' },
-      };
-    }
-  };
-}
-
-const archieInvoke = createArchieInvoker(async () => {
-  try {
-    const { data } = await supabase.auth.getSession();
-    return data?.session?.access_token ?? null;
-  } catch {
-    return null;
-  }
-});
-
-type InvokeFn = typeof supabase.functions.invoke;
-const originalInvoke: InvokeFn = supabase.functions.invoke.bind(
-  supabase.functions,
-);
-
-supabase.functions.invoke = (async (
-  functionName: string,
-  invokeOptions?: Parameters<InvokeFn>[1],
-) => {
-  if (typeof functionName === 'string' && functionName.startsWith('archie-')) {
-    return archieInvoke(functionName, invokeOptions ?? {});
-  }
-  return originalInvoke(functionName as never, invokeOptions);
-}) as InvokeFn;

@@ -31,7 +31,7 @@ interface ChatMessage {
   content: string;
   timestamp: string;
   /** Which brain answered — ARCHIE's own engine or the Solas fallback */
-  engine?: "archie-native" | "solas";
+  engine?: "gemini" | "solas";
 }
 
 interface AiAction {
@@ -225,7 +225,7 @@ export default function AdminAIAssistant() {
         role: "assistant",
         content: data.response || "No response received.",
         timestamp: new Date().toISOString(),
-        engine: data.engine === "solas" ? "solas" : "archie-native",
+        engine: data.engine === "solas" ? "solas" : "gemini",
       };
       setMessages((prev) => [...prev, assistantMessage]);
       if (data.conversationId) setConversationId(data.conversationId);
@@ -402,7 +402,7 @@ export default function AdminAIAssistant() {
                       <p className="whitespace-pre-wrap">{msg.content}</p>
                       {msg.role === "assistant" && msg.engine && (
                         <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-                          {msg.engine === "archie-native"
+                          {msg.engine !== "solas"
                             ? "ARCHIE"
                             : "SOLAS · fallback"}
                         </span>

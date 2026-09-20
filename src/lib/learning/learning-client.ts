@@ -7,9 +7,10 @@
 //   * OpenAI: Live Chat signal capture
 //   * USER:   corrections and actual outcomes
 // All writes go through Supabase RLS: users only touch their
-// own events; records/knowledge/audit are admin-only; ARCHIE
-// ingestion goes through the authenticated archie-ingestion
-// edge function. No API keys exist in this code.
+// own events; records/knowledge/audit are admin-only; AI
+// reference ingestion goes through the authenticated
+// ai-ingestion edge function (Gemini advisory, human review).
+// No API keys exist in this code.
 // =========================================================
 import { supabase } from "@/lib/supabase";
 import type { LearningEventInput } from "./types";
@@ -199,9 +200,9 @@ export async function recordActualOutcome(args: {
 }
 
 // ---------------------------------------------------------
-// ARCHIE ingestion (backend edge function, authenticated)
+// AI reference ingestion (backend edge function, authenticated)
 // ---------------------------------------------------------
-export async function submitArchieReference(
+export async function submitAiReference(
   payload: Record<string, unknown>,
 ): Promise<{ ok: boolean; code?: string; message: string }> {
   const { data, error } = await supabase.functions.invoke<{
@@ -209,7 +210,7 @@ export async function submitArchieReference(
     code: string;
     message: string;
     flags?: string[];
-  }>("archie-ingestion", { body: payload });
+  }>("ai-ingestion", { body: payload });
   if (error) return { ok: false, message: error.message };
   return {
     ok: data?.accepted ?? false,

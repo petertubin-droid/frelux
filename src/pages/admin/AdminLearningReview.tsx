@@ -20,7 +20,7 @@ import {
   reviewRecord,
   advanceRecord,
   rollbackKnowledgeForRecord,
-  submitArchieReference,
+  submitAiReference,
   capabilityIsMath,
 } from "@/lib/learning/learning-client";
 
@@ -74,7 +74,7 @@ export default function AdminLearningReview() {
   const [engineeringReviewed, setEngineeringReviewed] = useState(false);
   const [scopeExplicit, setScopeExplicit] = useState(false);
 
-  // ARCHIE submission form
+  // AI submission form
   const [archieTopic, setArchieTopic] = useState("");
   const [archieCapability, setArchieCapability] =
     useState("ux_recommendations");
@@ -152,7 +152,7 @@ export default function AdminLearningReview() {
     setSubmitting(true);
     setError(null);
     setNotice(null);
-    const res = await submitArchieReference({
+    const res = await submitAiReference({
       source: "ARCHIE",
       source_type: "CHATGPT_REFERENCE",
       provider: "OPENAI",
@@ -234,7 +234,7 @@ export default function AdminLearningReview() {
     <div>
       <AdminHeader
         title="Learning Review"
-        subtitle="Unified Learning Engine, ARCHIE reference intelligence, Gemini/OpenAI signals, user corrections and project outcomes. Nothing enters production knowledge without human approval."
+        subtitle="Unified Learning Engine, AI reference intelligence, Gemini/OpenAI signals, user corrections and project outcomes. Nothing enters production knowledge without human approval."
       />
       <div className="space-y-6">
         {error && (
@@ -248,10 +248,10 @@ export default function AdminLearningReview() {
           </div>
         )}
 
-        {/* ARCHIE ingestion */}
+        {/* AI ingestion */}
         <section className="rounded-lg border bg-card p-4 space-y-3">
           <h2 className="flex items-center gap-2 text-sm font-semibold">
-            <Send className="h-4 w-4" /> Ingest ARCHIE reference material
+            <Send className="h-4 w-4" /> Ingest AI reference material
             (authenticated ingestion)
           </h2>
           <div className="grid gap-2 md:grid-cols-2 lg:grid-cols-4">

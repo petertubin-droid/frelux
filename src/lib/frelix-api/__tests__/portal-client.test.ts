@@ -225,15 +225,20 @@ describe("rotateApiKey", () => {
 
 describe("getUsageSummary", () => {
   it("aggregates today / month / per-key / status codes from raw rows", async () => {
-    const now = new Date();
-    const iso = (h: number) =>
-      new Date(now.getTime() - h * 3_600_000).toISOString();
+    // Anchor rows to the CURRENT UTC day so the test is not
+    // time-of-day dependent (previously failed between 00:00-01:00 UTC).
+    const dayStart = new Date();
+    dayStart.setUTCHours(0, 0, 0, 0);
+    const todayIso = (min: number) =>
+      new Date(dayStart.getTime() + min * 60_000).toISOString();
+    const beforeTodayIso = () =>
+      new Date(dayStart.getTime() - 3_600_000).toISOString(); // yesterday-ish, this month by mock semantics
     from.mockReturnValue(
       chain({
         data: [
-          { api_key_id: "k1", status_code: 200, created_at: iso(1) }, // today
-          { api_key_id: "k1", status_code: 200, created_at: iso(2) }, // today
-          { api_key_id: "k2", status_code: 429, created_at: iso(48) }, // this month
+          { api_key_id: "k1", status_code: 200, created_at: todayIso(30) },
+          { api_key_id: "k1", status_code: 200, created_at: todayIso(60) },
+          { api_key_id: "k2", status_code: 429, created_at: beforeTodayIso() },
         ],
       }),
     );

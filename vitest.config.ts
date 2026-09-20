@@ -48,6 +48,33 @@ export default defineConfig({
           include: ["src/**/*.{test,spec}.{ts,tsx}"],
         },
       },
+      {
+        extends: true,
+        test: {
+          name: "edge-functions",
+          environment: "node",
+          // Fresh module state per test — every function registers
+          // its handler at import time and the shim must
+          // re-capture.
+          isolate: true,
+          include: ["supabase/functions/**/*.test.ts"],
+          setupFiles: ["./supabase/functions/_shared/testing/setup.ts"],
+        },
+        resolve: {
+          alias: [
+            {
+              // `npm:<pkg>[@<version>]` → `<pkg>` (from node_modules)
+              find: /^npm:(.+?)(?:@[\d][\w.]*)?$/,
+              replacement: "$1",
+            },
+            {
+              // `https://esm.sh/<pkg>[@<version>]` → `<pkg>`
+              find: /^https:\/\/esm\.sh\/(.+?)(?:@[\d][\w.]*)?$/,
+              replacement: "$1",
+            },
+          ],
+        },
+      },
     ],
     coverage: {
       provider: "v8",

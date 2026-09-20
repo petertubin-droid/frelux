@@ -82,13 +82,13 @@ export default function SupportChatWidget() {
 
       try {
         const clientId = getClientId();
-        // Powered by ARCHIE (archie-chat edge function). Anonymous and
-        // non-admin visitors get the role-scoped public visitor mode;
-        // the Owner gets full ARCHIE through the same endpoint.
+        // Powered by Gemini (support-chat edge function) — the
+        // Frelux site support assistant. Public product guidance
+        // only, no account data.
         const { data, error: fnError } = await supabase.functions.invoke<{
           reply?: string;
           error?: string;
-        }>("archie-chat", {
+        }>("support-chat", {
           body: {
             message: q,
             clientId,
@@ -96,7 +96,7 @@ export default function SupportChatWidget() {
               .filter((m) => m.id !== 0)
               .slice(-10)
               .map((m) => ({
-                role: m.from === "user" ? "owner" : "archie",
+                role: m.from === "user" ? "user" : "assistant",
                 content: m.text,
               })),
           },

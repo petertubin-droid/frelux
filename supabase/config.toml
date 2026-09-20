@@ -16,3 +16,7 @@ verify_jwt = false
 [functions.ai-construction-extraction]
 verify_jwt = false
 
+[functions.support-chat]
+# Site support widget — anonymous visitors allowed; the function
+# rate-limits per clientId and never touches account data.
+verify_jwt = false
