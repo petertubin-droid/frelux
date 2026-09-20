@@ -30,8 +30,8 @@ interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   timestamp: string;
-  /** Which brain answered — ARCHIE's own engine or the Solas fallback */
-  engine?: "gemini" | "solas";
+  /** Always "solas" — kept for backward-compat with older logged messages. */
+  engine?: "solas";
 }
 
 interface AiAction {
@@ -196,7 +196,7 @@ export default function AdminAIAssistant() {
           body: {
             message: messageText,
             conversationId,
-            // Last turns so ARCHIE (stateless, primary) keeps context
+            // Last turns sent for context (Solas keeps its own conversation state)
             history: messages.slice(-10).map((m) => ({
               role: m.role,
               content: m.content,
@@ -225,7 +225,7 @@ export default function AdminAIAssistant() {
         role: "assistant",
         content: data.response || "No response received.",
         timestamp: new Date().toISOString(),
-        engine: data.engine === "solas" ? "solas" : "gemini",
+        engine: "solas",
       };
       setMessages((prev) => [...prev, assistantMessage]);
       if (data.conversationId) setConversationId(data.conversationId);
@@ -279,9 +279,8 @@ export default function AdminAIAssistant() {
             AI Assistant
           </h1>
           <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-            Powered by ARCHIE's own engine (primary), with the Solas Superagent
-            as fallback. Describe any issue and get it fixed without leaving
-            your admin.
+            Powered by the Solas Superagent (Base44). Describe any issue and get
+            it fixed without leaving your admin.
           </p>
         </div>
         <a
@@ -402,9 +401,7 @@ export default function AdminAIAssistant() {
                       <p className="whitespace-pre-wrap">{msg.content}</p>
                       {msg.role === "assistant" && msg.engine && (
                         <span className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-primary">
-                          {msg.engine !== "solas"
-                            ? "ARCHIE"
-                            : "SOLAS · fallback"}
+                          SOLAS
                         </span>
                       )}
                     </div>

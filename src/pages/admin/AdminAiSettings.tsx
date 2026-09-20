@@ -54,7 +54,7 @@ interface AiFeatureDef {
   edgeFunction: string;
   icon: typeof Bot;
   model: string;
-  provider: "Google Gemini" | "OpenAI" | "Google Gemini Vision" | "ARCHIE";
+  provider: "Google Gemini" | "Google Gemini Vision" | "Solas (Base44)";
   category: "user-facing" | "admin" | "estimation";
 }
 
@@ -77,7 +77,7 @@ const AI_FEATURES: AiFeatureDef[] = [
       "AI-powered visual previews of paint colors applied to room images.",
     edgeFunction: "ai-color-preview",
     icon: Eye,
-    model: "gemini-2.0-flash",
+    model: "gemini-3.6-flash",
     provider: "Google Gemini",
     category: "user-facing",
   },
@@ -88,8 +88,8 @@ const AI_FEATURES: AiFeatureDef[] = [
       "Real-time chat assistant for visitors, painting, screeding, tiles, products.",
     edgeFunction: "ai-livechat",
     icon: MessageSquare,
-    model: "ARCHIE Native Intelligence",
-    provider: "ARCHIE",
+    model: "gemini-3.6-flash",
+    provider: "Google Gemini",
     category: "user-facing",
   },
   {
@@ -110,7 +110,7 @@ const AI_FEATURES: AiFeatureDef[] = [
       "AI-generated project timelines, material lists, and cost guidance.",
     edgeFunction: "ai-project-assistant",
     icon: Building2,
-    model: "gemini-2.0-flash",
+    model: "gemini-3.6-flash",
     provider: "Google Gemini",
     category: "user-facing",
   },
@@ -121,7 +121,7 @@ const AI_FEATURES: AiFeatureDef[] = [
       "Generates and improves educational articles, FAQs, tutorials, and SEO content.",
     edgeFunction: "ai-learn-assistant",
     icon: GraduationCap,
-    model: "gemini-2.0-flash",
+    model: "gemini-3.6-flash",
     provider: "Google Gemini",
     category: "admin",
   },
@@ -132,8 +132,19 @@ const AI_FEATURES: AiFeatureDef[] = [
       "Admin-only AI for code generation, page building, CRUD, and DB design.",
     edgeFunction: "ai-studio",
     icon: Code2,
-    model: "gemini-2.0-flash",
-    provider: "Google Gemini",
+    model: "Solas Superagent",
+    provider: "Solas (Base44)",
+    category: "admin",
+  },
+  {
+    key: "admin-assistant",
+    name: "Admin AI Assistant",
+    description:
+      "Owner's admin copilot for diagnosing issues and drafting fixes.",
+    edgeFunction: "ai-admin-assistant",
+    icon: Crown,
+    model: "Solas Superagent",
+    provider: "Solas (Base44)",
     category: "admin",
   },
 ];
@@ -437,7 +448,8 @@ export default function AdminAiSettings() {
                   aiDisabled && "opacity-40",
                 )}
               >
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   onClick={() =>
                     setExpandedFeature(isExpanded ? null : feature.key)
@@ -647,23 +659,13 @@ export default function AdminAiSettings() {
                           Live Chat Settings
                         </h4>
                         <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                          Uses OpenAI GPT-4o-mini. System prompt is in the edge
-                          function source. Requires{" "}
+                          Powered by Google Gemini (gemini-3.6-flash). System
+                          prompt is in the edge function source. Requires{" "}
                           <code className="text-[10px] text-brand-purple">
-                            OPENAI_API_KEY
+                            GEMINI_API_KEY
                           </code>{" "}
                           in Supabase secrets.
                         </p>
-                        <div className="mt-2 flex items-center gap-2 rounded-lg bg-amber-50 p-2 text-xs text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
-                          <AlertCircle
-                            aria-hidden="true"
-                            className="h-3.5 w-3.5 shrink-0"
-                          />
-                          <span>
-                            Uses OpenAI, not Google Gemini. Separate API key
-                            required.
-                          </span>
-                        </div>
                       </div>
                     )}
 
@@ -708,11 +710,24 @@ export default function AdminAiSettings() {
                           </h4>
                           <p className="text-xs text-muted-foreground dark:text-muted-foreground">
                             Admin-only feature, no user-facing access control.
-                            Powered by Google Gemini. Requires{" "}
-                            <code className="text-[10px] text-brand-purple">
-                              GOOGLE_AI_API_KEY
-                            </code>{" "}
-                            in Supabase secrets.
+                            {feature.provider === "Solas (Base44)" ? (
+                              <>
+                                Powered by the Solas Superagent (Base44).
+                                Requires{" "}
+                                <code className="text-[10px] text-brand-purple">
+                                  SOLAS_API_KEY
+                                </code>{" "}
+                                in Supabase secrets.
+                              </>
+                            ) : (
+                              <>
+                                Powered by Google Gemini. Requires{" "}
+                                <code className="text-[10px] text-brand-purple">
+                                  GEMINI_API_KEY
+                                </code>{" "}
+                                in Supabase secrets.
+                              </>
+                            )}
                           </p>
                         </div>
                       )}
@@ -732,14 +747,14 @@ export default function AdminAiSettings() {
         </h2>
         <div className="space-y-2">
           <SecretRow
-            name="GOOGLE_AI_API_KEY"
-            usedBy="Color Consult, Color Preview, Project Assistant, Learn Assistant, AI Studio, Image Estimation"
+            name="GEMINI_API_KEY / GOOGLE_AI_API_KEY"
+            usedBy="Live Chat, Color Consult, Color Preview, Project Assistant, Learn Assistant, Image Estimation, Copilot, Support Chat"
             provider="Google Gemini"
           />
           <SecretRow
-            name="OPENAI_API_KEY"
-            usedBy="AI Live Chat"
-            provider="OpenAI"
+            name="SOLAS_API_KEY"
+            usedBy="Admin AI Assistant, AI Developer Studio (STUDIO_AGENT_API_KEY)"
+            provider="Solas (Base44)"
           />
         </div>
         <p className="mt-3 text-xs text-muted-foreground dark:text-muted-foreground">

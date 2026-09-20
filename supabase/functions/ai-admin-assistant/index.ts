@@ -1,27 +1,19 @@
 // =========================================================
 // AI Admin Assistant — Supabase Edge Function
 // =========================================================
-// Owner directive (2026-09-20): frelux AI features run on
-// GEMINI. ARCHIE is a separate product — this function no
-// longer touches ARCHIE's engine. The Solas Superagent (Base44)
-// remains wired as a fallback and is NOT removed.
+// Owner directive (2026-09-20): the Admin AI Assistant runs
+// on the Solas Superagent (Base44) exclusively. No Gemini or
+// other external provider is used on this surface.
 //
 // Flow:
 //   1. Admin sends { message, conversationId?, history? }
-//   2. Gemini answers first (advisory, no tools)
-//   3. If Gemini is unavailable / empty / erroring, cascade
-//      to Solas (API key from env or DB, conversation + message)
-//   4. ADMIN_AI_ENGINE=solas forces the fallback explicitly
-//   5. Returns { response, engine, conversationId?, messageId? }
+//   2. Solas answers (API key from env or DB, conversation +
+//      message)
+//   3. Returns { response, engine: "solas", conversationId, messageId }
 // =========================================================
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
-import {
-  corsHeaders as _corsHeaders,
-  jsonResponse,
-  errorResponse,
-  handleCors,
-} from "../_shared/cors.ts";
+import { jsonResponse, errorResponse, handleCors } from "../_shared/cors.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
   checkRateLimit,
@@ -36,24 +28,13 @@ const DEFAULT_AGENT_ID = "6a872e1df3b5e9fc45fc13fb";
 interface RequestBody {
   message: string;
   conversationId?: string;
-  // Recent chat turns for ARCHIE context (stateless engine)
+  // Recent chat turns — currently unused by Solas (it keeps its own
+  // conversation state), kept in the request contract for the client.
   history?: Array<{ role: "user" | "assistant"; content: string }>;
   // Optional: for tracking
   actionTitle?: string;
   actionCategory?: string;
 }
-
-// ARCHIE is advisory here by design: this surface explains,
-// diagnoses and drafts. It NEVER mutates data, deploys or
-// executes changes — same boundary as the public live chat.
-const ADMIN_SYSTEM_PROMPT = `You are the FRELUX Admin Copilot — ARCHIE's own intelligence serving the platform owner's admin panel.
-
-Role: help the admin understand, diagnose and describe issues on the FRELUX platform (construction-cost estimation, PRO marketplace, rewards, integrations, edge functions). You may explain how features work, interpret error reports, draft fix descriptions and suggest what to check next.
-
-Boundaries:
-- You are ADVISORY. You do not execute changes, write to the database or trigger actions — you tell the admin what to do or what a fix would involve.
-- Never fabricate platform facts. If you are not certain of a FRELUX behavior, say so and suggest where to verify it.
-- Be concise and practical. Answer the admin's actual question.`;
 
 async function getApiKey(
   supabaseClient: ReturnType<typeof createClient>,
@@ -212,103 +193,7 @@ serveWithCors(async (req: Request) => {
       return errorResponse("Message is required", 400);
     }
 
-    // ── ENGINE SELECTION (owner directive 2026-09-20) ──
-    // Gemini first. Solas remains as fallback. Forcing Solas via
-    // ADMIN_AI_ENGINE=solas is explicit config, never a silent swap.
-    const enginePref = (
-      Deno.env.get("ADMIN_AI_ENGINE") ?? "gemini"
-    ).toLowerCase();
-
-    if (enginePref !== "solas") {
-      const geminiKey = Deno.env.get("GEMINI_API_KEY");
-      if (geminiKey) {
-        try {
-          const historyTurns = (Array.isArray(body.history) ? body.history : [])
-            .slice(-10)
-            .filter(
-              (m) =>
-                (m?.role === "user" || m?.role === "assistant") &&
-                typeof m?.content === "string" &&
-                m.content.trim(),
-            )
-            .map((m) => ({
-              role: m.role === "user" ? "user" : "model",
-              parts: [{ text: m.content.slice(0, 2000) }],
-            }));
-
-          const geminiRes = await fetch(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=" +
-              geminiKey,
-            {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                systemInstruction: { parts: [{ text: ADMIN_SYSTEM_PROMPT }] },
-                contents: [
-                  ...historyTurns,
-                  {
-                    role: "user",
-                    parts: [{ text: body.message.slice(0, 4000) }],
-                  },
-                ],
-                generationConfig: { temperature: 0.4, maxOutputTokens: 1024 },
-              }),
-            },
-          );
-
-          if (geminiRes.ok) {
-            const gem = await geminiRes.json();
-            const geminiText = (gem?.candidates?.[0]?.content?.parts ?? [])
-              .map((p: { text?: string }) => p?.text ?? "")
-              .filter(Boolean)
-              .join("")
-              .trim();
-
-            if (geminiText) {
-              if (body.actionTitle) {
-                await supabaseClient.from("admin_ai_actions").insert({
-                  reported_by: user.id,
-                  title: body.actionTitle,
-                  description: body.message,
-                  category: body.actionCategory || "bug",
-                  conversation_id: null,
-                  message_id: null,
-                  status: "in_progress",
-                  resolution: geminiText,
-                });
-              }
-              return jsonResponse({
-                response: geminiText,
-                engine: "gemini",
-                engineNote: "Gemini (frelux AI provider)",
-                conversationId: null,
-                messageId: null,
-              });
-            }
-            console.error(
-              "[ai-admin-assistant] Gemini returned an empty reply — cascading to Solas",
-            );
-          } else {
-            console.error(
-              "[ai-admin-assistant] Gemini HTTP " +
-                geminiRes.status +
-                " — cascading to Solas",
-            );
-          }
-        } catch (geminiErr) {
-          console.error(
-            "[ai-admin-assistant] Gemini call failed — cascading to Solas:",
-            geminiErr,
-          );
-        }
-      } else {
-        console.error(
-          "[ai-admin-assistant] GEMINI_API_KEY not configured — cascading to Solas",
-        );
-      }
-    }
-
-    // ── SOLAS FALLBACK (unchanged behavior, explicitly retained) ──
+    // ── SOLAS (Base44 Superagent) — sole engine (owner directive 2026-09-20) ──
     const apiKey = await getApiKey(supabaseClient);
     if (!apiKey) {
       return jsonResponse(
