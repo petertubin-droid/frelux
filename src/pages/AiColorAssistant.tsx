@@ -223,7 +223,7 @@ function DisclaimerBanner() {
         lighting, and screen settings. Always test a physical paint sample
         before purchase. See our{" "}
         <Link
-          to="/ai-disclaimer"
+          to="/ai-disclaimer/"
           className="font-semibold text-brand-purple underline"
         >
           AI Disclaimer
@@ -429,7 +429,7 @@ function AccessGate({
             {!isAuthenticated && (
               <p className="mt-3 text-xs text-muted-foreground">
                 <Link
-                  to="/login?redirect=/ai-color-assistant"
+                  to="/login/?redirect=/ai-color-assistant"
                   className="font-semibold text-brand-purple hover:underline"
                 >
                   Sign in or create an account
@@ -1170,7 +1170,7 @@ function ResultPanel({
             Similar FRELUX color
           </p>
           <Link
-            to={`/colors/${matchedColor.slug}`}
+            to={`/colors/${matchedColor.slug}/`}
             onClick={() => {
               track("color_recommendation_clicked", {
                 slug: matchedColor.slug,
@@ -1224,7 +1224,7 @@ function ResultPanel({
             {matchedPaintColors.map((pc) => (
               <Link
                 key={pc.id}
-                to={`/colors/paint/${pc.slug}`}
+                to={`/colors/paint/${pc.slug}/`}
                 onClick={() => {
                   track("color_recommendation_clicked", {
                     slug: pc.slug,

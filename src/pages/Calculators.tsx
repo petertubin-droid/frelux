@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import AdSlot from "@/components/ui/AdSlot";
 import {
   Paintbrush,
-
   Grid3x3,
   Square,
   Layers,
@@ -228,11 +227,11 @@ export default function Calculators() {
           </h1>
           <p className="mt-4 max-w-2xl text-lg leading-relaxed text-primary-foreground/55">
             Pick a tool below to start estimating materials and costs. Every
-            calculator uses Nigerian coverage rates and admin-configured material prices.
+            calculator uses Nigerian coverage rates and admin-configured
+            material prices.
           </p>
         </Container>
       </section>
-
 
       {/* Continuous sliding strip of calculator names, decorative */}
       <div
@@ -327,7 +326,7 @@ export default function Calculators() {
 
             {/* Color & AI card */}
             <Link
-              to="/colors"
+              to="/colors/"
               className="calc-card group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card p-6 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:border-brand-purple/20 dark:border-white/5 dark:bg-card"
               style={{
                 opacity: isVisible ? 1 : 0,

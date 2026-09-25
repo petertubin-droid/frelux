@@ -422,13 +422,13 @@ export default function Rewards() {
         </p>
         <div className="mt-6 flex flex-col items-center gap-3">
           <Link
-            to="/login?redirect=/rewards"
+            to="/login/?redirect=/rewards"
             className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Sign In
           </Link>
           <Link
-            to="/register?redirect=/rewards"
+            to="/register/?redirect=/rewards"
             className="inline-flex items-center gap-2 rounded-xl border border-brand-purple/30 px-6 py-3 text-sm font-bold text-brand-purple transition-colors hover:bg-primary/5"
           >
             Create Free Account

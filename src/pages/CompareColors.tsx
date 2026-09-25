@@ -275,7 +275,7 @@ export default function CompareColors() {
                     {selected.map((c) => (
                       <td key={c.id} className="border-b border-border/50 p-2">
                         <Link
-                          to={`/colors/paint/${c.slug}`}
+                          to={`/colors/paint/${c.slug}/`}
                           className="text-sm font-bold text-foreground hover:text-brand-purple dark:text-primary-foreground dark:hover:text-brand-purple-lighter"
                         >
                           {c.name}
@@ -401,7 +401,7 @@ export default function CompareColors() {
                           {(similarMap[c.id] ?? []).map((s) => (
                             <Link
                               key={s.id}
-                              to={`/colors/paint/${s.slug}`}
+                              to={`/colors/paint/${s.slug}/`}
                               className="h-6 w-6 rounded ring-1 ring-black/10 transition-transform hover:scale-110"
                               style={{ background: s.hex_code }}
                               title={s.name}
@@ -462,7 +462,7 @@ export default function CompareColors() {
                   {coordinatedPalettes.map((p) => (
                     <Link
                       key={p.id}
-                      to={`/colors/${p.slug}`}
+                      to={`/colors/${p.slug}/`}
                       className="group overflow-hidden rounded-xl border border-border bg-card dark:border-white/5 dark:bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-lg"
                     >
                       <div className="relative aspect-[4/3] overflow-hidden">

@@ -207,7 +207,7 @@ export default function CalculatorNearMe({
                 {pros.slice(0, 5).map((pro) => (
                   <Link
                     key={pro.id}
-                    to={`/pro-connect/${pro.slug}`}
+                    to={`/pro-connect/${pro.slug}/`}
                     className="flex items-center gap-2.5 rounded-lg border border-border/60 bg-card p-2.5 transition-all hover:border-brand-purple/30 dark:border-white/5 dark:bg-card"
                   >
                     <div className="h-8 w-8 shrink-0 overflow-hidden rounded-full bg-muted dark:bg-white/5">
@@ -241,7 +241,7 @@ export default function CalculatorNearMe({
                 ))}
                 {pros.length > 5 && (
                   <Link
-                    to="/pro-connect"
+                    to="/pro-connect/"
                     className="block text-center text-xs text-brand-purple hover:underline"
                   >
                     View all {pros.length} professionals →
@@ -258,7 +258,7 @@ export default function CalculatorNearMe({
               {listings.slice(0, 5).map((listing) => (
                 <Link
                   key={listing.id}
-                  to={`/marketplace/${listing.id}`}
+                  to={`/marketplace/${listing.id}/`}
                   className="flex items-center gap-2.5 rounded-lg border border-border/60 bg-card p-2.5 transition-all hover:border-brand-purple/30 dark:border-white/5 dark:bg-card"
                 >
                   <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
@@ -277,7 +277,7 @@ export default function CalculatorNearMe({
               ))}
               {listings.length > 5 && (
                 <Link
-                  to="/marketplace"
+                  to="/marketplace/"
                   className="block text-center text-xs text-brand-purple hover:underline"
                 >
                   View all {listings.length} jobs →

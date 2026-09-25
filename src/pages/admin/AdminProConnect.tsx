@@ -293,7 +293,7 @@ function AdminProfessionalsTab() {
                 </AdminIconButton>
               )}
               <a
-                href={`/pro-connect/${p.slug}`}
+                href={`/pro-connect/${p.slug}/`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="rounded-lg p-1.5 text-muted-foreground hover:text-brand-purple"
@@ -527,7 +527,7 @@ function AdminVerificationTab() {
                   <div className="flex shrink-0 gap-1">
                     {profile && (
                       <a
-                        href={`/pro-connect/${profile.slug}`}
+                        href={`/pro-connect/${profile.slug}/`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="rounded-lg p-1.5 text-muted-foreground hover:text-brand-purple"
@@ -536,7 +536,8 @@ function AdminVerificationTab() {
                         <Eye aria-hidden="true" className="h-4 w-4" />
                       </a>
                     )}
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => handleViewDocs(req)}
                       className="rounded-lg p-1.5 text-muted-foreground hover:text-brand-purple"
                       title="View verification documents"
@@ -803,7 +804,9 @@ function AdminKycTab() {
 
                   <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
                     <div className="flex items-center gap-2 rounded-lg bg-muted/50 px-3 py-2 dark:bg-white/5">
-                      <span className="text-xs text-muted-foreground">NIN:</span>
+                      <span className="text-xs text-muted-foreground">
+                        NIN:
+                      </span>
                       <span className="font-mono text-sm font-bold text-foreground dark:text-primary-foreground">
                         {sub.nin_number}
                       </span>
@@ -871,7 +874,7 @@ function AdminKycTab() {
                 </div>
 
                 <a
-                  href={`/pro-connect/${sub.slug}`}
+                  href={`/pro-connect/${sub.slug}/`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="rounded-lg p-1.5 text-muted-foreground hover:text-brand-purple"
@@ -1245,7 +1248,9 @@ function AdminReportsTab() {
                 (ninDetail as Record<string, unknown>).report_id === wr.id && (
                   <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-4">
                     {ninDetailLoading ? (
-                      <p className="text-sm text-muted-foreground">Loading...</p>
+                      <p className="text-sm text-muted-foreground">
+                        Loading...
+                      </p>
                     ) : (
                       <>
                         <p className="mb-2 text-sm font-semibold text-brand-purple">

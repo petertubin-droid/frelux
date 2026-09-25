@@ -18,7 +18,7 @@ export default function StudioLayout() {
     <div className="min-h-screen bg-muted">
       {/* Mobile header */}
       <div className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-border dark:border-white/5 bg-card dark:bg-card px-4 lg:hidden">
-        <Link to="/admin/studio" className="flex items-center gap-2">
+        <Link to="/admin/studio/" className="flex items-center gap-2">
           <Code className="h-5 w-5 text-brand-purple" />
           <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
             AI Studio
@@ -82,7 +82,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   return (
     <div className="flex h-full flex-col">
       <div className="hidden border-b border-border dark:border-white/5 px-5 py-4 lg:block">
-        <Link to="/admin/studio" className="flex items-center gap-2">
+        <Link to="/admin/studio/" className="flex items-center gap-2">
           <Code className="h-5 w-5 text-brand-purple" />
           <span className="text-base font-bold text-foreground dark:text-primary-foreground">
             AI Developer Studio
@@ -105,7 +105,7 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                 return (
                   <NavLink
                     key={tool.slug}
-                    to={`/admin/studio/${tool.slug}`}
+                    to={`/admin/studio/${tool.slug}/`}
                     onClick={onNavigate}
                     className={({ isActive }) =>
                       classNames(
@@ -128,13 +128,13 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
 
       <div className="border-t border-border dark:border-white/5 p-3">
         <Link
-          to="/admin/system-health"
+          to="/admin/system-health/"
           className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted"
         >
           <Activity className="h-4 w-4" /> System Health
         </Link>
         <Link
-          to="/admin"
+          to="/admin/"
           className="mt-1 flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground dark:text-muted-foreground/80 hover:bg-muted"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Admin

@@ -32,7 +32,7 @@ describe("ColorCard", () => {
     renderCard();
     const links = screen.getAllByRole("link");
     const link = links[0];
-    expect(link.getAttribute("href")).toBe("/colors/paint/fire-red");
+    expect(link.getAttribute("href")).toBe("/colors/paint/fire-red/");
   });
 
   it("shows trending badge when is_trending", () => {

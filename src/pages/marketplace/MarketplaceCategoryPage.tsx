@@ -95,7 +95,7 @@ export default function MarketplaceCategoryPage() {
           This category doesn't exist or is no longer active.
         </p>
         <Link
-          to="/marketplace"
+          to="/marketplace/"
           className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple"
         >
           <ArrowRight aria-hidden="true" className="h-4 w-4 rotate-180" /> Back
@@ -115,7 +115,7 @@ export default function MarketplaceCategoryPage() {
               Home
             </Link>
             <span>/</span>
-            <Link to="/marketplace" className="hover:text-brand-purple">
+            <Link to="/marketplace/" className="hover:text-brand-purple">
               Marketplace
             </Link>
             <span>/</span>
@@ -169,7 +169,7 @@ export default function MarketplaceCategoryPage() {
               Be the first to post a job in {category?.name}.
             </p>
             <Link
-              to="/marketplace/post"
+              to="/marketplace/post/"
               className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground"
             >
               Post a Job
@@ -186,7 +186,7 @@ export default function MarketplaceCategoryPage() {
               {listings.map((listing) => (
                 <Link
                   key={listing.id}
-                  to={`/marketplace/${listing.id}`}
+                  to={`/marketplace/${listing.id}/`}
                   className="group rounded-xl border border-border/60 bg-card p-4 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                 >
                   <div className="flex items-center justify-between">

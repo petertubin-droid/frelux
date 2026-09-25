@@ -148,23 +148,37 @@ export default function StartBuilding() {
       <div className="border-b border-border/80 bg-card dark:bg-card">
         <Container className="py-6">
           <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide text-xs font-medium text-primary-foreground/60">
-            <span className="whitespace-nowrap text-primary-foreground/40">FOUNDATION</span>
+            <span className="whitespace-nowrap text-primary-foreground/40">
+              FOUNDATION
+            </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
-            <span className="whitespace-nowrap text-primary-foreground/40">STRUCTURE</span>
+            <span className="whitespace-nowrap text-primary-foreground/40">
+              STRUCTURE
+            </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
-            <span className="whitespace-nowrap text-primary-foreground/40">WALLS</span>
+            <span className="whitespace-nowrap text-primary-foreground/40">
+              WALLS
+            </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
-            <span className="whitespace-nowrap text-primary-foreground/40">ROOF</span>
+            <span className="whitespace-nowrap text-primary-foreground/40">
+              ROOF
+            </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
-            <span className="whitespace-nowrap text-primary-foreground/40">SCREEDING</span>
+            <span className="whitespace-nowrap text-primary-foreground/40">
+              SCREEDING
+            </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
-            <span className="whitespace-nowrap text-primary-foreground/40">POP CEILING</span>
+            <span className="whitespace-nowrap text-primary-foreground/40">
+              POP CEILING
+            </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
             <span className="whitespace-nowrap text-primary-foreground/40">
               TILES / FLOORING
             </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
-            <span className="whitespace-nowrap text-primary-foreground/40">PAINTING</span>
+            <span className="whitespace-nowrap text-primary-foreground/40">
+              PAINTING
+            </span>
             <ChevronRight className="h-3 w-3 text-primary-foreground/20" />
             <span className="whitespace-nowrap text-primary-foreground/40">
               EXTERIOR FINISHING
@@ -180,7 +194,7 @@ export default function StartBuilding() {
       {/* ── Build-to-Roof Feature Card (primary) ── */}
       <Container className="py-10 sm:py-12">
         <Link
-          to="/build-to-roof-estimator"
+          to="/build-to-roof-estimator/"
           onClick={() =>
             track("start_building_clicked", { category: "build_to_roof" })
           }
@@ -371,7 +385,7 @@ export default function StartBuilding() {
       {/* ── AI Photo Estimator Banner ── */}
       <Container className="pb-12">
         <Link
-          to="/image-estimator"
+          to="/image-estimator/"
           onClick={() =>
             track("start_building_clicked", { category: "ai_photo_estimator" })
           }
@@ -414,14 +428,14 @@ export default function StartBuilding() {
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
             <Link
-              to="/calculators"
+              to="/calculators/"
               className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90"
             >
               View All Calculators
               <ArrowRight aria-hidden="true" className="h-4 w-4" />
             </Link>
             <Link
-              to="/learn"
+              to="/learn/"
               className="inline-flex items-center gap-2 rounded-xl border border-border px-5 py-3 text-sm font-semibold text-card-foreground transition-all hover:bg-muted dark:border-white/10 dark:text-primary-foreground dark:hover:bg-white/5"
             >
               Learn Construction Basics

@@ -181,7 +181,7 @@ export default function ClientEstimateEditor() {
         }
       }
 
-      navigate(`/project-workspace/${projectId}`);
+      navigate(`/project-workspace/${projectId}/`);
     } catch (e) {
       toast({ title: (e as Error).message, variant: "error" });
     } finally {
@@ -198,7 +198,7 @@ export default function ClientEstimateEditor() {
 
       <div className="mx-auto max-w-3xl px-4 pb-12 pt-6">
         <Link
-          to={`/project-workspace/${projectId}`}
+          to={`/project-workspace/${projectId}/`}
           className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
         >
           <ArrowLeft className="h-4 w-4" /> Back to Project
@@ -235,7 +235,7 @@ export default function ClientEstimateEditor() {
                   </div>
                   {est.share_token && (
                     <Link
-                      to={`/estimate/${est.share_token}`}
+                      to={`/estimate/${est.share_token}/`}
                       className="text-xs text-primary hover:underline"
                     >
                       View

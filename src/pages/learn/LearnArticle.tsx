@@ -316,7 +316,7 @@ export default function LearnArticle() {
           This article doesn't exist or hasn't been published yet.
         </p>
         <Link
-          to="/learn"
+          to="/learn/"
           className="mt-4 inline-block text-sm font-semibold text-brand-purple hover:underline"
         >
           Back to Learn
@@ -356,14 +356,14 @@ export default function LearnArticle() {
         {/* Breadcrumb */}
         <nav className="mb-8 flex items-center gap-2 text-xs text-muted-foreground">
           <Link
-            to="/learn"
+            to="/learn/"
             className="transition-colors hover:text-brand-purple"
           >
             Learn
           </Link>
           <span className="text-muted-foreground/80">/</span>
           <Link
-            to={`/learn/category/${article.category_slug}`}
+            to={`/learn/category/${article.category_slug}/`}
             className="capitalize transition-colors hover:text-brand-purple"
           >
             {article.category_slug.replace(/-/g, " ")}
@@ -598,13 +598,13 @@ export default function LearnArticle() {
                 </p>
                 <div className="mt-6 flex flex-wrap justify-center gap-3">
                   <Link
-                    to="/calculators"
+                    to="/calculators/"
                     className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 hover:shadow-md"
                   >
                     Try Our Calculators <ArrowRight className="h-4 w-4" />
                   </Link>
                   <Link
-                    to="/learn"
+                    to="/learn/"
                     className="inline-flex items-center gap-2 rounded-xl border border-border bg-card px-6 py-3 text-sm font-semibold text-foreground transition-all hover:border-brand-purple/30 hover:shadow-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                   >
                     More Guides
@@ -618,7 +618,7 @@ export default function LearnArticle() {
               <nav className="mt-12 grid gap-4 border-t border-border pt-8 sm:grid-cols-2 dark:border-white/10">
                 {prevArticle ? (
                   <Link
-                    to={`/learn/${prevArticle.slug}`}
+                    to={`/learn/${prevArticle.slug}/`}
                     className="group flex items-center gap-4 rounded-2xl border border-border/80 bg-card p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                   >
                     <ArrowLeft
@@ -639,7 +639,7 @@ export default function LearnArticle() {
                 )}
                 {nextArticle ? (
                   <Link
-                    to={`/learn/${nextArticle.slug}`}
+                    to={`/learn/${nextArticle.slug}/`}
                     className="group flex items-center justify-end gap-4 rounded-2xl border border-border/80 bg-card p-5 text-right shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                   >
                     <div className="min-w-0">
@@ -664,7 +664,7 @@ export default function LearnArticle() {
             {/* Back to category */}
             <div className="mt-8">
               <Link
-                to={`/learn/category/${article.category_slug}`}
+                to={`/learn/category/${article.category_slug}/`}
                 className="inline-flex items-center gap-2 text-sm font-semibold text-brand-purple transition-colors hover:text-brand-purple-dark hover:underline"
               >
                 <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to{" "}
@@ -692,7 +692,7 @@ export default function LearnArticle() {
                   {related.map((a) => (
                     <Link
                       key={a.id}
-                      to={`/learn/${a.slug}`}
+                      to={`/learn/${a.slug}/`}
                       className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-white/5 dark:bg-card"
                     >
                       {a.cover_image_url ? (
@@ -746,7 +746,7 @@ export default function LearnArticle() {
                   {recent.map((a) => (
                     <Link
                       key={a.id}
-                      to={`/learn/${a.slug}`}
+                      to={`/learn/${a.slug}/`}
                       className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-white/5 dark:bg-card"
                     >
                       {a.cover_image_url ? (

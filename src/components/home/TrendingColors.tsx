@@ -1,12 +1,16 @@
-import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { TrendingUp, Award, Clock, ArrowRight } from 'lucide-react';
-import Container from '@/components/ui/Container';
-import SectionHeading from '@/components/ui/SectionHeading';
-import { fetchTrendingColors, fetchFeaturedColors, fetchRecentlyAddedColors } from '@/lib/queries';
-import { readableTextColor } from '@/lib/colors';
-import { Skeleton } from '@/components/ui/Skeleton';
-import type { DbPaintColor } from '@/types/database';
+import { useEffect, useRef, useState } from "react";
+import { Link } from "react-router-dom";
+import { TrendingUp, Award, Clock, ArrowRight } from "lucide-react";
+import Container from "@/components/ui/Container";
+import SectionHeading from "@/components/ui/SectionHeading";
+import {
+  fetchTrendingColors,
+  fetchFeaturedColors,
+  fetchRecentlyAddedColors,
+} from "@/lib/queries";
+import { readableTextColor } from "@/lib/colors";
+import { Skeleton } from "@/components/ui/Skeleton";
+import type { DbPaintColor } from "@/types/database";
 
 export default function TrendingColors() {
   const [trending, setTrending] = useState<DbPaintColor[]>([]);
@@ -14,24 +18,39 @@ export default function TrendingColors() {
   const [recent, setRecent] = useState<DbPaintColor[]>([]);
   const [loading, setLoading] = useState(true);
 
-const mountedRef = useRef(true);
-    useEffect(() => {
-    Promise.all([fetchTrendingColors(6), fetchFeaturedColors(6), fetchRecentlyAddedColors(6)])
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    Promise.all([
+      fetchTrendingColors(6),
+      fetchFeaturedColors(6),
+      fetchRecentlyAddedColors(6),
+    ])
       .then(([t, f, r]) => {
         setTrending(t.data);
         setFeatured(f.data);
         setRecent(r.data);
       })
       .finally(() => setLoading(false));
-  
-    return () => { mountedRef.current = false; };
+
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
-  if (!loading && trending.length === 0 && featured.length === 0 && recent.length === 0) return null;
+  if (
+    !loading &&
+    trending.length === 0 &&
+    featured.length === 0 &&
+    recent.length === 0
+  )
+    return null;
 
   return (
     <section className="relative overflow-hidden bg-muted/50 py-24 sm:py-28 dark:bg-card">
-      <div className="pointer-events-none absolute inset-0 bg-dots opacity-30" aria-hidden="true" />
+      <div
+        className="pointer-events-none absolute inset-0 bg-dots opacity-30"
+        aria-hidden="true"
+      />
 
       <SectionHeading
         label="Color inspiration"
@@ -44,16 +63,28 @@ const mountedRef = useRef(true);
         {loading ? (
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
             {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={i} variant="rect" className="aspect-square rounded-xl" />
+              <Skeleton
+                key={i}
+                variant="rect"
+                className="aspect-square rounded-xl"
+              />
             ))}
           </div>
         ) : (
           <>
             {trending.length > 0 && (
-              <ColorRow icon={TrendingUp} title="Trending Colors" colors={trending} />
+              <ColorRow
+                icon={TrendingUp}
+                title="Trending Colors"
+                colors={trending}
+              />
             )}
             {featured.length > 0 && (
-              <ColorRow icon={Award} title="Featured Colors" colors={featured} />
+              <ColorRow
+                icon={Award}
+                title="Featured Colors"
+                colors={featured}
+              />
             )}
             {recent.length > 0 && (
               <ColorRow icon={Clock} title="Recently Added" colors={recent} />
@@ -62,8 +93,12 @@ const mountedRef = useRef(true);
         )}
 
         <div className="text-center">
-          <Link to="/colors" className="group inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 hover:shadow-xl active:scale-[0.98]">
-            Browse all colors <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+          <Link
+            to="/colors/"
+            className="group inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 hover:shadow-xl active:scale-[0.98]"
+          >
+            Browse all colors{" "}
+            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
           </Link>
         </div>
       </Container>
@@ -71,23 +106,36 @@ const mountedRef = useRef(true);
   );
 }
 
-function ColorRow({ icon: Icon, title, colors }: { icon: typeof TrendingUp; title: string; colors: DbPaintColor[] }) {
+function ColorRow({
+  icon: Icon,
+  title,
+  colors,
+}: {
+  icon: typeof TrendingUp;
+  title: string;
+  colors: DbPaintColor[];
+}) {
   return (
     <div className="animate-fade-in-up">
       <div className="mb-5 flex items-center gap-2.5">
         <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-primary/8 text-brand-purple">
           <Icon className="h-5 w-5" />
         </span>
-        <h3 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">{title}</h3>
+        <h3 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
+          {title}
+        </h3>
       </div>
       <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
         {colors.map((c) => (
           <Link
             key={c.id}
-            to={`/colors/paint/${c.slug}`}
+            to={`/colors/paint/${c.slug}/`}
             className="card-hover group overflow-hidden rounded-xl border border-border/60 bg-card dark:border-white/5 dark:bg-card"
           >
-            <div className="relative aspect-square transition-transform duration-500 group-hover:scale-[1.05]" style={{ background: c.hex_code }}>
+            <div
+              className="relative aspect-square transition-transform duration-500 group-hover:scale-[1.05]"
+              style={{ background: c.hex_code }}
+            >
               <span
                 className="flex h-full items-center justify-center text-xs font-bold uppercase opacity-60 transition-opacity duration-300 group-hover:opacity-80"
                 style={{ color: readableTextColor(c.hex_code) }}
@@ -96,7 +144,9 @@ function ColorRow({ icon: Icon, title, colors }: { icon: typeof TrendingUp; titl
               </span>
             </div>
             <div className="p-3">
-              <p className="truncate text-xs font-semibold text-foreground dark:text-primary-foreground transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter">{c.name}</p>
+              <p className="truncate text-xs font-semibold text-foreground dark:text-primary-foreground transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter">
+                {c.name}
+              </p>
             </div>
           </Link>
         ))}

@@ -190,7 +190,7 @@ export default function NearbyResults({
                   {pros.slice(0, compact ? 3 : 10).map((pro) => (
                     <Link
                       key={pro.id}
-                      to={`/pro-connect/${pro.slug}`}
+                      to={`/pro-connect/${pro.slug}/`}
                       className="flex items-center gap-3 rounded-xl border border-border/60 p-3 transition-all hover:border-brand-purple/30 hover:bg-primary/5 dark:border-white/5 dark:hover:bg-white/5"
                     >
                       <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-muted dark:bg-white/5">
@@ -254,7 +254,7 @@ export default function NearbyResults({
                   {listings.slice(0, compact ? 3 : 10).map((listing) => (
                     <Link
                       key={listing.id}
-                      to={`/marketplace/${listing.id}`}
+                      to={`/marketplace/${listing.id}/`}
                       className="flex items-center gap-3 rounded-xl border border-border/60 p-3 transition-all hover:border-brand-purple/30 hover:bg-primary/5 dark:border-white/5 dark:hover:bg-white/5"
                     >
                       <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">

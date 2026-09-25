@@ -1929,7 +1929,7 @@ function ResultCard({
             Start Over
           </Button>
           <Link
-            to="/paint-calculator?mode=cost"
+            to="/paint-calculator/?mode=cost"
             state={{
               projectType: input.projectType,
               paintableArea: result.paintableArea,

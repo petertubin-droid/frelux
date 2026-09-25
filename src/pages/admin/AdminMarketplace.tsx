@@ -223,7 +223,7 @@ function ListingsTab() {
               </span>
             </div>
             <Link
-              to={`/marketplace/${l.id}`}
+              to={`/marketplace/${l.id}/`}
               className="mt-1.5 block truncate text-xs font-bold text-foreground hover:text-brand-purple dark:text-primary-foreground"
             >
               {l.title}
@@ -521,7 +521,7 @@ function OrdersTab() {
                 </span>
               </div>
               <Link
-                to={`/marketplace/orders/${o.id}`}
+                to={`/marketplace/orders/${o.id}/`}
                 className="mt-1.5 block truncate text-xs font-bold text-foreground hover:text-brand-purple dark:text-primary-foreground"
               >
                 {o.listing?.title || "Untitled"}

@@ -247,7 +247,7 @@ export default function ProjectDetail() {
       <div className="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4 max-w-7xl">
           <Link
-            to="/project-workspace"
+            to="/project-workspace/"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors py-3 group"
           >
             <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />{" "}
@@ -389,7 +389,7 @@ export default function ProjectDetail() {
               <h3 className="font-semibold mb-3">Quick Actions</h3>
               <div className="flex flex-wrap gap-3">
                 <Link
-                  to="/calculators"
+                  to="/calculators/"
                   className="group inline-flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/20 transition-all hover:scale-105"
                 >
                   <Calculator className="h-4 w-4 group-hover:scale-110 transition-transform" />{" "}
@@ -412,7 +412,7 @@ export default function ProjectDetail() {
                   Track Progress
                 </Button>
                 <Link
-                  to="/paint-comparison"
+                  to="/paint-comparison/"
                   className="group inline-flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/20 transition-all hover:scale-105"
                 >
                   <Crown className="h-4 w-4 group-hover:rotate-12 transition-transform" />{" "}
@@ -429,7 +429,7 @@ export default function ProjectDetail() {
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-lg">Saved Calculations</h3>
               <Link
-                to="/calculators"
+                to="/calculators/"
                 className="group inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
               >
                 <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform" />{" "}
@@ -444,7 +444,7 @@ export default function ProjectDetail() {
                   result to this project.
                 </p>
                 <Link
-                  to="/calculators"
+                  to="/calculators/"
                   className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all hover:scale-105"
                 >
                   Browse Calculators
@@ -526,7 +526,7 @@ export default function ProjectDetail() {
                   traceable takeoff.
                 </p>
                 <Link
-                  to={`/contractor/projects/${id}`}
+                  to={`/contractor/projects/${id}/`}
                   className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
                 >
                   Open Room Builder
@@ -979,7 +979,7 @@ export default function ProjectDetail() {
             <div className="flex items-center justify-between">
               <h3 className="font-semibold text-lg">Client Estimates</h3>
               <Link
-                to={`/project-workspace/${id}/client-estimate/new`}
+                to={`/project-workspace/${id}/client-estimate/new/`}
                 className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
               >
                 <Plus className="h-4 w-4 group-hover:rotate-90 transition-transform" />{" "}
@@ -1032,7 +1032,7 @@ export default function ProjectDetail() {
                       {est.share_token ? (
                         <>
                           <Link
-                            to={`/estimate/${est.share_token}`}
+                            to={`/estimate/${est.share_token}/`}
                             className="text-xs text-primary hover:underline"
                           >
                             View
@@ -1272,7 +1272,7 @@ export default function ProjectDetail() {
                 workflow.
               </p>
               <Link
-                to="/ai-color-assistant"
+                to="/ai-color-assistant/"
                 className="group inline-flex items-center gap-2 rounded-lg bg-primary/10 px-4 py-2.5 text-sm font-medium text-primary hover:bg-primary/20 transition-all hover:scale-105"
               >
                 <Crown className="h-4 w-4 group-hover:rotate-12 transition-transform" />{" "}

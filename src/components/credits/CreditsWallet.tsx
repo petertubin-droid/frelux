@@ -568,7 +568,7 @@ function EarnCreditsModal({
 
               {/* Complete Offers, separate from Watch Ad */}
               <Link
-                to="/rewards?tab=offerwall"
+                to="/rewards/?tab=offerwall"
                 onClick={onClose}
                 className="flex w-full items-center justify-center gap-2 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-600 transition-colors hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
               >

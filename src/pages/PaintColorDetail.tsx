@@ -167,7 +167,7 @@ export default function PaintColorDetail() {
           Couldn't load this color.
         </p>
         <Link
-          to="/colors"
+          to="/colors/"
           className="mt-4 inline-block text-sm font-semibold text-brand-purple hover:underline"
         >
           Back to color library
@@ -192,7 +192,7 @@ export default function PaintColorDetail() {
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
       <Link
-        to="/colors"
+        to="/colors/"
         className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-brand-purple"
       >
         <ArrowLeft aria-hidden="true" className="h-4 w-4" /> All colors
@@ -213,7 +213,8 @@ export default function PaintColorDetail() {
             </span>
           </div>
           {user && (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={handleFav}
               className={classNames(
@@ -285,7 +286,8 @@ export default function PaintColorDetail() {
                     {f.value}
                   </p>
                 </div>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   onClick={() => copy(f.value)}
                   className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-semibold text-muted-foreground hover:border-border hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter"
@@ -344,7 +346,7 @@ export default function PaintColorDetail() {
 
           <div className="mt-6 flex gap-3">
             <Link
-              to="/colors/compare"
+              to="/colors/compare/"
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 active:scale-95"
             >
               Compare colors{" "}
@@ -364,7 +366,7 @@ export default function PaintColorDetail() {
             {related.map((c) => (
               <Link
                 key={c.id}
-                to={`/colors/paint/${c.slug}`}
+                to={`/colors/paint/${c.slug}/`}
                 className="group overflow-hidden rounded-lg border border-border bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-md"
               >
                 <div
@@ -491,12 +493,14 @@ function ColorRelationships({
           .filter((s) => s.colors.length > 0)
           .map((s) => (
             <div key={s.type}>
-              <h3 className="text-sm font-bold text-card-foreground">{s.title}</h3>
+              <h3 className="text-sm font-bold text-card-foreground">
+                {s.title}
+              </h3>
               <div className="mt-2 space-y-2">
                 {s.colors.map((c) => (
                   <Link
                     key={c.id}
-                    to={`/colors/paint/${c.slug}`}
+                    to={`/colors/paint/${c.slug}/`}
                     className="group flex items-center gap-2 rounded-lg border border-border bg-card p-2 dark:border-white/5 dark:bg-card transition-all hover:border-brand-purple hover:shadow-sm"
                   >
                     <div

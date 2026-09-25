@@ -239,7 +239,7 @@ export default function OrderDetail() {
             </div>
             <div>
               <Link
-                to={`/pro-connect/${order.pro_profile?.slug}`}
+                to={`/pro-connect/${order.pro_profile?.slug}/`}
                 className="text-sm font-semibold text-foreground hover:text-brand-purple dark:text-primary-foreground"
               >
                 {order.pro_profile?.business_name ||
@@ -254,7 +254,7 @@ export default function OrderDetail() {
             </div>
             <div className="ml-auto">
               <Link
-                to="/pro-connect/messages"
+                to="/pro-connect/messages/"
                 className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80"
               >
                 <MessageSquare className="h-3.5 w-3.5" /> Message

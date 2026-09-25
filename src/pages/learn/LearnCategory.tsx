@@ -153,7 +153,7 @@ export default function LearnCategory() {
             This category doesn't exist or has been removed.
           </p>
           <Link
-            to="/learn"
+            to="/learn/"
             className="mt-4 inline-block text-sm font-semibold text-brand-purple hover:underline"
           >
             Back to Learn
@@ -180,7 +180,10 @@ export default function LearnCategory() {
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
         {/* Category header banner, premium */}
         <div className="relative mb-12 overflow-hidden rounded-3xl border border-border/80 dark:border-white/10 bg-gradient-to-br from-card via-primary/[0.03] to-primary/[0.06] dark:from-card dark:via-card/50 dark:to-background p-7 sm:p-10">
-          <div className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/8 blur-3xl" aria-hidden="true" />
+          <div
+            className="pointer-events-none absolute -right-12 -top-12 h-40 w-40 rounded-full bg-primary/8 blur-3xl"
+            aria-hidden="true"
+          />
           <div className="relative flex items-center gap-6">
             <div className="inline-flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 text-brand-purple">
               <IconComponent className="h-10 w-10" />
@@ -197,12 +200,14 @@ export default function LearnCategory() {
               <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1.5">
                   <BookOpen className="h-3.5 w-3.5" />
-                  {articles.length} {articles.length === 1 ? "article" : "articles"}
+                  {articles.length}{" "}
+                  {articles.length === 1 ? "article" : "articles"}
                 </span>
                 {isParent && (
                   <span className="flex items-center gap-1.5">
                     <ArrowRight className="h-3.5 w-3.5" />
-                    {subcategories.length} {subcategories.length === 1 ? "topic" : "topics"}
+                    {subcategories.length}{" "}
+                    {subcategories.length === 1 ? "topic" : "topics"}
                   </span>
                 )}
               </div>
@@ -232,7 +237,7 @@ export default function LearnCategory() {
                 return (
                   <Link
                     key={sub.id}
-                    to={`/learn/category/${sub.slug}`}
+                    to={`/learn/category/${sub.slug}/`}
                     className="group flex items-start gap-4 rounded-2xl border border-border/80 bg-card p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                   >
                     <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-brand-purple transition-transform group-hover:scale-105">
@@ -284,7 +289,7 @@ export default function LearnCategory() {
               {articles.map((article) => (
                 <Link
                   key={article.id}
-                  to={`/learn/${article.slug}`}
+                  to={`/learn/${article.slug}/`}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl dark:border-white/5 dark:bg-card"
                 >
                   {article.cover_image_url ? (
@@ -355,7 +360,7 @@ export default function LearnCategory() {
 
         <div className="mt-10">
           <Link
-            to="/learn"
+            to="/learn/"
             className="inline-flex items-center gap-2 text-sm font-semibold text-brand-purple hover:underline"
           >
             <ArrowLeft aria-hidden="true" className="h-4 w-4" /> All topics

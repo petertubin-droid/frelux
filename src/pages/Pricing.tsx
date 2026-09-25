@@ -161,7 +161,7 @@ export default function Pricing() {
     }
 
     if (!user) {
-      navigate(`/login?redirect=/pricing`);
+      navigate(`/login/?redirect=/pricing`);
       return;
     }
 
@@ -257,7 +257,7 @@ export default function Pricing() {
             subscription is now active.
           </p>
           <Link
-            to="/dashboard"
+            to="/dashboard/"
             className="mt-8 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90"
           >
             Go to Dashboard{" "}
@@ -284,7 +284,8 @@ export default function Pricing() {
             aria-label="Billing cycle"
             className="inline-flex rounded-xl border border-border bg-card p-1 dark:border-border border-border dark:bg-background"
           >
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               role="tab"
               aria-selected={billingCycle === "monthly"}
               onClick={() => setBillingCycle("monthly")}
@@ -297,7 +298,8 @@ export default function Pricing() {
             >
               Monthly
             </Button>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               role="tab"
               aria-selected={billingCycle === "yearly"}
               onClick={() => setBillingCycle("yearly")}
@@ -411,7 +413,8 @@ export default function Pricing() {
                   </span>
                 </div>
 
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => handleSubscribe(plan)}
                   disabled={
                     isLoading ||
@@ -529,7 +532,7 @@ export default function Pricing() {
               it's free.
             </p>
             <Link
-              to="/login?redirect=/pricing"
+              to="/login/?redirect=/pricing"
               className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >
               Sign Up / Log In{" "}
@@ -546,7 +549,8 @@ function FaqItem({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
     <div className="rounded-xl border border-border/60 bg-card dark:border-white/10 dark:bg-card">
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         onClick={() => setOpen(!open)}
         className="flex w-full items-center justify-between p-4 text-left"
       >

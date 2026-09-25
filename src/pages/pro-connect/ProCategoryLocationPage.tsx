@@ -115,7 +115,7 @@ export default function ProCategoryLocationPage() {
           This category or location doesn't exist.
         </p>
         <Link
-          to="/pro-connect"
+          to="/pro-connect/"
           className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple"
         >
           <ArrowRight aria-hidden="true" className="h-4 w-4 rotate-180" /> Back
@@ -135,7 +135,7 @@ export default function ProCategoryLocationPage() {
               Home
             </Link>
             <span>/</span>
-            <Link to="/pro-connect" className="hover:text-brand-purple">
+            <Link to="/pro-connect/" className="hover:text-brand-purple">
               Pro Connect
             </Link>
             <span>/</span>
@@ -178,7 +178,7 @@ export default function ProCategoryLocationPage() {
               No {professionLabel.toLowerCase()} listed in {locationLabel} yet.
             </p>
             <Link
-              to="/pro-connect/register"
+              to="/pro-connect/register/"
               className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
             >
               Register as a Pro
@@ -194,7 +194,7 @@ export default function ProCategoryLocationPage() {
               {pros.map((pro) => (
                 <Link
                   key={pro.id}
-                  to={`/pro-connect/${pro.slug}`}
+                  to={`/pro-connect/${pro.slug}/`}
                   className="group rounded-xl border border-border/60 bg-card p-4 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                 >
                   <div className="flex items-start gap-3">

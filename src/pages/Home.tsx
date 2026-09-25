@@ -192,14 +192,14 @@ export default function Home() {
             </p>
             <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
-                to="/marketplace"
+                to="/marketplace/"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto"
               >
                 <ShoppingBag aria-hidden="true" className="h-4 w-4" /> Browse
                 Jobs
               </Link>
               <Link
-                to="/marketplace/post"
+                to="/marketplace/post/"
                 className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-border px-6 py-3 text-sm font-semibold text-card-foreground transition-colors hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/60 dark:hover:border-brand-purple-lighter dark:hover:text-brand-purple-lighter sm:w-auto"
               >
                 <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job

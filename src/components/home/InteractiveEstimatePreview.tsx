@@ -146,15 +146,16 @@ export default function InteractiveEstimatePreview() {
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground dark:text-muted-foreground">
             Live output from the FRELUX calculation engine, computed using the
-            example inputs shown, not pre-recorded numbers. Pick a room size
-            and watch the estimate recalculate.
+            example inputs shown, not pre-recorded numbers. Pick a room size and
+            watch the estimate recalculate.
           </p>
         </div>
 
         {/* Preset selector */}
         <div className="mt-8 flex justify-center gap-2">
           {presets.map((p, i) => (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               key={p.label}
               onClick={() => setActivePreset(i)}
               className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
@@ -323,7 +324,7 @@ export default function InteractiveEstimatePreview() {
                 estimator.
               </p>
               <Link
-                to="/paint-calculator?mode=room-estimate"
+                to="/paint-calculator/?mode=room-estimate"
                 className="group inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all hover:gap-2.5 dark:text-brand-purple-lighter"
               >
                 Try it yourself

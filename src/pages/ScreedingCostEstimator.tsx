@@ -266,7 +266,7 @@ export default function ScreedingCostEstimator({
             <p>
               Tip: Use the{" "}
               <Link
-                to="/screeding-calculator"
+                to="/screeding-calculator/"
                 className="font-semibold text-brand-purple underline"
               >
                 Wall Screeding Calculator
@@ -745,7 +745,7 @@ export default function ScreedingCostEstimator({
               </p>
             </div>
             <Link
-              to="/paint-calculator"
+              to="/paint-calculator/"
               className="btn-primary"
               onClick={() => {
                 track("screeding_navigate_to_paint_calculator", {});

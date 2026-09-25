@@ -91,7 +91,7 @@ export default function FeaturesSection() {
 
       <Container className="relative mt-16 text-center">
         <Link
-          to="/paint-calculator"
+          to="/paint-calculator/"
           className="group inline-flex items-center justify-center gap-2 rounded-xl bg-card dark:bg-card px-6 py-3 text-sm font-semibold text-foreground dark:text-primary-foreground shadow-lg transition-all hover:bg-muted hover:shadow-xl active:scale-[0.98]"
         >
           Start planning

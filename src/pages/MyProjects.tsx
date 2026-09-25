@@ -306,7 +306,7 @@ export default function MyProjects() {
           Sign in to view your saved projects and favorites.
         </p>
         <Link
-          to="/login?redirect=/my-projects"
+          to="/login/?redirect=/my-projects"
           className="mt-4 inline-block rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
         >
           Sign in
@@ -467,7 +467,10 @@ export default function MyProjects() {
                         {p.location && (
                           <>
                             {" · "}
-                            <MapPin aria-hidden="true" className="inline h-3 w-3" />{" "}
+                            <MapPin
+                              aria-hidden="true"
+                              className="inline h-3 w-3"
+                            />{" "}
                             {formatLocationLabel(locationFromProjectRow(p))}
                           </>
                         )}
@@ -542,7 +545,7 @@ export default function MyProjects() {
               {favColors.map((c) => (
                 <Link
                   key={c.id}
-                  to={`/colors/paint/${c.slug}`}
+                  to={`/colors/paint/${c.slug}/`}
                   className="group overflow-hidden rounded-lg border border-border bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-md"
                 >
                   <div
@@ -581,7 +584,7 @@ export default function MyProjects() {
               {favPalettes.map((p) => (
                 <Link
                   key={p.id}
-                  to={`/colors/${p.slug}`}
+                  to={`/colors/${p.slug}/`}
                   className="group overflow-hidden rounded-xl border border-border bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-lg"
                 >
                   <div className="relative aspect-[4/3] overflow-hidden">
@@ -731,7 +734,7 @@ export default function MyProjects() {
                             className="group relative flex items-center gap-2 rounded-lg border border-border p-1.5 pr-3 hover:border-brand-purple"
                           >
                             <Link
-                              to={`/colors/paint/${col.slug}`}
+                              to={`/colors/paint/${col.slug}/`}
                               className="flex items-center gap-2"
                             >
                               <div
@@ -831,7 +834,7 @@ export default function MyProjects() {
                       >
                         <Pin className="h-3.5 w-3.5" />
                       </Button>
-                      <Link to={`/colors/paint/${c.slug}`}>
+                      <Link to={`/colors/paint/${c.slug}/`}>
                         <div
                           className="aspect-square"
                           style={{ background: c.hex_code }}

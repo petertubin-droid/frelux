@@ -183,7 +183,7 @@ export default function PostProduct() {
         tags,
         brand: brand.trim() || undefined,
       });
-      navigate(`/marketplace/products/${product.id}`);
+      navigate(`/marketplace/products/${product.id}/`);
     } catch (e) {
       setError(getSafeError(e, "Failed to post product"));
     } finally {

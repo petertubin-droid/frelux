@@ -1,28 +1,33 @@
-import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { MapPin, ArrowRight, Loader2, Package } from 'lucide-react';
-import { fetchLocations } from '@/lib/pro-connect';
-import { fetchListings } from '@/lib/marketplace';
-import { searchProfessionals } from '@/lib/pro-connect';
-import { useSeo } from '@/lib/seo';
-import { breadcrumbSchema } from '@/lib/structured-data';
-import type { DbProLocation } from '@/types/pro-connect';
-import type { DbMarketplaceListing } from '@/types/marketplace';
-import type { DbProProfile } from '@/types/pro-connect';
-import { PROJECT_TYPE_LABELS } from '@/types/marketplace';
-import LocationPicker from '@/components/ui/LocationPicker';
+import { useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { MapPin, ArrowRight, Loader2, Package } from "lucide-react";
+import { fetchLocations } from "@/lib/pro-connect";
+import { fetchListings } from "@/lib/marketplace";
+import { searchProfessionals } from "@/lib/pro-connect";
+import { useSeo } from "@/lib/seo";
+import { breadcrumbSchema } from "@/lib/structured-data";
+import type { DbProLocation } from "@/types/pro-connect";
+import type { DbMarketplaceListing } from "@/types/marketplace";
+import type { DbProProfile } from "@/types/pro-connect";
+import { PROJECT_TYPE_LABELS } from "@/types/marketplace";
+import LocationPicker from "@/components/ui/LocationPicker";
 
 // ============================================================
 // SEO Page: /marketplace/sellers/:locationSlug
 // Shows marketplace listings + professionals in a location
 // ============================================================
 
-function formatBudget(min: number | null, max: number | null, currency: string) {
-  const sym = currency === 'NGN' ? '₦' : '';
-  if (min && max) return `${sym}${min.toLocaleString()} – ${sym}${max.toLocaleString()}`;
+function formatBudget(
+  min: number | null,
+  max: number | null,
+  currency: string,
+) {
+  const sym = currency === "NGN" ? "₦" : "";
+  if (min && max)
+    return `${sym}${min.toLocaleString()} – ${sym}${max.toLocaleString()}`;
   if (min) return `From ${sym}${min.toLocaleString()}`;
   if (max) return `Up to ${sym}${max.toLocaleString()}`;
-  return 'Budget negotiable';
+  return "Budget negotiable";
 }
 
 export default function MarketplaceLocationPage() {
@@ -41,7 +46,10 @@ export default function MarketplaceLocationPage() {
       const loc = locations.find((l) => l.slug === locationSlug);
       if (!loc) {
         // Try matching by city name lowercased
-        const byCity = locations.find((l) => l.city.toLowerCase().replace(/[^a-z0-9]+/g, '-') === locationSlug);
+        const byCity = locations.find(
+          (l) =>
+            l.city.toLowerCase().replace(/[^a-z0-9]+/g, "-") === locationSlug,
+        );
         if (!byCity) {
           setNotFound(true);
           setLoading(false);
@@ -52,7 +60,12 @@ export default function MarketplaceLocationPage() {
         setLocation(loc);
       }
 
-      const dbLoc = loc || locations.find((l) => l.city.toLowerCase().replace(/[^a-z0-9]+/g, '-') === locationSlug);
+      const dbLoc =
+        loc ||
+        locations.find(
+          (l) =>
+            l.city.toLowerCase().replace(/[^a-z0-9]+/g, "-") === locationSlug,
+        );
       if (!dbLoc) return;
 
       // Fetch listings in this location
@@ -61,7 +74,9 @@ export default function MarketplaceLocationPage() {
         limit: 30,
       });
       // Filter by city if available
-      const cityFiltered = dbLoc.city ? listingData.filter((l) => l.location_city === dbLoc.city) : listingData;
+      const cityFiltered = dbLoc.city
+        ? listingData.filter((l) => l.location_city === dbLoc.city)
+        : listingData;
       setListings(cityFiltered);
 
       // Fetch professionals in this location
@@ -74,32 +89,49 @@ export default function MarketplaceLocationPage() {
     })();
   }, [locationSlug]);
 
-  const locationLabel = location ? [location.city, location.state].filter(Boolean).join(', ') : '';
+  const locationLabel = location
+    ? [location.city, location.state].filter(Boolean).join(", ")
+    : "";
 
   // SEO
   useSeo({
     title: location
       ? `Construction Jobs & Professionals in ${locationLabel}, FRELUX Marketplace`
-      : 'Marketplace by Location, FRELUX',
-    description: location?.seo_description ||
+      : "Marketplace by Location, FRELUX",
+    description:
+      location?.seo_description ||
       `Find verified construction professionals, painters, tilers, and job listings in ${locationLabel}. Post a job and get bids from local pros.`,
     canonicalPath: `/marketplace/sellers/${locationSlug}`,
     noIndex: false,
     structuredData: breadcrumbSchema([
-      { name: 'Home', path: '/' },
-      { name: 'Marketplace', path: '/marketplace' },
-      { name: locationLabel || 'Location', path: `/marketplace/sellers/${locationSlug}` },
+      { name: "Home", path: "/" },
+      { name: "Marketplace", path: "/marketplace" },
+      {
+        name: locationLabel || "Location",
+        path: `/marketplace/sellers/${locationSlug}`,
+      },
     ]),
   });
 
   if (notFound) {
     return (
       <div className="mx-auto max-w-3xl px-4 py-20 text-center">
-        <MapPin aria-hidden="true" className="mx-auto h-12 w-12 text-muted-foreground/80" />
-        <h1 className="mt-4 text-xl font-bold text-foreground dark:text-primary-foreground">Location Not Found</h1>
-        <p className="mt-2 text-sm text-muted-foreground">This location doesn't exist or is no longer active.</p>
-        <Link to="/marketplace" className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple">
-          <ArrowRight aria-hidden="true" className="h-4 w-4 rotate-180" /> Back to Marketplace
+        <MapPin
+          aria-hidden="true"
+          className="mx-auto h-12 w-12 text-muted-foreground/80"
+        />
+        <h1 className="mt-4 text-xl font-bold text-foreground dark:text-primary-foreground">
+          Location Not Found
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
+          This location doesn't exist or is no longer active.
+        </p>
+        <Link
+          to="/marketplace/"
+          className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple"
+        >
+          <ArrowRight aria-hidden="true" className="h-4 w-4 rotate-180" /> Back
+          to Marketplace
         </Link>
       </div>
     );
@@ -111,11 +143,17 @@ export default function MarketplaceLocationPage() {
       <div className="border-b border-border bg-card dark:border-white/5 dark:bg-card">
         <div className="mx-auto max-w-7xl px-4 py-3 sm:px-6 lg:px-8">
           <nav className="flex items-center gap-1.5 text-xs text-muted-foreground dark:text-muted-foreground">
-            <Link to="/" className="hover:text-brand-purple">Home</Link>
+            <Link to="/" className="hover:text-brand-purple">
+              Home
+            </Link>
             <span>/</span>
-            <Link to="/marketplace" className="hover:text-brand-purple">Marketplace</Link>
+            <Link to="/marketplace/" className="hover:text-brand-purple">
+              Marketplace
+            </Link>
             <span>/</span>
-            <span className="text-foreground dark:text-primary-foreground">{locationLabel || '...'}</span>
+            <span className="text-foreground dark:text-primary-foreground">
+              {locationLabel || "..."}
+            </span>
           </nav>
         </div>
       </div>
@@ -124,7 +162,7 @@ export default function MarketplaceLocationPage() {
       <div className="border-b border-border bg-card dark:border-white/5 dark:bg-card">
         <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
           <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground sm:text-3xl">
-            {location ? `${locationLabel}` : 'Loading...'}
+            {location ? `${locationLabel}` : "Loading..."}
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground dark:text-muted-foreground">
             Find construction professionals and job listings in {locationLabel}.
@@ -139,7 +177,10 @@ export default function MarketplaceLocationPage() {
       <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         {loading ? (
           <div className="flex items-center justify-center py-20">
-            <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-brand-purple" />
+            <Loader2
+              aria-hidden="true"
+              className="h-6 w-6 animate-spin text-brand-purple"
+            />
           </div>
         ) : (
           <div className="space-y-8">
@@ -147,13 +188,25 @@ export default function MarketplaceLocationPage() {
             <section>
               <h2 className="mb-4 text-lg font-bold text-foreground dark:text-primary-foreground">
                 Job Listings in {locationLabel}
-                {listings.length > 0 && <span className="ml-2 text-sm font-normal text-muted-foreground">({listings.length})</span>}
+                {listings.length > 0 && (
+                  <span className="ml-2 text-sm font-normal text-muted-foreground">
+                    ({listings.length})
+                  </span>
+                )}
               </h2>
               {listings.length === 0 ? (
                 <div className="rounded-xl border border-border/60 bg-card p-8 text-center dark:border-white/5 dark:bg-card">
-                  <Package aria-hidden="true" className="mx-auto h-8 w-8 text-muted-foreground/80" />
-                  <p className="mt-2 text-sm text-muted-foreground">No active job listings in this location yet.</p>
-                  <Link to="/marketplace/post" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground">
+                  <Package
+                    aria-hidden="true"
+                    className="mx-auto h-8 w-8 text-muted-foreground/80"
+                  />
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    No active job listings in this location yet.
+                  </p>
+                  <Link
+                    to="/marketplace/post/"
+                    className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+                  >
                     Post the First Job
                   </Link>
                 </div>
@@ -162,15 +215,22 @@ export default function MarketplaceLocationPage() {
                   {listings.map((listing) => (
                     <Link
                       key={listing.id}
-                      to={`/marketplace/${listing.id}`}
+                      to={`/marketplace/${listing.id}/`}
                       className="group rounded-xl border border-border/60 bg-card p-4 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                     >
                       <span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-semibold text-brand-purple">
-                        {PROJECT_TYPE_LABELS[listing.project_type] || listing.project_type}
+                        {PROJECT_TYPE_LABELS[listing.project_type] ||
+                          listing.project_type}
                       </span>
-                      <h3 className="mt-3 text-sm font-bold text-foreground dark:text-primary-foreground group-hover:text-brand-purple">{listing.title}</h3>
+                      <h3 className="mt-3 text-sm font-bold text-foreground dark:text-primary-foreground group-hover:text-brand-purple">
+                        {listing.title}
+                      </h3>
                       <p className="mt-1 text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
-                        {formatBudget(listing.budget_min, listing.budget_max, listing.currency)}
+                        {formatBudget(
+                          listing.budget_min,
+                          listing.budget_max,
+                          listing.currency,
+                        )}
                       </p>
                     </Link>
                   ))}
@@ -182,23 +242,33 @@ export default function MarketplaceLocationPage() {
             <section>
               <h2 className="mb-4 text-lg font-bold text-foreground dark:text-primary-foreground">
                 Professionals in {locationLabel}
-                {pros.length > 0 && <span className="ml-2 text-sm font-normal text-muted-foreground">({pros.length})</span>}
+                {pros.length > 0 && (
+                  <span className="ml-2 text-sm font-normal text-muted-foreground">
+                    ({pros.length})
+                  </span>
+                )}
               </h2>
               {pros.length === 0 ? (
                 <div className="rounded-xl border border-border/60 bg-card p-8 text-center dark:border-white/5 dark:bg-card">
-                  <p className="text-sm text-muted-foreground">No professionals listed in this location yet.</p>
+                  <p className="text-sm text-muted-foreground">
+                    No professionals listed in this location yet.
+                  </p>
                 </div>
               ) : (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {pros.map((pro) => (
                     <Link
                       key={pro.id}
-                      to={`/pro-connect/${pro.slug}`}
+                      to={`/pro-connect/${pro.slug}/`}
                       className="group flex items-center gap-3 rounded-xl border border-border/60 bg-card p-4 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                     >
                       <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full bg-muted dark:bg-white/5">
                         {pro.profile_image_url ? (
-                          <img src={pro.profile_image_url} alt="" className="h-full w-full object-cover" />
+                          <img
+                            src={pro.profile_image_url}
+                            alt=""
+                            className="h-full w-full object-cover"
+                          />
                         ) : (
                           <div className="flex h-full w-full items-center justify-center text-sm font-bold text-brand-purple">
                             {pro.display_name?.charAt(0).toUpperCase()}
@@ -209,8 +279,10 @@ export default function MarketplaceLocationPage() {
                         <p className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground group-hover:text-brand-purple">
                           {pro.business_name || pro.display_name}
                         </p>
-                        {pro.verification_status === 'verified' && (
-                          <span className="text-xs text-emerald-500">✓ Verified</span>
+                        {pro.verification_status === "verified" && (
+                          <span className="text-xs text-emerald-500">
+                            ✓ Verified
+                          </span>
                         )}
                       </div>
                     </Link>

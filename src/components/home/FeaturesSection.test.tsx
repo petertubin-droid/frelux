@@ -19,7 +19,9 @@ describe("FeaturesSection", () => {
 
   it("renders section title", () => {
     renderComponent();
-    expect(screen.getByText("Tools that respect your time and budget")).toBeTruthy();
+    expect(
+      screen.getByText("Tools that respect your time and budget"),
+    ).toBeTruthy();
   });
 
   it("renders all 4 feature titles", () => {
@@ -39,6 +41,6 @@ describe("FeaturesSection", () => {
   it("renders Start planning link", () => {
     renderComponent();
     const link = screen.getByText("Start planning").closest("a");
-    expect(link?.getAttribute("href")).toBe("/paint-calculator");
+    expect(link?.getAttribute("href")).toBe("/paint-calculator/");
   });
 });

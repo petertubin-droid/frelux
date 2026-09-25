@@ -244,7 +244,7 @@ export default function SurfaceAssessment() {
                   calculations.
                 </p>
                 <Link
-                  to="/paint-calculator"
+                  to="/paint-calculator/"
                   className="group inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all hover:scale-105"
                 >
                   Continue to Paint Calculator{" "}

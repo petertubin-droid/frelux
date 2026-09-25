@@ -204,7 +204,8 @@ export default function Colors() {
         {/* Tab switcher */}
         <div className="mb-6 inline-flex rounded-xl border border-border/60 bg-card p-1 shadow-card dark:border-white/5 dark:bg-card">
           {(["colors", "palettes"] as Tab[]).map((t) => (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               key={t}
               type="button"
               onClick={() => {
@@ -245,7 +246,8 @@ export default function Colors() {
               Couldn't load colors
             </p>
             <p className="mt-1 text-xs text-red-500">{errorMsg}</p>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={() => window.location.reload()}
               className="mt-4 text-sm font-semibold text-brand-purple hover:underline"
@@ -283,7 +285,8 @@ export default function Colors() {
                       const segmentWidth = `${100 / families.length}%`;
                       const swatch = familySwatchColors[f.name] || "#CCCCCC";
                       return (
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           key={f.id}
                           type="button"
                           onClick={() => {
@@ -308,7 +311,8 @@ export default function Colors() {
                     {families.map((f) => {
                       const swatch = familySwatchColors[f.name] || "#CCCCCC";
                       return (
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           key={f.id}
                           type="button"
                           onClick={() => {
@@ -519,7 +523,8 @@ export default function Colors() {
             {/* Pagination */}
             {totalPages > 1 && (
               <div className="mt-10 flex items-center justify-center gap-2">
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   disabled={page === 1}
                   onClick={() => setPage((p) => p - 1)}
@@ -530,7 +535,8 @@ export default function Colors() {
                 <span className="px-3 text-sm text-muted-foreground">
                   Page {page} of {totalPages}
                 </span>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   disabled={page === totalPages}
                   onClick={() => setPage((p) => p + 1)}
@@ -564,7 +570,7 @@ export default function Colors() {
                 {filteredPalettes.map((c) => (
                   <Link
                     key={c.id}
-                    to={`/colors/${c.slug}`}
+                    to={`/colors/${c.slug}/`}
                     className="group overflow-hidden rounded-2xl border border-border/60 bg-card transition-all dark:border-white/5 dark:bg-card duration-300 hover:-translate-y-1.5 hover:shadow-premium hover:border-border"
                   >
                     <div className="relative aspect-[4/3] overflow-hidden">
@@ -640,20 +646,20 @@ export default function Colors() {
             </p>
             <ul className="mt-4 space-y-2 text-sm text-muted-foreground dark:text-muted-foreground/80">
               <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />{" "}
-                Upload or take a photo
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Upload
+                or take a photo
               </li>
               <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />{" "}
-                Get instant color matches
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Get
+                instant color matches
               </li>
               <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />{" "}
-                See similarity scores
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" /> See
+                similarity scores
               </li>
               <li className="flex items-center gap-2">
-                <span className="h-1.5 w-1.5 rounded-full bg-primary" />{" "}
-                Link to full color details
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" /> Link to
+                full color details
               </li>
             </ul>
           </div>
@@ -708,7 +714,8 @@ function Chip({
   children: ReactNode;
 }) {
   return (
-    <Button variant="ghost"
+    <Button
+      variant="ghost"
       type="button"
       onClick={onClick}
       className={classNames(

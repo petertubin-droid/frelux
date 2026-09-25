@@ -965,7 +965,7 @@ for (const route of routes) {
   if (html404.includes('rel="canonical"')) {
     html404 = html404.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, '<link rel="canonical" href="https://freluxtools.netlify.app/404" />');
   }
-  const notFoundContent = '<h1>Page Not Found</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> <h1>Page Not Found</h1>rsaquo; 404</nav><p>The page you are looking for does not exist. Browse our calculators and tools:</p><ul><li><a href="/paint-calculator">Paint Calculator</a></li><li><a href="/tile-calculator">Tile Calculator</a></li><li><a href="/screeding-calculator">Screeding Calculator</a></li><li><a href="/pop-ceiling-calculator">POP Ceiling Calculator</a></li><li><a href="/calculators">All Calculators</a></li></ul><p><a href="/">Back to home</a></p>';
+  const notFoundContent = '<h1>Page Not Found</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> <h1>Page Not Found</h1>rsaquo; 404</nav><p>The page you are looking for does not exist. Browse our calculators and tools:</p><ul><li><a href="/paint-calculator/">Paint Calculator</a></li><li><a href="/tile-calculator/">Tile Calculator</a></li><li><a href="/screeding-calculator/">Screeding Calculator</a></li><li><a href="/pop-ceiling-calculator/">POP Ceiling Calculator</a></li><li><a href="/calculators/">All Calculators</a></li></ul><p><a href="/">Back to home</a></p>';
   const noscript404 = `<noscript><div style="font-family:system-ui,-apple-system,sans-serif;max-width:800px;margin:0 auto;padding:1rem 1.5rem;line-height:1.6;color:#1e293b;">${notFoundContent}</div></noscript>`;
   html404 = html404.replace('<div id="root">', `${noscript404}\n    <div id="root">`);
   writeFileSync(join(distDir, '404.html'), html404);

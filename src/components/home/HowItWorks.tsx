@@ -58,7 +58,8 @@ export default function HowItWorks() {
             From measurement to estimate in 4 steps
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-muted-foreground dark:text-muted-foreground">
-            No spreadsheets. No guesswork. Just transparent estimates you can plan around.
+            No spreadsheets. No guesswork. Just transparent estimates you can
+            plan around.
           </p>
         </div>
 
@@ -114,7 +115,7 @@ export default function HowItWorks() {
         {/* CTA */}
         <div className="mt-12 text-center">
           <Link
-            to="/paint-calculator?mode=room-estimate"
+            to="/paint-calculator/?mode=room-estimate"
             className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98]"
           >
             Start Calculating

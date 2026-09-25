@@ -96,7 +96,7 @@ export function WeatherWidget() {
 
       <div className="border-t border-border/50 p-3 dark:border-white/5">
         <Link
-          to="/learn"
+          to="/learn/"
           className="text-xs font-medium text-brand-purple hover:underline dark:text-brand-purple-lighter"
         >
           Learn how weather affects painting →

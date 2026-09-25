@@ -170,7 +170,7 @@ export default function SellerDashboard() {
           </p>
         </div>
         <Link
-          to="/marketplace/products/post"
+          to="/marketplace/products/post/"
           className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
         >
           <Plus aria-hidden="true" className="h-4 w-4" /> List a Product
@@ -237,7 +237,8 @@ export default function SellerDashboard() {
             </div>
           </div>
           {!editing && (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => setEditing(true)}
               className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground"
             >
@@ -396,7 +397,7 @@ export default function SellerDashboard() {
               No products yet
             </p>
             <Link
-              to="/marketplace/products/post"
+              to="/marketplace/products/post/"
               className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
             >
               <Plus aria-hidden="true" className="h-4 w-4" /> List Your First
@@ -410,7 +411,7 @@ export default function SellerDashboard() {
               return (
                 <Link
                   key={prod.id as string}
-                  to={`/marketplace/products/${prod.id}`}
+                  to={`/marketplace/products/${prod.id}/`}
                   className="flex items-center gap-4 p-4 transition-colors hover:bg-muted/50 dark:hover:bg-white/5"
                 >
                   <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted dark:bg-white/5">

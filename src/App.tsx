@@ -450,14 +450,14 @@ export default function App() {
                     <Route
                       path="/cost-estimator"
                       element={
-                        <RedirectToHub to="/paint-calculator" mode="cost" />
+                        <RedirectToHub to="/paint-calculator/" mode="cost" />
                       }
                     />
                     <Route
                       path="/painting-estimator"
                       element={
                         <RedirectToHub
-                          to="/paint-calculator"
+                          to="/paint-calculator/"
                           mode="room-estimate"
                         />
                       }
@@ -465,14 +465,17 @@ export default function App() {
                     <Route
                       path="/screeding-cost-estimator"
                       element={
-                        <RedirectToHub to="/screeding-calculator" mode="cost" />
+                        <RedirectToHub
+                          to="/screeding-calculator/"
+                          mode="cost"
+                        />
                       }
                     />
                     <Route
                       path="/pop-ceiling-cost-estimator"
                       element={
                         <RedirectToHub
-                          to="/pop-ceiling-calculator"
+                          to="/pop-ceiling-calculator/"
                           mode="cost"
                         />
                       }
@@ -480,13 +483,16 @@ export default function App() {
                     <Route
                       path="/tile-cost-estimator"
                       element={
-                        <RedirectToHub to="/tile-calculator" mode="cost" />
+                        <RedirectToHub to="/tile-calculator/" mode="cost" />
                       }
                     />
                     <Route
                       path="/tyrolene-estimator"
                       element={
-                        <RedirectToHub to="/finish-estimator" mode="tyrolene" />
+                        <RedirectToHub
+                          to="/finish-estimator/"
+                          mode="tyrolene"
+                        />
                       }
                     />
                     <Route

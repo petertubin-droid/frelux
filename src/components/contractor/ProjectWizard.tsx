@@ -405,7 +405,7 @@ export default function ProjectWizard() {
         notes: state.notes.trim() || undefined,
       };
       const project = await createContractorProject(input);
-      navigate(`/contractor/projects/${project.id}`);
+      navigate(`/contractor/projects/${project.id}/`);
     } catch (err) {
       setSubmitting(false);
       setError(

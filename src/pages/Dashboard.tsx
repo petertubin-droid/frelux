@@ -215,7 +215,7 @@ export default function Dashboard() {
                   Calculations
                 </h2>
                 <Link
-                  to="/my-projects"
+                  to="/my-projects/"
                   className="group text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
                 >
                   View all
@@ -281,7 +281,7 @@ export default function Dashboard() {
                     Colors
                   </h2>
                   <Link
-                    to="/my-projects"
+                    to="/my-projects/"
                     className="group text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
                   >
                     View all
@@ -296,7 +296,7 @@ export default function Dashboard() {
                     {favColors.slice(0, 6).map((c) => (
                       <Link
                         key={c.id}
-                        to={`/colors/paint/${c.slug}`}
+                        to={`/colors/paint/${c.slug}/`}
                         className="card-hover flex items-center gap-2 rounded-xl border border-border bg-card p-3 dark:border-white/5 dark:bg-card"
                       >
                         <ColorSwatch hex={c.hex_code} size="md" />
@@ -333,7 +333,7 @@ export default function Dashboard() {
                     Viewed
                   </h2>
                   <Link
-                    to="/my-projects"
+                    to="/my-projects/"
                     className="group text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
                   >
                     View all
@@ -348,7 +348,7 @@ export default function Dashboard() {
                     {recentColors.slice(0, 6).map((c) => (
                       <Link
                         key={c.id}
-                        to={`/colors/paint/${c.slug}`}
+                        to={`/colors/paint/${c.slug}/`}
                         className="card-hover flex items-center gap-2 rounded-xl border border-border bg-card p-3 dark:border-white/5 dark:bg-card"
                       >
                         <ColorSwatch hex={c.hex_code} size="md" />
@@ -393,7 +393,7 @@ export default function Dashboard() {
                 preferences.
               </p>
               <Link
-                to="/ai-color-assistant"
+                to="/ai-color-assistant/"
                 className="group relative mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
               >
                 Get recommendations

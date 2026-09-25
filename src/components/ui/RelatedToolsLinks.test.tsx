@@ -46,7 +46,7 @@ describe("RelatedToolsLinks", () => {
     renderComponent(false);
     const buildLink = screen.getByText("Build-to-Roof Estimator").closest("a");
     const photoLink = screen.getByText("AI Photo Estimator").closest("a");
-    expect(buildLink?.getAttribute("href")).toBe("/build-to-roof-estimator");
-    expect(photoLink?.getAttribute("href")).toBe("/image-estimator");
+    expect(buildLink?.getAttribute("href")).toBe("/build-to-roof-estimator/");
+    expect(photoLink?.getAttribute("href")).toBe("/image-estimator/");
   });
 });

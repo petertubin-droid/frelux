@@ -2112,7 +2112,7 @@ function EstimateResult({
                 </p>
               </div>
               <a
-                href={`/marketplace/post?estimate_ref=${result.estimate_ref || ""}&project_type=painting&budget_min=${Math.round(result.total_material_cost * 0.9)}&budget_max=${Math.round(result.total_material_cost * 1.2)}&title=Painting ${result.rooms.length} ${result.rooms.length === 1 ? "room" : "rooms"}`}
+                href={`/marketplace/post/?estimate_ref=${result.estimate_ref || ""}&project_type=painting&budget_min=${Math.round(result.total_material_cost * 0.9)}&budget_max=${Math.round(result.total_material_cost * 1.2)}&title=Painting ${result.rooms.length} ${result.rooms.length === 1 ? "room" : "rooms"}`}
                 className="btn-primary btn-glow inline-flex items-center justify-center gap-2 px-4 py-2 whitespace-nowrap"
               >
                 <Briefcase className="h-4 w-4" />

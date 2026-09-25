@@ -69,7 +69,7 @@ export default function Profile() {
             Please sign in to view and edit your profile.
           </p>
           <Link
-            to="/login?redirect=/profile"
+            to="/login/?redirect=/profile"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             Sign In
@@ -461,7 +461,7 @@ export default function Profile() {
                 </span>
               </div>
               <Link
-                to="/rewards"
+                to="/rewards/"
                 className="rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground hover:bg-primary/90 transition-colors"
               >
                 View Rewards
@@ -523,7 +523,7 @@ export default function Profile() {
                     Free Plan
                   </p>
                   <Link
-                    to="/pricing"
+                    to="/pricing/"
                     className="mt-1 inline-flex items-center gap-1 text-xs font-semibold text-brand-purple hover:underline"
                   >
                     <PremiumBadge size="xs" />

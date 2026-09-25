@@ -235,13 +235,13 @@ export default function ErrorAnalysis() {
       {/* ── Navigation ── */}
       <div className="mb-4 flex items-center justify-between">
         <Link
-          to="/admin/studio"
+          to="/admin/studio/"
           className="flex items-center gap-1 text-xs text-muted-foreground hover:text-brand-purple"
         >
           <ArrowLeft aria-hidden="true" className="h-3 w-3" /> Back to Studio
         </Link>
         <Link
-          to="/admin/system-health"
+          to="/admin/system-health/"
           className="text-xs text-brand-purple hover:underline"
         >
           System Health →
@@ -481,8 +481,8 @@ export default function ErrorAnalysis() {
                           <div className="flex items-center gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
                             <ShieldAlert className="h-4 w-4" />
                             <span className="font-medium">
-                              ⚠️ Protected FRELUX Logic Detected, explicit
-                              admin approval required
+                              ⚠️ Protected FRELUX Logic Detected, explicit admin
+                              approval required
                             </span>
                           </div>
                         )}

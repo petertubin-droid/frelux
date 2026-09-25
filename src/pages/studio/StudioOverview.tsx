@@ -1,13 +1,21 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Code, AlertCircle } from 'lucide-react';
-import { TOOLS, TOOL_CATEGORIES } from '@/components/studio/tools';
-import { supabase } from '@/lib/supabase';
-import { fetchRecentErrorsForStudio } from '@/lib/error-analysis';
+import { useEffect, useState, useCallback } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Code, AlertCircle } from "lucide-react";
+import { TOOLS, TOOL_CATEGORIES } from "@/components/studio/tools";
+import { supabase } from "@/lib/supabase";
+import { fetchRecentErrorsForStudio } from "@/lib/error-analysis";
 
 export default function StudioOverview() {
   const [counts, setCounts] = useState<Record<string, number>>({});
-  const [recentErrors, setRecentErrors] = useState<{ id: string; message: string; severity: string; feature: string | null; occurrence_count: number }[]>([]);
+  const [recentErrors, setRecentErrors] = useState<
+    {
+      id: string;
+      message: string;
+      severity: string;
+      feature: string | null;
+      occurrence_count: number;
+    }[]
+  >([]);
 
   const loadRecentErrors = useCallback(async () => {
     try {
@@ -20,10 +28,24 @@ export default function StudioOverview() {
 
   useEffect(() => {
     async function load() {
-      const tables = ['ai_studio_sessions', 'ai_studio_artifacts', 'ai_studio_prompts', 'ai_studio_plugins', 'ai_studio_integrations', 'ai_studio_features', 'ai_studio_roles'];
-      const results = await Promise.all(tables.map((t) => supabase.from(t).select('*', { count: 'exact', head: true })));
+      const tables = [
+        "ai_studio_sessions",
+        "ai_studio_artifacts",
+        "ai_studio_prompts",
+        "ai_studio_plugins",
+        "ai_studio_integrations",
+        "ai_studio_features",
+        "ai_studio_roles",
+      ];
+      const results = await Promise.all(
+        tables.map((t) =>
+          supabase.from(t).select("*", { count: "exact", head: true }),
+        ),
+      );
       const next: Record<string, number> = {};
-      tables.forEach((t, i) => { next[t] = results[i].count ?? 0; });
+      tables.forEach((t, i) => {
+        next[t] = results[i].count ?? 0;
+      });
       setCounts(next);
     }
     load();
@@ -31,12 +53,12 @@ export default function StudioOverview() {
   }, [loadRecentErrors]);
 
   const stats = [
-    { label: 'Sessions', value: counts.ai_studio_sessions ?? 0 },
-    { label: 'Artifacts', value: counts.ai_studio_artifacts ?? 0 },
-    { label: 'Prompts', value: counts.ai_studio_prompts ?? 0 },
-    { label: 'Plugins', value: counts.ai_studio_plugins ?? 0 },
-    { label: 'Integrations', value: counts.ai_studio_integrations ?? 0 },
-    { label: 'Features', value: counts.ai_studio_features ?? 0 },
+    { label: "Sessions", value: counts.ai_studio_sessions ?? 0 },
+    { label: "Artifacts", value: counts.ai_studio_artifacts ?? 0 },
+    { label: "Prompts", value: counts.ai_studio_prompts ?? 0 },
+    { label: "Plugins", value: counts.ai_studio_plugins ?? 0 },
+    { label: "Integrations", value: counts.ai_studio_integrations ?? 0 },
+    { label: "Features", value: counts.ai_studio_features ?? 0 },
   ];
 
   return (
@@ -46,17 +68,28 @@ export default function StudioOverview() {
           <Code className="h-6 w-6" />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-foreground dark:text-primary-foreground">AI Developer Studio</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground dark:text-muted-foreground">AI assisted development environment for the FRELUX platform.</p>
+          <h1 className="text-xl font-bold text-foreground dark:text-primary-foreground">
+            AI Developer Studio
+          </h1>
+          <p className="mt-0.5 text-sm text-muted-foreground dark:text-muted-foreground">
+            AI assisted development environment for the FRELUX platform.
+          </p>
         </div>
       </div>
 
       {/* Stats */}
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6">
         {stats.map((s) => (
-          <div key={s.label} className="rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-4">
-            <p className="text-2xl font-bold text-foreground dark:text-primary-foreground">{s.value}</p>
-            <p className="text-xs text-muted-foreground dark:text-muted-foreground">{s.label}</p>
+          <div
+            key={s.label}
+            className="rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-4"
+          >
+            <p className="text-2xl font-bold text-foreground dark:text-primary-foreground">
+              {s.value}
+            </p>
+            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+              {s.label}
+            </p>
           </div>
         ))}
       </div>
@@ -66,10 +99,18 @@ export default function StudioOverview() {
         <div className="mb-8 rounded-xl border border-brand-purple/20 bg-primary/5 p-5">
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <AlertCircle aria-hidden="true" className="h-4 w-4 text-brand-purple" />
-              <h2 className="text-sm font-semibold text-foreground dark:text-primary-foreground">Recent Errors from System Health</h2>
+              <AlertCircle
+                aria-hidden="true"
+                className="h-4 w-4 text-brand-purple"
+              />
+              <h2 className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+                Recent Errors from System Health
+              </h2>
             </div>
-            <Link to="/admin/studio/error_analysis" className="text-xs font-medium text-brand-purple hover:underline">
+            <Link
+              to="/admin/studio/error_analysis/"
+              className="text-xs font-medium text-brand-purple hover:underline"
+            >
               Analyze all →
             </Link>
           </div>
@@ -77,17 +118,28 @@ export default function StudioOverview() {
             {recentErrors.map((e) => (
               <Link
                 key={e.id}
-                to={`/admin/studio/error_analysis?errorId=${e.id}`}
+                to={`/admin/studio/error_analysis/?errorId=${e.id}`}
                 className="flex items-center gap-3 rounded-lg border border-border/50 p-2 transition-colors hover:bg-muted/50 dark:border-white/5 dark:hover:bg-white/5"
               >
-                <span className={`rounded px-2 py-0.5 text-[10px] font-medium ${
-                  e.severity === 'critical' ? 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400' :
-                  e.severity === 'high' ? 'bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400' :
-                  e.severity === 'medium' ? 'bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400' :
-                  'bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400'
-                }`}>{e.severity.toUpperCase()}</span>
-                <span className="flex-1 truncate text-sm text-card-foreground dark:text-muted-foreground/80">{e.message}</span>
-                <span className="text-xs text-muted-foreground">{e.occurrence_count > 1 ? `${e.occurrence_count}×` : ''}</span>
+                <span
+                  className={`rounded px-2 py-0.5 text-[10px] font-medium ${
+                    e.severity === "critical"
+                      ? "bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400"
+                      : e.severity === "high"
+                        ? "bg-orange-100 text-orange-700 dark:bg-orange-500/10 dark:text-orange-400"
+                        : e.severity === "medium"
+                          ? "bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400"
+                          : "bg-blue-100 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400"
+                  }`}
+                >
+                  {e.severity.toUpperCase()}
+                </span>
+                <span className="flex-1 truncate text-sm text-card-foreground dark:text-muted-foreground/80">
+                  {e.message}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {e.occurrence_count > 1 ? `${e.occurrence_count}×` : ""}
+                </span>
               </Link>
             ))}
           </div>
@@ -97,24 +149,33 @@ export default function StudioOverview() {
       {/* Tool grid by category */}
       {TOOL_CATEGORIES.map((cat) => (
         <div key={cat} className="mb-8">
-          <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-muted-foreground">{cat}</h2>
+          <h2 className="mb-3 text-sm font-bold uppercase tracking-widest text-muted-foreground">
+            {cat}
+          </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {TOOLS.filter((t) => t.category === cat).map((tool) => {
               const Icon = tool.icon;
               return (
                 <Link
                   key={tool.slug}
-                  to={`/admin/studio/${tool.slug}`}
+                  to={`/admin/studio/${tool.slug}/`}
                   className="group rounded-xl border border-border bg-card dark:border-white/5 dark:bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-brand-purple hover:shadow-md"
                 >
                   <div className="flex items-start justify-between">
                     <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                       <Icon className="h-5 w-5" />
                     </div>
-                    <ArrowRight aria-hidden="true" className="h-4 w-4 text-muted-foreground/80 transition-transform group-hover:translate-x-0.5" />
+                    <ArrowRight
+                      aria-hidden="true"
+                      className="h-4 w-4 text-muted-foreground/80 transition-transform group-hover:translate-x-0.5"
+                    />
                   </div>
-                  <h3 className="mt-3 text-sm font-bold text-foreground dark:text-primary-foreground">{tool.label}</h3>
-                  <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">{tool.description}</p>
+                  <h3 className="mt-3 text-sm font-bold text-foreground dark:text-primary-foreground">
+                    {tool.label}
+                  </h3>
+                  <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
+                    {tool.description}
+                  </p>
                 </Link>
               );
             })}

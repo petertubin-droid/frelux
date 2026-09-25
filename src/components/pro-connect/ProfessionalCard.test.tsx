@@ -64,7 +64,7 @@ describe("ProfessionalCard", () => {
   it("links to profile page", () => {
     renderCard();
     const link = screen.getByRole("link");
-    expect(link.getAttribute("href")).toBe("/pro-connect/john-painter");
+    expect(link.getAttribute("href")).toBe("/pro-connect/john-painter/");
   });
 
   it("shows availability status as Available", () => {

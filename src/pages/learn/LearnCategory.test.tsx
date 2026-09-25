@@ -3,7 +3,9 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
-vi.mock("@/lib/auth", () => ({ useAuth: vi.fn(() => ({ user: null, loading: false })) }));
+vi.mock("@/lib/auth", () => ({
+  useAuth: vi.fn(() => ({ user: null, loading: false })),
+}));
 vi.mock("@/lib/credits", () => ({
   getCreditWallet: vi.fn().mockResolvedValue(null),
   getCreditTransactions: vi.fn().mockResolvedValue([]),
@@ -11,13 +13,22 @@ vi.mock("@/lib/credits", () => ({
   recordActivity: vi.fn().mockResolvedValue(true),
   REWARD_EVENTS: {},
 }));
-vi.mock("@/lib/analytics", () => ({ track: vi.fn(), logAnalyticsEvent: vi.fn() }));
+vi.mock("@/lib/analytics", () => ({
+  track: vi.fn(),
+  logAnalyticsEvent: vi.fn(),
+}));
 
 // Capture every AdSlot render so tests can assert policy-relevant props
 // (ad blocks must never be hidden-labeled).
 const adSlotRenders: Array<{ slotKey: string; hideLabel?: boolean }> = [];
 vi.mock("@/components/ui/AdSlot", () => ({
-  default: ({ slotKey, hideLabel }: { slotKey: string; hideLabel?: boolean }) => {
+  default: ({
+    slotKey,
+    hideLabel,
+  }: {
+    slotKey: string;
+    hideLabel?: boolean;
+  }) => {
     adSlotRenders.push({ slotKey, hideLabel });
     return <div data-testid={`adslot-${slotKey}`} />;
   },
@@ -28,9 +39,26 @@ vi.mock("@/components/ui/AdSlot", () => ({
 // also verify HOW the page queries (parent vs child category fetches).
 type Call = { method: string; args: unknown[] };
 const METHODS = [
-  "select", "eq", "neq", "gt", "gte", "lt", "lte", "like", "ilike",
-  "in", "is", "not", "or", "and", "order", "range", "limit", "single",
-  "maybeSingle", "textSearch",
+  "select",
+  "eq",
+  "neq",
+  "gt",
+  "gte",
+  "lt",
+  "lte",
+  "like",
+  "ilike",
+  "in",
+  "is",
+  "not",
+  "or",
+  "and",
+  "order",
+  "range",
+  "limit",
+  "single",
+  "maybeSingle",
+  "textSearch",
 ];
 
 const state = {
@@ -43,8 +71,10 @@ const state = {
 function makeBuilder(resultFor: (calls: Call[]) => unknown) {
   const calls: Call[] = [];
   const builder: Record<string, unknown> = {
-    then: (onFulfilled: (r: unknown) => unknown, onRejected?: (reason: unknown) => unknown) =>
-      Promise.resolve(resultFor(calls)).then(onFulfilled, onRejected),
+    then: (
+      onFulfilled: (r: unknown) => unknown,
+      onRejected?: (reason: unknown) => unknown,
+    ) => Promise.resolve(resultFor(calls)).then(onFulfilled, onRejected),
   };
   for (const m of METHODS) {
     builder[m] = vi.fn((...args: unknown[]) => {
@@ -59,7 +89,9 @@ vi.mock("@/lib/supabase", () => {
   const supabase = {
     from: vi.fn((table: string) =>
       makeBuilder((calls) => {
-        const isSingle = calls.some((c) => c.method === "maybeSingle" || c.method === "single");
+        const isSingle = calls.some(
+          (c) => c.method === "maybeSingle" || c.method === "single",
+        );
         if (table === "learn_categories") {
           if (isSingle) return { data: state.category, error: null };
           // Subcategory fetch: eq("parent_slug", slug)
@@ -67,17 +99,21 @@ vi.mock("@/lib/supabase", () => {
         }
         if (table === "learn_articles") {
           // Child-articles fetch for parent categories uses .in()
-          const usesIn = calls.some((c) => c.method === "in" && c.args[0] === "category_slug");
+          const usesIn = calls.some(
+            (c) => c.method === "in" && c.args[0] === "category_slug",
+          );
           if (usesIn) return { data: state.childArticles, error: null };
           return { data: state.leafArticles, error: null };
         }
         return { data: [], error: null };
-      })
+      }),
     ),
     channel: vi.fn(() => ({ on: vi.fn(() => ({ subscribe: vi.fn() })) })),
     removeChannel: vi.fn(),
     auth: {
-      getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+      getSession: vi
+        .fn()
+        .mockResolvedValue({ data: { session: null }, error: null }),
       getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
     },
   };
@@ -141,22 +177,28 @@ describe("LearnCategory", () => {
     state.leafArticles = [article("screed-leveling"), article("screed-mixing")];
     await renderCategory();
     expect((await screen.findAllByText("Screeding")).length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Everything about screeding floors.").length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText("Everything about screeding floors.").length,
+    ).toBeGreaterThan(0);
     expect(screen.getByText("Article screed-leveling")).toBeInTheDocument();
     expect(screen.getByText("Article screed-mixing")).toBeInTheDocument();
     // plural form
     expect(screen.getByText("2 articles", { exact: true })).toBeInTheDocument();
     // article cards link to the article routes
-    const links = screen.getAllByRole("link").map((a) => a.getAttribute("href"));
-    expect(links).toContain("/learn/screed-leveling");
-    expect(links).toContain("/learn/screed-mixing");
+    const links = screen
+      .getAllByRole("link")
+      .map((a) => a.getAttribute("href"));
+    expect(links).toContain("/learn/screed-leveling/");
+    expect(links).toContain("/learn/screed-mixing/");
   });
 
   it("uses the singular 'article' for a category with one article", async () => {
     state.leafArticles = [article("screed-leveling")];
     await renderCategory();
     await waitFor(() => {
-      expect(screen.getByText("1 article", { exact: true })).toBeInTheDocument();
+      expect(
+        screen.getByText("1 article", { exact: true }),
+      ).toBeInTheDocument();
     });
     expect(screen.queryByText("1 articles")).not.toBeInTheDocument();
   });
@@ -172,18 +214,42 @@ describe("LearnCategory", () => {
     ).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Back to Learn" })).toHaveAttribute(
       "href",
-      "/learn",
+      "/learn/",
     );
   });
 
   it("renders a parent category with its subcategories and child articles", async () => {
     state.category = {
-      id: "cat-p", slug: "painting", name: "Painting", description: "All painting guides.",
-      icon: null, parent_slug: null, is_active: true, sort_order: 1,
+      id: "cat-p",
+      slug: "painting",
+      name: "Painting",
+      description: "All painting guides.",
+      icon: null,
+      parent_slug: null,
+      is_active: true,
+      sort_order: 1,
     };
     state.subcategories = [
-      { id: "cat-2", slug: "interior-painting", name: "Interior Painting", description: "Indoors", icon: null, parent_slug: "painting", is_active: true, sort_order: 1 },
-      { id: "cat-3", slug: "exterior-painting", name: "Exterior Painting", description: "Outdoors", icon: null, parent_slug: "painting", is_active: true, sort_order: 2 },
+      {
+        id: "cat-2",
+        slug: "interior-painting",
+        name: "Interior Painting",
+        description: "Indoors",
+        icon: null,
+        parent_slug: "painting",
+        is_active: true,
+        sort_order: 1,
+      },
+      {
+        id: "cat-3",
+        slug: "exterior-painting",
+        name: "Exterior Painting",
+        description: "Outdoors",
+        icon: null,
+        parent_slug: "painting",
+        is_active: true,
+        sort_order: 2,
+      },
     ];
     state.childArticles = [
       article("choosing-paint", "interior-painting"),
@@ -192,12 +258,16 @@ describe("LearnCategory", () => {
     await renderCategory("painting");
 
     // Subcategory section with topic count
-    expect(await screen.findByText("Topics within Painting")).toBeInTheDocument();
+    expect(
+      await screen.findByText("Topics within Painting"),
+    ).toBeInTheDocument();
     expect(screen.getByText("2 topics", { exact: true })).toBeInTheDocument();
     // Subcategory cards link to their own category routes
-    const links = screen.getAllByRole("link").map((a) => a.getAttribute("href"));
-    expect(links).toContain("/learn/category/interior-painting");
-    expect(links).toContain("/learn/category/exterior-painting");
+    const links = screen
+      .getAllByRole("link")
+      .map((a) => a.getAttribute("href"));
+    expect(links).toContain("/learn/category/interior-painting/");
+    expect(links).toContain("/learn/category/exterior-painting/");
     // Child articles (fetched via the .in() query) are listed under "All Articles"
     expect(screen.getByText("All Articles")).toBeInTheDocument();
     expect(screen.getByText("Article choosing-paint")).toBeInTheDocument();

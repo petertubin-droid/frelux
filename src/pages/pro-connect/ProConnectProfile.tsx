@@ -115,7 +115,7 @@ export default function ProConnectProfile() {
     if (!profile) return;
     const convo = await getOrCreateConversation(profile.id);
     if (convo) {
-      navigate(`/messages/${convo.id}`);
+      navigate(`/messages/${convo.id}/`);
     }
   }
 
@@ -171,7 +171,7 @@ export default function ProConnectProfile() {
           This profile may have been removed or is no longer available.
         </p>
         <Link
-          to="/pro-connect"
+          to="/pro-connect/"
           className="mt-6 inline-block text-brand-purple dark:text-brand-purple-lighter"
         >
           ← Back to directory
@@ -187,7 +187,7 @@ export default function ProConnectProfile() {
     <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
       {/* Back link */}
       <Link
-        to="/pro-connect"
+        to="/pro-connect/"
         className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
       >
         <ChevronLeft className="h-4 w-4" />

@@ -73,7 +73,9 @@ export default function ProjectWorkspace() {
     building_type: "residential",
   });
   // Canonical staged location (Location Intelligence), persisted on create.
-  const [draftLocation, setDraftLocation] = useState<FreluxLocation | null>(null);
+  const [draftLocation, setDraftLocation] = useState<FreluxLocation | null>(
+    null,
+  );
   const [creating, setCreating] = useState(false);
 
   const loadProjects = useCallback(async () => {
@@ -133,7 +135,7 @@ export default function ProjectWorkspace() {
         building_type: "residential",
       });
       setDraftLocation(null);
-      navigate(`/project-workspace/${data.id}`);
+      navigate(`/project-workspace/${data.id}/`);
     } catch (err) {
       toast({ title: (err as Error).message, variant: "error" });
     } finally {
@@ -245,13 +247,14 @@ export default function ProjectWorkspace() {
             <option value="archived">Archived</option>
           </select>
           <Link
-            to="/material-prices"
+            to="/material-prices/"
             className="group inline-flex items-center gap-2 rounded-xl border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-all duration-300"
           >
             <TrendingDown className="h-4 w-4 group-hover:scale-110 transition-transform" />{" "}
             Material Prices
           </Link>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={() => setShowCreate(true)}
             className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-300"
           >
@@ -273,7 +276,8 @@ export default function ProjectWorkspace() {
             <p className="text-muted-foreground mb-4">
               No projects yet. Create your first project to get started.
             </p>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => setShowCreate(true)}
               className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-all hover:scale-105"
             >
@@ -297,14 +301,16 @@ export default function ProjectWorkspace() {
                     {STATUS_LABELS[project.status] || project.status}
                   </span>
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => handleArchive(project.id)}
                       className="rounded-lg p-1.5 hover:bg-muted transition-colors"
                       title="Archive"
                     >
                       <Archive className="h-4 w-4 text-muted-foreground" />
                     </Button>
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => handleDelete(project.id)}
                       className="rounded-lg p-1.5 hover:bg-destructive/10 transition-colors"
                       title="Delete"
@@ -313,7 +319,10 @@ export default function ProjectWorkspace() {
                     </Button>
                   </div>
                 </div>
-                <Link to={`/project-workspace/${project.id}`} className="block">
+                <Link
+                  to={`/project-workspace/${project.id}/`}
+                  className="block"
+                >
                   <h3 className="font-semibold text-lg mb-1 group-hover:text-primary transition-colors">
                     {project.name}
                   </h3>
@@ -440,19 +449,18 @@ export default function ProjectWorkspace() {
                 </div>
                 <div>
                   <label className={labelCls}>Location (optional)</label>
-                  <LocationCard
-                    compact
-                    onLocationChange={setDraftLocation}
-                  />
+                  <LocationCard compact onLocationChange={setDraftLocation} />
                 </div>
                 <div className="flex gap-3 pt-2">
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => setShowCreate(false)}
                     className="flex-1 rounded-lg border px-4 py-2.5 text-sm font-medium hover:bg-muted transition-all"
                   >
                     Cancel
                   </Button>
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={handleCreate}
                     disabled={creating}
                     className="group flex-1 inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50"

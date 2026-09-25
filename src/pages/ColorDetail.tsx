@@ -88,7 +88,7 @@ export default function ColorDetail() {
           Couldn’t load this color combination.
         </p>
         <Link
-          to="/colors"
+          to="/colors/"
           className="mt-4 inline-block text-sm font-semibold text-brand-purple hover:underline"
         >
           Back to color ideas
@@ -123,7 +123,7 @@ export default function ColorDetail() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
       <Link
-        to="/colors"
+        to="/colors/"
         className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-brand-purple"
       >
         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
@@ -220,7 +220,7 @@ export default function ColorDetail() {
             {related.map((c) => (
               <Link
                 key={c.id}
-                to={`/colors/${c.slug}`}
+                to={`/colors/${c.slug}/`}
                 className="group overflow-hidden rounded-xl border border-border bg-card transition-all dark:border-white/5 dark:bg-card hover:-translate-y-1 hover:shadow-lg"
               >
                 <div className="relative aspect-[4/3] overflow-hidden">

@@ -309,19 +309,19 @@ export default function MarketplaceHome() {
             {/* Quick action buttons */}
             <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
               <Link
-                to="/marketplace/post"
+                to="/marketplace/post/"
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-lg"
               >
                 <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job
               </Link>
               <Link
-                to="/marketplace/products/post"
+                to="/marketplace/products/post/"
                 className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-primary-foreground backdrop-blur transition-all hover:bg-white/10"
               >
                 <Store className="h-4 w-4" /> Sell a Product
               </Link>
               <Link
-                to="/pro-connect/register"
+                to="/pro-connect/register/"
                 className="inline-flex items-center gap-2 rounded-lg border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-primary-foreground backdrop-blur transition-all hover:bg-white/10"
               >
                 <Briefcase className="h-4 w-4" /> Become a Pro
@@ -338,12 +338,16 @@ export default function MarketplaceHome() {
               </div>
               <div className="hidden h-8 w-px bg-white/10 sm:block" />
               <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-primary-foreground">14</span>
+                <span className="text-lg font-bold text-primary-foreground">
+                  14
+                </span>
                 <span>Categories</span>
               </div>
               <div className="hidden h-8 w-px bg-white/10 sm:block" />
               <div className="flex items-center gap-2">
-                <span className="text-lg font-bold text-primary-foreground">36</span>
+                <span className="text-lg font-bold text-primary-foreground">
+                  36
+                </span>
                 <span>States Covered</span>
               </div>
             </div>
@@ -396,7 +400,7 @@ export default function MarketplaceHome() {
             ].map((cat) => (
               <Link
                 key={cat.slug}
-                to={`/marketplace/category/${cat.slug}`}
+                to={`/marketplace/category/${cat.slug}/`}
                 className="group flex flex-col items-center gap-2 rounded-xl border border-border p-4 transition-all hover:border-brand-purple/30 hover:bg-primary/5 dark:border-white/10 dark:hover:bg-white/5"
               >
                 <span className="text-2xl">{cat.icon}</span>
@@ -425,14 +429,14 @@ export default function MarketplaceHome() {
             <div className="flex gap-2">
               {tab === "jobs" ? (
                 <Link
-                  to="/marketplace/post"
+                  to="/marketplace/post/"
                   className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                 >
                   <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job
                 </Link>
               ) : (
                 <Link
-                  to="/marketplace/products/post"
+                  to="/marketplace/products/post/"
                   className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
                 >
                   <Plus aria-hidden="true" className="h-4 w-4" /> Sell a Product
@@ -443,7 +447,8 @@ export default function MarketplaceHome() {
 
           {/* Tab switcher */}
           <div className="mt-5 flex gap-1">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => switchTab("jobs")}
               className={classNames(
                 "inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
@@ -457,16 +462,15 @@ export default function MarketplaceHome() {
                 <span
                   className={classNames(
                     "rounded-full px-1.5 py-0.5 text-xs",
-                    tab === "jobs"
-                      ? "bg-white/20"
-                      : "bg-muted dark:bg-white/5",
+                    tab === "jobs" ? "bg-white/20" : "bg-muted dark:bg-white/5",
                   )}
                 >
                   {jobsTotal}
                 </span>
               )}
             </Button>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => switchTab("products")}
               className={classNames(
                 "inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors",
@@ -593,7 +597,8 @@ function JobsTab(props: {
             className="w-full rounded-lg border border-border py-2.5 pl-10 pr-4 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           />
         </div>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => props.setShowFilters(!props.showFilters)}
           className={classNames(
             "inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium",
@@ -633,7 +638,8 @@ function JobsTab(props: {
               </option>
             ))}
           </select>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={() => {
               props.setProjectType("");
               props.setState("");
@@ -668,7 +674,7 @@ function JobsTab(props: {
             {props.nearbyListings.slice(0, 6).map((listing) => (
               <Link
                 key={listing.id}
-                to={`/marketplace/${listing.id}`}
+                to={`/marketplace/${listing.id}/`}
                 className="group rounded-xl border border-brand-purple/20 bg-primary/5 p-4 transition-all hover:border-brand-purple/40 hover:shadow-md"
               >
                 <div className="flex items-center justify-between">
@@ -712,7 +718,7 @@ function JobsTab(props: {
             Try adjusting your search or post a job.
           </p>
           <Link
-            to="/marketplace/post"
+            to="/marketplace/post/"
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
             <Plus aria-hidden="true" className="h-4 w-4" /> Post a Job
@@ -727,7 +733,7 @@ function JobsTab(props: {
             {props.listings.map((listing) => (
               <Link
                 key={listing.id}
-                to={`/marketplace/${listing.id}`}
+                to={`/marketplace/${listing.id}/`}
                 className="group rounded-xl border border-border p-5 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/10"
               >
                 <div className="flex items-center justify-between">
@@ -773,7 +779,8 @@ function JobsTab(props: {
           </div>
           {props.hasMore && (
             <div className="mt-6 text-center">
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={props.onLoadMore}
                 className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >
@@ -837,7 +844,8 @@ function ProductsTab(props: {
             </option>
           ))}
         </select>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => props.setShowFilters(!props.showFilters)}
           className={classNames(
             "inline-flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium",
@@ -852,7 +860,8 @@ function ProductsTab(props: {
 
       {/* Category pills */}
       <div className="mb-4 flex flex-wrap gap-2">
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => props.setCategory("")}
           className={classNames(
             "rounded-full px-3 py-1.5 text-xs font-medium transition-colors",
@@ -864,7 +873,8 @@ function ProductsTab(props: {
           All
         </Button>
         {props.categories.map((c) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={c.id}
             onClick={() => props.setCategory(c.slug)}
             className={classNames(
@@ -906,7 +916,8 @@ function ProductsTab(props: {
               </option>
             ))}
           </select>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={() => {
               props.setCondition("");
               props.setState("");
@@ -938,7 +949,7 @@ function ProductsTab(props: {
             Try adjusting your search or list a product for sale.
           </p>
           <Link
-            to="/marketplace/products/post"
+            to="/marketplace/products/post/"
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
           >
             <Plus aria-hidden="true" className="h-4 w-4" /> Sell a Product
@@ -963,7 +974,7 @@ function ProductsTab(props: {
               return (
                 <Link
                   key={product.id}
-                  to={`/marketplace/products/${product.id}`}
+                  to={`/marketplace/products/${product.id}/`}
                   className="group rounded-xl border border-border overflow-hidden transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/10"
                 >
                   {/* Image */}
@@ -1026,7 +1037,8 @@ function ProductsTab(props: {
           </div>
           {props.hasMore && (
             <div className="mt-6 text-center">
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={props.onLoadMore}
                 className="rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
               >

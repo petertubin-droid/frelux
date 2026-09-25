@@ -1295,7 +1295,7 @@ function TileResultCard({
             Start Over
           </Button>
           <Link
-            to="/tile-calculator?mode=cost"
+            to="/tile-calculator/?mode=cost"
             state={{
               surfaceArea: result.surfaceArea,
               grandTotal: result.grandTotal,
@@ -1321,7 +1321,7 @@ function TileResultCard({
             </p>
           </div>
           <a
-            href={`/marketplace/post?project_type=tiling&budget_min=${Math.round(result.grandTotal * 0.9)}&budget_max=${Math.round(result.grandTotal * 1.2)}&title=Tiling, ${result.surfaceArea.toFixed(1)} m²`}
+            href={`/marketplace/post/?project_type=tiling&budget_min=${Math.round(result.grandTotal * 0.9)}&budget_max=${Math.round(result.grandTotal * 1.2)}&title=Tiling, ${result.surfaceArea.toFixed(1)} m²`}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 whitespace-nowrap"
           >
             Post as Job

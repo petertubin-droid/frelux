@@ -362,7 +362,7 @@ export default function ListingDetail() {
           {isOwner && isOpen && (
             <div className="mt-4 flex gap-2 border-t border-border/50 pt-4 dark:border-white/5">
               <Link
-                to={`/marketplace/my-listings`}
+                to={`/marketplace/my-listings/`}
                 className="text-xs font-medium text-brand-purple hover:text-brand-purple-dark"
               >
                 Manage listing →
@@ -388,7 +388,7 @@ export default function ListingDetail() {
             )}
             {!user && isOpen && (
               <Link
-                to="/login"
+                to="/login/"
                 className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
               >
                 Sign in to bid
@@ -511,7 +511,7 @@ export default function ListingDetail() {
                       <div>
                         <div className="flex items-center gap-2">
                           <Link
-                            to={`/pro-connect/${bid.pro_profile?.slug}`}
+                            to={`/pro-connect/${bid.pro_profile?.slug}/`}
                             className="text-sm font-bold text-foreground hover:text-brand-purple dark:text-primary-foreground"
                           >
                             {bid.pro_profile?.business_name ||

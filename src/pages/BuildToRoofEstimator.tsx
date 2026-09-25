@@ -555,7 +555,7 @@ export default function BuildToRoofEstimator() {
             </div>
 
             <Link
-              to="/image-estimator"
+              to="/image-estimator/"
               className="mt-6 inline-flex items-center gap-2 rounded-xl border border-accent-green/30 bg-accent-green/10 px-3.5 sm:px-4 py-2.5 text-sm font-semibold text-accent-green backdrop-blur-md transition-all hover:bg-accent-green/20 hover:border-accent-green/40 hover:scale-[1.02] active:scale-[0.98]"
             >
               <Camera className="w-4 h-4" />

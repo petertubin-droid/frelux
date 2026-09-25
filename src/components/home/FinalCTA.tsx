@@ -39,7 +39,7 @@ export default function FinalCTA() {
             </p>
             <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:flex-wrap">
               <Link
-                to="/paint-calculator?mode=room-estimate"
+                to="/paint-calculator/?mode=room-estimate"
                 className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-8 py-3.5 text-base font-semibold text-primary-foreground shadow-lg shadow-brand-purple/25 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-brand-purple/30 hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 <Calculator className="h-5 w-5" />
@@ -47,7 +47,7 @@ export default function FinalCTA() {
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
               <Link
-                to="/paint-calculator?mode=cost"
+                to="/paint-calculator/?mode=cost"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-white/5 px-6 py-3.5 text-sm font-semibold text-primary-foreground backdrop-blur-md transition-all hover:bg-white/10 hover:-translate-y-0.5 active:scale-[0.98]"
               >
                 Estimate Cost

@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { ArrowRight, Calculator, BadgeCheck } from 'lucide-react';
-import SectionHeading from '@/components/ui/SectionHeading';
-import { getPublicTemplates, calculatorLabel } from '@/lib/templates';
-import { CALCULATOR_META } from '@/lib/templates';
-import type { DbCalculatorTemplate, CalculatorType } from '@/types/database';
+import { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight, Calculator, BadgeCheck } from "lucide-react";
+import SectionHeading from "@/components/ui/SectionHeading";
+import { getPublicTemplates, calculatorLabel } from "@/lib/templates";
+import { CALCULATOR_META } from "@/lib/templates";
+import type { DbCalculatorTemplate, CalculatorType } from "@/types/database";
 
 /**
  * Featured Templates section for the homepage.
@@ -16,8 +16,8 @@ export default function FeaturedTemplates() {
   const [templates, setTemplates] = useState<DbCalculatorTemplate[]>([]);
   const [loading, setLoading] = useState(true);
 
-const mountedRef = useRef(true);
-    useEffect(() => {
+  const mountedRef = useRef(true);
+  useEffect(() => {
     (async () => {
       try {
         // Fetch only featured templates, fallback data handles no-DB case
@@ -30,13 +30,18 @@ const mountedRef = useRef(true);
         setLoading(false);
       }
     })();
-  
-    return () => { mountedRef.current = false; };
+
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   if (loading) {
     return (
-      <section aria-label="Featured calculator templates" className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <section
+        aria-label="Featured calculator templates"
+        className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8"
+      >
         <SectionHeading
           label="Templates"
           title="Popular Calculator Templates"
@@ -44,7 +49,10 @@ const mountedRef = useRef(true);
         />
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="h-40 animate-pulse rounded-xl border border-border bg-muted/50 dark:border-white/10 dark:bg-white/5" />
+            <div
+              key={i}
+              className="h-40 animate-pulse rounded-xl border border-border bg-muted/50 dark:border-white/10 dark:bg-white/5"
+            />
           ))}
         </div>
       </section>
@@ -67,8 +75,11 @@ const mountedRef = useRef(true);
       <nav aria-label="Featured templates" className="mt-8">
         <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {templates.map((template) => {
-            const meta = CALCULATOR_META[template.calculator_type as CalculatorType];
-            const href = template.slug ? `/templates/${template.slug}` : meta?.path ?? '/templates';
+            const meta =
+              CALCULATOR_META[template.calculator_type as CalculatorType];
+            const href = template.slug
+              ? `/templates/${template.slug}`
+              : (meta?.path ?? "/templates");
             return (
               <li key={template.id}>
                 <article className="group flex h-full flex-col rounded-xl border border-border bg-card p-4 transition-all duration-200 hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:bg-card dark:hover:border-brand-purple/40">
@@ -79,7 +90,10 @@ const mountedRef = useRef(true);
                       {calculatorLabel(template.calculator_type)}
                     </span>
                     {template.is_featured && (
-                      <span className="inline-flex items-center gap-1 text-xs text-amber-500" title="Featured">
+                      <span
+                        className="inline-flex items-center gap-1 text-xs text-amber-500"
+                        title="Featured"
+                      >
                         <BadgeCheck className="h-3 w-3" />
                       </span>
                     )}
@@ -113,7 +127,7 @@ const mountedRef = useRef(true);
       {/* View all templates link */}
       <div className="mt-8 text-center">
         <Link
-          to="/templates"
+          to="/templates/"
           className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-medium text-card-foreground transition-colors hover:border-brand-purple/30 hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80 dark:hover:border-brand-purple/40 dark:hover:text-brand-purple-lighter"
         >
           Browse all templates

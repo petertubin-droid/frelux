@@ -337,7 +337,7 @@ export default function WorkerChannels() {
           worker channels.
         </p>
         <Link
-          to="/login"
+          to="/login/"
           className="mt-6 inline-flex items-center rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground"
         >
           Sign In
@@ -362,7 +362,7 @@ export default function WorkerChannels() {
           professional to join the conversation.
         </p>
         <Link
-          to="/pro-connect/register"
+          to="/pro-connect/register/"
           className="mt-6 inline-flex items-center rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground"
         >
           Become a Professional
@@ -401,7 +401,7 @@ export default function WorkerChannels() {
           to reach Tier 2 and unlock channel access.
         </p>
         <Link
-          to="/pro-connect/register"
+          to="/pro-connect/register/"
           className="mt-6 inline-flex items-center rounded-lg bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground"
         >
           Complete Verification
@@ -448,7 +448,7 @@ export default function WorkerChannels() {
             <Button
               variant="ghost"
               key={ch.id}
-              onClick={() => navigate(`/worker-channels/${ch.slug}`)}
+              onClick={() => navigate(`/worker-channels/${ch.slug}/`)}
               className={classNames(
                 "flex items-start gap-2 rounded-lg px-3 py-2.5 text-left text-sm transition-all",
                 channelSlug === ch.slug
@@ -773,7 +773,7 @@ export default function WorkerChannels() {
             </div>
 
             <Link
-              to={`/pro-connect/${viewingProfile.slug}`}
+              to={`/pro-connect/${viewingProfile.slug}/`}
               onClick={() => setViewingProfile(null)}
               className="mt-5 block w-full rounded-lg bg-primary py-2.5 text-center text-sm font-semibold text-primary-foreground"
             >

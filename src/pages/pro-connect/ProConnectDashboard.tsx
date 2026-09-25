@@ -134,7 +134,7 @@ export default function ProConnectDashboard() {
           Sign in to access your dashboard
         </h1>
         <Link
-          to="/login?redirect=/pro-connect/dashboard"
+          to="/login/?redirect=/pro-connect/dashboard"
           className="mt-4 inline-block text-brand-purple dark:text-brand-purple-lighter"
         >
           Sign in
@@ -161,7 +161,7 @@ export default function ProConnectDashboard() {
           Create your professional profile to get started.
         </p>
         <Link
-          to="/pro-connect/register"
+          to="/pro-connect/register/"
           className="mt-6 inline-block rounded-lg bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground"
         >
           Create Professional Profile
@@ -175,21 +175,21 @@ export default function ProConnectDashboard() {
       {/* Quick Links */}
       <div className="mb-6 flex flex-wrap gap-2">
         <Link
-          to="/worker-channels"
+          to="/worker-channels/"
           className="inline-flex items-center gap-1.5 rounded-lg border border-brand-purple/20 bg-primary/5 px-3 py-1.5 text-sm font-medium text-brand-purple transition-colors hover:bg-primary/10"
         >
           <Hash className="h-4 w-4" />
           Worker Channels
         </Link>
         <Link
-          to="/messages"
+          to="/messages/"
           className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"
         >
           <MessageSquare aria-hidden="true" className="h-4 w-4" />
           Messages
         </Link>
         <Link
-          to="/profile"
+          to="/profile/"
           className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted dark:border-white/10 dark:text-muted-foreground/80 dark:hover:bg-white/5"
         >
           <Settings aria-hidden="true" className="h-4 w-4" />
@@ -208,7 +208,7 @@ export default function ProConnectDashboard() {
           </p>
         </div>
         <Link
-          to={`/pro-connect/${profile.slug}`}
+          to={`/pro-connect/${profile.slug}/`}
           className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2.5 text-sm font-medium text-card-foreground dark:border-white/10 dark:text-muted-foreground/60"
         >
           <Eye aria-hidden="true" className="h-4 w-4" />
@@ -299,7 +299,7 @@ export default function ProConnectDashboard() {
             </div>
           </div>
           <Link
-            to="/pro-connect/register"
+            to="/pro-connect/register/"
             className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-2 text-sm text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/80"
           >
             <Settings aria-hidden="true" className="h-4 w-4" />
@@ -526,7 +526,8 @@ export default function ProConnectDashboard() {
         {(profile.verification_status === "unverified" ||
           profile.verification_status === "rejected" ||
           profile.verification_status === "more_info") && (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={() => {
               setShowVerificationForm(!showVerificationForm);
               setVerifSuccess(false);
@@ -551,7 +552,8 @@ export default function ProConnectDashboard() {
                 Verification Type
               </label>
               <div className="grid grid-cols-2 gap-2">
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => setVerifType("contact")}
                   className={classNames(
                     "min-w-0 rounded-lg border p-3 text-left text-sm transition-colors",
@@ -560,12 +562,15 @@ export default function ProConnectDashboard() {
                       : "border-border text-muted-foreground hover:border-border dark:border-white/10 dark:text-muted-foreground",
                   )}
                 >
-                  <span className="block whitespace-normal break-words font-semibold">Level 1: Contact</span>
+                  <span className="block whitespace-normal break-words font-semibold">
+                    Level 1: Contact
+                  </span>
                   <span className="block whitespace-normal break-words text-xs">
                     Verify your contact info &amp; profile
                   </span>
                 </Button>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => setVerifType("identity")}
                   className={classNames(
                     "min-w-0 rounded-lg border p-3 text-left text-sm transition-colors",
@@ -574,8 +579,12 @@ export default function ProConnectDashboard() {
                       : "border-border text-muted-foreground hover:border-border dark:border-white/10 dark:text-muted-foreground",
                   )}
                 >
-                  <span className="block whitespace-normal break-words font-semibold">Level 2: Identity</span>
-                  <span className="block whitespace-normal break-words text-xs">Verify your identity (NIN/ID)</span>
+                  <span className="block whitespace-normal break-words font-semibold">
+                    Level 2: Identity
+                  </span>
+                  <span className="block whitespace-normal break-words text-xs">
+                    Verify your identity (NIN/ID)
+                  </span>
                 </Button>
               </div>
             </div>
@@ -668,7 +677,8 @@ export default function ProConnectDashboard() {
               </p>
             )}
 
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={async () => {
                 if (!verifName.trim()) {
                   setVerifError("Please enter your professional name.");
@@ -732,7 +742,8 @@ export default function ProConnectDashboard() {
           <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
             Portfolio
           </h2>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={() => setShowPortfolioForm(!showPortfolioForm)}
             className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground"
           >
@@ -781,7 +792,8 @@ export default function ProConnectDashboard() {
                     {item.category}
                   </p>
                 </div>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={async () => {
                     await deletePortfolioItem(item.id);
                     const port = await getProPortfolio(profile.id);
@@ -812,7 +824,7 @@ export default function ProConnectDashboard() {
             {conversations.slice(0, 5).map((convo) => (
               <Link
                 key={convo.id}
-                to={`/messages/${convo.id}`}
+                to={`/messages/${convo.id}/`}
                 className="flex items-center justify-between rounded-xl border border-border bg-card p-4 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-card"
               >
                 <div>
@@ -877,7 +889,8 @@ export default function ProConnectDashboard() {
                   </p>
                 )}
                 {!review.professional_response && (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => {
                       const response = prompt("Type your response:");
                       if (response) {
@@ -897,7 +910,9 @@ export default function ProConnectDashboard() {
                 )}
                 {review.professional_response && (
                   <div className="mt-3 rounded-lg bg-muted/50 p-3 dark:bg-white/5">
-                    <p className="text-xs text-muted-foreground">Your response:</p>
+                    <p className="text-xs text-muted-foreground">
+                      Your response:
+                    </p>
                     <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground/80">
                       {review.professional_response}
                     </p>
@@ -920,7 +935,7 @@ export default function ProConnectDashboard() {
             Marketplace Bids
           </h2>
           <Link
-            to="/marketplace"
+            to="/marketplace/"
             className="inline-flex items-center gap-1 text-sm font-medium text-brand-purple hover:text-brand-purple-dark"
           >
             Browse Jobs{" "}
@@ -933,7 +948,7 @@ export default function ProConnectDashboard() {
               You haven't placed any bids yet.
             </p>
             <Link
-              to="/marketplace"
+              to="/marketplace/"
               className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple hover:text-brand-purple-dark"
             >
               <ShoppingBag aria-hidden="true" className="h-4 w-4" /> Browse open
@@ -945,7 +960,7 @@ export default function ProConnectDashboard() {
             {myBids.slice(0, 5).map((bid) => (
               <Link
                 key={bid.id}
-                to={`/marketplace/${bid.listing_id}`}
+                to={`/marketplace/${bid.listing_id}/`}
                 className="flex items-center justify-between rounded-lg border border-border bg-card p-3 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-card"
               >
                 <div className="min-w-0">
@@ -994,7 +1009,7 @@ export default function ProConnectDashboard() {
               .map((order) => (
                 <Link
                   key={order.id}
-                  to={`/marketplace/orders/${order.id}`}
+                  to={`/marketplace/orders/${order.id}/`}
                   className="flex items-center justify-between rounded-lg border border-border bg-card p-3 transition-colors hover:border-brand-purple/30 dark:border-white/5 dark:bg-card"
                 >
                   <div className="min-w-0">
@@ -1139,7 +1154,8 @@ function PortfolioForm({
             </div>
           )}
         </div>
-        <Button variant="default"
+        <Button
+          variant="default"
           onClick={handleSubmit}
           disabled={!title.trim() || imageUrls.length === 0 || saving}
           className="w-full rounded-lg py-2.5 text-sm font-semibold disabled:opacity-50"

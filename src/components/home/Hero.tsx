@@ -164,7 +164,7 @@ export default function Hero() {
               </Link>
             )}
             <Link
-              to="/build-to-roof-estimator"
+              to="/build-to-roof-estimator/"
               className="group inline-flex items-center justify-center gap-2 rounded-xl bg-accent-green px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-accent-green/25 transition-all hover:bg-accent-green/90 hover:shadow-xl hover:shadow-accent-green/30 active:scale-[0.98]"
             >
               <Building2 className="h-4 w-4" />

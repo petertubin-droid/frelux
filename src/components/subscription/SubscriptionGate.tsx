@@ -192,7 +192,7 @@ export function SubscriptionGate({
 
         {user ? (
           <Link
-            to="/pricing"
+            to="/pricing/"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             <PremiumBadge size="xs" />
@@ -200,7 +200,7 @@ export function SubscriptionGate({
           </Link>
         ) : (
           <Link
-            to="/login?redirect=/pricing"
+            to="/login/?redirect=/pricing"
             className="mt-6 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
           >
             <PremiumBadge size="xs" />

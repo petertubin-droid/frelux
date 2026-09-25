@@ -1,5 +1,5 @@
-import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 interface ProConnectCTAProps {
   calculatorType: string;
@@ -8,39 +8,78 @@ interface ProConnectCTAProps {
 }
 
 const categoryLabels: Record<string, string> = {
-  painters: 'Painters',
-  tilers: 'Tilers',
-  'wall-screeders': 'Wall Screeders',
-  'pop-installers': 'POP Installers',
-  'building-contractors': 'Building Contractors',
+  painters: "Painters",
+  tilers: "Tilers",
+  "wall-screeders": "Wall Screeders",
+  "pop-installers": "POP Installers",
+  "building-contractors": "Building Contractors",
 };
 
 const ctaTexts: Record<string, { title: string; subtitle: string }> = {
-  paint: { title: 'Need a professional painter?', subtitle: 'Find painters serving your location.' },
-  painting: { title: 'Need a professional painter?', subtitle: 'Find painters serving your location.' },
-  tile: { title: 'Need a professional tiler?', subtitle: 'Find tilers serving your location.' },
-  tiling: { title: 'Need a professional tiler?', subtitle: 'Find tilers serving your location.' },
-  screeding: { title: 'Need a screeding professional?', subtitle: 'Find relevant professionals in your area.' },
-  pop: { title: 'Need a POP installer?', subtitle: 'Find POP ceiling professionals in your area.' },
-  pop_ceiling: { title: 'Need a POP installer?', subtitle: 'Find POP ceiling professionals in your area.' },
-  finish: { title: 'Need professionals for this project?', subtitle: 'Find contractors and specialists for your project.' },
-  tyrolene: { title: 'Need professionals for this project?', subtitle: 'Find contractors and specialists for your project.' },
-  contractor: { title: 'Need professionals for this project?', subtitle: 'Find matching professionals.' },
+  paint: {
+    title: "Need a professional painter?",
+    subtitle: "Find painters serving your location.",
+  },
+  painting: {
+    title: "Need a professional painter?",
+    subtitle: "Find painters serving your location.",
+  },
+  tile: {
+    title: "Need a professional tiler?",
+    subtitle: "Find tilers serving your location.",
+  },
+  tiling: {
+    title: "Need a professional tiler?",
+    subtitle: "Find tilers serving your location.",
+  },
+  screeding: {
+    title: "Need a screeding professional?",
+    subtitle: "Find relevant professionals in your area.",
+  },
+  pop: {
+    title: "Need a POP installer?",
+    subtitle: "Find POP ceiling professionals in your area.",
+  },
+  pop_ceiling: {
+    title: "Need a POP installer?",
+    subtitle: "Find POP ceiling professionals in your area.",
+  },
+  finish: {
+    title: "Need professionals for this project?",
+    subtitle: "Find contractors and specialists for your project.",
+  },
+  tyrolene: {
+    title: "Need professionals for this project?",
+    subtitle: "Find contractors and specialists for your project.",
+  },
+  contractor: {
+    title: "Need professionals for this project?",
+    subtitle: "Find matching professionals.",
+  },
 };
 
-export default function ProConnectCTA({ calculatorType, className = '' }: ProConnectCTAProps) {
+export default function ProConnectCTA({
+  calculatorType,
+  className = "",
+}: ProConnectCTAProps) {
   const categorySlug = getCategorySlug(calculatorType);
   if (!categorySlug) return null;
 
   const text = ctaTexts[calculatorType] || ctaTexts.paint;
-  const label = categoryLabels[categorySlug] || 'Professionals';
+  const label = categoryLabels[categorySlug] || "Professionals";
 
   return (
-    <div className={`mt-8 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-primary-light/5 p-6 dark:border-brand-purple-lighter/20 ${className}`}>
-      <h3 className="text-lg font-semibold text-foreground dark:text-primary-foreground">{text.title}</h3>
-      <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">{text.subtitle}</p>
+    <div
+      className={`mt-8 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-primary-light/5 p-6 dark:border-brand-purple-lighter/20 ${className}`}
+    >
+      <h3 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
+        {text.title}
+      </h3>
+      <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
+        {text.subtitle}
+      </p>
       <Link
-        to={`/pro-connect?category=${categorySlug}`}
+        to={`/pro-connect/?category=${categorySlug}`}
         className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
       >
         Find {label}
@@ -52,16 +91,16 @@ export default function ProConnectCTA({ calculatorType, className = '' }: ProCon
 
 function getCategorySlug(calculatorType: string): string | null {
   const mapping: Record<string, string> = {
-    paint: 'painters',
-    painting: 'painters',
-    tile: 'tilers',
-    tiling: 'tilers',
-    screeding: 'wall-screeders',
-    pop: 'pop-installers',
-    pop_ceiling: 'pop-installers',
-    finish: 'building-contractors',
-    tyrolene: 'building-contractors',
-    contractor: 'building-contractors',
+    paint: "painters",
+    painting: "painters",
+    tile: "tilers",
+    tiling: "tilers",
+    screeding: "wall-screeders",
+    pop: "pop-installers",
+    pop_ceiling: "pop-installers",
+    finish: "building-contractors",
+    tyrolene: "building-contractors",
+    contractor: "building-contractors",
   };
   return mapping[calculatorType] || null;
 }

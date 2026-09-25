@@ -69,7 +69,10 @@ interface PassedState {
   projectLocation?: FreluxLocation | null;
 }
 
-import { useProjectLocationCurrency, type FreluxLocation } from "@/lib/location-intelligence";
+import {
+  useProjectLocationCurrency,
+  type FreluxLocation,
+} from "@/lib/location-intelligence";
 import { useSeo } from "@/lib/seo";
 import { trackCalculation } from "@/lib/achievements";
 import { trackCalculationWithRewards } from "@/lib/rewards-integration";
@@ -154,8 +157,10 @@ export default function CostEstimator({
   const [loadError, setLoadError] = useState<string | null>(null);
 
   // Regional data flow: project location -> market profile -> currency.
-  const { currencyCode: projectCurrencyCode, currencySymbol: projectCurrencySymbol } =
-    useProjectLocationCurrency(passed.projectLocation ?? null);
+  const {
+    currencyCode: projectCurrencyCode,
+    currencySymbol: projectCurrencySymbol,
+  } = useProjectLocationCurrency(passed.projectLocation ?? null);
   const currencySymbol =
     projectCurrencySymbol ?? settings?.default_currency_symbol ?? "₦";
   const currency = projectCurrencyCode ?? settings?.default_currency ?? "NGN";
@@ -452,7 +457,7 @@ export default function CostEstimator({
             <p>
               Tip: Use the{" "}
               <Link
-                to="/paint-calculator"
+                to="/paint-calculator/"
                 className="font-semibold text-brand-purple underline"
               >
                 Paint Calculator

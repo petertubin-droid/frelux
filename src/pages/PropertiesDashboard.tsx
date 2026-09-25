@@ -261,7 +261,7 @@ export default function PropertiesDashboard() {
             and track data confidence.
           </p>
           <Button asChild className="mt-6">
-            <Link to="/login">Sign in</Link>
+            <Link to="/login/">Sign in</Link>
           </Button>
         </div>
       </div>
@@ -645,7 +645,7 @@ function PropertyDetail({
             value={
               profile.constructionProjectId ? (
                 <Link
-                  to={`/dashboard/projects/${profile.constructionProjectId}`}
+                  to={`/dashboard/projects/${profile.constructionProjectId}/`}
                   className="font-medium text-primary underline-offset-2 hover:underline"
                 >
                   Linked project

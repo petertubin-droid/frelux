@@ -133,7 +133,7 @@ export default function CommercialReadiness() {
             </p>
           </div>
           <Link
-            to="/paint-calculator?mode=room-estimate"
+            to="/paint-calculator/?mode=room-estimate"
             className="group inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98]"
           >
             <Calculator className="h-4 w-4" />

@@ -257,7 +257,8 @@ export default function ProConnectDirectory() {
             className="w-full rounded-lg border border-border bg-card py-3 pl-11 pr-4 text-sm text-foreground placeholder:text-muted-foreground focus:border-brand-purple focus:outline-none focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-card dark:text-primary-foreground"
           />
         </div>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => setShowFilters(!showFilters)}
           className={classNames(
             "flex items-center gap-2 rounded-lg border px-4 py-3 text-sm font-medium transition-colors",
@@ -418,7 +419,8 @@ export default function ProConnectDirectory() {
               Verified professionals only
             </label>
             {hasActiveFilters && (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={clearFilters}
                 className="flex items-center gap-1 text-sm text-brand-purple dark:text-brand-purple-lighter"
               >
@@ -435,7 +437,7 @@ export default function ProConnectDirectory() {
         {categories.map((cat) => (
           <Link
             key={cat.id}
-            to={`/pro-connect?category=${cat.slug}`}
+            to={`/pro-connect/?category=${cat.slug}`}
             onClick={() =>
               setSelectedCategory(selectedCategory === cat.id ? null : cat.id)
             }
@@ -459,7 +461,8 @@ export default function ProConnectDirectory() {
             : `${total} professional${total !== 1 ? "s" : ""} found`}
         </p>
         {hasActiveFilters && (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={clearFilters}
             className="text-sm text-brand-purple dark:text-brand-purple-lighter"
           >
@@ -487,7 +490,8 @@ export default function ProConnectDirectory() {
             Try expanding your search area or removing some filters.
           </p>
           {hasActiveFilters && (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={clearFilters}
               className="mt-4 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
             >
@@ -510,7 +514,8 @@ export default function ProConnectDirectory() {
 
           {hasMore && (
             <div className="mt-8 text-center">
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => setPage((p) => p + 1)}
                 className="rounded-lg border border-border px-6 py-3 text-sm font-medium text-card-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground/60"
               >

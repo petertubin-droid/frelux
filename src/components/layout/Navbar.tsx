@@ -507,7 +507,7 @@ export default function Navbar() {
                               </span>
                             </div>
                             <Link
-                              to="/rewards"
+                              to="/rewards/"
                               onClick={() => setOpenDropdown(null)}
                               className="text-[9px] font-medium text-brand-purple hover:opacity-70 dark:text-brand-purple-lighter"
                             >
@@ -528,7 +528,7 @@ export default function Navbar() {
                       {/* Plan strip, compact */}
                       <div className="flex items-center justify-between gap-1 border-y border-border/40 bg-muted/20 px-2.5 py-1.5 dark:border-white/5 dark:bg-white/3">
                         <Link
-                          to="/dashboard"
+                          to="/dashboard/"
                           onClick={() => setOpenDropdown(null)}
                           className="flex flex-col items-center gap-0.5 hover:opacity-70"
                         >
@@ -541,7 +541,7 @@ export default function Navbar() {
                         </Link>
                         <div className="h-6 w-px bg-border dark:bg-white/10" />
                         <Link
-                          to="/rewards"
+                          to="/rewards/"
                           onClick={() => setOpenDropdown(null)}
                           className="flex flex-col items-center gap-0.5 hover:opacity-70"
                         >
@@ -554,7 +554,7 @@ export default function Navbar() {
                         </Link>
                         <div className="h-6 w-px bg-border dark:bg-white/10" />
                         <Link
-                          to="/pricing"
+                          to="/pricing/"
                           onClick={() => setOpenDropdown(null)}
                           className="flex flex-col items-center gap-0.5 hover:opacity-70"
                         >
@@ -632,7 +632,7 @@ export default function Navbar() {
                       </div>
                       <div className="px-1.5">
                         <Link
-                          to="/login"
+                          to="/login/"
                           onClick={() => setOpenDropdown(null)}
                           className="flex items-center gap-2 rounded-md bg-primary/5 px-2 py-1.5 text-[11px] font-semibold text-brand-purple transition-colors hover:bg-primary/10 dark:bg-primary/10 dark:text-brand-purple-lighter"
                         >
@@ -640,7 +640,7 @@ export default function Navbar() {
                           Sign In
                         </Link>
                         <Link
-                          to="/login?mode=signup"
+                          to="/login/?mode=signup"
                           onClick={() => setOpenDropdown(null)}
                           className="mt-1 flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:hover:bg-white/5"
                         >
@@ -656,7 +656,7 @@ export default function Navbar() {
 
             {/* Primary CTA, Start Calculating */}
             <Link
-              to="/paint-calculator?mode=room-estimate"
+              to="/paint-calculator/?mode=room-estimate"
               className="hidden sm:inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-brand-purple/30 hover:-translate-y-0.5 active:scale-[0.98] dark:bg-primary dark:hover:bg-primary/90"
             >
               <Calculator className="h-4 w-4" />
@@ -846,7 +846,7 @@ export default function Navbar() {
                     AI Credits
                   </p>
                   <Link
-                    to="/rewards"
+                    to="/rewards/"
                     onClick={() => setMobileOpen(false)}
                     className="ml-auto text-[10px] font-medium text-brand-purple dark:text-brand-purple-lighter"
                   >
@@ -864,7 +864,7 @@ export default function Navbar() {
                   </div>
                   <div className="h-8 w-px bg-muted dark:bg-white/10" />
                   <Link
-                    to="/rewards"
+                    to="/rewards/"
                     onClick={() => setMobileOpen(false)}
                     className="flex flex-col transition-opacity hover:opacity-70"
                   >
@@ -877,7 +877,7 @@ export default function Navbar() {
                   </Link>
                   <div className="h-8 w-px bg-muted dark:bg-white/10" />
                   <Link
-                    to="/pricing"
+                    to="/pricing/"
                     onClick={() => setMobileOpen(false)}
                     className="flex flex-col transition-opacity hover:opacity-70"
                   >
@@ -894,7 +894,7 @@ export default function Navbar() {
 
             {/* Primary CTA */}
             <Link
-              to="/paint-calculator?mode=room-estimate"
+              to="/paint-calculator/?mode=room-estimate"
               onClick={() => setMobileOpen(false)}
               className="mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-5 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 active:scale-[0.98]"
             >

@@ -150,7 +150,7 @@ export default function GalleryUpload() {
       />
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <Link
-          to="/gallery"
+          to="/gallery/"
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6 group"
         >
           <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />{" "}
@@ -179,7 +179,8 @@ export default function GalleryUpload() {
                           alt={type}
                           className="h-full w-full object-cover"
                         />
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -317,7 +318,8 @@ export default function GalleryUpload() {
             </span>
           </label>
 
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="submit"
             disabled={submitting}
             className="group relative w-full inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary/80 px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"

@@ -117,7 +117,7 @@ export default function Gallery() {
           ))}
           {user && (
             <Link
-              to="/gallery/new"
+              to="/gallery/new/"
               className="group ml-auto inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-primary to-primary/80 px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all duration-300 hover:scale-105 hover:shadow-xl active:scale-95"
             >
               <Plus className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
@@ -155,7 +155,7 @@ export default function Gallery() {
             </p>
             {user && (
               <Link
-                to="/gallery/new"
+                to="/gallery/new/"
                 className="group mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-md shadow-brand-purple/20 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
               >
                 <Plus className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
@@ -284,7 +284,7 @@ export default function Gallery() {
             </p>
             {user ? (
               <Link
-                to="/gallery/new"
+                to="/gallery/new/"
                 className="group mt-5 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-md shadow-brand-purple/20 transition-all duration-300 hover:scale-105 hover:shadow-lg active:scale-95"
               >
                 <Plus className="h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
@@ -293,7 +293,7 @@ export default function Gallery() {
               </Link>
             ) : (
               <Link
-                to="/login"
+                to="/login/"
                 className="group mt-5 inline-flex items-center gap-2 rounded-lg border border-brand-purple/30 px-5 py-2.5 text-sm font-semibold text-brand-purple transition-all duration-300 hover:scale-105 hover:bg-primary/10"
               >
                 Sign in to Share

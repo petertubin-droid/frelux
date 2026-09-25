@@ -144,7 +144,8 @@ export default function PaintComparison() {
                 {comparisons.map((c) => {
                   const isSelected = selectedPaints.has(c.id);
                   return (
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       key={c.id}
                       onClick={() => togglePaint(c.id)}
                       className={`group inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-all duration-300 hover:scale-105 active:scale-95 ${
@@ -272,7 +273,7 @@ export default function PaintComparison() {
                   </p>
 
                   <Link
-                    to="/paint-calculator"
+                    to="/paint-calculator/"
                     className="group/btn inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-md shadow-brand-purple/20 transition-all duration-300 hover:bg-primary/90 hover:shadow-lg hover:shadow-brand-purple/30 active:scale-95"
                   >
                     Calculate {c.display_name}
@@ -293,7 +294,7 @@ export default function PaintComparison() {
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <Link
-                  to="/ai-color-assistant"
+                  to="/ai-color-assistant/"
                   className="group inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:text-primary-foreground"
                 >
                   <Eye className="h-4 w-4 text-brand-purple transition-transform duration-300 group-hover:rotate-12" />
@@ -301,14 +302,14 @@ export default function PaintComparison() {
                   <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
                 <Link
-                  to="/start-building"
+                  to="/start-building/"
                   className="group inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:text-primary-foreground"
                 >
                   Create a Project
                   <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
                 </Link>
                 <Link
-                  to="/learn/category/painting-guides"
+                  to="/learn/category/painting-guides/"
                   className="group inline-flex items-center gap-2 rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-foreground transition-all duration-300 hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/10 dark:text-primary-foreground"
                 >
                   Learn More

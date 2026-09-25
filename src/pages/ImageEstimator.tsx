@@ -1002,7 +1002,7 @@ function LockedView({
         )}
         {"nextAction" in decision && decision.nextAction === "login" && (
           <a
-            href="/login"
+            href="/login/"
             className="w-full inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-6 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             Sign In to Continue
@@ -1239,7 +1239,7 @@ function EstimateResultView({
             <FileText className="w-4 h-4" /> Print
           </Button>
           <a
-            href="/build-to-roof-estimator"
+            href="/build-to-roof-estimator/"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
           >
             Full Manual Estimator →

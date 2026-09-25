@@ -227,7 +227,8 @@ export default function ScreedingCalculator({
               )}
             </MeasurementInput>
 
-            <Button variant="default"
+            <Button
+              variant="default"
               type="button"
               onClick={handleCalculate}
               disabled={!validation.valid}
@@ -294,7 +295,8 @@ export default function ScreedingCalculator({
             </div>
 
             <div className="flex items-center gap-3">
-              <Button variant="secondary"
+              <Button
+                variant="secondary"
                 type="button"
                 onClick={startOver}
                 className="inline-flex items-center gap-2"
@@ -303,7 +305,7 @@ export default function ScreedingCalculator({
                 Start Over
               </Button>
               <Link
-                to="/screeding-calculator?mode=cost"
+                to="/screeding-calculator/?mode=cost"
                 state={{ netScreedingArea: screedingResult.totalAreaM2 }}
                 className="btn-primary btn-glow inline-flex items-center gap-2"
               >

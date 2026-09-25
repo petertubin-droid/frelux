@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Plus,
   Search,
@@ -16,16 +16,16 @@ import {
   Building2,
   Calendar,
   DollarSign,
-} from 'lucide-react';
+} from "lucide-react";
 import {
   fetchContractorProjects,
   deleteContractorProject,
   duplicateContractorProject,
   archiveContractorProject,
   restoreContractorProject,
-} from '@/lib/contractor';
-import type { DbContractorProject } from '@/types/database';
-import { useSeo } from '@/lib/seo';
+} from "@/lib/contractor";
+import type { DbContractorProject } from "@/types/database";
+import { useSeo } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 
@@ -33,57 +33,57 @@ import { Button } from "@/components/ui/shadcn/button";
 // Constants
 // ============================================================
 
-type ProjectStatus = DbContractorProject['status'];
-type ProjectType = DbContractorProject['project_type'];
+type ProjectStatus = DbContractorProject["status"];
+type ProjectType = DbContractorProject["project_type"];
 
-const STATUS_OPTIONS: { value: ProjectStatus | 'all'; label: string }[] = [
-  { value: 'all', label: 'All statuses' },
-  { value: 'draft', label: 'Draft' },
-  { value: 'in_progress', label: 'In progress' },
-  { value: 'on_hold', label: 'On hold' },
-  { value: 'completed', label: 'Completed' },
-  { value: 'archived', label: 'Archived' },
+const STATUS_OPTIONS: { value: ProjectStatus | "all"; label: string }[] = [
+  { value: "all", label: "All statuses" },
+  { value: "draft", label: "Draft" },
+  { value: "in_progress", label: "In progress" },
+  { value: "on_hold", label: "On hold" },
+  { value: "completed", label: "Completed" },
+  { value: "archived", label: "Archived" },
 ];
 
-const TYPE_OPTIONS: { value: ProjectType | 'all'; label: string }[] = [
-  { value: 'all', label: 'All types' },
-  { value: 'painting', label: 'Painting' },
-  { value: 'screeding', label: 'Screeding' },
-  { value: 'pop_ceiling', label: 'POP Ceiling' },
-  { value: 'tiling', label: 'Tiling' },
-  { value: 'multi_trade', label: 'Multi-trade' },
+const TYPE_OPTIONS: { value: ProjectType | "all"; label: string }[] = [
+  { value: "all", label: "All types" },
+  { value: "painting", label: "Painting" },
+  { value: "screeding", label: "Screeding" },
+  { value: "pop_ceiling", label: "POP Ceiling" },
+  { value: "tiling", label: "Tiling" },
+  { value: "multi_trade", label: "Multi-trade" },
 ];
 
 const STATUS_BADGE_CLASSES: Record<ProjectStatus, string> = {
-  draft: 'bg-muted text-card-foreground',
-  in_progress: 'bg-blue-100 text-blue-700',
-  on_hold: 'bg-yellow-100 text-yellow-700',
-  completed: 'bg-green-100 text-green-700',
-  archived: 'bg-red-100 text-red-700',
+  draft: "bg-muted text-card-foreground",
+  in_progress: "bg-blue-100 text-blue-700",
+  on_hold: "bg-yellow-100 text-yellow-700",
+  completed: "bg-green-100 text-green-700",
+  archived: "bg-red-100 text-red-700",
 };
 
 const STATUS_LABELS: Record<ProjectStatus, string> = {
-  draft: 'Draft',
-  in_progress: 'In progress',
-  on_hold: 'On hold',
-  completed: 'Completed',
-  archived: 'Archived',
+  draft: "Draft",
+  in_progress: "In progress",
+  on_hold: "On hold",
+  completed: "Completed",
+  archived: "Archived",
 };
 
 const TYPE_LABELS: Record<ProjectType, string> = {
-  painting: 'Painting',
-  screeding: 'Screeding',
-  pop_ceiling: 'POP Ceiling',
-  tiling: 'Tiling',
-  multi_trade: 'Multi-trade',
+  painting: "Painting",
+  screeding: "Screeding",
+  pop_ceiling: "POP Ceiling",
+  tiling: "Tiling",
+  multi_trade: "Multi-trade",
 };
 
 const TYPE_BADGE_CLASSES: Record<ProjectType, string> = {
-  painting: 'bg-indigo-50 text-indigo-700',
-  screeding: 'bg-amber-50 text-amber-700',
-  pop_ceiling: 'bg-purple-50 text-purple-700',
-  tiling: 'bg-teal-50 text-teal-700',
-  multi_trade: 'bg-pink-50 text-pink-700',
+  painting: "bg-indigo-50 text-indigo-700",
+  screeding: "bg-amber-50 text-amber-700",
+  pop_ceiling: "bg-purple-50 text-purple-700",
+  tiling: "bg-teal-50 text-teal-700",
+  multi_trade: "bg-pink-50 text-pink-700",
 };
 
 // ============================================================
@@ -91,7 +91,7 @@ const TYPE_BADGE_CLASSES: Record<ProjectType, string> = {
 // ============================================================
 
 function formatCurrency(value: number, symbol: string): string {
-  return `${symbol}${value.toLocaleString('en-US', {
+  return `${symbol}${value.toLocaleString("en-US", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   })}`;
@@ -99,10 +99,10 @@ function formatCurrency(value: number, symbol: string): string {
 
 function formatDate(iso: string): string {
   try {
-    return new Date(iso).toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
+    return new Date(iso).toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     });
   } catch {
     return iso;
@@ -110,7 +110,7 @@ function formatDate(iso: string): string {
 }
 
 function cn(...classes: (string | false | null | undefined)[]): string {
-  return classes.filter(Boolean).join(' ');
+  return classes.filter(Boolean).join(" ");
 }
 
 // ============================================================
@@ -118,16 +118,18 @@ function cn(...classes: (string | false | null | undefined)[]): string {
 // ============================================================
 
 export default function ContractorProjects() {
-  useSeo({ title: 'FRELUX', description: 'FRELUX', noIndex: true });
+  useSeo({ title: "FRELUX", description: "FRELUX", noIndex: true });
   const navigate = useNavigate();
 
   const [projects, setProjects] = useState<DbContractorProject[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<ProjectStatus | 'all'>('all');
-  const [typeFilter, setTypeFilter] = useState<ProjectType | 'all'>('all');
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<ProjectStatus | "all">(
+    "all",
+  );
+  const [typeFilter, setTypeFilter] = useState<ProjectType | "all">("all");
 
   // Per-card dropdown + per-card action loading
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -144,7 +146,7 @@ export default function ContractorProjects() {
       const data = await fetchContractorProjects();
       setProjects(data);
     } catch (err) {
-      setError(getSafeError(err, 'Failed to load projects'));
+      setError(getSafeError(err, "Failed to load projects"));
     } finally {
       setLoading(false);
     }
@@ -161,30 +163,30 @@ export default function ContractorProjects() {
         setOpenMenuId(null);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   // ---------- Derived / filtered list ----------
   const filteredProjects = useMemo(() => {
     const q = search.trim().toLowerCase();
     return projects.filter((p) => {
-      if (statusFilter !== 'all' && p.status !== statusFilter) return false;
-      if (typeFilter !== 'all' && p.project_type !== typeFilter) return false;
+      if (statusFilter !== "all" && p.status !== statusFilter) return false;
+      if (typeFilter !== "all" && p.project_type !== typeFilter) return false;
       if (!q) return true;
       const name = p.name.toLowerCase();
-      const client = (p.client_name ?? '').toLowerCase();
+      const client = (p.client_name ?? "").toLowerCase();
       return name.includes(q) || client.includes(q);
     });
   }, [projects, search, statusFilter, typeFilter]);
 
   const hasActiveFilters =
-    search.trim() !== '' || statusFilter !== 'all' || typeFilter !== 'all';
+    search.trim() !== "" || statusFilter !== "all" || typeFilter !== "all";
 
   // ---------- Actions ----------
   const handleOpen = (p: DbContractorProject) => {
     setOpenMenuId(null);
-    navigate(`/contractor/dashboard/${p.id}`);
+    navigate(`/contractor/dashboard/${p.id}/`);
   };
 
   const handleDuplicate = useCallback(
@@ -195,7 +197,7 @@ export default function ContractorProjects() {
         await duplicateContractorProject(p.id);
         await loadProjects();
       } catch (err) {
-        setError(getSafeError(err, 'Failed to duplicate project'));
+        setError(getSafeError(err, "Failed to duplicate project"));
       } finally {
         setBusyId(null);
       }
@@ -211,7 +213,7 @@ export default function ContractorProjects() {
         await archiveContractorProject(p.id);
         await loadProjects();
       } catch (err) {
-        setError(getSafeError(err, 'Failed to archive project'));
+        setError(getSafeError(err, "Failed to archive project"));
       } finally {
         setBusyId(null);
       }
@@ -227,7 +229,7 @@ export default function ContractorProjects() {
         await restoreContractorProject(p.id);
         await loadProjects();
       } catch (err) {
-        setError(getSafeError(err, 'Failed to restore project'));
+        setError(getSafeError(err, "Failed to restore project"));
       } finally {
         setBusyId(null);
       }
@@ -243,7 +245,7 @@ export default function ContractorProjects() {
         await deleteContractorProject(id);
         await loadProjects();
       } catch (err) {
-        setError(getSafeError(err, 'Failed to delete project'));
+        setError(getSafeError(err, "Failed to delete project"));
       } finally {
         setBusyId(null);
       }
@@ -252,9 +254,9 @@ export default function ContractorProjects() {
   );
 
   const resetFilters = () => {
-    setSearch('');
-    setStatusFilter('all');
-    setTypeFilter('all');
+    setSearch("");
+    setStatusFilter("all");
+    setTypeFilter("all");
   };
 
   // ============================================================
@@ -272,9 +274,10 @@ export default function ContractorProjects() {
               Manage your contractor estimation projects
             </p>
           </div>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
-            onClick={() => navigate('/contractor/wizard')}
+            onClick={() => navigate("/contractor/wizard/")}
             className="inline-flex items-center justify-center gap-2 rounded-lg bg-background px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-card-foreground/90 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           >
             <Plus className="h-4 w-4" />
@@ -286,7 +289,8 @@ export default function ContractorProjects() {
         {error && (
           <div className="mb-6 flex items-start justify-between gap-4 rounded-lg border border-red-200 bg-red-50 p-4">
             <p className="text-sm text-red-700">{error}</p>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={() => setError(null)}
               className="text-sm font-medium text-red-700 hover:text-red-800"
@@ -314,7 +318,9 @@ export default function ContractorProjects() {
               <Filter className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value as ProjectStatus | 'all')}
+                onChange={(e) =>
+                  setStatusFilter(e.target.value as ProjectStatus | "all")
+                }
                 className="w-full appearance-none rounded-lg border border-border bg-card py-2.5 pl-10 pr-8 text-sm font-medium text-card-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring sm:w-44"
               >
                 {STATUS_OPTIONS.map((opt) => (
@@ -327,7 +333,9 @@ export default function ContractorProjects() {
 
             <select
               value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value as ProjectType | 'all')}
+              onChange={(e) =>
+                setTypeFilter(e.target.value as ProjectType | "all")
+              }
               className="w-full appearance-none rounded-lg border border-border bg-card py-2.5 pl-3 pr-8 text-sm font-medium text-card-foreground focus:border-ring focus:outline-none focus:ring-1 focus:ring-ring sm:w-40"
             >
               {TYPE_OPTIONS.map((opt) => (
@@ -350,14 +358,14 @@ export default function ContractorProjects() {
         ) : filteredProjects.length === 0 ? (
           <EmptyState
             hasActiveFilters={hasActiveFilters}
-            onCreate={() => navigate('/contractor/wizard')}
+            onCreate={() => navigate("/contractor/wizard/")}
             onReset={resetFilters}
           />
         ) : (
           <>
             <p className="mb-4 text-sm text-muted-foreground">
-              Showing {filteredProjects.length}{' '}
-              {filteredProjects.length === 1 ? 'project' : 'projects'}
+              Showing {filteredProjects.length}{" "}
+              {filteredProjects.length === 1 ? "project" : "projects"}
             </p>
             <div className="grid grid-cols-1 sm:grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {filteredProjects.map((project) => (
@@ -368,7 +376,9 @@ export default function ContractorProjects() {
                   menuOpen={openMenuId === project.id}
                   confirmDelete={confirmDeleteId === project.id}
                   onToggleMenu={() =>
-                    setOpenMenuId((prev) => (prev === project.id ? null : project.id))
+                    setOpenMenuId((prev) =>
+                      prev === project.id ? null : project.id,
+                    )
                   }
                   onOpen={() => handleOpen(project)}
                   onDuplicate={() => handleDuplicate(project)}
@@ -392,21 +402,25 @@ export default function ContractorProjects() {
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-red-100">
                 <Trash2 className="h-5 w-5 text-red-600" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground">Delete project?</h3>
+              <h3 className="text-lg font-semibold text-foreground">
+                Delete project?
+              </h3>
             </div>
             <p className="mb-6 text-sm text-muted-foreground">
-              This action cannot be undone. The project and all of its rooms, calculations,
-              and associated data will be permanently removed.
+              This action cannot be undone. The project and all of its rooms,
+              calculations, and associated data will be permanently removed.
             </p>
             <div className="flex justify-end gap-3">
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={() => setConfirmDeleteId(null)}
                 className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
               >
                 Cancel
               </Button>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={() => handleDelete(confirmDeleteId)}
                 className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-red-700"
@@ -454,7 +468,7 @@ function ProjectCard({
   onCancelDelete,
   onConfirmDelete,
 }: ProjectCardProps) {
-  const isArchived = project.status === 'archived';
+  const isArchived = project.status === "archived";
   const progress = Math.max(0, Math.min(100, project.progress_percentage ?? 0));
 
   return (
@@ -464,7 +478,7 @@ function ProjectCard({
         <div className="flex flex-wrap items-center gap-2">
           <span
             className={cn(
-              'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium',
+              "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
               TYPE_BADGE_CLASSES[project.project_type],
             )}
           >
@@ -472,7 +486,7 @@ function ProjectCard({
           </span>
           <span
             className={cn(
-              'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium',
+              "inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium",
               STATUS_BADGE_CLASSES[project.status],
             )}
           >
@@ -481,7 +495,8 @@ function ProjectCard({
         </div>
 
         <div className="relative">
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={onToggleMenu}
             disabled={busy}
@@ -493,7 +508,8 @@ function ProjectCard({
 
           {menuOpen && (
             <div className="absolute right-0 top-full z-10 mt-1 w-44 overflow-hidden rounded-lg border border-border bg-card py-1 shadow-lg">
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={onOpen}
                 className="flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground hover:bg-muted/50"
@@ -501,7 +517,8 @@ function ProjectCard({
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 Open
               </Button>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={onDuplicate}
                 className="flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground hover:bg-muted/50"
@@ -510,7 +527,8 @@ function ProjectCard({
                 Duplicate
               </Button>
               {isArchived ? (
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   onClick={onRestore}
                   className="flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground hover:bg-muted/50"
@@ -519,7 +537,8 @@ function ProjectCard({
                   Restore
                 </Button>
               ) : (
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   onClick={onArchive}
                   className="flex w-full items-center gap-2 px-3 py-2 text-sm text-card-foreground hover:bg-muted/50"
@@ -529,7 +548,8 @@ function ProjectCard({
                 </Button>
               )}
               <div className="my-1 border-t border-border/50" />
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={onRequestDelete}
                 className="flex w-full items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
@@ -543,7 +563,8 @@ function ProjectCard({
       </div>
 
       {/* Body: clickable to open */}
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         onClick={onOpen}
         className="flex flex-1 flex-col items-start px-5 pb-5 pt-3 text-left"
@@ -555,7 +576,7 @@ function ProjectCard({
         <div className="mt-3 flex w-full flex-col gap-2 text-sm text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
             <Users className="h-4 w-4 text-muted-foreground" />
-            {project.client_name || 'No client'}
+            {project.client_name || "No client"}
           </span>
           <span className="inline-flex items-center gap-1.5">
             <Building2 className="h-4 w-4 text-muted-foreground" />
@@ -567,7 +588,10 @@ function ProjectCard({
         <div className="mt-4 flex items-center gap-1.5">
           <DollarSign className="h-4 w-4 text-muted-foreground" />
           <span className="text-lg font-bold text-foreground">
-            {formatCurrency(project.total_project_cost ?? 0, project.currency_symbol || '₦')}
+            {formatCurrency(
+              project.total_project_cost ?? 0,
+              project.currency_symbol || "₦",
+            )}
           </span>
         </div>
 
@@ -575,13 +599,15 @@ function ProjectCard({
         <div className="mt-4 w-full">
           <div className="mb-1 flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Progress</span>
-            <span className="font-medium text-card-foreground">{progress}%</span>
+            <span className="font-medium text-card-foreground">
+              {progress}%
+            </span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
             <div
               className={cn(
-                'h-full rounded-full transition-all',
-                isArchived ? 'bg-muted-foreground/40' : 'bg-background',
+                "h-full rounded-full transition-all",
+                isArchived ? "bg-muted-foreground/40" : "bg-background",
               )}
               style={{ width: `${progress}%` }}
             />
@@ -603,14 +629,16 @@ function ProjectCard({
             This cannot be undone. Delete this project?
           </p>
           <div className="flex justify-end gap-2">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={onCancelDelete}
               className="rounded-md border border-border px-3 py-1.5 text-xs font-medium text-card-foreground hover:bg-muted/50"
             >
               Cancel
             </Button>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               type="button"
               onClick={onConfirmDelete}
               className="rounded-md bg-red-600 px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-red-700"
@@ -648,16 +676,17 @@ function EmptyState({ hasActiveFilters, onCreate, onReset }: EmptyStateProps) {
         <Package className="h-8 w-8 text-muted-foreground" />
       </div>
       <h3 className="text-lg font-semibold text-foreground">
-        {hasActiveFilters ? 'No projects found' : 'No projects yet'}
+        {hasActiveFilters ? "No projects found" : "No projects yet"}
       </h3>
       <p className="mt-1 max-w-sm text-sm text-muted-foreground">
         {hasActiveFilters
-          ? 'Try adjusting your search or filters to find what you are looking for.'
-          : 'Start by creating your first contractor estimation project.'}
+          ? "Try adjusting your search or filters to find what you are looking for."
+          : "Start by creating your first contractor estimation project."}
       </p>
       <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
         {hasActiveFilters ? (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             type="button"
             onClick={onReset}
             className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-semibold text-card-foreground hover:bg-muted/50"
@@ -665,7 +694,8 @@ function EmptyState({ hasActiveFilters, onCreate, onReset }: EmptyStateProps) {
             Clear filters
           </Button>
         ) : null}
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           type="button"
           onClick={onCreate}
           className="inline-flex items-center gap-2 rounded-lg bg-background px-4 py-2.5 text-sm font-semibold text-primary-foreground shadow-sm transition hover:bg-card-foreground/90"

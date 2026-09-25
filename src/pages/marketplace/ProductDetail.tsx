@@ -164,7 +164,7 @@ export default function ProductDetail() {
           Product not found
         </p>
         <Link
-          to="/marketplace"
+          to="/marketplace/"
           className="mt-3 inline-flex items-center gap-2 text-sm text-brand-purple"
         >
           <ArrowLeft aria-hidden="true" className="h-4 w-4" /> Back to
@@ -189,12 +189,12 @@ export default function ProductDetail() {
     <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 lg:px-8">
       {/* Breadcrumb */}
       <div className="mb-4 flex items-center gap-2 text-xs text-muted-foreground">
-        <Link to="/marketplace" className="hover:text-brand-purple">
+        <Link to="/marketplace/" className="hover:text-brand-purple">
           Marketplace
         </Link>
         <span>/</span>
         <Link
-          to="/marketplace?tab=products"
+          to="/marketplace/?tab=products"
           className="hover:text-brand-purple"
         >
           Products
@@ -203,7 +203,7 @@ export default function ProductDetail() {
           <>
             <span>/</span>
             <Link
-              to={`/marketplace/products?category=${category.slug}`}
+              to={`/marketplace/products/?category=${category.slug}`}
               className="hover:text-brand-purple"
             >
               {category.name}
@@ -229,7 +229,8 @@ export default function ProductDetail() {
           {product.images.length > 1 && (
             <div className="mt-3 grid grid-cols-5 gap-2">
               {product.images.map((img, idx) => (
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   key={idx}
                   onClick={() => setSelectedImage(idx)}
                   className={classNames(
@@ -392,14 +393,16 @@ export default function ProductDetail() {
 
           {/* Actions */}
           <div className="mt-5 flex flex-col gap-2 sm:flex-row">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => setShowInquiry(!showInquiry)}
               className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
             >
               <MessageCircle aria-hidden="true" className="h-4 w-4" />
               Contact Seller
             </Button>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => {
                 if (navigator.share) {
                   navigator.share({
@@ -445,7 +448,8 @@ export default function ProductDetail() {
                   className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
                 />
               </div>
-              <Button variant="default"
+              <Button
+                variant="default"
                 onClick={handleInquiry}
                 disabled={submitting || !inquiryMessage.trim()}
                 className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold disabled:opacity-50"
@@ -494,7 +498,7 @@ export default function ProductDetail() {
             {relatedProducts.map((rp) => (
               <Link
                 key={rp.id}
-                to={`/marketplace/products/${rp.id}`}
+                to={`/marketplace/products/${rp.id}/`}
                 className="group rounded-xl border border-border p-3 transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/10"
               >
                 <div className="aspect-square overflow-hidden rounded-lg bg-muted dark:bg-white/5">

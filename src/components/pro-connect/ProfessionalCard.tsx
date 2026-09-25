@@ -45,7 +45,7 @@ export default function ProfessionalCard({
 
   return (
     <Link
-      to={`/pro-connect/${profile.slug}`}
+      to={`/pro-connect/${profile.slug}/`}
       className="group flex flex-col rounded-xl border border-border bg-card p-5 transition-all hover:border-brand-purple/30 hover:shadow-lg dark:border-white/5 dark:bg-card dark:hover:border-brand-purple-lighter/30"
     >
       {/* Header row */}

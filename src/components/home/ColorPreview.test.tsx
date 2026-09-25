@@ -29,7 +29,7 @@ describe("ColorPreview", () => {
   it("renders View all colors link", () => {
     renderComponent();
     const link = screen.getByText("View all colors").closest("a");
-    expect(link?.getAttribute("href")).toBe("/colors");
+    expect(link?.getAttribute("href")).toBe("/colors/");
   });
 
   it("renders loading state initially", () => {

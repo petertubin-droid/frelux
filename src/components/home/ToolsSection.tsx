@@ -199,7 +199,7 @@ export default function ToolsSection() {
 
           {/* Color & AI, smaller card */}
           <Link
-            to="/colors"
+            to="/colors/"
             className="card-hover group relative flex flex-col overflow-hidden rounded-2xl border border-border/60 bg-card p-6 transition-all duration-500 dark:border-white/5 dark:bg-card"
             style={{
               opacity: isVisible ? 1 : 0,
@@ -234,7 +234,7 @@ export default function ToolsSection() {
       {/* Explore all CTA */}
       <Container className="relative mt-12 text-center">
         <Link
-          to="/templates"
+          to="/templates/"
           className="group inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-6 py-3.5 text-sm font-semibold text-card-foreground shadow-sm transition-all hover:border-brand-purple/20 hover:text-brand-purple hover:shadow-md dark:border-white/10 dark:bg-card dark:text-primary-foreground/80"
         >
           Explore Calculator Templates

@@ -1,10 +1,16 @@
-import { useState, useEffect, type ReactNode } from 'react';
-import { Link } from 'react-router-dom';
-import { ChevronLeft, Loader2, FileText, Shield, ScrollText } from 'lucide-react';
-import { siteConfig } from '@/config/site';
-import { useLegalPage } from '@/lib/useLegalPage';
-import { classNames } from '@/lib/utils';
-import Container from '@/components/ui/Container';
+import { useState, useEffect, type ReactNode } from "react";
+import { Link } from "react-router-dom";
+import {
+  ChevronLeft,
+  Loader2,
+  FileText,
+  Shield,
+  ScrollText,
+} from "lucide-react";
+import { siteConfig } from "@/config/site";
+import { useLegalPage } from "@/lib/useLegalPage";
+import { classNames } from "@/lib/utils";
+import Container from "@/components/ui/Container";
 
 export default function LegalLayout({
   slug,
@@ -21,7 +27,7 @@ export default function LegalLayout({
 }) {
   const { page, loading } = useLegalPage(slug);
   const published = Boolean(page);
-  const [activeSection, setActiveSection] = useState<string>('');
+  const [activeSection, setActiveSection] = useState<string>("");
 
   // Track scroll position for active section highlighting
   useEffect(() => {
@@ -34,23 +40,31 @@ export default function LegalLayout({
           }
         });
       },
-      { rootMargin: '-20% 0px -70% 0px' }
+      { rootMargin: "-20% 0px -70% 0px" },
     );
     sections.forEach((s) => {
-      const el = document.getElementById(`section-${s.heading.replace(/\s+/g, '-').toLowerCase()}`);
+      const el = document.getElementById(
+        `section-${s.heading.replace(/\s+/g, "-").toLowerCase()}`,
+      );
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
   }, [loading, published, sections]);
 
-  const slugify = (s: string) => s.replace(/\s+/g, '-').toLowerCase();
+  const slugify = (s: string) => s.replace(/\s+/g, "-").toLowerCase();
 
   return (
     <>
       {/* Premium Hero Header */}
       <section className="relative overflow-hidden bg-mesh text-primary-foreground">
-        <div className="pointer-events-none absolute inset-0 bg-grid-dark opacity-40" aria-hidden="true" />
-        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div
+          className="pointer-events-none absolute inset-0 bg-grid-dark opacity-40"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute inset-0"
+          aria-hidden="true"
+        >
           <div className="absolute left-1/2 top-0 h-[300px] w-[600px] -translate-x-1/2 rounded-full bg-primary/20 blur-[120px]" />
         </div>
         <Container className="relative py-14 sm:py-16">
@@ -71,17 +85,32 @@ export default function LegalLayout({
             </span>
           </div>
           <h1 className="mt-4 font-display text-3xl font-bold leading-tight sm:text-4xl">
-            {loading ? 'Loading…' : published ? page!.title : title}
+            {loading ? "Loading…" : published ? page!.title : title}
           </h1>
           {(updated || published) && (
             <p className="mt-3 text-sm text-primary-foreground/50">
-              Last updated {published
-                ? new Date(page!.updated_at ?? new Date().toISOString()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
-                : new Date(updated ?? new Date().toISOString()).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+              Last updated{" "}
+              {published
+                ? new Date(
+                    page!.updated_at ?? new Date().toISOString(),
+                  ).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })
+                : new Date(
+                    updated ?? new Date().toISOString(),
+                  ).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
             </p>
           )}
           {intro && !loading && !published && (
-            <p className="mt-4 max-w-2xl text-base leading-relaxed text-primary-foreground/60">{intro}</p>
+            <p className="mt-4 max-w-2xl text-base leading-relaxed text-primary-foreground/60">
+              {intro}
+            </p>
           )}
         </Container>
       </section>
@@ -118,10 +147,10 @@ export default function LegalLayout({
                     key={s.heading}
                     href={`#section-${slugify(s.heading)}`}
                     className={classNames(
-                      'block rounded-lg px-3 py-2 text-sm transition-colors',
+                      "block rounded-lg px-3 py-2 text-sm transition-colors",
                       activeSection === `section-${slugify(s.heading)}`
-                        ? 'bg-primary/10 font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter'
-                        : 'text-muted-foreground hover:bg-muted hover:text-card-foreground dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-muted-foreground/60'
+                        ? "bg-primary/10 font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                        : "text-muted-foreground hover:bg-muted hover:text-card-foreground dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-muted-foreground/60",
                     )}
                   >
                     {s.heading}
@@ -129,7 +158,9 @@ export default function LegalLayout({
                 ))}
                 <div className="mt-4 flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2.5 dark:border-white/5 dark:bg-white/5">
                   <ScrollText className="h-3.5 w-3.5 text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground dark:text-muted-foreground">{siteConfig.name}</span>
+                  <span className="text-xs text-muted-foreground dark:text-muted-foreground">
+                    {siteConfig.name}
+                  </span>
                 </div>
               </nav>
             </aside>
@@ -138,7 +169,9 @@ export default function LegalLayout({
             <div className="min-w-0">
               {intro && (
                 <div className="mb-8 rounded-2xl border border-brand-purple/15 bg-primary/5 p-5 dark:border-brand-purple/20 dark:bg-primary/10">
-                  <p className="text-sm leading-relaxed text-card-foreground dark:text-muted-foreground/60">{intro}</p>
+                  <p className="text-sm leading-relaxed text-card-foreground dark:text-muted-foreground/60">
+                    {intro}
+                  </p>
                 </div>
               )}
 
@@ -160,12 +193,18 @@ export default function LegalLayout({
                 ))}
               </div>
 
-
               {/* Footer note */}
               <div className="mt-8 rounded-xl border border-border bg-muted/50 p-4 dark:border-white/5 dark:bg-white/5">
                 <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                  {siteConfig.name} · This document is provided for informational purposes. For questions about this policy,{' '}
-                  <Link to="/contact" className="font-medium text-brand-purple hover:underline dark:text-brand-purple-lighter">contact us</Link>.
+                  {siteConfig.name} · This document is provided for
+                  informational purposes. For questions about this policy,{" "}
+                  <Link
+                    to="/contact/"
+                    className="font-medium text-brand-purple hover:underline dark:text-brand-purple-lighter"
+                  >
+                    contact us
+                  </Link>
+                  .
                 </p>
               </div>
             </div>

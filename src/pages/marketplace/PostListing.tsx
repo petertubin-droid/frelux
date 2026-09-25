@@ -119,7 +119,7 @@ export default function PostListing() {
           Date.now() + 30 * 24 * 60 * 60 * 1000,
         ).toISOString(),
       });
-      navigate(`/marketplace/${listing.id}`);
+      navigate(`/marketplace/${listing.id}/`);
     } catch (e) {
       setError(getSafeError(e, "Failed to post listing"));
     } finally {
@@ -334,7 +334,7 @@ export default function PostListing() {
         {!estimateRef && (
           <div className="mt-4 flex flex-col gap-2 sm:flex-row">
             <Link
-              to="/calculators"
+              to="/calculators/"
               className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground hover:border-brand-purple hover:text-brand-purple dark:border-white/10 dark:text-muted-foreground"
             >
               <Calculator aria-hidden="true" className="h-4 w-4" /> Run a

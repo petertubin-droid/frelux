@@ -91,7 +91,7 @@ export function CookieBanner() {
                     with analytics, and keep tools free with relevant ads. You
                     choose what to allow.{" "}
                     <Link
-                      to="/cookie-policy"
+                      to="/cookie-policy/"
                       className="font-medium text-brand-purple dark:text-brand-purple-lighter hover:text-brand-purple-dark dark:hover:text-primary-foreground underline underline-offset-2 decoration-brand-purple/30 transition-colors"
                     >
                       Learn more

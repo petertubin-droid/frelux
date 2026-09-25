@@ -128,7 +128,10 @@ export default function Learn() {
       // Sanitize: % _ are ilike wildcards, , ( ) break the PostgREST
       // or-filter syntax. Strip all of them so arbitrary input can't
       // error or widen the filter.
-      const q = searchQuery.trim().replace(/[%_(),()]/g, " ").slice(0, 80);
+      const q = searchQuery
+        .trim()
+        .replace(/[%_(),()]/g, " ")
+        .slice(0, 80);
       const { data } = await supabase
         .from("learn_articles")
         .select("*")
@@ -222,7 +225,9 @@ export default function Learn() {
 
           <div className="relative mx-auto max-w-2xl text-center">
             <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-brand-purple/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-brand-purple">
-              {totalPublished !== null ? `${totalPublished}+ Expert Articles` : "Expert Articles"}
+              {totalPublished !== null
+                ? `${totalPublished}+ Expert Articles`
+                : "Expert Articles"}
             </div>
             <h2 className="font-display text-3xl font-bold leading-tight tracking-tight text-foreground dark:text-primary-foreground sm:text-4xl">
               Master Your Craft with{" "}
@@ -258,7 +263,7 @@ export default function Learn() {
                     {searchResults.map((a) => (
                       <Link
                         key={a.id}
-                        to={`/learn/${a.slug}`}
+                        to={`/learn/${a.slug}/`}
                         className="flex items-start gap-3 px-4 py-3 transition-all hover:bg-primary/5"
                       >
                         {a.cover_image_url && (
@@ -312,7 +317,7 @@ export default function Learn() {
               {featured.map((article) => (
                 <Link
                   key={article.id}
-                  to={`/learn/${article.slug}`}
+                  to={`/learn/${article.slug}/`}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl dark:border-white/5 dark:bg-card"
                 >
                   {article.cover_image_url ? (
@@ -390,7 +395,8 @@ export default function Learn() {
                     key={cat.id}
                     className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                   >
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => toggleParent(cat.slug)}
                       className="group flex w-full items-center gap-5 p-6 text-left transition-all hover:bg-primary/[0.03]"
                     >
@@ -409,7 +415,8 @@ export default function Learn() {
                       </div>
                       <div className="flex items-center gap-3">
                         <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground dark:bg-white/10 dark:text-muted-foreground">
-                          {children.length} {children.length === 1 ? "topic" : "topics"}
+                          {children.length}{" "}
+                          {children.length === 1 ? "topic" : "topics"}
                         </span>
                         <ChevronDown
                           className={`h-5 w-5 text-muted-foreground transition-transform duration-300 ${isExpanded ? "rotate-180" : ""} group-hover:text-brand-purple`}
@@ -427,7 +434,7 @@ export default function Learn() {
                             return (
                               <Link
                                 key={child.id}
-                                to={`/learn/category/${child.slug}`}
+                                to={`/learn/category/${child.slug}/`}
                                 className="group/sub flex items-center gap-3 rounded-xl p-3.5 transition-all hover:bg-primary/5 hover:shadow-sm"
                               >
                                 <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/5 text-brand-purple/70 transition-colors group-hover/sub:bg-primary/10 group-hover/sub:text-brand-purple">
@@ -460,7 +467,7 @@ export default function Learn() {
               return (
                 <Link
                   key={cat.id}
-                  to={`/learn/category/${cat.slug}`}
+                  to={`/learn/category/${cat.slug}/`}
                   className="group flex items-start gap-5 rounded-2xl border border-border/80 bg-card p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
                 >
                   <div className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-brand-purple transition-transform group-hover:scale-105">
@@ -509,7 +516,7 @@ export default function Learn() {
               {recent.map((article) => (
                 <Link
                   key={article.id}
-                  to={`/learn/${article.slug}`}
+                  to={`/learn/${article.slug}/`}
                   className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl dark:border-white/5 dark:bg-card"
                 >
                   {article.cover_image_url ? (

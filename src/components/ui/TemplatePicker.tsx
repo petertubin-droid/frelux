@@ -1,5 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Bookmark, Plus, Copy, Trash2, Pencil, Check, X, Loader2 } from 'lucide-react';
+import { useCallback, useEffect, useState } from "react";
+import {
+  Bookmark,
+  Plus,
+  Copy,
+  Trash2,
+  Pencil,
+  Check,
+  X,
+  Loader2,
+} from "lucide-react";
 import {
   getPublicTemplates,
   getUserTemplates,
@@ -7,10 +16,10 @@ import {
   updateUserTemplate,
   deleteUserTemplate,
   duplicateUserTemplate,
-} from '@/lib/templates';
-import { useAuth } from '@/lib/auth';
-import { useToast } from '@/components/ui/Toast';
-import type { DbCalculatorTemplate, CalculatorType } from '@/types/database';
+} from "@/lib/templates";
+import { useAuth } from "@/lib/auth";
+import { useToast } from "@/components/ui/Toast";
+import type { DbCalculatorTemplate, CalculatorType } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 
 export default function TemplatePicker({
@@ -25,20 +34,26 @@ export default function TemplatePicker({
   const { user } = useAuth();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const [publicTemplates, setPublicTemplates] = useState<DbCalculatorTemplate[]>([]);
-  const [userTemplates, setUserTemplates] = useState<DbCalculatorTemplate[]>([]);
+  const [publicTemplates, setPublicTemplates] = useState<
+    DbCalculatorTemplate[]
+  >([]);
+  const [userTemplates, setUserTemplates] = useState<DbCalculatorTemplate[]>(
+    [],
+  );
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [saveName, setSaveName] = useState('');
+  const [saveName, setSaveName] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [editName, setEditName] = useState('');
+  const [editName, setEditName] = useState("");
 
   const loadTemplates = useCallback(async () => {
     setLoading(true);
     try {
       const [pub, usr] = await Promise.all([
         getPublicTemplates({ calculatorType }),
-        user ? getUserTemplates(user.id, { calculatorType }) : Promise.resolve([]),
+        user
+          ? getUserTemplates(user.id, { calculatorType })
+          : Promise.resolve([]),
       ]);
       setPublicTemplates(pub);
       setUserTemplates(usr);
@@ -63,26 +78,38 @@ export default function TemplatePicker({
         calculator_type: calculatorType,
         name: saveName.trim(),
         input_data: currentData,
-        visibility: 'private',
+        visibility: "private",
       });
-      toast({ type: 'success', title: 'Template loaded', message: `"${saveName.trim()}" is now in your templates.` });
-      setSaveName('');
+      toast({
+        type: "success",
+        title: "Template loaded",
+        message: `"${saveName.trim()}" is now in your templates.`,
+      });
+      setSaveName("");
       loadTemplates();
     } catch (e) {
-      toast({ type: 'error', title: 'Failed to save template', message: e instanceof Error ? e.message : 'Unknown error' });
+      toast({
+        type: "error",
+        title: "Failed to save template",
+        message: e instanceof Error ? e.message : "Unknown error",
+      });
     } finally {
       setSaving(false);
     }
   }
 
   async function handleDelete(id: string) {
-    if (!user || !confirm('Delete this template?')) return;
+    if (!user || !confirm("Delete this template?")) return;
     try {
       await deleteUserTemplate(id, user.id);
-      toast({ type: 'success', title: 'Template deleted' });
+      toast({ type: "success", title: "Template deleted" });
       loadTemplates();
     } catch (e) {
-      toast({ type: 'error', title: 'Failed to delete', message: e instanceof Error ? e.message : 'Unknown error' });
+      toast({
+        type: "error",
+        title: "Failed to delete",
+        message: e instanceof Error ? e.message : "Unknown error",
+      });
     }
   }
 
@@ -90,10 +117,14 @@ export default function TemplatePicker({
     if (!user) return;
     try {
       await duplicateUserTemplate(id, user.id);
-      toast({ type: 'success', title: 'Template duplicated' });
+      toast({ type: "success", title: "Template duplicated" });
       loadTemplates();
     } catch (e) {
-      toast({ type: 'error', title: 'Failed to duplicate', message: e instanceof Error ? e.message : 'Unknown error' });
+      toast({
+        type: "error",
+        title: "Failed to duplicate",
+        message: e instanceof Error ? e.message : "Unknown error",
+      });
     }
   }
 
@@ -102,16 +133,21 @@ export default function TemplatePicker({
     try {
       await updateUserTemplate(id, user.id, { name: editName.trim() });
       setEditingId(null);
-      toast({ type: 'success', title: 'Template renamed' });
+      toast({ type: "success", title: "Template renamed" });
       loadTemplates();
     } catch (e) {
-      toast({ type: 'error', title: 'Failed to rename', message: e instanceof Error ? e.message : 'Unknown error' });
+      toast({
+        type: "error",
+        title: "Failed to rename",
+        message: e instanceof Error ? e.message : "Unknown error",
+      });
     }
   }
 
   return (
     <div className="relative">
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         onClick={() => setOpen((v) => !v)}
         className="inline-flex items-center gap-2 rounded-lg border border-border dark:border-white/5 bg-card dark:bg-card px-4 py-2 text-sm font-semibold text-card-foreground dark:text-muted-foreground/60 transition-colors hover:border-brand-purple hover:text-brand-purple press-scale"
@@ -127,78 +163,171 @@ export default function TemplatePicker({
             <div className="max-h-[70vh] overflow-y-auto p-4">
               {loading ? (
                 <div className="flex items-center justify-center py-8 text-sm text-muted-foreground dark:text-muted-foreground">
-                  <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" /> Loading templates…
+                  <Loader2
+                    aria-hidden="true"
+                    className="h-5 w-5 animate-spin"
+                  />{" "}
+                  Loading templates…
                 </div>
               ) : (
                 <>
                   {/* Built-in / public templates */}
                   <div>
-                    <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">Built-in Templates</h4>
+                    <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
+                      Built-in Templates
+                    </h4>
                     {publicTemplates.length > 0 ? (
                       <div className="space-y-1">
                         {publicTemplates.map((t) => (
-                          <Button variant="ghost"
+                          <Button
+                            variant="ghost"
                             key={t.id}
                             onClick={() => {
                               onLoad(t.input_data);
                               setOpen(false);
-                              toast({ type: 'info', title: 'Template loaded', message: t.name });
+                              toast({
+                                type: "info",
+                                title: "Template loaded",
+                                message: t.name,
+                              });
                             }}
                             className="flex w-full items-start gap-2 rounded-lg px-3 py-2 text-left transition-colors hover:bg-muted/50 dark:bg-white/5"
                           >
-                            <Bookmark aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple" />
+                            <Bookmark
+                              aria-hidden="true"
+                              className="mt-0.5 h-4 w-4 shrink-0 text-brand-purple"
+                            />
                             <div className="min-w-0">
-                              <p className="text-sm font-semibold text-foreground dark:text-muted-foreground/40">{t.name}</p>
-                              {t.description && <p className="text-xs text-muted-foreground dark:text-muted-foreground">{t.description}</p>}
+                              <p className="text-sm font-semibold text-foreground dark:text-muted-foreground/40">
+                                {t.name}
+                              </p>
+                              {t.description && (
+                                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                                  {t.description}
+                                </p>
+                              )}
                             </div>
                           </Button>
                         ))}
                       </div>
                     ) : (
-                      <p className="px-3 py-2 text-xs text-muted-foreground dark:text-muted-foreground">No built-in templates available.</p>
+                      <p className="px-3 py-2 text-xs text-muted-foreground dark:text-muted-foreground">
+                        No built-in templates available.
+                      </p>
                     )}
                   </div>
 
                   {/* User templates */}
                   {user && (
                     <div className="mt-4 border-t border-border/50 pt-4">
-                      <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">My Templates</h4>
+                      <h4 className="mb-2 text-xs font-bold uppercase tracking-wide text-muted-foreground dark:text-muted-foreground">
+                        My Templates
+                      </h4>
                       {userTemplates.length > 0 ? (
                         <div className="space-y-1">
                           {userTemplates.map((t) => (
-                            <div key={t.id} className="group flex items-start gap-2 rounded-lg px-3 py-2 transition-colors hover:bg-muted/50 dark:bg-white/5">
+                            <div
+                              key={t.id}
+                              className="group flex items-start gap-2 rounded-lg px-3 py-2 transition-colors hover:bg-muted/50 dark:bg-white/5"
+                            >
                               {editingId === t.id ? (
                                 <div className="flex flex-1 items-center gap-1">
                                   <input
                                     value={editName}
-                                    onChange={(e) => setEditName(e.target.value)}
+                                    onChange={(e) =>
+                                      setEditName(e.target.value)
+                                    }
                                     className="flex-1 rounded border border-border dark:border-white/5 px-2 py-1 text-sm"
                                     autoFocus
-                                    onKeyDown={(e) => e.key === 'Enter' && handleRename(t.id)}
+                                    onKeyDown={(e) =>
+                                      e.key === "Enter" && handleRename(t.id)
+                                    }
                                   />
-                                  <Button variant="ghost" onClick={() => handleRename(t.id)} className="rounded bg-primary p-1 text-primary-foreground"><Check aria-hidden="true" className="h-3.5 w-3.5" /></Button>
-                                  <Button variant="ghost" onClick={() => setEditingId(null)} className="rounded border border-border dark:border-white/5 p-1 text-muted-foreground dark:text-muted-foreground"><X className="h-3.5 w-3.5" /></Button>
+                                  <Button
+                                    variant="ghost"
+                                    onClick={() => handleRename(t.id)}
+                                    className="rounded bg-primary p-1 text-primary-foreground"
+                                  >
+                                    <Check
+                                      aria-hidden="true"
+                                      className="h-3.5 w-3.5"
+                                    />
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    onClick={() => setEditingId(null)}
+                                    className="rounded border border-border dark:border-white/5 p-1 text-muted-foreground dark:text-muted-foreground"
+                                  >
+                                    <X className="h-3.5 w-3.5" />
+                                  </Button>
                                 </div>
                               ) : (
                                 <>
-                                  <Button variant="ghost"
+                                  <Button
+                                    variant="ghost"
                                     onClick={() => {
                                       onLoad(t.input_data);
                                       setOpen(false);
-                                      toast({ type: 'info', title: 'Template loaded', message: t.name });
+                                      toast({
+                                        type: "info",
+                                        title: "Template loaded",
+                                        message: t.name,
+                                      });
                                     }}
                                     className="flex flex-1 items-start gap-2 text-left"
                                   >
-                                    <Bookmark aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground dark:text-muted-foreground" />
+                                    <Bookmark
+                                      aria-hidden="true"
+                                      className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground dark:text-muted-foreground"
+                                    />
                                     <div className="min-w-0">
-                                      <p className="truncate text-sm font-semibold text-foreground dark:text-muted-foreground/40">{t.name}</p>
-                                      {t.description && <p className="truncate text-xs text-muted-foreground dark:text-muted-foreground">{t.description}</p>}
+                                      <p className="truncate text-sm font-semibold text-foreground dark:text-muted-foreground/40">
+                                        {t.name}
+                                      </p>
+                                      {t.description && (
+                                        <p className="truncate text-xs text-muted-foreground dark:text-muted-foreground">
+                                          {t.description}
+                                        </p>
+                                      )}
                                     </div>
                                   </Button>
                                   <div className="flex shrink-0 items-center gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
-                                    <Button variant="ghost" onClick={() => { setEditingId(t.id); setEditName(t.name); }} className="rounded p-1 text-muted-foreground dark:text-muted-foreground hover:text-brand-purple" title="Rename"><Pencil aria-hidden="true" className="h-3.5 w-3.5" /></Button>
-                                    <Button variant="ghost" onClick={() => handleDuplicate(t.id)} className="rounded p-1 text-muted-foreground dark:text-muted-foreground hover:text-brand-purple" title="Duplicate"><Copy aria-hidden="true" className="h-3.5 w-3.5" /></Button>
-                                    <Button variant="ghost" onClick={() => handleDelete(t.id)} className="rounded p-1 text-muted-foreground dark:text-muted-foreground hover:text-red-500" title="Delete"><Trash2 aria-hidden="true" className="h-3.5 w-3.5" /></Button>
+                                    <Button
+                                      variant="ghost"
+                                      onClick={() => {
+                                        setEditingId(t.id);
+                                        setEditName(t.name);
+                                      }}
+                                      className="rounded p-1 text-muted-foreground dark:text-muted-foreground hover:text-brand-purple"
+                                      title="Rename"
+                                    >
+                                      <Pencil
+                                        aria-hidden="true"
+                                        className="h-3.5 w-3.5"
+                                      />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      onClick={() => handleDuplicate(t.id)}
+                                      className="rounded p-1 text-muted-foreground dark:text-muted-foreground hover:text-brand-purple"
+                                      title="Duplicate"
+                                    >
+                                      <Copy
+                                        aria-hidden="true"
+                                        className="h-3.5 w-3.5"
+                                      />
+                                    </Button>
+                                    <Button
+                                      variant="ghost"
+                                      onClick={() => handleDelete(t.id)}
+                                      className="rounded p-1 text-muted-foreground dark:text-muted-foreground hover:text-red-500"
+                                      title="Delete"
+                                    >
+                                      <Trash2
+                                        aria-hidden="true"
+                                        className="h-3.5 w-3.5"
+                                      />
+                                    </Button>
                                   </div>
                                 </>
                               )}
@@ -206,7 +335,10 @@ export default function TemplatePicker({
                           ))}
                         </div>
                       ) : (
-                        <p className="px-3 py-2 text-xs text-muted-foreground dark:text-muted-foreground">No saved templates yet. Save your current calculation below.</p>
+                        <p className="px-3 py-2 text-xs text-muted-foreground dark:text-muted-foreground">
+                          No saved templates yet. Save your current calculation
+                          below.
+                        </p>
                       )}
 
                       {/* Save current as template */}
@@ -217,14 +349,22 @@ export default function TemplatePicker({
                             onChange={(e) => setSaveName(e.target.value)}
                             placeholder="Save current as template…"
                             className="flex-1 rounded-lg border border-border dark:border-white/5 px-3 py-2 text-sm"
-                            onKeyDown={(e) => e.key === 'Enter' && handleSave()}
+                            onKeyDown={(e) => e.key === "Enter" && handleSave()}
                           />
-                          <Button variant="default"
+                          <Button
+                            variant="default"
                             onClick={handleSave}
                             disabled={saving || !saveName.trim()}
                             className="inline-flex items-center gap-1 rounded-lg px-3 py-2 text-sm font-semibold disabled:opacity-50 press-scale"
                           >
-                            {saving ? <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" /> : <Plus aria-hidden="true" className="h-4 w-4" />}
+                            {saving ? (
+                              <Loader2
+                                aria-hidden="true"
+                                className="h-4 w-4 animate-spin"
+                              />
+                            ) : (
+                              <Plus aria-hidden="true" className="h-4 w-4" />
+                            )}
                           </Button>
                         </div>
                       </div>
@@ -234,7 +374,13 @@ export default function TemplatePicker({
                   {!user && (
                     <div className="mt-4 border-t border-border/50 pt-4">
                       <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                        <a href="/login" className="font-semibold text-brand-purple hover:underline">Sign in</a> to save your own templates.
+                        <a
+                          href="/login/"
+                          className="font-semibold text-brand-purple hover:underline"
+                        >
+                          Sign in
+                        </a>{" "}
+                        to save your own templates.
                       </p>
                     </div>
                   )}

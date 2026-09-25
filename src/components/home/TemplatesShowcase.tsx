@@ -152,7 +152,7 @@ export default function TemplatesShowcase() {
                 Share
               </Button>
               <Link
-                to="/my-templates"
+                to="/my-templates/"
                 className="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-brand-purple transition-all hover:gap-2 dark:text-brand-purple-lighter"
               >
                 View all
@@ -165,7 +165,7 @@ export default function TemplatesShowcase() {
         {/* CTA */}
         <div className="mt-10 text-center">
           <Link
-            to="/templates"
+            to="/templates/"
             className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/20 transition-all hover:bg-primary/90 hover:shadow-xl hover:-translate-y-0.5 active:scale-[0.98]"
           >
             Browse all templates

@@ -1,17 +1,30 @@
-import { useEffect, useState, useRef } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Check, Phone, Shield, AlertCircle } from 'lucide-react';
-import { useAuth } from '@/lib/auth';
+import { useEffect, useState, useRef } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { ArrowLeft, Check, Phone, Shield, AlertCircle } from "lucide-react";
+import { useAuth } from "@/lib/auth";
 import {
-  fetchCategories, fetchServices, fetchLocations,
-  createProProfile, updateProProfile, updateProfileServices, updateProfileLocations,
-  getMyProProfile, generateProSlug, isSlugAvailable,
-  upgradeToProWorker, getAccountType,
-} from '@/lib/pro-connect';
-import type { AccountType } from '@/types/pro-connect';
-import type { DbProCategory, DbProService, DbProLocation, DbProProfile } from '@/types/pro-connect';
-import { classNames } from '@/lib/utils';
-import { supabase } from '@/lib/supabase';
+  fetchCategories,
+  fetchServices,
+  fetchLocations,
+  createProProfile,
+  updateProProfile,
+  updateProfileServices,
+  updateProfileLocations,
+  getMyProProfile,
+  generateProSlug,
+  isSlugAvailable,
+  upgradeToProWorker,
+  getAccountType,
+} from "@/lib/pro-connect";
+import type { AccountType } from "@/types/pro-connect";
+import type {
+  DbProCategory,
+  DbProService,
+  DbProLocation,
+  DbProProfile,
+} from "@/types/pro-connect";
+import { classNames } from "@/lib/utils";
+import { supabase } from "@/lib/supabase";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 
@@ -23,52 +36,56 @@ export default function ProConnectRegister() {
   const [categories, setCategories] = useState<DbProCategory[]>([]);
   const [services, setServices] = useState<DbProService[]>([]);
   const [locations, setLocations] = useState<DbProLocation[]>([]);
-  const [existingProfile, setExistingProfile] = useState<DbProProfile | null>(null);
+  const [existingProfile, setExistingProfile] = useState<DbProProfile | null>(
+    null,
+  );
 
   // Form state
-  const [displayName, setDisplayName] = useState('');
-  const [businessName, setBusinessName] = useState('');
-  const [categoryId, setCategoryId] = useState('');
-  const [slug, setSlug] = useState('');
-  const [bio, setBio] = useState('');
-  const [yearsExperience, setYearsExperience] = useState('');
-  const [phone, setPhone] = useState('');
-  const [website, setWebsite] = useState('');
+  const [displayName, setDisplayName] = useState("");
+  const [businessName, setBusinessName] = useState("");
+  const [categoryId, setCategoryId] = useState("");
+  const [slug, setSlug] = useState("");
+  const [bio, setBio] = useState("");
+  const [yearsExperience, setYearsExperience] = useState("");
+  const [phone, setPhone] = useState("");
+  const [website, setWebsite] = useState("");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
-  const [availability, setAvailability] = useState<'available' | 'busy' | 'unavailable'>('available');
+  const [availability, setAvailability] = useState<
+    "available" | "busy" | "unavailable"
+  >("available");
   const [profileId, setProfileId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [_accountType, _setAccountType] = useState<AccountType>('client');
-  const [error, setError] = useState('');
+  const [_accountType, _setAccountType] = useState<AccountType>("client");
+  const [error, setError] = useState("");
 
   // Phase 31: Mobile OTP verification state
-  const [mobileNumber, setMobileNumber] = useState('');
-  const [otpCode, setOtpCode] = useState('');
+  const [mobileNumber, setMobileNumber] = useState("");
+  const [otpCode, setOtpCode] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
   const [otpSending, setOtpSending] = useState(false);
-  const [otpError, setOtpError] = useState('');
-  const [otpSuccess, setOtpSuccess] = useState('');
+  const [otpError, setOtpError] = useState("");
+  const [otpSuccess, setOtpSuccess] = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
   const _cooldownTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Phase 31: NIN KYC verification state
-  const [ninNumber, setNinNumber] = useState('');
+  const [ninNumber, setNinNumber] = useState("");
   const [ninSubmitting, setNinSubmitting] = useState(false);
-  const [ninError, setNinError] = useState('');
-  const [ninSuccess, setNinSuccess] = useState('');
+  const [ninError, setNinError] = useState("");
+  const [ninSuccess, setNinSuccess] = useState("");
   const [ninSubmitted, setNinSubmitted] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate('/login?redirect=/pro-connect/register');
+      navigate("/login/?redirect=/pro-connect/register");
     }
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
     if (user) {
-      setDisplayName(user.email?.split('@')[0] || '');
+      setDisplayName(user.email?.split("@")[0] || "");
     }
   }, [user]);
 
@@ -87,9 +104,9 @@ export default function ProConnectRegister() {
       if (user) {
         const acct = await getAccountType(user.id);
         _setAccountType(acct);
-        if (acct === 'client') {
+        if (acct === "client") {
           await upgradeToProWorker();
-          _setAccountType('pro_worker');
+          _setAccountType("pro_worker");
         }
       }
 
@@ -100,13 +117,13 @@ export default function ProConnectRegister() {
           setExistingProfile(existing);
           setProfileId(existing.id);
           setDisplayName(existing.display_name);
-          setBusinessName(existing.business_name || '');
-          setCategoryId(existing.category_id || '');
+          setBusinessName(existing.business_name || "");
+          setCategoryId(existing.category_id || "");
           setSlug(existing.slug);
-          setBio(existing.bio || '');
-          setYearsExperience(existing.years_experience?.toString() || '');
-          setPhone(existing.contact_phone || '');
-          setWebsite(existing.website_url || '');
+          setBio(existing.bio || "");
+          setYearsExperience(existing.years_experience?.toString() || "");
+          setPhone(existing.contact_phone || "");
+          setWebsite(existing.website_url || "");
           setAvailability(existing.availability);
           setStep(1);
         }
@@ -115,29 +132,41 @@ export default function ProConnectRegister() {
   }, [user]);
 
   const states = [...new Set(locations.map((l) => l.state))].sort();
-  const filteredServices = categoryId ? services.filter((s) => s.category_id === categoryId) : services;
+  const filteredServices = categoryId
+    ? services.filter((s) => s.category_id === categoryId)
+    : services;
 
   // Auto-generate slug
   useEffect(() => {
     if (!existingProfile) {
-      const generated = generateProSlug(displayName || businessName || 'professional');
+      const generated = generateProSlug(
+        displayName || businessName || "professional",
+      );
       setSlug(generated);
     }
   }, [displayName, businessName, existingProfile]);
 
   async function handleStep1Submit() {
-    if (!displayName.trim()) { setError('Display name is required'); return; }
-    if (!categoryId) { setError('Please select a category'); return; }
+    if (!displayName.trim()) {
+      setError("Display name is required");
+      return;
+    }
+    if (!categoryId) {
+      setError("Please select a category");
+      return;
+    }
 
     setSaving(true);
-    setError('');
+    setError("");
 
     if (!profileId) {
       // Check slug availability
       const available = await isSlugAvailable(slug);
       let finalSlug = slug;
       if (!available) {
-        finalSlug = generateProSlug(slug + '-' + Date.now().toString().slice(-4));
+        finalSlug = generateProSlug(
+          slug + "-" + Date.now().toString().slice(-4),
+        );
         setSlug(finalSlug);
       }
 
@@ -147,14 +176,16 @@ export default function ProConnectRegister() {
         category_id: categoryId,
         business_name: businessName || undefined,
         bio: bio || undefined,
-        years_experience: yearsExperience ? parseInt(yearsExperience) : undefined,
+        years_experience: yearsExperience
+          ? parseInt(yearsExperience)
+          : undefined,
         contact_phone: phone || undefined,
         website_url: website || undefined,
       });
       if (result) {
         setProfileId(result.id);
       } else {
-        setError('Failed to create profile. Please try again.');
+        setError("Failed to create profile. Please try again.");
         setSaving(false);
         return;
       }
@@ -186,75 +217,91 @@ export default function ProConnectRegister() {
     if (!profileId) return;
     setSaving(true);
     await updateProfileLocations(profileId, selectedLocations);
-    await updateProProfile(profileId, { availability, is_profile_complete: true, is_listed: true } as Partial<DbProProfile>);
+    await updateProProfile(profileId, {
+      availability,
+      is_profile_complete: true,
+      is_listed: true,
+    } as Partial<DbProProfile>);
     setSaving(false);
     setStep(4);
   }
 
-
-
   // OTP handlers
   async function handleSendOTP() {
-    if (!mobileNumber.trim()) { setOtpError('Enter a mobile number'); return; }
+    if (!mobileNumber.trim()) {
+      setOtpError("Enter a mobile number");
+      return;
+    }
     setOtpSending(true);
-    setOtpError('');
-    setOtpSuccess('');
+    setOtpError("");
+    setOtpSuccess("");
     try {
       const { error: otpError } = await supabase.auth.signInWithOtp({
         phone: mobileNumber,
       });
       if (otpError) throw otpError;
       setOtpSent(true);
-      setOtpSuccess('OTP sent to ' + mobileNumber);
+      setOtpSuccess("OTP sent to " + mobileNumber);
       setResendCooldown(30);
       const interval = setInterval(() => {
         setResendCooldown((prev) => {
-          if (prev <= 1) { clearInterval(interval); return 0; }
+          if (prev <= 1) {
+            clearInterval(interval);
+            return 0;
+          }
           return prev - 1;
         });
       }, 1000);
     } catch (err: unknown) {
-      setOtpError(getSafeError(err, 'Failed to send OTP'));
+      setOtpError(getSafeError(err, "Failed to send OTP"));
     } finally {
       setOtpSending(false);
     }
   }
 
   async function handleVerifyOTP() {
-    if (otpCode.length !== 6) { setOtpError('Enter the 6-digit code'); return; }
+    if (otpCode.length !== 6) {
+      setOtpError("Enter the 6-digit code");
+      return;
+    }
     setOtpSending(true);
-    setOtpError('');
+    setOtpError("");
     try {
       const { error: verifyError } = await supabase.auth.verifyOtp({
         phone: mobileNumber,
         token: otpCode,
-        type: 'sms',
+        type: "sms",
       });
       if (verifyError) throw verifyError;
-      setOtpSuccess('Phone number verified successfully!');
+      setOtpSuccess("Phone number verified successfully!");
       setOtpVerified(true);
     } catch (err: unknown) {
-      setOtpError(getSafeError(err, 'Invalid OTP'));
+      setOtpError(getSafeError(err, "Invalid OTP"));
     } finally {
       setOtpSending(false);
     }
   }
 
   async function handleSubmitNIN() {
-    if (!ninNumber.trim()) { setNinError('Enter your NIN'); return; }
+    if (!ninNumber.trim()) {
+      setNinError("Enter your NIN");
+      return;
+    }
     setNinSubmitting(true);
-    setNinError('');
-    setNinSuccess('');
+    setNinError("");
+    setNinSuccess("");
     try {
       const { error: ninError } = await supabase
-        .from('pro_profiles')
-        .update({ nin_number: ninNumber, nin_status: 'pending' })
-        .eq('user_id', user?.id);
+        .from("pro_profiles")
+        .update({ nin_number: ninNumber, nin_status: "pending" })
+        .eq("user_id", user?.id);
       if (ninError) throw ninError;
-      setNinSuccess('NIN verification submitted. Status will be updated once verified.');
+      setNinSuccess(
+        "NIN verification submitted. Status will be updated once verified.",
+      );
       setNinSubmitted(true);
     } catch (err: unknown) {
-      setNinError(getSafeError(err, 'NIN verification failed'));
+      setNinError(getSafeError(err, "NIN verification failed"));
     } finally {
       setNinSubmitting(false);
     }
@@ -262,16 +309,22 @@ export default function ProConnectRegister() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <Link to="/pro-connect" className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground">
+      <Link
+        to="/pro-connect/"
+        className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-brand-purple dark:text-muted-foreground"
+      >
         <ArrowLeft aria-hidden="true" className="h-4 w-4" />
         Back to directory
       </Link>
 
       <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-        {existingProfile ? 'Edit Professional Profile' : 'Become a FRELUX Professional'}
+        {existingProfile
+          ? "Edit Professional Profile"
+          : "Become a FRELUX Professional"}
       </h1>
       <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-        Join the FRELUX Pro Connect network and connect with customers who need your services.
+        Join the FRELUX Pro Connect network and connect with customers who need
+        your services.
       </p>
 
       {/* Progress bar */}
@@ -279,14 +332,27 @@ export default function ProConnectRegister() {
         <div className="flex items-center justify-between">
           {[1, 2, 3, 4, 5, 6].map((s) => (
             <div key={s} className="flex items-center">
-              <div className={classNames(
-                'flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors',
-                s <= step ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground'
-              )}>
-                {s < step ? <Check aria-hidden="true" className="h-4 w-4" /> : s}
+              <div
+                className={classNames(
+                  "flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium transition-colors",
+                  s <= step
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground dark:bg-white/5 dark:text-muted-foreground",
+                )}
+              >
+                {s < step ? (
+                  <Check aria-hidden="true" className="h-4 w-4" />
+                ) : (
+                  s
+                )}
               </div>
               {s < 4 && (
-                <div className={classNames('h-0.5 w-12 sm:w-20', s < step ? 'bg-primary' : 'bg-muted dark:bg-white/5')} />
+                <div
+                  className={classNames(
+                    "h-0.5 w-12 sm:w-20",
+                    s < step ? "bg-primary" : "bg-muted dark:bg-white/5",
+                  )}
+                />
               )}
             </div>
           ))}
@@ -303,7 +369,9 @@ export default function ProConnectRegister() {
       {step === 1 && (
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">Display Name *</label>
+            <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
+              Display Name *
+            </label>
             <input
               type="text"
               value={displayName}
@@ -313,7 +381,9 @@ export default function ProConnectRegister() {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">Business Name</label>
+            <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
+              Business Name
+            </label>
             <input
               type="text"
               value={businessName}
@@ -323,18 +393,29 @@ export default function ProConnectRegister() {
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">Professional Category *</label>
+            <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
+              Professional Category *
+            </label>
             <select
               value={categoryId}
-              onChange={(e) => { setCategoryId(e.target.value); setSelectedServices([]); }}
+              onChange={(e) => {
+                setCategoryId(e.target.value);
+                setSelectedServices([]);
+              }}
               className="w-full rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
             >
               <option value="">Select your category</option>
-              {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+              {categories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
             </select>
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">Bio</label>
+            <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
+              Bio
+            </label>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
@@ -345,7 +426,9 @@ export default function ProConnectRegister() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">Years of Experience</label>
+              <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
+                Years of Experience
+              </label>
               <input
                 type="number"
                 value={yearsExperience}
@@ -355,7 +438,9 @@ export default function ProConnectRegister() {
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">Phone</label>
+              <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
+                Phone
+              </label>
               <input
                 type="tel"
                 value={phone}
@@ -366,7 +451,9 @@ export default function ProConnectRegister() {
             </div>
           </div>
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">Website</label>
+            <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
+              Website
+            </label>
             <input
               type="url"
               value={website}
@@ -375,12 +462,13 @@ export default function ProConnectRegister() {
               className="w-full rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
             />
           </div>
-          <Button variant="default"
+          <Button
+            variant="default"
             onClick={handleStep1Submit}
             disabled={saving}
             className="w-full rounded-lg py-3 text-sm font-semibold disabled:opacity-50"
           >
-            {saving ? 'Saving...' : 'Continue'}
+            {saving ? "Saving..." : "Continue"}
           </Button>
         </div>
       )}
@@ -388,30 +476,52 @@ export default function ProConnectRegister() {
       {/* Step 2: Services */}
       {step === 2 && (
         <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">Select Your Services</h2>
-          <p className="text-sm text-muted-foreground dark:text-muted-foreground">Choose all services you offer. You can update these anytime.</p>
+          <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
+            Select Your Services
+          </h2>
+          <p className="text-sm text-muted-foreground dark:text-muted-foreground">
+            Choose all services you offer. You can update these anytime.
+          </p>
           <div className="space-y-2">
             {filteredServices.map((s) => (
-              <label key={s.id} className="flex items-center gap-3 rounded-lg border border-border p-3 cursor-pointer hover:border-brand-purple/30 dark:border-white/10 dark:hover:border-brand-purple-lighter/30">
+              <label
+                key={s.id}
+                className="flex items-center gap-3 rounded-lg border border-border p-3 cursor-pointer hover:border-brand-purple/30 dark:border-white/10 dark:hover:border-brand-purple-lighter/30"
+              >
                 <input
                   type="checkbox"
                   checked={selectedServices.includes(s.id)}
                   onChange={(e) => {
-                    if (e.target.checked) setSelectedServices([...selectedServices, s.id]);
-                    else setSelectedServices(selectedServices.filter((id) => id !== s.id));
+                    if (e.target.checked)
+                      setSelectedServices([...selectedServices, s.id]);
+                    else
+                      setSelectedServices(
+                        selectedServices.filter((id) => id !== s.id),
+                      );
                   }}
                   className="rounded border-border text-brand-purple focus:ring-brand-purple"
                 />
-                <span className="text-sm text-card-foreground dark:text-muted-foreground/60">{s.name}</span>
+                <span className="text-sm text-card-foreground dark:text-muted-foreground/60">
+                  {s.name}
+                </span>
               </label>
             ))}
           </div>
           <div className="flex gap-3">
-            <Button variant="ghost" onClick={() => setStep(1)} className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80">
+            <Button
+              variant="ghost"
+              onClick={() => setStep(1)}
+              className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
+            >
               Back
             </Button>
-            <Button variant="default" onClick={handleStep2Submit} disabled={saving} className="flex-1 rounded-lg py-3 text-sm font-semibold disabled:opacity-50">
-              {saving ? 'Saving...' : 'Continue'}
+            <Button
+              variant="default"
+              onClick={handleStep2Submit}
+              disabled={saving}
+              className="flex-1 rounded-lg py-3 text-sm font-semibold disabled:opacity-50"
+            >
+              {saving ? "Saving..." : "Continue"}
             </Button>
           </div>
         </div>
@@ -421,37 +531,46 @@ export default function ProConnectRegister() {
       {step === 3 && (
         <div className="space-y-6">
           <div>
-            <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">Service Areas</h2>
-            <p className="text-sm text-muted-foreground dark:text-muted-foreground">Select the locations where you provide services.</p>
+            <h2 className="text-lg font-semibold text-foreground dark:text-primary-foreground">
+              Service Areas
+            </h2>
+            <p className="text-sm text-muted-foreground dark:text-muted-foreground">
+              Select the locations where you provide services.
+            </p>
           </div>
 
           {states.map((state) => {
             const stateLocations = locations.filter((l) => l.state === state);
             const _selectedInState = selectedLocations.filter((id) =>
-              stateLocations.some((l) => l.id === id)
+              stateLocations.some((l) => l.id === id),
             );
-          return (
+            return (
               <div key={state}>
-                <h3 className="mb-2 text-sm font-medium text-card-foreground dark:text-muted-foreground/60">{state}</h3>
+                <h3 className="mb-2 text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
+                  {state}
+                </h3>
                 <div className="flex flex-wrap gap-2">
                   {stateLocations.map((l) => (
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       key={l.id}
                       onClick={() => {
                         if (selectedLocations.includes(l.id)) {
-                          setSelectedLocations(selectedLocations.filter((id) => id !== l.id));
+                          setSelectedLocations(
+                            selectedLocations.filter((id) => id !== l.id),
+                          );
                         } else {
                           setSelectedLocations([...selectedLocations, l.id]);
                         }
                       }}
                       className={classNames(
-                        'rounded-lg border px-3 py-1.5 text-sm transition-colors',
+                        "rounded-lg border px-3 py-1.5 text-sm transition-colors",
                         selectedLocations.includes(l.id)
-                          ? 'border-brand-purple bg-primary text-primary-foreground'
-                          : 'border-border text-muted-foreground hover:border-brand-purple/30 dark:border-white/10 dark:text-muted-foreground/80'
+                          ? "border-brand-purple bg-primary text-primary-foreground"
+                          : "border-border text-muted-foreground hover:border-brand-purple/30 dark:border-white/10 dark:text-muted-foreground/80",
                       )}
                     >
-                      {[l.area, l.city].filter(Boolean).join(', ')}
+                      {[l.area, l.city].filter(Boolean).join(", ")}
                     </Button>
                   ))}
                 </div>
@@ -460,17 +579,20 @@ export default function ProConnectRegister() {
           })}
 
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">Availability Status</label>
+            <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
+              Availability Status
+            </label>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              {(['available', 'busy', 'unavailable'] as const).map((a) => (
-                <Button variant="ghost"
+              {(["available", "busy", "unavailable"] as const).map((a) => (
+                <Button
+                  variant="ghost"
                   key={a}
                   onClick={() => setAvailability(a)}
                   className={classNames(
-                    'rounded-lg border py-3 text-sm font-medium capitalize transition-colors',
+                    "rounded-lg border py-3 text-sm font-medium capitalize transition-colors",
                     availability === a
-                      ? 'border-brand-purple bg-primary text-primary-foreground'
-                      : 'border-border text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80'
+                      ? "border-brand-purple bg-primary text-primary-foreground"
+                      : "border-border text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80",
                   )}
                 >
                   {a}
@@ -480,11 +602,20 @@ export default function ProConnectRegister() {
           </div>
 
           <div className="flex gap-3">
-            <Button variant="ghost" onClick={() => setStep(2)} className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80">
+            <Button
+              variant="ghost"
+              onClick={() => setStep(2)}
+              className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
+            >
               Back
             </Button>
-            <Button variant="default" onClick={handleStep3Submit} disabled={saving} className="flex-1 rounded-lg py-3 text-sm font-semibold disabled:opacity-50">
-              {saving ? 'Saving...' : 'Complete Profile'}
+            <Button
+              variant="default"
+              onClick={handleStep3Submit}
+              disabled={saving}
+              className="flex-1 rounded-lg py-3 text-sm font-semibold disabled:opacity-50"
+            >
+              {saving ? "Saving..." : "Complete Profile"}
             </Button>
           </div>
         </div>
@@ -497,21 +628,31 @@ export default function ProConnectRegister() {
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
               <Phone aria-hidden="true" className="h-8 w-8 text-brand-purple" />
             </div>
-            <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">Mobile Number Verification</h2>
+            <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
+              Mobile Number Verification
+            </h2>
             <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-              Verify your mobile number to unlock worker channels and increase trust.
+              Verify your mobile number to unlock worker channels and increase
+              trust.
             </p>
           </div>
 
           {otpVerified ? (
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-center dark:border-emerald-500/20 dark:bg-emerald-500/10">
-              <Check aria-hidden="true" className="mx-auto mb-2 h-8 w-8 text-emerald-500" />
-              <p className="font-semibold text-emerald-600 dark:text-emerald-400">{otpSuccess}</p>
+              <Check
+                aria-hidden="true"
+                className="mx-auto mb-2 h-8 w-8 text-emerald-500"
+              />
+              <p className="font-semibold text-emerald-600 dark:text-emerald-400">
+                {otpSuccess}
+              </p>
             </div>
           ) : (
             <>
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">Mobile Number *</label>
+                <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
+                  Mobile Number *
+                </label>
                 <input
                   type="tel"
                   value={mobileNumber}
@@ -523,60 +664,89 @@ export default function ProConnectRegister() {
               </div>
 
               {!otpSent ? (
-                <Button variant="default"
+                <Button
+                  variant="default"
                   onClick={handleSendOTP}
                   disabled={otpSending || !mobileNumber.trim()}
                   className="w-full rounded-lg py-3 text-sm font-semibold disabled:opacity-50"
                 >
-                  {otpSending ? 'Sending...' : 'Send OTP Code'}
+                  {otpSending ? "Sending..." : "Send OTP Code"}
                 </Button>
               ) : (
                 <>
                   <div>
-                    <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">Enter OTP Code *</label>
+                    <label className="mb-1.5 block text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
+                      Enter OTP Code *
+                    </label>
                     <input
                       type="text"
                       value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                      onChange={(e) =>
+                        setOtpCode(
+                          e.target.value.replace(/\D/g, "").slice(0, 6),
+                        )
+                      }
                       placeholder="6-digit code"
                       maxLength={6}
                       className="w-full rounded-lg border border-border px-4 py-2.5 text-center text-lg tracking-widest dark:border-white/10 dark:bg-background"
                     />
                   </div>
-                  {otpError && <p className="flex items-center gap-1.5 text-sm text-red-500"><AlertCircle aria-hidden="true" className="h-4 w-4" />{otpError}</p>}
-                  {otpSuccess && <p className="text-sm text-emerald-500">{otpSuccess}</p>}
+                  {otpError && (
+                    <p className="flex items-center gap-1.5 text-sm text-red-500">
+                      <AlertCircle aria-hidden="true" className="h-4 w-4" />
+                      {otpError}
+                    </p>
+                  )}
+                  {otpSuccess && (
+                    <p className="text-sm text-emerald-500">{otpSuccess}</p>
+                  )}
                   <div className="flex gap-3">
-                    <Button variant="ghost"
-                      onClick={() => { setOtpSent(false); setOtpCode(''); setOtpError(''); }}
+                    <Button
+                      variant="ghost"
+                      onClick={() => {
+                        setOtpSent(false);
+                        setOtpCode("");
+                        setOtpError("");
+                      }}
                       className="flex-1 rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
                     >
                       Change Number
                     </Button>
-                    <Button variant="default"
+                    <Button
+                      variant="default"
                       onClick={handleVerifyOTP}
                       disabled={otpSending || otpCode.length !== 6}
                       className="flex-1 rounded-lg py-3 text-sm font-semibold disabled:opacity-50"
                     >
-                      {otpSending ? 'Verifying...' : 'Verify OTP'}
+                      {otpSending ? "Verifying..." : "Verify OTP"}
                     </Button>
                   </div>
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={handleSendOTP}
                     disabled={otpSending || resendCooldown > 0}
-                    className={`w-full text-center text-xs ${resendCooldown > 0 ? 'text-muted-foreground' : 'text-brand-purple hover:underline'}`}
+                    className={`w-full text-center text-xs ${resendCooldown > 0 ? "text-muted-foreground" : "text-brand-purple hover:underline"}`}
                   >
                     {resendCooldown > 0
                       ? `Resend OTP in ${resendCooldown}s`
-                      : otpSending ? 'Sending...' : 'Resend OTP'}
+                      : otpSending
+                        ? "Sending..."
+                        : "Resend OTP"}
                   </Button>
                 </>
               )}
-              {otpError && !otpSent && <p className="flex items-center gap-1.5 text-sm text-red-500"><AlertCircle aria-hidden="true" className="h-4 w-4" />{otpError}</p>}
+              {otpError && !otpSent && (
+                <p className="flex items-center gap-1.5 text-sm text-red-500">
+                  <AlertCircle aria-hidden="true" className="h-4 w-4" />
+                  {otpError}
+                </p>
+              )}
             </>
           )}
 
           <div className="border-t border-border pt-4 dark:border-white/10">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => setStep(5)}
               className="text-sm text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
             >
@@ -591,18 +761,29 @@ export default function ProConnectRegister() {
         <div className="space-y-5">
           <div className="text-center">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-              <Shield aria-hidden="true" className="h-8 w-8 text-brand-purple" />
+              <Shield
+                aria-hidden="true"
+                className="h-8 w-8 text-brand-purple"
+              />
             </div>
-            <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">NIN Verification (KYC)</h2>
+            <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
+              NIN Verification (KYC)
+            </h2>
             <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
-              Enter your National Identification Number (NIN) to verify your identity. This is required to access Worker Channels.
+              Enter your National Identification Number (NIN) to verify your
+              identity. This is required to access Worker Channels.
             </p>
           </div>
 
           {ninSubmitted ? (
             <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-center dark:border-emerald-500/20 dark:bg-emerald-500/10">
-              <Check aria-hidden="true" className="mx-auto mb-2 h-8 w-8 text-emerald-500" />
-              <p className="font-semibold text-emerald-600 dark:text-emerald-400">{ninSuccess}</p>
+              <Check
+                aria-hidden="true"
+                className="mx-auto mb-2 h-8 w-8 text-emerald-500"
+              />
+              <p className="font-semibold text-emerald-600 dark:text-emerald-400">
+                {ninSuccess}
+              </p>
             </div>
           ) : (
             <>
@@ -613,38 +794,58 @@ export default function ProConnectRegister() {
                 <input
                   type="text"
                   value={ninNumber}
-                  onChange={(e) => setNinNumber(e.target.value.replace(/\D/g, '').slice(0, 11))}
+                  onChange={(e) =>
+                    setNinNumber(e.target.value.replace(/\D/g, "").slice(0, 11))
+                  }
                   placeholder="11-digit NIN"
                   maxLength={11}
                   className="w-full rounded-lg border border-border px-4 py-2.5 text-center text-lg tracking-widest dark:border-white/10 dark:bg-background"
                 />
                 <p className="mt-1.5 text-xs text-muted-foreground">
-                  Your NIN is stored securely and only visible to FRELUX administrators for verification.
+                  Your NIN is stored securely and only visible to FRELUX
+                  administrators for verification.
                 </p>
               </div>
 
-              {ninError && <p className="flex items-center gap-1.5 text-sm text-red-500"><AlertCircle aria-hidden="true" className="h-4 w-4" />{ninError}</p>}
-              {ninSuccess && <p className="text-sm text-emerald-500">{ninSuccess}</p>}
+              {ninError && (
+                <p className="flex items-center gap-1.5 text-sm text-red-500">
+                  <AlertCircle aria-hidden="true" className="h-4 w-4" />
+                  {ninError}
+                </p>
+              )}
+              {ninSuccess && (
+                <p className="text-sm text-emerald-500">{ninSuccess}</p>
+              )}
 
               <div className="flex items-start gap-2 rounded-lg bg-amber-50 p-3 text-xs text-amber-700 dark:bg-amber-500/10 dark:text-amber-400">
-                <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
+                <AlertCircle
+                  aria-hidden="true"
+                  className="mt-0.5 h-4 w-4 shrink-0"
+                />
                 <p>
-                  After submitting, an admin will verify your NIN. Once approved, you'll reach <strong>Tier 2 (FRELUX Verified)</strong> and can join Worker Channels.
+                  After submitting, an admin will verify your NIN. Once
+                  approved, you'll reach{" "}
+                  <strong>Tier 2 (FRELUX Verified)</strong> and can join Worker
+                  Channels.
                 </p>
               </div>
 
-              <Button variant="default"
+              <Button
+                variant="default"
                 onClick={handleSubmitNIN}
                 disabled={ninSubmitting || ninNumber.length !== 11}
                 className="w-full rounded-lg py-3 text-sm font-semibold disabled:opacity-50"
               >
-                {ninSubmitting ? 'Submitting...' : 'Submit NIN for Verification'}
+                {ninSubmitting
+                  ? "Submitting..."
+                  : "Submit NIN for Verification"}
               </Button>
             </>
           )}
 
           <div className="border-t border-border pt-4 dark:border-white/10">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={() => setStep(6)}
               className="text-sm text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
             >
@@ -658,39 +859,52 @@ export default function ProConnectRegister() {
       {step === 6 && (
         <div className="text-center py-8">
           <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-500/10">
-            <Check aria-hidden="true" className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
+            <Check
+              aria-hidden="true"
+              className="h-10 w-10 text-emerald-600 dark:text-emerald-400"
+            />
           </div>
-          <h2 className="text-2xl font-bold text-foreground dark:text-primary-foreground">Profile Created!</h2>
+          <h2 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
+            Profile Created!
+          </h2>
           <p className="mt-2 text-muted-foreground dark:text-muted-foreground">
-            Your professional profile is now live on FRELUX Pro Connect. Customers can find you in the directory.
+            Your professional profile is now live on FRELUX Pro Connect.
+            Customers can find you in the directory.
           </p>
           {(otpVerified || ninSubmitted) && (
             <div className="mt-4 rounded-lg border border-brand-purple/20 bg-primary/5 p-3 text-sm">
-              {otpVerified && <p className="text-emerald-500">✓ Mobile number verified</p>}
-              {ninSubmitted && <p className="text-amber-500">⏳ NIN submitted, pending admin verification</p>}
+              {otpVerified && (
+                <p className="text-emerald-500">✓ Mobile number verified</p>
+              )}
+              {ninSubmitted && (
+                <p className="text-amber-500">
+                  ⏳ NIN submitted, pending admin verification
+                </p>
+              )}
               {!ninSubmitted && (
                 <p className="text-muted-foreground dark:text-muted-foreground">
-                  Complete NIN verification to unlock Worker Channels (Tier 2 access).
+                  Complete NIN verification to unlock Worker Channels (Tier 2
+                  access).
                 </p>
               )}
             </div>
           )}
           <div className="mt-8 flex flex-col gap-3">
             <Link
-              to={`/pro-connect/${slug}`}
+              to={`/pro-connect/${slug}/`}
               className="rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground"
             >
               View My Profile
             </Link>
             <Link
-              to="/pro-connect/dashboard"
+              to="/pro-connect/dashboard/"
               className="rounded-lg border border-border py-3 text-sm font-medium text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80"
             >
               Go to Dashboard
             </Link>
             {otpVerified && ninSubmitted && (
               <Link
-                to="/worker-channels"
+                to="/worker-channels/"
                 className="rounded-lg border border-brand-purple/30 py-3 text-sm font-semibold text-brand-purple"
               >
                 Join Worker Channels →

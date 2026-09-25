@@ -157,7 +157,7 @@ export default function TemplateDetail() {
           {error ?? "This template may have been removed."}
         </p>
         <Link
-          to="/templates"
+          to="/templates/"
           className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-purple dark:text-brand-purple-lighter"
         >
           Browse all templates <ChevronRight className="h-4 w-4" />
@@ -234,16 +234,17 @@ export default function TemplateDetail() {
           When you click "Use This Template," the {calcLabel} opens with the
           configuration above already filled in. You can adjust any value to
           match your actual room or surface dimensions. The calculator uses
-          Nigerian coverage rates, admin-configured product sizes, and admin-configured material prices
-          to compute material quantities and cost estimates. Every formula,
-          waste factor, and coverage rate is transparent and visible in the
-          results.
+          Nigerian coverage rates, admin-configured product sizes, and
+          admin-configured material prices to compute material quantities and
+          cost estimates. Every formula, waste factor, and coverage rate is
+          transparent and visible in the results.
         </p>
       </div>
 
       {/* CTA */}
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => navigate(`${calcPath}?template=${template.id}`)}
           className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
         >
@@ -310,7 +311,7 @@ export default function TemplateDetail() {
             {related.map((t) => (
               <Link
                 key={t.id}
-                to={`/templates/${t.slug}`}
+                to={`/templates/${t.slug}/`}
                 className="group flex items-center justify-between rounded-lg border border-border bg-card p-3 transition-colors hover:border-brand-purple/30 dark:border-white/10 dark:bg-card"
               >
                 <div>
