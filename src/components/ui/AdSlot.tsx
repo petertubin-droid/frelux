@@ -66,8 +66,8 @@ interface ResolvedAd {
 // ./adsterra so this file only exports components (react-refresh).
 import {
   adsterraInjector,
-  adsterraSlotAvailable,
   extractAdsterraZoneKey,
+  reserveAdsterraSlot,
 } from "./adsterra";
 
 /**
@@ -224,7 +224,7 @@ export default function AdSlot({
         // the cap is hit, later slots skip Adsterra entirely and fall
         // through to the next provider in the chain (e.g. Monetag), so
         // slots never render empty while another provider could fill them.
-        if (provider.slug === "adsterra" && !adsterraSlotAvailable()) continue;
+        if (provider.slug === "adsterra" && !reserveAdsterraSlot()) continue;
 
         // Check if this placement has a specific ad unit for this provider
         const perPlacementUnitId =
@@ -280,8 +280,11 @@ export default function AdSlot({
               }
               return;
             }
-            setResolved("none");
-            return;
+            // No native zone: Monetag has nothing to render in this
+            // slot, but the CHAIN is not done — continue so a later
+            // provider (e.g. Adsterra) can still fill it. Resolving
+            // "none" here used to cut the fallback chain short.
+            continue;
           }
           // Adsterra native placements: when the placement is typed
           // "native" and the admin configured a Native Banner zone key,
@@ -350,7 +353,7 @@ export default function AdSlot({
       // credentials configured.
       for (const provider of targetChain) {
         if (!GLOBAL_CREDENTIAL_PROVIDERS.includes(provider.slug)) continue;
-        if (provider.slug === "adsterra" && !adsterraSlotAvailable()) continue;
+        if (provider.slug === "adsterra" && !reserveAdsterraSlot()) continue;
         const rawUnit = getAdUnitId(placement, provider.id);
         const adUnitId =
           provider.slug === "adsterra"
@@ -649,8 +652,8 @@ export default function AdSlot({
       extractAdsterraZoneKey(adUnitId) ||
       extractAdsterraZoneKey(typeof creds.key === "string" ? creds.key : "");
     if (!key) return;
-    // Density policy: cap the number of Adsterra banners per page
-    if (!adsterraSlotAvailable()) return;
+    // Density policy is enforced at resolve time (reserveAdsterraSlot);
+    // the slot is already reserved, render here unconditionally.
     const container = containerRef.current;
     if (!container || container.childElementCount > 0) return;
     // Native Banner slots render the in-place native unit; everything else
@@ -750,8 +753,6 @@ export default function AdSlot({
   else if (provider.slug === "adsterra") {
     const adsterraKey = adUnitId || creds.key;
     if (!adsterraKey) return null;
-    // Density policy: never exceed the per-page banner cap
-    if (!adsterraSlotAvailable()) return null;
     adInner = (
       <div
         ref={containerRef}

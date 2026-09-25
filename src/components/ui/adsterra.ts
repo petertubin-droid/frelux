@@ -145,12 +145,32 @@ const ADSTERRA_MAX_PER_PAGE = 3;
 let adsterraRenderedCount = 0;
 let adsterraRenderedPath: string | null = null;
 
-export function adsterraSlotAvailable(): boolean {
+function resetCountIfNewPage(): void {
   if (adsterraRenderedPath !== window.location.pathname) {
     adsterraRenderedPath = window.location.pathname;
     adsterraRenderedCount = 0;
   }
+}
+
+export function adsterraSlotAvailable(): boolean {
+  resetCountIfNewPage();
   return adsterraRenderedCount < ADSTERRA_MAX_PER_PAGE;
+}
+
+/**
+ * Atomically check-and-reserve an Adsterra slot against the per-page cap.
+ * AdSlot calls this at RESOLVE time: all slots resolve in the same
+ * microtask flush (they share one config fetch), long before any of them
+ * commits its banner to the DOM — a plain availability check there let
+ * every concurrent slot pass and the page overshot the cap. Reserving
+ * up front makes the counter the arbiter; render functions must NOT
+ * count again (a reservation that never renders is merely conservative).
+ */
+export function reserveAdsterraSlot(): boolean {
+  resetCountIfNewPage();
+  if (adsterraRenderedCount >= ADSTERRA_MAX_PER_PAGE) return false;
+  adsterraRenderedCount++;
+  return true;
 }
 
 /** Test-only: reset the per-page Adsterra banner counter. */
@@ -203,7 +223,6 @@ export function renderAdsterraBanner(
     // Some test environments (happy-dom) throw while wiring srcdoc iframes.
     // The element still lands in the DOM, treat as rendered and move on.
   }
-  adsterraRenderedCount++;
   adDebug("adsterra", "banner:rendered", {
     slotKey: opts.slotKey,
     width,
@@ -263,7 +282,9 @@ export function renderAdsterraNativeBanner(
       host: serveDomain,
     });
   }
-  adsterraRenderedCount++;
+  // NOTE: no counter increment here — the slot was already reserved at
+  // resolve time (reserveAdsterraSlot); counting again would double-charge
+  // the per-page density cap.
 }
 
 /**

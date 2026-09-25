@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { fetchAdConfig } from "@/lib/ad-config";
+import { displayAdsEnabled } from "@/lib/ad-network-formats";
 import { hasAdvertisingConsent } from "@/lib/ad-consent";
 import { onConsentChange } from "@/lib/ad-consent";
 
@@ -30,6 +31,13 @@ export default function AdsterraDirectLink() {
           (p) => p.slug === "adsterra" && p.is_active,
         );
         if (!adsterra) {
+          setUnit(null);
+          return;
+        }
+        // Admin toggle parity: when "Display ads" is off for Adsterra the
+        // provider may still serve rewarded flows, but visual units —
+        // including this Direct Link — must not render.
+        if (!displayAdsEnabled(adsterra)) {
           setUnit(null);
           return;
         }

@@ -168,6 +168,7 @@ export default function Layout() {
           // (native_banner_key credential) renders ONE unit on every
           // public page via the container div in the JSX below.
           if (
+            advertisingGranted &&
             formats.displayAdsEnabled(adsterra) &&
             formats.getAdsterraNativeBannerSitewide(adsterra)
           ) {
@@ -220,22 +221,32 @@ export default function Layout() {
       // AdSense page-level ads, inject once, never remove.
       // (Any explicit consent choice suffices; the in-slot units in
       // AdSlot additionally push NPA when advertising is not granted.)
-      if (
-        adsensePubId &&
-        !cancelled &&
-        !document.querySelector('script[data-adsense-page-level="true"]')
-      ) {
-        const s = document.createElement("script");
-        s.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adsensePubId)}`;
-        s.async = true;
-        s.crossOrigin = "anonymous";
-        s.setAttribute("data-adsense-page-level", "true");
-        document.head.appendChild(s);
-        window.adsbygoogle = window.adsbygoogle || [];
-        window.adsbygoogle.push({
-          google_ad_client: adsensePubId,
-          enable_page_level_ads: true,
-        });
+      if (adsensePubId && !cancelled) {
+        // Load the library only once per page: AdSlot's in-slot injection
+        // loads the exact same script (without our marker attribute), so
+        // guard on the URL, not on data-adsense-page-level.
+        if (!document.querySelector('script[src*="adsbygoogle.js"]')) {
+          const s = document.createElement("script");
+          s.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${encodeURIComponent(adsensePubId)}`;
+          s.async = true;
+          s.crossOrigin = "anonymous";
+          s.setAttribute("data-adsense-page-level", "true");
+          document.head.appendChild(s);
+        }
+        // The page-level push (Anchor / Vignette / Auto ads) must run
+        // exactly once per page regardless of which injection loaded the
+        // library — a marker on the window, not on the script element.
+        const w = window as typeof window & {
+          __freluxAdsensePageLevelPushed?: boolean;
+        };
+        if (!w.__freluxAdsensePageLevelPushed) {
+          w.__freluxAdsensePageLevelPushed = true;
+          window.adsbygoogle = window.adsbygoogle || [];
+          window.adsbygoogle.push({
+            google_ad_client: adsensePubId,
+            enable_page_level_ads: true,
+          });
+        }
       }
 
       // Adsterra site-wide scripts (Interstitial / Popunder / Social

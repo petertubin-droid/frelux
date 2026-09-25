@@ -6,6 +6,7 @@ let providersCache: DbAdProvider[] | null = null;
 let placementsCache: DbAdPlacement[] | null = null;
 let cacheExpiry = 0;
 const CACHE_TTL = 60_000; // 1 minute
+const FAILED_FETCH_RETRY_MS = 5_000; // retry a failed config fetch quickly
 
 interface AdConfigResult {
   providers: DbAdProvider[];
@@ -30,6 +31,21 @@ export async function fetchAdConfig(force = false): Promise<AdConfigResult> {
       .order("priority"),
     supabase.from("ad_placements").select("*").eq("is_active", true),
   ]);
+
+  // Failure handling (stale-while-error): a failed read must NEVER be
+  // cached as an empty snapshot — that would blank every ad slot on the
+  // site for the whole TTL window on a single transient network error.
+  // Serve the last known-good config if we have one; otherwise cache
+  // the empty result for only a short retry interval.
+  if (provRes.error || placeRes.error) {
+    if (providersCache && placementsCache) {
+      return { providers: providersCache, placements: placementsCache };
+    }
+    providersCache = [];
+    placementsCache = [];
+    cacheExpiry = now + FAILED_FETCH_RETRY_MS;
+    return { providers: [], placements: [] };
+  }
 
   providersCache = (provRes.data as DbAdProvider[]) ?? [];
   placementsCache = (placeRes.data as DbAdPlacement[]) ?? [];
