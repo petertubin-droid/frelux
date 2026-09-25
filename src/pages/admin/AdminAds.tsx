@@ -16,6 +16,7 @@ import {
   Copy,
   Map as MapIcon,
   AlertTriangle,
+  Radio,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -45,8 +46,9 @@ import type {
   DbAdPlacement,
   AdProviderType,
 } from "@/types/database";
+import NetworkHub from "@/pages/admin/NetworkHub";
 
-type Tab = "providers" | "placements" | "analytics";
+type Tab = "providers" | "placements" | "analytics" | "network";
 
 export default function AdminAds() {
   const [tab, setTab] = useState<Tab>("providers");
@@ -62,6 +64,7 @@ export default function AdminAds() {
             { key: "providers", label: "Providers", icon: Megaphone },
             { key: "placements", label: "Placements", icon: Layers },
             { key: "analytics", label: "Analytics", icon: BarChart3 },
+            { key: "network", label: "Network Hub", icon: Radio },
           ] as { key: Tab; label: string; icon: typeof Megaphone }[]
         ).map((t) => (
           <AdminButton
@@ -83,6 +86,7 @@ export default function AdminAds() {
       {tab === "providers" && <ProvidersTab />}
       {tab === "placements" && <PlacementsTab />}
       {tab === "analytics" && <AnalyticsTab />}
+      {tab === "network" && <NetworkHub />}
     </>
   );
 }

@@ -1,5 +1,11 @@
 import { useEffect, useState, useRef, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
+import {
+  canServeProviderAds,
+  hasAnyConsentChoice,
+  onConsentChange,
+  shouldRequestNonPersonalizedAds,
+} from "@/lib/ad-consent";
 import { MONETAG_TAG_URL, MONETAG_TAG_DOMAIN } from "@/lib/ad-network-formats";
 import {
   fetchAdConfig,
@@ -112,11 +118,23 @@ export default function AdSlot({
     }
   }
 
+  // Consent gate (Heartsyncx pattern): nothing serves until the visitor
+  // has made an explicit consent choice; re-resolve when it changes.
+  const [consentTick, setConsentTick] = useState(0);
+  useEffect(() => {
+    return onConsentChange(() => setConsentTick((t) => t + 1));
+  }, []);
+
   useEffect(() => {
     let cancelled = false;
     // Paid subscribers never see ads, resolve to "none" without fetching
     // config or logging impressions.
     if (isPaid) {
+      setResolved("none");
+      return;
+    }
+    // No explicit consent choice yet → no ad resolution at all (GDPR).
+    if (!hasAnyConsentChoice()) {
       setResolved("none");
       return;
     }
@@ -143,7 +161,9 @@ export default function AdSlot({
       // toggled off, the next enabled provider fills the slot instead of
       // it resolving to a hidden reserved zone. This also stops
       // impression events from being logged for ads that never render.
-      const targetChain = providerChain.filter(isDisplayAdsEnabled);
+      const targetChain = providerChain.filter(
+        (p) => isDisplayAdsEnabled(p) && canServeProviderAds(p.slug),
+      );
 
       // Providers that use global credentials (not per-placement ad unit IDs).
       // They can render on any placement as long as their credentials are set.
@@ -376,7 +396,7 @@ export default function AdSlot({
     return () => {
       cancelled = true;
     };
-  }, [slotKey, providerId, isPaid]);
+  }, [slotKey, providerId, isPaid, consentTick]);
 
   // Push to adsbygoogle after the <ins> element is in the DOM
   useEffect(() => {
@@ -391,7 +411,20 @@ export default function AdSlot({
       if (slug === "google_adsense" || slug === "media_net") {
         pushRef.current = true;
         try {
-          (window.adsbygoogle = window.adsbygoogle || []).push({});
+          const creds = (resolved.provider.credentials ?? {}) as Record<
+            string,
+            unknown
+          >;
+          // Heartsyncx pattern: without advertising consent the unit is
+          // pushed with requestNonPersonalizedAds (Google NPA policy).
+          (window.adsbygoogle = window.adsbygoogle || []).push(
+            shouldRequestNonPersonalizedAds()
+              ? {
+                  google_ad_client: creds.publisher_id ?? "",
+                  requestNonPersonalizedAds: 1,
+                }
+              : {},
+          );
         } catch {
           // AdSense not loaded yet, script will handle it when ready
         }

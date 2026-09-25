@@ -4,6 +4,12 @@ import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AdSlot from "@/components/ui/AdSlot";
+import AdsterraDirectLink from "@/components/ui/AdsterraDirectLink";
+import {
+  hasAdvertisingConsent,
+  hasAnyConsentChoice,
+  onConsentChange,
+} from "@/lib/ad-consent";
 import { useCommandPalette } from "@/components/ui/useCommandPalette";
 import { isOnboardingComplete } from "@/lib/onboarding";
 import { MONETAG_TAG_DOMAIN } from "@/lib/ad-network-formats";
@@ -75,6 +81,15 @@ export default function Layout() {
     };
   }, [location.pathname]);
 
+  // Consent tick: bumped whenever the visitor's consent changes, so the
+  // site-wide injection effect below re-runs (accepting the banner turns
+  // the tags on without a reload; the effect itself is idempotent and
+  // dedupes every script by marker).
+  const [consentTick, setConsentTick] = useState(0);
+  useEffect(() => {
+    return onConsentChange(() => setConsentTick((t) => t + 1));
+  }, []);
+
   // ── Site-wide ad format tags: injected ONCE on first public page load ──
   // Only non-intrusive, in-page-safe formats are injected here: AdSense
   // page-level ads and Adsterra site-wide scripts (when their zone keys
@@ -86,6 +101,15 @@ export default function Layout() {
   // admin guard is belt-and-suspenders.
   useEffect(() => {
     if (window.location.pathname.startsWith("/admin")) return;
+
+    // Consent gate (Heartsyncx pattern): no ad script loads before the
+    // visitor has made an explicit consent choice. AdSense page-level
+    // ads load after ANY explicit choice; personalization networks
+    // (Adsterra / Monetag) require the advertising category. Re-run when
+    // the visitor's consent changes so accepting the banner turns the
+    // tags on without a reload.
+    if (!hasAnyConsentChoice()) return;
+    const advertisingGranted = hasAdvertisingConsent();
 
     let cancelled = false;
     (async () => {
@@ -193,7 +217,9 @@ export default function Layout() {
       }
       if (cancelled) return;
 
-      // AdSense page-level ads, inject once, never remove
+      // AdSense page-level ads, inject once, never remove.
+      // (Any explicit consent choice suffices; the in-slot units in
+      // AdSlot additionally push NPA when advertising is not granted.)
       if (
         adsensePubId &&
         !cancelled &&
@@ -212,7 +238,9 @@ export default function Layout() {
         });
       }
 
-      // Adsterra site-wide scripts (Interstitial / Popunder / Social Bar)
+      // Adsterra site-wide scripts (Interstitial / Popunder / Social
+      // Bar / In-Page Push / Skim): advertising consent required.
+      if (!advertisingGranted) adsterraSiteWide = [];
       for (const a of adsterraSiteWide) {
         if (cancelled) return;
         if (
@@ -232,7 +260,9 @@ export default function Layout() {
         });
       }
       // Monetag admin-configured auto zones (Vignette / Interstitial /
-      // Popunder), one tag per zone, deduped per format
+      // Popunder), one tag per zone, deduped per format. Advertising
+      // consent required.
+      if (!advertisingGranted) monetagAutoZones = [];
       for (const m of monetagAutoZones) {
         if (cancelled) return;
         if (document.querySelector(`script[data-monetag-auto="${m.format}"]`))
@@ -256,6 +286,7 @@ export default function Layout() {
       // the tag that carries Monetag's main display revenue.
       // Injected once per session; the SDK manages its own display
       // cadence and click handling.
+      if (!advertisingGranted) monetagSdkUrl = null;
       if (
         monetagSdkUrl &&
         !cancelled &&
@@ -278,7 +309,7 @@ export default function Layout() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [consentTick]);
 
   // Adsterra Native Banner (site-wide): load the zone tag after the
   // container div is committed. The tag renders the native unit into
@@ -449,7 +480,8 @@ export default function Layout() {
       {/* Global footer ad slot, placement "global_footer", toggled in
           Admin → Ads → Placements like every other slot. */}
       <AdSlot slotKey="global_footer" />
-      {adsterraNative && (
+      <AdsterraDirectLink />
+      {adsterraNative && hasAdvertisingConsent() && (
         <div
           id={`container-${adsterraNative.key}`}
           data-adsterra-native-sitewide="container"

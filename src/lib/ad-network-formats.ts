@@ -171,6 +171,24 @@ export const ADSTERRA_FORMATS = [
     defaultScript: "invoke.js",
     siteWide: true,
   },
+  {
+    // Heartsyncx parity: In-Page Push is a site-wide script format.
+    // Accepts the bare 32-char key (served on the configured serve
+    // domain) or the full invoke.js URL pasted from the dashboard.
+    credentialKey: "inpage_push_key",
+    format: "inpage_push",
+    defaultScript: "invoke.js",
+    siteWide: true,
+  },
+  {
+    // Heartsyncx parity: Skim converts existing outbound links into
+    // monetized ones. Skim is issued as a full script URL (or key on the
+    // account's serve domain); it has no per-slot unit.
+    credentialKey: "skim_key",
+    format: "skim",
+    defaultScript: "invoke.js",
+    siteWide: true,
+  },
 ] as const;
 
 /**

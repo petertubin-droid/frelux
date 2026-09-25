@@ -38,6 +38,11 @@ vi.mock("@/lib/supabase-lazy", () => ({
 
 beforeEach(async () => {
   vi.clearAllMocks();
+  // Ad serving is consent-gated (Heartsyncx pattern, see ad-consent.ts):
+  // grant full consent so every test exercises the serving path.
+  const { acceptAll, withdrawConsent } = await import("@/lib/cookie-consent");
+  withdrawConsent();
+  acceptAll("settings");
   // Reset the auth mock, individual tests may override isPaid
   const { useAuth } = await import("@/lib/auth");
   vi.mocked(useAuth).mockReturnValue({
