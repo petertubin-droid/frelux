@@ -73,6 +73,29 @@ export type AiAccessMode =
   "free" | "rewarded" | "paid" | "free_rewarded" | "disabled";
 
 // Typography configuration stored in site_settings.typography_config (JSONB)
+/**
+ * Site-wide loading experience config, admin-managed in Admin Settings
+ * and rendered by BrandedLoader. All fields optional; defaults mirror
+ * DEFAULT_LOADER_CONFIG in BrandedLoader.tsx.
+ */
+export interface LoaderConfig {
+  enabled: boolean;
+  /** One of LOADER_STYLE_VALUES: gradient_ring | dual_rings | spinner |
+   *  orbit | pulse | brand_beat | bars | dots | progress | ripple */
+  style: string;
+  /** sm | md | lg (px sizes 64 / 96 / 128) */
+  size: "sm" | "md" | "lg";
+  /** slow | normal | fast */
+  speed: "slow" | "normal" | "fast";
+  primary_color: string;
+  secondary_color: string;
+  show_logo: boolean;
+  /** Overrides settings.logo_url when set (falls back to logo_url). */
+  logo_url: string | null;
+  /** Optional custom loading text. Empty string = use rotating defaults. */
+  text: string;
+}
+
 export interface TypographyConfig {
   body: string;
   headings: string;
@@ -119,6 +142,8 @@ export interface DbSiteSettings {
   meta_pixel_id: string | null;
   // Typography
   typography_config: TypographyConfig;
+  // Loading experience (admin-configurable, migration 20260925010000)
+  loader_config: LoaderConfig | null;
   // Homepage hero content (CMS-managed, Phase 35)
   hero_headline: string | null;
   hero_subheadline: string | null;

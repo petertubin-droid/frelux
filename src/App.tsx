@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import BrandedLoader from "@/components/ui/BrandedLoader";
 import { Sentry, isSentryActive } from "./instrument";
 
 // Wrap Routes with Sentry router instrumentation for navigation tracing
@@ -304,12 +305,11 @@ function ScrollToTop() {
   return null;
 }
 
+/** Suspense fallback: the admin-configurable branded loader
+ *  (Admin Settings -> Loading Experience). Falls back to a plain spinner
+ *  when the loader is disabled in settings. */
 function PageLoader() {
-  return (
-    <div className="flex items-center justify-center py-32">
-      <div className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-brand-purple dark:border-border border-border dark:border-t-brand-purple-lighter" />
-    </div>
-  );
+  return <BrandedLoader />;
 }
 
 // Handle notification clicks from the service worker

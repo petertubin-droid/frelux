@@ -4,6 +4,7 @@ import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AdSlot from "@/components/ui/AdSlot";
+import ScrollAwareAd from "@/components/ui/ScrollAwareAd";
 import AdsterraDirectLink from "@/components/ui/AdsterraDirectLink";
 import {
   hasAdvertisingConsent,
@@ -490,7 +491,12 @@ export default function Layout() {
       </main>
       {/* Global footer ad slot, placement "global_footer", toggled in
           Admin → Ads → Placements like every other slot. */}
-      <AdSlot slotKey="global_footer" />
+      {/* Scroll-aware: hides while the user scrolls, reappears ~450ms
+          after scrolling stops (CSS-only collapse; the ad iframe is never
+          unmounted). */}
+      <ScrollAwareAd>
+        <AdSlot slotKey="global_footer" />
+      </ScrollAwareAd>
       <AdsterraDirectLink />
       {adsterraNative && hasAdvertisingConsent() && (
         <div

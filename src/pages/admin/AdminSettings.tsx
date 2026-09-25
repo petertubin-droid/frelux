@@ -15,6 +15,13 @@ import {
 } from "@/components/admin/AdminUi";
 import { MediaUploader } from "@/components/admin/MediaUploader";
 import { invalidateHeroContentCache } from "@/lib/useHeroContent";
+import {
+  DEFAULT_LOADER_CONFIG,
+  LOADER_STYLE_OPTIONS,
+  LoaderVisual,
+  invalidateLoaderConfigCache,
+} from "@/components/ui/BrandedLoader";
+import type { LoaderConfig } from "@/types/database";
 
 export default function AdminSettings() {
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
@@ -71,6 +78,14 @@ export default function AdminSettings() {
     update("manual_paint_bucket_sizes", sizes);
   }
 
+  const loader = settings?.loader_config ?? null;
+
+  function updateLoader(patch: Partial<LoaderConfig>) {
+    if (!settings) return;
+    const base = loader ?? DEFAULT_LOADER_CONFIG;
+    update("loader_config", { ...base, ...patch });
+  }
+
   async function onSave() {
     if (!settings) return;
     setSaving(true);
@@ -99,6 +114,7 @@ export default function AdminSettings() {
         hero_cta_secondary_label: settings.hero_cta_secondary_label,
         hero_cta_secondary_href: settings.hero_cta_secondary_href,
         manual_paint_bucket_sizes: settings.manual_paint_bucket_sizes,
+        loader_config: settings.loader_config,
       })
       .eq("id", settings.id);
     setSaving(false);
@@ -107,6 +123,7 @@ export default function AdminSettings() {
       return;
     }
     invalidateHeroContentCache();
+    invalidateLoaderConfigCache();
     setSavedAt(Date.now());
     window.setTimeout(() => setSavedAt(null), 3000);
   }
@@ -450,6 +467,180 @@ export default function AdminSettings() {
                 }}
               />
             </div>
+          </div>
+        </AdminCard>
+
+        {/* Loading Experience */}
+        <AdminCard>
+          <div className="flex flex-col gap-5">
+            <div>
+              <h3 className="text-base font-semibold">Loading Experience</h3>
+              <p className="text-sm text-muted-foreground">
+                The branded loader shown while pages load. Saved to
+                loader_config and applied site-wide immediately after save.
+              </p>
+            </div>
+
+            <Toggle
+              checked={(loader ?? DEFAULT_LOADER_CONFIG).enabled}
+              onChange={(v) => updateLoader({ enabled: v })}
+              label="Enable branded loader (off = plain spinner)"
+            />
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <AdminField
+                label="Loader style"
+                hint={
+                  (
+                    LOADER_STYLE_OPTIONS.find(
+                      (o) =>
+                        o.value === (loader ?? DEFAULT_LOADER_CONFIG).style,
+                    ) || LOADER_STYLE_OPTIONS[0]
+                  ).description
+                }
+              >
+                <AdminSelect
+                  value={(loader ?? DEFAULT_LOADER_CONFIG).style}
+                  onChange={(e) => updateLoader({ style: e.target.value })}
+                >
+                  {LOADER_STYLE_OPTIONS.map((o) => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </AdminSelect>
+              </AdminField>
+
+              <AdminField label="Loader size">
+                <AdminSelect
+                  value={(loader ?? DEFAULT_LOADER_CONFIG).size}
+                  onChange={(e) =>
+                    updateLoader({
+                      size: e.target.value as LoaderConfig["size"],
+                    })
+                  }
+                >
+                  <option value="sm">Small (64px)</option>
+                  <option value="md">Medium (96px)</option>
+                  <option value="lg">Large (128px)</option>
+                </AdminSelect>
+              </AdminField>
+
+              <AdminField label="Animation speed">
+                <AdminSelect
+                  value={(loader ?? DEFAULT_LOADER_CONFIG).speed}
+                  onChange={(e) =>
+                    updateLoader({
+                      speed: e.target.value as LoaderConfig["speed"],
+                    })
+                  }
+                >
+                  <option value="slow">Slow</option>
+                  <option value="normal">Normal</option>
+                  <option value="fast">Fast</option>
+                </AdminSelect>
+              </AdminField>
+
+              <AdminField
+                label="Custom loading text"
+                hint="Leave empty to rotate default messages."
+              >
+                <AdminInput
+                  value={(loader ?? DEFAULT_LOADER_CONFIG).text}
+                  onChange={(e) => updateLoader({ text: e.target.value })}
+                  placeholder="Loading…"
+                />
+              </AdminField>
+
+              <AdminField label="Primary color">
+                <AdminInput
+                  type="color"
+                  className="h-10 p-1"
+                  value={(loader ?? DEFAULT_LOADER_CONFIG).primary_color}
+                  onChange={(e) =>
+                    updateLoader({ primary_color: e.target.value })
+                  }
+                />
+              </AdminField>
+
+              <AdminField label="Secondary color">
+                <AdminInput
+                  type="color"
+                  className="h-10 p-1"
+                  value={(loader ?? DEFAULT_LOADER_CONFIG).secondary_color}
+                  onChange={(e) =>
+                    updateLoader({ secondary_color: e.target.value })
+                  }
+                />
+              </AdminField>
+            </div>
+
+            <Toggle
+              checked={(loader ?? DEFAULT_LOADER_CONFIG).show_logo}
+              onChange={(v) => updateLoader({ show_logo: v })}
+              label="Show logo mark inside the loader"
+            />
+
+            <AdminField
+              label="Loader logo URL"
+              hint={
+                "Leave empty to fall back to the site logo, or the letter mark if none is set."
+              }
+            >
+              <AdminInput
+                value={(loader ?? DEFAULT_LOADER_CONFIG).logo_url ?? ""}
+                onChange={(e) =>
+                  updateLoader({ logo_url: e.target.value || null })
+                }
+                placeholder="https://… (optional)"
+              />
+            </AdminField>
+
+            <AdminField label="Live preview">
+              <div className="flex items-center justify-center rounded-xl border bg-background py-8">
+                <div
+                  className="relative flex items-center justify-center"
+                  style={{ width: 96, height: 96 }}
+                >
+                  <LoaderVisual
+                    config={loader ?? DEFAULT_LOADER_CONFIG}
+                    sizePx={96}
+                  />
+                  {(loader ?? DEFAULT_LOADER_CONFIG).show_logo &&
+                    !["bars", "dots", "progress"].includes(
+                      (loader ?? DEFAULT_LOADER_CONFIG).style,
+                    ) && (
+                      <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div
+                          className="rounded-full bg-white dark:bg-zinc-900 flex items-center justify-center border border-zinc-200 dark:border-zinc-800 shadow-md"
+                          style={{ width: 44, height: 44 }}
+                        >
+                          {(loader ?? DEFAULT_LOADER_CONFIG).logo_url ||
+                          settings?.logo_url ? (
+                            <img
+                              src={
+                                (loader ?? DEFAULT_LOADER_CONFIG).logo_url ||
+                                settings?.logo_url ||
+                                ""
+                              }
+                              alt=""
+                              style={{
+                                width: 36,
+                                height: 36,
+                                objectFit: "contain",
+                              }}
+                            />
+                          ) : (
+                            <span className="font-black text-brand-purple dark:text-brand-purple-lighter text-lg">
+                              F
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                </div>
+              </div>
+            </AdminField>
           </div>
         </AdminCard>
       </div>
