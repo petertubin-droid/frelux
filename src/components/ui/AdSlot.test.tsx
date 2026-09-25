@@ -515,6 +515,79 @@ describe("AdSlot, Adsterra rendering", () => {
     injectSpy.mockRestore();
   });
 
+  it("reserves display_rules.min_height on the wrapper to prevent layout shift", async () => {
+    // Regression: min_height was stored per placement but never applied,
+    // so late-filling ads shifted the page beneath them (CLS).
+    const provider = makeAdsterraProvider({ key: "a".repeat(32) });
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsterra"],
+          ad_unit_ids: {},
+          display_rules: {
+            mobile: true,
+            desktop: true,
+            refresh_seconds: 0,
+            min_height: 250,
+          },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    const AdSlotModule = await import("@/components/ui/adsterra");
+    const injectSpy = vi
+      .spyOn(AdSlotModule.adsterraInjector, "renderBanner")
+      .mockImplementation(() => {});
+
+    const { container } = await renderAdSlot();
+    await waitFor(() => {
+      const wrapper = container.querySelector(".frelux-ad-unit");
+      expect(wrapper).not.toBeNull();
+      expect((wrapper as HTMLElement).style.minHeight).toBe("250px");
+    });
+    injectSpy.mockRestore();
+  });
+
+  it("does not reserve height when min_height is absent or zero", async () => {
+    const provider = makeAdsterraProvider({ key: "a".repeat(32) });
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsterra"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true, min_height: 0 },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    const AdSlotModule = await import("@/components/ui/adsterra");
+    const injectSpy = vi
+      .spyOn(AdSlotModule.adsterraInjector, "renderBanner")
+      .mockImplementation(() => {});
+
+    const { container } = await renderAdSlot();
+    await waitFor(() => {
+      const wrapper = container.querySelector(".frelux-ad-unit");
+      expect(wrapper).not.toBeNull();
+      expect((wrapper as HTMLElement).style.minHeight).toBe("");
+    });
+    injectSpy.mockRestore();
+  });
+
   it("builds the official atOptions/invoke.js srcdoc (captured, never connected)", () => {
     const host = document.createElement("div");
     // happy-dom refuses to attach srcdoc iframes, capture instead of connect
