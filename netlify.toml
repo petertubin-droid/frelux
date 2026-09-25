@@ -36,37 +36,37 @@
 # 301 redirects — consolidated calculator routes
 [[redirects]]
   from = "/cost-estimator"
-  to = "/paint-calculator?mode=cost"
+  to = "/paint-calculator/?mode=cost"
   status = 301
   force = true
 
 [[redirects]]
   from = "/painting-estimator"
-  to = "/paint-calculator?mode=room-estimate"
+  to = "/paint-calculator/?mode=room-estimate"
   status = 301
   force = true
 
 [[redirects]]
   from = "/screeding-cost-estimator"
-  to = "/screeding-calculator?mode=cost"
+  to = "/screeding-calculator/?mode=cost"
   status = 301
   force = true
 
 [[redirects]]
   from = "/pop-ceiling-cost-estimator"
-  to = "/pop-ceiling-calculator?mode=cost"
+  to = "/pop-ceiling-calculator/?mode=cost"
   status = 301
   force = true
 
 [[redirects]]
   from = "/tile-cost-estimator"
-  to = "/tile-calculator?mode=cost"
+  to = "/tile-calculator/?mode=cost"
   status = 301
   force = true
 
 [[redirects]]
   from = "/tyrolene-estimator"
-  to = "/finish-estimator?mode=tyrolene"
+  to = "/finish-estimator/?mode=tyrolene"
   status = 301
   force = true
 

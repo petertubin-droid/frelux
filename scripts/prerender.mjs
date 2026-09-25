@@ -12,6 +12,31 @@ import { seoContentMap } from './seo-content-map.mjs';
 
 const SITE_URL = 'https://freluxtools.netlify.app';
 const distDir = 'dist';
+
+// Google indexing fix (2026-09-25): prerendered pages are served at their
+// trailing-slash URL (Netlify pretty URLs: /paint-calculator 301s to
+// /paint-calculator/). Structured-data URLs must therefore (a) use the
+// trailing-slash form that is actually served and (b) point at final
+// destinations, not at legacy 301 sources. A JSON-LD/canonical URL that
+// redirects back to the page itself is a redirect loop for Googlebot and
+// lands the page in GSC as "Page with redirect" instead of indexed.
+const LEGACY_REDIRECT_TARGETS = {
+  '/cost-estimator': '/paint-calculator/?mode=cost',
+  '/painting-estimator': '/paint-calculator/?mode=room-estimate',
+  '/screeding-cost-estimator': '/screeding-calculator/?mode=cost',
+  '/pop-ceiling-cost-estimator': '/pop-ceiling-calculator/?mode=cost',
+  '/tile-cost-estimator': '/tile-calculator/?mode=cost',
+  '/tyrolene-estimator': '/finish-estimator/?mode=tyrolene',
+};
+const normalizeSdUrls = (json) => {
+  const siteUrlRe = new RegExp(`"${SITE_URL.replace(/\./g, '\\.')}(\/[^"]*)?"`, 'g');
+  return json.replace(siteUrlRe, (m, p) => {
+    if (!p) return m; // bare home URL — correct as-is
+    if (/\.(png|jpe?g|svg|webp|ico|xml|json|txt|css|js)$/i.test(p)) return m; // assets keep extension URLs
+    if (LEGACY_REDIRECT_TARGETS[p]) return `"${SITE_URL}${LEGACY_REDIRECT_TARGETS[p]}"`;
+    return `"${SITE_URL}${p.endsWith('/') ? p : `${p}/`}"`;
+  });
+};
 const ogImage = `${SITE_URL}/og-image.png`;
 
 // ── Route metadata ──────────────────────────────────────────────────
@@ -835,6 +860,13 @@ if (!existsSync(templatePath)) {
 let templateHtml = readFileSync(templatePath, 'utf-8');
 // Remove the old generic "JavaScript Required" noscript — we inject per-route content instead
 templateHtml = templateHtml.replace(/<noscript>[\s\S]*?<\/noscript>/, '');
+// Normalize URLs inside the template's own static JSON-LD blocks (index.html
+// carries a hand-written structured-data block whose URLs must follow the
+// same trailing-slash + non-redirect rules as the per-route data above).
+templateHtml = templateHtml.replace(
+  /(<script type="application\/ld\+json"[^>]*>)([\s\S]*?)(<\/script>)/g,
+  (m, open, body, close) => open + normalizeSdUrls(body) + close
+);
 let count = 0;
 
 for (const route of routes) {
@@ -850,8 +882,11 @@ for (const route of routes) {
     html = html.replace('</head>', `  <meta name="description" content="${route.description}" />\n</head>`);
   }
 
-  // Canonical
-  const canonicalUrl = `${SITE_URL}${route.path}`;
+  // Canonical — must match the URL Netlify actually serves. Prerendered
+  // files land at dist/<path>/index.html, so the served URL carries a
+  // trailing slash; the extensionless form 301s back to it. A non-slash
+  // canonical is a redirect loop for Googlebot (GSC: "Page with redirect").
+  const canonicalUrl = `${SITE_URL}${route.path}${route.path === '/' ? '' : '/'}`;
   if (html.includes('rel="canonical"')) {
     html = html.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, `<link rel="canonical" href="${canonicalUrl}" />`);
   } else {
@@ -898,7 +933,7 @@ for (const route of routes) {
   // Structured data
   if (route.structuredData) {
     const sdScripts = route.structuredData
-      .map((sd, i) => `  <script type="application/ld+json" id="prerender-sd-${i}">${JSON.stringify(sd)}</script>`)
+      .map((sd, i) => `  <script type="application/ld+json" id="prerender-sd-${i}">${normalizeSdUrls(JSON.stringify(sd))}</script>`)
       .join('\n');
     html = html.replace('</head>', `${sdScripts}\n</head>`);
   }
