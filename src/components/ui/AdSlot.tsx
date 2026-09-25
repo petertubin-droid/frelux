@@ -68,6 +68,7 @@ import {
   adsterraInjector,
   extractAdsterraZoneKey,
   reserveAdsterraSlot,
+  reserveAdsterraNativeSlot,
 } from "./adsterra";
 
 /**
@@ -302,6 +303,18 @@ export default function AdSlot({
               !getAdsterraNativeBannerSitewide(provider)
             ) {
               resolvedUnitId = nativeKey;
+            }
+            // The Native Banner zone key has exactly one fillable
+            // container per page (see reserveAdsterraNativeSlot): every
+            // "native" placement on the page resolves the SAME key, but
+            // only the first can ever actually fill. Reserve it once and
+            // send every later native slot to the next provider in the
+            // chain instead of resolving a container that will never fill
+            // (verified live: an article with ~9 native slots rendered 1
+            // real ad and 8 empty "Advertisement" labels).
+            if (resolvedUnitId && !reserveAdsterraNativeSlot(resolvedUnitId)) {
+              resolvedUnitId = "";
+              continue;
             }
             // No native resolution and no banner zone key: this
             // provider has nothing to show in this slot. Skip it

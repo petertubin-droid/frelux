@@ -763,6 +763,89 @@ describe("AdSlot, Adsterra rendering", () => {
     bannerSpy.mockRestore();
   });
 
+  it("only the first of several same-page native slots renders the native zone; later ones fall through instead of resolving an empty label", async () => {
+    // Adsterra's Native Banner zone has exactly one fillable container per
+    // page (invoke.js/native.js are generated per zone key). Every "native"
+    // placement on a page previously resolved the SAME global
+    // native_banner_key, so N native slots on one article all "resolved"
+    // successfully and rendered N "Advertisement" labels while the ad
+    // network could only ever fill one of them. Reported live: ~9 native
+    // slots on one article, exactly 1 real ad rendered.
+    const nativeKey = "c".repeat(32);
+    const provider = makeAdsterraProvider({
+      key: "a".repeat(32),
+      native_banner_key: nativeKey,
+    });
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-a",
+          placement_key: "slot-a",
+          placement_type: "native",
+          name: "Slot A",
+          page_target: "all",
+          position: "content",
+          is_active: true,
+          provider_ids: ["prov-adsterra"],
+          ad_unit_ids: { "prov-adsterra": nativeKey },
+          display_rules: { mobile: true, desktop: true },
+        },
+        {
+          id: "pl-b",
+          placement_key: "slot-b",
+          placement_type: "native",
+          name: "Slot B",
+          page_target: "all",
+          position: "content",
+          is_active: true,
+          provider_ids: ["prov-adsterra"],
+          ad_unit_ids: { "prov-adsterra": nativeKey },
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+    vi.mocked(adConfig.getAdUnitId).mockReturnValue(nativeKey);
+
+    const AdSlotModule = await import("@/components/ui/adsterra");
+    const nativeSpy = vi
+      .spyOn(AdSlotModule.adsterraInjector, "renderNativeBanner")
+      .mockImplementation(() => {});
+
+    const AdSlot = (await import("@/components/ui/AdSlot")).default;
+    const { container: containerA } = render(
+      <MemoryRouter>
+        <AdSlot slotKey="slot-a" />
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        containerA.querySelector('[data-ad-provider="adsterra"]'),
+      ).not.toBeNull();
+    });
+
+    const { container: containerB } = render(
+      <MemoryRouter>
+        <AdSlot slotKey="slot-b" />
+      </MemoryRouter>,
+    );
+    // Second slot on the same page must not render the label/wrapper at
+    // all - the zone can't fill it, so nothing should show, not an empty
+    // "Advertisement" box.
+    await waitFor(() => {
+      expect(containerB.innerHTML).toBe("");
+    });
+
+    expect(nativeSpy).toHaveBeenCalledTimes(1);
+    expect(nativeSpy.mock.calls[0][2]).toEqual({
+      key: nativeKey,
+      slotKey: "slot-a",
+    });
+    nativeSpy.mockRestore();
+  });
+
   it("injects native.js into the slot container (captured, never connected)", () => {
     const host = document.createElement("div");
     const appended: unknown[] = [];

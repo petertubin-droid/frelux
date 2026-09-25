@@ -177,6 +177,37 @@ export function reserveAdsterraSlot(): boolean {
 export function resetAdsterraPageStateForTests(): void {
   adsterraRenderedCount = 0;
   adsterraRenderedPath = null;
+  adsterraNativeReservedKey = null;
+  adsterraNativeReservedPath = null;
+}
+
+// ---------------------------------------------------------------------
+// Native Banner: one fillable container per zone key, per page.
+// ---------------------------------------------------------------------
+// Adsterra's Native Banner is not a normal ad unit you can place N times:
+// the invoke.js variant is server-generated per zone key to write into one
+// hard-coded `container-<key>` id, and the native.js variant behaves the
+// same way (one live placement per zone key per page). Every "native"
+// typed AdSlot on a page previously resolved the SAME site-wide
+// native_banner_key (there is only one such credential per provider), so
+// a page with, say, 9 native slots reserved successfully 9 times and
+// rendered 9 "Advertisement" labels - but the zone key can only ever fill
+// ONE of those containers, so 8 sat empty forever (reported live: an
+// article page with ~9 native slots, exactly 1 rendered a real ad).
+// Reserve the key once per page; every later native slot for the same key
+// falls through to the next provider in the chain instead of resolving a
+// container that will never fill.
+let adsterraNativeReservedKey: string | null = null;
+let adsterraNativeReservedPath: string | null = null;
+
+export function reserveAdsterraNativeSlot(key: string): boolean {
+  if (adsterraNativeReservedPath !== window.location.pathname) {
+    adsterraNativeReservedPath = window.location.pathname;
+    adsterraNativeReservedKey = null;
+  }
+  if (adsterraNativeReservedKey !== null) return false;
+  adsterraNativeReservedKey = key;
+  return true;
 }
 
 /**
