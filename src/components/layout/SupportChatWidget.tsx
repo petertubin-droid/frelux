@@ -151,7 +151,8 @@ export default function SupportChatWidget() {
 
   return (
     <>
-      {/* Floating button, uses a proper icon, not an image */}
+      {/* Floating button — lucide icon (the old /assets/archie image never
+          shipped, which is why the icon rendered blank/broken) */}
       {!open && (
         <Button
           variant="ghost"
@@ -160,12 +161,7 @@ export default function SupportChatWidget() {
           className="fixed bottom-20 right-4 z-50 inline-flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground shadow-lg shadow-brand-purple/30 ring-2 ring-white/20 backdrop-blur transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
           aria-label="Chat with ARCHIE"
         >
-          <img
-            src="/assets/archie/archie-icon-192.png"
-            alt=""
-            aria-hidden="true"
-            className="h-11 w-11 animate-float"
-          />
+          <MessageCircle className="h-7 w-7 animate-float" strokeWidth={2.2} />
           <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-green opacity-60" />
             <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-accent-green ring-2 ring-white" />
