@@ -180,6 +180,78 @@ export function resetAdsterraPageStateForTests(): void {
 }
 
 /**
+ * Track the creative's real rendered height inside the srcdoc iframe and
+ * resize the frame to match. The frame STARTS at the requested zone size
+ * (Adsterra zones no-fill when asked for the wrong size, so the request
+ * must carry the zone dimensions), but the SERVED creative can be shorter,
+ * or the zone can serve nothing at all. Measuring the same-origin srcdoc
+ * body (srcdoc without sandbox inherits the parent origin) lets the frame
+ * shrink to the creative, grow if the provider injects late, and collapse
+ * to 0 on a no-fill so the slot shows only its compact label instead of a
+ * blank rectangle.
+ */
+function attachAutoHeight(iframe: HTMLIFrameElement): void {
+  let mo: MutationObserver | null = null;
+  const timers: number[] = [];
+  let stopped = false;
+  const measure = () => {
+    if (stopped) return;
+    let h = 0;
+    try {
+      const doc = iframe.contentDocument;
+      const body = doc?.body;
+      if (body) {
+        h = Math.ceil(
+          Math.max(
+            body.scrollHeight,
+            doc?.documentElement?.scrollHeight ?? 0,
+            body.firstElementChild instanceof HTMLElement
+              ? body.firstElementChild.getBoundingClientRect().height
+              : 0,
+          ),
+        );
+      }
+    } catch {
+      // Cross-origin (should not happen with our srcdoc): keep requested size.
+      return;
+    }
+    h = Math.min(Math.max(h, 0), 1200);
+    if (Math.abs(iframe.offsetHeight - h) > 4) {
+      iframe.style.height = `${h}px`;
+    }
+  };
+  const start = () => {
+    measure();
+    try {
+      const body = iframe.contentDocument?.body;
+      if (body) {
+        mo = new MutationObserver(measure);
+        mo.observe(body, { childList: true, subtree: true, attributes: true });
+      }
+    } catch {
+      // Timed re-checks below still cover late fills.
+    }
+  };
+  iframe.addEventListener("load", start);
+  // Providers inject creatives well after load: re-check a few times so a
+  // late fill resizes the frame and a never-fill collapses it.
+  [400, 1200, 3000, 6000].forEach((ms) =>
+    timers.push(window.setTimeout(measure, ms)),
+  );
+  // When the iframe leaves the DOM its document is GC'd along with the
+  // observer; the capped timers above are the only page-level residue.
+  const cleanup = () => {
+    stopped = true;
+    iframe.removeEventListener("load", start);
+    mo?.disconnect();
+    timers.forEach((t) => clearTimeout(t));
+  };
+  (
+    iframe as HTMLIFrameElement & { __adsterraAutoHeightCleanup?: () => void }
+  ).__adsterraAutoHeightCleanup = cleanup;
+}
+
+/**
  * Render an Adsterra banner into a container. The official snippet is
  * isolated inside a per-slot iframe (srcdoc) so `window.atOptions`, a
  * global that invoke.js reads, can never race between two banners, and
@@ -217,6 +289,7 @@ export function renderAdsterraBanner(
   iframe.setAttribute("frameborder", "0");
   iframe.style.cssText = `border:0;display:block;margin:0 auto;max-width:100%;width:${width}px;height:${height}px;`;
   iframe.srcdoc = html;
+  attachAutoHeight(iframe);
   try {
     container.appendChild(iframe);
   } catch {

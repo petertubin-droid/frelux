@@ -515,9 +515,11 @@ describe("AdSlot, Adsterra rendering", () => {
     injectSpy.mockRestore();
   });
 
-  it("reserves display_rules.min_height on the wrapper to prevent layout shift", async () => {
-    // Regression: min_height was stored per placement but never applied,
-    // so late-filling ads shifted the page beneath them (CLS).
+  it("never reserves display_rules.min_height on the wrapper (content-driven sizing)", async () => {
+    // 2026-09-25 policy change: reserved heights created the "big blank
+    // area under the ad" bug (a 250px reservation under a 90px creative).
+    // The wrapper must be content-driven regardless of what min_height
+    // says; the served creative determines the slot height.
     const provider = makeAdsterraProvider({ key: "a".repeat(32) });
     const adConfig = await import("@/lib/ad-config");
     vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
@@ -550,7 +552,7 @@ describe("AdSlot, Adsterra rendering", () => {
     await waitFor(() => {
       const wrapper = container.querySelector(".frelux-ad-unit");
       expect(wrapper).not.toBeNull();
-      expect((wrapper as HTMLElement).style.minHeight).toBe("250px");
+      expect((wrapper as HTMLElement).style.minHeight).toBe("");
     });
     injectSpy.mockRestore();
   });

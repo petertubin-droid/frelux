@@ -687,14 +687,14 @@ export default function AdSlot({
 
   const { provider, placement } = resolved;
 
-  // Layout stability: display_rules.min_height reserves vertical space on
-  // the wrapper once a provider has resolved, so a late-filling unit no
-  // longer shifts the page beneath it (CLS / Core Web Vitals). 0 or absurd
-  // values disable the reservation.
-  const reservedMinHeight = (() => {
-    const h = placement?.display_rules?.min_height;
-    return typeof h === "number" && h > 0 && h <= 600 ? Math.round(h) : 0;
-  })();
+  // Content-driven sizing (2026-09-25): display_rules.min_height is NO
+  // LONGER applied as a reserved minHeight on the wrapper. Reserving a
+  // fixed block (100-250px) for a unit that serves a shorter creative or
+  // no-fills leaves exactly the "big blank area under the ad" this slot
+  // must never show. The wrapper is width:100%/height:auto; the rendered
+  // creative (iframe, <ins>, native unit) determines the height, and the
+  // adsterra injector auto-sizes its frame to the served creative.
+  void placement;
 
   // Display ads turned off for this provider, reserve the layout slot
   // but show nothing (no label, no ad content, no third-party scripts).
@@ -965,14 +965,7 @@ export default function AdSlot({
   // (ads must be clearly distinguishable from content)
   // ============================================================
   if (hideLabel) {
-    return (
-      <div
-        className={className}
-        style={reservedMinHeight ? { minHeight: reservedMinHeight } : undefined}
-      >
-        {adInner}
-      </div>
-    );
+    return <div className={className}>{adInner}</div>;
   }
 
   return (
@@ -984,8 +977,6 @@ export default function AdSlot({
         borderBottom: "1px solid rgba(0,0,0,0.04)",
         padding: "8px 0",
         margin: "0 auto",
-        /* Reserved ad space (display_rules.min_height) */
-        ...(reservedMinHeight ? { minHeight: reservedMinHeight } : {}),
       }}
       data-ad-slot-key={slotKey}
     >
