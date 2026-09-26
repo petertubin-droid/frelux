@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import AdSlot from "@/components/ui/AdSlot";
+import HeartsyncxCrossPromo from "@/components/learn/HeartsyncxCrossPromo";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -600,6 +601,10 @@ export default function LearnArticle() {
                 ))}
               </div>
             )}
+
+            {/* Cross-site house promo, ONE slot per article page:
+                Heartsyncx (sister site) advertised to learn readers. */}
+            <HeartsyncxCrossPromo />
 
             {/* FAQ Section */}
             {faqs.length > 0 && (
