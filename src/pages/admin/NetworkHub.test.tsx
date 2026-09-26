@@ -232,6 +232,7 @@ describe("NetworkHub (Heartsyncx ads settings port)", () => {
     expect(rows.map((r) => r.slug).sort()).toEqual([
       "adsterra",
       "google_adsense",
+      "house_cross_promo",
       "monetag",
     ]);
     const adsense = rows.find((r) => r.slug === "google_adsense")!;
@@ -247,6 +248,30 @@ describe("NetworkHub (Heartsyncx ads settings port)", () => {
     expect((adsterra.credentials as Row).direct_link_url).toContain(
       "profitableratecpmnetwork.com",
     );
+    // House cross-promo row carries the promo settings
+    const house = rows.find((r) => r.slug === "house_cross_promo")!;
+    expect(house.is_active).toBe(false);
+    expect((house.settings as Row).format).toBe("card");
+    expect((house.settings as Row).base_url).toBe("");
+  });
+
+  it("shows the House Promos tab with format, base URL and partner editor", async () => {
+    const user = userEvent.setup();
+    await renderHub();
+    await screen.findByText("Placement Slots");
+
+    await user.click(screen.getByRole("button", { name: /House Promos/i }));
+    expect(screen.getByText(/Sister Site & External Partners/i)).toBeTruthy();
+    expect(
+      screen.getByPlaceholderText("https://heartsyncx.netlify.app"),
+    ).toBeTruthy();
+    // Partner rows start empty and can be added inline
+    await user.click(screen.getByRole("button", { name: /Add partner/i }));
+    const headline = screen.getByPlaceholderText(
+      "Headline, e.g. Buy building materials online",
+    ) as HTMLInputElement;
+    await user.type(headline, "Buy cement online");
+    expect(headline.value).toBe("Buy cement online");
   });
 
   it("sync writes per-slot unit ids and toggles onto the mapped placements", async () => {

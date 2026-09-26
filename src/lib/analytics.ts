@@ -70,7 +70,8 @@ export type TrackEvent =
   | "tiles_category_clicked"
   | "exterior_finishing_clicked"
   | "colour_design_clicked"
-  | "calculator_tab_change";
+  | "calculator_tab_change"
+  | "cross_promo_click";
 
 export function track(
   event: TrackEvent,

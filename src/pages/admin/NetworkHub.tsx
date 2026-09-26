@@ -11,6 +11,7 @@ import { supabase } from "@/lib/supabase";
 import { clearAdConfigCache } from "@/lib/ad-config";
 import { classNames } from "@/lib/utils";
 import type { DbAdProvider, DbAdPlacement } from "@/types/database";
+import type { ExternalPromo } from "@/lib/house-promo";
 
 /**
  * NETWORK HUB — the complete Heartsyncx ad-network settings surface,
@@ -30,7 +31,7 @@ import type { DbAdProvider, DbAdPlacement } from "@/types/database";
  * the real Frelux placement key it writes to.
  */
 
-type SubTab = "adsense" | "monetag" | "adsterra" | "placements";
+type SubTab = "adsense" | "monetag" | "adsterra" | "placements" | "house_promo";
 
 /** Heartsyncx slot family → Frelux placement key. */
 export const SLOT_MAP = [
@@ -99,6 +100,12 @@ interface HubState {
     slotKeys: Record<SlotFamily, string>;
   };
   slots: Record<SlotFamily, boolean>;
+  housePromo: {
+    active: boolean;
+    format: string;
+    baseUrl: string;
+    externalPromos: ExternalPromo[];
+  };
 }
 
 const emptySlotRecord = (): Record<SlotFamily, string> => ({
@@ -155,6 +162,12 @@ export function emptyHubState(): HubState {
       slotKeys: emptySlotRecord(),
     },
     slots: emptySlotToggles(),
+    housePromo: {
+      active: false,
+      format: "card",
+      baseUrl: "",
+      externalPromos: [],
+    },
   };
 }
 
@@ -162,6 +175,7 @@ type ProviderRows = {
   adsense: DbAdProvider | null;
   monetag: DbAdProvider | null;
   adsterra: DbAdProvider | null;
+  housePromo: DbAdProvider | null;
 };
 
 /** Build the editable hub state from the live DB rows. */
@@ -182,6 +196,26 @@ export function hubStateFromDb(
     (p?.settings ?? {}) as Record<string, unknown>;
   const str = (v: unknown) => (typeof v === "string" ? v.trim() : "");
   const bool = (v: unknown) => v === true;
+
+  const housePromo = bySlug("house_cross_promo");
+
+  state.housePromo.active = housePromo ? housePromo.is_active : false;
+  const promoFormat = setg(housePromo).format;
+  state.housePromo.format =
+    typeof promoFormat === "string" && promoFormat ? promoFormat : "card";
+  state.housePromo.baseUrl = str(setg(housePromo).base_url);
+  state.housePromo.externalPromos = Array.isArray(
+    setg(housePromo).external_promos,
+  )
+    ? (setg(housePromo).external_promos as ExternalPromo[]).map((r, i) => ({
+        id: r?.id || `ext-${Date.now()}-${i}`,
+        enabled: r?.enabled !== false,
+        label: r?.label || "",
+        url: r?.url || "",
+        blurb: r?.blurb || "",
+        owner_name: r?.owner_name || "",
+      }))
+    : [];
 
   state.adsense.active = adsense ? adsense.is_active : true;
   state.adsense.publisherId = str(cred(adsense).publisher_id);
@@ -280,6 +314,7 @@ export default function NetworkHub() {
     adsense: null,
     monetag: null,
     adsterra: null,
+    housePromo: null,
   });
   const [placements, setPlacements] = useState<DbAdPlacement[]>([]);
   const [loading, setLoading] = useState(true);
@@ -303,6 +338,7 @@ export default function NetworkHub() {
       adsense: providers.find((p) => p.slug === "google_adsense") ?? null,
       monetag: providers.find((p) => p.slug === "monetag") ?? null,
       adsterra: providers.find((p) => p.slug === "adsterra") ?? null,
+      housePromo: providers.find((p) => p.slug === "house_cross_promo") ?? null,
     });
     setPlacements(places);
     setState(hubStateFromDb(providers, places));
@@ -332,7 +368,16 @@ export default function NetworkHub() {
     setMessage(null);
     try {
       // ── Provider rows (upsert on slug; credentials merge over existing) ──
-      const providerUpserts = [
+      const providerUpserts: Array<{
+        name: string;
+        slug: string;
+        provider_type: string;
+        priority: number;
+        is_active: boolean;
+        credentials: Record<string, string>;
+        settings: Record<string, unknown>;
+        is_system: boolean;
+      }> = [
         {
           name: rows.adsense?.name ?? "Google AdSense",
           slug: "google_adsense",
@@ -393,6 +438,25 @@ export default function NetworkHub() {
           is_system: rows.adsterra?.is_system ?? true,
         },
       ];
+      // House cross-promo provider row (Network Hub → House Promos):
+      // settings carry format, base_url and the external partner list.
+      providerUpserts.push({
+        name: "House Cross-Promo",
+        slug: "house_cross_promo",
+        provider_type: rows.housePromo?.provider_type ?? "native",
+        priority: rows.housePromo?.priority ?? 99,
+        is_active: state.housePromo.active,
+        credentials: {},
+        settings: {
+          ...(rows.housePromo?.settings ?? {}),
+          format: state.housePromo.format,
+          base_url: state.housePromo.baseUrl.trim(),
+          external_promos: state.housePromo.externalPromos.filter(
+            (r) => r.label.trim() || r.url.trim(),
+          ),
+        },
+        is_system: rows.housePromo?.is_system ?? true,
+      });
       const upRes = await supabase
         .from("ad_providers")
         .upsert(providerUpserts, { onConflict: "slug" });
@@ -403,12 +467,18 @@ export default function NetworkHub() {
       const { data: fresh, error: freshErr } = await supabase
         .from("ad_providers")
         .select("*")
-        .in("slug", ["google_adsense", "monetag", "adsterra"]);
+        .in("slug", [
+          "google_adsense",
+          "monetag",
+          "adsterra",
+          "house_cross_promo",
+        ]);
       if (freshErr) throw new Error(freshErr.message);
       const freshRows: ProviderRows = {
         adsense: fresh?.find((p) => p.slug === "google_adsense") ?? null,
         monetag: fresh?.find((p) => p.slug === "monetag") ?? null,
         adsterra: fresh?.find((p) => p.slug === "adsterra") ?? null,
+        housePromo: fresh?.find((p) => p.slug === "house_cross_promo") ?? null,
       };
 
       // ── Per-slot unit IDs + slot toggles on the mapped placements ──
@@ -472,6 +542,7 @@ export default function NetworkHub() {
     { key: "monetag", label: "Monetag", on: state.monetag.active },
     { key: "adsterra", label: "Adsterra", on: state.adsterra.active },
     { key: "placements", label: "Placement Slots", on: true },
+    { key: "house_promo", label: "House Promos", on: state.housePromo.active },
   ];
 
   if (loading) {
@@ -957,6 +1028,199 @@ export default function NetworkHub() {
           </div>
           <div className="mt-5 border-t pt-4">
             <SlotConnectivity providers={rows} placements={placements} />
+          </div>
+        </HubCard>
+      )}
+
+      {tab === "house_promo" && (
+        <HubCard
+          title="House Promos — Sister Site & External Partners"
+          subtitle="First-party promo slots: advertise Heartsyncx across Frelux and sell the same slots to external website owners. Not ad-network units — no consent gate, cannot be blocked by ad blockers. Clicks are tracked as cross_promo_click."
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <AdminField label="Master switch">
+              <Toggle
+                checked={state.housePromo.active}
+                onChange={(v) =>
+                  patch((d) => {
+                    d.housePromo.active = v;
+                  })
+                }
+                label={state.housePromo.active ? "Serving" : "Off"}
+              />
+            </AdminField>
+            <AdminField
+              label="Display format"
+              hint="Applies to every house-promo slot on the site; slots rotate destinations so each advertises different links."
+            >
+              <select
+                value={state.housePromo.format}
+                onChange={(e) =>
+                  patch((d) => {
+                    d.housePromo.format = e.target.value;
+                  })
+                }
+                className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
+              >
+                <option value="card">
+                  Card (rich grid of section links — default)
+                </option>
+                <option value="banner">
+                  Banner (slim strip, 3 rotating links)
+                </option>
+                <option value="native">Native (quiet in-feed text unit)</option>
+                <option value="interstitial">
+                  Interstitial (full-screen overlay, once per session)
+                </option>
+              </select>
+            </AdminField>
+            <AdminField
+              label="Heartsyncx site URL"
+              hint="Where the sister-site promo links point. Leave empty for the default (heartsyncx.netlify.app). Update this when Heartsyncx moves to its custom domain — every promo link changes instantly."
+            >
+              <TextInput
+                value={state.housePromo.baseUrl}
+                onChange={(v) =>
+                  patch((d) => {
+                    d.housePromo.baseUrl = v;
+                  })
+                }
+                placeholder="https://heartsyncx.netlify.app"
+              />
+            </AdminField>
+          </div>
+
+          <div className="mt-5 border-t pt-4">
+            <p className="text-sm font-bold">External Partner Promos</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Let outside website owners advertise in the same promo slots.
+              Entries rotate alongside the Heartsyncx links; disabled entries
+              are hidden.
+            </p>
+            {state.housePromo.externalPromos.length === 0 && (
+              <p className="mt-3 text-xs italic text-muted-foreground">
+                No partner promos yet. Click "Add partner" when an external
+                advertiser comes on board.
+              </p>
+            )}
+            <div className="mt-3 space-y-2">
+              {state.housePromo.externalPromos.map((r) => (
+                <div
+                  key={r.id}
+                  className="grid grid-cols-1 lg:grid-cols-12 gap-2 items-center p-2.5 rounded-lg border border-border bg-muted/30"
+                >
+                  <label
+                    className="lg:col-span-1 flex items-center gap-1.5 cursor-pointer"
+                    title="Enabled"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={r.enabled}
+                      onChange={(e) =>
+                        patch((d) => {
+                          const row = d.housePromo.externalPromos.find(
+                            (x) => x.id === r.id,
+                          );
+                          if (row) row.enabled = e.target.checked;
+                        })
+                      }
+                      className="h-4 w-4 rounded"
+                    />
+                    <span className="text-[9px] font-bold uppercase text-muted-foreground">
+                      On
+                    </span>
+                  </label>
+                  <input
+                    value={r.label}
+                    onChange={(e) =>
+                      patch((d) => {
+                        const row = d.housePromo.externalPromos.find(
+                          (x) => x.id === r.id,
+                        );
+                        if (row) row.label = e.target.value;
+                      })
+                    }
+                    placeholder="Headline, e.g. Buy building materials online"
+                    className="lg:col-span-3 h-9 rounded-md border border-border bg-background px-3 text-xs"
+                  />
+                  <input
+                    value={r.url}
+                    onChange={(e) =>
+                      patch((d) => {
+                        const row = d.housePromo.externalPromos.find(
+                          (x) => x.id === r.id,
+                        );
+                        if (row) row.url = e.target.value;
+                      })
+                    }
+                    placeholder="https://partner-site.com"
+                    className="lg:col-span-3 h-9 rounded-md border border-border bg-background px-3 font-mono text-xs"
+                  />
+                  <input
+                    value={r.blurb}
+                    onChange={(e) =>
+                      patch((d) => {
+                        const row = d.housePromo.externalPromos.find(
+                          (x) => x.id === r.id,
+                        );
+                        if (row) row.blurb = e.target.value;
+                      })
+                    }
+                    placeholder="Short description shown under the headline"
+                    className="lg:col-span-3 h-9 rounded-md border border-border bg-background px-3 text-xs"
+                  />
+                  <div className="lg:col-span-2 flex gap-1.5">
+                    <input
+                      value={r.owner_name ?? ""}
+                      onChange={(e) =>
+                        patch((d) => {
+                          const row = d.housePromo.externalPromos.find(
+                            (x) => x.id === r.id,
+                          );
+                          if (row) row.owner_name = e.target.value;
+                        })
+                      }
+                      placeholder="Ads by (name)"
+                      className="w-full h-9 rounded-md border border-border bg-background px-3 text-xs"
+                    />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        patch((d) => {
+                          d.housePromo.externalPromos =
+                            d.housePromo.externalPromos.filter(
+                              (x) => x.id !== r.id,
+                            );
+                        })
+                      }
+                      className="shrink-0 h-9 px-2.5 rounded-md border border-red-200 text-red-600 text-xs font-bold hover:bg-red-50 dark:border-red-500/20 dark:hover:bg-red-500/10"
+                      title="Remove this partner promo"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3">
+              <AdminButton
+                variant="secondary"
+                onClick={() =>
+                  patch((d) => {
+                    d.housePromo.externalPromos.push({
+                      id: `ext-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+                      enabled: true,
+                      label: "",
+                      url: "",
+                      blurb: "",
+                      owner_name: "",
+                    });
+                  })
+                }
+              >
+                + Add partner
+              </AdminButton>
+            </div>
           </div>
         </HubCard>
       )}

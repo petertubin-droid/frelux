@@ -14,7 +14,13 @@
  * info glyph, blue headline link, green display URL, neutral ad
  * container and a pill CTA. Slots rotate destinations (by slotIndex)
  * so two units on one page advertise different parts of Heartsyncx.
- * First-party unit: no consent gate, cannot be blocked by ad blockers.
+ *
+ * The rotation also carries external partner promos sold to outside
+ * advertisers (Network Hub → House Promos), and every link goes through
+ * the admin-configurable Heartsyncx base URL — one edit re-points the
+ * whole system when the custom domain goes live. Clicks are tracked as
+ * cross_promo_click. First-party unit: no consent gate, cannot be
+ * blocked by ad blockers.
  */
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
@@ -28,10 +34,15 @@ import {
   ExternalLink,
   X,
 } from "lucide-react";
-import { useHousePromoSettings } from "@/lib/house-promo";
+import { track } from "@/lib/analytics";
+import {
+  useHousePromoSettings,
+  normalizeBaseUrl,
+  type HousePromoSettings,
+  type ExternalPromo,
+  DEFAULT_CROSS_PROMO_BASE_URL,
+} from "@/lib/house-promo";
 
-const HS_BASE = "https://heartsyncx.netlify.app";
-const HS_DOMAIN = "heartsyncx.netlify.app";
 const INTERSTITIAL_FLAG = "frelux_cross_promo_interstitial_shown";
 
 interface Dest {
@@ -77,6 +88,75 @@ const DEST_CREATIVES: { icon: React.ElementType; gradient: string }[] = [
   { icon: Crown, gradient: "from-amber-500 to-rose-500" },
 ];
 
+/** One entry in the promo rotation: a Heartsyncx destination (against
+ *  the admin-configured base URL) or an external partner promo. */
+export interface PromoItem {
+  label: string;
+  /** Sister items: site path. External items: full URL (also the key). */
+  path: string;
+  /** Full click URL. */
+  url: string;
+  domain: string;
+  blurb: string;
+  site: "sister" | "external";
+  owner: string;
+  creative: { icon: React.ElementType; gradient: string };
+}
+
+/** Creative used for external partner promos (no per-destination art). */
+const EXTERNAL_CREATIVE = {
+  icon: ExternalLink,
+  gradient: "from-slate-500 to-slate-700",
+};
+
+/** Build the full rotation from settings. Sister destinations come
+ *  first, enabled external partners after them. Exported for tests
+ *  and the admin editor preview. */
+export function buildPromoItems(settings: HousePromoSettings): PromoItem[] {
+  const base = normalizeBaseUrl(settings.baseUrl);
+  const domain = (() => {
+    try {
+      return new URL(base).host;
+    } catch {
+      return base;
+    }
+  })();
+  const sister: PromoItem[] = DESTINATIONS.map((d, i) => ({
+    label: d.label,
+    path: d.path,
+    url: `${base}${d.path}`,
+    domain,
+    blurb: d.blurb,
+    site: "sister" as const,
+    owner: "Heartsyncx",
+    creative: DEST_CREATIVES[i % DEST_CREATIVES.length],
+  }));
+  const external: PromoItem[] = settings.externalPromos
+    .filter((p) => p.enabled && p.url.trim() && p.label.trim())
+    .map((p) => {
+      const url = /^https?:\/\//i.test(p.url.trim())
+        ? p.url.trim()
+        : `https://${p.url.trim()}`;
+      let host = url;
+      try {
+        host = new URL(url).host;
+      } catch {
+        /* keep raw */
+      }
+      return {
+        label: p.label.trim(),
+        path: url,
+        url,
+        domain: host,
+        blurb: p.blurb.trim(),
+        site: "external" as const,
+        owner: p.owner_name.trim() || host,
+        creative: EXTERNAL_CREATIVE,
+      };
+    });
+  return [...sister, ...external];
+}
+
 /* Standard programmatic-ad chrome colors (AdSense conventions). */
 const HEADLINE = "text-[#1a0dab] dark:text-[#8ab4f8]";
 const DISPLAY_URL = "text-[#006629]/90 dark:text-[#7ee787]/80";
@@ -84,8 +164,13 @@ const AD_CONTAINER =
   "bg-white dark:bg-[#202124] border border-[#dadce0] dark:border-[#3c4043] rounded-lg";
 const AD_BODY = "text-[#3c4043] dark:text-[#9aa0a6]";
 
-function go(dest: Dest, source: string) {
-  window.open(`${HS_BASE}${dest.path}`, "_blank", "noopener,noreferrer");
+function go(dest: PromoItem, source: string) {
+  track("cross_promo_click", {
+    target_site: dest.site === "sister" ? "heartsyncx" : dest.domain,
+    target_url: dest.url,
+    promo_slot: source,
+  });
+  window.open(dest.url, "_blank", "noopener,noreferrer");
 }
 
 /** AdSense-style "Ad" badge with AdChoices info glyph. */
@@ -120,7 +205,7 @@ function CtaButton({
   label = "Visit site",
   big = false,
 }: {
-  dest: Dest;
+  dest: PromoItem;
   source: string;
   label?: string;
   big?: boolean;
@@ -139,11 +224,19 @@ function CtaButton({
 }
 
 /** Banner: responsive display ad with an AdSense-style link-unit row. */
-function Banner({ slotIndex, source }: { slotIndex: number; source: string }) {
-  const featured = DESTINATIONS[slotIndex % DESTINATIONS.length];
-  const links = DESTINATIONS.filter(
-    (_, i) => i !== slotIndex % DESTINATIONS.length,
-  ).slice(0, 3);
+function Banner({
+  slotIndex,
+  source,
+  items,
+}: {
+  slotIndex: number;
+  source: string;
+  items: PromoItem[];
+}) {
+  const featured = items[slotIndex % items.length];
+  const links = items
+    .filter((_, i) => i !== slotIndex % items.length)
+    .slice(0, 3);
   return (
     <div className={`my-6 overflow-hidden ${AD_CONTAINER}`}>
       <div className="flex items-start justify-between px-4 pt-2">
@@ -157,14 +250,18 @@ function Banner({ slotIndex, source }: { slotIndex: number; source: string }) {
             onClick={() => go(featured, source)}
             className={`block cursor-pointer text-left text-sm font-bold hover:underline sm:text-base ${HEADLINE}`}
           >
-            {featured.label} — relationship insight that hits home
+            {featured.label}
+            {featured.site === "sister" &&
+              " — relationship insight that hits home"}
           </button>
           <span className={`text-[11px] ${DISPLAY_URL}`}>
-            {HS_DOMAIN}
-            {featured.path}
+            {featured.domain}
+            {featured.site === "sister" ? featured.path : ""}
           </span>
           <p className={`mt-0.5 truncate text-xs ${AD_BODY}`}>
-            {featured.blurb}. From the team behind FRELUX.
+            {featured.site === "sister"
+              ? `${featured.blurb}. From the team behind FRELUX.`
+              : featured.blurb}
           </p>
         </div>
         <CtaButton dest={featured} source={source} />
@@ -182,7 +279,7 @@ function Banner({ slotIndex, source }: { slotIndex: number; source: string }) {
               {d.label}
             </span>
             <span className={`block truncate text-[10px] ${DISPLAY_URL}`}>
-              {HS_DOMAIN}
+              {d.domain}
             </span>
           </button>
         ))}
@@ -196,12 +293,14 @@ function Banner({ slotIndex, source }: { slotIndex: number; source: string }) {
 function NativeUnit({
   slotIndex,
   source,
+  items,
 }: {
   slotIndex: number;
   source: string;
+  items: PromoItem[];
 }) {
-  const d = DESTINATIONS[slotIndex % DESTINATIONS.length];
-  const creative = DEST_CREATIVES[slotIndex % DEST_CREATIVES.length];
+  const d = items[slotIndex % items.length];
+  const creative = d.creative;
   return (
     <div className={`my-6 flex items-stretch gap-3 p-3 ${AD_CONTAINER}`}>
       <button
@@ -215,7 +314,7 @@ function NativeUnit({
           className="absolute inset-0 m-auto h-8 w-8 text-white/90"
         />
         <span className="absolute bottom-1 left-1.5 text-[8px] font-black uppercase tracking-widest text-white/80">
-          Heartsyncx
+          {d.site === "sister" ? "Heartsyncx" : d.owner.slice(0, 12)}
         </span>
         <AdBadge className="absolute right-1 top-1 !bg-black/30 !text-white" />
       </button>
@@ -226,15 +325,16 @@ function NativeUnit({
             onClick={() => go(d, source)}
             className={`line-clamp-2 cursor-pointer text-left text-sm font-bold leading-snug hover:underline ${HEADLINE}`}
           >
-            {d.label} — {d.blurb}
+            {d.site === "sister" ? `${d.label} — ${d.blurb}` : d.label}
           </button>
           <AdChoices className="-mt-0.5" />
         </div>
         <p
           className={`mt-1 line-clamp-2 text-[11px] leading-relaxed ${AD_BODY}`}
         >
-          Articles, AI-powered insights and interactive tools for love, healing
-          and communication.
+          {d.site === "sister"
+            ? "Articles, AI-powered insights and interactive tools for love, healing and communication."
+            : `${d.blurb} Sponsored by ${d.owner}.`}
         </p>
         <div className="mt-auto flex items-center gap-2 pt-1">
           <button
@@ -242,7 +342,7 @@ function NativeUnit({
             onClick={() => go(d, source)}
             className={`cursor-pointer truncate text-[10px] font-bold hover:underline ${DISPLAY_URL}`}
           >
-            {HS_DOMAIN}
+            {d.domain}
           </button>
           <button
             type="button"
@@ -258,10 +358,16 @@ function NativeUnit({
 }
 
 /** Card: content-recommendation widget — rotating sponsored tiles. */
-function RecCard({ slotIndex, source }: { slotIndex: number; source: string }) {
-  const rotated = DESTINATIONS.map(
-    (_, i) => DESTINATIONS[(i + slotIndex) % DESTINATIONS.length],
-  );
+function RecCard({
+  slotIndex,
+  source,
+  items,
+}: {
+  slotIndex: number;
+  source: string;
+  items: PromoItem[];
+}) {
+  const rotated = items.map((_, i) => items[(i + slotIndex) % items.length]);
   return (
     <div className={`my-8 overflow-hidden ${AD_CONTAINER}`}>
       <div className="flex items-center justify-between border-b border-[#dadce0] px-4 py-2.5 dark:border-[#3c4043]">
@@ -274,8 +380,7 @@ function RecCard({ slotIndex, source }: { slotIndex: number; source: string }) {
       </div>
       <div className="grid grid-cols-1 divide-y divide-[#dadce0] sm:grid-cols-3 sm:divide-x sm:divide-y-0 dark:divide-[#3c4043]">
         {rotated.slice(0, 3).map((d, i) => {
-          const creative =
-            DEST_CREATIVES[(i + slotIndex) % DEST_CREATIVES.length];
+          const creative = d.creative;
           return (
             <button
               key={d.path}
@@ -300,7 +405,7 @@ function RecCard({ slotIndex, source }: { slotIndex: number; source: string }) {
                 <span
                   className={`mt-1 block truncate text-[10px] ${DISPLAY_URL}`}
                 >
-                  {HS_DOMAIN}
+                  {d.domain}
                 </span>
                 <span className="mt-0.5 block text-[10px] text-[#5f6368] dark:text-[#9aa0a6]">
                   Sponsored
@@ -315,9 +420,15 @@ function RecCard({ slotIndex, source }: { slotIndex: number; source: string }) {
 }
 
 /** Interstitial overlay ad: standard chrome, once per browser session. */
-function Interstitial({ source }: { source: string }) {
+function Interstitial({
+  source,
+  items,
+}: {
+  source: string;
+  items: PromoItem[];
+}) {
   const [open, setOpen] = useState(false);
-  const featured = DESTINATIONS[0];
+  const featured = items[0];
   useEffect(() => {
     try {
       if (sessionStorage.getItem(INTERSTITIAL_FLAG) === "1") return;
@@ -366,18 +477,21 @@ function Interstitial({ source }: { source: string }) {
             onClick={() => go(featured, source)}
             className={`block cursor-pointer text-left text-lg font-bold leading-snug hover:underline ${HEADLINE}`}
           >
-            Relationship insight that actually hits home
+            {featured.site === "sister"
+              ? "Relationship insight that actually hits home"
+              : featured.label}
           </button>
-          <span className={`text-xs ${DISPLAY_URL}`}>{HS_DOMAIN}</span>
+          <span className={`text-xs ${DISPLAY_URL}`}>{featured.domain}</span>
           <p className={`mt-2 text-sm leading-relaxed ${AD_BODY}`}>
-            Articles, AI-powered insights and interactive tools for love,
-            healing and communication. From the team behind FRELUX.
+            {featured.site === "sister"
+              ? "Articles, AI-powered insights and interactive tools for love, healing and communication. From the team behind FRELUX."
+              : `${featured.blurb} Sponsored by ${featured.owner}.`}
           </p>
           <div className="mt-4">
             <CtaButton big dest={featured} source={source} label="Visit site" />
           </div>
           <div className="mt-4 space-y-1.5 border-t border-[#dadce0] pt-3 dark:border-[#3c4043]">
-            {DESTINATIONS.slice(1, 4).map((d) => (
+            {items.slice(1, 4).map((d) => (
               <button
                 key={d.path}
                 type="button"
@@ -391,8 +505,8 @@ function Interstitial({ source }: { source: string }) {
                     {d.label}
                   </span>
                   <span className={`block truncate text-[10px] ${DISPLAY_URL}`}>
-                    {HS_DOMAIN}
-                    {d.path}
+                    {d.domain}
+                    {d.site === "sister" ? d.path : ""}
                   </span>
                 </span>
                 <ExternalLink
@@ -417,13 +531,14 @@ export default function CrossPromoSlot({
   slotIndex?: number;
   source?: string;
 }) {
-  const [settings] = useHousePromoSettings();
-  if (!settings.enabled) return null;
+  const settings = useHousePromoSettings();
+  const items = settings.enabled ? buildPromoItems(settings) : [];
+  if (!items.length) return null;
   if (settings.format === "interstitial")
-    return <Interstitial source={source} />;
+    return <Interstitial source={source} items={items} />;
   if (settings.format === "banner")
-    return <Banner slotIndex={slotIndex} source={source} />;
+    return <Banner slotIndex={slotIndex} source={source} items={items} />;
   if (settings.format === "native")
-    return <NativeUnit slotIndex={slotIndex} source={source} />;
-  return <RecCard slotIndex={slotIndex} source={source} />;
+    return <NativeUnit slotIndex={slotIndex} source={source} items={items} />;
+  return <RecCard slotIndex={slotIndex} source={source} items={items} />;
 }
