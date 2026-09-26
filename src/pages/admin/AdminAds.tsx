@@ -17,6 +17,7 @@ import {
   Map as MapIcon,
   AlertTriangle,
   Radio,
+  HeartHandshake,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import {
@@ -47,8 +48,10 @@ import type {
   AdProviderType,
 } from "@/types/database";
 import NetworkHub from "@/pages/admin/NetworkHub";
+import { useHousePromoSettings } from "@/lib/house-promo";
 
-type Tab = "providers" | "placements" | "analytics" | "network";
+type Tab =
+  "providers" | "placements" | "analytics" | "network" | "house_promos";
 
 export default function AdminAds() {
   const [tab, setTab] = useState<Tab>("providers");
@@ -65,6 +68,11 @@ export default function AdminAds() {
             { key: "placements", label: "Placements", icon: Layers },
             { key: "analytics", label: "Analytics", icon: BarChart3 },
             { key: "network", label: "Network Hub", icon: Radio },
+            {
+              key: "house_promos",
+              label: "House Promos",
+              icon: HeartHandshake,
+            },
           ] as { key: Tab; label: string; icon: typeof Megaphone }[]
         ).map((t) => (
           <AdminButton
@@ -87,6 +95,7 @@ export default function AdminAds() {
       {tab === "placements" && <PlacementsTab />}
       {tab === "analytics" && <AnalyticsTab />}
       {tab === "network" && <NetworkHub />}
+      {tab === "house_promos" && <HousePromosTab />}
     </>
   );
 }
@@ -1857,5 +1866,65 @@ function AnalyticsTab() {
         )}
       </AdminCard>
     </>
+  );
+}
+
+// =========================================================
+// House Promos Tab: cross-site house ads (Heartsyncx on Frelux)
+// =========================================================
+function HousePromosTab() {
+  const [settings, update] = useHousePromoSettings();
+  return (
+    <AdminCard className="p-5">
+      <h2 className="text-sm font-bold text-foreground dark:text-primary-foreground">
+        Cross-Site House Promos (Frelux ⇄ Heartsyncx)
+      </h2>
+      <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
+        First-party promo slots advertising Heartsyncx, the sister site. Not
+        ad-network units — no consent gate, cannot be blocked by ad blockers.
+      </p>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <AdminField label="Display Format">
+          <AdminSelect
+            value={settings.format}
+            onChange={(e) =>
+              update({
+                ...settings,
+                format: e.target.value as typeof settings.format,
+              })
+            }
+          >
+            <option value="card">
+              Card (rich grid of section links — default)
+            </option>
+            <option value="banner">
+              Banner (slim strip, 3 rotating links)
+            </option>
+            <option value="native">Native (quiet in-feed text unit)</option>
+            <option value="interstitial">
+              Interstitial (full-screen overlay, once per session)
+            </option>
+          </AdminSelect>
+        </AdminField>
+        <AdminField label="Master Switch">
+          <div className="pt-2">
+            <Toggle
+              checked={settings.enabled}
+              onChange={(v) => update({ ...settings, enabled: v })}
+            />
+          </div>
+        </AdminField>
+      </div>
+      <div className="mt-4 rounded-xl border border-border/70 bg-muted/40 p-4 text-xs leading-relaxed text-muted-foreground dark:border-border dark:bg-white/5 dark:text-muted-foreground">
+        <strong className="text-foreground dark:text-primary-foreground">
+          Placement map:
+        </strong>{" "}
+        Learn-article pages — mid-article + after all content. Homepage — after
+        the templates showcase and after the PWA section. The matching Frelux
+        promos on Heartsyncx are configured separately in the Heartsyncx admin
+        (Ad Monetization → Cross-Site Promo). Slots rotate destinations so each
+        advertises different sections of Heartsyncx simultaneously.
+      </div>
+    </AdminCard>
   );
 }

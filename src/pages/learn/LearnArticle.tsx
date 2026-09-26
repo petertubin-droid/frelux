@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useMemo } from "react";
 import AdSlot from "@/components/ui/AdSlot";
-import HeartsyncxCrossPromo from "@/components/learn/HeartsyncxCrossPromo";
+import CrossPromoSlot from "@/components/houseAds/CrossPromoSlot";
 import { Link, useParams } from "react-router-dom";
 import {
   ArrowLeft,
@@ -602,9 +602,9 @@ export default function LearnArticle() {
               </div>
             )}
 
-            {/* Cross-site house promo, ONE slot per article page:
-                Heartsyncx (sister site) advertised to learn readers. */}
-            <HeartsyncxCrossPromo />
+            {/* Cross-site house promo, slot 1 of 2 (mid-article): Heartsyncx
+                (sister site) advertised to learn readers. */}
+            <CrossPromoSlot slotIndex={1} source="learn_article_mid" />
 
             {/* FAQ Section */}
             {faqs.length > 0 && (
@@ -858,6 +858,9 @@ export default function LearnArticle() {
                 </div>
               </section>
             )}
+
+            {/* Cross-site house promo, slot 2 of 2 (after all content). */}
+            <CrossPromoSlot slotIndex={2} source="learn_article_end" />
 
             {/* Single bottom ad slot after all content, the last of
                 the 5 slots allowed on an article page. */}

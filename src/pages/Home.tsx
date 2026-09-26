@@ -17,6 +17,7 @@ const TemplatesShowcase = lazy(
 const PWASection = lazy(() => import("@/components/home/PWASection"));
 const FinalCTA = lazy(() => import("@/components/home/FinalCTA"));
 import AdSlot from "@/components/ui/AdSlot";
+import CrossPromoSlot from "@/components/houseAds/CrossPromoSlot";
 import { WeatherWidget } from "@/components/ui/WeatherWidget";
 import { RecentlyUsed } from "@/components/ui/RecentlyUsed";
 import { AchievementBadges } from "@/components/ui/AchievementBadges";
@@ -238,6 +239,11 @@ export default function Home() {
         <TemplatesShowcase />
       </Suspense>
 
+      {/* Cross-site house promo, homepage slot 1 of 2 */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <CrossPromoSlot slotIndex={0} source="home_1" />
+      </div>
+
       {/* Color inspiration */}
       <Suspense fallback={<SectionSkeleton minHeight={500} />}>
         <TrendingColors />
@@ -253,6 +259,11 @@ export default function Home() {
       <Suspense fallback={<SectionSkeleton minHeight={450} />}>
         <PWASection />
       </Suspense>
+
+      {/* Cross-site house promo, homepage slot 2 of 2 */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <CrossPromoSlot slotIndex={1} source="home_2" />
+      </div>
 
       {/* Weather-aware painting scheduler */}
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
