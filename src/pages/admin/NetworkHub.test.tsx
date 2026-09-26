@@ -251,7 +251,8 @@ describe("NetworkHub (Heartsyncx ads settings port)", () => {
     // House cross-promo row carries the promo settings
     const house = rows.find((r) => r.slug === "house_cross_promo")!;
     expect(house.is_active).toBe(false);
-    expect((house.settings as Row).format).toBe("card");
+    // 'display' is the default: the single real-logo image ad unit.
+    expect((house.settings as Row).format).toBe("display");
     expect((house.settings as Row).base_url).toBe("");
   });
 

@@ -20,6 +20,7 @@ import { fetchAdConfig } from "@/lib/ad-config";
 import { track } from "@/lib/analytics";
 import CrossPromoSlot, {
   buildPromoItems,
+  buildDisplayPromoItems,
 } from "@/components/houseAds/CrossPromoSlot";
 import {
   normalizeBaseUrl,
@@ -166,6 +167,83 @@ describe("housePromoConfigFrom", () => {
     expect(cfg!.externalPromos).toHaveLength(1);
     expect(cfg!.externalPromos[0].owner_name).toBe("Partner Co");
   });
+
+  it("defaults to the single Display format and keeps logo_url", () => {
+    const cfg = housePromoConfigFrom([
+      makeProvider({
+        settings: {
+          // format deliberately unset — display is the new default
+          external_promos: [
+            {
+              id: "ext-1",
+              enabled: true,
+              label: "Partner",
+              url: "https://partner.example.com",
+              blurb: "b",
+              owner_name: "",
+              logo_url: "https://partner.example.com/brand.png",
+            },
+          ],
+        },
+      }),
+    ]);
+    expect(cfg).not.toBeNull();
+    expect(cfg!.format).toBe("display");
+    expect(cfg!.externalPromos[0].logo_url).toBe(
+      "https://partner.example.com/brand.png",
+    );
+  });
+});
+
+describe("buildDisplayPromoItems", () => {
+  it("builds ONE site-level Heartsyncx item with the real logo and real description", () => {
+    const settings: HousePromoSettings = {
+      enabled: true,
+      format: "display",
+      baseUrl: "https://heartsyncx.custom.com",
+      externalPromos: [],
+    };
+    const items = buildDisplayPromoItems(settings);
+    expect(items).toHaveLength(1);
+    expect(items[0].site).toBe("sister");
+    expect(items[0].label).toBe("Heartsyncx");
+    expect(items[0].url).toBe("https://heartsyncx.custom.com");
+    expect(items[0].logo).toBe("https://heartsyncx.custom.com/logo.png");
+    // The real site description from Heartsyncx's own index.html.
+    expect(items[0].blurb).toContain("Evidence-based relationship advice");
+  });
+
+  it("appends enabled external partners with their own logos, hiding disabled ones", () => {
+    const items = buildDisplayPromoItems({
+      enabled: true,
+      format: "display",
+      baseUrl: "",
+      externalPromos: [
+        {
+          id: "ext-1",
+          enabled: true,
+          label: "BuildMart",
+          url: "buildmart.example.com",
+          blurb: "Cement delivered",
+          owner_name: "",
+          logo_url: "https://buildmart.example.com/brand.png",
+        },
+        {
+          id: "ext-2",
+          enabled: false,
+          label: "Hidden",
+          url: "https://hidden.example.com",
+          blurb: "",
+          owner_name: "",
+        },
+      ],
+    });
+    expect(items).toHaveLength(2);
+    expect(items[0].site).toBe("sister");
+    expect(items[1].site).toBe("external");
+    expect(items[1].url).toBe("https://buildmart.example.com");
+    expect(items[1].logo).toBe("https://buildmart.example.com/brand.png");
+  });
 });
 
 describe("CrossPromoSlot", () => {
@@ -256,6 +334,68 @@ describe("CrossPromoSlot", () => {
       "https://buildmart.example.com",
       "_blank",
       "noopener,noreferrer",
+    );
+  });
+
+  it("renders the Display format as a SINGLE real-logo unit, not a feature grid", async () => {
+    mockedFetch.mockResolvedValue({
+      providers: [
+        makeProvider({
+          settings: { format: "display" },
+        }),
+      ],
+      placements: [],
+    });
+    render(<CrossPromoSlot slotIndex={0} source="home_3" />);
+
+    // The single-unit "Advertisement" label appears.
+    expect(await screen.findByText(/advertisement/i)).toBeTruthy();
+    // The real Heartsyncx logo is rendered as an image.
+    const img = document.querySelector("img");
+    expect(img).not.toBeNull();
+    expect(img!.getAttribute("src")).toBe(
+      `${DEFAULT_CROSS_PROMO_BASE_URL}/logo.png`,
+    );
+    // The real site description from Heartsyncx's own index.html meta.
+    expect(
+      screen.getByText(/Evidence-based relationship advice/i),
+    ).toBeTruthy();
+    // No multi-tile grid: exactly one headline button for the one unit.
+    expect(
+      screen.getAllByRole("button", { name: /Heartsyncx/i }).length,
+    ).toBeGreaterThan(0);
+  });
+
+  it("features an external partner with its own logo image in the Display format", async () => {
+    mockedFetch.mockResolvedValue({
+      providers: [
+        makeProvider({
+          settings: {
+            format: "display",
+            external_promos: [
+              {
+                id: "ext-1",
+                enabled: true,
+                label: "BuildMart",
+                url: "https://buildmart.example.com",
+                blurb: "Cement delivered same-day",
+                owner_name: "BuildMart",
+                logo_url: "https://buildmart.example.com/brand.png",
+              },
+            ],
+          },
+        }),
+      ],
+      placements: [],
+    });
+    // Display rotation: 1 Heartsyncx site item + 1 partner → index 1.
+    render(<CrossPromoSlot slotIndex={1} source="home_4" />);
+
+    expect(await screen.findByText(/Cement delivered same-day/i)).toBeTruthy();
+    const img = document.querySelector("img");
+    expect(img).not.toBeNull();
+    expect(img!.getAttribute("src")).toBe(
+      "https://buildmart.example.com/brand.png",
     );
   });
 });

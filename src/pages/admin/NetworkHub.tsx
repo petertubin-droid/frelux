@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Save, Loader2, Radio, RefreshCw, Activity } from "lucide-react";
+import { Save, Loader2, Radio, RefreshCw, Activity, Wand2 } from "lucide-react";
 import {
   AdminCard,
   AdminButton,
@@ -164,7 +164,7 @@ export function emptyHubState(): HubState {
     slots: emptySlotToggles(),
     housePromo: {
       active: false,
-      format: "card",
+      format: "display",
       baseUrl: "",
       externalPromos: [],
     },
@@ -202,7 +202,7 @@ export function hubStateFromDb(
   state.housePromo.active = housePromo ? housePromo.is_active : false;
   const promoFormat = setg(housePromo).format;
   state.housePromo.format =
-    typeof promoFormat === "string" && promoFormat ? promoFormat : "card";
+    typeof promoFormat === "string" && promoFormat ? promoFormat : "display";
   state.housePromo.baseUrl = str(setg(housePromo).base_url);
   state.housePromo.externalPromos = Array.isArray(
     setg(housePromo).external_promos,
@@ -214,6 +214,7 @@ export function hubStateFromDb(
         url: r?.url || "",
         blurb: r?.blurb || "",
         owner_name: r?.owner_name || "",
+        logo_url: r?.logo_url || "",
       }))
     : [];
 
@@ -322,6 +323,52 @@ export default function NetworkHub() {
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [dirty, setDirty] = useState(false);
+  // AI Assistant state (House Promos tab): create an ad from a URL.
+  const [aiUrl, setAiUrl] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState("");
+
+  /** AI Assistant: paste any URL, the ad-from-url edge function fetches
+   *  its real title, description and og:image server-side and drops a
+   *  filled-in partner row in for review before saving. */
+  const runAiAssistant = async () => {
+    const target = aiUrl.trim();
+    if (!target) return;
+    setAiLoading(true);
+    setAiError("");
+    try {
+      const { data, error: fnError } = await supabase.functions.invoke(
+        "ad-from-url",
+        { body: { url: target } },
+      );
+      if (fnError) throw new Error(fnError.message || "Request failed");
+      const body = (data ?? {}) as {
+        label?: string;
+        blurb?: string;
+        url?: string;
+        owner_name?: string;
+        logo_url?: string;
+        error?: string;
+      };
+      if (body.error) throw new Error(body.error);
+      patch((d) => {
+        d.housePromo.externalPromos.push({
+          id: `ext-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          enabled: true,
+          label: body.label || "",
+          url: body.url || target,
+          blurb: body.blurb || "",
+          owner_name: body.owner_name || "",
+          logo_url: body.logo_url || "",
+        });
+      });
+      setAiUrl("");
+    } catch (err: any) {
+      setAiError(err?.message || "Could not generate an ad from that URL.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -1062,9 +1109,10 @@ export default function NetworkHub() {
                 }
                 className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
               >
-                <option value="card">
-                  Card (rich grid of section links — default)
+                <option value="display">
+                  Display (single real-logo image ad — recommended)
                 </option>
+                <option value="card">Card (rich grid of section links)</option>
                 <option value="banner">
                   Banner (slim strip, 3 rotating links)
                 </option>
@@ -1091,6 +1139,49 @@ export default function NetworkHub() {
           </div>
 
           <div className="mt-5 border-t pt-4">
+            {/* AI Assistant: paste a URL, get a filled-in partner row back
+                (real title/description/logo read server-side) instead of
+                typing every field by hand. */}
+            <div className="mb-4 rounded-lg border border-indigo-200 bg-indigo-50/60 p-3 dark:border-indigo-900/40 dark:bg-indigo-950/20">
+              <p className="flex items-center gap-1.5 text-sm font-bold text-indigo-700 dark:text-indigo-400">
+                <Wand2 className="h-4 w-4" /> AI Assistant — create an ad from a
+                URL
+              </p>
+              <div className="mt-2 flex gap-2">
+                <input
+                  value={aiUrl}
+                  onChange={(e) => setAiUrl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !aiLoading) runAiAssistant();
+                  }}
+                  placeholder="https://partner-site.com"
+                  disabled={aiLoading}
+                  className="h-9 flex-1 rounded-md border border-indigo-200 bg-background px-3 font-mono text-xs focus-visible:ring-1 focus-visible:ring-indigo-500 disabled:opacity-60 dark:border-indigo-900/60"
+                />
+                <button
+                  type="button"
+                  onClick={runAiAssistant}
+                  disabled={aiLoading || !aiUrl.trim()}
+                  className="flex h-9 shrink-0 cursor-pointer items-center gap-1.5 rounded-md bg-indigo-600 px-3 text-xs font-bold text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {aiLoading ? (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  ) : (
+                    <Wand2 className="h-3.5 w-3.5" />
+                  )}
+                  {aiLoading ? "Analyzing…" : "Generate"}
+                </button>
+              </div>
+              <p className="mt-1.5 text-xs text-indigo-700/70 dark:text-indigo-400/60">
+                Reads the page's real title, description and logo, and adds a
+                partner row below for you to review before saving.
+              </p>
+              {aiError && (
+                <p className="mt-1.5 text-xs font-semibold text-red-600">
+                  {aiError}
+                </p>
+              )}
+            </div>
             <p className="text-sm font-bold">External Partner Promos</p>
             <p className="mt-1 text-xs text-muted-foreground">
               Let outside website owners advertise in the same promo slots.
@@ -1154,7 +1245,7 @@ export default function NetworkHub() {
                       })
                     }
                     placeholder="https://partner-site.com"
-                    className="lg:col-span-3 h-9 rounded-md border border-border bg-background px-3 font-mono text-xs"
+                    className="lg:col-span-2 h-9 rounded-md border border-border bg-background px-3 font-mono text-xs"
                   />
                   <input
                     value={r.blurb}
@@ -1167,7 +1258,20 @@ export default function NetworkHub() {
                       })
                     }
                     placeholder="Short description shown under the headline"
-                    className="lg:col-span-3 h-9 rounded-md border border-border bg-background px-3 text-xs"
+                    className="lg:col-span-2 h-9 rounded-md border border-border bg-background px-3 text-xs"
+                  />
+                  <input
+                    value={r.logo_url ?? ""}
+                    onChange={(e) =>
+                      patch((d) => {
+                        const row = d.housePromo.externalPromos.find(
+                          (x) => x.id === r.id,
+                        );
+                        if (row) row.logo_url = e.target.value;
+                      })
+                    }
+                    placeholder="Logo/image URL (Display format)"
+                    className="lg:col-span-2 h-9 rounded-md border border-border bg-background px-3 font-mono text-xs"
                   />
                   <div className="lg:col-span-2 flex gap-1.5">
                     <input
@@ -1214,6 +1318,7 @@ export default function NetworkHub() {
                       url: "",
                       blurb: "",
                       owner_name: "",
+                      logo_url: "",
                     });
                   })
                 }

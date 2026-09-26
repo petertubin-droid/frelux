@@ -5,6 +5,7 @@
  * the visual language of real programmatic ad networks (AdSense display,
  * AdSense link units, Adsterra native, content-recommendation widgets)
  * so visitors cannot tell house ads apart from network inventory:
+ *  - 'display'      single real-logo image ad, one destination (default)
  *  - 'card'         content-recommendation widget ("Recommended for you")
  *  - 'banner'       responsive display ad + link-unit row
  *  - 'native'       native ad with thumbnail, headline, body and CTA
@@ -44,6 +45,17 @@ import {
 } from "@/lib/house-promo";
 
 const INTERSTITIAL_FLAG = "frelux_cross_promo_interstitial_shown";
+
+/** Heartsyncx's real site identity, used by the single-image Display
+ *  format: its own logo (not a per-feature icon) and the actual
+ *  description from Heartsyncx's own index.html <meta name="description"> -
+ *  one honest, site-level ad instead of a rotating grid of feature links. */
+const HEARTSYNCX_SITE = {
+  name: "Heartsyncx",
+  logoPath: "/logo.png",
+  description:
+    "Evidence-based relationship advice: attachment styles, communication skills, mindful dating, self-love, and breakup recovery guides for connected hearts.",
+};
 
 interface Dest {
   label: string;
@@ -101,6 +113,9 @@ export interface PromoItem {
   site: "sister" | "external";
   owner: string;
   creative: { icon: React.ElementType; gradient: string };
+  /** Absolute logo/creative image URL for the single-image Display
+   *  format. Falls back to the icon+gradient tile when absent. */
+  logo?: string;
 }
 
 /** Creative used for external partner promos (no per-destination art). */
@@ -155,6 +170,61 @@ export function buildPromoItems(settings: HousePromoSettings): PromoItem[] {
       };
     });
   return [...sister, ...external];
+}
+
+/** Build the rotation for the single-image Display format: ONE
+ *  site-level Heartsyncx item (real logo, real site description, links
+ *  to the homepage) instead of the 5 per-feature destinations, plus
+ *  every enabled external partner (each with its own logo when the
+ *  admin/AI-assistant supplied one, otherwise a neutral tile).
+ *  Exported for tests and the admin preview. */
+export function buildDisplayPromoItems(
+  settings: HousePromoSettings,
+): PromoItem[] {
+  const base = normalizeBaseUrl(settings.baseUrl);
+  const domain = (() => {
+    try {
+      return new URL(base).host;
+    } catch {
+      return base;
+    }
+  })();
+  const sisterSite: PromoItem = {
+    label: HEARTSYNCX_SITE.name,
+    path: "/",
+    url: base,
+    domain,
+    blurb: HEARTSYNCX_SITE.description,
+    site: "sister" as const,
+    owner: "Heartsyncx",
+    creative: DEST_CREATIVES[0],
+    logo: `${base}${HEARTSYNCX_SITE.logoPath}`,
+  };
+  const external: PromoItem[] = settings.externalPromos
+    .filter((p) => p.enabled && p.url.trim() && p.label.trim())
+    .map((p) => {
+      const url = /^https?:\/\//i.test(p.url.trim())
+        ? p.url.trim()
+        : `https://${p.url.trim()}`;
+      let host = url;
+      try {
+        host = new URL(url).host;
+      } catch {
+        /* keep raw */
+      }
+      return {
+        label: p.label.trim(),
+        path: url,
+        url,
+        domain: host,
+        blurb: p.blurb.trim() || `Sponsored partner: ${host}.`,
+        site: "external" as const,
+        owner: p.owner_name.trim() || host,
+        creative: EXTERNAL_CREATIVE,
+        logo: p.logo_url?.trim() || undefined,
+      };
+    });
+  return [sisterSite, ...external];
 }
 
 /* Standard programmatic-ad chrome colors (AdSense conventions). */
@@ -220,6 +290,75 @@ function CtaButton({
     >
       {label}
     </button>
+  );
+}
+
+/** Display: a single, honest image-style ad unit — small
+ *  "Advertisement" label, one real logo/creative image, one headline +
+ *  real description, one CTA. No grid, no rotating link rows: exactly
+ *  ONE destination per render, matching how a real AdSense/Adsterra
+ *  image ad looks. */
+function DisplayAd({
+  slotIndex,
+  source,
+  items,
+}: {
+  slotIndex: number;
+  source: string;
+  items: PromoItem[];
+}) {
+  const d = items[slotIndex % items.length];
+  const [logoFailed, setLogoFailed] = useState(false);
+  const showLogo = Boolean(d.logo) && !logoFailed;
+  return (
+    <div className={`my-6 overflow-hidden ${AD_CONTAINER}`}>
+      <div className="flex items-center justify-center gap-1.5 pt-2 pb-1.5">
+        <span className="text-[9px] font-bold uppercase tracking-widest text-[#5f6368] dark:text-[#9aa0a6]">
+          Advertisement
+        </span>
+        <AdChoices />
+      </div>
+      <button
+        type="button"
+        onClick={() => go(d, source)}
+        aria-label={d.label}
+        className={`relative flex h-36 w-full cursor-pointer items-center justify-center sm:h-44 ${
+          showLogo
+            ? "bg-zinc-50 dark:bg-zinc-950"
+            : `bg-gradient-to-br ${d.creative.gradient}`
+        }`}
+      >
+        {showLogo ? (
+          <img
+            src={d.logo}
+            alt={d.label}
+            loading="lazy"
+            onError={() => setLogoFailed(true)}
+            className="max-h-16 w-auto max-w-[70%] object-contain sm:max-h-20"
+          />
+        ) : (
+          <d.creative.icon
+            aria-hidden="true"
+            className="h-10 w-10 text-white/90"
+          />
+        )}
+        <AdBadge className="absolute top-2 right-2" />
+      </button>
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 border-t border-[#dadce0] px-4 py-3 dark:border-[#3c4043]">
+        <div className="min-w-0 flex-1">
+          <button
+            type="button"
+            onClick={() => go(d, source)}
+            className={`block cursor-pointer text-left text-sm font-bold hover:underline sm:text-base ${HEADLINE}`}
+          >
+            {d.label}
+          </button>
+          <span className={`text-[11px] ${DISPLAY_URL}`}>{d.domain}</span>
+          <p className={`mt-0.5 line-clamp-2 text-xs ${AD_BODY}`}>{d.blurb}</p>
+        </div>
+        <CtaButton dest={d} source={source} />
+      </div>
+    </div>
   );
 }
 
@@ -532,6 +671,15 @@ export default function CrossPromoSlot({
   source?: string;
 }) {
   const settings = useHousePromoSettings();
+  if (settings.format === "display" && settings.enabled) {
+    const displayItems = buildDisplayPromoItems(settings);
+    if (displayItems.length) {
+      return (
+        <DisplayAd slotIndex={slotIndex} source={source} items={displayItems} />
+      );
+    }
+    return null;
+  }
   const items = settings.enabled ? buildPromoItems(settings) : [];
   if (!items.length) return null;
   if (settings.format === "interstitial")

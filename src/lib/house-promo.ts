@@ -14,7 +14,8 @@ import { useEffect, useState } from "react";
 import { fetchAdConfig } from "@/lib/ad-config";
 import type { DbAdProvider } from "@/types/database";
 
-export type CrossPromoFormat = "card" | "banner" | "native" | "interstitial";
+export type CrossPromoFormat =
+  "display" | "card" | "banner" | "native" | "interstitial";
 
 /** An external website owner's paid promo. Managed in Network Hub. */
 export interface ExternalPromo {
@@ -24,6 +25,10 @@ export interface ExternalPromo {
   url: string;
   blurb: string;
   owner_name: string;
+  /** Absolute logo/og:image URL, shown in the single-image Display
+   *  format. The "AI Assistant — create ad from URL" tool fills this
+   *  from the target page's og:image. */
+  logo_url?: string;
 }
 
 export const HOUSE_PROMO_SLUG = "house_cross_promo";
@@ -39,7 +44,7 @@ export interface HousePromoSettings {
 
 const DEFAULTS: HousePromoSettings = {
   enabled: false,
-  format: "card",
+  format: "display",
   baseUrl: DEFAULT_CROSS_PROMO_BASE_URL,
   externalPromos: [],
 };
@@ -72,9 +77,11 @@ export function housePromoConfigFrom(
   const settings = (row.settings ?? {}) as Record<string, unknown>;
   const format =
     typeof settings.format === "string" &&
-    ["card", "banner", "native", "interstitial"].includes(settings.format)
+    ["display", "card", "banner", "native", "interstitial"].includes(
+      settings.format,
+    )
       ? (settings.format as CrossPromoFormat)
-      : "card";
+      : "display";
   const externalPromos = Array.isArray(settings.external_promos)
     ? (settings.external_promos as ExternalPromo[])
         .filter((p) => p && typeof p === "object")
@@ -85,6 +92,7 @@ export function housePromoConfigFrom(
           url: p.url || "",
           blurb: p.blurb || "",
           owner_name: p.owner_name || "",
+          logo_url: p.logo_url || "",
         }))
     : [];
   return {
