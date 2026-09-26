@@ -268,6 +268,14 @@ export default function Home() {
         <AchievementBadges />
       </div>
 
+      {/* Ad slot, placement "home_bottom" - the long stretch from
+          home_footer through TrendingColors/ColorPreview/PWASection/
+          WeatherWidget/AchievementBadges had no inventory at all. */}
+      <AdSlot
+        slotKey="home_bottom"
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+      />
+
       {/* Final CTA, strong closing */}
       <Suspense fallback={<SectionSkeleton minHeight={320} />}>
         <FinalCTA />
