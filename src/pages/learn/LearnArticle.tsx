@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useMemo } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import AdSlot from "@/components/ui/AdSlot";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -263,6 +263,59 @@ export default function LearnArticle() {
     };
   }, [inserts]);
 
+  // Split the article body into up-to-4 chunks at H2 section boundaries so
+  // in-content ad slots sit BETWEEN sections instead of being jammed at the
+  // article footer. Splitting only at real section starts keeps every heading
+  // (and its TOC anchor id) intact inside exactly one chunk. Code fences are
+  // skipped so a literal "## " inside a fence never splits the article.
+  const contentChunks = useMemo(() => {
+    // While the article is still loading (null), render no chunks - the
+    // component's loading UI never consumes them.
+    if (!article) return [];
+    const lines = article.content.split("\n");
+    const h2Starts: number[] = [];
+    let inFence = false;
+    lines.forEach((l, i) => {
+      if (l.trim().startsWith("```")) {
+        inFence = !inFence;
+        return;
+      }
+      if (!inFence && l.startsWith("## ")) h2Starts.push(i);
+    });
+
+    if (h2Starts.length >= 3) {
+      // Pick section boundaries nearest 25% / 50% / 75% of the sections.
+      const n = h2Starts.length;
+      const picks = [
+        Math.max(1, Math.round(n * 0.25)),
+        Math.max(2, Math.round(n * 0.5)),
+        Math.max(3, Math.round(n * 0.75)),
+      ].map((p) => Math.min(p, n - 1));
+      const uniq = [...new Set(picks)].sort((a, b) => a - b);
+      const chunks: string[] = [];
+      let prev = 0;
+      for (const p of uniq) {
+        chunks.push(lines.slice(prev, h2Starts[p]).join("\n"));
+        prev = h2Starts[p];
+      }
+      chunks.push(lines.slice(prev).join("\n"));
+      return chunks.filter((ch) => ch.trim().length > 0);
+    }
+
+    // Few H2s: split on paragraph boundaries into ~4 groups instead.
+    const paras = article.content.split(/\n\s*\n/);
+    if (paras.length >= 4) {
+      const per = Math.ceil(paras.length / 4);
+      const chunks: string[] = [];
+      for (let i = 0; i < paras.length; i += per) {
+        chunks.push(paras.slice(i, i + per).join("\n\n"));
+      }
+      return chunks.filter((ch) => ch.trim().length > 0);
+    }
+
+    return [article.content];
+  }, [article?.content, article]);
+
   // Extract table of contents from article content
   const tableOfContents = useMemo(() => {
     if (!article) return [];
@@ -485,12 +538,11 @@ export default function LearnArticle() {
               </div>
             )}
 
-            {/* Ad slot, placement "learn_article_top" */}
+            {/* Single ad slot after the cover image (max 5 slots per
+                article page: this one, three in-content, one at the
+                bottom - never a cluster at the article footer). */}
             <div className="mb-10">
               <AdSlot slotKey="learn_article_top" />
-              {/* Monetag In-Page Push, placement "article_push_1"
-                  (zone ID editable in Admin → Ads → Placements) */}
-              <AdSlot slotKey="article_push_1" />
             </div>
 
             {/* Content, premium prose styling */}
@@ -512,15 +564,32 @@ export default function LearnArticle() {
               prose-img:rounded-xl
             "
             >
-              <RenderedMarkdown
-                content={article.content}
-                insertsByHeading={insertsByHeading}
-              />
-            </div>
-
-            {/* Native banner slot, placement "learn_article_native" */}
-            <div className="mt-10">
-              <AdSlot slotKey="learn_article_native" />
+              {contentChunks.map((chunk, idx) => (
+                <React.Fragment key={`chunk-${idx}`}>
+                  <RenderedMarkdown
+                    content={chunk}
+                    insertsByHeading={insertsByHeading}
+                  />
+                  {/* In-content ad slots, distributed between sections
+                      (idx 0..2 of the chunk split) instead of stacked
+                      at the article footer. */}
+                  {idx === 0 && contentChunks.length > 1 && (
+                    <div className="my-10">
+                      <AdSlot slotKey="learn_article_mid_2" />
+                    </div>
+                  )}
+                  {idx === 1 && contentChunks.length > 2 && (
+                    <div className="my-10">
+                      <AdSlot slotKey="article_push_1" />
+                    </div>
+                  )}
+                  {idx === 2 && contentChunks.length > 3 && (
+                    <div className="my-10">
+                      <AdSlot slotKey="learn_in_article" />
+                    </div>
+                  )}
+                </React.Fragment>
+              ))}
             </div>
 
             {/* Bottom in-article inserts */}
@@ -785,27 +854,9 @@ export default function LearnArticle() {
               </section>
             )}
 
-            {/* In-article ad + native banner, after FAQ */}
+            {/* Single bottom ad slot after all content, the last of
+                the 5 slots allowed on an article page. */}
             <div className="mt-10">
-              <AdSlot slotKey="learn_in_article" />
-            </div>
-            <div className="mt-10">
-              <AdSlot slotKey="learn_article_native_2" />
-            </div>
-
-            {/* Banner + native banner, after related articles */}
-            <div className="mt-10">
-              <AdSlot slotKey="learn_article_mid_2" />
-            </div>
-            <div className="mt-10">
-              <AdSlot slotKey="learn_article_native_3" />
-            </div>
-
-            {/* Bottom ad */}
-            <div className="mt-10">
-              {/* Monetag In-Page Push, placement "article_push_2"
-                  (zone ID editable in Admin → Ads → Placements) */}
-              <AdSlot slotKey="article_push_2" />
               <AdSlot slotKey="learn_article_bottom" />
             </div>
           </div>

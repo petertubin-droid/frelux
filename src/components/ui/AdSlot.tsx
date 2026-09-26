@@ -228,27 +228,62 @@ export default function AdSlot({
         if (provider.slug === "adsterra" && !reserveAdsterraSlot()) continue;
 
         // Check if this placement has a specific ad unit for this provider
-        const perPlacementUnitId =
+        let perPlacementUnitId =
           provider.slug === "adsterra"
             ? extractAdsterraZoneKey(getAdUnitId(placement, provider.id))
             : getAdUnitId(placement, provider.id);
         // Site-wide Native Banner mode: the Layout container owns the
         // Native Banner zone. Never resolve that zone into an in-slot
-        // render (duplicate container-<key> IDs, double fill), and never
-        // let a native placement take it in-slot either, continue so
-        // the next provider in the chain (e.g. Monetag's native zone)
-        // can fill the slot instead.
+        // render (duplicate container-<key> IDs, double fill). NATIVE
+        // placements skip Adsterra entirely so the next provider in the
+        // chain can try. NON-native placements whose per-placement unit
+        // happens to be the native zone key (e.g. an in_article slot the
+        // admin mapped to the native zone) stay with Adsterra: clear the
+        // per-placement unit so the slot falls through to the provider's
+        // banner zone and renders a real banner. Skipping Adsterra here
+        // used to hand the slot to Monetag's fallback container, which
+        // renders nothing in-slot (verified live: the slot sat as an
+        // empty 32px labeled box while the banner zone could fill it).
         if (
           provider.slug === "adsterra" &&
           perPlacementUnitId &&
           perPlacementUnitId === getAdsterraNativeBannerKey(provider) &&
           getAdsterraNativeBannerSitewide(provider)
         ) {
-          continue;
+          if (placement.placement_type === "native") continue;
+          perPlacementUnitId = "";
         }
         if (perPlacementUnitId) {
+          // The Adsterra Native Banner zone has ONE fillable container per
+          // page (see reserveAdsterraNativeSlot). A per-placement mapping
+          // to the native key must respect the same reservation as the
+          // global-key path: without this check, N slots mapped to the
+          // native key each resolve it and render N labeled containers
+          // for a single possible fill.
+          if (
+            provider.slug === "adsterra" &&
+            perPlacementUnitId === getAdsterraNativeBannerKey(provider) &&
+            !getAdsterraNativeBannerSitewide(provider) &&
+            !reserveAdsterraNativeSlot(perPlacementUnitId)
+          ) {
+            perPlacementUnitId = "";
+            continue;
+          }
           // Has a per-placement zone, render with it
           setResolved({ provider, adUnitId: perPlacementUnitId, placement });
+          if (
+            !loggedRef.current &&
+            !hasLoggedImpressionThisSession(slotKey + (providerId ?? ""))
+          ) {
+            loggedRef.current = true;
+            logAdEvent({
+              event_type: "impression",
+              provider_id: provider.id,
+              placement_key: slotKey,
+              revenue_estimated: 0,
+            });
+          }
+          return;
         } else {
           // No per-placement zone, global tag handles display.
           // For Monetag specifically, don't render a container (the
@@ -265,7 +300,17 @@ export default function AdSlot({
             // NOT log a placement-level impression (that would be a false
             // impression, no visible ad was shown in this slot).
             const nativeZone = getMonetagNativeZone(provider);
-            if (nativeZone) {
+            // The MultiTag zone (credentials.zone_id) is NOT an in-content
+            // display zone: injecting its SDK into a slot container renders
+            // zero creative and leaves an empty "Advertisement" label
+            // (verified live: seven fallback slots on a learn article each
+            // rendered 32px of label and no ad). Only a Native Banner zone
+            // that is DISTINCT from the MultiTag zone can fill a slot.
+            const monetagMultiTagZone = String(
+              ((provider.credentials ?? {}) as Record<string, unknown>)
+                .zone_id ?? "",
+            ).trim();
+            if (nativeZone && nativeZone !== monetagMultiTagZone) {
               setResolved({ provider, adUnitId: nativeZone, placement });
               if (
                 !loggedRef.current &&
@@ -372,6 +417,21 @@ export default function AdSlot({
           provider.slug === "adsterra"
             ? extractAdsterraZoneKey(rawUnit)
             : rawUnit;
+        // The Native Banner zone has ONE fillable container per page and,
+        // in site-wide mode, is owned by the Layout container. Pass 3 is a
+        // safety net and must not bypass the Pass 2 guards: without this
+        // check a blocked native slot re-resolved the SAME native zone key
+        // here and double-rendered it (found by the same-page native-slot
+        // regression test once the banner cap stopped masking it).
+        if (
+          provider.slug === "adsterra" &&
+          adUnitId &&
+          adUnitId === getAdsterraNativeBannerKey(provider) &&
+          (getAdsterraNativeBannerSitewide(provider) ||
+            !reserveAdsterraNativeSlot(adUnitId))
+        ) {
+          continue;
+        }
         if (adUnitId) {
           setResolved({ provider, adUnitId, placement });
           if (

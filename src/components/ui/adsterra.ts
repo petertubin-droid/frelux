@@ -140,8 +140,13 @@ export function resolveAdsterraSize(
   return { width: 300, height: 250 };
 }
 
-/** Page-session cap: at most 3 Adsterra banners per page (density policy). */
-const ADSTERRA_MAX_PER_PAGE = 3;
+/** Page-session cap on Adsterra banners per page (density policy).
+ *  6 = the 5 in-article slots on a Learn article page (top, three
+ *  in-content, bottom) plus the site-wide global_footer banner. The
+ *  article page itself caps its own slot count (see LearnArticle), so
+ *  this ceiling exists to keep OTHER pages from stacking unlimited
+ *  banners, not to starve article slots of fills. */
+const ADSTERRA_MAX_PER_PAGE = 6;
 let adsterraRenderedCount = 0;
 let adsterraRenderedPath: string | null = null;
 

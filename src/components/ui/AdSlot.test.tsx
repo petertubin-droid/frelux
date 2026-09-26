@@ -38,6 +38,13 @@ vi.mock("@/lib/supabase-lazy", () => ({
 
 beforeEach(async () => {
   vi.clearAllMocks();
+  // Per-page ad server state (banner cap counter, native zone
+  // reservation) is module-global and shared across tests in this file -
+  // without this reset one test's reservation bleeds into the next and
+  // native-key tests resolve "none" spuriously.
+  const { resetAdsterraPageStateForTests } =
+    await import("@/components/ui/adsterra");
+  resetAdsterraPageStateForTests();
   // Ad serving is consent-gated (Heartsyncx pattern, see ad-consent.ts):
   // grant full consent so every test exercises the serving path.
   const { acceptAll, withdrawConsent } = await import("@/lib/cookie-consent");
@@ -711,6 +718,122 @@ describe("AdSlot, Adsterra rendering", () => {
       '[data-ad-provider="monetag"]',
     ) as HTMLElement;
     expect(monetagSlot.getAttribute("data-zone")).toBe("275352");
+  });
+
+  it("keeps a non-native placement with Adsterra when its per-placement unit is the sitewide native key - it renders the banner zone instead of an empty Monetag fallback box", async () => {
+    // Live regression (frelux learn article, 2026-09): learn_article_top is
+    // an in_article placement mapped to the Adsterra native zone key while
+    // native_banner_sitewide is on. The resolver used to skip Adsterra
+    // entirely for such slots, so the slot fell through to Monetag's
+    // MultiTag container and rendered a 32px empty "Advertisement" box
+    // while the Adsterra banner zone could have filled it. Non-native
+    // placements must fall back to the banner zone and render a real ad.
+    const bannerKey = "a".repeat(32);
+    const nativeKey = "b".repeat(32);
+    const adsterra = makeAdsterraProvider(
+      {
+        key: bannerKey,
+        native_banner_key: nativeKey,
+      },
+      { native_banner_sitewide: true },
+    );
+    const monetag = makeMonetagProvider();
+    (monetag as { credentials: Record<string, unknown> }).credentials = {
+      zone_id: "1234567",
+      native_banner_zone_id: "275352",
+    };
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [adsterra, monetag],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "in_article",
+          name: "Test",
+          page_target: "all",
+          position: "content",
+          is_active: true,
+          provider_ids: ["prov-adsterra", "prov-monetag"],
+          ad_unit_ids: { "prov-adsterra": nativeKey },
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([
+      adsterra,
+      monetag,
+    ]);
+    vi.mocked(adConfig.getAdUnitId).mockImplementation(
+      (_placement: unknown, providerId: string) =>
+        providerId === "prov-adsterra" ? nativeKey : "",
+    );
+
+    const AdSlotModule = await import("@/components/ui/adsterra");
+    const bannerSpy = vi
+      .spyOn(AdSlotModule.adsterraInjector, "renderBanner")
+      .mockImplementation(() => {});
+
+    const { container } = await renderAdSlot();
+    await waitFor(() => {
+      expect(
+        container.querySelector('[data-ad-provider="adsterra"]'),
+      ).not.toBeNull();
+    });
+    // Monetag never claimed the slot.
+    expect(container.querySelector('[data-ad-provider="monetag"]')).toBeNull();
+    // And the banner zone (not the native key) was rendered.
+    expect(bannerSpy).toHaveBeenCalledTimes(1);
+    expect(bannerSpy.mock.calls[0][2]).toEqual({
+      key: bannerKey,
+      slotKey: "test-slot",
+    });
+    bannerSpy.mockRestore();
+  });
+
+  it("renders nothing in-slot when Monetag's native banner zone is the MultiTag zone (it can never fill a container)", async () => {
+    // Live regression (frelux learn article, 2026-09): seven fallback slots
+    // resolved Monetag's native_banner_zone_id = 275352 - which is the
+    // SAME zone as the MultiTag zone_id, an overlay-only zone. Each slot
+    // rendered a 32px labeled box with zero creative. A native zone equal
+    // to the MultiTag zone must resolve "none" (hidden) instead.
+    const monetag = makeMonetagProvider();
+    (monetag as { credentials: Record<string, unknown> }).credentials = {
+      zone_id: "275352",
+      native_banner_zone_id: "275352",
+    };
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [monetag],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          name: "Test",
+          page_target: "all",
+          position: "content",
+          is_active: true,
+          provider_ids: ["prov-monetag"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([monetag]);
+    vi.mocked(adConfig.getAdUnitId).mockReturnValue("");
+
+    const { container } = await renderAdSlot();
+    await waitFor(() => {
+      // "none" resolves to the hidden ad-placement-zone div, never a
+      // visible labeled Monetag container.
+      expect(
+        container.querySelector('[data-ad-reserved="test-slot"]'),
+      ).not.toBeNull();
+    });
+    expect(container.querySelector('[data-ad-provider="monetag"]')).toBeNull();
+    // And no visible "Advertisement" label may render for it.
+    expect(container.textContent).not.toContain("Advertisement");
   });
 
   it("routes slots to the native renderer when the resolved key matches the native credential", async () => {
