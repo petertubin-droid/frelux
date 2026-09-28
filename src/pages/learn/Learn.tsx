@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import AdSlot from "@/components/ui/AdSlot";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import {
   BookOpen,
   ArrowRight,
@@ -11,6 +11,7 @@ import {
   Award,
   ImageOff,
   Search,
+  Library,
 } from "lucide-react";
 import { getIcon } from "@/lib/icon-map";
 import PageHeader from "@/components/ui/PageHeader";
@@ -21,8 +22,67 @@ import AskAiWidget from "@/components/learn/AskAiWidget";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import Pagination from "@/components/ui/Pagination";
 
 type Status = "loading" | "ready" | "error";
+
+/** Articles per page on the paginated "All articles" listing.
+ *  Mirrored by the dynamic sitemap function (netlify/functions/sitemap.js)
+ *  so every ?page=N listing URL is always present for crawlers. */
+const ARTICLES_PER_PAGE = 20;
+
+/** Shared article card for the Learn grids (recent + paginated library). */
+function ArticleCard({ article }: { article: DbLearnArticle }) {
+  return (
+    <Link
+      to={`/learn/${article.slug}/`}
+      className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl dark:border-white/5 dark:bg-card"
+    >
+      {article.cover_image_url ? (
+        <div className="relative aspect-[16/10] overflow-hidden">
+          <img
+            src={article.cover_image_url}
+            alt={article.title}
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
+        </div>
+      ) : (
+        <div className="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-muted/50 to-primary/5 dark:from-white/5 dark:to-primary/10">
+          <ImageOff className="h-7 w-7 text-muted-foreground/80" />
+        </div>
+      )}
+      <div className="flex flex-1 flex-col p-5">
+        <span className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-purple">
+          {article.category_slug.replace(/-/g, " ")}
+        </span>
+        <h3 className="font-display text-base font-bold leading-snug text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
+          {article.title}
+        </h3>
+        {article.excerpt && (
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-2 dark:text-muted-foreground">
+            {article.excerpt}
+          </p>
+        )}
+        <div className="mt-auto flex items-center gap-3 pt-4 text-xs text-muted-foreground">
+          {article.read_time_minutes && (
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3" /> {article.read_time_minutes} min read
+            </span>
+          )}
+          {article.published_at && (
+            <span>
+              {new Date(article.published_at).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+              })}
+            </span>
+          )}
+        </div>
+      </div>
+    </Link>
+  );
+}
 
 export default function Learn() {
   useSeo({
@@ -72,6 +132,23 @@ export default function Learn() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<DbLearnArticle[]>([]);
   const [searching, setSearching] = useState(false);
+  const [allArticles, setAllArticles] = useState<DbLearnArticle[]>([]);
+  const [allTotal, setAllTotal] = useState<number | null>(null);
+
+  // Paginated "All articles" library, 20 per page, URL-driven (?page=N)
+  // so crawlers can discover every listing page via the sitemap.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageParam = parseInt(searchParams.get("page") ?? "1", 10);
+  const page = Number.isFinite(pageParam) && pageParam >= 1 ? pageParam : 1;
+  const totalPages = Math.max(
+    1,
+    Math.ceil((allTotal ?? 0) / ARTICLES_PER_PAGE),
+  );
+
+  const goToPage = (p: number) => {
+    setSearchParams(p > 1 ? { page: String(p) } : {});
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   useEffect(() => {
     async function load() {
@@ -115,6 +192,37 @@ export default function Learn() {
     }
     load();
   }, []);
+
+  // Load the paginated "All articles" window for the current ?page.
+  useEffect(() => {
+    let cancelled = false;
+    async function loadAll() {
+      const from = (page - 1) * ARTICLES_PER_PAGE;
+      const [pageRes, countRes] = await Promise.all([
+        supabase
+          .from("learn_articles")
+          .select("*")
+          .eq("status", "published")
+          .order("published_at", { ascending: false })
+          .range(from, from + ARTICLES_PER_PAGE - 1),
+        supabase
+          .from("learn_articles")
+          .select("id", { count: "exact", head: true })
+          .eq("status", "published"),
+      ]);
+      if (cancelled) return;
+      if (!pageRes.error) {
+        setAllArticles((pageRes.data ?? []) as DbLearnArticle[]);
+      }
+      if (!countRes.error && countRes.count !== null) {
+        setAllTotal(countRes.count);
+      }
+    }
+    loadAll();
+    return () => {
+      cancelled = true;
+    };
+  }, [page]);
 
   // Debounced search
   useEffect(() => {
@@ -514,57 +622,42 @@ export default function Learn() {
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {recent.map((article) => (
-                <Link
-                  key={article.id}
-                  to={`/learn/${article.slug}/`}
-                  className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl dark:border-white/5 dark:bg-card"
-                >
-                  {article.cover_image_url ? (
-                    <div className="relative aspect-[16/10] overflow-hidden">
-                      <img
-                        src={article.cover_image_url}
-                        alt={article.title}
-                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                        loading="lazy"
-                      />
-                    </div>
-                  ) : (
-                    <div className="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-muted/50 to-primary/5 dark:from-white/5 dark:to-primary/10">
-                      <ImageOff className="h-7 w-7 text-muted-foreground/80" />
-                    </div>
-                  )}
-                  <div className="flex flex-1 flex-col p-5">
-                    <span className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-purple">
-                      {article.category_slug.replace(/-/g, " ")}
-                    </span>
-                    <h3 className="font-display text-base font-bold leading-snug text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
-                      {article.title}
-                    </h3>
-                    {article.excerpt && (
-                      <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-2 dark:text-muted-foreground">
-                        {article.excerpt}
-                      </p>
-                    )}
-                    <div className="mt-auto flex items-center gap-3 pt-4 text-xs text-muted-foreground">
-                      {article.read_time_minutes && (
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />{" "}
-                          {article.read_time_minutes} min read
-                        </span>
-                      )}
-                      {article.published_at && (
-                        <span>
-                          {new Date(article.published_at).toLocaleDateString(
-                            "en-US",
-                            { month: "short", day: "numeric" },
-                          )}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </Link>
+                <ArticleCard key={article.id} article={article} />
               ))}
             </div>
+          </section>
+        )}
+
+        {/* All articles - paginated library, 20 per page (URL: ?page=N).
+            Every ?page=N URL is listed in the dynamic sitemap so crawlers
+            can discover all published articles through the listing. */}
+        {allArticles.length > 0 && (
+          <section>
+            <div className="mb-6 flex items-center gap-3">
+              <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                <Library className="h-4 w-4 text-brand-purple" />
+              </div>
+              <div>
+                <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
+                  All Articles
+                </h2>
+                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                  {allTotal !== null
+                    ? `${allTotal} guides - page ${page} of ${totalPages}`
+                    : "Browse every published guide"}
+                </p>
+              </div>
+            </div>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {allArticles.map((article) => (
+                <ArticleCard key={article.id} article={article} />
+              ))}
+            </div>
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+            />
           </section>
         )}
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import AdSlot from "@/components/ui/AdSlot";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useSearchParams } from "react-router-dom";
 import {
   BookOpen,
   ArrowRight,
@@ -15,8 +15,13 @@ import PageHeader from "@/components/ui/PageHeader";
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
 import type { DbLearnCategory, DbLearnArticle } from "@/types/database";
+import Pagination from "@/components/ui/Pagination";
 
 type Status = "loading" | "ready" | "error" | "notfound";
+
+/** Articles per page on the category listing. Mirrored by the dynamic
+ *  sitemap function so paginated listing URLs stay crawler-visible. */
+const ARTICLES_PER_PAGE = 20;
 
 export default function LearnCategory() {
   const { categorySlug } = useParams<{ categorySlug: string }>();
@@ -25,6 +30,27 @@ export default function LearnCategory() {
   const [articles, setArticles] = useState<DbLearnArticle[]>([]);
   const [subcategories, setSubcategories] = useState<DbLearnCategory[]>([]);
   const [status, setStatus] = useState<Status>("loading");
+
+  // Paginated listing state, URL-driven (?page=N) for crawlability.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pageParam = parseInt(searchParams.get("page") ?? "1", 10);
+  const page = Number.isFinite(pageParam) && pageParam >= 1 ? pageParam : 1;
+  const totalPages = Math.max(
+    1,
+    Math.ceil(articles.length / ARTICLES_PER_PAGE),
+  );
+  // Clamp so a stale/deep ?page= link (e.g. after articles are removed)
+  // can never render an empty grid.
+  const safePage = Math.min(page, totalPages);
+  const pagedArticles = articles.slice(
+    (safePage - 1) * ARTICLES_PER_PAGE,
+    safePage * ARTICLES_PER_PAGE,
+  );
+
+  const goToPage = (p: number) => {
+    setSearchParams(p > 1 ? { page: String(p) } : {});
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const SITE_URL_ =
     import.meta.env.VITE_SITE_URL ?? "https://freluxtools.netlify.app";
@@ -286,7 +312,7 @@ export default function LearnCategory() {
               </div>
             )}
             <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
-              {articles.map((article) => (
+              {pagedArticles.map((article) => (
                 <Link
                   key={article.id}
                   to={`/learn/${article.slug}/`}
@@ -340,6 +366,12 @@ export default function LearnCategory() {
                 </Link>
               ))}
             </div>
+
+            <Pagination
+              page={safePage}
+              totalPages={totalPages}
+              onPageChange={goToPage}
+            />
           </section>
         ) : (
           !isParent && (

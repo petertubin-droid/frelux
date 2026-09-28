@@ -2,6 +2,13 @@
   command = "npm run build"
   publish = "dist"
 
+# Dynamic sitemap function: netlify/functions/sitemap.js queries the live
+# database on every request and serves the result at /sitemap.xml, so
+# articles, categories and paginated listing URLs (?page=N) published in
+# the future appear automatically - no rebuild or manual sync.
+[functions]
+  directory = "netlify/functions"
+
 [build.environment]
   # These VITE_-prefixed vars are intentionally bundled into the client-side
   # JS output (that's how Vite env vars work). VITE_SUPABASE_ANON_KEY is
@@ -160,3 +167,13 @@
   for = "/og-image.png"
   [headers.values]
     Cache-Control = "public, max-age=86400"
+
+
+# Sitemap: dynamic function shadows the stale static public/sitemap.xml
+# (force=true is required because a static file exists at the same path).
+# robots.txt already points crawlers at this URL.
+[[redirects]]
+  from = "/sitemap.xml"
+  to = "/.netlify/functions/sitemap"
+  status = 200
+  force = true
