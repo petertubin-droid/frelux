@@ -7,7 +7,7 @@ import { Sentry, isSentryActive } from "./instrument";
 const SentryRoutes = isSentryActive()
   ? Sentry.withSentryReactRouterV7Routing(Routes)
   : Routes;
-import { useEffect, lazy, Suspense } from "react";
+import { useEffect, useState, lazy, Suspense } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
@@ -26,6 +26,10 @@ const CookieBanner = lazy(() =>
   })),
 );
 import Layout from "@/components/layout/Layout";
+import EntryExperience, {
+  hasEnteredBefore,
+  markEntered,
+} from "@/components/entry/EntryExperience";
 const Home = lazy(() => import("@/pages/Home"));
 const Colors = lazy(() => import("@/pages/Colors"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
@@ -339,6 +343,19 @@ function RedirectToHub({ to, mode }: { to: string; mode?: string }) {
 }
 
 export default function App() {
+  // FRELUX Entry Experience visibility: it gets exactly one chance, ever -
+  // a brand-new visitor whose very first page load is the homepage.
+  // Deep links (calculators, articles, tools), reloads and any in-session
+  // navigation always land on real content. The flag is consumed at boot
+  // either way, so the overlay can never replay later in the session.
+  const [entryDismissed, setEntryDismissed] = useState(() => {
+    const firstHomepageLoad =
+      typeof window !== "undefined" &&
+      window.location.pathname === "/" &&
+      !hasEnteredBefore();
+    markEntered(); // idempotent: consumed now either way
+    return !firstHomepageLoad;
+  });
   useTypography();
   useWebVitals();
 
@@ -365,12 +382,20 @@ export default function App() {
               <Suspense fallback={null}>
                 <AdBlockNotice />
               </Suspense>
+              {!entryDismissed && (
+                <EntryExperience onComplete={() => setEntryDismissed(true)} />
+              )}
               <BrowserRouter>
                 <ScrollToTop />
                 <NotificationClickHandler />
-                <Suspense fallback={null}>
-                  <CookieBanner />
-                </Suspense>
+                {/* Held back while the first-visit Entry Experience is on
+                    screen, so newcomers are welcomed by the brand before
+                    the consent prompt (it appears right after they enter). */}
+                {!entryDismissed ? null : (
+                  <Suspense fallback={null}>
+                    <CookieBanner />
+                  </Suspense>
+                )}
                 <SentryRoutes>
                   {/* ─────────────────────────────────────────────────────── */}
                   {/* PUBLIC SITE, all public-facing pages under Layout */}
