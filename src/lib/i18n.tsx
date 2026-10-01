@@ -12,6 +12,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { GoogleTranslateSync } from "@/components/ui/GoogleTranslate";
 
 export type Language =
   | "en"
@@ -244,6 +245,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
+      <GoogleTranslateSync language={language} />
       {children}
     </LanguageContext.Provider>
   );

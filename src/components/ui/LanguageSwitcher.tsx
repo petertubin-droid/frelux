@@ -31,7 +31,8 @@ export function LanguageSwitcher({
   if (inline) {
     return (
       <div ref={ref} className="w-full">
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           type="button"
           onClick={() => setOpen(!open)}
           className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
@@ -52,7 +53,8 @@ export function LanguageSwitcher({
         {open && (
           <div className="mt-1 space-y-0.5 rounded-lg border border-border/50 bg-muted/50 p-2 dark:border-white/5 dark:bg-white/5">
             {LANGUAGES.map((lang) => (
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 key={lang.value}
                 type="button"
                 onClick={() => {
@@ -73,6 +75,10 @@ export function LanguageSwitcher({
                 {language === lang.value && <Check className="h-4 w-4" />}
               </Button>
             ))}
+            <p className="px-3 pt-1.5 text-[10px] leading-snug text-muted-foreground/70">
+              Whole site translated via Google Translate where the language is
+              supported.
+            </p>
           </div>
         )}
       </div>
@@ -82,7 +88,8 @@ export function LanguageSwitcher({
   // ── Dropdown mode (desktop navbar) ──
   return (
     <div ref={ref} className="relative">
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         type="button"
         onClick={() => setOpen(!open)}
         className={classNames(
@@ -111,7 +118,8 @@ export function LanguageSwitcher({
             Language
           </p>
           {LANGUAGES.map((lang) => (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               key={lang.value}
               type="button"
               onClick={() => {
@@ -132,6 +140,10 @@ export function LanguageSwitcher({
               {language === lang.value && <Check className="h-4 w-4" />}
             </Button>
           ))}
+          <p className="mt-1 border-t border-border/40 px-4 py-1.5 text-[10px] leading-snug text-muted-foreground/70 dark:border-white/10">
+            Whole site translated via Google Translate where the language is
+            supported.
+          </p>
         </div>
       )}
     </div>
