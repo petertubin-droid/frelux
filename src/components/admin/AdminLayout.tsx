@@ -59,6 +59,7 @@ import {
   Users,
   X,
   Leaf,
+  Wallet,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
@@ -143,6 +144,11 @@ const navModules: NavModule[] = [
         label: "Carbon Factors",
         to: "/admin/carbon-factors",
         icon: Leaf,
+      },
+      {
+        label: "Cash-Flow Templates",
+        to: "/admin/cash-flow-templates",
+        icon: Wallet,
       },
       {
         label: "Learning Review",

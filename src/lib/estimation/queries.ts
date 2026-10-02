@@ -20,6 +20,7 @@ import type {
   BoqQuote,
   RegionalCostIndex,
   CarbonFactor,
+  CashFlowTemplate,
 } from "@/types/estimation";
 
 // =========================================================
@@ -995,5 +996,51 @@ export async function updateCarbonFactor(
 
 export async function deleteCarbonFactor(id: string) {
   const { error } = await supabase.from("carbon_factors").delete().eq("id", id);
+  return { error };
+}
+
+// =========================================================
+// 23. Cash-Flow Timeline (Future Engine 6)
+// =========================================================
+
+export async function fetchCashFlowTemplates(
+  opts: { activeOnly?: boolean } = {},
+) {
+  let query = supabase
+    .from("cash_flow_templates")
+    .select("*")
+    .order("sort_order", { ascending: true });
+  if (opts.activeOnly) query = query.eq("is_active", true);
+  const { data, error } = await query;
+  return { data: (data ?? []) as CashFlowTemplate[], error };
+}
+
+export async function createCashFlowTemplate(data: Partial<CashFlowTemplate>) {
+  const { data: record, error } = await supabase
+    .from("cash_flow_templates")
+    .insert(data)
+    .select()
+    .single();
+  return { data: record as CashFlowTemplate | null, error };
+}
+
+export async function updateCashFlowTemplate(
+  id: string,
+  data: Partial<CashFlowTemplate>,
+) {
+  const { data: record, error } = await supabase
+    .from("cash_flow_templates")
+    .update(data)
+    .eq("id", id)
+    .select()
+    .single();
+  return { data: record as CashFlowTemplate | null, error };
+}
+
+export async function deleteCashFlowTemplate(id: string) {
+  const { error } = await supabase
+    .from("cash_flow_templates")
+    .delete()
+    .eq("id", id);
   return { error };
 }

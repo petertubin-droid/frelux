@@ -519,3 +519,22 @@ export interface CarbonFactor {
   created_at: string;
   updated_at: string;
 }
+
+// 25. cash_flow_templates table (Cash-Flow Timeline Engine)
+export interface CashFlowMilestone {
+  label: string;
+  percent: number;
+  offset_months: number;
+}
+
+export interface CashFlowTemplate {
+  id: string;
+  name: string;
+  description: string | null;
+  milestones: CashFlowMilestone[];
+  is_default: boolean;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
