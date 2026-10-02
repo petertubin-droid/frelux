@@ -255,7 +255,8 @@ export function calculateMineralStone(
   });
 
   // ── 2. Coats ──
-  const coats = input.coats !== null ? input.coats : profile.default_coats;
+  const coats =
+    input.coats !== null ? input.coats : (profile.default_coats ?? null);
   if (coats === null || !Number.isFinite(coats) || coats <= 0) {
     warnings.push(
       `Number of coats/layers is not configured for '${profile.name}'. The calculation cannot proceed until a coat count is configured for this product or entered explicitly.`,
@@ -273,7 +274,7 @@ export function calculateMineralStone(
   });
 
   // ── 3. Model + material requirement ──
-  const model = profile.calculation_model;
+  const model = profile.calculation_model ?? null;
   if (!model) {
     warnings.push(
       `Calculation model is not configured for '${product.name}' / '${profile.name}'. Configure coverage-based or consumption-based data before calculating.`,
@@ -281,7 +282,7 @@ export function calculateMineralStone(
     return result;
   }
 
-  const waste = num(profile.waste_percentage);
+  const waste = num(profile.waste_percentage ?? null);
   if (waste === null) {
     warnings.push(
       `Waste percentage is not configured for '${profile.name}'. Quantities are shown WITHOUT a waste allowance — add a waste configuration before relying on purchase numbers.`,

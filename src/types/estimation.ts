@@ -191,9 +191,11 @@ export interface EstimationProduct {
   colour_compatibility: string | null;
   paint_compatibility: string | null;
   has_quality_levels: boolean;
-  brand: string | null;
-  product_notes: string | null;
-  technical_spec: string | null;
+  // Optional for backwards compatibility with pre-Phase-3 fixtures/rows;
+  // present on all rows after the Phase 3 migration (nullable columns).
+  brand?: string | null;
+  product_notes?: string | null;
+  technical_spec?: string | null;
   is_active: boolean;
   sort_order: number;
   created_at: string;
@@ -212,14 +214,16 @@ export interface EstimationProductQuality {
   ceiling_coverage: number | null; // separate ceiling coverage rate
   ceiling_coverage_unit: string | null;
   // ── Material calculation model (Mineral Stone / Stucco engines) ──
-  calculation_model: MineralStoneCalculationModel | string | null;
-  coverage_min: number | null; // Model A: m² per package, light end of range
-  coverage_max: number | null; // Model A: m² per package, heavy end of range
-  consumption_min: number | null; // Model B/C: consumption_unit per m² per coat, min
-  consumption_max: number | null; // Model B/C: consumption_unit per m² per coat, max
-  consumption_unit: string | null; // kg_per_m2 | litre_per_m2 (verified units only)
-  default_coats: number | null; // configured coats/layers; null = not configured
-  waste_percentage: number | null; // configured waste %; null = not configured
+  // Mineral Stone / Stucco engine fields (Phase 3). Optional for backwards
+  // compatibility; present on all rows after the migration (nullable columns).
+  calculation_model?: MineralStoneCalculationModel | string | null;
+  coverage_min?: number | null; // Model A: m² per package, light end of range
+  coverage_max?: number | null; // Model A: m² per package, heavy end of range
+  consumption_min?: number | null; // Model B/C: consumption_unit per m² per coat, min
+  consumption_max?: number | null; // Model B/C: consumption_unit per m² per coat, max
+  consumption_unit?: string | null; // kg_per_m2 | litre_per_m2 (verified units only)
+  default_coats?: number | null; // configured coats/layers; null = not configured
+  waste_percentage?: number | null; // configured waste %; null = not configured
   finish: string | null;
   texture: string | null;
   gloss_level: string | null;

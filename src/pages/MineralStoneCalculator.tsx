@@ -205,7 +205,11 @@ export default function MineralStoneCalculator({
       });
       if (engineResult.calculable) {
         trackCalculation("mineral_stone");
-        trackRecentTool("mineral-stone");
+        trackRecentTool(
+          "/finishing-calculator?mode=mineral-stone",
+          "Mineral Stone Calculator",
+          "Calculator",
+        );
       }
     } finally {
       setCalculating(false);

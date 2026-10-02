@@ -62,6 +62,7 @@ export type TrackEvent =
   | "paint_matcher_result"
   | "painting_estimator_calculated"
   | "tyrolene_estimator_calculated"
+  | "mineral_stone_calculated"
   | "start_building_clicked"
   | "build_to_roof_clicked"
   | "painting_category_clicked"

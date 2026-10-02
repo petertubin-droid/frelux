@@ -4,8 +4,8 @@
  * Persists in localStorage, works for anonymous users.
  */
 
-const STORAGE_KEY = 'frelux_achievements';
-const USAGE_KEY = 'frelux_usage_stats';
+const STORAGE_KEY = "frelux_achievements";
+const USAGE_KEY = "frelux_usage_stats";
 
 export interface Achievement {
   id: string;
@@ -13,7 +13,7 @@ export interface Achievement {
   description: string;
   icon: string;
   threshold: number;
-  category: 'calculations' | 'colors' | 'projects' | 'social' | 'streak';
+  category: "calculations" | "colors" | "projects" | "social" | "streak";
 }
 
 export interface UnlockedAchievement {
@@ -40,11 +40,46 @@ export interface UsageStats {
 }
 
 export const ACHIEVEMENTS: Achievement[] = [
-  { id: 'first_calc', title: 'First Calculation', description: 'Complete your first calculation', icon: '🎯', threshold: 1, category: 'calculations' },
-  { id: 'calc_5', title: 'Getting Started', description: 'Complete 5 calculations', icon: '📊', threshold: 5, category: 'calculations' },
-  { id: 'project_saver', title: 'Project Saver', description: 'Save 3 projects', icon: '💾', threshold: 3, category: 'projects' },
-  { id: 'streak_3', title: 'On a Roll', description: 'Visit 3 days in a row', icon: '🔥', threshold: 3, category: 'streak' },
-  { id: 'ai_pioneer', title: 'AI Pioneer', description: 'Use an AI assistant tool', icon: '🤖', threshold: 1, category: 'calculations' },
+  {
+    id: "first_calc",
+    title: "First Calculation",
+    description: "Complete your first calculation",
+    icon: "🎯",
+    threshold: 1,
+    category: "calculations",
+  },
+  {
+    id: "calc_5",
+    title: "Getting Started",
+    description: "Complete 5 calculations",
+    icon: "📊",
+    threshold: 5,
+    category: "calculations",
+  },
+  {
+    id: "project_saver",
+    title: "Project Saver",
+    description: "Save 3 projects",
+    icon: "💾",
+    threshold: 3,
+    category: "projects",
+  },
+  {
+    id: "streak_3",
+    title: "On a Roll",
+    description: "Visit 3 days in a row",
+    icon: "🔥",
+    threshold: 3,
+    category: "streak",
+  },
+  {
+    id: "ai_pioneer",
+    title: "AI Pioneer",
+    description: "Use an AI assistant tool",
+    icon: "🤖",
+    threshold: 1,
+    category: "calculations",
+  },
 ];
 
 function getStats(): UsageStats {
@@ -71,7 +106,7 @@ function defaultStats(): UsageStats {
     projectsSaved: 0,
     projectsShared: 0,
     aiAssistants: 0,
-    lastVisit: '',
+    lastVisit: "",
     visitStreak: 0,
     totalVisits: 0,
   };
@@ -80,7 +115,9 @@ function defaultStats(): UsageStats {
 function saveStats(stats: UsageStats): void {
   try {
     localStorage.setItem(USAGE_KEY, JSON.stringify(stats));
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 function getUnlocked(): UnlockedAchievement[] {
@@ -95,24 +132,44 @@ function getUnlocked(): UnlockedAchievement[] {
 function saveUnlocked(list: UnlockedAchievement[]): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 /** Track a calculator usage */
-export function trackCalculation(type: 'paint' | 'cost' | 'screeding' | 'tile' | 'pop' | 'finish' | 'ai' | 'painting' | 'tyrolene'): Achievement[] {
+export function trackCalculation(
+  type:
+    | "paint"
+    | "cost"
+    | "screeding"
+    | "tile"
+    | "pop"
+    | "finish"
+    | "ai"
+    | "painting"
+    | "tyrolene"
+    | "mineral_stone",
+): Achievement[] {
   const stats = getStats();
   stats.totalCalculations++;
 
-  if (type === 'paint') stats.paintCalcs++;
-  else if (type === 'cost') stats.costEstimates++;
-  else if (type === 'screeding') stats.screedingCalcs++;
-  else if (type === 'tile') stats.tileCalcs++;
-  else if (type === 'pop') stats.popCalcs++;
-  else if (type === 'finish') stats.finishEstimates++;
-  else if (type === 'ai') stats.aiAssistants++;
+  if (type === "paint") stats.paintCalcs++;
+  else if (type === "cost") stats.costEstimates++;
+  else if (type === "screeding") stats.screedingCalcs++;
+  else if (type === "tile") stats.tileCalcs++;
+  else if (type === "pop") stats.popCalcs++;
+  else if (type === "finish") stats.finishEstimates++;
+  else if (type === "ai") stats.aiAssistants++;
 
   // Check all-rounder: used at least 5 different types
-  const _typesUsed = [stats.paintCalcs > 0, stats.costEstimates > 0, stats.screedingCalcs > 0, stats.tileCalcs > 0, stats.popCalcs > 0].filter(Boolean).length;
+  const _typesUsed = [
+    stats.paintCalcs > 0,
+    stats.costEstimates > 0,
+    stats.screedingCalcs > 0,
+    stats.tileCalcs > 0,
+    stats.popCalcs > 0,
+  ].filter(Boolean).length;
 
   saveStats(stats);
 
@@ -172,7 +229,10 @@ export function trackVisit(): Achievement[] {
 }
 
 /** Get all unlocked achievements */
-export function getAchievements(): { unlocked: UnlockedAchievement[]; stats: UsageStats } {
+export function getAchievements(): {
+  unlocked: UnlockedAchievement[];
+  stats: UsageStats;
+} {
   return { unlocked: getUnlocked(), stats: getStats() };
 }
 
@@ -183,15 +243,15 @@ export function getNewlyUnlocked(): Achievement[] {
 
 function checkUnlocks(stats: UsageStats): Achievement[] {
   const unlocked = getUnlocked();
-  const unlockedIds = new Set(unlocked.map(a => a.id));
+  const unlockedIds = new Set(unlocked.map((a) => a.id));
   const newlyUnlocked: Achievement[] = [];
 
   const counts: Record<string, number> = {
-    'first_calc': stats.totalCalculations,
-    'calc_5': stats.totalCalculations,
-    'project_saver': stats.projectsSaved,
-    'streak_3': stats.visitStreak,
-    'ai_pioneer': stats.aiAssistants,
+    first_calc: stats.totalCalculations,
+    calc_5: stats.totalCalculations,
+    project_saver: stats.projectsSaved,
+    streak_3: stats.visitStreak,
+    ai_pioneer: stats.aiAssistants,
   };
 
   for (const ach of ACHIEVEMENTS) {
