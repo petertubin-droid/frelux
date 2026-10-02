@@ -20,7 +20,6 @@ vi.mock("@/lib/analytics", () => ({
 vi.mock("@/lib/queries", () => ({
   logAnalyticsEvent: vi.fn(),
   fetchScreedingSystemConfig: vi.fn(),
-  fetchScreedingMixConfig: vi.fn(),
 }));
 
 vi.mock("@/lib/supabase", () => {

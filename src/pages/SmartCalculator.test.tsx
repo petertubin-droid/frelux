@@ -14,10 +14,10 @@ vi.mock("@/lib/seo", () => ({
   useSeo: vi.fn(() => null),
 }));
 
-vi.mock("@/lib/queries", () => ({
-  fetchScreedingMixConfig: vi.fn(),
-}));
-
+// The Smart Calculator is a pure AI estimation tool: it must NOT fetch any
+// hardcoded material configuration. The legacy screeding_mix_config path
+// was removed as a duplicated engine; the authoritative screeding engine
+// lives in the Screeding Cost Estimator with its own DB-backed config.
 vi.mock("@/components/rewarded/RewardedFeatureGate", () => ({
   RewardedFeatureGate: ({
     children,
@@ -42,24 +42,20 @@ vi.mock("@/components/rewarded/RewardedFeatureGate", () => ({
 
 vi.mock("@/components/rewarded/AdvancedCalculator", () => ({
   AdvancedCalculator: ({
-    config,
     clientHash,
+    contextSummary,
   }: {
-    config: unknown;
     clientHash: string;
+    contextSummary: string;
   }) => (
     <div data-testid="advanced-calculator" data-hash={clientHash}>
-      <span data-testid="config-currency">
-        {(config as { currencySymbol?: string })?.currencySymbol ?? "₦"}
-      </span>
+      <span data-testid="context-summary">{contextSummary}</span>
     </div>
   ),
 }));
 
 // Import after mocks
 import SmartCalculator from "./SmartCalculator";
-import { fetchScreedingMixConfig } from "@/lib/queries";
-import type { DbScreedingMixConfig } from "@/types/database";
 
 function renderPage() {
   return render(
@@ -80,35 +76,25 @@ describe("SmartCalculator page", () => {
 
   // ── Rendering basics ──
 
-  it("renders the page title and subtitle", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
-      data: null,
-      error: null,
-    });
+  it("renders the page title and subtitle", () => {
     renderPage();
 
-    expect(screen.getByText("Smart Calculator")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: "Smart Calculator" }),
+    ).toBeInTheDocument();
     expect(
       screen.getByText(/describe any project, get an instant estimate/i),
     ).toBeInTheDocument();
   });
 
-  it("renders the back-to-home link", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
-      data: null,
-      error: null,
-    });
+  it("renders the back-to-home link", () => {
     renderPage();
 
     const backLink = screen.getByText(/Back to home/i);
     expect(backLink.closest("a")).toHaveAttribute("href", "/");
   });
 
-  it("renders AI-powered badge banner", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
-      data: null,
-      error: null,
-    });
+  it("renders AI-powered badge banner", () => {
     renderPage();
 
     expect(screen.getByText("AI-Powered Estimation")).toBeInTheDocument();
@@ -117,95 +103,20 @@ describe("SmartCalculator page", () => {
     ).toBeInTheDocument();
   });
 
-  // ── Loading state ──
+  // ── No legacy screeding config ──
 
-  it("shows loading state while fetching config", () => {
-    vi.mocked(fetchScreedingMixConfig).mockReturnValue(new Promise(() => {}));
-    renderPage();
-
-    expect(screen.getByText(/Loading Smart Calculator/i)).toBeInTheDocument();
-  });
-
-  // ── Config loading ──
-
-  it("uses fallback config when fetch returns no data", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
-      data: null,
-      error: null,
-    });
-    renderPage();
-
-    await waitFor(() => {
-      expect(screen.getByTestId("reward-gate")).toBeInTheDocument();
-    });
-    expect(screen.getByTestId("reward-gate")).toHaveTextContent(
-      "Smart Calculator",
-    );
-  });
-
-  it("uses fallback config on fetch error", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockRejectedValue(new Error("network"));
-    renderPage();
-
-    await waitFor(() => {
-      expect(screen.getByTestId("reward-gate")).toBeInTheDocument();
-    });
-  });
-
-  it("maps Supabase config fields correctly", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
-      data: {
-        id: "mix-usd-1",
-        is_active: true,
-        created_at: "2026-01-01T00:00:00Z",
-        updated_at: "2026-01-01T00:00:00Z",
-        paint_coverage_rate_m2_per_l: 10,
-        paint_bucket_size_l: 4,
-        paint_price_per_bucket: 12000,
-        cement_consumption_ratio_kg_per_l: 2,
-        cement_bag_size_kg: 50,
-        cement_price_per_bag: 10000,
-        default_mix_ratio: "3:1",
-        labour_rate_per_sqm: 500,
-        waste_percentage: 15,
-        tax_vat_percentage: 5,
-        currency: "USD",
-        currency_symbol: "$",
-      },
-      error: null,
-    });
+  it("renders immediately without fetching legacy screeding mix config", async () => {
     renderPage();
 
     await waitFor(() => {
       expect(screen.getByTestId("advanced-calculator")).toBeInTheDocument();
     });
-    expect(screen.getByTestId("config-currency")).toHaveTextContent("$");
-  });
-
-  // ── Info banner ──
-
-  it("renders info banner with project description", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
-      data: null,
-      error: null,
-    });
-    renderPage();
-
-    expect(
-      screen.getByText(/Describe your project in plain English/i),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByText(/screeding, painting, tiling, POP ceiling/i),
-    ).toBeInTheDocument();
+    // No DB config fetch should be needed for the pure AI estimation tool.
   });
 
   // ── Feature list ──
 
   it("renders all features in the RewardedFeatureGate", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
-      data: null,
-      error: null,
-    });
     renderPage();
 
     await waitFor(() => {
@@ -235,11 +146,7 @@ describe("SmartCalculator page", () => {
 
   // ── AdvancedCalculator rendering ──
 
-  it("passes config and clientHash to AdvancedCalculator", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
-      data: null,
-      error: null,
-    });
+  it("passes the AI context and clientHash to AdvancedCalculator", async () => {
     renderPage();
 
     await waitFor(() => {
@@ -249,81 +156,15 @@ describe("SmartCalculator page", () => {
       "data-hash",
       "mock-hash",
     );
-  });
-
-  it("renders AdvancedCalculator after config loads", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
-      data: {
-        id: "mix-ngn-1",
-        is_active: true,
-        created_at: "2026-01-01T00:00:00Z",
-        updated_at: "2026-01-01T00:00:00Z",
-        paint_coverage_rate_m2_per_l: 12,
-        paint_bucket_size_l: 20,
-        paint_price_per_bucket: 28000,
-        cement_consumption_ratio_kg_per_l: 1.5,
-        cement_bag_size_kg: 40,
-        cement_price_per_bag: 9500,
-        default_mix_ratio: "2:1",
-        labour_rate_per_sqm: 0,
-        waste_percentage: 10,
-        tax_vat_percentage: 7.5,
-        currency: "NGN",
-        currency_symbol: "₦",
-      },
-      error: null,
-    });
-    renderPage();
-
-    await waitFor(() => {
-      expect(screen.getByTestId("advanced-calculator")).toBeInTheDocument();
-    });
-    expect(screen.getByTestId("config-currency")).toHaveTextContent("₦");
-  });
-
-  // ── Config fallback values ──
-
-  it("uses fallback config for null optional fields in Supabase data", async () => {
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
-      data: {
-        id: "mix-nulls-1",
-        is_active: true,
-        created_at: "2026-01-01T00:00:00Z",
-        updated_at: "2026-01-01T00:00:00Z",
-        paint_coverage_rate_m2_per_l: 12,
-        paint_bucket_size_l: 20,
-        paint_price_per_bucket: 28000,
-        cement_consumption_ratio_kg_per_l: 1.5,
-        cement_bag_size_kg: 40,
-        cement_price_per_bag: 9500,
-        default_mix_ratio: null,
-        labour_rate_per_sqm: null,
-        waste_percentage: null,
-        tax_vat_percentage: null,
-        currency: null,
-        currency_symbol: null,
-        // Nulls are intentional: the component must fall back to defaults.
-        // The DB type declares these as non-null, hence the cast.
-      } as unknown as DbScreedingMixConfig,
-      error: null,
-    });
-    renderPage();
-
-    await waitFor(() => {
-      expect(screen.getByTestId("advanced-calculator")).toBeInTheDocument();
-    });
-    // Should fall back to "₦" and "NGN" when currency fields are null
-    expect(screen.getByTestId("config-currency")).toHaveTextContent("₦");
+    expect(screen.getByTestId("context-summary")).toHaveTextContent(
+      /freeform AI estimation/i,
+    );
   });
 
   // ── SEO ──
 
   it("calls useSeo with correct title and canonical path", async () => {
     const { useSeo } = await import("@/lib/seo");
-    vi.mocked(fetchScreedingMixConfig).mockResolvedValue({
-      data: null,
-      error: null,
-    });
     renderPage();
 
     expect(useSeo).toHaveBeenCalledWith(

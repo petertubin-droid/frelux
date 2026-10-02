@@ -213,41 +213,6 @@ export interface ScreedingEstimateResult {
 // Screeding Mix Model (Paint + White Cement)
 // =========================================================
 
-export interface ScreedingMixConfig {
-  paintCoverageRateM2PerL: number;
-  paintBucketSizeL: number;
-  paintPricePerBucket: number;
-  cementConsumptionRatioKgPerL: number;
-  cementBagSizeKg: number;
-  cementPricePerBag: number;
-  defaultMixRatio: string;
-  labourRatePerSqm: number;
-  wastePercentage: number;
-  taxVatPercentage: number;
-  currency: string;
-  currencySymbol: string;
-}
-
-export interface ScreedingMixResult {
-  netScreedingArea: number;
-  paintRequiredLiters: number;
-  paintBucketsNeeded: number;
-  paintUnitPrice: number;
-  paintTotalCost: number;
-  cementRequiredKg: number;
-  cementBagsNeeded: number;
-  cementUnitPrice: number;
-  cementTotalCost: number;
-  materialCost: number;
-  labourCost: number;
-  wasteAllowance: number;
-  wasteAmount: number;
-  taxAmount: number;
-  grandTotal: number;
-  currency: string;
-  currencySymbol: string;
-}
-
 export interface AdvancedEstimateLineItem {
   label: string;
   quantity: number;
@@ -498,6 +463,8 @@ export interface ScreedingPuttyResult {
   materialCost: number | null;
   currency: string;
   currencySymbol: string;
+  /** Data-requirement warnings: one per missing/invalid config value. */
+  warnings: string[];
 }
 
 /** Result for the White Cement + Screeding Paint material system. */
@@ -514,6 +481,8 @@ export interface ScreedingMixSystemResult {
   materialCost: number | null;
   currency: string;
   currencySymbol: string;
+  /** Data-requirement warnings: one per missing/invalid config value. */
+  warnings: string[];
 }
 
 /** Union result type for any screeding material system. */

@@ -1,19 +1,15 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Bot,
   Save,
   Copy,
   Download,
   Trash2,
-  TrendingUp,
-  ShoppingBag,
   Loader2,
   Layers,
-  Percent,
   DollarSign,
   Brain,
 } from "lucide-react";
-import { calculateAdvancedEstimate, type AdvancedCalcInput } from "@/lib/calc";
 import { formatCurrency, formatNumber } from "@/lib/utils";
 import {
   saveAdvancedEstimate,
@@ -21,7 +17,7 @@ import {
   deleteAdvancedEstimate,
 } from "@/lib/queries";
 import { supabase } from "@/lib/supabase";
-import type { AdvancedEstimateData, ScreedingMixConfig } from "@/types";
+import type { AdvancedEstimateData } from "@/types";
 import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/shadcn/button";
@@ -33,26 +29,19 @@ interface Props {
   toolLabel?: string;
   /** A text summary of the current calculator's results that the AI can analyze */
   contextSummary: string;
-  /** For screeding mode: the net area to calculate on */
-  netArea?: number;
-  /** For screeding mode: the screeding mix config from the database */
-  config?: ScreedingMixConfig | null;
   /** Anonymous client hash from rewarded access */
   clientHash: string;
 }
 
-type Tab = "breakdown" | "mix" | "costs" | "compare" | "ai" | "saved";
+type Tab = "breakdown" | "costs" | "ai" | "saved";
 
 export function AdvancedCalculator({
   toolKey = "advanced_calculator",
   toolLabel = "Advanced Calculator",
   contextSummary,
-  netArea = 0,
-  config = null,
   clientHash,
 }: Props) {
-  const isScreeding = !!config;
-  const [tab, setTab] = useState<Tab>(isScreeding ? "breakdown" : "ai");
+  const [tab, setTab] = useState<Tab>("ai");
   const [savedEstimates, setSavedEstimates] = useState<
     {
       id: string;
@@ -73,8 +62,6 @@ export function AdvancedCalculator({
   const [pdfGateOpen, setPdfGateOpen] = useState(false);
   const [pdfUnlocked, setPdfUnlocked] = useState(false);
   const { isPaid } = useAuth();
-  const [compareEstimate, setCompareEstimate] =
-    useState<AdvancedEstimateData | null>(null);
 
   // Universal cost adjustment inputs (work for any calculator type)
   const [costAdjust, setCostAdjust] = useState({
@@ -86,42 +73,8 @@ export function AdvancedCalculator({
     taxPercentage: 7.5,
   });
 
-  // ── Screeding-specific calculation (existing logic) ──
-  const [screedingInput, setScreedingInput] =
-    useState<AdvancedCalcInput | null>(null);
-
-  useEffect(() => {
-    if (!isScreeding || !config) return;
-    setScreedingInput({
-      netArea: netArea || 0,
-      thickness: 10,
-      coats: 2,
-      mixRatio: config.defaultMixRatio || "2:1",
-      paintCoverageRateM2PerL: config.paintCoverageRateM2PerL,
-      paintBucketSizeL: config.paintBucketSizeL,
-      paintPricePerBucket: config.paintPricePerBucket,
-      cementRatioKgPerL: config.cementConsumptionRatioKgPerL,
-      cementBagSizeKg: config.cementBagSizeKg,
-      cementPricePerBag: config.cementPricePerBag,
-      labourRatePerSqm: config.labourRatePerSqm,
-      transportCost: 0,
-      wastePercentage: config.wastePercentage,
-      markupPercentage: 0,
-      profitPercentage: 0,
-      taxPercentage: config.taxVatPercentage,
-      currency: config.currency,
-      currencySymbol: config.currencySymbol,
-    });
-  }, [netArea, config, isScreeding]);
-
-  const estimate = useMemo(() => {
-    if (!screedingInput) return null;
-    return calculateAdvancedEstimate(screedingInput);
-  }, [screedingInput]);
-
   // Fetch AI breakdown for non-screeding calculators on mount
   const fetchAiBreakdown = useCallback(async () => {
-    if (isScreeding) return;
     setAiBreakdownLoading(true);
     try {
       const prompt = `You are an expert construction cost analyst AI. Analyze the following calculator results and provide a detailed advanced breakdown.
@@ -156,11 +109,11 @@ Use ₦ (Naira) for all currency. Be specific with numbers. Keep it practical an
       setAiBreakdown("Unable to reach the AI assistant. Please try again.");
     }
     setAiBreakdownLoading(false);
-  }, [isScreeding, contextSummary]);
+  }, [contextSummary]);
 
   useEffect(() => {
-    if (!isScreeding) fetchAiBreakdown();
-  }, [fetchAiBreakdown, isScreeding]);
+    fetchAiBreakdown();
+  }, [fetchAiBreakdown]);
 
   useEffect(() => {
     fetchAdvancedEstimates(clientHash).then(({ data }) => {
@@ -177,13 +130,6 @@ Use ₦ (Naira) for all currency. Be specific with numbers. Keep it practical an
     });
   }, [clientHash]);
 
-  function updateScreeding<K extends keyof AdvancedCalcInput>(
-    key: K,
-    value: AdvancedCalcInput[K],
-  ) {
-    setScreedingInput((prev) => (prev ? { ...prev, [key]: value } : null));
-  }
-
   function updateCost<K extends keyof typeof costAdjust>(
     key: K,
     value: number,
@@ -195,71 +141,37 @@ Use ₦ (Naira) for all currency. Be specific with numbers. Keep it practical an
     setSaveStatus("saving");
     const title =
       saveTitle || `${toolLabel} estimate ${new Date().toLocaleDateString()}`;
-    const projectType =
-      toolKey === "advanced_calculator" && isScreeding ? "screeding" : toolKey;
-
-    if (isScreeding && estimate) {
-      const { id, error } = await saveAdvancedEstimate({
-        clientHash,
-        toolKey,
-        title,
-        projectType,
-        estimateData: estimate as unknown as Record<string, unknown>,
-        totalCost: estimate.grandTotal,
-        currency: estimate.currency,
-      });
-      if (error) {
-        setSaveStatus(`Error: ${error}`);
-        return;
-      }
-      setSaveStatus("saved");
-      setSaveTitle("");
-      const { data } = await fetchAdvancedEstimates(clientHash);
-      setSavedEstimates(
-        data.map((d) => ({
-          id: d.id,
-          title: d.title,
-          totalCost: d.total_cost ?? 0,
-          currency: d.currency,
-          estimateData: d.estimate_data as unknown as AdvancedEstimateData,
-          createdAt: d.created_at,
-        })),
-      );
-      if (id) setSaveStatus(null);
-    } else {
-      // For AI-powered mode, save the context summary and AI breakdown
-      const { id, error } = await saveAdvancedEstimate({
-        clientHash,
-        toolKey,
-        title,
-        projectType,
-        estimateData: {
-          contextSummary,
-          aiBreakdown,
-          costAdjust,
-        } as unknown as Record<string, unknown>,
-        totalCost: 0,
-        currency: "NGN",
-      });
-      if (error) {
-        setSaveStatus(`Error: ${error}`);
-        return;
-      }
-      setSaveStatus("saved");
-      setSaveTitle("");
-      const { data } = await fetchAdvancedEstimates(clientHash);
-      setSavedEstimates(
-        data.map((d) => ({
-          id: d.id,
-          title: d.title,
-          totalCost: d.total_cost ?? 0,
-          currency: d.currency,
-          estimateData: d.estimate_data as unknown as AdvancedEstimateData,
-          createdAt: d.created_at,
-        })),
-      );
-      if (id) setSaveStatus(null);
+    const { id, error } = await saveAdvancedEstimate({
+      clientHash,
+      toolKey,
+      title,
+      projectType: toolKey,
+      estimateData: {
+        contextSummary,
+        aiBreakdown,
+        costAdjust,
+      } as unknown as Record<string, unknown>,
+      totalCost: 0,
+      currency: "NGN",
+    });
+    if (error) {
+      setSaveStatus(`Error: ${error}`);
+      return;
     }
+    setSaveStatus("saved");
+    setSaveTitle("");
+    const { data } = await fetchAdvancedEstimates(clientHash);
+    setSavedEstimates(
+      data.map((d) => ({
+        id: d.id,
+        title: d.title,
+        totalCost: d.total_cost ?? 0,
+        currency: d.currency,
+        estimateData: d.estimate_data as unknown as AdvancedEstimateData,
+        createdAt: d.created_at,
+      })),
+    );
+    if (id) setSaveStatus(null);
   }
 
   async function handleDelete(id: string) {
@@ -286,26 +198,15 @@ Use ₦ (Naira) for all currency. Be specific with numbers. Keep it practical an
       window.setTimeout(() => setSaveStatus(null), 5000);
       return;
     }
-    if (isScreeding && estimate) {
-      const html = generateQuotationHTML(
-        estimate,
-        { title: toolLabel },
-        contextSummary,
-      );
-      win.document.write(html);
-      win.document.close();
-      win.print();
-    } else {
-      const html = generateAiQuotationHTML(
-        toolLabel,
-        contextSummary,
-        aiBreakdown,
-        costAdjust,
-      );
-      win.document.write(html);
-      win.document.close();
-      win.print();
-    }
+    const html = generateAiQuotationHTML(
+      toolLabel,
+      contextSummary,
+      aiBreakdown,
+      costAdjust,
+    );
+    win.document.write(html);
+    win.document.close();
+    win.print();
     // Session-scoped: reset unlock after use
     setPdfUnlocked(false);
   }
@@ -319,16 +220,6 @@ Use ₦ (Naira) for all currency. Be specific with numbers. Keep it practical an
 
 Here are the current calculator results:
 ${contextSummary}
-
-${
-  isScreeding && estimate
-    ? `Advanced calculation data:
-- Material cost: ${estimate.currencySymbol}${formatNumber(estimate.materialCost)}
-- Grand total: ${estimate.currencySymbol}${formatNumber(estimate.grandTotal)}
-- Waste: ${estimate.wastePercentage}%, Markup: ${estimate.markupPercentage}%, Tax: ${estimate.taxPercentage}%
-`
-    : ""
-}
 
 Cost adjustments applied:
 - Labour: ₦${formatNumber(costAdjust.labourCost)}
@@ -365,16 +256,7 @@ Give a concise, practical answer with specific numbers and recommendations. Use 
 Current results:
 ${contextSummary}
 
-${
-  isScreeding && estimate
-    ? `Advanced calculation:
-- Paint: ${estimate.paintBuckets} × 20L buckets @ ${estimate.currencySymbol}${formatNumber(screedingInput?.paintPricePerBucket ?? 0)}
-- Cement: ${estimate.cementBags} × 40kg bags @ ${estimate.currencySymbol}${formatNumber(screedingInput?.cementPricePerBag ?? 0)}
-- Material: ${estimate.currencySymbol}${formatNumber(estimate.materialCost)}, Grand total: ${estimate.currencySymbol}${formatNumber(estimate.grandTotal)}
-- Waste: ${estimate.wastePercentage}%, Markup: ${estimate.markupPercentage}%, Tax: ${estimate.taxPercentage}%
-`
-    : `Cost adjustments: Labour ₦${formatNumber(costAdjust.labourCost)}, Transport ₦${formatNumber(costAdjust.transportCost)}, Waste ${costAdjust.wastePercentage}%, Markup ${costAdjust.markupPercentage}%, Tax ${costAdjust.taxPercentage}%`
-}
+Cost adjustments: Labour ₦${formatNumber(costAdjust.labourCost)}, Transport ₦${formatNumber(costAdjust.transportCost)}, Waste ${costAdjust.wastePercentage}%, Markup ${costAdjust.markupPercentage}%, Tax ${costAdjust.taxPercentage}%
 
 Also flag any unrealistic values or potential issues. Use ₦ for currency. Be specific and practical.`;
       const { data } = await supabase.functions.invoke<{
@@ -390,32 +272,12 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
     setAiLoading(false);
   }
 
-  // Build tabs list, hide Mix Ratio for non-screeding
-  const tabs: { key: Tab; label: string; icon: typeof Layers }[] = isScreeding
-    ? [
-        { key: "breakdown", label: "Breakdown", icon: Layers },
-        { key: "mix", label: "Mix Ratio", icon: Percent },
-        { key: "costs", label: "Costs", icon: DollarSign },
-        { key: "compare", label: "Compare", icon: TrendingUp },
-        { key: "ai", label: "AI Assistant", icon: Bot },
-        { key: "saved", label: "Saved", icon: Save },
-      ]
-    : [
-        { key: "ai", label: "AI Analysis", icon: Brain },
-        { key: "costs", label: "Cost Adjuster", icon: DollarSign },
-        { key: "ai", label: "AI Assistant", icon: Bot }, // This won't render duplicate since we filter by key
-        { key: "saved", label: "Saved", icon: Save },
-      ];
-
-  // Remove duplicate AI tab for non-screeding
-  const uniqueTabs = isScreeding
-    ? tabs
-    : [
-        { key: "breakdown" as Tab, label: "AI Analysis", icon: Brain },
-        { key: "costs" as Tab, label: "Cost Adjuster", icon: DollarSign },
-        { key: "ai" as Tab, label: "AI Assistant", icon: Bot },
-        { key: "saved" as Tab, label: "Saved", icon: Save },
-      ];
+  const uniqueTabs: { key: Tab; label: string; icon: typeof Layers }[] = [
+    { key: "breakdown", label: "AI Analysis", icon: Brain },
+    { key: "costs", label: "Cost Adjuster", icon: DollarSign },
+    { key: "ai", label: "AI Assistant", icon: Bot },
+    { key: "saved", label: "Saved", icon: Save },
+  ];
 
   return (
     <div className="mt-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-card to-primary/[0.02] p-1">
@@ -465,20 +327,7 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
 
         {/* Tab content */}
         <div className="mt-5">
-          {tab === "breakdown" && isScreeding && estimate && screedingInput && (
-            <ScreedingBreakdownTab
-              estimate={estimate}
-              input={screedingInput}
-              update={updateScreeding}
-              onSave={handleSave}
-              onDuplicate={handleDuplicate}
-              onExport={handleExportPDF}
-              saveTitle={saveTitle}
-              setSaveTitle={setSaveTitle}
-              saveStatus={saveStatus}
-            />
-          )}
-          {tab === "breakdown" && !isScreeding && (
+          {tab === "breakdown" && (
             <AiBreakdownTab
               contextSummary={contextSummary}
               aiBreakdown={aiBreakdown}
@@ -492,27 +341,14 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
               onDuplicate={handleDuplicate}
             />
           )}
-          {tab === "mix" && isScreeding && screedingInput && (
-            <MixTab input={screedingInput} update={updateScreeding} />
-          )}
           {tab === "costs" && (
             <CostsTab
               costAdjust={costAdjust}
               update={updateCost}
-              estimate={estimate}
-              isScreeding={isScreeding}
               pdfGateOpen={pdfGateOpen}
               setPdfGateOpen={setPdfGateOpen}
               setPdfUnlocked={setPdfUnlocked}
               onExportPDF={handleExportPDF}
-            />
-          )}
-          {tab === "compare" && isScreeding && estimate && (
-            <CompareTab
-              current={estimate}
-              saved={savedEstimates}
-              onSelect={setCompareEstimate}
-              selected={compareEstimate}
             />
           )}
           {tab === "ai" && (
@@ -672,316 +508,10 @@ function AiBreakdownTab({
   );
 }
 
-// ─── Screeding Breakdown Tab (existing logic) ───
-function ScreedingBreakdownTab({
-  estimate,
-  input,
-  update,
-  onSave,
-  onDuplicate,
-  onExport,
-  saveTitle,
-  setSaveTitle,
-  saveStatus,
-}: {
-  estimate: AdvancedEstimateData;
-  input: AdvancedCalcInput;
-  update: <K extends keyof AdvancedCalcInput>(
-    key: K,
-    value: AdvancedCalcInput[K],
-  ) => void;
-  onSave: () => void;
-  onDuplicate: () => void;
-  onExport: () => void;
-  saveTitle: string;
-  setSaveTitle: (v: string) => void;
-  saveStatus: string | null;
-}) {
-  return (
-    <div className="space-y-5">
-      {/* Quick inputs */}
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-3">
-        <NumField
-          label="Net area (m²)"
-          value={input.netArea}
-          onChange={(v) => update("netArea", v)}
-        />
-        <NumField
-          label="Thickness (mm)"
-          value={input.thickness}
-          onChange={(v) => update("thickness", v)}
-        />
-        <NumField
-          label="Coats"
-          value={input.coats}
-          onChange={(v) => update("coats", v)}
-        />
-      </div>
-
-      {/* Line items */}
-      <div className="overflow-hidden rounded-lg border border-border dark:border-white/5">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50 dark:bg-white/5">
-            <tr>
-              <th className="px-3 py-2 text-left text-xs font-semibold text-muted-foreground">
-                Material
-              </th>
-              <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">
-                Qty
-              </th>
-              <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">
-                Unit Price
-              </th>
-              <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">
-                Total
-              </th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border/50">
-            {estimate.lineItems.map((item) => (
-              <tr key={item.label}>
-                <td className="px-3 py-2.5 font-medium text-foreground dark:text-primary-foreground">
-                  {item.label}
-                </td>
-                <td className="px-3 py-2.5 text-right text-muted-foreground">
-                  {formatNumber(item.quantity)} {item.unit}
-                </td>
-                <td className="px-3 py-2.5 text-right text-muted-foreground">
-                  {formatCurrency(item.unitPrice, estimate.currencySymbol)}
-                </td>
-                <td className="px-3 py-2.5 text-right font-semibold text-foreground dark:text-primary-foreground">
-                  {formatCurrency(item.total, estimate.currencySymbol)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Summary */}
-      <div className="grid gap-3 grid-cols-2 md:grid-cols-2">
-        <SummaryRow
-          label="Material Cost"
-          value={formatCurrency(estimate.materialCost, estimate.currencySymbol)}
-        />
-        <SummaryRow
-          label="Labour Cost"
-          value={formatCurrency(estimate.labourCost, estimate.currencySymbol)}
-        />
-        <SummaryRow
-          label="Transport"
-          value={formatCurrency(
-            estimate.transportCost,
-            estimate.currencySymbol,
-          )}
-        />
-        <SummaryRow
-          label={`Waste (${estimate.wastePercentage}%)`}
-          value={formatCurrency(estimate.wasteAmount, estimate.currencySymbol)}
-        />
-        {estimate.markupAmount > 0 && (
-          <SummaryRow
-            label={`Markup (${estimate.markupPercentage}%)`}
-            value={formatCurrency(
-              estimate.markupAmount,
-              estimate.currencySymbol,
-            )}
-          />
-        )}
-        {estimate.profitAmount > 0 && (
-          <SummaryRow
-            label={`Profit (${estimate.profitPercentage}%)`}
-            value={formatCurrency(
-              estimate.profitAmount,
-              estimate.currencySymbol,
-            )}
-          />
-        )}
-        <SummaryRow
-          label={`Tax/VAT (${estimate.taxPercentage}%)`}
-          value={formatCurrency(estimate.taxAmount, estimate.currencySymbol)}
-        />
-        <div className="flex items-center justify-between rounded-lg bg-brand-navy px-4 py-3 text-primary-foreground">
-          <span className="text-sm font-bold">Grand Total</span>
-          <span className="text-lg font-bold">
-            {formatCurrency(estimate.grandTotal, estimate.currencySymbol)}
-          </span>
-        </div>
-      </div>
-
-      {/* Shopping list */}
-      <div className="rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5 p-4">
-        <div className="flex items-center gap-2">
-          <ShoppingBag
-            aria-hidden="true"
-            className="h-4 w-4 text-brand-purple"
-          />
-          <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-            Material Shopping List
-          </h4>
-        </div>
-        <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
-          <li>
-            {estimate.paintBuckets} × Screeding Paint (20 L bucket):{" "}
-            {formatCurrency(
-              estimate.paintBuckets * input.paintPricePerBucket,
-              estimate.currencySymbol,
-            )}
-          </li>
-          <li>
-            {estimate.cementBags} × White Cement (40 kg bag):{" "}
-            {formatCurrency(
-              estimate.cementBags * input.cementPricePerBag,
-              estimate.currencySymbol,
-            )}
-          </li>
-        </ul>
-      </div>
-
-      {/* Actions */}
-      <div className="flex flex-wrap gap-2">
-        <div className="flex flex-1 gap-2">
-          <input
-            type="text"
-            value={saveTitle}
-            onChange={(e) => setSaveTitle(e.target.value)}
-            placeholder="Estimate name…"
-            className="input-field flex-1"
-          />
-          <Button
-            variant="default"
-            type="button"
-            onClick={onSave}
-            className="flex items-center gap-1.5 whitespace-nowrap"
-          >
-            <Save aria-hidden="true" className="h-4 w-4" /> Save
-          </Button>
-        </div>
-        <Button
-          variant="secondary"
-          type="button"
-          onClick={onDuplicate}
-          className="flex items-center gap-1.5"
-        >
-          <Copy aria-hidden="true" className="h-4 w-4" /> Duplicate
-        </Button>
-        <Button
-          variant="secondary"
-          type="button"
-          onClick={onExport}
-          className="flex items-center gap-1.5"
-        >
-          <Download aria-hidden="true" className="h-4 w-4" /> PDF
-        </Button>
-      </div>
-      {saveStatus === "saving" && (
-        <p className="text-xs text-muted-foreground">Saving…</p>
-      )}
-      {saveStatus === "saved" && (
-        <p className="text-xs text-accent-green">Saved successfully.</p>
-      )}
-      {saveStatus?.startsWith("Error") && (
-        <p className="text-xs text-red-600">{saveStatus}</p>
-      )}
-    </div>
-  );
-}
-
-// ─── Mix Ratio Tab (screeding only) ───
-function MixTab({
-  input,
-  update,
-}: {
-  input: AdvancedCalcInput;
-  update: <K extends keyof AdvancedCalcInput>(
-    key: K,
-    value: AdvancedCalcInput[K],
-  ) => void;
-}) {
-  const ratios = ["1:1", "2:1", "3:1", "3:2", "4:1"];
-  return (
-    <div className="space-y-5">
-      <div>
-        <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-          Custom Mix Ratio Editor
-        </h4>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          Adjust the paint to cement mix ratio for your wall condition.
-        </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {ratios.map((r) => (
-            <Button
-              variant="ghost"
-              key={r}
-              type="button"
-              onClick={() => update("mixRatio", r)}
-              className={
-                "rounded-lg border px-4 py-2 text-sm font-semibold transition-all " +
-                (input.mixRatio === r
-                  ? "border-brand-purple bg-primary text-primary-foreground"
-                  : "border-border text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80 hover:border-border")
-              }
-            >
-              {r}
-            </Button>
-          ))}
-          <input
-            type="text"
-            value={input.mixRatio}
-            onChange={(e) => update("mixRatio", e.target.value)}
-            className="input-field w-24"
-            placeholder="Custom"
-          />
-        </div>
-      </div>
-
-      <div className="grid gap-4 grid-cols-2">
-        <NumField
-          label="Paint coverage (m²/L)"
-          value={input.paintCoverageRateM2PerL}
-          onChange={(v) => update("paintCoverageRateM2PerL", v)}
-          step={0.1}
-        />
-        <NumField
-          label="Cement ratio (kg/L)"
-          value={input.cementRatioKgPerL}
-          onChange={(v) => update("cementRatioKgPerL", v)}
-          step={0.1}
-        />
-        <NumField
-          label="Paint bucket size (L)"
-          value={input.paintBucketSizeL}
-          onChange={(v) => update("paintBucketSizeL", v)}
-        />
-        <NumField
-          label="Cement bag size (kg)"
-          value={input.cementBagSizeKg}
-          onChange={(v) => update("cementBagSizeKg", v)}
-        />
-      </div>
-
-      <div className="grid gap-4 grid-cols-2">
-        <NumField
-          label="Paint price per bucket"
-          value={input.paintPricePerBucket}
-          onChange={(v) => update("paintPricePerBucket", v)}
-        />
-        <NumField
-          label="Cement price per bag"
-          value={input.cementPricePerBag}
-          onChange={(v) => update("cementPricePerBag", v)}
-        />
-      </div>
-    </div>
-  );
-}
-
 // ─── Universal Costs Tab ───
 function CostsTab({
   costAdjust,
   update,
-  estimate,
-  isScreeding,
   pdfGateOpen,
   setPdfGateOpen,
   setPdfUnlocked,
@@ -996,17 +526,13 @@ function CostsTab({
     taxPercentage: number;
   };
   update: <K extends keyof typeof costAdjust>(key: K, value: number) => void;
-  estimate: AdvancedEstimateData | null;
-  isScreeding: boolean;
   pdfGateOpen: boolean;
   setPdfGateOpen: (open: boolean) => void;
   setPdfUnlocked: (unlocked: boolean) => void;
   onExportPDF: () => void;
 }) {
-  // For screeding, use the calculated estimate. For AI mode, estimate is conceptual.
-  const baseCost = isScreeding && estimate ? estimate.materialCost : 0;
   const transport = costAdjust.transportCost;
-  const subtotal = baseCost + transport + costAdjust.labourCost;
+  const subtotal = transport + costAdjust.labourCost;
   const markupAmount = subtotal * (costAdjust.markupPercentage / 100);
   const profitAmount =
     (subtotal + markupAmount) * (costAdjust.profitPercentage / 100);
@@ -1016,17 +542,15 @@ function CostsTab({
 
   return (
     <div className="space-y-5">
-      {!isScreeding && (
-        <div className="rounded-lg border border-brand-purple/20 bg-primary/5 p-3">
-          <div className="flex items-center gap-2">
-            <Bot aria-hidden="true" className="h-4 w-4 text-brand-purple" />
-            <p className="text-xs text-muted-foreground dark:text-muted-foreground/80">
-              These adjustments apply on top of your calculator's base results.
-              Use the AI Analysis tab for a full breakdown.
-            </p>
-          </div>
+      <div className="rounded-lg border border-brand-purple/20 bg-primary/5 p-3">
+        <div className="flex items-center gap-2">
+          <Bot aria-hidden="true" className="h-4 w-4 text-brand-purple" />
+          <p className="text-xs text-muted-foreground dark:text-muted-foreground/80">
+            These adjustments apply on top of your calculator's base results.
+            Use the AI Analysis tab for a full breakdown.
+          </p>
         </div>
-      )}
+      </div>
 
       <div className="grid gap-4 grid-cols-2">
         <NumField
@@ -1091,93 +615,40 @@ function CostsTab({
           Cost Summary
         </h4>
         <div className="mt-3 space-y-2 text-sm">
-          {isScreeding && estimate ? (
-            <>
-              <SummaryRow
-                label="Materials"
-                value={formatCurrency(
-                  estimate.materialCost,
-                  estimate.currencySymbol,
-                )}
-              />
-              <SummaryRow
-                label="Labour"
-                value={formatCurrency(
-                  costAdjust.labourCost,
-                  estimate.currencySymbol,
-                )}
-              />
-              <SummaryRow
-                label="Transport"
-                value={formatCurrency(
-                  costAdjust.transportCost,
-                  estimate.currencySymbol,
-                )}
-              />
-              <SummaryRow
-                label="Waste"
-                value={formatCurrency(
-                  estimate.wasteAmount,
-                  estimate.currencySymbol,
-                )}
-              />
-              <SummaryRow
-                label="Markup"
-                value={formatCurrency(markupAmount, estimate.currencySymbol)}
-              />
-              <SummaryRow
-                label="Profit"
-                value={formatCurrency(profitAmount, estimate.currencySymbol)}
-              />
-              <SummaryRow
-                label="Tax/VAT"
-                value={formatCurrency(taxAmount, estimate.currencySymbol)}
-              />
-              <div className="flex items-center justify-between border-t border-border pt-2">
-                <span className="font-bold text-foreground dark:text-primary-foreground">
-                  Grand Total
-                </span>
-                <span className="text-lg font-bold text-foreground dark:text-primary-foreground">
-                  {formatCurrency(grandTotal, estimate.currencySymbol)}
-                </span>
-              </div>
-            </>
-          ) : (
-            <>
-              <SummaryRow
-                label="Labour"
-                value={formatCurrency(costAdjust.labourCost)}
-              />
-              <SummaryRow
-                label="Transport"
-                value={formatCurrency(costAdjust.transportCost)}
-              />
-              <SummaryRow
-                label={`Markup (${costAdjust.markupPercentage}%)`}
-                value={formatCurrency(markupAmount)}
-              />
-              <SummaryRow
-                label={`Profit (${costAdjust.profitPercentage}%)`}
-                value={formatCurrency(profitAmount)}
-              />
-              <SummaryRow
-                label={`Tax/VAT (${costAdjust.taxPercentage}%)`}
-                value={formatCurrency(taxAmount)}
-              />
-              <div className="flex items-center justify-between border-t border-border pt-2">
-                <span className="font-bold text-foreground dark:text-primary-foreground">
-                  Additional Costs
-                </span>
-                <span className="text-lg font-bold text-foreground dark:text-primary-foreground">
-                  {formatCurrency(grandTotal)}
-                </span>
-              </div>
-              <p className="mt-2 text-xs text-muted-foreground">
-                Add this to your calculator's base material cost for the full
-                project total.
-              </p>
-            </>
-          )}
+          <>
+            <SummaryRow
+              label="Labour"
+              value={formatCurrency(costAdjust.labourCost)}
+            />
+            <SummaryRow
+              label="Transport"
+              value={formatCurrency(costAdjust.transportCost)}
+            />
+            <SummaryRow
+              label={`Markup (${costAdjust.markupPercentage}%)`}
+              value={formatCurrency(markupAmount)}
+            />
+            <SummaryRow
+              label={`Profit (${costAdjust.profitPercentage}%)`}
+              value={formatCurrency(profitAmount)}
+            />
+            <SummaryRow
+              label={`Tax/VAT (${costAdjust.taxPercentage}%)`}
+              value={formatCurrency(taxAmount)}
+            />
+            <div className="flex items-center justify-between border-t border-border pt-2">
+              <span className="font-bold text-foreground dark:text-primary-foreground">
+                Additional Costs
+              </span>
+              <span className="text-lg font-bold text-foreground dark:text-primary-foreground">
+                {formatCurrency(grandTotal)}
+              </span>
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Add this to your calculator's base material cost for the full
+              project total.
+            </p>
+          </>
           {pdfGateOpen && (
             <PremiumFeatureGate
               featureKey="pdf_export"
@@ -1193,155 +664,6 @@ function CostsTab({
           )}
         </div>
       </div>
-    </div>
-  );
-}
-
-// ─── Compare Tab (screeding only, needs structured data) ───
-function CompareTab({
-  current,
-  saved,
-  onSelect,
-  selected,
-}: {
-  current: AdvancedEstimateData;
-  saved: {
-    id: string;
-    title: string;
-    totalCost: number;
-    currency: string;
-    estimateData: AdvancedEstimateData;
-    createdAt: string;
-  }[];
-  onSelect: (e: AdvancedEstimateData | null) => void;
-  selected: AdvancedEstimateData | null;
-}) {
-  return (
-    <div className="space-y-5">
-      <div>
-        <h4 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-          Cost Comparison
-        </h4>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          Compare your current estimate with saved estimates.
-        </p>
-      </div>
-
-      {saved.length > 0 && (
-        <div>
-          <p className="mb-2 text-xs font-semibold text-muted-foreground">
-            Select an estimate to compare:
-          </p>
-          <div className="flex flex-wrap gap-2">
-            {saved.map((s) => (
-              <Button
-                variant="ghost"
-                key={s.id}
-                type="button"
-                onClick={() =>
-                  onSelect(selected === s.estimateData ? null : s.estimateData)
-                }
-                className={
-                  "rounded-lg border px-3 py-1.5 text-xs font-semibold transition-all " +
-                  (selected === s.estimateData
-                    ? "border-brand-purple bg-primary text-primary-foreground"
-                    : "border-border text-muted-foreground dark:border-white/10 dark:text-muted-foreground/80 hover:border-border")
-                }
-              >
-                {s.title}
-              </Button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {selected && (
-        <div className="overflow-hidden rounded-lg border border-border dark:border-white/5">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 dark:bg-white/5">
-              <tr>
-                <th className="px-3 py-2 text-left text-xs font-semibold text-muted-foreground">
-                  Metric
-                </th>
-                <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">
-                  Current
-                </th>
-                <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">
-                  Saved
-                </th>
-                <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">
-                  Diff
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/50">
-              {[
-                {
-                  label: "Paint (buckets)",
-                  cur: current.paintBuckets,
-                  sav: selected.paintBuckets,
-                },
-                {
-                  label: "Cement (bags)",
-                  cur: current.cementBags,
-                  sav: selected.cementBags,
-                },
-                {
-                  label: "Material",
-                  cur: current.materialCost,
-                  sav: selected.materialCost,
-                },
-                {
-                  label: "Labour",
-                  cur: current.labourCost,
-                  sav: selected.labourCost,
-                },
-                {
-                  label: "Grand Total",
-                  cur: current.grandTotal,
-                  sav: selected.grandTotal,
-                },
-              ].map((row) => {
-                const diff = row.cur - row.sav;
-                return (
-                  <tr key={row.label}>
-                    <td className="px-3 py-2 font-medium text-foreground dark:text-primary-foreground">
-                      {row.label}
-                    </td>
-                    <td className="px-3 py-2 text-right text-muted-foreground">
-                      {formatNumber(row.cur)}
-                    </td>
-                    <td className="px-3 py-2 text-right text-muted-foreground">
-                      {formatNumber(row.sav)}
-                    </td>
-                    <td
-                      className={
-                        "px-3 py-2 text-right font-semibold " +
-                        (diff > 0
-                          ? "text-red-600"
-                          : diff < 0
-                            ? "text-accent-green"
-                            : "text-muted-foreground")
-                      }
-                    >
-                      {diff > 0 ? "+" : ""}
-                      {formatNumber(diff)}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {saved.length === 0 && (
-        <div className="rounded-lg border border-dashed border-border bg-muted/50 p-6 text-center">
-          <p className="text-sm text-muted-foreground">
-            Save estimates first to compare them side by side.
-          </p>
-        </div>
-      )}
     </div>
   );
 }
@@ -1591,48 +913,6 @@ function FormattedAiResponse({ content }: { content: string }) {
         })}
     </div>
   );
-}
-
-// ─── PDF Generators ───
-function generateQuotationHTML(
-  estimate: AdvancedEstimateData,
-  _saved: { title: string },
-  _context: string,
-): string {
-  const title = `${_saved.title} Estimate`;
-  return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${title}: Quotation</title>
-<style>
-body{font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:40px;color:#1a1a2e}
-.header{text-align:center;border-bottom:3px solid #6366f1;padding-bottom:20px;margin-bottom:30px}
-.header h1{font-size:24px;margin:0;color:#1a1a2e}
-.header p{color:#666;font-size:13px;margin:5px 0 0}
-table{width:100%;border-collapse:collapse;margin:20px 0}
-th{background:#f5f5f5;text-align:left;padding:10px;font-size:12px;color:#666}
-td{padding:10px;border-bottom:1px solid #eee;font-size:13px}
-.total-row{background:#1a1a2e;color:#fff;font-weight:bold}
-.total-row td{border:none}
-.summary{margin-top:20px;padding:20px;background:#f9f9f9;border-radius:8px}
-.summary div{display:flex;justify-content:space-between;padding:5px 0;font-size:14px}
-.grand{font-size:18px;font-weight:bold;color:#1a1a2e;border-top:2px solid #1a1a2e;padding-top:10px;margin-top:10px}
-.footer{margin-top:40px;text-align:center;font-size:11px;color:#999}
-</style></head><body>
-<div class="header"><h1>FRELUX</h1><p>Professional Quotation: ${title}</p><p>${new Date().toLocaleDateString()}</p></div>
-<table><thead><tr><th>Material/Service</th><th>Qty</th><th>Unit</th><th>Unit Price</th><th>Total</th></tr></thead>
-<tbody>
-${estimate.lineItems.map((i) => `<tr><td>${i.label}</td><td>${formatNumber(i.quantity)}</td><td>${i.unit}</td><td>${estimate.currencySymbol}${formatNumber(i.unitPrice)}</td><td>${estimate.currencySymbol}${formatNumber(i.total)}</td></tr>`).join("")}
-</tbody></table>
-<div class="summary">
-<div><span>Material Cost</span><span>${estimate.currencySymbol}${formatNumber(estimate.materialCost)}</span></div>
-<div><span>Labour Cost</span><span>${estimate.currencySymbol}${formatNumber(estimate.labourCost)}</span></div>
-<div><span>Transport</span><span>${estimate.currencySymbol}${formatNumber(estimate.transportCost)}</span></div>
-<div><span>Waste (${estimate.wastePercentage}%)</span><span>${estimate.currencySymbol}${formatNumber(estimate.wasteAmount)}</span></div>
-${estimate.markupAmount > 0 ? `<div><span>Markup (${estimate.markupPercentage}%)</span><span>${estimate.currencySymbol}${formatNumber(estimate.markupAmount)}</span></div>` : ""}
-${estimate.profitAmount > 0 ? `<div><span>Profit (${estimate.profitPercentage}%)</span><span>${estimate.currencySymbol}${formatNumber(estimate.profitAmount)}</span></div>` : ""}
-<div><span>Tax/VAT (${estimate.taxPercentage}%)</span><span>${estimate.currencySymbol}${formatNumber(estimate.taxAmount)}</span></div>
-<div class="grand"><span>Grand Total</span><span>${estimate.currencySymbol}${formatNumber(estimate.grandTotal)}</span></div>
-</div>
-<div class="footer"><p>This quotation is an estimate. Actual costs may vary based on site conditions and market prices.</p><p>Generated by FRELUX Advanced Calculator, AI Powered</p></div>
-</body></html>`;
 }
 
 function generateAiQuotationHTML(

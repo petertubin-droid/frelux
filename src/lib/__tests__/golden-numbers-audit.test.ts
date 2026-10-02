@@ -11,8 +11,6 @@ import { describe, it, expect } from "vitest";
 import {
   calculateWallArea,
   calculateCeilingArea,
-  calculateAdvancedEstimate,
-  calculateScreedingMix,
   calculateScreedingPutty,
   calculateScreedingMixSystem,
 } from "@/lib/calc";
@@ -23,9 +21,7 @@ import {
 } from "@/lib/estimation/pack-sizing";
 import { calculateLineTotal } from "@/lib/estimation/pricing";
 import { calculateWallArea as engineWallArea } from "@/lib/estimation/painting-engine";
-import type { AdvancedCalcInput } from "@/lib/calc";
 import type {
-  ScreedingMixConfig,
   ScreedingSystemConfig,
   TileCalcInput,
   PopCalcInput,
@@ -275,103 +271,6 @@ describe("GOLDEN: screeding white-cement + paint system", () => {
 });
 
 // ─────────────────────────────────────────────────────────
-// Advanced estimate, full cost chain
-// ─────────────────────────────────────────────────────────
-describe("GOLDEN: advanced estimate chain (waste→markup→profit→tax)", () => {
-  const input: AdvancedCalcInput = {
-    netArea: 100,
-    wastePercentage: 10,
-    coats: 2,
-    thickness: 10, // baseline 10mm → factor 1
-    paintCoverageRateM2PerL: 10,
-    paintBucketSizeL: 20,
-    paintPricePerBucket: 20000,
-    cementRatioKgPerL: 0.5,
-    cementBagSizeKg: 40,
-    cementPricePerBag: 6000,
-    mixRatio: "2:1",
-    labourRatePerSqm: 0, // labour excluded, negotiated separately
-    transportCost: 5000,
-    markupPercentage: 20,
-    profitPercentage: 10,
-    taxPercentage: 7.5,
-    currency: "NGN",
-    currencySymbol: "₦",
-  };
-
-  // Hand math:
-  // base litres = 100 × 2 / 10 = 20 L; +10% waste = 22 L
-  // buckets = ceil(22/20) = 2 → paint 40,000
-  // cement kg = 22 × 0.5 = 11 → ceil(11/40) = 1 bag → 6,000
-  // material = 46,000; subtotal = +transport 5,000 = 51,000
-  // markup 20% = 10,200 → 61,200
-  // profit 10% of 61,200 = 6,120 → 67,320
-  // tax 7.5% = 5,049 → grand = 72,369
-  it("each factor applied exactly once, in order", () => {
-    const r = calculateAdvancedEstimate(input);
-    expect(r.paintBuckets).toBe(2);
-    expect(r.cementBags).toBe(1);
-    expect(r.materialCost).toBe(46000);
-    // material + transport = 51,000 (implicit subtotal; no double-count check)
-    expect(r.markupAmount / (r.materialCost + input.transportCost)).toBeCloseTo(
-      0.2,
-      5,
-    );
-    expect(r.markupAmount).toBe(10200);
-    expect(r.profitAmount).toBe(6120);
-    expect(r.taxAmount).toBeCloseTo(5049, 0);
-    expect(r.grandTotal).toBeCloseTo(72369, 0);
-  });
-
-  it("0% everything degenerates to raw costs", () => {
-    const r = calculateAdvancedEstimate({
-      ...input,
-      wastePercentage: 0,
-      markupPercentage: 0,
-      profitPercentage: 0,
-      taxPercentage: 0,
-    });
-    expect(r.paintBuckets).toBe(1); // 20 L exactly fills one 20 L bucket
-    expect(r.materialCost).toBe(26000);
-    expect(r.grandTotal).toBe(31000); // 26,000 material + 5,000 transport, nothing else
-  });
-});
-
-// ─────────────────────────────────────────────────────────
-// Screeding mix (coverage-rate model)
-// ─────────────────────────────────────────────────────────
-describe("GOLDEN: screeding mix coverage model", () => {
-  const config: ScreedingMixConfig = {
-    paintCoverageRateM2PerL: 10,
-    wastePercentage: 10,
-    taxVatPercentage: 0,
-    paintBucketSizeL: 20,
-    paintPricePerBucket: 20000,
-    cementConsumptionRatioKgPerL: 0.5,
-    cementBagSizeKg: 40,
-    cementPricePerBag: 6000,
-    defaultMixRatio: "2:1",
-    labourRatePerSqm: 0, // labour excluded, negotiated separately
-    currency: "NGN",
-    currencySymbol: "₦",
-  };
-
-  it("100 m²: litres scaled by waste once, then single tax", () => {
-    // litres = 100/10 = 10 → ×1.1 = 11 L
-    // buckets = ceil(11/20) = 1 → 20,000
-    // cement = 11 × 0.5 = 5.5 kg → 1 bag → 6,000
-    // material 26,000; tax 0 → grand 26,000
-    const r = calculateScreedingMix(100, config);
-    expect(r.paintRequiredLiters).toBe(11);
-    expect(r.paintBucketsNeeded).toBe(1);
-    expect(r.cementRequiredKg).toBeCloseTo(5.5, 3);
-    expect(r.cementBagsNeeded).toBe(1);
-    expect(r.materialCost).toBe(26000);
-    expect(r.grandTotal).toBe(26000);
-  });
-});
-
-// ─────────────────────────────────────────────────────────
 // Pack sizing & line totals
 // ─────────────────────────────────────────────────────────
 describe("GOLDEN: pack rounding", () => {
@@ -392,49 +291,5 @@ describe("GOLDEN: pack rounding", () => {
   it("line total = unit price × qty, rounded once", () => {
     expect(calculateLineTotal(4500, 3)).toBe(13500);
     expect(calculateLineTotal(333.34, 3)).toBe(1000.02); // rounded once at the end
-  });
-});
-
-// ─────────────────────────────────────────────────────────
-// Cross-cutting invariants
-// ─────────────────────────────────────────────────────────
-describe("GOLDEN: cross-cutting invariants", () => {
-  it("grand total is never more than 2× a zero-config baseline for sane inputs", () => {
-    // Sanity net: with all adjustments at 0 the total must equal raw costs.
-    // With each adjustment at its default the total must be within a
-    // hand-computable band, guarding against compounding factors.
-    const base: AdvancedCalcInput = {
-      netArea: 50,
-      wastePercentage: 0,
-      coats: 1,
-      thickness: 10,
-      paintCoverageRateM2PerL: 10,
-      paintBucketSizeL: 20,
-      paintPricePerBucket: 20000,
-      cementRatioKgPerL: 0.5,
-      cementBagSizeKg: 40,
-      cementPricePerBag: 6000,
-      mixRatio: "2:1",
-      labourRatePerSqm: 0, // labour excluded, negotiated separately
-      transportCost: 0,
-      markupPercentage: 0,
-      profitPercentage: 0,
-      taxPercentage: 0,
-      currency: "NGN",
-      currencySymbol: "₦",
-    };
-    const zero = calculateAdvancedEstimate(base);
-    // Same job with every factor at a modest 10%:
-    // paint 1 bucket either way; the invariant is that the taxed total
-    // stays under 1.4× the raw baseline.
-    const boosted = calculateAdvancedEstimate({
-      ...base,
-      wastePercentage: 10,
-      markupPercentage: 10,
-      profitPercentage: 10,
-      taxPercentage: 10,
-    });
-    expect(boosted.grandTotal).toBeLessThan(zero.grandTotal * 1.4);
-    expect(boosted.grandTotal).toBeGreaterThan(zero.grandTotal);
   });
 });

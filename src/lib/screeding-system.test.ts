@@ -935,3 +935,85 @@ describe("Screeding extra material (Bond)", () => {
     expect(config.extraPricePerUnit).toBe(3500);
   });
 });
+
+// =========================================================
+// DATA-REQUIREMENT WARNINGS TESTS
+// Per engine policy: a missing config value must produce an
+// explicit warning, never a silent zero or hardcoded fallback.
+// =========================================================
+
+describe("screeding system warnings", () => {
+  it("returns no warnings for a fully configured putty system", () => {
+    const config = makePuttyConfig();
+    const result = calculateScreedingSystem(24, config);
+    expect(result.warnings).toEqual([]);
+  });
+
+  it("returns no warnings for a fully configured mix system", () => {
+    const config = makeMixConfig();
+    const result = calculateScreedingSystem(40, config);
+    expect(result.warnings).toEqual([]);
+  });
+
+  it("warns when putty quantity is missing and computes 0 units", () => {
+    const config = makePuttyConfig({ puttyQuantity: null });
+    const result = calculateScreedingPutty(24, config);
+    expect(result.putty.purchaseQuantity).toBe(0);
+    expect(result.warnings).toHaveLength(1);
+    expect(result.warnings[0]).toContain("Putty quantity per coverage area");
+  });
+
+  it("warns when putty price is missing and cost is null", () => {
+    const config = makePuttyConfig({ puttyPricePerUnit: null });
+    const result = calculateScreedingPutty(24, config);
+    expect(result.materialCost).toBeNull();
+    expect(result.warnings).toHaveLength(1);
+    expect(result.warnings[0]).toContain("Putty price per unit");
+  });
+
+  it("warns once per missing mix material value", () => {
+    const config = makeMixConfig({
+      paintQuantity: null,
+      cementPricePerUnit: null,
+    });
+    const result = calculateScreedingSystem(40, config);
+    if (result.systemType !== "white_cement_paint") {
+      throw new Error("expected mix system");
+    }
+    expect(result.paint.purchaseQuantity).toBe(0);
+    expect(result.cement.totalCost).toBeNull();
+    expect(result.warnings).toHaveLength(2);
+    expect(result.warnings.join(" ")).toContain("Screeding paint quantity");
+    expect(result.warnings.join(" ")).toContain("White cement price");
+  });
+
+  it("warns when coverage area is not configured", () => {
+    const config = makeMixConfig({ coverageAreaM2: 0 });
+    const result = calculateScreedingSystem(40, config);
+    expect(result.warnings.some((w) => w.includes("Coverage area"))).toBe(true);
+  });
+
+  it("does not warn about a dormant (disabled) extra material", () => {
+    const config = makeMixConfig({
+      extraEnabled: false,
+      extraName: "Bond",
+      extraQuantity: null,
+      extraPricePerUnit: null,
+    });
+    const result = calculateScreedingSystem(40, config);
+    expect(result.warnings).toEqual([]);
+  });
+
+  it("warns about an enabled but unconfigured extra material", () => {
+    const config = makeMixConfig({
+      extraEnabled: true,
+      extraName: "Bond",
+      extraQuantity: null,
+      extraPricePerUnit: null,
+    });
+    const result = calculateScreedingSystem(40, config);
+    expect(
+      result.warnings.filter((w) => w.toLowerCase().includes("bond")),
+    ).toHaveLength(2);
+  });
+});

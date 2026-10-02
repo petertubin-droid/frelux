@@ -800,27 +800,8 @@ export interface DbAiLearnChat {
 }
 
 // =========================================================
-// Screeding Mix Configuration & Rewarded Access
+// Rewarded Access
 // =========================================================
-
-export interface DbScreedingMixConfig {
-  id: string;
-  paint_coverage_rate_m2_per_l: number;
-  paint_bucket_size_l: number;
-  paint_price_per_bucket: number;
-  cement_consumption_ratio_kg_per_l: number;
-  cement_bag_size_kg: number;
-  cement_price_per_bag: number;
-  default_mix_ratio: string;
-  labour_rate_per_sqm: number;
-  waste_percentage: number;
-  tax_vat_percentage: number;
-  currency: string;
-  currency_symbol: string;
-  is_active: boolean;
-  created_at: string;
-  updated_at: string;
-}
 
 export interface DbRewardedToolConfig {
   id: string;

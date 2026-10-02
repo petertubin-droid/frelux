@@ -6,10 +6,6 @@ import type {
   ContainerRecommendation,
   ProjectType,
   OpeningDimensions,
-  ScreedingMixConfig,
-  ScreedingMixResult,
-  AdvancedEstimateData,
-  AdvancedEstimateLineItem,
   SurfaceCondition,
   ColorCondition,
   ScreedingSystemConfig,
@@ -629,64 +625,6 @@ export function calculateEstimatedTotal(
 }
 
 // ─────────────────────────────────────────────────────────
-// Wall Screeding Mix Calculations (Paint + White Cement)
-// ─────────────────────────────────────────────────────────
-
-export function calculateScreedingMix(
-  netScreedingAreaM2: number,
-  config: ScreedingMixConfig,
-): ScreedingMixResult {
-  const area = Math.max(0, netScreedingAreaM2);
-  const coverageRate = Math.max(0.01, config.paintCoverageRateM2PerL);
-  const wasteFraction =
-    Math.max(0, Math.min(100, config.wastePercentage)) / 100;
-  const taxFraction = Math.max(0, Math.min(100, config.taxVatPercentage)) / 100;
-
-  // Screeding Paint (litres)
-  const paintRequiredLiters = area / coverageRate;
-  const paintWithWaste = paintRequiredLiters * (1 + wasteFraction);
-  const paintBucketsNeeded = Math.ceil(
-    paintWithWaste / Math.max(0.01, config.paintBucketSizeL),
-  );
-  const paintTotalCost = paintBucketsNeeded * config.paintPricePerBucket;
-
-  // White Cement (kg)
-  const cementRequiredKg = paintWithWaste * config.cementConsumptionRatioKgPerL;
-  const cementBagsNeeded = Math.ceil(
-    cementRequiredKg / Math.max(0.01, config.cementBagSizeKg),
-  );
-  const cementTotalCost = cementBagsNeeded * config.cementPricePerBag;
-
-  // Costs
-  const materialCost = paintTotalCost + cementTotalCost;
-  const labourCost = 0; // Labour not included, negotiated separately
-  const wasteAllowance = materialCost * (wasteFraction / (1 + wasteFraction)); // informational: waste portion of materialCost (already baked into quantities)
-  const subtotal = materialCost;
-  const taxAmount = subtotal * taxFraction;
-  const grandTotal = subtotal + taxAmount;
-
-  return {
-    netScreedingArea: round(area),
-    paintRequiredLiters: round(paintWithWaste),
-    paintBucketsNeeded,
-    paintUnitPrice: config.paintPricePerBucket,
-    paintTotalCost: round(paintTotalCost),
-    cementRequiredKg: round(cementRequiredKg),
-    cementBagsNeeded,
-    cementUnitPrice: config.cementPricePerBag,
-    cementTotalCost: round(cementTotalCost),
-    materialCost: round(materialCost),
-    labourCost: round(labourCost),
-    wasteAllowance: round(wasteFraction * 100),
-    wasteAmount: round(wasteAllowance),
-    taxAmount: round(taxAmount),
-    grandTotal: round(grandTotal),
-    currency: config.currency,
-    currencySymbol: config.currencySymbol,
-  };
-}
-
-// ─────────────────────────────────────────────────────────
 // Screeding Material System, Coverage-Area Model
 // Supports: Putty and White Cement + Screeding Paint
 // All parameters come from ScreedingSystemConfig (Admin-configured).
@@ -697,6 +635,68 @@ export function calculateScreedingMix(
  * Build a material breakdown from config-driven parameters.
  * Shows base quantity, waste, final quantity, and purchase quantity.
  */
+/**
+ * Data-requirement warnings for a screeding system configuration.
+ *
+ * Per the FRELUX calculation engine policy: when a required config value is
+ * missing or invalid the calculation still runs (quantities become 0), but
+ * every missing value is reported explicitly. Never silently substitute
+ * hardcoded values.
+ */
+export function getScreedingSystemWarnings(
+  config: ScreedingSystemConfig,
+): string[] {
+  const warnings: string[] = [];
+  const coverageOk =
+    Number.isFinite(config.coverageAreaM2) && config.coverageAreaM2 > 0;
+  if (!coverageOk) {
+    warnings.push(
+      "Coverage area is not configured. Material quantities will be 0 until it is set in Admin → Screeding Material Systems.",
+    );
+  }
+
+  const qtyWarning = (name: string, label: string) =>
+    warnings.push(
+      `${label} quantity per coverage area is not configured. ${name} will show 0 units until it is set in Admin → Screeding Material Systems.`,
+    );
+  const priceWarning = (name: string, label: string) =>
+    warnings.push(
+      `${label} price per unit is not configured. Total cost cannot be shown for ${name.toLowerCase()} until a price is set in Admin → Screeding Material Systems.`,
+    );
+
+  if (config.systemType === "putty") {
+    if (config.puttyQuantity == null || config.puttyQuantity <= 0) {
+      qtyWarning(config.puttyName ?? "Putty", "Putty");
+    }
+    if (config.puttyPricePerUnit == null || config.puttyPricePerUnit <= 0) {
+      priceWarning(config.puttyName ?? "Putty", "Putty");
+    }
+  } else {
+    if (config.paintQuantity == null || config.paintQuantity <= 0) {
+      qtyWarning(config.paintName ?? "Screeding Paint", "Screeding paint");
+    }
+    if (config.paintPricePerUnit == null || config.paintPricePerUnit <= 0) {
+      priceWarning(config.paintName ?? "Screeding Paint", "Screeding paint");
+    }
+    if (config.cementQuantity == null || config.cementQuantity <= 0) {
+      qtyWarning(config.cementName ?? "White Cement", "White cement");
+    }
+    if (config.cementPricePerUnit == null || config.cementPricePerUnit <= 0) {
+      priceWarning(config.cementName ?? "White Cement", "White cement");
+    }
+    if (config.extraEnabled === true) {
+      if (config.extraQuantity == null || config.extraQuantity <= 0) {
+        qtyWarning(config.extraName ?? "Extra material", "Extra material");
+      }
+      if (config.extraPricePerUnit == null || config.extraPricePerUnit <= 0) {
+        priceWarning(config.extraName ?? "Extra material", "Extra material");
+      }
+    }
+  }
+
+  return warnings;
+}
+
 function buildMaterialBreakdown(params: {
   name: string;
   unit: string;
@@ -784,6 +784,7 @@ export function calculateScreedingPutty(
     materialCost,
     currency: config.currency,
     currencySymbol: config.currencySymbol,
+    warnings: getScreedingSystemWarnings(config),
   };
 }
 
@@ -881,6 +882,7 @@ export function calculateScreedingMixSystem(
     materialCost,
     currency: config.currency,
     currencySymbol: config.currencySymbol,
+    warnings: getScreedingSystemWarnings(config),
   };
 }
 
@@ -967,128 +969,6 @@ export function dbToSystemConfig(db: {
     extraPricePerUnit:
       db.extra_price_per_unit != null ? Number(db.extra_price_per_unit) : null,
     roundingRule: db.rounding_rule,
-  };
-}
-
-// ─────────────────────────────────────────────────────────
-// Advanced Calculator
-// ─────────────────────────────────────────────────────────
-
-export interface AdvancedCalcInput {
-  netArea: number;
-  thickness: number; // mm
-  coats: number;
-  mixRatio: string;
-  paintCoverageRateM2PerL: number;
-  paintBucketSizeL: number;
-  paintPricePerBucket: number;
-  cementRatioKgPerL: number;
-  cementBagSizeKg: number;
-  cementPricePerBag: number;
-  labourRatePerSqm: number;
-  transportCost: number;
-  wastePercentage: number;
-  markupPercentage: number;
-  profitPercentage: number;
-  taxPercentage: number;
-  currency: string;
-  currencySymbol: string;
-}
-
-export function calculateAdvancedEstimate(
-  input: AdvancedCalcInput,
-): AdvancedEstimateData {
-  const area = Math.max(0, input.netArea);
-  const wasteFraction = Math.max(0, Math.min(100, input.wastePercentage)) / 100;
-  const markupFraction = Math.max(0, input.markupPercentage) / 100;
-  const profitFraction = Math.max(0, input.profitPercentage) / 100;
-  const taxFraction = Math.max(0, Math.min(100, input.taxPercentage)) / 100;
-
-  const coatMultiplier = Math.max(1, input.coats);
-  const thicknessFactor = Math.max(1, input.thickness / 10); // relative to 10mm baseline
-
-  const basePaintLiters =
-    (area * coatMultiplier * thicknessFactor) /
-    Math.max(0.01, input.paintCoverageRateM2PerL);
-  const paintLiters = basePaintLiters * (1 + wasteFraction);
-  const paintBuckets = Math.ceil(
-    paintLiters / Math.max(0.01, input.paintBucketSizeL),
-  );
-  const paintCost = paintBuckets * input.paintPricePerBucket;
-
-  const cementKg = paintLiters * input.cementRatioKgPerL;
-  const cementBags = Math.ceil(
-    cementKg / Math.max(0.01, input.cementBagSizeKg),
-  );
-  const cementCost = cementBags * input.cementPricePerBag;
-
-  const materialCost = paintCost + cementCost;
-  const labourCost = 0; // Labour not included, negotiated separately
-  const transportCost = Math.max(0, input.transportCost);
-  // Extract the waste portion from the already-waste-adjusted materialCost.
-  // wasteAmount = materialCost × (wasteFraction / (1 + wasteFraction))
-  const wasteAmount = materialCost * (wasteFraction / (1 + wasteFraction));
-  // materialCost already includes waste (paintLiters = base × 1+waste%).
-  // wasteAmount is informational only, represents the waste portion of materialCost.
-  const subtotal = materialCost + transportCost;
-  const markupAmount = subtotal * markupFraction;
-  const profitAmount = (subtotal + markupAmount) * profitFraction;
-  const preTax = subtotal + markupAmount + profitAmount;
-  const taxAmount = preTax * taxFraction;
-  const grandTotal = preTax + taxAmount;
-
-  const lineItems: AdvancedEstimateLineItem[] = [
-    {
-      label: "Screeding Paint (20 L Buckets)",
-      quantity: paintBuckets,
-      unit: "bucket(s)",
-      unitPrice: input.paintPricePerBucket,
-      total: round(paintCost),
-    },
-    {
-      label: "White Cement (40 kg Bags)",
-      quantity: cementBags,
-      unit: "bag(s)",
-      unitPrice: input.cementPricePerBag,
-      total: round(cementCost),
-    },
-    // Labour not included, negotiated separately
-    {
-      label: "Transport & Logistics",
-      quantity: 1,
-      unit: "trip",
-      unitPrice: transportCost,
-      total: round(transportCost),
-    },
-  ];
-
-  return {
-    projectType: "screeding",
-    netArea: round(area),
-    thickness: input.thickness,
-    coats: input.coats,
-    mixRatio: input.mixRatio,
-    paintLiters: round(paintLiters),
-    paintBuckets,
-    cementKg: round(cementKg),
-    cementBags,
-    lineItems,
-    materialCost: round(materialCost),
-    labourCost: round(labourCost),
-    transportCost: round(transportCost),
-    wastePercentage: input.wastePercentage,
-    wasteAmount: round(wasteAmount),
-    markupPercentage: input.markupPercentage,
-    markupAmount: round(markupAmount),
-    profitPercentage: input.profitPercentage,
-    profitAmount: round(profitAmount),
-    taxPercentage: input.taxPercentage,
-    taxAmount: round(taxAmount),
-    grandTotal: round(grandTotal),
-    currency: input.currency,
-    currencySymbol: input.currencySymbol,
-    notes: "",
-    aiRecommendations: [],
   };
 }
 

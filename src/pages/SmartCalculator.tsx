@@ -1,9 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import { ArrowLeft, Brain, Loader2 } from "lucide-react";
+import { ArrowLeft, Brain } from "lucide-react";
 import { useSeo } from "@/lib/seo";
-import { fetchScreedingMixConfig } from "@/lib/queries";
-import type { ScreedingMixConfig } from "@/types";
 import { RewardedFeatureGate } from "@/components/rewarded/RewardedFeatureGate";
 import { AdvancedCalculator } from "@/components/rewarded/AdvancedCalculator";
 
@@ -18,21 +15,6 @@ const ADVANCED_FEATURES = [
   "Tax/VAT calculator",
 ];
 
-const FALLBACK_CONFIG: ScreedingMixConfig = {
-  paintCoverageRateM2PerL: 12,
-  paintBucketSizeL: 20,
-  paintPricePerBucket: 28000,
-  cementConsumptionRatioKgPerL: 1.5,
-  cementBagSizeKg: 40,
-  cementPricePerBag: 9500,
-  defaultMixRatio: "2:1",
-  labourRatePerSqm: 0,
-  wastePercentage: 10,
-  taxVatPercentage: 7.5,
-  currency: "NGN",
-  currencySymbol: "₦",
-};
-
 export default function SmartCalculator() {
   const seo = useSeo({
     title: "Smart Calculator: AI-Powered Construction Estimator | FRELUX",
@@ -40,42 +22,6 @@ export default function SmartCalculator() {
       "Describe any construction project in plain language and get an AI-powered cost estimate with material quantities, line items, and savings recommendations. Free to use.",
     canonicalPath: "/smart-calculator",
   });
-
-  const [config, setConfig] = useState<ScreedingMixConfig | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const loadConfig = useCallback(async () => {
-    setLoading(true);
-    try {
-      const { data } = await fetchScreedingMixConfig();
-      if (data) {
-        setConfig({
-          paintCoverageRateM2PerL: data.paint_coverage_rate_m2_per_l,
-          paintBucketSizeL: data.paint_bucket_size_l,
-          paintPricePerBucket: data.paint_price_per_bucket,
-          cementConsumptionRatioKgPerL: data.cement_consumption_ratio_kg_per_l,
-          cementBagSizeKg: data.cement_bag_size_kg,
-          cementPricePerBag: data.cement_price_per_bag,
-          defaultMixRatio: data.default_mix_ratio || "2:1",
-          labourRatePerSqm: data.labour_rate_per_sqm ?? 0,
-          wastePercentage: data.waste_percentage ?? 10,
-          taxVatPercentage: data.tax_vat_percentage ?? 7.5,
-          currency: data.currency || "NGN",
-          currencySymbol: data.currency_symbol || "₦",
-        });
-      } else {
-        setConfig(FALLBACK_CONFIG);
-      }
-    } catch {
-      setConfig(FALLBACK_CONFIG);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadConfig();
-  }, [loadConfig]);
 
   return (
     <>
@@ -112,38 +58,26 @@ export default function SmartCalculator() {
               AI-Powered Estimation
             </p>
             <p className="text-xs text-muted-foreground">
-              Describe your project in plain English, the AI calculates
-              material quantities, costs, and recommendations automatically.
-              Supports screeding, painting, tiling, POP ceiling, and custom
-              projects.
+              Describe your project in plain English, the AI calculates material
+              quantities, costs, and recommendations automatically. Supports
+              screeding, painting, tiling, POP ceiling, and custom projects.
             </p>
           </div>
         </div>
 
-        {loading ? (
-          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-muted/50 py-16 dark:border-white/5 dark:bg-white/5">
-            <Loader2 className="h-6 w-6 animate-spin text-brand-purple" />
-            <p className="text-sm text-muted-foreground">
-              Loading Smart Calculator…
-            </p>
-          </div>
-        ) : config ? (
-          <RewardedFeatureGate
-            toolKey="advanced_calculator"
-            featureName="Smart Calculator"
-            features={ADVANCED_FEATURES}
-          >
-            {(access) => (
-              <AdvancedCalculator
-                toolKey="smart"
-                contextSummary="Smart Calculator: freeform AI estimation. The user will describe their construction project in natural language; there is no form data yet."
-                netArea={0}
-                config={config}
-                clientHash={access.clientHash}
-              />
-            )}
-          </RewardedFeatureGate>
-        ) : null}
+        <RewardedFeatureGate
+          toolKey="advanced_calculator"
+          featureName="Smart Calculator"
+          features={ADVANCED_FEATURES}
+        >
+          {(access) => (
+            <AdvancedCalculator
+              toolKey="smart"
+              contextSummary="Smart Calculator: freeform AI estimation. The user will describe their construction project in natural language; there is no form data yet."
+              clientHash={access.clientHash}
+            />
+          )}
+        </RewardedFeatureGate>
       </div>
     </>
   );

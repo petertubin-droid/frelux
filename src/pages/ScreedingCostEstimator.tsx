@@ -11,6 +11,7 @@ import {
   Paintbrush,
   Package,
   Droplets,
+  AlertTriangle,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { calculateScreedingSystem, dbToSystemConfig } from "@/lib/calc";
@@ -467,6 +468,28 @@ export default function ScreedingCostEstimator({
                     <p className="mt-1 text-3xl font-bold text-primary-foreground/40 sm:text-4xl">
                       {currencySymbol}0
                     </p>
+                  )}
+
+                  {result && result.warnings.length > 0 && (
+                    <div className="mt-4 rounded-xl bg-amber-500/15 p-3 ring-1 ring-amber-400/40">
+                      <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-amber-200">
+                        <AlertTriangle
+                          aria-hidden="true"
+                          className="h-3.5 w-3.5"
+                        />
+                        Configuration incomplete
+                      </p>
+                      <ul className="mt-1.5 space-y-1">
+                        {result.warnings.map((w) => (
+                          <li
+                            key={w}
+                            className="text-xs leading-relaxed text-amber-100"
+                          >
+                            {w}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
                   <p className="mt-1 text-xs text-primary-foreground/50">
                     Estimate only, not a final quote.
