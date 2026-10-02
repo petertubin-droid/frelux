@@ -8,37 +8,50 @@
 
 // Calculation method types
 // Coverage unit types for the paint calculation engine
-export type CoverageUnit = 'm2_per_liter' | 'm2_per_bucket' | 'ft2_per_liter' | 'ft2_per_bucket' | 'frelux_calibration';
+export type CoverageUnit =
+  | "m2_per_liter"
+  | "m2_per_bucket"
+  | "ft2_per_liter"
+  | "ft2_per_bucket"
+  | "frelux_calibration";
 
 export type CalculationMethod =
-  | 'room_based'
-  | 'partition_based'
-  | 'area_based'
-  | 'material_based'
-  | 'fixed_quantity'
-  | 'custom';
+  | "room_based"
+  | "partition_based"
+  | "area_based"
+  | "material_based"
+  | "fixed_quantity"
+  | "custom";
+
+// Material calculation model for packaged construction products
+// (Mineral Stone, Stucco and similar engines).
+//   coverage_based  : Model A — required packages = area × coats ÷ coverage (m²/package)
+//   mass_per_area   : Model B — required kg = area × coats × consumption (kg/m²), then ÷ package kg
+//   volume_per_area : Model C — required L  = area × coats × consumption (L/m²), then ÷ package L
+export type MineralStoneCalculationModel =
+  "coverage_based" | "mass_per_area" | "volume_per_area";
 
 // Estimate status
 export type EstimateStatus =
-  | 'draft'
-  | 'calculated'
-  | 'adjusted'
-  | 'saved'
-  | 'shared'
-  | 'completed'
-  | 'cancelled';
+  | "draft"
+  | "calculated"
+  | "adjusted"
+  | "saved"
+  | "shared"
+  | "completed"
+  | "cancelled";
 
 // Rule status (distinguishes verified FRELUX rules from admin-configured ones)
 export type RuleStatus =
-  | 'verified_frelux'
-  | 'admin_configured'
-  | 'calculated'
-  | 'manual_adjustment'
-  | 'negotiated';
+  | "verified_frelux"
+  | "admin_configured"
+  | "calculated"
+  | "manual_adjustment"
+  | "negotiated";
 
 // Price snapshot, stored on each estimate line item
 export interface PriceSnapshot {
-  price_type: 'product' | 'quality' | 'material';
+  price_type: "product" | "quality" | "material";
   ref_id: string;
   ref_name: string;
   unit_price: number;
@@ -102,7 +115,7 @@ export interface EstimateInputBase {
 // Estimate line item (for creating estimates)
 export interface EstimateLineItemInput {
   item_name: string;
-  item_type: 'product' | 'material' | 'primer' | 'sealer' | 'labour' | 'other';
+  item_type: "product" | "material" | "primer" | "sealer" | "labour" | "other";
   product_id?: string | null;
   quality_level_id?: string | null;
   material_id?: string | null;
@@ -113,7 +126,7 @@ export interface EstimateLineItemInput {
   unit_price: number;
   total_price: number;
   price_snapshot: PriceSnapshot;
-  calculation_source: 'calculated' | 'manual' | 'adjusted' | 'negotiated';
+  calculation_source: "calculated" | "manual" | "adjusted" | "negotiated";
   notes?: string;
 }
 
@@ -131,7 +144,14 @@ export interface AdjustmentInput {
 export interface AuditLogInput {
   entity_type: string;
   entity_id?: string | null;
-  action: 'create' | 'update' | 'delete' | 'activate' | 'deactivate' | 'price_change' | 'adjust';
+  action:
+    | "create"
+    | "update"
+    | "delete"
+    | "activate"
+    | "deactivate"
+    | "price_change"
+    | "adjust";
   old_value?: unknown;
   new_value?: unknown;
 }
@@ -171,6 +191,9 @@ export interface EstimationProduct {
   colour_compatibility: string | null;
   paint_compatibility: string | null;
   has_quality_levels: boolean;
+  brand: string | null;
+  product_notes: string | null;
+  technical_spec: string | null;
   is_active: boolean;
   sort_order: number;
   created_at: string;
@@ -185,9 +208,18 @@ export interface EstimationProductQuality {
   slug: string;
   description: string | null;
   coverage: number | null;
-  coverage_unit: string | null;  // m2_per_liter, m2_per_bucket, ft2_per_liter, ft2_per_bucket, frelux_calibration
-  ceiling_coverage: number | null;  // separate ceiling coverage rate
+  coverage_unit: string | null; // m2_per_liter, m2_per_bucket, ft2_per_liter, ft2_per_bucket, frelux_calibration
+  ceiling_coverage: number | null; // separate ceiling coverage rate
   ceiling_coverage_unit: string | null;
+  // ── Material calculation model (Mineral Stone / Stucco engines) ──
+  calculation_model: MineralStoneCalculationModel | string | null;
+  coverage_min: number | null; // Model A: m² per package, light end of range
+  coverage_max: number | null; // Model A: m² per package, heavy end of range
+  consumption_min: number | null; // Model B/C: consumption_unit per m² per coat, min
+  consumption_max: number | null; // Model B/C: consumption_unit per m² per coat, max
+  consumption_unit: string | null; // kg_per_m2 | litre_per_m2 (verified units only)
+  default_coats: number | null; // configured coats/layers; null = not configured
+  waste_percentage: number | null; // configured waste %; null = not configured
   finish: string | null;
   texture: string | null;
   gloss_level: string | null;
@@ -221,7 +253,7 @@ export interface EstimationMaterial {
 // 5. estimation_pack_sizes table
 export interface EstimationPackSize {
   id: string;
-  ref_type: 'product' | 'material' | 'quality';
+  ref_type: "product" | "material" | "quality";
   ref_id: string;
   pack_size: number;
   pack_unit_id: string | null;
@@ -237,7 +269,7 @@ export interface EstimationPackSize {
 // 6. estimation_prices table
 export interface EstimationPrice {
   id: string;
-  price_type: 'product' | 'quality' | 'material';
+  price_type: "product" | "quality" | "material";
   ref_id: string;
   price: number;
   currency: string;
@@ -252,7 +284,7 @@ export interface EstimationPrice {
 // 7. estimation_price_history table
 export interface EstimationPriceHistory {
   id: string;
-  price_type: 'product' | 'quality' | 'material';
+  price_type: "product" | "quality" | "material";
   ref_id: string;
   old_price: number | null;
   new_price: number;
@@ -301,7 +333,7 @@ export interface EstimationEstimate {
   calculated_quantities: Record<string, unknown>;
   total_material_cost: number;
   currency: string;
-  labour_status: 'not_included' | 'negotiated_separately' | 'included';
+  labour_status: "not_included" | "negotiated_separately" | "included";
   warnings: unknown[];
   recommendations: unknown[];
   notes: string | null;
@@ -315,7 +347,7 @@ export interface EstimationEstimateItem {
   id: string;
   estimate_id: string;
   item_name: string;
-  item_type: 'product' | 'material' | 'primer' | 'sealer' | 'labour' | 'other';
+  item_type: "product" | "material" | "primer" | "sealer" | "labour" | "other";
   product_id: string | null;
   quality_level_id: string | null;
   material_id: string | null;
@@ -326,8 +358,8 @@ export interface EstimationEstimateItem {
   unit_price: number;
   total_price: number;
   price_snapshot: PriceSnapshot | Record<string, unknown>;
-  calculation_source: 'calculated' | 'manual' | 'adjusted' | 'negotiated';
-  adjustment_status: 'none' | 'adjusted' | 'pending_review';
+  calculation_source: "calculated" | "manual" | "adjusted" | "negotiated";
+  adjustment_status: "none" | "adjusted" | "pending_review";
   notes: string | null;
   sort_order: number;
   created_at: string;
@@ -352,7 +384,14 @@ export interface EstimationAuditLog {
   id: string;
   entity_type: string;
   entity_id: string | null;
-  action: 'create' | 'update' | 'delete' | 'activate' | 'deactivate' | 'price_change' | 'adjust';
+  action:
+    | "create"
+    | "update"
+    | "delete"
+    | "activate"
+    | "deactivate"
+    | "price_change"
+    | "adjust";
   old_value: unknown;
   new_value: unknown;
   changed_by: string | null;

@@ -1,8 +1,20 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Plus, Pencil, Trash2, Tag, Search } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminButton, AdminField, StateMessage, Toggle, CollapsibleGroup, GroupControls, AdminInput, AdminIconButton, AdminSelect, AdminTextarea } from '@/components/admin/AdminUi';
-import { AdminModal } from '@/components/admin/AdminModal';
+import { useEffect, useState, useCallback } from "react";
+import { Plus, Pencil, Trash2, Tag, Search } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import {
+  AdminHeader,
+  AdminButton,
+  AdminField,
+  StateMessage,
+  Toggle,
+  CollapsibleGroup,
+  GroupControls,
+  AdminInput,
+  AdminIconButton,
+  AdminSelect,
+  AdminTextarea,
+} from "@/components/admin/AdminUi";
+import { AdminModal } from "@/components/admin/AdminModal";
 
 // ─────────────────────────────────────────────────────────
 // Types (inline, matches DB columns from estimation_products)
@@ -24,6 +36,9 @@ interface EstProduct {
   durability: string | null;
   colour_compatibility: string | null;
   paint_compatibility: string | null;
+  brand: string | null;
+  product_notes: string | null;
+  technical_spec: string | null;
   has_quality_levels: boolean;
   is_active: boolean;
   sort_order: number;
@@ -41,6 +56,14 @@ interface EstQuality {
   coverage_unit: string | null;
   ceiling_coverage: number | null;
   ceiling_coverage_unit: string | null;
+  calculation_model: string | null;
+  coverage_min: number | null;
+  coverage_max: number | null;
+  consumption_min: number | null;
+  consumption_max: number | null;
+  consumption_unit: string | null;
+  default_coats: number | null;
+  waste_percentage: number | null;
   finish: string | null;
   texture: string | null;
   gloss_level: string | null;
@@ -50,42 +73,98 @@ interface EstQuality {
   sort_order: number;
 }
 
-const CALC_METHODS = ['room_based', 'partition_based', 'area_based', 'material_based', 'fixed_quantity', 'custom'];
-const PRODUCT_TYPES = ['paint', 'coating', 'primer', 'sealer', 'adhesive', 'other'];
-const CATEGORIES = ['emulsion', 'matt', 'satin', 'tyrolene', 'grafitex', 'primer', 'sealer', 'screeding', 'pop', 'tile', 'other'];
+const CALC_METHODS = [
+  "room_based",
+  "partition_based",
+  "area_based",
+  "material_based",
+  "fixed_quantity",
+  "custom",
+];
+const PRODUCT_TYPES = [
+  "paint",
+  "coating",
+  "primer",
+  "sealer",
+  "adhesive",
+  "other",
+];
+const CATEGORIES = [
+  "emulsion",
+  "matt",
+  "satin",
+  "tyrolene",
+  "grafitex",
+  "primer",
+  "sealer",
+  "screeding",
+  "pop",
+  "tile",
+  "mineral_stone",
+  "stucco",
+  "other",
+];
+const CALCULATION_MODELS = [
+  { value: "", label: "— not configured —" },
+  { value: "coverage_based", label: "Coverage-based (area per package)" },
+  { value: "mass_per_area", label: "Mass per area (kg/m² consumption)" },
+  { value: "volume_per_area", label: "Volume per area (L/m² consumption)" },
+];
+const CONSUMPTION_UNITS = [
+  { value: "", label: "— not configured —" },
+  { value: "kg_per_m2", label: "kg per m²" },
+  { value: "litre_per_m2", label: "litres per m²" },
+];
 const COVERAGE_UNITS = [
-  { value: 'm2_per_liter', label: 'm² per litre' },
-  { value: 'm2_per_bucket', label: 'm² per 20-L bucket' },
-  { value: 'ft2_per_liter', label: 'ft² per litre' },
-  { value: 'ft2_per_bucket', label: 'ft² per 20-L bucket' },
-  { value: 'frelux_calibration', label: 'FRELUX Calibration' },
+  { value: "m2_per_liter", label: "m² per litre" },
+  { value: "m2_per_bucket", label: "m² per 20-L bucket" },
+  { value: "ft2_per_liter", label: "ft² per litre" },
+  { value: "ft2_per_bucket", label: "ft² per 20-L bucket" },
+  { value: "frelux_calibration", label: "FRELUX Calibration" },
 ];
 
 function slugify(s: string) {
-  return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  return s
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 export default function AdminEstimationProducts() {
   const [products, setProducts] = useState<EstProduct[]>([]);
-  const [qualityMap, setQualityMap] = useState<Record<string, EstQuality[]>>({});
+  const [qualityMap, setQualityMap] = useState<Record<string, EstQuality[]>>(
+    {},
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<EstProduct | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [editingQuality, setEditingQuality] = useState<EstQuality | null>(null);
   const [showQualityForm, setShowQualityForm] = useState(false);
   const [qualityProductId, setQualityProductId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    setLoading(true); setError(null);
-    const { data, error } = await supabase.from('estimation_products').select('*').order('sort_order');
-    if (error) { setError(error.message); setLoading(false); return; }
+    setLoading(true);
+    setError(null);
+    const { data, error } = await supabase
+      .from("estimation_products")
+      .select("*")
+      .order("sort_order");
+    if (error) {
+      setError(error.message);
+      setLoading(false);
+      return;
+    }
     setProducts(data ?? []);
     // Load quality levels for all products
-    const { data: qData } = await supabase.from('estimation_product_quality').select('*').order('sort_order');
+    const { data: qData } = await supabase
+      .from("estimation_product_quality")
+      .select("*")
+      .order("sort_order");
     const map: Record<string, EstQuality[]> = {};
     (qData ?? []).forEach((q: EstQuality) => {
       if (!map[q.product_id]) map[q.product_id] = [];
@@ -95,37 +174,68 @@ export default function AdminEstimationProducts() {
     setLoading(false);
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   async function toggleActive(p: EstProduct) {
-    const { error } = await supabase.from('estimation_products').update({ is_active: !p.is_active }).eq('id', p.id);
-    if (error) { setError(error.message); return; }
-    setProducts(prev => prev.map(x => x.id === p.id ? { ...x, is_active: !x.is_active } : x));
+    const { error } = await supabase
+      .from("estimation_products")
+      .update({ is_active: !p.is_active })
+      .eq("id", p.id);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setProducts((prev) =>
+      prev.map((x) => (x.id === p.id ? { ...x, is_active: !x.is_active } : x)),
+    );
   }
 
   async function remove(p: EstProduct) {
-    if (!confirm(`Delete "${p.name}"? Quality levels will also be deleted.`)) return;
-    const { error } = await supabase.from('estimation_products').delete().eq('id', p.id);
-    if (error) { setError(error.message); return; }
-    setProducts(prev => prev.filter(x => x.id !== p.id));
+    if (!confirm(`Delete "${p.name}"? Quality levels will also be deleted.`))
+      return;
+    const { error } = await supabase
+      .from("estimation_products")
+      .delete()
+      .eq("id", p.id);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setProducts((prev) => prev.filter((x) => x.id !== p.id));
   }
 
   async function toggleQualityActive(q: EstQuality) {
-    const { error } = await supabase.from('estimation_product_quality').update({ is_active: !q.is_active }).eq('id', q.id);
-    if (error) { setError(error.message); return; }
-    setQualityMap(prev => ({
+    const { error } = await supabase
+      .from("estimation_product_quality")
+      .update({ is_active: !q.is_active })
+      .eq("id", q.id);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setQualityMap((prev) => ({
       ...prev,
-      [q.product_id]: (prev[q.product_id] ?? []).map(x => x.id === q.id ? { ...x, is_active: !x.is_active } : x),
+      [q.product_id]: (prev[q.product_id] ?? []).map((x) =>
+        x.id === q.id ? { ...x, is_active: !x.is_active } : x,
+      ),
     }));
   }
 
   async function removeQuality(q: EstQuality) {
     if (!confirm(`Delete quality level "${q.name}"?`)) return;
-    const { error } = await supabase.from('estimation_product_quality').delete().eq('id', q.id);
-    if (error) { setError(error.message); return; }
-    setQualityMap(prev => ({
+    const { error } = await supabase
+      .from("estimation_product_quality")
+      .delete()
+      .eq("id", q.id);
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setQualityMap((prev) => ({
       ...prev,
-      [q.product_id]: (prev[q.product_id] ?? []).filter(x => x.id !== q.id),
+      [q.product_id]: (prev[q.product_id] ?? []).filter((x) => x.id !== q.id),
     }));
   }
 
@@ -134,50 +244,98 @@ export default function AdminEstimationProducts() {
       <AdminHeader
         title="Estimation Products"
         subtitle="Manage paint types and quality levels. Coverage settings here feed the FRELUX ROOM-BASED estimation engine, not an m² calculator."
-        action={<AdminButton onClick={() => { setEditing(null); setShowForm(true); }}><Plus aria-hidden="true" className="h-4 w-4" /> Add product</AdminButton>}
+        action={
+          <AdminButton
+            onClick={() => {
+              setEditing(null);
+              setShowForm(true);
+            }}
+          >
+            <Plus aria-hidden="true" className="h-4 w-4" /> Add product
+          </AdminButton>
+        }
       />
-      {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+      {error && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
       {loading ? (
-        <StateMessage type="loading" title="Loading…" message="Fetching estimation products." />
+        <StateMessage
+          type="loading"
+          title="Loading…"
+          message="Fetching estimation products."
+        />
       ) : products.length === 0 ? (
-        <StateMessage type="empty" title="No products yet" message="Add your first estimation product to get started." />
+        <StateMessage
+          type="empty"
+          title="No products yet"
+          message="Add your first estimation product to get started."
+        />
       ) : (
         <>
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full sm:max-w-xs">
-              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search
+                aria-hidden="true"
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              />
               <AdminInput
- type="search"
- value={search}
- onChange={(e) => setSearch(e.target.value)}
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search by name or category…"
                 className="pl-9"
               />
             </div>
-            {!search && (() => {
-              const groupOrder: string[] = [];
-              const groupMap = new Map<string, EstProduct[]>();
-              for (const p of products) {
-                const key = p.category || 'other';
-                if (!groupMap.has(key)) { groupMap.set(key, []); groupOrder.push(key); }
-                groupMap.get(key)!.push(p);
-              }
-              return groupOrder.length > 1 ? <GroupControls onExpandAll={() => setCollapsed(new Set())} onCollapseAll={() => setCollapsed(new Set(groupOrder))} groupLabel={`${groupOrder.length} categories`} /> : null;
-            })()}
+            {!search &&
+              (() => {
+                const groupOrder: string[] = [];
+                const groupMap = new Map<string, EstProduct[]>();
+                for (const p of products) {
+                  const key = p.category || "other";
+                  if (!groupMap.has(key)) {
+                    groupMap.set(key, []);
+                    groupOrder.push(key);
+                  }
+                  groupMap.get(key)!.push(p);
+                }
+                return groupOrder.length > 1 ? (
+                  <GroupControls
+                    onExpandAll={() => setCollapsed(new Set())}
+                    onCollapseAll={() => setCollapsed(new Set(groupOrder))}
+                    groupLabel={`${groupOrder.length} categories`}
+                  />
+                ) : null;
+              })()}
           </div>
           {(() => {
             const filtered = search
-              ? products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.category.toLowerCase().includes(search.toLowerCase()))
+              ? products.filter(
+                  (p) =>
+                    p.name.toLowerCase().includes(search.toLowerCase()) ||
+                    p.category.toLowerCase().includes(search.toLowerCase()),
+                )
               : products;
             const groupOrder: string[] = [];
             const groupMap = new Map<string, EstProduct[]>();
             for (const p of filtered) {
-              const key = p.category || 'other';
-              if (!groupMap.has(key)) { groupMap.set(key, []); groupOrder.push(key); }
+              const key = p.category || "other";
+              if (!groupMap.has(key)) {
+                groupMap.set(key, []);
+                groupOrder.push(key);
+              }
               groupMap.get(key)!.push(p);
             }
             groupOrder.sort((a, b) => a.localeCompare(b));
-            if (filtered.length === 0) return <StateMessage type="empty" title="No products found" message="Adjust your search to see results." />;
+            if (filtered.length === 0)
+              return (
+                <StateMessage
+                  type="empty"
+                  title="No products found"
+                  message="Adjust your search to see results."
+                />
+              );
             return (
               <div className="space-y-3">
                 {groupOrder.map((cat) => {
@@ -186,68 +344,171 @@ export default function AdminEstimationProducts() {
                   return (
                     <CollapsibleGroup
                       key={cat}
-                      title={cat.replace(/_/g, ' ')}
+                      title={cat.replace(/_/g, " ")}
                       count={catItems.length}
                       isOpen={isOpen}
-                      onToggle={() => setCollapsed(prev => { const next = new Set(prev); if (next.has(cat)) next.delete(cat); else next.add(cat); return next; })}
+                      onToggle={() =>
+                        setCollapsed((prev) => {
+                          const next = new Set(prev);
+                          if (next.has(cat)) next.delete(cat);
+                          else next.add(cat);
+                          return next;
+                        })
+                      }
                     >
                       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                      {catItems.map(p => (
-                        <div key={p.id} className="card p-3">
-                          <div className="flex items-start justify-between gap-2">
-                            <div className="min-w-0 flex-1">
-                              <div className="flex items-center gap-1.5">
-                                <h3 className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">{p.name}</h3>
-                                {p.has_quality_levels && <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary dark:bg-primary/20 dark:text-primary-lighter">Tiers</span>}
-                                {!p.is_active && <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">Off</span>}
-                              </div>
-                              {p.description && <p className="mt-0.5 line-clamp-1 text-[10px] text-muted-foreground dark:text-muted-foreground">{p.description}</p>}
-                              <div className="mt-0.5 flex flex-wrap gap-1 text-[10px] text-muted-foreground dark:text-muted-foreground">
-                                <span>{p.product_type}</span>
-                                <span>·</span>
-                                <span>{p.calculation_method}</span>
-                                {p.standard_pack_size && <><span>·</span><span>{p.standard_pack_size}</span></>}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
-                            <div className="flex items-center gap-1">
-                              {p.has_quality_levels && (
-                                <AdminButton variant="link" type="button" onClick={() => setExpandedId(expandedId === p.id ? null : p.id)} className="text-[10px] font-semibold">
-                                  {qualityMap[p.id]?.length ?? 0} tiers
-                                </AdminButton>
-                              )}
-                              <Toggle checked={p.is_active} onChange={() => toggleActive(p)} />
-                            </div>
-                            <div className="flex items-center gap-0.5">
-                              <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(p); setShowForm(true); }} ><Pencil className="h-3 w-3" /></AdminIconButton>
-                              <AdminIconButton variant="danger" type="button" onClick={() => remove(p)} ><Trash2 aria-hidden="true" className="h-3 w-3" /></AdminIconButton>
-                            </div>
-                          </div>
-                          {expandedId === p.id && p.has_quality_levels && (
-                            <div className="ml-4 mt-1 space-y-2">
-                              {(qualityMap[p.id] ?? []).map(q => (
-                                <div key={q.id} className="flex items-center justify-between rounded-lg border border-border bg-muted/50 dark:bg-white/5 dark:border-white/5 px-4 py-2.5">
-                                  <div className="flex items-center gap-2">
-                                    <Tag aria-hidden="true" className="h-4 w-4 text-primary" />
-                                    <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">{q.name}</span>
-                                    {q.coverage && <span className="text-xs text-muted-foreground dark:text-muted-foreground">· {q.coverage} {q.coverage_unit ?? ''}</span>}
-                                    {!q.is_active && <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">Inactive</span>}
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <Toggle checked={q.is_active} onChange={() => toggleQualityActive(q)} />
-                                    <AdminButton variant="secondary" onClick={() => { setEditingQuality(q); setQualityProductId(p.id); setShowQualityForm(true); }}><Pencil className="h-3 w-3" /></AdminButton>
-                                    <AdminButton variant="danger" onClick={() => removeQuality(q)}><Trash2 aria-hidden="true" className="h-3 w-3" /></AdminButton>
-                                  </div>
+                        {catItems.map((p) => (
+                          <div key={p.id} className="card p-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0 flex-1">
+                                <div className="flex items-center gap-1.5">
+                                  <h3 className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">
+                                    {p.name}
+                                  </h3>
+                                  {p.has_quality_levels && (
+                                    <span className="rounded-full bg-primary/10 px-1.5 py-0.5 text-[9px] font-semibold text-primary dark:bg-primary/20 dark:text-primary-lighter">
+                                      Tiers
+                                    </span>
+                                  )}
+                                  {!p.is_active && (
+                                    <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">
+                                      Off
+                                    </span>
+                                  )}
                                 </div>
-                              ))}
-                              <AdminButton variant="secondary" onClick={() => { setEditingQuality(null); setQualityProductId(p.id); setShowQualityForm(true); }}>
-                                <Plus aria-hidden="true" className="h-3.5 w-3.5" /> Add quality level
-                              </AdminButton>
+                                {p.description && (
+                                  <p className="mt-0.5 line-clamp-1 text-[10px] text-muted-foreground dark:text-muted-foreground">
+                                    {p.description}
+                                  </p>
+                                )}
+                                <div className="mt-0.5 flex flex-wrap gap-1 text-[10px] text-muted-foreground dark:text-muted-foreground">
+                                  <span>{p.product_type}</span>
+                                  <span>·</span>
+                                  <span>{p.calculation_method}</span>
+                                  {p.standard_pack_size && (
+                                    <>
+                                      <span>·</span>
+                                      <span>{p.standard_pack_size}</span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                          )}
-                        </div>
-                      ))}
+                            <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
+                              <div className="flex items-center gap-1">
+                                {p.has_quality_levels && (
+                                  <AdminButton
+                                    variant="link"
+                                    type="button"
+                                    onClick={() =>
+                                      setExpandedId(
+                                        expandedId === p.id ? null : p.id,
+                                      )
+                                    }
+                                    className="text-[10px] font-semibold"
+                                  >
+                                    {qualityMap[p.id]?.length ?? 0} tiers
+                                  </AdminButton>
+                                )}
+                                <Toggle
+                                  checked={p.is_active}
+                                  onChange={() => toggleActive(p)}
+                                />
+                              </div>
+                              <div className="flex items-center gap-0.5">
+                                <AdminIconButton
+                                  variant="ghost"
+                                  type="button"
+                                  onClick={() => {
+                                    setEditing(p);
+                                    setShowForm(true);
+                                  }}
+                                >
+                                  <Pencil className="h-3 w-3" />
+                                </AdminIconButton>
+                                <AdminIconButton
+                                  variant="danger"
+                                  type="button"
+                                  onClick={() => remove(p)}
+                                >
+                                  <Trash2
+                                    aria-hidden="true"
+                                    className="h-3 w-3"
+                                  />
+                                </AdminIconButton>
+                              </div>
+                            </div>
+                            {expandedId === p.id && p.has_quality_levels && (
+                              <div className="ml-4 mt-1 space-y-2">
+                                {(qualityMap[p.id] ?? []).map((q) => (
+                                  <div
+                                    key={q.id}
+                                    className="flex items-center justify-between rounded-lg border border-border bg-muted/50 dark:bg-white/5 dark:border-white/5 px-4 py-2.5"
+                                  >
+                                    <div className="flex items-center gap-2">
+                                      <Tag
+                                        aria-hidden="true"
+                                        className="h-4 w-4 text-primary"
+                                      />
+                                      <span className="text-sm font-semibold text-foreground dark:text-primary-foreground">
+                                        {q.name}
+                                      </span>
+                                      {q.coverage && (
+                                        <span className="text-xs text-muted-foreground dark:text-muted-foreground">
+                                          · {q.coverage} {q.coverage_unit ?? ""}
+                                        </span>
+                                      )}
+                                      {!q.is_active && (
+                                        <span className="rounded-full bg-muted px-2 py-0.5 text-[10px] font-semibold text-muted-foreground">
+                                          Inactive
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Toggle
+                                        checked={q.is_active}
+                                        onChange={() => toggleQualityActive(q)}
+                                      />
+                                      <AdminButton
+                                        variant="secondary"
+                                        onClick={() => {
+                                          setEditingQuality(q);
+                                          setQualityProductId(p.id);
+                                          setShowQualityForm(true);
+                                        }}
+                                      >
+                                        <Pencil className="h-3 w-3" />
+                                      </AdminButton>
+                                      <AdminButton
+                                        variant="danger"
+                                        onClick={() => removeQuality(q)}
+                                      >
+                                        <Trash2
+                                          aria-hidden="true"
+                                          className="h-3 w-3"
+                                        />
+                                      </AdminButton>
+                                    </div>
+                                  </div>
+                                ))}
+                                <AdminButton
+                                  variant="secondary"
+                                  onClick={() => {
+                                    setEditingQuality(null);
+                                    setQualityProductId(p.id);
+                                    setShowQualityForm(true);
+                                  }}
+                                >
+                                  <Plus
+                                    aria-hidden="true"
+                                    className="h-3.5 w-3.5"
+                                  />{" "}
+                                  Add quality level
+                                </AdminButton>
+                              </div>
+                            )}
+                          </div>
+                        ))}
                       </div>
                     </CollapsibleGroup>
                   );
@@ -257,13 +518,25 @@ export default function AdminEstimationProducts() {
           })()}
         </>
       )}
-      {showForm && <ProductForm initial={editing} onClose={() => setShowForm(false)} onSaved={() => { setShowForm(false); load(); }} />}
+      {showForm && (
+        <ProductForm
+          initial={editing}
+          onClose={() => setShowForm(false)}
+          onSaved={() => {
+            setShowForm(false);
+            load();
+          }}
+        />
+      )}
       {showQualityForm && qualityProductId && (
         <QualityForm
           initial={editingQuality}
           productId={qualityProductId}
           onClose={() => setShowQualityForm(false)}
-          onSaved={() => { setShowQualityForm(false); load(); }}
+          onSaved={() => {
+            setShowQualityForm(false);
+            load();
+          }}
         />
       )}
     </>
@@ -273,31 +546,64 @@ export default function AdminEstimationProducts() {
 // ─────────────────────────────────────────────────────────
 // Product Form
 // ─────────────────────────────────────────────────────────
-function ProductForm({ initial, onClose, onSaved }: { initial: EstProduct | null; onClose: () => void; onSaved: () => void }) {
-  const [name, setName] = useState(initial?.name ?? '');
-  const [slug, setSlug] = useState(initial?.slug ?? '');
-  const [category, setCategory] = useState(initial?.category ?? 'emulsion');
-  const [description, setDescription] = useState(initial?.description ?? '');
-  const [productType, setProductType] = useState(initial?.product_type ?? 'paint');
-  const [calcMethod, setCalcMethod] = useState(initial?.calculation_method ?? 'area_based');
-  const [standardPackSize, setStandardPackSize] = useState(initial?.standard_pack_size?.toString() ?? '');
-  const [recommendedSurface, setRecommendedSurface] = useState(initial?.recommended_surface ?? '');
-  const [finish, setFinish] = useState(initial?.finish ?? '');
-  const [texture, setTexture] = useState(initial?.texture ?? '');
-  const [glossLevel, setGlossLevel] = useState(initial?.gloss_level ?? '');
-  const [durability, setDurability] = useState(initial?.durability ?? '');
-  const [colourCompat, setColourCompat] = useState(initial?.colour_compatibility ?? '');
-  const [paintCompat, setPaintCompat] = useState(initial?.paint_compatibility ?? '');
-  const [hasQuality, setHasQuality] = useState(initial?.has_quality_levels ?? false);
+function ProductForm({
+  initial,
+  onClose,
+  onSaved,
+}: {
+  initial: EstProduct | null;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [name, setName] = useState(initial?.name ?? "");
+  const [slug, setSlug] = useState(initial?.slug ?? "");
+  const [category, setCategory] = useState(initial?.category ?? "emulsion");
+  const [description, setDescription] = useState(initial?.description ?? "");
+  const [productType, setProductType] = useState(
+    initial?.product_type ?? "paint",
+  );
+  const [calcMethod, setCalcMethod] = useState(
+    initial?.calculation_method ?? "area_based",
+  );
+  const [standardPackSize, setStandardPackSize] = useState(
+    initial?.standard_pack_size?.toString() ?? "",
+  );
+  const [recommendedSurface, setRecommendedSurface] = useState(
+    initial?.recommended_surface ?? "",
+  );
+  const [finish, setFinish] = useState(initial?.finish ?? "");
+  const [texture, setTexture] = useState(initial?.texture ?? "");
+  const [glossLevel, setGlossLevel] = useState(initial?.gloss_level ?? "");
+  const [durability, setDurability] = useState(initial?.durability ?? "");
+  const [colourCompat, setColourCompat] = useState(
+    initial?.colour_compatibility ?? "",
+  );
+  const [paintCompat, setPaintCompat] = useState(
+    initial?.paint_compatibility ?? "",
+  );
+  const [brand, setBrand] = useState(initial?.brand ?? "");
+  const [productNotes, setProductNotes] = useState(
+    initial?.product_notes ?? "",
+  );
+  const [technicalSpec, setTechnicalSpec] = useState(
+    initial?.technical_spec ?? "",
+  );
+  const [hasQuality, setHasQuality] = useState(
+    initial?.has_quality_levels ?? false,
+  );
   const [isActive, setIsActive] = useState(initial?.is_active ?? true);
   const [sortOrder, setSortOrder] = useState(initial?.sort_order ?? 0);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   async function onSave() {
-    if (!name.trim()) { setFormError('Name is required'); return; }
+    if (!name.trim()) {
+      setFormError("Name is required");
+      return;
+    }
     const finalSlug = slug.trim() || slugify(name);
-    setSaving(true); setFormError(null);
+    setSaving(true);
+    setFormError(null);
     const payload = {
       name: name.trim(),
       slug: finalSlug,
@@ -305,7 +611,9 @@ function ProductForm({ initial, onClose, onSaved }: { initial: EstProduct | null
       description: description.trim() || null,
       product_type: productType,
       calculation_method: calcMethod,
-      standard_pack_size: standardPackSize ? Math.max(1, Number(standardPackSize) || 1) : null,
+      standard_pack_size: standardPackSize
+        ? Math.max(1, Number(standardPackSize) || 1)
+        : null,
       recommended_surface: recommendedSurface.trim() || null,
       finish: finish.trim() || null,
       texture: texture.trim() || null,
@@ -313,68 +621,226 @@ function ProductForm({ initial, onClose, onSaved }: { initial: EstProduct | null
       durability: durability.trim() || null,
       colour_compatibility: colourCompat.trim() || null,
       paint_compatibility: paintCompat.trim() || null,
+      brand: brand.trim() || null,
+      product_notes: productNotes.trim() || null,
+      technical_spec: technicalSpec.trim() || null,
       has_quality_levels: hasQuality,
       is_active: isActive,
       sort_order: sortOrder,
     };
     const { error } = initial
-      ? await supabase.from('estimation_products').update(payload).eq('id', initial.id)
-      : await supabase.from('estimation_products').insert(payload);
+      ? await supabase
+          .from("estimation_products")
+          .update(payload)
+          .eq("id", initial.id)
+      : await supabase.from("estimation_products").insert(payload);
     setSaving(false);
-    if (error) { setFormError(error.message); return; }
+    if (error) {
+      setFormError(error.message);
+      return;
+    }
     onSaved();
   }
 
   return (
-    <AdminModal open onClose={onClose} title={initial ? 'Edit product' : 'Add product'} maxWidth="max-w-2xl">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Name"><AdminInput  value={name} onChange={e => setName(e.target.value)} placeholder="e.g. FRELUX Emulsion" /></AdminField>
-            <AdminField label="Slug" hint="Auto-generated if left blank"><AdminInput  value={slug} onChange={e => setSlug(e.target.value)} placeholder="frelux-emulsion" /></AdminField>
+    <AdminModal
+      open
+      onClose={onClose}
+      title={initial ? "Edit product" : "Add product"}
+      maxWidth="max-w-2xl"
+    >
+      <div className="grid gap-4 sm:grid-cols-2">
+        <AdminField label="Name">
+          <AdminInput
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="e.g. FRELUX Emulsion"
+          />
+        </AdminField>
+        <AdminField label="Slug" hint="Auto-generated if left blank">
+          <AdminInput
+            value={slug}
+            onChange={(e) => setSlug(e.target.value)}
+            placeholder="frelux-emulsion"
+          />
+        </AdminField>
+      </div>
+      <AdminField label="Description">
+        <AdminTextarea
+          rows={2}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </AdminField>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <AdminField label="Category">
+          <AdminSelect
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </AdminSelect>
+        </AdminField>
+        <AdminField label="Product type">
+          <AdminSelect
+            value={productType}
+            onChange={(e) => setProductType(e.target.value)}
+          >
+            {PRODUCT_TYPES.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </AdminSelect>
+        </AdminField>
+        <AdminField label="Calculation method">
+          <AdminSelect
+            value={calcMethod}
+            onChange={(e) => setCalcMethod(e.target.value)}
+          >
+            {CALC_METHODS.map((m) => (
+              <option key={m} value={m}>
+                {m}
+              </option>
+            ))}
+          </AdminSelect>
+        </AdminField>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <AdminField
+          label="Standard pack size"
+          hint="Leave blank if not yet configured"
+        >
+          <AdminInput
+            type="number"
+            min={0}
+            step="0.1"
+            value={standardPackSize}
+            onChange={(e) => setStandardPackSize(e.target.value)}
+          />
+        </AdminField>
+        <AdminField label="Sort order">
+          <AdminInput
+            type="number"
+            value={sortOrder}
+            onChange={(e) => setSortOrder(Number(e.target.value))}
+          />
+        </AdminField>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <AdminField label="Recommended surface">
+          <AdminInput
+            value={recommendedSurface}
+            onChange={(e) => setRecommendedSurface(e.target.value)}
+          />
+        </AdminField>
+        <AdminField label="Finish">
+          <AdminInput
+            value={finish}
+            onChange={(e) => setFinish(e.target.value)}
+          />
+        </AdminField>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <AdminField label="Texture">
+          <AdminInput
+            value={texture}
+            onChange={(e) => setTexture(e.target.value)}
+          />
+        </AdminField>
+        <AdminField label="Gloss level">
+          <AdminInput
+            value={glossLevel}
+            onChange={(e) => setGlossLevel(e.target.value)}
+          />
+        </AdminField>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <AdminField label="Durability">
+          <AdminInput
+            value={durability}
+            onChange={(e) => setDurability(e.target.value)}
+          />
+        </AdminField>
+        <AdminField label="Colour compatibility">
+          <AdminInput
+            value={colourCompat}
+            onChange={(e) => setColourCompat(e.target.value)}
+          />
+        </AdminField>
+      </div>
+      <AdminField label="Paint compatibility">
+        <AdminInput
+          value={paintCompat}
+          onChange={(e) => setPaintCompat(e.target.value)}
+        />
+      </AdminField>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <AdminField
+          label="Brand"
+          hint="Manufacturer / brand (shown on results)"
+        >
+          <AdminInput
+            value={brand}
+            onChange={(e) => setBrand(e.target.value)}
+          />
+        </AdminField>
+      </div>
+      <AdminField
+        label="Product notes"
+        hint="Product-specific application notes shown with results"
+      >
+        <AdminTextarea
+          rows={2}
+          value={productNotes}
+          onChange={(e) => setProductNotes(e.target.value)}
+        />
+      </AdminField>
+      <AdminField
+        label="Technical specification"
+        hint="Verified technical spec + source reference. Store the source here, never in code."
+      >
+        <AdminTextarea
+          rows={2}
+          value={technicalSpec}
+          onChange={(e) => setTechnicalSpec(e.target.value)}
+        />
+      </AdminField>
+      <div className="flex items-center gap-6">
+        <div>
+          <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
+            Has quality levels
+          </span>
+          <div className="mt-2">
+            <Toggle checked={hasQuality} onChange={setHasQuality} />
           </div>
-          <AdminField label="Description"><AdminTextarea  rows={2} value={description} onChange={e => setDescription(e.target.value)} /></AdminField>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <AdminField label="Category">
-              <AdminSelect  value={category} onChange={e => setCategory(e.target.value)}>
-                {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
-              </AdminSelect>
-            </AdminField>
-            <AdminField label="Product type">
-              <AdminSelect  value={productType} onChange={e => setProductType(e.target.value)}>
-                {PRODUCT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
-              </AdminSelect>
-            </AdminField>
-            <AdminField label="Calculation method">
-              <AdminSelect  value={calcMethod} onChange={e => setCalcMethod(e.target.value)}>
-                {CALC_METHODS.map(m => <option key={m} value={m}>{m}</option>)}
-              </AdminSelect>
-            </AdminField>
+        </div>
+        <div>
+          <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
+            Active
+          </span>
+          <div className="mt-2">
+            <Toggle checked={isActive} onChange={setIsActive} />
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Standard pack size" hint="Leave blank if not yet configured"><AdminInput type="number" min={0} step="0.1"  value={standardPackSize} onChange={e => setStandardPackSize(e.target.value)} /></AdminField>
-            <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={e => setSortOrder(Number(e.target.value))} /></AdminField>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Recommended surface"><AdminInput  value={recommendedSurface} onChange={e => setRecommendedSurface(e.target.value)} /></AdminField>
-            <AdminField label="Finish"><AdminInput  value={finish} onChange={e => setFinish(e.target.value)} /></AdminField>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Texture"><AdminInput  value={texture} onChange={e => setTexture(e.target.value)} /></AdminField>
-            <AdminField label="Gloss level"><AdminInput  value={glossLevel} onChange={e => setGlossLevel(e.target.value)} /></AdminField>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Durability"><AdminInput  value={durability} onChange={e => setDurability(e.target.value)} /></AdminField>
-            <AdminField label="Colour compatibility"><AdminInput  value={colourCompat} onChange={e => setColourCompat(e.target.value)} /></AdminField>
-          </div>
-          <AdminField label="Paint compatibility"><AdminInput  value={paintCompat} onChange={e => setPaintCompat(e.target.value)} /></AdminField>
-          <div className="flex items-center gap-6">
-            <div><span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Has quality levels</span><div className="mt-2"><Toggle checked={hasQuality} onChange={setHasQuality} /></div></div>
-            <div><span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
-          </div>
-          {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
-          <div className="flex justify-end gap-3 pt-2">
-            <AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton>
-            <AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton>
-          </div>
+        </div>
+      </div>
+      {formError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {formError}
+        </div>
+      )}
+      <div className="flex justify-end gap-3 pt-2">
+        <AdminButton variant="secondary" onClick={onClose}>
+          Cancel
+        </AdminButton>
+        <AdminButton onClick={onSave} disabled={saving}>
+          {saving ? "Saving…" : "Save"}
+        </AdminButton>
+      </div>
     </AdminModal>
   );
 }
@@ -382,28 +848,133 @@ function ProductForm({ initial, onClose, onSaved }: { initial: EstProduct | null
 // ─────────────────────────────────────────────────────────
 // Quality Level Form
 // ─────────────────────────────────────────────────────────
-function QualityForm({ initial, productId, onClose, onSaved }: { initial: EstQuality | null; productId: string; onClose: () => void; onSaved: () => void }) {
-  const [name, setName] = useState(initial?.name ?? '');
-  const [slug, setSlug] = useState(initial?.slug ?? '');
-  const [description, setDescription] = useState(initial?.description ?? '');
-  const [coverage, setCoverage] = useState(initial?.coverage?.toString() ?? '');
-  const [coverageUnit, setCoverageUnit] = useState(initial?.coverage_unit ?? 'm2_per_liter');
-  const [ceilingCoverage, setCeilingCoverage] = useState(initial?.ceiling_coverage?.toString() ?? '');
-  const [ceilingCoverageUnit, setCeilingCoverageUnit] = useState(initial?.ceiling_coverage_unit ?? 'm2_per_liter');
-  const [finish, setFinish] = useState(initial?.finish ?? '');
-  const [texture, setTexture] = useState(initial?.texture ?? '');
-  const [glossLevel, setGlossLevel] = useState(initial?.gloss_level ?? '');
-  const [shineLevel, setShineLevel] = useState(initial?.shine_level ?? '');
-  const [durability, setDurability] = useState(initial?.durability ?? '');
+function QualityForm({
+  initial,
+  productId,
+  onClose,
+  onSaved,
+}: {
+  initial: EstQuality | null;
+  productId: string;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [name, setName] = useState(initial?.name ?? "");
+  const [slug, setSlug] = useState(initial?.slug ?? "");
+  const [description, setDescription] = useState(initial?.description ?? "");
+  const [coverage, setCoverage] = useState(initial?.coverage?.toString() ?? "");
+  const [coverageUnit, setCoverageUnit] = useState(
+    initial?.coverage_unit ?? "m2_per_liter",
+  );
+  const [ceilingCoverage, setCeilingCoverage] = useState(
+    initial?.ceiling_coverage?.toString() ?? "",
+  );
+  const [ceilingCoverageUnit, setCeilingCoverageUnit] = useState(
+    initial?.ceiling_coverage_unit ?? "m2_per_liter",
+  );
+  const [calculationModel, setCalculationModel] = useState(
+    initial?.calculation_model ?? "",
+  );
+  const [coverageMin, setCoverageMin] = useState(
+    initial?.coverage_min?.toString() ?? "",
+  );
+  const [coverageMax, setCoverageMax] = useState(
+    initial?.coverage_max?.toString() ?? "",
+  );
+  const [consumptionMin, setConsumptionMin] = useState(
+    initial?.consumption_min?.toString() ?? "",
+  );
+  const [consumptionMax, setConsumptionMax] = useState(
+    initial?.consumption_max?.toString() ?? "",
+  );
+  const [consumptionUnit, setConsumptionUnit] = useState(
+    initial?.consumption_unit ?? "",
+  );
+  const [defaultCoats, setDefaultCoats] = useState(
+    initial?.default_coats?.toString() ?? "",
+  );
+  const [wastePercentage, setWastePercentage] = useState(
+    initial?.waste_percentage?.toString() ?? "",
+  );
+  const [finish, setFinish] = useState(initial?.finish ?? "");
+  const [texture, setTexture] = useState(initial?.texture ?? "");
+  const [glossLevel, setGlossLevel] = useState(initial?.gloss_level ?? "");
+  const [shineLevel, setShineLevel] = useState(initial?.shine_level ?? "");
+  const [durability, setDurability] = useState(initial?.durability ?? "");
   const [isActive, setIsActive] = useState(initial?.is_active ?? true);
   const [sortOrder, setSortOrder] = useState(initial?.sort_order ?? 0);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
 
   async function onSave() {
-    if (!name.trim()) { setFormError('Name is required'); return; }
+    if (!name.trim()) {
+      setFormError("Name is required");
+      return;
+    }
     const finalSlug = slug.trim() || slugify(name);
-    setSaving(true); setFormError(null);
+    setFormError(null);
+    if (calculationModel) {
+      const cMin = coverageMin ? Number(coverageMin) : null;
+      const cMax = coverageMax ? Number(coverageMax) : null;
+      const kMin = consumptionMin ? Number(consumptionMin) : null;
+      const kMax = consumptionMax ? Number(consumptionMax) : null;
+      if ((cMin !== null && cMin <= 0) || (cMax !== null && cMax <= 0)) {
+        setFormError("Coverage values must be greater than zero.");
+        return;
+      }
+      if ((kMin !== null && kMin <= 0) || (kMax !== null && kMax <= 0)) {
+        setFormError("Consumption values must be greater than zero.");
+        return;
+      }
+      if (cMin !== null && cMax !== null && cMin > cMax) {
+        setFormError("Coverage minimum must not exceed coverage maximum.");
+        return;
+      }
+      if (kMin !== null && kMax !== null && kMin > kMax) {
+        setFormError(
+          "Consumption minimum must not exceed consumption maximum.",
+        );
+        return;
+      }
+      if (
+        calculationModel === "coverage_based" &&
+        cMin === null &&
+        cMax === null &&
+        !coverage
+      ) {
+        setFormError(
+          "Coverage-based model needs coverage data — enter a coverage range or single coverage rate.",
+        );
+        return;
+      }
+      if (
+        (calculationModel === "mass_per_area" ||
+          calculationModel === "volume_per_area") &&
+        kMin === null &&
+        kMax === null
+      ) {
+        setFormError(
+          "Consumption-based model needs consumption data (min/max).",
+        );
+        return;
+      }
+      if (
+        wastePercentage &&
+        (Number(wastePercentage) < 0 || Number(wastePercentage) >= 100)
+      ) {
+        setFormError("Waste percentage must be between 0 and 99.");
+        return;
+      }
+      if (
+        defaultCoats &&
+        (!Number.isInteger(Number(defaultCoats)) || Number(defaultCoats) <= 0)
+      ) {
+        setFormError("Default coats must be a whole number greater than zero.");
+        return;
+      }
+    }
+    setSaving(true);
+    setFormError(null);
     const payload = {
       product_id: productId,
       name: name.trim(),
@@ -413,6 +984,15 @@ function QualityForm({ initial, productId, onClose, onSaved }: { initial: EstQua
       coverage_unit: coverage ? coverageUnit : null,
       ceiling_coverage: ceilingCoverage ? Number(ceilingCoverage) : null,
       ceiling_coverage_unit: ceilingCoverage ? ceilingCoverageUnit : null,
+      calculation_model: calculationModel || null,
+      coverage_min: coverageMin ? Number(coverageMin) : null,
+      coverage_max: coverageMax ? Number(coverageMax) : null,
+      consumption_min: consumptionMin ? Number(consumptionMin) : null,
+      consumption_max: consumptionMax ? Number(consumptionMax) : null,
+      consumption_unit:
+        calculationModel && consumptionUnit ? consumptionUnit : null,
+      default_coats: defaultCoats ? Number(defaultCoats) : null,
+      waste_percentage: wastePercentage ? Number(wastePercentage) : null,
       finish: finish.trim() || null,
       texture: texture.trim() || null,
       gloss_level: glossLevel.trim() || null,
@@ -422,56 +1002,270 @@ function QualityForm({ initial, productId, onClose, onSaved }: { initial: EstQua
       sort_order: sortOrder,
     };
     const { error } = initial
-      ? await supabase.from('estimation_product_quality').update(payload).eq('id', initial.id)
-      : await supabase.from('estimation_product_quality').insert(payload);
+      ? await supabase
+          .from("estimation_product_quality")
+          .update(payload)
+          .eq("id", initial.id)
+      : await supabase.from("estimation_product_quality").insert(payload);
     setSaving(false);
-    if (error) { setFormError(error.message); return; }
+    if (error) {
+      setFormError(error.message);
+      return;
+    }
     onSaved();
   }
 
   return (
-    <AdminModal open onClose={onClose} title={initial ? 'Edit quality level' : 'Add quality level'} maxWidth="max-w-lg">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Name"><AdminInput  value={name} onChange={e => setName(e.target.value)} placeholder="Standard, Premium, High Quality" /></AdminField>
-            <AdminField label="Slug" hint="Auto-generated if left blank"><AdminInput  value={slug} onChange={e => setSlug(e.target.value)} /></AdminField>
+    <AdminModal
+      open
+      onClose={onClose}
+      title={initial ? "Edit quality level" : "Add quality level"}
+      maxWidth="max-w-lg"
+    >
+      <div className="grid gap-4 sm:grid-cols-2">
+        <AdminField label="Name">
+          <AdminInput
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Standard, Premium, High Quality"
+          />
+        </AdminField>
+        <AdminField label="Slug" hint="Auto-generated if left blank">
+          <AdminInput value={slug} onChange={(e) => setSlug(e.target.value)} />
+        </AdminField>
+      </div>
+      <AdminField label="Description">
+        <AdminTextarea
+          rows={2}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+      </AdminField>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <AdminField
+          label="Coverage rate"
+          hint="Leave blank if not yet configured"
+        >
+          <AdminInput
+            type="number"
+            min={0}
+            step="0.1"
+            value={coverage}
+            onChange={(e) => setCoverage(e.target.value)}
+          />
+        </AdminField>
+        <AdminField label="Coverage unit">
+          <AdminSelect
+            value={coverageUnit}
+            onChange={(e) => setCoverageUnit(e.target.value)}
+          >
+            {COVERAGE_UNITS.map((u) => (
+              <option key={u.value} value={u.value}>
+                {u.label}
+              </option>
+            ))}
+          </AdminSelect>
+        </AdminField>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <AdminField
+          label="Ceiling coverage rate"
+          hint="Separate from wall coverage. Leave blank to use wall coverage or ceiling_quantity_per_room rule."
+        >
+          <AdminInput
+            type="number"
+            min={0}
+            step="0.1"
+            value={ceilingCoverage}
+            onChange={(e) => setCeilingCoverage(e.target.value)}
+          />
+        </AdminField>
+        <AdminField label="Ceiling coverage unit">
+          <AdminSelect
+            value={ceilingCoverageUnit}
+            onChange={(e) => setCeilingCoverageUnit(e.target.value)}
+          >
+            {COVERAGE_UNITS.map((u) => (
+              <option key={u.value} value={u.value}>
+                {u.label}
+              </option>
+            ))}
+          </AdminSelect>
+        </AdminField>
+      </div>
+      <div className="rounded-lg border border-border bg-muted/40 p-3">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+          Mineral Stone / Stucco material model
+        </p>
+        <p className="mb-3 text-xs text-muted-foreground">
+          These fields drive the deterministic Mineral Stone and Stucco engines.
+          Leave the model unconfigured until verified product data is available
+          — the engines refuse to guess.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <AdminField label="Calculation model">
+            <AdminSelect
+              value={calculationModel}
+              onChange={(e) => setCalculationModel(e.target.value)}
+            >
+              {CALCULATION_MODELS.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </AdminSelect>
+          </AdminField>
+          <AdminField label="Consumption unit">
+            <AdminSelect
+              value={consumptionUnit}
+              onChange={(e) => setConsumptionUnit(e.target.value)}
+            >
+              {CONSUMPTION_UNITS.map((u) => (
+                <option key={u.value} value={u.value}>
+                  {u.label}
+                </option>
+              ))}
+            </AdminSelect>
+          </AdminField>
+        </div>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <AdminField
+            label="Coverage min (m²/package)"
+            hint="Coverage-based model: light end"
+          >
+            <AdminInput
+              type="number"
+              min={0}
+              step="0.1"
+              value={coverageMin}
+              onChange={(e) => setCoverageMin(e.target.value)}
+            />
+          </AdminField>
+          <AdminField
+            label="Coverage max (m²/package)"
+            hint="Coverage-based model: heavy end"
+          >
+            <AdminInput
+              type="number"
+              min={0}
+              step="0.1"
+              value={coverageMax}
+              onChange={(e) => setCoverageMax(e.target.value)}
+            />
+          </AdminField>
+        </div>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <AdminField label="Consumption min (per m² per coat)">
+            <AdminInput
+              type="number"
+              min={0}
+              step="0.01"
+              value={consumptionMin}
+              onChange={(e) => setConsumptionMin(e.target.value)}
+            />
+          </AdminField>
+          <AdminField label="Consumption max (per m² per coat)">
+            <AdminInput
+              type="number"
+              min={0}
+              step="0.01"
+              value={consumptionMax}
+              onChange={(e) => setConsumptionMax(e.target.value)}
+            />
+          </AdminField>
+        </div>
+        <div className="mt-4 grid gap-4 sm:grid-cols-2">
+          <AdminField
+            label="Default coats/layers"
+            hint="Whole number; blank = not configured"
+          >
+            <AdminInput
+              type="number"
+              min={1}
+              step={1}
+              value={defaultCoats}
+              onChange={(e) => setDefaultCoats(e.target.value)}
+            />
+          </AdminField>
+          <AdminField
+            label="Waste percentage"
+            hint="0–99; blank = not configured"
+          >
+            <AdminInput
+              type="number"
+              min={0}
+              max={99}
+              step="0.1"
+              value={wastePercentage}
+              onChange={(e) => setWastePercentage(e.target.value)}
+            />
+          </AdminField>
+        </div>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-3">
+        <AdminField label="Finish">
+          <AdminInput
+            value={finish}
+            onChange={(e) => setFinish(e.target.value)}
+          />
+        </AdminField>
+        <AdminField label="Texture">
+          <AdminInput
+            value={texture}
+            onChange={(e) => setTexture(e.target.value)}
+          />
+        </AdminField>
+        <AdminField label="Gloss level">
+          <AdminInput
+            value={glossLevel}
+            onChange={(e) => setGlossLevel(e.target.value)}
+          />
+        </AdminField>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <AdminField label="Shine level">
+          <AdminInput
+            value={shineLevel}
+            onChange={(e) => setShineLevel(e.target.value)}
+          />
+        </AdminField>
+        <AdminField label="Durability">
+          <AdminInput
+            value={durability}
+            onChange={(e) => setDurability(e.target.value)}
+          />
+        </AdminField>
+      </div>
+      <div className="flex items-center gap-6">
+        <div>
+          <span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
+            Active
+          </span>
+          <div className="mt-2">
+            <Toggle checked={isActive} onChange={setIsActive} />
           </div>
-          <AdminField label="Description"><AdminTextarea  rows={2} value={description} onChange={e => setDescription(e.target.value)} /></AdminField>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Coverage rate" hint="Leave blank if not yet configured"><AdminInput type="number" min={0} step="0.1"  value={coverage} onChange={e => setCoverage(e.target.value)} /></AdminField>
-            <AdminField label="Coverage unit">
-              <AdminSelect value={coverageUnit} onChange={e => setCoverageUnit(e.target.value)}>
-                {COVERAGE_UNITS.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
-              </AdminSelect>
-            </AdminField>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Ceiling coverage rate" hint="Separate from wall coverage. Leave blank to use wall coverage or ceiling_quantity_per_room rule.">
-              <AdminInput type="number" min={0} step="0.1" value={ceilingCoverage} onChange={e => setCeilingCoverage(e.target.value)} />
-            </AdminField>
-            <AdminField label="Ceiling coverage unit">
-              <AdminSelect value={ceilingCoverageUnit} onChange={e => setCeilingCoverageUnit(e.target.value)}>
-                {COVERAGE_UNITS.map(u => <option key={u.value} value={u.value}>{u.label}</option>)}
-              </AdminSelect>
-            </AdminField>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-3">
-            <AdminField label="Finish"><AdminInput  value={finish} onChange={e => setFinish(e.target.value)} /></AdminField>
-            <AdminField label="Texture"><AdminInput  value={texture} onChange={e => setTexture(e.target.value)} /></AdminField>
-            <AdminField label="Gloss level"><AdminInput  value={glossLevel} onChange={e => setGlossLevel(e.target.value)} /></AdminField>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Shine level"><AdminInput  value={shineLevel} onChange={e => setShineLevel(e.target.value)} /></AdminField>
-            <AdminField label="Durability"><AdminInput  value={durability} onChange={e => setDurability(e.target.value)} /></AdminField>
-          </div>
-          <div className="flex items-center gap-6">
-            <div><span className="block text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Active</span><div className="mt-2"><Toggle checked={isActive} onChange={setIsActive} /></div></div>
-            <AdminField label="Sort order"><AdminInput type="number"  value={sortOrder} onChange={e => setSortOrder(Number(e.target.value))} /></AdminField>
-          </div>
-          {formError && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{formError}</div>}
-          <div className="flex justify-end gap-3 pt-2">
-            <AdminButton variant="secondary" onClick={onClose}>Cancel</AdminButton>
-            <AdminButton onClick={onSave} disabled={saving}>{saving ? 'Saving…' : 'Save'}</AdminButton>
-          </div>
+        </div>
+        <AdminField label="Sort order">
+          <AdminInput
+            type="number"
+            value={sortOrder}
+            onChange={(e) => setSortOrder(Number(e.target.value))}
+          />
+        </AdminField>
+      </div>
+      {formError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {formError}
+        </div>
+      )}
+      <div className="flex justify-end gap-3 pt-2">
+        <AdminButton variant="secondary" onClick={onClose}>
+          Cancel
+        </AdminButton>
+        <AdminButton onClick={onSave} disabled={saving}>
+          {saving ? "Saving…" : "Save"}
+        </AdminButton>
+      </div>
     </AdminModal>
   );
 }

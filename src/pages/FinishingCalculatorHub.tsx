@@ -16,10 +16,14 @@ import { SITE_URL } from "@/lib/seo";
 
 const FinishEstimator = lazy(() => import("@/pages/FinishEstimator"));
 const TyroleneEstimator = lazy(() => import("@/pages/TyroleneEstimator"));
+const MineralStoneCalculator = lazy(
+  () => import("@/pages/MineralStoneCalculator"),
+);
 
 const TABS = [
   { id: "compare", label: "Compare Finishes" },
   { id: "tyrolene", label: "Tyrolene Estimator" },
+  { id: "mineral-stone", label: "Mineral Stone" },
 ];
 
 const FAQS = [
@@ -153,6 +157,7 @@ export default function FinishingCalculatorHub() {
         >
           {activeTab === "compare" && <FinishEstimator embedded />}
           {activeTab === "tyrolene" && <TyroleneEstimator embedded />}
+          {activeTab === "mineral-stone" && <MineralStoneCalculator />}
         </Suspense>
       </div>
 
@@ -164,16 +169,17 @@ export default function FinishingCalculatorHub() {
           <p className="text-muted-foreground dark:text-muted-foreground/80">
             The FRELUX Finishing Calculator is a comprehensive tool for wall
             finishing calculations. It combines side-by-side finish comparison
-            with a detailed Tyrolene estimator, supporting Painting, Tyrolene,
-            and Grafitex finishes.
+            with a detailed Tyrolene estimator and a database-configured Mineral
+            Stone calculator, supporting Painting, Tyrolene, Grafitex and
+            Mineral Stone finishes.
           </p>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
             Calculation Modes
           </h3>
           <ul>
             <li>
-              <strong>Compare Finishes</strong>, Compare material quantities
-              and costs for Painting, Tyrolene, and Grafitex side by side. Enter
+              <strong>Compare Finishes</strong>, Compare material quantities and
+              costs for Painting, Tyrolene, and Grafitex side by side. Enter
               your wall area and see which finish suits your budget.
             </li>
             <li>
