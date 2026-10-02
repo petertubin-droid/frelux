@@ -188,7 +188,9 @@ describe("EstimateRefresh page", () => {
 
   it("shows the sign-in gate when there is no user", async () => {
     const { useAuth } = await import("@/lib/auth");
-    vi.mocked(useAuth).mockReturnValueOnce({ user: null });
+    vi.mocked(useAuth).mockReturnValueOnce({
+      user: null,
+    } as unknown as ReturnType<typeof useAuth>);
     renderPage();
     await waitFor(() => {
       expect(
@@ -199,7 +201,11 @@ describe("EstimateRefresh page", () => {
 
   it("shows the empty state when the user has no completed estimates", async () => {
     const { fetchEstimates } = await import("@/lib/estimation/queries");
-    vi.mocked(fetchEstimates).mockResolvedValueOnce({ data: [], error: null });
+    vi.mocked(fetchEstimates).mockResolvedValueOnce({
+      data: [],
+      count: 0,
+      error: null,
+    });
     renderPage();
     await waitFor(() => {
       expect(
