@@ -10,6 +10,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import WarrantyCertificate from "./WarrantyCertificate";
+import type { EstimationEstimateItem } from "@/types/estimation";
 
 const mockEstimates = vi.hoisted(() => [
   {
@@ -149,7 +150,12 @@ describe("WarrantyCertificate page", () => {
   it("flags a dispute when stored totals do not match the replay", async () => {
     const { fetchEstimateItems } = await import("@/lib/estimation/queries");
     vi.mocked(fetchEstimateItems).mockResolvedValueOnce({
-      data: [{ ...mockItems[0], total_price: 55000 }],
+      data: [
+        {
+          ...mockItems[0],
+          total_price: 55000,
+        } as unknown as EstimationEstimateItem,
+      ],
       error: null,
     });
     renderPage();
@@ -180,7 +186,9 @@ describe("WarrantyCertificate page", () => {
 
   it("shows the sign-in gate when there is no user", async () => {
     const { useAuth } = await import("@/lib/auth");
-    vi.mocked(useAuth).mockReturnValueOnce({ user: null });
+    vi.mocked(useAuth).mockReturnValueOnce({
+      user: null,
+    } as unknown as ReturnType<typeof useAuth>);
     renderPage();
     await waitFor(() => {
       expect(
