@@ -130,6 +130,9 @@ const AdminRegionalCostIndices = lazy(
 const AdminCarbonFactors = lazy(
   () => import("@/pages/admin/AdminCarbonFactors"),
 );
+const AdminThermalFactors = lazy(
+  () => import("@/pages/admin/AdminThermalFactors"),
+);
 const AdminCashFlowTemplates = lazy(
   () => import("@/pages/admin/AdminCashFlowTemplates"),
 );
@@ -327,6 +330,7 @@ const MarginCalculator = lazy(() => import("@/pages/MarginCalculator"));
 const DefectDiagnosis = lazy(() => import("@/pages/DefectDiagnosis"));
 const EstimateRefresh = lazy(() => import("@/pages/EstimateRefresh"));
 const WarrantyCertificate = lazy(() => import("@/pages/WarrantyCertificate"));
+const HeatComfort = lazy(() => import("@/pages/HeatComfort"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -1105,6 +1109,10 @@ export default function App() {
                       element={<AdminCarbonFactors />}
                     />
                     <Route
+                      path="thermal-factors"
+                      element={<AdminThermalFactors />}
+                    />
+                    <Route
                       path="cash-flow-templates"
                       element={<AdminCashFlowTemplates />}
                     />
@@ -1424,6 +1432,7 @@ export default function App() {
                     path="/warranty-certificate"
                     element={<WarrantyCertificate />}
                   />
+                  <Route path="/heat-comfort" element={<HeatComfort />} />
                   <Route
                     path="/estimate/:token"
                     element={<ClientEstimateView />}

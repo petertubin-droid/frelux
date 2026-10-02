@@ -505,6 +505,22 @@ export interface RegionalCostIndex {
 }
 
 // 24. carbon_factors table (Embodied Carbon Engine)
+// thermal_finish_factors table (Heat Comfort Engine)
+export interface ThermalFinishFactor {
+  id: string;
+  surface_type: "roof" | "wall";
+  category: string;
+  category_label: string | null;
+  solar_reflectance: number;
+  description: string | null;
+  source_reference: string;
+  effective_date: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface CarbonFactor {
   id: string;
   category: string;

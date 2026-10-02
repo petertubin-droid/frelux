@@ -148,6 +148,11 @@ const navModules: NavModule[] = [
         icon: Leaf,
       },
       {
+        label: "Thermal Factors",
+        to: "/admin/thermal-factors",
+        icon: Leaf,
+      },
+      {
         label: "Cash-Flow Templates",
         to: "/admin/cash-flow-templates",
         icon: Wallet,

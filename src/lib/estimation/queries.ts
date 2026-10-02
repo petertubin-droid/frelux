@@ -20,6 +20,7 @@ import type {
   BoqQuote,
   RegionalCostIndex,
   CarbonFactor,
+  ThermalFinishFactor,
   CashFlowTemplate,
   LabourRate,
   MarginPreset,
@@ -1241,4 +1242,46 @@ export async function createWarrantyRecord(data: Partial<WarrantyRecord>) {
     .select()
     .single();
   return { data: record as WarrantyRecord | null, error };
+}
+
+// =========================================================
+// 16. Thermal finish factors (Heat Comfort Engine)
+// =========================================================
+
+export async function fetchThermalFinishFactors(activeOnly = false) {
+  let query = supabase
+    .from("thermal_finish_factors")
+    .select("*")
+    .order("surface_type", { ascending: true })
+    .order("sort_order", { ascending: true })
+    .order("category", { ascending: true });
+  if (activeOnly) query = query.eq("is_active", true);
+  const { data, error } = await query;
+  return { data: (data ?? []) as ThermalFinishFactor[], error };
+}
+
+export async function createThermalFinishFactor(
+  data: Partial<ThermalFinishFactor>,
+) {
+  const { error } = await supabase.from("thermal_finish_factors").insert(data);
+  return { error };
+}
+
+export async function updateThermalFinishFactor(
+  id: string,
+  data: Partial<ThermalFinishFactor>,
+) {
+  const { error } = await supabase
+    .from("thermal_finish_factors")
+    .update(data)
+    .eq("id", id);
+  return { error };
+}
+
+export async function deleteThermalFinishFactor(id: string) {
+  const { error } = await supabase
+    .from("thermal_finish_factors")
+    .delete()
+    .eq("id", id);
+  return { error };
 }
