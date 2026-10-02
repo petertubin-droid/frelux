@@ -71,6 +71,7 @@ export type TrackEvent =
   | "carbon_estimated"
   | "cash_flow_scheduled"
   | "labour_estimated"
+  | "margin_calculated"
   | "start_building_clicked"
   | "build_to_roof_clicked"
   | "painting_category_clicked"

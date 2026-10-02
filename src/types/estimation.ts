@@ -553,3 +553,17 @@ export interface LabourRate {
   created_at: string;
   updated_at: string;
 }
+
+// 28. margin_presets table (Margin Engine)
+export interface MarginPreset {
+  id: string;
+  name: string;
+  basis: "markup_on_cost" | "margin_on_price";
+  margin_percent: number;
+  description: string | null;
+  is_default: boolean;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}

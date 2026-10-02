@@ -22,6 +22,7 @@ import type {
   CarbonFactor,
   CashFlowTemplate,
   LabourRate,
+  MarginPreset,
 } from "@/types/estimation";
 
 // =========================================================
@@ -1081,5 +1082,46 @@ export async function updateLabourRate(id: string, data: Partial<LabourRate>) {
 
 export async function deleteLabourRate(id: string) {
   const { error } = await supabase.from("labour_rates").delete().eq("id", id);
+  return { error };
+}
+
+// =========================================================
+// 26. Margin (Future Engine 8)
+// =========================================================
+
+export async function fetchMarginPresets(opts: { activeOnly?: boolean } = {}) {
+  let query = supabase
+    .from("margin_presets")
+    .select("*")
+    .order("name", { ascending: true });
+  if (opts.activeOnly) query = query.eq("is_active", true);
+  const { data, error } = await query;
+  return { data: (data ?? []) as MarginPreset[], error };
+}
+
+export async function createMarginPreset(data: Partial<MarginPreset>) {
+  const { data: record, error } = await supabase
+    .from("margin_presets")
+    .insert(data)
+    .select()
+    .single();
+  return { data: record as MarginPreset | null, error };
+}
+
+export async function updateMarginPreset(
+  id: string,
+  data: Partial<MarginPreset>,
+) {
+  const { data: record, error } = await supabase
+    .from("margin_presets")
+    .update(data)
+    .eq("id", id)
+    .select()
+    .single();
+  return { data: record as MarginPreset | null, error };
+}
+
+export async function deleteMarginPreset(id: string) {
+  const { error } = await supabase.from("margin_presets").delete().eq("id", id);
   return { error };
 }
