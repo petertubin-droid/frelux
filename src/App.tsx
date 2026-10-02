@@ -325,6 +325,7 @@ const CashFlowTimeline = lazy(() => import("@/pages/CashFlowTimeline"));
 const LabourEstimator = lazy(() => import("@/pages/LabourEstimator"));
 const MarginCalculator = lazy(() => import("@/pages/MarginCalculator"));
 const DefectDiagnosis = lazy(() => import("@/pages/DefectDiagnosis"));
+const EstimateRefresh = lazy(() => import("@/pages/EstimateRefresh"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -1413,6 +1414,10 @@ export default function App() {
                   <Route
                     path="/defect-diagnosis"
                     element={<DefectDiagnosis />}
+                  />
+                  <Route
+                    path="/estimate-refresh"
+                    element={<EstimateRefresh />}
                   />
                   <Route
                     path="/estimate/:token"

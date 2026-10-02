@@ -73,6 +73,7 @@ export type TrackEvent =
   | "labour_estimated"
   | "margin_calculated"
   | "defect_diagnosed"
+  | "estimate_refreshed"
   | "start_building_clicked"
   | "build_to_roof_clicked"
   | "painting_category_clicked"
