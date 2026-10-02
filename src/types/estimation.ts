@@ -469,3 +469,22 @@ export interface MaintenancePlan {
   created_at: string;
   updated_at: string;
 }
+
+// 22. boq_quotes table (BOQ / Quote Generator Engine)
+export interface BoqQuote {
+  id: string;
+  user_id: string | null;
+  quote_ref: string;
+  title: string;
+  client_name: string;
+  client_contact: string | null;
+  project_location: string | null;
+  currency: string;
+  status: "draft" | "sent" | "accepted" | "rejected";
+  items: Record<string, unknown>[];
+  totals: Record<string, unknown>;
+  rates_snapshot: Record<string, unknown>;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}

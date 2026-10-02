@@ -17,6 +17,7 @@ import type {
   EstimationSurfaceCondition,
   MaintenanceProfile,
   MaintenancePlan,
+  BoqQuote,
 } from "@/types/estimation";
 
 // =========================================================
@@ -869,4 +870,38 @@ export async function saveMaintenancePlan(data: Partial<MaintenancePlan>) {
     .select()
     .single();
   return { data: record as MaintenancePlan | null, error };
+}
+
+// =========================================================
+// 20. BOQ / Quote Generator (Future Engine 2)
+// =========================================================
+
+export async function saveBoqQuote(data: Partial<BoqQuote>) {
+  const { data: record, error } = await supabase
+    .from("boq_quotes")
+    .insert(data)
+    .select()
+    .single();
+  return { data: record as BoqQuote | null, error };
+}
+
+export async function updateBoqQuote(
+  quoteRef: string,
+  data: Partial<BoqQuote>,
+) {
+  const { error } = await supabase
+    .from("boq_quotes")
+    .update(data)
+    .eq("quote_ref", quoteRef);
+  return { error };
+}
+
+export async function fetchBoqQuotes(userId?: string) {
+  let query = supabase
+    .from("boq_quotes")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (userId) query = query.eq("user_id", userId);
+  const { data, error } = await query;
+  return { data: (data ?? []) as BoqQuote[], error };
 }

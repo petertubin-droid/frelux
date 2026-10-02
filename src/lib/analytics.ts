@@ -65,6 +65,7 @@ export type TrackEvent =
   | "mineral_stone_calculated"
   | "stucco_calculated"
   | "maintenance_planned"
+  | "boq_generated"
   | "start_building_clicked"
   | "build_to_roof_clicked"
   | "painting_category_clicked"

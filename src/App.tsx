@@ -303,6 +303,7 @@ const ProjectDetail = lazy(() => import("@/pages/ProjectDetail"));
 const ClientEstimateView = lazy(() => import("@/pages/ClientEstimateView"));
 const ClientEstimateEditor = lazy(() => import("@/pages/ClientEstimateEditor"));
 const MaterialPriceTracker = lazy(() => import("@/pages/MaterialPriceTracker"));
+const BoqGenerator = lazy(() => import("@/pages/BoqGenerator"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
