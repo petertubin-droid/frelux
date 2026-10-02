@@ -74,6 +74,7 @@ export type TrackEvent =
   | "margin_calculated"
   | "defect_diagnosed"
   | "estimate_refreshed"
+  | "warranty_certificate_issued"
   | "start_building_clicked"
   | "build_to_roof_clicked"
   | "painting_category_clicked"

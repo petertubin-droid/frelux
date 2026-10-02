@@ -326,6 +326,7 @@ const LabourEstimator = lazy(() => import("@/pages/LabourEstimator"));
 const MarginCalculator = lazy(() => import("@/pages/MarginCalculator"));
 const DefectDiagnosis = lazy(() => import("@/pages/DefectDiagnosis"));
 const EstimateRefresh = lazy(() => import("@/pages/EstimateRefresh"));
+const WarrantyCertificate = lazy(() => import("@/pages/WarrantyCertificate"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -1418,6 +1419,10 @@ export default function App() {
                   <Route
                     path="/estimate-refresh"
                     element={<EstimateRefresh />}
+                  />
+                  <Route
+                    path="/warranty-certificate"
+                    element={<WarrantyCertificate />}
                   />
                   <Route
                     path="/estimate/:token"

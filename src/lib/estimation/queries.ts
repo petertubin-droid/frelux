@@ -1202,3 +1202,43 @@ export async function deleteDefectCause(id: string) {
   const { error } = await supabase.from("defect_causes").delete().eq("id", id);
   return { error };
 }
+
+// =========================================================
+// 15. Warranty records (Warranty & Dispute Engine)
+// =========================================================
+
+export interface WarrantyRecord {
+  id: string;
+  user_id: string | null;
+  estimate_id: string;
+  certificate_ref: string;
+  currency: string;
+  estimate_snapshot: Record<string, unknown>;
+  config_hash: string;
+  warranty_months: number;
+  issued_at: string;
+  expires_at: string;
+  status: string;
+  dispute_flags: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export async function fetchWarrantyRecords(userId?: string) {
+  let query = supabase
+    .from("warranty_records")
+    .select("*")
+    .order("created_at", { ascending: false });
+  if (userId) query = query.eq("user_id", userId);
+  const { data, error } = await query;
+  return { data: (data ?? []) as WarrantyRecord[], error };
+}
+
+export async function createWarrantyRecord(data: Partial<WarrantyRecord>) {
+  const { data: record, error } = await supabase
+    .from("warranty_records")
+    .insert(data)
+    .select()
+    .single();
+  return { data: record as WarrantyRecord | null, error };
+}
