@@ -149,7 +149,8 @@ export function trackCalculation(
     | "ai"
     | "painting"
     | "tyrolene"
-    | "mineral_stone",
+    | "mineral_stone"
+    | "stucco",
 ): Achievement[] {
   const stats = getStats();
   stats.totalCalculations++;
