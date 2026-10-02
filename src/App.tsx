@@ -121,6 +121,9 @@ const AdminEstimationConfig = lazy(
 const AdminEstimationProducts = lazy(
   () => import("@/pages/admin/AdminEstimationProducts"),
 );
+const AdminMaintenanceProfiles = lazy(
+  () => import("@/pages/admin/AdminMaintenanceProfiles"),
+);
 const AdminEstimationMaterials = lazy(
   () => import("@/pages/admin/AdminEstimationMaterials"),
 );
@@ -1064,6 +1067,10 @@ export default function App() {
                     <Route
                       path="estimation-products"
                       element={<AdminEstimationProducts />}
+                    />
+                    <Route
+                      path="maintenance-profiles"
+                      element={<AdminMaintenanceProfiles />}
                     />
                     <Route
                       path="estimation-materials"

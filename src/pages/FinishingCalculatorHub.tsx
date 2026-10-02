@@ -20,12 +20,14 @@ const MineralStoneCalculator = lazy(
   () => import("@/pages/MineralStoneCalculator"),
 );
 const StuccoCalculator = lazy(() => import("@/pages/StuccoCalculator"));
+const MaintenancePlanner = lazy(() => import("@/pages/MaintenancePlanner"));
 
 const TABS = [
   { id: "compare", label: "Compare Finishes" },
   { id: "tyrolene", label: "Tyrolene Estimator" },
   { id: "mineral-stone", label: "Mineral Stone" },
   { id: "stucco", label: "Stucco" },
+  { id: "maintenance", label: "Maintenance Planner" },
 ];
 
 const FAQS = [
@@ -161,6 +163,7 @@ export default function FinishingCalculatorHub() {
           {activeTab === "tyrolene" && <TyroleneEstimator embedded />}
           {activeTab === "mineral-stone" && <MineralStoneCalculator embedded />}
           {activeTab === "stucco" && <StuccoCalculator embedded />}
+          {activeTab === "maintenance" && <MaintenancePlanner embedded />}
         </Suspense>
       </div>
 

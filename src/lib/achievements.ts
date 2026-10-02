@@ -150,7 +150,8 @@ export function trackCalculation(
     | "painting"
     | "tyrolene"
     | "mineral_stone"
-    | "stucco",
+    | "stucco"
+    | "maintenance",
 ): Achievement[] {
   const stats = getStats();
   stats.totalCalculations++;

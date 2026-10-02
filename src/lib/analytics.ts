@@ -64,6 +64,7 @@ export type TrackEvent =
   | "tyrolene_estimator_calculated"
   | "mineral_stone_calculated"
   | "stucco_calculated"
+  | "maintenance_planned"
   | "start_building_clicked"
   | "build_to_roof_clicked"
   | "painting_category_clicked"

@@ -430,3 +430,42 @@ export interface EstimationSurfaceCondition {
   created_at: string;
   updated_at: string;
 }
+
+// 20. maintenance_profiles table (Maintenance Schedule Engine)
+export interface MaintenanceProfile {
+  id: string;
+  finish_category: string;
+  surface_type: string;
+  service_life_min_years: number | string;
+  service_life_max_years: number | string;
+  maintenance_interval_min_years: number | string | null;
+  maintenance_interval_max_years: number | string | null;
+  inspection_interval_years: number | string | null;
+  maintenance_cost_factor: number | string;
+  replacement_cost_factor: number | string;
+  description: string | null;
+  source_reference: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// 21. maintenance_plans table (saved schedule + snapshot)
+export interface MaintenancePlan {
+  id: string;
+  user_id: string | null;
+  estimate_ref: string;
+  finish_category: string;
+  surface_type: string;
+  initial_cost: number | string | null;
+  currency: string | null;
+  install_date: string;
+  horizon_years: number | string;
+  profile_id: string | null;
+  profile_snapshot: Record<string, unknown>;
+  schedule: Record<string, unknown>;
+  warnings: string[];
+  created_at: string;
+  updated_at: string;
+}

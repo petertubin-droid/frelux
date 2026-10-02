@@ -15,6 +15,8 @@ import type {
   EstimationAuditLog,
   EstimationColourCondition,
   EstimationSurfaceCondition,
+  MaintenanceProfile,
+  MaintenancePlan,
 } from "@/types/estimation";
 
 // =========================================================
@@ -814,4 +816,57 @@ export async function fetchConfigurableFinishProducts(
   });
 
   return { data, error: null };
+}
+
+// =========================================================
+// 19. Maintenance Schedule Engine (Future Engine 1)
+// =========================================================
+
+export async function fetchMaintenanceProfiles() {
+  const { data, error } = await supabase
+    .from("maintenance_profiles")
+    .select("*")
+    .order("sort_order", { ascending: true });
+  return { data: (data ?? []) as MaintenanceProfile[], error };
+}
+
+export async function createMaintenanceProfile(
+  data: Partial<MaintenanceProfile>,
+) {
+  const { data: record, error } = await supabase
+    .from("maintenance_profiles")
+    .insert(data)
+    .select()
+    .single();
+  return { data: record as MaintenanceProfile | null, error };
+}
+
+export async function updateMaintenanceProfile(
+  id: string,
+  data: Partial<MaintenanceProfile>,
+) {
+  const { data: record, error } = await supabase
+    .from("maintenance_profiles")
+    .update(data)
+    .eq("id", id)
+    .select()
+    .single();
+  return { data: record as MaintenanceProfile | null, error };
+}
+
+export async function deleteMaintenanceProfile(id: string) {
+  const { error } = await supabase
+    .from("maintenance_profiles")
+    .delete()
+    .eq("id", id);
+  return { error };
+}
+
+export async function saveMaintenancePlan(data: Partial<MaintenancePlan>) {
+  const { data: record, error } = await supabase
+    .from("maintenance_plans")
+    .insert(data)
+    .select()
+    .single();
+  return { data: record as MaintenancePlan | null, error };
 }
