@@ -488,3 +488,18 @@ export interface BoqQuote {
   created_at: string;
   updated_at: string;
 }
+
+// 23. regional_cost_indices table (Regional Cost Index Engine)
+export interface RegionalCostIndex {
+  id: string;
+  state: string;
+  category: string;
+  cost_factor: number;
+  description: string | null;
+  source_reference: string;
+  effective_date: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}

@@ -18,6 +18,7 @@ import type {
   MaintenanceProfile,
   MaintenancePlan,
   BoqQuote,
+  RegionalCostIndex,
 } from "@/types/estimation";
 
 // =========================================================
@@ -904,4 +905,53 @@ export async function fetchBoqQuotes(userId?: string) {
   if (userId) query = query.eq("user_id", userId);
   const { data, error } = await query;
   return { data: (data ?? []) as BoqQuote[], error };
+}
+
+// =========================================================
+// 21. Regional Cost Index (Future Engine 3)
+// =========================================================
+
+export async function fetchRegionalCostIndices(
+  opts: { activeOnly?: boolean } = {},
+) {
+  let query = supabase
+    .from("regional_cost_indices")
+    .select("*")
+    .order("state", { ascending: true })
+    .order("category", { ascending: true });
+  if (opts.activeOnly) query = query.eq("is_active", true);
+  const { data, error } = await query;
+  return { data: (data ?? []) as RegionalCostIndex[], error };
+}
+
+export async function createRegionalCostIndex(
+  data: Partial<RegionalCostIndex>,
+) {
+  const { data: record, error } = await supabase
+    .from("regional_cost_indices")
+    .insert(data)
+    .select()
+    .single();
+  return { data: record as RegionalCostIndex | null, error };
+}
+
+export async function updateRegionalCostIndex(
+  id: string,
+  data: Partial<RegionalCostIndex>,
+) {
+  const { data: record, error } = await supabase
+    .from("regional_cost_indices")
+    .update(data)
+    .eq("id", id)
+    .select()
+    .single();
+  return { data: record as RegionalCostIndex | null, error };
+}
+
+export async function deleteRegionalCostIndex(id: string) {
+  const { error } = await supabase
+    .from("regional_cost_indices")
+    .delete()
+    .eq("id", id);
+  return { error };
 }

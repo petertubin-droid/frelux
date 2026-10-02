@@ -134,6 +134,11 @@ const navModules: NavModule[] = [
         icon: CalendarClock,
       },
       {
+        label: "Regional Costs",
+        to: "/admin/regional-cost-indices",
+        icon: MapPin,
+      },
+      {
         label: "Learning Review",
         to: "/admin/learning-review",
         icon: ShieldCheck,
