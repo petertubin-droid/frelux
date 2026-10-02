@@ -151,6 +151,11 @@ const navModules: NavModule[] = [
         icon: Wallet,
       },
       {
+        label: "Labour Rates",
+        to: "/admin/labour-rates",
+        icon: Users,
+      },
+      {
         label: "Learning Review",
         to: "/admin/learning-review",
         icon: ShieldCheck,

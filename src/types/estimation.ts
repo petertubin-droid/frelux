@@ -538,3 +538,18 @@ export interface CashFlowTemplate {
   created_at: string;
   updated_at: string;
 }
+
+// 27. labour_rates table (Labour & Crew Engine)
+export interface LabourRate {
+  id: string;
+  task_key: string;
+  task_label: string | null;
+  unit: string;
+  output_per_worker_day: number;
+  description: string | null;
+  source_reference: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}

@@ -70,6 +70,7 @@ export type TrackEvent =
   | "price_forecast_generated"
   | "carbon_estimated"
   | "cash_flow_scheduled"
+  | "labour_estimated"
   | "start_building_clicked"
   | "build_to_roof_clicked"
   | "painting_category_clicked"

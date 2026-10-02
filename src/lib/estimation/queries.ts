@@ -21,6 +21,7 @@ import type {
   RegionalCostIndex,
   CarbonFactor,
   CashFlowTemplate,
+  LabourRate,
 } from "@/types/estimation";
 
 // =========================================================
@@ -1042,5 +1043,43 @@ export async function deleteCashFlowTemplate(id: string) {
     .from("cash_flow_templates")
     .delete()
     .eq("id", id);
+  return { error };
+}
+
+// =========================================================
+// 25. Labour & Crew (Future Engine 7)
+// =========================================================
+
+export async function fetchLabourRates(opts: { activeOnly?: boolean } = {}) {
+  let query = supabase
+    .from("labour_rates")
+    .select("*")
+    .order("task_key", { ascending: true });
+  if (opts.activeOnly) query = query.eq("is_active", true);
+  const { data, error } = await query;
+  return { data: (data ?? []) as LabourRate[], error };
+}
+
+export async function createLabourRate(data: Partial<LabourRate>) {
+  const { data: record, error } = await supabase
+    .from("labour_rates")
+    .insert(data)
+    .select()
+    .single();
+  return { data: record as LabourRate | null, error };
+}
+
+export async function updateLabourRate(id: string, data: Partial<LabourRate>) {
+  const { data: record, error } = await supabase
+    .from("labour_rates")
+    .update(data)
+    .eq("id", id)
+    .select()
+    .single();
+  return { data: record as LabourRate | null, error };
+}
+
+export async function deleteLabourRate(id: string) {
+  const { error } = await supabase.from("labour_rates").delete().eq("id", id);
   return { error };
 }

@@ -133,6 +133,7 @@ const AdminCarbonFactors = lazy(
 const AdminCashFlowTemplates = lazy(
   () => import("@/pages/admin/AdminCashFlowTemplates"),
 );
+const AdminLabourRates = lazy(() => import("@/pages/admin/AdminLabourRates"));
 const AdminEstimationMaterials = lazy(
   () => import("@/pages/admin/AdminEstimationMaterials"),
 );
@@ -317,6 +318,7 @@ const MaintenancePlanner = lazy(() => import("@/pages/MaintenancePlanner"));
 const RegionalCostIndex = lazy(() => import("@/pages/RegionalCostIndex"));
 const CarbonFootprint = lazy(() => import("@/pages/CarbonFootprint"));
 const CashFlowTimeline = lazy(() => import("@/pages/CashFlowTimeline"));
+const LabourEstimator = lazy(() => import("@/pages/LabourEstimator"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -1098,6 +1100,7 @@ export default function App() {
                       path="cash-flow-templates"
                       element={<AdminCashFlowTemplates />}
                     />
+                    <Route path="labour-rates" element={<AdminLabourRates />} />
                     <Route
                       path="estimation-materials"
                       element={<AdminEstimationMaterials />}
@@ -1387,6 +1390,10 @@ export default function App() {
                   <Route
                     path="/cash-flow-timeline"
                     element={<CashFlowTimeline />}
+                  />
+                  <Route
+                    path="/labour-estimator"
+                    element={<LabourEstimator />}
                   />
                   <Route
                     path="/estimate/:token"
