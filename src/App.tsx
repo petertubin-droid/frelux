@@ -137,6 +137,7 @@ const AdminLabourRates = lazy(() => import("@/pages/admin/AdminLabourRates"));
 const AdminMarginPresets = lazy(
   () => import("@/pages/admin/AdminMarginPresets"),
 );
+const AdminDefects = lazy(() => import("@/pages/admin/AdminDefects"));
 const AdminEstimationMaterials = lazy(
   () => import("@/pages/admin/AdminEstimationMaterials"),
 );
@@ -323,6 +324,7 @@ const CarbonFootprint = lazy(() => import("@/pages/CarbonFootprint"));
 const CashFlowTimeline = lazy(() => import("@/pages/CashFlowTimeline"));
 const LabourEstimator = lazy(() => import("@/pages/LabourEstimator"));
 const MarginCalculator = lazy(() => import("@/pages/MarginCalculator"));
+const DefectDiagnosis = lazy(() => import("@/pages/DefectDiagnosis"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -1109,6 +1111,7 @@ export default function App() {
                       path="margin-presets"
                       element={<AdminMarginPresets />}
                     />
+                    <Route path="defects" element={<AdminDefects />} />
                     <Route
                       path="estimation-materials"
                       element={<AdminEstimationMaterials />}
@@ -1406,6 +1409,10 @@ export default function App() {
                   <Route
                     path="/margin-calculator"
                     element={<MarginCalculator />}
+                  />
+                  <Route
+                    path="/defect-diagnosis"
+                    element={<DefectDiagnosis />}
                   />
                   <Route
                     path="/estimate/:token"

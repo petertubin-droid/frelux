@@ -60,6 +60,8 @@ import {
   X,
   Leaf,
   Wallet,
+  Percent,
+  Stethoscope,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
@@ -155,6 +157,8 @@ const navModules: NavModule[] = [
         to: "/admin/labour-rates",
         icon: Users,
       },
+      { label: "Margin Presets", to: "/admin/margin-presets", icon: Percent },
+      { label: "Defects", to: "/admin/defects", icon: Stethoscope },
       {
         label: "Learning Review",
         to: "/admin/learning-review",

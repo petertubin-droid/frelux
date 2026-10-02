@@ -23,6 +23,8 @@ import type {
   CashFlowTemplate,
   LabourRate,
   MarginPreset,
+  Defect,
+  DefectCause,
 } from "@/types/estimation";
 
 // =========================================================
@@ -1123,5 +1125,80 @@ export async function updateMarginPreset(
 
 export async function deleteMarginPreset(id: string) {
   const { error } = await supabase.from("margin_presets").delete().eq("id", id);
+  return { error };
+}
+
+// =========================================================
+// 27. Defect Diagnosis (Future Engine 9)
+// =========================================================
+
+export async function fetchDefects(opts: { activeOnly?: boolean } = {}) {
+  let query = supabase
+    .from("defects")
+    .select("*")
+    .order("symptom_key", { ascending: true });
+  if (opts.activeOnly) query = query.eq("is_active", true);
+  const { data, error } = await query;
+  return { data: (data ?? []) as Defect[], error };
+}
+
+export async function createDefect(data: Partial<Defect>) {
+  const { data: record, error } = await supabase
+    .from("defects")
+    .insert(data)
+    .select()
+    .single();
+  return { data: record as Defect | null, error };
+}
+
+export async function updateDefect(id: string, data: Partial<Defect>) {
+  const { data: record, error } = await supabase
+    .from("defects")
+    .update(data)
+    .eq("id", id)
+    .select()
+    .single();
+  return { data: record as Defect | null, error };
+}
+
+export async function deleteDefect(id: string) {
+  const { error } = await supabase.from("defects").delete().eq("id", id);
+  return { error };
+}
+
+export async function fetchDefectCauses(defectId?: string) {
+  let query = supabase
+    .from("defect_causes")
+    .select("*")
+    .order("sort_order", { ascending: true });
+  if (defectId) query = query.eq("defect_id", defectId);
+  const { data, error } = await query;
+  return { data: (data ?? []) as DefectCause[], error };
+}
+
+export async function createDefectCause(data: Partial<DefectCause>) {
+  const { data: record, error } = await supabase
+    .from("defect_causes")
+    .insert(data)
+    .select()
+    .single();
+  return { data: record as DefectCause | null, error };
+}
+
+export async function updateDefectCause(
+  id: string,
+  data: Partial<DefectCause>,
+) {
+  const { data: record, error } = await supabase
+    .from("defect_causes")
+    .update(data)
+    .eq("id", id)
+    .select()
+    .single();
+  return { data: record as DefectCause | null, error };
+}
+
+export async function deleteDefectCause(id: string) {
+  const { error } = await supabase.from("defect_causes").delete().eq("id", id);
   return { error };
 }

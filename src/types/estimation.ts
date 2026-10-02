@@ -567,3 +567,32 @@ export interface MarginPreset {
   created_at: string;
   updated_at: string;
 }
+
+// 29. defects + defect_causes tables (Defect Diagnosis Engine)
+export interface Defect {
+  id: string;
+  symptom_key: string;
+  symptom_label: string;
+  description: string | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DefectCause {
+  id: string;
+  defect_id: string;
+  cause_key: string;
+  cause_label: string;
+  root_cause: string;
+  severity: "low" | "medium" | "high";
+  fix_summary: string;
+  fix_material: string | null;
+  fix_consumption_per_sqm: number | null;
+  fix_unit: string | null;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
