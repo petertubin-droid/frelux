@@ -68,6 +68,7 @@ export type TrackEvent =
   | "boq_generated"
   | "regional_cost_adjusted"
   | "price_forecast_generated"
+  | "carbon_estimated"
   | "start_building_clicked"
   | "build_to_roof_clicked"
   | "painting_category_clicked"

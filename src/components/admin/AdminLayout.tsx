@@ -58,6 +58,7 @@ import {
   Type,
   Users,
   X,
+  Leaf,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
@@ -137,6 +138,11 @@ const navModules: NavModule[] = [
         label: "Regional Costs",
         to: "/admin/regional-cost-indices",
         icon: MapPin,
+      },
+      {
+        label: "Carbon Factors",
+        to: "/admin/carbon-factors",
+        icon: Leaf,
       },
       {
         label: "Learning Review",

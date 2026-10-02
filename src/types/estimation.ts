@@ -503,3 +503,19 @@ export interface RegionalCostIndex {
   created_at: string;
   updated_at: string;
 }
+
+// 24. carbon_factors table (Embodied Carbon Engine)
+export interface CarbonFactor {
+  id: string;
+  category: string;
+  category_label: string | null;
+  unit: string;
+  kg_co2e_per_unit: number;
+  description: string | null;
+  source_reference: string;
+  effective_date: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}

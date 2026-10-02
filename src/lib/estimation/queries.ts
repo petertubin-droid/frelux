@@ -19,6 +19,7 @@ import type {
   MaintenancePlan,
   BoqQuote,
   RegionalCostIndex,
+  CarbonFactor,
 } from "@/types/estimation";
 
 // =========================================================
@@ -953,5 +954,46 @@ export async function deleteRegionalCostIndex(id: string) {
     .from("regional_cost_indices")
     .delete()
     .eq("id", id);
+  return { error };
+}
+
+// =========================================================
+// 22. Embodied Carbon (Future Engine 5)
+// =========================================================
+
+export async function fetchCarbonFactors(opts: { activeOnly?: boolean } = {}) {
+  let query = supabase
+    .from("carbon_factors")
+    .select("*")
+    .order("category", { ascending: true });
+  if (opts.activeOnly) query = query.eq("is_active", true);
+  const { data, error } = await query;
+  return { data: (data ?? []) as CarbonFactor[], error };
+}
+
+export async function createCarbonFactor(data: Partial<CarbonFactor>) {
+  const { data: record, error } = await supabase
+    .from("carbon_factors")
+    .insert(data)
+    .select()
+    .single();
+  return { data: record as CarbonFactor | null, error };
+}
+
+export async function updateCarbonFactor(
+  id: string,
+  data: Partial<CarbonFactor>,
+) {
+  const { data: record, error } = await supabase
+    .from("carbon_factors")
+    .update(data)
+    .eq("id", id)
+    .select()
+    .single();
+  return { data: record as CarbonFactor | null, error };
+}
+
+export async function deleteCarbonFactor(id: string) {
+  const { error } = await supabase.from("carbon_factors").delete().eq("id", id);
   return { error };
 }

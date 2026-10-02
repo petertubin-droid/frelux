@@ -124,6 +124,12 @@ const AdminEstimationProducts = lazy(
 const AdminMaintenanceProfiles = lazy(
   () => import("@/pages/admin/AdminMaintenanceProfiles"),
 );
+const AdminRegionalCostIndices = lazy(
+  () => import("@/pages/admin/AdminRegionalCostIndices"),
+);
+const AdminCarbonFactors = lazy(
+  () => import("@/pages/admin/AdminCarbonFactors"),
+);
 const AdminEstimationMaterials = lazy(
   () => import("@/pages/admin/AdminEstimationMaterials"),
 );
@@ -304,6 +310,9 @@ const ClientEstimateView = lazy(() => import("@/pages/ClientEstimateView"));
 const ClientEstimateEditor = lazy(() => import("@/pages/ClientEstimateEditor"));
 const MaterialPriceTracker = lazy(() => import("@/pages/MaterialPriceTracker"));
 const BoqGenerator = lazy(() => import("@/pages/BoqGenerator"));
+const MaintenancePlanner = lazy(() => import("@/pages/MaintenancePlanner"));
+const RegionalCostIndex = lazy(() => import("@/pages/RegionalCostIndex"));
+const CarbonFootprint = lazy(() => import("@/pages/CarbonFootprint"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -1074,6 +1083,14 @@ export default function App() {
                       element={<AdminMaintenanceProfiles />}
                     />
                     <Route
+                      path="regional-cost-indices"
+                      element={<AdminRegionalCostIndices />}
+                    />
+                    <Route
+                      path="carbon-factors"
+                      element={<AdminCarbonFactors />}
+                    />
+                    <Route
                       path="estimation-materials"
                       element={<AdminEstimationMaterials />}
                     />
@@ -1345,6 +1362,19 @@ export default function App() {
                   <Route
                     path="/material-prices"
                     element={<MaterialPriceTracker />}
+                  />
+                  <Route
+                    path="/maintenance-planner"
+                    element={<MaintenancePlanner />}
+                  />
+                  <Route path="/boq-generator" element={<BoqGenerator />} />
+                  <Route
+                    path="/regional-cost-index"
+                    element={<RegionalCostIndex />}
+                  />
+                  <Route
+                    path="/carbon-footprint"
+                    element={<CarbonFootprint />}
                   />
                   <Route
                     path="/estimate/:token"
