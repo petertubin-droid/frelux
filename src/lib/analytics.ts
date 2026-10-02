@@ -67,6 +67,7 @@ export type TrackEvent =
   | "maintenance_planned"
   | "boq_generated"
   | "regional_cost_adjusted"
+  | "price_forecast_generated"
   | "start_building_clicked"
   | "build_to_roof_clicked"
   | "painting_category_clicked"
