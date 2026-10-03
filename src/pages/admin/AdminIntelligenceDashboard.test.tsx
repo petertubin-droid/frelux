@@ -144,15 +144,20 @@ describe("AdminIntelligenceDashboard", () => {
 
   it("aggregates tiles from real crawl runs, not marketing copy", async () => {
     render(<AdminIntelligenceDashboard />);
-    expect(await screen.findByText("Registered sources")).toBeTruthy();
-    expect(tileValue("Registered sources")).toBe("3");
-    expect(tileValue("Pages scanned")).toBe("12"); // 12+0 processed
-    expect(tileValue("New information")).toBe("10"); // 8+2
-    expect(tileValue("Learning candidates")).toBe("6"); // 5+1
-    expect(tileValue("Knowledge promoted (via review)")).toBe("2");
-    expect(tileValue("Crawl errors")).toBe("1"); // run-0001's timeout
-    expect(tileValue("Active")).toBe("2");
-    expect(tileValue("Disabled")).toBe("1");
+    // The tile labels render immediately with 0 placeholders; the values
+    // arrive once the mocked fetches resolve. Wait for ALL tiles to be
+    // populated before asserting — this was a flaky race on slow CI
+    // runners (the label existing is not evidence the data loaded).
+    await waitFor(() => {
+      expect(tileValue("Registered sources")).toBe("3");
+      expect(tileValue("Pages scanned")).toBe("12"); // 12+0 processed
+      expect(tileValue("New information")).toBe("10"); // 8+2
+      expect(tileValue("Learning candidates")).toBe("6"); // 5+1
+      expect(tileValue("Knowledge promoted (via review)")).toBe("2");
+      expect(tileValue("Crawl errors")).toBe("1"); // run-0001's timeout
+      expect(tileValue("Active")).toBe("2");
+      expect(tileValue("Disabled")).toBe("1");
+    });
   });
 
   it("crawl history shows per-run honesty: failure reasons and error lists, never a cleaned-up fiction", async () => {
