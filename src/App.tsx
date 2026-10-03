@@ -134,6 +134,9 @@ const AdminThermalFactors = lazy(
   () => import("@/pages/admin/AdminThermalFactors"),
 );
 const AdminReuseFactors = lazy(() => import("@/pages/admin/AdminReuseFactors"));
+const AdminCreditProfiles = lazy(
+  () => import("@/pages/admin/AdminCreditProfiles"),
+);
 const AdminCashFlowTemplates = lazy(
   () => import("@/pages/admin/AdminCashFlowTemplates"),
 );
@@ -333,6 +336,7 @@ const EstimateRefresh = lazy(() => import("@/pages/EstimateRefresh"));
 const WarrantyCertificate = lazy(() => import("@/pages/WarrantyCertificate"));
 const HeatComfort = lazy(() => import("@/pages/HeatComfort"));
 const CircularReuse = lazy(() => import("@/pages/CircularReuse"));
+const ContractorCredit = lazy(() => import("@/pages/ContractorCredit"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -1119,6 +1123,10 @@ export default function App() {
                       element={<AdminReuseFactors />}
                     />
                     <Route
+                      path="credit-profiles"
+                      element={<AdminCreditProfiles />}
+                    />
+                    <Route
                       path="cash-flow-templates"
                       element={<AdminCashFlowTemplates />}
                     />
@@ -1440,6 +1448,10 @@ export default function App() {
                   />
                   <Route path="/heat-comfort" element={<HeatComfort />} />
                   <Route path="/circular-reuse" element={<CircularReuse />} />
+                  <Route
+                    path="/contractor-credit"
+                    element={<ContractorCredit />}
+                  />
                   <Route
                     path="/estimate/:token"
                     element={<ClientEstimateView />}

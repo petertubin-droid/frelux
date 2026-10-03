@@ -158,6 +158,11 @@ const navModules: NavModule[] = [
         icon: Leaf,
       },
       {
+        label: "Credit Profiles",
+        to: "/admin/credit-profiles",
+        icon: Leaf,
+      },
+      {
         label: "Cash-Flow Templates",
         to: "/admin/cash-flow-templates",
         icon: Wallet,

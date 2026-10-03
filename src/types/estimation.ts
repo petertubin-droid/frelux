@@ -506,6 +506,24 @@ export interface RegionalCostIndex {
 
 // 24. carbon_factors table (Embodied Carbon Engine)
 // thermal_finish_factors table (Heat Comfort Engine)
+// contractor_credit_profiles table (Contractor Credit-Score Engine)
+export interface ContractorCreditProfile {
+  id: string;
+  contractor_name: string;
+  registration_number: string | null;
+  verified_jobs: number;
+  on_time_jobs: number;
+  dispute_count: number;
+  avg_estimate_error_pct: number;
+  description: string | null;
+  verification_reference: string;
+  effective_date: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
 // material_reuse_factors table (Circular/Reuse Engine)
 export interface MaterialReuseFactor {
   id: string;

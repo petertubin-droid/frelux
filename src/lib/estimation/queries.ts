@@ -22,6 +22,7 @@ import type {
   CarbonFactor,
   ThermalFinishFactor,
   MaterialReuseFactor,
+  ContractorCreditProfile,
   CashFlowTemplate,
   LabourRate,
   MarginPreset,
@@ -1323,6 +1324,49 @@ export async function updateMaterialReuseFactor(
 export async function deleteMaterialReuseFactor(id: string) {
   const { error } = await supabase
     .from("material_reuse_factors")
+    .delete()
+    .eq("id", id);
+  return { error };
+}
+
+// =========================================================
+// 18. Contractor credit profiles (Credit-Score Engine)
+// =========================================================
+
+export async function fetchContractorCreditProfiles(activeOnly = false) {
+  let query = supabase
+    .from("contractor_credit_profiles")
+    .select("*")
+    .order("sort_order", { ascending: true })
+    .order("contractor_name", { ascending: true });
+  if (activeOnly) query = query.eq("is_active", true);
+  const { data, error } = await query;
+  return { data: (data ?? []) as ContractorCreditProfile[], error };
+}
+
+export async function createContractorCreditProfile(
+  data: Partial<ContractorCreditProfile>,
+) {
+  const { error } = await supabase
+    .from("contractor_credit_profiles")
+    .insert(data);
+  return { error };
+}
+
+export async function updateContractorCreditProfile(
+  id: string,
+  data: Partial<ContractorCreditProfile>,
+) {
+  const { error } = await supabase
+    .from("contractor_credit_profiles")
+    .update(data)
+    .eq("id", id);
+  return { error };
+}
+
+export async function deleteContractorCreditProfile(id: string) {
+  const { error } = await supabase
+    .from("contractor_credit_profiles")
     .delete()
     .eq("id", id);
   return { error };
