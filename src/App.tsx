@@ -340,6 +340,7 @@ const HeatComfort = lazy(() => import("@/pages/HeatComfort"));
 const CircularReuse = lazy(() => import("@/pages/CircularReuse"));
 const ContractorCredit = lazy(() => import("@/pages/ContractorCredit"));
 const SolarPvEstimator = lazy(() => import("@/pages/SolarPvEstimator"));
+const BimIfcImport = lazy(() => import("@/pages/BimIfcImport"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -1461,6 +1462,7 @@ export default function App() {
                     path="/solar-pv-estimator"
                     element={<SolarPvEstimator />}
                   />
+                  <Route path="/bim-ifc-import" element={<BimIfcImport />} />
                   <Route
                     path="/estimate/:token"
                     element={<ClientEstimateView />}

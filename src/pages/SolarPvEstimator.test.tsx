@@ -494,6 +494,7 @@ describe("engine route registration (regression)", () => {
       '"/circular-reuse"',
       '"/contractor-credit"',
       '"/solar-pv-estimator"',
+      '"/bim-ifc-import"',
     ]) {
       expect(app, `App.tsx must register the route ${path}`).toContain(path);
     }

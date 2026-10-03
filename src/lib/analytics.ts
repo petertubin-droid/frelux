@@ -79,6 +79,7 @@ export type TrackEvent =
   | "circular_reuse_planned"
   | "credit_score_checked"
   | "solar_pv_estimated"
+  | "bim_ifc_imported"
   | "start_building_clicked"
   | "build_to_roof_clicked"
   | "painting_category_clicked"
