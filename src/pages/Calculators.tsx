@@ -15,6 +15,11 @@ import {
   ArrowRight,
   Brain,
   ScanLine,
+  Zap,
+  Droplets,
+  Umbrella,
+  LayoutGrid,
+  DoorOpen,
   type LucideIcon,
 } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -162,6 +167,78 @@ const calculators: Tool[] = [
     benefit: "Photo AI · Honest counts",
     to: "/count-vision",
     accent: "text-brand-purple bg-primary/10",
+  },
+  {
+    icon: Zap,
+    title: "Electrical Wiring",
+    description:
+      "Point counts and your estimated cable runs become separate cable, conduit, junction box, breaker and accessory quantities — with every step of the calculation shown. Estimation only, not electrical design.",
+    benefit: "5 cable types · Full breakdown",
+    to: "/electrical",
+    accent: "text-accent-cyan bg-accent-cyan/10",
+  },
+  {
+    icon: Droplets,
+    title: "Plumbing",
+    description:
+      "Fixture counts plus your measured pipe runs become separate pipe, fitting, valve and connection-kit quantities, with waste shown in the breakdown. Estimation only, not plumbing design.",
+    benefit: "4 pipe types · Full breakdown",
+    to: "/plumbing",
+    accent: "text-accent-cyan bg-accent-cyan/10",
+  },
+  {
+    icon: Umbrella,
+    title: "Waterproofing",
+    description:
+      "Measured DPC run, DPM area, wet-area surfaces and terrace area become DPC, DPM, cementitious coating, membrane and tape quantities, with coats, coverage and waste visible. Estimation only, not waterproofing design.",
+    benefit: "Coverage rules · Visible waste",
+    to: "/waterproofing",
+    accent: "text-accent-cyan bg-accent-cyan/10",
+  },
+  {
+    icon: LayoutGrid,
+    title: "Flooring",
+    description:
+      "Measured floor area and skirting run become laminate packs, vinyl or parquet m², underlay, adhesive and skirting quantities, with pack coverage and waste visible. Estimation only, not a flooring specification.",
+    benefit: "Laminate · Vinyl · Parquet",
+    to: "/flooring",
+    accent: "text-accent-cyan bg-accent-cyan/10",
+  },
+  {
+    icon: Building2,
+    title: "Reinforcement / Steel",
+    description:
+      "Your bar schedule cutting lengths become whole 12 m rebar lengths with visible lap allowance, BS 4449 tonnage for delivery planning, and binding wire from a visible rule. Does NOT design reinforcement.",
+    benefit: "Bar schedule · Honest tonnage",
+    to: "/reinforcement",
+    accent: "text-accent-cyan bg-accent-cyan/10",
+  },
+  {
+    icon: Layers,
+    title: "Foundation",
+    description:
+      "Measured concrete volume, wall area, hardcore and formwork become cement, sand, granite, blocks and formwork quantities with the mix ratio and every constant visible. Estimation only — not foundation design.",
+    benefit: "Visible 1:2:4 mix math",
+    to: "/foundation",
+    accent: "text-accent-cyan bg-accent-cyan/10",
+  },
+  {
+    icon: DoorOpen,
+    title: "Doors & Windows",
+    description:
+      "Your door and window counts per type become leaves, frames, hinges, locksets and window units, with every derived count labelled. Estimation only — confirm unit sizes on site.",
+    benefit: "Labelled allowances · No guessing",
+    to: "/doors-windows",
+    accent: "text-accent-cyan bg-accent-cyan/10",
+  },
+  {
+    icon: Zap,
+    title: "Backup Power / Generator",
+    description:
+      "Your chosen generator bracket and measured cable run become generator, ATS, battery and cable quantities with waste visible. The engine never sizes the generator — estimation only, not an installation design.",
+    benefit: "Your load decision · Visible waste",
+    to: "/generator",
+    accent: "text-accent-cyan bg-accent-cyan/10",
   },
   {
     icon: CloudOff,

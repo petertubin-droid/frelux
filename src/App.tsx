@@ -351,6 +351,20 @@ const ConversationalEstimator = lazy(
 );
 const FieldSync = lazy(() => import("@/pages/FieldSync"));
 const CountVision = lazy(() => import("@/pages/CountVision"));
+const ElectricalEstimator = lazy(() => import("@/pages/ElectricalEstimator"));
+const PlumbingEstimator = lazy(() => import("@/pages/PlumbingEstimator"));
+const WaterproofingEstimator = lazy(
+  () => import("@/pages/WaterproofingEstimator"),
+);
+const FlooringEstimator = lazy(() => import("@/pages/FlooringEstimator"));
+const ReinforcementEstimator = lazy(
+  () => import("@/pages/ReinforcementEstimator"),
+);
+const FoundationEstimator = lazy(() => import("@/pages/FoundationEstimator"));
+const DoorsWindowsEstimator = lazy(
+  () => import("@/pages/DoorsWindowsEstimator"),
+);
+const GeneratorEstimator = lazy(() => import("@/pages/GeneratorEstimator"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -1485,6 +1499,25 @@ export default function App() {
                   />
                   <Route path="/field-sync" element={<FieldSync />} />
                   <Route path="/count-vision" element={<CountVision />} />
+                  {/* Tier 2 material estimation engines */}
+                  <Route path="/electrical" element={<ElectricalEstimator />} />
+                  <Route path="/plumbing" element={<PlumbingEstimator />} />
+                  <Route
+                    path="/waterproofing"
+                    element={<WaterproofingEstimator />}
+                  />
+                  <Route path="/flooring" element={<FlooringEstimator />} />
+                  <Route
+                    path="/reinforcement"
+                    element={<ReinforcementEstimator />}
+                  />
+                  <Route path="/foundation" element={<FoundationEstimator />} />
+                  <Route
+                    path="/doors-windows"
+                    element={<DoorsWindowsEstimator />}
+                  />
+                  <Route path="/generator" element={<GeneratorEstimator />} />
+
                   <Route
                     path="/estimate/:token"
                     element={<ClientEstimateView />}

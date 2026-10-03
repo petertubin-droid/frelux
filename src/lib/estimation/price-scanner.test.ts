@@ -17,61 +17,84 @@ describe("estimation/price-scanner", () => {
     expect(FALLBACK_PRICES.rebar_25mm_per_length.price).toBe(40000);
   });
 
-  it("all fallback prices have price > 0 and unit", () => {
+  it("every catalog entry has a unit, a name and a material slug", () => {
     for (const [_key, val] of Object.entries(FALLBACK_PRICES)) {
-      expect(val.price).toBeGreaterThan(0);
       expect(val.unit.length).toBeGreaterThan(0);
       expect(val.name.length).toBeGreaterThan(0);
+      expect(val.slug.length).toBeGreaterThan(0);
+      // price is a positive reference OR null (no reference — admin must enter)
+      if (val.price !== null) expect(val.price).toBeGreaterThan(0);
     }
   });
 
-  it("scanMaterialPrices returns a report", async () => {
+  it("catalog entries without a reference price are explicitly null, never guessed", () => {
+    // Tier 2 electrical materials are tracked but unpriced by design
+    expect(FALLBACK_PRICES.elec_cable_lighting.price).toBeNull();
+    expect(FALLBACK_PRICES.elec_breaker.price).toBeNull();
+    expect(FALLBACK_PRICES.elec_cable_lighting.slug).toBe(
+      "elec-cable-lighting",
+    );
+  });
+
+  it("scanMaterialPrices returns a deterministic report of every entry", async () => {
     const report = await scanMaterialPrices({});
-    expect(report.materials_scanned).toBeGreaterThan(0);
-    expect(report.results.length).toBeGreaterThan(0);
+    expect(report.materials_scanned).toBe(Object.keys(FALLBACK_PRICES).length);
+    expect(report.results.length).toBe(Object.keys(FALLBACK_PRICES).length);
     expect(report.currency).toBe("NGN");
     expect(report.market_region).toBe("Nigeria");
     expect(report.materials_failed).toBe(0);
   });
 
-  it("scanMaterialPrices respects options", async () => {
-    const report = await scanMaterialPrices(
-      {},
-      { region: "Kenya", currency: "KES" },
+  it("is deterministic — the same inputs produce the identical report twice", async () => {
+    const a = await scanMaterialPrices({ "cement-per-bag": 9000 });
+    const b = await scanMaterialPrices({ "cement-per-bag": 9000 });
+    expect(
+      a.results.map((r) => [
+        r.material_key,
+        r.configured_price,
+        r.reference_price,
+        r.change_percent,
+      ]),
+    ).toEqual(
+      b.results.map((r) => [
+        r.material_key,
+        r.configured_price,
+        r.reference_price,
+        r.change_percent,
+      ]),
     );
-    expect(report.market_region).toBe("Kenya");
-    expect(report.currency).toBe("KES");
   });
 
-  it("scanMaterialPrices result items have required fields", async () => {
-    const report = await scanMaterialPrices({});
-    const item = report.results[0];
-    expect(item.material_key).toBeTruthy();
-    expect(item.material_name).toBeTruthy();
-    expect(item.unit).toBeTruthy();
-    expect(item.source).toBeTruthy();
-    expect(item.confidence).toBeTruthy();
-    expect(item.scanned_at).toBeTruthy();
-    expect(item.success).toBe(true);
-  });
-
-  it("scanMaterialPrices compares against current prices", async () => {
-    const currentPrices: Record<string, number> = {
-      cement_per_bag: 8000,
-    };
-    const report = await scanMaterialPrices(currentPrices);
+  it("compares configured prices (keyed by slug) against the reference", async () => {
+    const report = await scanMaterialPrices({ "cement-per-bag": 8000 });
     const cement = report.results.find(
       (r) => r.material_key === "cement_per_bag",
     );
     expect(cement).toBeTruthy();
-    expect(cement!.old_price).toBe(8000);
+    expect(cement!.configured_price).toBe(8000);
+    expect(cement!.reference_price).toBe(8500);
+    // (8500 − 8000) / 8000 = +6.25%
+    expect(cement!.change_percent).toBe(6.25);
   });
 
-  it("scanMaterialPrices uses fallback when current price missing", async () => {
+  it("unconfigured materials are reported as NOT CONFIGURED, never priced", async () => {
     const report = await scanMaterialPrices({});
     const cement = report.results.find(
       (r) => r.material_key === "cement_per_bag",
     );
-    expect(cement!.old_price).toBe(8500);
+    expect(cement!.configured_price).toBeNull();
+    expect(cement!.change_percent).toBeNull();
+    expect(report.materials_unconfigured).toBeGreaterThan(0);
+    // the reference is still shown for the admin to verify — not applied silently
+    expect(cement!.reference_price).toBe(8500);
+  });
+
+  it("an entry with no reference reports low confidence and asks for admin entry", async () => {
+    const report = await scanMaterialPrices({});
+    const cable = report.results.find(
+      (r) => r.material_key === "elec_cable_lighting",
+    );
+    expect(cable!.reference_price).toBeNull();
+    expect(cable!.confidence).toBe("low");
   });
 });
