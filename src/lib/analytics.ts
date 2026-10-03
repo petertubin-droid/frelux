@@ -84,6 +84,7 @@ export type TrackEvent =
   | "conversational_route_click"
   | "field_capture_queued"
   | "field_sync_run"
+  | "count_vision_run"
   | "start_building_clicked"
   | "build_to_roof_clicked"
   | "painting_category_clicked"

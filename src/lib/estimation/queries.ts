@@ -1,5 +1,6 @@
 import { supabase } from "@/lib/supabase";
 import { cachedConfigFetch } from "@/lib/estimation/offline-cache";
+import type { CountVisionResult } from "@/lib/estimation/count-vision-engine";
 import type {
   EstimationUnit,
   EstimationProduct,
@@ -1708,4 +1709,59 @@ export async function fetchFieldCaptureLog(limit = 50) {
     .order("captured_at", { ascending: false })
     .limit(limit);
   return { data: (data ?? []) as FieldCaptureLogRow[], error };
+}
+
+// =========================================================
+// 21. Counter-Vision Engine (Future Engine 2)
+// =========================================================
+
+export interface CountVisionLogRow {
+  id: string;
+  created_by: string | null;
+  item_hint: string;
+  verdict: "counted" | "unclear" | "not_found" | "error";
+  item_count: number | null;
+  unit_label: string | null;
+  confidence: number | null;
+  reason: string;
+  image_bytes: number;
+  image_mime: string;
+  latency_ms: number;
+  requested_at: string;
+}
+
+/** Fetch the admin-configured counting rules (calculator_type 'count_vision'). */
+export async function fetchCountVisionRules() {
+  const result = await fetchCalcRules("count_vision");
+  return result;
+}
+
+/**
+ * Count what is visible in a photo via the count-vision edge
+ * function (Gemini). Returns the honest verdict; throws only on
+ * network/transport problems.
+ */
+export async function countPhoto(
+  imageDataUrl: string,
+  itemHint: string,
+): Promise<CountVisionResult> {
+  const { error, data } = await supabase.functions.invoke("count-vision", {
+    body: { imageDataUrl, itemHint },
+  });
+  if (error) throw error;
+  if (data?.error) throw new Error(String(data.error));
+  if (!data?.result) {
+    throw new Error("The counting service returned no answer.");
+  }
+  return data.result as CountVisionResult;
+}
+
+/** Admin: the recent count requests, newest first. */
+export async function fetchCountVisionLog(limit = 50) {
+  const { data, error } = await supabase
+    .from("count_vision_log")
+    .select("*")
+    .order("requested_at", { ascending: false })
+    .limit(limit);
+  return { data: (data ?? []) as CountVisionLogRow[], error };
 }

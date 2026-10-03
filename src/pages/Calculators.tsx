@@ -14,6 +14,7 @@ import {
   Palette,
   ArrowRight,
   Brain,
+  ScanLine,
   type LucideIcon,
 } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -152,6 +153,15 @@ const calculators: Tool[] = [
     benefit: "WhatsApp · 4 languages",
     to: "/conversational-estimator",
     accent: "text-accent-cyan bg-accent-cyan/10",
+  },
+  {
+    icon: ScanLine,
+    title: "Counter-Vision",
+    description:
+      "Photograph stacked cement bags, tiles or blocks and the engine counts what is visible — honestly. If a photo can't be counted reliably, it says so instead of guessing.",
+    benefit: "Photo AI · Honest counts",
+    to: "/count-vision",
+    accent: "text-brand-purple bg-primary/10",
   },
   {
     icon: CloudOff,

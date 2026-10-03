@@ -142,6 +142,7 @@ const AdminConversationalPacks = lazy(
   () => import("@/pages/admin/AdminConversationalPacks"),
 );
 const AdminFieldSync = lazy(() => import("@/pages/admin/AdminFieldSync"));
+const AdminCountVision = lazy(() => import("@/pages/admin/AdminCountVision"));
 const AdminSolarPrices = lazy(() => import("@/pages/admin/AdminSolarPrices"));
 const AdminCashFlowTemplates = lazy(
   () => import("@/pages/admin/AdminCashFlowTemplates"),
@@ -349,6 +350,7 @@ const ConversationalEstimator = lazy(
   () => import("@/pages/ConversationalEstimator"),
 );
 const FieldSync = lazy(() => import("@/pages/FieldSync"));
+const CountVision = lazy(() => import("@/pages/CountVision"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -1144,6 +1146,7 @@ export default function App() {
                       element={<AdminConversationalPacks />}
                     />
                     <Route path="field-sync" element={<AdminFieldSync />} />
+                    <Route path="count-vision" element={<AdminCountVision />} />
                     <Route path="solar-prices" element={<AdminSolarPrices />} />
                     <Route
                       path="cash-flow-templates"
@@ -1481,6 +1484,7 @@ export default function App() {
                     element={<ConversationalEstimator />}
                   />
                   <Route path="/field-sync" element={<FieldSync />} />
+                  <Route path="/count-vision" element={<CountVision />} />
                   <Route
                     path="/estimate/:token"
                     element={<ClientEstimateView />}

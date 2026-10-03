@@ -4,6 +4,7 @@ import {
   AlertTriangle,
   BadgeCheck,
   BarChart3,
+  ScanLine,
   BookOpen,
   Brain,
   Briefcase,
@@ -177,6 +178,11 @@ const navModules: NavModule[] = [
         label: "Field Sync",
         to: "/admin/field-sync",
         icon: CloudOff,
+      },
+      {
+        label: "Counter-Vision",
+        to: "/admin/count-vision",
+        icon: ScanLine,
       },
       {
         label: "Solar Prices",
