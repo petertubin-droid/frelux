@@ -28,6 +28,7 @@ import {
   type SolarPvResult,
 } from "@/lib/estimation/solar-pv-engine";
 import type { SolarPanelModel, EstimationCalcRule } from "@/types/estimation";
+import AdSlot from "@/components/ui/AdSlot";
 
 export default function SolarPvEstimator() {
   useSeo({
@@ -389,6 +390,9 @@ export default function SolarPvEstimator() {
           </div>
         )}
       </div>
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      <AdSlot slotKey="calculator_native" className="mt-8" />
+      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

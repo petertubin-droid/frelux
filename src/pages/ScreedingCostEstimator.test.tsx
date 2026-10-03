@@ -66,6 +66,7 @@ vi.mock("@/lib/supabase", () => {
   return { supabase };
 });
 
+vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 beforeEach(() => {
   vi.clearAllMocks();
 });

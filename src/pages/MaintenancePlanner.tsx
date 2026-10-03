@@ -33,6 +33,7 @@ import {
   type MaintenanceResult,
 } from "@/lib/estimation/maintenance-engine";
 import type { MaintenanceProfile } from "@/types/estimation";
+import AdSlot from "@/components/ui/AdSlot";
 
 export default function MaintenancePlanner({
   embedded = false,
@@ -434,5 +435,12 @@ export default function MaintenancePlanner({
   );
 
   if (embedded) return body;
-  return <Container>{body}</Container>;
+  return (
+    <Container>
+      {body}
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      <AdSlot slotKey="calculator_native" className="mt-8" />
+      <AdSlot slotKey="calculator_bottom" className="mt-8" />
+    </Container>
+  );
 }

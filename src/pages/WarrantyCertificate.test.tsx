@@ -103,6 +103,7 @@ vi.mock("@/lib/safeError", () => ({
   getSafeError: vi.fn((_e: unknown, fallback: string) => fallback),
 }));
 
+vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 beforeEach(() => {
   vi.clearAllMocks();
 });

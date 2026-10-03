@@ -67,6 +67,7 @@ function renderPage() {
   );
 }
 
+vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 beforeEach(() => {
   vi.clearAllMocks();
   mockedFetchIndices.mockResolvedValue({

@@ -3,14 +3,15 @@ import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
-vi.mock("@/lib/auth", () => ({ useAuth: vi.fn(() => ({ user: null, loading: false })) }));
+vi.mock("@/lib/auth", () => ({
+  useAuth: vi.fn(() => ({ user: null, loading: false })),
+}));
 vi.mock("@/lib/credits", () => ({
   getCreditWallet: vi.fn().mockResolvedValue(null),
   getActivityStreak: vi.fn().mockResolvedValue(null),
   recordActivity: vi.fn().mockResolvedValue(true),
   REWARD_EVENTS: {},
 }));
-vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 vi.mock("@/lib/token-purchase", () => ({
   getTokenPurchaseConfig: vi.fn().mockResolvedValue(null),
   initializeTokenPurchase: vi.fn().mockResolvedValue({ success: false }),
@@ -23,7 +24,10 @@ vi.mock("@/lib/ad-config", () => ({
   REWARDED_AD_BRIDGES: {},
 }));
 
-beforeEach(() => { vi.clearAllMocks(); });
+vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 async function renderPage() {
   const Comp = (await import("@/pages/Rewards")).default;

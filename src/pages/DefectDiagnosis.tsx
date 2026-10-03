@@ -29,6 +29,7 @@ import type {
   DefectCause,
   EstimationCalcRule,
 } from "@/types/estimation";
+import AdSlot from "@/components/ui/AdSlot";
 
 const severityColor: Record<string, string> = {
   low: "text-emerald-600 dark:text-emerald-400",
@@ -238,6 +239,9 @@ export default function DefectDiagnosis() {
           </div>
         )}
       </div>
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      <AdSlot slotKey="calculator_native" className="mt-8" />
+      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

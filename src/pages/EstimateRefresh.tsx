@@ -37,6 +37,7 @@ import type {
   EstimationCalcRule,
   PriceSnapshot,
 } from "@/types/estimation";
+import AdSlot from "@/components/ui/AdSlot";
 
 function money(v: number): string {
   return `₦${v.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -385,6 +386,9 @@ export default function EstimateRefresh() {
           </div>
         )}
       </div>
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      <AdSlot slotKey="calculator_native" className="mt-8" />
+      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

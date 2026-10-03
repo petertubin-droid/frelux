@@ -28,6 +28,7 @@ import type {
   ThermalFinishFactor,
   EstimationCalcRule,
 } from "@/types/estimation";
+import AdSlot from "@/components/ui/AdSlot";
 
 export default function HeatComfort() {
   useSeo({
@@ -278,6 +279,9 @@ export default function HeatComfort() {
           </div>
         )}
       </div>
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      <AdSlot slotKey="calculator_native" className="mt-8" />
+      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

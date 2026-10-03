@@ -21,6 +21,7 @@ import {
   type LabourResult,
 } from "@/lib/estimation/labour-crew-engine";
 import type { LabourRate, EstimationCalcRule } from "@/types/estimation";
+import AdSlot from "@/components/ui/AdSlot";
 
 export default function LabourEstimator() {
   useSeo({
@@ -197,6 +198,9 @@ export default function LabourEstimator() {
           </div>
         )}
       </div>
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      <AdSlot slotKey="calculator_native" className="mt-8" />
+      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

@@ -16,6 +16,7 @@ import {
   parseIfcTakeoff,
   type IfcParseResult,
 } from "@/lib/estimation/ifc-parser";
+import AdSlot from "@/components/ui/AdSlot";
 
 export default function BimIfcImport() {
   useSeo({
@@ -234,6 +235,9 @@ export default function BimIfcImport() {
           </div>
         )}
       </div>
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      <AdSlot slotKey="calculator_native" className="mt-8" />
+      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

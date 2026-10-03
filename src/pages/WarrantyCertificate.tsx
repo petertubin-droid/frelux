@@ -35,6 +35,7 @@ import type {
   EstimationEstimateItem,
   EstimationCalcRule,
 } from "@/types/estimation";
+import AdSlot from "@/components/ui/AdSlot";
 
 function fmtDate(iso: string | null): string {
   if (!iso) return "—";
@@ -405,6 +406,9 @@ export default function WarrantyCertificate() {
           </div>
         )}
       </div>
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      <AdSlot slotKey="calculator_native" className="mt-8" />
+      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

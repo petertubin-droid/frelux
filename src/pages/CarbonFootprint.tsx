@@ -22,6 +22,7 @@ import {
   type EmbodiedCarbonResult,
 } from "@/lib/estimation/embodied-carbon-engine";
 import type { CarbonFactor, EstimationCalcRule } from "@/types/estimation";
+import AdSlot from "@/components/ui/AdSlot";
 
 interface LineForm {
   category: string;
@@ -223,6 +224,9 @@ export default function CarbonFootprint() {
           </div>
         )}
       </div>
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      <AdSlot slotKey="calculator_native" className="mt-8" />
+      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

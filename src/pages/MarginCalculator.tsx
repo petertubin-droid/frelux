@@ -21,6 +21,7 @@ import {
   type MarginResult,
 } from "@/lib/estimation/margin-engine";
 import type { MarginPreset, EstimationCalcRule } from "@/types/estimation";
+import AdSlot from "@/components/ui/AdSlot";
 
 const money = (v: number) =>
   `₦${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
@@ -212,6 +213,9 @@ export default function MarginCalculator() {
           </div>
         )}
       </div>
+      <AdSlot slotKey="calculator_mid" className="mt-8" />
+      <AdSlot slotKey="calculator_native" className="mt-8" />
+      <AdSlot slotKey="calculator_bottom" className="mt-8" />
     </Container>
   );
 }

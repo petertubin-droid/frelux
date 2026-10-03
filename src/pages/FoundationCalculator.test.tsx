@@ -3,17 +3,27 @@ import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
-vi.mock("@/lib/auth", () => ({ useAuth: vi.fn(() => ({ user: null, loading: false })) }));
-vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
+vi.mock("@/lib/auth", () => ({
+  useAuth: vi.fn(() => ({ user: null, loading: false })),
+}));
 vi.mock("@/components/calculators/SaveToProjectButton", () => ({
   default: (_props: unknown) => null,
 }));
 
-beforeEach(() => { vi.clearAllMocks(); });
+vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 async function renderPage() {
   const Comp = (await import("@/pages/FoundationCalculator")).default;
-  return render(<MemoryRouter><ToastProvider><Comp /></ToastProvider></MemoryRouter>);
+  return render(
+    <MemoryRouter>
+      <ToastProvider>
+        <Comp />
+      </ToastProvider>
+    </MemoryRouter>,
+  );
 }
 
 describe("FoundationCalculator", () => {
