@@ -40,6 +40,7 @@ import {
   Megaphone,
   Menu,
   MessageCircle,
+  CloudOff,
   Moon,
   Package,
   Paintbrush,
@@ -171,6 +172,11 @@ const navModules: NavModule[] = [
         label: "Conversational Packs",
         to: "/admin/conversational-packs",
         icon: MessageCircle,
+      },
+      {
+        label: "Field Sync",
+        to: "/admin/field-sync",
+        icon: CloudOff,
       },
       {
         label: "Solar Prices",

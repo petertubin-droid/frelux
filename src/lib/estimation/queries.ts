@@ -1635,3 +1635,77 @@ export async function fetchConversationalParseLog(limit = 50) {
     .limit(limit);
   return { data: (data ?? []) as ConversationalParseLogRow[], error };
 }
+
+// =========================================================
+// 20. Offline-First Field Engine (Future Engine 17)
+// =========================================================
+
+export interface FieldCaptureLogRow {
+  id: string;
+  created_by: string | null;
+  device_label: string;
+  project_label: string;
+  entry_kind:
+    "measurement" | "material_used" | "progress_note" | "photo_reference";
+  payload: Record<string, unknown>;
+  captured_at: string;
+  synced_at: string;
+  queue_queued_at: string | null;
+  queue_last_attempt: string | null;
+}
+
+/** Fetch the admin-configured sync rules (calculator_type 'offline_field'). */
+export async function fetchOfflineFieldRules() {
+  const result = await fetchCalcRules("offline_field");
+  return result;
+}
+
+/**
+ * Persist one synced field capture. The client-generated UUID is
+ * the primary key: a duplicate insert (retry after a flaky
+ * connection) is translated to 'duplicate' so the offline queue
+ * can treat it as safe and remove the entry — sync stays
+ * idempotent by construction.
+ */
+export async function insertFieldCapture(data: {
+  id: string;
+  created_by?: string | null;
+  device_label: string;
+  project_label: string;
+  entry_kind: FieldCaptureLogRow["entry_kind"];
+  payload: Record<string, unknown>;
+  captured_at: string;
+  queue_queued_at?: string | null;
+  queue_last_attempt?: string | null;
+}): Promise<"synced" | "duplicate" | "failed"> {
+  const { error } = await supabase.from("field_capture_log").insert({
+    id: data.id,
+    created_by: data.created_by ?? null,
+    device_label: data.device_label,
+    project_label: data.project_label,
+    entry_kind: data.entry_kind,
+    payload: data.payload,
+    captured_at: data.captured_at,
+    queue_queued_at: data.queue_queued_at ?? null,
+    queue_last_attempt: data.queue_last_attempt ?? null,
+  });
+  if (!error) return "synced";
+  if (
+    typeof error.message === "string" &&
+    /duplicate key/i.test(error.message)
+  ) {
+    return "duplicate";
+  }
+  if (error.code === "23505") return "duplicate";
+  return "failed";
+}
+
+/** Admin: the synced field captures, newest field work first. */
+export async function fetchFieldCaptureLog(limit = 50) {
+  const { data, error } = await supabase
+    .from("field_capture_log")
+    .select("*")
+    .order("captured_at", { ascending: false })
+    .limit(limit);
+  return { data: (data ?? []) as FieldCaptureLogRow[], error };
+}

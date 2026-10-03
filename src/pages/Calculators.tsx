@@ -10,6 +10,7 @@ import {
   Calendar,
   ListChecks,
   MessageCircle,
+  CloudOff,
   Palette,
   ArrowRight,
   Brain,
@@ -151,6 +152,15 @@ const calculators: Tool[] = [
     benefit: "WhatsApp · 4 languages",
     to: "/conversational-estimator",
     accent: "text-accent-cyan bg-accent-cyan/10",
+  },
+  {
+    icon: CloudOff,
+    title: "Field Sync",
+    description:
+      "Record measurements, materials and progress on site with no network. Captures queue on your device and sync when you're back online — nothing is lost.",
+    benefit: "Offline · Auto-sync",
+    to: "/field-sync",
+    accent: "text-brand-purple bg-primary/10",
   },
   {
     icon: ListChecks,

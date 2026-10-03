@@ -97,6 +97,7 @@ const routes = [
   { path: '/bim-ifc-import', priority: '0.9', changefreq: 'monthly' },
   { path: '/solar-pv-estimator', priority: '0.9', changefreq: 'monthly' },
   { path: '/conversational-estimator', priority: '0.9', changefreq: 'monthly' },
+  { path: '/field-sync', priority: '0.8', changefreq: 'monthly' },
   { path: '/boq-generator', priority: '0.9', changefreq: 'monthly' },
   { path: '/cash-flow-timeline', priority: '0.9', changefreq: 'monthly' },
   { path: '/circular-reuse', priority: '0.9', changefreq: 'monthly' },

@@ -141,6 +141,7 @@ const AdminSolarPanels = lazy(() => import("@/pages/admin/AdminSolarPanels"));
 const AdminConversationalPacks = lazy(
   () => import("@/pages/admin/AdminConversationalPacks"),
 );
+const AdminFieldSync = lazy(() => import("@/pages/admin/AdminFieldSync"));
 const AdminSolarPrices = lazy(() => import("@/pages/admin/AdminSolarPrices"));
 const AdminCashFlowTemplates = lazy(
   () => import("@/pages/admin/AdminCashFlowTemplates"),
@@ -347,6 +348,7 @@ const BimIfcImport = lazy(() => import("@/pages/BimIfcImport"));
 const ConversationalEstimator = lazy(
   () => import("@/pages/ConversationalEstimator"),
 );
+const FieldSync = lazy(() => import("@/pages/FieldSync"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -1141,6 +1143,7 @@ export default function App() {
                       path="conversational-packs"
                       element={<AdminConversationalPacks />}
                     />
+                    <Route path="field-sync" element={<AdminFieldSync />} />
                     <Route path="solar-prices" element={<AdminSolarPrices />} />
                     <Route
                       path="cash-flow-templates"
@@ -1477,6 +1480,7 @@ export default function App() {
                     path="/conversational-estimator"
                     element={<ConversationalEstimator />}
                   />
+                  <Route path="/field-sync" element={<FieldSync />} />
                   <Route
                     path="/estimate/:token"
                     element={<ClientEstimateView />}
