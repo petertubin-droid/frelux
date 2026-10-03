@@ -76,6 +76,7 @@ export type TrackEvent =
   | "estimate_refreshed"
   | "warranty_certificate_issued"
   | "heat_compared"
+  | "circular_reuse_planned"
   | "start_building_clicked"
   | "build_to_roof_clicked"
   | "painting_category_clicked"

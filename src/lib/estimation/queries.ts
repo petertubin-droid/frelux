@@ -21,6 +21,7 @@ import type {
   RegionalCostIndex,
   CarbonFactor,
   ThermalFinishFactor,
+  MaterialReuseFactor,
   CashFlowTemplate,
   LabourRate,
   MarginPreset,
@@ -1281,6 +1282,47 @@ export async function updateThermalFinishFactor(
 export async function deleteThermalFinishFactor(id: string) {
   const { error } = await supabase
     .from("thermal_finish_factors")
+    .delete()
+    .eq("id", id);
+  return { error };
+}
+
+// =========================================================
+// 17. Material reuse factors (Circular/Reuse Engine)
+// =========================================================
+
+export async function fetchMaterialReuseFactors(activeOnly = false) {
+  let query = supabase
+    .from("material_reuse_factors")
+    .select("*")
+    .order("sort_order", { ascending: true })
+    .order("category", { ascending: true });
+  if (activeOnly) query = query.eq("is_active", true);
+  const { data, error } = await query;
+  return { data: (data ?? []) as MaterialReuseFactor[], error };
+}
+
+export async function createMaterialReuseFactor(
+  data: Partial<MaterialReuseFactor>,
+) {
+  const { error } = await supabase.from("material_reuse_factors").insert(data);
+  return { error };
+}
+
+export async function updateMaterialReuseFactor(
+  id: string,
+  data: Partial<MaterialReuseFactor>,
+) {
+  const { error } = await supabase
+    .from("material_reuse_factors")
+    .update(data)
+    .eq("id", id);
+  return { error };
+}
+
+export async function deleteMaterialReuseFactor(id: string) {
+  const { error } = await supabase
+    .from("material_reuse_factors")
     .delete()
     .eq("id", id);
   return { error };

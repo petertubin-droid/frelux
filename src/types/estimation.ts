@@ -506,6 +506,25 @@ export interface RegionalCostIndex {
 
 // 24. carbon_factors table (Embodied Carbon Engine)
 // thermal_finish_factors table (Heat Comfort Engine)
+// material_reuse_factors table (Circular/Reuse Engine)
+export interface MaterialReuseFactor {
+  id: string;
+  category: string;
+  category_label: string | null;
+  unit: string;
+  recovery_rate: number;
+  reuse_fraction: number;
+  recycle_fraction: number;
+  unit_value_naira: number | null;
+  description: string | null;
+  source_reference: string;
+  effective_date: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ThermalFinishFactor {
   id: string;
   surface_type: "roof" | "wall";
