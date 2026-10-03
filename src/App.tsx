@@ -137,6 +137,8 @@ const AdminReuseFactors = lazy(() => import("@/pages/admin/AdminReuseFactors"));
 const AdminCreditProfiles = lazy(
   () => import("@/pages/admin/AdminCreditProfiles"),
 );
+const AdminSolarPanels = lazy(() => import("@/pages/admin/AdminSolarPanels"));
+const AdminSolarPrices = lazy(() => import("@/pages/admin/AdminSolarPrices"));
 const AdminCashFlowTemplates = lazy(
   () => import("@/pages/admin/AdminCashFlowTemplates"),
 );
@@ -337,6 +339,7 @@ const WarrantyCertificate = lazy(() => import("@/pages/WarrantyCertificate"));
 const HeatComfort = lazy(() => import("@/pages/HeatComfort"));
 const CircularReuse = lazy(() => import("@/pages/CircularReuse"));
 const ContractorCredit = lazy(() => import("@/pages/ContractorCredit"));
+const SolarPvEstimator = lazy(() => import("@/pages/SolarPvEstimator"));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -1126,6 +1129,8 @@ export default function App() {
                       path="credit-profiles"
                       element={<AdminCreditProfiles />}
                     />
+                    <Route path="solar-panels" element={<AdminSolarPanels />} />
+                    <Route path="solar-prices" element={<AdminSolarPrices />} />
                     <Route
                       path="cash-flow-templates"
                       element={<AdminCashFlowTemplates />}
@@ -1451,6 +1456,10 @@ export default function App() {
                   <Route
                     path="/contractor-credit"
                     element={<ContractorCredit />}
+                  />
+                  <Route
+                    path="/solar-pv-estimator"
+                    element={<SolarPvEstimator />}
                   />
                   <Route
                     path="/estimate/:token"

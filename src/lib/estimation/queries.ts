@@ -23,6 +23,8 @@ import type {
   ThermalFinishFactor,
   MaterialReuseFactor,
   ContractorCreditProfile,
+  SolarPanelModel,
+  SolarComponentPrice,
   CashFlowTemplate,
   LabourRate,
   MarginPreset,
@@ -1367,6 +1369,82 @@ export async function updateContractorCreditProfile(
 export async function deleteContractorCreditProfile(id: string) {
   const { error } = await supabase
     .from("contractor_credit_profiles")
+    .delete()
+    .eq("id", id);
+  return { error };
+}
+
+// =========================================================
+// 19. Solar panel models + component prices (Solar/PV Estimator)
+// =========================================================
+
+export async function fetchSolarPanelModels(activeOnly = false) {
+  let query = supabase
+    .from("solar_panel_models")
+    .select("*")
+    .order("sort_order", { ascending: true })
+    .order("model_name", { ascending: true });
+  if (activeOnly) query = query.eq("is_active", true);
+  const { data, error } = await query;
+  return { data: (data ?? []) as SolarPanelModel[], error };
+}
+
+export async function createSolarPanelModel(data: Partial<SolarPanelModel>) {
+  const { error } = await supabase.from("solar_panel_models").insert(data);
+  return { error };
+}
+
+export async function updateSolarPanelModel(
+  id: string,
+  data: Partial<SolarPanelModel>,
+) {
+  const { error } = await supabase
+    .from("solar_panel_models")
+    .update(data)
+    .eq("id", id);
+  return { error };
+}
+
+export async function deleteSolarPanelModel(id: string) {
+  const { error } = await supabase
+    .from("solar_panel_models")
+    .delete()
+    .eq("id", id);
+  return { error };
+}
+
+export async function fetchSolarComponentPrices(activeOnly = false) {
+  let query = supabase
+    .from("solar_component_prices")
+    .select("*")
+    .order("sort_order", { ascending: true })
+    .order("component_key", { ascending: true });
+  if (activeOnly) query = query.eq("is_active", true);
+  const { data, error } = await query;
+  return { data: (data ?? []) as SolarComponentPrice[], error };
+}
+
+export async function createSolarComponentPrice(
+  data: Partial<SolarComponentPrice>,
+) {
+  const { error } = await supabase.from("solar_component_prices").insert(data);
+  return { error };
+}
+
+export async function updateSolarComponentPrice(
+  id: string,
+  data: Partial<SolarComponentPrice>,
+) {
+  const { error } = await supabase
+    .from("solar_component_prices")
+    .update(data)
+    .eq("id", id);
+  return { error };
+}
+
+export async function deleteSolarComponentPrice(id: string) {
+  const { error } = await supabase
+    .from("solar_component_prices")
     .delete()
     .eq("id", id);
   return { error };

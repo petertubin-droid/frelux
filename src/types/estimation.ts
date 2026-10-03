@@ -506,6 +506,39 @@ export interface RegionalCostIndex {
 
 // 24. carbon_factors table (Embodied Carbon Engine)
 // thermal_finish_factors table (Heat Comfort Engine)
+// solar_panel_models table (Solar/PV Estimator)
+export interface SolarPanelModel {
+  id: string;
+  model_name: string;
+  watt_peak: number;
+  length_m: number;
+  width_m: number;
+  unit_price_naira: number | null;
+  description: string | null;
+  source_reference: string;
+  effective_date: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+// solar_component_prices table (Solar/PV Estimator)
+export interface SolarComponentPrice {
+  id: string;
+  component_key: string;
+  component_label: string | null;
+  unit: string;
+  price_naira: number;
+  description: string | null;
+  source_reference: string;
+  effective_date: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
 // contractor_credit_profiles table (Contractor Credit-Score Engine)
 export interface ContractorCreditProfile {
   id: string;

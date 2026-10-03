@@ -78,6 +78,7 @@ export type TrackEvent =
   | "heat_compared"
   | "circular_reuse_planned"
   | "credit_score_checked"
+  | "solar_pv_estimated"
   | "start_building_clicked"
   | "build_to_roof_clicked"
   | "painting_category_clicked"
