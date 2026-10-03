@@ -80,6 +80,8 @@ export type TrackEvent =
   | "credit_score_checked"
   | "solar_pv_estimated"
   | "bim_ifc_imported"
+  | "conversational_estimate_run"
+  | "conversational_route_click"
   | "start_building_clicked"
   | "build_to_roof_clicked"
   | "painting_category_clicked"

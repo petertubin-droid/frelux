@@ -168,6 +168,11 @@ const navModules: NavModule[] = [
         icon: Sun,
       },
       {
+        label: "Conversational Packs",
+        to: "/admin/conversational-packs",
+        icon: MessageCircle,
+      },
+      {
         label: "Solar Prices",
         to: "/admin/solar-prices",
         icon: Sun,

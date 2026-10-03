@@ -1535,3 +1535,103 @@ export async function deleteSolarComponentPrice(id: string) {
     .eq("id", id);
   return { error };
 }
+
+// =========================================================
+// Conversational Estimator (Engine 3) — language packs + log
+// =========================================================
+
+export interface ConversationalLanguagePackRow {
+  id: string;
+  language_code: string;
+  category: string;
+  keywords: string[];
+  weight: number;
+  description: string | null;
+  source_reference: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface ConversationalParseLogRow {
+  id: string;
+  raw_thread: string;
+  detected_language: string;
+  intent: string;
+  extracted_params: Record<string, unknown>;
+  had_estimate: boolean;
+  language_override: boolean;
+  created_at: string;
+}
+
+export async function fetchConversationalPacks(activeOnly = false) {
+  return cachedConfigFetch(
+    `conversational_language_packs{(':active' if activeOnly else '')}`,
+    async () => {
+      let query = supabase
+        .from("conversational_language_packs")
+        .select("*")
+        .order("language_code", { ascending: true })
+        .order("sort_order", { ascending: true });
+      if (activeOnly) query = query.eq("is_active", true);
+      const { data, error } = await query;
+      return { data: (data ?? []) as ConversationalLanguagePackRow[], error };
+    },
+  );
+}
+
+export async function createConversationalPack(
+  data: Partial<ConversationalLanguagePackRow>,
+) {
+  const { error } = await supabase
+    .from("conversational_language_packs")
+    .insert(data);
+  return { error };
+}
+
+export async function updateConversationalPack(
+  id: string,
+  data: Partial<ConversationalLanguagePackRow>,
+) {
+  const { error } = await supabase
+    .from("conversational_language_packs")
+    .update(data)
+    .eq("id", id);
+  return { error };
+}
+
+export async function deleteConversationalPack(id: string) {
+  const { error } = await supabase
+    .from("conversational_language_packs")
+    .delete()
+    .eq("id", id);
+  return { error };
+}
+
+export async function insertConversationalParseLog(
+  data: Pick<
+    ConversationalParseLogRow,
+    | "raw_thread"
+    | "detected_language"
+    | "intent"
+    | "extracted_params"
+    | "had_estimate"
+    | "language_override"
+  >,
+) {
+  // Best-effort telemetry: the page never blocks on a log failure.
+  const { error } = await supabase
+    .from("conversational_parse_log")
+    .insert(data);
+  return { error };
+}
+
+export async function fetchConversationalParseLog(limit = 50) {
+  const { data, error } = await supabase
+    .from("conversational_parse_log")
+    .select("*")
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  return { data: (data ?? []) as ConversationalParseLogRow[], error };
+}

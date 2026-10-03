@@ -9,6 +9,7 @@ import {
   Camera,
   Calendar,
   ListChecks,
+  MessageCircle,
   Palette,
   ArrowRight,
   Brain,
@@ -141,6 +142,15 @@ const calculators: Tool[] = [
     benefit: "Schedule · Milestones",
     to: "/project-timeline",
     accent: "text-brand-purple bg-primary/10",
+  },
+  {
+    icon: MessageCircle,
+    title: "Conversational Estimator",
+    description:
+      "Paste a WhatsApp chat about your project in English, Pidgin, Yoruba or Hausa and get the same honest estimates — quantities and follow-up questions, nothing invented.",
+    benefit: "WhatsApp · 4 languages",
+    to: "/conversational-estimator",
+    accent: "text-accent-cyan bg-accent-cyan/10",
   },
   {
     icon: ListChecks,

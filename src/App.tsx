@@ -138,6 +138,9 @@ const AdminCreditProfiles = lazy(
   () => import("@/pages/admin/AdminCreditProfiles"),
 );
 const AdminSolarPanels = lazy(() => import("@/pages/admin/AdminSolarPanels"));
+const AdminConversationalPacks = lazy(
+  () => import("@/pages/admin/AdminConversationalPacks"),
+);
 const AdminSolarPrices = lazy(() => import("@/pages/admin/AdminSolarPrices"));
 const AdminCashFlowTemplates = lazy(
   () => import("@/pages/admin/AdminCashFlowTemplates"),
@@ -341,6 +344,9 @@ const CircularReuse = lazy(() => import("@/pages/CircularReuse"));
 const ContractorCredit = lazy(() => import("@/pages/ContractorCredit"));
 const SolarPvEstimator = lazy(() => import("@/pages/SolarPvEstimator"));
 const BimIfcImport = lazy(() => import("@/pages/BimIfcImport"));
+const ConversationalEstimator = lazy(
+  () => import("@/pages/ConversationalEstimator"),
+);
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -1131,6 +1137,10 @@ export default function App() {
                       element={<AdminCreditProfiles />}
                     />
                     <Route path="solar-panels" element={<AdminSolarPanels />} />
+                    <Route
+                      path="conversational-packs"
+                      element={<AdminConversationalPacks />}
+                    />
                     <Route path="solar-prices" element={<AdminSolarPrices />} />
                     <Route
                       path="cash-flow-templates"
@@ -1463,6 +1473,10 @@ export default function App() {
                     element={<SolarPvEstimator />}
                   />
                   <Route path="/bim-ifc-import" element={<BimIfcImport />} />
+                  <Route
+                    path="/conversational-estimator"
+                    element={<ConversationalEstimator />}
+                  />
                   <Route
                     path="/estimate/:token"
                     element={<ClientEstimateView />}
