@@ -46,7 +46,7 @@ Routing lives in `src/App.tsx`. Key public routes:
 
 ### 1.4 Responsive and PWA
 
-Mobile-first styling throughout; navigation adapts to a phone menu. The build generates a service worker that precaches the app shell and static assets (about 395 files), enabling offline app loading and stale-while-revalidate updates. Calculation results can be cached locally (`local-projects.ts`, localStorage) so users can work with poor connectivity; anything needing live data (auth, market prices, saves) requires connectivity and reports errors honestly when offline.
+Mobile-first styling throughout; navigation adapts to a phone menu. The build generates a service worker that precaches the app shell and static assets (about 395 files), enabling offline app loading and stale-while-revalidate updates. Calculation results can be cached locally (`local-projects.ts`, localStorage) so users can work with poor connectivity. Engine configuration data (factors, prices, rules) is also cached offline-first (`src/lib/estimation/offline-cache.ts`): every engine config fetch caches its last live result, and on a network failure the cached copy is served while the OfflineIndicator banner states the cached date honestly. A server-side error is never masked with cache, and with no cache available the honest error passes through — nothing is invented. Writes (auth, saves, admin edits) still require connectivity and report errors honestly when offline.
 
 ### 1.5 ARCHIE Owner PWA
 

@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { cachedConfigFetch } from "@/lib/estimation/offline-cache";
 import type {
   EstimationUnit,
   EstimationProduct,
@@ -37,11 +38,13 @@ import type {
 // =========================================================
 
 export async function fetchEstimationUnits() {
-  const { data, error } = await supabase
-    .from("estimation_units")
-    .select("*")
-    .order("sort_order", { ascending: true });
-  return { data: (data ?? []) as EstimationUnit[], error };
+  return cachedConfigFetch(`estimation_units`, async () => {
+    const { data, error } = await supabase
+      .from("estimation_units")
+      .select("*")
+      .order("sort_order", { ascending: true });
+    return { data: (data ?? []) as EstimationUnit[], error };
+  });
 }
 
 export async function createEstimationUnit(data: Partial<EstimationUnit>) {
@@ -79,13 +82,18 @@ export async function deleteEstimationUnit(id: string) {
 // =========================================================
 
 export async function fetchEstimationProducts(activeOnly: boolean = false) {
-  let query = supabase.from("estimation_products").select("*");
-  if (activeOnly) {
-    query = query.eq("is_active", true);
-  }
-  query = query.order("sort_order", { ascending: true });
-  const { data, error } = await query;
-  return { data: (data ?? []) as EstimationProduct[], error };
+  return cachedConfigFetch(
+    `estimation_products{(':active' if activeOnly else '')}`,
+    async () => {
+      let query = supabase.from("estimation_products").select("*");
+      if (activeOnly) {
+        query = query.eq("is_active", true);
+      }
+      query = query.order("sort_order", { ascending: true });
+      const { data, error } = await query;
+      return { data: (data ?? []) as EstimationProduct[], error };
+    },
+  );
 }
 
 export async function fetchEstimationProduct(id: string) {
@@ -179,13 +187,18 @@ export async function deleteProductQualityLevel(id: string) {
 // =========================================================
 
 export async function fetchEstimationMaterials(activeOnly: boolean = false) {
-  let query = supabase.from("estimation_materials").select("*");
-  if (activeOnly) {
-    query = query.eq("is_active", true);
-  }
-  query = query.order("sort_order", { ascending: true });
-  const { data, error } = await query;
-  return { data: (data ?? []) as EstimationMaterial[], error };
+  return cachedConfigFetch(
+    `estimation_materials{(':active' if activeOnly else '')}`,
+    async () => {
+      let query = supabase.from("estimation_materials").select("*");
+      if (activeOnly) {
+        query = query.eq("is_active", true);
+      }
+      query = query.order("sort_order", { ascending: true });
+      const { data, error } = await query;
+      return { data: (data ?? []) as EstimationMaterial[], error };
+    },
+  );
 }
 
 export async function createEstimationMaterial(
@@ -225,13 +238,15 @@ export async function deleteEstimationMaterial(id: string) {
 // =========================================================
 
 export async function fetchPackSizes(refType: string, refId: string) {
-  const { data, error } = await supabase
-    .from("estimation_pack_sizes")
-    .select("*")
-    .eq("ref_type", refType)
-    .eq("ref_id", refId)
-    .order("sort_order", { ascending: true });
-  return { data: (data ?? []) as EstimationPackSize[], error };
+  return cachedConfigFetch(`pack_sizes:{refType}:{refId}`, async () => {
+    const { data, error } = await supabase
+      .from("estimation_pack_sizes")
+      .select("*")
+      .eq("ref_type", refType)
+      .eq("ref_id", refId)
+      .order("sort_order", { ascending: true });
+    return { data: (data ?? []) as EstimationPackSize[], error };
+  });
 }
 
 export async function createPackSize(data: Partial<EstimationPackSize>) {
@@ -325,12 +340,17 @@ export async function fetchAllPrices(activeOnly: boolean = false) {
 // =========================================================
 
 export async function fetchCalcRules(calculatorType?: string) {
-  let query = supabase.from("estimation_calc_rules").select("*");
-  if (calculatorType) {
-    query = query.eq("calculator_type", calculatorType);
-  }
-  const { data, error } = await query;
-  return { data: (data ?? []) as EstimationCalcRule[], error };
+  return cachedConfigFetch(
+    `calc_rules{(':' + calculatorType if calculatorType else '')}`,
+    async () => {
+      let query = supabase.from("estimation_calc_rules").select("*");
+      if (calculatorType) {
+        query = query.eq("calculator_type", calculatorType);
+      }
+      const { data, error } = await query;
+      return { data: (data ?? []) as EstimationCalcRule[], error };
+    },
+  );
 }
 
 export async function fetchCalcRule(ruleKey: string, calculatorType?: string) {
@@ -665,21 +685,25 @@ export async function createAuditLog(data: Partial<EstimationAuditLog>) {
 // =========================================================
 
 export async function fetchColourConditions() {
-  const { data, error } = await supabase
-    .from("estimation_colour_conditions")
-    .select("*")
-    .eq("is_active", true)
-    .order("sort_order", { ascending: true });
-  return { data: (data ?? []) as EstimationColourCondition[], error };
+  return cachedConfigFetch(`colour_conditions`, async () => {
+    const { data, error } = await supabase
+      .from("estimation_colour_conditions")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+    return { data: (data ?? []) as EstimationColourCondition[], error };
+  });
 }
 
 export async function fetchSurfaceConditions() {
-  const { data, error } = await supabase
-    .from("estimation_surface_conditions")
-    .select("*")
-    .eq("is_active", true)
-    .order("sort_order", { ascending: true });
-  return { data: (data ?? []) as EstimationSurfaceCondition[], error };
+  return cachedConfigFetch(`surface_conditions`, async () => {
+    const { data, error } = await supabase
+      .from("estimation_surface_conditions")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+    return { data: (data ?? []) as EstimationSurfaceCondition[], error };
+  });
 }
 
 // =========================================================
@@ -836,11 +860,13 @@ export async function fetchConfigurableFinishProducts(
 // =========================================================
 
 export async function fetchMaintenanceProfiles() {
-  const { data, error } = await supabase
-    .from("maintenance_profiles")
-    .select("*")
-    .order("sort_order", { ascending: true });
-  return { data: (data ?? []) as MaintenanceProfile[], error };
+  return cachedConfigFetch(`maintenance_profiles`, async () => {
+    const { data, error } = await supabase
+      .from("maintenance_profiles")
+      .select("*")
+      .order("sort_order", { ascending: true });
+    return { data: (data ?? []) as MaintenanceProfile[], error };
+  });
 }
 
 export async function createMaintenanceProfile(
@@ -925,14 +951,19 @@ export async function fetchBoqQuotes(userId?: string) {
 export async function fetchRegionalCostIndices(
   opts: { activeOnly?: boolean } = {},
 ) {
-  let query = supabase
-    .from("regional_cost_indices")
-    .select("*")
-    .order("state", { ascending: true })
-    .order("category", { ascending: true });
-  if (opts.activeOnly) query = query.eq("is_active", true);
-  const { data, error } = await query;
-  return { data: (data ?? []) as RegionalCostIndex[], error };
+  return cachedConfigFetch(
+    `regional_cost_indices{(':active' if opts.activeOnly else '')}`,
+    async () => {
+      let query = supabase
+        .from("regional_cost_indices")
+        .select("*")
+        .order("state", { ascending: true })
+        .order("category", { ascending: true });
+      if (opts.activeOnly) query = query.eq("is_active", true);
+      const { data, error } = await query;
+      return { data: (data ?? []) as RegionalCostIndex[], error };
+    },
+  );
 }
 
 export async function createRegionalCostIndex(
@@ -972,13 +1003,18 @@ export async function deleteRegionalCostIndex(id: string) {
 // =========================================================
 
 export async function fetchCarbonFactors(opts: { activeOnly?: boolean } = {}) {
-  let query = supabase
-    .from("carbon_factors")
-    .select("*")
-    .order("category", { ascending: true });
-  if (opts.activeOnly) query = query.eq("is_active", true);
-  const { data, error } = await query;
-  return { data: (data ?? []) as CarbonFactor[], error };
+  return cachedConfigFetch(
+    `carbon_factors{(':active' if opts.activeOnly else '')}`,
+    async () => {
+      let query = supabase
+        .from("carbon_factors")
+        .select("*")
+        .order("category", { ascending: true });
+      if (opts.activeOnly) query = query.eq("is_active", true);
+      const { data, error } = await query;
+      return { data: (data ?? []) as CarbonFactor[], error };
+    },
+  );
 }
 
 export async function createCarbonFactor(data: Partial<CarbonFactor>) {
@@ -1015,13 +1051,18 @@ export async function deleteCarbonFactor(id: string) {
 export async function fetchCashFlowTemplates(
   opts: { activeOnly?: boolean } = {},
 ) {
-  let query = supabase
-    .from("cash_flow_templates")
-    .select("*")
-    .order("sort_order", { ascending: true });
-  if (opts.activeOnly) query = query.eq("is_active", true);
-  const { data, error } = await query;
-  return { data: (data ?? []) as CashFlowTemplate[], error };
+  return cachedConfigFetch(
+    `cash_flow_templates{(':active' if opts.activeOnly else '')}`,
+    async () => {
+      let query = supabase
+        .from("cash_flow_templates")
+        .select("*")
+        .order("sort_order", { ascending: true });
+      if (opts.activeOnly) query = query.eq("is_active", true);
+      const { data, error } = await query;
+      return { data: (data ?? []) as CashFlowTemplate[], error };
+    },
+  );
 }
 
 export async function createCashFlowTemplate(data: Partial<CashFlowTemplate>) {
@@ -1059,13 +1100,18 @@ export async function deleteCashFlowTemplate(id: string) {
 // =========================================================
 
 export async function fetchLabourRates(opts: { activeOnly?: boolean } = {}) {
-  let query = supabase
-    .from("labour_rates")
-    .select("*")
-    .order("task_key", { ascending: true });
-  if (opts.activeOnly) query = query.eq("is_active", true);
-  const { data, error } = await query;
-  return { data: (data ?? []) as LabourRate[], error };
+  return cachedConfigFetch(
+    `labour_rates{(':active' if opts.activeOnly else '')}`,
+    async () => {
+      let query = supabase
+        .from("labour_rates")
+        .select("*")
+        .order("task_key", { ascending: true });
+      if (opts.activeOnly) query = query.eq("is_active", true);
+      const { data, error } = await query;
+      return { data: (data ?? []) as LabourRate[], error };
+    },
+  );
 }
 
 export async function createLabourRate(data: Partial<LabourRate>) {
@@ -1097,13 +1143,18 @@ export async function deleteLabourRate(id: string) {
 // =========================================================
 
 export async function fetchMarginPresets(opts: { activeOnly?: boolean } = {}) {
-  let query = supabase
-    .from("margin_presets")
-    .select("*")
-    .order("name", { ascending: true });
-  if (opts.activeOnly) query = query.eq("is_active", true);
-  const { data, error } = await query;
-  return { data: (data ?? []) as MarginPreset[], error };
+  return cachedConfigFetch(
+    `margin_presets{(':active' if opts.activeOnly else '')}`,
+    async () => {
+      let query = supabase
+        .from("margin_presets")
+        .select("*")
+        .order("name", { ascending: true });
+      if (opts.activeOnly) query = query.eq("is_active", true);
+      const { data, error } = await query;
+      return { data: (data ?? []) as MarginPreset[], error };
+    },
+  );
 }
 
 export async function createMarginPreset(data: Partial<MarginPreset>) {
@@ -1138,13 +1189,18 @@ export async function deleteMarginPreset(id: string) {
 // =========================================================
 
 export async function fetchDefects(opts: { activeOnly?: boolean } = {}) {
-  let query = supabase
-    .from("defects")
-    .select("*")
-    .order("symptom_key", { ascending: true });
-  if (opts.activeOnly) query = query.eq("is_active", true);
-  const { data, error } = await query;
-  return { data: (data ?? []) as Defect[], error };
+  return cachedConfigFetch(
+    `defects{(':active' if opts.activeOnly else '')}`,
+    async () => {
+      let query = supabase
+        .from("defects")
+        .select("*")
+        .order("symptom_key", { ascending: true });
+      if (opts.activeOnly) query = query.eq("is_active", true);
+      const { data, error } = await query;
+      return { data: (data ?? []) as Defect[], error };
+    },
+  );
 }
 
 export async function createDefect(data: Partial<Defect>) {
@@ -1172,13 +1228,18 @@ export async function deleteDefect(id: string) {
 }
 
 export async function fetchDefectCauses(defectId?: string) {
-  let query = supabase
-    .from("defect_causes")
-    .select("*")
-    .order("sort_order", { ascending: true });
-  if (defectId) query = query.eq("defect_id", defectId);
-  const { data, error } = await query;
-  return { data: (data ?? []) as DefectCause[], error };
+  return cachedConfigFetch(
+    `defect_causes{(':' + defectId if defectId else 'all')}`,
+    async () => {
+      let query = supabase
+        .from("defect_causes")
+        .select("*")
+        .order("sort_order", { ascending: true });
+      if (defectId) query = query.eq("defect_id", defectId);
+      const { data, error } = await query;
+      return { data: (data ?? []) as DefectCause[], error };
+    },
+  );
 }
 
 export async function createDefectCause(data: Partial<DefectCause>) {
@@ -1253,15 +1314,20 @@ export async function createWarrantyRecord(data: Partial<WarrantyRecord>) {
 // =========================================================
 
 export async function fetchThermalFinishFactors(activeOnly = false) {
-  let query = supabase
-    .from("thermal_finish_factors")
-    .select("*")
-    .order("surface_type", { ascending: true })
-    .order("sort_order", { ascending: true })
-    .order("category", { ascending: true });
-  if (activeOnly) query = query.eq("is_active", true);
-  const { data, error } = await query;
-  return { data: (data ?? []) as ThermalFinishFactor[], error };
+  return cachedConfigFetch(
+    `thermal_finish_factors{(':active' if activeOnly else '')}`,
+    async () => {
+      let query = supabase
+        .from("thermal_finish_factors")
+        .select("*")
+        .order("surface_type", { ascending: true })
+        .order("sort_order", { ascending: true })
+        .order("category", { ascending: true });
+      if (activeOnly) query = query.eq("is_active", true);
+      const { data, error } = await query;
+      return { data: (data ?? []) as ThermalFinishFactor[], error };
+    },
+  );
 }
 
 export async function createThermalFinishFactor(
@@ -1295,14 +1361,19 @@ export async function deleteThermalFinishFactor(id: string) {
 // =========================================================
 
 export async function fetchMaterialReuseFactors(activeOnly = false) {
-  let query = supabase
-    .from("material_reuse_factors")
-    .select("*")
-    .order("sort_order", { ascending: true })
-    .order("category", { ascending: true });
-  if (activeOnly) query = query.eq("is_active", true);
-  const { data, error } = await query;
-  return { data: (data ?? []) as MaterialReuseFactor[], error };
+  return cachedConfigFetch(
+    `material_reuse_factors{(':active' if activeOnly else '')}`,
+    async () => {
+      let query = supabase
+        .from("material_reuse_factors")
+        .select("*")
+        .order("sort_order", { ascending: true })
+        .order("category", { ascending: true });
+      if (activeOnly) query = query.eq("is_active", true);
+      const { data, error } = await query;
+      return { data: (data ?? []) as MaterialReuseFactor[], error };
+    },
+  );
 }
 
 export async function createMaterialReuseFactor(
@@ -1336,14 +1407,19 @@ export async function deleteMaterialReuseFactor(id: string) {
 // =========================================================
 
 export async function fetchContractorCreditProfiles(activeOnly = false) {
-  let query = supabase
-    .from("contractor_credit_profiles")
-    .select("*")
-    .order("sort_order", { ascending: true })
-    .order("contractor_name", { ascending: true });
-  if (activeOnly) query = query.eq("is_active", true);
-  const { data, error } = await query;
-  return { data: (data ?? []) as ContractorCreditProfile[], error };
+  return cachedConfigFetch(
+    `contractor_credit_profiles{(':active' if activeOnly else '')}`,
+    async () => {
+      let query = supabase
+        .from("contractor_credit_profiles")
+        .select("*")
+        .order("sort_order", { ascending: true })
+        .order("contractor_name", { ascending: true });
+      if (activeOnly) query = query.eq("is_active", true);
+      const { data, error } = await query;
+      return { data: (data ?? []) as ContractorCreditProfile[], error };
+    },
+  );
 }
 
 export async function createContractorCreditProfile(
@@ -1379,14 +1455,19 @@ export async function deleteContractorCreditProfile(id: string) {
 // =========================================================
 
 export async function fetchSolarPanelModels(activeOnly = false) {
-  let query = supabase
-    .from("solar_panel_models")
-    .select("*")
-    .order("sort_order", { ascending: true })
-    .order("model_name", { ascending: true });
-  if (activeOnly) query = query.eq("is_active", true);
-  const { data, error } = await query;
-  return { data: (data ?? []) as SolarPanelModel[], error };
+  return cachedConfigFetch(
+    `solar_panel_models{(':active' if activeOnly else '')}`,
+    async () => {
+      let query = supabase
+        .from("solar_panel_models")
+        .select("*")
+        .order("sort_order", { ascending: true })
+        .order("model_name", { ascending: true });
+      if (activeOnly) query = query.eq("is_active", true);
+      const { data, error } = await query;
+      return { data: (data ?? []) as SolarPanelModel[], error };
+    },
+  );
 }
 
 export async function createSolarPanelModel(data: Partial<SolarPanelModel>) {
@@ -1414,14 +1495,19 @@ export async function deleteSolarPanelModel(id: string) {
 }
 
 export async function fetchSolarComponentPrices(activeOnly = false) {
-  let query = supabase
-    .from("solar_component_prices")
-    .select("*")
-    .order("sort_order", { ascending: true })
-    .order("component_key", { ascending: true });
-  if (activeOnly) query = query.eq("is_active", true);
-  const { data, error } = await query;
-  return { data: (data ?? []) as SolarComponentPrice[], error };
+  return cachedConfigFetch(
+    `solar_component_prices{(':active' if activeOnly else '')}`,
+    async () => {
+      let query = supabase
+        .from("solar_component_prices")
+        .select("*")
+        .order("sort_order", { ascending: true })
+        .order("component_key", { ascending: true });
+      if (activeOnly) query = query.eq("is_active", true);
+      const { data, error } = await query;
+      return { data: (data ?? []) as SolarComponentPrice[], error };
+    },
+  );
 }
 
 export async function createSolarComponentPrice(
