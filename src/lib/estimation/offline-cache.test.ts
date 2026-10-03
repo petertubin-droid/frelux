@@ -21,7 +21,7 @@ import {
   clearOfflineConfigCache,
 } from "./offline-cache";
 
-type Result = { data: unknown[]; error: { message?: string } | null };
+type Result = { data: unknown[] | null; error: { message?: string } | null };
 
 const liveData = [{ id: "a" }, { id: "b" }];
 
@@ -118,9 +118,9 @@ describe("cachedConfigFetch", () => {
       async () => ({ data: liveData, error: null }) as Result,
     );
     setOnline(false);
-    const r = await cachedConfigFetch("t4", async () => {
+    const r = await cachedConfigFetch("t4", (async () => {
       throw new TypeError("Failed to fetch");
-    });
+    }) as () => Promise<Result>);
     expect(r.error).toBeNull();
     expect(r.data).toEqual(liveData);
   });
@@ -133,9 +133,9 @@ describe("cachedConfigFetch", () => {
     setOnline(false);
     const boom = new Error("schema mismatch");
     await expect(
-      cachedConfigFetch("t5", async () => {
+      cachedConfigFetch("t5", (async () => {
         throw boom;
-      }),
+      }) as () => Promise<Result>),
     ).rejects.toThrow(boom);
   });
 
