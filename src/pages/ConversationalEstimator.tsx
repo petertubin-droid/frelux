@@ -109,6 +109,11 @@ export default function ConversationalEstimator() {
   return (
     <Container>
       <PageHeader
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Construction Tools", path: "/construction-tools" },
+          { label: "WhatsApp Estimator" },
+        ]}
         title="WhatsApp Estimator"
         subtitle="Paste the chat — or the voice-note transcript — in English, Pidgin, Yoruba or Hausa. You get the same honest FRELUX estimate, plus every fact the engine picked up and where it found it."
       />

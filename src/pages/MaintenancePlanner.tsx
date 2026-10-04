@@ -201,6 +201,11 @@ export default function MaintenancePlanner({
   const body = (
     <div className="space-y-6">
       <PageHeader
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Construction Tools", path: "/construction-tools" },
+          { label: "Maintenance Planner" },
+        ]}
         title="Maintenance Planner"
         subtitle="Plan the full life of your finish from database-verified data — inspections, re-coat cycles and full redecoration, with cost projections at years 3, 5 and 10."
       />

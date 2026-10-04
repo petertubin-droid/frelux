@@ -289,6 +289,11 @@ export default function ElectricalEstimator() {
   return (
     <Container>
       <PageHeader
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Construction Tools", path: "/construction-tools" },
+          { label: "Electrical Wiring Estimator" },
+        ]}
         title="Electrical Wiring Estimator"
         subtitle="Enter your point counts and estimated average cable runs. The engine sizes each cable category separately, counts circuits and accessories from your inputs, and shows every step of the calculation. Estimation only — not professional electrical design."
       />

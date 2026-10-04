@@ -248,6 +248,11 @@ export default function GeneratorEstimator() {
   return (
     <Container>
       <PageHeader
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Construction Tools", path: "/construction-tools" },
+          { label: "Doors & Windows Estimator" },
+        ]}
         title="Doors & Windows Estimator"
         subtitle="Choose your generator bracket from your own load assessment and give the measured cable run. The engine lists generator units, ATS, battery and cable with waste visible, and prices from the shared material database. It never sizes the generator — estimation only, not an installation design."
       />

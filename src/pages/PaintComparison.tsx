@@ -113,6 +113,11 @@ export default function PaintComparison() {
   return (
     <div className="min-h-screen bg-background">
       <PageHeader
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Construction Tools", path: "/construction-tools" },
+          { label: "Paint Comparison Tool" },
+        ]}
         eyebrow="Tools"
         title="Paint Comparison Tool"
         subtitle="Compare paint types side by side to find the right finish for your project."

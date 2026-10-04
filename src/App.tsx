@@ -1070,6 +1070,97 @@ export default function App() {
                         </Suspense>
                       }
                     />
+                    {/* Public tool/engine pages — moved under the public Layout (2026-10-04)
+                    so they get the Navbar, Footer and site chrome like every other page. */}
+                    <Route
+                      path="/paint-comparison"
+                      element={<PaintComparison />}
+                    />
+                    <Route
+                      path="/surface-assessment"
+                      element={<SurfaceAssessment />}
+                    />
+                    <Route
+                      path="/material-prices"
+                      element={<MaterialPriceTracker />}
+                    />
+                    <Route
+                      path="/maintenance-planner"
+                      element={<MaintenancePlanner />}
+                    />
+                    <Route path="/boq-generator" element={<BoqGenerator />} />
+                    <Route
+                      path="/regional-cost-index"
+                      element={<RegionalCostIndex />}
+                    />
+                    <Route
+                      path="/carbon-footprint"
+                      element={<CarbonFootprint />}
+                    />
+                    <Route
+                      path="/cash-flow-timeline"
+                      element={<CashFlowTimeline />}
+                    />
+                    <Route
+                      path="/labour-estimator"
+                      element={<LabourEstimator />}
+                    />
+                    <Route
+                      path="/margin-calculator"
+                      element={<MarginCalculator />}
+                    />
+                    <Route
+                      path="/defect-diagnosis"
+                      element={<DefectDiagnosis />}
+                    />
+                    <Route
+                      path="/estimate-refresh"
+                      element={<EstimateRefresh />}
+                    />
+                    <Route
+                      path="/warranty-certificate"
+                      element={<WarrantyCertificate />}
+                    />
+                    <Route path="/heat-comfort" element={<HeatComfort />} />
+                    <Route path="/circular-reuse" element={<CircularReuse />} />
+                    <Route
+                      path="/contractor-credit"
+                      element={<ContractorCredit />}
+                    />
+                    <Route
+                      path="/solar-pv-estimator"
+                      element={<SolarPvEstimator />}
+                    />
+                    <Route path="/bim-ifc-import" element={<BimIfcImport />} />
+                    <Route
+                      path="/conversational-estimator"
+                      element={<ConversationalEstimator />}
+                    />
+                    <Route path="/field-sync" element={<FieldSync />} />
+                    <Route path="/count-vision" element={<CountVision />} />
+                    <Route
+                      path="/electrical"
+                      element={<ElectricalEstimator />}
+                    />
+                    <Route path="/plumbing" element={<PlumbingEstimator />} />
+                    <Route
+                      path="/waterproofing"
+                      element={<WaterproofingEstimator />}
+                    />
+                    <Route path="/flooring" element={<FlooringEstimator />} />
+                    <Route
+                      path="/reinforcement"
+                      element={<ReinforcementEstimator />}
+                    />
+                    <Route
+                      path="/foundation"
+                      element={<FoundationEstimator />}
+                    />
+                    <Route
+                      path="/doors-windows"
+                      element={<DoorsWindowsEstimator />}
+                    />
+                    <Route path="/generator" element={<GeneratorEstimator />} />
                     <Route
                       path="*"
                       element={
@@ -1446,17 +1537,9 @@ export default function App() {
                     }
                   />
                   {/* Project intelligence routes */}
-                  <Route
-                    path="/paint-comparison"
-                    element={<PaintComparison />}
-                  />
                   <Route path="/gallery" element={<Gallery />} />
                   <Route path="/properties" element={<PropertiesDashboard />} />
                   <Route path="/gallery/new" element={<GalleryUpload />} />
-                  <Route
-                    path="/surface-assessment"
-                    element={<SurfaceAssessment />}
-                  />
                   <Route
                     path="/project-workspace"
                     element={<ProjectWorkspace />}
@@ -1469,82 +1552,6 @@ export default function App() {
                     path="/project-workspace/:id/client-estimate/new"
                     element={<ClientEstimateEditor />}
                   />
-                  <Route
-                    path="/material-prices"
-                    element={<MaterialPriceTracker />}
-                  />
-                  <Route
-                    path="/maintenance-planner"
-                    element={<MaintenancePlanner />}
-                  />
-                  <Route path="/boq-generator" element={<BoqGenerator />} />
-                  <Route
-                    path="/regional-cost-index"
-                    element={<RegionalCostIndex />}
-                  />
-                  <Route
-                    path="/carbon-footprint"
-                    element={<CarbonFootprint />}
-                  />
-                  <Route
-                    path="/cash-flow-timeline"
-                    element={<CashFlowTimeline />}
-                  />
-                  <Route
-                    path="/labour-estimator"
-                    element={<LabourEstimator />}
-                  />
-                  <Route
-                    path="/margin-calculator"
-                    element={<MarginCalculator />}
-                  />
-                  <Route
-                    path="/defect-diagnosis"
-                    element={<DefectDiagnosis />}
-                  />
-                  <Route
-                    path="/estimate-refresh"
-                    element={<EstimateRefresh />}
-                  />
-                  <Route
-                    path="/warranty-certificate"
-                    element={<WarrantyCertificate />}
-                  />
-                  <Route path="/heat-comfort" element={<HeatComfort />} />
-                  <Route path="/circular-reuse" element={<CircularReuse />} />
-                  <Route
-                    path="/contractor-credit"
-                    element={<ContractorCredit />}
-                  />
-                  <Route
-                    path="/solar-pv-estimator"
-                    element={<SolarPvEstimator />}
-                  />
-                  <Route path="/bim-ifc-import" element={<BimIfcImport />} />
-                  <Route
-                    path="/conversational-estimator"
-                    element={<ConversationalEstimator />}
-                  />
-                  <Route path="/field-sync" element={<FieldSync />} />
-                  <Route path="/count-vision" element={<CountVision />} />
-                  {/* Tier 2 material estimation engines */}
-                  <Route path="/electrical" element={<ElectricalEstimator />} />
-                  <Route path="/plumbing" element={<PlumbingEstimator />} />
-                  <Route
-                    path="/waterproofing"
-                    element={<WaterproofingEstimator />}
-                  />
-                  <Route path="/flooring" element={<FlooringEstimator />} />
-                  <Route
-                    path="/reinforcement"
-                    element={<ReinforcementEstimator />}
-                  />
-                  <Route path="/foundation" element={<FoundationEstimator />} />
-                  <Route
-                    path="/doors-windows"
-                    element={<DoorsWindowsEstimator />}
-                  />
-                  <Route path="/generator" element={<GeneratorEstimator />} />
 
                   <Route
                     path="/estimate/:token"

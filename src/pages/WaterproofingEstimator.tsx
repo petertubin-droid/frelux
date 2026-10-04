@@ -248,6 +248,11 @@ export default function WaterproofingEstimator() {
   return (
     <Container>
       <PageHeader
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Construction Tools", path: "/construction-tools" },
+          { label: "Waterproofing Estimator" },
+        ]}
         title="Waterproofing Estimator"
         subtitle="Enter your measured DPC run, DPM area, wet-area surfaces and terrace area. The engine sizes DPC, DPM, coating, membrane and tape from your measurements with the admin's visible coats, coverage, waste and overlap rules. Estimation only — not waterproofing design."
       />

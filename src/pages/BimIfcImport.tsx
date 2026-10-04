@@ -65,6 +65,11 @@ export default function BimIfcImport() {
     <Container>
       <div className="space-y-6">
         <PageHeader
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Construction Tools", path: "/construction-tools" },
+            { label: "BIM/IFC Import" },
+          ]}
           title="BIM/IFC Import"
           subtitle="Upload an architect's .ifc (BIM) export and get an instant material takeoff — walls, slabs, roofs, doors, windows with the areas and volumes the file itself declares. Parsed entirely in your browser: the file never leaves your device, no AI is involved, and if the export contains no quantities you get honest element counts with a warning, never invented areas."
         />

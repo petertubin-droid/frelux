@@ -66,6 +66,11 @@ export default function LabourEstimator() {
     <Container>
       <div className="space-y-6">
         <PageHeader
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Construction Tools", path: "/construction-tools" },
+            { label: "Labour & Crew Estimator" },
+          ]}
           title="Labour & Crew Estimator"
           subtitle="Worker-days and crew duration for a quantity of work, from admin-configured productivity rates with verifiable sources. The site-efficiency loss is shown as a separate line — never folded into the base rate — and calendar days are always whole days."
         />

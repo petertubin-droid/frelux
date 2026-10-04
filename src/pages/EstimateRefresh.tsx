@@ -175,6 +175,11 @@ export default function EstimateRefresh() {
     <Container>
       <div className="space-y-6">
         <PageHeader
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Construction Tools", path: "/construction-tools" },
+            { label: "Estimate Refresh — Current Cost Today" },
+          ]}
           title="Estimate Refresh — Current Cost Today"
           subtitle="Inflation-proof estimating: your saved estimates snapshot the prices they were quoted at. Pick one and see what it would cost today — line by line, with every missing price flagged, never guessed."
         />

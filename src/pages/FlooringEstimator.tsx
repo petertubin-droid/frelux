@@ -244,6 +244,11 @@ export default function FlooringEstimator() {
   return (
     <Container>
       <PageHeader
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Construction Tools", path: "/construction-tools" },
+          { label: "Flooring Estimator" },
+        ]}
         title="Flooring Estimator"
         subtitle="Enter your measured floor area and skirting run. The engine sizes laminate packs, vinyl or parquet m², underlay, adhesive and skirting with the admin's visible coverage, pack-size and waste rules. Estimation only — not a flooring specification."
       />

@@ -87,6 +87,11 @@ export default function DefectDiagnosis() {
     <Container>
       <div className="space-y-6">
         <PageHeader
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Construction Tools", path: "/construction-tools" },
+            { label: "Defect Diagnosis" },
+          ]}
           title="Defect Diagnosis"
           subtitle="Pick the symptom you're seeing and get its root causes with fixes — ranked by our configured likelihood order, never an algorithm's guess. Causes with a configured consumption rate also show the exact fix quantity for your affected area."
         />

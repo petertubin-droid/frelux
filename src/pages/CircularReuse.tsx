@@ -99,6 +99,11 @@ export default function CircularReuse() {
     <Container>
       <div className="space-y-6">
         <PageHeader
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Construction Tools", path: "/construction-tools" },
+            { label: "Circular & Reuse — Demolition Recovery" },
+          ]}
           title="Circular & Reuse — Demolition Recovery"
           subtitle="Circular-economy mandates are coming to construction. Plan a demolition or strip-out honestly: how much material is recoverable, reusable, recyclable, and what lands in a dump — computed only from sourced recovery factors, never a guess."
         />

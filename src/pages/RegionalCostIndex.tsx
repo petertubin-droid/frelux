@@ -84,6 +84,11 @@ export default function RegionalCostIndex() {
     <Container>
       <div className="space-y-6">
         <PageHeader
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Construction Tools", path: "/construction-tools" },
+            { label: "Regional Cost Index" },
+          ]}
           title="Regional Cost Index"
           subtitle="State-by-state labour and material cost factors, admin-configured from verifiable sources. Apply them to any base cost to see location-accurate totals. When a state has no configured index the engine falls back to the national baseline and tells you — it never guesses a multiplier."
         />

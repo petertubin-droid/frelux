@@ -123,6 +123,11 @@ export default function CountVision() {
   return (
     <Container>
       <PageHeader
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Construction Tools", path: "/construction-tools" },
+          { label: "Counter-Vision" },
+        ]}
         title="Counter-Vision"
         subtitle="Photograph your stacked materials and the engine counts what is visible. It tells you honestly when it cannot count — it never guesses a number."
       />

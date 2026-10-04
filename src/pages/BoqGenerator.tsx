@@ -202,6 +202,11 @@ export default function BoqGenerator() {
     <Container>
       <div className="space-y-6">
         <PageHeader
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Construction Tools", path: "/construction-tools" },
+            { label: "BOQ / Quote Generator" },
+          ]}
           title="BOQ / Quote Generator"
           subtitle="Assemble your saved FRELUX estimates into one professional, client-ready Bill of Quantities. VAT and contingency come from database-configured rates — every line stays traceable to its source."
         />

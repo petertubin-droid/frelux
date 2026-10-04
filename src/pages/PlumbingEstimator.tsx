@@ -275,6 +275,11 @@ export default function PlumbingEstimator() {
   return (
     <Container>
       <PageHeader
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Construction Tools", path: "/construction-tools" },
+          { label: "Plumbing Estimator" },
+        ]}
         title="Plumbing Estimator"
         subtitle="Enter your fixture counts and the total pipe run you measured for each category. The engine sizes each pipe category separately, applies the admin's visible waste and fitting allowances, and shows every step. Estimation only — not professional plumbing design."
       />

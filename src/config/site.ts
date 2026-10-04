@@ -70,6 +70,103 @@ export const navWorkspaces: NavWorkspace[] = [
       })),
     ),
   },
+  // Colors & Design workspace (restored 2026-10-04 — these pages were
+  // accidentally dropped from the menu during the Construction Tools merge).
+  {
+    label: "Colors & Design",
+    path: "/colors",
+    children: [
+      {
+        label: "Color Library",
+        path: "/colors",
+        description: "Browse and pick paint colors",
+      },
+      {
+        label: "Compare Colors",
+        path: "/colors/compare",
+        description: "Side-by-side color comparison",
+      },
+      {
+        label: "Smart Color Assistant",
+        path: "/ai-color-assistant",
+        description: "AI-guided color selection",
+      },
+      {
+        label: "AI Color Preview",
+        path: "/color-preview",
+        description: "Preview colors on your walls",
+      },
+    ],
+  },
+  {
+    label: "Projects",
+    path: "/my-projects",
+    children: [
+      {
+        label: "My Projects",
+        path: "/my-projects",
+        section: "Project Management",
+        description: "View and manage your saved projects",
+      },
+      {
+        label: "Project Workspace",
+        path: "/project-workspace",
+        section: "Project Management",
+        description: "Full project planning workspace",
+      },
+      {
+        label: "Estimate Analytics",
+        path: "/dashboard",
+        section: "Project Management",
+        description: "Insights across your estimates",
+      },
+      {
+        label: "Templates",
+        path: "/templates",
+        section: "Project Management",
+        description: "Reusable calculation templates",
+      },
+      {
+        label: "Brand Studio",
+        path: "/brand-studio",
+        section: "Tools",
+        description: "Custom PDF branding & AI logo generation",
+      },
+    ],
+  },
+  // Learn workspace (restored 2026-10-04 — Learn Hub, guides and friends were
+  // accidentally dropped from the menu during the Construction Tools merge).
+  {
+    label: "Learn",
+    path: "/learn",
+    children: [
+      {
+        label: "Learn Hub",
+        path: "/learn",
+        description: "Guides, tutorials & building knowledge",
+      },
+      {
+        label: "User Guide",
+        path: "/user-guide",
+        description: "How to use every FRELUX feature",
+      },
+      {
+        label: "About FRELUX",
+        path: "/about",
+        description: "Our story & mission",
+      },
+      {
+        label: "Contact",
+        path: "/contact",
+        description: "Get in touch with our team",
+      },
+      {
+        label: "Feedback",
+        path: "/feedback",
+        description: "Tell us what to build next",
+      },
+    ],
+  },
 ];
 
 // Legacy export kept for backward compatibility (footer uses similar structure)

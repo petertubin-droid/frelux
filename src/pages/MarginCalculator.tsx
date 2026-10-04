@@ -75,6 +75,11 @@ export default function MarginCalculator() {
     <Container>
       <div className="space-y-6">
         <PageHeader
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Construction Tools", path: "/construction-tools" },
+            { label: "Profit Margin Calculator" },
+          ]}
           title="Profit Margin Calculator"
           subtitle="Client price and profit for any base cost, from admin-configured margin presets. Every quote shows whether the percent applied to the cost (markup) or the price (margin) — the two are never confused, and VAT is added only from a configured rate, never guessed."
         />

@@ -20,6 +20,8 @@ const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || '';
 const routes = [
   { path: '/', priority: '1.0', changefreq: 'weekly' },
   { path: '/calculators', priority: '0.9', changefreq: 'monthly' },
+  { path: '/construction-tools', priority: '0.9', changefreq: 'weekly' },
+  { path: '/feedback', priority: '0.7', changefreq: 'monthly' },
   { path: '/start-building', priority: '0.9', changefreq: 'weekly' },
   { path: '/paint-calculator', priority: '0.9', changefreq: 'monthly' },
   { path: '/screeding-calculator', priority: '0.9', changefreq: 'monthly' },

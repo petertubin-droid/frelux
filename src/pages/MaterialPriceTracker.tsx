@@ -160,6 +160,11 @@ export default function MaterialPriceTracker() {
   return (
     <>
       <PageHeader
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Construction Tools", path: "/construction-tools" },
+          { label: "Material Price Tracker" },
+        ]}
         title="Material Price Tracker"
         subtitle="Monitor material costs, update prices, and track changes over time."
       />

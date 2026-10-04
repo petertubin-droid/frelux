@@ -245,6 +245,11 @@ export default function DoorsWindowsEstimator() {
   return (
     <Container>
       <PageHeader
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Construction Tools", path: "/construction-tools" },
+          { label: "Doors & Windows Estimator" },
+        ]}
         title="Doors & Windows Estimator"
         subtitle="Enter your door and window counts per type. The engine lists leaves, frames, hinges, locksets and window units, labelling every derived count, and prices from the shared material database. Estimation only — confirm unit sizes on site."
       />

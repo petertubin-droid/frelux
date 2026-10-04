@@ -162,6 +162,11 @@ export default function WarrantyCertificate() {
     <Container>
       <div className="space-y-6">
         <PageHeader
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Construction Tools", path: "/construction-tools" },
+            { label: "Warranty Certificate & Dispute Verification" },
+          ]}
           title="Warranty Certificate & Dispute Verification"
           subtitle="Issue a hash-verified warranty certificate for a saved estimate. The exact configuration behind your quote is frozen and replayable — if a claim or dispute ever arises, both sides verify against the same frozen record, never a reconstruction."
         />

@@ -82,6 +82,11 @@ export default function CarbonFootprint() {
     <Container>
       <div className="space-y-6">
         <PageHeader
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Construction Tools", path: "/construction-tools" },
+            { label: "Embodied Carbon Estimator" },
+          ]}
           title="Embodied Carbon Estimator"
           subtitle="kgCO2e per line from admin-configured, verifiable emission factors (EPDs, ICE database). Lines without a configured factor are excluded with a warning — FRELUX never guesses an emission."
         />

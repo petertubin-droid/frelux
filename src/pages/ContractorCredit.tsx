@@ -89,6 +89,11 @@ export default function ContractorCredit() {
     <Container>
       <div className="space-y-6">
         <PageHeader
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Construction Tools", path: "/construction-tools" },
+            { label: "Contractor Credit Score" },
+          ]}
           title="Contractor Credit Score"
           subtitle="Before you commit money to a contractor, check the record: on-time delivery, estimate accuracy, verified job volume and disputes — scored deterministically from admin-verified job history. Unverified history is refused, never scored zero."
         />

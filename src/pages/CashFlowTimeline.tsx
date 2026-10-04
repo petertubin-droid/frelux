@@ -81,6 +81,11 @@ export default function CashFlowTimeline() {
     <Container>
       <div className="space-y-6">
         <PageHeader
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Construction Tools", path: "/construction-tools" },
+            { label: "Cash-Flow Timeline" },
+          ]}
           title="Cash-Flow Timeline"
           subtitle="Phased payment schedule for an estimate total, from admin-configured milestone templates. Milestone percentages must sum to exactly 100% — FRELUX refuses anything else rather than silently adjusting your payment plan."
         />

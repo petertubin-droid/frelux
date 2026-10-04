@@ -193,6 +193,11 @@ export default function FieldSync() {
   return (
     <Container>
       <PageHeader
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Construction Tools", path: "/construction-tools" },
+          { label: "Field Sync" },
+        ]}
         title="Field Sync"
         subtitle="Record site work with no network. Your captures queue on this device and sync when connectivity returns — honestly, one by one."
       />

@@ -107,6 +107,11 @@ export default function SolarPvEstimator() {
     <Container>
       <div className="space-y-6">
         <PageHeader
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Construction Tools", path: "/construction-tools" },
+            { label: "Solar/PV Roofing Estimator" },
+          ]}
           title="Solar/PV Roofing Estimator"
           subtitle="A complete solar installation estimate from sourced data: fit panels to your roof or size the array for your daily energy target, then get every material quantity — rails, clamps, connectors, DC/AC cabling, breakers, surge protection, earthing, batteries — with configured prices. Nothing is guessed, and unpriced components are reported honestly."
         />

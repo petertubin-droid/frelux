@@ -87,6 +87,11 @@ export default function HeatComfort() {
     <Container>
       <div className="space-y-6">
         <PageHeader
+          breadcrumbs={[
+            { label: "Home", path: "/" },
+            { label: "Construction Tools", path: "/construction-tools" },
+            { label: "Heat Comfort — Finish Choice & Indoor Heat" },
+          ]}
           title="Heat Comfort — Finish Choice & Indoor Heat"
           subtitle="Brighter finishes reflect more solar energy and keep a space cooler. Compare two finishes on a roof or wall and see the honest difference in absorbed heat — computed only from sourced reflectance factors, never a guess."
         />

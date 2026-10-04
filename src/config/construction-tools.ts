@@ -38,6 +38,9 @@ import {
   CloudOff,
   Tags,
   FileText,
+  Leaf,
+  Recycle,
+  Stethoscope,
 } from "lucide-react";
 
 /**
@@ -467,6 +470,29 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     navVisible: false,
   },
 
+  {
+    slug: "carbon-footprint",
+    title: "Embodied Carbon Estimator",
+    category: "project",
+    icon: Leaf,
+    does: "Estimate the embodied carbon of your build from verifiable emission factors.",
+    enters: "Your material quantities from a saved estimate.",
+    gets: "kgCO2e per material line and a total, with unmeasured lines flagged — never guessed.",
+    to: "/carbon-footprint",
+    navVisible: false,
+  },
+  {
+    slug: "circular-reuse",
+    title: "Demolition Recovery",
+    category: "project",
+    icon: Recycle,
+    does: "Plan a demolition or strip-out: how much material can be recovered, reused or recycled.",
+    enters: "The materials being removed and their condition.",
+    gets: "Recoverable, reusable and recyclable quantities from sourced recovery factors.",
+    to: "/circular-reuse",
+    navVisible: false,
+  },
+
   // ---------------------------------------------------------------- ai
   {
     slug: "photo-estimator",
@@ -563,6 +589,18 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
   },
 
   // ---------------------------------------------------------------- pro
+  {
+    slug: "defect-diagnosis",
+    title: "Defect Diagnosis",
+    category: "pro",
+    icon: Stethoscope,
+    does: "Pick the symptom you are seeing and get its root causes with fixes and quantities.",
+    enters: "The symptom and the affected area.",
+    gets: "Ranked root causes, recommended fixes and exact fix quantities.",
+    to: "/defect-diagnosis",
+    navVisible: false,
+  },
+
   {
     slug: "bim-ifc",
     title: "BIM / IFC Import",

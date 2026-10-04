@@ -109,6 +109,11 @@ export default function SurfaceAssessment() {
   return (
     <div className="min-h-screen bg-background">
       <PageHeader
+        breadcrumbs={[
+          { label: "Home", path: "/" },
+          { label: "Construction Tools", path: "/construction-tools" },
+          { label: "Surface Condition Assessment" },
+        ]}
         title="Surface Condition Assessment"
         subtitle="Identify wall conditions and get preparation recommendations before painting."
       />
