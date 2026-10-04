@@ -44,7 +44,7 @@ describe("ConversationalEstimator page", () => {
     expect(screen.getByLabelText(/transcript/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/language/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /try yorùbá/i }),
+      screen.getByRole("button", { name: /try english/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /get my estimate/i }),
@@ -69,28 +69,26 @@ describe("ConversationalEstimator page", () => {
     expect(screen.queryByText(/room size/i)).not.toBeInTheDocument();
   });
 
-  it("replies to a Pidgin thread with a Pidgin follow-up when the size is missing", async () => {
+  it("asks for the size with a follow-up when the size is missing", async () => {
     render(
       <MemoryRouter>
         <ConversationalEstimator />
       </MemoryRouter>,
     );
-    pasteAndSubmit("Oga abeg how much be paint for 2 bedroom flat");
+    pasteAndSubmit("Good afternoon, how much is paint for a 2 bedroom flat?");
     expect(await screen.findByText(/room size/i)).toBeInTheDocument();
-    expect(
-      screen.getByText(/Nigerian Pidgin \(detected\)/i),
-    ).toBeInTheDocument();
+    expect(screen.getByText(/english \(detected\)/i)).toBeInTheDocument();
     // Nothing was estimated — the engine asked instead
     expect(screen.queryByText(/litres/)).not.toBeInTheDocument();
   });
 
-  it("extracts and estimates from a Hausa sample via the Try Hausa button", async () => {
+  it("estimates from the English sample via the Try English button", async () => {
     render(
       <MemoryRouter>
         <ConversationalEstimator />
       </MemoryRouter>,
     );
-    fireEvent.click(screen.getByRole("button", { name: /try hausa/i }));
+    fireEvent.click(screen.getByRole("button", { name: /try english/i }));
     fireEvent.click(screen.getByRole("button", { name: /get my estimate/i }));
     expect(await screen.findByText(/49\.23 m²/)).toBeInTheDocument();
   });

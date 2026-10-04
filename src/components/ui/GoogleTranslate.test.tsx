@@ -9,12 +9,11 @@ import {
 
 describe("mapToGoogleLanguage", () => {
   it("maps FRELUX codes to Google widget codes where they differ", () => {
-    expect(mapToGoogleLanguage("fulfulde")).toBe("ff");
-    expect(mapToGoogleLanguage("kanuri")).toBe("kr");
+    expect(mapToGoogleLanguage("zh")).toBe("zh-CN");
   });
 
   it("passes GT-supported languages through unchanged", () => {
-    for (const code of ["en", "yo", "ha", "ig"] as const) {
+    for (const code of ["en", "fr", "pt", "sw", "ar"] as const) {
       expect(mapToGoogleLanguage(code)).toBe(code);
     }
   });
@@ -25,28 +24,9 @@ describe("mapToGoogleLanguage", () => {
 });
 
 describe("isGoogleTranslatedLanguage", () => {
-  it("accepts the major Nigerian languages Google supports", () => {
-    expect(isGoogleTranslatedLanguage("yo")).toBe(true);
-    expect(isGoogleTranslatedLanguage("ha")).toBe(true);
-    expect(isGoogleTranslatedLanguage("ig")).toBe(true);
-    expect(isGoogleTranslatedLanguage("fulfulde")).toBe(true);
-    expect(isGoogleTranslatedLanguage("kanuri")).toBe(true);
-  });
-
-  it("flags languages Google does not offer as dictionary-only", () => {
-    for (const code of [
-      "pidgin",
-      "efik",
-      "tiv",
-      "ijaw",
-      "nupe",
-      "ebira",
-      "ibibio",
-      "igala",
-      "urhobo",
-      "eso",
-    ]) {
-      expect(isGoogleTranslatedLanguage(code as any)).toBe(false);
+  it("accepts every registered international language", () => {
+    for (const code of ["en", "fr", "pt", "sw", "ar", "zh"] as const) {
+      expect(isGoogleTranslatedLanguage(code)).toBe(true);
     }
   });
 });

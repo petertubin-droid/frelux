@@ -19,32 +19,19 @@ import {
 const LANGUAGE_LABELS: Record<ConversationLanguage | "auto", string> = {
   auto: "Auto-detect",
   en: "English",
-  pcm: "Nigerian Pidgin",
-  yo: "Yorùbá",
-  ha: "Hausa",
 };
 
-const LANGUAGES: Array<ConversationLanguage | "auto"> = [
-  "auto",
-  "en",
-  "pcm",
-  "yo",
-  "ha",
-];
+const LANGUAGES: Array<ConversationLanguage | "auto"> = ["auto", "en"];
 
 const SAMPLES: Record<ConversationLanguage, string> = {
   en: "Hello, I want to paint my room. It is 4 by 3 meters, 2 coats, in Lagos",
-  pcm: "Oga abeg, how much be the paint for 2 bedroom flat for Yaba, 3 coats",
-  yo: "Pẹlẹ o, mo fe paint dabi na, 4 by 3 mita",
-  ha: "Sannu, ina son fenti a daki na, 4 by 3 mita, kudi nawa?",
 };
 
 export default function ConversationalEstimator() {
   useSeo({
-    title:
-      "WhatsApp Estimator — Chat Your Estimate in English, Pidgin, Yoruba or Hausa | FRELUX",
+    title: "WhatsApp Estimator — Chat Your Estimate in English | FRELUX",
     description:
-      "Paste a WhatsApp chat or voice-note transcript — English, Nigerian Pidgin, Yoruba or Hausa — and get the same honest FRELUX paint estimate instantly. Nothing is guessed: the engine shows exactly what it heard and asks when something is missing.",
+      "Paste a WhatsApp chat or voice-note transcript and get the same honest FRELUX paint estimate instantly. Nothing is guessed: the engine shows exactly what it heard and asks when something is missing.",
   });
 
   const [thread, setThread] = useState("");
@@ -115,7 +102,7 @@ export default function ConversationalEstimator() {
           { label: "WhatsApp Estimator" },
         ]}
         title="WhatsApp Estimator"
-        subtitle="Paste the chat — or the voice-note transcript — in English, Pidgin, Yoruba or Hausa. You get the same honest FRELUX estimate, plus every fact the engine picked up and where it found it."
+        subtitle="Paste the chat — or the voice-note transcript — in English. You get the same honest FRELUX estimate, plus every fact the engine picked up and where it found it."
       />
 
       <section className="mx-auto max-w-3xl space-y-4">
@@ -128,7 +115,7 @@ export default function ConversationalEstimator() {
             value={thread}
             onChange={(e) => setThread(e.target.value)}
             rows={6}
-            placeholder={SAMPLES.pcm}
+            placeholder={SAMPLES.en}
             className="mt-2 w-full rounded-md border p-3 font-mono text-sm"
           />
           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -154,7 +141,7 @@ export default function ConversationalEstimator() {
             >
               {busy ? "Reading your message…" : "Get my estimate"}
             </button>
-            {["en", "pcm", "yo", "ha"].map((l) => (
+            {(["en"] as const).map((l) => (
               <button
                 key={l}
                 type="button"

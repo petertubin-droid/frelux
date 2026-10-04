@@ -1,14 +1,12 @@
 /**
- * Google Translate integration for FRELUX (international/Nigeria edition).
+ * Google Translate integration for FRELUX (international edition).
  *
- * The built-in dictionaries (lib/i18n.tsx) cover the UI chrome in 16
- * languages, but article/calculator content is authored in English only.
- * Google Translate's site widget translates EVERY visible DOM text
- * client-side, which completes the picture for languages Google supports
- * (Yoruba, Hausa, Igbo, Fulfulde, Kanuri). For languages Google does not
- * support (Pidgin, Efik, Tiv, Ijaw, Nupe, Ebira, Ibibio, Igala, Urhobo,
- * Esan) the widget is restored to English and only the dictionary chrome
- * switches.
+ * The built-in dictionaries (lib/i18n.tsx) cover the UI chrome, but
+ * article/calculator content is authored in English only. Google
+ * Translate's site widget translates EVERY visible DOM text client-side,
+ * which completes the picture for every registered language (English,
+ * Spanish, French, German, Portuguese, Russian, Indonesian, Swahili,
+ * Arabic, Hindi, Chinese).
  *
  * Google's own banner/toolbar is hidden; our LanguageSwitcher drives the
  * widget programmatically and carries the attribution.
@@ -18,24 +16,15 @@ import type { Language } from "@/lib/i18n";
 
 /** FRELUX codes that Google spells differently. */
 const GT_CODE_OVERRIDES: Partial<Record<Language, string>> = {
-  fulfulde: "ff",
-  kanuri: "kr",
   zh: "zh-CN",
 };
 
-/** Languages Google Translate does not offer - dictionary-only. */
-const GT_UNSUPPORTED: ReadonlySet<string> = new Set([
-  "pidgin",
-  "efik",
-  "tiv",
-  "ijaw",
-  "nupe",
-  "ebira",
-  "ibibio",
-  "igala",
-  "urhobo",
-  "eso",
-]);
+/**
+ * Languages Google Translate does not offer - dictionary-only. All
+ * registered languages are currently supported, but the mechanism stays
+ * so a future language Google lacks can be added without rework.
+ */
+const GT_UNSUPPORTED: ReadonlySet<string> = new Set([]);
 
 /** True when the language can be handled by Google Translate. */
 export function isGoogleTranslatedLanguage(lang: Language): boolean {

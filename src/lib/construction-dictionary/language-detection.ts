@@ -20,7 +20,8 @@ export interface LanguageResolution {
   detected_language: string;
   response_language: string;
   /** which priority rule produced the response language */
-  resolved_by: "USER_SELECTION" | "CONVERSATION_LANGUAGE" | "AUTO_DETECTION" | "DEFAULT";
+  resolved_by:
+    "USER_SELECTION" | "CONVERSATION_LANGUAGE" | "AUTO_DETECTION" | "DEFAULT";
 }
 
 /** Resolve the response language following the priority
@@ -41,7 +42,10 @@ export function resolveResponseLanguage(input: {
       resolved_by: "USER_SELECTION",
     };
   }
-  if (input.conversation_language && isRegistered(input.conversation_language)) {
+  if (
+    input.conversation_language &&
+    isRegistered(input.conversation_language)
+  ) {
     return {
       detected_language: auto,
       response_language: input.conversation_language,
@@ -74,29 +78,48 @@ export function detectLanguage(text: string): string {
   // Script detection (unambiguous)
   if (/[\u0600-\u06FF]/.test(trimmed)) return "ar";
   if (/[\u0900-\u097F]/.test(trimmed)) return "hi";
+  if (/[\u0400-\u04FF]/.test(trimmed)) return "ru";
   if (/[\u4E00-\u9FFF]/.test(trimmed)) return "zh";
 
   const lower = ` ${trimmed.toLowerCase()} `;
 
-  // Nigerian Pidgin markers (checked before English because
-  // Pidgin shares the latin script and vocabulary markers)
-  const pidginMarkers = [
-    " abeg ", " wetin ", " how many ", " i wan ", " i want make ", " make i ",
-    " na ", " dey ", " dem dey ", " no be ", " sabi ", " oga ", " villa ",
-    " how much be ", " which kind ", " you dey ", " we go ", " e go ",
-  ];
-  if (pidginMarkers.filter((m) => lower.includes(m)).length >= 2) return "pcm";
-
   // Vocabulary markers for latin-script languages
   const markers: Record<string, string[]> = {
-    fr: [" combien ", " peinture ", " ciment ", " toit ", " mur ", " carrelage ", " besoin "],
-    es: [" cuánto", " cuantas", " pintura ", " cemento ", " techo ", " pared ", " azulejos "],
-    pt: [" quanto ", " tinta ", " cimento ", " telhado ", " parede ", " azulejo "],
-    yo: [" e melo ", " epo ", " yara ", " ile ", " awon ", " mo fe ", " gbogbo "],
-    ig: [" ole ", " esi ", " ulo ", " mme ", " m choro ", " otutu ", " nkume "],
-    ha: [" nawa ", " gida ", " rufi ", " bene ", " kudi ", " yawa ", " nawa kudi "],
+    fr: [
+      " combien ",
+      " peinture ",
+      " ciment ",
+      " toit ",
+      " mur ",
+      " carrelage ",
+      " besoin ",
+    ],
+    es: [
+      " cuánto",
+      " cuánta",
+      " cuantas",
+      " pintura ",
+      " cemento ",
+      " techo ",
+      " pared ",
+      " azulejos ",
+    ],
+    pt: [
+      " quanto ",
+      " tinta ",
+      " cimento ",
+      " telhado ",
+      " parede ",
+      " azulejo ",
+    ],
+    de: [" wie viel ", " farbe ", " zement ", " dach ", " wand ", " fliesen "],
+    id: [" berapa ", " cat ", " semen ", " atap ", " dinding ", " keramik "],
+    sw: [" ngapi ", " rangi ", " saruji ", " paa ", " ukuta ", " kauri "],
   };
-  let best: { code: string; hits: number } = { code: DEFAULT_LANGUAGE, hits: 0 };
+  let best: { code: string; hits: number } = {
+    code: DEFAULT_LANGUAGE,
+    hits: 0,
+  };
   for (const [code, words] of Object.entries(markers)) {
     const hits = words.filter((w) => lower.includes(w)).length;
     if (hits > best.hits) best = { code, hits };

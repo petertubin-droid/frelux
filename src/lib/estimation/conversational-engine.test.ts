@@ -2,8 +2,7 @@
 // Conversational Estimator Engine (Engine 3) — tests
 //
 // Hand-verified expectations:
-//  - Language detection on real chat samples in EN / Pidgin /
-//    Yoruba / Hausa (loanwords Nigerians actually type).
+//  - English language detection on real chat samples.
 //  - WhatsApp export parsing (timestamps, senders, media lines).
 //  - Dimension / coat / room / region extraction with evidence.
 //  - The paint estimate is the SAME calculatePaint chain the
@@ -32,25 +31,6 @@ function threadOf(text: string): ParsedThread {
 }
 
 describe("detectLanguage", () => {
-  it("detects Nigerian Pidgin from a real chat sample", () => {
-    const d = detectLanguage(
-      "Abeg oga, how much be the paint for 2 bedroom flat for Yaba",
-    );
-    expect(d.language).toBe("pcm");
-  });
-
-  it("detects Yoruba from everyday chat words", () => {
-    const d = detectLanguage("Pẹlẹ o, mo fe paint yara mi, e lo owo re");
-    expect(d.language).toBe("yo");
-  });
-
-  it("detects Hausa from everyday chat words", () => {
-    const d = detectLanguage(
-      "Sannu, na gode, ina son fenti a gini na, kudi nawa?",
-    );
-    expect(d.language).toBe("ha");
-  });
-
   it("defaults to English for plain English and for empty text", () => {
     expect(
       detectLanguage("Hello, how much to paint a 4 by 3 room in Lagos?")
@@ -60,17 +40,17 @@ describe("detectLanguage", () => {
   });
 
   it("uses DB-configured packs when provided (admin override wins)", () => {
-    // Admin adds a made-up Pidgin keyword; detection must follow.
+    // Admin adds a made-up English keyword; detection must follow.
     const custom = [
       ...DEFAULT_LANGUAGE_PACKS,
       {
-        language: "pcm" as ConversationLanguage,
+        language: "en" as ConversationLanguage,
         category: "greeting" as const,
         keywords: ["zorples"],
         weight: 5,
       },
     ];
-    expect(detectLanguage("zorples", custom).language).toBe("pcm");
+    expect(detectLanguage("zorples", custom).language).toBe("en");
   });
 });
 
@@ -112,12 +92,12 @@ describe("extractParams", () => {
     expect(p.length!.value).toBe(12);
   });
 
-  it("extracts bedrooms, coats, doors, windows and region from Pidgin chat", () => {
+  it("extracts bedrooms, coats, doors, windows and region from a chat thread", () => {
     const p = extractParams(
       threadOf(
-        "abeg how much be paint for 2 bedroom flat for Yaba, 3 coats, 4 door and 3 window",
+        "please how much is paint for a 2 bedroom flat in Yaba, 3 coats, 4 doors and 3 windows",
       ),
-      "pcm",
+      "en",
     );
     expect(p.intent).toBe("paint");
     expect(p.bedrooms!.value).toBe(2);
@@ -161,11 +141,11 @@ describe("buildConversationalEstimate", () => {
     expect(totalLiters).toBeGreaterThanOrEqual(est.liters);
   });
 
-  it("answers a Pidgin thread with a Pidgin follow-up when the size is missing", () => {
+  it("answers a thread with a follow-up when the size is missing", () => {
     const r = buildConversationalEstimate(
-      "Oga abeg how much be paint for 2 bedroom flat",
+      "Good day, how much is paint for a 2 bedroom flat?",
     );
-    expect(r.language).toBe("pcm");
+    expect(r.language).toBe("en");
     expect(r.paintEstimate).toBeNull();
     expect(r.missingCritical).toBe(true);
     expect(r.followUpQuestions).toHaveLength(1);
@@ -186,24 +166,6 @@ describe("buildConversationalEstimate", () => {
     expect(r.intent).toBe("pop_ceiling");
     expect(r.paintEstimate).toBeNull();
     expect(r.routedCalculatorPath).toBe("/pop-ceiling-calculator");
-  });
-
-  it("extracts from a Hausa thread and replies in Hausa", () => {
-    const r = buildConversationalEstimate(
-      "Sannu, ina son fenti a daki na, 4 by 3 mita, kudi nawa?",
-    );
-    expect(r.language).toBe("ha");
-    expect(r.paintEstimate).not.toBeNull();
-    expect(r.paintEstimate!.paintableArea).toBeCloseTo(49.23, 1);
-    expect(r.followUpQuestions).toHaveLength(0);
-  });
-
-  it("extracts from a Yoruba thread and replies in Yoruba", () => {
-    const r = buildConversationalEstimate(
-      "Pẹlẹ o, mo fe paint dabi na, 4 by 3 mita",
-    );
-    expect(r.language).toBe("yo");
-    expect(r.paintEstimate).not.toBeNull();
   });
 
   it("parses a full WhatsApp voice-note transcript paste", () => {

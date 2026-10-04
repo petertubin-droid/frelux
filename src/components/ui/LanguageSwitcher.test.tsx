@@ -10,8 +10,8 @@ vi.mock("@/lib/i18n", () => ({
   })),
   LANGUAGES: [
     { value: "en", label: "English", nativeLabel: "English", flag: "🇬🇧" },
-    { value: "yo", label: "Yoruba", nativeLabel: "Yorùbá", flag: "🇳🇬" },
-    { value: "ha", label: "Hausa", nativeLabel: "Hausa", flag: "🇳🇬" },
+    { value: "fr", label: "French", nativeLabel: "Français", flag: "🇫🇷" },
+    { value: "pt", label: "Portuguese", nativeLabel: "Português", flag: "🇵🇹" },
   ],
 }));
 
@@ -39,6 +39,6 @@ describe("LanguageSwitcher", () => {
     render(<LanguageSwitcher inline />);
     fireEvent.click(screen.getByLabelText("Change language"));
     expect(screen.getByText("English")).toBeTruthy();
-    expect(screen.getByText("Yorùbá")).toBeTruthy();
+    expect(screen.getByText("Français")).toBeTruthy();
   });
 });

@@ -10,7 +10,11 @@
 
 import { describe, expect, it } from "vitest";
 
-import { DICTIONARY_LANGUAGES, isValidLanguage, LANGUAGE_CODES } from "@/lib/construction-dictionary/languages";
+import {
+  DICTIONARY_LANGUAGES,
+  isValidLanguage,
+  LANGUAGE_CODES,
+} from "@/lib/construction-dictionary/languages";
 import {
   CONSTRUCTION_CATEGORIES,
   isValidCategory,
@@ -26,25 +30,58 @@ import {
   protectResponseValues,
   canTransitionStatus,
 } from "@/lib/construction-dictionary/translation-rules";
-import { detectLanguage, resolveResponseLanguage } from "@/lib/construction-dictionary/language-detection";
-import { normalizeIntent, DICTIONARY_TOOLS } from "@/lib/construction-dictionary/intent-normalizer";
-import { searchTerms, suggestCorrections, editDistance } from "@/lib/construction-dictionary/search";
-import { mapSpeechToTerm, buildVersionAudit, revertToVersion } from "@/lib/construction-dictionary/speech-and-versioning";
-import { instantiateSeedRecords, SEED_CONSTRUCTION_TERMS, SEED_TRANSLATIONS } from "@/lib/construction-dictionary/seed-terms";
-import { runDictionaryPipeline, validateGeneratedResponse } from "@/lib/construction-dictionary/dictionary-pipeline";
+import {
+  detectLanguage,
+  resolveResponseLanguage,
+} from "@/lib/construction-dictionary/language-detection";
+import {
+  normalizeIntent,
+  DICTIONARY_TOOLS,
+} from "@/lib/construction-dictionary/intent-normalizer";
+import {
+  searchTerms,
+  suggestCorrections,
+  editDistance,
+} from "@/lib/construction-dictionary/search";
+import {
+  mapSpeechToTerm,
+  buildVersionAudit,
+  revertToVersion,
+} from "@/lib/construction-dictionary/speech-and-versioning";
+import {
+  instantiateSeedRecords,
+  SEED_CONSTRUCTION_TERMS,
+  SEED_TRANSLATIONS,
+} from "@/lib/construction-dictionary/seed-terms";
+import {
+  runDictionaryPipeline,
+  validateGeneratedResponse,
+} from "@/lib/construction-dictionary/dictionary-pipeline";
 
 const seedTerms = instantiateSeedRecords();
 
 describe("dictionary: language registry (spec §1, §22)", () => {
-  it("supports all eleven initial languages as data", () => {
+  it("supports the eleven worldwide languages as data", () => {
     expect(LANGUAGE_CODES).toEqual([
-      "en", "pcm", "ig", "yo", "ha", "fr", "es", "pt", "ar", "hi", "zh",
+      "en",
+      "es",
+      "fr",
+      "de",
+      "pt",
+      "ru",
+      "id",
+      "sw",
+      "ar",
+      "hi",
+      "zh",
     ]);
-    expect(DICTIONARY_LANGUAGES.find((l) => l.code === "pcm")?.native_label).toBe("Naija Pidgin");
+    expect(
+      DICTIONARY_LANGUAGES.find((l) => l.code === "es")?.native_label,
+    ).toBe("Español");
   });
 
   it("validates language codes", () => {
-    expect(isValidLanguage("yo")).toBe(true);
+    expect(isValidLanguage("es")).toBe(true);
     expect(isValidLanguage("xx")).toBe(false);
   });
 });
@@ -118,7 +155,9 @@ describe("dictionary: measurement protection (spec §5, §19)", () => {
     expect(measurementsPreserved("12 ft × 10 ft", "12 ft × 10 ft")).toBe(true);
     // altered or dropped values fail the gate
     expect(measurementsPreserved("12 ft × 10 ft", "12 ft x 10 ft")).toBe(true); // separator style irrelevant, values intact
-    expect(measurementsPreserved("12 ft × 10 ft", "3.66 m × 3.05 m")).toBe(false);
+    expect(measurementsPreserved("12 ft × 10 ft", "3.66 m × 3.05 m")).toBe(
+      false,
+    );
     expect(measurementsPreserved("12 ft × 10 ft", "12 ft")).toBe(false);
   });
 
@@ -135,7 +174,9 @@ describe("dictionary: measurement protection (spec §5, §19)", () => {
       protected_measurements: [{ raw: "4 m" }, { raw: "5 m" }],
     });
     expect(dropped.ok).toBe(false);
-    const altered = protectResponseValues("Result: 10 m2/litre coverage", ["18.5 litres"]);
+    const altered = protectResponseValues("Result: 10 m2/litre coverage", [
+      "18.5 litres",
+    ]);
     expect(altered).toBe("");
   });
 });
@@ -151,21 +192,36 @@ describe("dictionary: intent normalization (spec §6, §7)", () => {
   });
 
   it("maps materials to their calculators", () => {
-    expect(normalizeIntent("how much paint for the room", "en").tool).toBe("paint_calculator");
-    expect(normalizeIntent("tiles for the bathroom", "en").tool).toBe("tile_calculator");
-    expect(normalizeIntent("screeding the floor", "en").tool).toBe("screeding_calculator");
-    expect(normalizeIntent("POP ceiling for the parlour", "en").tool).toBe("pop_calculator");
-    expect(normalizeIntent("foundation for the bungalow", "en").tool).toBe("foundation_calculator");
-    expect(normalizeIntent("roofing sheets and rafters", "en").tool).toBe("roofing_calculator");
+    expect(normalizeIntent("how much paint for the room", "en").tool).toBe(
+      "paint_calculator",
+    );
+    expect(normalizeIntent("tiles for the bathroom", "en").tool).toBe(
+      "tile_calculator",
+    );
+    expect(normalizeIntent("screeding the floor", "en").tool).toBe(
+      "screeding_calculator",
+    );
+    expect(normalizeIntent("POP ceiling for the parlour", "en").tool).toBe(
+      "pop_calculator",
+    );
+    expect(normalizeIntent("foundation for the bungalow", "en").tool).toBe(
+      "foundation_calculator",
+    );
+    expect(normalizeIntent("roofing sheets and rafters", "en").tool).toBe(
+      "roofing_calculator",
+    );
   });
 
   it("produces the SAME structured intent from every language", () => {
-    const english = normalizeIntent("How much paint will I need for 12 m2?", "en");
-    const pidgin = normalizeIntent("How much paint I need?", "pcm");
+    const english = normalizeIntent(
+      "How much paint will I need for 12 m2?",
+      "en",
+    );
     const french = normalizeIntent("Combien de peinture?", "fr");
-    const igbo = normalizeIntent("Esi ole ka m choro?", "ig");
     const spanish = normalizeIntent("Cuánta pintura necesito?", "es");
-    for (const r of [english, pidgin, french, igbo, spanish]) {
+    const german = normalizeIntent("Wie viel Farbe brauche ich?", "de");
+    const portuguese = normalizeIntent("Quanta tinta preciso?", "pt");
+    for (const r of [english, french, spanish, german, portuguese]) {
       expect(r.intent).toBe("calculate_material");
       expect(r.tool).toBe("paint_calculator");
       expect(r.engine_key).toBe("painting");
@@ -195,7 +251,7 @@ describe("dictionary: intent normalization (spec §6, §7)", () => {
 describe("dictionary: translation rules and confidence (spec §8, §12)", () => {
   it("determines all six translation outcomes and keeps unreliable terms in English", () => {
     const rules = applyTranslationRules({
-      language: "ig",
+      language: "hi",
       canonical_term: "screeding",
       translation: null,
       translation_status: "untranslated",
@@ -211,7 +267,7 @@ describe("dictionary: translation rules and confidence (spec §8, §12)", () => 
 
   it("refuses invented translations for needs_review records", () => {
     const invented = applyTranslationRules({
-      language: "ig",
+      language: "hi",
       canonical_term: "screeding",
       translation: "nkume ole", // fabricated
       translation_status: "needs_review",
@@ -257,8 +313,14 @@ describe("dictionary: translation rules and confidence (spec §8, §12)", () => 
     // unverified low-confidence term: needs clarification,
     // never a silent guess
     const uncertain = presentTerm(
-      { ...seedTerms[0], confidence_score: 0.5, verified: false, translation: null, translation_status: "untranslated" },
-      "ig",
+      {
+        ...seedTerms[0],
+        confidence_score: 0.5,
+        verified: false,
+        translation: null,
+        translation_status: "untranslated",
+      },
+      "hi",
     );
     expect(uncertain.needs_clarification).toBe(true);
     expect(uncertain.presented_term).toBe(seedTerms[0].canonical_term);
@@ -274,34 +336,39 @@ describe("dictionary: translation rules and confidence (spec §8, §12)", () => 
 describe("dictionary: language detection (spec §9)", () => {
   it("prioritizes explicit selection over everything", () => {
     const r = resolveResponseLanguage({
-      explicit_selection: "yo",
-      conversation_language: "ig",
+      explicit_selection: "es",
+      conversation_language: "hi",
       message: "how many blocks do I need",
     });
-    expect(r.response_language).toBe("yo");
+    expect(r.response_language).toBe("es");
     expect(r.resolved_by).toBe("USER_SELECTION");
   });
 
   it("uses the conversation language, then auto-detection, then English default", () => {
     const conv = resolveResponseLanguage({
-      conversation_language: "ha",
+      conversation_language: "sw",
       message: "how many blocks",
     });
-    expect(conv.response_language).toBe("ha");
+    expect(conv.response_language).toBe("sw");
     expect(conv.resolved_by).toBe("CONVERSATION_LANGUAGE");
 
-    const auto = resolveResponseLanguage({ message: "Combien de peinture pour le mur?" });
+    const auto = resolveResponseLanguage({
+      message: "Combien de peinture pour le mur?",
+    });
     expect(auto.response_language).toBe("fr");
     expect(auto.resolved_by).toBe("AUTO_DETECTION");
 
-    const def = resolveResponseLanguage({ message: "how many blocks do I need" });
+    const def = resolveResponseLanguage({
+      message: "how many blocks do I need",
+    });
     expect(def.response_language).toBe("en");
     expect(def.resolved_by).toBe("DEFAULT");
   });
 
-  it("detects Pidgin and scripts deterministically", () => {
-    expect(detectLanguage("wetin be the price of cement abeg")).toBe("pcm");
+  it("detects languages and scripts deterministically", () => {
+    expect(detectLanguage("cuánta pintura necesito para la pared")).toBe("es");
     expect(detectLanguage("الخرسانة للمبنى")).toBe("ar");
+    expect(detectLanguage("мне нужна краска для стены")).toBe("ru");
     expect(detectLanguage("मुझे सीमेंट चाहिए")).toBe("hi");
     expect(detectLanguage("水泥和混凝土")).toBe("zh");
   });
@@ -309,10 +376,14 @@ describe("dictionary: language detection (spec §9)", () => {
 
 describe("dictionary: typo-tolerant search (spec §15)", () => {
   it("finds exact matches on canonical, synonym, local and abbreviation fields", () => {
-    expect(searchTerms("concrete", seedTerms)[0]?.term.canonical_term).toBe("concrete");
+    expect(searchTerms("concrete", seedTerms)[0]?.term.canonical_term).toBe(
+      "concrete",
+    );
     expect(searchTerms("kango", seedTerms)[0]?.matched_field).toBe("synonym");
     expect(searchTerms("DPC", seedTerms).length).toBeGreaterThan(0);
-    expect(searchTerms("BOQ", seedTerms)[0]?.term.canonical_term).toBe("bill of quantities");
+    expect(searchTerms("BOQ", seedTerms)[0]?.term.canonical_term).toBe(
+      "bill of quantities",
+    );
   });
 
   it("suggests corrections for typos", () => {
@@ -324,7 +395,9 @@ describe("dictionary: typo-tolerant search (spec §15)", () => {
   });
 
   it("filters by language, category and verification", () => {
-    const verified = searchTerms("concrete", seedTerms, { verified_only: true });
+    const verified = searchTerms("concrete", seedTerms, {
+      verified_only: true,
+    });
     expect(verified.length).toBe(0); // seeds start unverified
     const category = searchTerms("wall", seedTerms, { category: "building" });
     expect(category.length).toBeGreaterThan(0);
@@ -359,7 +432,12 @@ describe("dictionary: versioning and audit (spec §16)", () => {
       version: before.version + 1,
       updated_at: new Date().toISOString(),
     };
-    const audit = buildVersionAudit(before, after, "admin", "definition refined");
+    const audit = buildVersionAudit(
+      before,
+      after,
+      "admin",
+      "definition refined",
+    );
     expect(audit.version).toBe(after.version);
     expect(audit.changed_fields).toContain("definition");
     expect(audit.changed_by).toBe("admin");
@@ -386,10 +464,16 @@ describe("dictionary: AI pipeline (spec §18)", () => {
     expect(result.intent.intent).toBe("calculate_material");
   });
 
-  it("an Igbo message and an English message resolve to the same tool", () => {
-    const igbo = runDictionaryPipeline({ message: "esi ole ka m choro", terms: seedTerms });
-    const english = runDictionaryPipeline({ message: "how much paint do I need", terms: seedTerms });
-    expect(igbo.selected_tool).toBe(english.selected_tool);
+  it("a Spanish message and an English message resolve to the same tool", () => {
+    const spanish = runDictionaryPipeline({
+      message: "cuánta pintura necesito",
+      terms: seedTerms,
+    });
+    const english = runDictionaryPipeline({
+      message: "how much paint do I need",
+      terms: seedTerms,
+    });
+    expect(spanish.selected_tool).toBe(english.selected_tool);
     expect(english.selected_tool).toBe("paint_calculator");
   });
 });
@@ -403,7 +487,9 @@ describe("dictionary: seed translation governance (spec §20, §23)", () => {
       expect(t.translation.trim().length).toBeGreaterThan(0);
     }
     // every translated canonical term exists in the seed set
-    const canonical = new Set(SEED_CONSTRUCTION_TERMS.map((t) => t.canonical_term));
+    const canonical = new Set(
+      SEED_CONSTRUCTION_TERMS.map((t) => t.canonical_term),
+    );
     for (const t of SEED_TRANSLATIONS) {
       // translations target the canonical vocabulary; some
       // (sand, tile, paint, foundation) are common dictionary

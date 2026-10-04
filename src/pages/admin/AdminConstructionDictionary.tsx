@@ -40,15 +40,30 @@ import {
   type DictionaryVersionRow,
 } from "@/lib/construction-dictionary/dictionary-client";
 import type { ConstructionTerm } from "@/lib/construction-dictionary/types";
-import { CONSTRUCTION_CATEGORIES, CATEGORY_LABELS } from "@/lib/construction-dictionary/types";
+import {
+  CONSTRUCTION_CATEGORIES,
+  CATEGORY_LABELS,
+} from "@/lib/construction-dictionary/types";
 import { DICTIONARY_LANGUAGES } from "@/lib/construction-dictionary/languages";
 
 type VerifyBadge = { label: string; cls: string };
 const BADGES: Record<string, VerifyBadge> = {
-  verified: { label: "Verified", cls: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30" },
-  provisional: { label: "Provisional", cls: "bg-blue-500/10 text-blue-600 border-blue-500/30" },
-  needs_review: { label: "Needs review", cls: "bg-amber-500/10 text-amber-600 border-amber-500/30" },
-  untranslated: { label: "Untranslated", cls: "bg-muted text-muted-foreground border" },
+  verified: {
+    label: "Verified",
+    cls: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30",
+  },
+  provisional: {
+    label: "Provisional",
+    cls: "bg-blue-500/10 text-blue-600 border-blue-500/30",
+  },
+  needs_review: {
+    label: "Needs review",
+    cls: "bg-amber-500/10 text-amber-600 border-amber-500/30",
+  },
+  untranslated: {
+    label: "Untranslated",
+    cls: "bg-muted text-muted-foreground border",
+  },
 };
 
 export default function AdminConstructionDictionary() {
@@ -77,7 +92,9 @@ export default function AdminConstructionDictionary() {
       setTerms(termRows);
       setStats(statsRows);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to load the dictionary");
+      setError(
+        e instanceof Error ? e.message : "Failed to load the dictionary",
+      );
     } finally {
       setLoading(false);
     }
@@ -91,7 +108,8 @@ export default function AdminConstructionDictionary() {
     let out = terms;
     if (verifyFilter === "verified") out = out.filter((t) => t.verified);
     if (verifyFilter === "unverified") out = out.filter((t) => !t.verified);
-    if (verifyFilter === "needs_review") out = out.filter((t) => t.translation_status === "needs_review");
+    if (verifyFilter === "needs_review")
+      out = out.filter((t) => t.translation_status === "needs_review");
     if (confidenceFilter) {
       const min = parseFloat(confidenceFilter);
       out = out.filter((t) => t.confidence_score >= min);
@@ -105,7 +123,10 @@ export default function AdminConstructionDictionary() {
         term_id: id,
         action,
         verified_by: "admin",
-        note: action === "approve" ? "Approved from the Dictionary Dashboard." : "Rejected from the Dictionary Dashboard.",
+        note:
+          action === "approve"
+            ? "Approved from the Dictionary Dashboard."
+            : "Rejected from the Dictionary Dashboard.",
       });
       await load();
     } catch (e) {
@@ -147,7 +168,12 @@ export default function AdminConstructionDictionary() {
             { label: "Languages", value: stats.languages },
             { label: "Categories", value: stats.categories },
             { label: "Avg confidence", value: stats.avg_confidence },
-            { label: "With Pidgin/local", value: terms.filter((t) => t.nigerian_terminology || t.local_terms.length > 0).length },
+            {
+              label: "With local terms",
+              value: terms.filter(
+                (t) => t.nigerian_terminology || t.local_terms.length > 0,
+              ).length,
+            },
           ].map((s) => (
             <AdminCard key={s.label}>
               <p className="text-xs text-muted-foreground">{s.label}</p>
@@ -161,25 +187,38 @@ export default function AdminConstructionDictionary() {
         <div className="flex flex-wrap items-end gap-3">
           <div>
             <p className="mb-1 text-xs font-medium">Language</p>
-            <AdminSelect value={languageFilter} onChange={(e) => setLanguageFilter(e.target.value)}>
+            <AdminSelect
+              value={languageFilter}
+              onChange={(e) => setLanguageFilter(e.target.value)}
+            >
               <option value="">All</option>
               {DICTIONARY_LANGUAGES.map((l) => (
-                <option key={l.code} value={l.code}>{l.label} ({l.code})</option>
+                <option key={l.code} value={l.code}>
+                  {l.label} ({l.code})
+                </option>
               ))}
             </AdminSelect>
           </div>
           <div>
             <p className="mb-1 text-xs font-medium">Category</p>
-            <AdminSelect value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+            <AdminSelect
+              value={categoryFilter}
+              onChange={(e) => setCategoryFilter(e.target.value)}
+            >
               <option value="">All</option>
               {CONSTRUCTION_CATEGORIES.map((c) => (
-                <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
+                <option key={c} value={c}>
+                  {CATEGORY_LABELS[c]}
+                </option>
               ))}
             </AdminSelect>
           </div>
           <div>
             <p className="mb-1 text-xs font-medium">Verification</p>
-            <AdminSelect value={verifyFilter} onChange={(e) => setVerifyFilter(e.target.value)}>
+            <AdminSelect
+              value={verifyFilter}
+              onChange={(e) => setVerifyFilter(e.target.value)}
+            >
               <option value="">All</option>
               <option value="verified">Verified only</option>
               <option value="unverified">Unverified</option>
@@ -188,7 +227,10 @@ export default function AdminConstructionDictionary() {
           </div>
           <div>
             <p className="mb-1 text-xs font-medium">Confidence</p>
-            <AdminSelect value={confidenceFilter} onChange={(e) => setConfidenceFilter(e.target.value)}>
+            <AdminSelect
+              value={confidenceFilter}
+              onChange={(e) => setConfidenceFilter(e.target.value)}
+            >
               <option value="">All</option>
               <option value="0.75">0.75 and above</option>
               <option value="0.9">0.9 and above</option>
@@ -196,7 +238,11 @@ export default function AdminConstructionDictionary() {
             </AdminSelect>
           </div>
           <AdminButton onClick={() => void load()}>
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
             Refresh
           </AdminButton>
         </div>
@@ -209,7 +255,9 @@ export default function AdminConstructionDictionary() {
           </div>
         ) : filtered.length === 0 ? (
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Languages className="h-4 w-4" /> No terminology matches the current filters. Seed terms are loaded into the database as part of the dictionary migration; new terms are added here after admin review.
+            <Languages className="h-4 w-4" /> No terminology matches the current
+            filters. Seed terms are loaded into the database as part of the
+            dictionary migration; new terms are added here after admin review.
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -228,21 +276,33 @@ export default function AdminConstructionDictionary() {
               </thead>
               <tbody>
                 {filtered.map((t) => {
-                  const badge = BADGES[t.translation_status] ?? BADGES.untranslated;
+                  const badge =
+                    BADGES[t.translation_status] ?? BADGES.untranslated;
                   return (
                     <tr key={t.id} className="border-b last:border-0">
                       <td className="py-2 pr-4 font-medium">
                         {t.canonical_term}
-                        {t.verified && <Check className="ml-1 inline h-3 w-3 text-emerald-600" />}
+                        {t.verified && (
+                          <Check className="ml-1 inline h-3 w-3 text-emerald-600" />
+                        )}
                       </td>
                       <td className="py-2 pr-4">{t.language}</td>
-                      <td className="py-2 pr-4">{CATEGORY_LABELS[t.category] ?? t.category}</td>
                       <td className="py-2 pr-4">
-                        {t.translation ?? (t.keep_in_english ? "kept in English" : "-")}
+                        {CATEGORY_LABELS[t.category] ?? t.category}
                       </td>
-                      <td className="py-2 pr-4">{Number(t.confidence_score).toFixed(2)}</td>
                       <td className="py-2 pr-4">
-                        <span className={`rounded border px-2 py-0.5 text-xs ${badge.cls}`}>{badge.label}</span>
+                        {t.translation ??
+                          (t.keep_in_english ? "kept in English" : "-")}
+                      </td>
+                      <td className="py-2 pr-4">
+                        {Number(t.confidence_score).toFixed(2)}
+                      </td>
+                      <td className="py-2 pr-4">
+                        <span
+                          className={`rounded border px-2 py-0.5 text-xs ${badge.cls}`}
+                        >
+                          {badge.label}
+                        </span>
                       </td>
                       <td className="py-2 pr-4">{t.version}</td>
                       <td className="py-2 pr-4">
@@ -298,7 +358,11 @@ export default function AdminConstructionDictionary() {
                   <span className="text-muted-foreground">
                     {h.changed_fields?.join(", ") || "initial record"}
                   </span>
-                  {h.change_note && <span className="block text-xs text-muted-foreground">{h.change_note}</span>}
+                  {h.change_note && (
+                    <span className="block text-xs text-muted-foreground">
+                      {h.change_note}
+                    </span>
+                  )}
                 </li>
               ))}
             </ul>
@@ -309,9 +373,10 @@ export default function AdminConstructionDictionary() {
       <AdminCard>
         <p className="flex items-center gap-2 text-sm text-muted-foreground">
           <BookOpen className="h-4 w-4" />
-          Dictionary quality rule: accuracy beats quantity. Unreliable translations stay flagged
-          needs_review and technical terms are kept in English rather than invented. Confidence below
-          0.75 never reaches users as reliable.
+          Dictionary quality rule: accuracy beats quantity. Unreliable
+          translations stay flagged needs_review and technical terms are kept in
+          English rather than invented. Confidence below 0.75 never reaches
+          users as reliable.
         </p>
       </AdminCard>
     </div>

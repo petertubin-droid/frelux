@@ -304,8 +304,8 @@ describe("getDictionaryStats", () => {
       },
       {
         id: "c",
-        canonical_term: "fascia (yo)",
-        language: "yo",
+        canonical_term: "fascia (es)",
+        language: "es",
         category: "carpentry",
         verified: false,
         translation_status: "needs_review",

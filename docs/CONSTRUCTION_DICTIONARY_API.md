@@ -12,14 +12,14 @@ protects measurements verbatim around the deterministic math.
 The module functions form the internal API. The admin and
 server surfaces bind them like this:
 
-| Spec endpoint | Module function | Access |
-| --- | --- | --- |
-| GET /api/terms | `listDictionaryTerms(filter)` | authenticated |
-| GET /api/terms/:id | `getDictionaryTerm(id)` | authenticated |
-| GET /api/translate | `presentTerm(term, language)` | authenticated |
-| POST /api/terms | `createDictionaryTerm(draft)` | admin (RLS) |
-| POST /api/terms/verify | `verifyDictionaryTerm({term_id, action, verified_by})` | admin (RLS) |
-| GET /api/terms/search | `searchTerms(query, terms, filters)` | authenticated |
+| Spec endpoint          | Module function                                        | Access        |
+| ---------------------- | ------------------------------------------------------ | ------------- |
+| GET /api/terms         | `listDictionaryTerms(filter)`                          | authenticated |
+| GET /api/terms/:id     | `getDictionaryTerm(id)`                                | authenticated |
+| GET /api/translate     | `presentTerm(term, language)`                          | authenticated |
+| POST /api/terms        | `createDictionaryTerm(draft)`                          | admin (RLS)   |
+| POST /api/terms/verify | `verifyDictionaryTerm({term_id, action, verified_by})` | admin (RLS)   |
+| GET /api/terms/search  | `searchTerms(query, terms, filters)`                   | authenticated |
 
 `POST /api/terms` always creates records UNVERIFIED with
 version 1. Verification is a deliberate human action
@@ -32,7 +32,7 @@ pre-change snapshot, so terminology changes are reversible.
 Request:
 
 ```json
-{ "term": "screeding", "language": "igbo", "context": "construction" }
+{ "term": "screeding", "language": "es", "context": "construction" }
 ```
 
 Response:
@@ -47,7 +47,7 @@ Response:
   "confidence": 0.95,
   "verified": false,
   "needs_clarification": false,
-  "note": "No reliable Igbo translation is recorded yet: the technical term is preserved in English and explained in the selected language."
+  "note": "No reliable Spanish translation is recorded yet: the technical term is preserved in English and explained in the selected language."
 }
 ```
 
@@ -68,6 +68,7 @@ SELECTION -> CALCULATION -> RESULT VALIDATION ->
 LANGUAGE GENERATION -> USER
 
 Language resolution priority:
+
 1. explicit user language selection (authoritative)
 2. current conversation language
 3. automatic language detection (script + vocabulary markers)
@@ -104,8 +105,9 @@ Migration: `supabase/migrations/20260910140000_construction_dictionary.sql`
   (admin manage / authenticated read).
 - `construction_term_versions`: audit history, RLS
   (admin manage / authenticated read).
-- Language registry extended with pt, ar, hi, zh
-  (en, pcm, ig, yo, ha, fr, es already active).
+- Language registry: en, es, fr, de, pt, ru, id, sw, ar, hi, zh
+  (worldwide set; Nigerian languages retired in
+  migration 20261007100000_remove_nigerian_languages.sql).
 
 ## Admin dashboard
 

@@ -16,10 +16,10 @@ import { ToastProvider } from "@/components/ui/Toast";
 const packsFixture = [
   {
     id: "p1",
-    language_code: "pcm",
+    language_code: "en",
     category: "greeting",
-    keywords: ["abeg", "oga"],
-    weight: 2,
+    keywords: ["hello", "good afternoon"],
+    weight: 1,
     description: null,
     source_reference: "FRELUX conversational seed v1",
     is_active: true,
@@ -27,9 +27,9 @@ const packsFixture = [
   },
   {
     id: "p2",
-    language_code: "yo",
+    language_code: "en",
     category: "surface_paint",
-    keywords: ["ẹ̀fú", "paint"],
+    keywords: ["paint", "painting"],
     weight: 2,
     description: null,
     source_reference: "FRELUX conversational seed v1",
@@ -41,8 +41,8 @@ const packsFixture = [
 const logFixture = [
   {
     id: "l1",
-    raw_thread: "Oga abeg how much be paint for 2 bedroom flat",
-    detected_language: "pcm",
+    raw_thread: "Good afternoon, how much is paint for a 2 bedroom flat",
+    detected_language: "en",
     intent: "paint",
     extracted_params: { "Job type": "Paint job" },
     had_estimate: false,
@@ -81,8 +81,10 @@ async function renderPage() {
 describe("AdminConversationalPacks", () => {
   it("lists configured packs with their source references", async () => {
     await renderPage();
-    expect(await screen.findByText(/abeg, oga/)).toBeInTheDocument();
-    expect(screen.getByText(/ẹ̀fú, paint/)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/hello, good afternoon/),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/paint, painting/)).toBeInTheDocument();
     expect(
       screen.getAllByText(/FRELUX conversational seed v1/).length,
     ).toBeGreaterThan(0);
@@ -92,9 +94,11 @@ describe("AdminConversationalPacks", () => {
     await renderPage();
     expect(await screen.findByText(/Recent parses/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Asked back/).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(/^pcm$/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/^en$/).length).toBeGreaterThan(0);
     // The log shows the thread itself (truncated), not just a status
-    expect(screen.getByText(/Oga abeg how much be paint/)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Good afternoon, how much is paint for/),
+    ).toBeInTheDocument();
   });
 
   it("refuses to save a pack without a source reference — nothing configured without provenance", async () => {

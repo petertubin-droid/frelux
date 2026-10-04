@@ -2,9 +2,9 @@
  * Conversational Estimator Engine (Engine 3 — WhatsApp-native)
  *
  * Turns a WhatsApp-style chat thread (typed message, pasted
- * conversation, or a voice-note transcript) written in English,
- * Nigerian Pidgin, Yoruba or Hausa into a full paint estimate —
- * the same deterministic estimate the Paint Calculator produces.
+ * conversation, or a voice-note transcript) written in English
+ * into a full paint estimate — the same deterministic estimate
+ * the Paint Calculator produces.
  *
  * House rules, identical to every other Frelux engine:
  *  - Detection and extraction are deterministic keyword/regex
@@ -35,7 +35,7 @@ import type { CalculatorInput, ProjectType, Unit } from "../../types";
 // Language packs (defaults; DB-configurable)
 // =========================================================
 
-export type ConversationLanguage = "en" | "pcm" | "yo" | "ha";
+export type ConversationLanguage = "en";
 
 export interface LanguagePack {
   language: ConversationLanguage;
@@ -55,11 +55,10 @@ export interface LanguagePack {
 }
 
 /**
- * Default packs. Weights are per-keyword-hit scores; detection is
- * "highest total wins, ties broken in en < pcm < yo < ha order".
- * Hausa/Yoruba entries use only high-confidence everyday words
- * and loanwords Nigerians actually type in chat; we do not
- * pretend to recognise deep native vocabulary we cannot verify.
+ * Default packs. Weights are per-keyword-hit scores; detection
+ * is "highest total wins, ties broken in favour of English".
+ * Only high-confidence everyday words are included; the engine
+ * does not pretend to recognise vocabulary it cannot verify.
  */
 export const DEFAULT_LANGUAGE_PACKS: LanguagePack[] = [
   // English
@@ -130,215 +129,6 @@ export const DEFAULT_LANGUAGE_PACKS: LanguagePack[] = [
     keywords: ["coat", "coats", "coating"],
     weight: 1,
   },
-  // Nigerian Pidgin
-  {
-    language: "pcm",
-    category: "greeting",
-    keywords: [
-      "abeg",
-      "oga",
-      "madam",
-      "bros",
-      "how far",
-      "wetin",
-      "na me",
-      "sabi",
-    ],
-    weight: 2,
-  },
-  {
-    language: "pcm",
-    category: "surface_paint",
-    keywords: ["paint", "painty", "fonfon"],
-    weight: 2,
-  },
-  {
-    language: "pcm",
-    category: "surface_screed",
-    keywords: ["screed", "skrinn", "smoothen"],
-    weight: 2,
-  },
-  {
-    language: "pcm",
-    category: "surface_pop",
-    keywords: ["pop", "pop ceiling"],
-    weight: 2,
-  },
-  {
-    language: "pcm",
-    category: "surface_tile",
-    keywords: ["tile", "taya"],
-    weight: 2,
-  },
-  {
-    language: "pcm",
-    category: "dimension_word",
-    keywords: ["by", " na ", "how much be", "how much na"],
-    weight: 1,
-  },
-  {
-    language: "pcm",
-    category: "unit_meter",
-    keywords: ["mita", "meters"],
-    weight: 1,
-  },
-  {
-    language: "pcm",
-    category: "unit_feet",
-    keywords: ["feet", "leg", "ft"],
-    weight: 1,
-  },
-  {
-    language: "pcm",
-    category: "region_hint",
-    keywords: ["naija", "lagos", "abj", "kano"],
-    weight: 1,
-  },
-  {
-    language: "pcm",
-    category: "coats_word",
-    keywords: ["coat", "layer"],
-    weight: 1,
-  },
-  // Yoruba (everyday words + loanwords common in chat)
-  {
-    language: "yo",
-    category: "greeting",
-    keywords: [
-      "pẹlẹ",
-      "pele o",
-      "ẹ káàbọ̀",
-      "e kaabo",
-      "jọ̀wọ́",
-      "jowo",
-      "o ṣé",
-      "o se",
-      "mo fe",
-      "mo fẹ́",
-      "mo fẹ̀",
-    ],
-    weight: 3,
-  },
-  {
-    language: "yo",
-    category: "surface_paint",
-    keywords: ["ẹ̀fú", "efu", "ẹfu", "paint"],
-    weight: 2,
-  },
-  {
-    language: "yo",
-    category: "surface_screed",
-    keywords: ["screed", "sikriin"],
-    weight: 2,
-  },
-  {
-    language: "yo",
-    category: "surface_pop",
-    keywords: ["pop", "orí ilé", "ori ile"],
-    weight: 2,
-  },
-  {
-    language: "yo",
-    category: "surface_tile",
-    keywords: ["tile", "táyììlì"],
-    weight: 2,
-  },
-  {
-    language: "yo",
-    category: "dimension_word",
-    keywords: ["iwọn", "ìwọ̀n", "melò", "melo", "e lo owo"],
-    weight: 2,
-  },
-  {
-    language: "yo",
-    category: "unit_meter",
-    keywords: ["mita", "mẹ́ta"],
-    weight: 1,
-  },
-  {
-    language: "yo",
-    category: "unit_feet",
-    keywords: ["ẹsẹ̀", "ese", "feet"],
-    weight: 1,
-  },
-  {
-    language: "yo",
-    category: "region_hint",
-    keywords: ["ẹkọ", "eko", "ìbàdàn", "ibadan"],
-    weight: 1,
-  },
-  {
-    language: "yo",
-    category: "coats_word",
-    keywords: ["ìpele", "ipele", "coat"],
-    weight: 1,
-  },
-  // Hausa (everyday words + loanwords common in chat)
-  {
-    language: "ha",
-    category: "greeting",
-    keywords: [
-      "sannu",
-      "barka",
-      "da zuwa",
-      "na gode",
-      "don Allah",
-      "don allah",
-      "ina son",
-      "na son",
-      "zan",
-    ],
-    weight: 3,
-  },
-  {
-    language: "ha",
-    category: "surface_paint",
-    keywords: ["fenti", "fenti-fenti", "paint"],
-    weight: 2,
-  },
-  {
-    language: "ha",
-    category: "surface_screed",
-    keywords: ["screed", "sikrid"],
-    weight: 2,
-  },
-  {
-    language: "ha",
-    category: "surface_pop",
-    keywords: ["pop", "gini"],
-    weight: 2,
-  },
-  {
-    language: "ha",
-    category: "surface_tile",
-    keywords: ["tile", "tiloli"],
-    weight: 2,
-  },
-  {
-    language: "ha",
-    category: "dimension_word",
-    keywords: ["gwaznon", "girmansa", "nawa", "kudi nawa"],
-    weight: 2,
-  },
-  { language: "ha", category: "unit_meter", keywords: ["mita"], weight: 1 },
-  {
-    language: "ha",
-    category: "unit_feet",
-    keywords: ["ƙafa", "kafa", "feet"],
-    weight: 1,
-  },
-  {
-    language: "ha",
-    category: "region_hint",
-    keywords: ["kano", "kaduna", "bauchi"],
-    weight: 1,
-  },
-  {
-    language: "ha",
-    category: "coats_word",
-    keywords: ["kaya", "coat", "sassa"],
-    weight: 1,
-  },
 ];
 
 // =========================================================
@@ -357,54 +147,6 @@ const NUMBER_WORDS: Record<ConversationLanguage, Record<string, number>> = {
     eight: 8,
     nine: 9,
     ten: 10,
-  },
-  pcm: {
-    one: 1,
-    two: 2,
-    three: 3,
-    four: 4,
-    five: 5,
-    six: 6,
-    seven: 7,
-    eight: 8,
-    nine: 9,
-    ten: 10,
-  },
-  yo: {
-    ọ̀kan: 1,
-    ọkan: 1,
-    èjì: 2,
-    eji: 2,
-    ẹ̀ta: 3,
-    eta: 3,
-    ẹ̀rin: 4,
-    erin: 4,
-    àrún: 5,
-    arun: 5,
-    ẹ̀fà: 6,
-    efa: 6,
-    èje: 7,
-    eje: 7,
-    ẹ̀jọ: 8,
-    ejo: 8,
-    ẹ̀sán: 9,
-    esan: 9,
-    ẹ̀wá: 10,
-    ewa: 10,
-  },
-  ha: {
-    ɗaya: 1,
-    daya: 1,
-    biyu: 2,
-    uku: 3,
-    huɗu: 4,
-    hudu: 4,
-    biyar: 5,
-    shida: 6,
-    bakwai: 7,
-    takwas: 8,
-    tara: 9,
-    goma: 10,
   },
 };
 
@@ -516,9 +258,6 @@ export function detectLanguage(
   const lower = ` ${text.toLowerCase()} `;
   const scores: Record<ConversationLanguage, number> = {
     en: 0,
-    pcm: 0,
-    yo: 0,
-    ha: 0,
   };
   const matched: string[] = [];
 
@@ -540,9 +279,8 @@ export function detectLanguage(
     }
   }
 
-  // Default to English on a tie or on total silence: the
-  // overwhelming base language of Nigerian construction chat.
-  const order: ConversationLanguage[] = ["en", "pcm", "yo", "ha"];
+  // Default to English on a tie or on total silence.
+  const order: ConversationLanguage[] = ["en"];
   let language: ConversationLanguage = "en";
   let best = 0;
   for (const lang of order) {
@@ -828,42 +566,6 @@ export const REPLIES: Record<ConversationLanguage, ReplyStrings> = {
     evidenceLabel: "From your words:",
     notFound: "I could not find that in your message, so I did not guess it.",
     routedOther: "Open the calculator below with the numbers I extracted:",
-  },
-  pcm: {
-    understood: "Na wetin I hear from your message be this:",
-    askDimensions:
-      'Abeg send the room size — length and width (like "4 by 3 mita").',
-    askArea:
-      "Abeg tell me wetin you wan estimate — paint, screed, POP ceiling or tile?",
-    askUnit: "The measurement na mita or feet?",
-    estimateTitle: "Your paint estimate don ready",
-    evidenceLabel: "Na from your message I take am:",
-    notFound: "I no see am inside your message, so I no guess am.",
-    routedOther:
-      "Open the calculator wey dey under with the numbers wey I pick:",
-  },
-  yo: {
-    understood: "Ohun tí mo gbà sílẹ̀ láti ọ̀rọ̀ rẹ ni èyí:",
-    askDimensions:
-      'Ẹ jọ̀wọ́, fi ìwọ̀n yàrá ránṣẹ́ — ìgùn àti ìfẹ̀ẹ̀rẹ̀ (bíi "4 by 3 mita").',
-    askArea: "Ẹ jọ̀wọ́, sọ ohun tí ẹ fẹ́ kírò — ẹ̀fú, screed, POP tàbí tile?",
-    askUnit: "Ìwọ̀n náà — mita ni tàbí ẹsẹ̀?",
-    estimateTitle: "Ìsírò ẹ̀fú rẹ ti ṣètán",
-    evidenceLabel: "Láti ọ̀rọ̀ rẹ ni mo tí gba:",
-    notFound: "Mi ò rí i nínú ọ̀rọ̀ rẹ, èyí tí ó jẹ́ pé mi ò sọ nípa rẹ̀.",
-    routedOther: "Ṣí kálkúlétà tí ó wà ní ìsàlẹ̀ pẹ̀lú nọ́mbà tí mo gbà:",
-  },
-  ha: {
-    understood: "Abin da na fahimta daga sakon ka shine:",
-    askDimensions:
-      'Don Allah, ka aiko da girman ɗakin — tsawo da faɗi (kamar "4 by 3 mita").',
-    askArea:
-      "Don Allah, ka gaya mini abin da kake son kimantawa — fenti, screed, POP ko tile?",
-    askUnit: "Girman — mita ne ko ƙafa?",
-    estimateTitle: "Kimanin fenti na ka ya shirya",
-    evidenceLabel: "Daga sakon ka na karɓa:",
-    notFound: "Ban gani ba a cikin sakon ka, saboda haka ban yi zato ba.",
-    routedOther: "Buɗe kalkaleta a ƙasa da lambobin da na karɓa:",
   },
 };
 
