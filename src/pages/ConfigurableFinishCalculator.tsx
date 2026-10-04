@@ -297,7 +297,7 @@ export default function ConfigurableFinishCalculator({
         setSaveMessage(estError?.message ?? "Save failed.");
         return;
       }
-      await createEstimateItem({
+      const { error: itemError } = await createEstimateItem({
         estimate_id: estimate.id,
         item_name: selectedProduct.name,
         item_type: "product",
@@ -320,6 +320,7 @@ export default function ConfigurableFinishCalculator({
         adjustment_status: "none",
         sort_order: 0,
       });
+      if (itemError) throw itemError;
       setSaveState("saved");
       setSaveMessage(`Saved as estimate ${estimateRef}.`);
     } catch (err) {

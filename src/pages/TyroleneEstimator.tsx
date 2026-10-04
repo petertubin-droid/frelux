@@ -118,8 +118,9 @@ export default function TyroleneEstimator({
   const { defaults: calcDefaults } = useCalcDefaults("tyrolene");
   // Regional data flow: project location -> market profile -> currency.
   const passed =
-    (useLocation().state as { projectLocation?: FreluxLocation | null } | null) ??
-    {};
+    (useLocation().state as {
+      projectLocation?: FreluxLocation | null;
+    } | null) ?? {};
   const { currencyCode: projectCurrencyCode } = useProjectLocationCurrency(
     passed.projectLocation ?? null,
   );
@@ -350,9 +351,7 @@ export default function TyroleneEstimator({
 
         setConfigWarnings(warnings);
       } catch (err) {
-        setLoadError(
-          getSafeError(err, "Failed to load configuration."),
-        );
+        setLoadError(getSafeError(err, "Failed to load configuration."));
       } finally {
         setLoading(false);
       }
@@ -474,7 +473,7 @@ export default function TyroleneEstimator({
       if (estimate) {
         for (let i = 0; i < result.line_items.length; i++) {
           const item = result.line_items[i];
-          await createEstimateItem({
+          const { error: itemError } = await createEstimateItem({
             estimate_id: estimate.id,
             item_name: item.item_name,
             item_type: item.item_type,
@@ -490,6 +489,7 @@ export default function TyroleneEstimator({
             adjustment_status: "none",
             sort_order: i,
           });
+          if (itemError) throw itemError;
         }
 
         // Audit log
@@ -520,9 +520,7 @@ export default function TyroleneEstimator({
       trackCalculation("tyrolene");
       trackCalculationWithRewards("tyrolene", "Tyrolene Estimator");
     } catch (err) {
-      setLoadError(
-        getSafeError(err, "Failed to save estimate."),
-      );
+      setLoadError(getSafeError(err, "Failed to save estimate."));
     } finally {
       setCalculating(false);
     }
@@ -752,7 +750,8 @@ export default function TyroleneEstimator({
                 { value: "outside_owerri", label: "Outside Owerri" },
                 { value: "unknown", label: "Unknown" },
               ].map((opt) => (
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   key={opt.value}
                   onClick={() =>
                     setCustomerLocation(
@@ -782,7 +781,8 @@ export default function TyroleneEstimator({
               Partition Input
             </h3>
             <div className="flex gap-2">
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => setInputMode("standard")}
                 className={classNames(
                   "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors border",
@@ -793,7 +793,8 @@ export default function TyroleneEstimator({
               >
                 Standard Count
               </Button>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => setInputMode("actual")}
                 className={classNames(
                   "rounded-lg px-3 py-1.5 text-xs font-medium transition-colors border",
@@ -814,7 +815,8 @@ export default function TyroleneEstimator({
                 Number of Standard Partitions
               </label>
               <div className="flex items-center gap-3">
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() =>
                     setStandardCount(Math.max(0, standardCount - 1))
                   }
@@ -831,7 +833,8 @@ export default function TyroleneEstimator({
                   }
                   className="w-24 text-center rounded-lg border border-border dark:border-border bg-card dark:bg-background px-3 py-2 text-lg font-semibold text-foreground dark:text-primary-foreground focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple outline-none"
                 />
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => setStandardCount(standardCount + 1)}
                   className="flex h-10 w-10 items-center justify-center rounded-lg border border-border dark:border-border text-muted-foreground hover:border-brand-purple"
                 >
@@ -885,7 +888,8 @@ export default function TyroleneEstimator({
                       {pt.label}
                     </span>
                     {partitionTypes.length > 1 && (
-                      <Button variant="ghost"
+                      <Button
+                        variant="ghost"
                         onClick={() => removePartitionType(pt.id)}
                         className="text-muted-foreground hover:text-red-500"
                       >
@@ -957,7 +961,8 @@ export default function TyroleneEstimator({
                 </div>
               ))}
 
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={addPartitionType}
                 className="flex items-center gap-1.5 text-xs font-medium text-brand-purple hover:text-brand-purple-dark"
               >
@@ -970,7 +975,8 @@ export default function TyroleneEstimator({
 
         {/* Calculate Button */}
         <div className="flex gap-3">
-          <Button variant="default"
+          <Button
+            variant="default"
             onClick={handleCalculate}
             disabled={
               calculating ||
@@ -992,7 +998,8 @@ export default function TyroleneEstimator({
             )}
           </Button>
           {result && (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={handleReset}
               className="flex items-center justify-center gap-2 rounded-lg border border-border dark:border-border px-4 py-3 text-sm font-medium text-muted-foreground hover:border-border"
             >
@@ -1073,7 +1080,9 @@ export default function TyroleneEstimator({
                     {/* Partition Summary */}
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                       <div className="rounded-lg bg-muted/50 dark:bg-black/50 p-3">
-                        <p className="text-xs text-muted-foreground">Partitions</p>
+                        <p className="text-xs text-muted-foreground">
+                          Partitions
+                        </p>
                         <p className="text-lg font-bold text-foreground dark:text-primary-foreground">
                           {result.equivalent_standard_partitions}
                         </p>
@@ -1088,7 +1097,9 @@ export default function TyroleneEstimator({
                         </p>
                       </div>
                       <div className="rounded-lg bg-muted/50 dark:bg-black/50 p-3">
-                        <p className="text-xs text-muted-foreground">Adjusted</p>
+                        <p className="text-xs text-muted-foreground">
+                          Adjusted
+                        </p>
                         <p className="text-sm font-semibold text-foreground dark:text-primary-foreground">
                           {result.has_dimensional_adjustment
                             ? "Yes · measured"
@@ -1257,13 +1268,17 @@ export default function TyroleneEstimator({
                     {/* Customer Trust Indicators */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                       <div className="rounded-md bg-muted/50 dark:bg-black/50 px-3 py-2">
-                        <span className="text-muted-foreground">CALCULATED:</span>{" "}
+                        <span className="text-muted-foreground">
+                          CALCULATED:
+                        </span>{" "}
                         <span className="text-foreground dark:text-primary-foreground">
                           FRELUX Engine
                         </span>
                       </div>
                       <div className="rounded-md bg-muted/50 dark:bg-black/50 px-3 py-2">
-                        <span className="text-muted-foreground">NEGOTIATED:</span>{" "}
+                        <span className="text-muted-foreground">
+                          NEGOTIATED:
+                        </span>{" "}
                         <span className="text-foreground dark:text-primary-foreground">
                           Labour (separately)
                         </span>
@@ -1271,7 +1286,8 @@ export default function TyroleneEstimator({
                     </div>
 
                     {/* Calculation Steps Toggle */}
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => setShowSteps(!showSteps)}
                       className="flex items-center gap-1.5 text-xs font-medium text-brand-purple hover:text-brand-purple-dark"
                     >
@@ -1451,7 +1467,8 @@ export default function TyroleneEstimator({
 
                     {/* Save Button */}
                     <div className="flex gap-3 pt-2">
-                      <Button variant="ghost"
+                      <Button
+                        variant="ghost"
                         onClick={handleSave}
                         disabled={calculating || saved}
                         className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-green-600 px-4 py-3 text-sm font-semibold text-primary-foreground hover:bg-green-700 transition-colors disabled:opacity-50"

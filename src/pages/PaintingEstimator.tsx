@@ -674,7 +674,7 @@ export default function PaintingEstimator({
       // Save line items
       for (let i = 0; i < result.line_items.length; i++) {
         const item = result.line_items[i];
-        await createEstimateItem({
+        const { error: itemError } = await createEstimateItem({
           estimate_id: estimate.id,
           item_name: item.item_name,
           item_type: item.item_type,
@@ -693,6 +693,7 @@ export default function PaintingEstimator({
           notes: item.notes ?? null,
           sort_order: i,
         });
+        if (itemError) throw itemError;
       }
 
       // Save adjustments

@@ -182,7 +182,7 @@ export default function ReinforcementEstimator() {
       });
       if (error) throw error;
       for (const line of result.lines) {
-        await createEstimateItem({
+        const { error: itemError } = await createEstimateItem({
           estimate_id: estimate!.id,
           item_name: line.label,
           item_type: "material",
@@ -199,6 +199,7 @@ export default function ReinforcementEstimator() {
           calculation_source: "calculated",
           notes: line.detail,
         } as never);
+        if (itemError) throw itemError;
       }
       setSaveState(
         result.incomplete
