@@ -104,10 +104,24 @@ describe("mortarToMaterials", () => {
 });
 
 describe("blocksPerM2", () => {
-  it("calculates for standard 18×9 inch block", () => {
+  it("calculates for standard 18×9 inch block including mortar joints", () => {
     const result = blocksPerM2(18, 9);
-    const blockArea = 18 * 0.0254 * (9 * 0.0254);
-    expect(result).toBeCloseTo(1 / blockArea, 4);
+    const joint = 0.025; // MORTAR_JOINT_THICKNESS
+    const moduleArea = (18 * 0.0254 + joint) * (9 * 0.0254 + joint);
+    expect(result).toBeCloseTo(1 / moduleArea, 4);
+    expect(result).toBeCloseTo(8.1771, 3);
+  });
+  it("matches a direct course count on a real wall (consistency)", () => {
+    const joint = 0.025;
+    const P = 10 * (0.4572 + joint); // 10 whole blocks per course, m
+    const H = 10 * (0.2286 + joint); // 10 whole courses, m
+    const blocksByCount = 10 * 10;
+    const blocksByRate = P * H * blocksPerM2(18, 9);
+    expect(blocksByRate).toBeCloseTo(blocksByCount, 1);
+  });
+  it("returns the joint-free theoretical rate when joint = 0", () => {
+    const result = blocksPerM2(18, 9, 0);
+    expect(result).toBeCloseTo(1 / (18 * 0.0254 * 9 * 0.0254), 4);
   });
   it("returns 0 for zero dimensions", () => {
     expect(blocksPerM2(0, 9)).toBe(0);
@@ -234,8 +248,9 @@ describe("estimateTimberMeters", () => {
   it("calculates rafters + purlins for gable on the eave rectangle", () => {
     const result = estimateTimberMeters(100, 10, 8, 30, 0.6, "gable");
     // Framing is measured on the roof extent (L + 2OH), not the wall line:
-    const eaveL = 11.2, eaveW = 9.2;
-    const slopeLen = (eaveW / 2) / Math.cos((30 * Math.PI) / 180);
+    const eaveL = 11.2,
+      eaveW = 9.2;
+    const slopeLen = eaveW / 2 / Math.cos((30 * Math.PI) / 180);
     const rafterCount = Math.ceil(eaveL / 0.9) + 1; // 14
     const rafterTotal = rafterCount * 2 * slopeLen;
     const purlinTotal = 4 * 2 * eaveL;
@@ -243,7 +258,8 @@ describe("estimateTimberMeters", () => {
   });
   it("mono-pitch: ONE plane, full-width rafters, single-slope purlins", () => {
     const result = estimateTimberMeters(100, 10, 8, 30, 0.6, "mono_pitch");
-    const eaveL = 11.2, eaveW = 9.2;
+    const eaveL = 11.2,
+      eaveW = 9.2;
     const slopeLen = eaveW / Math.cos((30 * Math.PI) / 180);
     const rafterCount = Math.ceil(eaveL / 0.9) + 1;
     const expected = rafterCount * slopeLen + 4 * eaveL; // NOT 2 planes
@@ -257,8 +273,9 @@ describe("estimateTimberMeters", () => {
   });
   it("hip: framing covers all 4 planes (commons + jacks + purlins)", () => {
     const result = estimateTimberMeters(100, 10, 8, 30, 0.6, "hip");
-    const eaveL = 11.2, eaveW = 9.2;
-    const slopeLen = (eaveW / 2) / Math.cos((30 * Math.PI) / 180);
+    const eaveL = 11.2,
+      eaveW = 9.2;
+    const slopeLen = eaveW / 2 / Math.cos((30 * Math.PI) / 180);
     const commons = (Math.ceil((eaveL - eaveW) / 0.9) + 1) * 2 * slopeLen;
     const jacks = (Math.ceil(eaveW / 0.9) + 1) * 2 * (slopeLen / 2);
     const purlins = 4 * 2 * eaveL + 4 * 2 * (eaveW / 2);
@@ -270,7 +287,9 @@ describe("estimateTimberMeters", () => {
 // Audit regression tests (independently verified baselines)
 // ─────────────────────────────────────────────────────────
 
-function makeValidInput(overrides: Partial<BuildToRoofInput> = {}): BuildToRoofInput {
+function makeValidInput(
+  overrides: Partial<BuildToRoofInput> = {},
+): BuildToRoofInput {
   return {
     project_name: "Audit House",
     location: "Lagos",
@@ -323,31 +342,49 @@ describe("validateBuildToRoofInput", () => {
   });
 
   it("rejects zero/negative dimensions", () => {
-    expect(validateBuildToRoofInput(makeValidInput({ building_length: 0 }))).not.toEqual([]);
-    expect(validateBuildToRoofInput(makeValidInput({ building_width: -8 }))).not.toEqual([]);
+    expect(
+      validateBuildToRoofInput(makeValidInput({ building_length: 0 })),
+    ).not.toEqual([]);
+    expect(
+      validateBuildToRoofInput(makeValidInput({ building_width: -8 })),
+    ).not.toEqual([]);
   });
 
   it("rejects impossible pitch (>60deg) and NaN", () => {
-    expect(validateBuildToRoofInput(makeValidInput({ roof_pitch_degrees: 100 })).length).toBeGreaterThan(0);
+    expect(
+      validateBuildToRoofInput(makeValidInput({ roof_pitch_degrees: 100 }))
+        .length,
+    ).toBeGreaterThan(0);
     const nan = makeValidInput();
     (nan as unknown as Record<string, number>).building_length = NaN;
     expect(validateBuildToRoofInput(nan).length).toBeGreaterThan(0);
   });
 
   it("ignores pitch when roof is flat", () => {
-    expect(validateBuildToRoofInput(makeValidInput({ roof_type: "flat", roof_pitch_degrees: 100 }))).toEqual([]);
+    expect(
+      validateBuildToRoofInput(
+        makeValidInput({ roof_type: "flat", roof_pitch_degrees: 100 }),
+      ),
+    ).toEqual([]);
   });
 
   it("rejects negative overhang and out-of-range floors", () => {
-    expect(validateBuildToRoofInput(makeValidInput({ roof_overhang: -0.5 })).length).toBeGreaterThan(0);
-    expect(validateBuildToRoofInput(makeValidInput({ number_of_floors: 0 })).length).toBeGreaterThan(0);
+    expect(
+      validateBuildToRoofInput(makeValidInput({ roof_overhang: -0.5 })).length,
+    ).toBeGreaterThan(0);
+    expect(
+      validateBuildToRoofInput(makeValidInput({ number_of_floors: 0 })).length,
+    ).toBeGreaterThan(0);
   });
 
   it("validates ft-mode input on its metric equivalent", () => {
     const ft = convertBuildToRoofUnits(makeValidInput(), 1 / 0.3048);
     ft.measurement_unit = "ft";
     expect(validateBuildToRoofInput(ft)).toEqual([]);
-    const badFt = convertBuildToRoofUnits(makeValidInput({ building_length: 0.5 }), 1 / 0.3048);
+    const badFt = convertBuildToRoofUnits(
+      makeValidInput({ building_length: 0.5 }),
+      1 / 0.3048,
+    );
     badFt.measurement_unit = "ft";
     expect(validateBuildToRoofInput(badFt).length).toBeGreaterThan(0);
   });
@@ -355,9 +392,31 @@ describe("validateBuildToRoofInput", () => {
 
 describe("convertBuildToRoofUnits", () => {
   it("round-trips m -> ft -> m for every unit-mappable field", () => {
-    const input = makeValidInput({ roof_overhang: 0.6, foundation_depth: 0.9, foundation_width: 0.6, footing_thickness: 0.225 });
-    const roundTrip = convertBuildToRoofUnits(convertBuildToRoofUnits(input, 1 / 0.3048), 0.3048);
-    for (const key of ["building_length", "building_width", "floor_to_floor_height", "wall_thickness", "internal_wall_length", "internal_wall_thickness", "foundation_depth", "foundation_width", "footing_thickness", "blinding_thickness", "hardcore_thickness", "dpc_length", "roof_overhang"] as const) {
+    const input = makeValidInput({
+      roof_overhang: 0.6,
+      foundation_depth: 0.9,
+      foundation_width: 0.6,
+      footing_thickness: 0.225,
+    });
+    const roundTrip = convertBuildToRoofUnits(
+      convertBuildToRoofUnits(input, 1 / 0.3048),
+      0.3048,
+    );
+    for (const key of [
+      "building_length",
+      "building_width",
+      "floor_to_floor_height",
+      "wall_thickness",
+      "internal_wall_length",
+      "internal_wall_thickness",
+      "foundation_depth",
+      "foundation_width",
+      "footing_thickness",
+      "blinding_thickness",
+      "hardcore_thickness",
+      "dpc_length",
+      "roof_overhang",
+    ] as const) {
       expect(roundTrip[key]).toBeCloseTo(input[key], 6);
     }
     expect(roundTrip.openings[0].width).toBeCloseTo(input.openings[0].width, 6);
@@ -365,9 +424,17 @@ describe("convertBuildToRoofUnits", () => {
 
   it("converts openings and structural members", () => {
     const input = makeValidInput({
-      structural_members: [{
-        id: "c1", type: "column", label: "Column", length: 3, width: 0.225, depth: 0.225, quantity: 6,
-      }],
+      structural_members: [
+        {
+          id: "c1",
+          type: "column",
+          label: "Column",
+          length: 3,
+          width: 0.225,
+          depth: 0.225,
+          quantity: 6,
+        },
+      ],
     });
     const ft = convertBuildToRoofUnits(input, 1 / 0.3048);
     expect(ft.openings[0].width).toBeCloseTo(0.9 / 0.3048, 6);
@@ -377,8 +444,12 @@ describe("convertBuildToRoofUnits", () => {
 
 describe("calculateBuildToRoof (audit regression)", () => {
   it("throws on invalid input instead of estimating", () => {
-    expect(() => calculateBuildToRoof(makeValidInput({ building_length: 0 }))).toThrow(/invalid/i);
-    expect(() => calculateBuildToRoof(makeValidInput({ roof_pitch_degrees: 100 }))).toThrow(/Roof pitch/i);
+    expect(() =>
+      calculateBuildToRoof(makeValidInput({ building_length: 0 })),
+    ).toThrow(/invalid/i);
+    expect(() =>
+      calculateBuildToRoof(makeValidInput({ roof_pitch_degrees: 100 })),
+    ).toThrow(/Roof pitch/i);
   });
 
   it("counts the under-slab sand filling ONCE (no Stage A + Stage B double count)", () => {
@@ -412,13 +483,19 @@ describe("calculateBuildToRoof (audit regression)", () => {
   it("purchases whole blocks, sheets and screws (no fractional pieces)", () => {
     const result = calculateBuildToRoof(makeValidInput());
     for (const line of result.shopping_list) {
-      if (line.unit === "pcs") expect(Number.isInteger(line.total_quantity)).toBe(true);
+      if (line.unit === "pcs")
+        expect(Number.isInteger(line.total_quantity)).toBe(true);
     }
     // Sheets: ceil(area × 1.05 / 1.5). Area = (10+1.2)(8+1.2)/cos30 = 118.98
-    const sheets = result.stages.flatMap((s) => s.materials).find((m) => m.label === "Roofing sheets");
-    expect(sheets?.final_quantity).toBe(Math.ceil(118.9803 * 1.05 / 1.5)); // 84
+    const sheets = result.stages
+      .flatMap((s) => s.materials)
+      .find((m) => m.label === "Roofing sheets");
+    expect(sheets?.final_quantity).toBe(Math.ceil((118.9803 * 1.05) / 1.5)); // 84
     // and the cost is based on the PURCHASE quantity
-    expect(sheets?.total_cost).toBeCloseTo(84 * DEFAULT_PRICES.roofing_sheet_per_piece, 0);
+    expect(sheets?.total_cost).toBeCloseTo(
+      84 * DEFAULT_PRICES.roofing_sheet_per_piece,
+      0,
+    );
   });
 
   it("manual (m) and identical building in ft produce identical physical quantities", () => {
@@ -427,24 +504,38 @@ describe("calculateBuildToRoof (audit regression)", () => {
     ft.measurement_unit = "ft";
     const ftResult = calculateBuildToRoof(ft);
     expect(ftResult.total_floor_area).toBeCloseTo(m.total_floor_area, 1);
-    const sheetsM = m.stages.flatMap((s) => s.materials).find((x) => x.label === "Roofing sheets");
-    const sheetsFt = ftResult.stages.flatMap((s) => s.materials).find((x) => x.label === "Roofing sheets");
+    const sheetsM = m.stages
+      .flatMap((s) => s.materials)
+      .find((x) => x.label === "Roofing sheets");
+    const sheetsFt = ftResult.stages
+      .flatMap((s) => s.materials)
+      .find((x) => x.label === "Roofing sheets");
     expect(sheetsFt?.final_quantity).toBe(sheetsM?.final_quantity);
   });
 
   it("rebar base quantity excludes wastage (wastage added by purchase rounding only)", () => {
     const input = makeValidInput({
       has_engineer_schedule: true,
-      structural_members: [{
-        id: "c1", type: "column", label: "Column", length: 3, width: 0.225, depth: 0.225,
-        quantity: 6, bar_diameter_mm: 16, bar_count_main: 4, cover_mm: 25,
-      }],
+      structural_members: [
+        {
+          id: "c1",
+          type: "column",
+          label: "Column",
+          length: 3,
+          width: 0.225,
+          depth: 0.225,
+          quantity: 6,
+          bar_diameter_mm: 16,
+          bar_count_main: 4,
+          cover_mm: 25,
+        },
+      ],
     });
     const result = calculateBuildToRoof(input);
     const item = result.reinforcement_breakdown?.items[0];
-    expect(item?.base_length_m).toBeCloseTo(4 * 3 * 6, 2);            // 72 m net
-    expect(item?.total_length_m).toBeCloseTo(72 * 1.03, 2);           // +3% wastage
-    expect(item?.standard_lengths).toBe(Math.ceil(72 * 1.03 / 12));   // 7 lengths
+    expect(item?.base_length_m).toBeCloseTo(4 * 3 * 6, 2); // 72 m net
+    expect(item?.total_length_m).toBeCloseTo(72 * 1.03, 2); // +3% wastage
+    expect(item?.standard_lengths).toBe(Math.ceil((72 * 1.03) / 12)); // 7 lengths
   });
 });
 
@@ -478,7 +569,9 @@ describe("decomposeRoofPlanes, explicit geometry", () => {
   it("CONSERVATION: calculateRoofArea == sum of plane areas (exact)", () => {
     for (const t of [...TYPES, "flat"] as string[]) {
       const planes = decomposeRoofPlanes(10, 8, 30, 0.6, t);
-      const sum = Math.round(planes.reduce((s, p) => s + p.sloped_area_m2, 0) * 100) / 100;
+      const sum =
+        Math.round(planes.reduce((s, p) => s + p.sloped_area_m2, 0) * 100) /
+        100;
       expect(calculateRoofArea(10, 8, 30, 0.6, t)).toBe(sum);
     }
   });
@@ -533,10 +626,12 @@ describe("decomposeRoofPlanes, explicit geometry", () => {
 
   it("HIP geometry matches the explicit trapezoid + triangle model", () => {
     const planes = decomposeRoofPlanes(10, 8, 30, 0.6, "hip");
-    const Le = 11.2, We = 9.2, R = Le - We;
+    const Le = 11.2,
+      We = 9.2,
+      R = Le - We;
     const cosT = Math.cos((30 * Math.PI) / 180);
-    const trap = ((Le + R) / 2) * (We / 2);   // each trapezoid projection
-    const tri = (We * We) / 4;                // each triangle projection
+    const trap = ((Le + R) / 2) * (We / 2); // each trapezoid projection
+    const tri = (We * We) / 4; // each triangle projection
     expect(planes[0].projected_area_m2).toBeCloseTo(trap, 1);
     expect(planes[2].projected_area_m2).toBeCloseTo(tri, 1);
     // sloped per-plane = projection / cos(pitch)
@@ -551,8 +646,15 @@ describe("decomposeRoofPlanes, explicit geometry", () => {
     const M_PER_FT = 0.3048;
     for (const t of [...TYPES] as string[]) {
       const inM = decomposeRoofPlanes(10, 8, 30, 0.6, t);
-      const inFt = decomposeRoofPlanes(10 / M_PER_FT, 8 / M_PER_FT, 30, 0.6 / M_PER_FT, t);
-      const ftM2 = inFt.reduce((s, p) => s + p.sloped_area_m2, 0) * M_PER_FT * M_PER_FT;
+      const inFt = decomposeRoofPlanes(
+        10 / M_PER_FT,
+        8 / M_PER_FT,
+        30,
+        0.6 / M_PER_FT,
+        t,
+      );
+      const ftM2 =
+        inFt.reduce((s, p) => s + p.sloped_area_m2, 0) * M_PER_FT * M_PER_FT;
       const m2 = inM.reduce((s, p) => s + p.sloped_area_m2, 0);
       expect(ftM2).toBeCloseTo(m2, 1); // 0.1 m² tolerance
     }
