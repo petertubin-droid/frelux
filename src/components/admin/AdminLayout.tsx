@@ -47,6 +47,7 @@ import {
   Megaphone,
   Menu,
   MessageCircle,
+  MessageSquare,
   CloudOff,
   Moon,
   Package,
@@ -266,6 +267,11 @@ const navModules: NavModule[] = [
         to: "/admin/market-intelligence",
         icon: LineChart,
       },
+      {
+        label: "Community Prices",
+        to: "/admin/price-submissions",
+        icon: ClipboardList,
+      },
     ],
   },
   {
@@ -342,6 +348,11 @@ const navModules: NavModule[] = [
       { label: "Media Manager", to: "/admin/media", icon: Image },
       { label: "Legal Pages", to: "/admin/legal", icon: FileText },
       { label: "Contact Messages", to: "/admin/contact", icon: Mail },
+      {
+        label: "Feedback & Suggestions",
+        to: "/admin/feedback",
+        icon: MessageSquare,
+      },
       { label: "SEO Settings", to: "/admin/seo", icon: Search },
     ],
   },

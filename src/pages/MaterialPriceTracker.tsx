@@ -24,6 +24,7 @@ import {
 import type { DbMaterialPriceHistory } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import MaterialPriceForecast from "@/components/estimation/MaterialPriceForecast";
+import PriceSubmissionForm from "@/components/estimation/PriceSubmissionForm";
 
 const fmt = (v: number) => "₦" + (v || 0).toLocaleString();
 
@@ -166,6 +167,9 @@ export default function MaterialPriceTracker() {
       <div className="mx-auto max-w-5xl px-4 pb-12 pt-6 space-y-6">
         {/* Future Engine 4: deterministic price forecasting */}
         <MaterialPriceForecast />
+
+        {/* Community price reporting — feeds the review queue */}
+        <PriceSubmissionForm />
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">

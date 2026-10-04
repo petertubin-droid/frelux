@@ -11,6 +11,7 @@ import { PROJECT_TYPE_LABELS } from "@/types/marketplace";
 import { useSeo } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 
 const NIGERIAN_STATES = [
   "Lagos",
@@ -273,10 +274,15 @@ export default function PostListing() {
                 }}
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               >
-                <option value="NG">Nigeria</option>
-                <option value="GH">Ghana</option>
-                <option value="KE">Kenya</option>
-                <option value="ZA">South Africa</option>
+                {COUNTRY_OPTIONS.map((g) => (
+                  <optgroup key={g.group} label={g.group}>
+                    {g.countries.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
                 <option value="OTHER">Other (specify in city/area)</option>
               </select>
             </div>

@@ -66,6 +66,7 @@ PostgreSQL database with REST and auth. Client access goes through PostgREST wit
 - **Projects**: `plan_documents`, `plan_extractions`, `project_calculations` (snapshot results), projects, properties, clients
 - **Monetization**: subscriptions/paid status, token purchases, rewarded access records, ads config
 - **Content**: articles, FAQs, inserts, gallery, templates, SEO settings, branding
+- **Community**: `feedback_suggestions` (banner + /feedback funnel; public insert, admin-only read/manage), `price_submissions` (user-reported local prices per market; pending → community_verified via consensus trigger → approved/rejected by admin; promotion into `estimation_prices` is an explicit admin action)
 
 213 migrations exist in `supabase/migrations`, applied in sequence. Migrations are idempotent where possible and applied via the migration history process.
 

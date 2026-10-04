@@ -36,6 +36,7 @@ import { formatDistance } from "@/lib/location";
 import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
+import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 
 const PROJECT_TYPES = [
   { value: "painting", label: "Painting" },
@@ -644,10 +645,15 @@ function JobsTab(props: {
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
             <option value="">All countries</option>
-            <option value="NG">Nigeria</option>
-            <option value="GH">Ghana</option>
-            <option value="KE">Kenya</option>
-            <option value="ZA">South Africa</option>
+            {COUNTRY_OPTIONS.map((g) => (
+              <optgroup key={g.group} label={g.group}>
+                {g.countries.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.name}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
           </select>
           <select
             value={props.state}
@@ -936,10 +942,15 @@ function ProductsTab(props: {
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
           >
             <option value="">All countries</option>
-            <option value="NG">Nigeria</option>
-            <option value="GH">Ghana</option>
-            <option value="KE">Kenya</option>
-            <option value="ZA">South Africa</option>
+            {COUNTRY_OPTIONS.map((g) => (
+              <optgroup key={g.group} label={g.group}>
+                {g.countries.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.name}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
           </select>
           <select
             value={props.state}

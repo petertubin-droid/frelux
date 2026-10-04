@@ -25,6 +25,7 @@ import {
 } from "@/lib/location-discovery";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
+import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 
 export default function ProConnectDirectory() {
   useSeo({
@@ -347,10 +348,15 @@ export default function ProConnectDirectory() {
                 className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
               >
                 <option value="">All countries</option>
-                <option value="NG">Nigeria</option>
-                <option value="GH">Ghana</option>
-                <option value="KE">Kenya</option>
-                <option value="ZA">South Africa</option>
+                {COUNTRY_OPTIONS.map((g) => (
+                  <optgroup key={g.group} label={g.group}>
+                    {g.countries.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
               </select>
               <select
                 value={selectedState || ""}

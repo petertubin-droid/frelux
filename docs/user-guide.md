@@ -198,3 +198,29 @@ If you want to connect your own tools to FRELUX's calculators and intelligence, 
 ARCHIE is FRELUX's owner-only companion app, available at **/archie** for the site owner (it requires owner sign-in). It is a separate installable PWA with its own icon and a premium dark "command centre" design — glass panels, soft amber glows and gradient headlines.
 
 Sections include Chat (talk to ARCHIE), Control, Knowledge Vault, Learning, Devices, People (family and trusted professionals with single-use invitation codes), Shared, Security, System, Migration, Training, Evolution, Voice, Ops and Terminology (the TerminoBook). On the Voice page you can also talk hands-free: ARCHIE understands your speech through its Ears subsystem — native on-device recognition, no cloud provider, no OpenAI — checks it against your voice bank by deterministic pitch math (nothing is faked — if nothing intelligible was heard it says so), runs it through the normal pipeline, and speaks the reply with your recorded voice profile. The Devices page also contains "Connected hardware & accounts": you can pair real external devices (speakers, TVs, appliances) through the browser's own Bluetooth or USB pairing prompt, probe a network endpoint for reachability, and save the paired device as a connection with exactly the permissions you tick (power, media, volume, settings, routines, automation, monitoring, maintenance). A reachable device grants nothing on its own — ARCHIE only acts on permissions you explicitly granted, every action is recorded in a per-connection audit trail (including refused ones), and updates are never installed on a device unless they are verified, compatible and individually authorized by you. If your browser does not support a transport, the page says so honestly instead of pretending. The public FRELUX website and calculators are unaffected by anything configured inside ARCHIE.
+
+---
+
+## 25. Feedback and Suggestions
+
+A small banner appears in the corner of the homepage and every calculator page: **Help us improve FRELUX — Suggest a feature or report an issue.** It is easy to miss on purpose (calculations come first) and you can close it for 30 days with one tap.
+
+Tapping **Give feedback** opens the **/feedback** page. There you can:
+
+- **Suggest a development** — any feature or improvement you want to see.
+- **Send general feedback** — what you like or dislike.
+- **Report a problem** — something broken or wrong.
+
+Every submission goes straight to the team with the page you came from, and you can leave a contact email (optional) so we can follow up. You do not need an account to send feedback.
+
+---
+
+## 26. Community Price Reporting (Price Tracker)
+
+On the **Material Price Tracker** page (**/material-prices**), signed-in users can **report what materials actually cost in their area**, in any market worldwide — Nigeria, the US, Europe, Asia, anywhere. Reports are never trusted blindly:
+
+- Every report starts **In review**. Nothing a user reports reaches the calculators directly.
+- When **three different people** report the same item in the same market and region and their prices agree within 10%, the reports are automatically flagged **Community verified**.
+- The team reviews reports in the admin console and can **approve them into the official price book**, reject them, or leave them for more evidence.
+
+This is how prices stay correct and current in places the team cannot visit — the community supplies the evidence, and the team keeps the price book authoritative. Calculations always read the official price book, never raw user reports.

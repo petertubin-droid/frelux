@@ -192,6 +192,12 @@ const AdminLabourSettings = lazy(
 const AdminColors = lazy(() => import("@/pages/admin/AdminColors"));
 const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"));
 const AdminLegal = lazy(() => import("@/pages/admin/AdminLegal"));
+const Feedback = lazy(() => import("@/pages/Feedback"));
+const AdminFeedback = lazy(() => import("@/pages/admin/AdminFeedback"));
+const AdminPriceSubmissions = lazy(
+  () => import("@/pages/admin/AdminPriceSubmissions"),
+);
+const FeedbackBanner = lazy(() => import("@/components/FeedbackBanner"));
 const AdminContactMessages = lazy(
   () => import("@/pages/admin/AdminContactMessages"),
 );
@@ -453,6 +459,9 @@ export default function App() {
               <BrowserRouter>
                 <ScrollToTop />
                 <NotificationClickHandler />
+                <Suspense fallback={null}>
+                  <FeedbackBanner />
+                </Suspense>
                 {/* Held back while the first-visit Entry Experience is on
                     screen, so newcomers are welcomed by the brand before
                     the consent prompt (it appears right after they enter). */}
@@ -877,6 +886,14 @@ export default function App() {
 
                     {/* Account / About / Contact */}
                     <Route
+                      path="/feedback"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <Feedback />
+                        </Suspense>
+                      }
+                    />
+                    <Route
                       path="/contact"
                       element={
                         <Suspense fallback={<PageLoader />}>
@@ -1119,6 +1136,11 @@ export default function App() {
                     />
                     <Route path="legal" element={<AdminLegal />} />
                     <Route path="contact" element={<AdminContactMessages />} />
+                    <Route path="feedback" element={<AdminFeedback />} />
+                    <Route
+                      path="price-submissions"
+                      element={<AdminPriceSubmissions />}
+                    />
 
                     {/* Color Library */}
                     <Route path="colors" element={<AdminColors />} />
