@@ -90,10 +90,17 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Push {code, rates} into the module display state whenever either
-  // changes, then bump local state so the tree re-renders.
+  // changes, then bump local state so the tree re-renders. The bump
+  // counter is REQUIRED, not an optimisation: the memoized context
+  // value reads module state at render time, and setCode() alone is a
+  // no-op when the code is unchanged (e.g. the visitor picked a
+  // currency while the config fetch was still in flight). Without the
+  // bump the tree would keep a stale converting=false forever.
+  const [bump, setBump] = useState(0);
   useEffect(() => {
     setDisplayCurrencyState(code, cfg ?? FALLBACK);
     setCode(getActiveDisplayCurrency());
+    setBump((n) => n + 1);
   }, [code, cfg]);
 
   const setCurrency = useCallback((next: string) => {
@@ -117,7 +124,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
       config: cfg,
       setCurrency,
     }),
-    [code, cfg, setCurrency],
+    [code, cfg, setCurrency, bump],
   );
 
   return (
