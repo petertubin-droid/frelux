@@ -57,6 +57,26 @@ export const DISPLAY_CURRENCIES: DisplayCurrency[] = [
   },
   { code: "CAD", name: "Canadian Dollar", symbol: "C$", hint: "Canada" },
   { code: "XOF", name: "West African CFA", symbol: "CFA", hint: "West Africa" },
+  // Worldwide majors — every registered locale gets its currency.
+  { code: "JPY", name: "Japanese Yen", symbol: "¥", hint: "Japan" },
+  { code: "CNY", name: "Chinese Yuan", symbol: "CN¥", hint: "China" },
+  { code: "INR", name: "Indian Rupee", symbol: "₹", hint: "India" },
+  { code: "BRL", name: "Brazilian Real", symbol: "R$", hint: "Brazil" },
+  { code: "CAD", name: "Canadian Dollar", symbol: "C$", hint: "Canada" },
+  { code: "AUD", name: "Australian Dollar", symbol: "A$", hint: "Australia" },
+  { code: "RUB", name: "Russian Ruble", symbol: "₽", hint: "Russia" },
+  { code: "IDR", name: "Indonesian Rupiah", symbol: "Rp", hint: "Indonesia" },
+  { code: "MXN", name: "Mexican Peso", symbol: "MX$", hint: "Mexico" },
+  { code: "TRY", name: "Turkish Lira", symbol: "₺", hint: "Türkiye" },
+  { code: "SAR", name: "Saudi Riyal", symbol: "﷼", hint: "Saudi Arabia" },
+  {
+    code: "AED",
+    name: "UAE Dirham",
+    symbol: "د.إ",
+    hint: "United Arab Emirates",
+  },
+  { code: "EGP", name: "Egyptian Pound", symbol: "E£", hint: "Egypt" },
+  { code: "KRW", name: "South Korean Won", symbol: "₩", hint: "South Korea" },
 ];
 
 /** Shape of site_settings.display_currencies. */

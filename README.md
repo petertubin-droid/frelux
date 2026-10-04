@@ -1,161 +1,71 @@
-# FRELUX — Construction Cost Estimation Platform
+# FRELUX — Worldwide Construction Estimation Platform
 
-A production-grade construction estimation platform built for the Nigerian and African market. Calculate material costs for paint, tiles, screeding, pop ceiling, roofing, and more — with AI-powered recommendations, marketplace integration, and multi-currency support.
+A production-grade construction cost estimation platform for builders everywhere.
+45+ calculators and AI-powered estimators, a materials marketplace, and automated
+market price intelligence — in 11 languages with crawlable locale URLs, 24
+display currencies with a live FX feed, and region-aware pricing that travels.
+
+## Built worldwide
+
+- **11 languages, crawlable locale URLs** — `/es/`, `/fr/`, `/de/`, `/pt/`, `/ru/`,
+  `/id/`, `/sw/`, `/ar/`, `/hi/`, `/zh/` (plus English) each render the app in
+  that language with hreflang alternates and sitemap entries. React-level
+  chrome translations (no crawler-blind client widget), RTL support for Arabic.
+- **24 display currencies, live FX** — amounts convert for display with a
+  keyless live FX feed (open.er-api.com, 12h cache); owner-configured rates
+  always override live rates per currency.
+- **Region-aware pricing** — estimation prices carry an ISO market code.
+  Nigeria's crawled price books are the live moat; a seeded US reference price
+  book proves the model travels, and every market can grow its own book.
+- **International checkout** — Paystack by default; a Stripe Checkout edge
+  function ships in the repo and activates with `STRIPE_SECRET_KEY` so US/EU/Asia
+  visitors can pay with local cards.
+- **Compliance for worldwide traffic** — GDPR (EU/EEA) and CCPA/CPRA sections,
+  consent-gated ads, and a working data-subject-request flow.
 
 ## Features
 
 ### Calculators & Estimators
 
-- **Paint Calculator** — Wall area, coats, paint type selection, cost estimation
-- **Tile Calculator** — Floor & wall tiles with waste factor, adhesive, and grout
-- **Screeding Calculator** — Wall surface area with door/window deductions
-- **POP Ceiling Calculator** — Ceiling area with material breakdown
-- **Roofing Estimator** — Building-to-roof pipeline with multi-building support
-- **Tyrolene Estimator** — Exterior finishing estimation
-- **Painting Estimator** — Full project estimation with labour costs
+- **Paint Calculator** — wall area, coats, paint types, live cost estimation
+- **Tile / Screeding / POP Ceiling / Roofing / Tyrolene** calculators
+- **Build-to-Roof Estimator** — multi-building pipeline with material breakdowns
 - **Image Estimator** — AI-powered area detection from photos
-- **Construction Sequence** — Project phasing and timeline
-- **Project Timeline** — Gantt-style project scheduling
+- **Conversational Estimator** — English natural-language parsing to full estimates
+- **Construction Sequence & Project Timeline** — phasing and Gantt scheduling
+- **BOQ Generator, Carbon Footprint, Structural Load, Foundation Designer** and more
 
 ### Platform
 
-- **Marketplace** — Buy/sell construction materials with seller dashboards
-- **Pro Connect** — Connect with contractors and professionals
-- **AI Studio** — Color recommendations, AI learning assistant, AI monetization
-- **Market Intelligence** — Automated price crawling and validation
-- **Learn Hub** — Educational content for construction professionals
-- **Credits System** — Premium feature access with Paystack integration
-- **International Support** — Multi-currency, multi-country pricing rules
+- **Marketplace** — buy/sell construction materials with seller dashboards
+- **Pro Connect** — contractor/professional network
+- **AI Studio** — color recommendations, learning assistant, AI monetization
+- **Market Intelligence** — automated price crawling and validation
+- **Learn Hub** — educational content for construction professionals
+- **Public metrics page** — real platform stats at `/metrics`
 
 ### Admin
 
-- 49 admin pages covering analytics, branding, SEO, pricing, materials, users, ads, integrations, and more
-- Full RBAC with admin-only routes
-- Real-time error monitoring and health dashboards
+- 49 admin pages: analytics, branding, SEO, pricing, materials, users, ads,
+  integrations, dictionary curation, and more
+- Full RBAC with admin-only routes, real-time error monitoring, health dashboards
 
 ## Tech Stack
 
 - **Frontend:** React 18, TypeScript 5, Vite, Tailwind CSS
 - **Backend:** Supabase (PostgreSQL, Auth, Storage, Edge Functions)
-- **Payments:** Paystack
-- **AI:** OpenAI integration for color recommendations and learning assistant
-- **Testing:** Vitest (4,555 tests)
-- **PWA:** Service worker, manifest, offline support
-- **SEO:** Prerendered routes (76), structured data, sitemap generation
+- **Payments:** Paystack (+ optional Stripe for international cards)
+- **Quality:** 6,600+ vitest tests, Playwright E2E, typecheck + lint + build in CI
+- **Deploy:** Netlify (auto-deploy on green CI), Docker support
 
-## Getting Started
+## Documentation
 
-### Prerequisites
-
-- Node.js 20+
-- npm 10+
-
-### Installation
-
-```bash
-git clone https://github.com/petertubin-droid/frelux.git
-cd frelux
-npm install
-```
-
-### Environment Variables
-
-Create a `.env` file in the project root:
-
-```env
-VITE_SUPABASE_URL=your_supabase_project_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-### Development
-
-```bash
-npm run dev    # Start dev server at localhost:5173
-```
-
-### Build
-
-```bash
-npm run build  # Production build to dist/
-npm run preview  # Preview the production build locally
-```
-
-### Testing
-
-```bash
-npx vitest run       # Run all 4,555 tests
-npx vitest watch     # Watch mode
-npx vitest coverage  # Coverage report
-```
-
-### Type Checking
-
-```bash
-npx tsc --noEmit -p tsconfig.app.json
-```
-
-## Project Structure
-
-```
-src/
-├── components/        # 121 reusable UI components
-│   ├── calculators/   # Calculator-specific UI (badges, result cards, FAQs)
-│   ├── engine/        # Shared estimation engine UI (confidence, explanation)
-│   ├── layout/        # Navigation, footer, routing
-│   ├── credits/       # Credits wallet and payment UI
-│   └── ui/            # Generic UI primitives (buttons, inputs, dialogs)
-├── pages/             # 138 routes
-│   ├── admin/         # 49 admin panel pages
-│   ├── marketplace/   # Marketplace listing and seller dashboard
-│   ├── pro-connect/   # Contractor network
-│   ├── learn/         # Educational content
-│   └── studio/        # AI studio and error analysis
-├── lib/               # 222 modules
-│   ├── measurement/   # Core estimation engine (paint, tile, screeding, roofing)
-│   ├── market-intelligence/  # Price crawling and validation
-│   ├── international/ # Multi-country config and pricing rules
-│   ├── estimation/    # Build-to-roof pipeline and project engine
-│   └── engine-integration/  # Engine bridge to frontend
-└── types/             # Shared TypeScript types
-```
-
-## CI/CD
-
-GitHub Actions runs on every push and PR:
-
-1. **Type check** — `tsc --noEmit`
-2. **Unit tests** — All 4,555 tests must pass
-3. **Build** — Production build must succeed
-4. **Lighthouse audit** — Performance, accessibility, best practices, and SEO thresholds
-
-## Security
-
-- Content-Security-Policy with strict defaults
-- Row-level security via Supabase
-- Admin-only route protection with RBAC
-- Error monitoring with PII redaction
-- HSTS, X-Frame-Options: DENY, X-Content-Type-Options: nosniff
+- [Architecture one-pager](docs/ARCHITECTURE.md)
+- [Runbook: run, deploy, verify](docs/RUNBOOK.md)
+- [Investor / buyer pack](docs/INVESTOR-PACK.md)
+- [API overview](docs/API.md) · [Construction dictionary API](docs/CONSTRUCTION_DICTIONARY_API.md)
+- [Security policy](SECURITY.md) · [Contributing](CONTRIBUTING.md)
 
 ## License
 
-Proprietary — All rights reserved.
-
-## Contributing
-
-See [CONTRIBUTING.md](./CONTRIBUTING.md) for development workflow, code standards, and CI/CD requirements.
-
-## API Documentation
-
-See [docs/API.md](./docs/API.md) for Supabase backend API documentation, table schemas, query patterns, and Edge Function reference.
-
-## Security
-
-See [SECURITY.md](./SECURITY.md) for the vulnerability reporting process.
-
-## Changelog
-
-See [CHANGELOG.md](./CHANGELOG.md) for a history of notable changes.
-
-## License
-
-Proprietary — All rights reserved. See [LICENSE](./LICENSE) for details.
+See [LICENSE](LICENSE).

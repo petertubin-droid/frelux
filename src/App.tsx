@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { stripLocaleFromPathname } from "@/lib/i18n";
 import BrandedLoader from "@/components/ui/BrandedLoader";
 import { Sentry, isSentryActive } from "./instrument";
 
@@ -7,7 +8,33 @@ import { Sentry, isSentryActive } from "./instrument";
 const SentryRoutes = isSentryActive()
   ? Sentry.withSentryReactRouterV7Routing(Routes)
   : Routes;
-import { useEffect, useState, lazy, Suspense } from "react";
+
+/**
+ * Worldwide locale URLs: /es/, /fr/, /de/, /pt/, /ru/, /id/, /sw/,
+ * /ar/, /hi/, /zh/ (and /en/) serve the whole app in that language.
+ * The locale prefix is routed here — stripped from the pathname so
+ * every existing route matches unchanged — while LanguageProvider
+ * (URL locale wins) renders the page in the locale's language.
+ */
+function LocaleAwareRoutes({ children }: { children: ReactNode }) {
+  const location = useLocation();
+  const stripped = stripLocaleFromPathname(location.pathname);
+  if (stripped !== location.pathname) {
+    return (
+      <SentryRoutes
+        location={{
+          pathname: stripped,
+          search: location.search,
+          hash: location.hash,
+        }}
+      >
+        {children}
+      </SentryRoutes>
+    );
+  }
+  return <SentryRoutes>{children}</SentryRoutes>;
+}
+import { useEffect, useState, lazy, Suspense, type ReactNode } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
@@ -74,6 +101,8 @@ const SharedProject = lazy(() => import("@/pages/SharedProject"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const Pricing = lazy(() => import("@/pages/Pricing"));
+const Metrics = lazy(() => import("@/pages/Metrics"));
+const DataRequest = lazy(() => import("@/pages/legal/DataRequest"));
 const BrandStudio = lazy(() => import("@/pages/BrandStudio"));
 const BuildToRoofEstimator = lazy(() => import("@/pages/BuildToRoofEstimator"));
 const ImageEstimator = lazy(() => import("@/pages/ImageEstimator"));
@@ -470,7 +499,7 @@ export default function App() {
                     <CookieBanner />
                   </Suspense>
                 )}
-                <SentryRoutes>
+                <LocaleAwareRoutes>
                   {/* ─────────────────────────────────────────────────────── */}
                   {/* PUBLIC SITE, all public-facing pages under Layout */}
                   {/* No admin links, routes, or components appear here. */}
@@ -784,6 +813,14 @@ export default function App() {
                       }
                     />
                     <Route
+                      path="/metrics"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <Metrics />
+                        </Suspense>
+                      }
+                    />
+                    <Route
                       path="/brand-studio"
                       element={
                         <Suspense fallback={<PageLoader />}>
@@ -916,6 +953,14 @@ export default function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <PrivacyPolicy />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/data-request"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <DataRequest />
                         </Suspense>
                       }
                     />
@@ -1559,7 +1604,7 @@ export default function App() {
                   />
                   {/* Fallback for unmatched admin routes */}
                   <Route path="/admin/*" element={<NotFound />} />
-                </SentryRoutes>
+                </LocaleAwareRoutes>
               </BrowserRouter>
             </CreditsProvider>
           </ToastProvider>

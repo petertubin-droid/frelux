@@ -287,7 +287,43 @@ export default function PrivacyPolicy() {
               or deletion of your personal data. You can withdraw cookie consent
               at any time using the "Cookie Preferences" link in the footer. You
               can also adjust your advertising preferences using the opt-out
-              links provided in the Advertising section above.
+              links provided in the Advertising section above. You can submit a
+              formal request through our{" "}
+              <Link to="/data-request" className="text-primary underline">
+                data subject request page
+              </Link>
+              , and we will respond within 30 days.
+            </p>
+          ),
+        },
+        {
+          heading: "GDPR (EU/EEA visitors)",
+          body: (
+            <p>
+              For visitors in the EU/EEA, we act as the data controller for
+              account data and analytics. Our lawful bases are contract
+              (providing the service you signed up for), legitimate interests
+              (security, fraud prevention, aggregate analytics), and consent
+              (advertising cookies and marketing). EU visitors get only
+              essential cookies until they consent; non-consenting visitors keep
+              full access to the calculators. You may lodge a complaint with
+              your local data protection authority. Data is stored on Supabase
+              (EU regions) and Netlify edge infrastructure; see the Data
+              security section for storage details.
+            </p>
+          ),
+        },
+        {
+          heading: "CCPA/CPRA (California visitors)",
+          body: (
+            <p>
+              California residents may request disclosure of the personal
+              information we collect, request deletion, or opt out of any "sale"
+              or "sharing" of personal information. We do not sell personal
+              information for money. Advertising cookies may constitute
+              "sharing" under California law; use the opt-out links in the
+              Advertising section or submit a request through our data subject
+              request page.
             </p>
           ),
         },

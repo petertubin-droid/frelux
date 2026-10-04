@@ -50,6 +50,7 @@ import {
   fetchCalcRules,
 } from "@/lib/estimation/queries";
 import { track } from "@/lib/analytics";
+import { formatCurrency } from "@/lib/utils";
 import {
   logAnalyticsEvent,
   fetchPaintTypes,
@@ -1487,7 +1488,7 @@ function Step3({
                 {availableQualities.map((q) => {
                   const qp = qualityPriceMap.get(q.id);
                   const price = qp
-                    ? ` · ${qp.currency === "NGN" ? "₦" : ""}${qp.price.toLocaleString()} / bucket`
+                    ? ` · ${formatCurrency(qp.price)} / bucket`
                     : "";
                   const coverage = q.coverage ? ` · ${q.coverage} m²/L` : "";
                   return (

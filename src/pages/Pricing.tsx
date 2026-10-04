@@ -11,14 +11,11 @@ import {
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import PageHeader from "@/components/ui/PageHeader";
 import { useAuth } from "@/lib/auth";
+import { formatCurrency } from "@/lib/utils";
 import { useSeo } from "@/lib/seo";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import { useToast } from "@/components/ui/Toast";
-import {
-  PRICING_PLANS,
-  formatNaira,
-  type PricingPlan,
-} from "@/lib/pricing-plans";
+import { PRICING_PLANS, type PricingPlan } from "@/lib/pricing-plans";
 import { verifyPayment, isPaystackConfigured } from "@/lib/paystack";
 import { startSubscriptionCheckout } from "@/lib/payments/gateway";
 import { isPremiumEnabled } from "@/lib/premium-access";
@@ -403,7 +400,7 @@ export default function Pricing() {
 
                 <div className="mt-4">
                   <span className="text-3xl font-extrabold text-foreground dark:text-primary-foreground">
-                    {formatNaira(price)}
+                    {formatCurrency(price)}
                   </span>
                   <span className="text-sm text-muted-foreground">
                     /{billingCycle === "monthly" ? "mo" : "yr"}

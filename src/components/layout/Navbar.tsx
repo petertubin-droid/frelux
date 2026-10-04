@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
+import { useLanguage } from "@/lib/i18n";
 import {
   Menu,
   X,
@@ -42,6 +43,7 @@ import { MarketSelector } from "@/components/ui/MarketSelector";
 import { Button } from "@/components/ui/shadcn/button";
 
 export default function Navbar() {
+  const { t } = useLanguage();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
@@ -586,7 +588,7 @@ export default function Navbar() {
                               const Icon = item.icon;
                               return (
                                 <Link
-                                  key={item.label}
+                                  key={t(item.label)}
                                   to={item.to}
                                   target={item.external ? "_blank" : undefined}
                                   rel={
@@ -598,7 +600,7 @@ export default function Navbar() {
                                   className="group flex items-center gap-2 rounded-md px-2 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors hover:bg-primary/8 hover:text-brand-purple dark:text-muted-foreground/80 dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
                                 >
                                   <Icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-colors group-hover:text-brand-purple dark:group-hover:text-brand-purple-lighter" />
-                                  {item.label}
+                                  {t(item.label)}
                                 </Link>
                               );
                             })}

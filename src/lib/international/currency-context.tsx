@@ -22,6 +22,7 @@ import {
   type ReactNode,
 } from "react";
 import { getSupabase } from "@/lib/supabase-lazy";
+import { fetchLiveFxRates } from "./fx-live";
 import {
   CURRENCY_STORAGE_KEY,
   DISPLAY_CURRENCIES,
@@ -89,6 +90,22 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Worldwide live FX feed: keyless open.er-api.com rates, cached
+  // 12h. Admin-configured rates override live rates per currency;
+  // a fetch failure just means admin-only rates (never a guess).
+  const [liveRates, setLiveRates] = useState<Record<string, number> | null>(
+    null,
+  );
+  useEffect(() => {
+    let cancelled = false;
+    fetchLiveFxRates().then((rates) => {
+      if (!cancelled) setLiveRates(rates);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   // Push {code, rates} into the module display state whenever either
   // changes, then bump local state so the tree re-renders. The bump
   // counter is REQUIRED, not an optimisation: the memoized context
@@ -98,10 +115,22 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   // bump the tree would keep a stale converting=false forever.
   const [bump, setBump] = useState(0);
   useEffect(() => {
-    setDisplayCurrencyState(code, cfg ?? FALLBACK);
+    let effective = cfg ?? FALLBACK;
+    if (cfg && cfg.enabled === false) {
+      // Owner explicitly disabled conversions: their config wins as-is.
+      effective = cfg;
+    } else if (liveRates) {
+      // Live worldwide rates, with admin overrides per currency.
+      effective = {
+        ...effective,
+        enabled: true,
+        rates: { ...liveRates, ...effective.rates },
+      };
+    }
+    setDisplayCurrencyState(code, effective);
     setCode(getActiveDisplayCurrency());
     setBump((n) => n + 1);
-  }, [code, cfg]);
+  }, [code, cfg, liveRates]);
 
   const setCurrency = useCallback((next: string) => {
     if (!DISPLAY_CURRENCIES.some((c) => c.code === next)) return;

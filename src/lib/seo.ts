@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import { LOCALE_ROUTES, localeFromPathname } from "@/lib/i18n";
 
 export interface SeoMeta {
   title: string;
@@ -83,6 +84,7 @@ export function useSeo(meta: SeoMeta | null) {
         ? rawCanonicalPath
         : `${rawCanonicalPath}/`;
     const canonicalUrl = `${SITE_URL}${canonicalPath}`;
+    const seoLocale = localeFromPathname(window.location.pathname);
     const ogImage = meta.ogImage ?? DEFAULT_OG_IMAGE;
 
     // Primary meta
@@ -105,7 +107,26 @@ export function useSeo(meta: SeoMeta | null) {
     setMeta("property", "og:image:width", "1200");
     setMeta("property", "og:image:height", "630");
     setMeta("property", "og:image:alt", `${fullTitle}: FRELUX PROJECT CALC`);
-    setMeta("property", "og:locale", "en_US");
+    setMeta(
+      "property",
+      "og:locale",
+      seoLocale
+        ? ((
+            {
+              es: "es_ES",
+              fr: "fr_FR",
+              de: "de_DE",
+              pt: "pt_PT",
+              ru: "ru_RU",
+              id: "id_ID",
+              sw: "sw_KE",
+              ar: "ar_SA",
+              hi: "hi_IN",
+              zh: "zh_CN",
+            } as Record<string, string>
+          )[seoLocale] ?? "en_US")
+        : "en_US",
+    );
 
     // Twitter Cards
     setMeta("name", "twitter:card", "summary_large_image");
@@ -117,10 +138,18 @@ export function useSeo(meta: SeoMeta | null) {
     // Canonical URL, always set
     setLink("canonical", canonicalUrl);
 
-    // International SEO: this page is the English version and the
-    // language-agnostic default for every market.
-    setHreflangLink("en", canonicalUrl);
-    setHreflangLink("x-default", canonicalUrl);
+    // International SEO: every registered language has a crawlable
+    // locale URL (/es/, /fr/, ... served by LocaleAwareRoutes). The
+    // canonical is the page itself in the locale being viewed, and we
+    // declare the full alternate set + x-default (the English path).
+    const urlLocale = localeFromPathname(window.location.pathname);
+    const localePrefix = urlLocale ? `/${urlLocale}` : "";
+    const localizedCanonical = `${SITE_URL}${localePrefix}${canonicalPath}`;
+    setLink("canonical", localizedCanonical);
+    for (const { value: loc } of LOCALE_ROUTES) {
+      setHreflangLink(loc, `${SITE_URL}/${loc}${canonicalPath}`);
+    }
+    setHreflangLink("x-default", `${SITE_URL}${canonicalPath}`);
 
     // Robots
     if (meta.noIndex) {
