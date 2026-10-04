@@ -93,7 +93,7 @@ describe("AdminCountVision pane", () => {
     expect(screen.getByText(/2,000 units/)).toBeInTheDocument();
     expect(screen.getByText(/75%/)).toBeInTheDocument();
     expect(screen.getAllByText(/count_vision/).length).toBeGreaterThan(0);
-    expect(screen.getByText(/gemini_api_key/)).toBeInTheDocument();
+    expect(screen.getByText(/GOOGLE_AI_API_KEY/)).toBeInTheDocument();
   });
 
   it("lists count requests with verdicts, counts and diagnostics", async () => {

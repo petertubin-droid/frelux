@@ -4,8 +4,10 @@
 // An artisan photographs a stack of tiles, cement bags, blocks,
 // paint buckets — Gemini counts what is visible. The honesty
 // contract:
-//   * ai_enabled and gemini_api_key come from site_settings —
-//     the admin gates the feature and the key, never the client.
+//   * ai_enabled comes from site_settings (Admin → AI Settings);
+//     the Gemini key comes from the project-level edge secret
+//     (GEMINI_API_KEY / GOOGLE_AI_API_KEY) — the admin gates the
+//     feature, the key never reaches the client.
 //   * A count Gemini cannot stand behind is returned as
 //     "unclear" WITH its reason — never as a guess.
 //   * The response is validated and clamped (integer, sane
@@ -73,15 +75,19 @@ async function getAuthenticatedUserId(
 async function getAiConfig(
   supabase: ReturnType<typeof createClient>,
 ): Promise<{ ai_enabled: boolean; gemini_api_key: string }> {
+  // site_settings is a single wide-column row (the same table the
+  // admin AI Settings page edits). Read the toggle from the row and
+  // the Gemini key from the project edge secret — never the client.
   const { data } = await supabase
     .from("site_settings")
-    .select("key, value")
-    .in("key", ["ai_enabled", "gemini_api_key"]);
-  const map: Record<string, string> = {};
-  for (const row of data ?? []) map[row.key] = row.value;
+    .select("ai_enabled")
+    .limit(1)
+    .maybeSingle();
+  const geminiApiKey =
+    Deno.env.get("GEMINI_API_KEY") ?? Deno.env.get("GOOGLE_AI_API_KEY") ?? "";
   return {
-    ai_enabled: map["ai_enabled"] !== "false",
-    gemini_api_key: map["gemini_api_key"] ?? "",
+    ai_enabled: data?.ai_enabled !== false,
+    gemini_api_key: geminiApiKey,
   };
 }
 
@@ -94,7 +100,7 @@ function extractBase64FromDataUrl(dataUrl: string): {
   return { data: match[2], mimeType: match[1] };
 }
 
-function logCountRequest(
+async function logCountRequest(
   supabase: ReturnType<typeof createClient>,
   userId: string | null,
   itemHint: string,
@@ -103,10 +109,14 @@ function logCountRequest(
   latencyMs: number,
   answer: CountAnswer | null,
   verdictOverride?: "error",
+  reasonFallback?: string,
 ): void {
   // Fire-and-forget diagnostics; a logging failure must never
   // break a user's count result.
-  supabase
+  // AWAITED: the edge runtime freezes the isolate once the
+  // response is returned — a fire-and-forget insert would be
+  // cancelled before the row ever reaches the database.
+  await supabase
     .from("count_vision_log")
     .insert({
       created_by: userId,
@@ -116,7 +126,10 @@ function logCountRequest(
         !verdictOverride && answer?.verdict === "counted" ? answer.count : null,
       unit_label: answer?.unitLabel ?? null,
       confidence: answer ? Number(answer.confidence) : null,
-      reason: (answer?.reason ?? "").slice(0, 500),
+      reason: (verdictOverride
+        ? (reasonFallback ?? "")
+        : (answer?.reason ?? "")
+      ).slice(0, 500),
       image_bytes: imageBytes,
       image_mime: imageMime,
       latency_ms: latencyMs,
@@ -333,7 +346,7 @@ serveWithCors(async (req: Request) => {
       image,
       typeof itemHint === "string" ? itemHint.slice(0, 200) : "",
     );
-    logCountRequest(
+    await logCountRequest(
       admin,
       userId,
       typeof itemHint === "string" ? itemHint : "",
@@ -344,7 +357,9 @@ serveWithCors(async (req: Request) => {
     );
     return jsonResponse({ result: answer });
   } catch (err) {
-    logCountRequest(
+    // The raw failure text goes to the admin-only log — the user
+    // sees a clean message, the admin can diagnose the cause.
+    await logCountRequest(
       admin,
       userId,
       typeof itemHint === "string" ? itemHint : "",
@@ -353,6 +368,7 @@ serveWithCors(async (req: Request) => {
       Date.now() - started,
       null,
       "error",
+      String(err?.message ?? err).slice(0, 500) || "unknown error",
     );
     return jsonResponse(
       { error: "The counting service failed. Please try again." },

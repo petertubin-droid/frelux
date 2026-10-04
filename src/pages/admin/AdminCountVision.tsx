@@ -2,8 +2,9 @@
  * Admin pane: Counter-Vision (Engine 2)
  *
  * The counting runs in the count-vision edge function via Google
- * Gemini — gated by ai_enabled and gemini_api_key in site
- * settings (edited in Admin → AI Settings). The behaviour rules
+ * Gemini — gated by ai_enabled in site settings (edited in
+ * Admin → AI Settings); the Gemini key is the project-level edge
+ * secret (GEMINI_API_KEY / GOOGLE_AI_API_KEY). The behaviour rules
  * (image size limit, count clamping bound, confidence floor)
  * live in estimation_calc_rules and are edited in the generic
  * Calc Rules tab (calculator_type 'count_vision'). This pane:
@@ -134,9 +135,10 @@ export default function AdminCountVision() {
             <p className="mt-3 text-xs text-muted-foreground">
               Edit these in Estimation Config → Calc Rules, calculator type{" "}
               <code className="rounded bg-muted px-1">count_vision</code>. The
-              Gemini key and the AI switch live in AI Settings (site_settings:{" "}
-              <code className="rounded bg-muted px-1">gemini_api_key</code>,{" "}
-              <code className="rounded bg-muted px-1">ai_enabled</code>).
+              AI switch lives in AI Settings (site_settings:{" "}
+              <code className="rounded bg-muted px-1">ai_enabled</code>); the
+              Gemini key is the project edge secret{" "}
+              <code className="rounded bg-muted px-1">GOOGLE_AI_API_KEY</code>.
             </p>
           </div>
 

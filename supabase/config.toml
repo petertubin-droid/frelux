@@ -1,3 +1,9 @@
+# Counter-Vision photo counting — anonymous visitors allowed;
+# the function accepts an optional user token for logging and
+# rate limiting but never requires login.
+[functions.count-vision]
+verify_jwt = false
+
 [functions.paystack-checkout]
 verify_jwt = false
 
