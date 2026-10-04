@@ -11,8 +11,8 @@ describe("useHeroContent", () => {
     expect(DEFAULT_HERO_CONTENT.subheadline).toContain("FRELUX");
     expect(DEFAULT_HERO_CONTENT.ctaPrimaryLabel).toBe("Start Building");
     expect(DEFAULT_HERO_CONTENT.ctaPrimaryHref).toBe("/start-building");
-    expect(DEFAULT_HERO_CONTENT.ctaSecondaryLabel).toBe("Explore Calculators");
-    expect(DEFAULT_HERO_CONTENT.ctaSecondaryHref).toBe("/calculators");
+    expect(DEFAULT_HERO_CONTENT.ctaSecondaryLabel).toBe("Explore Tools");
+    expect(DEFAULT_HERO_CONTENT.ctaSecondaryHref).toBe("/construction-tools");
   });
 
   it("useHeroContent is a function (hook)", () => {

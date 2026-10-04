@@ -24,12 +24,30 @@ import { extractMeasurements } from "./translation-rules";
 export const DICTIONARY_TOOLS = {
   block_calculator: { engine_key: "build_to_roof", surface: "/cost-estimator" },
   paint_calculator: { engine_key: "painting", surface: "/paint-calculator" },
-  tile_calculator: { engine_key: "build_to_roof", surface: "/calculators" },
-  screeding_calculator: { engine_key: "build_to_roof", surface: "/calculators" },
-  pop_calculator: { engine_key: "build_to_roof", surface: "/calculators" },
-  foundation_calculator: { engine_key: "build_to_roof", surface: "/foundation-calculator" },
-  roofing_calculator: { engine_key: "roof_geometry", surface: "/calculators" },
-  build_to_roof_calculator: { engine_key: "build_to_roof", surface: "/cost-estimator" },
+  tile_calculator: {
+    engine_key: "build_to_roof",
+    surface: "/construction-tools",
+  },
+  screeding_calculator: {
+    engine_key: "build_to_roof",
+    surface: "/construction-tools",
+  },
+  pop_calculator: {
+    engine_key: "build_to_roof",
+    surface: "/construction-tools",
+  },
+  foundation_calculator: {
+    engine_key: "build_to_roof",
+    surface: "/foundation-calculator",
+  },
+  roofing_calculator: {
+    engine_key: "roof_geometry",
+    surface: "/construction-tools",
+  },
+  build_to_roof_calculator: {
+    engine_key: "build_to_roof",
+    surface: "/cost-estimator",
+  },
 } as const;
 
 export type DictionaryTool = keyof typeof DICTIONARY_TOOLS;
@@ -122,7 +140,15 @@ const TOOL_PHRASES: Record<DictionaryTool, Record<string, string[]>> = {
     zh: ["地基"],
   },
   roofing_calculator: {
-    en: ["roof", "roofing", "roofing sheet", "truss", "rafter", "fascia", "purlin"],
+    en: [
+      "roof",
+      "roofing",
+      "roofing sheet",
+      "truss",
+      "rafter",
+      "fascia",
+      "purlin",
+    ],
     pcm: ["roof", "rufin"],
     ha: ["rufi"],
     fr: ["toit", "toiture", "charpente"],

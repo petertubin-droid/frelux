@@ -10,8 +10,8 @@
  * AI or automated process (see Hero.tsx comment block).
  */
 
-import { useEffect, useState } from 'react';
-import { isSupabaseConfigured, getSupabase } from './supabase-lazy';
+import { useEffect, useState } from "react";
+import { isSupabaseConfigured, getSupabase } from "./supabase-lazy";
 
 export interface HeroContent {
   headline: string;
@@ -24,19 +24,21 @@ export interface HeroContent {
 
 /** Hardcoded fallback, the permanent approved copy. */
 export const DEFAULT_HERO_CONTENT: HeroContent = {
-  headline: 'Know Exactly What Materials Your Project Needs.',
+  headline: "Know Exactly What Materials Your Project Needs.",
   subheadline:
     "Calculate materials and estimate project costs using FRELUX\u2019s Nigerian-focused construction and finishing calculators.",
-  ctaPrimaryLabel: 'Start Building',
-  ctaPrimaryHref: '/start-building',
-  ctaSecondaryLabel: 'Explore Calculators',
-  ctaSecondaryHref: '/calculators',
+  ctaPrimaryLabel: "Start Building",
+  ctaPrimaryHref: "/start-building",
+  ctaSecondaryLabel: "Explore Tools",
+  ctaSecondaryHref: "/construction-tools",
 };
 
 let cachedContent: HeroContent | null = null;
 
 export function useHeroContent() {
-  const [content, setContent] = useState<HeroContent>(cachedContent ?? DEFAULT_HERO_CONTENT);
+  const [content, setContent] = useState<HeroContent>(
+    cachedContent ?? DEFAULT_HERO_CONTENT,
+  );
   const [loaded, setLoaded] = useState<boolean>(!!cachedContent);
 
   useEffect(() => {
@@ -51,15 +53,17 @@ export function useHeroContent() {
       return;
     }
 
-    getSupabase().then((supabase) =>
-      supabase
-      .from('site_settings')
-      .select(
-        'hero_headline, hero_subheadline, hero_cta_primary_label, hero_cta_primary_href, hero_cta_secondary_label, hero_cta_secondary_href'
+    getSupabase()
+      .then((supabase) =>
+        supabase
+          .from("site_settings")
+          .select(
+            "hero_headline, hero_subheadline, hero_cta_primary_label, hero_cta_primary_href, hero_cta_secondary_label, hero_cta_secondary_href",
+          )
+          .limit(1)
+          .maybeSingle(),
       )
-      .limit(1)
-      .maybeSingle()
-    ).then(({ data }) => {
+      .then(({ data }) => {
         if (!data) {
           setLoaded(true);
           return;
@@ -67,11 +71,18 @@ export function useHeroContent() {
 
         const resolved: HeroContent = {
           headline: data.hero_headline ?? DEFAULT_HERO_CONTENT.headline,
-          subheadline: data.hero_subheadline ?? DEFAULT_HERO_CONTENT.subheadline,
-          ctaPrimaryLabel: data.hero_cta_primary_label ?? DEFAULT_HERO_CONTENT.ctaPrimaryLabel,
-          ctaPrimaryHref: data.hero_cta_primary_href ?? DEFAULT_HERO_CONTENT.ctaPrimaryHref,
-          ctaSecondaryLabel: data.hero_cta_secondary_label ?? DEFAULT_HERO_CONTENT.ctaSecondaryLabel,
-          ctaSecondaryHref: data.hero_cta_secondary_href ?? DEFAULT_HERO_CONTENT.ctaSecondaryHref,
+          subheadline:
+            data.hero_subheadline ?? DEFAULT_HERO_CONTENT.subheadline,
+          ctaPrimaryLabel:
+            data.hero_cta_primary_label ?? DEFAULT_HERO_CONTENT.ctaPrimaryLabel,
+          ctaPrimaryHref:
+            data.hero_cta_primary_href ?? DEFAULT_HERO_CONTENT.ctaPrimaryHref,
+          ctaSecondaryLabel:
+            data.hero_cta_secondary_label ??
+            DEFAULT_HERO_CONTENT.ctaSecondaryLabel,
+          ctaSecondaryHref:
+            data.hero_cta_secondary_href ??
+            DEFAULT_HERO_CONTENT.ctaSecondaryHref,
         };
 
         cachedContent = resolved;

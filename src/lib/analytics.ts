@@ -20,6 +20,8 @@ declare global {
 }
 
 export type TrackEvent =
+  | "construction_tool_opened"
+  | "construction_tools_searched"
   | "calculator_started"
   | "calculator_completed"
   | "cost_estimator_started"

@@ -55,7 +55,7 @@ const TileCalculatorHub = lazy(() => import("@/pages/TileCalculatorHub"));
 const FinishingCalculatorHub = lazy(
   () => import("@/pages/FinishingCalculatorHub"),
 );
-const Calculators = lazy(() => import("@/pages/Calculators"));
+const ConstructionTools = lazy(() => import("@/pages/ConstructionTools"));
 const AiColorAssistant = lazy(() => import("@/pages/AiColorAssistant"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const About = lazy(() => import("@/pages/legal/About"));
@@ -486,12 +486,18 @@ export default function App() {
                       }
                     />
                     <Route
-                      path="/calculators"
+                      path="/construction-tools"
                       element={
                         <Suspense fallback={<PageLoader />}>
-                          <Calculators />
+                          <ConstructionTools />
                         </Suspense>
                       }
+                    />
+                    {/* Legacy path: every internal link, WhatsApp share and
+                        search result pointing at /calculators keeps working. */}
+                    <Route
+                      path="/calculators"
+                      element={<Navigate to="/construction-tools" replace />}
                     />
 
                     {/* Consolidated calculator hubs */}

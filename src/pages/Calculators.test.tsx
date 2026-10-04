@@ -1,14 +1,16 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
+import { MemoryRouter } from "react-router-dom";
+import { render, screen } from "@testing-library/react";
+import Calculators from "@/pages/Calculators";
 
-vi.mock("@/lib/auth", () => ({ useAuth: vi.fn(() => ({ user: null, loading: false })) }));
-vi.mock("@/lib/credits", () => ({ getCreditWallet: vi.fn().mockResolvedValue(null), getActivityStreak: vi.fn().mockResolvedValue(null), recordActivity: vi.fn().mockResolvedValue(true), REWARD_EVENTS: {} }));
-
-beforeEach(() => { vi.clearAllMocks(); });
-
-describe("Calculators", () => {
-  it("module exports something", async () => {
-    const mod = await import("@/pages/Calculators");
-    expect(mod).toBeDefined();
-    expect(Object.keys(mod).length).toBeGreaterThan(0);
+describe("Calculators (legacy route)", () => {
+  it("redirects /calculators to /construction-tools", () => {
+    render(
+      <MemoryRouter initialEntries={["/calculators"]}>
+        <Calculators />
+      </MemoryRouter>,
+    );
+    // A redirect renders nothing of its own.
+    expect(screen.queryByText(/All Calculators/i)).toBeNull();
   });
 });

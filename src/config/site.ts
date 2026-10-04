@@ -1,4 +1,6 @@
 // Central site configuration. Update values here to change brand-wide behavior.
+// Construction Tools nav is generated from the tool registry.
+import { navToolsByCategory } from "./construction-tools";
 
 export const siteConfig = {
   name: "FRELUX PROJECT CALC",
@@ -51,218 +53,22 @@ export const navWorkspaces: NavWorkspace[] = [
     label: "Home",
     path: "/",
   },
+  // Construction Tools is the single tool library. The dropdown is generated
+  // from the CONSTRUCTION_TOOLS registry so a tool is categorised in exactly
+  // one place (src/config/construction-tools.ts). The old calculator/estimator
+  // nav duplicates (e.g. "Paint Cost Estimator" = /paint-calculator?mode=cost)
+  // collapse into their authoritative tool.
   {
-    label: "Calculators",
-    path: "/calculators",
-    children: [
-      // Section: Painting
-      {
-        label: "Paint Calculator",
-        path: "/paint-calculator",
-        section: "Painting",
-        description: "How many paint buckets do I need?",
-      },
-      {
-        label: "Paint Cost Estimator",
-        path: "/cost-estimator",
-        section: "Painting",
-        description: "How much will my paint materials cost?",
-      },
-      {
-        label: "Painting Estimator",
-        path: "/painting-estimator",
-        section: "Painting",
-        description: "Complete painting project estimate & summary",
-      },
-      // Section: Finishing
-      {
-        label: "Screeding Calculator",
-        path: "/screeding-calculator",
-        section: "Finishing",
-        description: "Screeding material quantities (m²)",
-      },
-      {
-        label: "Screeding Cost Estimator",
-        path: "/screeding-calculator?mode=cost",
-        section: "Finishing",
-        description: "Screeding project cost estimate",
-      },
-      {
-        label: "Tyrolene Estimator",
-        path: "/finish-estimator?mode=tyrolene",
-        section: "Finishing",
-        description: "Tyrolene putty estimator",
-      },
-      {
-        label: "Finish Estimator",
-        path: "/finish-estimator",
-        section: "Finishing",
-        description: "Compare paint, Tyrolene & Grafitex finishes",
-      },
-      {
-        label: "POP Ceiling Calculator",
-        path: "/pop-ceiling-calculator",
-        section: "Finishing",
-        description: "POP ceiling board & material estimate",
-      },
-      {
-        label: "POP Cost Estimator",
-        path: "/pop-ceiling-calculator?mode=cost",
-        section: "Finishing",
-        description: "POP ceiling cost estimation",
-      },
-      {
-        label: "Tile Calculator",
-        path: "/tile-calculator",
-        section: "Finishing",
-        description: "Tile quantity & layout planner",
-      },
-      {
-        label: "Tile Cost Estimator",
-        path: "/tile-calculator?mode=cost",
-        section: "Finishing",
-        description: "Tile installation cost breakdown",
-      },
-    ],
-  },
-  {
-    label: "Construction",
-    path: "/build-to-roof-estimator",
-    children: [
-      // Section: Construction Estimation
-      {
-        label: "Build-to-Roof Estimator",
-        path: "/build-to-roof-estimator",
-        section: "Estimation",
-        description: "Foundation to roof construction estimate",
-      },
-      {
-        label: "Structural Calculator",
-        path: "/structural-calculator",
-        section: "Estimation",
-        description: "Beam, column & slab sizing (preliminary)",
-      },
-      {
-        label: "Foundation Calculator",
-        path: "/foundation-calculator",
-        section: "Estimation",
-        description: "Foundation sizing by soil type (preliminary)",
-      },
-      // Section: AI Tools
-      {
-        label: "AI Photo Estimator",
-        path: "/image-estimator",
-        section: "AI Tools",
-        description: "AI-assisted photo-based estimate (Premium)",
-      },
-      {
-        label: "Smart Calculator",
-        path: "/smart-calculator",
-        section: "AI Tools",
-        description: "AI-powered estimation for any project type",
-      },
-      // Section: Planning
-      {
-        label: "Project Timeline",
-        path: "/project-timeline",
-        section: "Planning",
-        description: "Stage-by-stage construction schedule",
-      },
-      {
-        label: "Construction Sequence",
-        path: "/construction-sequence",
-        section: "Planning",
-        description: "Correct build order with quality gates",
-      },
-    ],
-  },
-  {
-    label: "Colors & Design",
-    path: "/colors",
-    children: [
-      {
-        label: "Color Library",
-        path: "/colors",
-        description: "Browse paint colors with HEX, RGB & HSL",
-      },
-      {
-        label: "Compare Colors",
-        path: "/colors/compare",
-        description: "Side-by-side color comparison",
-      },
-      {
-        label: "Smart Color Assistant",
-        path: "/ai-color-assistant",
-        description: "AI-powered color recommendations",
-      },
-      {
-        label: "AI Color Preview",
-        path: "/color-preview",
-        description: "Before & after room visualization",
-      },
-    ],
-  },
-  {
-    label: "Projects",
-    path: "/my-projects",
-    children: [
-      {
-        label: "My Projects",
-        path: "/my-projects",
-        section: "Project Management",
-        description: "View and manage your saved projects",
-      },
-      {
-        label: "Project Workspace",
-        path: "/project-workspace",
-        section: "Project Management",
-        description: "Full project planning workspace",
-      },
-      {
-        label: "Estimate Analytics",
-        path: "/dashboard",
-        section: "Project Management",
-        description: "Insights across your estimates",
-      },
-      {
-        label: "Templates",
-        path: "/templates",
-        section: "Project Management",
-        description: "Reusable calculation templates",
-      },
-      {
-        label: "Brand Studio",
-        path: "/brand-studio",
-        section: "Tools",
-        description: "Custom PDF branding & AI logo generation",
-      },
-    ],
-  },
-  {
-    label: "Learn",
-    path: "/learn",
-    children: [
-      {
-        label: "User Guide",
-        path: "/user-guide",
-        description: "How to use every FRELUX feature",
-      },
-      {
-        label: "Guides & Tutorials",
-        path: "/learn",
-        description: "Step-by-step building guides",
-      },
-      {
-        label: "About FRELUX",
-        path: "/about",
-        description: "Our story & mission",
-      },
-      {
-        label: "Contact",
-        path: "/contact",
-        description: "Get in touch with our team",
-      },
-    ],
+    label: "Construction Tools",
+    path: "/construction-tools",
+    children: navToolsByCategory().flatMap(({ category, tools }) =>
+      tools.map((t) => ({
+        label: t.title,
+        path: t.to,
+        section: category.label,
+        description: t.benefit,
+      })),
+    ),
   },
 ];
 

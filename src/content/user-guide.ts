@@ -61,7 +61,7 @@ export const guideSections: GuideSection[] = [
       },
       {
         text: "Calculators lists every estimator.",
-        link: { label: "Calculators", to: "/calculators" },
+        link: { label: "Construction Tools", to: "/construction-tools" },
       },
       {
         text: "AI groups the AI features (Image Estimator, Copilot, color tools).",
