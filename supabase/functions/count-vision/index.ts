@@ -182,7 +182,11 @@ Respond with ONLY valid JSON, no markdown fences:
       ],
       generationConfig: {
         temperature: 0,
-        maxOutputTokens: 512,
+        // Counting needs a plain answer, not chain-of-thought:
+        // without thinkingBudget: 0 the model spends the token
+        // budget on thoughts and returns no JSON text at all.
+        thinkingConfig: { thinkingBudget: 0 },
+        maxOutputTokens: 1024,
         responseMimeType: "application/json",
       },
     }),
