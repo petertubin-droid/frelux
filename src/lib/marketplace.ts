@@ -36,6 +36,8 @@ export async function fetchListings(params: {
 
   if (params.project_type)
     query = query.eq("project_type", params.project_type);
+  if (params.location_country)
+    query = query.eq("location_country", params.location_country);
   if (params.location_state)
     query = query.eq("location_state", params.location_state);
   if (params.location_city)

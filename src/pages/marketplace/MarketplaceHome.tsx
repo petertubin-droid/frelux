@@ -136,6 +136,7 @@ export default function MarketplaceHome() {
   const [jobSearch, setJobSearch] = useState("");
   const [projectType, setProjectType] = useState("");
   const [jobState, setJobState] = useState("");
+  const [jobCountry, setJobCountry] = useState("");
 
   // Products state
   const [products, setProducts] = useState<DbMarketplaceProduct[]>([]);
@@ -147,6 +148,7 @@ export default function MarketplaceHome() {
   const [productCategory, setProductCategory] = useState("");
   const [productCondition, setProductCondition] = useState("");
   const [productState, setProductState] = useState("");
+  const [productCountry, setProductCountry] = useState("");
   const [productSort, setProductSort] = useState("newest");
   const [productCategories, setProductCategories] = useState<
     DbProductCategory[]
@@ -179,6 +181,7 @@ export default function MarketplaceHome() {
       const { listings: data, total: count } = await fetchListings({
         search: jobSearch || undefined,
         project_type: projectType || undefined,
+        location_country: jobCountry || undefined,
         location_state: jobState || undefined,
         limit: 12,
         offset: off,
@@ -190,7 +193,7 @@ export default function MarketplaceHome() {
       else setJobsOffset(off + data.length);
       setJobsLoading(false);
     },
-    [jobSearch, projectType, jobState],
+    [jobSearch, projectType, jobState, jobCountry],
   );
 
   // Load products, same ref pattern to prevent infinite loop
@@ -211,6 +214,7 @@ export default function MarketplaceHome() {
         category_id: catId,
         condition: (productCondition || undefined) as
           ProductCondition | undefined,
+        location_country: productCountry || undefined,
         location_state: productState || undefined,
         sort: productSort as
           "newest" | "price_low" | "price_high" | "popular" | "featured",
@@ -229,6 +233,7 @@ export default function MarketplaceHome() {
       productCategory,
       productCondition,
       productState,
+      productCountry,
       productSort,
       productCategories,
     ],
@@ -236,7 +241,7 @@ export default function MarketplaceHome() {
 
   useEffect(() => {
     if (tab === "jobs") loadJobs(true);
-  }, [tab, jobSearch, projectType, jobState, loadJobs]);
+  }, [tab, jobSearch, projectType, jobState, jobCountry, loadJobs]);
 
   useEffect(() => {
     if (tab === "products") loadProducts(true);
@@ -246,6 +251,7 @@ export default function MarketplaceHome() {
     productCategory,
     productCondition,
     productState,
+    productCountry,
     productSort,
     loadProducts,
   ]);
@@ -510,6 +516,8 @@ export default function MarketplaceHome() {
             projectType={projectType}
             setProjectType={setProjectType}
             state={jobState}
+            country={jobCountry}
+            setCountry={setJobCountry}
             setState={setJobState}
             showFilters={showFilters}
             setShowFilters={setShowFilters}
@@ -536,6 +544,8 @@ export default function MarketplaceHome() {
             condition={productCondition}
             setCondition={setProductCondition}
             state={productState}
+            country={productCountry}
+            setCountry={setProductCountry}
             setState={setProductState}
             sort={productSort}
             setSort={setProductSort}
@@ -572,6 +582,8 @@ function JobsTab(props: {
   setProjectType: (v: string) => void;
   state: string;
   setState: (v: string) => void;
+  country: string;
+  setCountry: (v: string) => void;
   showFilters: boolean;
   setShowFilters: (v: boolean) => void;
   onLoadMore: () => void;
@@ -627,6 +639,17 @@ function JobsTab(props: {
             ))}
           </select>
           <select
+            value={props.country}
+            onChange={(e) => props.setCountry(e.target.value)}
+            className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+          >
+            <option value="">All countries</option>
+            <option value="NG">Nigeria</option>
+            <option value="GH">Ghana</option>
+            <option value="KE">Kenya</option>
+            <option value="ZA">South Africa</option>
+          </select>
+          <select
             value={props.state}
             onChange={(e) => props.setState(e.target.value)}
             className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -643,6 +666,7 @@ function JobsTab(props: {
             onClick={() => {
               props.setProjectType("");
               props.setState("");
+              props.setCountry("");
               props.setSearch("");
             }}
             className="text-xs text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground/80"
@@ -810,6 +834,8 @@ function ProductsTab(props: {
   setCondition: (v: string) => void;
   state: string;
   setState: (v: string) => void;
+  country: string;
+  setCountry: (v: string) => void;
   sort: string;
   setSort: (v: string) => void;
   categories: DbProductCategory[];
@@ -903,6 +929,17 @@ function ProductsTab(props: {
                 {l}
               </option>
             ))}
+          </select>
+          <select
+            value={props.country}
+            onChange={(e) => props.setCountry(e.target.value)}
+            className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+          >
+            <option value="">All countries</option>
+            <option value="NG">Nigeria</option>
+            <option value="GH">Ghana</option>
+            <option value="KE">Kenya</option>
+            <option value="ZA">South Africa</option>
           </select>
           <select
             value={props.state}

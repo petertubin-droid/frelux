@@ -79,6 +79,8 @@ export async function searchProducts(params: {
   if (params.max_price !== undefined)
     query = query.lte("price", params.max_price);
   if (params.condition) query = query.eq("condition", params.condition);
+  if (params.location_country)
+    query = query.eq("location_country", params.location_country);
   if (params.location_state)
     query = query.eq("location_state", params.location_state);
   if (params.location_city)

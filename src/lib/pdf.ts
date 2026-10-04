@@ -22,6 +22,18 @@ import {
   applyJspdfFooter,
 } from "@/lib/pdf-branding";
 
+const PDF_LOCALE_BY_SYMBOL: Record<string, string> = {
+  "\u20A6": "en-NG", // Naira
+  $: "en-US",
+  "\u00A3": "en-GB", // Pound
+  "\u20AC": "en-IE", // Euro
+};
+
+/** Number-format locale matching the display currency. */
+function pdfLocale(currencySymbol: string): string {
+  return PDF_LOCALE_BY_SYMBOL[currencySymbol] ?? "en-NG";
+}
+
 // ============================================================
 // QUOTATION PDF
 // ============================================================
@@ -206,7 +218,7 @@ export async function generateQuotationPDF(
   for (const [label, amount] of rows) {
     doc.text(label, margin + 2, y);
     doc.text(
-      `${quotation.currency_symbol}${amount.toLocaleString("en-NG", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+      `${quotation.currency_symbol}${amount.toLocaleString(pdfLocale(quotation.currency_symbol), { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
       pageWidth - margin - 2,
       y,
       { align: "right" },
@@ -222,7 +234,7 @@ export async function generateQuotationPDF(
   doc.setFontSize(12);
   doc.text("GRAND TOTAL", margin + 2, y + 7);
   doc.text(
-    `${quotation.currency_symbol}${quotation.grand_total.toLocaleString("en-NG", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
+    `${quotation.currency_symbol}${quotation.grand_total.toLocaleString(pdfLocale(quotation.currency_symbol), { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`,
     pageWidth - margin - 2,
     y + 7,
     { align: "right" },
@@ -418,13 +430,13 @@ export async function generateShoppingListPDF(
       doc.text(String(item.quantity), x + 2, y);
       x += colWidths[2];
       doc.text(
-        `${project.currency_symbol}${item.estimated_price.toLocaleString("en-NG")}`,
+        `${project.currency_symbol}${item.estimated_price.toLocaleString(pdfLocale(project.currency_symbol))}`,
         x + 2,
         y,
       );
       x += colWidths[3];
       doc.text(
-        `${project.currency_symbol}${item.total_price.toLocaleString("en-NG")}`,
+        `${project.currency_symbol}${item.total_price.toLocaleString(pdfLocale(project.currency_symbol))}`,
         x + 2,
         y,
       );
@@ -446,7 +458,7 @@ export async function generateShoppingListPDF(
     doc.setFont("helvetica", "bold");
     doc.text(`${category.replace(/_/g, " ")} Subtotal:`, margin + 2, y);
     doc.text(
-      `${project.currency_symbol}${categoryTotal.toLocaleString("en-NG")}`,
+      `${project.currency_symbol}${categoryTotal.toLocaleString(pdfLocale(project.currency_symbol))}`,
       margin + tableWidth,
       y,
       { align: "right" },
@@ -464,7 +476,7 @@ export async function generateShoppingListPDF(
   doc.setFontSize(12);
   doc.text("GRAND TOTAL", margin + 2, y + 7);
   doc.text(
-    `${project.currency_symbol}${grandTotal.toLocaleString("en-NG")}`,
+    `${project.currency_symbol}${grandTotal.toLocaleString(pdfLocale(project.currency_symbol))}`,
     margin + tableWidth,
     y + 7,
     { align: "right" },

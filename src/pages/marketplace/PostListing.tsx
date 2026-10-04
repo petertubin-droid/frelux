@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { getRegions } from "@/lib/international/regions";
 import LocationPicker from "@/components/ui/LocationPicker";
 import { useLocation } from "@/lib/location";
 import { fetchLocations } from "@/lib/pro-connect";
@@ -296,6 +297,19 @@ export default function PostListing() {
                   ).map((s) => (
                     <option key={s} value={s}>
                       {s}
+                    </option>
+                  ))}
+                </select>
+              ) : getRegions(country) ? (
+                <select
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+                >
+                  <option value="">Select region</option>
+                  {getRegions(country)!.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
                     </option>
                   ))}
                 </select>

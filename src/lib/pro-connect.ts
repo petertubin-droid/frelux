@@ -1,4 +1,4 @@
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import type {
   DbProProfile,
   DbProCategory,
@@ -11,8 +11,8 @@ import type {
   DbProProfileLocation,
   DbProPortfolioItem,
   ProAvailability,
-} from '@/types/pro-connect';
-import { sendPushToUser } from '@/lib/push-notifications';
+} from "@/types/pro-connect";
+import { sendPushToUser } from "@/lib/push-notifications";
 
 // =========================================================
 // PRO CONNECT, Data access layer
@@ -24,160 +24,192 @@ import { sendPushToUser } from '@/lib/push-notifications';
 
 export async function fetchCategories(): Promise<DbProCategory[]> {
   try {
-  if (!isSupabaseConfigured) return [];
-  const { data, error } = await supabase
-    .from('pro_categories')
-    .select('*')
-    .eq('is_active', true)
-    .order('sort_order');
-  if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] fetchCategories:', error.message);
+    if (!isSupabaseConfigured) return [];
+    const { data, error } = await supabase
+      .from("pro_categories")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order");
+    if (error) {
+      if (import.meta.env.DEV)
+        console.error("[pro-connect] fetchCategories:", error.message);
+      return [];
+    }
+    return data as DbProCategory[];
+  } catch (err) {
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] fetchCategories:", err);
     return [];
   }
-  return data as DbProCategory[];
+}
 
-  } catch (err) {
-    if (import.meta.env.DEV) console.error('[pro-connect] fetchCategories:', err);
-    return [];
-  }}
-
-export async function fetchServices(categoryId?: string): Promise<DbProService[]> {
+export async function fetchServices(
+  categoryId?: string,
+): Promise<DbProService[]> {
   try {
-  if (!isSupabaseConfigured) return [];
-  let query = supabase.from('pro_services').select('*').eq('is_active', true).order('sort_order');
-  if (categoryId) query = query.eq('category_id', categoryId);
-  const { data, error } = await query;
-  if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] fetchServices:', error.message);
+    if (!isSupabaseConfigured) return [];
+    let query = supabase
+      .from("pro_services")
+      .select("*")
+      .eq("is_active", true)
+      .order("sort_order");
+    if (categoryId) query = query.eq("category_id", categoryId);
+    const { data, error } = await query;
+    if (error) {
+      if (import.meta.env.DEV)
+        console.error("[pro-connect] fetchServices:", error.message);
+      return [];
+    }
+    return data as DbProService[];
+  } catch (err) {
+    if (import.meta.env.DEV) console.error("[pro-connect] fetchServices:", err);
     return [];
   }
-  return data as DbProService[];
-
-  } catch (err) {
-    if (import.meta.env.DEV) console.error('[pro-connect] fetchServices:', err);
-    return [];
-  }}
+}
 
 export async function fetchLocations(): Promise<DbProLocation[]> {
   try {
-  if (!isSupabaseConfigured) return [];
-  const { data, error } = await supabase
-    .from('pro_locations')
-    .select('*')
-    .eq('is_active', true)
-    .order('state, city, sort_order');
-  if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] fetchLocations:', error.message);
+    if (!isSupabaseConfigured) return [];
+    const { data, error } = await supabase
+      .from("pro_locations")
+      .select("*")
+      .eq("is_active", true)
+      .order("state, city, sort_order");
+    if (error) {
+      if (import.meta.env.DEV)
+        console.error("[pro-connect] fetchLocations:", error.message);
+      return [];
+    }
+    // Guard: supabase may resolve data:null, callers expect an array.
+    return (data ?? []) as DbProLocation[];
+  } catch (err) {
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] fetchLocations:", err);
     return [];
   }
-  // Guard: supabase may resolve data:null, callers expect an array.
-  return (data ?? []) as DbProLocation[];
-
-  } catch (err) {
-    if (import.meta.env.DEV) console.error('[pro-connect] fetchLocations:', err);
-    return [];
-  }}
+}
 
 export async function fetchStates(): Promise<string[]> {
   try {
-  const locations = await fetchLocations();
-  return [...new Set(locations.map((l) => l.state))].sort();
-
+    const locations = await fetchLocations();
+    return [...new Set(locations.map((l) => l.state))].sort();
   } catch (err) {
-    if (import.meta.env.DEV) console.error('[pro-connect] fetchStates:', err);
+    if (import.meta.env.DEV) console.error("[pro-connect] fetchStates:", err);
     return [];
-  }}
+  }
+}
 
 export async function fetchCitiesByState(state: string): Promise<string[]> {
   try {
-  const locations = await fetchLocations();
-  return [...new Set(locations.filter((l) => l.state === state).map((l) => l.city))].sort();
-
+    const locations = await fetchLocations();
+    return [
+      ...new Set(locations.filter((l) => l.state === state).map((l) => l.city)),
+    ].sort();
   } catch (err) {
-    if (import.meta.env.DEV) console.error('[pro-connect] fetchCitiesByState:', err);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] fetchCitiesByState:", err);
     return [];
-  }}
+  }
+}
 
 // -- Profile management --
 
-export async function getMyProProfile(userId: string): Promise<DbProProfile | null> {
+export async function getMyProProfile(
+  userId: string,
+): Promise<DbProProfile | null> {
   if (!isSupabaseConfigured) return null;
   const { data, error } = await supabase
-    .from('pro_profiles')
-    .select('*')
-    .eq('user_id', userId)
+    .from("pro_profiles")
+    .select("*")
+    .eq("user_id", userId)
     .maybeSingle();
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] getMyProProfile:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getMyProProfile:", error.message);
     return null;
   }
   return data as DbProProfile | null;
 }
 
-export async function getProProfileBySlug(slug: string): Promise<DbProProfile | null> {
+export async function getProProfileBySlug(
+  slug: string,
+): Promise<DbProProfile | null> {
   if (!isSupabaseConfigured) return null;
   const { data, error } = await supabase
-    .from('pro_profiles')
-    .select('*')
-    .eq('slug', slug)
+    .from("pro_profiles")
+    .select("*")
+    .eq("slug", slug)
     .maybeSingle();
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] getProProfileBySlug:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getProProfileBySlug:", error.message);
     return null;
   }
   return data as DbProProfile | null;
 }
 
-export async function getProProfileServices(profileId: string): Promise<DbProProfileService[]> {
+export async function getProProfileServices(
+  profileId: string,
+): Promise<DbProProfileService[]> {
   if (!isSupabaseConfigured) return [];
   const { data, error } = await supabase
-    .from('pro_profile_services')
-    .select('*, service:pro_services(*)')
-    .eq('profile_id', profileId);
+    .from("pro_profile_services")
+    .select("*, service:pro_services(*)")
+    .eq("profile_id", profileId);
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] getProProfileServices:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getProProfileServices:", error.message);
     return [];
   }
   return data as DbProProfileService[];
 }
 
-export async function getProProfileLocations(profileId: string): Promise<DbProProfileLocation[]> {
+export async function getProProfileLocations(
+  profileId: string,
+): Promise<DbProProfileLocation[]> {
   if (!isSupabaseConfigured) return [];
   const { data, error } = await supabase
-    .from('pro_profile_locations')
-    .select('*, location:pro_locations(*)')
-    .eq('profile_id', profileId);
+    .from("pro_profile_locations")
+    .select("*, location:pro_locations(*)")
+    .eq("profile_id", profileId);
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] getProProfileLocations:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getProProfileLocations:", error.message);
     return [];
   }
   return data as DbProProfileLocation[];
 }
 
-export async function getProPortfolio(profileId: string): Promise<DbProPortfolioItem[]> {
+export async function getProPortfolio(
+  profileId: string,
+): Promise<DbProPortfolioItem[]> {
   if (!isSupabaseConfigured) return [];
   const { data, error } = await supabase
-    .from('pro_portfolio_items')
-    .select('*')
-    .eq('profile_id', profileId)
-    .order('sort_order, created_at DESC');
+    .from("pro_portfolio_items")
+    .select("*")
+    .eq("profile_id", profileId)
+    .order("sort_order, created_at DESC");
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] getProPortfolio:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getProPortfolio:", error.message);
     return [];
   }
   return data as DbProPortfolioItem[];
 }
 
-export async function getProReviews(professionalId: string): Promise<DbProReview[]> {
+export async function getProReviews(
+  professionalId: string,
+): Promise<DbProReview[]> {
   if (!isSupabaseConfigured) return [];
   const { data, error } = await supabase
-    .from('pro_reviews')
-    .select('*')
-    .eq('professional_id', professionalId)
-    .eq('is_hidden', false)
-    .order('created_at DESC');
+    .from("pro_reviews")
+    .select("*")
+    .eq("professional_id", professionalId)
+    .eq("is_hidden", false)
+    .order("created_at DESC");
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] getProReviews:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getProReviews:", error.message);
     return [];
   }
   return data as DbProReview[];
@@ -186,6 +218,7 @@ export async function getProReviews(professionalId: string): Promise<DbProReview
 // -- Directory search with matching algorithm --
 
 export interface DirectorySearchParams {
+  country?: string;
   categoryId?: string;
   serviceId?: string;
   state?: string;
@@ -219,7 +252,9 @@ export interface DirectorySearchResult {
  * - Has portfolio: +15
  * - Has services defined: +10
  */
-export async function searchProfessionals(params: DirectorySearchParams): Promise<DirectorySearchResult> {
+export async function searchProfessionals(
+  params: DirectorySearchParams,
+): Promise<DirectorySearchResult> {
   if (!isSupabaseConfigured) return { profiles: [], total: 0, hasMore: false };
 
   const page = params.page || 1;
@@ -227,38 +262,45 @@ export async function searchProfessionals(params: DirectorySearchParams): Promis
   const offset = (page - 1) * pageSize;
 
   let query = supabase
-    .from('pro_profiles')
-    .select('*', { count: 'exact' })
-    .eq('is_listed', true)
-    .neq('verification_status', 'suspended');
+    .from("pro_profiles")
+    .select("*", { count: "exact" })
+    .eq("is_listed", true)
+    .neq("verification_status", "suspended");
 
+  if (params.country) {
+    query = query.eq("country", params.country);
+  }
   if (params.categoryId) {
-    query = query.eq('category_id', params.categoryId);
+    query = query.eq("category_id", params.categoryId);
   }
   if (params.availability) {
-    query = query.eq('availability', params.availability);
+    query = query.eq("availability", params.availability);
   }
   if (params.minRating) {
-    query = query.gte('rating_avg', params.minRating);
+    query = query.gte("rating_avg", params.minRating);
   }
   if (params.verifiedOnly) {
-    query = query.eq('verification_status', 'verified');
+    query = query.eq("verification_status", "verified");
   }
   if (params.searchQuery) {
-    query = query.or(`display_name.ilike.%${params.searchQuery}%,business_name.ilike.%${params.searchQuery}%,bio.ilike.%${params.searchQuery}%`);
+    query = query.or(
+      `display_name.ilike.%${params.searchQuery}%,business_name.ilike.%${params.searchQuery}%,bio.ilike.%${params.searchQuery}%`,
+    );
   }
 
   // Order by: verified first, then rating, then profile completeness
-  query = query.order('verification_status', { ascending: false }) // 'verified' > 'pending' > 'unverified' alphabetically reversed
-    .order('rating_avg', { ascending: false })
-    .order('is_profile_complete', { ascending: false })
-    .order('years_experience', { ascending: false, nullsFirst: false })
+  query = query
+    .order("verification_status", { ascending: false }) // 'verified' > 'pending' > 'unverified' alphabetically reversed
+    .order("rating_avg", { ascending: false })
+    .order("is_profile_complete", { ascending: false })
+    .order("years_experience", { ascending: false, nullsFirst: false })
     .range(offset, offset + pageSize - 1);
 
   const { data, error, count } = await query;
 
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] searchProfessionals:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] searchProfessionals:", error.message);
     return { profiles: [], total: 0, hasMore: false };
   }
 
@@ -272,10 +314,10 @@ export async function searchProfessionals(params: DirectorySearchParams): Promis
     const profileIds = profiles.map((p) => p.id);
     if (profileIds.length > 0) {
       const { data: serviceLinks } = await supabase
-        .from('pro_profile_services')
-        .select('profile_id')
-        .in('profile_id', profileIds)
-        .eq('service_id', params.serviceId);
+        .from("pro_profile_services")
+        .select("profile_id")
+        .in("profile_id", profileIds)
+        .eq("service_id", params.serviceId);
       const validIds = new Set((serviceLinks || []).map((s) => s.profile_id));
       filteredProfiles = filteredProfiles.filter((p) => validIds.has(p.id));
     }
@@ -285,20 +327,22 @@ export async function searchProfessionals(params: DirectorySearchParams): Promis
     const profileIds = filteredProfiles.map((p) => p.id);
     if (profileIds.length > 0) {
       const locQuery = supabase
-        .from('pro_profile_locations')
-        .select('profile_id, location:pro_locations(state, city)')
-        .in('profile_id', profileIds);
+        .from("pro_profile_locations")
+        .select("profile_id, location:pro_locations(state, city)")
+        .in("profile_id", profileIds);
       const { data: locLinks } = await locQuery;
       const validIds = new Set(
         (locLinks || [])
           .filter((link) => {
-            const loc = (link as unknown as { location: DbProLocation[] }).location?.[0] ?? null;
+            const loc =
+              (link as unknown as { location: DbProLocation[] })
+                .location?.[0] ?? null;
             if (!loc) return false;
             if (params.state && loc.state !== params.state) return false;
             if (params.city && loc.city !== params.city) return false;
             return true;
           })
-          .map((l) => (l as { profile_id: string }).profile_id)
+          .map((l) => (l as { profile_id: string }).profile_id),
       );
       filteredProfiles = filteredProfiles.filter((p) => validIds.has(p.id));
     }
@@ -324,11 +368,13 @@ export async function createProProfile(profile: {
   website_url?: string;
 }): Promise<DbProProfile | null> {
   if (!isSupabaseConfigured) return null;
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return null;
 
   const { data, error } = await supabase
-    .from('pro_profiles')
+    .from("pro_profiles")
     .insert({
       user_id: user.id,
       display_name: profile.display_name,
@@ -340,53 +386,82 @@ export async function createProProfile(profile: {
       contact_phone: profile.contact_phone || null,
       website_url: profile.website_url || null,
     })
-    .select('*')
+    .select("*")
     .single();
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] createProProfile:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] createProProfile:", error.message);
     return null;
   }
   return data as DbProProfile;
 }
 
-export async function updateProProfile(profileId: string, updates: Partial<DbProProfile>): Promise<boolean> {
+export async function updateProProfile(
+  profileId: string,
+  updates: Partial<DbProProfile>,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   // Strip fields that shouldn't be user-editable
   const { ...safeUpdates } = updates;
   const { error } = await supabase
-    .from('pro_profiles')
+    .from("pro_profiles")
     .update(safeUpdates)
-    .eq('id', profileId);
+    .eq("id", profileId);
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] updateProProfile:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] updateProProfile:", error.message);
     return false;
   }
   return true;
 }
 
-export async function updateProfileServices(profileId: string, serviceIds: string[]): Promise<boolean> {
+export async function updateProfileServices(
+  profileId: string,
+  serviceIds: string[],
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   // Delete existing and re-insert (simple, safe)
-  await supabase.from('pro_profile_services').delete().eq('profile_id', profileId);
+  await supabase
+    .from("pro_profile_services")
+    .delete()
+    .eq("profile_id", profileId);
   if (serviceIds.length > 0) {
-    const inserts = serviceIds.map((service_id) => ({ profile_id: profileId, service_id }));
-    const { error } = await supabase.from('pro_profile_services').insert(inserts);
+    const inserts = serviceIds.map((service_id) => ({
+      profile_id: profileId,
+      service_id,
+    }));
+    const { error } = await supabase
+      .from("pro_profile_services")
+      .insert(inserts);
     if (error) {
-      if (import.meta.env.DEV) console.error('[pro-connect] updateProfileServices:', error.message);
+      if (import.meta.env.DEV)
+        console.error("[pro-connect] updateProfileServices:", error.message);
       return false;
     }
   }
   return true;
 }
 
-export async function updateProfileLocations(profileId: string, locationIds: string[]): Promise<boolean> {
+export async function updateProfileLocations(
+  profileId: string,
+  locationIds: string[],
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  await supabase.from('pro_profile_locations').delete().eq('profile_id', profileId);
+  await supabase
+    .from("pro_profile_locations")
+    .delete()
+    .eq("profile_id", profileId);
   if (locationIds.length > 0) {
-    const inserts = locationIds.map((location_id) => ({ profile_id: profileId, location_id }));
-    const { error } = await supabase.from('pro_profile_locations').insert(inserts);
+    const inserts = locationIds.map((location_id) => ({
+      profile_id: profileId,
+      location_id,
+    }));
+    const { error } = await supabase
+      .from("pro_profile_locations")
+      .insert(inserts);
     if (error) {
-      if (import.meta.env.DEV) console.error('[pro-connect] updateProfileLocations:', error.message);
+      if (import.meta.env.DEV)
+        console.error("[pro-connect] updateProfileLocations:", error.message);
       return false;
     }
   }
@@ -395,26 +470,28 @@ export async function updateProfileLocations(profileId: string, locationIds: str
 
 // -- Portfolio --
 
-export async function addPortfolioItem(profileId: string, item: {
-  title: string;
-  description?: string;
-  category?: string;
-  image_urls: string[];
-  completed_date?: string;
-}): Promise<boolean> {
+export async function addPortfolioItem(
+  profileId: string,
+  item: {
+    title: string;
+    description?: string;
+    category?: string;
+    image_urls: string[];
+    completed_date?: string;
+  },
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { error } = await supabase
-    .from('pro_portfolio_items')
-    .insert({
-      profile_id: profileId,
-      title: item.title,
-      description: item.description || null,
-      category: item.category || null,
-      image_urls: item.image_urls,
-      completed_date: item.completed_date || null,
-    });
+  const { error } = await supabase.from("pro_portfolio_items").insert({
+    profile_id: profileId,
+    title: item.title,
+    description: item.description || null,
+    category: item.category || null,
+    image_urls: item.image_urls,
+    completed_date: item.completed_date || null,
+  });
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] addPortfolioItem:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] addPortfolioItem:", error.message);
     return false;
   }
   return true;
@@ -422,9 +499,13 @@ export async function addPortfolioItem(profileId: string, item: {
 
 export async function deletePortfolioItem(itemId: string): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { error } = await supabase.from('pro_portfolio_items').delete().eq('id', itemId);
+  const { error } = await supabase
+    .from("pro_portfolio_items")
+    .delete()
+    .eq("id", itemId);
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] deletePortfolioItem:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] deletePortfolioItem:", error.message);
     return false;
   }
   return true;
@@ -432,46 +513,57 @@ export async function deletePortfolioItem(itemId: string): Promise<boolean> {
 
 // -- Reviews --
 
-export async function createReview(professionalId: string, rating: number, reviewText?: string, projectRef?: string): Promise<boolean> {
+export async function createReview(
+  professionalId: string,
+  rating: number,
+  reviewText?: string,
+  projectRef?: string,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return false;
 
   // Prevent self-review
   const { data: profile } = await supabase
-    .from('pro_profiles')
-    .select('user_id')
-    .eq('id', professionalId)
+    .from("pro_profiles")
+    .select("user_id")
+    .eq("id", professionalId)
     .maybeSingle();
-  if (profile && (profile as { user_id: string }).user_id === user.id) return false;
+  if (profile && (profile as { user_id: string }).user_id === user.id)
+    return false;
 
-  const { error } = await supabase
-    .from('pro_reviews')
-    .insert({
-      professional_id: professionalId,
-      reviewer_id: user.id,
-      rating,
-      review_text: reviewText || null,
-      project_ref: projectRef || null,
-    });
+  const { error } = await supabase.from("pro_reviews").insert({
+    professional_id: professionalId,
+    reviewer_id: user.id,
+    rating,
+    review_text: reviewText || null,
+    project_ref: projectRef || null,
+  });
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] createReview:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] createReview:", error.message);
     return false;
   }
   return true;
 }
 
-export async function respondToReview(reviewId: string, response: string): Promise<boolean> {
+export async function respondToReview(
+  reviewId: string,
+  response: string,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   const { error } = await supabase
-    .from('pro_reviews')
+    .from("pro_reviews")
     .update({
       professional_response: response,
       professional_response_at: new Date().toISOString(),
     })
-    .eq('id', reviewId);
+    .eq("id", reviewId);
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] respondToReview:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] respondToReview:", error.message);
     return false;
   }
   return true;
@@ -479,38 +571,45 @@ export async function respondToReview(reviewId: string, response: string): Promi
 
 // -- Messaging --
 
-export async function getOrCreateConversation(professionalId: string, projectRef?: string, projectContext?: Record<string, unknown>): Promise<DbProConversation | null> {
+export async function getOrCreateConversation(
+  professionalId: string,
+  projectRef?: string,
+  projectContext?: Record<string, unknown>,
+): Promise<DbProConversation | null> {
   if (!isSupabaseConfigured) return null;
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return null;
 
   // Check if conversation already exists
   let query = supabase
-    .from('pro_conversations')
-    .select('*, professional:pro_profiles(*)')
-    .eq('customer_id', user.id)
-    .eq('professional_id', professionalId);
+    .from("pro_conversations")
+    .select("*, professional:pro_profiles(*)")
+    .eq("customer_id", user.id)
+    .eq("professional_id", professionalId);
   if (projectRef) {
-    query = query.eq('project_ref', projectRef);
+    query = query.eq("project_ref", projectRef);
   } else {
-    query = query.is('project_ref', null);
+    query = query.is("project_ref", null);
   }
   const { data: existing } = await query.maybeSingle();
   if (existing) return existing as DbProConversation;
 
   // Create new conversation
   const { data, error } = await supabase
-    .from('pro_conversations')
+    .from("pro_conversations")
     .insert({
       professional_id: professionalId,
       customer_id: user.id,
       project_ref: projectRef || null,
       project_context: projectContext || null,
     })
-    .select('*, professional:pro_profiles(*)')
+    .select("*, professional:pro_profiles(*)")
     .single();
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] getOrCreateConversation:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getOrCreateConversation:", error.message);
     return null;
   }
   return data as DbProConversation;
@@ -518,35 +617,38 @@ export async function getOrCreateConversation(professionalId: string, projectRef
 
 export async function getMyConversations(): Promise<DbProConversation[]> {
   if (!isSupabaseConfigured) return [];
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return [];
 
   // Get conversations where user is the customer
   const { data: asCustomer, error: err1 } = await supabase
-    .from('pro_conversations')
-    .select('*, professional:pro_profiles(*)')
-    .eq('customer_id', user.id)
-    .order('last_message_at DESC', { nullsFirst: false });
+    .from("pro_conversations")
+    .select("*, professional:pro_profiles(*)")
+    .eq("customer_id", user.id)
+    .order("last_message_at DESC", { nullsFirst: false });
 
   // Get conversations where user is the professional
   const { data: proProfile } = await supabase
-    .from('pro_profiles')
-    .select('id')
-    .eq('user_id', user.id)
+    .from("pro_profiles")
+    .select("id")
+    .eq("user_id", user.id)
     .maybeSingle();
 
   let asProfessional: DbProConversation[] = [];
   if (proProfile) {
     const { data: proConvos } = await supabase
-      .from('pro_conversations')
-      .select('*, professional:pro_profiles(*)')
-      .eq('professional_id', (proProfile as { id: string }).id)
-      .order('last_message_at DESC', { nullsFirst: false });
+      .from("pro_conversations")
+      .select("*, professional:pro_profiles(*)")
+      .eq("professional_id", (proProfile as { id: string }).id)
+      .order("last_message_at DESC", { nullsFirst: false });
     asProfessional = (proConvos || []) as DbProConversation[];
   }
 
   if (err1) {
-    if (import.meta.env.DEV) console.error('[pro-connect] getMyConversations:', err1.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getMyConversations:", err1.message);
     return [];
   }
 
@@ -561,53 +663,73 @@ export async function getMyConversations(): Promise<DbProConversation[]> {
   return unique;
 }
 
-export async function getMessages(conversationId: string): Promise<DbProMessage[]> {
+export async function getMessages(
+  conversationId: string,
+): Promise<DbProMessage[]> {
   if (!isSupabaseConfigured) return [];
   const { data, error } = await supabase
-    .from('pro_messages')
-    .select('*')
-    .eq('conversation_id', conversationId)
-    .order('created_at ASC');
+    .from("pro_messages")
+    .select("*")
+    .eq("conversation_id", conversationId)
+    .order("created_at ASC");
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] getMessages:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getMessages:", error.message);
     return [];
   }
   return data as DbProMessage[];
 }
 
-export async function sendMessage(conversationId: string, body: string, attachmentUrl?: string): Promise<{ id: string; body: string; sender_id: string; conversation_id: string; created_at: string } | null | boolean> {
+export async function sendMessage(
+  conversationId: string,
+  body: string,
+  attachmentUrl?: string,
+): Promise<
+  | {
+      id: string;
+      body: string;
+      sender_id: string;
+      conversation_id: string;
+      created_at: string;
+    }
+  | null
+  | boolean
+> {
   if (!isSupabaseConfigured) return false;
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return false;
 
   const { data: msgData, error } = await supabase
-    .from('pro_messages')
+    .from("pro_messages")
     .insert({
       conversation_id: conversationId,
       sender_id: user.id,
       body,
       attachment_url: attachmentUrl || null,
     })
-    .select('id, body, sender_id, conversation_id, created_at')
+    .select("id, body, sender_id, conversation_id, created_at")
     .single();
   if (error || !msgData) {
-    if (import.meta.env.DEV) console.error('[pro-connect] sendMessage:', error?.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] sendMessage:", error?.message);
     return null;
   }
 
   // Update conversation's last_message_at
   await supabase
-    .from('pro_conversations')
+    .from("pro_conversations")
     .update({ last_message_at: new Date().toISOString() })
-    .eq('id', conversationId);
+    .eq("id", conversationId);
 
   // Send push notification to the recipient
   try {
     // Get conversation to find recipient
     const { data: convo } = await supabase
-      .from('pro_conversations')
-      .select('customer_id, professional_id, pro_profiles(display_name)')
-      .eq('id', conversationId)
+      .from("pro_conversations")
+      .select("customer_id, professional_id, pro_profiles(display_name)")
+      .eq("id", conversationId)
       .maybeSingle();
 
     if (convo) {
@@ -616,9 +738,9 @@ export async function sendMessage(conversationId: string, body: string, attachme
       if (convo.customer_id === user.id) {
         // Sender is customer, notify the professional's user_id
         const { data: profProfile } = await supabase
-          .from('pro_profiles')
-          .select('user_id')
-          .eq('id', convo.professional_id)
+          .from("pro_profiles")
+          .select("user_id")
+          .eq("id", convo.professional_id)
           .maybeSingle();
         pushRecipientId = profProfile?.user_id || null;
       } else {
@@ -626,37 +748,43 @@ export async function sendMessage(conversationId: string, body: string, attachme
       }
 
       if (pushRecipientId) {
-        const senderName = convo.pro_profiles?.[0]?.display_name || 'Someone';
-        const pushBody = body.length > 50 ? body.slice(0, 50) + '…' : body;
+        const senderName = convo.pro_profiles?.[0]?.display_name || "Someone";
+        const pushBody = body.length > 50 ? body.slice(0, 50) + "…" : body;
         await sendPushToUser(
           pushRecipientId,
           `New message from ${senderName}`,
           pushBody,
-          `/messages/${conversationId}`
+          `/messages/${conversationId}`,
         );
       }
     }
   } catch (err) {
-    if (import.meta.env.DEV) console.error('[pro-connect] Push notification failed:', err);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] Push notification failed:", err);
     // Don't fail the message send if push fails
   }
 
   return msgData;
 }
 
-export async function markMessagesRead(conversationId: string): Promise<boolean> {
+export async function markMessagesRead(
+  conversationId: string,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return false;
 
   const { error } = await supabase
-    .from('pro_messages')
+    .from("pro_messages")
     .update({ is_read: true, read_at: new Date().toISOString() })
-    .eq('conversation_id', conversationId)
-    .neq('sender_id', user.id)
-    .eq('is_read', false);
+    .eq("conversation_id", conversationId)
+    .neq("sender_id", user.id)
+    .eq("is_read", false);
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] markMessagesRead:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] markMessagesRead:", error.message);
     return false;
   }
   return true;
@@ -664,39 +792,43 @@ export async function markMessagesRead(conversationId: string): Promise<boolean>
 
 export async function getUnreadCount(): Promise<number> {
   if (!isSupabaseConfigured) return 0;
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return 0;
 
   // Get conversation IDs where user is a participant
   const { data: asCustomer } = await supabase
-    .from('pro_conversations')
-    .select('id')
-    .eq('customer_id', user.id);
+    .from("pro_conversations")
+    .select("id")
+    .eq("customer_id", user.id);
 
   const { data: proProfile } = await supabase
-    .from('pro_profiles')
-    .select('id')
-    .eq('user_id', user.id)
+    .from("pro_profiles")
+    .select("id")
+    .eq("user_id", user.id)
     .maybeSingle();
 
   let proConvIds: { id: string }[] = [];
   if (proProfile) {
     const { data: proConvos } = await supabase
-      .from('pro_conversations')
-      .select('id')
-      .eq('professional_id', (proProfile as { id: string }).id);
+      .from("pro_conversations")
+      .select("id")
+      .eq("professional_id", (proProfile as { id: string }).id);
     proConvIds = proConvos || [];
   }
 
-  const allConvIds = [...(asCustomer || []), ...proConvIds].map((c) => (c as { id: string }).id);
+  const allConvIds = [...(asCustomer || []), ...proConvIds].map(
+    (c) => (c as { id: string }).id,
+  );
   if (allConvIds.length === 0) return 0;
 
   const { count } = await supabase
-    .from('pro_messages')
-    .select('*', { count: 'exact', head: true })
-    .in('conversation_id', allConvIds)
-    .neq('sender_id', user.id)
-    .eq('is_read', false);
+    .from("pro_messages")
+    .select("*", { count: "exact", head: true })
+    .in("conversation_id", allConvIds)
+    .neq("sender_id", user.id)
+    .eq("is_read", false);
 
   return count || 0;
 }
@@ -704,26 +836,27 @@ export async function getUnreadCount(): Promise<number> {
 // -- Reports --
 
 export async function createReport(report: {
-  report_type: 'profile' | 'review' | 'message' | 'portfolio';
+  report_type: "profile" | "review" | "message" | "portfolio";
   target_id: string;
   reason: string;
   description?: string;
 }): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return false;
 
-  const { error } = await supabase
-    .from('pro_reports')
-    .insert({
-      reporter_id: user.id,
-      report_type: report.report_type,
-      target_id: report.target_id,
-      reason: report.reason,
-      description: report.description || null,
-    });
+  const { error } = await supabase.from("pro_reports").insert({
+    reporter_id: user.id,
+    report_type: report.report_type,
+    target_id: report.target_id,
+    reason: report.reason,
+    description: report.description || null,
+  });
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] createReport:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] createReport:", error.message);
     return false;
   }
   return true;
@@ -731,32 +864,37 @@ export async function createReport(report: {
 
 // -- Calculator-to-Professional CTA mapping --
 
-export function getCategoryFromCalculator(calculatorType: string): string | null {
+export function getCategoryFromCalculator(
+  calculatorType: string,
+): string | null {
   const mapping: Record<string, string> = {
-    paint: 'painters',
-    painting: 'painters',
-    tile: 'tilers',
-    tiling: 'tilers',
-    screeding: 'wall-screeders',
-    pop: 'pop-installers',
-    pop_ceiling: 'pop-installers',
-    finish: 'building-contractors',
-    tyrolene: 'building-contractors',
-    contractor: 'building-contractors',
+    paint: "painters",
+    painting: "painters",
+    tile: "tilers",
+    tiling: "tilers",
+    screeding: "wall-screeders",
+    pop: "pop-installers",
+    pop_ceiling: "pop-installers",
+    finish: "building-contractors",
+    tyrolene: "building-contractors",
+    contractor: "building-contractors",
   };
   return mapping[calculatorType] || null;
 }
 
 // -- Slug generation --
 
-export function generateProSlug(name: string, existingSlugs?: string[]): string {
+export function generateProSlug(
+  name: string,
+  existingSlugs?: string[],
+): string {
   const base = name
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '');
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
   if (!existingSlugs || !existingSlugs.includes(base)) return base;
   let i = 2;
   while (existingSlugs.includes(`${base}-${i}`)) i++;
@@ -766,9 +904,9 @@ export function generateProSlug(name: string, existingSlugs?: string[]): string 
 export async function isSlugAvailable(slug: string): Promise<boolean> {
   if (!isSupabaseConfigured) return true;
   const { data, error } = await supabase
-    .from('pro_profiles')
-    .select('slug')
-    .eq('slug', slug)
+    .from("pro_profiles")
+    .select("slug")
+    .eq("slug", slug)
     .maybeSingle();
   if (error) return true;
   return !data;
@@ -786,41 +924,50 @@ import type {
   DbProSettings,
   VerificationRequestType,
   AccountType,
-} from '@/types/pro-connect';
-import { DbProVerificationLog } from '@/types/pro-connect';
+} from "@/types/pro-connect";
+import { DbProVerificationLog } from "@/types/pro-connect";
 
 // -- Account Type --
 
 export async function getAccountType(userId: string): Promise<AccountType> {
-  if (!isSupabaseConfigured) return 'client';
+  if (!isSupabaseConfigured) return "client";
   const { data } = await supabase
-    .from('profiles')
-    .select('account_type')
-    .eq('id', userId)
+    .from("profiles")
+    .select("account_type")
+    .eq("id", userId)
     .maybeSingle();
-  return (data as { account_type?: AccountType })?.account_type || 'client';
+  return (data as { account_type?: AccountType })?.account_type || "client";
 }
 
 export async function upgradeToProWorker(): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return false;
-  const { error } = await supabase.rpc('upgrade_account_type', { target_user: user.id });
+  const { error } = await supabase.rpc("upgrade_account_type", {
+    target_user: user.id,
+  });
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] upgradeToProWorker:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] upgradeToProWorker:", error.message);
     return false;
   }
   return true;
 }
 
-export async function updateAccountType(userId: string, accountType: AccountType): Promise<boolean> {
+export async function updateAccountType(
+  userId: string,
+  accountType: AccountType,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   const { error } = await supabase
-    .from('profiles')
+    .from("profiles")
     .update({ account_type: accountType })
-    .eq('id', userId);
+    .eq("id", userId);
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] updateAccountType:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] updateAccountType:", error.message);
     return false;
   }
   return true;
@@ -830,31 +977,36 @@ export async function updateAccountType(userId: string, accountType: AccountType
 
 export async function fetchProSettings(): Promise<DbProSettings | null> {
   try {
-  if (!isSupabaseConfigured) return null;
-  const { data, error } = await supabase
-    .from('pro_settings')
-    .select('*')
-    .eq('id', 1)
-    .maybeSingle();
-  if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] fetchProSettings:', error.message);
+    if (!isSupabaseConfigured) return null;
+    const { data, error } = await supabase
+      .from("pro_settings")
+      .select("*")
+      .eq("id", 1)
+      .maybeSingle();
+    if (error) {
+      if (import.meta.env.DEV)
+        console.error("[pro-connect] fetchProSettings:", error.message);
+      return null;
+    }
+    return data as DbProSettings;
+  } catch (err) {
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] fetchProSettings:", err);
     return null;
   }
-  return data as DbProSettings;
+}
 
-  } catch (err) {
-    if (import.meta.env.DEV) console.error('[pro-connect] fetchProSettings:', err);
-    return null;
-  }}
-
-export async function updateProSettings(updates: Partial<DbProSettings>): Promise<boolean> {
+export async function updateProSettings(
+  updates: Partial<DbProSettings>,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   const { error } = await supabase
-    .from('pro_settings')
+    .from("pro_settings")
     .update(updates)
-    .eq('id', 1);
+    .eq("id", 1);
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] updateProSettings:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] updateProSettings:", error.message);
     return false;
   }
   return true;
@@ -862,19 +1014,22 @@ export async function updateProSettings(updates: Partial<DbProSettings>): Promis
 
 // -- Verification Requests --
 
-export async function createVerificationRequest(profileId: string, request: {
-  request_type: VerificationRequestType;
-  professional_name?: string;
-  business_name?: string;
-  category_id?: string;
-  service_locations?: string[];
-  years_experience?: number;
-  identity_document_type?: string;
-  identity_document_number?: string;
-}): Promise<DbProVerificationRequest | null> {
+export async function createVerificationRequest(
+  profileId: string,
+  request: {
+    request_type: VerificationRequestType;
+    professional_name?: string;
+    business_name?: string;
+    category_id?: string;
+    service_locations?: string[];
+    years_experience?: number;
+    identity_document_type?: string;
+    identity_document_number?: string;
+  },
+): Promise<DbProVerificationRequest | null> {
   if (!isSupabaseConfigured) return null;
   const { data, error } = await supabase
-    .from('pro_verification_requests')
+    .from("pro_verification_requests")
     .insert({
       profile_id: profileId,
       request_type: request.request_type,
@@ -886,59 +1041,74 @@ export async function createVerificationRequest(profileId: string, request: {
       identity_document_type: request.identity_document_type || null,
       identity_document_number: request.identity_document_number || null,
     })
-    .select('*')
+    .select("*")
     .single();
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] createVerificationRequest:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] createVerificationRequest:", error.message);
     return null;
   }
 
   // Update profile verification_status to 'pending'
   await supabase
-    .from('pro_profiles')
-    .update({ verification_status: 'pending' })
-    .eq('id', profileId);
+    .from("pro_profiles")
+    .update({ verification_status: "pending" })
+    .eq("id", profileId);
 
   return data as DbProVerificationRequest;
 }
 
-export async function getMyVerificationRequests(profileId: string): Promise<DbProVerificationRequest[]> {
+export async function getMyVerificationRequests(
+  profileId: string,
+): Promise<DbProVerificationRequest[]> {
   if (!isSupabaseConfigured) return [];
   const { data, error } = await supabase
-    .from('pro_verification_requests')
-    .select('*')
-    .eq('profile_id', profileId)
-    .order('created_at DESC');
+    .from("pro_verification_requests")
+    .select("*")
+    .eq("profile_id", profileId)
+    .order("created_at DESC");
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] getMyVerificationRequests:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getMyVerificationRequests:", error.message);
     return [];
   }
   return data as DbProVerificationRequest[];
 }
 
-export async function getAllVerificationRequests(status?: string): Promise<DbProVerificationRequest[]> {
+export async function getAllVerificationRequests(
+  status?: string,
+): Promise<DbProVerificationRequest[]> {
   if (!isSupabaseConfigured) return [];
   let query = supabase
-    .from('pro_verification_requests')
-    .select('*, profile:pro_profiles(display_name, slug, business_name, category_id)')
-    .order('created_at DESC');
-  if (status) query = query.eq('status', status);
+    .from("pro_verification_requests")
+    .select(
+      "*, profile:pro_profiles(display_name, slug, business_name, category_id)",
+    )
+    .order("created_at DESC");
+  if (status) query = query.eq("status", status);
   const { data, error } = await query;
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] getAllVerificationRequests:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getAllVerificationRequests:", error.message);
     return [];
   }
   return data as unknown as DbProVerificationRequest[];
 }
 
-export async function withdrawVerificationRequest(requestId: string): Promise<boolean> {
+export async function withdrawVerificationRequest(
+  requestId: string,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   const { error } = await supabase
-    .from('pro_verification_requests')
-    .update({ status: 'withdrawn' })
-    .eq('id', requestId);
+    .from("pro_verification_requests")
+    .update({ status: "withdrawn" })
+    .eq("id", requestId);
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] withdrawVerificationRequest:', error.message);
+    if (import.meta.env.DEV)
+      console.error(
+        "[pro-connect] withdrawVerificationRequest:",
+        error.message,
+      );
     return false;
   }
   return true;
@@ -946,71 +1116,96 @@ export async function withdrawVerificationRequest(requestId: string): Promise<bo
 
 // -- Admin verification actions (via RPC functions) --
 
-export async function adminApproveVerification(profileId: string, requestId: string, notes?: string): Promise<boolean> {
+export async function adminApproveVerification(
+  profileId: string,
+  requestId: string,
+  notes?: string,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { error } = await supabase.rpc('approve_verification', {
+  const { error } = await supabase.rpc("approve_verification", {
     profile_uuid: profileId,
     request_uuid: requestId,
     admin_notes: notes || null,
   });
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] adminApproveVerification:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] adminApproveVerification:", error.message);
     return false;
   }
   return true;
 }
 
-export async function adminRejectVerification(profileId: string, requestId: string, reason?: string, notes?: string): Promise<boolean> {
+export async function adminRejectVerification(
+  profileId: string,
+  requestId: string,
+  reason?: string,
+  notes?: string,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { error } = await supabase.rpc('reject_verification', {
+  const { error } = await supabase.rpc("reject_verification", {
     profile_uuid: profileId,
     request_uuid: requestId,
     rejection_reason: reason || null,
     admin_notes: notes || null,
   });
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] adminRejectVerification:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] adminRejectVerification:", error.message);
     return false;
   }
   return true;
 }
 
-export async function adminRequestMoreInfo(profileId: string, requestId: string, infoRequest: string, notes?: string): Promise<boolean> {
+export async function adminRequestMoreInfo(
+  profileId: string,
+  requestId: string,
+  infoRequest: string,
+  notes?: string,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { error } = await supabase.rpc('request_more_info_verification', {
+  const { error } = await supabase.rpc("request_more_info_verification", {
     profile_uuid: profileId,
     request_uuid: requestId,
     info_request: infoRequest,
     admin_notes: notes || null,
   });
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] adminRequestMoreInfo:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] adminRequestMoreInfo:", error.message);
     return false;
   }
   return true;
 }
 
-export async function adminSuspendVerification(profileId: string, reason?: string): Promise<boolean> {
+export async function adminSuspendVerification(
+  profileId: string,
+  reason?: string,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { error } = await supabase.rpc('suspend_verification', {
+  const { error } = await supabase.rpc("suspend_verification", {
     profile_uuid: profileId,
     reason: reason || null,
   });
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] adminSuspendVerification:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] adminSuspendVerification:", error.message);
     return false;
   }
   return true;
 }
 
-export async function adminReinstateVerification(profileId: string, notes?: string): Promise<boolean> {
+export async function adminReinstateVerification(
+  profileId: string,
+  notes?: string,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { error } = await supabase.rpc('reinstate_verification', {
+  const { error } = await supabase.rpc("reinstate_verification", {
     profile_uuid: profileId,
     admin_notes: notes || null,
   });
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] adminReinstateVerification:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] adminReinstateVerification:", error.message);
     return false;
   }
   return true;
@@ -1018,9 +1213,12 @@ export async function adminReinstateVerification(profileId: string, notes?: stri
 
 export async function adminAwardProLevel(profileId: string): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { error } = await supabase.rpc('award_pro_level', { profile_uuid: profileId });
+  const { error } = await supabase.rpc("award_pro_level", {
+    profile_uuid: profileId,
+  });
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] adminAwardProLevel:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] adminAwardProLevel:", error.message);
     return false;
   }
   return true;
@@ -1028,19 +1226,27 @@ export async function adminAwardProLevel(profileId: string): Promise<boolean> {
 
 export async function adminRevokeProLevel(profileId: string): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { error } = await supabase.rpc('revoke_pro_level', { profile_uuid: profileId });
+  const { error } = await supabase.rpc("revoke_pro_level", {
+    profile_uuid: profileId,
+  });
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] adminRevokeProLevel:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] adminRevokeProLevel:", error.message);
     return false;
   }
   return true;
 }
 
-export async function checkProLevelEligibility(profileId: string): Promise<boolean> {
+export async function checkProLevelEligibility(
+  profileId: string,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { data, error } = await supabase.rpc('check_pro_level_eligibility', { profile_uuid: profileId });
+  const { data, error } = await supabase.rpc("check_pro_level_eligibility", {
+    profile_uuid: profileId,
+  });
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] checkProLevelEligibility:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] checkProLevelEligibility:", error.message);
     return false;
   }
   return data as boolean;
@@ -1048,15 +1254,18 @@ export async function checkProLevelEligibility(profileId: string): Promise<boole
 
 // -- Verification Logs --
 
-export async function getVerificationLogs(profileId: string): Promise<DbProVerificationLog[]> {
+export async function getVerificationLogs(
+  profileId: string,
+): Promise<DbProVerificationLog[]> {
   if (!isSupabaseConfigured) return [];
   const { data, error } = await supabase
-    .from('pro_verification_logs')
-    .select('*')
-    .eq('profile_id', profileId)
-    .order('created_at DESC');
+    .from("pro_verification_logs")
+    .select("*")
+    .eq("profile_id", profileId)
+    .order("created_at DESC");
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] getVerificationLogs:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getVerificationLogs:", error.message);
     return [];
   }
   return data as DbProVerificationLog[];
@@ -1064,53 +1273,61 @@ export async function getVerificationLogs(profileId: string): Promise<DbProVerif
 
 // -- Credentials (regulated professions) --
 
-export async function getCredentials(profileId: string): Promise<DbProCredential[]> {
+export async function getCredentials(
+  profileId: string,
+): Promise<DbProCredential[]> {
   if (!isSupabaseConfigured) return [];
   const { data, error } = await supabase
-    .from('pro_credentials')
-    .select('*')
-    .eq('profile_id', profileId)
-    .order('created_at DESC');
+    .from("pro_credentials")
+    .select("*")
+    .eq("profile_id", profileId)
+    .order("created_at DESC");
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] getCredentials:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getCredentials:", error.message);
     return [];
   }
   return data as DbProCredential[];
 }
 
-export async function getPublicCredentials(profileId: string): Promise<DbProCredentialPublic[]> {
+export async function getPublicCredentials(
+  profileId: string,
+): Promise<DbProCredentialPublic[]> {
   if (!isSupabaseConfigured) return [];
   const { data, error } = await supabase
-    .from('pro_credentials_public')
-    .select('*')
-    .eq('profile_id', profileId);
+    .from("pro_credentials_public")
+    .select("*")
+    .eq("profile_id", profileId);
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] getPublicCredentials:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getPublicCredentials:", error.message);
     return [];
   }
   return data as DbProCredentialPublic[];
 }
 
-export async function addCredential(profileId: string, credential: {
-  professional_body: string;
-  registration_number: string;
-  credential_type: string;
-  expires_at?: string;
-  document_path?: string;
-}): Promise<boolean> {
+export async function addCredential(
+  profileId: string,
+  credential: {
+    professional_body: string;
+    registration_number: string;
+    credential_type: string;
+    expires_at?: string;
+    document_path?: string;
+  },
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { error } = await supabase
-    .from('pro_credentials')
-    .insert({
-      profile_id: profileId,
-      professional_body: credential.professional_body,
-      registration_number: credential.registration_number,
-      credential_type: credential.credential_type,
-      expires_at: credential.expires_at || null,
-      document_path: credential.document_path || null,
-    });
+  const { error } = await supabase.from("pro_credentials").insert({
+    profile_id: profileId,
+    professional_body: credential.professional_body,
+    registration_number: credential.registration_number,
+    credential_type: credential.credential_type,
+    expires_at: credential.expires_at || null,
+    document_path: credential.document_path || null,
+  });
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] addCredential:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] addCredential:", error.message);
     return false;
   }
   return true;
@@ -1118,41 +1335,53 @@ export async function addCredential(profileId: string, credential: {
 
 export async function deleteCredential(credentialId: string): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { error } = await supabase.from('pro_credentials').delete().eq('id', credentialId);
+  const { error } = await supabase
+    .from("pro_credentials")
+    .delete()
+    .eq("id", credentialId);
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] deleteCredential:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] deleteCredential:", error.message);
     return false;
   }
   return true;
 }
 
-export async function adminVerifyCredential(credentialId: string): Promise<boolean> {
+export async function adminVerifyCredential(
+  credentialId: string,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return false;
   const { error } = await supabase
-    .from('pro_credentials')
+    .from("pro_credentials")
     .update({
-      verification_status: 'verified',
+      verification_status: "verified",
       verified_by: user.id,
       verified_at: new Date().toISOString(),
     })
-    .eq('id', credentialId);
+    .eq("id", credentialId);
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] adminVerifyCredential:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] adminVerifyCredential:", error.message);
     return false;
   }
   return true;
 }
 
-export async function adminRejectCredential(credentialId: string): Promise<boolean> {
+export async function adminRejectCredential(
+  credentialId: string,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
   const { error } = await supabase
-    .from('pro_credentials')
-    .update({ verification_status: 'rejected' })
-    .eq('id', credentialId);
+    .from("pro_credentials")
+    .update({ verification_status: "rejected" })
+    .eq("id", credentialId);
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] adminRejectCredential:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] adminRejectCredential:", error.message);
     return false;
   }
   return true;
@@ -1164,117 +1393,149 @@ export async function uploadVerificationDocument(
   profileId: string,
   requestId: string | null,
   file: File,
-  documentType: string
+  documentType: string,
 ): Promise<string | null> {
   if (!isSupabaseConfigured) return null;
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return null;
 
-  const ext = file.name.split('.').pop() || 'jpg';
+  const ext = file.name.split(".").pop() || "jpg";
   const path = `${user.id}/${profileId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
 
   const { error: uploadError } = await supabase.storage
-    .from('pro-verification')
+    .from("pro-verification")
     .upload(path, file);
 
   if (uploadError) {
-    if (import.meta.env.DEV) console.error('[pro-connect] uploadVerificationDocument:', uploadError.message);
+    if (import.meta.env.DEV)
+      console.error(
+        "[pro-connect] uploadVerificationDocument:",
+        uploadError.message,
+      );
     return null;
   }
 
-  const { error } = await supabase
-    .from('pro_verification_documents')
-    .insert({
-      profile_id: profileId,
-      request_id: requestId,
-      document_type: documentType,
-      storage_path: path,
-      file_name: file.name,
-      file_size: file.size,
-      mime_type: file.type,
-    });
+  const { error } = await supabase.from("pro_verification_documents").insert({
+    profile_id: profileId,
+    request_id: requestId,
+    document_type: documentType,
+    storage_path: path,
+    file_name: file.name,
+    file_size: file.size,
+    mime_type: file.type,
+  });
 
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] uploadVerificationDocument record:', error.message);
+    if (import.meta.env.DEV)
+      console.error(
+        "[pro-connect] uploadVerificationDocument record:",
+        error.message,
+      );
   }
 
   return path;
 }
 
-export async function getVerificationDocuments(profileId: string): Promise<DbProVerificationDocument[]> {
+export async function getVerificationDocuments(
+  profileId: string,
+): Promise<DbProVerificationDocument[]> {
   if (!isSupabaseConfigured) return [];
   const { data, error } = await supabase
-    .from('pro_verification_documents')
-    .select('*')
-    .eq('profile_id', profileId)
-    .order('uploaded_at DESC');
+    .from("pro_verification_documents")
+    .select("*")
+    .eq("profile_id", profileId)
+    .order("uploaded_at DESC");
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] getVerificationDocuments:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] getVerificationDocuments:", error.message);
     return [];
   }
   return data as DbProVerificationDocument[];
 }
 
-export async function createSignedUrlForDocument(storagePath: string): Promise<string | null> {
+export async function createSignedUrlForDocument(
+  storagePath: string,
+): Promise<string | null> {
   if (!isSupabaseConfigured) return null;
   const { data, error } = await supabase.storage
-    .from('pro-verification')
+    .from("pro-verification")
     .createSignedUrl(storagePath, 300); // 5-minute expiry
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] createSignedUrlForDocument:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] createSignedUrlForDocument:", error.message);
     return null;
   }
   return data?.signedUrl || null;
 }
 
-export async function deleteVerificationDocument(docId: string, storagePath: string): Promise<boolean> {
+export async function deleteVerificationDocument(
+  docId: string,
+  storagePath: string,
+): Promise<boolean> {
   if (!isSupabaseConfigured) return false;
-  await supabase.storage.from('pro-verification').remove([storagePath]);
+  await supabase.storage.from("pro-verification").remove([storagePath]);
   const { error } = await supabase
-    .from('pro_verification_documents')
+    .from("pro_verification_documents")
     .delete()
-    .eq('id', docId);
+    .eq("id", docId);
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] deleteVerificationDocument:', error.message);
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] deleteVerificationDocument:", error.message);
     return false;
   }
   return true;
 }
 
-
-
 // -- Admin: Get verification documents for a profile/request --
 
-export async function getAdminVerificationDocuments(profileId: string): Promise<DbProVerificationDocument[]> {
+export async function getAdminVerificationDocuments(
+  profileId: string,
+): Promise<DbProVerificationDocument[]> {
   if (!isSupabaseConfigured) return [];
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return [];
   const { data, error } = await supabase
-    .from('pro_verification_documents')
-    .select('*')
-    .eq('profile_id', profileId)
-    .order('uploaded_at DESC');
+    .from("pro_verification_documents")
+    .select("*")
+    .eq("profile_id", profileId)
+    .order("uploaded_at DESC");
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] getAdminVerificationDocuments:', error.message);
+    if (import.meta.env.DEV)
+      console.error(
+        "[pro-connect] getAdminVerificationDocuments:",
+        error.message,
+      );
     return [];
   }
   return data as DbProVerificationDocument[];
 }
 
-export async function createAdminSignedUrlForDocument(storagePath: string): Promise<string | null> {
+export async function createAdminSignedUrlForDocument(
+  storagePath: string,
+): Promise<string | null> {
   if (!isSupabaseConfigured) return null;
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   if (!user) return null;
   const { data, error } = await supabase.storage
-    .from('pro-verification')
+    .from("pro-verification")
     .createSignedUrl(storagePath, 300); // 5-minute expiry
   if (error) {
-    if (import.meta.env.DEV) console.error('[pro-connect] createAdminSignedUrlForDocument:', error.message);
+    if (import.meta.env.DEV)
+      console.error(
+        "[pro-connect] createAdminSignedUrlForDocument:",
+        error.message,
+      );
     return null;
   }
   return data?.signedUrl || null;
 }
 
 // -- Verification tier helper re-export --
-export { getVerificationTier } from '@/types/pro-connect';
-export type { VerificationTier } from '@/types/pro-connect';
+export { getVerificationTier } from "@/types/pro-connect";
+export type { VerificationTier } from "@/types/pro-connect";

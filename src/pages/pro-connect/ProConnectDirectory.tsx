@@ -81,6 +81,7 @@ export default function ProConnectDirectory() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedService, setSelectedService] = useState<string | null>(null);
+  const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
   const [selectedState, setSelectedState] = useState<string | null>(null);
   const [selectedCity, setSelectedCity] = useState<string | null>(null);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
@@ -117,6 +118,7 @@ export default function ProConnectDirectory() {
       setLoading(true);
       setPage(1);
       const result = await searchProfessionals({
+        country: selectedCountry || undefined,
         categoryId: selectedCategory || undefined,
         serviceId: selectedService || undefined,
         state: selectedState || undefined,
@@ -151,6 +153,7 @@ export default function ProConnectDirectory() {
       setProfileCategories(catMap);
     })();
   }, [
+    selectedCountry,
     selectedCategory,
     selectedService,
     selectedState,
@@ -212,6 +215,7 @@ export default function ProConnectDirectory() {
     setSelectedCategory(null);
     setSelectedService(null);
     setSelectedState(null);
+    setSelectedCountry(null);
     setSelectedCity(null);
     setVerifiedOnly(false);
     setMinRating(null);
@@ -220,6 +224,7 @@ export default function ProConnectDirectory() {
   }
 
   const hasActiveFilters =
+    selectedCountry ||
     selectedCategory ||
     selectedService ||
     selectedState ||
@@ -332,6 +337,21 @@ export default function ProConnectDirectory() {
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground dark:text-muted-foreground">
                 State
               </label>
+              <select
+                value={selectedCountry || ""}
+                onChange={(e) => {
+                  setSelectedCountry(e.target.value || null);
+                  setSelectedState(null);
+                  setSelectedCity(null);
+                }}
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm dark:border-white/10 dark:bg-background"
+              >
+                <option value="">All countries</option>
+                <option value="NG">Nigeria</option>
+                <option value="GH">Ghana</option>
+                <option value="KE">Kenya</option>
+                <option value="ZA">South Africa</option>
+              </select>
               <select
                 value={selectedState || ""}
                 onChange={(e) => {
