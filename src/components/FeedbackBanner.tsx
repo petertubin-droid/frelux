@@ -3,65 +3,33 @@ import { Link, useLocation } from "react-router-dom";
 import { X } from "lucide-react";
 
 /**
- * Tiny, silent, professional banner that invites feedback.
- * Shows only on the homepage and calculator/tool pages; one
- * dismissal hides it for 3 days (localStorage, consistent with
- * the analytics/cookie-consent storage convention).
+ * Tiny floating banner that invites users to suggest features or
+ * report issues for FRELUX. Shows on every public page; one dismissal
+ * hides it for 3 days (localStorage, consistent with the cookie-consent
+ * storage convention).
+ *
+ * Sits in the bottom-LEFT corner so it never covers the Support Chat
+ * bubble (bottom-right), the mobile bottom navigation, or the cookie
+ * consent bar (bottom-center).
  */
 
 const STORAGE_KEY = "frelux_feedback_banner_dismissed";
 const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
 
-/** Calculator, estimator and tool pages that show the banner. */
-const CALCULATOR_PATHS = [
-  "/calculators",
-  "/construction-tools",
-  "/paint-calculator",
-  "/screeding-calculator",
-  "/pop-ceiling-calculator",
-  "/tile-calculator",
-  "/finish-estimator",
-  "/cost-estimator",
-  "/painting-estimator",
-  "/screeding-cost-estimator",
-  "/pop-ceiling-cost-estimator",
-  "/tile-cost-estimator",
-  "/tyrolene-estimator",
-  "/image-estimator",
-  "/smart-calculator",
-  "/structural-calculator",
-  "/foundation-calculator",
-  "/project-timeline",
-  "/construction-sequence",
-  "/build-to-roof-estimator",
-  "/material-prices",
-  "/regional-cost-index",
-  "/boq-generator",
-  "/labour-estimator",
-  "/margin-calculator",
-  "/defect-diagnosis",
-  "/heat-comfort",
-  "/circular-reuse",
-  "/solar-pv-estimator",
-  "/electrical",
-  "/plumbing",
-  "/conversational-estimator",
-  "/count-vision",
-  "/carbon-footprint",
-  "/cash-flow-timeline",
-  "/estimate-refresh",
-  "/warranty-certificate",
-  "/maintenance-planner",
-  "/surface-assessment",
-  "/bim-ifc-import",
-  "/paint-comparison",
+/** Pages where a feedback prompt is noise, not help. */
+const HIDDEN_PREFIXES = [
+  "/feedback", // already on the feedback page
+  "/admin", // staff screens
+  "/estimate/", // client-facing shared estimate view
+  "/login",
+  "/signup",
+  "/auth",
+  "/forgot-password",
+  "/reset-password",
 ];
 
 function shouldShow(pathname: string): boolean {
-  if (pathname === "/") return true;
-  return CALCULATOR_PATHS.some(
-    (p) => pathname === p || pathname.startsWith(p + "/"),
-  );
+  return !HIDDEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(p));
 }
 
 export default function FeedbackBanner() {
@@ -96,9 +64,9 @@ export default function FeedbackBanner() {
   return (
     <aside
       aria-label="Give feedback on FRELUX"
-      className="fixed bottom-4 right-4 z-40 hidden sm:block"
+      className="fixed bottom-20 left-4 z-40 sm:bottom-4 sm:left-4"
     >
-      <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-3 pr-2 shadow-md">
+      <div className="flex max-w-[19rem] items-start gap-3 rounded-xl border border-border bg-card p-3 pr-2 shadow-md">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10">
           <svg
             aria-hidden="true"
@@ -115,16 +83,17 @@ export default function FeedbackBanner() {
         </div>
         <div className="min-w-0">
           <p className="text-xs font-semibold text-card-foreground">
-            Your idea could be our next feature
+            Help us improve FRELUX
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Tell us what to build, fix or improve — it takes under a minute.
+            Suggest a feature, report an issue, or tell us what to build next —
+            the team reads every note.
           </p>
           <Link
             to="/feedback"
             className="mt-1.5 inline-block text-xs font-medium text-primary underline-offset-4 hover:underline"
           >
-            Share your idea
+            Give feedback
           </Link>
         </div>
         <button

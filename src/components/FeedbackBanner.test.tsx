@@ -19,33 +19,36 @@ describe("FeedbackBanner", () => {
   it("shows on the homepage", async () => {
     renderAt("/");
     await waitFor(() =>
-      expect(
-        screen.getByRole("link", { name: /share your idea/i }),
-      ).toBeTruthy(),
+      expect(screen.getByRole("link", { name: /give feedback/i })).toBeTruthy(),
     );
   });
 
-  it("shows on calculator pages", async () => {
-    renderAt("/tile-calculator");
+  it("shows on content and tool pages everywhere", async () => {
+    renderAt("/learn");
     await waitFor(() =>
-      expect(
-        screen.getByRole("link", { name: /share your idea/i }),
-      ).toBeTruthy(),
+      expect(screen.getByRole("link", { name: /give feedback/i })).toBeTruthy(),
     );
   });
 
-  it("does not show on other pages", async () => {
-    renderAt("/marketplace");
+  it("does not show on the feedback page itself", async () => {
+    renderAt("/feedback");
     await new Promise((r) => setTimeout(r, 30));
-    expect(screen.queryByRole("link", { name: /share your idea/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /give feedback/i })).toBeNull();
+  });
+
+  it("does not show on admin or client-facing share screens", async () => {
+    renderAt("/admin/feedback");
+    await new Promise((r) => setTimeout(r, 30));
+    expect(screen.queryByRole("link", { name: /give feedback/i })).toBeNull();
+    renderAt("/estimate/abc123");
+    await new Promise((r) => setTimeout(r, 30));
+    expect(screen.queryByRole("link", { name: /give feedback/i })).toBeNull();
   });
 
   it("hides after dismissal (3-day cooldown) and remembers it in localStorage", async () => {
     renderAt("/");
     await waitFor(() =>
-      expect(
-        screen.getByRole("link", { name: /share your idea/i }),
-      ).toBeTruthy(),
+      expect(screen.getByRole("link", { name: /give feedback/i })).toBeTruthy(),
     );
     fireEvent.click(
       screen.getByRole("button", { name: /dismiss feedback banner/i }),
@@ -55,6 +58,6 @@ describe("FeedbackBanner", () => {
     ).toBeTruthy();
     renderAt("/");
     await new Promise((r) => setTimeout(r, 30));
-    expect(screen.queryByRole("link", { name: /share your idea/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /give feedback/i })).toBeNull();
   });
 });

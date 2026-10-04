@@ -2,43 +2,50 @@ import { test, expect } from "@playwright/test";
 import { dismissCookieBanner } from "./helpers";
 
 /**
- * Calculators index page — verifies all calculator tools are listed
- * and navigable.
+ * /calculators is now a permanent redirect to /construction-tools
+ * (commit 92034e88 — "unified tool library replacing the
+ * Calculators/Estimators split"). These specs verify the legacy URL
+ * still lands on the tool library, that the core finish calculators
+ * are listed there, and that the paint calculator is navigable.
  */
-test.describe("Calculators page", () => {
-  test("lists all core calculator tools", async ({ page }) => {
+test.describe("Calculators legacy route", () => {
+  test("redirects to the unified tool library and lists core calculators", async ({
+    page,
+  }) => {
     await dismissCookieBanner(page);
     await page.goto("/calculators");
     await page.waitForLoadState("networkidle");
 
+    // The legacy URL must redirect to the unified tool library.
+    expect(page.url()).toContain("/construction-tools");
+
+    // Card titles from the CONSTRUCTION_TOOLS registry (finishes group).
     const expectedTools = [
-      "Painting Calculator",
-      "Screeding Calculator",
-      "POP Ceiling Calculator",
+      "Paint Calculator",
+      "Wall Screeding",
       "Tile Calculator",
-      "Finishing Calculator",
       "Build-to-Roof Estimator",
     ];
 
     for (const tool of expectedTools) {
-      await expect(page.getByText(tool).first()).toBeVisible();
+      await expect(
+        page.getByRole("link", { name: new RegExp(tool) }).first(),
+      ).toBeVisible();
     }
   });
 
-  test("navigates to the painting calculator", async ({ page }) => {
+  test("navigates to the paint calculator", async ({ page }) => {
     await dismissCookieBanner(page);
-    await page.goto("/calculators");
+    await page.goto("/construction-tools");
     await page.waitForLoadState("networkidle");
 
-    // Scope to the calculator card link, not the bare text: the hub now has
-    // a decorative auto-sliding marquee above the grid that also renders
-    // "Painting Calculator". getByText(...).first() matches that marquee
-    // copy, which never reaches a stable position, so the click times out.
-    // The marquee is aria-hidden and not a link, so a role-based locator
-    // scoped to the tools grid targets the real card.
+    // Scope to the finishes category section ("Materials & Finishes") so
+    // the locator targets the real card link. The search input is an
+    // input, not a link, and a fresh browser context has no
+    // "Recently used" chips that could duplicate the title.
     await page
-      .getByRole("region", { name: "Calculator tools" })
-      .getByRole("link", { name: /Painting Calculator/ })
+      .getByRole("region", { name: "Materials & Finishes" })
+      .getByRole("link", { name: /Paint Calculator/ })
       .click();
     await page.waitForLoadState("networkidle");
     expect(page.url()).toContain("/paint-calculator");
