@@ -8,7 +8,7 @@
 -- them with live US price data over time.
 -- =========================================================
 
--- 1. US market profile (supported: it has prices).
+-- 1. US market profile (active: it has prices).
 INSERT INTO market_profiles (
   country_code, country_name, region,
   currency_code, currency_symbol, currency_name,
@@ -27,7 +27,7 @@ INSERT INTO market_profiles (
   'feet', 'sqft',
   'en',
   '{}'::jsonb,
-  'supported', '0.1.0', 30, true
+  'active', '0.1.0', 30, true
 )
 ON CONFLICT (country_code) DO NOTHING;
 
