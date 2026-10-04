@@ -1,704 +1,939 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" 
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://freluxtools.netlify.app/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/calculators/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/calculators/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/calculators/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/start-building/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/start-building/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/start-building/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/paint-calculator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/paint-calculator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/paint-calculator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/screeding-calculator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/screeding-calculator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/screeding-calculator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/pop-ceiling-calculator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/pop-ceiling-calculator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/pop-ceiling-calculator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/tile-calculator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/tile-calculator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/tile-calculator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/finish-estimator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/finish-estimator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/finish-estimator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/colors/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/colors/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/colors/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/colors/compare/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/colors/compare/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/colors/compare/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/ai-color-assistant/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/ai-color-assistant/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/ai-color-assistant/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/learn/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/learn/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/learn/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/user-guide/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/user-guide/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/user-guide/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/standard-living-room-painting/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/standard-living-room-painting/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/standard-living-room-painting/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/master-bedroom-painting/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/master-bedroom-painting/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/master-bedroom-painting/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/single-accent-wall-painting/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/single-accent-wall-painting/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/single-accent-wall-painting/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/exterior-bungalow-painting/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/exterior-bungalow-painting/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/exterior-bungalow-painting/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/dining-room-painting/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/dining-room-painting/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/dining-room-painting/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/childrens-room-painting/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/childrens-room-painting/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/childrens-room-painting/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/kitchen-walls-painting/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/kitchen-walls-painting/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/kitchen-walls-painting/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/corridor-stairwell-painting/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/corridor-stairwell-painting/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/corridor-stairwell-painting/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/2-bedroom-flat-full-painting/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/2-bedroom-flat-full-painting/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/2-bedroom-flat-full-painting/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/office-space-painting/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/office-space-painting/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/office-space-painting/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/exterior-duplex-painting/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/exterior-duplex-painting/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/exterior-duplex-painting/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/shop-retail-front-painting/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/shop-retail-front-painting/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/shop-retail-front-painting/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/standard-floor-tiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/standard-floor-tiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/standard-floor-tiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/bathroom-wall-tiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/bathroom-wall-tiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/bathroom-wall-tiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/large-hall-floor-tiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/large-hall-floor-tiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/large-hall-floor-tiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/kitchen-backsplash-tiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/kitchen-backsplash-tiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/kitchen-backsplash-tiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/balcony-floor-tiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/balcony-floor-tiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/balcony-floor-tiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/kitchen-floor-tiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/kitchen-floor-tiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/kitchen-floor-tiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/guest-toilet-wall-tiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/guest-toilet-wall-tiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/guest-toilet-wall-tiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/staircase-tiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/staircase-tiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/staircase-tiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/terrazzo-porcelain-floor-tiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/terrazzo-porcelain-floor-tiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/terrazzo-porcelain-floor-tiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/wall-feature-strip-tiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/wall-feature-strip-tiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/wall-feature-strip-tiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/standard-room-screeding/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/standard-room-screeding/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/standard-room-screeding/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/single-wall-screeding/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/single-wall-screeding/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/single-wall-screeding/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/living-room-ceiling-screeding/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/living-room-ceiling-screeding/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/living-room-ceiling-screeding/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/corridor-walls-screeding/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/corridor-walls-screeding/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/corridor-walls-screeding/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/dining-room-screeding/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/dining-room-screeding/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/dining-room-screeding/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/office-screeding/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/office-screeding/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/office-screeding/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/corridor-screeding/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/corridor-screeding/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/corridor-screeding/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/single-feature-wall-screeding/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/single-feature-wall-screeding/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/single-feature-wall-screeding/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/shop-front-screeding/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/shop-front-screeding/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/shop-front-screeding/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/standard-bedroom-pop-ceiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/standard-bedroom-pop-ceiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/standard-bedroom-pop-ceiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/large-living-room-pop-ceiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/large-living-room-pop-ceiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/large-living-room-pop-ceiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/small-office-pop-ceiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/small-office-pop-ceiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/small-office-pop-ceiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/hall-cornice-pop-ceiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/hall-cornice-pop-ceiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/hall-cornice-pop-ceiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/dining-room-pop-ceiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/dining-room-pop-ceiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/dining-room-pop-ceiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/kitchen-pop-ceiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/kitchen-pop-ceiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/kitchen-pop-ceiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/corridor-pop-ceiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/corridor-pop-ceiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/corridor-pop-ceiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/master-bedroom-pop-ceiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/master-bedroom-pop-ceiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/master-bedroom-pop-ceiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/templates/conference-room-pop-ceiling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/templates/conference-room-pop-ceiling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/templates/conference-room-pop-ceiling/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/about/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/about/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/about/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/contact/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/contact/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/contact/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/build-to-roof-estimator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/build-to-roof-estimator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/build-to-roof-estimator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/structural-calculator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/structural-calculator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/structural-calculator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/foundation-calculator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/foundation-calculator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/foundation-calculator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/project-timeline/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/project-timeline/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/project-timeline/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/construction-sequence/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/construction-sequence/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/construction-sequence/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/image-estimator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/image-estimator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/image-estimator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/smart-calculator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/smart-calculator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/smart-calculator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/marketplace/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/marketplace/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/marketplace/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/pro-connect/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/pro-connect/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/pro-connect/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/paint-comparison/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/paint-comparison/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/paint-comparison/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/gallery/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/gallery/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/gallery/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/material-prices/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/material-prices/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/material-prices/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/surface-assessment/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/surface-assessment/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/surface-assessment/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/pricing/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/pricing/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/pricing/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/privacy-policy/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/privacy-policy/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/privacy-policy/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/terms/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/terms/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/terms/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/cookie-policy/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/cookie-policy/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/cookie-policy/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/disclaimer/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/disclaimer/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/disclaimer/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/ai-disclaimer/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/ai-disclaimer/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/ai-disclaimer/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/bim-ifc-import/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/bim-ifc-import/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/bim-ifc-import/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/solar-pv-estimator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/solar-pv-estimator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/solar-pv-estimator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/conversational-estimator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/conversational-estimator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/conversational-estimator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/field-sync/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/field-sync/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/field-sync/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/count-vision/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/count-vision/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/count-vision/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/electrical/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/electrical/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/electrical/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/plumbing/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/plumbing/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/plumbing/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/waterproofing/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/waterproofing/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/waterproofing/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/flooring/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/flooring/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/flooring/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/reinforcement/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/reinforcement/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/reinforcement/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/foundation/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/foundation/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/foundation/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/doors-windows/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/doors-windows/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/doors-windows/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/generator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/generator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/generator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/boq-generator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/boq-generator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/boq-generator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/cash-flow-timeline/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/cash-flow-timeline/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/cash-flow-timeline/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/circular-reuse/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/circular-reuse/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/circular-reuse/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/contractor-credit/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/contractor-credit/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/contractor-credit/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/cost-estimator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/cost-estimator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/cost-estimator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/defect-diagnosis/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/defect-diagnosis/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/defect-diagnosis/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/estimate-refresh/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/estimate-refresh/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/estimate-refresh/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/heat-comfort/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/heat-comfort/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/heat-comfort/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/labour-estimator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/labour-estimator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/labour-estimator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/maintenance-planner/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/maintenance-planner/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/maintenance-planner/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/margin-calculator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/margin-calculator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/margin-calculator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/painting-estimator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/painting-estimator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/painting-estimator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/pop-ceiling-cost-estimator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/pop-ceiling-cost-estimator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/pop-ceiling-cost-estimator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/regional-cost-index/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/regional-cost-index/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/regional-cost-index/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/screeding-cost-estimator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/screeding-cost-estimator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/screeding-cost-estimator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/tile-cost-estimator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/tile-cost-estimator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/tile-cost-estimator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/tyrolene-estimator/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/tyrolene-estimator/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/tyrolene-estimator/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/warranty-certificate/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/warranty-certificate/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/warranty-certificate/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/carbon-footprint/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/carbon-footprint/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/carbon-footprint/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/brand-studio/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/brand-studio/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/brand-studio/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/color-preview/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/color-preview/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/color-preview/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/contractor/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/contractor/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/contractor/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/analytics/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/analytics/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/analytics/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/achievements/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/achievements/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/achievements/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/credits/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/credits/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/credits/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/developers/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/developers/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/developers/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/pro-connect/register/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/pro-connect/register/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/pro-connect/register/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/rewards/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/rewards/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/rewards/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://freluxtools.netlify.app/worker-channels/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://freluxtools.netlify.app/worker-channels/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://freluxtools.netlify.app/worker-channels/" />
     <lastmod>2026-10-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

@@ -192,9 +192,12 @@ const canonical = (p) => (p === '/' ? p : `${p}/`);
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"${' '}
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${allRoutes.map(r => `  <url>
     <loc>${SITE_URL}${canonical(r.path)}</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="${SITE_URL}${canonical(r.path)}" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_URL}${canonical(r.path)}" />
     <lastmod>${today}</lastmod>
     <changefreq>${r.changefreq}</changefreq>
     <priority>${r.priority}</priority>
