@@ -115,16 +115,16 @@ export default function FeedbackBanner() {
         </div>
         <div className="min-w-0">
           <p className="text-xs font-semibold text-card-foreground">
-            Help us improve FRELUX
+            Your idea could be our next feature
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Suggest a feature or report an issue.
+            Tell us what to build, fix or improve — it takes under a minute.
           </p>
           <Link
             to="/feedback"
             className="mt-1.5 inline-block text-xs font-medium text-primary underline-offset-4 hover:underline"
           >
-            Give feedback
+            Share your idea
           </Link>
         </div>
         <button

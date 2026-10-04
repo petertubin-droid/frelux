@@ -19,27 +19,33 @@ describe("FeedbackBanner", () => {
   it("shows on the homepage", async () => {
     renderAt("/");
     await waitFor(() =>
-      expect(screen.getByRole("link", { name: /give feedback/i })).toBeTruthy(),
+      expect(
+        screen.getByRole("link", { name: /share your idea/i }),
+      ).toBeTruthy(),
     );
   });
 
   it("shows on calculator pages", async () => {
     renderAt("/tile-calculator");
     await waitFor(() =>
-      expect(screen.getByRole("link", { name: /give feedback/i })).toBeTruthy(),
+      expect(
+        screen.getByRole("link", { name: /share your idea/i }),
+      ).toBeTruthy(),
     );
   });
 
   it("does not show on other pages", async () => {
     renderAt("/marketplace");
     await new Promise((r) => setTimeout(r, 30));
-    expect(screen.queryByRole("link", { name: /give feedback/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /share your idea/i })).toBeNull();
   });
 
   it("hides after dismissal (3-day cooldown) and remembers it in localStorage", async () => {
     renderAt("/");
     await waitFor(() =>
-      expect(screen.getByRole("link", { name: /give feedback/i })).toBeTruthy(),
+      expect(
+        screen.getByRole("link", { name: /share your idea/i }),
+      ).toBeTruthy(),
     );
     fireEvent.click(
       screen.getByRole("button", { name: /dismiss feedback banner/i }),
@@ -49,6 +55,6 @@ describe("FeedbackBanner", () => {
     ).toBeTruthy();
     renderAt("/");
     await new Promise((r) => setTimeout(r, 30));
-    expect(screen.queryByRole("link", { name: /give feedback/i })).toBeNull();
+    expect(screen.queryByRole("link", { name: /share your idea/i })).toBeNull();
   });
 });
