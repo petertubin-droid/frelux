@@ -3,9 +3,10 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
 import {
-  AdminHeader,
-  AdminCard,
   AdminButton,
+  AdminCard,
+  AdminHeader,
+  StatusBadge,
 } from "@/components/admin/AdminUi";
 import { AdminModal } from "@/components/admin/AdminModal";
 import { classNames } from "@/lib/utils";
@@ -1001,7 +1002,9 @@ export default function SystemHealth() {
                       className="h-4 w-4 rounded border-border"
                     />
                     <span className="text-xs text-muted-foreground dark:text-muted-foreground">
-                      {cfg.enabled ? "Enabled" : "Disabled"}
+                      <StatusBadge
+                        status={cfg.enabled ? "Active" : "Disabled"}
+                      />
                     </span>
                   </label>
                 </div>

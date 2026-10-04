@@ -7,7 +7,7 @@ import { MemoryRouter } from "react-router-dom";
 // ADMIN ROOF VIEW (imagery provider) TESTS
 // Verifies the operator surface that activates the formerly
 // dead Roof View feature:
-//   * honest status (Not live vs Live badge)
+//   * honest status (Inactive vs Live badge)
 //   * provider cards label implemented vs not-implemented
 //   * API key is write-only: never re-displayed after save
 //   * Save upserts integration_settings (key server-side),
@@ -130,7 +130,7 @@ beforeEach(() => {
 });
 
 describe("AdminRoofView — loading & status", () => {
-  it("shows the Not live state when no config row exists", async () => {
+  it("shows the Inactive state when no config row exists", async () => {
     supabaseMock.__state.awaited["roof_view_config"] = {
       data: [],
       error: null,
@@ -138,7 +138,7 @@ describe("AdminRoofView — loading & status", () => {
     renderPage();
 
     await waitFor(() =>
-      expect(screen.getByText("Not live", { exact: false })).toBeTruthy(),
+      expect(screen.getByText("Inactive", { exact: false })).toBeTruthy(),
     );
     expect(
       screen.getByText(/Roof View is disabled|no API key is stored/i),
@@ -158,7 +158,7 @@ describe("AdminRoofView — loading & status", () => {
 
     await waitFor(() =>
       expect(
-        screen.getAllByText("Live", { exact: false }).length,
+        screen.getAllByText("Active", { exact: false }).length,
       ).toBeGreaterThan(0),
     );
     expect(screen.getByText(/Active — .* imagery is served/i)).toBeTruthy();

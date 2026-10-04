@@ -411,11 +411,11 @@ export default function AdminRoofView() {
           >
             {live ? (
               <>
-                <CheckCircle2 className="h-3.5 w-3.5" /> Live
+                <CheckCircle2 className="h-3.5 w-3.5" /> Active
               </>
             ) : (
               <>
-                <AlertCircle className="h-3.5 w-3.5" /> Not live
+                <AlertCircle className="h-3.5 w-3.5" /> Inactive
               </>
             )}
           </span>
@@ -444,7 +444,7 @@ export default function AdminRoofView() {
             <Toggle
               checked={enabled}
               onChange={setEnabled}
-              label={enabled ? "Enabled" : "Disabled"}
+              label={enabled ? "Active" : "Disabled"}
             />
           </div>
         </AdminCard>

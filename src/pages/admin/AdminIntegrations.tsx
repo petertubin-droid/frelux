@@ -20,7 +20,7 @@ import { Card } from "@/components/ui/shadcn/card";
 import { Input } from "@/components/ui/shadcn/input";
 import { Label } from "@/components/ui/shadcn/label";
 import { Button } from "@/components/ui/shadcn/button";
-import { AdminButton } from "@/components/admin/AdminUi";
+import { AdminButton, StatusBadge } from "@/components/admin/AdminUi";
 import { SITE_URL } from "@/lib/seo";
 
 const CATEGORY_ICONS: Record<string, typeof CreditCard> = {
@@ -429,7 +429,11 @@ export default function AdminIntegrations() {
                           ) : (
                             <X className="h-3 w-3" />
                           )}
-                          {integration.is_enabled ? "Enabled" : "Disabled"}
+                          <StatusBadge
+                            status={
+                              integration.is_enabled ? "Active" : "Disabled"
+                            }
+                          />
                         </span>
                       </div>
                       <Switch
@@ -557,7 +561,7 @@ export default function AdminIntegrations() {
             >
               sitemap.xml
             </a>{" "}
-           , submit it in Search Console
+            , submit it in Search Console
           </li>
         </ol>
       </div>

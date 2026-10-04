@@ -313,6 +313,7 @@ export function AdminTextarea({
 
 import type { SelectHTMLAttributes } from "react";
 import { Button } from "@/components/ui/shadcn/button";
+import { normalizeStatus, statusTone } from "@/lib/admin-status";
 
 export function AdminSelect({
   className,
@@ -418,8 +419,7 @@ export function AdminTabButton({
     },
     filter: {
       base: "rounded-lg px-3 py-1.5 capitalize",
-      active:
-        "bg-foreground text-background",
+      active: "bg-foreground text-background",
       inactive:
         "bg-card border border-border text-muted-foreground hover:bg-muted/50 dark:bg-white/5 dark:border-white/10 dark:text-muted-foreground",
     },
@@ -439,5 +439,26 @@ export function AdminTabButton({
     >
       {children}
     </Button>
+  );
+}
+
+export function StatusBadge({
+  status,
+  className,
+}: {
+  status: string;
+  className?: string;
+}) {
+  const norm = normalizeStatus(status);
+  return (
+    <span
+      className={
+        "inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider " +
+        statusTone(norm) +
+        (className ? " " + className : "")
+      }
+    >
+      {norm}
+    </span>
   );
 }

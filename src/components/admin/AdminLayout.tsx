@@ -1,5 +1,11 @@
-import { useState, useEffect } from "react";
-import { NavLink, Outlet, Link, useNavigate } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import {
+  NavLink,
+  Outlet,
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import {
   AlertTriangle,
   BadgeCheck,
@@ -64,6 +70,18 @@ import {
   Wallet,
   Percent,
   Stethoscope,
+  ChevronRight,
+  Thermometer,
+  RefreshCcw,
+  Boxes,
+  LineChart,
+  ScrollText,
+  SlidersHorizontal,
+  FlaskConical,
+  Wrench,
+  ClipboardList,
+  FileStack,
+  Activity,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
@@ -71,16 +89,29 @@ import { AdminThemeProvider, useAdminTheme } from "@/lib/admin-theme";
 import { Button } from "@/components/ui/shadcn/button";
 
 // =========================================================
-// Admin sidebar, organized into logical modules
+// Admin sidebar — 11 sections, owner-first control center.
+//
+// Mental model (one question per section):
+//   Overview            Is FRELUX healthy?
+//   Construction Eng.    Which engines exist and are they active?
+//   Materials & Prices   Which materials/prices are configured?
+//   Projects & Estimates How is FRELUX being used?
+//   Users                Who uses FRELUX?
+//   ARCHIE / AI          What is the AI doing?
+//   Content              What does the site say?
+//   Monetization         What earns money?
+//   Marketplace & Pros   Pro/marketplace activity
+//   System               Technical configuration
+//   Security & Audit      What happened recently?
 // =========================================================
-// Each module is a group with a heading and items. This replaces the
-// previous flat list and makes the admin panel scalable.
 
 interface NavItem {
   label: string;
   to: string;
   icon: typeof LayoutDashboard;
   end?: boolean;
+  /** Optional sub-group label rendered between items. */
+  group?: string;
 }
 
 interface NavModule {
@@ -90,131 +121,24 @@ interface NavModule {
 
 const navModules: NavModule[] = [
   {
-    heading: "Dashboard",
+    heading: "Overview",
     items: [
-      { label: "Overview", to: "/admin", icon: LayoutDashboard, end: true },
+      { label: "Dashboard", to: "/admin", icon: LayoutDashboard, end: true },
     ],
   },
   {
-    heading: "Content",
+    heading: "Construction Engines",
     items: [
-      { label: "Learn Articles", to: "/admin/learn", icon: BookOpen },
       {
-        label: "AI Learning Assistant",
-        to: "/admin/ai-learning",
-        icon: GraduationCap,
+        label: "Engine Config",
+        to: "/admin/engine-config",
+        icon: Cpu,
+        group: "Core",
       },
-      {
-        label: "Construction Dictionary",
-        to: "/admin/dictionary",
-        icon: Languages,
-      },
-      { label: "Legal Pages", to: "/admin/legal", icon: FileText },
-      { label: "Contact Messages", to: "/admin/contact", icon: Mail },
-    ],
-  },
-  {
-    heading: "Color Library",
-    items: [{ label: "Color Gallery", to: "/admin/colors", icon: Palette }],
-  },
-  {
-    heading: "Media Library",
-    items: [{ label: "Media Manager", to: "/admin/media", icon: Image }],
-  },
-  {
-    heading: "Estimation Engine",
-    items: [
-      { label: "Products", to: "/admin/estimation-products", icon: Layers },
-      { label: "Materials", to: "/admin/estimation-materials", icon: Layers },
       {
         label: "Config & Rules",
         to: "/admin/estimation-config",
-        icon: Settings,
-      },
-      { label: "Pricing", to: "/admin/estimation-pricing", icon: DollarSign },
-      { label: "Estimates", to: "/admin/estimation-estimates", icon: FileText },
-      { label: "Audit Log", to: "/admin/estimation-audit", icon: ShieldCheck },
-      {
-        label: "Maintenance Profiles",
-        to: "/admin/maintenance-profiles",
-        icon: CalendarClock,
-      },
-      {
-        label: "Regional Costs",
-        to: "/admin/regional-cost-indices",
-        icon: MapPin,
-      },
-      {
-        label: "Carbon Factors",
-        to: "/admin/carbon-factors",
-        icon: Leaf,
-      },
-      {
-        label: "Thermal Factors",
-        to: "/admin/thermal-factors",
-        icon: Leaf,
-      },
-      {
-        label: "Reuse Factors",
-        to: "/admin/reuse-factors",
-        icon: Leaf,
-      },
-      {
-        label: "Credit Profiles",
-        to: "/admin/credit-profiles",
-        icon: Leaf,
-      },
-      {
-        label: "Solar Panels",
-        to: "/admin/solar-panels",
-        icon: Sun,
-      },
-      {
-        label: "Conversational Packs",
-        to: "/admin/conversational-packs",
-        icon: MessageCircle,
-      },
-      {
-        label: "Field Sync",
-        to: "/admin/field-sync",
-        icon: CloudOff,
-      },
-      {
-        label: "Counter-Vision",
-        to: "/admin/count-vision",
-        icon: ScanLine,
-      },
-      {
-        label: "Solar Prices",
-        to: "/admin/solar-prices",
-        icon: Sun,
-      },
-      {
-        label: "Cash-Flow Templates",
-        to: "/admin/cash-flow-templates",
-        icon: Wallet,
-      },
-      {
-        label: "Labour Rates",
-        to: "/admin/labour-rates",
-        icon: Users,
-      },
-      { label: "Margin Presets", to: "/admin/margin-presets", icon: Percent },
-      { label: "Defects", to: "/admin/defects", icon: Stethoscope },
-      {
-        label: "Learning Review",
-        to: "/admin/learning-review",
-        icon: ShieldCheck,
-      },
-      {
-        label: "Intelligence Sources",
-        to: "/admin/intelligence-sources",
-        icon: ShieldCheck,
-      },
-      {
-        label: "Intelligence Dashboard",
-        to: "/admin/intelligence-dashboard",
-        icon: ShieldCheck,
+        icon: SlidersHorizontal,
       },
       {
         label: "Production Rules",
@@ -224,151 +148,29 @@ const navModules: NavModule[] = [
       {
         label: "Engine Test Calculator",
         to: "/admin/paint-engine-test",
-        icon: Calculator,
+        icon: FlaskConical,
       },
-      { label: "Price Updater", to: "/admin/price-updater", icon: TrendingUp },
       {
-        label: "Tyrolene Config",
-        to: "/admin/tyrolene-config",
-        icon: Building2,
-      },
-      { label: "Engine Config", to: "/admin/engine-config", icon: Cpu },
-      {
-        label: "Roof View Imagery",
-        to: "/admin/roof-view",
-        icon: Satellite,
-      },
-    ],
-  },
-  {
-    heading: "Calculators",
-    items: [
-      {
-        label: "Paint Calculator (Legacy)",
+        label: "Paint Types (Legacy)",
         to: "/admin/paint-types",
-        icon: Calculator,
+        icon: Paintbrush,
+        group: "Materials & Finishes",
       },
       { label: "Wall Screeding", to: "/admin/screeding", icon: Layers },
-      { label: "POP Ceiling", to: "/admin/pop-materials", icon: Layers },
-      { label: "Tile Library", to: "/admin/tile-materials", icon: Layers },
-      { label: "Templates", to: "/admin/templates", icon: Layers },
-    ],
-  },
-  {
-    heading: "Pricing",
-    items: [
-      { label: "Cost & Pricing", to: "/admin/pricing", icon: DollarSign },
-      { label: "Labour Settings", to: "/admin/labour-settings", icon: HardHat },
-    ],
-  },
-  {
-    heading: "AI",
-    items: [
-      { label: "AI Control Center", to: "/admin/ai-settings", icon: Crown },
-      {
-        label: "AI Monetization",
-        to: "/admin/ai-monetization",
-        icon: DollarSign,
-      },
-      { label: "Ad Management", to: "/admin/ads", icon: Megaphone },
-      { label: "Rewarded Access", to: "/admin/rewarded-access", icon: Gift },
-      {
-        label: "AI Developer Studio",
-        to: "/admin/studio",
-        icon: GraduationCap,
-      },
-      {
-        label: "API Keys",
-        to: "/admin/api-keys",
-        icon: KeyRound,
-      },
-      {
-        label: "Social Brand Center",
-        to: "/admin/social-brand-center",
-        icon: Link2,
-      },
-      {
-        label: "Image Estimation",
-        to: "/admin/image-estimation",
-        icon: Camera,
-      },
-    ],
-  },
-  {
-    heading: "Rewards",
-    items: [
-      { label: "Credits & Rewards", to: "/admin/rewards", icon: Gem },
-      {
-        label: "Credits & Rewarded Ads",
-        to: "/admin/credits-ads",
-        icon: Coins,
-      },
-    ],
-  },
-  {
-    heading: "Users",
-    items: [{ label: "User Management", to: "/admin/users", icon: Users }],
-  },
-  {
-    heading: "Analytics",
-    items: [
-      { label: "Analytics Dashboard", to: "/admin/analytics", icon: BarChart3 },
-    ],
-  },
-  {
-    heading: "SEO",
-    items: [{ label: "SEO Settings", to: "/admin/seo", icon: Search }],
-  },
-  {
-    heading: "Integrations",
-    items: [
-      { label: "Integration Center", to: "/admin/integrations", icon: Plug },
-    ],
-  },
-  {
-    heading: "Pro Connect",
-    items: [
-      {
-        label: "Professionals & Reports",
-        to: "/admin/pro-connect",
-        icon: Briefcase,
-      },
-      { label: "Marketplace", to: "/admin/marketplace", icon: ShoppingBag },
-      { label: "SEO & Location", to: "/admin/seo-location", icon: MapPin },
-    ],
-  },
-  {
-    heading: "Contractor",
-    items: [
-      {
-        label: "Material Catalog",
-        to: "/admin/material-catalog",
-        icon: Package,
-      },
-      {
-        label: "Material Prices",
-        to: "/admin/material-prices",
-        icon: Tag,
-      },
-      {
-        label: "Paint Comparison",
-        to: "/admin/paint-comparison",
-        icon: Paintbrush,
-      },
+      { label: "POP Ceiling", to: "/admin/pop-materials", icon: Building2 },
+      { label: "Tile Library", to: "/admin/tile-materials", icon: Images },
+      { label: "Paint Comparison", to: "/admin/paint-comparison", icon: Tag },
       {
         label: "Surface Conditions",
         to: "/admin/surface-conditions",
-        icon: Layers,
+        icon: ClipboardList,
       },
+      { label: "Tyrolene Config", to: "/admin/tyrolene-config", icon: Dna },
       {
         label: "Project Stages",
         to: "/admin/project-stages",
         icon: ListChecks,
-      },
-      {
-        label: "Gallery Moderation",
-        to: "/admin/gallery-moderation",
-        icon: Images,
+        group: "Structure",
       },
       {
         label: "Timeline Templates",
@@ -376,50 +178,293 @@ const navModules: NavModule[] = [
         icon: Calendar,
       },
       {
+        label: "Cash-Flow Templates",
+        to: "/admin/cash-flow-templates",
+        icon: Wallet,
+        group: "Project & Cost",
+      },
+      { label: "Margin Presets", to: "/admin/margin-presets", icon: Percent },
+      { label: "Defects", to: "/admin/defects", icon: Stethoscope },
+      {
+        label: "Maintenance Profiles",
+        to: "/admin/maintenance-profiles",
+        icon: Wrench,
+      },
+      { label: "Credit Profiles", to: "/admin/credit-profiles", icon: Scale },
+      {
+        label: "Solar Panels",
+        to: "/admin/solar-panels",
+        icon: Sun,
+        group: "Building Services",
+      },
+      {
+        label: "Conversational Packs",
+        to: "/admin/conversational-packs",
+        icon: MessageCircle,
+        group: "AI Engines",
+      },
+      { label: "Counter-Vision", to: "/admin/count-vision", icon: ScanLine },
+      {
+        label: "Image Estimation",
+        to: "/admin/image-estimation",
+        icon: Camera,
+      },
+      { label: "Field Sync", to: "/admin/field-sync", icon: CloudOff },
+      { label: "Roof View Imagery", to: "/admin/roof-view", icon: Satellite },
+      {
+        label: "Regional Costs",
+        to: "/admin/regional-cost-indices",
+        icon: MapPin,
+        group: "Factor Tables",
+      },
+      { label: "Carbon Factors", to: "/admin/carbon-factors", icon: Leaf },
+      {
+        label: "Thermal Factors",
+        to: "/admin/thermal-factors",
+        icon: Thermometer,
+      },
+      { label: "Reuse Factors", to: "/admin/reuse-factors", icon: RefreshCcw },
+    ],
+  },
+  {
+    heading: "Materials & Prices",
+    items: [
+      {
+        label: "Material Catalog",
+        to: "/admin/material-catalog",
+        icon: Boxes,
+        group: "Materials",
+      },
+      {
+        label: "Estimation Materials",
+        to: "/admin/estimation-materials",
+        icon: Package,
+      },
+      {
+        label: "Estimation Products",
+        to: "/admin/estimation-products",
+        icon: Layers,
+      },
+      {
+        label: "Material Prices",
+        to: "/admin/material-prices",
+        icon: DollarSign,
+        group: "Prices",
+      },
+      {
+        label: "Estimation Pricing",
+        to: "/admin/estimation-pricing",
+        icon: Coins,
+      },
+      { label: "Price Updater", to: "/admin/price-updater", icon: TrendingUp },
+      { label: "Solar Prices", to: "/admin/solar-prices", icon: Sun },
+      { label: "Labour Rates", to: "/admin/labour-rates", icon: HardHat },
+      { label: "Labour Settings", to: "/admin/labour-settings", icon: HardHat },
+      { label: "Cost & Pricing", to: "/admin/pricing", icon: DollarSign },
+      {
+        label: "Market Intelligence",
+        to: "/admin/market-intelligence",
+        icon: LineChart,
+      },
+    ],
+  },
+  {
+    heading: "Projects & Estimates",
+    items: [
+      { label: "Estimates", to: "/admin/estimation-estimates", icon: FileText },
+      { label: "Templates", to: "/admin/templates", icon: FileStack },
+      {
         label: "Quotation Settings",
         to: "/admin/quotation-settings",
         icon: FileSignature,
       },
-    ],
-  },
-  {
-    heading: "International",
-    items: [
-      { label: "Markets & Regions", to: "/admin/markets", icon: Globe },
-      {
-        label: "Market Intelligence",
-        to: "/admin/market-intelligence",
-        icon: TrendingUp,
-      },
-    ],
-  },
-  {
-    heading: "System",
-    items: [
-      { label: "AI Assistant", to: "/admin/ai-assistant", icon: Crown },
-      { label: "Site Branding", to: "/admin/branding", icon: Palette },
       {
         label: "PDF Branding & Templates",
         to: "/admin/pdf-branding",
         icon: FileText,
       },
-      { label: "Typography", to: "/admin/typography", icon: Type },
-      { label: "Site Settings", to: "/admin/settings", icon: Settings },
+    ],
+  },
+  {
+    heading: "Users",
+    items: [
+      { label: "User Management", to: "/admin/users", icon: Users },
       {
         label: "Roles & Permissions",
         to: "/admin/studio/role_management",
-        icon: ShieldCheck,
+        icon: KeyRound,
       },
+      { label: "Analytics Dashboard", to: "/admin/analytics", icon: BarChart3 },
+    ],
+  },
+  {
+    heading: "ARCHIE / AI",
+    items: [
+      { label: "AI Control Center", to: "/admin/ai-settings", icon: Crown },
+      { label: "AI Assistant", to: "/admin/ai-assistant", icon: Brain },
+      {
+        label: "AI Learning Assistant",
+        to: "/admin/ai-learning",
+        icon: GraduationCap,
+      },
+      {
+        label: "Learning Review",
+        to: "/admin/learning-review",
+        icon: BookOpen,
+      },
+      {
+        label: "Intelligence Sources",
+        to: "/admin/intelligence-sources",
+        icon: Search,
+      },
+      {
+        label: "Intelligence Dashboard",
+        to: "/admin/intelligence-dashboard",
+        icon: Activity,
+      },
+    ],
+  },
+  {
+    heading: "Content",
+    items: [
+      { label: "Learn Articles", to: "/admin/learn", icon: BookOpen },
+      {
+        label: "Construction Dictionary",
+        to: "/admin/dictionary",
+        icon: Languages,
+      },
+      { label: "Color Gallery", to: "/admin/colors", icon: Palette },
+      {
+        label: "Gallery Moderation",
+        to: "/admin/gallery-moderation",
+        icon: Images,
+      },
+      { label: "Media Manager", to: "/admin/media", icon: Image },
+      { label: "Legal Pages", to: "/admin/legal", icon: FileText },
+      { label: "Contact Messages", to: "/admin/contact", icon: Mail },
+      { label: "SEO Settings", to: "/admin/seo", icon: Search },
+    ],
+  },
+  {
+    heading: "Monetization",
+    items: [
+      { label: "Ad Management", to: "/admin/ads", icon: Megaphone },
+      { label: "AI Monetization", to: "/admin/ai-monetization", icon: Crown },
+      { label: "Rewarded Access", to: "/admin/rewarded-access", icon: Gift },
+      { label: "Credits & Rewards", to: "/admin/rewards", icon: Gem },
+      { label: "Credits & Rewarded Ads", to: "/admin/credits-ads", icon: Gift },
+    ],
+  },
+  {
+    heading: "Marketplace & Pros",
+    items: [
+      { label: "Marketplace", to: "/admin/marketplace", icon: ShoppingBag },
+      { label: "Marketplace Products", to: "/admin/products", icon: Package },
+      {
+        label: "Professionals & Reports",
+        to: "/admin/pro-connect",
+        icon: Briefcase,
+      },
+      { label: "Pro SEO & Location", to: "/admin/seo-location", icon: MapPin },
+    ],
+  },
+  {
+    heading: "System",
+    items: [
+      { label: "Site Settings", to: "/admin/settings", icon: Settings },
+      { label: "Site Branding", to: "/admin/branding", icon: Palette },
+      { label: "Typography", to: "/admin/typography", icon: Type },
+      {
+        label: "Social Brand Center",
+        to: "/admin/social-brand-center",
+        icon: Link2,
+      },
+      { label: "API Keys", to: "/admin/api-keys", icon: KeyRound },
+      { label: "Integration Center", to: "/admin/integrations", icon: Plug },
+      { label: "AI Developer Studio", to: "/admin/studio", icon: Smartphone },
+      { label: "Markets & Regions", to: "/admin/markets", icon: Globe },
+    ],
+  },
+  {
+    heading: "Security & Audit",
+    items: [
+      { label: "Audit Log", to: "/admin/estimation-audit", icon: ScrollText },
       { label: "Error Monitor", to: "/admin/errors", icon: AlertTriangle },
+      {
+        label: "Error Analysis",
+        to: "/admin/error_analysis",
+        icon: AlertTriangle,
+      },
       { label: "System Health", to: "/admin/system-health", icon: ShieldCheck },
     ],
   },
 ];
 
-/**
- * Admin layout shell. Wraps the dashboard in the ADMIN-scoped theme provider
- * so admin dark-mode toggles never modify the public site / visitor theme.
- */
+/** Flat path lookup for breadcrumbs and search. */
+const flatNav: { heading: string; item: NavItem }[] = navModules.flatMap((m) =>
+  m.items.map((item) => ({ heading: m.heading, item })),
+);
+
+function crumbsFor(pathname: string): { label: string; to?: string }[] {
+  const crumbs: { label: string; to?: string }[] = [
+    { label: "Admin", to: "/admin" },
+  ];
+  if (pathname === "/admin") return crumbs;
+  const match =
+    flatNav.find((f) => f.item.to === pathname) ??
+    flatNav
+      .filter(
+        (f) => f.item.to !== "/admin" && pathname.startsWith(f.item.to + "/"),
+      )
+      .sort((a, b) => b.item.to.length - a.item.to.length)[0];
+  if (match) {
+    crumbs.push({ label: match.heading });
+    crumbs.push({ label: match.item.label });
+  }
+  return crumbs;
+}
+
+function Breadcrumbs() {
+  const location = useLocation();
+  const crumbs = crumbsFor(location.pathname);
+  if (crumbs.length < 2) return null;
+  return (
+    <nav
+      aria-label="Breadcrumb"
+      className="mb-5 flex flex-wrap items-center gap-1.5 text-xs"
+    >
+      {crumbs.map((c, i) => (
+        <span key={i} className="flex items-center gap-1.5">
+          {i > 0 && (
+            <ChevronRight
+              className="h-3 w-3 text-muted-foreground/60"
+              aria-hidden="true"
+            />
+          )}
+          {c.to && i === 0 ? (
+            <Link
+              to={c.to}
+              className="font-medium text-muted-foreground hover:text-brand-purple"
+            >
+              {c.label}
+            </Link>
+          ) : (
+            <span
+              className={
+                i === crumbs.length - 1
+                  ? "font-semibold text-foreground dark:text-primary-foreground"
+                  : "font-medium text-muted-foreground"
+              }
+            >
+              {c.label}
+            </span>
+          )}
+        </span>
+      ))}
+    </nav>
+  );
+}
+
 export default function AdminLayout() {
   return (
     <AdminThemeProvider>
@@ -532,6 +577,7 @@ function AdminLayoutInner() {
 
         <main className="min-w-0 flex-1">
           <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
+            <Breadcrumbs />
             <Outlet />
           </div>
         </main>
@@ -553,6 +599,29 @@ function SidebarContent({
   theme: string;
   onToggleTheme: () => void;
 }) {
+  // Sidebar search filters sections/pages so the owner can jump straight to
+  // any admin page (materials, prices, engines, users, settings…) instead of
+  // hunting through the sidebar.
+  const [query, setQuery] = useState("");
+  const q = query.trim().toLowerCase();
+  const modules = useMemo(
+    () =>
+      q
+        ? navModules
+            .map((m) => ({
+              heading: m.heading,
+              items: m.items.filter(
+                (i) =>
+                  i.label.toLowerCase().includes(q) ||
+                  (i.group ?? "").toLowerCase().includes(q) ||
+                  m.heading.toLowerCase().includes(q) ||
+                  i.to.toLowerCase().includes(q),
+              ),
+            }))
+            .filter((m) => m.items.length > 0)
+        : navModules,
+    [q],
+  );
   return (
     <div className="flex h-full flex-col">
       <div className="hidden border-b border-border px-5 py-4 dark:border-border lg:block">
@@ -561,39 +630,71 @@ function SidebarContent({
         </span>
         <p className="text-xs text-muted-foreground">Platform management</p>
       </div>
+      <div className="border-b border-border p-3 dark:border-border">
+        <div className="relative">
+          <Search
+            className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
+          <input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search admin pages…"
+            aria-label="Search admin pages"
+            className="h-9 w-full rounded-lg border border-border bg-background pl-8 pr-3 text-sm text-foreground outline-none placeholder:text-muted-foreground/70 focus:ring-1 focus:ring-brand-purple/50 dark:border-border dark:bg-card dark:text-primary-foreground"
+          />
+        </div>
+      </div>
 
-      <nav className="flex-1 overflow-y-auto p-3">
-        {navModules.map((module) => (
-          <div key={module.heading} className="mb-4">
-            <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-              {module.heading}
-            </p>
-            <div className="space-y-0.5">
-              {module.items.map((item) => {
-                const Icon = item.icon;
-                return (
-                  <NavLink
-                    key={item.to}
-                    to={item.to}
-                    end={item.end}
-                    onClick={onNavigate}
-                    className={({ isActive }) =>
-                      classNames(
-                        "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-                        isActive
-                          ? "bg-primary text-primary-foreground dark:nav-active"
-                          : "text-muted-foreground hover:bg-muted hover:text-brand-purple dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90 dark:hover:text-brand-purple-light",
-                      )
-                    }
-                  >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    {item.label}
-                  </NavLink>
-                );
-              })}
+      <nav className="flex-1 overflow-y-auto p-3" aria-label="Admin sections">
+        {modules.map((module) => {
+          let lastGroup: string | undefined;
+          return (
+            <div key={module.heading} className="mb-4">
+              <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                {module.heading}
+              </p>
+              <div className="space-y-0.5">
+                {module.items.map((item) => {
+                  const Icon = item.icon;
+                  const showGroup = item.group && item.group !== lastGroup;
+                  lastGroup = item.group;
+                  return (
+                    <div key={item.to}>
+                      {showGroup && (
+                        <p className="mt-2 px-3 pb-0.5 text-[9px] font-bold uppercase tracking-widest text-muted-foreground/60">
+                          {item.group}
+                        </p>
+                      )}
+                      <NavLink
+                        to={item.to}
+                        end={item.end}
+                        onClick={onNavigate}
+                        className={({ isActive }) =>
+                          classNames(
+                            "flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                            isActive
+                              ? "bg-primary text-primary-foreground dark:nav-active"
+                              : "text-muted-foreground hover:bg-muted hover:text-brand-purple dark:text-muted-foreground/80 dark:hover:bg-card-foreground/90 dark:hover:text-brand-purple-light",
+                          )
+                        }
+                      >
+                        <Icon className="h-4 w-4 shrink-0" />
+                        {item.label}
+                      </NavLink>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
+        {modules.length === 0 && (
+          <p className="px-3 py-6 text-center text-sm text-muted-foreground">
+            No admin pages match “{query}”.
+          </p>
+        )}
       </nav>
 
       <div className="border-t border-border p-3 dark:border-border">

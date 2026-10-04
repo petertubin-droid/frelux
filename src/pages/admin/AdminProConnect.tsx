@@ -25,8 +25,9 @@ import {
   AdminIconButton,
   AdminInput,
   AdminSelect,
-  AdminTextarea,
   AdminTabButton,
+  AdminTextarea,
+  StatusBadge,
 } from "@/components/admin/AdminUi";
 import type {
   DbProProfile,
@@ -2386,7 +2387,7 @@ function AdminModerationTab() {
             }
             className="h-4 w-4 rounded border-border"
           />
-          {config.is_enabled ? "Enabled" : "Disabled"}
+          <StatusBadge status={config.is_enabled ? "Active" : "Disabled"} />
         </label>
       </div>
 

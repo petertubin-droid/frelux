@@ -37,6 +37,7 @@ import {
   type RewardedAdCreditEvent,
 } from "@/lib/credits";
 import { Button } from "@/components/ui/shadcn/button";
+import { StatusBadge } from "@/components/admin/AdminUi";
 
 type Tab =
   | "overview"
@@ -323,7 +324,9 @@ export default function AdminCreditsAds() {
                     adConfig?.is_enabled ? "text-accent-green" : "text-red-400",
                   )}
                 >
-                  {adConfig?.is_enabled ? "Enabled" : "Disabled"}
+                  <StatusBadge
+                    status={adConfig?.is_enabled ? "Active" : "Disabled"}
+                  />
                 </span>
               </div>
               <div className="flex items-center justify-between text-xs">
@@ -763,8 +766,7 @@ export default function AdminCreditsAds() {
                   >
                     <div>
                       <p className="text-xs font-semibold text-foreground dark:text-primary-foreground">
-                        {p.tokens_credited} tokens:{" "}
-                        {formatNaira(p.amount_kobo)}
+                        {p.tokens_credited} tokens: {formatNaira(p.amount_kobo)}
                       </p>
                       <p className="text-[10px] text-muted-foreground">
                         {p.reference} •{" "}
