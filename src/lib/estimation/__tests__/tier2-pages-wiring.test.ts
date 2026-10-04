@@ -7,7 +7,8 @@
  * (146 tests total). The page components are ports of the
  * shared estimator template (already covered by the older
  * estimator page tests' rendering pattern). What these pin is
- * the WIRING: a route, a Calculators card, a sitemap entry and
+ * the WIRING: a route, a Construction Tools registry entry, a sitemap
+ * entry and
  * an admin rules type for each of the eight engines — the
  * regression net that catches silent wiring aborts.
  */
@@ -19,7 +20,7 @@ const ENGINES = [
     route: "/electrical",
     slug: "ElectricalEstimator",
     calc: "electrical",
-    card: "Electrical",
+    card: "Electrical Wiring",
   },
   {
     route: "/plumbing",
@@ -49,7 +50,7 @@ const ENGINES = [
     route: "/foundation",
     slug: "FoundationEstimator",
     calc: "foundation",
-    card: "Foundation",
+    card: "Foundation Cost Estimate",
   },
   {
     route: "/doors-windows",
@@ -71,20 +72,29 @@ async function read(rel: string): Promise<string> {
 }
 
 describe("Tier 2 estimator pages wiring", () => {
-  it("every engine has a route, a lazy import and a Calculators card", async () => {
+  it("every engine has a route, a lazy import and a Construction Tools registry entry", async () => {
     const app = await read("src/App.tsx");
-    const cards = await read("src/pages/Calculators.tsx");
+    // Since the IA restructure, the authoritative tool catalogue is the
+    // CONSTRUCTION_TOOLS registry (the old Calculators page is a redirect
+    // to /construction-tools). Every engine must be discoverable there:
+    // exactly one entry, with its route and plain-language title.
+    const registry = await read("src/config/construction-tools.ts");
+    const toolsPage = await read("src/pages/ConstructionTools.tsx");
     for (const e of ENGINES) {
       expect(app, `App.tsx must lazy-import ${e.slug}`).toContain(e.slug);
       expect(app, `App.tsx must register the ${e.route} route`).toContain(
         `path="${e.route}"`,
       );
-      expect(cards, `Calculators.tsx must card-link ${e.route}`).toContain(
+      expect(registry, `registry must link ${e.route}`).toContain(
         `to: "${e.route}"`,
       );
-      expect(cards, `Calculators.tsx must title the ${e.route} card`).toContain(
-        e.card,
+      expect(registry, `registry must title the ${e.route} tool`).toContain(
+        `title: "${e.card}"`,
       );
+      expect(
+        toolsPage,
+        "ConstructionTools page must render the registry",
+      ).toContain("CONSTRUCTION_TOOLS");
     }
   });
 
