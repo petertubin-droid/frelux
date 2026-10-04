@@ -28,13 +28,13 @@ POST https://api.supabase.com/v1/projects/{ref}/database/query
 Authorization: Bearer <access token>   body: { "query": "<sql>" }
 ```
 
-- Frelux DB project ref: `hqvhlkunkdrxyuvziorm` (Supabase account: Freluxtools).
+- Frelux DB project: `freluxproject`, ref `nfgaaohweygwydoelxnf` (eu-west-1).
 - Apply pending files under `supabase/migrations/` in filename order; each is
   idempotent or guarded.
-- Pending after the worldwide release: `20261007100000` (English-only
-  conversational packs + worldwide language registry rows),
-  `20261007120000` (US market profile + USD reference prices),
-  `20261007130000` (data subject requests table).
+- All migrations through `20261007130000` are applied live as of
+  2026-10-04, including the worldwide set (language registry cleanup,
+  English-only conversational packs, US market profile + USD reference
+  price book, data subject requests table).
 - Access tokens expire; when a 401 hits, the owner generates a new one from
   the Supabase dashboard (Account → Access Tokens) and it is stored as a
   secret.
