@@ -1,4 +1,3 @@
-
 // =========================================================
 // FRELUX Pro Connect, Database Types
 // Phase 25 + Phase 26 (Verification System)
@@ -33,6 +32,7 @@ export interface DbProService {
 
 export interface DbProLocation {
   id: string;
+  country?: string;
   state: string;
   city: string;
   area: string | null;
@@ -48,27 +48,28 @@ export interface DbProLocation {
   updated_at: string;
 }
 
-export type ProAvailability = 'available' | 'busy' | 'unavailable';
+export type ProAvailability = "available" | "busy" | "unavailable";
 
 // Phase 26: Extended verification statuses
 export type ProVerificationStatus =
-  | 'unverified'
-  | 'pending'
-  | 'verified'
-  | 'rejected'
-  | 'more_info'
-  | 'suspended';
+  | "unverified"
+  | "pending"
+  | "verified"
+  | "rejected"
+  | "more_info"
+  | "suspended";
 
 // Phase 26: Verification tier levels
 export type VerificationTier = 0 | 1 | 2 | 3;
 // 0 = unverified, 1 = contact verified, 2 = FRELUX verified, 3 = FRELUX Pro
 
 // Phase 26: Account types
-export type AccountType = 'client' | 'pro_worker';
+export type AccountType = "client" | "pro_worker";
 
 // Phase 26: Verification request types
-export type VerificationRequestType = 'contact' | 'identity' | 'pro_level';
-export type VerificationRequestStatus = 'pending' | 'approved' | 'rejected' | 'more_info' | 'withdrawn';
+export type VerificationRequestType = "contact" | "identity" | "pro_level";
+export type VerificationRequestStatus =
+  "pending" | "approved" | "rejected" | "more_info" | "withdrawn";
 
 export interface DbProProfile {
   id: string;
@@ -77,6 +78,7 @@ export interface DbProProfile {
   business_name: string | null;
   display_name: string;
   slug: string;
+  country?: string;
   bio: string | null;
   profile_image_url: string | null;
   cover_image_url: string | null;
@@ -165,7 +167,7 @@ export interface DbProReview {
   professional?: { display_name: string; slug: string };
 }
 
-export type ProConversationStatus = 'active' | 'archived' | 'blocked';
+export type ProConversationStatus = "active" | "archived" | "blocked";
 
 export interface DbProConversation {
   id: string;
@@ -198,8 +200,8 @@ export interface DbProMessage {
   created_at: string;
 }
 
-export type ProReportType = 'profile' | 'review' | 'message' | 'portfolio';
-export type ProReportStatus = 'open' | 'reviewing' | 'resolved' | 'dismissed';
+export type ProReportType = "profile" | "review" | "message" | "portfolio";
+export type ProReportStatus = "open" | "reviewing" | "resolved" | "dismissed";
 
 export interface DbProReport {
   id: string;
@@ -264,7 +266,8 @@ export interface DbProVerificationDocument {
 }
 
 // Phase 26: Professional Credential (regulated professions)
-export type CredentialVerificationStatus = 'unverified' | 'pending' | 'verified' | 'rejected' | 'expired';
+export type CredentialVerificationStatus =
+  "unverified" | "pending" | "verified" | "rejected" | "expired";
 
 export interface DbProCredential {
   id: string;
@@ -329,14 +332,32 @@ export function getVerificationTier(profile: DbProProfile): VerificationTier {
 }
 
 // Phase 26: Verification tier display info
-export const verificationTierInfo: Record<VerificationTier, {
-  label: string;
-  shortLabel: string;
-  icon: 'check' | 'shield' | 'award';
-  color: string;
-}> = {
-  0: { label: 'Unverified', shortLabel: 'Unverified', icon: 'check', color: 'neutral' },
-  1: { label: 'Contact Verified', shortLabel: 'Contact Verified', icon: 'check', color: 'emerald' },
-  2: { label: 'FRELUX Verified', shortLabel: 'Verified', icon: 'shield', color: 'blue' },
-  3: { label: 'FRELUX Pro', shortLabel: 'Pro', icon: 'award', color: 'amber' },
+export const verificationTierInfo: Record<
+  VerificationTier,
+  {
+    label: string;
+    shortLabel: string;
+    icon: "check" | "shield" | "award";
+    color: string;
+  }
+> = {
+  0: {
+    label: "Unverified",
+    shortLabel: "Unverified",
+    icon: "check",
+    color: "neutral",
+  },
+  1: {
+    label: "Contact Verified",
+    shortLabel: "Contact Verified",
+    icon: "check",
+    color: "emerald",
+  },
+  2: {
+    label: "FRELUX Verified",
+    shortLabel: "Verified",
+    icon: "shield",
+    color: "blue",
+  },
+  3: { label: "FRELUX Pro", shortLabel: "Pro", icon: "award", color: "amber" },
 };

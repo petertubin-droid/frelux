@@ -51,6 +51,7 @@ export default function ProConnectRegister() {
   const [website, setWebsite] = useState("");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [country, setCountry] = useState("NG");
   const [availability, setAvailability] = useState<
     "available" | "busy" | "unavailable"
   >("available");
@@ -123,6 +124,7 @@ export default function ProConnectRegister() {
           setBio(existing.bio || "");
           setYearsExperience(existing.years_experience?.toString() || "");
           setPhone(existing.contact_phone || "");
+          if (existing.country) setCountry(existing.country);
           setWebsite(existing.website_url || "");
           setAvailability(existing.availability);
           setStep(1);
@@ -131,7 +133,10 @@ export default function ProConnectRegister() {
     })();
   }, [user]);
 
-  const states = [...new Set(locations.map((l) => l.state))].sort();
+  const countryLocations = locations.filter(
+    (l) => (l.country ?? "NG") === country,
+  );
+  const states = [...new Set(countryLocations.map((l) => l.state))].sort();
   const filteredServices = categoryId
     ? services.filter((s) => s.category_id === categoryId)
     : services;
@@ -219,6 +224,7 @@ export default function ProConnectRegister() {
     await updateProfileLocations(profileId, selectedLocations);
     await updateProProfile(profileId, {
       availability,
+      country,
       is_profile_complete: true,
       is_listed: true,
     } as Partial<DbProProfile>);
@@ -539,8 +545,34 @@ export default function ProConnectRegister() {
             </p>
           </div>
 
+          <div className="max-w-xs">
+            <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
+              Country
+            </label>
+            <select
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+            >
+              <option value="NG">Nigeria</option>
+              <option value="GH">Ghana</option>
+              <option value="KE">Kenya</option>
+              <option value="ZA">South Africa</option>
+            </select>
+          </div>
+
+          {states.length === 0 && (
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400">
+              Service areas for this country are coming soon — you can continue
+              without selecting any. Your profile will be listed under your
+              selected country.
+            </div>
+          )}
+
           {states.map((state) => {
-            const stateLocations = locations.filter((l) => l.state === state);
+            const stateLocations = countryLocations.filter(
+              (l) => l.state === state,
+            );
             const _selectedInState = selectedLocations.filter((id) =>
               stateLocations.some((l) => l.id === id),
             );
