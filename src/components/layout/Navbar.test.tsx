@@ -21,11 +21,15 @@ beforeEach(() => {
 async function renderNavbar() {
   const Navbar = (await import("@/components/layout/Navbar")).default;
   const { CreditsProvider } = await import("@/lib/credits-context");
+  const { CurrencyProvider } =
+    await import("@/lib/international/currency-context");
   return render(
     <MemoryRouter>
       <ToastProvider>
         <CreditsProvider>
-          <Navbar />
+          <CurrencyProvider>
+            <Navbar />
+          </CurrencyProvider>
         </CreditsProvider>
       </ToastProvider>
     </MemoryRouter>,

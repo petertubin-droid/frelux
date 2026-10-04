@@ -183,6 +183,7 @@ export default function AdminPriceUpdater() {
           ref_id: materialId,
           price,
           currency: "NGN",
+          market: "NG",
           effective_date: today,
           notes: `Applied from FRELUX reference catalog via Price Tracker (admin verified ${today}). Unit: ${row.unit}.`,
           is_active: true,

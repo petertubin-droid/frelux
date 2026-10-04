@@ -1,8 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
 /**
  * Translation System for FRELUX
- * Supports English (default), Yoruba, Hausa, Igbo, and Nigerian Pidgin.
- * Uses localStorage to persist language preference.
+ * Supports English (default), 16 Nigerian languages, and international
+ * languages (French, Portuguese, Swahili, Arabic, Chinese) via Google
+ * Translate. Uses localStorage to persist language preference.
  */
 
 import {
@@ -30,7 +31,12 @@ export type Language =
   | "ibibio"
   | "igala"
   | "urhobo"
-  | "eso";
+  | "eso"
+  | "fr"
+  | "pt"
+  | "sw"
+  | "ar"
+  | "zh";
 
 export const LANGUAGES: {
   value: Language;
@@ -54,6 +60,11 @@ export const LANGUAGES: {
   { value: "igala", label: "Igala", nativeLabel: "Igala", flag: "🇳🇬" },
   { value: "urhobo", label: "Urhobo", nativeLabel: "Urhobo", flag: "🇳🇬" },
   { value: "eso", label: "Esan", nativeLabel: "Esan", flag: "🇳🇬" },
+  { value: "fr", label: "French", nativeLabel: "Français", flag: "🇫🇷" },
+  { value: "pt", label: "Portuguese", nativeLabel: "Português", flag: "🇵🇹" },
+  { value: "sw", label: "Swahili", nativeLabel: "Kiswahili", flag: "🇰🇪" },
+  { value: "ar", label: "Arabic", nativeLabel: "العربية", flag: "🇸🇦" },
+  { value: "zh", label: "Chinese", nativeLabel: "中文", flag: "🇨🇳" },
 ];
 
 type TranslationKey = string;
@@ -61,6 +72,11 @@ type TranslationKey = string;
 // Translation dictionary, covers calculator labels, navigation, and common UI
 const translations: Record<Language, Record<TranslationKey, string>> = {
   en: {},
+  fr: {},
+  pt: {},
+  sw: {},
+  ar: {},
+  zh: {},
   efik: {},
   tiv: {},
   ijaw: {},

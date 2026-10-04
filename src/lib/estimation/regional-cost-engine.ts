@@ -19,6 +19,8 @@ import type { EstimationCalcRule, RegionalCostIndex } from "@/types/estimation";
 
 export interface RegionalCostInput {
   base_cost: number;
+  /** ISO 3166-1 alpha-2 market. Defaults to "NG" (backwards compatible). */
+  country?: string;
   state: string;
   category?: string | null;
   /** Active indices loaded from the database */
@@ -84,8 +86,15 @@ export function applyRegionalCost(
     return result;
   }
   const category = (input.category ?? "general").trim() || "general";
+  const country = (input.country ?? "NG").trim().toUpperCase() || "NG";
 
-  const active = input.indices.filter((i) => i.is_active !== false);
+  // Country-first filter: an index belongs to one market. Rows without a
+  // country (pre-dating the column) are treated as NG, so existing
+  // behaviour is byte-for-byte identical.
+  const active = input.indices.filter(
+    (i) =>
+      i.is_active !== false && (i.country ?? "NG").toUpperCase() === country,
+  );
 
   // ── 1. Exact state + category ──
   let match = active.find(
@@ -115,14 +124,14 @@ export function applyRegionalCost(
     result.adjusted_cost = adjusted;
     result.steps.push({
       label: "Applied factor",
-      detail: `No index configured for ${state}/${category}. National baseline ${factor.toFixed(2)} applied with a warning — the engine does not guess a regional multiplier.`,
+      detail: `No index configured for ${country}/${state}/${category}. National baseline ${factor.toFixed(2)} applied with a warning — the engine does not guess a regional multiplier.`,
     });
     result.steps.push({
       label: "Adjusted cost",
       detail: `${base.toLocaleString()} × ${factor.toFixed(2)} = ${adjusted.toLocaleString()}`,
     });
     result.warnings.push(
-      `No regional cost index is configured for ${state}${category !== "general" ? ` (${category})` : ""}. ` +
+      `No regional cost index is configured for ${country}/${state}${category !== "general" ? ` (${category})` : ""}. ` +
         `The national baseline (${factor.toFixed(2)}) was used. Add an index under Admin → Regional Cost Indices for state-accurate costing.`,
     );
     result.ok = true;
@@ -160,6 +169,16 @@ export function applyRegionalCost(
 }
 
 /** Unique sorted list of states with at least one active index (for the page's selector). */
+export function countriesWithIndices(indices: RegionalCostIndex[]): string[] {
+  return [
+    ...new Set(
+      indices
+        .filter((i) => i.is_active !== false)
+        .map((i) => (i.country ?? "NG").toUpperCase()),
+    ),
+  ].sort();
+}
+
 export function statesWithIndices(indices: RegionalCostIndex[]): string[] {
   return Array.from(
     new Set(

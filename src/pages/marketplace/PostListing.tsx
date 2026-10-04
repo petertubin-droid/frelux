@@ -41,6 +41,7 @@ export default function PostListing() {
   const [budgetMin, setBudgetMin] = useState("");
   const [budgetMax, setBudgetMax] = useState("");
   const [state, setState] = useState(profile?.full_name ? "" : "");
+  const [country, setCountry] = useState("NG");
   const [city, setCity] = useState("");
   const [area, setArea] = useState("");
   const [userLocation, setUserLocation] =
@@ -109,6 +110,7 @@ export default function PostListing() {
         project_type: projectType,
         budget_min: budgetMin ? parseFloat(budgetMin) : undefined,
         budget_max: budgetMax ? parseFloat(budgetMax) : undefined,
+        location_country: country === "OTHER" ? undefined : country,
         location_state: state || undefined,
         location_city: city || undefined,
         location_area: area || undefined,
@@ -260,23 +262,52 @@ export default function PostListing() {
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
-                State
+                Country
               </label>
               <select
-                value={state}
-                onChange={(e) => setState(e.target.value)}
+                value={country}
+                onChange={(e) => {
+                  setCountry(e.target.value);
+                  if (e.target.value !== "NG") setState("");
+                }}
                 className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
               >
-                <option value="">Select state</option>
-                {(dbLocations.length > 0
-                  ? [...new Set(dbLocations.map((l) => l.state))].sort()
-                  : NIGERIAN_STATES
-                ).map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
-                ))}
+                <option value="NG">Nigeria</option>
+                <option value="GH">Ghana</option>
+                <option value="KE">Kenya</option>
+                <option value="ZA">South Africa</option>
+                <option value="OTHER">Other (specify in city/area)</option>
               </select>
+            </div>
+            <div>
+              <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">
+                State / Region
+              </label>
+              {country === "NG" ? (
+                <select
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+                >
+                  <option value="">Select state</option>
+                  {(dbLocations.length > 0
+                    ? [...new Set(dbLocations.map((l) => l.state))].sort()
+                    : NIGERIAN_STATES
+                  ).map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  value={state}
+                  onChange={(e) => setState(e.target.value)}
+                  placeholder="Region, e.g. Greater Accra"
+                  className="mt-1 w-full rounded-lg border border-border px-3 py-2.5 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
+                />
+              )}
             </div>
             <div>
               <label className="text-sm font-medium text-card-foreground dark:text-muted-foreground/60">

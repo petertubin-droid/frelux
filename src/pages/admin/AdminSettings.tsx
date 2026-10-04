@@ -107,6 +107,7 @@ export default function AdminSettings() {
         seo_title: settings.seo_title,
         seo_description: settings.seo_description,
         premium_subscriptions_enabled: settings.premium_subscriptions_enabled,
+        payment_gateway: settings.payment_gateway ?? "paystack",
         hero_headline: settings.hero_headline,
         hero_subheadline: settings.hero_subheadline,
         hero_cta_primary_label: settings.hero_cta_primary_label,
@@ -257,6 +258,21 @@ export default function AdminSettings() {
                 value={settings.default_currency}
                 onChange={(e) => update("default_currency", e.target.value)}
               />
+            </AdminField>
+            <AdminField label="Payment gateway">
+              <AdminSelect
+                value={settings.payment_gateway ?? "paystack"}
+                onChange={(e) =>
+                  update(
+                    "payment_gateway",
+                    e.target.value as "paystack" | "stripe" | "flutterwave",
+                  )
+                }
+              >
+                <option value="paystack">Paystack (Nigeria)</option>
+                <option value="stripe">Stripe (international)</option>
+                <option value="flutterwave">Flutterwave (Pan-African)</option>
+              </AdminSelect>
             </AdminField>
             <AdminField label="Currency symbol">
               <AdminInput

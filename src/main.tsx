@@ -7,6 +7,7 @@ import App from "./App.tsx";
 import { BrandingProvider } from "@/lib/branding";
 import { ThemeProvider } from "@/lib/theme";
 import { LanguageProvider } from "@/lib/i18n";
+import { CurrencyProvider } from "@/lib/international/currency-context";
 import { AccessibilityProvider } from "@/lib/accessibility";
 import { Toaster } from "@/components/ui/shadcn/toast";
 import { initErrorMonitor } from "@/lib/errorMonitor";
@@ -19,12 +20,14 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider>
       <LanguageProvider>
-        <AccessibilityProvider>
-          <BrandingProvider>
-            <App />
-            <Toaster />
-          </BrandingProvider>
-        </AccessibilityProvider>
+        <CurrencyProvider>
+          <AccessibilityProvider>
+            <BrandingProvider>
+              <App />
+              <Toaster />
+            </BrandingProvider>
+          </AccessibilityProvider>
+        </CurrencyProvider>
       </LanguageProvider>
     </ThemeProvider>
   </StrictMode>,

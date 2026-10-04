@@ -1,4 +1,8 @@
 import { cn } from "@/lib/cn";
+import {
+  isConverting,
+  formatNGNForDisplay,
+} from "@/lib/international/fx-display";
 import type {
   ScreedingCalcInput,
   ScreedingCalcResult,
@@ -13,7 +17,17 @@ export function formatNumber(value: number, fractionDigits = 2): string {
   });
 }
 
+/**
+ * Display formatter. When the visitor has picked a display currency
+ * (International Phase A) and the requested currency is Naira, the
+ * amount is converted for display with the owner-configured rate.
+ * Everything else, including all NGN rendering, is unchanged.
+ */
 export function formatCurrency(value: number, currency = "₦"): string {
+  const isNaira = currency === "₦" || (currency || "").toUpperCase() === "NGN";
+  if (isNaira && isConverting()) {
+    return formatNGNForDisplay(value);
+  }
   return `${currency}${value.toLocaleString("en-US", {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,

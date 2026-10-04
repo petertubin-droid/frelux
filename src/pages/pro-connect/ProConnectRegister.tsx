@@ -657,7 +657,7 @@ export default function ProConnectRegister() {
                   type="tel"
                   value={mobileNumber}
                   onChange={(e) => setMobileNumber(e.target.value)}
-                  placeholder="e.g. 08012345678"
+                  placeholder="e.g. +234 801 234 5678 (any country)"
                   className="w-full rounded-lg border border-border px-4 py-2.5 text-sm dark:border-white/10 dark:bg-background"
                   disabled={otpSent}
                 />

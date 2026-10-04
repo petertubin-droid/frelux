@@ -162,6 +162,8 @@ export interface DbSiteSettings {
   estimation_reset_period: string;
   estimation_admin_override: boolean;
   premium_subscriptions_enabled: boolean;
+  // Subscription checkout gateway (default Paystack)
+  payment_gateway: "paystack" | "stripe" | "flutterwave";
   // Manual paint price entry (Cost Estimator), admin-configurable bucket
   // sizes so users enter a price per bucket (e.g. 20L, 4L) instead of per liter.
   manual_paint_bucket_sizes: number[];

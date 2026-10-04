@@ -277,6 +277,7 @@ export interface EstimationPrice {
   ref_id: string;
   price: number;
   currency: string;
+  market?: string;
   pack_size_id: string | null;
   effective_date: string;
   notes: string | null;
@@ -492,6 +493,8 @@ export interface BoqQuote {
 // 23. regional_cost_indices table (Regional Cost Index Engine)
 export interface RegionalCostIndex {
   id: string;
+  /** ISO 3166-1 alpha-2 market this index belongs to. Defaults to "NG". */
+  country?: string | null;
   state: string;
   category: string;
   cost_factor: number;

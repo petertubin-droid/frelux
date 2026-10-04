@@ -4,6 +4,11 @@ import { Search, ArrowRight, Clock, X, type LucideIcon } from "lucide-react";
 import AdSlot from "@/components/ui/AdSlot";
 import Container from "@/components/ui/Container";
 import { useSeo } from "@/lib/seo";
+import {
+  getStoredUnitSystem,
+  setStoredUnitSystem,
+  type UnitSystem,
+} from "@/lib/international/units-display";
 import { track } from "@/lib/analytics";
 import {
   CONSTRUCTION_TOOLS,
@@ -112,7 +117,7 @@ export default function ConstructionTools() {
   useSeo({
     title: "Construction Tools — Calculators & Estimators | FRELUX",
     description:
-      "Every FRELUX construction tool in one place: paint, tiling, screeding, POP, concrete, solar, plumbing, BOQ and more. Search, compare and calculate with verified Nigerian prices.",
+      "Every FRELUX construction tool in one place: paint, tiling, screeding, POP, concrete, solar, plumbing, BOQ and more. Search, compare and calculate with verified market prices, starting with Nigeria.",
     canonicalPath: "/construction-tools",
   });
 
@@ -154,6 +159,15 @@ export default function ConstructionTools() {
 
   const totalTools = CONSTRUCTION_TOOLS.length;
 
+  // Unit display preference (display layer only — data stays metric)
+  const [unitSystem, setUnitSystem] = useState<UnitSystem>(() =>
+    getStoredUnitSystem(),
+  );
+  const switchUnitSystem = (u: UnitSystem) => {
+    setStoredUnitSystem(u);
+    setUnitSystem(u);
+  };
+
   return (
     <>
       {/* Hero / search */}
@@ -164,9 +178,34 @@ export default function ConstructionTools() {
               Construction Tools
             </h1>
             <p className="mt-3 text-muted-foreground dark:text-muted-foreground">
-              {totalTools} tools with verified Nigerian prices. Enter what you
+              {totalTools} tools with verified market prices. Enter what you
               know, get exact quantities and costs — no guesswork.
             </p>
+            <div className="mt-4 inline-flex items-center gap-1 rounded-full border border-border bg-card p-1 text-xs dark:border-white/10">
+              <span className="pl-2 pr-1 text-muted-foreground">Units:</span>
+              <button
+                type="button"
+                onClick={() => switchUnitSystem("metric")}
+                className={`rounded-full px-3 py-1 font-medium transition-colors ${
+                  unitSystem === "metric"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                Metric (m²)
+              </button>
+              <button
+                type="button"
+                onClick={() => switchUnitSystem("imperial")}
+                className={`rounded-full px-3 py-1 font-medium transition-colors ${
+                  unitSystem === "imperial"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                Imperial (ft²)
+              </button>
+            </div>
             <div className="relative mt-6">
               <Search
                 className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground"

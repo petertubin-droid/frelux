@@ -3,6 +3,7 @@ import { ConstructionExtractionPanel } from "@/components/estimation/Constructio
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useSeo } from "@/lib/seo";
+import { formatAreaDual } from "@/lib/international/units-display";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import {
   Building2,
@@ -288,7 +289,7 @@ export default function BuildToRoofEstimator() {
     description:
       "Planning and budgeting estimate for building from foundation to roof. Configure dimensions, materials, and prices. Actual requirements and costs may vary based on location, current material prices, building design, site conditions, and professional specifications.",
     keywords:
-      "build to roof, construction cost estimator, Nigerian construction, foundation to roof, building materials calculator",
+      "build to roof, construction cost estimator, foundation to roof, building materials calculator, Nigeria",
     canonicalPath: "/build-to-roof-estimator",
     structuredDataArray: [
       {
@@ -297,7 +298,7 @@ export default function BuildToRoofEstimator() {
         name: "Build-to-Roof Construction Cost Estimator",
         url: `${SITE_URL}/build-to-roof-estimator`,
         description:
-          "Calculate materials, quantities, and costs for your building from foundation to roof with Nigerian-market pricing.",
+          "Calculate materials, quantities, and costs for your building from foundation to roof with Nigerian market pricing (more countries coming).",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
         offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
@@ -305,7 +306,12 @@ export default function BuildToRoofEstimator() {
           "@type": "Audience",
           audienceType: "Homeowners, Builders, Contractors",
         },
-        areaServed: { "@type": "Country", name: "Nigeria" },
+        areaServed: [
+          { "@type": "Country", name: "Nigeria" },
+          { "@type": "Country", name: "Ghana" },
+          { "@type": "Country", name: "Kenya" },
+          { "@type": "Country", name: "South Africa" },
+        ],
       },
       {
         "@context": "https://schema.org",
@@ -961,10 +967,11 @@ export default function BuildToRoofEstimator() {
                     <SectionCard title="Block Specification" icon={Settings}>
                       <div className="col-span-full -mt-2 mb-2 rounded-lg bg-blue-50 border border-blue-100 p-2.5">
                         <p className="text-xs text-blue-600">
-                          <strong>Nigerian block sizes:</strong> 9-inch (hollow)
-                          , foundations &amp; external load-bearing walls ·
-                          6-inch (hollow or solid), internal partitions · 5-inch
-                          (solid only), non-load-bearing partitions
+                          <strong>Common block sizes in your market:</strong>{" "}
+                          9-inch (hollow) , foundations &amp; external
+                          load-bearing walls · 6-inch (hollow or solid),
+                          internal partitions · 5-inch (solid only),
+                          non-load-bearing partitions
                         </p>
                       </div>
                       <div className="grid md:grid-cols-4 gap-4">
@@ -1851,10 +1858,9 @@ export default function BuildToRoofEstimator() {
                     >
                       <div className="col-span-full -mt-2 mb-2 rounded-lg bg-blue-50 border border-blue-100 p-2.5">
                         <p className="text-xs text-blue-600">
-                          <strong>Nigerian construction labour roles:</strong>{" "}
-                          Set daily or contract payment rates for each role.
-                          These are added to the labour total alongside
-                          task-based rates.
+                          <strong>Construction labour roles:</strong> Set daily
+                          or contract payment rates for each role. These are
+                          added to the labour total alongside task-based rates.
                         </p>
                       </div>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -2219,7 +2225,8 @@ function EstimateResult({
               {result.project_name}
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              {result.location} · {result.total_floor_area} m² total floor area
+              {result.location} · {formatAreaDual(result.total_floor_area)}{" "}
+              total floor area
             </p>
           </div>
           <div

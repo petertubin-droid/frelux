@@ -3,7 +3,9 @@ import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
-vi.mock("@/lib/auth", () => ({ useAuth: vi.fn(() => ({ user: null, loading: false })) }));
+vi.mock("@/lib/auth", () => ({
+  useAuth: vi.fn(() => ({ user: null, loading: false })),
+}));
 vi.mock("@/lib/credits", () => ({
   getCreditWallet: vi.fn().mockResolvedValue(null),
   getActivityStreak: vi.fn().mockResolvedValue(null),
@@ -11,16 +13,23 @@ vi.mock("@/lib/credits", () => ({
   REWARD_EVENTS: {},
 }));
 
-beforeEach(() => { vi.clearAllMocks(); });
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 async function renderComp() {
-  const Comp = (await import("@/components/marketplace/MarketplaceLayout")).default;
+  const Comp = (await import("@/components/marketplace/MarketplaceLayout"))
+    .default;
   const { CreditsProvider } = await import("@/lib/credits-context");
+  const { CurrencyProvider } =
+    await import("@/lib/international/currency-context");
   return render(
     <MemoryRouter>
       <ToastProvider>
         <CreditsProvider>
-          <Comp />
+          <CurrencyProvider>
+            <Comp />
+          </CurrencyProvider>
         </CreditsProvider>
       </ToastProvider>
     </MemoryRouter>,

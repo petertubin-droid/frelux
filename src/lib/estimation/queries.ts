@@ -284,12 +284,17 @@ export async function deletePackSize(id: string) {
 // 6. Prices
 // =========================================================
 
-export async function fetchActivePrice(priceType: string, refId: string) {
+export async function fetchActivePrice(
+  priceType: string,
+  refId: string,
+  market: string = "NG",
+) {
   const { data, error } = await supabase
     .from("estimation_prices")
     .select("*")
     .eq("price_type", priceType)
     .eq("ref_id", refId)
+    .eq("market", market)
     .eq("is_active", true)
     .order("effective_date", { ascending: false })
     .limit(1)
@@ -308,12 +313,15 @@ export async function fetchPriceHistory(priceType: string, refId: string) {
 }
 
 export async function createOrUpdatePrice(data: Partial<EstimationPrice>) {
+  // Deactivate only the previous ACTIVE price in the SAME market —
+  // multi-market price books stay independent.
   if (data.price_type && data.ref_id) {
     await supabase
       .from("estimation_prices")
       .update({ is_active: false })
       .eq("price_type", data.price_type)
       .eq("ref_id", data.ref_id)
+      .eq("market", data.market ?? "NG")
       .eq("is_active", true);
   }
 
@@ -326,10 +334,16 @@ export async function createOrUpdatePrice(data: Partial<EstimationPrice>) {
   return { data: record as EstimationPrice | null, error };
 }
 
-export async function fetchAllPrices(activeOnly: boolean = false) {
+export async function fetchAllPrices(
+  activeOnly: boolean = false,
+  market?: string,
+) {
   let query = supabase.from("estimation_prices").select("*");
   if (activeOnly) {
     query = query.eq("is_active", true);
+  }
+  if (market) {
+    query = query.eq("market", market);
   }
   query = query.order("effective_date", { ascending: false });
   const { data, error } = await query;

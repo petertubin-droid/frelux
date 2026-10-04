@@ -5,7 +5,8 @@ export interface DbMarketplaceListing {
   user_id: string;
   title: string;
   description: string | null;
-  project_type: 'painting' | 'screeding' | 'pop_ceiling' | 'tiling' | 'multi_trade';
+  project_type:
+    "painting" | "screeding" | "pop_ceiling" | "tiling" | "multi_trade";
   category_id: string | null;
   scope_summary: Record<string, unknown>;
   estimate_ref: string | null;
@@ -14,10 +15,18 @@ export interface DbMarketplaceListing {
   budget_max: number | null;
   currency: string;
   location_state: string | null;
+  location_country: string | null;
   location_city: string | null;
   location_area: string | null;
-  status: 'draft' | 'open' | 'awarded' | 'in_progress' | 'completed' | 'cancelled' | 'expired';
-  urgency: 'standard' | 'urgent' | 'flexible';
+  status:
+    | "draft"
+    | "open"
+    | "awarded"
+    | "in_progress"
+    | "completed"
+    | "cancelled"
+    | "expired";
+  urgency: "standard" | "urgent" | "flexible";
   is_featured: boolean;
   is_active: boolean;
   admin_removed: boolean;
@@ -38,7 +47,13 @@ export interface DbMarketplaceListing {
   created_at: string;
   updated_at: string;
   // Joined fields
-  client?: { id: string; full_name: string; email: string; avatar_url?: string | null; marketplace_id?: string | null } | null;
+  client?: {
+    id: string;
+    full_name: string;
+    email: string;
+    avatar_url?: string | null;
+    marketplace_id?: string | null;
+  } | null;
   category?: { id: string; name: string; slug: string } | null;
 }
 
@@ -50,7 +65,7 @@ export interface DbMarketplaceBid {
   proposed_timeline_days: number | null;
   cover_message: string;
   attachments: Array<{ url: string; name: string; type: string }>;
-  status: 'pending' | 'accepted' | 'rejected' | 'withdrawn';
+  status: "pending" | "accepted" | "rejected" | "withdrawn";
   rejected_at: string | null;
   rejected_reason: string | null;
   accepted_at: string | null;
@@ -80,8 +95,15 @@ export interface DbMarketplaceOrder {
   agreed_timeline_days: number | null;
   agreement_terms: string | null;
   currency: string;
-  payment_status: 'unpaid' | 'deposit_paid' | 'partially_paid' | 'fully_paid' | 'refunded';
-  status: 'pending_start' | 'in_progress' | 'client_review' | 'completed' | 'disputed' | 'cancelled';
+  payment_status:
+    "unpaid" | "deposit_paid" | "partially_paid" | "fully_paid" | "refunded";
+  status:
+    | "pending_start"
+    | "in_progress"
+    | "client_review"
+    | "completed"
+    | "disputed"
+    | "cancelled";
   started_at: string | null;
   completed_at: string | null;
   cancelled_at: string | null;
@@ -122,7 +144,7 @@ export interface DbMarketplaceMilestone {
   title: string;
   description: string | null;
   sort_order: number;
-  status: 'pending' | 'in_progress' | 'approved' | 'rejected';
+  status: "pending" | "in_progress" | "approved" | "rejected";
   expected_date: string | null;
   completed_date: string | null;
   client_approved: boolean;
@@ -139,8 +161,8 @@ export interface DbMarketplacePayment {
   payee_id: string | null;
   amount: number;
   currency: string;
-  payment_type: 'deposit' | 'milestone' | 'final' | 'refund' | 'commission';
-  status: 'pending' | 'completed' | 'failed' | 'refunded';
+  payment_type: "deposit" | "milestone" | "final" | "refund" | "commission";
+  status: "pending" | "completed" | "failed" | "refunded";
   provider: string | null;
   provider_ref: string | null;
   notes: string | null;
@@ -152,11 +174,11 @@ export interface DbMarketplaceDispute {
   id: string;
   order_id: string;
   raised_by: string;
-  raised_by_role: 'client' | 'pro';
+  raised_by_role: "client" | "pro";
   reason: string;
   description: string | null;
   evidence_urls: string[];
-  status: 'open' | 'reviewing' | 'resolved' | 'dismissed';
+  status: "open" | "reviewing" | "resolved" | "dismissed";
   admin_resolution: string | null;
   resolved_by: string | null;
   resolved_at: string | null;
@@ -165,41 +187,41 @@ export interface DbMarketplaceDispute {
 }
 
 export const PROJECT_TYPE_LABELS: Record<string, string> = {
-  painting: 'Painting',
-  screeding: 'Screeding',
-  pop_ceiling: 'POP Ceiling',
-  tiling: 'Tiling',
-  multi_trade: 'Multi-Trade',
+  painting: "Painting",
+  screeding: "Screeding",
+  pop_ceiling: "POP Ceiling",
+  tiling: "Tiling",
+  multi_trade: "Multi-Trade",
 };
 
 export const URGENCY_LABELS: Record<string, string> = {
-  standard: 'Standard',
-  urgent: 'Urgent',
-  flexible: 'Flexible',
+  standard: "Standard",
+  urgent: "Urgent",
+  flexible: "Flexible",
 };
 
 export const LISTING_STATUS_LABELS: Record<string, string> = {
-  draft: 'Draft',
-  open: 'Open',
-  awarded: 'Awarded',
-  in_progress: 'In Progress',
-  completed: 'Completed',
-  cancelled: 'Cancelled',
-  expired: 'Expired',
+  draft: "Draft",
+  open: "Open",
+  awarded: "Awarded",
+  in_progress: "In Progress",
+  completed: "Completed",
+  cancelled: "Cancelled",
+  expired: "Expired",
 };
 
 export const ORDER_STATUS_LABELS: Record<string, string> = {
-  pending_start: 'Pending Start',
-  in_progress: 'In Progress',
-  client_review: 'Client Review',
-  completed: 'Completed',
-  disputed: 'Disputed',
-  cancelled: 'Cancelled',
+  pending_start: "Pending Start",
+  in_progress: "In Progress",
+  client_review: "Client Review",
+  completed: "Completed",
+  disputed: "Disputed",
+  cancelled: "Cancelled",
 };
 
 export const BID_STATUS_LABELS: Record<string, string> = {
-  pending: 'Pending',
-  accepted: 'Accepted',
-  rejected: 'Rejected',
-  withdrawn: 'Withdrawn',
+  pending: "Pending",
+  accepted: "Accepted",
+  rejected: "Rejected",
+  withdrawn: "Withdrawn",
 };

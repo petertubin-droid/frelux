@@ -1,7 +1,7 @@
 // Marketplace product types
 
-export type ProductCondition = 'new' | 'like_new' | 'good' | 'fair';
-export type ProductStatus = 'active' | 'sold' | 'paused' | 'removed';
+export type ProductCondition = "new" | "like_new" | "good" | "fair";
+export type ProductStatus = "active" | "sold" | "paused" | "removed";
 
 export interface DbProductCategory {
   id: string;
@@ -34,6 +34,7 @@ export interface DbMarketplaceProduct {
   images: string[];
   primary_image_idx: number;
   location_state: string | null;
+  location_country: string | null;
   location_city: string | null;
   location_area: string | null;
   latitude: number | null;
@@ -57,7 +58,12 @@ export interface DbMarketplaceProduct {
   updated_at: string;
   // Joined fields
   category?: { id: string; name: string; slug: string };
-  seller?: { id: string; full_name: string; avatar_url: string | null; marketplace_id: string | null };
+  seller?: {
+    id: string;
+    full_name: string;
+    avatar_url: string | null;
+    marketplace_id: string | null;
+  };
 }
 
 export interface DbProductInquiry {
@@ -67,7 +73,7 @@ export interface DbProductInquiry {
   message: string;
   offered_price: number | null;
   contact_phone: string | null;
-  status: 'pending' | 'responded' | 'closed' | 'spam';
+  status: "pending" | "responded" | "closed" | "spam";
   created_at: string;
   updated_at: string;
   // Joined fields
@@ -76,15 +82,15 @@ export interface DbProductInquiry {
 }
 
 export const PRODUCT_CONDITION_LABELS: Record<ProductCondition, string> = {
-  new: 'New',
-  like_new: 'Like New',
-  good: 'Good',
-  fair: 'Fair',
+  new: "New",
+  like_new: "Like New",
+  good: "Good",
+  fair: "Fair",
 };
 
 export const PRODUCT_STATUS_LABELS: Record<ProductStatus, string> = {
-  active: 'Active',
-  sold: 'Sold',
-  paused: 'Paused',
-  removed: 'Removed',
+  active: "Active",
+  sold: "Sold",
+  paused: "Paused",
+  removed: "Removed",
 };

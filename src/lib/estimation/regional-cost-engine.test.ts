@@ -105,7 +105,7 @@ describe("applyRegionalCost", () => {
     expect(r.applied_factor).toBe(1.0);
     expect(r.adjusted_cost).toBe(100000);
     expect(r.warnings.join(" ")).toMatch(
-      /No regional cost index is configured for Kebbi/,
+      /No regional cost index is configured for NG\/Kebbi/,
     );
   });
 

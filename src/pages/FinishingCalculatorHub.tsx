@@ -54,9 +54,9 @@ const FAQS = [
       "Yes. Both modes support saving to your projects, exporting as PDF, and sharing via WhatsApp using the existing FRELUX functionality.",
   },
   {
-    question: "Are material prices in Nigerian Naira?",
+    question: "Which currency do the tools use?",
     answer:
-      "Yes. The FRELUX finishing calculator uses admin-configured material prices for all finishing materials including cement, sand, acrylic bond, and additives.",
+      "Estimates calculate in Nigerian Naira from admin-configured material prices (cement, sand, acrylic bond, additives and more). You can switch the DISPLAY currency in the navbar to see approximate amounts in your own currency; the calculation itself always stays exact.",
   },
 ];
 
@@ -78,7 +78,7 @@ export default function FinishingCalculatorHub() {
     canonicalPath: "/finish-estimator",
     ogType: "website",
     keywords:
-      "finishing calculator, tyrolene estimator, grafitex calculator, exterior finishing Nigeria, wall finishing material calculator",
+      "finishing calculator, tyrolene estimator, grafitex calculator, exterior finishing, wall finishing material calculator, Nigeria",
     structuredDataArray: [
       {
         "@context": "https://schema.org",

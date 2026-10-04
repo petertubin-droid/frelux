@@ -19,11 +19,8 @@ import {
   formatNaira,
   type PricingPlan,
 } from "@/lib/pricing-plans";
-import {
-  initializeSubscriptionCheckout,
-  verifyPayment,
-  isPaystackConfigured,
-} from "@/lib/paystack";
+import { verifyPayment, isPaystackConfigured } from "@/lib/paystack";
+import { startSubscriptionCheckout } from "@/lib/payments/gateway";
 import { isPremiumEnabled } from "@/lib/premium-access";
 import { classNames } from "@/lib/utils";
 import { SITE_URL } from "@/lib/seo";
@@ -191,7 +188,7 @@ export default function Pricing() {
       billingCycle === "monthly" ? plan.monthlyPrice : plan.yearlyPrice;
     const amountInKobo = amount * 100; // Paystack expects kobo
 
-    const result = await initializeSubscriptionCheckout(
+    const result = await startSubscriptionCheckout(
       plan.id,
       billingCycle,
       amountInKobo,
@@ -208,7 +205,7 @@ export default function Pricing() {
         type: "error",
       });
     } else {
-      // Redirect to Paystack checkout
+      // Redirect to the configured gateway's checkout
       window.location.href = result.authorization_url;
     }
   }

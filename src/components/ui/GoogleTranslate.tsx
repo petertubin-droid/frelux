@@ -20,6 +20,7 @@ import type { Language } from "@/lib/i18n";
 const GT_CODE_OVERRIDES: Partial<Record<Language, string>> = {
   fulfulde: "ff",
   kanuri: "kr",
+  zh: "zh-CN",
 };
 
 /** Languages Google Translate does not offer - dictionary-only. */

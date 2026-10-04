@@ -24,6 +24,7 @@ import {
 import {
   applyRegionalCost,
   statesWithIndices,
+  countriesWithIndices,
   type RegionalCostResult,
 } from "@/lib/estimation/regional-cost-engine";
 import type { RegionalCostIndex, EstimationCalcRule } from "@/types/estimation";
@@ -38,7 +39,7 @@ export default function RegionalCostIndex() {
   useSeo({
     title: "Regional Cost Index — FRELUX",
     description:
-      "Location-adjusted costing for Nigeria: state-by-state labour and material cost factors applied to your FRELUX estimates.",
+      "Location-adjusted costing: state and regional labour and material cost factors applied to your FRELUX estimates, starting with Nigeria.",
   });
 
   const [indices, setIndices] = useState<RegionalCostIndex[]>([]);
@@ -46,6 +47,7 @@ export default function RegionalCostIndex() {
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const [baseCost, setBaseCost] = useState("");
+  const [country, setCountry] = useState("NG");
   const [state, setState] = useState("");
   const [category, setCategory] = useState("general");
   const [result, setResult] = useState<RegionalCostResult | null>(null);
@@ -58,11 +60,17 @@ export default function RegionalCostIndex() {
     fetchCalcRules("regional_cost").then(({ data }) => setRules(data));
   }, []);
 
-  const states = statesWithIndices(indices);
+  const countries = countriesWithIndices(indices);
+  const showCountrySelect =
+    countries.length > 1 || (countries[0] && countries[0] !== "NG");
+  const states = statesWithIndices(
+    indices.filter((i) => (i.country ?? "NG").toUpperCase() === country),
+  );
 
   const adjust = () => {
     const r = applyRegionalCost({
       base_cost: Number(baseCost),
+      country,
       state,
       category,
       indices,
@@ -92,6 +100,25 @@ export default function RegionalCostIndex() {
             Adjust a base cost by state
           </h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {showCountrySelect && (
+              <label className="grid gap-1 text-sm font-medium">
+                Country
+                <select
+                  className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
+                  value={country}
+                  onChange={(e) => {
+                    setCountry(e.target.value);
+                    setState("");
+                  }}
+                >
+                  {countries.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            )}
             <label className="grid gap-1 text-sm font-medium">
               Base cost (₦)
               <input
@@ -105,13 +132,13 @@ export default function RegionalCostIndex() {
               />
             </label>
             <label className="grid gap-1 text-sm font-medium">
-              State
+              State / Region
               <select
                 className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                 value={state}
                 onChange={(e) => setState(e.target.value)}
               >
-                <option value="">Select state</option>
+                <option value="">Select state / region</option>
                 {states.map((sv) => (
                   <option key={sv} value={sv}>
                     {sv}

@@ -33,6 +33,7 @@ import {
 import type { RegionalCostIndex } from "@/types/estimation";
 
 interface IndexForm {
+  country: string;
   state: string;
   category: string;
   cost_factor: string;
@@ -44,6 +45,7 @@ interface IndexForm {
 }
 
 const emptyForm: IndexForm = {
+  country: "NG",
   state: "",
   category: "general",
   cost_factor: "",
@@ -98,6 +100,7 @@ const NIGERIAN_STATES = [
 
 function formFromIndex(i: RegionalCostIndex): IndexForm {
   return {
+    country: i.country ?? "NG",
     state: i.state,
     category: i.category,
     cost_factor: String(i.cost_factor),
@@ -171,12 +174,14 @@ export default function AdminRegionalCostIndices() {
         (i) =>
           i.is_active &&
           i.id !== editing?.id &&
+          (i.country ?? "NG").toUpperCase() ===
+            form.country.trim().toUpperCase() &&
           i.state.trim().toLowerCase() === form.state.trim().toLowerCase() &&
           i.category === form.category,
       );
       if (clash) {
         setError(
-          `An active ${form.category} index already exists for ${clash.state}. Deactivate it first or edit it — only one active index per state/category keeps the engine deterministic.`,
+          `An active ${form.category} index already exists for ${clash.country ?? "NG"}/${clash.state}. Deactivate it first or edit it — only one active index per country/state/category keeps the engine deterministic.`,
         );
         return;
       }
@@ -184,6 +189,7 @@ export default function AdminRegionalCostIndices() {
     setError(null);
     setSaving(true);
     const payload = {
+      country: form.country.trim().toUpperCase() || "NG",
       state: form.state.trim(),
       category: form.category,
       cost_factor: Number(form.cost_factor),
@@ -209,7 +215,12 @@ export default function AdminRegionalCostIndices() {
   };
 
   const remove = async (i: RegionalCostIndex) => {
-    if (!window.confirm(`Delete the ${i.state} / ${i.category} index?`)) return;
+    if (
+      !window.confirm(
+        `Delete the ${i.country ?? "NG"}/${i.state} / ${i.category} index?`,
+      )
+    )
+      return;
     const { error } = await deleteRegionalCostIndex(i.id);
     if (error) setError(error.message);
     else {
@@ -257,7 +268,7 @@ export default function AdminRegionalCostIndices() {
           <table className="w-full text-sm">
             <thead className="bg-muted/50 text-left">
               <tr>
-                <th className="p-3">State</th>
+                <th className="p-3">Country / State</th>
                 <th className="p-3">Category</th>
                 <th className="p-3">Factor</th>
                 <th className="p-3">Effective</th>
@@ -269,7 +280,9 @@ export default function AdminRegionalCostIndices() {
             <tbody>
               {indices.map((i) => (
                 <tr key={i.id} className="border-t border-border">
-                  <td className="p-3 font-medium">{i.state}</td>
+                  <td className="p-3 font-medium">
+                    {i.country ?? "NG"} / {i.state}
+                  </td>
                   <td className="p-3">{i.category}</td>
                   <td className="p-3 font-mono">
                     {Number(i.cost_factor).toFixed(2)}
@@ -309,22 +322,46 @@ export default function AdminRegionalCostIndices() {
         open={showForm}
         onClose={() => setShowForm(false)}
         title={
-          editing ? `Edit ${editing.state} index` : "Add regional cost index"
+          editing
+            ? `Edit ${editing.country ?? "NG"}/${editing.state} index`
+            : "Add regional cost index"
         }
       >
         <div className="space-y-4">
-          <AdminField label="State *">
+          <AdminField label="Country *">
             <AdminSelect
-              value={form.state}
-              onChange={(e) => setForm({ ...form, state: e.target.value })}
+              value={form.country}
+              onChange={(e) => setForm({ ...form, country: e.target.value })}
             >
-              <option value="">Select state</option>
-              {NIGERIAN_STATES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
+              <option value="NG">Nigeria (NG)</option>
+              <option value="GH">Ghana (GH)</option>
+              <option value="KE">Kenya (KE)</option>
+              <option value="ZA">South Africa (ZA)</option>
             </AdminSelect>
+          </AdminField>
+
+          <AdminField label="State / Region *">
+            {form.country === "NG" ? (
+              <AdminSelect
+                value={form.state}
+                onChange={(e) => setForm({ ...form, state: e.target.value })}
+              >
+                <option value="">Select state</option>
+                {NIGERIAN_STATES.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </AdminSelect>
+            ) : (
+              <input
+                type="text"
+                value={form.state}
+                onChange={(e) => setForm({ ...form, state: e.target.value })}
+                placeholder="Region name, e.g. Greater Accra"
+                className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground"
+              />
+            )}
           </AdminField>
 
           <AdminField label="Category">
