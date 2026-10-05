@@ -18,6 +18,8 @@
 export interface FallbackPrice {
   /** Reference price in NGN; null = no reference available, admin must enter */
   price: number | null;
+  /** Who/where the reference price was verified (retailer + date) */
+  price_source?: string;
   unit: string;
   name: string;
   /** Shared estimation_materials slug this catalog entry prices */
@@ -489,7 +491,9 @@ export const US_REFERENCE_PRICES: Record<string, FallbackPrice> = {
     slug: "us-quikrete-concrete-80lb",
   },
   us_sand_50lb: {
-    price: null,
+    price: 8.99,
+    price_source:
+      "Ace Hardware (Quikrete All-Purpose Sand 50 lb, Mfr# 115253) — verified 2026-10-05",
     unit: "50 lb bag",
     name: "All-Purpose Sand (50 lb)",
     slug: "us-sand-50lb",
@@ -525,13 +529,17 @@ export const US_REFERENCE_PRICES: Record<string, FallbackPrice> = {
     slug: "us-rmr-86",
   },
   us_concrobium_gal: {
-    price: null,
+    price: 39.96,
+    price_source:
+      "Home Depot (Concrobium 1 gal Mold Control Jug 025001) — verified 2026-10-05",
     unit: "gallon",
     name: "Concrobium Mold Control",
     slug: "us-concrobium-mold-control",
   },
   us_dap_amp_caulk: {
-    price: null,
+    price: 10.79,
+    price_source:
+      "Thomas Do it Center (DAP AMP 9 oz all-weather white) — verified 2026-10-05",
     unit: "9 oz tube",
     name: "DAP AMP Advanced Hybrid Caulk",
     slug: "us-dap-amp-caulk",
@@ -561,7 +569,9 @@ export const US_REFERENCE_PRICES: Record<string, FallbackPrice> = {
     slug: "us-zinsser-bulls-eye-123",
   },
   us_kilz2_gal: {
-    price: null,
+    price: 24.99,
+    price_source:
+      "Ace Hardware (KILZ 2 All-Purpose 1 gal, Mfr# 20041) — verified 2026-10-05",
     unit: "gallon",
     name: "KILZ 2 All-Purpose Primer",
     slug: "us-kilz-2-primer",

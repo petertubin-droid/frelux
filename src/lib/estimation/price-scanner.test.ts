@@ -120,11 +120,16 @@ describe("estimation/price-scanner US catalog", () => {
     expect(US_REFERENCE_PRICES.us_rmr86_gal.price).toBe(32.99);
   });
 
-  it("US entries without a verified price are null (admin must enter)", async () => {
+  it("the four formerly-unpriced US entries now carry verified retail prices", async () => {
     const { US_REFERENCE_PRICES } =
       await import("@/lib/estimation/price-scanner");
-    expect(US_REFERENCE_PRICES.us_sand_50lb.price).toBeNull();
-    expect(US_REFERENCE_PRICES.us_kilz2_gal.price).toBeNull();
+    expect(US_REFERENCE_PRICES.us_sand_50lb.price).toBe(8.99);
+    expect(US_REFERENCE_PRICES.us_concrobium_gal.price).toBe(39.96);
+    expect(US_REFERENCE_PRICES.us_kilz2_gal.price).toBe(24.99);
+    expect(US_REFERENCE_PRICES.us_dap_amp_caulk.price).toBe(10.79);
+    expect(US_REFERENCE_PRICES.us_sand_50lb.price_source).toContain(
+      "Ace Hardware",
+    );
   });
 
   it("scanMaterialPrices reviews the US catalog when market is US", async () => {
