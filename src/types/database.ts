@@ -1926,6 +1926,8 @@ export interface PdfDefaultBrandingConfig {
 
 export interface DbScreedingSystemConfig {
   id: string;
+  /** Market whose surface-prep technique this row describes ('NG' reference default). */
+  market?: string;
   system_type: "putty" | "white_cement_paint";
   display_name: string;
   description: string | null;

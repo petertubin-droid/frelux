@@ -21,6 +21,11 @@ import LabourCostSection, {
 import { formatCurrency, formatNumber } from "@/lib/utils";
 import { track } from "@/lib/analytics";
 import { logAnalyticsEvent, fetchScreedingSystemConfig } from "@/lib/queries";
+import { useMarket } from "@/lib/international/market-context";
+import {
+  resolveMaterialPriceByRole,
+  type MaterialRole,
+} from "@/lib/estimation/market-materials";
 import type {
   ScreedingSystemConfig,
   ScreedingSystemResult,
@@ -64,6 +69,50 @@ interface AvailableSystem {
   icon: typeof PaintBucket;
 }
 
+/**
+ * Market-aware price resolution for screed system configs.
+ *
+ * Own-market config rows ship WITHOUT per-unit prices — those live in the
+ * market's verified price book (Admin Scan provenance) and are resolved
+ * here by material role: putty/joint filler -> "joint-filler", screeding
+ * paint -> "interior-paint", cement -> "concrete-mix". A role with no
+ * verified price resolves to null and the estimate flags the line as
+ * unpriced — never guessed.
+ *
+ * When a foreign market falls back to the NG reference config, the NG
+ * quantities describe the NG technique, so its NGN prices would be
+ * meaningless in the visitor's currency: the prices are cleared and the
+ * estimate honestly reports "price not configured" for that market.
+ */
+async function resolveScreedPrices<T extends ScreedingSystemConfig>(
+  cfg: T,
+  rowMarket: string | undefined,
+  userMarket: string,
+): Promise<T> {
+  if (!rowMarket || rowMarket === userMarket) {
+    const resolve = async (
+      role: MaterialRole,
+      current: number | null,
+    ): Promise<number | null> => {
+      if (current != null && current > 0) return current;
+      const res = await resolveMaterialPriceByRole(role, userMarket);
+      return res?.price?.price ?? null;
+    };
+    return {
+      ...cfg,
+      puttyPricePerUnit: await resolve("joint-filler", cfg.puttyPricePerUnit),
+      paintPricePerUnit: await resolve("interior-paint", cfg.paintPricePerUnit),
+      cementPricePerUnit: await resolve("concrete-mix", cfg.cementPricePerUnit),
+    };
+  }
+  return {
+    ...cfg,
+    puttyPricePerUnit: null,
+    paintPricePerUnit: null,
+    cementPricePerUnit: null,
+  };
+}
+
 export default function ScreedingCostEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
@@ -94,6 +143,7 @@ export default function ScreedingCostEstimator({
 
   // Regional data flow: project location -> market profile -> currency.
   // Hook must run before the loading early-return (Rules of Hooks).
+  const { marketCode } = useMarket();
   const { currencySymbol: projectCurrencySymbol } = useProjectLocationCurrency(
     passed.projectLocation ?? null,
   );
@@ -132,19 +182,27 @@ export default function ScreedingCostEstimator({
       setLoadError(null);
       try {
         const [puttyRes, mixRes] = await Promise.all([
-          fetchScreedingSystemConfig("putty"),
-          fetchScreedingSystemConfig("white_cement_paint"),
+          fetchScreedingSystemConfig("putty", marketCode),
+          fetchScreedingSystemConfig("white_cement_paint", marketCode),
         ]);
         if (puttyRes.error) setLoadError(puttyRes.error);
         if (mixRes.error) setLoadError(mixRes.error);
         if (puttyRes.data) {
           const cfg = dbToSystemConfig(puttyRes.data);
-          setPuttyConfig(cfg);
+          setPuttyConfig(
+            await resolveScreedPrices(cfg, puttyRes.data.market, marketCode),
+          );
           setSelectedSystem("putty");
           setCoats(cfg.defaultCoats);
         }
         if (mixRes.data) {
-          setMixConfig(dbToSystemConfig(mixRes.data));
+          setMixConfig(
+            await resolveScreedPrices(
+              dbToSystemConfig(mixRes.data),
+              mixRes.data.market,
+              marketCode,
+            ),
+          );
         }
       } catch (err) {
         setLoadError(
@@ -154,7 +212,7 @@ export default function ScreedingCostEstimator({
       setLoading(false);
     }
     loadConfigs();
-  }, []);
+  }, [marketCode]);
 
   const activeConfig = selectedSystem === "putty" ? puttyConfig : mixConfig;
 

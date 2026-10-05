@@ -601,14 +601,12 @@ export async function saveUserProject(
   projectData: Record<string, unknown>,
   description?: string,
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
-    .from("user_projects")
-    .insert({
-      name,
-      project_type: projectType,
-      project_data: projectData,
-      description,
-    });
+  const { error } = await supabase.from("user_projects").insert({
+    name,
+    project_type: projectType,
+    project_data: projectData,
+    description,
+  });
   if (!error) {
     trackProjectSaveWithRewards();
   }
@@ -810,16 +808,14 @@ export async function saveRelationshipOverride(
   type: ColorRelationshipType,
   overrideColorIds: string[],
 ): Promise<{ error: string | null }> {
-  const { error } = await supabase
-    .from("color_relationship_overrides")
-    .upsert(
-      {
-        color_id: colorId,
-        relationship_type: type,
-        override_color_ids: overrideColorIds,
-      },
-      { onConflict: "color_id,relationship_type" },
-    );
+  const { error } = await supabase.from("color_relationship_overrides").upsert(
+    {
+      color_id: colorId,
+      relationship_type: type,
+      override_color_ids: overrideColorIds,
+    },
+    { onConflict: "color_id,relationship_type" },
+  );
   return { error: error ? error.message : null };
 }
 
@@ -1062,15 +1058,45 @@ export async function fetchAllPaintColorsLight(): Promise<{
 
 export async function fetchScreedingSystemConfig(
   systemType: "putty" | "white_cement_paint",
+  market?: string,
 ) {
+  // Market-first: the visitor's market's own system (e.g. the US
+  // joint-compound skim coat), falling back to the NG reference
+  // config for markets without their own surface-prep systems.
+  if (market && market !== "NG") {
+    const local = await supabase
+      .from("screeding_system_config")
+      .select("*")
+      .eq("system_type", systemType)
+      .eq("market", market)
+      .eq("is_active", true)
+      .maybeSingle();
+    if (local.data) {
+      return { data: local.data as DbScreedingSystemConfig, error: null };
+    }
+  }
   const { data, error } = await supabase
     .from("screeding_system_config")
     .select("*")
     .eq("system_type", systemType)
+    .eq("market", "NG")
     .eq("is_active", true)
     .maybeSingle();
+  if (!data) {
+    // Legacy safety: rows without a market value are NG.
+    const legacy = await supabase
+      .from("screeding_system_config")
+      .select("*")
+      .eq("system_type", systemType)
+      .eq("is_active", true)
+      .maybeSingle();
+    return {
+      data: legacy.data as DbScreedingSystemConfig | null,
+      error: legacy.error ? legacy.error.message : null,
+    };
+  }
   return {
-    data: data as DbScreedingSystemConfig | null,
+    data: data as DbScreedingSystemConfig,
     error: error ? error.message : null,
   };
 }
