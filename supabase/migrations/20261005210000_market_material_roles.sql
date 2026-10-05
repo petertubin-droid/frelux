@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS market_material_roles (
   market        text NOT NULL,              -- ISO 3166-1 alpha-2
   role          text NOT NULL,              -- engine-level concept (bonding-agent, ...)
   material_slug text NOT NULL,              -- estimation_materials.slug in this market
-  display_name  text NOT NULL, DEFAULT '',
+  display_name  text NOT NULL DEFAULT '',
   unit_label    text NOT NULL DEFAULT 'unit',
   notes         text,
   is_active     boolean NOT NULL DEFAULT true,
