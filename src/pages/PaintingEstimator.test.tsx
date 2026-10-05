@@ -109,6 +109,18 @@ vi.mock("@/lib/estimation/queries", () => ({
       is_active: true,
     },
   }),
+  fetchActivePriceForMarket: vi.fn().mockResolvedValue({
+    data: {
+      id: "price-1",
+      priceable_type: "quality",
+      priceable_id: "qual-1",
+      amount: 25000,
+      currency: "NGN",
+      effective_from: "2026-01-01",
+      is_active: true,
+    },
+    error: null,
+  }),
   fetchCalcRules: vi.fn().mockResolvedValue({ data: [] }),
   fetchColourConditions: vi.fn().mockResolvedValue({
     data: [

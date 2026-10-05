@@ -22,7 +22,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import {
   fetchEstimates,
   fetchEstimateItems,
-  fetchActivePrice,
+  fetchActivePriceForMarket,
   fetchCalcRules,
 } from "@/lib/estimation/queries";
 import {
@@ -125,9 +125,14 @@ export default function EstimateRefresh() {
         const key = `${snap.price_type}:${snap.ref_id}`;
         if (seen.has(key)) continue;
         seen.add(key);
-        const { data: price } = await fetchActivePrice(
+        // Refresh in the estimate's OWN market, inferred from its
+        // currency, so a US-priced estimate is never re-priced from
+        // the NG book (and vice versa).
+        const estimateMarket = snap.currency === "USD" ? "US" : "NG";
+        const { data: price } = await fetchActivePriceForMarket(
           snap.price_type,
           snap.ref_id,
+          estimateMarket,
         );
         if (price) {
           currentPrices[key] = {

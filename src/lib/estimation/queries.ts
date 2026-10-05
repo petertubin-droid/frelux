@@ -302,6 +302,38 @@ export async function fetchActivePrice(
   return { data: data as EstimationPrice | null, error };
 }
 
+/**
+ * Market-aware active price: the current market's own price first, then
+ * the market_profiles.inherits_from chain (e.g. US falls back to the NG
+ * reference) so international users see a real price instead of a blank.
+ * Returns null when no price exists anywhere in the chain — never a guess.
+ */
+export async function fetchActivePriceForMarket(
+  priceType: string,
+  refId: string,
+  market: string,
+) {
+  const seen = new Set<string>();
+  let current: string | null = market;
+  while (current && !seen.has(current)) {
+    seen.add(current);
+    const { data, error } = await fetchActivePrice(priceType, refId, current);
+    if (error) return { data: null, error, resolved_market: current };
+    if (data) return { data, error: null, resolved_market: current };
+    // walk the inheritance chain toward the NG reference
+    const { data: profile, error: profileError } = await supabase
+      .from("market_profiles")
+      .select("inherits_from")
+      .eq("country_code", current)
+      .maybeSingle();
+    if (profileError || !profile?.inherits_from) {
+      return { data: null, error: null, resolved_market: current };
+    }
+    current = profile.inherits_from as string;
+  }
+  return { data: null, error: null, resolved_market: market };
+}
+
 export async function fetchPriceHistory(priceType: string, refId: string) {
   const { data, error } = await supabase
     .from("estimation_price_history")

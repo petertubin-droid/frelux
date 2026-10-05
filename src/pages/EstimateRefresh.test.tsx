@@ -97,6 +97,22 @@ vi.mock("@/lib/estimation/queries", () => ({
     },
     error: null,
   }),
+  fetchActivePriceForMarket: vi.fn().mockResolvedValue({
+    data: {
+      id: "p-now",
+      price_type: "product",
+      ref_id: "prod-1",
+      price: 6000,
+      currency: "NGN",
+      pack_size_id: null,
+      effective_date: "2026-10-01",
+      notes: null,
+      is_active: true,
+      created_at: "2026-10-01",
+      updated_at: "2026-10-01",
+    },
+    error: null,
+  }),
   fetchCalcRules: vi.fn().mockResolvedValue({
     data: [
       {
@@ -175,8 +191,13 @@ describe("EstimateRefresh page", () => {
         1,
       );
     });
-    const { fetchActivePrice } = await import("@/lib/estimation/queries");
-    expect(fetchActivePrice).toHaveBeenCalledWith("product", "prod-1");
+    const { fetchActivePriceForMarket } =
+      await import("@/lib/estimation/queries");
+    expect(fetchActivePriceForMarket).toHaveBeenCalledWith(
+      "product",
+      "prod-1",
+      "NG",
+    );
   });
 
   it("disables Refresh until an estimate is selected", async () => {

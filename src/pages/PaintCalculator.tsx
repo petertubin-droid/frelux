@@ -1,3 +1,4 @@
+import { useMarket } from "@/lib/international/market-context";
 import {
   useEffect,
   useMemo,
@@ -46,7 +47,7 @@ import type {
 import {
   fetchEstimationProducts,
   fetchProductQualityLevels,
-  fetchActivePrice,
+  fetchActivePriceForMarket,
   fetchCalcRules,
 } from "@/lib/estimation/queries";
 import { track } from "@/lib/analytics";
@@ -146,6 +147,7 @@ import { Button } from "@/components/ui/shadcn/button";
 export default function PaintCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const { marketCode } = useMarket();
   const { defaults: calcDefaults, rules: _calcRules } =
     useCalcDefaults("painting");
   const WASTE_OPTIONS = (calcDefaults.wasteMarginOptions as number[]) ?? [
@@ -297,7 +299,11 @@ export default function PaintCalculator({
           qualMap.set(p.id, (quals ?? []) as EstimationProductQuality[]);
           // Load prices for each quality
           for (const q of (quals ?? []) as EstimationProductQuality[]) {
-            const { data: priceData } = await fetchActivePrice("quality", q.id);
+            const { data: priceData } = await fetchActivePriceForMarket(
+              "quality",
+              q.id,
+              marketCode,
+            );
             if (priceData) priceMap.set(q.id, priceData as EstimationPrice);
           }
         }

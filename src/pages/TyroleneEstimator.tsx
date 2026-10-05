@@ -9,6 +9,7 @@
  * Exterior only. No quality levels. Labour not included.
  */
 
+import { useMarket } from "@/lib/international/market-context";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import {
@@ -68,7 +69,7 @@ import type {
 import {
   fetchEstimationProducts,
   fetchEstimationMaterials,
-  fetchActivePrice,
+  fetchActivePriceForMarket,
   fetchCalcRules,
   createEstimate,
   createEstimateItem,
@@ -115,6 +116,7 @@ const CALCULATOR_TYPE = "tyrolene";
 export default function TyroleneEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const { marketCode } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("tyrolene");
   // Regional data flow: project location -> market profile -> currency.
   const passed =
@@ -282,7 +284,11 @@ export default function TyroleneEstimator({
         // Fetch prices for each material
         const priceMap = new Map<string, EstimationPrice>();
         for (const mat of tyroleneMaterials) {
-          const { data: price } = await fetchActivePrice("material", mat.id);
+          const { data: price } = await fetchActivePriceForMarket(
+            "material",
+            mat.id,
+            marketCode,
+          );
           if (price) {
             priceMap.set(mat.slug, price);
           } else {

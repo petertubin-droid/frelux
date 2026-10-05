@@ -7,6 +7,7 @@
  * 5. Colour → 6. Surface condition → 7. Ceiling → 8. Coats → 9. Preparation → 10. Calculate → 11. Estimate
  */
 
+import { useMarket } from "@/lib/international/market-context";
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Plus,
@@ -57,7 +58,7 @@ import type {
 import {
   fetchEstimationProducts,
   fetchProductQualityLevels,
-  fetchActivePrice,
+  fetchActivePriceForMarket,
   fetchCalcRules,
   fetchColourConditions,
   fetchSurfaceConditions,
@@ -125,6 +126,7 @@ const PAINT_CATEGORIES = ["emulsion", "matt", "satin"];
 export default function PaintingEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const { marketCode } = useMarket();
   const { defaults: _calcDefaults, rules: defaultCalcRules } =
     useCalcDefaults("painting");
   const DEFAULT_CEILING_COLOUR =
@@ -305,13 +307,18 @@ export default function PaintingEstimator({
         for (const product of paintProducts) {
           const quals = qualMap.get(product.id) ?? [];
           for (const q of quals) {
-            const { data: price } = await fetchActivePrice("quality", q.id);
+            const { data: price } = await fetchActivePriceForMarket(
+              "quality",
+              q.id,
+              marketCode,
+            );
             if (price) priceMap.set(q.id, price);
           }
           // Also try product-level price
-          const { data: prodPrice } = await fetchActivePrice(
+          const { data: prodPrice } = await fetchActivePriceForMarket(
             "product",
             product.id,
+            marketCode,
           );
           if (prodPrice) priceMap.set(product.id, prodPrice);
         }
