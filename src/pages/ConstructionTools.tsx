@@ -1,6 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { Search, ArrowRight, Clock, X, type LucideIcon } from "lucide-react";
+import {
+  Search,
+  ArrowLeft,
+  ArrowRight,
+  Clock,
+  X,
+  type LucideIcon,
+} from "lucide-react";
 import AdSlot from "@/components/ui/AdSlot";
 import Container from "@/components/ui/Container";
 import { useSeo } from "@/lib/seo";
@@ -28,6 +35,8 @@ import { EstimateDisclaimer } from "@/components/calculators";
  */
 
 const RECENT_KEY = "frelux_recent_tools";
+/** Tools per paginated section — the library is browsed 10 at a time. */
+const PAGE_SIZE = 10;
 const MAX_RECENT = 6;
 
 function loadRecent(): string[] {
@@ -141,13 +150,50 @@ export default function ConstructionTools() {
     });
   }, [query, activeCategory]);
 
-  const grouped = useMemo(() => {
+  // ---- Pagination: every section of the library shows 10 tools ----
+  // The ordered list respects category + search; the default view pages
+  // through the full registry in order. Sections are URL-addressable
+  // (?page=2) so next/prev survives reloads and the back button.
+  const ordered = useMemo(
+    () =>
+      activeCategory === "all" && !query.trim() ? CONSTRUCTION_TOOLS : filtered,
+    [filtered, activeCategory, query],
+  );
+
+  const totalPages = Math.max(1, Math.ceil(ordered.length / PAGE_SIZE));
+  const rawPage = parseInt(searchParams.get("page") ?? "1", 10);
+  const currentPage =
+    Number.isFinite(rawPage) && rawPage >= 1
+      ? Math.min(rawPage, totalPages)
+      : 1;
+
+  const pageTools = useMemo(
+    () => ordered.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE),
+    [ordered, currentPage],
+  );
+
+  // Within a section, cards stay grouped under their category headings.
+  const groupedPage = useMemo(() => {
     if (activeCategory !== "all" || query.trim()) return null;
     return TOOL_CATEGORIES.map((cat) => ({
       cat,
-      tools: CONSTRUCTION_TOOLS.filter((t) => t.category === cat.id),
+      tools: pageTools.filter((t) => t.category === cat.id),
     })).filter((g) => g.tools.length > 0);
-  }, [activeCategory, query]);
+  }, [pageTools, activeCategory, query]);
+
+  const resultsRef = useRef<HTMLDivElement | null>(null);
+  const goToPage = (page: number) => {
+    if (page < 1 || page > totalPages || page === currentPage) return;
+    const next = new URLSearchParams(searchParams);
+    if (page > 1) next.set("page", String(page));
+    else next.delete("page");
+    setSearchParams(next);
+    track("construction_tools_section_changed", {
+      section: page,
+      total_sections: totalPages,
+    });
+    resultsRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const recentTools = useMemo(
     () =>
@@ -224,6 +270,7 @@ export default function ConstructionTools() {
                   const next = new URLSearchParams(searchParams);
                   if (e.target.value) next.set("q", e.target.value);
                   else next.delete("q");
+                  next.delete("page"); // a new search restarts at section 1
                   setSearchParams(next, { replace: true });
                 }}
                 placeholder="Search tools — paint, tiles, solar, BOQ, labour…"
@@ -257,6 +304,7 @@ export default function ConstructionTools() {
             onClick={() => {
               const next = new URLSearchParams(searchParams);
               next.delete("category");
+              next.delete("page"); // a new category restarts at section 1
               setSearchParams(next, { replace: true });
             }}
             className={
@@ -282,6 +330,7 @@ export default function ConstructionTools() {
                   const next = new URLSearchParams(searchParams);
                   next.set("category", cat.id);
                   if (query) next.set("q", query);
+                  next.delete("page"); // a new category restarts at section 1
                   setSearchParams(next, { replace: true });
                 }}
                 className={
@@ -327,58 +376,130 @@ export default function ConstructionTools() {
           </section>
         )}
 
-        {/* Results */}
-        {grouped ? (
-          grouped.map(({ cat, tools }) => (
-            <section
-              key={cat.id}
-              className="mt-10"
-              aria-labelledby={`cat-${cat.id}`}
-            >
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2
-                  id={`cat-${cat.id}`}
-                  className="text-xl font-bold text-foreground dark:text-primary-foreground"
-                >
-                  {cat.label}
-                </h2>
-                <p className="text-sm text-muted-foreground">{cat.blurb}</p>
-              </div>
-              <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {tools.map((tool) => (
-                  <ToolCard key={tool.slug} tool={tool} />
-                ))}
-              </div>
-            </section>
-          ))
-        ) : (
+        <div ref={resultsRef} className="scroll-mt-24" />
+
+        {/* Ad slot — top of the section */}
+        <AdSlot slotKey="calculator_hub_native" className="mt-8" />
+
+        {/* Results — one section of up to 10 tools at a time */}
+        {ordered.length === 0 ? (
           <section className="mt-8" aria-live="polite">
-            {filtered.length === 0 ? (
-              <div className="card p-10 text-center">
-                <p className="text-lg font-semibold text-foreground dark:text-primary-foreground">
-                  No tools match “{query}”
-                </p>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Try a material (paint, tile, block), a trade (plumbing,
-                  electrical) or a goal (budget, timeline).
-                </p>
-              </div>
+            <div className="card p-10 text-center">
+              <p className="text-lg font-semibold text-foreground dark:text-primary-foreground">
+                No tools match “{query}”
+              </p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Try a material (paint, tile, block), a trade (plumbing,
+                electrical) or a goal (budget, timeline).
+              </p>
+            </div>
+          </section>
+        ) : (
+          <>
+            {groupedPage ? (
+              groupedPage.map(({ cat, tools }) => (
+                <section
+                  key={cat.id}
+                  className="mt-10"
+                  aria-labelledby={`cat-${cat.id}`}
+                >
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <h2
+                      id={`cat-${cat.id}`}
+                      className="text-xl font-bold text-foreground dark:text-primary-foreground"
+                    >
+                      {cat.label}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">{cat.blurb}</p>
+                  </div>
+                  <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {tools.map((tool) => (
+                      <ToolCard key={tool.slug} tool={tool} />
+                    ))}
+                  </div>
+                </section>
+              ))
             ) : (
-              <>
+              <section className="mt-8" aria-live="polite">
                 <p className="text-sm text-muted-foreground">
-                  {filtered.length} {filtered.length === 1 ? "tool" : "tools"}{" "}
+                  {ordered.length} {ordered.length === 1 ? "tool" : "tools"}{" "}
                   found
                 </p>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {filtered.map((tool) => (
+                  {pageTools.map((tool) => (
                     <ToolCard key={tool.slug} tool={tool} />
                   ))}
                 </div>
-              </>
+              </section>
             )}
-          </section>
+
+            {/* Ad slot — between the tool grid and the section controls */}
+            <AdSlot slotKey="calculator_hub_mid" className="mt-10" />
+
+            {/* Section controls: previous / next through 10-tool sections */}
+            <nav
+              className="mt-8 flex flex-wrap items-center justify-between gap-3"
+              aria-label="Tool library sections"
+            >
+              <button
+                type="button"
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage <= 1}
+                className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-card px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:border-brand-purple/40 hover:text-brand-purple disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:text-primary-foreground"
+              >
+                <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+                Previous
+              </button>
+              <p
+                className="text-sm font-medium text-muted-foreground"
+                aria-live="polite"
+              >
+                Section {currentPage} of {totalPages}
+                <span className="mx-2 text-muted-foreground/50">|</span>
+                Showing {(currentPage - 1) * PAGE_SIZE + 1}–
+                {Math.min(currentPage * PAGE_SIZE, ordered.length)} of{" "}
+                {ordered.length} tools
+              </p>
+              <button
+                type="button"
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage >= totalPages}
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                Next
+                <ArrowRight className="h-4 w-4" aria-hidden="true" />
+              </button>
+            </nav>
+            {totalPages > 1 && (
+              <div
+                className="mt-3 flex flex-wrap justify-center gap-1.5"
+                role="group"
+                aria-label="Jump to section"
+              >
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (p) => (
+                    <button
+                      key={p}
+                      type="button"
+                      onClick={() => goToPage(p)}
+                      aria-current={p === currentPage ? "page" : undefined}
+                      className={
+                        p === currentPage
+                          ? "h-9 w-9 rounded-full bg-primary text-sm font-bold text-primary-foreground"
+                          : "h-9 w-9 rounded-full border border-border/60 bg-card text-sm font-medium text-muted-foreground transition-colors hover:border-brand-purple/40 hover:text-brand-purple dark:border-white/10"
+                      }
+                    >
+                      {p}
+                    </button>
+                  ),
+                )}
+              </div>
+            )}
+          </>
         )}
 
+        {/* Ad slot — bottom of the section */}
+        <AdSlot slotKey="calculator_hub_bottom" className="mt-10" />
         <AdSlot slotKey="tools-page" className="mt-10" />
         <div className="mt-10">
           <EstimateDisclaimer />

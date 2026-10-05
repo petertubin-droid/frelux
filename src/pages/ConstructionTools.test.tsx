@@ -22,6 +22,15 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
+/** The "Section N of M — Showing X–Y of Z tools" indicator. */
+function sectionIndicator(): string {
+  const nav = document.querySelector(
+    'nav[aria-label="Tool library sections"] p',
+  );
+  const text = (nav?.textContent ?? "").replace(/\s+/g, " ").trim();
+  return text.split("|")[0].trim();
+}
+
 function renderPage(route = "/construction-tools") {
   return render(
     <MemoryRouter initialEntries={[route]}>
@@ -36,14 +45,49 @@ describe("ConstructionTools", () => {
     expect(container.innerHTML).not.toBe("");
   });
 
-  it("shows every tool from the registry grouped by category", async () => {
+  it("shows the registry 10 tools at a time with next/previous sections", async () => {
     renderPage();
-    for (const tool of CONSTRUCTION_TOOLS) {
+    // Section 1: exactly the first 10 tools, not the whole registry
+    for (const tool of CONSTRUCTION_TOOLS.slice(0, 10)) {
       expect(await screen.findByText(tool.title)).toBeTruthy();
     }
-    for (const cat of TOOL_CATEGORIES) {
-      expect(screen.getByText(cat.label)).toBeTruthy();
+    const totalSections = Math.ceil(CONSTRUCTION_TOOLS.length / 10);
+    expect(sectionIndicator()).toBe(`Section 1 of ${totalSections}`);
+
+    // Next advances to section 2 with the next 10 tools
+    fireEvent.click(screen.getByRole("button", { name: /^next$/i }));
+    for (const tool of CONSTRUCTION_TOOLS.slice(10, 20)) {
+      expect(await screen.findByText(tool.title)).toBeTruthy();
     }
+    expect(sectionIndicator()).toBe(`Section 2 of ${totalSections}`);
+
+    // Previous returns to section 1
+    fireEvent.click(screen.getByRole("button", { name: /^previous$/i }));
+    for (const tool of CONSTRUCTION_TOOLS.slice(0, 10)) {
+      expect(await screen.findByText(tool.title)).toBeTruthy();
+    }
+    expect(sectionIndicator()).toBe(`Section 1 of ${totalSections}`);
+  });
+
+  it("paginates by 10: every section shows at most 10 tools", () => {
+    renderPage();
+    const cards = screen.getAllByRole("link", { name: /open tool/i });
+    expect(cards.length).toBeLessThanOrEqual(10);
+    expect(cards.length).toBe(10);
+  });
+
+  it("next is disabled on the last section", async () => {
+    const totalSections = Math.ceil(CONSTRUCTION_TOOLS.length / 10);
+    renderPage(`/construction-tools?page=${totalSections}`);
+    expect(sectionIndicator()).toBe(
+      `Section ${totalSections} of ${totalSections}`,
+    );
+    expect(
+      screen.getByRole("button", { name: /^next$/i }).hasAttribute("disabled"),
+    ).toBe(true);
+    // last section shows only the remaining tools
+    const cards = screen.getAllByRole("link", { name: /open tool/i });
+    expect(cards.length).toBe(CONSTRUCTION_TOOLS.length % 10 || 10);
   });
 
   it("uses plain-language copy: what it does, what you enter, what you get", async () => {
