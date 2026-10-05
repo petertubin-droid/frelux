@@ -280,6 +280,14 @@ export interface EstimationPrice {
   market?: string;
   pack_size_id: string | null;
   effective_date: string;
+  /** provenance: who/what supplied this price (retailer, catalog...) */
+  price_source?: string | null;
+  /** provenance: URL the price was scanned from, when applicable */
+  scan_source?: string | null;
+  /** provenance: scan confidence when the price came from a scan */
+  scan_confidence?: "low" | "medium" | "high" | null;
+  /** provenance: when the source was last scanned */
+  last_scanned_at?: string | null;
   notes: string | null;
   is_active: boolean;
   created_at: string;

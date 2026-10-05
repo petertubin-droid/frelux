@@ -258,6 +258,7 @@ const navModules: NavModule[] = [
         icon: Coins,
       },
       { label: "Price Updater", to: "/admin/price-updater", icon: TrendingUp },
+      { label: "Price Scan", to: "/admin/price-scan", icon: ScanLine },
       { label: "Solar Prices", to: "/admin/solar-prices", icon: Sun },
       { label: "Labour Rates", to: "/admin/labour-rates", icon: HardHat },
       { label: "Labour Settings", to: "/admin/labour-settings", icon: HardHat },
