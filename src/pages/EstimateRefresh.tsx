@@ -13,7 +13,7 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import { useAuth } from "@/lib/auth";
@@ -73,6 +73,13 @@ function asSnapshot(
 }
 
 export default function EstimateRefresh() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    {
+      name: "Estimate Refresh — Current Cost Today",
+      path: "/estimate-refresh",
+    },
+  ]);
   useSeo({
     title: "Estimate Refresh — Current Cost Today | FRELUX",
     description:

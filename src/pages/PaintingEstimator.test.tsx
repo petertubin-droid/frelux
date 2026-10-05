@@ -17,6 +17,7 @@ vi.mock("@/lib/analytics", () => ({ track: vi.fn() }));
 vi.mock("@/lib/seo", () => ({
   useSeo: vi.fn(),
   SITE_URL: "https://freluxtools.netlify.app",
+  useBreadcrumbJsonLd: vi.fn(() => null),
 }));
 vi.mock("@/lib/achievements", () => ({ trackCalculation: vi.fn() }));
 vi.mock("@/lib/rewards-integration", () => ({

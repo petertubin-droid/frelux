@@ -16,7 +16,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { trackCalculation } from "@/lib/achievements";
 import { trackRecentTool } from "@/lib/smart-defaults";
@@ -38,6 +38,10 @@ import AdSlot from "@/components/ui/AdSlot";
 export default function MaintenancePlanner({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "Maintenance Planner", path: "/maintenance-planner" },
+  ]);
   const [searchParams] = useSearchParams();
 
   const [profiles, setProfiles] = useState<MaintenanceProfile[]>([]);

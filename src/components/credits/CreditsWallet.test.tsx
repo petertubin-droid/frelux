@@ -30,6 +30,7 @@ vi.mock("@/lib/supabase-lazy", () => {
 
 vi.mock("@/lib/seo", () => ({
   useSeo: vi.fn(),
+  useBreadcrumbJsonLd: vi.fn(() => null),
 }));
 
 vi.mock("@/lib/credits-context", () => ({

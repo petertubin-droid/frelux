@@ -7,10 +7,15 @@
  */
 
 import ConfigurableFinishCalculator from "./ConfigurableFinishCalculator";
+import { useBreadcrumbJsonLd } from "@/lib/seo";
 
 export default function MineralStoneCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "Mineral Stone Calculator", path: "/mineral-stone-calculator" },
+  ]);
   return (
     <ConfigurableFinishCalculator
       category="mineral_stone"

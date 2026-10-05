@@ -12,7 +12,7 @@ import {
   Share2,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import {
   fetchPublicGallery,
@@ -32,6 +32,7 @@ const CATEGORIES = [
 ];
 
 export default function Gallery() {
+  useBreadcrumbJsonLd([{ name: "Before & After Gallery", path: "/gallery" }]);
   useSeo({
     title: "Before & After Project Gallery: Real Painting Transformations",
     description:

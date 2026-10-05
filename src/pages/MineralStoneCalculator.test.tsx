@@ -80,6 +80,7 @@ vi.mock("@/lib/smart-defaults", () => ({
 }));
 vi.mock("@/lib/seo", () => ({
   useSeo: vi.fn(),
+  useBreadcrumbJsonLd: vi.fn(() => null),
 }));
 
 import { fetchConfigurableFinishProducts } from "@/lib/estimation/queries";

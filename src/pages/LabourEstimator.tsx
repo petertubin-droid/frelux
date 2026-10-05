@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
@@ -24,6 +24,10 @@ import type { LabourRate, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 
 export default function LabourEstimator() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "Labour & Crew Estimator", path: "/labour-estimator" },
+  ]);
   useSeo({
     title: "Labour & Crew Estimator — FRELUX",
     description:

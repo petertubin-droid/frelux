@@ -16,7 +16,10 @@ import CountVision from "./CountVision";
 const countMock = vi.fn();
 
 vi.mock("@/lib/analytics", () => ({ track: vi.fn() }));
-vi.mock("@/lib/seo", () => ({ useSeo: vi.fn() }));
+vi.mock("@/lib/seo", () => ({
+  useSeo: vi.fn(),
+  useBreadcrumbJsonLd: vi.fn(() => null),
+}));
 vi.mock("@/lib/auth", () => ({
   useAuth: vi.fn(() => ({ user: null, loading: false })),
 }));

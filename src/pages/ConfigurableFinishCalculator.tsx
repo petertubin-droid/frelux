@@ -17,7 +17,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track, type TrackEvent } from "@/lib/analytics";
 import { trackCalculation } from "@/lib/achievements";
 import { trackRecentTool } from "@/lib/smart-defaults";
@@ -76,6 +76,13 @@ export default function ConfigurableFinishCalculator({
   calculatorType,
   embedded = false,
 }: ConfigurableFinishCalculatorProps) {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    {
+      name: "Configurable Finish Calculator",
+      path: "/configurable-finish-calculator",
+    },
+  ]);
   useSeo({
     title: `${title} — FRELUX`,
     description: `${subtitle} Deterministic calculator with database-verified product coverage and consumption data, package quantities, waste configuration and full calculation breakdown.`,

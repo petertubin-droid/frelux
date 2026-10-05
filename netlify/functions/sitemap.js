@@ -30,60 +30,34 @@ const ARTICLES_PER_PAGE = 20;
 const STATIC_PATHS = [
   "/",
   "/calculators/",
+  "/construction-tools/",
+  "/feedback/",
+  "/data-request/",
   "/start-building/",
   "/paint-calculator/",
   "/screeding-calculator/",
+  "/screeding-cost-estimator/",
   "/pop-ceiling-calculator/",
+  "/pop-ceiling-cost-estimator/",
   "/tile-calculator/",
+  "/tile-cost-estimator/",
   "/finish-estimator/",
+  "/painting-estimator/",
   "/colors/",
   "/colors/compare/",
   "/ai-color-assistant/",
+  "/paint-comparison/",
   "/learn/",
   "/user-guide/",
   "/templates/",
-  "/templates/standard-living-room-painting/",
-  "/templates/master-bedroom-painting/",
-  "/templates/single-accent-wall-painting/",
-  "/templates/exterior-bungalow-painting/",
-  "/templates/dining-room-painting/",
-  "/templates/childrens-room-painting/",
-  "/templates/kitchen-walls-painting/",
-  "/templates/corridor-stairwell-painting/",
-  "/templates/2-bedroom-flat-full-painting/",
-  "/templates/office-space-painting/",
-  "/templates/exterior-duplex-painting/",
-  "/templates/shop-retail-front-painting/",
-  "/templates/standard-floor-tiling/",
-  "/templates/bathroom-wall-tiling/",
-  "/templates/large-hall-floor-tiling/",
-  "/templates/kitchen-backsplash-tiling/",
-  "/templates/balcony-floor-tiling/",
-  "/templates/kitchen-floor-tiling/",
-  "/templates/guest-toilet-wall-tiling/",
-  "/templates/staircase-tiling/",
-  "/templates/terrazzo-porcelain-floor-tiling/",
-  "/templates/wall-feature-strip-tiling/",
-  "/templates/standard-room-screeding/",
-  "/templates/single-wall-screeding/",
-  "/templates/living-room-ceiling-screeding/",
-  "/templates/corridor-walls-screeding/",
-  "/templates/dining-room-screeding/",
-  "/templates/office-screeding/",
-  "/templates/corridor-screeding/",
-  "/templates/single-feature-wall-screeding/",
-  "/templates/shop-front-screeding/",
-  "/templates/standard-bedroom-pop-ceiling/",
-  "/templates/large-living-room-pop-ceiling/",
-  "/templates/small-office-pop-ceiling/",
-  "/templates/hall-cornice-pop-ceiling/",
-  "/templates/dining-room-pop-ceiling/",
-  "/templates/kitchen-pop-ceiling/",
-  "/templates/corridor-pop-ceiling/",
-  "/templates/master-bedroom-pop-ceiling/",
-  "/templates/conference-room-pop-ceiling/",
   "/about/",
   "/contact/",
+  "/pricing/",
+  "/privacy-policy/",
+  "/terms/",
+  "/cookie-policy/",
+  "/disclaimer/",
+  "/ai-disclaimer/",
   "/build-to-roof-estimator/",
   "/structural-calculator/",
   "/foundation-calculator/",
@@ -91,18 +65,38 @@ const STATIC_PATHS = [
   "/construction-sequence/",
   "/image-estimator/",
   "/smart-calculator/",
+  "/conversational-estimator/",
+  "/bim-ifc-import/",
+  "/solar-pv-estimator/",
+  "/field-sync/",
+  "/count-vision/",
+  "/electrical/",
+  "/plumbing/",
+  "/waterproofing/",
+  "/flooring/",
+  "/doors-windows/",
+  "/generator/",
+  "/boq-generator/",
+  "/cash-flow-timeline/",
+  "/circular-reuse/",
+  "/contractor-credit/",
+  "/cost-estimator/",
+  "/defect-diagnosis/",
+  "/estimate-refresh/",
+  "/heat-comfort/",
+  "/labour-estimator/",
+  "/maintenance-planner/",
+  "/margin-calculator/",
+  "/regional-cost-index/",
+  "/tyrolene-estimator/",
+  "/warranty-certificate/",
+  "/carbon-footprint/",
+  "/brand-studio/",
   "/marketplace/",
   "/pro-connect/",
-  "/paint-comparison/",
   "/gallery/",
   "/material-prices/",
   "/surface-assessment/",
-  "/pricing/",
-  "/privacy-policy/",
-  "/terms/",
-  "/cookie-policy/",
-  "/disclaimer/",
-  "/ai-disclaimer/",
 ];
 
 function escapeXml(str) {
@@ -118,11 +112,13 @@ export const handler = async () => {
   const today = new Date().toISOString().slice(0, 10);
   const urls = [];
 
-  const add = (loc, lastmod, changefreq, priority) =>
-    urls.push({ loc, lastmod, changefreq, priority });
+  // Entries store the PATH (no locale prefix); the body builder emits
+  // the English URL plus every locale-prefixed URL with hreflang sets.
+  const add = (path, lastmod, changefreq, priority) =>
+    urls.push({ path, lastmod, changefreq, priority });
 
   for (const p of STATIC_PATHS) {
-    add(`${SITE_URL}${p}`, today, "weekly", p === "/" ? "1.0" : "0.8");
+    add(p, today, "weekly", p === "/" ? "1.0" : "0.8");
   }
 
   let articles = [];
@@ -161,7 +157,7 @@ export const handler = async () => {
   if (articles.length > ARTICLES_PER_PAGE) {
     const totalPages = Math.ceil(articles.length / ARTICLES_PER_PAGE);
     for (let p = 2; p <= totalPages; p++) {
-      add(`${SITE_URL}/learn/?page=${p}`, today, "daily", "0.7");
+      add(`/learn/?page=${p}`, today, "daily", "0.7");
     }
   }
 
@@ -171,13 +167,13 @@ export const handler = async () => {
     if (a.category_slug) perCategory[a.category_slug] = (perCategory[a.category_slug] || 0) + 1;
   }
   for (const cat of categories) {
-    add(`${SITE_URL}/learn/category/${cat.slug}/`, today, "weekly", "0.7");
+    add(`/learn/category/${cat.slug}/`, today, "weekly", "0.7");
     const n = perCategory[cat.slug] || 0;
     if (n > ARTICLES_PER_PAGE) {
       const tp = Math.ceil(n / ARTICLES_PER_PAGE);
       for (let p = 2; p <= tp; p++) {
         add(
-          `${SITE_URL}/learn/category/${cat.slug}/?page=${p}`,
+          `/learn/category/${cat.slug}/?page=${p}`,
           today,
           "weekly",
           "0.6",
@@ -188,7 +184,7 @@ export const handler = async () => {
   }
   // Categories referenced by articles but missing from the category table.
   for (const slug of Object.keys(perCategory)) {
-    add(`${SITE_URL}/learn/category/${slug}/`, today, "weekly", "0.6");
+    add(`/learn/category/${slug}/`, today, "weekly", "0.6");
   }
 
   // Every published article.
@@ -197,23 +193,40 @@ export const handler = async () => {
       a.published_at && !Number.isNaN(Date.parse(a.published_at))
         ? new Date(a.published_at).toISOString().slice(0, 10)
         : today;
-    add(`${SITE_URL}/learn/${a.slug}/`, lastmod, "monthly", "0.7");
+    add(`/learn/${a.slug}/`, lastmod, "monthly", "0.7");
   }
 
+  // ── Locale-aware URLs ────────────────────────────────────────────────
+  // LocaleAwareRoutes serves every public page under /<locale>/... for
+  // the 11 registered languages. Each URL is emitted with the full
+  // hreflang alternate set + x-default (the English path), matching the
+  // <link rel="alternate"> tags useSeo injects on each page.
+  const LOCALES = ["en", "es", "fr", "de", "pt", "ru", "id", "sw", "ar", "hi", "zh"];
+  const urlFor = (locale, path) =>
+    locale === "en" ? `${SITE_URL}${path}` : `${SITE_URL}/${locale}${path}`;
+  const alternates = (path) =>
+    LOCALES.map(
+      (loc) =>
+        `    <xhtml:link rel="alternate" hreflang="${loc}" href="${escapeXml(urlFor(loc, path))}" />`,
+    )
+      .join("\n") +
+    `\n    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(urlFor("en", path))}" />`;
+
   const body = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+<urlset xmlns="http://www.sitemaps.org/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${urls
-  .map(
-    (u) =>
-      `  <url>
-    <loc>${escapeXml(u.loc)}</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="${escapeXml(u.loc)}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${escapeXml(u.loc)}" />
+  .flatMap((u) =>
+    LOCALES.map(
+      (loc) =>
+        `  <url>
+    <loc>${escapeXml(urlFor(loc, u.path))}</loc>
+${alternates(u.path)}
     <lastmod>${u.lastmod}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>
   </url>`,
+    ),
   )
   .join("\n")}
 </urlset>`;

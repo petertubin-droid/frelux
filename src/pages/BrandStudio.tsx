@@ -31,6 +31,7 @@ import type {
   PdfDefaultBrandingConfig,
 } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import { useBreadcrumbJsonLd } from "@/lib/seo";
 
 const sections = [
   { id: "identity", label: "Brand Identity", icon: "🎨" },
@@ -41,6 +42,7 @@ const sections = [
 ] as const;
 
 export default function BrandStudio() {
+  useBreadcrumbJsonLd([{ name: "Brand Studio", path: "/brand-studio" }]);
   const { user, isAdmin, isPaid, paidStatus } = useAuth();
   const [access, setAccess] = useState<BrandStudioAccess | null>(null);
   const [profiles, setProfiles] = useState<DbBrandProfile[]>([]);

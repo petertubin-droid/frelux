@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
@@ -32,6 +32,10 @@ interface LineForm {
 const emptyLine: LineForm = { category: "", quantity: "" };
 
 export default function CarbonFootprint() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "Embodied Carbon Estimator", path: "/carbon-footprint" },
+  ]);
   useSeo({
     title: "Embodied Carbon Estimator — FRELUX",
     description:

@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { useToast } from "@/components/ui/Toast";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import {
   getSurfaceRecommendations,
   createSurfaceAssessment,
@@ -72,6 +72,9 @@ const PRIORITY_COLORS: Record<string, string> = {
 };
 
 export default function SurfaceAssessment() {
+  useBreadcrumbJsonLd([
+    { name: "Surface Condition Assessment", path: "/surface-assessment" },
+  ]);
   useSeo({
     title: "Surface Condition Assessment: Wall Preparation Guide",
     description:

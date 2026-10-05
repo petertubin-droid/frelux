@@ -74,7 +74,10 @@ vi.mock("@/lib/estimation/queries", () => ({
 }));
 
 vi.mock("@/lib/analytics", () => ({ track: vi.fn() }));
-vi.mock("@/lib/seo", () => ({ useSeo: vi.fn() }));
+vi.mock("@/lib/seo", () => ({
+  useSeo: vi.fn(),
+  useBreadcrumbJsonLd: vi.fn(() => null),
+}));
 vi.mock("@/lib/safeError", () => ({
   getSafeError: vi.fn((_e: unknown, fallback: string) => fallback),
 }));

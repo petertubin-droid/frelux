@@ -12,6 +12,7 @@ vi.mock("@/lib/auth", () => ({
 
 vi.mock("@/lib/seo", () => ({
   useSeo: vi.fn(() => null),
+  useBreadcrumbJsonLd: vi.fn(() => null),
 }));
 
 // The Smart Calculator is a pure AI estimation tool: it must NOT fetch any

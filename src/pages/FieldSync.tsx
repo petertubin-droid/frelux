@@ -16,7 +16,7 @@
  */
 
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import { useAuth } from "@/lib/auth";
@@ -62,6 +62,10 @@ function timeAgo(iso: string): string {
 }
 
 export default function FieldSync() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "Field Sync", path: "/field-sync" },
+  ]);
   const { user } = useAuth();
 
   const [rules, setRules] = useState<FieldSyncRules>(DEFAULT_FIELD_SYNC_RULES);

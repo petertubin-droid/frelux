@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft, Brain } from "lucide-react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { RewardedFeatureGate } from "@/components/rewarded/RewardedFeatureGate";
 import { AdvancedCalculator } from "@/components/rewarded/AdvancedCalculator";
 
@@ -16,6 +16,13 @@ const ADVANCED_FEATURES = [
 ];
 
 export default function SmartCalculator() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    {
+      name: "Smart Calculator: AI-Powered Construction Estimator | FRELUX",
+      path: "/smart-calculator",
+    },
+  ]);
   const seo = useSeo({
     title: "Smart Calculator: AI-Powered Construction Estimator | FRELUX",
     description:

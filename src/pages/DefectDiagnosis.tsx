@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
@@ -38,6 +38,10 @@ const severityColor: Record<string, string> = {
 };
 
 export default function DefectDiagnosis() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "Defect Diagnosis", path: "/defect-diagnosis" },
+  ]);
   useSeo({
     title: "Defect Diagnosis — FRELUX",
     description:

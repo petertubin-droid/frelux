@@ -9,6 +9,10 @@
  * Exterior only. No quality levels. Labour not included.
  */
 
+import {
+  resolveMaterialPriceByRole,
+  type MaterialRole,
+} from "@/lib/estimation/market-materials";
 import { useMarket } from "@/lib/international/market-context";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation } from "react-router-dom";
@@ -204,6 +208,10 @@ export default function TyroleneEstimator({
   const [product, setProduct] = useState<EstimationProduct | null>(null);
   const [materials, setMaterials] = useState<EstimationMaterial[]>([]);
   const [prices, setPrices] = useState<Map<string, EstimationPrice>>(new Map());
+  // Market-resolved local materials surfaced next to NG material names.
+  const [roleMaterials, setRoleMaterials] = useState<
+    Map<string, Awaited<ReturnType<typeof resolveMaterialPriceByRole>>>
+  >(new Map());
   const [packSizes, setPackSizes] = useState<Map<string, EstimationPackSize>>(
     new Map(),
   );
@@ -283,6 +291,18 @@ export default function TyroleneEstimator({
 
         // Fetch prices for each material
         const priceMap = new Map<string, EstimationPrice>();
+        // Tyrolene NG slugs -> engine roles. When the visitor's market has
+        // no direct price for the NG material, the role resolves to the
+        // local equivalent from the market's verified price book (with
+        // provenance). A role with no verified price stays unpriced and
+        // is reported — never guessed.
+        const tyroleneRoles: Record<string, MaterialRole> = {
+          cement: "concrete-mix",
+          sand: "sand",
+          "acrylic-bond": "bonding-agent",
+          "water-seal": "waterproofer",
+          "anti-fungal": "mold-treatment",
+        };
         for (const mat of tyroleneMaterials) {
           const { data: price } = await fetchActivePriceForMarket(
             "material",
@@ -291,9 +311,25 @@ export default function TyroleneEstimator({
           );
           if (price) {
             priceMap.set(mat.slug, price);
-          } else {
+            continue;
+          }
+          const role = tyroleneRoles[mat.slug];
+          if (!role) {
             warnings.push(
               `Material '${mat.name}' does not have a configured price. Material cost will be incomplete until FRELUX admin configures the price.`,
+            );
+            continue;
+          }
+          const resolved = await resolveMaterialPriceByRole(role, marketCode);
+          if (resolved) {
+            priceMap.set(mat.slug, resolved.price);
+            setRoleMaterials((prev) => new Map(prev).set(mat.slug, resolved));
+            warnings.push(
+              `${mat.name} priced for this market as ${resolved.material.name} (${resolved.resolved_market} market book, verified provenance).`,
+            );
+          } else {
+            warnings.push(
+              `Material '${mat.name}' has no verified price for this market yet. Material cost will be incomplete until the market price book is filled via the Admin Scan system.`,
             );
           }
         }

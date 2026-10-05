@@ -7,7 +7,7 @@ import {
   fetchColorFamilies,
   fetchColorCombinations,
 } from "@/lib/queries";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import {
   readableTextColor,
   complementaryColor,
@@ -24,6 +24,10 @@ import { Button } from "@/components/ui/shadcn/button";
 const MAX_COMPARE = 4;
 
 export default function CompareColors() {
+  useBreadcrumbJsonLd([
+    { name: "Colors", path: "/colors" },
+    { name: "Compare Colors", path: "/colors/compare" },
+  ]);
   useSeo({
     title: "Compare Paint Colors: Side by Side",
     description:

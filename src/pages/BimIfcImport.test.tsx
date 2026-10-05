@@ -29,7 +29,10 @@ function makeFile(name: string, text: string): File {
 }
 
 vi.mock("@/lib/analytics", () => ({ track: vi.fn() }));
-vi.mock("@/lib/seo", () => ({ useSeo: vi.fn() }));
+vi.mock("@/lib/seo", () => ({
+  useSeo: vi.fn(),
+  useBreadcrumbJsonLd: vi.fn(() => null),
+}));
 
 vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 beforeEach(() => {

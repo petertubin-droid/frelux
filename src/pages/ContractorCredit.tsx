@@ -12,7 +12,7 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
@@ -32,6 +32,10 @@ import type {
 import AdSlot from "@/components/ui/AdSlot";
 
 export default function ContractorCredit() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "Contractor Credit Score", path: "/contractor-credit" },
+  ]);
   useSeo({
     title: "Contractor Credit Score — Verified Job History | FRELUX",
     description:

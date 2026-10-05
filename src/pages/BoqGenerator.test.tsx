@@ -49,7 +49,10 @@ vi.mock("@/lib/estimation/queries", async () => {
 });
 
 vi.mock("@/lib/analytics", () => ({ track: vi.fn() }));
-vi.mock("@/lib/seo", () => ({ useSeo: vi.fn() }));
+vi.mock("@/lib/seo", () => ({
+  useSeo: vi.fn(),
+  useBreadcrumbJsonLd: vi.fn(() => null),
+}));
 
 import {
   fetchEstimates,

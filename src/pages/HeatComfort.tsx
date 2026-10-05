@@ -11,7 +11,7 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
@@ -31,6 +31,13 @@ import type {
 import AdSlot from "@/components/ui/AdSlot";
 
 export default function HeatComfort() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    {
+      name: "Heat Comfort — Finish Choice & Indoor Heat",
+      path: "/heat-comfort",
+    },
+  ]);
   useSeo({
     title: "Heat Comfort — Finish Choice & Indoor Heat | FRELUX",
     description:

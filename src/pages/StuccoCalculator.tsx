@@ -8,10 +8,15 @@
  */
 
 import ConfigurableFinishCalculator from "./ConfigurableFinishCalculator";
+import { useBreadcrumbJsonLd } from "@/lib/seo";
 
 export default function StuccoCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "Stucco Calculator", path: "/stucco-calculator" },
+  ]);
   return (
     <ConfigurableFinishCalculator
       category="stucco"

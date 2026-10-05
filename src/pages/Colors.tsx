@@ -15,7 +15,7 @@ import {
   toggleFavoriteColor,
 } from "@/lib/queries";
 import { track } from "@/lib/analytics";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import type {
   DbPaintColor,
@@ -53,6 +53,7 @@ const familySwatchColors: Record<string, string> = {
 };
 
 export default function Colors() {
+  useBreadcrumbJsonLd([{ name: "Color Library", path: "/colors" }]);
   useSeo({
     title: "Color Library: Paint Colors & Palettes",
     description:

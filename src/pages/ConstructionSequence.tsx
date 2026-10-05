@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import PageHeader from "@/components/ui/PageHeader";
 import {
   generateSequencePlan,
@@ -22,6 +22,10 @@ import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
 
 export default function ConstructionSequence() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "Construction Sequence Planner", path: "/construction-sequence" },
+  ]);
   useSeo({
     title: "Construction Sequence Planner | FRELUX",
     description:

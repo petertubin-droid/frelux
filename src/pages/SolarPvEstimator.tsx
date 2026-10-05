@@ -13,7 +13,7 @@
  */
 
 import { useEffect, useState, useCallback } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
@@ -31,6 +31,10 @@ import type { SolarPanelModel, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 
 export default function SolarPvEstimator() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "Solar/PV Roofing Estimator", path: "/solar-pv-estimator" },
+  ]);
   useSeo({
     title: "Solar/PV Roofing Estimator — Full Material Takeoff | FRELUX",
     description:

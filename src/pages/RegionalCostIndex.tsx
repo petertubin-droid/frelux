@@ -12,7 +12,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
@@ -36,6 +36,10 @@ const money = (v: number) =>
 const CATEGORIES = ["general", "labour", "materials"];
 
 export default function RegionalCostIndex() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "Regional Cost Index", path: "/regional-cost-index" },
+  ]);
   useSeo({
     title: "Regional Cost Index — FRELUX",
     description:

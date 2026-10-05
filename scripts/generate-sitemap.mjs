@@ -22,6 +22,7 @@ const routes = [
   { path: '/calculators', priority: '0.9', changefreq: 'monthly' },
   { path: '/construction-tools', priority: '0.9', changefreq: 'weekly' },
   { path: '/feedback', priority: '0.7', changefreq: 'monthly' },
+  { path: '/data-request', priority: '0.6', changefreq: 'yearly' },
   { path: '/start-building', priority: '0.9', changefreq: 'weekly' },
   { path: '/paint-calculator', priority: '0.9', changefreq: 'monthly' },
   { path: '/screeding-calculator', priority: '0.9', changefreq: 'monthly' },
@@ -130,15 +131,9 @@ const routes = [
   { path: '/carbon-footprint', priority: '0.9', changefreq: 'monthly' },
   { path: '/brand-studio', priority: '0.8', changefreq: 'monthly' },
   // ── Secondary public pages ──
-  { path: '/color-preview', priority: '0.7', changefreq: 'monthly' },
-  { path: '/contractor', priority: '0.7', changefreq: 'monthly' },
-  { path: '/analytics', priority: '0.6', changefreq: 'monthly' },
-  { path: '/achievements', priority: '0.6', changefreq: 'monthly' },
   { path: '/credits', priority: '0.6', changefreq: 'monthly' },
   { path: '/developers', priority: '0.6', changefreq: 'monthly' },
-  { path: '/pro-connect/register', priority: '0.6', changefreq: 'monthly' },
   { path: '/rewards', priority: '0.6', changefreq: 'monthly' },
-  { path: '/worker-channels', priority: '0.6', changefreq: 'monthly' },
 ];
 
 
@@ -192,18 +187,47 @@ const allRoutes = [...routes, ...learnRoutes];
 // ?mode= URLs, so they are deliberately absent from the route list.
 const canonical = (p) => (p === '/' ? p : `${p}/`);
 
+// ── Locale-aware URLs ────────────────────────────────────────────────
+// LocaleAwareRoutes serves every public page under /<locale>/... for the
+// 11 registered languages. Each URL is emitted with its full hreflang
+// alternate set (matching the <link rel="alternate"> tags useSeo emits)
+// plus x-default pointing at the English path.
+const LOCALES = ['en', 'es', 'fr', 'de', 'pt', 'ru', 'id', 'sw', 'ar', 'hi', 'zh'];
+const alternates = (path) =>
+  LOCALES.map(
+    (loc) => `    <xhtml:link rel="alternate" hreflang="${loc}" href="${SITE_URL}${canonical(`/${loc}${path === '/' ? '' : path}`)}" />`
+  ).join('\n') +
+  `\n    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_URL}${canonical(path)}" />`;
+const urlEntry = (path, opts = {}) => `  <url>
+    <loc>${SITE_URL}${canonical(opts.loc ? `/${opts.loc}${path === '/' ? '' : path}` : path)}</loc>
+${alternates(path)}
+    <lastmod>${today}</lastmod>
+    <changefreq>${opts.changefreq ?? 'monthly'}</changefreq>
+    <priority>${opts.priority ?? '0.6'}</priority>
+  </url>`;
+const localizedEntries = [];
+for (const r of allRoutes) {
+  if (r.path === '/') {
+    // root: also list /en/ as the English home alternate set anchor
+    localizedEntries.push(urlEntry('/', { priority: '1.0', changefreq: r.changefreq }));
+    continue;
+  }
+  // English (no prefix) entry carries the canonical alternate set
+  localizedEntries.push(urlEntry(r.path, { priority: r.priority, changefreq: r.changefreq }));
+  // and each locale-prefixed URL
+  for (const loc of LOCALES) {
+    if (loc === 'en') continue;
+    localizedEntries.push(
+      urlEntry(r.path, { loc, priority: r.priority, changefreq: r.changefreq })
+    );
+  }
+}
+
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"${' '}
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
         xmlns:xhtml="http://www.w3.org/1999/xhtml">
-${allRoutes.map(r => `  <url>
-    <loc>${SITE_URL}${canonical(r.path)}</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="${SITE_URL}${canonical(r.path)}" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_URL}${canonical(r.path)}" />
-    <lastmod>${today}</lastmod>
-    <changefreq>${r.changefreq}</changefreq>
-    <priority>${r.priority}</priority>
-  </url>`).join('\n')}
+${localizedEntries.join('\n')}
 </urlset>
 `;
 
@@ -216,4 +240,4 @@ try {
 }
 writeFileSync('public/sitemap.xml', xml);
 console.log('  ✅ public/sitemap.xml');
-console.log(`\n sitemap generated with ${allRoutes.length} URLs`);
+console.log(`\n sitemap generated with ${localizedEntries.length} URLs (${allRoutes.length} routes x ${LOCALES.length + 1} URL forms)`);

@@ -37,7 +37,7 @@ import {
   useProjectLocationCurrency,
   type FreluxLocation,
 } from "@/lib/location-intelligence";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
 import {
   EstimateDisclaimer,
@@ -116,6 +116,10 @@ async function resolveScreedPrices<T extends ScreedingSystemConfig>(
 export default function ScreedingCostEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "Screeding Cost Estimator", path: "/screeding-cost-estimator" },
+  ]);
   const { defaults: calcDefaults } = useCalcDefaults("screeding_cost");
   useSeo(
     !embedded

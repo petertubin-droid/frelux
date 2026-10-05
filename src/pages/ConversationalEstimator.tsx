@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
@@ -28,6 +28,10 @@ const SAMPLES: Record<ConversationLanguage, string> = {
 };
 
 export default function ConversationalEstimator() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "WhatsApp Estimator", path: "/conversational-estimator" },
+  ]);
   useSeo({
     title: "WhatsApp Estimator — Chat Your Estimate in English | FRELUX",
     description:

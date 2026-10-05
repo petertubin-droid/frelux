@@ -1,3 +1,4 @@
+import { resolveMaterialPriceByRole } from "@/lib/estimation/market-materials";
 import { useMarket } from "@/lib/international/market-context";
 import {
   useEffect,
@@ -304,7 +305,26 @@ export default function PaintCalculator({
               q.id,
               marketCode,
             );
-            if (priceData) priceMap.set(q.id, priceData as EstimationPrice);
+            if (priceData) {
+              priceMap.set(q.id, priceData as EstimationPrice);
+            } else {
+              // Role-based market fallback: this market's price book is
+              // material-typed (no NG-style quality tiers), so resolve the
+              // tier by role — premium tiers -> interior-paint-premium,
+              // everything else -> interior-paint. Local brand names and
+              // prices come from the market's verified book; unpriced roles
+              // resolve to nothing and the estimate flags them.
+              const role = /premium|luxur/i.test(q.name ?? "")
+                ? "interior-paint-premium"
+                : "interior-paint";
+              const resolved = await resolveMaterialPriceByRole(
+                role,
+                marketCode,
+              );
+              if (resolved) {
+                priceMap.set(q.id, resolved.price as EstimationPrice);
+              }
+            }
           }
         }
         setEstQualities(qualMap);

@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Send, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/lib/auth";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import PageHeader from "@/components/ui/PageHeader";
 import { Button } from "@/components/ui/shadcn/button";
 
@@ -25,6 +25,7 @@ const CATEGORY_OPTIONS = [
 ];
 
 export default function Feedback() {
+  useBreadcrumbJsonLd([{ name: "Feedback & Suggestions", path: "/feedback" }]);
   const { user } = useAuth();
   const location = useLocation();
   const [kind, setKind] = useState<FeedbackKind>("feature_request");

@@ -71,7 +71,10 @@ vi.mock("@/lib/estimation/queries", async () => {
 vi.mock("@/lib/analytics", () => ({ track: vi.fn() }));
 vi.mock("@/lib/achievements", () => ({ trackCalculation: vi.fn() }));
 vi.mock("@/lib/smart-defaults", () => ({ trackRecentTool: vi.fn() }));
-vi.mock("@/lib/seo", () => ({ useSeo: vi.fn() }));
+vi.mock("@/lib/seo", () => ({
+  useSeo: vi.fn(),
+  useBreadcrumbJsonLd: vi.fn(() => null),
+}));
 
 import { fetchConfigurableFinishProducts } from "@/lib/estimation/queries";
 const mockedFetch = vi.mocked(fetchConfigurableFinishProducts);

@@ -10,7 +10,7 @@
  */
 
 import { useEffect, useState } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
@@ -27,6 +27,10 @@ const money = (v: number) =>
   `₦${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
 
 export default function MarginCalculator() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "Profit Margin Calculator", path: "/margin-calculator" },
+  ]);
   useSeo({
     title: "Profit Margin Calculator — FRELUX",
     description:

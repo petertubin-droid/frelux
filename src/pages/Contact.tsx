@@ -10,13 +10,14 @@ import PageHeader from "@/components/ui/PageHeader";
 import { siteConfig } from "@/config/site";
 import { whatsappUrl, track } from "@/lib/analytics";
 import { classNames } from "@/lib/utils";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/shadcn/button";
 
 type Status = "idle" | "submitting" | "success" | "error";
 
 export default function Contact() {
+  useBreadcrumbJsonLd([{ name: "Get in touch", path: "/contact" }]);
   useSeo({
     title: "Contact: Get in Touch with FRELUX PROJECT CALC",
     description:

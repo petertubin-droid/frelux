@@ -23,7 +23,7 @@ import { logAnalyticsEvent } from "@/lib/queries";
 import { requestColorConsultation, AiConsultError } from "@/lib/ai";
 import { isValidHexColor, normalizeHex, readableTextColor } from "@/lib/colors";
 import { fetchColorCombinations, fetchPaintColors } from "@/lib/queries";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import {
   fetchAiAccessConfig,
   getAiUsageStatus,
@@ -58,6 +58,9 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
 type View = "choose" | "text" | "image";
 
 export default function AiColorAssistant() {
+  useBreadcrumbJsonLd([
+    { name: "Smart Color Assistant", path: "/ai-color-assistant" },
+  ]);
   useSeo({
     title: "Smart Color Assistant: Get Personalized Paint Color Ideas",
     description:

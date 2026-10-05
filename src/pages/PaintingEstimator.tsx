@@ -7,6 +7,7 @@
  * 5. Colour → 6. Surface condition → 7. Ceiling → 8. Coats → 9. Preparation → 10. Calculate → 11. Estimate
  */
 
+import { resolveMaterialPriceByRole } from "@/lib/estimation/market-materials";
 import { useMarket } from "@/lib/international/market-context";
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
@@ -312,7 +313,27 @@ export default function PaintingEstimator({
               q.id,
               marketCode,
             );
-            if (price) priceMap.set(q.id, price);
+            if (price) {
+              priceMap.set(q.id, price);
+            } else {
+              // Role-based market fallback (see PaintCalculator): resolve
+              // the tier from the market's verified material book.
+              const role = /premium|luxur/i.test(q.name ?? "")
+                ? "interior-paint-premium"
+                : "interior-paint";
+              const resolved = await resolveMaterialPriceByRole(
+                role,
+                marketCode,
+              );
+              if (resolved) {
+                priceMap.set(q.id, resolved.price);
+                if (resolved.material?.name) {
+                  warnings.push(
+                    `${q.name ?? "Paint"} priced for ${marketCode} as ${resolved.material.name} (${resolved.resolved_market} market book).`,
+                  );
+                }
+              }
+            }
           }
           // Also try product-level price
           const { data: prodPrice } = await fetchActivePriceForMarket(

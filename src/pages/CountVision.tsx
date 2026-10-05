@@ -15,7 +15,7 @@
  */
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import { useAuth } from "@/lib/auth";
@@ -45,6 +45,10 @@ const ITEM_HINTS = [
 ] as const;
 
 export default function CountVision() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "Counter-Vision", path: "/count-vision" },
+  ]);
   const { user } = useAuth();
 
   const [rules, setRules] = useState<CountVisionRules>(

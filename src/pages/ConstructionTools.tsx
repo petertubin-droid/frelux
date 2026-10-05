@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import AdSlot from "@/components/ui/AdSlot";
 import Container from "@/components/ui/Container";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import {
   getStoredUnitSystem,
   setStoredUnitSystem,
@@ -119,6 +119,13 @@ function ToolCard({ tool }: { tool: Tool }) {
 }
 
 export default function ConstructionTools() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    {
+      name: "Construction Tools — Calculators & Estimators | FRELUX",
+      path: "/construction-tools",
+    },
+  ]);
   const [searchParams, setSearchParams] = useSearchParams();
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [recent, setRecent] = useState<string[]>([]);

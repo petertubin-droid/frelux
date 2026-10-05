@@ -67,6 +67,9 @@ Allow: /ai-color-assistant
 Allow: /rewards
 
 # Disallow private/auth/admin routes
+Disallow: /properties
+Disallow: /metrics
+Disallow: /data-request/resolve
 Disallow: /admin
 Disallow: /login
 Disallow: /dashboard

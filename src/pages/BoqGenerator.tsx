@@ -14,7 +14,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
@@ -41,6 +41,10 @@ const money = (v: number) =>
   `₦${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
 
 export default function BoqGenerator() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "BOQ / Quote Generator", path: "/boq-generator" },
+  ]);
   const { user } = useAuth();
   useSeo({
     title: "BOQ / Quote Generator — FRELUX",

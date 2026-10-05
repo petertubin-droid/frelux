@@ -49,20 +49,20 @@ describe("MobileBottomNav", () => {
   it("renders all 5 nav items", () => {
     renderNav();
     expect(screen.getByText("Home")).toBeTruthy();
-    expect(screen.getByText("Calculate")).toBeTruthy();
+    expect(screen.getByText("Tools")).toBeTruthy();
     expect(screen.getByText("Market")).toBeTruthy();
     expect(screen.getByText("Projects")).toBeTruthy();
     expect(screen.getByText("Rewards")).toBeTruthy();
   });
 
   it("marks the current route as active", () => {
-    renderNav("/paint-calculator");
-    const calculateLink = screen.getByText("Calculate").closest("a");
-    expect(calculateLink?.getAttribute("aria-current")).toBe("page");
+    renderNav("/construction-tools");
+    const toolsLink = screen.getByText("Tools").closest("a");
+    expect(toolsLink?.getAttribute("aria-current")).toBe("page");
   });
 
   it("does not mark non-current routes as active", () => {
-    renderNav("/paint-calculator");
+    renderNav("/construction-tools");
     const homeLink = screen.getByText("Home").closest("a");
     expect(homeLink?.getAttribute("aria-current")).toBeNull();
   });
@@ -74,7 +74,7 @@ describe("MobileBottomNav", () => {
   });
 
   it("does not mark home as active on sub-routes", () => {
-    renderNav("/paint-calculator");
+    renderNav("/construction-tools");
     const homeLink = screen.getByText("Home").closest("a");
     expect(homeLink?.getAttribute("aria-current")).toBeNull();
   });

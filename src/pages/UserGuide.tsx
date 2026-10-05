@@ -9,7 +9,7 @@
 import { Link } from "react-router-dom";
 import { ArrowRight, Info } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import {
   guideSections,
   guideFaq,
@@ -34,6 +34,7 @@ function InlineLink({ text, link }: { text: string; link?: GuideLink }) {
 }
 
 export default function UserGuide() {
+  useBreadcrumbJsonLd([{ name: "FRELUX User Guide", path: "/user-guide" }]);
   useSeo({
     title: "FRELUX User Guide: How to Use Every Calculator and Feature",
     description:

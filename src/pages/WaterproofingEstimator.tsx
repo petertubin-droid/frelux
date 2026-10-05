@@ -15,7 +15,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
@@ -66,6 +66,10 @@ function fmtN(v: number | null): string {
 }
 
 export default function WaterproofingEstimator() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "Waterproofing Estimator", path: "/waterproofing" },
+  ]);
   const { marketCode } = useMarket();
   const { user } = useAuth();
 

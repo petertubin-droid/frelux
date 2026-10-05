@@ -8,7 +8,7 @@
  */
 
 import { useState } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
@@ -19,6 +19,10 @@ import {
 import AdSlot from "@/components/ui/AdSlot";
 
 export default function BimIfcImport() {
+  useBreadcrumbJsonLd([
+    { name: "Calculators", path: "/calculators" },
+    { name: "BIM/IFC Import", path: "/bim-ifc-import" },
+  ]);
   useSeo({
     title: "BIM/IFC Import — Instant Takeoff from Architect Files | FRELUX",
     description:

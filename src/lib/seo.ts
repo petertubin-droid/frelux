@@ -198,3 +198,41 @@ export function useSeo(meta: SeoMeta | null) {
 }
 
 export { SITE_URL };
+
+/**
+ * Injects the page's BreadcrumbList structured data (schema.org), the
+ * standard site structure for every public page. Matches the JSON-LD
+ * breadcrumbs established pages already emit.
+ */
+export function useBreadcrumbJsonLd(
+  items: {
+    name: string;
+    path: string;
+  }[],
+) {
+  useEffect(() => {
+    if (items.length === 0) return;
+    const data = {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: "Home",
+          item: SITE_URL,
+        },
+        ...items.map((it, i) => ({
+          "@type": "ListItem",
+          position: i + 2,
+          name: it.name,
+          // Netlify pretty URLs: trailing-slash form is the indexed one.
+          item: `${SITE_URL}${it.path === "/" ? "/" : `${it.path}/`}`,
+        })),
+      ],
+    };
+    setStructuredData("breadcrumb-jsonld", data);
+    return () => removeStructuredData("breadcrumb-jsonld");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(items)]);
+}
