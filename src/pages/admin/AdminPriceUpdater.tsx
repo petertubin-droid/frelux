@@ -51,7 +51,22 @@ type ApplyStatus = {
   messages: string[];
 };
 
+type Market = "NG" | "US";
+
+const MARKET_META: Record<
+  Market,
+  { label: string; currency: string; region: string }
+> = {
+  NG: { label: "Nigeria (NGN)", currency: "NGN", region: "Nigeria" },
+  US: {
+    label: "United States (USD)",
+    currency: "USD",
+    region: "United States",
+  },
+};
+
 export default function AdminPriceUpdater() {
+  const [market, setMarket] = useState<Market>("NG");
   const [scanning, setScanning] = useState(false);
   const [rows, setRows] = useState<RowState[]>([]);
   const [applyStatus, setApplyStatus] = useState<ApplyStatus | null>(null);
@@ -71,7 +86,7 @@ export default function AdminPriceUpdater() {
         await import("@/lib/estimation/price-scanner");
       const [matsRes, pricesRes] = await Promise.all([
         fetchEstimationMaterials(false),
-        fetchAllPrices(true),
+        fetchAllPrices(true, market),
       ]);
       const map = new Map<string, string>();
       for (const m of (matsRes.data ?? []) as EstimationMaterial[]) {
@@ -97,8 +112,9 @@ export default function AdminPriceUpdater() {
       );
 
       const report = await scanMaterialPrices(configuredPrices, {
-        region: "Nigeria",
-        currency: "NGN",
+        region: MARKET_META[market].region,
+        currency: MARKET_META[market].currency,
+        market,
       });
 
       const nextRows: RowState[] = report.results.map((r) => ({
@@ -130,7 +146,7 @@ export default function AdminPriceUpdater() {
 
   useEffect(() => {
     void loadShared();
-  }, [loadShared]);
+  }, [loadShared, market]);
 
   const unconfiguredCount = useMemo(
     () => rows.filter((r) => r.configuredPrice === null).length,
@@ -182,10 +198,10 @@ export default function AdminPriceUpdater() {
           price_type: "material",
           ref_id: materialId,
           price,
-          currency: "NGN",
-          market: "NG",
+          currency: MARKET_META[market].currency,
+          market,
           effective_date: today,
-          notes: `Applied from FRELUX reference catalog via Price Tracker (admin verified ${today}). Unit: ${row.unit}.`,
+          notes: `Applied from FRELUX ${market} reference catalog via Price Tracker (admin verified ${today}). Unit: ${row.unit}.`,
           is_active: true,
         });
         if (writeError) {
@@ -204,7 +220,7 @@ export default function AdminPriceUpdater() {
     } finally {
       setApplying(false);
     }
-  }, [rows, slugToId, loadShared]);
+  }, [rows, slugToId, loadShared, market]);
 
   return (
     <div className="min-h-screen bg-muted/50">
@@ -216,6 +232,23 @@ export default function AdminPriceUpdater() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
         {/* Controls */}
         <div className="mb-6 flex flex-wrap items-center gap-4">
+          <label
+            htmlFor="price-market-select"
+            className="text-sm font-medium text-muted-foreground"
+          >
+            Market
+          </label>
+          <select
+            id="price-market-select"
+            value={market}
+            onChange={(e) => setMarket(e.target.value as Market)}
+            disabled={scanning}
+            className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
+            data-testid="price-market-select"
+          >
+            <option value="NG">Nigeria (NGN)</option>
+            <option value="US">United States (USD)</option>
+          </select>
           <Button
             variant="ghost"
             onClick={loadShared}

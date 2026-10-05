@@ -98,3 +98,58 @@ describe("estimation/price-scanner", () => {
     expect(cable!.confidence).toBe("low");
   });
 });
+
+describe("estimation/price-scanner US catalog", () => {
+  it("US_REFERENCE_PRICES covers the real US product set with slugs", async () => {
+    const { US_REFERENCE_PRICES } =
+      await import("@/lib/estimation/price-scanner");
+    expect(Object.keys(US_REFERENCE_PRICES).length).toBeGreaterThanOrEqual(14);
+    for (const entry of Object.values(US_REFERENCE_PRICES)) {
+      expect(entry.slug).toBeTruthy();
+      expect(entry.unit).toBeTruthy();
+      expect(entry.name).toBeTruthy();
+    }
+  });
+
+  it("US catalog prices are the verified retail values, never guesses", async () => {
+    const { US_REFERENCE_PRICES } =
+      await import("@/lib/estimation/price-scanner");
+    expect(US_REFERENCE_PRICES.us_concrete_mix_bag.price).toBe(7.97);
+    expect(US_REFERENCE_PRICES.us_behr_interior_gal.price).toBe(39.2);
+    expect(US_REFERENCE_PRICES.us_zinsser_123_quart.price).toBe(16.97);
+    expect(US_REFERENCE_PRICES.us_rmr86_gal.price).toBe(32.99);
+  });
+
+  it("US entries without a verified price are null (admin must enter)", async () => {
+    const { US_REFERENCE_PRICES } =
+      await import("@/lib/estimation/price-scanner");
+    expect(US_REFERENCE_PRICES.us_sand_50lb.price).toBeNull();
+    expect(US_REFERENCE_PRICES.us_kilz2_gal.price).toBeNull();
+  });
+
+  it("scanMaterialPrices reviews the US catalog when market is US", async () => {
+    const { scanMaterialPrices } =
+      await import("@/lib/estimation/price-scanner");
+    const report = await scanMaterialPrices({}, { market: "US" });
+    expect(report.currency).toBe("USD");
+    expect(report.market_region).toBe("United States");
+    expect(
+      report.results.some(
+        (r) => r.material_slug === "us-quikrete-concrete-80lb",
+      ),
+    ).toBe(true);
+    expect(report.results.every((r) => r.source.includes("US retail"))).toBe(
+      true,
+    );
+  });
+
+  it("defaults to the NG catalog so existing behaviour is unchanged", async () => {
+    const { scanMaterialPrices } =
+      await import("@/lib/estimation/price-scanner");
+    const report = await scanMaterialPrices({}, {});
+    expect(report.currency).toBe("NGN");
+    expect(
+      report.results.some((r) => r.material_slug === "cement-per-bag"),
+    ).toBe(true);
+  });
+});

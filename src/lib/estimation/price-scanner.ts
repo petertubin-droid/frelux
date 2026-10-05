@@ -475,6 +475,99 @@ export const FALLBACK_PRICES: Record<string, FallbackPrice> = {
   },
 };
 
+/**
+ * US reference catalog. Values are real retail prices for real US
+ * products, verified 2026-10-05 from Home Depot, Walmart, True
+ * Value and list-price sources. null = no verified price yet —
+ * the admin must enter it; a price is never invented.
+ */
+export const US_REFERENCE_PRICES: Record<string, FallbackPrice> = {
+  us_concrete_mix_bag: {
+    price: 7.97,
+    unit: "80 lb bag",
+    name: "Quikrete 80 lb Concrete Mix",
+    slug: "us-quikrete-concrete-80lb",
+  },
+  us_sand_50lb: {
+    price: null,
+    unit: "50 lb bag",
+    name: "All-Purpose Sand (50 lb)",
+    slug: "us-sand-50lb",
+  },
+  us_bonding_adhesive_gal: {
+    price: 16.99,
+    unit: "gallon",
+    name: "Quikrete Concrete Bonding Adhesive",
+    slug: "us-quikrete-bonding-adhesive",
+  },
+  us_joint_compound_pail: {
+    price: 24.09,
+    unit: "4.5 gal pail",
+    name: "USG Sheetrock All-Purpose Joint Compound",
+    slug: "us-joint-compound-45gal",
+  },
+  us_drylok_extreme_gal: {
+    price: 23.99,
+    unit: "gallon",
+    name: "Drylok Extreme Masonry Waterproofer",
+    slug: "us-drylok-extreme",
+  },
+  us_thompsons_waterseal_gal: {
+    price: 17.97,
+    unit: "gallon",
+    name: "Thompson's WaterSeal Multi-Surface",
+    slug: "us-thompsons-waterseal",
+  },
+  us_rmr86_gal: {
+    price: 32.99,
+    unit: "gallon",
+    name: "RMR-86 Pro Mold Stain Remover",
+    slug: "us-rmr-86",
+  },
+  us_concrobium_gal: {
+    price: null,
+    unit: "gallon",
+    name: "Concrobium Mold Control",
+    slug: "us-concrobium-mold-control",
+  },
+  us_dap_amp_caulk: {
+    price: null,
+    unit: "9 oz tube",
+    name: "DAP AMP Advanced Hybrid Caulk",
+    slug: "us-dap-amp-caulk",
+  },
+  us_behr_interior_gal: {
+    price: 39.2,
+    unit: "gallon",
+    name: "Behr Premium Plus Interior Paint & Primer",
+    slug: "us-behr-premium-plus-interior",
+  },
+  us_behr_marquee_gal: {
+    price: 43.0,
+    unit: "gallon",
+    name: "Behr Marquee Interior Paint",
+    slug: "us-behr-marquee-interior",
+  },
+  us_behr_exterior_gal: {
+    price: 39.2,
+    unit: "gallon",
+    name: "Behr Premium Plus Exterior Paint & Primer",
+    slug: "us-behr-premium-plus-exterior",
+  },
+  us_zinsser_123_quart: {
+    price: 16.97,
+    unit: "quart",
+    name: "Zinsser Bulls Eye 1-2-3 Primer",
+    slug: "us-zinsser-bulls-eye-123",
+  },
+  us_kilz2_gal: {
+    price: null,
+    unit: "gallon",
+    name: "KILZ 2 All-Purpose Primer",
+    slug: "us-kilz-2-primer",
+  },
+};
+
 export interface PriceScanResultItem {
   material_key: string;
   material_name: string;
@@ -510,6 +603,8 @@ export interface PriceScanReport {
 export interface ScanOptions {
   region?: string;
   currency?: string;
+  /** which market's reference catalog to review (default NG) */
+  market?: "NG" | "US";
 }
 
 /**
@@ -525,7 +620,16 @@ export async function scanMaterialPrices(
   configuredPrices: Record<string, number | null | undefined>,
   options: ScanOptions = {},
 ): Promise<PriceScanReport> {
-  const { region = "Nigeria", currency = "NGN" } = options;
+  const { region, currency } = options;
+  const market = options.market ?? "NG";
+  const catalog: Record<string, FallbackPrice> =
+    market === "US" ? US_REFERENCE_PRICES : FALLBACK_PRICES;
+  const catalogLabel =
+    market === "US"
+      ? "FRELUX Reference Catalog (US retail, verified 2026-10-05)"
+      : "FRELUX Reference Catalog (Nigeria)";
+  const effRegion = region ?? (market === "US" ? "United States" : "Nigeria");
+  const effCurrency = currency ?? (market === "US" ? "USD" : "NGN");
   const scannedAt = new Date().toISOString();
   const results: PriceScanResultItem[] = [];
 
@@ -533,7 +637,7 @@ export async function scanMaterialPrices(
   let differing = 0;
   let failed = 0;
 
-  for (const [key, fallback] of Object.entries(FALLBACK_PRICES)) {
+  for (const [key, fallback] of Object.entries(catalog)) {
     if (!fallback.slug) {
       // catalog entry not mapped to a shared material: report, never guess
       failed++;
@@ -545,7 +649,7 @@ export async function scanMaterialPrices(
         reference_price: fallback.price,
         unit: fallback.unit,
         change_percent: null,
-        source: "FRELUX Reference Catalog (Nigeria)",
+        source: catalogLabel,
         confidence: "low",
         scanned_at: scannedAt,
         success: false,
@@ -578,7 +682,7 @@ export async function scanMaterialPrices(
       reference_price: fallback.price,
       unit: fallback.unit,
       change_percent: changePercent,
-      source: "FRELUX Reference Catalog (Nigeria)",
+      source: catalogLabel,
       confidence: fallback.price === null ? "low" : "medium",
       scanned_at: scannedAt,
       success: true,
@@ -595,7 +699,7 @@ export async function scanMaterialPrices(
     materials_differing: differing,
     materials_failed: failed,
     results,
-    currency,
-    market_region: region,
+    currency: effCurrency,
+    market_region: effRegion,
   };
 }
