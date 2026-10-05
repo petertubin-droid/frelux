@@ -10,6 +10,7 @@
  * This is ESTIMATION, not waterproofing design.
  */
 
+import { useMarket } from "@/lib/international/market-context";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
@@ -25,6 +26,10 @@ import {
   createEstimate,
   createEstimateItem,
 } from "@/lib/estimation/queries";
+import {
+  fetchMarketRoleMappings,
+  type MaterialRole,
+} from "@/lib/estimation/market-materials";
 import { SaveToProjectButton } from "@/components/calculators";
 import {
   calculateWaterproofing,
@@ -61,6 +66,7 @@ function fmtN(v: number | null): string {
 }
 
 export default function WaterproofingEstimator() {
+  const { marketCode } = useMarket();
   const { user } = useAuth();
 
   const [areas, setAreas] = useState<Record<AreaField, string>>({
@@ -108,13 +114,35 @@ export default function WaterproofingEstimator() {
       for (const m of (matsRes.data ?? []) as EstimationMaterial[]) {
         map[m.slug] = byRef.get(m.id) ?? null;
       }
+      // Market-aware re-key: the engine prices by the NG reference
+      // slugs; for other markets, resolve each granular role to the
+      // market's own product (e.g. US: Drylok for cementitious
+      // coating). Roles with no market mapping keep the NG fallback
+      // via inheritance, and unpriced roles stay null — never guessed.
+      if (marketCode !== "NG") {
+        const roleToEngineSlug: [MaterialRole, string][] = [
+          ["dpc", "dpc-per-meter"],
+          ["dpm", "dpm-per-m2"],
+          ["cementitious-coating", "waterproofing-cementitious-coating"],
+          ["bituminous-membrane", "bituminous-membrane-roll"],
+          ["waterproofing-tape", "waterproofing-tape"],
+        ];
+        const mappings = await fetchMarketRoleMappings(marketCode);
+        for (const [role, engineSlug] of roleToEngineSlug) {
+          const mapped = mappings.find((mp) => mp.role === role);
+          if (mapped) {
+            const localPrice = map[mapped.material_slug];
+            if (localPrice != null) map[engineSlug] = localPrice;
+          }
+        }
+      }
       setPriceMap(map);
       setRuleRows(rulesRes.data as unknown as EstimationCalcRule[]);
     })().catch(() => {});
     return () => {
       alive = false;
     };
-  }, []);
+  }, [marketCode]);
 
   const rules = useMemo(
     () => parseWaterproofingRules(ruleRows as never),
