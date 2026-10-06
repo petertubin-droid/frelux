@@ -31,6 +31,7 @@ import {
 import { mixComponentQuantity } from "./quantity-engine";
 import { calculateLayerCost, calculateProjectCost } from "./cost-engine";
 import { buildChecklist } from "./checklists";
+import { resolveAssemblyLayers } from "./assembly-overrides";
 import { checkCompatibility } from "./compatibility";
 
 export interface WallFinResolutionContext {
@@ -87,8 +88,12 @@ export async function estimateWallFinishingProject(
       const wallLayers: (LayerQuantityResult & LayerCostResult)[] = [];
       let wallCost = 0;
 
-      for (const layerTemplate of assembly.layers) {
-        if (overrides?.removedLayers?.includes(layerTemplate.id)) continue;
+      // one effective layer list per wall: removals, add-backs and
+      // reordering are applied here so rows, costs and checklists agree
+      const effective = resolveAssemblyLayers(assembly, overrides);
+      warnings.push(...effective.warnings);
+
+      for (const layerTemplate of effective.layers) {
         const layerOverrides = overrides?.layers?.[layerTemplate.id];
 
         // surface compatibility — warns, never silently hides
@@ -108,6 +113,9 @@ export async function estimateWallFinishingProject(
           overrides: layerOverrides,
           includeOptional: true,
         });
+        if (effective.reorderedIds.has(layerTemplate.id)) {
+          qty.overridden = [...qty.overridden, "order"];
+        }
         if (qty.surfaceWarning)
           warnings.push(`Wall '${wall.label}': ${qty.surfaceWarning}`);
         if (qty.purchaseQuantity === 0) continue;
@@ -233,9 +241,7 @@ export async function estimateWallFinishingProject(
         layers: wallLayers,
         wallCost: round(wallCost, 2),
         warnings: [],
-        checklists: assembly.layers
-          .filter((l) => !overrides?.removedLayers?.includes(l.id))
-          .map(buildChecklist),
+        checklists: effective.layers.map(buildChecklist),
       });
     }
     rooms.push({

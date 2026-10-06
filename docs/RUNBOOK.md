@@ -35,6 +35,11 @@ Authorization: Bearer <access token>   body: { "query": "<sql>" }
   2026-10-04, including the worldwide set (language registry cleanup,
   English-only conversational packs, US market profile + USD reference
   price book, data subject requests table).
+- `20261007090000_wallfin_international_wall_systems` applied live as of
+  2026-10-06: `wallfin_labour_rates` (per-market finishing labour, per-m²,
+  local currency, estimate-flagged), US/CA/GB/IN/AU finishing materials +
+  retail price rows with provenance, and role mappings for the Wall Finish
+  Estimator (AU native 5 roles, CA 8, GB 13, IN 9; remaining roles inherit).
 - All migrations through `20261005220000` are applied live as of
   2026-10-05: `market_material_roles` (engines price by ROLE per market,
   NG + US mappings, inherits_from fallback to the NG reference), the

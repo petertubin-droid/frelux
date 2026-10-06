@@ -229,15 +229,18 @@ export type OverrideIndicator =
   | "thickness"
   | "waste"
   | "price"
-  | "labour";
+  | "labour"
+  | "order";
 
 export interface WallSpecOverrides {
   /** per-layer overrides, keyed by layer template id */
   layers: Record<string, WallLayerOverrides>;
-  /** per-layer removals / reorderings */
+  /** layers removed from the template sequence */
   removedLayers: string[];
-  /** additional layers cloned from template ids */
+  /** removed layers cloned back into the sequence */
   addedLayers: string[];
+  /** explicit layer-id order; unlisted layers keep their relative order */
+  layerOrder?: string[];
 }
 
 // ─────────────────────────────────────────────

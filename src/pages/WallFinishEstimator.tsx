@@ -293,6 +293,43 @@ export default function WallFinishEstimator() {
       };
     });
 
+  const addLayerBack = (wallId: string, layerId: string) =>
+    setOverrides((o) => {
+      const cur: WallSpecOverrides = o[wallId] ?? {
+        layers: {},
+        removedLayers: [],
+        addedLayers: [],
+      };
+      return {
+        ...o,
+        [wallId]: {
+          ...cur,
+          removedLayers: (cur.removedLayers ?? []).filter((x) => x !== layerId),
+          layerOrder: (cur.layerOrder ?? []).filter((x) => x !== layerId),
+        },
+      };
+    });
+
+  const moveLayer = (wallId: string, layerId: string, dir: -1 | 1) => {
+    const wall = result?.rooms
+      .flatMap((r) => r.walls)
+      .find((w) => w.wallSpecId === wallId);
+    if (!wall) return;
+    const ids = wall.layers.map((l) => l.layerTemplateId);
+    const i = ids.indexOf(layerId);
+    const j = i + dir;
+    if (i === -1 || j < 0 || j >= ids.length) return;
+    [ids[i], ids[j]] = [ids[j], ids[i]];
+    setOverrides((o) => {
+      const cur: WallSpecOverrides = o[wallId] ?? {
+        layers: {},
+        removedLayers: [],
+        addedLayers: [],
+      };
+      return { ...o, [wallId]: { ...cur, layerOrder: ids } };
+    });
+  };
+
   const patchLayerOverride = (
     wallId: string,
     layerId: string,
@@ -685,6 +722,36 @@ export default function WallFinishEstimator() {
                               <button
                                 type="button"
                                 className="text-[11px] text-muted-foreground underline"
+                                aria-label={`Move ${layer.layerName} up`}
+                                onClick={() =>
+                                  moveLayer(
+                                    wall.wallSpecId,
+                                    layer.layerTemplateId,
+                                    -1,
+                                  )
+                                }
+                              >
+                                move up
+                              </button>
+                              {" · "}
+                              <button
+                                type="button"
+                                className="text-[11px] text-muted-foreground underline"
+                                aria-label={`Move ${layer.layerName} down`}
+                                onClick={() =>
+                                  moveLayer(
+                                    wall.wallSpecId,
+                                    layer.layerTemplateId,
+                                    1,
+                                  )
+                                }
+                              >
+                                move down
+                              </button>
+                              {" · "}
+                              <button
+                                type="button"
+                                className="text-[11px] text-muted-foreground underline"
                                 onClick={() => {
                                   const v = window.prompt(
                                     `Coats for '${layer.layerName}' (current ${layer.baseQuantity > 0 ? "default" : "—"}):`,
@@ -737,6 +804,39 @@ export default function WallFinishEstimator() {
                       </tbody>
                     </table>
                   </div>
+                  {(overrides[wall.wallSpecId]?.removedLayers ?? []).length >
+                    0 && (
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                      <span className="text-muted-foreground">
+                        Removed layers:
+                      </span>
+                      {(overrides[wall.wallSpecId]?.removedLayers ?? []).map(
+                        (id) => {
+                          const name =
+                            WALLFIN_ASSEMBLIES.flatMap((a) => a.layers).find(
+                              (l) => l.id === id,
+                            )?.name ?? id;
+                          return (
+                            <span
+                              key={id}
+                              className="rounded-full border border-border bg-muted/40 px-2 py-0.5"
+                            >
+                              {name}{" "}
+                              <button
+                                type="button"
+                                className="text-primary underline"
+                                onClick={() =>
+                                  addLayerBack(wall.wallSpecId, id)
+                                }
+                              >
+                                add back
+                              </button>
+                            </span>
+                          );
+                        },
+                      )}
+                    </div>
+                  )}
                   <p className="text-sm font-medium">
                     Wall finishing total: {fmt(wall.wallCost)} {result.currency}
                   </p>

@@ -21,6 +21,7 @@ import {
 } from "../quantity-engine";
 import { calculateLayerCost } from "../cost-engine";
 import { checkCompatibility } from "../compatibility";
+import { resolveAssemblyLayers } from "../assembly-overrides";
 import { buildChecklist } from "../checklists";
 import {
   estimateWallFinishingProject,
@@ -559,5 +560,78 @@ describe("quality checklists", () => {
     expect(
       paintList.items.some((i) => i.label.includes("Final inspection")),
     ).toBe(true);
+  });
+});
+
+// ─── assembly layer add-back / reorder ─────────────
+
+describe("resolveAssemblyLayers — remove, add back, reorder", () => {
+  const assembly = getAssembly("ng-interior-block-paint")!;
+  const ids = () => assembly.layers.map((l) => l.id);
+
+  it("removes and adds a layer back at its template position", () => {
+    const removedId = ids()[1];
+    const removed = resolveAssemblyLayers(assembly, {
+      layers: {},
+      removedLayers: [removedId],
+      addedLayers: [],
+    });
+    expect(removed.layers.map((l) => l.id)).not.toContain(removedId);
+
+    // engine add-back path: the id stays in removedLayers and is
+    // cloned back via addedLayers
+    const restored = resolveAssemblyLayers(assembly, {
+      layers: {},
+      removedLayers: [removedId],
+      addedLayers: [removedId],
+    });
+    expect(restored.layers.map((l) => l.id)).toEqual(ids());
+    expect(restored.warnings).toHaveLength(0);
+  });
+
+  it("reorders layers and flags only displaced ones", () => {
+    const [a, b] = ids();
+    const reordered = resolveAssemblyLayers(assembly, {
+      layers: {},
+      removedLayers: [],
+      addedLayers: [],
+      layerOrder: [b, a],
+    });
+    expect(reordered.layers[0].id).toBe(b);
+    expect(reordered.reorderedIds.has(a)).toBe(true);
+    expect(reordered.reorderedIds.has(b)).toBe(true);
+  });
+
+  it("warns loudly on duplicate adds and unknown ids — never silent", () => {
+    const dup = resolveAssemblyLayers(assembly, {
+      layers: {},
+      removedLayers: [],
+      addedLayers: [ids()[0]],
+    });
+    expect(dup.layers.map((l) => l.id)).toEqual(ids());
+    expect(dup.warnings.some((w) => w.includes("already present"))).toBe(true);
+
+    const unknown = resolveAssemblyLayers(assembly, {
+      layers: {},
+      removedLayers: ["not-a-layer"],
+      addedLayers: [],
+    });
+    expect(unknown.layers.map((l) => l.id)).toEqual(ids());
+    expect(unknown.warnings.some((w) => w.includes("unknown layer"))).toBe(
+      true,
+    );
+  });
+
+  it("keeps unlisted layers in relative order behind listed ones", () => {
+    const [first, , third] = ids();
+    const reordered = resolveAssemblyLayers(assembly, {
+      layers: {},
+      removedLayers: [],
+      addedLayers: [],
+      layerOrder: [third],
+    });
+    expect(reordered.layers[0].id).toBe(third);
+    expect(reordered.layers[1].id).toBe(first);
+    expect(reordered.reorderedIds.has(third)).toBe(true);
   });
 });

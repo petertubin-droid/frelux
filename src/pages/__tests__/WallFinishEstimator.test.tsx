@@ -4,6 +4,7 @@
 // =========================================================
 
 import { describe, expect, it, vi, beforeEach } from "vitest";
+import { fireEvent } from "@testing-library/react";
 import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import WallFinishEstimator from "../WallFinishEstimator";
@@ -117,6 +118,54 @@ describe("WallFinishEstimator", () => {
     );
     expect(screen.getAllByText(/Quality checklist/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/how\?/i).length).toBeGreaterThan(0);
+  });
+
+  it("removes a layer, adds it back and reorders layers with indicators", async () => {
+    renderPage();
+    fireEvent.click(
+      screen.getByRole("button", { name: /Calculate finishing estimate/i }),
+    );
+    await waitFor(
+      () => expect(screen.getByText(/Estimated cost summary/i)).toBeTruthy(),
+      { timeout: 8000 },
+    );
+
+    // remove the first 'remove' link's layer (confirm auto-accepted)
+    vi.stubGlobal("confirm", () => true);
+    const removeBtn = screen.getAllByText(/^remove$/)[0];
+    fireEvent.click(removeBtn);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Calculate finishing estimate/i }),
+    );
+    await waitFor(
+      () => expect(screen.getAllByText(/add back/i).length).toBeGreaterThan(0),
+      { timeout: 8000 },
+    );
+
+    // add the layer back
+    fireEvent.click(screen.getAllByText(/add back/i)[0]);
+    await waitFor(() =>
+      expect(screen.queryAllByText(/add back/i).length).toBe(0),
+    );
+    fireEvent.click(
+      screen.getByRole("button", { name: /Calculate finishing estimate/i }),
+    );
+    await waitFor(
+      () => expect(screen.getByText(/Estimated cost summary/i)).toBeTruthy(),
+      { timeout: 8000 },
+    );
+    expect(screen.queryAllByText(/add back/i).length).toBe(0);
+
+    // reorder: move the first layer down, then verify the order indicator
+    fireEvent.click(screen.getAllByRole("button", { name: /down$/i })[0]);
+    fireEvent.click(
+      screen.getByRole("button", { name: /Calculate finishing estimate/i }),
+    );
+    await waitFor(
+      () =>
+        expect(screen.getAllByText(/edited: order/i).length).toBeGreaterThan(0),
+      { timeout: 8000 },
+    );
   });
 });
 

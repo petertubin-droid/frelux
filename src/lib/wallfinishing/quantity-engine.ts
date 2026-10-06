@@ -31,6 +31,7 @@ import type {
   WallSpecOverrides,
 } from "@/types/wallfinishing";
 import { calculateOpeningAreas } from "./openings";
+import { resolveAssemblyLayers } from "./assembly-overrides";
 
 /** Dry-volume factor for wet mortar (standard shrinkage allowance). */
 export const MORTAR_DRY_FACTOR = 1.33;
@@ -395,8 +396,11 @@ export function calculateAssemblyQuantities(
     );
   }
 
-  for (const layer of assembly.layers) {
-    if (overrides?.removedLayers?.includes(layer.id)) continue;
+  // removals, add-backs and reordering apply to the aggregate too
+  const effective = resolveAssemblyLayers(assembly, overrides);
+  errors.push(...effective.warnings);
+
+  for (const layer of effective.layers) {
     const result = calculateLayerQuantity({
       layer,
       areaM2,
