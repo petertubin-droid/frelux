@@ -4,6 +4,12 @@ import {
   requireFiniteNumbers,
   quantityLine,
 } from "./engines-registry";
+import {
+  priceQuantity,
+  priceProvenance,
+  resolveEnginePrice,
+  type EngineResolvedPrice,
+} from "./engine-pricing";
 
 // =========================================================
 // PHASE 2 ENGINES, added for the AI Copilot. Each wraps the
@@ -44,6 +50,8 @@ export function registerPhase2Engines(): void {
         paintType?: string;
         includeCeiling?: boolean;
         wasteMargin?: number;
+        /** Visitor's market code (NG, US, GB...) for role-based pricing. */
+        marketCode?: string;
       };
       const invalid = requireFiniteNumbers({
         length: input.length,
@@ -148,13 +156,81 @@ export function registerPhase2Engines(): void {
       if (result.primerLiters > 0) {
         quantities.push(quantityLine("Primer", result.primerLiters, "litres"));
       }
+      // MARKET-AWARE PRICING: with a market code the engine resolves the
+      // paint and primer roles through the market's verified price book
+      // (market_material_roles → estimation_prices) with provenance —
+      // the same source the manual paint calculator prices from. Without
+      // a market, or when a role is unpriced, costs stay null and are
+      // reported, never invented.
+      let costs: EngineCostSummary | null = null;
+      const pricing: {
+        market: string | null;
+        lines: Array<{ role: string; provenance: string }>;
+        unpriced: string[];
+      } = { market: input.marketCode ?? null, lines: [], unpriced: [] };
+      if (input.marketCode) {
+        const paintRole =
+          input.projectType === "exterior"
+            ? ("exterior-paint" as const)
+            : ("interior-paint" as const);
+        const costLines: Array<{ label: string; amount: number }> = [];
+        const paintPrice = await resolveEnginePrice(
+          paintRole,
+          input.marketCode,
+          "NGN",
+        );
+        if (paintPrice) {
+          const line = priceQuantity(result.totalRecommendedLiters, paintPrice);
+          costLines.push({
+            label: `Paint — ${line.label}`,
+            amount: line.amount,
+          });
+          pricing.lines.push({
+            role: paintRole,
+            provenance: priceProvenance(paintPrice),
+          });
+        } else {
+          pricing.unpriced.push(paintRole);
+        }
+        if (result.primerLiters > 0) {
+          const primerPrice = await resolveEnginePrice(
+            "primer",
+            input.marketCode,
+            paintPrice?.currency ?? "NGN",
+          );
+          if (primerPrice) {
+            const line = priceQuantity(result.primerLiters, primerPrice);
+            costLines.push({
+              label: `Primer — ${line.label}`,
+              amount: line.amount,
+            });
+            pricing.lines.push({
+              role: "primer",
+              provenance: priceProvenance(primerPrice),
+            });
+          } else {
+            pricing.unpriced.push("primer");
+          }
+        }
+        if (costLines.length) {
+          costs = {
+            total: costLines.reduce((sum, l) => sum + l.amount, 0),
+            currency: paintPrice?.currency ?? "NGN",
+            lines: costLines,
+            regionalDataAvailable: true,
+          };
+        }
+      }
       return {
         ok: true,
         engine: "painting_project",
         calculatedAt: new Date().toISOString(),
         quantities,
-        costs: null, // price is user/market-supplied in the manual calculator; never invented here
-        raw: result,
+        costs,
+        // Without a market the raw result stays EXACTLY the manual
+        // calculator's output (parity contract); pricing provenance
+        // rides along only for market-priced runs.
+        raw: input.marketCode ? { ...result, pricing } : result,
       };
     },
   });
@@ -395,6 +471,8 @@ export function registerPhase2Engines(): void {
         systemType?: "putty" | "white_cement_paint";
         coats?: number;
         config?: unknown; // pre-fetched ScreedingSystemConfig (avoids duplicate fetch)
+        /** Visitor's market code (NG, US, GB...) for role-based pricing. */
+        marketCode?: string;
       };
       const invalid = requireFiniteNumbers({
         areaM2: input.areaM2,
@@ -434,6 +512,68 @@ export function registerPhase2Engines(): void {
           };
         }
         config = dbToSystemConfig(data);
+      }
+
+      // MARKET-AWARE PRICING: the same role-based fallback the manual
+      // Screeding Cost Estimator uses. Config prices stay authoritative
+      // when the admin set them; a missing price resolves through the
+      // market's verified price book (joint-filler / interior-paint /
+      // concrete-mix roles) with provenance. Unpriced roles stay null —
+      // the result reports the gap, never guesses.
+      const pricing: {
+        market: string | null;
+        lines: Array<{ role: string; provenance: string }>;
+        unpriced: string[];
+      } = { market: input.marketCode ?? null, lines: [], unpriced: [] };
+      const screedCfg = config;
+      if (input.marketCode && screedCfg) {
+        const roleFor = (
+          current: number | null,
+          role: "joint-filler" | "interior-paint" | "concrete-mix",
+        ): Promise<EngineResolvedPrice | null> => {
+          if (current != null && current > 0) return Promise.resolve(null);
+          return resolveEnginePrice(
+            role,
+            input.marketCode!,
+            screedCfg.currency,
+          );
+        };
+        const puttyPrice = await roleFor(
+          config.puttyPricePerUnit,
+          "joint-filler",
+        );
+        const paintPrice = await roleFor(
+          config.paintPricePerUnit,
+          "interior-paint",
+        );
+        const cementPrice = await roleFor(
+          config.cementPricePerUnit,
+          "concrete-mix",
+        );
+        config = {
+          ...config,
+          puttyPricePerUnit:
+            config.puttyPricePerUnit ?? puttyPrice?.unitPrice ?? null,
+          puttyName:
+            config.puttyName ?? puttyPrice?.materialName ?? undefined ?? null,
+          paintPricePerUnit:
+            config.paintPricePerUnit ?? paintPrice?.unitPrice ?? null,
+          paintName:
+            config.paintName ?? paintPrice?.materialName ?? undefined ?? null,
+          cementPricePerUnit:
+            config.cementPricePerUnit ?? cementPrice?.unitPrice ?? null,
+          cementName:
+            config.cementName ?? cementPrice?.materialName ?? undefined ?? null,
+        };
+        for (const [role, price] of [
+          ["joint-filler", puttyPrice],
+          ["interior-paint", paintPrice],
+          ["concrete-mix", cementPrice],
+        ] as const) {
+          if (price) {
+            pricing.lines.push({ role, provenance: priceProvenance(price) });
+          }
+        }
       }
 
       const result = calculateScreedingSystem(
@@ -488,7 +628,7 @@ export function registerPhase2Engines(): void {
               costLines.reduce((s, l) => s + l.amount, 0),
             currency: result.currency,
             lines: costLines,
-            regionalDataAvailable: false,
+            regionalDataAvailable: pricing.lines.length > 0,
           }
         : null;
       return {
@@ -497,7 +637,202 @@ export function registerPhase2Engines(): void {
         calculatedAt: new Date().toISOString(),
         quantities,
         costs,
-        raw: result,
+        // Without a market the raw result stays EXACTLY the manual
+        // calculator's output (parity contract); pricing provenance
+        // rides along only for market-priced runs.
+        raw: input.marketCode ? { ...result, pricing } : result,
+      };
+    },
+  });
+  // ── Tyrolene system: the full authoritative Tyrolene estimate
+  //    (equivalent partitions, per-material purchase quantities and
+  //    costs) — the same calculateTyroleneProject the manual Tyrolene
+  //    Estimator runs, priced through the market's verified price book
+  //    with role-based fallback and local brand names. The area-only
+  //    tyrolene_partition_area engine stays registered for area
+  //    questions; this one answers "how much will it cost".
+  registerEngine({
+    id: "tyrolene_system",
+    domain: "finishing",
+    title: "FRELUX Tyrolene Engine, Materials & Cost",
+    authoritative: true,
+    creditedAs: "Calculated by the authoritative FRELUX tyrolene engine",
+    async run(rawInput) {
+      const input = rawInput as {
+        standardPartitionCount?: number;
+        partitions?: Array<{
+          label?: string;
+          quantity: number;
+          width: number;
+          height: number;
+        }>;
+        marketCode?: string;
+        currency?: string;
+        customerLocation?: "owerri" | "outside_owerri" | "unknown";
+        projectDescription?: string;
+      };
+      const marketCode = input.marketCode ?? "NG";
+      const invalid = requireFiniteNumbers({
+        standardPartitionCount: input.standardPartitionCount ?? 0,
+      });
+      for (const pt of input.partitions ?? []) {
+        const part = requireFiniteNumbers({
+          quantity: pt.quantity,
+          width: pt.width,
+          height: pt.height,
+        });
+        if (part) {
+          return {
+            ok: false,
+            engine: "tyrolene_system",
+            calculatedAt: new Date().toISOString(),
+            quantities: [],
+            costs: null,
+            raw: null,
+            error: part,
+          };
+        }
+      }
+      if (invalid) {
+        return {
+          ok: false,
+          engine: "tyrolene_system",
+          calculatedAt: new Date().toISOString(),
+          quantities: [],
+          costs: null,
+          raw: null,
+          error: invalid,
+        };
+      }
+      const hasPartitions = (input.partitions ?? []).some(
+        (pt) => pt.quantity > 0,
+      );
+      if (
+        !hasPartitions &&
+        !(input.standardPartitionCount && input.standardPartitionCount > 0)
+      ) {
+        return {
+          ok: false,
+          engine: "tyrolene_system",
+          calculatedAt: new Date().toISOString(),
+          quantities: [],
+          costs: null,
+          raw: null,
+          error:
+            "Provide either a standard partition count or partition dimensions (quantity, width, height in metres).",
+        };
+      }
+
+      const { loadTyroleneCalcConfig } =
+        await import("@/lib/estimation/tyrolene-config");
+      let bundle: Awaited<ReturnType<typeof loadTyroleneCalcConfig>>;
+      try {
+        bundle = await loadTyroleneCalcConfig(marketCode);
+      } catch {
+        return {
+          ok: false,
+          engine: "tyrolene_system",
+          calculatedAt: new Date().toISOString(),
+          quantities: [],
+          costs: null,
+          raw: null,
+          error:
+            "Tyrolene configuration is unavailable right now, use the Tyrolene Estimator directly for this estimate.",
+        };
+      }
+
+      const { calculateTyroleneProject } =
+        await import("@/lib/estimation/tyrolene-engine");
+      const result = calculateTyroleneProject(
+        {
+          partition_types: (input.partitions ?? []).map((pt, i) => ({
+            id: `pt${i + 1}`,
+            label: pt.label ?? `Partition type ${i + 1}`,
+            quantity: pt.quantity,
+            width: pt.width,
+            height: pt.height,
+          })),
+          standard_partition_count: hasPartitions
+            ? null
+            : (input.standardPartitionCount ?? null),
+          currency: input.currency ?? "NGN",
+          user_id: null,
+          client_hash: null,
+          project_description: input.projectDescription ?? "Tyrolene Estimate",
+          customer_location: input.customerLocation ?? "unknown",
+        },
+        bundle.config,
+      );
+
+      if (!result.valid) {
+        return {
+          ok: false,
+          engine: "tyrolene_system",
+          calculatedAt: new Date().toISOString(),
+          quantities: [],
+          costs: null,
+          raw: result,
+          error:
+            result.errors[0] ??
+            "Tyrolene configuration is incomplete, use the Tyrolene Estimator directly for this estimate.",
+        };
+      }
+
+      const quantities: EngineQuantityLine[] = [
+        quantityLine(
+          "Equivalent standard partitions",
+          result.equivalent_standard_partitions,
+          "partitions",
+        ),
+      ];
+      const costLines: Array<{ label: string; amount: number }> = [];
+      for (const mat of result.materials) {
+        // Local brand name: the market-resolved material when the price
+        // came through the role fallback, else the NG material name.
+        const resolved = bundle.roleResolutions.get(mat.material_slug);
+        const name = resolved?.material.name ?? mat.material_name;
+        quantities.push(
+          quantityLine(
+            name,
+            mat.practical_purchase_quantity,
+            mat.theoretical_unit,
+          ),
+        );
+        if (mat.total_price > 0) {
+          costLines.push({ label: name, amount: mat.total_price });
+        }
+      }
+      const pricing = {
+        market: marketCode,
+        lines: [...bundle.roleResolutions.entries()].map(
+          ([slug, resolved]) => ({
+            material: slug,
+            resolvedAs: resolved.material.name,
+            role: resolved.role,
+            resolvedMarket: resolved.resolved_market,
+            priceSource: resolved.price.price_source ?? null,
+            scanSource: resolved.price.scan_source ?? null,
+            priceDate: resolved.price.effective_date ?? null,
+          }),
+        ),
+        unpriced: bundle.unpricedSlugs,
+        configWarnings: bundle.warnings,
+      };
+      const costs: EngineCostSummary | null = costLines.length
+        ? {
+            total: result.practical_purchase_cost,
+            currency: result.currency,
+            lines: costLines,
+            regionalDataAvailable: bundle.roleResolutions.size > 0,
+          }
+        : null;
+      return {
+        ok: true,
+        engine: "tyrolene_system",
+        calculatedAt: new Date().toISOString(),
+        quantities,
+        costs,
+        raw: { ...result, pricing },
       };
     },
   });
