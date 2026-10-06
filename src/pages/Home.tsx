@@ -72,7 +72,7 @@ export default function Home() {
         name: "FRELUX PROJECT CALC",
         applicationCategory: "HomeAndGardenApplication",
         description:
-          "Calculate materials and estimate costs for construction and finishing projects worldwide. Free paint, screeding, POP ceiling, tile, and full-building calculators with AI estimating.",
+          "Calculate materials and estimate costs for construction projects worldwide. Free calculators for every trade, full-building estimating, AI photo estimates, and professional BOQs.",
         offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
         ...(featuredSlugs.length > 0
           ? {
@@ -107,7 +107,7 @@ export default function Home() {
     title:
       "FRELUX: Construction Calculators, Cost Estimators & AI Building Tools",
     description:
-      "Know exactly what materials your project needs. Free construction calculators and cost estimators for paint, screeding, POP ceiling, tiles, and full builds — with AI photo estimating, BOQs, verified market prices, and 11 languages.",
+      "Know exactly what your build needs. Free construction calculators and cost estimators for every trade — paint, tiles, structure, solar, and full builds — with AI photo estimating, BOQs, and verified market prices in multiple languages.",
     canonicalPath: "/",
     ogType: "website",
     keywords:

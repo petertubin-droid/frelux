@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import {
-  Layers,
   Calculator,
   DollarSign,
-  Palette,
+  ClipboardList,
+  UserCheck,
   ArrowRight,
   Check,
   Gem,
@@ -39,17 +39,24 @@ function renderHighlightedHeadline(
   });
 }
 
+// The hero workflow chips show the end-to-end journey of a project on
+// FRELUX — measure, price, document, hire — not a single trade.
 const heroSteps = [
-  { icon: Layers, label: "Screeding", to: "/screeding-calculator" },
-  { icon: Calculator, label: "Paint", to: "/paint-calculator" },
-  { icon: DollarSign, label: "Cost", to: "/paint-calculator?mode=cost" },
-  { icon: Palette, label: "Colors", to: "/ai-color-assistant" },
+  { icon: Calculator, label: "Calculate Materials", to: "/construction-tools" },
+  {
+    icon: DollarSign,
+    label: "Estimate Full Cost",
+    to: "/build-to-roof-estimator",
+  },
+  { icon: ClipboardList, label: "Generate BOQ", to: "/boq-generator" },
+  { icon: UserCheck, label: "Hire a Pro", to: "/pro-connect" },
 ];
 
 const trustPoints = [
   "No sign-up required",
-  "Real product prices",
-  "Mobile-friendly",
+  "Verified market prices",
+  "Free core tools",
+  "Multiple languages",
 ];
 
 export default function Hero() {
@@ -93,12 +100,14 @@ export default function Hero() {
           {/* Eyebrow badge */}
           <span className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-medium text-primary-foreground/70 backdrop-blur-md transition-colors hover:border-white/20 hover:text-primary-foreground/90">
             <Gem className="h-3 w-3 text-brand-purple-light" />
-            Plan. Estimate. Discover.
+            Plan. Estimate. Build.
           </span>
 
           {/*
            * =====================================================================
-           * PERMANENT HERO COPY, DO NOT MODIFY VIA CODE, AI, OR AUTOMATION.
+           * CMS-MANAGED HERO COPY — approved by the client 2026-10-06.
+           * Edit only via the Admin/CMS interface (site_settings row) or
+           * with explicit client approval, never unilaterally.
            * -----------------------------------------------------------------
            * The headline, supporting text, and CTA labels below are FINAL,
            * client-approved copy. They must NEVER be rewritten, paraphrased,

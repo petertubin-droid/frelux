@@ -22,15 +22,16 @@ export interface HeroContent {
   ctaSecondaryHref: string;
 }
 
-/** Hardcoded fallback, the permanent approved copy. */
+/** Hardcoded fallback. Updated 2026-10-06 with the client-approved
+ * worldwide-platform hero copy (matches the live site_settings row). */
 export const DEFAULT_HERO_CONTENT: HeroContent = {
-  headline: "Know Exactly What Materials Your Project Needs.",
+  headline: "Every trade. Every cost. One platform.",
   subheadline:
-    "Calculate materials and estimate project costs using FRELUX\u2019s Nigerian-focused construction and finishing calculators.",
-  ctaPrimaryLabel: "Start Building",
-  ctaPrimaryHref: "/start-building",
-  ctaSecondaryLabel: "Explore Tools",
-  ctaSecondaryHref: "/construction-tools",
+    "Frelux turns your measurements into exact material quantities and real, market-verified costs \u2014 for a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you\u2019re ready. Free, available in multiple languages.",
+  ctaPrimaryLabel: "Start Estimating Free",
+  ctaPrimaryHref: "/construction-tools",
+  ctaSecondaryLabel: "Try the AI Photo Estimator",
+  ctaSecondaryHref: "/image-estimator",
 };
 
 let cachedContent: HeroContent | null = null;

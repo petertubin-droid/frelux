@@ -7,12 +7,14 @@ import {
 
 describe("useHeroContent", () => {
   it("exports DEFAULT_HERO_CONTENT with correct fields", () => {
-    expect(DEFAULT_HERO_CONTENT.headline).toContain("Know Exactly");
-    expect(DEFAULT_HERO_CONTENT.subheadline).toContain("FRELUX");
-    expect(DEFAULT_HERO_CONTENT.ctaPrimaryLabel).toBe("Start Building");
-    expect(DEFAULT_HERO_CONTENT.ctaPrimaryHref).toBe("/start-building");
-    expect(DEFAULT_HERO_CONTENT.ctaSecondaryLabel).toBe("Explore Tools");
-    expect(DEFAULT_HERO_CONTENT.ctaSecondaryHref).toBe("/construction-tools");
+    expect(DEFAULT_HERO_CONTENT.headline).toContain("Every trade");
+    expect(DEFAULT_HERO_CONTENT.subheadline).toContain("market-verified");
+    expect(DEFAULT_HERO_CONTENT.ctaPrimaryLabel).toBe("Start Estimating Free");
+    expect(DEFAULT_HERO_CONTENT.ctaPrimaryHref).toBe("/construction-tools");
+    expect(DEFAULT_HERO_CONTENT.ctaSecondaryLabel).toBe(
+      "Try the AI Photo Estimator",
+    );
+    expect(DEFAULT_HERO_CONTENT.ctaSecondaryHref).toBe("/image-estimator");
   });
 
   it("useHeroContent is a function (hook)", () => {
