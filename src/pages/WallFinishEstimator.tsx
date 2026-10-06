@@ -13,6 +13,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
 import { useMarket } from "@/lib/international/market-context";
 import Container from "@/components/ui/Container";
@@ -46,6 +47,17 @@ import type {
   WallSpecOverrides,
 } from "@/types/wallfinishing";
 import { QC_STATUS_LABELS } from "@/lib/wallfinishing/checklists";
+import {
+  exportWallFinExcel,
+  exportWallFinPdf,
+} from "@/lib/wallfinishing/report-export";
+import {
+  deleteLocalProject,
+  getLocalProjectsByType,
+  saveLocalProject,
+  type LocalProject,
+} from "@/lib/local-projects";
+import type { WallFinProjectResult } from "@/types/wallfinishing";
 
 /* ── helpers ─────────────────────────────────────────────── */
 
@@ -91,6 +103,14 @@ interface DraftRoom {
   windows: number;
   /** per-wall assembly overrides: A, B, C, D — null = country default */
   assemblies: (string | null)[];
+}
+
+/** localStorage payload for a saved wall finishing estimate */
+interface SavedWallFinData {
+  spec: WallFinProjectSpec;
+  overrides: WallOverridesByWall;
+  result: WallFinProjectResult;
+  savedAt: string;
 }
 
 function makeRoom(name: string): DraftRoom {
@@ -139,6 +159,9 @@ export default function WallFinishEstimator() {
     title: string;
     steps: { label: string; detail: string }[];
   } | null>(null);
+  const [savedList, setSavedList] = useState<LocalProject[]>([]);
+  const [saveNote, setSaveNote] = useState<string | null>(null);
+  const location = useLocation();
 
   const resolved = useMemo(() => resolveWallFinCountry(country), [country]);
   const wallSystems = useMemo(
@@ -156,6 +179,64 @@ export default function WallFinishEstimator() {
   useEffect(() => {
     setCountry(marketCode);
   }, [marketCode]);
+
+  /* restore a saved estimate: draft rooms, overrides and result */
+  const hydrate = useCallback((d: SavedWallFinData) => {
+    const spec = d.spec;
+    setRegion(spec.region ?? "");
+    setBuildingType(spec.buildingType || "residential");
+    setContingency(spec.contingencyPercent ?? 10);
+    setCountry(spec.countryCode);
+    const eq = spec.extraCosts?.find((x) => x.id === "eq");
+    setEquipmentCost(eq ? String(eq.amount) : "");
+    setRooms(
+      spec.rooms.map((r) => {
+        const countType = (t: OpeningInput["type"]) =>
+          r.walls.reduce(
+            (sum, w) =>
+              sum +
+              w.openings
+                .filter((o) => o.type === t)
+                .reduce((q, o) => q + o.quantity, 0),
+            0,
+          );
+        return {
+          id: uid(),
+          name: r.name,
+          lengthM: String(r.lengthM),
+          widthM: String(r.widthM),
+          heightM: String(r.heightM),
+          isWetArea: !!r.isWetArea,
+          exteriorWalls: r.walls.filter((w) => w.surface === "exterior").length,
+          doors: countType("door"),
+          windows: countType("window"),
+          assemblies: r.walls.map((w) => w.assemblyId ?? null),
+        };
+      }),
+    );
+    setOverrides(d.overrides ?? {});
+    setResult(d.result ?? null);
+    setSaveNote(`Loaded “${spec.name}”.`);
+  }, []);
+
+  /* refresh the on-device saved list */
+  const refreshSaved = useCallback(
+    () => setSavedList(getLocalProjectsByType("wall_finishing")),
+    [],
+  );
+
+  useEffect(() => {
+    refreshSaved();
+  }, [refreshSaved]);
+
+  /* opened from My Projects — restore estimate carried in router state */
+  useEffect(() => {
+    const st = location.state as unknown as {
+      projectData?: SavedWallFinData;
+    } | null;
+    if (st?.projectData?.spec) hydrate(st.projectData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   /* build the calculation spec from the draft rooms */
   const buildSpec = useCallback((): WallFinProjectSpec => {
@@ -273,6 +354,43 @@ export default function WallFinishEstimator() {
       setBusy(false);
     }
   }, [buildSpec, country, resolved, overrides]);
+  const saveEstimate = useCallback(() => {
+    if (!result) return;
+    const spec = buildSpec();
+    const saved = saveLocalProject(spec.name, "wall_finishing", {
+      spec,
+      overrides,
+      result,
+      savedAt: new Date().toISOString(),
+    } satisfies SavedWallFinData);
+    if (saved) {
+      refreshSaved();
+      setSaveNote(`Saved “${saved.name}” on this device.`);
+    } else {
+      setError("Could not save the estimate on this device (storage full?).");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [result, overrides, buildSpec, refreshSaved]);
+
+  const loadEstimate = useCallback(
+    (p: LocalProject) => {
+      const d = p.data as unknown as SavedWallFinData;
+      if (!d?.spec || !d?.result) {
+        setError("This saved estimate is missing data and cannot be loaded.");
+        return;
+      }
+      hydrate(d);
+    },
+    [hydrate],
+  );
+
+  const deleteEstimate = useCallback(
+    (id: string) => {
+      deleteLocalProject(id);
+      refreshSaved();
+    },
+    [refreshSaved],
+  );
 
   const setRoom = (id: string, patch: Partial<DraftRoom>) =>
     setRooms((rs) => rs.map((r) => (r.id === id ? { ...r, ...patch } : r)));
@@ -913,8 +1031,74 @@ export default function WallFinishEstimator() {
               >
                 how was the total calculated?
               </button>
+              <div className="flex flex-wrap gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={saveEstimate}
+                  className="btn-primary text-sm"
+                >
+                  Save estimate
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportWallFinPdf(buildSpec(), result)}
+                  className="btn-secondary text-sm"
+                >
+                  Export PDF
+                </button>
+                <button
+                  type="button"
+                  onClick={() => exportWallFinExcel(buildSpec(), result)}
+                  className="btn-secondary text-sm"
+                >
+                  Export Excel
+                </button>
+              </div>
+              {saveNote && (
+                <p className="text-xs text-muted-foreground">{saveNote}</p>
+              )}
               <EstimateDisclaimer />
             </div>
+          </section>
+        )}
+
+        {savedList.length > 0 && (
+          <section className="card p-6 space-y-3">
+            <h3 className="font-semibold">Saved estimates (this device)</h3>
+            <ul className="space-y-2 text-sm">
+              {savedList.map((p) => (
+                <li
+                  key={p.id}
+                  className="flex flex-wrap items-center justify-between gap-2"
+                >
+                  <span>
+                    <span className="font-medium">{p.name}</span>
+                    <span className="ml-2 text-xs text-muted-foreground">
+                      {new Date(p.createdAt).toLocaleString()}
+                    </span>
+                  </span>
+                  <span className="flex gap-3">
+                    <button
+                      type="button"
+                      className="text-xs underline"
+                      onClick={() => loadEstimate(p)}
+                    >
+                      Load
+                    </button>
+                    <button
+                      type="button"
+                      className="text-xs text-destructive underline"
+                      onClick={() => {
+                        if (window.confirm(`Delete "${p.name}"?`))
+                          deleteEstimate(p.id);
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </span>
+                </li>
+              ))}
+            </ul>
           </section>
         )}
 

@@ -69,6 +69,7 @@ function renderPage() {
 describe("WallFinishEstimator", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
   });
 
   it("renders the full page structure: header, workflow steps and ad slots", () => {
@@ -193,5 +194,96 @@ describe("wall-finishing data integrity (every page render depends on it)", () =
         }
       }
     }
+  });
+
+  describe("save / load / export", () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    async function calculateAndSave() {
+      renderPage();
+      fireEvent.click(
+        screen.getByRole("button", { name: /Calculate finishing estimate/i }),
+      );
+      await waitFor(
+        () => expect(screen.getByText(/Estimated cost summary/i)).toBeTruthy(),
+        { timeout: 8000 },
+      );
+      fireEvent.click(screen.getByRole("button", { name: /Save estimate/i }));
+      await waitFor(() =>
+        expect(
+          screen.getByText(/Saved estimates \(this device\)/i),
+        ).toBeTruthy(),
+      );
+    }
+
+    it("saves the estimate on-device with spec, overrides and result", async () => {
+      await calculateAndSave();
+      const raw = localStorage.getItem("frelux_saved_projects");
+      expect(raw).toBeTruthy();
+      const saved = JSON.parse(raw!);
+      expect(saved.length).toBe(1);
+      expect(saved[0].type).toBe("wall_finishing");
+      const data = saved[0].data;
+      expect(data.spec.countryCode).toBe("NG");
+      expect(data.spec.rooms.length).toBeGreaterThan(0);
+      expect(data.spec.rooms[0].walls[0].lengthM).toBe(4);
+      expect(data.result.cost.total).toBeGreaterThan(0);
+      expect(data.result.rooms[0].walls[0].layers.length).toBeGreaterThan(0);
+      expect(typeof data.savedAt).toBe("string");
+      expect(screen.getByText(/Saved “/)).toBeTruthy();
+    });
+
+    it("loads a saved estimate back into the form", async () => {
+      await calculateAndSave();
+      // change the room length after saving
+      const lenInput = () =>
+        screen
+          .getByText("Length (m)")
+          .parentElement!.querySelector("input") as HTMLInputElement;
+      fireEvent.change(lenInput(), { target: { value: "9" } });
+      expect(lenInput().value).toBe("9");
+
+      fireEvent.click(screen.getByRole("button", { name: /^Load$/i }));
+      // hydrate re-keys the room rows, so re-query the (new) input
+      await waitFor(() => expect(lenInput().value).toBe("4"));
+      // the stored result is restored without recalculating
+      expect(screen.getByText(/Estimated cost summary/i)).toBeTruthy();
+      // equipment, region and building type come back too
+      expect(screen.getByText(/Loaded “/)).toBeTruthy();
+    });
+
+    it("deletes a saved estimate from the device", async () => {
+      await calculateAndSave();
+      expect(
+        JSON.parse(localStorage.getItem("frelux_saved_projects")!).length,
+      ).toBe(1);
+      vi.stubGlobal("confirm", () => true);
+      fireEvent.click(screen.getByRole("button", { name: /^Delete$/i }));
+      await waitFor(() =>
+        expect(
+          screen.queryByText(/Saved estimates \(this device\)/i),
+        ).toBeNull(),
+      );
+      expect(
+        JSON.parse(localStorage.getItem("frelux_saved_projects")!).length,
+      ).toBe(0);
+    });
+
+    it("offers PDF and Excel exports once a result exists", async () => {
+      renderPage();
+      fireEvent.click(
+        screen.getByRole("button", { name: /Calculate finishing estimate/i }),
+      );
+      await waitFor(
+        () => expect(screen.getByText(/Estimated cost summary/i)).toBeTruthy(),
+        { timeout: 8000 },
+      );
+      expect(screen.getByRole("button", { name: /Export PDF/i })).toBeTruthy();
+      expect(
+        screen.getByRole("button", { name: /Export Excel/i }),
+      ).toBeTruthy();
+    });
   });
 });

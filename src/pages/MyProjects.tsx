@@ -155,6 +155,7 @@ export default function MyProjects() {
 
   const PROJECT_ROUTES: Record<string, string> = {
     screeding: "/screeding-calculator",
+    wall_finishing: "/wall-finish-estimator",
     paint_calc: "/paint-calculator",
     cost_estimate: "/paint-calculator?mode=cost",
     ai_recommendation: "/ai-color-assistant",
@@ -344,6 +345,8 @@ export default function MyProjects() {
     switch (type) {
       case "screeding":
         return <Layers className="h-5 w-5 text-accent-cyan" />;
+      case "wall_finishing":
+        return <Layers className="h-5 w-5 text-brand-purple" />;
       case "paint_calc":
         return <Calculator className="h-5 w-5 text-accent-orange" />;
       case "cost_estimate":

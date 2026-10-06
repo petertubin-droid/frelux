@@ -4,13 +4,19 @@
  * Works for anonymous users, data persists on device.
  */
 
-const STORAGE_KEY = 'frelux_saved_projects';
+const STORAGE_KEY = "frelux_saved_projects";
 const MAX_PROJECTS = 20;
 
 export interface LocalProject {
   id: string;
   name: string;
-  type: 'paint_calc' | 'cost_estimate' | 'screeding_calc' | 'tile_calc' | 'pop_calc';
+  type:
+    | "paint_calc"
+    | "cost_estimate"
+    | "screeding_calc"
+    | "tile_calc"
+    | "pop_calc"
+    | "wall_finishing";
   data: Record<string, unknown>;
   createdAt: string;
 }
@@ -35,7 +41,7 @@ function setStorage(projects: LocalProject[]): void {
 
 export function saveLocalProject(
   name: string,
-  type: LocalProject['type'],
+  type: LocalProject["type"],
   data: Record<string, unknown>,
 ): LocalProject | null {
   const projects = getStorage();
@@ -59,7 +65,9 @@ export function getLocalProjects(): LocalProject[] {
   return getStorage();
 }
 
-export function getLocalProjectsByType(type: LocalProject['type']): LocalProject[] {
+export function getLocalProjectsByType(
+  type: LocalProject["type"],
+): LocalProject[] {
   return getStorage().filter((p) => p.type === type);
 }
 

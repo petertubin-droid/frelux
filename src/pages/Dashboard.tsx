@@ -25,6 +25,7 @@ import type { DbUserProject, DbPaintColor } from "@/types/database";
 
 const PROJECT_ROUTES: Record<string, string> = {
   screeding: "/screeding-calculator",
+  wall_finishing: "/wall-finish-estimator",
   paint_calc: "/paint-calculator",
   cost_estimate: "/paint-calculator?mode=cost",
   ai_recommendation: "/ai-color-assistant",
