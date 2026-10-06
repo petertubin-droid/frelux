@@ -554,16 +554,13 @@ export function registerPhase2Engines(): void {
           ...config,
           puttyPricePerUnit:
             config.puttyPricePerUnit ?? puttyPrice?.unitPrice ?? null,
-          puttyName:
-            config.puttyName ?? puttyPrice?.materialName ?? undefined ?? null,
+          puttyName: config.puttyName ?? puttyPrice?.materialName ?? null,
           paintPricePerUnit:
             config.paintPricePerUnit ?? paintPrice?.unitPrice ?? null,
-          paintName:
-            config.paintName ?? paintPrice?.materialName ?? undefined ?? null,
+          paintName: config.paintName ?? paintPrice?.materialName ?? null,
           cementPricePerUnit:
             config.cementPricePerUnit ?? cementPrice?.unitPrice ?? null,
-          cementName:
-            config.cementName ?? cementPrice?.materialName ?? undefined ?? null,
+          cementName: config.cementName ?? cementPrice?.materialName ?? null,
         };
         for (const [role, price] of [
           ["joint-filler", puttyPrice],
