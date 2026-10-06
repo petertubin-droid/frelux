@@ -83,3 +83,26 @@ Netlify auto-deploys `main` when CI is green. Verify with:
 3. Test with a Stripe test card; NGN amounts are in kobo in the function.
 4. Until configured, the gateway returns not-configured and checkout falls
    back to Paystack.
+
+## Flutterwave checkout (Pan-African + international cards)
+
+Gateway selected in Admin Settings → Payment gateway. Nigerian-merchant
+friendly: Flutterwave onboards Nigerian businesses and settles to local
+banks while accepting international cards and 30+ currencies.
+
+1. Create a Flutterwave business account; switch to LIVE mode to get the
+   live keys.
+2. Set Supabase edge secrets on the three functions:
+   - `flutterwave-checkout`: `FLUTTERWAVE_SECRET_KEY`
+   - `flutterwave-verify`: `FLUTTERWAVE_SECRET_KEY`
+   - `flutterwave-webhook`: `FLW_SECRET_HASH` (+ a random secret hash you
+     also enter in the Flutterwave dashboard → Settings → Webhooks)
+3. Deploy all three functions (`supabase/functions/flutterwave-*`).
+4. Set `VITE_FLUTTERWAVE_PUBLIC_KEY` (Netlify env) — the gateway dispatch
+   checks it before routing checkout here.
+5. Webhook URL in the Flutterwave dashboard:
+   `https://<project-ref>.supabase.co/functions/v1/flutterwave-webhook`
+6. Test end-to-end with the Flutterwave test cards; NGN amounts are in
+   NAIRA (major units) in these functions — the edge function converts
+   the canonical kobo prices itself.
+7. Until configured, the gateway falls back to Paystack (never breaks).

@@ -17,6 +17,7 @@ import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import { useToast } from "@/components/ui/Toast";
 import { PRICING_PLANS, type PricingPlan } from "@/lib/pricing-plans";
 import { verifyPayment, isPaystackConfigured } from "@/lib/paystack";
+import { verifyFlutterwavePayment } from "@/lib/flutterwave";
 import { startSubscriptionCheckout } from "@/lib/payments/gateway";
 import { isPremiumEnabled } from "@/lib/premium-access";
 import { classNames } from "@/lib/utils";
@@ -116,13 +117,20 @@ export default function Pricing() {
     isPremiumEnabled().then(setPremiumLive);
   }, []);
 
-  // Handle Paystack redirect callback
+  // Handle gateway redirect callback (Paystack or Flutterwave)
   useEffect(() => {
     const status = searchParams.get("status");
     const ref = searchParams.get("ref");
-    if (status === "verify" && ref) {
+    const gw = searchParams.get("gw");
+    // Flutterwave appends tx_ref to the redirect URL; verify server-side.
+    const txRef = searchParams.get("tx_ref");
+    const isFlutterwave = gw === "flutterwave" || !!txRef;
+    if (status === "verify" && (ref || txRef)) {
       setVerifying(true);
-      verifyPayment(ref).then(async (result) => {
+      const verifyPromise = isFlutterwave
+        ? verifyFlutterwavePayment(txRef || ref || "")
+        : verifyPayment(ref || "");
+      verifyPromise.then(async (result) => {
         if (result.verified) {
           setVerifyResult("success");
           await refreshProfile();
