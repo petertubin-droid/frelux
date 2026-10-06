@@ -72,7 +72,7 @@ export default function Home() {
         name: "FRELUX PROJECT CALC",
         applicationCategory: "HomeAndGardenApplication",
         description:
-          "Calculate materials and estimate costs for Nigerian construction and finishing projects. Free paint, screeding, POP ceiling, tile, and finishing calculators.",
+          "Calculate materials and estimate costs for construction and finishing projects worldwide. Free paint, screeding, POP ceiling, tile, and full-building calculators with AI estimating.",
         offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
         ...(featuredSlugs.length > 0
           ? {
@@ -105,9 +105,9 @@ export default function Home() {
 
   useSeo({
     title:
-      "FRELUX PROJECT CALC: Calculate Materials & Estimate Construction Costs",
+      "FRELUX: Construction Calculators, Cost Estimators & AI Building Tools",
     description:
-      "Know exactly what materials your project needs. Free Nigerian construction calculators for paint, screeding, POP ceiling, tiles, and finishing. Estimate costs with admin-configured material prices.",
+      "Know exactly what materials your project needs. Free construction calculators and cost estimators for paint, screeding, POP ceiling, tiles, and full builds — with AI photo estimating, BOQs, verified market prices, and 11 languages.",
     canonicalPath: "/",
     ogType: "website",
     keywords:

@@ -42,15 +42,15 @@ const capabilities = [
     icon: FileStack,
     title: "Use Calculator Templates",
     description:
-      "Start from pre-configured templates for common Nigerian construction projects. Adjust the dimensions to match your actual measurements.",
+      "Start from pre-configured templates for common construction projects. Adjust the dimensions to match your actual measurements.",
     to: "/templates",
     linkText: "Browse templates",
   },
   {
     icon: MapPin,
-    title: "Nigerian-Market Calculations",
+    title: "Market-Localized Pricing",
     description:
-      "Coverage rates, product sizes, and prices calibrated for Nigerian brands and building practices. Not generic formulas copied from abroad.",
+      "Coverage rates, local product sizes, and verified retailer prices for your market — selected by admins with provenance, not generic formulas copied from abroad.",
     to: "/paint-calculator?mode=cost",
     linkText: "See how it works",
   },

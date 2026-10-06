@@ -52,32 +52,33 @@ describe("HowItWorks", () => {
     expect(screen.getByText("03")).toBeTruthy();
     expect(screen.getByText("04")).toBeTruthy();
   });
-  it("mentions Nigerian coverage rates", () => {
+  it("mentions market-localized coverage rates", () => {
     render(<HowItWorks />);
-    expect(screen.getByText(/Nigerian/i)).toBeTruthy();
+    expect(screen.getByText(/market-localized coverage rates/i)).toBeTruthy();
   });
 });
 
 describe("ToolsSection", () => {
-  it("renders all 8 tool cards", () => {
+  it("renders every tool category from the registry", () => {
     render(<ToolsSection />);
-    expect(screen.getByText("Painting Estimator")).toBeTruthy();
-    expect(screen.getByText("Paint Calculator")).toBeTruthy();
-    expect(screen.getByText("Screeding Calculator")).toBeTruthy();
-    expect(screen.getByText("POP Ceiling Calculator")).toBeTruthy();
-    expect(screen.getByText("Tile Calculator")).toBeTruthy();
-    expect(screen.getByText("Tyrolene Estimator")).toBeTruthy();
-    expect(screen.getByText("Paint Cost Estimator")).toBeTruthy();
-    expect(screen.getByText("Finish Estimator")).toBeTruthy();
+    expect(screen.getByText("Materials & Finishes")).toBeTruthy();
+    expect(screen.getByText("Building Structure")).toBeTruthy();
+    expect(screen.getByText("Building Services")).toBeTruthy();
+    expect(screen.getByText("Building Components")).toBeTruthy();
+    expect(screen.getByText("Project & Cost")).toBeTruthy();
+    expect(screen.getByText("AI Assistants")).toBeTruthy();
+    expect(screen.getByText("Pro & Field")).toBeTruthy();
   });
-  it("has links to calculator pages", () => {
+  it("shows a tool count per category", () => {
+    render(<ToolsSection />);
+    expect(screen.getAllByText(/\d+ tools/).length).toBeGreaterThanOrEqual(7);
+  });
+  it("links to top tools and the full library", () => {
     const { container } = render(<ToolsSection />);
     const links = container.querySelectorAll("a[href]");
     expect(links.length).toBeGreaterThan(4);
-  });
-  it("marks Painting Estimator as featured", () => {
-    render(<ToolsSection />);
-    expect(screen.getByText("Painting Estimator")).toBeTruthy();
+    const libraryLink = screen.getByText("Explore all tools").closest("a");
+    expect(libraryLink?.getAttribute("href")).toBe("/construction-tools");
   });
 });
 
@@ -91,7 +92,7 @@ describe("CommercialReadiness", () => {
     expect(screen.getByText("Estimate Project Costs")).toBeTruthy();
     expect(screen.getByText("Save Estimates")).toBeTruthy();
     expect(screen.getByText("Use Calculator Templates")).toBeTruthy();
-    expect(screen.getByText("Nigerian-Market Calculations")).toBeTruthy();
+    expect(screen.getByText("Market-Localized Pricing")).toBeTruthy();
     expect(screen.getByText("Explore Materials & Finishing")).toBeTruthy();
   });
   it("has links to pages", () => {

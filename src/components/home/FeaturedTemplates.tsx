@@ -45,7 +45,7 @@ export default function FeaturedTemplates() {
         <SectionHeading
           label="Templates"
           title="Popular Calculator Templates"
-          subtitle="Pre-configured scenarios for common Nigerian construction projects. Pick one to start calculating instantly."
+          subtitle="Pre-configured scenarios for common construction projects. Pick one to start calculating instantly."
         />
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 8 }).map((_, i) => (
@@ -69,7 +69,7 @@ export default function FeaturedTemplates() {
       <SectionHeading
         label="Templates"
         title="Popular Calculator Templates"
-        subtitle="Pre-configured scenarios for common Nigerian construction projects. Pick one to start calculating instantly."
+        subtitle="Pre-configured scenarios for common construction projects. Pick one to start calculating instantly."
       />
 
       <nav aria-label="Featured templates" className="mt-8">

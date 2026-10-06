@@ -33,6 +33,13 @@ const learnLinks = [
   { label: "User Guide", path: "/user-guide" },
 ];
 
+const servicesLinks = [
+  { label: "Marketplace", path: "/marketplace" },
+  { label: "Pro Connect", path: "/pro-connect" },
+  { label: "Developer API", path: "/developers" },
+  { label: "Pricing", path: "/pricing" },
+];
+
 const accountLinks = [
   { label: "Sign In", path: "/login" },
   { label: "My Projects", path: "/my-projects" },
@@ -65,8 +72,8 @@ export default function Footer() {
           <div className="col-span-2 lg:col-span-2">
             <Logo />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
-              Practical tools to plan paint, estimate cost, and discover the
-              right colors for your space.
+              Plan materials, estimate costs and manage construction projects
+              worldwide — from a single room to an entire building.
             </p>
             <a
               href={whatsappUrl(
@@ -85,6 +92,7 @@ export default function Footer() {
           <FooterColumn title="Calculate" links={calculateLinks} />
           <FooterColumn title="Estimate" links={estimateLinks} />
           <FooterColumn title="Colors & AI" links={[...colorLinks]} />
+          <FooterColumn title="Services" links={servicesLinks} />
           <FooterColumn
             title="Learn & Account"
             links={[...learnLinks, ...accountLinks]}

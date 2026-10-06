@@ -16,7 +16,7 @@ const steps = [
     icon: Calculator,
     title: "Calculate",
     description:
-      "FRELUX computes practical quantity estimates for paint, cement, sand, tiles, or POP using Nigerian coverage rates and real product sizes.",
+      "FRELUX computes practical quantity estimates for paint, cement, sand, tiles, or POP using market-localized coverage rates and real product sizes.",
     accent: "text-accent-cyan bg-accent-cyan/10",
     number: "02",
   },

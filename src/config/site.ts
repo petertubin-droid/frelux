@@ -98,6 +98,34 @@ export const navWorkspaces: NavWorkspace[] = [
       },
     ],
   },
+  // Services workspace: the commercial layer beyond calculators —
+  // surfaced top-level so first-time visitors see the full platform.
+  {
+    label: "Services",
+    path: "/marketplace",
+    children: [
+      {
+        label: "Marketplace",
+        path: "/marketplace",
+        description: "Materials, jobs & verified sellers",
+      },
+      {
+        label: "Pro Connect",
+        path: "/pro-connect",
+        description: "Hire verified construction professionals",
+      },
+      {
+        label: "Developer API",
+        path: "/developers",
+        description: "Estimation APIs for developers",
+      },
+      {
+        label: "Pricing",
+        path: "/pricing",
+        description: "Premium plans & credits",
+      },
+    ],
+  },
   {
     label: "Projects",
     path: "/my-projects",

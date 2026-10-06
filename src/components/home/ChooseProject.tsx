@@ -1,14 +1,14 @@
-import { Link } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import {
   Paintbrush,
   Grid3x3,
-  Square,
-  Layers,
   Building2,
-  Hammer,
+  Camera,
+  Brain,
+  ClipboardList,
   ArrowRight,
-} from 'lucide-react';
-import Container from '@/components/ui/Container';
+} from "lucide-react";
+import Container from "@/components/ui/Container";
 
 interface ProjectCard {
   icon: typeof Paintbrush;
@@ -19,67 +19,84 @@ interface ProjectCard {
   iconBg: string;
 }
 
+// The six cards immediately below the hero are the capability pillars of
+// FRELUX, chosen to represent what the platform stands for on first visit:
+// the classic material calculators people arrive for, the flagship
+// whole-building estimator, and the AI layer that differentiates the
+// product. Finishing-specialty calculators remain one click away via
+// the tool library section and the Construction Tools menu.
 const projectCards: ProjectCard[] = [
   {
     icon: Paintbrush,
-    title: 'Painting',
-    description: 'Calculate paint quantities, containers, and full cost breakdowns for any room.',
-    to: '/paint-calculator',
-    accent: 'text-brand-purple',
-    iconBg: 'bg-primary/10',
-  },
-  {
-    icon: Grid3x3,
-    title: 'Tiles',
-    description: 'Estimate tile count, adhesive, grout, and layout for floors and walls.',
-    to: '/tile-calculator',
-    accent: 'text-accent-cyan',
-    iconBg: 'bg-accent-cyan/10',
-  },
-  {
-    icon: Square,
-    title: 'Screeding',
-    description: 'Calculate wall screeding area, cement, sand, and bonding agent quantities.',
-    to: '/screeding-calculator',
-    accent: 'text-accent-orange',
-    iconBg: 'bg-accent-orange/10',
-  },
-  {
-    icon: Layers,
-    title: 'POP Ceiling',
-    description: 'Estimate POP cement, fibreglass mesh, and materials for ceiling projects.',
-    to: '/pop-ceiling-calculator',
-    accent: 'text-brand-purple',
-    iconBg: 'bg-primary/10',
+    title: "Painting",
+    description:
+      "Calculate paint quantities, containers, and full cost breakdowns for any room.",
+    to: "/paint-calculator",
+    accent: "text-brand-purple",
+    iconBg: "bg-primary/10",
   },
   {
     icon: Building2,
-    title: 'Tyrolene',
-    description: 'Calculate Tyrolene exterior finish: cement, sand, acrylic bond, and additives.',
-    to: '/finish-estimator?mode=tyrolene',
-    accent: 'text-amber-600',
-    iconBg: 'bg-amber-100 dark:bg-amber-500/10',
+    title: "Build-to-Roof Estimator",
+    description:
+      "One full-building estimate from foundation to roof, with every trade priced.",
+    to: "/build-to-roof-estimator",
+    accent: "text-accent-green",
+    iconBg: "bg-accent-green/10",
   },
   {
-    icon: Hammer,
-    title: 'Finishing',
-    description: 'Compare painting, Tyrolene, and Grafitex finishes side by side with costs.',
-    to: '/finish-estimator',
-    accent: 'text-accent-green',
-    iconBg: 'bg-accent-green/10',
+    icon: Camera,
+    title: "AI Photo Estimator",
+    description:
+      "Upload a photo of any building and get an instant AI-assisted cost estimate.",
+    to: "/image-estimator",
+    accent: "text-accent-cyan",
+    iconBg: "bg-accent-cyan/10",
+  },
+  {
+    icon: Brain,
+    title: "Smart Calculator",
+    description:
+      "Describe your project in plain language and get quantities and costs back.",
+    to: "/smart-calculator",
+    accent: "text-amber-600",
+    iconBg: "bg-amber-100 dark:bg-amber-500/10",
+  },
+  {
+    icon: Grid3x3,
+    title: "Tiles",
+    description:
+      "Estimate tile count, adhesive, grout, and layout for floors and walls.",
+    to: "/tile-calculator",
+    accent: "text-accent-cyan",
+    iconBg: "bg-accent-cyan/10",
+  },
+  {
+    icon: ClipboardList,
+    title: "BOQ Generator",
+    description:
+      "Turn any estimate into a professional bill of quantities for tendering.",
+    to: "/boq-generator",
+    accent: "text-brand-purple",
+    iconBg: "bg-primary/10",
   },
 ];
 
 export default function ChooseProject() {
   return (
-    <section aria-label="Choose your project type" className="relative -mt-12 pb-16 pt-4 sm:pb-20" style={{ zIndex: 1 }}>
+    <section
+      aria-label="Choose your project type"
+      className="relative -mt-12 pb-16 pt-4 sm:pb-20"
+      style={{ zIndex: 1 }}
+    >
       <Container>
         <div className="mb-8 text-center">
           <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl dark:text-primary-foreground">
-            Choose Your Project
+            Start With What You Need
           </h2>
           <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
-            Select a calculator to start estimating materials and costs immediately.
+            The most-used tools on FRELUX — from a single room to an entire
+            building.
           </p>
         </div>
 
@@ -100,13 +117,19 @@ export default function ChooseProject() {
                 <div className="pointer-events-none absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/0 to-transparent transition-all duration-500 group-hover:via-primary/30" />
 
                 <div className="flex items-center gap-3">
-                  <span className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl ${card.iconBg} ${card.accent} transition-transform duration-300 group-hover:scale-110`}>
+                  <span
+                    className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl ${card.iconBg} ${card.accent} transition-transform duration-300 group-hover:scale-110`}
+                  >
                     <Icon aria-hidden="true" className="h-5 w-5" />
                   </span>
                 </div>
 
-                <h3 className="mt-4 font-display text-base font-bold text-foreground dark:text-primary-foreground">{card.title}</h3>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">{card.description}</p>
+                <h3 className="mt-4 font-display text-base font-bold text-foreground dark:text-primary-foreground">
+                  {card.title}
+                </h3>
+                <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
+                  {card.description}
+                </p>
 
                 <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5 dark:text-brand-purple-lighter">
                   Open calculator
