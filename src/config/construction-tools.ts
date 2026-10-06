@@ -331,6 +331,7 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     gets: "Panel count, battery bank, inverter size and total cost.",
     to: "/solar-pv-estimator",
     benefit: "Panels · Batteries · Cost",
+    featured: true,
     navVisible: true,
   },
   {

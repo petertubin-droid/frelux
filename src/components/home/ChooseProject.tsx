@@ -2,10 +2,12 @@ import { Link } from "react-router-dom";
 import {
   Paintbrush,
   Grid3x3,
+  Layers,
   Building2,
   Camera,
   Brain,
   ClipboardList,
+  Sun,
   ArrowRight,
 } from "lucide-react";
 import Container from "@/components/ui/Container";
@@ -19,12 +21,12 @@ interface ProjectCard {
   iconBg: string;
 }
 
-// The six cards immediately below the hero are the capability pillars of
+// The cards immediately below the hero are the capability pillars of
 // FRELUX, chosen to represent what the platform stands for on first visit:
-// the classic material calculators people arrive for, the flagship
-// whole-building estimator, and the AI layer that differentiates the
-// product. Finishing-specialty calculators remain one click away via
-// the tool library section and the Construction Tools menu.
+// the material calculators people arrive for, the flagship whole-building
+// estimator and BOQ, the AI layer, and the energy estimator. All other
+// tools remain one click away via the tool library section and the
+// Construction Tools menu.
 const projectCards: ProjectCard[] = [
   {
     icon: Paintbrush,
@@ -36,6 +38,24 @@ const projectCards: ProjectCard[] = [
     iconBg: "bg-primary/10",
   },
   {
+    icon: Grid3x3,
+    title: "Tiles",
+    description:
+      "Estimate tile count, adhesive, grout, and layout for floors and walls.",
+    to: "/tile-calculator",
+    accent: "text-accent-cyan",
+    iconBg: "bg-accent-cyan/10",
+  },
+  {
+    icon: Layers,
+    title: "Screeding",
+    description:
+      "Calculate wall screeding area, cement, sand, and bonding agent quantities.",
+    to: "/screeding-calculator",
+    accent: "text-accent-orange",
+    iconBg: "bg-accent-orange/10",
+  },
+  {
     icon: Building2,
     title: "Build-to-Roof Estimator",
     description:
@@ -43,6 +63,15 @@ const projectCards: ProjectCard[] = [
     to: "/build-to-roof-estimator",
     accent: "text-accent-green",
     iconBg: "bg-accent-green/10",
+  },
+  {
+    icon: ClipboardList,
+    title: "BOQ Generator",
+    description:
+      "Turn any estimate into a professional bill of quantities for tendering.",
+    to: "/boq-generator",
+    accent: "text-brand-purple",
+    iconBg: "bg-primary/10",
   },
   {
     icon: Camera,
@@ -59,26 +88,17 @@ const projectCards: ProjectCard[] = [
     description:
       "Describe your project in plain language and get quantities and costs back.",
     to: "/smart-calculator",
+    accent: "text-accent-green",
+    iconBg: "bg-accent-green/10",
+  },
+  {
+    icon: Sun,
+    title: "Solar PV Estimator",
+    description:
+      "Size a complete solar system — panels, batteries, inverter — with full cost.",
+    to: "/solar-pv-estimator",
     accent: "text-amber-600",
     iconBg: "bg-amber-100 dark:bg-amber-500/10",
-  },
-  {
-    icon: Grid3x3,
-    title: "Tiles",
-    description:
-      "Estimate tile count, adhesive, grout, and layout for floors and walls.",
-    to: "/tile-calculator",
-    accent: "text-accent-cyan",
-    iconBg: "bg-accent-cyan/10",
-  },
-  {
-    icon: ClipboardList,
-    title: "BOQ Generator",
-    description:
-      "Turn any estimate into a professional bill of quantities for tendering.",
-    to: "/boq-generator",
-    accent: "text-brand-purple",
-    iconBg: "bg-primary/10",
   },
 ];
 
@@ -100,7 +120,7 @@ export default function ChooseProject() {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {projectCards.map((card) => {
             const Icon = card.icon;
             return (

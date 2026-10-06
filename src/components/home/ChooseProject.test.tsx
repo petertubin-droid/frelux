@@ -12,14 +12,16 @@ function renderComponent() {
 }
 
 describe("ChooseProject", () => {
-  it("renders the six capability pillar cards", () => {
+  it("renders the eight capability pillar cards", () => {
     renderComponent();
     expect(screen.getByText("Painting")).toBeTruthy();
+    expect(screen.getByText("Tiles")).toBeTruthy();
+    expect(screen.getByText("Screeding")).toBeTruthy();
     expect(screen.getByText("Build-to-Roof Estimator")).toBeTruthy();
+    expect(screen.getByText("BOQ Generator")).toBeTruthy();
     expect(screen.getByText("AI Photo Estimator")).toBeTruthy();
     expect(screen.getByText("Smart Calculator")).toBeTruthy();
-    expect(screen.getByText("Tiles")).toBeTruthy();
-    expect(screen.getByText("BOQ Generator")).toBeTruthy();
+    expect(screen.getByText("Solar PV Estimator")).toBeTruthy();
   });
 
   it("renders project descriptions", () => {
@@ -42,5 +44,7 @@ describe("ChooseProject", () => {
     expect(aiLink?.getAttribute("href")).toBe("/image-estimator");
     const boqLink = screen.getByText("BOQ Generator").closest("a");
     expect(boqLink?.getAttribute("href")).toBe("/boq-generator");
+    const solarLink = screen.getByText("Solar PV Estimator").closest("a");
+    expect(solarLink?.getAttribute("href")).toBe("/solar-pv-estimator");
   });
 });
