@@ -31,6 +31,14 @@ export const MATERIAL_ROLES = [
   "interior-paint-premium",
   "exterior-paint",
   "primer",
+  // wall-finishing roles
+  "joint-tape",
+  "bonding-plaster",
+  "skim-plaster",
+  "gypsum-plaster",
+  "fine-filler",
+  "mist-coat",
+  "sandpaper",
 ] as const;
 
 export type MaterialRole = (typeof MATERIAL_ROLES)[number];

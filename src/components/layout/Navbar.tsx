@@ -48,6 +48,13 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+  // Sub-category (section) expansion inside an open workspace.
+  // Keys are `${workspace.label}/${section}` so each category's
+  // dropdown expands independently — categories stay visually
+  // distinct from their sub-categories.
+  const [mobileSubExpanded, setMobileSubExpanded] = useState<string | null>(
+    null,
+  );
   const [avatarError, setAvatarError] = useState(false);
   const location = useLocation();
   const { user, profile, signOut, isPaid } = useAuth();
@@ -740,31 +747,59 @@ export default function Navbar() {
                     </Button>
                     {mobileExpanded === workspace.label && (
                       <div className="ml-3 mt-1 border-l border-border/50 pl-3 dark:border-white/10">
-                        {groupBySection(workspace.children).map((group, gi) => (
-                          <div key={gi}>
-                            {group.section && (
-                              <p className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/80 dark:text-muted-foreground">
-                                {group.section}
-                              </p>
-                            )}
-                            {group.items.map((child) => (
-                              <NavLink
-                                key={child.path}
-                                to={child.path}
-                                className={({ isActive }) =>
-                                  classNames(
-                                    "block rounded-lg px-3 py-2 text-sm transition-colors",
-                                    isActive
-                                      ? "font-medium text-brand-purple dark:text-brand-purple-lighter"
-                                      : "text-muted-foreground hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter",
+                        {groupBySection(workspace.children).map((group, gi) => {
+                          const groupKey = `${workspace.label}/${group.section ?? "general"}`;
+                          return (
+                            <div key={gi} className="mb-1.5">
+                              <button
+                                type="button"
+                                aria-expanded={mobileSubExpanded === groupKey}
+                                onClick={() =>
+                                  setMobileSubExpanded(
+                                    mobileSubExpanded === groupKey
+                                      ? null
+                                      : groupKey,
                                   )
                                 }
+                                className={classNames(
+                                  "flex w-full items-center justify-between rounded-md px-3 py-2 text-[13px] font-medium transition-colors",
+                                  "bg-muted/70 text-foreground hover:bg-muted dark:bg-white/5 dark:text-foreground dark:hover:bg-white/10",
+                                )}
                               >
-                                {child.label}
-                              </NavLink>
-                            ))}
-                          </div>
-                        ))}
+                                {group.section ?? "More"}
+                                <ChevronDown
+                                  className={classNames(
+                                    "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
+                                    mobileSubExpanded === groupKey &&
+                                      "rotate-180",
+                                  )}
+                                />
+                              </button>
+                              {mobileSubExpanded === groupKey && (
+                                <div className="mt-0.5 space-y-0.5 pl-2">
+                                  {group.items.map((child) => (
+                                    <NavLink
+                                      key={child.path}
+                                      to={child.path}
+                                      onClick={() => setMobileOpen(false)}
+                                      className={({ isActive }) =>
+                                        classNames(
+                                          "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+                                          isActive
+                                            ? "bg-primary/8 font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                                            : "text-muted-foreground hover:bg-muted/50 hover:text-brand-purple dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter",
+                                        )
+                                      }
+                                    >
+                                      <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-50" />
+                                      {child.label}
+                                    </NavLink>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </>

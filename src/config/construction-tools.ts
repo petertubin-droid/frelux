@@ -227,6 +227,17 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     to: "/waterproofing",
     navVisible: false,
   },
+  {
+    slug: "wall-finish-estimator",
+    title: "Wall Finish Estimator",
+    category: "finishes",
+    icon: Paintbrush,
+    does: "Plan walls from structure to the final coat, worldwide — render, plaster, putty, primer and paint in your country's standard sequence.",
+    enters: "Country, rooms with dimensions, doors and windows.",
+    gets: "Layer-by-layer material quantities, labour and total cost with full calculation transparency.",
+    to: "/wall-finish-estimator",
+    navVisible: true,
+  },
 
   // ---------------------------------------------------------------- structure
   {

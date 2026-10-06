@@ -50,6 +50,8 @@ export type TrackEvent =
   | "contact_form_submitted"
   | "whatsapp_clicked"
   | "pop_ceiling_calculated"
+  | "wall_finish_estimated"
+  | "wall_finish_opened"
   | "pop_ceiling_estimate_generated"
   | "tile_calculated"
   | "tile_estimate_generated"

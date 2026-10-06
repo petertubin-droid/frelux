@@ -105,6 +105,7 @@ const routes = [
   { path: '/electrical', priority: '0.9', changefreq: 'monthly' },
   { path: '/plumbing', priority: '0.9', changefreq: 'monthly' },
   { path: '/waterproofing', priority: '0.9', changefreq: 'monthly' },
+  { path: '/wall-finish-estimator', priority: '0.9', changefreq: 'monthly' },
   { path: '/flooring', priority: '0.9', changefreq: 'monthly' },
   { path: '/reinforcement', priority: '0.9', changefreq: 'monthly' },
   { path: '/foundation', priority: '0.9', changefreq: 'monthly' },
