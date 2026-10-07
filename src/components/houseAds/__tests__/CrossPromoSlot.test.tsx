@@ -172,7 +172,7 @@ describe("housePromoConfigFrom", () => {
     const cfg = housePromoConfigFrom([
       makeProvider({
         settings: {
-          // format deliberately unset — display is the new default
+          // format deliberately unset - display is the new default
           external_promos: [
             {
               id: "ext-1",

@@ -129,7 +129,7 @@ beforeEach(() => {
   supabaseMock.__state.upserts = [];
 });
 
-describe("AdminRoofView — loading & status", () => {
+describe("AdminRoofView: loading & status", () => {
   it("shows the Inactive state when no config row exists", async () => {
     supabaseMock.__state.awaited["roof_view_config"] = {
       data: [],
@@ -161,7 +161,7 @@ describe("AdminRoofView — loading & status", () => {
         screen.getAllByText("Active", { exact: false }).length,
       ).toBeGreaterThan(0),
     );
-    expect(screen.getByText(/Active — .* imagery is served/i)).toBeTruthy();
+    expect(screen.getByText(/Active: .* imagery is served/i)).toBeTruthy();
   });
 
   it("labels implemented vs not-implemented providers honestly", async () => {
@@ -178,7 +178,7 @@ describe("AdminRoofView — loading & status", () => {
       ),
     ).toBeTruthy();
     expect(
-      screen.getAllByText(/Implemented — ready to serve imagery/i).length,
+      screen.getAllByText(/Implemented: ready to serve imagery/i).length,
     ).toBe(3);
   });
 
@@ -196,7 +196,7 @@ describe("AdminRoofView — loading & status", () => {
   });
 });
 
-describe("AdminRoofView — provider & settings", () => {
+describe("AdminRoofView: provider & settings", () => {
   it("switching providers rehydrates that provider's settings schema", async () => {
     supabaseMock.__state.awaited["roof_view_config"] = {
       data: [],
@@ -225,7 +225,7 @@ describe("AdminRoofView — provider & settings", () => {
   });
 });
 
-describe("AdminRoofView — save", () => {
+describe("AdminRoofView: save", () => {
   it("inserts config + upserts the key when none existed; key input cleared, never re-displayed", async () => {
     supabaseMock.__state.awaited["roof_view_config"] = {
       data: [],
@@ -364,7 +364,7 @@ describe("AdminRoofView — save", () => {
       data: null,
       error: null,
     };
-    // after the first successful steps, the upsert fails — simulate by
+    // after the first successful steps, the upsert fails - simulate by
     // making integration_settings awaited fail AFTER read succeeded
     renderPage();
     await waitFor(() => screen.getByText("Save configuration"));
@@ -381,7 +381,7 @@ describe("AdminRoofView — save", () => {
   });
 });
 
-describe("AdminRoofView — remove key", () => {
+describe("AdminRoofView: remove key", () => {
   it("removes the stored key and disables the feature", async () => {
     supabaseMock.__state.awaited["roof_view_config"] = {
       data: [CONFIG_ROW],
@@ -426,7 +426,7 @@ describe("AdminRoofView — remove key", () => {
   });
 });
 
-describe("AdminRoofView — end-to-end test button", () => {
+describe("AdminRoofView: end-to-end test button", () => {
   it("is disabled until the feature is live", async () => {
     supabaseMock.__state.awaited["roof_view_config"] = {
       data: [],
@@ -461,7 +461,7 @@ describe("AdminRoofView — end-to-end test button", () => {
 
     await waitFor(() =>
       expect(
-        screen.getByText(/Success — Google Maps Satellite returned imagery/i),
+        screen.getByText(/Success: Google Maps Satellite returned imagery/i),
       ).toBeTruthy(),
     );
     expect(screen.getByAltText("Sample roof view imagery")).toBeTruthy();

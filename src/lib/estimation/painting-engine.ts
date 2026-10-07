@@ -58,7 +58,7 @@ import { feetToMeters } from "@/lib/utils";
 
 // MERGED (audit finding cf_dual_paint_engines, resolved 2026-09-09):
 // the central paint-engine is the single source of truth for ALL
-// shared estimation rules — coverage normalization, pack size,
+// shared estimation rules - coverage normalization, pack size,
 // rounding, standard height, ceiling quantity. This room-based
 // engine is an orchestration layer over those rules; it no longer
 // duplicates any rule definition, so the two calculators can
@@ -554,9 +554,9 @@ export function calculateRoom(
       // Litres are NOT derived here: the theoretical litres are computed at
       // Step 11 from the actual configured pack size (never an assumed 20 L).
       // AUDIT RESOLUTION (code-intelligence cf_paint_placeholder_step):
-      // the former interim `* 20` placeholder was provably dead — Step 11
+      // the former interim `* 20` placeholder was provably dead - Step 11
       // overwrites it in every reachable path under this same
-      // `room.include_ceiling` guard — and is removed so no placeholder
+      // `room.include_ceiling` guard - and is removed so no placeholder
       // value can ever exist in this engine.
       steps.push({
         label: "Ceiling",

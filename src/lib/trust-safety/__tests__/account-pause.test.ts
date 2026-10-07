@@ -35,7 +35,7 @@ const EVIDENCE: TrustSafetyEvidence[] = SIGNALS.map((s, i) => ({
 
 const NOW = "2026-09-15T12:00:00Z";
 
-describe("proposeAccountPause — the temporary-pause contract", () => {
+describe("proposeAccountPause: the temporary-pause contract", () => {
   it("can never pause the Owner, and requires a stated reason", () => {
     expect(
       proposeAccountPause({
@@ -94,7 +94,7 @@ describe("proposeAccountPause — the temporary-pause contract", () => {
   });
 });
 
-describe("isPauseActive — pauses are temporary, never extended by ARCHIE", () => {
+describe("isPauseActive: pauses are temporary, never extended by ARCHIE", () => {
   const base = (): AccountPauseRecord => {
     const r = proposeAccountPause({
       account_id: "a1",
@@ -141,7 +141,7 @@ describe("isPauseActive — pauses are temporary, never extended by ARCHIE", () 
   });
 });
 
-describe("appeal and owner review — separation of powers", () => {
+describe("appeal and owner review: separation of powers", () => {
   it("records the appeal to the Owner without adjudicating it", () => {
     const r = proposeAccountPause({
       account_id: "a1",

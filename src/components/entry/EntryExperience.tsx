@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 
-// FRELUX Entry Experience — a premium construction-technology welcome
+// FRELUX Entry Experience - a premium construction-technology welcome
 // shown exactly once, on the very first page load of the homepage.
 //
 // Design notes:
@@ -26,7 +26,7 @@ export function hasEnteredBefore(): boolean {
   try {
     return window.localStorage.getItem(STORAGE_KEY) === "1";
   } catch (_) {
-    // Storage unavailable (private mode etc.) — never trap the visitor.
+    // Storage unavailable (private mode etc.) - never trap the visitor.
     return true;
   }
 }
@@ -105,7 +105,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
         {/* Deep navy base with subtle vertical depth */}
         <div className="absolute inset-0 bg-[linear-gradient(180deg,#0A0A1A_0%,#0D0D22_48%,#0A0A1A_100%)]" />
 
-        {/* Architectural image — quiet, right-weighted on wide screens */}
+        {/* Architectural image: quiet, right-weighted on wide screens */}
         <img
           src="/assets/entry/entry-bg.jpg"
           alt=""
@@ -116,7 +116,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
           }`}
         />
 
-        {/* Technical blueprint grid — thin architectural line detail */}
+        {/* Technical blueprint grid: thin architectural line detail */}
         <div
           className="absolute inset-0 opacity-[0.55]"
           style={{
@@ -145,7 +145,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
         }}
       >
         <div className="flex flex-col items-center">
-          {/* Logo mark — the existing FRELUX brand asset */}
+          {/* Logo mark: the existing FRELUX brand asset */}
           <div className="entry-rise" style={rise(120)}>
             <img
               src="/logo-mark.png"
@@ -156,7 +156,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
             />
           </div>
 
-          {/* Wordmark — engineering-grade letter spacing */}
+          {/* Wordmark: engineering-grade letter spacing */}
           <p
             className="entry-rise mt-5 font-display text-[26px] font-bold tracking-[0.32em] text-white sm:text-[32px]"
             style={rise(260)}
@@ -164,7 +164,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
             FRELUX
           </p>
 
-          {/* Headline — split coloring: the craft in white, the outcome in
+          {/* Headline: split coloring: the craft in white, the outcome in
               the brand's violet-to-orange gradient. */}
           <h1
             className="entry-rise mt-6 font-display text-[30px] font-semibold leading-[1.12] text-balance sm:mt-8 sm:text-5xl sm:leading-[1.1] lg:text-[56px]"
@@ -186,7 +186,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
             plan, calculate and build with greater confidence.
           </p>
 
-          {/* CTA — premium gradient pill with directional motion */}
+          {/* CTA: premium gradient pill with directional motion */}
           <button
             ref={ctaRef}
             type="button"
@@ -208,7 +208,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
         </div>
       </main>
 
-      {/* Secondary brand signal — subtle, near the base, safe-area aware */}
+      {/* Secondary brand signal: subtle, near the base, safe-area aware */}
       <footer
         className="entry-rise pointer-events-none absolute inset-x-0 bottom-0 flex justify-center px-6 pb-4 text-center"
         style={{

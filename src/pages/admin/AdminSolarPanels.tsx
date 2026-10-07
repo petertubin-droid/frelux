@@ -2,7 +2,7 @@
  * Admin pane: Solar Panel Models (Solar/PV Estimator)
  *
  * Full CRUD over solar_panel_models. Every model needs a
- * manufacturer datasheet reference — the estimator refuses to run
+ * manufacturer datasheet reference - the estimator refuses to run
  * without a configured model, and never guesses wattage or
  * dimensions. The price is optional and honestly reported as
  * unpriced when absent.
@@ -176,7 +176,7 @@ export default function AdminSolarPanels() {
     <div className="space-y-4">
       <AdminHeader
         title="Solar Panel Models"
-        subtitle="Panel specs (wattage, dimensions, price) for the Solar/PV Estimator. Every model needs a manufacturer datasheet reference — the estimator refuses to run without one and never guesses panel specs. A blank price is reported as unpriced, never invented."
+        subtitle="Panel specs (wattage, dimensions, price) for the Solar/PV Estimator. Every model needs a manufacturer datasheet reference: the estimator refuses to run without one and never guesses panel specs. A blank price is reported as unpriced, never invented."
         action={
           <AdminButton onClick={openCreate}>
             <Plus className="mr-1 inline h-4 w-4" /> Add model
@@ -212,7 +212,7 @@ export default function AdminSolarPanels() {
                   className="p-6 text-center text-muted-foreground"
                 >
                   No panel models configured yet. The Solar/PV Estimator refuses
-                  to run without one — add models from manufacturer datasheets.
+                  to run without one: add models from manufacturer datasheets.
                 </td>
               </tr>
             ) : (
@@ -232,7 +232,7 @@ export default function AdminSolarPanels() {
                     {m.width_m}
                   </td>
                   <td className="p-3 text-right font-mono text-xs">
-                    {m.unit_price_naira ?? "—"}
+                    {m.unit_price_naira ?? "N/A"}
                   </td>
                   <td
                     className="max-w-[220px] truncate p-3 text-xs text-muted-foreground"
@@ -303,7 +303,7 @@ export default function AdminSolarPanels() {
                   onChange={(e) => set("width_m", e.target.value)}
                 />
               </AdminField>
-              <AdminField label="Price per panel, ₦ (optional — leave blank if unknown)">
+              <AdminField label="Price per panel, ₦ (optional: leave blank if unknown)">
                 <AdminInput
                   type="number"
                   step="1"

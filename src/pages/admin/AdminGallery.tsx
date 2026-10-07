@@ -25,7 +25,7 @@ export default function AdminGallery() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("pending");
   const [images, setImages] = useState<Record<string, string[]>>({});
-  // Server-side pagination — gallery submissions grow over time.
+  // Server-side pagination - gallery submissions grow over time.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(25);
   const [total, setTotal] = useState(0);

@@ -3,7 +3,7 @@
  *
  * Computes recovered, reused, recycled and landfilled quantities
  * for a demolition or strip-out, plus landfill-diversion rate and
- * reclaimed-material value — entirely from admin-configured
+ * reclaimed-material value - entirely from admin-configured
  * material_reuse_factors. Deterministic, pure, no I/O.
  *
  * House rules, identical to every other Frelux engine:
@@ -98,7 +98,7 @@ export function calculateCircularReuse(
   const factor = factors[category];
   if (!factor) {
     return refuse([
-      `No recovery factor is configured for '${category}'. The engine refuses to guess recovery rates — an admin must configure one from a verifiable source (demolition audit, WRAP protocol, salvage dealer rate).`,
+      `No recovery factor is configured for '${category}'. The engine refuses to guess recovery rates: an admin must configure one from a verifiable source (demolition audit, WRAP protocol, salvage dealer rate).`,
     ]);
   }
 
@@ -112,7 +112,7 @@ export function calculateCircularReuse(
     recovery_rate > 1
   ) {
     return refuse([
-      `The configured recovery rate for '${category}' (${recovery_rate}) is outside 0–1. The engine refuses to compute from an invalid factor — fix the factor in the admin config.`,
+      `The configured recovery rate for '${category}' (${recovery_rate}) is outside 0–1. The engine refuses to compute from an invalid factor: fix the factor in the admin config.`,
     ]);
   }
   if (
@@ -121,7 +121,7 @@ export function calculateCircularReuse(
     reuse_fraction > 1
   ) {
     return refuse([
-      `The configured reuse fraction for '${category}' (${reuse_fraction}) is outside 0–1. The engine refuses to compute from an invalid factor — fix the factor in the admin config.`,
+      `The configured reuse fraction for '${category}' (${reuse_fraction}) is outside 0–1. The engine refuses to compute from an invalid factor: fix the factor in the admin config.`,
     ]);
   }
   if (
@@ -130,12 +130,12 @@ export function calculateCircularReuse(
     recycle_fraction > 1
   ) {
     return refuse([
-      `The configured recycle fraction for '${category}' (${recycle_fraction}) is outside 0–1. The engine refuses to compute from an invalid factor — fix the factor in the admin config.`,
+      `The configured recycle fraction for '${category}' (${recycle_fraction}) is outside 0–1. The engine refuses to compute from an invalid factor: fix the factor in the admin config.`,
     ]);
   }
   if (reuse_fraction + recycle_fraction > 1) {
     return refuse([
-      `The configured reuse (${reuse_fraction}) and recycle (${recycle_fraction}) fractions for '${category}' sum to more than 1. The engine refuses to compute from an invalid factor — fix the factor in the admin config.`,
+      `The configured reuse (${reuse_fraction}) and recycle (${recycle_fraction}) fractions for '${category}' sum to more than 1. The engine refuses to compute from an invalid factor: fix the factor in the admin config.`,
     ]);
   }
 
@@ -159,19 +159,19 @@ export function calculateCircularReuse(
 
   steps.push({
     label: "Recoverable quantity",
-    detail: `${quantity} × ${recovery_rate} (configured recovery rate) = ${r(recovered)} — recoverable from demolition.`,
+    detail: `${quantity} × ${recovery_rate} (configured recovery rate) = ${r(recovered)}: recoverable from demolition.`,
   });
   steps.push({
     label: "Directly reusable",
-    detail: `${r(recovered)} × ${reuse_fraction} (configured reuse fraction) = ${r(reused)} — fit for reuse without reprocessing.`,
+    detail: `${r(recovered)} × ${reuse_fraction} (configured reuse fraction) = ${r(reused)}: fit for reuse without reprocessing.`,
   });
   steps.push({
     label: "Recyclable",
-    detail: `${r(recovered)} × ${recycle_fraction} (configured recycle fraction) = ${r(recycled)} — fit for recycling, not direct reuse.`,
+    detail: `${r(recovered)} × ${recycle_fraction} (configured recycle fraction) = ${r(recycled)}: fit for recycling, not direct reuse.`,
   });
   steps.push({
     label: "To landfill",
-    detail: `${quantity} − ${r(reused)} − ${r(recycled)} = ${r(landfill)} — not diverted.`,
+    detail: `${quantity} − ${r(reused)} − ${r(recycled)} = ${r(landfill)}: not diverted.`,
   });
   steps.push({
     label: "Landfill diversion",
@@ -189,7 +189,7 @@ export function calculateCircularReuse(
     meetsTarget = diverted / quantity >= target;
     steps.push({
       label: "Against the diversion target",
-      detail: `${r(diversionPercent)}% vs the configured target of ${r(target * 100)}% — ${meetsTarget ? "meets" : "does not meet"} the circular-economy target.`,
+      detail: `${r(diversionPercent)}% vs the configured target of ${r(target * 100)}%: ${meetsTarget ? "meets" : "does not meet"} the circular-economy target.`,
     });
   }
 
@@ -201,7 +201,7 @@ export function calculateCircularReuse(
     );
   } else if (unit_value_naira < 0) {
     warnings.push(
-      "The configured reclaimed-material value is negative — it is ignored. The engine does not report a negative recovery value.",
+      "The configured reclaimed-material value is negative: it is ignored. The engine does not report a negative recovery value.",
     );
   } else {
     reuseValue = r(reused * unit_value_naira);

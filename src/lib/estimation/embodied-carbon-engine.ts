@@ -87,7 +87,7 @@ export function calculateEmbodiedCarbon(
   };
 
   if (!Array.isArray(input.lines) || input.lines.length === 0) {
-    result.warnings.push("No estimate lines provided — nothing to calculate.");
+    result.warnings.push("No estimate lines provided: nothing to calculate.");
     return result;
   }
 
@@ -125,7 +125,7 @@ export function calculateEmbodiedCarbon(
         source_reference: null,
       });
       result.warnings.push(
-        `'${category}' has an invalid quantity — excluded instead of guessed.`,
+        `'${category}' has an invalid quantity: excluded instead of guessed.`,
       );
       continue;
     }
@@ -149,7 +149,7 @@ export function calculateEmbodiedCarbon(
         source_reference: null,
       });
       result.warnings.push(
-        `No carbon factor is configured for '${category}' — the line was excluded from the total. Add a factor under Admin → Carbon Factors for full coverage.`,
+        `No carbon factor is configured for '${category}': the line was excluded from the total. Add a factor under Admin → Carbon Factors for full coverage.`,
       );
       continue;
     }
@@ -168,7 +168,7 @@ export function calculateEmbodiedCarbon(
         source_reference: factor.source_reference,
       });
       result.warnings.push(
-        `The configured factor for '${factor.category}' is invalid — the line was excluded instead of guessed.`,
+        `The configured factor for '${factor.category}' is invalid: the line was excluded instead of guessed.`,
       );
       continue;
     }
@@ -194,7 +194,7 @@ export function calculateEmbodiedCarbon(
 
   if (result.covered_lines === 0) {
     result.warnings.push(
-      "No line could be matched to a configured carbon factor — the total is 0 kgCO2e and reflects ONLY configured categories.",
+      "No line could be matched to a configured carbon factor: the total is 0 kgCO2e and reflects ONLY configured categories.",
     );
   } else if (result.excluded_lines > 0) {
     result.warnings.push(

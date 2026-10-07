@@ -70,7 +70,7 @@ export const navWorkspaces: NavWorkspace[] = [
       })),
     ),
   },
-  // Colors & Design workspace (restored 2026-10-04 — these pages were
+  // Colors & Design workspace (restored 2026-10-04 - these pages were
   // accidentally dropped from the menu during the Construction Tools merge).
   {
     label: "Colors & Design",
@@ -98,7 +98,7 @@ export const navWorkspaces: NavWorkspace[] = [
       },
     ],
   },
-  // Services workspace: the commercial layer beyond calculators —
+  // Services workspace: the commercial layer beyond calculators -
   // surfaced top-level so first-time visitors see the full platform.
   {
     label: "Services",
@@ -162,7 +162,7 @@ export const navWorkspaces: NavWorkspace[] = [
       },
     ],
   },
-  // Learn workspace (restored 2026-10-04 — Learn Hub, guides and friends were
+  // Learn workspace (restored 2026-10-04 - Learn Hub, guides and friends were
   // accidentally dropped from the menu during the Construction Tools merge).
   {
     label: "Learn",

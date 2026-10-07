@@ -96,7 +96,7 @@ describe("listSocialAccounts", () => {
   });
 });
 
-describe("OAuth connect flows — the owner authorizes on the platform itself", () => {
+describe("OAuth connect flows: the owner authorizes on the platform itself", () => {
   it("CONNECT returns the platform's official authorize URL", async () => {
     fetchMock.mockResolvedValueOnce({
       ok: true,
@@ -171,7 +171,7 @@ describe("sync / disconnect / revoke", () => {
   });
 });
 
-describe("insight reports — separate labeled kinds, never merged", () => {
+describe("insight reports: separate labeled kinds, never merged", () => {
   it("saves and lists observations/recommendations/assumptions as distinct kinds", async () => {
     const saved: Record<string, unknown> = {};
     fromMock.mockImplementationOnce(() =>

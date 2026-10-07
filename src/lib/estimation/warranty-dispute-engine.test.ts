@@ -93,7 +93,7 @@ describe("issueWarrantyCertificate", () => {
     expect(r.status).toBe("active");
   });
 
-  it("flags a stored-total mismatch as a dispute — never repairs it", () => {
+  it("flags a stored-total mismatch as a dispute: never repairs it", () => {
     const r = issueWarrantyCertificate(
       input({ items: [item({ stored_total: 55000 })] }),
     );
@@ -141,7 +141,7 @@ describe("issueWarrantyCertificate", () => {
     expect(r.status).toBe("expired");
   });
 
-  it("issues WITHOUT an expiry when no warranty rule is configured — never invents one", () => {
+  it("issues WITHOUT an expiry when no warranty rule is configured: never invents one", () => {
     const r = issueWarrantyCertificate(input({ rules: [] }));
     expect(r.ok).toBe(true);
     expect(r.expires_at).toBeNull();

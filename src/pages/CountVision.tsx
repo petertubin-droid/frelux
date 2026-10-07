@@ -1,15 +1,15 @@
 /**
- * FRELUX Counter-Vision — Photo Counting (Future Engine 2)
+ * FRELUX Counter-Vision - Photo Counting (Future Engine 2)
  *
  * Photograph a stack of tiles, cement bags, blocks or paint
- * buckets and the engine counts what is visible — via Gemini,
+ * buckets and the engine counts what is visible - via Gemini,
  * admin-gated and rate-limited on the server.
  *
  * - The counting happens ONLY in the count-vision edge function;
  *   this page renders and never invents a number.
  * - A count below the admin-configured confidence floor, or one
  *   the server could not stand behind, is shown as "cannot count
- *   honestly" with the reason — never as a guess.
+ *   honestly" with the reason - never as a guess.
  * - The photo is never stored: it goes to the counter and is
  *   gone when the count completes.
  */
@@ -64,9 +64,9 @@ export default function CountVision() {
 
   useSeo({
     title:
-      "Photo Counter — Count Cement Bags, Tiles & Blocks From a Photo | FRELUX PROJECT CALC",
+      "Photo Counter: Count Cement Bags, Tiles & Blocks From a Photo | FRELUX PROJECT CALC",
     description:
-      "Photograph a stack of cement bags, tiles, blocks or paint buckets and Counter-Vision counts what is visible. Honest verdicts only: if the photo can't be counted reliably, it says so — it never guesses.",
+      "Photograph a stack of cement bags, tiles, blocks or paint buckets and Counter-Vision counts what is visible. Honest verdicts only: if the photo can't be counted reliably, it says so: it never guesses.",
   });
 
   useEffect(() => {
@@ -116,7 +116,7 @@ export default function CountVision() {
       if (fileRef.current) fileRef.current.value = "";
     } catch (err) {
       setError(
-        `${getSafeError(err)} — check your connection and try again. The photo was not stored.`,
+        `${getSafeError(err)}: check your connection and try again. The photo was not stored.`,
       );
       track("count_vision_run", { verdict: "error" });
     } finally {
@@ -133,7 +133,7 @@ export default function CountVision() {
           { label: "Counter-Vision" },
         ]}
         title="Counter-Vision"
-        subtitle="Photograph your stacked materials and the engine counts what is visible. It tells you honestly when it cannot count — it never guesses a number."
+        subtitle="Photograph your stacked materials and the engine counts what is visible. It tells you honestly when it cannot count: it never guesses a number."
       />
 
       {/* The counting form */}
@@ -179,7 +179,7 @@ export default function CountVision() {
               className="max-h-64 rounded-md border"
             />
             <p className="mt-1 text-xs text-muted-foreground">
-              Ready to count — {photo?.name}
+              Ready to count: {photo?.name}
             </p>
           </div>
         )}
@@ -253,7 +253,7 @@ export default function CountVision() {
                 {result.reason}
               </p>
               <p className="mt-4 rounded-md border border-dashed p-3 text-xs text-muted-foreground">
-                This is what is visible — units hidden behind or under the stack
+                This is what is visible: units hidden behind or under the stack
                 are not included. Count a second photo for the rest of the pile.
               </p>
             </>
@@ -269,8 +269,8 @@ export default function CountVision() {
               </p>
               <p className="mt-4 text-xs text-muted-foreground">
                 Take the photo in good light, close enough that each unit is
-                distinct — then try again. A refused count is better than a
-                wrong one.
+                distinct: then try again. A refused count is better than a wrong
+                one.
               </p>
             </>
           )}
@@ -279,13 +279,13 @@ export default function CountVision() {
 
       <AdSlot slotKey="calculator_native" className="mt-8" />
 
-      {/* How it works — the honesty contract, in plain words */}
+      {/* How it works: the honesty contract, in plain words */}
       <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
         <h2 className="mb-2 font-semibold">How Counter-Vision works</h2>
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
           <li>
             The photo goes to the counting service (Google Gemini, configured
-            and switched on by the site admin) and is never stored — only the
+            and switched on by the site admin) and is never stored: only the
             answer and its diagnostics are logged.
           </li>
           <li>

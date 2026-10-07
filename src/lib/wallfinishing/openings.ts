@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX Wall Finishing — openings engine.
+// FRELUX Wall Finishing - openings engine.
 //
 // Openings (doors, windows, archways, vents, custom) deduct
 // from the gross wall area; reveals/returns add finishing area
@@ -32,7 +32,7 @@ export function calculateOpeningAreas(
     const eachArea = o.widthM * o.heightM;
     if (!Number.isFinite(eachArea) || eachArea < 0) {
       warnings.push(
-        `Opening '${o.type}' has invalid dimensions — skipped instead of guessed.`,
+        `Opening '${o.type}' has invalid dimensions: skipped instead of guessed.`,
       );
       continue;
     }

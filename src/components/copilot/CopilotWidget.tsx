@@ -496,7 +496,7 @@ function ResultPanel({
   const result = outcome.result as EngineResult;
   const fmt = (n: number) => `₦${Math.round(n).toLocaleString()}`;
   // ARCHIE structured report: assumptions, materials, waste, pricing
-  // basis, methodology and confidence — all verbatim from the engine.
+  // basis, methodology and confidence - all verbatim from the engine.
   const report = generateArchieCalculationReport(outcome);
 
   return (

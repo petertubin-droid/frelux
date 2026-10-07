@@ -154,7 +154,7 @@ export default function AdminEstimationEstimates() {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Server-side pagination — filters and search run in the query so the
+  // Server-side pagination - filters and search run in the query so the
   // exact count and page window always match what the admin sees.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(25);

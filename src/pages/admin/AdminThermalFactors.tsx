@@ -174,7 +174,7 @@ export default function AdminThermalFactors() {
     <div>
       <AdminHeader
         title="Thermal Finish Factors"
-        subtitle="Solar reflectance (albedo) per finish category and surface type — the data behind the Heat Comfort Engine. Every factor needs a verifiable source; the engine refuses to score a finish without one."
+        subtitle="Solar reflectance (albedo) per finish category and surface type: the data behind the Heat Comfort Engine. Every factor needs a verifiable source; the engine refuses to score a finish without one."
         action={
           <AdminButton onClick={openCreate}>
             <Plus className="mr-1 inline h-4 w-4" /> Add factor
@@ -218,7 +218,7 @@ export default function AdminThermalFactors() {
                   className="p-6 text-center text-muted-foreground"
                 >
                   No factors configured yet. The Heat Comfort Engine refuses to
-                  score a finish without one — add factors from verifiable
+                  score a finish without one: add factors from verifiable
                   sources (manufacturer data sheets, SRI/CRRC ratings).
                 </td>
               </tr>
@@ -230,7 +230,7 @@ export default function AdminThermalFactors() {
                 >
                   <td className="p-3 capitalize">{f.surface_type}</td>
                   <td className="p-3 font-mono text-xs">{f.category}</td>
-                  <td className="p-3">{f.category_label ?? "—"}</td>
+                  <td className="p-3">{f.category_label ?? "N/A"}</td>
                   <td className="p-3 text-right font-mono text-xs">
                     {f.solar_reflectance}
                   </td>
@@ -241,7 +241,7 @@ export default function AdminThermalFactors() {
                     {f.source_reference}
                   </td>
                   <td className="p-3 text-xs">
-                    {f.effective_date?.slice(0, 10) ?? "—"}
+                    {f.effective_date?.slice(0, 10) ?? "N/A"}
                   </td>
                   <td className="p-3">
                     <span
@@ -315,7 +315,7 @@ export default function AdminThermalFactors() {
               onChange={(e) => set("solar_reflectance", e.target.value)}
             />
           </AdminField>
-          <AdminField label="Source reference (required — data sheet, SRI/CRRC rating, literature)">
+          <AdminField label="Source reference (required: data sheet, SRI/CRRC rating, literature)">
             <AdminInput
               value={form.source_reference}
               onChange={(e) => set("source_reference", e.target.value)}

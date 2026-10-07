@@ -70,9 +70,9 @@ function validate(f: RateForm): string | null {
   if (!f.unit.trim()) return "Unit is required (e.g. sqm, m, item).";
   const output = Number(f.output_per_worker_day);
   if (!Number.isFinite(output) || output <= 0)
-    return "Output per worker-day must be a positive number — the engine never invents a productivity figure.";
+    return "Output per worker-day must be a positive number: the engine never invents a productivity figure.";
   if (!f.source_reference.trim())
-    return "Source reference is required — productivity rates must be verifiable (contractor data, benchmark study or literature).";
+    return "Source reference is required: productivity rates must be verifiable (contractor data, benchmark study or literature).";
   return null;
 }
 
@@ -129,7 +129,7 @@ export default function AdminLabourRates() {
       );
       if (clash) {
         setError(
-          `An active rate already exists for '${clash.task_key}'. Deactivate it first or edit it — only one active rate per task keeps the engine deterministic.`,
+          `An active rate already exists for '${clash.task_key}'. Deactivate it first or edit it: only one active rate per task keeps the engine deterministic.`,
         );
         return;
       }
@@ -175,7 +175,7 @@ export default function AdminLabourRates() {
     <div className="space-y-6">
       <AdminHeader
         title="Labour Rates"
-        subtitle="Admin-configured labour productivity rates per finishing task (unit output per worker-day), each with a verifiable source. The labour engine applies the site-efficiency loss as a separate, labelled line — never folded into the base rate."
+        subtitle="Admin-configured labour productivity rates per finishing task (unit output per worker-day), each with a verifiable source. The labour engine applies the site-efficiency loss as a separate, labelled line: never folded into the base rate."
         action={
           <AdminButton onClick={openCreate}>
             <Plus className="mr-2 h-4 w-4" /> Add Rate

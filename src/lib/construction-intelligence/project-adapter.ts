@@ -7,7 +7,7 @@
  *
  *   - Rooms with recorded length + width become Spaces; their quantities
  *     are produced by the Project Engine, never here.
- *   - Rooms without complete dimensions are returned as `unmeasured` —
+ *   - Rooms without complete dimensions are returned as `unmeasured` -
  *     an explicit gap that the risk layer reports, never a zero or an
  *     invented dimension (Prompt 3, §7).
  *   - The element's primary calculator is derived deterministically from
@@ -89,7 +89,7 @@ function roomSpaceName(room: DbProjectRoom): string {
 export interface RoomsToSpacesResult {
   /** Rooms with complete dimensions, converted to canonical Spaces. */
   spaces: Space[];
-  /** Rooms that lack recorded dimensions — explicit gaps, never zeros. */
+  /** Rooms that lack recorded dimensions - explicit gaps, never zeros. */
   unmeasured: DbProjectRoom[];
 }
 
@@ -153,7 +153,7 @@ export interface ProjectAdapterResult {
  * Build the canonical ConstructionProject from stored data.
  *
  * The project's own project_type determines which trade element(s) the
- * measured surfaces belong to. This mapping is deterministic — it never
+ * measured surfaces belong to. This mapping is deterministic - it never
  * guesses a trade the project does not declare.
  */
 export function dbProjectToConstructionProject(

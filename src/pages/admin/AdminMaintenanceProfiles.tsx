@@ -136,7 +136,7 @@ function validate(f: ProfileForm): string | null {
     return "Replacement cost factor must be positive (default 1).";
 
   if (!f.source_reference.trim())
-    return "Source reference is required — maintenance data must be verifiable (standard, datasheet or trade source).";
+    return "Source reference is required: maintenance data must be verifiable (standard, datasheet or trade source).";
   return null;
 }
 
@@ -245,7 +245,7 @@ export default function AdminMaintenanceProfiles() {
     <div className="space-y-6">
       <AdminHeader
         title="Maintenance Profiles"
-        subtitle="Verified maintenance data per finish category and surface type — service lives, re-coat intervals, inspection cadence and cost factors. The Maintenance Planner refuses to schedule categories without a configured profile."
+        subtitle="Verified maintenance data per finish category and surface type: service lives, re-coat intervals, inspection cadence and cost factors. The Maintenance Planner refuses to schedule categories without a configured profile."
         action={
           <AdminButton onClick={openCreate}>
             <Plus className="mr-2 h-4 w-4" /> Add Profile
@@ -304,12 +304,12 @@ export default function AdminMaintenanceProfiles() {
                 <td className="p-3">
                   {p.maintenance_interval_min_years
                     ? `${p.maintenance_interval_min_years}–${p.maintenance_interval_max_years} yrs`
-                    : "—"}
+                    : "N/A"}
                 </td>
                 <td className="p-3">
                   {p.inspection_interval_years
                     ? `${p.inspection_interval_years} yr`
-                    : "—"}
+                    : "N/A"}
                 </td>
                 <td className="p-3">
                   ×{p.maintenance_cost_factor} / ×{p.replacement_cost_factor}
@@ -375,21 +375,21 @@ export default function AdminMaintenanceProfiles() {
               ))}
             </AdminSelect>
           </AdminField>
-          <AdminField label="Service life — min (years) *">
+          <AdminField label="Service life: min (years) *">
             <AdminInput
               type="number"
               value={form.service_life_min_years}
               onChange={(e) => set("service_life_min_years", e.target.value)}
             />
           </AdminField>
-          <AdminField label="Service life — max (years) *">
+          <AdminField label="Service life: max (years) *">
             <AdminInput
               type="number"
               value={form.service_life_max_years}
               onChange={(e) => set("service_life_max_years", e.target.value)}
             />
           </AdminField>
-          <AdminField label="Maintenance interval — min (years)">
+          <AdminField label="Maintenance interval: min (years)">
             <AdminInput
               type="number"
               value={form.maintenance_interval_min_years}
@@ -398,7 +398,7 @@ export default function AdminMaintenanceProfiles() {
               }
             />
           </AdminField>
-          <AdminField label="Maintenance interval — max (years)">
+          <AdminField label="Maintenance interval: max (years)">
             <AdminInput
               type="number"
               value={form.maintenance_interval_max_years}

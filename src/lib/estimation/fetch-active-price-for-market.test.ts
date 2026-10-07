@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
  * fetchActivePriceForMarket: the current market's own price first, then
  * the market_profiles.inherits_from chain (US -> NG). A price found in
  * an ancestor market must be returned (with resolved_market), and a
- * price missing everywhere must resolve to null — never a guess.
+ * price missing everywhere must resolve to null - never a guess.
  */
 
 type Row = Record<string, unknown>;

@@ -50,7 +50,7 @@ const capabilities = [
     icon: MapPin,
     title: "Market-Localized Pricing",
     description:
-      "Coverage rates, local product sizes, and verified retailer prices for your market — selected by admins with provenance, not generic formulas copied from abroad.",
+      "Coverage rates, local product sizes, and verified retailer prices for your market: selected by admins with provenance, not generic formulas copied from abroad.",
     to: "/paint-calculator?mode=cost",
     linkText: "See how it works",
   },

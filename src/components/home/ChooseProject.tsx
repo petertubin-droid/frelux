@@ -95,7 +95,7 @@ const projectCards: ProjectCard[] = [
     icon: Sun,
     title: "Solar PV Estimator",
     description:
-      "Size a complete solar system — panels, batteries, inverter — with full cost.",
+      "Size a complete solar system: panels, batteries, inverter: with full cost.",
     to: "/solar-pv-estimator",
     accent: "text-amber-600",
     iconBg: "bg-amber-100 dark:bg-amber-500/10",
@@ -115,7 +115,7 @@ export default function ChooseProject() {
             Start With What You Need
           </h2>
           <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
-            The most-used tools on FRELUX — from a single room to an entire
+            The most-used tools on FRELUX: from a single room to an entire
             building.
           </p>
         </div>

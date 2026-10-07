@@ -87,7 +87,7 @@ describe("OfflineIndicator", () => {
       error: null,
     }));
 
-    // go offline and fail — the fallback announces the cached date
+    // go offline and fail - the fallback announces the cached date
     Object.defineProperty(navigator, "onLine", {
       value: false,
       configurable: true,

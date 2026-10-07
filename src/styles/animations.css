@@ -224,7 +224,7 @@
   transform: scale(0.97);
 }
 
-/* Card hover lift — refined and premium */
+/* Card hover lift - refined and premium */
 .card-hover {
   transition:
     transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),

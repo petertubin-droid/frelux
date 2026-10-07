@@ -26,7 +26,7 @@ export interface ExternalPromo {
   blurb: string;
   owner_name: string;
   /** Absolute logo/og:image URL, shown in the single-image Display
-   *  format. The "AI Assistant — create ad from URL" tool fills this
+   *  format. The "AI Assistant - create ad from URL" tool fills this
    *  from the target page's og:image. */
   logo_url?: string;
 }
@@ -129,7 +129,7 @@ export function useHousePromoSettings(): HousePromoSettings {
         setSettings(resolved);
       })
       .catch(() => {
-        /* config fetch failed — keep promos hidden */
+        /* config fetch failed - keep promos hidden */
       });
     return () => {
       alive = false;

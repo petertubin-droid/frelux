@@ -50,7 +50,7 @@ export default function Navbar() {
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
   // Sub-category (section) expansion inside an open workspace.
   // Keys are `${workspace.label}/${section}` so each category's
-  // dropdown expands independently — categories stay visually
+  // dropdown expands independently - categories stay visually
   // distinct from their sub-categories.
   const [mobileSubExpanded, setMobileSubExpanded] = useState<string | null>(
     null,
@@ -85,7 +85,7 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    // overflow-y only — never touch overflow-x, which must stay `clip`
+    // overflow-y only - never touch overflow-x, which must stay `clip`
     // (set globally in index.css) so position:sticky elements keep the
     // viewport as their scrolling ancestor instead of body/html.
     document.body.style.overflowY = mobileOpen ? "hidden" : "";
@@ -178,7 +178,7 @@ export default function Navbar() {
     <>
       <header
         className={classNames(
-          "fixed top-0 z-40 w-full transition-all duration-500",
+          "neon-edge fixed top-0 z-40 w-full transition-all duration-500",
           scrolled
             ? "glass-premium border-b border-border/40 shadow-sm dark:border-white/5"
             : "bg-white/50 backdrop-blur-md border-b border-transparent dark:bg-background/50 dark:border-transparent",

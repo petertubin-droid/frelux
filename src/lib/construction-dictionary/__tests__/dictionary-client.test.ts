@@ -2,7 +2,7 @@
 // CONSTRUCTION DICTIONARY CLIENT TESTS
 //
 // Terminology governance at the data layer:
-//   * new terms ALWAYS start unverified at version 1 —
+//   * new terms ALWAYS start unverified at version 1 -
 //     verification is a separate deliberate human action
 //   * edits bump the version and write a full audit
 //     snapshot of the PREVIOUS state (spec §16)

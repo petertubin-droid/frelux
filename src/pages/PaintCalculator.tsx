@@ -311,7 +311,7 @@ export default function PaintCalculator({
             } else {
               // Role-based market fallback: this market's price book is
               // material-typed (no NG-style quality tiers), so resolve the
-              // tier by role — premium tiers -> interior-paint-premium,
+              // tier by role - premium tiers -> interior-paint-premium,
               // everything else -> interior-paint. Local brand names and
               // prices come from the market's verified book; unpriced roles
               // resolve to nothing and the estimate flags them.

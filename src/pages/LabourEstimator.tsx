@@ -29,7 +29,7 @@ export default function LabourEstimator() {
     { name: "Labour & Crew Estimator", path: "/labour-estimator" },
   ]);
   useSeo({
-    title: "Labour & Crew Estimator — FRELUX",
+    title: "Labour & Crew Estimator: FRELUX",
     description:
       "Estimate worker-days and crew duration for any finishing task from admin-configured, verifiable productivity rates.",
   });
@@ -76,7 +76,7 @@ export default function LabourEstimator() {
             { label: "Labour & Crew Estimator" },
           ]}
           title="Labour & Crew Estimator"
-          subtitle="Worker-days and crew duration for a quantity of work, from admin-configured productivity rates with verifiable sources. The site-efficiency loss is shown as a separate line — never folded into the base rate — and calendar days are always whole days."
+          subtitle="Worker-days and crew duration for a quantity of work, from admin-configured productivity rates with verifiable sources. The site-efficiency loss is shown as a separate line: never folded into the base rate: and calendar days are always whole days."
         />
 
         {loadError && (
@@ -90,7 +90,7 @@ export default function LabourEstimator() {
             <p className="text-sm text-muted-foreground">
               No labour rates configured yet. Rates are entered by the admin
               team from verifiable sources (contractor data, benchmark studies)
-              — FRELUX never publishes guessed productivity figures.
+              : FRELUX never publishes guessed productivity figures.
             </p>
           ) : (
             <div className="grid gap-4 sm:grid-cols-3">

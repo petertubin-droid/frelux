@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX — Adsterra ad-network helpers
+// FRELUX - Adsterra ad-network helpers
 //
 // Extracted from AdSlot.tsx so the component file only exports
 // components (react-refresh / fast refresh). Pure helper
@@ -91,7 +91,7 @@ export function extractAdsterraZoneKey(
 
 /** Adsterra banner size resolution: provider.settings.banner_sizes[slotKey]
  *  = "WxH" for a specific slot, banner_sizes.default = "WxH" for the zone
- *  (recommended — one zone has one size), then snippet/past defaults, then
+ *  (recommended - one zone has one size), then snippet/past defaults, then
  *  placement-family heuristics. */
 export function resolveAdsterraSize(
   provider: DbAdProvider,
@@ -113,7 +113,7 @@ export function resolveAdsterraSize(
 
   // Zone-wide default: banner_sizes.default = "WxH" applies to every slot
   // without its own entry. One Adsterra zone has ONE fixed size, and a
-  // zone requested at the wrong size silently never fills — so the
+  // zone requested at the wrong size silently never fills - so the
   // admin-confirmed zone size beats the device-family heuristics below.
   const rawDefault =
     typeof custom.default === "string" ? custom.default.trim() : "";
@@ -166,7 +166,7 @@ export function adsterraSlotAvailable(): boolean {
  * Atomically check-and-reserve an Adsterra slot against the per-page cap.
  * AdSlot calls this at RESOLVE time: all slots resolve in the same
  * microtask flush (they share one config fetch), long before any of them
- * commits its banner to the DOM — a plain availability check there let
+ * commits its banner to the DOM - a plain availability check there let
  * every concurrent slot pass and the page overshot the cap. Reserving
  * up front makes the counter the arbiter; render functions must NOT
  * count again (a reservation that never renders is merely conservative).
@@ -391,7 +391,7 @@ export function renderAdsterraNativeBanner(
       host: serveDomain,
     });
   }
-  // NOTE: no counter increment here — the slot was already reserved at
+  // NOTE: no counter increment here - the slot was already reserved at
   // resolve time (reserveAdsterraSlot); counting again would double-charge
   // the per-page density cap.
 }

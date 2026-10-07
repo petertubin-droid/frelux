@@ -18,7 +18,7 @@
 import type { DbAdProvider } from "@/types/database";
 
 /**
- * Monetag delivery domain + tag URL — the single source of truth for
+ * Monetag delivery domain + tag URL - the single source of truth for
  * the whole app (AdSlot, Layout, monetag-rewarded). Monetag assigns a
  * per-publisher delivery domain; if it ever rotates, change it HERE and
  * in the CSP allowlists (public/_headers, netlify.toml, vercel.json).

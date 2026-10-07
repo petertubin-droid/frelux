@@ -7,7 +7,7 @@
    Refined, sophisticated, high-end SaaS aesthetic
    ========================================================= */
 
-/* Brand color CSS variables — set by BrandingProvider from site_branding table.
+/* Brand color CSS variables - set by BrandingProvider from site_branding table.
    Stored as space-separated RGB channels for Tailwind alpha support.
    Defaults match the original hardcoded Tailwind values. */
 :root {
@@ -15,7 +15,7 @@
   --brand-secondary: 10 10 26; /* #0A0A1A */
   --brand-accent: 249 115 22; /* #F97316 */
 }
-/* shadcn/ui semantic tokens — mapped to FRELUX brand system.
+/* shadcn/ui semantic tokens - mapped to FRELUX brand system.
    HSL channels for hsl(var(--token) / <alpha>) support.
    Primary/ring/accent mirror the brand colors (updated dynamically by BrandingProvider). */
 :root {
@@ -75,7 +75,7 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
-    /* `clip` (not `hidden`) — `overflow-x: hidden` on html/body makes EVERY
+    /* `clip` (not `hidden`) - `overflow-x: hidden` on html/body makes EVERY
        descendant `position: sticky` element treat html/body as its
        scrolling ancestor (per spec, any overflow value other than
        `visible` on ANY axis does this), which breaks/misplaces sticky
@@ -87,7 +87,7 @@
        of overlapping/cropped text on mobile. */
     overflow-x: clip;
     /* Reserve the scrollbar's width up front so toggling body scroll-lock
-       (mobile nav drawer, admin sidebar — see overflow-y toggles below)
+       (mobile nav drawer, admin sidebar: see overflow-y toggles below)
        never causes a horizontal layout shift when the scrollbar
        appears/disappears. */
     scrollbar-gutter: stable;
@@ -150,7 +150,7 @@
      .dark is active on the <html> element.
 
      Because this lives in @layer base, any explicit dark: utility
-     on the same element (e.g. dark:text-white) still wins —
+     on the same element (e.g. dark:text-white) still wins -
      @layer utilities has higher cascade priority than @layer base.
      So existing dark: variants are NOT overridden; only elements
      that forgot the dark: variant are fixed.
@@ -325,7 +325,7 @@
     white-space: normal;
   }
 
-  /* Premium grid pattern — more subtle */
+  /* Premium grid pattern - more subtle */
   .bg-grid {
     background-image:
       linear-gradient(
@@ -346,7 +346,7 @@
       linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
     background-size: 56px 56px;
   }
-  /* Dotted pattern — subtle */
+  /* Dotted pattern - subtle */
   .bg-dots {
     background-image: radial-gradient(
       circle,
@@ -355,7 +355,7 @@
     );
     background-size: 28px 28px;
   }
-  /* Gradient text — refined */
+  /* Gradient text - refined */
   .text-gradient {
     @apply bg-gradient-to-r from-primary-light via-card to-primary-light bg-clip-text text-transparent;
   }
@@ -387,7 +387,7 @@
   .glass-dark {
     @apply bg-white/5 backdrop-blur-xl border border-white/10;
   }
-  /* Premium glass — opaque enough that scrolled content never bleeds
+  /* Premium glass - opaque enough that scrolled content never bleeds
      through the fixed navbar/tab bars. Dark styling is built in
      (dark: variants can't be applied to component classes). */
   .glass-premium {
@@ -436,35 +436,35 @@
 }
 
 @layer components {
-  /* Primary button — premium, refined */
+  /* Primary button - premium, refined */
   .btn-primary {
     @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary text-primary-foreground font-semibold text-sm rounded-lg shadow-sm hover:bg-primary/90 hover:shadow-md active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2;
   }
-  /* Secondary button — clean white with subtle border */
+  /* Secondary button - clean white with subtle border */
   .btn-secondary {
     @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-card text-card-foreground border border-border font-semibold text-sm rounded-lg hover:bg-muted hover:border-input active:scale-[0.98] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-ring/40 focus:ring-offset-2 dark:bg-card dark:text-card-foreground dark:border-white/10 dark:hover:bg-muted dark:hover:border-white/20;
   }
-  /* Outline button — brand accent */
+  /* Outline button - brand accent */
   .btn-outline {
     @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-transparent text-primary border border-primary/30 font-semibold text-sm rounded-lg hover:bg-primary hover:text-primary-foreground hover:border-primary active:scale-[0.98] transition-all duration-200;
   }
-  /* Ghost button — minimal */
+  /* Ghost button - minimal */
   .btn-ghost {
     @apply inline-flex items-center justify-center gap-2 px-4 py-2 bg-transparent text-muted-foreground font-medium text-sm rounded-lg hover:bg-muted hover:text-foreground active:scale-[0.98] transition-all duration-200 dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-foreground;
   }
-  /* Input field — premium, refined */
+  /* Input field - premium, refined */
   .input-field {
     @apply w-full px-3.5 py-2.5 text-sm bg-card border border-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/30 focus:border-primary transition-all duration-200 dark:bg-card dark:text-card-foreground dark:border-white/10 dark:placeholder:text-muted-foreground;
   }
-  /* Premium card — layered shadow, subtle border */
+  /* Premium card - layered shadow, subtle border */
   .card {
     @apply bg-card border border-border/60 rounded-xl shadow-card dark:bg-card dark:border-white/5;
   }
-  /* Premium card — elevated */
+  /* Premium card - elevated */
   .card-elevated {
     @apply bg-card border border-border/40 rounded-2xl shadow-premium dark:bg-card dark:border-white/10;
   }
-  /* Section label — premium eyebrow */
+  /* Section label - premium eyebrow */
   .section-label {
     @apply inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-primary;
   }
@@ -478,7 +478,7 @@
   .badge {
     @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium;
   }
-  /* Stat card — for results and dashboards */
+  /* Stat card - for results and dashboards */
   .stat-card {
     @apply rounded-xl border border-border bg-muted/50 p-4 transition-all duration-300 dark:border-white/5 dark:bg-white/5;
   }
@@ -726,7 +726,7 @@
 
 /* .dark .card handled by shadcn CSS variables */
 
-/* Scrollbar — dark */
+/* Scrollbar - dark */
 .dark ::-webkit-scrollbar {
   width: 6px;
 }
@@ -761,7 +761,7 @@
    Additional Dark Mode Enhancements
    ========================================================= */
 
-/* Dark mode grid pattern — visible on dark backgrounds */
+/* Dark mode grid pattern - visible on dark backgrounds */
 .dark .bg-grid {
   background-image:
     linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
@@ -815,7 +815,7 @@
   );
 }
 
-/* Respect reduced motion — disable theme transitions */
+/* Respect reduced motion - disable theme transitions */
 @media (prefers-reduced-motion: reduce) {
   * {
     transition: none !important;
@@ -839,7 +839,7 @@
   min-height: 90px;
 }
 
-/* Dark mode — lighter borders for visibility */
+/* Dark mode - lighter borders for visibility */
 @media (prefers-color-scheme: dark) {
   .frelux-ad-unit {
     border-top-color: rgba(255, 255, 255, 0.08);
@@ -1016,4 +1016,129 @@ body {
 .goog-text-highlight {
   background-color: transparent !important;
   box-shadow: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   FRELUX NEON EDGE LIGHTING SYSTEM
+   Dark mode is the primary FRELUX visual identity. This system provides
+   one coherent lighting language across every surface:
+     .neon-edge       → animated RGB edge light for PRIMARY surfaces
+                        (navbar, dialogs, drawers, mobile nav). Edge-only
+                        via a mask: a thin illuminated border, never a
+                        glowing sticker.
+     .neon-edge-soft  → static soft edge illumination for SECONDARY
+                        surfaces (footers, section panels).
+     Global rules below give every card, popover, primary button and
+     form control a calibrated edge treatment without per-file patches.
+   Light mode is untouched: everything is scoped to .dark.
+   ═══════════════════════════════════════════════════════════════════ */
+
+@property --neon-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+:root {
+  --neon-speed: 16s; /* slow, architectural: precision, not a gaming rig */
+}
+
+/* Animated RGB edge light, primary surfaces only */
+.dark .neon-edge {
+  position: relative;
+  isolation: isolate;
+}
+.dark .neon-edge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--neon-angle),
+    rgb(var(--brand-primary) / 0.85),
+    rgb(56 189 248 / 0.6),
+    rgb(217 70 239 / 0.5),
+    rgb(52 211 153 / 0.45),
+    rgb(var(--brand-primary) / 0.85)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: neon-edge-spin var(--neon-speed) linear infinite;
+  pointer-events: none;
+}
+.dark .neon-edge::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  box-shadow:
+    0 0 28px -12px rgb(var(--brand-primary) / 0.5),
+    0 0 20px -12px rgb(56 189 248 / 0.3);
+  pointer-events: none;
+}
+@keyframes neon-edge-spin {
+  to {
+    --neon-angle: 360deg;
+  }
+}
+
+/* Static soft edge illumination, secondary surfaces */
+.dark .neon-edge-soft {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.03),
+    inset 0 1px 0 rgb(255 255 255 / 0.04),
+    0 0 18px -12px rgb(var(--brand-primary) / 0.35);
+}
+
+/* Global surface illumination: every card and popover surface in dark
+   mode gets a subtle illuminated edge. Static shadow: no GPU cost. */
+.dark .bg-card,
+.dark .bg-popover {
+  box-shadow:
+    0 0 0 1px rgb(255 255 255 / 0.03),
+    inset 0 1px 0 rgb(255 255 255 / 0.03);
+}
+
+/* Primary CTA surfaces: brand edge glow that intensifies on interaction */
+.dark .bg-primary {
+  box-shadow:
+    0 0 0 1px rgb(var(--brand-primary) / 0.4),
+    0 0 20px -8px rgb(var(--brand-primary) / 0.45);
+  transition: box-shadow 0.25s ease;
+}
+.dark .bg-primary:hover,
+.dark .bg-primary:focus-visible {
+  box-shadow:
+    0 0 0 1px rgb(var(--brand-primary) / 0.6),
+    0 0 30px -8px rgb(var(--brand-primary) / 0.6);
+}
+
+/* Success and destructive feedback surfaces keep their semantic edge */
+.dark .bg-emerald-600 {
+  box-shadow: 0 0 20px -8px rgb(16 185 129 / 0.45);
+}
+.dark .bg-destructive {
+  box-shadow: 0 0 20px -8px rgb(244 63 94 / 0.45);
+}
+
+/* Table boundaries: one thin illuminated hairline */
+.dark table {
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.03);
+}
+.dark thead th {
+  box-shadow: inset 0 -1px 0 0 rgb(255 255 255 / 0.04);
+}
+
+/* Reduced motion: keep the static edge, stop the animation */
+@media (prefers-reduced-motion: reduce) {
+  .dark .neon-edge::before {
+    animation: none;
+  }
 }

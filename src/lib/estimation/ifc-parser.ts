@@ -11,12 +11,12 @@
  *    (IfcQuantityArea/Volume/Length/Count/Weight) that the file
  *    attaches to elements via IfcElementQuantity. If the file
  *    declares none, only counts are reported with an honest
- *    warning — never an estimated area.
+ *    warning - never an estimated area.
  *  - A file that is not valid IFC/STEP is refused, not guessed at.
  *  - A file larger than the admin-configured entity cap is refused
  *    with an honest error instead of freezing the tab.
  *  - IFC quantities are per the IFC standard in SI units (m², m³,
- *    m, kg) — reported as such, never converted silently.
+ *    m, kg) - reported as such, never converted silently.
  */
 
 // ============================================================
@@ -178,7 +178,7 @@ function parseStepEntities(fileText: string): {
 
 /** Extracts the numeric value from a quantity entity's arguments. */
 function quantityValue(entity: StepEntity): number | null {
-  // IfcQuantityX('Name', 'Description'?, Unit?, Value, ...) — the value is
+  // IfcQuantityX('Name', 'Description'?, Unit?, Value, ...) - the value is
   // the first purely numeric argument after the name.
   for (let i = 1; i < entity.args.length; i++) {
     const a = entity.args[i];
@@ -188,7 +188,7 @@ function quantityValue(entity: StepEntity): number | null {
       return Number.isFinite(v) ? v : null;
     }
     // a numeric inside a parenthesised unit selection means we passed the
-    // value already — treat as absent
+    // value already - treat as absent
     if (a.startsWith("(")) break;
     if (a.startsWith("'")) continue; // another string label before the value
     break;
@@ -305,7 +305,7 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
       continue;
     if (ent.type === "IFCRELDEFINESBYTYPE") continue;
     // RelatedObjects is normally a parenthesised list of refs, and
-    // RelatingPropertyDefinition a single ref — but their positions vary
+    // RelatingPropertyDefinition a single ref - but their positions vary
     // between exports, so they are identified by SHAPE, never by index.
     const listArg = ent.args.find((a) => a.startsWith("(") && a.includes("#"));
     const singleRefs = ent.args.filter((a) => /^#\d+$/.test(a.trim()));
@@ -438,12 +438,12 @@ export function parseIfcTakeoff(input: IfcParseInput): IfcParseResult {
     label: "Authored quantities",
     detail: hasQuantities
       ? "Areas, volumes, lengths and weights are taken ONLY from the quantities the file itself attaches to these elements (IFC standard SI units: m², m³, m, kg)."
-      : "This file declares NO quantities for its elements — only element counts are reported. No area or volume is invented.",
+      : "This file declares NO quantities for its elements: only element counts are reported. No area or volume is invented.",
   });
 
   if (!hasQuantities && elements.length > 0) {
     warnings.push(
-      "No quantities are declared in this file for the listed elements, so only counts are reported. Ask the architect to export with Base Quantities enabled for a full takeoff — nothing is guessed.",
+      "No quantities are declared in this file for the listed elements, so only counts are reported. Ask the architect to export with Base Quantities enabled for a full takeoff: nothing is guessed.",
     );
   }
   if (unparsed > 0) {

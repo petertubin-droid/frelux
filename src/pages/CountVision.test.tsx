@@ -57,7 +57,7 @@ function renderPage() {
 }
 
 describe("CountVision page", () => {
-  it("states the photo rules up front — type, size, never stored", () => {
+  it("states the photo rules up front: type, size, never stored", () => {
     renderPage();
     expect(screen.getAllByText(/never stored/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/up to 8 MB/i)).toBeInTheDocument();
@@ -101,13 +101,13 @@ describe("CountVision page", () => {
     expect(countMock).toHaveBeenCalledTimes(1);
   });
 
-  it("shows an unclear verdict as a refusal with the reason — never a number", async () => {
+  it("shows an unclear verdict as a refusal with the reason: never a number", async () => {
     countMock.mockResolvedValue({
       verdict: "unclear",
       count: null,
       unitLabel: "bags",
       confidence: 0.3,
-      reason: "The stack is too deep — hidden layers cannot be counted",
+      reason: "The stack is too deep: hidden layers cannot be counted",
     });
     renderPage();
     pickPhoto(makePhoto());
@@ -122,7 +122,7 @@ describe("CountVision page", () => {
     expect(screen.queryByTestId("count-number")).not.toBeInTheDocument();
   });
 
-  it("shows not_found as what it is — no countable materials", async () => {
+  it("shows not_found as what it is: no countable materials", async () => {
     countMock.mockResolvedValue({
       verdict: "not_found",
       count: null,
@@ -141,7 +141,7 @@ describe("CountVision page", () => {
   });
 
   it("a server-fabricated low-confidence count is refused by the client gate too", async () => {
-    // The server says "counted" at 0.4 confidence — the page must
+    // The server says "counted" at 0.4 confidence - the page must
     // still refuse to show it as a number (client-side second gate).
     countMock.mockResolvedValue({
       verdict: "counted",
@@ -175,7 +175,7 @@ describe("CountVision page", () => {
     );
   });
 
-  it("the photo is cleared after a successful count — the count is the record", async () => {
+  it("the photo is cleared after a successful count: the count is the record", async () => {
     countMock.mockResolvedValue({
       verdict: "counted",
       count: 5,

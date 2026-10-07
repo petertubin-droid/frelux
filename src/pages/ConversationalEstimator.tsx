@@ -33,7 +33,7 @@ export default function ConversationalEstimator() {
     { name: "WhatsApp Estimator", path: "/conversational-estimator" },
   ]);
   useSeo({
-    title: "WhatsApp Estimator — Chat Your Estimate in English | FRELUX",
+    title: "WhatsApp Estimator: Chat Your Estimate in English | FRELUX",
     description:
       "Paste a WhatsApp chat or voice-note transcript and get the same honest FRELUX paint estimate instantly. Nothing is guessed: the engine shows exactly what it heard and asks when something is missing.",
   });
@@ -80,7 +80,7 @@ export default function ConversationalEstimator() {
         intent: estimate.intent,
         had_estimate: estimate.paintEstimate != null,
       });
-      // Best-effort telemetry — never blocks or breaks the reply.
+      // Best-effort telemetry - never blocks or breaks the reply.
       insertConversationalParseLog({
         raw_thread: thread.slice(0, 4000),
         detected_language: estimate.language,
@@ -106,7 +106,7 @@ export default function ConversationalEstimator() {
           { label: "WhatsApp Estimator" },
         ]}
         title="WhatsApp Estimator"
-        subtitle="Paste the chat — or the voice-note transcript — in English. You get the same honest FRELUX estimate, plus every fact the engine picked up and where it found it."
+        subtitle="Paste the chat: or the voice-note transcript: in English. You get the same honest FRELUX estimate, plus every fact the engine picked up and where it found it."
       />
 
       <section className="mx-auto max-w-3xl space-y-4">
@@ -157,7 +157,7 @@ export default function ConversationalEstimator() {
             ))}
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            Everything runs in your browser — deterministic parsing, no AI
+            Everything runs in your browser: deterministic parsing, no AI
             upload, nothing sent anywhere. Voice notes: paste WhatsApp&apos;s
             transcript of the note.
           </p>
@@ -165,7 +165,7 @@ export default function ConversationalEstimator() {
 
         {result && (
           <div className="space-y-4">
-            {/* The reply bubble — same language the customer wrote in */}
+            {/* The reply bubble: same language the customer wrote in */}
             <div className="rounded-lg border bg-card p-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-semibold">{result.replyTitle}</h2>
@@ -183,7 +183,7 @@ export default function ConversationalEstimator() {
                       {u.evidence && (
                         <span className="text-muted-foreground">
                           {" "}
-                          — “{u.evidence}”
+                          : “{u.evidence}”
                         </span>
                       )}
                     </li>
@@ -202,7 +202,7 @@ export default function ConversationalEstimator() {
                     <p key={q}>{q}</p>
                   ))}
                   <p className="mt-2 text-xs text-muted-foreground">
-                    Reply with the size in the same chat and paste again — the
+                    Reply with the size in the same chat and paste again: the
                     estimate appears immediately.
                   </p>
                 </div>

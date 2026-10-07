@@ -136,7 +136,7 @@ export function getColorConditionInfo(condition: ColorCondition | undefined): {
 //   per-condition DB override → scalar DB override → documented default
 // Invalid configured values (non-positive factors, factors that
 // would increase coverage beyond smooth, non-positive coats) are
-// rejected and fall back to the documented default — never
+// rejected and fall back to the documented default - never
 // silently applied.
 // ─────────────────────────────────────────────────────────
 

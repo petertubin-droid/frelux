@@ -42,7 +42,7 @@ export default function AdminUsers() {
   const [editPlan, setEditPlan] = useState("pro");
   const [editDays, setEditDays] = useState("30");
   const [saving, setSaving] = useState(false);
-  // Server-side pagination — profiles grows with every signup.
+  // Server-side pagination - profiles grows with every signup.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);

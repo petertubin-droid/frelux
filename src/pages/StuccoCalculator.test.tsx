@@ -2,7 +2,7 @@
  * Stucco Calculator page tests (Phase 4)
  *
  * The Stucco calculator is a thin wrapper over the shared
- * ConfigurableFinishCalculator — the deterministic engine math is
+ * ConfigurableFinishCalculator - the deterministic engine math is
  * covered by mineral-stone-engine.test.ts. These tests pin the
  * category wiring: the shared component must load 'stucco' products
  * and render the same deterministic result pipeline.

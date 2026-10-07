@@ -2,7 +2,7 @@
  * Admin pane: Counter-Vision (Engine 2)
  *
  * The counting runs in the count-vision edge function via Google
- * Gemini — gated by ai_enabled in site settings (edited in
+ * Gemini - gated by ai_enabled in site settings (edited in
  * Admin → AI Settings); the Gemini key is the project-level edge
  * secret (GEMINI_API_KEY / GOOGLE_AI_API_KEY). The behaviour rules
  * (image size limit, count clamping bound, confidence floor)
@@ -11,7 +11,7 @@
  *
  *  - shows the CURRENT rules (read-only, with where to edit them)
  *  - lists recent count requests with their honest verdicts,
- *    confidence and latency — so admins can see whether the
+ *    confidence and latency - so admins can see whether the
  *    counting is actually working for users
  */
 
@@ -111,7 +111,7 @@ export default function AdminCountVision() {
       {error && <StateMessage type="error" title="Error" message={error} />}
       {!loading && !error && (
         <>
-          {/* Current behaviour rules — editable in Calc Rules */}
+          {/* Current behaviour rules: editable in Calc Rules */}
           <div className="rounded-lg border bg-card p-4">
             <h3 className="mb-2 font-semibold">Current counting rules</h3>
             <div className="grid gap-3 text-sm sm:grid-cols-3">
@@ -161,7 +161,7 @@ export default function AdminCountVision() {
               </p>
               {refused > 0 && (
                 <p className="text-xs text-muted-foreground">
-                  unclear or nothing to count — by design, not failures
+                  unclear or nothing to count: by design, not failures
                 </p>
               )}
             </div>
@@ -183,7 +183,7 @@ export default function AdminCountVision() {
             <StateMessage
               type="empty"
               title="No count requests yet"
-              message="They appear here the moment someone photographs materials for counting. Photos are never stored — only these request records."
+              message="They appear here the moment someone photographs materials for counting. Photos are never stored: only these request records."
             />
           ) : (
             <div className="overflow-x-auto rounded-lg border bg-card">
@@ -211,15 +211,15 @@ export default function AdminCountVision() {
                       <td className="p-3">
                         {l.verdict === "counted" && l.item_count !== null
                           ? l.item_count.toLocaleString()
-                          : "—"}
+                          : "N/A"}
                       </td>
                       <td className="p-3 text-muted-foreground">
                         {l.confidence !== null
                           ? `${(Number(l.confidence) * 100).toFixed(0)}%`
-                          : "—"}
+                          : "N/A"}
                       </td>
                       <td className="p-3 text-muted-foreground">
-                        {l.latency_ms !== null ? `${l.latency_ms} ms` : "—"}
+                        {l.latency_ms !== null ? `${l.latency_ms} ms` : "N/A"}
                       </td>
                       <td className="max-w-xs truncate p-3 text-muted-foreground">
                         {l.reason}
@@ -235,7 +235,7 @@ export default function AdminCountVision() {
             <ScanLine className="mt-0.5 h-4 w-4 shrink-0" />
             <p>
               Privacy: photos are sent to the counting service and never stored
-              — not in the database, not on the device. Only what was asked, the
+              : not in the database, not on the device. Only what was asked, the
               verdict and diagnostics reach count_vision_log.
             </p>
           </div>

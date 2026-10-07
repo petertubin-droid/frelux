@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX Wall Finishing — quality-control checklists.
+// FRELUX Wall Finishing - quality-control checklists.
 //
 // Every layer carries a finishing checklist with the workflow
 // status: Not Started → In Progress → Inspection → Approved →
@@ -56,7 +56,7 @@ const CHECKLIST_BY_CATEGORY: Record<string, QCItem["label"][]> = {
   ],
 };
 
-/** Task-level default status — everything starts "not-started". */
+/** Task-level default status - everything starts "not-started". */
 export function buildChecklist(layer: WallLayerTemplate): QualityChecklist {
   const labels = CHECKLIST_BY_CATEGORY[layer.category] ?? [
     "Work executed per specification",

@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX Wall Finishing — orchestrator.
+// FRELUX Wall Finishing - orchestrator.
 //
 // estimateWallFinishingProject() runs the full workflow:
 //   walls → areas → layer quantities → prices → labour → costs
@@ -96,7 +96,7 @@ export async function estimateWallFinishingProject(
       for (const layerTemplate of effective.layers) {
         const layerOverrides = overrides?.layers?.[layerTemplate.id];
 
-        // surface compatibility — warns, never silently hides
+        // surface compatibility - warns, never silently hides
         const compat = checkCompatibility(
           layerOverrides?.materialRole ?? layerTemplate.materialRole,
           wall.surface,
@@ -146,7 +146,7 @@ export async function estimateWallFinishingProject(
               labour,
               areaM2: areas.finishingAreaM2,
               labourRateOverride: layerOverrides?.labourRateOverride,
-              layerName: `${layerTemplate.name} — ${c.component.role}`,
+              layerName: `${layerTemplate.name}: ${c.component.role}`,
             });
             errors.push(...cost.errors);
             // attribute mix-component costs to the parent layer line

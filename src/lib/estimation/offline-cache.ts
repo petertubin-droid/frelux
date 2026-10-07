@@ -2,7 +2,7 @@
  * Offline-First configuration cache (Future Engine 17)
  *
  * The service worker already precaches the app shell, and
- * calculation results cache in localStorage — but until now the
+ * calculation results cache in localStorage - but until now the
  * engine CONFIG data (factors, prices, rules from the database)
  * required connectivity, so every calculator died offline.
  *
@@ -18,7 +18,7 @@
  *  - No cache exists and offline → the original error passes
  *    through untouched. Nothing is invented, no empty success.
  *  - A SERVER error (permissions, schema) is NEVER masked with
- *    cache — that would hide a real problem. Cache fallback is
+ *    cache - that would hide a real problem. Cache fallback is
  *    for network failures only.
  *  - Corrupted cache entries are discarded with a console
  *    warning, never parsed into invented data.
@@ -66,7 +66,7 @@ function isNetworkError(error: unknown): boolean {
   const networkRe =
     /failed to fetch|networkerror|network request failed|fetch failed|offline|load failed|ERR_NAME/i;
   if (networkRe.test(msg)) return true;
-  // The browser reports offline: treat failures as network failures —
+  // The browser reports offline: treat failures as network failures -
   // UNLESS the thrown error carries a clearly non-network signature
   // (a named Error that is not a TypeError), which is rethrown/masked
   // honestly instead.
@@ -102,7 +102,7 @@ function readCache<T>(key: string): CachedEnvelope<T> | null {
     try {
       localStorage.removeItem(CACHE_PREFIX + key);
     } catch {
-      // storage unavailable (private mode) — behave as no cache
+      // storage unavailable (private mode) - behave as no cache
     }
     return null;
   }
@@ -116,14 +116,14 @@ function writeCache<T>(key: string, data: T): void {
     };
     localStorage.setItem(CACHE_PREFIX + key, JSON.stringify(envelope));
   } catch {
-    // storage full or unavailable — cache is best-effort, never fatal
+    // storage full or unavailable - cache is best-effort, never fatal
   }
 }
 
 /**
  * Runs a config fetch with honest offline fallback.
  * The fetcher's return shape ({ data, error }) is preserved
- * exactly — callers cannot tell the difference in type, only
+ * exactly - callers cannot tell the difference in type, only
  * through the fallback announcement.
  */
 export async function cachedConfigFetch<R extends AnyConfigResult>(
@@ -157,7 +157,7 @@ export async function cachedConfigFetch<R extends AnyConfigResult>(
     writeCache(key, live.data);
   }
   // a server-side error (permissions, schema) is passed through
-  // untouched — cache must never mask a real problem
+  // untouched - cache must never mask a real problem
   return live;
 }
 
@@ -171,6 +171,6 @@ export function clearOfflineConfigCache(): void {
     }
     for (const k of doomed) localStorage.removeItem(k);
   } catch {
-    // storage unavailable — nothing to clear
+    // storage unavailable - nothing to clear
   }
 }

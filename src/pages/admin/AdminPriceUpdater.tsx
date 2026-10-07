@@ -9,7 +9,7 @@
  *    Applied prices are written to estimation_prices (the shared DB
  *    every engine prices from), with the source recorded.
  *  - A material without a shared record or without a reference price
- *    is reported as such — never guessed.
+ *    is reported as such - never guessed.
  */
 
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -182,7 +182,7 @@ export default function AdminPriceUpdater() {
         if (!row.hasMaterial || !materialId) {
           status.skipped++;
           status.messages.push(
-            `${row.name}: no shared material record — skipped (not invented).`,
+            `${row.name}: no shared material record: skipped (not invented).`,
           );
           continue;
         }
@@ -190,7 +190,7 @@ export default function AdminPriceUpdater() {
         if (!Number.isFinite(price) || price < 0) {
           status.skipped++;
           status.messages.push(
-            `${row.name}: no verified price entered — skipped.`,
+            `${row.name}: no verified price entered: skipped.`,
           );
           continue;
         }
@@ -207,7 +207,7 @@ export default function AdminPriceUpdater() {
         if (writeError) {
           status.failed++;
           status.messages.push(
-            `${row.name}: could not save — ${writeError.message}`,
+            `${row.name}: could not save: ${writeError.message}`,
           );
         } else {
           status.ok++;
@@ -301,7 +301,7 @@ export default function AdminPriceUpdater() {
         {/* Honesty banner */}
         <div className="mb-6 rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
           This is a <strong>reference catalog review</strong>, not a live market
-          feed. Catalog values are FRELUX reference data — verify each price
+          feed. Catalog values are FRELUX reference data: verify each price
           against your supplier before applying. Applied prices are recorded
           with their source and effective date in the shared material database.
           Nothing is invented: a material without a shared record or without a
@@ -415,7 +415,9 @@ export default function AdminPriceUpdater() {
                     </td>
                     <td className="px-4 py-3 text-center">
                       {r.changePercent === null ? (
-                        <span className="text-xs text-muted-foreground">—</span>
+                        <span className="text-xs text-muted-foreground">
+                          N/A
+                        </span>
                       ) : (
                         <span
                           className={`inline-flex items-center gap-1 text-xs font-medium ${

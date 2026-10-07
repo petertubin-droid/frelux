@@ -43,9 +43,9 @@ export default function DefectDiagnosis() {
     { name: "Defect Diagnosis", path: "/defect-diagnosis" },
   ]);
   useSeo({
-    title: "Defect Diagnosis — FRELUX",
+    title: "Defect Diagnosis: FRELUX",
     description:
-      "Map a paint or finish defect to its root cause and get the fix, with quantities — from a deterministic, admin-configured knowledge base.",
+      "Map a paint or finish defect to its root cause and get the fix, with quantities: from a deterministic, admin-configured knowledge base.",
   });
 
   const [defects, setDefects] = useState<Defect[]>([]);
@@ -97,7 +97,7 @@ export default function DefectDiagnosis() {
             { label: "Defect Diagnosis" },
           ]}
           title="Defect Diagnosis"
-          subtitle="Pick the symptom you're seeing and get its root causes with fixes — ranked by our configured likelihood order, never an algorithm's guess. Causes with a configured consumption rate also show the exact fix quantity for your affected area."
+          subtitle="Pick the symptom you're seeing and get its root causes with fixes: ranked by our configured likelihood order, never an algorithm's guess. Causes with a configured consumption rate also show the exact fix quantity for your affected area."
         />
 
         {loadError && (
@@ -110,7 +110,7 @@ export default function DefectDiagnosis() {
           {defects.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No defect symptoms configured yet. The knowledge base is entered
-              by the admin team — FRELUX never publishes guessed diagnoses.
+              by the admin team: FRELUX never publishes guessed diagnoses.
             </p>
           ) : (
             <div className="grid gap-4 sm:grid-cols-3">

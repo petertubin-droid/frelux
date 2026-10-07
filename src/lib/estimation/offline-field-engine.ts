@@ -3,7 +3,7 @@
  *
  * The service worker precaches the app shell, calculation
  * results cache in localStorage (local-projects.ts), and engine
- * configuration caches offline-first (offline-cache.ts) — so an
+ * configuration caches offline-first (offline-cache.ts) - so an
  * artisan can already RUN every calculator with no connectivity.
  *
  * What was still impossible: capturing WORK in the field
@@ -15,17 +15,17 @@
  *
  *  - Field captures queue in localStorage with a client-generated
  *    UUID. The UUID is the primary key on the server, so a retry
- *    after a flaky connection can never create a duplicate row —
+ *    after a flaky connection can never create a duplicate row -
  *    sync is idempotent by construction.
  *  - Queue capacity and retention follow admin-configured rules
  *    (estimation_calc_rules, calculator_type 'offline_field').
  *    When the queue is full the OLDEST entry is dropped and the
- *    caller is told which one — never a silent loss.
+ *    caller is told which one - never a silent loss.
  *  - syncQueue() attempts each capture through an injected
  *    persist function. Only a confirmed server success (or an
  *    idempotent duplicate) removes an entry from the queue. A
  *    network failure leaves the capture queued, with its last
- *    attempt recorded — the UI can say "not synced yet, honestly".
+ *    attempt recorded - the UI can say "not synced yet, honestly".
  *  - Nothing is invented: a capture the server rejected stays in
  *    the queue with its error; corrupted queue storage is
  *    discarded with a warning, never parsed into fake data.
@@ -42,14 +42,14 @@ export const FIELD_CAPTURE_KINDS = [
 export type FieldCaptureKind = (typeof FIELD_CAPTURE_KINDS)[number];
 
 export interface FieldCapture {
-  id: string; // client UUID — also the server PK: idempotent sync
+  id: string; // client UUID: also the server PK: idempotent sync
   kind: FieldCaptureKind;
   project_label: string;
   device_label: string;
   payload: Record<string, unknown>;
-  captured_at: string; // ISO — when the artisan recorded it, in the field
-  queued_at: string; // ISO — when it entered the queue
-  last_attempt?: string; // ISO — last sync attempt, present after a failed sync
+  captured_at: string; // ISO: when the artisan recorded it, in the field
+  queued_at: string; // ISO: when it entered the queue
+  last_attempt?: string; // ISO: last sync attempt, present after a failed sync
   last_error?: string; // honest reason the last sync attempt failed
 }
 
@@ -70,18 +70,18 @@ export const DEFAULT_FIELD_SYNC_RULES: FieldSyncRules = {
 /** Outcome of one persist attempt during a sync run. */
 export type PersistOutcome = "synced" | "duplicate" | "failed";
 
-/** Result of enqueueing — tells the caller exactly what was kept. */
+/** Result of enqueueing - tells the caller exactly what was kept. */
 export interface EnqueueResult {
   accepted: FieldCapture | null;
-  dropped: FieldCapture | null; // oldest entry evicted by capacity — never silent
+  dropped: FieldCapture | null; // oldest entry evicted by capacity: never silent
   evicted_expired: number; // entries past retention pruned first
 }
 
-/** Report of one sync run — the whole truth of what happened. */
+/** Report of one sync run - the whole truth of what happened. */
 export interface SyncReport {
   attempted: number;
   synced: number; // confirmed new server rows
-  duplicates: number; // already on the server (idempotent retry) — also safe
+  duplicates: number; // already on the server (idempotent retry): also safe
   failed: number; // still queued, with recorded reasons
   remaining: number; // queue length after the run
 }
@@ -97,7 +97,7 @@ function readQueue(): FieldCapture[] {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) {
       console.warn(
-        "Corrupted field-capture queue discarded — refusing to invent data.",
+        "Corrupted field-capture queue discarded: refusing to invent data.",
       );
       return [];
     }
@@ -114,7 +114,7 @@ function writeQueue(queue: FieldCapture[]): void {
   try {
     localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
   } catch {
-    // Storage full or unavailable — the caller's EnqueueResult tells the truth
+    // Storage full or unavailable - the caller's EnqueueResult tells the truth
   }
 }
 
@@ -142,7 +142,7 @@ interface CalcRuleRow {
 
 /**
  * Parse admin-configured rule rows into typed rules. Inactive or
- * missing rows fall back to the built-in default — an unconfigured
+ * missing rows fall back to the built-in default - an unconfigured
  * engine still works, never crashes.
  */
 export function parseFieldSyncRules(rows: CalcRuleRow[]): FieldSyncRules {
@@ -272,7 +272,7 @@ export function queuedCaptureCount(): number {
 }
 
 // ─────────────────────────────────────────────
-// Sync — idempotent, honest, injectable for tests
+// Sync - idempotent, honest, injectable for tests
 // ─────────────────────────────────────────────
 
 /**
@@ -280,7 +280,7 @@ export function queuedCaptureCount(): number {
  * injected persist function. Batches by rules.sync_batch, oldest
  * first. A 'duplicate' outcome (the server already has this
  * client UUID from a previous partial sync) counts as safe and
- * removes the capture — retrying a flaky connection can never
+ * removes the capture - retrying a flaky connection can never
  * double-record. A 'failed' capture STAYS in the queue with its
  * last attempt and reason recorded.
  */
@@ -333,7 +333,7 @@ export async function syncFieldCaptures(
   const next = queue.filter((c) => {
     if (failedIds.has(c.id)) {
       c.last_attempt = now.toISOString();
-      c.last_error = "Server unreachable — capture kept in queue";
+      c.last_error = "Server unreachable: capture kept in queue";
       return true;
     }
     return !batch.some((b) => b.id === c.id);

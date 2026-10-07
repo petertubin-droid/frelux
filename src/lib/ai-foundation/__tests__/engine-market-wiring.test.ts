@@ -145,7 +145,7 @@ describe("painting_project market wiring", () => {
     expect(res.costs!.regionalDataAvailable).toBe(true);
     const labels = res.costs!.lines!.map((l) => l.label);
     expect(labels.some((l) => l.includes("KILZ 2 All-Purpose"))).toBe(true);
-    // Total is the sum of the priced lines — nothing invented beyond them.
+    // Total is the sum of the priced lines - nothing invented beyond them.
     const sum = res.costs!.lines!.reduce((s, l) => s + l.amount, 0);
     expect(res.costs!.total).toBeCloseTo(sum, 2);
     const raw = res.raw as {

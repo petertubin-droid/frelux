@@ -295,7 +295,7 @@ export default function TyroleneEstimator({
         // no direct price for the NG material, the role resolves to the
         // local equivalent from the market's verified price book (with
         // provenance). A role with no verified price stays unpriced and
-        // is reported — never guessed.
+        // is reported - never guessed.
         const tyroleneRoles: Record<string, MaterialRole> = {
           cement: "concrete-mix",
           sand: "sand",

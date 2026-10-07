@@ -57,7 +57,7 @@ export const DISPLAY_CURRENCIES: DisplayCurrency[] = [
   },
   { code: "CAD", name: "Canadian Dollar", symbol: "C$", hint: "Canada" },
   { code: "XOF", name: "West African CFA", symbol: "CFA", hint: "West Africa" },
-  // Worldwide majors — every registered locale gets its currency.
+  // Worldwide majors - every registered locale gets its currency.
   { code: "JPY", name: "Japanese Yen", symbol: "¥", hint: "Japan" },
   { code: "CNY", name: "Chinese Yuan", symbol: "CN¥", hint: "China" },
   { code: "INR", name: "Indian Rupee", symbol: "₹", hint: "India" },

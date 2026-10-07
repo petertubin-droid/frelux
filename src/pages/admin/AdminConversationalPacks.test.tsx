@@ -101,7 +101,7 @@ describe("AdminConversationalPacks", () => {
     ).toBeInTheDocument();
   });
 
-  it("refuses to save a pack without a source reference — nothing configured without provenance", async () => {
+  it("refuses to save a pack without a source reference: nothing configured without provenance", async () => {
     await renderPage();
     fireEvent.click(await screen.findByRole("button", { name: /add pack/i }));
     // Fill keywords but NOT the source reference: the pack must be refused.

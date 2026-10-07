@@ -40,7 +40,7 @@ describe("riskLevelForScore boundaries", () => {
 });
 
 describe("assessTrustSafety", () => {
-  it("refuses assessments with no valid evidence — never flags on confidence alone", () => {
+  it("refuses assessments with no valid evidence: never flags on confidence alone", () => {
     const r = assessTrustSafety({
       account_id: "acct_1",
       signals: ["scam_attempt"],

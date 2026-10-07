@@ -171,11 +171,11 @@ describe("WarrantyCertificate page", () => {
     );
     await waitFor(() => {
       expect(
-        screen.getByText(/Disputed — review flagged lines/),
+        screen.getByText(/Disputed: review flagged lines/),
       ).toBeInTheDocument();
     });
     expect(
-      screen.getByText(/Mismatch flagged — never repaired/),
+      screen.getByText(/Mismatch flagged: never repaired/),
     ).toBeInTheDocument();
     expect(screen.getByText(/Dispute flags/)).toBeInTheDocument();
   });

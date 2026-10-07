@@ -3,7 +3,7 @@
  *
  * Deterministic backup power MATERIAL estimation.
  *
- *   USER: generator size bracket (10/20/30/50 kVA — chosen from
+ *   USER: generator size bracket (10/20/30/50 kVA - chosen from
  *         THEIR OWN load assessment), whether an ATS is included,
  *         and the measured generator-to-panel cable run (m).
  *   RULES: cable waste/route allowance %.
@@ -67,7 +67,7 @@ export const GENERATOR_SIZE_SLUGS: Record<GeneratorSize, string> = {
 };
 
 export interface GeneratorInput {
-  /** Chosen size bracket — from the user's own load assessment */
+  /** Chosen size bracket - from the user's own load assessment */
   size: GeneratorSize;
   /** Number of units */
   units: number;
@@ -183,7 +183,7 @@ export function calculateGenerator(
   const price = prices[slug] ?? null;
   steps.push({
     label: "Generator unit",
-    detail: `${input.units} × ${input.size} unit(s) — the size bracket is YOUR choice from your load assessment; this engine did not calculate a size.`,
+    detail: `${input.units} × ${input.size} unit(s): the size bracket is YOUR choice from your load assessment; this engine did not calculate a size.`,
   });
   lines.push({
     key: "generator",
@@ -192,7 +192,7 @@ export function calculateGenerator(
     quantity: input.units,
     quantity_source: "user_provided",
     unit: "units",
-    detail: `${input.units} × ${input.size} (your chosen bracket — sizing must come from your load list)`,
+    detail: `${input.units} × ${input.size} (your chosen bracket: sizing must come from your load list)`,
     unit_price: price,
     line_total: price !== null ? money(input.units * price) : null,
   });
@@ -202,7 +202,7 @@ export function calculateGenerator(
     const atsPrice = prices["gen-ats"] ?? null;
     steps.push({
       label: "Automatic transfer switch",
-      detail: `${input.units} × ATS — your decision, one per generator set (labelled assumption).`,
+      detail: `${input.units} × ATS: your decision, one per generator set (labelled assumption).`,
     });
     lines.push({
       key: "ats",
@@ -211,7 +211,7 @@ export function calculateGenerator(
       quantity: input.units,
       quantity_source: "rule_derived",
       unit: "units",
-      detail: `${input.units} set(s) — one per generator (labelled assumption)`,
+      detail: `${input.units} set(s): one per generator (labelled assumption)`,
       unit_price: atsPrice,
       line_total: atsPrice !== null ? money(input.units * atsPrice) : null,
     });
@@ -220,7 +220,7 @@ export function calculateGenerator(
   // ── 3. Cable run (user-measured, visible waste) ──
   if (input.cable_run_m === null) {
     missing.push(
-      "Generator-to-panel cable: measure the run from the generator position to the changeover panel — the engine will not assume a length. (Leave 0 only if the run is truly zero.)",
+      "Generator-to-panel cable: measure the run from the generator position to the changeover panel: the engine will not assume a length. (Leave 0 only if the run is truly zero.)",
     );
     lines.push({
       key: "cable",
@@ -257,7 +257,7 @@ export function calculateGenerator(
     steps.push({
       label: "Generator-to-panel cable",
       detail:
-        "0 m recorded — confirm the set truly mounts at the panel; no cable line added.",
+        "0 m recorded: confirm the set truly mounts at the panel; no cable line added.",
     });
   }
 
@@ -266,7 +266,7 @@ export function calculateGenerator(
     const bPrice = prices["gen-battery"] ?? null;
     steps.push({
       label: "Battery",
-      detail: `${input.units} × starting battery — one per set (labelled assumption; electric-start sets need it).`,
+      detail: `${input.units} × starting battery: one per set (labelled assumption; electric-start sets need it).`,
     });
     lines.push({
       key: "battery",
@@ -275,13 +275,13 @@ export function calculateGenerator(
       quantity: input.units,
       quantity_source: "rule_derived",
       unit: "units",
-      detail: `${input.units} unit(s) — one per generator (labelled assumption)`,
+      detail: `${input.units} unit(s): one per generator (labelled assumption)`,
       unit_price: bPrice,
       line_total: bPrice !== null ? money(input.units * bPrice) : null,
     });
   }
 
-  // ── 5. Labour — separate, never automatic ──
+  // ── 5. Labour - separate, never automatic ──
   let labourTotal = 0;
   if (input.labour.mode === "lump_sum") {
     const sum = input.labour.lump_sum ?? null;
@@ -299,11 +299,11 @@ export function calculateGenerator(
   } else {
     steps.push({
       label: "Labour",
-      detail: "Excluded — not added to the total.",
+      detail: "Excluded: not added to the total.",
     });
   }
 
-  // ── 6. Totals — never fabricated ──
+  // ── 6. Totals - never fabricated ──
   const pricedLines = lines.filter((l) => l.line_total !== null);
   const pricedSubtotal = money(
     pricedLines.reduce((s, l) => s + (l.line_total ?? 0), 0),
@@ -318,7 +318,7 @@ export function calculateGenerator(
   for (const l of lines) {
     if (l.quantity !== null && l.unit_price === null) {
       warnings.push(
-        `${l.label}: PRICE NOT CONFIGURED in the material database — quantity shown, no price invented.`,
+        `${l.label}: PRICE NOT CONFIGURED in the material database: quantity shown, no price invented.`,
       );
     }
   }

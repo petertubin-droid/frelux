@@ -37,7 +37,7 @@ export default function AdminMedia() {
   const [error, setError] = useState<string | null>(null);
   const [editingAlt, setEditingAlt] = useState<string | null>(null);
   const [altText, setAltText] = useState("");
-  // Server-side pagination — media grows with every upload.
+  // Server-side pagination - media grows with every upload.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);

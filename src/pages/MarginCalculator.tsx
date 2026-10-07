@@ -32,7 +32,7 @@ export default function MarginCalculator() {
     { name: "Profit Margin Calculator", path: "/margin-calculator" },
   ]);
   useSeo({
-    title: "Profit Margin Calculator — FRELUX",
+    title: "Profit Margin Calculator: FRELUX",
     description:
       "Price any base cost deterministically from admin-configured margin presets, with the markup-on-cost vs margin-on-price distinction made explicit.",
   });
@@ -85,7 +85,7 @@ export default function MarginCalculator() {
             { label: "Profit Margin Calculator" },
           ]}
           title="Profit Margin Calculator"
-          subtitle="Client price and profit for any base cost, from admin-configured margin presets. Every quote shows whether the percent applied to the cost (markup) or the price (margin) — the two are never confused, and VAT is added only from a configured rate, never guessed."
+          subtitle="Client price and profit for any base cost, from admin-configured margin presets. Every quote shows whether the percent applied to the cost (markup) or the price (margin): the two are never confused, and VAT is added only from a configured rate, never guessed."
         />
 
         {loadError && (
@@ -98,7 +98,7 @@ export default function MarginCalculator() {
           {presets.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No margin presets configured yet. Pricing structures are entered
-              by the admin team (e.g. Standard finishing, 25% markup on cost) —
+              by the admin team (e.g. Standard finishing, 25% markup on cost).
               FRELUX never publishes guessed pricing.
             </p>
           ) : (
@@ -115,7 +115,7 @@ export default function MarginCalculator() {
                 >
                   {presets.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} — {p.margin_percent}% {basisLabel(p)}
+                      {p.name}: {p.margin_percent}% {basisLabel(p)}
                     </option>
                   ))}
                 </select>

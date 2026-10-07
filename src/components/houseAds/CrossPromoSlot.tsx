@@ -18,7 +18,7 @@
  *
  * The rotation also carries external partner promos sold to outside
  * advertisers (Network Hub → House Promos), and every link goes through
- * the admin-configurable Heartsyncx base URL — one edit re-points the
+ * the admin-configurable Heartsyncx base URL - one edit re-points the
  * whole system when the custom domain goes live. Clicks are tracked as
  * cross_promo_click. First-party unit: no consent gate, cannot be
  * blocked by ad blockers.
@@ -293,7 +293,7 @@ function CtaButton({
   );
 }
 
-/** Display: a single, honest image-style ad unit — small
+/** Display: a single, honest image-style ad unit - small
  *  "Advertisement" label, one real logo/creative image, one headline +
  *  real description, one CTA. No grid, no rotating link rows: exactly
  *  ONE destination per render, matching how a real AdSense/Adsterra
@@ -391,7 +391,7 @@ function Banner({
           >
             {featured.label}
             {featured.site === "sister" &&
-              " — relationship insight that hits home"}
+              ": relationship insight that hits home"}
           </button>
           <span className={`text-[11px] ${DISPLAY_URL}`}>
             {featured.domain}
@@ -427,7 +427,7 @@ function Banner({
   );
 }
 
-/** Native: Adsterra/AdSense native unit — thumbnail, headline, body,
+/** Native: Adsterra/AdSense native unit - thumbnail, headline, body,
  *  domain line and inline CTA. */
 function NativeUnit({
   slotIndex,
@@ -464,7 +464,7 @@ function NativeUnit({
             onClick={() => go(d, source)}
             className={`line-clamp-2 cursor-pointer text-left text-sm font-bold leading-snug hover:underline ${HEADLINE}`}
           >
-            {d.site === "sister" ? `${d.label} — ${d.blurb}` : d.label}
+            {d.site === "sister" ? `${d.label}: ${d.blurb}` : d.label}
           </button>
           <AdChoices className="-mt-0.5" />
         </div>
@@ -496,7 +496,7 @@ function NativeUnit({
   );
 }
 
-/** Card: content-recommendation widget — rotating sponsored tiles. */
+/** Card: content-recommendation widget - rotating sponsored tiles. */
 function RecCard({
   slotIndex,
   source,

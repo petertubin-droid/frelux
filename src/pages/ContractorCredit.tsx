@@ -1,13 +1,13 @@
 /**
  * FRELUX Contractor Credit Score (Future Engine 13)
  *
- * A deterministic trust signal from verified job history — for
+ * A deterministic trust signal from verified job history - for
  * clients and lenders checking a contractor.
  *
  * - The score is produced ONLY by calculateCreditScore. This page
  *   renders; it never scores a contractor itself.
  * - A contractor with zero verified jobs is refused with
- *   "insufficient verified history" — never a zero score.
+ *   "insufficient verified history" - never a zero score.
  * - Every profile shown is admin-verified with a source reference.
  */
 
@@ -37,9 +37,9 @@ export default function ContractorCredit() {
     { name: "Contractor Credit Score", path: "/contractor-credit" },
   ]);
   useSeo({
-    title: "Contractor Credit Score — Verified Job History | FRELUX",
+    title: "Contractor Credit Score: Verified Job History | FRELUX",
     description:
-      "Check a contractor's trust signal before you commit: a deterministic 0–100 score from verified job history — on-time delivery, estimate accuracy, verified volume, dispute penalty. Unverified history is refused, never scored zero.",
+      "Check a contractor's trust signal before you commit: a deterministic 0–100 score from verified job history: on-time delivery, estimate accuracy, verified volume, dispute penalty. Unverified history is refused, never scored zero.",
   });
 
   const [profiles, setProfiles] = useState<ContractorCreditProfile[]>([]);
@@ -99,7 +99,7 @@ export default function ContractorCredit() {
             { label: "Contractor Credit Score" },
           ]}
           title="Contractor Credit Score"
-          subtitle="Before you commit money to a contractor, check the record: on-time delivery, estimate accuracy, verified job volume and disputes — scored deterministically from admin-verified job history. Unverified history is refused, never scored zero."
+          subtitle="Before you commit money to a contractor, check the record: on-time delivery, estimate accuracy, verified job volume and disputes: scored deterministically from admin-verified job history. Unverified history is refused, never scored zero."
         />
 
         {loadError && (
@@ -206,7 +206,7 @@ export default function ContractorCredit() {
                   −{result.penalty}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  capped at the base score — the score never goes below zero
+                  capped at the base score: the score never goes below zero
                 </p>
               </div>
             </div>

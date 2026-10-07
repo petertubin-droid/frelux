@@ -78,7 +78,7 @@ function validate(f: FactorForm): string | null {
   if (!Number.isFinite(kg) || kg < 0)
     return "kgCO2e per unit must be zero or a positive number.";
   if (!f.source_reference.trim())
-    return "Source reference is required — emission data must be verifiable (EPD, ICE database entry or literature).";
+    return "Source reference is required: emission data must be verifiable (EPD, ICE database entry or literature).";
   if (!f.effective_date) return "Effective date is required.";
   return null;
 }
@@ -136,7 +136,7 @@ export default function AdminCarbonFactors() {
       );
       if (clash) {
         setError(
-          `An active factor already exists for '${clash.category}'. Deactivate it first or edit it — only one active factor per category keeps the engine deterministic.`,
+          `An active factor already exists for '${clash.category}'. Deactivate it first or edit it: only one active factor per category keeps the engine deterministic.`,
         );
         return;
       }
@@ -184,7 +184,7 @@ export default function AdminCarbonFactors() {
     <div className="space-y-6">
       <AdminHeader
         title="Carbon Factors"
-        subtitle="Admin-configured embodied carbon factors per material/finish category (kgCO2e per unit), each with a verifiable source (EPD, ICE database). The carbon engine excludes lines without a configured factor with a warning — it never guesses emissions."
+        subtitle="Admin-configured embodied carbon factors per material/finish category (kgCO2e per unit), each with a verifiable source (EPD, ICE database). The carbon engine excludes lines without a configured factor with a warning: it never guesses emissions."
         action={
           <AdminButton onClick={openCreate}>
             <Plus className="mr-2 h-4 w-4" /> Add Factor

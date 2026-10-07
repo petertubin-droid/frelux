@@ -2,7 +2,7 @@
 // ADMIN INTELLIGENCE DASHBOARD TESTS
 //
 // The dashboard's honesty contract:
-//   * external prices are OBSERVED MARKET PRICES — the
+//   * external prices are OBSERVED MARKET PRICES - the
 //     subtitle states they never auto-change configured
 //     calculator prices, and the price section keeps the
 //     three price kinds distinct
@@ -146,7 +146,7 @@ describe("AdminIntelligenceDashboard", () => {
     render(<AdminIntelligenceDashboard />);
     // The tile labels render immediately with 0 placeholders; the values
     // arrive once the mocked fetches resolve. Wait for ALL tiles to be
-    // populated before asserting — this was a flaky race on slow CI
+    // populated before asserting - this was a flaky race on slow CI
     // runners (the label existing is not evidence the data loaded).
     await waitFor(() => {
       expect(tileValue("Registered sources")).toBe("3");

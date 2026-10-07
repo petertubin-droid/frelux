@@ -1,11 +1,11 @@
 // =========================================================
-// Market material roles — engines price by ROLE, not by name.
+// Market material roles - engines price by ROLE, not by name.
 //
 // Every market maps a role (bonding-agent, waterproofer,
 // mold-treatment...) to the material its builders actually use.
 // A market without a mapping for a role falls back through its
 // market_profiles.inherits_from chain (US -> NG reference) and
-// finally to null — a role never priced in a market is reported,
+// finally to null - a role never priced in a market is reported,
 // never guessed.
 // =========================================================
 
@@ -95,7 +95,7 @@ export async function fetchInheritanceChain(market: string): Promise<string[]> {
 /**
  * Resolve a role to the market's material and its ACTIVE price.
  * Tries the market's own mapping first, then each ancestor in the
- * inheritance chain. Returns null when no mapping/price exists —
+ * inheritance chain. Returns null when no mapping/price exists -
  * the caller reports "not priced in this market", never guesses.
  */
 export async function resolveMaterialPriceByRole(

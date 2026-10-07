@@ -139,7 +139,7 @@ describe("adapter feeds the deterministic pipeline end to end", () => {
       project: engineResult,
       calculations: [],
     });
-    // One measured space, one explicit gap — nothing invented.
+    // One measured space, one explicit gap - nothing invented.
     expect(takeoff.measurementItems).toHaveLength(1);
     expect(takeoff.measurementItems[0].quantitySource).toBe("project_engine");
     expect(takeoff.materialItems).toHaveLength(0);

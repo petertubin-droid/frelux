@@ -1,5 +1,5 @@
 /**
- * FRELUX Field Sync — Offline-First Field Engine (Future Engine 17)
+ * FRELUX Field Sync - Offline-First Field Engine (Future Engine 17)
  *
  * For the artisan on site with no network: capture measurements,
  * materials used and progress notes; they queue on the device.
@@ -84,9 +84,9 @@ export default function FieldSync() {
   );
 
   useSeo({
-    title: "Field Sync — Capture Site Work Offline | FRELUX PROJECT CALC",
+    title: "Field Sync: Capture Site Work Offline | FRELUX PROJECT CALC",
     description:
-      "Record measurements, materials and progress notes on site with no network. They queue on your device and sync when you're back online — nothing is lost, nothing is invented.",
+      "Record measurements, materials and progress notes on site with no network. They queue on your device and sync when you're back online: nothing is lost, nothing is invented.",
   });
 
   useEffect(() => {
@@ -124,7 +124,7 @@ export default function FieldSync() {
     setNotice(null);
     if (!form.detail.trim()) {
       setFormError(
-        "Write what you measured or used — an empty note records nothing.",
+        "Write what you measured or used: an empty note records nothing.",
       );
       return;
     }
@@ -203,7 +203,7 @@ export default function FieldSync() {
           { label: "Field Sync" },
         ]}
         title="Field Sync"
-        subtitle="Record site work with no network. Your captures queue on this device and sync when connectivity returns — honestly, one by one."
+        subtitle="Record site work with no network. Your captures queue on this device and sync when connectivity returns: honestly, one by one."
       />
 
       {/* Connectivity truth, stated plainly */}
@@ -216,11 +216,11 @@ export default function FieldSync() {
         role="status"
       >
         {online
-          ? "You are online. Captures sync when you tap Sync now — or automatically, per the admin settings."
+          ? "You are online. Captures sync when you tap Sync now: or automatically, per the admin settings."
           : "You are offline. Captures are saved on this device and will sync when you are back online. Nothing is lost by closing the page."}
       </div>
 
-      {/* Capture form — works with zero connectivity */}
+      {/* Capture form: works with zero connectivity */}
       <form
         onSubmit={submitCapture}
         className="mb-8 rounded-lg border bg-card p-5 shadow-sm"
@@ -254,7 +254,7 @@ export default function FieldSync() {
               onChange={(e) =>
                 setForm((f) => ({ ...f, project_label: e.target.value }))
               }
-              placeholder="e.g. Ikeja duplex — room 2"
+              placeholder="e.g. Ikeja duplex: room 2"
               className="w-full rounded-md border border-input bg-background px-3 py-2"
             />
           </label>
@@ -330,7 +330,7 @@ export default function FieldSync() {
           {syncReport.failed > 0 && (
             <p className="mt-1 text-muted-foreground">
               Failed captures stay on this device with the reason recorded. They
-              will be retried on the next sync — nothing is dropped.
+              will be retried on the next sync: nothing is dropped.
             </p>
           )}
         </div>
@@ -345,7 +345,7 @@ export default function FieldSync() {
         </div>
       )}
 
-      {/* The queue itself — every capture with its honest status */}
+      {/* The queue itself: every capture with its honest status */}
       {queue.length === 0 ? (
         <p className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
           Nothing queued. Captures you record on site appear here until they are
@@ -362,7 +362,7 @@ export default function FieldSync() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-medium">
-                    {KIND_LABEL[capture.kind]} — {capture.project_label}
+                    {KIND_LABEL[capture.kind]}: {capture.project_label}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Captured {timeAgo(capture.captured_at)} · on this device,
@@ -370,7 +370,7 @@ export default function FieldSync() {
                   </p>
                   {capture.last_error && (
                     <p className="text-sm text-amber-600 dark:text-amber-400">
-                      Last sync attempt failed: kept in queue — will be retried
+                      Last sync attempt failed: kept in queue: will be retried
                     </p>
                   )}
                 </div>
@@ -417,7 +417,7 @@ export default function FieldSync() {
 
       <AdSlot slotKey="calculator_native" className="mt-8" />
 
-      {/* How it works — the honesty contract, in plain words */}
+      {/* How it works: the honesty contract, in plain words */}
       <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
         <h2 className="mb-2 font-semibold">How Field Sync works</h2>
         <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
@@ -431,7 +431,7 @@ export default function FieldSync() {
             a dropped connection can never record the same work twice.
           </li>
           <li>
-            If the queue fills up, the oldest capture is removed — and you are
+            If the queue fills up, the oldest capture is removed: and you are
             told which one. Nothing is silently lost.
           </li>
           <li>

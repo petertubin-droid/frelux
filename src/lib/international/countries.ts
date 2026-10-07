@@ -1,6 +1,6 @@
 /**
  * Global country list for selects (posting forms, browse filters,
- * price reporting). The site is not limited to any region — any
+ * price reporting). The site is not limited to any region - any
  * country outside these options can still use "OTHER" on posting
  * forms, and unknown countries get free-text region entry.
  * Currency is the local currency used by the community price

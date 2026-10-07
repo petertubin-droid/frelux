@@ -50,7 +50,7 @@ export default function AdminLearn() {
     "articles" | "categories" | "faqs" | "inserts"
   >("articles");
   const [articles, setArticles] = useState<DbLearnArticle[]>([]);
-  // Server-side pagination — articles grow steadily over time.
+  // Server-side pagination - articles grow steadily over time.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);

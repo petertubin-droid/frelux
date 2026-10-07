@@ -51,7 +51,7 @@ const FULL_PRICES = {
 // ─────────────────────────────────────────────
 
 describe("parseDoorsWindowsRules", () => {
-  it("defaults to no hinge rule — nothing silently invented", () => {
+  it("defaults to no hinge rule: nothing silently invented", () => {
     expect(parseDoorsWindowsRules([]).hinges_per_door).toBeNull();
   });
 

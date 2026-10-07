@@ -3,7 +3,7 @@
  *
  * Deterministic electrical MATERIAL estimation: point counts and
  * your average cable run lengths per category → cable, conduit,
- * junction boxes, breakers, accessories, boards — with the
+ * junction boxes, breakers, accessories, boards - with the
  * calculation breakdown visible, waste shown separately, prices
  * from the shared material database (never invented), and labour
  * kept separate.
@@ -41,10 +41,10 @@ import type {
 } from "@/types/estimation";
 
 const BUILDING_TYPES = [
-  "Residential — flat / bungalow",
-  "Residential — storey building",
-  "Commercial — shop / office",
-  "Commercial — larger building",
+  "Residential: flat / bungalow",
+  "Residential: storey building",
+  "Commercial: shop / office",
+  "Commercial: larger building",
   "Other",
 ];
 
@@ -79,7 +79,7 @@ const NUM_LABELS: Record<NumField, string> = {
 };
 
 function fmtN(v: number | null): string {
-  return v === null ? "—" : v.toLocaleString();
+  return v === null ? "N/A" : v.toLocaleString();
 }
 
 export default function ElectricalEstimator() {
@@ -114,9 +114,9 @@ export default function ElectricalEstimator() {
 
   useSeo({
     title:
-      "Electrical Wiring Estimator — Cables, Conduit, Breakers & Boards | FRELUX PROJECT CALC",
+      "Electrical Wiring Estimator: Cables, Conduit, Breakers & Boards | FRELUX PROJECT CALC",
     description:
-      "Deterministic electrical material estimation: enter your lighting points, socket points and average cable runs and get separate cable, conduit, junction box, breaker and accessory quantities with a full calculation breakdown. Estimation only — not electrical design.",
+      "Deterministic electrical material estimation: enter your lighting points, socket points and average cable runs and get separate cable, conduit, junction box, breaker and accessory quantities with a full calculation breakdown. Estimation only: not electrical design.",
   });
 
   // Rules + materials prices load once
@@ -209,7 +209,7 @@ export default function ElectricalEstimator() {
         user_id: user?.id ?? null,
         client_hash: null,
         calculator_type: "electrical",
-        project_description: `Electrical estimate — ${buildingType}`,
+        project_description: `Electrical estimate: ${buildingType}`,
         inputs: input as unknown as Record<string, unknown>,
         calculation_method: "electrical_wiring_v1",
         calculated_quantities: {
@@ -259,7 +259,7 @@ export default function ElectricalEstimator() {
       }
       setSaveState(
         result.incomplete
-          ? `Saved as draft (${ref}) — complete the missing inputs for a final estimate.`
+          ? `Saved as draft (${ref}): complete the missing inputs for a final estimate.`
           : `Saved (${ref}). Import it into a BOQ or project from your estimates.`,
       );
       track("calculator_completed", { calculator: "electrical_saved", ref });
@@ -299,7 +299,7 @@ export default function ElectricalEstimator() {
           { label: "Electrical Wiring Estimator" },
         ]}
         title="Electrical Wiring Estimator"
-        subtitle="Enter your point counts and estimated average cable runs. The engine sizes each cable category separately, counts circuits and accessories from your inputs, and shows every step of the calculation. Estimation only — not professional electrical design."
+        subtitle="Enter your point counts and estimated average cable runs. The engine sizes each cable category separately, counts circuits and accessories from your inputs, and shows every step of the calculation. Estimation only: not professional electrical design."
       />
 
       {/* Inputs */}
@@ -330,8 +330,8 @@ export default function ElectricalEstimator() {
         <p className="mb-2 text-xs text-muted-foreground">
           The engine never invents cable lengths. Give your estimated average
           run per point from your layout (measure or read it off your plan).
-          Leave a field blank and that cable line stays unsized — the estimate
-          is marked incomplete rather than guessed.
+          Leave a field blank and that cable line stays unsized: the estimate is
+          marked incomplete rather than guessed.
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           {(Object.keys(RUN_LABELS) as RunField[]).map((k) =>
@@ -390,7 +390,7 @@ export default function ElectricalEstimator() {
               <SaveToProjectButton
                 calculatorType="electrical"
                 calculatorSlug="electrical-estimator"
-                calcTitle={`Electrical — ${buildingType}`}
+                calcTitle={`Electrical: ${buildingType}`}
                 calcData={input as unknown as Record<string, unknown>}
                 resultSummary={{
                   grand_total: result.grand_total,
@@ -464,14 +464,14 @@ export default function ElectricalEstimator() {
                     .map((l) => (
                       <li key={l.key}>
                         {l.label}: PRICE NOT CONFIGURED in the material database
-                        — the quantity is shown, but no price was invented.
+                        : the quantity is shown, but no price was invented.
                       </li>
                     ))}
                 </ul>
               </>
             ) : (
               <strong>
-                Complete estimate — every line sized and priced from the shared
+                Complete estimate: every line sized and priced from the shared
                 material database.
               </strong>
             )}
@@ -499,7 +499,7 @@ export default function ElectricalEstimator() {
                     <td className="p-3 font-medium">{l.label}</td>
                     <td className="p-3" data-testid={`qty-${l.key}`}>
                       {l.quantity === null
-                        ? "— provide run length"
+                        ? "(provide run length)"
                         : fmtN(l.quantity)}
                     </td>
                     <td className="p-3 text-muted-foreground">{l.unit}</td>
@@ -516,7 +516,7 @@ export default function ElectricalEstimator() {
                       )}
                     </td>
                     <td className="p-3 font-medium">
-                      {l.line_total === null ? "—" : `₦${fmtN(l.line_total)}`}
+                      {l.line_total === null ? "N/A" : `₦${fmtN(l.line_total)}`}
                     </td>
                   </tr>
                 ))}
@@ -530,7 +530,7 @@ export default function ElectricalEstimator() {
               <div className="mb-6 rounded-lg border bg-muted/30 p-4 text-sm">
                 <h3 className="mb-1 font-semibold">
                   Circuits: {result.circuit_summary.total_circuits} (planning
-                  rule — not design)
+                  rule: not design)
                 </h3>
                 <p className="text-muted-foreground">
                   Lighting {result.circuit_summary.lighting_circuits} · Sockets{" "}
@@ -562,7 +562,7 @@ export default function ElectricalEstimator() {
               <p className="text-sm text-muted-foreground">Material subtotal</p>
               <p className="text-xl font-semibold">
                 {result.material_subtotal === null
-                  ? "— prices/inputs missing"
+                  ? "(prices/inputs missing)"
                   : `₦${fmtN(result.material_subtotal)}`}
               </p>
             </div>
@@ -586,7 +586,7 @@ export default function ElectricalEstimator() {
               <p className="text-sm text-muted-foreground">Grand total</p>
               <p className="text-xl font-semibold">
                 {result.grand_total === null
-                  ? "—"
+                  ? "N/A"
                   : `₦${fmtN(result.grand_total)}`}
               </p>
             </div>
@@ -618,8 +618,8 @@ export default function ElectricalEstimator() {
           </li>
           <li>
             The five cable categories (lighting, socket, dedicated, earth,
-            feeder) are sized separately — they are never merged into one
-            "cable" number.
+            feeder) are sized separately: they are never merged into one "cable"
+            number.
           </li>
           <li>
             Prices come from the shared FRELUX material database, configured by

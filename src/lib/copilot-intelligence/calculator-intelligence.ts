@@ -1,5 +1,5 @@
 // =========================================================
-// ARCHIE — FRELUX CALCULATOR INTELLIGENCE
+// ARCHIE - FRELUX CALCULATOR INTELLIGENCE
 //
 // ARCHIE is the intelligent interface and orchestration layer for
 // the FRELUX calculator engine. ARCHIE never computes construction
@@ -9,17 +9,17 @@
 // ai-foundation registry, and EXPLAINS the returned result.
 //
 // Hard guarantees, enforced by construction:
-//   * No duplicate calculation logic — every number in a report
+//   * No duplicate calculation logic - every number in a report
 //     is the SAME object the engine returned (reference-identical,
 //     never re-derived, reformatted or rounded by ARCHIE).
-//   * No invented precision — when critical inputs are missing,
+//   * No invented precision - when critical inputs are missing,
 //     the report is "needs_input" and carries NO quantities and
 //     NO costs. ARCHIE states what is missing instead.
-//   * Verified vs assumed separation — assumptions are the
+//   * Verified vs assumed separation - assumptions are the
 //     requirements layer's origin-labelled AiFacts (smart_default
 //     etc.); configured-vs-default pricing is disclosed from the
 //     engine's own flags.
-//   * Detection, not silent fixing — open code-intelligence
+//   * Detection, not silent fixing - open code-intelligence
 //     findings affecting an engine's source files are surfaced as
 //     report limitations, never patched silently.
 //
@@ -43,7 +43,7 @@ import { FRELUX_AUDIT_BASELINE, type CodeFinding } from "./code-intelligence";
 // calculator: what it computes, which inputs it needs, and where
 // its authority lives. Methodology summaries describe the
 // engine's role; the engine itself remains the single source of
-// truth for its formulas — ARCHIE does not restate internal
+// truth for its formulas - ARCHIE does not restate internal
 // formulas it has not verified line-by-line.
 // ---------------------------------------------------------
 
@@ -54,7 +54,7 @@ export type EngineBackedTask = Exclude<
 
 export interface CalculatorKnowledgeEntry {
   taskType: EngineBackedTask;
-  /** Registry engine id — matches the ai-foundation engine registry. */
+  /** Registry engine id - matches the ai-foundation engine registry. */
   engineId: string;
   title: string;
   /** What the engine actually computes. */
@@ -65,7 +65,7 @@ export interface CalculatorKnowledgeEntry {
   methodology: string;
   /** Where the engine's business values come from. */
   configProvenance: string;
-  /** Source files — used to cross-reference code-intelligence findings. */
+  /** Source files - used to cross-reference code-intelligence findings. */
   sourceFiles: string[];
 }
 
@@ -229,7 +229,7 @@ export const ARCHIE_CALCULATOR_KNOWLEDGE: Record<
 
 // ---------------------------------------------------------
 // Verification: engine health from the code-intelligence
-// baseline. ARCHIE detects problems and surfaces them — it does
+// baseline. ARCHIE detects problems and surfaces them - it does
 // not silently fix production calculation logic (corrections go
 // through the owner-authorized change pipeline).
 // ---------------------------------------------------------
@@ -275,7 +275,7 @@ export function calculatorHealth(
 //
 // Directive format: assumptions, measurements, materials,
 // quantities, waste, unit prices, estimated costs, methodology,
-// confidence/limitations — with verified/configured data clearly
+// confidence/limitations - with verified/configured data clearly
 // separated from assumptions.
 // ---------------------------------------------------------
 
@@ -315,7 +315,7 @@ const WASTE_LABEL = /wast|waste|contingenc|overhead/i;
  * Generate ARCHIE's structured report from an orchestrator run.
  *
  * Integrity guarantee: `materials`, `waste` and `costs` are the
- * engine's own objects (or slices of them) — ARCHIE never
+ * engine's own objects (or slices of them) - ARCHIE never
  * re-derives a number. When the run has no result (missing
  * inputs / refusal), the report carries no quantities and no
  * costs at all: no invented precision.
@@ -355,7 +355,7 @@ export function generateArchieCalculationReport(
         costs: null,
         pricingBasis: {
           configured: false,
-          disclosure: "No pricing was used — the engine did not run.",
+          disclosure: "No pricing was used: the engine did not run.",
         },
         methodology:
           knowledge?.methodology ??
@@ -380,7 +380,7 @@ export function generateArchieCalculationReport(
       costs: null,
       pricingBasis: {
         configured: false,
-        disclosure: "No pricing was used — the engine did not run.",
+        disclosure: "No pricing was used: the engine did not run.",
       },
       methodology:
         knowledge?.methodology ??
@@ -396,7 +396,7 @@ export function generateArchieCalculationReport(
     };
   }
 
-  // Engine ran — the result IS the report's numbers (reference-identical).
+  // Engine ran - the result IS the report's numbers (reference-identical).
   const result = outcome.result;
   const waste = result.quantities.filter((q) => WASTE_LABEL.test(q.label));
   const materials = result.quantities.filter((q) => !WASTE_LABEL.test(q.label));
@@ -405,7 +405,7 @@ export function generateArchieCalculationReport(
   const configured = result.costs?.regionalDataAvailable ?? false;
   if (result.costs && !configured) {
     limitations.push(
-      "Unit prices fell back to engine defaults — no verified regional pricing was available. Treat costs as an estimate and verify current prices.",
+      "Unit prices fell back to engine defaults: no verified regional pricing was available. Treat costs as an estimate and verify current prices.",
     );
   }
   if (outcome.needsConfirmation && outcome.needsConfirmation.length > 0) {
@@ -432,7 +432,7 @@ export function generateArchieCalculationReport(
     ),
     assumptions: outcome.assumptions ?? [],
     needsConfirmation: outcome.needsConfirmation ?? [],
-    // VERBATIM from the engine — ARCHIE never recomputes these.
+    // VERBATIM from the engine - ARCHIE never recomputes these.
     materials,
     waste,
     costs: result.costs ?? null,
@@ -440,7 +440,7 @@ export function generateArchieCalculationReport(
       configured,
       disclosure: configured
         ? "Unit prices come from configured FRELUX data."
-        : "Unit prices use engine defaults (not verified configured pricing) — disclosed, not hidden.",
+        : "Unit prices use engine defaults (not verified configured pricing): disclosed, not hidden.",
     },
     methodology:
       knowledge?.methodology ?? "Computed by the authoritative FRELUX engine.",
@@ -451,7 +451,7 @@ export function generateArchieCalculationReport(
 
 /**
  * ARCHIE's explanation of a calculator, for chat and reports.
- * Describes what the engine computes and what it needs — never
+ * Describes what the engine computes and what it needs - never
  * restates unverified internal formulas.
  */
 export function explainCalculator(taskType: EngineBackedTask): string {

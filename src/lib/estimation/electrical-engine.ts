@@ -3,7 +3,7 @@
  *
  * Deterministic electrical MATERIAL estimation. Quantities come
  * from two places only:
- *   1. Explicit user inputs — point counts, switch/DB counts,
+ *   1. Explicit user inputs - point counts, switch/DB counts,
  *      and the user's own average cable run lengths per category.
  *   2. Admin-configured planning rules (circuit grouping,
  *      conduit allowance, junction boxes, waste).
@@ -14,11 +14,11 @@
  *    length. A missing run length leaves the line unsized and
  *    marks the estimate INCOMPLETE, naming exactly what is missing.
  *  - Circuit grouping is a planning rule for counting circuits
- *    (and so breakers) — it is NOT certified electrical design.
+ *    (and so breakers) - it is NOT certified electrical design.
  *    The result carries that distinction in its warnings.
  *  - Prices come from the shared material database. A material
  *    without a configured price shows PRICE NOT CONFIGURED and
- *    keeps the estimate total null — never a fabricated price.
+ *    keeps the estimate total null - never a fabricated price.
  *  - Waste is never silent: every cable/conduit line shows base
  *    quantity, waste and final quantity in its breakdown line.
  *  - Labour is separate from materials and never auto-added.
@@ -31,7 +31,7 @@
 import type { CalcRuleRow } from "./count-vision-engine";
 
 // ─────────────────────────────────────────────
-// Rules — admin-configured planning behaviour
+// Rules - admin-configured planning behaviour
 // ─────────────────────────────────────────────
 
 export interface ElectricalRules {
@@ -110,9 +110,9 @@ export function parseElectricalRules(rows: CalcRuleRow[]): ElectricalRules {
 
 export interface ElectricalLabourInput {
   mode: "none" | "per_point" | "lump_sum";
-  /** Naira per point — required when mode is 'per_point' */
+  /** Naira per point - required when mode is 'per_point' */
   per_point_rate?: number | null;
-  /** Naira lump sum — required when mode is 'lump_sum' */
+  /** Naira lump sum - required when mode is 'lump_sum' */
   lump_sum?: number | null;
 }
 
@@ -165,7 +165,7 @@ export interface CircuitSummary {
   socket_circuits: number;
   dedicated_circuits: number;
   total_circuits: number;
-  /** suggested distribution board ways — planning guidance only */
+  /** suggested distribution board ways - planning guidance only */
   db_ways_guidance: number;
 }
 
@@ -189,7 +189,7 @@ export interface ElectricalResult {
   /** labour total; 0 when labour mode is 'none' (explicitly excluded) */
   labour_total: number;
   grand_total: number | null;
-  /** true when any line is unsized or unpriced — the estimate is not complete */
+  /** true when any line is unsized or unpriced - the estimate is not complete */
   incomplete: boolean;
   /** exactly what is missing, in plain words */
   missing: string[];
@@ -234,7 +234,7 @@ export function calculateElectrical(
   const steps: ElectricalStep[] = [];
   const missing: string[] = [];
 
-  // ── 0. Input validation — every count explicit and sane ──
+  // ── 0. Input validation - every count explicit and sane ──
   const counts: [keyof ElectricalInput, string][] = [
     ["lighting_points", "Lighting points"],
     ["socket_points", "Socket points"],
@@ -280,7 +280,7 @@ export function calculateElectrical(
     };
   }
 
-  // ── 1. Circuit count — planning rules, never design ──
+  // ── 1. Circuit count - planning rules, never design ──
   const lightingCircuits =
     input.lighting_points > 0
       ? Math.ceil(input.lighting_points / rules.lighting_points_per_circuit)
@@ -306,7 +306,7 @@ export function calculateElectrical(
     detail: `Lighting: ceil(${input.lighting_points} ÷ ${rules.lighting_points_per_circuit}) = ${lightingCircuits}. Sockets: ceil(${input.socket_points} ÷ ${rules.socket_points_per_circuit}) = ${socketCircuits}. Dedicated: ceil(${input.dedicated_points} ÷ ${rules.dedicated_points_per_circuit}) = ${dedicatedCircuits}. Total ${totalCircuits} circuits.`,
   });
 
-  // ── 2. Cable categories — separate, never invented ──
+  // ── 2. Cable categories - separate, never invented ──
   const wasteFactor = 1 + rules.cable_waste_pct / 100;
   const lines: ElectricalLine[] = [];
 
@@ -365,7 +365,7 @@ export function calculateElectrical(
     if (spec.runs === 0) continue; // no runs of this category exist: no line
     if (!isRun(spec.avgRun)) {
       missing.push(
-        `${spec.label}: provide your estimated average run length per ${spec.runLabel.replace(/\s*\(.*\)$/, "")} — the engine will not invent cable length.`,
+        `${spec.label}: provide your estimated average run length per ${spec.runLabel.replace(/\s*\(.*\)$/, "")}: the engine will not invent cable length.`,
       );
       lines.push({
         key: spec.key,
@@ -401,7 +401,7 @@ export function calculateElectrical(
     });
   }
 
-  // ── 3. Conduit — planning allowance, labelled as such ──
+  // ── 3. Conduit - planning allowance, labelled as such ──
   const hasConduitRule =
     rules.conduit_m_per_lighting_point !== null ||
     rules.conduit_m_per_socket_point !== null;
@@ -437,7 +437,7 @@ export function calculateElectrical(
     );
   }
 
-  // ── 4. Junction boxes — planning rule ──
+  // ── 4. Junction boxes - planning rule ──
   if (rules.junction_boxes_per_lighting_point !== null) {
     const qty = Math.ceil(
       input.lighting_points * rules.junction_boxes_per_lighting_point,
@@ -464,7 +464,7 @@ export function calculateElectrical(
     );
   }
 
-  // ── 5. Breakers — one per circuit, count only ──
+  // ── 5. Breakers - one per circuit, count only ──
   const breakerQty = totalCircuits;
   if (breakerQty > 0) {
     const price = prices["elec-breaker"] ?? null;
@@ -475,13 +475,13 @@ export function calculateElectrical(
       quantity: breakerQty,
       quantity_source: "rule_derived",
       unit: "pieces",
-      detail: `${totalCircuits} circuits × 1 breaker = ${breakerQty}. Rating is an electrical design decision — this engine counts circuits only.`,
+      detail: `${totalCircuits} circuits × 1 breaker = ${breakerQty}. Rating is an electrical design decision: this engine counts circuits only.`,
       unit_price: price,
       line_total: price !== null ? money(breakerQty * price) : null,
     });
   }
 
-  // ── 6. Accessories & boards — direct from user counts ──
+  // ── 6. Accessories & boards - direct from user counts ──
   const directItems: {
     key: string;
     label: string;
@@ -527,7 +527,7 @@ export function calculateElectrical(
     });
   }
 
-  // ── 7. Labour — separate, never automatic ──
+  // ── 7. Labour - separate, never automatic ──
   let labourTotal = 0;
   const totalPoints =
     input.lighting_points + input.socket_points + input.dedicated_points;
@@ -560,11 +560,11 @@ export function calculateElectrical(
   } else {
     steps.push({
       label: "Labour",
-      detail: "Excluded — not added to the total.",
+      detail: "Excluded: not added to the total.",
     });
   }
 
-  // ── 8. Totals — never fabricated ──
+  // ── 8. Totals - never fabricated ──
   const pricedLines = lines.filter((l) => l.line_total !== null);
   const pricedSubtotal = money(
     pricedLines.reduce((s, l) => s + (l.line_total ?? 0), 0),
@@ -579,7 +579,7 @@ export function calculateElectrical(
   for (const l of lines) {
     if (l.quantity !== null && l.unit_price === null) {
       warnings.push(
-        `${l.label}: PRICE NOT CONFIGURED in the material database — the quantity is shown, but no price was invented.`,
+        `${l.label}: PRICE NOT CONFIGURED in the material database: the quantity is shown, but no price was invented.`,
       );
     }
   }
@@ -587,7 +587,7 @@ export function calculateElectrical(
     steps.push({ label: "Building type", detail: input.building_type.trim() });
   }
   warnings.push(
-    "ESTIMATION ONLY — this is material planning, NOT professional electrical design. Circuit grouping, board ways and any cable sizes in the material notes are configuration defaults. Engage a licensed electrical engineer for design and certification.",
+    "ESTIMATION ONLY: this is material planning, NOT professional electrical design. Circuit grouping, board ways and any cable sizes in the material notes are configuration defaults. Engage a licensed electrical engineer for design and certification.",
   );
 
   const incomplete =

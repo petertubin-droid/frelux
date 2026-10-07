@@ -5,14 +5,14 @@ import { hasAdvertisingConsent } from "@/lib/ad-consent";
 import { onConsentChange } from "@/lib/ad-consent";
 
 /**
- * Adsterra Direct Link / Smartlink unit — ported from Heartsyncx.
+ * Adsterra Direct Link / Smartlink unit - ported from Heartsyncx.
  *
  * A Direct Link is not a script: it is a plain URL from the Adsterra
  * dashboard ("Websites > Ad Units > Direct Link") that earns per click.
  * Rendered as a clearly labelled, rel=sponsored text link under the
  * site-wide footer ad slot; gated on the Adsterra provider being active,
  * the advertising consent category being granted, and a configured URL.
- * Never renders when unconfigured — no fake units.
+ * Never renders when unconfigured - no fake units.
  */
 export default function AdsterraDirectLink() {
   const [unit, setUnit] = useState<{ url: string; label: string } | null>(null);
@@ -35,8 +35,8 @@ export default function AdsterraDirectLink() {
           return;
         }
         // Admin toggle parity: when "Display ads" is off for Adsterra the
-        // provider may still serve rewarded flows, but visual units —
-        // including this Direct Link — must not render.
+        // provider may still serve rewarded flows, but visual units -
+        // including this Direct Link - must not render.
         if (!displayAdsEnabled(adsterra)) {
           setUnit(null);
           return;

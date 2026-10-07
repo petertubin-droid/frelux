@@ -24,7 +24,7 @@ const rule = (key: string, rate: number, active = true): EstimationCalcRule =>
   }) as unknown as EstimationCalcRule;
 
 const item = (over: Partial<BoqLineItem> = {}): BoqLineItem => ({
-  description: "Emulsion paint — living room",
+  description: "Emulsion paint: living room",
   quantity: 2,
   unit: "coats",
   unit_cost: 50000,

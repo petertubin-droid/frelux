@@ -4,13 +4,13 @@
  * The offline sync behaviour rules (auto-sync, queue capacity,
  * retention, batch size) live in estimation_calc_rules and are
  * edited in the generic Calc Rules tab (Admin → Estimation
- * Config → Calc Rules, calculator_type 'offline_field') — same
+ * Config → Calc Rules, calculator_type 'offline_field') - same
  * as every rules-driven engine. This pane:
  *
  *  - shows the CURRENT rules (read-only, with where to edit them)
  *  - lists recently synced field captures, newest field work
  *    first, with device, job label, kind and captured/synced
- *    times — so admins can see what field work is flowing in
+ *    times - so admins can see what field work is flowing in
  *  - shows honest diagnostics: captures that needed multiple
  *    sync attempts (queue_last_attempt) are flagged
  */
@@ -88,7 +88,7 @@ export default function AdminFieldSync() {
     <div className="space-y-4">
       <AdminHeader
         title="Field Sync"
-        subtitle="Offline-First Field Engine — captures recorded on site with no connectivity, synced to field_capture_log. Client UUID primary key makes sync idempotent."
+        subtitle="Offline-First Field Engine: captures recorded on site with no connectivity, synced to field_capture_log. Client UUID primary key makes sync idempotent."
       />
 
       {loading && (
@@ -101,14 +101,14 @@ export default function AdminFieldSync() {
       {error && <StateMessage type="error" title="Error" message={error} />}
       {!loading && !error && (
         <>
-          {/* Current behaviour rules — editable in Calc Rules */}
+          {/* Current behaviour rules: editable in Calc Rules */}
           <div className="rounded-lg border bg-card p-4">
             <h3 className="mb-2 font-semibold">Current sync rules</h3>
             <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
               <div>
                 <p className="text-muted-foreground">Auto-sync on reconnect</p>
                 <p className="font-medium">
-                  {rules.auto_sync ? "Yes" : "No — manual only"}
+                  {rules.auto_sync ? "Yes" : "No: manual only"}
                 </p>
               </div>
               <div>
@@ -156,7 +156,7 @@ export default function AdminFieldSync() {
               <p className="text-2xl font-semibold">{retried}</p>
               {retried > 0 && (
                 <p className="text-xs text-muted-foreground">
-                  Synced after failed attempts — the queue kept them honestly.
+                  Synced after failed attempts: the queue kept them honestly.
                 </p>
               )}
             </div>

@@ -119,7 +119,7 @@ describe("MineralStoneCalculator", () => {
 
     const productSelect = await screen.findByLabelText(/^Product$/);
     expect(productSelect).toBeInTheDocument();
-    expect(screen.getByText("Test Stone Product — BrandX")).toBeInTheDocument();
+    expect(screen.getByText("Test Stone Product: BrandX")).toBeInTheDocument();
 
     // Enter area (53.89 m², 1 coat, 2.5–3.5 kg/m² → 6–8 × 25 kg packs)
     const areaInput = screen.getByLabelText(/Surface area/i);

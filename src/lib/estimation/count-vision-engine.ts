@@ -1,5 +1,5 @@
 /**
- * Counter-Vision Engine (Future Engine 2) — photo counting, honestly
+ * Counter-Vision Engine (Future Engine 2) - photo counting, honestly
  *
  * An artisan photographs a stack of tiles, cement bags, blocks or
  * paint buckets; Gemini (via the count-vision edge function) counts
@@ -7,18 +7,18 @@
  * contract:
  *
  *  - Photo acceptance rules (size, type) are admin-configured and
- *    checked BEFORE upload — a refused photo says the limit, never
+ *    checked BEFORE upload - a refused photo says the limit, never
  *    a silent downscale.
  *  - A response is only "counted" if the server stood behind it.
  *    Below the admin-configured confidence floor, or above the
  *    reliable count bound, the engine reports "unclear" with the
- *    reason — never a guess.
+ *    reason - never a guess.
  *  - The photo never leaves the request: nothing about the image
  *    is stored on the device after the count completes.
  */
 
 // ─────────────────────────────────────────────
-// Rules — admin-configurable behaviour
+// Rules - admin-configurable behaviour
 // ─────────────────────────────────────────────
 
 export interface CountVisionRules {
@@ -86,7 +86,7 @@ export function parseCountVisionRules(rows: CalcRuleRow[]): CountVisionRules {
 }
 
 // ─────────────────────────────────────────────
-// Photo validation — before any upload happens
+// Photo validation - before any upload happens
 // ─────────────────────────────────────────────
 
 export const ACCEPTED_IMAGE_TYPES = [
@@ -117,7 +117,7 @@ export function checkPhoto(file: File, rules: CountVisionRules): PhotoCheck {
   if (file.size > maxBytes) {
     return {
       ok: false,
-      reason: `That photo is ${(file.size / (1024 * 1024)).toFixed(1)} MB — the limit is ${rules.max_image_mb} MB. Take it again at normal quality.`,
+      reason: `That photo is ${(file.size / (1024 * 1024)).toFixed(1)} MB: the limit is ${rules.max_image_mb} MB. Take it again at normal quality.`,
     };
   }
   if (file.size < 1024) {
@@ -140,7 +140,7 @@ export function readFileAsDataUrl(file: File): Promise<string> {
 }
 
 // ─────────────────────────────────────────────
-// Result types — the honest verdicts
+// Result types - the honest verdicts
 // ─────────────────────────────────────────────
 
 export type CountVerdict = "counted" | "unclear" | "not_found";
@@ -155,7 +155,7 @@ export interface CountVisionResult {
 
 // ─────────────────────────────────────────────
 // Client-side sanity check on the server's answer.
-// The server validates too — this is the second, independent
+// The server validates too - this is the second, independent
 // gate: the page trusts NO response shape blindly.
 // ─────────────────────────────────────────────
 
@@ -202,7 +202,7 @@ export function validateCountResult(
 
   // Anything that claims a count but cannot show a valid one, or
   // sits below the admin-configured confidence floor, is honestly
-  // "unclear" — with the reason preserved.
+  // "unclear" - with the reason preserved.
   if (count === null || confidence < rules.min_confidence) {
     return {
       verdict: "unclear",

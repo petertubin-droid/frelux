@@ -5,14 +5,14 @@ import { getSupabase } from "@/lib/supabase-lazy";
 /**
  * GDPR/CCPA data subject request intake. Requests land in the
  * data_subject_requests table (anon insert; admin reads/resolves).
- * Works without an account — the identity is verified by email
+ * Works without an account - the identity is verified by email
  * before any data is accessed, changed, or deleted.
  */
 const REQUEST_TYPES = [
-  "Access — send me a copy of my personal data",
-  "Deletion — delete my personal data",
-  "Correction — fix inaccurate personal data",
-  "Portability — export my data in a machine-readable format",
+  "Access: send me a copy of my personal data",
+  "Deletion: delete my personal data",
+  "Correction: fix inaccurate personal data",
+  "Portability: export my data in a machine-readable format",
   "Advertising opt-out (CCPA 'sharing' opt-out)",
   "Other",
 ] as const;

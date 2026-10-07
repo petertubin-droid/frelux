@@ -11,7 +11,7 @@ import {
 } from "@/lib/copilot-intelligence/calculator-intelligence";
 
 // ---------------------------------------------------------
-// Helpers — real facts, real context, real engine runs.
+// Helpers - real facts, real context, real engine runs.
 // ---------------------------------------------------------
 function fact(
   key: string,
@@ -94,7 +94,7 @@ describe("ARCHIE calculator knowledge base", () => {
 });
 
 // ---------------------------------------------------------
-// Report generation — real engine run
+// Report generation - real engine run
 // ---------------------------------------------------------
 describe("ARCHIE calculation report (real painting engine)", () => {
   it("runs the authoritative engine", async () => {
@@ -128,14 +128,14 @@ describe("ARCHIE calculation report (real painting engine)", () => {
     const outcome = await runTask("painting_estimate", context, PAINTING_FACTS);
     const report = generateArchieCalculationReport(outcome);
     if (!report.costs) {
-      // Wall-area geometry has no pricing — the report must not invent it.
+      // Wall-area geometry has no pricing - the report must not invent it.
       expect(report.pricingBasis.disclosure.length).toBeGreaterThan(0);
     }
   });
 });
 
 // ---------------------------------------------------------
-// No invented precision — missing critical inputs
+// No invented precision - missing critical inputs
 // ---------------------------------------------------------
 describe("ARCHIE report refuses to invent missing inputs", () => {
   it("needs_input with no numbers when critical inputs are absent", async () => {
@@ -163,7 +163,7 @@ describe("ARCHIE report refuses to invent missing inputs", () => {
 });
 
 // ---------------------------------------------------------
-// Verification bridge — code-intelligence findings
+// Verification bridge - code-intelligence findings
 // ---------------------------------------------------------
 describe("calculator health verification", () => {
   it("surfaces only OPEN/OWNER_REVIEW findings, not resolved ones", () => {

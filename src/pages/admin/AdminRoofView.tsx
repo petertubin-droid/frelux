@@ -1,5 +1,5 @@
 /**
- * FRELUX Admin — Roof View Imagery Provider
+ * FRELUX Admin - Roof View Imagery Provider
  *
  * Admin page for activating and configuring the Roof View imagery
  * feature (Build-to-Roof Estimator's satellite view). Before this
@@ -11,7 +11,7 @@
  * What this page does:
  *   - Pick one of the supported providers (Google Maps, Mapbox,
  *     Nearmap, Custom)
- *   - Enter the provider API key — stored server-side in
+ *   - Enter the provider API key - stored server-side in
  *     integration_settings, NEVER displayed again after save
  *     (write-only field, exactly like the other integrations)
  *   - Configure provider settings from each provider's schema
@@ -216,7 +216,7 @@ export default function AdminRoofView() {
       if (hasKey) {
         mergedConfig.api_key = apiKey.trim();
       } else if (apiKeyConfigured) {
-        // admin explicitly cleared the field but a key exists — keep it.
+        // admin explicitly cleared the field but a key exists - keep it.
         // To remove the key, use the "Remove key" action.
       }
       const { error: integrationError } = await supabase
@@ -434,7 +434,7 @@ export default function AdminRoofView() {
                 </p>
                 <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
                   {live
-                    ? `Active — ${configuredProvider ?? providerType} imagery is served to signed-in users via the roof-view-imagery function.`
+                    ? `Active: ${configuredProvider ?? providerType} imagery is served to signed-in users via the roof-view-imagery function.`
                     : enabled
                       ? "Enabled but no API key is stored. Save a provider API key below to go live."
                       : "Roof View is disabled. Users see an honest 'not configured' message instead of a broken tool."}
@@ -495,7 +495,7 @@ export default function AdminRoofView() {
                     )}
                   >
                     {implemented
-                      ? "Implemented — ready to serve imagery"
+                      ? "Implemented: ready to serve imagery"
                       : "Registered, but server-side retrieval is not implemented yet"}
                   </p>
                 </button>
@@ -511,7 +511,7 @@ export default function AdminRoofView() {
           </p>
           <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
             Stored in integration_settings and read server-side only. Write-only
-            on this page — never displayed again after saving.
+            on this page: never displayed again after saving.
           </p>
           <div className="mt-4">
             <AdminField
@@ -532,7 +532,7 @@ export default function AdminRoofView() {
                 onChange={(e) => setApiKey(e.target.value)}
                 placeholder={
                   apiKeyConfigured
-                    ? "••••••••  (a key is stored — enter a new one to replace)"
+                    ? "••••••••  (a key is stored: enter a new one to replace)"
                     : "Paste the provider API key"
                 }
                 autoComplete="off"
@@ -661,7 +661,7 @@ export default function AdminRoofView() {
                   />
                   <div>
                     <p className="flex items-center gap-1.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                      <CheckCircle2 className="h-4 w-4" /> Success —{" "}
+                      <CheckCircle2 className="h-4 w-4" /> Success:{" "}
                       {testResult.provider} returned imagery.
                     </p>
                     <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">

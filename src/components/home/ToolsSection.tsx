@@ -48,7 +48,7 @@ export default function ToolsSection() {
       <SectionHeading
         label="The complete tool library"
         title="Every trade, one platform"
-        subtitle="Material calculators, cost estimators, project tools and AI assistants — all using market-localized coverage rates and verified prices."
+        subtitle="Material calculators, cost estimators, project tools and AI assistants: all using market-localized coverage rates and verified prices."
         align="center"
       />
 
@@ -111,8 +111,8 @@ export default function ToolsSection() {
                 Explore all tools
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
-                The full library with search, categorized by trade — free to
-                use, no sign-up required.
+                The full library with search, categorized by trade: free to use,
+                no sign-up required.
               </p>
             </div>
             <span className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand-purple transition-all group-hover:gap-2.5 dark:text-brand-purple-lighter">

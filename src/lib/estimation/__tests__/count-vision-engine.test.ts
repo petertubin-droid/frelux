@@ -5,7 +5,7 @@
  * (admin-gated, rate-limited, key never on the client). These
  * tests pin the CLIENT honesty contract: rules parsing,
  * photo acceptance before upload, and the independent second
- * validation gate on the server's answer — a count below the
+ * validation gate on the server's answer - a count below the
  * confidence floor or beyond the reliable bound is never shown
  * as a number.
  */
@@ -23,7 +23,7 @@ import {
 const rules: CountVisionRules = { ...DEFAULT_COUNT_VISION_RULES };
 
 // ─────────────────────────────────────────────
-// Rules parsing — admin-configured, clamped sanely
+// Rules parsing - admin-configured, clamped sanely
 // ─────────────────────────────────────────────
 
 describe("parseCountVisionRules", () => {
@@ -51,7 +51,7 @@ describe("parseCountVisionRules", () => {
     expect(parsed.max_count).toBe(DEFAULT_COUNT_VISION_RULES.max_count);
   });
 
-  it("refuses nonsense values — never adopts a broken config", () => {
+  it("refuses nonsense values: never adopts a broken config", () => {
     const parsed = parseCountVisionRules([
       { rule_key: "max_image_mb", rule_value: { value: -5 } },
       { rule_key: "max_image_mb", rule_value: { value: 999 } }, // absurdly high
@@ -71,7 +71,7 @@ describe("parseCountVisionRules", () => {
 });
 
 // ─────────────────────────────────────────────
-// Photo acceptance — refused BEFORE upload, with the reason
+// Photo acceptance - refused BEFORE upload, with the reason
 // ─────────────────────────────────────────────
 
 describe("checkPhoto", () => {
@@ -127,7 +127,7 @@ describe("checkPhoto", () => {
 });
 
 // ─────────────────────────────────────────────
-// Result validation — the independent second gate
+// Result validation - the independent second gate
 // ─────────────────────────────────────────────
 
 describe("validateCountResult", () => {
@@ -151,7 +151,7 @@ describe("validateCountResult", () => {
     });
   });
 
-  it("downgrades a count below the admin confidence floor to unclear — the reason survives", () => {
+  it("downgrades a count below the admin confidence floor to unclear: the reason survives", () => {
     const result = validateCountResult(
       {
         verdict: "counted",
@@ -245,7 +245,7 @@ describe("validateCountResult", () => {
     expect(result.reason).toMatch(/hidden layers/i);
   });
 
-  it("survives garbage input — unreadable, not invented", () => {
+  it("survives garbage input: unreadable, not invented", () => {
     expect(validateCountResult(null, rules).verdict).toBe("unclear");
     expect(validateCountResult("42", rules).verdict).toBe("unclear");
     expect(validateCountResult({}, rules).verdict).toBe("unclear");
@@ -271,7 +271,7 @@ describe("validateCountResult", () => {
 });
 
 // ─────────────────────────────────────────────
-// Labels — the UI never shows a raw enum to a human
+// Labels - the UI never shows a raw enum to a human
 // ─────────────────────────────────────────────
 
 describe("verdictLabel", () => {

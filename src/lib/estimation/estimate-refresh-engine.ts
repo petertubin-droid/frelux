@@ -1,5 +1,5 @@
 /**
- * FRELUX Estimate Refresh Engine (Future Engine 6, part 2 —
+ * FRELUX Estimate Refresh Engine (Future Engine 6, part 2 -
  * "Inflation-Proof Estimating")
  *
  * Deterministic "current cost today" refresh for saved estimates.
@@ -8,7 +8,7 @@
  * quoted at (price_snapshot: price_type, ref_id, unit_price,
  * effective_date). This engine compares each item's snapshot
  * against TODAY'S active price for the same reference and
- * produces the refreshed total — so an old quote stays honest
+ * produces the refreshed total - so an old quote stays honest
  * as prices move.
  *
  * Philosophy (unchanged): the engine never guesses.
@@ -37,7 +37,7 @@ export interface RefreshItemInput {
   snapshot_unit_price: number;
   snapshot_currency: string | null;
   snapshot_effective_date: string | null;
-  /** Where to find today's price — from the item's price_snapshot; null = unrefreshable */
+  /** Where to find today's price - from the item's price_snapshot; null = unrefreshable */
   price_type: string | null;
   ref_id: string | null;
 }
@@ -142,7 +142,7 @@ export function refreshEstimate(input: RefreshInput): RefreshResult {
   const ref = input.estimate_ref?.trim();
   if (!ref) {
     result.warnings.push(
-      "An estimate must be selected — the engine never refreshes without one.",
+      "An estimate must be selected: the engine never refreshes without one.",
     );
     return result;
   }
@@ -165,13 +165,13 @@ export function refreshEstimate(input: RefreshInput): RefreshResult {
 
     if (!Number.isFinite(qty) || qty <= 0) {
       result.warnings.push(
-        `Line '${item.item_name}' has an invalid quantity and was excluded — the engine does not refresh malformed lines.`,
+        `Line '${item.item_name}' has an invalid quantity and was excluded: the engine does not refresh malformed lines.`,
       );
       continue;
     }
     if (!Number.isFinite(snapPrice) || snapPrice < 0) {
       result.warnings.push(
-        `Line '${item.item_name}' has an invalid stored price and was excluded — the engine does not refresh malformed lines.`,
+        `Line '${item.item_name}' has an invalid stored price and was excluded: the engine does not refresh malformed lines.`,
       );
       continue;
     }
@@ -179,7 +179,7 @@ export function refreshEstimate(input: RefreshInput): RefreshResult {
     const lineThen = roundMoney(qty * snapPrice);
     totalThen += lineThen;
 
-    // Look up today's price — only via a real (price_type, ref_id) reference
+    // Look up today's price - only via a real (price_type, ref_id) reference
     let currentPrice: number | null = null;
     let status: LinePriceStatus;
     let currentEffective: string | null = null;
@@ -189,12 +189,12 @@ export function refreshEstimate(input: RefreshInput): RefreshResult {
       const cur =
         input.currentPrices?.[priceKey(item.price_type, item.ref_id)] ?? null;
       if (cur && Number.isFinite(Number(cur.price)) && Number(cur.price) > 0) {
-        // Never convert currencies — a mismatched price is not a price for this quote
+        // Never convert currencies - a mismatched price is not a price for this quote
         if (input.currency && cur.currency && cur.currency !== input.currency) {
           status = "currency_mismatch";
           currencyMismatch = true;
           result.warnings.push(
-            `Today's price for '${item.item_name}' is in ${cur.currency}, not ${input.currency} — the line stays at its snapshot price. FRELUX never applies an exchange rate.`,
+            `Today's price for '${item.item_name}' is in ${cur.currency}, not ${input.currency}: the line stays at its snapshot price. FRELUX never applies an exchange rate.`,
           );
         } else {
           currentPrice = Number(cur.price);
@@ -205,21 +205,21 @@ export function refreshEstimate(input: RefreshInput): RefreshResult {
               : "price_changed";
           if (status === "price_changed") {
             result.steps.push({
-              label: `Price change — ${item.item_name}`,
-              detail: `Snapshot ${snapPrice} → today ${currentPrice} (${input.currency}), effective ${currentEffective ?? "unknown date"} — from the active configured price, never a guess.`,
+              label: `Price change: ${item.item_name}`,
+              detail: `Snapshot ${snapPrice} → today ${currentPrice} (${input.currency}), effective ${currentEffective ?? "unknown date"}: from the active configured price, never a guess.`,
             });
           }
         }
       } else {
         status = "no_current_price";
         result.warnings.push(
-          `No active price is configured today for '${item.item_name}' (${item.price_type} ${item.ref_id}) — the line stays at its snapshot price ${snapPrice}. FRELUX never extrapolates a missing price.`,
+          `No active price is configured today for '${item.item_name}' (${item.price_type} ${item.ref_id}): the line stays at its snapshot price ${snapPrice}. FRELUX never extrapolates a missing price.`,
         );
       }
     } else {
       status = "no_price_reference";
       result.warnings.push(
-        `Line '${item.item_name}' has no price reference in its snapshot — it cannot be refreshed and stays at its stored price.`,
+        `Line '${item.item_name}' has no price reference in its snapshot: it cannot be refreshed and stays at its stored price.`,
       );
     }
 
@@ -273,7 +273,7 @@ export function refreshEstimate(input: RefreshInput): RefreshResult {
   result.currency = input.currency || null;
   result.steps.push({
     label: "Totals",
-    detail: `Quoted ${result.total_then} ${result.currency ?? ""} → current cost today ${result.total_today} ${result.currency ?? ""} (${result.delta >= 0 ? "+" : ""}${result.delta}, ${result.delta_percent !== null ? `${result.delta_percent}%` : "percentage not computable"}). ${result.missing_count} line${result.missing_count === 1 ? "" : "s"} stayed at their snapshot price because no current price exists — they are flagged, never guessed.`,
+    detail: `Quoted ${result.total_then} ${result.currency ?? ""} → current cost today ${result.total_today} ${result.currency ?? ""} (${result.delta >= 0 ? "+" : ""}${result.delta}, ${result.delta_percent !== null ? `${result.delta_percent}%` : "percentage not computable"}). ${result.missing_count} line${result.missing_count === 1 ? "" : "s"} stayed at their snapshot price because no current price exists: they are flagged, never guessed.`,
   });
 
   return result;

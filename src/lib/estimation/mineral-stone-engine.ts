@@ -124,7 +124,7 @@ export interface MineralStoneResult {
   // Purchase (whole packages)
   purchase_min: number | null;
   purchase_max: number | null;
-  purchase_unit: string | null; // e.g. '25 kg bucket' — built from config, for display only
+  purchase_unit: string | null; // e.g. '25 kg bucket': built from config, for display only
 
   // Cost
   cost_min: number | null;
@@ -285,7 +285,7 @@ export function calculateMineralStone(
   const waste = num(profile.waste_percentage ?? null);
   if (waste === null) {
     warnings.push(
-      `Waste percentage is not configured for '${profile.name}'. Quantities are shown WITHOUT a waste allowance — add a waste configuration before relying on purchase numbers.`,
+      `Waste percentage is not configured for '${profile.name}'. Quantities are shown WITHOUT a waste allowance: add a waste configuration before relying on purchase numbers.`,
     );
   } else if (waste < 0 || waste >= 100) {
     warnings.push("Configured waste percentage is invalid (must be 0–99).");
@@ -406,7 +406,7 @@ export function calculateMineralStone(
     label: "Waste allowance",
     detail:
       waste === null
-        ? "Not configured — raw quantities shown"
+        ? "Not configured: raw quantities shown"
         : `+${fmt(waste, 2)}% → ${fmt(withWasteMin, 4)}–${fmt(withWasteMax, 4)} ${materialUnit}`,
   });
 

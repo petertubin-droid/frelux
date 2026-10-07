@@ -41,7 +41,7 @@ function renderHighlightedHeadline(
 }
 
 // The hero workflow chips show the end-to-end journey of a project on
-// FRELUX — measure, price, document, hire — not a single trade.
+// FRELUX - measure, price, document, hire - not a single trade.
 const heroSteps = [
   { icon: Calculator, label: "Calculate Materials", to: "/construction-tools" },
   {
@@ -106,7 +106,7 @@ export default function Hero() {
 
           {/*
            * =====================================================================
-           * CMS-MANAGED HERO COPY — approved by the client 2026-10-06.
+           * CMS-MANAGED HERO COPY - approved by the client 2026-10-06.
            * Edit only via the Admin/CMS interface (site_settings row) or
            * with explicit client approval, never unilaterally.
            * -----------------------------------------------------------------

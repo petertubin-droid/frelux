@@ -3,7 +3,7 @@
 //
 // The stage-completion rate counts every recorded stage equally.
 // Disagreement is flagged ONLY when the user-stated progress
-// differs from recorded stages by more than 20 points — and the
+// differs from recorded stages by more than 20 points - and the
 // records always win. Visual observations are supporting
 // evidence, never an override.
 // =========================================================

@@ -292,7 +292,7 @@ function ProductsTab() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
-  // Server-side pagination — the product catalog grows over time.
+  // Server-side pagination - the product catalog grows over time.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
@@ -704,7 +704,7 @@ function ReportsTab() {
   const [reports, setReports] = useState<DbMarketplaceReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("pending");
-  // Server-side pagination — moderation queues grow with traffic.
+  // Server-side pagination - moderation queues grow with traffic.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
@@ -878,7 +878,7 @@ function ReviewsTab() {
   const [reviews, setReviews] = useState<DbMarketplaceReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("published");
-  // Server-side pagination — review moderation grows with traffic.
+  // Server-side pagination - review moderation grows with traffic.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
@@ -1076,7 +1076,7 @@ function SellersTab() {
   const [sellers, setSellers] = useState<DbMarketplaceSellerProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [verificationFilter, setVerificationFilter] = useState("");
-  // Server-side pagination — seller onboarding grows over time.
+  // Server-side pagination - seller onboarding grows over time.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);

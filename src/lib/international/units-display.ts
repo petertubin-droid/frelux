@@ -7,7 +7,7 @@
 //
 // Per-user preference lives in localStorage (per site policy),
 // defaulting to metric. Dual formatting always shows both units,
-// with the preferred system first — so numbers can never mislead.
+// with the preferred system first - so numbers can never mislead.
 // =========================================================
 
 export type UnitSystem = "metric" | "imperial";
@@ -35,7 +35,7 @@ export function setStoredUnitSystem(system: UnitSystem): void {
   try {
     window.localStorage.setItem(STORAGE_KEY, system);
   } catch {
-    // localStorage unavailable — preference simply isn't persisted
+    // localStorage unavailable - preference simply isn't persisted
   }
 }
 

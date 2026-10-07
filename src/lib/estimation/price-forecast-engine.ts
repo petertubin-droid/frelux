@@ -9,7 +9,7 @@
  * Philosophy (unchanged): the engine never invents inflation
  * rates or market guesses. It refuses when history is too thin,
  * clamps the horizon to the configured maximum, and warns on
- * short histories — every projection is traceable to recorded
+ * short histories - every projection is traceable to recorded
  * prices.
  */
 
@@ -38,7 +38,7 @@ export interface PriceForecastResult {
   ok: boolean;
   current_price: number | null;
   projected_price: number | null;
-  /** Projected price is clamped at 0 — prices don't go negative */
+  /** Projected price is clamped at 0 - prices don't go negative */
   horizon_months: number | null;
   /** Mean absolute monthly change of the fitted trend */
   monthly_change: number | null;
@@ -125,7 +125,7 @@ export function forecastMaterialPrice(
   const minPoints = ruleNumber(input.rules, "min_history_points", 3);
   if (points.length < minPoints) {
     result.warnings.push(
-      `Only ${points.length} recorded price point${points.length === 1 ? "" : "s"} — at least ${minPoints} are required for a forecast. The engine does not guess a trend from thin history.`,
+      `Only ${points.length} recorded price point${points.length === 1 ? "" : "s"}: at least ${minPoints} are required for a forecast. The engine does not guess a trend from thin history.`,
     );
     return result;
   }
@@ -142,7 +142,7 @@ export function forecastMaterialPrice(
   const horizon = Math.min(horizonWanted, maxMonths);
   if (horizonWanted > maxMonths) {
     result.warnings.push(
-      `Requested horizon ${horizonWanted} months exceeds the configured maximum — the forecast was clamped to ${maxMonths} months.`,
+      `Requested horizon ${horizonWanted} months exceeds the configured maximum: the forecast was clamped to ${maxMonths} months.`,
     );
   }
   result.horizon_months = horizon;
@@ -158,7 +158,7 @@ export function forecastMaterialPrice(
   const shortDays = ruleNumber(input.rules, "short_history_days", 30);
   if (spanDays < shortDays) {
     result.warnings.push(
-      `Recorded history spans only ${spanDays} day${spanDays === 1 ? "" : "s"} — this is a short series, treat the projection as low confidence.`,
+      `Recorded history spans only ${spanDays} day${spanDays === 1 ? "" : "s"}: this is a short series, treat the projection as low confidence.`,
     );
   }
 
@@ -173,11 +173,11 @@ export function forecastMaterialPrice(
   const currentDay = (lastTs - firstTs) / DAY_MS;
   const futureDay = currentDay + horizon * (365.25 / 12);
   let projected = intercept + slope * futureDay;
-  // Prices never go negative — clamp at 0 with a warning, never a silent guess.
+  // Prices never go negative - clamp at 0 with a warning, never a silent guess.
   if (projected < 0) {
     projected = 0;
     result.warnings.push(
-      "The fitted trend falls below zero at this horizon — the projection was clamped to 0. Treat a long-term falling trend with caution.",
+      "The fitted trend falls below zero at this horizon: the projection was clamped to 0. Treat a long-term falling trend with caution.",
     );
   }
   projected = money(projected);
@@ -201,7 +201,7 @@ export function forecastMaterialPrice(
   result.steps.push({
     label: "Basis",
     detail:
-      "Projection is computed ONLY from recorded price history — no external inflation or market assumptions are applied.",
+      "Projection is computed ONLY from recorded price history: no external inflation or market assumptions are applied.",
   });
 
   result.ok = true;

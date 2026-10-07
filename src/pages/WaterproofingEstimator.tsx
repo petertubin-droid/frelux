@@ -62,7 +62,7 @@ const FIELD_LABELS: Record<AreaField, string> = {
 };
 
 function fmtN(v: number | null): string {
-  return v === null ? "—" : v.toLocaleString();
+  return v === null ? "N/A" : v.toLocaleString();
 }
 
 export default function WaterproofingEstimator() {
@@ -91,9 +91,9 @@ export default function WaterproofingEstimator() {
 
   useSeo({
     title:
-      "Waterproofing Estimator — DPC, DPM, Coating & Membrane | FRELUX PROJECT CALC",
+      "Waterproofing Estimator: DPC, DPM, Coating & Membrane | FRELUX PROJECT CALC",
     description:
-      "Deterministic waterproofing material estimation: enter your measured DPC run, DPM area, wet-area surfaces and terrace area and get DPC, DPM, coating, membrane and tape quantities with coats, coverage and waste shown in the breakdown. Estimation only — not waterproofing design.",
+      "Deterministic waterproofing material estimation: enter your measured DPC run, DPM area, wet-area surfaces and terrace area and get DPC, DPM, coating, membrane and tape quantities with coats, coverage and waste shown in the breakdown. Estimation only: not waterproofing design.",
   });
 
   const [priceMap, setPriceMap] = useState<WaterproofingPriceMap>({});
@@ -122,7 +122,7 @@ export default function WaterproofingEstimator() {
       // slugs; for other markets, resolve each granular role to the
       // market's own product (e.g. US: Drylok for cementitious
       // coating). Roles with no market mapping keep the NG fallback
-      // via inheritance, and unpriced roles stay null — never guessed.
+      // via inheritance, and unpriced roles stay null - never guessed.
       if (marketCode !== "NG") {
         const roleToEngineSlug: [MaterialRole, string][] = [
           ["dpc", "dpc-per-meter"],
@@ -246,7 +246,7 @@ export default function WaterproofingEstimator() {
       }
       setSaveState(
         result.incomplete
-          ? `Saved as draft (${ref}) — complete the missing inputs for a final estimate.`
+          ? `Saved as draft (${ref}): complete the missing inputs for a final estimate.`
           : `Saved (${ref}). Import it into a BOQ or project from your estimates.`,
       );
       track("calculator_completed", { calculator: "waterproofing_saved", ref });
@@ -286,7 +286,7 @@ export default function WaterproofingEstimator() {
           { label: "Waterproofing Estimator" },
         ]}
         title="Waterproofing Estimator"
-        subtitle="Enter your measured DPC run, DPM area, wet-area surfaces and terrace area. The engine sizes DPC, DPM, coating, membrane and tape from your measurements with the admin's visible coats, coverage, waste and overlap rules. Estimation only — not waterproofing design."
+        subtitle="Enter your measured DPC run, DPM area, wet-area surfaces and terrace area. The engine sizes DPC, DPM, coating, membrane and tape from your measurements with the admin's visible coats, coverage, waste and overlap rules. Estimation only: not waterproofing design."
       />
 
       {/* Inputs */}
@@ -427,14 +427,14 @@ export default function WaterproofingEstimator() {
                     .map((l) => (
                       <li key={l.key}>
                         {l.label}: PRICE NOT CONFIGURED in the material database
-                        — the quantity is shown, but no price was invented.
+                        : the quantity is shown, but no price was invented.
                       </li>
                     ))}
                 </ul>
               </>
             ) : (
               <strong>
-                Complete estimate — every line sized and priced from the shared
+                Complete estimate: every line sized and priced from the shared
                 material database.
               </strong>
             )}
@@ -462,7 +462,7 @@ export default function WaterproofingEstimator() {
                     <td className="p-3 font-medium">{l.label}</td>
                     <td className="p-3" data-testid={`qty-${l.key}`}>
                       {l.quantity === null
-                        ? "— provide measurement"
+                        ? "(provide measurement)"
                         : fmtN(l.quantity)}
                     </td>
                     <td className="p-3 text-muted-foreground">{l.unit}</td>
@@ -479,7 +479,7 @@ export default function WaterproofingEstimator() {
                       )}
                     </td>
                     <td className="p-3 font-medium">
-                      {l.line_total === null ? "—" : `₦${fmtN(l.line_total)}`}
+                      {l.line_total === null ? "N/A" : `₦${fmtN(l.line_total)}`}
                     </td>
                   </tr>
                 ))}
@@ -506,7 +506,7 @@ export default function WaterproofingEstimator() {
               <p className="text-sm text-muted-foreground">Material subtotal</p>
               <p className="text-xl font-semibold">
                 {result.material_subtotal === null
-                  ? "— prices/inputs missing"
+                  ? "(prices/inputs missing)"
                   : `₦${fmtN(result.material_subtotal)}`}
               </p>
             </div>
@@ -530,7 +530,7 @@ export default function WaterproofingEstimator() {
               <p className="text-sm text-muted-foreground">Grand total</p>
               <p className="text-xl font-semibold">
                 {result.grand_total === null
-                  ? "—"
+                  ? "N/A"
                   : `₦${fmtN(result.grand_total)}`}
               </p>
             </div>
@@ -557,7 +557,7 @@ export default function WaterproofingEstimator() {
           <li>
             Quantities come from your measured runs and areas, with the admin's
             visible overlap, waste, coat-count and coverage rules. The coverage
-            rule must match the product the admin prices — a bag covers what its
+            rule must match the product the admin prices: a bag covers what its
             datasheet says, no more.
           </li>
           <li>

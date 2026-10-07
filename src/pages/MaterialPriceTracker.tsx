@@ -173,7 +173,7 @@ export default function MaterialPriceTracker() {
         {/* Future Engine 4: deterministic price forecasting */}
         <MaterialPriceForecast />
 
-        {/* Community price reporting — feeds the review queue */}
+        {/* Community price reporting: feeds the review queue */}
         <PriceSubmissionForm />
 
         {/* Stats */}

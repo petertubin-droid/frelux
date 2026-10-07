@@ -23,7 +23,7 @@ export default function MobileBottomNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-border/60 bg-white/95 backdrop-blur-xl md:hidden dark:border-white/5 dark:bg-background/95"
+      className="neon-edge fixed inset-x-0 bottom-0 z-30 border-t border-border/60 bg-white/95 backdrop-blur-xl md:hidden dark:border-white/5 dark:bg-background/95"
       aria-label="Bottom navigation"
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent" />

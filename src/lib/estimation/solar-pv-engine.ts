@@ -1,5 +1,5 @@
 /**
- * Solar/PV Roofing Estimator (Future Engine 16 — PRIMARY engine)
+ * Solar/PV Roofing Estimator (Future Engine 16 - PRIMARY engine)
  *
  * Full material takeoff for a solar installation, entirely from
  * admin-configured panel models, component prices and rules.
@@ -11,7 +11,7 @@
  *                  panels = ceil(required kWp / panel kWp)
  *
  * Quantities are ALWAYS computed from configured panel specs and
- * rules. Costs are only attached where a price is configured — an
+ * rules. Costs are only attached where a price is configured - an
  * unpriced component is reported as unpriced, never invented.
  *
  * House rules, identical to every other Frelux engine:
@@ -22,7 +22,7 @@
  *    defaulted, never invented.
  *  - A negative configured price → REFUSED (invalid data, not a
  *    zero price). A missing price → honest "unpriced" warning.
- *  - The total only ever sums priced lines — unpriced lines are
+ *  - The total only ever sums priced lines - unpriced lines are
  *    listed with their quantities and flagged, never silently
  *    dropped or silently zero-costed.
  */
@@ -151,7 +151,7 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
   // ── Validation: panel model configured (never guessed) ──
   if (!panel) {
     return refuse([
-      "No solar panel model is configured. The estimator refuses to guess panel wattage or dimensions — an admin must configure a model from a manufacturer datasheet.",
+      "No solar panel model is configured. The estimator refuses to guess panel wattage or dimensions: an admin must configure a model from a manufacturer datasheet.",
     ]);
   }
   const { watt_peak, length_m, width_m, unit_price_naira } = panel;
@@ -164,7 +164,7 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
     width_m <= 0
   ) {
     return refuse([
-      "The configured panel model has invalid specs (wattage and dimensions must be positive). The estimator refuses to compute from an invalid model — fix it in the admin config.",
+      "The configured panel model has invalid specs (wattage and dimensions must be positive). The estimator refuses to compute from an invalid model: fix it in the admin config.",
     ]);
   }
 
@@ -172,7 +172,7 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
   const run = input.cable_run_m;
   if (!Number.isFinite(run) || run <= 0) {
     return refuse([
-      "Enter the cable run from the array to the inverter/distribution point in metres — it must be a positive number. The estimator does not invent wiring lengths.",
+      "Enter the cable run from the array to the inverter/distribution point in metres: it must be a positive number. The estimator does not invent wiring lengths.",
     ]);
   }
 
@@ -181,14 +181,14 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
     const area = input.usable_roof_area_m2!;
     if (!Number.isFinite(area) || area <= 0) {
       return refuse([
-        "Enter the usable roof area in square metres — it must be a positive number.",
+        "Enter the usable roof area in square metres: it must be a positive number.",
       ]);
     }
   } else {
     const target = input.daily_energy_target_kwh!;
     if (!Number.isFinite(target) || target <= 0) {
       return refuse([
-        "Enter your target daily energy in kWh — it must be a positive number.",
+        "Enter your target daily energy in kWh: it must be a positive number.",
       ]);
     }
   }
@@ -199,29 +199,29 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
     const v = getRuleValue(rules, key);
     if (v === null) {
       return refuse([
-        `No '${key}' rule is configured for this calculator. The estimator refuses to invent it — configure the rule in the admin config.`,
+        `No '${key}' rule is configured for this calculator. The estimator refuses to invent it: configure the rule in the admin config.`,
       ]);
     }
     if (v < 0) {
       return refuse([
-        `The configured '${key}' rule (${v}) is negative. The estimator refuses to compute from an invalid rule — fix it in the admin config.`,
+        `The configured '${key}' rule (${v}) is negative. The estimator refuses to compute from an invalid rule: fix it in the admin config.`,
       ]);
     }
     rv[key] = v;
   }
   if (rv.peak_sun_hours_day === 0) {
     return refuse([
-      "The configured 'peak_sun_hours_day' rule is zero — no energy can be estimated. Fix the rule in the admin config.",
+      "The configured 'peak_sun_hours_day' rule is zero: no energy can be estimated. Fix the rule in the admin config.",
     ]);
   }
   if (rv.system_loss_factor >= 1) {
     return refuse([
-      "The configured 'system_loss_factor' rule must be below 1 — a 100% loss system produces nothing. Fix the rule in the admin config.",
+      "The configured 'system_loss_factor' rule must be below 1: a 100% loss system produces nothing. Fix the rule in the admin config.",
     ]);
   }
   if (rv.inverter_dc_ac_ratio === 0) {
     return refuse([
-      "The configured 'inverter_dc_ac_ratio' rule is zero — division by zero. Fix the rule in the admin config.",
+      "The configured 'inverter_dc_ac_ratio' rule is zero: division by zero. Fix the rule in the admin config.",
     ]);
   }
   if (!Number.isInteger(rv.string_size_max) || rv.string_size_max < 1) {
@@ -250,7 +250,7 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
       (!Number.isFinite(p.price_naira) || p.price_naira < 0)
     ) {
       return refuse([
-        `The configured price for '${key}' (${p.price_naira}) is invalid. The estimator refuses to compute from an invalid price — fix it in the admin config.`,
+        `The configured price for '${key}' (${p.price_naira}) is invalid. The estimator refuses to compute from an invalid price: fix it in the admin config.`,
       ]);
     }
   }
@@ -268,7 +268,7 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
     });
     if (panelCount < 1) {
       return refuse([
-        `The usable roof area (${r(input.usable_roof_area_m2!)} m²) is smaller than one panel (${r(panelArea)} m²). There is nothing to estimate — no invented numbers.`,
+        `The usable roof area (${r(input.usable_roof_area_m2!)} m²) is smaller than one panel (${r(panelArea)} m²). There is nothing to estimate: no invented numbers.`,
       ]);
     }
   } else {
@@ -321,7 +321,7 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
   });
   steps.push({
     label: "Strings",
-    detail: `ceil(${panelCount} ÷ ${rv.string_size_max} max per string) = ${strings} strings — one DC breaker each.`,
+    detail: `ceil(${panelCount} ÷ ${rv.string_size_max} max per string) = ${strings} strings: one DC breaker each.`,
   });
 
   // ── Battery bank (only when storage is requested) ─────
@@ -336,7 +336,7 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
     const unitCap = getRuleValue(rules, "battery_unit_capacity_kwh");
     if (unitCap === null || unitCap <= 0) {
       return refuse([
-        "No valid 'battery_unit_capacity_kwh' rule is configured. The estimator refuses to invent a battery size — configure the rule in the admin config.",
+        "No valid 'battery_unit_capacity_kwh' rule is configured. The estimator refuses to invent a battery size: configure the rule in the admin config.",
       ]);
     }
     batteryCount = Math.ceil(storage / unitCap);
@@ -414,7 +414,7 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
 
   if (unpriced.length > 0) {
     warnings.push(
-      `No price is configured for: ${unpriced.join(", ")}. Their quantities are reported, but the total cannot be complete — the estimator does not invent prices. Configure prices in the admin config.`,
+      `No price is configured for: ${unpriced.join(", ")}. Their quantities are reported, but the total cannot be complete: the estimator does not invent prices. Configure prices in the admin config.`,
     );
   }
 

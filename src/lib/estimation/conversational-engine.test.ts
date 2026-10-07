@@ -1,5 +1,5 @@
 // =========================================================
-// Conversational Estimator Engine (Engine 3) — tests
+// Conversational Estimator Engine (Engine 3) - tests
 //
 // Hand-verified expectations:
 //  - English language detection on real chat samples.
@@ -108,7 +108,7 @@ describe("extractParams", () => {
     expect(p.propertyType!.value).toBe("house");
   });
 
-  it("reports honestly when nothing is found — no invented facts", () => {
+  it("reports honestly when nothing is found: no invented facts", () => {
     const p = extractParams(threadOf("hello good evening"), "en");
     expect(p.intent).toBe("unknown");
     expect(p.length).toBeNull();
@@ -132,7 +132,7 @@ describe("buildConversationalEstimate", () => {
     expect(est.liters).toBeCloseTo(10.83, 1);
     expect(est.coats).toBe(2);
     // Containers: the engine recommends practical buckets (20 L
-    // preferred) — a single 20 L bucket more than covers 10.83 L.
+    // preferred) - a single 20 L bucket more than covers 10.83 L.
     expect(est.containers.length).toBeGreaterThan(0);
     const totalLiters = est.containers.reduce(
       (a, c) => a + c.size * c.count,

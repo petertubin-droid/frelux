@@ -207,7 +207,7 @@ export default function AdminReuseFactors() {
     <div>
       <AdminHeader
         title="Material Reuse Factors"
-        subtitle="Recovery, reuse and recycle fractions per material category — the data behind the Circular/Reuse Engine. Every factor needs a verifiable source (demolition audit, WRAP protocol, salvage dealer rate); the engine refuses to estimate a material without one."
+        subtitle="Recovery, reuse and recycle fractions per material category: the data behind the Circular/Reuse Engine. Every factor needs a verifiable source (demolition audit, WRAP protocol, salvage dealer rate); the engine refuses to estimate a material without one."
         action={
           <AdminButton onClick={openCreate}>
             <Plus className="mr-1 inline h-4 w-4" /> Add factor
@@ -254,7 +254,7 @@ export default function AdminReuseFactors() {
                   className="p-6 text-center text-muted-foreground"
                 >
                   No factors configured yet. The Circular/Reuse Engine refuses
-                  to estimate a material without one — add factors from
+                  to estimate a material without one: add factors from
                   verifiable sources (demolition audits, WRAP protocols, salvage
                   dealer rates).
                 </td>
@@ -266,7 +266,7 @@ export default function AdminReuseFactors() {
                   className="border-t border-border dark:border-white/5"
                 >
                   <td className="p-3 font-mono text-xs">{f.category}</td>
-                  <td className="p-3">{f.category_label ?? "—"}</td>
+                  <td className="p-3">{f.category_label ?? "N/A"}</td>
                   <td className="p-3 text-xs">{f.unit}</td>
                   <td className="p-3 text-right font-mono text-xs">
                     {f.recovery_rate}
@@ -278,7 +278,7 @@ export default function AdminReuseFactors() {
                     {f.recycle_fraction}
                   </td>
                   <td className="p-3 text-right font-mono text-xs">
-                    {f.unit_value_naira ?? "—"}
+                    {f.unit_value_naira ?? "N/A"}
                   </td>
                   <td
                     className="max-w-[220px] truncate p-3 text-xs text-muted-foreground"
@@ -287,7 +287,7 @@ export default function AdminReuseFactors() {
                     {f.source_reference}
                   </td>
                   <td className="p-3 text-xs">
-                    {f.effective_date?.slice(0, 10) ?? "—"}
+                    {f.effective_date?.slice(0, 10) ?? "N/A"}
                   </td>
                   <td className="p-3">
                     <span
@@ -345,7 +345,7 @@ export default function AdminReuseFactors() {
               onChange={(e) => set("category_label", e.target.value)}
             />
           </AdminField>
-          <AdminField label="Recovery rate (0–1) — fraction recoverable from demolition">
+          <AdminField label="Recovery rate (0–1): fraction recoverable from demolition">
             <AdminInput
               type="number"
               step="0.01"
@@ -355,7 +355,7 @@ export default function AdminReuseFactors() {
               onChange={(e) => set("recovery_rate", e.target.value)}
             />
           </AdminField>
-          <AdminField label="Reuse fraction (0–1) — of recovered, fit for direct reuse">
+          <AdminField label="Reuse fraction (0–1): of recovered, fit for direct reuse">
             <AdminInput
               type="number"
               step="0.01"
@@ -365,7 +365,7 @@ export default function AdminReuseFactors() {
               onChange={(e) => set("reuse_fraction", e.target.value)}
             />
           </AdminField>
-          <AdminField label="Recycle fraction (0–1) — of recovered, fit for recycling">
+          <AdminField label="Recycle fraction (0–1): of recovered, fit for recycling">
             <AdminInput
               type="number"
               step="0.01"
@@ -375,7 +375,7 @@ export default function AdminReuseFactors() {
               onChange={(e) => set("recycle_fraction", e.target.value)}
             />
           </AdminField>
-          <AdminField label="Reclaimed value per unit, ₦ (optional — leave blank if unknown)">
+          <AdminField label="Reclaimed value per unit, ₦ (optional: leave blank if unknown)">
             <AdminInput
               type="number"
               step="1"
@@ -384,7 +384,7 @@ export default function AdminReuseFactors() {
               onChange={(e) => set("unit_value_naira", e.target.value)}
             />
           </AdminField>
-          <AdminField label="Source reference (required — demolition audit, WRAP protocol, salvage dealer rate)">
+          <AdminField label="Source reference (required: demolition audit, WRAP protocol, salvage dealer rate)">
             <AdminInput
               value={form.source_reference}
               onChange={(e) => set("source_reference", e.target.value)}

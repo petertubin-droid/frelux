@@ -105,10 +105,10 @@ describe("diagnoseDefect", () => {
     expect(r.causes[0].quantity_note).toMatch(
       /Enter an affected area to compute the exact fix quantity/,
     );
-    expect(r.steps).toHaveLength(1); // only the ranking step — no quantity computed
+    expect(r.steps).toHaveLength(1); // only the ranking step: no quantity computed
   });
 
-  it("states clearly when a cause has no configured consumption rate — never guesses", () => {
+  it("states clearly when a cause has no configured consumption rate: never guesses", () => {
     const r = diagnoseDefect(
       input({
         causes: [cause({ fix_consumption_per_sqm: null, fix_unit: null })],
@@ -127,7 +127,7 @@ describe("diagnoseDefect", () => {
     expect(r.causes[0].fix_quantity).toBeNull();
     expect(r.causes[0].quantity_note).toMatch(/invalid and was ignored/);
     expect(r.warnings.join(" ")).toMatch(
-      /invalid and was ignored — no quantity was guessed/,
+      /invalid and was ignored: no quantity was guessed/,
     );
   });
 
@@ -144,7 +144,7 @@ describe("diagnoseDefect", () => {
     expect(r.causes[0].cause_key).toBe("other");
   });
 
-  it("refuses a symptom with no configured causes — never guesses", () => {
+  it("refuses a symptom with no configured causes: never guesses", () => {
     const r = diagnoseDefect(input({ causes: [] }));
     expect(r.ok).toBe(false);
     expect(r.warnings.join(" ")).toMatch(

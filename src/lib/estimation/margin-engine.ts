@@ -7,7 +7,7 @@
  *
  * Philosophy (unchanged): the basis is explicit on every preset
  * and shown in every breakdown step. VAT is added only from a
- * configured rule — never invented — and a missing VAT rule
+ * configured rule - never invented - and a missing VAT rule
  * produces a warning and no line, never a guess.
  */
 
@@ -24,7 +24,7 @@ export interface MarginInput {
   base_cost: number;
   /** Margin percent (> 0) */
   margin_percent: number;
-  /** Explicit basis — never guessed */
+  /** Explicit basis - never guessed */
   basis: MarginBasis;
   /** Active calc rules (calculator_type = 'margin') */
   rules: EstimationCalcRule[];
@@ -38,7 +38,7 @@ export interface MarginResult {
   profit: number | null;
   /** Price before VAT (cost + profit) */
   priced_subtotal: number | null;
-  /** The equivalent percent the other basis would produce — informational only */
+  /** The equivalent percent the other basis would produce - informational only */
   equivalent_other_basis_percent: number | null;
   vat_rate: number | null;
   vat_amount: number | null;
@@ -88,13 +88,13 @@ export function calculateMargin(input: MarginInput): MarginResult {
 
   if (!Number.isFinite(cost) || cost <= 0) {
     result.warnings.push(
-      "Base cost must be a positive number — the engine never prices a zero or invalid cost.",
+      "Base cost must be a positive number: the engine never prices a zero or invalid cost.",
     );
     return result;
   }
   if (!Number.isFinite(marginPercent) || marginPercent <= 0) {
     result.warnings.push(
-      "Margin percent must be positive — the engine never prices at or below cost without an explicit percent.",
+      "Margin percent must be positive: the engine never prices at or below cost without an explicit percent.",
     );
     return result;
   }
@@ -102,7 +102,7 @@ export function calculateMargin(input: MarginInput): MarginResult {
   const basis: MarginBasis = input.basis;
   if (basis !== "markup_on_cost" && basis !== "margin_on_price") {
     result.warnings.push(
-      "Margin basis must be 'markup_on_cost' or 'margin_on_price' — the engine never guesses which one you meant.",
+      "Margin basis must be 'markup_on_cost' or 'margin_on_price': the engine never guesses which one you meant.",
     );
     return result;
   }
@@ -110,7 +110,7 @@ export function calculateMargin(input: MarginInput): MarginResult {
   // margin_on_price: percent must be < 100 or the price is undefined
   if (basis === "margin_on_price" && marginPercent >= 100) {
     result.warnings.push(
-      "A margin-on-price percent of 100 or more is mathematically impossible (price would be undefined) — the line was refused.",
+      "A margin-on-price percent of 100 or more is mathematically impossible (price would be undefined): the line was refused.",
     );
     return result;
   }
@@ -120,7 +120,7 @@ export function calculateMargin(input: MarginInput): MarginResult {
     Math.min(6, ruleNumber(input.rules, "rounding_decimals") ?? 2),
   );
 
-  // ── 2. Deterministic pricing chain — every step labelled with its basis ──
+  // ── 2. Deterministic pricing chain - every step labelled with its basis ──
   let profit: number;
   let subtotal: number;
 
@@ -130,7 +130,7 @@ export function calculateMargin(input: MarginInput): MarginResult {
     subtotal = roundTo(cost + profit, decimals);
     result.steps.push({
       label: "Markup on cost",
-      detail: `₦${cost.toLocaleString()} × ${marginPercent}% = ₦${profit.toLocaleString()} profit (markup on cost — the percent applies to the COST).`,
+      detail: `₦${cost.toLocaleString()} × ${marginPercent}% = ₦${profit.toLocaleString()} profit (markup on cost: the percent applies to the COST).`,
     });
   } else {
     // price = cost ÷ (1 − %), profit = price − cost
@@ -138,7 +138,7 @@ export function calculateMargin(input: MarginInput): MarginResult {
     profit = roundTo(subtotal - cost, decimals);
     result.steps.push({
       label: "Margin on price",
-      detail: `₦${cost.toLocaleString()} ÷ (1 − ${marginPercent}%) = ₦${subtotal.toLocaleString()} price (margin on price — the percent applies to the PRICE), profit ₦${profit.toLocaleString()}.`,
+      detail: `₦${cost.toLocaleString()} ÷ (1 − ${marginPercent}%) = ₦${subtotal.toLocaleString()} price (margin on price: the percent applies to the PRICE), profit ₦${profit.toLocaleString()}.`,
     });
   }
 
@@ -148,7 +148,7 @@ export function calculateMargin(input: MarginInput): MarginResult {
       ? roundTo((profit / subtotal) * 100, decimals) // markup expressed as margin-on-price
       : roundTo((profit / cost) * 100, decimals); // margin-on-price expressed as markup
 
-  // ── 3. VAT only from a configured rule — never invented ──
+  // ── 3. VAT only from a configured rule - never invented ──
   let vatRate = ruleNumber(input.rules, "vat_rate");
   let vatAmount: number | null = null;
   let quoteTotal = subtotal;
@@ -156,7 +156,7 @@ export function calculateMargin(input: MarginInput): MarginResult {
   if (vatRate !== null && (vatRate < 0 || vatRate >= 100)) {
     vatRate = null;
     result.warnings.push(
-      "The configured VAT rate was outside 0–99 and was ignored — invalid configuration is never silently applied. The quote is produced without a VAT line.",
+      "The configured VAT rate was outside 0–99 and was ignored: invalid configuration is never silently applied. The quote is produced without a VAT line.",
     );
   }
   if (vatRate === null) {
@@ -171,7 +171,7 @@ export function calculateMargin(input: MarginInput): MarginResult {
       detail:
         vatAmount > 0
           ? `₦${subtotal.toLocaleString()} × ${vatRate}% = ₦${vatAmount.toLocaleString()} VAT (configured rate, never guessed).`
-          : `Configured VAT rate is 0% — no VAT line.`,
+          : `Configured VAT rate is 0%: no VAT line.`,
     });
   }
 

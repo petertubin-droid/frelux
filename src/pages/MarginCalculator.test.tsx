@@ -102,12 +102,12 @@ describe("MarginCalculator page", () => {
     expect((select as HTMLSelectElement).value).toBe("p-1");
     expect(
       screen.getByRole("option", {
-        name: /Standard finishing — 25% markup on cost/,
+        name: /Standard finishing: 25% markup on cost/,
       }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("option", {
-        name: /Premium margin — 30% margin on price/,
+        name: /Premium margin: 30% margin on price/,
       }),
     ).toBeInTheDocument();
   });

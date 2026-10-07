@@ -105,7 +105,7 @@ export function calculateHeatComfort(
   const st = input.surface_type;
   if (st !== "roof" && st !== "wall") {
     result.warnings.push(
-      "Surface type must be 'roof' or 'wall' — the engine never scores an unknown surface.",
+      "Surface type must be 'roof' or 'wall': the engine never scores an unknown surface.",
     );
     return result;
   }
@@ -124,7 +124,7 @@ export function calculateHeatComfort(
   const propCat = input.proposed_category?.trim();
   if (!curCat || !propCat) {
     result.warnings.push(
-      "Both a current and a proposed finish must be selected — the engine never scores a blank choice.",
+      "Both a current and a proposed finish must be selected: the engine never scores a blank choice.",
     );
     return result;
   }
@@ -143,12 +143,12 @@ export function calculateHeatComfort(
 
   if (irradiance === null || irradiance <= 0) {
     result.warnings.push(
-      "No valid solar_irradiance_kwh_per_sqm_day rule is configured — the reflectance comparison cannot be converted into energy. FRELUX never invents a climate.",
+      "No valid solar_irradiance_kwh_per_sqm_day rule is configured: the reflectance comparison cannot be converted into energy. FRELUX never invents a climate.",
     );
     return result;
   }
 
-  // ── 1. Look up both albedos — configured factors only, never assumed ──
+  // ── 1. Look up both albedos - configured factors only, never assumed ──
   const curKey = `${st}:${curCat}`;
   const propKey = `${st}:${propCat}`;
   const curFactor = input.factors?.[curKey];
@@ -156,13 +156,13 @@ export function calculateHeatComfort(
 
   if (!curFactor || !Number.isFinite(Number(curFactor.solar_reflectance))) {
     result.warnings.push(
-      `No albedo is configured for the current finish '${curCat}' on a ${st} — the engine never assumes a reflectance. Configure the factor in the admin pane first.`,
+      `No albedo is configured for the current finish '${curCat}' on a ${st}: the engine never assumes a reflectance. Configure the factor in the admin pane first.`,
     );
     return result;
   }
   if (!propFactor || !Number.isFinite(Number(propFactor.solar_reflectance))) {
     result.warnings.push(
-      `No albedo is configured for the proposed finish '${propCat}' on a ${st} — the engine never assumes a reflectance. Configure the factor in the admin pane first.`,
+      `No albedo is configured for the proposed finish '${propCat}' on a ${st}: the engine never assumes a reflectance. Configure the factor in the admin pane first.`,
     );
     return result;
   }
@@ -171,14 +171,14 @@ export function calculateHeatComfort(
   const propAlbedo = Number(propFactor.solar_reflectance);
   if (curAlbedo < 0 || curAlbedo > 1 || propAlbedo < 0 || propAlbedo > 1) {
     result.warnings.push(
-      "A configured albedo lies outside the physical range 0–1. Fix the factor in the admin pane — the engine never clamps data to force an answer.",
+      "A configured albedo lies outside the physical range 0–1. Fix the factor in the admin pane: the engine never clamps data to force an answer.",
     );
     return result;
   }
   result.current_albedo = curAlbedo;
   result.proposed_albedo = propAlbedo;
 
-  // ── 2. Absorbed fractions — the honest physics-lite ──
+  // ── 2. Absorbed fractions - the honest physics-lite ──
   const curAbsorbed = roundTo(1 - curAlbedo, decimals);
   const propAbsorbed = roundTo(1 - propAlbedo, decimals);
   result.current_absorbed_fraction = curAbsorbed;
@@ -188,7 +188,7 @@ export function calculateHeatComfort(
     detail: `Current '${curCat}' absorbs ${curAbsorbed} of incident solar energy (albedo ${curAlbedo}); proposed '${propCat}' absorbs ${propAbsorbed} (albedo ${propAlbedo}). Both from configured factors, never assumed.`,
   });
 
-  // ── 3. Daily energy delta — from the configured irradiance rule ──
+  // ── 3. Daily energy delta - from the configured irradiance rule ──
   const deltaKwh = roundTo(
     area * irradiance * (propAlbedo - curAlbedo),
     decimals,
@@ -196,10 +196,10 @@ export function calculateHeatComfort(
   result.daily_energy_delta_kwh = deltaKwh;
   result.steps.push({
     label: "Daily energy delta",
-    detail: `${area} m² × ${irradiance} kWh/m²/day (configured rule) × (${propAlbedo} − ${curAlbedo}) = ${deltaKwh} kWh/day. Positive means less solar energy absorbed — a cooling benefit.`,
+    detail: `${area} m² × ${irradiance} kWh/m²/day (configured rule) × (${propAlbedo} − ${curAlbedo}) = ${deltaKwh} kWh/day. Positive means less solar energy absorbed: a cooling benefit.`,
   });
 
-  // ── 4. Reduction percentage — null on a zero base, never a fake number ──
+  // ── 4. Reduction percentage - null on a zero base, never a fake number ──
   if (curAbsorbed > 0) {
     const pct = roundTo(
       ((propAbsorbed - curAbsorbed) / curAbsorbed) * -100,
@@ -208,7 +208,7 @@ export function calculateHeatComfort(
     result.reduction_percent = pct;
   } else {
     result.warnings.push(
-      "The current finish already reflects all incident solar energy (albedo 1), so no percentage reduction is computable — the delta alone is reported.",
+      "The current finish already reflects all incident solar energy (albedo 1), so no percentage reduction is computable: the delta alone is reported.",
     );
   }
 
@@ -221,7 +221,7 @@ export function calculateHeatComfort(
 
   if (propAlbedo < curAlbedo) {
     result.warnings.push(
-      `The proposed finish '${propCat}' has a LOWER albedo than the current one — it absorbs more heat, making the space warmer, not cooler. Reported honestly, never spun as a benefit.`,
+      `The proposed finish '${propCat}' has a LOWER albedo than the current one: it absorbs more heat, making the space warmer, not cooler. Reported honestly, never spun as a benefit.`,
     );
   }
 
@@ -235,7 +235,7 @@ export function calculateHeatComfort(
     result.meaningful_benefit = frac >= threshold;
     result.steps.push({
       label: "Meaningful benefit",
-      detail: `Absorbed-energy reduction ${result.reduction_percent}% vs the admin threshold of ${threshold * 100}% — ${
+      detail: `Absorbed-energy reduction ${result.reduction_percent}% vs the admin threshold of ${threshold * 100}%: ${
         result.meaningful_benefit
           ? "a meaningful cooling benefit."
           : "below the configured threshold for a meaningful benefit."

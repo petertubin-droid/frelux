@@ -1,7 +1,7 @@
 // =========================================================
 // PREDICTIVE INTELLIGENCE, SPEND MATH TESTS (§12)
 //
-// Pure deterministic sums over real rows — every expected value
+// Pure deterministic sums over real rows - every expected value
 // below was computed by hand from the fixture rows before the
 // test was written. Proxies are explicitly tested AS proxies.
 // =========================================================

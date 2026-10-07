@@ -1,12 +1,12 @@
 // =========================================================
-// FRELUX Wall Finishing — assembly override application.
+// FRELUX Wall Finishing - assembly override application.
 //
 // A wall's finishing assembly is a data template; the user can
 // remove layers, add them back and reorder them. This module is
 // the SINGLE place that applies those overrides so the estimator
 // loop, the project aggregate and the checklists all agree on
 // the effective layer sequence. Everything invalid produces a
-// loud warning — never a silent guess.
+// loud warning - never a silent guess.
 // =========================================================
 
 import type {
@@ -26,7 +26,7 @@ export interface ResolvedAssemblyLayers {
 
 /**
  * Apply user overrides (remove / add back / reorder) to an assembly
- * template. Pure and synchronous — the estimator calls it once per
+ * template. Pure and synchronous - the estimator calls it once per
  * wall so UI, aggregate and checklists share one layer list.
  */
 export function resolveAssemblyLayers(
@@ -45,7 +45,7 @@ export function resolveAssemblyLayers(
   );
   for (const id of new Set(unknown)) {
     warnings.push(
-      `Assembly '${assembly.name}': unknown layer '${id}' in overrides — ignored.`,
+      `Assembly '${assembly.name}': unknown layer '${id}' in overrides: ignored.`,
     );
   }
 
@@ -57,7 +57,7 @@ export function resolveAssemblyLayers(
   for (const id of added.filter((id) => templateIds.has(id))) {
     if (layers.some((l) => l.id === id)) {
       warnings.push(
-        `Assembly '${assembly.name}': layer '${id}' is already present — duplicate add ignored.`,
+        `Assembly '${assembly.name}': layer '${id}' is already present: duplicate add ignored.`,
       );
       continue;
     }
@@ -88,7 +88,7 @@ export function resolveAssemblyLayers(
     layers = [...layers].sort((a, b) => rank(a.id) - rank(b.id));
   }
 
-  // flag layers whose final position differs from the template —
+  // flag layers whose final position differs from the template -
   // the UI shows a small 'edited: order' indicator for them
   const reorderedIds = new Set<string>();
   if (order.length > 0) {

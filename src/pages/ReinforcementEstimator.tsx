@@ -43,14 +43,14 @@ import type {
 type LenField = "len_12mm_m" | "len_16mm_m" | "len_20mm_m" | "len_25mm_m";
 
 const LEN_LABELS: Record<LenField, string> = {
-  len_12mm_m: "12 mm rebar — total cutting length (m)",
-  len_16mm_m: "16 mm rebar — total cutting length (m)",
-  len_20mm_m: "20 mm rebar — total cutting length (m)",
-  len_25mm_m: "25 mm rebar — total cutting length (m)",
+  len_12mm_m: "12 mm rebar: total cutting length (m)",
+  len_16mm_m: "16 mm rebar: total cutting length (m)",
+  len_20mm_m: "20 mm rebar: total cutting length (m)",
+  len_25mm_m: "25 mm rebar: total cutting length (m)",
 };
 
 function fmtN(v: number | null): string {
-  return v === null ? "—" : v.toLocaleString();
+  return v === null ? "N/A" : v.toLocaleString();
 }
 
 export default function ReinforcementEstimator() {
@@ -72,9 +72,9 @@ export default function ReinforcementEstimator() {
 
   useSeo({
     title:
-      "Reinforcement Estimator — Rebar Lengths, Tonnage & Binding Wire | FRELUX PROJECT CALC",
+      "Reinforcement Estimator: Rebar Lengths, Tonnage & Binding Wire | FRELUX PROJECT CALC",
     description:
-      "Deterministic reinforcement material estimation: enter your bar schedule cutting lengths per diameter and get whole 12 m stock lengths, BS 4449 tonnage and binding wire with the lap allowance and every step shown. Estimation only — it does not design reinforcement.",
+      "Deterministic reinforcement material estimation: enter your bar schedule cutting lengths per diameter and get whole 12 m stock lengths, BS 4449 tonnage and binding wire with the lap allowance and every step shown. Estimation only: it does not design reinforcement.",
   });
 
   const [priceMap, setPriceMap] = useState<ReinforcementPriceMap>({});
@@ -203,7 +203,7 @@ export default function ReinforcementEstimator() {
       }
       setSaveState(
         result.incomplete
-          ? `Saved as draft (${ref}) — complete the missing inputs for a final estimate.`
+          ? `Saved as draft (${ref}): complete the missing inputs for a final estimate.`
           : `Saved (${ref}). Import it into a BOQ or project from your estimates.`,
       );
       track("calculator_completed", { calculator: "reinforcement_saved", ref });
@@ -249,14 +249,14 @@ export default function ReinforcementEstimator() {
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
         <h3 className="mb-1 font-semibold">
-          Bar schedule — cutting lengths per diameter
+          Bar schedule: cutting lengths per diameter
         </h3>
         <p className="mb-2 text-xs text-muted-foreground">
           The engine never invents steel. Read the total cutting length per
           diameter from your bar bending schedule (or your engineer's estimate).
           Leave a diameter blank if it isn't used; enter 0 only when you
           explicitly mean none. Bar sizes, spacing and laps are structural
-          engineering decisions that must come from your engineer — this tool
+          engineering decisions that must come from your engineer: this tool
           only converts your schedule into purchasable quantities.
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -390,14 +390,14 @@ export default function ReinforcementEstimator() {
                     .map((l) => (
                       <li key={l.key}>
                         {l.label}: PRICE NOT CONFIGURED in the material database
-                        — the quantity is shown, but no price was invented.
+                        : the quantity is shown, but no price was invented.
                       </li>
                     ))}
                 </ul>
               </>
             ) : (
               <strong>
-                Complete estimate — every line sized and priced from the shared
+                Complete estimate: every line sized and priced from the shared
                 material database.
               </strong>
             )}
@@ -425,7 +425,7 @@ export default function ReinforcementEstimator() {
                     <td className="p-3 font-medium">{l.label}</td>
                     <td className="p-3" data-testid={`qty-${l.key}`}>
                       {l.quantity === null
-                        ? "— provide schedule length"
+                        ? "(provide schedule length)"
                         : fmtN(l.quantity)}
                     </td>
                     <td className="p-3 text-muted-foreground">{l.unit}</td>
@@ -442,7 +442,7 @@ export default function ReinforcementEstimator() {
                       )}
                     </td>
                     <td className="p-3 font-medium">
-                      {l.line_total === null ? "—" : `₦${fmtN(l.line_total)}`}
+                      {l.line_total === null ? "N/A" : `₦${fmtN(l.line_total)}`}
                     </td>
                   </tr>
                 ))}
@@ -469,7 +469,7 @@ export default function ReinforcementEstimator() {
               <p className="text-sm text-muted-foreground">Material subtotal</p>
               <p className="text-xl font-semibold">
                 {result.material_subtotal === null
-                  ? "— prices/inputs missing"
+                  ? "(prices/inputs missing)"
                   : `₦${fmtN(result.material_subtotal)}`}
               </p>
             </div>
@@ -479,7 +479,7 @@ export default function ReinforcementEstimator() {
               </p>
               <p className="text-xl font-semibold">
                 {result.total_tonnage_kg === null
-                  ? "—"
+                  ? "N/A"
                   : `${fmtN(result.total_tonnage_kg)} kg (${fmtN(
                       Math.round((result.total_tonnage_kg / 1000) * 1000) /
                         1000,
@@ -498,7 +498,7 @@ export default function ReinforcementEstimator() {
               <p className="text-sm text-muted-foreground">Grand total</p>
               <p className="text-xl font-semibold">
                 {result.grand_total === null
-                  ? "—"
+                  ? "N/A"
                   : `₦${fmtN(result.grand_total)}`}
               </p>
             </div>
@@ -530,7 +530,7 @@ export default function ReinforcementEstimator() {
           <li>
             Tonnage is computed from true cutting lengths using BS 4449 nominal
             mass per metre (12 mm 0.888, 16 mm 1.578, 20 mm 2.466, 25 mm 3.854
-            kg/m) — for delivery planning, not for pricing.
+            kg/m): for delivery planning, not for pricing.
           </li>
           <li>
             Binding wire follows the admin's visible planning rule (kg per
@@ -540,7 +540,7 @@ export default function ReinforcementEstimator() {
           </li>
           <li>
             This is material ESTIMATION from your schedule. It does NOT design
-            reinforcement — bar sizes, spacing and laps must come from a
+            reinforcement: bar sizes, spacing and laps must come from a
             structural engineer.
           </li>
         </ul>

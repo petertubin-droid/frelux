@@ -7,14 +7,14 @@
  *
  * House rules, identical to every other Frelux engine:
  *  - A contractor with ZERO verified jobs is REFUSED with
- *    "insufficient verified history". Never scored zero —
+ *    "insufficient verified history". Never scored zero -
  *    an unverified history is not a bad history.
  *  - Invalid stats (on_time > verified, error % outside 0–100)
  *    are REFUSED. Never clamped, never guessed.
  *  - Missing or invalid scoring rules are REFUSED. The engine
  *    never invents weights, thresholds or penalties.
  *  - The dispute penalty is capped at the base score, so the
- *    score can never go below zero — stated openly in the
+ *    score can never go below zero - stated openly in the
  *    breakdown, not hidden.
  */
 
@@ -96,7 +96,7 @@ export function calculateCreditScore(
   }
   if (verified_jobs === 0) {
     return refuse([
-      "This contractor has no verified jobs on record, so there is nothing a client or lender can check yet — insufficient verified history, not a zero score. Add verified job records first.",
+      "This contractor has no verified jobs on record, so there is nothing a client or lender can check yet: insufficient verified history, not a zero score. Add verified job records first.",
     ]);
   }
   if (!int(on_time_jobs) || on_time_jobs < 0) {
@@ -106,7 +106,7 @@ export function calculateCreditScore(
   }
   if (on_time_jobs > verified_jobs) {
     return refuse([
-      `On-time jobs (${on_time_jobs}) cannot exceed verified jobs (${verified_jobs}). The engine refuses to score from an impossible record — fix the profile.`,
+      `On-time jobs (${on_time_jobs}) cannot exceed verified jobs (${verified_jobs}). The engine refuses to score from an impossible record: fix the profile.`,
     ]);
   }
   if (!int(dispute_count) || dispute_count < 0) {
@@ -120,7 +120,7 @@ export function calculateCreditScore(
     avg_estimate_error_pct > 100
   ) {
     return refuse([
-      `Average estimate error (${avg_estimate_error_pct}%) must be between 0 and 100. The engine refuses to score from an invalid record — fix the profile.`,
+      `Average estimate error (${avg_estimate_error_pct}%) must be between 0 and 100. The engine refuses to score from an invalid record: fix the profile.`,
     ]);
   }
 
@@ -143,7 +143,7 @@ export function calculateCreditScore(
   const weightSum = weightKeys.reduce((a, k) => a + weights[k], 0);
   if (weightSum > 1) {
     return refuse([
-      `The configured scoring weights sum to ${weightSum}, which exceeds 1. The engine refuses to score with weights that can produce over 100 — fix the rules in the admin config.`,
+      `The configured scoring weights sum to ${weightSum}, which exceeds 1. The engine refuses to score with weights that can produce over 100: fix the rules in the admin config.`,
     ]);
   }
 
@@ -231,7 +231,7 @@ export function calculateCreditScore(
 
   if (weightSum < 1) {
     warnings.push(
-      `The configured scoring weights sum to ${+weightSum.toFixed(3)}, less than 1 — scores are scaled down accordingly. This is reported, not silently compensated.`,
+      `The configured scoring weights sum to ${+weightSum.toFixed(3)}, less than 1: scores are scaled down accordingly. This is reported, not silently compensated.`,
     );
   }
 

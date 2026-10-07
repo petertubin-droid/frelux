@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX Wall Finishing — worldwide template resolver.
+// FRELUX Wall Finishing - worldwide template resolver.
 //
 // FRELUX is not limited to any country: EVERY market in the
 // country selector gets a wall-finishing starting template.
@@ -84,7 +84,7 @@ export function resolveWallFinCountry(
     marketCode,
     native: false,
     inheritedNotice:
-      `Wall-finishing templates for ${marketCode} are not yet native — ` +
+      `Wall-finishing templates for ${marketCode} are not yet native: ` +
       `starting from the ${profile.name} (${profile.code}) template. ` +
       `Every layer, material, coverage and price stays fully editable.`,
   };

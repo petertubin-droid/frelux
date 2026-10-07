@@ -74,7 +74,7 @@ const FULL_PRICES = {
 // ─────────────────────────────────────────────
 
 describe("parsePlumbingRules", () => {
-  it("defaults waste to zero and allowances to null — nothing silently invented", () => {
+  it("defaults waste to zero and allowances to null: nothing silently invented", () => {
     const parsed = parsePlumbingRules([]);
     expect(parsed.pipe_waste_pct).toBe(0);
     expect(parsed.elbow_per_fixture).toBeNull();
@@ -159,7 +159,7 @@ describe("pipe categories", () => {
     expect(withHot.lines.find((l) => l.key === "pipe_hot")?.quantity).toBe(22);
   });
 
-  it("zero run means explicitly none — the line is omitted, not marked missing", () => {
+  it("zero run means explicitly none: the line is omitted, not marked missing", () => {
     const r = calculatePlumbing(
       makeInput({ drainage_run_m: 0 }),
       rules,
@@ -291,7 +291,7 @@ describe("labour", () => {
   it("mode none excludes labour explicitly", () => {
     const r = calculatePlumbing(makeInput(), rules, FULL_PRICES);
     expect(r.labour_total).toBe(0);
-    expect(r.steps.some((s) => /Excluded — not added/.test(s.detail))).toBe(
+    expect(r.steps.some((s) => /Excluded: not added/.test(s.detail))).toBe(
       true,
     );
   });

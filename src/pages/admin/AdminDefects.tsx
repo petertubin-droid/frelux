@@ -223,7 +223,7 @@ export default function AdminDefects() {
     }
     if (!causeForm.root_cause.trim() || !causeForm.fix_summary.trim()) {
       setError(
-        "Root cause (the diagnosis) and fix summary are both required — the engine never ships a cause without them.",
+        "Root cause (the diagnosis) and fix summary are both required: the engine never ships a cause without them.",
       );
       return;
     }
@@ -236,7 +236,7 @@ export default function AdminDefects() {
       (!Number.isFinite(consumption) || consumption <= 0)
     ) {
       setError(
-        "Consumption per sqm must be positive — or leave it empty for a qualitative fix (the engine never guesses quantities).",
+        "Consumption per sqm must be positive: or leave it empty for a qualitative fix (the engine never guesses quantities).",
       );
       return;
     }
@@ -292,8 +292,8 @@ export default function AdminDefects() {
     <div className="space-y-6">
       {selected ? (
         <AdminHeader
-          title={`Causes — ${selected.symptom_label}`}
-          subtitle="Root causes for this symptom, ranked by your configured order (sort order = likelihood, your editorial call). A cause carries a fix quantity only when you configure a consumption rate — the engine never invents one."
+          title={`Causes: ${selected.symptom_label}`}
+          subtitle="Root causes for this symptom, ranked by your configured order (sort order = likelihood, your editorial call). A cause carries a fix quantity only when you configure a consumption rate: the engine never invents one."
           action={
             <div className="flex gap-2">
               <AdminButton onClick={() => setSelected(null)}>
@@ -416,7 +416,7 @@ export default function AdminDefects() {
         ) : causes.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
             No causes configured for this symptom yet. The engine refuses to
-            guess a diagnosis — add at least one root cause to make it
+            guess a diagnosis: add at least one root cause to make it
             diagnosable.
           </div>
         ) : (
@@ -549,7 +549,7 @@ export default function AdminDefects() {
         title={
           editingCause
             ? `Edit ${editingCause.cause_label}`
-            : `Add cause — ${selected?.symptom_label ?? ""}`
+            : `Add cause: ${selected?.symptom_label ?? ""}`
         }
       >
         <div className="space-y-4">
@@ -573,7 +573,7 @@ export default function AdminDefects() {
               />
             </AdminField>
           </div>
-          <AdminField label="Root cause * — the diagnosis text">
+          <AdminField label="Root cause *: the diagnosis text">
             <AdminTextarea
               value={causeForm.root_cause}
               onChange={(e) =>
@@ -611,7 +611,7 @@ export default function AdminDefects() {
               />
             </AdminField>
           </div>
-          <AdminField label="Fix summary * — what to do about it">
+          <AdminField label="Fix summary *: what to do about it">
             <AdminTextarea
               value={causeForm.fix_summary}
               onChange={(e) =>
@@ -621,7 +621,7 @@ export default function AdminDefects() {
           </AdminField>
           <div className="rounded-lg border border-border bg-muted/30 p-3">
             <p className="mb-2 text-xs font-medium text-muted-foreground">
-              Fix quantity (optional — leave empty for a qualitative fix; the
+              Fix quantity (optional: leave empty for a qualitative fix; the
               engine never guesses quantities)
             </p>
             <div className="grid gap-4 sm:grid-cols-3">

@@ -38,7 +38,7 @@ export function formatCurrency(value: number, currency = "₦"): string {
 // Kept as a named export for the ~115 existing call sites; naive string-join
 // previously let conflicting utilities (e.g. `items-center` + `items-start`,
 // `bg-primary` + `bg-primary/5`) both reach the DOM, where CSS SOURCE ORDER
-// (not JSX arg order) silently decided which one applied — the cause of the
+// (not JSX arg order) silently decided which one applied - the cause of the
 // "button overlay" rendering bugs across the admin (see AdminButton).
 export function classNames(
   ...classes: (string | false | null | undefined)[]

@@ -107,7 +107,7 @@ export default function Home() {
     title:
       "FRELUX: Construction Calculators, Cost Estimators & AI Building Tools",
     description:
-      "Know exactly what your build needs. Free construction calculators and cost estimators for every trade — paint, tiles, structure, solar, and full builds — with AI photo estimating, BOQs, and verified market prices in multiple languages.",
+      "Know exactly what your build needs. Free construction calculators and cost estimators for every trade: paint, tiles, structure, solar, and full builds: with AI photo estimating, BOQs, and verified market prices in multiple languages.",
     canonicalPath: "/",
     ogType: "website",
     keywords:

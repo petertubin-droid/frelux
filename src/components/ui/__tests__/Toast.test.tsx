@@ -9,7 +9,7 @@ import { describe, expect, it } from "vitest";
 // fresh success/error closures on every render. Any consumer
 // that puts success/error in a useCallback/useEffect dep list
 // (DeveloperPortal.load, and others) got a new function
-// whenever a toast appeared or auto-dismissed — refiring
+// whenever a toast appeared or auto-dismissed - refiring
 // their effects (a toast literally triggered a full API
 // reload on the portal) and racing button state mid-click.
 //
@@ -51,11 +51,11 @@ describe("ToastProvider context identity", () => {
     await act(async () => {
       getByRole("button", { name: /probe/i }).click();
     });
-    // The toast rendered and the provider re-rendered — but
+    // The toast rendered and the provider re-rendered - but
     // the consumer must NOT have: a stable context value lets
     // React bail out of propagating the re-render. The OLD
     // code re-rendered the consumer with a fresh value object
-    // (new success/error closures) on every toast change —
+    // (new success/error closures) on every toast change -
     // exactly what refired effect-dependent reloads elsewhere.
     expect(getAllByRole("alert").length).toBeGreaterThanOrEqual(1);
     expect(identities.length).toBe(1);

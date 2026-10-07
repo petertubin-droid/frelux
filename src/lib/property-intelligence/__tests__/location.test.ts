@@ -5,7 +5,7 @@
 //   * a country WITH a profile → resolved, profile relayed
 //   * a country WITHOUT a profile → unsupported, explicitly
 //     stating no other region's data was substituted
-//   * coordinates alone are NOT country detection — reverse
+//   * coordinates alone are NOT country detection - reverse
 //     geocoding is not implemented, so → requires_confirmation
 //   * nothing → requires_confirmation, never a guess
 // =========================================================

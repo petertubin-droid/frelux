@@ -2,7 +2,7 @@
  * Flooring Engine (Tier 2, Engine 4)
  *
  * Deterministic plank/sheet flooring MATERIAL estimation
- * (laminate, vinyl, parquet — the tile and screeding engines
+ * (laminate, vinyl, parquet - the tile and screeding engines
  * already exist separately).
  *
  *   USER: floor area (m²), skirting perimeter (m), the flooring
@@ -223,7 +223,7 @@ export function calculateFlooring(
     if (input.flooring_type === "laminate") {
       if (rules.laminate_pack_coverage_m2 === null) {
         missing.push(
-          "Laminate packs: no pack coverage configured (laminate_pack_coverage_m2). Set it from the pack the admin prices — quantities will not be guessed.",
+          "Laminate packs: no pack coverage configured (laminate_pack_coverage_m2). Set it from the pack the admin prices: quantities will not be guessed.",
         );
       } else {
         const packs = ceilU(withWaste / rules.laminate_pack_coverage_m2);
@@ -268,7 +268,7 @@ export function calculateFlooring(
     }
   } else if (input.floor_area_m2 === null) {
     missing.push(
-      "Floor area: enter the area to cover — the engine will not assume it.",
+      "Floor area: enter the area to cover: the engine will not assume it.",
     );
     lines.push({
       key: "floor_covering",
@@ -276,7 +276,7 @@ export function calculateFlooring(
       material_slug: slug,
       quantity: null,
       quantity_source: "missing",
-      unit: "—",
+      unit: "N/A",
       detail: "Waiting for your floor area.",
       unit_price: price,
       line_total: null,
@@ -373,7 +373,7 @@ export function calculateFlooring(
   } else if (input.skirting_run_m === null) {
     const sPrice = prices["flooring-skirting-m"] ?? null;
     missing.push(
-      "Skirting: enter the skirting run (room perimeter) — or 0 if you don't need it.",
+      "Skirting: enter the skirting run (room perimeter): or 0 if you don't need it.",
     );
     lines.push({
       key: "skirting",
@@ -388,7 +388,7 @@ export function calculateFlooring(
     });
   }
 
-  // ── 5. Labour — separate, never automatic ──
+  // ── 5. Labour - separate, never automatic ──
   let labourTotal = 0;
   const area = input.floor_area_m2 ?? 0;
   if (input.labour.mode === "per_m2") {
@@ -420,11 +420,11 @@ export function calculateFlooring(
   } else {
     steps.push({
       label: "Labour",
-      detail: "Excluded — not added to the total.",
+      detail: "Excluded: not added to the total.",
     });
   }
 
-  // ── 6. Totals — never fabricated ──
+  // ── 6. Totals - never fabricated ──
   const pricedLines = lines.filter((l) => l.line_total !== null);
   const pricedSubtotal = money(
     pricedLines.reduce((s, l) => s + (l.line_total ?? 0), 0),
@@ -439,7 +439,7 @@ export function calculateFlooring(
   for (const l of lines) {
     if (l.quantity !== null && l.unit_price === null) {
       warnings.push(
-        `${l.label}: PRICE NOT CONFIGURED in the material database — quantity shown, no price invented.`,
+        `${l.label}: PRICE NOT CONFIGURED in the material database: quantity shown, no price invented.`,
       );
     }
   }

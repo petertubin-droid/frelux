@@ -6,7 +6,7 @@
  * months) is applied to the project value.
  *
  * Philosophy (unchanged): the engine refuses a template whose
- * percentages do not sum to exactly 100% — it never silently
+ * percentages do not sum to exactly 100% - it never silently
  * normalises or guesses the missing share. Dates come from the
  * project start + milestone offsets, nothing is invented.
  */
@@ -107,7 +107,7 @@ export function calculateCashFlow(input: CashFlowInput): CashFlowResult {
   const total = Number(input.total_amount);
   if (!Number.isFinite(total) || total <= 0) {
     result.warnings.push(
-      "Project total must be a positive number — the engine does not schedule payments for a zero or invalid estimate.",
+      "Project total must be a positive number: the engine does not schedule payments for a zero or invalid estimate.",
     );
     return result;
   }
@@ -125,7 +125,7 @@ export function calculateCashFlow(input: CashFlowInput): CashFlowResult {
 
   if (!Array.isArray(input.milestones) || input.milestones.length === 0) {
     result.warnings.push(
-      "No payment milestones configured — nothing to schedule.",
+      "No payment milestones configured: nothing to schedule.",
     );
     return result;
   }
@@ -153,21 +153,21 @@ export function calculateCashFlow(input: CashFlowInput): CashFlowResult {
 
   if (invalidLines > 0) {
     result.warnings.push(
-      `${invalidLines} milestone${invalidLines === 1 ? "" : "s"} had a missing label, non-positive percent or negative offset and were excluded — payment schedules are never guessed.`,
+      `${invalidLines} milestone${invalidLines === 1 ? "" : "s"} had a missing label, non-positive percent or negative offset and were excluded: payment schedules are never guessed.`,
     );
   }
 
   if (valid.length === 0) {
     result.warnings.push(
-      "No valid milestones remained after validation — nothing to schedule.",
+      "No valid milestones remained after validation: nothing to schedule.",
     );
     return result;
   }
 
-  // Percentages must sum to exactly the configured total — never silently normalised.
+  // Percentages must sum to exactly the configured total - never silently normalised.
   if (Math.abs(percentSum - requiredSum) > 1e-9) {
     result.warnings.push(
-      `Milestone percentages sum to ${percentSum}% but must sum to exactly ${requiredSum}% — the template was refused instead of being silently adjusted.`,
+      `Milestone percentages sum to ${percentSum}% but must sum to exactly ${requiredSum}%: the template was refused instead of being silently adjusted.`,
     );
     return result;
   }

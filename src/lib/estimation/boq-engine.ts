@@ -6,7 +6,7 @@
  * Philosophy (unchanged): the engine never guesses. Commercial
  * rates (VAT, contingency) come from estimation_calc_rules
  * (admin-editable). A quote without configured rates is produced
- * without those lines plus a warning — never with an assumed rate.
+ * without those lines plus a warning - never with an assumed rate.
  * Every line item carries its source reference, so a quote is
  * replayable and auditable end-to-end.
  */
@@ -130,7 +130,7 @@ export function generateBoq(input: BoqInput): BoqResult {
     }
     if (!item.source_estimate_ref?.trim()) {
       result.warnings.push(
-        `Line '${item.description}' has no source reference — every BOQ line must be traceable to its estimate.`,
+        `Line '${item.description}' has no source reference: every BOQ line must be traceable to its estimate.`,
       );
       return result;
     }
@@ -175,7 +175,7 @@ export function generateBoq(input: BoqInput): BoqResult {
       label: "Contingency",
       detail: contingencyAmount
         ? `${contingencyRate}% of subtotal = ${contingencyAmount.toLocaleString()} ${input.currency}.`
-        : `Configured rate is 0% — no contingency line.`,
+        : `Configured rate is 0%: no contingency line.`,
     });
   }
 
@@ -206,7 +206,7 @@ export function generateBoq(input: BoqInput): BoqResult {
       label: "VAT",
       detail: vatAmount
         ? `${vatRate}% of ${baseForVat.toLocaleString()} = ${vatAmount.toLocaleString()} ${input.currency}.`
-        : `Configured rate is 0% — no VAT line.`,
+        : `Configured rate is 0%: no VAT line.`,
     });
   }
 
@@ -267,7 +267,7 @@ export function boqToHtml(
     rate === null || amount === null
       ? ""
       : `<tr><td colspan="4">${label} (${rate}%)</td><td>NGN ${amount.toLocaleString()}</td></tr>`;
-  return `<!DOCTYPE html><html><head><title>BOQ ${quoteRef} — ${input.title}</title><style>
+  return `<!DOCTYPE html><html><head><title>BOQ ${quoteRef}: ${input.title}</title><style>
     body{font-family:system-ui,sans-serif;padding:32px;color:#111}
     h1{font-size:20px;margin:0}h2{font-size:13px;font-weight:600;margin-top:4px;color:#555}
     .meta{display:flex;justify-content:space-between;margin-top:20px;font-size:12px}
@@ -277,7 +277,7 @@ export function boqToHtml(
     .grand td{background:#111;color:#fff;font-weight:700}
     .warn{font-size:10px;color:#b45309;margin-top:12px}
   </style></head><body>
-    <h1>FRELUX — Bill of Quantities</h1>
+    <h1>FRELUX: Bill of Quantities</h1>
     <h2>${input.title}</h2>
     <div class="meta">
       <div><b>Quote Ref:</b> ${quoteRef}<br/><b>Client:</b> ${input.client_name}${input.client_contact ? `<br/><b>Contact:</b> ${input.client_contact}` : ""}</div>

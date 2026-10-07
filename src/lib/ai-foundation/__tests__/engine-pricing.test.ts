@@ -95,7 +95,7 @@ describe("resolveEnginePrice", () => {
     expect(resolved!.priceSource).toBe("Home Depot scan");
   });
 
-  it("returns null when the market has no verified price — never guesses", async () => {
+  it("returns null when the market has no verified price: never guesses", async () => {
     resolveMaterialPriceByRole.mockResolvedValue(null);
     const resolved = await resolveEnginePrice("interior-paint", "IN", "NGN");
     expect(resolved).toBeNull();

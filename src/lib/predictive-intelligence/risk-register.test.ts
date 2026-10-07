@@ -117,7 +117,7 @@ describe("buildRiskRegister", () => {
     expect(risks.find((r) => r.category === "Cost")?.severity).toBe("medium");
   });
 
-  it("insufficient analyzers contribute nothing — no fake risks from missing data", () => {
+  it("insufficient analyzers contribute nothing: no fake risks from missing data", () => {
     const { risks } = buildRiskRegister(
       input({
         cost: insufficient("cost_overrun"),

@@ -97,7 +97,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   // useEffect dependency list got a new function every time a
   // toast appeared or auto-dismissed. DeveloperPortal, for
   // example, recreated its load() on every toast change and
-  // its load effect refired — showing a toast triggered a
+  // its load effect refired - showing a toast triggered a
   // full API reload, and the transient busy state disabled
   // buttons mid-click (a CI-only test flake with the same
   // root cause). Memoizing the helpers makes the context
@@ -118,7 +118,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     [toast],
   );
   const info = useCallback(
-    (title: string, message?: string) => toast({ type: "info", title, message }),
+    (title: string, message?: string) =>
+      toast({ type: "info", title, message }),
     [toast],
   );
   const value: ToastContextValue = useMemo(
@@ -153,7 +154,8 @@ export function ToastProvider({ children }: { children: ReactNode }) {
                   <p className="mt-0.5 text-xs opacity-80">{t.message}</p>
                 )}
               </div>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => remove(t.id)}
                 className="shrink-0 rounded-md p-0.5 opacity-60 transition-opacity hover:opacity-100"
                 aria-label="Dismiss notification"

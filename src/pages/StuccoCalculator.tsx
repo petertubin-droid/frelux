@@ -1,7 +1,7 @@
 /**
  * FRELUX Stucco Calculator (Phase 4)
  *
- * Thin wrapper over the shared ConfigurableFinishCalculator — the same
+ * Thin wrapper over the shared ConfigurableFinishCalculator - the same
  * deterministic engine and database configuration model as Mineral
  * Stone (coverage-based, kg/m² and L/m² consumption), pointed at the
  * 'stucco' product category. No duplicated logic.

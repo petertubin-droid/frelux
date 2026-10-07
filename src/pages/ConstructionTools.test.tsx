@@ -22,7 +22,7 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-/** The "Section N of M — Showing X–Y of Z tools" indicator. */
+/** The "Section N of M - Showing X–Y of Z tools" indicator. */
 function sectionIndicator(): string {
   const nav = document.querySelector(
     'nav[aria-label="Tool library sections"] p',

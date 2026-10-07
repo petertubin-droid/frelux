@@ -5,7 +5,7 @@ import {
 } from "@/lib/cookie-consent";
 
 /**
- * Ad-serving consent gate — the Heartsyncx pattern applied to Frelux.
+ * Ad-serving consent gate - the Heartsyncx pattern applied to Frelux.
  *
  * Heartsyncx gates every ad on explicit cookie consent:
  *  - Nothing serves until the visitor has made an explicit consent choice
@@ -16,7 +16,7 @@ import {
  *  - Personalization-heavy networks (Monetag, Adsterra, and every other
  *    third-party ad network) require the `advertising` consent category.
  *
- * Frelux previously injected ad scripts without a consent gate — this
+ * Frelux previously injected ad scripts without a consent gate - this
  * module is the single source of truth for that gate, consumed by AdSlot
  * (in-slot rendering), Layout (site-wide script injection) and the
  * Adsterra Direct Link renderer.

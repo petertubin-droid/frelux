@@ -61,7 +61,7 @@ export default function Footer() {
     <footer
       role="contentinfo"
       aria-label="Site footer"
-      className="relative overflow-hidden border-t border-border/60 bg-muted/50 dark:border-white/5 dark:bg-background"
+      className="neon-edge-soft relative overflow-hidden border-t border-border/60 bg-muted/50 dark:border-white/5 dark:bg-background"
       style={{ contentVisibility: "auto", containIntrinsicSize: "380px" }}
     >
       {/* Subtle top gradient */}
@@ -73,7 +73,7 @@ export default function Footer() {
             <Logo />
             <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
               Plan materials, estimate costs and manage construction projects
-              worldwide — from a single room to an entire building.
+              worldwide: from a single room to an entire building.
             </p>
             <a
               href={whatsappUrl(

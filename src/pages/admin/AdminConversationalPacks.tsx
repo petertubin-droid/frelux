@@ -1,7 +1,7 @@
 /**
  * Admin pane: Conversational Language Packs (Engine 3)
  *
- * Full CRUD over conversational_language_packs — the keyword
+ * Full CRUD over conversational_language_packs - the keyword
  * packs powering language detection and parameter extraction for
  * the WhatsApp-native estimator. Every pack needs a source
  * reference (phrase book / verified chat sample); nothing is
@@ -91,7 +91,7 @@ function validate(f: PackForm): string | null {
   if (kws.length === 0) return "At least one keyword is required.";
   const w = Number(f.weight);
   if (!Number.isFinite(w) || w <= 0)
-    return "Weight must be a positive number — 1 for common words, higher for unambiguous markers.";
+    return "Weight must be a positive number: 1 for common words, higher for unambiguous markers.";
   if (!f.source_reference.trim())
     return "Source reference is required (phrase book or verified chat sample).";
   return null;
@@ -187,7 +187,7 @@ export default function AdminConversationalPacks() {
   return (
     <div className="space-y-4">
       <AdminHeader
-        title="Conversational Estimator — Language Packs"
+        title="Conversational Estimator: Language Packs"
         subtitle="Keyword packs the WhatsApp estimator uses to detect English chat and to extract sizes, coats and regions. Every pack needs a source reference; the engine falls back to its built-in defaults only where a category is unconfigured."
         action={
           <AdminButton onClick={openCreate}>
@@ -273,8 +273,7 @@ export default function AdminConversationalPacks() {
       <h2 className="pt-4 text-lg font-semibold">Recent parses (last 50)</h2>
       <p className="text-sm text-muted-foreground">
         What customers ask and what the engine found. Missing dimensions show up
-        as intent + no estimate — that is the engine asking rather than
-        guessing.
+        as intent + no estimate: that is the engine asking rather than guessing.
       </p>
       <div className="overflow-x-auto rounded-lg border border-border">
         <table className="w-full text-sm">

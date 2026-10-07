@@ -3,7 +3,7 @@
  *
  * Full CRUD over cash_flow_templates. Validation mirrors the
  * engine exactly: milestone percentages must sum to exactly
- * 100%, labels/offsets must be valid — so an admin can never
+ * 100%, labels/offsets must be valid - so an admin can never
  * save a template the engine would have to refuse or guess.
  */
 
@@ -76,7 +76,7 @@ function validate(f: TemplateForm): string | null {
     sum += p;
   }
   if (Math.abs(sum - 100) > 1e-9)
-    return `Milestone percentages sum to ${sum}% — they must sum to exactly 100%. The engine refuses anything else rather than silently adjusting.`;
+    return `Milestone percentages sum to ${sum}%: they must sum to exactly 100%. The engine refuses anything else rather than silently adjusting.`;
   return null;
 }
 
@@ -182,7 +182,7 @@ export default function AdminCashFlowTemplates() {
     <div className="space-y-6">
       <AdminHeader
         title="Cash-Flow Templates"
-        subtitle="Admin-configured payment milestone templates (label, percent, months after start). Percentages must sum to exactly 100% — the engine refuses anything else rather than silently adjusting a payment plan."
+        subtitle="Admin-configured payment milestone templates (label, percent, months after start). Percentages must sum to exactly 100%: the engine refuses anything else rather than silently adjusting a payment plan."
         action={
           <AdminButton onClick={openCreate}>
             <Plus className="mr-2 h-4 w-4" /> Add Template

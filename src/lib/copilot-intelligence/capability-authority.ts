@@ -1,10 +1,10 @@
 // =========================================================
-// ARCHIE GLOBAL INTELLIGENCE — CAPABILITY vs AUTHORITY (§9)
+// ARCHIE GLOBAL INTELLIGENCE - CAPABILITY vs AUTHORITY (§9)
 //
 // ARCHIE's intelligence is NOT suppressed. Instead the
-// architecture separates what ARCHIE CAN DO (capability —
+// architecture separates what ARCHIE CAN DO (capability -
 // bounded only by knowledge and compute) from what ARCHIE IS
-// PERMITTED TO DO (authority — bounded ONLY by the Owner's
+// PERMITTED TO DO (authority - bounded ONLY by the Owner's
 // recorded authorization).
 //
 //   CAPABILITY:  discover, analyze, learn, calculate,
@@ -19,7 +19,7 @@
 // PROTECTED_SURFACES).
 // =========================================================
 
-/** What ARCHIE may do freely — observation & thought. */
+/** What ARCHIE may do freely - observation & thought. */
 export type ArchieCapability =
   | "discover"
   | "crawl"
@@ -97,7 +97,7 @@ export const ALL_CAPABILITIES: readonly ArchieCapability[] = Object.keys(
   CAPABILITY_AUTHORITY_MAP,
 ) as ArchieCapability[];
 
-/** Capabilities are free — ARCHIE may think, learn and
+/** Capabilities are free - ARCHIE may think, learn and
  *  reason without asking. */
 export const FREE_CAPABILITIES: readonly ArchieCapability[] =
   ALL_CAPABILITIES.filter((c) => CAPABILITY_AUTHORITY_MAP[c] === null);
@@ -220,7 +220,7 @@ export function checkAuthority(
     required: action.authority,
     reason:
       `Owner authorization required for "${action.authority}" on scope "${scope}". ` +
-      "ARCHIE may prepare, propose and test — but not execute — until the Owner grants it.",
+      "ARCHIE may prepare, propose and test: but not execute: until the Owner grants it.",
   };
 }
 

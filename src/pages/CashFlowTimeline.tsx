@@ -3,7 +3,7 @@
  *
  * Deterministic phased payment schedule for an estimate total,
  * from admin-configured milestone templates. Percentages must
- * sum to exactly 100% — anything else is refused, never
+ * sum to exactly 100% - anything else is refused, never
  * silently adjusted.
  *
  * - The schedule is produced ONLY by calculateCashFlow.
@@ -36,7 +36,7 @@ export default function CashFlowTimeline() {
     { name: "Cash-Flow Timeline", path: "/cash-flow-timeline" },
   ]);
   useSeo({
-    title: "Cash-Flow Timeline — FRELUX",
+    title: "Cash-Flow Timeline: FRELUX",
     description:
       "Generate a deterministic phased payment schedule for any estimate total from admin-configured milestone templates.",
   });
@@ -91,7 +91,7 @@ export default function CashFlowTimeline() {
             { label: "Cash-Flow Timeline" },
           ]}
           title="Cash-Flow Timeline"
-          subtitle="Phased payment schedule for an estimate total, from admin-configured milestone templates. Milestone percentages must sum to exactly 100% — FRELUX refuses anything else rather than silently adjusting your payment plan."
+          subtitle="Phased payment schedule for an estimate total, from admin-configured milestone templates. Milestone percentages must sum to exactly 100%: FRELUX refuses anything else rather than silently adjusting your payment plan."
         />
 
         {loadError && (
@@ -105,7 +105,7 @@ export default function CashFlowTimeline() {
             <p className="text-sm text-muted-foreground">
               No cash-flow templates configured yet. The admin team defines
               payment milestone structures (e.g. mobilization, mid-project,
-              completion) — FRELUX never publishes guessed payment plans.
+              completion): FRELUX never publishes guessed payment plans.
             </p>
           ) : (
             <div className="grid gap-4 sm:grid-cols-3">

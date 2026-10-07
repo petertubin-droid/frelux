@@ -27,7 +27,7 @@ import { SITE_URL } from "@/lib/seo";
 import { EstimateDisclaimer } from "@/components/calculators";
 
 /**
- * Construction Tools — the single FRELUX tool library.
+ * Construction Tools - the single FRELUX tool library.
  *
  * Replaces the old "Calculators" page. Users never need to know whether a
  * tool was internally a "calculator" or an "estimator": every entry is one
@@ -35,7 +35,7 @@ import { EstimateDisclaimer } from "@/components/calculators";
  */
 
 const RECENT_KEY = "frelux_recent_tools";
-/** Tools per paginated section — the library is browsed 10 at a time. */
+/** Tools per paginated section - the library is browsed 10 at a time. */
 const PAGE_SIZE = 10;
 const MAX_RECENT = 6;
 
@@ -59,7 +59,7 @@ function rememberTool(slug: string) {
     );
     localStorage.setItem(RECENT_KEY, JSON.stringify(next));
   } catch {
-    /* storage unavailable — non-fatal */
+    /* storage unavailable - non-fatal */
   }
 }
 
@@ -122,7 +122,7 @@ export default function ConstructionTools() {
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     {
-      name: "Construction Tools — Calculators & Estimators | FRELUX",
+      name: "Construction Tools: Calculators & Estimators | FRELUX",
       path: "/construction-tools",
     },
   ]);
@@ -131,7 +131,7 @@ export default function ConstructionTools() {
   const [recent, setRecent] = useState<string[]>([]);
 
   useSeo({
-    title: "Construction Tools — Calculators & Estimators | FRELUX",
+    title: "Construction Tools: Calculators & Estimators | FRELUX",
     description:
       "Every FRELUX construction tool in one place: paint, tiling, screeding, POP, concrete, solar, plumbing, BOQ and more. Search, compare and calculate with verified market prices, starting with Nigeria.",
     canonicalPath: "/construction-tools",
@@ -212,7 +212,7 @@ export default function ConstructionTools() {
 
   const totalTools = CONSTRUCTION_TOOLS.length;
 
-  // Unit display preference (display layer only — data stays metric)
+  // Unit display preference (display layer only - data stays metric)
   const [unitSystem, setUnitSystem] = useState<UnitSystem>(() =>
     getStoredUnitSystem(),
   );
@@ -232,7 +232,7 @@ export default function ConstructionTools() {
             </h1>
             <p className="mt-3 text-muted-foreground dark:text-muted-foreground">
               {totalTools} tools with verified market prices. Enter what you
-              know, get exact quantities and costs — no guesswork.
+              know, get exact quantities and costs: no guesswork.
             </p>
             <div className="mt-4 inline-flex items-center gap-1 rounded-full border border-border bg-card p-1 text-xs dark:border-white/10">
               <span className="pl-2 pr-1 text-muted-foreground">Units:</span>
@@ -280,7 +280,7 @@ export default function ConstructionTools() {
                   next.delete("page"); // a new search restarts at section 1
                   setSearchParams(next, { replace: true });
                 }}
-                placeholder="Search tools — paint, tiles, solar, BOQ, labour…"
+                placeholder="Search tools: paint, tiles, solar, BOQ, labour…"
                 aria-label="Search construction tools"
                 className="h-14 w-full rounded-2xl border border-border/60 bg-card pl-12 pr-12 text-base text-foreground shadow-premium-lg outline-none ring-brand-purple/40 transition-all placeholder:text-muted-foreground/70 focus:ring-2 dark:border-white/10 dark:bg-card dark:text-primary-foreground"
               />
@@ -385,10 +385,10 @@ export default function ConstructionTools() {
 
         <div ref={resultsRef} className="scroll-mt-24" />
 
-        {/* Ad slot — top of the section */}
+        {/* Ad slot: top of the section */}
         <AdSlot slotKey="calculator_hub_native" className="mt-8" />
 
-        {/* Results — one section of up to 10 tools at a time */}
+        {/* Results: one section of up to 10 tools at a time */}
         {ordered.length === 0 ? (
           <section className="mt-8" aria-live="polite">
             <div className="card p-10 text-center">
@@ -440,7 +440,7 @@ export default function ConstructionTools() {
               </section>
             )}
 
-            {/* Ad slot — between the tool grid and the section controls */}
+            {/* Ad slot: between the tool grid and the section controls */}
             <AdSlot slotKey="calculator_hub_mid" className="mt-10" />
 
             {/* Section controls: previous / next through 10-tool sections */}
@@ -505,7 +505,7 @@ export default function ConstructionTools() {
           </>
         )}
 
-        {/* Ad slot — bottom of the section */}
+        {/* Ad slot: bottom of the section */}
         <AdSlot slotKey="calculator_hub_bottom" className="mt-10" />
         <AdSlot slotKey="tools-page" className="mt-10" />
         <div className="mt-10">

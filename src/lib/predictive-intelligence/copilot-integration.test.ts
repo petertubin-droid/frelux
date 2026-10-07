@@ -2,7 +2,7 @@
 // PREDICTIVE INTELLIGENCE, COPILOT RISK-QUESTION TESTS (§20)
 //
 // The deterministic intent classifier that fronts the risk
-// answering surface — regex intent mapping is pinned so the
+// answering surface - regex intent mapping is pinned so the
 // Copilot's fallthrough contract (unmatched → null) holds.
 // =========================================================
 import { describe, it, expect } from "vitest";

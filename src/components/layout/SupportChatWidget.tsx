@@ -35,7 +35,7 @@ const SUGGESTED_QUESTIONS = [
 const WELCOME_MESSAGE: ChatMessage = {
   id: 0,
   from: "assistant",
-  text: `Hi! I'm ARCHIE, FRELUX's AI assistant. Ask me anything about paint quantities, POP ceiling, tiling, colors, or surface prep — or open the FRELUX AI tab to describe a project and get routed to the right calculator automatically.`,
+  text: `Hi! I'm ARCHIE, FRELUX's AI assistant. Ask me anything about paint quantities, POP ceiling, tiling, colors, or surface prep: or open the FRELUX AI tab to describe a project and get routed to the right calculator automatically.`,
   timestamp: Date.now(),
 };
 
@@ -82,7 +82,7 @@ export default function SupportChatWidget() {
 
       try {
         const clientId = getClientId();
-        // Powered by Gemini (support-chat edge function) — the
+        // Powered by Gemini (support-chat edge function) - the
         // Frelux site support assistant. Public product guidance
         // only, no account data.
         const { data, error: fnError } = await supabase.functions.invoke<{
@@ -151,7 +151,7 @@ export default function SupportChatWidget() {
 
   return (
     <>
-      {/* Floating button — lucide icon (the old /assets/archie image never
+      {/* Floating button: lucide icon (the old /assets/archie image never
           shipped, which is why the icon rendered blank/broken) */}
       {!open && (
         <Button

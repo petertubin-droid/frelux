@@ -1,10 +1,10 @@
 // =========================================================
-// FRELUX Wall Finishing — country profiles.
+// FRELUX Wall Finishing - country profiles.
 //
 // Starting templates for seven initial markets, from the
 // worldwide finishing-sequence research table. A country
 // profile is a STARTING TEMPLATE, never a universal
-// building code — users always select/replace systems.
+// building code - users always select/replace systems.
 // New countries: add a profile + wall systems + assemblies
 // here; the engines and UI never change.
 // =========================================================
@@ -25,7 +25,7 @@ export const WALLFIN_COUNTRY_PROFILES: WallFinCountryProfile[] = [
     assemblyIds: ["ng-interior-block-paint", "ng-exterior-block-render-paint"],
     defaultWastePercent: { paint: 10, plaster: 15, putty: 10, mortar: 15 },
     templateNotice:
-      "Typical Nigerian practice: sandcrete blockwork finished with cement-sand render and screeding/putty before paint. Confirm the actual specification with your builder — this is a starting template, not a building code.",
+      "Typical Nigerian practice: sandcrete blockwork finished with cement-sand render and screeding/putty before paint. Confirm the actual specification with your builder: this is a starting template, not a building code.",
   },
   {
     code: "US",
@@ -44,7 +44,7 @@ export const WALLFIN_COUNTRY_PROFILES: WallFinCountryProfile[] = [
     assemblyIds: ["us-interior-drywall-paint", "us-exterior-masonry-paint"],
     defaultWastePercent: { paint: 10, plaster: 10, putty: 10, mortar: 10 },
     templateNotice:
-      "Typical US practice: timber or steel framing with drywall internally and masonry/concrete externally. Joint tape, compound and sanding precede drywall primer and paint. Confirm with your contractor — this is a starting template, not a building code.",
+      "Typical US practice: timber or steel framing with drywall internally and masonry/concrete externally. Joint tape, compound and sanding precede drywall primer and paint. Confirm with your contractor: this is a starting template, not a building code.",
   },
   {
     code: "GB",
@@ -67,7 +67,7 @@ export const WALLFIN_COUNTRY_PROFILES: WallFinCountryProfile[] = [
     ],
     defaultWastePercent: { paint: 10, plaster: 12, putty: 8, mortar: 12 },
     templateNotice:
-      "Typical UK practice: brick/block masonry with undercoat plaster where required, then skim plaster, mist coat and paint. Confirm with your plasterer — this is a starting template, not a building code.",
+      "Typical UK practice: brick/block masonry with undercoat plaster where required, then skim plaster, mist coat and paint. Confirm with your plasterer: this is a starting template, not a building code.",
   },
   {
     code: "DE",
@@ -86,7 +86,7 @@ export const WALLFIN_COUNTRY_PROFILES: WallFinCountryProfile[] = [
     assemblyIds: ["de-interior-masonry-paint", "de-exterior-render-paint"],
     defaultWastePercent: { paint: 8, plaster: 10, putty: 8, mortar: 10 },
     templateNotice:
-      "Typical German practice: masonry or blockwork finished with base/render or gypsum plaster, fine finish, primer (Tiefgrund) and paint. Confirm with your Malerbetrieb — this is a starting template, not a building code.",
+      "Typical German practice: masonry or blockwork finished with base/render or gypsum plaster, fine finish, primer (Tiefgrund) and paint. Confirm with your Malerbetrieb: this is a starting template, not a building code.",
   },
   {
     code: "IN",
@@ -105,7 +105,7 @@ export const WALLFIN_COUNTRY_PROFILES: WallFinCountryProfile[] = [
     assemblyIds: ["in-interior-brick-paint", "in-exterior-render-paint"],
     defaultWastePercent: { paint: 10, plaster: 15, putty: 10, mortar: 15 },
     templateNotice:
-      "Typical Indian practice: brick/block masonry finished with cement-sand plaster, wall putty, primer and paint. Confirm with your contractor — this is a starting template, not a building code.",
+      "Typical Indian practice: brick/block masonry finished with cement-sand plaster, wall putty, primer and paint. Confirm with your contractor: this is a starting template, not a building code.",
   },
   {
     code: "CA",
@@ -124,7 +124,7 @@ export const WALLFIN_COUNTRY_PROFILES: WallFinCountryProfile[] = [
     assemblyIds: ["ca-interior-drywall-paint", "ca-exterior-masonry-paint"],
     defaultWastePercent: { paint: 10, plaster: 10, putty: 10, mortar: 10 },
     templateNotice:
-      "Typical Canadian practice: wood framing with drywall, tape, joint compound, sanding, primer and paint. Confirm with your contractor — this is a starting template, not a building code.",
+      "Typical Canadian practice: wood framing with drywall, tape, joint compound, sanding, primer and paint. Confirm with your contractor: this is a starting template, not a building code.",
   },
   {
     code: "AU",
@@ -143,7 +143,7 @@ export const WALLFIN_COUNTRY_PROFILES: WallFinCountryProfile[] = [
     assemblyIds: ["au-interior-plasterboard-paint", "au-exterior-render-paint"],
     defaultWastePercent: { paint: 10, plaster: 12, putty: 8, mortar: 12 },
     templateNotice:
-      "Typical Australian practice: brick veneer or masonry with plasterboard, jointing/setting compound, sanding, sealer and paint. Confirm with your plasterer — this is a starting template, not a building code.",
+      "Typical Australian practice: brick veneer or masonry with plasterboard, jointing/setting compound, sanding, sealer and paint. Confirm with your plasterer: this is a starting template, not a building code.",
   },
 ];
 
@@ -156,7 +156,7 @@ export function getWallFinCountry(code: string): WallFinCountryProfile | null {
 
 /**
  * Markets WITHOUT a dedicated wall-finishing profile inherit the
- * NG reference through market_profiles.inherits_from — reported,
+ * NG reference through market_profiles.inherits_from - reported,
  * never silently swapped.
  */
 export const WALLFIN_FALLBACK_COUNTRY: WallFinMarketCodeLike = "NG";

@@ -1,5 +1,5 @@
 /**
- * Solar/PV Estimator tests (Future Engine 16 — primary engine)
+ * Solar/PV Estimator tests (Future Engine 16 - primary engine)
  *
  * Every expected value is hand-computed. Base panel: 550 Wp,
  * 2.28 m × 1.13 m = 2.5764 m², ₦180,000. Rules: 5.0 sun hours,
@@ -70,7 +70,7 @@ function makeInput(over: Partial<SolarPvInput> = {}): SolarPvInput {
   };
 }
 
-describe("calculateSolarPv — roof area mode", () => {
+describe("calculateSolarPv: roof area mode", () => {
   it("computes the hand-verified full takeoff", () => {
     const res = calculateSolarPv(makeInput());
     expect(res.ok).toBe(true);
@@ -102,7 +102,7 @@ describe("calculateSolarPv — roof area mode", () => {
     expect(res.warnings).toEqual([]);
   });
 
-  it("refuses a roof smaller than one panel — nothing to estimate", () => {
+  it("refuses a roof smaller than one panel: nothing to estimate", () => {
     const res = calculateSolarPv(makeInput({ usable_roof_area_m2: 2 }));
     expect(res.ok).toBe(false);
     expect(res.warnings[0]).toMatch(/smaller than one panel/);
@@ -110,7 +110,7 @@ describe("calculateSolarPv — roof area mode", () => {
   });
 });
 
-describe("calculateSolarPv — energy target mode", () => {
+describe("calculateSolarPv: energy target mode", () => {
   it("sizes the array for the hand-verified 30 kWh/day target", () => {
     const res = calculateSolarPv(
       makeInput({
@@ -142,7 +142,7 @@ describe("calculateSolarPv — energy target mode", () => {
   });
 });
 
-describe("calculateSolarPv — batteries", () => {
+describe("calculateSolarPv: batteries", () => {
   it("sizes the battery bank from the configured unit capacity (10 kWh ÷ 5.12 → 2 units)", () => {
     const res = calculateSolarPv(
       makeInput({
@@ -170,8 +170,8 @@ describe("calculateSolarPv — batteries", () => {
   });
 });
 
-describe("calculateSolarPv — honesty guarantees", () => {
-  it("refuses without a configured panel model — specs never guessed", () => {
+describe("calculateSolarPv: honesty guarantees", () => {
+  it("refuses without a configured panel model: specs never guessed", () => {
     const res = calculateSolarPv(makeInput({ panel: null }));
     expect(res.ok).toBe(false);
     expect(res.warnings[0]).toMatch(
@@ -224,7 +224,7 @@ describe("calculateSolarPv — honesty guarantees", () => {
     expect(res.total_of_priced_lines_naira).toBe(5246460);
   });
 
-  it("refuses a negative configured price — invalid data, not a zero price", () => {
+  it("refuses a negative configured price: invalid data, not a zero price", () => {
     const res = calculateSolarPv(
       makeInput({ prices: { ...prices, dc_breaker: { price_naira: -500 } } }),
     );

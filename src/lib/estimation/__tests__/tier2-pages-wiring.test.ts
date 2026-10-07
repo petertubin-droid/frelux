@@ -9,7 +9,7 @@
  * estimator page tests' rendering pattern). What these pin is
  * the WIRING: a route, a Construction Tools registry entry, a sitemap
  * entry and
- * an admin rules type for each of the eight engines — the
+ * an admin rules type for each of the eight engines - the
  * regression net that catches silent wiring aborts.
  */
 

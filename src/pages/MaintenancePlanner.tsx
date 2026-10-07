@@ -62,9 +62,9 @@ export default function MaintenancePlanner({
   const [saveMsg, setSaveMsg] = useState<string | null>(null);
 
   useSeo({
-    title: "Maintenance Planner — FRELUX",
+    title: "Maintenance Planner: FRELUX",
     description:
-      "Deterministic maintenance schedules from database-verified data — when your finish needs re-coating and full redecoration, with cost projections at years 3, 5 and 10.",
+      "Deterministic maintenance schedules from database-verified data: when your finish needs re-coating and full redecoration, with cost projections at years 3, 5 and 10.",
   });
 
   useEffect(() => {
@@ -174,7 +174,7 @@ export default function MaintenancePlanner({
     const rows = result.events
       .map(
         (e) =>
-          `<tr><td>${e.type.replace(/_/g, " ")}</td><td>${e.year_min === e.year_max ? `year ${e.year_min}` : `years ${e.year_min}–${e.year_max}`}</td><td>${e.date_min} → ${e.date_max}</td><td>${e.cost !== null ? `NGN ${e.cost.toLocaleString()}` : "—"}</td></tr>`,
+          `<tr><td>${e.type.replace(/_/g, " ")}</td><td>${e.year_min === e.year_max ? `year ${e.year_min}` : `years ${e.year_min}–${e.year_max}`}</td><td>${e.date_min} → ${e.date_max}</td><td>${e.cost !== null ? `NGN ${e.cost.toLocaleString()}` : "N/A"}</td></tr>`,
       )
       .join("");
     const miles = result.milestones
@@ -192,7 +192,7 @@ export default function MaintenancePlanner({
       th,td{border:1px solid #ddd;padding:6px 8px;text-align:left}
       th{background:#f5f5f5}
     </style></head><body>
-      <h1>FRELUX — Maintenance Plan (${category} / ${surface || "any"})</h1>
+      <h1>FRELUX: Maintenance Plan (${category} / ${surface || "any"})</h1>
       <p>Installed: ${installDate} · Horizon: ${horizon} years · Source: ${result.profileName}</p>
       <h2>Schedule</h2><table><tr><th>Event</th><th>Timing</th><th>Dates</th><th>Cost (NGN)</th></tr>${rows}</table>
       <h2>Cost milestones</h2><table><tr><th>Year</th><th>Cumulative cost</th><th>Events</th></tr>${miles}</table>
@@ -211,7 +211,7 @@ export default function MaintenancePlanner({
           { label: "Maintenance Planner" },
         ]}
         title="Maintenance Planner"
-        subtitle="Plan the full life of your finish from database-verified data — inspections, re-coat cycles and full redecoration, with cost projections at years 3, 5 and 10."
+        subtitle="Plan the full life of your finish from database-verified data: inspections, re-coat cycles and full redecoration, with cost projections at years 3, 5 and 10."
       />
 
       {loadError && (
@@ -336,8 +336,8 @@ export default function MaintenancePlanner({
       {!loading && profiles.length === 0 && !loadError && (
         <div className="rounded-lg border border-brand-purple/20 bg-primary/5 p-4 text-sm text-muted-foreground dark:text-muted-foreground/80">
           No maintenance profiles configured yet. The planner uses only verified
-          maintenance data from the database — it never guesses service lives.
-          An administrator must add at least one profile (category, surface,
+          maintenance data from the database: it never guesses service lives. An
+          administrator must add at least one profile (category, surface,
           service life, intervals, cost factors with a source reference) under{" "}
           <b>Admin → Maintenance Profiles</b> before schedules can be produced.
         </div>
@@ -417,7 +417,7 @@ export default function MaintenancePlanner({
                       {e.date_min} → {e.date_max}
                     </td>
                     <td className="p-3">
-                      {e.cost !== null ? `₦${e.cost.toLocaleString()}` : "—"}
+                      {e.cost !== null ? `₦${e.cost.toLocaleString()}` : "N/A"}
                     </td>
                   </tr>
                 ))}

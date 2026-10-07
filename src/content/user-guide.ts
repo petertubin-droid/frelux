@@ -1,5 +1,5 @@
 /**
- * FRELUX User Guide — public, structured content.
+ * FRELUX User Guide - public, structured content.
  *
  * Single source of truth for the /user-guide page. Mirrors
  * docs/user-guide.md. Keep both in sync when features change.

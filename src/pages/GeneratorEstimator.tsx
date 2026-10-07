@@ -5,7 +5,7 @@
  * chosen generator bracket and measured cable run → generator
  * units, ATS, battery and cable quantities, with waste visible
  * and the engine's honesty front and centre: it NEVER sizes
- * the generator — sizing must come from a proper load
+ * the generator - sizing must come from a proper load
  * assessment. Prices from the shared material database (never
  * invented), labour separate.
  *
@@ -52,7 +52,7 @@ const GEN_SIZES: { value: GenSize; label: string }[] = [
 ];
 
 function fmtN(v: number | null): string {
-  return v === null ? "—" : v.toLocaleString();
+  return v === null ? "N/A" : v.toLocaleString();
 }
 
 export default function GeneratorEstimator() {
@@ -76,9 +76,9 @@ export default function GeneratorEstimator() {
 
   useSeo({
     title:
-      "Backup Power Estimator — Generator, ATS, Battery & Cable | FRELUX PROJECT CALC",
+      "Backup Power Estimator: Generator, ATS, Battery & Cable | FRELUX PROJECT CALC",
     description:
-      "Deterministic backup power material estimation: choose your generator bracket from your own load assessment, give the measured cable run, and get generator, ATS, battery and cable quantities with waste shown. The engine never sizes the generator — estimation only, not an installation design.",
+      "Deterministic backup power material estimation: choose your generator bracket from your own load assessment, give the measured cable run, and get generator, ATS, battery and cable quantities with waste shown. The engine never sizes the generator: estimation only, not an installation design.",
   });
 
   const [priceMap, setPriceMap] = useState<GeneratorPriceMap>({});
@@ -218,7 +218,7 @@ export default function GeneratorEstimator() {
       }
       setSaveState(
         result.incomplete
-          ? `Saved as draft (${ref}) — complete the missing inputs for a final estimate.`
+          ? `Saved as draft (${ref}): complete the missing inputs for a final estimate.`
           : `Saved (${ref}). Import it into a BOQ or project from your estimates.`,
       );
       track("calculator_completed", { calculator: "generator_saved", ref });
@@ -258,7 +258,7 @@ export default function GeneratorEstimator() {
           { label: "Doors & Windows Estimator" },
         ]}
         title="Doors & Windows Estimator"
-        subtitle="Choose your generator bracket from your own load assessment and give the measured cable run. The engine lists generator units, ATS, battery and cable with waste visible, and prices from the shared material database. It never sizes the generator — estimation only, not an installation design."
+        subtitle="Choose your generator bracket from your own load assessment and give the measured cable run. The engine lists generator units, ATS, battery and cable with waste visible, and prices from the shared material database. It never sizes the generator: estimation only, not an installation design."
       />
 
       {/* Inputs */}
@@ -433,14 +433,14 @@ export default function GeneratorEstimator() {
                     .map((l) => (
                       <li key={l.key}>
                         {l.label}: PRICE NOT CONFIGURED in the material database
-                        — the quantity is shown, but no price was invented.
+                        : the quantity is shown, but no price was invented.
                       </li>
                     ))}
                 </ul>
               </>
             ) : (
               <strong>
-                Complete estimate — every line sized and priced from the shared
+                Complete estimate: every line sized and priced from the shared
                 material database.
               </strong>
             )}
@@ -468,7 +468,7 @@ export default function GeneratorEstimator() {
                     <td className="p-3 font-medium">{l.label}</td>
                     <td className="p-3" data-testid={`qty-${l.key}`}>
                       {l.quantity === null
-                        ? "— provide measurement"
+                        ? "(provide measurement)"
                         : fmtN(l.quantity)}
                     </td>
                     <td className="p-3 text-muted-foreground">{l.unit}</td>
@@ -485,7 +485,7 @@ export default function GeneratorEstimator() {
                       )}
                     </td>
                     <td className="p-3 font-medium">
-                      {l.line_total === null ? "—" : `₦${fmtN(l.line_total)}`}
+                      {l.line_total === null ? "N/A" : `₦${fmtN(l.line_total)}`}
                     </td>
                   </tr>
                 ))}
@@ -512,7 +512,7 @@ export default function GeneratorEstimator() {
               <p className="text-sm text-muted-foreground">Material subtotal</p>
               <p className="text-xl font-semibold">
                 {result.material_subtotal === null
-                  ? "— prices/inputs missing"
+                  ? "(prices/inputs missing)"
                   : `₦${fmtN(result.material_subtotal)}`}
               </p>
             </div>
@@ -536,7 +536,7 @@ export default function GeneratorEstimator() {
               <p className="text-sm text-muted-foreground">Grand total</p>
               <p className="text-xl font-semibold">
                 {result.grand_total === null
-                  ? "—"
+                  ? "N/A"
                   : `₦${fmtN(result.grand_total)}`}
               </p>
             </div>

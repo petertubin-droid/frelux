@@ -303,8 +303,8 @@ export default function Rewards() {
       // Multi-provider earn flow (owner directive 2026-09-15): walk every
       // active provider with a real client-side rewarded bridge, in
       // priority order, until one actually shows an ad. We must show the
-      // ad from this tap — mobile browsers block window-opening ad
-      // formats outside a direct user gesture — then pass a client
+      // ad from this tap - mobile browsers block window-opening ad
+      // formats outside a direct user gesture - then pass a client
       // attestation token so the server verifies a real ad was shown
       // before granting credits.
       const { providers } = await fetchAdConfig();
@@ -335,7 +335,7 @@ export default function Rewards() {
           activeProviderSlug = candidate.slug;
           break;
         } catch (e) {
-          // This provider could not show an ad — try the next one.
+          // This provider could not show an ad - try the next one.
           lastError =
             e instanceof Error && e.message
               ? e.message

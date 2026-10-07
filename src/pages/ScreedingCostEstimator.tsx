@@ -72,12 +72,12 @@ interface AvailableSystem {
 /**
  * Market-aware price resolution for screed system configs.
  *
- * Own-market config rows ship WITHOUT per-unit prices — those live in the
+ * Own-market config rows ship WITHOUT per-unit prices - those live in the
  * market's verified price book (Admin Scan provenance) and are resolved
  * here by material role: putty/joint filler -> "joint-filler", screeding
  * paint -> "interior-paint", cement -> "concrete-mix". A role with no
  * verified price resolves to null and the estimate flags the line as
- * unpriced — never guessed.
+ * unpriced - never guessed.
  *
  * When a foreign market falls back to the NG reference config, the NG
  * quantities describe the NG technique, so its NGN prices would be

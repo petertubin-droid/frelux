@@ -1,11 +1,11 @@
 // =========================================================
-// FRELUX Wall Finishing — price & labour resolution (DB).
+// FRELUX Wall Finishing - price & labour resolution (DB).
 //
 // Prices are NEVER hard-coded here. Every layer resolves its
 // role through the market price book (market_material_roles →
 // estimation_materials → estimation_prices) with full
 // provenance (retailer, scan source, date). When a market has
-// no price the result is `unpriced` — the UI asks for a local
+// no price the result is `unpriced` - the UI asks for a local
 // price and labels it clearly. Labour rates come from the
 // wallfin_labour_rates table (per market + task), stored with
 // source references and marked as estimates.
@@ -103,7 +103,7 @@ export async function fetchWallFinLabourRates(
 
 /**
  * Resolve a labour rate for a task: the market's own rate first,
- * then the NG/US reference book, then null — never a guess.
+ * then the NG/US reference book, then null - never a guess.
  */
 export async function resolveLabourRate(
   taskKey: string,
@@ -126,7 +126,7 @@ export async function resolveLabourRate(
         : null,
     sourceReference: row.source_reference,
     effectiveDate: row.effective_date,
-    // Rates are research benchmarks — always shown as estimates.
+    // Rates are research benchmarks - always shown as estimates.
     isEstimate: true,
   };
 }

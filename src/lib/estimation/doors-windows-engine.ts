@@ -14,7 +14,7 @@
  *    inventing doors.
  *  - Frames follow door counts (one set per door) and are
  *    labelled; hinges and locksets are labelled PLANNING
- *    ALLOWANCES from the admin's visible rule — not
+ *    ALLOWANCES from the admin's visible rule - not
  *    measurements.
  *  - Window sizes vary: the admin's unit price must reflect the
  *    typical sized unit; the result warns users to confirm
@@ -243,7 +243,7 @@ export function calculateDoorsWindows(
         quantity: qty,
         quantity_source: "rule_derived",
         unit: "pieces",
-        detail: `${totalDoors} doors × ${rules.hinges_per_door} = ${qty} (planning allowance — heavy doors may need more)`,
+        detail: `${totalDoors} doors × ${rules.hinges_per_door} = ${qty} (planning allowance: heavy doors may need more)`,
         unit_price: price,
         line_total: price !== null ? money(qty * price) : null,
       });
@@ -255,7 +255,7 @@ export function calculateDoorsWindows(
     const price = prices["door-lockset"] ?? null;
     steps.push({
       label: "Locksets",
-      detail: `${totalDoors} doors × 1 lockset each = ${totalDoors} (labelled: one per door — adjust on site for double doors).`,
+      detail: `${totalDoors} doors × 1 lockset each = ${totalDoors} (labelled: one per door: adjust on site for double doors).`,
     });
     lines.push({
       key: "locksets",
@@ -309,11 +309,11 @@ export function calculateDoorsWindows(
   // ── 6. All-blank schedule check ──
   if (totalDoors === 0 && totalWindows === 0) {
     missing.push(
-      "Door/window schedule: enter at least one door or window count — the engine will not invent openings.",
+      "Door/window schedule: enter at least one door or window count: the engine will not invent openings.",
     );
   }
 
-  // ── 7. Labour — separate, never automatic ──
+  // ── 7. Labour - separate, never automatic ──
   let labourTotal = 0;
   const openables = totalDoors + totalWindows;
   if (input.labour.mode === "per_door") {
@@ -345,11 +345,11 @@ export function calculateDoorsWindows(
   } else {
     steps.push({
       label: "Labour",
-      detail: "Excluded — not added to the total.",
+      detail: "Excluded: not added to the total.",
     });
   }
 
-  // ── 8. Totals — never fabricated ──
+  // ── 8. Totals - never fabricated ──
   const pricedLines = lines.filter((l) => l.line_total !== null);
   const pricedSubtotal = money(
     pricedLines.reduce((s, l) => s + (l.line_total ?? 0), 0),
@@ -364,12 +364,12 @@ export function calculateDoorsWindows(
   for (const l of lines) {
     if (l.quantity !== null && l.unit_price === null) {
       warnings.push(
-        `${l.label}: PRICE NOT CONFIGURED in the material database — quantity shown, no price invented.`,
+        `${l.label}: PRICE NOT CONFIGURED in the material database: quantity shown, no price invented.`,
       );
     }
   }
   warnings.push(
-    "Window and door prices must match the size and finish the admin configured — confirm actual unit sizes on site. This is material ESTIMATION, not a fixing specification.",
+    "Window and door prices must match the size and finish the admin configured: confirm actual unit sizes on site. This is material ESTIMATION, not a fixing specification.",
   );
 
   const incomplete =

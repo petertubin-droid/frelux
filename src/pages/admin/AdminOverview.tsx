@@ -32,7 +32,7 @@ import {
 } from "@/components/admin/AdminUi";
 
 /**
- * Admin Overview — answers "Is FRELUX healthy?" at a glance.
+ * Admin Overview - answers "Is FRELUX healthy?" at a glance.
  *
  * Every number on this page is a real live query (or an honest failure
  * message). Nothing is hardcoded or assumed: if a query fails, the tile
@@ -261,7 +261,7 @@ export default function AdminOverview() {
           <p className="mt-1 text-sm text-foreground dark:text-primary-foreground">
             {dbHealth === "ok"
               ? "Connected and responding."
-              : "Unreachable right now — check System Health."}
+              : "Unreachable right now: check System Health."}
           </p>
         </AdminCard>
 
@@ -313,17 +313,17 @@ export default function AdminOverview() {
             )}
           </div>
           <p className="mt-4 text-3xl font-bold text-foreground dark:text-primary-foreground">
-            {counts.errors24h ?? "—"}
+            {counts.errors24h ?? "N/A"}
           </p>
           <p className="text-sm text-muted-foreground">
             Unresolved errors (24h)
-            {counts.errors24h === null && " — query failed"}
+            {counts.errors24h === null && ": query failed"}
           </p>
         </Link>
 
         <StatTile
-          label={`Estimates saved${counts.estimates === null ? " — query failed" : ""}`}
-          value={counts.estimates ?? "—"}
+          label={`Estimates saved${counts.estimates === null ? ": query failed" : ""}`}
+          value={counts.estimates ?? "N/A"}
           to="/admin/estimation-estimates"
           icon={FileText}
           failed={counts.estimates === null}
@@ -336,22 +336,22 @@ export default function AdminOverview() {
       </h2>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatTile
-          label={`Registered users${counts.profiles === null ? " — query failed" : ""}`}
-          value={counts.profiles ?? "—"}
+          label={`Registered users${counts.profiles === null ? ": query failed" : ""}`}
+          value={counts.profiles ?? "N/A"}
           to="/admin/users"
           icon={Users}
           failed={counts.profiles === null}
         />
         <StatTile
-          label={`Estimation materials${counts.materials === null ? " — query failed" : ""}`}
-          value={counts.materials ?? "—"}
+          label={`Estimation materials${counts.materials === null ? ": query failed" : ""}`}
+          value={counts.materials ?? "N/A"}
           to="/admin/estimation-materials"
           icon={Boxes}
           failed={counts.materials === null}
         />
         <StatTile
-          label={`Price records${counts.prices === null ? " — query failed" : ""}`}
-          value={counts.prices ?? "—"}
+          label={`Price records${counts.prices === null ? ": query failed" : ""}`}
+          value={counts.prices ?? "N/A"}
           to="/admin/estimation-pricing"
           icon={Coins}
           failed={counts.prices === null}
@@ -364,8 +364,8 @@ export default function AdminOverview() {
           hint="Open the public Construction Tools page"
         />
         <StatTile
-          label={`Events tracked (24h)${counts.analytics24h === null ? " — query failed" : ""}`}
-          value={counts.analytics24h ?? "—"}
+          label={`Events tracked (24h)${counts.analytics24h === null ? ": query failed" : ""}`}
+          value={counts.analytics24h ?? "N/A"}
           to="/admin/analytics"
           icon={Activity}
           failed={counts.analytics24h === null}
@@ -447,7 +447,7 @@ export default function AdminOverview() {
 
       <p className="mt-6 flex items-center gap-1.5 text-xs text-muted-foreground">
         <CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" />
-        Every figure on this page is a live query — failed queries say so.
+        Every figure on this page is a live query: failed queries say so.
         <XCircle className="ml-2 h-3.5 w-3.5" aria-hidden="true" />
         Nothing here is hardcoded.
       </p>

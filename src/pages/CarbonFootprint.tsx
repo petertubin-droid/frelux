@@ -3,7 +3,7 @@
  *
  * kgCO2e for a set of estimate lines from admin-configured
  * carbon factors. Lines without a configured factor are
- * excluded with a warning — never a guessed emission.
+ * excluded with a warning - never a guessed emission.
  *
  * - Totals are produced ONLY by calculateEmbodiedCarbon.
  *   This page renders; it never computes emissions itself.
@@ -37,7 +37,7 @@ export default function CarbonFootprint() {
     { name: "Embodied Carbon Estimator", path: "/carbon-footprint" },
   ]);
   useSeo({
-    title: "Embodied Carbon Estimator — FRELUX",
+    title: "Embodied Carbon Estimator: FRELUX",
     description:
       "Estimate the embodied carbon (kgCO2e) of your construction and finishing works from verified, admin-configured emission factors.",
   });
@@ -92,7 +92,7 @@ export default function CarbonFootprint() {
             { label: "Embodied Carbon Estimator" },
           ]}
           title="Embodied Carbon Estimator"
-          subtitle="kgCO2e per line from admin-configured, verifiable emission factors (EPDs, ICE database). Lines without a configured factor are excluded with a warning — FRELUX never guesses an emission."
+          subtitle="kgCO2e per line from admin-configured, verifiable emission factors (EPDs, ICE database). Lines without a configured factor are excluded with a warning: FRELUX never guesses an emission."
         />
 
         {loadError && (
@@ -106,7 +106,7 @@ export default function CarbonFootprint() {
           {categories.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No carbon factors configured yet. Factors are entered by the admin
-              team from verifiable sources — FRELUX never publishes guessed
+              team from verifiable sources: FRELUX never publishes guessed
               emission values.
             </p>
           ) : (
@@ -210,7 +210,7 @@ export default function CarbonFootprint() {
                 Total embodied carbon across {result.covered_lines} covered line
                 {result.covered_lines === 1 ? "" : "s"}
                 {result.excluded_lines > 0
-                  ? ` (${result.excluded_lines} excluded — see warnings)`
+                  ? ` (${result.excluded_lines} excluded: see warnings)`
                   : ""}
               </p>
               <p className="mt-1 text-3xl font-bold">

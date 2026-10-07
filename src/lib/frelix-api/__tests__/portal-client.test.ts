@@ -5,7 +5,7 @@
 //   * create/rotate return the raw key EXACTLY ONCE, store
 //     only SHA-256 hash + display prefix
 //   * key_hash is never in the selected display columns
-//   * the client cannot influence plan prices — checkout only
+//   * the client cannot influence plan prices - checkout only
 //     starts a payment session with the plan KEY
 //   * usage summaries aggregate honestly from raw rows
 // =========================================================
@@ -71,7 +71,7 @@ function chain(
     update: (row: Record<string, unknown>) => {
       captured.update = row;
       // .eq() terminates some chains (revoke/restore/limits) and
-      // continues with .select().single() in rotate — support both.
+      // continues with .select().single() in rotate - support both.
       const eqResult = {
         select: () => ({
           single: () =>
@@ -121,7 +121,7 @@ const ROW = {
 };
 
 describe("listApiKeys", () => {
-  it("selects display columns ONLY — key_hash never leaves the database", async () => {
+  it("selects display columns ONLY: key_hash never leaves the database", async () => {
     from.mockReturnValue(chain({ data: [ROW] }));
     const keys = await listApiKeys();
     expect(keys[0].id).toBe("k1");
@@ -275,7 +275,7 @@ describe("initializeApiPlanCheckout", () => {
     expect(res).toEqual({ error: "Sign in to purchase an API plan." });
   });
 
-  it("starts a session with the plan KEY only — price is server-side", async () => {
+  it("starts a session with the plan KEY only: price is server-side", async () => {
     vi.mocked(supabase.auth.getSession).mockResolvedValue({
       data: { session: { user: { id: "u1", email: "x@y.z" } } },
     } as never);

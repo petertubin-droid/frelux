@@ -110,7 +110,7 @@ describe("calculateHeatComfort", () => {
     expect(r.meaningful_benefit).toBe(false);
   });
 
-  it("refuses a finish without a configured factor — never assumes an albedo", () => {
+  it("refuses a finish without a configured factor: never assumes an albedo", () => {
     const r = calculateHeatComfort(
       input({ proposed_category: "unobtainium_coating" }),
     );
@@ -154,7 +154,7 @@ describe("calculateHeatComfort", () => {
     ).toMatch(/never scores an unknown surface/);
   });
 
-  it("refuses to run without a valid irradiance rule — never invents a climate", () => {
+  it("refuses to run without a valid irradiance rule: never invents a climate", () => {
     const r = calculateHeatComfort(
       input({ rules: [rule("meaningful_reduction_threshold", 0.15)] }),
     );
@@ -184,6 +184,6 @@ describe("calculateHeatComfort", () => {
     // 250 m²: 250 × 5.5 × 0.45 = 618.75 kWh/day
     const r = calculateHeatComfort(input({ area_sqm: 250 }));
     expect(r.daily_energy_delta_kwh).toBe(618.75);
-    expect(r.reduction_percent).toBe(56.25); // unchanged — it is per-unit
+    expect(r.reduction_percent).toBe(56.25); // unchanged: it is per-unit
   });
 });

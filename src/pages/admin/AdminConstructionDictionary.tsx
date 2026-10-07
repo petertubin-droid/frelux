@@ -78,7 +78,7 @@ export default function AdminConstructionDictionary() {
   const [verifyFilter, setVerifyFilter] = useState("");
   const [confidenceFilter, setConfidenceFilter] = useState("");
   const [historyFor, setHistoryFor] = useState<string | null>(null);
-  // Server-side pagination — filters run in the query so the count and
+  // Server-side pagination - filters run in the query so the count and
   // page window always agree, and no hidden 200-row cap applies.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);

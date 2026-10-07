@@ -84,7 +84,7 @@ describe("scopeMatches", () => {
   });
 });
 
-describe("checkAuthority — the single decision point", () => {
+describe("checkAuthority: the single decision point", () => {
   it("allows any capability freely (thinking is free)", () => {
     for (const cap of ALL_CAPABILITIES) {
       const d = checkAuthority({ capability: cap }, reg(), NOW);
@@ -119,7 +119,7 @@ describe("checkAuthority — the single decision point", () => {
     });
   });
 
-  it("refuses expired authorizations — expiry is enforced at decision time", () => {
+  it("refuses expired authorizations: expiry is enforced at decision time", () => {
     const d = checkAuthority(
       { authority: "deploy_code", scope: "repo:frelux" },
       reg({ expires_at: NOW - 1 }),
@@ -134,7 +134,7 @@ describe("checkAuthority — the single decision point", () => {
   });
 });
 
-describe("production-change pipeline — ARCHIE can never self-approve", () => {
+describe("production-change pipeline: ARCHIE can never self-approve", () => {
   it("refuses ARCHIE at both owner gates and allows the owner", () => {
     const archie1 = nextProductionStage("PROPOSED", "ARCHIE");
     expect(archie1).toMatchObject({ ok: false });

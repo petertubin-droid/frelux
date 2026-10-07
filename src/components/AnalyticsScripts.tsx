@@ -91,9 +91,9 @@ export default function AnalyticsScripts() {
       ) {
         injectGtag(gaId);
       } else if (gaId && !isValidGaMeasurementId(gaId)) {
-        // Invalid format — never injected; surfaced for diagnostics.
+        // Invalid format - never injected; surfaced for diagnostics.
         console.error(
-          "AnalyticsScripts: invalid GA measurement ID format — injection blocked",
+          "AnalyticsScripts: invalid GA measurement ID format: injection blocked",
         );
       }
       if (
@@ -104,7 +104,7 @@ export default function AnalyticsScripts() {
         injectPixel(pixelId);
       } else if (pixelId && !isValidMetaPixelId(pixelId)) {
         console.error(
-          "AnalyticsScripts: invalid Meta Pixel ID format — injection blocked",
+          "AnalyticsScripts: invalid Meta Pixel ID format: injection blocked",
         );
       }
       if (searchConsoleToken) {

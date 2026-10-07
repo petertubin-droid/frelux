@@ -78,7 +78,7 @@ describe("FieldSync page", () => {
     );
     expect(screen.getByText(/you are offline/i)).toBeInTheDocument();
     fillCapture(
-      "Ikeja duplex — room 2",
+      "Ikeja duplex: room 2",
       "Walls measured 4.2 x 3.1 m, two coats done",
     );
     // Nothing claims to be synced
@@ -97,7 +97,7 @@ describe("FieldSync page", () => {
     expect(screen.getByText(/nothing queued/i)).toBeInTheDocument();
   });
 
-  it("refuses an empty capture — an empty note records nothing", () => {
+  it("refuses an empty capture: an empty note records nothing", () => {
     render(
       <MemoryRouter>
         <FieldSync />
@@ -129,7 +129,7 @@ describe("FieldSync page", () => {
     // Confirmed synced → removed from the queue
     expect(screen.getByText(/nothing queued/i)).toBeInTheDocument();
     expect(insertMock).toHaveBeenCalledTimes(1);
-    // The persisted capture carries the client UUID — idempotent sync
+    // The persisted capture carries the client UUID - idempotent sync
     const persisted = insertMock.mock.calls[0][0] as {
       id: string;
       entry_kind: string;
@@ -155,7 +155,7 @@ describe("FieldSync page", () => {
     });
     expect(screen.getAllByTestId("queued-capture").length).toBe(1);
     expect(
-      screen.getByText(/kept in queue — will be retried/i),
+      screen.getByText(/kept in queue: will be retried/i),
     ).toBeInTheDocument();
   });
 
@@ -184,7 +184,7 @@ describe("FieldSync page", () => {
       </MemoryRouter>,
     );
     // AdSlot is mocked to null; the page must still import and place it
-    // — verified by the module mock loading without error and the
+    // - verified by the module mock loading without error and the
     // component rendering the ads section context below.
     expect(screen.getByText(/how field sync works/i)).toBeInTheDocument();
   });

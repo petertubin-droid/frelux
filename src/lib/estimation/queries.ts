@@ -306,7 +306,7 @@ export async function fetchActivePrice(
  * Market-aware active price: the current market's own price first, then
  * the market_profiles.inherits_from chain (e.g. US falls back to the NG
  * reference) so international users see a real price instead of a blank.
- * Returns null when no price exists anywhere in the chain — never a guess.
+ * Returns null when no price exists anywhere in the chain - never a guess.
  */
 export async function fetchActivePriceForMarket(
   priceType: string,
@@ -345,7 +345,7 @@ export async function fetchPriceHistory(priceType: string, refId: string) {
 }
 
 export async function createOrUpdatePrice(data: Partial<EstimationPrice>) {
-  // Deactivate only the previous ACTIVE price in the SAME market —
+  // Deactivate only the previous ACTIVE price in the SAME market -
   // multi-market price books stay independent.
   if (data.price_type && data.ref_id) {
     await supabase
@@ -1584,7 +1584,7 @@ export async function deleteSolarComponentPrice(id: string) {
 }
 
 // =========================================================
-// Conversational Estimator (Engine 3) — language packs + log
+// Conversational Estimator (Engine 3) - language packs + log
 // =========================================================
 
 export interface ConversationalLanguagePackRow {
@@ -1711,7 +1711,7 @@ export async function fetchOfflineFieldRules() {
  * Persist one synced field capture. The client-generated UUID is
  * the primary key: a duplicate insert (retry after a flaky
  * connection) is translated to 'duplicate' so the offline queue
- * can treat it as safe and remove the entry — sync stays
+ * can treat it as safe and remove the entry - sync stays
  * idempotent by construction.
  */
 export async function insertFieldCapture(data: {

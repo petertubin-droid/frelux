@@ -2,7 +2,7 @@
 // PREDICTIVE INTELLIGENCE, PROJECT-HEALTH TESTS (§13)
 //
 // The dashboard rollup contract: every area reports its own
-// measured rating, and MISSING DATA IS NEVER REASSURING —
+// measured rating, and MISSING DATA IS NEVER REASSURING -
 // an unavailable analysis surfaces as insufficient_data,
 // never as "low risk".
 // =========================================================

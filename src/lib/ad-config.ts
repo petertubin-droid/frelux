@@ -33,7 +33,7 @@ export async function fetchAdConfig(force = false): Promise<AdConfigResult> {
   ]);
 
   // Failure handling (stale-while-error): a failed read must NEVER be
-  // cached as an empty snapshot — that would blank every ad slot on the
+  // cached as an empty snapshot - that would blank every ad slot on the
   // site for the whole TTL window on a single transient network error.
   // Serve the last known-good config if we have one; otherwise cache
   // the empty result for only a short retry interval.
@@ -151,7 +151,7 @@ export async function hasRewardedAdProvider(): Promise<boolean> {
   try {
     const { providers } = await fetchAdConfig();
     // Multi-provider (owner directive 2026-09-15): an active provider
-    // only counts when we can actually serve a rewarded experience —
+    // only counts when we can actually serve a rewarded experience -
     // a real client-side bridge OR an offerwall. Previously a provider
     // that was merely typed "rewarded"/"mixed" with no implementation
     // flipped this to true and users hit a dead "Watch Ad" button.

@@ -158,7 +158,7 @@ export function registerPhase2Engines(): void {
       }
       // MARKET-AWARE PRICING: with a market code the engine resolves the
       // paint and primer roles through the market's verified price book
-      // (market_material_roles → estimation_prices) with provenance —
+      // (market_material_roles → estimation_prices) with provenance -
       // the same source the manual paint calculator prices from. Without
       // a market, or when a role is unpriced, costs stay null and are
       // reported, never invented.
@@ -182,7 +182,7 @@ export function registerPhase2Engines(): void {
         if (paintPrice) {
           const line = priceQuantity(result.totalRecommendedLiters, paintPrice);
           costLines.push({
-            label: `Paint — ${line.label}`,
+            label: `Paint: ${line.label}`,
             amount: line.amount,
           });
           pricing.lines.push({
@@ -201,7 +201,7 @@ export function registerPhase2Engines(): void {
           if (primerPrice) {
             const line = priceQuantity(result.primerLiters, primerPrice);
             costLines.push({
-              label: `Primer — ${line.label}`,
+              label: `Primer: ${line.label}`,
               amount: line.amount,
             });
             pricing.lines.push({
@@ -518,7 +518,7 @@ export function registerPhase2Engines(): void {
       // Screeding Cost Estimator uses. Config prices stay authoritative
       // when the admin set them; a missing price resolves through the
       // market's verified price book (joint-filler / interior-paint /
-      // concrete-mix roles) with provenance. Unpriced roles stay null —
+      // concrete-mix roles) with provenance. Unpriced roles stay null -
       // the result reports the gap, never guesses.
       const pricing: {
         market: string | null;
@@ -643,7 +643,7 @@ export function registerPhase2Engines(): void {
   });
   // ── Tyrolene system: the full authoritative Tyrolene estimate
   //    (equivalent partitions, per-material purchase quantities and
-  //    costs) — the same calculateTyroleneProject the manual Tyrolene
+  //    costs) - the same calculateTyroleneProject the manual Tyrolene
   //    Estimator runs, priced through the market's verified price book
   //    with role-based fallback and local brand names. The area-only
   //    tyrolene_partition_area engine stays registered for area

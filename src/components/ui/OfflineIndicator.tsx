@@ -45,9 +45,9 @@ export function OfflineIndicator() {
       className="fixed bottom-16 left-1/2 z-40 -translate-x-1/2 rounded-full border border-amber-500/40 bg-amber-500/10 px-4 py-2 text-xs font-medium text-amber-600 shadow-lg backdrop-blur md:bottom-4 dark:text-amber-400"
     >
       {offline && cachedDate
-        ? `Offline — using stored configuration from ${cachedDate}`
+        ? `Offline: using stored configuration from ${cachedDate}`
         : offline
-          ? "Offline — calculators use stored configuration where available"
+          ? "Offline: calculators use stored configuration where available"
           : `Using stored configuration from ${cachedDate} (connection problem)`}
     </div>
   );

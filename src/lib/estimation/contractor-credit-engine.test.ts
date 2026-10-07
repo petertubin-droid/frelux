@@ -66,7 +66,7 @@ describe("calculateCreditScore", () => {
     expect(r.band).toBe("Strong");
   });
 
-  it("caps the dispute penalty at the base score — the score never goes below zero", () => {
+  it("caps the dispute penalty at the base score: the score never goes below zero", () => {
     // case D: base 55.25, 9 disputes × 10 = 90 → capped at 55.25 → score 0
     const r = calculateCreditScore({ stats: stats(20, 12, 9, 25), rules });
     expect(r.ok).toBe(true);
@@ -82,7 +82,7 @@ describe("calculateCreditScore", () => {
     expect(r.band).toBe("Excellent");
   });
 
-  it("refuses zero verified jobs — insufficient history is never a zero score", () => {
+  it("refuses zero verified jobs: insufficient history is never a zero score", () => {
     const r = calculateCreditScore({ stats: stats(0, 0, 0, 0), rules });
     expect(r.ok).toBe(false);
     expect(r.score).toBeNull();
@@ -92,19 +92,19 @@ describe("calculateCreditScore", () => {
     );
   });
 
-  it("refuses on-time jobs exceeding verified jobs — an impossible record", () => {
+  it("refuses on-time jobs exceeding verified jobs: an impossible record", () => {
     const r = calculateCreditScore({ stats: stats(40, 45, 0, 10), rules });
     expect(r.ok).toBe(false);
     expect(r.warnings[0]).toMatch(/cannot exceed verified jobs/);
   });
 
-  it("refuses an average estimate error outside 0–100 — never clamped", () => {
+  it("refuses an average estimate error outside 0–100: never clamped", () => {
     const r = calculateCreditScore({ stats: stats(40, 40, 0, 120), rules });
     expect(r.ok).toBe(false);
     expect(r.warnings[0]).toMatch(/must be between 0 and 100/);
   });
 
-  it("refuses missing scoring weights — never invents them", () => {
+  it("refuses missing scoring weights: never invents them", () => {
     const partial = rules.filter((x) => x.rule_key !== "accuracy_weight");
     const r = calculateCreditScore({
       stats: stats(60, 54, 1, 12),
@@ -115,7 +115,7 @@ describe("calculateCreditScore", () => {
     expect(r.warnings[0]).toMatch(/refuses to invent scoring weights/);
   });
 
-  it("refuses weights summing above 1 — scores cannot exceed 100", () => {
+  it("refuses weights summing above 1: scores cannot exceed 100", () => {
     const heavy = rules.map((x) =>
       x.rule_key === "volume_weight" ? { ...x, rule_value: { value: 0.5 } } : x,
     );
@@ -141,7 +141,7 @@ describe("calculateCreditScore", () => {
     expect(r.score).toBe(62.3);
   });
 
-  it("refuses missing bands — never invents a threshold", () => {
+  it("refuses missing bands: never invents a threshold", () => {
     const noBands = rules.filter(
       (x) =>
         x.rule_key !== "strong_threshold" &&

@@ -28,7 +28,7 @@ describe("Metrics page", () => {
         <Comp />
       </MemoryRouter>,
     );
-    expect(getByText(/application — operational/i)).toBeTruthy();
-    expect(getByText(/ci — every commit typechecked/i)).toBeTruthy();
+    expect(getByText(/application: operational/i)).toBeTruthy();
+    expect(getByText(/ci: every commit typechecked/i)).toBeTruthy();
   });
 });

@@ -2,7 +2,7 @@
  * Waterproofing Engine (Tier 2, Engine 3)
  *
  * Deterministic waterproofing MATERIAL estimation. Two quantity
- * sources only — user-measured areas/runs and admin rules:
+ * sources only - user-measured areas/runs and admin rules:
  *
  *   USER: DPC run (m), DPM area (m²), wet-area floor area (m²),
  *         wet-area wall area (m²), wet-area perimeter (m),
@@ -224,7 +224,7 @@ export function calculateWaterproofing(
     };
   }
 
-  // ── 1. DPC roll — user run + visible overlap ──
+  // ── 1. DPC roll - user run + visible overlap ──
   if (input.dpc_run_m !== null && input.dpc_run_m > 0) {
     const factor = 1 + rules.dpc_overlap_pct / 100;
     const withOverlap = input.dpc_run_m * factor;
@@ -248,7 +248,7 @@ export function calculateWaterproofing(
   } else if (input.dpc_run_m === null) {
     const price = prices["dpc-per-meter"] ?? null;
     missing.push(
-      "DPC roll: enter the damp-proof course run length — the engine will not assume it.",
+      "DPC roll: enter the damp-proof course run length: the engine will not assume it.",
     );
     lines.push({
       key: "dpc",
@@ -263,7 +263,7 @@ export function calculateWaterproofing(
     });
   }
 
-  // ── 2. DPM membrane — user area, whole m² ──
+  // ── 2. DPM membrane - user area, whole m² ──
   if (input.dpm_area_m2 !== null && input.dpm_area_m2 > 0) {
     const qty = ceilU(input.dpm_area_m2);
     const price = prices["dpm-per-m2"] ?? null;
@@ -281,7 +281,7 @@ export function calculateWaterproofing(
   } else if (input.dpm_area_m2 === null) {
     const price = prices["dpm-per-m2"] ?? null;
     missing.push(
-      "DPM membrane: enter the membrane area — the engine will not assume it.",
+      "DPM membrane: enter the membrane area: the engine will not assume it.",
     );
     lines.push({
       key: "dpm",
@@ -296,7 +296,7 @@ export function calculateWaterproofing(
     });
   }
 
-  // ── 3. Cementitious coating — coats from rules, coverage rule must exist ──
+  // ── 3. Cementitious coating - coats from rules, coverage rule must exist ──
   const coated: { area: number; coats: number | null; label: string }[] = [];
   if (input.wet_floor_area_m2 !== null && input.wet_floor_area_m2 > 0)
     coated.push({
@@ -314,7 +314,7 @@ export function calculateWaterproofing(
   if (coated.length > 0) {
     if (rules.cementitious_coverage_m2_per_bag === null) {
       missing.push(
-        "Cementitious coating: no coverage rate configured (cementitious_coverage_m2_per_bag). Set it from the product datasheet — quantities will not be guessed.",
+        "Cementitious coating: no coverage rate configured (cementitious_coverage_m2_per_bag). Set it from the product datasheet: quantities will not be guessed.",
       );
     } else {
       const wasteFactor = 1 + rules.coating_waste_pct / 100;
@@ -322,13 +322,13 @@ export function calculateWaterproofing(
       for (const c of coated) {
         if (c.coats === null) {
           missing.push(
-            `Cementitious coating: no coat count configured for ${c.label} — configure it or count coats on site.`,
+            `Cementitious coating: no coat count configured for ${c.label}: configure it or count coats on site.`,
           );
           continue;
         }
         totalCoatedArea += c.area * c.coats;
         steps.push({
-          label: `Coating — ${c.label}`,
+          label: `Coating: ${c.label}`,
           detail: `${c.area} m² × ${c.coats} coats = ${roundTo(c.area * c.coats, 2)} m² coated.`,
         });
       }
@@ -356,15 +356,15 @@ export function calculateWaterproofing(
   }
   if (input.wet_floor_area_m2 === null && input.wet_wall_area_m2 === null) {
     missing.push(
-      "Cementitious coating: enter your wet-area floor and/or wall areas (or 0 if none) — the engine will not assume surfaces.",
+      "Cementitious coating: enter your wet-area floor and/or wall areas (or 0 if none): the engine will not assume surfaces.",
     );
   }
 
-  // ── 4. Bituminous membrane roll — terrace, coverage rule must exist ──
+  // ── 4. Bituminous membrane roll - terrace, coverage rule must exist ──
   if (input.terrace_area_m2 !== null && input.terrace_area_m2 > 0) {
     if (rules.membrane_roll_coverage_m2 === null) {
       missing.push(
-        "Bituminous membrane: no roll coverage configured (membrane_roll_coverage_m2). Set it from the roll size — quantities will not be guessed.",
+        "Bituminous membrane: no roll coverage configured (membrane_roll_coverage_m2). Set it from the roll size: quantities will not be guessed.",
       );
     } else {
       const rolls = ceilU(
@@ -389,7 +389,7 @@ export function calculateWaterproofing(
     }
   }
 
-  // ── 5. Corner tape — perimeter + overlap ──
+  // ── 5. Corner tape - perimeter + overlap ──
   if (input.wet_perimeter_m !== null && input.wet_perimeter_m > 0) {
     const factor = 1 + rules.tape_overlap_pct / 100;
     const withOverlap = input.wet_perimeter_m * factor;
@@ -412,7 +412,7 @@ export function calculateWaterproofing(
     });
   }
 
-  // ── 6. Labour — separate, never automatic ──
+  // ── 6. Labour - separate, never automatic ──
   let labourTotal = 0;
   const totalArea = Math.max(
     input.dpm_area_m2 ?? 0,
@@ -449,11 +449,11 @@ export function calculateWaterproofing(
   } else {
     steps.push({
       label: "Labour",
-      detail: "Excluded — not added to the total.",
+      detail: "Excluded: not added to the total.",
     });
   }
 
-  // ── 7. Totals — never fabricated ──
+  // ── 7. Totals - never fabricated ──
   const pricedLines = lines.filter((l) => l.line_total !== null);
   const pricedSubtotal = money(
     pricedLines.reduce((s, l) => s + (l.line_total ?? 0), 0),
@@ -468,7 +468,7 @@ export function calculateWaterproofing(
   for (const l of lines) {
     if (l.quantity !== null && l.unit_price === null) {
       warnings.push(
-        `${l.label}: PRICE NOT CONFIGURED in the material database — quantity shown, no price invented.`,
+        `${l.label}: PRICE NOT CONFIGURED in the material database: quantity shown, no price invented.`,
       );
     }
   }

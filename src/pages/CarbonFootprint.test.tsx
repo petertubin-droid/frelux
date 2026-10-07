@@ -2,7 +2,7 @@
  * Carbon Footprint page tests (Future Engine 5)
  *
  * The deterministic math is covered by embodied-carbon-engine.test.ts.
- * These pin the page wiring and — critically — that the public routes
+ * These pin the page wiring and - critically - that the public routes
  * for every engine page are actually registered in App.tsx (a previous
  * wiring script silently aborted and left pages unrouted).
  */

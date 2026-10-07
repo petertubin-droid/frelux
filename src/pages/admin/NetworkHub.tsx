@@ -14,13 +14,13 @@ import type { DbAdProvider, DbAdPlacement } from "@/types/database";
 import type { ExternalPromo } from "@/lib/house-promo";
 
 /**
- * NETWORK HUB — the complete Heartsyncx ad-network settings surface,
+ * NETWORK HUB - the complete Heartsyncx ad-network settings surface,
  * ported to Frelux's database-driven ad system.
  *
  * Heartsyncx manages its networks through a settings pane with one tab
  * per network (AdSense, Monetag, Adsterra) plus a placements tab with
  * live slot-to-provider connectivity checks. This component reproduces
- * that entire settings surface 1:1 — but instead of a settings blob it
+ * that entire settings surface 1:1 - but instead of a settings blob it
  * writes into Frelux's real `ad_providers` rows (credentials, settings,
  * is_active), `ad_placements` rows (per-slot ad unit IDs + on/off) and
  * `site_settings` (publisher id), so the existing AdSlot renderer and
@@ -256,7 +256,7 @@ export function hubStateFromDb(
   return state;
 }
 
-/** The monetag display-tag snippet derived from the Zone ID (preview only —
+/** The monetag display-tag snippet derived from the Zone ID (preview only -
  *  Layout derives the real loader automatically; this mirrors the
  *  Heartsyncx "script tag code" field with its Reset button). */
 export function monetagTagPreview(zoneId: string): string {
@@ -266,7 +266,7 @@ export function monetagTagPreview(zoneId: string): string {
 }
 
 const COMPLIANCE_WARNING =
-  "AdSense approval pending — the other networks keep serving. Once AdSense is approved and serves ads, Google Program policies require the intrusive site-wide formats (popunder, social bar, interstitial, in-page push, vignette) to be turned off here: pop-ups, pop-unders and interstitials are prohibited on pages carrying AdSense code. Compliant display banners may stay if clearly labelled.";
+  "AdSense approval pending: the other networks keep serving. Once AdSense is approved and serves ads, Google Program policies require the intrusive site-wide formats (popunder, social bar, interstitial, in-page push, vignette) to be turned off here: pop-ups, pop-unders and interstitials are prohibited on pages carrying AdSense code. Compliant display banners may stay if clearly labelled.";
 
 /** Adapts frelux's AdminInput (raw event) to a (value) => void handler. */
 function TextInput({
@@ -570,7 +570,7 @@ export default function NetworkHub() {
 
       clearAdConfigCache();
       await load();
-      setMessage("Saved — all network settings synced to the database.");
+      setMessage("Saved: all network settings synced to the database.");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Save failed.");
     } finally {
@@ -645,7 +645,7 @@ export default function NetworkHub() {
 
       {tab === "adsense" && (
         <HubCard
-          title="Google AdSense — Primary Provider"
+          title="Google AdSense: Primary Provider"
           subtitle="First claim on every placement slot. Monetag and Adsterra coexist until AdSense approves the site; per-slot AdSense units serve once your publisher ID and slot IDs are configured."
         >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -849,7 +849,7 @@ export default function NetworkHub() {
                 variant="secondary"
                 onClick={() =>
                   setMessage(
-                    "Tag derives from the Zone ID — clear the zone to remove it.",
+                    "Tag derives from the Zone ID: clear the zone to remove it.",
                   )
                 }
               >
@@ -1018,8 +1018,7 @@ export default function NetworkHub() {
           <div className="mt-5">
             <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">
               Per-slot Banner / Native Banner units (paste the bare key or the
-              whole dashboard snippet — the key is auto-extracted at render
-              time)
+              whole dashboard snippet: the key is auto-extracted at render time)
             </p>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {SLOT_MAP.map(({ family, label, placementKey }) => (
@@ -1081,8 +1080,8 @@ export default function NetworkHub() {
 
       {tab === "house_promo" && (
         <HubCard
-          title="House Promos — Sister Site & External Partners"
-          subtitle="First-party promo slots: advertise Heartsyncx across Frelux and sell the same slots to external website owners. Not ad-network units — no consent gate, cannot be blocked by ad blockers. Clicks are tracked as cross_promo_click."
+          title="House Promos: Sister Site & External Partners"
+          subtitle="First-party promo slots: advertise Heartsyncx across Frelux and sell the same slots to external website owners. Not ad-network units: no consent gate, cannot be blocked by ad blockers. Clicks are tracked as cross_promo_click."
         >
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <AdminField label="Master switch">
@@ -1110,7 +1109,7 @@ export default function NetworkHub() {
                 className="h-9 w-full rounded-md border border-border bg-background px-3 text-sm"
               >
                 <option value="display">
-                  Display (single real-logo image ad — recommended)
+                  Display (single real-logo image ad: recommended)
                 </option>
                 <option value="card">Card (rich grid of section links)</option>
                 <option value="banner">
@@ -1124,7 +1123,7 @@ export default function NetworkHub() {
             </AdminField>
             <AdminField
               label="Heartsyncx site URL"
-              hint="Where the sister-site promo links point. Leave empty for the default (heartsyncx.netlify.app). Update this when Heartsyncx moves to its custom domain — every promo link changes instantly."
+              hint="Where the sister-site promo links point. Leave empty for the default (heartsyncx.netlify.app). Update this when Heartsyncx moves to its custom domain: every promo link changes instantly."
             >
               <TextInput
                 value={state.housePromo.baseUrl}
@@ -1144,7 +1143,7 @@ export default function NetworkHub() {
                 typing every field by hand. */}
             <div className="mb-4 rounded-lg border border-indigo-200 bg-indigo-50/60 p-3 dark:border-indigo-900/40 dark:bg-indigo-950/20">
               <p className="flex items-center gap-1.5 text-sm font-bold text-indigo-700 dark:text-indigo-400">
-                <Wand2 className="h-4 w-4" /> AI Assistant — create an ad from a
+                <Wand2 className="h-4 w-4" /> AI Assistant: create an ad from a
                 URL
               </p>
               <div className="mt-2 flex gap-2">
@@ -1356,7 +1355,7 @@ export default function NetworkHub() {
 }
 
 /**
- * Slot-to-provider connectivity checker — port of Heartsyncx's
+ * Slot-to-provider connectivity checker - port of Heartsyncx's
  * AdSlotConnectivity. Resolves the provider chain for each mapped slot
  * (AdSense unit id → Adsterra unit key → Monetag native zone) from the
  * same DB rows AdSlot uses, then live-probes Adsterra invoke.js and
@@ -1479,7 +1478,7 @@ function SlotConnectivity({
             next[family] = {
               status: "refused",
               detail:
-                "HTTP 403 — Adsterra refuses this unit. Check the dashboard: unit active and this site approved.",
+                "HTTP 403: Adsterra refuses this unit. Check the dashboard: unit active and this site approved.",
             };
           else
             next[family] = {
@@ -1513,13 +1512,13 @@ function SlotConnectivity({
         next[family] = {
           status: "ok",
           detail:
-            "Configured — AdSense serves only after Google approves the site and the unit id is valid.",
+            "Configured: AdSense serves only after Google approves the site and the unit id is valid.",
         };
       } else {
         next[family] = {
           status: "unconfigured",
           detail:
-            "Empty slot — configure AdSense, an Adsterra unit or a Monetag native banner zone.",
+            "Empty slot: configure AdSense, an Adsterra unit or a Monetag native banner zone.",
         };
       }
       setChecks({ ...next });
@@ -1528,7 +1527,7 @@ function SlotConnectivity({
   }
 
   const badge = (c?: { status: CheckStatus; detail: string }) => {
-    if (!c) return <span className="text-muted-foreground">—</span>;
+    if (!c) return <span className="text-muted-foreground">N/A</span>;
     const map: Record<CheckStatus, string> = {
       idle: "bg-muted text-muted-foreground",
       checking: "bg-blue-100 text-blue-700",
@@ -1624,7 +1623,7 @@ function SlotConnectivity({
                   <td className="p-2">{badge(c)}</td>
                   <td className="p-2 text-muted-foreground">
                     {r.label}
-                    {c ? ` — ${c.detail}` : ""}
+                    {c ? `: ${c.detail}` : ""}
                   </td>
                 </tr>
               );
@@ -1636,7 +1635,7 @@ function SlotConnectivity({
         <Radio className="h-3 w-3" /> Live checks run from your browser:
         Adsterra invoke.js is fetched directly (200 = serving, 403 = unit
         refused), Monetag's tag is probed opaquely. AdSense approval status
-        cannot be queried from the browser — configuration only.
+        cannot be queried from the browser: configuration only.
       </p>
     </div>
   );

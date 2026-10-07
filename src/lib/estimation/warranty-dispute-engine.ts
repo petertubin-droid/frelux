@@ -9,11 +9,11 @@
  *    calculated quantities, per-line price snapshots) into a
  *    certificate snapshot.
  * 2. Computes a deterministic config_hash over that frozen
- *    configuration — the same estimate always hashes the
+ *    configuration - the same estimate always hashes the
  *    same, so any later tampering is detectable.
  * 3. Replays the stored line math (quantity x snapshot price)
  *    against the stored line totals. A mismatch is reported as
- *    a dispute flag — it is NEVER silently repaired.
+ *    a dispute flag - it is NEVER silently repaired.
  * 4. Applies the admin-configured warranty period (months,
  *    copied onto the record at issue time so later rule
  *    changes never rewrite history).
@@ -108,7 +108,7 @@ function canonicalJson(value: unknown): string {
   return `{${keys.map((k) => `${JSON.stringify(k)}:${canonicalJson(obj[k])}`).join(",")}}`;
 }
 
-/** FNV-1a 32-bit over the canonical JSON — deterministic, dependency-free. */
+/** FNV-1a 32-bit over the canonical JSON - deterministic, dependency-free. */
 function fnv1a(s: string): string {
   let h = 0x811c9dc5;
   for (let i = 0; i < s.length; i++) {
@@ -153,7 +153,7 @@ export function issueWarrantyCertificate(input: WarrantyInput): WarrantyResult {
   const ref = input.estimate_ref?.trim();
   if (!ref || !input.estimate_id?.trim()) {
     result.warnings.push(
-      "An estimate must be selected — the engine never certifies without one.",
+      "An estimate must be selected: the engine never certifies without one.",
     );
     return result;
   }
@@ -194,10 +194,10 @@ export function issueWarrantyCertificate(input: WarrantyInput): WarrantyResult {
   result.certificate_ref = `FRELUX-WAR-${ref}-${result.config_hash}`;
   result.steps.push({
     label: "Configuration frozen",
-    detail: `Snapshot of ${input.items.length} line${input.items.length === 1 ? "" : "s"} + inputs + calculated quantities hashed to ${result.config_hash}. The same stored configuration always hashes the same — any later change is detectable.`,
+    detail: `Snapshot of ${input.items.length} line${input.items.length === 1 ? "" : "s"} + inputs + calculated quantities hashed to ${result.config_hash}. The same stored configuration always hashes the same: any later change is detectable.`,
   });
 
-  // ── 4. Replay the stored line math — flag mismatches, never repair ──
+  // ── 4. Replay the stored line math - flag mismatches, never repair ──
   let hasDispute = false;
   for (const it of input.items) {
     const qty = Number(it.quantity);
@@ -209,7 +209,7 @@ export function issueWarrantyCertificate(input: WarrantyInput): WarrantyResult {
       price < 0
     ) {
       result.dispute_flags.push(
-        `Line '${it.item_name}' has invalid stored data (quantity or price) — it cannot be replayed and is flagged for manual review.`,
+        `Line '${it.item_name}' has invalid stored data (quantity or price): it cannot be replayed and is flagged for manual review.`,
       );
       hasDispute = true;
       result.replay_checks.push({
@@ -238,7 +238,7 @@ export function issueWarrantyCertificate(input: WarrantyInput): WarrantyResult {
     });
     if (!matches) {
       result.dispute_flags.push(
-        `Line '${it.item_name}' stored total ${stored} does not match the replayed math ${qty} × ${price} = ${replayed}. Flagged for dispute review — the engine never repairs stored data.`,
+        `Line '${it.item_name}' stored total ${stored} does not match the replayed math ${qty} × ${price} = ${replayed}. Flagged for dispute review: the engine never repairs stored data.`,
       );
       hasDispute = true;
     }
@@ -246,10 +246,10 @@ export function issueWarrantyCertificate(input: WarrantyInput): WarrantyResult {
   const okLines = result.replay_checks.filter((c) => c.matches).length;
   result.steps.push({
     label: "Replay verification",
-    detail: `Replayed ${okLines}/${result.replay_checks.length} line${result.replay_checks.length === 1 ? "" : "s"} exactly (quantity × snapshot price = stored total, 2dp). ${hasDispute ? `${result.replay_checks.length - okLines} mismatch${result.replay_checks.length - okLines === 1 ? "" : "es"} flagged — never repaired.` : "All lines replay exactly."}`,
+    detail: `Replayed ${okLines}/${result.replay_checks.length} line${result.replay_checks.length === 1 ? "" : "s"} exactly (quantity × snapshot price = stored total, 2dp). ${hasDispute ? `${result.replay_checks.length - okLines} mismatch${result.replay_checks.length - okLines === 1 ? "" : "es"} flagged: never repaired.` : "All lines replay exactly."}`,
   });
 
-  // ── 5. Warranty period from the configured rule — copied at issue time ──
+  // ── 5. Warranty period from the configured rule - copied at issue time ──
   const months = ruleNumber(input.rules, "warranty_months");
   const issued = new Date(input.now).toISOString();
   result.issued_at = issued;
@@ -267,12 +267,12 @@ export function issueWarrantyCertificate(input: WarrantyInput): WarrantyResult {
         new Date(issued).getTime() <= new Date(result.expires_at).getTime();
       result.steps.push({
         label: "Warranty period",
-        detail: `${months} month${months === 1 ? "" : "s"} from the quote date — copied onto this certificate now, so later rule changes never rewrite this record. Expires ${result.expires_at.slice(0, 10)}.`,
+        detail: `${months} month${months === 1 ? "" : "s"} from the quote date: copied onto this certificate now, so later rule changes never rewrite this record. Expires ${result.expires_at.slice(0, 10)}.`,
       });
     }
   } else {
     result.warnings.push(
-      "No valid warranty_months rule is configured for the warranty calculator — the certificate is issued WITHOUT an expiry. FRELUX never invents a warranty period.",
+      "No valid warranty_months rule is configured for the warranty calculator: the certificate is issued WITHOUT an expiry. FRELUX never invents a warranty period.",
     );
   }
 

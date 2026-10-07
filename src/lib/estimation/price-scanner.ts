@@ -4,7 +4,7 @@
 // The price tracker's job: compare the reference catalog against
 // the prices actually CONFIGURED in the shared material database,
 // and let the admin apply verified prices. It is a reference
-// catalog review — NOT a live market feed, and it never invents
+// catalog review - NOT a live market feed, and it never invents
 // price movement:
 //   - no random variance, no simulated "market changes"
 //   - a catalog entry with price null = NO reference available:
@@ -28,7 +28,7 @@ export interface FallbackPrice {
 
 /**
  * Reference catalog. Values are FRELUX reference data for the
- * Nigerian market — the admin verifies each price before applying
+ * Nigerian market - the admin verifies each price before applying
  * it to the shared material database. The Tier 2 foundation and
  * reinforcement engines price these same slugs.
  */
@@ -161,7 +161,7 @@ export const FALLBACK_PRICES: Record<string, FallbackPrice> = {
   },
 
   // ── Tier 2 engine materials: listed for tracking, NO reference
-  //    price — the admin enters the verified price from their
+  //    price - the admin enters the verified price from their
   //    supplier. The electrical engine prices these slugs.
   elec_cable_lighting: {
     price: null,
@@ -480,7 +480,7 @@ export const FALLBACK_PRICES: Record<string, FallbackPrice> = {
 /**
  * US reference catalog. Values are real retail prices for real US
  * products, verified 2026-10-05 from Home Depot, Walmart, True
- * Value and list-price sources. null = no verified price yet —
+ * Value and list-price sources. null = no verified price yet -
  * the admin must enter it; a price is never invented.
  */
 export const US_REFERENCE_PRICES: Record<string, FallbackPrice> = {
@@ -493,7 +493,7 @@ export const US_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   us_sand_50lb: {
     price: 8.99,
     price_source:
-      "Ace Hardware (Quikrete All-Purpose Sand 50 lb, Mfr# 115253) — verified 2026-10-05",
+      "Ace Hardware (Quikrete All-Purpose Sand 50 lb, Mfr# 115253): verified 2026-10-05",
     unit: "50 lb bag",
     name: "All-Purpose Sand (50 lb)",
     slug: "us-sand-50lb",
@@ -531,7 +531,7 @@ export const US_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   us_concrobium_gal: {
     price: 39.96,
     price_source:
-      "Home Depot (Concrobium 1 gal Mold Control Jug 025001) — verified 2026-10-05",
+      "Home Depot (Concrobium 1 gal Mold Control Jug 025001): verified 2026-10-05",
     unit: "gallon",
     name: "Concrobium Mold Control",
     slug: "us-concrobium-mold-control",
@@ -539,7 +539,7 @@ export const US_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   us_dap_amp_caulk: {
     price: 10.79,
     price_source:
-      "Thomas Do it Center (DAP AMP 9 oz all-weather white) — verified 2026-10-05",
+      "Thomas Do it Center (DAP AMP 9 oz all-weather white): verified 2026-10-05",
     unit: "9 oz tube",
     name: "DAP AMP Advanced Hybrid Caulk",
     slug: "us-dap-amp-caulk",
@@ -571,7 +571,7 @@ export const US_REFERENCE_PRICES: Record<string, FallbackPrice> = {
   us_kilz2_gal: {
     price: 24.99,
     price_source:
-      "Ace Hardware (KILZ 2 All-Purpose 1 gal, Mfr# 20041) — verified 2026-10-05",
+      "Ace Hardware (KILZ 2 All-Purpose 1 gal, Mfr# 20041): verified 2026-10-05",
     unit: "gallon",
     name: "KILZ 2 All-Purpose Primer",
     slug: "us-kilz-2-primer",
@@ -620,7 +620,7 @@ export interface ScanOptions {
 /**
  * Compares the reference catalog against the prices actually
  * configured in the shared material database. Deterministic and
- * honest: it reports what IS configured versus the reference —
+ * honest: it reports what IS configured versus the reference -
  * it never simulates market movement or invents a price.
  *
  * `configuredPrices` is keyed by material slug with null/absent
@@ -663,7 +663,7 @@ export async function scanMaterialPrices(
         confidence: "low",
         scanned_at: scannedAt,
         success: false,
-        error: "No shared material record — add the material before pricing.",
+        error: "No shared material record: add the material before pricing.",
       });
       continue;
     }

@@ -1,5 +1,5 @@
 // =========================================================
-// Wall Finishing engine tests — the four mandated country
+// Wall Finishing engine tests - the four mandated country
 // cases (NG block+render+paint, US timber+drywall+paint, UK
 // masonry+skim+paint, IN brick+plaster+putty+paint) plus
 // openings, volume mixes, cost, transparency and validation.
@@ -565,7 +565,7 @@ describe("quality checklists", () => {
 
 // ─── assembly layer add-back / reorder ─────────────
 
-describe("resolveAssemblyLayers — remove, add back, reorder", () => {
+describe("resolveAssemblyLayers: remove, add back, reorder", () => {
   const assembly = getAssembly("ng-interior-block-paint")!;
   const ids = () => assembly.layers.map((l) => l.id);
 
@@ -602,7 +602,7 @@ describe("resolveAssemblyLayers — remove, add back, reorder", () => {
     expect(reordered.reorderedIds.has(b)).toBe(true);
   });
 
-  it("warns loudly on duplicate adds and unknown ids — never silent", () => {
+  it("warns loudly on duplicate adds and unknown ids: never silent", () => {
     const dup = resolveAssemblyLayers(assembly, {
       layers: {},
       removedLayers: [],

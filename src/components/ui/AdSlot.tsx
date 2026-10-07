@@ -327,7 +327,7 @@ export default function AdSlot({
               return;
             }
             // No native zone: Monetag has nothing to render in this
-            // slot, but the CHAIN is not done — continue so a later
+            // slot, but the CHAIN is not done - continue so a later
             // provider (e.g. Adsterra) can still fill it. Resolving
             // "none" here used to cut the fallback chain short.
             continue;

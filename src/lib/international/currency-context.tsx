@@ -1,5 +1,5 @@
 /**
- * CurrencyProvider — React binding for the visitor currency display layer.
+ * CurrencyProvider - React binding for the visitor currency display layer.
  *
  * Mounted once in main.tsx. It:
  *  1. restores the visitor's saved currency from localStorage,
@@ -61,7 +61,7 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   const [cfg, setCfg] = useState<DisplayCurrencyConfig | null>(null);
 
   // Fetch the owner's rates once. A missing column or fetch failure
-  // just means "display layer disabled" (₦ everywhere) — never a guess.
+  // just means "display layer disabled" (₦ everywhere) - never a guess.
   useEffect(() => {
     let cancelled = false;
     getSupabase()

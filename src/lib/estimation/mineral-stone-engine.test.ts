@@ -3,7 +3,7 @@
  *
  * Every expected value below is computed BY HAND from first principles
  * (see the comment above each case). The tests must not simply re-run the
- * engine's own formula — they pin the arithmetic the engine is supposed
+ * engine's own formula - they pin the arithmetic the engine is supposed
  * to produce.
  */
 
@@ -58,7 +58,7 @@ const M2 = "m2";
 const FT2 = "ft2";
 
 // ─────────────────────────────────────────────────────────
-// MODEL B — mass per area (the prompt's worked example)
+// MODEL B - mass per area (the prompt's worked example)
 // ─────────────────────────────────────────────────────────
 
 describe("Mineral Stone: mass per area model", () => {
@@ -123,7 +123,7 @@ describe("Mineral Stone: mass per area model", () => {
 });
 
 // ─────────────────────────────────────────────────────────
-// MODEL A — coverage per package
+// MODEL A - coverage per package
 // ─────────────────────────────────────────────────────────
 
 describe("Mineral Stone: coverage-based model", () => {
@@ -200,7 +200,7 @@ describe("Mineral Stone: coverage-based model", () => {
 });
 
 // ─────────────────────────────────────────────────────────
-// MODEL C — volume per area
+// MODEL C - volume per area
 // ─────────────────────────────────────────────────────────
 
 describe("Mineral Stone: volume per area model", () => {
@@ -306,7 +306,7 @@ describe("Mineral Stone: coats and layers", () => {
 });
 
 // ─────────────────────────────────────────────────────────
-// Missing configuration — never a silent guess
+// Missing configuration - never a silent guess
 // ─────────────────────────────────────────────────────────
 
 describe("Mineral Stone: missing configuration", () => {

@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX Wall Finishing — quantity calculation engine.
+// FRELUX Wall Finishing - quantity calculation engine.
 //
 // Deterministic, pure, fully transparent:
 //
@@ -132,14 +132,14 @@ export function calculateWallAreas(wall: WallSpec): WallAreaResult {
   };
 }
 
-/** Purchase rounding per unit family — always rounded UP, never under-bought. */
+/** Purchase rounding per unit family - always rounded UP, never under-bought. */
 export function roundPurchaseQuantity(qty: number, unit: string): number {
   if (!Number.isFinite(qty) || qty <= 0) return 0;
   const u = unit.toLowerCase();
   if (u.includes("m³") || u.includes("m3") || u.includes("tonne")) {
     return round(Math.ceil(qty * 10) / 10, 2);
   }
-  // Whole items first — a "25 kg bag" is bought as whole bags, never half.
+  // Whole items first - a "25 kg bag" is bought as whole bags, never half.
   if (
     u.includes("bag") ||
     u.includes("pail") ||
@@ -183,7 +183,7 @@ export function calculateLayerQuantity(
       layer,
       steps,
       [],
-      ["Wall area must be positive — quantity refused instead of guessed."],
+      ["Wall area must be positive: quantity refused instead of guessed."],
     );
   }
 
@@ -210,13 +210,13 @@ export function calculateLayerQuantity(
           steps,
           [],
           [
-            `Layer '${layer.name}': coverage rate missing or invalid — quantity refused instead of guessed.`,
+            `Layer '${layer.name}': coverage rate missing or invalid: quantity refused instead of guessed.`,
           ],
         );
       }
       baseQuantity = (areaM2 * coats) / coverage;
       steps.push({
-        label: `${layer.name} — required ${layer.unit}`,
+        label: `${layer.name}: required ${layer.unit}`,
         detail: `${areaM2} m² × ${coats} coat${coats > 1 ? "s" : ""} ÷ ${coverage} m² per ${layer.unit}`,
         formula: `${areaM2} × ${coats} ÷ ${coverage} = ${round(baseQuantity, 3)}`,
       });
@@ -237,7 +237,7 @@ export function calculateLayerQuantity(
           steps,
           [],
           [
-            `Layer '${layer.name}': thickness missing or invalid — quantity refused instead of guessed.`,
+            `Layer '${layer.name}': thickness missing or invalid: quantity refused instead of guessed.`,
           ],
         );
       }
@@ -258,7 +258,7 @@ export function calculateLayerQuantity(
       const wet = areaM2 * (thicknessMm / 1000);
       const dry = wet * MORTAR_DRY_FACTOR;
       steps.push({
-        label: `${layer.name} — wet mortar volume`,
+        label: `${layer.name}: wet mortar volume`,
         detail: `${areaM2} m² × ${thicknessMm} mm = ${round(wet, 4)} m³`,
       });
       steps.push({
@@ -277,13 +277,13 @@ export function calculateLayerQuantity(
           steps,
           [],
           [
-            `Layer '${layer.name}': per-area rate missing — quantity refused instead of guessed.`,
+            `Layer '${layer.name}': per-area rate missing: quantity refused instead of guessed.`,
           ],
         );
       }
       baseQuantity = areaM2 * rate;
       steps.push({
-        label: `${layer.name} — ${layer.unit}`,
+        label: `${layer.name}: ${layer.unit}`,
         detail: `${areaM2} m² × ${rate} per m² = ${round(baseQuantity, 4)}`,
         formula: `${areaM2} × ${rate} = ${round(baseQuantity, 4)}`,
       });
@@ -388,11 +388,11 @@ export function calculateAssemblyQuantities(
   const components: AssemblyQuantityResult["components"] = [];
   const oMap = overrides?.layers ?? {};
 
-  // duplicate layer ids are a data bug — refuse loudly
+  // duplicate layer ids are a data bug - refuse loudly
   const ids = assembly.layers.map((l) => l.id);
   if (new Set(ids).size !== ids.length) {
     errors.push(
-      `Assembly '${assembly.name}' contains duplicate layer ids — refused instead of guessed.`,
+      `Assembly '${assembly.name}' contains duplicate layer ids: refused instead of guessed.`,
     );
   }
 

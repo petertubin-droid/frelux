@@ -2,11 +2,11 @@
 // CONSTRUCTION EXTRACTION PANEL TESTS
 //
 // The contract of the AI extraction layer, at the UI seam:
-//   * the AI NEVER calculates — it only produces user-
+//   * the AI NEVER calculates - it only produces user-
 //     confirmed input values; Apply is disabled until at
 //     least one field is accepted/edited
 //   * text_description mode requires a real description;
-//     document mode requires a file — Analyse stays
+//     document mode requires a file - Analyse stays
 //     disabled otherwise (no accidental empty analyses)
 //   * extraction failure degrades gracefully to the manual
 //     workflow with an honest message
@@ -74,7 +74,7 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-describe("ConstructionExtractionPanel — input gating", () => {
+describe("ConstructionExtractionPanel: input gating", () => {
   it("renders the honest framing: AI reads values, the deterministic engine calculates", () => {
     render(
       <ConstructionExtractionPanel currentOpenings={[]} onApply={onApply} />,
@@ -107,7 +107,7 @@ describe("ConstructionExtractionPanel — input gating", () => {
   });
 });
 
-describe("ConstructionExtractionPanel — review and apply", () => {
+describe("ConstructionExtractionPanel: review and apply", () => {
   it("a successful extraction reaches review with accept/edit/reject per field", async () => {
     vi.mocked(requestConstructionExtraction).mockResolvedValue(RESULT as never);
     render(
@@ -171,7 +171,7 @@ describe("ConstructionExtractionPanel — review and apply", () => {
       target: { value: "A 12m by 8m bungalow with 3m walls" },
     });
     fireEvent.click(screen.getByRole("button", { name: /Analyse with AI/i }));
-    // numeric fields edit directly — no dropdown, the human types the correction
+    // numeric fields edit directly - no dropdown, the human types the correction
     const edit = await screen.findByLabelText("Edit Building length in m");
     fireEvent.change(edit, { target: { value: "13" } });
     fireEvent.click(
@@ -182,7 +182,7 @@ describe("ConstructionExtractionPanel — review and apply", () => {
   });
 });
 
-describe("ConstructionExtractionPanel — honest failure modes", () => {
+describe("ConstructionExtractionPanel: honest failure modes", () => {
   it("a failed extraction degrades gracefully to the manual workflow", async () => {
     vi.mocked(requestConstructionExtraction).mockRejectedValue(
       new Error("vision service unavailable"),
@@ -201,7 +201,7 @@ describe("ConstructionExtractionPanel — honest failure modes", () => {
     expect(
       await screen.findByText(/enter your dimensions manually below/i),
     ).toBeTruthy();
-    // the manual path is still available — kind selector back in view
+    // the manual path is still available - kind selector back in view
     expect(screen.getByText(/Text description/i)).toBeTruthy();
   });
 

@@ -2,7 +2,7 @@
  * Plumbing Engine (Tier 2, Engine 2)
  *
  * Deterministic plumbing MATERIAL estimation. Two quantity sources
- * only — explicit user inputs and admin-configured planning rules:
+ * only - explicit user inputs and admin-configured planning rules:
  *
  *   USER: fixture counts (taps, WCs, showers, sinks, floor drains,
  *         storage tanks, pumps) and the TOTAL pipe run length per
@@ -17,7 +17,7 @@
  *  - Hot water is a separate category, included only when the
  *    user provides a hot water run length.
  *  - Fitting counts are labelled PLANNING ALLOWANCES derived from
- *    admin rules — not invented measurements.
+ *    admin rules - not invented measurements.
  *  - Prices come from the shared material database. Unpriced
  *    materials show PRICE NOT CONFIGURED; totals stay null.
  *  - This is material estimation, not professional plumbing design.
@@ -236,7 +236,7 @@ export function calculatePlumbing(
   const totalFixtures =
     input.taps + input.wcs + input.showers + input.sinks + input.floor_drains;
 
-  // ── 1. Pipe categories — separate, user-measured ──
+  // ── 1. Pipe categories - separate, user-measured ──
   const wasteFactor = 1 + rules.pipe_waste_pct / 100;
   const pipeSpecs: {
     key: string;
@@ -277,7 +277,7 @@ export function calculatePlumbing(
     if (spec.run === 0) continue; // explicitly none
     if (spec.run === null) {
       missing.push(
-        `${spec.label}: enter your measured or estimated total run length${spec.note ? ` (${spec.note})` : ""} — the engine will not assume hidden pipe lengths.`,
+        `${spec.label}: enter your measured or estimated total run length${spec.note ? ` (${spec.note})` : ""}: the engine will not assume hidden pipe lengths.`,
       );
       lines.push({
         key: spec.key,
@@ -311,7 +311,7 @@ export function calculatePlumbing(
     });
   }
 
-  // ── 2. Fittings — labelled planning allowances ──
+  // ── 2. Fittings - labelled planning allowances ──
   const fittingRules: {
     key: string;
     label: string;
@@ -383,7 +383,7 @@ export function calculatePlumbing(
     });
   }
 
-  // ── 4. Fixtures and connection kits — direct user counts ──
+  // ── 4. Fixtures and connection kits - direct user counts ──
   const directItems: {
     key: string;
     label: string;
@@ -444,7 +444,7 @@ export function calculatePlumbing(
     });
   }
 
-  // ── 5. Labour — separate, never automatic ──
+  // ── 5. Labour - separate, never automatic ──
   let labourTotal = 0;
   if (input.labour.mode === "per_fixture") {
     const rate = input.labour.per_fixture_rate ?? null;
@@ -477,11 +477,11 @@ export function calculatePlumbing(
   } else {
     steps.push({
       label: "Labour",
-      detail: "Excluded — not added to the total.",
+      detail: "Excluded: not added to the total.",
     });
   }
 
-  // ── 6. Totals — never fabricated ──
+  // ── 6. Totals - never fabricated ──
   const pricedLines = lines.filter((l) => l.line_total !== null);
   const pricedSubtotal = money(
     pricedLines.reduce((s, l) => s + (l.line_total ?? 0), 0),
@@ -496,7 +496,7 @@ export function calculatePlumbing(
   for (const l of lines) {
     if (l.quantity !== null && l.unit_price === null) {
       warnings.push(
-        `${l.label}: PRICE NOT CONFIGURED in the material database — quantity shown, no price invented.`,
+        `${l.label}: PRICE NOT CONFIGURED in the material database: quantity shown, no price invented.`,
       );
     }
   }

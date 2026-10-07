@@ -113,7 +113,7 @@ export function applyRegionalCost(
     if (match) source = "state_general";
   }
 
-  // ── 3. National baseline (never a guess — a documented fallback with warning) ──
+  // ── 3. National baseline (never a guess - a documented fallback with warning) ──
   if (!match) {
     source = "national_baseline";
     const baseline = nationalBaseline(input.rules);
@@ -124,7 +124,7 @@ export function applyRegionalCost(
     result.adjusted_cost = adjusted;
     result.steps.push({
       label: "Applied factor",
-      detail: `No index configured for ${country}/${state}/${category}. National baseline ${factor.toFixed(2)} applied with a warning — the engine does not guess a regional multiplier.`,
+      detail: `No index configured for ${country}/${state}/${category}. National baseline ${factor.toFixed(2)} applied with a warning: the engine does not guess a regional multiplier.`,
     });
     result.steps.push({
       label: "Adjusted cost",
@@ -148,7 +148,7 @@ export function applyRegionalCost(
   }
   if (source === "state_general" && category !== "general") {
     result.warnings.push(
-      `No ${category} index is configured for ${state} — the state's general index (${factor.toFixed(2)}) was applied instead.`,
+      `No ${category} index is configured for ${state}: the state's general index (${factor.toFixed(2)}) was applied instead.`,
     );
   }
   const adjusted = money(base * factor);

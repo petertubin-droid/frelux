@@ -65,9 +65,9 @@ function validate(f: PresetForm): string | null {
   if (!f.name.trim()) return "Preset name is required.";
   const margin = Number(f.margin_percent);
   if (!Number.isFinite(margin) || margin <= 0)
-    return "Margin percent must be positive — the engine never prices at or below cost without an explicit percent.";
+    return "Margin percent must be positive: the engine never prices at or below cost without an explicit percent.";
   if (f.basis === "margin_on_price" && margin >= 100)
-    return "A margin-on-price percent of 100 or more is mathematically impossible — the engine would refuse it.";
+    return "A margin-on-price percent of 100 or more is mathematically impossible: the engine would refuse it.";
   return null;
 }
 
@@ -154,7 +154,7 @@ export default function AdminMarginPresets() {
     <div className="space-y-6">
       <AdminHeader
         title="Margin Presets"
-        subtitle="Admin-configured pricing presets with an explicit basis: markup on cost (profit = cost × %) or margin on price (price = cost ÷ (1 − %)). The margin engine never confuses the two — every quote shows which basis produced it."
+        subtitle="Admin-configured pricing presets with an explicit basis: markup on cost (profit = cost × %) or margin on price (price = cost ÷ (1 − %)). The margin engine never confuses the two: every quote shows which basis produced it."
         action={
           <AdminButton onClick={openCreate}>
             <Plus className="mr-2 h-4 w-4" /> Add Preset
@@ -259,7 +259,7 @@ export default function AdminMarginPresets() {
             />
           </AdminField>
 
-          <AdminField label="Basis * — which number the percent applies to">
+          <AdminField label="Basis *: which number the percent applies to">
             <select
               className="rounded-lg border border-border bg-background px-3 py-2 text-sm"
               value={form.basis}

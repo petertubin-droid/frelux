@@ -3,7 +3,7 @@
  *
  * Pins the honesty contract:
  *  - cable categories computed separately, never merged
- *  - cable length NEVER invented — missing run length leaves the
+ *  - cable length NEVER invented - missing run length leaves the
  *    line unsized, names the missing input, marks incomplete
  *  - waste visible in every cable breakdown (base, waste, final)
  *  - PRICE NOT CONFIGURED for unpriced materials; totals stay null
@@ -73,7 +73,7 @@ const NO_PRICES: Record<string, number | null> = {};
 // ─────────────────────────────────────────────
 
 describe("parseElectricalRules", () => {
-  it("defaults waste to zero and allowances to null — nothing silently invented", () => {
+  it("defaults waste to zero and allowances to null: nothing silently invented", () => {
     const parsed = parseElectricalRules([]);
     expect(parsed.cable_waste_pct).toBe(0);
     expect(parsed.conduit_waste_pct).toBe(0);
@@ -173,14 +173,14 @@ describe("input validation", () => {
     );
     expect(result.ok).toBe(true);
     expect(result.lines).toHaveLength(0);
-    expect(result.material_subtotal).toBe(0); // nothing to buy — a complete, empty estimate
+    expect(result.material_subtotal).toBe(0); // nothing to buy: a complete, empty estimate
     expect(result.incomplete).toBe(false);
     expect(result.grand_total).toBe(0);
   });
 });
 
 // ─────────────────────────────────────────────
-// Cable categories — separate, honest, never invented
+// Cable categories - separate, honest, never invented
 // ─────────────────────────────────────────────
 
 describe("cable categories", () => {
@@ -282,7 +282,7 @@ describe("cable categories", () => {
 });
 
 // ─────────────────────────────────────────────
-// Circuits and breakers — planning, not design
+// Circuits and breakers - planning, not design
 // ─────────────────────────────────────────────
 
 describe("circuit counting", () => {
@@ -301,7 +301,7 @@ describe("circuit counting", () => {
     expect(breakers?.detail).toMatch(/counts circuits only/i);
   });
 
-  it("rounds circuits UP — 11 lighting points over a 10-point rule is 2 circuits", () => {
+  it("rounds circuits UP: 11 lighting points over a 10-point rule is 2 circuits", () => {
     const result = calculateElectrical(
       makeInput({ lighting_points: 11 }),
       rules,
@@ -345,7 +345,7 @@ describe("rule-derived lines", () => {
     expect(jb?.quantity).toBe(7);
   });
 
-  it("without a conduit allowance configured, conduit is reported missing — never guessed", () => {
+  it("without a conduit allowance configured, conduit is reported missing: never guessed", () => {
     const bareRules = {
       ...rules,
       conduit_m_per_lighting_point: null,
@@ -374,7 +374,7 @@ describe("rule-derived lines", () => {
 });
 
 // ─────────────────────────────────────────────
-// Prices — never fabricated
+// Prices - never fabricated
 // ─────────────────────────────────────────────
 
 describe("pricing honesty", () => {
@@ -388,7 +388,7 @@ describe("pricing honesty", () => {
     expect(result.material_subtotal).toBeNull();
     expect(result.grand_total).toBeNull();
     expect(result.priced_subtotal).toBe(0);
-    // quantities still shown — the takeoff is valid without prices
+    // quantities still shown - the takeoff is valid without prices
     expect(result.lines.find((l) => l.key === "cable_lighting")?.quantity).toBe(
       264,
     );
@@ -421,7 +421,7 @@ describe("pricing honesty", () => {
 });
 
 // ─────────────────────────────────────────────
-// Labour — separate, never automatic
+// Labour - separate, never automatic
 // ─────────────────────────────────────────────
 
 describe("labour", () => {
@@ -432,9 +432,9 @@ describe("labour", () => {
       FULL_PRICES,
     );
     expect(result.labour_total).toBe(0);
-    expect(
-      result.steps.some((s) => /Excluded — not added/.test(s.detail)),
-    ).toBe(true);
+    expect(result.steps.some((s) => /Excluded: not added/.test(s.detail))).toBe(
+      true,
+    );
   });
 
   it("per-point labour uses the user's rate over total points", () => {

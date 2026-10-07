@@ -9,7 +9,7 @@
  * - The frozen configuration is hash-verified: the same stored
  *   estimate always hashes the same, so tampering is detectable.
  * - Stored line math is replayed; a mismatch becomes a dispute
- *   flag — it is never silently repaired.
+ *   flag - it is never silently repaired.
  */
 
 import { useEffect, useState, useCallback } from "react";
@@ -38,7 +38,7 @@ import type {
 import AdSlot from "@/components/ui/AdSlot";
 
 function fmtDate(iso: string | null): string {
-  if (!iso) return "—";
+  if (!iso) return "N/A";
   return new Date(iso).toLocaleDateString("en-NG", {
     year: "numeric",
     month: "short",
@@ -50,7 +50,7 @@ export default function WarrantyCertificate() {
   useSeo({
     title: "Warranty Certificate & Dispute Verification | FRELUX",
     description:
-      "Issue a hash-verified warranty certificate for your saved estimate. Claims and disputes replay the exact frozen configuration — mismatches are flagged, never guessed.",
+      "Issue a hash-verified warranty certificate for your saved estimate. Claims and disputes replay the exact frozen configuration: mismatches are flagged, never guessed.",
   });
 
   const { user } = useAuth();
@@ -168,7 +168,7 @@ export default function WarrantyCertificate() {
             { label: "Warranty Certificate & Dispute Verification" },
           ]}
           title="Warranty Certificate & Dispute Verification"
-          subtitle="Issue a hash-verified warranty certificate for a saved estimate. The exact configuration behind your quote is frozen and replayable — if a claim or dispute ever arises, both sides verify against the same frozen record, never a reconstruction."
+          subtitle="Issue a hash-verified warranty certificate for a saved estimate. The exact configuration behind your quote is frozen and replayable: if a claim or dispute ever arises, both sides verify against the same frozen record, never a reconstruction."
         />
 
         {loadError && (
@@ -181,7 +181,7 @@ export default function WarrantyCertificate() {
           <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
             Sign in to issue warranty certificates for your saved estimates.
             Only your own estimates are ever listed, and the frozen record
-            stores only what your estimate already stored — nothing new is
+            stores only what your estimate already stored: nothing new is
             invented.
           </div>
         ) : estimates.length === 0 ? (
@@ -204,7 +204,7 @@ export default function WarrantyCertificate() {
                 <option value="">Select an estimate</option>
                 {estimates.map((e) => (
                   <option key={e.id} value={e.id}>
-                    {e.estimate_ref} — {e.calculator_type} (
+                    {e.estimate_ref}: {e.calculator_type} (
                     {new Date(e.created_at).toLocaleDateString()})
                   </option>
                 ))}
@@ -254,7 +254,7 @@ export default function WarrantyCertificate() {
                   }`}
                 >
                   {result.status === "disputed"
-                    ? "Disputed — review flagged lines"
+                    ? "Disputed: review flagged lines"
                     : result.status === "expired"
                       ? "Expired"
                       : "Active"}
@@ -340,17 +340,19 @@ export default function WarrantyCertificate() {
                       <td className="p-3 text-right font-mono text-xs">
                         {Number.isFinite(c.replayed_total)
                           ? c.replayed_total
-                          : "—"}
+                          : "N/A"}
                       </td>
                       <td className="p-3 text-right font-mono text-xs">
-                        {Number.isFinite(c.stored_total) ? c.stored_total : "—"}
+                        {Number.isFinite(c.stored_total)
+                          ? c.stored_total
+                          : "N/A"}
                       </td>
                       <td
                         className={`p-3 text-xs ${c.matches ? "text-emerald-600 dark:text-emerald-400" : "text-destructive"}`}
                       >
                         {c.matches
                           ? "Replays exactly"
-                          : "Mismatch flagged — never repaired"}
+                          : "Mismatch flagged: never repaired"}
                       </td>
                     </tr>
                   ))}

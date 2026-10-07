@@ -54,7 +54,7 @@ const FIELD_LABELS: Record<Field, string> = {
 };
 
 function fmtN(v: number | null): string {
-  return v === null ? "—" : v.toLocaleString();
+  return v === null ? "N/A" : v.toLocaleString();
 }
 
 export default function FoundationEstimator() {
@@ -76,9 +76,9 @@ export default function FoundationEstimator() {
 
   useSeo({
     title:
-      "Foundation Estimator — Concrete Mix, Blocks, Hardcore & Formwork | FRELUX PROJECT CALC",
+      "Foundation Estimator: Concrete Mix, Blocks, Hardcore & Formwork | FRELUX PROJECT CALC",
     description:
-      "Deterministic foundation material estimation: enter your measured concrete volume, wall area, hardcore and formwork and get cement, sand, granite, blocks and formwork quantities with the mix ratio, dry factor and every step shown. Estimation only — not foundation design.",
+      "Deterministic foundation material estimation: enter your measured concrete volume, wall area, hardcore and formwork and get cement, sand, granite, blocks and formwork quantities with the mix ratio, dry factor and every step shown. Estimation only: not foundation design.",
   });
 
   const [priceMap, setPriceMap] = useState<FoundationPriceMap>({});
@@ -207,7 +207,7 @@ export default function FoundationEstimator() {
       }
       setSaveState(
         result.incomplete
-          ? `Saved as draft (${ref}) — complete the missing inputs for a final estimate.`
+          ? `Saved as draft (${ref}): complete the missing inputs for a final estimate.`
           : `Saved (${ref}). Import it into a BOQ or project from your estimates.`,
       );
       track("calculator_completed", { calculator: "foundation_saved", ref });
@@ -247,7 +247,7 @@ export default function FoundationEstimator() {
           { label: "Foundation Estimator" },
         ]}
         title="Foundation Estimator"
-        subtitle="Enter your measured concrete volume, wall area, hardcore and formwork. The engine splits concrete into cement, sand and granite with the admin's visible mix ratio and every constant shown, sizes blocks from the blocks-per-m² rule, and prices from the shared material database. Estimation only — not foundation design."
+        subtitle="Enter your measured concrete volume, wall area, hardcore and formwork. The engine splits concrete into cement, sand and granite with the admin's visible mix ratio and every constant shown, sizes blocks from the blocks-per-m² rule, and prices from the shared material database. Estimation only: not foundation design."
       />
 
       {/* Inputs */}
@@ -257,7 +257,7 @@ export default function FoundationEstimator() {
           The engine never assumes volumes. Enter what you measured. Leave a
           field blank when it needs a decision (the estimate is marked
           incomplete); enter 0 only when there is truly none. Footing sizes,
-          depth and reinforcement are structural engineering decisions — use the
+          depth and reinforcement are structural engineering decisions: use the
           Reinforcement estimator for the bar schedule.
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -389,14 +389,14 @@ export default function FoundationEstimator() {
                     .map((l) => (
                       <li key={l.key}>
                         {l.label}: PRICE NOT CONFIGURED in the material database
-                        — the quantity is shown, but no price was invented.
+                        : the quantity is shown, but no price was invented.
                       </li>
                     ))}
                 </ul>
               </>
             ) : (
               <strong>
-                Complete estimate — every line sized and priced from the shared
+                Complete estimate: every line sized and priced from the shared
                 material database.
               </strong>
             )}
@@ -424,7 +424,7 @@ export default function FoundationEstimator() {
                     <td className="p-3 font-medium">{l.label}</td>
                     <td className="p-3" data-testid={`qty-${l.key}`}>
                       {l.quantity === null
-                        ? "— provide measurement"
+                        ? "(provide measurement)"
                         : fmtN(l.quantity)}
                     </td>
                     <td className="p-3 text-muted-foreground">{l.unit}</td>
@@ -441,7 +441,7 @@ export default function FoundationEstimator() {
                       )}
                     </td>
                     <td className="p-3 font-medium">
-                      {l.line_total === null ? "—" : `₦${fmtN(l.line_total)}`}
+                      {l.line_total === null ? "N/A" : `₦${fmtN(l.line_total)}`}
                     </td>
                   </tr>
                 ))}
@@ -468,7 +468,7 @@ export default function FoundationEstimator() {
               <p className="text-sm text-muted-foreground">Material subtotal</p>
               <p className="text-xl font-semibold">
                 {result.material_subtotal === null
-                  ? "— prices/inputs missing"
+                  ? "(prices/inputs missing)"
                   : `₦${fmtN(result.material_subtotal)}`}
               </p>
             </div>
@@ -492,7 +492,7 @@ export default function FoundationEstimator() {
               <p className="text-sm text-muted-foreground">Grand total</p>
               <p className="text-xl font-semibold">
                 {result.grand_total === null
-                  ? "—"
+                  ? "N/A"
                   : `₦${fmtN(result.grand_total)}`}
               </p>
             </div>
@@ -529,13 +529,13 @@ export default function FoundationEstimator() {
           </li>
           <li>
             All materials use the same shared records the Price Tracker manages
-            (cement, sand, granite, hardcore, blocks, formwork) — one price
+            (cement, sand, granite, hardcore, blocks, formwork): one price
             configuration feeds every engine. Unpriced materials show PRICE NOT
             CONFIGURED, never invented.
           </li>
           <li>
             This is material ESTIMATION, not foundation design. Footing sizes,
-            depth and reinforcement are structural engineering decisions — use
+            depth and reinforcement are structural engineering decisions: use
             the Reinforcement estimator for the bar schedule.
           </li>
         </ul>

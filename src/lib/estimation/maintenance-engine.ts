@@ -7,7 +7,7 @@
  * guesses. Every service life, maintenance interval, inspection cadence
  * and cost factor comes from an admin-configured maintenance_profiles
  * row with a source reference. A category without an active matching
- * profile produces a data-requirement warning and a REFUSED schedule —
+ * profile produces a data-requirement warning and a REFUSED schedule -
  * never an assumed value.
  *
  * Ranges are preserved end-to-end: a 4–6 year re-coat interval is
@@ -107,7 +107,7 @@ const YEAR_LABEL = (min: number, max: number) =>
 
 // ─────────────────────────────────────────────
 // Profile matching: exact category+surface first, then category+'any'.
-// Never falls back to a different category — that would be a guess.
+// Never falls back to a different category - that would be a guess.
 // ─────────────────────────────────────────────
 
 export function matchMaintenanceProfile(
@@ -268,7 +268,7 @@ export function calculateMaintenanceSchedule(
         date_min: addYears(input.install_date, eMin),
         date_max: addYears(input.install_date, eMax),
         cost: initialCost !== null ? money(initialCost * maintFactor) : null,
-        label: `Maintenance cycle (re-coat/service) — ${money(maintFactor * 100)}% of installed cost`,
+        label: `Maintenance cycle (re-coat/service): ${money(maintFactor * 100)}% of installed cost`,
       });
     }
     result.steps.push({
@@ -288,7 +288,7 @@ export function calculateMaintenanceSchedule(
       date_min: addYears(input.install_date, lifeMin),
       date_max: addYears(input.install_date, lifeMax),
       cost: initialCost !== null ? money(initialCost * replFactor) : null,
-      label: `Full redecoration — ${money(replFactor * 100)}% of installed cost`,
+      label: `Full redecoration: ${money(replFactor * 100)}% of installed cost`,
     });
     result.steps.push({
       label: "Full redecoration",

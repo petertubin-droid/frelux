@@ -1,7 +1,7 @@
 /**
  * Worldwide live FX feed for the visitor display-currency layer.
  *
- * Source: open.er-api.com (free, keyless, no signup) — rates for
+ * Source: open.er-api.com (free, keyless, no signup) - rates for
  * ~160 world currencies, expressed as "units of CODE per 1 NGN",
  * exactly the semantics of site_settings.display_currencies.
  *

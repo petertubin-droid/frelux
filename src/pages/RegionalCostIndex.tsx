@@ -41,7 +41,7 @@ export default function RegionalCostIndex() {
     { name: "Regional Cost Index", path: "/regional-cost-index" },
   ]);
   useSeo({
-    title: "Regional Cost Index — FRELUX",
+    title: "Regional Cost Index: FRELUX",
     description:
       "Location-adjusted costing: state and regional labour and material cost factors applied to your FRELUX estimates, starting with Nigeria.",
   });
@@ -94,7 +94,7 @@ export default function RegionalCostIndex() {
             { label: "Regional Cost Index" },
           ]}
           title="Regional Cost Index"
-          subtitle="State-by-state labour and material cost factors, admin-configured from verifiable sources. Apply them to any base cost to see location-accurate totals. When a state has no configured index the engine falls back to the national baseline and tells you — it never guesses a multiplier."
+          subtitle="State-by-state labour and material cost factors, admin-configured from verifiable sources. Apply them to any base cost to see location-accurate totals. When a state has no configured index the engine falls back to the national baseline and tells you: it never guesses a multiplier."
         />
 
         {loadError && (
@@ -240,7 +240,7 @@ export default function RegionalCostIndex() {
             <p className="text-sm text-muted-foreground">
               No regional cost indices configured yet. Indices are entered by
               the admin team from verifiable sources (market surveys, supplier
-              price lists) — FRELUX never publishes guessed factors.
+              price lists): FRELUX never publishes guessed factors.
             </p>
           ) : (
             <div className="overflow-x-auto">

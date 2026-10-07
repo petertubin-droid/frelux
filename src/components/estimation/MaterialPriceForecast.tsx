@@ -4,7 +4,7 @@
  * Self-contained panel on the Material Prices page: pick a
  * material with recorded history, choose a horizon, and the
  * deterministic forecastMaterialPrice engine projects the
- * fitted trend with warnings — never an invented inflation
+ * fitted trend with warnings - never an invented inflation
  * guess. This component renders; it never computes trends.
  */
 
@@ -108,7 +108,7 @@ export default function MaterialPriceForecast() {
 
       {materials.length === 0 && !loadError ? (
         <p className="text-sm text-muted-foreground">
-          No materials with recorded price history yet — forecasts become
+          No materials with recorded price history yet: forecasts become
           available as prices are tracked over time.
         </p>
       ) : (

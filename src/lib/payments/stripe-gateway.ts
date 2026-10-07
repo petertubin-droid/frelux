@@ -1,12 +1,12 @@
 /**
- * Stripe checkout gateway — international cards.
+ * Stripe checkout gateway - international cards.
  *
  * Paystack remains the default checkout (Nigeria + African cards).
  * When VITE_STRIPE_PUBLISHABLE_KEY + the deployed `stripe-checkout`
  * edge function (STRIPE_SECRET_KEY) are configured, the pricing page
  * can offer Stripe Checkout so US/EU/Asia visitors can pay in their
  * own currency. Until then every call throws NotConfiguredError and
- * callers fall back to Paystack — no partial checkout states.
+ * callers fall back to Paystack - no partial checkout states.
  */
 import { getSupabase } from "@/lib/supabase-lazy";
 

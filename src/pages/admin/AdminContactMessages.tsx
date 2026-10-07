@@ -33,7 +33,7 @@ export default function AdminContactMessages() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [viewing, setViewing] = useState<ContactMessage | null>(null);
-  // Server-side pagination — the inbox grows with every form submission.
+  // Server-side pagination - the inbox grows with every form submission.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(25);
   const [total, setTotal] = useState(0);

@@ -1,7 +1,7 @@
 /**
  * FRELUX Centralized Unit Conversion Layer
  *
- * EXACT conversion factors only — never approximations.
+ * EXACT conversion factors only - never approximations.
  * Every engine converts user input through this module; calculators must
  * not duplicate conversion constants.
  *

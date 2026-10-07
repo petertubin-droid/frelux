@@ -83,7 +83,7 @@ describe("calculateCircularReuse", () => {
     expect(r.reuse_value_naira).toBe(490696.2);
   });
 
-  it("refuses an unconfigured material — never assumes a recovery rate", () => {
+  it("refuses an unconfigured material: never assumes a recovery rate", () => {
     const r = calculateCircularReuse(
       makeInput({ category: "tempered_glass_panels" }),
     );
@@ -102,7 +102,7 @@ describe("calculateCircularReuse", () => {
     expect(neg.warnings[0]).toMatch(/Quantity must be a positive number/);
   });
 
-  it("refuses a recovery rate outside 0–1 — never clamps", () => {
+  it("refuses a recovery rate outside 0–1: never clamps", () => {
     const r = calculateCircularReuse(
       makeInput({
         factors: {
@@ -145,7 +145,7 @@ describe("calculateCircularReuse", () => {
     expect(r.warnings.join(" ")).toMatch(/does not invent material prices/);
   });
 
-  it("omits the target verdict when the diversion target rule is missing — never defaults it", () => {
+  it("omits the target verdict when the diversion target rule is missing: never defaults it", () => {
     const r = calculateCircularReuse(
       makeInput({
         rules: [{ rule_key: "rounding_decimals", rule_value: { value: 2 } }],

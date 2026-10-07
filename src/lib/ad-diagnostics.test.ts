@@ -6,7 +6,7 @@
 // pinned:
 //   * events are recorded with provider/event/detail
 //   * the trail is exposed on window.__freluxAds.events
-//   * the trail is capped at MAX_EVENTS (200) — the oldest
+//   * the trail is capped at MAX_EVENTS (200) - the oldest
 //     events drop first
 //   * instrumentScript wires load/error listeners
 // =========================================================

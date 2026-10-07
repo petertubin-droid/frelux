@@ -1,9 +1,9 @@
 // =========================================================
-// FRELUX Wall Finishing — assembly templates (layer sequences).
+// FRELUX Wall Finishing - assembly templates (layer sequences).
 //
 // Each country's typical finishing sequence, from the verified
 // worldwide research table (Oct 2026). Coverage rates below are
-// documented engineering defaults — overridable per layer, and
+// documented engineering defaults - overridable per layer, and
 // always shown in the transparency breakdown.
 //
 // Verified sources behind the defaults (live scans, Oct 2026):
@@ -396,7 +396,7 @@ export const WALLFIN_ASSEMBLIES: WallAssemblyTemplate[] = [
         labourTask: "wallfin_plastering",
         surface: "interior",
         optional: true,
-        note: "Only where the background is uneven or suction is high — your plasterer decides.",
+        note: "Only where the background is uneven or suction is high: your plasterer decides.",
       },
       {
         id: "gb-int-skim",
@@ -437,7 +437,7 @@ export const WALLFIN_ASSEMBLIES: WallAssemblyTemplate[] = [
         labourTask: "wallfin_priming",
         surface: "interior",
         optional: false,
-        note: "A mist coat is diluted emulsion — the UK standard seal on fresh skim.",
+        note: "A mist coat is diluted emulsion: the UK standard seal on fresh skim.",
       },
       {
         id: "gb-int-paint",
@@ -503,7 +503,7 @@ export const WALLFIN_ASSEMBLIES: WallAssemblyTemplate[] = [
         unitsPerM2: null,
         unit: "10 kg bag",
         applicationMethod: "Tape coat + two finishing coats",
-        dryingInfo: "Setting compound — coat-by-coat per pack instructions",
+        dryingInfo: "Setting compound: coat-by-coat per pack instructions",
         wastePercent: 10,
         labourTask: "wallfin_taping",
         surface: "interior",
@@ -602,7 +602,7 @@ export const WALLFIN_ASSEMBLIES: WallAssemblyTemplate[] = [
         labourTask: "wallfin_rendering",
         surface: "exterior",
         optional: true,
-        note: "Many UK exteriors are fair-faced brick — skip render and paint only.",
+        note: "Many UK exteriors are fair-faced brick: skip render and paint only.",
       },
       {
         id: "gb-ext-paint",
@@ -932,7 +932,7 @@ export const WALLFIN_ASSEMBLIES: WallAssemblyTemplate[] = [
     id: "ca-interior-drywall-paint",
     name: "Drywall → tape → joint compound → sand → primer → paint",
     description:
-      "Canadian drywall finish: tape and CGC compound, sand, prime and paint — same system as the US with Canadian products.",
+      "Canadian drywall finish: tape and CGC compound, sand, prime and paint: same system as the US with Canadian products.",
     surface: "interior",
     substrates: ["drywall", "timber", "steel"],
     layerCountNote: null,
@@ -1127,7 +1127,7 @@ export const WALLFIN_ASSEMBLIES: WallAssemblyTemplate[] = [
         category: "skim",
         materialRole: "joint-filler",
         quantityMode: "area-coverage",
-        // CSR Gyprock Base Coat 45, 20 kg — estimated wall coverage for
+        // CSR Gyprock Base Coat 45, 20 kg - estimated wall coverage for
         // the 3-coat joint system; verify against the pack.
         coverageRateM2PerUnit: 45,
         coats: 3,
@@ -1136,7 +1136,7 @@ export const WALLFIN_ASSEMBLIES: WallAssemblyTemplate[] = [
         unitsPerM2: null,
         unit: "20 kg bag",
         applicationMethod: "Base coat over tape + two top coats",
-        dryingInfo: "Setting compound — follow pack times",
+        dryingInfo: "Setting compound: follow pack times",
         wastePercent: 10,
         labourTask: "wallfin_taping",
         surface: "interior",

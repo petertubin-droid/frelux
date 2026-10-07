@@ -1,5 +1,5 @@
 // =========================================================
-// WallFinishEstimator page tests — workflow, worldwide
+// WallFinishEstimator page tests - workflow, worldwide
 // resolution, structure, SEO and ad slots.
 // =========================================================
 
@@ -55,7 +55,7 @@ vi.mock("@/lib/wallfinishing/prices", () => ({
 
 vi.mock("@/lib/supabase", () => ({ supabase: { from: vi.fn() } }));
 
-// AdSlot needs the auth context — stub it like other page tests do.
+// AdSlot needs the auth context - stub it like other page tests do.
 vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 
 function renderPage() {

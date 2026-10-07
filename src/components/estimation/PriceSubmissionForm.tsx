@@ -33,7 +33,7 @@ const STATUS_LABEL: Record<string, string> = {
 
 /**
  * Community price reporting. Prices submitted here never enter the
- * engines directly — they go to a review queue; 3 independent
+ * engines directly - they go to a review queue; 3 independent
  * agreeing entries get flagged community_verified, and only the
  * admin promotes an entry into the authoritative price book.
  */

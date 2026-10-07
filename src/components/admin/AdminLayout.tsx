@@ -91,7 +91,7 @@ import { AdminThemeProvider, useAdminTheme } from "@/lib/admin-theme";
 import { Button } from "@/components/ui/shadcn/button";
 
 // =========================================================
-// Admin sidebar — 11 sections, owner-first control center.
+// Admin sidebar - 11 sections, owner-first control center.
 //
 // Mental model (one question per section):
 //   Overview            Is FRELUX healthy?
@@ -496,7 +496,7 @@ function AdminLayoutInner() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    // overflow-y only — never touch overflow-x, which must stay `clip`
+    // overflow-y only - never touch overflow-x, which must stay `clip`
     // (set globally in index.css) so position:sticky elements keep the
     // viewport as their scrolling ancestor instead of body/html.
     if (mobileOpen) {
@@ -644,7 +644,7 @@ function SidebarContent({
           JSON.stringify([...next]),
         );
       } catch {
-        /* storage unavailable — keep in-memory state */
+        /* storage unavailable - keep in-memory state */
       }
       return next;
     });

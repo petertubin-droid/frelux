@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX Wall Finishing — wall construction systems.
+// FRELUX Wall Finishing - wall construction systems.
 //
 // Normalized structural-wall catalogue. Each country carries
 // MULTIPLE systems (never a single national method). Systems
@@ -30,7 +30,7 @@ export const WALLFIN_WALL_SYSTEMS: WallSystem[] = [
     countryCodes: ["NG"],
     name: "RC frame + block infill",
     description:
-      "Reinforced-concrete frame with sandcrete block infill panels — common for multi-storey buildings.",
+      "Reinforced-concrete frame with sandcrete block infill panels: common for multi-storey buildings.",
     wallType: "framed masonry infill",
     structuralMaterial: "Concrete frame + sandcrete block",
     typicalThickness: { min: 150, max: 225, default: 225 },
@@ -62,7 +62,7 @@ export const WALLFIN_WALL_SYSTEMS: WallSystem[] = [
     countryCodes: ["US"],
     name: "Steel stud + drywall",
     description:
-      "Cold-formed steel framing lined with gypsum board — common in commercial and modern residential builds.",
+      "Cold-formed steel framing lined with gypsum board: common in commercial and modern residential builds.",
     wallType: "steel frame",
     structuralMaterial: "Steel studs + gypsum board",
     typicalThickness: { min: 89, max: 152, default: 92 },
@@ -124,7 +124,7 @@ export const WALLFIN_WALL_SYSTEMS: WallSystem[] = [
     countryCodes: ["GB"],
     name: "Solid masonry wall",
     description:
-      "Pre-cavity solid brick or stone wall — typical in older housing stock.",
+      "Pre-cavity solid brick or stone wall: typical in older housing stock.",
     wallType: "solid masonry",
     structuralMaterial: "Solid brick/stone",
     typicalThickness: { min: 215, max: 325, default: 230 },
@@ -203,7 +203,7 @@ export const WALLFIN_WALL_SYSTEMS: WallSystem[] = [
     countryCodes: ["IN"],
     name: "AAC block wall",
     description:
-      "Autoclaved aerated concrete blocks — lighter and better insulated than red brick.",
+      "Autoclaved aerated concrete blocks: lighter and better insulated than red brick.",
     wallType: "masonry",
     structuralMaterial: "AAC block",
     typicalThickness: { min: 100, max: 200, default: 150 },
@@ -218,7 +218,7 @@ export const WALLFIN_WALL_SYSTEMS: WallSystem[] = [
     countryCodes: ["IN"],
     name: "RCC frame + brick infill",
     description:
-      "Reinforced-cement-concrete frame with brick infill panels — the common urban multi-storey system.",
+      "Reinforced-cement-concrete frame with brick infill panels: the common urban multi-storey system.",
     wallType: "framed masonry infill",
     structuralMaterial: "RCC frame + clay brick",
     typicalThickness: { min: 115, max: 230, default: 230 },
@@ -250,7 +250,7 @@ export const WALLFIN_WALL_SYSTEMS: WallSystem[] = [
     countryCodes: ["CA"],
     name: "Steel frame + drywall",
     description:
-      "Cold-formed steel framing with gypsum board — growing in Canadian residential construction.",
+      "Cold-formed steel framing with gypsum board: growing in Canadian residential construction.",
     wallType: "steel frame",
     structuralMaterial: "Steel studs + gypsum board",
     typicalThickness: { min: 92, max: 152, default: 92 },
@@ -297,7 +297,7 @@ export const WALLFIN_WALL_SYSTEMS: WallSystem[] = [
     countryCodes: ["AU"],
     name: "Double brick (cavity masonry)",
     description:
-      "Two brick leaves with cavity — common in older Perth/Sydney housing.",
+      "Two brick leaves with cavity: common in older Perth/Sydney housing.",
     wallType: "cavity masonry",
     structuralMaterial: "Double clay brick",
     typicalThickness: { min: 220, max: 270, default: 250 },
@@ -312,7 +312,7 @@ export const WALLFIN_WALL_SYSTEMS: WallSystem[] = [
     countryCodes: ["AU"],
     name: "Light steel frame + plasterboard",
     description:
-      "Light-gauge steel framing with plasterboard linings — modern Australian builds.",
+      "Light-gauge steel framing with plasterboard linings: modern Australian builds.",
     wallType: "steel frame",
     structuralMaterial: "Steel frame + plasterboard",
     typicalThickness: { min: 90, max: 150, default: 90 },

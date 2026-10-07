@@ -236,7 +236,7 @@ export default function Layout() {
         }
         // The page-level push (Anchor / Vignette / Auto ads) must run
         // exactly once per page regardless of which injection loaded the
-        // library — a marker on the window, not on the script element.
+        // library - a marker on the window, not on the script element.
         const w = window as typeof window & {
           __freluxAdsensePageLevelPushed?: boolean;
         };

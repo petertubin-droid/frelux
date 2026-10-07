@@ -119,7 +119,7 @@ function validate(f: IndexForm): string | null {
   if (!Number.isFinite(factor) || factor <= 0)
     return "Cost factor must be a positive number (1.00 = national baseline).";
   if (!f.source_reference.trim())
-    return "Source reference is required — every regional factor must be verifiable (market survey, supplier price list or trade source).";
+    return "Source reference is required: every regional factor must be verifiable (market survey, supplier price list or trade source).";
   if (!f.effective_date) return "Effective date is required.";
   return null;
 }
@@ -167,7 +167,7 @@ export default function AdminRegionalCostIndices() {
       setError(v);
       return;
     }
-    // Unique active index per (state, category) — enforced client-side
+    // Unique active index per (state, category) - enforced client-side
     // with a clear message; the DB partial unique index backs it up.
     if (form.is_active) {
       const clash = indices.find(
@@ -181,7 +181,7 @@ export default function AdminRegionalCostIndices() {
       );
       if (clash) {
         setError(
-          `An active ${form.category} index already exists for ${clash.country ?? "NG"}/${clash.state}. Deactivate it first or edit it — only one active index per country/state/category keeps the engine deterministic.`,
+          `An active ${form.category} index already exists for ${clash.country ?? "NG"}/${clash.state}. Deactivate it first or edit it: only one active index per country/state/category keeps the engine deterministic.`,
         );
         return;
       }

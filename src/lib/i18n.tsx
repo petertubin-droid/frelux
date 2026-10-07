@@ -4,7 +4,7 @@
  *
  * Worldwide language layer. Every registered language has:
  *  1. a crawlable locale URL prefix (/es/, /fr/, /de/, /pt/, /ru/,
- *     /id/, /sw/, /ar/, /hi/, /zh/ — plus /en/), routed by App's
+ *     /id/, /sw/, /ar/, /hi/, /zh/ - plus /en/), routed by App's
  *     LocaleAwareRoutes and declared to crawlers via hreflang
  *     alternates in useSeo + the sitemap.
  *  2. real React-level chrome translations (nav labels and common
@@ -53,7 +53,7 @@ export const LANGUAGES: {
   { value: "zh", label: "Chinese", nativeLabel: "中文", flag: "🇨🇳" },
 ];
 
-/** URL path prefix per language — every language gets a locale URL. */
+/** URL path prefix per language - every language gets a locale URL. */
 export const LOCALE_ROUTES: { value: Language; path: string }[] = LANGUAGES.map(
   (l) => ({ value: l.value, path: l.value }),
 );
@@ -76,7 +76,7 @@ export function stripLocaleFromPathname(pathname: string): string {
 type TranslationKey = string;
 
 // Chrome translations keyed by the English source string. Filling in
-// more strings is pure data — no component changes needed.
+// more strings is pure data - no component changes needed.
 const translations: Record<Language, Record<TranslationKey, string>> = {
   en: {},
   es: {

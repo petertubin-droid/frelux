@@ -63,7 +63,7 @@ describe("ConversationalEstimator page", () => {
     pasteAndSubmit(
       "Hello, I want to paint my room. It is 4 by 3 meters, 2 coats, in Lagos",
     );
-    // 49.23 m² / 10.83 L — same chain as the Paint Calculator.
+    // 49.23 m² / 10.83 L - same chain as the Paint Calculator.
     expect(await screen.findByText(/49\.23 m²/)).toBeInTheDocument();
     expect(screen.getByText(/10\.83 litres/)).toBeInTheDocument();
     // The engine shows what it heard, with evidence
@@ -81,7 +81,7 @@ describe("ConversationalEstimator page", () => {
     pasteAndSubmit("Good afternoon, how much is paint for a 2 bedroom flat?");
     expect(await screen.findByText(/room size/i)).toBeInTheDocument();
     expect(screen.getByText(/english \(detected\)/i)).toBeInTheDocument();
-    // Nothing was estimated — the engine asked instead
+    // Nothing was estimated - the engine asked instead
     expect(screen.queryByText(/litres/)).not.toBeInTheDocument();
   });
 

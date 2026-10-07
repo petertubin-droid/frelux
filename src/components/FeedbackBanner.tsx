@@ -42,7 +42,7 @@ export default function FeedbackBanner() {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       setDismissedAt(raw ? Number(raw) : null);
     } catch {
-      /* storage unavailable — just show the banner */
+      /* storage unavailable - just show the banner */
     }
     setReady(true);
   }, []);
@@ -57,7 +57,7 @@ export default function FeedbackBanner() {
     try {
       window.localStorage.setItem(STORAGE_KEY, String(now));
     } catch {
-      /* ignore — in-memory dismissal still applies this visit */
+      /* ignore - in-memory dismissal still applies this visit */
     }
   };
 
@@ -86,8 +86,8 @@ export default function FeedbackBanner() {
             Help us improve FRELUX
           </p>
           <p className="mt-0.5 text-xs text-muted-foreground">
-            Suggest a feature, report an issue, or tell us what to build next —
-            the team reads every note.
+            Suggest a feature, report an issue, or tell us what to build next.
+            The team reads every note.
           </p>
           <Link
             to="/feedback"

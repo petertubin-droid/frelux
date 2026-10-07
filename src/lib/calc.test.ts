@@ -859,14 +859,14 @@ describe("configurable surface factor resolution", () => {
     );
   });
 
-  it("rejects invalid configured factors — falls back to documented", () => {
+  it("rejects invalid configured factors: falls back to documented", () => {
     // non-positive
     expect(
       resolveSurfaceFactor("textured", {
         surfaceFactorOverrides: { textured: 0 },
       }),
     ).toBe(0.85);
-    // would increase coverage beyond smooth — nonsense for this rule
+    // would increase coverage beyond smooth - nonsense for this rule
     expect(
       resolveSurfaceFactor("textured", {
         surfaceFactorOverrides: { textured: 1.2 },
@@ -892,7 +892,7 @@ describe("configurable min-coats resolution", () => {
     ).toBe(4);
   });
 
-  it("rejects invalid configured coats — falls back to documented", () => {
+  it("rejects invalid configured coats: falls back to documented", () => {
     expect(
       resolveMinCoats("dark_over_light", {
         minCoatsOverrides: { dark_over_light: 0 },

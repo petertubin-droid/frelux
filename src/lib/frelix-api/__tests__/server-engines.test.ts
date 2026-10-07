@@ -3,7 +3,7 @@
 //
 // esbuild bundles this file for the frelix-api gateway. The
 // security property under test: the bundle is a PURE re-export
-// of the canonical registry + key/auth modules — the gateway
+// of the canonical registry + key/auth modules - the gateway
 // can execute EXACTLY what in-app surfaces execute, and there
 // is no second, divergent implementation hiding here.
 // Identity checks (same function reference) prove it.
@@ -14,7 +14,7 @@ import * as registry from "@/lib/ai-foundation/engines-registry";
 import * as keyFormat from "@/lib/frelix-api/key-format";
 import * as auth from "@/lib/frelix-api/auth";
 
-describe("server-engines bundle — canonical re-exports only", () => {
+describe("server-engines bundle: canonical re-exports only", () => {
   it("engine registry exports are the SAME objects the app uses", () => {
     expect(bundle.listEngines).toBe(registry.listEngines);
     expect(bundle.getEngineDescriptor).toBe(registry.getEngineDescriptor);
@@ -44,14 +44,14 @@ describe("server-engines bundle — canonical re-exports only", () => {
     expect(bundle.API_ERROR_DOCUMENTATION).toBe(auth.API_ERROR_DOCUMENTATION);
   });
 
-  it("adds no hidden surface of its own — every export is a canonical module's export", () => {
+  it("adds no hidden surface of its own: every export is a canonical module's export", () => {
     const canonical = new Map<string, unknown>();
     for (const mod of [registry, keyFormat, auth]) {
       for (const [k, v] of Object.entries(mod)) canonical.set(k, v);
     }
     for (const [k, v] of Object.entries(bundle)) {
       expect(canonical.has(k)).toBe(true);
-      expect(canonical.get(k)).toBe(v); // same reference — no divergent copy
+      expect(canonical.get(k)).toBe(v); // same reference: no divergent copy
     }
     expect(Object.keys(bundle).length).toBeGreaterThan(0);
   });

@@ -56,7 +56,7 @@ const NUM_LABELS: Record<NumField, string> = {
 };
 
 function fmtN(v: number | null): string {
-  return v === null ? "—" : v.toLocaleString();
+  return v === null ? "N/A" : v.toLocaleString();
 }
 
 export default function DoorsWindowsEstimator() {
@@ -84,9 +84,9 @@ export default function DoorsWindowsEstimator() {
 
   useSeo({
     title:
-      "Doors & Windows Estimator — Leaves, Frames, Hinges, Locksets & Units | FRELUX PROJECT CALC",
+      "Doors & Windows Estimator: Leaves, Frames, Hinges, Locksets & Units | FRELUX PROJECT CALC",
     description:
-      "Deterministic doors and windows material estimation: enter your counts per type and get door leaves, frames, hinges, locksets and window units with every derived count labelled. Estimation only — confirm unit sizes on site.",
+      "Deterministic doors and windows material estimation: enter your counts per type and get door leaves, frames, hinges, locksets and window units with every derived count labelled. Estimation only: confirm unit sizes on site.",
   });
 
   const [priceMap, setPriceMap] = useState<DoorsWindowsPriceMap>({});
@@ -215,7 +215,7 @@ export default function DoorsWindowsEstimator() {
       }
       setSaveState(
         result.incomplete
-          ? `Saved as draft (${ref}) — complete the missing inputs for a final estimate.`
+          ? `Saved as draft (${ref}): complete the missing inputs for a final estimate.`
           : `Saved (${ref}). Import it into a BOQ or project from your estimates.`,
       );
       track("calculator_completed", { calculator: "doors_windows_saved", ref });
@@ -255,7 +255,7 @@ export default function DoorsWindowsEstimator() {
           { label: "Doors & Windows Estimator" },
         ]}
         title="Doors & Windows Estimator"
-        subtitle="Enter your door and window counts per type. The engine lists leaves, frames, hinges, locksets and window units, labelling every derived count, and prices from the shared material database. Estimation only — confirm unit sizes on site."
+        subtitle="Enter your door and window counts per type. The engine lists leaves, frames, hinges, locksets and window units, labelling every derived count, and prices from the shared material database. Estimation only: confirm unit sizes on site."
       />
 
       {/* Inputs */}
@@ -265,7 +265,7 @@ export default function DoorsWindowsEstimator() {
           The engine never invents openings. Enter the counts from your drawing
           or site survey; leave a type at 0 if you have none. Frames, hinges and
           locksets are derived and labelled in the breakdown; unit prices must
-          match the sizes the admin configured — confirm actual sizes on site.
+          match the sizes the admin configured: confirm actual sizes on site.
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {(Object.keys(NUM_LABELS) as NumField[]).map((k) =>
@@ -404,14 +404,14 @@ export default function DoorsWindowsEstimator() {
                     .map((l) => (
                       <li key={l.key}>
                         {l.label}: PRICE NOT CONFIGURED in the material database
-                        — the quantity is shown, but no price was invented.
+                        : the quantity is shown, but no price was invented.
                       </li>
                     ))}
                 </ul>
               </>
             ) : (
               <strong>
-                Complete estimate — every line sized and priced from the shared
+                Complete estimate: every line sized and priced from the shared
                 material database.
               </strong>
             )}
@@ -439,7 +439,7 @@ export default function DoorsWindowsEstimator() {
                     <td className="p-3 font-medium">{l.label}</td>
                     <td className="p-3" data-testid={`qty-${l.key}`}>
                       {l.quantity === null
-                        ? "— enter a count"
+                        ? "(enter a count)"
                         : fmtN(l.quantity)}
                     </td>
                     <td className="p-3 text-muted-foreground">{l.unit}</td>
@@ -456,7 +456,7 @@ export default function DoorsWindowsEstimator() {
                       )}
                     </td>
                     <td className="p-3 font-medium">
-                      {l.line_total === null ? "—" : `₦${fmtN(l.line_total)}`}
+                      {l.line_total === null ? "N/A" : `₦${fmtN(l.line_total)}`}
                     </td>
                   </tr>
                 ))}
@@ -483,7 +483,7 @@ export default function DoorsWindowsEstimator() {
               <p className="text-sm text-muted-foreground">Material subtotal</p>
               <p className="text-xl font-semibold">
                 {result.material_subtotal === null
-                  ? "— prices/inputs missing"
+                  ? "(prices/inputs missing)"
                   : `₦${fmtN(result.material_subtotal)}`}
               </p>
             </div>
@@ -507,7 +507,7 @@ export default function DoorsWindowsEstimator() {
               <p className="text-sm text-muted-foreground">Grand total</p>
               <p className="text-xl font-semibold">
                 {result.grand_total === null
-                  ? "—"
+                  ? "N/A"
                   : `₦${fmtN(result.grand_total)}`}
               </p>
             </div>
@@ -534,7 +534,7 @@ export default function DoorsWindowsEstimator() {
           <li>
             Door leaves and window units take your counts directly. Frames
             follow at one set per door, locksets at one per door when you
-            include them, and hinges follow the admin's visible planning rule —
+            include them, and hinges follow the admin's visible planning rule:
             every derived count is labelled in the breakdown, not presented as a
             measurement.
           </li>
@@ -545,7 +545,7 @@ export default function DoorsWindowsEstimator() {
           <li>
             Prices come from the shared FRELUX material database, configured by
             the site admin (Price Tracker). Door and window prices must match
-            the size and finish the admin configured — confirm actual unit sizes
+            the size and finish the admin configured: confirm actual unit sizes
             on site. Unpriced materials show PRICE NOT CONFIGURED, never
             invented.
           </li>

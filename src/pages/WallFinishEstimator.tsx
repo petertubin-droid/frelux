@@ -1,5 +1,5 @@
 /**
- * FRELUX Wall Finish Estimator — country-aware wall finishing.
+ * FRELUX Wall Finish Estimator - country-aware wall finishing.
  *
  * Plans a wall from structure to decorative finish, worldwide:
  * country → construction method → rooms → walls → openings →
@@ -8,7 +8,7 @@
  *
  * Starting templates per market are RESEARCH, not a building
  * code. Every layer, coverage and price is editable, and
- * prices come from the market price book with provenance —
+ * prices come from the market price book with provenance -
  * never invented.
  */
 
@@ -65,7 +65,7 @@ const uid = () => Math.random().toString(36).slice(2, 9);
 const n = (v: string | number) => Number(v) || 0;
 const fmt = (v: number | null | undefined, d = 2) =>
   v === null || v === undefined
-    ? "—"
+    ? "N/A"
     : v.toLocaleString(undefined, { maximumFractionDigits: d });
 
 const OPENING_DEFAULTS: Record<string, { w: number; h: number }> = {
@@ -101,7 +101,7 @@ interface DraftRoom {
   exteriorWalls: number;
   doors: number;
   windows: number;
-  /** per-wall assembly overrides: A, B, C, D — null = country default */
+  /** per-wall assembly overrides: A, B, C, D - null = country default */
   assemblies: (string | null)[];
 }
 
@@ -137,7 +137,7 @@ export default function WallFinishEstimator() {
   ]);
   useSeo({
     title:
-      "Wall Finish Estimator — country-aware wall finishing quantities & costs",
+      "Wall Finish Estimator: country-aware wall finishing quantities & costs",
     description:
       "Plan walls from structure to finish anywhere in the world: pick your country's construction method, add rooms and openings, and get layer-by-layer material quantities, labour and costs with full calculation transparency.",
   });
@@ -229,7 +229,7 @@ export default function WallFinishEstimator() {
     refreshSaved();
   }, [refreshSaved]);
 
-  /* opened from My Projects — restore estimate carried in router state */
+  /* opened from My Projects - restore estimate carried in router state */
   useEffect(() => {
     const st = location.state as unknown as {
       projectData?: SavedWallFinData;
@@ -473,7 +473,7 @@ export default function WallFinishEstimator() {
     <div className="min-h-screen bg-background pb-16">
       <PageHeader
         title="Wall Finish Estimator"
-        subtitle="Plan any wall worldwide — from structure to the final coat."
+        subtitle="Plan any wall worldwide: from structure to the final coat."
       />
       <Container className="max-w-6xl space-y-8">
         <AdSlot slotKey="wall-finish-top" />
@@ -694,7 +694,7 @@ export default function WallFinishEstimator() {
                       {assemblies.map((opt) => (
                         <option key={opt.id} value={opt.id}>
                           {opt.surface === "interior" ? "Interior" : "Exterior"}{" "}
-                          — {opt.name}
+                          : {opt.name}
                         </option>
                       ))}
                     </select>
@@ -769,7 +769,7 @@ export default function WallFinishEstimator() {
                       className="text-xs text-muted-foreground underline"
                       onClick={() =>
                         setStepsFor({
-                          title: `${wall.label} — how the area was calculated`,
+                          title: `${wall.label}: how the area was calculated`,
                           steps: wall.steps,
                         })
                       }
@@ -810,7 +810,7 @@ export default function WallFinishEstimator() {
                                 className="mt-1 text-[11px] text-muted-foreground underline"
                                 onClick={() =>
                                   setStepsFor({
-                                    title: `${layer.layerName} — how this was calculated`,
+                                    title: `${layer.layerName}: how this was calculated`,
                                     steps: layer.labourSteps,
                                   })
                                 }
@@ -872,7 +872,7 @@ export default function WallFinishEstimator() {
                                 className="text-[11px] text-muted-foreground underline"
                                 onClick={() => {
                                   const v = window.prompt(
-                                    `Coats for '${layer.layerName}' (current ${layer.baseQuantity > 0 ? "default" : "—"}):`,
+                                    `Coats for '${layer.layerName}' (current ${layer.baseQuantity > 0 ? "default" : "N/A"}):`,
                                     "2",
                                   );
                                   if (v !== null) {
@@ -904,12 +904,12 @@ export default function WallFinishEstimator() {
                             <td className="py-2.5 pr-3 text-right">
                               {layer.materialCost !== null
                                 ? fmt(layer.materialCost)
-                                : "—"}
+                                : "N/A"}
                             </td>
                             <td className="py-2.5 pr-3 text-right">
                               {layer.labourCost !== null
                                 ? fmt(layer.labourCost)
-                                : "—"}
+                                : "N/A"}
                             </td>
                             <td className="py-2.5 text-right font-medium">
                               {fmt(
@@ -978,7 +978,7 @@ export default function WallFinishEstimator() {
                                 <span className="h-1.5 w-1.5 rounded-full bg-muted-foreground/50" />
                                 {item.label}
                                 <span className="text-xs text-muted-foreground/70">
-                                  — {QC_STATUS_LABELS[item.status]}
+                                  : {QC_STATUS_LABELS[item.status]}
                                 </span>
                               </li>
                             ))}

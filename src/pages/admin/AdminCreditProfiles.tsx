@@ -4,7 +4,7 @@
  *
  * Full CRUD over contractor_credit_profiles. Every profile needs a
  * verification reference (audited job records, warranty certificate
- * hashes, lender file) — the engine refuses to score a contractor
+ * hashes, lender file) - the engine refuses to score a contractor
  * from unverified stats, and refuses zero verified jobs rather than
  * scoring them zero.
  */
@@ -183,7 +183,7 @@ export default function AdminCreditProfiles() {
     <div className="space-y-4">
       <AdminHeader
         title="Contractor Credit Profiles"
-        subtitle="Admin-verified contractor job statistics — the data behind the Credit-Score Engine. Every profile needs a verification reference (audited job records, warranty certificate hashes, lender file); the engine refuses to score zero verified jobs rather than scoring them zero."
+        subtitle="Admin-verified contractor job statistics: the data behind the Credit-Score Engine. Every profile needs a verification reference (audited job records, warranty certificate hashes, lender file); the engine refuses to score zero verified jobs rather than scoring them zero."
         action={
           <AdminButton onClick={openCreate}>
             <Plus className="mr-1 inline h-4 w-4" /> Add profile
@@ -220,7 +220,7 @@ export default function AdminCreditProfiles() {
                   className="p-6 text-center text-muted-foreground"
                 >
                   No profiles configured yet. The Credit-Score Engine refuses to
-                  score a contractor without verified stats — add profiles from
+                  score a contractor without verified stats: add profiles from
                   verifiable job records (audited files, warranty certificate
                   hashes).
                 </td>
@@ -233,7 +233,7 @@ export default function AdminCreditProfiles() {
                 >
                   <td className="p-3">{p.contractor_name}</td>
                   <td className="p-3 text-xs text-muted-foreground">
-                    {p.registration_number ?? "—"}
+                    {p.registration_number ?? "N/A"}
                   </td>
                   <td className="p-3 text-right font-mono text-xs">
                     {p.verified_jobs}
@@ -289,7 +289,7 @@ export default function AdminCreditProfiles() {
                   onChange={(e) => set("contractor_name", e.target.value)}
                 />
               </AdminField>
-              <AdminField label="Registration number (optional — CAC / guild)">
+              <AdminField label="Registration number (optional: CAC / guild)">
                 <AdminInput
                   value={form.registration_number}
                   onChange={(e) => set("registration_number", e.target.value)}
@@ -334,7 +334,7 @@ export default function AdminCreditProfiles() {
                   }
                 />
               </AdminField>
-              <AdminField label="Verification reference (required — audited job records, warranty hashes, lender file)">
+              <AdminField label="Verification reference (required: audited job records, warranty hashes, lender file)">
                 <AdminInput
                   value={form.verification_reference}
                   onChange={(e) =>

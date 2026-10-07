@@ -714,7 +714,7 @@ export async function adminGetNinHistory(
 }
 
 // NOTE (security audit 2026-09-13, fix F2): the client-side
-// sendSmsOTP/Termii gateway was removed — its VITE_ API key was
+// sendSmsOTP/Termii gateway was removed - its VITE_ API key was
 // compiled into the public bundle. All SMS OTP sends MUST go
 // through the server edge function `send-sms-otp`, which holds
 // TERMII_API_KEY as a Supabase secret.

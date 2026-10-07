@@ -4,7 +4,7 @@
  * Deterministic reinforcement MATERIAL estimation from the
  * user's bar schedule.
  *
- *   USER: total cutting length per diameter (12/16/20/25 mm) —
+ *   USER: total cutting length per diameter (12/16/20/25 mm) -
  *         from a bar bending schedule or an explicit estimate.
  *   RULES: lap/cut/waste % per diameter, binding wire kg per
  *         tonne. Unit weights are the standard BS 4449 values
@@ -268,7 +268,7 @@ export function calculateReinforcement(
 
   if (!anyLength) {
     missing.push(
-      "Bar schedule: enter the total cutting length for at least one diameter — the engine will not invent steel. Bar sizes and lengths are structural engineering decisions.",
+      "Bar schedule: enter the total cutting length for at least one diameter: the engine will not invent steel. Bar sizes and lengths are structural engineering decisions.",
     );
   } else {
     steps.push({
@@ -277,7 +277,7 @@ export function calculateReinforcement(
     });
   }
 
-  // ── 2. Binding wire — visible planning rule per tonne ──
+  // ── 2. Binding wire - visible planning rule per tonne ──
   if (totalMassKg > 0) {
     if (rules.binding_wire_kg_per_tonne === null) {
       missing.push(
@@ -304,7 +304,7 @@ export function calculateReinforcement(
     }
   }
 
-  // ── 3. Labour — separate, never automatic ──
+  // ── 3. Labour - separate, never automatic ──
   let labourTotal = 0;
   if (input.labour.mode === "per_tonne") {
     const rate = input.labour.per_tonne_rate ?? null;
@@ -335,11 +335,11 @@ export function calculateReinforcement(
   } else {
     steps.push({
       label: "Labour",
-      detail: "Excluded — not added to the total.",
+      detail: "Excluded: not added to the total.",
     });
   }
 
-  // ── 4. Totals — never fabricated ──
+  // ── 4. Totals - never fabricated ──
   const pricedLines = lines.filter((l) => l.line_total !== null);
   const pricedSubtotal = money(
     pricedLines.reduce((s, l) => s + (l.line_total ?? 0), 0),
@@ -354,12 +354,12 @@ export function calculateReinforcement(
   for (const l of lines) {
     if (l.quantity !== null && l.unit_price === null) {
       warnings.push(
-        `${l.label}: PRICE NOT CONFIGURED in the material database — quantity shown, no price invented.`,
+        `${l.label}: PRICE NOT CONFIGURED in the material database: quantity shown, no price invented.`,
       );
     }
   }
   warnings.push(
-    "This is material ESTIMATION from your bar schedule — it does NOT design reinforcement. Bar sizes, spacing and laps are structural engineering decisions that must come from your engineer.",
+    "This is material ESTIMATION from your bar schedule: it does NOT design reinforcement. Bar sizes, spacing and laps are structural engineering decisions that must come from your engineer.",
   );
 
   const incomplete =

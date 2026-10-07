@@ -83,7 +83,7 @@ export function parseFoundationRules(rows: CalcRuleRow[]): FoundationRules {
   const bpm = pos(get("blocks_per_m2"));
   if (bpm !== null) rules.blocks_per_m2 = bpm;
 
-  // The mix ratio is an object under rule_value.value — read it raw.
+  // The mix ratio is an object under rule_value.value - read it raw.
   const ratioRow = rows.find(
     (r) =>
       r.rule_key === "concrete_mix_ratio" &&
@@ -232,7 +232,7 @@ export function calculateFoundation(
   if (input.concrete_volume_m3 !== null && input.concrete_volume_m3 > 0) {
     if (rules.mix_ratio === null) {
       missing.push(
-        "Concrete: no mix ratio configured (concrete_mix_ratio). Set it (e.g. 1:2:4) — quantities will not be guessed.",
+        "Concrete: no mix ratio configured (concrete_mix_ratio). Set it (e.g. 1:2:4): quantities will not be guessed.",
       );
     } else {
       const { cement, sand, granite } = rules.mix_ratio;
@@ -294,7 +294,7 @@ export function calculateFoundation(
     }
   } else if (input.concrete_volume_m3 === null) {
     missing.push(
-      "Concrete volume: enter the foundation concrete volume — the engine will not assume it.",
+      "Concrete volume: enter the foundation concrete volume: the engine will not assume it.",
     );
   }
 
@@ -319,7 +319,7 @@ export function calculateFoundation(
   if (input.block_wall_area_m2 !== null && input.block_wall_area_m2 > 0) {
     if (rules.blocks_per_m2 === null) {
       missing.push(
-        "Blocks: no blocks-per-m² rule configured (blocks_per_m2). Set it for the block you price — quantities will not be guessed.",
+        "Blocks: no blocks-per-m² rule configured (blocks_per_m2). Set it for the block you price: quantities will not be guessed.",
       );
     } else {
       const blocks = ceilU(input.block_wall_area_m2 * rules.blocks_per_m2);
@@ -342,7 +342,7 @@ export function calculateFoundation(
     }
   } else if (input.block_wall_area_m2 === null) {
     missing.push(
-      "Blockwork: enter the wall area to DPC — or 0 if there is no blockwork.",
+      "Blockwork: enter the wall area to DPC: or 0 if there is no blockwork.",
     );
   }
 
@@ -363,11 +363,11 @@ export function calculateFoundation(
     });
   } else if (input.formwork_area_m2 === null) {
     missing.push(
-      "Formwork: enter the formwork contact area — or 0 if you are pouring directly against the soil.",
+      "Formwork: enter the formwork contact area: or 0 if you are pouring directly against the soil.",
     );
   }
 
-  // ── 5. Labour — separate, never automatic ──
+  // ── 5. Labour - separate, never automatic ──
   let labourTotal = 0;
   const concreteM3 = input.concrete_volume_m3 ?? 0;
   if (input.labour.mode === "per_m3") {
@@ -399,11 +399,11 @@ export function calculateFoundation(
   } else {
     steps.push({
       label: "Labour",
-      detail: "Excluded — not added to the total.",
+      detail: "Excluded: not added to the total.",
     });
   }
 
-  // ── 6. Totals — never fabricated ──
+  // ── 6. Totals - never fabricated ──
   const pricedLines = lines.filter((l) => l.line_total !== null);
   const pricedSubtotal = money(
     pricedLines.reduce((s, l) => s + (l.line_total ?? 0), 0),
@@ -418,12 +418,12 @@ export function calculateFoundation(
   for (const l of lines) {
     if (l.quantity !== null && l.unit_price === null) {
       warnings.push(
-        `${l.label}: PRICE NOT CONFIGURED in the material database — quantity shown, no price invented.`,
+        `${l.label}: PRICE NOT CONFIGURED in the material database: quantity shown, no price invented.`,
       );
     }
   }
   warnings.push(
-    "This is material ESTIMATION, not foundation design. Footing sizes, depth and reinforcement are structural engineering decisions — use the Reinforcement estimator for the bar schedule.",
+    "This is material ESTIMATION, not foundation design. Footing sizes, depth and reinforcement are structural engineering decisions: use the Reinforcement estimator for the bar schedule.",
   );
 
   const incomplete =

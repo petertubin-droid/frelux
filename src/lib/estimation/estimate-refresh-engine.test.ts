@@ -77,7 +77,7 @@ describe("refreshEstimate", () => {
     expect(r.changed_count).toBe(1);
   });
 
-  it("keeps a line at its snapshot price when no current price exists — never guesses", () => {
+  it("keeps a line at its snapshot price when no current price exists: never guesses", () => {
     const r = refreshEstimate(input({ items: [item()] }));
     expect(r.ok).toBe(true);
     expect(r.lines[0].price_status).toBe("no_current_price");
@@ -114,7 +114,7 @@ describe("refreshEstimate", () => {
     expect(r.delta).toBe(0);
   });
 
-  it("ignores a current price in a different currency — never converts", () => {
+  it("ignores a current price in a different currency: never converts", () => {
     const r = refreshEstimate(
       input({
         items: [item()],

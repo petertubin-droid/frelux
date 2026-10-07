@@ -7,7 +7,7 @@
  * - The plan is produced ONLY by calculateCircularReuse.
  *   This page renders; it never estimates recovery itself.
  * - Materials without a configured factor are refused with a
- *   clear message — never estimated with assumed rates.
+ *   clear message - never estimated with assumed rates.
  * - A missing reclaimed value is reported honestly, never
  *   invented.
  */
@@ -35,12 +35,12 @@ import AdSlot from "@/components/ui/AdSlot";
 export default function CircularReuse() {
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
-    { name: "Circular & Reuse — Demolition Recovery", path: "/circular-reuse" },
+    { name: "Circular & Reuse: Demolition Recovery", path: "/circular-reuse" },
   ]);
   useSeo({
-    title: "Circular & Reuse — Demolition Recovery Quantities | FRELUX",
+    title: "Circular & Reuse: Demolition Recovery Quantities | FRELUX",
     description:
-      "Plan material recovery from a demolition or strip-out: recovered, reused, recycled and landfilled quantities, landfill-diversion rate against a circular-economy target, and reclaimed-material value. Every number comes from a sourced factor — never a guess.",
+      "Plan material recovery from a demolition or strip-out: recovered, reused, recycled and landfilled quantities, landfill-diversion rate against a circular-economy target, and reclaimed-material value. Every number comes from a sourced factor: never a guess.",
   });
 
   const [factors, setFactors] = useState<MaterialReuseFactor[]>([]);
@@ -106,10 +106,10 @@ export default function CircularReuse() {
           breadcrumbs={[
             { label: "Home", path: "/" },
             { label: "Construction Tools", path: "/construction-tools" },
-            { label: "Circular & Reuse — Demolition Recovery" },
+            { label: "Circular & Reuse: Demolition Recovery" },
           ]}
-          title="Circular & Reuse — Demolition Recovery"
-          subtitle="Circular-economy mandates are coming to construction. Plan a demolition or strip-out honestly: how much material is recoverable, reusable, recyclable, and what lands in a dump — computed only from sourced recovery factors, never a guess."
+          title="Circular & Reuse: Demolition Recovery"
+          subtitle="Circular-economy mandates are coming to construction. Plan a demolition or strip-out honestly: how much material is recoverable, reusable, recyclable, and what lands in a dump: computed only from sourced recovery factors, never a guess."
         />
 
         {loadError && (
@@ -227,7 +227,7 @@ export default function CircularReuse() {
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {result.meets_diversion_target === null
-                    ? "not measured — no diversion target configured"
+                    ? "not measured: no diversion target configured"
                     : result.meets_diversion_target
                       ? "meets the configured circular-economy target"
                       : "below the configured circular-economy target"}
@@ -239,7 +239,7 @@ export default function CircularReuse() {
                 </p>
                 <p className="mt-1 text-xl font-semibold">
                   {result.reuse_value_naira === null
-                    ? "—"
+                    ? "N/A"
                     : `₦${result.reuse_value_naira.toLocaleString("en-NG")}`}
                 </p>
                 <p className="text-xs text-muted-foreground">

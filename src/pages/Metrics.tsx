@@ -2,7 +2,7 @@ import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
 
 /**
- * Public platform metrics — real, verifiable numbers, no vanity
+ * Public platform metrics - real, verifiable numbers, no vanity
  * inflation. Update the constants after each release (they are the
  * same numbers CI validates).
  */
@@ -70,23 +70,21 @@ export default function Metrics() {
             className="inline-block h-2.5 w-2.5 rounded-full bg-green-500"
             aria-hidden="true"
           />
-          <span>Application — operational (Netlify edge deployment)</span>
+          <span>Application: operational (Netlify edge deployment)</span>
         </div>
         <div className="flex items-center gap-3">
           <span
             className="inline-block h-2.5 w-2.5 rounded-full bg-green-500"
             aria-hidden="true"
           />
-          <span>
-            CI — every commit typechecked, tested, built before deploy
-          </span>
+          <span>CI: every commit typechecked, tested, built before deploy</span>
         </div>
         <div className="flex items-center gap-3">
           <span
             className="inline-block h-2.5 w-2.5 rounded-full bg-green-500"
             aria-hidden="true"
           />
-          <span>Database — Supabase (Postgres) with row-level security</span>
+          <span>Database: Supabase (Postgres) with row-level security</span>
         </div>
       </div>
 

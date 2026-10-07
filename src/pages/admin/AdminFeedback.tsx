@@ -33,7 +33,7 @@ export default function AdminFeedback() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("new");
   const [error, setError] = useState<string | null>(null);
-  // Server-side pagination — feedback grows with every suggestion.
+  // Server-side pagination - feedback grows with every suggestion.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
@@ -90,7 +90,7 @@ export default function AdminFeedback() {
     <div>
       <AdminHeader
         title="Feedback & Suggestions"
-        subtitle="What users ask for and report — review, plan, and mark them done."
+        subtitle="What users ask for and report: review, plan, and mark them done."
       />
 
       <div className="mb-4 flex flex-wrap gap-2">

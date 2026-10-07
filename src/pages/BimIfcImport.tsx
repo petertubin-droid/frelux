@@ -2,7 +2,7 @@
  * BIM/IFC Import (Future Engine 15)
  *
  * Upload an architect's .ifc export and get a deterministic
- * material takeoff, parsed entirely in the browser — no upload
+ * material takeoff, parsed entirely in the browser - no upload
  * to any server, works offline. Quantities are reported only
  * when the file itself declares them; nothing is invented.
  */
@@ -24,9 +24,9 @@ export default function BimIfcImport() {
     { name: "BIM/IFC Import", path: "/bim-ifc-import" },
   ]);
   useSeo({
-    title: "BIM/IFC Import — Instant Takeoff from Architect Files | FRELUX",
+    title: "BIM/IFC Import: Instant Takeoff from Architect Files | FRELUX",
     description:
-      "Upload an architect's .ifc (BIM) export and instantly get a material takeoff: walls, slabs, doors, windows and their declared quantities. Parsed entirely in your browser — nothing is uploaded, nothing is guessed.",
+      "Upload an architect's .ifc (BIM) export and instantly get a material takeoff: walls, slabs, doors, windows and their declared quantities. Parsed entirely in your browser: nothing is uploaded, nothing is guessed.",
   });
 
   const [fileName, setFileName] = useState<string | null>(null);
@@ -41,7 +41,7 @@ export default function BimIfcImport() {
     if (!file) return;
     if (!/\.ifc$/i.test(file.name) && !/\\.ifczip$/i.test(file.name)) {
       setFileError(
-        "Only .ifc files are supported. Compressed .ifczip exports must be extracted first — their contents are never guessed at.",
+        "Only .ifc files are supported. Compressed .ifczip exports must be extracted first: their contents are never guessed at.",
       );
       return;
     }
@@ -58,7 +58,7 @@ export default function BimIfcImport() {
       if (r.ok) track("bim_ifc_imported");
     } catch {
       setFileError(
-        "The file could not be read. It may be corrupted — nothing is estimated on its behalf.",
+        "The file could not be read. It may be corrupted: nothing is estimated on its behalf.",
       );
     } finally {
       setBusy(false);
@@ -75,7 +75,7 @@ export default function BimIfcImport() {
             { label: "BIM/IFC Import" },
           ]}
           title="BIM/IFC Import"
-          subtitle="Upload an architect's .ifc (BIM) export and get an instant material takeoff — walls, slabs, roofs, doors, windows with the areas and volumes the file itself declares. Parsed entirely in your browser: the file never leaves your device, no AI is involved, and if the export contains no quantities you get honest element counts with a warning, never invented areas."
+          subtitle="Upload an architect's .ifc (BIM) export and get an instant material takeoff: walls, slabs, roofs, doors, windows with the areas and volumes the file itself declares. Parsed entirely in your browser: the file never leaves your device, no AI is involved, and if the export contains no quantities you get honest element counts with a warning, never invented areas."
         />
 
         <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
@@ -157,7 +157,7 @@ export default function BimIfcImport() {
                 <p className="text-xs text-muted-foreground">
                   {result.has_quantities
                     ? "IFC standard SI units (m², m³, m, kg)"
-                    : "counts only — nothing invented"}
+                    : "counts only: nothing invented"}
                 </p>
               </div>
             </div>
@@ -188,7 +188,7 @@ export default function BimIfcImport() {
                         <td className="py-2">
                           {Object.keys(e.quantity_totals).length === 0 ? (
                             <span className="text-xs text-muted-foreground">
-                              no quantities declared — count only
+                              no quantities declared: count only
                             </span>
                           ) : (
                             <span className="flex flex-wrap gap-x-4 gap-y-1 text-xs">

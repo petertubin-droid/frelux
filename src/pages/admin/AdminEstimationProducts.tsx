@@ -105,13 +105,13 @@ const CATEGORIES = [
   "other",
 ];
 const CALCULATION_MODELS = [
-  { value: "", label: "— not configured —" },
+  { value: "", label: "(not configured)" },
   { value: "coverage_based", label: "Coverage-based (area per package)" },
   { value: "mass_per_area", label: "Mass per area (kg/m² consumption)" },
   { value: "volume_per_area", label: "Volume per area (L/m² consumption)" },
 ];
 const CONSUMPTION_UNITS = [
-  { value: "", label: "— not configured —" },
+  { value: "", label: "(not configured)" },
   { value: "kg_per_m2", label: "kg per m²" },
   { value: "litre_per_m2", label: "litres per m²" },
 ];
@@ -943,7 +943,7 @@ function QualityForm({
         !coverage
       ) {
         setFormError(
-          "Coverage-based model needs coverage data — enter a coverage range or single coverage rate.",
+          "Coverage-based model needs coverage data: enter a coverage range or single coverage rate.",
         );
         return;
       }
@@ -1100,7 +1100,7 @@ function QualityForm({
         <p className="mb-3 text-xs text-muted-foreground">
           These fields drive the deterministic Mineral Stone and Stucco engines.
           Leave the model unconfigured until verified product data is available
-          — the engines refuse to guess.
+          : the engines refuse to guess.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <AdminField label="Calculation model">

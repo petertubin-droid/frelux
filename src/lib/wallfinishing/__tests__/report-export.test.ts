@@ -1,5 +1,5 @@
 // =========================================================
-// Wall finishing report export tests — PDF (printable HTML)
+// Wall finishing report export tests - PDF (printable HTML)
 // and Excel workbook rows built from a verified engine
 // result. Every displayed number must come from the result.
 // =========================================================

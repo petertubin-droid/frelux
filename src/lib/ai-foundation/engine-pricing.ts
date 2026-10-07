@@ -1,10 +1,10 @@
 // =========================================================
-// AI ENGINE PRICING — shared market-aware price wiring.
+// AI ENGINE PRICING - shared market-aware price wiring.
 //
 // Registry engines surface REAL market prices by ROLE through
 // the market price book (market_material_roles → estimation_
 // materials → estimation_prices) with full provenance. A role
-// without a verified price resolves to null — the engine then
+// without a verified price resolves to null - the engine then
 // reports the missing price instead of inventing one.
 //
 // Mirrors the manual calculator pages (PaintCalculator,
@@ -38,7 +38,7 @@ export interface EngineResolvedPrice {
 
 /**
  * Resolve a role's verified price for a market. Returns null when the
- * market (or any inherited market) has no active mapping/price — the
+ * market (or any inherited market) has no active mapping/price - the
  * caller reports the gap, never guesses.
  */
 export async function resolveEnginePrice(
@@ -74,7 +74,7 @@ export interface EnginePricedLine {
 
 /**
  * Price a coverage-unit quantity (litres, kg, bags...) with a
- * pack-priced role price. Packs are purchased WHOLE — the same
+ * pack-priced role price. Packs are purchased WHOLE - the same
  * purchase rounding the manual calculators apply.
  */
 export function priceQuantity(

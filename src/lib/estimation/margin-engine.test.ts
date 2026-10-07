@@ -87,7 +87,7 @@ describe("calculateMargin", () => {
     expect(r.warnings).toHaveLength(0);
   });
 
-  it("omits the VAT line with a warning when the rule is absent — never guesses", () => {
+  it("omits the VAT line with a warning when the rule is absent: never guesses", () => {
     const r = calculateMargin(input({ rules: [rule("rounding_decimals", 2)] }));
     expect(r.ok).toBe(true);
     expect(r.vat_rate).toBeNull();
@@ -106,7 +106,7 @@ describe("calculateMargin", () => {
     expect(r.vat_rate).toBeNull();
     expect(r.quote_total).toBe(1250000);
     expect(r.warnings.join(" ")).toMatch(
-      /was ignored — invalid configuration is never silently applied/,
+      /was ignored: invalid configuration is never silently applied/,
     );
   });
 

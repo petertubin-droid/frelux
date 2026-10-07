@@ -51,10 +51,10 @@ type NumField =
 type RunField = "cold_run_m" | "hot_run_m" | "waste_run_m" | "drainage_run_m";
 
 const RUN_LABELS: Record<RunField, string> = {
-  cold_run_m: "Cold water pipe — total run (m)",
-  hot_run_m: "Hot water pipe — total run (m)",
-  waste_run_m: "Waste pipe — total run (m)",
-  drainage_run_m: "Drainage pipe — total run (m)",
+  cold_run_m: "Cold water pipe: total run (m)",
+  hot_run_m: "Hot water pipe: total run (m)",
+  waste_run_m: "Waste pipe: total run (m)",
+  drainage_run_m: "Drainage pipe: total run (m)",
 };
 
 const NUM_LABELS: Record<NumField, string> = {
@@ -68,7 +68,7 @@ const NUM_LABELS: Record<NumField, string> = {
 };
 
 function fmtN(v: number | null): string {
-  return v === null ? "—" : v.toLocaleString();
+  return v === null ? "N/A" : v.toLocaleString();
 }
 
 export default function PlumbingEstimator() {
@@ -103,9 +103,9 @@ export default function PlumbingEstimator() {
 
   useSeo({
     title:
-      "Plumbing Estimator — Pipes, Fittings, Valves & Connection Kits | FRELUX PROJECT CALC",
+      "Plumbing Estimator: Pipes, Fittings, Valves & Connection Kits | FRELUX PROJECT CALC",
     description:
-      "Deterministic plumbing material estimation: enter fixture counts and your measured pipe runs and get separate pipe, fitting, valve and connection-kit quantities with a full calculation breakdown. Estimation only — not plumbing design.",
+      "Deterministic plumbing material estimation: enter fixture counts and your measured pipe runs and get separate pipe, fitting, valve and connection-kit quantities with a full calculation breakdown. Estimation only: not plumbing design.",
   });
 
   const [priceMap, setPriceMap] = useState<PlumbingPriceMap>({});
@@ -245,7 +245,7 @@ export default function PlumbingEstimator() {
       }
       setSaveState(
         result.incomplete
-          ? `Saved as draft (${ref}) — complete the missing inputs for a final estimate.`
+          ? `Saved as draft (${ref}): complete the missing inputs for a final estimate.`
           : `Saved (${ref}). Import it into a BOQ or project from your estimates.`,
       );
       track("calculator_completed", { calculator: "plumbing_saved", ref });
@@ -285,7 +285,7 @@ export default function PlumbingEstimator() {
           { label: "Plumbing Estimator" },
         ]}
         title="Plumbing Estimator"
-        subtitle="Enter your fixture counts and the total pipe run you measured for each category. The engine sizes each pipe category separately, applies the admin's visible waste and fitting allowances, and shows every step. Estimation only — not professional plumbing design."
+        subtitle="Enter your fixture counts and the total pipe run you measured for each category. The engine sizes each pipe category separately, applies the admin's visible waste and fitting allowances, and shows every step. Estimation only: not professional plumbing design."
       />
 
       {/* Inputs */}
@@ -304,7 +304,7 @@ export default function PlumbingEstimator() {
           The engine never invents pipe lengths. Give the total run per category
           from your layout; leave <strong>Hot water</strong> blank if there is
           no hot water system. A blank field the rest of the project needs
-          leaves that line unsized and the estimate marked incomplete — enter 0
+          leaves that line unsized and the estimate marked incomplete: enter 0
           only when a category truly doesn't exist.
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -438,14 +438,14 @@ export default function PlumbingEstimator() {
                     .map((l) => (
                       <li key={l.key}>
                         {l.label}: PRICE NOT CONFIGURED in the material database
-                        — the quantity is shown, but no price was invented.
+                        : the quantity is shown, but no price was invented.
                       </li>
                     ))}
                 </ul>
               </>
             ) : (
               <strong>
-                Complete estimate — every line sized and priced from the shared
+                Complete estimate: every line sized and priced from the shared
                 material database.
               </strong>
             )}
@@ -473,7 +473,7 @@ export default function PlumbingEstimator() {
                     <td className="p-3 font-medium">{l.label}</td>
                     <td className="p-3" data-testid={`qty-${l.key}`}>
                       {l.quantity === null
-                        ? "— provide run length"
+                        ? "(provide run length)"
                         : fmtN(l.quantity)}
                     </td>
                     <td className="p-3 text-muted-foreground">{l.unit}</td>
@@ -490,7 +490,7 @@ export default function PlumbingEstimator() {
                       )}
                     </td>
                     <td className="p-3 font-medium">
-                      {l.line_total === null ? "—" : `₦${fmtN(l.line_total)}`}
+                      {l.line_total === null ? "N/A" : `₦${fmtN(l.line_total)}`}
                     </td>
                   </tr>
                 ))}
@@ -517,7 +517,7 @@ export default function PlumbingEstimator() {
               <p className="text-sm text-muted-foreground">Material subtotal</p>
               <p className="text-xl font-semibold">
                 {result.material_subtotal === null
-                  ? "— prices/inputs missing"
+                  ? "(prices/inputs missing)"
                   : `₦${fmtN(result.material_subtotal)}`}
               </p>
             </div>
@@ -541,7 +541,7 @@ export default function PlumbingEstimator() {
               <p className="text-sm text-muted-foreground">Grand total</p>
               <p className="text-xl font-semibold">
                 {result.grand_total === null
-                  ? "—"
+                  ? "N/A"
                   : `₦${fmtN(result.grand_total)}`}
               </p>
             </div>
@@ -573,7 +573,7 @@ export default function PlumbingEstimator() {
           </li>
           <li>
             Fittings (elbows, tees, reducers, unions, valves) follow the admin's
-            visible planning allowances per fixture connection — a labelled
+            visible planning allowances per fixture connection: a labelled
             estimate, not a measurement.
           </li>
           <li>

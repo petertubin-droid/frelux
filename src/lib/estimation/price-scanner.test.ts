@@ -22,7 +22,7 @@ describe("estimation/price-scanner", () => {
       expect(val.unit.length).toBeGreaterThan(0);
       expect(val.name.length).toBeGreaterThan(0);
       expect(val.slug.length).toBeGreaterThan(0);
-      // price is a positive reference OR null (no reference — admin must enter)
+      // price is a positive reference OR null (no reference - admin must enter)
       if (val.price !== null) expect(val.price).toBeGreaterThan(0);
     }
   });
@@ -45,7 +45,7 @@ describe("estimation/price-scanner", () => {
     expect(report.materials_failed).toBe(0);
   });
 
-  it("is deterministic — the same inputs produce the identical report twice", async () => {
+  it("is deterministic: the same inputs produce the identical report twice", async () => {
     const a = await scanMaterialPrices({ "cement-per-bag": 9000 });
     const b = await scanMaterialPrices({ "cement-per-bag": 9000 });
     expect(
@@ -85,7 +85,7 @@ describe("estimation/price-scanner", () => {
     expect(cement!.configured_price).toBeNull();
     expect(cement!.change_percent).toBeNull();
     expect(report.materials_unconfigured).toBeGreaterThan(0);
-    // the reference is still shown for the admin to verify — not applied silently
+    // the reference is still shown for the admin to verify - not applied silently
     expect(cement!.reference_price).toBe(8500);
   });
 

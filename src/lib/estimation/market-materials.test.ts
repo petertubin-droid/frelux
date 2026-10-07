@@ -45,7 +45,7 @@ describe("estimation/market-materials", () => {
     expect(MATERIAL_ROLES).toContain("primer");
   });
 
-  it("returns null when the market has no mapping — never guesses", async () => {
+  it("returns null when the market has no mapping: never guesses", async () => {
     const proxy = createChainable();
     proxy.maybeSingle = maybeSingle.mockResolvedValue({
       data: null,

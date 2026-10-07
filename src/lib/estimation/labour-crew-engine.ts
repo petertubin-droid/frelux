@@ -7,8 +7,8 @@
  * separate labelled line.
  *
  * Philosophy (unchanged): the efficiency loss is never silently
- * folded into the base rate, missing rates are refused — never
- * guessed — and calendar days are always whole days (you cannot
+ * folded into the base rate, missing rates are refused - never
+ * guessed - and calendar days are always whole days (you cannot
  * schedule a fraction of a working day).
  */
 
@@ -31,7 +31,7 @@ export interface LabourInput {
   rules: EstimationCalcRule[];
 }
 
-/** Minimal shape the engine needs — mirrors the labour_rates table. */
+/** Minimal shape the engine needs - mirrors the labour_rates table. */
 export interface LabourRateLike {
   task_key: string;
   task_label: string | null;
@@ -106,7 +106,7 @@ export function calculateLabour(input: LabourInput): LabourResult {
 
   if (!taskKey) {
     result.warnings.push(
-      "A task must be selected — the engine never schedules work without one.",
+      "A task must be selected: the engine never schedules work without one.",
     );
     return result;
   }
@@ -129,14 +129,14 @@ export function calculateLabour(input: LabourInput): LabourResult {
   );
   if (!rate) {
     result.warnings.push(
-      `No labour rate is configured for '${taskKey}' — the engine refuses to guess a productivity figure. Add a rate under Admin → Labour Rates.`,
+      `No labour rate is configured for '${taskKey}': the engine refuses to guess a productivity figure. Add a rate under Admin → Labour Rates.`,
     );
     return result;
   }
   const baseRate = Number(rate.output_per_worker_day);
   if (!Number.isFinite(baseRate) || baseRate <= 0) {
     result.warnings.push(
-      `The configured rate for '${rate.task_key}' is invalid — the line was refused instead of guessed.`,
+      `The configured rate for '${rate.task_key}' is invalid: the line was refused instead of guessed.`,
     );
     return result;
   }
@@ -150,11 +150,11 @@ export function calculateLabour(input: LabourInput): LabourResult {
   if (loss < 0 || loss >= 100) {
     loss = 15;
     result.warnings.push(
-      "The configured efficiency loss was outside 0–99 and was ignored (the default 15% was used) — invalid configuration is never silently applied.",
+      "The configured efficiency loss was outside 0–99 and was ignored (the default 15% was used): invalid configuration is never silently applied.",
     );
   }
 
-  // ── 4. Effective rate: base × (1 − loss) — loss is a separate labelled line ──
+  // ── 4. Effective rate: base × (1 − loss) - loss is a separate labelled line ──
   const effective = roundTo(baseRate * (1 - loss / 100), decimals);
   const workerDays = roundTo(quantity / effective, decimals);
   // Calendar days are ALWAYS whole days: ceil(worker-days ÷ crew), never a fraction.
@@ -187,7 +187,7 @@ export function calculateLabour(input: LabourInput): LabourResult {
   });
   result.steps.push({
     label: "Crew duration",
-    detail: `${workerDays} worker-days ÷ ${crew} worker${crew === 1 ? "" : "s"} = ${roundTo(workerDays / crew, decimals)} → ${calendarDays} whole calendar day${calendarDays === 1 ? "" : "s"} (always rounded up — a fraction of a working day cannot be scheduled).`,
+    detail: `${workerDays} worker-days ÷ ${crew} worker${crew === 1 ? "" : "s"} = ${roundTo(workerDays / crew, decimals)} → ${calendarDays} whole calendar day${calendarDays === 1 ? "" : "s"} (always rounded up: a fraction of a working day cannot be scheduled).`,
   });
 
   return result;

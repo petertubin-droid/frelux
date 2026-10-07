@@ -150,7 +150,7 @@ export async function startSubscriptionCheckout(
   );
   if (error) {
     return {
-      error: `${resolved.gateway} checkout is unavailable (${error.message}). Falling back is required — configure the gateway or contact support.`,
+      error: `${resolved.gateway} checkout is unavailable (${error.message}). Falling back is required: configure the gateway or contact support.`,
     };
   }
   const url = (data as { authorization_url?: string } | null)

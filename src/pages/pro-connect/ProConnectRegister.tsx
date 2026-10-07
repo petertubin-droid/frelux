@@ -563,7 +563,7 @@ export default function ProConnectRegister() {
 
           {states.length === 0 && (
             <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-700 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-400">
-              Service areas for this country are coming soon — you can continue
+              Service areas for this country are coming soon: you can continue
               without selecting any. Your profile will be listed under your
               selected country.
             </div>

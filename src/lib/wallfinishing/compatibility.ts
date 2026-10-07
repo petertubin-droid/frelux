@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX Wall Finishing — material compatibility.
+// FRELUX Wall Finishing - material compatibility.
 //
 // Interior-only products are never silently recommended for
 // exterior use. Compatibility is data-driven per role; the UI
@@ -18,7 +18,7 @@ export interface RoleCompatibility {
 
 /**
  * Compatibility matrix by material role. Roles not listed here
- * are treated as general-purpose (both surfaces) — the matrix
+ * are treated as general-purpose (both surfaces) - the matrix
  * exists to catch the dangerous cases, not to be exhaustive.
  */
 export const ROLE_COMPATIBILITY: Record<string, RoleCompatibility> = {
@@ -123,7 +123,7 @@ export function checkCompatibility(
 
   if (surface === "exterior" && !compat.exterior) {
     warnings.push(
-      `'${role}' is an interior-only product — using it on an exterior wall will fail ` +
+      `'${role}' is an interior-only product: using it on an exterior wall will fail ` +
         `weathering. Choose an exterior-grade material instead.`,
     );
   }
@@ -132,7 +132,7 @@ export function checkCompatibility(
   }
   if (isWetArea && !compat.wetArea) {
     warnings.push(
-      `'${role}' is not wet-area rated — bathrooms and kitchens need a moisture-compatible product.`,
+      `'${role}' is not wet-area rated: bathrooms and kitchens need a moisture-compatible product.`,
     );
   }
   if (compat.substrates !== "all") {

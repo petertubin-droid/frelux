@@ -74,7 +74,7 @@ describe("§calculation trace chain", () => {
     }
   });
 
-  it("rejects a trace with a missing step — a UI number proves nothing", () => {
+  it("rejects a trace with a missing step: a UI number proves nothing", () => {
     const steps = realTrace().filter((s) => s.step !== "WASTE");
     const v = validateTrace(steps);
     expect(v.valid).toBe(false);
@@ -111,7 +111,7 @@ describe("§calculation trace chain", () => {
     if (!v.valid) expect(v.ownerReviewRequired).toBe(true);
   });
 
-  it("requires disclosure of AI inference — valid but never silent", () => {
+  it("requires disclosure of AI inference: valid but never silent", () => {
     const steps = realTrace();
     steps[8] = {
       step: "RESULT",
@@ -124,7 +124,7 @@ describe("§calculation trace chain", () => {
     if (v.valid) expect(v.disclosures.join(" ")).toContain("AI_INFERENCE");
   });
 
-  it("rejects steps with no evidence — no fake success", () => {
+  it("rejects steps with no evidence: no fake success", () => {
     const steps = realTrace();
     steps[2] = {
       step: "MEASUREMENT",
@@ -138,7 +138,7 @@ describe("§calculation trace chain", () => {
   });
 });
 
-describe("§code findings — evidence-gated", () => {
+describe("§code findings: evidence-gated", () => {
   it("refuses findings without real observed evidence", () => {
     const r = recordCodeFinding({
       layer: "pricing",
@@ -192,7 +192,7 @@ describe("§code findings — evidence-gated", () => {
   });
 });
 
-describe("§patch pipeline — owner approval enforced", () => {
+describe("§patch pipeline: owner approval enforced", () => {
   it("refuses patches that fix nothing", () => {
     const r = proposePatch([], "does nothing");
     expect(r.ok).toBe(false);

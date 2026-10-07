@@ -6,7 +6,7 @@ import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 
 /**
- * CurrencySwitcher — visitor-facing display-currency picker
+ * CurrencySwitcher - visitor-facing display-currency picker
  * (International Phase A). Estimates still calculate in Naira; picking
  * a currency converts amounts at DISPLAY time using the owner's rates.
  *

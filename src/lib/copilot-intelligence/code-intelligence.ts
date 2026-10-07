@@ -301,12 +301,12 @@ export function codeKnowledgeRequirements() {
 }
 
 // =========================================================
-// DEEP FRELUX CODE INTELLIGENCE — AUDIT & PATCH LAYER
+// DEEP FRELUX CODE INTELLIGENCE - AUDIT & PATCH LAYER
 // (session 2026-09-09 extension)
 // =========================================================
 
 // ---------------------------------------------------------
-// Codebase layers — the inventory ARCHIE maintains
+// Codebase layers - the inventory ARCHIE maintains
 // ---------------------------------------------------------
 
 export const FRELUX_CODEBASE_LAYERS = [
@@ -354,7 +354,7 @@ export const DISCLOSED_PROVENANCE: ReadonlySet<CalculationProvenance> = new Set(
 );
 
 // ---------------------------------------------------------
-// Calculation trace — the full nine-step chain
+// Calculation trace - the full nine-step chain
 // ---------------------------------------------------------
 
 export const TRACE_STEPS = [
@@ -400,7 +400,7 @@ export type TraceVerdict =
  *  - PLACEHOLDER / HARDCODED_FALLBACK at any step → invalid.
  *  - AI_INFERENCE / EXTERNAL_DATA / OWNER_TRADE_PRACTICE
  *    → valid but MUST be disclosed to the user.
- *  - An unknown rule is never invented — the trace is
+ *  - An unknown rule is never invented - the trace is
  *    returned invalid with ownerReviewRequired.
  */
 export function validateTrace(steps: TraceStepRecord[]): TraceVerdict {
@@ -410,7 +410,7 @@ export function validateTrace(steps: TraceStepRecord[]): TraceVerdict {
       return {
         valid: false,
         reason:
-          "Trace step has no evidence — ARCHIE does not accept unverified steps.",
+          "Trace step has no evidence: ARCHIE does not accept unverified steps.",
         step: s.step,
         ownerReviewRequired: true,
       };
@@ -427,7 +427,7 @@ export function validateTrace(steps: TraceStepRecord[]): TraceVerdict {
     if (!rec)
       return {
         valid: false,
-        reason: `Trace is missing the ${step} step — a UI number alone proves nothing.`,
+        reason: `Trace is missing the ${step} step: a UI number alone proves nothing.`,
         step,
         ownerReviewRequired: true,
       };
@@ -444,14 +444,14 @@ export function validateTrace(steps: TraceStepRecord[]): TraceVerdict {
   for (const step of TRACE_STEPS) {
     const rec = seen.get(step)!;
     if (DISCLOSED_PROVENANCE.has(rec.provenance))
-      disclosures.push(`${step}: ${rec.provenance} — disclosed to the user.`);
+      disclosures.push(`${step}: ${rec.provenance}: disclosed to the user.`);
     notes.push(`${step}: ${rec.provenance} @ ${rec.location}`);
   }
   return { valid: true, notes, disclosures };
 }
 
 // ---------------------------------------------------------
-// Code audit findings — evidence-gated, never fabricated
+// Code audit findings - evidence-gated, never fabricated
 // ---------------------------------------------------------
 
 export type CodeFindingType =
@@ -468,7 +468,7 @@ export type CodeFindingType =
 
 export type CodeFindingStatus =
   | "OPEN"
-  | "OWNER_REVIEW" // unknown rule — owner must decide
+  | "OWNER_REVIEW" // unknown rule: owner must decide
   | "CONFIRMED_INTENTIONAL" // owner confirmed it is correct
   | "RESOLVED"; // fixed, with patch evidence
 
@@ -478,7 +478,7 @@ export interface CodeFinding {
   type: CodeFindingType;
   /** file:line or table/function reference. */
   location: string;
-  /** What was actually observed. Required — no fake findings. */
+  /** What was actually observed. Required - no fake findings. */
   evidence: string;
   /** What to change; omitted when the rule is unknown. */
   proposedFix?: string;
@@ -521,7 +521,7 @@ export function recordCodeFinding(
 }
 
 // ---------------------------------------------------------
-// Patch proposals — prepared and tested, never applied
+// Patch proposals - prepared and tested, never applied
 // to production without recorded owner approval
 // ---------------------------------------------------------
 
@@ -585,14 +585,14 @@ export function testPatch(
     return {
       ok: false,
       error:
-        "Test evidence is required before a patch can await approval — untested code is not success.",
+        "Test evidence is required before a patch can await approval: untested code is not success.",
     };
   patch.testEvidence = ev;
   patch.status = "AWAITING_OWNER_APPROVAL";
   return { ok: true, patch };
 }
 
-/** Approve a patch — only with a live owner authorization for
+/** Approve a patch - only with a live owner authorization for
  *  applying patches. ARCHIE itself can NEVER call this with
  *  its own authority; the registry decides. */
 export function approvePatch(
@@ -609,7 +609,7 @@ export function approvePatch(
     return {
       ok: false,
       error:
-        "No recorded owner authorization for this patch. ARCHIE cannot approve its own changes — the Owner approves.",
+        "No recorded owner authorization for this patch. ARCHIE cannot approve its own changes: the Owner approves.",
     };
   patch.status = "APPROVED";
   return { ok: true, patch };
@@ -630,7 +630,7 @@ export function applyPatch(
 }
 
 // ---------------------------------------------------------
-// AUDIT BASELINE — REAL findings from ARCHIE's actual scan
+// AUDIT BASELINE - REAL findings from ARCHIE's actual scan
 // of the FRELUX codebase (session 2026-09-09). Every entry
 // carries file:line evidence. This list is updated as layers
 // are audited; entries are never fabricated.
@@ -657,7 +657,7 @@ export const FRELUX_AUDIT_BASELINE: readonly CodeFinding[] = [
     type: "HARDCODED_VALUE",
     location: "src/lib/calc.ts:386",
     evidence:
-      "comment: 'Use DB-driven override if provided, otherwise fall back to hardcoded factor' — surface-condition and color-condition factors have baked-in fallback constants when DB config is absent",
+      "comment: 'Use DB-driven override if provided, otherwise fall back to hardcoded factor': surface-condition and color-condition factors have baked-in fallback constants when DB config is absent",
     proposedFix:
       "Migrate fallback factors to the admin configuration tables (estimation-config pattern) so every surface/color factor is database-driven; keep code fallback only as a documented owner-confirmed trade practice.",
     status: "RESOLVED",
@@ -671,7 +671,7 @@ export const FRELUX_AUDIT_BASELINE: readonly CodeFinding[] = [
     type: "UNVERIFIED_PROVENANCE",
     location: "src/lib/estimation/painting-engine.ts:124",
     evidence:
-      'material_cost: string; // "₦XX,XXX" or "Not configured" — a money amount is modelled as a preformatted string',
+      'material_cost: string; // "₦XX,XXX" or "Not configured": a money amount is modelled as a preformatted string',
     proposedFix:
       "Model money as a numeric value with currency, and format at the presentation layer. Requires owner decision on display contract.",
     status: "RESOLVED",
@@ -692,14 +692,14 @@ export const FRELUX_AUDIT_BASELINE: readonly CodeFinding[] = [
     status: "RESOLVED",
     createdAt: "2026-09-09T00:00:00.000Z",
     resolution:
-      "Owner approved merge (2026-09-09). painting-engine no longer defines ANY shared rule: getPackSizeLitres, getRoundingRule, getStandardHeight and getCeilingQuantityBuckets are imported from and re-exported by the central paint-engine (identical semantics verified — including the standard-height fallback chain). painting-engine is now a room-based orchestration layer; the two calculators cannot disagree on a shared rule. Evidence: 436 estimation + copilot tests pass, typecheck clean.",
+      "Owner approved merge (2026-09-09). painting-engine no longer defines ANY shared rule: getPackSizeLitres, getRoundingRule, getStandardHeight and getCeilingQuantityBuckets are imported from and re-exported by the central paint-engine (identical semantics verified: including the standard-height fallback chain). painting-engine is now a room-based orchestration layer; the two calculators cannot disagree on a shared rule. Evidence: 436 estimation + copilot tests pass, typecheck clean.",
   },
 ];
 
 /** Layers whose engines audited CLEAN in the 2026-09-09 scan:
  *  they explicitly source all business values from admin
  *  configuration. Clean means no placeholder found in the
- *  scan — not that the layer needs no future audit. */
+ *  scan - not that the layer needs no future audit. */
 export const AUDITED_CLEAN_EVIDENCE: readonly {
   layer: FreluxLayer;
   location: string;
@@ -725,7 +725,7 @@ export const AUDITED_CLEAN_EVIDENCE: readonly {
   },
 ];
 
-/** Every Edge Function directory has an entry point — no
+/** Every Edge Function directory has an entry point - no
  *  orphaned/broken function skeletons were found in the
  *  2026-09-09 scan (the _shared directory is a library, not
  *  a function). */

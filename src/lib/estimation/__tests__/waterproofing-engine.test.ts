@@ -171,7 +171,7 @@ describe("material lines", () => {
     expect(
       blank.lines.find((l) => l.key === "bituminous_membrane"),
     ).toBeUndefined();
-    // terrace blank is allowed (no terrace) — but DPC blank is a required question
+    // terrace blank is allowed (no terrace) - but DPC blank is a required question
     const noDpc = calculateWaterproofing(
       makeInput({ dpc_run_m: null }),
       rules,

@@ -49,7 +49,7 @@ const FLOOR_TYPES: { value: FloorType; label: string }[] = [
 ];
 
 function fmtN(v: number | null): string {
-  return v === null ? "—" : v.toLocaleString();
+  return v === null ? "N/A" : v.toLocaleString();
 }
 
 export default function FlooringEstimator() {
@@ -74,9 +74,9 @@ export default function FlooringEstimator() {
 
   useSeo({
     title:
-      "Flooring Estimator — Laminate, Vinyl, Parquet, Underlay & Skirting | FRELUX PROJECT CALC",
+      "Flooring Estimator: Laminate, Vinyl, Parquet, Underlay & Skirting | FRELUX PROJECT CALC",
     description:
-      "Deterministic flooring material estimation: enter your floor area and skirting run and get laminate packs, vinyl or parquet m², underlay, adhesive and skirting quantities with pack coverage and waste shown in the breakdown. Estimation only — not a flooring specification.",
+      "Deterministic flooring material estimation: enter your floor area and skirting run and get laminate packs, vinyl or parquet m², underlay, adhesive and skirting quantities with pack coverage and waste shown in the breakdown. Estimation only: not a flooring specification.",
   });
 
   const [priceMap, setPriceMap] = useState<FlooringPriceMap>({});
@@ -214,7 +214,7 @@ export default function FlooringEstimator() {
       }
       setSaveState(
         result.incomplete
-          ? `Saved as draft (${ref}) — complete the missing inputs for a final estimate.`
+          ? `Saved as draft (${ref}): complete the missing inputs for a final estimate.`
           : `Saved (${ref}). Import it into a BOQ or project from your estimates.`,
       );
       track("calculator_completed", { calculator: "flooring_saved", ref });
@@ -254,7 +254,7 @@ export default function FlooringEstimator() {
           { label: "Flooring Estimator" },
         ]}
         title="Flooring Estimator"
-        subtitle="Enter your measured floor area and skirting run. The engine sizes laminate packs, vinyl or parquet m², underlay, adhesive and skirting with the admin's visible coverage, pack-size and waste rules. Estimation only — not a flooring specification."
+        subtitle="Enter your measured floor area and skirting run. The engine sizes laminate packs, vinyl or parquet m², underlay, adhesive and skirting with the admin's visible coverage, pack-size and waste rules. Estimation only: not a flooring specification."
       />
 
       {/* Inputs */}
@@ -282,7 +282,7 @@ export default function FlooringEstimator() {
         <div className="grid gap-3 sm:grid-cols-2">
           {numberInput("Floor area (m²)", areaInput, setAreaInput)}
           {numberInput(
-            "Skirting run — room perimeter (m)",
+            "Skirting run: room perimeter (m)",
             skirtingInput,
             setSkirtingInput,
           )}
@@ -427,14 +427,14 @@ export default function FlooringEstimator() {
                     .map((l) => (
                       <li key={l.key}>
                         {l.label}: PRICE NOT CONFIGURED in the material database
-                        — the quantity is shown, but no price was invented.
+                        : the quantity is shown, but no price was invented.
                       </li>
                     ))}
                 </ul>
               </>
             ) : (
               <strong>
-                Complete estimate — every line sized and priced from the shared
+                Complete estimate: every line sized and priced from the shared
                 material database.
               </strong>
             )}
@@ -462,7 +462,7 @@ export default function FlooringEstimator() {
                     <td className="p-3 font-medium">{l.label}</td>
                     <td className="p-3" data-testid={`qty-${l.key}`}>
                       {l.quantity === null
-                        ? "— provide measurement"
+                        ? "(provide measurement)"
                         : fmtN(l.quantity)}
                     </td>
                     <td className="p-3 text-muted-foreground">{l.unit}</td>
@@ -479,7 +479,7 @@ export default function FlooringEstimator() {
                       )}
                     </td>
                     <td className="p-3 font-medium">
-                      {l.line_total === null ? "—" : `₦${fmtN(l.line_total)}`}
+                      {l.line_total === null ? "N/A" : `₦${fmtN(l.line_total)}`}
                     </td>
                   </tr>
                 ))}
@@ -506,7 +506,7 @@ export default function FlooringEstimator() {
               <p className="text-sm text-muted-foreground">Material subtotal</p>
               <p className="text-xl font-semibold">
                 {result.material_subtotal === null
-                  ? "— prices/inputs missing"
+                  ? "(prices/inputs missing)"
                   : `₦${fmtN(result.material_subtotal)}`}
               </p>
             </div>
@@ -530,7 +530,7 @@ export default function FlooringEstimator() {
               <p className="text-sm text-muted-foreground">Grand total</p>
               <p className="text-xl font-semibold">
                 {result.grand_total === null
-                  ? "—"
+                  ? "N/A"
                   : `₦${fmtN(result.grand_total)}`}
               </p>
             </div>
@@ -557,7 +557,7 @@ export default function FlooringEstimator() {
           <li>
             Quantities come from your measured area and skirting run, with the
             admin's visible waste, pack, roll and bag coverage rules. A coverage
-            rule must match the product the admin prices — a pack covers what it
+            rule must match the product the admin prices: a pack covers what it
             says, no more.
           </li>
           <li>

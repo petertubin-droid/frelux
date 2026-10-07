@@ -1,5 +1,5 @@
 /**
- * Solar/PV Estimator page tests (Future Engine 16 — primary)
+ * Solar/PV Estimator page tests (Future Engine 16 - primary)
  *
  * The deterministic math is covered by solar-pv-engine.test.ts
  * (14 hand-verified tests). These pin the page wiring (model
@@ -374,7 +374,7 @@ describe("SolarPvEstimator page", () => {
     renderPage();
     await waitFor(() => {
       expect(
-        screen.getByRole("option", { name: /Jinko Tiger Neo 550 — 550 Wp/ }),
+        screen.getByRole("option", { name: /Jinko Tiger Neo 550: 550 Wp/ }),
       ).toBeInTheDocument();
     });
   });

@@ -62,7 +62,7 @@ describe("rules parsing", () => {
     expect(parsed.sync_batch).toBe(5);
   });
 
-  it("refuses nonsense rule values — invalid falls back to defaults", () => {
+  it("refuses nonsense rule values: invalid falls back to defaults", () => {
     const parsed = parseFieldSyncRules([
       { rule_key: "max_queue", rule_value: { value: -3 }, is_active: true },
       {
@@ -112,7 +112,7 @@ describe("queue operations", () => {
     expect(kinds).toEqual([...FIELD_CAPTURE_KINDS].sort());
   });
 
-  it("lists captures oldest-first — sync order is field order", () => {
+  it("lists captures oldest-first: sync order is field order", () => {
     const t0 = new Date("2026-10-01T08:00:00Z");
     enqueueFieldCapture(
       { kind: "progress_note", project_label: "third", payload: {} },
@@ -146,7 +146,7 @@ describe("queue operations", () => {
   });
 });
 
-describe("capacity and retention — eviction is never silent", () => {
+describe("capacity and retention: eviction is never silent", () => {
   it("drops the OLDEST capture when the queue hits max_queue, and says which", () => {
     const small = rules({ max_queue: 2 });
     const t0 = new Date("2026-10-01T08:00:00Z");
@@ -212,13 +212,13 @@ describe("capacity and retention — eviction is never silent", () => {
     expect(added.evicted_expired).toBe(0);
   });
 
-  it("a fresh queue reports zero pruned — no phantom eviction", () => {
+  it("a fresh queue reports zero pruned: no phantom eviction", () => {
     const now = new Date();
     expect(pruneExpiredCaptures(rules(), now)).toBe(0);
   });
 });
 
-describe("sync — idempotent, honest, batched", () => {
+describe("sync: idempotent, honest, batched", () => {
   it("removes confirmed-synced captures and reports them", async () => {
     enqueueFieldCapture({
       kind: "measurement",
@@ -241,7 +241,7 @@ describe("sync — idempotent, honest, batched", () => {
     expect(queuedCaptureCount()).toBe(0);
   });
 
-  it("treats a duplicate (server already has the UUID) as safe — partial-retry never double-records", async () => {
+  it("treats a duplicate (server already has the UUID) as safe: partial-retry never double-records", async () => {
     enqueueFieldCapture({
       kind: "measurement",
       project_label: "a",
@@ -270,7 +270,7 @@ describe("sync — idempotent, honest, batched", () => {
     expect(kept!.last_error).toMatch(/kept in queue/i);
   });
 
-  it("a thrown persist function is a failure, not a crash — the capture survives", async () => {
+  it("a thrown persist function is a failure, not a crash: the capture survives", async () => {
     enqueueFieldCapture({
       kind: "measurement",
       project_label: "a",
@@ -326,7 +326,7 @@ describe("sync — idempotent, honest, batched", () => {
     await syncFieldCaptures(failOnce, rules({ sync_batch: 1 }));
     const report2 = await syncFieldCaptures(failOnce, rules({ sync_batch: 1 }));
     expect(report2.synced).toBe(1);
-    // batch size 1: 'b' is still queued for the NEXT run — the report says so
+    // batch size 1: 'b' is still queued for the NEXT run - the report says so
     expect(report2.remaining).toBe(1);
     const report3 = await syncFieldCaptures(
       async () => "synced",
@@ -348,7 +348,7 @@ describe("sync — idempotent, honest, batched", () => {
   });
 });
 
-describe("corrupted storage — nothing is invented", () => {
+describe("corrupted storage: nothing is invented", () => {
   it("discards a corrupted queue instead of parsing fake data", () => {
     localStorage.setItem("frelux_field_queue", "{not json at all");
     expect(listQueuedCaptures()).toEqual([]);

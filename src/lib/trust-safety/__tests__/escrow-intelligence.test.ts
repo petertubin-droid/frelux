@@ -2,7 +2,7 @@
 // ESCROW-INTELLIGENCE TESTS (batch 23, fix 88)
 // Flags are evidence-backed recommendations; dispute
 // analysis is for human adjudication; ARCHIE never moves
-// funds — the guard is absolute.
+// funds - the guard is absolute.
 // =========================================================
 
 import { describe, expect, it } from "vitest";
@@ -27,7 +27,7 @@ describe("flagTransaction", () => {
     expect(r.ok).toBe(false);
   });
 
-  it("refuses flags without evidence — AI confidence is never financial truth", () => {
+  it("refuses flags without evidence: AI confidence is never financial truth", () => {
     const r = flagTransaction({ ...base, evidence: "" });
     expect(r.ok).toBe(false);
     if (!r.ok) expect(r.error).toMatch(/never financial truth/i);

@@ -25,9 +25,9 @@ export type CalculationMethod =
 
 // Material calculation model for packaged construction products
 // (Mineral Stone, Stucco and similar engines).
-//   coverage_based  : Model A — required packages = area × coats ÷ coverage (m²/package)
-//   mass_per_area   : Model B — required kg = area × coats × consumption (kg/m²), then ÷ package kg
-//   volume_per_area : Model C — required L  = area × coats × consumption (L/m²), then ÷ package L
+//   coverage_based  : Model A - required packages = area × coats ÷ coverage (m²/package)
+//   mass_per_area   : Model B - required kg = area × coats × consumption (kg/m²), then ÷ package kg
+//   volume_per_area : Model C - required L  = area × coats × consumption (L/m²), then ÷ package L
 export type MineralStoneCalculationModel =
   "coverage_based" | "mass_per_area" | "volume_per_area";
 

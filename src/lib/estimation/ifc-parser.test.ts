@@ -40,7 +40,7 @@ DATA;
 #22=IFCQUANTITYVOLUME('GrossVolume',$,$,1.9,$);
 #23=IFCELEMENTQUANTITY('qset2',#1,'BaseQuantities',$,'',(#21,#22));
 #24=IFCRELDEFINESBYPROPERTIES('rel2',#1,$,$,(#20),#23);
-/* a slab with NO quantities — counts only, honestly */
+/* a slab with NO quantities - counts only, honestly */
 #30=IFCSLAB('2aPqTXV3L9KxBhCPZJ3j0o',#1,'Slab-Ground',$,$,$,$,$,$);
 /* a door and a window */
 #40=IFCDOOR('2aPqTXV3L9KxBhCPZJ3j0p',#1,'Door-Front',$,$,$,$,$,$,$);
@@ -94,7 +94,7 @@ describe("parseIfcTakeoff", () => {
     expect(r.has_quantities).toBe(true);
   });
 
-  it("reports the slab with counts only — no invented area", () => {
+  it("reports the slab with counts only: no invented area", () => {
     const r = parseIfcTakeoff({ file_text: FIXTURE, rules: RULES });
     const slab = r.elements.find((e) => e.type === "IFCSLAB")!;
     expect(slab.count).toBe(1);

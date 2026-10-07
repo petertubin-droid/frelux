@@ -1,13 +1,13 @@
 /**
- * FRELUX Solar/PV Roofing Estimator (Future Engine 16 — PRIMARY)
+ * FRELUX Solar/PV Roofing Estimator (Future Engine 16 - PRIMARY)
  *
  * A complete solar installation estimate: array size, daily energy
  * yield, inverter, strings, and every material quantity with
- * configured prices — fit-by-roof or sized for an energy target.
+ * configured prices - fit-by-roof or sized for an energy target.
  *
  * - The estimate is produced ONLY by calculateSolarPv. This page
  *   renders; it never estimates anything itself.
- * - Quantities come from configured panel specs and rules —
+ * - Quantities come from configured panel specs and rules -
  *   never guessed. Unpriced components are reported honestly and
  *   the total is withheld, never invented.
  */
@@ -36,9 +36,9 @@ export default function SolarPvEstimator() {
     { name: "Solar/PV Roofing Estimator", path: "/solar-pv-estimator" },
   ]);
   useSeo({
-    title: "Solar/PV Roofing Estimator — Full Material Takeoff | FRELUX",
+    title: "Solar/PV Roofing Estimator: Full Material Takeoff | FRELUX",
     description:
-      "Plan a complete solar installation: panels that fit your roof or sized for your energy target, daily energy yield, inverter and strings, and every material quantity — rails, clamps, connectors, cabling, breakers, surge protection, earthing, batteries — with sourced prices. Nothing is guessed.",
+      "Plan a complete solar installation: panels that fit your roof or sized for your energy target, daily energy yield, inverter and strings, and every material quantity: rails, clamps, connectors, cabling, breakers, surge protection, earthing, batteries: with sourced prices. Nothing is guessed.",
   });
 
   const [models, setModels] = useState<SolarPanelModel[]>([]);
@@ -117,7 +117,7 @@ export default function SolarPvEstimator() {
             { label: "Solar/PV Roofing Estimator" },
           ]}
           title="Solar/PV Roofing Estimator"
-          subtitle="A complete solar installation estimate from sourced data: fit panels to your roof or size the array for your daily energy target, then get every material quantity — rails, clamps, connectors, DC/AC cabling, breakers, surge protection, earthing, batteries — with configured prices. Nothing is guessed, and unpriced components are reported honestly."
+          subtitle="A complete solar installation estimate from sourced data: fit panels to your roof or size the array for your daily energy target, then get every material quantity: rails, clamps, connectors, DC/AC cabling, breakers, surge protection, earthing, batteries: with configured prices. Nothing is guessed, and unpriced components are reported honestly."
         />
 
         {loadError && (
@@ -165,7 +165,7 @@ export default function SolarPvEstimator() {
                   <option value="">Select a configured panel model</option>
                   {models.map((m) => (
                     <option key={m.id} value={m.id}>
-                      {m.model_name} — {m.watt_peak} Wp
+                      {m.model_name}: {m.watt_peak} Wp
                     </option>
                   ))}
                 </select>
@@ -210,7 +210,7 @@ export default function SolarPvEstimator() {
               </label>
 
               <label className="grid gap-1 text-sm font-medium">
-                Battery storage wanted (kWh — leave blank for none)
+                Battery storage wanted (kWh: leave blank for none)
                 <input
                   type="number"
                   min="1"
@@ -323,7 +323,7 @@ export default function SolarPvEstimator() {
                         </td>
                         <td className="py-2 text-right font-mono text-xs">
                           {m.line_cost_naira === null
-                            ? "—"
+                            ? "N/A"
                             : `₦${m.line_cost_naira.toLocaleString("en-NG")}`}
                         </td>
                       </tr>
@@ -333,7 +333,7 @@ export default function SolarPvEstimator() {
                       <td className="py-2 text-right font-mono text-xs">
                         {result.panel_count} panels
                       </td>
-                      <td className="py-2 text-right font-mono text-xs">—</td>
+                      <td className="py-2 text-right font-mono text-xs">N/A</td>
                       <td className="py-2 text-right font-mono text-xs">
                         ₦
                         {(result.labor_cost_naira ?? 0).toLocaleString("en-NG")}
@@ -362,7 +362,7 @@ export default function SolarPvEstimator() {
                       )}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      total of priced lines only — some components are unpriced,
+                      total of priced lines only: some components are unpriced,
                       so the complete total is withheld rather than invented
                     </p>
                   </>

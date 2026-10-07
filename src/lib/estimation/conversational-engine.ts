@@ -1,9 +1,9 @@
 /**
- * Conversational Estimator Engine (Engine 3 — WhatsApp-native)
+ * Conversational Estimator Engine (Engine 3 - WhatsApp-native)
  *
  * Turns a WhatsApp-style chat thread (typed message, pasted
  * conversation, or a voice-note transcript) written in English
- * into a full paint estimate — the same deterministic estimate
+ * into a full paint estimate - the same deterministic estimate
  * the Paint Calculator produces.
  *
  * House rules, identical to every other Frelux engine:
@@ -12,7 +12,7 @@
  *    uploaded.
  *  - The engine reports ONLY what it found. Every extracted fact
  *    carries its evidence (the matched phrase). Facts not found
- *    are missing — never guessed, never defaulted silently.
+ *    are missing - never guessed, never defaulted silently.
  *  - If a critical fact (the room dimensions) is missing, the
  *    engine does not estimate. It asks a follow-up question in
  *    the same language the customer wrote in.
@@ -132,7 +132,7 @@ export const DEFAULT_LANGUAGE_PACKS: LanguagePack[] = [
 ];
 
 // =========================================================
-// Number words (1–10) — used for room counts, coats, doors
+// Number words (1–10) - used for room counts, coats, doors
 // =========================================================
 
 const NUMBER_WORDS: Record<ConversationLanguage, Record<string, number>> = {
@@ -399,7 +399,7 @@ function wordNumber(text: string, lang: ConversationLanguage): number | null {
 
 /**
  * Extracts estimating facts from the cleaned thread text.
- * Every fact keeps the phrase it came from — the customer can
+ * Every fact keeps the phrase it came from - the customer can
  * verify what the engine "heard".
  */
 export function extractParams(
@@ -558,9 +558,9 @@ export const REPLIES: Record<ConversationLanguage, ReplyStrings> = {
   en: {
     understood: "Here is what I picked up from your message:",
     askDimensions:
-      'Please send the room size — length and width (e.g. "4 by 3 meters").',
+      'Please send the room size: length and width (e.g. "4 by 3 meters").',
     askArea:
-      "Please tell me what you want to estimate — paint, screeding, POP ceiling or tiles?",
+      "Please tell me what you want to estimate: paint, screeding, POP ceiling or tiles?",
     askUnit: "Are those measurements in meters or feet?",
     estimateTitle: "Your paint estimate",
     evidenceLabel: "From your words:",

@@ -39,7 +39,7 @@ export default function AdminErrors() {
     today: 0,
   });
   const [selectedError, setSelectedError] = useState<ErrorLog | null>(null);
-  // Server-side pagination — runtime errors accumulate continuously.
+  // Server-side pagination - runtime errors accumulate continuously.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);

@@ -3,7 +3,7 @@
  *
  * Full CRUD over solar_component_prices. Every price needs a
  * supplier-quote reference. A component without a configured
- * price is reported as unpriced by the estimator — never
+ * price is reported as unpriced by the estimator - never
  * invented, never silently zero-costed.
  *
  * Recognised keys (any other key is stored but ignored by the
@@ -189,7 +189,7 @@ export default function AdminSolarPrices() {
     <div className="space-y-4">
       <AdminHeader
         title="Solar Component Prices"
-        subtitle="Component prices for the Solar/PV Estimator — rails, clamps, connectors, cables, breakers, surge protection, earthing, inverter per kW, battery units. Every price needs a supplier-quote reference; a component without a configured price is reported as unpriced by the estimator, never invented."
+        subtitle="Component prices for the Solar/PV Estimator: rails, clamps, connectors, cables, breakers, surge protection, earthing, inverter per kW, battery units. Every price needs a supplier-quote reference; a component without a configured price is reported as unpriced by the estimator, never invented."
         action={
           <AdminButton onClick={openCreate}>
             <Plus className="mr-1 inline h-4 w-4" /> Add price
@@ -225,7 +225,7 @@ export default function AdminSolarPrices() {
                 >
                   No component prices configured yet. The estimator reports
                   quantities without prices and refuses to total an incomplete
-                  estimate — add prices from supplier quotes.
+                  estimate: add prices from supplier quotes.
                 </td>
               </tr>
             ) : (
@@ -235,7 +235,7 @@ export default function AdminSolarPrices() {
                   className="border-t border-border dark:border-white/5"
                 >
                   <td className="p-3 font-mono text-xs">{p.component_key}</td>
-                  <td className="p-3">{p.component_label ?? "—"}</td>
+                  <td className="p-3">{p.component_label ?? "N/A"}</td>
                   <td className="p-3 text-xs">{p.unit}</td>
                   <td className="p-3 text-right font-mono text-xs">
                     ₦{Number(p.price_naira).toLocaleString("en-NG")}

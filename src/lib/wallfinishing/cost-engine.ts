@@ -1,11 +1,11 @@
 // =========================================================
-// FRELUX Wall Finishing — cost engine.
+// FRELUX Wall Finishing - cost engine.
 //
 // Cost = materials + labour + equipment + transport,
 //        then × (1 + contingency%).
 //
 // Currency guard: every price enters with its own currency;
-// mixing currencies is refused with a clear error — never
+// mixing currencies is refused with a clear error - never
 // silently converted. Prices resolve through the market price
 // book with provenance; manual prices are flagged as estimates.
 // =========================================================
@@ -48,7 +48,7 @@ export function calculateLayerCost(input: LayerCostInput): LayerCostResult {
   // ── material cost ──
   let materialCost: number | null = null;
   if (input.quantity <= 0) {
-    materialCost = 0; // labour-only call — no material to price
+    materialCost = 0; // labour-only call: no material to price
   } else if (input.price.unitPrice !== null && input.price.unpriced === false) {
     if (input.price.packUnits && input.price.packUnits > 1) {
       // The market sells packs (20 L pail, 4.5 gal pail...): convert the
@@ -56,7 +56,7 @@ export function calculateLayerCost(input: LayerCostInput): LayerCostResult {
       const packs = Math.ceil(input.quantity / input.price.packUnits);
       materialCost = round(packs * input.price.unitPrice, 2);
       labourSteps.push({
-        label: `${input.layerName} — material`,
+        label: `${input.layerName}: material`,
         detail:
           `${input.quantity} ${input.purchaseUnit} ÷ ${input.price.packUnits} per ` +
           `${input.price.purchaseLabel ?? "pack"} → ${packs} ${input.price.purchaseLabel ?? "pack(s)"}` +
@@ -66,7 +66,7 @@ export function calculateLayerCost(input: LayerCostInput): LayerCostResult {
     } else {
       materialCost = round(input.quantity * input.price.unitPrice, 2);
       labourSteps.push({
-        label: `${input.layerName} — material`,
+        label: `${input.layerName}: material`,
         detail:
           `${input.quantity} ${input.purchaseUnit} × ${input.price.unitPrice} ${currency}` +
           ` = ${materialCost} ${currency}`,
@@ -75,7 +75,7 @@ export function calculateLayerCost(input: LayerCostInput): LayerCostResult {
     }
   } else {
     errors.push(
-      `${input.layerName}: no verified price in this market yet — enter your local price to price this layer.`,
+      `${input.layerName}: no verified price in this market yet: enter your local price to price this layer.`,
     );
   }
 
@@ -99,7 +99,7 @@ export function calculateLayerCost(input: LayerCostInput): LayerCostResult {
       // default: override is a per-m² rate in the project currency
       labourCost = round(input.areaM2 * override, 2);
       labourSteps.push({
-        label: `${input.layerName} — labour (your rate)`,
+        label: `${input.layerName}: labour (your rate)`,
         detail: `${input.areaM2} m² × ${override} ${currency}/m² = ${labourCost} ${currency}`,
         formula: `${input.areaM2} × ${override} = ${labourCost}`,
       });
@@ -114,7 +114,7 @@ export function calculateLayerCost(input: LayerCostInput): LayerCostResult {
     );
   } else {
     errors.push(
-      `${input.layerName}: no labour rate configured for this market — enter one to include labour.`,
+      `${input.layerName}: no labour rate configured for this market: enter one to include labour.`,
     );
   }
 
@@ -133,7 +133,7 @@ function labourCostForMethod(
     case "per-m2": {
       const cost = round(areaM2 * rate.rate, 2);
       steps.push({
-        label: `${layerName} — labour (${rate.taskKey})`,
+        label: `${layerName}: labour (${rate.taskKey})`,
         detail: `${areaM2} m² × ${rate.rate} ${rate.currency}/m² = ${cost} ${rate.currency}`,
         formula: `${areaM2} × ${rate.rate} = ${cost}`,
       });
@@ -144,7 +144,7 @@ function labourCostForMethod(
       const workerDays = areaM2 / rate.outputPerWorkerDay;
       const cost = round(workerDays * rate.rate, 2);
       steps.push({
-        label: `${layerName} — labour (${rate.taskKey})`,
+        label: `${layerName}: labour (${rate.taskKey})`,
         detail:
           `${areaM2} m² ÷ ${rate.outputPerWorkerDay} m²/worker-day = ${round(workerDays, 2)} worker-days` +
           ` × ${rate.rate} ${rate.currency}/day = ${cost} ${rate.currency}`,
@@ -152,11 +152,11 @@ function labourCostForMethod(
       return cost;
     }
     case "hourly": {
-      // assume 20 m²/hour of finished wall per painter — configurable via rate rate... kept explicit
+      // assume 20 m²/hour of finished wall per painter - configurable via rate rate... kept explicit
       const hours = areaM2 / 20;
       const cost = round(hours * rate.rate, 2);
       steps.push({
-        label: `${layerName} — labour (${rate.taskKey}, hourly)`,
+        label: `${layerName}: labour (${rate.taskKey}, hourly)`,
         detail: `${areaM2} m² ÷ 20 m²/h = ${round(hours, 2)} h × ${rate.rate} ${rate.currency}/h = ${cost} ${rate.currency}`,
       });
       return cost;
@@ -164,7 +164,7 @@ function labourCostForMethod(
     case "per-unit": {
       const cost = round(quantity * rate.rate, 2);
       steps.push({
-        label: `${layerName} — labour (${rate.taskKey}, per unit)`,
+        label: `${layerName}: labour (${rate.taskKey}, per unit)`,
         detail: `${quantity} × ${rate.rate} ${rate.currency} = ${cost} ${rate.currency}`,
       });
       return cost;
@@ -197,11 +197,11 @@ export function calculateProjectCost(
   const errors: string[] = [];
   const currency = input.projectCurrency;
 
-  // currency guard — refuse mixed books
+  // currency guard - refuse mixed books
   for (const r of input.roomTotals) {
     if (r.currency !== currency) {
       errors.push(
-        `Room '${r.name}' costs are in ${r.currency} but the project is in ${currency} — ` +
+        `Room '${r.name}' costs are in ${r.currency} but the project is in ${currency}: ` +
           `mixed currencies are refused, never converted silently.`,
       );
     }

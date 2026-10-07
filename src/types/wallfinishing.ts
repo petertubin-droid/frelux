@@ -1,5 +1,5 @@
 // =========================================================
-// FRELUX Wall Finishing System — types.
+// FRELUX Wall Finishing System - types.
 //
 // A country-aware, configuration-driven system that plans a
 // wall from structure to decorative finish:
@@ -13,7 +13,7 @@
 // - Prices are NEVER hard-coded: every material resolves by
 //   ROLE through the market price book (estimation_prices +
 //   market_material_roles) with provenance, and falls back to
-//   a clearly-labelled manual entry — never a guess.
+//   a clearly-labelled manual entry - never a guess.
 // - Every calculated number carries its full calculation
 //   breakdown (transparency steps).
 // =========================================================
@@ -101,7 +101,7 @@ export type LayerQuantityMode =
   | "fixed";
 
 export interface MixComponent {
-  /** e.g. "cement" | "sand" — resolved as a role-priced material */
+  /** e.g. "cement" | "sand" - resolved as a role-priced material */
   role: string;
   /** parts by volume in the mix (cement 1 : sand 4) */
   parts: number;
@@ -158,7 +158,7 @@ export interface OpeningInput {
   widthM: number;
   heightM: number;
   quantity: number;
-  /** reveal/return depth in m — adds reveal area when set */
+  /** reveal/return depth in m - adds reveal area when set */
   revealDepthM: number;
   /** deduct this opening from the wall area */
   deduct: boolean;
@@ -251,7 +251,7 @@ export interface ResolvedLayerPrice {
   /** material resolved from the market book (or null → manual) */
   materialName: string | null;
   unitPrice: number | null;
-  /** coverage units per purchase pack (e.g. 20 L per pail) — null = priced per unit */
+  /** coverage units per purchase pack (e.g. 20 L per pail) - null = priced per unit */
   packUnits: number | null;
   /** display label of the purchase pack (e.g. '20L') */
   purchaseLabel: string | null;

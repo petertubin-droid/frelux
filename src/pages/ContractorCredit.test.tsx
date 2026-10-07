@@ -38,7 +38,7 @@ const mockProfiles = vi.hoisted(() => [
     dispute_count: 0,
     avg_estimate_error_pct: 0,
     description: null,
-    verification_reference: "Onboarding file — no audited jobs yet",
+    verification_reference: "Onboarding file: no audited jobs yet",
     effective_date: "2026-01-01",
     is_active: true,
     sort_order: 1,
@@ -211,7 +211,7 @@ describe("ContractorCredit page", () => {
     expect(screen.getByText(/Audited job file 2024–2026/)).toBeInTheDocument();
   });
 
-  it("refuses a zero-verified contractor honestly — never scores them zero", async () => {
+  it("refuses a zero-verified contractor honestly: never scores them zero", async () => {
     renderPage();
     await screen.findByRole("option", { name: "NewHand Ventures" });
     fireEvent.change(screen.getByRole("combobox"), {

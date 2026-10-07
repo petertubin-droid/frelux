@@ -1,15 +1,15 @@
 /**
- * FRELUX Estimate Refresh — "Current Cost Today" (Future Engine 6, part 2)
+ * FRELUX Estimate Refresh - "Current Cost Today" (Future Engine 6, part 2)
  *
  * Inflation-proof estimating: a saved estimate already snapshots
  * the prices it was quoted at. This page refreshes one of YOUR
  * saved estimates against today's active prices and shows the
- * honest delta — per line and in total.
+ * honest delta - per line and in total.
  *
  * - The refresh is produced ONLY by refreshEstimate. This page
  *   renders; it never prices anything itself.
  * - Lines without a current price stay at their snapshot price,
- *   clearly flagged — never inflated or guessed.
+ *   clearly flagged - never inflated or guessed.
  */
 
 import { useEffect, useState, useCallback } from "react";
@@ -46,9 +46,9 @@ function money(v: number): string {
 const statusLabel: Record<string, string> = {
   price_changed: "Price changed",
   unchanged: "Unchanged",
-  no_current_price: "No current price — held at snapshot",
-  currency_mismatch: "Currency mismatch — held at snapshot",
-  no_price_reference: "No price reference — held at snapshot",
+  no_current_price: "No current price: held at snapshot",
+  currency_mismatch: "Currency mismatch: held at snapshot",
+  no_price_reference: "No price reference: held at snapshot",
 };
 
 const statusColor: Record<string, string> = {
@@ -76,14 +76,14 @@ export default function EstimateRefresh() {
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     {
-      name: "Estimate Refresh — Current Cost Today",
+      name: "Estimate Refresh: Current Cost Today",
       path: "/estimate-refresh",
     },
   ]);
   useSeo({
-    title: "Estimate Refresh — Current Cost Today | FRELUX",
+    title: "Estimate Refresh: Current Cost Today | FRELUX",
     description:
-      "Refresh a saved estimate against today's prices. Old quotes stay honest — see exactly what changed and what has no current price, never a guess.",
+      "Refresh a saved estimate against today's prices. Old quotes stay honest: see exactly what changed and what has no current price, never a guess.",
   });
 
   const { user } = useAuth();
@@ -123,7 +123,7 @@ export default function EstimateRefresh() {
         return;
       }
 
-      // Collect today's price for every distinct (price_type, ref_id) — one query each, from the active price table
+      // Collect today's price for every distinct (price_type, ref_id) - one query each, from the active price table
       const currentPrices: Record<string, CurrentPriceRef> = {};
       const seen = new Set<string>();
       for (const it of items.data) {
@@ -190,10 +190,10 @@ export default function EstimateRefresh() {
           breadcrumbs={[
             { label: "Home", path: "/" },
             { label: "Construction Tools", path: "/construction-tools" },
-            { label: "Estimate Refresh — Current Cost Today" },
+            { label: "Estimate Refresh: Current Cost Today" },
           ]}
-          title="Estimate Refresh — Current Cost Today"
-          subtitle="Inflation-proof estimating: your saved estimates snapshot the prices they were quoted at. Pick one and see what it would cost today — line by line, with every missing price flagged, never guessed."
+          title="Estimate Refresh: Current Cost Today"
+          subtitle="Inflation-proof estimating: your saved estimates snapshot the prices they were quoted at. Pick one and see what it would cost today: line by line, with every missing price flagged, never guessed."
         />
 
         {loadError && (
@@ -205,7 +205,7 @@ export default function EstimateRefresh() {
         {!user ? (
           <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
             Sign in to refresh your saved estimates. Only your own estimates are
-            ever listed, and only their stored snapshots are used — nothing is
+            ever listed, and only their stored snapshots are used: nothing is
             re-priced behind your back.
           </div>
         ) : estimates.length === 0 ? (
@@ -228,7 +228,7 @@ export default function EstimateRefresh() {
                 <option value="">Select an estimate</option>
                 {estimates.map((e) => (
                   <option key={e.id} value={e.id}>
-                    {e.estimate_ref} — {e.calculator_type} (
+                    {e.estimate_ref}: {e.calculator_type} (
                     {new Date(e.created_at).toLocaleDateString()})
                   </option>
                 ))}
@@ -306,7 +306,7 @@ export default function EstimateRefresh() {
                   {result.lines.length}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  {result.missing_count} held at snapshot — never guessed
+                  {result.missing_count} held at snapshot: never guessed
                 </p>
               </div>
             </div>
@@ -352,7 +352,7 @@ export default function EstimateRefresh() {
                       <td className="p-3 text-right font-mono text-xs">
                         {l.current_unit_price !== null
                           ? money(l.current_unit_price)
-                          : "—"}
+                          : "N/A"}
                       </td>
                       <td className="p-3 text-right font-mono text-xs">
                         {money(l.line_total_then)}

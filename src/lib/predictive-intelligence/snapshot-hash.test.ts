@@ -58,7 +58,7 @@ describe("snapshotInputHash", () => {
     expect(h2).toBe(h1);
   });
 
-  it("now is excluded — the hash covers DATA, not clock time", () => {
+  it("now is excluded: the hash covers DATA, not clock time", () => {
     const h1 = snapshotInputHash(snap());
     const h2 = snapshotInputHash(snap({ calculations: [] }));
     expect(h2).toBe(h1); // same data, snapshot has no `now` in the hashed set

@@ -4,11 +4,11 @@
  * The honesty guarantees under test:
  *  - live success is cached and returned unchanged
  *  - a network failure falls back to cache AND announces the
- *    cached date — never silently
+ *    cached date - never silently
  *  - no cache + offline → the honest error passes through, no
  *    empty success, nothing invented
  *  - a SERVER error (permissions, schema) is never masked with
- *    cache — even when cache exists
+ *    cache - even when cache exists
  *  - a thrown non-network error is rethrown untouched
  *  - corrupted or expired cache is discarded, never parsed into
  *    invented data
@@ -84,7 +84,7 @@ describe("cachedConfigFetch", () => {
     unsubscribe();
   });
 
-  it("passes the honest error through when offline with NO cache — never an empty success", async () => {
+  it("passes the honest error through when offline with NO cache: never an empty success", async () => {
     setOnline(false);
     const r = await cachedConfigFetch("never-seen", async () => netError());
     expect(r.data).toBeNull();
@@ -101,14 +101,14 @@ describe("cachedConfigFetch", () => {
     const seen: unknown[] = [];
     const unsubscribe = onOfflineFallback((info) => seen.push(info));
 
-    // browser online: a permissions/schema error is a REAL error — never masked
+    // browser online: a permissions/schema error is a REAL error - never masked
     setOnline(true);
     const r = await cachedConfigFetch("t3", async () => serverError());
     expect(r.data).toBeNull();
     expect(r.error).toMatchObject({
       message: expect.stringMatching(/permission denied/),
     });
-    expect(seen).toHaveLength(0); // no fallback announced — none served
+    expect(seen).toHaveLength(0); // no fallback announced: none served
     unsubscribe();
   });
 
@@ -170,7 +170,7 @@ describe("cachedConfigFetch", () => {
       "t8",
       async () => ({ data: fresh, error: null }) as Result,
     );
-    expect(r.data).toEqual(fresh); // live wins while online — cache never overrides reality
+    expect(r.data).toEqual(fresh); // live wins while online: cache never overrides reality
   });
 
   it("a broken fallback listener cannot break the fetch", async () => {

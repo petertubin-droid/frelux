@@ -7,7 +7,7 @@
  * Philosophy (unchanged): causes are ranked by the admin's
  * sort_order (likelihood is an editorial call, never an
  * algorithm's). A cause only gets a fix quantity when the
- * admin configured a consumption rate — otherwise the engine
+ * admin configured a consumption rate - otherwise the engine
  * says so instead of guessing. Unknown symptoms are refused,
  * never matched approximately.
  */
@@ -100,7 +100,7 @@ export function diagnoseDefect(input: DiagnosisInput): DiagnosisResult {
   const symptomKey = input.symptom_key?.trim();
   if (!symptomKey) {
     result.warnings.push(
-      "A symptom must be selected — the engine never diagnoses without one.",
+      "A symptom must be selected: the engine never diagnoses without one.",
     );
     return result;
   }
@@ -129,12 +129,12 @@ export function diagnoseDefect(input: DiagnosisInput): DiagnosisResult {
 
   if (causes.length === 0) {
     result.warnings.push(
-      `No root causes are configured for '${symptomKey}' — the engine refuses to guess a diagnosis. Add causes under Admin → Defects.`,
+      `No root causes are configured for '${symptomKey}': the engine refuses to guess a diagnosis. Add causes under Admin → Defects.`,
     );
     return result;
   }
 
-  // ── 3. Fix quantities: only from configured consumption rates — never invented ──
+  // ── 3. Fix quantities: only from configured consumption rates - never invented ──
   const diagnosed: DiagnosedCause[] = causes.map((c) => {
     const consumption = c.fix_consumption_per_sqm;
     let fix_quantity: number | null = null;
@@ -146,7 +146,7 @@ export function diagnoseDefect(input: DiagnosisInput): DiagnosisResult {
         if (area !== null) {
           fix_quantity = roundTo(area * rate, decimals);
           result.steps.push({
-            label: `Fix quantity — ${c.cause_label}`,
+            label: `Fix quantity: ${c.cause_label}`,
             detail: `${area} sqm × ${rate} ${c.fix_unit ?? "unit"}/sqm = ${fix_quantity} ${c.fix_unit ?? "unit"} of ${c.fix_material ?? "fix material"} (configured rate, never guessed).`,
           });
         } else {
@@ -155,12 +155,12 @@ export function diagnoseDefect(input: DiagnosisInput): DiagnosisResult {
         }
       } else {
         quantityNote =
-          "This cause's configured consumption rate is invalid and was ignored — no quantity was guessed.";
+          "This cause's configured consumption rate is invalid and was ignored: no quantity was guessed.";
         result.warnings.push(quantityNote);
       }
     } else {
       quantityNote =
-        "No consumption rate is configured for this cause — the fix is qualitative, and the engine does not invent a quantity.";
+        "No consumption rate is configured for this cause: the fix is qualitative, and the engine does not invent a quantity.";
     }
 
     return {
@@ -183,7 +183,7 @@ export function diagnoseDefect(input: DiagnosisInput): DiagnosisResult {
   result.causes = diagnosed;
   result.steps.push({
     label: "Ranking",
-    detail: `${diagnosed.length} cause${diagnosed.length === 1 ? "" : "s"} listed in the admin's configured likelihood order — the engine does not re-rank them algorithmically.`,
+    detail: `${diagnosed.length} cause${diagnosed.length === 1 ? "" : "s"} listed in the admin's configured likelihood order: the engine does not re-rank them algorithmically.`,
   });
 
   return result;

@@ -41,7 +41,7 @@ const logRows = [
     item_count: null,
     unit_label: "tiles",
     confidence: 0.3,
-    reason: "Stack too deep — hidden layers cannot be counted",
+    reason: "Stack too deep: hidden layers cannot be counted",
     image_bytes: 1200000,
     image_mime: "image/jpeg",
     latency_ms: 1800,

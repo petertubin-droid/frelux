@@ -12,8 +12,8 @@ const SentryRoutes = isSentryActive()
 /**
  * Worldwide locale URLs: /es/, /fr/, /de/, /pt/, /ru/, /id/, /sw/,
  * /ar/, /hi/, /zh/ (and /en/) serve the whole app in that language.
- * The locale prefix is routed here — stripped from the pathname so
- * every existing route matches unchanged — while LanguageProvider
+ * The locale prefix is routed here - stripped from the pathname so
+ * every existing route matches unchanged - while LanguageProvider
  * (URL locale wins) renders the page in the locale's language.
  */
 function LocaleAwareRoutes({ children }: { children: ReactNode }) {
@@ -1117,7 +1117,7 @@ export default function App() {
                         </Suspense>
                       }
                     />
-                    {/* Public tool/engine pages — moved under the public Layout (2026-10-04)
+                    {/* Public tool/engine pages: moved under the public Layout (2026-10-04)
                     so they get the Navbar, Footer and site chrome like every other page. */}
                     <Route
                       path="/paint-comparison"

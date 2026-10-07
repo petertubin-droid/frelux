@@ -14,7 +14,7 @@
 // 4. Flutterwave redirects to /pricing?status=verify&gw=flutterwave
 //    with ?tx_ref=..&transaction_id=.. appended
 // 5. This module calls `flutterwave-verify` (server-side verify
-//    against Flutterwave by tx_ref — never trusts the redirect's
+//    against Flutterwave by tx_ref - never trusts the redirect's
 //    status param)
 // 6. Webhook (`flutterwave-webhook`) activates the subscription as
 //    the authoritative path; verify is the fallback path.

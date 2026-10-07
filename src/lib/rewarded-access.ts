@@ -539,7 +539,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
     // ──────────────────────────────────────────────────────
     // Provider bridge chain (multi-provider): show the rewarded ad
     // from this user gesture, then grant the unlock server-side with
-    // a client attestation. Must run inside the tap handler — mobile
+    // a client attestation. Must run inside the tap handler - mobile
     // browsers only allow window-opening ad formats from a direct
     // user gesture. Candidates are the configured primary/fallback
     // first, then every other active bridged provider by priority;
@@ -574,7 +574,7 @@ export function useRewardedAccess(toolKey: string): RewardedAccess {
           );
           return;
         } catch (e) {
-          // This provider could not show an ad — try the next one.
+          // This provider could not show an ad - try the next one.
           failures.push(
             e instanceof Error && e.message
               ? e.message

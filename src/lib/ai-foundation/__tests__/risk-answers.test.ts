@@ -4,7 +4,7 @@
 // The Copilot risk-question surface contract:
 //   * non-risk questions return null (caller falls through)
 //   * deterministic answers come from the REAL predictive
-//     analysis — never invented here
+//     analysis - never invented here
 //   * missing project / failed analysis → honest unavailable
 //     reasons, never fabricated data
 //   * cache provenance (fromCache) is relayed, not guessed

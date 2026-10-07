@@ -1,5 +1,5 @@
 /**
- * Admin Price Scan — browse retail websites for prices, review
+ * Admin Price Scan - browse retail websites for prices, review
  * the scanned candidates, and promote APPROVED scans into the
  * estimation price book.
  *
@@ -66,7 +66,7 @@ interface ScanCandidate {
 export default function AdminPriceScan() {
   const [sources, setSources] = useState<ScanSource[]>([]);
   const [candidates, setCandidates] = useState<ScanCandidate[]>([]);
-  // Server-side pagination — scan candidates accumulate with every scan.
+  // Server-side pagination - scan candidates accumulate with every scan.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
@@ -132,7 +132,7 @@ export default function AdminPriceScan() {
         );
         if (fnError) throw fnError;
         setNotice(
-          `Scanned ${source.label || source.product_url} — result saved for review below.`,
+          `Scanned ${source.label || source.product_url}: result saved for review below.`,
         );
         await load();
       } catch (e) {
@@ -193,7 +193,7 @@ export default function AdminPriceScan() {
             .maybeSingle();
           if (!material) {
             throw new Error(
-              `No shared material record for slug "${candidate.material_slug}" — add it first.`,
+              `No shared material record for slug "${candidate.material_slug}": add it first.`,
             );
           }
           const today = new Date().toISOString().slice(0, 10);
@@ -380,7 +380,7 @@ export default function AdminPriceScan() {
             <p className="text-sm text-muted-foreground">Loading sources…</p>
           ) : sources.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No scan sources yet — add a retailer product page to start
+              No scan sources yet: add a retailer product page to start
               scanning.
             </p>
           ) : (
@@ -445,7 +445,7 @@ export default function AdminPriceScan() {
           </h2>
           {pending.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No scans awaiting review. Scan a source above — results land here
+              No scans awaiting review. Scan a source above: results land here
               for approval.
             </p>
           ) : (
@@ -457,7 +457,7 @@ export default function AdminPriceScan() {
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-medium">
-                      {c.product_name || c.material_slug} — {c.scraped_price}{" "}
+                      {c.product_name || c.material_slug}: {c.scraped_price}{" "}
                       {c.currency}
                       <span className="ml-2 text-xs text-muted-foreground">
                         {c.retailer} · {c.market} · via {c.extraction ?? "?"} (
@@ -518,8 +518,8 @@ export default function AdminPriceScan() {
                     {c.status}
                   </span>
                   <span className="truncate">
-                    {c.material_slug} · {c.scraped_price ?? "—"} {c.currency} ·{" "}
-                    {c.retailer}
+                    {c.material_slug} · {c.scraped_price ?? "N/A"} {c.currency}{" "}
+                    · {c.retailer}
                     {c.scrape_error ? ` · ${c.scrape_error}` : ""}
                   </span>
                 </li>

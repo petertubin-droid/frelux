@@ -7,7 +7,7 @@
  * - The comparison is produced ONLY by calculateHeatComfort.
  *   This page renders; it never scores a finish itself.
  * - Finishes without a configured albedo are refused with a
- *   clear message — never scored with an assumed reflectance.
+ *   clear message - never scored with an assumed reflectance.
  */
 
 import { useEffect, useState, useCallback } from "react";
@@ -34,14 +34,14 @@ export default function HeatComfort() {
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     {
-      name: "Heat Comfort — Finish Choice & Indoor Heat",
+      name: "Heat Comfort: Finish Choice & Indoor Heat",
       path: "/heat-comfort",
     },
   ]);
   useSeo({
-    title: "Heat Comfort — Finish Choice & Indoor Heat | FRELUX",
+    title: "Heat Comfort: Finish Choice & Indoor Heat | FRELUX",
     description:
-      "Compare how two finishes affect indoor heat comfort using configured solar reflectance data. Every number comes from a sourced factor — never a guess.",
+      "Compare how two finishes affect indoor heat comfort using configured solar reflectance data. Every number comes from a sourced factor: never a guess.",
   });
 
   const [factors, setFactors] = useState<ThermalFinishFactor[]>([]);
@@ -97,10 +97,10 @@ export default function HeatComfort() {
           breadcrumbs={[
             { label: "Home", path: "/" },
             { label: "Construction Tools", path: "/construction-tools" },
-            { label: "Heat Comfort — Finish Choice & Indoor Heat" },
+            { label: "Heat Comfort: Finish Choice & Indoor Heat" },
           ]}
-          title="Heat Comfort — Finish Choice & Indoor Heat"
-          subtitle="Brighter finishes reflect more solar energy and keep a space cooler. Compare two finishes on a roof or wall and see the honest difference in absorbed heat — computed only from sourced reflectance factors, never a guess."
+          title="Heat Comfort: Finish Choice & Indoor Heat"
+          subtitle="Brighter finishes reflect more solar energy and keep a space cooler. Compare two finishes on a roof or wall and see the honest difference in absorbed heat: computed only from sourced reflectance factors, never a guess."
         />
 
         {loadError && (
@@ -270,7 +270,7 @@ export default function HeatComfort() {
                 className={`text-sm font-medium ${result.meaningful_benefit ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}`}
               >
                 {result.meaningful_benefit
-                  ? "Above the configured threshold — a meaningful cooling benefit."
+                  ? "Above the configured threshold: a meaningful cooling benefit."
                   : "Below the admin-configured threshold for a meaningful cooling benefit."}
               </p>
             )}

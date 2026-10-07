@@ -2,16 +2,16 @@
 // TYROLENE ENGINE CONFIG LOADER
 //
 // Loads the authoritative Tyrolene calculation config from the
-// DB — the SAME sources the manual Tyrolene Estimator page
+// DB - the SAME sources the manual Tyrolene Estimator page
 // reads (product, materials, prices, pack sizes, calc rules,
-// production rules, calc version) — so an admin change
+// production rules, calc version) - so an admin change
 // propagates identically to the page, AI copilot and agents.
 //
 // Prices are market-aware: the visitor's market price first,
 // then the role-based fallback (market_material_roles →
 // estimation_materials → estimation_prices) with verified
 // provenance. A role with no verified price stays unpriced
-// and is reported — never guessed.
+// and is reported - never guessed.
 // =========================================================
 
 import { supabase } from "@/lib/supabase";
@@ -57,7 +57,7 @@ export interface TyroleneConfigBundle {
     string,
     NonNullable<Awaited<ReturnType<typeof resolveMaterialPriceByRole>>>
   >;
-  /** Materials the market could not price — reported, never guessed. */
+  /** Materials the market could not price - reported, never guessed. */
   unpricedSlugs: string[];
 }
 

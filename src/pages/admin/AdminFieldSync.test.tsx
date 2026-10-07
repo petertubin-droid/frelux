@@ -24,7 +24,7 @@ const { rulesFixture, capturesFixture } = vi.hoisted(() => ({
       id: "fc-1",
       created_by: null,
       device_label: "This device",
-      project_label: "Ikeja duplex — room 2",
+      project_label: "Ikeja duplex: room 2",
       entry_kind: "measurement",
       payload: { detail: "Walls 4.2 x 3.1 m" },
       captured_at: "2026-10-02T08:00:00Z",
@@ -83,14 +83,14 @@ describe("AdminFieldSync pane", () => {
   it("lists synced captures with kind, job and device", async () => {
     renderPane();
     await waitFor(() => screen.getByText(/recent synced captures/i));
-    expect(screen.getByText(/Ikeja duplex — room 2/i)).toBeInTheDocument();
+    expect(screen.getByText(/Ikeja duplex: room 2/i)).toBeInTheDocument();
     expect(screen.getByText(/Lekki site/i)).toBeInTheDocument();
     expect(screen.getAllByText(/Measurement/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Materials used/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Walls 4\.2 x 3\.1 m/i)).toBeInTheDocument();
   });
 
-  it("flags captures that needed a retry — honest diagnostics, not hidden", async () => {
+  it("flags captures that needed a retry: honest diagnostics, not hidden", async () => {
     renderPane();
     await waitFor(() => screen.getByText(/needed a retry/i));
     expect(screen.getByText(/retried/i)).toBeInTheDocument();

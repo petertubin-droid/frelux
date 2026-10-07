@@ -30,7 +30,7 @@ interface ChatMessage {
   role: "user" | "assistant";
   content: string;
   timestamp: string;
-  /** Always "solas" — kept for backward-compat with older logged messages. */
+  /** Always "solas" - kept for backward-compat with older logged messages. */
   engine?: "solas";
 }
 

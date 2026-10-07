@@ -6,7 +6,7 @@
  * from database-configured rates.
  *
  * - Every line item is traceable to its source estimate ref
- *   (or an explicit manual entry) — quotes are replayable.
+ *   (or an explicit manual entry) - quotes are replayable.
  * - Totals are produced ONLY by generateBoq. This page renders,
  *   saves and exports; it never computes amounts itself.
  * - Missing configured rates produce warnings, never guesses.
@@ -47,7 +47,7 @@ export default function BoqGenerator() {
   ]);
   const { user } = useAuth();
   useSeo({
-    title: "BOQ / Quote Generator — FRELUX",
+    title: "BOQ / Quote Generator: FRELUX",
     description:
       "Turn saved FRELUX estimates into a professional, client-ready Bill of Quantities with database-configured VAT and contingency rates.",
   });
@@ -212,7 +212,7 @@ export default function BoqGenerator() {
             { label: "BOQ / Quote Generator" },
           ]}
           title="BOQ / Quote Generator"
-          subtitle="Assemble your saved FRELUX estimates into one professional, client-ready Bill of Quantities. VAT and contingency come from database-configured rates — every line stays traceable to its source."
+          subtitle="Assemble your saved FRELUX estimates into one professional, client-ready Bill of Quantities. VAT and contingency come from database-configured rates: every line stays traceable to its source."
         />
 
         {!user && (
@@ -323,7 +323,7 @@ export default function BoqGenerator() {
 
           {items.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No lines yet — import a saved estimate above or add a manual line.
+              No lines yet: import a saved estimate above or add a manual line.
             </p>
           ) : (
             <div className="space-y-3">
@@ -439,9 +439,8 @@ export default function BoqGenerator() {
               </span>
             ) : (
               <span className="text-xs text-amber-600 dark:text-amber-400">
-                VAT/contingency rates not configured — the quote will be
-                produced without them (set them under Admin → Estimation Config
-                & Rules).
+                VAT/contingency rates not configured: the quote will be produced
+                without them (set them under Admin → Estimation Config & Rules).
               </span>
             )}
           </div>

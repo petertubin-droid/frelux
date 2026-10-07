@@ -88,7 +88,7 @@ function PaintColorsTab() {
   const [showImport, setShowImport] = useState(false);
   const [search, setSearch] = useState("");
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
-  // Server-side pagination — paint_colors holds hundreds of rows and
+  // Server-side pagination - paint_colors holds hundreds of rows and
   // must not be loaded in one query.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);

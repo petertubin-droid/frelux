@@ -45,7 +45,7 @@ export default function AdminPriceSubmissions() {
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState("pending");
   const [busyId, setBusyId] = useState<string | null>(null);
-  // Server-side pagination — submissions grow with every contribution.
+  // Server-side pagination - submissions grow with every contribution.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
