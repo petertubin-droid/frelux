@@ -8,7 +8,13 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import {
+  render,
+  screen,
+  fireEvent,
+  waitFor,
+  configure,
+} from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import MaintenancePlanner from "./MaintenancePlanner";
 
@@ -54,6 +60,11 @@ import {
   fetchMaintenanceProfiles,
   saveMaintenancePlan,
 } from "@/lib/estimation/queries";
+
+// Slow CI runners routinely exceed the 1000ms default for findBy*/waitFor in
+// this heavy page, which flaked a different test on each run. Raise it once
+// for the whole file.
+configure({ asyncUtilTimeout: 8000 });
 const mockedFetch = vi.mocked(fetchMaintenanceProfiles);
 const mockedSave = vi.mocked(saveMaintenancePlan);
 
