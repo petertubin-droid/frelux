@@ -9,6 +9,7 @@ import {
   Phone,
   Sparkles,
 } from "lucide-react";
+import ArchieMark from "@/components/ui/ArchieMark";
 import CopilotWidget from "@/components/copilot/CopilotWidget";
 // import { siteConfig } from '@/config/site';
 import { whatsappUrl } from "@/lib/analytics";
@@ -151,8 +152,7 @@ export default function SupportChatWidget() {
 
   return (
     <>
-      {/* Floating button: lucide icon (the old /assets/archie image never
-          shipped, which is why the icon rendered blank/broken) */}
+      {/* Floating button: inline ArchieMark SVG (no image asset to 404) */}
       {!open && (
         <Button
           variant="ghost"
@@ -161,7 +161,7 @@ export default function SupportChatWidget() {
           className="fixed bottom-20 right-4 z-50 inline-flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground shadow-lg shadow-brand-purple/30 ring-2 ring-white/20 backdrop-blur transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
           aria-label="Chat with ARCHIE"
         >
-          <MessageCircle className="h-7 w-7 animate-float" strokeWidth={2.2} />
+          <ArchieMark className="h-8 w-8 animate-float drop-shadow" />
           <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-green opacity-60" />
             <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-accent-green ring-2 ring-white" />
@@ -184,12 +184,7 @@ export default function SupportChatWidget() {
               onClick={() => setMinimized(false)}
               className="inline-flex items-center gap-2 rounded-full bg-primary pl-2.5 pr-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg"
             >
-              <img
-                src="/assets/archie/archie-icon-192.png"
-                alt=""
-                aria-hidden="true"
-                className="h-6 w-6 rounded-full"
-              />
+              <ArchieMark className="h-6 w-6" aria-label="" />
               Chat with ARCHIE
             </Button>
           ) : (
@@ -198,10 +193,9 @@ export default function SupportChatWidget() {
               <div className="flex items-center justify-between bg-gradient-to-r from-primary to-primary-dark px-4 py-3 text-primary-foreground">
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white/15 ring-2 ring-white/20">
-                    <img
-                      src="/assets/archie/archie-icon-192.png"
-                      alt="ARCHIE assistant"
-                      className="h-full w-full object-cover"
+                    <ArchieMark
+                      className="h-full w-full"
+                      aria-label="ARCHIE assistant"
                     />
                   </div>
                   <div className="leading-tight">

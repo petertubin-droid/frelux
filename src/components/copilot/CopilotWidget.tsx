@@ -17,7 +17,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  Bot,
   X,
   Loader2,
   Send,
@@ -26,6 +25,7 @@ import {
   Info,
   Save,
 } from "lucide-react";
+import ArchieMark from "@/components/ui/ArchieMark";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
@@ -236,7 +236,7 @@ export default function CopilotWidget({
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2">
-          <Bot className="h-5 w-5 text-primary" aria-hidden />
+          <ArchieMark className="h-5 w-5" aria-label="FRELUX Copilot" />
           <div>
             <p className="text-sm font-semibold leading-none">FRELUX Copilot</p>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
