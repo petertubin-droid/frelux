@@ -80,14 +80,33 @@ export default function SupportMark({
       />
       <circle cx="27" cy="33.6" r="1.9" fill="#FFFFFF" />
 
-      {/* Speech bubble, overlapping the headset like the reference icon */}
+      {/* Speech bubble, overlapping the headset like the reference icon.
+          The three former typing dots are now a friendly face: two eyes
+          (which blink every 10s via .support-mark-eye) and a nose. */}
       <path
         d="M10.5 25.8 C10.5 23 12.8 20.8 15.6 20.8 L26.4 20.8 C29.2 20.8 31.5 23 31.5 25.8 L31.5 30.4 C31.5 33.2 29.2 35.4 26.4 35.4 L17.6 35.4 L12.3 39.4 C11.7 39.9 10.8 39.4 10.9 38.6 L11.5 34.9 C10.9 34 10.5 32.9 10.5 31.7 Z"
         fill="#FFFFFF"
       />
-      <circle cx="17.2" cy="28.1" r="1.5" fill="#5B21B6" />
-      <circle cx="21.9" cy="28.1" r="1.5" fill="#5B21B6" />
-      <circle cx="26.6" cy="28.1" r="1.5" fill="#5B21B6" />
+      {/* Left eye (blinks) */}
+      <ellipse
+        className="support-mark-eye"
+        cx="17.9"
+        cy="27.6"
+        rx="1.7"
+        ry="2.1"
+        fill="#5B21B6"
+      />
+      {/* Right eye (blinks) */}
+      <ellipse
+        className="support-mark-eye"
+        cx="25.1"
+        cy="27.6"
+        rx="1.7"
+        ry="2.1"
+        fill="#5B21B6"
+      />
+      {/* Nose */}
+      <circle cx="21.5" cy="31.4" r="1.15" fill="#5B21B6" />
     </svg>
   );
 }

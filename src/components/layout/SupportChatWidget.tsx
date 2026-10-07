@@ -161,7 +161,7 @@ export default function SupportChatWidget() {
           className="fixed bottom-20 right-4 z-50 inline-flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-primary text-primary-foreground shadow-lg shadow-brand-purple/30 ring-2 ring-white/20 backdrop-blur transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
           aria-label="Chat with ARCHIE"
         >
-          <SupportMark className="h-8 w-8 animate-float drop-shadow" />
+          <SupportMark className="h-8 w-8 animate-chat-bounce drop-shadow" />
           <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-green opacity-60" />
             <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-accent-green ring-2 ring-white" />

@@ -1036,3 +1036,31 @@ input[type="number"] {
     opacity: 1;
   }
 }
+
+/* ── Live chat SupportMark: eyes blink every 10s ─────────────────────── */
+@keyframes support-blink {
+  0%,
+  91.5% {
+    transform: scaleY(1);
+  }
+  92.5%,
+  94% {
+    transform: scaleY(0.08);
+  }
+  95.5%,
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+.support-mark-eye {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: support-blink 10s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .support-mark-eye {
+    animation: none;
+  }
+}
