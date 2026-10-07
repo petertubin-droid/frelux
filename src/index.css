@@ -1057,9 +1057,9 @@ body {
   background: conic-gradient(
     from var(--neon-angle),
     rgb(var(--brand-primary) / 0.85),
+    rgb(167 139 250 / 0.65),
     rgb(56 189 248 / 0.6),
-    rgb(217 70 239 / 0.5),
-    rgb(52 211 153 / 0.45),
+    rgb(139 92 246 / 0.7),
     rgb(var(--brand-primary) / 0.85)
   );
   -webkit-mask:
