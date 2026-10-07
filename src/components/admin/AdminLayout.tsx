@@ -83,6 +83,7 @@ import {
   ClipboardList,
   FileStack,
   Activity,
+  ChevronDown,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
@@ -413,6 +414,8 @@ const navModules: NavModule[] = [
   },
 ];
 
+const ADMIN_SIDEBAR_COLLAPSED_KEY = "admin:sidebar-collapsed";
+
 /** Flat path lookup for breadcrumbs and search. */
 const flatNav: { heading: string; item: NavItem }[] = navModules.flatMap((m) =>
   m.items.map((item) => ({ heading: m.heading, item })),
@@ -616,6 +619,51 @@ function SidebarContent({
   // any admin page (materials, prices, engines, users, settings…) instead of
   // hunting through the sidebar.
   const [query, setQuery] = useState("");
+
+  // Collapsible category dropdowns. The collapsed set persists across
+  // visits (localStorage). On first use everything starts collapsed except
+  // the section containing the current page, so the sidebar reads as an
+  // organized menu of categories instead of a ~100-link wall.
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => {
+    try {
+      const raw = localStorage.getItem(ADMIN_SIDEBAR_COLLAPSED_KEY);
+      return new Set(JSON.parse(raw) as string[]);
+    } catch {
+      return new Set<string>(navModules.map((m) => m.heading));
+    }
+  });
+  const toggleCollapsed = (heading: string) => {
+    setCollapsed((prev) => {
+      const next = new Set(prev);
+      if (next.has(heading)) next.delete(heading);
+      else next.add(heading);
+      try {
+        localStorage.setItem(
+          ADMIN_SIDEBAR_COLLAPSED_KEY,
+          JSON.stringify([...next]),
+        );
+      } catch {
+        /* storage unavailable — keep in-memory state */
+      }
+      return next;
+    });
+  };
+  const location = useLocation();
+  // The section of the active page always stays open, even if collapsed,
+  // so the owner never loses sight of where they are.
+  const activeHeading = useMemo(() => {
+    const match = flatNav.find((f) => f.item.to === location.pathname);
+    if (match) return match.heading;
+    const prefix = flatNav
+      .filter(
+        (f) =>
+          f.item.to !== "/admin" &&
+          location.pathname.startsWith(f.item.to + "/"),
+      )
+      .sort((a, b) => b.item.to.length - a.item.to.length)[0];
+    return prefix?.heading;
+  }, [location.pathname]);
+
   const q = query.trim().toLowerCase();
   const modules = useMemo(
     () =>
@@ -663,13 +711,39 @@ function SidebarContent({
       <nav className="flex-1 overflow-y-auto p-3" aria-label="Admin sections">
         {modules.map((module) => {
           let lastGroup: string | undefined;
+          // When searching, every matching section is force-expanded so
+          // results are visible immediately; otherwise sections open when
+          // not collapsed (or when they hold the active page).
+          const isOpen = q
+            ? true
+            : !collapsed.has(module.heading) ||
+              module.heading === activeHeading;
           return (
-            <div key={module.heading} className="mb-4">
-              <p className="mb-1 px-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
-                {module.heading}
-              </p>
-              <div className="space-y-0.5">
+            <div key={module.heading} className="mb-2">
+              <button
+                type="button"
+                onClick={() => toggleCollapsed(module.heading)}
+                aria-expanded={isOpen}
+                aria-label={`Toggle ${module.heading} section`}
+                className="flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground transition-colors hover:bg-muted hover:text-brand-purple dark:hover:text-brand-purple-light"
+              >
+                <span>{module.heading}</span>
+                <span className="flex items-center gap-1.5">
+                  <span className="text-[9px] font-semibold text-muted-foreground/50">
+                    {module.items.length}
+                  </span>
+                  <ChevronDown
+                    className={classNames(
+                      "h-3 w-3 transition-transform duration-200",
+                      isOpen ? "rotate-0" : "-rotate-90",
+                    )}
+                    aria-hidden="true"
+                  />
+                </span>
+              </button>
+              <div className="mt-0.5 space-y-0.5">
                 {module.items.map((item) => {
+                  if (!isOpen) return null;
                   const Icon = item.icon;
                   const showGroup = item.group && item.group !== lastGroup;
                   lastGroup = item.group;
