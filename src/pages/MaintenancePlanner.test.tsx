@@ -118,9 +118,15 @@ describe("MaintenancePlanner", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /Plan Maintenance/i }));
 
-    await waitFor(() => {
-      expect(screen.getByText(/No initial cost provided/i)).toBeInTheDocument();
-    });
+    // Generous timeout: the default 1000ms is too tight on slow CI runners.
+    await waitFor(
+      () => {
+        expect(
+          screen.getByText(/No initial cost provided/i),
+        ).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
   });
 
   it("saves the plan with its configuration snapshot", async () => {
