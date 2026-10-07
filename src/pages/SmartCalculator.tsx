@@ -1,3 +1,4 @@
+import HeroTitle from "@/components/ui/HeroTitle";
 import { Link } from "react-router-dom";
 import { ArrowLeft, Brain } from "lucide-react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
@@ -46,9 +47,10 @@ export default function SmartCalculator() {
           <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-primary to-primary/70 shadow-lg shadow-brand-purple/20">
             <Brain className="h-7 w-7 text-primary-foreground" />
           </div>
-          <h1 className="font-display text-3xl font-bold text-foreground dark:text-primary-foreground">
-            Smart Calculator
-          </h1>
+          <HeroTitle
+            className="text-3xl text-foreground dark:text-primary-foreground"
+            title="Smart Calculator"
+          />
           <p className="mt-2 flex items-center justify-center gap-1.5 text-sm text-muted-foreground">
             <Brain className="h-4 w-4 text-brand-purple" aria-hidden="true" />
             Powered by AI, describe any project, get an instant estimate

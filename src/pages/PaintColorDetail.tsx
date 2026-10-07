@@ -1,3 +1,4 @@
+import HeroTitle from "@/components/ui/HeroTitle";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -267,9 +268,10 @@ export default function PaintColorDetail() {
             )}
           </div>
 
-          <h1 className="mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl dark:text-primary-foreground">
-            {color.name}
-          </h1>
+          <HeroTitle
+            className="mt-4 text-3xl text-foreground sm:text-4xl dark:text-primary-foreground"
+            title={color.name}
+          />
 
           {/* Copyable color values */}
           <div className="mt-6 space-y-3">

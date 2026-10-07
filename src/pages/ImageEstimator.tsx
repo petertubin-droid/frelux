@@ -1,3 +1,4 @@
+import HeroTitle from "@/components/ui/HeroTitle";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { useState, useCallback, useRef, useEffect } from "react";
 import { useSeo } from "@/lib/seo";
@@ -366,9 +367,10 @@ export default function ImageEstimator() {
               <Zap className="w-4 h-4 text-yellow-300 absolute -top-1 -right-1" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
-                AI Building Photo Estimator
-              </h1>
+              <HeroTitle
+                className="text-2xl text-foreground dark:text-primary-foreground md:text-3xl"
+                title="AI Building Photo Estimator"
+              />
               <AiFeatureSlide />
             </div>
           </div>

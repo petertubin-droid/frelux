@@ -1,3 +1,4 @@
+import HeroTitle from "@/components/ui/HeroTitle";
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 import {
@@ -457,9 +458,10 @@ export default function Rewards() {
 
       {/* Header */}
       <div className="mb-8 text-center">
-        <h1 className="font-display text-3xl font-bold text-foreground dark:text-primary-foreground">
-          FRELUX Rewards
-        </h1>
+        <HeroTitle
+          className="text-3xl text-foreground dark:text-primary-foreground"
+          title="FRELUX Rewards"
+        />
         <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
           Earn credits, complete missions, and unlock premium features.
         </p>

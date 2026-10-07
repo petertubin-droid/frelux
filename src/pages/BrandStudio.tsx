@@ -11,6 +11,7 @@
  *
  * Access control: Premium (SubscriptionGate) or rewarded-ad unlock
  */
+import HeroTitle from "@/components/ui/HeroTitle";
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import { useAuth } from "@/lib/auth";
@@ -97,9 +98,10 @@ export default function BrandStudio() {
               <PremiumBadge size="md" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
-                FRELUX Brand Studio
-              </h1>
+              <HeroTitle
+                className="text-2xl text-foreground dark:text-primary-foreground"
+                title="FRELUX Brand Studio"
+              />
               <p className="text-sm text-muted-foreground dark:text-muted-foreground">
                 Brand your PDF exports with your own business identity.
               </p>

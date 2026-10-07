@@ -1,3 +1,4 @@
+import HeroTitle from "@/components/ui/HeroTitle";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { ConstructionExtractionPanel } from "@/components/estimation/ConstructionExtractionPanel";
 import { useState, useMemo, useCallback, useEffect } from "react";
@@ -514,9 +515,10 @@ export default function BuildToRoofEstimator() {
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <h1 className="text-xl sm:text-3xl md:text-4xl font-bold tracking-tight">
-                  Build-to-Roof Estimator
-                </h1>
+                <HeroTitle
+                  className="text-xl text-foreground dark:text-primary-foreground sm:text-3xl md:text-4xl"
+                  title="Build-to-Roof Estimator"
+                />
                 <div className="mt-1.5">
                   <RotatingText
                     messages={[

@@ -33,7 +33,11 @@ async function renderPage() {
 describe("Feedback page", () => {
   it("renders the form", async () => {
     await renderPage();
-    expect(await screen.findByText(/Feedback & Suggestions/i)).toBeTruthy();
+    // PageHeader titles are split into per-word spans for the stagger reveal,
+    // so match on the heading accessible name instead of a single text node.
+    expect(
+      await screen.findByRole("heading", { name: /Feedback & Suggestions/i }),
+    ).toBeTruthy();
     expect(screen.getByLabelText(/What is this about\?/i)).toBeTruthy();
   });
 

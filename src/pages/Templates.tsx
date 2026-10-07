@@ -1,3 +1,4 @@
+import HeroTitle from "@/components/ui/HeroTitle";
 import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import {
@@ -100,9 +101,10 @@ export default function Templates() {
           <ChevronRight className="h-3 w-3" />
           <span>Templates</span>
         </div>
-        <h1 className="mt-3 font-display text-2xl font-bold tracking-tight text-foreground dark:text-primary-foreground sm:text-3xl">
-          FRELUX Calculator Templates
-        </h1>
+        <HeroTitle
+          className="mt-3 text-2xl text-foreground dark:text-primary-foreground sm:text-3xl"
+          title="FRELUX Calculator Templates"
+        />
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground dark:text-muted-foreground">
           Professionally curated templates for common painting, tiling,
           screeding, and POP ceiling projects. Each template uses the FRELUX

@@ -14,7 +14,9 @@ function renderHeader(props: Parameters<typeof PageHeader>[0]) {
 describe("PageHeader", () => {
   it("renders title", () => {
     renderHeader({ title: "My Page" });
-    expect(screen.getByText("My Page")).toBeTruthy();
+    // The title is split into per-word spans for the stagger reveal, so
+    // match on the heading's accessible name instead of a single text node.
+    expect(screen.getByRole("heading", { name: /my page/i })).toBeTruthy();
   });
 
   it("renders subtitle when provided", () => {

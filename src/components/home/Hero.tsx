@@ -82,18 +82,28 @@ export default function Hero() {
         aria-hidden="true"
       />
 
-      {/* Ambient glows */}
+      {/* Ambient glows - three orbs drifting on different periods so the
+          composition never repeats itself */}
       <div className="pointer-events-none absolute inset-0" aria-hidden="true">
         <div className="absolute left-1/2 top-0 h-[500px] w-[800px] -translate-x-1/2 rounded-full bg-primary/20 blur-[140px]" />
-        <div className="absolute -right-32 top-1/4 h-72 w-72 rounded-full bg-accent-cyan/8 blur-[120px]" />
-        <div className="absolute -left-32 bottom-0 h-80 w-80 rounded-full bg-primary-deep/15 blur-[120px]" />
+        <div
+          className="animate-float-slow absolute -right-32 top-1/4 h-72 w-72 rounded-full bg-accent-cyan/8 blur-[120px]"
+          style={{ animationDelay: "0s" }}
+        />
+        <div
+          className="animate-float-slower absolute -left-32 bottom-0 h-80 w-80 rounded-full bg-primary-deep/15 blur-[120px]"
+          style={{ animationDelay: "-4s" }}
+        />
       </div>
 
-      {/* Top border line */}
+      {/* Top border line with a slow light sweep travelling along it */}
       <div
-        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent"
+        className="pointer-events-none absolute inset-x-0 top-0 h-px"
         aria-hidden="true"
-      />
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        <div className="hero-shimmer-line absolute inset-0 opacity-60" />
+      </div>
 
       <Container className="relative grid items-center gap-12 py-24 sm:py-28 lg:grid-cols-2 lg:gap-20 lg:py-36">
         {/* Left: Content */}
@@ -129,10 +139,10 @@ export default function Hero() {
               branding?.hero_highlight_config?.highlights ?? null,
             )}
           </h1>
-          <div
-            className="mt-4 h-[3px] w-20 origin-left scale-x-0 animate-scale-in rounded-full bg-gradient-to-r from-brand-purple-light via-primary to-accent-cyan [animation-fill-mode:forwards] [animation-delay:450ms]"
-            aria-hidden="true"
-          />
+          <div className="relative mt-4 h-[3px] w-20" aria-hidden="true">
+            <div className="absolute inset-0 origin-left scale-x-0 animate-scale-in rounded-full bg-gradient-to-r from-brand-purple-light via-primary to-accent-cyan [animation-fill-mode:forwards] [animation-delay:450ms]" />
+            <div className="hero-shimmer-line absolute inset-0 rounded-full opacity-0 animate-fade-in [animation-fill-mode:forwards] [animation-delay:1.3s]" />
+          </div>
 
           {/* Subheadline */}
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-primary-foreground/55 text-balance">

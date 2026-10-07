@@ -1,3 +1,4 @@
+import HeroTitle from "@/components/ui/HeroTitle";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { ArrowLeft, Copy, Check, AlertCircle, Loader2 } from "lucide-react";
@@ -151,9 +152,10 @@ export default function ColorDetail() {
               </span>
             ))}
           </div>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl dark:text-primary-foreground">
-            {color.title}
-          </h1>
+          <HeroTitle
+            className="mt-3 text-3xl text-foreground sm:text-4xl dark:text-primary-foreground"
+            title={color.title}
+          />
           <p className="mt-3 text-base leading-relaxed text-muted-foreground">
             {color.description}
           </p>

@@ -1,3 +1,4 @@
+import HeroTitle from "@/components/ui/HeroTitle";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import {
@@ -227,9 +228,10 @@ export default function ConstructionTools() {
       <section className="border-b border-border/50 bg-gradient-to-b from-primary/5 to-transparent py-10 dark:border-white/5 dark:from-primary/10">
         <Container>
           <div className="mx-auto max-w-2xl text-center">
-            <h1 className="text-3xl font-extrabold tracking-tight text-foreground dark:text-primary-foreground sm:text-4xl">
-              Construction Tools
-            </h1>
+            <HeroTitle
+              className="text-3xl text-foreground dark:text-primary-foreground sm:text-4xl"
+              title="Construction Tools"
+            />
             <p className="mt-3 text-muted-foreground dark:text-muted-foreground">
               {totalTools} tools with verified market prices. Enter what you
               know, get exact quantities and costs: no guesswork.

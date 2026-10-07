@@ -207,7 +207,10 @@ describe("LearnCategory", () => {
     state.category = null;
     await renderCategory("does-not-exist");
     await waitFor(() => {
-      expect(screen.getByText("Category not found")).toBeInTheDocument();
+      // PageHeader titles are split into per-word spans for the stagger reveal.
+      expect(
+        screen.getByRole("heading", { name: /Category not found/i }),
+      ).toBeInTheDocument();
     });
     expect(
       screen.getByText("This category doesn't exist or has been removed."),

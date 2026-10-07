@@ -74,7 +74,10 @@ describe("WallFinishEstimator", () => {
 
   it("renders the full page structure: header, workflow steps and ad slots", () => {
     renderPage();
-    expect(screen.getByText("Wall Finish Estimator")).toBeTruthy();
+    // PageHeader titles are split into per-word spans for the stagger reveal.
+    expect(
+      screen.getByRole("heading", { name: /Wall Finish Estimator/i }),
+    ).toBeTruthy();
     expect(screen.getByText("1. Project")).toBeTruthy();
     expect(screen.getByText("2. Rooms")).toBeTruthy();
     expect(screen.getByText("3. Equipment & other costs")).toBeTruthy();

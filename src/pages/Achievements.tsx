@@ -1,3 +1,4 @@
+import HeroTitle from "@/components/ui/HeroTitle";
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
@@ -53,9 +54,10 @@ export default function Achievements() {
 
       {/* Header */}
       <div className="mb-8 text-center">
-        <h1 className="font-display text-3xl font-bold text-foreground dark:text-primary-foreground">
-          Achievements
-        </h1>
+        <HeroTitle
+          className="text-3xl text-foreground dark:text-primary-foreground"
+          title="Achievements"
+        />
         <p className="mt-2 text-sm text-muted-foreground dark:text-muted-foreground">
           Unlock badges as you use FRELUX. Track your progress and milestones.
         </p>
