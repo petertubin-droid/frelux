@@ -1,4 +1,4 @@
-// FRELUX PROJECT CALC — Service Worker v4 (Workbox-powered precaching)
+// FRELUX PROJECT CALC - Service Worker v4 (Workbox-powered precaching)
 //
 // This file is used as a TEMPLATE by scripts/generate-sw.mjs (workbox-build
 // injectManifest). The Workbox marker below is replaced at build time
@@ -23,7 +23,7 @@ const precacheManifest = self.__WB_MANIFEST || [];
 
 const { precacheAndRoute } = self.workbox.precaching;
 
-// Precache all built assets — this is the core upgrade from v3.
+// Precache all built assets - this is the core upgrade from v3.
 // Returning visitors load JS/CSS/fonts instantly from cache.
 precacheAndRoute(precacheManifest);
 
@@ -31,7 +31,7 @@ precacheAndRoute(precacheManifest);
 const CACHE_VERSION = 'frelux-v5';
 const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
 
-// Take control immediately when a new SW version deploys — a returning
+// Take control immediately when a new SW version deploys - a returning
 // visitor with a long-lived tab must not keep running stale ad/JS code
 // until every tab closes. Precache revision changes on every build, so
 // this only fires when a genuinely new build is deployed.
@@ -53,7 +53,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch — custom routing for navigation and static assets
+// Fetch - custom routing for navigation and static assets
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
@@ -65,10 +65,10 @@ self.addEventListener('fetch', (event) => {
   // Skip cross-origin requests (Supabase, analytics)
   if (url.origin !== self.location.origin) return;
 
-  // Skip admin routes — always fetch fresh
+  // Skip admin routes - always fetch fresh
   if (url.pathname.startsWith('/admin')) return;
 
-  // Navigation requests — network-first with cache fallback
+  // Navigation requests - network-first with cache fallback
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
@@ -86,7 +86,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Same-origin static assets — stale-while-revalidate
+  // Same-origin static assets - stale-while-revalidate
   // (Workbox precache already handles precached assets; this catches runtime)
   if (
     url.pathname.startsWith('/assets/') ||
@@ -155,7 +155,7 @@ self.addEventListener('push', (event) => {
   event.waitUntil(self.registration.showNotification(title, options));
 });
 
-// Handle notification click — focus or open the relevant page
+// Handle notification click - focus or open the relevant page
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   if (event.action === 'dismiss') return;
