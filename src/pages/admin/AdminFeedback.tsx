@@ -6,6 +6,7 @@ import {
   AdminButton,
   StateMessage,
 } from "@/components/admin/AdminUi";
+import AdminPagination from "@/components/admin/AdminPagination";
 import { classNames } from "@/lib/utils";
 
 interface FeedbackRow {
@@ -32,6 +33,10 @@ export default function AdminFeedback() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>("new");
   const [error, setError] = useState<string | null>(null);
+  // Server-side pagination — feedback grows with every suggestion.
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
+  const [total, setTotal] = useState(0);
 
   const load = async (status: string) => {
     setLoading(true);
@@ -40,16 +45,27 @@ export default function AdminFeedback() {
       .from("feedback_suggestions")
       .select("*")
       .order("created_at", { ascending: false })
-      .limit(200);
-    if (status !== "all") q = q.eq("status", status);
-    const { data, error: err } = await q;
+      .range(page * pageSize, page * pageSize + pageSize - 1);
+    let c = supabase
+      .from("feedback_suggestions")
+      .select("*", { count: "exact", head: true });
+    if (status !== "all") {
+      q = q.eq("status", status);
+      c = c.eq("status", status);
+    }
+    const [{ data, error: err }, { count }] = await Promise.all([q, c]);
     if (err) setError(err.message);
     setRows((data as FeedbackRow[]) ?? []);
+    setTotal(count ?? 0);
     setLoading(false);
   };
 
   useEffect(() => {
     void load(filter);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filter, page, pageSize]);
+  useEffect(() => {
+    setPage(0);
   }, [filter]);
 
   const setStatus = async (id: string, status: string) => {
@@ -191,6 +207,17 @@ export default function AdminFeedback() {
           </div>
         ))}
       </div>
+      <AdminPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        loading={loading}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(0);
+        }}
+      />
     </div>
   );
 }

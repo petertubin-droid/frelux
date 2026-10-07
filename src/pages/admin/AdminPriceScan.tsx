@@ -28,6 +28,7 @@ import {
 import { supabase } from "@/lib/supabase";
 import { createOrUpdatePrice } from "@/lib/estimation/queries";
 import { AdminHeader as AdminPageHeader } from "@/components/admin/AdminUi";
+import AdminPagination from "@/components/admin/AdminPagination";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface ScanSource {
@@ -65,6 +66,10 @@ interface ScanCandidate {
 export default function AdminPriceScan() {
   const [sources, setSources] = useState<ScanSource[]>([]);
   const [candidates, setCandidates] = useState<ScanCandidate[]>([]);
+  // Server-side pagination — scan candidates accumulate with every scan.
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
+  const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busySource, setBusySource] = useState<string | null>(null);
@@ -84,7 +89,7 @@ export default function AdminPriceScan() {
     setLoading(true);
     setError(null);
     try {
-      const [srcRes, candRes] = await Promise.all([
+      const [srcRes, candRes, cntRes] = await Promise.all([
         supabase
           .from("price_scan_sources")
           .select("*")
@@ -94,18 +99,22 @@ export default function AdminPriceScan() {
           .from("price_scan_candidates")
           .select("*")
           .order("created_at", { ascending: false })
-          .limit(100),
+          .range(page * pageSize, page * pageSize + pageSize - 1),
+        supabase
+          .from("price_scan_candidates")
+          .select("*", { count: "exact", head: true }),
       ]);
       if (srcRes.error) throw srcRes.error;
       if (candRes.error) throw candRes.error;
       setSources((srcRes.data ?? []) as ScanSource[]);
       setCandidates((candRes.data ?? []) as ScanCandidate[]);
+      setTotal(cntRes.count ?? 0);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Load failed");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page, pageSize]);
 
   useEffect(() => {
     void load();
@@ -519,6 +528,17 @@ export default function AdminPriceScan() {
           </section>
         )}
       </div>
+      <AdminPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        loading={loading}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(0);
+        }}
+      />
     </div>
   );
 }

@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
-import { AdminModal } from '@/components/admin/AdminModal';
-import { supabase } from '@/lib/supabase';
-import { formatNumber } from '@/lib/utils';
-import { AdminButton,
-  AdminTabButton} from '@/components/admin/AdminUi';
+import { useState, useEffect, useCallback } from "react";
+import { AdminModal } from "@/components/admin/AdminModal";
+import { supabase } from "@/lib/supabase";
+import { formatNumber } from "@/lib/utils";
+import { AdminButton, AdminTabButton } from "@/components/admin/AdminUi";
+import AdminPagination from "@/components/admin/AdminPagination";
 
 interface ErrorLog {
   id: string;
@@ -15,41 +15,57 @@ interface ErrorLog {
   url: string | null;
   user_agent: string | null;
   user_id: string | null;
-  severity: 'info' | 'warning' | 'error' | 'critical';
+  severity: "info" | "warning" | "error" | "critical";
   is_resolved: boolean;
 }
 
-type SeverityFilter = 'all' | 'critical' | 'error' | 'warning' | 'info';
+type SeverityFilter = "all" | "critical" | "error" | "warning" | "info";
 
 const SEVERITY_STYLES: Record<string, string> = {
-  critical: 'bg-red-100 text-red-700 border-red-200',
-  error: 'bg-orange-100 text-orange-700 border-orange-200',
-  warning: 'bg-amber-100 text-amber-700 border-amber-200',
-  info: 'bg-blue-100 text-blue-700 border-blue-200',
+  critical: "bg-red-100 text-red-700 border-red-200",
+  error: "bg-orange-100 text-orange-700 border-orange-200",
+  warning: "bg-amber-100 text-amber-700 border-amber-200",
+  info: "bg-blue-100 text-blue-700 border-blue-200",
 };
 
 export default function AdminErrors() {
   const [errors, setErrors] = useState<ErrorLog[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<SeverityFilter>('all');
-  const [stats, setStats] = useState({ total: 0, unresolved: 0, critical: 0, today: 0 });
+  const [filter, setFilter] = useState<SeverityFilter>("all");
+  const [stats, setStats] = useState({
+    total: 0,
+    unresolved: 0,
+    critical: 0,
+    today: 0,
+  });
   const [selectedError, setSelectedError] = useState<ErrorLog | null>(null);
+  // Server-side pagination — runtime errors accumulate continuously.
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
+  const [total, setTotal] = useState(0);
 
   const fetchErrors = useCallback(async () => {
     setLoading(true);
     let query = supabase
-      .from('error_logs')
-      .select('*')
-      .order('created_at', { ascending: false })
-      .limit(100);
+      .from("error_logs")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .range(page * pageSize, page * pageSize + pageSize - 1);
 
-    if (filter !== 'all') {
-      query = query.eq('severity', filter);
+    let countQuery = supabase
+      .from("error_logs")
+      .select("*", { count: "exact", head: true });
+
+    if (filter !== "all") {
+      query = query.eq("severity", filter);
+      countQuery = countQuery.eq("severity", filter);
     }
 
-    const { data, error } = await query;
+    const [{ data, error }, { count }] = await Promise.all([query, countQuery]);
+    setTotal(count ?? 0);
     if (error) {
-      if (import.meta.env.DEV) console.error('Failed to fetch error logs:', error);
+      if (import.meta.env.DEV)
+        console.error("Failed to fetch error logs:", error);
       setErrors([]);
     } else {
       setErrors((data ?? []) as unknown as ErrorLog[]);
@@ -57,12 +73,20 @@ export default function AdminErrors() {
 
     // Fetch stats
     const [allRes, unresolvedRes, criticalRes, todayRes] = await Promise.all([
-      supabase.from('error_logs').select('*', { count: 'exact', head: true }),
-      supabase.from('error_logs').select('*', { count: 'exact', head: true }).eq('is_resolved', false),
-      supabase.from('error_logs').select('*', { count: 'exact', head: true }).eq('severity', 'critical').eq('is_resolved', false),
-      supabase.from('error_logs')
-        .select('*', { count: 'exact', head: true })
-        .gte('created_at', new Date(Date.now() - 86400000).toISOString()),
+      supabase.from("error_logs").select("*", { count: "exact", head: true }),
+      supabase
+        .from("error_logs")
+        .select("*", { count: "exact", head: true })
+        .eq("is_resolved", false),
+      supabase
+        .from("error_logs")
+        .select("*", { count: "exact", head: true })
+        .eq("severity", "critical")
+        .eq("is_resolved", false),
+      supabase
+        .from("error_logs")
+        .select("*", { count: "exact", head: true })
+        .gte("created_at", new Date(Date.now() - 86400000).toISOString()),
     ]);
 
     setStats({
@@ -73,30 +97,40 @@ export default function AdminErrors() {
     });
 
     setLoading(false);
-  }, [filter]);
+  }, [filter, page, pageSize]);
 
-  useEffect(() => { fetchErrors(); }, [fetchErrors]);
+  useEffect(() => {
+    fetchErrors();
+  }, [fetchErrors]);
+  useEffect(() => {
+    setPage(0);
+  }, [filter]);
 
   async function resolveError(id: string) {
     const { error } = await supabase
-      .from('error_logs')
+      .from("error_logs")
       .update({ is_resolved: true, resolved_at: new Date().toISOString() })
-      .eq('id', id);
+      .eq("id", id);
     if (!error) {
-      setErrors(prev => prev.map(e => e.id === id ? { ...e, is_resolved: true } : e));
-      if (selectedError?.id === id) setSelectedError(prev => prev ? { ...prev, is_resolved: true } : null);
+      setErrors((prev) =>
+        prev.map((e) => (e.id === id ? { ...e, is_resolved: true } : e)),
+      );
+      if (selectedError?.id === id)
+        setSelectedError((prev) =>
+          prev ? { ...prev, is_resolved: true } : null,
+        );
     }
   }
 
   async function resolveAll() {
-    const ids = errors.filter(e => !e.is_resolved).map(e => e.id);
+    const ids = errors.filter((e) => !e.is_resolved).map((e) => e.id);
     if (ids.length === 0) return;
     const { error } = await supabase
-      .from('error_logs')
+      .from("error_logs")
       .update({ is_resolved: true, resolved_at: new Date().toISOString() })
-      .in('id', ids);
+      .in("id", ids);
     if (!error) {
-      setErrors(prev => prev.map(e => ({ ...e, is_resolved: true })));
+      setErrors((prev) => prev.map((e) => ({ ...e, is_resolved: true })));
       fetchErrors();
     }
   }
@@ -105,8 +139,12 @@ export default function AdminErrors() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">Error Monitor</h1>
-          <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">Runtime errors and exceptions logged from the frontend</p>
+          <h1 className="text-2xl font-bold text-foreground dark:text-primary-foreground">
+            Error Monitor
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground dark:text-muted-foreground">
+            Runtime errors and exceptions logged from the frontend
+          </p>
         </div>
         <AdminButton
           variant="secondary"
@@ -120,14 +158,28 @@ export default function AdminErrors() {
       {/* Stats grid */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         <StatCard label="Total Errors" value={stats.total} />
-        <StatCard label="Unresolved" value={stats.unresolved} accent="text-orange-600" />
-        <StatCard label="Critical (unresolved)" value={stats.critical} accent="text-red-600" />
-        <StatCard label="Last 24 hours" value={stats.today} accent="text-blue-600" />
+        <StatCard
+          label="Unresolved"
+          value={stats.unresolved}
+          accent="text-orange-600"
+        />
+        <StatCard
+          label="Critical (unresolved)"
+          value={stats.critical}
+          accent="text-red-600"
+        />
+        <StatCard
+          label="Last 24 hours"
+          value={stats.today}
+          accent="text-blue-600"
+        />
       </div>
 
       {/* Filter tabs */}
       <div className="flex gap-2">
-        {(['all', 'critical', 'error', 'warning', 'info'] as SeverityFilter[]).map(sev => (
+        {(
+          ["all", "critical", "error", "warning", "info"] as SeverityFilter[]
+        ).map((sev) => (
           <AdminTabButton
             variant="filter"
             key={sev}
@@ -141,37 +193,58 @@ export default function AdminErrors() {
 
       {/* Error list */}
       {loading ? (
-        <div className="py-12 text-center text-sm text-muted-foreground dark:text-muted-foreground">Loading…</div>
+        <div className="py-12 text-center text-sm text-muted-foreground dark:text-muted-foreground">
+          Loading…
+        </div>
       ) : errors.length === 0 ? (
-        <div className="py-12 text-center text-sm text-muted-foreground dark:text-muted-foreground">No errors found 🎉</div>
+        <div className="py-12 text-center text-sm text-muted-foreground dark:text-muted-foreground">
+          No errors found 🎉
+        </div>
       ) : (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-          {errors.map(err => (
+          {errors.map((err) => (
             <div
               key={err.id}
               className={`rounded-lg border p-3 transition-colors ${
-                err.is_resolved ? 'border-border/50 bg-muted/50 dark:bg-white/5 opacity-60' : 'border-border bg-card dark:border-white/5 dark:bg-card hover:bg-muted/50 dark:hover:bg-white/5'
+                err.is_resolved
+                  ? "border-border/50 bg-muted/50 dark:bg-white/5 opacity-60"
+                  : "border-border bg-card dark:border-white/5 dark:bg-card hover:bg-muted/50 dark:hover:bg-white/5"
               }`}
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <span className={`rounded-full border px-2 py-0.5 text-xs font-medium ${SEVERITY_STYLES[err.severity] ?? SEVERITY_STYLES.error}`}>
+                    <span
+                      className={`rounded-full border px-2 py-0.5 text-xs font-medium ${SEVERITY_STYLES[err.severity] ?? SEVERITY_STYLES.error}`}
+                    >
                       {err.severity}
                     </span>
                     {err.is_resolved && (
-                      <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">resolved</span>
+                      <span className="rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                        resolved
+                      </span>
                     )}
-                    <span className="text-xs text-muted-foreground dark:text-muted-foreground">{err.boundary_name}</span>
+                    <span className="text-xs text-muted-foreground dark:text-muted-foreground">
+                      {err.boundary_name}
+                    </span>
                   </div>
-                  <p className="mt-1 truncate text-sm font-medium text-foreground">{err.error_message}</p>
+                  <p className="mt-1 truncate text-sm font-medium text-foreground">
+                    {err.error_message}
+                  </p>
                   <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
                     {new Date(err.created_at).toLocaleString()}
-                    {err.url && <span className="ml-2 truncate">· {err.url}</span>}
+                    {err.url && (
+                      <span className="ml-2 truncate">· {err.url}</span>
+                    )}
                   </p>
                 </div>
                 <div className="flex shrink-0 gap-2">
-                  <AdminButton variant="secondary" type="button" onClick={() => setSelectedError(err)} className="text-xs">
+                  <AdminButton
+                    variant="secondary"
+                    type="button"
+                    onClick={() => setSelectedError(err)}
+                    className="text-xs"
+                  >
                     Details
                   </AdminButton>
                   {!err.is_resolved && (
@@ -192,38 +265,80 @@ export default function AdminErrors() {
 
       {/* Detail modal */}
       {selectedError && (
-        <AdminModal open onClose={() => setSelectedError(null)} title="Error Details" maxWidth="max-w-2xl">
-            <div className="space-y-3">
-              <DetailRow label="Severity" value={selectedError.severity} />
-              <DetailRow label="Boundary" value={selectedError.boundary_name} />
-              <DetailRow label="Message" value={selectedError.error_message} />
-              <DetailRow label="URL" value={selectedError.url ?? 'N/A'} />
-              <DetailRow label="Time" value={new Date(selectedError.created_at).toLocaleString()} />
-              <DetailRow label="User Agent" value={selectedError.user_agent ?? 'N/A'} />
-              {selectedError.error_stack && (
-                <div>
-                  <p className="mb-1 text-xs font-medium text-muted-foreground dark:text-muted-foreground">Stack trace</p>
-                  <pre className="overflow-auto rounded-lg bg-background p-3 text-xs text-muted-foreground/80">{selectedError.error_stack}</pre>
-                </div>
-              )}
-              {selectedError.component_stack && (
-                <div>
-                  <p className="mb-1 text-xs font-medium text-muted-foreground dark:text-muted-foreground">Component stack</p>
-                  <pre className="overflow-auto rounded-lg bg-muted p-3 text-xs text-muted-foreground">{selectedError.component_stack}</pre>
-                </div>
-              )}
-            </div>
+        <AdminModal
+          open
+          onClose={() => setSelectedError(null)}
+          title="Error Details"
+          maxWidth="max-w-2xl"
+        >
+          <div className="space-y-3">
+            <DetailRow label="Severity" value={selectedError.severity} />
+            <DetailRow label="Boundary" value={selectedError.boundary_name} />
+            <DetailRow label="Message" value={selectedError.error_message} />
+            <DetailRow label="URL" value={selectedError.url ?? "N/A"} />
+            <DetailRow
+              label="Time"
+              value={new Date(selectedError.created_at).toLocaleString()}
+            />
+            <DetailRow
+              label="User Agent"
+              value={selectedError.user_agent ?? "N/A"}
+            />
+            {selectedError.error_stack && (
+              <div>
+                <p className="mb-1 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+                  Stack trace
+                </p>
+                <pre className="overflow-auto rounded-lg bg-background p-3 text-xs text-muted-foreground/80">
+                  {selectedError.error_stack}
+                </pre>
+              </div>
+            )}
+            {selectedError.component_stack && (
+              <div>
+                <p className="mb-1 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+                  Component stack
+                </p>
+                <pre className="overflow-auto rounded-lg bg-muted p-3 text-xs text-muted-foreground">
+                  {selectedError.component_stack}
+                </pre>
+              </div>
+            )}
+          </div>
         </AdminModal>
       )}
+      <AdminPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        loading={loading}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(0);
+        }}
+      />
     </div>
   );
 }
 
-function StatCard({ label, value, accent }: { label: string; value: number; accent?: string }) {
+function StatCard({
+  label,
+  value,
+  accent,
+}: {
+  label: string;
+  value: number;
+  accent?: string;
+}) {
   return (
     <div className="rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-4">
-      <p className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">{label}</p>
-      <p className={`mt-1 text-2xl font-bold ${accent ?? 'text-foreground'}`}>{formatNumber(value, 0)}</p>
+      <p className="text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+        {label}
+      </p>
+      <p className={`mt-1 text-2xl font-bold ${accent ?? "text-foreground"}`}>
+        {formatNumber(value, 0)}
+      </p>
     </div>
   );
 }
@@ -231,8 +346,12 @@ function StatCard({ label, value, accent }: { label: string; value: number; acce
 function DetailRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex gap-2">
-      <span className="w-24 shrink-0 text-xs font-medium text-muted-foreground dark:text-muted-foreground">{label}</span>
-      <span className="min-w-0 flex-1 text-sm text-foreground break-words">{value}</span>
+      <span className="w-24 shrink-0 text-xs font-medium text-muted-foreground dark:text-muted-foreground">
+        {label}
+      </span>
+      <span className="min-w-0 flex-1 text-sm text-foreground break-words">
+        {value}
+      </span>
     </div>
   );
 }

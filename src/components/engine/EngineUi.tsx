@@ -80,7 +80,8 @@ export function EngineWasteSelector({
             ["none", "No Waste"],
           ] as const
         ).map(([key, label]) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={key}
             onClick={() => handleModeChange(key)}
             className={classNames(
@@ -105,14 +106,20 @@ export function EngineWasteSelector({
         <div className="mt-2 flex items-center gap-2">
           <input
             type="number"
-            min={0}
+            min={0.1}
             max={100}
-            step="any"
+            step={0.1}
             value={userWaste ?? resolution.wastePercent}
-            onChange={(e) => onUserWasteChange(parseFloat(e.target.value) || 0)}
+            onChange={(e) => {
+              const parsed = parseFloat(e.target.value);
+              if (Number.isNaN(parsed)) return;
+              onUserWasteChange(Math.min(100, Math.max(0.1, parsed)));
+            }}
+            aria-label="Custom waste percentage"
             className="w-20 rounded-md border border-border px-2 py-1 text-sm dark:border-white/10 dark:bg-background"
           />
           <span className="text-sm text-muted-foreground">% waste</span>
+          <span className="text-xs text-muted-foreground">(0.1% – 100%)</span>
         </div>
       )}
 
@@ -252,7 +259,8 @@ export function EngineConfidenceDetail({
 
   return (
     <div className="rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5">
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between px-4 py-3 text-left"
       >
@@ -261,9 +269,15 @@ export function EngineConfidenceDetail({
           Result Confidence
         </span>
         {expanded ? (
-          <ChevronUp aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
+          <ChevronUp
+            aria-hidden="true"
+            className="h-4 w-4 text-muted-foreground"
+          />
         ) : (
-          <ChevronDown aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
+          <ChevronDown
+            aria-hidden="true"
+            className="h-4 w-4 text-muted-foreground"
+          />
         )}
       </Button>
       {expanded && (
@@ -318,7 +332,8 @@ export function EngineExplanationPanel({
 
   return (
     <div className="rounded-lg border border-border bg-muted/50 dark:border-white/5 dark:bg-white/5">
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         onClick={() => setExpanded(!expanded)}
         className="flex w-full items-center justify-between px-4 py-3 text-left"
       >
@@ -327,9 +342,15 @@ export function EngineExplanationPanel({
           How FRELUX Calculated This
         </span>
         {expanded ? (
-          <ChevronUp aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
+          <ChevronUp
+            aria-hidden="true"
+            className="h-4 w-4 text-muted-foreground"
+          />
         ) : (
-          <ChevronDown aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
+          <ChevronDown
+            aria-hidden="true"
+            className="h-4 w-4 text-muted-foreground"
+          />
         )}
       </Button>
       {expanded && (
@@ -402,8 +423,12 @@ export function EngineMaterialSummaryCard({
               <th className="pb-2 pr-3 font-medium text-muted-foreground">
                 Total Qty
               </th>
-              <th className="pb-2 pr-3 font-medium text-muted-foreground">Unit</th>
-              <th className="pb-2 font-medium text-muted-foreground">Sources</th>
+              <th className="pb-2 pr-3 font-medium text-muted-foreground">
+                Unit
+              </th>
+              <th className="pb-2 font-medium text-muted-foreground">
+                Sources
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -471,7 +496,9 @@ export function EngineEstimateReportView({
               className="mb-2 rounded-md bg-muted/50 px-3 py-2 text-sm dark:bg-white/5"
             >
               <span className="font-medium">{space.name}</span>
-              <span className="ml-2 text-muted-foreground">{space.dimensions}</span>
+              <span className="ml-2 text-muted-foreground">
+                {space.dimensions}
+              </span>
             </div>
           ))}
         </div>
@@ -486,8 +513,12 @@ export function EngineEstimateReportView({
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border dark:border-white/10 text-left">
-                <th className="pb-1 font-medium text-muted-foreground">Material</th>
-                <th className="pb-1 font-medium text-muted-foreground">Quantity</th>
+                <th className="pb-1 font-medium text-muted-foreground">
+                  Material
+                </th>
+                <th className="pb-1 font-medium text-muted-foreground">
+                  Quantity
+                </th>
                 <th className="pb-1 font-medium text-muted-foreground">Unit</th>
               </tr>
             </thead>

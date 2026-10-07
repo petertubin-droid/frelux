@@ -2,53 +2,69 @@
 
 /* Inter */
 @font-face {
-  font-family: 'Inter';
+  font-family: "Inter";
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/inter-400.woff2') format('woff2');
+  src: url("/fonts/inter-400.woff2") format("woff2");
 }
 @font-face {
-  font-family: 'Inter';
+  font-family: "Inter";
   font-style: normal;
   font-weight: 500;
   font-display: swap;
-  src: url('/fonts/inter-500.woff2') format('woff2');
+  src: url("/fonts/inter-500.woff2") format("woff2");
 }
 @font-face {
-  font-family: 'Inter';
+  font-family: "Inter";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url('/fonts/inter-600.woff2') format('woff2');
+  src: url("/fonts/inter-600.woff2") format("woff2");
 }
 @font-face {
-  font-family: 'Inter';
+  font-family: "Inter";
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('/fonts/inter-700.woff2') format('woff2');
+  src: url("/fonts/inter-700.woff2") format("woff2");
 }
 
 /* Plus Jakarta Sans */
 @font-face {
-  font-family: 'Plus Jakarta Sans';
+  font-family: "Plus Jakarta Sans";
   font-style: normal;
   font-weight: 600;
   font-display: swap;
-  src: url('/fonts/plus-jakarta-600.woff2') format('woff2');
+  src: url("/fonts/plus-jakarta-600.woff2") format("woff2");
 }
 @font-face {
-  font-family: 'Plus Jakarta Sans';
+  font-family: "Plus Jakarta Sans";
   font-style: normal;
   font-weight: 700;
   font-display: swap;
-  src: url('/fonts/plus-jakarta-700.woff2') format('woff2');
+  src: url("/fonts/plus-jakarta-700.woff2") format("woff2");
 }
 @font-face {
-  font-family: 'Plus Jakarta Sans';
+  font-family: "Plus Jakarta Sans";
   font-style: normal;
   font-weight: 800;
   font-display: swap;
-  src: url('/fonts/plus-jakarta-800.woff2') format('woff2');
+  src: url("/fonts/plus-jakarta-800.woff2") format("woff2");
+}
+
+/* Clash Display (Fontshare, ITF Free Font License), premium hero display font */
+@font-face {
+  font-family: "Clash Display";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/clash-display-600.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Clash Display";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/clash-display-700.woff2") format("woff2");
 }

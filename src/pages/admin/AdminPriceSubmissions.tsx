@@ -6,6 +6,7 @@ import {
   AdminButton,
   StateMessage,
 } from "@/components/admin/AdminUi";
+import AdminPagination from "@/components/admin/AdminPagination";
 import { classNames } from "@/lib/utils";
 
 interface SubmissionRow {
@@ -44,6 +45,10 @@ export default function AdminPriceSubmissions() {
   const [error, setError] = useState<string | null>(null);
   const [tab, setTab] = useState("pending");
   const [busyId, setBusyId] = useState<string | null>(null);
+  // Server-side pagination — submissions grow with every contribution.
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
+  const [total, setTotal] = useState(0);
 
   const load = async (status: string) => {
     setLoading(true);
@@ -52,16 +57,27 @@ export default function AdminPriceSubmissions() {
       .from("price_submissions")
       .select("*")
       .order("created_at", { ascending: false })
-      .limit(200);
-    if (status !== "all") q = q.eq("status", status);
-    const { data, error: err } = await q;
+      .range(page * pageSize, page * pageSize + pageSize - 1);
+    let c = supabase
+      .from("price_submissions")
+      .select("*", { count: "exact", head: true });
+    if (status !== "all") {
+      q = q.eq("status", status);
+      c = c.eq("status", status);
+    }
+    const [{ data, error: err }, { count }] = await Promise.all([q, c]);
     if (err) setError(err.message);
     setRows((data as SubmissionRow[]) ?? []);
+    setTotal(count ?? 0);
     setLoading(false);
   };
 
   useEffect(() => {
     void load(tab);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, page, pageSize]);
+  useEffect(() => {
+    setPage(0);
   }, [tab]);
 
   useEffect(() => {
@@ -232,6 +248,17 @@ export default function AdminPriceSubmissions() {
           </div>
         ))}
       </div>
+      <AdminPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        loading={loading}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(0);
+        }}
+      />
     </div>
   );
 }

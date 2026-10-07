@@ -82,6 +82,7 @@ export default {
       fontFamily: {
         sans: ['var(--font-body)', 'system-ui', '-apple-system', 'sans-serif'],
         display: ['var(--font-headings)', 'system-ui', 'sans-serif'],
+        hero: ['"Clash Display"', 'var(--font-headings)', 'system-ui', 'sans-serif'],
         nav: ['var(--font-nav)', 'system-ui', 'sans-serif'],
         btn: ['var(--font-btn)', 'system-ui', 'sans-serif'],
         calcTitle: ['var(--font-calc-title)', 'system-ui', 'sans-serif'],

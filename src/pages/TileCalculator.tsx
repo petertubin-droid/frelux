@@ -74,6 +74,7 @@ import { monitoredCalc } from "@/lib/calculator-monitor";
 import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
+import { WasteMarginControl } from "@/components/ui/WasteMarginControl";
 const ADVANCED_FEATURES = [
   "AI-powered project analysis & breakdown",
   "Smart cost optimization recommendations",
@@ -790,24 +791,11 @@ export default function TileCalculator({
                 Buys extra tiles for cuts, breakage, and future repairs, the
                 quantity is multiplied by a factor (10% = ×1.10, 15% = ×1.15).
               </p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {[0, 5, 10, 15, 20].map((w) => (
-                  <Button
-                    variant="ghost"
-                    key={w}
-                    type="button"
-                    onClick={() => update("wasteMargin", w)}
-                    className={
-                      "rounded-lg border px-4 py-2 text-sm font-semibold transition-all " +
-                      (input.wasteMargin === w
-                        ? "border-brand-purple bg-primary text-primary-foreground"
-                        : "border-border text-muted-foreground hover:border-border")
-                    }
-                  >
-                    {w}%
-                  </Button>
-                ))}
-              </div>
+              <WasteMarginControl
+                value={input.wasteMargin}
+                onChange={(w) => update("wasteMargin", w)}
+                options={[0, 5, 10, 15, 20]}
+              />
             </div>
 
             {Object.keys(errors).length > 0 && (

@@ -116,6 +116,8 @@ export default function AdminMarketplace() {
   );
 }
 
+import AdminPagination from "@/components/admin/AdminPagination";
+
 function ListingsTab() {
   const [listings, setListings] = useState<DbMarketplaceListing[]>([]);
   const [total, setTotal] = useState(0);
@@ -290,6 +292,10 @@ function ProductsTab() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  // Server-side pagination — the product catalog grows over time.
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
+  const [total, setTotal] = useState(0);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -299,25 +305,40 @@ function ProductsTab() {
         "*, category:marketplace_product_categories(id, name), seller:profiles!seller_id(full_name, avatar_url)",
       )
       .order("created_at", { ascending: false })
-      .limit(100);
+      .range(page * pageSize, page * pageSize + pageSize - 1);
 
-    if (statusFilter) query = query.eq("status", statusFilter);
-    if (search)
+    let countQuery = supabase
+      .from("marketplace_products")
+      .select("*", { count: "exact", head: true });
+
+    if (statusFilter) {
+      query = query.eq("status", statusFilter);
+      countQuery = countQuery.eq("status", statusFilter);
+    }
+    if (search) {
       query = query.or(`title.ilike.%${search}%,brand.ilike.%${search}%`);
+      countQuery = countQuery.or(
+        `title.ilike.%${search}%,brand.ilike.%${search}%`,
+      );
+    }
 
-    const { data, error } = await query;
+    const [{ data, error }, { count }] = await Promise.all([query, countQuery]);
     if (error) {
       console.error(error);
       setLoading(false);
       return;
     }
     setProducts((data ?? []) as unknown as DbMarketplaceProduct[]);
+    setTotal(count ?? 0);
     setLoading(false);
-  }, [search, statusFilter]);
+  }, [search, statusFilter, page, pageSize]);
 
   useEffect(() => {
     load();
   }, [load]);
+  useEffect(() => {
+    setPage(0);
+  }, [search, statusFilter]);
 
   async function toggleProductStatus(id: string, current: string) {
     const newStatus = current === "active" ? "paused" : "active";
@@ -450,6 +471,17 @@ function ProductsTab() {
           ))}
         </div>
       )}
+      <AdminPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        loading={loading}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(0);
+        }}
+      />
     </div>
   );
 }
@@ -672,6 +704,10 @@ function ReportsTab() {
   const [reports, setReports] = useState<DbMarketplaceReport[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("pending");
+  // Server-side pagination — moderation queues grow with traffic.
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
+  const [total, setTotal] = useState(0);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -679,21 +715,35 @@ function ReportsTab() {
       let query = supabase
         .from("marketplace_reports")
         .select("*")
-        .order("created_at", { ascending: false });
-      if (statusFilter) query = query.eq("status", statusFilter);
-      const { data, error } = await query.limit(100);
+        .order("created_at", { ascending: false })
+        .range(page * pageSize, page * pageSize + pageSize - 1);
+      let countQuery = supabase
+        .from("marketplace_reports")
+        .select("*", { count: "exact", head: true });
+      if (statusFilter) {
+        query = query.eq("status", statusFilter);
+        countQuery = countQuery.eq("status", statusFilter);
+      }
+      const [{ data, error }, { count }] = await Promise.all([
+        query,
+        countQuery,
+      ]);
       if (error) throw error;
       setReports((data ?? []) as unknown as DbMarketplaceReport[]);
+      setTotal(count ?? 0);
     } catch {
       /* table may not exist yet */
     } finally {
       setLoading(false);
     }
-  }, [statusFilter]);
+  }, [statusFilter, page, pageSize]);
 
   useEffect(() => {
     load();
   }, [load]);
+  useEffect(() => {
+    setPage(0);
+  }, [statusFilter]);
 
   async function handleStatusUpdate(id: string, status: string) {
     try {
@@ -806,6 +856,17 @@ function ReportsTab() {
           ))}
         </div>
       )}
+      <AdminPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        loading={loading}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(0);
+        }}
+      />
     </div>
   );
 }
@@ -817,6 +878,10 @@ function ReviewsTab() {
   const [reviews, setReviews] = useState<DbMarketplaceReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState("published");
+  // Server-side pagination — review moderation grows with traffic.
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
+  const [total, setTotal] = useState(0);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -824,21 +889,35 @@ function ReviewsTab() {
       let query = supabase
         .from("marketplace_reviews")
         .select("*, reviewer:profiles!reviewer_id(id, full_name, avatar_url)")
-        .order("created_at", { ascending: false });
-      if (statusFilter) query = query.eq("status", statusFilter);
-      const { data, error } = await query.limit(100);
+        .order("created_at", { ascending: false })
+        .range(page * pageSize, page * pageSize + pageSize - 1);
+      let countQuery = supabase
+        .from("marketplace_reviews")
+        .select("*", { count: "exact", head: true });
+      if (statusFilter) {
+        query = query.eq("status", statusFilter);
+        countQuery = countQuery.eq("status", statusFilter);
+      }
+      const [{ data, error }, { count }] = await Promise.all([
+        query,
+        countQuery,
+      ]);
       if (error) throw error;
       setReviews((data ?? []) as unknown as DbMarketplaceReview[]);
+      setTotal(count ?? 0);
     } catch {
       /* table may not exist yet */
     } finally {
       setLoading(false);
     }
-  }, [statusFilter]);
+  }, [statusFilter, page, pageSize]);
 
   useEffect(() => {
     load();
   }, [load]);
+  useEffect(() => {
+    setPage(0);
+  }, [statusFilter]);
 
   async function handleStatusUpdate(id: string, status: string) {
     try {
@@ -975,6 +1054,17 @@ function ReviewsTab() {
           ))}
         </div>
       )}
+      <AdminPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        loading={loading}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(0);
+        }}
+      />
     </div>
   );
 }
@@ -986,6 +1076,10 @@ function SellersTab() {
   const [sellers, setSellers] = useState<DbMarketplaceSellerProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [verificationFilter, setVerificationFilter] = useState("");
+  // Server-side pagination — seller onboarding grows over time.
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
+  const [total, setTotal] = useState(0);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -993,22 +1087,35 @@ function SellersTab() {
       let query = supabase
         .from("marketplace_seller_profiles")
         .select("*")
-        .order("created_at", { ascending: false });
-      if (verificationFilter)
+        .order("created_at", { ascending: false })
+        .range(page * pageSize, page * pageSize + pageSize - 1);
+      let countQuery = supabase
+        .from("marketplace_seller_profiles")
+        .select("*", { count: "exact", head: true });
+      if (verificationFilter) {
         query = query.eq("verification_status", verificationFilter);
-      const { data, error } = await query.limit(100);
+        countQuery = countQuery.eq("verification_status", verificationFilter);
+      }
+      const [{ data, error }, { count }] = await Promise.all([
+        query,
+        countQuery,
+      ]);
       if (error) throw error;
       setSellers((data ?? []) as unknown as DbMarketplaceSellerProfile[]);
+      setTotal(count ?? 0);
     } catch {
       /* table may not exist yet */
     } finally {
       setLoading(false);
     }
-  }, [verificationFilter]);
+  }, [verificationFilter, page, pageSize]);
 
   useEffect(() => {
     load();
   }, [load]);
+  useEffect(() => {
+    setPage(0);
+  }, [verificationFilter]);
 
   async function handleVerify(id: string) {
     try {
@@ -1176,6 +1283,17 @@ function SellersTab() {
           ))}
         </div>
       )}
+      <AdminPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        loading={loading}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(0);
+        }}
+      />
     </div>
   );
 }

@@ -13,27 +13,28 @@ import Container from "@/components/ui/Container";
 import { useHeroContent } from "@/lib/useHeroContent";
 import { useBranding } from "@/lib/branding";
 
-/** Splits a headline into words and wraps highlighted words in a colored span. */
+/**
+ * Splits a headline into words, wraps highlighted words in a colored span,
+ * and staggers each word in on mount for a premium reveal animation.
+ */
 function renderHighlightedHeadline(
   headline: string,
   highlights: { wordIndex: number; color: string }[] | null,
 ) {
-  if (!highlights || highlights.length === 0) return headline;
   const words = headline.split(/\s+/);
   return words.map((word, i) => {
-    const hl = highlights.find((h) => h.wordIndex === i);
-    if (hl) {
-      return (
-        <span key={i} style={{ color: hl.color }}>
-          {word}
-          {i < words.length - 1 ? " " : ""}
-        </span>
-      );
-    }
+    const hl = highlights?.find((h) => h.wordIndex === i);
     return (
-      <span key={i}>
+      <span
+        key={i}
+        className="inline-block animate-fade-in-up"
+        style={{
+          color: hl?.color,
+          animationDelay: `${i * 70}ms`,
+        }}
+      >
         {word}
-        {i < words.length - 1 ? " " : ""}
+        {i < words.length - 1 ? "\u00A0" : ""}
       </span>
     );
   });
@@ -122,12 +123,16 @@ export default function Hero() {
            */}
 
           {/* Headline */}
-          <h1 className="mt-7 font-display text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.75rem] text-balance">
+          <h1 className="mt-7 font-hero text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.75rem] text-balance">
             {renderHighlightedHeadline(
               hero.headline,
               branding?.hero_highlight_config?.highlights ?? null,
             )}
           </h1>
+          <div
+            className="mt-4 h-[3px] w-20 origin-left scale-x-0 animate-scale-in rounded-full bg-gradient-to-r from-brand-purple-light via-primary to-accent-cyan [animation-fill-mode:forwards] [animation-delay:450ms]"
+            aria-hidden="true"
+          />
 
           {/* Subheadline */}
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-primary-foreground/55 text-balance">

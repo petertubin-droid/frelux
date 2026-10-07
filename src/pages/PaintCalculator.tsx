@@ -144,6 +144,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { WasteMarginControl } from "@/components/ui/WasteMarginControl";
 
 export default function PaintCalculator({
   embedded = false,
@@ -1562,24 +1563,11 @@ function Step3({
         <p className="mt-0.5 text-xs text-muted-foreground">
           Extra paint added to account for spills, roller waste, and touch ups.
         </p>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {wasteOptions.map((w: number) => (
-            <Button
-              variant="ghost"
-              key={w}
-              type="button"
-              onClick={() => update("wasteMargin", w)}
-              className={
-                "rounded-lg border px-4 py-2 text-sm font-semibold transition-all " +
-                (input.wasteMargin === w
-                  ? "border-brand-purple bg-primary text-primary-foreground"
-                  : "border-border text-muted-foreground hover:border-border")
-              }
-            >
-              {w}%
-            </Button>
-          ))}
-        </div>
+        <WasteMarginControl
+          value={input.wasteMargin}
+          onChange={(w) => update("wasteMargin", w)}
+          options={wasteOptions}
+        />
         {errors.wasteMargin && (
           <span className="mt-1 block text-xs text-red-600">
             {errors.wasteMargin}

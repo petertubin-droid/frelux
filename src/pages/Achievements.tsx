@@ -84,8 +84,8 @@ export default function Achievements() {
         </div>
         <div className="h-3 overflow-hidden rounded-full bg-muted dark:bg-white/5">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-primary to-primary-light transition-all duration-500"
-            style={{ width: `${progress}%` }}
+            className="h-full w-full origin-left rounded-full bg-gradient-to-r from-primary to-primary-light transition-transform duration-500"
+            style={{ transform: `scaleX(${progress / 100})` }}
           />
         </div>
       </div>

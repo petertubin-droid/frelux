@@ -562,13 +562,14 @@ export default function FinishEstimator({
                     onChange={(e) =>
                       setWasteMargin(
                         Math.max(
-                          0,
-                          Math.min(100, parseFloat(e.target.value) || 0),
+                          0.1,
+                          Math.min(100, parseFloat(e.target.value) || 10),
                         ),
                       )
                     }
-                    min="0"
+                    min="0.1"
                     max="100"
+                    step="0.1"
                   />
                 </div>
               </div>
