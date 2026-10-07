@@ -48,6 +48,7 @@ export type TrackEvent =
   | "rewarded_access_verified"
   | "color_recommendation_clicked"
   | "contact_form_submitted"
+  | "partnership_inquiry_submitted"
   | "whatsapp_clicked"
   | "pop_ceiling_calculated"
   | "wall_finish_estimated"

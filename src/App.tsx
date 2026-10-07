@@ -85,6 +85,7 @@ const FinishingCalculatorHub = lazy(
 const ConstructionTools = lazy(() => import("@/pages/ConstructionTools"));
 const AiColorAssistant = lazy(() => import("@/pages/AiColorAssistant"));
 const Contact = lazy(() => import("@/pages/Contact"));
+const Partners = lazy(() => import("@/pages/Partners"));
 const About = lazy(() => import("@/pages/legal/About"));
 const PrivacyPolicy = lazy(() => import("@/pages/legal/PrivacyPolicy"));
 const Terms = lazy(() => import("@/pages/legal/Terms"));
@@ -937,6 +938,14 @@ export default function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <Contact />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/partners"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <Partners />
                         </Suspense>
                       }
                     />
