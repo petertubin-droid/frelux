@@ -1,0 +1,6 @@
+Contact: mailto:security@freluxtools.com
+Contact: https://freluxtools.com/contact
+Expires: 2027-10-07T00:00:00.000Z
+Preferred-Languages: en
+Canonical: https://freluxtools.com/.well-known/security.txt
+Policy: https://freluxtools.com/terms
