@@ -42,6 +42,7 @@ import {
   Link2,
   ListChecks,
   LogOut,
+  Handshake,
   Mail,
   MapPin,
   Megaphone,
@@ -350,6 +351,11 @@ const navModules: NavModule[] = [
       { label: "Media Manager", to: "/admin/media", icon: Image },
       { label: "Legal Pages", to: "/admin/legal", icon: FileText },
       { label: "Contact Messages", to: "/admin/contact", icon: Mail },
+      {
+        label: "Partnership Inquiries",
+        to: "/admin/partnership-inquiries",
+        icon: Handshake,
+      },
       {
         label: "Feedback & Suggestions",
         to: "/admin/feedback",

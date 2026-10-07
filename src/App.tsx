@@ -232,6 +232,9 @@ const FeedbackBanner = lazy(() => import("@/components/FeedbackBanner"));
 const AdminContactMessages = lazy(
   () => import("@/pages/admin/AdminContactMessages"),
 );
+const AdminPartnershipInquiries = lazy(
+  () => import("@/pages/admin/AdminPartnershipInquiries"),
+);
 const AdminAnalytics = lazy(() => import("@/pages/admin/AdminAnalytics"));
 const AdminSocialBrandCenter = lazy(
   () => import("@/pages/admin/AdminSocialBrandCenter"),
@@ -1287,6 +1290,10 @@ export default function App() {
                     />
                     <Route path="legal" element={<AdminLegal />} />
                     <Route path="contact" element={<AdminContactMessages />} />
+                    <Route
+                      path="partnership-inquiries"
+                      element={<AdminPartnershipInquiries />}
+                    />
                     <Route path="feedback" element={<AdminFeedback />} />
                     <Route
                       path="price-submissions"
