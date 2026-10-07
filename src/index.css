@@ -1043,12 +1043,20 @@ body {
   --neon-speed: 16s; /* slow, architectural: precision, not a gaming rig */
 }
 
-/* Animated RGB edge light, primary surfaces only */
-.dark .neon-edge {
-  position: relative;
+/* Animated edge light, primary surfaces. Active in BOTH themes:
+   dark mode is the primary identity, light mode gets the same edge
+   language at daylight intensity.
+   NEVER set `position` on .neon-edge itself: this stylesheet is
+   unlayered author CSS, which beats Tailwind's layered utilities no
+   matter the specificity. A `position: relative` here silently
+   overrode Tailwind's `.fixed` and detached the top and bottom bars
+   from the viewport (they only appeared at the very bottom/top of the
+   page). Every host must carry its own positioning (fixed/sticky/
+   absolute/relative), which all current hosts do. */
+.neon-edge {
   isolation: isolate;
 }
-.dark .neon-edge::before {
+.neon-edge::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -1073,15 +1081,21 @@ body {
   animation: neon-edge-spin var(--neon-speed) linear infinite;
   pointer-events: none;
 }
-.dark .neon-edge::after {
+/* Edge glow: daylight-calibrated in light mode, deeper in dark mode */
+.neon-edge::after {
   content: "";
   position: absolute;
   inset: -1px;
   border-radius: inherit;
   box-shadow:
+    0 0 16px -10px rgb(var(--brand-primary) / 0.35),
+    0 0 12px -10px rgb(56 189 248 / 0.25);
+  pointer-events: none;
+}
+.dark .neon-edge::after {
+  box-shadow:
     0 0 28px -12px rgb(var(--brand-primary) / 0.5),
     0 0 20px -12px rgb(56 189 248 / 0.3);
-  pointer-events: none;
 }
 @keyframes neon-edge-spin {
   to {
@@ -1089,7 +1103,12 @@ body {
   }
 }
 
-/* Static soft edge illumination, secondary surfaces */
+/* Static soft edge illumination, secondary surfaces (both themes) */
+.neon-edge-soft {
+  box-shadow:
+    0 0 0 1px rgb(var(--brand-primary) / 0.08),
+    0 0 18px -12px rgb(var(--brand-primary) / 0.22);
+}
 .dark .neon-edge-soft {
   box-shadow:
     0 0 0 1px rgb(255 255 255 / 0.03),
@@ -1097,8 +1116,12 @@ body {
     0 0 18px -12px rgb(var(--brand-primary) / 0.35);
 }
 
-/* Global surface illumination: every card and popover surface in dark
-   mode gets a subtle illuminated edge. Static shadow: no GPU cost. */
+/* Global surface illumination: every card and popover surface gets a
+   subtle illuminated edge. Static shadow: no GPU cost. */
+.bg-card,
+.bg-popover {
+  box-shadow: 0 0 0 1px rgb(15 23 42 / 0.04);
+}
 .dark .bg-card,
 .dark .bg-popover {
   box-shadow:
@@ -1138,7 +1161,7 @@ body {
 
 /* Reduced motion: keep the static edge, stop the animation */
 @media (prefers-reduced-motion: reduce) {
-  .dark .neon-edge::before {
+  .neon-edge::before {
     animation: none;
   }
 }
