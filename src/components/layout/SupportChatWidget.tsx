@@ -9,7 +9,7 @@ import {
   Phone,
   Sparkles,
 } from "lucide-react";
-import ArchieMark from "@/components/ui/ArchieMark";
+import SupportMark from "@/components/ui/SupportMark";
 import CopilotWidget from "@/components/copilot/CopilotWidget";
 // import { siteConfig } from '@/config/site';
 import { whatsappUrl } from "@/lib/analytics";
@@ -152,18 +152,18 @@ export default function SupportChatWidget() {
 
   return (
     <>
-      {/* Floating button: ArchieMark, the same icon the FRELUX AI
-          copilot uses. The mark's own gradient squircle IS the button
-          face: no icon nested inside another container. */}
+      {/* Floating button: the headset SupportMark (bouncing, blinking face).
+          The mark already carries its own violet squircle, so the button
+          has NO extra circle/background around it. */}
       {!open && (
         <Button
           variant="ghost"
           type="button"
           onClick={() => setOpen(true)}
-          className="fixed bottom-20 right-4 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full transition-transform hover:scale-105 active:scale-95 sm:bottom-4 sm:right-4"
+          className="fixed bottom-20 right-4 z-50 inline-flex h-14 w-14 items-center justify-center rounded-full p-0 transition-transform hover:scale-105 active:scale-95 hover:bg-transparent sm:bottom-4 sm:right-4"
           aria-label="Chat with ARCHIE"
         >
-          <ArchieMark className="h-12 w-12 drop-shadow-md animate-chat-bounce" />
+          <SupportMark className="h-14 w-14 animate-chat-bounce drop-shadow-lg" />
           <span className="absolute -right-0.5 -top-0.5 flex h-3.5 w-3.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-green opacity-60" />
             <span className="relative inline-flex h-3.5 w-3.5 rounded-full bg-accent-green ring-2 ring-white" />
@@ -186,7 +186,7 @@ export default function SupportChatWidget() {
               onClick={() => setMinimized(false)}
               className="inline-flex items-center gap-2 rounded-full bg-primary pl-2.5 pr-4 py-2 text-sm font-semibold text-primary-foreground shadow-lg"
             >
-              <ArchieMark className="h-6 w-6" aria-label="" />
+              <SupportMark className="h-6 w-6" aria-label="" />
               Chat with ARCHIE
             </Button>
           ) : (
@@ -195,7 +195,7 @@ export default function SupportChatWidget() {
               <div className="flex items-center justify-between bg-gradient-to-r from-primary to-primary-dark px-4 py-3 text-primary-foreground">
                 <div className="flex items-center gap-2.5">
                   <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-white/15 ring-2 ring-white/20">
-                    <ArchieMark
+                    <SupportMark
                       className="h-full w-full"
                       aria-label="ARCHIE assistant"
                     />

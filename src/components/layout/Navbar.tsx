@@ -48,6 +48,12 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
+  // Sub-category (section) expansion inside an open workspace.
+  // Keys are `${workspace.label}/${section}` so each category's
+  // dropdown expands independently.
+  const [mobileSubExpanded, setMobileSubExpanded] = useState<string | null>(
+    null,
+  );
   const [avatarError, setAvatarError] = useState(false);
   const location = useLocation();
   const { user, profile, signOut, isPaid } = useAuth();
@@ -740,39 +746,70 @@ export default function Navbar() {
                     </Button>
                     {mobileExpanded === workspace.label && (
                       <div className="ml-3 mt-1 border-l border-border/50 pl-3 dark:border-white/10">
-                        {/* Direct sub-categories: every child link is visible
-                            the moment the category opens. Named sections
-                            become small static headings; there is no extra
-                            "More" button to tap through. */}
-                        {groupBySection(workspace.children).map((group, gi) => (
-                          <div key={gi} className="mb-1.5">
-                            {group.section && (
-                              <p className="px-3 pb-1 pt-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        {groupBySection(workspace.children).map((group, gi) => {
+                          const groupKey = `${workspace.label}/${group.section ?? "general"}`;
+                          const renderLinks = (indent: string) =>
+                            group.items.map((child) => (
+                              <NavLink
+                                key={child.path}
+                                to={child.path}
+                                onClick={() => setMobileOpen(false)}
+                                className={({ isActive }) =>
+                                  classNames(
+                                    "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
+                                    indent,
+                                    isActive
+                                      ? "bg-primary/8 font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
+                                      : "text-muted-foreground hover:bg-muted/50 hover:text-brand-purple dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter",
+                                  )
+                                }
+                              >
+                                <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-50" />
+                                {child.label}
+                              </NavLink>
+                            ));
+                          // No section name (e.g. Services): show the links
+                          // directly. No pointless "More" dropdown.
+                          if (!group.section) {
+                            return (
+                              <div key={gi} className="mb-1.5 space-y-0.5">
+                                {renderLinks("")}
+                              </div>
+                            );
+                          }
+                          // Named section (Materials & Finishes, Building
+                          // Structure, ...): collapsible dropdown.
+                          return (
+                            <div key={gi} className="mb-1.5">
+                              <button
+                                type="button"
+                                aria-expanded={mobileSubExpanded === groupKey}
+                                onClick={() =>
+                                  setMobileSubExpanded(
+                                    mobileSubExpanded === groupKey
+                                      ? null
+                                      : groupKey,
+                                  )
+                                }
+                                className="flex w-full items-center justify-between rounded-md bg-muted/70 px-3 py-2 text-[13px] font-medium text-foreground transition-colors hover:bg-muted dark:bg-white/5 dark:text-foreground dark:hover:bg-white/10"
+                              >
                                 {group.section}
-                              </p>
-                            )}
-                            <div className="space-y-0.5">
-                              {group.items.map((child) => (
-                                <NavLink
-                                  key={child.path}
-                                  to={child.path}
-                                  onClick={() => setMobileOpen(false)}
-                                  className={({ isActive }) =>
-                                    classNames(
-                                      "flex items-center gap-2 rounded-md px-3 py-2 text-sm transition-colors",
-                                      isActive
-                                        ? "bg-primary/8 font-medium text-brand-purple dark:bg-primary/15 dark:text-brand-purple-lighter"
-                                        : "text-muted-foreground hover:bg-muted/50 hover:text-brand-purple dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter",
-                                    )
-                                  }
-                                >
-                                  <ChevronRight className="h-3.5 w-3.5 shrink-0 opacity-50" />
-                                  {child.label}
-                                </NavLink>
-                              ))}
+                                <ChevronDown
+                                  className={classNames(
+                                    "h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200",
+                                    mobileSubExpanded === groupKey &&
+                                      "rotate-180",
+                                  )}
+                                />
+                              </button>
+                              {mobileSubExpanded === groupKey && (
+                                <div className="mt-0.5 space-y-0.5 pl-2">
+                                  {renderLinks("")}
+                                </div>
+                              )}
                             </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
                   </>
