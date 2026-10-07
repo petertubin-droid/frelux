@@ -330,15 +330,34 @@ export async function fetchGalleryEntries(opts?: {
   status?: string;
   category?: string;
   limit?: number;
+  /** Zero-based page index, used with `limit` for admin pagination. */
+  offset?: number;
 }): Promise<DbGalleryEntry[]> {
   let query = supabase.from("gallery_entries").select("*");
   if (opts?.status) query = query.eq("status", opts.status);
   if (opts?.category) query = query.eq("project_category", opts.category);
   if (opts?.limit) query = query.limit(opts.limit);
+  if (opts?.offset)
+    query = query.range(opts.offset, opts.offset + (opts.limit ?? 100) - 1);
   query = query.order("created_at", { ascending: false });
   const { data, error } = await query;
   if (error) throw new Error(error.message);
   return (data || []) as DbGalleryEntry[];
+}
+
+/** Exact row count for the same status/category filters, for admin pagination. */
+export async function countGalleryEntries(opts?: {
+  status?: string;
+  category?: string;
+}): Promise<number> {
+  let query = supabase
+    .from("gallery_entries")
+    .select("*", { count: "exact", head: true });
+  if (opts?.status) query = query.eq("status", opts.status);
+  if (opts?.category) query = query.eq("project_category", opts.category);
+  const { count, error } = await query;
+  if (error) throw new Error(error.message);
+  return count ?? 0;
 }
 
 export async function fetchPublicGallery(opts?: {

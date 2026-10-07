@@ -627,6 +627,7 @@ function SidebarContent({
   const [collapsed, setCollapsed] = useState<Set<string>>(() => {
     try {
       const raw = localStorage.getItem(ADMIN_SIDEBAR_COLLAPSED_KEY);
+      if (!raw) return new Set<string>(navModules.map((m) => m.heading));
       return new Set(JSON.parse(raw) as string[]);
     } catch {
       return new Set<string>(navModules.map((m) => m.heading));

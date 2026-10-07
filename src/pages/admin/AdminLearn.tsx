@@ -27,6 +27,7 @@ import {
   AdminSelect,
   AdminTextarea,
 } from "@/components/admin/AdminUi";
+import AdminPagination from "@/components/admin/AdminPagination";
 import { MediaUploader } from "@/components/admin/MediaUploader";
 import type {
   DbLearnCategory,
@@ -49,6 +50,10 @@ export default function AdminLearn() {
     "articles" | "categories" | "faqs" | "inserts"
   >("articles");
   const [articles, setArticles] = useState<DbLearnArticle[]>([]);
+  // Server-side pagination — articles grow steadily over time.
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
+  const [total, setTotal] = useState(0);
   const [categories, setCategories] = useState<DbLearnCategory[]>([]);
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState("");
@@ -75,23 +80,29 @@ export default function AdminLearn() {
 
   useEffect(() => {
     loadAll();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, pageSize]);
 
   async function loadAll() {
     setStatus("loading");
     setError("");
     try {
-      const [artRes, catRes] = await Promise.all([
+      const [artRes, catRes, cntRes] = await Promise.all([
         supabase
           .from("learn_articles")
           .select("*")
-          .order("updated_at", { ascending: false }),
+          .order("updated_at", { ascending: false })
+          .range(page * pageSize, page * pageSize + pageSize - 1),
         supabase
           .from("learn_categories")
           .select("*")
           .order("sort_order", { ascending: true }),
+        supabase
+          .from("learn_articles")
+          .select("*", { count: "exact", head: true }),
       ]);
       setArticles((artRes.data ?? []) as DbLearnArticle[]);
+      setTotal(cntRes.count ?? artRes.data?.length ?? 0);
       setCategories((catRes.data ?? []) as DbLearnCategory[]);
 
       // Load FAQs grouped by article
@@ -248,7 +259,7 @@ export default function AdminLearn() {
   }
 
   async function handleDeleteFaq(id: string, articleId: string) {
-    if (!confirm('Delete this FAQ entry? This cannot be undone.')) return;
+    if (!confirm("Delete this FAQ entry? This cannot be undone.")) return;
     setMutationError(null);
     const { error: delError } = await supabase
       .from("learn_article_faqs")
@@ -341,7 +352,7 @@ export default function AdminLearn() {
   }
 
   async function handleDeleteInsert(id: string, articleId: string) {
-    if (!confirm('Delete this insert? This cannot be undone.')) return;
+    if (!confirm("Delete this insert? This cannot be undone.")) return;
     setMutationError(null);
     const { error: delError } = await supabase
       .from("learn_article_inserts")
@@ -619,6 +630,18 @@ export default function AdminLearn() {
           )}
         </div>
       )}
+      {tab === "articles" && !showEditor && (
+        <AdminPagination
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(0);
+          }}
+        />
+      )}
 
       {/* Article editor */}
       {tab === "articles" && showEditor && (
@@ -874,9 +897,9 @@ export default function AdminLearn() {
       {tab === "inserts" && (
         <div className="space-y-2">
           <p className="mb-3 text-xs text-muted-foreground">
-            Insert cards render inline in the article body, top (below the
-            cover image), after a specific heading, or bottom (above FAQs). Use
-            AI Draft to generate a starting point, then edit before saving.
+            Insert cards render inline in the article body, top (below the cover
+            image), after a specific heading, or bottom (above FAQs). Use AI
+            Draft to generate a starting point, then edit before saving.
           </p>
           {articles.map((article) => {
             const articleInserts = inserts[article.id] ?? [];

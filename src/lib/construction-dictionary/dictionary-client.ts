@@ -14,7 +14,11 @@
 // =========================================================
 
 import { getSupabase } from "@/lib/supabase-lazy";
-import type { ConstructionTerm, ConstructionTermDraft, TranslationStatus } from "./types";
+import type {
+  ConstructionTerm,
+  ConstructionTermDraft,
+  TranslationStatus,
+} from "./types";
 import { canTransitionStatus } from "./translation-rules";
 
 export interface DictionaryRow {
@@ -73,35 +77,82 @@ function rowToTerm(row: DictionaryRow): ConstructionTerm {
     ...row,
     category: row.category as ConstructionTerm["category"],
     translation_status: row.translation_status as TranslationStatus,
-    nigerian_terminology: (row.nigerian_terminology as ConstructionTerm["nigerian_terminology"]) ?? null,
-    source_details: (row.source_details as ConstructionTerm["source_details"]) ?? null,
+    nigerian_terminology:
+      (row.nigerian_terminology as ConstructionTerm["nigerian_terminology"]) ??
+      null,
+    source_details:
+      (row.source_details as ConstructionTerm["source_details"]) ?? null,
   };
 }
 
 /** GET /api/terms: list dictionary records with filters. */
-export async function listDictionaryTerms(filter?: {
+export interface DictionaryTermFilter {
   language?: string;
   category?: string;
   verified?: boolean;
   translation_status?: TranslationStatus;
   search?: string;
+  /** Minimum confidence score (0-1). */
+  min_confidence?: number;
   limit?: number;
-}): Promise<ConstructionTerm[]> {
+  /** Zero-based page offset, used with `limit` for admin pagination. */
+  offset?: number;
+}
+
+function applyTermFilter<
+  Q extends {
+    eq(column: string, value: unknown): Q;
+    gte(column: string, value: unknown): Q;
+    ilike(column: string, pattern: string): Q;
+  },
+>(q: Q, filter?: DictionaryTermFilter): Q {
+  if (!filter) return q;
+  if (filter.language) q = q.eq("language", filter.language);
+  if (filter.category) q = q.eq("category", filter.category);
+  if (filter.verified !== undefined) q = q.eq("verified", filter.verified);
+  if (filter.translation_status)
+    q = q.eq("translation_status", filter.translation_status);
+  if (filter.min_confidence !== undefined)
+    q = q.gte("confidence_score", filter.min_confidence);
+  if (filter.search) q = q.ilike("canonical_term", `%${filter.search}%`);
+  return q;
+}
+
+export async function listDictionaryTerms(
+  filter?: DictionaryTermFilter,
+): Promise<ConstructionTerm[]> {
   const supabase = await getSupabase();
   let q = supabase.from("construction_terms").select("*");
-  if (filter?.language) q = q.eq("language", filter.language);
-  if (filter?.category) q = q.eq("category", filter.category);
-  if (filter?.verified !== undefined) q = q.eq("verified", filter.verified);
-  if (filter?.translation_status) q = q.eq("translation_status", filter.translation_status);
-  if (filter?.search) q = q.ilike("canonical_term", `%${filter.search}%`);
+  q = applyTermFilter(q, filter);
   q = q.order("canonical_term").limit(filter?.limit ?? 200);
+  if (filter?.offset)
+    q = q.range(filter.offset, filter.offset + (filter.limit ?? 200) - 1);
   const { data, error } = await q;
   if (error) throw new Error(`Dictionary list failed: ${error.message}`);
   return (data as DictionaryRow[]).map(rowToTerm);
 }
 
+/**
+ * Exact row count for the same filters `listDictionaryTerms` applies,
+ * so admin pages can paginate without a hidden cap on the total.
+ */
+export async function countDictionaryTerms(
+  filter?: DictionaryTermFilter,
+): Promise<number> {
+  const supabase = await getSupabase();
+  let q = supabase
+    .from("construction_terms")
+    .select("*", { count: "exact", head: true });
+  q = applyTermFilter(q, filter);
+  const { count, error } = await q;
+  if (error) throw new Error(`Dictionary count failed: ${error.message}`);
+  return count ?? 0;
+}
+
 /** GET /api/terms/:id */
-export async function getDictionaryTerm(id: string): Promise<ConstructionTerm | null> {
+export async function getDictionaryTerm(
+  id: string,
+): Promise<ConstructionTerm | null> {
   const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("construction_terms")
@@ -136,7 +187,9 @@ export interface TermUpdate {
 
 /** Admin edit: applies the change, bumps the version and
  *  writes the audit snapshot (spec §16). */
-export async function updateDictionaryTerm(update: TermUpdate): Promise<ConstructionTerm> {
+export async function updateDictionaryTerm(
+  update: TermUpdate,
+): Promise<ConstructionTerm> {
   const supabase = await getSupabase();
   const current = await getDictionaryTerm(update.term_id);
   if (!current) throw new Error("Term not found");
@@ -191,7 +244,10 @@ export async function verifyDictionaryTerm(input: {
   if (input.action === "approve") {
     const nextStatus: TranslationStatus =
       current.translation_status === "untranslated" ? "verified" : "verified";
-    if (!canTransitionStatus(current.translation_status, nextStatus) && current.translation_status !== "verified") {
+    if (
+      !canTransitionStatus(current.translation_status, nextStatus) &&
+      current.translation_status !== "verified"
+    ) {
       // allow direct verification of any record: admin authority
     }
     return updateDictionaryTerm({
@@ -208,9 +264,14 @@ export async function verifyDictionaryTerm(input: {
   }
   return updateDictionaryTerm({
     term_id: input.term_id,
-    fields: { verified: false, verified_by: null, translation_status: "needs_review" },
+    fields: {
+      verified: false,
+      verified_by: null,
+      translation_status: "needs_review",
+    },
     changed_by: input.verified_by,
-    change_note: input.note ?? "Admin rejected terminology; flagged for review.",
+    change_note:
+      input.note ?? "Admin rejected terminology; flagged for review.",
   });
 }
 
@@ -226,7 +287,9 @@ export async function fetchSearchPool(filter?: {
 }
 
 /** Version history for a term (spec §16 audit trail). */
-export async function getTermHistory(term_id: string): Promise<DictionaryVersionRow[]> {
+export async function getTermHistory(
+  term_id: string,
+): Promise<DictionaryVersionRow[]> {
   const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("construction_term_versions")
@@ -246,22 +309,38 @@ export interface DictionaryStats {
   languages: number;
   categories: number;
   avg_confidence: number;
-  recently_changed: Array<{ id: string; canonical_term: string; language: string; updated_at: string; version: number }>;
+  recently_changed: Array<{
+    id: string;
+    canonical_term: string;
+    language: string;
+    updated_at: string;
+    version: number;
+  }>;
 }
 
 export async function getDictionaryStats(): Promise<DictionaryStats> {
   const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("construction_terms")
-    .select("id, canonical_term, language, category, verified, translation_status, confidence_score, updated_at, version");
+    .select(
+      "id, canonical_term, language, category, verified, translation_status, confidence_score, updated_at, version",
+    );
   if (error) throw new Error(`Dictionary stats failed: ${error.message}`);
   const rows = (data ?? []) as Array<{
-    id: string; canonical_term: string; language: string; category: string;
-    verified: boolean; translation_status: string; confidence_score: number;
-    updated_at: string; version: number;
+    id: string;
+    canonical_term: string;
+    language: string;
+    category: string;
+    verified: boolean;
+    translation_status: string;
+    confidence_score: number;
+    updated_at: string;
+    version: number;
   }>;
   const verified = rows.filter((r) => r.verified).length;
-  const needs = rows.filter((r) => r.translation_status === "needs_review").length;
+  const needs = rows.filter(
+    (r) => r.translation_status === "needs_review",
+  ).length;
   return {
     total_terms: rows.length,
     verified_terms: verified,
@@ -270,7 +349,11 @@ export async function getDictionaryStats(): Promise<DictionaryStats> {
     languages: new Set(rows.map((r) => r.language)).size,
     categories: new Set(rows.map((r) => r.category)).size,
     avg_confidence: rows.length
-      ? Number((rows.reduce((s, r) => s + r.confidence_score, 0) / rows.length).toFixed(3))
+      ? Number(
+          (
+            rows.reduce((s, r) => s + r.confidence_score, 0) / rows.length
+          ).toFixed(3),
+        )
       : 0,
     recently_changed: [...rows]
       .sort((a, b) => b.updated_at.localeCompare(a.updated_at))

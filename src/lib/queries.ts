@@ -921,16 +921,39 @@ export async function fetchMediaFolders(): Promise<{
 export async function fetchMediaItems(
   folderId?: string | null,
   search?: string,
-): Promise<{ data: DbMediaItem[]; error: string | null }> {
+  page?: { index: number; size: number },
+): Promise<{ data: DbMediaItem[]; error: string | null; count?: number }> {
   let query = supabase
     .from("media_items")
     .select("*")
     .order("created_at", { ascending: false });
-  if (folderId) query = query.eq("folder_id", folderId);
-  if (search) query = query.ilike("file_name", `%${search}%`);
+  let countQuery = supabase
+    .from("media_items")
+    .select("*", { count: "exact", head: true });
+  if (folderId) {
+    query = query.eq("folder_id", folderId);
+    countQuery = countQuery.eq("folder_id", folderId);
+  }
+  if (search) {
+    query = query.ilike("file_name", `%${search}%`);
+    countQuery = countQuery.ilike("file_name", `%${search}%`);
+  }
+  if (page) {
+    query = query.range(
+      page.index * page.size,
+      page.index * page.size + page.size - 1,
+    );
+  }
   const { data, error } = await query;
   if (error) return { data: [], error: error.message };
-  return { data: (data ?? []) as DbMediaItem[], error: null };
+  // Only run the count query when paginating (keeps legacy callers light).
+  let count: number | undefined;
+  if (page) {
+    const { count: c, error: countError } = await countQuery;
+    if (countError) return { data: [], error: countError.message };
+    count = c ?? 0;
+  }
+  return { data: (data ?? []) as DbMediaItem[], error: null, count };
 }
 
 export async function uploadMediaImage(

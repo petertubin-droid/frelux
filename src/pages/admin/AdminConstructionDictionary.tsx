@@ -14,7 +14,7 @@
 // is gated by RequireAdmin on /admin/dictionary.
 // =========================================================
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   BookOpen,
   Loader2,
@@ -31,8 +31,10 @@ import {
   AdminButton,
   AdminSelect,
 } from "@/components/admin/AdminUi";
+import AdminPagination from "@/components/admin/AdminPagination";
 import {
   listDictionaryTerms,
+  countDictionaryTerms,
   getDictionaryStats,
   verifyDictionaryTerm,
   getTermHistory,
@@ -76,21 +78,46 @@ export default function AdminConstructionDictionary() {
   const [verifyFilter, setVerifyFilter] = useState("");
   const [confidenceFilter, setConfidenceFilter] = useState("");
   const [historyFor, setHistoryFor] = useState<string | null>(null);
+  // Server-side pagination — filters run in the query so the count and
+  // page window always agree, and no hidden 200-row cap applies.
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
+  const [total, setTotal] = useState(0);
   const [history, setHistory] = useState<DictionaryVersionRow[]>([]);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const [termRows, statsRows] = await Promise.all([
+      const filter = {
+        language: languageFilter || undefined,
+        category: categoryFilter || undefined,
+        verified:
+          verifyFilter === "verified"
+            ? true
+            : verifyFilter === "unverified"
+              ? false
+              : undefined,
+        translation_status:
+          verifyFilter === "needs_review"
+            ? ("needs_review" as const)
+            : undefined,
+        min_confidence: confidenceFilter
+          ? parseFloat(confidenceFilter)
+          : undefined,
+      };
+      const [termRows, statsRows, count] = await Promise.all([
         listDictionaryTerms({
-          language: languageFilter || undefined,
-          category: categoryFilter || undefined,
+          ...filter,
+          limit: pageSize,
+          offset: page * pageSize,
         }),
         getDictionaryStats(),
+        countDictionaryTerms(filter),
       ]);
       setTerms(termRows);
       setStats(statsRows);
+      setTotal(count);
     } catch (e) {
       setError(
         e instanceof Error ? e.message : "Failed to load the dictionary",
@@ -98,24 +125,24 @@ export default function AdminConstructionDictionary() {
     } finally {
       setLoading(false);
     }
-  }, [languageFilter, categoryFilter]);
+  }, [
+    languageFilter,
+    categoryFilter,
+    verifyFilter,
+    confidenceFilter,
+    page,
+    pageSize,
+  ]);
 
   useEffect(() => {
     void load();
   }, [load]);
+  useEffect(() => {
+    setPage(0);
+  }, [languageFilter, categoryFilter, verifyFilter, confidenceFilter]);
 
-  const filtered = useMemo(() => {
-    let out = terms;
-    if (verifyFilter === "verified") out = out.filter((t) => t.verified);
-    if (verifyFilter === "unverified") out = out.filter((t) => !t.verified);
-    if (verifyFilter === "needs_review")
-      out = out.filter((t) => t.translation_status === "needs_review");
-    if (confidenceFilter) {
-      const min = parseFloat(confidenceFilter);
-      out = out.filter((t) => t.confidence_score >= min);
-    }
-    return out;
-  }, [terms, verifyFilter, confidenceFilter]);
+  // All filters run server-side; `terms` is already the filtered page.
+  const filtered = terms;
 
   const onVerify = async (id: string, action: "approve" | "reject") => {
     try {
@@ -334,6 +361,17 @@ export default function AdminConstructionDictionary() {
             </table>
           </div>
         )}
+        <AdminPagination
+          page={page}
+          pageSize={pageSize}
+          total={total}
+          loading={loading}
+          onPageChange={setPage}
+          onPageSizeChange={(size) => {
+            setPageSize(size);
+            setPage(0);
+          }}
+        />
       </AdminCard>
 
       {historyFor && (

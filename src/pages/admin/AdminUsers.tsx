@@ -10,6 +10,7 @@ import type { DbProfile, DbUserPaidStatus } from "@/types/database";
 import { classNames } from "@/lib/utils";
 import { Clock, X, Check } from "lucide-react";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
+import AdminPagination from "@/components/admin/AdminPagination";
 import { AdminButton } from "@/components/admin/AdminUi";
 
 type Status = "loading" | "ready" | "error";
@@ -41,13 +42,23 @@ export default function AdminUsers() {
   const [editPlan, setEditPlan] = useState("pro");
   const [editDays, setEditDays] = useState("30");
   const [saving, setSaving] = useState(false);
+  // Server-side pagination — profiles grows with every signup.
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
+  const [total, setTotal] = useState(0);
 
   const load = useCallback(async () => {
     setStatus("loading");
-    const { data: profiles, error: profileError } = await supabase
-      .from("profiles")
-      .select("*")
-      .order("created_at", { ascending: false });
+    const [profilesRes, countRes] = await Promise.all([
+      supabase
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .range(page * pageSize, page * pageSize + pageSize - 1),
+      supabase.from("profiles").select("*", { count: "exact", head: true }),
+    ]);
+    const profileError = profilesRes.error;
+    const profiles = profilesRes.data;
     if (profileError) {
       setError(profileError.message);
       setStatus("error");
@@ -72,8 +83,9 @@ export default function AdminUsers() {
     }));
 
     setUsers(merged);
+    setTotal(countRes.count ?? profiles?.length ?? 0);
     setStatus("ready");
-  }, []);
+  }, [page, pageSize]);
 
   useEffect(() => {
     load();
@@ -373,6 +385,16 @@ export default function AdminUsers() {
           table.
         </p>
       </div>
+      <AdminPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(0);
+        }}
+      />
     </>
   );
 }

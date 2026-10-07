@@ -1,74 +1,152 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Search, Upload, Trash2, Folder as FolderIcon, X, Pencil, Check } from 'lucide-react';
-import {AdminHeader, AdminCard, StateMessage, AdminInput, AdminIconButton, AdminButton} from '@/components/admin/AdminUi';
-import { fetchMediaFolders, fetchMediaItems, uploadMediaImage, deleteMediaItem, updateMediaItemAlt } from '@/lib/queries';
-import type { DbMediaFolder, DbMediaItem } from '@/types/database';
-import { classNames } from '@/lib/utils';
+import { useEffect, useState, useCallback } from "react";
+import {
+  Search,
+  Upload,
+  Trash2,
+  Folder as FolderIcon,
+  X,
+  Pencil,
+  Check,
+} from "lucide-react";
+import {
+  AdminHeader,
+  AdminCard,
+  StateMessage,
+  AdminInput,
+  AdminIconButton,
+  AdminButton,
+} from "@/components/admin/AdminUi";
+import {
+  fetchMediaFolders,
+  fetchMediaItems,
+  uploadMediaImage,
+  deleteMediaItem,
+  updateMediaItemAlt,
+} from "@/lib/queries";
+import AdminPagination from "@/components/admin/AdminPagination";
+import type { DbMediaFolder, DbMediaItem } from "@/types/database";
+import { classNames } from "@/lib/utils";
 
 export default function AdminMedia() {
   const [folders, setFolders] = useState<DbMediaFolder[]>([]);
   const [items, setItems] = useState<DbMediaItem[]>([]);
   const [activeFolder, setActiveFolder] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editingAlt, setEditingAlt] = useState<string | null>(null);
-  const [altText, setAltText] = useState('');
+  const [altText, setAltText] = useState("");
+  // Server-side pagination — media grows with every upload.
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
+  const [total, setTotal] = useState(0);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
-    const { data, error } = await fetchMediaItems(activeFolder ?? undefined, search || undefined);
+    const { data, error, count } = await fetchMediaItems(
+      activeFolder ?? undefined,
+      search || undefined,
+      { index: page, size: pageSize },
+    );
     if (error) setError(error);
     setItems(data);
+    setTotal(count ?? data.length);
     setLoading(false);
-  }, [activeFolder, search]);
+  }, [activeFolder, search, page, pageSize]);
 
-  useEffect(() => { fetchMediaFolders().then(({ data }) => setFolders(data)); }, []);
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    fetchMediaFolders().then(({ data }) => setFolders(data));
+  }, []);
+  useEffect(() => {
+    load();
+  }, [load]);
+  useEffect(() => {
+    setPage(0);
+  }, [activeFolder, search]);
 
   async function handleUpload(file: File) {
     const folder = folders.find((f) => f.id === activeFolder);
     setUploading(true);
     setError(null);
-    const { error } = await uploadMediaImage(file, folder?.slug ?? 'user-uploads');
+    const { error } = await uploadMediaImage(
+      file,
+      folder?.slug ?? "user-uploads",
+    );
     setUploading(false);
-    if (error) { setError(error); return; }
+    if (error) {
+      setError(error);
+      return;
+    }
     load();
   }
 
   async function handleDelete(item: DbMediaItem) {
     if (!confirm(`Delete "${item.file_name}"?`)) return;
     const { error } = await deleteMediaItem(item);
-    if (error) { setError(error); return; }
+    if (error) {
+      setError(error);
+      return;
+    }
     load();
   }
 
   async function saveAlt(item: DbMediaItem) {
     const { error } = await updateMediaItemAlt(item.id, altText);
-    if (error) { setError(error); return; }
+    if (error) {
+      setError(error);
+      return;
+    }
     setEditingAlt(null);
     load();
   }
 
   return (
     <>
-      <AdminHeader title="Media Library" subtitle="Upload, organize, and manage all images across the site." />
+      <AdminHeader
+        title="Media Library"
+        subtitle="Upload, organize, and manage all images across the site."
+      />
 
-      {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+      {error && (
+        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
 
       <div className="flex flex-col gap-4 lg:flex-row">
         {/* Folders sidebar */}
         <div className="w-full shrink-0 lg:w-52">
           <div className="rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-3">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">Folders</p>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">
+              Folders
+            </p>
             <div className="space-y-1">
-              <AdminButton type="button" onClick={() => setActiveFolder(null)} className={classNames('flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors', !activeFolder ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted')}>
+              <AdminButton
+                type="button"
+                onClick={() => setActiveFolder(null)}
+                className={classNames(
+                  "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
+                  !activeFolder
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-muted",
+                )}
+              >
                 <FolderIcon className="h-4 w-4" /> All Media
               </AdminButton>
               {folders.map((f) => (
-                <AdminButton key={f.id} type="button" onClick={() => setActiveFolder(f.id)} className={classNames('flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors', activeFolder === f.id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-muted')}>
+                <AdminButton
+                  key={f.id}
+                  type="button"
+                  onClick={() => setActiveFolder(f.id)}
+                  className={classNames(
+                    "flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
+                    activeFolder === f.id
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-muted",
+                  )}
+                >
                   <FolderIcon className="h-4 w-4" /> {f.name}
                 </AdminButton>
               ))}
@@ -81,50 +159,138 @@ export default function AdminMedia() {
           {/* Toolbar */}
           <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="relative w-full sm:max-w-xs">
-              <Search aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <AdminInput type="search" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search by file name…" className="pl-9" />
+              <Search
+                aria-hidden="true"
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
+              />
+              <AdminInput
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Search by file name…"
+                className="pl-9"
+              />
             </div>
             <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90">
               <Upload className="h-4 w-4" />
-              {uploading ? 'Uploading…' : 'Upload Image'}
-              <AdminInput type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(f); e.target.value = ''; }} disabled={uploading} />
+              {uploading ? "Uploading…" : "Upload Image"}
+              <AdminInput
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handleUpload(f);
+                  e.target.value = "";
+                }}
+                disabled={uploading}
+              />
             </label>
           </div>
 
           {loading ? (
-            <StateMessage type="loading" title="Loading…" message="Fetching media items." />
+            <StateMessage
+              type="loading"
+              title="Loading…"
+              message="Fetching media items."
+            />
           ) : items.length === 0 ? (
-            <StateMessage type="empty" title="No images found" message="Upload your first image to get started." />
+            <StateMessage
+              type="empty"
+              title="No images found"
+              message="Upload your first image to get started."
+            />
           ) : (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
               {items.map((item) => (
                 <AdminCard key={item.id} className="group overflow-hidden p-0">
                   <div className="relative aspect-square overflow-hidden bg-muted">
-                    <img src={item.public_url} alt={item.alt_text ?? item.file_name} className="h-full w-full object-cover" loading="lazy" />
-                    <AdminIconButton variant="ghost" type="button" onClick={() => handleDelete(item)} aria-label={`Delete ${item.file_name}`} className="absolute right-2 top-2 rounded-full bg-white/80 p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100">
+                    <img
+                      src={item.public_url}
+                      alt={item.alt_text ?? item.file_name}
+                      className="h-full w-full object-cover"
+                      loading="lazy"
+                    />
+                    <AdminIconButton
+                      variant="ghost"
+                      type="button"
+                      onClick={() => handleDelete(item)}
+                      aria-label={`Delete ${item.file_name}`}
+                      className="absolute right-2 top-2 rounded-full bg-white/80 p-1.5 text-muted-foreground opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
+                    >
                       <Trash2 aria-hidden="true" className="h-4 w-4" />
                     </AdminIconButton>
                   </div>
                   <div className="p-3">
                     {editingAlt === item.id ? (
                       <div className="flex items-center gap-2">
-                        <AdminInput className="flex-1 text-xs" value={altText} onChange={(e) => setAltText(e.target.value)} placeholder="Alt text…" autoFocus />
-                        <AdminButton type="button" onClick={() => saveAlt(item)}><Check aria-hidden="true" className="h-3.5 w-3.5" /></AdminButton>
-                        <AdminIconButton variant="ghost" type="button" onClick={() => setEditingAlt(null)} className="rounded-md border border-border p-1.5 text-muted-foreground dark:text-muted-foreground"><X aria-hidden="true" className="h-3.5 w-3.5" /></AdminIconButton>
+                        <AdminInput
+                          className="flex-1 text-xs"
+                          value={altText}
+                          onChange={(e) => setAltText(e.target.value)}
+                          placeholder="Alt text…"
+                          autoFocus
+                        />
+                        <AdminButton
+                          type="button"
+                          onClick={() => saveAlt(item)}
+                        >
+                          <Check aria-hidden="true" className="h-3.5 w-3.5" />
+                        </AdminButton>
+                        <AdminIconButton
+                          variant="ghost"
+                          type="button"
+                          onClick={() => setEditingAlt(null)}
+                          className="rounded-md border border-border p-1.5 text-muted-foreground dark:text-muted-foreground"
+                        >
+                          <X aria-hidden="true" className="h-3.5 w-3.5" />
+                        </AdminIconButton>
                       </div>
                     ) : (
                       <div className="flex items-center justify-between">
-                        <p className="truncate text-xs font-medium text-card-foreground" title={item.file_name}>{item.file_name}</p>
-                        <AdminIconButton variant="ghost" type="button" onClick={() => { setEditingAlt(item.id); setAltText(item.alt_text ?? ''); }} className="shrink-0 rounded p-1 text-muted-foreground hover:text-brand-purple"><Pencil className="h-3 w-3" /></AdminIconButton>
+                        <p
+                          className="truncate text-xs font-medium text-card-foreground"
+                          title={item.file_name}
+                        >
+                          {item.file_name}
+                        </p>
+                        <AdminIconButton
+                          variant="ghost"
+                          type="button"
+                          onClick={() => {
+                            setEditingAlt(item.id);
+                            setAltText(item.alt_text ?? "");
+                          }}
+                          className="shrink-0 rounded p-1 text-muted-foreground hover:text-brand-purple"
+                        >
+                          <Pencil className="h-3 w-3" />
+                        </AdminIconButton>
                       </div>
                     )}
-                    {item.alt_text && editingAlt !== item.id && <p className="mt-0.5 truncate text-[10px] text-muted-foreground dark:text-muted-foreground">{item.alt_text}</p>}
-                    <p className="mt-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">{(item.size_bytes / 1024).toFixed(0)} KB</p>
+                    {item.alt_text && editingAlt !== item.id && (
+                      <p className="mt-0.5 truncate text-[10px] text-muted-foreground dark:text-muted-foreground">
+                        {item.alt_text}
+                      </p>
+                    )}
+                    <p className="mt-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
+                      {(item.size_bytes / 1024).toFixed(0)} KB
+                    </p>
                   </div>
                 </AdminCard>
               ))}
             </div>
           )}
+          <AdminPagination
+            page={page}
+            pageSize={pageSize}
+            total={total}
+            loading={loading}
+            onPageChange={setPage}
+            onPageSizeChange={(size) => {
+              setPageSize(size);
+              setPage(0);
+            }}
+          />
         </div>
       </div>
     </>

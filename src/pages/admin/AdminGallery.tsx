@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Check, X, Crown, Loader2, Trash2 } from "lucide-react";
 import {
   fetchGalleryEntries,
+  countGalleryEntries,
   fetchGalleryImages,
   moderateGalleryEntry,
   toggleGalleryFeature,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/project-intelligence";
 import type { DbGalleryEntry } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
+import AdminPagination from "@/components/admin/AdminPagination";
 
 const STATUS_BADGE: Record<string, string> = {
   pending: "bg-amber-500/10 text-amber-600 border-amber-500/20",
@@ -23,14 +25,25 @@ export default function AdminGallery() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("pending");
   const [images, setImages] = useState<Record<string, string[]>>({});
+  // Server-side pagination — gallery submissions grow over time.
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(25);
+  const [total, setTotal] = useState(0);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await fetchGalleryEntries({
-        status: filter === "all" ? undefined : filter,
-      });
+      const statusFilter = filter === "all" ? undefined : filter;
+      const [data, count] = await Promise.all([
+        fetchGalleryEntries({
+          status: statusFilter,
+          limit: pageSize,
+          offset: page * pageSize,
+        }),
+        countGalleryEntries({ status: statusFilter }),
+      ]);
       setEntries(data);
+      setTotal(count);
       const imgMap: Record<string, string[]> = {};
       for (const entry of data) {
         const imgs = await fetchGalleryImages(entry.id);
@@ -42,11 +55,14 @@ export default function AdminGallery() {
     } finally {
       setLoading(false);
     }
-  }, [filter]);
+  }, [filter, page, pageSize]);
 
   useEffect(() => {
     load();
   }, [load]);
+  useEffect(() => {
+    setPage(0);
+  }, [filter]);
 
   async function handleApprove(id: string) {
     await moderateGalleryEntry(id, "approved");
@@ -84,7 +100,8 @@ export default function AdminGallery() {
       {/* Filter */}
       <div className="flex gap-2">
         {["pending", "approved", "rejected", "featured", "all"].map((s) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={s}
             onClick={() => setFilter(s)}
             className={`rounded-full px-4 py-2 text-sm font-medium capitalize transition-all duration-200 ${filter === s ? "bg-primary text-primary-foreground scale-105" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
@@ -147,7 +164,8 @@ export default function AdminGallery() {
               )}
               <div className="flex flex-wrap gap-2">
                 {entry.status !== "approved" && entry.status !== "featured" && (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => handleApprove(entry.id)}
                     className="group inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-600 hover:bg-emerald-500/20 transition-all hover:scale-105"
                   >
@@ -156,7 +174,8 @@ export default function AdminGallery() {
                   </Button>
                 )}
                 {entry.status !== "rejected" && (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => handleReject(entry.id)}
                     className="group inline-flex items-center gap-1.5 rounded-lg bg-red-500/10 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-500/20 transition-all hover:scale-105"
                   >
@@ -165,7 +184,8 @@ export default function AdminGallery() {
                   </Button>
                 )}
                 {entry.status !== "featured" && (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => handleFeature(entry.id)}
                     className="group inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/20 transition-all hover:scale-105"
                   >
@@ -174,14 +194,16 @@ export default function AdminGallery() {
                   </Button>
                 )}
                 {entry.status === "featured" && (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => handleUnfeature(entry.id)}
                     className="group inline-flex items-center gap-1.5 rounded-lg bg-zinc-500/10 px-3 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-500/20 transition-all hover:scale-105"
                   >
                     <Crown className="h-3.5 w-3.5" /> Unfeature
                   </Button>
                 )}
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => handleDelete(entry.id)}
                   className="inline-flex items-center gap-1.5 rounded-lg bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive hover:bg-destructive/20 transition-all hover:scale-105"
                 >
@@ -192,6 +214,17 @@ export default function AdminGallery() {
           ))}
         </div>
       )}
+      <AdminPagination
+        page={page}
+        pageSize={pageSize}
+        total={total}
+        loading={loading}
+        onPageChange={setPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setPage(0);
+        }}
+      />
     </div>
   );
 }
