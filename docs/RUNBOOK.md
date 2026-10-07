@@ -106,3 +106,22 @@ banks while accepting international cards and 30+ currencies.
    NAIRA (major units) in these functions — the edge function converts
    the canonical kobo prices itself.
 7. Until configured, the gateway falls back to Paystack (never breaks).
+
+## Transactional email (Resend)
+
+The `send-email` edge function sends transactional email through
+Resend. It is live and the `RESEND_API_KEY` Supabase secret is set.
+
+Setup remaining (one-time, in the Resend dashboard / DNS provider):
+
+1. `freluxtools.com` was added as a Resend domain (id
+   3ff088ce-5a38-459b-97d2-ef9bccbcf112). Add the shown DNS records
+   (2x SPF TXT on `send`/`rsend`, DKIM TXT on
+   `resend._domainkey`) at the DNS provider, then verify the domain
+   in Resend. Until verified, Resend rejects the sender and the
+   function returns sent:false (the contact form is unaffected).
+2. Optional admin inbox for contact notifications:
+   `supabase secrets set CONTACT_NOTIFY_EMAIL=...`
+3. Sending is best-effort and rate limited (5/min/IP). Recipients are
+   derived from stored rows only; the admin panel stays the source
+   of truth for contact messages.

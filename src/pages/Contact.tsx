@@ -57,17 +57,28 @@ export default function Contact() {
     if (!validate()) return;
     setStatus("submitting");
     try {
-      const { error } = await supabase.from("contact_messages").insert({
-        name: form.name,
-        email: form.email,
-        subject: form.subject,
-        message: form.message,
-      });
+      const { data: inserted, error } = await supabase
+        .from("contact_messages")
+        .insert({
+          name: form.name,
+          email: form.email,
+          subject: form.subject,
+          message: form.message,
+        })
+        .select("id")
+        .maybeSingle();
       if (error) {
         setStatus("error");
         return;
       }
       setStatus("success");
+      // Best-effort transactional email via the send-email edge
+      // function; delivery failures never block the contact form.
+      if (inserted?.id) {
+        void supabase.functions
+          .invoke("send-email", { body: { type: "contact", id: inserted.id } })
+          .catch(() => undefined);
+      }
     } catch {
       setStatus("error");
       return;
