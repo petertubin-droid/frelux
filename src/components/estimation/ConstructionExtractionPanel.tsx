@@ -11,6 +11,7 @@
 // gracefully: the manual workflow below it is always available.
 // =========================================================
 
+import HeadsetGlyph from "@/components/ui/HeadsetGlyph";
 import { useCallback, useMemo, useRef, useState } from "react";
 import {
   Check,
@@ -22,7 +23,6 @@ import {
   X,
   AlertTriangle,
   Info,
-  Sparkles,
   Ruler,
   ArrowRight,
 } from "lucide-react";
@@ -470,14 +470,14 @@ export function ConstructionExtractionPanel({
             disabled={!canAnalyze}
             className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-primary to-primary-light px-4 py-3 text-sm font-semibold text-primary-foreground shadow-md disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
           >
-            <Sparkles className="h-4 w-4" aria-hidden="true" />
+            <HeadsetGlyph className="h-4 w-4" />
             Analyse with AI
           </button>
 
           <p className="mt-3 text-xs text-muted-foreground">
             The AI reads your document and fills the form below. You review
-            every value before anything is used, and the manual estimator
-            always works without it.
+            every value before anything is used, and the manual estimator always
+            works without it.
           </p>
         </div>
       )}

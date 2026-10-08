@@ -7,9 +7,9 @@ import {
   MessageCircle,
   ChevronRight,
   Phone,
-  Sparkles,
 } from "lucide-react";
 import SupportMark from "@/components/ui/SupportMark";
+import HeadsetGlyph from "@/components/ui/HeadsetGlyph";
 import CopilotWidget from "@/components/copilot/CopilotWidget";
 // import { siteConfig } from '@/config/site';
 import { whatsappUrl } from "@/lib/analytics";
@@ -252,11 +252,11 @@ export default function SupportChatWidget() {
                   onClick={() => setMode("copilot")}
                   className={
                     mode === "copilot"
-                      ? "flex flex-1 items-center justify-center gap-1.5 rounded-md bg-primary/10 px-2 py-1.5 text-xs font-semibold text-primary"
+                      ? "flex flex-1 items-center justify-center gap-1.5 rounded-md bg-gradient-to-r from-brand-purple/20 to-cyan-500/20 px-2 py-1.5 text-xs font-semibold text-primary ring-1 ring-brand-purple/30"
                       : "flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted"
                   }
                 >
-                  <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
+                  <HeadsetGlyph className="h-3.5 w-3.5" strokeWidth={2} />
                   FRELUX AI
                 </button>
               </div>

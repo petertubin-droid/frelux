@@ -16,16 +16,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  X,
-  Loader2,
-  Send,
-  Sparkles,
-  ShieldCheck,
-  Info,
-  Save,
-} from "lucide-react";
-import ArchieMark from "@/components/ui/ArchieMark";
+import { X, Loader2, Send, ShieldCheck, Info, Save } from "lucide-react";
+import SupportMark from "@/components/ui/SupportMark";
 import { useAuth } from "@/lib/auth";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
@@ -216,9 +208,12 @@ export default function CopilotWidget({
         type="button"
         onClick={() => setOpen(true)}
         aria-label="Open FRELUX AI Copilot"
-        className="fixed bottom-20 left-4 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg shadow-brand-purple/30 transition-transform hover:scale-105 active:scale-95 sm:bottom-4"
+        className="fixed bottom-20 left-4 z-40 inline-flex h-14 w-14 items-center justify-center rounded-2xl p-0 transition-transform hover:scale-105 active:scale-95 sm:bottom-4"
       >
-        <Sparkles className="h-6 w-6" aria-hidden />
+        <SupportMark
+          className="h-14 w-14 drop-shadow-lg"
+          aria-label="FRELUX AI Copilot"
+        />
       </button>
     );
   }
@@ -234,11 +229,16 @@ export default function CopilotWidget({
       aria-label="FRELUX AI Copilot"
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+      <div className="flex items-center justify-between border-b border-border bg-gradient-to-r from-brand-purple/10 via-transparent to-cyan-500/10 px-4 py-3">
         <div className="flex items-center gap-2">
-          <ArchieMark className="h-5 w-5" aria-label="FRELUX Copilot" />
+          <SupportMark
+            className="h-8 w-8 shrink-0"
+            aria-label="FRELUX Copilot"
+          />
           <div>
-            <p className="text-sm font-semibold leading-none">FRELUX Copilot</p>
+            <p className="bg-gradient-to-r from-brand-purple to-cyan-500 bg-clip-text text-sm font-bold leading-none text-transparent">
+              FRELUX Copilot
+            </p>
             <p className="mt-0.5 text-[11px] text-muted-foreground">
               Interprets your request · FRELUX engines calculate
             </p>
