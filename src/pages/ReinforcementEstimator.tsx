@@ -27,6 +27,8 @@ import {
   createEstimateItem,
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
+import { formatCurrency } from "@/lib/utils";
+import { printQuote } from "@/lib/estimation/quote-export";
 import {
   calculateReinforcement,
   parseReinforcementRules,
@@ -142,6 +144,63 @@ export default function ReinforcementEstimator() {
       lines: res.lines.length,
     });
   }, [input, rules, priceMap]);
+
+  // Printable professional quote, worldwide-currency formatted.
+  const exportQuote = () => {
+    if (!result?.ok) return;
+    printQuote(
+      {
+        title: "FRELUX Reinforcement Estimate",
+        subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.lines.length} line item(s)`,
+        metaRows: result.steps.map(
+          (st) => [st.label, st.detail] as [string, string],
+        ),
+        lines: result.lines.map((l) => ({
+          label: l.label,
+          quantity:
+            l.quantity === null ? "(provide measurement)" : fmtN(l.quantity),
+          unit: l.unit,
+          unit_price:
+            l.unit_price === null ? "unpriced" : formatCurrency(l.unit_price),
+          line_total:
+            l.line_total === null ? "N/A" : formatCurrency(l.line_total),
+          detail: l.detail,
+        })),
+        totals: [
+          {
+            label: "Material subtotal",
+            value:
+              result.material_subtotal === null
+                ? "(prices/inputs missing)"
+                : formatCurrency(result.material_subtotal),
+          },
+          {
+            label: "Priced so far",
+            value: formatCurrency(result.priced_subtotal),
+          },
+          {
+            label: "Labour",
+            value:
+              labourMode === "none"
+                ? "Not included"
+                : formatCurrency(result.labour_total),
+          },
+          {
+            label: "Grand total",
+            value:
+              result.grand_total === null
+                ? "N/A"
+                : formatCurrency(result.grand_total),
+            strong: true,
+          },
+        ],
+        warnings: result.warnings,
+        footer:
+          "Estimates are indicative and not a formal quote. Quantities are sized from your structural members and reinforcement rules; unpriced items are reported, never invented.",
+      },
+      "frelux-reinforcement-estimate.html",
+    );
+  };
 
   const save = useCallback(async () => {
     if (!result || !result.ok || saving) return;
@@ -313,6 +372,12 @@ export default function ReinforcementEstimator() {
               >
                 {saving ? "Saving…" : "Save estimate"}
               </button>
+              <button
+                onClick={exportQuote}
+                className="rounded-md border px-4 py-2 text-sm font-medium"
+              >
+                Export quote (PDF)
+              </button>
               <SaveToProjectButton
                 calculatorType="reinforcement"
                 calculatorSlug="reinforcement-estimator"
@@ -438,11 +503,13 @@ export default function ReinforcementEstimator() {
                           PRICE NOT CONFIGURED
                         </span>
                       ) : (
-                        `₦${fmtN(l.unit_price)}`
+                        formatCurrency(l.unit_price)
                       )}
                     </td>
                     <td className="p-3 font-medium">
-                      {l.line_total === null ? "N/A" : `₦${fmtN(l.line_total)}`}
+                      {l.line_total === null
+                        ? "N/A"
+                        : formatCurrency(l.line_total)}
                     </td>
                   </tr>
                 ))}
@@ -470,7 +537,7 @@ export default function ReinforcementEstimator() {
               <p className="text-xl font-semibold">
                 {result.material_subtotal === null
                   ? "(prices/inputs missing)"
-                  : `₦${fmtN(result.material_subtotal)}`}
+                  : formatCurrency(result.material_subtotal)}
               </p>
             </div>
             <div className="rounded-lg border bg-card p-4">
@@ -491,7 +558,7 @@ export default function ReinforcementEstimator() {
               <p className="text-xl font-semibold">
                 {labourMode === "none"
                   ? "Not included"
-                  : `₦${fmtN(result.labour_total)}`}
+                  : formatCurrency(result.labour_total)}
               </p>
             </div>
             <div className="rounded-lg border bg-primary/10 p-4">
@@ -499,7 +566,7 @@ export default function ReinforcementEstimator() {
               <p className="text-xl font-semibold">
                 {result.grand_total === null
                   ? "N/A"
-                  : `₦${fmtN(result.grand_total)}`}
+                  : formatCurrency(result.grand_total)}
               </p>
             </div>
           </div>
