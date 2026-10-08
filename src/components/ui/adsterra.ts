@@ -223,13 +223,40 @@ export function reserveAdsterraNativeSlot(key: string): boolean {
  * or the zone can serve nothing at all. Measuring the same-origin srcdoc
  * body (srcdoc without sandbox inherits the parent origin) lets the frame
  * shrink to the creative, grow if the provider injects late, and collapse
- * to 0 on a no-fill so the slot shows only its compact label instead of a
- * blank rectangle.
+ * the whole slot (label included, not just the frame) once the late-fill
+ * window closes with no creative, so a no-fill leaves no empty
+ * "Advertisement" box behind.
  */
 function attachAutoHeight(iframe: HTMLIFrameElement): void {
   let mo: MutationObserver | null = null;
   const timers: number[] = [];
   let stopped = false;
+  // No-fill collapse: while the creative never arrives the slot must not
+  // sit as an empty "Advertisement" label. Until the late-fill window
+  // closes the frame keeps its zone size; after the last timed re-check
+  // a still-empty frame collapses the WHOLE slot wrapper (label
+  // included), and a creative that lands later (MutationObserver) brings
+  // the wrapper straight back.
+  let finalCheckDone = false;
+  let slotEl: HTMLElement | null = null;
+  let prevDisplay: string | null = null;
+  const slotWrapper = (): HTMLElement | null => {
+    if (!slotEl) {
+      slotEl =
+        iframe.closest<HTMLElement>(".frelux-ad-unit") ?? iframe.parentElement;
+      if (slotEl) prevDisplay = slotEl.style.display;
+    }
+    return slotEl;
+  };
+  const applyFillState = (filled: boolean) => {
+    const el = slotWrapper();
+    if (!el || prevDisplay === null) return;
+    if (filled) {
+      if (el.style.display === "none") el.style.display = prevDisplay;
+    } else if (finalCheckDone) {
+      el.style.display = "none";
+    }
+  };
   const measure = () => {
     if (stopped) return;
     let h = 0;
@@ -255,6 +282,7 @@ function attachAutoHeight(iframe: HTMLIFrameElement): void {
     if (Math.abs(iframe.offsetHeight - h) > 4) {
       iframe.style.height = `${h}px`;
     }
+    applyFillState(h > 4);
   };
   const start = () => {
     measure();
@@ -270,9 +298,16 @@ function attachAutoHeight(iframe: HTMLIFrameElement): void {
   };
   iframe.addEventListener("load", start);
   // Providers inject creatives well after load: re-check a few times so a
-  // late fill resizes the frame and a never-fill collapses it.
+  // late fill resizes the frame and a never-fill collapses it. The last
+  // re-check closes the late-fill window: a frame that is still empty
+  // then has no creative coming and hides the whole labeled slot.
   [400, 1200, 3000, 6000].forEach((ms) =>
-    timers.push(window.setTimeout(measure, ms)),
+    timers.push(
+      window.setTimeout(() => {
+        finalCheckDone = true;
+        measure();
+      }, ms),
+    ),
   );
   // When the iframe leaves the DOM its document is GC'd along with the
   // observer; the capped timers above are the only page-level residue.
