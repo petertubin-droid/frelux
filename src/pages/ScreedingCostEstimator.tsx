@@ -1,5 +1,5 @@
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useLocation, Link } from "react-router-dom";
 import {
   CheckCircle2,
@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { calculateScreedingSystem, dbToSystemConfig } from "@/lib/calc";
+import { calculateLabourCost } from "@/lib/labour";
+import { printQuote } from "@/lib/estimation/quote-export";
 import LabourCostSection, {
   useLabourConfig,
 } from "@/components/labour/LabourCostSection";
@@ -169,6 +171,13 @@ export default function ScreedingCostEstimator({
   const engine = useEngineFeatures({ calculatorType: "screeding_cost" });
   const { config: labourConfig, setConfig: setLabourConfig } =
     useLabourConfig("screeding");
+
+  // Labour follows the site-wide labour layer so international
+  // visitors get a complete estimate, not materials alone.
+  const labourCost = useMemo(
+    () => calculateLabourCost(labourConfig, netArea),
+    [labourConfig, netArea],
+  );
 
   const mountedRef = useRef(true);
   useEffect(() => {
@@ -648,17 +657,38 @@ export default function ScreedingCostEstimator({
 
                       {/* Total cost */}
                       {result.materialCost != null && (
-                        <div className="flex items-center justify-between border-t border-border pt-3 dark:border-white/10">
-                          <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                            Total estimated material cost
-                          </span>
-                          <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                            {formatCurrency(
-                              result.materialCost,
-                              currencySymbol,
-                            )}
-                          </span>
-                        </div>
+                        <>
+                          <div className="flex items-center justify-between border-t border-border pt-3 dark:border-white/10">
+                            <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
+                              Total estimated material cost
+                            </span>
+                            <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
+                              {formatCurrency(
+                                result.materialCost,
+                                currencySymbol,
+                              )}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between pt-1">
+                            <span className="text-sm text-muted-foreground">
+                              Labour
+                            </span>
+                            <span className="text-sm text-muted-foreground">
+                              {formatCurrency(labourCost, currencySymbol)}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between border-t border-border pt-2 dark:border-white/10">
+                            <span className="text-sm font-bold text-foreground dark:text-primary-foreground">
+                              Grand total (materials + labour)
+                            </span>
+                            <span className="text-base font-bold text-foreground dark:text-primary-foreground">
+                              {formatCurrency(
+                                result.materialCost + labourCost,
+                                currencySymbol,
+                              )}
+                            </span>
+                          </div>
+                        </>
                       )}
                       {result.materialCost == null && (
                         <div className="rounded-lg border border-accent-yellow/30 bg-accent-yellow/10 p-3 text-xs text-muted-foreground">
@@ -735,6 +765,19 @@ export default function ScreedingCostEstimator({
                       />
 
                       <div className="mt-3 flex justify-center">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            exportScreedingQuote({
+                              result,
+                              labourCost,
+                              currencySymbol,
+                            })
+                          }
+                          className="rounded-lg border px-4 py-2 text-sm font-semibold"
+                        >
+                          Export quote (PDF)
+                        </button>
                         <SaveToProjectButton
                           calculatorType="screeding"
                           calculatorSlug="screeding-cost-estimator"
@@ -745,6 +788,11 @@ export default function ScreedingCostEstimator({
                           }}
                           resultSummary={{
                             materialCost: result.materialCost ?? 0,
+                            labourCost,
+                            grandTotal:
+                              result.materialCost != null
+                                ? result.materialCost + labourCost
+                                : labourCost,
                             systemType: result.systemType,
                           }}
                           materials={
@@ -964,6 +1012,63 @@ function buildExplanationSteps(result: ScreedingSystemResult) {
   }
 
   return steps;
+}
+
+// Printable professional quote, market-currency formatted.
+function exportScreedingQuote(args: {
+  result: ScreedingSystemResult;
+  labourCost: number;
+  currencySymbol: string;
+}) {
+  const { result, labourCost, currencySymbol } = args;
+  const fmt = (v: number) => formatCurrency(v, currencySymbol);
+  const breakdowns =
+    result.systemType === "putty"
+      ? [result.putty]
+      : [result.paint, result.cement, ...(result.extra ? [result.extra] : [])];
+  printQuote(
+    {
+      title: `FRELUX Screeding Estimate (${result.systemType === "putty" ? "Putty" : "White Cement + Paint"})`,
+      subtitle: `Generated ${new Date().toLocaleDateString()} · ${formatNumber(result.netScreedingArea, 2)} m² · ${result.coats} coats`,
+      metaRows: [
+        [
+          "Net screeding area",
+          `${formatNumber(result.netScreedingArea, 2)} m²`,
+        ],
+        ["Coats", String(result.coats)],
+      ],
+      lines: breakdowns.map((b) => ({
+        label: b.name,
+        quantity: formatNumber(b.purchaseQuantity),
+        unit: b.unit,
+        unit_price: b.pricePerUnit == null ? "unpriced" : fmt(b.pricePerUnit),
+        line_total: b.totalCost == null ? "N/A" : fmt(b.totalCost),
+        detail: `${formatNumber(b.finalQuantity, 2)} ${b.unit}s incl. ${b.wastePercentage}% waste`,
+      })),
+      totals: [
+        {
+          label: "Material cost",
+          value:
+            result.materialCost == null
+              ? "(prices not configured)"
+              : fmt(result.materialCost),
+        },
+        { label: "Labour", value: fmt(labourCost) },
+        {
+          label: "Grand total",
+          value:
+            result.materialCost == null
+              ? "N/A"
+              : fmt(result.materialCost + labourCost),
+          strong: true,
+        },
+      ],
+      warnings: result.warnings,
+      footer:
+        "Estimates are indicative and not a formal quote. Quantities include the configured waste margin; unpriced items are reported, never invented.",
+    },
+    "frelux-screeding-estimate.html",
+  );
 }
 
 function MaterialBreakdownCard({
