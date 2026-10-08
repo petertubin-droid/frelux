@@ -37,6 +37,12 @@ create table if not exists public.signup_digest_tokens (
 );
 alter table public.signup_digest_tokens enable row level security;
 
+-- Explicit grants: this project's default privileges only hand
+-- service_role TRIGGER/REFERENCES/TRUNCATE on new tables, and the
+-- signup-digest function (service role) SELECTs this table. No
+-- anon/authenticated grant on purpose: the token must stay secret.
+grant select, insert, update, delete on public.signup_digest_tokens to service_role;
+
 -- One token per installation (idempotent insert).
 insert into public.signup_digest_tokens (token)
 select gen_random_uuid()::text
