@@ -136,7 +136,17 @@ BEGIN
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public.credit_token_purchase TO service_role;
+-- The pre-international 5-arg overload must go: with two overloads
+-- present, an unqualified reference to credit_token_purchase is
+-- ambiguous (42725) and every existing caller keeps working through
+-- the new signature's defaults.
+DROP FUNCTION IF EXISTS public.credit_token_purchase(
+  UUID, TEXT, INTEGER, INTEGER, JSONB
+);
+
+GRANT EXECUTE ON FUNCTION public.credit_token_purchase(
+  UUID, TEXT, INTEGER, INTEGER, JSONB, TEXT, TEXT
+) TO service_role;
 
 -- =========================================================
 -- PRIVILEGES (anon/authenticated/service_role need table grants
