@@ -27,6 +27,7 @@ import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import LocationCard from "@/components/location/LocationCard";
 import type { FreluxLocation } from "@/lib/location-intelligence";
+import { formatCurrency } from "@/lib/utils";
 
 const STATUS_COLORS: Record<string, string> = {
   draft:
@@ -203,11 +204,9 @@ export default function ProjectWorkspace() {
             {
               icon: DollarSign,
               label: "Total Value",
-              value:
-                "₦" +
-                projects
-                  .reduce((s, p) => s + (p.total_project_cost || 0), 0)
-                  .toLocaleString(),
+              value: formatCurrency(
+                projects.reduce((s, p) => s + (p.total_project_cost || 0), 0),
+              ),
               color: "text-primary",
             },
           ].map((stat, i) => (
@@ -352,7 +351,7 @@ export default function ProjectWorkspace() {
                         Total Cost
                       </span>
                       <span className="font-semibold text-sm">
-                        ₦{project.total_project_cost.toLocaleString()}
+                        {formatCurrency(project.total_project_cost)}
                       </span>
                     </div>
                   )}

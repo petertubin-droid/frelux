@@ -17,6 +17,7 @@ import {
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
 import { useBreadcrumbJsonLd } from "@/lib/seo";
+import { formatCurrency } from "@/lib/utils";
 
 const CALCULATOR_LABELS: Record<string, string> = {
   paint: "Painting",
@@ -219,12 +220,12 @@ export default function EstimateAnalytics() {
         <StatCard
           icon={DollarSign}
           label="Total Value"
-          value={`₦${stats.totalCost.toLocaleString()}`}
+          value={formatCurrency(stats.totalCost)}
         />
         <StatCard
           icon={BarChart3}
           label="Average Estimate"
-          value={`₦${stats.avgCost.toLocaleString()}`}
+          value={formatCurrency(stats.avgCost)}
         />
         <StatCard
           icon={
@@ -305,7 +306,7 @@ export default function EstimateAnalytics() {
                   </p>
                 </div>
                 <p className="text-sm font-semibold">
-                  ₦{data.cost.toLocaleString()}
+                  {formatCurrency(data.cost)}
                 </p>
               </div>
             ))}
@@ -341,7 +342,7 @@ export default function EstimateAnalytics() {
                   </p>
                 </div>
                 <p className="text-sm font-semibold">
-                  ₦{(h.total_cost ?? 0).toLocaleString()}
+                  {formatCurrency(h.total_cost ?? 0)}
                 </p>
               </div>
             ))}

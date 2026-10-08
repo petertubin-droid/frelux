@@ -26,9 +26,10 @@ import {
 } from "@/lib/estimation/cash-flow-engine";
 import type { CashFlowTemplate, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
+import { formatCurrency } from "@/lib/utils";
 
-const money = (v: number) =>
-  `₦${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+// Market-currency aware via the site-wide FX layer.
+const money = (v: number) => formatCurrency(v);
 
 export default function CashFlowTimeline() {
   useBreadcrumbJsonLd([
@@ -127,7 +128,7 @@ export default function CashFlowTimeline() {
                 </select>
               </label>
               <label className="grid gap-1 text-sm font-medium">
-                Estimate total (₦)
+                Estimate total (your market currency)
                 <input
                   type="number"
                   min="1"

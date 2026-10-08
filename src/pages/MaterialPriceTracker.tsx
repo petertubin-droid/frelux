@@ -25,8 +25,9 @@ import type { DbMaterialPriceHistory } from "@/types/database";
 import { Button } from "@/components/ui/shadcn/button";
 import MaterialPriceForecast from "@/components/estimation/MaterialPriceForecast";
 import PriceSubmissionForm from "@/components/estimation/PriceSubmissionForm";
+import { formatCurrency } from "@/lib/utils";
 
-const fmt = (v: number) => "₦" + (v || 0).toLocaleString();
+const fmt = (v: number) => formatCurrency(v || 0);
 
 export default function MaterialPriceTracker() {
   const { toast } = useToast();
@@ -281,7 +282,7 @@ export default function MaterialPriceTracker() {
                         <div className="flex items-center gap-2">
                           <div className="flex items-center rounded-lg border bg-background overflow-hidden">
                             <span className="px-2 py-1.5 text-sm text-muted-foreground bg-muted">
-                              ₦
+                              Price
                             </span>
                             <input
                               type="number"

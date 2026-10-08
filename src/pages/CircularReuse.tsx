@@ -31,6 +31,7 @@ import type {
   EstimationCalcRule,
 } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
+import { formatCurrency } from "@/lib/utils";
 
 export default function CircularReuse() {
   useBreadcrumbJsonLd([
@@ -240,7 +241,7 @@ export default function CircularReuse() {
                 <p className="mt-1 text-xl font-semibold">
                   {result.reuse_value_naira === null
                     ? "N/A"
-                    : `₦${result.reuse_value_naira.toLocaleString("en-NG")}`}
+                    : formatCurrency(result.reuse_value_naira)}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   {result.reuse_value_naira === null
