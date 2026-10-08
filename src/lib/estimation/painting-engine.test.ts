@@ -1093,6 +1093,19 @@ describe("FRELUX Painting Estimator", () => {
       );
       expect(e.eligible).toBe(true);
     });
+    it("International: never applies the Nigerian minimum or claims Owerri", () => {
+      const e = checkProductionEligibility(
+        "international",
+        "emulsion",
+        null,
+        1,
+        mockProductionRules,
+      );
+      expect(e.eligible).toBe(true);
+      expect(e.min_required).toBe(0);
+      expect(e.message).not.toMatch(/owerri/i);
+      expect(e.message).toMatch(/outside Nigeria/i);
+    });
   });
 
   // ── Multi-room with different paint types ──

@@ -152,6 +152,7 @@ vi.mock("@/lib/estimation/queries", () => ({
 }));
 
 import PaintingEstimator from "@/pages/PaintingEstimator";
+import * as estimationQueries from "@/lib/estimation/queries";
 
 function renderEstimator(embedded = true) {
   return render(
@@ -213,6 +214,97 @@ describe("PaintingEstimator", () => {
       },
       { timeout: 4000 },
     );
+  });
+
+  describe("with no quality levels configured (live default state)", () => {
+    beforeEach(() => {
+      vi.mocked(estimationQueries.fetchProductQualityLevels).mockResolvedValue({
+        data: [],
+        error: null,
+      } as never);
+    });
+
+    it("falls back to a built-in Standard quality instead of blocking", async () => {
+      renderEstimator();
+      await waitFor(
+        () =>
+          expect(
+            (
+              screen.getByLabelText(
+                /Quality Level/i,
+              ) as unknown as HTMLSelectElement
+            ).value,
+          ).toMatch(/^default-quality:/),
+        { timeout: 4000 },
+      );
+      expect(screen.getByRole("option", { name: "Standard" })).toBeDefined();
+    });
+
+    it("calculates without any configured quality level", async () => {
+      const user = userEvent.setup();
+      renderEstimator();
+      await waitFor(
+        () =>
+          expect(
+            (
+              screen.getByLabelText(
+                /Quality Level/i,
+              ) as unknown as HTMLSelectElement
+            ).value,
+          ).toMatch(/^default-quality:/),
+        { timeout: 4000 },
+      );
+      await user.click(
+        screen.getByRole("button", { name: /Calculate Estimate/i }),
+      );
+      await waitFor(
+        () => {
+          expect(
+            screen.getByRole("button", { name: /Save Estimate|Save/i }),
+          ).toBeDefined();
+        },
+        { timeout: 4000 },
+      );
+      expect(screen.queryByText(/Quality level is required/i)).toBeNull();
+    });
+  });
+
+  describe("worldwide customer location", () => {
+    it("offers countries from every region, not just Owerri", async () => {
+      renderEstimator(false);
+      const select = (await screen.findByDisplayValue(
+        /Nigeria|Select country/i,
+      )) as unknown as HTMLSelectElement;
+      const labels = Array.from(select.options).map((o) => o.textContent);
+      expect(labels).toEqual(
+        expect.arrayContaining([
+          "Nigeria",
+          "United States",
+          "United Kingdom",
+          "Ghana",
+          "Other country",
+        ]),
+      );
+    });
+
+    it("only asks for the Owerri area when Nigeria is chosen", async () => {
+      const user = userEvent.setup();
+      renderEstimator(false);
+      const select = (await screen.findByDisplayValue(
+        /Nigeria|Select country/i,
+      )) as unknown as HTMLSelectElement;
+
+      await user.selectOptions(select, "US");
+      expect(screen.queryByLabelText(/Area within Nigeria/i)).toBeNull();
+
+      await user.selectOptions(select, "NG");
+      const area = screen.getByLabelText(/Area within Nigeria/i);
+      expect(area).toBeDefined();
+      expect(screen.getByRole("option", { name: /Owerri/i })).toBeDefined();
+      expect(
+        screen.getByRole("option", { name: /Elsewhere in Nigeria/i }),
+      ).toBeDefined();
+    });
   });
 
   it("shows clear validation feedback when a required field is missing", async () => {

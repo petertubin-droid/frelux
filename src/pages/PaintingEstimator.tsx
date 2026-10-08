@@ -7,6 +7,12 @@
  * 5. Colour → 6. Surface condition → 7. Ceiling → 8. Coats → 9. Preparation → 10. Calculate → 11. Estimate
  */
 
+import { COUNTRY_OPTIONS } from "@/lib/international/countries";
+import type { CustomerLocation } from "@/lib/estimation/painting-engine";
+import {
+  withDefaultQuality,
+  isDefaultQualityId,
+} from "@/lib/estimation/default-quality";
 import { resolveMaterialPriceByRole } from "@/lib/estimation/market-materials";
 import { useMarket } from "@/lib/international/market-context";
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -127,7 +133,7 @@ const PAINT_CATEGORIES = ["emulsion", "matt", "satin"];
 export default function PaintingEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
-  const { marketCode } = useMarket();
+  const { marketCode, market } = useMarket();
   const { defaults: _calcDefaults, rules: defaultCalcRules } =
     useCalcDefaults("painting");
   const DEFAULT_CEILING_COLOUR =
@@ -242,9 +248,23 @@ export default function PaintingEstimator({
 
   // ── State: Project input ──
   const [projectDescription, setProjectDescription] = useState("");
-  const [customerLocation, setCustomerLocation] = useState<
-    "owerri" | "outside_owerri" | "unknown"
-  >("unknown");
+  // Worldwide location: a country code ("" = not chosen) plus, for Nigeria
+  // only, the Owerri split that FRELUX production rules are defined for.
+  const [locationCountry, setLocationCountry] = useState<string>("");
+  const [nigeriaInOwerri, setNigeriaInOwerri] = useState<boolean | null>(null);
+  useEffect(() => {
+    // Prefill from the visitor's market until they pick a country.
+    setLocationCountry((prev) => prev || market.marketCode || "");
+  }, [market.marketCode]);
+  const customerLocation: CustomerLocation = !locationCountry
+    ? "unknown"
+    : locationCountry !== "NG"
+      ? "international"
+      : nigeriaInOwerri === null
+        ? "unknown"
+        : nigeriaInOwerri
+          ? "owerri"
+          : "outside_owerri";
   const [addPrimer] = useState(false);
   const [rooms, setRooms] = useState<PaintingRoomInput[]>([
     createDefaultRoom(),
@@ -290,8 +310,12 @@ export default function PaintingEstimator({
         // Fetch quality levels for each product
         const qualMap = new Map<string, EstimationProductQuality[]>();
         for (const product of paintProducts) {
-          const { data: quals } = await fetchProductQualityLevels(product.id);
-          qualMap.set(product.id, quals ?? []);
+          const { data: realQuals } = await fetchProductQualityLevels(
+            product.id,
+          );
+          // Built-in "Standard" level only when no real tiers exist yet
+          const quals = withDefaultQuality(product.id, realQuals ?? []);
+          qualMap.set(product.id, quals);
           // Check if coverage is configured
           for (const q of quals ?? []) {
             if (q.coverage === null || q.coverage === undefined) {
@@ -308,11 +332,12 @@ export default function PaintingEstimator({
         for (const product of paintProducts) {
           const quals = qualMap.get(product.id) ?? [];
           for (const q of quals) {
-            const { data: price } = await fetchActivePriceForMarket(
-              "quality",
-              q.id,
-              marketCode,
-            );
+            // The built-in default has no database id, so skip the id
+            // lookup (a non-UUID would error) and go straight to the
+            // market's verified material book below.
+            const { data: price } = isDefaultQualityId(q.id)
+              ? { data: null }
+              : await fetchActivePriceForMarket("quality", q.id, marketCode);
             if (price) {
               priceMap.set(q.id, price);
             } else {
@@ -389,7 +414,7 @@ export default function PaintingEstimator({
       }
     }
     loadConfig();
-  }, []);
+  }, [marketCode]);
 
   // =========================================================
   // Auto-select paint type & quality
@@ -594,7 +619,9 @@ export default function PaintingEstimator({
 
     const projectInput: PaintingProjectInput = {
       rooms,
-      currency: "NGN",
+      // Prices resolve in the visitor's market currency, so label totals
+      // with it (a hard-coded NGN mislabelled non-Nigerian amounts).
+      currency: market.currencyCode || "NGN",
       user_id: null,
       client_hash: null,
       project_description: projectDescription,
@@ -629,6 +656,7 @@ export default function PaintingEstimator({
     trackCalculation("painting");
     trackCalculationWithRewards("painting", "Painting Estimator");
   }, [
+    market.currencyCode,
     rooms,
     products,
     qualities,
@@ -919,18 +947,49 @@ export default function PaintingEstimator({
                 Customer Location
               </span>
               <select
-                value={customerLocation}
-                onChange={(e) =>
-                  setCustomerLocation(
-                    e.target.value as "owerri" | "outside_owerri" | "unknown",
-                  )
-                }
+                value={locationCountry}
+                onChange={(e) => {
+                  setLocationCountry(e.target.value);
+                  setNigeriaInOwerri(null);
+                }}
                 className="mt-1.5 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm transition-colors focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-card dark:text-primary-foreground"
               >
-                <option value="unknown">Select location…</option>
-                <option value="owerri">Owerri, Imo State</option>
-                <option value="outside_owerri">Outside Owerri</option>
+                <option value="">Select country…</option>
+                {COUNTRY_OPTIONS.map((g) => (
+                  <optgroup key={g.group} label={g.group}>
+                    {g.countries.map((c) => (
+                      <option key={c.code} value={c.code}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+                <option value="OTHER">Other country</option>
               </select>
+              {locationCountry === "NG" && (
+                <select
+                  aria-label="Area within Nigeria"
+                  value={
+                    nigeriaInOwerri === null
+                      ? ""
+                      : nigeriaInOwerri
+                        ? "owerri"
+                        : "elsewhere"
+                  }
+                  onChange={(e) =>
+                    setNigeriaInOwerri(
+                      e.target.value === ""
+                        ? null
+                        : e.target.value === "owerri",
+                    )
+                  }
+                  className="mt-2 w-full rounded-lg border border-border bg-card px-3 py-2 text-sm transition-colors focus:border-brand-purple focus:ring-1 focus:ring-brand-purple dark:border-white/10 dark:bg-card dark:text-primary-foreground"
+                >
+                  <option value="">Select area…</option>
+                  <option value="owerri">Owerri, Imo State</option>
+                  <option value="elsewhere">Elsewhere in Nigeria</option>
+                </select>
+              )}
             </label>
           </div>
         </div>

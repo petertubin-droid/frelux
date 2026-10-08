@@ -105,13 +105,22 @@ export interface PaintingRoomInput {
   ceiling_colour: string;
 }
 
+/**
+ * Where the customer is. "owerri" / "outside_owerri" are the two Nigerian
+ * cases FRELUX production rules are defined for; "international" is any
+ * other country (no FRELUX production claim is made there); "unknown"
+ * means not chosen yet.
+ */
+export type CustomerLocation =
+  "owerri" | "outside_owerri" | "international" | "unknown";
+
 export interface PaintingProjectInput {
   rooms: PaintingRoomInput[];
   currency: string;
   user_id: string | null;
   client_hash: string | null;
   project_description: string;
-  customer_location: "owerri" | "outside_owerri" | "unknown";
+  customer_location: CustomerLocation;
   add_primer: boolean;
   primer_product_id?: string | null;
 }
@@ -1005,7 +1014,7 @@ export interface ProductionRuleRow {
 }
 
 export function checkProductionEligibility(
-  customerLocation: "owerri" | "outside_owerri" | "unknown",
+  customerLocation: CustomerLocation,
   productCategory: string,
   qualitySlug: string | null,
   requiredBuckets: number,
@@ -1020,6 +1029,17 @@ export function checkProductionEligibility(
       eligible: true,
       message:
         "FRELUX production is available in Owerri with no minimum quantity.",
+      min_required: 0,
+    };
+  }
+
+  if (customerLocation === "international") {
+    // FRELUX production rules exist for Nigeria only. Never claim or
+    // deny production elsewhere: the material estimate stands on its own.
+    return {
+      eligible: true,
+      message:
+        "FRELUX production availability outside Nigeria is arranged per order. Your material quantities and market-priced cost above are unaffected.",
       min_required: 0,
     };
   }

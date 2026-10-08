@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 
 // ── Mock supabase-lazy with a configurable chainable client ──
 vi.mock("@/lib/supabase-lazy", () => {
@@ -30,9 +30,7 @@ vi.mock("@/lib/supabase-lazy", () => {
       Promise.resolve({ from: mockFrom, functions: { invoke } }),
     ),
     isSupabaseConfigured: true,
-    getFunctionErrorMessage: vi.fn(
-      async () => "Edge function error (mocked)",
-    ),
+    getFunctionErrorMessage: vi.fn(async () => "Edge function error (mocked)"),
     _state: state,
     _mockFrom: mockFrom,
     _invoke: invoke,
@@ -47,6 +45,8 @@ vi.mock("@/lib/paystack", async (importOriginal) => {
 
 import {
   formatNaira,
+  formatTokenPriceForDisplay,
+  tokenPriceDisclosure,
   getTokenPurchaseConfig,
   initializeTokenPurchase,
   verifyTokenPurchase,
@@ -54,6 +54,7 @@ import {
   adminUpdateTokenPurchaseConfig,
 } from "@/lib/token-purchase";
 import * as supabaseLazy from "@/lib/supabase-lazy";
+import { setDisplayCurrencyState } from "@/lib/international/fx-display";
 
 // The module is mocked above; reach into the mock's exported internals.
 // Cast through unknown because the real module doesn't export these.
@@ -85,6 +86,32 @@ describe("formatNaira", () => {
   it("formats kobo as Naira", () => {
     expect(formatNaira(150000)).toBe("₦1,500");
     expect(formatNaira(200)).toBe("₦2");
+  });
+});
+
+describe("worldwide token price display", () => {
+  afterEach(() => {
+    setDisplayCurrencyState("NGN", { enabled: false, rates: {} });
+  });
+
+  it("shows naira unchanged with no disclosure when not converting", () => {
+    setDisplayCurrencyState("NGN", { enabled: false, rates: {} });
+    expect(formatTokenPriceForDisplay(150000)).toBe("₦1,500");
+    expect(tokenPriceDisclosure(150000)).toBeNull();
+  });
+
+  it("converts to the visitor's currency and discloses the naira charge", () => {
+    setDisplayCurrencyState("USD", { enabled: true, rates: { USD: 0.001 } });
+    expect(formatTokenPriceForDisplay(150000)).toBe("$1.5");
+    const note = tokenPriceDisclosure(150000);
+    expect(note).toMatch(/charged as ₦1,500/i);
+    expect(note).toMatch(/approximate/i);
+  });
+
+  it("falls back to naira when the chosen currency has no rate", () => {
+    setDisplayCurrencyState("USD", { enabled: true, rates: {} });
+    expect(formatTokenPriceForDisplay(150000)).toBe("₦1,500");
+    expect(tokenPriceDisclosure(150000)).toBeNull();
   });
 });
 

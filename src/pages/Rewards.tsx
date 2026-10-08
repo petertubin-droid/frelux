@@ -29,7 +29,8 @@ import {
   getTokenPurchaseConfig,
   initializeTokenPurchase,
   verifyTokenPurchase,
-  formatNaira,
+  formatTokenPriceForDisplay,
+  tokenPriceDisclosure,
   type TokenPurchaseConfig,
 } from "@/lib/token-purchase";
 import {
@@ -603,7 +604,8 @@ export default function Rewards() {
       {/* Buy Tokens, direct purchase via Paystack (admin-configurable) */}
       {tokenConfig?.is_enabled &&
         (() => {
-          const price = formatNaira(tokenConfig.price_kobo);
+          const price = formatTokenPriceForDisplay(tokenConfig.price_kobo);
+          const priceNote = tokenPriceDisclosure(tokenConfig.price_kobo);
           return (
             <div className="mb-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-6 dark:border-brand-purple/20 dark:bg-card dark:from-primary/5">
               <div className="flex items-center justify-between gap-4">
@@ -616,9 +618,13 @@ export default function Rewards() {
                       Buy {tokenConfig.token_amount} Tokens, {price}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      Instantly top up your balance. Secure checkout via
-                      Paystack.
+                      Instantly top up your balance. Secure card checkout.
                     </p>
+                    {priceNote && (
+                      <p className="mt-0.5 text-xs text-muted-foreground">
+                        {priceNote}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <Button

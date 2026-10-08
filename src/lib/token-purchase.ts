@@ -23,6 +23,8 @@ import {
   getFunctionErrorMessage,
 } from "@/lib/supabase-lazy";
 import { isPaystackConfigured } from "@/lib/paystack";
+import { formatCurrency } from "@/lib/utils";
+import { isConverting } from "@/lib/international/fx-display";
 
 // =========================================================
 // Types
@@ -54,6 +56,29 @@ export interface TokenVerifyResult {
 /** Format kobo as a Naira string, e.g. 150000 → "₦1,500" */
 export function formatNaira(kobo: number): string {
   return `₦${(kobo / 100).toLocaleString("en-NG")}`;
+}
+
+/**
+ * Format a kobo price for the visitor's chosen display currency.
+ *
+ * Worldwide display: when the visitor picked a non-naira currency (and a
+ * rate is available) the naira price is converted through the shared
+ * display layer, e.g. 150000 kobo → "$0.98". With no conversion active it
+ * is identical to formatNaira. Display only: the charge itself is always
+ * built server-side from token_purchase_config, in naira.
+ */
+export function formatTokenPriceForDisplay(kobo: number): string {
+  return formatCurrency(kobo / 100, "₦");
+}
+
+/**
+ * Disclosure shown next to a converted price, or null when the visitor is
+ * seeing naira. Keeps the converted figure honest: it is an approximation
+ * and the card is charged in naira by the payment gateway.
+ */
+export function tokenPriceDisclosure(kobo: number): string | null {
+  if (!isConverting()) return null;
+  return `Approximate. Charged as ${formatNaira(kobo)} at checkout; your bank converts it at its own rate.`;
 }
 
 // =========================================================
@@ -142,10 +167,9 @@ export async function verifyTokenPurchase(
   }
   const supabase = await getSupabase();
   try {
-    const { data, error } = await supabase.functions.invoke(
-      "paystack-verify",
-      { body: { reference } },
-    );
+    const { data, error } = await supabase.functions.invoke("paystack-verify", {
+      body: { reference },
+    });
     if (error) {
       return { verified: false, error: await getFunctionErrorMessage(error) };
     }
@@ -210,7 +234,9 @@ export async function adminGetTokenPurchases(limit = 50): Promise<
   const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("token_purchases")
-    .select("id, user_id, reference, amount_kobo, tokens_credited, status, created_at")
+    .select(
+      "id, user_id, reference, amount_kobo, tokens_credited, status, created_at",
+    )
     .order("created_at", { ascending: false })
     .limit(limit);
   if (error) return [];
