@@ -1,4 +1,5 @@
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
+import { printQuote } from "@/lib/estimation/quote-export";
 import { useState, useCallback } from "react";
 import { useSeo } from "@/lib/seo";
 import {
@@ -17,7 +18,6 @@ import {
 import type {} from "@/types/build-to-roof";
 import {
   Calculator,
-
   AlertTriangle,
   CheckCircle2,
   ShieldCheck,
@@ -35,6 +35,47 @@ import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
 
 type Tab = "beam" | "column" | "slab";
+
+// Printable engineering design sheet: full results, checks,
+// formula transparency and warnings for a beam/column/slab run.
+function exportDesignSheet(args: {
+  kind: "Beam" | "Column" | "Slab";
+  title: string;
+  metaRows: Array<[string, string]>;
+  checks: Array<{ label: string; pass: boolean }>;
+  formulas: string[];
+  warnings: string[];
+}) {
+  printQuote(
+    {
+      title: `FRELUX ${args.kind} Design Sheet`,
+      subtitle: `Generated ${new Date().toLocaleDateString()} · ${args.title}`,
+      metaRows: [...args.metaRows, ["Standard", "BS 8110 preliminary sizing"]],
+      lines: args.checks.map((c) => ({
+        label: c.label,
+        quantity: c.pass ? "PASS" : "FAIL",
+        unit: "check",
+        unit_price: "-",
+        line_total: c.pass ? "PASS" : "FAIL",
+      })),
+      totals: [
+        {
+          label: "Checks passed",
+          value: `${args.checks.filter((c) => c.pass).length}/${args.checks.length}`,
+          strong: true,
+        },
+      ],
+      warnings: args.warnings,
+      steps: args.formulas.map((f, i) => ({
+        label: `Step ${i + 1}`,
+        detail: f,
+      })),
+      footer:
+        "Preliminary sizing only, per BS 8110. Final design, detailing and safety requirements must come from a qualified structural engineer working from actual drawings and site investigations.",
+    },
+    `frelux-${args.kind.toLowerCase()}-design-sheet.html`,
+  );
+}
 
 export default function StructuralCalculator() {
   useSeo({
@@ -70,7 +111,8 @@ export default function StructuralCalculator() {
               { id: "slab", label: "Slab Design", icon: TrendingUp },
             ] as const
           ).map((t) => (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               key={t.id}
               onClick={() => setTab(t.id)}
               className={`inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
@@ -236,7 +278,8 @@ function BeamCalculator() {
           />
         </InputGrid>
 
-        <Button variant="default"
+        <Button
+          variant="default"
           onClick={calculate}
           className="btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
         >
@@ -313,7 +356,42 @@ function BeamCalculator() {
             setShow={setShowFormulas}
             formulas={result.formula_transparency}
           />
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                result &&
+                exportDesignSheet({
+                  kind: "Beam",
+                  title: `${result.recommended_width}×${result.recommended_depth}mm`,
+                  metaRows: [
+                    [
+                      "Recommended size",
+                      `${result.recommended_width}×${result.recommended_depth}mm`,
+                    ],
+                    ["Effective span", `${result.effective_span.toFixed(2)} m`],
+                    ["Factored load", `${result.factored_load} kN/m`],
+                    ["Max moment", `${result.max_moment} kNm`],
+                    [
+                      "Steel area required",
+                      `${result.area_steel_required} mm²`,
+                    ],
+                  ],
+                  checks: [
+                    { label: "Shear check", pass: result.shear_check_pass },
+                    {
+                      label: "Deflection check",
+                      pass: result.deflection_check_pass,
+                    },
+                  ],
+                  formulas: result.formula_transparency,
+                  warnings: result.warnings,
+                })
+              }
+              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+            >
+              Export design sheet (PDF)
+            </button>
             <SaveToProjectButton
               calculatorType="structural"
               calculatorSlug="beam-design-calculator"
@@ -433,7 +511,8 @@ function ColumnCalculator() {
           />
         </InputGrid>
 
-        <Button variant="default"
+        <Button
+          variant="default"
           onClick={calculate}
           className="btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
         >
@@ -510,7 +589,35 @@ function ColumnCalculator() {
             setShow={setShowFormulas}
             formulas={result.formula_transparency}
           />
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                result &&
+                exportDesignSheet({
+                  kind: "Column",
+                  title: `${result.required_area}mm² required area`,
+                  metaRows: [
+                    ["Required area", `${result.required_area} mm²`],
+                    ["Steel ratio", `${result.steel_ratio}%`],
+                    ["Max steel ratio", `${result.max_steel_ratio}%`],
+                    ["Load capacity", `${result.load_capacity} kN`],
+                    ["Factored load", `${result.factored_load} kN`],
+                  ],
+                  checks: [
+                    {
+                      label: "Capacity vs factored load",
+                      pass: result.load_capacity >= result.factored_load,
+                    },
+                  ],
+                  formulas: result.formula_transparency,
+                  warnings: result.warnings,
+                })
+              }
+              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+            >
+              Export design sheet (PDF)
+            </button>
             <SaveToProjectButton
               calculatorType="structural"
               calculatorSlug="column-design-calculator"
@@ -653,7 +760,8 @@ function SlabCalculator() {
           />
         </InputGrid>
 
-        <Button variant="default"
+        <Button
+          variant="default"
           onClick={calculate}
           className="btn-glow press-scale inline-flex items-center gap-2 px-6 py-3"
         >
@@ -726,7 +834,38 @@ function SlabCalculator() {
             setShow={setShowFormulas}
             formulas={result.formula_transparency}
           />
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                result &&
+                exportDesignSheet({
+                  kind: "Slab",
+                  title: `${result.required_thickness}mm (${result.slab_type.replace(/_/g, " ")})`,
+                  metaRows: [
+                    ["Required thickness", `${result.required_thickness} mm`],
+                    ["Slab type", result.slab_type.replace(/_/g, " ")],
+                    ["Max moment", `${result.max_moment} kNm/m`],
+                    ["Max shear", `${result.max_shear} kN/m`],
+                    [
+                      "Steel area required",
+                      `${result.steel_area_required} mm²/m`,
+                    ],
+                  ],
+                  checks: [
+                    {
+                      label: "Thickness vs span",
+                      pass: result.required_thickness > 0,
+                    },
+                  ],
+                  formulas: result.formula_transparency,
+                  warnings: result.warnings,
+                })
+              }
+              className="rounded-lg border px-4 py-2 text-sm font-semibold"
+            >
+              Export design sheet (PDF)
+            </button>
             <SaveToProjectButton
               calculatorType="structural"
               calculatorSlug="slab-design-calculator"
@@ -838,7 +977,9 @@ function StatBox({
       <p className="relative text-xl font-bold text-foreground dark:text-primary-foreground">
         {value}{" "}
         {unit && (
-          <span className="text-sm font-normal text-muted-foreground">{unit}</span>
+          <span className="text-sm font-normal text-muted-foreground">
+            {unit}
+          </span>
         )}
       </p>
     </div>
@@ -868,7 +1009,9 @@ function CheckRow({
       )}
       <div>
         <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="text-sm text-foreground dark:text-primary-foreground">{value}</p>
+        <p className="text-sm text-foreground dark:text-primary-foreground">
+          {value}
+        </p>
       </div>
     </div>
   );
@@ -916,7 +1059,8 @@ function FormulaToggle({
 }) {
   return (
     <div className="mt-4">
-      <Button variant="ghost"
+      <Button
+        variant="ghost"
         onClick={() => setShow(!show)}
         className="text-xs font-medium text-brand-purple hover:text-brand-purple-dark flex items-center gap-1.5 transition-colors"
       >
