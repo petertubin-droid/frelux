@@ -79,12 +79,86 @@ import { trackCalculationWithRewards } from "@/lib/rewards-integration";
 import { trackRecentTool } from "@/lib/smart-defaults";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
+import { printQuote } from "@/lib/estimation/quote-export";
 import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
 import { useAuth } from "@/lib/auth";
 import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+
+// Printable professional quote, market-currency formatted.
+function exportCostQuote(args: {
+  result: {
+    paintCost: number;
+    primerCost: number;
+    fillerCost: number;
+    puttyCost: number;
+    sandpaperCost: number;
+    brushesCost: number;
+    rollersCost: number;
+    otherMaterialsCost: number;
+    laborCost: number;
+    total: number;
+    paintContainerCount: number;
+  };
+  includes: {
+    primer: boolean;
+    filler: boolean;
+    putty: boolean;
+    sandpaper: boolean;
+    brushes: boolean;
+    rollers: boolean;
+    other: boolean;
+  };
+  currencySymbol: string;
+}) {
+  const { result, includes, currencySymbol } = args;
+  const fmt = (v: number) => formatCurrency(v, currencySymbol);
+  const lines = [
+    {
+      label: `Paint (${result.paintContainerCount} containers)`,
+      total: result.paintCost,
+      on: true,
+    },
+    { label: "Primer", total: result.primerCost, on: includes.primer },
+    { label: "Filler", total: result.fillerCost, on: includes.filler },
+    { label: "Putty", total: result.puttyCost, on: includes.putty },
+    { label: "Sandpaper", total: result.sandpaperCost, on: includes.sandpaper },
+    { label: "Brushes", total: result.brushesCost, on: includes.brushes },
+    { label: "Rollers", total: result.rollersCost, on: includes.rollers },
+    {
+      label: "Other materials",
+      total: result.otherMaterialsCost,
+      on: includes.other,
+    },
+  ].filter((l) => l.on);
+  printQuote(
+    {
+      title: "FRELUX Painting Cost Estimate",
+      subtitle: `Generated ${new Date().toLocaleDateString()}`,
+      metaRows: [
+        ["Material lines", String(lines.length)],
+        ["Paintable area", "see estimate summary"],
+      ],
+      lines: lines.map((l) => ({
+        label: l.label,
+        quantity: "included",
+        unit: "item",
+        unit_price: "included",
+        line_total: fmt(l.total),
+      })),
+      totals: [
+        { label: "Material cost", value: fmt(result.total - result.laborCost) },
+        { label: "Labour", value: fmt(result.laborCost) },
+        { label: "Grand total", value: fmt(result.total), strong: true },
+      ],
+      footer:
+        "Estimates are indicative and not a formal quote. Prices reflect the configured material database for your market.",
+    },
+    "frelux-painting-cost-estimate.html",
+  );
+}
 
 export default function CostEstimator({
   embedded = false,
@@ -993,6 +1067,28 @@ export default function CostEstimator({
                     </Button>
                   </div>
                   <div className="mt-3 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        result &&
+                        exportCostQuote({
+                          result,
+                          includes: {
+                            primer: input.includePrimer,
+                            filler: input.includeFiller,
+                            putty: input.includePutty,
+                            sandpaper: input.includeSandpaper,
+                            brushes: input.includeBrushes,
+                            rollers: input.includeRollers,
+                            other: input.includeOther,
+                          },
+                          currencySymbol,
+                        })
+                      }
+                      className="rounded-lg border px-4 py-2 text-sm font-semibold"
+                    >
+                      Export quote (PDF)
+                    </button>
                     <SaveToProjectButton
                       calculatorType="cost"
                       calculatorSlug="cost-estimator"
