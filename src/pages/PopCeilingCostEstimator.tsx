@@ -44,6 +44,7 @@ import LabourCostSection, {
 import { calculateLabourCost } from "@/lib/labour";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
+import { printQuote } from "@/lib/estimation/quote-export";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import UnitToggle from "@/components/measurement/UnitToggle";
@@ -53,6 +54,63 @@ interface PassedState {
   grandTotal?: number;
   /** Canonical project location (location-intelligence) passed via router state. */
   projectLocation?: FreluxLocation | null;
+}
+
+// Printable professional quote, market-currency formatted.
+function exportPopQuote(result: {
+  ceilingArea: number;
+  wasteAmount: number;
+  materialCost: number;
+  labourCost: number;
+  grandTotal: number;
+  currencySymbol: string;
+  materials: {
+    name: string;
+    unit: string;
+    packagesNeeded: number;
+    cost: number;
+    quantity: number;
+  }[];
+  warnings?: string[];
+}) {
+  printQuote(
+    {
+      title: "FRELUX POP Ceiling Estimate",
+      subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.materials.length} material line(s)`,
+      metaRows: [
+        ["Ceiling area", `${formatNumber(result.ceilingArea)} m²`],
+        ["Waste allowance", `${formatNumber(result.wasteAmount)} m²`],
+        ["Materials", String(result.materials.length)],
+      ],
+      lines: result.materials.map((m) => ({
+        label: m.name,
+        quantity: formatNumber(m.packagesNeeded),
+        unit: m.unit,
+        unit_price: "included",
+        line_total: formatCurrency(m.cost, result.currencySymbol),
+        detail: `${formatNumber(m.quantity)} needed incl. waste`,
+      })),
+      totals: [
+        {
+          label: "Material cost",
+          value: formatCurrency(result.materialCost, result.currencySymbol),
+        },
+        {
+          label: "Labour",
+          value: formatCurrency(result.labourCost, result.currencySymbol),
+        },
+        {
+          label: "Grand total",
+          value: formatCurrency(result.grandTotal, result.currencySymbol),
+          strong: true,
+        },
+      ],
+      warnings: result.warnings ?? [],
+      footer:
+        "Estimates are indicative and not a formal quote. Package quantities include the configured waste margin; prices come from the configured material database.",
+    },
+    "frelux-pop-ceiling-estimate.html",
+  );
 }
 
 export default function PopCeilingCostEstimator({
@@ -472,6 +530,13 @@ export default function PopCeilingCostEstimator({
                         />
                       </div>
                       <div className="mt-3 flex justify-center">
+                        <button
+                          type="button"
+                          onClick={() => exportPopQuote(result)}
+                          className="rounded-lg border px-4 py-2 text-sm font-semibold"
+                        >
+                          Export quote (PDF)
+                        </button>
                         <SaveToProjectButton
                           calculatorType="cost"
                           calculatorSlug="pop-ceiling-cost-estimator"
