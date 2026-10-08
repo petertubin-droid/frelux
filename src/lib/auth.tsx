@@ -1,9 +1,16 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import type { Session, User } from '@supabase/supabase-js';
-import { isSupabaseConfigured, getSupabase } from '@/lib/supabase-lazy';
-import type { DbProfile, DbUserPaidStatus } from '@/types/database';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+import type { Session, User } from "@supabase/supabase-js";
+import { isSupabaseConfigured, getSupabase } from "@/lib/supabase-lazy";
+import type { DbProfile, DbUserPaidStatus } from "@/types/database";
 
-export type AccountType = 'client' | 'pro_worker';
+export type AccountType = "client" | "pro_worker";
 
 interface AuthState {
   session: Session | null;
@@ -28,8 +35,14 @@ interface SignInResult {
 
 interface AuthContextValue extends AuthState {
   signIn: (email: string, password: string) => Promise<SignInResult>;
-  signUp: (email: string, password: string, accountType?: AccountType) => Promise<SignUpResult>;
-  signInWithGoogle: (accountType?: AccountType) => Promise<{ error: string | null }>;
+  signUp: (
+    email: string,
+    password: string,
+    accountType?: AccountType,
+  ) => Promise<SignUpResult>;
+  signInWithGoogle: (
+    accountType?: AccountType,
+  ) => Promise<{ error: string | null }>;
   signInWithOtp: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<{ error: string | null }>;
@@ -54,13 +67,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   async function loadProfile(userId: string): Promise<DbProfile | null> {
     const supabase = await getSupabase();
     const { data, error } = await supabase
-      .from('profiles')
-      .select('id, email, role, account_type, full_name, phone, avatar_url, marketplace_id, created_at, updated_at')
-      .eq('id', userId)
+      .from("profiles")
+      .select(
+        "id, email, role, account_type, full_name, phone, avatar_url, marketplace_id, welcome_email_sent, created_at, updated_at",
+      )
+      .eq("id", userId)
       .maybeSingle();
     if (error) {
-      if (import.meta.env.DEV) console.error('[auth] Failed to load profile:', error.message);
+      if (import.meta.env.DEV)
+        console.error("[auth] Failed to load profile:", error.message);
       return null;
+    }
+    // Welcome email (owner directive 2026-10-08): every signup path
+    // (email + password, Google OAuth, email OTP) lands here right
+    // after the profile row is created. The flag is the client-side
+    // hint; the edge function re-checks and sets it server-side, so
+    // the send is at-most-once per user. Fire-and-forget: delivery
+    // never blocks the auth flow and failures are silently ignored.
+    if (
+      data &&
+      (data as Record<string, unknown>).welcome_email_sent === false
+    ) {
+      try {
+        supabase.functions
+          ?.invoke("send-welcome-email", { body: { user_id: userId } })
+          .catch(() => {});
+      } catch {
+        // best effort only
+      }
     }
     return data as DbProfile | null;
   }
@@ -69,15 +103,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Load the user's paid/subscription status from `user_paid_status`.
    * RLS allows users to read only their own row.
    */
-  async function loadPaidStatus(userId: string): Promise<{ status: DbUserPaidStatus | null; isPaid: boolean }> {
+  async function loadPaidStatus(
+    userId: string,
+  ): Promise<{ status: DbUserPaidStatus | null; isPaid: boolean }> {
     const supabase = await getSupabase();
     const { data, error } = await supabase
-      .from('user_paid_status')
-      .select('user_id, is_paid, plan, paid_until, payment_provider, provider_customer_id, updated_at')
-      .eq('user_id', userId)
+      .from("user_paid_status")
+      .select(
+        "user_id, is_paid, plan, paid_until, payment_provider, provider_customer_id, updated_at",
+      )
+      .eq("user_id", userId)
       .maybeSingle();
     if (error) {
-      if (import.meta.env.DEV) console.error('[auth] Failed to load paid status:', error.message);
+      if (import.meta.env.DEV)
+        console.error("[auth] Failed to load paid status:", error.message);
       return { status: null, isPaid: false };
     }
     const status = data as DbUserPaidStatus | null;
@@ -97,7 +136,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!state.user) return;
     const profile = await loadProfile(state.user.id);
     const { status, isPaid } = await loadPaidStatus(state.user.id);
-    setState((s) => ({ ...s, profile, isAdmin: profile?.role === 'admin', paidStatus: status, isPaid }));
+    setState((s) => ({
+      ...s,
+      profile,
+      isAdmin: profile?.role === "admin",
+      paidStatus: status,
+      isPaid,
+    }));
   }
 
   async function refreshPaidStatus() {
@@ -110,20 +155,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    * Set account_type on the user's profile row after signup.
    * Falls back to upsert if the profile row doesn't exist yet (trigger may not have fired).
    */
-  async function setAccountType(userId: string, email: string, accountType: AccountType) {
+  async function setAccountType(
+    userId: string,
+    email: string,
+    accountType: AccountType,
+  ) {
     const supabase = await getSupabase();
     // First try to update existing row
     const { error: updateError } = await supabase
-      .from('profiles')
+      .from("profiles")
       .update({ account_type: accountType })
-      .eq('id', userId);
+      .eq("id", userId);
     if (updateError) {
       // Row might not exist yet, try upsert
       const { error: upsertError } = await supabase
-        .from('profiles')
-        .upsert({ id: userId, email, role: 'user', account_type: accountType }, { onConflict: 'id' });
+        .from("profiles")
+        .upsert(
+          { id: userId, email, role: "user", account_type: accountType },
+          { onConflict: "id" },
+        );
       if (upsertError && import.meta.env.DEV) {
-        console.error('[auth] setAccountType upsert failed:', upsertError.message);
+        console.error(
+          "[auth] setAccountType upsert failed:",
+          upsertError.message,
+        );
       }
     }
   }
@@ -137,38 +192,76 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let mounted = true;
 
     getSupabase().then((supabase) => {
-    supabase.auth.getSession().then(async ({ data, error }) => {
-      if (!mounted) return;
-      if (error) {
-        if (import.meta.env.DEV) console.error('[auth] getSession error:', error.message);
-        setState({ session: null, user: null, profile: null, paidStatus: null, isPaid: false, isAdmin: false, loading: false, configured: true });
-        return;
-      }
-      const session = data.session;
-      const user = session?.user ?? null;
-      const profile = user ? await loadProfile(user.id) : null;
-      const { status: paidStatus, isPaid } = user ? await loadPaidStatus(user.id) : { status: null, isPaid: false };
-      if (!mounted) return;
-      setState({ session, user, profile, paidStatus, isPaid, isAdmin: profile?.role === 'admin', loading: false, configured: true });
-    }).catch((err) => {
-      if (import.meta.env.DEV) console.error('[auth] getSession threw:', err);
-      if (mounted) setState((s) => ({ ...s, loading: false }));
-    });
+      supabase.auth
+        .getSession()
+        .then(async ({ data, error }) => {
+          if (!mounted) return;
+          if (error) {
+            if (import.meta.env.DEV)
+              console.error("[auth] getSession error:", error.message);
+            setState({
+              session: null,
+              user: null,
+              profile: null,
+              paidStatus: null,
+              isPaid: false,
+              isAdmin: false,
+              loading: false,
+              configured: true,
+            });
+            return;
+          }
+          const session = data.session;
+          const user = session?.user ?? null;
+          const profile = user ? await loadProfile(user.id) : null;
+          const { status: paidStatus, isPaid } = user
+            ? await loadPaidStatus(user.id)
+            : { status: null, isPaid: false };
+          if (!mounted) return;
+          setState({
+            session,
+            user,
+            profile,
+            paidStatus,
+            isPaid,
+            isAdmin: profile?.role === "admin",
+            loading: false,
+            configured: true,
+          });
+        })
+        .catch((err) => {
+          if (import.meta.env.DEV)
+            console.error("[auth] getSession threw:", err);
+          if (mounted) setState((s) => ({ ...s, loading: false }));
+        });
 
-    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
-      (async () => {
-        const user = session?.user ?? null;
-        const profile = user ? await loadProfile(user.id) : null;
-        const { status: paidStatus, isPaid } = user ? await loadPaidStatus(user.id) : { status: null, isPaid: false };
-        if (!mounted) return;
-        setState({ session, user, profile, paidStatus, isPaid, isAdmin: profile?.role === 'admin', loading: false, configured: true });
-      })();
-    });
+      const { data: sub } = supabase.auth.onAuthStateChange(
+        (event, session) => {
+          (async () => {
+            const user = session?.user ?? null;
+            const profile = user ? await loadProfile(user.id) : null;
+            const { status: paidStatus, isPaid } = user
+              ? await loadPaidStatus(user.id)
+              : { status: null, isPaid: false };
+            if (!mounted) return;
+            setState({
+              session,
+              user,
+              profile,
+              paidStatus,
+              isPaid,
+              isAdmin: profile?.role === "admin",
+              loading: false,
+              configured: true,
+            });
+          })();
+        },
+      );
 
-    return () => {
-      mounted = false;
-      sub.subscription.unsubscribe();
-    };
+      return () => {
+        mounted = false;
+        sub.subscription.unsubscribe();
+      };
     }); // close getSupabase().then()
   }, []);
 
@@ -177,12 +270,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ...state,
       signIn: async (email, password) => {
         const supabase = await getSupabase();
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
         if (error) return { error: error.message, isAdmin: false };
         const user = data.user;
         const profile = user ? await loadProfile(user.id) : null;
-        const { status: paidStatus, isPaid } = user ? await loadPaidStatus(user.id) : { status: null, isPaid: false };
-        const isAdmin = profile?.role === 'admin';
+        const { status: paidStatus, isPaid } = user
+          ? await loadPaidStatus(user.id)
+          : { status: null, isPaid: false };
+        const isAdmin = profile?.role === "admin";
         setState((s) => ({
           ...s,
           session: data.session,
@@ -195,7 +293,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }));
         return { error: null, isAdmin };
       },
-      signUp: async (email, password, accountType = 'client') => {
+      signUp: async (email, password, accountType = "client") => {
         const supabase = await getSupabase();
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) return { error: error.message, needsConfirmation: false };
@@ -204,17 +302,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (data.user && !needsConfirmation) {
           await setAccountType(data.user.id, email, accountType);
           const profile = await loadProfile(data.user.id);
-          const { status: paidStatus, isPaid } = await loadPaidStatus(data.user.id);
-          setState((s) => ({ ...s, session: data.session, user: data.user, profile, paidStatus, isPaid, isAdmin: false, loading: false }));
+          const { status: paidStatus, isPaid } = await loadPaidStatus(
+            data.user.id,
+          );
+          setState((s) => ({
+            ...s,
+            session: data.session,
+            user: data.user,
+            profile,
+            paidStatus,
+            isPaid,
+            isAdmin: false,
+            loading: false,
+          }));
         }
         return { error: null, needsConfirmation };
       },
-      signInWithGoogle: async (accountType = 'client') => {
+      signInWithGoogle: async (accountType = "client") => {
         // Store selected account type in localStorage so we can set it after OAuth redirect
-        if (accountType) localStorage.setItem('frelux_pending_account_type', accountType);
+        if (accountType)
+          localStorage.setItem("frelux_pending_account_type", accountType);
         const supabase = await getSupabase();
         const { error } = await supabase.auth.signInWithOAuth({
-          provider: 'google',
+          provider: "google",
           options: {
             redirectTo: `${window.location.origin}/login?redirect=/dashboard`,
           },
@@ -234,7 +344,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signOut: async () => {
         const supabase = await getSupabase();
         await supabase.auth.signOut();
-        setState((s) => ({ ...s, session: null, user: null, profile: null, paidStatus: null, isPaid: false, isAdmin: false }));
+        setState((s) => ({
+          ...s,
+          session: null,
+          user: null,
+          profile: null,
+          paidStatus: null,
+          isPaid: false,
+          isAdmin: false,
+        }));
       },
       resetPassword: async (email) => {
         const supabase = await getSupabase();
@@ -247,7 +365,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       refreshPaidStatus,
     }),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [state]
+    [state],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -256,6 +374,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 // eslint-disable-next-line react-refresh/only-export-components
 export function useAuth(): AuthContextValue {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }

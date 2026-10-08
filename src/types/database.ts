@@ -12,6 +12,8 @@ export interface DbProfile {
   onboarding_completed: boolean;
   onboarding_goals: string[];
   onboarding_state: string | null;
+  /** At-most-once guard for the welcome email (server-set, hint for the client). */
+  welcome_email_sent: boolean;
   created_at: string;
   updated_at: string;
 }
