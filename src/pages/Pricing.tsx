@@ -12,6 +12,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import PageHeader from "@/components/ui/PageHeader";
 import { useAuth } from "@/lib/auth";
 import { formatCurrency } from "@/lib/utils";
+import { isConverting } from "@/lib/international/fx-display";
 import { useSeo } from "@/lib/seo";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import { useToast } from "@/components/ui/Toast";
@@ -413,6 +414,11 @@ export default function Pricing() {
                   <span className="text-sm text-muted-foreground">
                     /{billingCycle === "monthly" ? "mo" : "yr"}
                   </span>
+                  {isConverting() && plan.id !== "free" && (
+                    <p className="mt-1 block text-xs text-muted-foreground">
+                      Charged as {formatCurrency(price, "₦")} (Nigerian naira)
+                    </p>
+                  )}
                 </div>
 
                 <Button
