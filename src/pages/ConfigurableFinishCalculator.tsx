@@ -29,6 +29,7 @@ import Container from "@/components/ui/Container";
 import LabourCostSection, {
   useLabourConfig,
 } from "@/components/labour/LabourCostSection";
+import { useCurrencySymbol } from "@/lib/international";
 import { calculateLabourCost } from "@/lib/labour";
 import PageHeader from "@/components/ui/PageHeader";
 import { EstimateDisclaimer } from "@/components/calculators";
@@ -97,6 +98,9 @@ export default function ConfigurableFinishCalculator({
   const [searchParams] = useSearchParams();
 
   // ── Config state ──
+  // Market currency for the visitor's selected market.
+  const currencySymbol = useCurrencySymbol();
+
   const [products, setProducts] = useState<ConfigurableFinishProduct[]>([]);
   const [configError, setConfigError] = useState<string | null>(null);
   const [configLoading, setConfigLoading] = useState(true);
@@ -645,7 +649,7 @@ export default function ConfigurableFinishCalculator({
                         estimatorKey="global"
                         config={labourConfig}
                         onChange={setLabourConfig}
-                        currencySymbol="₦"
+                        currencySymbol={currencySymbol}
                         area={labourAreaM2}
                         last
                       />
