@@ -43,6 +43,7 @@ import type {
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
+import { printQuote } from "@/lib/estimation/quote-export";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 
@@ -53,6 +54,101 @@ interface PassedState {
   input?: Partial<TileCalcInput>;
   /** Canonical project location (location-intelligence) passed via router state. */
   projectLocation?: FreluxLocation | null;
+}
+
+// Printable professional quote, market-currency formatted.
+function exportTileQuote(
+  result: {
+    surfaceArea: number;
+    tilesNeeded: number;
+    boxesNeeded: number;
+    tileCost: number;
+    adhesiveNeeded: number;
+    adhesiveCost: number;
+    cementNeeded: number;
+    cementCost: number;
+    sandNeeded: number;
+    sandCost: number;
+    groutNeeded: number;
+    groutCost: number;
+    spacerNeeded: number;
+    spacerCost: number;
+    wasteAmount: number;
+    materialCost: number;
+    labourCost: number;
+    grandTotal: number;
+    currencySymbol: string;
+    warnings?: string[];
+  },
+  method: string,
+) {
+  const fmt = (v: number) => formatCurrency(v, result.currencySymbol);
+  printQuote(
+    {
+      title: "FRELUX Tile Cost Estimate",
+      subtitle: `Generated ${new Date().toLocaleDateString()} · ${method} installation`,
+      metaRows: [
+        ["Surface area", `${formatNumber(result.surfaceArea)} m²`],
+        ["Tiles needed", String(result.tilesNeeded)],
+        ["Boxes needed", String(result.boxesNeeded)],
+        ["Waste allowance", `${formatNumber(result.wasteAmount)} m²`],
+      ],
+      lines: [
+        {
+          label: "Tiles",
+          quantity: String(result.boxesNeeded),
+          unit: "boxes",
+          unit_price: "included",
+          line_total: fmt(result.tileCost),
+          detail: `${result.tilesNeeded} tiles incl. waste`,
+        },
+        {
+          label: "Adhesive",
+          quantity: formatNumber(result.adhesiveNeeded),
+          unit: "kg",
+          unit_price: "included",
+          line_total: fmt(result.adhesiveCost),
+        },
+        {
+          label: "Cement",
+          quantity: formatNumber(result.cementNeeded),
+          unit: "bags",
+          unit_price: "included",
+          line_total: fmt(result.cementCost),
+        },
+        {
+          label: "Sand",
+          quantity: formatNumber(result.sandNeeded),
+          unit: "trips",
+          unit_price: "included",
+          line_total: fmt(result.sandCost),
+        },
+        {
+          label: "Grout",
+          quantity: formatNumber(result.groutNeeded),
+          unit: "kg",
+          unit_price: "included",
+          line_total: fmt(result.groutCost),
+        },
+        {
+          label: "Spacers",
+          quantity: formatNumber(result.spacerNeeded),
+          unit: "pcs",
+          unit_price: "included",
+          line_total: fmt(result.spacerCost),
+        },
+      ].filter((l) => l.line_total !== fmt(0)),
+      totals: [
+        { label: "Material cost", value: fmt(result.materialCost) },
+        { label: "Labour", value: fmt(result.labourCost) },
+        { label: "Grand total", value: fmt(result.grandTotal), strong: true },
+      ],
+      warnings: result.warnings ?? [],
+      footer:
+        "Estimates are indicative and not a formal quote. Tile quantities include the configured waste margin; prices use the configured material database for your market.",
+    },
+    "frelux-tile-cost-estimate.html",
+  );
 }
 
 export default function TileCostEstimator({
@@ -622,6 +718,13 @@ export default function TileCostEstimator({
                         />
                       </div>
                       <div className="mt-3 flex justify-center">
+                        <button
+                          type="button"
+                          onClick={() => exportTileQuote(result, result.method)}
+                          className="rounded-lg border px-4 py-2 text-sm font-semibold"
+                        >
+                          Export quote (PDF)
+                        </button>
                         <SaveToProjectButton
                           calculatorType="cost"
                           calculatorSlug="tile-cost-estimator"
