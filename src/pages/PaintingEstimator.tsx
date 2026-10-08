@@ -34,6 +34,7 @@ import {
   Shield,
   Building2,
   Info,
+  FileDown,
   MapPin,
   Loader2,
   Briefcase,
@@ -80,6 +81,7 @@ import {
 } from "@/lib/estimation/queries";
 import { saveUserProject } from "@/lib/queries";
 import { SaveToProjectButton } from "@/components/calculators";
+import { printQuote } from "@/lib/estimation/quote-export";
 import { trackCalculation } from "@/lib/achievements";
 import { trackCalculationWithRewards } from "@/lib/rewards-integration";
 import { trackRecentTool } from "@/lib/smart-defaults";
@@ -133,6 +135,53 @@ const PAINT_CATEGORIES = ["emulsion", "matt", "satin"];
 // =========================================================
 // Component
 // =========================================================
+
+// Printable professional quote, market-currency formatted.
+function exportPaintingQuote(args: {
+  rooms: number;
+  area: number;
+  lineItems: {
+    item_name: string;
+    practical_purchase_qty: number;
+    unit_price: number;
+    total_price: number;
+  }[];
+  materialCost: number;
+  labourCost: number;
+  grandTotal: number;
+  currency: string;
+}) {
+  const fmt = (v: number) => formatCurrency(v, args.currency);
+  printQuote(
+    {
+      title: "FRELUX Painting Cost Estimate",
+      subtitle: `Generated ${new Date().toLocaleDateString()} · ${args.rooms} room(s) · ${args.area.toFixed(1)} m²`,
+      metaRows: [
+        ["Rooms", String(args.rooms)],
+        ["Paintable area", `${args.area.toFixed(1)} m²`],
+        ["Material lines", String(args.lineItems.length)],
+      ],
+      lines: args.lineItems.map((li) => ({
+        label: li.item_name,
+        quantity: String(li.practical_purchase_qty),
+        unit: "L",
+        unit_price: fmt(li.unit_price),
+        line_total: fmt(li.total_price),
+      })),
+      totals: [
+        { label: "Material cost", value: fmt(args.materialCost) },
+        {
+          label: "Labour",
+          value: args.labourCost > 0 ? fmt(args.labourCost) : "(not included)",
+        },
+        { label: "Grand total", value: fmt(args.grandTotal), strong: true },
+      ],
+      footer:
+        "Estimates are indicative and not a formal quote. Paint volumes include the configured practical purchase margin; prices come from the configured material database.",
+    },
+    "frelux-painting-estimate.html",
+  );
+}
 
 export default function PaintingEstimator({
   embedded = false,
@@ -2187,6 +2236,25 @@ function EstimateResult({
                 <Save className="h-4 w-4" />
               )}
               {saved ? "Saved" : "Save Estimate"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() =>
+                result &&
+                exportPaintingQuote({
+                  rooms: result.rooms.length,
+                  area: paintAreaM2,
+                  lineItems: result.line_items,
+                  materialCost: result.total_material_cost,
+                  labourCost,
+                  grandTotal,
+                  currency: result.currency,
+                })
+              }
+              className="gap-2"
+            >
+              <FileDown className="h-4 w-4" /> Export Quote (PDF)
             </Button>
             <SaveToProjectButton
               calculatorType="cost"

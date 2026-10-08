@@ -96,6 +96,7 @@ import { TyroleneEstimatorSeo } from "@/components/seo/SeoContent";
 import { useEngineFeatures } from "@/lib/measurement";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
+import { printQuote } from "@/lib/estimation/quote-export";
 import { SITE_URL } from "@/lib/seo";
 import {
   EngineConfidenceBadge,
@@ -120,6 +121,63 @@ const CALCULATOR_TYPE = "tyrolene";
 // =========================================================
 // Component
 // =========================================================
+
+// Printable professional quote, market-currency formatted.
+function exportTyroleneQuote(args: {
+  area: number;
+  partitions: number;
+  materials: {
+    material_name: string;
+    theoretical_unit: string;
+    theoretical_quantity: number;
+    practical_purchase_quantity: number;
+    unit_price: number;
+    total_price: number;
+  }[];
+  theoreticalCost: number;
+  practicalCost: number;
+  labourCost: number;
+  currency: string;
+}) {
+  const fmt = (v: number) => formatCurrency(v, args.currency);
+  printQuote(
+    {
+      title: "FRELUX Tyrolene Estimate",
+      subtitle: `Generated ${new Date().toLocaleDateString()} · ${args.partitions} surface type(s) · ${formatNumber(args.area)} m²`,
+      metaRows: [
+        ["Total area", `${formatNumber(args.area)} m²`],
+        ["Surface types", String(args.partitions)],
+      ],
+      lines: args.materials.map((m) => ({
+        label: m.material_name,
+        quantity: String(m.practical_purchase_quantity),
+        unit: m.theoretical_unit,
+        unit_price: fmt(m.unit_price),
+        line_total: fmt(m.total_price),
+        detail: `${m.theoretical_quantity} ${m.theoretical_unit} theoretical`,
+      })),
+      totals: [
+        {
+          label: "Theoretical material cost",
+          value: fmt(args.theoreticalCost),
+        },
+        { label: "Practical purchase cost", value: fmt(args.practicalCost) },
+        {
+          label: "Labour",
+          value: args.labourCost > 0 ? fmt(args.labourCost) : "(not included)",
+        },
+        {
+          label: "Grand total",
+          value: fmt(args.practicalCost + args.labourCost),
+          strong: true,
+        },
+      ],
+      footer:
+        "Estimates are indicative and not a formal quote. Purchase quantities follow the configured rounding rules per pack size; prices come from the configured material database.",
+    },
+    "frelux-tyrolene-estimate.html",
+  );
+}
 
 export default function TyroleneEstimator({
   embedded = false,
@@ -1578,6 +1636,33 @@ export default function TyroleneEstimator({
                       </Button>
                     </div>
                     <div className="pt-2 flex justify-center">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() =>
+                          exportTyroleneQuote({
+                            area: result.partition_breakdown.reduce(
+                              (sum, part) => sum + part.area,
+                              0,
+                            ),
+                            partitions: result.partition_breakdown.length,
+                            materials: result.materials,
+                            theoreticalCost: result.theoretical_material_cost,
+                            practicalCost: result.practical_purchase_cost,
+                            labourCost: calculateLabourCost(
+                              labourConfig,
+                              result.partition_breakdown.reduce(
+                                (sum, part) => sum + part.area,
+                                0,
+                              ),
+                            ),
+                            currency: result.currency,
+                          })
+                        }
+                        className="gap-2"
+                      >
+                        Export Quote (PDF)
+                      </Button>
                       <SaveToProjectButton
                         calculatorType="tyrolene"
                         calculatorSlug="tyrolene-estimator"
