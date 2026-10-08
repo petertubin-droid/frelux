@@ -1,4 +1,5 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, Suspense, lazy, type ReactNode } from "react";
+const TrendingColors = lazy(() => import("@/components/home/TrendingColors"));
 import { Search, AlertCircle, Grid3x3, Palette } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
@@ -200,6 +201,12 @@ export default function Colors() {
         subtitle="Browse hundreds of professional paint colors and curated palettes with color codes you can take to any paint shop."
         breadcrumbs={[{ label: "Home", path: "/" }, { label: "Color Library" }]}
       />
+
+      {/* Trending colors (moved from homepage, next to the catalog
+          they belong to) */}
+      <Suspense fallback={null}>
+        <TrendingColors />
+      </Suspense>
 
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         {/* Tab switcher */}

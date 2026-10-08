@@ -1,4 +1,11 @@
 import { Link } from "react-router-dom";
+import { Suspense, lazy } from "react";
+const PWASection = lazy(() => import("@/components/home/PWASection"));
+const WeatherWidget = lazy(() =>
+  import("@/components/ui/WeatherWidget").then((m) => ({
+    default: m.WeatherWidget,
+  })),
+);
 import {
   Building2,
   Paintbrush,
@@ -441,6 +448,18 @@ export default function StartBuilding() {
               Learn Construction Basics
             </Link>
           </div>
+        </div>
+        {/* Install the app: PWA / mobile experience (moved from
+            homepage, where onboarding content belongs) */}
+        <Suspense fallback={null}>
+          <PWASection />
+        </Suspense>
+
+        {/* Weather-aware painting scheduler (moved from homepage) */}
+        <div className="mx-auto mt-8 max-w-md">
+          <Suspense fallback={null}>
+            <WeatherWidget />
+          </Suspense>
         </div>
       </Container>
     </>

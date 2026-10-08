@@ -2,25 +2,14 @@ import Hero from "@/components/home/Hero";
 import ChooseProject from "@/components/home/ChooseProject";
 import HowItWorks from "@/components/home/HowItWorks";
 const ToolsSection = lazy(() => import("@/components/home/ToolsSection"));
-const CommercialReadiness = lazy(
-  () => import("@/components/home/CommercialReadiness"),
-);
-const ColorPreview = lazy(() => import("@/components/home/ColorPreview"));
 const FeaturesSection = lazy(() => import("@/components/home/FeaturesSection"));
-const TrendingColors = lazy(() => import("@/components/home/TrendingColors"));
 const InteractiveEstimatePreview = lazy(
   () => import("@/components/home/InteractiveEstimatePreview"),
 );
-const TemplatesShowcase = lazy(
-  () => import("@/components/home/TemplatesShowcase"),
-);
-const PWASection = lazy(() => import("@/components/home/PWASection"));
 const FinalCTA = lazy(() => import("@/components/home/FinalCTA"));
 import AdSlot from "@/components/ui/AdSlot";
 import CrossPromoSlot from "@/components/houseAds/CrossPromoSlot";
-import { WeatherWidget } from "@/components/ui/WeatherWidget";
 import { RecentlyUsed } from "@/components/ui/RecentlyUsed";
-import { AchievementBadges } from "@/components/ui/AchievementBadges";
 import ProConnectHomeSection from "@/components/pro-connect/ProConnectHomeSection";
 import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { useSeo } from "@/lib/seo";
@@ -42,6 +31,18 @@ function SectionSkeleton({ minHeight }: { minHeight: number }) {
   );
 }
 
+/**
+ * Professional homepage: one story, told in order.
+ *
+ * What FRELUX is (Hero) → try it immediately (project chooser, live
+ * estimate preview) → how it works → everything inside (tools grid) →
+ * who it connects (Pro Connect, Marketplace) → why to trust it
+ * (features/trust signals) → act (final CTA).
+ *
+ * Discovery content (templates, colors, commercial readiness, PWA,
+ * weather scheduler, achievements) lives on its own pages, where it
+ * is deeper and more useful than a homepage strip ever could be.
+ */
 export default function Home() {
   const [featuredSlugs, setFeaturedSlugs] = useState<
     { name: string; slug: string; type: string }[]
@@ -117,10 +118,10 @@ export default function Home() {
 
   return (
     <>
-      {/* Hero, clear headline + interactive estimate preview */}
+      {/* What FRELUX is: clear headline + primary CTA */}
       <Hero />
 
-      {/* Choose Your Project, 6 calculator cards immediately below hero */}
+      {/* Try it: 6 calculator cards immediately below hero */}
       <section
         id="calculators"
         aria-label="Calculators"
@@ -134,7 +135,7 @@ export default function Home() {
         <RecentlyUsed />
       </div>
 
-      {/* Interactive estimate preview, product demo with real calc engine */}
+      {/* Proof, not promises: live demo with the real calc engine */}
       <Suspense fallback={<SectionSkeleton minHeight={600} />}>
         <InteractiveEstimatePreview />
       </Suspense>
@@ -154,12 +155,7 @@ export default function Home() {
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
       />
 
-      {/* Commercial readiness, more than calculators */}
-      <Suspense fallback={<SectionSkeleton minHeight={500} />}>
-        <CommercialReadiness />
-      </Suspense>
-
-      {/* All calculators organized by trade, premium product cards */}
+      {/* Everything inside: all calculators organized by trade */}
       <Suspense fallback={<SectionSkeleton minHeight={700} />}>
         <ToolsSection />
       </Suspense>
@@ -170,7 +166,7 @@ export default function Home() {
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
       />
 
-      {/* FRELUX Pro Connect, find the right professional */}
+      {/* Who it connects: hire a verified professional */}
       <ProConnectHomeSection />
 
       {/* Marketplace CTA, post a job and get bids */}
@@ -210,78 +206,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Native banner slot, placement "home_native_3" */}
-      <AdSlot
-        slotKey="home_native_3"
-        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
-      />
-
-      {/* Trust signals + why FRELUX */}
+      {/* Why trust FRELUX: trust signals */}
       <Suspense fallback={<SectionSkeleton minHeight={420} />}>
         <FeaturesSection />
       </Suspense>
 
-      {/* Ad slot, placement "home_mid_2" */}
-      <AdSlot
-        slotKey="home_mid_2"
-        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
-      />
-
-      {/* Ad slot */}
-      <AdSlot
-        slotKey="home_mid"
-        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
-      />
-      <AdSlot slotKey="home_sidebar" className="mt-8" />
-
-      {/* Saved calculations & templates showcase */}
-      <Suspense fallback={<SectionSkeleton minHeight={500} />}>
-        <TemplatesShowcase />
-      </Suspense>
-
-      {/* Cross-site house promo, homepage slot 1 of 2 */}
+      {/* Cross-site house promo */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <CrossPromoSlot slotIndex={0} source="home_1" />
       </div>
 
-      {/* Color inspiration */}
-      <Suspense fallback={<SectionSkeleton minHeight={500} />}>
-        <TrendingColors />
-      </Suspense>
-
-      {/* Home footer ad slot, placement "home_footer" */}
-      <AdSlot slotKey="home_footer" className="mt-12" />
-      <Suspense fallback={<SectionSkeleton minHeight={450} />}>
-        <ColorPreview />
-      </Suspense>
-
-      {/* PWA / mobile experience */}
-      <Suspense fallback={<SectionSkeleton minHeight={450} />}>
-        <PWASection />
-      </Suspense>
-
-      {/* Cross-site house promo, homepage slot 2 of 2 */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <CrossPromoSlot slotIndex={1} source="home_2" />
-      </div>
-
-      {/* Weather-aware painting scheduler */}
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        {/* min-height reserves space across the widget's loading/error/success
-            states so its own internal transitions don't shift page content */}
-        <div className="mx-auto min-h-[300px] max-w-md">
-          <WeatherWidget />
-        </div>
-      </div>
-
-      {/* Achievement badges, gamification */}
-      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <AchievementBadges />
-      </div>
-
-      {/* Ad slot, placement "home_bottom" - the long stretch from
-          home_footer through TrendingColors/ColorPreview/PWASection/
-          WeatherWidget/AchievementBadges had no inventory at all. */}
+      {/* Ad slot, placement "home_bottom" */}
       <AdSlot
         slotKey="home_bottom"
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"

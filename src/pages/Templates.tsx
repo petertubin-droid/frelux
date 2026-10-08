@@ -1,5 +1,8 @@
 import HeroTitle from "@/components/ui/HeroTitle";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, lazy, Suspense } from "react";
+const TemplatesShowcase = lazy(
+  () => import("@/components/home/TemplatesShowcase"),
+);
 import { Link } from "react-router-dom";
 import {
   Search,
@@ -111,6 +114,12 @@ export default function Templates() {
           calculation engine with current prices and material rules.
         </p>
       </div>
+
+      {/* Featured templates showcase (moved from homepage, where it
+          lives better next to the full searchable catalog) */}
+      <Suspense fallback={null}>
+        <TemplatesShowcase />
+      </Suspense>
 
       {/* Search + filters */}
       <div className="mb-6 space-y-3">

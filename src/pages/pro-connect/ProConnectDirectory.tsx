@@ -1,4 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense, lazy } from "react";
+const CommercialReadiness = lazy(
+  () => import("@/components/home/CommercialReadiness"),
+);
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { Search, SlidersHorizontal, X } from "lucide-react";
 import {
@@ -247,6 +250,12 @@ export default function ProConnectDirectory() {
           more across Nigeria
         </p>
       </div>
+
+      {/* Commercial readiness (moved from homepage; the pro
+          positioning pitch belongs on the pro directory) */}
+      <Suspense fallback={null}>
+        <CommercialReadiness />
+      </Suspense>
 
       {/* Search bar */}
       <div className="mb-6 flex gap-3">
