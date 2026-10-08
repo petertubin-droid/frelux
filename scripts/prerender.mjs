@@ -756,9 +756,22 @@ function markdownToHtml(md) {
   return out.join('\n');
 }
 
+
+// On Netlify builds, a failed Supabase fetch must fail the build: without
+// prerendered article pages every /learn/<slug> URL serves a duplicate
+// of the home page, which Google and AdSense both read as low-value
+// content. Local dev (no env / no NETLIFY) keeps the skip.
+const failBuildIfNetlify = (reason) => {
+  if (process.env.NETLIFY) {
+    console.error(`\n ❌ ${reason} — failing the build so article pages cannot silently vanish.\n`);
+    process.exit(1);
+  }
+  console.log(`  ⚠️  ${reason} — skipping dynamic Learn pages (local dev)`);
+};
+
 async function fetchLearnPages() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    console.log('  ⚠️  Supabase env vars missing — skipping dynamic Learn article pages');
+    failBuildIfNetlify('Supabase env vars missing — dynamic Learn article pages skipped');
     return { routes: [], content: {} };
   }
   const headers = { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` };
@@ -837,10 +850,10 @@ async function fetchLearnPages() {
       }
       console.log(`  ✅ Learn: ${learnRoutes.length} dynamic pages (${arts.length} articles, ${cats.length} categories)`);
     } else {
-      console.log(`  ⚠️  Learn fetch failed (${catRes.status}/${artRes.status}) — skipping dynamic Learn pages`);
+      failBuildIfNetlify(`Learn fetch failed (${catRes.status}/${artRes.status})`);
     }
   } catch (err) {
-    console.log(`  ⚠️  Learn fetch failed (${err.message}) — skipping dynamic Learn pages`);
+    failBuildIfNetlify(`Learn fetch failed (${err.message})`);
   }
   return { routes: learnRoutes, content: learnContent };
 }

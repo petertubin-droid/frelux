@@ -3,10 +3,16 @@
  * Translation System for FRELUX
  *
  * Worldwide language layer. Every registered language has:
- *  1. a crawlable locale URL prefix (/es/, /fr/, /de/, /pt/, /ru/,
+ *  1. a locale URL prefix (/es/, /fr/, /de/, /pt/, /ru/,
  *     /id/, /sw/, /ar/, /hi/, /zh/ - plus /en/), routed by App's
- *     LocaleAwareRoutes and declared to crawlers via hreflang
- *     alternates in useSeo + the sitemap.
+ *     LocaleAwareRoutes. Locale URLs are CLIENT-SIDE language
+ *     switching, not crawlable SEO pages: prerender emits one
+ *     content-bearing page per route (English), so locale URLs are
+ *     absent from the sitemap and canonicalize to the English page.
+ *     Listing them in the sitemap previously shipped 1,871 duplicate
+ *     home pages to Google (Search Console kept ~107 of 2,058 URLs).
+ *     Restore hreflang + sitemap entries only once locale URLs carry
+ *     genuinely translated content.
  *  2. real React-level chrome translations (nav labels and common
  *     actions) so locale URLs render translated chrome without the
  *     Google Translate widget. Keys are the English source strings;

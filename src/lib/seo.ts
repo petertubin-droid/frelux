@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { LOCALE_ROUTES, localeFromPathname } from "@/lib/i18n";
+import { localeFromPathname } from "@/lib/i18n";
 
 export interface SeoMeta {
   title: string;
@@ -36,18 +36,6 @@ function setLink(rel: string, href: string) {
   if (!el) {
     el = document.createElement("link");
     el.setAttribute("rel", rel);
-    document.head.appendChild(el);
-  }
-  el.setAttribute("href", href);
-}
-
-function setHreflangLink(hreflang: string, href: string) {
-  const selector = `link[rel="alternate"][hreflang="${hreflang}"]`;
-  let el = document.head.querySelector(selector) as HTMLLinkElement | null;
-  if (!el) {
-    el = document.createElement("link");
-    el.setAttribute("rel", "alternate");
-    el.setAttribute("hreflang", hreflang);
     document.head.appendChild(el);
   }
   el.setAttribute("href", href);
@@ -138,18 +126,14 @@ export function useSeo(meta: SeoMeta | null) {
     // Canonical URL, always set
     setLink("canonical", canonicalUrl);
 
-    // International SEO: every registered language has a crawlable
-    // locale URL (/es/, /fr/, ... served by LocaleAwareRoutes). The
-    // canonical is the page itself in the locale being viewed, and we
-    // declare the full alternate set + x-default (the English path).
-    const urlLocale = localeFromPathname(window.location.pathname);
-    const localePrefix = urlLocale ? `/${urlLocale}` : "";
-    const localizedCanonical = `${SITE_URL}${localePrefix}${canonicalPath}`;
-    setLink("canonical", localizedCanonical);
-    for (const { value: loc } of LOCALE_ROUTES) {
-      setHreflangLink(loc, `${SITE_URL}/${loc}${canonicalPath}`);
-    }
-    setHreflangLink("x-default", `${SITE_URL}${canonicalPath}`);
+    // Locale URLs (/es/, /fr/, ...) are client-side language switching
+    // over the same underlying English content: prerender emits exactly
+    // one content-bearing page per route. Google consolidates them anyway
+    // (Search Console kept only ~107 of 2,058 submitted URLs), so the
+    // canonical above stays the English page and no hreflang alternate
+    // set is declared while locale URLs serve duplicate content. If
+    // locale URLs ever carry genuinely translated content, restore the
+    // alternate set here.
 
     // Robots
     if (meta.noIndex) {

@@ -141,7 +141,7 @@ const routes = [
 // ── Learn section: dynamic category + article URLs from Supabase ─────
 async function fetchLearnRoutes() {
   if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-    console.log('  ⚠️  Supabase env vars missing — skipping dynamic Learn URLs');
+    failBuildIfNetlify('Supabase env vars missing — dynamic Learn URLs skipped');
     return [];
   }
   const headers = { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` };
@@ -171,12 +171,29 @@ async function fetchLearnRoutes() {
       }
     }
     console.log(`  ✅ Learn: ${learnRoutes.length} dynamic URLs`);
+    if (!catRes.ok || !artRes.ok) {
+      failBuildIfNetlify(`Learn fetch failed (categories ${catRes.status}, articles ${artRes.status})`);
+      return learnRoutes;
+    }
   } catch (err) {
-    console.log(`  ⚠️  Learn fetch failed (${err.message}) — falling back to static routes only`);
+    failBuildIfNetlify(`Learn fetch failed (${err.message})`);
     return [];
   }
   return learnRoutes;
 }
+
+
+// On Netlify builds, a failed Supabase fetch must fail the build: a
+// sitemap that silently drops the 66 learn articles + 13 categories is
+// how "Google only sees ~100 pages" happens unnoticed. Local dev (no
+// env / no NETLIFY) keeps the static-routes fallback.
+const failBuildIfNetlify = (reason) => {
+  if (process.env.NETLIFY) {
+    console.error(`\n ❌ ${reason} — failing the build so the sitemap cannot silently lose content pages.\n`);
+    process.exit(1);
+  }
+  console.log(`  ⚠️  ${reason} — falling back to static routes only (local dev)`);
+};
 
 const learnRoutes = await fetchLearnRoutes();
 const allRoutes = [...routes, ...learnRoutes];
@@ -188,46 +205,32 @@ const allRoutes = [...routes, ...learnRoutes];
 // ?mode= URLs, so they are deliberately absent from the route list.
 const canonical = (p) => (p === '/' ? p : `${p}/`);
 
-// ── Locale-aware URLs ────────────────────────────────────────────────
-// LocaleAwareRoutes serves every public page under /<locale>/... for the
-// 11 registered languages. Each URL is emitted with its full hreflang
-// alternate set (matching the <link rel="alternate"> tags useSeo emits)
-// plus x-default pointing at the English path.
-const LOCALES = ['en', 'es', 'fr', 'de', 'pt', 'ru', 'id', 'sw', 'ar', 'hi', 'zh'];
-const alternates = (path) =>
-  LOCALES.map(
-    (loc) => `    <xhtml:link rel="alternate" hreflang="${loc}" href="${SITE_URL}${canonical(`/${loc}${path === '/' ? '' : path}`)}" />`
-  ).join('\n') +
-  `\n    <xhtml:link rel="alternate" hreflang="x-default" href="${SITE_URL}${canonical(path)}" />`;
+// ── English-only URL emission ────────────────────────────────────────
+// The 11 locale-prefixed URL forms (/es/, /fr/, ...) were previously
+// listed with hreflang alternates, but prerender emits exactly one
+// content-bearing page per route (English), so every locale URL served
+// a byte-identical copy of the home page to crawlers. Google Search
+// Console kept only ~107 of the 2,058 submitted URLs for exactly this
+// reason, and AdSense reviews read that mass-duplication as low-value
+// content. Until locale URLs carry genuinely translated content, the
+// sitemap lists only the unique English URLs. Locale switching stays
+// fully client-side (LocaleAwareRoutes) for human visitors.
 const urlEntry = (path, opts = {}) => `  <url>
-    <loc>${SITE_URL}${canonical(opts.loc ? `/${opts.loc}${path === '/' ? '' : path}` : path)}</loc>
-${alternates(path)}
+    <loc>${SITE_URL}${canonical(path)}</loc>
     <lastmod>${today}</lastmod>
     <changefreq>${opts.changefreq ?? 'monthly'}</changefreq>
     <priority>${opts.priority ?? '0.6'}</priority>
   </url>`;
 const localizedEntries = [];
 for (const r of allRoutes) {
-  if (r.path === '/') {
-    // root: also list /en/ as the English home alternate set anchor
-    localizedEntries.push(urlEntry('/', { priority: '1.0', changefreq: r.changefreq }));
-    continue;
-  }
-  // English (no prefix) entry carries the canonical alternate set
-  localizedEntries.push(urlEntry(r.path, { priority: r.priority, changefreq: r.changefreq }));
-  // and each locale-prefixed URL
-  for (const loc of LOCALES) {
-    if (loc === 'en') continue;
-    localizedEntries.push(
-      urlEntry(r.path, { loc, priority: r.priority, changefreq: r.changefreq })
-    );
-  }
+  localizedEntries.push(
+    urlEntry(r.path, { priority: r.priority ?? (r.path === '/' ? '1.0' : '0.6'), changefreq: r.changefreq })
+  );
 }
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"${' '}
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
 ${localizedEntries.join('\n')}
 </urlset>
 `;
@@ -241,4 +244,4 @@ try {
 }
 writeFileSync('public/sitemap.xml', xml);
 console.log('  ✅ public/sitemap.xml');
-console.log(`\n sitemap generated with ${localizedEntries.length} URLs (${allRoutes.length} routes x ${LOCALES.length + 1} URL forms)`);
+console.log(`\n sitemap generated with ${localizedEntries.length} URLs (${allRoutes.length} unique English routes)`);
