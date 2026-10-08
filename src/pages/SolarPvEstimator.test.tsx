@@ -348,6 +348,12 @@ vi.mock("@/lib/estimation/queries", () => ({
 }));
 
 vi.mock("@/lib/analytics", () => ({ track: vi.fn() }));
+
+// SaveToProjectButton requires the auth provider; the save flow
+// itself is covered by the queries mock below.
+vi.mock("@/components/calculators/SaveToProjectButton", () => ({
+  default: () => null,
+}));
 vi.mock("@/lib/seo", () => ({
   useSeo: vi.fn(),
   useBreadcrumbJsonLd: vi.fn(() => null),

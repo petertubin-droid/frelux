@@ -14,6 +14,9 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
+import { formatCurrency } from "@/lib/utils";
+import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
+import { EstimateDisclaimer } from "@/components/calculators";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
@@ -22,6 +25,8 @@ import {
   fetchSolarPanelModels,
   fetchSolarComponentPrices,
   fetchCalcRules,
+  createEstimate,
+  createEstimateItem,
 } from "@/lib/estimation/queries";
 import {
   calculateSolarPv,
@@ -55,6 +60,200 @@ export default function SolarPvEstimator() {
   const [cableRun, setCableRun] = useState("");
   const [storage, setStorage] = useState("");
   const [result, setResult] = useState<SolarPvResult | null>(null);
+  const [saveState, setSaveState] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+
+  const pricedTotal = result
+    ? (result.total_cost_naira ?? result.total_of_priced_lines_naira)
+    : 0;
+
+  const handleSave = async () => {
+    if (!result?.ok) return;
+    setSaveState("saving");
+    setSaveMessage(null);
+    try {
+      const model = models.find((m) => m.id === modelId);
+      const { data: estimate, error: estError } = await createEstimate({
+        estimate_ref: `SLR-${Date.now().toString(36).toUpperCase()}`,
+        user_id: null,
+        client_hash: null,
+        calculator_type: "solar_pv",
+        project_description: `Solar/PV installation: ${result.panel_count} x ${model?.watt_peak ?? ""} Wp panels (${result.array_kwp} kWp)`,
+        inputs: {
+          mode,
+          panel_model: model?.model_name ?? "",
+          panel_watt_peak: model?.watt_peak ?? null,
+          usable_roof_area_m2: roofArea ? Number(roofArea) : null,
+          daily_energy_target_kwh: energyTarget ? Number(energyTarget) : null,
+          cable_run_m: Number(cableRun),
+          battery_storage_kwh: storage ? Number(storage) : null,
+          system: {
+            panel_count: result.panel_count,
+            array_kwp: result.array_kwp,
+            daily_energy_kwh: result.daily_energy_kwh,
+            inverter_size_kw: result.inverter_size_kw,
+            string_count: result.string_count,
+            needed_roof_area_m2: result.needed_roof_area_m2,
+            battery_count: result.battery_count,
+          },
+          steps: result.steps,
+        },
+        calculation_method: "panel_model",
+        calculated_quantities: {
+          materials: result.materials.map((m) => ({
+            key: m.key,
+            label: m.label,
+            quantity: m.quantity,
+            unit: m.unit,
+            line_cost: m.line_cost_naira,
+          })),
+        } as unknown as Record<string, unknown>,
+        total_material_cost: pricedTotal,
+        currency: "NGN",
+        labour_status: "included",
+        warnings: result.warnings,
+        recommendations: [],
+        status: "calculated",
+      });
+      if (estError || !estimate) {
+        setSaveState("error");
+        setSaveMessage(estError?.message ?? "Save failed.");
+        return;
+      }
+      for (const m of result.materials) {
+        const { error: itemError } = await createEstimateItem({
+          estimate_id: estimate.id,
+          item_name: m.label,
+          item_type: "material",
+          quantity_required: m.quantity,
+          practical_purchase_qty: m.quantity,
+          unit: m.unit,
+          unit_price: m.unit_price_naira ?? 0,
+          total_price: m.line_cost_naira ?? 0,
+          price_snapshot: {
+            price_type: "solar_component",
+            component_key: m.key,
+            source: "FRELUX admin-configured price",
+            effective_date: new Date().toISOString().slice(0, 10),
+          },
+        });
+        if (itemError) {
+          setSaveState("error");
+          setSaveMessage(itemError.message);
+          return;
+        }
+      }
+      if (result.labor_cost_naira !== null) {
+        const { error: laborError } = await createEstimateItem({
+          estimate_id: estimate.id,
+          item_name: "Installation labour",
+          item_type: "labour",
+          quantity_required: result.panel_count ?? 0,
+          practical_purchase_qty: result.panel_count ?? 0,
+          unit: "panel",
+          unit_price: 0,
+          total_price: result.labor_cost_naira,
+          price_snapshot: {
+            price_type: "rule",
+            rule_key: "labor_cost_per_panel_naira",
+            source: "FRELUX admin-configured rule",
+            effective_date: new Date().toISOString().slice(0, 10),
+          },
+        });
+        if (laborError) {
+          setSaveState("error");
+          setSaveMessage(laborError.message);
+          return;
+        }
+      }
+      setSaveState("saved");
+      setSaveMessage("Estimate saved with its full bill of materials.");
+    } catch (err) {
+      setSaveState("error");
+      setSaveMessage(err instanceof Error ? err.message : "Save failed.");
+    }
+  };
+
+  // Printable professional quote (print dialog; popup-blocked fallback
+  // downloads the quote as a printable HTML file).
+  const handleExportQuote = () => {
+    if (!result?.ok) return;
+    const model = models.find((m) => m.id === modelId);
+    const rows = result.materials
+      .map(
+        (m) => `<tr>
+          <td>${m.label}</td>
+          <td class="n">${m.quantity.toLocaleString("en-NG")} ${m.unit}</td>
+          <td class="n">${m.unit_price_naira === null ? "unpriced" : formatCurrency(m.unit_price_naira)}</td>
+          <td class="n">${m.line_cost_naira === null ? "N/A" : formatCurrency(m.line_cost_naira)}</td>
+        </tr>`,
+      )
+      .join("");
+    const laborRow =
+      result.labor_cost_naira !== null
+        ? `<tr><td>Installation labour</td><td class="n">${result.panel_count} panels</td><td class="n">included</td><td class="n">${formatCurrency(result.labor_cost_naira)}</td></tr>`
+        : "";
+    const warnings = result.warnings.length
+      ? `<h3>Notes</h3><ul>${result.warnings.map((w) => `<li>${w}</li>`).join("")}</ul>`
+      : "";
+    const html = `<!doctype html><html><head><meta charset="utf-8">
+      <title>FRELUX Solar/PV Installation Estimate</title>
+      <style>
+        body { font-family: Arial, Helvetica, sans-serif; color: #111; margin: 40px; }
+        h1 { font-size: 20px; margin: 0 0 2px; } h2 { font-size: 15px; margin: 18px 0 6px; }
+        h3 { font-size: 13px; margin: 14px 0 4px; }
+        .sub { color: #555; font-size: 12px; margin-bottom: 18px; }
+        table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        th, td { border-bottom: 1px solid #ddd; padding: 6px 8px; text-align: left; }
+        th { border-bottom: 2px solid #111; text-transform: uppercase; font-size: 10px; }
+        .n { text-align: right; }
+        .total { font-size: 16px; font-weight: bold; margin-top: 10px; }
+        .disclaimer { color: #777; font-size: 10px; margin-top: 24px; }
+        ul { font-size: 12px; padding-left: 18px; }
+        .meta td { border: none; padding: 2px 8px 2px 0; }
+      </style></head><body>
+      <h1>FRELUX Solar/PV Installation Estimate</h1>
+      <div class="sub">Generated ${new Date().toLocaleDateString()} &middot; Panel model: ${model?.model_name ?? ""} (${model?.watt_peak ?? ""} Wp)</div>
+      <h2>System summary</h2>
+      <table class="meta">
+        <tr><td><b>Panels:</b> ${result.panel_count} (${result.array_kwp} kWp)</td>
+        <td><b>Daily energy:</b> ${result.daily_energy_kwh} kWh</td></tr>
+        <tr><td><b>Inverter:</b> ${result.inverter_size_kw} kW (${result.string_count} string(s))</td>
+        <td><b>Roof area needed:</b> ${result.needed_roof_area_m2} m&sup2;</td></tr>
+        <tr><td><b>Batteries:</b> ${result.battery_count > 0 ? `${result.battery_count} unit(s)` : "none"}</td>
+        <td><b>Cable run:</b> ${cableRun} m</td></tr>
+      </table>
+      <h2>Bill of materials</h2>
+      <table>
+        <thead><tr><th>Material</th><th class="n">Quantity</th><th class="n">Unit price</th><th class="n">Line cost</th></tr></thead>
+        <tbody>${rows}${laborRow}</tbody>
+      </table>
+      <p class="total">Total estimate: ${formatCurrency(pricedTotal)}${
+        result.total_cost_naira === null
+          ? " (priced lines only; some components are unpriced)"
+          : ""
+      }</p>
+      ${warnings}
+      <p class="disclaimer">Estimates are indicative and not a formal quote. Prices come from FRELUX admin-configured component prices; unpriced components are reported, never invented.</p>
+      </body></html>`;
+    const w = window.open("", "_blank", "width=900,height=720");
+    if (!w) {
+      const blob = new Blob([html], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "frelux-solar-pv-estimate.html";
+      a.click();
+      URL.revokeObjectURL(url);
+      return;
+    }
+    w.document.write(html);
+    w.document.close();
+    w.focus();
+    w.print();
+  };
 
   const load = useCallback(async () => {
     const m = await fetchSolarPanelModels(true);
@@ -319,12 +518,12 @@ export default function SolarPvEstimator() {
                         <td className="py-2 text-right font-mono text-xs">
                           {m.unit_price_naira === null
                             ? "unpriced"
-                            : `₦${m.unit_price_naira.toLocaleString("en-NG")}`}
+                            : formatCurrency(m.unit_price_naira)}
                         </td>
                         <td className="py-2 text-right font-mono text-xs">
                           {m.line_cost_naira === null
                             ? "N/A"
-                            : `₦${m.line_cost_naira.toLocaleString("en-NG")}`}
+                            : formatCurrency(m.line_cost_naira)}
                         </td>
                       </tr>
                     ))}
@@ -335,8 +534,7 @@ export default function SolarPvEstimator() {
                       </td>
                       <td className="py-2 text-right font-mono text-xs">N/A</td>
                       <td className="py-2 text-right font-mono text-xs">
-                        ₦
-                        {(result.labor_cost_naira ?? 0).toLocaleString("en-NG")}
+                        {formatCurrency(result.labor_cost_naira ?? 0)}
                       </td>
                     </tr>
                   </tbody>
@@ -351,7 +549,7 @@ export default function SolarPvEstimator() {
                 </p>
                 {result.total_cost_naira !== null ? (
                   <p className="mt-1 text-3xl font-semibold">
-                    ₦{result.total_cost_naira.toLocaleString("en-NG")}
+                    {formatCurrency(result.total_cost_naira)}
                   </p>
                 ) : (
                   <>
@@ -396,6 +594,76 @@ export default function SolarPvEstimator() {
                 ))}
               </ul>
             </details>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={saveState === "saving" || saveState === "saved"}
+                className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground disabled:opacity-50"
+              >
+                {saveState === "saving"
+                  ? "Saving…"
+                  : saveState === "saved"
+                    ? "Saved"
+                    : "Save estimate"}
+              </button>
+              <button
+                type="button"
+                onClick={handleExportQuote}
+                className="rounded-lg bg-secondary px-4 py-2 text-sm font-semibold text-secondary-foreground"
+              >
+                Export quote (PDF)
+              </button>
+              <SaveToProjectButton
+                calculatorType="cost"
+                calculatorSlug="solar-pv-estimator"
+                calcTitle="Solar/PV Installation Estimate"
+                calcData={
+                  {
+                    mode,
+                    panel_model: modelId,
+                    cable_run_m: Number(cableRun),
+                    result: {
+                      panel_count: result.panel_count,
+                      array_kwp: result.array_kwp,
+                      daily_energy_kwh: result.daily_energy_kwh,
+                      inverter_size_kw: result.inverter_size_kw,
+                      string_count: result.string_count,
+                      needed_roof_area_m2: result.needed_roof_area_m2,
+                      battery_count: result.battery_count,
+                      total: pricedTotal,
+                      currency: "NGN",
+                    },
+                  } as unknown as Record<string, unknown>
+                }
+                resultSummary={
+                  {
+                    grandTotal: pricedTotal,
+                    panelCount: result.panel_count,
+                    arrayKwp: result.array_kwp,
+                    dailyEnergyKwh: result.daily_energy_kwh,
+                  } as unknown as Record<string, unknown>
+                }
+                materials={result.materials.map((m) => ({
+                  name: m.label,
+                  category: "material",
+                  quantity: m.quantity,
+                  unit: m.unit,
+                }))}
+                compact
+                label="Save to Project"
+              />
+              {saveMessage && (
+                <span
+                  className={`text-xs ${saveState === "error" ? "text-destructive" : "text-muted-foreground"}`}
+                >
+                  {saveMessage}
+                </span>
+              )}
+            </div>
+
+            <EstimateDisclaimer text="Estimates are indicative and not a formal quote." />
           </div>
         )}
       </div>
