@@ -17,8 +17,11 @@ interface BrandingContextValue {
 const defaultBranding: DbSiteBranding = {
   id: "",
   website_name: "FRELUX PROJECT CALC",
-  website_tagline: "Construction Estimation & Project Planning",
-  browser_title: "FRELUX PROJECT CALC: Construction Estimation & Project Planning",
+  // Worldwide positioning, aligned with the final personalization pass
+  // (2026-10-08). These are fallbacks; the live site_settings row still
+  // overrides them.
+  website_tagline: "Every Trade. Every Cost. One Platform.",
+  browser_title: "FRELUX PROJECT CALC | Every Trade. Every Cost. One Platform.",
   light_logo_url: null,
   dark_logo_url: null,
   favicon_url: null,

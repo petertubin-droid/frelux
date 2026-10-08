@@ -43,11 +43,13 @@ export default function About() {
       updated="2026-09-03"
       intro={
         <p>
-          FRELUX PROJECT CALC is a practical painting, construction, and color
-          platform built to help homeowners, decorators, and contractors plan
-          projects with confidence. Founded in 2025 and based in Nigeria, our
-          tools are calibrated for the Nigerian market while remaining useful
-          for users worldwide.
+          FRELUX PROJECT CALC is a premium construction estimation platform
+          built to help homeowners, decorators, and contractors anywhere in the
+          world plan projects with confidence. Founded in 2025 and based in
+          Nigeria, our tools are priced and calibrated against real market data,
+          and they speak 10 languages, so the same platform that serves a Lagos
+          site serves a builder in London, Dubai, or São Paulo with equal
+          precision.
         </p>
       }
       sections={[
@@ -75,14 +77,14 @@ export default function About() {
               <br />
               <strong>Paint Calculator</strong>, Estimate the exact quantity of
               paint needed for any room, house, exterior, or fence. Factor in
-              doors, windows, coats, surface conditions, and waste margin
-              for an accurate material list.
+              doors, windows, coats, surface conditions, and waste margin for an
+              accurate material list.
               <br />
               <br />
               <strong>Cost Estimators</strong>, Go beyond quantity. Our
-              estimators factor in labour, transport, markup, profit, and tax
-              to give you a realistic project budget calibrated to Nigerian
-              market rates.
+              estimators factor in labour, transport, markup, profit, and tax to
+              give you a realistic project budget calibrated to Nigerian market
+              rates.
               <br />
               <br />
               <strong>Screeding, POP Ceiling & Tile Calculators</strong>, The
@@ -92,8 +94,8 @@ export default function About() {
               <br />
               <strong>Color Library & Smart Color Assistant</strong>, Browse
               curated color combinations, compare options side by side, and get
-              AI-powered color recommendations based on your room description
-              or uploaded photo.
+              AI-powered color recommendations based on your room description or
+              uploaded photo.
               <br />
               <br />
               <strong>Project Templates</strong>, Pre-configured project
@@ -102,8 +104,8 @@ export default function About() {
               <br />
               <br />
               <strong>Learn Hub</strong>, Educational guides on painting
-              techniques, material selection, preparation, and construction
-              best practices.
+              techniques, material selection, preparation, and construction best
+              practices.
             </p>
           ),
         },
@@ -111,12 +113,12 @@ export default function About() {
           heading: "Who it's for",
           body: (
             <p>
-              Whether you are a homeowner planning a weekend refresh, a decorator
-              quoting a client project, a contractor estimating materials for a
-              tender, or a DIYer learning the ropes, our tools are designed to be
-              clear and practical. We focus on the Nigerian market for pricing
-              and product availability, but the calculation methodology works for
-              any project anywhere in the world.
+              Whether you are a homeowner planning a weekend refresh, a
+              decorator quoting a client project, a contractor estimating
+              materials for a tender, or a DIYer learning the ropes, our tools
+              are designed to be clear and practical. We focus on the Nigerian
+              market for pricing and product availability, but the calculation
+              methodology works for any project anywhere in the world.
             </p>
           ),
         },
@@ -140,8 +142,8 @@ export default function About() {
           heading: "Why we built this",
           body: (
             <p>
-              We started FRELUX PROJECT CALC after years of seeing homeowners and
-              contractors struggle with material estimation, buying too much
+              We started FRELUX PROJECT CALC after years of seeing homeowners
+              and contractors struggle with material estimation, buying too much
               paint and wasting money, or buying too little and running out
               mid-project. Color selection was equally challenging, with
               homeowners relying on small swatches that looked completely

@@ -5,10 +5,11 @@ import { navToolsByCategory } from "./construction-tools";
 export const siteConfig = {
   name: "FRELUX PROJECT CALC",
   shortName: "FRELUX",
-  tagline:
-    "Construction estimation, painting, finishing & project planning platform",
+  // Final worldwide positioning (matches the client-approved hero copy,
+  // 2026-10-06): premium, platform-level, trade-agnostic.
+  tagline: "Every trade. Every cost. One platform.",
   description:
-    "Construction estimation, painting, finishing & project planning platform for professionals and homeowners.",
+    "Frelux turns your measurements into exact material quantities and real, market-verified costs, from a single room to an entire building, foundation to roof. Free, professional-grade estimation in 10 languages, for builders worldwide.",
   // International format without "+" for wa.me links
   whatsappNumber: "2349063612439",
   whatsappDisplay: "+234 906 361 2439",
