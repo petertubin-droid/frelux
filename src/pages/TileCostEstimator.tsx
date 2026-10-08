@@ -15,9 +15,12 @@ import {
   fetchSiteSettings,
   saveUserProject,
 } from "@/lib/queries";
-import { formatNumber, formatCurrency } from "@/lib/utils";
+import { formatNumber, formatCurrency, unitShortLabel } from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
-import { useProjectLocationCurrency, type FreluxLocation } from "@/lib/location-intelligence";
+import {
+  useProjectLocationCurrency,
+  type FreluxLocation,
+} from "@/lib/location-intelligence";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
 import {
@@ -43,6 +46,7 @@ import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 
+import UnitToggle from "@/components/measurement/UnitToggle";
 interface PassedState {
   surfaceArea?: number;
   grandTotal?: number;
@@ -125,8 +129,10 @@ export default function TileCostEstimator({
   // Regional data flow: a calculator opened from a saved project follows
   // the project's location → active market profile currency. No location
   // (or unsupported region) → existing settings-based behavior unchanged.
-  const { currencyCode: projectCurrencyCode, currencySymbol: projectCurrencySymbol } =
-    useProjectLocationCurrency(passed.projectLocation ?? null);
+  const {
+    currencyCode: projectCurrencyCode,
+    currencySymbol: projectCurrencySymbol,
+  } = useProjectLocationCurrency(passed.projectLocation ?? null);
   const currencySymbol =
     projectCurrencySymbol ?? settings?.default_currency_symbol ?? "₦";
   const currency = projectCurrencyCode ?? settings?.default_currency ?? "NGN";
@@ -301,22 +307,10 @@ export default function TileCostEstimator({
                 </select>
               </Field>
               <div className="mt-4 inline-flex rounded-lg border border-border dark:border-white/5 p-1">
-                {(["meters", "feet"] as Unit[]).map((u) => (
-                  <Button
-                    variant="ghost"
-                    key={u}
-                    type="button"
-                    onClick={() => update("unit", u)}
-                    className={
-                      "rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all " +
-                      (input.unit === u
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground dark:text-muted-foreground/80 hover:text-brand-purple")
-                    }
-                  >
-                    {u}
-                  </Button>
-                ))}
+                <UnitToggle
+                  value={input.unit}
+                  onChange={(u) => update("unit", u)}
+                />
               </div>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
                 <Field
@@ -325,7 +319,7 @@ export default function TileCostEstimator({
                       ? "Floor length"
                       : "Wall length"
                   }
-                  suffix={input.unit === "meters" ? "m" : "ft"}
+                  suffix={unitShortLabel(input.unit)}
                 >
                   <input
                     type="number"
@@ -340,7 +334,7 @@ export default function TileCostEstimator({
                 {input.surfaceType === "floor" ? (
                   <Field
                     label="Floor width"
-                    suffix={input.unit === "meters" ? "m" : "ft"}
+                    suffix={unitShortLabel(input.unit)}
                   >
                     <input
                       type="number"
@@ -355,7 +349,7 @@ export default function TileCostEstimator({
                 ) : (
                   <Field
                     label="Wall height"
-                    suffix={input.unit === "meters" ? "m" : "ft"}
+                    suffix={unitShortLabel(input.unit)}
                   >
                     <input
                       type="number"

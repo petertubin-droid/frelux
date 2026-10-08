@@ -1,5 +1,10 @@
 export type ProjectType = "room" | "house" | "exterior" | "fence";
-export type Unit = "meters" | "feet";
+/**
+ * Measurement units accepted by FRELUX calculators.
+ * All five length units are selectable on every calculator page;
+ * engines normalise to metres internally via unitToMeters().
+ */
+export type Unit = "meters" | "feet" | "inches" | "centimeters" | "millimeters";
 export type SurfaceCondition = "smooth" | "textured" | "rough" | "new_plaster";
 export type ColorCondition =
   "same_or_light" | "dark_over_light" | "light_over_dark" | "new_unpainted";

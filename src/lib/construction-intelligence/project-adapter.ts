@@ -126,7 +126,15 @@ export function dbRoomsToSpaces(rooms: DbProjectRoom[]): RoomsToSpacesResult {
         width: widthM,
         // Unknown height → Space Engine documented default, traceable in steps.
         height: room.height_m ?? undefined,
-        unit: room.unit === "feet" ? "feet" : "meters",
+        // The stored room.unit is the unit the stored dimensions are in.
+        // Any unrecognised/legacy value falls back to metres, which is what
+        // createSpace expects for dimensions saved by older clients.
+        unit: (
+          ["meters", "feet", "inches", "centimeters", "millimeters"] as const
+        ).includes(room.unit as "meters")
+          ? (room.unit as
+              "meters" | "feet" | "inches" | "centimeters" | "millimeters")
+          : "meters",
         quantity: 1,
         surfaceType: "wall",
         finishType: "none",

@@ -16,29 +16,30 @@
 // Unit Types
 // =========================================================
 
-export type LengthUnit = 'feet' | 'meters' | 'inches';
+export type LengthUnit =
+  "feet" | "meters" | "inches" | "centimeters" | "millimeters";
 
 /**
  * Area input units the user might choose directly.
  * Note: users typically enter length × width in a length unit, not as a pre-computed area.
  * But for flexibility, direct area entry is supported where applicable.
  */
-export type AreaUnit = 'sqft' | 'sqm';
+export type AreaUnit = "sqft" | "sqm";
 
 /**
  * Calculator context, determines which units are available to the user.
  * This is the context-aware unit selector (spec section 22).
  */
 export type CalculatorContext =
-  | 'painting'
-  | 'screeding'
-  | 'tiling'
-  | 'grafitex'
-  | 'block'
-  | 'pop'
-  | 'tyrolene'
-  | 'fence_screeding'
-  | 'fence_painting';
+  | "painting"
+  | "screeding"
+  | "tiling"
+  | "grafitex"
+  | "block"
+  | "pop"
+  | "tyrolene"
+  | "fence_screeding"
+  | "fence_painting";
 
 // =========================================================
 // Conversion Constants (exact, per international definition)
@@ -69,12 +70,18 @@ export const SQFT_TO_SQM = FT_TO_M * FT_TO_M;
  */
 export function toMeters(value: number, unit: LengthUnit): number {
   switch (unit) {
-    case 'meters':
+    case "meters":
       return value;
-    case 'feet':
+    case "feet":
       return value * FT_TO_M;
-    case 'inches':
+    case "inches":
       return value * INCH_TO_M;
+    case "centimeters":
+      // 1 centimetre = 0.01 metres (exact)
+      return value * 0.01;
+    case "millimeters":
+      // 1 millimetre = 0.001 metres (exact)
+      return value * 0.001;
     default:
       throw new Error(`Unknown length unit: ${unit}`);
   }
@@ -86,12 +93,16 @@ export function toMeters(value: number, unit: LengthUnit): number {
  */
 export function fromMeters(valueM: number, unit: LengthUnit): number {
   switch (unit) {
-    case 'meters':
+    case "meters":
       return valueM;
-    case 'feet':
+    case "feet":
       return valueM * M_TO_FT;
-    case 'inches':
+    case "inches":
       return valueM / INCH_TO_M;
+    case "centimeters":
+      return valueM / 0.01; // exact inverse of 1 cm
+    case "millimeters":
+      return valueM / 0.001; // exact inverse of 1 mm
     default:
       throw new Error(`Unknown length unit: ${unit}`);
   }
@@ -108,9 +119,9 @@ export function fromMeters(valueM: number, unit: LengthUnit): number {
  */
 export function toSqMeters(value: number, unit: AreaUnit): number {
   switch (unit) {
-    case 'sqm':
+    case "sqm":
       return value;
-    case 'sqft':
+    case "sqft":
       return value * SQFT_TO_SQM;
     default:
       throw new Error(`Unknown area unit: ${unit}`);
@@ -122,9 +133,9 @@ export function toSqMeters(value: number, unit: AreaUnit): number {
  */
 export function fromSqMeters(valueSqm: number, unit: AreaUnit): number {
   switch (unit) {
-    case 'sqm':
+    case "sqm":
       return valueSqm;
-    case 'sqft':
+    case "sqft":
       return valueSqm * SQM_TO_SQFT;
     default:
       throw new Error(`Unknown area unit: ${unit}`);
@@ -152,35 +163,32 @@ export function sqmToSqft(sqm: number): number {
 /**
  * Returns the allowed input length units for a given calculator context.
  *
- * Per spec:
- * - Painting, Screeding, Grafitex, Tiling, Fence, POP, Tyrolene → feet / metres
- * - Block → feet / metres / inches (the ONLY calculator with inches)
- * - Inches are NEVER exposed as a general measurement option
+ * Per the universal-units update (Oct 2026): EVERY calculator context
+ * offers the full length unit set (m, ft, in, cm, mm). Users choose the
+ * unit they are comfortable with; engines normalise to metres internally
+ * so accuracy never depends on the choice. `context` is kept for API
+ * compatibility (and future per-context ordering) but no longer
+ * restricts the options.
  */
+export const ALL_LENGTH_UNITS: LengthUnit[] = [
+  "meters",
+  "feet",
+  "inches",
+  "centimeters",
+  "millimeters",
+];
+
 export function getAllowedUnits(context: CalculatorContext): LengthUnit[] {
-  switch (context) {
-    case 'block':
-      return ['feet', 'meters', 'inches'];
-    case 'painting':
-    case 'screeding':
-    case 'tiling':
-    case 'grafitex':
-    case 'pop':
-    case 'tyrolene':
-    case 'fence_screeding':
-    case 'fence_painting':
-      return ['feet', 'meters'];
-    default:
-      return ['feet', 'meters'];
-  }
+  void context;
+  return [...ALL_LENGTH_UNITS];
 }
 
 /**
  * Whether inches are allowed in the given calculator context.
- * Only block calculator returns true.
+ * Since the universal-units update, every context allows inches.
  */
 export function isInchesAllowed(context: CalculatorContext): boolean {
-  return context === 'block';
+  return getAllowedUnits(context).includes("inches");
 }
 
 /**
@@ -188,12 +196,16 @@ export function isInchesAllowed(context: CalculatorContext): boolean {
  */
 export function lengthUnitLabel(unit: LengthUnit): string {
   switch (unit) {
-    case 'feet':
-      return 'Feet';
-    case 'meters':
-      return 'Metres';
-    case 'inches':
-      return 'Inches';
+    case "feet":
+      return "Feet";
+    case "meters":
+      return "Metres";
+    case "inches":
+      return "Inches";
+    case "centimeters":
+      return "Centimetres";
+    case "millimeters":
+      return "Millimetres";
     default:
       return unit;
   }
@@ -204,12 +216,16 @@ export function lengthUnitLabel(unit: LengthUnit): string {
  */
 export function lengthUnitShort(unit: LengthUnit): string {
   switch (unit) {
-    case 'feet':
-      return 'ft';
-    case 'meters':
-      return 'm';
-    case 'inches':
-      return 'in';
+    case "feet":
+      return "ft";
+    case "meters":
+      return "m";
+    case "inches":
+      return "in";
+    case "centimeters":
+      return "cm";
+    case "millimeters":
+      return "mm";
     default:
       return unit;
   }
@@ -220,10 +236,10 @@ export function lengthUnitShort(unit: LengthUnit): string {
  */
 export function areaUnitLabel(unit: AreaUnit): string {
   switch (unit) {
-    case 'sqm':
-      return 'm²';
-    case 'sqft':
-      return 'ft²';
+    case "sqm":
+      return "m²";
+    case "sqft":
+      return "ft²";
     default:
       return unit;
   }
@@ -237,13 +253,16 @@ export function areaUnitLabel(unit: AreaUnit): string {
  * Convert tile dimensions (typically in mm or cm) to metres.
  * Tile sizes are often specified in mm (e.g. 600mm × 600mm) or cm (e.g. 60cm × 60cm).
  */
-export function tileDimensionToMeters(value: number, unit: 'mm' | 'cm' | 'm'): number {
+export function tileDimensionToMeters(
+  value: number,
+  unit: "mm" | "cm" | "m",
+): number {
   switch (unit) {
-    case 'mm':
+    case "mm":
       return value / 1000;
-    case 'cm':
+    case "cm":
       return value / 100;
-    case 'm':
+    case "m":
       return value;
     default:
       throw new Error(`Unknown tile dimension unit: ${unit}`);
@@ -256,7 +275,11 @@ export function tileDimensionToMeters(value: number, unit: 'mm' | 'cm' | 'm'): n
  * @param width - tile width value
  * @param unit - 'mm', 'cm', or 'm'
  */
-export function tileAreaM2(length: number, width: number, unit: 'mm' | 'cm' | 'm'): number {
+export function tileAreaM2(
+  length: number,
+  width: number,
+  unit: "mm" | "cm" | "m",
+): number {
   const lengthM = tileDimensionToMeters(length, unit);
   const widthM = tileDimensionToMeters(width, unit);
   return lengthM * widthM;

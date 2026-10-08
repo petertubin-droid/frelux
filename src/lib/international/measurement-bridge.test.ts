@@ -110,9 +110,15 @@ describe("measurement-bridge", () => {
     expect(fromSqMeters(1, "sqm")).toBe(1);
     expect(sqftToSqm(100)).toBeCloseTo(9.2903, 3);
     expect(sqmToSqft(10)).toBeCloseTo(107.639, 2);
-    expect(getAllowedUnits("block")).toEqual(["feet", "meters", "inches"]);
+    expect(getAllowedUnits("block")).toEqual([
+      "meters",
+      "feet",
+      "inches",
+      "centimeters",
+      "millimeters",
+    ]);
     expect(isInchesAllowed("block")).toBe(true);
-    expect(isInchesAllowed("painting")).toBe(false);
+    expect(isInchesAllowed("painting")).toBe(true);
     expect(lengthUnitLabel("feet")).toBe("Feet");
     expect(lengthUnitShort("feet")).toBe("ft");
     expect(areaUnitLabel("sqm")).toBe("m²");

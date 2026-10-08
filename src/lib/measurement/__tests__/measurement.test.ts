@@ -70,32 +70,35 @@ describe("Unit Conversion Engine", () => {
 // =========================================================
 
 describe("Context-Aware Units", () => {
-  test("painting allows feet and metres only", () => {
-    expect(getAllowedUnits("painting")).toEqual(["feet", "meters"]);
+  // Universal-units update (Oct 2026): every context offers all five units.
+  const ALL_FIVE = ["meters", "feet", "inches", "centimeters", "millimeters"];
+
+  test("painting offers the full universal unit set", () => {
+    expect(getAllowedUnits("painting")).toEqual(ALL_FIVE);
   });
 
-  test("screeding allows feet and metres only", () => {
-    expect(getAllowedUnits("screeding")).toEqual(["feet", "meters"]);
+  test("screeding offers the full universal unit set", () => {
+    expect(getAllowedUnits("screeding")).toEqual(ALL_FIVE);
   });
 
-  test("tiling allows feet and metres only", () => {
-    expect(getAllowedUnits("tiling")).toEqual(["feet", "meters"]);
+  test("tiling offers the full universal unit set", () => {
+    expect(getAllowedUnits("tiling")).toEqual(ALL_FIVE);
   });
 
-  test("grafitex allows feet and metres only", () => {
-    expect(getAllowedUnits("grafitex")).toEqual(["feet", "meters"]);
+  test("grafitex offers the full universal unit set", () => {
+    expect(getAllowedUnits("grafitex")).toEqual(ALL_FIVE);
   });
 
-  test("block allows feet, metres, and inches", () => {
-    expect(getAllowedUnits("block")).toEqual(["feet", "meters", "inches"]);
+  test("block offers the full universal unit set", () => {
+    expect(getAllowedUnits("block")).toEqual(ALL_FIVE);
   });
 
-  test("inches allowed ONLY in block calculator", () => {
+  test("inches are allowed in every calculator context", () => {
     expect(isInchesAllowed("block")).toBe(true);
-    expect(isInchesAllowed("painting")).toBe(false);
-    expect(isInchesAllowed("screeding")).toBe(false);
-    expect(isInchesAllowed("tiling")).toBe(false);
-    expect(isInchesAllowed("grafitex")).toBe(false);
+    expect(isInchesAllowed("painting")).toBe(true);
+    expect(isInchesAllowed("screeding")).toBe(true);
+    expect(isInchesAllowed("tiling")).toBe(true);
+    expect(isInchesAllowed("grafitex")).toBe(true);
   });
 });
 
@@ -535,16 +538,16 @@ describe("Validation", () => {
     expect(result.valid).toBe(false);
   });
 
-  test("rejects inches in painting context", () => {
+  test("accepts inches in painting context since the universal-units update", () => {
     const entry = createMeasurementEntry({
       length: 144,
       unit: "inches",
       quantity: 1,
     });
     const result = validateMeasurementEntry(entry, "painting");
-    expect(result.valid).toBe(false);
+    expect(result.valid).toBe(true);
     expect(result.errors.some((e) => e.toLowerCase().includes("inches"))).toBe(
-      true,
+      false,
     );
   });
 

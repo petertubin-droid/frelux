@@ -5,13 +5,14 @@ import type {
   PopEstimateResult,
   TileCalcInput,
   TileCalcResult,
+  Unit,
 } from "@/types";
 import type { DbPopMaterial, DbTileMaterial } from "@/types/database";
 
-const FT_TO_M = 0.3048;
+import { unitToMeters } from "@/lib/utils";
 
-function toSqm(value: number, unit: "meters" | "feet"): number {
-  return unit === "feet" ? value * FT_TO_M : value;
+function toSqm(value: number, unit: Unit): number {
+  return unitToMeters(value, unit);
 }
 
 // =========================================================

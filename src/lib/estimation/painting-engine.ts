@@ -37,6 +37,7 @@ import type {
   EstimateLineItemInput,
   OpeningInput,
 } from "@/types/estimation";
+import type { Unit } from "@/types";
 
 import {
   validateDimensions,
@@ -54,7 +55,7 @@ import {
   isPriceConfigured,
 } from "./pricing";
 
-import { feetToMeters } from "@/lib/utils";
+import { feetToMeters, unitToMeters } from "@/lib/utils";
 
 // MERGED (audit finding cf_dual_paint_engines, resolved 2026-09-09):
 // the central paint-engine is the single source of truth for ALL
@@ -90,7 +91,7 @@ export interface PaintingRoomInput {
   length: number; // in feet or meters
   breadth: number; // in feet or meters
   height: number; // wall height in feet or meters
-  unit: "feet" | "meters";
+  unit: Unit;
   doors: OpeningInput[]; // door openings (each: quantity, width, height)
   windows: OpeningInput[]; // window openings (each: quantity, width, height)
   doors_unknown: boolean; // "I don't know the dimensions"
@@ -260,8 +261,8 @@ const CALCULATOR_TYPE = "painting";
 // Core Calculation Functions
 // =========================================================
 
-function toMeters(value: number, unit: "feet" | "meters"): number {
-  return unit === "feet" ? feetToMeters(value) : value;
+function toMeters(value: number, unit: Unit): number {
+  return unitToMeters(value, unit);
 }
 
 export function calculateWallArea(
@@ -280,7 +281,7 @@ export function calculateWallArea(
 
 export function calculateOpeningArea(
   openings: OpeningInput[],
-  unit: "feet" | "meters" = "feet",
+  unit: Unit = "feet",
 ): number {
   if (!openings || openings.length === 0) return 0;
   let total = 0;
@@ -325,7 +326,7 @@ export function litresToBuckets(
 
 export function evaluateHeightAdjustment(
   heightM: number,
-  unit: "feet" | "meters",
+  unit: Unit,
   inputHeight: number,
   heightAdjustmentRule: EstimationCalcRule | null,
   standardHeight: { ft: number; m: number },

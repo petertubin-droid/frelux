@@ -28,7 +28,8 @@ import type {
   CoverageUnit,
   OpeningInput,
 } from "@/types/estimation";
-import { feetToMeters } from "@/lib/utils";
+import type { Unit } from "@/types";
+import { feetToMeters, unitToMeters } from "@/lib/utils";
 
 // =========================================================
 // Types
@@ -40,7 +41,7 @@ export interface PaintEngineRoomInput {
   length: number;
   width: number;
   height: number;
-  unit: "feet" | "meters";
+  unit: Unit;
   doors: OpeningInput[];
   windows: OpeningInput[];
   doors_unknown: boolean;
@@ -274,8 +275,18 @@ export const COVERAGE_UNIT_OPTIONS: { value: CoverageUnit; label: string }[] = [
 // Geometry (internal, not customer-facing)
 // =========================================================
 
-function toMeters(value: number, unit: "feet" | "meters"): number {
-  return unit === "feet" ? feetToMeters(value) : value;
+function toMeters(value: number, unit: Unit): number {
+  return unitToMeters(value, unit);
+}
+
+/**
+ * Converts a room dimension to feet without floating-point drift, so exact
+ * comparisons against calibration references and the standard-height rule
+ * stay reliable (12 ft must remain 12, not 12.000000000000002).
+ */
+function toLengthFt(value: number, unit: Unit): number {
+  const ft = unit === "feet" ? value : unitToMeters(value, unit) / 0.3048;
+  return Math.round(ft * 1e6) / 1e6;
 }
 
 function calculateWallArea(
@@ -295,10 +306,7 @@ function calculateCeilingArea(lengthM: number, widthM: number): number {
   return Math.round(Math.max(0, lengthM) * Math.max(0, widthM) * 100) / 100;
 }
 
-function calculateOpeningArea(
-  openings: OpeningInput[],
-  unit: "feet" | "meters",
-): number {
+function calculateOpeningArea(openings: OpeningInput[], unit: Unit): number {
   if (!openings || openings.length === 0) return 0;
   let total = 0;
   for (const o of openings) {
@@ -588,7 +596,7 @@ export function calculateRoom(
 
   // ── STEP 5: Height Rule ──
   const standardHeight = getStandardHeight(config.standardHeightRule);
-  const heightFt = room.unit === "feet" ? room.height : room.height * 3.28084;
+  const heightFt = toLengthFt(room.height, room.unit);
   let heightWarning: string | null = null;
 
   if (heightFt > standardHeight.ft) {
@@ -830,8 +838,8 @@ export function calculateRoom(
   );
   if (coverageUnit === "frelux_calibration" && calibrationRefs.length > 0) {
     const calMatch = findCalibrationMatch(
-      room.unit === "feet" ? room.length : room.length * 3.28084,
-      room.unit === "feet" ? room.width : room.width * 3.28084,
+      toLengthFt(room.length, room.unit),
+      toLengthFt(room.width, room.unit),
       heightFt,
       effectiveCoats,
       room.quality_id,

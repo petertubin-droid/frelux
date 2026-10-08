@@ -10,9 +10,10 @@ import type {
   MeasurementGroup,
   MeasurementSection,
   MeasurementProject,
-} from './types';
-import type { CalculatorContext, LengthUnit } from './units';
-import { getAllowedUnits } from './units';
+} from "./types";
+import type { CalculatorContext, LengthUnit } from "./units";
+import { getAllowedUnits } from "./units";
+import { getStoredUnitSystem } from "../international/units-display";
 
 // =========================================================
 // ID Generator
@@ -24,7 +25,7 @@ let idCounter = 0;
  * Generate a unique ID for measurement entities.
  * Uses a prefix + timestamp + counter for uniqueness.
  */
-export function generateId(prefix: string = 'm'): string {
+export function generateId(prefix: string = "m"): string {
   idCounter += 1;
   return `${prefix}_${Date.now().toString(36)}_${idCounter.toString(36)}`;
 }
@@ -40,9 +41,9 @@ export function createMeasurementEntry(
   partial: Partial<MeasurementEntry> = {},
 ): MeasurementEntry {
   return {
-    id: generateId('entry'),
+    id: generateId("entry"),
     length: 0,
-    unit: 'feet',
+    unit: "feet",
     quantity: 1,
     ...partial,
   };
@@ -56,7 +57,7 @@ export function createMeasurementGroup(
   entry: MeasurementEntry,
 ): MeasurementGroup {
   return {
-    id: generateId('group'),
+    id: generateId("group"),
     label,
     entry,
   };
@@ -70,7 +71,7 @@ export function createMeasurementSection(
   groups: MeasurementGroup[] = [],
 ): MeasurementSection {
   return {
-    id: generateId('section'),
+    id: generateId("section"),
     label,
     groups,
   };
@@ -84,14 +85,22 @@ export function createMeasurementProject(
   preferredUnit?: LengthUnit,
 ): MeasurementProject {
   const allowed = getAllowedUnits(calculatorContext);
-  const defaultUnit = preferredUnit && allowed.includes(preferredUnit)
-    ? preferredUnit
-    : allowed[0] ?? 'feet';
+  // Default follows the site-wide unit preference (set on the
+  // Construction Tools page): imperial users start in feet, metric
+  // users in metres. An explicit preferredUnit still wins.
+  const globalDefault =
+    getStoredUnitSystem() === "imperial" ? "feet" : "meters";
+  const defaultUnit =
+    preferredUnit && allowed.includes(preferredUnit)
+      ? preferredUnit
+      : allowed.includes(globalDefault as LengthUnit)
+        ? (globalDefault as LengthUnit)
+        : (allowed[0] ?? "feet");
 
   return {
-    id: generateId('project'),
+    id: generateId("project"),
     calculatorContext,
-    projectMode: 'single_room',
+    projectMode: "single_room",
     sections: [],
     preferredUnit: defaultUnit,
   };

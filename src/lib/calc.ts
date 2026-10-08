@@ -13,6 +13,7 @@ import type {
   ScreedingPuttyResult,
   ScreedingMixSystemResult,
   ScreedingSystemResult,
+  Unit,
 } from "@/types";
 import {
   feetToMeters,
@@ -20,6 +21,7 @@ import {
   DEFAULT_DOOR_HEIGHT_M,
   DEFAULT_WINDOW_WIDTH_M,
   DEFAULT_WINDOW_HEIGHT_M,
+  unitToMeters,
 } from "@/lib/utils";
 
 // ─────────────────────────────────────────────────────────
@@ -185,7 +187,7 @@ export function resolveMinCoats(
 
 export function evaluateHeightWarning(
   heightM: number,
-  unit: "meters" | "feet",
+  unit: Unit,
 ): string | null {
   const standardM = STANDARD_HEIGHT_M;
   const standardFt = STANDARD_HEIGHT_FT;
@@ -217,8 +219,8 @@ export interface CalcConfig {
 // Unit conversion, single internal unit (meters)
 // ─────────────────────────────────────────────────────────
 
-function toMeters(value: number, unit: "meters" | "feet"): number {
-  return unit === "feet" ? feetToMeters(value) : value;
+function toMeters(value: number, unit: Unit): number {
+  return unitToMeters(value, unit);
 }
 
 // ─────────────────────────────────────────────────────────

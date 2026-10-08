@@ -50,6 +50,57 @@ export function classNames(
 export function feetToMeters(ft: number): number {
   return ft * 0.3048;
 }
+
+// ─────────────────────────────────────────────────────────
+// Universal unit helpers (single source of truth for Unit)
+// ─────────────────────────────────────────────────────────
+
+import type { Unit } from "@/types";
+
+/** Exact metres-per-unit factors for every Unit. */
+export const UNIT_TO_M: Record<Unit, number> = {
+  meters: 1,
+  feet: 0.3048,
+  inches: 0.0254,
+  centimeters: 0.01,
+  millimeters: 0.001,
+};
+
+/** All selectable length units, in display order. */
+export const ALL_UNITS: Unit[] = [
+  "meters",
+  "feet",
+  "inches",
+  "centimeters",
+  "millimeters",
+];
+
+/** Convert a value in any Unit to metres (canonical). */
+export function unitToMeters(value: number, unit: Unit): number {
+  return value * UNIT_TO_M[unit];
+}
+
+/** Short label (m / ft / in / cm / mm) for inputs and results. */
+export function unitShortLabel(unit: Unit): string {
+  return {
+    meters: "m",
+    feet: "ft",
+    inches: "in",
+    centimeters: "cm",
+    millimeters: "mm",
+  }[unit];
+}
+
+/** Full label for selects and accessibility. */
+export function unitLongLabel(unit: Unit): string {
+  return {
+    meters: "Metres",
+    feet: "Feet",
+    inches: "Inches",
+    centimeters: "Centimetres",
+    millimeters: "Millimetres",
+  }[unit];
+}
 export function metersToFeet(m: number): number {
   return m / 0.3048;
 }
@@ -71,10 +122,11 @@ export const DEFAULT_WINDOW_HEIGHT_M = 1.2;
 export function calculateScreedingArea(
   input: ScreedingCalcInput,
 ): ScreedingCalcResult {
-  const lengthM = feetToMeters(input.roomLength);
-  const widthM = feetToMeters(input.roomWidth);
-  const heightM = feetToMeters(input.wallHeight);
-  const wallWidthM = feetToMeters(input.wallWidth);
+  const toM = (v: number) => unitToMeters(v, input.unit);
+  const lengthM = toM(input.roomLength);
+  const widthM = toM(input.roomWidth);
+  const heightM = toM(input.wallHeight);
+  const wallWidthM = toM(input.wallWidth);
 
   let grossWallArea: number;
   if (input.method === "full_room") {

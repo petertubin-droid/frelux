@@ -27,7 +27,12 @@ import {
   saveUserProject,
 } from "@/lib/queries";
 import { SaveToProjectButton } from "@/components/calculators";
-import { formatNumber, formatCurrency, classNames } from "@/lib/utils";
+import {
+  formatNumber,
+  formatCurrency,
+  classNames,
+  unitShortLabel,
+} from "@/lib/utils";
 import { useAuth } from "@/lib/auth";
 import { useSeo } from "@/lib/seo";
 import { useCalcDefaults } from "@/lib/use-calc-defaults";
@@ -75,6 +80,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { SITE_URL } from "@/lib/seo";
 import { Button } from "@/components/ui/shadcn/button";
 import { WasteMarginControl } from "@/components/ui/WasteMarginControl";
+import UnitToggle from "@/components/measurement/UnitToggle";
 const ADVANCED_FEATURES = [
   "AI-powered project analysis & breakdown",
   "Smart cost optimization recommendations",
@@ -466,22 +472,10 @@ export default function TileCalculator({
             {/* Unit toggle */}
             <div className="mt-6">
               <div className="inline-flex rounded-lg border border-border p-1">
-                {(["meters", "feet"] as Unit[]).map((u) => (
-                  <Button
-                    variant="ghost"
-                    key={u}
-                    type="button"
-                    onClick={() => update("unit", u)}
-                    className={
-                      "rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all " +
-                      (input.unit === u
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:text-brand-purple")
-                    }
-                  >
-                    {u}
-                  </Button>
-                ))}
+                <UnitToggle
+                  value={input.unit}
+                  onChange={(u) => update("unit", u)}
+                />
               </div>
             </div>
 
@@ -491,7 +485,7 @@ export default function TileCalculator({
                 label={
                   input.surfaceType === "floor" ? "Floor length" : "Wall length"
                 }
-                suffix={input.unit === "meters" ? "m" : "ft"}
+                suffix={unitShortLabel(input.unit)}
                 error={errors.length}
               >
                 <input
@@ -507,7 +501,7 @@ export default function TileCalculator({
               {input.surfaceType === "floor" ? (
                 <Field
                   label="Floor width"
-                  suffix={input.unit === "meters" ? "m" : "ft"}
+                  suffix={unitShortLabel(input.unit)}
                   error={errors.width}
                 >
                   <input
@@ -523,7 +517,7 @@ export default function TileCalculator({
               ) : (
                 <Field
                   label="Wall height"
-                  suffix={input.unit === "meters" ? "m" : "ft"}
+                  suffix={unitShortLabel(input.unit)}
                   error={errors.height}
                 >
                   <input

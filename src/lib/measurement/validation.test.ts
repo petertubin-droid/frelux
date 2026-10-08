@@ -79,12 +79,9 @@ describe("validateMeasurementEntry", () => {
     expect(r.errors.some((e) => e.includes("Quantity"))).toBe(true);
   });
 
-  it("fails for inches in painting context", () => {
+  it("allows inches in painting context since the universal-units update", () => {
     const r = validateMeasurementEntry(makeEntry({ unit: "inches" }), ctx);
-    expect(r.valid).toBe(false);
-    expect(
-      r.errors.some((e) => e.includes("inches") || e.includes("Inches")),
-    ).toBe(true);
+    expect(r.valid).toBe(true);
   });
 
   it("allows inches in block context", () => {

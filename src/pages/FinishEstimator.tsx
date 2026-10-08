@@ -33,6 +33,7 @@ import {
   validateScreedingInput,
   formatCurrency,
   formatNumber,
+  unitShortLabel,
 } from "@/lib/utils";
 import { track } from "@/lib/analytics";
 import { useSeo } from "@/lib/seo";
@@ -53,6 +54,7 @@ import type { DbFinishType, DbSiteSettings } from "@/types/database";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
+import UnitToggle from "@/components/measurement/UnitToggle";
 import {
   useProjectLocationCurrency,
   type FreluxLocation,
@@ -386,29 +388,19 @@ export default function FinishEstimator({
 
                 {/* Unit toggle */}
                 <div className="flex gap-2">
-                  {(["meters", "feet"] as Unit[]).map((u) => (
-                    <Button
-                      variant="ghost"
-                      key={u}
-                      type="button"
-                      onClick={() => updateArea("unit", u)}
-                      className={
-                        "rounded-lg border px-4 py-2 text-sm font-medium transition-all " +
-                        (areaInput.unit === u
-                          ? "border-brand-purple bg-primary/5 text-brand-purple"
-                          : "border-border text-muted-foreground hover:border-border")
-                      }
-                    >
-                      {u === "meters" ? "Meters" : "Feet"}
-                    </Button>
-                  ))}
+                  <UnitToggle
+                    value={areaInput.unit}
+                    onChange={(u) => updateArea("unit", u)}
+                  />
                 </div>
 
                 {/* Dimensions */}
                 {areaInput.method === "full_room" ? (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="section-label">Room Length</label>
+                      <label className="section-label">
+                        Room Length ({unitShortLabel(areaInput.unit)})
+                      </label>
                       <input
                         type="number"
                         className="input-field"
@@ -428,7 +420,9 @@ export default function FinishEstimator({
                       )}
                     </div>
                     <div>
-                      <label className="section-label">Room Width</label>
+                      <label className="section-label">
+                        Room Width ({unitShortLabel(areaInput.unit)})
+                      </label>
                       <input
                         type="number"
                         className="input-field"
@@ -451,7 +445,9 @@ export default function FinishEstimator({
                 ) : (
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="section-label">Wall Width</label>
+                      <label className="section-label">
+                        Wall Width ({unitShortLabel(areaInput.unit)})
+                      </label>
                       <input
                         type="number"
                         className="input-field"
@@ -488,7 +484,9 @@ export default function FinishEstimator({
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="section-label">Wall Height</label>
+                    <label className="section-label">
+                      Wall Height ({unitShortLabel(areaInput.unit)})
+                    </label>
                     <input
                       type="number"
                       className="input-field"

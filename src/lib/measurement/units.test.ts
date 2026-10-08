@@ -69,21 +69,21 @@ describe("sqftToSqm / sqmToSqft", () => {
 });
 
 describe("getAllowedUnits", () => {
-  it("block includes inches", () => {
-    expect(getAllowedUnits("block")).toContain("inches");
-    expect(getAllowedUnits("block")).toHaveLength(3);
+  // Universal-units update (Oct 2026): every context offers all five units.
+  const ALL_FIVE = ["meters", "feet", "inches", "centimeters", "millimeters"];
+  it("block offers all five units", () => {
+    expect(getAllowedUnits("block")).toEqual(ALL_FIVE);
   });
-  it("painting excludes inches", () => {
-    expect(getAllowedUnits("painting")).not.toContain("inches");
-    expect(getAllowedUnits("painting")).toHaveLength(2);
+  it("painting offers all five units including inches", () => {
+    expect(getAllowedUnits("painting")).toEqual(ALL_FIVE);
   });
-  it("tiling excludes inches", () => {
-    expect(getAllowedUnits("tiling")).not.toContain("inches");
+  it("tiling offers all five units including inches", () => {
+    expect(getAllowedUnits("tiling")).toEqual(ALL_FIVE);
   });
-  it("screeding excludes inches", () => {
-    expect(getAllowedUnits("screeding")).not.toContain("inches");
+  it("screeding offers all five units including inches", () => {
+    expect(getAllowedUnits("screeding")).toEqual(ALL_FIVE);
   });
-  it("all non-block contexts return only feet and meters", () => {
+  it("every context returns the full universal unit set", () => {
     const ctxs = [
       "painting",
       "screeding",
@@ -93,19 +93,21 @@ describe("getAllowedUnits", () => {
       "tyrolene",
       "fence_screeding",
       "fence_painting",
+      "block",
     ] as const;
     ctxs.forEach((ctx) => {
       const units = getAllowedUnits(ctx);
-      expect(units).toEqual(["feet", "meters"]);
+      expect(units).toEqual(ALL_FIVE);
     });
   });
 });
 
 describe("isInchesAllowed", () => {
   it("true for block", () => expect(isInchesAllowed("block")).toBe(true));
-  it("false for painting", () =>
-    expect(isInchesAllowed("painting")).toBe(false));
-  it("false for tiling", () => expect(isInchesAllowed("tiling")).toBe(false));
+  it("true for painting since the universal-units update", () =>
+    expect(isInchesAllowed("painting")).toBe(true));
+  it("true for tiling since the universal-units update", () =>
+    expect(isInchesAllowed("tiling")).toBe(true));
 });
 
 describe("lengthUnitLabel", () => {

@@ -52,7 +52,7 @@ import {
   fetchCalcRules,
 } from "@/lib/estimation/queries";
 import { track } from "@/lib/analytics";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, unitShortLabel, unitLongLabel } from "@/lib/utils";
 import {
   logAnalyticsEvent,
   fetchPaintTypes,
@@ -72,6 +72,7 @@ import {
   SaveToProjectButton,
 } from "@/components/calculators";
 import CalculatorNearMe from "@/components/calculators/CalculatorNearMe";
+import UnitToggle from "@/components/measurement/UnitToggle";
 import type {
   CalculatorInput,
   CalculatorResult,
@@ -1149,7 +1150,7 @@ function Step2({
   ) => void;
   errors: Record<string, string>;
 }) {
-  const unitLabel = input.unit === "meters" ? "m" : "ft";
+  const unitLabel = unitShortLabel(input.unit);
   const isFence = input.projectType === "fence";
   const isExterior = input.projectType === "exterior";
 
@@ -1162,29 +1163,13 @@ function Step2({
         Provide the dimensions of the area you're painting.
       </p>
 
-      <div className="mt-5 inline-flex rounded-lg border border-border p-1">
-        {(["meters", "feet"] as Unit[]).map((u) => (
-          <Button
-            variant="ghost"
-            key={u}
-            type="button"
-            onClick={() => update("unit", u)}
-            className={
-              "rounded-md px-4 py-1.5 text-sm font-semibold capitalize transition-all " +
-              (input.unit === u
-                ? "bg-primary text-primary-foreground"
-                : "text-muted-foreground hover:text-brand-purple")
-            }
-            aria-pressed={input.unit === u}
-          >
-            {u}
-          </Button>
-        ))}
+      <div className="mt-5">
+        <UnitToggle value={input.unit} onChange={(u) => update("unit", u)} />
       </div>
       <p className="mt-2 text-xs text-muted-foreground">
         Currently using{" "}
         <span className="font-semibold text-muted-foreground">
-          {input.unit}
+          {unitLongLabel(input.unit)}
         </span>
         .
       </p>

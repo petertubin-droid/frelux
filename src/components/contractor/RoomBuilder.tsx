@@ -51,6 +51,8 @@ import {
   SectionCard,
   ProgressTracker,
 } from "@/components/contractor/PremiumUI";
+import { ALL_UNITS, unitShortLabel, unitLongLabel } from "@/lib/utils";
+import type { Unit } from "@/types";
 import { Button } from "@/components/ui/shadcn/button";
 
 // ============================================================
