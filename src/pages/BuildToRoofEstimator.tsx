@@ -31,6 +31,7 @@ import {
   Camera,
   Gem,
   BadgeCheck,
+  FileDown,
 } from "lucide-react";
 import {
   calculateBuildToRoof,
@@ -51,6 +52,7 @@ import type {
   StructuralMemberInput,
 } from "@/types/build-to-roof";
 import { formatCurrency, formatNumber } from "@/lib/utils";
+import { printQuote } from "@/lib/estimation/quote-export";
 import { SubscriptionGate } from "@/components/subscription/SubscriptionGate";
 import { RoofViewPanel } from "@/components/roof-view/RoofViewPanel";
 import { RoofGeometryEditor } from "@/components/roof-view/RoofGeometryEditor";
@@ -2217,6 +2219,64 @@ function EstimateResult({
     preliminary: "bg-orange-50 text-orange-700 border-orange-200",
   };
 
+  // Printable professional quote, worldwide-currency formatted.
+  const exportQuote = () => {
+    const materialLines = result.stages.flatMap((stage) =>
+      stage.materials.map((m) => ({
+        label: m.label,
+        quantity: formatNumber(m.final_quantity),
+        unit: m.unit,
+        unit_price: "included",
+        line_total: formatCurrency(m.total_cost),
+        detail: stage.stage_label,
+      })),
+    );
+    const labourLines = result.stages.flatMap((stage) =>
+      stage.labour.map((l) => ({
+        label: `${l.label} (labour)`,
+        quantity: formatNumber(l.quantity),
+        unit: "task",
+        unit_price: formatCurrency(l.rate),
+        line_total: formatCurrency(l.total_cost),
+        detail: stage.stage_label,
+      })),
+    );
+    printQuote(
+      {
+        title: `FRELUX Build-to-Roof Estimate: ${result.project_name}`,
+        subtitle: `Generated ${new Date().toLocaleDateString()} · ${result.total_floor_area} m² · ${result.stages.length} construction stages`,
+        metaRows: [
+          ["Project", result.project_name],
+          ["Total floor area", `${result.total_floor_area} m²`],
+          ["Construction stage", result.construction_stage],
+          ["Confidence", result.confidence],
+          ["Market price age", `${result.price_age_days} day(s) old`],
+        ],
+        lines: [...materialLines, ...labourLines],
+        totals: [
+          {
+            label: "Materials total",
+            value: formatCurrency(result.materials_total),
+          },
+          { label: "Labour total", value: formatCurrency(result.labour_total) },
+          {
+            label: "Wastage allowance",
+            value: formatCurrency(result.wastage_allowance),
+          },
+          { label: "Contingency", value: formatCurrency(result.contingency) },
+          {
+            label: "Grand total",
+            value: formatCurrency(result.grand_total),
+            strong: true,
+          },
+        ],
+        footer:
+          "Estimates are indicative and not a formal quote. Quantities include wastage where the takeoff specifies it; costs use the market prices you entered or loaded at estimate time.",
+      },
+      "frelux-build-to-roof-estimate.html",
+    );
+  };
+
   return (
     <div className="space-y-4 sm:space-y-6 animate-step-slide-in">
       {/* Project Summary */}
@@ -2769,7 +2829,15 @@ function EstimateResult({
         )}
 
         {/* Save to Project Workspace */}
-        <div className="flex justify-center pt-2">
+        <div className="flex flex-wrap justify-center gap-3 pt-2">
+          <Button
+            variant="outline"
+            onClick={exportQuote}
+            className="inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-colors active:scale-95"
+          >
+            <FileDown className="h-4 w-4" />
+            Export quote (PDF)
+          </Button>
           <SaveToProjectButton
             calculatorType="build_to_roof"
             calculatorSlug="build-to-roof-estimator"
