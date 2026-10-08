@@ -25,6 +25,7 @@ const SupportChatWidget = lazy(
   () => import("@/components/layout/SupportChatWidget"),
 );
 const MobileBottomNav = lazy(() => import("@/components/ui/MobileBottomNav"));
+const NeonFrame = lazy(() => import("@/components/ui/NeonFrame"));
 const OfflineIndicator = lazy(() =>
   import("@/components/ui/OfflineIndicator").then((m) => ({
     default: m.OfflineIndicator,
@@ -481,6 +482,12 @@ export default function Layout() {
         Skip to main content
       </a>
       <Navbar />
+      {/* Site-wide neon viewport frame: illuminates ALL screen edges,
+          completing the header and bottom-nav edge lights. Decorative,
+          pointer-events-disabled, sits under the chrome (z-25). */}
+      <Suspense fallback={null}>
+        <NeonFrame />
+      </Suspense>
       <main
         id="main-content"
         className="w-full flex-1 pt-16 pb-16 md:pb-0"
