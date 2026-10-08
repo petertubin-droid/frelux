@@ -12,6 +12,7 @@
  * - Missing configured rates produce warnings, never guesses.
  */
 
+import { getActiveDisplayCurrency } from "@/lib/international/fx-display";
 import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "@/lib/auth";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
@@ -112,7 +113,7 @@ export default function BoqGenerator() {
       client_name: clientName,
       client_contact: clientContact || null,
       project_location: projectLocation || null,
-      currency: "NGN",
+      currency: getActiveDisplayCurrency(),
       items,
       rules,
     });
@@ -131,7 +132,7 @@ export default function BoqGenerator() {
       client_name: clientName,
       client_contact: clientContact || null,
       project_location: projectLocation || null,
-      currency: "NGN",
+      currency: getActiveDisplayCurrency(),
       status: "draft" as const,
       items: items as unknown as Record<string, unknown>[],
       totals: result.totals as unknown as Record<string, unknown>,
@@ -166,7 +167,7 @@ export default function BoqGenerator() {
           client_name: clientName,
           client_contact: clientContact || null,
           project_location: projectLocation || null,
-          currency: "NGN",
+          currency: getActiveDisplayCurrency(),
           items,
           rules,
         },
