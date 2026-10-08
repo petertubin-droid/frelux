@@ -335,6 +335,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   function setLanguage(lang: Language) {
     setLanguageState(lang);
+    // An explicit switcher choice suppresses the location-aware
+    // language suggestion permanently (consent hygiene).
+    try {
+      localStorage.setItem("frelux_lang_chosen", "1");
+    } catch {
+      // storage unavailable — LocalePrompt stays inert on its own paths
+    }
   }
 
   function t(key: string): string {

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, lazy, Suspense } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { LocalePrompt } from "@/components/ui/LocalePrompt";
 import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
@@ -494,6 +495,7 @@ export default function Layout() {
         role="main"
       >
         <Outlet />
+        <LocalePrompt />
       </main>
       {/* Global footer ad slot, placement "global_footer", toggled in
           Admin → Ads → Placements like every other slot. Rendered
