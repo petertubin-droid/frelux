@@ -72,7 +72,7 @@ Netlify auto-deploys `main` when CI is green. Verify with:
   `https://freluxtools.netlify.app/sitemap.xml`. Re-submit after the custom
   domain migration (see INVESTOR-PACK.md).
 - **Custom domain**: point DNS at Netlify, then update `SITE_URL` in
-  `src/lib/seo.ts`, the sitemap `<loc>`/hreflang hosts, and canonicals, and
+  `src/lib/seo.ts`, the sitemap `<loc>` host, and canonicals, and
   301 the old host.
 
 ## Stripe checkout (international cards)

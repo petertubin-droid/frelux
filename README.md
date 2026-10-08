@@ -7,11 +7,16 @@ display currencies with a live FX feed, and region-aware pricing that travels.
 
 ## Built worldwide
 
-- **11 languages, crawlable locale URLs** — `/es/`, `/fr/`, `/de/`, `/pt/`, `/ru/`,
+- **11 languages, locale URLs** — `/es/`, `/fr/`, `/de/`, `/pt/`, `/ru/`,
   `/id/`, `/sw/`, `/ar/`, `/hi/`, `/zh/` (plus English) each render the app in
-  that language with hreflang alternates and sitemap entries. React-level
-  chrome translations (no crawler-blind client widget), RTL support for Arabic.
-- **24 display currencies, live FX** — amounts convert for display with a
+  that language. React-level chrome translations (no crawler-blind client
+  widget), RTL support for Arabic. Locale URLs are client-side language
+  switching: the sitemap lists only the unique English pages and locale
+  views canonicalize to them, because prerender emits one content-bearing
+  page per route (listing all 11 forms previously shipped 1,871 duplicate
+  home pages to Google). Restore hreflang + sitemap entries only once
+  locale URLs carry genuinely translated content.
+- **22 display currencies, live FX** — amounts convert for display with a
   keyless live FX feed (open.er-api.com, 12h cache); owner-configured rates
   always override live rates per currency.
 - **Region-aware pricing** — estimation prices carry an ISO market code.

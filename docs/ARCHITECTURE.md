@@ -17,11 +17,13 @@ handle payments and third-party calls.
   market codes, units, currency), visitor display-currency context with a
   keyless live FX feed (open.er-api.com, 12h cache; admin rates override),
   purchase of conversion is display-only.
-- **Localization** — `src/lib/i18n.tsx`: 11 languages, each with a crawlable
-  locale URL (`/es/`, `/ar/`, ...) routed by `LocaleAwareRoutes` (prefix
-  stripped, language forced). Real React chrome translations keyed by English
-  source strings; hreflang alternates + canonicals in `useSeo`; per-locale
-  sitemap entries. Arabic renders RTL.
+- **Localization** — `src/lib/i18n.tsx`: 11 languages, each with a locale
+  URL (`/es/`, `/ar/`, ...) routed by `LocaleAwareRoutes` (prefix stripped,
+  language forced) as client-side language switching. Real React chrome
+  translations keyed by English source strings; `useSeo` canonicalizes
+  every locale view to the English page and the sitemap lists unique
+  English URLs only (locale forms served duplicate home HTML to crawlers;
+  see the 2026-10-08 sitemap fix). Arabic renders RTL.
 - **Construction dictionary** — multilingual terminology service with
   confidence scoring, admin curation, versioned audit trail
   (`docs/CONSTRUCTION_DICTIONARY_API.md`).

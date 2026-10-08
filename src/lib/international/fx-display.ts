@@ -62,7 +62,6 @@ export const DISPLAY_CURRENCIES: DisplayCurrency[] = [
   { code: "CNY", name: "Chinese Yuan", symbol: "CN¥", hint: "China" },
   { code: "INR", name: "Indian Rupee", symbol: "₹", hint: "India" },
   { code: "BRL", name: "Brazilian Real", symbol: "R$", hint: "Brazil" },
-  { code: "CAD", name: "Canadian Dollar", symbol: "C$", hint: "Canada" },
   { code: "AUD", name: "Australian Dollar", symbol: "A$", hint: "Australia" },
   { code: "RUB", name: "Russian Ruble", symbol: "₽", hint: "Russia" },
   { code: "IDR", name: "Indonesian Rupiah", symbol: "Rp", hint: "Indonesia" },

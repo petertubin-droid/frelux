@@ -8,10 +8,11 @@ A profitable, revenue-bearing construction-tech platform:
   (Pro / Premium / Enterprise tiers) plus marketplace and ad revenue
 - Defensible data moat: automated market price crawling with validated
   per-market price books
-- A worldwide layer that is built and shipped: 11 crawlable locale URLs with
-  real translated chrome and hreflang, 24 display currencies with a live FX
-  feed, a seeded US price region proving the model travels, and a Stripe
-  checkout edge function ready for international cards
+- A worldwide layer that is built and shipped: 11 languages with real
+  translated chrome on locale URLs (client-side switching, unique-URL
+  sitemap so Google indexes only distinct pages), 22 display currencies
+  with a live FX feed, a seeded US price region proving the model travels,
+  and a Stripe checkout edge function ready for international cards
 - Unusually strong engineering hygiene for a solo project: 6,600+ tests,
   764 test files, typecheck + E2E + build enforced in CI, CHANGELOG, ADRs,
   security policy, and public metrics at `/metrics`
