@@ -3,12 +3,17 @@ import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
-vi.mock("@/lib/auth", () => ({ useAuth: vi.fn(() => ({ user: null, loading: false })) }));
+vi.mock("@/lib/auth", () => ({
+  useAuth: vi.fn(() => ({ user: null, loading: false })),
+}));
 vi.mock("@/lib/token-purchase", () => ({
   adminGetTokenPurchaseConfig: vi.fn().mockResolvedValue(null),
   adminUpdateTokenPurchaseConfig: vi.fn().mockResolvedValue(true),
   adminGetTokenPurchases: vi.fn().mockResolvedValue([]),
+  adminGetTokenPrices: vi.fn().mockResolvedValue([]),
+  adminSaveTokenPrice: vi.fn().mockResolvedValue(true),
   formatNaira: vi.fn((kobo: number) => `₦${kobo / 100}`),
+  formatMinor: vi.fn((m: number, c: string) => `${c} ${m}`),
 }));
 vi.mock("@/lib/credits", () => ({
   getCreditWallet: vi.fn().mockResolvedValue(null),
@@ -52,7 +57,9 @@ vi.mock("@/lib/credits", () => ({
   MAX_ADS_PER_DAY: 10,
 }));
 
-beforeEach(() => { vi.clearAllMocks(); });
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 async function renderPage() {
   const Comp = (await import("@/pages/admin/AdminCreditsAds")).default;

@@ -20,6 +20,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { validateSubscriptionPayment } from "../_shared/subscription-pricing.ts";
+import { validateTokenPayment } from "../_shared/token-pricing.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
   checkRateLimit,
@@ -92,11 +93,79 @@ serveWithCors(async (req: Request) => {
     if (tx.status !== "successful") {
       return json({ verified: false, error: `Transaction ${tx.status}` }, 200);
     }
+
+    const meta = tx.meta ?? {};
+
+    // ── Token purchase branch: validate against canonical per-currency
+    // pricing, then credit idempotently (keyed by tx_ref). ──
+    if (meta.purpose === "token_purchase") {
+      const supabaseUrl2 = Deno.env.get("SUPABASE_URL")!;
+      const serviceRoleKey2 = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const admin2 = createClient(supabaseUrl2, serviceRoleKey2);
+
+      const { data: tokenConfig, error: configError } = await admin2
+        .from("token_purchase_config")
+        .select("token_amount, price_kobo, is_enabled")
+        .eq("id", 1)
+        .maybeSingle();
+      if (configError || !tokenConfig) {
+        return json({ verified: false, error: "Token shop unavailable" }, 200);
+      }
+      const { data: priceRows, error: priceRowsError } = await admin2
+        .from("token_purchase_prices")
+        .select("currency_code, price_minor, is_active");
+      if (priceRowsError) {
+        return json(
+          { verified: false, error: "Token pricing unavailable" },
+          200,
+        );
+      }
+
+      const tokens = Number(meta.tokens) || 0;
+      const userId = meta.user_id as string | undefined;
+      if (!userId || !tokens) {
+        return json(
+          { verified: false, error: "Missing payment metadata" },
+          200,
+        );
+      }
+
+      const validation = validateTokenPayment({
+        config: tokenConfig,
+        priceRows: priceRows ?? [],
+        currency: String(tx.currency ?? ""),
+        amountPaidMajor: Number(tx.amount),
+      });
+      if (!validation.ok) {
+        return json({ verified: false, error: validation.reason }, 200);
+      }
+
+      // Credit from the server-side price, never the echoed amount.
+      const rpc = await admin2.rpc("credit_token_purchase", {
+        p_user_id: userId,
+        p_reference: txRef,
+        p_tokens: validation.resolution.tokens,
+        p_amount_kobo: validation.resolution.priceMinor,
+        p_metadata: { source: "flutterwave", purpose: "token_purchase" },
+        p_currency: validation.resolution.currency,
+        p_gateway: "flutterwave",
+      });
+      if (rpc.error) {
+        return json({ error: rpc.error.message }, 500);
+      }
+      const credited = (rpc.data ?? [])[0] ?? {};
+      return json({
+        verified: true,
+        purpose: "token_purchase",
+        tokens_credited: validation.resolution.tokens,
+        already_credited: credited.already_credited === true,
+      });
+    }
+
     if (tx.currency !== "NGN") {
       return json({ verified: false, error: "Unexpected currency" }, 200);
     }
 
-    const meta = tx.meta ?? {};
     const plan = meta.plan as string | undefined;
     const billingCycle =
       (meta.billing_cycle as "monthly" | "yearly" | undefined) ?? "monthly";

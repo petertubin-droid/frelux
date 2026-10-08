@@ -1,6 +1,7 @@
 import HeroTitle from "@/components/ui/HeroTitle";
 import { useState, useEffect, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
 import {
   ArrowLeft,
   Gem,
@@ -27,11 +28,14 @@ import { OfferwallAd } from "@/components/rewarded/OfferwallAd";
 import { hasRewardedAdProvider, fetchAdConfig } from "@/lib/ad-config";
 import {
   getTokenPurchaseConfig,
+  getTokenPurchasePrices,
+  resolveTokenCharge,
   initializeTokenPurchase,
   verifyTokenPurchase,
   formatTokenPriceForDisplay,
   tokenPriceDisclosure,
   type TokenPurchaseConfig,
+  type TokenPriceRow,
 } from "@/lib/token-purchase";
 import {
   getRewardCatalogue,
@@ -106,13 +110,15 @@ export default function Rewards() {
   const [tokenConfig, setTokenConfig] = useState<TokenPurchaseConfig | null>(
     null,
   );
+  const [tokenPrices, setTokenPrices] = useState<TokenPriceRow[]>([]);
   const [purchasing, setPurchasing] = useState(false);
+  const { code: displayCurrency } = useDisplayCurrency();
 
   const loadData = useCallback(async () => {
     if (!user) return;
     setRewardsLoading(true);
     try {
-      const [rwd, txs, mis, tokens, adCfg, adHist, tokenCfg] =
+      const [rwd, txs, mis, tokens, adCfg, adHist, tokenCfg, tokenPrices] =
         await Promise.all([
           getRewardCatalogue(),
           getCreditTransactions(user.id, { limit: 20 }),
@@ -121,6 +127,7 @@ export default function Rewards() {
           getRewardedAdConfig(),
           getRewardedAdHistory(10),
           getTokenPurchaseConfig(),
+          getTokenPurchasePrices(),
         ]);
       setRewards(rwd);
       setTransactions(txs.transactions);
@@ -129,6 +136,7 @@ export default function Rewards() {
       setAdConfig(adCfg);
       setAdHistory(adHist);
       setTokenConfig(tokenCfg);
+      setTokenPrices(tokenPrices);
       // Check if a real rewarded ad provider is configured
       setAdProviderReady(await hasRewardedAdProvider());
       if (mis) {
@@ -153,13 +161,14 @@ export default function Rewards() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("token_purchase") !== "verify") return;
-    const ref = params.get("ref");
+    const ref = params.get("ref") ?? params.get("tx_ref");
     if (!ref) return;
+    const gw = params.get("gw") === "flutterwave" ? "flutterwave" : "paystack";
     window.history.replaceState({}, "", window.location.pathname);
     (async () => {
       setPurchasing(true);
       try {
-        const result = await verifyTokenPurchase(ref);
+        const result = await verifyTokenPurchase(ref, gw);
         if (result.verified) {
           toast({
             type: "success",
@@ -189,9 +198,13 @@ export default function Rewards() {
   async function handleBuyTokens() {
     if (!user || !session || purchasing) return;
     setPurchasing(true);
+    const charge = tokenConfig
+      ? resolveTokenCharge(tokenConfig.price_kobo, displayCurrency, tokenPrices)
+      : undefined;
     const result = await initializeTokenPurchase(
       session.user.email ?? `${user.id}@frelux.app`,
       user.id,
+      charge,
     );
     if (result.success && result.authorizationUrl) {
       window.location.assign(result.authorizationUrl);
@@ -604,8 +617,19 @@ export default function Rewards() {
       {/* Buy Tokens, direct purchase via Paystack (admin-configurable) */}
       {tokenConfig?.is_enabled &&
         (() => {
-          const price = formatTokenPriceForDisplay(tokenConfig.price_kobo);
-          const priceNote = tokenPriceDisclosure(tokenConfig.price_kobo);
+          const charge = resolveTokenCharge(
+            tokenConfig.price_kobo,
+            displayCurrency,
+            tokenPrices,
+          );
+          const price = formatTokenPriceForDisplay(
+            tokenConfig.price_kobo,
+            charge,
+          );
+          const priceNote = tokenPriceDisclosure(
+            tokenConfig.price_kobo,
+            charge,
+          );
           return (
             <div className="mb-6 rounded-2xl border border-brand-purple/20 bg-gradient-to-br from-primary/5 to-transparent p-6 dark:border-brand-purple/20 dark:bg-card dark:from-primary/5">
               <div className="flex items-center justify-between gap-4">

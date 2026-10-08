@@ -4,9 +4,15 @@ import {
   adminGetTokenPurchaseConfig,
   adminUpdateTokenPurchaseConfig,
   adminGetTokenPurchases,
+  adminGetTokenPrices,
+  adminSaveTokenPrice,
   formatNaira,
+  formatMinor,
   type TokenPurchaseConfig,
+  type TokenPriceRow,
 } from "@/lib/token-purchase";
+import { DISPLAY_CURRENCIES } from "@/lib/international/fx-display";
+import { minorToMajor } from "@/lib/international/currency-units";
 import { useState, useEffect, useCallback } from "react";
 import {
   Coins,
@@ -82,13 +88,18 @@ export default function AdminCreditsAds() {
     Awaited<ReturnType<typeof adminGetTokenPurchases>>
   >([]);
   const [adjustUserId, setAdjustUserId] = useState("");
+  const [tokenPrices, setTokenPrices] = useState<TokenPriceRow[]>([]);
+  const [tokenPriceDrafts, setTokenPriceDrafts] = useState<
+    Record<string, string>
+  >({});
+  const [savingTokenPrice, setSavingTokenPrice] = useState<string | null>(null);
   const [adjustAmount, setAdjustAmount] = useState(0);
   const [adjustReason, setAdjustReason] = useState("");
   const [adjusting, setAdjusting] = useState(false);
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [w, tx, feat, cfg, adEvt, usage, tokenCfg, purchases] =
+    const [w, tx, feat, cfg, adEvt, usage, tokenCfg, purchases, tokenPrices] =
       await Promise.all([
         adminGetAllWallets(100),
         adminGetAllTransactions(100),
@@ -98,6 +109,7 @@ export default function AdminCreditsAds() {
         adminGetAllAiFeatureUsage(100),
         adminGetTokenPurchaseConfig(),
         adminGetTokenPurchases(100),
+        adminGetTokenPrices(),
       ]);
     setWallets(w);
     setTransactions(tx);
@@ -108,6 +120,17 @@ export default function AdminCreditsAds() {
     setAiUsage(usage);
     setTokenConfigDraft(tokenCfg);
     setTokenPurchases(purchases);
+    setTokenPrices(tokenPrices);
+    setTokenPriceDrafts(
+      Object.fromEntries(
+        tokenPrices
+          .filter((r) => r.is_active)
+          .map((r) => [
+            r.currency_code,
+            String(minorToMajor(r.price_minor, r.currency_code)),
+          ]),
+      ),
+    );
     const edit: Record<string, Partial<AiFeatureCost>> = {};
     feat.forEach((f) => {
       edit[f.id] = { ...f };
@@ -194,6 +217,30 @@ export default function AdminCreditsAds() {
       toast({ type: "error", title: "Failed to update token shop" });
     }
     setSavingTokenConfig(false);
+  }
+
+  async function handleSaveTokenPrice(code: string) {
+    const raw = tokenPriceDrafts[code] ?? "";
+    const major = parseFloat(raw);
+    setSavingTokenPrice(code);
+    const ok = await adminSaveTokenPrice(
+      code,
+      Number.isFinite(major) ? major : 0,
+    );
+    if (ok) {
+      toast({
+        type: "success",
+        title: "Token price updated",
+        message:
+          Number.isFinite(major) && major > 0
+            ? `${code} price saved.`
+            : `${code} price deactivated.`,
+      });
+      await load();
+    } else {
+      toast({ type: "error", title: `Failed to update ${code} price` });
+    }
+    setSavingTokenPrice(null);
   }
 
   async function handleAdjust() {
@@ -751,6 +798,77 @@ export default function AdminCreditsAds() {
 
           <div className="rounded-xl border border-border p-4 dark:border-white/10">
             <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
+              International Prices (Flutterwave)
+            </h3>
+            <p className="mt-1 text-[11px] text-muted-foreground">
+              Charge tokens directly in a visitor's currency. A visitor with a
+              matching display currency sees this exact price and pays it via
+              Flutterwave. Leave a price empty or 0 to keep that currency on the
+              approximate naira conversion.
+            </p>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {DISPLAY_CURRENCIES.filter((c) => c.code !== "NGN").map((c) => {
+                const saved = tokenPrices.find(
+                  (r) =>
+                    r.currency_code === c.code &&
+                    r.is_active &&
+                    r.price_minor > 0,
+                );
+                return (
+                  <div
+                    key={c.code}
+                    className="rounded-lg border border-border p-2.5 dark:border-white/10"
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-foreground dark:text-primary-foreground">
+                        {c.symbol} {c.code}
+                      </span>
+                      {saved && (
+                        <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-semibold text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400">
+                          Active
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-1.5 flex items-center gap-2">
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        placeholder="Not sold in this currency"
+                        value={tokenPriceDrafts[c.code] ?? ""}
+                        onChange={(e) =>
+                          setTokenPriceDrafts({
+                            ...tokenPriceDrafts,
+                            [c.code]: e.target.value,
+                          })
+                        }
+                        className="w-full rounded-lg border border-border bg-card px-2 py-1.5 text-xs dark:border-white/10 dark:bg-card dark:text-primary-foreground"
+                      />
+                      <Button
+                        variant="ghost"
+                        type="button"
+                        onClick={() => handleSaveTokenPrice(c.code)}
+                        disabled={savingTokenPrice === c.code}
+                        className="shrink-0 rounded-lg bg-primary px-2.5 py-1.5 text-[10px] font-bold text-primary-foreground hover:bg-primary/90"
+                      >
+                        {savingTokenPrice === c.code ? (
+                          <Loader2
+                            aria-hidden="true"
+                            className="h-3 w-3 animate-spin"
+                          />
+                        ) : (
+                          "Save"
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-border p-4 dark:border-white/10">
+            <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
               Recent Token Purchases
             </h3>
             {tokenPurchases.length === 0 ? (
@@ -766,7 +884,10 @@ export default function AdminCreditsAds() {
                   >
                     <div>
                       <p className="text-xs font-semibold text-foreground dark:text-primary-foreground">
-                        {p.tokens_credited} tokens: {formatNaira(p.amount_kobo)}
+                        {p.tokens_credited} tokens:{" "}
+                        {p.currency && p.currency !== "NGN"
+                          ? formatMinor(p.amount_kobo, p.currency)
+                          : formatNaira(p.amount_kobo)}
                       </p>
                       <p className="text-[10px] text-muted-foreground">
                         {p.reference} •{" "}

@@ -27,6 +27,8 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { resolveSubscriptionPriceKobo } from "../_shared/subscription-pricing.ts";
+import { resolveTokenPrice } from "../_shared/token-pricing.ts";
+import { minorToMajor } from "../_shared/currency-units.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
   checkRateLimit,
@@ -62,11 +64,15 @@ serveWithCors(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
 
   try {
-    const { plan_id, billing_cycle, email, user_id } = await req.json();
+    const { purpose, plan_id, billing_cycle, email, user_id, currency } =
+      await req.json();
     const plan = typeof plan_id === "string" ? plan_id : "";
     const cycle = billing_cycle === "yearly" ? "yearly" : "monthly";
+    const isTokenPurchase = purpose === "token_purchase";
+    const chargeCurrency =
+      (typeof currency === "string" && currency.toUpperCase()) || "";
 
-    if (!plan || !email || !user_id) {
+    if ((!plan && !isTokenPurchase) || !email || !user_id) {
       return json({ error: "Missing required fields" }, 400);
     }
 
@@ -90,6 +96,93 @@ serveWithCors(async (req: Request) => {
       : { data: { user: null }, error: new Error("no auth header") };
     if (!tokenUser?.data?.user || tokenUser.data.user.id !== user_id) {
       return json({ error: "Unauthorized" }, 401);
+    }
+
+    // ── Token purchase branch: price ALWAYS server-side ──
+    // NGN never reaches here (the frontend keeps NGN on Paystack);
+    // every other currency needs an active price row. The client's
+    // amount is ignored entirely.
+    if (isTokenPurchase) {
+      const { data: tokenConfig, error: configError } = await admin
+        .from("token_purchase_config")
+        .select("token_amount, price_kobo, is_enabled")
+        .eq("id", 1)
+        .maybeSingle();
+      if (configError || !tokenConfig || !tokenConfig.is_enabled) {
+        return json({ error: "Token purchases are not available" }, 400);
+      }
+
+      const { data: priceRows, error: priceRowsError } = await admin
+        .from("token_purchase_prices")
+        .select("currency_code, price_minor, is_active");
+      if (priceRowsError) {
+        return json({ error: "Token pricing unavailable" }, 500);
+      }
+
+      const resolution = resolveTokenPrice(
+        tokenConfig,
+        priceRows ?? [],
+        chargeCurrency,
+      );
+      if (!resolution || resolution.currency === "NGN") {
+        return json(
+          {
+            error:
+              "Tokens cannot be purchased in this currency yet. The naira price is always available.",
+          },
+          400,
+        );
+      }
+
+      const amount = minorToMajor(resolution.priceMinor, resolution.currency);
+      if (!Number.isFinite(amount) || amount <= 0) {
+        return json({ error: "Invalid token price configuration" }, 500);
+      }
+
+      const tokenTxRef = `FRELUX_TOKENS_FLW_${user_id.slice(0, 8)}_${Date.now()}`;
+      const tokenRedirect = `${req.headers.get("origin") ?? ""}/rewards?token_purchase=verify&gw=flutterwave&ref=${tokenTxRef}`;
+      if (!req.headers.get("origin")) {
+        return json({ error: "Missing origin" }, 400);
+      }
+
+      const tokenRes = await fetch("https://api.flutterwave.com/v3/payments", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${secretKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tx_ref: tokenTxRef,
+          amount,
+          currency: resolution.currency,
+          redirect_url: tokenRedirect,
+          payment_options: "card",
+          customer: { email },
+          customizations: {
+            title: "FRELUX",
+            description: `FRELUX Tokens (${resolution.tokens})`,
+          },
+          meta: {
+            purpose: "token_purchase",
+            user_id,
+            tokens: resolution.tokens,
+            currency: resolution.currency,
+            price_minor: resolution.priceMinor,
+          },
+        }),
+      });
+      const tokenData = await tokenRes.json().catch(() => null);
+      if (!tokenRes.ok || !tokenData?.status || !tokenData?.data?.link) {
+        return json(
+          { error: tokenData?.message || "Flutterwave initialization failed" },
+          tokenRes.status ?? 502,
+        );
+      }
+      return json({
+        authorization_url: tokenData.data.link,
+        reference: tokenTxRef,
+        currency: resolution.currency,
+      });
     }
 
     // Resolve the canonical price for (plan, cycle) — no configured

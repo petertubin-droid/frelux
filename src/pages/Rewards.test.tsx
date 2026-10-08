@@ -14,9 +14,28 @@ vi.mock("@/lib/credits", () => ({
 }));
 vi.mock("@/lib/token-purchase", () => ({
   getTokenPurchaseConfig: vi.fn().mockResolvedValue(null),
+  getTokenPurchasePrices: vi.fn().mockResolvedValue([]),
+  resolveTokenCharge: vi.fn((kobo: number) => ({
+    mode: "naira",
+    currency: "NGN",
+    priceMinor: kobo,
+  })),
   initializeTokenPurchase: vi.fn().mockResolvedValue({ success: false }),
   verifyTokenPurchase: vi.fn().mockResolvedValue({ verified: false }),
   formatNaira: vi.fn((kobo: number) => `₦${kobo / 100}`),
+  formatTokenPriceForDisplay: vi.fn((kobo: number) => `₦${kobo / 100}`),
+  tokenPriceDisclosure: vi.fn(() => null),
+}));
+vi.mock("@/lib/international/currency-context", () => ({
+  useDisplayCurrency: vi.fn(() => ({
+    code: "NGN",
+    symbol: "₦",
+    converting: false,
+    rateConfigured: vi.fn(() => false),
+    rateDescription: null,
+    config: null,
+    setCurrency: vi.fn(),
+  })),
 }));
 vi.mock("@/lib/ad-config", () => ({
   hasRewardedAdProvider: vi.fn().mockResolvedValue(false),

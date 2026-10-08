@@ -37,6 +37,13 @@ vi.mock("@/lib/supabase-lazy", () => {
   };
 });
 
+// ── Mock gateway config so Flutterwave availability is controllable ──
+const { flwReady } = vi.hoisted(() => ({ flwReady: vi.fn(() => false) }));
+vi.mock("@/lib/payments/gateway", () => ({
+  isFlutterwaveConfigured: flwReady,
+  currentGatewayRuntimeConfig: vi.fn(() => ({})),
+}));
+
 // ── Mock paystack config check ──
 vi.mock("@/lib/paystack", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/paystack")>();
@@ -48,6 +55,10 @@ import {
   formatTokenPriceForDisplay,
   tokenPriceDisclosure,
   getTokenPurchaseConfig,
+  getTokenPurchasePrices,
+  resolveTokenCharge,
+  formatMinor,
+  type TokenCharge,
   initializeTokenPurchase,
   verifyTokenPurchase,
   adminGetTokenPurchaseConfig,
@@ -112,6 +123,196 @@ describe("worldwide token price display", () => {
     setDisplayCurrencyState("USD", { enabled: true, rates: {} });
     expect(formatTokenPriceForDisplay(150000)).toBe("₦1,500");
     expect(tokenPriceDisclosure(150000)).toBeNull();
+  });
+});
+
+describe("resolveTokenCharge", () => {
+  const prices = [
+    { currency_code: "USD", price_minor: 99, is_active: true, updated_at: "" },
+    { currency_code: "GBP", price_minor: 79, is_active: false, updated_at: "" },
+  ];
+
+  it("uses the configured native price for a matching currency", () => {
+    const charge = resolveTokenCharge(150000, "usd", prices);
+    expect(charge).toEqual({
+      mode: "native",
+      currency: "USD",
+      priceMinor: 99,
+    });
+  });
+
+  it("ignores inactive or missing rows: falls back to the naira pack", () => {
+    expect(resolveTokenCharge(150000, "GBP", prices)).toEqual({
+      mode: "naira",
+      currency: "NGN",
+      priceMinor: 150000,
+    });
+    expect(resolveTokenCharge(150000, "EUR", prices)).toEqual({
+      mode: "naira",
+      currency: "NGN",
+      priceMinor: 150000,
+    });
+  });
+
+  it("naira display stays naira even with prices loaded", () => {
+    expect(resolveTokenCharge(150000, "NGN", prices)).toEqual({
+      mode: "naira",
+      currency: "NGN",
+      priceMinor: 150000,
+    });
+  });
+
+  it("never invents a native price from FX", () => {
+    setDisplayCurrencyState("USD", { enabled: true, rates: { USD: 0.001 } });
+    const c = resolveTokenCharge(150000, "USD", []);
+    expect(c.mode).toBe("naira");
+  });
+});
+
+describe("formatMinor", () => {
+  it("formats minor units in the currency's own symbol", () => {
+    expect(formatMinor(99, "USD")).toBe("$0.99");
+    expect(formatMinor(79, "GBP")).toBe("£0.79");
+  });
+
+  it("handles zero-decimal currencies without decimals", () => {
+    expect(formatMinor(150, "JPY")).toBe("¥150");
+  });
+});
+
+describe("native price display", () => {
+  afterEach(() => {
+    setDisplayCurrencyState("NGN", { enabled: false, rates: {} });
+  });
+
+  it("shows the exact native price with no approx disclosure", () => {
+    const charge: TokenCharge = {
+      mode: "native",
+      currency: "USD",
+      priceMinor: 99,
+    };
+    expect(formatTokenPriceForDisplay(150000, charge)).toBe("$0.99");
+    expect(tokenPriceDisclosure(150000, charge)).toBeNull();
+  });
+});
+
+describe("getTokenPurchasePrices", () => {
+  it("returns price rows when present", async () => {
+    _state.data = [
+      {
+        currency_code: "USD",
+        price_minor: 99,
+        is_active: true,
+        updated_at: "",
+      },
+    ];
+    const rows = await getTokenPurchasePrices();
+    expect(rows).toHaveLength(1);
+    expect(rows[0].currency_code).toBe("USD");
+  });
+
+  it("returns [] on error", async () => {
+    _state.error = new Error("db down");
+    expect(await getTokenPurchasePrices()).toEqual([]);
+  });
+});
+
+describe("initializeTokenPurchase (international dispatch)", () => {
+  it("routes a native currency to flutterwave-checkout when configured", async () => {
+    flwReady.mockReturnValueOnce(true);
+    _state.data = {
+      authorization_url: "https://checkout.flutterwave.com/xyz",
+      reference: "FRELUX_TOKENS_FLW_u1_123",
+      currency: "USD",
+    };
+    const result = await initializeTokenPurchase("user@example.com", "user-1", {
+      mode: "native",
+      currency: "USD",
+      priceMinor: 99,
+    });
+    expect(result.success).toBe(true);
+    expect(result.gateway).toBe("flutterwave");
+    expect(result.authorizationUrl).toBe(
+      "https://checkout.flutterwave.com/xyz",
+    );
+    expect(_invoke).toHaveBeenCalledWith("flutterwave-checkout", {
+      body: {
+        purpose: "token_purchase",
+        email: "user@example.com",
+        user_id: "user-1",
+        currency: "USD",
+      },
+    });
+  });
+
+  it("refuses a native charge when Flutterwave is not configured", async () => {
+    const result = await initializeTokenPurchase("user@example.com", "user-1", {
+      mode: "native",
+      currency: "USD",
+      priceMinor: 99,
+    });
+    expect(result.success).toBe(false);
+    expect(result.code).toBe("FLUTTERWAVE_NOT_CONFIGURED");
+    expect(_invoke).not.toHaveBeenCalled();
+  });
+
+  it("keeps naira (and fallback) charges on Paystack", async () => {
+    _state.data = {
+      data: {
+        authorization_url: "https://checkout.paystack.com/abc123",
+        reference: "FRELUX_TOKENS_x1_123",
+      },
+    };
+    const result = await initializeTokenPurchase("user@example.com", "user-1", {
+      mode: "naira",
+      currency: "NGN",
+      priceMinor: 150000,
+    });
+    expect(result.success).toBe(true);
+    expect(_invoke).toHaveBeenCalledWith(
+      "paystack-checkout",
+      expect.objectContaining({
+        body: expect.objectContaining({ purpose: "token_purchase" }),
+      }),
+    );
+  });
+});
+
+describe("verifyTokenPurchase (gateway routing)", () => {
+  it("verifies via flutterwave-verify when gw=flutterwave", async () => {
+    _state.data = {
+      verified: true,
+      purpose: "token_purchase",
+      tokens_credited: 50,
+      already_credited: false,
+    };
+    const result = await verifyTokenPurchase(
+      "FRELUX_TOKENS_FLW_u1_123",
+      "flutterwave",
+    );
+    expect(result.verified).toBe(true);
+    expect(result.tokens).toBe(50);
+    expect(_invoke).toHaveBeenCalledWith("flutterwave-verify", {
+      body: { tx_ref: "FRELUX_TOKENS_FLW_u1_123" },
+    });
+  });
+
+  it("treats a flutterwave verification of another purpose as unverified", async () => {
+    _state.data = { verified: true, purpose: "subscription" };
+    const result = await verifyTokenPurchase("ref", "flutterwave");
+    expect(result.verified).toBe(false);
+  });
+
+  it("keeps the default on Paystack", async () => {
+    _state.data = {
+      status: true,
+      data: { purpose: "token_purchase", tokens_credited: 50 },
+    };
+    const result = await verifyTokenPurchase("FRELUX_TOKENS_x1_123");
+    expect(result.verified).toBe(true);
+    expect(_invoke).toHaveBeenCalledWith("paystack-verify", {
+      body: { reference: "FRELUX_TOKENS_x1_123" },
+    });
   });
 });
 

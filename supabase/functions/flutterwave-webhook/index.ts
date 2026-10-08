@@ -28,6 +28,7 @@ import {
   constantTimeEqual,
   validateSubscriptionPayment,
 } from "../_shared/subscription-pricing.ts";
+import { validateTokenPayment } from "../_shared/token-pricing.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 
 const corsHeaders = {
@@ -78,6 +79,79 @@ serveWithCors(async (req: Request) => {
     }
 
     const meta = data.meta ?? {};
+
+    // ── Token purchase branch: validate against canonical per-currency
+    // pricing, then credit idempotently (keyed by tx_ref). ──
+    if (meta.purpose === "token_purchase") {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+      const admin = createClient(supabaseUrl, serviceRoleKey);
+
+      const { data: tokenConfig, error: configError } = await admin
+        .from("token_purchase_config")
+        .select("token_amount, price_kobo, is_enabled")
+        .eq("id", 1)
+        .maybeSingle();
+      if (configError || !tokenConfig) {
+        return json({
+          received: true,
+          credited: false,
+          reason: "TOKENS_NOT_CONFIGURED",
+        });
+      }
+      const { data: priceRows, error: priceRowsError } = await admin
+        .from("token_purchase_prices")
+        .select("currency_code, price_minor, is_active");
+      if (priceRowsError) {
+        return json({ error: "Token pricing unavailable" }, 500);
+      }
+
+      const tokens = Number(meta.tokens) || 0;
+      const userId = meta.user_id as string | undefined;
+      const txRef = (typeof data.tx_ref === "string" && data.tx_ref) || null;
+      if (!userId || !tokens || !txRef) {
+        return json({
+          received: true,
+          credited: false,
+          reason: "MISSING_METADATA",
+        });
+      }
+
+      const validation = validateTokenPayment({
+        config: tokenConfig,
+        priceRows: priceRows ?? [],
+        currency: String(data.currency ?? ""),
+        amountPaidMajor: Number(data.amount),
+      });
+      if (!validation.ok) {
+        // Never 500 — a mismatched/unknown amount is a rejected event,
+        // acknowledged so Flutterwave does not retry it forever.
+        return json({
+          received: true,
+          credited: false,
+          reason: validation.reason,
+        });
+      }
+
+      const rpc = await admin.rpc("credit_token_purchase", {
+        p_user_id: userId,
+        p_reference: txRef,
+        p_tokens: validation.resolution.tokens,
+        p_amount_kobo: validation.resolution.priceMinor,
+        p_metadata: { source: "flutterwave", purpose: "token_purchase" },
+        p_currency: validation.resolution.currency,
+        p_gateway: "flutterwave",
+      });
+      if (rpc.error) {
+        return json({ error: rpc.error.message }, 500);
+      }
+      return json({
+        received: true,
+        credited: true,
+        currency: validation.resolution.currency,
+      });
+    }
+
     const plan = meta.plan as string | undefined;
     const billingCycle =
       (meta.billing_cycle as "monthly" | "yearly" | undefined) ?? "monthly";
