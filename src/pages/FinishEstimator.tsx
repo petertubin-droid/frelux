@@ -50,6 +50,10 @@ import type {
   OpeningDimensions,
 } from "@/types";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
+import LabourCostSection from "@/components/labour/LabourCostSection";
+import { useLabourConfig } from "@/components/labour/LabourCostSection";
+import { calculateLabourCost } from "@/lib/labour";
+import { printQuote } from "@/lib/estimation/quote-export";
 import type { DbFinishType, DbSiteSettings } from "@/types/database";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import { monitoredCalc } from "@/lib/calculator-monitor";
@@ -74,6 +78,52 @@ const finishTypeMeta: Record<
 interface PassedState {
   /** Canonical project location (location-intelligence) passed via router state. */
   projectLocation?: FreluxLocation | null;
+}
+
+// Printable professional quote, market-currency formatted.
+function exportFinishQuote(args: {
+  finishLabel: string;
+  result: FinishCalcResult;
+  labourCost: number;
+  currencySymbol: string;
+}) {
+  const { result, labourCost, currencySymbol } = args;
+  const fmt = (v: number) => formatCurrency(v, currencySymbol);
+  printQuote(
+    {
+      title: `FRELUX ${args.finishLabel} Estimate`,
+      subtitle: `Generated ${new Date().toLocaleDateString()} · ${formatNumber(result.area)} m² · ${result.coats} coat(s)`,
+      metaRows: [
+        ["Finish", args.finishLabel],
+        ["Area", `${formatNumber(result.area)} m²`],
+        ["Coats", String(result.coats)],
+        ["Waste margin", `${result.wasteMargin}%`],
+      ],
+      lines: result.materials.map((m) => ({
+        label: m.name,
+        quantity: String(m.packagesNeeded),
+        unit: m.packageUnit,
+        unit_price: "included",
+        line_total: fmt(m.cost),
+      })),
+      totals: [
+        { label: "Material cost", value: fmt(result.materialCost) },
+        {
+          label: "Labour",
+          value: labourCost > 0 ? fmt(labourCost) : "(not included)",
+        },
+        {
+          label: "Grand total",
+          value: fmt(result.totalCost + labourCost),
+          strong: true,
+        },
+      ],
+      warnings: result.warnings ?? [],
+      footer:
+        "Estimates are indicative and not a formal quote. Quantities include the configured waste margin; prices come from the configured material database.",
+    },
+    "frelux-finish-estimate.html",
+  );
 }
 
 export default function FinishEstimator({
@@ -116,6 +166,15 @@ export default function FinishEstimator({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [selectedFinish, setSelectedFinish] = useState<FinishType>("painting");
   const [result, setResult] = useState<FinishCalcResult | null>(null);
+
+  // Labour follows the site-wide labour layer so international
+  // visitors get a complete estimate, not materials alone.
+  const { config: labourConfig, setConfig: setLabourConfig } =
+    useLabourConfig("global");
+  const labourCost = result
+    ? calculateLabourCost(labourConfig, result.area)
+    : 0;
+
   const [saved, setSaved] = useState(false);
 
   // Regional data flow: project location -> market profile -> currency.
@@ -630,6 +689,21 @@ export default function FinishEstimator({
               onRecalculate={startOver}
             >
               <div className="mb-4 flex justify-center">
+                <button
+                  type="button"
+                  onClick={() =>
+                    result &&
+                    exportFinishQuote({
+                      finishLabel: getFinishTypeLabel(selectedFinish),
+                      result,
+                      labourCost,
+                      currencySymbol,
+                    })
+                  }
+                  className="rounded-lg border px-4 py-2 text-sm font-semibold"
+                >
+                  Export quote (PDF)
+                </button>
                 <SaveToProjectButton
                   calculatorType="finish"
                   calculatorSlug="finish-estimator"
@@ -712,6 +786,15 @@ export default function FinishEstimator({
                   </table>
                 </div>
 
+                {/* Labour: complete the estimate to the very end */}
+                <LabourCostSection
+                  estimatorKey="global"
+                  config={labourConfig}
+                  onChange={setLabourConfig}
+                  currencySymbol={currencySymbol}
+                  area={result.area}
+                />
+
                 {/* Cost Summary */}
                 <div className="rounded-xl bg-muted/50 p-4">
                   <div className="flex items-center justify-between text-sm">
@@ -725,15 +808,20 @@ export default function FinishEstimator({
                   <div className="mt-2 flex items-center justify-between text-sm">
                     <span className="text-muted-foreground">Total Labour</span>
                     <span className="font-semibold text-foreground">
-                      {result.labourNote}
+                      {labourCost > 0
+                        ? formatCurrency(labourCost, currencySymbol)
+                        : "Use the labour section above to add it."}
                     </span>
                   </div>
                   <div className="mt-2 flex items-center justify-between border-t border-border pt-2 text-sm">
                     <span className="font-bold text-foreground">
-                      Grand Total
+                      Grand Total (materials + labour)
                     </span>
                     <span className="font-bold text-brand-purple">
-                      {formatCurrency(result.totalCost, currencySymbol)}
+                      {formatCurrency(
+                        result.totalCost + labourCost,
+                        currencySymbol,
+                      )}
                     </span>
                   </div>
                 </div>
