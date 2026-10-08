@@ -53,6 +53,7 @@ import {
 } from "@/lib/estimation/queries";
 import { track } from "@/lib/analytics";
 import { formatCurrency, unitShortLabel, unitLongLabel } from "@/lib/utils";
+import { DISPLAY_CURRENCIES } from "@/lib/international/fx-display";
 import {
   logAnalyticsEvent,
   fetchPaintTypes,
@@ -1525,8 +1526,15 @@ function Step3({
                   {selectedQualityPrice && (
                     <p className="mt-0.5 text-muted-foreground dark:text-muted-foreground">
                       Price:{" "}
-                      {selectedQualityPrice.currency === "NGN" ? "₦" : ""}
-                      {selectedQualityPrice.price.toLocaleString()} per bucket
+                      {formatCurrency(
+                        selectedQualityPrice.price,
+                        DISPLAY_CURRENCIES.find(
+                          (c) =>
+                            c.code ===
+                            selectedQualityPrice.currency.toUpperCase(),
+                        )?.symbol ?? selectedQualityPrice.currency,
+                      )}{" "}
+                      per bucket
                     </p>
                   )}
                   {selectedQuality.description && (
