@@ -15,6 +15,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { track } from "@/lib/analytics";
+import { formatCurrency } from "@/lib/utils";
 import { getSafeError } from "@/lib/safeError";
 import { useAuth } from "@/lib/auth";
 import Container from "@/components/ui/Container";
@@ -39,8 +40,10 @@ import type {
 } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 
+// Market-currency aware: converts from the naira base through the
+// site-wide FX layer so international visitors see their currency.
 function money(v: number): string {
-  return `₦${v.toLocaleString("en-NG", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return formatCurrency(v);
 }
 
 const statusLabel: Record<string, string> = {

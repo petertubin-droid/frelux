@@ -171,14 +171,10 @@ describe("EstimateRefresh page", () => {
 
     // 10 × 5,000 = 50,000 quoted; today 6,000 → 60,000 (+10,000, +20%)
     await waitFor(() => {
-      expect(screen.getAllByText("₦60,000.00").length).toBeGreaterThanOrEqual(
-        1,
-      );
+      expect(screen.getAllByText("₦60,000").length).toBeGreaterThanOrEqual(1);
     });
-    expect(screen.getAllByText("₦50,000.00").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getAllByText(/\+₦10,000\.00/).length).toBeGreaterThanOrEqual(
-      1,
-    );
+    expect(screen.getAllByText("₦50,000").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/\+₦10,000/).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/20% since quoted/)).toBeInTheDocument();
     expect(screen.getByText(/Price changed/)).toBeInTheDocument();
   });
@@ -190,9 +186,7 @@ describe("EstimateRefresh page", () => {
     });
     fireEvent.click(screen.getByRole("button", { name: /Refresh to today/i }));
     await waitFor(() => {
-      expect(screen.getAllByText("₦60,000.00").length).toBeGreaterThanOrEqual(
-        1,
-      );
+      expect(screen.getAllByText("₦60,000").length).toBeGreaterThanOrEqual(1);
     });
     const { fetchActivePriceForMarket } =
       await import("@/lib/estimation/queries");

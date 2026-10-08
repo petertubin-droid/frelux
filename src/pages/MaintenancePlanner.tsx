@@ -257,7 +257,7 @@ export default function MaintenancePlanner({
             </select>
           </label>
           <label className="grid gap-1 text-sm font-medium">
-            Installed cost (₦, optional)
+            Installed cost (optional)
             <input
               type="number"
               min="0"
@@ -379,7 +379,7 @@ export default function MaintenancePlanner({
                 </p>
                 <p className="mt-1 text-xl font-bold">
                   {m.cumulative_cost !== null
-                    ? `₦${m.cumulative_cost.toLocaleString()}`
+                    ? formatCurrency(m.cumulative_cost)
                     : "timing only"}
                 </p>
                 <p className="mt-1 text-xs text-muted-foreground">
@@ -417,7 +417,7 @@ export default function MaintenancePlanner({
                       {e.date_min} → {e.date_max}
                     </td>
                     <td className="p-3">
-                      {e.cost !== null ? `₦${e.cost.toLocaleString()}` : "N/A"}
+                      {e.cost !== null ? formatCurrency(e.cost) : "N/A"}
                     </td>
                   </tr>
                 ))}
