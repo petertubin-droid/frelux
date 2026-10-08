@@ -15,6 +15,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { formatCurrency } from "@/lib/utils";
+import { printQuote } from "@/lib/estimation/quote-export";
+import type { QuoteLine } from "@/lib/estimation/quote-export";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { EstimateDisclaimer } from "@/components/calculators";
 import { track } from "@/lib/analytics";
@@ -176,83 +178,72 @@ export default function SolarPvEstimator() {
     }
   };
 
-  // Printable professional quote (print dialog; popup-blocked fallback
-  // downloads the quote as a printable HTML file).
+  // Printable professional quote via the shared quote-export library
+  // (popup-blocked fallback downloads the quote as a printable HTML file).
   const handleExportQuote = () => {
     if (!result?.ok) return;
     const model = models.find((m) => m.id === modelId);
-    const rows = result.materials
-      .map(
-        (m) => `<tr>
-          <td>${m.label}</td>
-          <td class="n">${m.quantity.toLocaleString("en-NG")} ${m.unit}</td>
-          <td class="n">${m.unit_price_naira === null ? "unpriced" : formatCurrency(m.unit_price_naira)}</td>
-          <td class="n">${m.line_cost_naira === null ? "N/A" : formatCurrency(m.line_cost_naira)}</td>
-        </tr>`,
-      )
-      .join("");
-    const laborRow =
-      result.labor_cost_naira !== null
-        ? `<tr><td>Installation labour</td><td class="n">${result.panel_count} panels</td><td class="n">included</td><td class="n">${formatCurrency(result.labor_cost_naira)}</td></tr>`
-        : "";
-    const warnings = result.warnings.length
-      ? `<h3>Notes</h3><ul>${result.warnings.map((w) => `<li>${w}</li>`).join("")}</ul>`
-      : "";
-    const html = `<!doctype html><html><head><meta charset="utf-8">
-      <title>FRELUX Solar/PV Installation Estimate</title>
-      <style>
-        body { font-family: Arial, Helvetica, sans-serif; color: #111; margin: 40px; }
-        h1 { font-size: 20px; margin: 0 0 2px; } h2 { font-size: 15px; margin: 18px 0 6px; }
-        h3 { font-size: 13px; margin: 14px 0 4px; }
-        .sub { color: #555; font-size: 12px; margin-bottom: 18px; }
-        table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th, td { border-bottom: 1px solid #ddd; padding: 6px 8px; text-align: left; }
-        th { border-bottom: 2px solid #111; text-transform: uppercase; font-size: 10px; }
-        .n { text-align: right; }
-        .total { font-size: 16px; font-weight: bold; margin-top: 10px; }
-        .disclaimer { color: #777; font-size: 10px; margin-top: 24px; }
-        ul { font-size: 12px; padding-left: 18px; }
-        .meta td { border: none; padding: 2px 8px 2px 0; }
-      </style></head><body>
-      <h1>FRELUX Solar/PV Installation Estimate</h1>
-      <div class="sub">Generated ${new Date().toLocaleDateString()} &middot; Panel model: ${model?.model_name ?? ""} (${model?.watt_peak ?? ""} Wp)</div>
-      <h2>System summary</h2>
-      <table class="meta">
-        <tr><td><b>Panels:</b> ${result.panel_count} (${result.array_kwp} kWp)</td>
-        <td><b>Daily energy:</b> ${result.daily_energy_kwh} kWh</td></tr>
-        <tr><td><b>Inverter:</b> ${result.inverter_size_kw} kW (${result.string_count} string(s))</td>
-        <td><b>Roof area needed:</b> ${result.needed_roof_area_m2} m&sup2;</td></tr>
-        <tr><td><b>Batteries:</b> ${result.battery_count > 0 ? `${result.battery_count} unit(s)` : "none"}</td>
-        <td><b>Cable run:</b> ${cableRun} m</td></tr>
-      </table>
-      <h2>Bill of materials</h2>
-      <table>
-        <thead><tr><th>Material</th><th class="n">Quantity</th><th class="n">Unit price</th><th class="n">Line cost</th></tr></thead>
-        <tbody>${rows}${laborRow}</tbody>
-      </table>
-      <p class="total">Total estimate: ${formatCurrency(pricedTotal)}${
-        result.total_cost_naira === null
-          ? " (priced lines only; some components are unpriced)"
-          : ""
-      }</p>
-      ${warnings}
-      <p class="disclaimer">Estimates are indicative and not a formal quote. Prices come from FRELUX admin-configured component prices; unpriced components are reported, never invented.</p>
-      </body></html>`;
-    const w = window.open("", "_blank", "width=900,height=720");
-    if (!w) {
-      const blob = new Blob([html], { type: "text/html" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "frelux-solar-pv-estimate.html";
-      a.click();
-      URL.revokeObjectURL(url);
-      return;
+    const fmtQty = (q: number) => q.toLocaleString("en-NG");
+    const lines: QuoteLine[] = result.materials.map((m) => ({
+      label: m.label,
+      quantity: fmtQty(m.quantity),
+      unit: m.unit,
+      unit_price:
+        m.unit_price_naira === null
+          ? "unpriced"
+          : formatCurrency(m.unit_price_naira),
+      line_total:
+        m.line_cost_naira === null ? "N/A" : formatCurrency(m.line_cost_naira),
+    }));
+    if (result.labor_cost_naira !== null) {
+      lines.push({
+        label: "Installation labour",
+        quantity: String(result.panel_count),
+        unit: "panels",
+        unit_price: "included",
+        line_total: formatCurrency(result.labor_cost_naira),
+      });
     }
-    w.document.write(html);
-    w.document.close();
-    w.focus();
-    w.print();
+    const warnings = [...result.warnings];
+    if (result.total_cost_naira === null) {
+      warnings.push(
+        "Some components are unpriced; the total covers priced lines only.",
+      );
+    }
+    printQuote(
+      {
+        title: "FRELUX Solar/PV Installation Estimate",
+        subtitle: `Generated ${new Date().toLocaleDateString()} · Panel model: ${model?.model_name ?? ""} (${model?.watt_peak ?? ""} Wp)`,
+        metaRows: [
+          ["Panels", `${result.panel_count} (${result.array_kwp} kWp)`],
+          ["Daily energy", `${result.daily_energy_kwh} kWh`],
+          [
+            "Inverter",
+            `${result.inverter_size_kw} kW (${result.string_count} string(s))`,
+          ],
+          ["Roof area needed", `${result.needed_roof_area_m2} m²`],
+          [
+            "Batteries",
+            result.battery_count > 0
+              ? `${result.battery_count} unit(s)`
+              : "none",
+          ],
+          ["Cable run", `${cableRun} m`],
+        ],
+        lines,
+        totals: [
+          {
+            label: "Total estimate",
+            value: formatCurrency(pricedTotal),
+            strong: true,
+          },
+        ],
+        warnings,
+        footer:
+          "Estimates are indicative and not a formal quote. Prices come from FRELUX admin-configured component prices; unpriced components are reported, never invented.",
+      },
+      "frelux-solar-pv-estimate.html",
+    );
   };
 
   const load = useCallback(async () => {
