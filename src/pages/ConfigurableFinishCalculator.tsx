@@ -24,6 +24,10 @@ import { trackRecentTool } from "@/lib/smart-defaults";
 import { formatNumber } from "@/lib/utils";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
+import LabourCostSection, {
+  useLabourConfig,
+} from "@/components/labour/LabourCostSection";
+import { calculateLabourCost } from "@/lib/labour";
 import PageHeader from "@/components/ui/PageHeader";
 import { EstimateDisclaimer } from "@/components/calculators";
 import {
@@ -105,6 +109,11 @@ export default function ConfigurableFinishCalculator({
 
   // ── Result / save state ──
   const [result, setResult] = useState<MineralStoneResult | null>(null);
+  // Shared labour layer: completes the estimate to the very end
+  const { config: labourConfig, setConfig: setLabourConfig } =
+    useLabourConfig("global");
+  const labourAreaM2 = result?.area_m2 ?? 0;
+  const labourCost = calculateLabourCost(labourConfig, labourAreaM2);
   const [calculating, setCalculating] = useState(false);
   const [saveState, setSaveState] = useState<
     "idle" | "saving" | "saved" | "error"
@@ -294,7 +303,7 @@ export default function ConfigurableFinishCalculator({
         },
         total_material_cost: totalCost,
         currency: "NGN",
-        labour_status: "not_included",
+        labour_status: labourConfig.includeLabour ? "included" : "not_included",
         warnings: result.warnings,
         recommendations: [],
         status: "calculated",
@@ -593,6 +602,28 @@ export default function ConfigurableFinishCalculator({
                             ₦{fmt(result.price_per_pack)} per package
                           </p>
                         )}
+                      </div>
+
+                      {/* Labour: complete the estimate to the very end */}
+                      <LabourCostSection
+                        estimatorKey="global"
+                        config={labourConfig}
+                        onChange={setLabourConfig}
+                        currencySymbol="₦"
+                        area={labourAreaM2}
+                        last
+                      />
+                      <div className="rounded-lg border border-border p-4">
+                        <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                          Grand total (materials + labour)
+                        </p>
+                        <p className="mt-1 text-xl font-bold">
+                          ₦{fmt((result.cost_min ?? 0) + labourCost)}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Materials ₦{fmt(result.cost_min ?? 0)} + Labour ₦
+                          {fmt(labourCost)}
+                        </p>
                       </div>
 
                       <div className="flex flex-wrap gap-3">

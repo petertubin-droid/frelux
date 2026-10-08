@@ -107,6 +107,10 @@ import {
 } from "@/components/engine";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import LabourCostSection, {
+  useLabourConfig,
+} from "@/components/labour/LabourCostSection";
+import { calculateLabourCost } from "@/lib/labour";
 // =========================================================
 // Constants
 // =========================================================
@@ -239,6 +243,9 @@ export default function TyroleneEstimator({
 
   // ── State: Result ──
   const [result, setResult] = useState<TyroleneEstimateResult | null>(null);
+  // Shared labour layer: completes the estimate to the very end
+  const { config: labourConfig, setConfig: setLabourConfig } =
+    useLabourConfig("screeding");
   // Engine features
   const engine = useEngineFeatures({ calculatorType: "tyrolene" });
   const [alreadyHave, setAlreadyHave] = useState(0);
@@ -500,7 +507,7 @@ export default function TyroleneEstimator({
         },
         total_material_cost: result.practical_purchase_cost,
         currency,
-        labour_status: "not_included",
+        labour_status: labourConfig.includeLabour ? "included" : "not_included",
         warnings: result.warnings,
         recommendations: result.recommendations,
         status: "calculated",
@@ -1274,11 +1281,53 @@ export default function TyroleneEstimator({
                       </div>
                     </div>
 
-                    {/* Labour */}
-                    <div className="rounded-lg border border-border dark:border-border p-3">
-                      <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                        {result.labour_note}
-                      </p>
+                    {/* Labour: complete the estimate to the very end */}
+                    <LabourCostSection
+                      estimatorKey="screeding"
+                      config={labourConfig}
+                      onChange={setLabourConfig}
+                      currencySymbol={formatCurrency(
+                        1,
+                        result.currency,
+                      ).replace(/[\d.,\s]/g, "")}
+                      area={(result.partition_breakdown ?? []).reduce(
+                        (sum, part) => sum + part.area,
+                        0,
+                      )}
+                      last
+                    />
+                    <div className="mt-3 flex justify-between text-sm">
+                      <span className="text-muted-foreground">Labour cost</span>
+                      <span className="font-bold text-brand-purple dark:text-brand-purple-lighter">
+                        {formatCurrency(
+                          calculateLabourCost(
+                            labourConfig,
+                            (result.partition_breakdown ?? []).reduce(
+                              (sum, part) => sum + part.area,
+                              0,
+                            ),
+                          ),
+                          result.currency,
+                        )}
+                      </span>
+                    </div>
+                    <div className="mt-1 flex justify-between text-sm">
+                      <span className="font-semibold text-foreground dark:text-primary-foreground">
+                        Grand total (materials + labour)
+                      </span>
+                      <span className="font-bold text-brand-purple dark:text-brand-purple-lighter text-lg">
+                        {formatCurrency(
+                          result.practical_purchase_cost +
+                            calculateLabourCost(
+                              labourConfig,
+                              (result.partition_breakdown ?? []).reduce(
+                                (sum, part) => sum + part.area,
+                                0,
+                              ),
+                            ),
+                          result.currency,
+                        )}
+                      </span>
                     </div>
 
                     {/* Production Eligibility */}
@@ -1322,7 +1371,9 @@ export default function TyroleneEstimator({
                           NEGOTIATED:
                         </span>{" "}
                         <span className="text-foreground dark:text-primary-foreground">
-                          Labour (separately)
+                          {labourConfig.includeLabour
+                            ? "Labour (included)"
+                            : "Labour (separately)"}
                         </span>
                       </div>
                     </div>

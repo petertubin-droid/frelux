@@ -43,6 +43,10 @@ import { WorkWeatherBanner } from "@/components/ui/WorkWeatherBanner";
 import { useToast } from "@/components/ui/Toast";
 import { supabase } from "@/lib/supabase";
 import { formatCurrency } from "@/lib/estimation/pricing";
+import LabourCostSection, {
+  useLabourConfig,
+} from "@/components/labour/LabourCostSection";
+import { calculateLabourCost, type LabourConfig } from "@/lib/labour";
 import { useSeo } from "@/lib/seo";
 import { track } from "@/lib/analytics";
 import {
@@ -277,6 +281,10 @@ export default function PaintingEstimator({
 
   // ── State: Result ──
   const [result, setResult] = useState<PaintingEstimateResult | null>(null);
+  // Shared labour layer: completes the estimate to the very end
+  // (materials + labour + grand total) from admin-configured rates.
+  const { config: labourConfig, setConfig: setLabourConfig } =
+    useLabourConfig("paint");
   // Engine features hook (additive, existing logic unchanged)
   const engine = useEngineFeatures({ calculatorType: "painting" });
   const [alreadyHave, setAlreadyHave] = useState(0);
@@ -714,7 +722,7 @@ export default function PaintingEstimator({
         } as Record<string, unknown>,
         total_material_cost: result.total_material_cost,
         currency: result.currency,
-        labour_status: "not_included",
+        labour_status: labourConfig.includeLabour ? "included" : "not_included",
         warnings: result.warnings,
         recommendations: result.recommendations,
         notes: null,
@@ -1075,6 +1083,8 @@ export default function PaintingEstimator({
             engine={engine}
             alreadyHave={alreadyHave}
             onAlreadyHaveChange={setAlreadyHave}
+            labourConfig={labourConfig}
+            setLabourConfig={setLabourConfig}
           />
         )}
       </div>
@@ -1622,6 +1632,8 @@ function EstimateResult({
   engine,
   alreadyHave,
   onAlreadyHaveChange,
+  labourConfig,
+  setLabourConfig,
 }: {
   result: PaintingEstimateResult;
   showCalculation: boolean;
@@ -1638,7 +1650,23 @@ function EstimateResult({
   engine: ReturnType<typeof useEngineFeatures>;
   alreadyHave: number;
   onAlreadyHaveChange: (n: number) => void;
+  labourConfig: LabourConfig;
+  setLabourConfig: (config: LabourConfig) => void;
 }) {
+  // Labour completion: area the painters actually cover
+  const paintAreaM2 = result.rooms.reduce(
+    (sum, r) =>
+      sum + r.net_wall_area_m2 + (r.include_ceiling ? r.ceiling_area_m2 : 0),
+    0,
+  );
+  const labourCost = calculateLabourCost(labourConfig, paintAreaM2);
+  const grandTotal = result.total_material_cost + labourCost;
+  // Currency symbol for the shared labour section (extracted from a
+  // formatted value so it works for every market currency)
+  const currencySymbol = formatCurrency(1, result.currency).replace(
+    /[\d.,\s]/g,
+    "",
+  );
   return (
     <div className="space-y-4">
       {/* Warnings */}
@@ -2003,6 +2031,16 @@ function EstimateResult({
             </div>
           )}
 
+          {/* Labour: complete the estimate to the very end */}
+          <LabourCostSection
+            estimatorKey="paint"
+            config={labourConfig}
+            onChange={setLabourConfig}
+            currencySymbol={currencySymbol}
+            area={paintAreaM2}
+            last
+          />
+
           {/* Total */}
           <div className="border-t border-border pt-4 dark:border-white/10">
             <div className="flex justify-between text-sm">
@@ -2018,15 +2056,19 @@ function EstimateResult({
                 Labour
               </span>
               <span className="text-muted-foreground dark:text-muted-foreground">
-                Not included, negotiated separately.
+                {labourCost > 0
+                  ? formatCurrency(labourCost, result.currency)
+                  : "Not included. Use the labour section above to add it."}
               </span>
             </div>
             <div className="mt-2 flex justify-between text-sm">
               <span className="font-semibold text-card-foreground dark:text-muted-foreground/60">
-                Estimated Total Excluding Labour
+                {labourCost > 0
+                  ? "Estimated Total (Materials + Labour)"
+                  : "Estimated Total (Materials Only)"}
               </span>
               <span className="text-lg font-bold text-foreground dark:text-primary-foreground">
-                {formatCurrency(result.total_material_cost, result.currency)}
+                {formatCurrency(grandTotal, result.currency)}
               </span>
             </div>
           </div>
@@ -2155,14 +2197,17 @@ function EstimateResult({
                   rooms: result?.rooms,
                   totals: {
                     material_cost: result?.total_material_cost,
+                    labour_cost: labourCost,
+                    grand_total: grandTotal,
                     currency: result?.currency,
                   },
                 } as Record<string, unknown>
               }
               resultSummary={
                 {
-                  grandTotal: result?.total_material_cost,
+                  grandTotal,
                   materialCost: result?.total_material_cost,
+                  labourCost,
                   roomCount: result?.rooms?.length,
                 } as Record<string, unknown>
               }
@@ -2200,7 +2245,7 @@ function EstimateResult({
                 </p>
               </div>
               <a
-                href={`/marketplace/post/?estimate_ref=${result.estimate_ref || ""}&project_type=painting&budget_min=${Math.round(result.total_material_cost * 0.9)}&budget_max=${Math.round(result.total_material_cost * 1.2)}&title=Painting ${result.rooms.length} ${result.rooms.length === 1 ? "room" : "rooms"}`}
+                href={`/marketplace/post/?estimate_ref=${result.estimate_ref || ""}&project_type=painting&budget_min=${Math.round(grandTotal * 0.9)}&budget_max=${Math.round(grandTotal * 1.2)}&title=Painting ${result.rooms.length} ${result.rooms.length === 1 ? "room" : "rooms"}`}
                 className="btn-primary btn-glow inline-flex items-center justify-center gap-2 px-4 py-2 whitespace-nowrap"
               >
                 <Briefcase className="h-4 w-4" />
@@ -2213,7 +2258,10 @@ function EstimateResult({
           <div className="flex flex-wrap gap-2 pt-2 text-xs">
             <TrustBadge label="CALCULATED" value="FRELUX engine" />
             <TrustBadge label="CONFIGURED" value="FRELUX Admin" />
-            <TrustBadge label="NEGOTIATED" value="Labour (separate)" />
+            <TrustBadge
+              label={labourCost > 0 ? "INCLUDED" : "NEGOTIATED"}
+              value={labourCost > 0 ? "Labour" : "Labour (separate)"}
+            />
           </div>
 
           <EstimateDisclaimer text="Estimates are indicative and not a formal quote." />
