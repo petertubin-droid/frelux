@@ -108,7 +108,12 @@ const RESPONSE_SCHEMA = {
                 ],
               },
               label: { type: "string" },
-              value: { type: ["number", "string"] },
+              value: {
+                // Gemini's responseSchema rejects union type lists
+                // ("type": ["number","string"]) with a 400; anyOf is
+                // the supported form for a number-or-string value.
+                anyOf: [{ type: "number" }, { type: "string" }],
+              },
               unit: { type: "string" },
               evidence: { type: "string" },
             },
@@ -177,22 +182,38 @@ User request: """${text.replace(/"/g, "'")}"""
 
 Return JSON matching the schema.`;
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0,
-            responseMimeType: "application/json",
-            responseSchema: RESPONSE_SCHEMA,
-          },
-        }),
-        signal: AbortSignal.timeout(20_000),
+    // Extraction is a schema-filling task, not a reasoning task: the
+    // model burned ~500 thinking tokens per call (vs ~120 output) which
+    // dominated end-to-end latency. Disable thinking and bound the output.
+    // One bounded retry on 429/503: the model serves those transiently
+    // under load and an immediate give-up downgrades the Copilot to the
+    // deterministic fallback.
+    const geminiBody = JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0,
+        responseMimeType: "application/json",
+        responseSchema: RESPONSE_SCHEMA,
+        thinkingConfig: { thinkingBudget: 0 },
+        maxOutputTokens: 800,
       },
-    );
+    });
+    const callGemini = () =>
+      fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: geminiBody,
+          signal: AbortSignal.timeout(20_000),
+        },
+      );
+
+    let response = await callGemini();
+    if (response.status === 429 || response.status === 503) {
+      await new Promise((r) => setTimeout(r, 700));
+      response = await callGemini();
+    }
 
     if (!response.ok) {
       return jsonResponse(

@@ -675,18 +675,36 @@ export async function getAiFeatureCosts(): Promise<AiFeatureCost[]> {
   return (data ?? []) as AiFeatureCost[];
 }
 
+/**
+ * Feature costs change rarely (admin edits them occasionally), but they
+ * sit on the hot path of every AI request: the Copilot gate awaited this
+ * lookup before every AI interpretation. A short TTL cache removes that
+ * DB round trip from the perceived-latency path while staying fresh
+ * enough to pick up admin cost changes.
+ */
+const featureCostCache = new Map<
+  string,
+  { at: number; value: AiFeatureCost | null }
+>();
+const FEATURE_COST_TTL_MS = 5 * 60 * 1000;
+
 export async function getAiFeatureCost(
   featureKey: string,
 ): Promise<AiFeatureCost | null> {
   if (!isSupabaseConfigured) return null;
+  const cached = featureCostCache.get(featureKey);
+  if (cached && Date.now() - cached.at < FEATURE_COST_TTL_MS) {
+    return cached.value;
+  }
   const supabase = await getSupabase();
   const { data, error } = await supabase
     .from("ai_feature_costs")
     .select("*")
     .eq("feature_key", featureKey)
     .maybeSingle();
-  if (error || !data) return null;
-  return data as AiFeatureCost;
+  const value = error || !data ? null : (data as AiFeatureCost);
+  featureCostCache.set(featureKey, { at: Date.now(), value });
+  return value;
 }
 
 // ───────────────────────────────────────────────────────
@@ -946,9 +964,7 @@ export async function adminGetAllAdCreditEvents(
   return (data ?? []) as RewardedAdCreditEvent[];
 }
 
-export async function adminGetAllAiFeatureUsage(
-  limit = 50,
-): Promise<
+export async function adminGetAllAiFeatureUsage(limit = 50): Promise<
   Array<{
     id: string;
     user_id: string;
