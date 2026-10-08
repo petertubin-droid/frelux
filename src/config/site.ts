@@ -193,6 +193,39 @@ export const navWorkspaces: NavWorkspace[] = [
         path: "/feedback",
         description: "Tell us what to build next",
       },
+      // Legal pages surfaced in the hamburger/dropdown menus (also kept in
+      // the footer for SEO sitewide linking). Grouped under a "Legal" header
+      // by the section-aware dropdown renderer.
+      {
+        label: "Privacy Policy",
+        path: "/privacy-policy",
+        section: "Legal",
+        description: "How we handle your data",
+      },
+      {
+        label: "Terms of Service",
+        path: "/terms",
+        section: "Legal",
+        description: "Rules for using FRELUX",
+      },
+      {
+        label: "Cookie Policy",
+        path: "/cookie-policy",
+        section: "Legal",
+        description: "Cookies & tracking",
+      },
+      {
+        label: "Disclaimer",
+        path: "/disclaimer",
+        section: "Legal",
+        description: "Estimates & professional advice",
+      },
+      {
+        label: "AI Disclaimer",
+        path: "/ai-disclaimer",
+        section: "Legal",
+        description: "How our AI features work",
+      },
     ],
   },
 ];
