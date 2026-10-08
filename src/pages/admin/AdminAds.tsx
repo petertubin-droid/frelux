@@ -403,7 +403,9 @@ function ProviderForm({
     initial?.provider_type ?? "display",
   );
   const [priority, setPriority] = useState(initial?.priority ?? 99);
-  const [isActive, setIsActive] = useState(initial?.is_active ?? false);
+  // Owner directive 2026-10-08: activation is AUTOMATIC. A newly created
+  // provider starts on; the toggle stays only as an emergency kill switch.
+  const [isActive, setIsActive] = useState(initial?.is_active ?? true);
   const [credentials, setCredentials] = useState<Record<string, string>>(
     initial?.credentials ?? {},
   );
@@ -787,9 +789,19 @@ function providerCanFill(pl: DbAdPlacement, prov: DbAdProvider): boolean {
   if (settings.display_ads_enabled === false) return false;
   // Per-slot unit configured for this provider, always fillable.
   if (getPlacementUnit(pl, prov.id)) return true;
-  // Per-unit providers (AdSense, Media.net, …) need a unit per slot.
-  if (!(GLOBAL_CREDENTIAL_PROVIDERS as readonly string[]).includes(prov.slug))
-    return false;
+  // Per-unit providers (AdSense, Media.net, ...) also fill automatically
+  // from the provider's default display unit (owner directive
+  // 2026-10-08: per-slot mapping is optional, one unit fills every slot).
+  if (!(GLOBAL_CREDENTIAL_PROVIDERS as readonly string[]).includes(prov.slug)) {
+    if (
+      pl.placement_type === "rewarded" ||
+      pl.placement_type === "interstitial"
+    )
+      return false;
+    const creds = (prov.credentials ?? {}) as Record<string, unknown>;
+    const def = creds.default_display_unit_id;
+    return typeof def === "string" && def.trim().length > 0;
+  }
   const creds = (prov.credentials ?? {}) as Record<string, unknown>;
   // Monetag in-slot display works through the Native Banner zone.
   if (prov.slug === "monetag")

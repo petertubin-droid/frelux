@@ -106,6 +106,101 @@ describe("AdSlot", () => {
     expect(container.innerHTML).toBe("");
   });
 
+  it("auto-fills an unmapped slot from the provider's default display unit (AdSense primary)", async () => {
+    // Owner directive 2026-10-08: per-slot mapping is optional. One
+    // AdSense display unit pasted as default_display_unit_id must fill
+    // every unmapped display placement automatically.
+    const provider = {
+      id: "prov-adsense",
+      name: "Google AdSense",
+      slug: "google_adsense",
+      provider_type: "display",
+      is_active: true,
+      priority: 1,
+      credentials: {
+        publisher_id: "ca-pub-1234567890123456",
+        default_display_unit_id: "9876543210",
+      },
+      settings: {},
+      is_system: true,
+      created_at: "",
+      updated_at: "",
+    } as never;
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "banner",
+          is_active: true,
+          provider_ids: ["prov-adsense"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    const { container } = await renderAdSlot();
+
+    await waitFor(() => {
+      const ins = container.querySelector("ins.adsbygoogle");
+      expect(ins).not.toBeNull();
+      expect(ins!.getAttribute("data-ad-slot")).toBe("9876543210");
+    });
+    expect(logAdEvent).toHaveBeenCalledWith(
+      expect.objectContaining({
+        event_type: "impression",
+        provider_id: "prov-adsense",
+        placement_key: "test-slot",
+      }),
+    );
+  });
+
+  it("never auto-fills rewarded placements with a display default unit", async () => {
+    const provider = {
+      id: "prov-adsense",
+      name: "Google AdSense",
+      slug: "google_adsense",
+      provider_type: "display",
+      is_active: true,
+      priority: 1,
+      credentials: {
+        publisher_id: "ca-pub-1234567890123456",
+        default_display_unit_id: "9876543210",
+      },
+      settings: {},
+      is_system: true,
+      created_at: "",
+      updated_at: "",
+    } as never;
+    const adConfig = await import("@/lib/ad-config");
+    vi.mocked(adConfig.fetchAdConfig).mockResolvedValue({
+      providers: [provider],
+      placements: [
+        {
+          id: "pl-1",
+          placement_key: "test-slot",
+          placement_type: "rewarded",
+          is_active: true,
+          provider_ids: ["prov-adsense"],
+          ad_unit_ids: {},
+          display_rules: { mobile: true, desktop: true },
+        },
+      ] as never,
+    });
+    vi.mocked(adConfig.getProvidersForPlacement).mockReturnValue([provider]);
+
+    const { container } = await renderAdSlot();
+
+    // No adsbygoogle <ins> may appear for a rewarded placement.
+    await waitFor(() => {
+      expect(container.querySelector("ins.adsbygoogle")).toBeNull();
+    });
+  });
+
   it("renders null for Monetag without per-placement ad unit ID (global tag handles it)", async () => {
     const provider = makeMonetagProvider();
     const adConfig = await import("@/lib/ad-config");

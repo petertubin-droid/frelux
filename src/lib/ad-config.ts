@@ -143,6 +143,42 @@ export function getAdUnitId(
 }
 
 /**
+ * Automatic fill (owner directive 2026-10-08): per-slot mapping must be
+ * OPTIONAL. When a placement has no unit mapped for a provider, the
+ * provider's default display unit (one AdSense unit pasted once, or any
+ * network's default zone/unit credential) fills every display-capable
+ * slot on the site. Per-placement mappings always win when present.
+ */
+export function getProviderDefaultDisplayUnit(
+  provider: DbAdProvider,
+): string | null {
+  const creds = (provider.credentials ?? {}) as Record<string, unknown>;
+  for (const key of [
+    "default_display_unit_id",
+    "default_zone_id",
+    "default_ad_unit_id",
+  ]) {
+    const v = creds[key];
+    if (typeof v === "string" && v.trim().length > 0) return v.trim();
+  }
+  return null;
+}
+
+/**
+ * The effective unit a provider will use on a placement: the per-slot
+ * mapping when present, else the provider's automatic default.
+ */
+export function getEffectiveAdUnitId(
+  placement: DbAdPlacement,
+  provider: DbAdProvider,
+): string | null {
+  return (
+    getAdUnitId(placement, provider.id) ??
+    getProviderDefaultDisplayUnit(provider)
+  );
+}
+
+/**
  * Check if at least one active rewarded ad provider is configured.
  * Used to gate the "Watch Ad" UI, if no real provider exists, we show
  * "Coming soon" instead of letting users click a button that can't work.

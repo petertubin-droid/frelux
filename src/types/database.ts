@@ -976,6 +976,8 @@ export interface AdProviderSchema {
     type: "text" | "password";
     required: boolean;
     placeholder?: string;
+    /** Optional one-line explanation shown under the input. */
+    help?: string;
   }[];
   setting_fields: {
     key: string;

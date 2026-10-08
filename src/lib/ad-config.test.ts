@@ -29,6 +29,8 @@ import {
   getPlacement,
   shouldDisplayPlacement,
   getAdUnitId,
+  getProviderDefaultDisplayUnit,
+  getEffectiveAdUnitId,
   clearAdConfigCache,
   logAdEvent,
 } from "./ad-config";
@@ -146,5 +148,72 @@ describe("ad-config", () => {
     clearAdConfigCache();
     // Should not throw
     expect(() => clearAdConfigCache()).not.toThrow();
+  });
+});
+
+// ── Automatic fill helpers (owner directive 2026-10-08) ──────────────
+describe("automatic default display unit", () => {
+  const provider: DbAdProvider = {
+    id: "prov-adsense",
+    name: "Google AdSense",
+    slug: "google_adsense",
+    provider_type: "display",
+    is_active: true,
+    priority: 1,
+    credentials: {
+      publisher_id: "ca-pub-1",
+      default_display_unit_id: " 9876543210 ",
+    },
+    settings: {},
+    is_system: true,
+    created_at: "",
+    updated_at: "",
+  };
+
+  const placement: DbAdPlacement = {
+    id: "pl-1",
+    placement_key: "k",
+    placement_name: "K",
+    placement_type: "banner",
+    page_target: "global",
+    is_active: true,
+    provider_ids: [],
+    ad_unit_ids: { "prov-adsense": "111111" },
+    display_rules: {
+      mobile: true,
+      desktop: true,
+      refresh_seconds: 0,
+      min_height: 0,
+    },
+    sort_order: 0,
+    created_at: "",
+    updated_at: "",
+  };
+
+  it("returns the trimmed provider default unit", () => {
+    expect(getProviderDefaultDisplayUnit(provider)).toBe("9876543210");
+  });
+
+  it("falls back across default unit credential keys", () => {
+    const alt: DbAdProvider = {
+      ...provider,
+      credentials: { default_zone_id: "abc123" },
+    };
+    expect(getProviderDefaultDisplayUnit(alt)).toBe("abc123");
+  });
+
+  it("returns null when no default exists", () => {
+    const bare: DbAdProvider = {
+      ...provider,
+      credentials: { publisher_id: "ca-pub-1" },
+    };
+    expect(getProviderDefaultDisplayUnit(bare)).toBeNull();
+  });
+
+  it("effective unit prefers the per-placement mapping", () => {
+    expect(getEffectiveAdUnitId(placement, provider)).toBe("111111");
+    expect(
+      getEffectiveAdUnitId({ ...placement, ad_unit_ids: {} }, provider),
+    ).toBe("9876543210");
   });
 });

@@ -11,6 +11,7 @@ import {
   fetchAdConfig,
   getProvidersForPlacement,
   getAdUnitId,
+  getProviderDefaultDisplayUnit,
   shouldDisplayPlacement,
   logAdEvent,
 } from "@/lib/ad-config";
@@ -181,12 +182,20 @@ export default function AdSlot({
         "revcontent",
       ];
 
-      // ── Pass 1: Providers with per-placement ad unit IDs ──
-      // These take priority, admin explicitly mapped this provider
-      // to this placement. AdSense, Media.net, etc.
+      // ── Pass 1: Per-unit providers (AdSense, Media.net, ...) ──
+      // Per-placement mapping wins, but mapping is OPTIONAL (owner
+      // directive 2026-10-08): when the admin pastes a default display
+      // unit into the provider (e.g. one AdSense unit ID), every
+      // unmapped display-capable slot fills from it automatically.
+      // Rewarded/interstitial placements never take a display unit.
       for (const provider of targetChain) {
         if (GLOBAL_CREDENTIAL_PROVIDERS.includes(provider.slug)) continue;
-        const rawUnit = getAdUnitId(placement, provider.id);
+        const rawUnit =
+          getAdUnitId(placement, provider.id) ??
+          (placement.placement_type === "rewarded" ||
+          placement.placement_type === "interstitial"
+            ? null
+            : getProviderDefaultDisplayUnit(provider));
         const adUnitId =
           provider.slug === "adsterra"
             ? extractAdsterraZoneKey(rawUnit)
