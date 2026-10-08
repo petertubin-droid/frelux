@@ -22,9 +22,10 @@ import {
 } from "@/lib/estimation/margin-engine";
 import type { MarginPreset, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
+import { formatCurrency } from "@/lib/utils";
 
-const money = (v: number) =>
-  `₦${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+// Worldwide-currency money formatting via the site-wide layer.
+const money = (v: number) => formatCurrency(v);
 
 export default function MarginCalculator() {
   useBreadcrumbJsonLd([
