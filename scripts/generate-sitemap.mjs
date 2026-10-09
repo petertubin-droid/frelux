@@ -91,6 +91,7 @@ const routes = [
   { path: '/material-prices', priority: '0.7', changefreq: 'daily' },
   { path: '/surface-assessment', priority: '0.7', changefreq: 'monthly' },
   { path: '/pricing', priority: '0.6', changefreq: 'monthly' },
+  { path: '/partners', priority: '0.6', changefreq: 'monthly' },
   { path: '/privacy-policy', priority: '0.3', changefreq: 'yearly' },
   { path: '/terms', priority: '0.3', changefreq: 'yearly' },
   { path: '/cookie-policy', priority: '0.3', changefreq: 'yearly' },
