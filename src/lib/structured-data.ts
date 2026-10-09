@@ -1,8 +1,9 @@
 // Structured data schemas for SEO, generates JSON-LD for various page types
 // Used by the useSeo hook and injected into <head> as <script type="application/ld+json">
 
-const SITE_URL = import.meta.env.VITE_SITE_URL ?? 'https://freluxtools.netlify.app';
-const SITE_NAME = 'FRELUX PROJECT CALC';
+const SITE_URL =
+  import.meta.env.VITE_SITE_URL ?? "https://freluxtools.netlify.app";
+const SITE_NAME = "FRELUX";
 
 export interface BreadcrumbItem {
   name: string;
@@ -17,17 +18,18 @@ export interface FaqItem {
 // Organization / WebApplication schema, used on homepage
 export function organizationSchema() {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'WebApplication',
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
     name: SITE_NAME,
     url: SITE_URL,
-    description: 'Calculate paint requirements, estimate painting costs, and discover colors that transform your space.',
-    applicationCategory: 'BusinessApplication',
-    operatingSystem: 'Web',
+    description:
+      "Calculate paint requirements, estimate painting costs, and discover colors that transform your space.",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
     offers: {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'USD',
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "USD",
     },
   };
 }
@@ -35,10 +37,10 @@ export function organizationSchema() {
 // Breadcrumb schema
 export function breadcrumbSchema(items: BreadcrumbItem[]) {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'BreadcrumbList',
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
     itemListElement: items.map((item, index) => ({
-      '@type': 'ListItem',
+      "@type": "ListItem",
       position: index + 1,
       name: item.name,
       item: `${SITE_URL}${item.path}`,
@@ -49,13 +51,13 @@ export function breadcrumbSchema(items: BreadcrumbItem[]) {
 // FAQ schema
 export function faqSchema(items: FaqItem[]) {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
     mainEntity: items.map((item) => ({
-      '@type': 'Question',
+      "@type": "Question",
       name: item.question,
       acceptedAnswer: {
-        '@type': 'Answer',
+        "@type": "Answer",
         text: item.answer,
       },
     })),
@@ -71,15 +73,15 @@ export function productSchema(opts: {
   category?: string;
 }) {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'Product',
+    "@context": "https://schema.org",
+    "@type": "Product",
     name: opts.name,
     description: opts.description,
     url: `${SITE_URL}/colors/${opts.slug}`,
     category: opts.category,
     ...(opts.image ? { image: opts.image } : {}),
     brand: {
-      '@type': 'Brand',
+      "@type": "Brand",
       name: SITE_NAME,
     },
   };
@@ -93,18 +95,18 @@ export function howToSchema(opts: {
   slug: string;
 }) {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'HowTo',
+    "@context": "https://schema.org",
+    "@type": "HowTo",
     name: opts.name,
     description: opts.description,
     step: opts.steps.map((step, index) => ({
-      '@type': 'HowToStep',
+      "@type": "HowToStep",
       position: index + 1,
       name: step.name,
       text: step.text,
     })),
     tool: {
-      '@type': 'HowToTool',
+      "@type": "HowToTool",
       name: SITE_NAME,
     },
   };
@@ -117,13 +119,13 @@ export function localBusinessSchema(opts: {
   email?: string;
 }) {
   return {
-    '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
     name: opts.name ?? SITE_NAME,
     url: SITE_URL,
     ...(opts.email ? { email: opts.email } : {}),
     ...(opts.whatsapp ? { telephone: opts.whatsapp } : {}),
-    areaServed: 'Worldwide',
+    areaServed: "Worldwide",
   };
 }
 
@@ -135,8 +137,8 @@ export function webPageSchema(opts: {
   breadcrumbs?: BreadcrumbItem[];
 }) {
   const schema: Record<string, unknown> = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
+    "@context": "https://schema.org",
+    "@type": "WebPage",
     name: opts.name,
     description: opts.description,
     url: `${SITE_URL}${opts.path}`,

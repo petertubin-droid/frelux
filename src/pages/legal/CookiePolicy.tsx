@@ -4,9 +4,9 @@ import { Link } from "react-router-dom";
 
 export default function CookiePolicy() {
   useSeo({
-    title: "Cookie Policy: FRELUX PROJECT CALC",
+    title: "Cookie Policy: FRELUX",
     description:
-      "How FRELUX PROJECT CALC uses cookies and similar technologies. Learn about the cookies we use, including advertising cookies from Google AdSense, and how to manage your preferences.",
+      "How FRELUX uses cookies and similar technologies. Learn about the cookies we use, including advertising cookies from Google AdSense, and how to manage your preferences.",
     canonicalPath: "/cookie-policy",
     ogType: "website",
     noIndex: false,
@@ -19,8 +19,8 @@ export default function CookiePolicy() {
       updated="2026-09-03"
       intro={
         <p>
-          This cookie policy explains how FRELUX PROJECT CALC uses cookies and
-          similar technologies on our website, and how you can control them.
+          This cookie policy explains how FRELUX uses cookies and similar
+          technologies on our website, and how you can control them.
         </p>
       }
       sections={[

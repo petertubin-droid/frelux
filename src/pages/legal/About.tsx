@@ -4,21 +4,21 @@ import { SITE_URL } from "@/lib/seo";
 
 export default function About() {
   useSeo({
-    title: "About: FRELUX PROJECT CALC",
+    title: "About: FRELUX",
     description:
-      "Learn about FRELUX PROJECT CALC, a practical painting, construction, and color platform helping homeowners, decorators, and contractors in Nigeria and beyond plan projects with confidence.",
+      "Learn about FRELUX, a practical painting, construction, and color platform helping homeowners, decorators, and contractors in Nigeria and beyond plan projects with confidence.",
     canonicalPath: "/about",
     ogType: "website",
     structuredData: {
       "@context": "https://schema.org",
       "@type": "AboutPage",
-      name: "About FRELUX PROJECT CALC",
+      name: "About FRELUX",
       description:
-        "FRELUX PROJECT CALC is a practical painting and construction platform helping homeowners, decorators, and contractors plan paint projects with confidence.",
+        "FRELUX is a practical painting and construction platform helping homeowners, decorators, and contractors plan paint projects with confidence.",
       url: `${SITE_URL}/about`,
       mainEntity: {
         "@type": "Organization",
-        name: "FRELUX PROJECT CALC",
+        name: "FRELUX",
         url: SITE_URL,
         logo: `${SITE_URL}/logo-mark.png`,
         foundingDate: "2025",
@@ -39,17 +39,16 @@ export default function About() {
   return (
     <LegalLayout
       slug="about"
-      title="About FRELUX PROJECT CALC"
+      title="About FRELUX"
       updated="2026-09-03"
       intro={
         <p>
-          FRELUX PROJECT CALC is a premium construction estimation platform
-          built to help homeowners, decorators, and contractors anywhere in the
-          world plan projects with confidence. Founded in 2025 and based in
-          Nigeria, our tools are priced and calibrated against real market data,
-          and they speak 10 languages, so the same platform that serves a Lagos
-          site serves a builder in London, Dubai, or São Paulo with equal
-          precision.
+          FRELUX is a premium construction estimation platform built to help
+          homeowners, decorators, and contractors anywhere in the world plan
+          projects with confidence. Founded in 2025 and based in Nigeria, our
+          tools are priced and calibrated against real market data, and they
+          speak 10 languages, so the same platform that serves a Lagos site
+          serves a builder in London, Dubai, or São Paulo with equal precision.
         </p>
       }
       sections={[
@@ -72,7 +71,7 @@ export default function About() {
           heading: "What we offer",
           body: (
             <p>
-              FRELUX PROJECT CALC provides a suite of focused tools:
+              FRELUX provides a suite of focused tools:
               <br />
               <br />
               <strong>Paint Calculator</strong>, Estimate the exact quantity of
@@ -142,15 +141,14 @@ export default function About() {
           heading: "Why we built this",
           body: (
             <p>
-              We started FRELUX PROJECT CALC after years of seeing homeowners
-              and contractors struggle with material estimation, buying too much
-              paint and wasting money, or buying too little and running out
-              mid-project. Color selection was equally challenging, with
-              homeowners relying on small swatches that looked completely
-              different on a full wall. We built tools that solve these problems
-              directly: accurate calculators backed by real product data, and a
-              color library with AI assistance to help you choose with
-              confidence.
+              We started FRELUX after years of seeing homeowners and contractors
+              struggle with material estimation, buying too much paint and
+              wasting money, or buying too little and running out mid-project.
+              Color selection was equally challenging, with homeowners relying
+              on small swatches that looked completely different on a full wall.
+              We built tools that solve these problems directly: accurate
+              calculators backed by real product data, and a color library with
+              AI assistance to help you choose with confidence.
             </p>
           ),
         },

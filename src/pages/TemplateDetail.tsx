@@ -67,8 +67,8 @@ export default function TemplateDetail() {
           "@type": "TechArticle",
           headline: template.name,
           description: template.seo_description ?? template.description ?? "",
-          author: { "@type": "Organization", name: "FRELUX PROJECT CALC" },
-          publisher: { "@type": "Organization", name: "FRELUX PROJECT CALC" },
+          author: { "@type": "Organization", name: "FRELUX" },
+          publisher: { "@type": "Organization", name: "FRELUX" },
           url: `${SITE_URL}/templates/${template.slug}`,
         },
         {

@@ -86,7 +86,7 @@ export default function DoorsWindowsEstimator() {
 
   useSeo({
     title:
-      "Doors & Windows Estimator: Leaves, Frames, Hinges, Locksets & Units | FRELUX PROJECT CALC",
+      "Doors & Windows Estimator: Leaves, Frames, Hinges, Locksets & Units | FRELUX",
     description:
       "Deterministic doors and windows material estimation: enter your counts per type and get door leaves, frames, hinges, locksets and window units with every derived count labelled. Estimation only: confirm unit sizes on site.",
   });

@@ -78,7 +78,7 @@ export default function FoundationEstimator() {
 
   useSeo({
     title:
-      "Foundation Estimator: Concrete Mix, Blocks, Hardcore & Formwork | FRELUX PROJECT CALC",
+      "Foundation Estimator: Concrete Mix, Blocks, Hardcore & Formwork | FRELUX",
     description:
       "Deterministic foundation material estimation: enter your measured concrete volume, wall area, hardcore and formwork and get cement, sand, granite, blocks and formwork quantities with the mix ratio, dry factor and every step shown. Estimation only: not foundation design.",
   });

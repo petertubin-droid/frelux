@@ -62,7 +62,7 @@ export function useSeo(meta: SeoMeta | null) {
     if (!meta) return;
     const fullTitle = meta.title.includes("FRELUX")
       ? meta.title
-      : `${meta.title}: FRELUX PROJECT CALC`;
+      : `${meta.title}: FRELUX`;
     // Netlify pretty URLs force-redirect /path to /path/ (301), so the
     // canonical URL must use the trailing-slash form to match what is
     // actually served and indexed.
@@ -78,7 +78,7 @@ export function useSeo(meta: SeoMeta | null) {
     // Primary meta
     document.title = fullTitle;
     setMeta("name", "description", meta.description);
-    setMeta("name", "author", "FRELUX PROJECT CALC");
+    setMeta("name", "author", "FRELUX");
 
     // Keywords (if provided)
     if (meta.keywords) {
@@ -90,11 +90,11 @@ export function useSeo(meta: SeoMeta | null) {
     setMeta("property", "og:description", meta.description);
     setMeta("property", "og:type", meta.ogType ?? "website");
     setMeta("property", "og:url", canonicalUrl);
-    setMeta("property", "og:site_name", "FRELUX PROJECT CALC");
+    setMeta("property", "og:site_name", "FRELUX");
     setMeta("property", "og:image", ogImage);
     setMeta("property", "og:image:width", "1200");
     setMeta("property", "og:image:height", "630");
-    setMeta("property", "og:image:alt", `${fullTitle}: FRELUX PROJECT CALC`);
+    setMeta("property", "og:image:alt", `${fullTitle}: FRELUX`);
     setMeta(
       "property",
       "og:locale",
@@ -121,7 +121,7 @@ export function useSeo(meta: SeoMeta | null) {
     setMeta("name", "twitter:title", fullTitle);
     setMeta("name", "twitter:description", meta.description);
     setMeta("name", "twitter:image", ogImage);
-    setMeta("name", "twitter:image:alt", `${fullTitle}: FRELUX PROJECT CALC`);
+    setMeta("name", "twitter:image:alt", `${fullTitle}: FRELUX`);
 
     // Canonical URL, always set
     setLink("canonical", canonicalUrl);

@@ -84,7 +84,7 @@ export default function FieldSync() {
   );
 
   useSeo({
-    title: "Field Sync: Capture Site Work Offline | FRELUX PROJECT CALC",
+    title: "Field Sync: Capture Site Work Offline | FRELUX",
     description:
       "Record measurements, materials and progress notes on site with no network. They queue on your device and sync when you're back online: nothing is lost, nothing is invented.",
   });

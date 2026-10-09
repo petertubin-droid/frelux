@@ -19,7 +19,7 @@ type Status = "idle" | "submitting" | "success" | "error";
 export default function Contact() {
   useBreadcrumbJsonLd([{ name: "Get in touch", path: "/contact" }]);
   useSeo({
-    title: "Contact: Get in Touch with FRELUX PROJECT CALC",
+    title: "Contact: Get in Touch with FRELUX",
     description:
       "Questions about a paint project, pricing, or colors? Send us a message or reach us directly on WhatsApp.",
     canonicalPath: "/contact",

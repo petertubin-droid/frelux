@@ -40,7 +40,7 @@ export default function Pricing() {
         name: "FRELUX Premium",
         description:
           "Premium subscription for FRELUX engineering calculators, AI estimation tools, and Pro Connect messaging.",
-        brand: { "@type": "Brand", name: "FRELUX PROJECT CALC" },
+        brand: { "@type": "Brand", name: "FRELUX" },
         offers: [
           {
             "@type": "Offer",

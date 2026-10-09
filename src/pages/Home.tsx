@@ -70,7 +70,7 @@ export default function Home() {
       {
         "@context": "https://schema.org",
         "@type": "WebApplication",
-        name: "FRELUX PROJECT CALC",
+        name: "FRELUX",
         applicationCategory: "HomeAndGardenApplication",
         description:
           "Calculate materials and estimate costs for construction projects worldwide. Free calculators for every trade, full-building estimating, AI photo estimates, and professional BOQs.",
@@ -89,7 +89,7 @@ export default function Home() {
       {
         "@context": "https://schema.org",
         "@type": "WebSite",
-        name: "FRELUX PROJECT CALC",
+        name: "FRELUX",
         url: SITE_URL,
         potentialAction: {
           "@type": "SearchAction",

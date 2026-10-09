@@ -94,7 +94,7 @@ const DEFAULT_TEMPLATE_CONFIG: PdfTemplateConfig = {
 
 export const SAFE_FALLBACK_BRANDING: ResolvedBranding = {
   source: "safe_fallback",
-  brandName: "FRELUX PROJECT CALC",
+  brandName: "FRELUX",
   tagline: "Smart Construction Estimation",
   email: null,
   phone: null,
@@ -319,7 +319,7 @@ function unlockedDefaultBranding(unlock: DbPdfExportUnlock): ResolvedBranding {
 function configToBranding(config: PdfDefaultBrandingConfig): ResolvedBranding {
   return {
     source: "frelux_default",
-    brandName: config.pdf_default_brand_name || "FRELUX PROJECT CALC",
+    brandName: config.pdf_default_brand_name || "FRELUX",
     tagline: config.pdf_default_tagline || null,
     email: config.pdf_default_contact_email || null,
     phone: config.pdf_default_contact_phone || null,

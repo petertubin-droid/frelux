@@ -669,7 +669,9 @@ export function calculateRoom(
   steps.push({
     label: "Bucket Size",
     value: `${packSizeLitres} L per bucket`,
-    detail: "FRELUX standard: 20-L buckets.",
+    detail: config.product?.standard_pack_size
+      ? "Product standard pack size."
+      : "FRELUX configured purchase unit.",
   });
 
   if (coverage === null || coverage === undefined) {

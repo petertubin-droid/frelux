@@ -64,7 +64,7 @@ export default function CountVision() {
 
   useSeo({
     title:
-      "Photo Counter: Count Cement Bags, Tiles & Blocks From a Photo | FRELUX PROJECT CALC",
+      "Photo Counter: Count Cement Bags, Tiles & Blocks From a Photo | FRELUX",
     description:
       "Photograph a stack of cement bags, tiles, blocks or paint buckets and Counter-Vision counts what is visible. Honest verdicts only: if the photo can't be counted reliably, it says so: it never guesses.",
   });

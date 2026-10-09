@@ -105,7 +105,7 @@ export default function PlumbingEstimator() {
 
   useSeo({
     title:
-      "Plumbing Estimator: Pipes, Fittings, Valves & Connection Kits | FRELUX PROJECT CALC",
+      "Plumbing Estimator: Pipes, Fittings, Valves & Connection Kits | FRELUX",
     description:
       "Deterministic plumbing material estimation: enter fixture counts and your measured pipe runs and get separate pipe, fitting, valve and connection-kit quantities with a full calculation breakdown. Estimation only: not plumbing design.",
   });

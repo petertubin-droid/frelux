@@ -70,8 +70,7 @@ export default function Login() {
 
   useSeo({
     title: "Sign In or Create Account",
-    description:
-      "Sign in to your FRELUX PROJECT CALC account or create a new one.",
+    description: "Sign in to your FRELUX account or create a new one.",
     canonicalPath: "/login",
     noIndex: true,
   });
@@ -262,7 +261,8 @@ export default function Login() {
                 Account type
               </span>
               <div className="mt-2 grid grid-cols-2 gap-3">
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   onClick={() => setAccountType("client")}
                   className={classNames(
@@ -296,7 +296,8 @@ export default function Login() {
                     </p>
                   </div>
                 </Button>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   onClick={() => setAccountType("pro_worker")}
                   className={classNames(
@@ -335,7 +336,8 @@ export default function Login() {
           )}
           {mode !== "reset" && (
             <div>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 type="button"
                 onClick={handleGoogleSignIn}
                 disabled={googleLoading || !configured}
@@ -399,7 +401,8 @@ export default function Login() {
                 <p>{error}</p>
               </div>
             )}
-            <Button variant="default"
+            <Button
+              variant="default"
               type="submit"
               disabled={loading || !configured}
               className="press-scale w-full disabled:opacity-50 disabled:cursor-not-allowed"
@@ -422,7 +425,8 @@ export default function Login() {
             <div className="flex flex-col items-center gap-2 text-xs">
               {mode === "signin" && (
                 <div className="flex flex-col items-center gap-2">
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     type="button"
                     onClick={() => {
                       setMode("signup");
@@ -433,7 +437,8 @@ export default function Login() {
                   >
                     Need an account? Sign up
                   </Button>
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     type="button"
                     onClick={() => {
                       setMode("reset");
@@ -447,7 +452,8 @@ export default function Login() {
                 </div>
               )}
               {mode === "signup" && (
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   onClick={() => {
                     setMode("signin");
@@ -460,7 +466,8 @@ export default function Login() {
                 </Button>
               )}
               {mode === "reset" && (
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   type="button"
                   onClick={() => {
                     setMode("signin");

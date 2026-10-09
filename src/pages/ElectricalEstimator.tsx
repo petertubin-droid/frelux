@@ -116,7 +116,7 @@ export default function ElectricalEstimator() {
 
   useSeo({
     title:
-      "Electrical Wiring Estimator: Cables, Conduit, Breakers & Boards | FRELUX PROJECT CALC",
+      "Electrical Wiring Estimator: Cables, Conduit, Breakers & Boards | FRELUX",
     description:
       "Deterministic electrical material estimation: enter your lighting points, socket points and average cable runs and get separate cable, conduit, junction box, breaker and accessory quantities with a full calculation breakdown. Estimation only: not electrical design.",
   });

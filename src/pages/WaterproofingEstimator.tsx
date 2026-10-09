@@ -92,8 +92,7 @@ export default function WaterproofingEstimator() {
   const [saving, setSaving] = useState(false);
 
   useSeo({
-    title:
-      "Waterproofing Estimator: DPC, DPM, Coating & Membrane | FRELUX PROJECT CALC",
+    title: "Waterproofing Estimator: DPC, DPM, Coating & Membrane | FRELUX",
     description:
       "Deterministic waterproofing material estimation: enter your measured DPC run, DPM area, wet-area surfaces and terrace area and get DPC, DPM, coating, membrane and tape quantities with coats, coverage and waste shown in the breakdown. Estimation only: not waterproofing design.",
   });

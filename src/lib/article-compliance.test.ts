@@ -341,7 +341,7 @@ describe("validateArticleSchema", () => {
     author: { "@type": "Person", name: "Test Author" },
     publisher: {
       "@type": "Organization",
-      name: "FRELUX PROJECT CALC",
+      name: "FRELUX",
       logo: { "@type": "ImageObject", url: "https://example.com/logo.png" },
     },
     datePublished: "2026-08-27T00:00:00Z",
@@ -422,7 +422,7 @@ describe("validateArticleSchema", () => {
     expect(
       validateArticleSchema({
         ...validSchema,
-        author: { "@type": "Organization", name: "FRELUX PROJECT CALC" },
+        author: { "@type": "Organization", name: "FRELUX" },
       }),
     ).toEqual([]);
   });

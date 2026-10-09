@@ -4,9 +4,9 @@ import { siteConfig } from "@/config/site";
 
 export default function Terms() {
   useSeo({
-    title: "Terms of Service: FRELUX PROJECT CALC",
+    title: "Terms of Service: FRELUX",
     description:
-      "Terms of service for using FRELUX PROJECT CALC tools and website. Read our terms for usage guidelines and limitations.",
+      "Terms of service for using FRELUX tools and website. Read our terms for usage guidelines and limitations.",
     canonicalPath: "/terms",
     ogType: "website",
     noIndex: false,
@@ -19,9 +19,9 @@ export default function Terms() {
       updated="2026-09-05"
       intro={
         <p>
-          By accessing or using FRELUX PROJECT CALC (the "Service"), you agree to
-          be bound by these Terms of Service. If you do not agree to these
-          terms, please discontinue use of the Service.
+          By accessing or using FRELUX (the "Service"), you agree to be bound by
+          these Terms of Service. If you do not agree to these terms, please
+          discontinue use of the Service.
         </p>
       }
       sections={[
@@ -46,9 +46,9 @@ export default function Terms() {
               All quantities, areas, and costs produced by the tools are
               estimates. Actual results vary based on surface condition,
               application method, product, and local rates. The estimates are
-              not a guarantee of final cost or quantity. FRELUX PROJECT CALC does
-              not warrant that any estimate will match the actual materials
-              required or the final cost of your project.
+              not a guarantee of final cost or quantity. FRELUX does not warrant
+              that any estimate will match the actual materials required or the
+              final cost of your project.
             </p>
           ),
         },
@@ -74,8 +74,8 @@ export default function Terms() {
               post fraudulent, offensive, spam, off-platform solicitation, or
               illegal content. We reserve the right to remove messages, restrict
               access, or ban users who violate these rules. Content posted in
-              these channels reflects the views of the sender, not FRELUX PROJECT
-              CALC.
+              these channels reflects the views of the sender, not FRELUX
+              PROJECT CALC.
             </p>
           ),
         },
@@ -125,11 +125,10 @@ export default function Terms() {
           heading: "Intellectual property",
           body: (
             <p>
-              The FRELUX PROJECT CALC name, logo, design, calculator methodology,
-              and website content are owned by FRELUX PROJECT CALC. You may not
-              copy, modify, or redistribute our content without permission.
-              Calculator templates and estimates you create remain your
-              intellectual property.
+              The FRELUX name, logo, design, calculator methodology, and website
+              content are owned by FRELUX. You may not copy, modify, or
+              redistribute our content without permission. Calculator templates
+              and estimates you create remain your intellectual property.
             </p>
           ),
         },
@@ -137,11 +136,11 @@ export default function Terms() {
           heading: "Limitation of liability",
           body: (
             <p>
-              FRELUX PROJECT CALC is provided "as is" without warranties of any
-              kind, express or implied. To the maximum extent permitted by law,
-              FRELUX PROJECT CALC shall not be liable for any damages arising from
-              the use of, or inability to use, the Service, including but not
-              limited to direct, indirect, incidental, or consequential damages.
+              FRELUX is provided "as is" without warranties of any kind, express
+              or implied. To the maximum extent permitted by law, FRELUX shall
+              not be liable for any damages arising from the use of, or
+              inability to use, the Service, including but not limited to
+              direct, indirect, incidental, or consequential damages.
             </p>
           ),
         },

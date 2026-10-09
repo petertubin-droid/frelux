@@ -76,7 +76,7 @@ export default function FlooringEstimator() {
 
   useSeo({
     title:
-      "Flooring Estimator: Laminate, Vinyl, Parquet, Underlay & Skirting | FRELUX PROJECT CALC",
+      "Flooring Estimator: Laminate, Vinyl, Parquet, Underlay & Skirting | FRELUX",
     description:
       "Deterministic flooring material estimation: enter your floor area and skirting run and get laminate packs, vinyl or parquet m², underlay, adhesive and skirting quantities with pack coverage and waste shown in the breakdown. Estimation only: not a flooring specification.",
   });

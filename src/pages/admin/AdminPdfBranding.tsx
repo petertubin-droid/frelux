@@ -54,7 +54,7 @@ export default function AdminPdfBranding() {
 
   // Config form state
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
-  const [brandName, setBrandName] = useState("FRELUX PROJECT CALC");
+  const [brandName, setBrandName] = useState("FRELUX");
   const [tagline, setTagline] = useState("Smart Construction Estimation");
   const [contactEmail, setContactEmail] = useState("");
   const [contactPhone, setContactPhone] = useState("");
@@ -80,7 +80,7 @@ export default function AdminPdfBranding() {
     if (c) {
       setConfig(c);
       setLogoUrl(c.pdf_default_logo_url);
-      setBrandName(c.pdf_default_brand_name || "FRELUX PROJECT CALC");
+      setBrandName(c.pdf_default_brand_name || "FRELUX");
       setTagline(c.pdf_default_tagline || "Smart Construction Estimation");
       setContactEmail(c.pdf_default_contact_email || "");
       setContactPhone(c.pdf_default_contact_phone || "");
@@ -429,7 +429,8 @@ export default function AdminPdfBranding() {
               PDF Templates
             </h2>
           </div>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={() => setShowNewTpl(!showNewTpl)}
             className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-medium text-brand-purple hover:bg-primary/20"
           >
@@ -479,7 +480,8 @@ export default function AdminPdfBranding() {
               <AdminButton onClick={handleCreateTemplate}>
                 Create Template
               </AdminButton>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => setShowNewTpl(false)}
                 className="rounded-lg border border-border px-3 py-1.5 text-xs dark:border-white/10"
               >
@@ -554,7 +556,8 @@ export default function AdminPdfBranding() {
                     Default
                   </label>
                   {!tpl.is_system && (
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => handleDeleteTemplate(tpl.id)}
                       className="rounded p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-950"
                     >

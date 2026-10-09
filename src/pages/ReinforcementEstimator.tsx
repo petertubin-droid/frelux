@@ -74,7 +74,7 @@ export default function ReinforcementEstimator() {
 
   useSeo({
     title:
-      "Reinforcement Estimator: Rebar Lengths, Tonnage & Binding Wire | FRELUX PROJECT CALC",
+      "Reinforcement Estimator: Rebar Lengths, Tonnage & Binding Wire | FRELUX",
     description:
       "Deterministic reinforcement material estimation: enter your bar schedule cutting lengths per diameter and get whole 12 m stock lengths, BS 4449 tonnage and binding wire with the lap allowance and every step shown. Estimation only: it does not design reinforcement.",
   });

@@ -199,11 +199,7 @@ export default function Navbar() {
             >
               <Menu className="h-[22px] w-[22px]" strokeWidth={1.75} />
             </Button>
-            <Link
-              to="/"
-              aria-label="FRELUX PROJECT CALC home"
-              className="shrink-0"
-            >
+            <Link to="/" aria-label="FRELUX home" className="shrink-0">
               <Logo />
             </Link>
           </div>

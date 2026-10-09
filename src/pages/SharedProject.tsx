@@ -205,7 +205,7 @@ export default function SharedProject() {
             to="/"
             className="text-sm font-semibold text-brand-purple hover:underline"
           >
-            Create your own project at FRELUX PROJECT CALC
+            Create your own project at FRELUX
           </Link>
         </div>
       </div>

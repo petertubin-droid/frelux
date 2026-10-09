@@ -77,8 +77,7 @@ export default function GeneratorEstimator() {
   const [saving, setSaving] = useState(false);
 
   useSeo({
-    title:
-      "Backup Power Estimator: Generator, ATS, Battery & Cable | FRELUX PROJECT CALC",
+    title: "Backup Power Estimator: Generator, ATS, Battery & Cable | FRELUX",
     description:
       "Deterministic backup power material estimation: choose your generator bracket from your own load assessment, give the measured cable run, and get generator, ATS, battery and cable quantities with waste shown. The engine never sizes the generator: estimation only, not an installation design.",
   });
