@@ -222,6 +222,9 @@ const AdminLabourSettings = lazy(
 );
 const AdminColors = lazy(() => import("@/pages/admin/AdminColors"));
 const AdminSettings = lazy(() => import("@/pages/admin/AdminSettings"));
+const AdminCurrencySettings = lazy(
+  () => import("@/pages/admin/AdminCurrencySettings"),
+);
 const AdminLegal = lazy(() => import("@/pages/admin/AdminLegal"));
 const Feedback = lazy(() => import("@/pages/Feedback"));
 const AdminFeedback = lazy(() => import("@/pages/admin/AdminFeedback"));
@@ -1576,6 +1579,10 @@ export default function App() {
                     {/* System */}
                     <Route path="typography" element={<AdminTypography />} />
                     <Route path="settings" element={<AdminSettings />} />
+                    <Route
+                      path="currency"
+                      element={<AdminCurrencySettings />}
+                    />
 
                     {/* AI Developer Studio (nested) */}
                     <Route path="studio" element={<StudioLayout />}>
