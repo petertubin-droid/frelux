@@ -1,4 +1,4 @@
-// FRELUX PROJECT CALC - Service Worker v4 (Workbox-powered precaching)
+// FRELUX - Service Worker v4 (Workbox-powered precaching)
 //
 // This file is used as a TEMPLATE by scripts/generate-sw.mjs (workbox-build
 // injectManifest). The Workbox marker below is replaced at build time
@@ -132,7 +132,7 @@ self.addEventListener('push', (event) => {
     payload = { title: 'FRELUX', body: event.data.text() };
   }
 
-  const title = payload.title || 'FRELUX PROJECT CALC';
+  const title = payload.title || 'FRELUX';
   const body = payload.body || '';
   const url = payload.url || '/messages';
   const icon = payload.icon || '/icon-192.png';
