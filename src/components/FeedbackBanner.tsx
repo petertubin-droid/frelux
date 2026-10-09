@@ -91,7 +91,7 @@ export default function FeedbackBanner() {
           </p>
           <Link
             to="/feedback"
-            className="mt-1.5 inline-block text-xs font-medium text-primary underline-offset-4 hover:underline"
+            className="mt-1.5 -mb-1 inline-block px-1 py-1 text-xs font-medium text-brand-purple dark:text-brand-purple-lighter underline-offset-4 hover:underline"
           >
             Give feedback
           </Link>

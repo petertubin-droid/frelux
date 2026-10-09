@@ -189,7 +189,7 @@ export default function Hero() {
             )}
             <Link
               to="/build-to-roof-estimator/"
-              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-accent-green px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-accent-green/25 transition-all hover:bg-accent-green/90 hover:shadow-xl hover:shadow-accent-green/30 active:scale-[0.98]"
+              className="group inline-flex items-center justify-center gap-2 rounded-xl bg-accent-green px-6 py-3 text-sm font-semibold text-emerald-950 shadow-lg shadow-accent-green/25 transition-all hover:bg-accent-green/90 hover:shadow-xl hover:shadow-accent-green/30 active:scale-[0.98]"
             >
               <Building2 className="h-4 w-4" />
               Build-to-Roof Estimator
@@ -202,7 +202,7 @@ export default function Hero() {
             {trustPoints.map((point) => (
               <span
                 key={point}
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-foreground/40"
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-primary-foreground/60"
               >
                 <Check className="h-3.5 w-3.5 text-accent-green" />
                 {point}
@@ -212,7 +212,7 @@ export default function Hero() {
 
           {/* Workflow steps */}
           <div className="mt-12">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-foreground/25">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-primary-foreground/60">
               Complete workflow
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -270,7 +270,7 @@ export default function Hero() {
                 </p>
                 <span
                   id="hero-image-caption"
-                  className="text-[10px] font-medium text-primary-foreground/50"
+                  className="text-[10px] font-medium text-primary-foreground/70"
                 />
               </div>
             </div>
@@ -295,7 +295,7 @@ export default function Hero() {
                   />
                 ))}
               </div>
-              <p className="mt-2.5 text-xs font-semibold text-card-foreground dark:text-muted-foreground/60">
+              <p className="mt-2.5 text-xs font-semibold text-card-foreground dark:text-muted-foreground">
                 {branding?.hero_swatch_name || "Curated Palette"}
               </p>
             </div>

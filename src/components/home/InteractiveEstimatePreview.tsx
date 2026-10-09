@@ -202,7 +202,7 @@ export default function InteractiveEstimatePreview() {
               {/* Left: Input parameters */}
               <div className="space-y-4">
                 <div className="rounded-xl bg-muted/50 p-4 dark:bg-white/5">
-                  <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/30">
+                  <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/60">
                     <Ruler className="h-3 w-3" />
                     Room dimensions
                   </p>
@@ -239,7 +239,7 @@ export default function InteractiveEstimatePreview() {
                 </div>
 
                 <div className="rounded-xl bg-muted/50 p-4 dark:bg-white/5">
-                  <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/30">
+                  <p className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/60">
                     <Calculator className="h-3 w-3" />
                     Coverage rate
                   </p>
@@ -295,7 +295,7 @@ export default function InteractiveEstimatePreview() {
 
                 {/* Container recommendation */}
                 <div className="rounded-xl bg-muted/50 p-4 dark:bg-white/5">
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/30">
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-primary-foreground/60">
                     Recommended purchase
                   </p>
                   <div className="mt-2.5 space-y-1.5">

@@ -48,6 +48,7 @@ const mockTestimonial = {
 };
 
 vi.mock("@/lib/supabase", () => ({
+  isSupabaseConfigured: true,
   supabase: {
     from: vi.fn(() =>
       makeBuilder(() => ({ data: mockTestimonial.__data, error: null })),

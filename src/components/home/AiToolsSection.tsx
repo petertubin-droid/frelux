@@ -70,7 +70,7 @@ export default function AiToolsSection() {
         >
           {/* Section heading */}
           <div className="mx-auto max-w-2xl text-center">
-            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-purple">
+            <span className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-purple dark:text-brand-purple-lighter">
               AI powered tools
             </span>
             <h2 className="mt-3 font-display text-3xl font-bold text-foreground dark:text-primary-foreground sm:text-4xl">

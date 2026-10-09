@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Quote } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import type { DbTestimonial } from "@/types/database";
 
 /**
@@ -17,6 +17,7 @@ export default function TestimonialsSection() {
   );
 
   useEffect(() => {
+    if (!isSupabaseConfigured) return;
     let cancelled = false;
     (async () => {
       const { data } = await supabase

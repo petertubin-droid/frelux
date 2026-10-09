@@ -57,7 +57,7 @@ export default function TemplatesShowcase() {
 
       <Container className="relative">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-purple">
+          <span className="text-xs font-semibold uppercase tracking-[0.14em] text-brand-purple dark:text-brand-purple-lighter">
             Saved calculations
           </span>
           <h2 className="mt-3 font-display text-3xl font-bold text-foreground dark:text-primary-foreground sm:text-4xl">

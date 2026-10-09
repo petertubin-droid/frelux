@@ -91,7 +91,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Contact us on WhatsApp"
-              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-accent-green/10 px-3 py-2 text-sm font-semibold text-accent-green transition-colors hover:bg-accent-green/15 dark:bg-accent-green/15 dark:text-accent-green-light dark:hover:bg-accent-green/25"
+              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-accent-green/10 px-3 py-2 text-sm font-semibold text-emerald-700 transition-colors hover:bg-accent-green/15 dark:bg-accent-green/15 dark:text-accent-green-light dark:hover:bg-accent-green/25"
             >
               <MessageCircle className="h-4 w-4" />
               {siteConfig.whatsappDisplay}

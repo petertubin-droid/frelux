@@ -80,7 +80,7 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
     },
     fair: {
       Icon: AlertTriangle,
-      color: "text-amber-600 dark:text-amber-400",
+      color: "text-amber-700 dark:text-amber-400",
       bg: "bg-amber-50 dark:bg-amber-950/30",
       border: "border-amber-200 dark:border-amber-800/50",
       glow: "shadow-amber-100 dark:shadow-amber-900/20",
@@ -88,7 +88,7 @@ export function WorkWeatherBanner({ workType }: { workType: WorkType }) {
     },
     poor: {
       Icon: XCircle,
-      color: "text-red-500 dark:text-red-400",
+      color: "text-red-700 dark:text-red-400",
       bg: "bg-red-50 dark:bg-red-950/30",
       border: "border-red-200 dark:border-red-800/50",
       glow: "shadow-red-100 dark:shadow-red-900/20",
