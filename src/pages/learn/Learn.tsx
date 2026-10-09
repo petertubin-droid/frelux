@@ -376,6 +376,7 @@ export default function Learn() {
                       >
                         {a.cover_image_url && (
                           <img
+                            loading="lazy"
                             src={a.cover_image_url}
                             alt=""
                             className="h-14 w-20 shrink-0 rounded-lg object-cover"
