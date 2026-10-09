@@ -742,6 +742,65 @@ describe("recommendPracticalContainers", () => {
 });
 
 // ─────────────────────────────────────────────────────────
+// Documented purchase examples (audit 2026-10-09)
+// ─────────────────────────────────────────────────────────
+describe("container recommendation purchase examples", () => {
+  it("theoretical: 9 L mixes 4 L and 1 L containers exactly", () => {
+    // The classic documented example: 9 L need → 2 × 4 L + 1 × 1 L
+    expect(recommendContainerCombination(9, [1, 4, 20])).toEqual([
+      { size: 4, count: 2 },
+      { size: 1, count: 1 },
+    ]);
+  });
+
+  it("practical: 9 L rounds to a single 20 L bucket", () => {
+    // 20-litre buckets as the standard purchase unit
+    expect(recommendPracticalContainers(9, [1, 4, 20])).toEqual([
+      { size: 20, count: 1 },
+    ]);
+  });
+
+  it("every recommendation meets or exceeds the requirement", () => {
+    const sizes = [1, 4, 20];
+    for (const need of [0.3, 2.7, 5, 9, 12.5, 19, 21, 24, 25, 39, 41]) {
+      for (const fn of [
+        recommendContainerCombination,
+        recommendPracticalContainers,
+      ]) {
+        const recs = fn(need, sizes);
+        const bought = recs.reduce((sum, r) => sum + r.size * r.count, 0);
+        expect(bought).toBeGreaterThanOrEqual(need);
+      }
+    }
+  });
+
+  it("exact boundary: no extra container when need divides exactly", () => {
+    expect(recommendContainerCombination(20, [1, 4, 20])).toEqual([
+      { size: 20, count: 1 },
+    ]);
+    expect(recommendContainerCombination(24, [1, 4, 20])).toEqual([
+      { size: 20, count: 1 },
+      { size: 4, count: 1 },
+    ]);
+  });
+
+  it("product-specific sizes: only 4 L containers available", () => {
+    // A product sold only in 4 L containers must not recommend 20 L buckets
+    expect(recommendContainerCombination(9, [4])).toEqual([
+      { size: 4, count: 3 },
+    ]);
+    expect(recommendPracticalContainers(9, [4])).toEqual([
+      { size: 4, count: 3 },
+    ]);
+  });
+
+  it("negative requirements clamp to an empty recommendation", () => {
+    expect(recommendContainerCombination(-5, [1, 4, 20])).toEqual([]);
+    expect(recommendPracticalContainers(-5, [1, 4, 20])).toEqual([]);
+  });
+});
+
+// ─────────────────────────────────────────────────────────
 // Leftover calculation
 // ─────────────────────────────────────────────────────────
 describe("leftover paint calculation", () => {

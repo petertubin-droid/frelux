@@ -308,6 +308,18 @@ export function calculateAdjustedPaintRequired(
   return paintRequiredLiters * (1 + margin);
 }
 
+// Merge duplicate same-size entries so users see "3 x 4L" instead of
+// "2 x 4L + 1 x 4L" when a remainder bumps the same size twice.
+function mergeSameSizeRecommendations(
+  recommendations: ContainerRecommendation[],
+): ContainerRecommendation[] {
+  const merged = new Map<number, number>();
+  for (const r of recommendations) {
+    merged.set(r.size, (merged.get(r.size) ?? 0) + r.count);
+  }
+  return [...merged.entries()].map(([size, count]) => ({ size, count }));
+}
+
 // ─────────────────────────────────────────────────────────
 // Container recommendation
 // ─────────────────────────────────────────────────────────
@@ -339,7 +351,7 @@ export function recommendContainerCombination(
     recommendations.push({ size: smallest, count: 1 });
   }
 
-  return recommendations;
+  return mergeSameSizeRecommendations(recommendations);
 }
 
 /**
@@ -408,7 +420,7 @@ export function recommendPracticalContainers(
     }
   }
 
-  return recommendations;
+  return mergeSameSizeRecommendations(recommendations);
 }
 
 // ─────────────────────────────────────────────────────────
