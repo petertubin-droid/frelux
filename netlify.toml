@@ -40,6 +40,36 @@
   VITE_SENTRY_ENVIRONMENT = "staging"
 
 
+# 301 redirects — worldwide rebrand of learn articles (was Nigeria-only slugs)
+[[redirects]]
+  from = "/learn/nigerian-building-regulations-what-you-need-to-know/*"
+  to = "/learn/building-regulations-what-you-need-to-know/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/learn/how-to-estimate-screeding-costs-nigeria/*"
+  to = "/learn/how-to-estimate-screeding-costs/"
+  status = 301
+  force = true
+[[redirects]]
+  from = "/learn/cost-of-building-3-bedroom-bungalow-nigeria/*"
+  to = "/learn/cost-of-building-3-bedroom-bungalow/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/learn/how-to-track-building-material-prices-nigeria/*"
+  to = "/learn/how-to-track-building-material-prices/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/learn/building-in-the-rainy-season-nigeria/*"
+  to = "/learn/building-in-the-rainy-season/"
+  status = 301
+  force = true
+
 # 301 redirects — consolidated calculator routes
 [[redirects]]
   from = "/cost-estimator"
