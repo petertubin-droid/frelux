@@ -11,6 +11,7 @@ export default function PageHeader({
   backLabel,
   actions,
   breadcrumbs,
+  image,
 }: {
   eyebrow?: string;
   title: string;
@@ -20,9 +21,41 @@ export default function PageHeader({
   actions?: ReactNode;
   children?: ReactNode;
   breadcrumbs?: { label: string; path?: string }[];
+  /** Optional blended photo behind the header. Same fade-to-surface
+   *  technique as the homepage hero: the picture sits under the mesh
+   *  and dissolves into the page background so there is no seam. */
+  image?: string;
 }) {
   return (
-    <div className="relative overflow-hidden border-b border-border/80 bg-card dark:border-white/5 dark:bg-card">
+    <div
+      className={`relative overflow-hidden ${
+        image
+          ? "bg-background"
+          : "border-b border-border/80 bg-card dark:border-white/5 dark:bg-card"
+      }`}
+    >
+      {/* Blended photo band: decorative, faded into the page surface so
+          the transition below the header is invisible. */}
+      {image && (
+        <>
+          <img
+            src={image}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            decoding="async"
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25 dark:opacity-20"
+          />
+          <div
+            className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/25 via-background/55 to-background"
+            aria-hidden="true"
+          />
+          <div
+            className="pointer-events-none absolute inset-0 bg-gradient-to-r from-background/50 via-transparent to-background/50"
+            aria-hidden="true"
+          />
+        </>
+      )}
       {/* Premium gradient mesh background */}
       <div
         className="calc-header-mesh pointer-events-none absolute inset-0"

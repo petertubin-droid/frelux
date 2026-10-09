@@ -852,6 +852,7 @@ export default function PaintCalculator({
       {!embedded && (
         <>
           <PageHeader
+            image="https://images.pexels.com/photos/6474478/pexels-photo-6474478.jpeg?auto=compress&cs=tinysrgb&w=1600"
             eyebrow="Tool"
             title="Paint Calculator"
             subtitle="Estimate how many paint buckets your project requires, step by step."

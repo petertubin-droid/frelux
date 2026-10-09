@@ -225,8 +225,25 @@ export default function ConstructionTools() {
   return (
     <>
       {/* Hero / search */}
-      <section className="border-b border-border/50 bg-gradient-to-b from-primary/5 to-transparent py-10 dark:border-white/5 dark:from-primary/10">
-        <Container>
+      <section className="relative overflow-hidden bg-background py-10">
+        {/* Blended photo band, same fade-to-surface treatment as PageHeader */}
+        <img
+          src="https://images.pexels.com/photos/1216589/pexels-photo-1216589.jpeg?auto=compress&cs=tinysrgb&w=1600"
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+          className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-25 dark:opacity-20"
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-b from-background/25 via-background/55 to-background"
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute inset-0 bg-gradient-to-r from-background/50 via-transparent to-background/50"
+          aria-hidden="true"
+        />
+        <Container className="relative">
           <div className="mx-auto max-w-2xl text-center">
             <HeroTitle
               className="text-3xl text-foreground dark:text-primary-foreground sm:text-4xl"

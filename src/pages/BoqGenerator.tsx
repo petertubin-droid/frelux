@@ -207,6 +207,7 @@ export default function BoqGenerator() {
     <Container>
       <div className="space-y-6">
         <PageHeader
+          image="https://images.pexels.com/photos/209230/pexels-photo-209230.jpeg?auto=compress&cs=tinysrgb&w=1600"
           breadcrumbs={[
             { label: "Home", path: "/" },
             { label: "Construction Tools", path: "/construction-tools" },
