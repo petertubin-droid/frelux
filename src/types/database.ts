@@ -646,6 +646,18 @@ export interface DbStudioChat {
 
 export type LearnArticleStatus = "draft" | "published" | "archived";
 
+export interface DbGlossaryTerm {
+  id: string;
+  term: string;
+  slug: string;
+  definition: string;
+  category: string;
+  sort_order: number;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface DbTestimonial {
   id: string;
   quote: string;

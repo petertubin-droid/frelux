@@ -1,8 +1,8 @@
-import { SITE_URL } from "./seo";
 /**
  * Material Shopping List Generator
  * Compiles all materials from a calculation into a checklist format.
  */
+import { SITE_URL } from "@/lib/seo";
 
 import type {
   CalculatorResult,
@@ -187,4 +187,165 @@ export function shoppingListToText(items: ShoppingListItem[]): string {
   lines.push("");
   lines.push(`🔗 ${SITE_URL}`);
   return lines.join("\n");
+}
+
+/* ============================================================
+   Estimate history export: turns a saved estimate into a
+   plain-text shopping list the user can take to any supplier.
+   ============================================================ */
+
+import type { DbEstimateHistory } from "@/types/database";
+
+interface HistoryLine {
+  name: string;
+  quantity: number | null;
+  unit: string | null;
+}
+
+const EST_NAME_KEYS = ["name", "label", "title", "material", "item", "product"];
+const EST_QTY_KEYS = [
+  "quantity",
+  "packagesNeeded",
+  "packages_needed",
+  "count",
+  "amount",
+  "buckets",
+  "bags",
+  "litres",
+  "liters",
+];
+const EST_UNIT_KEYS = ["unit", "coverage_unit", "uom"];
+
+function pickValue(obj: Record<string, unknown>, keys: string[]): unknown {
+  for (const k of keys) {
+    const v = obj[k];
+    if (v !== undefined && v !== null && v !== "") return v;
+  }
+  return undefined;
+}
+
+/** Depth-first scan for arrays of objects that look like material lines. */
+function collectHistoryLines(
+  node: unknown,
+  out: HistoryLine[],
+  depth = 0,
+): void {
+  if (depth > 4 || node === null || node === undefined) return;
+  if (Array.isArray(node)) {
+    for (const item of node) {
+      if (item !== null && typeof item === "object" && !Array.isArray(item)) {
+        const o = item as Record<string, unknown>;
+        const name = pickValue(o, EST_NAME_KEYS);
+        const qty = pickValue(o, EST_QTY_KEYS);
+        const unit = pickValue(o, EST_UNIT_KEYS);
+        if (typeof name === "string" && name.trim()) {
+          const qtyNum =
+            typeof qty === "number"
+              ? qty
+              : typeof qty === "string" &&
+                  qty.trim() !== "" &&
+                  !isNaN(Number(qty))
+                ? Number(qty)
+                : null;
+          if (qtyNum !== null) {
+            out.push({
+              name: name.trim(),
+              quantity: qtyNum,
+              unit: typeof unit === "string" ? unit : null,
+            });
+            continue;
+          }
+        }
+      }
+      collectHistoryLines(item, out, depth + 1);
+    }
+    return;
+  }
+  if (typeof node === "object") {
+    for (const value of Object.values(node as Record<string, unknown>)) {
+      collectHistoryLines(value, out, depth + 1);
+    }
+  }
+}
+
+function estMoney(v: unknown, currency: string): string {
+  const n = typeof v === "number" ? v : Number(v);
+  if (!Number.isFinite(n)) return "";
+  const formatted = new Intl.NumberFormat("en-US", {
+    maximumFractionDigits: 2,
+  }).format(n);
+  return `${currency} ${formatted}`;
+}
+
+export function buildShoppingList(est: DbEstimateHistory): string {
+  const lines: string[] = [];
+  const label = est.project_name ?? est.calculator_type;
+  const date = new Date(est.created_at).toLocaleDateString();
+
+  lines.push("FRELUX SHOPPING LIST");
+  lines.push("===================");
+  lines.push("");
+  lines.push(`Project: ${label}`);
+  lines.push(`Calculator: ${est.calculator_type}`);
+  lines.push(`Date: ${date}`);
+  lines.push("");
+
+  const materialLines: HistoryLine[] = [];
+  collectHistoryLines(est.result_data, materialLines);
+
+  lines.push("MATERIALS");
+  lines.push("---------");
+  if (materialLines.length > 0) {
+    for (const m of materialLines) {
+      const qty = m.quantity !== null ? m.quantity : "?";
+      const unit = m.unit ? ` ${m.unit}` : "";
+      lines.push(`[ ] ${m.name}: ${qty}${unit}`);
+    }
+  } else {
+    lines.push(
+      "This estimate does not include an itemised material breakdown.",
+    );
+  }
+  lines.push("");
+
+  const costs = [
+    ["Material cost", est.material_cost],
+    ["Labour cost", est.labour_cost],
+    ["Total", est.total_cost],
+  ] as const;
+  if (costs.some(([, v]) => Number.isFinite(Number(v)) && v !== null)) {
+    lines.push("ESTIMATED COSTS");
+    lines.push("----------------");
+    for (const [costLabel, v] of costs) {
+      const str = estMoney(v, est.currency ?? "NGN");
+      if (str) lines.push(`${costLabel}: ${str}`);
+    }
+    lines.push("");
+  }
+
+  lines.push("TIP: add 5-10% wastage to quantities before buying.");
+  lines.push("");
+  lines.push("Planned with FRELUX · freluxtools.com");
+
+  return lines.join("\n");
+}
+
+export function downloadShoppingList(est: DbEstimateHistory): string {
+  const text = buildShoppingList(est);
+  const name =
+    (est.project_name ?? "frelux-estimate")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 40) || "frelux-estimate";
+  const blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `shopping-list-${name}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  return text;
 }

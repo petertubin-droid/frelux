@@ -4,6 +4,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import { getEstimateHistory } from "@/lib/crm";
 import type { DbEstimateHistory } from "@/types/database";
 import { downloadCsv } from "@/lib/export-utils";
+import { downloadShoppingList } from "@/lib/shopping-list";
 import {
   Loader2,
   Download,
@@ -13,6 +14,7 @@ import {
   Calendar,
   DollarSign,
   Calculator,
+  ClipboardList,
 } from "lucide-react";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
@@ -341,9 +343,19 @@ export default function EstimateAnalytics() {
                     • {new Date(h.created_at).toLocaleDateString()}
                   </p>
                 </div>
-                <p className="text-sm font-semibold">
-                  {formatCurrency(h.total_cost ?? 0)}
-                </p>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => downloadShoppingList(h)}
+                    title="Download shopping list"
+                    aria-label={`Download shopping list for ${h.project_name ?? "estimate"}`}
+                    className="rounded-lg border border-border p-2 text-muted-foreground transition-colors hover:border-brand-purple/40 hover:text-foreground dark:border-white/10"
+                  >
+                    <ClipboardList className="h-4 w-4" />
+                  </button>
+                  <p className="text-sm font-semibold">
+                    {formatCurrency(h.total_cost ?? 0)}
+                  </p>
+                </div>
               </div>
             ))}
           </div>

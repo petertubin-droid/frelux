@@ -68,6 +68,9 @@ import { useTypography } from "@/lib/useTypography";
 // Lazy-loaded public pages for code splitting
 const ColorDetail = lazy(() => import("@/pages/ColorDetail"));
 const Learn = lazy(() => import("@/pages/learn/Learn"));
+const MaterialPrices = lazy(() => import("@/pages/MaterialPrices"));
+const Glossary = lazy(() => import("@/pages/Glossary"));
+const Printables = lazy(() => import("@/pages/Printables"));
 const UserGuide = lazy(() => import("@/pages/UserGuide"));
 const PaintingCalculatorHub = lazy(
   () => import("@/pages/PaintingCalculatorHub"),
@@ -893,6 +896,33 @@ export default function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <EstimateAnalytics />
+                        </Suspense>
+                      }
+                    />
+
+                    <Route
+                      path="/printables"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <Printables />
+                        </Suspense>
+                      }
+                    />
+
+                    <Route
+                      path="/glossary"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <Glossary />
+                        </Suspense>
+                      }
+                    />
+
+                    <Route
+                      path="/prices"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <MaterialPrices />
                         </Suspense>
                       }
                     />

@@ -330,6 +330,37 @@ const routes = [
     ],
   },
   {
+    path: '/printables',
+    title: 'Free Printable Templates: Quotes, Schedules & Checklists | FRELUX',
+    description: 'Free, print-ready project sheets from FRELUX: a quote comparison sheet, a paint project schedule, and a material shopping checklist.',
+    priority: '0.8',
+    changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Free Templates', item: 'https://freluxtools.netlify.app/printables' }] },
+    ],
+  },
+  {
+    path: '/glossary',
+    title: 'Construction Glossary: Plain-Language Building Terms Explained | FRELUX',
+    description: 'A plain-language glossary of construction, painting and finishing terms: primers, screeds, coverage rates, bills of quantities and more.',
+    priority: '0.8',
+    changefreq: 'monthly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'DefinedTermSet', name: 'FRELUX Construction Glossary', url: 'https://freluxtools.netlify.app/glossary' },
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Glossary', item: 'https://freluxtools.netlify.app/glossary' }] },
+    ],
+  },
+  {
+    path: '/prices',
+    title: 'Material Prices: Live Construction & Paint Price Book | FRELUX',
+    description: 'Browse the FRELUX material price book: current prices for cement, paint, aggregates, plumbing, electrical and more, with sources, effective dates, and weekly movement.',
+    priority: '0.8',
+    changefreq: 'daily',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Material Prices', item: 'https://freluxtools.netlify.app/prices' }] },
+    ],
+  },
+  {
     path: '/learn/library',
     title: 'All Guides: The Complete FRELUX Learn Library | FRELUX',
     description: 'Browse every published guide in the FRELUX Learn library: painting, screeding, POP ceiling, tiling, finishing, and construction tutorials.',

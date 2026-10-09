@@ -994,14 +994,29 @@ function ProductsTab(props: {
             No products found
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
-            Try adjusting your search or list a product for sale.
+            Sellers are joining soon. Meanwhile, plan your project with our free
+            tools, or list a product for sale.
           </p>
-          <Link
-            to="/marketplace/products/post/"
-            className="mt-4 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
-          >
-            <Plus aria-hidden="true" className="h-4 w-4" /> Sell a Product
-          </Link>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <Link
+              to="/marketplace/products/post/"
+              className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
+            >
+              <Plus aria-hidden="true" className="h-4 w-4" /> Sell a Product
+            </Link>
+            <Link
+              to="/learn/"
+              className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground dark:border-white/10 dark:text-primary-foreground"
+            >
+              Read the guides
+            </Link>
+            <Link
+              to="/prices/"
+              className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground dark:border-white/10 dark:text-primary-foreground"
+            >
+              Check material prices
+            </Link>
+          </div>
         </div>
       ) : (
         <>

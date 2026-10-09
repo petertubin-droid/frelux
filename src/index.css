@@ -1434,3 +1434,29 @@ thead th {
     animation: none;
   }
 }
+
+/* ============================================================
+   Printable template sheets (/templates): when body[data-printing]
+   is set, print ONLY the chosen sheet and hide everything else.
+   ============================================================ */
+@media print {
+  body[data-printing] * {
+    visibility: hidden !important;
+  }
+  body[data-printing="quote-comparison"] [data-sheet="quote-comparison"],
+  body[data-printing="quote-comparison"] [data-sheet="quote-comparison"] *,
+  body[data-printing="paint-schedule"] [data-sheet="paint-schedule"],
+  body[data-printing="paint-schedule"] [data-sheet="paint-schedule"] *,
+  body[data-printing="material-checklist"] [data-sheet="material-checklist"],
+  body[data-printing="material-checklist"] [data-sheet="material-checklist"] * {
+    visibility: visible !important;
+  }
+  body[data-printing] [data-sheet] {
+    position: absolute !important;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+}

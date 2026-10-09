@@ -31,6 +31,10 @@ const colorLinks = [
 
 const learnLinks = [
   { label: "Learn Hub", path: "/learn" },
+  { label: "Material Prices", path: "/prices" },
+  { label: "Glossary", path: "/glossary" },
+  { label: "Free Templates", path: "/printables" },
+  { label: "Project Gallery", path: "/gallery" },
   { label: "User Guide", path: "/user-guide" },
 ];
 
