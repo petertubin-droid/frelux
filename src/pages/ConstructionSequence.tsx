@@ -29,9 +29,9 @@ export default function ConstructionSequence() {
   useSeo({
     title: "Construction Sequence Planner | FRELUX",
     description:
-      "Step-by-step build order for construction. Quality checks, materials, safety notes, and common mistakes for every stage, based on standard Nigerian practice.",
+      "Step-by-step build order for construction. Quality checks, materials, safety notes, and common mistakes for every stage, based on standard building practice.",
     keywords:
-      "construction sequence, build order, construction steps, quality checks, Nigeria",
+      "construction sequence, build order, construction steps, quality checks",
   });
 
   const plan = monitoredCalc("Construction Sequence", () =>
@@ -173,7 +173,7 @@ export default function ConstructionSequence() {
               </p>
               <p className="text-xs text-amber-700 mt-1">
                 This sequence is based on standard construction practice
-                (Nigerian market reference) practice for typical residential and
+                (reference market) practice for typical residential and
                 commercial buildings. Complex projects may require modified
                 sequences. Always follow your engineer's and architect's
                 drawings and specifications. Verify all structural work with a

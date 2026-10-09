@@ -292,7 +292,7 @@ export default function BuildToRoofEstimator() {
     description:
       "Planning and budgeting estimate for building from foundation to roof. Configure dimensions, materials, and prices. Actual requirements and costs may vary based on location, current material prices, building design, site conditions, and professional specifications.",
     keywords:
-      "build to roof, construction cost estimator, foundation to roof, building materials calculator, Nigeria",
+      "build to roof, construction cost estimator, foundation to roof, building materials calculator, worldwide",
     canonicalPath: "/build-to-roof-estimator",
     structuredDataArray: [
       {
@@ -301,7 +301,7 @@ export default function BuildToRoofEstimator() {
         name: "Build-to-Roof Construction Cost Estimator",
         url: `${SITE_URL}/build-to-roof-estimator`,
         description:
-          "Calculate materials, quantities, and costs for your building from foundation to roof with Nigerian market pricing (more countries coming).",
+          "Calculate materials, quantities, and costs for your building from foundation to roof with local market pricing: Nigerian price books by default, plus community-reported prices worldwide.",
         applicationCategory: "BusinessApplication",
         operatingSystem: "Web",
         offers: { "@type": "Offer", price: "0", priceCurrency: "NGN" },
@@ -351,7 +351,7 @@ export default function BuildToRoofEstimator() {
 
   const [input, setInput] = useState<BuildToRoofInput>({
     project_name: "",
-    location: "Lagos",
+    location: "",
     building_type: "bungalow",
     number_of_floors: 1,
     measurement_unit: "m",
@@ -646,7 +646,7 @@ export default function BuildToRoofEstimator() {
                           type="text"
                           value={input.location}
                           onChange={(v) => update("location", v)}
-                          placeholder="e.g. Lagos"
+                          placeholder="e.g. Your City"
                         />
                         <SelectField
                           label="Building type"

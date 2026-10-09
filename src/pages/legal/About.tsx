@@ -83,7 +83,7 @@ export default function About() {
               <br />
               <strong>Cost Estimators</strong>, Go beyond quantity. Our
               estimators factor in labour, transport, markup, profit, and tax to
-              give you a realistic project budget calibrated to Nigerian market
+              give you a realistic project budget calibrated to real market
               rates.
               <br />
               <br />

@@ -265,7 +265,7 @@ export default function BoqGenerator() {
                 className="rounded-lg border border-border bg-background px-3 py-2 font-normal"
                 value={projectLocation}
                 onChange={(e) => setProjectLocation(e.target.value)}
-                placeholder="e.g. Lekki, Lagos (optional)"
+                placeholder="e.g. City, Area (optional)"
               />
             </label>
           </div>

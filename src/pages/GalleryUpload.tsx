@@ -289,7 +289,7 @@ export default function GalleryUpload() {
                 className={inputCls}
                 value={form.location}
                 onChange={(e) => setForm({ ...form, location: e.target.value })}
-                placeholder="e.g. Lagos"
+                placeholder="e.g. Your City"
               />
             </div>
             <div>

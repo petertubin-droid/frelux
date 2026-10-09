@@ -30,11 +30,11 @@ export default function StartBuilding() {
   useSeo({
     title: "Start Building: What Are You Building Today? | FRELUX",
     description:
-      "Start your construction project with FRELUX. Estimate materials and costs from foundation to roof, then finishing, paint, screeding, POP ceiling, tiles, and exterior. Free Nigerian construction calculators and estimators.",
+      "Start your construction project with FRELUX. Estimate materials and costs from foundation to roof, then finishing, paint, screeding, POP ceiling, tiles, and exterior. Free construction calculators and estimators.",
     canonicalPath: "/start-building",
     ogType: "website",
     keywords:
-      "start building, construction estimator Nigeria, build to roof estimator, paint calculator, screeding calculator, POP ceiling calculator, tile calculator, tyrolene estimator, construction cost calculator Nigeria",
+      "start building, construction estimator, build to roof estimator, paint calculator, screeding calculator, POP ceiling calculator, tile calculator, tyrolene estimator, construction cost calculator",
     structuredDataArray: [
       {
         "@context": "https://schema.org",
@@ -115,7 +115,7 @@ export default function StartBuilding() {
             name: "What is the Build-to-Roof Estimator?",
             acceptedAnswer: {
               "@type": "Answer",
-              text: "The Build-to-Roof Estimator calculates materials and costs for a complete building project from foundation through roofing, including blocks, cement, sand, granite, roofing sheets, structural members, and labour based on Nigerian construction standards.",
+              text: "The Build-to-Roof Estimator calculates materials and costs for a complete building project from foundation through roofing, including blocks, cement, sand, granite, roofing sheets, structural members, and labour based on practical construction standards.",
             },
           },
           {
@@ -242,7 +242,7 @@ export default function StartBuilding() {
                     aria-hidden="true"
                     className="h-3.5 w-3.5 text-accent-green"
                   />
-                  Nigerian construction standards
+                  practical construction standards
                 </span>
               </div>
               <div className="mt-7 inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/25 transition-all group-hover:bg-primary/90 group-hover:shadow-xl">

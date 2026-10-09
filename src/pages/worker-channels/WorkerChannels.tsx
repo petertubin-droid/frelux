@@ -577,7 +577,7 @@ export default function WorkerChannels() {
                       />
                       <input
                         type="text"
-                        placeholder="Location (e.g. Lagos Mainland)"
+                        placeholder="Location (e.g. city, area)"
                         className="input-field"
                         value={priceForm.location}
                         onChange={(e) =>

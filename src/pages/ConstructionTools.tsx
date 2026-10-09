@@ -134,7 +134,7 @@ export default function ConstructionTools() {
   useSeo({
     title: "Construction Tools: Calculators & Estimators | FRELUX",
     description:
-      "Every FRELUX construction tool in one place: paint, tiling, screeding, POP, concrete, solar, plumbing, BOQ and more. Search, compare and calculate with verified market prices, starting with Nigeria.",
+      "Every FRELUX construction tool in one place: paint, tiling, screeding, POP, concrete, solar, plumbing, BOQ and more. Search, compare and calculate with verified market prices, with Nigerian price books by default and community prices for markets worldwide.",
     canonicalPath: "/construction-tools",
   });
 

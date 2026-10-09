@@ -44,7 +44,7 @@ const routes = [
   {
     path: '/',
     title: 'FRELUX PAINT CALC: Calculate Materials & Estimate Construction Costs',
-    description: 'Know exactly what materials your construction project needs. Free Nigerian construction calculators for paint, screeding, POP ceiling, tiles, and finishing. Estimate costs with real market prices.',
+    description: 'Know exactly what materials your construction project needs. Free construction calculators for paint, screeding, POP ceiling, tiles, and finishing. Estimate costs with real market prices.',
     priority: '1.0',
     changefreq: 'weekly',
     structuredData: [
@@ -72,7 +72,7 @@ const routes = [
     path: '/start-building',
     title: 'Start Building: What Are You Building Today? | FRELUX',
     description:
-      'Start your construction project with FRELUX. Estimate materials and costs from foundation to roof, then finishing: paint, screeding, POP ceiling, tiles, and exterior. Free Nigerian construction calculators and estimators.',
+      'Start your construction project with FRELUX. Estimate materials and costs from foundation to roof, then finishing: paint, screeding, POP ceiling, tiles, and exterior. Free construction calculators and estimators.',
     priority: '0.9',
     changefreq: 'weekly',
     structuredData: [
@@ -91,7 +91,7 @@ const routes = [
         { '@type': 'ListItem', position: 7, name: 'Colour & Design', url: 'https://freluxtools.netlify.app/colors' },
       ]},
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
-        { '@type': 'Question', name: 'What is the Build-to-Roof Estimator?', acceptedAnswer: { '@type': 'Answer', text: 'The Build-to-Roof Estimator calculates materials and costs for a complete building project from foundation through roofing, including blocks, cement, sand, granite, roofing sheets, structural members, and labour based on Nigerian construction standards.' } },
+        { '@type': 'Question', name: 'What is the Build-to-Roof Estimator?', acceptedAnswer: { '@type': 'Answer', text: 'The Build-to-Roof Estimator calculates materials and costs for a complete building project from foundation through roofing, including blocks, cement, sand, granite, roofing sheets, structural members, and labour based on practical construction standards.' } },
         { '@type': 'Question', name: 'Can I estimate finishing costs after the build?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. After your structure is built, use FRELUX finishing calculators for paint, screeding, POP ceiling, tiles, and exterior finishes to estimate materials and costs for each stage.' } },
         { '@type': 'Question', name: 'Are FRELUX calculators free to use?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. All calculators and estimators are free to use with no sign-up required. Pro features like saved estimates and PDF exports are available with a Pro account.' } },
       ]},
@@ -100,7 +100,7 @@ const routes = [
   {
     path: '/paint-calculator',
     title: 'Paint Calculator: How Much Paint Do I Need? | FRELUX',
-    description: 'Room-based paint calculator for Nigerian projects. Enter room dimensions, wall height, doors, and windows to estimate paint quantity in 20-litre buckets using admin-configured coverage rates.',
+    description: 'Room-based paint calculator for any project. Enter room dimensions, wall height, doors, and windows to estimate paint quantity in 20-litre buckets using admin-configured coverage rates.',
     priority: '0.9',
     changefreq: 'monthly',
     structuredData: [
@@ -111,7 +111,7 @@ const routes = [
       ]},
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
         { '@type': 'Question', name: 'How does the FRELUX paint calculator differ from a generic area-based calculator?', acceptedAnswer: { '@type': 'Answer', text: 'FRELUX uses a room-based approach: you enter room dimensions (not raw m²), and the calculator handles all area math internally. Coverage rates are admin-configured from the database. Surface condition, colour condition, and wall height all affect the final quantity.' } },
-        { '@type': 'Question', name: 'Why does the calculator recommend 20-litre buckets?', acceptedAnswer: { '@type': 'Answer', text: '20-litre buckets are the standard purchase unit in the Nigerian paint market. The calculator shows both theoretical litres needed and the practical number of buckets to buy.' } },
+        { '@type': 'Question', name: 'Why does the calculator recommend 20-litre buckets?', acceptedAnswer: { '@type': 'Answer', text: '20-litre buckets are a standard purchase unit in many paint markets. The calculator shows both theoretical litres needed and the practical number of buckets to buy.' } },
         { '@type': 'Question', name: 'Do I need primer?', acceptedAnswer: { '@type': 'Answer', text: 'FRELUX recommends primer for new/unpainted surfaces and when painting light colours over dark surfaces. The calculator flags these conditions automatically based on your colour condition selection.' } },
       ]},
     ],
@@ -157,7 +157,7 @@ const routes = [
     changefreq: 'monthly',
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX POP Ceiling Calculator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
-    , { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' }, { '@type': 'ListItem', position: 3, name: 'POP Ceiling Calculator', item: 'https://freluxtools.netlify.app/pop-ceiling-calculator' }] }, { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'How do I calculate POP ceiling materials?', acceptedAnswer: { '@type': 'Answer', text: 'Enter your room length and width into the FRELUX POP Ceiling Calculator. It estimates POP cement, fibreglass mesh, bonding agent, and other materials based on your ceiling area.' } }, { '@type': 'Question', name: 'What is a POP ceiling?', acceptedAnswer: { '@type': 'Answer', text: 'Plaster of Paris (POP) ceilings are smooth, elegant ceiling finishes popular in Nigerian homes. POP is mixed with water and applied to ceilings, often with decorative mouldings and cornices.' } }] }],
+    , { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' }, { '@type': 'ListItem', position: 3, name: 'POP Ceiling Calculator', item: 'https://freluxtools.netlify.app/pop-ceiling-calculator' }] }, { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'How do I calculate POP ceiling materials?', acceptedAnswer: { '@type': 'Answer', text: 'Enter your room length and width into the FRELUX POP Ceiling Calculator. It estimates POP cement, fibreglass mesh, bonding agent, and other materials based on your ceiling area.' } }, { '@type': 'Question', name: 'What is a POP ceiling?', acceptedAnswer: { '@type': 'Answer', text: 'Plaster of Paris (POP) ceilings are smooth, elegant ceiling finishes popular in many homes. POP is mixed with water and applied to ceilings, often with decorative mouldings and cornices.' } }] }],
   },
   {
     path: '/tile-calculator',
@@ -177,7 +177,7 @@ const routes = [
     changefreq: 'monthly',
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Painting Estimator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
-    , { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' }, { '@type': 'ListItem', position: 3, name: 'Painting Estimator', item: 'https://freluxtools.netlify.app/painting-estimator' }] }, { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'How does the Painting Estimator work?', acceptedAnswer: { '@type': 'Answer', text: 'Enter each room with its dimensions. The estimator calculates paint quantity and project cost for all rooms combined using the FRELUX methodology with real Nigerian product prices.' } }] }],
+    , { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' }, { '@type': 'ListItem', position: 3, name: 'Painting Estimator', item: 'https://freluxtools.netlify.app/painting-estimator' }] }, { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'How does the Painting Estimator work?', acceptedAnswer: { '@type': 'Answer', text: 'Enter each room with its dimensions. The estimator calculates paint quantity and project cost for all rooms combined using the FRELUX methodology with real market product prices.' } }] }],
   },
   {
     path: '/screeding-cost-estimator',
@@ -233,7 +233,7 @@ const routes = [
     structuredData: [
       { '@context': 'https://schema.org', '@type': 'SoftwareApplication', name: 'FRELUX Finish Estimator', applicationCategory: 'CalculatorApplication', operatingSystem: 'Web', offers: { '@type': 'Offer', price: '0', priceCurrency: 'NGN' } },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Calculators', item: 'https://freluxtools.netlify.app/calculators' }, { '@type': 'ListItem', position: 3, name: 'Finish Estimator', item: 'https://freluxtools.netlify.app/finish-estimator' }] },
-      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'What finishes does the Finish Estimator support?', acceptedAnswer: { '@type': 'Answer', text: 'The Finish Estimator calculates materials and costs for painting, Tyrolene, and Grafitex wall finishes using real coverage rates and Nigerian package sizes.' } }] },
+      { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [{ '@type': 'Question', name: 'What finishes does the Finish Estimator support?', acceptedAnswer: { '@type': 'Answer', text: 'The Finish Estimator calculates materials and costs for painting, Tyrolene, and Grafitex wall finishes using real coverage rates and standard package sizes.' } }] },
     ],
   },
   {
@@ -302,7 +302,7 @@ const routes = [
   {
     path: '/material-prices',
     title: 'Material Price Tracker: Live Paint & Building Material Prices | FRELUX',
-    description: 'Track live prices of paint, cement, tiles, and building materials across Nigerian markets to keep your estimates accurate.',
+    description: 'Track live prices of paint, cement, tiles, and building materials across supported markets to keep your estimates accurate.',
     priority: '0.7',
     changefreq: 'daily',
     structuredData: [
@@ -406,7 +406,7 @@ const routes = [
   {
     path: '/build-to-roof-estimator',
     title: 'Build-to-Roof Estimator: Full Construction Cost | FRELUX',
-    description: 'Estimate materials and costs for a complete build from foundation to roof. Blocks, cement, sand, granite, roofing, labour, and structural members for Nigerian building projects.',
+    description: 'Estimate materials and costs for a complete build from foundation to roof. Blocks, cement, sand, granite, roofing, labour, and structural members for building projects.',
     priority: '0.9',
     changefreq: 'monthly',
     structuredData: [
@@ -417,7 +417,7 @@ const routes = [
         { '@type': 'ListItem', position: 3, name: 'Build-to-Roof Estimator', item: 'https://freluxtools.netlify.app/build-to-roof-estimator' },
       ]},
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
-        { '@type': 'Question', name: 'What does the Build-to-Roof Estimator calculate?', acceptedAnswer: { '@type': 'Answer', text: 'It estimates materials and costs for a full building project from foundation through roof, including blocks, cement, sand, granite, roofing sheets, structural members, and labour based on Nigerian construction standards.' } },
+        { '@type': 'Question', name: 'What does the Build-to-Roof Estimator calculate?', acceptedAnswer: { '@type': 'Answer', text: 'It estimates materials and costs for a full building project from foundation through roof, including blocks, cement, sand, granite, roofing sheets, structural members, and labour based on practical construction standards.' } },
         { '@type': 'Question', name: 'Can I estimate costs for different building types?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. The estimator supports bungalows, duplexes, and multi-storey buildings with configurable foundation types, wall heights, and roofing materials.' } },
       ]},
     ],
@@ -425,7 +425,7 @@ const routes = [
   {
     path: '/image-estimator',
     title: 'AI Photo Estimator: Estimate from a Photo | FRELUX',
-    description: 'Upload a photo of your construction site, room, or building and get an AI-powered material and cost estimate. Visual estimation for Nigerian painting, tiling, and construction projects.',
+    description: 'Upload a photo of your construction site, room, or building and get an AI-powered material and cost estimate. Visual estimation for painting, tiling, and construction projects.',
     priority: '0.8',
     changefreq: 'monthly',
     structuredData: [
@@ -455,7 +455,7 @@ const routes = [
   {
     path: '/structural-calculator',
     title: 'Structural Calculator: Beams, Columns & Slabs | FRELUX',
-    description: 'Calculate structural member sizes for Nigerian building projects. Beam dimensions, column sizing, slab thickness, and reinforcement estimates.',
+    description: 'Calculate structural member sizes for building projects. Beam dimensions, column sizing, slab thickness, and reinforcement estimates.',
     priority: '0.8',
     changefreq: 'monthly',
     structuredData: [
@@ -466,14 +466,14 @@ const routes = [
         { '@type': 'ListItem', position: 3, name: 'Structural Calculator', item: 'https://freluxtools.netlify.app/structural-calculator' },
       ]},
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
-        { '@type': 'Question', name: 'What does the Structural Calculator compute?', acceptedAnswer: { '@type': 'Answer', text: 'It calculates beam depths and widths, column cross-sections, slab thickness, and reinforcement quantities based on span, loading, and Nigerian concrete mix standards.' } },
+        { '@type': 'Question', name: 'What does the Structural Calculator compute?', acceptedAnswer: { '@type': 'Answer', text: 'It calculates beam depths and widths, column cross-sections, slab thickness, and reinforcement quantities based on span, loading, and standard concrete mix practice.' } },
       ]},
     ],
   },
   {
     path: '/foundation-calculator',
     title: 'Foundation Calculator: Sizing & Materials | FRELUX',
-    description: 'Calculate foundation sizes and materials for Nigerian building projects. Strip footing, pad foundation, and raft foundation estimates with soil bearing capacity guidance.',
+    description: 'Calculate foundation sizes and materials for building projects. Strip footing, pad foundation, and raft foundation estimates with soil bearing capacity guidance.',
     priority: '0.8',
     changefreq: 'monthly',
     structuredData: [
@@ -484,7 +484,7 @@ const routes = [
         { '@type': 'ListItem', position: 3, name: 'Foundation Calculator', item: 'https://freluxtools.netlify.app/foundation-calculator' },
       ]},
       { '@context': 'https://schema.org', '@type': 'FAQPage', mainEntity: [
-        { '@type': 'Question', name: 'What foundation types does the calculator support?', acceptedAnswer: { '@type': 'Answer', text: 'The Foundation Calculator supports strip footings, pad foundations, and raft foundations with typical Nigerian soil bearing capacities for preliminary sizing and budgeting.' } },
+        { '@type': 'Question', name: 'What foundation types does the calculator support?', acceptedAnswer: { '@type': 'Answer', text: 'The Foundation Calculator supports strip footings, pad foundations, and raft foundations with typical soil bearing capacities for preliminary sizing and budgeting.' } },
         { '@type': 'Question', name: 'Do I need a soil test before using the foundation calculator?', acceptedAnswer: { '@type': 'Answer', text: 'Yes. A geotechnical investigation is mandatory for actual foundation design. The calculator uses typical soil bearing capacities for preliminary sizing only.' } },
       ]},
     ],
@@ -522,7 +522,7 @@ const routes = [
   {
     path: '/pricing',
     title: 'Pricing & Plans | FRELUX PAINT CALC',
-    description: 'Compare FRELUX plans. Free calculators, Pro features for professionals, and enterprise options for construction firms in Nigeria.',
+    description: 'Compare FRELUX plans. Free calculators, Pro features for professionals, and enterprise options for construction firms.',
     priority: '0.6',
     changefreq: 'monthly',
     structuredData: [
@@ -535,11 +535,11 @@ const routes = [
   {
     path: '/marketplace',
     title: 'Construction Marketplace: Buy & Sell Building Materials | FRELUX',
-    description: 'Browse construction materials, tools, and services from suppliers across Nigeria. Find paints, tiles, cement, tools, and professional services near you.',
+    description: 'Browse construction materials, tools, and services from suppliers across supported markets. Find paints, tiles, cement, tools, and professional services near you.',
     priority: '0.8',
     changefreq: 'daily',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'FRELUX Construction Marketplace', description: 'Buy and sell construction materials, tools, and services across Nigeria.' },
+      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'FRELUX Construction Marketplace', description: 'Buy and sell construction materials, tools, and services across supported markets.' },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
         { '@type': 'ListItem', position: 2, name: 'Marketplace', item: 'https://freluxtools.netlify.app/marketplace' },
@@ -549,11 +549,11 @@ const routes = [
   {
     path: '/pro-connect',
     title: 'Pro Connect: Find Verified Construction Professionals | FRELUX',
-    description: 'Connect with verified painters, tilers, screeders, POP ceiling specialists, and builders across Nigeria. Browse profiles, compare services, and hire professionals.',
+    description: 'Connect with verified painters, tilers, screeders, POP ceiling specialists, and builders across supported markets. Browse profiles, compare services, and hire professionals.',
     priority: '0.8',
     changefreq: 'weekly',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'FRELUX Pro Connect Directory', description: 'Find verified construction professionals across Nigeria.' },
+      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'FRELUX Pro Connect Directory', description: 'Find verified construction professionals near you.' },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
         { '@type': 'ListItem', position: 2, name: 'Pro Connect', item: 'https://freluxtools.netlify.app/pro-connect' },
@@ -563,7 +563,7 @@ const routes = [
   {
     path: '/calculators',
     title: 'All Calculators & Estimators | FRELUX PAINT CALC',
-    description: 'Browse every FRELUX calculator and estimator: paint, screeding, POP ceiling, tiles, tyrolene, finishing, structural, foundation, build-to-roof, and cost estimators. Free Nigerian construction material calculators.',
+    description: 'Browse every FRELUX calculator and estimator: paint, screeding, POP ceiling, tiles, tyrolene, finishing, structural, foundation, build-to-roof, and cost estimators. Free construction material calculators.',
     priority: '0.9',
     changefreq: 'monthly',
     structuredData: [
@@ -801,7 +801,7 @@ const routes = [
     path: '/regional-cost-index',
     title: 'Regional Cost Index | FRELUX',
     description:
-      'Compare construction costs across Nigerian regions with the FRELUX regional cost index.',
+      'Compare construction costs across regions with the FRELUX regional cost index.',
   },
   {
     path: '/reinforcement',

@@ -81,9 +81,9 @@ export default function StructuralCalculator() {
   useSeo({
     title: "Structural Calculator | FRELUX",
     description:
-      "Engineering-grade beam, column, and slab sizing for Nigerian construction. BS 8110 simplified method with full formula transparency.",
+      "Engineering-grade beam, column, and slab sizing for construction projects. BS 8110 simplified method with full formula transparency.",
     keywords:
-      "structural calculator, beam design, column design, slab design, Nigerian construction engineering",
+      "structural calculator, beam design, column design, slab design, structural engineering",
   });
 
   const [tab, setTab] = useState<Tab>("beam");

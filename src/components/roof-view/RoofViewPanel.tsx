@@ -140,7 +140,7 @@ export function RoofViewPanel() {
                 type="text"
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                placeholder="e.g. 12 Adeola Odeku, Victoria Island, Lagos"
+                placeholder="e.g. 12 Main Street, City Center"
                 className="w-full rounded-lg border border-border pl-9 pr-3 py-2 text-sm"
               />
             </div>

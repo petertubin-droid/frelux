@@ -142,7 +142,7 @@ export default function PopCeilingCalculator({
                   name: "What is a POP ceiling?",
                   acceptedAnswer: {
                     "@type": "Answer",
-                    text: "A POP (Plaster of Paris) ceiling is a decorative ceiling made from gypsum-based plaster, popular in Nigerian homes.",
+                    text: "A POP (Plaster of Paris) ceiling is a decorative ceiling made from gypsum-based plaster, popular in many homes.",
                   },
                 },
                 {

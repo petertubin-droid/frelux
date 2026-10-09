@@ -24,7 +24,7 @@ const LANGUAGE_LABELS: Record<ConversationLanguage | "auto", string> = {
 const LANGUAGES: Array<ConversationLanguage | "auto"> = ["auto", "en"];
 
 const SAMPLES: Record<ConversationLanguage, string> = {
-  en: "Hello, I want to paint my room. It is 4 by 3 meters, 2 coats, in Lagos",
+  en: "Hello, I want to paint my room. It is 4 by 3 meters, 2 coats, in my city",
 };
 
 export default function ConversationalEstimator() {

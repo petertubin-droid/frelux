@@ -343,7 +343,7 @@ export const guideSections: GuideSection[] = [
     id: "learn-hub",
     title: "Learn Hub",
     paragraphs: [
-      "The Learn Hub contains plain language guides: how to measure a room, how screeding works, choosing tiles, and more. Articles are written for the Nigerian market first, with international notes where relevant.",
+      "The Learn Hub contains plain language guides: how to measure a room, how screeding works, choosing tiles, and more. Articles are written for a worldwide audience, with local market notes where relevant.",
     ],
     linkBullets: [
       { text: "Open the", link: { label: "Learn Hub", to: "/learn" } },

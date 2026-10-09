@@ -58,7 +58,7 @@ export default function TemplateDetail() {
       title: template.seo_title ?? `${template.name}: ${calcLabel} Template`,
       description:
         template.seo_description ??
-        `Use the ${template.name} template with the FRELUX ${calcLabel} calculator. Pre-configured for Nigerian construction projects with real material prices.`,
+        `Use the ${template.name} template with the FRELUX ${calcLabel} calculator. Pre-configured for real construction projects with market prices.`,
       canonicalPath: `/templates/${template.slug}`,
       ogType: "article",
       structuredDataArray: [
@@ -203,7 +203,7 @@ export default function TemplateDetail() {
           project. When you use this template, the FRELUX {calcLabel} calculator
           will open with these inputs pre-filled. The calculator then runs the
           current calculation engine using today's material prices and coverage
-          rules specific to Nigerian construction practices.
+          rules specific to real construction practices.
         </p>
       </div>
 

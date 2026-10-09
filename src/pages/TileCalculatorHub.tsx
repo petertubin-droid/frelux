@@ -69,7 +69,7 @@ export default function TileCalculatorHub() {
     canonicalPath: "/tile-calculator",
     ogType: "website",
     keywords:
-      "tile calculator, how many tiles do I need, tile quantity calculator, tile cost estimator, floor tile calculator, wall tile calculator Nigeria",
+      "tile calculator, how many tiles do I need, tile quantity calculator, tile cost estimator, floor tile calculator, wall tile calculator",
     structuredDataArray: [
       {
         "@context": "https://schema.org",
@@ -183,8 +183,8 @@ export default function TileCalculatorHub() {
             </li>
             <li>
               <strong>Cost Estimate</strong>, Get a full cost analysis with
-              admin-configured material prices for tiles, adhesive, grout, and accessories,
-              including labour cost options.
+              admin-configured material prices for tiles, adhesive, grout, and
+              accessories, including labour cost options.
             </li>
           </ul>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">

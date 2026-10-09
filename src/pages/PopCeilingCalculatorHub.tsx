@@ -72,7 +72,7 @@ export default function PopCeilingCalculatorHub() {
     canonicalPath: "/pop-ceiling-calculator",
     ogType: "website",
     keywords:
-      "POP ceiling calculator, plaster of paris, POP cement, POP ceiling material, POP ceiling cost Nigeria",
+      "POP ceiling calculator, plaster of paris, POP cement, POP ceiling material, POP ceiling cost",
     structuredDataArray: [
       {
         "@context": "https://schema.org",
@@ -187,19 +187,18 @@ export default function PopCeilingCalculatorHub() {
             </li>
             <li>
               <strong>Cost Estimate</strong>, Get a full cost breakdown using
-              admin-configured material prices for all POP ceiling materials including waste
-              factors.
+              admin-configured material prices for all POP ceiling materials
+              including waste factors.
             </li>
           </ul>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
-            FRELUX/Nigerian POP Material Logic
+            FRELUX POP Material Logic
           </h3>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
-            The calculator uses established Nigerian POP material rules with
+            The calculator uses established POP material rules with
             admin-configured workflows, material requirements, and packaging
             sizes. Different ceiling designs and workflows have their own
-            material breakdowns that reflect real Nigerian construction
-            practices.
+            material breakdowns that reflect real construction practices.
           </p>
         </div>
 

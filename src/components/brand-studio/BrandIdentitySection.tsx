@@ -286,7 +286,7 @@ export function BrandIdentitySection({
             label="Business Address"
             value={address}
             onChange={setAddress}
-            placeholder="123 Main Street, Lagos, Nigeria"
+            placeholder="123 Main Street, Your City"
           />
 
           {/* Colours */}

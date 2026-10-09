@@ -35,7 +35,7 @@ const FAQS = [
   {
     question: "Why are paint results shown in buckets?",
     answer:
-      "Paint in Nigeria is sold in buckets (typically 20-litre containers). FRELUX expresses the final paint requirement in buckets so you know exactly what to purchase. Internal litre calculations are used for accuracy but the purchase recommendation is always in whole buckets.",
+      "Paint is commonly sold in buckets (typically 20-litre containers) in many markets. FRELUX expresses the final paint requirement in buckets so you know exactly what to purchase. Internal litre calculations are used for accuracy but the purchase recommendation is always in whole buckets.",
   },
   {
     question: "Can I calculate a single room?",
@@ -78,7 +78,7 @@ export default function PaintingCalculatorHub() {
     canonicalPath: "/paint-calculator",
     ogType: "website",
     keywords:
-      "paint calculator, painting estimator, paint cost estimator, paint quantity, how much paint do I need, painting cost Nigeria",
+      "paint calculator, painting estimator, paint cost estimator, paint quantity, how much paint do I need, painting cost",
     structuredDataArray: [
       {
         "@context": "https://schema.org",
@@ -179,8 +179,8 @@ export default function PaintingCalculatorHub() {
           </h2>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
             The FRELUX Painting Calculator is a comprehensive tool for anyone
-            planning a painting project in Nigeria. It consolidates three
-            essential painting calculations into one unified experience:
+            planning a painting project. It consolidates three essential
+            painting calculations into one unified experience:
           </p>
           <ul>
             <li>
@@ -189,8 +189,8 @@ export default function PaintingCalculatorHub() {
             </li>
             <li>
               <strong>Cost Estimate</strong>, Get a full paint material cost
-              breakdown using admin-configured material prices for paint buckets, primer, and
-              materials.
+              breakdown using admin-configured material prices for paint
+              buckets, primer, and materials.
             </li>
             <li>
               <strong>Room Estimate</strong>, A detailed room-by-room painting
@@ -204,18 +204,18 @@ export default function PaintingCalculatorHub() {
           <p className="text-muted-foreground dark:text-muted-foreground/80">
             FRELUX uses a proprietary calculation methodology that accounts for
             wall surface conditions, colour conditions, paint type coverage
-            rates, and waste factors specific to Nigerian construction
-            environments. The engine applies admin-configured production rules,
-            coverage rates, and material packaging sizes to produce results
-            expressed in paint buckets, not generic m²-per-litre estimates.
+            rates, and waste factors specific to real construction environments.
+            The engine applies admin-configured production rules, coverage
+            rates, and material packaging sizes to produce results expressed in
+            paint buckets, not generic m²-per-litre estimates.
           </p>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">
-            Nigerian Construction Context
+            Construction Context
           </h3>
           <p className="text-muted-foreground dark:text-muted-foreground/80">
-            All calculations are tuned for the Nigerian market with local
+            All calculations are tuned for real market conditions with local
             product prices, standard room dimensions, and materials commonly
-            available from Nigerian building material suppliers.
+            available from building material suppliers.
           </p>
         </div>
 

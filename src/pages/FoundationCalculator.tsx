@@ -31,9 +31,9 @@ export default function FoundationCalculator() {
   useSeo({
     title: "Foundation Design Calculator | FRELUX",
     description:
-      "Calculate strip, pad, and raft foundation sizes based on soil bearing capacity. Nigerian soil types with BS 8004 simplified methods.",
+      "Calculate strip, pad, and raft foundation sizes based on soil bearing capacity. Common soil types with BS 8004 simplified methods.",
     keywords:
-      "foundation calculator, strip footing, pad footing, raft foundation, soil bearing capacity Nigeria",
+      "foundation calculator, strip footing, pad footing, raft foundation, soil bearing capacity",
   });
 
   const [shape, setShape] = useState<FoundationShape>("strip");
@@ -432,11 +432,11 @@ export default function FoundationCalculator() {
                 Geotechnical Disclaimer
               </p>
               <p className="text-xs leading-relaxed text-amber-700 dark:text-amber-400 mt-1.5">
-                Soil bearing capacities shown are typical values for Nigerian
-                soil types. A geotechnical investigation (soil test) is
-                mandatory for actual foundation design. These calculations are
-                for preliminary sizing and budgetary purposes only. Final design
-                must come from a qualified structural engineer.
+                Soil bearing capacities shown are typical values for common soil
+                types. A geotechnical investigation (soil test) is mandatory for
+                actual foundation design. These calculations are for preliminary
+                sizing and budgetary purposes only. Final design must come from
+                a qualified structural engineer.
               </p>
             </div>
           </div>

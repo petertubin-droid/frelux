@@ -113,7 +113,7 @@ export default function Home() {
     canonicalPath: "/",
     ogType: "website",
     keywords:
-      "paint calculator Nigeria, construction cost estimator, screeding calculator, POP ceiling calculator, tile calculator, building materials calculator, Nigerian construction, paint cost estimator, build to roof estimator, Pro Connect Nigeria",
+      "paint calculator, construction cost estimator, screeding calculator, POP ceiling calculator, tile calculator, building materials calculator, construction estimating, paint cost estimator, build to roof estimator, Pro Connect",
     structuredDataArray: structuredData,
   });
 

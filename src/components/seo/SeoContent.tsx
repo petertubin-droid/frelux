@@ -16,11 +16,11 @@ export function PaintCalculatorSeo(): ReactNode {
         required for your project.
       </p>
       <p>
-        FRELUX estimates paint requirements in <strong>buckets</strong>, the
-        standard purchase unit for paint in Nigeria. The engine calculates your
-        paintable wall area, applies coverage rates specific to your selected
-        paint type and quality, accounts for the number of coats, and rounds up
-        to whole paint buckets so you know exactly what to buy.
+        FRELUX estimates paint requirements in <strong>buckets</strong>, a
+        standard purchase unit for paint in many markets. The engine calculates
+        your paintable wall area, applies coverage rates specific to your
+        selected paint type and quality, accounts for the number of coats, and
+        rounds up to whole paint buckets so you know exactly what to buy.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Factors That Affect Paint Quantity
@@ -84,8 +84,8 @@ export function ScreedingCalculatorSeo(): ReactNode {
         Materials Needed for Wall Screeding
       </h2>
       <p className="mb-2">
-        FRELUX supports two screeding systems, and the calculator prices the
-        one you select:
+        FRELUX supports two screeding systems, and the calculator prices the one
+        you select:
       </p>
       <ul className="list-disc pl-5 space-y-1">
         <li>
@@ -94,8 +94,8 @@ export function ScreedingCalculatorSeo(): ReactNode {
         </li>
         <li>
           <strong>White cement + screeding paint system</strong>: white cement
-          as the binder, finished with screeding paint for a smooth,
-          paint-ready surface
+          as the binder, finished with screeding paint for a smooth, paint-ready
+          surface
         </li>
       </ul>
       <p>
@@ -116,7 +116,7 @@ export function PopCeilingCalculatorSeo(): ReactNode {
         How to Calculate POP Ceiling Materials
       </h2>
       <p>
-        Plaster of Paris (POP) ceilings are a popular choice for Nigerian homes,
+        Plaster of Paris (POP) ceilings are a popular choice for many homes,
         offering a smooth, elegant finish that can be moulded into decorative
         designs. The FRELUX POP Ceiling Calculator estimates the materials you
         need based on your ceiling area.
@@ -228,10 +228,10 @@ export function CostEstimatorSeo(): ReactNode {
         give you a comprehensive cost breakdown.
       </p>
       <p>
-        The estimator uses admin-configured material prices from popular paint brands.
-        Simply enter your paint bucket count
-        (from the Paint Calculator), choose your paint type and quality, and the
-        estimator calculates the total paint material cost.
+        The estimator uses admin-configured material prices from popular paint
+        brands. Simply enter your paint bucket count (from the Paint
+        Calculator), choose your paint type and quality, and the estimator
+        calculates the total paint material cost.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         What's Included in a Paint Project Cost
@@ -285,9 +285,8 @@ export function ScreedingCostEstimatorSeo(): ReactNode {
       </p>
       <p>
         To get an accurate estimate, first use the Screeding Calculator to
-        determine your total wall area in m², then enter that area into the
-        Cost Estimator along with your chosen screeding system and material
-        prices.
+        determine your total wall area in m², then enter that area into the Cost
+        Estimator along with your chosen screeding system and material prices.
       </p>
       <h2 className="text-xl font-bold text-foreground dark:text-primary-foreground">
         Screeding Cost Breakdown
@@ -559,9 +558,9 @@ export function TyroleneEstimatorSeo(): ReactNode {
       </ul>
       <p>
         Tyrolene is one of the most cost-effective exterior finishes for
-        Nigerian buildings. It hides surface imperfections, resists weather
-        damage, and lasts 10–15 years with minimal maintenance. The estimator
-        ensures you order the right materials and avoid costly delays.
+        buildings. It hides surface imperfections, resists weather damage, and
+        lasts 10–15 years with minimal maintenance. The estimator ensures you
+        order the right materials and avoid costly delays.
       </p>
     </SeoContent>
   );

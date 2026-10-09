@@ -78,7 +78,7 @@ export default function FinishingCalculatorHub() {
     canonicalPath: "/finish-estimator",
     ogType: "website",
     keywords:
-      "finishing calculator, tyrolene estimator, grafitex calculator, exterior finishing, wall finishing material calculator, Nigeria",
+      "finishing calculator, tyrolene estimator, grafitex calculator, exterior finishing, wall finishing material calculator",
     structuredDataArray: [
       {
         "@context": "https://schema.org",

@@ -443,7 +443,7 @@ export function ConstructionExtractionPanel({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={4}
-                placeholder="e.g. A 3 bedroom bungalow in Lagos, about 18 metres long and 11 metres wide, hip roof with stone coated sheets"
+                placeholder="e.g. A 3 bedroom bungalow in my city, about 18 metres long and 11 metres wide, hip roof with stone coated sheets"
                 className="w-full rounded-xl border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/70 focus:outline-none focus:ring-2 focus:ring-primary/40"
               />
             </div>

@@ -72,7 +72,7 @@ export default function ScreedingCalculatorHub() {
     canonicalPath: "/screeding-calculator",
     ogType: "website",
     keywords:
-      "screeding calculator, wall screeding, screeding cost estimator, screeding quantity, screeding material calculator Nigeria",
+      "screeding calculator, wall screeding, screeding cost estimator, screeding quantity, screeding material calculator",
     structuredDataArray: [
       {
         "@context": "https://schema.org",
@@ -181,14 +181,13 @@ export default function ScreedingCalculatorHub() {
           </h3>
           <ul>
             <li>
-              <strong>Screeding Quantity</strong>, Enter room or wall
-              dimensions to calculate the net screeding surface area in m², with
-              doors and windows deducted.
+              <strong>Screeding Quantity</strong>, Enter room or wall dimensions
+              to calculate the net screeding surface area in m², with doors and
+              windows deducted.
             </li>
             <li>
-              <strong>Cost Estimate</strong>, Get a full material cost
-              breakdown including cement, sand, and bonding agents at real
-              Nigerian market prices.
+              <strong>Cost Estimate</strong>, Get a full material cost breakdown
+              including cement, sand, and bonding agents at real market prices.
             </li>
           </ul>
           <h3 className="font-display text-xl font-semibold text-foreground dark:text-primary-foreground">

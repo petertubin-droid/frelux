@@ -16,9 +16,8 @@ export default function ProjectTimeline() {
   useSeo({
     title: "Construction Timeline Estimator | FRELUX",
     description:
-      "Estimate how long your construction project will take. Stage-by-stage breakdown based on Nigerian construction benchmarks.",
-    keywords:
-      "construction timeline, project duration, building schedule Nigeria",
+      "Estimate how long your construction project will take. Stage-by-stage breakdown based on practical construction benchmarks.",
+    keywords: "construction timeline, project duration, building schedule",
   });
 
   const [buildingType, setBuildingType] = useState("bungalow");
@@ -69,7 +68,7 @@ export default function ProjectTimeline() {
       <PageHeader
         eyebrow="Planning Tool"
         title="Construction Timeline Estimator"
-        subtitle="How long will your project take? Stage-by-stage estimates based on Nigerian construction benchmarks."
+        subtitle="How long will your project take? Stage-by-stage estimates based on practical construction benchmarks."
         breadcrumbs={[
           { label: "Home", path: "/" },
           { label: "Calculators", path: "/calculators" },

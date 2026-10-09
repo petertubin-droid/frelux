@@ -54,7 +54,7 @@ function AiFeatureSlide() {
   const messages = [
     "Detects building type, roof structure, and materials from photos",
     "Estimates dimensions, floor count, and room layout automatically",
-    "Generates material quantities with Nigerian-market pricing",
+    "Generates material quantities with market pricing",
     "Identifies foundation type, block type, and structural frame",
   ];
   const [index, setIndex] = useState(0);
@@ -99,7 +99,7 @@ export default function ImageEstimator() {
     description:
       "Upload a photo of any building for AI-assisted preliminary construction estimation. AI analyzes visible features to suggest dimensions and materials. Results are preliminary, verify with actual drawings and a qualified professional.",
     keywords:
-      "AI building estimator, photo to construction cost, building image analysis, Nigerian construction AI",
+      "AI building estimator, photo to construction cost, building image analysis, construction AI",
   });
 
   const { user, isAdmin, isPaid } = useAuth();
