@@ -9,7 +9,7 @@ export const siteConfig = {
   // 2026-10-06): premium, platform-level, trade-agnostic.
   tagline: "Every trade. Every cost. One platform.",
   description:
-    "Frelux turns your measurements into exact material quantities and real, market-verified costs, from a single room to an entire building, foundation to roof. Free, professional-grade estimation in 10 languages, for builders worldwide.",
+    "Frelux turns your measurements into exact material quantities and real, market-verified costs, from a single room to an entire building, foundation to roof. Free, professional-grade estimation in multiple languages, for builders worldwide.",
   // International format without "+" for wa.me links
   whatsappNumber: "2349063612439",
   whatsappDisplay: "+234 906 361 2439",

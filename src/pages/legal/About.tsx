@@ -47,8 +47,9 @@ export default function About() {
           homeowners, decorators, and contractors anywhere in the world plan
           projects with confidence. Founded in 2025 and based in Nigeria, our
           tools are priced and calibrated against real market data, and they
-          speak 10 languages, so the same platform that serves a Lagos site
-          serves a builder in London, Dubai, or São Paulo with equal precision.
+          speak multiple languages, so the same platform that serves a Lagos
+          site serves a builder in London, Dubai, or São Paulo with equal
+          precision.
         </p>
       }
       sections={[
