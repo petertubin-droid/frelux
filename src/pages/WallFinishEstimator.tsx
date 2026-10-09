@@ -369,7 +369,6 @@ export default function WallFinishEstimator() {
     } else {
       setError("Could not save the estimate on this device (storage full?).");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [result, overrides, buildSpec, refreshSaved]);
 
   const loadEstimate = useCallback(

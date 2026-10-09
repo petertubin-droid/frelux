@@ -363,8 +363,12 @@ export default function NetworkHub() {
         });
       });
       setAiUrl("");
-    } catch (err: any) {
-      setAiError(err?.message || "Could not generate an ad from that URL.");
+    } catch (err) {
+      setAiError(
+        err instanceof Error
+          ? err.message
+          : "Could not generate an ad from that URL.",
+      );
     } finally {
       setAiLoading(false);
     }

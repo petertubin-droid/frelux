@@ -24,8 +24,8 @@ const ConsentContext = createContext<ConsentState | undefined>(undefined);
 // Define gtag on window for TypeScript
 declare global {
   interface Window {
-    dataLayer: any[];
-    gtag?: (...args: any[]) => void;
+    dataLayer: unknown[];
+    gtag?: (...args: unknown[]) => void;
   }
 }
 
@@ -69,7 +69,9 @@ const getInitialPreferences = (): CookiePreferences => {
         functional: true,
       };
     }
-  } catch (e) {}
+  } catch {
+    // localStorage unavailable (private mode/blocked): fall back to defaults
+  }
   return defaults;
 };
 
@@ -88,7 +90,7 @@ export const ConsentProvider: React.FC<{ children: React.ReactNode }> = ({
     // 1. Initialize dataLayer and window.gtag if not already preset
     window.dataLayer = window.dataLayer || [];
     if (!window.gtag) {
-      window.gtag = function (...args: any[]) {
+      window.gtag = function (...args: unknown[]) {
         window.dataLayer.push(args);
       };
     }
@@ -200,9 +202,9 @@ export const ConsentProvider: React.FC<{ children: React.ReactNode }> = ({
         const monetagScript = document.createElement("script");
         monetagScript.id = "heartsync-monetag-script";
         monetagScript.async = true;
-        (monetagScript as any).dataset.cfasync = "false";
+        monetagScript.dataset.cfasync = "false";
         monetagScript.src = `https://alwingulla.com/${monetagZone}/tag.min.js`;
-        (monetagScript as any).dataset.zone = monetagZone;
+        monetagScript.dataset.zone = monetagZone;
         document.head.appendChild(monetagScript);
       }
 

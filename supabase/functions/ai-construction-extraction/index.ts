@@ -20,6 +20,35 @@ import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { serveWithCors } from "../_shared/serve.ts";
 
 // ── Rate limiting (inlined mirror of supabase/functions/_shared/rate-limit.ts) ──
+
+// SYNCED 2026-10-09 with _shared/rate-limit.ts: identity is derived from a
+// verified Supabase JWT, never from caller-supplied identity headers.
+async function getVerifiedUserId(req: Request): Promise<string | null> {
+  const auth = req.headers.get("Authorization");
+  if (!auth || !auth.startsWith("Bearer ")) return null;
+  try {
+    const url = Deno.env.get("SUPABASE_URL");
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!url || !anonKey) return null;
+    const client = createClient(url, anonKey, {
+      global: { headers: { Authorization: auth } },
+    });
+    const { data, error } = await client.auth.getUser();
+    if (error || !data?.user) return null;
+    return data.user.id ?? null;
+  } catch (_e) {
+    return null;
+  }
+}
+
+async function getRateLimitKey(req: Request): Promise<string> {
+  const userId = await getVerifiedUserId(req);
+  if (userId) return `user:${userId}`;
+  const forwarded = req.headers.get("x-forwarded-for");
+  const ip = forwarded ? forwarded.split(",")[0].trim() : "unknown";
+  return `ip:${ip}`;
+}
+
 // The Management API deploys this function as a single self-contained file,
 // so the shared module is inlined verbatim to keep repo and deployed code
 // identical. Keep in sync with _shared/rate-limit.ts if it ever changes.
@@ -62,13 +91,6 @@ function checkRateLimit(
     remaining: options.maxRequests - entry.count,
     resetAt: entry.resetAt,
   };
-}
-
-function getRateLimitKey(req: Request, userId?: string): string {
-  if (userId) return `user:${userId}`;
-  const forwarded = req.headers.get("x-forwarded-for");
-  const ip = forwarded ? forwarded.split(",")[0].trim() : "unknown";
-  return `ip:${ip}`;
 }
 
 function rateLimitHeaders(
@@ -531,7 +553,7 @@ serveWithCors(async (req: Request) => {
     return jsonResponse({ error: "Method not allowed." }, 405);
   }
 
-  const rlKey = getRateLimitKey(req, req.headers.get("x-user-id") || undefined);
+  const rlKey = await getRateLimitKey(req);
   const rl = checkRateLimit(rlKey, RATE_LIMITS.AI);
   if (!rl.allowed) {
     return jsonResponse(

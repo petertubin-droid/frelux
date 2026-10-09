@@ -51,7 +51,7 @@ export const KENYA_COUNTIES = [
   "Meru",
   "Migori",
   "Mombasa",
-  "Murang\'a",
+  "Murang'a",
   "Nairobi",
   "Nakuru",
   "Nandi",

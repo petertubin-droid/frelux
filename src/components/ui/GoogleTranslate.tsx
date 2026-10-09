@@ -38,7 +38,14 @@ export function mapToGoogleLanguage(lang: Language): string {
 
 declare global {
   interface Window {
-    google?: any;
+    google?: {
+      translate?: {
+        TranslateElement?: {
+          new (options: unknown, elementId: string): unknown;
+          InlineLayout: Record<string, unknown>;
+        };
+      };
+    };
     googleTranslateElementInit?: () => void;
   }
 }

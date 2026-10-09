@@ -286,10 +286,7 @@ serveWithCors(async (req) => {
   // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
   // (falls back to client IP). OPTIONS preflights are answered at
   // the CORS boundary and never reach this check.
-  const rl = checkRateLimit(
-    getRateLimitKey(req, req.headers.get("x-user-id") ?? undefined),
-    RATE_LIMITS.GENERAL,
-  );
+  const rl = checkRateLimit(await getRateLimitKey(req), RATE_LIMITS.GENERAL);
   if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
 
   if (req.method !== "POST") {

@@ -53,10 +53,7 @@ function json(body: unknown, status = 200) {
 serveWithCors(async (req: Request) => {
   // Same per-user rate limit as the other payment endpoints
   // (audit fix M-7, 2026-09-11).
-  const rl = checkRateLimit(
-    getRateLimitKey(req, req.headers.get("x-user-id") ?? undefined),
-    RATE_LIMITS.PAYMENT,
-  );
+  const rl = checkRateLimit(await getRateLimitKey(req), RATE_LIMITS.PAYMENT);
   if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
 
   if (req.method === "OPTIONS")

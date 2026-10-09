@@ -410,7 +410,7 @@ serveWithCors(async (req: Request) => {
   }
 
   // Rate limit: 20 AI requests per minute per user/IP
-  const rlKey = getRateLimitKey(req, req.headers.get("x-user-id") || undefined);
+  const rlKey = await getRateLimitKey(req);
   const rl = checkRateLimit(rlKey, RATE_LIMITS.AI);
   if (!rl.allowed) {
     return new Response(

@@ -48,10 +48,7 @@ function json(body: unknown, status = 200) {
 }
 
 serveWithCors(async (req: Request) => {
-  const rl = checkRateLimit(
-    getRateLimitKey(req, req.headers.get("x-user-id") ?? undefined),
-    RATE_LIMITS.PAYMENT,
-  );
+  const rl = checkRateLimit(await getRateLimitKey(req), RATE_LIMITS.PAYMENT);
   if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
 
   if (req.method === "OPTIONS")

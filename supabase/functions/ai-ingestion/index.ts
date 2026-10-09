@@ -52,7 +52,7 @@ serveWithCors(async (req: Request) => {
   // (falls back to client IP). OPTIONS preflights are answered at
   // the CORS boundary and never reach this check.
   const archieRateLimit = checkRateLimit(
-    getRateLimitKey(req, req.headers.get("x-user-id") ?? undefined),
+    await getRateLimitKey(req),
     RATE_LIMITS.GENERAL,
   );
   if (!archieRateLimit.allowed)

@@ -43,7 +43,32 @@ export function checkRateLimit(
   };
 }
 
-export function getRateLimitKey(req: Request, userId?: string): string {
+export async function getVerifiedUserId(req: Request): Promise<string | null> {
+  const auth = req.headers.get("Authorization");
+  if (!auth || !auth.startsWith("Bearer ")) return null;
+  try {
+    const url = Deno.env.get("SUPABASE_URL");
+    const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+    if (!url || !anonKey) return null;
+    const client = createClient(url, anonKey, {
+      global: { headers: { Authorization: auth } },
+    });
+    const { data, error } = await client.auth.getUser();
+    if (error || !data?.user) return null;
+    return data.user.id ?? null;
+  } catch (_e) {
+    return null;
+  }
+}
+
+/**
+ * Rate limit key derived from a VERIFIED identity. Authenticated requests
+ * are keyed on the verified Supabase user id; anonymous traffic falls back
+ * to the client IP as set by the platform gateway. Caller-supplied identity
+ * headers are never trusted.
+ */
+export async function getRateLimitKey(req: Request): Promise<string> {
+  const userId = await getVerifiedUserId(req);
   if (userId) return `user:${userId}`;
   const forwarded = req.headers.get("x-forwarded-for");
   const ip = forwarded ? forwarded.split(",")[0].trim() : "unknown";

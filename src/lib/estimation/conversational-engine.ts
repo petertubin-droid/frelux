@@ -388,7 +388,7 @@ const PROPERTY_TYPES: Array<{ words: string[]; type: ProjectType }> = [
 ];
 
 function wordNumber(text: string, lang: ConversationLanguage): number | null {
-  const words = text.split(/[^a-zà-ÿ'’\-]+/i).filter(Boolean);
+  const words = text.split(/[^a-zà-ÿ'’-]+/i).filter(Boolean);
   const table = NUMBER_WORDS[lang];
   for (const w of words) {
     const n = table[w.toLowerCase()];

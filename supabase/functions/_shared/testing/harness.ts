@@ -447,7 +447,7 @@ export function interceptSupabaseRest() {
       const col = val;
       const raw = m[2];
       if (op === "in") {
-        const list = raw.replace(/[()\"]/g, "").split(",");
+        const list = raw.replace(/[()"]/g, "").split(",");
         rows = rows.filter((r) => list.includes(String(r[col])));
       } else if (op === "like") {
         const pat = new RegExp(

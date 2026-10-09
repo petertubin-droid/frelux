@@ -34,7 +34,7 @@ serveWithCors(async (req: Request) => {
     return jsonResponse({ error: "Method not allowed" }, 405);
 
   // Rate limit: 10 credit operations per minute per user/IP
-  const rlKey = getRateLimitKey(req, req.headers.get("x-user-id") || undefined);
+  const rlKey = await getRateLimitKey(req);
   const rl = checkRateLimit(rlKey, RATE_LIMITS.PAYMENT);
   if (!rl.allowed) {
     return new Response(

@@ -68,31 +68,7 @@ const routes = [
       },
     ],
   },
-  {
-    path: '/calculators',
-    title: 'All Calculators | FRELUX PAINT CALC',
-    description:
-      'Browse every FRELUX calculator — paint, screeding, POP ceiling, tiles, tyrolene, finishing, and cost estimators. Free Nigerian construction material calculators.',
-    priority: '0.9',
-    changefreq: 'monthly',
-    structuredData: [
-      {
-        '@context': 'https://schema.org',
-        '@type': 'ItemList',
-        name: 'FRELUX Calculators',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Painting Estimator', url: `${SITE_URL}/painting-estimator` },
-          { '@type': 'ListItem', position: 2, name: 'Paint Calculator', url: `${SITE_URL}/paint-calculator` },
-          { '@type': 'ListItem', position: 3, name: 'Screeding Calculator', url: `${SITE_URL}/screeding-calculator` },
-          { '@type': 'ListItem', position: 4, name: 'POP Ceiling Calculator', url: `${SITE_URL}/pop-ceiling-calculator` },
-          { '@type': 'ListItem', position: 5, name: 'Tile Calculator', url: `${SITE_URL}/tile-calculator` },
-          { '@type': 'ListItem', position: 6, name: 'Tyrolene Estimator', url: `${SITE_URL}/tyrolene-estimator` },
-          { '@type': 'ListItem', position: 7, name: 'Finish Estimator', url: `${SITE_URL}/finish-estimator` },
-        ],
-      },
-    ],
-  },
-  {
+ {
     path: '/start-building',
     title: 'Start Building: What Are You Building Today? | FRELUX',
     description:
@@ -658,6 +634,216 @@ const routes = [
     description: 'Disclaimer for FRELUX PAINT CALC tools and estimates. All calculations and estimates are for guidance only.',
     priority: '0.3',
     changefreq: 'yearly',
+  },
+  {
+    path: '/bim-ifc-import',
+    title: 'BIM IFC Import | FRELUX',
+    description:
+      'Import IFC building models and generate material quantities and cost estimates from your BIM data.',
+  },
+  {
+    path: '/boq-generator',
+    title: 'BOQ Generator | FRELUX',
+    description:
+      'Generate a professional bill of quantities from your FRELUX estimates.',
+  },
+  {
+    path: '/brand-studio',
+    title: 'FRELUX Brand Studio | FRELUX',
+    description:
+      'FRELUX brand assets, usage guidance, and design resources for partners and contributors.',
+  },
+  {
+    path: '/carbon-footprint',
+    title: 'Carbon Footprint Calculator | FRELUX',
+    description:
+      'Estimate the embodied carbon of your construction materials and compare choices.',
+  },
+  {
+    path: '/cash-flow-timeline',
+    title: 'Cash Flow Timeline | FRELUX',
+    description:
+      'Map project payments against construction milestones to see when money is needed.',
+  },
+  {
+    path: '/circular-reuse',
+    title: 'Circular Reuse Planner | FRELUX',
+    description:
+      'Plan material reuse across projects to cut cost and construction waste.',
+  },
+  {
+    path: '/construction-tools',
+    title: 'All Construction Tools and Calculators | FRELUX',
+    description:
+      'Browse every FRELUX construction calculator, cost estimator, and property intelligence tool in one directory. Free, no sign-up required.',
+  },
+  {
+    path: '/contractor-credit',
+    title: 'Contractor Credit | FRELUX',
+    description:
+      'Explore credit options for contractors and material financing for your projects.',
+  },
+  {
+    path: '/conversational-estimator',
+    title: 'Conversational Estimator | FRELUX',
+    description:
+      'Describe your project in plain language and get a structured material and cost estimate you can refine.',
+  },
+  {
+    path: '/count-vision',
+    title: 'Count Vision | FRELUX',
+    description:
+      'Count construction objects such as blocks, bags, and tiles from a photo using AI vision, then feed the numbers into estimates.',
+  },
+  {
+    path: '/credits',
+    title: 'FRELUX Credits | FRELUX',
+    description:
+      'Buy AI credits and token packs to power FRELUX AI features. Check balances and purchase history.',
+  },
+  {
+    path: '/data-request',
+    title: 'Data Subject Request | FRELUX',
+    description:
+      'Request a copy of your FRELUX account data or ask us to delete it. We verify your identity and respond within statutory timeframes.',
+  },
+  {
+    path: '/defect-diagnosis',
+    title: 'Defect Diagnosis | FRELUX',
+    description:
+      'Diagnose common construction defects, understand causes, and get remediation guidance.',
+  },
+  {
+    path: '/developers',
+    title: 'FRELUX Developer Resources | FRELUX',
+    description:
+      'FRELUX APIs, integration guides, and developer documentation.',
+  },
+  {
+    path: '/doors-windows',
+    title: 'Doors and Windows Estimator | FRELUX',
+    description:
+      'Estimate door and window quantities, hardware, and installation labour.',
+  },
+  {
+    path: '/electrical',
+    title: 'Electrical Estimator | FRELUX',
+    description:
+      'Estimate electrical materials, wiring, fittings, and labour for residential and commercial projects.',
+  },
+  {
+    path: '/estimate-refresh',
+    title: 'Estimate Refresh | FRELUX',
+    description:
+      'Reprice saved estimates with current market prices so old numbers stay useful.',
+  },
+  {
+    path: '/feedback',
+    title: 'Send Feedback to FRELUX | FRELUX',
+    description:
+      'Share feedback on FRELUX calculators, estimators, and the website. Tell us what to improve.',
+  },
+  {
+    path: '/field-sync',
+    title: 'Field Sync | FRELUX',
+    description:
+      'Sync project measurements and estimates between the office and the construction site.',
+  },
+  {
+    path: '/flooring',
+    title: 'Flooring Estimator | FRELUX',
+    description:
+      'Estimate flooring materials, quantities, and labour for any room or building.',
+  },
+  {
+    path: '/foundation',
+    title: 'Foundation Estimator | FRELUX',
+    description:
+      'Estimate foundation materials and cost from footings to ground slab, with engineer referral for structural sizing.',
+  },
+  {
+    path: '/generator',
+    title: 'Generator Estimator | FRELUX',
+    description:
+      'Size a generator for your load profile and estimate purchase and installation cost.',
+  },
+  {
+    path: '/heat-comfort',
+    title: 'Heat and Comfort Analyser | FRELUX',
+    description:
+      'Analyse indoor heat comfort for your building design and material choices.',
+  },
+  {
+    path: '/labour-estimator',
+    title: 'Labour Estimator | FRELUX',
+    description:
+      'Estimate labour costs by trade and task with configurable rates for your market.',
+  },
+  {
+    path: '/maintenance-planner',
+    title: 'Maintenance Planner | FRELUX',
+    description:
+      'Plan building maintenance schedules with cost estimates for each task.',
+  },
+  {
+    path: '/margin-calculator',
+    title: 'Margin Calculator | FRELUX',
+    description:
+      'Calculate profit margins on construction quotes with material, labour, and overhead inputs.',
+  },
+  {
+    path: '/plumbing',
+    title: 'Plumbing Estimator | FRELUX',
+    description:
+      'Estimate plumbing materials, pipes, fittings, and labour for residential and commercial projects.',
+  },
+  {
+    path: '/regional-cost-index',
+    title: 'Regional Cost Index | FRELUX',
+    description:
+      'Compare construction costs across Nigerian regions with the FRELUX regional cost index.',
+  },
+  {
+    path: '/reinforcement',
+    title: 'Reinforcement Estimator | FRELUX',
+    description:
+      'Estimate reinforcement bars, mesh, and accessories for slabs, beams, columns, and foundations.',
+  },
+  {
+    path: '/partners',
+    title: 'Partner with FRELUX | FRELUX',
+    description:
+      'Partner with FRELUX to bring construction intelligence to your audience, products, or professional network.',
+  },
+  {
+    path: '/rewards',
+    title: 'FRELUX Rewards | FRELUX',
+    description:
+      'Earn FRELUX credits through rewards, referrals, and community contributions.',
+  },
+  {
+    path: '/solar-pv-estimator',
+    title: 'Solar PV Estimator | FRELUX',
+    description:
+      'Size a solar power system, get the bill of materials, and estimate installation cost for your market.',
+  },
+  {
+    path: '/wall-finish-estimator',
+    title: 'Wall Finish Estimator | FRELUX',
+    description:
+      'Estimate modern wall finish systems including mineral stone and stucco with layers, labour, and quality control.',
+  },
+  {
+    path: '/warranty-certificate',
+    title: 'Warranty Certificate | FRELUX',
+    description:
+      'Generate a professional warranty certificate for completed construction work.',
+  },
+  {
+    path: '/waterproofing',
+    title: 'Waterproofing Estimator | FRELUX',
+    description:
+      'Estimate waterproofing materials for roofs, walls, wet areas, and foundations.',
   },
   {
     path: '/ai-disclaimer',

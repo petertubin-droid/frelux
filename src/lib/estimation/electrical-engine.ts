@@ -247,7 +247,7 @@ export function calculateElectrical(
     const n = Number(v);
     if (!Number.isFinite(n) || !isCount(n)) {
       errors.push(
-        `${label} must be a whole number ≥ 0 (received ${String(v) ?? "nothing"}).`,
+        `${label} must be a whole number ≥ 0 (received ${v === null || v === undefined ? "nothing" : String(v)}).`,
       );
     }
   }

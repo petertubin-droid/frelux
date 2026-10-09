@@ -147,7 +147,7 @@ export function generateBoq(input: BoqInput): BoqResult {
   });
 
   // ── 3. Contingency (DB-configured default or explicit override; never guessed) ──
-  let contingencyRate =
+  const contingencyRate =
     input.contingency_override !== null &&
     input.contingency_override !== undefined
       ? input.contingency_override
@@ -182,7 +182,7 @@ export function generateBoq(input: BoqInput): BoqResult {
 
   // ── 4. VAT (DB-configured default or explicit override; never guessed) ──
   const baseForVat = subtotal + (contingencyAmount ?? 0);
-  let vatRate =
+  const vatRate =
     input.vat_override !== null && input.vat_override !== undefined
       ? input.vat_override
       : ruleRate(input.rules, "vat_rate");
