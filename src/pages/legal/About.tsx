@@ -40,7 +40,7 @@ export default function About() {
     <LegalLayout
       slug="about"
       title="About FRELUX"
-      updated="2026-09-03"
+      updated="2026-10-09"
       intro={
         <p>
           FRELUX is a premium construction estimation platform built to help
@@ -177,6 +177,50 @@ export default function About() {
               long-term. We do not sell your personal information. Read our
               Privacy Policy and Cookie Policy for full details on how we handle
               your data.
+            </p>
+          ),
+        },
+        {
+          heading: "How FRELUX makes money",
+          body: (
+            <p>
+              FRELUX is free to use because it is supported by advertising. Ads
+              appear in clearly labeled slots around our tools and articles, and
+              they are served by third-party networks. Two things we hold to: no
+              calculation or estimate is ever influenced by an advertiser, and
+              no article is sponsored or paid for by any supplier. If
+              advertising ever fails to cover our costs, we would rather add an
+              optional premium feature than compromise the tools.
+            </p>
+          ),
+        },
+        {
+          heading: "Our editorial standards",
+          body: (
+            <p>
+              Every guide in our Learn Hub is written to be useful on its own:
+              practical steps, honest numbers, and the reasoning behind them. We
+              do not publish filler, and we do not reuse supplier marketing
+              copy. Prices and rates referenced in our guides are updated as our
+              market data changes, and each article shows when it was last
+              reviewed. When a topic requires local permits or regulations, we
+              tell you to confirm the specifics with your own authority, because
+              rules differ by country and region.
+            </p>
+          ),
+        },
+        {
+          heading: "What we are not",
+          body: (
+            <p>
+              FRELUX is a planning tool, not a contractor, supplier, or material
+              vendor. We do not sell materials, execute projects, or take
+              commissions on purchases. Our estimates are carefully built
+              approximations: they tell you what to expect so you can budget,
+              compare quotes, and spot a number that is wildly off. Before you
+              buy or commit money, always confirm quantities and prices with
+              your supplier or contractor. That final check is yours, and our
+              job is to make sure you walk into it informed.
             </p>
           ),
         },
