@@ -3,6 +3,9 @@ import ChooseProject from "@/components/home/ChooseProject";
 import HowItWorks from "@/components/home/HowItWorks";
 const ToolsSection = lazy(() => import("@/components/home/ToolsSection"));
 const FeaturesSection = lazy(() => import("@/components/home/FeaturesSection"));
+const TestimonialsSection = lazy(
+  () => import("@/components/home/TestimonialsSection"),
+);
 const InteractiveEstimatePreview = lazy(
   () => import("@/components/home/InteractiveEstimatePreview"),
 );
@@ -215,6 +218,12 @@ export default function Home() {
       {/* Why trust FRELUX: trust signals */}
       <Suspense fallback={<SectionSkeleton minHeight={420} />}>
         <FeaturesSection />
+      </Suspense>
+
+      {/* Real user testimonials: renders nothing until admin adds
+          genuine quotes to site_testimonials */}
+      <Suspense fallback={null}>
+        <TestimonialsSection />
       </Suspense>
 
       {/* Cross-site house promo */}
