@@ -26,3 +26,12 @@ verify_jwt = false
 # Site support widget — anonymous visitors allowed; the function
 # rate-limits per clientId and never touches account data.
 verify_jwt = false
+
+[functions.subscribe-newsletter]
+verify_jwt = false
+
+[functions.newsletter-unsubscribe]
+verify_jwt = false
+
+[functions.price-digest]
+verify_jwt = false

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { Cookie, MessageCircle } from "lucide-react";
 import Logo from "@/components/brand/Logo";
+import NewsletterSignup from "@/components/newsletter/NewsletterSignup";
 import { siteConfig } from "@/config/site";
 import { whatsappUrl } from "@/lib/analytics";
 import { withdrawConsent } from "@/lib/cookie-consent";
@@ -76,6 +77,9 @@ export default function Footer() {
               Plan materials, estimate costs and manage construction projects
               worldwide: from a single room to an entire building.
             </p>
+            <div className="mt-6">
+              <NewsletterSignup source="footer" />
+            </div>
             <a
               href={whatsappUrl(
                 "Hello FRELUX, I have a question about a paint project.",
