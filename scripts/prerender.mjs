@@ -72,11 +72,11 @@ const routes = [
     path: '/start-building',
     title: 'Start Building: What Are You Building Today? | FRELUX',
     description:
-      'Start your construction project with FRELUX. Estimate materials and costs from foundation to roof, then finishing — paint, screeding, POP ceiling, tiles, and exterior. Free Nigerian construction calculators and estimators.',
+      'Start your construction project with FRELUX. Estimate materials and costs from foundation to roof, then finishing: paint, screeding, POP ceiling, tiles, and exterior. Free Nigerian construction calculators and estimators.',
     priority: '0.9',
     changefreq: 'weekly',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Start Building — FRELUX', description: 'Choose what you are building and FRELUX will help you calculate materials, quantities and estimated project costs.', url: 'https://freluxtools.netlify.app/start-building' },
+      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Start Building | FRELUX', description: 'Choose what you are building and FRELUX will help you calculate materials, quantities and estimated project costs.', url: 'https://freluxtools.netlify.app/start-building' },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
         { '@type': 'ListItem', position: 2, name: 'Start Building', item: 'https://freluxtools.netlify.app/start-building' },
@@ -563,7 +563,7 @@ const routes = [
   {
     path: '/calculators',
     title: 'All Calculators & Estimators | FRELUX PAINT CALC',
-    description: 'Browse every FRELUX calculator and estimator — paint, screeding, POP ceiling, tiles, tyrolene, finishing, structural, foundation, build-to-roof, and cost estimators. Free Nigerian construction material calculators.',
+    description: 'Browse every FRELUX calculator and estimator: paint, screeding, POP ceiling, tiles, tyrolene, finishing, structural, foundation, build-to-roof, and cost estimators. Free Nigerian construction material calculators.',
     priority: '0.9',
     changefreq: 'monthly',
     structuredData: [
@@ -989,11 +989,11 @@ async function fetchLearnPages() {
               { '@type': 'ListItem', position: 2, name: 'Learn', item: `${SITE_URL}/learn` },
               { '@type': 'ListItem', position: 3, name: c.name, item: `${SITE_URL}/learn/category/${c.slug}` },
             ] },
-            { '@context': 'https://schema.org', '@type': 'CollectionPage', name: `${c.name} — FRELUX Learn`, description: (c.description || '').slice(0, 300), url: `${SITE_URL}/learn/category/${c.slug}` },
+            { '@context': 'https://schema.org', '@type': 'CollectionPage', name: `${c.name} | FRELUX Learn`, description: (c.description || '').slice(0, 300), url: `${SITE_URL}/learn/category/${c.slug}` },
           ],
         });
         const listing = catArts
-          .map((a) => `<li><a href="/learn/${a.slug}">${escapeHtml(a.title)}</a>${a.excerpt ? ` — ${escapeHtml(a.excerpt.slice(0, 140))}` : ''}</li>`)
+          .map((a) => `<li><a href="/learn/${a.slug}">${escapeHtml(a.title)}</a>${a.excerpt ? `: ${escapeHtml(a.excerpt.slice(0, 140))}` : ''}</li>`)
           .join('');
         learnContent[`/learn/category/${c.slug}`] = `<h1>${escapeHtml(c.name)} Guides</h1><nav aria-label="Breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/learn">Learn</a> &rsaquo; ${escapeHtml(c.name)}</nav>${c.description ? `<p>${escapeHtml(c.description)}</p>` : ''}${listing ? `<h2>Articles in this category</h2><ul>${listing}</ul>` : '<p>New guides are coming soon to this category.</p>'}`;
       }

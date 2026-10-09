@@ -13,6 +13,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { validateSubscriptionPayment } from "../_shared/subscription-pricing.ts";
+import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
   checkRateLimit,
@@ -275,29 +276,24 @@ serveWithCors(async (req: Request) => {
     }
 
     const days = PLAN_DURATIONS_DAYS[billingCycle] ?? 30;
-    const paidUntil = new Date(
-      Date.now() + days * 24 * 60 * 60 * 1000,
-    ).toISOString();
 
-    const { error: upsertError } = await supabase
-      .from("user_paid_status")
-      .upsert(
-        {
-          user_id: userId,
-          is_paid: true,
-          plan,
-          paid_until: paidUntil,
-          payment_provider: "paystack",
-          provider_customer_id: transaction.customer?.customer_code || null,
-          updated_at: new Date().toISOString(),
-        },
-        { onConflict: "user_id" },
-      );
-
-    if (upsertError) {
+    // Audit fix (2026-10-09): activation is now idempotent per payment
+    // reference via the subscription_purchases ledger. Replaying a
+    // reference that was already processed leaves paid_until untouched.
+    const activation = await applySubscriptionPurchase(supabase, {
+      userId,
+      provider: "paystack",
+      reference,
+      plan,
+      billingCycle,
+      amountKobo: transaction.amount as number,
+      days,
+      providerCustomerId: transaction.customer?.customer_code || null,
+    });
+    if (!activation.ok) {
       return new Response(
         JSON.stringify({
-          error: `Failed to activate subscription: ${upsertError.message}`,
+          error: `Failed to activate subscription: ${activation.error}`,
         }),
         {
           status: 500,
@@ -309,11 +305,14 @@ serveWithCors(async (req: Request) => {
     return new Response(
       JSON.stringify({
         status: true,
-        message: "Subscription activated successfully",
+        message: activation.result.applied
+          ? "Subscription activated successfully"
+          : "Subscription already activated for this payment",
         data: {
           ...transaction,
           activated_plan: plan,
-          paid_until: paidUntil,
+          already_activated: activation.result.alreadyApplied,
+          paid_until: activation.result.paidUntil,
         },
       }),
       {

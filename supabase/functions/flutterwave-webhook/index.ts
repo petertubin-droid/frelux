@@ -28,6 +28,7 @@ import {
   constantTimeEqual,
   validateSubscriptionPayment,
 } from "../_shared/subscription-pricing.ts";
+import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
 import { validateTokenPayment } from "../_shared/token-pricing.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 
@@ -194,28 +195,31 @@ serveWithCors(async (req: Request) => {
     }
 
     const days = PLAN_DURATIONS_DAYS[billingCycle] ?? 30;
-    const paidUntil = new Date(
-      Date.now() + days * 24 * 60 * 60 * 1000,
-    ).toISOString();
 
-    const { error } = await supabase.from("user_paid_status").upsert(
-      {
-        user_id: userId,
-        is_paid: true,
-        plan,
-        paid_until: paidUntil,
-        payment_provider: "flutterwave",
-        provider_customer_id: data.customer?.email || null,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id" },
-    );
+    // Audit fix (2026-10-09): idempotent per tx_ref via the
+    // subscription_purchases ledger — a retried webhook event with
+    // the same tx_ref no longer re-extends paid_until.
+    const activation = await applySubscriptionPurchase(supabase, {
+      userId,
+      provider: "flutterwave",
+      reference: data.tx_ref as string,
+      plan,
+      billingCycle,
+      amountKobo,
+      days,
+      providerCustomerId: data.customer?.email || null,
+    });
 
-    if (error) {
-      return json({ error: error.message }, 500);
+    if (!activation.ok) {
+      return json({ error: activation.error }, 500);
     }
 
-    return json({ received: true, activated: true, plan });
+    return json({
+      received: true,
+      activated: true,
+      already_activated: activation.result.alreadyApplied,
+      plan,
+    });
   } catch (error) {
     return json({ error: (error as Error).message }, 500);
   }

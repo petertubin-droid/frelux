@@ -22,6 +22,7 @@ import {
   constantTimeEqual,
   validateSubscriptionPayment,
 } from "../_shared/subscription-pricing.ts";
+import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 
 const corsHeaders = {
@@ -47,7 +48,12 @@ async function verifySignature(req: Request): Promise<boolean> {
   const key = await crypto.subtle.importKey(
     "raw",
     encoder.encode(secretKey),
-    { name: "HMAC", hash: "SHA-256" },
+    // Paystack signs webhook bodies with HMAC-SHA512 of the raw body
+    // keyed with the SECRET KEY (per Paystack's webhook docs). The
+    // previous SHA-256 verification rejected every genuine webhook,
+    // so activation/crediting silently depended on the client-side
+    // verify endpoints. Full-site audit fix, 2026-10-09.
+    { name: "HMAC", hash: "SHA-512" },
     false,
     ["sign"],
   );
@@ -265,34 +271,36 @@ serveWithCors(async (req: Request) => {
       );
     }
 
-    // Activate subscription
+    // Activate subscription — audit fix (2026-10-09): idempotent per
+    // payment reference via the subscription_purchases ledger. A
+    // retried charge.success event (same reference) no longer
+    // re-extends paid_until.
     const days = PLAN_DURATIONS_DAYS[billingCycle] ?? 30;
-    const paidUntil = new Date(
-      Date.now() + days * 24 * 60 * 60 * 1000,
-    ).toISOString();
 
-    const { error } = await supabase.from("user_paid_status").upsert(
-      {
-        user_id: userId,
-        is_paid: true,
-        plan,
-        paid_until: paidUntil,
-        payment_provider: "paystack",
-        provider_customer_id: data.customer?.customer_code || null,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id" },
-    );
-
-    if (error) {
-      return new Response(JSON.stringify({ error: error.message }), {
+    const activation = await applySubscriptionPurchase(supabase, {
+      userId,
+      provider: "paystack",
+      reference: data.reference as string,
+      plan,
+      billingCycle,
+      amountKobo: data.amount as number,
+      days,
+      providerCustomerId: data.customer?.customer_code || null,
+    });
+    if (!activation.ok) {
+      return new Response(JSON.stringify({ error: activation.error }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     return new Response(
-      JSON.stringify({ received: true, activated: true, plan }),
+      JSON.stringify({
+        received: true,
+        activated: true,
+        already_activated: activation.result.alreadyApplied,
+        plan,
+      }),
       {
         status: 200,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

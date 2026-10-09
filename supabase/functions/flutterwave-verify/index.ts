@@ -20,6 +20,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { validateSubscriptionPayment } from "../_shared/subscription-pricing.ts";
+import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
 import { validateTokenPayment } from "../_shared/token-pricing.ts";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
@@ -199,28 +200,29 @@ serveWithCors(async (req: Request) => {
     }
 
     const days = PLAN_DURATIONS_DAYS[billingCycle] ?? 30;
-    const paidUntil = new Date(
-      Date.now() + days * 24 * 60 * 60 * 1000,
-    ).toISOString();
 
-    const { error } = await supabase.from("user_paid_status").upsert(
-      {
-        user_id: userId,
-        is_paid: true,
-        plan,
-        paid_until: paidUntil,
-        payment_provider: "flutterwave",
-        provider_customer_id: tx.customer?.email || null,
-        updated_at: new Date().toISOString(),
-      },
-      { onConflict: "user_id" },
-    );
-
-    if (error) {
-      return json({ error: error.message }, 500);
+    // Audit fix (2026-10-09): idempotent per tx_ref via the
+    // subscription_purchases ledger — replaying a reference no
+    // longer re-extends paid_until.
+    const activation = await applySubscriptionPurchase(supabase, {
+      userId,
+      provider: "flutterwave",
+      reference: txRef,
+      plan,
+      billingCycle,
+      amountKobo,
+      days,
+      providerCustomerId: tx.customer?.email || null,
+    });
+    if (!activation.ok) {
+      return json({ error: activation.error }, 500);
     }
 
-    return json({ verified: true, plan });
+    return json({
+      verified: true,
+      plan,
+      already_activated: activation.result.alreadyApplied,
+    });
   } catch (error) {
     return json({ error: (error as Error).message }, 500);
   }
