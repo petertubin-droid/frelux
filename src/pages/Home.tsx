@@ -6,6 +6,7 @@ const FeaturesSection = lazy(() => import("@/components/home/FeaturesSection"));
 const InteractiveEstimatePreview = lazy(
   () => import("@/components/home/InteractiveEstimatePreview"),
 );
+const AiToolsSection = lazy(() => import("@/components/home/AiToolsSection"));
 const FinalCTA = lazy(() => import("@/components/home/FinalCTA"));
 import AdSlot from "@/components/ui/AdSlot";
 import CrossPromoSlot from "@/components/houseAds/CrossPromoSlot";
@@ -138,6 +139,11 @@ export default function Home() {
       {/* Proof, not promises: live demo with the real calc engine */}
       <Suspense fallback={<SectionSkeleton minHeight={600} />}>
         <InteractiveEstimatePreview />
+      </Suspense>
+
+      {/* AI powered tools: photo counting, natural-language estimating */}
+      <Suspense fallback={<SectionSkeleton minHeight={400} />}>
+        <AiToolsSection />
       </Suspense>
 
       {/* Ad slot, placement "home_top" */}
