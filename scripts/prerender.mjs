@@ -330,6 +330,16 @@ const routes = [
     ],
   },
   {
+    path: '/learn/library',
+    title: 'All Guides: The Complete FRELUX Learn Library | FRELUX',
+    description: 'Browse every published guide in the FRELUX Learn library: painting, screeding, POP ceiling, tiling, finishing, and construction tutorials.',
+    priority: '0.7',
+    changefreq: 'daily',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Learn', item: 'https://freluxtools.netlify.app/learn' }, { '@type': 'ListItem', position: 3, name: 'All Guides', item: 'https://freluxtools.netlify.app/learn/library' }] },
+    ],
+  },
+  {
     path: '/user-guide',
     title: 'FRELUX User Guide: How to Use Every Calculator and Feature',
     description:

@@ -3,7 +3,9 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
-vi.mock("@/lib/auth", () => ({ useAuth: vi.fn(() => ({ user: null, loading: false })) }));
+vi.mock("@/lib/auth", () => ({
+  useAuth: vi.fn(() => ({ user: null, loading: false })),
+}));
 vi.mock("@/lib/credits", () => ({
   getCreditWallet: vi.fn().mockResolvedValue(null),
   getCreditTransactions: vi.fn().mockResolvedValue([]),
@@ -11,7 +13,10 @@ vi.mock("@/lib/credits", () => ({
   recordActivity: vi.fn().mockResolvedValue(true),
   REWARD_EVENTS: {},
 }));
-vi.mock("@/lib/analytics", () => ({ track: vi.fn(), logAnalyticsEvent: vi.fn() }));
+vi.mock("@/lib/analytics", () => ({
+  track: vi.fn(),
+  logAnalyticsEvent: vi.fn(),
+}));
 
 // ── Supabase mock: per-query PostgREST builder ────────────────────────
 // Each `from(table)` returns a chainable, thenable builder. When awaited,
@@ -21,14 +26,47 @@ vi.mock("@/lib/analytics", () => ({ track: vi.fn(), logAnalyticsEvent: vi.fn() }
 type Call = { method: string; args: unknown[] };
 
 const METHODS = [
-  "select", "eq", "neq", "gt", "gte", "lt", "lte", "like", "ilike",
-  "in", "is", "not", "or", "and", "order", "range", "limit", "single",
-  "maybeSingle", "textSearch",
+  "select",
+  "eq",
+  "neq",
+  "gt",
+  "gte",
+  "lt",
+  "lte",
+  "like",
+  "ilike",
+  "in",
+  "is",
+  "not",
+  "or",
+  "and",
+  "order",
+  "range",
+  "limit",
+  "single",
+  "maybeSingle",
+  "textSearch",
 ];
 
 const mockCategories = [
-  { id: "cat-1", slug: "guides", name: "Guides", parent_slug: null, is_active: true, sort_order: 1, description: "All guides" },
-  { id: "cat-2", slug: "painting", name: "Painting", parent_slug: "guides", is_active: true, sort_order: 2, description: "Painting guides" },
+  {
+    id: "cat-1",
+    slug: "guides",
+    name: "Guides",
+    parent_slug: null,
+    is_active: true,
+    sort_order: 1,
+    description: "All guides",
+  },
+  {
+    id: "cat-2",
+    slug: "painting",
+    name: "Painting",
+    parent_slug: "guides",
+    is_active: true,
+    sort_order: 2,
+    description: "Painting guides",
+  },
 ];
 
 function article(slug: string) {
@@ -52,8 +90,10 @@ function article(slug: string) {
 function makeBuilder(resultFor: (calls: Call[]) => unknown) {
   const calls: Call[] = [];
   const builder: Record<string, unknown> = {
-    then: (onFulfilled: (r: unknown) => unknown, onRejected?: (reason: unknown) => unknown) =>
-      Promise.resolve(resultFor(calls)).then(onFulfilled, onRejected),
+    then: (
+      onFulfilled: (r: unknown) => unknown,
+      onRejected?: (reason: unknown) => unknown,
+    ) => Promise.resolve(resultFor(calls)).then(onFulfilled, onRejected),
   };
   for (const m of METHODS) {
     builder[m] = vi.fn((...args: unknown[]) => {
@@ -86,19 +126,26 @@ vi.mock("@/lib/supabase", () => {
             supabase.__orCalls.push(String(or.args[0]));
             return { data: [article("search-hit")], error: null };
           }
-          const featured = calls.some((c) => c.method === "eq" && c.args[0] === "is_featured");
+          const featured = calls.some(
+            (c) => c.method === "eq" && c.args[0] === "is_featured",
+          );
           if (featured) {
-            return { data: [article("featured-1"), article("featured-2")], error: null };
+            return {
+              data: [article("featured-1"), article("featured-2")],
+              error: null,
+            };
           }
           return { data: [article("recent-1")], error: null };
         }
         return { data: null, error: null };
-      })
+      }),
     ),
     channel: vi.fn(() => ({ on: vi.fn(() => ({ subscribe: vi.fn() })) })),
     removeChannel: vi.fn(),
     auth: {
-      getSession: vi.fn().mockResolvedValue({ data: { session: null }, error: null }),
+      getSession: vi
+        .fn()
+        .mockResolvedValue({ data: { session: null }, error: null }),
       getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
     },
     __count: 66 as number | null,
@@ -152,12 +199,16 @@ describe("Learn", () => {
     (supabase as unknown as { __count: number | null }).__count = null;
     await renderReady();
     // No "66+", only the bare label is rendered
-    expect(screen.getByText("Expert Articles", { exact: true })).toBeInTheDocument();
+    expect(
+      screen.getByText("Expert Articles", { exact: true }),
+    ).toBeInTheDocument();
   });
 
   it("sanitizes special characters out of the search query before hitting PostgREST", async () => {
     await renderReady();
-    const input = screen.getByPlaceholderText("Search articles, guides, tutorials…");
+    const input = screen.getByPlaceholderText(
+      "Search articles, guides, tutorials…",
+    );
     fireEvent.change(input, { target: { value: "50%(a,b)_paint" } });
     await waitFor(() => {
       expect(orCalls().length).toBeGreaterThan(0);
@@ -173,8 +224,21 @@ describe("Learn", () => {
     expect(sanitizedQuery).not.toMatch(/[%_(),()]/);
   });
 
-  it("uses the singular 'topic' when a parent category has one child", async () => {
+  it("shows topic cards with guide counts, linking a single-child parent to its child category", async () => {
     await renderReady();
-    expect(screen.getByText("1 topic", { exact: true })).toBeInTheDocument();
+    // The mock parent "Guides" has exactly one child ("Painting"), so the
+    // card links straight to the child category page.
+    const link = screen.getByRole("link", {
+      name: /guides/i,
+    }) as HTMLAnchorElement;
+    expect(link.getAttribute("href")).toBe("/learn/category/painting/");
+    // The single published mock article sits in that child category.
+    expect(screen.getByText("1 guide", { exact: true })).toBeInTheDocument();
+  });
+
+  it("links to the full library page instead of listing every article", async () => {
+    await renderReady();
+    const link = screen.getByRole("link", { name: /browse the full library/i });
+    expect(link.getAttribute("href")).toBe("/learn/library");
   });
 });

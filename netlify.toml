@@ -207,3 +207,13 @@
   to = "/.netlify/functions/sitemap"
   status = 200
   force = true
+
+# Learn library split: /learn used to host the full paginated article
+# dump; that listing now lives at /learn/library. Forward the old
+# query-parameterized URLs so indexed pages land on the new listing.
+[[redirects]]
+  from = "/learn"
+  query = { page = ":p" }
+  to = "/learn/library?page=:p"
+  status = 301
+  force = true

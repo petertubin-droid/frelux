@@ -1,88 +1,27 @@
 import { useEffect, useState } from "react";
 import AdSlot from "@/components/ui/AdSlot";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import {
   BookOpen,
   ArrowRight,
-  ChevronDown,
   Loader2,
   AlertCircle,
   Clock,
   Award,
-  ImageOff,
   Search,
   Library,
 } from "lucide-react";
 import { getIcon } from "@/lib/icon-map";
 import PageHeader from "@/components/ui/PageHeader";
+import ArticleCard from "@/components/learn/ArticleCard";
 import { supabase } from "@/lib/supabase";
 import { useSeo } from "@/lib/seo";
 import type { DbLearnCategory, DbLearnArticle } from "@/types/database";
 import AskAiWidget from "@/components/learn/AskAiWidget";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
-import { Button } from "@/components/ui/shadcn/button";
-import Pagination from "@/components/ui/Pagination";
 
 type Status = "loading" | "ready" | "error";
-
-/** Articles per page on the paginated "All articles" listing.
- *  Mirrored by the dynamic sitemap function (netlify/functions/sitemap.js)
- *  so every ?page=N listing URL is always present for crawlers. */
-const ARTICLES_PER_PAGE = 20;
-
-/** Shared article card for the Learn grids (recent + paginated library). */
-function ArticleCard({ article }: { article: DbLearnArticle }) {
-  return (
-    <Link
-      to={`/learn/${article.slug}/`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl dark:border-white/5 dark:bg-card"
-    >
-      {article.cover_image_url ? (
-        <div className="relative aspect-[16/10] overflow-hidden">
-          <img
-            src={article.cover_image_url}
-            alt={article.title}
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
-            loading="lazy"
-          />
-        </div>
-      ) : (
-        <div className="flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-muted/50 to-primary/5 dark:from-white/5 dark:to-primary/10">
-          <ImageOff className="h-7 w-7 text-muted-foreground/80" />
-        </div>
-      )}
-      <div className="flex flex-1 flex-col p-5">
-        <span className="mb-2 text-xs font-semibold uppercase tracking-wider text-brand-purple">
-          {article.category_slug.replace(/-/g, " ")}
-        </span>
-        <h3 className="font-display text-base font-bold leading-snug text-foreground transition-colors group-hover:text-brand-purple dark:text-primary-foreground">
-          {article.title}
-        </h3>
-        {article.excerpt && (
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground line-clamp-2 dark:text-muted-foreground">
-            {article.excerpt}
-          </p>
-        )}
-        <div className="mt-auto flex items-center gap-3 pt-4 text-xs text-muted-foreground">
-          {article.read_time_minutes && (
-            <span className="flex items-center gap-1">
-              <Clock className="h-3 w-3" /> {article.read_time_minutes} min read
-            </span>
-          )}
-          {article.published_at && (
-            <span>
-              {new Date(article.published_at).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-              })}
-            </span>
-          )}
-        </div>
-      </div>
-    </Link>
-  );
-}
 
 export default function Learn() {
   useSeo({
@@ -124,59 +63,45 @@ export default function Learn() {
   const [featured, setFeatured] = useState<DbLearnArticle[]>([]);
   const [recent, setRecent] = useState<DbLearnArticle[]>([]);
   const [totalPublished, setTotalPublished] = useState<number | null>(null);
+  const [articleSlugs, setArticleSlugs] = useState<string[]>([]);
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState("");
-  const [expandedParents, setExpandedParents] = useState<Set<string>>(
-    new Set(),
-  );
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<DbLearnArticle[]>([]);
   const [searching, setSearching] = useState(false);
-  const [allArticles, setAllArticles] = useState<DbLearnArticle[]>([]);
-  const [allTotal, setAllTotal] = useState<number | null>(null);
-
-  // Paginated "All articles" library, 20 per page, URL-driven (?page=N)
-  // so crawlers can discover every listing page via the sitemap.
-  const [searchParams, setSearchParams] = useSearchParams();
-  const pageParam = parseInt(searchParams.get("page") ?? "1", 10);
-  const page = Number.isFinite(pageParam) && pageParam >= 1 ? pageParam : 1;
-  const totalPages = Math.max(
-    1,
-    Math.ceil((allTotal ?? 0) / ARTICLES_PER_PAGE),
-  );
-
-  const goToPage = (p: number) => {
-    setSearchParams(p > 1 ? { page: String(p) } : {});
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
 
   useEffect(() => {
     async function load() {
       try {
-        const [catRes, featRes, recentRes, countRes] = await Promise.all([
-          supabase
-            .from("learn_categories")
-            .select("*")
-            .eq("is_active", true)
-            .order("sort_order", { ascending: true }),
-          supabase
-            .from("learn_articles")
-            .select("*")
-            .eq("status", "published")
-            .eq("is_featured", true)
-            .order("published_at", { ascending: false })
-            .limit(3),
-          supabase
-            .from("learn_articles")
-            .select("*")
-            .eq("status", "published")
-            .order("published_at", { ascending: false })
-            .limit(6),
-          supabase
-            .from("learn_articles")
-            .select("id", { count: "exact", head: true })
-            .eq("status", "published"),
-        ]);
+        const [catRes, featRes, recentRes, countRes, slugRes] =
+          await Promise.all([
+            supabase
+              .from("learn_categories")
+              .select("*")
+              .eq("is_active", true)
+              .order("sort_order", { ascending: true }),
+            supabase
+              .from("learn_articles")
+              .select("*")
+              .eq("status", "published")
+              .eq("is_featured", true)
+              .order("published_at", { ascending: false })
+              .limit(3),
+            supabase
+              .from("learn_articles")
+              .select("*")
+              .eq("status", "published")
+              .order("published_at", { ascending: false })
+              .limit(6),
+            supabase
+              .from("learn_articles")
+              .select("id", { count: "exact", head: true })
+              .eq("status", "published"),
+            supabase
+              .from("learn_articles")
+              .select("category_slug")
+              .eq("status", "published"),
+          ]);
 
         setCategories((catRes.data ?? []) as DbLearnCategory[]);
         setFeatured((featRes.data ?? []) as DbLearnArticle[]);
@@ -184,6 +109,11 @@ export default function Learn() {
         if (countRes.error === null && countRes.count !== null) {
           setTotalPublished(countRes.count);
         }
+        setArticleSlugs(
+          ((slugRes.data ?? []) as { category_slug: string }[]).map(
+            (a) => a.category_slug,
+          ),
+        );
         setStatus("ready");
       } catch (e) {
         setError(getSafeError(e, "Failed to load"));
@@ -192,37 +122,6 @@ export default function Learn() {
     }
     load();
   }, []);
-
-  // Load the paginated "All articles" window for the current ?page.
-  useEffect(() => {
-    let cancelled = false;
-    async function loadAll() {
-      const from = (page - 1) * ARTICLES_PER_PAGE;
-      const [pageRes, countRes] = await Promise.all([
-        supabase
-          .from("learn_articles")
-          .select("*")
-          .eq("status", "published")
-          .order("published_at", { ascending: false })
-          .range(from, from + ARTICLES_PER_PAGE - 1),
-        supabase
-          .from("learn_articles")
-          .select("id", { count: "exact", head: true })
-          .eq("status", "published"),
-      ]);
-      if (cancelled) return;
-      if (!pageRes.error) {
-        setAllArticles((pageRes.data ?? []) as DbLearnArticle[]);
-      }
-      if (!countRes.error && countRes.count !== null) {
-        setAllTotal(countRes.count);
-      }
-    }
-    loadAll();
-    return () => {
-      cancelled = true;
-    };
-  }, [page]);
 
   // Debounced search
   useEffect(() => {
@@ -253,21 +152,26 @@ export default function Learn() {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  const parentCategories = categories.filter((c) => !c.parent_slug);
-  const childCategories = categories.filter((c) => c.parent_slug);
+  // Article counts per category slug, from the published-article sample.
+  const countBySlug: Record<string, number> = {};
+  for (const s of articleSlugs) countBySlug[s] = (countBySlug[s] ?? 0) + 1;
 
-  function getChildren(parentSlug: string) {
-    return childCategories.filter((c) => c.parent_slug === parentSlug);
-  }
-
-  function toggleParent(slug: string) {
-    setExpandedParents((prev) => {
-      const next = new Set(prev);
-      if (next.has(slug)) next.delete(slug);
-      else next.add(slug);
-      return next;
+  // Topic cards: one per discipline. A parent category with a single
+  // active child (e.g. "painting" -> "painting-guides") surfaces that
+  // child as the destination; top-level categories link directly.
+  const topicCards = categories
+    .filter((c) => !c.parent_slug)
+    .map((parent) => {
+      const children = categories.filter((c) => c.parent_slug === parent.slug);
+      const target = children.length === 1 ? children[0].slug : parent.slug;
+      const count =
+        (countBySlug[parent.slug] ?? 0) +
+        children.reduce(
+          (sum, child) => sum + (countBySlug[child.slug] ?? 0),
+          0,
+        );
+      return { category: parent, target, count };
     });
-  }
 
   if (status === "loading")
     return (
@@ -406,6 +310,65 @@ export default function Learn() {
       </div>
 
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6">
+        {/* Topic directory: every discipline, one clean grid */}
+        {topicCards.length > 0 && (
+          <section className="mb-14">
+            <div className="mb-6 flex items-end justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                  <BookOpen className="h-4 w-4 text-brand-purple" />
+                </div>
+                <div>
+                  <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
+                    Browse by Topic
+                  </h2>
+                  <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                    Explore guides organized by discipline
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {topicCards.map(({ category, target, count }) => {
+                const IconComponent = getIcon(category.icon);
+                return (
+                  <Link
+                    key={category.id}
+                    to={`/learn/category/${target}/`}
+                    className="group flex flex-col rounded-2xl border border-border/80 bg-card p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:border-brand-purple/30 hover:shadow-lg dark:border-white/5 dark:bg-card"
+                  >
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-brand-purple transition-transform group-hover:scale-105">
+                        <IconComponent className="h-6 w-6" />
+                      </div>
+                      {count > 0 && (
+                        <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground dark:bg-white/10 dark:text-muted-foreground">
+                          {count} {count === 1 ? "guide" : "guides"}
+                        </span>
+                      )}
+                    </div>
+                    <h3 className="mt-4 font-display text-base font-bold text-foreground dark:text-primary-foreground">
+                      {category.name}
+                    </h3>
+                    {category.description && (
+                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground line-clamp-2 dark:text-muted-foreground">
+                        {category.description}
+                      </p>
+                    )}
+                    <span className="mt-4 inline-flex items-center gap-1 text-sm font-semibold text-brand-purple">
+                      Explore
+                      <ArrowRight
+                        aria-hidden="true"
+                        className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1"
+                      />
+                    </span>
+                  </Link>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
         {/* Featured articles */}
         {featured.length > 0 && (
           <section className="mb-14">
@@ -444,7 +407,6 @@ export default function Learn() {
                     </div>
                   ) : (
                     <div className="relative flex aspect-[16/10] items-center justify-center bg-gradient-to-br from-muted/50 to-primary/5 dark:from-white/5 dark:to-primary/10">
-                      <ImageOff className="h-7 w-7 text-muted-foreground/80" />
                       <span className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-accent-orange shadow-sm">
                         <Award className="h-3 w-3" /> Featured
                       </span>
@@ -460,9 +422,6 @@ export default function Learn() {
                       </p>
                     )}
                     <div className="mt-auto flex items-center gap-3 pt-4 text-xs text-muted-foreground">
-                      {article.author && (
-                        <span className="font-medium">{article.author}</span>
-                      )}
                       {article.read_time_minutes && (
                         <span className="flex items-center gap-1">
                           <Clock className="h-3 w-3" />{" "}
@@ -477,188 +436,36 @@ export default function Learn() {
           </section>
         )}
 
-        {/* Browse by category, hierarchical */}
-        <section className="mb-14">
-          <div className="mb-6 flex items-center gap-3">
-            <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-              <BookOpen className="h-4 w-4 text-brand-purple" />
-            </div>
-            <div>
-              <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-                Browse by Topic
-              </h2>
-              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                Explore guides organized by discipline
-              </p>
-            </div>
-          </div>
-          <div className="space-y-4">
-            {parentCategories.map((cat) => {
-              const IconComponent = getIcon(cat.icon);
-              const children = getChildren(cat.slug);
-              const isExpanded = expandedParents.has(cat.slug);
-
-              if (children.length > 0) {
-                return (
-                  <div
-                    key={cat.id}
-                    className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-sm transition-all hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
-                  >
-                    <Button
-                      variant="ghost"
-                      onClick={() => toggleParent(cat.slug)}
-                      className="group flex w-full items-center gap-5 p-6 text-left transition-all hover:bg-primary/[0.03]"
-                    >
-                      <div className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-brand-purple transition-transform group-hover:scale-105">
-                        <IconComponent className="h-7 w-7" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-display text-base font-bold text-foreground dark:text-primary-foreground">
-                          {cat.name}
-                        </h3>
-                        {cat.description && (
-                          <p className="mt-1 text-sm leading-relaxed text-muted-foreground line-clamp-1 dark:text-muted-foreground">
-                            {cat.description}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span className="rounded-full bg-muted px-3 py-1 text-xs font-semibold text-muted-foreground dark:bg-white/10 dark:text-muted-foreground">
-                          {children.length}{" "}
-                          {children.length === 1 ? "topic" : "topics"}
-                        </span>
-                        <ChevronDown
-                          className={`h-5 w-5 text-muted-foreground transition-transform duration-300 ${isExpanded ? "rotate-180" : ""} group-hover:text-brand-purple`}
-                        />
-                      </div>
-                    </Button>
-                    {isExpanded && (
-                      <div
-                        className="border-t border-border/50 dark:border-white/5"
-                        style={{ animation: "fadeInDown 0.3s ease-out" }}
-                      >
-                        <div className="grid gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
-                          {children.map((child) => {
-                            const ChildIcon = getIcon(child.icon);
-                            return (
-                              <Link
-                                key={child.id}
-                                to={`/learn/category/${child.slug}/`}
-                                className="group/sub flex items-center gap-3 rounded-xl p-3.5 transition-all hover:bg-primary/5 hover:shadow-sm"
-                              >
-                                <div className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/5 text-brand-purple/70 transition-colors group-hover/sub:bg-primary/10 group-hover/sub:text-brand-purple">
-                                  <ChildIcon className="h-4 w-4" />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <h4 className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">
-                                    {child.name}
-                                  </h4>
-                                  {child.description && (
-                                    <p className="mt-0.5 text-xs leading-snug text-muted-foreground line-clamp-1">
-                                      {child.description}
-                                    </p>
-                                  )}
-                                </div>
-                                <ArrowRight
-                                  aria-hidden="true"
-                                  className="h-4 w-4 shrink-0 text-muted-foreground/80 transition-all group-hover/sub:text-brand-purple group-hover/sub:translate-x-0.5"
-                                />
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              }
-
-              return (
-                <Link
-                  key={cat.id}
-                  to={`/learn/category/${cat.slug}/`}
-                  className="group flex items-start gap-5 rounded-2xl border border-border/80 bg-card p-6 shadow-sm transition-all hover:-translate-y-0.5 hover:border-brand-purple/30 hover:shadow-md dark:border-white/5 dark:bg-card"
-                >
-                  <div className="inline-flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 text-brand-purple transition-transform group-hover:scale-105">
-                    <IconComponent className="h-7 w-7" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="font-display text-base font-bold text-foreground dark:text-primary-foreground">
-                      {cat.name}
-                    </h3>
-                    {cat.description && (
-                      <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground line-clamp-2 dark:text-muted-foreground">
-                        {cat.description}
-                      </p>
-                    )}
-                    <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-brand-purple">
-                      Explore topics
-                      <ArrowRight
-                        aria-hidden="true"
-                        className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1"
-                      />
-                    </span>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-
         {/* Recent articles */}
         {recent.length > 0 && (
           <section>
-            <div className="mb-6 flex items-center gap-3">
-              <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                <Clock className="h-4 w-4 text-brand-purple" />
+            <div className="mb-6 flex items-end justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
+                  <Clock className="h-4 w-4 text-brand-purple" />
+                </div>
+                <div>
+                  <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
+                    Latest Articles
+                  </h2>
+                  <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                    Fresh from our editorial desk
+                  </p>
+                </div>
               </div>
-              <div>
-                <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-                  Latest Articles
-                </h2>
-                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                  Fresh from our editorial desk
-                </p>
-              </div>
+              <Link
+                to="/learn/library"
+                className="inline-flex shrink-0 items-center gap-1.5 text-sm font-semibold text-brand-purple transition-colors hover:text-primary"
+              >
+                <Library className="h-4 w-4" />
+                Browse the full library
+              </Link>
             </div>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {recent.map((article) => (
                 <ArticleCard key={article.id} article={article} />
               ))}
             </div>
-          </section>
-        )}
-
-        {/* All articles - paginated library, 20 per page (URL: ?page=N).
-            Every ?page=N URL is listed in the dynamic sitemap so crawlers
-            can discover all published articles through the listing. */}
-        {allArticles.length > 0 && (
-          <section>
-            <div className="mb-6 flex items-center gap-3">
-              <div className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10">
-                <Library className="h-4 w-4 text-brand-purple" />
-              </div>
-              <div>
-                <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
-                  All Articles
-                </h2>
-                <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-                  {allTotal !== null
-                    ? `${allTotal} guides - page ${page} of ${totalPages}`
-                    : "Browse every published guide"}
-                </p>
-              </div>
-            </div>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {allArticles.map((article) => (
-                <ArticleCard key={article.id} article={article} />
-              ))}
-            </div>
-            <Pagination
-              page={page}
-              totalPages={totalPages}
-              onPageChange={goToPage}
-            />
           </section>
         )}
 
@@ -686,7 +493,6 @@ export default function Learn() {
         </div>
       </div>
 
-      <style>{`@keyframes fadeInDown { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }`}</style>
       <AskAiWidget />
     </>
   );

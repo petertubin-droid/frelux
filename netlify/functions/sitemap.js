@@ -11,9 +11,9 @@
  *  - all static site routes (feature pages, calculators, templates, ...)
  *  - every published learn article (/learn/<slug>/)
  *  - every active learn category (/learn/category/<slug>/)
- *  - paginated listing URLs (/learn?page=N and per-category ?page=N,
- *    20 articles per page) so crawlers can reach every article through
- *    the listing pages
+ *  - paginated listing URLs (/learn/library?page=N and per-category
+ *    ?page=N, 20 articles per page) so crawlers can reach every article
+ *    through the listing pages
  *
  * Uses the public anon key: published articles and active categories are
  * readable by RLS policy (the site itself queries them the same way).
@@ -22,8 +22,8 @@
  */
 const SITE_URL = "https://freluxtools.netlify.app";
 
-/** Must mirror ARTICLES_PER_PAGE in src/pages/learn/Learn.tsx and
- *  src/pages/learn/LearnCategory.tsx. */
+/** Must mirror ARTICLES_PER_PAGE in src/pages/learn/LearnLibrary.tsx
+ *  and src/pages/learn/LearnCategory.tsx. */
 const ARTICLES_PER_PAGE = 20;
 
 /** Static site routes kept in parity with the previous static sitemap. */
@@ -153,11 +153,13 @@ export const handler = async () => {
     console.error("[sitemap] DB fetch failed, serving static routes:", err);
   }
 
-  // Paginated Learn hub listing: page 1 is the canonical /learn/ above.
+  // Full library listing page + its paginated URLs. Page 1 is the
+  // canonical /learn/library/ entry itself; deeper pages via ?page=N.
+  add(`/learn/library/`, today, "daily", "0.7");
   if (articles.length > ARTICLES_PER_PAGE) {
     const totalPages = Math.ceil(articles.length / ARTICLES_PER_PAGE);
     for (let p = 2; p <= totalPages; p++) {
-      add(`/learn/?page=${p}`, today, "daily", "0.7");
+      add(`/learn/library/?page=${p}`, today, "daily", "0.7");
     }
   }
 

@@ -95,6 +95,7 @@ const AiDisclaimer = lazy(() => import("@/pages/legal/AiDisclaimer"));
 const DeveloperPortal = lazy(() => import("@/pages/DeveloperPortal"));
 const LearnCategory = lazy(() => import("@/pages/learn/LearnCategory"));
 const LearnArticle = lazy(() => import("@/pages/learn/LearnArticle"));
+const LearnLibrary = lazy(() => import("@/pages/learn/LearnLibrary"));
 const PaintColorDetail = lazy(() => import("@/pages/PaintColorDetail"));
 const CompareColors = lazy(() => import("@/pages/CompareColors"));
 const MyProjects = lazy(() => import("@/pages/MyProjects"));
@@ -918,6 +919,14 @@ export default function App() {
                       element={
                         <Suspense fallback={<PageLoader />}>
                           <LearnCategory />
+                        </Suspense>
+                      }
+                    />
+                    <Route
+                      path="/learn/library"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <LearnLibrary />
                         </Suspense>
                       }
                     />
