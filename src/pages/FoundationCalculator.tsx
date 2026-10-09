@@ -104,7 +104,8 @@ export default function FoundationCalculator() {
               Measurement unit:
             </span>
             <div className="inline-flex rounded-lg border border-border overflow-hidden dark:border-white/10">
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => {
                   if (measurementUnit === "ft") {
                     setMeasurementUnit("m");
@@ -121,7 +122,8 @@ export default function FoundationCalculator() {
               >
                 m
               </Button>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => {
                   if (measurementUnit === "m") {
                     setMeasurementUnit("ft");
@@ -254,7 +256,8 @@ export default function FoundationCalculator() {
             </p>
           </div>
 
-          <Button variant="default"
+          <Button
+            variant="default"
             onClick={calculate}
             className="mt-5 btn-glow inline-flex items-center gap-2 px-6 py-3"
           >
@@ -380,7 +383,8 @@ export default function FoundationCalculator() {
 
             {/* Formula transparency */}
             <div className="mt-2">
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => setShowFormulas(!showFormulas)}
                 className="text-xs font-medium text-brand-purple hover:text-brand-purple-dark flex items-center gap-1.5 transition-colors"
               >
@@ -407,7 +411,8 @@ export default function FoundationCalculator() {
 
             {/* Reset */}
             <div className="mt-6 flex items-center gap-3 border-t border-border/50 pt-5 dark:border-white/5">
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => setResult(null)}
                 className="btn-secondary inline-flex items-center gap-2"
               >
@@ -430,34 +435,35 @@ export default function FoundationCalculator() {
                 Soil bearing capacities shown are typical values for Nigerian
                 soil types. A geotechnical investigation (soil test) is
                 mandatory for actual foundation design. These calculations are
-                for preliminary sizing and budgetary purposes only.
+                for preliminary sizing and budgetary purposes only. Final design
+                must come from a qualified structural engineer.
               </p>
             </div>
           </div>
         </div>
-      {result && (
-        <div className="mt-6 flex justify-center">
-          <SaveToProjectButton
-            calculatorType="foundation"
-            calculatorSlug="foundation-calculator"
-            calcTitle={`Foundation: ${result.shape} (${result.recommended_width}mm)`}
-            calcData={result}
-            resultSummary={{
-              shape: result.shape,
-              recommended_width: result.recommended_width,
-              bearing_capacity: result.bearing_capacity,
-              factor_of_safety: result.factor_of_safety,
-              concrete_volume: result.concrete_volume,
-              excavation_volume: result.excavation_volume,
-              blinding_volume: result.blinding_volume,
-              hardcore_volume: result.hardcore_volume,
-              bearing_check_pass: result.bearing_check_pass,
-            }}
-            compact
-            label="Save to Project Workspace"
-          />
-        </div>
-      )}
+        {result && (
+          <div className="mt-6 flex justify-center">
+            <SaveToProjectButton
+              calculatorType="foundation"
+              calculatorSlug="foundation-calculator"
+              calcTitle={`Foundation: ${result.shape} (${result.recommended_width}mm)`}
+              calcData={result}
+              resultSummary={{
+                shape: result.shape,
+                recommended_width: result.recommended_width,
+                bearing_capacity: result.bearing_capacity,
+                factor_of_safety: result.factor_of_safety,
+                concrete_volume: result.concrete_volume,
+                excavation_volume: result.excavation_volume,
+                blinding_volume: result.blinding_volume,
+                hardcore_volume: result.hardcore_volume,
+                bearing_check_pass: result.bearing_check_pass,
+              }}
+              compact
+              label="Save to Project Workspace"
+            />
+          </div>
+        )}
       </div>
       <RelatedTools
         links={[
