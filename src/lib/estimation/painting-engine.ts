@@ -55,7 +55,7 @@ import {
   isPriceConfigured,
 } from "./pricing";
 
-import { feetToMeters, unitToMeters } from "@/lib/utils";
+import { unitToMeters } from "@/lib/utils";
 
 // MERGED (audit finding cf_dual_paint_engines, resolved 2026-09-09):
 // the central paint-engine is the single source of truth for ALL
@@ -65,6 +65,7 @@ import { feetToMeters, unitToMeters } from "@/lib/utils";
 // duplicates any rule definition, so the two calculators can
 // never disagree on a shared rule again.
 import {
+  calculateTheoreticalLitres,
   normalizeCoverage,
   getCoverageUnitLabel,
   getPackSizeLitres,
@@ -73,6 +74,7 @@ import {
   getCeilingQuantityBuckets,
 } from "./paint-engine";
 export {
+  calculateTheoreticalLitres,
   normalizeCoverage,
   getCoverageUnitLabel,
   getPackSizeLitres,
@@ -309,20 +311,6 @@ export function calculateCeilingArea(
   breadthM: number,
 ): number {
   return Math.round(Math.max(0, lengthM) * Math.max(0, breadthM) * 100) / 100;
-}
-
-/**
- * Internal calculation, NOT shown as the primary FRELUX methodology to the customer.
- */
-export function calculateTheoreticalLitres(
-  areaM2: number,
-  coats: number,
-  coverageM2PerLiter: number,
-): number {
-  if (coverageM2PerLiter <= 0) return 0;
-  const safeArea = Math.max(0, areaM2);
-  const safeCoats = Math.max(1, coats);
-  return Math.round(((safeArea * safeCoats) / coverageM2PerLiter) * 100) / 100;
 }
 
 export function litresToBuckets(

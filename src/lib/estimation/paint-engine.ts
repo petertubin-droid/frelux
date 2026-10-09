@@ -217,6 +217,22 @@ const SQM_PER_SQFT = 0.09290304;
  * - ft2_per_bucket: value is ft² per bucket → multiply by SQM_PER_SQFT then divide by bucket size
  * - frelux_calibration: uses calibration reference points
  */
+/**
+ * Authoritative theoretical paint litres: (net area x coats) / coverage,
+ * rounded to 2dp only at this documented stage. Shared by paint-engine and
+ * painting-engine so both tools use one formula.
+ */
+export function calculateTheoreticalLitres(
+  areaM2: number,
+  coats: number,
+  coverageM2PerLiter: number,
+): number {
+  if (coverageM2PerLiter <= 0) return 0;
+  const safeArea = Math.max(0, areaM2);
+  const safeCoats = Math.max(1, coats);
+  return Math.round(((safeArea * safeCoats) / coverageM2PerLiter) * 100) / 100;
+}
+
 export function normalizeCoverage(
   coverageValue: number,
   coverageUnit: string,
@@ -770,12 +786,11 @@ export function calculateRoom(
   }
 
   // ── STEP 11: Theoretical Wall Litres ──
-  const theoreticalWallLitres =
-    wallCoverageM2PerL > 0
-      ? Math.round(
-          ((netWallArea * effectiveCoats) / wallCoverageM2PerL) * 100,
-        ) / 100
-      : 0;
+  const theoreticalWallLitres = calculateTheoreticalLitres(
+    netWallArea,
+    effectiveCoats,
+    wallCoverageM2PerL,
+  );
   const theoreticalWallBuckets =
     packSizeLitres > 0
       ? Math.round((theoreticalWallLitres / packSizeLitres) * 10000) / 10000
