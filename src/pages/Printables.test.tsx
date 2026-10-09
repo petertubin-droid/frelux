@@ -29,10 +29,13 @@ describe("Printables", () => {
     window.print = printSpy;
     const afterPrintHandlers: EventListener[] = [];
     const origAdd = window.addEventListener;
-    window.addEventListener = vi.fn((type: string, listener: EventListener) => {
-      if (type === "afterprint") afterPrintHandlers.push(listener);
+    const addSpy = vi.fn((...args: unknown[]) => {
+      if (args[0] === "afterprint")
+        afterPrintHandlers.push(args[1] as EventListener);
       return () => undefined;
     });
+    window.addEventListener =
+      addSpy as unknown as typeof window.addEventListener;
     try {
       render(
         <MemoryRouter>

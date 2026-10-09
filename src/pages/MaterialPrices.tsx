@@ -113,7 +113,14 @@ export default function MaterialPrices() {
         if (cancelled) return;
         if (pricesRes.error) throw pricesRes.error;
         const materialsById = new Map(
-          (materialsRes.data ?? []).map((m: { id: string }) => [m.id, m]),
+          (
+            materialsRes.data as {
+              id: string;
+              name: string;
+              category: string | null;
+              pack_size: string | null;
+            }[]
+          ).map((m) => [m.id, m]),
         );
         const built: PriceRow[] = (pricesRes.data ?? [])
           .filter((p) => materialsById.has(p.ref_id))
