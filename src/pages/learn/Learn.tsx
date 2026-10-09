@@ -177,7 +177,7 @@ export default function Learn() {
     return (
       <>
         <PageHeader
-          image="https://images.pexels.com/photos/323780/pexels-photo-323780.jpeg?auto=compress&cs=tinysrgb&w=1600"
+          image="https://images.pexels.com/photos/4458210/pexels-photo-4458210.jpeg?auto=compress&cs=tinysrgb&w=1600"
           eyebrow="Education"
           title="Learn"
           subtitle="Guides, tutorials, and expert tips for painting, screeding, POP ceiling, tiling, finishing, and construction."
