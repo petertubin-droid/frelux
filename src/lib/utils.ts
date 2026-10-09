@@ -2,7 +2,9 @@ import { cn } from "@/lib/cn";
 import {
   isConverting,
   formatNGNForDisplay,
+  isNairaSymbol,
 } from "@/lib/international/fx-display";
+import { formatWithSymbol } from "@/lib/international/currency-format";
 import type {
   ScreedingCalcInput,
   ScreedingCalcResult,
@@ -24,14 +26,13 @@ export function formatNumber(value: number, fractionDigits = 2): string {
  * Everything else, including all NGN rendering, is unchanged.
  */
 export function formatCurrency(value: number, currency = "₦"): string {
-  const isNaira = currency === "₦" || (currency || "").toUpperCase() === "NGN";
-  if (isNaira && isConverting()) {
+  // Naira amounts may need FX conversion for display: that decision and the
+  // conversion itself stay in fx-display (converted exactly once).
+  if (isNairaSymbol(currency) && isConverting()) {
     return formatNGNForDisplay(value);
   }
-  return `${currency}${value.toLocaleString("en-US", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  })}`;
+  // Static presentation delegates to the shared currency-format API.
+  return formatWithSymbol(value, currency);
 }
 
 // Merges class names with Tailwind conflict resolution (delegates to `cn`).

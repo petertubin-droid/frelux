@@ -1,12 +1,32 @@
-import { useEffect, useState, useCallback } from 'react';
-import { Plus, Pencil, Trash2, History, Search, Filter, DollarSign, Calendar } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
-import { AdminHeader, AdminButton, AdminField, StateMessage, Toggle, AdminInput, AdminIconButton, AdminSelect, AdminTextarea } from '@/components/admin/AdminUi';
-import { AdminModal } from '@/components/admin/AdminModal';
+import { useEffect, useState, useCallback } from "react";
+import { formatByCode } from "@/lib/international/currency-format";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  History,
+  Search,
+  Filter,
+  DollarSign,
+  Calendar,
+} from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import {
+  AdminHeader,
+  AdminButton,
+  AdminField,
+  StateMessage,
+  Toggle,
+  AdminInput,
+  AdminIconButton,
+  AdminSelect,
+  AdminTextarea,
+} from "@/components/admin/AdminUi";
+import { AdminModal } from "@/components/admin/AdminModal";
 
 interface PriceItem {
   id: string;
-  price_type: 'product' | 'quality' | 'material';
+  price_type: "product" | "quality" | "material";
   ref_id: string;
   price: number;
   currency: string;
@@ -20,7 +40,7 @@ interface PriceItem {
 
 interface PriceHistoryItem {
   id: string;
-  price_type: 'product' | 'quality' | 'material';
+  price_type: "product" | "quality" | "material";
   ref_id: string;
   old_price: number | null;
   new_price: number;
@@ -33,7 +53,7 @@ interface PriceHistoryItem {
 interface RefOption {
   id: string;
   name: string;
-  type: 'product' | 'quality' | 'material';
+  type: "product" | "quality" | "material";
   detail?: string;
 }
 
@@ -43,21 +63,20 @@ interface PackSizeOption {
   pack_size: number;
 }
 
-function formatCurrency(amount: number, currency: string = 'NGN'): string {
-  const symbol = currency === 'NGN' ? '₦' : currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency === 'GBP' ? '£' : `${currency} `;
-  return `${symbol}${Number(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+function formatCurrency(amount: number, currency: string = "NGN"): string {
+  return formatByCode(amount, currency, { decimals: 2 });
 }
 
-function getPriceTypeBadge(type: 'product' | 'quality' | 'material') {
+function getPriceTypeBadge(type: "product" | "quality" | "material") {
   switch (type) {
-    case 'product':
-      return 'bg-blue-100 text-blue-800 border-blue-200';
-    case 'quality':
-      return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-    case 'material':
-      return 'bg-amber-100 text-amber-800 border-amber-200';
+    case "product":
+      return "bg-blue-100 text-blue-800 border-blue-200";
+    case "quality":
+      return "bg-emerald-100 text-emerald-800 border-emerald-200";
+    case "material":
+      return "bg-amber-100 text-amber-800 border-amber-200";
     default:
-      return 'bg-muted text-card-foreground border-border';
+      return "bg-muted text-card-foreground border-border";
   }
 }
 
@@ -67,26 +86,30 @@ export default function AdminEstimationPricing() {
   const [packSizes, setPackSizes] = useState<PackSizeOption[]>([]);
   const [refMap, setRefMap] = useState<Record<string, RefOption>>({});
   const [packSizeMap, setPackSizeMap] = useState<Record<string, number>>({});
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState<PriceItem | null>(null);
   const [showForm, setShowForm] = useState(false);
-  
+
   // History modal state
   const [historyItem, setHistoryItem] = useState<PriceItem | null>(null);
 
   // Search & Filters
-  const [typeFilter, setTypeFilter] = useState<'all' | 'product' | 'quality' | 'material'>('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState<
+    "all" | "product" | "quality" | "material"
+  >("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const loadReferenceData = useCallback(async () => {
     try {
       const [pRes, qRes, mRes, psRes] = await Promise.all([
-        supabase.from('estimation_products').select('id, name, category'),
-        supabase.from('estimation_product_quality').select('id, name, product_id'),
-        supabase.from('estimation_materials').select('id, name, category'),
-        supabase.from('estimation_pack_sizes').select('id, ref_id, pack_size'),
+        supabase.from("estimation_products").select("id, name, category"),
+        supabase
+          .from("estimation_product_quality")
+          .select("id, name, product_id"),
+        supabase.from("estimation_materials").select("id, name, category"),
+        supabase.from("estimation_pack_sizes").select("id, ref_id, pack_size"),
       ]);
 
       const options: RefOption[] = [];
@@ -94,7 +117,12 @@ export default function AdminEstimationPricing() {
 
       if (pRes.data) {
         pRes.data.forEach((p) => {
-          const item: RefOption = { id: p.id, name: p.name, type: 'product', detail: p.category };
+          const item: RefOption = {
+            id: p.id,
+            name: p.name,
+            type: "product",
+            detail: p.category,
+          };
           options.push(item);
           map[p.id] = item;
         });
@@ -102,7 +130,12 @@ export default function AdminEstimationPricing() {
 
       if (qRes.data) {
         qRes.data.forEach((q) => {
-          const item: RefOption = { id: q.id, name: q.name, type: 'quality', detail: 'Quality Level' };
+          const item: RefOption = {
+            id: q.id,
+            name: q.name,
+            type: "quality",
+            detail: "Quality Level",
+          };
           options.push(item);
           map[q.id] = item;
         });
@@ -110,7 +143,12 @@ export default function AdminEstimationPricing() {
 
       if (mRes.data) {
         mRes.data.forEach((m) => {
-          const item: RefOption = { id: m.id, name: m.name, type: 'material', detail: m.category };
+          const item: RefOption = {
+            id: m.id,
+            name: m.name,
+            type: "material",
+            detail: m.category,
+          };
           options.push(item);
           map[m.id] = item;
         });
@@ -121,7 +159,11 @@ export default function AdminEstimationPricing() {
       if (psRes.data) {
         psRes.data.forEach((ps) => {
           psMap[ps.id] = ps.pack_size;
-          psOpts.push({ id: ps.id, ref_id: ps.ref_id, pack_size: ps.pack_size });
+          psOpts.push({
+            id: ps.id,
+            ref_id: ps.ref_id,
+            pack_size: ps.pack_size,
+          });
         });
       }
 
@@ -138,9 +180,9 @@ export default function AdminEstimationPricing() {
     setLoading(true);
     setError(null);
     const { data, error } = await supabase
-      .from('estimation_prices')
-      .select('*')
-      .order('created_at', { ascending: false });
+      .from("estimation_prices")
+      .select("*")
+      .order("created_at", { ascending: false });
 
     if (error) {
       setError(error.message);
@@ -157,9 +199,9 @@ export default function AdminEstimationPricing() {
 
   async function toggleActive(item: PriceItem) {
     const { error } = await supabase
-      .from('estimation_prices')
+      .from("estimation_prices")
       .update({ is_active: !item.is_active })
-      .eq('id', item.id);
+      .eq("id", item.id);
 
     if (error) {
       setError(error.message);
@@ -167,17 +209,26 @@ export default function AdminEstimationPricing() {
     }
 
     setItems((prev) =>
-      prev.map((p) => (p.id === item.id ? { ...p, is_active: !p.is_active } : p))
+      prev.map((p) =>
+        p.id === item.id ? { ...p, is_active: !p.is_active } : p,
+      ),
     );
   }
 
   async function remove(item: PriceItem) {
     const refName = refMap[item.ref_id]?.name || item.ref_id;
-    if (!confirm(`Delete price record for "${refName}" (${formatCurrency(item.price, item.currency)})? This cannot be undone.`)) {
+    if (
+      !confirm(
+        `Delete price record for "${refName}" (${formatCurrency(item.price, item.currency)})? This cannot be undone.`,
+      )
+    ) {
       return;
     }
 
-    const { error } = await supabase.from('estimation_prices').delete().eq('id', item.id);
+    const { error } = await supabase
+      .from("estimation_prices")
+      .delete()
+      .eq("id", item.id);
     if (error) {
       setError(error.message);
       return;
@@ -187,12 +238,12 @@ export default function AdminEstimationPricing() {
   }
 
   const filteredItems = items.filter((item) => {
-    if (typeFilter !== 'all' && item.price_type !== typeFilter) return false;
+    if (typeFilter !== "all" && item.price_type !== typeFilter) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      const refName = (refMap[item.ref_id]?.name || '').toLowerCase();
+      const refName = (refMap[item.ref_id]?.name || "").toLowerCase();
       const refId = item.ref_id.toLowerCase();
-      const notes = (item.notes || '').toLowerCase();
+      const notes = (item.notes || "").toLowerCase();
       return refName.includes(q) || refId.includes(q) || notes.includes(q);
     }
     return true;
@@ -204,7 +255,12 @@ export default function AdminEstimationPricing() {
         title="Estimation Pricing"
         subtitle="Manage base prices and active currency rates for products, quality levels, and materials."
         action={
-          <AdminButton onClick={() => { setEditing(null); setShowForm(true); }}>
+          <AdminButton
+            onClick={() => {
+              setEditing(null);
+              setShowForm(true);
+            }}
+          >
             <Plus aria-hidden="true" className="h-4 w-4" /> Add Price
           </AdminButton>
         }
@@ -219,81 +275,143 @@ export default function AdminEstimationPricing() {
       {/* Filters & Search Bar */}
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2">
-          <Filter aria-hidden="true" className="h-4 w-4 text-muted-foreground" />
+          <Filter
+            aria-hidden="true"
+            className="h-4 w-4 text-muted-foreground"
+          />
           <div className="flex rounded-lg border border-border bg-card dark:border-white/5 dark:bg-card p-1 text-xs font-medium">
-            {(['all', 'product', 'quality', 'material'] as const).map((type) => (
-              <AdminButton
-                key={type}
-                type="button"
-                onClick={() => setTypeFilter(type)}
-                className={`rounded-md px-3 py-1.5 capitalize transition-colors ${
-                  typeFilter === type
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {type}
-              </AdminButton>
-            ))}
+            {(["all", "product", "quality", "material"] as const).map(
+              (type) => (
+                <AdminButton
+                  key={type}
+                  type="button"
+                  onClick={() => setTypeFilter(type)}
+                  className={`rounded-md px-3 py-1.5 capitalize transition-colors ${
+                    typeFilter === type
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {type}
+                </AdminButton>
+              ),
+            )}
           </div>
         </div>
 
         <div className="relative w-full sm:w-64">
-          <Search aria-hidden="true" className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Search
+            aria-hidden="true"
+            className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground"
+          />
           <AdminInput
- type="text"
- placeholder="Search price items..."
- value={searchQuery}
- onChange={(e) => setSearchQuery(e.target.value)}
+            type="text"
+            placeholder="Search price items..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9 text-xs"
           />
         </div>
       </div>
 
       {loading ? (
-        <StateMessage type="loading" title="Loading pricing..." message="Fetching price configuration records." />
+        <StateMessage
+          type="loading"
+          title="Loading pricing..."
+          message="Fetching price configuration records."
+        />
       ) : filteredItems.length === 0 ? (
         <StateMessage
           type="empty"
           title="No price records found"
-          message={searchQuery || typeFilter !== 'all' ? 'Try adjusting your search or filters.' : 'Add your first price record to configure calculation pricing.'}
+          message={
+            searchQuery || typeFilter !== "all"
+              ? "Try adjusting your search or filters."
+              : "Add your first price record to configure calculation pricing."
+          }
         />
       ) : (
         <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {filteredItems.map((item) => {
             const refInfo = refMap[item.ref_id];
-            const packSizeVal = item.pack_size_id ? packSizeMap[item.pack_size_id] : null;
+            const packSizeVal = item.pack_size_id
+              ? packSizeMap[item.pack_size_id]
+              : null;
 
             return (
               <div key={item.id} className="card p-3">
                 <div className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-1.5">
-                      <span className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${getPriceTypeBadge(item.price_type)}`}>
+                      <span
+                        className={`inline-flex items-center rounded-full border px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider ${getPriceTypeBadge(item.price_type)}`}
+                      >
                         {item.price_type}
                       </span>
                       <h3 className="truncate text-xs font-bold text-foreground dark:text-primary-foreground">
-                        {refInfo ? refInfo.name : `Ref: ${item.ref_id.slice(0, 8)}...`}
+                        {refInfo
+                          ? refInfo.name
+                          : `Ref: ${item.ref_id.slice(0, 8)}...`}
                       </h3>
-                      {!item.is_active && <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">Off</span>}
+                      {!item.is_active && (
+                        <span className="rounded-full bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground">
+                          Off
+                        </span>
+                      )}
                     </div>
                     <div className="mt-0.5 flex flex-wrap gap-x-2 gap-y-0.5 text-[10px] text-muted-foreground dark:text-muted-foreground">
                       {packSizeVal && <span>Pack: {packSizeVal}</span>}
-                      <span className="inline-flex items-center gap-0.5"><Calendar aria-hidden="true" className="h-2.5 w-2.5" />{item.effective_date}</span>
+                      <span className="inline-flex items-center gap-0.5">
+                        <Calendar aria-hidden="true" className="h-2.5 w-2.5" />
+                        {item.effective_date}
+                      </span>
                     </div>
-                    {item.notes && <p className="mt-0.5 line-clamp-1 text-[10px] italic text-muted-foreground">{item.notes}</p>}
+                    {item.notes && (
+                      <p className="mt-0.5 line-clamp-1 text-[10px] italic text-muted-foreground">
+                        {item.notes}
+                      </p>
+                    )}
                   </div>
                 </div>
                 <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-extrabold text-foreground dark:text-primary-foreground">{formatCurrency(item.price, item.currency)}</span>
-                    <span className="text-[9px] uppercase text-muted-foreground">{item.currency}</span>
+                    <span className="text-sm font-extrabold text-foreground dark:text-primary-foreground">
+                      {formatCurrency(item.price, item.currency)}
+                    </span>
+                    <span className="text-[9px] uppercase text-muted-foreground">
+                      {item.currency}
+                    </span>
                   </div>
                   <div className="flex items-center gap-0.5">
-                    <Toggle checked={item.is_active} onChange={() => toggleActive(item)} />
-                    <AdminIconButton variant="ghost" type="button" onClick={() => setHistoryItem(item)} title="History"><History className="h-3 w-3" /></AdminIconButton>
-                    <AdminIconButton variant="ghost" type="button" onClick={() => { setEditing(item); setShowForm(true); }} ><Pencil className="h-3 w-3" /></AdminIconButton>
-                    <AdminIconButton variant="danger" type="button" onClick={() => remove(item)} ><Trash2 aria-hidden="true" className="h-3 w-3" /></AdminIconButton>
+                    <Toggle
+                      checked={item.is_active}
+                      onChange={() => toggleActive(item)}
+                    />
+                    <AdminIconButton
+                      variant="ghost"
+                      type="button"
+                      onClick={() => setHistoryItem(item)}
+                      title="History"
+                    >
+                      <History className="h-3 w-3" />
+                    </AdminIconButton>
+                    <AdminIconButton
+                      variant="ghost"
+                      type="button"
+                      onClick={() => {
+                        setEditing(item);
+                        setShowForm(true);
+                      }}
+                    >
+                      <Pencil className="h-3 w-3" />
+                    </AdminIconButton>
+                    <AdminIconButton
+                      variant="danger"
+                      type="button"
+                      onClick={() => remove(item)}
+                    >
+                      <Trash2 aria-hidden="true" className="h-3 w-3" />
+                    </AdminIconButton>
                   </div>
                 </div>
               </div>
@@ -344,19 +462,19 @@ function PricingForm({
   onClose: () => void;
   onSaved: () => void;
 }) {
-  const [priceType, setPriceType] = useState<'product' | 'quality' | 'material'>(
-    initial?.price_type ?? 'product'
-  );
-  const [refId, setRefId] = useState(initial?.ref_id ?? '');
-  const [customRefId, setCustomRefId] = useState('');
+  const [priceType, setPriceType] = useState<
+    "product" | "quality" | "material"
+  >(initial?.price_type ?? "product");
+  const [refId, setRefId] = useState(initial?.ref_id ?? "");
+  const [customRefId, setCustomRefId] = useState("");
   const [useCustomRef, setUseCustomRef] = useState(false);
   const [price, setPrice] = useState(initial?.price ?? 0);
-  const [currency, setCurrency] = useState(initial?.currency ?? 'NGN');
-  const [packSizeId, setPackSizeId] = useState(initial?.pack_size_id ?? '');
+  const [currency, setCurrency] = useState(initial?.currency ?? "NGN");
+  const [packSizeId, setPackSizeId] = useState(initial?.pack_size_id ?? "");
   const [effectiveDate, setEffectiveDate] = useState(
-    initial?.effective_date ?? new Date().toISOString().split('T')[0]
+    initial?.effective_date ?? new Date().toISOString().split("T")[0],
   );
-  const [notes, setNotes] = useState(initial?.notes ?? '');
+  const [notes, setNotes] = useState(initial?.notes ?? "");
   const [isActive, setIsActive] = useState(initial?.is_active ?? true);
 
   const [saving, setSaving] = useState(false);
@@ -367,7 +485,7 @@ function PricingForm({
 
   // Filter pack sizes matching selected ref_id
   const filteredPackSizes = packSizes.filter(
-    (ps) => !refId || ps.ref_id === refId
+    (ps) => !refId || ps.ref_id === refId,
   );
 
   useEffect(() => {
@@ -377,7 +495,7 @@ function PricingForm({
     } else if (filteredRefOptions.length > 0) {
       setRefId(filteredRefOptions[0].id);
     } else {
-      setRefId('');
+      setRefId("");
     }
   }, [priceType, initial, filteredRefOptions]);
 
@@ -385,19 +503,19 @@ function PricingForm({
     const finalRefId = useCustomRef ? customRefId.trim() : refId.trim();
 
     if (!finalRefId) {
-      setFormError('Target reference ID is required');
+      setFormError("Target reference ID is required");
       return;
     }
     if (isNaN(price) || price < 0) {
-      setFormError('Price must be greater than or equal to 0');
+      setFormError("Price must be greater than or equal to 0");
       return;
     }
     if (!currency.trim()) {
-      setFormError('Currency code is required');
+      setFormError("Currency code is required");
       return;
     }
     if (!effectiveDate) {
-      setFormError('Effective date is required');
+      setFormError("Effective date is required");
       return;
     }
 
@@ -416,8 +534,11 @@ function PricingForm({
     };
 
     const { error } = initial
-      ? await supabase.from('estimation_prices').update(payload).eq('id', initial.id)
-      : await supabase.from('estimation_prices').insert(payload);
+      ? await supabase
+          .from("estimation_prices")
+          .update(payload)
+          .eq("id", initial.id)
+      : await supabase.from("estimation_prices").insert(payload);
 
     setSaving(false);
 
@@ -430,138 +551,154 @@ function PricingForm({
   }
 
   return (
-    <AdminModal open onClose={onClose} title={initial ? 'Edit Price Record' : 'Add Price Record'} maxWidth="max-w-lg">
-          <AdminField label="Price Type">
+    <AdminModal
+      open
+      onClose={onClose}
+      title={initial ? "Edit Price Record" : "Add Price Record"}
+      maxWidth="max-w-lg"
+    >
+      <AdminField label="Price Type">
+        <AdminSelect
+          value={priceType}
+          onChange={(e) =>
+            setPriceType(e.target.value as "product" | "quality" | "material")
+          }
+        >
+          <option value="product">Product Price</option>
+          <option value="quality">Quality Level Price</option>
+          <option value="material">Material Price</option>
+        </AdminSelect>
+      </AdminField>
+
+      <AdminField label="Target Item">
+        {!useCustomRef && filteredRefOptions.length > 0 ? (
+          <div className="space-y-1.5">
             <AdminSelect
-              
-              value={priceType}
-              onChange={(e) => setPriceType(e.target.value as 'product' | 'quality' | 'material')}
+              value={refId}
+              onChange={(e) => setRefId(e.target.value)}
             >
-              <option value="product">Product Price</option>
-              <option value="quality">Quality Level Price</option>
-              <option value="material">Material Price</option>
+              {filteredRefOptions.map((opt) => (
+                <option key={opt.id} value={opt.id}>
+                  {opt.name} {opt.detail ? `(${opt.detail})` : ""}
+                </option>
+              ))}
             </AdminSelect>
-          </AdminField>
-
-          <AdminField label="Target Item">
-            {!useCustomRef && filteredRefOptions.length > 0 ? (
-              <div className="space-y-1.5">
-                <AdminSelect
-                  
-                  value={refId}
-                  onChange={(e) => setRefId(e.target.value)}
-                >
-                  {filteredRefOptions.map((opt) => (
-                    <option key={opt.id} value={opt.id}>
-                      {opt.name} {opt.detail ? `(${opt.detail})` : ''}
-                    </option>
-                  ))}
-                </AdminSelect>
-                <AdminButton variant="link" type="button" onClick={() => setUseCustomRef(true)} className="text-xs">
-                  Enter manual UUID
-                </AdminButton>
-              </div>
-            ) : (
-              <div className="space-y-1.5">
-                <AdminInput
-                  type="text"
-                  placeholder="Paste UUID ref_id"
-                  className="font-mono text-xs"
-                  value={useCustomRef ? customRefId : refId}
-                  onChange={(e) =>
-                    useCustomRef ? setCustomRefId(e.target.value) : setRefId(e.target.value)
-                  }
-                />
-                {filteredRefOptions.length > 0 && (
-                  <AdminButton variant="link" type="button" onClick={() => setUseCustomRef(false)} className="text-xs">
-                    Select from catalog list
-                  </AdminButton>
-                )}
-              </div>
-            )}
-          </AdminField>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Price Amount">
-              <AdminInput
-                type="number"
-                min="0"
-                step="0.01"
-                className="font-semibold"
-                value={price}
-                onChange={(e) => setPrice(Number(e.target.value))}
-              />
-            </AdminField>
-
-            <AdminField label="Currency">
-              <AdminSelect
-                
-                value={currency}
-                onChange={(e) => setCurrency(e.target.value)}
-              >
-                <option value="NGN">NGN (₦)</option>
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-              </AdminSelect>
-            </AdminField>
+            <AdminButton
+              variant="link"
+              type="button"
+              onClick={() => setUseCustomRef(true)}
+              className="text-xs"
+            >
+              Enter manual UUID
+            </AdminButton>
           </div>
-
-          <div className="grid gap-4 sm:grid-cols-2">
-            <AdminField label="Pack Size (Optional)">
-              <AdminSelect
-                
-                value={packSizeId}
-                onChange={(e) => setPackSizeId(e.target.value)}
-              >
-                <option value="">-- No Specific Pack Size --</option>
-                {filteredPackSizes.map((ps) => (
-                  <option key={ps.id} value={ps.id}>
-                    Pack Size: {ps.pack_size}
-                  </option>
-                ))}
-              </AdminSelect>
-            </AdminField>
-
-            <AdminField label="Effective Date">
-              <AdminInput
-                type="date"
-                
-                value={effectiveDate}
-                onChange={(e) => setEffectiveDate(e.target.value)}
-              />
-            </AdminField>
-          </div>
-
-          <AdminField label="Notes / Comments">
-            <AdminTextarea
-              
-              rows={2}
-              placeholder="e.g. Standard wholesale pricing updated for Q3"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+        ) : (
+          <div className="space-y-1.5">
+            <AdminInput
+              type="text"
+              placeholder="Paste UUID ref_id"
+              className="font-mono text-xs"
+              value={useCustomRef ? customRefId : refId}
+              onChange={(e) =>
+                useCustomRef
+                  ? setCustomRefId(e.target.value)
+                  : setRefId(e.target.value)
+              }
             />
-          </AdminField>
-
-          <div className="flex items-center justify-between pt-1">
-            <span className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">Is Active</span>
-            <Toggle checked={isActive} onChange={setIsActive} />
+            {filteredRefOptions.length > 0 && (
+              <AdminButton
+                variant="link"
+                type="button"
+                onClick={() => setUseCustomRef(false)}
+                className="text-xs"
+              >
+                Select from catalog list
+              </AdminButton>
+            )}
           </div>
+        )}
+      </AdminField>
 
-          {formError && (
-            <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-              {formError}
-            </div>
-          )}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <AdminField label="Price Amount">
+          <AdminInput
+            type="number"
+            min="0"
+            step="0.01"
+            className="font-semibold"
+            value={price}
+            onChange={(e) => setPrice(Number(e.target.value))}
+          />
+        </AdminField>
 
-          <div className="flex justify-end gap-3 pt-3">
-            <AdminButton variant="secondary" onClick={onClose}>
-              Cancel
-            </AdminButton>
-            <AdminButton onClick={onSave} disabled={saving}>
-              {saving ? 'Saving…' : 'Save Price'}
-            </AdminButton>
-          </div>
+        <AdminField label="Currency">
+          <AdminSelect
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+          >
+            <option value="NGN">NGN (₦)</option>
+            <option value="USD">USD ($)</option>
+            <option value="EUR">EUR (€)</option>
+            <option value="GBP">GBP (£)</option>
+          </AdminSelect>
+        </AdminField>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <AdminField label="Pack Size (Optional)">
+          <AdminSelect
+            value={packSizeId}
+            onChange={(e) => setPackSizeId(e.target.value)}
+          >
+            <option value="">-- No Specific Pack Size --</option>
+            {filteredPackSizes.map((ps) => (
+              <option key={ps.id} value={ps.id}>
+                Pack Size: {ps.pack_size}
+              </option>
+            ))}
+          </AdminSelect>
+        </AdminField>
+
+        <AdminField label="Effective Date">
+          <AdminInput
+            type="date"
+
+            value={effectiveDate}
+            onChange={(e) => setEffectiveDate(e.target.value)}
+          />
+        </AdminField>
+      </div>
+
+      <AdminField label="Notes / Comments">
+        <AdminTextarea
+          rows={2}
+          placeholder="e.g. Standard wholesale pricing updated for Q3"
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
+        />
+      </AdminField>
+
+      <div className="flex items-center justify-between pt-1">
+        <span className="text-sm font-semibold text-card-foreground dark:text-muted-foreground/60">
+          Is Active
+        </span>
+        <Toggle checked={isActive} onChange={setIsActive} />
+      </div>
+
+      {formError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {formError}
+        </div>
+      )}
+
+      <div className="flex justify-end gap-3 pt-3">
+        <AdminButton variant="secondary" onClick={onClose}>
+          Cancel
+        </AdminButton>
+        <AdminButton onClick={onSave} disabled={saving}>
+          {saving ? "Saving…" : "Save Price"}
+        </AdminButton>
+      </div>
     </AdminModal>
   );
 }
@@ -588,11 +725,11 @@ function PriceHistoryModal({
       setError(null);
 
       const { data, error } = await supabase
-        .from('estimation_price_history')
-        .select('*')
-        .eq('ref_id', item.ref_id)
-        .eq('price_type', item.price_type)
-        .order('created_at', { ascending: false });
+        .from("estimation_price_history")
+        .select("*")
+        .eq("ref_id", item.ref_id)
+        .eq("price_type", item.price_type)
+        .order("created_at", { ascending: false });
 
       if (error) {
         setError(error.message);
@@ -606,74 +743,91 @@ function PriceHistoryModal({
   }, [item.ref_id, item.price_type]);
 
   return (
-    <AdminModal open onClose={onClose} title="Price History" maxWidth="max-w-xl">
-        <p className="text-xs text-muted-foreground dark:text-muted-foreground">
-          {refName} ({item.price_type})
-        </p>
+    <AdminModal
+      open
+      onClose={onClose}
+      title="Price History"
+      maxWidth="max-w-xl"
+    >
+      <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+        {refName} ({item.price_type})
+      </p>
 
-        <div className="mt-4 flex-1 overflow-y-auto pr-1">
-          {error && (
-            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">
-              {error}
-            </div>
-          )}
+      <div className="mt-4 flex-1 overflow-y-auto pr-1">
+        {error && (
+          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+            {error}
+          </div>
+        )}
 
-          {loading ? (
-            <StateMessage type="loading" title="Loading history..." message="Fetching price logs." />
-          ) : history.length === 0 ? (
-            <StateMessage
-              type="empty"
-              title="No history recorded yet"
-              message="Price history logs are created automatically whenever price changes occur."
-            />
-          ) : (
-            <div className="space-y-3">
-              {history.map((h) => (
-                <div key={h.id} className="rounded-lg border border-border p-3 text-xs bg-muted/50 dark:bg-white/5">
-                  <div className="flex items-center justify-between font-medium text-foreground">
-                    <span className="flex items-center gap-2">
-                      <DollarSign aria-hidden="true" className="h-3.5 w-3.5 text-brand-purple" />
-                      {h.old_price !== null ? (
-                        <span>
-                          <span className="line-through text-muted-foreground dark:text-muted-foreground">
-                            {formatCurrency(h.old_price, h.currency)}
-                          </span>{' '}
-                          →{' '}
-                          <span className="font-bold text-foreground dark:text-primary-foreground">
-                            {formatCurrency(h.new_price, h.currency)}
-                          </span>
-                        </span>
-                      ) : (
+        {loading ? (
+          <StateMessage
+            type="loading"
+            title="Loading history..."
+            message="Fetching price logs."
+          />
+        ) : history.length === 0 ? (
+          <StateMessage
+            type="empty"
+            title="No history recorded yet"
+            message="Price history logs are created automatically whenever price changes occur."
+          />
+        ) : (
+          <div className="space-y-3">
+            {history.map((h) => (
+              <div
+                key={h.id}
+                className="rounded-lg border border-border p-3 text-xs bg-muted/50 dark:bg-white/5"
+              >
+                <div className="flex items-center justify-between font-medium text-foreground">
+                  <span className="flex items-center gap-2">
+                    <DollarSign
+                      aria-hidden="true"
+                      className="h-3.5 w-3.5 text-brand-purple"
+                    />
+                    {h.old_price !== null ? (
+                      <span>
+                        <span className="line-through text-muted-foreground dark:text-muted-foreground">
+                          {formatCurrency(h.old_price, h.currency)}
+                        </span>{" "}
+                        →{" "}
                         <span className="font-bold text-foreground dark:text-primary-foreground">
-                          Initial Price: {formatCurrency(h.new_price, h.currency)}
+                          {formatCurrency(h.new_price, h.currency)}
                         </span>
-                      )}
-                    </span>
-                    <span className="text-muted-foreground dark:text-muted-foreground">
-                      {new Date(h.created_at).toLocaleString()}
-                    </span>
-                  </div>
-
-                  {h.change_reason && (
-                    <p className="mt-1 text-muted-foreground italic">Reason: {h.change_reason}</p>
-                  )}
-
-                  {h.changed_by && (
-                    <p className="mt-0.5 text-[10px] text-muted-foreground font-mono">
-                      Changed by: {h.changed_by}
-                    </p>
-                  )}
+                      </span>
+                    ) : (
+                      <span className="font-bold text-foreground dark:text-primary-foreground">
+                        Initial Price: {formatCurrency(h.new_price, h.currency)}
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-muted-foreground dark:text-muted-foreground">
+                    {new Date(h.created_at).toLocaleString()}
+                  </span>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
 
-        <div className="mt-4 pt-3 border-t flex justify-end">
-          <AdminButton variant="secondary" onClick={onClose}>
-            Close
-          </AdminButton>
-        </div>
+                {h.change_reason && (
+                  <p className="mt-1 text-muted-foreground italic">
+                    Reason: {h.change_reason}
+                  </p>
+                )}
+
+                {h.changed_by && (
+                  <p className="mt-0.5 text-[10px] text-muted-foreground font-mono">
+                    Changed by: {h.changed_by}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-4 pt-3 border-t flex justify-end">
+        <AdminButton variant="secondary" onClick={onClose}>
+          Close
+        </AdminButton>
+      </div>
     </AdminModal>
   );
 }

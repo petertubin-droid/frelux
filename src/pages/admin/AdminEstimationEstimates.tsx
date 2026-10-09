@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { formatByCode } from "@/lib/international/currency-format";
 import {
   ChevronDown,
   ChevronUp,
@@ -73,17 +74,7 @@ interface EstimationEstimateItem {
 }
 
 function formatCurrency(amount: number, currency: string = "NGN"): string {
-  const symbol =
-    currency === "NGN"
-      ? "₦"
-      : currency === "USD"
-        ? "$"
-        : currency === "EUR"
-          ? "€"
-          : currency === "GBP"
-            ? "£"
-            : `${currency} `;
-  return `${symbol}${Number(amount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return formatByCode(amount, currency, { decimals: 2 });
 }
 
 function getStatusBadge(status: string) {

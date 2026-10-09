@@ -4,6 +4,7 @@
  * Overview | Rooms | Labour | Shopping | Quotation | Timeline | Notes
  */
 import { useState, useEffect, useCallback, useMemo } from "react";
+import { formatByCode } from "@/lib/international/currency-format";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   Package,
@@ -86,15 +87,8 @@ import { Button } from "@/components/ui/shadcn/button";
 // CONSTANTS & HELPERS
 // ============================================================
 
-const currencyFormatter = new Intl.NumberFormat("en-NG", {
-  style: "currency",
-  currency: "NGN",
-  minimumFractionDigits: 0,
-  maximumFractionDigits: 0,
-});
-
 function formatCurrency(value: number): string {
-  return currencyFormatter.format(value || 0);
+  return formatByCode(value || 0, "NGN", { decimals: 0 });
 }
 
 type TabKey =
@@ -336,9 +330,7 @@ export default function ProjectDashboard() {
       setAttachments(att);
       setNotes(proj.notes ?? "");
     } catch (err) {
-      setError(
-        getSafeError(err, "Failed to load project data."),
-      );
+      setError(getSafeError(err, "Failed to load project data."));
     } finally {
       setLoading(false);
     }
@@ -486,9 +478,7 @@ export default function ProjectDashboard() {
       setEditingLabourId(null);
       setLabourForm(emptyLabourForm);
     } catch (err) {
-      setError(
-        getSafeError(err, "Failed to save labour item."),
-      );
+      setError(getSafeError(err, "Failed to save labour item."));
     } finally {
       setActionLoading(false);
     }
@@ -515,9 +505,7 @@ export default function ProjectDashboard() {
       setLabourPlan(refreshed);
       await doRecalculate();
     } catch (err) {
-      setError(
-        getSafeError(err, "Failed to delete labour item."),
-      );
+      setError(getSafeError(err, "Failed to delete labour item."));
     } finally {
       setActionLoading(false);
     }
@@ -619,9 +607,7 @@ export default function ProjectDashboard() {
       const refreshed = await fetchQuotations(id);
       setQuotations(refreshed);
     } catch (err) {
-      setError(
-        getSafeError(err, "Failed to generate quotation."),
-      );
+      setError(getSafeError(err, "Failed to generate quotation."));
     } finally {
       setActionLoading(false);
     }
@@ -651,9 +637,7 @@ export default function ProjectDashboard() {
         prev.map((q) => (q.id === quotationId ? { ...q, status: "sent" } : q)),
       );
     } catch (err) {
-      setError(
-        getSafeError(err, "Failed to update quotation."),
-      );
+      setError(getSafeError(err, "Failed to update quotation."));
     } finally {
       setActionLoading(false);
     }
@@ -672,9 +656,7 @@ export default function ProjectDashboard() {
       const proj = await fetchContractorProject(id);
       if (proj) setProject(proj);
     } catch (err) {
-      setError(
-        getSafeError(err, "Failed to generate timeline."),
-      );
+      setError(getSafeError(err, "Failed to generate timeline."));
     } finally {
       setActionLoading(false);
     }
@@ -750,9 +732,7 @@ export default function ProjectDashboard() {
       const refreshed = await fetchAttachments(id);
       setAttachments(refreshed);
     } catch (err) {
-      setError(
-        getSafeError(err, "Failed to delete attachment."),
-      );
+      setError(getSafeError(err, "Failed to delete attachment."));
     } finally {
       setActionLoading(false);
     }
@@ -818,7 +798,8 @@ export default function ProjectDashboard() {
         <div className="flex max-w-md flex-col items-center gap-4 rounded-xl border border-red-200 bg-red-50 p-8 text-center">
           <AlertCircle aria-hidden="true" className="h-10 w-10 text-red-500" />
           <p className="text-sm font-medium text-red-700">{error}</p>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={() => navigate(-1)}
             className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700"
           >
@@ -839,7 +820,8 @@ export default function ProjectDashboard() {
           <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => navigate(-1)}
                   className="rounded-lg p-2 text-muted-foreground hover:bg-muted hover:text-card-foreground"
                 >
@@ -857,7 +839,8 @@ export default function ProjectDashboard() {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={doRecalculate}
                   disabled={actionLoading}
                   className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
@@ -865,7 +848,8 @@ export default function ProjectDashboard() {
                   <TrendingUp aria-hidden="true" className="h-4 w-4" />{" "}
                   Recalculate
                 </Button>
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() =>
                     createProjectVersion(id!, "Manual version snapshot")
                   }
@@ -883,7 +867,8 @@ export default function ProjectDashboard() {
                 const Icon = tab.icon;
                 const isActive = activeTab === tab.key;
                 return (
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     key={tab.key}
                     onClick={() => setActiveTab(tab.key)}
                     className={`inline-flex shrink-0 items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
@@ -907,7 +892,8 @@ export default function ProjectDashboard() {
             <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
               <AlertCircle aria-hidden="true" className="h-4 w-4 shrink-0" />
               <span className="flex-1">{error}</span>
-              <Button variant="ghost"
+              <Button
+                variant="ghost"
                 onClick={() => setError(null)}
                 className="text-amber-600 hover:text-amber-800"
               >
@@ -1163,7 +1149,10 @@ function OverviewTab(props: OverviewTabProps) {
             >
               <div className="flex items-center justify-between">
                 <div className={`rounded-lg ${stat.color} p-2.5`}>
-                  <Icon aria-hidden="true" className="h-5 w-5 text-primary-foreground" />
+                  <Icon
+                    aria-hidden="true"
+                    className="h-5 w-5 text-primary-foreground"
+                  />
                 </div>
               </div>
               <p className="mt-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
@@ -1251,13 +1240,17 @@ function OverviewTab(props: OverviewTabProps) {
             </p>
           </div>
           <div>
-            <p className="text-xs font-medium uppercase text-muted-foreground">Phone</p>
+            <p className="text-xs font-medium uppercase text-muted-foreground">
+              Phone
+            </p>
             <p className="mt-1 text-sm font-medium text-foreground">
               {props.project.client_phone ?? "N/A"}
             </p>
           </div>
           <div>
-            <p className="text-xs font-medium uppercase text-muted-foreground">Email</p>
+            <p className="text-xs font-medium uppercase text-muted-foreground">
+              Email
+            </p>
             <p className="mt-1 text-sm font-medium text-foreground">
               {props.project.client_email ?? "N/A"}
             </p>
@@ -1317,7 +1310,8 @@ function RoomsTab(props: RoomsTabProps) {
         <h2 className="text-lg font-semibold text-foreground">
           Project Rooms ({rooms.length})
         </h2>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={onShowForm}
           className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700"
         >
@@ -1332,7 +1326,8 @@ function RoomsTab(props: RoomsTabProps) {
             <h3 className="text-base font-semibold text-foreground">
               {editingRoomId ? "Edit Room" : "New Room"}
             </h3>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={onCancelForm}
               className="text-muted-foreground hover:text-muted-foreground"
             >
@@ -1558,7 +1553,8 @@ function RoomsTab(props: RoomsTabProps) {
           </div>
 
           <div className="mt-5 flex gap-2">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={onSubmit}
               disabled={actionLoading || !roomForm.name.trim()}
               className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
@@ -1570,7 +1566,8 @@ function RoomsTab(props: RoomsTabProps) {
               )}
               {editingRoomId ? "Update Room" : "Create Room"}
             </Button>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={onCancelForm}
               className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
             >
@@ -1583,7 +1580,10 @@ function RoomsTab(props: RoomsTabProps) {
       {/* Rooms list */}
       {rooms.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card py-16">
-          <Package aria-hidden="true" className="h-10 w-10 text-muted-foreground/80" />
+          <Package
+            aria-hidden="true"
+            className="h-10 w-10 text-muted-foreground/80"
+          />
           <p className="text-sm text-muted-foreground">
             No rooms yet. Add your first room to get started.
           </p>
@@ -1619,13 +1619,15 @@ function RoomsTab(props: RoomsTabProps) {
                     </p>
                   </div>
                   <div className="flex gap-1">
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => onEdit(room)}
                       className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-violet-600"
                     >
                       <Edit aria-hidden="true" className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => onDelete(room.id)}
                       className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-500"
                     >
@@ -1724,7 +1726,8 @@ function LabourTab(props: LabourTabProps) {
         <h2 className="text-lg font-semibold text-foreground">
           Labour Plan ({labourPlan.length})
         </h2>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={onShowForm}
           className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700"
         >
@@ -1739,7 +1742,8 @@ function LabourTab(props: LabourTabProps) {
             <h3 className="text-base font-semibold text-foreground">
               {editingLabourId ? "Edit Labour Role" : "New Labour Role"}
             </h3>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={onCancelForm}
               className="text-muted-foreground hover:text-muted-foreground"
             >
@@ -1848,7 +1852,8 @@ function LabourTab(props: LabourTabProps) {
           </div>
 
           <div className="mt-4 flex gap-2">
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={onSubmit}
               disabled={actionLoading}
               className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
@@ -1860,7 +1865,8 @@ function LabourTab(props: LabourTabProps) {
               )}
               {editingLabourId ? "Update Role" : "Add Role"}
             </Button>
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={onCancelForm}
               className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50"
             >
@@ -1873,7 +1879,10 @@ function LabourTab(props: LabourTabProps) {
       {/* Labour table */}
       {labourPlan.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card py-16">
-          <Users aria-hidden="true" className="h-10 w-10 text-muted-foreground/80" />
+          <Users
+            aria-hidden="true"
+            className="h-10 w-10 text-muted-foreground/80"
+          />
           <p className="text-sm text-muted-foreground">
             No labour roles yet. Add workers to plan your project.
           </p>
@@ -1913,7 +1922,9 @@ function LabourTab(props: LabourTabProps) {
                         {prettify(item.role)}
                       </p>
                       {item.notes && (
-                        <p className="text-xs text-muted-foreground">{item.notes}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {item.notes}
+                        </p>
                       )}
                     </td>
                     <td className="px-4 py-3 text-center text-sm text-card-foreground">
@@ -1932,13 +1943,15 @@ function LabourTab(props: LabourTabProps) {
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex justify-end gap-1">
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           onClick={() => onEdit(item)}
                           className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-violet-600"
                         >
                           <Edit aria-hidden="true" className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           onClick={() => onDelete(item.id)}
                           className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-500"
                         >
@@ -1979,13 +1992,15 @@ function LabourTab(props: LabourTabProps) {
                     {prettify(item.role)}
                   </h3>
                   <div className="flex gap-1">
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => onEdit(item)}
                       className="rounded p-1.5 text-muted-foreground hover:bg-muted hover:text-violet-600"
                     >
                       <Edit aria-hidden="true" className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => onDelete(item.id)}
                       className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-500"
                     >
@@ -1994,7 +2009,9 @@ function LabourTab(props: LabourTabProps) {
                   </div>
                 </div>
                 {item.notes && (
-                  <p className="mt-1 text-xs text-muted-foreground">{item.notes}</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {item.notes}
+                  </p>
                 )}
                 <div className="mt-3 grid grid-cols-1 sm:grid-cols-4 gap-2 text-center">
                   <div>
@@ -2089,7 +2106,8 @@ function ShoppingTab(props: ShoppingTabProps) {
           Shopping List ({shoppingList.length})
         </h2>
         <div className="flex flex-wrap gap-2">
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={onGenerate}
             disabled={actionLoading}
             className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
@@ -2101,21 +2119,24 @@ function ShoppingTab(props: ShoppingTabProps) {
             )}
             Generate Shopping List
           </Button>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={onPrint}
             disabled={shoppingList.length === 0}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
           >
             <Printer aria-hidden="true" className="h-4 w-4" /> Print
           </Button>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={onDownloadPDF}
             disabled={shoppingList.length === 0}
             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-card-foreground hover:bg-muted/50 disabled:opacity-50"
           >
             <Download aria-hidden="true" className="h-4 w-4" /> PDF
           </Button>
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             onClick={onShareWhatsApp}
             disabled={shoppingList.length === 0}
             className="inline-flex items-center gap-1.5 rounded-lg border border-green-300 bg-green-50 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-100 disabled:opacity-50"
@@ -2129,7 +2150,9 @@ function ShoppingTab(props: ShoppingTabProps) {
       {shoppingList.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="rounded-lg border border-border bg-card p-4">
-            <p className="text-xs uppercase text-muted-foreground">Total Items</p>
+            <p className="text-xs uppercase text-muted-foreground">
+              Total Items
+            </p>
             <p className="mt-1 text-lg font-bold text-foreground">
               {shoppingList.length}
             </p>
@@ -2141,7 +2164,9 @@ function ShoppingTab(props: ShoppingTabProps) {
             </p>
           </div>
           <div className="rounded-lg border border-border bg-card p-4">
-            <p className="text-xs uppercase text-muted-foreground">Est. Total</p>
+            <p className="text-xs uppercase text-muted-foreground">
+              Est. Total
+            </p>
             <p className="mt-1 text-lg font-bold text-violet-600">
               {currencySymbol}
               {shoppingTotal.toLocaleString("en-NG")}
@@ -2189,7 +2214,8 @@ function ShoppingTab(props: ShoppingTabProps) {
                       key={item.id}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-muted/50"
                     >
-                      <Button variant="ghost"
+                      <Button
+                        variant="ghost"
                         onClick={() => onTogglePurchased(item)}
                         className={`shrink-0 rounded ${item.is_purchased ? "text-green-500" : "text-muted-foreground/80 hover:text-muted-foreground"}`}
                       >
@@ -2362,7 +2388,8 @@ function QuotationTab(props: QuotationTabProps) {
           </div>
         </div>
 
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={onGenerate}
           disabled={actionLoading}
           className="mt-5 inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
@@ -2379,7 +2406,10 @@ function QuotationTab(props: QuotationTabProps) {
       {/* Generated quotations */}
       {quotations.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card py-16">
-          <FileText aria-hidden="true" className="h-10 w-10 text-muted-foreground/80" />
+          <FileText
+            aria-hidden="true"
+            className="h-10 w-10 text-muted-foreground/80"
+          />
           <p className="text-sm text-muted-foreground">
             No quotations yet. Set your parameters above and generate one.
           </p>
@@ -2413,14 +2443,16 @@ function QuotationTab(props: QuotationTabProps) {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => onDownloadPDF(quot)}
                     className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium text-card-foreground hover:bg-muted/50"
                   >
                     <Download aria-hidden="true" className="h-4 w-4" /> PDF
                   </Button>
                   {quot.status === "draft" && (
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => onSend(quot.id)}
                       disabled={actionLoading}
                       className="inline-flex items-center gap-1.5 rounded-lg border border-blue-300 bg-blue-50 px-3 py-1.5 text-sm font-medium text-blue-700 hover:bg-blue-100 disabled:opacity-50"
@@ -2545,7 +2577,8 @@ function TimelineTab(props: TimelineTabProps) {
         <h2 className="text-lg font-semibold text-foreground">
           Project Timeline ({timeline.length})
         </h2>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={onGenerate}
           disabled={actionLoading}
           className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
@@ -2561,7 +2594,10 @@ function TimelineTab(props: TimelineTabProps) {
 
       {timeline.length === 0 ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border bg-card py-16">
-          <Calendar aria-hidden="true" className="h-10 w-10 text-muted-foreground/80" />
+          <Calendar
+            aria-hidden="true"
+            className="h-10 w-10 text-muted-foreground/80"
+          />
           <p className="text-sm text-muted-foreground">
             No timeline generated yet. Click "Generate" to create a project
             timeline.
@@ -2613,7 +2649,8 @@ function TimelineTab(props: TimelineTabProps) {
                   maxTimelineDay > 0
                     ? ((phase.end_day - phase.start_day) / maxTimelineDay) * 100
                     : 0;
-                const barColor = PHASE_COLORS[phase.phase] ?? "bg-muted-foreground";
+                const barColor =
+                  PHASE_COLORS[phase.phase] ?? "bg-muted-foreground";
 
                 return (
                   <div key={phase.id} className="group">
@@ -2644,7 +2681,8 @@ function TimelineTab(props: TimelineTabProps) {
                           Day {phase.start_day}–{phase.end_day} (
                           {phase.days_required}d)
                         </span>
-                        <Button variant="ghost"
+                        <Button
+                          variant="ghost"
                           onClick={() => onMarkComplete(phase)}
                           disabled={actionLoading}
                           className={`rounded-md border px-2 py-0.5 text-xs font-medium transition-colors disabled:opacity-50 ${
@@ -2749,7 +2787,8 @@ function NotesTab(props: NotesTabProps) {
             Project Notes
           </h3>
           {notesDirty && (
-            <Button variant="ghost"
+            <Button
+              variant="ghost"
               onClick={onSave}
               disabled={actionLoading}
               className="inline-flex items-center gap-1.5 rounded-lg bg-violet-600 px-3 py-1.5 text-sm font-semibold text-primary-foreground hover:bg-violet-700 disabled:opacity-50"
@@ -2789,7 +2828,10 @@ function NotesTab(props: NotesTabProps) {
 
         {/* Upload area */}
         <label className="mt-4 flex cursor-pointer flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/50 px-6 py-10 text-center transition-colors hover:border-violet-400 hover:bg-violet-50">
-          <Upload aria-hidden="true" className="h-8 w-8 text-muted-foreground" />
+          <Upload
+            aria-hidden="true"
+            className="h-8 w-8 text-muted-foreground"
+          />
           <p className="text-sm font-medium text-muted-foreground">
             Click to upload files
           </p>
@@ -2837,7 +2879,8 @@ function NotesTab(props: NotesTabProps) {
                     <Download aria-hidden="true" className="h-4 w-4" />
                   </a>
                 )}
-                <Button variant="ghost"
+                <Button
+                  variant="ghost"
                   onClick={() => onDeleteAttachment(att.id)}
                   className="rounded p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-500"
                 >

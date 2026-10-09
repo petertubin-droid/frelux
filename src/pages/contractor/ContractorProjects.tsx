@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { formatWithSymbol } from "@/lib/international/currency-format";
 import { useNavigate } from "react-router-dom";
 import {
   Plus,
@@ -91,10 +92,7 @@ const TYPE_BADGE_CLASSES: Record<ProjectType, string> = {
 // ============================================================
 
 function formatCurrency(value: number, symbol: string): string {
-  return `${symbol}${value.toLocaleString("en-US", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  })}`;
+  return formatWithSymbol(value, symbol);
 }
 
 function formatDate(iso: string): string {
