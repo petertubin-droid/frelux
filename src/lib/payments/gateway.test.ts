@@ -1,4 +1,12 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+import { availableGateways } from "./gateway";
+
+// availableGateways consults the Paystack env check; pin it so the
+// test is deterministic regardless of the test-runner env.
+vi.mock("@/lib/paystack", () => ({
+  initializeSubscriptionCheckout: vi.fn(),
+  isPaystackConfigured: () => true,
+}));
 import {
   parseGateway,
   resolveCheckoutGateway,
@@ -74,5 +82,19 @@ describe("resolveCheckoutGateway", () => {
   it("never falls back to an unavailable gateway itself", () => {
     // Invalid settings degrade to paystack, never to a half-configured gateway
     expect(resolveCheckoutGateway("adyen", FULL).gateway).toBe("paystack");
+  });
+});
+
+describe("availableGateways", () => {
+  it("lists every configured gateway, paystack included when its key is set", () => {
+    expect(availableGateways(FULL)).toEqual([
+      "paystack",
+      "flutterwave",
+      "stripe",
+    ]);
+  });
+
+  it("drops gateways that are not configured in this build", () => {
+    expect(availableGateways(EMPTY)).toEqual(["paystack"]);
   });
 });

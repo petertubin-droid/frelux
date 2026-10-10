@@ -15,7 +15,10 @@
 // =========================================================
 
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
-import { initializeSubscriptionCheckout } from "@/lib/paystack";
+import {
+  initializeSubscriptionCheckout,
+  isPaystackConfigured,
+} from "@/lib/paystack";
 import type { SubscriptionPlan } from "@/lib/subscription";
 
 export type PaymentGateway = "paystack" | "stripe" | "flutterwave";
@@ -77,6 +80,19 @@ export function resolveCheckoutGateway(
   };
 }
 
+/**
+ * Gateways usable in THIS build (keys present in the frontend env).
+ * Paystack only counts when its public key is set, so a misconfigured
+ * build offers an honest empty choice rather than a broken checkout.
+ */
+export function availableGateways(cfg: GatewayRuntimeConfig): PaymentGateway[] {
+  const list: PaymentGateway[] = [];
+  if (isPaystackConfigured()) list.push("paystack");
+  if (isFlutterwaveConfigured(cfg)) list.push("flutterwave");
+  if (isStripeConfigured(cfg)) list.push("stripe");
+  return list;
+}
+
 export function currentGatewayRuntimeConfig(): GatewayRuntimeConfig {
   return {
     stripePublishableKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,
@@ -111,12 +127,25 @@ export async function startSubscriptionCheckout(
   amountMinor: number,
   email: string,
   userId: string,
+  /**
+   * Explicit user choice from the checkout selector. When set and
+   * configured, it wins over the admin default; otherwise the admin
+   * default (with Paystack fallback) runs. Both gateways stay live:
+   * the admin setting is the default, never a kill switch.
+   */
+  preferred?: PaymentGateway,
 ): Promise<CheckoutStartResult> {
   const wanted = await fetchConfiguredGateway();
-  const resolved = resolveCheckoutGateway(
-    wanted,
-    currentGatewayRuntimeConfig(),
-  );
+  const cfg = currentGatewayRuntimeConfig();
+  let resolved = resolveCheckoutGateway(wanted, cfg);
+  if (preferred) {
+    resolved = resolveCheckoutGateway(preferred, cfg);
+    if (resolved.fallbackFrom && parseGateway(wanted) !== "paystack") {
+      // User's pick is not configured in this build; fall back to the
+      // admin default resolution rather than silently to Paystack.
+      resolved = resolveCheckoutGateway(wanted, cfg);
+    }
+  }
 
   if (resolved.fallbackFrom) {
     console.info(`[payments] ${resolved.reason}`);

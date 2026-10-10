@@ -17,9 +17,15 @@ import { useSeo } from "@/lib/seo";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import { useToast } from "@/components/ui/Toast";
 import { PRICING_PLANS, type PricingPlan } from "@/lib/pricing-plans";
-import { verifyPayment, isPaystackConfigured } from "@/lib/paystack";
+import { verifyPayment } from "@/lib/paystack";
 import { verifyFlutterwavePayment } from "@/lib/flutterwave";
-import { startSubscriptionCheckout } from "@/lib/payments/gateway";
+import {
+  startSubscriptionCheckout,
+  fetchConfiguredGateway,
+  availableGateways,
+  currentGatewayRuntimeConfig,
+  type PaymentGateway,
+} from "@/lib/payments/gateway";
 import { isPremiumEnabled } from "@/lib/premium-access";
 import { classNames } from "@/lib/utils";
 import { SITE_URL } from "@/lib/seo";
@@ -119,6 +125,30 @@ export default function Pricing() {
     null,
   );
   const [premiumLive, setPremiumLive] = useState<boolean | null>(null);
+  const [defaultGateway, setDefaultGateway] = useState<PaymentGateway | null>(
+    null,
+  );
+  const [chosenGateway, setChosenGateway] = useState<PaymentGateway | null>(
+    null,
+  );
+  const gateways = availableGateways(currentGatewayRuntimeConfig()).filter(
+    (g) => g === "paystack" || g === "flutterwave",
+  );
+
+  useEffect(() => {
+    let alive = true;
+    fetchConfiguredGateway().then((gw) => {
+      if (!alive) return;
+      setDefaultGateway(gw);
+      setChosenGateway(
+        (prev) => prev ?? (gateways.includes(gw) ? gw : gateways[0]),
+      );
+    });
+    return () => {
+      alive = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Check if premium subscriptions are enabled
   useEffect(() => {
@@ -184,7 +214,7 @@ export default function Pricing() {
       return;
     }
 
-    if (!isPaystackConfigured()) {
+    if (gateways.length === 0) {
       toast({
         title: "Payment not configured",
         message:
@@ -207,6 +237,7 @@ export default function Pricing() {
       amountInKobo,
       user.email!,
       user.id,
+      (chosenGateway ?? undefined) as PaymentGateway | undefined,
     );
 
     setLoadingPlan(null);
@@ -288,6 +319,37 @@ export default function Pricing() {
 
       {/* Billing cycle toggle */}
       <div className="mx-auto max-w-6xl px-4 py-8">
+        {/* Payment method selector: both gateways stay live; admin
+            setting is the default, the user may override it. */}
+        {gateways.length > 1 && (
+          <div className="mb-6 flex justify-center">
+            <div
+              role="radiogroup"
+              aria-label="Payment method"
+              data-testid="gateway-selector"
+              className="inline-flex rounded-xl border border-border bg-card p-1 dark:border-border"
+            >
+              {gateways.map((gw) => (
+                <button
+                  key={gw}
+                  type="button"
+                  role="radio"
+                  aria-checked={chosenGateway === gw}
+                  onClick={() => setChosenGateway(gw)}
+                  className={classNames(
+                    "rounded-lg px-4 py-2 text-sm font-medium capitalize transition-colors",
+                    chosenGateway === gw
+                      ? "bg-brand-purple text-white"
+                      : "text-muted-foreground hover:bg-muted",
+                  )}
+                >
+                  {gw === "paystack" ? "Paystack" : "Flutterwave"}
+                  {defaultGateway === gw && " (default)"}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="flex justify-center">
           <div
             role="tablist"
