@@ -131,9 +131,9 @@ export default function Pricing() {
   const [chosenGateway, setChosenGateway] = useState<PaymentGateway | null>(
     null,
   );
-  const gateways = availableGateways(currentGatewayRuntimeConfig()).filter(
-    (g) => g === "paystack" || g === "flutterwave",
-  );
+  const gateways: PaymentGateway[] = availableGateways(
+    currentGatewayRuntimeConfig(),
+  ).filter((g) => g === "paystack" || g === "flutterwave");
 
   useEffect(() => {
     let alive = true;
