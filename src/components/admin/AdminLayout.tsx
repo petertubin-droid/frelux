@@ -348,6 +348,7 @@ const navModules: NavModule[] = [
         to: "/admin/gallery-moderation",
         icon: Images,
       },
+      { label: "Case Studies", to: "/admin/case-studies", icon: Images },
       { label: "Media Manager", to: "/admin/media", icon: Image },
       { label: "Legal Pages", to: "/admin/legal", icon: FileText },
       { label: "Contact Messages", to: "/admin/contact", icon: Mail },

@@ -1678,6 +1678,27 @@ export interface DbGalleryImage {
 }
 
 // Client estimates, with approval workflow
+// Before/after case studies, curated on top of gallery entries
+// (workspace item 9): the gallery entry supplies the photos, category,
+// location and moderation state; the case study adds the story.
+export interface DbCaseStudy {
+  id: string;
+  gallery_entry_id: string;
+  headline: string;
+  summary: string;
+  project_scope: string | null;
+  challenges: string | null;
+  outcome: string | null;
+  materials_used: string[];
+  project_duration: string | null;
+  budget: number | null;
+  currency: string;
+  is_published: boolean;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface DbClientEstimate {
   id: string;
   project_id: string;

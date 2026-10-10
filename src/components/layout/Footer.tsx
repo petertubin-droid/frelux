@@ -38,6 +38,11 @@ const learnLinks = [
   { label: "User Guide", path: "/user-guide" },
 ];
 
+const showcaseLinks = [
+  { label: "Project Gallery", path: "/gallery" },
+  { label: "Case Studies", path: "/case-studies" },
+];
+
 const servicesLinks = [
   { label: "Marketplace", path: "/marketplace" },
   { label: "Pro Connect", path: "/pro-connect" },
@@ -106,6 +111,8 @@ export default function Footer() {
             title="Learn & Account"
             links={[...learnLinks, ...accountLinks]}
           />
+
+          <FooterColumn title="Showcase" links={showcaseLinks} />
 
           <FooterColumn title="Legal" links={legalLinks} />
         </div>

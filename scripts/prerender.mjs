@@ -300,6 +300,16 @@ const routes = [
     ],
   },
   {
+    path: '/case-studies',
+    title: 'Before & After Case Studies: Real Projects, Real Numbers | FRELUX',
+    description: 'In-depth before and after case studies of real painting, screeding, POP ceiling and tiling projects: scope, challenges, outcome and cost.',
+    priority: '0.7',
+    changefreq: 'weekly',
+    structuredData: [
+      { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Case Studies', item: 'https://freluxtools.netlify.app/case-studies' }] },
+    ],
+  },
+  {
     path: '/material-prices',
     title: 'Material Price Tracker: Live Paint & Building Material Prices | FRELUX',
     description: 'Track live prices of paint, cement, tiles, and building materials across supported markets to keep your estimates accurate.',

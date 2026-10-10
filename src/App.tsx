@@ -280,6 +280,7 @@ const AdminTileMaterials = lazy(
 const AdminMedia = lazy(() => import("@/pages/admin/AdminMedia"));
 const AdminUsers = lazy(() => import("@/pages/admin/AdminUsers"));
 const AdminGallery = lazy(() => import("@/pages/admin/AdminGallery"));
+const AdminCaseStudies = lazy(() => import("@/pages/admin/AdminCaseStudies"));
 const AdminPaintComparison = lazy(
   () => import("@/pages/admin/AdminPaintComparison"),
 );
@@ -370,6 +371,8 @@ const SellerDashboard = lazy(
 // Project Intelligence routes
 const PaintComparison = lazy(() => import("@/pages/PaintComparison"));
 const Gallery = lazy(() => import("@/pages/Gallery"));
+const CaseStudies = lazy(() => import("@/pages/CaseStudies"));
+const CaseStudyDetail = lazy(() => import("@/pages/CaseStudyDetail"));
 const PropertiesDashboard = lazy(() => import("@/pages/PropertiesDashboard"));
 const GalleryUpload = lazy(() => import("@/pages/GalleryUpload"));
 const SurfaceAssessment = lazy(() => import("@/pages/SurfaceAssessment"));
@@ -1571,6 +1574,7 @@ export default function App() {
                       path="gallery-moderation"
                       element={<AdminGallery />}
                     />
+                    <Route path="case-studies" element={<AdminCaseStudies />} />
                     <Route
                       path="paint-comparison"
                       element={<AdminPaintComparison />}
@@ -1652,6 +1656,11 @@ export default function App() {
                   />
                   {/* Project intelligence routes */}
                   <Route path="/gallery" element={<Gallery />} />
+                  <Route path="/case-studies" element={<CaseStudies />} />
+                  <Route
+                    path="/case-studies/:id"
+                    element={<CaseStudyDetail />}
+                  />
                   <Route path="/properties" element={<PropertiesDashboard />} />
                   <Route path="/gallery/new" element={<GalleryUpload />} />
                   <Route

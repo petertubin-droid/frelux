@@ -15,11 +15,23 @@ import {
   DollarSign,
   Calculator,
   ClipboardList,
+  GitCompareArrows,
+  X,
 } from "lucide-react";
-import { getSafeError } from "@/lib/safeError";
-import { Button } from "@/components/ui/shadcn/button";
+import {
+  diffEstimates,
+  formatDiffValue,
+  type EstimateDiffReport,
+} from "@/lib/estimate-diff";
+import {
+  fetchWithOfflineCache,
+  describeAge,
+  type OfflineResult,
+} from "@/lib/offline-store";
 import { useBreadcrumbJsonLd } from "@/lib/seo";
 import { formatCurrency } from "@/lib/utils";
+import { getSafeError } from "@/lib/safeError";
+import { Button } from "@/components/ui/shadcn/button";
 
 const CALCULATOR_LABELS: Record<string, string> = {
   paint: "Painting",
@@ -38,6 +50,9 @@ export default function EstimateAnalytics() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filterType, setFilterType] = useState<string>("all");
+  const [cachedAt, setCachedAt] = useState<string | null>(null);
+  const [compareA, setCompareA] = useState<string | null>(null);
+  const [compareB, setCompareB] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!user) {
@@ -46,8 +61,12 @@ export default function EstimateAnalytics() {
     }
     setLoading(true);
     try {
-      const data = await getEstimateHistory(user.id, { limit: 500 });
-      setHistory(data as DbEstimateHistory[]);
+      const result: OfflineResult<DbEstimateHistory[]> =
+        await fetchWithOfflineCache(`estimate-history:${user.id}`, () =>
+          getEstimateHistory(user.id, { limit: 500 }),
+        );
+      setHistory((result.data ?? []) as DbEstimateHistory[]);
+      setCachedAt(result.source === "cache" ? result.cachedAt : null);
     } catch (e) {
       setError(getSafeError(e, "Failed to load analytics"));
     } finally {
@@ -154,6 +173,14 @@ export default function EstimateAnalytics() {
     ]);
   }
 
+  const compareReport = useMemo(() => {
+    if (!compareA || !compareB || compareA === compareB) return null;
+    const a = history.find((h) => h.id === compareA);
+    const b = history.find((h) => h.id === compareB);
+    if (!a || !b) return null;
+    return diffEstimates(a, b);
+  }, [compareA, compareB, history]);
+
   if (!user) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16">
@@ -176,6 +203,27 @@ export default function EstimateAnalytics() {
     );
   }
 
+  function handleCompare(id: string) {
+    if (compareA === id) {
+      setCompareA(null);
+      return;
+    }
+    if (compareB === id) {
+      setCompareB(null);
+      return;
+    }
+    if (!compareA) {
+      setCompareA(id);
+      return;
+    }
+    setCompareB(id);
+  }
+
+  function clearCompare() {
+    setCompareA(null);
+    setCompareB(null);
+  }
+
   return (
     <div className="mx-auto max-w-5xl px-4 py-8">
       <PageHeader
@@ -186,6 +234,15 @@ export default function EstimateAnalytics() {
       {error && (
         <div className="mt-4 rounded-lg bg-destructive/10 p-4">
           <p className="text-sm text-destructive">{error}</p>
+        </div>
+      )}
+
+      {cachedAt && (
+        <div className="mt-4 rounded-lg border bg-muted/50 p-3">
+          <p className="text-sm text-muted-foreground">
+            Showing your saved estimate history (cached {describeAge(cachedAt)}
+            ). It will refresh automatically once you are back online.
+          </p>
         </div>
       )}
 
@@ -316,6 +373,15 @@ export default function EstimateAnalytics() {
         )}
       </div>
 
+      {/* Saved Estimate Diff (item 6) */}
+      {(compareA || compareReport) && (
+        <EstimateDiffPanel
+          report={compareReport}
+          pending={!!compareA && !compareReport}
+          onClear={clearCompare}
+        />
+      )}
+
       {/* Recent History */}
       <div className="mt-6 rounded-lg border p-6">
         <h3 className="text-lg font-semibold text-foreground">
@@ -355,12 +421,189 @@ export default function EstimateAnalytics() {
                   <p className="text-sm font-semibold">
                     {formatCurrency(h.total_cost ?? 0)}
                   </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleCompare(h.id)}
+                    className={
+                      compareA === h.id || compareB === h.id
+                        ? "inline-flex items-center gap-1 rounded-lg border border-primary bg-primary/10 px-3 py-1 text-xs font-medium"
+                        : "inline-flex items-center gap-1 rounded-lg border px-3 py-1 text-xs font-medium"
+                    }
+                  >
+                    <GitCompareArrows
+                      aria-hidden="true"
+                      className="h-3.5 w-3.5"
+                    />
+                    {compareA === h.id
+                      ? "Compare A"
+                      : compareB === h.id
+                        ? "Compare B"
+                        : "Compare"}
+                  </Button>
                 </div>
               </div>
             ))}
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function EstimateDiffPanel({
+  report,
+  pending,
+  onClear,
+}: {
+  report: EstimateDiffReport | null;
+  pending: boolean;
+  onClear: () => void;
+}) {
+  return (
+    <div className="mt-6 rounded-lg border-2 border-primary/40 p-6">
+      <div className="flex items-start justify-between gap-4">
+        <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+          <GitCompareArrows
+            aria-hidden="true"
+            className="h-5 w-5 text-brand-purple"
+          />{" "}
+          Estimate Diff
+        </h3>
+        <button
+          onClick={onClear}
+          aria-label="Clear comparison"
+          className="rounded-lg p-1 text-muted-foreground hover:bg-muted"
+        >
+          <X aria-hidden="true" className="h-4 w-4" />
+        </button>
+      </div>
+
+      {pending && (
+        <p className="mt-2 text-sm text-muted-foreground">
+          First estimate selected. Tap{" "}
+          <span className="font-medium">Compare</span> on a second estimate to
+          see exactly what changed between the two.
+        </p>
+      )}
+
+      {report && (
+        <div className="mt-4 space-y-4">
+          <div className="rounded-lg bg-muted/60 p-4">
+            <p className="text-sm text-foreground">
+              <span className="font-semibold">
+                {report.baseline.projectName}
+              </span>{" "}
+              ({new Date(report.baseline.createdAt).toLocaleDateString()})
+              <span className="mx-2 text-muted-foreground">→</span>
+              <span className="font-semibold">
+                {report.target.projectName}
+              </span>{" "}
+              ({new Date(report.target.createdAt).toLocaleDateString()})
+            </p>
+            <p className="mt-2 text-sm">
+              Total:{" "}
+              <span className="font-semibold">
+                {formatCurrency(report.summary.totalBefore)}
+              </span>{" "}
+              →{" "}
+              <span className="font-semibold">
+                {formatCurrency(report.summary.totalAfter)}
+              </span>{" "}
+              <span
+                className={
+                  report.summary.direction === "increase"
+                    ? "font-semibold text-destructive"
+                    : report.summary.direction === "decrease"
+                      ? "font-semibold text-emerald-600"
+                      : "text-muted-foreground"
+                }
+              >
+                ({report.summary.direction === "increase" ? "+" : ""}
+                {report.summary.totalDelta.toLocaleString()}
+                {report.summary.totalDeltaPct !== null
+                  ? `, ${report.summary.totalDeltaPct > 0 ? "+" : ""}${report.summary.totalDeltaPct.toFixed(1)}%`
+                  : ""}
+                )
+              </span>
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {report.summary.changedFieldCount} field
+              {report.summary.changedFieldCount === 1 ? "" : "s"} changed.
+              Changes of {5}%+ in a value are marked as major.
+            </p>
+          </div>
+
+          <div>
+            <h4 className="text-sm font-semibold text-foreground">
+              Cost Totals
+            </h4>
+            <div className="mt-2 overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b text-left text-xs text-muted-foreground">
+                    <th className="py-2 pr-4">Item</th>
+                    <th className="py-2 pr-4">Before</th>
+                    <th className="py-2 pr-4">After</th>
+                    <th className="py-2 pr-4">Change</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.totals.map((f) => (
+                    <tr
+                      key={f.key}
+                      className={`border-b ${f.severity === "major" ? "bg-destructive/5" : ""}`}
+                    >
+                      <td className="py-2 pr-4 font-medium">{f.label}</td>
+                      <td className="py-2 pr-4">
+                        {formatDiffValue(f, f.before)}
+                      </td>
+                      <td className="py-2 pr-4">
+                        {formatDiffValue(f, f.after)}
+                      </td>
+                      <td className="py-2 pr-4">
+                        {f.changed
+                          ? `${f.delta !== null ? (f.delta > 0 ? "+" : "") + f.delta.toLocaleString() : "changed"}${f.deltaPct !== null ? ` (${f.deltaPct > 0 ? "+" : ""}${f.deltaPct.toFixed(1)}%)` : ""}`
+                          : "unchanged"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {[
+            { title: "Inputs", fields: report.inputs },
+            { title: "Results", fields: report.results },
+          ].map(({ title, fields }) => {
+            const changed = fields.filter((f) => f.changed);
+            if (changed.length === 0) return null;
+            return (
+              <div key={title}>
+                <h4 className="text-sm font-semibold text-foreground">
+                  {title} that changed
+                </h4>
+                <ul className="mt-2 space-y-1">
+                  {changed.map((f) => (
+                    <li
+                      key={f.key}
+                      className="flex items-center justify-between rounded-lg border p-2 text-sm"
+                    >
+                      <span className="font-medium">{f.label}</span>
+                      <span className="text-muted-foreground">
+                        {formatDiffValue(f, f.before)} →{" "}
+                        <span className="font-medium text-foreground">
+                          {formatDiffValue(f, f.after)}
+                        </span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

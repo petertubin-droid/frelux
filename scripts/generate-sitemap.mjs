@@ -92,6 +92,7 @@ const routes = [
   { path: '/pro-connect', priority: '0.8', changefreq: 'weekly' },
   { path: '/paint-comparison', priority: '0.7', changefreq: 'monthly' },
   { path: '/gallery', priority: '0.7', changefreq: 'daily' },
+  { path: '/case-studies', priority: '0.7', changefreq: 'weekly' },
   { path: '/material-prices', priority: '0.7', changefreq: 'daily' },
   { path: '/surface-assessment', priority: '0.7', changefreq: 'monthly' },
   { path: '/pricing', priority: '0.6', changefreq: 'monthly' },
