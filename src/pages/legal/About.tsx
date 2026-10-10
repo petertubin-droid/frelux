@@ -40,7 +40,7 @@ export default function About() {
     <LegalLayout
       slug="about"
       title="About FRELUX"
-      updated="2026-10-09"
+      updated="2026-10-10"
       intro={
         <p>
           FRELUX is a premium construction estimation platform built to help
@@ -221,6 +221,33 @@ export default function About() {
               buy or commit money, always confirm quantities and prices with
               your supplier or contractor. That final check is yours, and our
               job is to make sure you walk into it informed.
+            </p>
+          ),
+        },
+        {
+          heading: "Who writes and reviews our guides",
+          body: (
+            <p>
+              Every article in the Learn Hub is written and reviewed by the
+              FRELUX Team before it is published. Writers work from real product
+              data, manufacturer documentation, and standard trade practice, and
+              each guide is re-checked when products, prices, or methods change.
+              We do not accept sponsored articles or supplier marketing copy,
+              and if we get something wrong, we would rather correct it quickly
+              than quietly leave it up. Every article has a feedback option, and
+              reports from readers are reviewed and acted on.
+            </p>
+          ),
+        },
+        {
+          heading: "Our business details",
+          body: (
+            <p>
+              FRELUX PROJECT CALC is the business behind this platform. You can
+              reach us on WhatsApp at +234 906 361 2439, by email at
+              frenzyanthony39@gmail.com, or through the contact page for
+              questions, feedback, partnership proposals, or advertising
+              enquiries. We read everything and respond as soon as practical.
             </p>
           ),
         },

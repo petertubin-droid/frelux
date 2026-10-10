@@ -17,6 +17,42 @@ import { RecentlyUsed } from "@/components/ui/RecentlyUsed";
 import ProConnectHomeSection from "@/components/pro-connect/ProConnectHomeSection";
 import { useState, useEffect, useMemo, lazy, Suspense } from "react";
 import { useSeo } from "@/lib/seo";
+import { FaqSection } from "@/components/seo/SeoSections";
+import { faqSchema } from "@/lib/structured-data";
+
+const HOME_FAQS = [
+  {
+    question: "Is FRELUX free to use?",
+    answer:
+      "Yes. Every calculator, estimator, and guide is free, with no trial or paywall. The platform is supported by advertising in clearly labeled slots, and no calculation or estimate is ever influenced by an advertiser.",
+  },
+  {
+    question: "How accurate are the estimates?",
+    answer:
+      "Calculators use industry-standard formulas for surface area, coverage rates, waste allowance, and labour, and every estimate shows its full breakdown so you can verify each number. Estimates are guidance, not a guarantee, so confirm final quantities and prices with your supplier or contractor before you commit money.",
+  },
+  {
+    question: "Do I need an account?",
+    answer:
+      "No. All public tools run directly in your browser without sign-up. Creating a free account only adds extras like saved projects, templates, and client estimates.",
+  },
+  {
+    question: "Can I use FRELUX outside Nigeria?",
+    answer:
+      "Yes. The calculation methodology works for any project anywhere, and prices are adjustable to your local market. Where we hold verified market data, estimators can load it automatically; everywhere else, you enter your own rates.",
+  },
+  {
+    question: "Can contractors use the estimates with clients?",
+    answer:
+      "Yes. Estimates and bills of quantities can be exported, printed, or shared with a client through a link, so you can present a transparent, itemized number instead of a single figure.",
+  },
+  {
+    question: "Who writes the guides in the Learn Hub?",
+    answer:
+      "Guides are written and reviewed by the FRELUX Team, with practical construction detail and honest numbers, and no sponsored content. When prices or products change, guides are reviewed again. You can report an error from any article.",
+  },
+];
+
 import { getPublicTemplates } from "@/lib/templates";
 import { Link } from "react-router-dom";
 import { ShoppingBag, Plus } from "lucide-react";
@@ -104,6 +140,7 @@ export default function Home() {
           "query-input": "required name=search_term_string",
         },
       },
+      faqSchema(HOME_FAQS),
     ],
     [featuredSlugs],
   );
@@ -236,6 +273,9 @@ export default function Home() {
         slotKey="home_bottom"
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
       />
+
+      {/* FAQ with structured data */}
+      <FaqSection faqs={HOME_FAQS} />
 
       {/* Final CTA, strong closing */}
       <Suspense fallback={<SectionSkeleton minHeight={320} />}>
