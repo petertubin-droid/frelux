@@ -279,7 +279,6 @@ export default function Home() {
       <AdSlot
         slotKey="adsense_home"
         providerSlug="google_adsense"
-        label="Google"
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
       />
 

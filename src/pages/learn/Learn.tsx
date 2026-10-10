@@ -495,7 +495,6 @@ export default function Learn() {
           <AdSlot
             slotKey="adsense_learn"
             providerSlug="google_adsense"
-            label="Google"
           />
         </div>
       </div>

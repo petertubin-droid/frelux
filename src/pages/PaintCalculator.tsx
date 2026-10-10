@@ -1081,7 +1081,6 @@ ${result.primerContainers.length > 0 ? `- Primer: ${result.primerContainers.map(
       <AdSlot
         slotKey="adsense_paint_calculator"
         providerSlug="google_adsense"
-        label="Google"
         className="mt-8"
       />
     </>

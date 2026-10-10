@@ -681,7 +681,6 @@ export default function Colors() {
         <AdSlot
           slotKey="adsense_colors"
           providerSlug="google_adsense"
-          label="Google"
           className="mt-10"
         />
       </div>

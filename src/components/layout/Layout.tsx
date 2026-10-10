@@ -505,11 +505,10 @@ export default function Layout() {
       {/* AdSense-dedicated slot, bottom of every page. Locked to
           google_adsense (never falls back to Monetag/Adsterra) so real
           AdSense units are present on every route for the approval
-          review. Labeled "Google" per owner directive. */}
+          review. */}
       <AdSlot
         slotKey="adsense_footer"
         providerSlug="google_adsense"
-        label="Google"
       />
       <AdsterraDirectLink />
       {adsterraNative && hasAdvertisingConsent() && (
