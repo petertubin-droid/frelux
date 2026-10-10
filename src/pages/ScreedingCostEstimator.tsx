@@ -200,6 +200,13 @@ export default function ScreedingCostEstimator({
         ]);
         if (puttyRes.error) setLoadError(puttyRes.error);
         if (mixRes.error) setLoadError(mixRes.error);
+        // Never silently fall back: if this market has no verified
+        // screeding system, say so instead of pretending NG is local.
+        if (marketCode !== "NG" && (puttyRes.fellBackToNg || !puttyRes.data)) {
+          setLoadError(
+            `No ${marketCode} screeding system is verified yet. Showing the Nigerian reference system - check products and prices locally.`,
+          );
+        }
         if (puttyRes.data) {
           const cfg = dbToSystemConfig(puttyRes.data);
           setPuttyConfig(

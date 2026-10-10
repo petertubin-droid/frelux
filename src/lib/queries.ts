@@ -211,10 +211,12 @@ export async function fetchPopMaterials(workflow?: string, market?: string) {
   }
   if (market && market !== "NG") {
     const local = await run(market);
-    if (local.length > 0) return { data: local, error: null };
+    if (local.length > 0) return { data: local, error: null, fellBackToNg: false };
   }
+  // Explicit, never silent: the caller can disclose that this is the
+  // Nigerian reference system, not the visitor's own market.
   const fallback = await run("NG");
-  return { data: fallback, error: null };
+  return { data: fallback, error: null, fellBackToNg: true };
 }
 
 export async function fetchPopWorkflows() {
@@ -250,10 +252,12 @@ export async function fetchTileMaterials(category?: string, market?: string) {
   }
   if (market && market !== "NG") {
     const local = await run(market);
-    if (local.length > 0) return { data: local, error: null };
+    if (local.length > 0) return { data: local, error: null, fellBackToNg: false };
   }
+  // Explicit, never silent: the caller can disclose that this is the
+  // Nigerian reference system, not the visitor's own market.
   const fallback = await run("NG");
-  return { data: fallback, error: null };
+  return { data: fallback, error: null, fellBackToNg: true };
 }
 
 // =========================================================
@@ -1113,7 +1117,11 @@ export async function fetchScreedingSystemConfig(
       .eq("is_active", true)
       .maybeSingle();
     if (local.data) {
-      return { data: local.data as DbScreedingSystemConfig, error: null };
+      return {
+        data: local.data as DbScreedingSystemConfig,
+        error: null,
+        fellBackToNg: false,
+      };
     }
   }
   const { data, error } = await supabase
@@ -1134,11 +1142,13 @@ export async function fetchScreedingSystemConfig(
     return {
       data: legacy.data as DbScreedingSystemConfig | null,
       error: legacy.error ? legacy.error.message : null,
+      fellBackToNg: true,
     };
   }
   return {
     data: data as DbScreedingSystemConfig,
     error: error ? error.message : null,
+    fellBackToNg: true,
   };
 }
 

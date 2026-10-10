@@ -186,6 +186,9 @@ export default function TileCostEstimator({
 
   const [, setTileSizes] = useState<DbTileSize[]>([]);
   const [tileMaterials, setTileMaterials] = useState<DbTileMaterial[]>([]);
+  // True when the visitor's market has no verified adhesive/grout set
+  // and the NG reference materials were used instead (never silent).
+  const [usingNgReference, setUsingNgReference] = useState(false);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [result, setResult] = useState<TileCalcResult | null>(null);
@@ -245,6 +248,9 @@ export default function TileCostEstimator({
       ]);
       setTileSizes(sizesRes.data);
       setTileMaterials(matRes.data);
+      setUsingNgReference(
+        marketCode !== "NG" && Boolean(matRes.fellBackToNg),
+      );
       setSettings(settingsRes.data);
 
       const adhesive = matRes.data.find((m) => m.category === "adhesive");
@@ -391,6 +397,16 @@ export default function TileCostEstimator({
         <div className="grid gap-6 lg:grid-cols-5">
           {/* Input panel */}
           <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card lg:col-span-3">
+            {usingNgReference && (
+              <div
+                className="mb-4 rounded-lg border border-border bg-muted/40 p-3 text-xs"
+                data-testid="ng-reference-notice"
+              >
+                No {marketCode} adhesive and grout set is verified yet, so
+                this estimate uses the Nigerian reference materials. Verify
+                products and prices for your market before ordering.
+              </div>
+            )}
             <Section title="Surface">
               <Field label="Surface type">
                 <select

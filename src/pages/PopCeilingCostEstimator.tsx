@@ -148,6 +148,9 @@ export default function PopCeilingCostEstimator({
   const { user } = useAuth();
 
   const [materials, setMaterials] = useState<DbPopMaterial[]>([]);
+  // True when the visitor's market has no verified ceiling system and
+  // the NG reference materials were used instead (never silent).
+  const [usingNgReference, setUsingNgReference] = useState(false);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const { config: labourConfig, setConfig: setLabourConfig } =
@@ -189,6 +192,9 @@ export default function PopCeilingCostEstimator({
         fetchSiteSettings(),
       ]);
       setMaterials(matRes.data);
+      setUsingNgReference(
+        marketCode !== "NG" && Boolean(matRes.fellBackToNg),
+      );
       setSettings(settingsRes.data);
       setLoading(false);
     }
@@ -322,6 +328,16 @@ export default function PopCeilingCostEstimator({
         <div className="grid gap-6 lg:grid-cols-5">
           {/* Input panel */}
           <div className="calc-card card p-6 sm:p-8 dark:border-white/5 dark:bg-card lg:col-span-3">
+            {usingNgReference && (
+              <div
+                className="mb-4 rounded-lg border border-border bg-muted/40 p-3 text-xs"
+                data-testid="ng-reference-notice"
+              >
+                No {marketCode} ceiling material system is verified yet, so
+                this estimate uses the Nigerian reference materials. Verify
+                products and prices for your market before ordering.
+              </div>
+            )}
             <Section title="Workflow">
               <Field label="POP ceiling workflow">
                 <select
