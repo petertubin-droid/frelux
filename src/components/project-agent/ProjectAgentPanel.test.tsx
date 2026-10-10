@@ -23,11 +23,18 @@ const mockSnapshot = vi.fn();
 
 vi.mock("@/lib/project-agent/guidance", async (orig) => {
   const real = await orig<typeof import("@/lib/project-agent/guidance")>();
-  return { ...real, buildGuidance: (...a: unknown[]) => mockBuildGuidance(...a) };
+  return {
+    ...real,
+    buildGuidance: (...a: unknown[]) => mockBuildGuidance(...a),
+  };
 });
 vi.mock("@/lib/project-agent/recommendations", async (orig) => {
-  const real = await orig<typeof import("@/lib/project-agent/recommendations")>();
-  return { ...real, buildRecommendations: (...a: unknown[]) => mockBuildRecommendations(...a) };
+  const real =
+    await orig<typeof import("@/lib/project-agent/recommendations")>();
+  return {
+    ...real,
+    buildRecommendations: (...a: unknown[]) => mockBuildRecommendations(...a),
+  };
 });
 vi.mock("@/lib/project-agent/actions", async (orig) => {
   const real = await orig<typeof import("@/lib/project-agent/actions")>();
@@ -42,7 +49,10 @@ vi.mock("@/lib/project-agent/actions", async (orig) => {
 });
 vi.mock("@/lib/project-agent/execute", async (orig) => {
   const real = await orig<typeof import("@/lib/project-agent/execute")>();
-  return { ...real, executeApprovedAction: (...a: unknown[]) => mockExecute(...a) };
+  return {
+    ...real,
+    executeApprovedAction: (...a: unknown[]) => mockExecute(...a),
+  };
 });
 vi.mock("@/lib/project-agent/monitoring", async (orig) => {
   const real = await orig<typeof import("@/lib/project-agent/monitoring")>();
@@ -55,6 +65,14 @@ vi.mock("@/lib/project-agent/monitoring", async (orig) => {
 vi.mock("@/lib/project-agent/audit", async (orig) => {
   const real = await orig<typeof import("@/lib/project-agent/audit")>();
   return { ...real, getProjectStory: (...a: unknown[]) => mockStory(...a) };
+});
+const mockInvokeTool = vi.fn();
+vi.mock("@/lib/project-agent/tools", async (orig) => {
+  const real = await orig<typeof import("@/lib/project-agent/tools")>();
+  return {
+    ...real,
+    invokeAgentTool: (...a: unknown[]) => mockInvokeTool(...a),
+  };
 });
 vi.mock("@/lib/predictive-intelligence/snapshot", () => ({
   buildProjectSnapshot: (...a: unknown[]) => mockSnapshot(...a),
@@ -153,7 +171,13 @@ function monitoringResult() {
         resolved_at: null,
       },
     ],
-    counts: { created: 1, refreshed: 0, reopened: 0, resolved: 0, stillDismissed: 0 },
+    counts: {
+      created: 1,
+      refreshed: 0,
+      reopened: 0,
+      resolved: 0,
+      stillDismissed: 0,
+    },
     summary: "1 open alert.",
   };
 }
@@ -178,7 +202,16 @@ function preparedAction(state: string) {
       createdAt: "2026-09-07T10:00:00.000Z",
       updatedAt: "2026-09-07T10:00:00.000Z",
     },
-    approval: { id: "appr-1", state: "active", actionId: "act-1", requestedAt: "2026-09-07T10:00:00.000Z", expiresAt: "2099-01-01T00:00:00.000Z", decidedAt: null, decidedBy: null, decision: null },
+    approval: {
+      id: "appr-1",
+      state: "active",
+      actionId: "act-1",
+      requestedAt: "2026-09-07T10:00:00.000Z",
+      expiresAt: "2099-01-01T00:00:00.000Z",
+      decidedAt: null,
+      decidedBy: null,
+      decision: null,
+    },
     availableDecisions: ["approved", "rejected"],
     note: "Awaiting your decision.",
   };
@@ -235,24 +268,34 @@ describe("ProjectAgentPanel", () => {
     await user.click(screen.getByRole("button", { name: /run agent check/i }));
 
     await waitFor(() => {
-      expect(mockBuildRecommendations).toHaveBeenCalledWith(PROJECT, expect.any(String));
+      expect(mockBuildRecommendations).toHaveBeenCalledWith(
+        PROJECT,
+        expect.any(String),
+      );
     });
     expect(mockMonitor).toHaveBeenCalledWith(PROJECT, expect.any(String));
     expect(mockStory).toHaveBeenCalledWith(PROJECT, expect.any(String));
-    expect(mockListPreparedActions).toHaveBeenCalledWith(PROJECT, expect.any(String));
+    expect(mockListPreparedActions).toHaveBeenCalledWith(
+      PROJECT,
+      expect.any(String),
+    );
 
     await waitFor(() => {
       expect(screen.getByTestId("agent-recommendation")).toBeDefined();
     });
     expect(screen.getByTestId("agent-alert")).toBeDefined();
-    expect(screen.getByTestId("agent-monitoring-summary").textContent).toContain("1 open alert");
+    expect(
+      screen.getByTestId("agent-monitoring-summary").textContent,
+    ).toContain("1 open alert");
     expect(screen.getByText(/Agent flagged a price increase/)).toBeDefined();
   });
 
   it("asking a question renders the evidence-based answer", async () => {
     const user = userEvent.setup();
     renderPanel();
-    await user.click(screen.getByRole("button", { name: /what should i do next\?/i }));
+    await user.click(
+      screen.getByRole("button", { name: /what should i do next\?/i }),
+    );
 
     await waitFor(() => {
       expect(mockBuildGuidance).toHaveBeenCalledWith(
@@ -265,14 +308,18 @@ describe("ProjectAgentPanel", () => {
       screen.getByText("Record the paint purchase, then start screeding."),
     ).toBeDefined();
     expect(screen.getByText(/Cement line is unpurchased/)).toBeDefined();
-    expect(screen.getByText(/Not enough recorded data for: weather impact/)).toBeDefined();
+    expect(
+      screen.getByText(/Not enough recorded data for: weather impact/),
+    ).toBeDefined();
   });
 
   it("shows an error toast and no fabricated guidance when the agent refuses", async () => {
     mockBuildGuidance.mockResolvedValue(fail("Project not visible"));
     const user = userEvent.setup();
     renderPanel();
-    await user.click(screen.getByRole("button", { name: /what should i do next\?/i }));
+    await user.click(
+      screen.getByRole("button", { name: /what should i do next\?/i }),
+    );
 
     await waitFor(() => expect(mockBuildGuidance).toHaveBeenCalled());
     expect(screen.queryByTestId("agent-guidance-answer")).toBeNull();
@@ -291,33 +338,51 @@ describe("ProjectAgentPanel", () => {
     // Snapshot provides the unpurchased items for the select.
     mockSnapshot.mockResolvedValue({
       shoppingItems: [
-        { id: "item-1", name: "Cement", estimated_price: 5000, is_purchased: false },
+        {
+          id: "item-1",
+          name: "Cement",
+          estimated_price: 5000,
+          is_purchased: false,
+        },
       ],
       stages: [],
     });
     // Re-open to pick up refs (snapshot resolves on open).
-    await user.click(screen.getByRole("button", { name: /prepare for review/i })).catch(() => {});
+    await user
+      .click(screen.getByRole("button", { name: /prepare for review/i }))
+      .catch(() => {});
     // Select requires the form to have re-opened with refs; openPrepare fetches
     // the snapshot at open time, so re-open the form now the mock is set.
     await user.click(screen.getByRole("button", { name: /prepare action/i }));
     await waitFor(() =>
-      expect(screen.getByTestId("prepare-item-select").querySelectorAll("option").length).toBeGreaterThan(1),
+      expect(
+        screen.getByTestId("prepare-item-select").querySelectorAll("option")
+          .length,
+      ).toBeGreaterThan(1),
     );
 
-    await user.selectOptions(screen.getByTestId("prepare-item-select"), "item-1");
+    await user.selectOptions(
+      screen.getByTestId("prepare-item-select"),
+      "item-1",
+    );
     await user.type(screen.getByPlaceholderText(/actual price paid/i), "6500");
 
     mockPrepareAction.mockResolvedValue(
       ok({ ...preparedAction("prepared").action, id: "act-2" }),
     );
-    await user.click(screen.getByRole("button", { name: /prepare for review/i }));
+    await user.click(
+      screen.getByRole("button", { name: /prepare for review/i }),
+    );
     await waitFor(() => expect(mockPrepareAction).toHaveBeenCalled());
 
     const call = mockPrepareAction.mock.calls[0];
     expect(call[0]).toBe(PROJECT);
     expect(call[1].kind).toBe("record_purchase");
     expect(call[1].recommendationId).toBe("procurement:increases");
-    expect(call[1].params).toEqual({ shoppingItemId: "item-1", actualPrice: 6500 });
+    expect(call[1].params).toEqual({
+      shoppingItemId: "item-1",
+      actualPrice: 6500,
+    });
   });
 
   it("renders prepared actions with the decision surface", async () => {
@@ -326,7 +391,9 @@ describe("ProjectAgentPanel", () => {
     renderPanel();
     await user.click(screen.getByRole("button", { name: /run agent check/i }));
 
-    await waitFor(() => expect(screen.getByTestId("agent-action")).toBeDefined());
+    await waitFor(() =>
+      expect(screen.getByTestId("agent-action")).toBeDefined(),
+    );
     expect(screen.getByText(/Record purchase of Cement/)).toBeDefined();
     expect(screen.getByRole("button", { name: /^approve$/i })).toBeDefined();
     expect(screen.getByRole("button", { name: /^reject$/i })).toBeDefined();
@@ -361,12 +428,23 @@ describe("ProjectAgentPanel", () => {
     mockExecute.mockResolvedValue(
       ok({
         action: preparedAction("executed").action,
-        execution: { outcome: "verified", attemptedAt: "2026-09-07T10:05:00.000Z", summary: "Cement marked purchased at 6500.", writtenTables: ["project_shopping_items"] },
+        execution: {
+          outcome: "verified",
+          attemptedAt: "2026-09-07T10:05:00.000Z",
+          summary: "Cement marked purchased at 6500.",
+          writtenTables: ["project_shopping_items"],
+        },
         duplicate: false,
       }),
     );
     await user.click(screen.getByRole("button", { name: /^execute$/i }));
-    await waitFor(() => expect(mockExecute).toHaveBeenCalledWith(PROJECT, "act-1", expect.any(String)));
+    await waitFor(() =>
+      expect(mockExecute).toHaveBeenCalledWith(
+        PROJECT,
+        "act-1",
+        expect.any(String),
+      ),
+    );
   });
 
   it("rejecting calls decideApproval with rejected, no execution is offered", async () => {
@@ -401,7 +479,11 @@ describe("ProjectAgentPanel", () => {
 
     await user.click(screen.getByRole("button", { name: /^cancel$/i }));
     await waitFor(() =>
-      expect(mockCancelAction).toHaveBeenCalledWith(PROJECT, "act-1", expect.any(String)),
+      expect(mockCancelAction).toHaveBeenCalledWith(
+        PROJECT,
+        "act-1",
+        expect.any(String),
+      ),
     );
     expect(mockDecideApproval).not.toHaveBeenCalled();
   });
@@ -415,7 +497,10 @@ describe("ProjectAgentPanel", () => {
 
     await user.click(screen.getByRole("button", { name: /dismiss/i }));
     await waitFor(() =>
-      expect(mockDismissAlert).toHaveBeenCalledWith("alert-1", expect.any(String)),
+      expect(mockDismissAlert).toHaveBeenCalledWith(
+        "alert-1",
+        expect.any(String),
+      ),
     );
     await waitFor(() => expect(mockMonitor).toHaveBeenCalledTimes(2));
   });
@@ -434,8 +519,78 @@ describe("ProjectAgentPanel", () => {
     renderPanel();
     await user.click(screen.getByRole("button", { name: /run agent check/i }));
     await waitFor(() =>
-      expect(screen.getByText(/No risks found in the recorded project state/)).toBeDefined(),
+      expect(
+        screen.getByText(/No risks found in the recorded project state/),
+      ).toBeDefined(),
     );
     expect(screen.getByText(/Could not assess: schedule_risk/)).toBeDefined();
+  });
+});
+
+describe("ProjectAgentPanel agent tools (Stage 3)", () => {
+  it("lists the registered agent tools", () => {
+    renderPanel();
+    expect(screen.getAllByTestId("agent-tool-list").length).toBeGreaterThan(0);
+    expect(
+      screen.getByRole("button", { name: /calculator lookup/i }),
+    ).toBeDefined();
+    expect(
+      screen.getByRole("button", { name: /market intelligence/i }),
+    ).toBeDefined();
+  });
+
+  it("runs a tool read-only and credits the engine", async () => {
+    mockInvokeTool.mockResolvedValue(
+      ok({
+        tool: "shopping_list",
+        permission: "read",
+        status: "ok",
+        executedAt: "2026-10-10T11:00:00.000Z",
+        engineUsed: "project_shopping_list",
+        result: { items: [] },
+        missingData: [],
+        inputsUsed: [],
+        assumptions: [],
+        dataFreshness: "2026-10-10",
+      }),
+    );
+    const user = userEvent.setup();
+    renderPanel();
+    await user.click(screen.getByRole("button", { name: /shopping list/i }));
+    await waitFor(() =>
+      expect(screen.getByTestId("agent-tool-result")).toBeDefined(),
+    );
+    expect(mockInvokeTool).toHaveBeenCalledWith(
+      PROJECT,
+      { tool: "shopping_list" },
+      expect.any(String),
+    );
+    expect(screen.getByText(/project_shopping_list/)).toBeDefined();
+    expect(screen.getByText(/ran successfully/i)).toBeDefined();
+  });
+
+  it("shows missing data honestly when the tool lacks inputs", async () => {
+    mockInvokeTool.mockResolvedValue(
+      ok({
+        tool: "project_timeline",
+        permission: "read",
+        status: "insufficient_data",
+        executedAt: "2026-10-10T11:00:00.000Z",
+        engineUsed: "Construction timeline engine",
+        result: null,
+        missingData: ["scope map: trade to quantity (user-supplied)"],
+        inputsUsed: [],
+        assumptions: [],
+        dataFreshness: "2026-10-10",
+      }),
+    );
+    const user = userEvent.setup();
+    renderPanel();
+    await user.click(screen.getByRole("button", { name: /project timeline/i }));
+    await waitFor(() =>
+      expect(screen.getByTestId("agent-tool-result")).toBeDefined(),
+    );
+    expect(screen.getByText(/with missing data/i)).toBeDefined();
+    expect(screen.getByText(/the agent will not guess it/i)).toBeDefined();
   });
 });

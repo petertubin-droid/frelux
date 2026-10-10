@@ -10,6 +10,7 @@ import {
   Pencil,
   X,
   AlertTriangle,
+  Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
 import { useToast } from "@/components/ui/Toast";
@@ -35,6 +36,12 @@ import {
   type ApprovalDecision,
 } from "@/lib/project-agent/actions";
 import { executeApprovedAction } from "@/lib/project-agent/execute";
+import {
+  invokeAgentTool,
+  listAgentTools,
+  type AgentToolId,
+  type ToolInvocation,
+} from "@/lib/project-agent/tools";
 import {
   runProactiveMonitoring,
   dismissProjectAlert,
@@ -131,6 +138,9 @@ export default function ProjectAgentPanel({
   const [question, setQuestion] = useState<GuidanceQuestion | null>(null);
   const [guidance, setGuidance] = useState<GuidanceAnswer | null>(null);
   const [guidanceBusy, setGuidanceBusy] = useState(false);
+  const [toolBusy, setToolBusy] = useState<AgentToolId | null>(null);
+  const [toolResult, setToolResult] = useState<ToolInvocation | null>(null);
+  const [toolRun, setToolRun] = useState<AgentToolId | null>(null);
 
   const [draft, setDraft] = useState<PrepareDraft | null>(null);
   const [refs, setRefs] = useState<SnapshotRefs | null>(null);
@@ -186,6 +196,29 @@ export default function ProjectAgentPanel({
           });
       } finally {
         setGuidanceBusy(false);
+      }
+    },
+    [projectId, toast],
+  );
+
+  const runTool = useCallback(
+    async (toolId: AgentToolId) => {
+      setToolBusy(toolId);
+      setToolResult(null);
+      setToolRun(toolId);
+      try {
+        const r = await invokeAgentTool(projectId, { tool: toolId }, nowIso());
+        if (r.ok) {
+          setToolResult(r.data);
+        } else {
+          toast({
+            title: "The tool could not run",
+            message: errMessage(r),
+            variant: "error",
+          });
+        }
+      } finally {
+        setToolBusy(null);
       }
     },
     [projectId, toast],
@@ -571,6 +604,79 @@ export default function ProjectAgentPanel({
             <p className="text-xs text-muted-foreground">
               Derived from: {guidance.derivedFrom.join(", ")}
             </p>
+          </div>
+        )}
+      </div>
+
+      {/* ---- Agent tools (Stage 3 orchestration) ---- */}
+      <div className="rounded-xl border bg-card p-4 sm:p-6">
+        <div className="flex items-center gap-2 mb-1">
+          <Wrench className="h-4 w-4 text-primary" />
+          <h4 className="font-semibold text-sm">Agent tools</h4>
+        </div>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Read-only. Each tool calls an authoritative FRELUX engine and credits
+          it. Nothing is saved or changed.
+        </p>
+        <div className="flex flex-wrap gap-2" data-testid="agent-tool-list">
+          {listAgentTools().map((t) => (
+            <Button
+              key={t.id}
+              variant={toolRun === t.id ? "default" : "outline"}
+              size="sm"
+              className="text-xs"
+              onClick={() => runTool(t.id)}
+              disabled={toolBusy !== null}
+              title={t.description}
+            >
+              {toolBusy === t.id ? (
+                <Loader2 className="h-3 w-3 animate-spin" />
+              ) : null}{" "}
+              {t.title}
+            </Button>
+          ))}
+        </div>
+
+        {toolResult && toolRun && (
+          <div
+            className="mt-4 rounded-lg bg-muted/50 p-3"
+            data-testid="agent-tool-result"
+          >
+            <p className="text-sm font-medium">
+              {listAgentTools().find((t) => t.id === toolRun)?.title}
+              {" ran "}
+              {toolResult.status === "ok"
+                ? "successfully"
+                : "with missing data"}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Credited engine: {toolResult.engineUsed} · data as of{" "}
+              {toolResult.dataFreshness}
+            </p>
+            {toolResult.note && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                {toolResult.note}
+              </p>
+            )}
+            {toolResult.missingData.length > 0 && (
+              <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                Missing data, the agent will not guess it:{" "}
+                {toolResult.missingData.join("; ")}
+              </p>
+            )}
+            {toolResult.assumptions.length > 0 && (
+              <p className="mt-1 text-xs text-muted-foreground">
+                Assumed: {toolResult.assumptions.join("; ")}
+              </p>
+            )}
+            <details className="mt-2">
+              <summary className="cursor-pointer text-xs text-muted-foreground">
+                Engine output ({toolResult.inputsUsed.length} recorded inputs)
+              </summary>
+              <pre className="mt-2 max-h-64 overflow-auto rounded-md bg-background p-2 text-[10px] leading-relaxed">
+                {JSON.stringify(toolResult.result, null, 2)}
+              </pre>
+            </details>
           </div>
         )}
       </div>
