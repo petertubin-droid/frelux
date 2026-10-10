@@ -52,6 +52,7 @@ import type {
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import LabourCostSection from "@/components/labour/LabourCostSection";
 import { useLabourConfig } from "@/components/labour/LabourCostSection";
+import { useMarket } from "@/lib/international/market-context";
 import { calculateLabourCost } from "@/lib/labour";
 import { printQuote } from "@/lib/estimation/quote-export";
 import type { DbFinishType, DbSiteSettings } from "@/types/database";
@@ -126,9 +127,9 @@ function exportFinishQuote(args: {
   );
 }
 
-export default function FinishEstimator({
-  embedded = false,
+export default function FinishEstimator({  embedded = false,
 }: { embedded?: boolean } = {}) {
+  const { marketCode } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("finish");
   const passed = (useLocation().state as PassedState | null) ?? {};
   const defaultDoorDims: OpeningDimensions = {
@@ -170,7 +171,7 @@ export default function FinishEstimator({
   // Labour follows the site-wide labour layer so international
   // visitors get a complete estimate, not materials alone.
   const { config: labourConfig, setConfig: setLabourConfig } =
-    useLabourConfig("global");
+    useLabourConfig("global", marketCode);
   const labourCost = result
     ? calculateLabourCost(labourConfig, result.area)
     : 0;
@@ -788,7 +789,8 @@ export default function FinishEstimator({
 
                 {/* Labour: complete the estimate to the very end */}
                 <LabourCostSection
-                  estimatorKey="global"
+                  market={marketCode}
+          estimatorKey="global"
                   config={labourConfig}
                   onChange={setLabourConfig}
                   currencySymbol={currencySymbol}

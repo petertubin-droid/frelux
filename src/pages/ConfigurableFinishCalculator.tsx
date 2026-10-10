@@ -29,6 +29,7 @@ import Container from "@/components/ui/Container";
 import LabourCostSection, {
   useLabourConfig,
 } from "@/components/labour/LabourCostSection";
+import { useMarket } from "@/lib/international/market-context";
 import { useCurrencySymbol } from "@/lib/international";
 import { calculateLabourCost } from "@/lib/labour";
 import PageHeader from "@/components/ui/PageHeader";
@@ -74,8 +75,7 @@ function rangeLabel(
   return `${fmt(min, digits)}–${fmt(max, digits)} ${unit}`;
 }
 
-export default function ConfigurableFinishCalculator({
-  category,
+export default function ConfigurableFinishCalculator({  category,
   refPrefix,
   title,
   subtitle,
@@ -83,6 +83,7 @@ export default function ConfigurableFinishCalculator({
   calculatorType,
   embedded = false,
 }: ConfigurableFinishCalculatorProps) {
+  const { marketCode } = useMarket();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     {
@@ -117,7 +118,7 @@ export default function ConfigurableFinishCalculator({
   const [result, setResult] = useState<MineralStoneResult | null>(null);
   // Shared labour layer: completes the estimate to the very end
   const { config: labourConfig, setConfig: setLabourConfig } =
-    useLabourConfig("global");
+    useLabourConfig("global", marketCode);
   const labourAreaM2 = result?.area_m2 ?? 0;
   const labourCost = calculateLabourCost(labourConfig, labourAreaM2);
   const [calculating, setCalculating] = useState(false);
@@ -646,7 +647,8 @@ export default function ConfigurableFinishCalculator({
 
                       {/* Labour: complete the estimate to the very end */}
                       <LabourCostSection
-                        estimatorKey="global"
+                        market={marketCode}
+          estimatorKey="global"
                         config={labourConfig}
                         onChange={setLabourConfig}
                         currencySymbol={currencySymbol}

@@ -16,6 +16,11 @@ const ESTIMATOR_LABELS: Record<LabourEstimatorKey, string> = {
 
 const ESTIMATOR_KEYS: LabourEstimatorKey[] = ['global', 'paint', 'screeding', 'pop_ceiling', 'tile'];
 
+const LABOUR_MARKETS = ['ALL', 'NG', 'US', 'GB', 'DE', 'AU', 'CA', 'IN'] as const;
+const MARKET_CURRENCY: Record<string, string> = {
+  NG: 'NGN', US: 'USD', GB: 'GBP', DE: 'EUR', AU: 'AUD', CA: 'CAD', IN: 'INR',
+};
+
 export default function AdminLabourSettings() {
   const [tab, setTab] = useState<'settings' | 'categories'>('settings');
   return (
@@ -51,6 +56,7 @@ export default function AdminLabourSettings() {
 
 function SettingsTab() {
   const [settings, setSettings] = useState<DbLabourSettings[]>([]);
+  const [marketFilter, setMarketFilter] = useState('ALL');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<string | null>(null);
@@ -92,15 +98,34 @@ function SettingsTab() {
   return (
     <>
       {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+      <div className="mb-4 flex items-center gap-2">
+        <label className="text-xs font-semibold text-muted-foreground dark:text-muted-foreground">Market:</label>
+        <select
+          value={marketFilter}
+          onChange={(e) => setMarketFilter(e.target.value)}
+          className="rounded-lg border border-input bg-background px-3 py-2 text-sm"
+          data-testid="labour-market-filter"
+        >
+          {LABOUR_MARKETS.map((m) => (
+            <option key={m} value={m}>{m === 'ALL' ? 'All markets' : `${m} (${MARKET_CURRENCY[m] ?? ''})`}</option>
+          ))}
+        </select>
+        <span className="text-xs text-muted-foreground dark:text-muted-foreground">
+          Labour rates are market-scoped: each market keeps its own verified rate set.
+        </span>
+      </div>
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        {ESTIMATOR_KEYS.map((key) => {
-          const setting = settings.find((s) => s.estimator_key === key);
-          if (!setting) return null;
+        {(marketFilter === 'ALL' ? settings : settings.filter((s) => s.market === marketFilter)).map((setting) => {
           return (
             <AdminCard key={setting.id} className="p-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <h3 className="text-xs font-bold text-foreground dark:text-primary-foreground">{ESTIMATOR_LABELS[setting.estimator_key]}</h3>
+                  <h3 className="text-xs font-bold text-foreground dark:text-primary-foreground">
+                    {ESTIMATOR_LABELS[setting.estimator_key] ?? setting.estimator_key}
+                    <span className="ml-2 rounded bg-muted px-1.5 py-0.5 text-[10px] font-bold uppercase text-muted-foreground">
+                      {setting.market} · {MARKET_CURRENCY[setting.market] ?? ''}
+                    </span>
+                  </h3>
                   <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
                     {setting.is_enabled ? 'Labour estimation enabled' : 'Labour estimation disabled'}
                     {' · '}Default method: {PRICING_METHOD_LABELS[setting.default_pricing_method]}

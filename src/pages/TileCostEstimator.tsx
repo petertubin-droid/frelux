@@ -7,6 +7,7 @@ import { calculateLabourCost } from "@/lib/labour";
 import LabourCostSection, {
   useLabourConfig,
 } from "@/components/labour/LabourCostSection";
+import { useMarket } from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
 import {
   logAnalyticsEvent,
@@ -154,6 +155,7 @@ function exportTileQuote(
 export default function TileCostEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const { marketCode } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("tile_cost");
   useSeo(
     !embedded
@@ -192,7 +194,7 @@ export default function TileCostEstimator({
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
   const { config: labourConfig, setConfig: setLabourConfig } =
-    useLabourConfig("tile");
+    useLabourConfig("tile", marketCode);
 
   const [input, setInput] = useState<TileCalcInput>({
     surfaceType: passed.input?.surfaceType ?? "floor",
@@ -579,6 +581,7 @@ export default function TileCostEstimator({
             </Section>
 
             <LabourCostSection
+              market={marketCode}
               estimatorKey="tile"
               config={labourConfig}
               onChange={setLabourConfig}

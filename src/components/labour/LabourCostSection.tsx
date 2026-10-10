@@ -17,6 +17,8 @@ import { Button } from "@/components/ui/shadcn/button";
 
 interface LabourCostSectionProps {
   estimatorKey: LabourEstimatorKey;
+  /** Visitor's market code (NG/US/GB/DE/AU/CA/IN) for market-scoped labour rates */
+  market?: string;
   config: LabourConfig;
   onChange: (config: LabourConfig) => void;
   currencySymbol: string;
@@ -34,7 +36,7 @@ interface LabourCostSectionProps {
  * Users can always override any suggested rate.
  */
 // eslint-disable-next-line react-refresh/only-export-components
-export function useLabourConfig(estimatorKey: LabourEstimatorKey) {
+export function useLabourConfig(estimatorKey: LabourEstimatorKey, market?: string) {
   const [config, setConfig] = useState<LabourConfig>(DEFAULT_LABOUR_CONFIG);
   const [loading, setLoading] = useState(true);
 
@@ -42,7 +44,7 @@ export function useLabourConfig(estimatorKey: LabourEstimatorKey) {
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      const settings = await fetchLabourSettings(estimatorKey);
+      const settings = await fetchLabourSettings(estimatorKey, market);
       if (cancelled) return;
       // Preserve user's includeLabour choice, the async fetch should only
       // update pricing method and suggested rates, not the toggle state.
@@ -60,7 +62,7 @@ export function useLabourConfig(estimatorKey: LabourEstimatorKey) {
     return () => {
       mountedRef.current = false;
     };
-  }, [estimatorKey]);
+  }, [estimatorKey, market]);
 
   const updateConfig = useCallback((updates: Partial<LabourConfig>) => {
     setConfig((prev) => ({ ...prev, ...updates }));

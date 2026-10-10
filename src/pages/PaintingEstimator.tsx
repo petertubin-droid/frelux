@@ -333,7 +333,7 @@ export default function PaintingEstimator({
   // Shared labour layer: completes the estimate to the very end
   // (materials + labour + grand total) from admin-configured rates.
   const { config: labourConfig, setConfig: setLabourConfig } =
-    useLabourConfig("paint");
+    useLabourConfig("paint", marketCode);
   // Engine features hook (additive, existing logic unchanged)
   const engine = useEngineFeatures({ calculatorType: "painting" });
   const [alreadyHave, setAlreadyHave] = useState(0);
@@ -1134,6 +1134,7 @@ export default function PaintingEstimator({
             onAlreadyHaveChange={setAlreadyHave}
             labourConfig={labourConfig}
             setLabourConfig={setLabourConfig}
+            marketCode={marketCode}
           />
         )}
       </div>
@@ -1683,8 +1684,10 @@ function EstimateResult({
   onAlreadyHaveChange,
   labourConfig,
   setLabourConfig,
+  marketCode,
 }: {
   result: PaintingEstimateResult;
+  marketCode: string;
   showCalculation: boolean;
   onToggleCalculation: () => void;
   onSave: () => void;
@@ -2082,6 +2085,7 @@ function EstimateResult({
 
           {/* Labour: complete the estimate to the very end */}
           <LabourCostSection
+            market={marketCode}
             estimatorKey="paint"
             config={labourConfig}
             onChange={setLabourConfig}

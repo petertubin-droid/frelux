@@ -1037,6 +1037,8 @@ export type LabourEstimatorKey =
 export interface DbLabourSettings {
   id: string;
   estimator_key: LabourEstimatorKey;
+  /** Market code this rate set applies to (NG/US/GB/DE/AU/CA/IN) */
+  market: string;
   is_enabled: boolean;
   default_pricing_method: LabourPricingMethod;
   suggested_rates: {

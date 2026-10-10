@@ -170,7 +170,7 @@ export default function ScreedingCostEstimator({
   // Engine features
   const engine = useEngineFeatures({ calculatorType: "screeding_cost" });
   const { config: labourConfig, setConfig: setLabourConfig } =
-    useLabourConfig("screeding");
+    useLabourConfig("screeding", marketCode);
 
   // Labour follows the site-wide labour layer so international
   // visitors get a complete estimate, not materials alone.
@@ -511,6 +511,7 @@ export default function ScreedingCostEstimator({
               )}
 
               <LabourCostSection
+                market={marketCode}
                 estimatorKey="screeding"
                 config={labourConfig}
                 onChange={setLabourConfig}

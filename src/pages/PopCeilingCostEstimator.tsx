@@ -41,6 +41,7 @@ import { PopCeilingCostEstimatorSeo } from "@/components/seo/SeoContent";
 import LabourCostSection, {
   useLabourConfig,
 } from "@/components/labour/LabourCostSection";
+import { useMarket } from "@/lib/international/market-context";
 import { calculateLabourCost } from "@/lib/labour";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
@@ -116,6 +117,7 @@ function exportPopQuote(result: {
 export default function PopCeilingCostEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
+  const { marketCode } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("pop_ceiling_cost");
   useSeo(
     !embedded
@@ -149,7 +151,7 @@ export default function PopCeilingCostEstimator({
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const { config: labourConfig, setConfig: setLabourConfig } =
-    useLabourConfig("pop_ceiling");
+    useLabourConfig("pop_ceiling", marketCode);
   const [result, setResult] = useState<PopCalcResult | null>(null);
   // Engine features
   const engine = useEngineFeatures({ calculatorType: "pop_ceiling_cost" });
@@ -414,6 +416,7 @@ export default function PopCeilingCostEstimator({
             </Section>
 
             <LabourCostSection
+              market={marketCode}
               estimatorKey="pop_ceiling"
               config={labourConfig}
               onChange={setLabourConfig}

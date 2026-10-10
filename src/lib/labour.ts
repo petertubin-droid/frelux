@@ -93,22 +93,42 @@ export function calculateLabourCost(
  */
 export async function fetchLabourSettings(
   estimatorKey: LabourEstimatorKey,
+  market: string = "NG",
 ): Promise<DbLabourSettings | null> {
-  // Try estimator-specific settings first, then global
+  // Try estimator-specific settings for the visitor's market first, then
+  // the NG baseline (the fully surveyed price book), then global rows.
   try {
     const { data } = await supabase
       .from("labour_settings")
       .select("*")
       .eq("estimator_key", estimatorKey)
+      .eq("market", market)
       .maybeSingle();
     if (data) return data as DbLabourSettings;
+
+    const { data: ngData } = await supabase
+      .from("labour_settings")
+      .select("*")
+      .eq("estimator_key", estimatorKey)
+      .eq("market", "NG")
+      .maybeSingle();
+    if (ngData) return ngData as DbLabourSettings;
 
     const { data: globalData } = await supabase
       .from("labour_settings")
       .select("*")
       .eq("estimator_key", "global")
+      .eq("market", market)
       .maybeSingle();
-    return (globalData as DbLabourSettings) ?? null;
+    if (globalData) return globalData as DbLabourSettings;
+
+    const { data: ngGlobal } = await supabase
+      .from("labour_settings")
+      .select("*")
+      .eq("estimator_key", "global")
+      .eq("market", "NG")
+      .maybeSingle();
+    return (ngGlobal as DbLabourSettings) ?? null;
   } catch {
     // Never let a failed/absent settings lookup break an estimator
     // that embeds the labour section; fall back to defaults.

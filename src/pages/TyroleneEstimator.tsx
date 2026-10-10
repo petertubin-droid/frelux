@@ -303,7 +303,7 @@ export default function TyroleneEstimator({
   const [result, setResult] = useState<TyroleneEstimateResult | null>(null);
   // Shared labour layer: completes the estimate to the very end
   const { config: labourConfig, setConfig: setLabourConfig } =
-    useLabourConfig("screeding");
+    useLabourConfig("screeding", marketCode);
   // Engine features
   const engine = useEngineFeatures({ calculatorType: "tyrolene" });
   const [alreadyHave, setAlreadyHave] = useState(0);
@@ -1341,7 +1341,8 @@ export default function TyroleneEstimator({
 
                     {/* Labour: complete the estimate to the very end */}
                     <LabourCostSection
-                      estimatorKey="screeding"
+                      market={marketCode}
+          estimatorKey="screeding"
                       config={labourConfig}
                       onChange={setLabourConfig}
                       currencySymbol={formatCurrency(
