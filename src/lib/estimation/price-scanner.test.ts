@@ -1,5 +1,17 @@
 import { describe, it, expect } from "vitest";
-import { FALLBACK_PRICES, scanMaterialPrices } from "./price-scanner";
+import {
+  FALLBACK_PRICES,
+  US_REFERENCE_PRICES,
+  GB_REFERENCE_PRICES,
+  DE_REFERENCE_PRICES,
+  AU_REFERENCE_PRICES,
+  CA_REFERENCE_PRICES,
+  IN_REFERENCE_PRICES,
+  MARKET_CATALOGS,
+  MARKET_DEFAULTS,
+  scanMaterialPrices,
+  type ReferenceMarket,
+} from "./price-scanner";
 
 describe("estimation/price-scanner", () => {
   it("FALLBACK_PRICES has cement, block, sand, granite", () => {
@@ -157,4 +169,32 @@ describe("estimation/price-scanner US catalog", () => {
       report.results.some((r) => r.material_slug === "cement-per-bag"),
     ).toBe(true);
   });
+
+  it("has a web-verified reference catalog for every international market", () => {
+    for (const [market, catalog] of Object.entries(MARKET_CATALOGS)) {
+      expect(Object.keys(catalog).length).toBeGreaterThan(0);
+      expect(MARKET_DEFAULTS[market as ReferenceMarket].currency).toBeTruthy();
+    }
+    // spot-check surveyed values (2026-10-10 web survey)
+    expect(US_REFERENCE_PRICES.us_ice_water_shield.price).toBe(199);
+    expect(GB_REFERENCE_PRICES.gb_thistle_multifinish.price).toBe(11.25);
+    expect(DE_REFERENCE_PRICES.de_mp75.price).toBe(13.88);
+    expect(AU_REFERENCE_PRICES.au_base_coat_45.price).toBe(52.9);
+    expect(CA_REFERENCE_PRICES.ca_synko_tape.price).toBe(9.84);
+    expect(IN_REFERENCE_PRICES.in_tractor_emulsion.price).toBe(2600);
+  });
+
+  it("scanMaterialPrices uses the per-market catalog, region and currency", async () => {
+    const report = await scanMaterialPrices(
+      {},
+      { market: "GB" },
+    );
+    expect(report.currency).toBe("GBP");
+    expect(report.market_region).toBe("United Kingdom");
+    const multifinish = report.results.find(
+      (r) => r.material_key === "gb_thistle_multifinish",
+    );
+    expect(multifinish!.reference_price).toBe(11.25);
+  });
 });
+

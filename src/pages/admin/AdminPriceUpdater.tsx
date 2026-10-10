@@ -51,7 +51,9 @@ type ApplyStatus = {
   messages: string[];
 };
 
-type Market = "NG" | "US";
+import type { ReferenceMarket } from "@/lib/estimation/price-scanner";
+
+type Market = ReferenceMarket;
 
 const MARKET_META: Record<
   Market,
@@ -63,6 +65,15 @@ const MARKET_META: Record<
     currency: "USD",
     region: "United States",
   },
+  GB: {
+    label: "United Kingdom (GBP)",
+    currency: "GBP",
+    region: "United Kingdom",
+  },
+  DE: { label: "Germany (EUR)", currency: "EUR", region: "Germany" },
+  AU: { label: "Australia (AUD)", currency: "AUD", region: "Australia" },
+  CA: { label: "Canada (CAD)", currency: "CAD", region: "Canada" },
+  IN: { label: "India (INR)", currency: "INR", region: "India" },
 };
 
 export default function AdminPriceUpdater() {
@@ -248,6 +259,11 @@ export default function AdminPriceUpdater() {
           >
             <option value="NG">Nigeria (NGN)</option>
             <option value="US">United States (USD)</option>
+            <option value="GB">United Kingdom (GBP)</option>
+            <option value="DE">Germany (EUR)</option>
+            <option value="AU">Australia (AUD)</option>
+            <option value="CA">Canada (CAD)</option>
+            <option value="IN">India (INR)</option>
           </select>
           <Button
             variant="ghost"

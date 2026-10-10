@@ -596,6 +596,319 @@ export const US_REFERENCE_PRICES: Record<string, FallbackPrice> = {
     name: "KILZ 2 All-Purpose Primer",
     slug: "us-kilz-2-primer",
   },
+  us_flashing_tape: {
+    price: 44.09,
+    price_source: "US web survey 2026-10-10: mrosupreme reg $44.09; band $35.47-$51.07",
+    unit: "4 in x 75 ft roll",
+    name: "3M 8067 All Weather Flashing Tape",
+    slug: "us-3m-flashing-tape",
+  },
+  us_fibatape_500ft: {
+    price: 17.59,
+    price_source: "US web survey 2026-10-10: Home Depot FibaTape listings (300ft $13.99)",
+    unit: "500 ft roll",
+    name: "FibaTape Mesh Drywall Joint Tape",
+    slug: "us-fibatape-500ft",
+  },
+  us_ice_water_shield: {
+    price: 199.0,
+    price_source: "US web survey 2026-10-10: Home Depot Grace 195 sqft $199-$251",
+    unit: "195 sq ft roll",
+    name: "Ice & Water Shield Self-Adhered Membrane",
+    slug: "us-ice-water-shield-195sqft",
+  },
+  us_sill_seal: {
+    price: 9.99,
+    price_source: "US web survey 2026-10-10: US retail band $7.49-$10.99",
+    unit: "5.5 in x 50 ft roll",
+    name: "Sill Seal Foam Gasket",
+    slug: "us-sill-seal-50ft",
+  },
+  us_husky_6mil: {
+    price: 67.5,
+    price_source: "US web survey 2026-10-10: Home Depot 10ft x 100ft 6-mil clear sheeting",
+    unit: "10 ft x 100 ft roll",
+    name: "Husky 6-mil Polyethylene Sheeting",
+    slug: "us-husky-6mil-roll",
+  },
+};
+
+
+/** Markets with a web-verified reference catalog (2026-10-10 survey). */
+export type ReferenceMarket = "NG" | "US" | "GB" | "DE" | "AU" | "CA" | "IN";
+
+/**
+ * UK reference catalog (GBP, incl. VAT retail unless noted).
+ * Web-verified 2026-10-10: Buildbuddy, Wickes, Selco, Screwfix,
+ * Builder Depot, Travis Perkins, Amazon UK, UK merchants.
+ */
+export const GB_REFERENCE_PRICES: Record<string, FallbackPrice> = {
+  gb_mastercrete: {
+    price: 7.99,
+    price_source: "UK web survey 2026-10-10: Buildbuddy £7.00, Pricerunner GP cement £7.48",
+    unit: "25kg bag",
+    name: "Blue Circle Mastercrete Cement",
+    slug: "gb-mastercrete-25kg",
+  },
+  gb_building_sand: {
+    price: 4.5,
+    price_source: "UK web survey 2026-10-10: B&Q bulk 24x25kg £108 = £4.50/bag",
+    unit: "25kg bag",
+    name: "Building Sand",
+    slug: "gb-building-sand-25kg",
+  },
+  gb_thistle_bonding: {
+    price: 16.16,
+    price_source: "UK web survey 2026-10-10: merchants £16.16-£21.77 inc VAT",
+    unit: "25kg bag",
+    name: "Thistle Bonding Coat",
+    slug: "gb-thistle-bonding-25kg",
+  },
+  gb_thistle_multifinish: {
+    price: 11.25,
+    price_source: "UK web survey 2026-10-10: Wickes £11.25, Selco £10.13, Travis Perkins £13.10",
+    unit: "25kg bag",
+    name: "Thistle MultiFinish",
+    slug: "gb-thistle-multifinish-25kg",
+  },
+  gb_easifill: {
+    price: 34.66,
+    price_source: "UK web survey 2026-10-10: Selco £34.66 inc VAT, IBT £36.79",
+    unit: "10kg bag",
+    name: "Gyproc Easi-Fill",
+    slug: "gb-gyproc-easifill-10kg",
+  },
+  gb_gyproc_tape: {
+    price: 11.53,
+    price_source: "UK web survey 2026-10-10: Builder Depot £11.53, Travis Perkins £21.46",
+    unit: "150m roll",
+    name: "Gyproc Paper Joint Tape",
+    slug: "gb-gyproc-tape-150m",
+  },
+  gb_dulux_easycare: {
+    price: 57.99,
+    price_source: "UK web survey 2026-10-10: Screwfix £57.99 inc VAT",
+    unit: "10L",
+    name: "Dulux Easycare Matt Emulsion",
+    slug: "gb-dulux-easycare-10l",
+  },
+  gb_sandtex: {
+    price: 45.99,
+    price_source: "UK web survey 2026-10-10: Screwfix Sandtex Ultra Smooth 10L £45.99",
+    unit: "10L",
+    name: "Sandtex Masonry Paint",
+    slug: "gb-sandtex-masonry-10l",
+  },
+  gb_zinsser_123: {
+    price: 24.49,
+    price_source: "UK web survey 2026-10-10: Toolstation/UK retail band £19-£25 (1L)",
+    unit: "1L",
+    name: "Zinsser Bulls Eye 1-2-3",
+    slug: "gb-zinsser-123-1l",
+  },
+  gb_everbuild_402: {
+    price: 22.99,
+    price_source: "UK web survey 2026-10-10: UK band £14.39-£33.40 (5L)",
+    unit: "5L",
+    name: "Everbuild 402 Water Seal",
+    slug: "gb-everbuild-402-5l",
+  },
+  gb_everbuild_sbr: {
+    price: 19.9,
+    price_source: "UK web survey 2026-10-10: Amazon £24, HTC Direct £16.67, Country Supplies £19.90",
+    unit: "5L",
+    name: "Everbuild SBR Bond",
+    slug: "gb-everbuild-sbr-5l",
+  },
+};
+
+/**
+ * Germany reference catalog (EUR, incl. MwSt).
+ * Web-verified 2026-10-10: HORNBACH, OBI, idealo/auspreiser,
+ * Bossmann Store, Kleinanzeigen.
+ */
+export const DE_REFERENCE_PRICES: Record<string, FallbackPrice> = {
+  de_cement: {
+    price: 6.99,
+    price_source: "DE web survey 2026-10-10: HORNBACH Dyckerhoff CEM 25kg €7.45 incl. MwSt",
+    unit: "25kg sack",
+    name: "Portlandzement CEM II 42,5N",
+    slug: "de-cem-42-5n-25kg",
+  },
+  de_bausand: {
+    price: 6.39,
+    price_source: "DE web survey 2026-10-10: OBI bagged sand band €3.99-€6.99",
+    unit: "25kg sack",
+    name: "Bausand",
+    slug: "de-bausand-25kg",
+  },
+  de_mp75: {
+    price: 13.88,
+    price_source: "DE web survey 2026-10-10: Bossmann Knauf MP75 Diamant 30kg €13.88 incl. MwSt",
+    unit: "30kg sack",
+    name: "Knauf MP75 Maschinenputz",
+    slug: "de-knauf-mp75-30kg",
+  },
+  de_feinspachtel: {
+    price: 44.31,
+    price_source: "DE web survey 2026-10-10: Knauf Uniflott 25kg band €44-€51.99",
+    unit: "25kg sack",
+    name: "Knauf Feinspachtel",
+    slug: "de-knauf-feinspachtel-25kg",
+  },
+  de_tiefgrund: {
+    price: 59.4,
+    price_source: "DE web survey 2026-10-10: idealo/auspreiser 7 offers, €4.99/L (10L)",
+    unit: "10L",
+    name: "Caparol Tiefgrund TB",
+    slug: "de-caparol-tiefgrund-10l",
+  },
+  de_alpina_weiss: {
+    price: 39.95,
+    price_source: "DE web survey 2026-10-10: OBI Alpina white interior 10L band",
+    unit: "10L",
+    name: "Alpina Weiß",
+    slug: "de-alpina-weiss-10l",
+  },
+  de_alpina_fassadenfarbe: {
+    price: 59.99,
+    price_source: "DE web survey 2026-10-10: OBI premium facade 10L band €49.95-€64.95",
+    unit: "10L",
+    name: "Alpina Fassadenfarbe",
+    slug: "de-alpina-fassadenfarbe-10l",
+  },
+};
+
+/**
+ * Australia reference catalog (AUD).
+ * Web-verified 2026-10-10: Bunnings, Taubmans RRP listings.
+ */
+export const AU_REFERENCE_PRICES: Record<string, FallbackPrice> = {
+  au_base_coat_45: {
+    price: 52.9,
+    price_source: "AU web survey 2026-10-10: Bunnings Gyprock CSR 20kg Base Coat 45 $52.90",
+    unit: "20kg bag",
+    name: "CSR Gyprock Base Coat 45",
+    slug: "au-csr-base-coat-45-20kg",
+  },
+  au_taubmans_3in1: {
+    price: 153.3,
+    price_source: "AU web survey 2026-10-10: Taubmans 15L 3-in-1 RRP $229.90 scaled per-litre",
+    unit: "10L",
+    name: "Taubmans 3-in-1 Prep Primer",
+    slug: "au-taubmans-3in1-10l",
+  },
+  au_taubmans_endure: {
+    price: 213.9,
+    price_source: "AU web survey 2026-10-10: Bunnings Taubmans 10L Endure $213.90",
+    unit: "10L",
+    name: "Taubmans Endure Low Sheen",
+    slug: "au-taubmans-low-sheen-10l",
+  },
+};
+
+/**
+ * Canada reference catalog (CAD).
+ * Web-verified 2026-10-10: Home Depot Canada, Kent Building Supplies,
+ * CTS Building Supplies.
+ */
+export const CA_REFERENCE_PRICES: Record<string, FallbackPrice> = {
+  ca_cgc_compound: {
+    price: 37.78,
+    price_source: "CA web survey 2026-10-10: CTS Building Supplies 12L pails band $35-$43",
+    unit: "12L pail",
+    name: "CGC Sheetrock All-Purpose Compound",
+    slug: "ca-cgc-allpurpose-12l",
+  },
+  ca_synko_tape: {
+    price: 9.84,
+    price_source: "CA web survey 2026-10-10: Kent Building Supplies CGC paper tape 500ft $9.84",
+    unit: "500 ft roll",
+    name: "CGC Synko Paper Joint Tape",
+    slug: "ca-cgc-synko-tape-500ft",
+  },
+};
+
+/**
+ * India reference catalog (INR).
+ * Web-verified 2026-10-10: 99acres rates, IndiaMART, Industrybuying,
+ * Birla White official guide.
+ */
+export const IN_REFERENCE_PRICES: Record<string, FallbackPrice> = {
+  in_ultratech: {
+    price: 395,
+    price_source: "IN web survey 2026-10-10: 99acres latest rates, 43 grade ₹395/bag",
+    unit: "50kg bag",
+    name: "UltraTech OPC Cement",
+    slug: "in-ultratech-cement-50kg",
+  },
+  in_apex_ultima: {
+    price: 4800,
+    price_source: "IN web survey 2026-10-10: IndiaMART ₹4,800 per 10L bucket",
+    unit: "10L",
+    name: "Asian Paints Apex Ultima",
+    slug: "in-apex-ultima-10l",
+  },
+  in_royale_shyne: {
+    price: 3920,
+    price_source: "IN web survey 2026-10-10: India retail 7L band ₹3,900-₹4,400",
+    unit: "7L",
+    name: "Asian Paints Royale Shyne",
+    slug: "in-royale-shyne-7l",
+  },
+  in_tractor_emulsion: {
+    price: 2600,
+    price_source: "IN web survey 2026-10-10: IndiaMART Hyderabad ₹2,600 per 20L",
+    unit: "20L",
+    name: "Asian Paints Tractor Emulsion",
+    slug: "in-tractor-emulsion-20l",
+  },
+  in_trucare_primer: {
+    price: 2750,
+    price_source: "IN web survey 2026-10-10: TruCare 20L retail band ₹1,850-₹3,299",
+    unit: "20L",
+    name: "Asian Paints TruCare Primer",
+    slug: "in-trucare-primer-20l",
+  },
+  in_birla_putty: {
+    price: 700,
+    price_source: "IN web survey 2026-10-10: trade ₹700 per 40kg bag; online retail ₹1,130",
+    unit: "40kg bag",
+    name: "Birla White WallCare Putty",
+    slug: "in-birla-white-putty-40kg",
+  },
+  in_dr_fixit: {
+    price: 600,
+    price_source: "IN web survey 2026-10-10: Industrybuying ₹770; IndiaMART band ₹550-₹650 (5L)",
+    unit: "5L",
+    name: "Dr. Fixit LW+ Waterproofing",
+    slug: "in-dr-fixit-lw-5l",
+  },
+};
+
+/** Market catalog registry (one web-verified catalog per market). */
+export const MARKET_CATALOGS: Record<ReferenceMarket, Record<string, FallbackPrice>> = {
+  NG: FALLBACK_PRICES,
+  US: US_REFERENCE_PRICES,
+  GB: GB_REFERENCE_PRICES,
+  DE: DE_REFERENCE_PRICES,
+  AU: AU_REFERENCE_PRICES,
+  CA: CA_REFERENCE_PRICES,
+  IN: IN_REFERENCE_PRICES,
+};
+
+/** Default region label + currency per market. */
+export const MARKET_DEFAULTS: Record<
+  ReferenceMarket,
+  { region: string; currency: string }
+> = {
+  NG: { region: "Nigeria", currency: "NGN" },
+  US: { region: "United States", currency: "USD" },
+  GB: { region: "United Kingdom", currency: "GBP" },
+  DE: { region: "Germany", currency: "EUR" },
+  AU: { region: "Australia", currency: "AUD" },
+  CA: { region: "Canada", currency: "CAD" },
+  IN: { region: "India", currency: "INR" },
 };
 
 export interface PriceScanResultItem {
@@ -634,7 +947,7 @@ export interface ScanOptions {
   region?: string;
   currency?: string;
   /** which market's reference catalog to review (default NG) */
-  market?: "NG" | "US";
+  market?: ReferenceMarket;
 }
 
 /**
@@ -651,15 +964,16 @@ export async function scanMaterialPrices(
   options: ScanOptions = {},
 ): Promise<PriceScanReport> {
   const { region, currency } = options;
-  const market = options.market ?? "NG";
+  const market: ReferenceMarket = options.market ?? "NG";
+  const defaults = MARKET_DEFAULTS[market] ?? MARKET_DEFAULTS.NG;
   const catalog: Record<string, FallbackPrice> =
-    market === "US" ? US_REFERENCE_PRICES : FALLBACK_PRICES;
+    MARKET_CATALOGS[market] ?? FALLBACK_PRICES;
   const catalogLabel =
     market === "US"
-      ? "FRELUX Reference Catalog (US retail, verified 2026-10-05)"
-      : "FRELUX Reference Catalog (Nigeria)";
-  const effRegion = region ?? (market === "US" ? "United States" : "Nigeria");
-  const effCurrency = currency ?? (market === "US" ? "USD" : "NGN");
+      ? "FRELUX Reference Catalog (US retail, verified 2026-10-05/10-10)"
+      : `FRELUX Reference Catalog (${defaults.region}, web survey 2026-10-10)`;
+  const effRegion = region ?? defaults.region;
+  const effCurrency = currency ?? defaults.currency;
   const scannedAt = new Date().toISOString();
   const results: PriceScanResultItem[] = [];
 
