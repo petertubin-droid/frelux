@@ -252,8 +252,23 @@ serveWithCors(async (req: Request) => {
       return errorResponse("That host cannot be fetched", 400);
     }
 
+    // ── Derived fields (computed BEFORE fetching so a blocked or
+    // unreachable retailer is still recorded as a FAILED candidate the
+    // admin can review — a bot-blocked page is a scan outcome, not a
+    // server error. Returning 502s here made the client UI show an
+    // opaque "Edge Function returned a non-2xx status code" instead
+    // of the actual reason: fix M-2026-10-10) ──
+    const market = String(body.market ?? source?.market ?? "US");
+    const materialSlug = String(
+      body.material_slug ?? source?.material_slug ?? "",
+    );
+    const retailer = String(
+      body.retailer ?? source?.retailer ?? parsed.hostname,
+    );
+
     // ── Fetch the page ──
     let html = "";
+    let fetchError: string | null = null;
     try {
       const fetchRes = await fetch(parsed.toString(), {
         headers: {
@@ -264,25 +279,18 @@ serveWithCors(async (req: Request) => {
         redirect: "follow",
       });
       if (!fetchRes.ok) {
-        return errorResponse(
-          `That site responded with ${fetchRes.status}`,
-          502,
-        );
+        fetchError = `That site responded with ${fetchRes.status}`;
+      } else {
+        html = (await fetchRes.text()).slice(0, 2_000_000);
       }
-      html = (await fetchRes.text()).slice(0, 2_000_000);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : "network error";
-      return errorResponse(`Could not reach that URL: ${msg}`, 502);
+      fetchError = `Could not reach that URL: ${msg}`;
     }
 
-    const result = extract(html);
-    const market = String(body.market ?? source?.market ?? "US");
-    const materialSlug = String(
-      body.material_slug ?? source?.material_slug ?? "",
-    );
-    const retailer = String(
-      body.retailer ?? source?.retailer ?? parsed.hostname,
-    );
+    const result = fetchError
+      ? { price: null, currency: null, product_name: null, extraction: null, confidence: null }
+      : extract(html);
 
     // ── Store the scan as a candidate (pending review — never auto-apply) ──
     const candidateRow = {
@@ -299,8 +307,9 @@ serveWithCors(async (req: Request) => {
       unit: String(body.unit ?? source?.expected_unit ?? "unit"),
       extraction: result.extraction,
       confidence: result.confidence ?? "low",
-      scrape_error: result.price === null ? "No price found on the page" : null,
-      status: result.price === null ? "failed" : "pending",
+      scrape_error: fetchError ??
+        (result.price === null ? "No price found on the page" : null),
+      status: (fetchError || result.price === null) ? "failed" : "pending",
     };
     const { data: candidate, error: insertError } = await supabaseClient
       .from("price_scan_candidates")

@@ -26,6 +26,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { isFunctionsHttpError } from "@supabase/supabase-js";
 import { createOrUpdatePrice } from "@/lib/estimation/queries";
 import { AdminHeader as AdminPageHeader } from "@/components/admin/AdminUi";
 import AdminPagination from "@/components/admin/AdminPagination";
@@ -126,20 +127,36 @@ export default function AdminPriceScan() {
       setNotice(null);
       setError(null);
       try {
-        const { error: fnError } = await supabase.functions.invoke(
-          "price-scan",
-          { body: { source_id: source.id } },
-        );
+        const { data, error: fnError } = await supabase.functions.invoke<{
+          candidate?: { status?: string; scrape_error?: string | null };
+        }>("price-scan", { body: { source_id: source.id } });
         if (fnError) throw fnError;
+        const scanned = (data as { candidate?: { status?: string; scrape_error?: string | null } } | null)
+          ?.candidate;
+        // A blocked/unparseable page is a normal scan outcome, recorded as
+        // a FAILED candidate — tell the admin WHY instead of implying success.
         setNotice(
-          `Scanned ${source.label || source.product_url}: result saved for review below.`,
+          scanned?.status === "failed"
+            ? `Scanned ${source.label || source.product_url}: no price could be extracted (${scanned.scrape_error ?? "no price found"}). Recorded for review below.`
+            : `Scanned ${source.label || source.product_url}: result saved for review below.`,
         );
         await load();
       } catch (e) {
-        const msg =
+        // Surface the function's actual error message (e.g. "Admin access
+        // required") instead of the opaque default
+        // "Edge Function returned a non-2xx status code".
+        let msg =
           e instanceof Error
             ? e.message
             : "Scan failed (the site may block automated fetches)";
+        if (isFunctionsHttpError(e)) {
+          try {
+            const fnBody = (await e.context.json()) as { error?: string };
+            if (fnBody?.error) msg = fnBody.error;
+          } catch {
+            // keep the generic message
+          }
+        }
         setError(msg);
       } finally {
         setBusySource(null);
