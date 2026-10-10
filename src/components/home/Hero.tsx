@@ -12,6 +12,7 @@ import {
 import Container from "@/components/ui/Container";
 import { useHeroContent } from "@/lib/useHeroContent";
 import { useBranding } from "@/lib/branding";
+import { useLanguage } from "@/lib/i18n";
 
 /**
  * Splits a headline into words, wraps highlighted words in a colored span,
@@ -63,6 +64,7 @@ const trustPoints = [
 export default function Hero() {
   const { content: hero, loaded: heroLoaded } = useHeroContent();
   const { branding } = useBranding();
+  const { t } = useLanguage();
 
   // ── Derive image metadata from branding ──
   const heroImageUrl =
@@ -135,7 +137,7 @@ export default function Hero() {
           {/* Headline */}
           <h1 className="mt-7 font-hero text-4xl font-semibold leading-[1.08] tracking-tight sm:text-5xl lg:text-[3.75rem] text-balance">
             {renderHighlightedHeadline(
-              hero.headline,
+              t(hero.headline),
               branding?.hero_highlight_config?.highlights ?? null,
             )}
           </h1>
@@ -146,7 +148,7 @@ export default function Hero() {
 
           {/* Subheadline */}
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-primary-foreground/55 text-balance">
-            {hero.subheadline}
+            {t(hero.subheadline)}
           </p>
 
           {/* CTAs */}
@@ -157,7 +159,7 @@ export default function Hero() {
                 className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/25 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-brand-purple/30 active:scale-[0.98]"
               >
                 <Building2 className="h-4 w-4" />
-                {hero.ctaPrimaryLabel}
+                {t(hero.ctaPrimaryLabel)}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </a>
             ) : (
@@ -166,7 +168,7 @@ export default function Hero() {
                 className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-lg shadow-brand-purple/25 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-brand-purple/30 active:scale-[0.98]"
               >
                 <Building2 className="h-4 w-4" />
-                {hero.ctaPrimaryLabel}
+                {t(hero.ctaPrimaryLabel)}
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
             )}
@@ -176,7 +178,7 @@ export default function Hero() {
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/8 px-6 py-3 text-sm font-semibold text-primary-foreground backdrop-blur-md transition-all hover:bg-white/12 active:scale-[0.98] border border-white/10"
               >
                 <Calculator className="h-4 w-4" />
-                {hero.ctaSecondaryLabel}
+                {t(hero.ctaSecondaryLabel)}
               </a>
             ) : (
               <Link
@@ -184,7 +186,7 @@ export default function Hero() {
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-white/8 px-6 py-3 text-sm font-semibold text-primary-foreground backdrop-blur-md transition-all hover:bg-white/12 active:scale-[0.98] border border-white/10"
               >
                 <Calculator className="h-4 w-4" />
-                {hero.ctaSecondaryLabel}
+                {t(hero.ctaSecondaryLabel)}
               </Link>
             )}
             <Link

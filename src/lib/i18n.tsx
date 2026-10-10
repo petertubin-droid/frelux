@@ -82,10 +82,17 @@ export function stripLocaleFromPathname(pathname: string): string {
 type TranslationKey = string;
 
 // Chrome translations keyed by the English source string. Filling in
-// more strings is pure data - no component changes needed.
-const translations: Record<Language, Record<TranslationKey, string>> = {
+// more strings is pure data - no component changes needed. Exported for
+// the i18n tests, which assert the hero keys exist in every locale.
+export const translations: Record<Language, Record<TranslationKey, string>> = {
   en: {},
   es: {
+    "Every trade. Every cost. One platform.":
+      "Todos los oficios. Todos los costes. Una sola plataforma.",
+    "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
+      "Frelux convierte tus medidas en cantidades exactas de materiales y costes reales verificados en el mercado, ya sea una sola habitación o un edificio completo, desde los cimientos hasta el techo. Haz una foto para obtener un presupuesto con IA, genera un BOQ profesional y contrata profesionales verificados cuando estés listo. Gratis, disponible en varios idiomas.",
+    "Start Estimating Free": "Empieza a estimar gratis",
+    "Try the AI Photo Estimator": "Prueba el estimador de fotos con IA",
     Calculators: "Calculadoras",
     "Construction Tools": "Herramientas de construcción",
     Marketplace: "Mercado",
@@ -107,6 +114,12 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     "Get Started": "Comenzar",
   },
   fr: {
+    "Every trade. Every cost. One platform.":
+      "Tous les corps de métier. Tous les coûts. Une seule plateforme.",
+    "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
+      "Frelux transforme vos mesures en quantités de matériaux exactes et en coûts réels vérifiés sur le marché, qu'il s'agisse d'une pièce ou d'un bâtiment entier, des fondations au toit. Prenez une photo pour obtenir un devis par IA, générez un BOQ professionnel et engagez des pros vérifiés quand vous êtes prêt. Gratuit, disponible en plusieurs langues.",
+    "Start Estimating Free": "Commencez à estimer gratuitement",
+    "Try the AI Photo Estimator": "Essayez l'estimateur photo IA",
     Calculators: "Calculatrices",
     "Construction Tools": "Outils de construction",
     Marketplace: "Marché",
@@ -128,6 +141,12 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     "Get Started": "Commencer",
   },
   de: {
+    "Every trade. Every cost. One platform.":
+      "Jedes Gewerk. Jede Kostenposition. Eine Plattform.",
+    "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
+      "Frelux verwandelt Ihre Maße in exakte Materialmengen und echte, marktgeprüfte Kosten, ob für einen einzelnen Raum oder ein ganzes Gebäude, von der Gründung bis zum Dach. Machen Sie ein Foto für eine KI-Schätzung, erstellen Sie ein professionelles BOQ und beauftragen Sie geprüfte Profis, wenn Sie bereit sind. Kostenlos, in mehreren Sprachen verfügbar.",
+    "Start Estimating Free": "Kostenlos kalkulieren",
+    "Try the AI Photo Estimator": "KI-Fotoschätzer ausprobieren",
     Calculators: "Rechner",
     "Construction Tools": "Bauwerkzeuge",
     Marketplace: "Marktplatz",
@@ -149,6 +168,12 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     "Get Started": "Loslegen",
   },
   pt: {
+    "Every trade. Every cost. One platform.":
+      "Todos os ofícios. Todos os custos. Uma só plataforma.",
+    "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
+      "O Frelux transforma as suas medidas em quantidades exatas de materiais e custos reais verificados no mercado, seja um quarto ou um edifício inteiro, da fundação ao telhado. Tire uma foto para obter um orçamento com IA, gere um BOQ profissional e contrate profissionais verificados quando estiver pronto. Grátis, disponível em vários idiomas.",
+    "Start Estimating Free": "Comece a estimar grátis",
+    "Try the AI Photo Estimator": "Experimente o estimador de fotos com IA",
     Calculators: "Calculadoras",
     "Construction Tools": "Ferramentas de construção",
     Marketplace: "Mercado",
@@ -170,6 +195,12 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     "Get Started": "Começar",
   },
   ru: {
+    "Every trade. Every cost. One platform.":
+      "Все отрасли. Все затраты. Одна платформа.",
+    "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
+      "Frelux превращает ваши замеры в точные объемы материалов и реальные, проверенные по рынку затраты: будь то одна комната или целое здание, от фундамента до крыши. Сфотографируйте объект, чтобы получить оценку с помощью ИИ, составьте профессиональную смету (BOQ) и наймите проверенных специалистов, когда будете готовы. Бесплатно, доступно на нескольких языках.",
+    "Start Estimating Free": "Рассчитать бесплатно",
+    "Try the AI Photo Estimator": "Попробуйте ИИ-оценку по фото",
     Calculators: "Калькуляторы",
     "Construction Tools": "Строительные инструменты",
     Marketplace: "Маркетплейс",
@@ -191,6 +222,12 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     "Get Started": "Начать",
   },
   id: {
+    "Every trade. Every cost. One platform.":
+      "Semua bidang. Semua biaya. Satu platform.",
+    "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
+      "Frelux mengubah pengukuran Anda menjadi jumlah material yang tepat dan biaya nyata yang terverifikasi pasar, baik satu ruangan maupun seluruh bangunan, dari fondasi hingga atap. Ambil foto untuk mendapatkan estimasi AI, buat BOQ profesional, dan sewa profesional terverifikasi saat Anda siap. Gratis, tersedia dalam berbagai bahasa.",
+    "Start Estimating Free": "Mulai estimasi gratis",
+    "Try the AI Photo Estimator": "Coba estimator foto AI",
     Calculators: "Kalkulator",
     "Construction Tools": "Alat konstruksi",
     Marketplace: "Pasar",
@@ -212,6 +249,12 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     "Get Started": "Mulai",
   },
   sw: {
+    "Every trade. Every cost. One platform.":
+      "Kila ufani. Gharama zote. Jukwaa moja.",
+    "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
+      "Frelux hubadilisha vipimo vyako kuwa kiasi sahihi cha nyenzo na gharama halisi zilizothibitishwa sokoni, iwe chumba kimoja au jengo zima, kutoka msingi hadi paa. Piga picha upate makadirio ya AI, tengeneza BOQ ya kitaalamu, na ajiri wataalamu walioidhinishwa ukiwa tayari. Bila malipo, inapatikana kwa lugha nyingi.",
+    "Start Estimating Free": "Anza kukadiria bila malipo",
+    "Try the AI Photo Estimator": "Jaribu kikadirio cha picha cha AI",
     Calculators: "Kalkuleta",
     "Construction Tools": "Zana za ujenzi",
     Marketplace: "Soko",
@@ -233,6 +276,12 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     "Get Started": "Anza",
   },
   ar: {
+    "Every trade. Every cost. One platform.":
+      "كل الحرف. كل التكاليف. منصة واحدة.",
+    "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
+      "يحوّل Frelux قياساتك إلى كميات مواد دقيقة وتكاليف حقيقية موثقة من السوق، سواء لغرفة واحدة أو لمبنى كامل، من الأساس إلى السطح. التقط صورة للحصول على تقدير بالذكاء الاصطناعي، وأنشئ جدول كميات (BOQ) احترافيًا، وتعاقد مع محترفين موثوقين عندما تكون جاهزًا. مجاني ومتاح بعدة لغات.",
+    "Start Estimating Free": "ابدأ التقدير مجانًا",
+    "Try the AI Photo Estimator": "جرّب مُقدّر الصور بالذكاء الاصطناعي",
     Calculators: "حاسبات",
     "Construction Tools": "أدوات البناء",
     Marketplace: "السوق",
@@ -254,6 +303,12 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     "Get Started": "ابدأ الآن",
   },
   hi: {
+    "Every trade. Every cost. One platform.":
+      "हर कारीगरी। हर लागत। एक ही प्लेटफ़ॉर्म।",
+    "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
+      "Frelux आपके मापों को सामग्री की सटीक मात्रा और बाज़ार-सत्यापित वास्तविक लागत में बदल देता है, चाहे एक कमरा हो या पूरी इमारत, नींव से छत तक। AI अनुमान के लिए एक फ़ोटो लें, पेशेवर BOQ बनाएँ और तैयार होने पर सत्यापित पेशेवरों को काम पर रखें। मुफ़त, कई भाषाओं में उपलब्ध।",
+    "Start Estimating Free": "नि:शुल्क अनुमान शुरू करें",
+    "Try the AI Photo Estimator": "AI फ़ोटो अनुमानक आज़माएँ",
     Calculators: "कैलकुलेटर",
     "Construction Tools": "निर्माण उपकरण",
     Marketplace: "बाज़ार",
@@ -275,6 +330,11 @@ const translations: Record<Language, Record<TranslationKey, string>> = {
     "Get Started": "शुरू करें",
   },
   zh: {
+    "Every trade. Every cost. One platform.": "所有工种，所有成本，一个平台。",
+    "Frelux turns your measurements into exact material quantities and real, market-verified costs, whether it's a single room or an entire building, foundation to roof. Snap a photo for an AI estimate, generate a professional BOQ, and hire verified pros when you’re ready. Free, available in multiple languages.":
+      "Frelux 将您的测量数据转化为精确的材料数量和经市场核实的真实成本，无论是单个房间还是整栋建筑，从地基到屋顶。拍张照片即可获得 AI 估价，生成专业工程量清单（BOQ），并在需要时聘请经过验证的专业人士。免费，支持多种语言。",
+    "Start Estimating Free": "免费开始估算",
+    "Try the AI Photo Estimator": "试试 AI 照片估算",
     Calculators: "计算器",
     "Construction Tools": "建筑工具",
     Marketplace: "市场",
