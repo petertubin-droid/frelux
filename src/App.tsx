@@ -281,6 +281,7 @@ const AdminMedia = lazy(() => import("@/pages/admin/AdminMedia"));
 const AdminUsers = lazy(() => import("@/pages/admin/AdminUsers"));
 const AdminGallery = lazy(() => import("@/pages/admin/AdminGallery"));
 const AdminCaseStudies = lazy(() => import("@/pages/admin/AdminCaseStudies"));
+const AdminTestimonials = lazy(() => import("@/pages/admin/AdminTestimonials"));
 const AdminPaintComparison = lazy(
   () => import("@/pages/admin/AdminPaintComparison"),
 );
@@ -1575,6 +1576,10 @@ export default function App() {
                       element={<AdminGallery />}
                     />
                     <Route path="case-studies" element={<AdminCaseStudies />} />
+                    <Route
+                      path="testimonials"
+                      element={<AdminTestimonials />}
+                    />
                     <Route
                       path="paint-comparison"
                       element={<AdminPaintComparison />}
