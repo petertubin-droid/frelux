@@ -4,17 +4,17 @@ import { FALLBACK_PRICES, scanMaterialPrices } from "./price-scanner";
 describe("estimation/price-scanner", () => {
   it("FALLBACK_PRICES has cement, block, sand, granite", () => {
     expect(FALLBACK_PRICES.cement_per_bag).toBeTruthy();
-    expect(FALLBACK_PRICES.cement_per_bag.price).toBe(8500);
-    expect(FALLBACK_PRICES.block_per_piece.price).toBe(450);
+    expect(FALLBACK_PRICES.cement_per_bag.price).toBe(12500);
+    expect(FALLBACK_PRICES.block_per_piece.price).toBe(800);
     expect(FALLBACK_PRICES.sand_per_m3).toBeTruthy();
     expect(FALLBACK_PRICES.granite_per_m3).toBeTruthy();
   });
 
   it("FALLBACK_PRICES has rebar entries", () => {
-    expect(FALLBACK_PRICES.rebar_12mm_per_length.price).toBe(11500);
-    expect(FALLBACK_PRICES.rebar_16mm_per_length.price).toBe(18500);
-    expect(FALLBACK_PRICES.rebar_20mm_per_length.price).toBe(27000);
-    expect(FALLBACK_PRICES.rebar_25mm_per_length.price).toBe(40000);
+    expect(FALLBACK_PRICES.rebar_12mm_per_length.price).toBe(10500);
+    expect(FALLBACK_PRICES.rebar_16mm_per_length.price).toBe(17000);
+    expect(FALLBACK_PRICES.rebar_20mm_per_length.price).toBe(26000);
+    expect(FALLBACK_PRICES.rebar_25mm_per_length.price).toBe(45000);
   });
 
   it("every catalog entry has a unit, a name and a material slug", () => {
@@ -72,9 +72,9 @@ describe("estimation/price-scanner", () => {
     );
     expect(cement).toBeTruthy();
     expect(cement!.configured_price).toBe(8000);
-    expect(cement!.reference_price).toBe(8500);
-    // (8500 − 8000) / 8000 = +6.25%
-    expect(cement!.change_percent).toBe(6.25);
+    expect(cement!.reference_price).toBe(12500);
+    // (12500 − 8000) / 8000 = +56.25%
+    expect(cement!.change_percent).toBe(56.25);
   });
 
   it("unconfigured materials are reported as NOT CONFIGURED, never priced", async () => {
@@ -86,7 +86,7 @@ describe("estimation/price-scanner", () => {
     expect(cement!.change_percent).toBeNull();
     expect(report.materials_unconfigured).toBeGreaterThan(0);
     // the reference is still shown for the admin to verify - not applied silently
-    expect(cement!.reference_price).toBe(8500);
+    expect(cement!.reference_price).toBe(12500);
   });
 
   it("an entry with no reference reports low confidence and asks for admin entry", async () => {

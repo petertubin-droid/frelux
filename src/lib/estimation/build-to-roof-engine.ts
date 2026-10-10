@@ -2330,28 +2330,32 @@ export function calculateBuildToRoof(
 // ── Default price/labour/wastage configs (Nigerian market defaults) ──
 
 export const DEFAULT_PRICES = {
-  cement_per_bag: 10000, // Dangote/BUA 50kg, updated Aug 2026
-  block_per_piece: 450, // 9-inch hollow block, updated
-  sand_per_m3: 55000, // sharp sand per m³ (reference only)
-  sand_per_trip: 192500, // per trip (3.5 m³, 5-tonne tipper), PRIMARY
-  granite_per_m3: 110000, // 3/4" granite per m³ (reference only)
-  granite_per_trip: 385000, // per trip (3.5 m³), PRIMARY
-  hardcore_per_m3: 40000, // hardcore stone/laterite, updated
-  reinforcement_per_tonne: 1350000, // bulk steel per tonne (fallback)
+  // NG market survey 2026-10-10 (web-verified; see
+  // price-scanner.ts FALLBACK_PRICES for per-item sources — the two
+  // catalogs now carry the SAME values so engine fallbacks and the
+  // admin price updater agree).
+  cement_per_bag: 12500, // Dangote/BUA 50kg, N12,000-15,000 range
+  block_per_piece: 800, // 9-inch vibrated hollow block
+  sand_per_m3: 21000, // sharp sand per m³ (reference only)
+  sand_per_trip: 65000, // per trip (3.5 m³, 5-tonne tipper), PRIMARY
+  granite_per_m3: 30000, // 3/4" granite per m³ (reference only)
+  granite_per_trip: 95000, // per trip (3.5 m³), PRIMARY
+  hardcore_per_m3: 18000, // hardcore stone/laterite
+  reinforcement_per_tonne: 950000, // bulk steel per tonne (fallback)
   // Per-diameter rebar prices (₦ per 12m standard length)
-  rebar_12mm_per_length: 9500, // 12mm × 12m, common for columns/slabs
-  rebar_16mm_per_length: 16500, // 16mm × 12m, common for columns/beams
-  rebar_20mm_per_length: 25500, // 20mm × 12m, heavy columns/beams
-  rebar_25mm_per_length: 38000, // 25mm × 12m, major beams/columns
-  binding_wire_per_kg: 3000, // annealed binding wire, updated
-  timber_per_m: 3500, // 2×4 timber per linear meter, updated
-  roofing_sheet_per_piece: 12000, // long-span aluminium 0.5mm, updated
-  ridge_cap_per_meter: 4500, // aluminium ridge cap, updated
-  roofing_screws_per_piece: 200, // roofing screws with washers, updated
-  fascia_per_meter: 3000, // fascia board, updated
-  dpc_per_meter: 1000, // DPC roll, updated
-  dpm_per_m2: 1500, // DPM membrane, updated
-  formwork_per_m2: 5500, // plywood formwork, updated
+  rebar_12mm_per_length: 10500, // 12mm × 12m, common for columns/slabs
+  rebar_16mm_per_length: 17000, // 16mm × 12m, common for columns/beams
+  rebar_20mm_per_length: 26000, // 20mm × 12m, heavy columns/beams
+  rebar_25mm_per_length: 45000, // 25mm × 12m, major beams/columns
+  binding_wire_per_kg: 2000, // annealed binding wire
+  timber_per_m: 1550, // 2×4 timber per linear meter (~N470/ft)
+  roofing_sheet_per_piece: 9800, // long-span aluminium 0.5mm (N6,500/m² × 1.5m²)
+  ridge_cap_per_meter: 2500, // aluminium ridge cap
+  roofing_screws_per_piece: 150, // roofing screws with washers
+  fascia_per_meter: 3000, // fascia board
+  dpc_per_meter: 500, // DPC roll
+  dpm_per_m2: 1500, // DPM membrane
+  formwork_per_m2: 8000, // plywood formwork + nails
   price_date: new Date().toISOString().split("T")[0],
   price_source:
     "FRELUX reference prices, Nigerian market (edit in Step 8; verify before ordering)",
