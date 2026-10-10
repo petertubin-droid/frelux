@@ -72,26 +72,20 @@ export default function PaintColorDetail() {
     structuredData: color
       ? {
           "@context": "https://schema.org",
-          "@type": "Product",
+          // DefinedTerm, not Product: a paint colour is a reference entity
+          // with no price/stock/reviews. "Product" made Search Console
+          // demand aggregateRating/review (2026-10-10). We never invent them.
+          "@type": "DefinedTerm",
           name: color.name,
           description: `${color.name} (${color.hex_code}). RGB(${color.rgb_r}, ${color.rgb_g}, ${color.rgb_b}). Professional paint color.`,
-          category:
-            families.find((f) => f.id === color.color_family_id)?.name ??
-            "Paint Color",
-          brand: { "@type": "Brand", name: "FRELUX" },
-          additionalProperty: [
-            { "@type": "PropertyValue", name: "HEX", value: color.hex_code },
-            {
-              "@type": "PropertyValue",
-              name: "RGB",
-              value: `rgb(${color.rgb_r}, ${color.rgb_g}, ${color.rgb_b})`,
-            },
-            {
-              "@type": "PropertyValue",
-              name: "HSL",
-              value: `hsl(${Math.round(color.hsl_h)}, ${Math.round(color.hsl_s)}%, ${Math.round(color.hsl_l)}%)`,
-            },
-          ],
+          termCode: color.hex_code,
+          inDefinedTermSet: {
+            "@type": "DefinedTermSet",
+            name:
+              families.find((f) => f.id === color.color_family_id)?.name ??
+              "Paint Color",
+            url: "https://freluxtools.netlify.app/colors",
+          },
         }
       : undefined,
   });

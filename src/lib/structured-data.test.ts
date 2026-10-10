@@ -140,18 +140,23 @@ describe("faqSchema", () => {
   });
 });
 
-describe("productSchema", () => {
-  it("returns a Product schema with correct @context and @type", () => {
+describe("productSchema (colour reference entity)", () => {
+  // Search Console "Product snippets" warned about missing aggregateRating
+  // and review on Product markup (2026-10-10). A paint colour is not a
+  // merchant product and FRELUX never fabricates ratings, so colour pages
+  // emit a DefinedTerm instead of a Product.
+  it("returns a DefinedTerm, never a Product", () => {
     const schema = productSchema({
       name: "Navy Blue",
       description: "A deep navy paint color.",
       slug: "navy-blue",
     });
     expect(schema["@context"]).toBe("https://schema.org");
-    expect(schema["@type"]).toBe("Product");
+    expect(schema["@type"]).toBe("DefinedTerm");
+    expect(schema["@type"]).not.toBe("Product");
   });
 
-  it("builds the product url from the slug", () => {
+  it("builds the url from the slug", () => {
     const schema = productSchema({
       name: "Navy Blue",
       description: "desc",
@@ -160,16 +165,30 @@ describe("productSchema", () => {
     expect(schema.url).toBe(`${SITE_URL}/colors/navy-blue`);
   });
 
-  it("includes brand information", () => {
-    const schema = productSchema({
-      name: "Navy Blue",
-      description: "desc",
-      slug: "navy-blue",
+  it("belongs to a DefinedTermSet named after the category", () => {
+    const withCat = productSchema({
+      name: "A",
+      description: "d",
+      slug: "a",
+      category: "Living Room",
     });
-    expect(schema.brand).toMatchObject({
-      "@type": "Brand",
-      name: SITE_NAME,
+    expect(withCat.inDefinedTermSet).toMatchObject({
+      "@type": "DefinedTermSet",
+      name: `${SITE_NAME} Living Room colours`,
     });
+    const withoutCat = productSchema({
+      name: "A",
+      description: "d",
+      slug: "a",
+    });
+    expect(withoutCat.inDefinedTermSet.name).toBe(`${SITE_NAME} paint colours`);
+  });
+
+  it("never carries rating, review or offer fields", () => {
+    const schema = productSchema({ name: "A", description: "d", slug: "a" });
+    expect(schema).not.toHaveProperty("aggregateRating");
+    expect(schema).not.toHaveProperty("review");
+    expect(schema).not.toHaveProperty("offers");
   });
 
   it("includes image when provided and omits it when not", () => {
@@ -187,23 +206,6 @@ describe("productSchema", () => {
       slug: "a",
     });
     expect(withoutImage).not.toHaveProperty("image");
-  });
-
-  it("includes category when provided and is undefined when not", () => {
-    const withCat = productSchema({
-      name: "A",
-      description: "d",
-      slug: "a",
-      category: "Living Room",
-    });
-    expect(withCat.category).toBe("Living Room");
-
-    const withoutCat = productSchema({
-      name: "A",
-      description: "d",
-      slug: "a",
-    });
-    expect(withoutCat.category).toBeUndefined();
   });
 });
 

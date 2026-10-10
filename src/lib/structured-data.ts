@@ -64,7 +64,12 @@ export function faqSchema(items: FaqItem[]) {
   };
 }
 
-// Product schema for color pages
+// Colour reference schema for colour pages.
+// A paint colour is a reference entity (name, hex, RGB, HSL), not a
+// merchant product with a price, stock or reviews. Typing it as
+// Product triggered Search Console "Product snippets" warnings
+// (missing aggregateRating / review / offers), so it is a DefinedTerm
+// within a colour DefinedTermSet instead. No ratings are ever invented.
 export function productSchema(opts: {
   name: string;
   description: string;
@@ -74,15 +79,17 @@ export function productSchema(opts: {
 }) {
   return {
     "@context": "https://schema.org",
-    "@type": "Product",
+    "@type": "DefinedTerm",
     name: opts.name,
     description: opts.description,
     url: `${SITE_URL}/colors/${opts.slug}`,
-    category: opts.category,
     ...(opts.image ? { image: opts.image } : {}),
-    brand: {
-      "@type": "Brand",
-      name: SITE_NAME,
+    inDefinedTermSet: {
+      "@type": "DefinedTermSet",
+      name: opts.category
+        ? `${SITE_NAME} ${opts.category} colours`
+        : `${SITE_NAME} paint colours`,
+      url: `${SITE_URL}/colors`,
     },
   };
 }

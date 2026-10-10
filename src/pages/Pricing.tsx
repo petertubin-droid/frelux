@@ -36,11 +36,18 @@ export default function Pricing() {
     structuredDataArray: [
       {
         "@context": "https://schema.org",
-        "@type": "Product",
+        // SoftwareApplication, not Product: FRELUX Premium is a software
+        // subscription, not a physical merchant product. Typing it as
+        // Product made Search Console demand aggregateRating/review
+        // (Product snippets warnings, 2026-10-10). We never fabricate
+        // ratings, so the honest type is the fix.
+        "@type": "SoftwareApplication",
         name: "FRELUX Premium",
         description:
           "Premium subscription for FRELUX engineering calculators, AI estimation tools, and Pro Connect messaging.",
-        brand: { "@type": "Brand", name: "FRELUX" },
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        publisher: { "@type": "Organization", name: "FRELUX" },
         offers: [
           {
             "@type": "Offer",
