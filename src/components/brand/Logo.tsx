@@ -18,7 +18,13 @@ export default function Logo({ className, variant = 'full', light = false }: Log
   const logoUrl = theme === 'dark' ? branding?.dark_logo_url : branding?.light_logo_url;
   const displayName = branding?.website_name ?? siteConfig.name;
   const shortName = (branding?.website_name ?? siteConfig.shortName).split(' ')[0] ?? 'FRELUX';
-  const tagline = branding?.website_tagline ?? 'Smart Calc';
+  // The long default tagline is meant for meta/SEO; the compact header lockup
+  // keeps the short "Smart Calc" so it never changes shape when branding loads.
+  const rawTagline = branding?.website_tagline;
+  const tagline =
+    !rawTagline || rawTagline === 'Every Trade. Every Cost. One Platform.'
+      ? 'Smart Calc'
+      : rawTagline;
 
   return (
     <span role="img" aria-label={displayName} className={classNames('inline-flex items-center gap-2.5', className)}>

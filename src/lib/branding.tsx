@@ -45,6 +45,36 @@ const defaultBranding: DbSiteBranding = {
   updated_at: "",
 };
 
+/**
+ * Legacy brand identities that must never reach the UI. An older admin edit
+ * left the active `site_branding` row as "FRELUXTOOLS" / "Build Smarter", so
+ * every reload painted the FRELUX fallback first and then swapped to the
+ * FRELUXTOOLS row once Supabase answered (two different-looking sites). The
+ * public name, tagline and title are normalised back to the FRELUX defaults
+ * here; colours, logos and hero content still come from the admin row.
+ */
+const LEGACY_BRAND_NAME = /^\s*frelux\s*tools?\b/i;
+const LEGACY_BRAND_TAGLINE = /^\s*build\s+smarter\.?\s*$/i;
+
+// eslint-disable-next-line react-refresh/only-export-components
+export function normalizeBranding(row: DbSiteBranding): DbSiteBranding {
+  const legacyName = LEGACY_BRAND_NAME.test(row.website_name ?? "");
+  const legacyTagline = LEGACY_BRAND_TAGLINE.test(row.website_tagline ?? "");
+  const legacyTitle = LEGACY_BRAND_NAME.test(row.browser_title ?? "");
+  if (!legacyName && !legacyTagline && !legacyTitle) return row;
+  return {
+    ...row,
+    website_name: legacyName ? defaultBranding.website_name : row.website_name,
+    website_tagline: legacyTagline
+      ? defaultBranding.website_tagline
+      : row.website_tagline,
+    browser_title:
+      legacyTitle || legacyName
+        ? defaultBranding.browser_title
+        : row.browser_title,
+  };
+}
+
 const BrandingContext = createContext<BrandingContextValue>({
   branding: defaultBranding,
   loading: true,
@@ -92,18 +122,28 @@ function hexToHslChannels(hex: string): string {
 }
 
 export function BrandingProvider({ children }: { children: ReactNode }) {
-  const [branding, setBranding] = useState<DbSiteBranding | null>(null);
+  // Start from the FRELUX defaults (not null) so the very first paint already
+  // carries the final brand name/tagline; the DB row then only refines colours,
+  // logos and hero content instead of swapping the whole identity.
+  const [branding, setBranding] = useState<DbSiteBranding | null>(
+    defaultBranding,
+  );
   const [loading, setLoading] = useState(true);
 
   async function loadBranding() {
-    const supabase = await getSupabase();
-    const { data } = await supabase
-      .from("site_branding")
-      .select("*")
-      .eq("is_active", true)
-      .maybeSingle();
-    setBranding(data ?? defaultBranding);
-    setLoading(false);
+    try {
+      const supabase = await getSupabase();
+      const { data } = await supabase
+        .from("site_branding")
+        .select("*")
+        .eq("is_active", true)
+        .maybeSingle();
+      setBranding(data ? normalizeBranding(data) : defaultBranding);
+    } catch {
+      setBranding((prev) => prev ?? defaultBranding);
+    } finally {
+      setLoading(false);
+    }
   }
 
   useEffect(() => {
