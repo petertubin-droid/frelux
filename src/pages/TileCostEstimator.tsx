@@ -240,7 +240,7 @@ export default function TileCostEstimator({
     async function load() {
       const [sizesRes, matRes, settingsRes] = await Promise.all([
         fetchTileSizes(),
-        fetchTileMaterials(),
+        fetchTileMaterials(undefined, marketCode),
         fetchSiteSettings(),
       ]);
       setTileSizes(sizesRes.data);

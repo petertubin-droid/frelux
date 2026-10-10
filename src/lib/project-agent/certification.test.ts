@@ -398,6 +398,7 @@ function seedScreedConfig(): void {
 function seedPopMaterials(): void {
   db.tables.pop_materials.push({
     id: "pop-1",
+    market: "NG",
     workflow: "nigeria",
     category: "primary",
     name: "POP Cement",

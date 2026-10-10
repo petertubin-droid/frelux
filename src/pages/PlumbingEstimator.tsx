@@ -14,6 +14,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
+import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
@@ -346,6 +347,8 @@ export default function PlumbingEstimator() {
         title="Plumbing Estimator"
         subtitle="Enter your fixture counts and the total pipe run you measured for each category. The engine sizes each pipe category separately, applies the admin's visible waste and fitting allowances, and shows every step. Estimation only: not professional plumbing design."
       />
+
+      <MarketScopeNotice />
 
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">

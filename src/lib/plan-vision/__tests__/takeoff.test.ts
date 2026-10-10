@@ -58,6 +58,7 @@ const SCREED_CONFIG_ROW = {
 };
 
 const POP_MATERIAL_ROW = {
+  market: "NG",
   id: "pop-1",
   workflow: "nigeria",
   category: "primary",

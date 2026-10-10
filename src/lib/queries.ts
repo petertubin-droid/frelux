@@ -200,12 +200,21 @@ export async function fetchAllFinishTypes(): Promise<{
 // POP Ceiling Materials & Workflows
 // =========================================================
 
-export async function fetchPopMaterials(workflow?: string) {
-  let query = supabase.from("pop_materials").select("*").eq("is_active", true);
-  if (workflow) query = query.eq("workflow", workflow);
-  query = query.order("sort_order");
-  const { data, error } = await query;
-  return { data: (data ?? []) as DbPopMaterial[], error };
+export async function fetchPopMaterials(workflow?: string, market?: string) {
+  // Market-first: the visitor's market's own ceiling system (e.g. US
+  // drywall panels), falling back to the NG reference materials.
+  async function run(mkt: string) {
+    let query = supabase.from("pop_materials").select("*").eq("is_active", true).eq("market", mkt);
+    if (workflow) query = query.eq("workflow", workflow);
+    const { data } = await query.order("sort_order");
+    return (data ?? []) as DbPopMaterial[];
+  }
+  if (market && market !== "NG") {
+    const local = await run(market);
+    if (local.length > 0) return { data: local, error: null };
+  }
+  const fallback = await run("NG");
+  return { data: fallback, error: null };
 }
 
 export async function fetchPopWorkflows() {
@@ -230,12 +239,21 @@ export async function fetchTileSizes() {
   return { data: (data ?? []) as DbTileSize[], error };
 }
 
-export async function fetchTileMaterials(category?: string) {
-  let query = supabase.from("tile_materials").select("*").eq("is_active", true);
-  if (category) query = query.eq("category", category);
-  query = query.order("sort_order");
-  const { data, error } = await query;
-  return { data: (data ?? []) as DbTileMaterial[], error };
+export async function fetchTileMaterials(category?: string, market?: string) {
+  // Market-first: the visitor's market's own adhesive/grout set (e.g.
+  // US thinset), falling back to the NG reference materials.
+  async function run(mkt: string) {
+    let query = supabase.from("tile_materials").select("*").eq("is_active", true).eq("market", mkt);
+    if (category) query = query.eq("category", category);
+    const { data } = await query.order("sort_order");
+    return (data ?? []) as DbTileMaterial[];
+  }
+  if (market && market !== "NG") {
+    const local = await run(market);
+    if (local.length > 0) return { data: local, error: null };
+  }
+  const fallback = await run("NG");
+  return { data: fallback, error: null };
 }
 
 // =========================================================

@@ -3,6 +3,7 @@ import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { ConstructionExtractionPanel } from "@/components/estimation/ConstructionExtractionPanel";
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
+import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useSeo } from "@/lib/seo";
 import { formatAreaDual } from "@/lib/international/units-display";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
@@ -489,6 +490,8 @@ export default function BuildToRoofEstimator() {
   return (
     <SubscriptionGate feature="build_to_roof_estimator">
       <div className="min-h-screen bg-gradient-to-b from-muted/50 to-muted/50">
+
+      <MarketScopeNotice />
         {/* Premium Header with mesh gradient */}
         <div className="relative overflow-hidden bg-brand-navy text-primary-foreground">
           {/* Animated mesh background */}

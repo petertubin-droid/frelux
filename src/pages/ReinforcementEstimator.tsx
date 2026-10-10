@@ -15,6 +15,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
+import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useSeo } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
@@ -304,6 +305,8 @@ export default function ReinforcementEstimator() {
         title="Reinforcement Estimator"
         subtitle="Enter your bar schedule cutting lengths per diameter. The engine converts them to whole 12 m stock lengths with a visible lap/waste allowance, computes BS 4449 tonnage for delivery planning, and prices from the shared material database. It does NOT design reinforcement."
       />
+
+      <MarketScopeNotice />
 
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">

@@ -159,7 +159,11 @@ export default function PopCeilingCostEstimator({
   const [saveMsg, setSaveMsg] = useState("");
 
   const [input, setInput] = useState<PopCalcInput>({
-    workflow: (passed.workflow as "nigeria" | "international") ?? "nigeria",
+    // Outside Nigeria the board-based (gypsum/drywall) system is the local
+    // practice, not cast POP plaster.
+    workflow:
+      (passed.workflow as "nigeria" | "international") ??
+      (marketCode !== "NG" ? "international" : "nigeria"),
     roomLength: 0,
     roomWidth: 0,
     unit: "meters",
@@ -181,7 +185,7 @@ export default function PopCeilingCostEstimator({
   useEffect(() => {
     async function load() {
       const [matRes, settingsRes] = await Promise.all([
-        fetchPopMaterials(),
+        fetchPopMaterials(undefined, marketCode),
         fetchSiteSettings(),
       ]);
       setMaterials(matRes.data);

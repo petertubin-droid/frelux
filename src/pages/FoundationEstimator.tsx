@@ -15,6 +15,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
+import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useSeo } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
@@ -308,6 +309,8 @@ export default function FoundationEstimator() {
         title="Foundation Estimator"
         subtitle="Enter your measured concrete volume, wall area, hardcore and formwork. The engine splits concrete into cement, sand and granite with the admin's visible mix ratio and every constant shown, sizes blocks from the blocks-per-m² rule, and prices from the shared material database. Estimation only: not foundation design."
       />
+
+      <MarketScopeNotice />
 
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">

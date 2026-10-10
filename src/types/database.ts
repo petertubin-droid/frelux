@@ -728,6 +728,8 @@ export type TileMaterialCategory =
 
 export interface DbPopMaterial {
   id: string;
+  /** Market code this material set applies to (NG reference or local system) */
+  market?: string;
   workflow: PopWorkflowType;
   category: PopMaterialCategory;
   name: string;
@@ -776,6 +778,8 @@ export interface DbTileSize {
 
 export interface DbTileMaterial {
   id: string;
+  /** Market code this material set applies to (NG reference or local system) */
+  market?: string;
   category: TileMaterialCategory;
   name: string;
   description: string | null;

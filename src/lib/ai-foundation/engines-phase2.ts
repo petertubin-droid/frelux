@@ -372,6 +372,7 @@ export function registerPhase2Engines(): void {
         includeOptional?: boolean;
         currency?: string;
         currencySymbol?: string;
+        market?: string;
         materials?: Array<Record<string, unknown>>;
       };
       const invalid = requireFiniteNumbers({
@@ -394,7 +395,9 @@ export function registerPhase2Engines(): void {
       let materials = input.materials ?? null;
       if (!materials) {
         const { fetchPopMaterials } = await import("@/lib/queries");
-        const { data } = await fetchPopMaterials();
+        // Market-first material system: a US caller gets the drywall
+        // panel set, a GB caller plasterboard, NG keeps POP.
+        const { data } = await fetchPopMaterials(undefined, input.market);
         materials = (data ?? []) as unknown as Array<Record<string, unknown>>;
       }
       if (!materials || materials.length === 0) {
@@ -414,7 +417,9 @@ export function registerPhase2Engines(): void {
       const symbol = input.currencySymbol ?? currency;
       const result = calculatePopCeiling(
         {
-          workflow: input.workflow ?? "nigeria",
+          workflow:
+            input.workflow ??
+            (input.market && input.market !== "NG" ? "international" : "nigeria"),
           roomLength: input.roomLength,
           roomWidth: input.roomWidth,
           unit: (input.unit ?? "meters") as never,

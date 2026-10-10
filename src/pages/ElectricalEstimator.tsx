@@ -15,6 +15,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
+import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
@@ -360,6 +361,8 @@ export default function ElectricalEstimator() {
         title="Electrical Wiring Estimator"
         subtitle="Enter your point counts and estimated average cable runs. The engine sizes each cable category separately, counts circuits and accessories from your inputs, and shows every step of the calculation. Estimation only: not professional electrical design."
       />
+
+      <MarketScopeNotice />
 
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
