@@ -2362,32 +2362,37 @@ export const DEFAULT_PRICES = {
 };
 
 export const DEFAULT_LABOUR: LabourConfig = {
-  excavation_per_m3: 4000, // manual excavation, updated
-  blockwork_per_block: 200, // per block laid, updated
-  concrete_per_m3: 30000, // per m³ cast, updated
-  reinforcement_per_tonne: 180000, // per tonne fixed, updated
-  formwork_per_m2: 6000, // per m² erected/removed, updated
-  roofing_per_m2: 6000, // per m² roof area, updated
-  blinding_per_m3: 10000, // per m³, updated
-  hardcore_per_m3: 7000, // per m³, updated
-  sand_filling_per_m3: 6000, // per m³, updated
-  compaction_per_m3: 3500, // per m³, updated
-  backfilling_per_m3: 3000, // per m³, updated
-  general_labour_per_day: 12000, // per day, updated
+  // NG web-verified labour survey 2026-10-10:
+  // - block laying N150-200/block (nigeriabuildingcost.ng; mason+tender
+  //   180-200 blocks/day)
+  // - masons N8,000-18,000/day (buildwithease 2026); labourers N5,000-10,000
+  //   (ogabuild 2026); concrete/rebar labour ~10-15% of material cost
+  excavation_per_m3: 4000, // manual excavation, verified band N3,000-5,000/m3
+  blockwork_per_block: 180, // per block laid, verified N150-200 (2026)
+  concrete_per_m3: 12000, // per m³ cast, ~10-15% of concrete material cost
+  reinforcement_per_tonne: 130000, // per tonne fixed, cut+bend+fix 2026 quotes
+  formwork_per_m2: 6000, // per m² erected/removed, N4,000-8,000 band
+  roofing_per_m2: 6000, // per m² roof area, crew day-rate basis
+  blinding_per_m3: 10000, // per m³
+  hardcore_per_m3: 7000, // per m³
+  sand_filling_per_m3: 6000, // per m³
+  compaction_per_m3: 3500, // per m³
+  backfilling_per_m3: 3000, // per m³
+  general_labour_per_day: 8000, // labourer, verified N5,000-10,000/day
   general_labour_days: 5,
   // Nigerian construction role-based daily rates
-  bricklayer_per_day: 10000, // per day, updated
+  bricklayer_per_day: 12000, // mason, verified N8,000-18,000/day
   bricklayer_days: 20,
-  contractor_fee: 600000, // lump sum, updated
+  contractor_fee: 600000, // lump sum, project-dependent
   contractor_fee_type: "contract",
   contractor_days: 30,
-  supervisor_per_day: 12000, // per day, updated
+  supervisor_per_day: 12000, // per day
   supervisor_days: 30,
-  foreman_per_day: 8000, // per day, updated
+  foreman_per_day: 10000, // senior tradesman, above mason band
   foreman_days: 25,
-  carpenter_per_day: 10000, // per day, updated
+  carpenter_per_day: 10000, // per day, N8,000-12,000 band
   carpenter_days: 15,
-  concrete_labourer_per_day: 7000, // per day, updated
+  concrete_labourer_per_day: 7000, // per day, labourer band
   concrete_labourer_days: 15,
 };
 
