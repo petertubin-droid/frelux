@@ -274,6 +274,15 @@ export default function Home() {
         className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
       />
 
+      {/* AdSense-dedicated homepage slot: locked to google_adsense only
+          (owner directive 2026-10-10). Label "Google". */}
+      <AdSlot
+        slotKey="adsense_home"
+        providerSlug="google_adsense"
+        label="Google"
+        className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8"
+      />
+
       {/* FAQ with structured data */}
       <FaqSection faqs={HOME_FAQS} />
 

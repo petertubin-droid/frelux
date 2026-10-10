@@ -53,17 +53,31 @@ describe("fetchAdConfig stale-while-error", () => {
   });
 
   it("serves the cached config when a later refresh fails", async () => {
-    // Prime the cache with a successful fetch.
+    // Prime the cache with a successful fetch. The DB returns 1 placement;
+    // 5 code-defined AdSense-only placements are merged in (gap-fillers
+    // for keys the DB does not have yet).
     const good = await fetchAdConfig();
     expect(good.providers).toHaveLength(1);
-    expect(good.placements).toHaveLength(1);
+    expect(good.placements).toHaveLength(6);
+    expect(
+      good.placements.map((pl) => pl.placement_key),
+    ).toEqual(
+      expect.arrayContaining([
+        "home_top",
+        "adsense_footer",
+        "adsense_home",
+        "adsense_paint_calculator",
+        "adsense_colors",
+        "adsense_learn",
+      ]),
+    );
 
     // Force-refresh with the network now failing.
     callState.current.providersError = { message: "network down" };
     const retry = await fetchAdConfig(true);
     // The stale-but-good cache is served, not an empty snapshot.
     expect(retry.providers).toHaveLength(1);
-    expect(retry.placements).toHaveLength(1);
+    expect(retry.placements).toHaveLength(good.placements.length);
   });
 
   it("does not cache an empty snapshot for the full TTL when the very first fetch fails", async () => {
@@ -79,6 +93,7 @@ describe("fetchAdConfig stale-while-error", () => {
     callState.current.placementsError = null;
     const second = await fetchAdConfig(true); // force bypasses the cache
     expect(second.providers).toHaveLength(1);
-    expect(second.placements).toHaveLength(1);
+    // 1 DB placement + 5 code-defined AdSense-only gap-fillers.
+    expect(second.placements).toHaveLength(6);
   });
 });

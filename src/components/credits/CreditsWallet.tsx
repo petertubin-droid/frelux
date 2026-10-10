@@ -40,6 +40,7 @@ import {
 } from "@/lib/ad-config";
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
+import { supportsRewardedAds } from "@/lib/ad-providers";
 import { getClientHash, REWARDED_AD_BRIDGES } from "@/lib/rewarded-access";
 
 // ───────────────────────────────────────────────────────
@@ -423,7 +424,7 @@ function EarnCreditsModal({
       const { providers } = await fetchAdConfig();
       const activeProvider = providers.find(
         (p) =>
-          (p.provider_type === "rewarded" || p.provider_type === "mixed") &&
+          supportsRewardedAds(p) &&
           p.is_active &&
           REWARDED_AD_BRIDGES[p.slug],
       );

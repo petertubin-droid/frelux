@@ -48,7 +48,17 @@ export async function fetchAdConfig(force = false): Promise<AdConfigResult> {
   }
 
   providersCache = (provRes.data as DbAdProvider[]) ?? [];
-  placementsCache = (placeRes.data as DbAdPlacement[]) ?? [];
+  const dbPlacements = (placeRes.data as DbAdPlacement[]) ?? [];
+  // Code-defined AdSense-only placements fill gaps only: any DB row with
+  // the same key (e.g. inserted by the admin or the migration) wins, so
+  // the admin can toggle/configure them like any other placement.
+  const dbKeys = new Set(dbPlacements.map((pl) => pl.placement_key));
+  placementsCache = [
+    ...dbPlacements,
+    ...ADSENSE_ONLY_PLACEMENT_KEYS.filter((k) => !dbKeys.has(k)).map((k) =>
+      adsenseOnlyPlacement(k),
+    ),
+  ];
   cacheExpiry = now + CACHE_TTL;
 
   return { providers: providersCache, placements: placementsCache };
@@ -78,6 +88,49 @@ export function getProvidersForPlacement(
 
   // No explicit provider list, use all active providers sorted by priority
   return providers;
+}
+
+/**
+ * Code-defined AdSense-dedicated placements (owner directive 2026-10-10).
+ *
+ * The site's primary monetization target is Google AdSense (currently
+ * awaiting approval, with Monetag/Adsterra as temporary fillers). These
+ * placements are rendered through <AdSlot providerSlug="google_adsense">,
+ * which locks the slot to AdSense — Monetag/Adsterra can never claim them.
+ *
+ * They are merged into the fetched placement list when the database has no
+ * row for their key, so the slots work immediately with zero admin
+ * configuration. Once the matching migration inserts real rows, those DB
+ * rows win (and gain admin toggles); the code defaults only fill gaps.
+ */
+export const ADSENSE_ONLY_PLACEMENT_KEYS = [
+  "adsense_footer",
+  "adsense_home",
+  "adsense_paint_calculator",
+  "adsense_colors",
+  "adsense_learn",
+] as const;
+
+function adsenseOnlyPlacement(key: string): DbAdPlacement {
+  return {
+    id: `adsense-only-${key}`,
+    placement_key: key,
+    placement_name: `Google AdSense — ${key} (AdSense only)`,
+    placement_type: "banner",
+    page_target: "global",
+    is_active: true,
+    provider_ids: [], // locked by providerSlug at the AdSlot call site
+    ad_unit_ids: {},
+    sort_order: 0,
+    display_rules: {
+      mobile: true,
+      desktop: true,
+      refresh_seconds: 0,
+      min_height: 100,
+    },
+    created_at: "",
+    updated_at: "",
+  };
 }
 
 /**

@@ -1,4 +1,19 @@
-import type { AdProviderSchema } from "@/types/database";
+import type { AdProviderSchema, DbAdProvider } from "@/types/database";
+
+/**
+ * True when a provider can serve REWARDED ads, regardless of its DB
+ * provider_type (which may lag the registry after schema drift).
+ * A provider qualifies when its type is rewarded/mixed, or when it
+ * carries a rewarded capability flag (AdSense: settings.rewarded_ads).
+ */
+export function supportsRewardedAds(provider: DbAdProvider): boolean {
+  return (
+    provider.provider_type === "rewarded" ||
+    provider.provider_type === "mixed" ||
+    (provider.slug === "google_adsense" &&
+      provider.settings?.rewarded_ads === true)
+  );
+}
 
 /**
  * Provider Registry, defines the configuration schema for each built-in ad provider.
@@ -9,7 +24,10 @@ export const BUILTIN_PROVIDERS: AdProviderSchema[] = [
   {
     slug: "google_adsense",
     name: "Google AdSense",
-    provider_type: "display",
+    // "mixed": serves display ads AND rewarded ads (H5 Games adBreak
+    // bridge). Was "display", which hid it from every rewarded-provider
+    // dropdown in the admin (owner directive 2026-10-10).
+    provider_type: "mixed",
     icon: "adsense",
     credential_fields: [
       {

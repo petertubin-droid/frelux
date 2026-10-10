@@ -26,6 +26,7 @@ import {
 import { logAdEvent, fetchAdConfig } from "@/lib/ad-config";
 import { hasRewardedAdProvider } from "@/lib/ad-config";
 import { useToast } from "@/components/ui/Toast";
+import { supportsRewardedAds } from "@/lib/ad-providers";
 import { getClientHash, REWARDED_AD_BRIDGES } from "@/lib/rewarded-access";
 import { Button } from "@/components/ui/shadcn/button";
 
@@ -139,7 +140,7 @@ export function PremiumFeatureGate({
       const { providers } = await fetchAdConfig();
       const activeProvider = providers.find(
         (p) =>
-          (p.provider_type === "rewarded" || p.provider_type === "mixed") &&
+          supportsRewardedAds(p) &&
           p.is_active &&
           REWARDED_AD_BRIDGES[p.slug],
       );

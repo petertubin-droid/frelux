@@ -502,6 +502,15 @@ export default function Layout() {
           statically: a stable in-flow unit that never collapses while the
           user scrolls (collapsing it resized the document mid-scroll). */}
       <AdSlot slotKey="global_footer" />
+      {/* AdSense-dedicated slot, bottom of every page. Locked to
+          google_adsense (never falls back to Monetag/Adsterra) so real
+          AdSense units are present on every route for the approval
+          review. Labeled "Google" per owner directive. */}
+      <AdSlot
+        slotKey="adsense_footer"
+        providerSlug="google_adsense"
+        label="Google"
+      />
       <AdsterraDirectLink />
       {adsterraNative && hasAdvertisingConsent() && (
         <div

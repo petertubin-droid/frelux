@@ -491,6 +491,12 @@ export default function Learn() {
           {/* Native banner slot, placement "learn_native" */}
           <AdSlot slotKey="learn_native" />
           <AdSlot slotKey="learn_bottom" />
+          {/* AdSense-dedicated slot: locked to google_adsense only. */}
+          <AdSlot
+            slotKey="adsense_learn"
+            providerSlug="google_adsense"
+            label="Google"
+          />
         </div>
       </div>
 

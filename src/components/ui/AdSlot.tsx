@@ -91,6 +91,8 @@ export default function AdSlot({
   format = "auto",
   hideLabel = false,
   providerId,
+  providerSlug,
+  label,
 }: {
   slotKey: string;
   className?: string;
@@ -99,6 +101,13 @@ export default function AdSlot({
   hideLabel?: boolean;
   /** Optional: filter to a specific provider by ID. If omitted, uses the full fallback chain. */
   providerId?: string;
+  /**
+   * Optional: lock the slot to a single provider by slug (e.g. "google_adsense").
+   * Slots created with this never fall back to other providers.
+   */
+  providerSlug?: string;
+  /** Optional: override the visible label text (default "Advertisement"). */
+  label?: string;
 }) {
   const { isPaid } = useAuth();
 
@@ -153,10 +162,14 @@ export default function AdSlot({
       }
 
       const chain = getProvidersForPlacement(slotKey, providers, placements);
-      // If a specific providerId is requested, filter to just that one
-      const providerChain = providerId
-        ? chain.filter((p) => p.id === providerId)
-        : chain;
+      // If a specific providerId is requested, filter to just that one.
+      // If providerSlug is given, lock the slot to that single provider —
+      // dedicated slots (e.g. AdSense-only) never fall back to others.
+      const providerChain = chain.filter((p) => {
+        if (providerId && p.id !== providerId) return false;
+        if (providerSlug && p.slug !== providerSlug) return false;
+        return true;
+      });
       // Display-disabled providers never claim a slot. Filtering here
       // (instead of only hiding the resolved slot at render time) keeps
       // the fallback chain intact: when a higher-priority provider is
@@ -204,7 +217,7 @@ export default function AdSlot({
           setResolved({ provider, adUnitId, placement });
           if (
             !loggedRef.current &&
-            !hasLoggedImpressionThisSession(slotKey + (providerId ?? ""))
+            !hasLoggedImpressionThisSession(slotKey + (providerId ?? "") + (providerSlug ?? ""))
           ) {
             loggedRef.current = true;
             logAdEvent({
@@ -282,7 +295,7 @@ export default function AdSlot({
           setResolved({ provider, adUnitId: perPlacementUnitId, placement });
           if (
             !loggedRef.current &&
-            !hasLoggedImpressionThisSession(slotKey + (providerId ?? ""))
+            !hasLoggedImpressionThisSession(slotKey + (providerId ?? "") + (providerSlug ?? ""))
           ) {
             loggedRef.current = true;
             logAdEvent({
@@ -323,7 +336,7 @@ export default function AdSlot({
               setResolved({ provider, adUnitId: nativeZone, placement });
               if (
                 !loggedRef.current &&
-                !hasLoggedImpressionThisSession(slotKey + (providerId ?? ""))
+                !hasLoggedImpressionThisSession(slotKey + (providerId ?? "") + (providerSlug ?? ""))
               ) {
                 loggedRef.current = true;
                 logAdEvent({
@@ -399,7 +412,7 @@ export default function AdSlot({
           setResolved({ provider, adUnitId: resolvedUnitId, placement });
           if (
             !loggedRef.current &&
-            !hasLoggedImpressionThisSession(slotKey + (providerId ?? ""))
+            !hasLoggedImpressionThisSession(slotKey + (providerId ?? "") + (providerSlug ?? ""))
           ) {
             loggedRef.current = true;
             logAdEvent({
@@ -445,7 +458,7 @@ export default function AdSlot({
           setResolved({ provider, adUnitId, placement });
           if (
             !loggedRef.current &&
-            !hasLoggedImpressionThisSession(slotKey + (providerId ?? ""))
+            !hasLoggedImpressionThisSession(slotKey + (providerId ?? "") + (providerSlug ?? ""))
           ) {
             loggedRef.current = true;
             logAdEvent({
@@ -481,7 +494,7 @@ export default function AdSlot({
     return () => {
       cancelled = true;
     };
-  }, [slotKey, providerId, isPaid, consentTick]);
+  }, [slotKey, providerId, providerSlug, isPaid, consentTick]);
 
   // Push to adsbygoogle after the <ins> element is in the DOM
   useEffect(() => {
@@ -1064,7 +1077,7 @@ export default function AdSlot({
     >
       <div
         className="ad-label-subtle mb-0.5 text-center"
-        aria-label="Advertisement"
+        aria-label={label ?? "Advertisement"}
         style={{
           fontSize: "8px",
           opacity: "0.35",
@@ -1074,7 +1087,7 @@ export default function AdSlot({
           textTransform: "none",
         }}
       >
-        Advertisement
+        {label ?? "Advertisement"}
       </div>
       <div className="flex justify-center">{adInner}</div>
     </div>

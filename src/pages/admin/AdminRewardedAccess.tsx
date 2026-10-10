@@ -4,7 +4,7 @@ import {AdminHeader, AdminCard, AdminField, Toggle, StateMessage, AdminSelect, A
 import { fetchAllRewardedToolConfigs, fetchRewardedUnlockStats, fetchRewardedAdEventStats } from '@/lib/queries';
 import { supabase } from '@/lib/supabase';
 import { classNames } from '@/lib/utils';
-import { REWARDED_FEATURES } from '@/lib/ad-providers';
+import { REWARDED_FEATURES, supportsRewardedAds } from '@/lib/ad-providers';
 import type { DbRewardedToolConfig, DbRewardedUnlockLog, DbRewardedAdEvent, DbRewardedFeatureConfig, DbAdProvider } from '@/types/database';
 
 type Tab = 'features' | 'tools' | 'analytics';
@@ -96,7 +96,7 @@ function FeatureConfigTab() {
   if (loading) return <StateMessage type="loading" title="Loading…" message="Fetching feature configurations." />;
   if (error) return <StateMessage type="error" title="Error" message={error} />;
 
-  const rewardedProviders = providers.filter(p => p.provider_type === 'rewarded' || p.provider_type === 'mixed');
+  const rewardedProviders = providers.filter(supportsRewardedAds);
 
   return (
     <>
@@ -261,7 +261,7 @@ function ToolConfigTab() {
   if (loading) return <StateMessage type="loading" title="Loading…" message="Fetching tool configurations." />;
   if (error) return <StateMessage type="error" title="Error" message={error} />;
 
-  const rewardedProviders = providers.filter(p => p.provider_type === 'rewarded' || p.provider_type === 'mixed');
+  const rewardedProviders = providers.filter(supportsRewardedAds);
 
   return (
     <>
