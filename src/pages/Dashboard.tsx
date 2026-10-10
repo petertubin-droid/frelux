@@ -21,7 +21,12 @@ import {
 } from "@/lib/queries";
 import { useAuth } from "@/lib/auth";
 import { useSeo } from "@/lib/seo";
-import type { DbUserProject, DbPaintColor } from "@/types/database";
+import { supabase } from "@/lib/supabase";
+import type {
+  DbUserProject,
+  DbPaintColor,
+  DbContractorProject,
+} from "@/types/database";
 
 const PROJECT_ROUTES: Record<string, string> = {
   screeding: "/screeding-calculator",
@@ -35,6 +40,35 @@ const PROJECT_ROUTES: Record<string, string> = {
   tile: "/tile-calculator",
   tile_estimate: "/tile-calculator?mode=cost",
 };
+
+const CONTRACTOR_STATUS: Record<string, { label: string; className: string }> =
+  {
+    draft: {
+      label: "Planning",
+      className:
+        "bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20",
+    },
+    in_progress: {
+      label: "In Progress",
+      className:
+        "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20",
+    },
+    on_hold: {
+      label: "On Hold",
+      className:
+        "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+    },
+    completed: {
+      label: "Completed",
+      className:
+        "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+    },
+    archived: {
+      label: "Archived",
+      className:
+        "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400 border-zinc-500/20",
+    },
+  };
 
 const QUICK_ACTIONS = [
   {
@@ -77,6 +111,18 @@ export default function Dashboard() {
   const [projects, setProjects] = useState<DbUserProject[]>([]);
   const [favColors, setFavColors] = useState<DbPaintColor[]>([]);
   const [recentColors, setRecentColors] = useState<DbPaintColor[]>([]);
+  const [contractorProjects, setContractorProjects] = useState<
+    Pick<
+      DbContractorProject,
+      | "id"
+      | "name"
+      | "status"
+      | "progress_percentage"
+      | "total_project_cost"
+      | "currency_symbol"
+      | "updated_at"
+    >[]
+  >([]);
 
   useEffect(() => {
     if (!user) {
@@ -88,14 +134,23 @@ export default function Dashboard() {
 
   async function loadAll() {
     setLoading(true);
-    const [projRes, favRes, recentRes] = await Promise.all([
+    const [projRes, favRes, recentRes, contractorRes] = await Promise.all([
       fetchUserProjects(),
       fetchFavoriteColors(),
       fetchRecentlyViewedColors(8),
+      supabase
+        .from("contractor_projects")
+        .select(
+          "id, name, status, progress_percentage, total_project_cost, currency_symbol, updated_at",
+        )
+        .order("updated_at", { ascending: false })
+        .limit(6),
     ]);
     setProjects(projRes.data);
     setFavColors(favRes.data);
     setRecentColors(recentRes.data);
+    // Read-only overview; a failure here never breaks the dashboard.
+    if (contractorRes.data) setContractorProjects(contractorRes.data);
     setLoading(false);
   }
 
@@ -204,6 +259,104 @@ export default function Dashboard() {
                 </div>
               </section>
             )}
+
+            {/* Project Workspace overview */}
+            <section
+              className="animate-fade-in-up"
+              data-testid="dashboard-workspace-section"
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="flex items-center gap-2 text-lg font-bold text-foreground dark:text-primary-foreground">
+                  <FolderOpen className="h-5 w-5 text-brand-purple" /> Project
+                  Workspace
+                </h2>
+                <Link
+                  to="/project-workspace"
+                  className="group text-sm font-semibold text-brand-purple hover:underline dark:text-brand-purple-lighter"
+                >
+                  View all
+                  <ArrowRight
+                    aria-hidden="true"
+                    className="ml-0.5 inline h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5"
+                  />
+                </Link>
+              </div>
+
+              {contractorProjects.length === 0 ? (
+                <EmptyState
+                  illustration="projects"
+                  title="No construction projects yet"
+                  description="Create a project to plan stages, materials, shopping and timelines in one connected workspace."
+                  actionLabel="Open Project Workspace"
+                  actionTo="/project-workspace"
+                />
+              ) : (
+                <>
+                  <div className="mb-4 grid grid-cols-3 gap-3">
+                    {(
+                      [
+                        {
+                          key: "in_progress",
+                          label: "In progress",
+                          icon: TrendingUp,
+                        },
+                        { key: "draft", label: "Planning", icon: Bookmark },
+                        { key: "completed", label: "Completed", icon: Clock },
+                      ] as const
+                    ).map((t) => {
+                      const count = contractorProjects.filter(
+                        (p) => p.status === t.key,
+                      ).length;
+                      return (
+                        <div
+                          key={t.key}
+                          className="rounded-xl border border-border/60 bg-card p-4 dark:border-white/5"
+                          data-testid="workspace-stat"
+                        >
+                          <p className="text-2xl font-bold text-foreground dark:text-primary-foreground">
+                            {count}
+                          </p>
+                          <p className="mt-0.5 text-xs text-muted-foreground">
+                            {t.label}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {contractorProjects.slice(0, 4).map((p) => {
+                      const st = CONTRACTOR_STATUS[p.status] ?? {
+                        label: p.status,
+                        className: "bg-muted text-muted-foreground",
+                      };
+                      return (
+                        <Link
+                          key={p.id}
+                          to={`/project-workspace/${p.id}`}
+                          className="card-hover flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 dark:border-white/5"
+                        >
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-semibold text-foreground dark:text-primary-foreground">
+                              {p.name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              {p.currency_symbol}
+                              {p.total_project_cost.toLocaleString()} ·{" "}
+                              {p.progress_percentage}% complete
+                            </p>
+                          </div>
+                          <span
+                            className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-medium ${st.className}`}
+                          >
+                            {st.label}
+                          </span>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
+            </section>
 
             {/* Recent Calculations */}
             <section
