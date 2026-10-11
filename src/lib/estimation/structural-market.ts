@@ -87,7 +87,7 @@ export async function resolveMarketRebar(
     }
     const { data: price } = await supabase
       .from("estimation_prices")
-      .select("price")
+      .select("price, scan_confidence")
       .eq("price_type", "material")
       .eq("ref_id", (material as { id: string }).id)
       .eq("market", marketCode)
@@ -99,14 +99,18 @@ export async function resolveMarketRebar(
       result.unresolved.push(engineKey);
       continue;
     }
-    result.overrides[engineKey] = (price as { price: number }).price;
+    const p = price as { price: number; scan_confidence?: string | null };
+    result.overrides[engineKey] = p.price;
     result.provenance.push({
       engineKey,
       resolved: true,
       bookMarket: marketCode,
       materialName: (material as { name: string }).name,
-      price: (price as { price: number }).price,
-      explanation: `Priced per 12 m stock length from the ${marketCode} book (verified per-tonne anchor, kg/m conversion).`,
+      price: p.price,
+      explanation:
+        p.scan_confidence === "manual"
+          ? `Priced per 12 m stock length from the ${marketCode} book (verified per-tonne anchor, kg/m conversion).`
+          : `Indicative per-12 m price from the ${marketCode} book (band midpoint, admin-adjustable) - verify with a local supplier.`,
     });
   }
   return result;
