@@ -147,8 +147,8 @@ describe("ScreedingCostEstimator, Material System Selection", () => {
   it("renders without crashing", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
     vi.mocked(fetchScreedingSystemConfig)
-      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
-      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
+      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null, fellBackToNg: false })
+      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null, fellBackToNg: false });
 
     const { container } = await renderEstimator();
     expect(container.innerHTML).not.toBe("");
@@ -157,8 +157,8 @@ describe("ScreedingCostEstimator, Material System Selection", () => {
   it("displays Putty as an available material option", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
     vi.mocked(fetchScreedingSystemConfig)
-      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
-      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
+      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null, fellBackToNg: false })
+      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null, fellBackToNg: false });
 
     await renderEstimator();
     await waitFor(() => {
@@ -169,8 +169,8 @@ describe("ScreedingCostEstimator, Material System Selection", () => {
   it("displays White Cement + Screeding Paint as an available material option", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
     vi.mocked(fetchScreedingSystemConfig)
-      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
-      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
+      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null, fellBackToNg: false })
+      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null, fellBackToNg: false });
 
     await renderEstimator();
     await waitFor(() => {
@@ -181,8 +181,8 @@ describe("ScreedingCostEstimator, Material System Selection", () => {
   it("shows Putty description", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
     vi.mocked(fetchScreedingSystemConfig)
-      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
-      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
+      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null, fellBackToNg: false })
+      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null, fellBackToNg: false });
 
     await renderEstimator();
     await waitFor(() => {
@@ -193,8 +193,8 @@ describe("ScreedingCostEstimator, Material System Selection", () => {
   it("shows White Cement + Screeding Paint description", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
     vi.mocked(fetchScreedingSystemConfig)
-      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
-      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
+      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null, fellBackToNg: false })
+      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null, fellBackToNg: false });
 
     await renderEstimator();
     await waitFor(() => {
@@ -207,8 +207,8 @@ describe("ScreedingCostEstimator, Putty Flow", () => {
   it("calculates Putty requirement when area is entered", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
     vi.mocked(fetchScreedingSystemConfig)
-      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
-      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
+      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null, fellBackToNg: false })
+      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null, fellBackToNg: false });
 
     const { container } = await renderEstimator();
 
@@ -238,8 +238,8 @@ describe("ScreedingCostEstimator, Putty Flow", () => {
   it("shows coats selector", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
     vi.mocked(fetchScreedingSystemConfig)
-      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
-      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
+      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null, fellBackToNg: false })
+      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null, fellBackToNg: false });
 
     await renderEstimator();
     await waitFor(() => {
@@ -250,8 +250,8 @@ describe("ScreedingCostEstimator, Putty Flow", () => {
   it("shows cost using configured Admin price", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
     vi.mocked(fetchScreedingSystemConfig)
-      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
-      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
+      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null, fellBackToNg: false })
+      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null, fellBackToNg: false });
 
     const { container } = await renderEstimator();
     await waitFor(() => {
@@ -277,8 +277,8 @@ describe("ScreedingCostEstimator, White Cement + Paint Flow", () => {
   it("calculates both Screeding Paint and White Cement separately", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
     vi.mocked(fetchScreedingSystemConfig)
-      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
-      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
+      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null, fellBackToNg: false })
+      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null, fellBackToNg: false });
 
     const { container } = await renderEstimator();
     await waitFor(() => {
@@ -315,8 +315,8 @@ describe("ScreedingCostEstimator, White Cement + Paint Flow", () => {
   it("shows configured waste applied", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
     vi.mocked(fetchScreedingSystemConfig)
-      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
-      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
+      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null, fellBackToNg: false })
+      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null, fellBackToNg: false });
 
     const { container } = await renderEstimator();
     await waitFor(() => {
@@ -345,8 +345,8 @@ describe("ScreedingCostEstimator, White Cement + Paint Flow", () => {
   it("shows total estimated material cost", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
     vi.mocked(fetchScreedingSystemConfig)
-      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
-      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
+      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null, fellBackToNg: false })
+      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null, fellBackToNg: false });
 
     const { container } = await renderEstimator();
     await waitFor(() => {
@@ -377,8 +377,8 @@ describe("ScreedingCostEstimator, Material System Isolation", () => {
   it("does not mix Putty materials with Cement/Paint", async () => {
     const { fetchScreedingSystemConfig } = await import("@/lib/queries");
     vi.mocked(fetchScreedingSystemConfig)
-      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null })
-      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null });
+      .mockResolvedValueOnce({ data: mockPuttyDbConfig, error: null, fellBackToNg: false })
+      .mockResolvedValueOnce({ data: mockMixDbConfig, error: null, fellBackToNg: false });
 
     const { container } = await renderEstimator();
     await waitFor(() => {

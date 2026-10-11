@@ -63,9 +63,9 @@ export default function ReinforcementEstimator() {
   const { symbol: currencySymbol } = useDisplayCurrency();
   const { user } = useAuth();
 
-  const [lens, setLens] = useState<Record<LenField, string>>({
   const { marketCode } = useMarket();
   const [rebarMarket, setRebarMarket] = useState<RebarMarketResolution | null>(null);
+  const [lens, setLens] = useState<Record<LenField, string>>({
     len_12mm_m: "",
     len_16mm_m: "",
     len_20mm_m: "",
@@ -354,7 +354,6 @@ export default function ReinforcementEstimator() {
           </ul>
         </div>
       )}
-}
 
 
       {/* Inputs */}

@@ -26,7 +26,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
-import { isFunctionsHttpError } from "@supabase/supabase-js";
+import { getFunctionErrorMessage } from "@/lib/supabase";
 import { createOrUpdatePrice } from "@/lib/estimation/queries";
 import { AdminHeader as AdminPageHeader } from "@/components/admin/AdminUi";
 import AdminPagination from "@/components/admin/AdminPagination";
@@ -145,19 +145,12 @@ export default function AdminPriceScan() {
         // Surface the function's actual error message (e.g. "Admin access
         // required") instead of the opaque default
         // "Edge Function returned a non-2xx status code".
-        let msg =
-          e instanceof Error
-            ? e.message
-            : "Scan failed (the site may block automated fetches)";
-        if (isFunctionsHttpError(e)) {
-          try {
-            const fnBody = (await e.context.json()) as { error?: string };
-            if (fnBody?.error) msg = fnBody.error;
-          } catch {
-            // keep the generic message
-          }
-        }
-        setError(msg);
+        const msg = await getFunctionErrorMessage(e);
+        setError(
+          msg === "Edge Function returned a non-2xx status code"
+            ? "Scan failed (the site may block automated fetches)"
+            : msg,
+        );
       } finally {
         setBusySource(null);
       }

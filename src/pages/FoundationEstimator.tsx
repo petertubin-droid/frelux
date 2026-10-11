@@ -67,7 +67,7 @@ function fmtN(v: number | null): string {
 }
 
 export default function FoundationEstimator() {
-  const { symbol: currencySymbol } = useDisplayCurrency();
+  const { code: currencyCode, symbol: currencySymbol } = useDisplayCurrency();
   const { user } = useAuth();
 
   const [fields, setFields] = useState<Record<Field, string>>({
@@ -93,7 +93,7 @@ export default function FoundationEstimator() {
 
   const [priceMap, setPriceMap] = useState<FoundationPriceMap>({});
   const [marketPricing, setMarketPricing] = useState<StructuralMarketPricing | null>(null);
-  const { marketCode, currencyCode, currencySymbol } = useMarket();
+  const { marketCode } = useMarket();
   const [ruleRows, setRuleRows] = useState<EstimationCalcRule[]>([]);
 
   useEffect(() => {
@@ -169,7 +169,7 @@ export default function FoundationEstimator() {
       incomplete: res.incomplete,
       lines: res.lines.length,
     });
-  }, [input, rules, priceMap]);
+    }, [input, rules, priceMap]);
 
   // Printable professional quote, worldwide-currency formatted.
   const exportQuote = () => {
@@ -297,7 +297,7 @@ export default function FoundationEstimator() {
     } finally {
       setSaving(false);
     }
-  }, [result, saving, user, input, labourMode]);
+  }, [result, saving, user, input, labourMode, currencyCode]);
 
   const numberInput = (
     label: string,
@@ -338,7 +338,7 @@ export default function FoundationEstimator() {
           data-testid="market-price-provenance"
         >
           <p className="font-semibold">
-            Prices from the {marketCode} price book ({currencyCode})
+            Prices from the {marketCode} price book ({currencySymbol})
           </p>
           <ul className="mt-2 space-y-1 text-muted-foreground">
             {marketPricing.provenance.map((p) => (

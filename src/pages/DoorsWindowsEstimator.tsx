@@ -72,8 +72,8 @@ export default function DoorsWindowsEstimator() {
   ]);
   const { user } = useAuth();
 
-  const [counts, setCounts] = useState<Record<NumField, string>>({
   const { marketCode } = useMarket();
+  const [counts, setCounts] = useState<Record<NumField, string>>({
     flush_doors: "",
     panel_doors: "",
     security_doors: "",
@@ -335,7 +335,7 @@ export default function DoorsWindowsEstimator() {
             adjust them for your market before relying on cost totals.
           </p>
         </div>
-      )}}
+      )}
 
 
       {/* Inputs */}

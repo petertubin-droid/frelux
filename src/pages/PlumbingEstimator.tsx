@@ -85,9 +85,9 @@ export default function PlumbingEstimator() {
   ]);
   const { user } = useAuth();
 
-  const [counts, setCounts] = useState<Record<NumField, string>>({
   const { marketCode } = useMarket();
   const [plumbingMarket, setPlumbingMarket] = useState<PlumbingMarketResolution | null>(null);
+  const [counts, setCounts] = useState<Record<NumField, string>>({
     taps: "6",
     wcs: "2",
     showers: "1",
@@ -397,7 +397,6 @@ export default function PlumbingEstimator() {
           </ul>
         </div>
       )}
-}
 
 
       {/* Inputs */}

@@ -95,8 +95,8 @@ export default function ElectricalEstimator() {
   ]);
   const { user } = useAuth();
 
-  const [buildingType, setBuildingType] = useState(BUILDING_TYPES[0]);
   const { marketCode } = useMarket();
+  const [buildingType, setBuildingType] = useState(BUILDING_TYPES[0]);
   const [counts, setCounts] = useState<Record<NumField, string>>({
     lighting_points: "10",
     socket_points: "8",
@@ -379,7 +379,7 @@ export default function ElectricalEstimator() {
             adjust them for your market before relying on cost totals.
           </p>
         </div>
-      )}}
+      )}
 
 
       {/* Inputs */}

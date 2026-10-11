@@ -4,7 +4,6 @@ import { ConstructionExtractionPanel } from "@/components/estimation/Constructio
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
-import { useMarket } from "@/lib/international/market-context";
 import { resolveMarketCement, resolveMarketSandM3 } from "@/lib/estimation/structural-market";
 import { useSeo } from "@/lib/seo";
 import { useMarket } from "@/lib/international/market-context";
@@ -253,39 +252,6 @@ function RotatingText({
   interval?: number;
 }) {
   const [index, setIndex] = useState(0);
-  const { marketCode, currencyCode, currencySymbol } = useMarket();
-  const [marketCementNote, setMarketCementNote] = useState<string | null>(null);
-
-  useEffect(() => {
-    let alive = true;
-    (async () => {
-      if (marketCode === "NG") return;
-      const cement = await resolveMarketCement(marketCode);
-      const sandM3 = await resolveMarketSandM3(marketCode);
-      if (!alive) return;
-      setInput((prev) => ({
-        ...prev,
-        prices: {
-          ...prev.prices,
-          ...(cement
-            ? {
-                cement_per_bag: cement.price50kgBasis,
-              }
-            : {}),
-          ...(sandM3 != null ? { sand_per_m3: sandM3 } : {}),
-        },
-      }));
-      setMarketCementNote(
-        cement
-          ? `Cement prefilled from the ${marketCode} price book: ${cement.materialName} at ${cement.bookPrice} per ${cement.packKg} kg pack, converted to the 50 kg bag basis.`
-          : `No verified cement price in the ${marketCode} book - the Nigerian default is shown and marked; edit it in the Prices step.`,
-      );
-    })().catch(() => {});
-    return () => {
-      alive = false;
-    };
-  }, [marketCode]);
-
   useEffect(() => {
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % messages.length);
@@ -323,7 +289,7 @@ function RotatingText({
 }
 
 export default function BuildToRoofEstimator() {
-  const { market, preferredLengthUnit } = useMarket();
+  const { market, marketCode } = useMarket();
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   const currencySymbol = displayCurrencySymbol || market.currencySymbol || "₦";
   useSeo({
@@ -432,6 +398,41 @@ export default function BuildToRoofEstimator() {
     labour: DEFAULT_LABOUR,
     contingency_percent: 5,
   });
+
+  // Market price book prefill (non-NG only): cement onto the 50 kg bag
+  // basis, sand as a real bulk m3 price. Missing books keep the NG default.
+  const [marketCementNote, setMarketCementNote] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      if (marketCode === "NG") return;
+      const cement = await resolveMarketCement(marketCode);
+      const sandM3 = await resolveMarketSandM3(marketCode);
+      if (!alive) return;
+      setInput((prev) => ({
+        ...prev,
+        prices: {
+          ...prev.prices,
+          ...(cement
+            ? {
+                cement_per_bag: cement.price50kgBasis,
+              }
+            : {}),
+          ...(sandM3 != null ? { sand_per_m3: sandM3 } : {}),
+        },
+      }));
+      setMarketCementNote(
+        cement
+          ? `Cement prefilled from the ${marketCode} price book: ${cement.materialName} at ${cement.bookPrice} per ${cement.packKg} kg pack, converted to the 50 kg bag basis.`
+          : `No verified cement price in the ${marketCode} book - the Nigerian default is shown and marked; edit it in the Prices step.`,
+      );
+    })().catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [marketCode]);
+
 
   const update = useCallback(
     <K extends keyof BuildToRoofInput>(key: K, value: BuildToRoofInput[K]) => {
@@ -1488,6 +1489,14 @@ export default function BuildToRoofEstimator() {
                 {step === 7 && (
                   <div className="space-y-4">
                     <SectionCard title={`Material Prices (${currencySymbol})`} icon={DollarSign}>
+                      {marketCementNote && (
+                        <p
+                          className="mb-3 rounded-md border border-border bg-muted/40 p-2 text-xs text-muted-foreground"
+                          data-testid="market-cement-note"
+                        >
+                          {marketCementNote}
+                        </p>
+                      )}
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <Field
                           label="Cement per bag"

@@ -1,9 +1,92 @@
 
+import { supabase } from "@/lib/supabase";
+
 // =========================================================
 // Single-material resolutions shared by other structural pages
 // (build-to-roof prefill, etc.). Same honesty rules: pack must
 // be explicit, volume must be a real volume, else null.
 // =========================================================
+
+/** Provenance row for one market-resolved structural price. */
+export interface StructuralPriceProvenance {
+  engineKey: string;
+  resolved: boolean;
+  bookMarket: string;
+  materialName: string;
+  price: number;
+  explanation: string;
+}
+
+/** The Nigerian engine prices cement on a 50 kg bag basis. */
+const NG_CEMENT_BAG_KG = 50;
+
+/** A material + its active price in one market. */
+interface CategoryPriceResolution {
+  material: { id: string; name: string };
+  price: { price: number; scan_confidence?: string | null };
+}
+
+/**
+ * Find an active material in a category that has an active price
+ * in the given market. Materials are a shared catalog, prices are
+ * market-scoped, so candidates are checked until one is priced.
+ * Returns null when the market book has no such price - callers
+ * keep their disclosed NG default instead of guessing.
+ */
+async function fetchPricedMaterialsInCategory(
+  category: string,
+  marketCode: string,
+): Promise<CategoryPriceResolution[]> {
+  if (!marketCode || marketCode === "NG") return [];
+  const { data: materials } = await supabase
+    .from("estimation_materials")
+    .select("id, name")
+    .eq("category", category)
+    .eq("is_active", true)
+    .order("sort_order", { ascending: true })
+    .limit(20);
+  const priced: CategoryPriceResolution[] = [];
+  for (const material of (materials ?? []) as { id: string; name: string }[]) {
+    const { data: price } = await supabase
+      .from("estimation_prices")
+      .select("price, scan_confidence")
+      .eq("price_type", "material")
+      .eq("ref_id", material.id)
+      .eq("market", marketCode)
+      .eq("is_active", true)
+      .order("effective_date", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (price) {
+      priced.push({
+        material,
+        price: price as { price: number; scan_confidence?: string | null },
+      });
+    }
+  }
+  return priced;
+}
+
+async function fetchCategoryPriceForMarket(
+  category: string,
+  marketCode: string,
+): Promise<CategoryPriceResolution | null> {
+  const priced = await fetchPricedMaterialsInCategory(category, marketCode);
+  return priced[0] ?? null;
+}
+
+/** "CEM II 42.5N 25kg sack" -> 25; "50kg bag" -> 50; else null. */
+function parsePackKg(name: string): number | null {
+  const match = /(\d+(?:[.,]\d+)?)\s*kg/i.exec(name);
+  if (!match) return null;
+  const kg = Number(match[1].replace(",", "."));
+  return Number.isFinite(kg) && kg > 0 ? kg : null;
+}
+
+/** True when the material name reads as a bulk volume sale (per m3, tonne, trip). */
+function packIsBulkVolume(name: string): boolean {
+  return /\b(m3|m\u00b3|cubic|tonne|ton\b|trip|tipper|lorry|bulk)\b/i.test(name);
+}
 
 export interface MarketCementResolution {
   materialName: string;
@@ -187,5 +270,138 @@ export async function resolveMarketPlumbing(
           : `Indicative per-metre price from the ${marketCode} book (admin-adjustable) - verify with a local supplier.`,
     });
   }
+  return result;
+}
+
+// =========================================================
+// FOUNDATION MARKET PRICING (foundation estimator)
+//
+// The foundation engine prices by its shared slugs (cement bag,
+// m3 aggregates, block, formwork). This resolver overlays the
+// market book onto those slugs; anything the book does not
+// cover is reported unresolved and prices as NOT CONFIGURED -
+// never a silent NG price.
+// =========================================================
+
+export interface StructuralMarketPricing {
+  /** foundation engine slug -> market price on the engine's basis */
+  overrides: Record<string, number>;
+  provenance: StructuralPriceProvenance[];
+  unresolved: string[];
+}
+
+function provenanceRow(
+  engineKey: string,
+  marketCode: string,
+  resolution: CategoryPriceResolution,
+  explanation: string,
+): StructuralPriceProvenance {
+  return {
+    engineKey,
+    resolved: true,
+    bookMarket: marketCode,
+    materialName: resolution.material.name,
+    price: resolution.price.price,
+    explanation,
+  };
+}
+
+export async function resolveStructuralMarketPricing(
+  marketCode: string,
+): Promise<StructuralMarketPricing> {
+  const result: StructuralMarketPricing = {
+    overrides: {},
+    provenance: [],
+    unresolved: [],
+  };
+  if (!marketCode || marketCode === "NG") return result;
+
+  // Cement: engine prices a 50 kg bag; market packs convert onto that basis.
+  const cement = await fetchCategoryPriceForMarket("cement", marketCode);
+  const cementPackKg = cement ? parsePackKg(cement.material.name) : null;
+  if (cement && cementPackKg) {
+    result.overrides["cement-per-bag"] =
+      (cement.price.price * NG_CEMENT_BAG_KG) / cementPackKg;
+    result.provenance.push(
+      provenanceRow(
+        "cement-per-bag",
+        marketCode,
+        cement,
+        `${cement.material.name} at ${cement.price.price} per ${cementPackKg} kg pack, converted to the 50 kg bag basis.`,
+      ),
+    );
+  } else {
+    result.unresolved.push("cement-per-bag");
+  }
+
+  // Bulk aggregates: priced per real m3 volume only.
+  const aggregateBooks = await Promise.all([
+    fetchPricedMaterialsInCategory("aggregate", marketCode),
+    fetchPricedMaterialsInCategory("granite", marketCode),
+  ]);
+  const aggregates = [...aggregateBooks[0], ...aggregateBooks[1]];
+  const bulkMatches: Record<string, RegExp> = {
+    "sand-per-m3": /\b(sand|bausand|gravel)\b/i,
+    "granite-per-m3": /\b(granite|chippings|crushed stone)\b/i,
+    "hardcore-per-m3": /\b(hardcore|subbase|sub-base|mot|type 1|crusher run)\b/i,
+  };
+  for (const [engineKey, pattern] of Object.entries(bulkMatches)) {
+    const hit = aggregates.find(
+      (a) => pattern.test(a.material.name) && packIsBulkVolume(a.material.name),
+    );
+    if (hit) {
+      result.overrides[engineKey] = hit.price.price;
+      result.provenance.push(
+        provenanceRow(
+          engineKey,
+          marketCode,
+          hit,
+          `Bulk m3 price for ${hit.material.name}.`,
+        ),
+      );
+    } else {
+      result.unresolved.push(engineKey);
+    }
+  }
+
+  // Blocks and formwork: any priced material in their categories.
+  const blockBooks = await Promise.all([
+    fetchCategoryPriceForMarket("block", marketCode),
+    fetchCategoryPriceForMarket("blocks", marketCode),
+  ]);
+  const block = blockBooks[0] ?? blockBooks[1];
+  if (block) {
+    result.overrides["block-per-piece"] = block.price.price;
+    result.provenance.push(
+      provenanceRow(
+        "block-per-piece",
+        marketCode,
+        block,
+        `Per-piece price for ${block.material.name}.`,
+      ),
+    );
+  } else {
+    result.unresolved.push("block-per-piece");
+  }
+
+  const formworkBooks = await Promise.all([
+    fetchCategoryPriceForMarket("formwork", marketCode),
+    fetchCategoryPriceForMarket("plywood", marketCode),
+  ]);
+  const formwork = formworkBooks[0] ?? formworkBooks[1];
+  if (formwork) {
+    result.overrides["formwork-per-m2"] = formwork.price.price;
+    result.provenance.push(
+      provenanceRow(
+        "formwork-per-m2",
+        marketCode,
+        formwork,
+        `Per-m2 price for ${formwork.material.name}.`,
+      ),
+    );
+  } else {
+    result.unresolved.push("formwork-per-m2");
+  }
+
   return result;
 }
