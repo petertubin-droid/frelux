@@ -118,13 +118,20 @@ STOCK_LENGTH_M=12).
 - The page wiring already works via `resolveMarketRebar` — only DB rows needed.
 
 ### B. Plumbing price books (pipes, fittings, valve)
-- Engine keys: `plumb-pipe-cold/hot/waste/drainage`, `plumb-elbow/tee/
-  reducer/union`, `plumb-valve`.
-- METHODOLOGY WARNING: NG uses PVC; DE/US use PP-R/PEX/copper. Seed the
-  market's dominant material (name it honestly, e.g. "PP-R 20mm (DE)") and add
-  a material-substitution note in the provenance panel. Add a resolver
-  `resolveMarketPlumbing` in structural-market.ts mirroring resolveMarketRebar,
-  then wire PlumbingEstimator overlay exactly like ReinforcementEstimator.
+- PIPES DONE 2026-10-11 for US + DE (resolver `resolveMarketPlumbing` wired into
+  PlumbingEstimator, provenance panel live):
+  * US: us-pipe-cold/hot $1.08/m (PEX-B 1/2", Home Depot PlumbFlex 300ft $100);
+    us-pipe-waste $7.48/m (PVC DWV 3", Charlotte Pipe $22.78/10ft). Drainage
+    NOT seeded (no verified 4" sewer price yet - check Home Depot 4" listing).
+  * DE: de-pipe-waste + de-pipe-drainage EUR 8.90/m (HT Rohr DN 110, Hornbach
+    4.45/0.5m). Cold/hot (PP-R) NOT seeded - Alibaba wholesale quotes do not
+    qualify; get an OBI/Hornbach PP-R 20mm per-m listing.
+- REMAINING for pipes: GB (15mm push-fit / 32mm waste at Wickes - prices not
+  in snippets, open product pages), fittings (elbow/tee/reducer/union - prices
+  per piece), valves. Engine keys: `plumb-pipe-*` done; `plumb-elbow/tee/
+  reducer/union`, `plumb-valve` pending.
+- METHODOLOGY: substitution is disclosed in material names + provenance text
+  (US PEX, DE HT DIN EN 1451 vs NG PVC). Keep doing that per market.
 
 ### C. Electrical price books (cable, conduit, boxes, breakers)
 - Engine keys: `elec-conduit`, `elec-junction-box`, `elec-breaker`, plus

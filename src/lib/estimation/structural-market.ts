@@ -115,3 +115,77 @@ export async function resolveMarketRebar(
   }
   return result;
 }
+
+// =========================================================
+// MARKET PLUMBING PIPE RESOLUTION (plumbing estimator)
+// Pipes price per METRE in the engine. Market books store the
+// market's own dominant pipe material (US PEX, DE HT) with the
+// substitution disclosed - never a silent NG PVC price.
+// =========================================================
+
+const PLUMBING_PIPE_KEYS = [
+  "plumb-pipe-cold",
+  "plumb-pipe-hot",
+  "plumb-pipe-waste",
+  "plumb-pipe-drainage",
+] as const;
+
+export interface PlumbingMarketResolution {
+  overrides: Record<string, number>;
+  provenance: StructuralPriceProvenance[];
+  unresolved: string[];
+}
+
+export async function resolveMarketPlumbing(
+  marketCode: string,
+): Promise<PlumbingMarketResolution> {
+  const result: PlumbingMarketResolution = {
+    overrides: {},
+    provenance: [],
+    unresolved: [],
+  };
+  if (!marketCode || marketCode === "NG") return result;
+
+  for (const engineKey of PLUMBING_PIPE_KEYS) {
+    const suffix = engineKey.replace("plumb-pipe-", "");
+    const slug = `${marketCode.toLowerCase()}-pipe-${suffix}`;
+    const { data: material } = await supabase
+      .from("estimation_materials")
+      .select("id, name")
+      .eq("slug", slug)
+      .eq("is_active", true)
+      .maybeSingle();
+    if (!material) {
+      result.unresolved.push(engineKey);
+      continue;
+    }
+    const { data: price } = await supabase
+      .from("estimation_prices")
+      .select("price, scan_confidence")
+      .eq("price_type", "material")
+      .eq("ref_id", (material as { id: string }).id)
+      .eq("market", marketCode)
+      .eq("is_active", true)
+      .order("effective_date", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!price) {
+      result.unresolved.push(engineKey);
+      continue;
+    }
+    const p = price as { price: number; scan_confidence?: string | null };
+    result.overrides[engineKey] = p.price;
+    result.provenance.push({
+      engineKey,
+      resolved: true,
+      bookMarket: marketCode,
+      materialName: (material as { name: string }).name,
+      price: p.price,
+      explanation:
+        p.scan_confidence === "manual"
+          ? `Per-metre price from the ${marketCode} book (verified supplier listing; material substitutes the NG default and is named honestly).`
+          : `Indicative per-metre price from the ${marketCode} book (admin-adjustable) - verify with a local supplier.`,
+    });
+  }
+  return result;
+}

@@ -16,6 +16,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useMarket } from "@/lib/international/market-context";
+import { resolveMarketPlumbing, type PlumbingMarketResolution } from "@/lib/estimation/structural-market";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
@@ -86,6 +87,7 @@ export default function PlumbingEstimator() {
 
   const [counts, setCounts] = useState<Record<NumField, string>>({
   const { marketCode } = useMarket();
+  const [plumbingMarket, setPlumbingMarket] = useState<PlumbingMarketResolution | null>(null);
     taps: "6",
     wcs: "2",
     showers: "1",
@@ -138,12 +140,19 @@ export default function PlumbingEstimator() {
         map[m.slug] = byRef.get(m.id) ?? null;
       }
       setPriceMap(map);
+      if (marketCode !== "NG") {
+        const pipes = await resolveMarketPlumbing(marketCode);
+        if (alive) {
+          setPriceMap({ ...map, ...pipes.overrides });
+          setPlumbingMarket(pipes);
+        }
+      }
       setRuleRows(rulesRes.data as unknown as EstimationCalcRule[]);
     })().catch(() => {});
     return () => {
       alive = false;
     };
-  }, []);
+  }, [marketCode]);
 
   const rules = useMemo(
     () => parsePlumbingRules(ruleRows as never),
@@ -365,7 +374,30 @@ export default function PlumbingEstimator() {
             adjust them for your market before relying on cost totals.
           </p>
         </div>
-      )}}
+      )}
+      {plumbingMarket && (marketCode !== "NG") && (
+        <div
+          className="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"
+          data-testid="plumbing-price-provenance"
+        >
+          <p className="font-semibold">Pipe prices ({marketCode} book)</p>
+          <ul className="mt-2 space-y-1 text-muted-foreground">
+            {plumbingMarket.provenance.map((p) => (
+              <li key={p.engineKey}>
+                ✓ {p.engineKey}: {p.materialName} - {p.explanation}
+              </li>
+            ))}
+            {plumbingMarket.unresolved.length > 0 && (
+              <li>
+                ✗ {plumbingMarket.unresolved.join(", ")}: no verified price in
+                the {marketCode} book - reported unpriced, never the NG price.
+                Fittings and valves still price from the disclosed NG book.
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
+}
 
 
       {/* Inputs */}
