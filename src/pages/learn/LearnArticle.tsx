@@ -150,6 +150,9 @@ export default function LearnArticle() {
       const art = data as DbLearnArticle;
       setArticle(art);
       setStatus("ready");
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("frelux:content-loaded"));
+      }
 
       const currentId = art.id;
       const currentCategory = art.category_slug;
@@ -206,6 +209,9 @@ export default function LearnArticle() {
       setNextArticle((nextRes.data?.[0] as DbLearnArticle) ?? null);
       setFaqs((faqRes.data ?? []) as DbLearnArticleFaq[]);
       setInserts((insertRes.data ?? []) as DbLearnArticleInsert[]);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("frelux:content-loaded"));
+      }
     }
     load();
   }, [articleSlug]);

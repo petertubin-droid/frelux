@@ -52,6 +52,37 @@ declare global {
 
 let scriptInjected = false;
 
+/** Set the googtrans cookie used by Google Translate across page routes and reloads. */
+export function setGoogleTranslateCookie(lang: Language): void {
+  if (typeof document === "undefined") return;
+  const target =
+    isGoogleTranslatedLanguage(lang) && lang !== "en"
+      ? mapToGoogleLanguage(lang)
+      : "";
+
+  const host = window.location.hostname;
+  const isLocal = host === "localhost" || host === "127.0.0.1";
+  const domainParts = host.split(".");
+  const rootDomain =
+    domainParts.length > 1 && !host.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/)
+      ? `.${domainParts.slice(-2).join(".")}`
+      : "";
+
+  if (target) {
+    const val = `/en/${target}`;
+    document.cookie = `googtrans=${val}; path=/; SameSite=Lax;`;
+    if (!isLocal && rootDomain) {
+      document.cookie = `googtrans=${val}; path=/; domain=${rootDomain}; SameSite=Lax;`;
+    }
+  } else {
+    document.cookie =
+      "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax;";
+    if (!isLocal && rootDomain) {
+      document.cookie = `googtrans=; path=/; domain=${rootDomain}; expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax;`;
+    }
+  }
+}
+
 /** Inject translate element.js once; the callback builds the hidden widget. */
 function injectGoogleTranslateScript(): void {
   if (scriptInjected || document.getElementById("google-translate-script")) {
@@ -113,14 +144,42 @@ function waitForGoogleCombo(
 /**
  * Point Google Translate at a language.
  * 'en' - or a Google-unsupported language - restores the original page.
+ * force=true forces a change dispatch even if combo.value already matches target (e.g. after SPA navigation).
  */
-export async function applyGoogleLanguage(lang: Language): Promise<void> {
+export async function applyGoogleLanguage(
+  lang: Language,
+  force = false,
+): Promise<void> {
+  setGoogleTranslateCookie(lang);
+
   const combo = await waitForGoogleCombo();
   if (!combo) return;
-  const target = isGoogleTranslatedLanguage(lang)
-    ? mapToGoogleLanguage(lang)
-    : "en";
-  if (combo.value === target) return;
+  const target =
+    isGoogleTranslatedLanguage(lang) && lang !== "en"
+      ? mapToGoogleLanguage(lang)
+      : "en";
+
+  if (target === "en") {
+    const hasEn = Array.from(combo.options).some((o) => o.value === "en");
+    const targetVal = hasEn ? "en" : "";
+    if (combo.value !== targetVal || force) {
+      combo.value = targetVal;
+      combo.dispatchEvent(new Event("change"));
+    }
+    return;
+  }
+
+  if (combo.value === target && !force) return;
+
+  if (combo.value === target && force) {
+    combo.value = "";
+    setTimeout(() => {
+      combo.value = target;
+      combo.dispatchEvent(new Event("change"));
+    }, 25);
+    return;
+  }
+
   combo.value = target;
   combo.dispatchEvent(new Event("change"));
 }
@@ -128,8 +187,10 @@ export async function applyGoogleLanguage(lang: Language): Promise<void> {
 /**
  * Single mount point: renders the hidden widget anchor, injects the
  * script, and re-aims translation whenever the visitor's language
- * changes (switcher, drawer, restored preference). Skips the admin
- * console so admin-authored content is never machine-translated.
+ * changes (switcher, drawer, restored preference). Also ensures client-side
+ * SPA route transitions and asynchronously loaded content (articles, calculators)
+ * are re-translated when an international language is active.
+ * Skips the admin console so admin-authored content is never machine-translated.
  */
 export function GoogleTranslateSync({ language }: { language: Language }) {
   const isAdminRoute =
@@ -140,6 +201,7 @@ export function GoogleTranslateSync({ language }: { language: Language }) {
     if (!isAdminRoute) injectGoogleTranslateScript();
   }, [isAdminRoute]);
 
+  // Apply language whenever `language` state changes
   useEffect(() => {
     if (isAdminRoute) return;
     let cancelled = false;
@@ -150,6 +212,53 @@ export function GoogleTranslateSync({ language }: { language: Language }) {
     })();
     return () => {
       cancelled = true;
+    };
+  }, [language, isAdminRoute]);
+
+  // Re-apply translation on SPA navigation and async content load events
+  useEffect(() => {
+    if (isAdminRoute || language === "en") return;
+
+    let timer1: ReturnType<typeof setTimeout> | null = null;
+    let timer2: ReturnType<typeof setTimeout> | null = null;
+
+    const reapply = () => {
+      if (timer1) clearTimeout(timer1);
+      if (timer2) clearTimeout(timer2);
+      timer1 = setTimeout(() => {
+        applyGoogleLanguage(language, true);
+      }, 350);
+      timer2 = setTimeout(() => {
+        applyGoogleLanguage(language, true);
+      }, 1200);
+    };
+
+    window.addEventListener("popstate", reapply);
+    window.addEventListener("frelux:content-loaded", reapply);
+
+    // Monkey-patch pushState and replaceState to detect SPA route changes
+    const origPushState = window.history.pushState;
+    const origReplaceState = window.history.replaceState;
+
+    window.history.pushState = function (...args) {
+      const res = origPushState.apply(this, args);
+      reapply();
+      return res;
+    };
+
+    window.history.replaceState = function (...args) {
+      const res = origReplaceState.apply(this, args);
+      reapply();
+      return res;
+    };
+
+    return () => {
+      if (timer1) clearTimeout(timer1);
+      if (timer2) clearTimeout(timer2);
+      window.removeEventListener("popstate", reapply);
+      window.removeEventListener("frelux:content-loaded", reapply);
+      window.history.pushState = origPushState;
+      window.history.replaceState = origReplaceState;
     };
   }, [language, isAdminRoute]);
 
