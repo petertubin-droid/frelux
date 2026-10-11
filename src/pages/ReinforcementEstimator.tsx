@@ -17,6 +17,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useMarket } from "@/lib/international/market-context";
+import { resolveMarketRebar, type RebarMarketResolution } from "@/lib/estimation/structural-market";
 import { useSeo } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
@@ -64,6 +65,7 @@ export default function ReinforcementEstimator() {
 
   const [lens, setLens] = useState<Record<LenField, string>>({
   const { marketCode } = useMarket();
+  const [rebarMarket, setRebarMarket] = useState<RebarMarketResolution | null>(null);
     len_12mm_m: "",
     len_16mm_m: "",
     len_20mm_m: "",
@@ -107,12 +109,19 @@ export default function ReinforcementEstimator() {
         map[m.slug] = byRef.get(m.id) ?? null;
       }
       setPriceMap(map);
+      if (marketCode !== "NG") {
+        const rebar = await resolveMarketRebar(marketCode);
+        if (alive) {
+          setPriceMap({ ...map, ...rebar.overrides });
+          setRebarMarket(rebar);
+        }
+      }
       setRuleRows(rulesRes.data as unknown as EstimationCalcRule[]);
     })().catch(() => {});
     return () => {
       alive = false;
     };
-  }, []);
+  }, [marketCode]);
 
   const rules = useMemo(
     () => parseReinforcementRules(ruleRows as never),
@@ -323,7 +332,29 @@ export default function ReinforcementEstimator() {
             adjust them for your market before relying on cost totals.
           </p>
         </div>
-      )}}
+      )}
+      {rebarMarket && (marketCode !== "NG") && (
+        <div
+          className="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"
+          data-testid="rebar-price-provenance"
+        >
+          <p className="font-semibold">Rebar prices ({marketCode} book)</p>
+          <ul className="mt-2 space-y-1 text-muted-foreground">
+            {rebarMarket.provenance.map((p) => (
+              <li key={p.engineKey}>
+                ✓ {p.engineKey}: {p.materialName} - {p.explanation}
+              </li>
+            ))}
+            {rebarMarket.unresolved.length > 0 && (
+              <li>
+                ✗ {rebarMarket.unresolved.join(", ")}: no verified price in the{" "}
+                {marketCode} book - reported as unpriced, never the NG price.
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
+}
 
 
       {/* Inputs */}
