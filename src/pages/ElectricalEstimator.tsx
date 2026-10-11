@@ -16,6 +16,7 @@ import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
+import { useMarket } from "@/lib/international/market-context";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
@@ -95,6 +96,7 @@ export default function ElectricalEstimator() {
   const { user } = useAuth();
 
   const [buildingType, setBuildingType] = useState(BUILDING_TYPES[0]);
+  const { marketCode } = useMarket();
   const [counts, setCounts] = useState<Record<NumField, string>>({
     lighting_points: "10",
     socket_points: "8",
@@ -365,6 +367,20 @@ export default function ElectricalEstimator() {
       />
 
       <MarketScopeNotice />
+      {marketCode !== "NG" && (
+        <div
+          className="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"
+          data-testid="trade-price-coverage"
+        >
+          <p className="font-semibold">Price book coverage ({marketCode})</p>
+          <p className="mt-1 text-muted-foreground">
+            The {marketCode} price book does not yet cover cables, conduit and electrical accessories. Prices
+            on this page come from the Nigerian price book (disclosed above);
+            adjust them for your market before relying on cost totals.
+          </p>
+        </div>
+      )}}
+
 
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">

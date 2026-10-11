@@ -4,6 +4,8 @@ import { ConstructionExtractionPanel } from "@/components/estimation/Constructio
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
+import { useMarket } from "@/lib/international/market-context";
+import { resolveMarketCement, resolveMarketSandM3 } from "@/lib/estimation/structural-market";
 import { useSeo } from "@/lib/seo";
 import { useMarket } from "@/lib/international/market-context";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
@@ -251,6 +253,38 @@ function RotatingText({
   interval?: number;
 }) {
   const [index, setIndex] = useState(0);
+  const { marketCode, currencyCode, currencySymbol } = useMarket();
+  const [marketCementNote, setMarketCementNote] = useState<string | null>(null);
+
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      if (marketCode === "NG") return;
+      const cement = await resolveMarketCement(marketCode);
+      const sandM3 = await resolveMarketSandM3(marketCode);
+      if (!alive) return;
+      setInput((prev) => ({
+        ...prev,
+        prices: {
+          ...prev.prices,
+          ...(cement
+            ? {
+                cement_per_bag: cement.price50kgBasis,
+              }
+            : {}),
+          ...(sandM3 != null ? { sand_per_m3: sandM3 } : {}),
+        },
+      }));
+      setMarketCementNote(
+        cement
+          ? `Cement prefilled from the ${marketCode} price book: ${cement.materialName} at ${cement.bookPrice} per ${cement.packKg} kg pack, converted to the 50 kg bag basis.`
+          : `No verified cement price in the ${marketCode} book - the Nigerian default is shown and marked; edit it in the Prices step.`,
+      );
+    })().catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [marketCode]);
 
   useEffect(() => {
     const timer = setInterval(() => {

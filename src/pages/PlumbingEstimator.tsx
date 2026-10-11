@@ -15,6 +15,7 @@ import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
+import { useMarket } from "@/lib/international/market-context";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
@@ -84,6 +85,7 @@ export default function PlumbingEstimator() {
   const { user } = useAuth();
 
   const [counts, setCounts] = useState<Record<NumField, string>>({
+  const { marketCode } = useMarket();
     taps: "6",
     wcs: "2",
     showers: "1",
@@ -351,6 +353,20 @@ export default function PlumbingEstimator() {
       />
 
       <MarketScopeNotice />
+      {marketCode !== "NG" && (
+        <div
+          className="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"
+          data-testid="trade-price-coverage"
+        >
+          <p className="font-semibold">Price book coverage ({marketCode})</p>
+          <p className="mt-1 text-muted-foreground">
+            The {marketCode} price book does not yet cover pipes, fittings and sanitaryware. Prices
+            on this page come from the Nigerian price book (disclosed above);
+            adjust them for your market before relying on cost totals.
+          </p>
+        </div>
+      )}}
+
 
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
