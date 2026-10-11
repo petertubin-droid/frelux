@@ -26,7 +26,7 @@ SELECT
   'Google AdSense — ' || k.label || ' (AdSense only)',
   'banner',
   k.page_target,
-  COALESCE((SELECT ARRAY[p.id::text] FROM ad_providers p WHERE p.slug = 'google_adsense' LIMIT 1), '[]'::jsonb),
+  COALESCE((SELECT jsonb_build_array(p.id::text) FROM ad_providers p WHERE p.slug = 'google_adsense' LIMIT 1), '[]'::jsonb),
   '{}'::jsonb,
   '{"mobile":true,"desktop":true,"refresh_seconds":0,"min_height":100}'::jsonb
 FROM (VALUES
