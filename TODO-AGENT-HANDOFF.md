@@ -1,196 +1,190 @@
 # FRELUX — Global Expansion TODO / Agent Handoff
 
-Living document for the market-expansion work. Any agent continuing this work
-should read this top to bottom, verify the state with the commands given, and
-continue from "Next steps". Update this file with every batch you complete.
+Living handoff for the Frelux market-expansion work. **Status markers:** ✅ DONE,
+🟡 PARTIAL (has verified data, gaps remain), ❌ NOT STARTED. Any agent
+continuing cold: read section 2 (WHERE TO START), verify state with the
+commands in section 6, then work top-to-bottom through section 4 (REMAINING
+WORK). Update this file with every batch you complete — including flipping
+status markers and adding the commit hash.
 
-Last updated: 2026-10-11 (EG rebar seeded; US/DE/IN/EG now live)
+Last updated: 2026-10-11 (after US drainage + AT pipes seed)
 
 ---
 
 ## 1. CONTEXT (read first)
 
 Frelux is a construction cost calculator SaaS (Vite + React + TS + Tailwind +
-Supabase). It is expanding from a Nigerian-only tool to a worldwide product
-where EVERY market gets accurate, verified, country-specific pricing and
-methodology.
+Supabase) expanding from a Nigerian-only tool to a worldwide product where
+every market gets verified, country-specific pricing and methodology.
 
-### Hard rules (from the owner — never break these)
+### Hard rules (owner's standing instructions — never break)
 
-1. Never break existing calculator functionality, DB connections, auth, or Supabase integration.
-2. Never invent prices. Every price must be web-verified from supplier listings
-   or authoritative market assessments, with the source stored in
-   `estimation_prices.price_source` and `scan_confidence='manual'` for verified rows.
-3. No silent fallbacks to Nigerian logic. When a market lacks data, the UI says
-   so ("unpriced", "not covered") instead of quietly using NG numbers.
-   Exception: `market_profiles.inherits_from` chains (US→NG etc.) are allowed
-   and disclosed via the MarketScopeNotice.
-4. Do not invent testimonials, user counts, or fake claims.
-5. All public routes prerendered, SEO-friendly, crawlable.
-6. No sub-agents (owner's standing instruction for this work).
-7. Unit consistency: when converting pack sizes (e.g. FR 25kg cement bag → the
-   engine's 50kg basis), the conversion must be deterministic and disclosed in
-   provenance text.
-8. Commit + push to `main` after each verified batch. Remote moves sometimes —
-   `git pull --rebase origin main` before pushing.
+1. Never break calculator functionality, DB connections, auth, Supabase.
+2. Never invent prices. Every price web-verified from a supplier listing or
+   authoritative market assessment; source stored in
+   `estimation_prices.price_source`; `scan_confidence='manual'` = verified,
+   `'low'` = indicative band (text must say "admin-adjustable").
+3. No silent NG fallbacks. Missing data → UI says "unpriced"/"not covered".
+   `market_profiles.inherits_from` chains are allowed and disclosed.
+4. Premium Nigerian construction branding stays.
+5. No invented testimonials, user counts, or claims.
+6. All public routes prerendered, SEO-friendly, crawlable.
+7. Unit conversions must be deterministic and disclosed in provenance text.
+8. No sub-agents for this work.
+9. Push to `main` after each verified batch; `git pull --rebase origin main`
+   first (remote moves). Netlify deploys on push; manual "Trigger deploy" in
+   the Netlify dashboard if a build must go out immediately.
 
 ### Repo & environment
 
-- Repo: `petertubin-droid/frelux` (GitHub). Local clone path varies by session
-  (e.g. `/app/conversations/<id>/frelux`).
-- Supabase project ref: `nfgaaohweygwydoelxnf`. DB access pattern: Supabase
-  Management API `POST /v1/projects/nfgaaohweygwydoelxnf/database/query` with a
-  management token (service-role bearer; ask the owner for it if not already
-  in the session environment — DO NOT store it in the repo or this file).
-- Frontend anon access is normal Supabase client SDK.
-- Tests: `npx vitest run src/lib/estimation/__tests__ <other dirs>`; type check:
-  `npx tsc --noEmit -p tsconfig.json`.
+- Repo: `petertubin-droid/frelux` on GitHub.
+- Supabase project ref: `nfgaaohweygwydoelxnf`. DB write pattern: Supabase
+  Management API `POST /v1/projects/nfgaaohweygwydoelxnf/database/query`
+  with a management bearer token (in session env / ask the owner — NEVER
+  commit it).
+- Price verification tools: `web_search` for supplier listings;
+  `browserbase` for JS-rendered retailer pages (Wickes, Home Depot category
+  pages, Drainfast price extraction all worked this way — see section 5).
 
 ---
 
-## 2. WHAT WAS DONE (state as of 2026-10-11)
+## 2. WHERE TO START (if you are a fresh agent)
 
-### Verified price books — 39 markets
-Every market in `market_profiles` has a price book seeded with 8+ core rows
-(interior/exterior paint, primer, filler, cement, sand, sandpaper,
-waterproofing) + finish engines (pop 5 rows, tile 2, screed 1).
-`scan_confidence='manual'` = web-verified anchor; `'low'` = indicative band
-(see `price_source` text: "Indicative 2026 retail band; admin-adjustable").
-Price verification campaign: ~182/356 rows verified; ~174 'low' rows remain.
+Work this list in order. Each item's status is current as of the last update.
 
-### Finish engines — market-scoped (7 markets + NG)
-Painting, tiling, POP/ceiling, screeding engines resolve materials by ROLE via
-`market_material_roles` (market → role → material_slug → price, walking
-`market_profiles.inherits_from`). Fully mapped: **NG, US, GB, DE, AU, CA, IN**.
-FR has role mappings seeded (enduit de lissage instead of UK skim plaster,
-sous-couche instead of mist coat — French practice documented in notes).
-
-### Structural pages — market pricing (all 6 pages)
-- `src/lib/estimation/structural-market.ts` — resolver: cement pack-size
-  conversion (engine basis = 50kg bag), sand only when bulk-volume priced,
-  rebar per-length mapping. Everything unverifiable returns null → reported.
-- **FoundationEstimator**: market price overlay + provenance panel + market currency.
-- **BuildToRoofEstimator**: Prices step prefills from market book (cement
-  converted, sand when volumetric); all 34 price inputs use market currency symbol.
-- **ReinforcementEstimator**: rebar market prices (US/DE/IN seeded) + provenance panel.
-- **Electrical / Plumbing / Doors-Windows**: price-coverage panel for non-NG
-  users (states the market book doesn't cover the trade yet; NG book disclosed).
-- `MarketScopeNotice.tsx` — discloses NG methodology for structural engines.
-
-### Rebar price books seeded (verified, deterministic conversion)
-US Grade 60 $1,036/MT (IMARC Q2-2026); DE B500B €615/t (eurometal delivered);
-IN Fe500 TMT ₹56,500/t (Tata Nexarc Pune Oct-2026).
-Materials: `{mkt}-rebar-{12,16,20,25}mm`, category `rebar`. Per-length price =
-12m × kg/m × price/kg using the engine's constants (0.888/1.578/2.466/3.854,
-STOCK_LENGTH_M=12).
-
-### Key commits (newest last)
-- `af1bdeea` market-role fallback disclosure + 255 tests
-- `2c960ad6` foundation estimator market pricing + provenance
-- `fb776ffd` i18n calculators (landed remotely — keep)
-- `350e2f1f` market pricing across all 6 structural pages
-- `9de911d2` rebar books US/DE/IN + reinforcement wiring
+1. ❌ **US/GB/DE/AT plumbing fittings + valves** (section 4B) — highest-value
+   next batch; the pages already render pipe prices, fittings still fall back
+   to disclosed-NG.
+2. 🟡 **DE + GB rebar books** (section 4A) — need merchant-level anchors; all
+   leads and gotchas documented.
+3. ❌ **Electrical cable/conduit books** (section 4C) — resolver pattern is
+   proven; needs price verification only.
+4. ❌ **Doors/windows books + BTR trade prefills** (section 4D).
+5. 🟡 **Price campaign remainder (~174 'low' rows)** (section 4E) — sweep by
+   region; EG/SA paint in English sources, TR via Trendyol.
+6. ❌ **Structural methodology profiles** (section 4F) — the long arc;
+   research-heavy, do after the price trades.
 
 ---
 
-## 3. WHAT NEEDS TO BE DONE (priority order)
+## 3. STATUS BOARD (workstreams)
 
-### A. Rebar books for remaining markets (GB, AU, CA first, then top-30)
-- UK search only surfaced paywalled forecasts (MEPS). Try: UK builders'
-  merchants (Travis Perkins, Jewson) selling 12m bar or per-tonne quotes;
-  Australia: Steel.com.au / Metaland / Auststeel; Canada: Rona/Home Hardware
-  or per-tonne from Russel Metals.
-- 2026-10-11 second pass (searches only, NOTHING seeded - no verified anchor):
-  * GB: MEPS/Kallanish paywalled; no merchant per-tonne listing surfaced. Next
-    agent: read the MEPS GB rebar page via a trial or find a Jewson/TP product page.
-  * AU: only market-size articles (USD 1.79bn by 2030). Try steel.com.au product pages.
-  * CA: Kallanish paywalled. Try Rona/Home Hardware 10M lengths -> per-tonne is
-    NOT derivable from retail sticks (pack basis unknown) - do not convert.
-  * EG: SEEDED 2026-10-11. Anchor Beshay Steel factory-gate EGP 38,500/t
-    (elKady Steel live factory-gate listing Oct-2026, corroborated by Aug-2026
-    market updates: Ezz 39,700, Beshay 38,500). eg-rebar-{12,16,20,25}mm live,
-    scan_confidence='manual'.
-  * AU: still nothing usable (market-size articles only). Try
-    steel.com.au / Metaland product pages or a dated ASI/Austrak price note.
-- Seed pattern: INSERT estimation_materials (name, slug=`{mkt}-rebar-{d}mm`,
-  category='rebar') + estimation_prices (market, price_type='material',
-  price=per-12m-length, scan_confidence='manual', price_source with the URL/source text).
-- The page wiring already works via `resolveMarketRebar` — only DB rows needed.
+| # | Workstream | Status | Detail |
+|---|------------|--------|--------|
+| 1 | 39-market price books (8 core rows + finish engines) | ✅ | All 39 markets in `market_profiles` active with books; ~182/356 rows verified |
+| 2 | Finish engines role-mapped (paint/tile/POP/screed) | ✅ | NG, US, GB, DE, AU, CA, IN fully mapped via `market_material_roles`; FR has localized role mappings |
+| 3 | Market-aware UI (i18n, currency, persistence) | ✅ | Commit `fb776ffd` (internationalized calculators) |
+| 4 | Foundation estimator market pricing | ✅ | Overlay + provenance + currency (commit `2c960ad6`) |
+| 5 | BuildToRoof market prefills | ✅ | Prices step prefills from market book; 34 inputs currency-aware (`350e2f1f`) |
+| 6 | Trade coverage panels (electrical/plumbing/doors) | ✅ | Non-NG users told plainly what's covered (`350e2f1f`) |
+| 7 | Rebar books | 🟡 | ✅ US, DE, IN, EG verified; 🟡 AU indicative ('low', needs quote); ❌ GB, CA, rest |
+| 8 | Plumbing pipe books | 🟡 | ✅ GB all 4 keys, US all 4, DE waste/drainage, AT cold/hot; ❌ DE cold/hot (PP-R), fittings + valves everywhere |
+| 9 | Electrical books | ❌ | Not started; resolver pattern ready |
+| 10 | Doors/windows books | ❌ | Not started |
+| 11 | Price campaign remainder | 🟡 | ~174 'low' rows to verify |
+| 12 | Structural methodology profiles | ❌ | Research arc (DIN/BS/ACI foundation, block modules) |
 
-### B. Plumbing price books (pipes, fittings, valve)
-- PIPES DONE 2026-10-11 for US + DE (resolver `resolveMarketPlumbing` wired into
-  PlumbingEstimator, provenance panel live):
-  * US: us-pipe-cold/hot $1.08/m (PEX-B 1/2", Home Depot PlumbFlex 300ft $100);
-    us-pipe-waste $7.48/m (PVC DWV 3", Charlotte Pipe $22.78/10ft). Drainage
-    NOT seeded (no verified 4" sewer price yet - check Home Depot 4" listing).
-  * DE: de-pipe-waste + de-pipe-drainage EUR 8.90/m (HT Rohr DN 110, Hornbach
-    4.45/0.5m). Cold/hot (PP-R) NOT seeded - Alibaba wholesale quotes do not
-    qualify; get an OBI/Hornbach PP-R 20mm per-m listing.
-- GB PIPES DONE 2026-10-11 (browserbase rendered the pages): gb-pipe-cold/
-  hot GBP 2.00/m (Wickes Pipelife Easylay 15mm coil, From GBP 50/25m);
-  gb-pipe-waste GBP 1.30/m (FloPlast WP01B 32mm x 3m, GBP 3.90, per-m on page).
-  GB DRAINAGE DONE 2026-10-11: gb-pipe-drainage GBP 6.20/m (Drainfast Vision
-  Drainage 110mm UPVC x3m, GBP 18.59 ex VAT, read via browserbase extract).
-  ALL FOUR GB pipe keys now live. REMAINING: fittings (elbow/tee/reducer/
-  union, prices per piece), valves.
-  Engine keys: `plumb-pipe-*` done; `plumb-elbow/tee/reducer/union`,
-  `plumb-valve` pending.
-- 2026-10-11 fitting searches also returned no extractable prices (Home Depot
-  fitting category pages render prices via JS; Hornbach category pages not
-  read). Use browserbase_get_content on a single product page next round.
-- METHODOLOGY: substitution is disclosed in material names + provenance text
-  (US PEX, DE HT DIN EN 1451 vs NG PVC). Keep doing that per market.
-
-### C. Electrical price books (cable, conduit, boxes, breakers)
-- Engine keys: `elec-conduit`, `elec-junction-box`, `elec-breaker`, plus
-  spec slugs. Same pattern as B. Watch voltage/standard differences
-  (230V vs 110V, NEC vs IEC) — price only, don't fake methodology.
-
-### D. Doors/windows price books + BuildToRoof trade prefills
-- Same pattern. BTR Prices step already supports overlays (see its effect).
-
-### E. Price verification campaign remainder (~174 'low' rows)
-- Sweep by region; EG/SA paint in English sources; TR via Trendyol.
-- Keep name+price unit consistent when renaming materials.
-
-### F. Structural methodology profiles (the long arc)
-- Market-scoped block modules (sandcrete vs parpaing vs CMU), rebar
-  conventions, foundation practice (DIN vs NG strip footing).
-- Requires standards research (BS 5385 precedent: DE/GB finish engines).
-- Update MarketScopeNotice when a market's structural profile goes live.
+Key commits (newest last): `af1bdeea` role-fallback disclosure ·
+`2c960ad6` foundation market pricing · `fb776ffd` i18n calculators ·
+`350e2f1f` 6-page market pricing · `9de911d2` rebar US/DE/IN ·
+`51bbfedc` EG rebar · `9d3b6512` AU rebar indicative + confidence-aware
+provenance · `b3f12d40` plumbing US/DE · `6f34d349` GB pipes ·
+`0ee2ea40` GB drainage (GB complete) · US drainage + AT pipes (latest).
 
 ---
 
-## 4. STEP-BY-STEP: HOW TO CONTINUE (worked example: rebar for a new market)
+## 4. REMAINING WORK (step-by-step)
 
-1. `git clone` the repo if needed; `git pull --rebase origin main`.
-2. Web-verify the anchor: search "<market> rebar price per tonne 2026" or a
-   supplier listing. Record source + date + price. Two corroborating sources
-   preferred; never invent.
-3. Compute per-length: `12 * kg_per_m[d] * (tonne_price/1000)`, round to 2dp.
-   kg_per_m: 12→0.888, 16→1.578, 20→2.466, 25→3.854.
-4. Seed DB (python + Management API; see section 1 for access):
-   - INSERT estimation_materials (name="Grade/badge rebar {d}mm x 12m ({MKT})",
-     slug="{mkt}-rebar-{d}mm", category='rebar', is_active=true,
-     effective_date=today). Idempotent: guard with WHERE NOT EXISTS.
-   - Deactivate old prices for that ref_id+market, then INSERT estimation_prices
-     (price_type='material', ref_id, market, price, currency, price_source,
-     notes, scan_confidence='manual', effective_date=today, is_active=true).
-5. No code changes needed (resolver reads slugs generically). Run:
-   `npx tsc --noEmit -p tsconfig.json` and
-   `npx vitest run src/lib/estimation/__tests__` (expect ~231+ green).
-6. `git add -A && git commit && git push`; if rejected, pull --rebase, push again.
-7. Update this file's section 2/3 and push again.
+### A. Rebar books — GB, CA, then remaining top-30 markets
+- GB: retail sticks verified but ~2x mill price (Next Day Steel T16 £14.21/6m;
+  The Metal Store 12mm £9/3m) — DO NOT seed those. Need a per-tonne merchant
+  quote: Jewson/Travis Perkins trade counter, Lemon Reinforcement
+  (shop.lemonreinforcement.co.uk), or a dated MEPS UK Domestic figure.
+- CA: Kallanish paywalled. Try Rona/Home Hardware 10M (3.05m? verify actual
+  stock length) listings; if only per-stick retail, apply the same GB caution.
+- Pattern for any new market: verify per-tonne (or per-stick with explicit
+  length), seed `{mkt}-rebar-{12,16,20,25}mm` (category `rebar`), per-length =
+  12 × kg/m × price/kg, kg/m = 0.888/1.578/2.466/3.854 (engine constants).
+  Page wiring is automatic via `resolveMarketRebar`.
 
-## 5. KNOWN GOTCHAS
+### B. Plumbing — fittings + valves (US, GB, DE, AT)
+- Engine keys: `plumb-elbow`, `plumb-tee`, `plumb-reducer`, `plumb-union`,
+  `plumb-valve`. Prices are PER PIECE.
+- Seed slugs `{mkt}-elbow`, `{mkt}-tee`, `{mkt}-reducer`, `{mkt}-union`,
+  `{mkt}-valve` (category `pipe`), then extend `resolveMarketPlumbing` in
+  `src/lib/estimation/structural-market.ts` (add the fitting keys to its
+  registry — mirror the pipe loop) and the page needs no other change.
+- Sourcing leads: Home Depot PEX fitting pages (search "1/2 PEX crimp elbow
+  Home Depot" — prices appear in snippets, e.g. Apollo brass barbed ~$1-2/ea;
+  get exact product+price), Wickes push-fit elbow/tee (rendered read), OBI/
+  Hornbach PP-R fittings ("HT Bogen"/"PPR Winkel"). 2026-10-11 note: HD
+  category snippets showed fragments ("Ear Elbow $8.98" — ambiguous, don't
+  use); open a single product page for a clean SKU+price.
+- DE cold/hot pipes: still open. Alibaba wholesale does NOT qualify. Try
+  OBI.de "PP-R Rohr 20mm" product page, or Rehau/Pipelife DE listings. AT
+  cold/hot are seeded from Hornbach.at MLC composite (€4.00/m) — same lead
+  may exist on hornbach.de for DE.
 
-- `fetchAllPrices(true)` is the market-blind NG flow; market overlays happen in
-  the page effects AFTER it — keep that ordering.
-- Engine price keys are NG catalog slugs (e.g. `cement-per-bag` is a material
-  slug, not a description). Overlays key on those exact strings.
-- Never seed a price whose unit doesn't match the engine's basis without the
-  deterministic conversion in `structural-market.ts` + provenance text.
-- Tests live in `src/lib/estimation/__tests__/` and mock supabase — DB seeding
-  does not break them, but code changes to resolvers should add unit tests
-  (see `structural-market.test.ts` for the pattern).
-- Netlify auto-deploys on push; build-hook 404s are known (manual trigger if needed).
+### C. Electrical books (US, GB, DE first)
+- Read `src/lib/estimation/electrical-engine.ts` for exact slugs/units first
+  (cable, conduit, junction boxes, breakers; likely per-metre and per-piece).
+- Add `resolveMarketElectrical` mirroring the plumbing resolver; wire
+  ElectricalEstimator exactly like PlumbingEstimator (overlay + provenance
+  panel + `[marketCode]` effect deps — see `git show b3f12d40` for the diff).
+- Voltage/standard differences (110V vs 230V, NEC vs IEC): price only, and
+  name the market's standard honestly (e.g. "NM-B 14/2 (US)"). No methodology
+  claims beyond what the engine already does.
+
+### D. Doors/windows books + BuildToRoof prefills
+- Engine keys in doors-windows-engine.ts; same resolver pattern.
+- BTR: cement/sand prefills exist; add rebar prefill once a market has both a
+  rebar book and the BTR rebar price keys (see Prices step state).
+
+### E. Price campaign remainder (~174 'low' rows in estimation_prices)
+- Sweep by region: EG/SA paint via English-language retailers; TR via
+  Trendyol; JP/KR/Nordic stubborn rows via direct category-page reads
+  (browserbase). Sandpaper/filler/waterproofing rows everywhere.
+- Update `estimation_materials.name` + `estimation_prices` together; keep
+  name+unit consistent. Verified rows → `scan_confidence='manual'` with
+  citable source URL in `price_source`.
+
+### F. Structural methodology profiles (research arc)
+- Market-scoped block modules (sandcrete vs parpaing vs CMU), rebar spacing
+  conventions, foundation practice (DIN strip footing vs NG).
+- Add a market-conditional in the engine + a disclosure in MarketScopeNotice
+  when a market's profile goes live. BS 5385/DIN finish-engine precedent
+  shows the expected depth of sourcing.
+
+---
+
+## 5. PROVEN METHODS & GOTCHAS
+
+- **JS-rendered retail pages**: raw fetch/web_search returns nav markup; use
+  `browserbase_navigate` + `browserbase_extract` (Drainfast price was
+  extractable this way; Wickes prices visible in navigate text).
+- **Category pages can render empty** (Travis Perkins maintenance banner) —
+  go straight to a product URL instead.
+- **Retail per-stick ≠ construction price** (UK rebar) — don't seed inflated
+  bases; prefer per-tonne/per-bulk anchors.
+- **Indicative bands** (Plexs AU): seed only as 'low' with "admin-adjustable";
+  resolver text automatically says "verify with a local supplier".
+- `fetchAllPrices(true)` is the NG flow; market overlays run AFTER it in page
+  effects — keep that order. Effect deps must include `[marketCode]`.
+- Engine price keys are exact NG slug strings (`rebar-16mm-per-length`,
+  `plumb-pipe-cold`); overlays key on those exact strings.
+- Tests: `npx vitest run src/lib/estimation/__tests__` (expect 231+ green);
+  `npx tsc --noEmit -p tsconfig.json` clean. Add unit tests for new resolvers
+  (`structural-market.test.ts` is the pattern).
+
+## 6. VERIFY CURRENT STATE (fresh agent checklist)
+
+```bash
+git clone https://github.com/petertubin-droid/frelux && cd frelux
+npx tsc --noEmit -p tsconfig.json        # must be clean
+npx vitest run src/lib/estimation/__tests__   # 231+ pass
+# DB sanity: count market pipe/rebar rows per market via Management API:
+#   SELECT market, count(*) FROM estimation_prices
+#   WHERE price_type='material' AND is_active
+#   AND ref_id IN (SELECT id FROM estimation_materials WHERE category IN ('rebar','pipe'))
+#   GROUP BY market;
+```
