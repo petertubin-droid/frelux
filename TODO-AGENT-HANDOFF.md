@@ -4,7 +4,7 @@ Living document for the market-expansion work. Any agent continuing this work
 should read this top to bottom, verify the state with the commands given, and
 continue from "Next steps". Update this file with every batch you complete.
 
-Last updated: 2026-10-11 (after commit `9de911d2`)
+Last updated: 2026-10-11 (EG rebar seeded; US/DE/IN/EG now live)
 
 ---
 
@@ -106,10 +106,12 @@ STOCK_LENGTH_M=12).
   * AU: only market-size articles (USD 1.79bn by 2030). Try steel.com.au product pages.
   * CA: Kallanish paywalled. Try Rona/Home Hardware 10M lengths -> per-tonne is
     NOT derivable from retail sticks (pack basis unknown) - do not convert.
-  * EG LEAD (real, needs verification): Aug-2026 update lists Ezz Steel EGP
-    39,700/tonne, Beshay Steel EGP 38,500/tonne (Ezz Steel publishes rebar
-    prices). Verify on ezzsteel.com or a dated news source, then seed EG with
-    scan_confidence='manual' only if confirmed on the supplier's own listing.
+  * EG: SEEDED 2026-10-11. Anchor Beshay Steel factory-gate EGP 38,500/t
+    (elKady Steel live factory-gate listing Oct-2026, corroborated by Aug-2026
+    market updates: Ezz 39,700, Beshay 38,500). eg-rebar-{12,16,20,25}mm live,
+    scan_confidence='manual'.
+  * AU: still nothing usable (market-size articles only). Try
+    steel.com.au / Metaland product pages or a dated ASI/Austrak price note.
 - Seed pattern: INSERT estimation_materials (name, slug=`{mkt}-rebar-{d}mm`,
   category='rebar') + estimation_prices (market, price_type='material',
   price=per-12m-length, scan_confidence='manual', price_source with the URL/source text).
