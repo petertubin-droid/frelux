@@ -28,6 +28,7 @@ import {
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
 import { formatCurrency } from "@/lib/utils";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
 import {
   calculatePlumbing,
@@ -75,6 +76,7 @@ function fmtN(v: number | null): string {
 }
 
 export default function PlumbingEstimator() {
+  const { symbol: currencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Plumbing Estimator", path: "/plumbing" },
@@ -396,8 +398,8 @@ export default function PlumbingEstimator() {
           {labourMode !== "none" &&
             numberInput(
               labourMode === "per_fixture"
-                ? "Rate per point (₦)"
-                : "Lump sum (₦)",
+                ? `Rate per point (${currencySymbol})`
+                : `Lump sum (${currencySymbol})`,
               labourRate,
               setLabourRate,
             )}

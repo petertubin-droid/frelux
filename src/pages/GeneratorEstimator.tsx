@@ -17,6 +17,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
+import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
@@ -30,6 +31,7 @@ import {
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
 import { formatCurrency } from "@/lib/utils";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
 import {
   calculateGenerator,
@@ -58,6 +60,7 @@ function fmtN(v: number | null): string {
 }
 
 export default function GeneratorEstimator() {
+  const { symbol: currencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Doors & Windows Estimator", path: "/generator" },
@@ -391,7 +394,7 @@ export default function GeneratorEstimator() {
             </select>
           </label>
           {labourMode !== "none" &&
-            numberInput("Lump sum (₦)", labourRate, setLabourRate)}
+            numberInput(`Lump sum (${currencySymbol})`, labourRate, setLabourRate)}
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
           Labour is always separate from material quantities and is never added

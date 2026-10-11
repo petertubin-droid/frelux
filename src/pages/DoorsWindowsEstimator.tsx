@@ -29,6 +29,7 @@ import {
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
 import { formatCurrency } from "@/lib/utils";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
 import {
   calculateDoorsWindows,
@@ -63,6 +64,7 @@ function fmtN(v: number | null): string {
 }
 
 export default function DoorsWindowsEstimator() {
+  const { symbol: currencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Doors & Windows Estimator", path: "/doors-windows" },
@@ -363,7 +365,7 @@ export default function DoorsWindowsEstimator() {
           </label>
           {labourMode !== "none" &&
             numberInput(
-              labourMode === "per_door" ? "Rate per unit (₦)" : "Lump sum (₦)",
+              labourMode === "per_door" ? `Rate per unit (${currencySymbol})` : `Lump sum (${currencySymbol})`,
               labourRate,
               setLabourRate,
             )}

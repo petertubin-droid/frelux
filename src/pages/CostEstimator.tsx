@@ -21,6 +21,9 @@ import {
   fetchSiteSettings,
 } from "@/lib/queries";
 import { formatCurrency, formatNumber, classNames } from "@/lib/utils";
+import { useMarket } from "@/lib/international/market-context";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
+import { formatAreaDual } from "@/lib/international/units-display";
 import type {
   CostEstimateInput,
   CostEstimateResult,
@@ -230,14 +233,18 @@ export default function CostEstimator({
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
 
-  // Regional data flow: project location -> market profile -> currency.
+  const { market, preferredAreaUnit, setAreaUnit } = useMarket();
+  const { symbol: displayCurrencySymbol, code: displayCurrencyCode } = useDisplayCurrency();
+
+  // Regional data flow: project location -> display currency / market profile -> default currency.
   const {
     currencyCode: projectCurrencyCode,
     currencySymbol: projectCurrencySymbol,
   } = useProjectLocationCurrency(passed.projectLocation ?? null);
   const currencySymbol =
-    projectCurrencySymbol ?? settings?.default_currency_symbol ?? "₦";
-  const currency = projectCurrencyCode ?? settings?.default_currency ?? "NGN";
+    projectCurrencySymbol ?? displayCurrencySymbol ?? market.currencySymbol ?? settings?.default_currency_symbol ?? "₦";
+  const currency =
+    projectCurrencyCode ?? displayCurrencyCode ?? market.currencyCode ?? settings?.default_currency ?? "NGN";
 
   const [input, setInput] = useState<CostEstimateInput>({
     projectType: passed.projectType ?? "room",
@@ -561,18 +568,49 @@ export default function CostEstimator({
                     <option value="fence">Fence or Gate</option>
                   </select>
                 </Field>
-                <Field label="Paintable area (m²)">
-                  <input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    value={input.paintableArea || ""}
-                    onChange={(e) =>
-                      update("paintableArea", Number(e.target.value))
-                    }
-                    className="input-field"
-                    placeholder="0.00"
-                  />
+                <Field label={`Paintable area (${preferredAreaUnit === "sqft" ? "sq ft" : "m²"})`}>
+                  <div className="space-y-1">
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={
+                          preferredAreaUnit === "sqft"
+                            ? (input.paintableArea ? Number((input.paintableArea * 10.7639).toFixed(2)) : "")
+                            : (input.paintableArea || "")
+                        }
+                        onChange={(e) => {
+                          const val = Number(e.target.value);
+                          const sqmVal = preferredAreaUnit === "sqft" ? val / 10.7639 : val;
+                          update("paintableArea", sqmVal);
+                        }}
+                        className="input-field flex-1"
+                        placeholder="0.00"
+                      />
+                      <div className="inline-flex rounded-lg border border-border overflow-hidden text-xs font-medium">
+                        <button
+                          type="button"
+                          onClick={() => setAreaUnit("sqm")}
+                          className={`px-2.5 py-1.5 transition-colors ${preferredAreaUnit === "sqm" ? "bg-primary text-primary-foreground font-semibold" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
+                        >
+                          m²
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setAreaUnit("sqft")}
+                          className={`px-2.5 py-1.5 transition-colors ${preferredAreaUnit === "sqft" ? "bg-primary text-primary-foreground font-semibold" : "bg-muted text-muted-foreground hover:bg-muted/80"}`}
+                        >
+                          sq ft
+                        </button>
+                      </div>
+                    </div>
+                    {input.paintableArea > 0 && (
+                      <p className="text-[11px] text-muted-foreground">
+                        {formatAreaDual(input.paintableArea)}
+                      </p>
+                    )}
+                  </div>
                 </Field>
                 <Field label="Paint quantity (L)">
                   <input
@@ -1007,7 +1045,7 @@ export default function CostEstimator({
                 {result && (
                   <div className="mt-2 flex items-start gap-2 rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
                     <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent-green" />
-                    Based on {formatNumber(input.paintableArea)} m² and{" "}
+                    Based on {formatAreaDual(input.paintableArea)} and{" "}
                     {formatNumber(input.paintLiters, 1)} L of paint.
                   </div>
                 )}

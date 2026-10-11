@@ -15,6 +15,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
+import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
@@ -28,6 +29,7 @@ import {
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
 import { formatCurrency } from "@/lib/utils";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
 import {
   calculateFlooring,
@@ -55,6 +57,7 @@ function fmtN(v: number | null): string {
 }
 
 export default function FlooringEstimator() {
+  const { symbol: currencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Flooring Estimator", path: "/flooring" },
@@ -383,7 +386,7 @@ export default function FlooringEstimator() {
           </label>
           {labourMode !== "none" &&
             numberInput(
-              labourMode === "per_m2" ? "Rate per m² (₦)" : "Lump sum (₦)",
+              labourMode === "per_m2" ? `Rate per m² (${currencySymbol})` : `Lump sum (${currencySymbol})`,
               labourRate,
               setLabourRate,
             )}

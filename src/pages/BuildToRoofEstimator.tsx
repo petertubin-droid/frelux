@@ -5,6 +5,8 @@ import { useState, useMemo, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useSeo } from "@/lib/seo";
+import { useMarket } from "@/lib/international/market-context";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { formatAreaDual } from "@/lib/international/units-display";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import {
@@ -287,6 +289,9 @@ function RotatingText({
 }
 
 export default function BuildToRoofEstimator() {
+  const { market, preferredLengthUnit } = useMarket();
+  const { symbol: displayCurrencySymbol } = useDisplayCurrency();
+  const currencySymbol = displayCurrencySymbol || market.currencySymbol || "₦";
   useSeo({
     title:
       "Build-to-Roof Estimator, Construction Planning & Budgeting | FRELUX",
@@ -1448,11 +1453,11 @@ export default function BuildToRoofEstimator() {
                 {/* Step 7: Prices */}
                 {step === 7 && (
                   <div className="space-y-4">
-                    <SectionCard title="Material Prices (₦)" icon={DollarSign}>
+                    <SectionCard title={`Material Prices (${currencySymbol})`} icon={DollarSign}>
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <Field
                           label="Cement per bag"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.cement_per_bag}
                           onChange={(v) =>
                             update("prices", {
@@ -1463,7 +1468,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Block per piece"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.block_per_piece}
                           onChange={(v) =>
                             update("prices", {
@@ -1474,7 +1479,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Sand per m³ (ref)"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.sand_per_m3}
                           onChange={(v) =>
                             update("prices", {
@@ -1485,7 +1490,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Sand per trip (3.5m³)"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.sand_per_trip}
                           onChange={(v) =>
                             update("prices", {
@@ -1496,7 +1501,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Granite per m³ (ref)"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.granite_per_m3}
                           onChange={(v) =>
                             update("prices", {
@@ -1507,7 +1512,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Granite per trip (3.5m³)"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.granite_per_trip}
                           onChange={(v) =>
                             update("prices", {
@@ -1518,7 +1523,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Reinforcement per tonne (bulk)"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.reinforcement_per_tonne}
                           onChange={(v) =>
                             update("prices", {
@@ -1534,7 +1539,7 @@ export default function BuildToRoofEstimator() {
                         </div>
                         <Field
                           label="12mm rebar/length"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.rebar_12mm_per_length}
                           onChange={(v) =>
                             update("prices", {
@@ -1545,7 +1550,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="16mm rebar/length"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.rebar_16mm_per_length}
                           onChange={(v) =>
                             update("prices", {
@@ -1556,7 +1561,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="20mm rebar/length"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.rebar_20mm_per_length}
                           onChange={(v) =>
                             update("prices", {
@@ -1567,7 +1572,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="25mm rebar/length"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.rebar_25mm_per_length}
                           onChange={(v) =>
                             update("prices", {
@@ -1578,7 +1583,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Binding wire per kg"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.binding_wire_per_kg}
                           onChange={(v) =>
                             update("prices", {
@@ -1589,7 +1594,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Timber per meter"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.timber_per_m}
                           onChange={(v) =>
                             update("prices", {
@@ -1600,7 +1605,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Roofing sheet per piece"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.roofing_sheet_per_piece}
                           onChange={(v) =>
                             update("prices", {
@@ -1611,7 +1616,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Ridge cap per meter"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.ridge_cap_per_meter}
                           onChange={(v) =>
                             update("prices", {
@@ -1622,7 +1627,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Roofing screws per piece"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.roofing_screws_per_piece}
                           onChange={(v) =>
                             update("prices", {
@@ -1633,7 +1638,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Fascia per meter"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.fascia_per_meter}
                           onChange={(v) =>
                             update("prices", {
@@ -1644,7 +1649,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="DPC per meter"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.dpc_per_meter}
                           onChange={(v) =>
                             update("prices", {
@@ -1655,7 +1660,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Formwork per m²"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.formwork_per_m2}
                           onChange={(v) =>
                             update("prices", {
@@ -1666,7 +1671,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Hardcore per m³"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.hardcore_per_m3}
                           onChange={(v) =>
                             update("prices", {
@@ -1677,7 +1682,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="DPM per m²"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.prices.dpm_per_m2}
                           onChange={(v) =>
                             update("prices", {
@@ -1710,13 +1715,13 @@ export default function BuildToRoofEstimator() {
                 {step === 8 && (
                   <div className="space-y-4">
                     <SectionCard
-                      title="Task-Based Labour Rates (₦)"
+                      title={`Task-Based Labour Rates (${currencySymbol})`}
                       icon={Users}
                     >
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <Field
                           label="Excavation per m³"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.labour.excavation_per_m3}
                           onChange={(v) =>
                             update("labour", {
@@ -1727,7 +1732,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Blockwork per block"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.labour.blockwork_per_block}
                           onChange={(v) =>
                             update("labour", {
@@ -1738,7 +1743,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Concrete per m³"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.labour.concrete_per_m3}
                           onChange={(v) =>
                             update("labour", {
@@ -1749,7 +1754,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Reinforcement per tonne"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.labour.reinforcement_per_tonne}
                           onChange={(v) =>
                             update("labour", {
@@ -1760,7 +1765,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Formwork per m²"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.labour.formwork_per_m2}
                           onChange={(v) =>
                             update("labour", {
@@ -1771,7 +1776,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Roofing per m²"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.labour.roofing_per_m2}
                           onChange={(v) =>
                             update("labour", {
@@ -1782,7 +1787,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Blinding per m³"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.labour.blinding_per_m3}
                           onChange={(v) =>
                             update("labour", {
@@ -1793,7 +1798,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Hardcore per m³"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.labour.hardcore_per_m3}
                           onChange={(v) =>
                             update("labour", {
@@ -1804,7 +1809,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Sand filling per m³"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.labour.sand_filling_per_m3}
                           onChange={(v) =>
                             update("labour", {
@@ -1815,7 +1820,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Compaction per m³"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.labour.compaction_per_m3}
                           onChange={(v) =>
                             update("labour", {
@@ -1826,7 +1831,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="Backfilling per m³"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.labour.backfilling_per_m3}
                           onChange={(v) =>
                             update("labour", {
@@ -1837,7 +1842,7 @@ export default function BuildToRoofEstimator() {
                         />
                         <Field
                           label="General labour per day"
-                          unit="₦"
+                          unit={currencySymbol}
                           value={input.labour.general_labour_per_day}
                           onChange={(v) =>
                             update("labour", {
@@ -1860,7 +1865,7 @@ export default function BuildToRoofEstimator() {
                       </div>
                     </SectionCard>
                     <SectionCard
-                      title="Role-Based Daily/Contract Rates (₦)"
+                      title={`Role-Based Daily/Contract Rates (${currencySymbol})`}
                       icon={Users}
                     >
                       <div className="col-span-full -mt-2 mb-2 rounded-lg bg-blue-50 border border-blue-100 p-2.5">
@@ -1873,7 +1878,7 @@ export default function BuildToRoofEstimator() {
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                         <Field
                           label="Bricklayer per day"
-                          unit="₦/day"
+                          unit={`${currencySymbol}/day`}
                           value={input.labour.bricklayer_per_day}
                           onChange={(v) =>
                             update("labour", {
@@ -1896,7 +1901,7 @@ export default function BuildToRoofEstimator() {
                         <div></div>
                         <Field
                           label="Foreman per day"
-                          unit="₦/day"
+                          unit={`${currencySymbol}/day`}
                           value={input.labour.foreman_per_day}
                           onChange={(v) =>
                             update("labour", {
@@ -1919,7 +1924,7 @@ export default function BuildToRoofEstimator() {
                         <div></div>
                         <Field
                           label="Supervisor per day"
-                          unit="₦/day"
+                          unit={`${currencySymbol}/day`}
                           value={input.labour.supervisor_per_day}
                           onChange={(v) =>
                             update("labour", {
@@ -1942,7 +1947,7 @@ export default function BuildToRoofEstimator() {
                         <div></div>
                         <Field
                           label="Carpenter per day"
-                          unit="₦/day"
+                          unit={`${currencySymbol}/day`}
                           value={input.labour.carpenter_per_day}
                           onChange={(v) =>
                             update("labour", {
@@ -1965,7 +1970,7 @@ export default function BuildToRoofEstimator() {
                         <div></div>
                         <Field
                           label="Concrete labourer per day"
-                          unit="₦/day"
+                          unit={`${currencySymbol}/day`}
                           value={input.labour.concrete_labourer_per_day}
                           onChange={(v) =>
                             update("labour", {
@@ -2015,7 +2020,7 @@ export default function BuildToRoofEstimator() {
                             {input.labour.contractor_fee_type === "contract" ? (
                               <Field
                                 label="Contractor fee (lump sum)"
-                                unit="₦"
+                                unit={currencySymbol}
                                 value={input.labour.contractor_fee}
                                 onChange={(v) =>
                                   update("labour", {
@@ -2028,7 +2033,7 @@ export default function BuildToRoofEstimator() {
                               <>
                                 <Field
                                   label="Contractor per day"
-                                  unit="₦/day"
+                                  unit={`${currencySymbol}/day`}
                                   value={input.labour.contractor_fee}
                                   onChange={(v) =>
                                     update("labour", {
@@ -2055,7 +2060,7 @@ export default function BuildToRoofEstimator() {
                       </div>
                       <div className="mt-4 rounded-lg bg-muted/50 border border-border/50 p-3">
                         <p className="text-xs text-muted-foreground">
-                          Role-based total: ₦
+                          Role-based total: {currencySymbol}
                           {(
                             input.labour.bricklayer_per_day *
                               input.labour.bricklayer_days +
@@ -2557,10 +2562,10 @@ function EstimateResult({
                         {item.weight_tonnes.toFixed(3)} t
                       </td>
                       <td className="px-4 py-3 text-right text-muted-foreground">
-                        ₦{item.unit_price.toLocaleString()}
+                        {formatCurrency(item.unit_price)}
                       </td>
                       <td className="px-4 py-3 text-right font-semibold text-foreground">
-                        ₦{item.total_cost.toLocaleString()}
+                        {formatCurrency(item.total_cost)}
                       </td>
                     </tr>
                   ))}
@@ -2579,8 +2584,7 @@ function EstimateResult({
                       t
                     </td>
                     <td className="px-4 py-3 text-right" colSpan={2}>
-                      ₦
-                      {result.reinforcement_breakdown.total_cost.toLocaleString()}
+                      {formatCurrency(result.reinforcement_breakdown.total_cost)}
                     </td>
                   </tr>
                 </tbody>

@@ -34,6 +34,7 @@ import {
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
 import { formatCurrency } from "@/lib/utils";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
 import {
   calculateFoundation,
@@ -66,6 +67,7 @@ function fmtN(v: number | null): string {
 }
 
 export default function FoundationEstimator() {
+  const { symbol: currencySymbol } = useDisplayCurrency();
   const { user } = useAuth();
 
   const [fields, setFields] = useState<Record<Field, string>>({

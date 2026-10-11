@@ -29,6 +29,7 @@ import {
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
 import { formatCurrency } from "@/lib/utils";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
 import {
   calculateReinforcement,
@@ -57,6 +58,7 @@ function fmtN(v: number | null): string {
 }
 
 export default function ReinforcementEstimator() {
+  const { symbol: currencySymbol } = useDisplayCurrency();
   const { user } = useAuth();
 
   const [lens, setLens] = useState<Record<LenField, string>>({
@@ -348,8 +350,8 @@ export default function ReinforcementEstimator() {
           {labourMode !== "none" &&
             numberInput(
               labourMode === "per_tonne"
-                ? "Rate per tonne (₦)"
-                : "Lump sum (₦)",
+                ? `Rate per tonne (${currencySymbol})`
+                : `Lump sum (${currencySymbol})`,
               labourRate,
               setLabourRate,
             )}

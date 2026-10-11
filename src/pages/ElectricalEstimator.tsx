@@ -29,6 +29,7 @@ import {
 } from "@/lib/estimation/queries";
 import { SaveToProjectButton } from "@/components/calculators";
 import { formatCurrency } from "@/lib/utils";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
 import {
   calculateElectrical,
@@ -86,6 +87,7 @@ function fmtN(v: number | null): string {
 }
 
 export default function ElectricalEstimator() {
+  const { symbol: currencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Electrical Wiring Estimator", path: "/electrical" },
@@ -422,8 +424,8 @@ export default function ElectricalEstimator() {
           {labourMode !== "none" &&
             numberInput(
               labourMode === "per_point"
-                ? "Rate per point (₦)"
-                : "Lump sum (₦)",
+                ? `Rate per point (${currencySymbol})`
+                : `Lump sum (${currencySymbol})`,
               labourRate,
               setLabourRate,
             )}

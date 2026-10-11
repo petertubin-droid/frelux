@@ -23,11 +23,13 @@ import {
 import type { MarginPreset, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 import { formatCurrency } from "@/lib/utils";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
 
 // Worldwide-currency money formatting via the site-wide layer.
 const money = (v: number) => formatCurrency(v);
 
 export default function MarginCalculator() {
+  const { symbol: currencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Profit Margin Calculator", path: "/margin-calculator" },
@@ -122,7 +124,7 @@ export default function MarginCalculator() {
                 </select>
               </label>
               <label className="grid gap-1 text-sm font-medium">
-                Base cost (₦)
+                Base cost ({currencySymbol})
                 <input
                   type="number"
                   min="1"

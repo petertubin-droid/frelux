@@ -1,6 +1,8 @@
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { useState, useCallback } from "react";
 import { useSeo } from "@/lib/seo";
+import MarketScopeNotice from "@/components/MarketScopeNotice";
+import { useMarket } from "@/lib/international/market-context";
 import {
   designFoundation,
   SOIL_BEARING_CAPACITY,
@@ -28,6 +30,7 @@ import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Button } from "@/components/ui/shadcn/button";
 
 export default function FoundationCalculator() {
+  const { preferredLengthUnit } = useMarket();
   useSeo({
     title: "Foundation Design Calculator | FRELUX",
     description:
@@ -44,7 +47,7 @@ export default function FoundationCalculator() {
   const [depth, setDepth] = useState(0.9);
   const [buildingLength, setBuildingLength] = useState(15);
   const [buildingWidth, setBuildingWidth] = useState(10);
-  const [measurementUnit, setMeasurementUnit] = useState<"m" | "ft">("m");
+  const [measurementUnit, setMeasurementUnit] = useState<"m" | "ft">(() => (preferredLengthUnit === "feet" ? "ft" : "m"));
   const [result, setResult] = useState<ReturnType<
     typeof designFoundation
   > | null>(null);

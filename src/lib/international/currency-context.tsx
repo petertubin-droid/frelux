@@ -106,6 +106,21 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
+  // Sync when storage or market changes
+  const [bump, setBump] = useState(0);
+  useEffect(() => {
+    const handleSync = () => {
+      setCode(getActiveDisplayCurrency());
+      setBump((n) => n + 1);
+    };
+    window.addEventListener("storage", handleSync);
+    window.addEventListener("frelux:market-changed", handleSync);
+    return () => {
+      window.removeEventListener("storage", handleSync);
+      window.removeEventListener("frelux:market-changed", handleSync);
+    };
+  }, []);
+
   // Push {code, rates} into the module display state whenever either
   // changes, then bump local state so the tree re-renders. The bump
   // counter is REQUIRED, not an optimisation: the memoized context
@@ -113,7 +128,6 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   // no-op when the code is unchanged (e.g. the visitor picked a
   // currency while the config fetch was still in flight). Without the
   // bump the tree would keep a stale converting=false forever.
-  const [bump, setBump] = useState(0);
   useEffect(() => {
     let effective = cfg ?? FALLBACK;
     if (cfg && cfg.enabled === false) {
@@ -166,7 +180,16 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
 export function useDisplayCurrency(): CurrencyContextValue {
   const ctx = useContext(CurrencyContext);
   if (!ctx) {
-    throw new Error("useDisplayCurrency must be used inside CurrencyProvider");
+    const activeCurrency = getActiveDisplayCurrency();
+    return {
+      code: activeCurrency,
+      symbol: activeCurrencySymbol(),
+      converting: isConverting(),
+      rateConfigured: (c: string) => hasFxRate(c),
+      rateDescription: activeRateDescription(),
+      config: null,
+      setCurrency: () => {},
+    };
   }
   return ctx;
 }

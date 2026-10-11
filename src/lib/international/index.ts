@@ -15,6 +15,10 @@ export {
   useCurrencyCode,
   isMarketSupported,
   DEFAULT_MARKET_CODE,
+  MARKET_STORAGE_KEY,
+  LENGTH_UNIT_STORAGE_KEY,
+  AREA_UNIT_STORAGE_KEY,
+  BUILTIN_MARKET_PROFILES,
   NIGERIA_DEFAULTS,
 } from "./market-context";
 

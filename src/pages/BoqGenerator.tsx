@@ -37,11 +37,12 @@ import type {
   EstimationCalcRule,
 } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
-
-const money = (v: number) =>
-  `₦${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+import { useDisplayCurrency } from "@/lib/international/currency-context";
+import { formatCurrency } from "@/lib/utils";
 
 export default function BoqGenerator() {
+  const { symbol: currencySymbol } = useDisplayCurrency();
+  const money = (v: number) => `${currencySymbol}${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "BOQ / Quote Generator", path: "/boq-generator" },
@@ -366,7 +367,7 @@ export default function BoqGenerator() {
                     />
                   </label>
                   <label className="grid gap-1 text-xs font-medium">
-                    Unit cost (₦)
+                    Unit cost ({currencySymbol})
                     <input
                       type="number"
                       min="0"

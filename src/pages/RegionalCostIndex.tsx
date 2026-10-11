@@ -29,13 +29,15 @@ import {
 } from "@/lib/estimation/regional-cost-engine";
 import type { RegionalCostIndex, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
+import { formatCurrency } from "@/lib/utils";
 
-const money = (v: number) =>
-  `₦${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+const money = (v: number) => formatCurrency(v);
 
 const CATEGORIES = ["general", "labour", "materials"];
 
 export default function RegionalCostIndex() {
+  const { symbol: currencySymbol } = useDisplayCurrency();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Regional Cost Index", path: "/regional-cost-index" },
@@ -129,7 +131,7 @@ export default function RegionalCostIndex() {
               </label>
             )}
             <label className="grid gap-1 text-sm font-medium">
-              Base cost (₦)
+              Base cost ({currencySymbol})
               <input
                 type="number"
                 min="0"

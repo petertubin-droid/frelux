@@ -36,6 +36,7 @@ import {
 } from "@/lib/estimation/solar-pv-engine";
 import type { SolarPanelModel, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
+import MarketScopeNotice from "@/components/MarketScopeNotice";
 
 export default function SolarPvEstimator() {
   useBreadcrumbJsonLd([
@@ -544,12 +545,7 @@ export default function SolarPvEstimator() {
                   </p>
                 ) : (
                   <>
-                    <p className="mt-1 text-3xl font-semibold">
-                      ₦
-                      {result.total_of_priced_lines_naira.toLocaleString(
-                        "en-NG",
-                      )}
-                    </p>
+                    <p className="mt-1 text-3xl font-semibold">{formatCurrency(result.total_of_priced_lines_naira)}</p>
                     <p className="text-xs text-muted-foreground">
                       total of priced lines only: some components are unpriced,
                       so the complete total is withheld rather than invented
