@@ -129,7 +129,12 @@ STOCK_LENGTH_M=12).
 - GB PIPES DONE 2026-10-11 (browserbase rendered the pages): gb-pipe-cold/
   hot GBP 2.00/m (Wickes Pipelife Easylay 15mm coil, From GBP 50/25m);
   gb-pipe-waste GBP 1.30/m (FloPlast WP01B 32mm x 3m, GBP 3.90, per-m on page).
-  REMAINING: GB drainage 110mm (Travis Perkins 3m lengths - use browserbase),
+  REMAINING: GB drainage 110mm (2026-10-11 attempt: Travis Perkins category
+  page rendered EMPTY - scheduled maintenance banner, no products. Do NOT
+  retry the category page; read a direct product page instead, best lead:
+  https://www.drainfast.co.uk/products/underground/drainage/110mm/110mm-upvc-drainage-plain-ended-pipe-x3m
+  (small-retailer page, likely server-rendered with price; also
+  plasticdrainage.co.uk/bp-value-110mm). Verify BS 466/socketed spec in text),
   fittings (elbow/tee/reducer/union, prices per piece), valves.
   Engine keys: `plumb-pipe-*` done; `plumb-elbow/tee/reducer/union`,
   `plumb-valve` pending.
