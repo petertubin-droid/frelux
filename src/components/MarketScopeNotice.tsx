@@ -19,10 +19,13 @@ export default function MarketScopeNotice() {
         Nigerian construction practice (market: {marketCode})
       </p>
       <p className="mt-1 text-muted-foreground">
-        This estimator models Nigerian building methods - sandcrete blocks,
-        local mix ratios and the NGN price book. The finishing calculators
-        (painting, tiling, POP or drywall ceilings, screeding) adapt
-        automatically to your market with local materials and labour rates.
+        This estimator models Nigerian building methods - sandcrete blocks
+        and local mix ratios - while prices now resolve from your market's
+        verified price book where available (see the price provenance panel:
+        cement is pack-size converted; unpriced items are reported, never
+        guessed). The finishing calculators (painting, tiling, POP or drywall
+        ceilings, screeding) adapt fully to your market with local materials
+        and labour rates.
       </p>
     </div>
   );

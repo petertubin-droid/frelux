@@ -16,6 +16,11 @@ import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
+import { useMarket } from "@/lib/international/market-context";
+import {
+  resolveStructuralMarketPricing,
+  type StructuralMarketPricing,
+} from "@/lib/estimation/structural-market";
 import { useSeo } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
@@ -85,6 +90,8 @@ export default function FoundationEstimator() {
   });
 
   const [priceMap, setPriceMap] = useState<FoundationPriceMap>({});
+  const [marketPricing, setMarketPricing] = useState<StructuralMarketPricing | null>(null);
+  const { marketCode, currencyCode, currencySymbol } = useMarket();
   const [ruleRows, setRuleRows] = useState<EstimationCalcRule[]>([]);
 
   useEffect(() => {
@@ -106,13 +113,25 @@ export default function FoundationEstimator() {
       for (const m of (matsRes.data ?? []) as EstimationMaterial[]) {
         map[m.slug] = byRef.get(m.id) ?? null;
       }
-      setPriceMap(map);
+      if (marketCode !== "NG") {
+        const marketPricing =
+          await resolveStructuralMarketPricing(marketCode);
+        if (!alive) return;
+        const overlay = { ...map };
+        for (const [k, v] of Object.entries(marketPricing.overrides)) {
+          overlay[k] = v;
+        }
+        setPriceMap(overlay);
+        setMarketPricing(marketPricing);
+      } else {
+        setPriceMap(map);
+      }
       setRuleRows(rulesRes.data as unknown as EstimationCalcRule[]);
     })().catch(() => {});
     return () => {
       alive = false;
     };
-  }, []);
+  }, [marketCode]);
 
   const rules = useMemo(
     () => parseFoundationRules(ruleRows as never),
@@ -229,7 +248,7 @@ export default function FoundationEstimator() {
           incomplete: result.incomplete,
         },
         total_material_cost: result.material_subtotal ?? 0,
-        currency: "NGN",
+        currency: currencyCode,
         labour_status:
           labourMode === "none"
             ? "not_included"
@@ -259,7 +278,7 @@ export default function FoundationEstimator() {
           pack_size: null,
           unit_price: line.unit_price ?? 0,
           total_price: line.line_total ?? 0,
-          price_snapshot: { base: line.unit_price, currency: "NGN" },
+          price_snapshot: { base: line.unit_price, currency: currencyCode },
           calculation_source: "calculated",
           notes: line.detail,
         } as never);
@@ -311,6 +330,30 @@ export default function FoundationEstimator() {
       />
 
       <MarketScopeNotice />
+      {marketCode !== "NG" && marketPricing && (
+        <div
+          className="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"
+          data-testid="market-price-provenance"
+        >
+          <p className="font-semibold">
+            Prices from the {marketCode} price book ({currencyCode})
+          </p>
+          <ul className="mt-2 space-y-1 text-muted-foreground">
+            {marketPricing.provenance.map((p) => (
+              <li key={p.engineKey}>
+                {p.resolved ? "✓" : "✗"} {p.engineKey}: {p.explanation}
+              </li>
+            ))}
+            {marketPricing.unresolved.length > 0 && (
+              <li>
+                ✗ {marketPricing.unresolved.join(", ")}: no verified price in
+                the {marketCode} book - these lines report as unpriced until
+                you supply local prices.
+              </li>
+            )}
+          </ul>
+        </div>
+      )}
 
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
@@ -348,7 +391,7 @@ export default function FoundationEstimator() {
           </label>
           {labourMode !== "none" &&
             numberInput(
-              labourMode === "per_m3" ? "Rate per m³ (₦)" : "Lump sum (₦)",
+              labourMode === "per_m3" ? `Rate per m³ (${currencySymbol})` : `Lump sum (${currencySymbol})`,
               labourRate,
               setLabourRate,
             )}
