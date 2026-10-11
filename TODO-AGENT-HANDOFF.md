@@ -100,6 +100,16 @@ STOCK_LENGTH_M=12).
   merchants (Travis Perkins, Jewson) selling 12m bar or per-tonne quotes;
   Australia: Steel.com.au / Metaland / Auststeel; Canada: Rona/Home Hardware
   or per-tonne from Russel Metals.
+- 2026-10-11 second pass (searches only, NOTHING seeded - no verified anchor):
+  * GB: MEPS/Kallanish paywalled; no merchant per-tonne listing surfaced. Next
+    agent: read the MEPS GB rebar page via a trial or find a Jewson/TP product page.
+  * AU: only market-size articles (USD 1.79bn by 2030). Try steel.com.au product pages.
+  * CA: Kallanish paywalled. Try Rona/Home Hardware 10M lengths -> per-tonne is
+    NOT derivable from retail sticks (pack basis unknown) - do not convert.
+  * EG LEAD (real, needs verification): Aug-2026 update lists Ezz Steel EGP
+    39,700/tonne, Beshay Steel EGP 38,500/tonne (Ezz Steel publishes rebar
+    prices). Verify on ezzsteel.com or a dated news source, then seed EG with
+    scan_confidence='manual' only if confirmed on the supplier's own listing.
 - Seed pattern: INSERT estimation_materials (name, slug=`{mkt}-rebar-{d}mm`,
   category='rebar') + estimation_prices (market, price_type='material',
   price=per-12m-length, scan_confidence='manual', price_source with the URL/source text).
