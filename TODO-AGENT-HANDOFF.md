@@ -126,10 +126,18 @@ STOCK_LENGTH_M=12).
   * DE: de-pipe-waste + de-pipe-drainage EUR 8.90/m (HT Rohr DN 110, Hornbach
     4.45/0.5m). Cold/hot (PP-R) NOT seeded - Alibaba wholesale quotes do not
     qualify; get an OBI/Hornbach PP-R 20mm per-m listing.
-- REMAINING for pipes: GB (15mm push-fit / 32mm waste at Wickes - prices not
-  in snippets, open product pages), fittings (elbow/tee/reducer/union - prices
+- REMAINING for pipes: GB (Wickes product pages are JS-rendered SPAs - raw
+  fetch returns nav markup, NO price. Next agent: use browserbase to open
+  https://www.wickes.co.uk/Pipelife-Easylay-White-Pipe-Coil---15mm/p/9000294722
+  and https://www.wickes.co.uk/FloPlast-WP01B-Black-Push-Fit-Waste-Pipe---32mm-x-3m/p/175683
+  and read the rendered price; also try JG Speedfit 15mm barrier pipe coil
+  (usually ~GBP 15-25/25m -> derive per-m) and Travis Perkins 110mm
+  underground drainage 3m lengths), fittings (elbow/tee/reducer/union - prices
   per piece), valves. Engine keys: `plumb-pipe-*` done; `plumb-elbow/tee/
   reducer/union`, `plumb-valve` pending.
+- 2026-10-11 fitting searches also returned no extractable prices (Home Depot
+  fitting category pages render prices via JS; Hornbach category pages not
+  read). Use browserbase_get_content on a single product page next round.
 - METHODOLOGY: substitution is disclosed in material names + provenance text
   (US PEX, DE HT DIN EN 1451 vs NG PVC). Keep doing that per market.
 
