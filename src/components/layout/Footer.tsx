@@ -23,40 +23,34 @@ const estimateLinks = [
   { label: "Foundation Calculator", path: "/foundation-calculator" },
 ];
 
-const colorLinks = [
+// Colors, services and showcase merged into one column; duplicate links
+// (Pricing, Project Gallery) removed so each destination appears once.
+const exploreLinks = [
   { label: "Color Library", path: "/colors" },
   { label: "Compare Colors", path: "/colors/compare" },
   { label: "Smart Color Assistant", path: "/ai-color-assistant" },
-];
-
-const learnLinks = [
-  { label: "Learn Hub", path: "/learn" },
-  { label: "Material Prices", path: "/prices" },
-  { label: "Glossary", path: "/glossary" },
-  { label: "Free Templates", path: "/printables" },
-  { label: "Project Gallery", path: "/gallery" },
-  { label: "User Guide", path: "/user-guide" },
-];
-
-const showcaseLinks = [
+  { label: "Marketplace", path: "/marketplace" },
+  { label: "Pro Connect", path: "/pro-connect" },
   { label: "Project Gallery", path: "/gallery" },
   { label: "Case Studies", path: "/case-studies" },
 ];
 
-const servicesLinks = [
-  { label: "Marketplace", path: "/marketplace" },
-  { label: "Pro Connect", path: "/pro-connect" },
-  { label: "Developer API", path: "/developers" },
+const resourcesLinks = [
+  { label: "Learn Hub", path: "/learn" },
+  { label: "Material Prices", path: "/prices" },
+  { label: "Glossary", path: "/glossary" },
+  { label: "Free Templates", path: "/printables" },
+  { label: "User Guide", path: "/user-guide" },
   { label: "Pricing", path: "/pricing" },
+  { label: "Developer API", path: "/developers" },
 ];
 
-const accountLinks = [
+const companyLinks = [
   { label: "Sign In", path: "/login" },
   { label: "My Projects", path: "/my-projects" },
   { label: "Contact", path: "/contact" },
   { label: "About", path: "/about" },
   { label: "Partners", path: "/partners" },
-  { label: "Pricing", path: "/pricing" },
 ];
 
 const legalLinks = [
@@ -73,20 +67,20 @@ export default function Footer() {
       role="contentinfo"
       aria-label="Site footer"
       className="neon-edge-soft relative overflow-hidden border-t border-border/60 bg-muted/50 dark:border-white/5 dark:bg-background"
-      style={{ contentVisibility: "auto", containIntrinsicSize: "380px" }}
+      style={{ contentVisibility: "auto", containIntrinsicSize: "320px" }}
     >
       {/* Subtle top gradient */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
 
-      <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-8 md:grid-cols-3 lg:grid-cols-6">
+      <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-6 md:grid-cols-3 lg:grid-cols-6 lg:gap-x-8">
           <div className="col-span-2 lg:col-span-2">
             <Logo />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-muted-foreground dark:text-muted-foreground">
+            <p className="mt-3 max-w-xs text-xs leading-relaxed text-muted-foreground sm:text-sm">
               Plan materials, estimate costs and manage construction projects
               worldwide: from a single room to an entire building.
             </p>
-            <div className="mt-6">
+            <div className="mt-4">
               <NewsletterSignup source="footer" />
             </div>
             <a
@@ -96,7 +90,7 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Contact us on WhatsApp"
-              className="mt-5 inline-flex items-center gap-2 rounded-lg bg-accent-green/10 px-3 py-2 text-sm font-semibold text-emerald-700 transition-colors hover:bg-accent-green/15 dark:bg-accent-green/15 dark:text-accent-green-light dark:hover:bg-accent-green/25"
+              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-accent-green/10 px-3 py-1.5 text-sm font-semibold text-emerald-700 transition-colors hover:bg-accent-green/15 dark:bg-accent-green/15 dark:text-accent-green-light dark:hover:bg-accent-green/25"
             >
               <MessageCircle className="h-4 w-4" />
               {siteConfig.whatsappDisplay}
@@ -105,25 +99,19 @@ export default function Footer() {
 
           <FooterColumn title="Calculate" links={calculateLinks} />
           <FooterColumn title="Estimate" links={estimateLinks} />
-          <FooterColumn title="Colors & AI" links={[...colorLinks]} />
-          <FooterColumn title="Services" links={servicesLinks} />
-          <FooterColumn
-            title="Learn & Account"
-            links={[...learnLinks, ...accountLinks]}
-          />
-
-          <FooterColumn title="Showcase" links={showcaseLinks} />
-
+          <FooterColumn title="Explore" links={exploreLinks} />
+          <FooterColumn title="Resources" links={resourcesLinks} />
+          <FooterColumn title="Company" links={companyLinks} />
           <FooterColumn title="Legal" links={legalLinks} />
         </div>
 
-        <div className="mt-14 flex flex-col items-center justify-between gap-3 border-t border-border/60 pt-6 sm:flex-row dark:border-white/5">
-          <div className="flex items-center gap-4">
-            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+        <div className="mt-6 flex flex-col gap-2 border-t border-border/60 pt-4 sm:flex-row sm:items-center sm:justify-between dark:border-white/5">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-4">
+            <p className="text-xs text-muted-foreground">
               © {new Date().getFullYear()} {siteConfig.name}. All rights
               reserved.
             </p>
-            <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+            <p className="text-[11px] leading-snug text-muted-foreground sm:text-xs">
               Estimates are for guidance only and not a guarantee of final cost
               or quantity.
             </p>
@@ -134,7 +122,7 @@ export default function Footer() {
             onClick={() => withdrawConsent()}
             aria-label="Cookie preferences"
             title="Cookie preferences"
-            className="h-8 w-8 shrink-0 rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-brand-purple dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
+            className="h-8 w-8 shrink-0 self-start rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-brand-purple sm:self-auto dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
           >
             <Cookie className="h-4 w-4" aria-hidden="true" />
           </Button>
@@ -156,12 +144,12 @@ function FooterColumn({
       <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground dark:text-muted-foreground">
         {title}
       </h3>
-      <ul className="mt-4 space-y-2.5">
+      <ul className="mt-2.5 space-y-1.5">
         {links.map((link) => (
           <li key={link.path}>
             <Link
               to={link.path}
-              className="text-sm text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
+              className="text-[13px] sm:text-sm text-muted-foreground transition-colors hover:text-brand-purple dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
             >
               {link.label}
             </Link>

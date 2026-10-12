@@ -93,6 +93,28 @@ function AiFeatureSlide() {
   );
 }
 
+/**
+ * Turn the vision edge function's error body (or its absence) into a message
+ * a user can act on. Previously every non-2xx was reported as "not deployed",
+ * which hid real causes such as Gemini being busy.
+ */
+export function describeVisionFailure(
+  body: { error?: string; code?: string } | null,
+): string {
+  switch (body?.code) {
+    case "AI_BUSY":
+      return "The AI vision service is busy right now. Please try again in a minute.";
+    case "USAGE_LIMIT_REACHED":
+      return "You have used all your free image estimations for today. Come back tomorrow!";
+    case "NO_API_KEY":
+      return "The AI service is not configured yet. Please check back later.";
+  }
+  if (body?.error) {
+    return "The AI vision service hit a problem analysing this image. Please try again, or use the manual Build-to-Roof Estimator.";
+  }
+  return "Couldn't reach the AI vision service. Check your connection and try again, or use the manual Build-to-Roof Estimator.";
+}
+
 export default function ImageEstimator() {
   useSeo({
     title: "AI Photo Estimator, AI-Assisted Preliminary Estimation | FRELUX",
@@ -229,10 +251,19 @@ export default function ImageEstimator() {
       );
 
       if (fnError || !data) {
-        // Edge function not deployed, fallback to manual mode
-        setError(
-          "The AI vision service is not yet deployed. You can still use the manual Build-to-Roof Estimator.",
-        );
+        // supabase-js puts non-2xx responses in fnError.context (a Response).
+        // Read the function's own JSON body so a busy/limit/config error is
+        // shown as what it is, instead of always claiming "not deployed".
+        const ctx = (fnError as { context?: unknown } | null)?.context;
+        let body: { error?: string; code?: string } | null = null;
+        if (ctx && typeof (ctx as Response).json === "function") {
+          try {
+            body = await (ctx as Response).clone().json();
+          } catch {
+            body = null;
+          }
+        }
+        setError(describeVisionFailure(body));
         setPhase("error");
         return;
       }

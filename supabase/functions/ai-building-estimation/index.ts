@@ -27,6 +27,16 @@ const corsHeaders = {
 
 const GEMINI_MODEL = "gemini-3.6-flash";
 
+/** Thrown when Gemini stays overloaded/unavailable after all retries. */
+class GeminiBusyError extends Error {
+  status: number;
+  constructor(status: number) {
+    super(`Gemini unavailable (${status})`);
+    this.name = "GeminiBusyError";
+    this.status = status;
+  }
+}
+
 interface EstimationRequest {
   imageDataUrl?: string;
   imageUrl?: string;
@@ -310,41 +320,60 @@ Always include in verification_checklist:
 - "Engage structural engineer for reinforcement design"
 - "Verify roof structure and pitch from architectural drawings"`;
 
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        contents: [
+  const requestBody = JSON.stringify({
+    contents: [
+      {
+        parts: [
+          { text: prompt },
           {
-            parts: [
-              { text: prompt },
-              {
-                inline_data: {
-                  mime_type: "image/jpeg",
-                  data: imageDataUrl.split(",")[1] ?? imageDataUrl,
-                },
-              },
-            ],
+            inline_data: {
+              mime_type: "image/jpeg",
+              data: imageDataUrl.split(",")[1] ?? imageDataUrl,
+            },
           },
         ],
-        generationConfig: {
-          temperature: 0.4,
-          responseMimeType: "application/json",
-        },
-      }),
+      },
+    ],
+    generationConfig: {
+      temperature: 0.4,
+      responseMimeType: "application/json",
     },
-  );
+  });
 
-  if (!response.ok) {
-    const errText = await response.text();
+  // Gemini intermittently answers 429/500/503/504 under load. Those are
+  // transient: retry with backoff before giving up, and surface a distinct
+  // AI_BUSY error (not a generic 500) so the UI can say "try again".
+  const RETRYABLE = new Set([429, 500, 502, 503, 504]);
+  const BACKOFF_MS = [800, 2000, 4000];
+  let response: Response | null = null;
+  for (let attempt = 0; attempt <= BACKOFF_MS.length; attempt++) {
+    response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: requestBody,
+      },
+    );
+    if (response.ok || !RETRYABLE.has(response.status)) break;
+    console.warn(
+      `[ai-building-estimation] Gemini ${response.status}, attempt ${attempt + 1}`,
+    );
+    if (attempt < BACKOFF_MS.length) {
+      await new Promise((r) => setTimeout(r, BACKOFF_MS[attempt]));
+    }
+  }
+
+  if (!response || !response.ok) {
+    const status = response?.status ?? 0;
+    const errText = response ? await response.text() : "no response";
     console.error(
       "[ai-building-estimation] Gemini API error:",
-      response.status,
+      status,
       errText,
     );
-    throw new Error(`Gemini API error: ${response.status}`);
+    if (RETRYABLE.has(status)) throw new GeminiBusyError(status);
+    throw new Error(`Gemini API error: ${status}`);
   }
 
   const geminiData = await response.json();
@@ -827,6 +856,16 @@ serveWithCors(async (req: Request) => {
     });
   } catch (err) {
     console.error("[ai-building-estimation] Error:", err);
+    if (err instanceof GeminiBusyError) {
+      return jsonResponse(
+        {
+          error:
+            "The AI vision service is busy right now. Please try again in a minute.",
+          code: "AI_BUSY",
+        },
+        503,
+      );
+    }
     const message = err instanceof Error ? err.message : "Unknown error";
     return jsonResponse({ error: message, code: "INTERNAL_ERROR" }, 500);
   }
