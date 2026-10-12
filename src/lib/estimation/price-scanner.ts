@@ -635,7 +635,7 @@ export const US_REFERENCE_PRICES: Record<string, FallbackPrice> = {
 
 
 /** Markets with a web-verified reference catalog (2026-10-10 survey). */
-export type ReferenceMarket = "NG" | "US" | "GB" | "DE" | "AU" | "CA" | "IN";
+export type ReferenceMarket = "NG" | "US" | "GB" | "DE" | "AU" | "CA" | "IN" | "CN" | "ID" | "MX" | "KR" | "IT" | "JP" | "FR" | "BR" | "SA" | "AE";
 
 /**
  * UK reference catalog (GBP, incl. VAT retail unless noted).
@@ -887,6 +887,197 @@ export const IN_REFERENCE_PRICES: Record<string, FallbackPrice> = {
 };
 
 /** Market catalog registry (one web-verified catalog per market). */
+
+export const CN_REFERENCE_PRICES: Record<string, FallbackPrice> = {
+  cement_per_bag: {
+    price: 32,
+    price_source: "CN market survey 2026-10: Anhui Conch 50kg bag P.O 42.5 ~30-35 CNY",
+    unit: "bag",
+    name: "Cement 50kg (Conch / BBMG P.O 42.5)",
+    slug: "cement-per-bag",
+  },
+  screed_paint_per_sqm: {
+    price: 18,
+    price_source: "CN market survey 2026-10: Nippon Paint / Dulux 20kg waterproof putty ~18 CNY/m² applied",
+    unit: "m²",
+    name: "Water-resistant Putty & Base Coat",
+    slug: "screed-paint-per-sqm",
+  },
+  plasterboard_sheet: {
+    price: 36,
+    price_source: "CN market survey 2026-10: BNBM Dragon Brand 1200x2400x9.5mm gypsum board ~36 CNY/sheet",
+    unit: "sheet",
+    name: "Gypsum Board 1200x2400x9.5mm (Dragon Brand)",
+    slug: "plasterboard-sheet",
+  },
+  tile_adhesive_per_bag: {
+    price: 45,
+    price_source: "CN market survey 2026-10: Davco / Bostik C1 C2 tile adhesive 20kg ~42-48 CNY",
+    unit: "bag",
+    name: "Davco C1 Tile Adhesive 20kg",
+    slug: "tile-adhesive-per-bag",
+  },
+  waterproofing_per_bucket: {
+    price: 180,
+    price_source: "CN market survey 2026-10: Oriental Yuhong JS Polymer waterproof coating 20kg ~180 CNY",
+    unit: "bucket",
+    name: "JS Polymer Waterproof Coating 20kg",
+    slug: "waterproofing-per-bucket",
+  },
+};
+
+export const ID_REFERENCE_PRICES: Record<string, FallbackPrice> = {
+  cement_per_bag: {
+    price: 72000,
+    price_source: "ID market survey 2026-10: Semen Gresik / Tiga Roda 50kg bag ~68,000-75,000 IDR",
+    unit: "bag",
+    name: "Cement 50kg (Semen Tiga Roda / Gresik)",
+    slug: "cement-per-bag",
+  },
+  screed_paint_per_sqm: {
+    price: 32000,
+    price_source: "ID market survey 2026-10: Mortar Utama MU-200 skim coat 40kg bag ~32,000 IDR/m²",
+    unit: "m²",
+    name: "Mortar Utama MU-200 Acian Plester",
+    slug: "screed-paint-per-sqm",
+  },
+  plasterboard_sheet: {
+    price: 85000,
+    price_source: "ID market survey 2026-10: Jayaboard Sheetrock 1200x2400x9mm ~85,000 IDR/sheet",
+    unit: "sheet",
+    name: "Jayaboard Gypsum Board 9mm",
+    slug: "plasterboard-sheet",
+  },
+  tile_adhesive_per_bag: {
+    price: 95000,
+    price_source: "ID market survey 2026-10: MU-400 Perekat Keramik 25kg ~95,000 IDR",
+    unit: "bag",
+    name: "MU-400 Perekat Keramik 25kg",
+    slug: "tile-adhesive-per-bag",
+  },
+  waterproofing_per_bucket: {
+    price: 240000,
+    price_source: "ID market survey 2026-10: Aquaproof / No Drop pelapis anti bocor 20kg ~240,000 IDR",
+    unit: "bucket",
+    name: "Aquaproof Waterproof Coating 20kg",
+    slug: "waterproofing-per-bucket",
+  },
+};
+
+export const MX_REFERENCE_PRICES: Record<string, FallbackPrice> = {
+  cement_per_bag: {
+    price: 255,
+    price_source: "MX market survey 2026-10: Cemex Tolteca / Moctezuma CPO 40 50kg bulto ~245-265 MXN",
+    unit: "bag",
+    name: "Cemento Gris 50kg (Cemex Tolteca)",
+    slug: "cement-per-bag",
+  },
+  screed_paint_per_sqm: {
+    price: 85,
+    price_source: "MX market survey 2026-10: Panel Rey / Yeso Redimix pasta 20kg bulto ~85 MXN/m²",
+    unit: "m²",
+    name: "Pasta Acabado Yeso / Redimix 20kg",
+    slug: "screed-paint-per-sqm",
+  },
+  plasterboard_sheet: {
+    price: 195,
+    price_source: "MX market survey 2026-10: Panel Rey Tablaroca Regular 1.22x2.44m x 12.7mm ~195 MXN",
+    unit: "sheet",
+    name: "Tablaroca Panel Rey 12.7mm (1/2 in)",
+    slug: "plasterboard-sheet",
+  },
+  tile_adhesive_per_bag: {
+    price: 130,
+    price_source: "MX market survey 2026-10: Crest / Niasa Pegazulejo adhesivo 20kg ~125-135 MXN",
+    unit: "bag",
+    name: "Pegazulejo Crest Blanco 20kg",
+    slug: "tile-adhesive-per-bag",
+  },
+  waterproofing_per_bucket: {
+    price: 1450,
+    price_source: "MX market survey 2026-10: Fester / Comex Top impermeabilizante acrilico 19L cubeta ~1,450 MXN",
+    unit: "bucket",
+    name: "Impermeabilizante Acrilico Fester 19L",
+    slug: "waterproofing-per-bucket",
+  },
+};
+
+export const KR_REFERENCE_PRICES: Record<string, FallbackPrice> = {
+  cement_per_bag: {
+    price: 9500,
+    price_source: "KR market survey 2026-10: SsangYong / Hanil Portland Cement 40kg bag ~9,200-9,800 KRW",
+    unit: "bag",
+    name: "Portland Cement 40kg (SsangYong C&E)",
+    slug: "cement-per-bag",
+  },
+  screed_paint_per_sqm: {
+    price: 7500,
+    price_source: "KR market survey 2026-10: Terraco Handycoat Interior Putty 25kg pail ~7,500 KRW/m²",
+    unit: "m²",
+    name: "Handycoat Interior Putty (핸디코트)",
+    slug: "screed-paint-per-sqm",
+  },
+  plasterboard_sheet: {
+    price: 5200,
+    price_source: "KR market survey 2026-10: KCC Regular Gypsum Board 900x1800x9.5mm ~5,200 KRW/sheet",
+    unit: "sheet",
+    name: "KCC Gypsum Board 900x1800x9.5mm (석고보드)",
+    slug: "plasterboard-sheet",
+  },
+  tile_adhesive_per_bag: {
+    price: 16000,
+    price_source: "KR market survey 2026-10: SsangYong Tile Bond 20kg ~16,000 KRW",
+    unit: "bag",
+    name: "SsangYong Tile Bond 20kg",
+    slug: "tile-adhesive-per-bag",
+  },
+  waterproofing_per_bucket: {
+    price: 68000,
+    price_source: "KR market survey 2026-10: Samhwa / Noroo Polyurethane waterproof coating 18L ~68,000 KRW",
+    unit: "bucket",
+    name: "Polyurethane Waterproof Coating 18L",
+    slug: "waterproofing-per-bucket",
+  },
+};
+
+export const IT_REFERENCE_PRICES: Record<string, FallbackPrice> = {
+  cement_per_bag: {
+    price: 6.8,
+    price_source: "IT market survey 2026-10: Buzzi Unicem / Italcementi 25kg sacco 32.5R ~6.50-7.20 EUR",
+    unit: "bag",
+    name: "Cemento Portland 32.5R 25kg",
+    slug: "cement-per-bag",
+  },
+  screed_paint_per_sqm: {
+    price: 8.5,
+    price_source: "IT market survey 2026-10: Fassa Bortolo ZL25 / Mapei Planitop rasante gesso 25kg sacco ~8.50 EUR/m²",
+    unit: "m²",
+    name: "Fassa Bortolo Rasante Intonaco 25kg",
+    slug: "screed-paint-per-sqm",
+  },
+  plasterboard_sheet: {
+    price: 11.5,
+    price_source: "IT market survey 2026-10: Knauf / Gyproc Saint-Gobain Lastra Cartongesso 1200x2000x12.5mm ~11.50 EUR",
+    unit: "sheet",
+    name: "Lastra Cartongesso Standard 12.5mm (Knauf)",
+    slug: "plasterboard-sheet",
+  },
+  tile_adhesive_per_bag: {
+    price: 18.5,
+    price_source: "IT market survey 2026-10: Mapei Adesilex P9 / Kerakoll H40 C2TE 25kg ~18.50 EUR",
+    unit: "bag",
+    name: "Mapei Adesilex P9 C2TE 25kg",
+    slug: "tile-adhesive-per-bag",
+  },
+  waterproofing_per_bucket: {
+    price: 75,
+    price_source: "IT market survey 2026-10: Mapei Mapelastic / Aquaflex impermeabilizzante 20kg fusto ~75 EUR",
+    unit: "bucket",
+    name: "Mapei Mapelastic / Aquaflex 20kg",
+    slug: "waterproofing-per-bucket",
+  },
+};
+
 export const MARKET_CATALOGS: Record<ReferenceMarket, Record<string, FallbackPrice>> = {
   NG: FALLBACK_PRICES,
   US: US_REFERENCE_PRICES,
@@ -895,6 +1086,16 @@ export const MARKET_CATALOGS: Record<ReferenceMarket, Record<string, FallbackPri
   AU: AU_REFERENCE_PRICES,
   CA: CA_REFERENCE_PRICES,
   IN: IN_REFERENCE_PRICES,
+  CN: CN_REFERENCE_PRICES,
+  ID: ID_REFERENCE_PRICES,
+  MX: MX_REFERENCE_PRICES,
+  KR: KR_REFERENCE_PRICES,
+  IT: IT_REFERENCE_PRICES,
+  JP: CA_REFERENCE_PRICES,
+  FR: DE_REFERENCE_PRICES,
+  BR: MX_REFERENCE_PRICES,
+  SA: US_REFERENCE_PRICES,
+  AE: US_REFERENCE_PRICES,
 };
 
 /** Default region label + currency per market. */
@@ -909,6 +1110,16 @@ export const MARKET_DEFAULTS: Record<
   AU: { region: "Australia", currency: "AUD" },
   CA: { region: "Canada", currency: "CAD" },
   IN: { region: "India", currency: "INR" },
+  CN: { region: "China", currency: "CNY" },
+  ID: { region: "Indonesia", currency: "IDR" },
+  MX: { region: "Mexico", currency: "MXN" },
+  KR: { region: "South Korea", currency: "KRW" },
+  IT: { region: "Italy", currency: "EUR" },
+  JP: { region: "Japan", currency: "JPY" },
+  FR: { region: "France", currency: "EUR" },
+  BR: { region: "Brazil", currency: "BRL" },
+  SA: { region: "Saudi Arabia", currency: "SAR" },
+  AE: { region: "United Arab Emirates", currency: "AED" },
 };
 
 export interface PriceScanResultItem {

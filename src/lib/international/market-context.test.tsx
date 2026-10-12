@@ -32,7 +32,7 @@ describe("market-context", () => {
 
   it("registers all fifteen markets with correct currencies", async () => {
     const mod = await import("@/lib/international/market-context");
-    expect(mod.BUILTIN_MARKET_PROFILES.length).toBe(15);
+    expect(mod.BUILTIN_MARKET_PROFILES.length).toBe(20);
 
     const expected: Record<string, { currency: string; name: string }> = {
       NG: { currency: "NGN", name: "Nigeria" },
@@ -50,6 +50,11 @@ describe("market-context", () => {
       BR: { currency: "BRL", name: "Brazil" },
       SA: { currency: "SAR", name: "Saudi Arabia" },
       AE: { currency: "AED", name: "United Arab Emirates" },
+      CN: { currency: "CNY", name: "China" },
+      ID: { currency: "IDR", name: "Indonesia" },
+      MX: { currency: "MXN", name: "Mexico" },
+      KR: { currency: "KRW", name: "South Korea" },
+      IT: { currency: "EUR", name: "Italy" },
     };
     for (const [code, exp] of Object.entries(expected)) {
       const profile = mod.BUILTIN_MARKET_PROFILES.find(
@@ -63,7 +68,7 @@ describe("market-context", () => {
 
     // sort_order is unique and NG stays first (default market).
     const orders = mod.BUILTIN_MARKET_PROFILES.map((p) => p.sort_order);
-    expect(new Set(orders).size).toBe(15);
+    expect(new Set(orders).size).toBe(20);
     expect(mod.BUILTIN_MARKET_PROFILES[0]?.country_code).toBe("NG");
   });
 
