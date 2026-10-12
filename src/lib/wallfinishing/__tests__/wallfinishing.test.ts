@@ -175,7 +175,8 @@ describe("wall-finishing country profiles", () => {
     const zaSkim = getAssembly("za-interior-skim-paint")?.layers.find(
       (l) => l.materialRole === "skim-plaster",
     );
-    expect(zaSkim?.coverageRateM2PerUnit).toBe(10);
+    expect(zaSkim?.coverageRateM2PerUnit).toBe(16);
+    expect(zaSkim?.unit).toBe("40 kg bag");
     expect(zaSkim?.note).toMatch(/Gyproc RhinoLite/i);
     // SA/AE: Knauf MP75 ~8 kg/m2 -> 3.75 m2 per 30 kg bag.
     for (const id of ["sa-interior-gypsum-paint", "ae-interior-gypsum-paint"]) {

@@ -1423,7 +1423,7 @@ export const WALLFIN_ASSEMBLIES: WallAssemblyTemplate[] = [
     layers: [
       {
         id: "fr-int-lissage",
-        name: "Enduit de lissage (Prestonett / Toupret)",
+        name: "Enduit de lissage en poudre (Prestonett)",
         category: "skim",
         materialRole: "skim-plaster",
         quantityMode: "area-coverage",
@@ -1440,7 +1440,7 @@ export const WALLFIN_ASSEMBLIES: WallAssemblyTemplate[] = [
         labourTask: "wallfin_plastering",
         surface: "interior",
         optional: false,
-        note: "Prestonett G: ~1 kg/m2 (fiche technique La Plateforme, 2026-10) -> 5 kg sac = ~5 m2/coat.",
+        note: "Prestonett lissage powders: ~1 kg/m2/coat (fiche technique, 2026-10) -> 5 kg sac = ~5 m2/coat. Priced product: Prestonett M 4-en-1 (5 kg).",
       },
       {
         id: "fr-int-sand",
@@ -2374,20 +2374,21 @@ export const WALLFIN_ASSEMBLIES: WallAssemblyTemplate[] = [
         category: "skim",
         materialRole: "skim-plaster",
         quantityMode: "area-coverage",
-        // Gyproc RhinoLite datasheet: 2.5 kg/m2 at 2.5 mm -> 10 m2 per 25 kg bag.
-        coverageRateM2PerUnit: 10,
+        // Gyproc RhinoLite datasheet: 2.5 kg/m2 at 2.5 mm -> 16 m2 per 40 kg
+        // retail bag (SA retail bag size verified 2026-10-13).
+        coverageRateM2PerUnit: 16,
         coats: 1,
         thickness: null,
         mix: null,
         unitsPerM2: null,
-        unit: "25 kg bag",
+        unit: "40 kg bag",
         applicationMethod: "Steel trowel skim over plaster, sponge finish",
         dryingInfo: "Paintable after full dry (24-48 h)",
         wastePercent: 12,
         labourTask: "wallfin_plastering",
         surface: "interior",
         optional: false,
-        note: "Gyproc RhinoLite: 2.5 kg/m2 at 2.5 mm; 10 m2 per 25 kg bag (official Gyproc datasheet).",
+        note: "Gyproc RhinoLite: 2.5 kg/m2 at 2.5 mm; 16 m2 per 40 kg bag (official Gyproc datasheet; 40 kg is the SA retail bag).",
       },
       {
         id: "za-int-bonding",
