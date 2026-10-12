@@ -22,19 +22,16 @@ import { WALLFIN_COUNTRY_MAP, WALLFIN_FALLBACK_COUNTRY } from "./countries";
  * market price books (market_profiles.inherits_from).
  */
 export const WALLFIN_TEMPLATE_BY_MARKET: Record<string, WallFinMarketCode> = {
+  // 2026-10-13: JP/FR/BR/SA/AE/GH/KE/ZA now have NATIVE wall-finishing
+  // profiles and resolve natively, so they no longer appear here.
   // Africa → NG reference
-  GH: "NG",
-  KE: "NG",
-  ZA: "GB",
   ET: "NG",
   EG: "GB",
   TZ: "NG",
   CI: "NG",
   // Americas → US/GB
-  BR: "US",
   MX: "US",
   // Europe → DE/GB
-  FR: "DE",
   IT: "DE",
   ES: "DE",
   NL: "DE",
@@ -43,11 +40,8 @@ export const WALLFIN_TEMPLATE_BY_MARKET: Record<string, WallFinMarketCode> = {
   CH: "DE",
   // Asia & Middle East
   CN: "US",
-  JP: "US",
   KR: "US",
   SG: "GB",
-  AE: "GB",
-  SA: "GB",
   TR: "DE",
   // Oceania
   NZ: "AU",

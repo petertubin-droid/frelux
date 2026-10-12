@@ -22,7 +22,24 @@
 // 1. Country profiles
 // ─────────────────────────────────────────────
 
-export type WallFinMarketCode = "NG" | "US" | "GB" | "DE" | "IN" | "CA" | "AU";
+// JP/FR/BR/SA/AE registered 2026-10-13 international expansion;
+// GH/KE/ZA promoted from NG/GB surrogate templates the same day.
+export type WallFinMarketCode =
+  | "NG"
+  | "US"
+  | "GB"
+  | "DE"
+  | "IN"
+  | "CA"
+  | "AU"
+  | "JP"
+  | "FR"
+  | "BR"
+  | "SA"
+  | "AE"
+  | "GH"
+  | "KE"
+  | "ZA";
 
 export interface WallFinCountryProfile {
   /** ISO 3166-1 alpha-2 */

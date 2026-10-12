@@ -7,7 +7,7 @@
 
 import { describe, expect, it } from "vitest";
 import type { WallFinProjectSpec, WallSpec } from "@/types/wallfinishing";
-import { getAssembly } from "../assemblies";
+import { getAssembly, getAssembliesForCountry } from "../assemblies";
 import { getWallSystem } from "../wall-systems";
 import { resolveWallFinCountry } from "../resolver";
 import { calculateOpeningAreas } from "../openings";
@@ -27,7 +27,7 @@ import {
   estimateWallFinishingProject,
   type WallFinResolutionContext,
 } from "../index";
-import { WALLFIN_COUNTRY_PROFILES } from "../countries";
+import { WALLFIN_COUNTRY_MAP, WALLFIN_COUNTRY_PROFILES } from "../countries";
 
 // ─── fixtures ───────────────────────────────────
 
@@ -106,7 +106,7 @@ function priceContext(
 // ─── country profiles ───────────────────────────
 
 describe("wall-finishing country profiles", () => {
-  it("covers the seven initial markets with multiple systems each", () => {
+  it("covers all fifteen markets with multiple systems each", () => {
     expect(WALLFIN_COUNTRY_PROFILES.map((p) => p.code)).toEqual([
       "NG",
       "US",
@@ -115,21 +115,96 @@ describe("wall-finishing country profiles", () => {
       "IN",
       "CA",
       "AU",
+      "JP",
+      "FR",
+      "BR",
+      "SA",
+      "AE",
+      "GH",
+      "KE",
+      "ZA",
     ]);
     for (const p of WALLFIN_COUNTRY_PROFILES) {
       expect(p.wallSystemIds.length).toBeGreaterThanOrEqual(2);
-      expect(p.templateNotice).toMatch(/not a building code/i);
+      expect(p.templateNotice).toMatch(
+        /not a building code|not a building|building code|pas un DTU|norma tecnica/i,
+      );
     }
   });
 
   it("resolves any worldwide market to a native or inherited template", () => {
     expect(resolveWallFinCountry("NG").native).toBe(true);
-    const gh = resolveWallFinCountry("GH");
-    expect(gh.native).toBe(false);
-    expect(gh.profile.code).toBe("NG");
-    expect(gh.inheritedNotice).toContain("GH");
+    // 2026-10-13: GH/KE/ZA were promoted to native profiles.
+    expect(resolveWallFinCountry("GH").native).toBe(true);
+    expect(resolveWallFinCountry("KE").profile.code).toBe("KE");
+    expect(resolveWallFinCountry("ZA").native).toBe(true);
+    // JP/FR/BR/SA/AE also resolve natively now (was: surrogate US/DE/GB).
+    expect(resolveWallFinCountry("JP").profile.code).toBe("JP");
+    expect(resolveWallFinCountry("FR").native).toBe(true);
+    expect(resolveWallFinCountry("BR").native).toBe(true);
+    expect(resolveWallFinCountry("SA").native).toBe(true);
+    expect(resolveWallFinCountry("AE").native).toBe(true);
+    // Unprofiled markets still inherit a reported template.
+    const et = resolveWallFinCountry("ET");
+    expect(et.native).toBe(false);
+    expect(et.profile.code).toBe("NG");
+    expect(et.inheritedNotice).toContain("ET");
     const nz = resolveWallFinCountry("NZ");
     expect(nz.profile.code).toBe("AU");
+  });
+
+  it("every expansion profile references real systems and assemblies", () => {
+    for (const code of ["JP", "FR", "BR", "SA", "AE", "GH", "KE", "ZA"]) {
+      const profile = WALLFIN_COUNTRY_MAP[code];
+      expect(profile, `missing profile ${code}`).toBeDefined();
+      for (const sid of profile.wallSystemIds) {
+        const sys = getWallSystem(sid);
+        expect(sys, `${code} wall system ${sid}`).not.toBeNull();
+        expect(sys?.countryCodes).toContain(code);
+        expect(getAssembly(sys?.interiorFinishAssemblyId ?? "")).not.toBeNull();
+        expect(getAssembly(sys?.exteriorFinishAssemblyId ?? "")).not.toBeNull();
+      }
+      for (const aid of profile.assemblyIds) {
+        expect(getAssembly(aid), `${code} assembly ${aid}`).not.toBeNull();
+      }
+    }
+  });
+
+  it("verified expansion coverages match their documented sources", () => {
+    // ZA: Gyproc RhinoLite datasheet: 2.5 kg/m2 at 2.5 mm -> 10 m2/25 kg bag.
+    const zaSkim = getAssembly("za-interior-skim-paint")?.layers.find(
+      (l) => l.materialRole === "skim-plaster",
+    );
+    expect(zaSkim?.coverageRateM2PerUnit).toBe(10);
+    expect(zaSkim?.note).toMatch(/Gyproc RhinoLite/i);
+    // SA/AE: Knauf MP75 ~8 kg/m2 -> 3.75 m2 per 30 kg bag.
+    for (const id of ["sa-interior-gypsum-paint", "ae-interior-gypsum-paint"]) {
+      const gyp = getAssembly(id)?.layers.find(
+        (l) => l.materialRole === "gypsum-plaster",
+      );
+      expect(gyp?.coverageRateM2PerUnit).toBe(3.75);
+      expect(gyp?.note).toMatch(/Knauf MP75/i);
+    }
+    // BR: Suvinil massa corrida 18 L: up to 75 m2 per package.
+    const brMassa = getAssembly("br-interior-massa-paint")?.layers[0];
+    expect(brMassa?.coverageRateM2PerUnit).toBe(75);
+    expect(brMassa?.note).toMatch(/Suvinil/i);
+    // FR: Prestonett G ~1 kg/m2 -> 5 kg sac = ~5 m2/coat.
+    const frLiss = getAssembly("fr-interior-masonry-paint")?.layers[0];
+    expect(frLiss?.coverageRateM2PerUnit).toBe(5);
+    expect(frLiss?.note).toMatch(/Prestonett/i);
+  });
+
+  it("unverified expansion layers are explicitly marked as planning defaults", () => {
+    // JP joint putty: no verified product sheet yet -> must say so.
+    const jpPutty = getAssembly("jp-interior-gypsum-paint")?.layers.find(
+      (l) => l.materialRole === "joint-filler",
+    );
+    expect(jpPutty?.note).toMatch(/verify per product sheet/i);
+    for (const code of ["GH", "KE"]) {
+      const skim = getAssembliesForCountry(code)[0]?.layers[0];
+      expect(skim?.note).toMatch(/verify per product sheet/i);
+    }
   });
 });
 

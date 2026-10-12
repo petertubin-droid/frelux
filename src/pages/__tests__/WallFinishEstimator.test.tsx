@@ -103,11 +103,15 @@ describe("WallFinishEstimator", () => {
     renderPage();
     const select = screen.getByLabelText(/Country \/ market/i);
     expect((select as HTMLSelectElement).value).toBe("NG");
-    // Ghana inherits the NG template via the resolver (pure logic check)
+    // 2026-10-13: Ghana is now a NATIVE profile; unprofiled markets
+    // (e.g. Ethiopia) still inherit a reported template (pure logic check)
     const gh = resolveWallFinCountry("GH");
-    expect(gh.native).toBe(false);
-    expect(gh.profile.code).toBe("NG");
-    expect(gh.inheritedNotice).toMatch(/not yet native/);
+    expect(gh.native).toBe(true);
+    expect(gh.profile.code).toBe("GH");
+    const et = resolveWallFinCountry("ET");
+    expect(et.native).toBe(false);
+    expect(et.profile.code).toBe("NG");
+    expect(et.inheritedNotice).toMatch(/not yet native/);
   });
 
   it("calculates and shows the layer table with transparency links", async () => {

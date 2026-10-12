@@ -322,6 +322,262 @@ export const WALLFIN_WALL_SYSTEMS: WallSystem[] = [
     substrates: ["steel", "drywall"],
     active: true,
   },
+
+  // ── Japan ──────────────────────────────────
+  {
+    id: "jp-timber-frame-gypsum",
+    countryCodes: ["JP"],
+    name: "Timber frame + gypsum board",
+    description:
+      "Traditional post-and-beam or 2x4 timber frame lined with 9.5 mm gypsum board (910 x 1820 mm standard sheets).",
+    wallType: "timber frame",
+    structuralMaterial: "Timber frame + gypsum board",
+    typicalThickness: { min: 90, max: 140, default: 105 },
+    thicknessUnit: "mm",
+    interiorFinishAssemblyId: "jp-interior-gypsum-paint",
+    exteriorFinishAssemblyId: "jp-exterior-alc-paint",
+    substrates: ["timber", "drywall"],
+    active: true,
+  },
+  {
+    id: "jp-rc-alc-panel",
+    countryCodes: ["JP"],
+    name: "RC frame + ALC panel infill",
+    description:
+      "Reinforced-concrete frame with autoclaved lightweight concrete (ALC) panels infilled between columns: the standard low-rise apartment and office wall.",
+    wallType: "framed panel infill",
+    structuralMaterial: "Concrete frame + ALC panel",
+    typicalThickness: { min: 80, max: 120, default: 100 },
+    thicknessUnit: "mm",
+    interiorFinishAssemblyId: "jp-interior-gypsum-paint",
+    exteriorFinishAssemblyId: "jp-exterior-alc-paint",
+    substrates: ["concrete", "drywall", "masonry"],
+    active: true,
+  },
+
+  // ── France ──────────────────────────────────
+  {
+    id: "fr-masonry-plaster",
+    countryCodes: ["FR"],
+    name: "Bloc/brique + enduit de platre",
+    description:
+      "French masonry (parpaing or brique) finished with a traditional plaster skim (enduit de platre) ready for paint.",
+    wallType: "load-bearing masonry",
+    structuralMaterial: "Concrete block / clay brick",
+    typicalThickness: { min: 150, max: 200, default: 175 },
+    thicknessUnit: "mm",
+    interiorFinishAssemblyId: "fr-interior-masonry-paint",
+    exteriorFinishAssemblyId: "fr-exterior-render-paint",
+    substrates: ["block", "masonry", "brick"],
+    active: true,
+  },
+  {
+    id: "fr-drywall-metal-stud",
+    countryCodes: ["FR"],
+    name: "Cloison platre BA13 sur ossature metal",
+    description:
+      "Interior plasterboard partition: BA13 (12.5 mm) boards on metal rails and furrings (rail + fourrure), jointed and finished ready to paint.",
+    wallType: "steel stud partition",
+    structuralMaterial: "Steel stud + BA13 plasterboard",
+    typicalThickness: { min: 72, max: 98, default: 98 },
+    thicknessUnit: "mm",
+    interiorFinishAssemblyId: "fr-interior-masonry-paint",
+    exteriorFinishAssemblyId: "fr-exterior-render-paint",
+    substrates: ["steel", "drywall"],
+    active: true,
+  },
+
+  // ── Brazil ──────────────────────────────────
+  {
+    id: "br-brick-plaster",
+    countryCodes: ["BR"],
+    name: "Alvenaria de tijolo/bloco com reboco",
+    description:
+      "Brazilian masonry of clay brick (tijolo baiano) or concrete block with cement-sand reboco, skimmed and painted.",
+    wallType: "load-bearing masonry",
+    structuralMaterial: "Clay brick / concrete block",
+    typicalThickness: { min: 140, max: 225, default: 180 },
+    thicknessUnit: "mm",
+    interiorFinishAssemblyId: "br-interior-massa-paint",
+    exteriorFinishAssemblyId: "br-exterior-render-paint",
+    substrates: ["brick", "block", "masonry"],
+    active: true,
+  },
+  {
+    id: "br-drywall-steel-stud",
+    countryCodes: ["BR"],
+    name: "Drywall steel stud (placa de gesso)",
+    description:
+      "Steel-stud drywall partition with 12.5 mm gypsum boards (chapa RU 1200 x 1800 mm), fitted and skimmed at joints.",
+    wallType: "steel stud partition",
+    structuralMaterial: "Steel stud + gypsum board",
+    typicalThickness: { min: 70, max: 100, default: 90 },
+    thicknessUnit: "mm",
+    interiorFinishAssemblyId: "br-interior-massa-paint",
+    exteriorFinishAssemblyId: "br-exterior-render-paint",
+    substrates: ["steel", "drywall"],
+    active: true,
+  },
+
+  // ── Saudi Arabia ───────────────────────────
+  {
+    id: "sa-block-gypsum-plaster",
+    countryCodes: ["SA"],
+    name: "RC frame + block + gypsum plaster",
+    description:
+      "Concrete frame with blockwork infill, machine-applied gypsum plaster (e.g. Knauf MP75) skimmed smooth: the dominant GCC interior finish.",
+    wallType: "framed masonry infill",
+    structuralMaterial: "Concrete frame + block + gypsum plaster",
+    typicalThickness: { min: 150, max: 225, default: 200 },
+    thicknessUnit: "mm",
+    interiorFinishAssemblyId: "sa-interior-gypsum-paint",
+    exteriorFinishAssemblyId: "sa-exterior-render-paint",
+    substrates: ["block", "masonry", "concrete"],
+    active: true,
+  },
+  {
+    id: "sa-drywall-partition",
+    countryCodes: ["SA"],
+    name: "Gypsum board partition",
+    description:
+      "Metal-stud partition with 12.5 mm gypsum boards (Knauf RG 1200 x 2400 mm), taped, jointed and painted.",
+    wallType: "steel stud partition",
+    structuralMaterial: "Steel stud + gypsum board",
+    typicalThickness: { min: 78, max: 100, default: 100 },
+    thicknessUnit: "mm",
+    interiorFinishAssemblyId: "sa-interior-gypsum-paint",
+    exteriorFinishAssemblyId: "sa-exterior-render-paint",
+    substrates: ["steel", "drywall"],
+    active: true,
+  },
+
+  // ── United Arab Emirates ──────────────────
+  {
+    id: "ae-rc-block-gypsum",
+    countryCodes: ["AE"],
+    name: "RC frame + block + gypsum plaster",
+    description:
+      "UAE standard: concrete frame with block infill, machine gypsum plaster skim (Knauf/Saint-Gobain systems), primer and paint.",
+    wallType: "framed masonry infill",
+    structuralMaterial: "Concrete frame + block + gypsum plaster",
+    typicalThickness: { min: 150, max: 225, default: 200 },
+    thicknessUnit: "mm",
+    interiorFinishAssemblyId: "ae-interior-gypsum-paint",
+    exteriorFinishAssemblyId: "ae-exterior-render-paint",
+    substrates: ["block", "masonry", "concrete"],
+    active: true,
+  },
+  {
+    id: "ae-drywall-partition",
+    countryCodes: ["AE"],
+    name: "Gypsum board partition",
+    description:
+      "Steel-stud partition with 12.5 mm regular/moisture-resistant gypsum boards (Knauf RG/MR 1200 x 2400 mm) for fit-outs and villas.",
+    wallType: "steel stud partition",
+    structuralMaterial: "Steel stud + gypsum board",
+    typicalThickness: { min: 78, max: 100, default: 100 },
+    thicknessUnit: "mm",
+    interiorFinishAssemblyId: "ae-interior-gypsum-paint",
+    exteriorFinishAssemblyId: "ae-exterior-render-paint",
+    substrates: ["steel", "drywall"],
+    active: true,
+  },
+
+  // ── Ghana ──────────────────────────────────
+  {
+    id: "gh-sandcrete-render",
+    countryCodes: ["GH"],
+    name: "Sandcrete block wall with render",
+    description:
+      'The common Ghanaian wall: 225 mm (9") or 150 mm (6") sandcrete blocks laid in cement-sand mortar and rendered.',
+    wallType: "load-bearing masonry",
+    structuralMaterial: "Sandcrete block",
+    typicalThickness: { min: 150, max: 225, default: 225 },
+    thicknessUnit: "mm",
+    interiorFinishAssemblyId: "gh-interior-block-paint",
+    exteriorFinishAssemblyId: "gh-exterior-render-paint",
+    substrates: ["block", "masonry"],
+    active: true,
+  },
+  {
+    id: "gh-timber-frame-gypsum",
+    countryCodes: ["GH"],
+    name: "Timber frame + gypsum board",
+    description:
+      "Timber-frame partitions and ceilings lined with gypsum board, jointed and painted: common in modern fit-outs.",
+    wallType: "timber frame",
+    structuralMaterial: "Timber frame + gypsum board",
+    typicalThickness: { min: 90, max: 120, default: 100 },
+    thicknessUnit: "mm",
+    interiorFinishAssemblyId: "gh-interior-block-paint",
+    exteriorFinishAssemblyId: "gh-exterior-render-paint",
+    substrates: ["timber", "drywall"],
+    active: true,
+  },
+
+  // ── Kenya ──────────────────────────────────
+  {
+    id: "ke-stone-render",
+    countryCodes: ["KE"],
+    name: "Machine-cut stone wall with render",
+    description:
+      "The typical Kenyan wall: machine-cut (mqi) stone or hard core masonry laid in cement-sand mortar and rendered smooth.",
+    wallType: "load-bearing masonry",
+    structuralMaterial: "Machine-cut stone",
+    typicalThickness: { min: 200, max: 225, default: 225 },
+    thicknessUnit: "mm",
+    interiorFinishAssemblyId: "ke-interior-stone-paint",
+    exteriorFinishAssemblyId: "ke-exterior-render-paint",
+    substrates: ["masonry", "brick"],
+    active: true,
+  },
+  {
+    id: "ke-block-render",
+    countryCodes: ["KE"],
+    name: "Concrete block wall with render",
+    description:
+      "Concrete-block masonry (common in high-rises and estates) with cement-sand render and paint.",
+    wallType: "load-bearing masonry",
+    structuralMaterial: "Concrete block",
+    typicalThickness: { min: 150, max: 225, default: 200 },
+    thicknessUnit: "mm",
+    interiorFinishAssemblyId: "ke-interior-stone-paint",
+    exteriorFinishAssemblyId: "ke-exterior-render-paint",
+    substrates: ["block", "masonry"],
+    active: true,
+  },
+
+  // ── South Africa ───────────────────────────
+  {
+    id: "za-brick-plaster",
+    countryCodes: ["ZA"],
+    name: "Clay brick + plaster",
+    description:
+      "The standard South African wall: clay brick (stock/maxi) or concrete block laid in mortar, plastered and painted.",
+    wallType: "load-bearing masonry",
+    structuralMaterial: "Clay brick / concrete block",
+    typicalThickness: { min: 110, max: 230, default: 140 },
+    thicknessUnit: "mm",
+    interiorFinishAssemblyId: "za-interior-skim-paint",
+    exteriorFinishAssemblyId: "za-exterior-render-paint",
+    substrates: ["brick", "block", "masonry"],
+    active: true,
+  },
+  {
+    id: "za-drywall-metal-stud",
+    countryCodes: ["ZA"],
+    name: "Drywall on metal stud",
+    description:
+      "Interior drywall partition: 6.3/12.7 mm RhinoBoard on metal stud framing, taped, jointed and painted.",
+    wallType: "steel stud partition",
+    structuralMaterial: "Steel stud + RhinoBoard",
+    typicalThickness: { min: 64, max: 92, default: 76 },
+    thicknessUnit: "mm",
+    interiorFinishAssemblyId: "za-interior-skim-paint",
+    exteriorFinishAssemblyId: "za-exterior-render-paint",
+    substrates: ["steel", "drywall"],
+    active: true,
+  },
 ];
 
 export const WALLFIN_WALL_SYSTEM_MAP: Record<string, WallSystem> =
