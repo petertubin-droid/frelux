@@ -1,149 +1,203 @@
-/**
- * Google Translate integration - unit tests.
- */
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { render, screen, act, cleanup, waitFor } from "@testing-library/react";
 import {
-  mapToGoogleLanguage,
-  isGoogleTranslatedLanguage,
-} from "./GoogleTranslate";
-
-describe("mapToGoogleLanguage", () => {
-  it("maps FRELUX codes to Google widget codes where they differ", () => {
-    expect(mapToGoogleLanguage("zh")).toBe("zh-CN");
-  });
-
-  it("passes GT-supported languages through unchanged", () => {
-    for (const code of ["en", "fr", "pt", "sw", "ar"] as const) {
-      expect(mapToGoogleLanguage(code)).toBe(code);
-    }
-  });
-
-  it("restores English by targeting en", () => {
-    expect(mapToGoogleLanguage("en")).toBe("en");
-  });
-});
-
-describe("isGoogleTranslatedLanguage", () => {
-  it("accepts every registered international language", () => {
-    for (const code of ["en", "fr", "pt", "sw", "ar", "zh"] as const) {
-      expect(isGoogleTranslatedLanguage(code)).toBe(true);
-    }
-  });
-});
+  applyPageTranslation,
+  resetTranslationState,
+  restoreOriginalText,
+  setPageLanguage,
+} from "@/lib/translate/page-translator";
+import { GoogleTranslateSync, mapToGoogleLanguage } from "./GoogleTranslate";
 
 // ---------------------------------------------------------------------------
-// applyGoogleLanguage — cookie-first, combo-driven behaviour
+// Fake translate.googleapis.com endpoint — mirrors the real response shape:
+// data[0] is a list of sentence entries [translated, original, ...], where
+// each translated line keeps its trailing newline except the last.
 // ---------------------------------------------------------------------------
-import { describe as _d2, it as _i2, expect as _e2 } from "vitest";
-import { render, screen, act, cleanup } from "@testing-library/react";
-import { afterEach, beforeEach, vi } from "vitest";
-import {
-  applyGoogleLanguage,
-  GoogleTranslateSync,
-  setGoogleTranslateCookie,
-} from "./GoogleTranslate";
+const EN_TO_FR: Record<string, string> = {
+  "Cement and blocks are construction materials.":
+    "Le ciment et les blocs sont des matériaux de construction.",
+  "Roof pitch in degrees": "Pente du toit en degrés",
+  "Plan your building project": "Planifiez votre projet de construction",
+  "Total cost of the project": "Coût total du projet",
+};
 
-const GT_RELOAD_KEY = "frelux_gt_reload_lang";
+function buildGtxResponse(q: string): unknown[] {
+  const lines = q.split("\n");
+  const sentences = lines.map((line, i) => {
+    const trans = EN_TO_FR[line] ?? line;
+    const suffix = i < lines.length - 1 ? "\n" : "";
+    return [trans + suffix, line + suffix, null, null, 3];
+  });
+  return [sentences, null, "en", null, null, null, null, []];
+}
+
+function installFetchMock() {
+  const fetchMock = vi.fn(async (url: string | URL | Request) => {
+    const href = typeof url === "string" ? url : url.toString();
+    const q = new URL(href).searchParams.get("q");
+    if (!q) throw new Error("missing q");
+    return {
+      ok: true,
+      json: async () => buildGtxResponse(q),
+    } as Response;
+  });
+  vi.stubGlobal("fetch", fetchMock);
+  return fetchMock;
+}
+
+function setContent() {
+  document.body.innerHTML = `
+    <main>
+      <h1>Plan your building project</h1>
+      <p>Cement and blocks are construction materials.</p>
+      <p>Roof pitch in degrees</p>
+      <code>const x = 1;</code>
+      <span class="notranslate">Total cost of the project</span>
+      <input placeholder="Total cost of the project" />
+    </main>
+  `;
+  document.title = "Plan your building project";
+}
 
 beforeEach(() => {
-  document.cookie = "googtrans=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-  sessionStorage.clear();
+  resetTranslationState();
+  localStorage.clear();
+  setContent();
 });
 
 afterEach(() => {
-  vi.useRealTimers();
   cleanup();
+  vi.unstubAllGlobals();
+  restoreOriginalText();
+  document.body.innerHTML = "";
 });
 
-describe("applyGoogleLanguage cookie-first behaviour", () => {
-  it("writes the googtrans cookie even when no widget combo exists", async () => {
-    vi.useFakeTimers();
-    const result = await act(async () => {
-      const p = applyGoogleLanguage("fr");
-      await vi.advanceTimersByTimeAsync(3000);
-      return p;
-    });
-    expect(result).toBe(false);
-    expect(document.cookie).toContain("googtrans=/en/fr");
+describe("page-translator engine", () => {
+  it("translates visible text, placeholders and the title in one batch", async () => {
+    const fetchMock = installFetchMock();
+    await applyPageTranslation("fr");
+
+    expect(screen.getByText(/Le ciment et les blocs/)).toBeInTheDocument();
+    expect(screen.getByText("Pente du toit en degrés")).toBeInTheDocument();
+    expect(screen.getByText(/Planifiez votre projet/)).toBeInTheDocument();
+    expect(document.querySelector("input")?.getAttribute("placeholder")).toBe(
+      "Coût total du projet",
+    );
+    expect(document.title).toBe("Planifiez votre projet de construction");
+    // one chunked request for all segments
+    expect(fetchMock).toHaveBeenCalledTimes(1);
   });
 
-  it("drives the hidden combo when the widget provides one", async () => {
-    const combo = document.createElement("select");
-    combo.className = "goog-te-combo";
-    combo.innerHTML = `<option value="en">English</option><option value="fr">French</option>`;
-    document.body.appendChild(combo);
-    let changed = false;
-    combo.addEventListener("change", () => {
-      changed = true;
-    });
-
-    const result = await applyGoogleLanguage("fr");
-    expect(result).toBe(true);
-    expect(combo.value).toBe("fr");
-    expect(changed).toBe(true);
-    combo.remove();
+  it("never touches code blocks or .notranslate content", async () => {
+    installFetchMock();
+    await applyPageTranslation("fr");
+    expect(screen.getByText("const x = 1;")).toBeInTheDocument();
+    expect(screen.getByText("Total cost of the project")).toBeInTheDocument();
   });
 
-  it("clears the cookie for English so the widget restores the original page", () => {
-    setGoogleTranslateCookie("fr");
-    expect(document.cookie).toContain("googtrans=/en/fr");
-    setGoogleTranslateCookie("en");
-    expect(document.cookie).not.toContain("googtrans=/en/fr");
-  });
-});
+  it("re-uses the cache on a second pass without network", async () => {
+    const fetchMock = installFetchMock();
+    await applyPageTranslation("fr");
+    const calls = fetchMock.mock.calls.length;
 
-describe("GoogleTranslateSync language switch flow", () => {
-  it("reloads once (cookie already set) when the combo cannot be driven", async () => {
-    vi.useFakeTimers();
-    const reloadMock = vi.fn();
-    Object.defineProperty(window.location, "reload", {
-      value: reloadMock,
-      writable: true,
-      configurable: true,
-    });
-
-    const { rerender } = render(<GoogleTranslateSync language="en" />);
-    // Let the mount effect finish its combo poll.
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(3000);
-    });
-    expect(reloadMock).not.toHaveBeenCalled();
-
-    rerender(<GoogleTranslateSync language="fr" />);
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(3000);
-    });
-
-    // Cookie set immediately, one reload requested, flag stored to
-    // prevent a loop after the reload lands.
-    expect(document.cookie).toContain("googtrans=/en/fr");
-    expect(reloadMock).toHaveBeenCalledTimes(1);
-    expect(sessionStorage.getItem(GT_RELOAD_KEY)).toBe("fr");
+    // Simulate React reverting a node, then re-apply.
+    screen.getByText(/Le ciment et les blocs/).textContent =
+      "Cement and blocks are construction materials.";
+    await applyPageTranslation("fr");
+    expect(fetchMock.mock.calls.length).toBe(calls);
+    expect(screen.getByText(/Le ciment et les blocs/)).toBeInTheDocument();
   });
 
-  it("shows the manual fallback link after a reload failed to start translation", async () => {
-    vi.useFakeTimers();
-    sessionStorage.setItem(GT_RELOAD_KEY, "fr");
-
-    render(<GoogleTranslateSync language="fr" />);
-    // Before the grace period ends, no notice.
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(3000);
-    });
+  it("restores the original English text", async () => {
+    installFetchMock();
+    await applyPageTranslation("fr");
+    restoreOriginalText();
+    expect(screen.getByText("Plan your building project")).toBeInTheDocument();
     expect(
-      screen.queryByText("Automatic translation unavailable"),
-    ).toBeNull();
-
-    // After the grace period with no combo, the fallback appears.
-    // (The combo poll itself burns ~2.75s of fake time before the 6s
-    // grace timer even starts, so advance well past both.)
-    await act(async () => {
-      await vi.advanceTimersByTimeAsync(8000);
-    });
-    expect(
-      screen.getByText("Automatic translation unavailable"),
+      screen.getByText("Cement and blocks are construction materials."),
     ).toBeInTheDocument();
+    expect(document.title).toBe("Plan your building project");
+    expect(document.querySelector("input")?.getAttribute("placeholder")).toBe(
+      "Total cost of the project",
+    );
+  });
+
+  it("reports failure when the endpoint is unreachable", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new Error("offline");
+      }),
+    );
+    const ok = await applyPageTranslation("fr");
+    expect(ok).toBe(false);
+    expect(screen.getByText("Plan your building project")).toBeInTheDocument();
+  });
+
+  it("setPageLanguage('en') restores after translating", async () => {
+    installFetchMock();
+    await setPageLanguage("fr");
+    expect(screen.getByText(/Le ciment et les blocs/)).toBeInTheDocument();
+    await setPageLanguage("en");
+    expect(
+      screen.getByText("Cement and blocks are construction materials."),
+    ).toBeInTheDocument();
+  });
+});
+
+describe("GoogleTranslateSync", () => {
+  it("translates the page when the language changes and restores on 'en'", async () => {
+    installFetchMock();
+    const { rerender } = render(<GoogleTranslateSync language="en" />);
+    expect(screen.getByText("Plan your building project")).toBeInTheDocument();
+
+    await act(async () => {
+      rerender(<GoogleTranslateSync language="fr" />);
+    });
+    await waitFor(() => {
+      expect(screen.getByText(/Le ciment et les blocs/)).toBeInTheDocument();
+    });
+    expect(document.title).toBe("Planifiez votre projet de construction");
+
+    await act(async () => {
+      rerender(<GoogleTranslateSync language="en" />);
+    });
+    await waitFor(() => {
+      expect(
+        screen.getByText("Plan your building project"),
+      ).toBeInTheDocument();
+    });
+    expect(document.title).toBe("Plan your building project");
+  });
+
+  it("shows the manual fallback link when translation fails", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new Error("blocked");
+      }),
+    );
+    render(<GoogleTranslateSync language="fr" />);
+    const notice = await screen.findByText("Automatic translation unavailable");
+    expect(notice).toBeInTheDocument();
     const link = screen.getByText("Open in Google Translate");
     expect(link.getAttribute("href")).toContain("tl=fr");
+  });
+
+  it("does not inject the retired Google widget or write its cookie", async () => {
+    installFetchMock();
+    render(<GoogleTranslateSync language="fr" />);
+    await waitFor(() => {
+      expect(screen.getByText(/Le ciment et les blocs/)).toBeInTheDocument();
+    });
+    expect(document.getElementById("google-translate-script")).toBeNull();
+    expect(document.cookie).not.toContain("googtrans");
+  });
+});
+
+describe("mapToGoogleLanguage", () => {
+  it("maps FRELUX codes to the service codes", () => {
+    expect(mapToGoogleLanguage("fr")).toBe("fr");
+    expect(mapToGoogleLanguage("zh")).toBe("zh-CN");
   });
 });
