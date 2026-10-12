@@ -24,6 +24,24 @@ const MARKET_TIMEZONES: Record<string, string[]> = {
   GH: ["Africa/Accra"],
   KE: ["Africa/Nairobi"],
   ZA: ["Africa/Johannesburg"],
+  JP: ["Asia/Tokyo"],
+  FR: ["Europe/Paris"],
+  BR: [
+    "America/Sao_Paulo",
+    "America/Bahia",
+    "America/Fortaleza",
+    "America/Recife",
+    "America/Belem",
+    "America/Boa_Vista",
+    "America/Campo_Grande",
+    "America/Cuiaba",
+    "America/Eirunepe",
+    "America/Manaus",
+    "America/Rio_Branco",
+    "America/Santarem",
+  ],
+  SA: ["Asia/Riyadh"],
+  AE: ["Asia/Dubai"],
   US: [
     "America/New_York",
     "America/Detroit",
@@ -132,7 +150,9 @@ function regionFromLanguageTag(tag: string): string | null {
 }
 
 /** Resolve the market from explicit language tags, or null. */
-export function localesToMarket(tags: readonly (string | null)[]): string | null {
+export function localesToMarket(
+  tags: readonly (string | null)[],
+): string | null {
   for (const tag of tags) {
     if (!tag) continue;
     const region = regionFromLanguageTag(tag);

@@ -374,6 +374,179 @@ export const BUILTIN_MARKET_PROFILES: MarketProfile[] = [
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
   },
+  {
+    // Japan — registered 2026-10-13. Metric market, JPY, gypsum
+    // plasterboard (910x1820/910x2420 local formats) + shikkui lime
+    // finishes where used; tatami is NOT a fixed area unit (a tatami
+    // mat varies by region ~1.5-1.8 m2) so area stays in sqm.
+    id: "profile-jp",
+    country_code: "JP",
+    country_name: "Japan",
+    region: "East Asia",
+    currency_code: "JPY",
+    currency_symbol: "¥",
+    currency_name: "Japanese Yen",
+    default_measurement_system: "metric",
+    supported_length_units: ["meters", "feet", "inches"],
+    supported_area_units: ["sqm", "sqft"],
+    default_length_unit: "meters",
+    default_area_unit: "sqm",
+    default_language: "en",
+    local_terminology: {
+      paint_bucket: "18L can",
+      cement_bag: "25kg bag",
+      white_cement_bag: "20kg bag",
+      screeding_mix: "Plaster (sand + cement)",
+      tile_carton: "box",
+      pop_bag: "plasterboard sheet",
+    },
+    status: "active",
+    inherits_from: null,
+    profile_version: "1.0.0",
+    sort_order: 110,
+    is_visible: true,
+    admin_notes:
+      "Registered 2026-10-13 international expansion; metric, JPY, 1 tsubo = 3.306 m2 (display only).",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    // France — registered 2026-10-13. Metric, EUR, plaques de
+    // plaster BA13, enduits de platre, parquet finishes.
+    id: "profile-fr",
+    country_code: "FR",
+    country_name: "France",
+    region: "Europe",
+    currency_code: "EUR",
+    currency_symbol: "€",
+    currency_name: "Euro",
+    default_measurement_system: "metric",
+    supported_length_units: ["meters", "feet", "inches"],
+    supported_area_units: ["sqm", "sqft"],
+    default_length_unit: "meters",
+    default_area_unit: "sqm",
+    default_language: "fr",
+    local_terminology: {
+      paint_bucket: "pot 12L",
+      cement_bag: "sac 25kg",
+      white_cement_bag: "sac 25kg",
+      screeding_mix: "Enduit de platre",
+      tile_carton: "colis",
+      pop_bag: "plaque de platre BA13",
+    },
+    status: "active",
+    inherits_from: "DE",
+    profile_version: "1.0.0",
+    sort_order: 120,
+    is_visible: true,
+    admin_notes:
+      "Registered 2026-10-13 international expansion; inherits EU plasterboard conventions from DE where unspecified.",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    // Brazil — registered 2026-10-13. Metric, BRL, gesso ceilings,
+    // argamassa colante + rejunte, massa corrida/acrilica.
+    id: "profile-br",
+    country_code: "BR",
+    country_name: "Brazil",
+    region: "South America",
+    currency_code: "BRL",
+    currency_symbol: "R$",
+    currency_name: "Brazilian Real",
+    default_measurement_system: "metric",
+    supported_length_units: ["meters", "feet", "inches"],
+    supported_area_units: ["sqm", "sqft"],
+    default_length_unit: "meters",
+    default_area_unit: "sqm",
+    default_language: "pt",
+    local_terminology: {
+      paint_bucket: "lata 18L",
+      cement_bag: "saco 50kg",
+      white_cement_bag: "saco 40kg",
+      screeding_mix: "Massa corrida / gesso",
+      tile_carton: "caixa",
+      pop_bag: "placa de gesso",
+    },
+    status: "active",
+    inherits_from: null,
+    profile_version: "1.0.0",
+    sort_order: 130,
+    is_visible: true,
+    admin_notes:
+      "Registered 2026-10-13 international expansion; metric, BRL, Portuguese terminology with English equivalents in UI.",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    // Saudi Arabia — registered 2026-10-13. Metric, SAR, gypsum
+    // board ceilings/drywall partitions, cement render, heat-
+    // conscious exterior systems.
+    id: "profile-sa",
+    country_code: "SA",
+    country_name: "Saudi Arabia",
+    region: "Middle East",
+    currency_code: "SAR",
+    currency_symbol: "﷼",
+    currency_name: "Saudi Riyal",
+    default_measurement_system: "metric",
+    supported_length_units: ["meters", "feet", "inches"],
+    supported_area_units: ["sqm", "sqft"],
+    default_length_unit: "meters",
+    default_area_unit: "sqm",
+    default_language: "ar",
+    local_terminology: {
+      paint_bucket: "bucket 18L",
+      cement_bag: "50kg bag",
+      white_cement_bag: "40kg bag",
+      screeding_mix: "Gypsum plaster / cement render",
+      tile_carton: "carton",
+      pop_bag: "gypsum board sheet",
+    },
+    status: "active",
+    inherits_from: null,
+    profile_version: "1.0.0",
+    sort_order: 140,
+    is_visible: true,
+    admin_notes:
+      "Registered 2026-10-13 international expansion; metric, SAR, heat/exposure-aware exterior systems.",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    // United Arab Emirates — registered 2026-10-13. Metric, AED,
+    // suspended gypsum ceilings, partitions, wet-area waterproofing.
+    id: "profile-ae",
+    country_code: "AE",
+    country_name: "United Arab Emirates",
+    region: "Middle East",
+    currency_code: "AED",
+    currency_symbol: "د.إ",
+    currency_name: "UAE Dirham",
+    default_measurement_system: "metric",
+    supported_length_units: ["meters", "feet", "inches"],
+    supported_area_units: ["sqm", "sqft"],
+    default_length_unit: "meters",
+    default_area_unit: "sqm",
+    default_language: "en",
+    local_terminology: {
+      paint_bucket: "bucket 20L",
+      cement_bag: "50kg bag",
+      white_cement_bag: "40kg bag",
+      screeding_mix: "Gypsum plaster / skim coat",
+      tile_carton: "carton",
+      pop_bag: "gypsum board sheet",
+    },
+    status: "active",
+    inherits_from: "SA",
+    profile_version: "1.0.0",
+    sort_order: 150,
+    is_visible: true,
+    admin_notes:
+      "Registered 2026-10-13 international expansion; metric, AED; inherits GCC conventions from SA where unspecified.",
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  },
 ];
 
 function profileToResolvedContext(p: MarketProfile): ResolvedMarketContext {
@@ -430,7 +603,9 @@ export function MarketProvider({ children }: { children: ReactNode }) {
     try {
       const saved = localStorage.getItem(MARKET_STORAGE_KEY);
       if (saved) {
-        const found = BUILTIN_MARKET_PROFILES.find((p) => p.country_code === saved);
+        const found = BUILTIN_MARKET_PROFILES.find(
+          (p) => p.country_code === saved,
+        );
         if (found) return profileToResolvedContext(found);
       }
     } catch {
@@ -439,26 +614,33 @@ export function MarketProvider({ children }: { children: ReactNode }) {
     return NIGERIA_DEFAULTS;
   });
   const [isLoading, setIsLoading] = useState(true);
-  const [preferredLengthUnit, setPreferredLengthUnitState] = useState<PreferredLengthUnit>(() => {
-    try {
-      const saved = localStorage.getItem(LENGTH_UNIT_STORAGE_KEY);
-      if (saved === "meters" || saved === "feet" || saved === "inches") return saved;
-    } catch {
-      // ignore
-    }
-    return market.defaultLengthUnit;
-  });
-  const [preferredAreaUnit, setPreferredAreaUnitState] = useState<PreferredAreaUnit>(() => {
-    try {
-      const saved = localStorage.getItem(AREA_UNIT_STORAGE_KEY);
-      if (saved === "sqm" || saved === "sqft") return saved;
-    } catch {
-      // ignore
-    }
-    return market.defaultAreaUnit;
-  });
-  const [availableMarkets, setAvailableMarkets] = useState<MarketProfile[]>(BUILTIN_MARKET_PROFILES);
-  const [userMarketCode, setUserMarketCode] = useState<string>(() => market.marketCode);
+  const [preferredLengthUnit, setPreferredLengthUnitState] =
+    useState<PreferredLengthUnit>(() => {
+      try {
+        const saved = localStorage.getItem(LENGTH_UNIT_STORAGE_KEY);
+        if (saved === "meters" || saved === "feet" || saved === "inches")
+          return saved;
+      } catch {
+        // ignore
+      }
+      return market.defaultLengthUnit;
+    });
+  const [preferredAreaUnit, setPreferredAreaUnitState] =
+    useState<PreferredAreaUnit>(() => {
+      try {
+        const saved = localStorage.getItem(AREA_UNIT_STORAGE_KEY);
+        if (saved === "sqm" || saved === "sqft") return saved;
+      } catch {
+        // ignore
+      }
+      return market.defaultAreaUnit;
+    });
+  const [availableMarkets, setAvailableMarkets] = useState<MarketProfile[]>(
+    BUILTIN_MARKET_PROFILES,
+  );
+  const [userMarketCode, setUserMarketCode] = useState<string>(
+    () => market.marketCode,
+  );
 
   // Load available markets from Supabase and merge with built-in profiles
   useEffect(() => {
@@ -546,8 +728,10 @@ export function MarketProvider({ children }: { children: ReactNode }) {
 
           if (pref) {
             marketCode = pref.market_code || marketCode;
-            prefLength = (pref.preferred_length_unit as PreferredLengthUnit) || prefLength;
-            prefArea = (pref.preferred_area_unit as PreferredAreaUnit) || prefArea;
+            prefLength =
+              (pref.preferred_length_unit as PreferredLengthUnit) || prefLength;
+            prefArea =
+              (pref.preferred_area_unit as PreferredAreaUnit) || prefArea;
           }
         } catch {
           // ignore network/db error
@@ -565,14 +749,18 @@ export function MarketProvider({ children }: { children: ReactNode }) {
           .maybeSingle();
 
         if (profile) {
-          resolved = profileToResolvedContext(profile as unknown as MarketProfile);
+          resolved = profileToResolvedContext(
+            profile as unknown as MarketProfile,
+          );
         }
       } catch {
         // Supabase error: use built-in
       }
 
       if (!resolved) {
-        const builtin = BUILTIN_MARKET_PROFILES.find((p) => p.country_code === marketCode);
+        const builtin = BUILTIN_MARKET_PROFILES.find(
+          (p) => p.country_code === marketCode,
+        );
         if (builtin) {
           resolved = profileToResolvedContext(builtin);
         } else {
@@ -617,12 +805,17 @@ export function MarketProvider({ children }: { children: ReactNode }) {
         setPreferredAreaUnitState(resolved.defaultAreaUnit);
 
         try {
-          localStorage.setItem(LENGTH_UNIT_STORAGE_KEY, resolved.defaultLengthUnit);
+          localStorage.setItem(
+            LENGTH_UNIT_STORAGE_KEY,
+            resolved.defaultLengthUnit,
+          );
           localStorage.setItem(AREA_UNIT_STORAGE_KEY, resolved.defaultAreaUnit);
           localStorage.setItem("frelux_currency", resolved.currencyCode);
           window.dispatchEvent(new Event("storage"));
           window.dispatchEvent(
-            new CustomEvent("frelux:market-changed", { detail: { market: targetProfile } }),
+            new CustomEvent("frelux:market-changed", {
+              detail: { market: targetProfile },
+            }),
           );
         } catch {
           // ignore storage errors

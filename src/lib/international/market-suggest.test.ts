@@ -10,7 +10,21 @@ import {
 } from "./market-suggest";
 
 const BUILTIN_MARKET_CODES = [
-  "NG", "US", "GB", "CA", "AU", "DE", "IN", "GH", "KE", "ZA",
+  "NG",
+  "US",
+  "GB",
+  "CA",
+  "AU",
+  "DE",
+  "IN",
+  "GH",
+  "KE",
+  "ZA",
+  "JP",
+  "FR",
+  "BR",
+  "SA",
+  "AE",
 ];
 
 describe("timezoneToMarket", () => {
@@ -22,9 +36,17 @@ describe("timezoneToMarket", () => {
     expect(timezoneToMarket("Australia/Sydney")).toBe("AU");
   });
 
+  it("maps the 2026-10-13 expansion timezones", () => {
+    expect(timezoneToMarket("Asia/Tokyo")).toBe("JP");
+    expect(timezoneToMarket("Europe/Paris")).toBe("FR");
+    expect(timezoneToMarket("America/Sao_Paulo")).toBe("BR");
+    expect(timezoneToMarket("Asia/Riyadh")).toBe("SA");
+    expect(timezoneToMarket("Asia/Dubai")).toBe("AE");
+  });
+
   it("returns null for an unmapped timezone - never a guess", () => {
-    expect(timezoneToMarket("Europe/Paris")).toBeNull();
     expect(timezoneToMarket("Europe/Zurich")).toBeNull();
+    expect(timezoneToMarket("Europe/Stockholm")).toBeNull();
   });
 
   it("handles null and empty input", () => {
@@ -62,7 +84,7 @@ describe("marketForSignals", () => {
   it("falls back to the browser language when the timezone is unmapped", () => {
     expect(
       marketForSignals({
-        timezone: "Europe/Paris",
+        timezone: "America/Toronto",
         browserLanguages: ["fr-CA", "en"],
       }),
     ).toBe("CA");
@@ -70,8 +92,24 @@ describe("marketForSignals", () => {
 
   it("returns null when both signals are unmapped - Nigeria default stays", () => {
     expect(
-      marketForSignals({ timezone: "Europe/Paris", browserLanguages: ["fr-FR"] }),
+      marketForSignals({
+        timezone: "Europe/Zurich",
+        browserLanguages: ["it-IT"],
+      }),
     ).toBeNull();
+  });
+
+  it("a Paris visitor now maps to FR (was unmapped before the expansion)", () => {
+    expect(
+      marketForSignals({
+        timezone: "Europe/Paris",
+        browserLanguages: ["fr-FR"],
+      }),
+    ).toBe("FR");
+    expect(localesToMarket(["ja-JP"])).toBe("JP");
+    expect(localesToMarket(["pt-BR"])).toBe("BR");
+    expect(localesToMarket(["ar-SA"])).toBe("SA");
+    expect(localesToMarket(["ar-AE"])).toBe("AE");
   });
 });
 
