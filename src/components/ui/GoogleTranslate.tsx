@@ -11,8 +11,9 @@
  * Google's own banner/toolbar is hidden; our LanguageSwitcher drives the
  * widget programmatically and carries the attribution.
  */
-import { useEffect } from "react";
-import type { Language } from "@/lib/i18n";
+import { useEffect, useRef, useState } from "react";
+import { Languages, X } from "lucide-react";
+import { LANGUAGES, type Language } from "@/lib/i18n";
 
 /** FRELUX codes that Google spells differently. */
 const GT_CODE_OVERRIDES: Partial<Record<Language, string>> = {
@@ -145,15 +146,27 @@ function waitForGoogleCombo(
  * Point Google Translate at a language.
  * 'en' - or a Google-unsupported language - restores the original page.
  * force=true forces a change dispatch even if combo.value already matches target (e.g. after SPA navigation).
+ *
+ * The googtrans cookie is set IMMEDIATELY, before any widget polling: the
+ * widget's own bootstrap reads that cookie on every page load, so keeping it
+ * in sync is what makes translation survive reloads and route changes.
+ *
+ * Returns true when the hidden combo box existed and was driven; false when
+ * no combo appeared within waitMs. The modern Google widget often builds no
+ * .goog-te-combo select at all, so callers must treat false as "could not
+ * translate in-page" and fall back to a reload (the cookie makes the reload
+ * work) — silently doing nothing on false was the root cause of "switching
+ * language doesn't translate the site".
  */
 export async function applyGoogleLanguage(
   lang: Language,
   force = false,
-): Promise<void> {
+  waitMs = 2500,
+): Promise<boolean> {
   setGoogleTranslateCookie(lang);
 
-  const combo = await waitForGoogleCombo();
-  if (!combo) return;
+  const combo = await waitForGoogleCombo(waitMs);
+  if (!combo) return false;
   const target =
     isGoogleTranslatedLanguage(lang) && lang !== "en"
       ? mapToGoogleLanguage(lang)
@@ -166,10 +179,10 @@ export async function applyGoogleLanguage(
       combo.value = targetVal;
       combo.dispatchEvent(new Event("change"));
     }
-    return;
+    return true;
   }
 
-  if (combo.value === target && !force) return;
+  if (combo.value === target && !force) return true;
 
   if (combo.value === target && force) {
     combo.value = "";
@@ -177,11 +190,76 @@ export async function applyGoogleLanguage(
       combo.value = target;
       combo.dispatchEvent(new Event("change"));
     }, 25);
-    return;
+    return true;
   }
 
   combo.value = target;
   combo.dispatchEvent(new Event("change"));
+  return true;
+}
+
+/**
+ * sessionStorage key holding the language we last hard-reloaded for.
+ * Prevents reload loops while still allowing one reload per language
+ * switch (toggling between two languages reloads each time it is needed).
+ */
+const GT_RELOAD_KEY = "frelux_gt_reload_lang";
+
+/**
+ * Give the widget's combo a grace period after a reload before offering
+ * the manual fallback link.
+ */
+const GT_FALLBACK_GRACE_MS = 6000;
+
+/**
+ * Small dismissible notice shown only when a language was selected, the
+ * widget could not be driven in-page, AND a reload for that language
+ * already failed to start a translation. Links the current page through
+ * Google Translate so the visitor is never left without a working path.
+ */
+function TranslateFallbackNotice({
+  language,
+  onDismiss,
+}: {
+  language: Language;
+  onDismiss: () => void;
+}) {
+  const langInfo = LANGUAGES.find((l) => l.value === language);
+  const href = `https://translate.google.com/translate?sl=en&tl=${mapToGoogleLanguage(language)}&u=${encodeURIComponent(window.location.href)}`;
+  return (
+    <div
+      role="status"
+      className="fixed bottom-4 right-4 z-[9998] flex max-w-[340px] items-start gap-3 rounded-xl border border-border/60 bg-card p-3.5 shadow-xl"
+    >
+      <Languages className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+      <div className="text-xs leading-relaxed">
+        <p className="font-semibold text-card-foreground">
+          Automatic translation unavailable
+        </p>
+        <p className="mt-1 text-muted-foreground">
+          The Google Translate widget couldn&#39;t start in this browser.
+          You can still read this page in {langInfo?.nativeLabel ?? language}{" "}
+          via Google Translate.
+        </p>
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-1.5 inline-block font-medium text-brand-purple underline underline-offset-2 dark:text-brand-purple-lighter"
+        >
+          Open in Google Translate
+        </a>
+      </div>
+      <button
+        type="button"
+        onClick={onDismiss}
+        aria-label="Dismiss translation notice"
+        className="shrink-0 rounded-md p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-card-foreground"
+      >
+        <X className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
 }
 
 /**
@@ -191,11 +269,28 @@ export async function applyGoogleLanguage(
  * SPA route transitions and asynchronously loaded content (articles, calculators)
  * are re-translated when an international language is active.
  * Skips the admin console so admin-authored content is never machine-translated.
+ *
+ * Hardening for the modern Google widget: it frequently builds no hidden
+ * .goog-te-combo select, which used to make every language switch silently
+ * no-op (cookie never set, translation never requested). Now:
+ *  1. the googtrans cookie is written immediately on every change — the
+ *     widget bootstrap reads it at load and is what restores translation
+ *     across reloads;
+ *  2. a user-initiated switch that cannot be driven via the combo triggers
+ *     ONE full reload so the bootstrap can pick the cookie up (toggling
+ *     languages reloads each time — a reload is a cheap, guaranteed path);
+ *  3. if even the reload didn't start a translation, a dismissible notice
+ *     links the page through translate.google.com so the visitor always has
+ *     a working path to the translated content.
  */
 export function GoogleTranslateSync({ language }: { language: Language }) {
   const isAdminRoute =
     typeof window !== "undefined" &&
     window.location.pathname.startsWith("/admin");
+
+  /** Last language this mount applied (null until the first effect run). */
+  const appliedRef = useRef<Language | null>(null);
+  const [fallbackFor, setFallbackFor] = useState<Language | null>(null);
 
   useEffect(() => {
     if (!isAdminRoute) injectGoogleTranslateScript();
@@ -203,15 +298,70 @@ export function GoogleTranslateSync({ language }: { language: Language }) {
 
   // Apply language whenever `language` state changes
   useEffect(() => {
-    if (isAdminRoute) return;
+    if (isAdminRoute) {
+      appliedRef.current = null;
+      return;
+    }
+    const previous = appliedRef.current;
+    appliedRef.current = language;
     let cancelled = false;
+    let graceTimer: ReturnType<typeof setTimeout> | null = null;
+
     (async () => {
-      const combo = await waitForGoogleCombo();
-      if (cancelled || !combo) return;
-      await applyGoogleLanguage(language);
+      const driven = await applyGoogleLanguage(language);
+      if (cancelled) return;
+
+      if (previous !== null && previous !== language) {
+        // A deliberate switch away from the previously applied language.
+        if (driven) return; // old widget translated in-page — done.
+
+        let reloadedAlready = false;
+        try {
+          reloadedAlready = sessionStorage.getItem(GT_RELOAD_KEY) === language;
+          if (!reloadedAlready) {
+            sessionStorage.setItem(GT_RELOAD_KEY, language);
+          }
+        } catch {
+          // Storage unavailable (private mode etc.) — reload anyway.
+        }
+        if (!reloadedAlready) {
+          // Cookie is set; the widget bootstrap restores translation at
+          // load. Restoring 'en' works the same way (cookie cleared).
+          window.location.reload();
+          return;
+        }
+        if (language !== "en") setFallbackFor(language);
+        return;
+      }
+
+      // First mount after a hard reload for this language: if the widget
+      // still hasn't produced a combo after a grace period, the cookie
+      // restore didn't happen either — offer the manual fallback link.
+      if (
+        previous === null &&
+        language !== "en" &&
+        document.getElementById("google-translate-script") // widget was injected this load
+      ) {
+        let didReload = false;
+        try {
+          didReload = sessionStorage.getItem(GT_RELOAD_KEY) === language;
+        } catch {
+          didReload = false;
+        }
+        if (didReload) {
+          graceTimer = setTimeout(() => {
+            if (cancelled) return;
+            if (!document.querySelector(".goog-te-combo")) {
+              setFallbackFor(language);
+            }
+          }, GT_FALLBACK_GRACE_MS);
+        }
+      }
     })();
+
     return () => {
       cancelled = true;
+      if (graceTimer) clearTimeout(graceTimer);
     };
   }, [language, isAdminRoute]);
 
@@ -265,17 +415,25 @@ export function GoogleTranslateSync({ language }: { language: Language }) {
   if (isAdminRoute) return null;
 
   return (
-    <div
-      id="google-translate-anchor"
-      aria-hidden="true"
-      style={{
-        position: "absolute",
-        left: "-9999px",
-        top: 0,
-        width: "160px",
-        height: "40px",
-        overflow: "hidden",
-      }}
-    />
+    <>
+      {fallbackFor && (
+        <TranslateFallbackNotice
+          language={fallbackFor}
+          onDismiss={() => setFallbackFor(null)}
+        />
+      )}
+      <div
+        id="google-translate-anchor"
+        aria-hidden="true"
+        style={{
+          position: "absolute",
+          left: "-9999px",
+          top: 0,
+          width: "160px",
+          height: "40px",
+          overflow: "hidden",
+        }}
+      />
+    </>
   );
 }
