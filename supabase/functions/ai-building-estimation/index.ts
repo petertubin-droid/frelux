@@ -1,3 +1,4 @@
+import { AiGateway } from "../_shared/ai-gateway.ts";
 // =========================================================
 // FRELUX Edge Function: ai-building-estimation
 // Phase 31
@@ -731,49 +732,25 @@ serveWithCors(async (req: Request) => {
     // Read body once (req.json() can only be called once)
     const body = (await req.json()) as EstimationRequest;
 
-    // Admin override
-    if (admin && config.estimation_admin_override) {
-      // Admins can always use it
-    } else {
-      // Paid mode
-      if (config.estimation_access_mode === "paid") {
-        if (!paid) {
-          return jsonResponse(
-            {
-              error: "This feature requires a premium subscription.",
-              code: "NOT_SUBSCRIBED",
-              price: config.estimation_paid_price,
-            },
-            403,
-          );
-        }
-      } else {
-        // Free/rewarded modes — check daily limit. An active rewarded
-        // unlock (watched a Monetag rewarded ad) bypasses the limit.
-        const clientId = body.clientId ?? "unknown";
-        const unlocked = await hasActiveRewardedUnlock(
-          supabase,
-          body.clientHash,
-          userId,
-        );
-        const usedToday = await getDailyUsage(supabase, clientId, userId);
-
-        if (!unlocked && usedToday >= config.estimation_daily_free_uses) {
-          const limitMsg =
-            config.estimation_daily_free_uses === 0
-              ? "Free AI estimations are no longer included in the Free plan. Use FRELUX Credits to access AI features."
-              : "You have used all your free image estimations for today.";
-          return jsonResponse(
-            {
-              error: limitMsg,
-              code: "USAGE_LIMIT_REACHED",
-              usedToday,
-              limit: config.estimation_daily_free_uses,
-            },
-            429,
-          );
-        }
-      }
+    // ── Centralized FRELUX AI Gateway & Rewarded Access Gate ──
+    const gateway = new AiGateway(supabaseUrl, supabaseServiceKey, supabaseAnonKey);
+    let gatewayAuth;
+    try {
+      gatewayAuth = await gateway.checkAndReserve(req, {
+        featureKey: "ai-building-estimation",
+        modelName: "gemini-3.6-flash",
+        promptChars: body.imageDataUrl ? body.imageDataUrl.length : 0,
+      });
+    } catch (gateErr: any) {
+      return jsonResponse(
+        {
+          error: gateErr.message || "AI access denied.",
+          code: gateErr.message?.includes("DAILY_LIMIT_REACHED")
+            ? "USAGE_LIMIT_REACHED"
+            : "AD_REWARD_REQUIRED",
+        },
+        403,
+      );
     }
 
     // ── Process request ──
@@ -819,9 +796,12 @@ serveWithCors(async (req: Request) => {
     analysis.validation_passed =
       validationWarnings.filter((w) => w.severity === "error").length === 0;
 
-    // ── Consume usage (only on success) ──
-    if (!admin || !config.estimation_admin_override) {
-      await consumeDailyUse(supabase, clientId, userId);
+    // ── Finalize Centralized AI Gateway Reservation ──
+    if (gatewayAuth) {
+      await gateway.finalize(gatewayAuth, {
+        status: "success",
+        outputChars: JSON.stringify(analysis).length,
+      });
     }
 
     // ── Build estimate input ──

@@ -163,3 +163,94 @@ export function checkAiAccess(config: AiAccessConfig, usage: AiUsageStatus, isAd
 export async function requestRewardedAccess(): Promise<{ granted: boolean; reason: string }> {
   return { granted: false, reason: 'No rewarded access provider is currently configured.' };
 }
+
+
+export interface AiGatewayStatus {
+  hasAdCredit: boolean;
+  operationsUsed: number;
+  operationsRemaining: number;
+  isSubscribed: boolean;
+  canExecute: boolean;
+  reason?: string;
+}
+
+/**
+ * Check the global centralized AI Gateway status for today.
+ */
+export async function getAiGatewayStatus(): Promise<AiGatewayStatus> {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    const userId = session?.user?.id;
+    const clientHash = getClientId();
+
+    // 1. Check if user has an active subscription
+    if (userId) {
+      const { data: paidStatus } = await supabase
+        .from('user_paid_status')
+        .select('is_paid, paid_until')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (paidStatus?.is_paid) {
+        const notExpired = !paidStatus.paid_until || new Date(paidStatus.paid_until).getTime() > Date.now();
+        if (notExpired) {
+          return {
+            hasAdCredit: true,
+            operationsUsed: 0,
+            operationsRemaining: 9999,
+            isSubscribed: true,
+            canExecute: true,
+          };
+        }
+      }
+    }
+
+    // 2. Fetch today's allowance
+    const today = new Date().toISOString().split('T')[0];
+    let query = supabase
+      .from('ai_gateway_daily_allowance')
+      .select('has_ad_credit, operations_used')
+      .eq('usage_date', today);
+
+    if (userId) {
+      query = query.eq('user_id', userId);
+    } else {
+      query = query.eq('client_hash', clientHash);
+    }
+
+    const { data: allowance } = await query.maybeSingle();
+
+    if (!allowance || !allowance.has_ad_credit) {
+      return {
+        hasAdCredit: false,
+        operationsUsed: 0,
+        operationsRemaining: 0,
+        isSubscribed: false,
+        canExecute: false,
+        reason: 'Watch a rewarded ad to unlock 1 free AI operation for today.',
+      };
+    }
+
+    const used = allowance.operations_used || 0;
+    const remaining = Math.max(0, 1 - used);
+
+    return {
+      hasAdCredit: true,
+      operationsUsed: used,
+      operationsRemaining: remaining,
+      isSubscribed: false,
+      canExecute: remaining > 0,
+      reason: remaining === 0 ? 'You have used your 1 free AI operation for today.' : undefined,
+    };
+  } catch (err) {
+    console.warn('Error reading AI gateway status:', err);
+    return {
+      hasAdCredit: false,
+      operationsUsed: 0,
+      operationsRemaining: 0,
+      isSubscribed: false,
+      canExecute: false,
+      reason: 'Could not verify AI access status.',
+    };
+  }
+}
