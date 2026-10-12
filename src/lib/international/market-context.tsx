@@ -17,6 +17,7 @@ import {
   useCallback,
   type ReactNode,
 } from "react";
+import { detectMarketCode } from "./market-suggest";
 import { getSupabase } from "@/lib/supabase-lazy";
 import { useAuth } from "@/lib/auth";
 import type {
@@ -502,16 +503,35 @@ export function MarketProvider({ children }: { children: ReactNode }) {
       let prefLength: PreferredLengthUnit = "meters";
       let prefArea: PreferredAreaUnit = "sqm";
 
-      // 1. Check local storage first (works for guests and offline)
+      // 1. Check local storage first (works for guests and offline).
+      //    First visit (nothing saved): detect the visitor's market from
+      //    local, privacy-safe signals (timezone + browser locale) so a
+      //    US visitor lands on the US market - USD prices, feet/sqft -
+      //    instead of the Nigerian default. Detection is the seed of a
+      //    choice, never an override: once saved, the saved code wins.
+      let hasSavedMarket = false;
       try {
         const savedCode = localStorage.getItem(MARKET_STORAGE_KEY);
-        if (savedCode) marketCode = savedCode;
+        if (savedCode) {
+          marketCode = savedCode;
+          hasSavedMarket = true;
+        } else {
+          const detected = detectMarketCode();
+          if (detected) {
+            marketCode = detected;
+            localStorage.setItem(MARKET_STORAGE_KEY, detected);
+          }
+        }
         const savedLength = localStorage.getItem(LENGTH_UNIT_STORAGE_KEY);
         if (savedLength) prefLength = savedLength as PreferredLengthUnit;
         const savedArea = localStorage.getItem(AREA_UNIT_STORAGE_KEY);
         if (savedArea) prefArea = savedArea as PreferredAreaUnit;
       } catch {
-        // storage unavailable
+        // storage unavailable - detect without persisting
+        if (!hasSavedMarket) {
+          const detected = detectMarketCode();
+          if (detected) marketCode = detected;
+        }
       }
 
       // 2. Check user preferences if logged in

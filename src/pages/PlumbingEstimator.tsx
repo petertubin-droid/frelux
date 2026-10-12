@@ -24,7 +24,7 @@ import { getSafeError } from "@/lib/safeError";
 import {
   fetchCalcRules,
   fetchEstimationMaterials,
-  fetchAllPrices,
+  fetchMarketPriceBook,
   createEstimate,
   createEstimateItem,
 } from "@/lib/estimation/queries";
@@ -42,7 +42,6 @@ import {
 import type {
   EstimationCalcRule,
   EstimationMaterial,
-  EstimationPrice,
 } from "@/types/estimation";
 
 type NumField =
@@ -123,18 +122,13 @@ export default function PlumbingEstimator() {
   useEffect(() => {
     let alive = true;
     (async () => {
-      const [rulesRes, matsRes, pricesRes] = await Promise.all([
+      const [rulesRes, matsRes, book] = await Promise.all([
         fetchCalcRules("plumbing"),
         fetchEstimationMaterials(true),
-        fetchAllPrices(true),
+        fetchMarketPriceBook(marketCode),
       ]);
       if (!alive) return;
-      const byRef = new Map<string, number>();
-      for (const pr of (pricesRes.data ?? []) as EstimationPrice[]) {
-        if (pr.price_type === "material" && !byRef.has(pr.ref_id)) {
-          byRef.set(pr.ref_id, pr.price);
-        }
-      }
+      const byRef = book.byRef;
       const map: PlumbingPriceMap = {};
       for (const m of (matsRes.data ?? []) as EstimationMaterial[]) {
         map[m.slug] = byRef.get(m.id) ?? null;

@@ -44,6 +44,7 @@ import {
   type RegionalContext,
 } from "@/lib/location-intelligence";
 import { Button } from "@/components/ui/shadcn/button";
+import { useMarket } from "@/lib/international/market-context";
 
 export interface LocationCardProps {
   /** Existing canonical location loaded from the project/property row. */
@@ -65,7 +66,9 @@ export default function LocationCard({
   compact = false,
 }: LocationCardProps) {
   const loc = useFreluxLocation();
+  const { marketCode, availableMarkets, setMarket } = useMarket();
   const [editing, setEditing] = useState(false);
+  const [marketNote, setMarketNote] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [saving, setSaving] = useState(false);
   const [regional, setRegional] = useState<RegionalContext | null>(null);
@@ -105,6 +108,22 @@ export default function LocationCard({
       active = false;
     };
   }, [loc.location]);
+
+  // ---- Location -> market sync (location-aware estimating) ----
+  // A captured location with a country switches the active market so
+  // prices, currency and units match where the user is actually
+  // building. Only supported markets switch; countries without a
+  // market profile keep the current market. The switch is disclosed
+  // in the card, never silent.
+  useEffect(() => {
+    const country = loc.location?.country_code;
+    if (!country || country === marketCode) return;
+    if (!availableMarkets.some((m) => m.country_code === country)) return;
+    void setMarket(country);
+    setMarketNote(
+      `Market switched to ${country} to match this location - prices now use the ${country} book.`,
+    );
+  }, [loc.location?.country_code, marketCode, availableMarkets, setMarket]);
 
   // ---- Persist ----
   async function handleSave() {
@@ -344,6 +363,14 @@ export default function LocationCard({
                     {formatCapturedAt(loc.location)}
                     {loc.state === "saved" ? " · saved to project" : ""}
                   </p>
+                  {marketNote && (
+                    <p
+                      className="mt-1 text-[11px] font-medium text-primary"
+                      data-testid="market-switch-note"
+                    >
+                      {marketNote}
+                    </p>
+                  )}
                 </div>
               </div>
 

@@ -20,12 +20,13 @@ import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
+import { useMarket } from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import {
   fetchCalcRules,
   fetchEstimationMaterials,
-  fetchAllPrices,
+  fetchMarketPriceBook,
   createEstimate,
   createEstimateItem,
 } from "@/lib/estimation/queries";
@@ -43,7 +44,6 @@ import {
 import type {
   EstimationCalcRule,
   EstimationMaterial,
-  EstimationPrice,
 } from "@/types/estimation";
 
 type GenSize = "10kva" | "20kva" | "30kva" | "50kva";
@@ -66,6 +66,7 @@ export default function GeneratorEstimator() {
     { name: "Doors & Windows Estimator", path: "/generator" },
   ]);
   const { user } = useAuth();
+  const { marketCode } = useMarket();
 
   const [size, setSize] = useState<GenSize>("20kva");
   const [units, setUnits] = useState("1");
@@ -91,18 +92,13 @@ export default function GeneratorEstimator() {
   useEffect(() => {
     let alive = true;
     (async () => {
-      const [rulesRes, matsRes, pricesRes] = await Promise.all([
+      const [rulesRes, matsRes, book] = await Promise.all([
         fetchCalcRules("generator"),
         fetchEstimationMaterials(true),
-        fetchAllPrices(true),
+        fetchMarketPriceBook(marketCode),
       ]);
       if (!alive) return;
-      const byRef = new Map<string, number>();
-      for (const pr of (pricesRes.data ?? []) as EstimationPrice[]) {
-        if (pr.price_type === "material" && !byRef.has(pr.ref_id)) {
-          byRef.set(pr.ref_id, pr.price);
-        }
-      }
+      const byRef = book.byRef;
       const map: GeneratorPriceMap = {};
       for (const m of (matsRes.data ?? []) as EstimationMaterial[]) {
         map[m.slug] = byRef.get(m.id) ?? null;
@@ -113,7 +109,7 @@ export default function GeneratorEstimator() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [marketCode]);
 
   const rules = useMemo(
     () => parseGeneratorRules(ruleRows as never),
@@ -312,6 +308,7 @@ export default function GeneratorEstimator() {
 
   return (
     <Container>
+      <MarketScopeNotice />
       <PageHeader
         breadcrumbs={[
           { label: "Home", path: "/" },

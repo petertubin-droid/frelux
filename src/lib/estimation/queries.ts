@@ -334,6 +334,65 @@ export async function fetchActivePriceForMarket(
   return { data: null, error: null, resolved_market: market };
 }
 
+/**
+ * One market's ACTIVE material price book, never cross-currency.
+ *
+ * The trade estimator pages build slug -> price maps from this:
+ *  - rows priced in the visitor's own market win for their ref_id;
+ *  - a ref the market does not price falls back to the NG reference
+ *    book and is reported in `fromReference` so the page can disclose
+ *    exactly which items are reference-priced instead of guessed.
+ *
+ * A US visitor therefore gets the US book (USD) wherever it exists and
+ * a clearly-disclosed Nigerian fallback for the rest - never a
+ * silently mixed book (the old fetchAllPrices() pattern let a newer
+ * foreign row win the ref for every market at once).
+ */
+export interface MarketPriceBook {
+  /** material id -> active price (the market's own, or NG reference) */
+  byRef: Map<string, number>;
+  /** ref_ids priced only by the NG reference book (disclosed fallback) */
+  fromReference: Set<string>;
+}
+
+export async function fetchMarketPriceBook(
+  marketCode: string,
+): Promise<MarketPriceBook> {
+  const market = marketCode || "NG";
+  const byRef = new Map<string, number>();
+  const fromReference = new Set<string>();
+
+  // 1. The market's own rows - the only source of truth for its currency.
+  if (market !== "NG") {
+    const own = await fetchAllPrices(true, market);
+    for (const pr of own.data ?? []) {
+      if (pr.price_type === "material" && !byRef.has(pr.ref_id)) {
+        byRef.set(pr.ref_id, pr.price);
+      }
+    }
+  }
+
+  // 2. NG reference fallback, only for refs the market did not price.
+  if (market !== "NG") {
+    const reference = await fetchAllPrices(true, "NG");
+    for (const pr of reference.data ?? []) {
+      if (pr.price_type === "material" && !byRef.has(pr.ref_id)) {
+        byRef.set(pr.ref_id, pr.price);
+        fromReference.add(pr.ref_id);
+      }
+    }
+  } else {
+    const reference = await fetchAllPrices(true, "NG");
+    for (const pr of reference.data ?? []) {
+      if (pr.price_type === "material" && !byRef.has(pr.ref_id)) {
+        byRef.set(pr.ref_id, pr.price);
+      }
+    }
+  }
+
+  return { byRef, fromReference };
+}
+
 export async function fetchPriceHistory(priceType: string, refId: string) {
   const { data, error } = await supabase
     .from("estimation_price_history")
