@@ -74,6 +74,22 @@ const MARKET_META: Record<
   AU: { label: "Australia (AUD)", currency: "AUD", region: "Australia" },
   CA: { label: "Canada (CAD)", currency: "CAD", region: "Canada" },
   IN: { label: "India (INR)", currency: "INR", region: "India" },
+  // 2026-10-13 expansion reference markets
+  JP: { label: "Japan (JPY)", currency: "JPY", region: "Japan" },
+  FR: { label: "France (EUR)", currency: "EUR", region: "France" },
+  BR: { label: "Brazil (BRL)", currency: "BRL", region: "Brazil" },
+  SA: { label: "Saudi Arabia (SAR)", currency: "SAR", region: "Saudi Arabia" },
+  AE: {
+    label: "United Arab Emirates (AED)",
+    currency: "AED",
+    region: "United Arab Emirates",
+  },
+  // 2026-10-13 second wave (CN/ID/MX/KR/IT registration)
+  CN: { label: "China (CNY)", currency: "CNY", region: "China" },
+  ID: { label: "Indonesia (IDR)", currency: "IDR", region: "Indonesia" },
+  MX: { label: "Mexico (MXN)", currency: "MXN", region: "Mexico" },
+  KR: { label: "South Korea (KRW)", currency: "KRW", region: "South Korea" },
+  IT: { label: "Italy (EUR)", currency: "EUR", region: "Italy" },
 };
 
 export default function AdminPriceUpdater() {
