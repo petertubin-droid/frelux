@@ -475,7 +475,30 @@ export default function Layout() {
   }
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
+    <div className="relative flex min-h-screen w-full flex-col">
+      {/* Whisper-quiet brand backdrop behind all page content (the
+          hero and footer carry the visible treatment on top of this) */}
+      <div
+        className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+        aria-hidden="true"
+      >
+        <img
+          src="/assets/entry/entry-bg.jpg"
+          alt=""
+          loading="lazy"
+          decoding="async"
+          className="absolute inset-0 h-full w-full object-cover opacity-[0.05] dark:opacity-[0.10]"
+        />
+        <div
+          className="absolute inset-0"
+          style={{
+            opacity: 0.2,
+            backgroundImage:
+              "linear-gradient(rgba(109,40,217,0.10) 1px, transparent 1px), linear-gradient(90deg, rgba(109,40,217,0.10) 1px, transparent 1px)",
+            backgroundSize: "56px 56px",
+          }}
+        />
+      </div>
       <a
         href="#main-content"
         className="sr-only sr-only-focusable absolute left-4 top-4 z-[100] rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
@@ -506,10 +529,7 @@ export default function Layout() {
           google_adsense (never falls back to Monetag/Adsterra) so real
           AdSense units are present on every route for the approval
           review. */}
-      <AdSlot
-        slotKey="adsense_footer"
-        providerSlug="google_adsense"
-      />
+      <AdSlot slotKey="adsense_footer" providerSlug="google_adsense" />
       <AdsterraDirectLink />
       {adsterraNative && hasAdvertisingConsent() && (
         <div

@@ -5,6 +5,7 @@ import NewsletterSignup from "@/components/newsletter/NewsletterSignup";
 import { siteConfig } from "@/config/site";
 import { whatsappUrl } from "@/lib/analytics";
 import { withdrawConsent } from "@/lib/cookie-consent";
+import BrandBackdrop from "@/components/ui/BrandBackdrop";
 import { Button } from "@/components/ui/shadcn/button";
 
 const calculateLinks = [
@@ -71,6 +72,9 @@ export default function Footer() {
     >
       {/* Subtle top gradient */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
+
+      {/* Brand architectural backdrop (same layers as the entry screen) */}
+      <BrandBackdrop variant="footer" />
 
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
         <div className="grid grid-cols-2 gap-x-6 gap-y-6 md:grid-cols-3 lg:grid-cols-6 lg:gap-x-8">

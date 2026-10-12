@@ -13,6 +13,7 @@ import Container from "@/components/ui/Container";
 import { useHeroContent } from "@/lib/useHeroContent";
 import { useBranding } from "@/lib/branding";
 import { useLanguage } from "@/lib/i18n";
+import BrandBackdrop from "@/components/ui/BrandBackdrop";
 
 /**
  * Splits a headline into words, wraps highlighted words in a colored span,
@@ -78,6 +79,9 @@ export default function Hero() {
       data-tour="hero"
       className={`relative overflow-hidden bg-mesh text-primary-foreground transition-opacity duration-300 ${heroLoaded ? "opacity-100" : "opacity-0"}`}
     >
+      {/* Brand architectural backdrop (same layers as the entry screen) */}
+      <BrandBackdrop variant="hero" />
+
       {/* Grid pattern */}
       <div
         className="pointer-events-none absolute inset-0 bg-grid-dark opacity-50"
