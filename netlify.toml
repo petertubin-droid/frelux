@@ -107,6 +107,165 @@
   status = 301
   force = true
 
+# ── Duplicate-URL consolidation (Google Search Console) ───────────────
+# GSC reported "Alternate page with proper canonical" and "Duplicate,
+# Google chose different canonical than user". Cause: locale-prefixed
+# URLs (/es/..., /fr/..., /en/...) and /index.html copies were served as
+# indexable 200 pages whose canonical pointed at a different URL. A 301
+# to the single English canonical removes the duplicate from the index
+# for good. Language is still chosen by the visitor's saved preference /
+# switcher, so no functionality is lost. Order matters: these rules must
+# stay ABOVE the SPA fallback below.
+[[redirects]]
+  from = "/index.html"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/:path/index.html"
+  to = "/:path/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/:path/:sub/index.html"
+  to = "/:path/:sub/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/en"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/en/*"
+  to = "/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/es"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/es/*"
+  to = "/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/fr"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/fr/*"
+  to = "/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/de/*"
+  to = "/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/pt"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/pt/*"
+  to = "/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/ru"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/ru/*"
+  to = "/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/id"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/id/*"
+  to = "/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/sw"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/sw/*"
+  to = "/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/ar"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/ar/*"
+  to = "/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/hi"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/hi/*"
+  to = "/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/zh"
+  to = "/"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/zh/*"
+  to = "/:splat"
+  status = 301
+  force = true
+
 # SPA fallback — all routes serve index.html so React Router can handle
 # client-side routing (including the 404 NotFound component for unknown routes).
 # This must come AFTER specific redirects but BEFORE any catch-all 404 rule.

@@ -135,8 +135,13 @@ export function useSeo(meta: SeoMeta | null) {
     // locale URLs ever carry genuinely translated content, restore the
     // alternate set here.
 
-    // Robots
-    if (meta.noIndex) {
+    // Robots. Locale-prefixed URLs (/es/..., /fr/...) are 301-redirected
+    // to the English canonical at the server (netlify.toml). If one is
+    // ever rendered client-side anyway (stale cache, dev server), it must
+    // never present itself as an indexable page: that is exactly what
+    // produced Search Console's "Alternate page with proper canonical" /
+    // "Google chose different canonical" reports.
+    if (meta.noIndex || seoLocale) {
       setMeta("name", "robots", "noindex, nofollow");
     } else {
       setMeta(

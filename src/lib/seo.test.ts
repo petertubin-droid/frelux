@@ -154,4 +154,37 @@ describe("useSeo", () => {
     rerender({ m: { title: "Second", description: "Second" } });
     expect(document.title).toBe("Second: FRELUX");
   });
+  it("marks locale-prefixed URLs noindex while keeping the English canonical", () => {
+    window.history.pushState({}, "", "/es/paint-calculator/");
+    renderSeoHook({
+      title: "Paint",
+      description: "Paint calculator",
+      canonicalPath: "/paint-calculator",
+    });
+    const robots = document.head
+      .querySelector('meta[name="robots"]')
+      ?.getAttribute("content");
+    expect(robots).toContain("noindex");
+    expect(
+      document.head
+        .querySelector('link[rel="canonical"]')
+        ?.getAttribute("href"),
+    ).toBe("https://freluxtools.netlify.app/paint-calculator/");
+    window.history.pushState({}, "", "/");
+  });
+
+  it("keeps English URLs indexable", () => {
+    window.history.pushState({}, "", "/paint-calculator/");
+    renderSeoHook({
+      title: "Paint",
+      description: "Paint calculator",
+      canonicalPath: "/paint-calculator",
+    });
+    const robots = document.head
+      .querySelector('meta[name="robots"]')
+      ?.getAttribute("content");
+    expect(robots).toContain("index, follow");
+    expect(robots).not.toContain("noindex");
+    window.history.pushState({}, "", "/");
+  });
 });
