@@ -395,6 +395,7 @@ const navModules: NavModule[] = [
       { label: "Site Settings", to: "/admin/settings", icon: Settings },
       { label: "Currency & FX Rates", to: "/admin/currency", icon: Coins },
       { label: "Site Branding", to: "/admin/branding", icon: Palette },
+      { label: "Header Images", to: "/admin/header-images", icon: Image },
       { label: "Typography", to: "/admin/typography", icon: Type },
       {
         label: "Social Brand Center",

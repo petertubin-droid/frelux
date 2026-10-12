@@ -45,7 +45,7 @@ describe("measurement/estimate-report", () => {
     const text = reportToText(report);
     expect(typeof text).toBe("string");
     expect(text.length).toBeGreaterThan(0);
-    expect(text).toContain("FRELUX");
+    expect(text).toContain("FRELUX SMART CALC");
   });
 
   it("reportToMarkdown produces non-empty markdown", () => {

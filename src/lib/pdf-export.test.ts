@@ -207,14 +207,14 @@ describe("exportPdfQuote", () => {
     expect(html).toContain("Acme Construction");
   });
 
-  it("uses FRELUX as default brand name", () => {
+  it("uses FRELUX SMART CALC as default brand name", () => {
     exportPdfQuote({
       result: makeResult(),
       input: makeInput(),
       paintTypeName: "Premium",
     });
     const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("FRELUX");
+    expect(html).toContain("FRELUX SMART CALC");
   });
 
   it("includes company contact info when provided", () => {
@@ -302,7 +302,7 @@ describe("exportPdfQuote", () => {
       paintTypeName: "Premium",
     });
     const html = mockWrite.mock.calls[0][0] as string;
-    expect(html).toContain("FRELUX Project Calculator");
+    expect(html).toContain("FRELUX SMART CALC");
   });
 
   it("calls document.close after write", () => {

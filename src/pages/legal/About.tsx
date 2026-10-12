@@ -243,7 +243,7 @@ export default function About() {
           heading: "Our business details",
           body: (
             <p>
-              FRELUX PROJECT CALC is the business behind this platform. You can
+              FRELUX SMART CALC is the business behind this platform. You can
               reach us on WhatsApp at +234 906 361 2439, by email at
               frenzyanthony39@gmail.com, or through the contact page for
               questions, feedback, partnership proposals, or advertising

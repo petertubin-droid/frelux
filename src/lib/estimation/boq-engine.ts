@@ -292,7 +292,7 @@ export function boqToHtml(
         <h2>Bill of Quantities: ${input.title}</h2>
       </div>
       <div class="biz">
-        <b>FRELUX PROJECT CALC</b><br/>
+        <b>FRELUX SMART CALC</b><br/>
         WhatsApp: +234 906 361 2439<br/>
         Email: frenzyanthony39@gmail.com
       </div>

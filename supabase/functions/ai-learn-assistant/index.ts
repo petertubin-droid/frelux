@@ -1,5 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { serveWithCors } from "../_shared/serve.ts";
+import { sanitizeAiProse } from "../_shared/ai-text-format.ts";
 import {
   checkRateLimit,
   getRateLimitKey,
@@ -173,7 +174,9 @@ Knowledge base context from the website:
 
 {{KNOWLEDGE_BASE}}
 
-When the knowledge base has relevant content, cite it. When it doesn't, provide general expert guidance.`;
+When the knowledge base has relevant content, cite it. When it doesn't, provide general expert guidance.
+
+Formatting (mandatory): the answer renders as plain text in a chat bubble. No markdown at all — never write **bold**, *italic*, # headings, or backticks. Use "- " for list items. Never use em dashes (—) or en dashes (–); use a comma, colon, or plain hyphen instead.`;
 
 serveWithCors(async (req: Request) => {
   // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
@@ -405,6 +408,10 @@ Draft the "${insertType}" insert card for this article.`;
     if (body.action === "ask") {
       const logHash = await sha256(body.clientId || "unknown");
       await logAiRequest(supabase, logHash, "success");
+      // Chat bubble renders plain text — strip markdown/dashes the
+      // model adds despite the prompt rules. Other actions return
+      // structured markdown on purpose and stay untouched.
+      return jsonResponse({ result: sanitizeAiProse(result) });
     }
     return jsonResponse({ result });
   } catch (err) {

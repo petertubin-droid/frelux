@@ -18,6 +18,7 @@ import {
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
 import { serveWithCors } from "../_shared/serve.ts";
+import { sanitizeAiProse } from "../_shared/ai-text-format.ts";
 
 const CORS = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
@@ -39,7 +40,8 @@ Rules:
 - Answer with public product information only. Never look up, guess or discuss a specific user's account, projects, payments or personal data.
 - You cannot perform actions (reset passwords, change plans, process payments). For those, point to the relevant page or to support.
 - Be concise: a few short sentences, occasionally a short list. Use plain language.
-- If you don't know something about Frelux, say so honestly instead of inventing features or prices.`;
+- If you don't know something about Frelux, say so honestly instead of inventing features or prices.
+- Formatting: your reply renders as plain text in a chat bubble. No markdown — never write **bold**, *italic*, # headings, or backticks. Use "- " for lists. Never use em dashes (—) or en dashes (–); use a comma, colon, or plain hyphen instead.`;
 
 interface ChatMessage {
   role: string;
@@ -166,7 +168,9 @@ serveWithCors(async (req: Request) => {
 
   try {
     const reply = await callGemini(message, sanitizeHistory(payload.history));
-    return json(200, { reply });
+    // Chat bubble renders plain text — strip markdown/dashes the
+    // model adds despite the prompt rules.
+    return json(200, { reply: sanitizeAiProse(reply) });
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     if (msg === "NO_API_KEY") {

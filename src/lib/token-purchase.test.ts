@@ -276,6 +276,54 @@ describe("initializeTokenPurchase (international dispatch)", () => {
       }),
     );
   });
+
+  it("falls back to Flutterwave when Paystack rejects its key (NGN)", async () => {
+    flwReady.mockReturnValue(true);
+    _invoke.mockImplementationOnce(() =>
+      Promise.resolve({ data: { error: "Invalid key" }, error: null }),
+    );
+    _invoke.mockImplementationOnce(() =>
+      Promise.resolve({
+        data: {
+          authorization_url: "https://checkout.flutterwave.com/ngn",
+          reference: "FRELUX_TOKENS_FLW_u1_123",
+        },
+        error: null,
+      }),
+    );
+    const result = await initializeTokenPurchase("user@example.com", "user-1", {
+      mode: "naira",
+      currency: "NGN",
+      priceMinor: 150000,
+    });
+    expect(result.success).toBe(true);
+    expect(result.gateway).toBe("flutterwave");
+    expect(result.authorizationUrl).toBe(
+      "https://checkout.flutterwave.com/ngn",
+    );
+    expect(_invoke).toHaveBeenCalledTimes(2);
+    expect(_invoke).toHaveBeenLastCalledWith("flutterwave-checkout", {
+      body: {
+        purpose: "token_purchase",
+        email: "user@example.com",
+        user_id: "user-1",
+        currency: "NGN",
+        allow_ngn_fallback: true,
+      },
+    });
+  });
+
+  it("surfaces other Paystack errors without a fallback", async () => {
+    _state.data = { error: "Network timeout" };
+    const result = await initializeTokenPurchase("user@example.com", "user-1", {
+      mode: "naira",
+      currency: "NGN",
+      priceMinor: 150000,
+    });
+    expect(result.success).toBe(false);
+    expect(result.error).toBe("Network timeout");
+    expect(_invoke).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("verifyTokenPurchase (gateway routing)", () => {

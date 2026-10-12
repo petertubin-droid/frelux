@@ -129,10 +129,10 @@ self.addEventListener('push', (event) => {
   try {
     payload = event.data.json();
   } catch {
-    payload = { title: 'FRELUX', body: event.data.text() };
+    payload = { title: 'FRELUX SMART CALC', body: event.data.text() };
   }
 
-  const title = payload.title || 'FRELUX';
+  const title = payload.title || 'FRELUX SMART CALC';
   const body = payload.body || '';
   const url = payload.url || '/messages';
   const icon = payload.icon || '/icon-192.png';

@@ -8,9 +8,9 @@ beforeEach(() => {
 function row(over: Partial<DbSiteBranding>): DbSiteBranding {
   return {
     id: "x",
-    website_name: "FRELUX",
+    website_name: "FRELUX SMART CALC",
     website_tagline: "Every Trade. Every Cost. One Platform.",
-    browser_title: "FRELUX | Every Trade. Every Cost. One Platform.",
+    browser_title: "FRELUX SMART CALC | Every Trade. Every Cost. One Platform.",
     light_logo_url: null,
     dark_logo_url: null,
     favicon_url: null,
@@ -43,7 +43,7 @@ describe("branding", () => {
     expect(Object.keys(mod).length).toBeGreaterThan(0);
   });
 
-  it("normalises the legacy FRELUXTOOLS / Build Smarter row back to FRELUX", async () => {
+  it("normalises the legacy FRELUXTOOLS / Build Smarter row back to FRELUX SMART CALC", async () => {
     const { normalizeBranding } = await import("@/lib/branding");
     const out = normalizeBranding(
       row({
@@ -52,7 +52,7 @@ describe("branding", () => {
         browser_title: "FRELUXTOOLS — Build Smarter",
       }),
     );
-    expect(out.website_name).toBe("FRELUX");
+    expect(out.website_name).toBe("FRELUX SMART CALC");
     expect(out.website_tagline).toBe("Every Trade. Every Cost. One Platform.");
     expect(out.browser_title).not.toMatch(/FRELUXTOOLS/i);
     // admin-managed visuals are untouched
@@ -63,15 +63,34 @@ describe("branding", () => {
     const { normalizeBranding } = await import("@/lib/branding");
     expect(
       normalizeBranding(row({ website_name: "FRELUX Tools" })).website_name,
-    ).toBe("FRELUX");
+    ).toBe("FRELUX SMART CALC");
   });
 
-  it("leaves a legitimate custom brand untouched", async () => {
+  it("normalises the retired PAINT CALC / PROJECT CALC brands", async () => {
+    const { normalizeBranding } = await import("@/lib/branding");
+    expect(
+      normalizeBranding(row({ website_name: "FRELUX PAINT CALC" }))
+        .website_name,
+    ).toBe("FRELUX SMART CALC");
+    expect(
+      normalizeBranding(row({ website_name: "FRELUX PROJECT CALC" }))
+        .website_name,
+    ).toBe("FRELUX SMART CALC");
+    expect(
+      normalizeBranding(
+        row({ website_name: "FRELUX", browser_title: "FRELUX | Home" }),
+      ).browser_title,
+    ).toBe("FRELUX SMART CALC | Every Trade. Every Cost. One Platform.");
+  });
+
+  it("leaves the current brand and custom brands untouched", async () => {
     const { normalizeBranding } = await import("@/lib/branding");
     const r = row({
-      website_name: "FRELUX Paint",
+      website_name: "FRELUX SMART CALC",
       website_tagline: "Paint smarter",
     });
     expect(normalizeBranding(r)).toBe(r);
+    const custom = row({ website_name: "Acme Construction Ltd" });
+    expect(normalizeBranding(custom)).toBe(custom);
   });
 });

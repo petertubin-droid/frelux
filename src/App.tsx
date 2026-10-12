@@ -255,6 +255,7 @@ const AdminRewardedAccess = lazy(
   () => import("@/pages/admin/AdminRewardedAccess"),
 );
 const AdminBranding = lazy(() => import("@/pages/admin/AdminBranding"));
+const AdminHeaderImages = lazy(() => import("@/pages/admin/AdminHeaderImages"));
 const AdminPdfBranding = lazy(() => import("@/pages/admin/AdminPdfBranding"));
 const AdminScreedingMaterials = lazy(
   () => import("@/pages/admin/AdminScreedingMaterials"),
@@ -1510,6 +1511,10 @@ export default function App() {
                       element={<AdminRewardedAccess />}
                     />
                     <Route path="branding" element={<AdminBranding />} />
+                    <Route
+                      path="header-images"
+                      element={<AdminHeaderImages />}
+                    />
                     <Route path="pdf-branding" element={<AdminPdfBranding />} />
 
                     {/* Users */}

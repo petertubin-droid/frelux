@@ -40,8 +40,8 @@ describe("SAFE_FALLBACK_BRANDING", () => {
     expect(SAFE_FALLBACK_BRANDING.source).toBe("safe_fallback");
   });
 
-  it("has brandName FRELUX", () => {
-    expect(SAFE_FALLBACK_BRANDING.brandName).toBe("FRELUX");
+  it("has brandName FRELUX SMART CALC", () => {
+    expect(SAFE_FALLBACK_BRANDING.brandName).toBe("FRELUX SMART CALC");
   });
 
   it("has Smart Construction Estimation tagline", () => {

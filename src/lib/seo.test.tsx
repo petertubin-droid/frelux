@@ -43,7 +43,7 @@ describe("useSeo", () => {
   describe("document.title", () => {
     it("sets document.title appending the site suffix when not already present", () => {
       renderSeo({ title: "About Us", description: "About the company" });
-      expect(document.title).toBe("About Us: FRELUX");
+      expect(document.title).toBe("About Us: FRELUX SMART CALC");
     });
 
     it("does not double-append the suffix when title already contains FRELUX", () => {
@@ -53,10 +53,10 @@ describe("useSeo", () => {
 
     it("updates the title when props change", () => {
       const { rerender } = renderSeo({ title: "Page A", description: "a" });
-      expect(document.title).toBe("Page A: FRELUX");
+      expect(document.title).toBe("Page A: FRELUX SMART CALC");
 
       rerender({ title: "Page B", description: "b" });
-      expect(document.title).toBe("Page B: FRELUX");
+      expect(document.title).toBe("Page B: FRELUX SMART CALC");
     });
   });
 
@@ -85,7 +85,7 @@ describe("useSeo", () => {
 
     it("sets the author meta tag", () => {
       renderSeo({ title: "T", description: "d" });
-      expect(getMetaContent("name", "author")).toBe("FRELUX");
+      expect(getMetaContent("name", "author")).toBe("FRELUX SMART CALC");
     });
   });
 
@@ -162,11 +162,15 @@ describe("useSeo", () => {
         ogType: "article",
         ogImage: "https://example.com/img.png",
       });
-      expect(getMetaContent("property", "og:title")).toBe("My Page: FRELUX");
+      expect(getMetaContent("property", "og:title")).toBe(
+        "My Page: FRELUX SMART CALC",
+      );
       expect(getMetaContent("property", "og:description")).toBe("desc");
       expect(getMetaContent("property", "og:type")).toBe("article");
       expect(getMetaContent("property", "og:url")).toBe(`${SITE_URL}/page/`);
-      expect(getMetaContent("property", "og:site_name")).toBe("FRELUX");
+      expect(getMetaContent("property", "og:site_name")).toBe(
+        "FRELUX SMART CALC",
+      );
       expect(getMetaContent("property", "og:image")).toBe(
         "https://example.com/img.png",
       );
@@ -197,7 +201,9 @@ describe("useSeo", () => {
       expect(getMetaContent("name", "twitter:card")).toBe(
         "summary_large_image",
       );
-      expect(getMetaContent("name", "twitter:title")).toBe("Hello: FRELUX");
+      expect(getMetaContent("name", "twitter:title")).toBe(
+        "Hello: FRELUX SMART CALC",
+      );
       expect(getMetaContent("name", "twitter:description")).toBe("world");
       expect(getMetaContent("name", "twitter:image")).toBe(
         "https://example.com/tw.png",

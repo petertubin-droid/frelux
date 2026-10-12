@@ -17,13 +17,13 @@
  * Saved estimates remain reproducible through rule version references.
  */
 
-import type { ConstructionProjectResult } from './project-engine';
-import type { ProjectMaterialSummary } from './material-summary';
-import type {} from './explanation-engine';
-import type { ConfidenceAssessment } from './confidence-engine';
-import type { RuleVersionReference } from './rule-versioning';
-import { explainProjectCalculation } from './explanation-engine';
-import { formatM2 } from './geometry';
+import type { ConstructionProjectResult } from "./project-engine";
+import type { ProjectMaterialSummary } from "./material-summary";
+import type {} from "./explanation-engine";
+import type { ConfidenceAssessment } from "./confidence-engine";
+import type { RuleVersionReference } from "./rule-versioning";
+import { explainProjectCalculation } from "./explanation-engine";
+import { formatM2 } from "./geometry";
 
 // =========================================================
 // REPORT TYPES
@@ -33,16 +33,16 @@ import { formatM2 } from './geometry';
  * Report section type.
  */
 export type ReportSectionType =
-  | 'header'
-  | 'project_info'
-  | 'element_breakdown'
-  | 'material_list'
-  | 'calculation_explanation'
-  | 'confidence_assessment'
-  | 'rule_traceability'
-  | 'waste_summary'
-  | 'already_have'
-  | 'footer';
+  | "header"
+  | "project_info"
+  | "element_breakdown"
+  | "material_list"
+  | "calculation_explanation"
+  | "confidence_assessment"
+  | "rule_traceability"
+  | "waste_summary"
+  | "already_have"
+  | "footer";
 
 /**
  * A report section.
@@ -119,58 +119,72 @@ export function buildEstimateReport(
 
   // Section: Header
   sections.push({
-    type: 'header',
-    title: 'FRELUX ESTIMATE REPORT',
+    type: "header",
+    title: "FRELUX SMART CALC ESTIMATE REPORT",
     fields: [
-      { label: 'Project', value: projectName },
-      { label: 'Generated', value: new Date(generatedAt).toLocaleString() },
-      { label: 'Report ID', value: nextReportId() },
+      { label: "Project", value: projectName },
+      { label: "Generated", value: new Date(generatedAt).toLocaleString() },
+      { label: "Report ID", value: nextReportId() },
     ],
   });
 
   // Section: Project Info
   sections.push({
-    type: 'project_info',
-    title: 'Project Information',
+    type: "project_info",
+    title: "Project Information",
     fields: [
-      { label: 'Total Area', value: formatM2(projectResult.totalAreaM2) },
-      { label: 'Elements', value: projectResult.elementResults.length.toString() },
-      { label: 'Spaces', value: projectResult.allSpaceResults.length.toString() },
-      { label: 'Finish Types', value: Object.keys(projectResult.areaByFinishType).length.toString() },
+      { label: "Total Area", value: formatM2(projectResult.totalAreaM2) },
+      {
+        label: "Elements",
+        value: projectResult.elementResults.length.toString(),
+      },
+      {
+        label: "Spaces",
+        value: projectResult.allSpaceResults.length.toString(),
+      },
+      {
+        label: "Finish Types",
+        value: Object.keys(projectResult.areaByFinishType).length.toString(),
+      },
     ],
   });
 
-  metrics.push({ label: 'Total Area', value: formatM2(projectResult.totalAreaM2) });
-  metrics.push({ label: 'Elements', value: projectResult.elementResults.length.toString() });
+  metrics.push({
+    label: "Total Area",
+    value: formatM2(projectResult.totalAreaM2),
+  });
+  metrics.push({
+    label: "Elements",
+    value: projectResult.elementResults.length.toString(),
+  });
 
   // Section: Element Breakdown
   const elementRows = projectResult.elementResults.map((e) => [
     e.name,
     formatM2(e.totalAreaM2),
-    `${e.spaceResults.length} space${e.spaceResults.length !== 1 ? 's' : ''}`,
+    `${e.spaceResults.length} space${e.spaceResults.length !== 1 ? "s" : ""}`,
   ]);
   sections.push({
-    type: 'element_breakdown',
-    title: 'Element Breakdown',
+    type: "element_breakdown",
+    title: "Element Breakdown",
     fields: [],
     table: {
-      headers: ['Element', 'Area (m²)', 'Spaces'],
+      headers: ["Element", "Area (m²)", "Spaces"],
       rows: elementRows,
     },
   });
 
   // Section: Finish Type Breakdown
-  const finishRows = Object.entries(projectResult.areaByFinishType).map(([finish, area]) => [
-    finish,
-    formatM2(area),
-  ]);
+  const finishRows = Object.entries(projectResult.areaByFinishType).map(
+    ([finish, area]) => [finish, formatM2(area)],
+  );
   if (finishRows.length > 0) {
     sections.push({
-      type: 'element_breakdown',
-      title: 'Area by Finish Type',
+      type: "element_breakdown",
+      title: "Area by Finish Type",
       fields: [],
       table: {
-        headers: ['Finish Type', 'Area (m²)'],
+        headers: ["Finish Type", "Area (m²)"],
         rows: finishRows,
       },
     });
@@ -185,37 +199,50 @@ export function buildEstimateReport(
       `${l.alreadyHaveQuantity} ${l.quantityUnit}`,
       `${l.buyQuantity} ${l.quantityUnit}`,
     ]);
-    const totalPurchase = materialSummary.lineItems.reduce((s, l) => s + l.purchaseQuantity, 0);
-    const totalBuy = materialSummary.lineItems.reduce((s, l) => s + l.buyQuantity, 0);
+    const totalPurchase = materialSummary.lineItems.reduce(
+      (s, l) => s + l.purchaseQuantity,
+      0,
+    );
+    const totalBuy = materialSummary.lineItems.reduce(
+      (s, l) => s + l.buyQuantity,
+      0,
+    );
     sections.push({
-      type: 'material_list',
-      title: 'Material List',
+      type: "material_list",
+      title: "Material List",
       fields: [
-        { label: 'Total Lines', value: materialSummary.totalLines.toString() },
-        { label: 'Total Purchase', value: totalPurchase.toString() },
-        { label: 'Total Buy', value: totalBuy.toString() },
+        { label: "Total Lines", value: materialSummary.totalLines.toString() },
+        { label: "Total Purchase", value: totalPurchase.toString() },
+        { label: "Total Buy", value: totalBuy.toString() },
       ],
       table: {
-        headers: ['Material', 'Category', 'Purchase', 'Have', 'Buy'],
+        headers: ["Material", "Category", "Purchase", "Have", "Buy"],
         rows: materialRows,
       },
     });
 
-    metrics.push({ label: 'Material Lines', value: materialSummary.totalLines.toString() });
-    metrics.push({ label: 'Total Buy', value: totalBuy.toString() });
+    metrics.push({
+      label: "Material Lines",
+      value: materialSummary.totalLines.toString(),
+    });
+    metrics.push({ label: "Total Buy", value: totalBuy.toString() });
   }
 
   // Section: Calculation Explanation
   if (options.includeExplanation !== false) {
     const explanation = explainProjectCalculation(projectResult);
-    const explanationText = explanation.sections.map((s) => {
-      const steps = s.steps.map((st) => `  ${st.label}: ${st.value}`).join('\n');
-      return `${s.title}\n${steps}`;
-    }).join('\n\n');
+    const explanationText = explanation.sections
+      .map((s) => {
+        const steps = s.steps
+          .map((st) => `  ${st.label}: ${st.value}`)
+          .join("\n");
+        return `${s.title}\n${steps}`;
+      })
+      .join("\n\n");
 
     sections.push({
-      type: 'calculation_explanation',
-      title: 'How FRELUX Calculated This',
+      type: "calculation_explanation",
+      title: "How FRELUX SMART CALC Calculated This",
       fields: [],
       text: explanationText,
     });
@@ -225,22 +252,34 @@ export function buildEstimateReport(
   if (options.includeConfidence !== false && confidence) {
     const factorRows = confidence.factors.map((f) => [
       f.name,
-      f.passed ? '✓' : '✗',
+      f.passed ? "✓" : "✗",
       f.detail,
     ]);
     sections.push({
-      type: 'confidence_assessment',
-      title: 'Confidence Assessment',
+      type: "confidence_assessment",
+      title: "Confidence Assessment",
       fields: [
-        { label: 'Overall', value: confidence.level.toUpperCase() },
-        { label: 'Calculation', value: confidence.calculationConfidence.toUpperCase() },
-        { label: 'Price', value: confidence.priceConfidence === 'unavailable' ? 'N/A' : confidence.priceConfidence.toUpperCase() },
-        { label: 'Summary', value: confidence.summary },
+        { label: "Overall", value: confidence.level.toUpperCase() },
+        {
+          label: "Calculation",
+          value: confidence.calculationConfidence.toUpperCase(),
+        },
+        {
+          label: "Price",
+          value:
+            confidence.priceConfidence === "unavailable"
+              ? "N/A"
+              : confidence.priceConfidence.toUpperCase(),
+        },
+        { label: "Summary", value: confidence.summary },
       ],
-      table: factorRows.length > 0 ? {
-        headers: ['Factor', 'Status', 'Detail'],
-        rows: factorRows,
-      } : undefined,
+      table:
+        factorRows.length > 0
+          ? {
+              headers: ["Factor", "Status", "Detail"],
+              rows: factorRows,
+            }
+          : undefined,
     });
   }
 
@@ -252,13 +291,13 @@ export function buildEstimateReport(
       ref.snapshot.ruleName,
     ]);
     sections.push({
-      type: 'rule_traceability',
-      title: 'Rule Traceability',
+      type: "rule_traceability",
+      title: "Rule Traceability",
       fields: [
-        { label: 'Rules Referenced', value: ruleReferences.length.toString() },
+        { label: "Rules Referenced", value: ruleReferences.length.toString() },
       ],
       table: {
-        headers: ['Rule ID', 'Version', 'Rule Name'],
+        headers: ["Rule ID", "Version", "Rule Name"],
         rows: ruleRows,
       },
     });
@@ -266,16 +305,18 @@ export function buildEstimateReport(
 
   // Section: Footer
   sections.push({
-    type: 'footer',
-    title: 'Report End',
+    type: "footer",
+    title: "Report End",
     fields: [
-      { label: 'Generated by', value: 'FRELUX Estimation Engine' },
-      { label: 'Date', value: new Date(generatedAt).toLocaleString() },
+      { label: "Generated by", value: "FRELUX SMART CALC Estimation Engine" },
+      { label: "Date", value: new Date(generatedAt).toLocaleString() },
     ],
   });
 
   return {
-    reportId: sections[0].fields.find((f) => f.label === 'Report ID')?.value ?? nextReportId(),
+    reportId:
+      sections[0].fields.find((f) => f.label === "Report ID")?.value ??
+      nextReportId(),
     projectName,
     generatedAt,
     sections,
@@ -297,31 +338,31 @@ export function reportToText(report: EstimateReport): string {
 
   for (const section of report.sections) {
     lines.push(section.title);
-    lines.push('━'.repeat(Math.max(section.title.length, 40)));
+    lines.push("━".repeat(Math.max(section.title.length, 40)));
 
     if (section.fields.length > 0) {
       for (const field of section.fields) {
         lines.push(`  ${field.label}: ${field.value}`);
       }
-      lines.push('');
+      lines.push("");
     }
 
     if (section.table) {
-      lines.push(`  ${section.table.headers.join(' | ')}`);
-      lines.push(`  ${'─'.repeat(section.table.headers.join(' | ').length)}`);
+      lines.push(`  ${section.table.headers.join(" | ")}`);
+      lines.push(`  ${"─".repeat(section.table.headers.join(" | ").length)}`);
       for (const row of section.table.rows) {
-        lines.push(`  ${row.join(' | ')}`);
+        lines.push(`  ${row.join(" | ")}`);
       }
-      lines.push('');
+      lines.push("");
     }
 
     if (section.text) {
       lines.push(section.text);
-      lines.push('');
+      lines.push("");
     }
   }
 
-  return lines.join('\n');
+  return lines.join("\n");
 }
 
 /**
@@ -332,31 +373,31 @@ export function reportToMarkdown(report: EstimateReport): string {
 
   for (const section of report.sections) {
     lines.push(`## ${section.title}`);
-    lines.push('');
+    lines.push("");
 
     if (section.fields.length > 0) {
       for (const field of section.fields) {
         lines.push(`- **${field.label}**: ${field.value}`);
       }
-      lines.push('');
+      lines.push("");
     }
 
     if (section.table) {
-      lines.push(`| ${section.table.headers.join(' | ')} |`);
-      lines.push(`| ${section.table.headers.map(() => '---').join(' | ')} |`);
+      lines.push(`| ${section.table.headers.join(" | ")} |`);
+      lines.push(`| ${section.table.headers.map(() => "---").join(" | ")} |`);
       for (const row of section.table.rows) {
-        lines.push(`| ${row.join(' | ')} |`);
+        lines.push(`| ${row.join(" | ")} |`);
       }
-      lines.push('');
+      lines.push("");
     }
 
     if (section.text) {
-      lines.push('```');
+      lines.push("```");
       lines.push(section.text);
-      lines.push('```');
-      lines.push('');
+      lines.push("```");
+      lines.push("");
     }
   }
 
-  return lines.join('\n');
+  return lines.join("\n");
 }

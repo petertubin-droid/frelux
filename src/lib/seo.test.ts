@@ -15,20 +15,20 @@ beforeEach(() => {
 });
 
 describe("useSeo", () => {
-  it("sets document title with FRELUX suffix when not already included", () => {
+  it("sets document title with FRELUX SMART CALC suffix when not already included", () => {
     renderSeoHook({
       title: "Paint Calculator",
       description: "Calculate paint needed",
     });
-    expect(document.title).toBe("Paint Calculator: FRELUX");
+    expect(document.title).toBe("Paint Calculator: FRELUX SMART CALC");
   });
 
-  it("does not duplicate FRELUX in title when already present", () => {
+  it("does not duplicate the brand in title when already present", () => {
     renderSeoHook({
-      title: "FRELUX Project Calculator",
+      title: "FRELUX SMART CALC Project Calculator",
       description: "Calculate paint needed",
     });
-    expect(document.title).toBe("FRELUX Project Calculator");
+    expect(document.title).toBe("FRELUX SMART CALC Project Calculator");
   });
 
   it("sets meta description tag", () => {
@@ -52,7 +52,7 @@ describe("useSeo", () => {
       document.head
         .querySelector('meta[property="og:title"]')
         ?.getAttribute("content"),
-    ).toBe("Test Page: FRELUX");
+    ).toBe("Test Page: FRELUX SMART CALC");
     expect(
       document.head
         .querySelector('meta[property="og:type"]')
@@ -149,10 +149,10 @@ describe("useSeo", () => {
       title: "First",
       description: "First",
     });
-    expect(document.title).toBe("First: FRELUX");
+    expect(document.title).toBe("First: FRELUX SMART CALC");
 
     rerender({ m: { title: "Second", description: "Second" } });
-    expect(document.title).toBe("Second: FRELUX");
+    expect(document.title).toBe("Second: FRELUX SMART CALC");
   });
   it("marks locale-prefixed URLs noindex while keeping the English canonical", () => {
     window.history.pushState({}, "", "/es/paint-calculator/");

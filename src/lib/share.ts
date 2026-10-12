@@ -29,7 +29,7 @@ interface CostEstimateShareData {
 function buildPaintCalcMessage(data: PaintCalcShareData): string {
   const { result, input, paintTypeName } = data;
   const lines: string[] = [
-    "🎨 *FRELUX Project Calculator Result*",
+    "🎨 *FRELUX SMART CALC Result*",
     "",
     `*Project:* ${input.projectType}`,
     `*Paint type:* ${paintTypeName}`,
@@ -62,7 +62,7 @@ function buildPaintCalcMessage(data: PaintCalcShareData): string {
 function buildCostEstimateMessage(data: CostEstimateShareData): string {
   const { result, input, paintTypeName } = data;
   const lines: string[] = [
-    "💰 *FRELUX Cost Estimate*",
+    "💰 *FRELUX SMART CALC Cost Estimate*",
     "",
     `*Project:* ${input.projectType}`,
     `*Paint type:* ${paintTypeName}`,

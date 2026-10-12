@@ -3,7 +3,7 @@
 import { navToolsByCategory } from "./construction-tools";
 
 export const siteConfig = {
-  name: "FRELUX",
+  name: "FRELUX SMART CALC",
   shortName: "FRELUX",
   // Final worldwide positioning (matches the client-approved hero copy,
   // 2026-10-06): premium, platform-level, trade-agnostic.

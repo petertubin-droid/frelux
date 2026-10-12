@@ -95,7 +95,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
     <div
       role="dialog"
       aria-modal="true"
-      aria-label="Welcome to FRELUX"
+      aria-label="Welcome to FRELUX SMART CALC"
       className={`fixed inset-0 z-[9999] select-none overflow-hidden bg-[#0A0A1A] ${leaving ? "entry-leave" : ""}`}
       data-testid="entry-experience"
     >
@@ -149,7 +149,7 @@ export default function EntryExperience({ onComplete }: EntryExperienceProps) {
           <div className="entry-rise" style={rise(120)}>
             <img
               src="/logo-mark.png"
-              alt="FRELUX"
+              alt="FRELUX SMART CALC"
               width={64}
               height={64}
               className="h-14 w-14 rounded-2xl bg-white/5 p-1.5 ring-1 ring-white/15 shadow-[0_10px_40px_-12px_rgba(109,40,217,0.55)] sm:h-16 sm:w-16"

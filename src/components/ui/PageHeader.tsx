@@ -1,7 +1,10 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { type ReactNode } from "react";
 import HeroTitle from "./HeroTitle";
+import { resolveHeaderImage } from "@/config/page-header-images";
+import { useHeaderImageOverrides } from "@/lib/header-image-overrides";
+import { stripLocaleFromPathname } from "@/lib/i18n";
 
 export default function PageHeader({
   eyebrow,
@@ -26,20 +29,31 @@ export default function PageHeader({
    *  and dissolves into the page background so there is no seam. */
   image?: string;
 }) {
+  // Config-driven backdrop (owner directive 2026-10-10): unless the
+  // caller passes an explicit image, every header resolves a
+  // niche-matched photo from src/config/page-header-images.ts so the
+  // whole site gets the premium blended-photo treatment.
+  const { pathname } = useLocation();
+  // Admin overrides (Admin > Header Images) win over the code
+  // registry; an explicit `image` prop wins over both.
+  const overrides = useHeaderImageOverrides();
+  const resolvedImage =
+    image ?? resolveHeaderImage(stripLocaleFromPathname(pathname), overrides);
+
   return (
     <div
       className={`relative overflow-hidden ${
-        image
+        resolvedImage
           ? "bg-background"
           : "border-b border-border/80 bg-card dark:border-white/5 dark:bg-card"
       }`}
     >
       {/* Blended photo band: decorative, faded into the page surface so
           the transition below the header is invisible. */}
-      {image && (
+      {resolvedImage && (
         <>
           <img
-            src={image}
+            src={resolvedImage}
             alt=""
             aria-hidden="true"
             loading="lazy"

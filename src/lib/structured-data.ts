@@ -3,7 +3,7 @@
 
 const SITE_URL =
   import.meta.env.VITE_SITE_URL ?? "https://freluxtools.netlify.app";
-const SITE_NAME = "FRELUX";
+const SITE_NAME = "FRELUX SMART CALC";
 
 export interface BreadcrumbItem {
   name: string;

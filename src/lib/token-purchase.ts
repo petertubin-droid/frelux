@@ -191,6 +191,56 @@ export async function getTokenPurchasePrices(): Promise<TokenPriceRow[]> {
   return data as TokenPriceRow[];
 }
 
+/**
+ * Paystack rejected the charge before creating a transaction (bad
+ * secret key, disabled integration...). Retry the same naira charge
+ * through Flutterwave when it is configured; otherwise return null and
+ * let the caller surface the original Paystack error.
+ */
+const PAYSTACK_KEY_FAILURE = /invalid\s*(api\s*)?key/i;
+
+async function tryNgnFlutterwaveFallback(
+  paystackError: string,
+  email: string,
+  userId: string,
+): Promise<TokenPurchaseResult | null> {
+  if (!PAYSTACK_KEY_FAILURE.test(paystackError)) return null;
+  if (!isFlutterwaveConfigured(currentGatewayRuntimeConfig())) return null;
+  const supabase = await getSupabase();
+  try {
+    const { data, error } = await supabase.functions.invoke(
+      "flutterwave-checkout",
+      {
+        body: {
+          purpose: "token_purchase",
+          email,
+          user_id: userId,
+          currency: "NGN",
+          allow_ngn_fallback: true,
+        },
+      },
+    );
+    if (error || !data?.authorization_url) {
+      console.warn(
+        "[token-purchase] Paystack key failure; Flutterwave fallback also failed:",
+        error ?? data?.error,
+      );
+      return null;
+    }
+    console.info(
+      "[token-purchase] Paystack checkout rejected (key failure); charged via Flutterwave instead.",
+    );
+    return {
+      success: true,
+      authorizationUrl: data.authorization_url,
+      reference: data.reference,
+      gateway: "flutterwave",
+    };
+  } catch (_e) {
+    return null;
+  }
+}
+
 // =========================================================
 // User: start a token purchase checkout.
 //
@@ -198,6 +248,13 @@ export async function getTokenPurchasePrices(): Promise<TokenPriceRow[]> {
 // goes through the Paystack naira flow. A configured native currency
 // is charged in that currency via Flutterwave — the server resolves
 // the price and ignores any client-sent amount.
+//
+// Failover (2026-10-10): when Paystack cannot even start the charge
+// (e.g. its secret key is rejected server-side — "Invalid key"), the
+// NGN flow transparently retries through Flutterwave when it is
+// configured. Only checkout INITIALISATION failures trigger this:
+// no payment exists yet, so nothing can double-charge. Any other
+// Paystack error keeps surfacing unchanged.
 // =========================================================
 
 export async function initializeTokenPurchase(
@@ -283,16 +340,22 @@ export async function initializeTokenPurchase(
       },
     );
     if (error) {
+      const message = await getFunctionErrorMessage(error);
+      const fallback = await tryNgnFlutterwaveFallback(message, email, userId);
+      if (fallback) return fallback;
       return {
         success: false,
-        error: await getFunctionErrorMessage(error),
+        error: message,
         code: "EDGE_ERROR",
       };
     }
     if (!data?.data?.authorization_url) {
+      const message = data?.error || "Invalid response from payment server.";
+      const fallback = await tryNgnFlutterwaveFallback(message, email, userId);
+      if (fallback) return fallback;
       return {
         success: false,
-        error: data?.error || "Invalid response from payment server.",
+        error: message,
         code: "INVALID_RESPONSE",
       };
     }

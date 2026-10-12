@@ -43,13 +43,13 @@ const ogImage = `${SITE_URL}/og-image.png`;
 const routes = [
   {
     path: '/',
-    title: 'FRELUX PAINT CALC: Calculate Materials & Estimate Construction Costs',
+    title: 'FRELUX SMART CALC: Calculate Materials & Estimate Construction Costs',
     description: 'Know exactly what materials your construction project needs. Free construction calculators for paint, screeding, POP ceiling, tiles, and finishing. Estimate costs with real market prices.',
     priority: '1.0',
     changefreq: 'weekly',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'WebSite', name: 'FRELUX PAINT CALC', url: SITE_URL },
-      { '@context': 'https://schema.org', '@type': 'Organization', name: 'FRELUX PAINT CALC', url: SITE_URL },
+      { '@context': 'https://schema.org', '@type': 'WebSite', name: 'FRELUX SMART CALC', url: SITE_URL },
+      { '@context': 'https://schema.org', '@type': 'Organization', name: 'FRELUX SMART CALC', url: SITE_URL },
       {
         '@context': 'https://schema.org',
         '@type': 'ItemList',
@@ -70,13 +70,13 @@ const routes = [
   },
  {
     path: '/start-building',
-    title: 'Start Building: What Are You Building Today? | FRELUX',
+    title: 'Start Building: What Are You Building Today? | FRELUX SMART CALC',
     description:
       'Start your construction project with FRELUX. Estimate materials and costs from foundation to roof, then finishing: paint, screeding, POP ceiling, tiles, and exterior. Free construction calculators and estimators.',
     priority: '0.9',
     changefreq: 'weekly',
     structuredData: [
-      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Start Building | FRELUX', description: 'Choose what you are building and FRELUX will help you calculate materials, quantities and estimated project costs.', url: 'https://freluxtools.netlify.app/start-building' },
+      { '@context': 'https://schema.org', '@type': 'WebPage', name: 'Start Building | FRELUX SMART CALC', description: 'Choose what you are building and FRELUX will help you calculate materials, quantities and estimated project costs.', url: 'https://freluxtools.netlify.app/start-building' },
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [
         { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' },
         { '@type': 'ListItem', position: 2, name: 'Start Building', item: 'https://freluxtools.netlify.app/start-building' },
@@ -99,7 +99,7 @@ const routes = [
   },
   {
     path: '/paint-calculator',
-    title: 'Paint Calculator: How Much Paint Do I Need? | FRELUX',
+    title: 'Paint Calculator: How Much Paint Do I Need? | FRELUX SMART CALC',
     description: 'Room-based paint calculator for any project. Enter room dimensions, wall height, doors, and windows to estimate paint quantity in 20-litre buckets using admin-configured coverage rates.',
     priority: '0.9',
     changefreq: 'monthly',
@@ -161,7 +161,7 @@ const routes = [
   },
   {
     path: '/tile-calculator',
-    title: 'Tile Calculator: How Many Tiles Do I Need? | FRELUX',
+    title: 'Tile Calculator: How Many Tiles Do I Need? | FRELUX SMART CALC',
     description: 'Free tile calculator. Enter your floor or wall dimensions to calculate tile quantity, adhesive, grout, and layout recommendations.',
     priority: '0.8',
     changefreq: 'monthly',
@@ -171,7 +171,7 @@ const routes = [
   },
   {
     path: '/painting-estimator',
-    title: 'Painting Estimator: Room-Based Paint & Cost | FRELUX',
+    title: 'Painting Estimator: Room-Based Paint & Cost | FRELUX SMART CALC',
     description: 'Professional painting estimator using the FRELUX methodology. Calculate paint quantity and project cost for multiple rooms with real product prices.',
     priority: '0.8',
     changefreq: 'monthly',
@@ -226,7 +226,7 @@ const routes = [
   },
   {
     path: '/finish-estimator',
-    title: 'Finish Estimator: Painting, Tyrolene & Grafitex | FRELUX',
+    title: 'Finish Estimator: Painting, Tyrolene & Grafitex | FRELUX SMART CALC',
     description: 'Estimate material quantities and costs for wall finishes: painting, Tyrolene, and Grafitex. Uses real coverage rates and package sizes.',
     priority: '0.7',
     changefreq: 'monthly',
@@ -238,7 +238,7 @@ const routes = [
   },
   {
     path: '/tyrolene-estimator',
-    title: 'Tyrolene Estimator: Exterior Wall Finish | FRELUX',
+    title: 'Tyrolene Estimator: Exterior Wall Finish | FRELUX SMART CALC',
     description: 'Partition-based Tyrolene estimator for exterior walls. Calculate sand, cement, acrylic bond, water seal, and anti-fungal material quantities per standard partition.',
     priority: '0.7',
     changefreq: 'monthly',
@@ -270,7 +270,7 @@ const routes = [
   },
   {
     path: '/ai-color-assistant',
-    title: 'Smart Color Assistant: AI Paint Color Ideas | FRELUX',
+    title: 'Smart Color Assistant: AI Paint Color Ideas | FRELUX SMART CALC',
     description: 'Get AI-powered paint color recommendations. Describe your room, lighting, and mood to receive personalized color suggestions.',
     priority: '0.7',
     changefreq: 'monthly',
@@ -281,7 +281,7 @@ const routes = [
   },
   {
     path: '/paint-comparison',
-    title: 'Paint Comparison Tool: Compare Colours Side by Side | FRELUX',
+    title: 'Paint Comparison Tool: Compare Colours Side by Side | FRELUX SMART CALC',
     description: 'Compare paint colours, finishes, and prices side by side to choose the right option for your project.',
     priority: '0.7',
     changefreq: 'monthly',
@@ -291,7 +291,7 @@ const routes = [
   },
   {
     path: '/gallery',
-    title: 'Project Gallery: Real FRELUX Estimates | FRELUX',
+    title: 'Project Gallery: Real FRELUX Estimates | FRELUX SMART CALC',
     description: 'Browse real painting, tiling, screeding, and POP ceiling projects with photos and verified cost estimates.',
     priority: '0.7',
     changefreq: 'daily',
@@ -301,7 +301,7 @@ const routes = [
   },
   {
     path: '/case-studies',
-    title: 'Before & After Case Studies: Real Projects, Real Numbers | FRELUX',
+    title: 'Before & After Case Studies: Real Projects, Real Numbers | FRELUX SMART CALC',
     description: 'In-depth before and after case studies of real painting, screeding, POP ceiling and tiling projects: scope, challenges, outcome and cost.',
     priority: '0.7',
     changefreq: 'weekly',
@@ -311,7 +311,7 @@ const routes = [
   },
   {
     path: '/material-prices',
-    title: 'Material Price Tracker: Live Paint & Building Material Prices | FRELUX',
+    title: 'Material Price Tracker: Live Paint & Building Material Prices | FRELUX SMART CALC',
     description: 'Track live prices of paint, cement, tiles, and building materials across supported markets to keep your estimates accurate.',
     priority: '0.7',
     changefreq: 'daily',
@@ -321,7 +321,7 @@ const routes = [
   },
   {
     path: '/surface-assessment',
-    title: 'Surface Assessment Tool: Check Wall Conditions | FRELUX',
+    title: 'Surface Assessment Tool: Check Wall Conditions | FRELUX SMART CALC',
     description: 'Assess wall and ceiling surface conditions to get accurate paint absorption factors and material estimates.',
     priority: '0.7',
     changefreq: 'monthly',
@@ -331,7 +331,7 @@ const routes = [
   },
   {
     path: '/learn',
-    title: 'Learn: Painting Guides & Tips | FRELUX',
+    title: 'Learn: Painting Guides & Tips | FRELUX SMART CALC',
     description: 'Expert guides on paint selection, surface preparation, application techniques, and cost planning for your painting projects.',
     priority: '0.8',
     changefreq: 'weekly',
@@ -341,7 +341,7 @@ const routes = [
   },
   {
     path: '/printables',
-    title: 'Free Printable Templates: Quotes, Schedules & Checklists | FRELUX',
+    title: 'Free Printable Templates: Quotes, Schedules & Checklists | FRELUX SMART CALC',
     description: 'Free, print-ready project sheets from FRELUX: a quote comparison sheet, a paint project schedule, and a material shopping checklist.',
     priority: '0.8',
     changefreq: 'monthly',
@@ -351,7 +351,7 @@ const routes = [
   },
   {
     path: '/glossary',
-    title: 'Construction Glossary: Plain-Language Building Terms Explained | FRELUX',
+    title: 'Construction Glossary: Plain-Language Building Terms Explained | FRELUX SMART CALC',
     description: 'A plain-language glossary of construction, painting and finishing terms: primers, screeds, coverage rates, bills of quantities and more.',
     priority: '0.8',
     changefreq: 'monthly',
@@ -362,7 +362,7 @@ const routes = [
   },
   {
     path: '/prices',
-    title: 'Material Prices: Live Construction & Paint Price Book | FRELUX',
+    title: 'Material Prices: Live Construction & Paint Price Book | FRELUX SMART CALC',
     description: 'Browse the FRELUX material price book: current prices for cement, paint, aggregates, plumbing, electrical and more, with sources, effective dates, and weekly movement.',
     priority: '0.8',
     changefreq: 'daily',
@@ -372,7 +372,7 @@ const routes = [
   },
   {
     path: '/learn/library',
-    title: 'All Guides: The Complete FRELUX Learn Library | FRELUX',
+    title: 'All Guides: The Complete FRELUX Learn Library | FRELUX SMART CALC',
     description: 'Browse every published guide in the FRELUX Learn library: painting, screeding, POP ceiling, tiling, finishing, and construction tutorials.',
     priority: '0.7',
     changefreq: 'daily',
@@ -412,51 +412,51 @@ const routes = [
       { '@context': 'https://schema.org', '@type': 'BreadcrumbList', itemListElement: [{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://freluxtools.netlify.app' }, { '@type': 'ListItem', position: 2, name: 'Templates', item: 'https://freluxtools.netlify.app/templates' }] },
     ],
   },
-  { path: '/templates/standard-living-room-painting', title: 'Paint Calculator Template: Standard Living Room | FRELUX', description: 'Calculate paint needed for a standard living room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/master-bedroom-painting', title: 'Paint Calculator Template: Master Bedroom | FRELUX', description: 'Calculate paint needed for a master bedroom with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/single-accent-wall-painting', title: 'Paint Calculator Template: Single Accent Wall | FRELUX', description: 'Calculate paint for a single accent wall with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/exterior-bungalow-painting', title: 'Paint Calculator Template: Exterior Bungalow | FRELUX', description: 'Calculate paint for exterior bungalow walls with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/dining-room-painting', title: 'Paint Calculator Template: Dining Room | FRELUX', description: 'Calculate paint needed for a dining room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/childrens-room-painting', title: 'Paint Calculator Template: Children\'s Room | FRELUX', description: 'Calculate paint needed for a children\'s room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/kitchen-walls-painting', title: 'Paint Calculator Template: Kitchen Walls | FRELUX', description: 'Calculate paint needed for kitchen walls with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/corridor-stairwell-painting', title: 'Paint Calculator Template: Corridor & Stairwell | FRELUX', description: 'Calculate paint for corridors and stairwells with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/2-bedroom-flat-full-painting', title: 'Paint Calculator Template: 2-Bedroom Flat | FRELUX', description: 'Calculate paint for a complete 2-bedroom flat with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/office-space-painting', title: 'Paint Calculator Template: Office Space | FRELUX', description: 'Calculate paint needed for office space with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/exterior-duplex-painting', title: 'Paint Calculator Template: Exterior Duplex | FRELUX', description: 'Calculate paint for exterior duplex walls with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/shop-retail-front-painting', title: 'Paint Calculator Template: Shop / Retail Front | FRELUX', description: 'Calculate paint for shop and retail fronts with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/standard-floor-tiling', title: 'Tile Calculator Template: Standard Floor Tiling | FRELUX', description: 'Calculate tiles, adhesive, and grout for a standard floor with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/bathroom-wall-tiling', title: 'Tile Calculator Template: Bathroom Wall Tiles | FRELUX', description: 'Calculate tiles for bathroom walls with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/large-hall-floor-tiling', title: 'Tile Calculator Template: Large Hall Floor | FRELUX', description: 'Calculate tiles for a large hall floor with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/kitchen-backsplash-tiling', title: 'Tile Calculator Template: Kitchen Backsplash | FRELUX', description: 'Calculate tiles for a kitchen backsplash with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/balcony-floor-tiling', title: 'Tile Calculator Template: Balcony Floor Tiling | FRELUX', description: 'Calculate tiles for balcony floors with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/kitchen-floor-tiling', title: 'Tile Calculator Template: Kitchen Floor Tiles | FRELUX', description: 'Calculate tiles for kitchen floors with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/guest-toilet-wall-tiling', title: 'Tile Calculator Template: Guest Toilet Wall Tiles | FRELUX', description: 'Calculate tiles for guest toilet walls with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/staircase-tiling', title: 'Tile Calculator Template: Staircase Tiling | FRELUX', description: 'Calculate tiles for staircases with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/terrazzo-porcelain-floor-tiling', title: 'Tile Calculator Template: Large Format Porcelain Floor | FRELUX', description: 'Calculate tiles for large format porcelain floors with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/wall-feature-strip-tiling', title: 'Tile Calculator Template: Wall Feature Strip | FRELUX', description: 'Calculate tiles for decorative wall feature strips with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/standard-room-screeding', title: 'Screeding Calculator Template: Standard Room | FRELUX', description: 'Calculate screeding materials for a standard room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/single-wall-screeding', title: 'Screeding Calculator Template: Single Wall | FRELUX', description: 'Calculate screeding materials for a single wall with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/living-room-ceiling-screeding', title: 'Screeding Calculator Template: Living Room + Ceiling | FRELUX', description: 'Calculate screeding for living room walls and ceiling with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/corridor-walls-screeding', title: 'Screeding Calculator Template: Corridor Walls | FRELUX', description: 'Calculate screeding materials for corridor walls with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/dining-room-screeding', title: 'Screeding Calculator Template: Dining Room | FRELUX', description: 'Calculate screeding materials for a dining room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/office-screeding', title: 'Screeding Calculator Template: Office | FRELUX', description: 'Calculate screeding materials for office walls with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/corridor-screeding', title: 'Screeding Calculator Template: Corridor | FRELUX', description: 'Calculate screeding materials for corridors with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/single-feature-wall-screeding', title: 'Screeding Calculator Template: Single Feature Wall | FRELUX', description: 'Calculate screeding materials for a single feature wall with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/shop-front-screeding', title: 'Screeding Calculator Template: Shop Front | FRELUX', description: 'Calculate screeding materials for shop front walls with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/standard-bedroom-pop-ceiling', title: 'POP Ceiling Calculator Template: Standard Bedroom | FRELUX', description: 'Calculate POP ceiling materials for a standard bedroom with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/large-living-room-pop-ceiling', title: 'POP Ceiling Calculator Template: Large Living Room | FRELUX', description: 'Calculate POP ceiling materials for a large living room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/small-office-pop-ceiling', title: 'POP Ceiling Calculator Template: Small Office | FRELUX', description: 'Calculate POP ceiling materials for a small office with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/hall-cornice-pop-ceiling', title: 'POP Ceiling Calculator Template: Hall Ceiling with Cornice | FRELUX', description: 'Calculate POP ceiling materials for a large hall with cornice with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/dining-room-pop-ceiling', title: 'POP Ceiling Calculator Template: Dining Room | FRELUX', description: 'Calculate POP ceiling materials for a dining room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/kitchen-pop-ceiling', title: 'POP Ceiling Calculator Template: Kitchen | FRELUX', description: 'Calculate POP ceiling materials for a kitchen with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/corridor-pop-ceiling', title: 'POP Ceiling Calculator Template: Corridor | FRELUX', description: 'Calculate POP ceiling materials for a corridor with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/master-bedroom-pop-ceiling', title: 'POP Ceiling Calculator Template: Master Bedroom | FRELUX', description: 'Calculate POP ceiling materials for a master bedroom with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
-  { path: '/templates/conference-room-pop-ceiling', title: 'POP Ceiling Calculator Template: Conference Room | FRELUX', description: 'Calculate POP ceiling materials for a large conference room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/standard-living-room-painting', title: 'Paint Calculator Template: Standard Living Room | FRELUX SMART CALC', description: 'Calculate paint needed for a standard living room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/master-bedroom-painting', title: 'Paint Calculator Template: Master Bedroom | FRELUX SMART CALC', description: 'Calculate paint needed for a master bedroom with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/single-accent-wall-painting', title: 'Paint Calculator Template: Single Accent Wall | FRELUX SMART CALC', description: 'Calculate paint for a single accent wall with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/exterior-bungalow-painting', title: 'Paint Calculator Template: Exterior Bungalow | FRELUX SMART CALC', description: 'Calculate paint for exterior bungalow walls with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/dining-room-painting', title: 'Paint Calculator Template: Dining Room | FRELUX SMART CALC', description: 'Calculate paint needed for a dining room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/childrens-room-painting', title: 'Paint Calculator Template: Children\'s Room | FRELUX SMART CALC', description: 'Calculate paint needed for a children\'s room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/kitchen-walls-painting', title: 'Paint Calculator Template: Kitchen Walls | FRELUX SMART CALC', description: 'Calculate paint needed for kitchen walls with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/corridor-stairwell-painting', title: 'Paint Calculator Template: Corridor & Stairwell | FRELUX SMART CALC', description: 'Calculate paint for corridors and stairwells with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/2-bedroom-flat-full-painting', title: 'Paint Calculator Template: 2-Bedroom Flat | FRELUX SMART CALC', description: 'Calculate paint for a complete 2-bedroom flat with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/office-space-painting', title: 'Paint Calculator Template: Office Space | FRELUX SMART CALC', description: 'Calculate paint needed for office space with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/exterior-duplex-painting', title: 'Paint Calculator Template: Exterior Duplex | FRELUX SMART CALC', description: 'Calculate paint for exterior duplex walls with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/shop-retail-front-painting', title: 'Paint Calculator Template: Shop / Retail Front | FRELUX SMART CALC', description: 'Calculate paint for shop and retail fronts with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/standard-floor-tiling', title: 'Tile Calculator Template: Standard Floor Tiling | FRELUX SMART CALC', description: 'Calculate tiles, adhesive, and grout for a standard floor with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/bathroom-wall-tiling', title: 'Tile Calculator Template: Bathroom Wall Tiles | FRELUX SMART CALC', description: 'Calculate tiles for bathroom walls with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/large-hall-floor-tiling', title: 'Tile Calculator Template: Large Hall Floor | FRELUX SMART CALC', description: 'Calculate tiles for a large hall floor with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/kitchen-backsplash-tiling', title: 'Tile Calculator Template: Kitchen Backsplash | FRELUX SMART CALC', description: 'Calculate tiles for a kitchen backsplash with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/balcony-floor-tiling', title: 'Tile Calculator Template: Balcony Floor Tiling | FRELUX SMART CALC', description: 'Calculate tiles for balcony floors with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/kitchen-floor-tiling', title: 'Tile Calculator Template: Kitchen Floor Tiles | FRELUX SMART CALC', description: 'Calculate tiles for kitchen floors with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/guest-toilet-wall-tiling', title: 'Tile Calculator Template: Guest Toilet Wall Tiles | FRELUX SMART CALC', description: 'Calculate tiles for guest toilet walls with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/staircase-tiling', title: 'Tile Calculator Template: Staircase Tiling | FRELUX SMART CALC', description: 'Calculate tiles for staircases with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/terrazzo-porcelain-floor-tiling', title: 'Tile Calculator Template: Large Format Porcelain Floor | FRELUX SMART CALC', description: 'Calculate tiles for large format porcelain floors with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/wall-feature-strip-tiling', title: 'Tile Calculator Template: Wall Feature Strip | FRELUX SMART CALC', description: 'Calculate tiles for decorative wall feature strips with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/standard-room-screeding', title: 'Screeding Calculator Template: Standard Room | FRELUX SMART CALC', description: 'Calculate screeding materials for a standard room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/single-wall-screeding', title: 'Screeding Calculator Template: Single Wall | FRELUX SMART CALC', description: 'Calculate screeding materials for a single wall with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/living-room-ceiling-screeding', title: 'Screeding Calculator Template: Living Room + Ceiling | FRELUX SMART CALC', description: 'Calculate screeding for living room walls and ceiling with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/corridor-walls-screeding', title: 'Screeding Calculator Template: Corridor Walls | FRELUX SMART CALC', description: 'Calculate screeding materials for corridor walls with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/dining-room-screeding', title: 'Screeding Calculator Template: Dining Room | FRELUX SMART CALC', description: 'Calculate screeding materials for a dining room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/office-screeding', title: 'Screeding Calculator Template: Office | FRELUX SMART CALC', description: 'Calculate screeding materials for office walls with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/corridor-screeding', title: 'Screeding Calculator Template: Corridor | FRELUX SMART CALC', description: 'Calculate screeding materials for corridors with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/single-feature-wall-screeding', title: 'Screeding Calculator Template: Single Feature Wall | FRELUX SMART CALC', description: 'Calculate screeding materials for a single feature wall with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/shop-front-screeding', title: 'Screeding Calculator Template: Shop Front | FRELUX SMART CALC', description: 'Calculate screeding materials for shop front walls with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/standard-bedroom-pop-ceiling', title: 'POP Ceiling Calculator Template: Standard Bedroom | FRELUX SMART CALC', description: 'Calculate POP ceiling materials for a standard bedroom with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/large-living-room-pop-ceiling', title: 'POP Ceiling Calculator Template: Large Living Room | FRELUX SMART CALC', description: 'Calculate POP ceiling materials for a large living room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/small-office-pop-ceiling', title: 'POP Ceiling Calculator Template: Small Office | FRELUX SMART CALC', description: 'Calculate POP ceiling materials for a small office with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/hall-cornice-pop-ceiling', title: 'POP Ceiling Calculator Template: Hall Ceiling with Cornice | FRELUX SMART CALC', description: 'Calculate POP ceiling materials for a large hall with cornice with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/dining-room-pop-ceiling', title: 'POP Ceiling Calculator Template: Dining Room | FRELUX SMART CALC', description: 'Calculate POP ceiling materials for a dining room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/kitchen-pop-ceiling', title: 'POP Ceiling Calculator Template: Kitchen | FRELUX SMART CALC', description: 'Calculate POP ceiling materials for a kitchen with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/corridor-pop-ceiling', title: 'POP Ceiling Calculator Template: Corridor | FRELUX SMART CALC', description: 'Calculate POP ceiling materials for a corridor with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/master-bedroom-pop-ceiling', title: 'POP Ceiling Calculator Template: Master Bedroom | FRELUX SMART CALC', description: 'Calculate POP ceiling materials for a master bedroom with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
+  { path: '/templates/conference-room-pop-ceiling', title: 'POP Ceiling Calculator Template: Conference Room | FRELUX SMART CALC', description: 'Calculate POP ceiling materials for a large conference room with this FRELUX template.', priority: '0.5', changefreq: 'monthly' },
 
   // ── Construction calculators & estimators (missing from original) ──
   {
     path: '/build-to-roof-estimator',
-    title: 'Build-to-Roof Estimator: Full Construction Cost | FRELUX',
+    title: 'Build-to-Roof Estimator: Full Construction Cost | FRELUX SMART CALC',
     description: 'Estimate materials and costs for a complete build from foundation to roof. Blocks, cement, sand, granite, roofing, labour, and structural members for building projects.',
     priority: '0.9',
     changefreq: 'monthly',
@@ -475,7 +475,7 @@ const routes = [
   },
   {
     path: '/image-estimator',
-    title: 'AI Photo Estimator: Estimate from a Photo | FRELUX',
+    title: 'AI Photo Estimator: Estimate from a Photo | FRELUX SMART CALC',
     description: 'Upload a photo of your construction site, room, or building and get an AI-powered material and cost estimate. Visual estimation for painting, tiling, and construction projects.',
     priority: '0.8',
     changefreq: 'monthly',
@@ -490,7 +490,7 @@ const routes = [
   },
   {
     path: '/smart-calculator',
-    title: 'Smart Calculator: AI-Powered Construction Estimator | FRELUX',
+    title: 'Smart Calculator: AI-Powered Construction Estimator | FRELUX SMART CALC',
     description: 'Describe any construction project in plain language and get an AI-powered cost estimate with material quantities, line items, and savings recommendations.',
     priority: '0.8',
     changefreq: 'monthly',
@@ -505,7 +505,7 @@ const routes = [
   },
   {
     path: '/structural-calculator',
-    title: 'Structural Calculator: Beams, Columns & Slabs | FRELUX',
+    title: 'Structural Calculator: Beams, Columns & Slabs | FRELUX SMART CALC',
     description: 'Calculate structural member sizes for building projects. Beam dimensions, column sizing, slab thickness, and reinforcement estimates.',
     priority: '0.8',
     changefreq: 'monthly',
@@ -523,7 +523,7 @@ const routes = [
   },
   {
     path: '/foundation-calculator',
-    title: 'Foundation Calculator: Sizing & Materials | FRELUX',
+    title: 'Foundation Calculator: Sizing & Materials | FRELUX SMART CALC',
     description: 'Calculate foundation sizes and materials for building projects. Strip footing, pad foundation, and raft foundation estimates with soil bearing capacity guidance.',
     priority: '0.8',
     changefreq: 'monthly',
@@ -542,7 +542,7 @@ const routes = [
   },
   {
     path: '/construction-sequence',
-    title: 'Construction Sequence Planner | FRELUX',
+    title: 'Construction Sequence Planner | FRELUX SMART CALC',
     description: 'Plan your building project step by step. From site clearance to finishing, get a construction timeline with material and labour requirements for each phase.',
     priority: '0.7',
     changefreq: 'monthly',
@@ -557,7 +557,7 @@ const routes = [
   },
   {
     path: '/project-timeline',
-    title: 'Project Timeline Builder | FRELUX',
+    title: 'Project Timeline Builder | FRELUX SMART CALC',
     description: 'Create a construction project timeline with phases, milestones, and material schedules. Track progress from foundation to finishing.',
     priority: '0.7',
     changefreq: 'monthly',
@@ -572,7 +572,7 @@ const routes = [
   },
   {
     path: '/pricing',
-    title: 'Pricing & Plans | FRELUX PAINT CALC',
+    title: 'Pricing & Plans | FRELUX SMART CALC',
     description: 'Compare FRELUX plans. Free calculators, Pro features for professionals, and enterprise options for construction firms.',
     priority: '0.6',
     changefreq: 'monthly',
@@ -585,7 +585,7 @@ const routes = [
   },
   {
     path: '/marketplace',
-    title: 'Construction Marketplace: Buy & Sell Building Materials | FRELUX',
+    title: 'Construction Marketplace: Buy & Sell Building Materials | FRELUX SMART CALC',
     description: 'Browse construction materials, tools, and services from suppliers across supported markets. Find paints, tiles, cement, tools, and professional services near you.',
     priority: '0.8',
     changefreq: 'daily',
@@ -599,7 +599,7 @@ const routes = [
   },
   {
     path: '/pro-connect',
-    title: 'Pro Connect: Find Verified Construction Professionals | FRELUX',
+    title: 'Pro Connect: Find Verified Construction Professionals | FRELUX SMART CALC',
     description: 'Connect with verified painters, tilers, screeders, POP ceiling specialists, and builders across supported markets. Browse profiles, compare services, and hire professionals.',
     priority: '0.8',
     changefreq: 'weekly',
@@ -613,7 +613,7 @@ const routes = [
   },
   {
     path: '/calculators',
-    title: 'All Calculators & Estimators | FRELUX PAINT CALC',
+    title: 'All Calculators & Estimators | FRELUX SMART CALC',
     description: 'Browse every FRELUX calculator and estimator: paint, screeding, POP ceiling, tiles, tyrolene, finishing, structural, foundation, build-to-roof, and cost estimators. Free construction material calculators.',
     priority: '0.9',
     changefreq: 'monthly',
@@ -646,260 +646,260 @@ const routes = [
   // ── About / Contact / Legal ──
   {
     path: '/about',
-    title: 'About FRELUX PAINT CALC',
-    description: 'Learn about FRELUX PAINT CALC: free professional paint calculators, cost estimators, and AI tools for painting projects.',
+    title: 'About FRELUX SMART CALC',
+    description: 'Learn about FRELUX SMART CALC: free professional paint calculators, cost estimators, and AI tools for painting projects.',
     priority: '0.5',
     changefreq: 'monthly',
   },
   {
     path: '/contact',
-    title: 'Contact FRELUX PAINT CALC',
+    title: 'Contact FRELUX SMART CALC',
     description: 'Get in touch with the FRELUX team. Send us your questions, feedback, or partnership inquiries.',
     priority: '0.5',
     changefreq: 'monthly',
   },
   {
     path: '/privacy-policy',
-    title: 'Privacy Policy: FRELUX PAINT CALC',
-    description: 'How FRELUX PAINT CALC handles your information when you use our website and tools.',
+    title: 'Privacy Policy: FRELUX SMART CALC',
+    description: 'How FRELUX SMART CALC handles your information when you use our website and tools.',
     priority: '0.3',
     changefreq: 'yearly',
   },
   {
     path: '/terms',
-    title: 'Terms of Service: FRELUX PAINT CALC',
-    description: 'Terms of service for using FRELUX PAINT CALC tools and website.',
+    title: 'Terms of Service: FRELUX SMART CALC',
+    description: 'Terms of service for using FRELUX SMART CALC tools and website.',
     priority: '0.3',
     changefreq: 'yearly',
   },
   {
     path: '/cookie-policy',
-    title: 'Cookie Policy: FRELUX PAINT CALC',
-    description: 'How FRELUX PAINT CALC uses cookies and how they improve your experience.',
+    title: 'Cookie Policy: FRELUX SMART CALC',
+    description: 'How FRELUX SMART CALC uses cookies and how they improve your experience.',
     priority: '0.3',
     changefreq: 'yearly',
   },
   {
     path: '/disclaimer',
-    title: 'Disclaimer: FRELUX PAINT CALC',
-    description: 'Disclaimer for FRELUX PAINT CALC tools and estimates. All calculations and estimates are for guidance only.',
+    title: 'Disclaimer: FRELUX SMART CALC',
+    description: 'Disclaimer for FRELUX SMART CALC tools and estimates. All calculations and estimates are for guidance only.',
     priority: '0.3',
     changefreq: 'yearly',
   },
   {
     path: '/bim-ifc-import',
-    title: 'BIM IFC Import | FRELUX',
+    title: 'BIM IFC Import | FRELUX SMART CALC',
     description:
       'Import IFC building models and generate material quantities and cost estimates from your BIM data.',
   },
   {
     path: '/boq-generator',
-    title: 'BOQ Generator | FRELUX',
+    title: 'BOQ Generator | FRELUX SMART CALC',
     description:
       'Generate a professional bill of quantities from your FRELUX estimates.',
   },
   {
     path: '/brand-studio',
-    title: 'FRELUX Brand Studio | FRELUX',
+    title: 'FRELUX Brand Studio | FRELUX SMART CALC',
     description:
       'FRELUX brand assets, usage guidance, and design resources for partners and contributors.',
   },
   {
     path: '/carbon-footprint',
-    title: 'Carbon Footprint Calculator | FRELUX',
+    title: 'Carbon Footprint Calculator | FRELUX SMART CALC',
     description:
       'Estimate the embodied carbon of your construction materials and compare choices.',
   },
   {
     path: '/cash-flow-timeline',
-    title: 'Cash Flow Timeline | FRELUX',
+    title: 'Cash Flow Timeline | FRELUX SMART CALC',
     description:
       'Map project payments against construction milestones to see when money is needed.',
   },
   {
     path: '/circular-reuse',
-    title: 'Circular Reuse Planner | FRELUX',
+    title: 'Circular Reuse Planner | FRELUX SMART CALC',
     description:
       'Plan material reuse across projects to cut cost and construction waste.',
   },
   {
     path: '/construction-tools',
-    title: 'All Construction Tools and Calculators | FRELUX',
+    title: 'All Construction Tools and Calculators | FRELUX SMART CALC',
     description:
       'Browse every FRELUX construction calculator, cost estimator, and property intelligence tool in one directory. Free, no sign-up required.',
   },
   {
     path: '/contractor-credit',
-    title: 'Contractor Credit | FRELUX',
+    title: 'Contractor Credit | FRELUX SMART CALC',
     description:
       'Explore credit options for contractors and material financing for your projects.',
   },
   {
     path: '/conversational-estimator',
-    title: 'Conversational Estimator | FRELUX',
+    title: 'Conversational Estimator | FRELUX SMART CALC',
     description:
       'Describe your project in plain language and get a structured material and cost estimate you can refine.',
   },
   {
     path: '/count-vision',
-    title: 'Count Vision | FRELUX',
+    title: 'Count Vision | FRELUX SMART CALC',
     description:
       'Count construction objects such as blocks, bags, and tiles from a photo using AI vision, then feed the numbers into estimates.',
   },
   {
     path: '/credits',
-    title: 'FRELUX Credits | FRELUX',
+    title: 'FRELUX Credits | FRELUX SMART CALC',
     description:
       'Buy AI credits and token packs to power FRELUX AI features. Check balances and purchase history.',
   },
   {
     path: '/data-request',
-    title: 'Data Subject Request | FRELUX',
+    title: 'Data Subject Request | FRELUX SMART CALC',
     description:
       'Request a copy of your FRELUX account data or ask us to delete it. We verify your identity and respond within statutory timeframes.',
   },
   {
     path: '/defect-diagnosis',
-    title: 'Defect Diagnosis | FRELUX',
+    title: 'Defect Diagnosis | FRELUX SMART CALC',
     description:
       'Diagnose common construction defects, understand causes, and get remediation guidance.',
   },
   {
     path: '/developers',
-    title: 'FRELUX Developer Resources | FRELUX',
+    title: 'FRELUX Developer Resources | FRELUX SMART CALC',
     description:
       'FRELUX APIs, integration guides, and developer documentation.',
   },
   {
     path: '/doors-windows',
-    title: 'Doors and Windows Estimator | FRELUX',
+    title: 'Doors and Windows Estimator | FRELUX SMART CALC',
     description:
       'Estimate door and window quantities, hardware, and installation labour.',
   },
   {
     path: '/electrical',
-    title: 'Electrical Estimator | FRELUX',
+    title: 'Electrical Estimator | FRELUX SMART CALC',
     description:
       'Estimate electrical materials, wiring, fittings, and labour for residential and commercial projects.',
   },
   {
     path: '/estimate-refresh',
-    title: 'Estimate Refresh | FRELUX',
+    title: 'Estimate Refresh | FRELUX SMART CALC',
     description:
       'Reprice saved estimates with current market prices so old numbers stay useful.',
   },
   {
     path: '/feedback',
-    title: 'Send Feedback to FRELUX | FRELUX',
+    title: 'Send Feedback to FRELUX | FRELUX SMART CALC',
     description:
       'Share feedback on FRELUX calculators, estimators, and the website. Tell us what to improve.',
   },
   {
     path: '/field-sync',
-    title: 'Field Sync | FRELUX',
+    title: 'Field Sync | FRELUX SMART CALC',
     description:
       'Sync project measurements and estimates between the office and the construction site.',
   },
   {
     path: '/flooring',
-    title: 'Flooring Estimator | FRELUX',
+    title: 'Flooring Estimator | FRELUX SMART CALC',
     description:
       'Estimate flooring materials, quantities, and labour for any room or building.',
   },
   {
     path: '/foundation',
-    title: 'Foundation Estimator | FRELUX',
+    title: 'Foundation Estimator | FRELUX SMART CALC',
     description:
       'Estimate foundation materials and cost from footings to ground slab, with engineer referral for structural sizing.',
   },
   {
     path: '/generator',
-    title: 'Generator Estimator | FRELUX',
+    title: 'Generator Estimator | FRELUX SMART CALC',
     description:
       'Size a generator for your load profile and estimate purchase and installation cost.',
   },
   {
     path: '/heat-comfort',
-    title: 'Heat and Comfort Analyser | FRELUX',
+    title: 'Heat and Comfort Analyser | FRELUX SMART CALC',
     description:
       'Analyse indoor heat comfort for your building design and material choices.',
   },
   {
     path: '/labour-estimator',
-    title: 'Labour Estimator | FRELUX',
+    title: 'Labour Estimator | FRELUX SMART CALC',
     description:
       'Estimate labour costs by trade and task with configurable rates for your market.',
   },
   {
     path: '/maintenance-planner',
-    title: 'Maintenance Planner | FRELUX',
+    title: 'Maintenance Planner | FRELUX SMART CALC',
     description:
       'Plan building maintenance schedules with cost estimates for each task.',
   },
   {
     path: '/margin-calculator',
-    title: 'Margin Calculator | FRELUX',
+    title: 'Margin Calculator | FRELUX SMART CALC',
     description:
       'Calculate profit margins on construction quotes with material, labour, and overhead inputs.',
   },
   {
     path: '/plumbing',
-    title: 'Plumbing Estimator | FRELUX',
+    title: 'Plumbing Estimator | FRELUX SMART CALC',
     description:
       'Estimate plumbing materials, pipes, fittings, and labour for residential and commercial projects.',
   },
   {
     path: '/regional-cost-index',
-    title: 'Regional Cost Index | FRELUX',
+    title: 'Regional Cost Index | FRELUX SMART CALC',
     description:
       'Compare construction costs across regions with the FRELUX regional cost index.',
   },
   {
     path: '/reinforcement',
-    title: 'Reinforcement Estimator | FRELUX',
+    title: 'Reinforcement Estimator | FRELUX SMART CALC',
     description:
       'Estimate reinforcement bars, mesh, and accessories for slabs, beams, columns, and foundations.',
   },
   {
     path: '/partners',
-    title: 'Partner with FRELUX | FRELUX',
+    title: 'Partner with FRELUX | FRELUX SMART CALC',
     description:
       'Partner with FRELUX to bring construction intelligence to your audience, products, or professional network.',
   },
   {
     path: '/rewards',
-    title: 'FRELUX Rewards | FRELUX',
+    title: 'FRELUX Rewards | FRELUX SMART CALC',
     description:
       'Earn FRELUX credits through rewards, referrals, and community contributions.',
   },
   {
     path: '/solar-pv-estimator',
-    title: 'Solar PV Estimator | FRELUX',
+    title: 'Solar PV Estimator | FRELUX SMART CALC',
     description:
       'Size a solar power system, get the bill of materials, and estimate installation cost for your market.',
   },
   {
     path: '/wall-finish-estimator',
-    title: 'Wall Finish Estimator | FRELUX',
+    title: 'Wall Finish Estimator | FRELUX SMART CALC',
     description:
       'Estimate modern wall finish systems including mineral stone and stucco with layers, labour, and quality control.',
   },
   {
     path: '/warranty-certificate',
-    title: 'Warranty Certificate | FRELUX',
+    title: 'Warranty Certificate | FRELUX SMART CALC',
     description:
       'Generate a professional warranty certificate for completed construction work.',
   },
   {
     path: '/waterproofing',
-    title: 'Waterproofing Estimator | FRELUX',
+    title: 'Waterproofing Estimator | FRELUX SMART CALC',
     description:
       'Estimate waterproofing materials for roofs, walls, wet areas, and foundations.',
   },
   {
     path: '/ai-disclaimer',
-    title: 'AI Disclaimer: FRELUX PAINT CALC',
-    description: 'Disclaimer for AI-powered features in FRELUX PAINT CALC.',
+    title: 'AI Disclaimer: FRELUX SMART CALC',
+    description: 'Disclaimer for AI-powered features in FRELUX SMART CALC.',
     priority: '0.3',
     changefreq: 'yearly',
   },
@@ -1210,7 +1210,7 @@ for (const route of routes) {
 // Generate a proper 404.html that returns real content, not the homepage shell.
 {
   let html404 = templateHtml;
-  html404 = html404.replace(/<title>.*?<\/title>/, '<title>Page Not Found | FRELUX PAINT CALC</title>');
+  html404 = html404.replace(/<title>.*?<\/title>/, '<title>Page Not Found | FRELUX SMART CALC</title>');
   html404 = html404.replace(/<meta\s+name="robots"\s+content="[^"]*"\s*\/?>/, '<meta name="robots" content="noindex, nofollow" />');
   if (html404.includes('rel="canonical"')) {
     html404 = html404.replace(/<link\s+rel="canonical"\s+href="[^"]*"\s*\/?>/, '<link rel="canonical" href="https://freluxtools.netlify.app/404" />');

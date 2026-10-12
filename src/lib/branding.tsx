@@ -16,12 +16,12 @@ interface BrandingContextValue {
 
 const defaultBranding: DbSiteBranding = {
   id: "",
-  website_name: "FRELUX",
+  website_name: "FRELUX SMART CALC",
   // Worldwide positioning, aligned with the final personalization pass
   // (2026-10-08). These are fallbacks; the live site_settings row still
   // overrides them.
   website_tagline: "Every Trade. Every Cost. One Platform.",
-  browser_title: "FRELUX | Every Trade. Every Cost. One Platform.",
+  browser_title: "FRELUX SMART CALC | Every Trade. Every Cost. One Platform.",
   light_logo_url: null,
   dark_logo_url: null,
   favicon_url: null,
@@ -53,14 +53,19 @@ const defaultBranding: DbSiteBranding = {
  * public name, tagline and title are normalised back to the FRELUX defaults
  * here; colours, logos and hero content still come from the admin row.
  */
-const LEGACY_BRAND_NAME = /^\s*frelux\s*tools?\b/i;
+// Every FRELUX-prefixed identity EXCEPT "FRELUX SMART CALC" is legacy:
+// FRELUXTOOLS, plain FRELUX, FRELUX PAINT CALC, FRELUX PROJECT CALC.
+const LEGACY_BRAND_NAME = /^\s*frelux\b(?!\s*smart)/i;
+const LEGACY_BRAND_TOOLS = /frelux\s*tools?\b/i;
 const LEGACY_BRAND_TAGLINE = /^\s*build\s+smarter\.?\s*$/i;
+const isLegacyBrand = (v: string | null | undefined) =>
+  LEGACY_BRAND_NAME.test(v ?? "") || LEGACY_BRAND_TOOLS.test(v ?? "");
 
 // eslint-disable-next-line react-refresh/only-export-components
 export function normalizeBranding(row: DbSiteBranding): DbSiteBranding {
-  const legacyName = LEGACY_BRAND_NAME.test(row.website_name ?? "");
+  const legacyName = isLegacyBrand(row.website_name);
   const legacyTagline = LEGACY_BRAND_TAGLINE.test(row.website_tagline ?? "");
-  const legacyTitle = LEGACY_BRAND_NAME.test(row.browser_title ?? "");
+  const legacyTitle = isLegacyBrand(row.browser_title);
   if (!legacyName && !legacyTagline && !legacyTitle) return row;
   return {
     ...row,

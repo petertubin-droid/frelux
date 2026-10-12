@@ -61,8 +61,15 @@ serveWithCors(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "method not allowed" }, 405);
 
   try {
-    const { purpose, plan_id, billing_cycle, email, user_id, currency } =
-      await req.json();
+    const {
+      purpose,
+      plan_id,
+      billing_cycle,
+      email,
+      user_id,
+      currency,
+      allow_ngn_fallback,
+    } = await req.json();
     const plan = typeof plan_id === "string" ? plan_id : "";
     const cycle = billing_cycle === "yearly" ? "yearly" : "monthly";
     const isTokenPurchase = purpose === "token_purchase";
@@ -96,9 +103,12 @@ serveWithCors(async (req: Request) => {
     }
 
     // ── Token purchase branch: price ALWAYS server-side ──
-    // NGN never reaches here (the frontend keeps NGN on Paystack);
-    // every other currency needs an active price row. The client's
-    // amount is ignored entirely.
+    // NGN normally stays on Paystack; it only reaches here as an
+    // explicit failover (allow_ngn_fallback) when Paystack cannot
+    // start the charge — e.g. a rejected secret key. Any other
+    // currency needs an active price row. The client's amount is
+    // ignored entirely; resolveTokenPrice gives NGN the canonical
+    // naira price from token_purchase_config.
     if (isTokenPurchase) {
       const { data: tokenConfig, error: configError } = await admin
         .from("token_purchase_config")
@@ -121,7 +131,8 @@ serveWithCors(async (req: Request) => {
         priceRows ?? [],
         chargeCurrency,
       );
-      if (!resolution || resolution.currency === "NGN") {
+      const ngnBlocked = resolution?.currency === "NGN" && !allow_ngn_fallback;
+      if (!resolution || ngnBlocked) {
         return json(
           {
             error:
