@@ -2,14 +2,14 @@
 // FRELUX Foundation Design Calculator
 // Engine, Phase 32
 //
-// Calculates foundation sizing for Nigerian construction:
+// Calculates foundation sizing (strip / pad / raft) from soil bearing
 // - Strip footing width based on soil bearing capacity
 // - Pad footing dimensions for column loads
 // - Bearing capacity verification
 // - Excavation volume estimation
 //
 // Based on BS 8004 / Eurocode 7 simplified methods, adapted
-// for common Nigerian soil types (lateritic, sandy clay, etc.)
+// for common soil types (lateritic, sandy clay, etc.) — universal
 //
 // DISCLAIMER: A geotechnical investigation is always required
 // for actual foundation design. These are preliminary sizing tools.
@@ -63,7 +63,7 @@ export interface FoundationDesignResult {
 }
 
 // ── Soil bearing capacities (typical, kN/m²) ──
-// Based on BS 8004 Table 1, adapted for Nigerian conditions
+// Based on BS 8004 Table 1 (universal assumed bearing values; use
 
 export const SOIL_BEARING_CAPACITY: Record<SoilType, number> = {
   stiff_clay: 300,
@@ -82,7 +82,7 @@ export const SOIL_DESCRIPTIONS: Record<SoilType, string> = {
   sandy_clay: 'Sandy clay, mixed granular-cohesive',
   loose_sand: 'Loose sand, poorly compacted',
   dense_sand: 'Dense sand, well-compacted granular',
-  lateritic: 'Lateritic soil, common in Nigerian uplands',
+  lateritic: 'Lateritic soil (common in tropical regions)',
   rock: 'Sound rock, very high capacity',
   custom: 'Custom, user-defined bearing capacity',
 };

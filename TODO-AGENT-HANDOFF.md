@@ -65,8 +65,28 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         Remaining sweep items: reword NG-framed comments in engineering/
         foundation-calculator.ts (cosmetic), per-market climate inputs for
         timeline-estimator (dry/rainy is NG-only).
-  - [ ] Identify all hardcoded regional assumptions (grep NG naira/metric/
-        typical defaults in engines) — feed P1.
+  - [x] Hardcoded-NG sweep DISCOVERED (P0). Cosmetic fixed: engineering/
+        foundation-calculator.ts header comments reworded to global framing
+        (BS 8004 values are universal; zero behavior change). BEHAVIORAL
+        NG assumptions catalogued for the P2 structural batch:
+        1) engineering/sequence-planner.ts: hard-mandates 9-inch (225mm)
+           hollow sandcrete foundation walls + 6-inch partitions and words
+           them as 'the standard' — wrong for poured-concrete/timber markets
+           (US GB DE CA AU JP FR...). Needs market-scoped wall-methodology
+           rules (blockwork vs CMU vs poured concrete).
+        2) engineering/structural-calculator.ts: beams assumed b=225mm
+           (9-inch block width) + 'Nigerian construction practice' framing
+           (concrete grade 20-30 MPa presets). Needs market-scoped member
+           sizing rules per regional methodology.
+        3) engineering/timeline-estimator.ts: Season='dry'|'rainy' with
+           rainy=1.2 productivity penalty — NG/tropical climate model.
+           Needs per-market workability inputs (winter shutdown CA/GB/DE,
+           monsoon IN/ID, heat restrictions SA/AE).
+        These three modules serve FoundationCalculator/ProjectTimeline/
+        ProjectSequence pages; non-NG visitors currently get NG
+        methodology — fix via market-scoped rule modules in P2 (mirror the
+        resolveStructuralMarketPricing pattern already used by the
+        structural estimator pages).        typical defaults in engines) — feed P1.
 - **P1 Shared international infrastructure** — contracts, unit conversion,
   material roles, price provenance, saved-calc reproducibility.
 - **P2 Engine-by-engine implementation** — all families: finishing (A),
