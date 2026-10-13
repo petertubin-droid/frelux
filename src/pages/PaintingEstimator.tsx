@@ -15,6 +15,12 @@ import {
 } from "@/lib/estimation/default-quality";
 import { resolveMaterialPriceByRole } from "@/lib/estimation/market-materials";
 import { useMarket } from "@/lib/international/market-context";
+import {
+  resolveMarketRoomUnit,
+  ROOM_DIM_DEFAULTS,
+  DOOR_DIM_DEFAULTS,
+  WINDOW_DIM_DEFAULTS,
+} from "@/lib/international/room-unit-defaults";
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Plus,
@@ -187,6 +193,7 @@ export default function PaintingEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
   const { marketCode, market } = useMarket();
+  const roomUnit = resolveMarketRoomUnit(market, "feet");
   const { defaults: _calcDefaults, rules: defaultCalcRules } =
     useCalcDefaults("painting");
   const DEFAULT_CEILING_COLOUR =
@@ -322,6 +329,31 @@ export default function PaintingEstimator({
   const [rooms, setRooms] = useState<PaintingRoomInput[]>([
     createDefaultRoom(),
   ]);
+
+  // First-visit market detection can resolve after first render: if a room
+  // is still the pristine default, re-key it to the market's unit (user
+  // edits are never touched).
+  const appliedRoomUnitRef = useRef(roomUnit);
+  useEffect(() => {
+    if (roomUnit === appliedRoomUnitRef.current) return;
+    const previous = appliedRoomUnitRef.current;
+    appliedRoomUnitRef.current = roomUnit;
+    const pristine = ROOM_DIM_DEFAULTS[previous];
+    setRooms((prev) =>
+      prev.map((r) =>
+        r.unit === previous &&
+        r.length === pristine.length &&
+        r.breadth === pristine.breadth &&
+        r.height === pristine.height
+          ? {
+              ...createDefaultRoom(),
+              room_id: r.room_id,
+              room_name: r.room_name,
+            }
+          : r,
+      ),
+    );
+  }, [roomUnit]);
   const [expandedRoom, setExpandedRoom] = useState(0);
   const [showCalculation, setShowCalculation] = useState(false);
   // Set true after a failed Calculate attempt, drives live inline validation errors
@@ -332,8 +364,10 @@ export default function PaintingEstimator({
   const [result, setResult] = useState<PaintingEstimateResult | null>(null);
   // Shared labour layer: completes the estimate to the very end
   // (materials + labour + grand total) from admin-configured rates.
-  const { config: labourConfig, setConfig: setLabourConfig } =
-    useLabourConfig("paint", marketCode);
+  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig(
+    "paint",
+    marketCode,
+  );
   // Engine features hook (additive, existing logic unchanged)
   const engine = useEngineFeatures({ calculatorType: "painting" });
   const [alreadyHave, setAlreadyHave] = useState(0);
@@ -517,12 +551,12 @@ export default function PaintingEstimator({
     return {
       room_id: `room-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       room_name: "Room 1",
-      length: 10,
-      breadth: 12,
-      height: 8,
-      unit: "feet",
-      doors: [{ quantity: 1, width: 3, height: 7 }],
-      windows: [{ quantity: 1, width: 4, height: 4 }],
+      length: ROOM_DIM_DEFAULTS[roomUnit].length,
+      breadth: ROOM_DIM_DEFAULTS[roomUnit].breadth,
+      height: ROOM_DIM_DEFAULTS[roomUnit].height,
+      unit: roomUnit,
+      doors: [{ quantity: 1, ...DOOR_DIM_DEFAULTS[roomUnit] }],
+      windows: [{ quantity: 1, ...WINDOW_DIM_DEFAULTS[roomUnit] }],
       doors_unknown: false,
       windows_unknown: false,
       product_id: "",

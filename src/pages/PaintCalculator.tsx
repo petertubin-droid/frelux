@@ -1,5 +1,6 @@
 import { resolveMaterialPriceByRole } from "@/lib/estimation/market-materials";
 import { useMarket } from "@/lib/international/market-context";
+import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import {
   useEffect,
   useMemo,
@@ -151,7 +152,8 @@ import { WasteMarginControl } from "@/components/ui/WasteMarginControl";
 export default function PaintCalculator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
-  const { marketCode } = useMarket();
+  const { marketCode, market } = useMarket();
+  const roomUnit = resolveMarketRoomUnit(market, "feet");
   const { defaults: calcDefaults, rules: _calcRules } =
     useCalcDefaults("painting");
   const WASTE_OPTIONS = (calcDefaults.wasteMarginOptions as number[]) ?? [
@@ -229,7 +231,7 @@ export default function PaintCalculator({
     windowDims: defaultWindowDims,
     coats: 2,
     paintType: "",
-    unit: "feet",
+    unit: roomUnit,
     includeCeiling: false,
     wasteMargin: 10,
     surfaceCondition: "smooth",
@@ -237,6 +239,16 @@ export default function PaintCalculator({
     includePrimer: false,
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // First-visit market detection can resolve after first render: sync the
+  // pristine input's unit to the market default without touching edits.
+  const appliedRoomUnitRef = useRef(roomUnit);
+  useEffect(() => {
+    if (roomUnit === appliedRoomUnitRef.current) return;
+    const previous = appliedRoomUnitRef.current;
+    appliedRoomUnitRef.current = roomUnit;
+    setInput((s) => (s.unit === previous ? { ...s, unit: roomUnit } : s));
+  }, [roomUnit]);
   const [paintTypes, setPaintTypes] = useState<DbPaintType[]>([]);
   const [typesLoading, setTypesLoading] = useState(true);
   const [typesError, setTypesError] = useState<string | null>(null);
@@ -757,7 +769,7 @@ export default function PaintCalculator({
       windowDims: defaultWindowDims,
       coats: 2,
       paintType: paintTypes[0]?.id ?? "",
-      unit: "feet",
+      unit: roomUnit,
       includeCeiling: false,
       wasteMargin: 10,
       surfaceCondition: "smooth",

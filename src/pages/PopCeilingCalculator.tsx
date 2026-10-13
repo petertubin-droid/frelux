@@ -7,6 +7,8 @@ import {
   type ReactNode,
 } from "react";
 import { Link } from "react-router-dom";
+import { useMarket } from "@/lib/international/market-context";
+import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import {
   RotateCcw,
   ArrowRight,
@@ -184,15 +186,27 @@ export default function PopCeilingCalculator({
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
 
+  const { market } = useMarket();
   const [input, setInput] = useState<PopCalcInput>({
     workflow: "nigeria",
     roomLength: 0,
     roomWidth: 0,
-    unit: "meters",
+    unit: resolveMarketRoomUnit(market, "meters"),
     wasteMargin: 10,
     includeDecorative: false,
     includeOptional: false,
   });
+  // First-visit market detection can resolve after first render: sync the
+  // pristine input's unit to the market default without touching edits.
+  const appliedRoomUnitRef = useRef(resolveMarketRoomUnit(market, "meters"));
+  useEffect(() => {
+    const roomUnit = resolveMarketRoomUnit(market, "meters");
+    if (roomUnit === appliedRoomUnitRef.current) return;
+    const previous = appliedRoomUnitRef.current;
+    appliedRoomUnitRef.current = roomUnit;
+    setInput((s) => (s.unit === previous ? { ...s, unit: roomUnit } : s));
+  }, [market]);
+
   const { templateData: loadedTemplate } = useTemplateLoader();
   useEffect(() => {
     if (loadedTemplate?.input_data) {

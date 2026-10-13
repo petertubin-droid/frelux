@@ -7,6 +7,8 @@ import {
   type ReactNode,
 } from "react";
 import { Link } from "react-router-dom";
+import { useMarket } from "@/lib/international/market-context";
+import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import {
   RotateCcw,
   ArrowRight,
@@ -183,6 +185,7 @@ export default function TileCalculator({
   const currencySymbol = settings?.default_currency_symbol ?? "₦";
   const currency = settings?.default_currency ?? "NGN";
 
+  const { market } = useMarket();
   const [input, setInput] = useState<TileCalcInput>({
     surfaceType: "floor",
     method: "adhesive",
@@ -208,8 +211,19 @@ export default function TileCalculator({
     spacerPackageSize: 1,
     wasteMargin: 10,
     labourRatePerSqm: 2000,
-    unit: "meters",
+    unit: resolveMarketRoomUnit(market, "meters"),
   });
+  // First-visit market detection can resolve after first render: sync the
+  // pristine input's unit to the market default without touching edits.
+  const appliedRoomUnitRef = useRef(resolveMarketRoomUnit(market, "meters"));
+  useEffect(() => {
+    const roomUnit = resolveMarketRoomUnit(market, "meters");
+    if (roomUnit === appliedRoomUnitRef.current) return;
+    const previous = appliedRoomUnitRef.current;
+    appliedRoomUnitRef.current = roomUnit;
+    setInput((s) => (s.unit === previous ? { ...s, unit: roomUnit } : s));
+  }, [market]);
+
   const { templateData: loadedTemplate } = useTemplateLoader();
   useEffect(() => {
     if (loadedTemplate?.input_data) {

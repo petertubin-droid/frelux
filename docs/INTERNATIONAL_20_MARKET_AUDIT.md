@@ -96,8 +96,18 @@ requires_verification` with user-safe reasons.
       `fetchAllPrices` remains only in the admin price updater (admin
       surface, by design). Inheritance: only AU/CA/AE inherit NG in
       production; all other books stand alone.
-- [ ] P1.6 Common market context + unit conversion service
-      (`measurement-bridge.ts` exists — audit per-engine adoption)
+- [x] P1.6 Market-aware unit defaults — DONE 2026-10-13. Audit finding:
+      no page consumed the measurement bridge; 6 pages hardcoded their
+      initial room unit (PaintCalculator + PaintingEstimator "feet" for
+      everyone; FinishEstimator, PopCeilingCostEstimator, PopCeilingCalculator,
+      TileCalculator "meters" for everyone). Fix: new
+      `room-unit-defaults.ts` (`resolveMarketRoomUnit(market, legacyDefault)` —
+      NG keeps each page's existing default untouched; imperial markets get
+      feet; metric markets get meters; scale-matched room/door/window
+      dimension defaults per unit) wired into all 6 pages with
+      pristine-room sync effects that never override user edits. Tests:
+      room-unit-defaults.test.ts (7) + all 6 page test files green
+      (19 tests).
 - [ ] P1.7 Material roles / provenance / pricebook validation (exists for
       wall finishing; extend to other engines)
 - [x] P1.8 Standards + evidence registry — DONE 2026-10-13, migration

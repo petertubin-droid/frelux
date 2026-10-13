@@ -42,6 +42,7 @@ import LabourCostSection, {
   useLabourConfig,
 } from "@/components/labour/LabourCostSection";
 import { useMarket } from "@/lib/international/market-context";
+import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import { calculateLabourCost } from "@/lib/labour";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
@@ -117,7 +118,7 @@ function exportPopQuote(result: {
 export default function PopCeilingCostEstimator({
   embedded = false,
 }: { embedded?: boolean } = {}) {
-  const { marketCode } = useMarket();
+  const { marketCode, market } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("pop_ceiling_cost");
   useSeo(
     !embedded
@@ -171,11 +172,21 @@ export default function PopCeilingCostEstimator({
       (marketCode !== "NG" ? "international" : "nigeria"),
     roomLength: 0,
     roomWidth: 0,
-    unit: "meters",
+    unit: resolveMarketRoomUnit(market, "meters"),
     wasteMargin: 10,
     includeDecorative: true,
     includeOptional: false,
   });
+  // First-visit market detection can resolve after first render: sync the
+  // pristine input's unit to the market default without touching edits.
+  const appliedRoomUnitRef = useRef(resolveMarketRoomUnit(market, "meters"));
+  useEffect(() => {
+    const roomUnit = resolveMarketRoomUnit(market, "meters");
+    if (roomUnit === appliedRoomUnitRef.current) return;
+    const previous = appliedRoomUnitRef.current;
+    appliedRoomUnitRef.current = roomUnit;
+    setInput((s) => (s.unit === previous ? { ...s, unit: roomUnit } : s));
+  }, [market]);
 
   // Regional data flow: project location -> market profile -> currency.
   const {

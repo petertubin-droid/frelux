@@ -53,6 +53,7 @@ import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import LabourCostSection from "@/components/labour/LabourCostSection";
 import { useLabourConfig } from "@/components/labour/LabourCostSection";
 import { useMarket } from "@/lib/international/market-context";
+import { resolveMarketRoomUnit } from "@/lib/international/room-unit-defaults";
 import { calculateLabourCost } from "@/lib/labour";
 import { printQuote } from "@/lib/estimation/quote-export";
 import type { DbFinishType, DbSiteSettings } from "@/types/database";
@@ -127,9 +128,10 @@ function exportFinishQuote(args: {
   );
 }
 
-export default function FinishEstimator({  embedded = false,
+export default function FinishEstimator({
+  embedded = false,
 }: { embedded?: boolean } = {}) {
-  const { marketCode } = useMarket();
+  const { marketCode, market } = useMarket();
   const { defaults: calcDefaults } = useCalcDefaults("finish");
   const passed = (useLocation().state as PassedState | null) ?? {};
   const defaultDoorDims: OpeningDimensions = {
@@ -170,8 +172,10 @@ export default function FinishEstimator({  embedded = false,
 
   // Labour follows the site-wide labour layer so international
   // visitors get a complete estimate, not materials alone.
-  const { config: labourConfig, setConfig: setLabourConfig } =
-    useLabourConfig("global", marketCode);
+  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig(
+    "global",
+    marketCode,
+  );
   const labourCost = result
     ? calculateLabourCost(labourConfig, result.area)
     : 0;
@@ -198,8 +202,18 @@ export default function FinishEstimator({  embedded = false,
     doorDims: defaultDoorDims,
     windows: 0,
     windowDims: defaultWindowDims,
-    unit: "meters",
+    unit: resolveMarketRoomUnit(market, "meters"),
   });
+  // First-visit market detection can resolve after first render: sync the
+  // pristine input's unit to the market default without touching edits.
+  const appliedRoomUnitRef = useRef(resolveMarketRoomUnit(market, "meters"));
+  useEffect(() => {
+    const roomUnit = resolveMarketRoomUnit(market, "meters");
+    if (roomUnit === appliedRoomUnitRef.current) return;
+    const previous = appliedRoomUnitRef.current;
+    appliedRoomUnitRef.current = roomUnit;
+    setAreaInput((s) => (s.unit === previous ? { ...s, unit: roomUnit } : s));
+  }, [market]);
 
   const [coats, setCoats] = useState(2);
   const [wasteMargin, setWasteMargin] = useState(10);
@@ -790,7 +804,7 @@ export default function FinishEstimator({  embedded = false,
                 {/* Labour: complete the estimate to the very end */}
                 <LabourCostSection
                   market={marketCode}
-          estimatorKey="global"
+                  estimatorKey="global"
                   config={labourConfig}
                   onChange={setLabourConfig}
                   currencySymbol={currencySymbol}
