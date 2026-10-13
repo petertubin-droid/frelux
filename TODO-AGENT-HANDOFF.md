@@ -285,6 +285,44 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         stock only 12/16mm bars; homedepot.ca search is JS-only
         (extract via browser). NEXT: electrical books (US/GB/AT/DE),
         then remaining market structural anchors.
+  - [x] P2 batch 8: ELECTRICAL BOOKS US + GB, APPLIED LIVE
+        (2026-10-13, migration 20261013210000): 22 rows
+        (11 slugs x 2 markets), all scan_confidence='manual'. The
+        electrical page now prices every line from the market's own
+        book for US/GB (was unpriced everywhere; NG reference book
+        still has no elec prices BY DESIGN - admin-entered).
+        US (Home Depot live listings unless noted): 14/2 NM-B 250ft
+        $124 (50c/ft) = $1.64/m; 12/2 NM-B 72c/ft = $2.36/m; 10/2
+        NM-B $1.23/ft = $4.04/m; 8 AWG bare Cu ground 50ft $40 =
+        $2.62/m; Nassau 2-2-4 SER $1.86/ft = $6.10/m; 1/2 EMT 10ft
+        $6.98 = $2.29/m; Steel City 806SW-20R box $3.06; Homeline
+        HOM120CP breaker $6.99 (Hammond Hardware); Leviton 1451-2W
+        switch $0.85; Leviton BR15-W receptacle $2.68; Eaton
+        BR1220B100 load center $109.99 (W.D. Bryant).
+        GB (Screwfix live listings unless noted, incl VAT):
+        1.5mm2 T&E 100m GBP 65.99 = 0.66/m; 2.5mm2 T&E 100m
+        GBP 94.99 = 0.95/m; 6mm2 T&E 25m GBP 33.99 = 1.36/m;
+        6491X G/Y 2.5mm2 100m GBP 48.51 = 0.49/m; 10mm2 T&E 25m
+        (99630) GBP 72.99 = 2.92/m; Deta TTE 20mm x 3m conduit
+        GBP 2.29 = 0.76/m; Knightsbridge 5A 4-term JB GBP 1.59;
+        Wylex PSB06-B MCB GBP 8.95 (Willrose Electrical); LAP
+        1-gang switch 71728 GBP 1.05; LAP 2-gang 13A socket
+        GBP 6.37; Wylex dual-RCD consumer unit GBP 109.99.
+        CODE: ElectricalEstimator coverage note is now dynamic
+        (ELECTRICAL_MATERIAL_SLUGS exported from
+        electrical-engine.ts; note shows real coverage per market
+        instead of the hardcoded "does not yet cover" text).
+        GOTCHAS: homedepot.com blocks the browser (Akamai
+        Access Denied) - verify via Google snippets of HD pages
+        or alternate retailers; screwfix.com blocks curl but
+        Google-indexed category pages show prices; Screwfix
+        snippets render as "GBP x Inc Vat". 257 tests green
+        (estimation+pages), tsc 0 errors.
+        NEXT: DE + AT electrical books (AT needs an
+        ELECTRICAL_PROFILES entry too - currently generic IEC
+        fallback; add OVE/ONORM E 8101 profile with NYM-J
+        methodology), then NG electrical book (Jumia/Konga
+        listings), then remaining market anchors.
 ## 1. CONTEXT (read first)
 
 Frelux is a construction cost calculator SaaS (Vite + React + TS + Tailwind +

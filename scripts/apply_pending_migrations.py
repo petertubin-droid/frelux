@@ -33,6 +33,7 @@ PENDING = [
     "20261013180000_plumbing_fittings_de_complete.sql",
     "20261013190000_plumbing_pipes_at_de_complete.sql",
     "20261013200000_rebar_anchors_gb_ca.sql",
+    "20261013210000_electrical_books_us_gb.sql",
 ]
 
 

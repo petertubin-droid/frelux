@@ -199,6 +199,21 @@ export interface ElectricalResult {
  *  A missing key or null value means PRICE NOT CONFIGURED. */
 export type ElectricalPriceMap = Record<string, number | null>;
 
+/** Every material slug the electrical engine prices, in book order. */
+export const ELECTRICAL_MATERIAL_SLUGS = [
+  "elec-cable-lighting",
+  "elec-cable-socket",
+  "elec-cable-dedicated",
+  "elec-cable-earth",
+  "elec-cable-feeder",
+  "elec-conduit",
+  "elec-junction-box",
+  "elec-breaker",
+  "elec-switch-plate",
+  "elec-socket-outlet",
+  "elec-distribution-board",
+] as const;
+
 // ─────────────────────────────────────────────
 // Validation helpers
 // ─────────────────────────────────────────────

@@ -33,7 +33,7 @@ import { SaveToProjectButton } from "@/components/calculators";
 import { formatCurrency } from "@/lib/utils";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { printQuote } from "@/lib/estimation/quote-export";
-import {
+import { ELECTRICAL_MATERIAL_SLUGS,
   calculateElectrical,
   parseElectricalRules,
   type ElectricalInput,
@@ -156,6 +156,14 @@ export default function ElectricalEstimator() {
       alive = false;
     };
   }, [marketCode]);
+
+  const electricalCoverage = useMemo(
+    () =>
+      ELECTRICAL_MATERIAL_SLUGS.filter(
+        (slug) => priceMap[slug] !== undefined && priceMap[slug] !== null,
+      ).length,
+    [priceMap],
+  );
 
   const [ruleRows, setRuleRows] = useState<EstimationCalcRule[]>([]);
   const rules = useMemo(
@@ -393,12 +401,21 @@ export default function ElectricalEstimator() {
           data-testid="trade-price-coverage"
         >
           <p className="font-semibold">Price book coverage ({marketCode})</p>
-          <p className="mt-1 text-muted-foreground">
-            The {marketCode} price book does not yet cover cables, conduit and
-            electrical accessories. Prices on this page come from the Nigerian
-            price book (disclosed above); adjust them for your market before
-            relying on cost totals.
-          </p>
+          {electricalCoverage === ELECTRICAL_MATERIAL_SLUGS.length ? (
+            <p className="mt-1 text-muted-foreground">
+              The {marketCode} price book covers every cable, conduit and
+              accessory this estimator prices, from verified supplier
+              listings in {marketCode === "US" ? "USD" : "local currency"}.
+            </p>
+          ) : (
+            <p className="mt-1 text-muted-foreground">
+              The {marketCode} price book covers {electricalCoverage} of{" "}
+              {ELECTRICAL_MATERIAL_SLUGS.length} electrical material types.
+              Unpriced lines are shown without a total and are never silently
+              substituted; add verified prices for your market before relying
+              on cost totals.
+            </p>
+          )}
         </div>
       )}
 
