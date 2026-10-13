@@ -100,6 +100,25 @@ export default function FoundationCalculator() {
       />
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 space-y-6">
+        <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="space-y-1">
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
+              <Building2 className="w-3.5 h-3.5" />
+              Looking for Complete Material Takeoff & Bill of Quantities?
+            </span>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              For live localized material quantities (cement, sand, granite, blocks, formwork, hardcore) and market pricing across all 20 international markets, use the canonical <strong>Foundation Estimator</strong>.
+            </p>
+          </div>
+          <a
+            href="/foundation"
+            className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
+          >
+            Open Foundation Estimator
+            <ChevronRight className="w-3.5 h-3.5" />
+          </a>
+        </div>
+
         {/* Inputs */}
         <div className="card p-6 sm:p-8 dark:border-white/5 dark:bg-card">
           <div className="mb-5 flex items-center gap-2">
