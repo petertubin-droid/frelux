@@ -27,31 +27,37 @@ vi.mock("@/lib/international/market-context", () => ({
   useMarket: () => ({ marketCode: "NG", currency: "NGN", region: "Lagos" }),
 }));
 
-vi.mock("@/lib/wallfinishing/prices", () => ({
-  resolveLayerPrice: vi.fn().mockResolvedValue({
-    materialName: "Emulsion",
-    unitPrice: 850,
-    packUnits: null,
-    purchaseLabel: null,
-    currency: "NGN",
-    resolvedMarket: "NG",
-    priceSource: "test",
-    scanSource: null,
-    priceDate: "2026-10-06",
-    isManualPrice: false,
-    unpriced: false,
-  }),
-  resolveLabourRate: vi.fn().mockResolvedValue({
-    taskKey: "wallfin_painting",
-    method: "per-m2",
-    rate: 700,
-    currency: "NGN",
-    outputPerWorkerDay: null,
-    sourceReference: "test",
-    effectiveDate: "2026-10-06",
-    isEstimate: true,
-  }),
-}));
+vi.mock("@/lib/wallfinishing/prices", async () => {
+  const actual = await vi.importActual<
+    typeof import("@/lib/wallfinishing/prices")
+  >("@/lib/wallfinishing/prices");
+  return {
+    ...actual,
+    resolveLayerPrice: vi.fn().mockResolvedValue({
+      materialName: "Emulsion",
+      unitPrice: 850,
+      packUnits: null,
+      purchaseLabel: null,
+      currency: "NGN",
+      resolvedMarket: "NG",
+      priceSource: "test",
+      scanSource: null,
+      priceDate: "2026-10-06",
+      isManualPrice: false,
+      unpriced: false,
+    }),
+    resolveLabourRate: vi.fn().mockResolvedValue({
+      taskKey: "wallfin_painting",
+      method: "per-m2",
+      rate: 700,
+      currency: "NGN",
+      outputPerWorkerDay: null,
+      sourceReference: "test",
+      effectiveDate: "2026-10-06",
+      isEstimate: true,
+    }),
+  };
+});
 
 vi.mock("@/lib/supabase", () => ({ supabase: { from: vi.fn() } }));
 

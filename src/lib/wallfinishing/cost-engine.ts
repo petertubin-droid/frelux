@@ -18,6 +18,7 @@ import type {
   ResolvedLayerPrice,
 } from "@/types/wallfinishing";
 import { round } from "./quantity-engine";
+import { effectivePackSize } from "./prices";
 
 export interface LayerCostInput {
   /** purchase quantity in the layer's purchase unit */
@@ -50,15 +51,22 @@ export function calculateLayerCost(input: LayerCostInput): LayerCostResult {
   if (input.quantity <= 0) {
     materialCost = 0; // labour-only call: no material to price
   } else if (input.price.unitPrice !== null && input.price.unpriced === false) {
-    if (input.price.packUnits && input.price.packUnits > 1) {
-      // The market sells packs (20 L pail, 4.5 gal pail...): convert the
-      // coverage-unit quantity into whole purchase packs.
-      const packs = Math.ceil(input.quantity / input.price.packUnits);
+    // Pack size expressed in the LAYER'S OWN unit: pack-unit layers
+    // ("20 L pail", "saco de 30 kg") are already counted in whole packs
+    // (pack = 1); small-unit layers ("litre", "gallon") convert into
+    // packs via the mapping label. Dimension-correct by construction.
+    const pack = effectivePackSize(
+      input.purchaseUnit,
+      input.price.purchaseLabel,
+      input.price.packUnits,
+    );
+    if (pack !== null && pack > 0 && pack !== 1) {
+      const packs = Math.ceil(input.quantity / pack);
       materialCost = round(packs * input.price.unitPrice, 2);
       labourSteps.push({
         label: `${input.layerName}: material`,
         detail:
-          `${input.quantity} ${input.purchaseUnit} ÷ ${input.price.packUnits} per ` +
+          `${input.quantity} ${input.purchaseUnit} ÷ ${pack} per ` +
           `${input.price.purchaseLabel ?? "pack"} → ${packs} ${input.price.purchaseLabel ?? "pack(s)"}` +
           ` × ${input.price.unitPrice} ${currency} = ${materialCost} ${currency}`,
         formula: `${packs} × ${input.price.unitPrice} = ${materialCost}`,

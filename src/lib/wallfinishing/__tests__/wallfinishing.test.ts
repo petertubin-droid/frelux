@@ -196,15 +196,30 @@ describe("wall-finishing country profiles", () => {
     expect(frLiss?.note).toMatch(/Prestonett/i);
   });
 
-  it("unverified expansion layers are explicitly marked as planning defaults", () => {
-    // JP joint putty: no verified product sheet yet -> must say so.
+  it("book-aligned expansion layers carry their derivation; unverified ones stay marked", () => {
+    // JP joint putty: aligned to the verified 16 kg retail box.
     const jpPutty = getAssembly("jp-interior-gypsum-paint")?.layers.find(
       (l) => l.materialRole === "joint-filler",
     );
-    expect(jpPutty?.note).toMatch(/verify per product sheet/i);
-    for (const code of ["GH", "KE"]) {
-      const skim = getAssembliesForCountry(code)[0]?.layers[0];
-      expect(skim?.note).toMatch(/verify per product sheet/i);
+    expect(jpPutty?.unit).toBe("box (16 kg)");
+    expect(jpPutty?.coverageRateM2PerUnit).toBe(53.3);
+    expect(jpPutty?.note).toMatch(/verified JP book/i);
+    // GH putty: aligned to the verified 20 kg retail bag.
+    const ghSkim = getAssembliesForCountry("GH")[0]?.layers[0];
+    expect(ghSkim?.unit).toBe("20 kg bag");
+    expect(ghSkim?.coverageRateM2PerUnit).toBe(14.4);
+    expect(ghSkim?.note).toMatch(/scaled linearly/i);
+    // KE putty: verified KE product is the 25 kg bag - layer unchanged.
+    const keSkim = getAssembliesForCountry("KE")[0]?.layers[0];
+    expect(keSkim?.unit).toBe("25 kg bag");
+    expect(keSkim?.coverageRateM2PerUnit).toBe(18);
+    expect(keSkim?.note).toMatch(/Verified KE book/i);
+    // SA/AE MP75 skim: STILL no verified product price -> must say so.
+    for (const code of ["SA", "AE"]) {
+      const skim = getAssembliesForCountry(code)[0]?.layers.find(
+        (l) => l.materialRole === "gypsum-plaster",
+      );
+      expect(skim?.note).toMatch(/product datasheet|verify/i);
     }
   });
 });
