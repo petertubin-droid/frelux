@@ -17,11 +17,11 @@ not bypass the authoritative implementation.
 | `paint-engine.ts` vs `painting-engine.ts` | Layered: paint-engine is the coverage/litres SUB-engine consumed by painting-engine (the authoritative engine used by pages + AI). Also paint-engine-bridge.ts is an adapter. No duplicate. |
 | `timeline-engine.ts` (measurement) vs `timeline-estimator.ts` (engineering) | Different purposes: phase tracking (project-agent) vs duration estimation (ProjectTimeline page). Both stay; see assumption flag below. |
 
-## Open duplicate path — reconcile next (P2 batch 1)
+## Foundation pair — reconciled (see 2026-10-13 verification below; complementary, banner added)
 
 | Pair | Classification | Required action | Status |
 |---|---|---|---|
-| `estimation/foundation-engine.ts` (FoundationEstimator page, market-wired, regional profiles) vs `engineering/foundation-calculator.ts` (FoundationCalculator page, NG-legacy: soil types, strip/pad/raft) | DUPLICATE ENGINE IMPLEMENTATION behind two live public routes. The canonical engine is `estimation/foundation-engine` (market-wired). | Preserved permanent SEO route `/foundation-calculator` while wiring an explicit cross-link banner to the authoritative 20-market `estimation/foundation-engine` (`/foundation`). | Reconciled delegation; legacy structural route preserved for engineering sizing. |
+| `estimation/foundation-engine.ts` (cost estimation, FoundationEstimator) vs `engineering/foundation-calculator.ts` (structural design: soil bearing -> footing geometry, FoundationCalculator) | VERIFIED COMPLEMENTARY pair, not a cost duplicate: foundation-calculator uses BS 8004 Table 1 soil bearing values (universal engineering constants) with a `custom` bearing override; `lateritic` is a legitimate soil type across tropical markets; page uses useMarket. The canonical 20-market estimator remains `estimation/foundation-engine`. | Cross-link banner on `/foundation-calculator` routes users needing material takeoff + market pricing to `/foundation` (Foundation Estimator); permanent SEO route preserved for engineering sizing. | Reconciled: complementary engines, banner added, no duplicate cost implementation remains. |
 
 ## Hardcoded regional assumptions found (P0 sweep seeds)
 
