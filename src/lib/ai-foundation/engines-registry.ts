@@ -17,7 +17,7 @@ import type {
   EngineCostSummary,
   EngineQuantityLine,
   EngineResult,
-} from './types';
+} from "./types";
 
 export interface EngineDescriptor {
   /** Stable id. The orchestrator/agents reference engines by this id only. */
@@ -41,7 +41,7 @@ export class EngineNotRegisteredError extends Error {
     super(
       `Engine "${engineId}" is not registered. FRELUX AI may only call registered deterministic engines and will not approximate its mathematics.`,
     );
-    this.name = 'EngineNotRegisteredError';
+    this.name = "EngineNotRegisteredError";
   }
 }
 
@@ -59,14 +59,19 @@ export interface BuildToRoofInputLike {
   location: string;
   building_type: string;
   number_of_floors: number;
-  measurement_unit: 'm' | 'ft';
+  measurement_unit: "m" | "ft";
   building_length: number;
   building_width: number;
   floor_to_floor_height: number;
   wall_thickness: number;
   internal_wall_length: number;
   internal_wall_thickness: number;
-  openings: Array<{ type: string; width: number; height: number; count: number }>;
+  openings: Array<{
+    type: string;
+    width: number;
+    height: number;
+    count: number;
+  }>;
   foundation_type: string;
   foundation_depth: number;
   foundation_width: number;
@@ -102,11 +107,11 @@ export interface BuildToRoofInputLike {
  */
 export function defaultBuildToRoofInput(): BuildToRoofInputLike {
   return {
-    project_name: 'My building',
-    location: '',
-    building_type: 'bungalow',
+    project_name: "My building",
+    location: "",
+    building_type: "bungalow",
     number_of_floors: 1,
-    measurement_unit: 'm',
+    measurement_unit: "m",
     building_length: 15,
     building_width: 10,
     floor_to_floor_height: 3,
@@ -114,17 +119,17 @@ export function defaultBuildToRoofInput(): BuildToRoofInputLike {
     internal_wall_length: 25,
     internal_wall_thickness: 0.15,
     openings: [
-      { type: 'door', width: 0.9, height: 2.1, count: 4 },
-      { type: 'window', width: 1.2, height: 1.2, count: 6 },
+      { type: "door", width: 0.9, height: 2.1, count: 4 },
+      { type: "window", width: 1.2, height: 1.2, count: 6 },
     ],
-    foundation_type: 'strip_footing',
+    foundation_type: "strip_footing",
     foundation_depth: 0.9,
     foundation_width: 0.675,
     footing_thickness: 0.225,
     blinding_thickness: 0.075,
     hardcore_thickness: 0.15,
     dpc_length: 50,
-    block_size: '9inch',
+    block_size: "9inch",
     block_length: 18,
     block_height: 9,
     block_width: 9,
@@ -133,10 +138,10 @@ export function defaultBuildToRoofInput(): BuildToRoofInputLike {
     concrete_mix_granite: 4,
     mortar_mix_cement: 1,
     mortar_mix_sand: 6,
-    roof_type: 'gable',
+    roof_type: "gable",
     roof_pitch_degrees: 25,
     roof_overhang: 0.6,
-    roofing_material: 'long-span_aluminium',
+    roofing_material: "long-span_aluminium",
     structural_members: [],
     has_engineer_schedule: false,
     contingency_percent: 5,
@@ -147,9 +152,10 @@ export function defaultBuildToRoofInput(): BuildToRoofInputLike {
 // Result normalization helpers
 // =========================================================
 
-
 /** Guard: all numeric engine inputs must be finite, else error, never NaN math. */
-export function requireFiniteNumbers(values: Record<string, unknown>): string | null {
+export function requireFiniteNumbers(
+  values: Record<string, unknown>,
+): string | null {
   for (const [key, value] of Object.entries(values)) {
     const n = Number(value);
     if (!Number.isFinite(n)) return `Invalid numeric input for "${key}"`;
@@ -157,7 +163,11 @@ export function requireFiniteNumbers(values: Record<string, unknown>): string | 
   return null;
 }
 
-export function quantityLine(label: string, quantity: number, unit: string): EngineQuantityLine {
+export function quantityLine(
+  label: string,
+  quantity: number,
+  unit: string,
+): EngineQuantityLine {
   return { label, quantity, unit };
 }
 
@@ -173,15 +183,18 @@ export function registerEngine(descriptor: EngineDescriptor): void {
 
 // ── Build-to-Roof: whole-building quantities & costs (existing engine) ──
 registerEngine({
-  id: 'build_to_roof',
-  domain: 'building',
-  title: 'FRELUX Build-to-Roof Engine',
+  id: "build_to_roof",
+  domain: "building",
+  title: "FRELUX Build-to-Roof Engine",
   authoritative: true,
-  creditedAs: 'Calculated by the authoritative FRELUX Build-to-Roof engine',
+  creditedAs: "Calculated by the authoritative FRELUX Build-to-Roof engine",
   async run(rawInput) {
-    const { calculateBuildToRoof, DEFAULT_PRICES, DEFAULT_LABOUR, DEFAULT_WASTAGE } = await import(
-      '@/lib/estimation/build-to-roof-engine'
-    );
+    const {
+      calculateBuildToRoof,
+      DEFAULT_PRICES,
+      DEFAULT_LABOUR,
+      DEFAULT_WASTAGE,
+    } = await import("@/lib/estimation/build-to-roof-engine");
     // Smart defaults; wastage/prices/labour always come from the engine.
     const input = {
       ...defaultBuildToRoofInput(),
@@ -202,13 +215,16 @@ registerEngine({
       }
       const labourCost = stage.labour_total ?? 0;
       if (labourCost > 0) {
-        costLines.push({ label: `Labour, ${stage.stage_label}`, amount: labourCost });
+        costLines.push({
+          label: `Labour, ${stage.stage_label}`,
+          amount: labourCost,
+        });
       }
     }
 
     const costs: EngineCostSummary = {
       total: result.grand_total,
-      currency: 'NGN',
+      currency: "NGN",
       lines: costLines,
       // Engine ships price staleness, surface it honestly.
       regionalDataAvailable: !result.price_stale,
@@ -216,7 +232,7 @@ registerEngine({
 
     return {
       ok: true,
-      engine: 'build_to_roof',
+      engine: "build_to_roof",
       calculatedAt: new Date().toISOString(),
       quantities,
       costs,
@@ -227,13 +243,14 @@ registerEngine({
 
 // ── Roof geometry (existing engine function) ──
 registerEngine({
-  id: 'roof_geometry',
-  domain: 'roofing',
-  title: 'FRELUX Roof Geometry Engine',
+  id: "roof_geometry",
+  domain: "roofing",
+  title: "FRELUX Roof Geometry Engine",
   authoritative: true,
-  creditedAs: 'Calculated by the authoritative FRELUX roof geometry functions',
+  creditedAs: "Calculated by the authoritative FRELUX roof geometry functions",
   async run(rawInput) {
-    const { calculateRoofArea } = await import('@/lib/estimation/build-to-roof-engine');
+    const { calculateRoofArea } =
+      await import("@/lib/estimation/build-to-roof-engine");
     const input = rawInput as {
       building_length: number;
       building_width: number;
@@ -248,7 +265,15 @@ registerEngine({
       roof_overhang: input.roof_overhang,
     });
     if (invalidR) {
-      return { ok: false, engine: 'roof_geometry', calculatedAt: new Date().toISOString(), quantities: [], costs: null, raw: null, error: invalidR };
+      return {
+        ok: false,
+        engine: "roof_geometry",
+        calculatedAt: new Date().toISOString(),
+        quantities: [],
+        costs: null,
+        raw: null,
+        error: invalidR,
+      };
     }
     // Authoritative signature: (length, width, pitch, overhang, roofType)
     const area = calculateRoofArea(
@@ -260,9 +285,9 @@ registerEngine({
     );
     return {
       ok: true,
-      engine: 'roof_geometry',
+      engine: "roof_geometry",
       calculatedAt: new Date().toISOString(),
-      quantities: [quantityLine('Roof area', Number(area), 'm²')],
+      quantities: [quantityLine("Roof area", Number(area), "m²")],
       costs: null,
       raw: { roofArea: area },
     };
@@ -271,24 +296,35 @@ registerEngine({
 
 // ── Painting wall area (existing engine function) ──
 registerEngine({
-  id: 'painting_wall_area',
-  domain: 'painting',
-  title: 'FRELUX Painting Engine, Wall Area',
+  id: "painting_wall_area",
+  domain: "painting",
+  title: "FRELUX Painting Engine, Wall Area",
   authoritative: true,
-  creditedAs: 'Calculated by the authoritative FRELUX painting engine',
+  creditedAs: "Calculated by the authoritative FRELUX painting engine",
   async run(rawInput) {
-    const { calculateWallArea } = await import('@/lib/estimation/painting-engine');
+    const { calculateWallArea } =
+      await import("@/lib/estimation/painting-engine");
     const input = rawInput as { length: number; width: number; height: number };
-    const invalid = requireFiniteNumbers(input as unknown as Record<string, unknown>);
+    const invalid = requireFiniteNumbers(
+      input as unknown as Record<string, unknown>,
+    );
     if (invalid) {
-      return { ok: false, engine: 'painting_wall_area', calculatedAt: new Date().toISOString(), quantities: [], costs: null, raw: null, error: invalid };
+      return {
+        ok: false,
+        engine: "painting_wall_area",
+        calculatedAt: new Date().toISOString(),
+        quantities: [],
+        costs: null,
+        raw: null,
+        error: invalid,
+      };
     }
     const area = calculateWallArea(input.length, input.width, input.height);
     return {
       ok: true,
-      engine: 'painting_wall_area',
+      engine: "painting_wall_area",
       calculatedAt: new Date().toISOString(),
-      quantities: [quantityLine('Paintable wall area', Number(area), 'm²')],
+      quantities: [quantityLine("Paintable wall area", Number(area), "m²")],
       costs: null,
       raw: { wallArea: area },
     };
@@ -297,24 +333,35 @@ registerEngine({
 
 // ── Tyrolene partition area (existing engine function) ──
 registerEngine({
-  id: 'tyrolene_partition_area',
-  domain: 'finishing',
-  title: 'FRELUX Tyrolene Engine, Partition Area',
+  id: "tyrolene_partition_area",
+  domain: "finishing",
+  title: "FRELUX Tyrolene Engine, Partition Area",
   authoritative: true,
-  creditedAs: 'Calculated by the authoritative FRELUX tyrolene engine',
+  creditedAs: "Calculated by the authoritative FRELUX tyrolene engine",
   async run(rawInput) {
-    const { calculatePartitionArea } = await import('@/lib/estimation/tyrolene-engine');
+    const { calculatePartitionArea } =
+      await import("@/lib/estimation/tyrolene-engine");
     const input = rawInput as { width: number; height: number };
-    const invalidT = requireFiniteNumbers(input as unknown as Record<string, unknown>);
+    const invalidT = requireFiniteNumbers(
+      input as unknown as Record<string, unknown>,
+    );
     if (invalidT) {
-      return { ok: false, engine: 'tyrolene_partition_area', calculatedAt: new Date().toISOString(), quantities: [], costs: null, raw: null, error: invalidT };
+      return {
+        ok: false,
+        engine: "tyrolene_partition_area",
+        calculatedAt: new Date().toISOString(),
+        quantities: [],
+        costs: null,
+        raw: null,
+        error: invalidT,
+      };
     }
     const area = calculatePartitionArea(input.width, input.height);
     return {
       ok: true,
-      engine: 'tyrolene_partition_area',
+      engine: "tyrolene_partition_area",
       calculatedAt: new Date().toISOString(),
-      quantities: [quantityLine('Tyrolene partition area', Number(area), 'm²')],
+      quantities: [quantityLine("Tyrolene partition area", Number(area), "m²")],
       costs: null,
       raw: { partitionArea: area },
     };
@@ -337,7 +384,10 @@ export function getEngineDescriptor(engineId: string): EngineDescriptor | null {
  * The single sanctioned execution path for AI surfaces.
  * Unknown ids throw, the AI never falls back to its own math.
  */
-export async function executeEngine(engineId: string, input: unknown): Promise<EngineResult> {
+export async function executeEngine(
+  engineId: string,
+  input: unknown,
+): Promise<EngineResult> {
   const descriptor = REGISTRY.get(engineId);
   if (!descriptor) throw new EngineNotRegisteredError(engineId);
   try {
@@ -350,12 +400,15 @@ export async function executeEngine(engineId: string, input: unknown): Promise<E
       quantities: [],
       costs: null,
       raw: null,
-      error: error instanceof Error ? error.message : 'Engine execution failed',
+      error: error instanceof Error ? error.message : "Engine execution failed",
     };
   }
 }
 
 // Register the Phase-2 engines AFTER the registry map exists.
 // (Import alone would hoist above the REGISTRY declaration, TDZ.)
-import { registerPhase2Engines } from './engines-phase2';
+import { registerPhase2Engines } from "./engines-phase2";
 registerPhase2Engines();
+
+import { registerExpandedEngines } from "./engines-expanded";
+registerExpandedEngines();

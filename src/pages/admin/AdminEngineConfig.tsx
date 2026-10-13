@@ -1,3 +1,4 @@
+import { AdminEngineMatrix } from "@/components/admin/AdminEngineMatrix";
 /**
  * FRELUX Admin, Engine Configuration Dashboard
  *
@@ -79,7 +80,14 @@ import {
 import { Button } from "@/components/ui/shadcn/button";
 
 type Tab =
-  "materials" | "roof" | "waste" | "ai" | "rules" | "settings" | "markets";
+  | "materials"
+  | "roof"
+  | "waste"
+  | "ai"
+  | "rules"
+  | "settings"
+  | "markets"
+  | "matrix";
 
 const TABS: { key: Tab; label: string; icon: typeof Package }[] = [
   { key: "materials", label: "Material Profiles", icon: Package },
@@ -89,6 +97,7 @@ const TABS: { key: Tab; label: string; icon: typeof Package }[] = [
   { key: "rules", label: "Rule Metadata", icon: FileText },
   { key: "settings", label: "Engine Settings", icon: Settings },
   { key: "markets", label: "Market Activation", icon: Globe },
+  { key: "matrix", label: "Engine Matrix (54)", icon: Cpu },
 ];
 
 export default function AdminEngineConfig() {
@@ -115,7 +124,8 @@ export default function AdminEngineConfig() {
       {/* Tab bar */}
       <div className="mb-6 flex flex-wrap gap-1 border-b border-border dark:border-white/10">
         {TABS.map(({ key, label, icon: Icon }) => (
-          <Button variant="ghost"
+          <Button
+            variant="ghost"
             key={key}
             onClick={() => setTab(key)}
             className={classNames(
@@ -137,6 +147,7 @@ export default function AdminEngineConfig() {
       {tab === "rules" && <RulesTab />}
       {tab === "settings" && <SettingsTab />}
       {tab === "markets" && <MarketsTab />}
+      {tab === "matrix" && <AdminEngineMatrix />}
     </div>
   );
 }
@@ -194,12 +205,14 @@ function MaterialsTab() {
     }
   }
 
-  if (loading) return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
+  if (loading)
+    return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
 
   return (
     <div>
       <div className="mb-4 flex justify-end">
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => {
             setEditing(null);
             setShowForm(true);
@@ -258,7 +271,10 @@ function MaterialsTab() {
                 <td className="px-3 py-2">{item.default_waste_percent}%</td>
                 <td className="px-3 py-2">
                   {item.is_approved ? (
-                    <Check aria-hidden="true" className="h-4 w-4 text-green-600" />
+                    <Check
+                      aria-hidden="true"
+                      className="h-4 w-4 text-green-600"
+                    />
                   ) : (
                     <Ban className="h-4 w-4 text-muted-foreground" />
                   )}
@@ -266,7 +282,8 @@ function MaterialsTab() {
                 <td className="px-3 py-2">
                   <div className="flex gap-1">
                     {!item.is_approved && (
-                      <Button variant="ghost"
+                      <Button
+                        variant="ghost"
                         onClick={() => handleApprove(item.id)}
                         title="Approve"
                         className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
@@ -274,14 +291,16 @@ function MaterialsTab() {
                         <Check aria-hidden="true" className="h-4 w-4" />
                       </Button>
                     )}
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => handleToggle(item.id, !item.is_active)}
                       title={item.is_active ? "Deactivate" : "Activate"}
                       className="rounded p-1 text-muted-foreground hover:bg-muted dark:hover:bg-card-foreground/90"
                     >
                       <Power className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => {
                         setEditing(item);
                         setShowForm(true);
@@ -291,7 +310,8 @@ function MaterialsTab() {
                     >
                       <Edit2 className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => handleDelete(item.id)}
                       title="Delete"
                       className="rounded p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
@@ -457,13 +477,15 @@ function MaterialProfileForm({
         />
       </div>
       <div className="mt-3 flex justify-end gap-2">
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={onClose}
           className="rounded-md px-3 py-1.5 text-sm text-muted-foreground"
         >
           Cancel
         </Button>
-        <Button variant="default"
+        <Button
+          variant="default"
           onClick={handleSave}
           disabled={saving}
           className="flex items-center gap-1 rounded-md px-3 py-1.5 text-sm"
@@ -509,12 +531,14 @@ function RoofTab() {
     load();
   }, [load]);
 
-  if (loading) return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
+  if (loading)
+    return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
 
   return (
     <div>
       <div className="mb-4 flex gap-1">
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => setSubTab("materials")}
           className={classNames(
             "rounded-md px-3 py-1.5 text-sm",
@@ -525,7 +549,8 @@ function RoofTab() {
         >
           Materials
         </Button>
-        <Button variant="ghost"
+        <Button
+          variant="ghost"
           onClick={() => setSubTab("sections")}
           className={classNames(
             "rounded-md px-3 py-1.5 text-sm",
@@ -570,7 +595,10 @@ function RoofTab() {
                   <td className="px-3 py-2">{m.default_waste_percent}%</td>
                   <td className="px-3 py-2">
                     {m.is_approved ? (
-                      <Check aria-hidden="true" className="h-4 w-4 text-green-600" />
+                      <Check
+                        aria-hidden="true"
+                        className="h-4 w-4 text-green-600"
+                      />
                     ) : (
                       <Ban className="h-4 w-4 text-muted-foreground" />
                     )}
@@ -667,7 +695,8 @@ function WasteTab() {
     load();
   }, [load]);
 
-  if (loading) return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
+  if (loading)
+    return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
 
   return (
     <div>
@@ -704,7 +733,10 @@ function WasteTab() {
                 <td className="px-3 py-2 font-semibold">{c.waste_percent}%</td>
                 <td className="px-3 py-2">
                   {c.is_override ? (
-                    <Check aria-hidden="true" className="h-4 w-4 text-amber-600" />
+                    <Check
+                      aria-hidden="true"
+                      className="h-4 w-4 text-amber-600"
+                    />
                   ) : (
                     ""
                   )}
@@ -763,7 +795,8 @@ function AiTab() {
     }
   }
 
-  if (loading) return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
+  if (loading)
+    return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
 
   return (
     <div>
@@ -824,9 +857,7 @@ function AiTab() {
                 <td className="px-3 py-2">
                   {item.ai_confidence ? `${item.ai_confidence}%` : ""}
                 </td>
-                <td className="px-3 py-2">
-                  {item.ai_flags?.join(", ") || ""}
-                </td>
+                <td className="px-3 py-2">{item.ai_flags?.join(", ") || ""}</td>
                 <td className="px-3 py-2">
                   {item.reviewed_at
                     ? new Date(item.reviewed_at).toLocaleDateString()
@@ -837,21 +868,24 @@ function AiTab() {
                 </td>
                 <td className="px-3 py-2">
                   <div className="flex gap-1">
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => handleStateChange(item.id, "verified")}
                       title="Verify"
                       className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                     >
                       <Check aria-hidden="true" className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => handleStateChange(item.id, "flagged")}
                       title="Flag"
                       className="rounded p-1 text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20"
                     >
                       <AlertTriangle className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => handleStateChange(item.id, "rejected")}
                       title="Reject"
                       className="rounded p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
@@ -921,7 +955,8 @@ function RulesTab() {
     }
   }
 
-  if (loading) return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
+  if (loading)
+    return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
 
   return (
     <div className="overflow-x-auto">
@@ -957,7 +992,10 @@ function RulesTab() {
               </td>
               <td className="px-3 py-2">
                 {item.is_verified ? (
-                  <Check aria-hidden="true" className="h-4 w-4 text-green-600" />
+                  <Check
+                    aria-hidden="true"
+                    className="h-4 w-4 text-green-600"
+                  />
                 ) : (
                   <Ban className="h-4 w-4 text-muted-foreground" />
                 )}
@@ -965,7 +1003,8 @@ function RulesTab() {
               <td className="px-3 py-2">
                 <div className="flex gap-1">
                   {!item.is_verified && (
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => handleVerify(item.id)}
                       title="Verify"
                       className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
@@ -973,7 +1012,8 @@ function RulesTab() {
                       <Check aria-hidden="true" className="h-4 w-4" />
                     </Button>
                   )}
-                  <Button variant="ghost"
+                  <Button
+                    variant="ghost"
                     onClick={() => handleDelete(item.id)}
                     title="Delete"
                     className="rounded p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
@@ -1041,7 +1081,8 @@ function SettingsTab() {
     }
   }
 
-  if (loading) return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
+  if (loading)
+    return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
 
   return (
     <div className="overflow-x-auto">
@@ -1088,7 +1129,10 @@ function SettingsTab() {
               <td className="px-3 py-2">{item.setting_type}</td>
               <td className="px-3 py-2">
                 {item.is_editable ? (
-                  <Check aria-hidden="true" className="h-4 w-4 text-green-600" />
+                  <Check
+                    aria-hidden="true"
+                    className="h-4 w-4 text-green-600"
+                  />
                 ) : (
                   <Ban className="h-4 w-4 text-muted-foreground" />
                 )}
@@ -1096,14 +1140,16 @@ function SettingsTab() {
               <td className="px-3 py-2">
                 {item.is_editable &&
                   (editing[item.setting_key] !== undefined ? (
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => handleSave(item.setting_key)}
                       className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
                     >
                       <Save aria-hidden="true" className="h-4 w-4" />
                     </Button>
                   ) : (
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() =>
                         setEditing({
                           ...editing,
@@ -1171,7 +1217,8 @@ function MarketsTab() {
     }
   }
 
-  if (loading) return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
+  if (loading)
+    return <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin" />;
 
   return (
     <div>
@@ -1218,7 +1265,8 @@ function MarketsTab() {
                       Default market
                     </span>
                   ) : (
-                    <Button variant="ghost"
+                    <Button
+                      variant="ghost"
                       onClick={() => handleToggle(m.country_code, m.status)}
                       className="flex items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-brand-purple hover:bg-primary/10"
                     >

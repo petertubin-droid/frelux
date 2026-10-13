@@ -109,3 +109,7 @@ export type {
   PreferredLengthUnit,
   PreferredAreaUnit,
 } from "@/types/international";
+
+// Capability registry & Engine inventory
+export * from "./capability-registry";
+export * from "./engine-inventory";
