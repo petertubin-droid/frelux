@@ -6,6 +6,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { formatByCode } from "@/lib/international/currency-format";
 import { useParams, useNavigate } from "react-router-dom";
+import { printQuote } from "@/lib/estimation/quote-export";
 import {
   Package,
   Users,
@@ -549,7 +550,39 @@ export default function ProjectDashboard() {
   };
 
   const handlePrintShoppingList = () => {
-    window.print();
+    if (!project || shoppingList.length === 0) return;
+    const total = shoppingList.reduce((sum, i) => sum + i.total_price, 0);
+    const sym = project.currency_symbol || "₦";
+    printQuote(
+      {
+        title: `${project.name} - Shopping List`,
+        subtitle: `Generated ${new Date().toLocaleDateString()} · ${shoppingList.length} item(s) · ${project.project_type.replace(/_/g, " ")}`,
+        metaRows: [
+          ["Project", project.name],
+          ["Status", project.status],
+          ["Client", project.client_name ?? "N/A"],
+          ["Total Items", String(shoppingList.length)],
+        ],
+        lines: shoppingList.map((item) => ({
+          label: `${item.is_purchased ? "[Purchased] " : ""}${item.item_name}`,
+          quantity: String(item.quantity),
+          unit: item.unit,
+          unit_price: `${sym}${item.unit_price.toLocaleString()}`,
+          line_total: `${sym}${item.total_price.toLocaleString()}`,
+          detail: item.category ? `Category: ${item.category}` : undefined,
+        })),
+        totals: [
+          {
+            label: "Total Estimated Cost",
+            value: `${sym}${total.toLocaleString()}`,
+            strong: true,
+          },
+        ],
+        footer:
+          "FRELUX Smart Construction Estimation. Quantities and material specs are verified for project requirements.",
+      },
+      `${project.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-shopping-list.html`,
+    );
   };
 
   const handleDownloadShoppingPDF = async () => {

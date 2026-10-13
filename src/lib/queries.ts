@@ -3,6 +3,7 @@ import {
   isSupabaseConfigured,
   supabaseWithClientHash,
 } from "@/lib/supabase";
+import { saveLocalProject } from "@/lib/local-projects";
 import type {
   DbColorCombination,
   DbColorCategory,
@@ -204,14 +205,19 @@ export async function fetchPopMaterials(workflow?: string, market?: string) {
   // Market-first: the visitor's market's own ceiling system (e.g. US
   // drywall panels), falling back to the NG reference materials.
   async function run(mkt: string) {
-    let query = supabase.from("pop_materials").select("*").eq("is_active", true).eq("market", mkt);
+    let query = supabase
+      .from("pop_materials")
+      .select("*")
+      .eq("is_active", true)
+      .eq("market", mkt);
     if (workflow) query = query.eq("workflow", workflow);
     const { data } = await query.order("sort_order");
     return (data ?? []) as DbPopMaterial[];
   }
   if (market && market !== "NG") {
     const local = await run(market);
-    if (local.length > 0) return { data: local, error: null, fellBackToNg: false };
+    if (local.length > 0)
+      return { data: local, error: null, fellBackToNg: false };
   }
   // Explicit, never silent: the caller can disclose that this is the
   // Nigerian reference system, not the visitor's own market.
@@ -245,14 +251,19 @@ export async function fetchTileMaterials(category?: string, market?: string) {
   // Market-first: the visitor's market's own adhesive/grout set (e.g.
   // US thinset), falling back to the NG reference materials.
   async function run(mkt: string) {
-    let query = supabase.from("tile_materials").select("*").eq("is_active", true).eq("market", mkt);
+    let query = supabase
+      .from("tile_materials")
+      .select("*")
+      .eq("is_active", true)
+      .eq("market", mkt);
     if (category) query = query.eq("category", category);
     const { data } = await query.order("sort_order");
     return (data ?? []) as DbTileMaterial[];
   }
   if (market && market !== "NG") {
     const local = await run(market);
-    if (local.length > 0) return { data: local, error: null, fellBackToNg: false };
+    if (local.length > 0)
+      return { data: local, error: null, fellBackToNg: false };
   }
   // Explicit, never silent: the caller can disclose that this is the
   // Nigerian reference system, not the visitor's own market.
@@ -619,20 +630,88 @@ export async function fetchUserProjects(): Promise<{
 
 export async function saveUserProject(
   name: string,
-  projectType: DbUserProject["project_type"],
+  projectType: DbUserProject["project_type"] | string,
   projectData: Record<string, unknown>,
   description?: string,
-): Promise<{ error: string | null }> {
-  const { error } = await supabase.from("user_projects").insert({
-    name,
-    project_type: projectType,
-    project_data: projectData,
-    description,
-  });
-  if (!error) {
-    trackProjectSaveWithRewards();
+): Promise<{ error: string | null; data?: DbUserProject | null }> {
+  // Normalize project_type to valid DB enum check constraint
+  const TYPE_MAP: Record<string, DbUserProject["project_type"]> = {
+    screeding: "screeding",
+    screeding_calc: "screeding",
+    paint_calc: "paint_calc",
+    paint: "paint_calc",
+    painting: "paint_calc",
+    cost_estimate: "cost_estimate",
+    cost: "cost_estimate",
+    ai_recommendation: "ai_recommendation",
+    pop_ceiling: "pop_ceiling",
+    pop_estimate: "pop_ceiling",
+    pop_calc: "pop_ceiling",
+    tile: "tile",
+    tile_estimate: "tile",
+    tile_calc: "tile",
+    custom: "custom",
+    tyrolene: "custom",
+    finish: "custom",
+    wall_finishing: "custom",
+  };
+  const safeType = TYPE_MAP[projectType] || "custom";
+
+  try {
+    const { data: authData } = await supabase.auth.getUser();
+    const userId = authData?.user?.id;
+
+    if (!userId) {
+      // Unauthenticated guest: safely persist to device storage
+      const localTypeMap: Record<
+        string,
+        | "paint_calc"
+        | "cost_estimate"
+        | "screeding_calc"
+        | "tile_calc"
+        | "pop_calc"
+        | "wall_finishing"
+      > = {
+        paint_calc: "paint_calc",
+        cost_estimate: "cost_estimate",
+        screeding: "screeding_calc",
+        pop_ceiling: "pop_calc",
+        tile: "tile_calc",
+        custom: "wall_finishing",
+        ai_recommendation: "wall_finishing",
+      };
+      saveLocalProject(
+        name,
+        localTypeMap[safeType] || "cost_estimate",
+        projectData,
+      );
+      return { error: null };
+    }
+
+    const { data, error } = await supabase
+      .from("user_projects")
+      .insert({
+        name,
+        project_type: safeType,
+        project_data: projectData,
+        description,
+        user_id: userId,
+      })
+      .select()
+      .maybeSingle();
+
+    if (!error) {
+      trackProjectSaveWithRewards();
+      return { error: null, data: data as DbUserProject | null };
+    }
+
+    // Fallback to local storage if remote insert fails
+    saveLocalProject(name, "cost_estimate", projectData);
+    return { error: error.message };
+  } catch (err) {
+    saveLocalProject(name, "cost_estimate", projectData);
+    return { error: (err as Error).message };
   }
-  return { error: error ? error.message : null };
 }
 
 export async function updateUserProject(

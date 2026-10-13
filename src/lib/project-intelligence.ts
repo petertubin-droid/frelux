@@ -47,17 +47,25 @@ export interface SaveCalculationInput {
 export async function saveCalculationToProject(
   input: SaveCalculationInput,
 ): Promise<DbProjectCalculation> {
+  const { data: authData } = await supabase.auth.getUser();
+  const userId = authData?.user?.id;
+
+  const insertPayload: Record<string, unknown> = {
+    project_id: input.project_id,
+    calculator_type: input.calculator_type,
+    calculator_slug: input.calculator_slug,
+    calc_title: input.calc_title,
+    calc_data: input.calc_data,
+    result_summary: input.result_summary,
+    materials: input.materials,
+  };
+  if (userId) {
+    insertPayload.user_id = userId;
+  }
+
   const { data, error } = await supabase
     .from("project_calculations")
-    .insert({
-      project_id: input.project_id,
-      calculator_type: input.calculator_type,
-      calculator_slug: input.calculator_slug,
-      calc_title: input.calc_title,
-      calc_data: input.calc_data,
-      result_summary: input.result_summary,
-      materials: input.materials,
-    })
+    .insert(insertPayload)
     .select()
     .single();
   if (error) throw new Error(`Failed to save calculation: ${error.message}`);

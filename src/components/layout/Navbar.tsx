@@ -109,7 +109,11 @@ export default function Navbar() {
       items: [
         { label: "My Profile", to: "/profile", icon: UserCircle },
         { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
-        { label: "My Estimates", to: "/my-projects", icon: ClipboardList },
+        {
+          label: "Saved Estimates & Projects",
+          to: "/my-projects",
+          icon: ClipboardList,
+        },
         { label: "Calculator Templates", to: "/my-templates", icon: FileStack },
       ],
     },
@@ -133,7 +137,7 @@ export default function Navbar() {
     {
       section: "Business",
       items: [
-        { label: "My Projects", to: "/contractor", icon: FileStack },
+        { label: "Contractor Workspace", to: "/contractor", icon: FileStack },
         { label: "Clients", to: "/clients", icon: Users },
         { label: "Analytics", to: "/analytics", icon: BarChart3 },
       ],

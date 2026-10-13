@@ -30,6 +30,25 @@ describe("buildQuoteHtml", () => {
     expect(html).toContain("Grand total");
     expect(html).toContain("One item is unpriced.");
     expect(html).toContain("How this was determined");
+    // Branded Frelux template checks
+    expect(html).toContain("FRELUX SMART CALC");
+    expect(html).toContain("invoice");
+    expect(html).toContain("pdf-watermark");
+    expect(html).toContain("#7C3AED");
+  });
+
+  it("applies custom branding when provided", () => {
+    const html = buildQuoteHtml({
+      ...opts,
+      branding: {
+        company_name: "Apex Builders Ltd",
+        primary_color: "#1E40AF",
+        watermark_text: "APEX CONFIDENTIAL",
+      },
+    });
+    expect(html).toContain("Apex Builders Ltd");
+    expect(html).toContain("APEX CONFIDENTIAL");
+    expect(html).toContain("#1E40AF");
   });
 
   it("escapes HTML in user-provided values", () => {

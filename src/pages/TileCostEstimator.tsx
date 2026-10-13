@@ -196,8 +196,10 @@ export default function TileCostEstimator({
   const engine = useEngineFeatures({ calculatorType: "tile_cost" });
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState("");
-  const { config: labourConfig, setConfig: setLabourConfig } =
-    useLabourConfig("tile", marketCode);
+  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig(
+    "tile",
+    marketCode,
+  );
 
   const [input, setInput] = useState<TileCalcInput>({
     surfaceType: passed.input?.surfaceType ?? "floor",
@@ -248,9 +250,7 @@ export default function TileCostEstimator({
       ]);
       setTileSizes(sizesRes.data);
       setTileMaterials(matRes.data);
-      setUsingNgReference(
-        marketCode !== "NG" && Boolean(matRes.fellBackToNg),
-      );
+      setUsingNgReference(marketCode !== "NG" && Boolean(matRes.fellBackToNg));
       setSettings(settingsRes.data);
 
       const adhesive = matRes.data.find((m) => m.category === "adhesive");
@@ -344,14 +344,20 @@ export default function TileCostEstimator({
   }
 
   async function handleSave() {
-    if (!user || !result) return;
+    if (!result) return;
     setSaving(true);
-    const { error } = await saveUserProject(
-      "Tile Cost Estimate",
-      "tile_estimate",
-      { ...input, result, labourConfig },
+    const { error } = await saveUserProject("Tile Cost Estimate", "tile", {
+      ...input,
+      result,
+      labourConfig,
+    });
+    setSaveMsg(
+      error
+        ? `Save failed: ${error}`
+        : user
+          ? "Saved to your projects"
+          : "Saved to this device",
     );
-    setSaveMsg(error ? `Save failed: ${error}` : "Saved to your projects");
     setSaving(false);
     setTimeout(() => setSaveMsg(""), 3000);
   }
@@ -402,9 +408,9 @@ export default function TileCostEstimator({
                 className="mb-4 rounded-lg border border-border bg-muted/40 p-3 text-xs"
                 data-testid="ng-reference-notice"
               >
-                No {marketCode} adhesive and grout set is verified yet, so
-                this estimate uses the Nigerian reference materials. Verify
-                products and prices for your market before ordering.
+                No {marketCode} adhesive and grout set is verified yet, so this
+                estimate uses the Nigerian reference materials. Verify products
+                and prices for your market before ordering.
               </div>
             )}
             <Section title="Surface">
@@ -710,17 +716,19 @@ export default function TileCostEstimator({
                     {saveMsg && (
                       <p className="text-sm text-brand-purple">{saveMsg}</p>
                     )}
-                    {user && (
-                      <Button
-                        variant="secondary"
-                        type="button"
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="mt-3 w-full disabled:opacity-50"
-                      >
-                        {saving ? "Saving…" : "Save to Projects"}
-                      </Button>
-                    )}
+                    <Button
+                      variant="secondary"
+                      type="button"
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="mt-3 w-full disabled:opacity-50"
+                    >
+                      {saving
+                        ? "Saving…"
+                        : user
+                          ? "Save to Projects"
+                          : "Save to Device"}
+                    </Button>
 
                     {/* ── Engine Features (Additive) ── */}
                     <div className="mt-4 space-y-3">

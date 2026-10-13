@@ -1,14 +1,26 @@
 /**
  * SaveToProjectButton, reusable component for saving any calculator result
- * to a Project Workspace project. Does NOT modify calculator methodology.
+ * to a Project Workspace project or local device storage.
  * Works with any calculator result shape, just needs a title, type, and the raw data.
  */
 import { useState, useEffect, useCallback } from "react";
-import { FolderPlus, Loader2, Check, X, Folder, Save } from "lucide-react";
+import {
+  FolderPlus,
+  Loader2,
+  Check,
+  X,
+  Folder,
+  Save,
+  Smartphone,
+  LogIn,
+} from "lucide-react";
+import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/Toast";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { saveCalculationToProject } from "@/lib/project-intelligence";
+import { saveLocalProject } from "@/lib/local-projects";
+import { trackProjectSaveWithRewards } from "@/lib/rewards-integration";
 import type {
   DbContractorProject,
   DbProjectCalculation,
@@ -80,7 +92,7 @@ const VALID_TYPES = [
 ];
 
 // Maps calculator types to valid contractor_projects.project_type values
-const PROJECT_TYPE_MAP: Record<string, string> = {
+const PROJECT_TYPE_MAP: Record<string, DbContractorProject["project_type"]> = {
   paint: "painting",
   screeding: "screeding",
   pop_ceiling: "pop_ceiling",
@@ -130,12 +142,44 @@ export default function SaveToProjectButton({
   }, [user]);
 
   useEffect(() => {
-    if (showModal) loadProjects();
-  }, [showModal, loadProjects]);
+    if (showModal && user) loadProjects();
+  }, [showModal, user, loadProjects]);
+
+  function handleSaveLocalOnly() {
+    const title = calcTitle || `${calculatorSlug} calculation`;
+    const localTypeMap: Record<
+      string,
+      | "paint_calc"
+      | "cost_estimate"
+      | "screeding_calc"
+      | "tile_calc"
+      | "pop_calc"
+      | "wall_finishing"
+    > = {
+      paint: "paint_calc",
+      screeding: "screeding_calc",
+      pop_ceiling: "pop_calc",
+      tile: "tile_calc",
+      cost: "cost_estimate",
+      finish: "wall_finishing",
+      tyrolene: "wall_finishing",
+    };
+    saveLocalProject(title, localTypeMap[mappedType] || "cost_estimate", {
+      calcData,
+      resultSummary,
+      materials,
+    });
+    toast({
+      title: "Calculation saved to device!",
+      message: "View it anytime under My Projects.",
+      type: "success",
+    });
+    setShowModal(false);
+  }
 
   async function handleSave() {
     if (!user) {
-      toast({ title: "Please sign in to save", type: "error" });
+      handleSaveLocalOnly();
       return;
     }
     if (!selectedProject) {
@@ -155,6 +199,7 @@ export default function SaveToProjectButton({
         result_summary: resultSummary,
         materials: materials || [],
       });
+      trackProjectSaveWithRewards();
       toast({ title: "Calculation saved to project!", type: "success" });
       setShowModal(false);
       setSelectedProject(null);
@@ -166,16 +211,21 @@ export default function SaveToProjectButton({
   }
 
   async function handleCreateAndSave() {
-    if (!user || !newProjectName.trim()) return;
+    if (!user) {
+      handleSaveLocalOnly();
+      return;
+    }
+    if (!newProjectName.trim()) return;
     setSaving(true);
     try {
       const { data: proj, error: projErr } = await supabase
         .from("contractor_projects")
         .insert({
-          name: newProjectName,
+          name: newProjectName.trim(),
           project_type: PROJECT_TYPE_MAP[mappedType] || "multi_trade",
           building_type: "residential",
           status: "draft",
+          user_id: user.id,
         })
         .select()
         .single();
@@ -190,6 +240,7 @@ export default function SaveToProjectButton({
         result_summary: resultSummary,
         materials: materials || [],
       });
+      trackProjectSaveWithRewards();
       toast({
         title: "Project created and calculation saved!",
         type: "success",
@@ -203,8 +254,6 @@ export default function SaveToProjectButton({
       setSaving(false);
     }
   }
-
-  if (!user) return null;
 
   return (
     <>
@@ -251,7 +300,33 @@ export default function SaveToProjectButton({
               </Button>
             </div>
 
-            {loading ? (
+            {!user ? (
+              <div className="space-y-4 py-2">
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-center">
+                  <Smartphone className="mx-auto h-8 w-8 text-primary mb-2" />
+                  <h3 className="font-semibold text-sm">Guest Mode</h3>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    You can save this calculation directly to your device
+                    storage right now, or sign in to sync with cloud projects.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-2.5">
+                  <Button
+                    variant="ghost"
+                    onClick={handleSaveLocalOnly}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground shadow-md hover:bg-primary/90 transition-all"
+                  >
+                    <Save className="h-4 w-4" /> Save to This Device
+                  </Button>
+                  <Link
+                    to="/login/?redirect=/my-projects"
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-border px-4 py-2.5 text-sm font-semibold hover:bg-muted transition-all text-center"
+                  >
+                    <LogIn className="h-4 w-4" /> Sign In to Sync with Cloud
+                  </Link>
+                </div>
+              </div>
+            ) : loading ? (
               <div className="flex justify-center py-8">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
               </div>

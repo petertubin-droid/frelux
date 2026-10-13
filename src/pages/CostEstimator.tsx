@@ -12,6 +12,7 @@ import {
   Save,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
+import { useToast } from "@/components/ui/Toast";
 import { calculateEstimatedTotal } from "@/lib/calc";
 import { track } from "@/lib/analytics";
 import {
@@ -234,7 +235,9 @@ export default function CostEstimator({
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const { market, preferredAreaUnit, setAreaUnit } = useMarket();
-  const { symbol: displayCurrencySymbol, code: displayCurrencyCode } = useDisplayCurrency();
+  const { toast } = useToast();
+  const { symbol: displayCurrencySymbol, code: displayCurrencyCode } =
+    useDisplayCurrency();
 
   // Regional data flow: project location -> display currency / market profile -> default currency.
   const {
@@ -242,9 +245,17 @@ export default function CostEstimator({
     currencySymbol: projectCurrencySymbol,
   } = useProjectLocationCurrency(passed.projectLocation ?? null);
   const currencySymbol =
-    projectCurrencySymbol ?? displayCurrencySymbol ?? market.currencySymbol ?? settings?.default_currency_symbol ?? "₦";
+    projectCurrencySymbol ??
+    displayCurrencySymbol ??
+    market.currencySymbol ??
+    settings?.default_currency_symbol ??
+    "₦";
   const currency =
-    projectCurrencyCode ?? displayCurrencyCode ?? market.currencyCode ?? settings?.default_currency ?? "NGN";
+    projectCurrencyCode ??
+    displayCurrencyCode ??
+    market.currencyCode ??
+    settings?.default_currency ??
+    "NGN";
 
   const [input, setInput] = useState<CostEstimateInput>({
     projectType: passed.projectType ?? "room",
@@ -442,6 +453,11 @@ export default function CostEstimator({
     if (!result) return;
     const name = `Cost Estimate: ${input.projectType}, ${formatCurrency(result.total, currencySymbol)}`;
     saveLocalProject(name, "cost_estimate", { input, result });
+    toast({
+      title: "Estimate saved to device!",
+      message: "You can view and reload it anytime from My Projects.",
+      type: "success",
+    });
   }
 
   function compute() {
@@ -568,7 +584,9 @@ export default function CostEstimator({
                     <option value="fence">Fence or Gate</option>
                   </select>
                 </Field>
-                <Field label={`Paintable area (${preferredAreaUnit === "sqft" ? "sq ft" : "m²"})`}>
+                <Field
+                  label={`Paintable area (${preferredAreaUnit === "sqft" ? "sq ft" : "m²"})`}
+                >
                   <div className="space-y-1">
                     <div className="flex gap-2">
                       <input
@@ -577,12 +595,17 @@ export default function CostEstimator({
                         step="0.01"
                         value={
                           preferredAreaUnit === "sqft"
-                            ? (input.paintableArea ? Number((input.paintableArea * 10.7639).toFixed(2)) : "")
-                            : (input.paintableArea || "")
+                            ? input.paintableArea
+                              ? Number(
+                                  (input.paintableArea * 10.7639).toFixed(2),
+                                )
+                              : ""
+                            : input.paintableArea || ""
                         }
                         onChange={(e) => {
                           const val = Number(e.target.value);
-                          const sqmVal = preferredAreaUnit === "sqft" ? val / 10.7639 : val;
+                          const sqmVal =
+                            preferredAreaUnit === "sqft" ? val / 10.7639 : val;
                           update("paintableArea", sqmVal);
                         }}
                         className="input-field flex-1"

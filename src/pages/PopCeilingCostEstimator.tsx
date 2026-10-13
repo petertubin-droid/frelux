@@ -153,8 +153,10 @@ export default function PopCeilingCostEstimator({
   const [usingNgReference, setUsingNgReference] = useState(false);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
-  const { config: labourConfig, setConfig: setLabourConfig } =
-    useLabourConfig("pop_ceiling", marketCode);
+  const { config: labourConfig, setConfig: setLabourConfig } = useLabourConfig(
+    "pop_ceiling",
+    marketCode,
+  );
   const [result, setResult] = useState<PopCalcResult | null>(null);
   // Engine features
   const engine = useEngineFeatures({ calculatorType: "pop_ceiling_cost" });
@@ -192,9 +194,7 @@ export default function PopCeilingCostEstimator({
         fetchSiteSettings(),
       ]);
       setMaterials(matRes.data);
-      setUsingNgReference(
-        marketCode !== "NG" && Boolean(matRes.fellBackToNg),
-      );
+      setUsingNgReference(marketCode !== "NG" && Boolean(matRes.fellBackToNg));
       setSettings(settingsRes.data);
       setLoading(false);
     }
@@ -277,14 +277,20 @@ export default function PopCeilingCostEstimator({
   }
 
   async function handleSave() {
-    if (!user || !result) return;
+    if (!result) return;
     setSaving(true);
     const { error } = await saveUserProject(
       "POP Ceiling Cost Estimate",
-      "pop_estimate",
+      "pop_ceiling",
       { ...input, result },
     );
-    setSaveMsg(error ? `Save failed: ${error}` : "Saved to your projects");
+    setSaveMsg(
+      error
+        ? `Save failed: ${error}`
+        : user
+          ? "Saved to your projects"
+          : "Saved to this device",
+    );
     setSaving(false);
     setTimeout(() => setSaveMsg(""), 3000);
   }
@@ -333,9 +339,9 @@ export default function PopCeilingCostEstimator({
                 className="mb-4 rounded-lg border border-border bg-muted/40 p-3 text-xs"
                 data-testid="ng-reference-notice"
               >
-                No {marketCode} ceiling material system is verified yet, so
-                this estimate uses the Nigerian reference materials. Verify
-                products and prices for your market before ordering.
+                No {marketCode} ceiling material system is verified yet, so this
+                estimate uses the Nigerian reference materials. Verify products
+                and prices for your market before ordering.
               </div>
             )}
             <Section title="Workflow">
@@ -524,17 +530,19 @@ export default function PopCeilingCostEstimator({
                     {saveMsg && (
                       <p className="text-sm text-brand-purple">{saveMsg}</p>
                     )}
-                    {user && (
-                      <Button
-                        variant="secondary"
-                        type="button"
-                        onClick={handleSave}
-                        disabled={saving}
-                        className="mt-3 w-full disabled:opacity-50"
-                      >
-                        {saving ? "Saving…" : "Save to Projects"}
-                      </Button>
-                    )}
+                    <Button
+                      variant="secondary"
+                      type="button"
+                      onClick={handleSave}
+                      disabled={saving}
+                      className="mt-3 w-full disabled:opacity-50"
+                    >
+                      {saving
+                        ? "Saving…"
+                        : user
+                          ? "Save to Projects"
+                          : "Save to Device"}
+                    </Button>
 
                     {/* ── Engine Features (Additive) ── */}
                     <div className="mt-4 space-y-3">

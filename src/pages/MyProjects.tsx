@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Bookmark,
@@ -20,6 +20,11 @@ import {
   Share2,
   ArrowRight,
   MapPin,
+  Briefcase,
+  Smartphone,
+  Cloud,
+  HardHat,
+  LogIn,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import EmptyState from "@/components/ui/EmptyState";
@@ -31,6 +36,7 @@ import {
   fetchUserProjects,
   deleteUserProject,
   duplicateUserProject,
+  saveUserProject,
   fetchUserCollections,
   createUserCollection,
   deleteUserCollection,
@@ -42,6 +48,15 @@ import {
   togglePinRecentlyViewed,
   createShareableLink,
 } from "@/lib/queries";
+import {
+  fetchContractorProjects,
+  deleteContractorProject,
+} from "@/lib/contractor";
+import {
+  getLocalProjects,
+  deleteLocalProject,
+  type LocalProject,
+} from "@/lib/local-projects";
 import { useSeo } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { readableTextColor } from "@/lib/colors";
@@ -49,6 +64,7 @@ import type {
   DbPaintColor,
   DbColorCombination,
   DbUserProject,
+  DbContractorProject,
   DbUserCollection,
   ShareableResourceType,
 } from "@/types/database";
@@ -63,13 +79,14 @@ import {
 import { Button } from "@/components/ui/shadcn/button";
 
 type Tab = "projects" | "colors" | "palettes" | "collections" | "recent";
+type ProjectSubFilter = "all" | "contractor" | "estimates" | "device";
 type Status = "loading" | "ready" | "error";
 
 export default function MyProjects() {
   useSeo({
-    title: "My Projects: Saved Colors, Palettes & Calculations",
+    title: "My Projects: Saved Calculations, Workspaces & Favorites",
     description:
-      "View your saved paint colors, color palettes, calculations, and custom collections.",
+      "View your saved contractor projects, calculator estimates, colors, and collections in one unified workspace.",
     canonicalPath: "/my-projects",
     ogType: "website",
     noIndex: true,
@@ -79,11 +96,18 @@ export default function MyProjects() {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("projects");
+  const [projectSubFilter, setProjectSubFilter] =
+    useState<ProjectSubFilter>("all");
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState("");
   const [search, setSearch] = useState("");
 
   const [projects, setProjects] = useState<DbUserProject[]>([]);
+  const [contractorProjects, setContractorProjects] = useState<
+    DbContractorProject[]
+  >([]);
+  const [localProjects, setLocalProjects] = useState<LocalProject[]>([]);
+
   const [favColors, setFavColors] = useState<DbPaintColor[]>([]);
   const [favPalettes, setFavPalettes] = useState<DbColorCombination[]>([]);
   const [collections, setCollections] = useState<DbUserCollection[]>([]);
@@ -95,7 +119,6 @@ export default function MyProjects() {
   const [creating, setCreating] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
-  // Calculator-project location (canonical location-intelligence record)
   const [locationProject, setLocationProject] = useState<DbUserProject | null>(
     null,
   );
@@ -104,48 +127,141 @@ export default function MyProjects() {
     fromColl: string;
   } | null>(null);
 
-  useEffect(() => {
-    if (!user) return;
-    loadAll();
-  }, [user]);
-
-  async function loadAll() {
+  const loadAll = useCallback(async () => {
     setStatus("loading");
     setError("");
-    const [projRes, favColRes, favPalRes, collRes, recentRes] =
-      await Promise.all([
-        fetchUserProjects(),
-        fetchFavoriteColors(),
-        fetchFavoritePalettes(),
-        fetchUserCollections(),
-        fetchRecentlyViewedColors(20),
-      ]);
-    if (projRes.error || favColRes.error || favPalRes.error || collRes.error) {
-      setError("Failed to load your data. Please try again.");
-      setStatus("error");
+
+    // 1. Always load local device projects
+    const locals = getLocalProjects();
+    setLocalProjects(locals);
+
+    // 2. If guest, don't attempt authenticated fetches
+    if (!user) {
+      setProjects([]);
+      setContractorProjects([]);
+      setFavColors([]);
+      setFavPalettes([]);
+      setCollections([]);
+      setRecentlyViewed([]);
+      setStatus("ready");
       return;
     }
-    setProjects(projRes.data);
-    setFavColors(favColRes.data);
-    setFavPalettes(favPalRes.data);
-    setCollections(collRes.data);
-    setRecentlyViewed(recentRes.data);
 
-    const collColors: Record<string, DbPaintColor[]> = {};
-    await Promise.all(
-      collRes.data.map(async (c) => {
-        const { data } = await fetchCollectionColors(c.id);
-        collColors[c.id] = data;
-      }),
-    );
-    setCollectionColors(collColors);
-    setStatus("ready");
-  }
+    try {
+      const [
+        projRes,
+        contractorList,
+        favColRes,
+        favPalRes,
+        collRes,
+        recentRes,
+      ] = await Promise.all([
+        fetchUserProjects().catch(() => ({
+          data: [] as DbUserProject[],
+          error: null,
+        })),
+        fetchContractorProjects().catch(() => [] as DbContractorProject[]),
+        fetchFavoriteColors().catch(() => ({
+          data: [] as DbPaintColor[],
+          error: null,
+        })),
+        fetchFavoritePalettes().catch(() => ({
+          data: [] as DbColorCombination[],
+          error: null,
+        })),
+        fetchUserCollections().catch(() => ({
+          data: [] as DbUserCollection[],
+          error: null,
+        })),
+        fetchRecentlyViewedColors(20).catch(() => ({
+          data: [] as DbPaintColor[],
+          error: null,
+        })),
+      ]);
+
+      setProjects(projRes.data || []);
+      setContractorProjects(contractorList || []);
+      setFavColors(favColRes.data || []);
+      setFavPalettes(favPalRes.data || []);
+      setCollections(collRes.data || []);
+      setRecentlyViewed(recentRes.data || []);
+
+      const collColors: Record<string, DbPaintColor[]> = {};
+      if (collRes.data && collRes.data.length > 0) {
+        await Promise.all(
+          collRes.data.map(async (c) => {
+            const { data } = await fetchCollectionColors(c.id);
+            collColors[c.id] = data;
+          }),
+        );
+      }
+      setCollectionColors(collColors);
+      setStatus("ready");
+    } catch {
+      setError("Failed to load your data. Please try again.");
+      setStatus("error");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadAll();
+  }, [loadAll]);
 
   async function handleDeleteProject(id: string) {
-    if (!confirm("Delete this project?")) return;
+    if (!confirm("Delete this estimate?")) return;
     await deleteUserProject(id);
     setProjects((prev) => prev.filter((p) => p.id !== id));
+    toast({ title: "Estimate deleted", type: "success" });
+  }
+
+  async function handleDeleteContractorProject(id: string) {
+    if (!confirm("Delete this contractor workspace project?")) return;
+    try {
+      await deleteContractorProject(id);
+      setContractorProjects((prev) => prev.filter((p) => p.id !== id));
+      toast({ title: "Contractor project deleted", type: "success" });
+    } catch (e) {
+      toast({ title: (e as Error).message, type: "error" });
+    }
+  }
+
+  function handleDeleteLocalProject(id: string) {
+    if (!confirm("Remove this saved estimate from this device?")) return;
+    deleteLocalProject(id);
+    setLocalProjects(getLocalProjects());
+    toast({ title: "Estimate removed from device", type: "success" });
+  }
+
+  async function handleSyncLocalToCloud(lp: LocalProject) {
+    if (!user) {
+      navigate("/login/?redirect=/my-projects");
+      return;
+    }
+    const typeMapping: Record<string, DbUserProject["project_type"]> = {
+      paint_calc: "paint_calc",
+      cost_estimate: "cost_estimate",
+      screeding_calc: "screeding",
+      tile_calc: "tile",
+      pop_calc: "pop_ceiling",
+      wall_finishing: "wall_finishing",
+    };
+    const mappedType = typeMapping[lp.type] || "cost_estimate";
+    const { data, error: err } = await saveUserProject(
+      lp.name,
+      mappedType,
+      lp.data,
+    );
+    if (err) {
+      toast({ title: "Failed to sync to cloud", message: err, type: "error" });
+    } else {
+      deleteLocalProject(lp.id);
+      setLocalProjects(getLocalProjects());
+      if (data) setProjects((prev) => [data, ...prev]);
+      toast({
+        title: "Estimate synced to your cloud account!",
+        type: "success",
+      });
+    }
   }
 
   async function handleDuplicate(id: string) {
@@ -170,6 +286,15 @@ export default function MyProjects() {
     screeding_cost: "/screeding-calculator?mode=cost",
   };
 
+  const LOCAL_PROJECT_ROUTES: Record<string, string> = {
+    paint_calc: "/paint-calculator",
+    cost_estimate: "/cost-estimator",
+    screeding_calc: "/screeding-calculator",
+    tile_calc: "/tile-calculator",
+    pop_calc: "/pop-ceiling-calculator",
+    wall_finishing: "/finish-estimator",
+  };
+
   function handleOpenProject(p: DbUserProject) {
     const route = PROJECT_ROUTES[p.project_type] ?? "/paint-calculator";
     navigate(route, {
@@ -177,9 +302,17 @@ export default function MyProjects() {
         projectData: p.project_data,
         projectId: p.id,
         projectName: p.name,
-        // Canonical location record, calculators consume the regional
-        // context (currency) from it without duplicating location state.
         projectLocation: p.location,
+      },
+    });
+  }
+
+  function handleOpenLocalProject(lp: LocalProject) {
+    const route = LOCAL_PROJECT_ROUTES[lp.type] ?? "/cost-estimator";
+    navigate(route, {
+      state: {
+        projectData: lp.data,
+        projectName: lp.name,
       },
     });
   }
@@ -209,10 +342,10 @@ export default function MyProjects() {
   async function handleCreateCollection() {
     if (!newCollName.trim()) return;
     setCreating(true);
-    const { error } = await createUserCollection(newCollName.trim());
+    const { error: err } = await createUserCollection(newCollName.trim());
     setCreating(false);
-    if (error) {
-      setError(error);
+    if (err) {
+      setError(err);
       return;
     }
     setNewCollName("");
@@ -227,9 +360,9 @@ export default function MyProjects() {
 
   async function handleRename(id: string) {
     if (!renameValue.trim()) return;
-    const { error } = await renameUserCollection(id, renameValue.trim());
-    if (error) {
-      setError(error);
+    const { error: err } = await renameUserCollection(id, renameValue.trim());
+    if (err) {
+      setError(err);
       return;
     }
     setRenamingId(null);
@@ -238,13 +371,13 @@ export default function MyProjects() {
 
   async function handleMoveColor(toCollectionId: string) {
     if (!moveState) return;
-    const { error } = await moveColorToCollection(
+    const { error: err } = await moveColorToCollection(
       moveState.fromColl,
       toCollectionId,
       moveState.colorId,
     );
-    if (error) {
-      setError(error);
+    if (err) {
+      setError(err);
       return;
     }
     setMoveState(null);
@@ -280,7 +413,6 @@ export default function MyProjects() {
     }
   }
 
-  // Filter collections by search
   const filteredCollections = useMemo(() => {
     if (!search) return collections;
     return collections.filter((c) =>
@@ -288,7 +420,6 @@ export default function MyProjects() {
     );
   }, [collections, search]);
 
-  // Filter projects by search
   const filteredProjects = useMemo(() => {
     if (!search) return projects;
     return projects.filter((p) =>
@@ -296,33 +427,33 @@ export default function MyProjects() {
     );
   }, [projects, search]);
 
-  if (!user) {
-    return (
-      <div className="mx-auto max-w-md py-20 text-center">
-        <AlertCircle
-          aria-hidden="true"
-          className="mx-auto h-8 w-8 text-muted-foreground/80"
-        />
-        <p className="mt-3 text-sm font-semibold text-muted-foreground">
-          Sign in to view your saved projects and favorites.
-        </p>
-        <Link
-          to="/login/?redirect=/my-projects"
-          className="mt-4 inline-block rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:bg-primary/90"
-        >
-          Sign in
-        </Link>
-      </div>
+  const filteredContractors = useMemo(() => {
+    if (!search) return contractorProjects;
+    return contractorProjects.filter(
+      (cp) =>
+        cp.name.toLowerCase().includes(search.toLowerCase()) ||
+        (cp.client_name &&
+          cp.client_name.toLowerCase().includes(search.toLowerCase())),
     );
-  }
+  }, [contractorProjects, search]);
 
-  if (status === "loading")
+  const filteredLocals = useMemo(() => {
+    if (!search) return localProjects;
+    return localProjects.filter((lp) =>
+      lp.name.toLowerCase().includes(search.toLowerCase()),
+    );
+  }, [localProjects, search]);
+
+  const totalProjectsCount =
+    projects.length + contractorProjects.length + localProjects.length;
+
+  if (status === "loading") {
     return (
       <>
         <PageHeader
           eyebrow="Your workspace"
-          title="My Projects"
-          subtitle="Your saved colors, palettes, calculations, and custom collections, all in one place."
+          title="My Projects & Estimates"
+          subtitle="Your saved contractor projects, calculator estimates, colors, and custom collections, all in one place."
           breadcrumbs={[{ label: "My Projects" }]}
         />
         <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -330,7 +461,9 @@ export default function MyProjects() {
         </div>
       </>
     );
-  if (status === "error")
+  }
+
+  if (status === "error") {
     return (
       <div className="mx-auto max-w-md py-20 text-center">
         <AlertCircle
@@ -338,8 +471,16 @@ export default function MyProjects() {
           className="mx-auto h-8 w-8 text-red-400"
         />
         <p className="mt-3 text-sm text-red-600">{error}</p>
+        <Button
+          variant="ghost"
+          onClick={() => loadAll()}
+          className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90"
+        >
+          Try Again
+        </Button>
       </div>
     );
+  }
 
   const projectIcon = (type: string) => {
     switch (type) {
@@ -353,6 +494,12 @@ export default function MyProjects() {
         return <DollarSign className="h-5 w-5 text-accent-green" />;
       case "ai_recommendation":
         return <PaletteIcon className="h-5 w-5 text-brand-purple" />;
+      case "pop_ceiling":
+      case "pop_estimate":
+        return <Layers className="h-5 w-5 text-indigo-500" />;
+      case "tile":
+      case "tile_estimate":
+        return <Layers className="h-5 w-5 text-emerald-500" />;
       default:
         return <Folder className="h-5 w-5 text-muted-foreground" />;
     }
@@ -362,9 +509,9 @@ export default function MyProjects() {
     [
       {
         id: "projects",
-        label: "Projects",
+        label: "Projects & Estimates",
         icon: Folder,
-        count: projects.length,
+        count: totalProjectsCount,
       },
       {
         id: "colors",
@@ -396,12 +543,36 @@ export default function MyProjects() {
     <>
       <PageHeader
         eyebrow="Your workspace"
-        title="My Projects"
-        subtitle="Your saved colors, palettes, calculations, and custom collections, all in one place."
+        title="My Projects & Estimates"
+        subtitle="Manage your contractor workspaces, calculator estimates, colors, and collections in one place."
         breadcrumbs={[{ label: "My Projects" }]}
       />
 
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+        {/* Guest Banner if not signed in */}
+        {!user && (
+          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 rounded-xl border border-primary/20 bg-primary/5 p-4 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg bg-primary/10 p-2 text-primary">
+                <Smartphone className="h-5 w-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-semibold">Guest Device Mode</h4>
+                <p className="text-xs text-muted-foreground">
+                  You are viewing estimates saved on this browser. Sign in to
+                  sync across devices and access full Contractor Workspaces.
+                </p>
+              </div>
+            </div>
+            <Link
+              to="/login/?redirect=/my-projects"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-all shrink-0"
+            >
+              <LogIn className="h-3.5 w-3.5" /> Sign in to sync
+            </Link>
+          </div>
+        )}
+
         {/* Tabs */}
         <div className="mb-6 flex flex-wrap gap-2">
           {tabs.map((t) => {
@@ -415,11 +586,17 @@ export default function MyProjects() {
                   setTab(t.id);
                   setSearch("");
                 }}
-                className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-all ${tab === t.id ? "border-brand-purple bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:bg-card dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter"}`}
+                className={`inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-all ${
+                  tab === t.id
+                    ? "border-brand-purple bg-primary text-primary-foreground"
+                    : "border-border bg-card text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:bg-card dark:text-muted-foreground/80 dark:hover:text-brand-purple-lighter"
+                }`}
               >
                 <Icon className="h-4 w-4" /> {t.label}{" "}
                 <span
-                  className={`rounded-full px-1.5 py-0.5 text-xs ${tab === t.id ? "bg-white/20" : "bg-muted"}`}
+                  className={`rounded-full px-1.5 py-0.5 text-xs ${
+                    tab === t.id ? "bg-white/20" : "bg-muted"
+                  }`}
                 >
                   {t.count}
                 </span>
@@ -430,7 +607,7 @@ export default function MyProjects() {
 
         {/* Search bar for projects/collections */}
         {(tab === "projects" || tab === "collections") && (
-          <div className="relative mb-4 w-full sm:max-w-xs">
+          <div className="relative mb-6 w-full sm:max-w-xs">
             <Search
               aria-hidden="true"
               className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
@@ -445,103 +622,360 @@ export default function MyProjects() {
           </div>
         )}
 
-        {/* Projects tab */}
-        {tab === "projects" &&
-          (filteredProjects.length > 0 ? (
-            <div className="space-y-3">
-              {filteredProjects.map((p) => (
-                <div
-                  key={p.id}
-                  className="flex items-center justify-between rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card dark:border-white/5 dark:bg-card"
+        {/* ── PROJECTS TAB ── */}
+        {tab === "projects" && (
+          <div className="space-y-6">
+            {/* Sub-filter and Actions Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/40 pb-4">
+              <div className="flex flex-wrap gap-1.5">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setProjectSubFilter("all")}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                    projectSubFilter === "all"
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                  }`}
                 >
-                  <div className="flex items-start gap-3">
-                    {projectIcon(p.project_type)}
-                    <div>
-                      <h3 className="text-sm font-bold text-foreground dark:text-primary-foreground">
-                        {p.name}
-                      </h3>
-                      {p.description && (
-                        <p className="mt-0.5 text-xs text-muted-foreground">
-                          {p.description}
-                        </p>
-                      )}
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Updated {new Date(p.updated_at).toLocaleDateString()}
-                        {p.location && (
-                          <>
-                            {" · "}
-                            <MapPin
-                              aria-hidden="true"
-                              className="inline h-3 w-3"
-                            />{" "}
-                            {formatLocationLabel(locationFromProjectRow(p))}
-                          </>
-                        )}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      type="button"
-                      onClick={() => handleOpenProject(p)}
-                      className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
-                      title="Open"
-                    >
-                      <ArrowRight aria-hidden="true" className="h-3.5 w-3.5" />{" "}
-                      Open
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      type="button"
-                      onClick={() => handleShare("project", p.id)}
-                      className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
-                      title="Share"
-                    >
-                      <Share2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      type="button"
-                      onClick={() => setLocationProject(p)}
-                      className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
-                      title={p.location ? "Edit location" : "Set location"}
-                    >
-                      <MapPin aria-hidden="true" className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      type="button"
-                      onClick={() => handleDuplicate(p.id)}
-                      className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple dark:border-white/5 dark:text-muted-foreground dark:hover:text-brand-purple-lighter"
-                      title="Duplicate"
-                    >
-                      <Copy aria-hidden="true" className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      type="button"
-                      onClick={() => handleDeleteProject(p.id)}
-                      className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50"
-                      title="Delete"
-                    >
-                      <Trash2 aria-hidden="true" className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <EmptyState
-              illustration="projects"
-              title="No saved projects yet"
-              description="Save calculations and estimates from the calculators to revisit them here."
-              actionLabel="Start calculating"
-              actionTo="/paint-calculator"
-            />
-          ))}
+                  All ({totalProjectsCount})
+                </Button>
+                {contractorProjects.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setProjectSubFilter("contractor")}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                      projectSubFilter === "contractor"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    Contractor Workspaces ({contractorProjects.length})
+                  </Button>
+                )}
+                {projects.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setProjectSubFilter("estimates")}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                      projectSubFilter === "estimates"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    Calculator Estimates ({projects.length})
+                  </Button>
+                )}
+                {localProjects.length > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setProjectSubFilter("device")}
+                    className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                      projectSubFilter === "device"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted/50 text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    Saved on Device ({localProjects.length})
+                  </Button>
+                )}
+              </div>
 
-        {/* Favorite colors tab */}
+              <div className="flex items-center gap-2">
+                <Link
+                  to="/contractor"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-all"
+                >
+                  <HardHat className="h-3.5 w-3.5" /> Contractor Workspace
+                </Link>
+                <Link
+                  to="/calculators"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-all"
+                >
+                  <Plus className="h-3.5 w-3.5" /> New Estimate
+                </Link>
+              </div>
+            </div>
+
+            {totalProjectsCount === 0 ? (
+              <EmptyState
+                illustration="projects"
+                title="No saved projects or estimates yet"
+                description="Save calculations, estimates, or contractor workspaces to access them here anytime."
+                actionLabel="Explore Calculators"
+                actionTo="/calculators"
+              />
+            ) : (
+              <div className="space-y-6">
+                {/* 1. CONTRACTOR PROJECTS SECTION */}
+                {(projectSubFilter === "all" ||
+                  projectSubFilter === "contractor") &&
+                  filteredContractors.length > 0 && (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                          <HardHat className="h-3.5 w-3.5 text-primary" />{" "}
+                          Contractor Workspaces
+                        </h3>
+                        <Link
+                          to="/contractor"
+                          className="text-xs font-medium text-primary hover:underline"
+                        >
+                          View all in Contractor Mode →
+                        </Link>
+                      </div>
+                      <div className="space-y-2.5">
+                        {filteredContractors.map((cp) => (
+                          <div
+                            key={cp.id}
+                            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-primary/20 bg-card p-4 transition-all hover:border-primary/40 shadow-sm"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="rounded-lg bg-primary/10 p-2.5 text-primary mt-0.5">
+                                <HardHat className="h-5 w-5" />
+                              </div>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h4 className="text-sm font-bold text-foreground">
+                                    {cp.name}
+                                  </h4>
+                                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary capitalize">
+                                    {cp.status.replace("_", " ")}
+                                  </span>
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-0.5 capitalize">
+                                  {cp.project_type.replace(/_/g, " ")} •{" "}
+                                  {cp.building_type}
+                                  {cp.client_name
+                                    ? ` • Client: ${cp.client_name}`
+                                    : ""}
+                                </p>
+                                <p className="text-[11px] text-muted-foreground/70 mt-1">
+                                  Updated{" "}
+                                  {new Date(cp.updated_at).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 self-end sm:self-center">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  navigate(`/contractor/projects/${cp.id}/`)
+                                }
+                                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+                              >
+                                Open Workspace{" "}
+                                <ArrowRight className="h-3.5 w-3.5" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() =>
+                                  handleDeleteContractorProject(cp.id)
+                                }
+                                className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50 dark:border-red-950 dark:hover:bg-red-950/20"
+                                title="Delete"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                {/* 2. CLOUD CALCULATOR ESTIMATES SECTION */}
+                {(projectSubFilter === "all" ||
+                  projectSubFilter === "estimates") &&
+                  filteredProjects.length > 0 && (
+                    <div className="space-y-3">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                        <Cloud className="h-3.5 w-3.5 text-accent-cyan" /> Cloud
+                        Calculator Estimates
+                      </h3>
+                      <div className="space-y-2.5">
+                        {filteredProjects.map((p) => (
+                          <div
+                            key={p.id}
+                            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 transition-all hover:border-primary/40 shadow-sm"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="mt-0.5">
+                                {projectIcon(p.project_type)}
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-bold text-foreground">
+                                  {p.name}
+                                </h4>
+                                {p.description && (
+                                  <p className="mt-0.5 text-xs text-muted-foreground">
+                                    {p.description}
+                                  </p>
+                                )}
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                  Updated{" "}
+                                  {new Date(p.updated_at).toLocaleDateString()}
+                                  {p.location && (
+                                    <>
+                                      {" · "}
+                                      <MapPin
+                                        aria-hidden="true"
+                                        className="inline h-3 w-3"
+                                      />{" "}
+                                      {formatLocationLabel(
+                                        locationFromProjectRow(p),
+                                      )}
+                                    </>
+                                  )}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1.5 self-end sm:self-center">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleOpenProject(p)}
+                                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+                                title="Open in Calculator"
+                              >
+                                <ArrowRight className="h-3.5 w-3.5" /> Open
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleShare("project", p.id)}
+                                className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple"
+                                title="Share"
+                              >
+                                <Share2 className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => setLocationProject(p)}
+                                className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple"
+                                title={
+                                  p.location ? "Edit location" : "Set location"
+                                }
+                              >
+                                <MapPin className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDuplicate(p.id)}
+                                className="rounded-lg border border-border p-2 text-muted-foreground hover:text-brand-purple"
+                                title="Duplicate"
+                              >
+                                <Copy className="h-4 w-4" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteProject(p.id)}
+                                className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50 dark:border-red-950 dark:hover:bg-red-950/20"
+                                title="Delete"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                {/* 3. LOCAL DEVICE ESTIMATES SECTION */}
+                {(projectSubFilter === "all" ||
+                  projectSubFilter === "device") &&
+                  filteredLocals.length > 0 && (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+                          <Smartphone className="h-3.5 w-3.5 text-accent-orange" />{" "}
+                          Saved on This Device
+                        </h3>
+                        {user && (
+                          <span className="text-xs text-muted-foreground">
+                            Synced to local storage · Cloud sync available
+                          </span>
+                        )}
+                      </div>
+                      <div className="space-y-2.5">
+                        {filteredLocals.map((lp) => (
+                          <div
+                            key={lp.id}
+                            className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-xl border border-dashed border-border bg-card/60 p-4 transition-all hover:border-primary/40"
+                          >
+                            <div className="flex items-start gap-3">
+                              <div className="rounded-lg bg-muted p-2 text-muted-foreground mt-0.5">
+                                <Smartphone className="h-4 w-4" />
+                              </div>
+                              <div>
+                                <h4 className="text-sm font-bold text-foreground">
+                                  {lp.name}
+                                </h4>
+                                <p className="text-xs text-muted-foreground mt-0.5 capitalize">
+                                  {lp.type.replace(/_/g, " ")} • Saved{" "}
+                                  {new Date(lp.createdAt).toLocaleDateString()}
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 self-end sm:self-center">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleOpenLocalProject(lp)}
+                                className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+                              >
+                                <ArrowRight className="h-3.5 w-3.5" /> Open
+                              </Button>
+                              {user ? (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleSyncLocalToCloud(lp)}
+                                  className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/10"
+                                  title="Upload to Cloud Account"
+                                >
+                                  <Cloud className="h-3.5 w-3.5" /> Sync to
+                                  Cloud
+                                </Button>
+                              ) : (
+                                <Link
+                                  to="/login/?redirect=/my-projects"
+                                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted"
+                                >
+                                  <LogIn className="h-3.5 w-3.5" /> Sign in to
+                                  sync
+                                </Link>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteLocalProject(lp.id)}
+                                className="rounded-lg border border-red-200 p-2 text-red-500 hover:bg-red-50 dark:border-red-950 dark:hover:bg-red-950/20"
+                                title="Delete from device"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ── FAVORITE COLORS TAB ── */}
         {tab === "colors" &&
           (favColors.length > 0 ? (
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
@@ -580,7 +1014,7 @@ export default function MyProjects() {
             />
           ))}
 
-        {/* Favorite palettes tab */}
+        {/* ── FAVORITE PALETTES TAB ── */}
         {tab === "palettes" &&
           (favPalettes.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -629,7 +1063,7 @@ export default function MyProjects() {
             />
           ))}
 
-        {/* Collections tab */}
+        {/* ── COLLECTIONS TAB ── */}
         {tab === "collections" && (
           <>
             <div className="mb-6 flex gap-2">
@@ -655,7 +1089,7 @@ export default function MyProjects() {
                 {filteredCollections.map((c) => (
                   <div
                     key={c.id}
-                    className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card dark:border-white/5 dark:bg-card"
+                    className="rounded-xl border border-border bg-card p-4 dark:border-white/5 dark:bg-card"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
@@ -806,7 +1240,7 @@ export default function MyProjects() {
           </>
         )}
 
-        {/* Recently Viewed tab */}
+        {/* ── RECENTLY VIEWED TAB ── */}
         {tab === "recent" && (
           <>
             {recentlyViewed.length > 0 ? (
@@ -872,7 +1306,7 @@ export default function MyProjects() {
         )}
       </div>
 
-      {/* Project location dialog, canonical location-intelligence record */}
+      {/* Project location dialog */}
       {locationProject && (
         <div
           role="dialog"
@@ -895,7 +1329,7 @@ export default function MyProjects() {
               </Button>
             </div>
             <p className="mb-4 text-xs text-muted-foreground">
-              Set this project's location to unlock regional market data :
+              Set this project's location to unlock regional market data:
               calculators opened from this project will follow its currency.
             </p>
             <LocationCard

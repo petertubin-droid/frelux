@@ -4,7 +4,10 @@ import { ConstructionExtractionPanel } from "@/components/estimation/Constructio
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
-import { resolveMarketCement, resolveMarketSandM3 } from "@/lib/estimation/structural-market";
+import {
+  resolveMarketCement,
+  resolveMarketSandM3,
+} from "@/lib/estimation/structural-market";
 import { useSeo } from "@/lib/seo";
 import { useMarket } from "@/lib/international/market-context";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
@@ -433,7 +436,6 @@ export default function BuildToRoofEstimator() {
     };
   }, [marketCode]);
 
-
   const update = useCallback(
     <K extends keyof BuildToRoofInput>(key: K, value: BuildToRoofInput[K]) => {
       setInput((prev) => ({ ...prev, [key]: value }));
@@ -530,8 +532,7 @@ export default function BuildToRoofEstimator() {
   return (
     <SubscriptionGate feature="build_to_roof_estimator">
       <div className="min-h-screen bg-gradient-to-b from-muted/50 to-muted/50">
-
-      <MarketScopeNotice />
+        <MarketScopeNotice />
         {/* Premium Header with mesh gradient */}
         <div className="relative overflow-hidden bg-brand-navy text-primary-foreground">
           {/* Animated mesh background */}
@@ -1488,7 +1489,10 @@ export default function BuildToRoofEstimator() {
                 {/* Step 7: Prices */}
                 {step === 7 && (
                   <div className="space-y-4">
-                    <SectionCard title={`Material Prices (${currencySymbol})`} icon={DollarSign}>
+                    <SectionCard
+                      title={`Material Prices (${currencySymbol})`}
+                      icon={DollarSign}
+                    >
                       {marketCementNote && (
                         <p
                           className="mb-3 rounded-md border border-border bg-muted/40 p-2 text-xs text-muted-foreground"
@@ -2627,7 +2631,9 @@ function EstimateResult({
                       t
                     </td>
                     <td className="px-4 py-3 text-right" colSpan={2}>
-                      {formatCurrency(result.reinforcement_breakdown.total_cost)}
+                      {formatCurrency(
+                        result.reinforcement_breakdown.total_cost,
+                      )}
                     </td>
                   </tr>
                 </tbody>
@@ -2921,7 +2927,7 @@ function EstimateResult({
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
-            onClick={() => window.print()}
+            onClick={exportQuote}
             className="inline-flex items-center gap-2 rounded-xl border border-border px-3.5 sm:px-4 py-2.5 text-sm font-medium text-card-foreground hover:bg-muted/50 hover:border-border transition-all active:scale-95"
           >
             <Printer className="w-4 h-4" />

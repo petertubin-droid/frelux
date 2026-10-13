@@ -38,6 +38,7 @@ import type {
   BuildingAnalysisResult,
 } from "@/types/premium-estimation";
 import { calculateBuildToRoof } from "@/lib/estimation/build-to-roof-engine";
+import { printQuote } from "@/lib/estimation/quote-export";
 import type {
   BuildToRoofInput,
   BuildToRoofResult,
@@ -1073,6 +1074,45 @@ function EstimateResultView({
   setPdfGateOpen: (open: boolean) => void;
   setPdfUnlocked: (unlocked: boolean) => void;
 }) {
+  const handlePrintEstimate = () => {
+    if (!estimate) return;
+    printQuote(
+      {
+        title: `FRELUX AI Photo Estimate: ${estimate.project_name || "Building Project"}`,
+        subtitle: `Generated ${new Date().toLocaleDateString()} · ${estimate.building_type || "Residential"} · ${estimate.total_floor_area} m² · ${estimate.confidence} confidence`,
+        metaRows: [
+          ["Project Name", estimate.project_name || "N/A"],
+          ["Building Type", estimate.building_type || "Residential"],
+          ["Total Floor Area", `${estimate.total_floor_area} m²`],
+          [
+            "Construction Stage",
+            estimate.construction_stage || "Foundation to Roof",
+          ],
+          ["Confidence Level", estimate.confidence || "Standard"],
+        ],
+        lines: estimate.stages.map((stage) => ({
+          label: stage.stage_label,
+          quantity: "1",
+          unit: "stage",
+          unit_price: formatCurrency(stage.stage_total),
+          line_total: formatCurrency(stage.stage_total),
+          detail: `Materials: ${formatCurrency(stage.materials_total)} · Labour: ${formatCurrency(stage.labour_total)}`,
+        })),
+        totals: [
+          ["Materials Subtotal", formatCurrency(estimate.materials_total)],
+          ["Labour Subtotal", formatCurrency(estimate.labour_total)],
+          ["Contingency", formatCurrency(estimate.contingency)],
+          ["Estimated Grand Total", formatCurrency(estimate.grand_total)],
+        ],
+        notes: [
+          "These are preliminary estimates derived from photo analysis and structural heuristics, not a certified structural design.",
+          "Final quantities and safety requirements must be verified on site by a qualified structural engineer.",
+        ],
+      },
+      `frelux-ai-estimate-${Date.now()}`,
+    );
+  };
+
   return (
     <div className="space-y-6">
       {/* Summary */}
@@ -1261,7 +1301,7 @@ function EstimateResultView({
             variant="ghost"
             onClick={() => {
               if (isPaid || pdfUnlocked) {
-                window.print();
+                handlePrintEstimate();
                 setPdfUnlocked(false);
               } else {
                 setPdfGateOpen(true);
@@ -1285,7 +1325,7 @@ function EstimateResultView({
               onUnlock={() => {
                 setPdfUnlocked(true);
                 setPdfGateOpen(false);
-                window.print();
+                handlePrintEstimate();
                 setPdfUnlocked(false);
               }}
               onClose={() => setPdfGateOpen(false)}
