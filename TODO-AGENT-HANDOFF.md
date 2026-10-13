@@ -7,7 +7,7 @@ commands in section 6, then work top-to-bottom through section 4 (REMAINING
 WORK). Update this file with every batch you complete — including flipping
 status markers and adding the commit hash.
 
-Last updated: 2026-10-13 (merge with remote structural work + AI adapter repair + wallfinishing data fixes)
+Last updated: 2026-10-13 (plumbing fittings seed EXECUTED 11/11 manual rows; comprehensive_engine_inventory migration applied)
 
 ---
 
@@ -78,7 +78,8 @@ Work this list in order. Each item's status is current as of the last update.
 | 5 | BuildToRoof market prefills | ✅ | Prices step prefills from market book; 34 inputs currency-aware (`350e2f1f`) |
 | 6 | Trade coverage panels (electrical/plumbing/doors) | ✅ | Non-NG users told plainly what's covered (`350e2f1f`) |
 | 7 | Rebar books | 🟡 | ✅ US, DE, IN, EG verified; 🟡 AU indicative ('low', needs quote); ❌ GB, CA, rest |
-| 8 | Plumbing pipe books | 🟡 | ✅ GB all 4 keys, US all 4, DE waste/drainage, AT cold/hot; ❌ DE cold/hot (PP-R), fittings + valves everywhere |
+| 8 | Plumbing pipe books | 🟡 | ✅ GB all 4 keys, US all 4, DE waste/drainage, AT cold/hot; ❌ DE cold/hot (PP-R) |
+| 8b | Plumbing fittings/valves | 🟡 | Resolver walks PLUMBING_FITTING_KEYS (per-piece). US 5/5 + GB 4/5 + AT 2/5 LIVE in DB (seed migration executed 2026-10-13; 11/11 rows scan_confidence='manual', verified via resolver-shaped lookup). ❌ gb-union, at-elbow/union/valve, all DE |
 | 9 | Electrical books | ❌ | Not started; resolver pattern ready |
 | 10 | Doors/windows books | ❌ | Not started |
 | 11 | Price campaign remainder | 🟡 | ~174 'low' rows to verify |
@@ -110,6 +111,24 @@ provenance · `b3f12d40` plumbing US/DE · `6f34d349` GB pipes ·
   Page wiring is automatic via `resolveMarketRebar`.
 
 ### B. Plumbing — fittings + valves (US, GB, DE, AT)
+- **2026-10-13 batch (READY, needs DB execution):** 11 verified rows in
+  `supabase/migrations/20261013160000_plumbing_fittings_us_gb_at.sql` —
+  US 5/5 (elbow $0.85 PexUniverse, tee $1.82 AF Supply CR12T, reducer
+  $2.00 Walmart XFITTING 5-pk, union $1.00 Water Armor 25-pk, valve $6.42
+  AF Supply), GB 4/5 (elbow £3.00 Wickes Primaflow, tee £3.15 Screwfit
+  Speedfit 5-pk, reducer £7.26 JG Speedfit via Plumbing at Source, valve
+  £8.45 JG Speedfit 15SVP at Wickes), AT 2/5 (tee €1.59, reducer €0.98,
+  Hornbach.at Multitherm). FIRST STEP when resuming: run that migration
+  against the live DB (Management API or SQL editor) and check the
+  verification SELECT returns 11 manual rows. **EXECUTED 2026-10-13: 11/11 live.** Resolver + page wiring are
+  already committed (structural-market.ts PLUMBING_FITTING_KEYS;
+  test `resolveMarketPlumbing.test.ts`).
+  + "
+- Remaining gaps to verify: gb-union (straight union, not union-tee),
+  at-elbow/at-union/at-valve (Hornbach.at FV-Plast/Multitherm + Herz
+  Kugelhahn listings exist but prices didn't surface — use browserbase on
+  the product URLs), DE all 5 (obi.de search snippets are price-poor;
+  browserbase on hornbach.de Multitherm pages, or obi.de product pages).
 - Engine keys: `plumb-elbow`, `plumb-tee`, `plumb-reducer`, `plumb-union`,
   `plumb-valve`. Prices are PER PIECE.
 - Seed slugs `{mkt}-elbow`, `{mkt}-tee`, `{mkt}-reducer`, `{mkt}-union`,
@@ -183,6 +202,17 @@ provenance · `b3f12d40` plumbing US/DE · `6f34d349` GB pipes ·
   `ok/engine/calculatedAt`). The AI registry imports registerExpandedEngines()
   eagerly, so a bad adapter breaks the conversational estimator at runtime
   even though pages and vitest stay green.
+- **Empty ARRAY[] literals break whole-file execution** (2026-10-13):
+  Postgres `42P18 cannot determine type of empty array` in
+  20261014150000_comprehensive_engine_inventory.sql rolled back the entire
+  multi-statement file on first run. Cast as `ARRAY[]::text[]` (16 sites, fixed
+  and applied: 54 engines, 1080 matrix rows). The Management API query endpoint
+  runs a whole file as one transaction and returns only the LAST statement's
+  rows - verify with explicit follow-up SELECTs.
+- **Migration applied-state check**: there is no schema_migrations tracking
+  table; probe for each file's artifacts (tables/columns/rows) before running.
+  As of 2026-10-13 everything in supabase/migrations IS APPLIED (latest:
+  20261013160000 fittings seed, 20261014150000 engine inventory).
 - **New data vocabulary must exist in the engine** (2026-10-13): assemblies
   using `quantityMode: "mortar-mix"` fell to the engine's unsupported-mode
   default and silently refused to calculate. New categories may be display-only

@@ -213,6 +213,19 @@ const PLUMBING_PIPE_KEYS = [
   "plumb-pipe-drainage",
 ] as const;
 
+/**
+ * Per-piece fitting prices the plumbing engine prices separately.
+ * Book slugs: {mkt}-elbow / {mkt}-tee / {mkt}-reducer / {mkt}-union /
+ * {mkt}-valve (category "pipe", unit per piece).
+ */
+const PLUMBING_FITTING_KEYS = [
+  "plumb-elbow",
+  "plumb-tee",
+  "plumb-reducer",
+  "plumb-union",
+  "plumb-valve",
+] as const;
+
 export interface PlumbingMarketResolution {
   overrides: Record<string, number>;
   provenance: StructuralPriceProvenance[];
@@ -229,9 +242,38 @@ export async function resolveMarketPlumbing(
   };
   if (!marketCode || marketCode === "NG") return result;
 
-  for (const engineKey of PLUMBING_PIPE_KEYS) {
-    const suffix = engineKey.replace("plumb-pipe-", "");
-    const slug = `${marketCode.toLowerCase()}-pipe-${suffix}`;
+  await resolvePlumbingSlugGroup(
+    marketCode,
+    PLUMBING_PIPE_KEYS,
+    "plumb-pipe-",
+    "-pipe-",
+    result,
+  );
+  await resolvePlumbingSlugGroup(
+    marketCode,
+    PLUMBING_FITTING_KEYS,
+    "plumb-",
+    "-",
+    result,
+  );
+  return result;
+}
+
+/**
+ * Walks one slug family (pipes: per-metre; fittings: per-piece), resolving
+ * each engine key from the market book into `result`. Anything missing is
+ * reported unresolved - the page prices it as NOT CONFIGURED, never NG.
+ */
+async function resolvePlumbingSlugGroup(
+  marketCode: string,
+  engineKeys: readonly string[],
+  enginePrefix: string,
+  slugInfix: string,
+  result: PlumbingMarketResolution,
+): Promise<void> {
+  for (const engineKey of engineKeys) {
+    const suffix = engineKey.replace(enginePrefix, "");
+    const slug = `${marketCode.toLowerCase()}${slugInfix}${suffix}`;
     const { data: material } = await supabase
       .from("estimation_materials")
       .select("id, name")
@@ -266,11 +308,10 @@ export async function resolveMarketPlumbing(
       price: p.price,
       explanation:
         p.scan_confidence === "manual"
-          ? `Per-metre price from the ${marketCode} book (verified supplier listing; material substitutes the NG default and is named honestly).`
-          : `Indicative per-metre price from the ${marketCode} book (admin-adjustable) - verify with a local supplier.`,
+          ? `Per-${slugInfix === "-pipe-" ? "metre" : "piece"} price from the ${marketCode} book (verified supplier listing; material substitutes the NG default and is named honestly).`
+          : `Indicative per-${slugInfix === "-pipe-" ? "metre" : "piece"} price from the ${marketCode} book (admin-adjustable) - verify with a local supplier.`,
     });
   }
-  return result;
 }
 
 // =========================================================
