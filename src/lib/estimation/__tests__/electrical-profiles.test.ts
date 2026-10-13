@@ -72,6 +72,40 @@ describe("Electrical Market Profiles", () => {
     expect(inMkt.conduitRequired).toBe(true);
   });
 
+  it("resolves GH profile with Energy Commission L.I. 2008 and conduit wiring", () => {
+    const gh = getElectricalProfile("GH");
+    expect(gh.marketCode).toBe("GH");
+    expect(gh.runDistanceUnit).toBe("m");
+    expect(gh.measurementSystem).toBe("metric");
+    expect(gh.standardsRef).toContain("L.I. 2008");
+    expect(gh.lightingConductorSize).toContain("1.5 mm²");
+    expect(gh.socketConductorSize).toContain("2.5 mm²");
+    expect(gh.conduitRequired).toBe(true);
+  });
+
+  it("resolves KE profile with EPRA / KS IEC 60364 standards and heavy-gauge conduit", () => {
+    const ke = getElectricalProfile("KE");
+    expect(ke.marketCode).toBe("KE");
+    expect(ke.runDistanceUnit).toBe("m");
+    expect(ke.measurementSystem).toBe("metric");
+    expect(ke.standardsRef).toContain("KS IEC 60364");
+    expect(ke.lightingConductorSize).toContain("1.5 mm²");
+    expect(ke.socketConductorSize).toContain("2.5 mm²");
+    expect(ke.conduitRequired).toBe(true);
+  });
+
+  it("resolves ZA profile with SANS 10142-1 standards and Surfix wiring", () => {
+    const za = getElectricalProfile("ZA");
+    expect(za.marketCode).toBe("ZA");
+    expect(za.runDistanceUnit).toBe("m");
+    expect(za.measurementSystem).toBe("metric");
+    expect(za.standardsRef).toContain("SANS 10142-1");
+    expect(za.primaryWiringMethod).toContain("Surfix");
+    expect(za.lightingConductorSize).toContain("1.5 mm²");
+    expect(za.socketConductorSize).toContain("2.5 mm²");
+    expect(za.conduitRequired).toBe(false);
+  });
+
   it("resolves all 20 markets to valid non-null electrical profiles", () => {
     const markets = [
       "NG",
