@@ -10,7 +10,7 @@ import { rateLimitedResponse } from "../_shared/cors.ts";
 const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers":
-    "Content-Type, Authorization, X-Client-Info, Apikey",
+    "Content-Type, Authorization, X-Client-Info, Apikey, X-Client-Hash, x-client-hash",
 };
 
 function jsonResponse(body: unknown, status = 200): Response {
@@ -21,9 +21,7 @@ function jsonResponse(body: unknown, status = 200): Response {
 }
 
 serveWithCors(async (req: Request) => {
-  // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
-  // (falls back to client IP). OPTIONS preflights are answered at
-  // the CORS boundary and never reach this check.
+  // Rate limit this endpoint per user / IP
   const rl = checkRateLimit(await getRateLimitKey(req), RATE_LIMITS.AD);
   if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
 
@@ -41,7 +39,157 @@ serveWithCors(async (req: Request) => {
       500,
     );
 
+  let payload: {
+    adProvider: string;
+    adEventId: string;
+    adToken?: string;
+    mode?: "earn_credits" | "unlock_feature" | "unlock_guest";
+    clientHash?: string;
+    featureKey?: string;
+    metadata?: Record<string, unknown>;
+  };
+  try {
+    payload = await req.json();
+  } catch {
+    return jsonResponse({ error: "Invalid JSON", code: "BAD_REQUEST" }, 400);
+  }
+
+  const {
+    adProvider,
+    adEventId,
+    adToken,
+    mode = "earn_credits",
+    featureKey,
+    metadata = {},
+  } = payload;
+
+  if (!adProvider || !adEventId)
+    return jsonResponse(
+      { error: "adProvider and adEventId are required", code: "BAD_REQUEST" },
+      400,
+    );
+
   const admin = createClient(supabaseUrl, serviceRoleKey);
+  const devMode = Deno.env.get("REWARDED_DEV_MODE") === "true";
+
+  // ──────────────────────────────────────────────────────────
+  // MODE 1: unlock_guest (Anonymous Guest 1 Free Operation Unlock)
+  // ──────────────────────────────────────────────────────────
+  if (mode === "unlock_guest") {
+    const clientHash =
+      payload.clientHash ||
+      req.headers.get("x-client-hash") ||
+      req.headers.get("X-Client-Hash");
+
+    if (!clientHash) {
+      return jsonResponse(
+        {
+          error: "clientHash is required for guest unlock",
+          code: "BAD_REQUEST",
+        },
+        400,
+      );
+    }
+
+    // Verify ad completion
+    if (!devMode) {
+      let verified = false;
+
+      // 1. Check attestation token
+      if (typeof adToken === "string" && adToken.startsWith("att_")) {
+        const parts = adToken.split("_");
+        const slug = parts[1];
+        const timestamp = Number(parts[parts.length - 1]);
+        if (slug && Number.isFinite(timestamp) && timestamp > 0) {
+          const { data: providerRow } = await admin
+            .from("ad_providers")
+            .select("id, slug, is_active")
+            .eq("slug", slug)
+            .eq("is_active", true)
+            .maybeSingle();
+          verified = !!providerRow;
+        }
+      }
+
+      // 2. Check recorded postback event
+      if (!verified) {
+        const { data: adEvent } = await admin
+          .from("rewarded_ad_events")
+          .select("*")
+          .eq("event_type", "reward")
+          .eq("client_hash", clientHash)
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        verified = !!adEvent;
+      }
+
+      if (!verified) {
+        return jsonResponse(
+          {
+            error:
+              "Ad not verified. Please watch the sponsor ad to unlock your daily guest operation.",
+            code: "AD_NOT_VERIFIED",
+          },
+          403,
+        );
+      }
+    }
+
+    const { data: result, error: fnError } = await admin.rpc(
+      "unlock_guest_daily_ai_allowance",
+      {
+        p_client_hash: clientHash,
+        p_ad_provider: adProvider,
+        p_ad_event_id: adEventId,
+        p_metadata: metadata,
+      },
+    );
+
+    if (fnError) {
+      return jsonResponse(
+        {
+          error: "Failed to unlock guest allowance",
+          code: "UNLOCK_FAILED",
+          details: fnError.message,
+        },
+        500,
+      );
+    }
+
+    const row = result?.[0];
+    if (!row?.success) {
+      if (row?.error === "guest_limit_already_consumed") {
+        return jsonResponse(
+          {
+            success: false,
+            error:
+              "You have already consumed your 1 free guest AI operation for today. Please sign in or create an account to continue.",
+            code: "GUEST_LIMIT_REACHED",
+          },
+          429,
+        );
+      }
+      return jsonResponse(
+        {
+          success: false,
+          error: row?.error ?? "Unlock failed",
+          code: "UNLOCK_FAILED",
+        },
+        400,
+      );
+    }
+
+    return jsonResponse({
+      success: true,
+      hasAdCredit: true,
+      message: "1 free guest AI operation unlocked for today!",
+    });
+  }
+
+  // ──────────────────────────────────────────────────────────
+  // MODES REQUIRING AUTHENTICATED USER (earn_credits, unlock_feature)
+  // ──────────────────────────────────────────────────────────
   const authHeader = req.headers.get("Authorization") ?? "";
   if (!authHeader)
     return jsonResponse(
@@ -62,55 +210,7 @@ serveWithCors(async (req: Request) => {
       401,
     );
 
-  let payload: {
-    adProvider: string;
-    adEventId: string;
-    adToken?: string;
-    mode?: "earn_credits" | "unlock_feature";
-    featureKey?: string;
-    metadata?: Record<string, unknown>;
-  };
-  try {
-    payload = await req.json();
-  } catch {
-    return jsonResponse({ error: "Invalid JSON", code: "BAD_REQUEST" }, 400);
-  }
-
-  const {
-    adProvider,
-    adEventId,
-    adToken,
-    mode = "earn_credits",
-    featureKey,
-    metadata = {},
-  } = payload;
-  if (!adProvider || !adEventId)
-    return jsonResponse(
-      { error: "adProvider and adEventId are required", code: "BAD_REQUEST" },
-      400,
-    );
-
-  // ──────────────────────────────────────────────────────────
-  // AD VERIFICATION — two accepted paths:
-  //
-  // 1. Server-verified postback: a completed event already recorded by
-  //    the postback edge function (S2S callback from the ad network).
-  //    This is the strongest signal but requires the provider to support
-  //    postbacks and the postback to have already landed.
-  //
-  // 2. Client attestation: a token in the format
-  //    att_<provider_slug>_<mode>_<timestamp> issued by the client bridge
-  //    (see src/lib/monetag-rewarded.ts) AFTER it actually displayed the
-  //    ad and the SDK/tag resolved. Accepted only when the attested
-  //    provider is ACTIVE in the database — this is the same mechanism
-  //    already used by grant-rewarded-unlock for feature unlocks, and it
-  //    is required here too because Monetag's website tag/SDK has no
-  //    S2S postback wired up for the credit-earning flow, so path 1 never
-  //    fires for it. Without this, "Watch Ad" could never succeed.
-  //
-  // In dev mode (REWARDED_DEV_MODE=true) both checks are skipped.
-  // ──────────────────────────────────────────────────────────
-  const devMode = Deno.env.get("REWARDED_DEV_MODE") === "true";
+  // Verification for registered user
   if (!devMode) {
     const { data: postbackEvent } = await admin
       .from("rewarded_ad_credit_events")
@@ -124,7 +224,6 @@ serveWithCors(async (req: Request) => {
     let verified = !!postbackEvent;
 
     if (!verified) {
-      // Also check rewarded_ad_events table (from the postback edge function)
       const { data: adEvent } = await admin
         .from("rewarded_ad_events")
         .select("*")
@@ -166,11 +265,11 @@ serveWithCors(async (req: Request) => {
     }
   }
 
-  // MODE: earn_credits
+  // MODE: earn_credits (max 4 ads daily for unpaid users)
   if (mode === "earn_credits") {
     const { data: config } = await admin
       .from("rewarded_ad_credit_config")
-      .select("credits_per_ad, is_enabled")
+      .select("credits_per_ad, is_enabled, daily_earn_limit")
       .eq("id", 1)
       .maybeSingle();
     if (!config)
@@ -220,7 +319,7 @@ serveWithCors(async (req: Request) => {
         return jsonResponse(
           {
             success: false,
-            error: "Daily earning limit reached. Come back tomorrow!",
+            error: `Daily ad watch limit reached (maximum ${config.daily_earn_limit || 4} ads per day). Come back tomorrow to earn more credits!`,
             code: "DAILY_LIMIT",
             newBalance: row?.new_balance ?? 0,
           },

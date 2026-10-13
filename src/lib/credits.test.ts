@@ -96,5 +96,5 @@ describe("getDailyRefId", () => {
 describe("AI credit constants", () => {
   it("AI_CREDIT_COST = 10", () => expect(AI_CREDIT_COST).toBe(10));
   it("CREDITS_PER_AD = 5", () => expect(CREDITS_PER_AD).toBe(5));
-  it("MAX_ADS_PER_DAY = 5", () => expect(MAX_ADS_PER_DAY).toBe(5));
+  it("MAX_ADS_PER_DAY = 4", () => expect(MAX_ADS_PER_DAY).toBe(4));
 });

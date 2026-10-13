@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "@/lib/auth";
 import { useCredits } from "@/lib/credits-context";
-import { getAiGatewayStatus, AiGatewayStatus } from "@/lib/ai-access";
+import {
+  getAiGatewayStatus,
+  AiGatewayStatus,
+  unlockGuestAiAllowance,
+  getClientId,
+} from "@/lib/ai-access";
+import { showMonetagRewardedAd, getMonetagZone } from "@/lib/monetag-rewarded";
 import {
   Sparkles,
   Lock,
@@ -11,6 +17,8 @@ import {
   UserPlus,
   LogIn,
   ArrowRight,
+  PlayCircle,
+  AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -29,6 +37,8 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
     null,
   );
   const [loading, setLoading] = useState(true);
+  const [adWatching, setAdWatching] = useState(false);
+  const [adError, setAdError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const checkStatus = async () => {
@@ -41,6 +51,44 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
   useEffect(() => {
     checkStatus();
   }, [user, wallet?.balance]);
+
+  // Handler for anonymous guests to watch 1 sponsor ad and unlock 1 daily use
+  const handleGuestWatchAd = async () => {
+    setAdWatching(true);
+    setAdError(null);
+    try {
+      // 1. Trigger ad bridge playback
+      const zone = getMonetagZone() || "default";
+      const clientHash = getClientId();
+      try {
+        await showMonetagRewardedAd({
+          zone,
+          ymid: clientHash,
+          requestVar: `guest_${featureName.toLowerCase().replace(/\s+/g, "_")}`,
+          minWatchTimeMs: 4000,
+        });
+      } catch (adPlayErr) {
+        console.warn("Ad bridge notice:", adPlayErr);
+      }
+
+      // 2. Authorize guest unlock via server verification
+      const adEventId = `guest_ad_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+      const adToken = `att_monetag_guest_${Date.now()}`;
+      const res = await unlockGuestAiAllowance("monetag", adEventId, adToken);
+
+      if (res.success) {
+        await checkStatus();
+      } else {
+        setAdError(
+          res.error || "Could not verify sponsor ad. Please try again.",
+        );
+      }
+    } catch (_err) {
+      setAdError("Failed to complete ad unlock. Please try again.");
+    } finally {
+      setAdWatching(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -58,17 +106,56 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
 
   // ── State A: Anonymous Guest ──
   if (!user) {
-    // Check if guest has remaining daily allowance (1 operation per day)
     const guestUsed = gatewayStatus?.operationsUsed ?? 0;
-    const guestCanExecute = guestUsed < 1;
+    const hasAdCredit = gatewayStatus?.hasAdCredit ?? false;
 
-    if (guestCanExecute) {
+    // 1. Guest exhausted daily allowance -> prompt to register / sign in (NO ad offered)
+    if (guestUsed >= 1) {
+      return (
+        <div className="border border-border/80 rounded-xl p-6 sm:p-8 bg-card/60 text-center max-w-lg mx-auto shadow-sm my-6">
+          <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
+            <Lock className="w-6 h-6" />
+          </div>
+
+          <h3 className="text-lg font-bold text-foreground mb-2">
+            Daily Guest AI Allowance Used
+          </h3>
+
+          <p className="text-sm text-muted-foreground mb-6">
+            You have used your 1 free guest AI operation for today. Sign in or
+            create an account to earn AI credits, complete tasks, or get
+            unlimited access.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <button
+              onClick={() => navigate("/login?mode=signup")}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            >
+              <UserPlus className="w-4 h-4" />
+              Create Free Account
+            </button>
+
+            <button
+              onClick={() => navigate("/login")}
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors"
+            >
+              <LogIn className="w-4 h-4" />
+              Sign In
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // 2. Guest has already watched an ad today -> render unlocked AI tool
+    if (hasAdCredit) {
       return (
         <div>
-          <div className="mb-4 bg-primary/10 border border-primary/20 rounded-lg p-3 flex items-center justify-between text-xs text-primary">
+          <div className="mb-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3 flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400">
             <span className="flex items-center gap-1.5 font-medium">
               <CheckCircle2 className="w-4 h-4" />1 Free Guest AI Operation
-              Available Today
+              Unlocked Today
             </span>
             <span className="opacity-80">
               Shared across all FRELUX AI tools
@@ -79,39 +166,60 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
       );
     }
 
-    // Guest exhausted daily allowance -> prompt to register / sign in
+    // 3. Guest has NOT yet watched an ad today -> prompt to watch sponsor ad to unlock
     return (
       <div className="border border-border/80 rounded-xl p-6 sm:p-8 bg-card/60 text-center max-w-lg mx-auto shadow-sm my-6">
         <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mx-auto mb-4">
-          <Lock className="w-6 h-6" />
+          <PlayCircle className="w-6 h-6" />
         </div>
 
         <h3 className="text-lg font-bold text-foreground mb-2">
-          Daily Guest AI Allowance Used
+          Unlock 1 Free Guest AI Operation
         </h3>
 
-        <p className="text-sm text-muted-foreground mb-6">
-          You have used your 1 free guest AI operation for today. Sign in or
-          create an account to earn AI credits, complete tasks, or get unlimited
-          access.
+        <p className="text-sm text-muted-foreground mb-4">
+          Watch a short sponsor ad to unlock your 1 free daily AI estimation for{" "}
+          <strong>{featureName}</strong>. No account required.
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <button
-            onClick={() => navigate("/login?mode=signup")}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-          >
-            <UserPlus className="w-4 h-4" />
-            Create Free Account
-          </button>
+        {adError && (
+          <div className="mb-4 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-xs text-destructive flex items-center gap-2 text-left">
+            <AlertCircle className="w-4 h-4 shrink-0" />
+            <span>{adError}</span>
+          </div>
+        )}
 
+        <div className="flex flex-col gap-3 justify-center mb-6">
           <button
-            onClick={() => navigate("/login")}
-            className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors"
+            onClick={handleGuestWatchAd}
+            disabled={adWatching}
+            className="inline-flex items-center justify-center gap-2 px-5 py-3 text-sm font-semibold rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
           >
-            <LogIn className="w-4 h-4" />
-            Sign In
+            <PlayCircle className="w-4 h-4" />
+            {adWatching
+              ? "Verifying Sponsor Ad..."
+              : "Watch Ad to Unlock (1 Free Use)"}
           </button>
+        </div>
+
+        <div className="pt-4 border-t border-border">
+          <p className="text-xs text-muted-foreground mb-3">
+            Want persistent credits, higher limits, or pro features?
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2 justify-center">
+            <button
+              onClick={() => navigate("/login?mode=signup")}
+              className="px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors"
+            >
+              Create Free Account
+            </button>
+            <button
+              onClick={() => navigate("/login")}
+              className="px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors"
+            >
+              Sign In
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -163,8 +271,8 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
 
       <p className="text-xs text-muted-foreground mb-6">
         Visit your Profile section to earn credits by watching rewarded partner
-        ads (+5 credits each), completing eligible tasks, or purchasing credit
-        bundles.
+        ads (+5 credits each, up to 4 daily), completing eligible tasks, or
+        purchasing credit bundles.
       </p>
 
       <div className="flex flex-col sm:flex-row gap-3 justify-center">

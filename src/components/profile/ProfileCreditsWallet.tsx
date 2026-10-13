@@ -8,6 +8,8 @@ import {
   getCreditTransactions,
   CreditTransaction,
   verifyRewardedAd,
+  MAX_ADS_PER_DAY,
+  getTodayRewardedAdCount,
 } from "@/lib/credits";
 import {
   Coins,
@@ -19,6 +21,7 @@ import {
   ArrowDownLeft,
   Clock,
   ShoppingCart,
+  AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -30,18 +33,23 @@ export const ProfileCreditsWallet: React.FC = () => {
   const [loadingTasks, setLoadingTasks] = useState(false);
   const [adWatching, setAdWatching] = useState(false);
   const [adMessage, setAdMessage] = useState<string | null>(null);
+  const [todayAdCount, setTodayAdCount] = useState<number>(0);
   const navigate = useNavigate();
+
+  const isDailyAdLimitReached = todayAdCount >= MAX_ADS_PER_DAY;
 
   const loadData = async () => {
     if (!user) return;
     setLoadingTasks(true);
     try {
-      const [tList, txRes] = await Promise.all([
-        getCreditTasks(),
+      const [tList, txRes, adCount] = await Promise.all([
+        getCreditTasks(user.id),
         getCreditTransactions(user.id, { limit: 10 }),
+        getTodayRewardedAdCount(user.id),
       ]);
       setTasks(tList);
       setTransactions(txRes.transactions);
+      setTodayAdCount(adCount);
     } catch (err) {
       console.error("Failed to load profile credits data:", err);
     } finally {
@@ -55,6 +63,13 @@ export const ProfileCreditsWallet: React.FC = () => {
 
   const handleWatchAd = async () => {
     if (!user) return;
+    if (isDailyAdLimitReached) {
+      setAdMessage(
+        "Daily limit reached (maximum 4 ads per day). Come back tomorrow to earn more credits!",
+      );
+      return;
+    }
+
     setAdWatching(true);
     setAdMessage(null);
     try {
@@ -69,6 +84,9 @@ export const ProfileCreditsWallet: React.FC = () => {
         await refreshWallet();
         await loadData();
       } else {
+        if (res.code === "DAILY_LIMIT") {
+          setTodayAdCount(MAX_ADS_PER_DAY);
+        }
         setAdMessage(
           res.error ||
             "No eligible rewarded advertisement available at this moment.",
@@ -148,7 +166,7 @@ export const ProfileCreditsWallet: React.FC = () => {
             +5 Credits
           </div>
           <div className="text-[10px] text-muted-foreground mt-0.5">
-            2 Ads = 1 Standard AI Use
+            Max 4 ads daily ({todayAdCount}/4 watched)
           </div>
         </div>
         <div className="p-3.5 rounded-xl bg-muted/40 border border-border text-center">
@@ -164,7 +182,7 @@ export const ProfileCreditsWallet: React.FC = () => {
 
       {/* Earn Credits Actions */}
       <div className="space-y-6">
-        {/* Rewarded Ads Earning Section */}
+        {/* Rewarded Ads Earning Section (Capped at 4 ads / day) */}
         <div className="p-4 rounded-xl border border-primary/20 bg-gradient-to-r from-primary/5 via-background to-primary/5 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
@@ -172,10 +190,25 @@ export const ProfileCreditsWallet: React.FC = () => {
               <h3 className="font-semibold text-sm text-foreground">
                 Watch Partner Ad to Earn Credits
               </h3>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary border border-primary/20">
+                {todayAdCount} / {MAX_ADS_PER_DAY} watched today
+              </span>
             </div>
             <p className="text-xs text-muted-foreground">
-              Watch an eligible sponsor ad to earn <strong>+5 credits</strong>{" "}
-              directly into your account balance.
+              {isDailyAdLimitReached ? (
+                <span className="text-amber-600 dark:text-amber-400 font-medium flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5 inline" />
+                  Daily limit reached (4/4 ads watched today, 20 credits
+                  earned). Check back tomorrow, complete eligible tasks, or
+                  purchase credit bundles.
+                </span>
+              ) : (
+                <>
+                  Watch an eligible sponsor ad to earn{" "}
+                  <strong>+5 credits</strong> (you can watch{" "}
+                  {MAX_ADS_PER_DAY - todayAdCount} more today).
+                </>
+              )}
             </p>
             {adMessage && (
               <p className="text-xs font-medium text-primary mt-1">
@@ -185,10 +218,14 @@ export const ProfileCreditsWallet: React.FC = () => {
           </div>
           <button
             onClick={handleWatchAd}
-            disabled={adWatching}
-            className="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors shrink-0 disabled:opacity-50"
+            disabled={adWatching || isDailyAdLimitReached}
+            className="w-full sm:w-auto px-5 py-2.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {adWatching ? "Verifying Ad..." : "Watch Ad (+5 Credits)"}
+            {adWatching
+              ? "Verifying Ad..."
+              : isDailyAdLimitReached
+                ? `Daily Limit Reached (${MAX_ADS_PER_DAY}/${MAX_ADS_PER_DAY})`
+                : "Watch Ad (+5 Credits)"}
           </button>
         </div>
 
@@ -233,9 +270,10 @@ export const ProfileCreditsWallet: React.FC = () => {
                     </span>
                     <button
                       onClick={() => handleCompleteTask(task.id)}
-                      className="px-3 py-1.5 text-xs font-medium rounded-md border border-border bg-background hover:bg-muted transition-colors"
+                      disabled={task.completed}
+                      className="px-3 py-1.5 text-xs font-medium rounded-md border border-border bg-background hover:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Verify Task
+                      {task.completed ? "Completed" : "Verify Task"}
                     </button>
                   </div>
                 </div>

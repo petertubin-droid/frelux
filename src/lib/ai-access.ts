@@ -17,10 +17,10 @@
 // 2. getAiUsageStatus(), check remaining uses for today (read-only)
 // 3. The edge function consumes usage server-side on success only
 
-import { supabase } from '@/lib/supabase';
-import type { AiAccessMode } from '@/types/database';
+import { supabase } from "@/lib/supabase";
+import type { AiAccessMode } from "@/types/database";
 
-const CLIENT_ID_KEY = 'frelux_ai_client_id';
+const CLIENT_ID_KEY = "frelux_ai_client_id";
 
 export interface AiAccessConfig {
   aiEnabled: boolean;
@@ -45,11 +45,15 @@ export interface AiUsageStatus {
 }
 
 export type AiAccessDecision =
-  | { allowed: true; reason: 'free' | 'rewarded' | 'paid' | 'admin_override' }
-  | { allowed: false; reason: 'disabled' | 'limit_reached' | 'not_configured'; nextAction?: 'rewarded' | 'paid' | 'login' | 'none' };
+  | { allowed: true; reason: "free" | "rewarded" | "paid" | "admin_override" }
+  | {
+      allowed: false;
+      reason: "disabled" | "limit_reached" | "not_configured";
+      nextAction?: "rewarded" | "paid" | "login" | "none";
+    };
 
 export function getClientId(): string {
-  if (typeof window === 'undefined') return 'server';
+  if (typeof window === "undefined") return "server";
   let id = localStorage.getItem(CLIENT_ID_KEY);
   if (!id) {
     id = crypto.randomUUID();
@@ -64,8 +68,10 @@ function todayStr(): string {
 
 export async function fetchAiAccessConfig(): Promise<AiAccessConfig | null> {
   const { data, error } = await supabase
-    .from('site_settings')
-    .select('ai_enabled, ai_access_mode, ai_daily_free_uses, ai_rewarded_enabled, ai_paid_enabled, ai_paid_price, ai_paid_currency, ai_reset_period, ai_admin_override')
+    .from("site_settings")
+    .select(
+      "ai_enabled, ai_access_mode, ai_daily_free_uses, ai_rewarded_enabled, ai_paid_enabled, ai_paid_price, ai_paid_currency, ai_reset_period, ai_admin_override",
+    )
     .limit(1)
     .maybeSingle();
 
@@ -73,38 +79,41 @@ export async function fetchAiAccessConfig(): Promise<AiAccessConfig | null> {
 
   return {
     aiEnabled: data.ai_enabled ?? true,
-    accessMode: data.ai_access_mode ?? 'free',
+    accessMode: data.ai_access_mode ?? "free",
     dailyFreeUses: data.ai_daily_free_uses ?? 0,
     rewardedEnabled: data.ai_rewarded_enabled ?? false,
     paidEnabled: data.ai_paid_enabled ?? false,
     paidPrice: Number(data.ai_paid_price) || 0,
-    paidCurrency: data.ai_paid_currency ?? 'NGN',
-    resetPeriod: data.ai_reset_period ?? 'daily',
+    paidCurrency: data.ai_paid_currency ?? "NGN",
+    resetPeriod: data.ai_reset_period ?? "daily",
     adminOverride: data.ai_admin_override ?? true,
   };
 }
 
 // Read-only usage status. For authenticated users, looks up by user_id.
 // For anonymous users, looks up by client_hash.
-export async function getAiUsageStatus(config: AiAccessConfig, userId?: string | null): Promise<AiUsageStatus> {
+export async function getAiUsageStatus(
+  config: AiAccessConfig,
+  userId?: string | null,
+): Promise<AiUsageStatus> {
   const today = todayStr();
   const isAuthenticated = !!userId;
 
   let query;
   if (isAuthenticated) {
     query = supabase
-      .from('ai_usage_daily')
-      .select('uses_consumed')
-      .eq('user_id', userId!)
-      .eq('usage_date', today)
+      .from("ai_usage_daily")
+      .select("uses_consumed")
+      .eq("user_id", userId!)
+      .eq("usage_date", today)
       .maybeSingle();
   } else {
     const clientId = getClientId();
     query = supabase
-      .from('ai_usage_daily')
-      .select('uses_consumed')
-      .eq('client_hash', clientId)
-      .eq('usage_date', today)
+      .from("ai_usage_daily")
+      .select("uses_consumed")
+      .eq("client_hash", clientId)
+      .eq("usage_date", today)
       .maybeSingle();
   }
 
@@ -123,47 +132,60 @@ export async function getAiUsageStatus(config: AiAccessConfig, userId?: string |
 }
 
 // Check whether the user can make an AI request right now.
-export function checkAiAccess(config: AiAccessConfig, usage: AiUsageStatus, isAdmin = false): AiAccessDecision {
-  if (!config.aiEnabled) return { allowed: false, reason: 'disabled' };
-  if (config.accessMode === 'disabled') return { allowed: false, reason: 'disabled' };
+export function checkAiAccess(
+  config: AiAccessConfig,
+  usage: AiUsageStatus,
+  isAdmin = false,
+): AiAccessDecision {
+  if (!config.aiEnabled) return { allowed: false, reason: "disabled" };
+  if (config.accessMode === "disabled")
+    return { allowed: false, reason: "disabled" };
 
-  if (isAdmin && config.adminOverride) return { allowed: true, reason: 'admin_override' };
+  if (isAdmin && config.adminOverride)
+    return { allowed: true, reason: "admin_override" };
 
-  if (config.accessMode === 'free') {
-    return usage.hasRemaining ? { allowed: true, reason: 'free' } : { allowed: false, reason: 'limit_reached', nextAction: 'none' };
+  if (config.accessMode === "free") {
+    return usage.hasRemaining
+      ? { allowed: true, reason: "free" }
+      : { allowed: false, reason: "limit_reached", nextAction: "none" };
   }
 
-  if (config.accessMode === 'rewarded') {
-    if (usage.hasRemaining) return { allowed: true, reason: 'free' };
+  if (config.accessMode === "rewarded") {
+    if (usage.hasRemaining) return { allowed: true, reason: "free" };
     return config.rewardedEnabled
-      ? { allowed: false, reason: 'limit_reached', nextAction: 'rewarded' }
-      : { allowed: false, reason: 'limit_reached', nextAction: 'none' };
+      ? { allowed: false, reason: "limit_reached", nextAction: "rewarded" }
+      : { allowed: false, reason: "limit_reached", nextAction: "none" };
   }
 
-  if (config.accessMode === 'paid') {
+  if (config.accessMode === "paid") {
     return config.paidEnabled
-      ? { allowed: false, reason: 'limit_reached', nextAction: 'paid' }
-      : { allowed: false, reason: 'not_configured', nextAction: 'none' };
+      ? { allowed: false, reason: "limit_reached", nextAction: "paid" }
+      : { allowed: false, reason: "not_configured", nextAction: "none" };
   }
 
-  if (config.accessMode === 'free_rewarded') {
-    if (usage.hasRemaining) return { allowed: true, reason: 'free' };
+  if (config.accessMode === "free_rewarded") {
+    if (usage.hasRemaining) return { allowed: true, reason: "free" };
     return config.rewardedEnabled
-      ? { allowed: false, reason: 'limit_reached', nextAction: 'rewarded' }
-      : { allowed: false, reason: 'limit_reached', nextAction: 'none' };
+      ? { allowed: false, reason: "limit_reached", nextAction: "rewarded" }
+      : { allowed: false, reason: "limit_reached", nextAction: "none" };
   }
 
-  return { allowed: false, reason: 'disabled' };
+  return { allowed: false, reason: "disabled" };
 }
 
 // Rewarded access: the server must verify the reward before granting access.
 // This is a placeholder architecture, when a real rewarded ad provider is
 // configured, the verification call goes here. For now, it always returns
 // false because no provider is configured.
-export async function requestRewardedAccess(): Promise<{ granted: boolean; reason: string }> {
-  return { granted: false, reason: 'No rewarded access provider is currently configured.' };
+export async function requestRewardedAccess(): Promise<{
+  granted: boolean;
+  reason: string;
+}> {
+  return {
+    granted: false,
+    reason: "No rewarded access provider is currently configured.",
+  };
 }
-
 
 export interface AiGatewayStatus {
   hasAdCredit: boolean;
@@ -179,20 +201,24 @@ export interface AiGatewayStatus {
  */
 export async function getAiGatewayStatus(): Promise<AiGatewayStatus> {
   try {
-    const { data: { session } } = await supabase.auth.getSession();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
     const userId = session?.user?.id;
     const clientHash = getClientId();
 
     // 1. Check if user has an active subscription
     if (userId) {
       const { data: paidStatus } = await supabase
-        .from('user_paid_status')
-        .select('is_paid, paid_until')
-        .eq('user_id', userId)
+        .from("user_paid_status")
+        .select("is_paid, paid_until")
+        .eq("user_id", userId)
         .maybeSingle();
 
       if (paidStatus?.is_paid) {
-        const notExpired = !paidStatus.paid_until || new Date(paidStatus.paid_until).getTime() > Date.now();
+        const notExpired =
+          !paidStatus.paid_until ||
+          new Date(paidStatus.paid_until).getTime() > Date.now();
         if (notExpired) {
           return {
             hasAdCredit: true,
@@ -206,32 +232,48 @@ export async function getAiGatewayStatus(): Promise<AiGatewayStatus> {
     }
 
     // 2. Fetch today's allowance
-    const today = new Date().toISOString().split('T')[0];
+    const today = new Date().toISOString().split("T")[0];
     let query = supabase
-      .from('ai_gateway_daily_allowance')
-      .select('has_ad_credit, operations_used')
-      .eq('usage_date', today);
+      .from("ai_gateway_daily_allowance")
+      .select("has_ad_credit, operations_used")
+      .eq("usage_date", today);
 
     if (userId) {
-      query = query.eq('user_id', userId);
+      query = query.eq("user_id", userId);
     } else {
-      query = query.eq('client_hash', clientHash);
+      query = query.eq("client_hash", clientHash);
     }
 
     const { data: allowance } = await query.maybeSingle();
 
-    if (!allowance || !allowance.has_ad_credit) {
+    const used = allowance?.operations_used || 0;
+
+    if (used >= 1) {
       return {
-        hasAdCredit: false,
-        operationsUsed: 0,
+        hasAdCredit: allowance?.has_ad_credit ?? false,
+        operationsUsed: used,
         operationsRemaining: 0,
         isSubscribed: false,
         canExecute: false,
-        reason: 'Watch a rewarded ad to unlock 1 free AI operation for today.',
+        reason: userId
+          ? "You have used your daily free AI operation. Please visit Profile to earn or buy credits."
+          : "You have used your 1 free guest AI operation for today. Please sign in or create an account to continue.",
       };
     }
 
-    const used = allowance.operations_used || 0;
+    if (!allowance || !allowance.has_ad_credit) {
+      return {
+        hasAdCredit: false,
+        operationsUsed: used,
+        operationsRemaining: 0,
+        isSubscribed: false,
+        canExecute: false,
+        reason: userId
+          ? "Insufficient AI credits. Visit Profile to earn credits or purchase a credit bundle."
+          : "Watch a sponsor ad to unlock your 1 daily free guest AI operation.",
+      };
+    }
+
     const remaining = Math.max(0, 1 - used);
 
     return {
@@ -240,17 +282,78 @@ export async function getAiGatewayStatus(): Promise<AiGatewayStatus> {
       operationsRemaining: remaining,
       isSubscribed: false,
       canExecute: remaining > 0,
-      reason: remaining === 0 ? 'You have used your 1 free AI operation for today.' : undefined,
+      reason: undefined,
     };
   } catch (err) {
-    console.warn('Error reading AI gateway status:', err);
+    console.warn("Error reading AI gateway status:", err);
     return {
       hasAdCredit: false,
       operationsUsed: 0,
       operationsRemaining: 0,
       isSubscribed: false,
       canExecute: false,
-      reason: 'Could not verify AI access status.',
+      reason: "Could not verify AI access status.",
+    };
+  }
+}
+
+/**
+ * Unlocks the 1 daily free AI operation for an anonymous guest after watching an ad.
+ */
+export async function unlockGuestAiAllowance(
+  adProvider = "monetag",
+  adEventId?: string,
+  adToken?: string,
+): Promise<{
+  success: boolean;
+  error?: string;
+  hasAdCredit?: boolean;
+  code?: string;
+}> {
+  try {
+    const eventId =
+      adEventId ||
+      `guest_ad_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const clientHash = getClientId();
+
+    const { data, error } = await supabase.functions.invoke(
+      "verify-rewarded-ad",
+      {
+        body: {
+          mode: "unlock_guest",
+          adProvider,
+          adEventId: eventId,
+          adToken,
+          clientHash,
+        },
+        headers: {
+          "x-client-hash": clientHash,
+        },
+      },
+    );
+
+    if (error) {
+      const msg = error.message || "Failed to verify ad";
+      return { success: false, error: msg, code: "EDGE_ERROR" };
+    }
+
+    if (!data?.success) {
+      return {
+        success: false,
+        error: data?.error || "Ad verification failed",
+        code: data?.code || "VERIFICATION_FAILED",
+      };
+    }
+
+    return {
+      success: true,
+      hasAdCredit: true,
+    };
+  } catch (err) {
+    return {
+      success: false,
+      error: (err as Error).message || "Network error",
+      code: "NETWORK_ERROR",
     };
   }
 }

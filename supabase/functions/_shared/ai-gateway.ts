@@ -206,24 +206,21 @@ export class AiGateway {
         );
       }
 
-      // Reserve the guest operation
-      if (allowance) {
-        await this.supabase
-          .from("ai_gateway_daily_allowance")
-          .update({
-            operations_reserved: (allowance.operations_reserved || 0) + 1,
-            updated_at: new Date().toISOString(),
-          })
-          .eq("id", allowance.id);
-      } else {
-        await this.supabase.from("ai_gateway_daily_allowance").insert({
-          client_hash: clientHash,
-          usage_date: today,
-          has_ad_credit: true,
-          operations_used: 0,
-          operations_reserved: 1,
-        });
+      // Guest MUST have watched an ad to unlock their 1 operation
+      if (!allowance || !allowance.has_ad_credit) {
+        throw new Error(
+          "GUEST_AD_REQUIRED: Please watch a sponsor ad to unlock your 1 daily free guest AI operation.",
+        );
       }
+
+      // Reserve the guest operation
+      await this.supabase
+        .from("ai_gateway_daily_allowance")
+        .update({
+          operations_reserved: (allowance.operations_reserved || 0) + 1,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", allowance.id);
 
       const { data: logEntry } = await this.supabase
         .from("ai_gateway_operations_log")

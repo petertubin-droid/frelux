@@ -648,7 +648,22 @@ export interface SpendResult {
 /** Tiered AI credit pricing config */
 export const AI_CREDIT_COST = 10;
 export const CREDITS_PER_AD = 5;
-export const MAX_ADS_PER_DAY = 5;
+export const MAX_ADS_PER_DAY = 4; // Capped at 4 rewarded ads daily for unpaid users (4 * 5 = 20 credits max/day)
+
+/** Get count of rewarded ads watched by user today */
+export async function getTodayRewardedAdCount(userId: string): Promise<number> {
+  if (!isSupabaseConfigured) return 0;
+  const supabase = await getSupabase();
+  const today = new Date().toISOString().split("T")[0];
+  const { count, error } = await supabase
+    .from("rewarded_ad_credit_events")
+    .select("id", { count: "exact", head: true })
+    .eq("user_id", userId)
+    .eq("status", "completed")
+    .gte("created_at", today + "T00:00:00Z");
+  if (error) return 0;
+  return count ?? 0;
+}
 
 export interface EarnResult {
   success: boolean;
