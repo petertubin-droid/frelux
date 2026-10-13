@@ -91,7 +91,7 @@ Key commits (newest last): `af1bdeea` role-fallback disclosure ·
 `350e2f1f` 6-page market pricing · `9de911d2` rebar US/DE/IN ·
 `51bbfedc` EG rebar · `9d3b6512` AU rebar indicative + confidence-aware
 provenance · `b3f12d40` plumbing US/DE · `6f34d349` GB pipes ·
-`0ee2ea40` GB drainage (GB complete) · US drainage + AT pipes (latest).
+`0ee2ea40` GB drainage (GB complete) · US drainage + AT pipes · `e12ba27a` identity sweep rebased onto remote structural work · `6c82cadc` AI adapter repair + wallfinishing data fixes + type gate 0 (latest).
 
 ---
 
