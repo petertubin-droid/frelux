@@ -134,9 +134,23 @@ requires_verification` with user-safe reasons.
       inputs.calculation_audit (jsonb, no schema change), never
       overwrites an existing audit. Tests: calculation-audit.test.ts
       (10 green) + estimate-consuming page tests (14 green).
-- [ ] P2.10–14 Wall/ceiling assemblies (15 markets done; CN ID MX KR IT
-      pending), electrical + plumbing modular profiles, Build-to-Roof
-      typologies, structural/masonry/flooring localization
+- [x] P2.10–13 substantially done — re-verified 2026-10-13 after the
+      parallel session's commit 3352f336 (this backlog entry was stale).
+      Actual verified state: wall assemblies for ALL 20 markets in
+      wallfinishing/assemblies.ts (id-prefix counts: gb 14, us/sa/ng/fr/
+      ca/au/ae 9, za/ke/jp/it/in/gh/de/cn/br 8, mx/id 7, kr 6);
+      electrical-profiles.ts + plumbing-profiles.ts (all 20 markets,
+      NM-B for US, market pipe standards) consumed by
+      ElectricalEstimator/PlumbingEstimator pages;
+      construction-typologies.ts (20 typologies) consumed by
+      BuildToRoofEstimator; structural-market.ts price provenance
+      consumed by Foundation/Reinforcement/BuildToRoof/Plumbing pages.
+      Tests: electrical/plumbing profiles + typologies + engines 64
+      green; Electrical/Plumbing/BuildToRoof page tests 3 green.
+      Remaining gap (P2.14): no dedicated masonry engine module —
+      blockwork/concrete lives inside Build-to-Roof typologies;
+      flooring-engine.ts geometry is market-neutral (price lookup is
+      market-aware via material roles only).
 - [ ] P3.15–17 AI features → deterministic engine routing per market;
       saved-project market pinning; admin config center surfaces
 - [ ] P4.18–20 CN ID MX KR IT full profiles, e2e + regression matrix,
