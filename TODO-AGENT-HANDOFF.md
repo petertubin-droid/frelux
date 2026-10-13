@@ -323,6 +323,40 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         fallback; add OVE/ONORM E 8101 profile with NYM-J
         methodology), then NG electrical book (Jumia/Konga
         listings), then remaining market anchors.
+  - [x] P2 batch 9: ELECTRICAL BOOK DE, APPLIED LIVE (2026-10-13,
+        migration 20261013220000): 11 rows, all manual. Electrical
+        books now live for US, GB, DE (3 of 20 markets).
+        USER DIRECTIVE (2026-10-13): ALL estimation work must cover
+        the WHOLE 20-market set (NG US GB CA AU DE IN GH KE ZA JP
+        FR BR SA AE CN ID MX KR IT) and all 40+ engines - never a
+        2-4 market subset. Per-market rolls must continue until
+        every market has a full electrical book.
+        DE (DIN VDE 0100 / DIN 18015 methodology, incl 19% MwSt):
+        lighting NYM-J 3x1,5mm2 50m EUR 35.99 (hornbach.de 834195)
+        = 0.72/m; socket NYM-J 3x2,5mm2 50m EUR 78.50
+        (elektroland24) = 1.57/m; dedicated NYM-J 5x2,5mm2 (Herd)
+        50m EUR 55.90 (Amazon.de Waskonig+Walter) = 1.12/m; earth
+        H07V-U 2,5mm2 grun/gelb 100m EUR 49.31 (elektroland24) =
+        0.49/m; feeder NYM-J 5x6mm2 50m EUR 365.31 (voelkner.de,
+        ab-3-Pack tier) = 7.31/m; conduit Installationsrohr M25
+        starr 3m EUR 2.37 (hornbach.de 5715557) = 0.79/m;
+        junction Kaiser 1555-06 20-pack EUR 17.43 (hornbach.de) =
+        0.87/box; breaker ABB S201-B16 EUR 2.99 (wittko.eu);
+        switch Busch-Jaeger 2020 US-201 EUR 10.65
+        (elektroshopwagner.de); socket outlet Busch-Jaeger alpha
+        nea Schuko-Einsatz EUR 12.44 (Amazon.de); DB Hensel KV
+        1512 12TE IP54 EUR 53.12 (watt24.com).
+        GOTCHA: hornbach.de category queries return .lu/.at/.ch
+        siblings - pin exact art numbers. idealo.de is a price
+        aggregator; prefer direct shop pages (voelkner, watt24,
+        elektroland24, elektroshopwagner all render prices to
+        Google).
+        REMAINING ELECTRICAL BOOKS (17 of 20): NG CA AU IN GH KE
+        ZA JP FR BR SA AE CN ID MX KR IT. Suggested order: NG next
+        (Jumia/Konga single-core + conduit listings), then CA
+        (homedepot.ca NMD90), AU (Bunnings TPS), IN (Finolex 90m
+        coils), GH/KE/ZA, then hard ones (JP KR CN ID via
+        MonotaRO/Japan, Coupang, Alibaba retail, Tokopedia).
 ## 1. CONTEXT (read first)
 
 Frelux is a construction cost calculator SaaS (Vite + React + TS + Tailwind +
