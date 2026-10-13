@@ -7,7 +7,7 @@ commands in section 6, then work top-to-bottom through section 4 (REMAINING
 WORK). Update this file with every batch you complete — including flipping
 status markers and adding the commit hash.
 
-Last updated: 2026-10-13 (MASTER MANDATE: complete global internationalization mapped below; P0 registry reconciliation done: 54 engines)
+Last updated: 2026-10-13 (P2 batch 1: sequence-planner market-scoped, 9/20 wall profiles verified)
 
 ---
 
@@ -106,6 +106,33 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
 - Saved estimates must remain reproducible (engine+profile versions stored).
 - Admin interface must show truthful capability/verification state.
 - Distinguish preliminary estimation from engineering design compliance.
+
+## P2 Batch 1 — engineering module market-scoping (IN PROGRESS)
+
+  - [x] engineering/wall-methodology.ts: market-scoped wall profiles with
+        provenance + confidence. VERIFIED (web-sourced): NG (sandcrete
+        baseline), US (8in CMU, bartleby/up.codes), GB (cavity 102.5mm
+        brick + 100mm block, MPA/Kingspan), DE (17.5/24cm Poroton,
+        Schlagmann/ETA-25/0604), IN (230mm brick, BIS/WeHouse), AU (brick
+        veneer over frame), JP (RC + ALC, industry_standard), BR (9x19x29
+        ceramic block, Sodimac), ZA (140mm concrete masonry, Topblock).
+        UNVERIFIED-DISCLOSED (no silent NG fallback): CA FR IT SA AE CN ID
+        MX KR GH KE -> generic profile with explicit 'not yet verified'
+        note surfaced to users.
+  - [x] sequence-planner.ts: NG blockwork strings replaced with token
+        substitution driven by the market profile; generateSequencePlan
+        gains optional marketCode param (NG default preserved exactly);
+        SequencePlan gains methodology_note (verified provenance or
+        explicit unverified disclosure). 67 engineering tests green
+        incl. NG-output-unchanged regression.
+  - [x] ConstructionSequence page: useMarket wiring + methodology note
+        rendered.
+  - [ ] NEXT in batch: structural-calculator.ts market-scoped member
+        sizing rules (b=225mm NG preset -> per-market beam widths), then
+        timeline-estimator.ts climate model (dry/rainy -> per-market
+        workability inputs: winter CA/GB/DE, monsoon IN/ID, heat SA/AE).
+  - [ ] Remaining 11 wall profiles need web verification (CA FR IT SA AE
+        CN ID MX KR GH KE) — 1-2 searches per market.
 
 ## 1. CONTEXT (read first)
 

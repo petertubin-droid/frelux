@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import PageHeader from "@/components/ui/PageHeader";
+import { useMarket } from "@/lib/international/market-context";
 import {
   generateSequencePlan,
   type SequenceStep,
@@ -34,8 +35,9 @@ export default function ConstructionSequence() {
       "construction sequence, build order, construction steps, quality checks",
   });
 
+  const { market } = useMarket();
   const plan = monitoredCalc("Construction Sequence", () =>
-    generateSequencePlan(),
+    generateSequencePlan(undefined, market.marketCode),
   );
   const [openStep, setOpenStep] = useState<number | null>(1);
 
@@ -51,6 +53,11 @@ export default function ConstructionSequence() {
           { label: "Construction Sequence" },
         ]}
       />
+        <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8">
+          <p className="mt-4 rounded-lg border border-border bg-muted/50 p-3 text-sm text-muted-foreground">
+            {plan.methodology_note}
+          </p>
+        </div>
 
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 space-y-6">
         {/* Stage overview */}

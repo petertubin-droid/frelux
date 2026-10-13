@@ -15,6 +15,8 @@
 
 // ── Types ──
 
+import { resolveWallMethodology, type WallMethodologyProfile } from "./wall-methodology";
+
 export interface SequenceStep {
   step_number: number;
   stage: string;
@@ -36,6 +38,8 @@ export interface SequencePlan {
   steps: SequenceStep[];
   quality_gates: { after_step: number; gate_name: string; checks: string[] }[];
   parallel_activities: { can_overlap: boolean; steps: number[]; description: string }[];
+  /** Market-specific wall methodology provenance, or an explicit unverified disclosure. */
+  methodology_note: string;
 }
 
 // ── Full construction sequence (Build-to-Roof + prep for finishing) ──
@@ -200,12 +204,12 @@ const SEQUENCE_STEPS: Omit<SequenceStep, 'step_number'>[] = [
     description: 'Lay foundation blocks from footing to DPC level, install DPC membrane.',
     prerequisites: [5],
     activities: [
-      'Lay 9-inch (225mm) hollow blocks in mortar, 9-inch is the standard for foundation walls',
+      'Lay foundation wall units in mortar: {{FOUNDATION_WALL_DESC}}',
       'Build up to DPC level (typically 4-5 courses)',
       'Fill hollow block cores with weak concrete (1:3:6) where specified',
       'Install DPC membrane over blockwork',
     ],
-    materials_required: ['9-inch hollow blocks (225mm), mandatory for foundations', 'Cement', 'Sand', 'DPC membrane (polythene)'],
+    materials_required: ['{{FOUNDATION_WALL_UNIT}}', 'Cement', 'Sand', 'DPC membrane (polythene)'],
     quality_checks: [
       'Blocks are laid in stretcher bond',
       'Mortar joints are 10-12mm and fully filled',
@@ -288,13 +292,13 @@ const SEQUENCE_STEPS: Omit<SequenceStep, 'step_number'>[] = [
     description: 'Lay blockwork from DPC to window sill level.',
     prerequisites: [8],
     activities: [
-      'Lay first course of 9-inch blocks on DPC (external walls)',
-      'Use 6-inch blocks for internal partition walls where non-load-bearing',
-      'Continue blockwork to window sill level',
+      'Lay first course of external walls on DPC: {{EXTERNAL_WALL_DESC}}',
+      'Use {{PARTITION_WALL_DESC}} where non-load-bearing',
+      'Continue walling to window sill level',
       'Install wall reinforcement where specified',
       'Cast columns to this level',
     ],
-    materials_required: ['9-inch hollow blocks (external load-bearing walls)', '6-inch blocks (internal partitions, hollow or solid)', '5-inch solid blocks (non-load-bearing partitions, if applicable)', 'Cement', 'Sand', 'Column reinforcement'],
+    materials_required: ['{{EXTERNAL_WALL_UNIT}}', '{{PARTITION_WALL_UNIT}}', 'Cement', 'Sand', 'Column reinforcement'],
     quality_checks: [
       'First course is laid on mortar bed over DPC',
       'Walls are plumb and level',
@@ -306,8 +310,8 @@ const SEQUENCE_STEPS: Omit<SequenceStep, 'step_number'>[] = [
     common_mistakes: [
       'Not maintaining bond pattern → weak walls',
       'Door frames not set before blockwork → fitting problems',
-      'Using 6-inch or 5-inch blocks for foundation walls → insufficient strength, foundations require 9-inch blocks',
-      'Using 5-inch solid blocks for load-bearing walls → only suitable for non-load-bearing partitions',
+      'Using partition units ({{PARTITION_WALL_DESC}}) for foundation walls → insufficient strength',
+      'Using non-load-bearing partition units for load-bearing walls → only suitable for non-load-bearing partitions',
     ],
     estimated_duration_days: '5-7 days',
     is_critical: true,
@@ -417,13 +421,46 @@ const SEQUENCE_STEPS: Omit<SequenceStep, 'step_number'>[] = [
   },
 ];
 
-export function generateSequencePlan(_buildingType?: string): SequencePlan {
-  const steps: SequenceStep[] = SEQUENCE_STEPS.map((step, i) => ({
+function substStep(step: Omit<SequenceStep, "step_number">, subst: (t: string) => string): Omit<SequenceStep, "step_number"> {
+  return {
     ...step,
+    description: subst(step.description),
+    activities: step.activities.map(subst),
+    materials_required: step.materials_required.map(subst),
+    quality_checks: step.quality_checks.map(subst),
+    safety_notes: step.safety_notes.map(subst),
+    common_mistakes: step.common_mistakes.map(subst),
+    ...Object.fromEntries(
+      Object.entries(step).filter(([k]) => !["description", "activities", "materials_required", "quality_checks", "safety_notes", "common_mistakes"].includes(k)),
+    ),
+  } as SequenceStep;
+}
+
+export function generateSequencePlan(
+  _buildingType?: string,
+  marketCode: string = "NG",
+): SequencePlan {
+  const p: WallMethodologyProfile = resolveWallMethodology(marketCode);
+  const tokens: Record<string, string> = {
+    "{{FOUNDATION_WALL_DESC}}": p.foundationWall.description,
+    "{{FOUNDATION_WALL_UNIT}}": p.foundationWall.unitLabel,
+    "{{EXTERNAL_WALL_DESC}}": p.externalWall.description,
+    "{{EXTERNAL_WALL_UNIT}}": p.externalWall.unitLabel,
+    "{{PARTITION_WALL_DESC}}": p.partitionWall.description,
+    "{{PARTITION_WALL_UNIT}}": p.partitionWall.unitLabel,
+  };
+  const subst = (text: string): string =>
+    text.replace(/\{\{[A-Z_]+\}\}/g, (m2) => tokens[m2] ?? m2);
+  const steps: SequenceStep[] = SEQUENCE_STEPS.map((step, i) => ({
+    ...substStep(step, subst),
     step_number: i + 1,
   }));
 
   // Quality gates after critical transitions
+  const methodologyNote = p.verified
+    ? `Wall methodology: ${p.methodSummary} (${p.source}).`
+    : `Wall methodology for ${p.marketCode} is not yet verified for this market — the steps below use generic masonry guidance. Verify all wall systems with your local engineer. (Unverified profile)`;
+
   const quality_gates = [
     {
       after_step: 2,
@@ -496,6 +533,7 @@ export function generateSequencePlan(_buildingType?: string): SequencePlan {
   ];
 
   return {
+    methodology_note: methodologyNote,
     total_steps: steps.length,
     stages: ['Site Preparation', 'Foundation', 'Ground Floor', 'Walls', 'Roofing'],
     steps,
