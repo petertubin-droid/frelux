@@ -8,6 +8,7 @@ import {
   type Season,
 } from "@/lib/engineering/timeline-estimator";
 import { resolveClimateProfile } from "@/lib/engineering/climate-profile";
+import { resolveTypologyProfile } from "@/lib/engineering/typology-profile";
 import { useMarket } from "@/lib/international/market-context";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Calendar, Clock, AlertTriangle, TrendingUp, Flag } from "lucide-react";
@@ -29,6 +30,7 @@ export default function ProjectTimeline() {
   const [complexity, setComplexity] = useState<ProjectComplexity>("standard");
   const [workforce, setWorkforce] = useState<WorkforceSize>("medium");
   const { market } = useMarket();
+  const typology = resolveTypologyProfile(market.marketCode);
   const climate = resolveClimateProfile(market.marketCode);
   const SEASON_LABELS: Record<Season, string> = {
     dry: "Dry season",
@@ -43,6 +45,11 @@ export default function ProjectTimeline() {
   useEffect(() => {
     setSeason((prev) => (climate.seasons.includes(prev) ? prev : climate.defaultSeason));
   }, [climate]);
+  useEffect(() => {
+    setBuildingType((prev) =>
+      typology.typologies.some((t) => t.typeCode === prev) ? prev : typology.defaultType,
+    );
+  }, [typology]);
   const [foundationType, setFoundationType] = useState("strip_footing");
   const [roofType, setRoofType] = useState("gable");
   const [hasEngineer, setHasEngineer] = useState(false);
@@ -100,14 +107,7 @@ export default function ProjectTimeline() {
               label="Building type"
               value={buildingType}
               onChange={setBuildingType}
-              options={[
-                { v: "bungalow", l: "Bungalow" },
-                { v: "duplex", l: "Duplex" },
-                { v: "two_storey", l: "Two Storey" },
-                { v: "apartment", l: "Apartment" },
-                { v: "office", l: "Office" },
-                { v: "shop", l: "Shop" },
-              ]}
+              options={typology.typologies.map((t) => ({ v: t.typeCode, l: t.label }))}
             />
             <Num
               label="Length (m)"
@@ -198,7 +198,7 @@ export default function ProjectTimeline() {
         </div>
 
         <p className="rounded-lg border border-border bg-muted/50 p-3 text-sm text-muted-foreground">
-            Climate profile: {climate.climatePattern}. {climate.heuristicNote}
+            Climate profile: {climate.climatePattern}. {climate.heuristicNote} Building types follow this market's standard typologies ({typology.note}).
           </p>
           {result && (
           <>

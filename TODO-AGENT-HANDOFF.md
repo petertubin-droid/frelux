@@ -7,7 +7,7 @@ commands in section 6, then work top-to-bottom through section 4 (REMAINING
 WORK). Update this file with every batch you complete — including flipping
 status markers and adding the commit hash.
 
-Last updated: 2026-10-13 (P2 batch 1 COMPLETE + all 20 wall profiles verified: engineering modules fully market-scoped)
+Last updated: 2026-10-13 (P2 batch 2: typology profiles — all 20 markets)
 
 ---
 
@@ -159,6 +159,7 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         verified), KE (machine-cut Ndarugo 9x9 stones — verified).
         ALL 20 mandate markets now have profiled methodologies with
         sources; generic unverified fallback only for non-mandate codes.
+<<<<<<< Updated upstream
   - [x] UI currency leaks & market context remediation (P1/P2 UI sweep):
         - BuildToRoofEstimator: binding wire cost now uses formatCurrency()
           reflecting the active market rather than hardcoded Naira.
@@ -171,6 +172,21 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
           total room costs.
         - LabourEstimator: integrated useMarket(); renders active market
           context banner clarifying benchmark worker-day productivity.
+=======
+  - [x] P2 batch 2: engineering/typology-profile.ts — market-scoped
+        residential building typologies, WEB-VERIFIED: US (single-family/
+        ranch dominant), GB (semi-detached/terraced, stock shares 24.6/
+        17.9/22%), DE (Einfamilienhaus stock, Mehrfamilienhaus 58% of new
+        builds), FR (maison individuelle/pavillon), JP (62.3% detached
+        two-storey, 61% wooden), CA (single detached 8.4M, NRCan), AU
+        (70% separate houses ABS 2021), BR (84.8% casas IBGE Censo 2022),
+        ZA (88.5% formal StatsSA), KR (apartments) — verified; IT IN MX
+        ID SA AE CN GH KE — industry_standard with sources. NG option
+        list preserved exactly. ProjectTimeline building-type select now
+        offers market-local typologies (Einfamilienhaus, Rumah, Sobrado,
+        Maisonette...), snaps default on market change, disclosure note
+        rendered. Unprofiled codes get disclosed generic fallback.
+>>>>>>> Stashed changes
 
 ## 1. CONTEXT (read first)
 
