@@ -391,7 +391,8 @@ export interface DbUserProject {
     | "pop_ceiling"
     | "pop_estimate"
     | "tile"
-    | "tile_estimate";
+    | "tile_estimate"
+    | "wall_finishing";
   project_data: Record<string, unknown>;
   /** Canonical FRELUX location record (location-intelligence); null = not set. */
   location: Record<string, unknown> | null;

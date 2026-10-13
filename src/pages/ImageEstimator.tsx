@@ -1099,12 +1099,22 @@ function EstimateResultView({
           detail: `Materials: ${formatCurrency(stage.materials_total)} · Labour: ${formatCurrency(stage.labour_total)}`,
         })),
         totals: [
-          ["Materials Subtotal", formatCurrency(estimate.materials_total)],
-          ["Labour Subtotal", formatCurrency(estimate.labour_total)],
-          ["Contingency", formatCurrency(estimate.contingency)],
-          ["Estimated Grand Total", formatCurrency(estimate.grand_total)],
+          {
+            label: "Materials Subtotal",
+            value: formatCurrency(estimate.materials_total),
+          },
+          {
+            label: "Labour Subtotal",
+            value: formatCurrency(estimate.labour_total),
+          },
+          { label: "Contingency", value: formatCurrency(estimate.contingency) },
+          {
+            label: "Estimated Grand Total",
+            value: formatCurrency(estimate.grand_total),
+            strong: true,
+          },
         ],
-        notes: [
+        warnings: [
           "These are preliminary estimates derived from photo analysis and structural heuristics, not a certified structural design.",
           "Final quantities and safety requirements must be verified on site by a qualified structural engineer.",
         ],

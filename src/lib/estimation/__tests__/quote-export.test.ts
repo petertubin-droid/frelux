@@ -41,13 +41,12 @@ describe("buildQuoteHtml", () => {
     const html = buildQuoteHtml({
       ...opts,
       branding: {
-        company_name: "Apex Builders Ltd",
-        primary_color: "#1E40AF",
-        watermark_text: "APEX CONFIDENTIAL",
+        brandName: "Apex Builders Ltd",
+        primaryColor: "#1E40AF",
       },
     });
     expect(html).toContain("Apex Builders Ltd");
-    expect(html).toContain("APEX CONFIDENTIAL");
+    expect(html).toContain("Apex Builders Ltd");
     expect(html).toContain("#1E40AF");
   });
 

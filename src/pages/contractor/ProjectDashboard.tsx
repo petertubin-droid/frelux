@@ -564,10 +564,10 @@ export default function ProjectDashboard() {
           ["Total Items", String(shoppingList.length)],
         ],
         lines: shoppingList.map((item) => ({
-          label: `${item.is_purchased ? "[Purchased] " : ""}${item.item_name}`,
+          label: `${item.is_purchased ? "[Purchased] " : ""}${item.name}`,
           quantity: String(item.quantity),
           unit: item.unit,
-          unit_price: `${sym}${item.unit_price.toLocaleString()}`,
+          unit_price: `${sym}${item.estimated_price.toLocaleString()}`,
           line_total: `${sym}${item.total_price.toLocaleString()}`,
           detail: item.category ? `Category: ${item.category}` : undefined,
         })),

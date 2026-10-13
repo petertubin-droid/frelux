@@ -20,19 +20,29 @@ const items: ShoppingListItem[] = [
 
 describe("ShoppingListModal", () => {
   it("renders title", () => {
-    render(<ShoppingListModal items={items} title="Paint Shopping List" onClose={vi.fn()} />);
+    render(
+      <ShoppingListModal
+        items={items}
+        title="Paint Shopping List"
+        onClose={vi.fn()}
+      />,
+    );
     expect(screen.getByText("Paint Shopping List")).toBeTruthy();
   });
 
-  it("renders item text as quantity, name", () => {
+  it("renders item name and quantity badge separately", () => {
     render(<ShoppingListModal items={items} title="Test" onClose={vi.fn()} />);
-    expect(screen.getByText(/3 containers, Premium paint/)).toBeTruthy();
-    expect(screen.getByText(/1 container, Primer/)).toBeTruthy();
+    expect(screen.getByText("Premium paint (4 L)")).toBeTruthy();
+    expect(screen.getByText("3 containers")).toBeTruthy();
+    expect(screen.getByText("Primer")).toBeTruthy();
+    expect(screen.getByText("1 container")).toBeTruthy();
   });
 
   it("calls onClose when X button clicked", () => {
     const onClose = vi.fn();
-    const { container } = render(<ShoppingListModal items={items} title="Test" onClose={onClose} />);
+    const { container } = render(
+      <ShoppingListModal items={items} title="Test" onClose={onClose} />,
+    );
     const closeBtn = container.querySelector('button[type="button"]');
     fireEvent.click(closeBtn!);
     expect(onClose).toHaveBeenCalled();

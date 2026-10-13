@@ -244,13 +244,13 @@ function getBaseStyles(primaryColor: string, accentColor: string): string {
 }
 
 export function buildQuoteHtml(opts: QuoteOptions): string {
-  const brandName = opts.branding?.company_name || "FRELUX SMART CALC";
+  const brandName = opts.branding?.brandName || "FRELUX SMART CALC";
   const tagline =
     opts.branding?.tagline || "Every Trade. Every Cost. One Platform.";
-  const primaryColor = opts.branding?.primary_color || "#7C3AED";
-  const accentColor = opts.branding?.accent_color || "#F97316";
-  const watermarkText = opts.branding?.watermark_text || brandName;
-  const showWatermark = opts.branding?.show_watermark ?? true;
+  const primaryColor = opts.branding?.primaryColor || "#7C3AED";
+  const accentColor = opts.branding?.accentColor || "#F97316";
+  const watermarkText = brandName;
+  const showWatermark = opts.branding?.watermark?.enabled ?? true;
 
   const dateStr = new Date().toLocaleDateString("en-US", {
     year: "numeric",
