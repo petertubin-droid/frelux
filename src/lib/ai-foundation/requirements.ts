@@ -92,7 +92,8 @@ export const TASK_REQUIREMENTS: Record<Exclude<CopilotTaskType, 'unsupported'>, 
       { key: 'wallHeight', label: 'Wall height', unit: 'm' },
       // Defaultable inputs, resolved from TASK_SMART_DEFAULTS and shown
       // as editable assumptions, never asked unless the user overrides.
-      { key: 'doors', label: 'Doors', unit: 'count' },
+      {
+ key: 'doors', label: 'Doors', unit: 'count' },
       { key: 'windows', label: 'Windows', unit: 'count' },
       { key: 'coats', label: 'Coats', unit: 'count' },
       { key: 'wasteMargin', label: 'Waste margin', unit: '%' },
@@ -131,6 +132,36 @@ export const TASK_REQUIREMENTS: Record<Exclude<CopilotTaskType, 'unsupported'>, 
       { key: 'workflow', label: 'Material workflow' },
     ],
   },
+  foundation_estimate: {
+    engineId: 'foundation',
+    fields: [
+      { key: 'marketCode', label: 'Country/market (e.g. NG, US, GB)' },
+      { key: 'concrete_volume_m3', label: 'Foundation concrete volume', unit: 'm³' },
+      { key: 'block_wall_area_m2', label: 'Blockwork-to-DPC wall area', unit: 'm²' },
+      { key: 'hardcore_volume_m3', label: 'Hardcore fill volume', unit: 'm³' },
+    ],
+  },
+  doors_windows_estimate: {
+    engineId: 'doors_windows',
+    fields: [
+      { key: 'marketCode', label: 'Country/market (e.g. NG, US, GB)' },
+      { key: 'flush_doors', label: 'Flush doors', unit: 'count' },
+      { key: 'panel_doors', label: 'Panel doors', unit: 'count' },
+      { key: 'security_doors', label: 'Security doors', unit: 'count' },
+      { key: 'aluminium_windows', label: 'Aluminium windows', unit: 'count' },
+      { key: 'louvre_windows', label: 'Louvre windows', unit: 'count' },
+    ],
+  },
+  reinforcement_estimate: {
+    engineId: 'reinforcement',
+    fields: [
+      { key: 'marketCode', label: 'Country/market (e.g. NG, US, GB)' },
+      { key: 'len_12mm_m', label: 'Total 12 mm cutting length', unit: 'm' },
+      { key: 'len_16mm_m', label: 'Total 16 mm cutting length', unit: 'm' },
+      { key: 'len_20mm_m', label: 'Total 20 mm cutting length', unit: 'm' },
+      { key: 'len_25mm_m', label: 'Total 25 mm cutting length', unit: 'm' },
+    ],
+  },
   finish_compare: { engineId: 'finish_compare', fields: [] }, // config-backed, future phase
   scenario_compare: { engineId: 'build_to_roof', fields: [] }, // resolved per scenario
   project_question: { engineId: '', fields: [] }, // answered from context, no engine
@@ -147,6 +178,14 @@ const TASK_SMART_DEFAULTS: Partial<Record<Exclude<CopilotTaskType, 'unsupported'
   assumption: string;
   confidence?: number;
 }>>> = {
+  doors_windows_estimate: {
+    include_locksets: {
+      value: true,
+      unit: 'count',
+      assumption: 'Locksets included (same default as the doors & windows estimator page)',
+      confidence: 0.5,
+    },
+  },
   painting_materials: {
     doors: { value: 1, unit: 'count', assumption: '1 standard door (0.9 × 2.1 m), the FRELUX manual calculator default', confidence: 0.5 },
     windows: { value: 2, unit: 'count', assumption: '2 standard windows (0.9 × 1.2 m), the FRELUX manual calculator default', confidence: 0.5 },

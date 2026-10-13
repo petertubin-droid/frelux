@@ -75,6 +75,9 @@ const RESPONSE_SCHEMA = {
             "painting_estimate",
             "painting_materials",
             "screeding_estimate",
+            "foundation_estimate",
+            "doors_windows_estimate",
+            "reinforcement_estimate",
             "tile_estimate",
             "pop_estimate",
             "tyrolene_estimate",
@@ -105,6 +108,19 @@ const RESPONSE_SCHEMA = {
                   "roof_type",
                   "roof_pitch_degrees",
                   "roof_overhang",
+                  "marketCode",
+                  "concrete_volume_m3",
+                  "block_wall_area_m2",
+                  "hardcore_volume_m3",
+                  "flush_doors",
+                  "panel_doors",
+                  "security_doors",
+                  "aluminium_windows",
+                  "louvre_windows",
+                  "len_12mm_m",
+                  "len_16mm_m",
+                  "len_20mm_m",
+                  "len_25mm_m",
                 ],
               },
               label: { type: "string" },
@@ -163,7 +179,7 @@ serveWithCors(async (req: Request) => {
       return jsonResponse({ error: "Invalid request text" }, 400);
     }
 
-    const prompt = `You are the FRELUX Copilot interpreter. FRELUX is a construction & property intelligence platform with DETERMINISTIC calculation engines (build-to-roof building estimation, roof geometry, painting, tyrolene finishing).
+    const prompt = `You are the FRELUX Copilot interpreter. FRELUX is a construction & property intelligence platform with DETERMINISTIC calculation engines (build-to-roof building estimation, roof geometry, painting, tyrolene finishing, foundation, doors & windows, reinforcement/rebar). The structural engines (foundation_estimate, doors_windows_estimate, reinforcement_estimate) REQUIRE the user's country/market as the marketCode fact (ISO 2-letter like NG, US, GB) — never assume one; ask if not stated.
 
 Your ONLY job: interpret the user's request and extract stated facts. 
 

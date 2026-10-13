@@ -7,6 +7,7 @@
  */
 
 import type { EngineResult } from "./types";
+import { getCountryCurrency } from "@/lib/international/countries";
 import { registerEngine, quantityLine } from "./engines-registry";
 import {
   fetchCalcRules,
@@ -84,7 +85,13 @@ export function registerExpandedEngines(): void {
         marketCode?: string;
         currency?: string;
       };
-      const marketCode = typed.marketCode || "NG";
+      const marketCode = typed.marketCode?.trim().toUpperCase();
+      if (!marketCode) {
+        return engineFail(
+          "electrical",
+          "Market code is required (e.g. NG, US, GB). FRELUX AI will not assume a country — specify the project location so the correct price book and wiring rules apply.",
+        );
+      }
       try {
         const [rulesRes, priceMap] = await Promise.all([
           fetchCalcRules("electrical"),
@@ -111,7 +118,7 @@ export function registerExpandedEngines(): void {
           quantities,
           {
             total: result.material_subtotal ?? result.priced_subtotal,
-            currency: typed.currency || "NGN",
+            currency: typed.currency || getCountryCurrency(marketCode) || "USD",
             lines: result.lines
               .filter((l) => l.line_total != null)
               .map((l) => ({
@@ -144,7 +151,13 @@ export function registerExpandedEngines(): void {
         marketCode?: string;
         currency?: string;
       };
-      const marketCode = typed.marketCode || "NG";
+      const marketCode = typed.marketCode?.trim().toUpperCase();
+      if (!marketCode) {
+        return engineFail(
+          "plumbing",
+          "Market code is required (e.g. NG, US, GB). FRELUX AI will not assume a country — specify the project location so the correct price book and pipe sizing rules apply.",
+        );
+      }
       try {
         const [rulesRes, priceMap] = await Promise.all([
           fetchCalcRules("plumbing"),
@@ -169,7 +182,7 @@ export function registerExpandedEngines(): void {
           quantities,
           {
             total: result.material_subtotal ?? result.priced_subtotal,
-            currency: typed.currency || "NGN",
+            currency: typed.currency || getCountryCurrency(marketCode) || "USD",
             lines: result.lines
               .filter((l) => l.line_total != null)
               .map((l) => ({
@@ -197,7 +210,7 @@ export function registerExpandedEngines(): void {
       const {
         applyRegionalCost,
       } = await import("@/lib/estimation/regional-cost-engine");
-      const typed = rawInput as { currency?: string };
+      const typed = rawInput as { currency?: string; marketCode?: string };
       const input = rawInput as Parameters<typeof applyRegionalCost>[0];
       const result = applyRegionalCost(input);
       if (!result.ok) {
@@ -217,7 +230,10 @@ export function registerExpandedEngines(): void {
         ],
         {
           total: result.adjusted_cost ?? 0,
-          currency: typed.currency || "NGN",
+          currency:
+            typed.currency ||
+            (typed.marketCode ? getCountryCurrency(typed.marketCode) : "") ||
+            "USD",
           lines: [
             {
               label: "Location-Adjusted Cost",
@@ -268,7 +284,7 @@ export function registerExpandedEngines(): void {
         ],
         {
           total: result.quote_total ?? result.priced_subtotal ?? result.base_cost ?? 0,
-          currency: typed.currency || "NGN",
+          currency: typed.currency || "USD",
           lines: [
             { label: "Base Cost", amount: result.base_cost ?? 0 },
             { label: "Profit", amount: result.profit ?? 0 },

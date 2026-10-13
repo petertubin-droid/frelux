@@ -73,6 +73,63 @@ export const ARCHIE_CALCULATOR_KNOWLEDGE: Record<
   EngineBackedTask,
   CalculatorKnowledgeEntry
 > = {
+  foundation_estimate: {
+    taskType: "foundation_estimate",
+    engineId: "foundation",
+    title: "Foundation Estimator",
+    computes:
+      "Foundation concrete, blockwork-to-DPC, hardcore fill and formwork quantities with market-priced costs.",
+    requiredInputs: [
+      { key: "marketCode", label: "Country/market (e.g. NG, US, GB)" },
+      { key: "concrete_volume_m3", label: "Foundation concrete volume", unit: "m³" },
+      { key: "block_wall_area_m2", label: "Blockwork-to-DPC wall area", unit: "m²" },
+      { key: "hardcore_volume_m3", label: "Hardcore fill volume", unit: "m³" },
+    ],
+    methodology:
+      "Deterministic foundation take-off (concrete 1:2:4, blockwork, hardcore, formwork) driven by DB calc rules and the active market's price book, including pack-size and per-tonne conversions from structural market pricing. The engine owns every formula; ARCHIE reports its output verbatim.",
+    configProvenance:
+      "Prices come from the selected market's verified price book; unpriced roles are reported, never invented.",
+    sourceFiles: ["src/lib/estimation/foundation-engine.ts"],
+  },
+  doors_windows_estimate: {
+    taskType: "doors_windows_estimate",
+    engineId: "doors_windows",
+    title: "Doors & Windows Estimator",
+    computes:
+      "Flush, panel and security door counts, aluminium and louvre windows, locksets, and their market-priced costs.",
+    requiredInputs: [
+      { key: "marketCode", label: "Country/market (e.g. NG, US, GB)" },
+      { key: "flush_doors", label: "Flush doors", unit: "count" },
+      { key: "panel_doors", label: "Panel doors", unit: "count" },
+      { key: "security_doors", label: "Security doors", unit: "count" },
+      { key: "aluminium_windows", label: "Aluminium windows", unit: "count" },
+      { key: "louvre_windows", label: "Louvre windows", unit: "count" },
+    ],
+    methodology:
+      "Deterministic per-unit take-off over the door/window schedule with DB calc rules and the active market's price book. The engine owns every formula; ARCHIE reports its output verbatim.",
+    configProvenance:
+      "Prices come from the selected market's verified price book; unpriced roles are reported, never invented.",
+    sourceFiles: ["src/lib/estimation/doors-windows-engine.ts"],
+  },
+  reinforcement_estimate: {
+    taskType: "reinforcement_estimate",
+    engineId: "reinforcement",
+    title: "Reinforcement Estimator",
+    computes:
+      "Rebar lengths by diameter (12/16/20/25 mm) converted to masses and tonnage, priced from the market's steel book.",
+    requiredInputs: [
+      { key: "marketCode", label: "Country/market (e.g. NG, US, GB)" },
+      { key: "len_12mm_m", label: "Total 12 mm cutting length", unit: "m" },
+      { key: "len_16mm_m", label: "Total 16 mm cutting length", unit: "m" },
+      { key: "len_20mm_m", label: "Total 20 mm cutting length", unit: "m" },
+      { key: "len_25mm_m", label: "Total 25 mm cutting length", unit: "m" },
+    ],
+    methodology:
+      "Deterministic length-to-mass conversion per bar diameter with DB calc rules and the active market's price book (per-tonne anchors where sourced). The engine owns every formula; ARCHIE reports its output verbatim.",
+    configProvenance:
+      "Prices come from the selected market's verified price book; unpriced roles are reported, never invented.",
+    sourceFiles: ["src/lib/estimation/reinforcement-engine.ts"],
+  },
   building_estimate: {
     taskType: "building_estimate",
     engineId: "build_to_roof",

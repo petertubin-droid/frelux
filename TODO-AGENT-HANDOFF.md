@@ -185,6 +185,25 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         Maisonette...), snaps default on market change, disclosure note
         rendered. Unprofiled codes get disclosed generic fallback.
 
+  - [x] P2 batch 3: STRUCTURAL AI ADAPTER FAMILY LIVE — foundation,
+        doors_windows, reinforcement adapters (engines-structural.ts).
+        Fully operational + location aware: REQUIRE explicit marketCode
+        (no silent NG), fetch calc rules + market price book with the
+        structural overlay (pack-size/per-tonne conversions), currency
+        from getCountryCurrency(market), unpriced lines disclosed in
+        raw.unpriced_lines + costs.regionalDataAvailable=false, adapter
+        defaults (labour mode none, include_locksets true) disclosed in
+        raw.adapter_assumptions. Copilot routing: 3 new task types
+        (foundation_estimate/doors_windows_estimate/reinforcement_estimate)
+        wired through types.ts, requirements.ts (marketCode a REQUIRED
+        fact so the AI asks for country), orchestrator deterministic
+        keyword routing, CopilotWidget labels, calculator-intelligence
+        knowledge entries, ai-copilot edge schema (task enum + fact keys
+        + prompt: never assume country, ask). REMOVED the silent NG
+        defaults from electrical/plumbing AI adapters — missing market
+        now returns an honest "Market code is required" error. Suite
+        7156 green, type gate 0. 14 adapter tests in
+        ai-foundation/__tests__/engines-structural.test.ts.
 ## 1. CONTEXT (read first)
 
 Frelux is a construction cost calculator SaaS (Vite + React + TS + Tailwind +

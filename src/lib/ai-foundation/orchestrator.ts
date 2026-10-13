@@ -58,7 +58,15 @@ export function interpretRequest(
 
   // ── Task classification (keyword-based, deterministic) ──
   let taskType: CopilotTaskType;
-  if (/(tyrolene|tyro)/.test(lower)) taskType = "tyrolene_estimate";
+  if (/foundation|footing|footings|substructure|ground beam|strip found|raft|hardcore/.test(lower))
+    taskType = "foundation_estimate";
+  else if (/reinforc|rebar|steel rod|rodding|12\s*mm|16\s*mm|20\s*mm|25\s*mm (bar|rod)/.test(lower))
+    taskType = "reinforcement_estimate";
+  else if (/\b(doors?\s*(?:and|&|,|\+)?\s*windows?|doors? and windows?|window and door)\b/.test(lower))
+    taskType = "doors_windows_estimate";
+  else if (/\b(door|window)s?\b/.test(lower) && /(estimate|cost|price|how much|buy|install|budget)/.test(lower))
+    taskType = "doors_windows_estimate";
+  else if (/(tyrolene|tyro)/.test(lower)) taskType = "tyrolene_estimate";
   else if (/\bpop\b|plaster of paris|p\.o\.p/.test(lower))
     taskType = "pop_estimate";
   else if (/tile|tiling|ceramic|porcelain/.test(lower))

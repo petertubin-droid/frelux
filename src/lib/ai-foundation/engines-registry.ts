@@ -412,3 +412,6 @@ registerPhase2Engines();
 
 import { registerExpandedEngines } from "./engines-expanded";
 registerExpandedEngines();
+
+import { registerStructuralEngines } from "./engines-structural";
+registerStructuralEngines();

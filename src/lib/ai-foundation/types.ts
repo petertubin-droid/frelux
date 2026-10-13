@@ -76,6 +76,9 @@ export type CopilotTaskType =
   | "screeding_estimate" // screeding system materials & cost
   | "tile_estimate" // tile quantities & cost
   | "pop_estimate" // POP ceiling materials & cost
+  | "foundation_estimate" // foundation materials & cost (structural family)
+  | "doors_windows_estimate" // doors & windows quantities & cost
+  | "reinforcement_estimate" // rebar quantities & cost
   | "finish_compare" // compare finishing systems
   | "scenario_compare" // compare named scenarios via deterministic engines
   | "project_question" // answer from existing project data
