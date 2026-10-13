@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { withCalculationAudit } from "@/lib/international/calculation-audit";
 import { cachedConfigFetch } from "@/lib/estimation/offline-cache";
 import type { CountVisionResult } from "@/lib/estimation/count-vision-engine";
 import type {
@@ -659,9 +660,15 @@ export async function fetchEstimateByRef(ref: string) {
 }
 
 export async function createEstimate(data: Partial<EstimationEstimate>) {
+  // P1.9: attach market/calculation audit metadata (additive; skipped if
+  // the caller already attached one, or if inputs is absent).
+  const payload = withCalculationAudit(
+    data,
+    data.calculator_type ?? "unknown",
+  );
   const { data: record, error } = await supabase
     .from("estimation_estimates")
-    .insert(data)
+    .insert(payload)
     .select()
     .single();
   return { data: record as EstimationEstimate | null, error };

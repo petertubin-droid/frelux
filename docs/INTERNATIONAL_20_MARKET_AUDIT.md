@@ -122,7 +122,18 @@ requires_verification` with user-safe reasons.
       migrations; no invented standards; low-confidence planning
       defaults labelled as such. Sync guard:
       construction-standards.test.ts (4 tests).
-- [ ] P1.9 Calculation audit metadata (exists for wall finishing)
+- [x] P1.9 Calculation audit metadata — DONE 2026-10-13. Audit finding:
+      createCalculationAudit existed but was consumed by NO save path;
+      estimates from 12 calculator pages persisted with zero market
+      traceability. Fix: createEstimateAuditFromStorage() +
+      withCalculationAudit() in calculation-audit.ts (reads the same
+      localStorage keys the MarketProvider resolves on first render;
+      NG legacy fallback; never throws, never blocks a save) wired
+      into the single persistence choke point createEstimate() in
+      estimation/queries.ts — audit lands in
+      inputs.calculation_audit (jsonb, no schema change), never
+      overwrites an existing audit. Tests: calculation-audit.test.ts
+      (10 green) + estimate-consuming page tests (14 green).
 - [ ] P2.10–14 Wall/ceiling assemblies (15 markets done; CN ID MX KR IT
       pending), electrical + plumbing modular profiles, Build-to-Roof
       typologies, structural/masonry/flooring localization
