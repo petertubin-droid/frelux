@@ -100,7 +100,18 @@ requires_verification` with user-safe reasons.
       (`measurement-bridge.ts` exists — audit per-engine adoption)
 - [ ] P1.7 Material roles / provenance / pricebook validation (exists for
       wall finishing; extend to other engines)
-- [ ] P1.8 Standards + evidence registry (new table; per-market entries)
+- [x] P1.8 Standards + evidence registry — DONE 2026-10-13, migration
+      20261014140000 applied to production: `construction_standards`
+      table (market_code FK, domain, authority, evidence_type,
+      coverage_spec, applies_to, confidence, RLS public read) seeded
+      with 16 verified entries across 10 markets (ZA RhinoLite +
+      Gyproc screed datasheets, SA/AE Knauf MP75, KE putty + screed
+      guide, GH putty planning rate, JP gypsum box rate, BR Suvinil
+      ficha + Argalit ACII, FR webercol flex + NF DTU 42.1, GB BS EN
+      1401-1, DE DIN EN 1451). Notes lifted verbatim from project
+      migrations; no invented standards; low-confidence planning
+      defaults labelled as such. Sync guard:
+      construction-standards.test.ts (4 tests).
 - [ ] P1.9 Calculation audit metadata (exists for wall finishing)
 - [ ] P2.10–14 Wall/ceiling assemblies (15 markets done; CN ID MX KR IT
       pending), electrical + plumbing modular profiles, Build-to-Roof
