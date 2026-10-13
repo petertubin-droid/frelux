@@ -153,6 +153,42 @@ describe("Electrical Market Profiles", () => {
     expect(ae.conduitRequired).toBe(true);
   });
 
+  it("resolves IT profile with CEI 64-8 standards, FS18/FG16 unipolar wire in conduit", () => {
+    const it = getElectricalProfile("IT");
+    expect(it.marketCode).toBe("IT");
+    expect(it.runDistanceUnit).toBe("m");
+    expect(it.measurementSystem).toBe("metric");
+    expect(it.standardsRef).toContain("CEI 64-8");
+    expect(it.primaryWiringMethod).toContain("FS18 / FG16");
+    expect(it.lightingConductorSize).toContain("1.5 mm²");
+    expect(it.socketConductorSize).toContain("2.5 mm²");
+    expect(it.conduitRequired).toBe(true);
+  });
+
+  it("resolves MX profile with NOM-001-SEDE, THW-2-LS copper, AWG sizing, and imperial feet", () => {
+    const mx = getElectricalProfile("MX");
+    expect(mx.marketCode).toBe("MX");
+    expect(mx.runDistanceUnit).toBe("ft");
+    expect(mx.measurementSystem).toBe("imperial");
+    expect(mx.standardsRef).toContain("NOM-001-SEDE");
+    expect(mx.primaryWiringMethod).toContain("THW-2-LS");
+    expect(mx.lightingConductorSize).toContain("14 AWG");
+    expect(mx.socketConductorSize).toContain("12 AWG");
+    expect(mx.conduitRequired).toBe(true);
+  });
+
+  it("resolves JP profile with DENAN / JIS standards, flat VVF cable, and solid mm conductors", () => {
+    const jp = getElectricalProfile("JP");
+    expect(jp.marketCode).toBe("JP");
+    expect(jp.runDistanceUnit).toBe("m");
+    expect(jp.measurementSystem).toBe("metric");
+    expect(jp.standardsRef).toContain("DENAN");
+    expect(jp.primaryWiringMethod).toContain("Type VVF");
+    expect(jp.lightingConductorSize).toContain("1.6 mm");
+    expect(jp.socketConductorSize).toContain("2.0 mm");
+    expect(jp.conduitRequired).toBe(false);
+  });
+
   it("resolves all 20 markets to valid non-null electrical profiles", () => {
     const markets = [
       "NG",

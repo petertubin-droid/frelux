@@ -445,10 +445,33 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
       junction York GI back box 3x3 2.00 AED each; breaker Schneider Easy9 1P 20A 16.82 AED each;
       switch Schneider Vivace 1-gang 6.00 AED each; socket Schneider Vivace 13A switched socket 16.00 AED each;
       DB Gewiss / Schneider / Hager 8-12 way consumer unit 337.00 AED each.
-      REMAINING ELECTRICAL BOOKS (6 of 20): JP CN ID MX KR IT.
-      Next suggested order: IT (CEI 64-8 / Bticino / Gewiss in EUR), MX (NOM-001-SEDE / Condumex / IUSA in MXN),
-      then East Asia / SE Asia: JP (JIS C 3307 / VVF / Panasonic in JPY), CN (GB 50303 / BV / Chint / Delixi in CNY),
-      KR (KEC / Hfix / LS Cable in KRW), ID (PUIL 2011 / Supreme / Broco in IDR).
+- [x] P2 batch 13: ELECTRICAL BOOKS IT, MX, JP (2026-10-13,
+      migration 20261013260000): 33 rows (11 per market), all manual.
+      Electrical books now live for US, GB, DE, NG, CA, AU, IN, GH, KE, ZA, FR, BR, SA, AE, IT, MX, JP (17 of 20 markets).
+      IT (CEI 64-8 methodology, Tecnomat / Leroy Merlin Italia live listings):
+      lighting Cavo FS17 1x1.5mm2 100m 21.90 € = 0.22/m; socket FS17 1x2.5mm2 100m 34.90 € = 0.35/m;
+      dedicated FS17 1x6.0mm2 100m 85.03 € = 0.85/m (piano cottura induzione 32A); earth FS17 1x2.5mm2 100m
+      34.90 € = 0.35/m; feeder FS17 1x16mm2 / FG16 3.50 €/m; conduit Tubo corrugato Ø20mm 100m 31.97 € = 0.32/m;
+      junction Scatola 503 3 moduli 0.95 € each; breaker Bticino 1P+N 10A/16A 4.5kA 8.50 € each;
+      switch Bticino Matix 1P 10AX completo 4.50 € each; socket Bticino Matix bipasso 10/16A 2P+T 5.80 € each;
+      DB Sartel incasso 24 moduli IP40 21.40 € each.
+      MX (NOM-001-SEDE-2018 methodology, The Home Depot México live listings):
+      lighting IUSA/Indiana THW-LS 14 AWG 100m ,025.00 MXN = 10.25/m; socket Indiana/IUSA THW-LS 12 AWG 100m
+      ,435.00 MXN = 14.35/m; dedicated IUSA THW-LS 10 AWG 100m ,279.00 MXN = 22.79/m; earth IUSA THW-LS
+      14 AWG verde 100m ,025.00 MXN = 10.25/m; feeder Indiana THW-LS 8 AWG 1.50/m; conduit Poliflex
+      naranja 3/4" 50m 99.00 MXN = 19.98/m; junction Amanco chalupa 1/2" PVC 2.00 MXN each; breaker
+      Square D QO 1P 15A/20A QO115/QO120 29.00 MXN each; switch Commercial Electric apagador con placa
+      9.00 MXN each; socket Lucek duplex polarizado/aterrizado con placa 5.00 MXN each; DB Centro de carga
+      Square D QOD 8 polos bifásica empotrar 69.00 MXN each.
+      JP (DENAN Law / JIS C 8305 methodology, MonotaRO / Amazon.co.jp live listings):
+      lighting Fujidenshi/YASAKA 600V VVF 1.6mm 2C 100m ¥16,478 = 165.00/m; socket Aichi/YASAKA VVF 2.0mm
+      2C 100m ¥24,980 = 250.00/m; dedicated YASAKA VVF 2.0mm 3C / 200V with earth 100m ¥39,980 = 400.00/m;
+      earth Aichi IV 1.6mm green 100m ¥6,490 = 65.00/m; feeder 600V CV 3C 8mm2 ¥1,250.00/m; conduit
+      Bakuma/Mirai PF-16 16mm 50m ¥4,948 = 99.00/m; junction Mirai CSW-1NF 1-gang box ¥461.00 each;
+      breaker Panasonic compact breaker SH 2P1E 20A BSH2201 ¥1,428.00 each; switch Panasonic Cosmo Wide 21
+      switch set WT5001 ¥580.00 each; socket Panasonic Cosmo Wide 21 duplex grounding outlet WTF1502WK ¥680.00 each;
+      DB Tempearl/Panasonic 8-circuit residential DB with ELB ¥17,580.00 each.
+      REMAINING ELECTRICAL BOOKS (3 of 20): CN ID KR.
 
 ## 1. CONTEXT (read first)
 
@@ -519,7 +542,7 @@ Work this list in order. Each item's status is current as of the last update.
 | 7   | Rebar books                                          | 🟡     | ✅ US, DE, IN, EG verified; 🟡 AU indicative ('low', needs quote); ❌ GB, CA, rest                                                                                                                                                                                                                    |
 | 8   | Plumbing pipe books                                  | 🟡     | ✅ GB all 4 keys, US all 4, DE waste/drainage, AT cold/hot; ❌ DE cold/hot (PP-R)                                                                                                                                                                                                                     |
 | 8b  | Plumbing fittings/valves                             | 🟡     | Resolver walks PLUMBING_FITTING_KEYS (per-piece). US 5/5 + GB 4/5 + AT 2/5 LIVE in DB (seed migration executed 2026-10-13; 11/11 rows scan_confidence='manual', verified via resolver-shaped lookup). ❌ gb-union, at-elbow/union/valve, all DE                                                       |
-| 9   | Electrical books                                     | 🟡     | US, GB, DE, NG, CA, AU, IN, GH, KE, ZA, FR, BR, SA, AE (14/20) complete; 6 markets remaining                                                                                                                                                                                                          |
+| 9   | Electrical books                                     | 🟡     | US, GB, DE, NG, CA, AU, IN, GH, KE, ZA, FR, BR, SA, AE, IT, MX, JP (17/20) complete; 3 markets remaining (CN, ID, KR)                                                                                                                                                                                 |
 | 10  | Doors/windows books                                  | ❌     | Not started                                                                                                                                                                                                                                                                                           |
 | 11  | Price campaign remainder                             | 🟡     | ~174 'low' rows to verify                                                                                                                                                                                                                                                                             |
 | 12  | Structural methodology profiles                      | ❌     | Research arc (DIN/BS/ACI foundation, block modules)                                                                                                                                                                                                                                                   |
