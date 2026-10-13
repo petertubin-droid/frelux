@@ -7,7 +7,7 @@ commands in section 6, then work top-to-bottom through section 4 (REMAINING
 WORK). Update this file with every batch you complete — including flipping
 status markers and adding the commit hash.
 
-Last updated: 2026-10-11 (identity sweep + hard-gate fixes)
+Last updated: 2026-10-13 (merge with remote structural work + AI adapter repair + wallfinishing data fixes)
 
 ---
 
@@ -83,6 +83,8 @@ Work this list in order. Each item's status is current as of the last update.
 | 10 | Doors/windows books | ❌ | Not started |
 | 11 | Price campaign remainder | 🟡 | ~174 'low' rows to verify |
 | 12 | Structural methodology profiles | ❌ | Research arc (DIN/BS/ACI foundation, block modules) |
+| 13 | AI foundation adapters (engines-expanded.ts) | ✅ | Repaired 2026-10-13: electrical/plumbing adapters called 3-arg engines with 1 arg and read nonexistent result fields (would crash the conversational estimator). Now fetch rules + market price book exactly like the pages; margin/roof/regional adapters field-corrected; quantityLine takes 3 args |
+| 14 | Wallfinishing int'l assemblies (remote branch) | ✅ | 2026-10-13: `mortar-mix` mode mapped to engine `volume` (old mode silently refused to calculate), thickness shapes normalized, WallLayerCategory widened (lining/render/plaster), WallSubstrate += aac; type gate 49 → 0 |
 
 Key commits (newest last): `af1bdeea` role-fallback disclosure ·
 `2c960ad6` foundation market pricing · `fb776ffd` i18n calculators ·
@@ -172,6 +174,20 @@ provenance · `b3f12d40` plumbing US/DE · `6f34d349` GB pipes ·
   effects — keep that order. Effect deps must include `[marketCode]`.
 - Engine price keys are exact NG slug strings (`rebar-16mm-per-length`,
   `plumb-pipe-cold`); overlays key on those exact strings.
+- **Adapters must match real engine signatures** (2026-10-13): before
+  registering an engine in the AI layer, read the engine's actual signature and
+  result interface. The remote branch shipped 5 adapters that crashed on
+  invocation (calculateElectrical/calculatePlumbing take `(input, rules, prices)`,
+  not `(input)`; results have `lines`, not `cable_lines`/`pipe_lines`;
+  quantityLine is `(label, quantity, unit)`; EngineResult requires
+  `ok/engine/calculatedAt`). The AI registry imports registerExpandedEngines()
+  eagerly, so a bad adapter breaks the conversational estimator at runtime
+  even though pages and vitest stay green.
+- **New data vocabulary must exist in the engine** (2026-10-13): assemblies
+  using `quantityMode: "mortar-mix"` fell to the engine's unsupported-mode
+  default and silently refused to calculate. New categories may be display-only
+  (safe to widen the union) but new quantity modes are LOGIC — either use an
+  existing mode or extend the engine switch first.
 - **HARD GATE (2026-10-11 discovery): the root `tsconfig.json` is a
   solution-style NO-OP — `npx tsc --noEmit -p tsconfig.json` checks nothing
   and let broken pages ship. ALWAYS run `npx tsc --noEmit -p tsconfig.app.json`

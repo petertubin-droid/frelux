@@ -101,14 +101,30 @@ export interface WallSystem {
 }
 
 export type WallSubstrate =
-  "masonry" | "drywall" | "concrete" | "brick" | "block" | "timber" | "steel";
+  | "masonry"
+  | "drywall"
+  | "concrete"
+  | "brick"
+  | "block"
+  | "timber"
+  | "steel"
+  | "aac";
 
 // ─────────────────────────────────────────────
 // 3. Wall assemblies (layer sequences)
 // ─────────────────────────────────────────────
 
 export type WallLayerCategory =
-  "structural" | "base" | "prep" | "skim" | "sand" | "primer" | "finish";
+  | "structural"
+  | "base"
+  | "prep"
+  | "skim"
+  | "sand"
+  | "primer"
+  | "finish"
+  | "lining"
+  | "render"
+  | "plaster";
 
 export type LayerQuantityMode =
   /** area × coats ÷ coverage */

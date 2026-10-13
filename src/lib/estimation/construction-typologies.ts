@@ -114,7 +114,6 @@ export const CONSTRUCTION_TYPOLOGIES: Record<string, ConstructionTypology> = {
       "Preliminary material takeoff only. Foundation depth in shrinkable clay soils influenced by nearby trees requires engineer verification.",
   },
   AU: {
-    marketCode: "AU",
     id: "au_brick_veneer_timber",
     marketCodes: ["AU"],
     name: "Australian Brick Veneer & Lightweight Timber Framing",

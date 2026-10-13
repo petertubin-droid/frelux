@@ -219,7 +219,7 @@ export const AdminEngineMatrix: React.FC = () => {
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        {engine.classification.replaceAll("_", " ")}
+                        {engine.classification.replace(/_/g, " ")}
                       </td>
                       <td className="py-3 px-4 uppercase">{engine.category}</td>
                       <td className="py-3 px-4">

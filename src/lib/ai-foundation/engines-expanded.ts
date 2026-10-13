@@ -6,8 +6,66 @@
  * execute physical formulas and calculations deterministically without hallucination.
  */
 
-import type { EngineQuantityLine, EngineCostSummary } from "./types";
+import type { EngineResult } from "./types";
 import { registerEngine, quantityLine } from "./engines-registry";
+import {
+  fetchCalcRules,
+  fetchEstimationMaterials,
+  fetchMarketPriceBook,
+} from "@/lib/estimation/queries";
+import type {
+  EstimationCalcRule,
+  EstimationMaterial,
+} from "@/types/estimation";
+
+/** Shared result scaffolding so every adapter returns a valid EngineResult. */
+function engineOk(
+  id: string,
+  quantities: EngineResult["quantities"],
+  costs: EngineResult["costs"],
+  raw: unknown,
+): EngineResult {
+  return {
+    ok: true,
+    engine: id,
+    calculatedAt: new Date().toISOString(),
+    quantities,
+    costs,
+    raw,
+  };
+}
+
+function engineFail(id: string, error: string): EngineResult {
+  return {
+    ok: false,
+    engine: id,
+    calculatedAt: new Date().toISOString(),
+    quantities: [],
+    costs: null,
+    raw: null,
+    error,
+  };
+}
+
+/**
+ * Build the slug -> price map the electrical/plumbing engines expect, from
+ * the shared material catalog + the market price book (same source the
+ * estimator pages use). NG is the reference market for the AI layer unless
+ * the caller passes a marketCode.
+ */
+async function buildSlugPriceMap(
+  marketCode: string,
+): Promise<Record<string, number | null>> {
+  const [book, matsRes] = await Promise.all([
+    fetchMarketPriceBook(marketCode),
+    fetchEstimationMaterials(true),
+  ]);
+  const map: Record<string, number | null> = {};
+  for (const m of (matsRes.data ?? []) as EstimationMaterial[]) {
+    map[m.slug] = book.byRef.get(m.id) ?? null;
+  }
+  return map;
+}
 
 export function registerExpandedEngines(): void {
   // ── Electrical Wiring Engine ──
@@ -18,48 +76,59 @@ export function registerExpandedEngines(): void {
     authoritative: true,
     creditedAs: "Calculated by the authoritative FRELUX electrical engine",
     async run(rawInput) {
-      const { calculateElectrical } =
-        await import("@/lib/estimation/electrical-engine");
-      const input = rawInput as Parameters<typeof calculateElectrical>[0];
-      const result = calculateElectrical(input);
-
-      const quantities: EngineQuantityLine[] = [];
-      for (const line of result.cable_lines ?? []) {
-        if (line.final_length_m != null && line.final_length_m > 0) {
-          quantities.push(
-            quantityLine(
-              line.label,
-              line.final_length_m,
-              line.unit || "m",
-              line.material_name,
-            ),
+      const {
+        calculateElectrical,
+        parseElectricalRules,
+      } = await import("@/lib/estimation/electrical-engine");
+      const typed = rawInput as {
+        marketCode?: string;
+        currency?: string;
+      };
+      const marketCode = typed.marketCode || "NG";
+      try {
+        const [rulesRes, priceMap] = await Promise.all([
+          fetchCalcRules("electrical"),
+          buildSlugPriceMap(marketCode),
+        ]);
+        const rules = parseElectricalRules(
+          (rulesRes.data ?? []) as unknown as EstimationCalcRule[],
+        );
+        const input = rawInput as Parameters<
+          typeof calculateElectrical
+        >[0];
+        const result = calculateElectrical(input, rules, priceMap);
+        if (!result.ok) {
+          return engineFail(
+            "electrical",
+            result.errors.join("; ") || "Electrical calculation failed",
           );
         }
+        const quantities = result.lines
+          .filter((l) => l.quantity != null && l.quantity > 0)
+          .map((l) => quantityLine(l.label, l.quantity as number, l.unit));
+        return engineOk(
+          "electrical",
+          quantities,
+          {
+            total: result.material_subtotal ?? result.priced_subtotal,
+            currency: typed.currency || "NGN",
+            lines: result.lines
+              .filter((l) => l.line_total != null)
+              .map((l) => ({
+                label: l.label,
+                amount: l.line_total as number,
+              })),
+            regionalDataAvailable: marketCode === "NG" || Object.values(priceMap).some((p) => p != null),
+          },
+          result,
+        );
+      } catch (err) {
+        return engineFail("electrical", String(err));
       }
-      for (const box of result.box_lines ?? []) {
-        if (box.count > 0) {
-          quantities.push(
-            quantityLine(box.label, box.count, "pcs", box.material_name),
-          );
-        }
-      }
-
-      const costs: EngineCostSummary = {
-        totalMaterials: result.total_material_cost,
-        currency: (rawInput as { currency?: string })?.currency || "USD",
-        lines: [],
-      };
-
-      return {
-        quantities,
-        costs,
-        disclaimers: result.warnings ?? [],
-        raw: result,
-      };
     },
   });
 
-  // ── Plumbing Sanitary & Supply Engine ──
+  // ── Plumbing Engine ──
   registerEngine({
     id: "plumbing",
     domain: "building",
@@ -67,44 +136,53 @@ export function registerExpandedEngines(): void {
     authoritative: true,
     creditedAs: "Calculated by the authoritative FRELUX plumbing engine",
     async run(rawInput) {
-      const { calculatePlumbing } =
-        await import("@/lib/estimation/plumbing-engine");
-      const input = rawInput as Parameters<typeof calculatePlumbing>[0];
-      const result = calculatePlumbing(input);
-
-      const quantities: EngineQuantityLine[] = [];
-      for (const line of result.pipe_lines ?? []) {
-        if (line.final_length_m != null && line.final_length_m > 0) {
-          quantities.push(
-            quantityLine(
-              line.label,
-              line.final_length_m,
-              line.unit || "m",
-              line.material_name,
-            ),
+      const {
+        calculatePlumbing,
+        parsePlumbingRules,
+      } = await import("@/lib/estimation/plumbing-engine");
+      const typed = rawInput as {
+        marketCode?: string;
+        currency?: string;
+      };
+      const marketCode = typed.marketCode || "NG";
+      try {
+        const [rulesRes, priceMap] = await Promise.all([
+          fetchCalcRules("plumbing"),
+          buildSlugPriceMap(marketCode),
+        ]);
+        const rules = parsePlumbingRules(
+          (rulesRes.data ?? []) as unknown as EstimationCalcRule[],
+        );
+        const input = rawInput as Parameters<typeof calculatePlumbing>[0];
+        const result = calculatePlumbing(input, rules, priceMap);
+        if (!result.ok) {
+          return engineFail(
+            "plumbing",
+            result.errors.join("; ") || "Plumbing calculation failed",
           );
         }
+        const quantities = result.lines
+          .filter((l) => l.quantity != null && l.quantity > 0)
+          .map((l) => quantityLine(l.label, l.quantity as number, l.unit));
+        return engineOk(
+          "plumbing",
+          quantities,
+          {
+            total: result.material_subtotal ?? result.priced_subtotal,
+            currency: typed.currency || "NGN",
+            lines: result.lines
+              .filter((l) => l.line_total != null)
+              .map((l) => ({
+                label: l.label,
+                amount: l.line_total as number,
+              })),
+            regionalDataAvailable: marketCode === "NG" || Object.values(priceMap).some((p) => p != null),
+          },
+          result,
+        );
+      } catch (err) {
+        return engineFail("plumbing", String(err));
       }
-      for (const fit of result.fitting_allowances ?? []) {
-        if (fit.estimated_count > 0) {
-          quantities.push(
-            quantityLine(fit.category, fit.estimated_count, "pcs", fit.notes),
-          );
-        }
-      }
-
-      const costs: EngineCostSummary = {
-        totalMaterials: result.total_material_cost,
-        currency: (rawInput as { currency?: string })?.currency || "USD",
-        lines: [],
-      };
-
-      return {
-        quantities,
-        costs,
-        disclaimers: result.warnings ?? [],
-        raw: result,
-      };
     },
   });
 
@@ -116,37 +194,40 @@ export function registerExpandedEngines(): void {
     authoritative: true,
     creditedAs: "Calculated by the authoritative FRELUX regional cost engine",
     async run(rawInput) {
-      const { applyRegionalCost } =
-        await import("@/lib/estimation/regional-cost-engine");
+      const {
+        applyRegionalCost,
+      } = await import("@/lib/estimation/regional-cost-engine");
+      const typed = rawInput as { currency?: string };
       const input = rawInput as Parameters<typeof applyRegionalCost>[0];
       const result = applyRegionalCost(input);
-
-      const quantities: EngineQuantityLine[] = [
-        quantityLine(
-          "Applied Multiplier",
-          result.applied_factor ?? 1,
-          "factor",
-          result.applied_source ?? "national_baseline",
-        ),
-      ];
-
-      const costs: EngineCostSummary = {
-        totalMaterials: result.adjusted_cost,
-        currency: (rawInput as { currency?: string })?.currency || "USD",
-        lines: [
-          {
-            label: "Location-Adjusted Cost",
-            amount: result.adjusted_cost ?? 0,
-          },
+      if (!result.ok) {
+        return engineFail(
+          "regional_cost",
+          result.warnings.join("; ") || "No regional cost index available",
+        );
+      }
+      return engineOk(
+        "regional_cost",
+        [
+          quantityLine(
+            "Applied Multiplier",
+            result.applied_factor ?? 1,
+            "factor",
+          ),
         ],
-      };
-
-      return {
-        quantities,
-        costs,
-        disclaimers: result.warnings ?? [],
-        raw: result,
-      };
+        {
+          total: result.adjusted_cost ?? 0,
+          currency: typed.currency || "NGN",
+          lines: [
+            {
+              label: "Location-Adjusted Cost",
+              amount: result.adjusted_cost ?? 0,
+            },
+          ],
+          regionalDataAvailable: result.applied_source !== "national_baseline",
+        },
+        result,
+      );
     },
   });
 
@@ -158,36 +239,35 @@ export function registerExpandedEngines(): void {
     authoritative: true,
     creditedAs: "Calculated by the authoritative FRELUX roof geometry engine",
     async run(rawInput) {
-      const { calculatePitchMultiplier } =
-        await import("@/lib/roof/geometry-engine");
       const input = rawInput as {
         pitchDegrees: number;
         projectedArea: number;
       };
-      const mult = calculatePitchMultiplier(input.pitchDegrees ?? 20);
-      const trueArea = (input.projectedArea ?? 100) * mult;
+      // Same deterministic slope formula the build-to-roof engine uses:
+      // true sloped area = projected area / cos(pitch).
+      const pitch = Number.isFinite(input.pitchDegrees)
+        ? input.pitchDegrees
+        : 20;
+      const projected = Number.isFinite(input.projectedArea)
+        ? input.projectedArea
+        : 100;
+      const pitchRad = (pitch * Math.PI) / 180;
+      const mult = 1 / Math.cos(pitchRad);
+      const trueArea = projected * mult;
 
-      const quantities: EngineQuantityLine[] = [
-        quantityLine(
-          "Pitch Multiplier",
-          mult,
-          "factor",
-          `${input.pitchDegrees}° pitch`,
-        ),
-        quantityLine(
-          "True 3D Surface Area",
-          Math.round(trueArea * 100) / 100,
-          "m²",
-          "Slope area",
-        ),
-      ];
-
-      return {
-        quantities,
-        costs: { totalMaterials: 0, currency: "USD", lines: [] },
-        disclaimers: [],
-        raw: { pitchMultiplier: mult, trueArea },
-      };
+      return engineOk(
+        "roof_geometry_calculation",
+        [
+          quantityLine("Pitch Multiplier", mult, "factor"),
+          quantityLine(
+            "True 3D Surface Area",
+            Math.round(trueArea * 100) / 100,
+            "m²",
+          ),
+        ],
+        { total: 0, currency: "NGN", regionalDataAvailable: true },
+        { pitchDegrees: pitch, pitchMultiplier: mult, trueArea },
+      );
     },
   });
 
@@ -199,38 +279,48 @@ export function registerExpandedEngines(): void {
     authoritative: true,
     creditedAs: "Calculated by the authoritative FRELUX margin engine",
     async run(rawInput) {
-      const { calculateMargin } =
-        await import("@/lib/estimation/margin-engine");
+      const {
+        calculateMargin,
+      } = await import("@/lib/estimation/margin-engine");
+      const typed = rawInput as { currency?: string };
       const input = rawInput as Parameters<typeof calculateMargin>[0];
       const result = calculateMargin(input);
-
-      const quantities: EngineQuantityLine[] = [
-        quantityLine(
-          "Gross Margin Percentage",
-          result.gross_margin_percent,
-          "%",
-          "Margin",
-        ),
-        quantityLine("Markup Percentage", result.markup_percent, "%", "Markup"),
-      ];
-
-      const costs: EngineCostSummary = {
-        totalMaterials: result.selling_price,
-        currency: (rawInput as { currency?: string })?.currency || "USD",
-        lines: [
-          { label: "Direct Cost", amount: result.direct_cost },
-          { label: "Overhead", amount: result.overhead_amount },
-          { label: "Net Profit", amount: result.net_profit },
-          { label: "Selling Price", amount: result.selling_price },
+      if (!result.ok || result.basis == null) {
+        return engineFail(
+          "margin_calculator",
+          result.warnings.join("; ") || "Margin calculation failed",
+        );
+      }
+      return engineOk(
+        "margin_calculator",
+        [
+          quantityLine(
+            result.basis === "markup_on_cost"
+              ? "Margin (markup on cost)"
+              : "Margin (margin on price)",
+            result.margin_percent ?? 0,
+            "%",
+          ),
+          quantityLine("Profit", result.profit ?? 0, "amount"),
+          quantityLine("Equivalent Other-Basis Margin", result.equivalent_other_basis_percent ?? 0, "%"),
         ],
-      };
-
-      return {
-        quantities,
-        costs,
-        disclaimers: [],
-        raw: result,
-      };
+        {
+          total: result.quote_total ?? result.priced_subtotal ?? result.base_cost ?? 0,
+          currency: typed.currency || "NGN",
+          lines: [
+            { label: "Base Cost", amount: result.base_cost ?? 0 },
+            { label: "Profit", amount: result.profit ?? 0 },
+            {
+              label: "Price before VAT",
+              amount: result.priced_subtotal ?? 0,
+            },
+            { label: `VAT (${result.vat_rate ?? 0}%)`, amount: result.vat_amount ?? 0 },
+            { label: "Quote Total", amount: result.quote_total ?? 0 },
+          ],
+          regionalDataAvailable: true,
+        },
+        result,
+      );
     },
   });
 }
