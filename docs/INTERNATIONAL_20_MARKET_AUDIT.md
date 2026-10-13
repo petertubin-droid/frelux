@@ -76,11 +76,26 @@ requires_verification` with user-safe reasons.
 - [x] P0.1 Forensic audit + baseline (this document)
 - [x] P0.2 Market configuration gating fixed (registry + seeds + tests)
 - [x] P0.3 Capability registry + truthful availability states
-- [ ] P0.4 Unit conversion / market defaults sweep (paint bucket, cement
-      bag, board sizes per market — terminology exists; input defaults
-      per-page audit pending)
-- [ ] P0.5 Missing-price guard sweep (wall finishing already honest;
-      other engines pending audit)
+- [x] P0.4 Unit conversion / market defaults sweep — VERIFIED 2026-10-13
+      (no defects found): paint pack size resolves from
+      `product.standard_pack_size` → pack-size rule → 20 L default
+      (`getPackSizeLitres`, paint-engine.ts), never hardcoded per page;
+      local terminology (`paint_bucket`, `cement_bag`, …) flows from
+      market profiles via `local_terminology` (CostEstimator,
+      regional intelligence); B2R prefills market cement/sand prices
+      per market and marks the NG default when the book is empty
+      (BuildToRoofEstimator.tsx 405–431). No page hardcodes bucket/bag
+      labels without market context (swept src/pages + src/components).
+- [x] P0.5 Missing-price guard sweep — VERIFIED 2026-10-13 (no defects
+      found): estimation engines (paint, electrical, doors/windows,
+      flooring, foundation, generator, maintenance) all use the
+      pricedLines/unpriced split — totals count only priced lines and
+      unpriced items push explicit warnings ("NOT CONFIGURED"), never
+      zero-cost; `fetchMarketPriceBook` is market-scoped with disclosed
+      NG-reference fallback (`fromReference`), cross-market mixing via
+      `fetchAllPrices` remains only in the admin price updater (admin
+      surface, by design). Inheritance: only AU/CA/AE inherit NG in
+      production; all other books stand alone.
 - [ ] P1.6 Common market context + unit conversion service
       (`measurement-bridge.ts` exists — audit per-engine adoption)
 - [ ] P1.7 Material roles / provenance / pricebook validation (exists for
