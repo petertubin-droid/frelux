@@ -1,3 +1,4 @@
+import { ProfileCreditsWallet } from "@/components/profile/ProfileCreditsWallet";
 import { useState, useRef, useEffect } from "react";
 import {
   User,
@@ -469,6 +470,9 @@ export default function Profile() {
             </div>
           </div>
         </div>
+
+        {/* Centralized AI Credits & Rewards Wallet */}
+        <ProfileCreditsWallet />
 
         {/* Subscription Status */}
         <div className="mt-6 rounded-2xl border border-border/60 bg-card p-5 shadow-sm dark:border-white/10 dark:bg-card">

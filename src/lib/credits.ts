@@ -1026,3 +1026,96 @@ export async function adminAdjustCreditsV2(
     return { success: false, error: "Failed to adjust credits" };
   }
 }
+
+// =========================================================
+// Task-Based Credit Rewards
+// =========================================================
+
+export interface CreditTask {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  credit_reward: number;
+  is_repeatable: boolean;
+  max_completions: number;
+  action_url?: string;
+  completed?: boolean;
+}
+
+/** Fetch active credit earning tasks and user completion status */
+export async function getCreditTasks(
+  userId?: string | null,
+): Promise<CreditTask[]> {
+  if (!isSupabaseConfigured) return [];
+  const supabase = await getSupabase();
+
+  const { data: tasks, error: tasksError } = await supabase
+    .from("credit_task_definitions")
+    .select("*")
+    .eq("is_active", true)
+    .order("created_at", { ascending: true });
+
+  if (tasksError || !tasks) return [];
+
+  let completedTaskIds = new Set<string>();
+  if (userId) {
+    const { data: completions } = await supabase
+      .from("credit_task_completions")
+      .select("task_id")
+      .eq("user_id", userId);
+
+    if (completions) {
+      completions.forEach((c) => completedTaskIds.add(c.task_id));
+    }
+  }
+
+  return tasks.map((t) => ({
+    ...t,
+    completed: completedTaskIds.has(t.id),
+  }));
+}
+
+/** Complete an eligible task and claim credits atomically */
+export async function completeCreditTask(
+  userId: string,
+  taskId: string,
+  verificationRef?: string,
+): Promise<{
+  success: boolean;
+  newBalance: number;
+  creditsAwarded: number;
+  error?: string;
+}> {
+  if (!isSupabaseConfigured) {
+    return {
+      success: false,
+      newBalance: 0,
+      creditsAwarded: 0,
+      error: "Database unconfigured",
+    };
+  }
+  const supabase = await getSupabase();
+
+  const { data, error } = await supabase.rpc("complete_credit_task", {
+    p_user_id: userId,
+    p_task_id: taskId,
+    p_verification_ref: verificationRef || null,
+    p_metadata: { source: "profile_tasks" },
+  });
+
+  if (error || !data || data.length === 0 || !data[0].success) {
+    return {
+      success: false,
+      newBalance: data?.[0]?.new_balance || 0,
+      creditsAwarded: 0,
+      error: data?.[0]?.error || error?.message || "Task completion failed",
+    };
+  }
+
+  return {
+    success: true,
+    newBalance: data[0].new_balance,
+    creditsAwarded: data[0].credits_awarded,
+  };
+}

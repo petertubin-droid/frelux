@@ -1,20 +1,27 @@
 // supabase/functions/_shared/ai-gateway.ts
-// Centralized server-side entitlement, daily allowance reservation, rate limiting and Gemini cost protection.
+// FRELUX Centralized AI Access Gate & Credit Economy
+// Enforces 3 distinct user states:
+// State A: Anonymous Guest (1 initial AI operation per calendar day, shared across all AI features).
+// State B: Registered Free User (Deducts 10 credits from credit_wallets via spend_credits RPC).
+// State C: Subscriber (Verified paid status without credit deduction if plan covers AI).
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
 export interface GatewayAuthResult {
   userId: string | null;
   clientHash: string;
-  accessTier: "admin" | "subscriber" | "rewarded_credit";
+  accessTier: "admin" | "subscriber" | "registered_credits" | "guest_allowance";
   plan?: string;
   reservationId?: string;
+  creditCost?: number;
+  creditsRemaining?: number;
 }
 
 export interface GateCheckOptions {
   featureKey: string;
   modelName: string;
   promptChars?: number;
+  costOverride?: number;
 }
 
 export interface FinalizeOptions {
@@ -34,9 +41,11 @@ export class AiGateway {
   }
 
   /**
-   * Resolve calling user identity from Authorization Bearer JWT or x-client-hash.
+   * Resolve identity: verifies Supabase Auth JWT or falls back to client hash.
    */
-  async resolveIdentity(req: Request): Promise<{ userId: string | null; clientHash: string }> {
+  async resolveIdentity(
+    req: Request,
+  ): Promise<{ userId: string | null; clientHash: string }> {
     let userId: string | null = null;
     const authHeader = req.headers.get("Authorization") ?? "";
     if (authHeader.startsWith("Bearer ")) {
@@ -47,15 +56,16 @@ export class AiGateway {
       }
     }
 
-    const clientHash = req.headers.get("x-client-hash") ?? 
-                       req.headers.get("X-Client-Hash") ?? 
-                       (userId ? `user_${userId}` : "unknown_client");
+    const clientHash =
+      req.headers.get("x-client-hash") ??
+      req.headers.get("X-Client-Hash") ??
+      (userId ? `user_${userId}` : "unknown_guest");
 
     return { userId, clientHash };
   }
 
   /**
-   * Get server-controlled date string respecting the timezone offset (default UTC+1 Nigeria).
+   * Server controlled date string for UTC+1 (Nigeria/Lagos).
    */
   private getUsageDate(offsetHours: number = 1): string {
     const d = new Date();
@@ -64,9 +74,11 @@ export class AiGateway {
   }
 
   /**
-   * Check whether user is a verified active subscriber.
+   * Verify whether user is an active paid subscriber.
    */
-  async isSubscriber(userId: string): Promise<{ isSubscribed: boolean; plan?: string }> {
+  async isSubscriber(
+    userId: string,
+  ): Promise<{ isSubscribed: boolean; plan?: string }> {
     if (!userId) return { isSubscribed: false };
 
     const { data } = await this.supabase
@@ -86,7 +98,7 @@ export class AiGateway {
   }
 
   /**
-   * Check whether user is an admin.
+   * Verify if user is an admin.
    */
   async isAdmin(userId: string): Promise<boolean> {
     if (!userId) return false;
@@ -99,35 +111,32 @@ export class AiGateway {
   }
 
   /**
-   * Authorize and reserve AI operation.
-   * Unsubscribed users MUST have 1 unconsumed rewarded ad credit for today.
+   * Main gate check before calling Gemini API.
    */
   async checkAndReserve(
     req: Request,
-    options: GateCheckOptions
+    options: GateCheckOptions,
   ): Promise<GatewayAuthResult> {
     const { userId, clientHash } = await this.resolveIdentity(req);
+    const featureCost = options.costOverride ?? 10; // authoritatively 10 credits
 
-    // 1. Fetch settings
+    // 1. Check global AI settings
     const { data: settings } = await this.supabase
       .from("ai_gateway_settings")
       .select("*")
       .limit(1)
       .maybeSingle();
 
-    const isEnabled = settings?.is_gateway_enabled ?? true;
-    if (!isEnabled) {
-      throw new Error("AI services are temporarily unavailable for maintenance.");
+    if (settings && !settings.is_gateway_enabled) {
+      throw new Error(
+        "AI services are temporarily unavailable for maintenance.",
+      );
     }
-
-    const offsetHours = settings?.timezone_offset_hours ?? 1;
-    const today = this.getUsageDate(offsetHours);
 
     // 2. Admin Check
     if (userId) {
       const userIsAdmin = await this.isAdmin(userId);
       if (userIsAdmin && (settings?.admin_exempt ?? true)) {
-        // Log admin access
         const { data: logEntry } = await this.supabase
           .from("ai_gateway_operations_log")
           .insert({
@@ -151,7 +160,7 @@ export class AiGateway {
       }
     }
 
-    // 3. Subscriber Check
+    // 3. Subscriber Check (State C)
     if (userId) {
       const sub = await this.isSubscriber(userId);
       if (sub.isSubscribed) {
@@ -179,52 +188,118 @@ export class AiGateway {
       }
     }
 
-    // 4. Free Unsubscribed User: Rewarded Ad Enforcement (1 operation per day)
-    // Find today's allowance
-    let query = this.supabase
-      .from("ai_gateway_daily_allowance")
-      .select("*")
-      .eq("usage_date", today);
+    // 4. Anonymous Guest (State A: exactly 1 initial AI operation per calendar day)
+    if (!userId) {
+      const today = this.getUsageDate(settings?.timezone_offset_hours ?? 1);
 
-    if (userId) {
-      query = query.eq("user_id", userId);
-    } else {
-      query = query.eq("client_hash", clientHash);
+      // Check guest daily allowance
+      const { data: allowance } = await this.supabase
+        .from("ai_gateway_daily_allowance")
+        .select("*")
+        .eq("client_hash", clientHash)
+        .eq("usage_date", today)
+        .maybeSingle();
+
+      if (allowance && allowance.operations_used >= 1) {
+        throw new Error(
+          "GUEST_LIMIT_REACHED: You have used your 1 free guest AI operation for today. Please sign in or create a FRELUX account to continue.",
+        );
+      }
+
+      // Reserve the guest operation
+      if (allowance) {
+        await this.supabase
+          .from("ai_gateway_daily_allowance")
+          .update({
+            operations_reserved: (allowance.operations_reserved || 0) + 1,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", allowance.id);
+      } else {
+        await this.supabase.from("ai_gateway_daily_allowance").insert({
+          client_hash: clientHash,
+          usage_date: today,
+          has_ad_credit: true,
+          operations_used: 0,
+          operations_reserved: 1,
+        });
+      }
+
+      const { data: logEntry } = await this.supabase
+        .from("ai_gateway_operations_log")
+        .insert({
+          client_hash: clientHash,
+          feature_key: options.featureKey,
+          model_name: options.modelName,
+          access_tier: "guest_allowance",
+          status: "reserved",
+          prompt_chars: options.promptChars ?? 0,
+        })
+        .select("id")
+        .single();
+
+      return {
+        userId: null,
+        clientHash,
+        accessTier: "guest_allowance",
+        reservationId: logEntry?.id,
+      };
     }
 
-    const { data: allowance } = await query.maybeSingle();
+    // 5. Registered Free User (State B: costs 10 credits from credit wallet)
+    // Query authoritative wallet balance first
+    const { data: wallet } = await this.supabase
+      .from("credit_wallets")
+      .select("balance")
+      .eq("user_id", userId)
+      .maybeSingle();
 
-    if (!allowance || !allowance.has_ad_credit) {
+    const balance = wallet?.balance ?? 0;
+    if (balance < featureCost) {
+      const needed = featureCost - balance;
       throw new Error(
-        "NO_AD_REWARD: Unsubscribed users receive 1 daily AI operation after completing a rewarded ad. Please complete an ad or subscribe."
+        `INSUFFICIENT_CREDITS: This feature costs ${featureCost} credits. You have ${balance} credits (need ${needed} more). Please visit your Profile to earn credits through rewarded ads or tasks, or purchase credits.`,
       );
     }
 
-    if (allowance.operations_used >= 1) {
-      throw new Error(
-        "DAILY_LIMIT_REACHED: You have used your 1 free AI operation for today. Upgrade to a subscription for unlimited access."
-      );
+    // Atomically deduct/reserve using existing guarded spend_credits RPC
+    const idempotencyKey = `ai_req_${userId}_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    const { data: spendResult, error: spendError } = await this.supabase.rpc(
+      "spend_credits",
+      {
+        p_user_id: userId,
+        p_feature_key: options.featureKey,
+        p_amount: featureCost,
+        p_idempotency_key: idempotencyKey,
+        p_metadata: {
+          feature_key: options.featureKey,
+          model_name: options.modelName,
+          prompt_chars: options.promptChars ?? 0,
+        },
+      },
+    );
+
+    if (
+      spendError ||
+      !spendResult ||
+      spendResult.length === 0 ||
+      !spendResult[0].success
+    ) {
+      const errMsg =
+        spendResult?.[0]?.error ||
+        spendError?.message ||
+        "Failed to reserve credits";
+      if (errMsg.includes("insufficient_credits")) {
+        throw new Error(
+          `INSUFFICIENT_CREDITS: Insufficient balance. This AI feature costs ${featureCost} credits. Visit your Profile to earn or purchase credits.`,
+        );
+      }
+      throw new Error(`Credit deduction error: ${errMsg}`);
     }
 
-    if (allowance.operations_reserved >= 1) {
-      throw new Error("OPERATION_IN_PROGRESS: An AI operation is currently processing.");
-    }
+    const newBalance = spendResult[0].new_balance;
 
-    // Atomically reserve
-    const { error: reserveError } = await this.supabase
-      .from("ai_gateway_daily_allowance")
-      .update({
-        operations_reserved: allowance.operations_reserved + 1,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", allowance.id)
-      .eq("operations_reserved", allowance.operations_reserved);
-
-    if (reserveError) {
-      throw new Error("Concurrency collision: could not reserve daily AI credit.");
-    }
-
-    // Create reservation log
+    // Log the operation
     const { data: logEntry } = await this.supabase
       .from("ai_gateway_operations_log")
       .insert({
@@ -232,7 +307,7 @@ export class AiGateway {
         client_hash: clientHash,
         feature_key: options.featureKey,
         model_name: options.modelName,
-        access_tier: "rewarded_credit",
+        access_tier: "registered_credits",
         status: "reserved",
         prompt_chars: options.promptChars ?? 0,
       })
@@ -242,17 +317,19 @@ export class AiGateway {
     return {
       userId,
       clientHash,
-      accessTier: "rewarded_credit",
+      accessTier: "registered_credits",
       reservationId: logEntry?.id,
+      creditCost: featureCost,
+      creditsRemaining: newBalance,
     };
   }
 
   /**
-   * Finalize reservation: consume quota on success, or release back on system failure.
+   * Finalize operation: updates log, marks guest use consumed, or restores credits on failure.
    */
   async finalize(
     auth: GatewayAuthResult,
-    options: FinalizeOptions
+    options: FinalizeOptions,
   ): Promise<void> {
     const now = new Date().toISOString();
     const isSuccess = options.status === "success";
@@ -271,102 +348,60 @@ export class AiGateway {
         .eq("id", auth.reservationId);
     }
 
-    // 2. Adjust allowance if rewarded credit
-    if (auth.accessTier === "rewarded_credit") {
+    // 2. Handle guest allowance finalization
+    if (auth.accessTier === "guest_allowance") {
       const today = this.getUsageDate(1);
-      let query = this.supabase
+      const { data: allowance } = await this.supabase
         .from("ai_gateway_daily_allowance")
         .select("id, operations_used, operations_reserved")
-        .eq("usage_date", today);
+        .eq("client_hash", auth.clientHash)
+        .eq("usage_date", today)
+        .maybeSingle();
 
-      if (auth.userId) {
-        query = query.eq("user_id", auth.userId);
-      } else {
-        query = query.eq("client_hash", auth.clientHash);
-      }
-
-      const { data: allowance } = await query.maybeSingle();
       if (allowance) {
         if (isSuccess) {
-          // Success: Mark used, release reservation
           await this.supabase
             .from("ai_gateway_daily_allowance")
             .update({
               operations_used: (allowance.operations_used || 0) + 1,
-              operations_reserved: Math.max(0, (allowance.operations_reserved || 1) - 1),
+              operations_reserved: Math.max(
+                0,
+                (allowance.operations_reserved || 1) - 1,
+              ),
               last_used_at: now,
               updated_at: now,
             })
             .eq("id", allowance.id);
         } else {
-          // Failure: Release reservation so user does not lose their earned ad credit!
+          // Release reservation on failure so guest can retry
           await this.supabase
             .from("ai_gateway_daily_allowance")
             .update({
-              operations_reserved: Math.max(0, (allowance.operations_reserved || 1) - 1),
+              operations_reserved: Math.max(
+                0,
+                (allowance.operations_reserved || 1) - 1,
+              ),
               updated_at: now,
             })
             .eq("id", allowance.id);
         }
       }
     }
-  }
 
-  /**
-   * Grants today's rewarded ad credit upon verified ad completion.
-   */
-  async grantAdCredit(
-    userId: string | null,
-    clientHash: string,
-    adProvider: string,
-    adEventId: string
-  ): Promise<{ success: boolean; message: string }> {
-    const today = this.getUsageDate(1);
-    const now = new Date().toISOString();
-
-    let query = this.supabase
-      .from("ai_gateway_daily_allowance")
-      .select("*")
-      .eq("usage_date", today);
-
-    if (userId) {
-      query = query.eq("user_id", userId);
-    } else {
-      query = query.eq("client_hash", clientHash);
+    // 3. Handle Registered Credits Refund on System/API failure
+    if (
+      !isSuccess &&
+      auth.accessTier === "registered_credits" &&
+      auth.userId &&
+      auth.creditCost
+    ) {
+      // Refund the reserved credits back to the user's wallet
+      await this.supabase.rpc("admin_adjust_credits_v2", {
+        p_user_id: auth.userId,
+        p_amount: auth.creditCost,
+        p_reason: `Refund for failed AI operation (${options.errorMessage || "System error"})`,
+        p_admin_user_id: auth.userId,
+      });
     }
-
-    const { data: existing } = await query.maybeSingle();
-
-    if (existing) {
-      if (existing.has_ad_credit) {
-        return { success: true, message: "Daily AI ad credit is already active." };
-      }
-      await this.supabase
-        .from("ai_gateway_daily_allowance")
-        .update({
-          has_ad_credit: true,
-          ad_credit_granted_at: now,
-          ad_provider: adProvider,
-          ad_event_id: adEventId,
-          updated_at: now,
-        })
-        .eq("id", existing.id);
-    } else {
-      await this.supabase
-        .from("ai_gateway_daily_allowance")
-        .insert({
-          user_id: userId,
-          client_hash: clientHash,
-          usage_date: today,
-          has_ad_credit: true,
-          ad_credit_granted_at: now,
-          ad_provider: adProvider,
-          ad_event_id: adEventId,
-          operations_used: 0,
-          operations_reserved: 0,
-        });
-    }
-
-    return { success: true, message: "Rewarded ad credit granted for today." };
   }
 }
