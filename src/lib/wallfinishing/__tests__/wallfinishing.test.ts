@@ -106,7 +106,7 @@ function priceContext(
 // ─── country profiles ───────────────────────────
 
 describe("wall-finishing country profiles", () => {
-  it("covers all fifteen markets with multiple systems each", () => {
+  it("covers all twenty markets with multiple systems each", () => {
     expect(WALLFIN_COUNTRY_PROFILES.map((p) => p.code)).toEqual([
       "NG",
       "US",
@@ -123,6 +123,11 @@ describe("wall-finishing country profiles", () => {
       "GH",
       "KE",
       "ZA",
+      "CN",
+      "ID",
+      "MX",
+      "KR",
+      "IT",
     ]);
     for (const p of WALLFIN_COUNTRY_PROFILES) {
       expect(p.wallSystemIds.length).toBeGreaterThanOrEqual(2);

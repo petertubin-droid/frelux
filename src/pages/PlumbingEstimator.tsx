@@ -16,7 +16,11 @@ import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useMarket } from "@/lib/international/market-context";
-import { resolveMarketPlumbing, type PlumbingMarketResolution } from "@/lib/estimation/structural-market";
+import { getPlumbingProfile } from "@/lib/estimation/plumbing-profiles";
+import {
+  resolveMarketPlumbing,
+  type PlumbingMarketResolution,
+} from "@/lib/estimation/structural-market";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
@@ -85,7 +89,13 @@ export default function PlumbingEstimator() {
   const { user } = useAuth();
 
   const { marketCode } = useMarket();
-  const [plumbingMarket, setPlumbingMarket] = useState<PlumbingMarketResolution | null>(null);
+  const plumbingProfile = useMemo(
+    () => getPlumbingProfile(marketCode),
+    [marketCode],
+  );
+  const isFeet = plumbingProfile.runDistanceUnit === "ft";
+  const [plumbingMarket, setPlumbingMarket] =
+    useState<PlumbingMarketResolution | null>(null);
   const [counts, setCounts] = useState<Record<NumField, string>>({
     taps: "6",
     wcs: "2",
@@ -172,10 +182,26 @@ export default function PlumbingEstimator() {
       floor_drains: num(counts.floor_drains),
       water_storage_tanks: num(counts.water_storage_tanks),
       pumps: num(counts.pumps),
-      cold_run_m: run(runs.cold_run_m),
-      hot_run_m: run(runs.hot_run_m),
-      waste_run_m: run(runs.waste_run_m),
-      drainage_run_m: run(runs.drainage_run_m),
+      cold_run_m: runs.cold_run_m
+        ? isFeet
+          ? Number(runs.cold_run_m) * 0.3048
+          : Number(runs.cold_run_m)
+        : null,
+      hot_run_m: runs.hot_run_m
+        ? isFeet
+          ? Number(runs.hot_run_m) * 0.3048
+          : Number(runs.hot_run_m)
+        : null,
+      waste_run_m: runs.waste_run_m
+        ? isFeet
+          ? Number(runs.waste_run_m) * 0.3048
+          : Number(runs.waste_run_m)
+        : null,
+      drainage_run_m: runs.drainage_run_m
+        ? isFeet
+          ? Number(runs.drainage_run_m) * 0.3048
+          : Number(runs.drainage_run_m)
+        : null,
       labour: {
         mode: labourMode,
         per_fixture_rate:
@@ -363,13 +389,14 @@ export default function PlumbingEstimator() {
         >
           <p className="font-semibold">Price book coverage ({marketCode})</p>
           <p className="mt-1 text-muted-foreground">
-            The {marketCode} price book does not yet cover pipes, fittings and sanitaryware. Prices
-            on this page come from the Nigerian price book (disclosed above);
-            adjust them for your market before relying on cost totals.
+            The {marketCode} price book does not yet cover pipes, fittings and
+            sanitaryware. Prices on this page come from the Nigerian price book
+            (disclosed above); adjust them for your market before relying on
+            cost totals.
           </p>
         </div>
       )}
-      {plumbingMarket && (marketCode !== "NG") && (
+      {plumbingMarket && marketCode !== "NG" && (
         <div
           className="mb-6 rounded-lg border border-border bg-muted/40 p-4 text-sm"
           data-testid="plumbing-price-provenance"
@@ -392,6 +419,41 @@ export default function PlumbingEstimator() {
         </div>
       )}
 
+      {/* Regional Plumbing System Profile */}
+      <div
+        className="mb-6 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm"
+        data-testid="regional-plumbing-profile"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="font-semibold text-foreground">
+            Regional System Profile: {plumbingProfile.name}
+          </p>
+          <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+            {plumbingProfile.standardsRef}
+          </span>
+        </div>
+        <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 text-xs text-muted-foreground">
+          <div>
+            <span className="font-medium text-foreground">Water Supply:</span>{" "}
+            {plumbingProfile.waterSupplyMaterial}
+          </div>
+          <div>
+            <span className="font-medium text-foreground">Drainage DWV:</span>{" "}
+            {plumbingProfile.drainageDwvMaterial}
+          </div>
+          <div>
+            <span className="font-medium text-foreground">Fall / Slope:</span>{" "}
+            {plumbingProfile.drainageSlopeRule}
+          </div>
+          <div>
+            <span className="font-medium text-foreground">Purchasing:</span>{" "}
+            {plumbingProfile.standardPipePurchasingLength}
+          </div>
+        </div>
+        <p className="mt-2 text-xs italic text-muted-foreground">
+          {plumbingProfile.notes}
+        </p>
+      </div>
 
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
@@ -413,11 +475,14 @@ export default function PlumbingEstimator() {
           only when a category truly doesn't exist.
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {(Object.keys(RUN_LABELS) as RunField[]).map((k) =>
-            numberInput(RUN_LABELS[k], runs[k], (v) =>
+          {(Object.keys(RUN_LABELS) as RunField[]).map((k) => {
+            const label = isFeet
+              ? RUN_LABELS[k].replace("(m)", "(ft)")
+              : RUN_LABELS[k];
+            return numberInput(label, runs[k], (v) =>
               setRuns((r) => ({ ...r, [k]: v })),
-            ),
-          )}
+            );
+          })}
         </div>
 
         <h3 className="mt-5 mb-2 font-semibold">Labour</h3>

@@ -17,6 +17,7 @@ import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
 import { useMarket } from "@/lib/international/market-context";
+import { getElectricalProfile } from "@/lib/estimation/electrical-profiles";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useAuth } from "@/lib/auth";
 import { track } from "@/lib/analytics";
@@ -95,6 +96,11 @@ export default function ElectricalEstimator() {
   const { user } = useAuth();
 
   const { marketCode } = useMarket();
+  const electricalProfile = useMemo(
+    () => getElectricalProfile(marketCode),
+    [marketCode],
+  );
+  const isFeet = electricalProfile.runDistanceUnit === "ft";
   const [buildingType, setBuildingType] = useState(BUILDING_TYPES[0]);
   const [counts, setCounts] = useState<Record<NumField, string>>({
     lighting_points: "10",
@@ -175,11 +181,31 @@ export default function ElectricalEstimator() {
       dedicated_points: num(counts.dedicated_points),
       switches: num(counts.switches),
       distribution_boards: num(counts.distribution_boards),
-      avg_run_lighting_m: run(runs.avg_run_lighting_m),
-      avg_run_socket_m: run(runs.avg_run_socket_m),
-      avg_run_dedicated_m: run(runs.avg_run_dedicated_m),
-      avg_run_earth_m: run(runs.avg_run_earth_m),
-      avg_run_feeder_m: run(runs.avg_run_feeder_m),
+      avg_run_lighting_m: runs.avg_run_lighting_m
+        ? isFeet
+          ? Number(runs.avg_run_lighting_m) * 0.3048
+          : Number(runs.avg_run_lighting_m)
+        : null,
+      avg_run_socket_m: runs.avg_run_socket_m
+        ? isFeet
+          ? Number(runs.avg_run_socket_m) * 0.3048
+          : Number(runs.avg_run_socket_m)
+        : null,
+      avg_run_dedicated_m: runs.avg_run_dedicated_m
+        ? isFeet
+          ? Number(runs.avg_run_dedicated_m) * 0.3048
+          : Number(runs.avg_run_dedicated_m)
+        : null,
+      avg_run_earth_m: runs.avg_run_earth_m
+        ? isFeet
+          ? Number(runs.avg_run_earth_m) * 0.3048
+          : Number(runs.avg_run_earth_m)
+        : null,
+      avg_run_feeder_m: runs.avg_run_feeder_m
+        ? isFeet
+          ? Number(runs.avg_run_feeder_m) * 0.3048
+          : Number(runs.avg_run_feeder_m)
+        : null,
       labour: {
         mode: labourMode,
         per_point_rate:
@@ -368,13 +394,50 @@ export default function ElectricalEstimator() {
         >
           <p className="font-semibold">Price book coverage ({marketCode})</p>
           <p className="mt-1 text-muted-foreground">
-            The {marketCode} price book does not yet cover cables, conduit and electrical accessories. Prices
-            on this page come from the Nigerian price book (disclosed above);
-            adjust them for your market before relying on cost totals.
+            The {marketCode} price book does not yet cover cables, conduit and
+            electrical accessories. Prices on this page come from the Nigerian
+            price book (disclosed above); adjust them for your market before
+            relying on cost totals.
           </p>
         </div>
       )}
 
+      {/* Regional Electrical System Profile */}
+      <div
+        className="mb-6 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm"
+        data-testid="regional-electrical-profile"
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <p className="font-semibold text-foreground">
+            Regional System Profile: {electricalProfile.name}
+          </p>
+          <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+            {electricalProfile.standardsRef}
+          </span>
+        </div>
+        <div className="mt-2 grid gap-2 sm:grid-cols-2 lg:grid-cols-4 text-xs text-muted-foreground">
+          <div>
+            <span className="font-medium text-foreground">Supply:</span>{" "}
+            {electricalProfile.nominalVoltage}
+          </div>
+          <div>
+            <span className="font-medium text-foreground">Method:</span>{" "}
+            {electricalProfile.primaryWiringMethod}
+          </div>
+          <div>
+            <span className="font-medium text-foreground">Conductors:</span>{" "}
+            {electricalProfile.lightingConductorSize} /{" "}
+            {electricalProfile.socketConductorSize}
+          </div>
+          <div>
+            <span className="font-medium text-foreground">Packaging:</span>{" "}
+            {electricalProfile.cableReelSize}
+          </div>
+        </div>
+        <p className="mt-2 text-xs italic text-muted-foreground">
+          {electricalProfile.notes}
+        </p>
+      </div>
 
       {/* Inputs */}
       <div className="mb-8 rounded-lg border bg-card p-5 shadow-sm">
@@ -408,11 +471,14 @@ export default function ElectricalEstimator() {
           marked incomplete rather than guessed.
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
-          {(Object.keys(RUN_LABELS) as RunField[]).map((k) =>
-            numberInput(RUN_LABELS[k], runs[k], (v) =>
+          {(Object.keys(RUN_LABELS) as RunField[]).map((k) => {
+            const label = isFeet
+              ? RUN_LABELS[k].replace("(m)", "(ft)")
+              : RUN_LABELS[k];
+            return numberInput(label, runs[k], (v) =>
               setRuns((r) => ({ ...r, [k]: v })),
-            ),
-          )}
+            );
+          })}
         </div>
 
         <h3 className="mt-5 mb-2 font-semibold">Labour</h3>

@@ -17,7 +17,11 @@ import {
   Calculator as CalcIcon,
   FileText,
   Save,
+  Layers,
 } from "lucide-react";
+import { getConstructionTypology } from "@/lib/estimation/construction-typologies";
+import { getElectricalProfile } from "@/lib/estimation/electrical-profiles";
+import { getPlumbingProfile } from "@/lib/estimation/plumbing-profiles";
 import {
   fetchMarketProfiles,
   upsertMarketProfile,
@@ -44,7 +48,7 @@ import {
 import { classNames } from "@/lib/utils";
 import { Button } from "@/components/ui/shadcn/button";
 
-type Tab = "profiles" | "rules" | "calculators";
+type Tab = "profiles" | "rules" | "calculators" | "typologies";
 
 export default function AdminMarkets() {
   const [tab, setTab] = useState<Tab>("profiles");
@@ -74,6 +78,7 @@ export default function AdminMarkets() {
             ["profiles", "Market Profiles", Globe],
             ["rules", "Material Rules", FileText],
             ["calculators", "Calculator Availability", CalcIcon],
+            ["typologies", "Engineering Typologies", Layers],
           ] as const
         ).map(([key, label, Icon]) => (
           <Button
@@ -98,6 +103,9 @@ export default function AdminMarkets() {
       )}
       {tab === "calculators" && selectedMarket && (
         <CalculatorsTab marketCode={selectedMarket} />
+      )}
+      {tab === "typologies" && selectedMarket && (
+        <TypologiesTab marketCode={selectedMarket} />
       )}
     </div>
   );
@@ -901,6 +909,150 @@ function SelectField({
           </option>
         ))}
       </select>
+    </div>
+  );
+}
+
+// ============================================================
+// TYPOLOGIES TAB
+// ============================================================
+function TypologiesTab({ marketCode }: { marketCode: string }) {
+  const typology = getConstructionTypology(marketCode);
+  const electrical = getElectricalProfile(marketCode);
+  const plumbing = getPlumbingProfile(marketCode);
+
+  return (
+    <div className="space-y-6">
+      <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+        <h2 className="text-lg font-bold text-foreground">
+          Structural Typology: {typology.name}
+        </h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Standard:{" "}
+          <span className="font-semibold text-foreground">
+            {typology.applicableStandards}
+          </span>
+        </p>
+        <div className="mt-4 grid gap-4 md:grid-cols-2 text-sm">
+          <div className="rounded-lg bg-muted/40 p-3">
+            <span className="block text-xs uppercase font-semibold text-muted-foreground">
+              Structural System
+            </span>
+            <span className="mt-1 block text-foreground">
+              {typology.primaryStructuralSystem}
+            </span>
+          </div>
+          <div className="rounded-lg bg-muted/40 p-3">
+            <span className="block text-xs uppercase font-semibold text-muted-foreground">
+              Wall Assembly
+            </span>
+            <span className="mt-1 block text-foreground">
+              {typology.wallTypology}
+            </span>
+          </div>
+          <div className="rounded-lg bg-muted/40 p-3">
+            <span className="block text-xs uppercase font-semibold text-muted-foreground">
+              Foundation Typology
+            </span>
+            <span className="mt-1 block text-foreground">
+              {typology.foundationTypology}
+            </span>
+          </div>
+          <div className="rounded-lg bg-muted/40 p-3">
+            <span className="block text-xs uppercase font-semibold text-muted-foreground">
+              Roof System
+            </span>
+            <span className="mt-1 block text-foreground">
+              {typology.roofTypology}
+            </span>
+          </div>
+        </div>
+        <p className="mt-4 text-xs italic text-muted-foreground border-l-2 border-primary/40 pl-3">
+          {typology.disclaimer}
+        </p>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <h3 className="font-bold text-foreground">
+            Electrical Engineering Profile
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            {electrical.standardsRef}
+          </p>
+          <div className="mt-3 space-y-2 text-xs">
+            <div>
+              <span className="font-semibold text-foreground">Supply:</span>{" "}
+              {electrical.nominalVoltage} ({electrical.frequencyHz}Hz)
+            </div>
+            <div>
+              <span className="font-semibold text-foreground">
+                Wiring Method:
+              </span>{" "}
+              {electrical.primaryWiringMethod}
+            </div>
+            <div>
+              <span className="font-semibold text-foreground">
+                Branch Circuits:
+              </span>{" "}
+              {electrical.lightingConductorSize} /{" "}
+              {electrical.socketConductorSize}
+            </div>
+            <div>
+              <span className="font-semibold text-foreground">Protection:</span>{" "}
+              {electrical.protectionDevices}
+            </div>
+            <div>
+              <span className="font-semibold text-foreground">
+                Reels / Units:
+              </span>{" "}
+              {electrical.cableReelSize} ({electrical.runDistanceUnit})
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border bg-card p-6 shadow-sm">
+          <h3 className="font-bold text-foreground">
+            Plumbing Engineering Profile
+          </h3>
+          <p className="text-xs text-muted-foreground">
+            {plumbing.standardsRef}
+          </p>
+          <div className="mt-3 space-y-2 text-xs">
+            <div>
+              <span className="font-semibold text-foreground">
+                Water Supply:
+              </span>{" "}
+              {plumbing.waterSupplyMaterial}
+            </div>
+            <div>
+              <span className="font-semibold text-foreground">
+                Drainage DWV:
+              </span>{" "}
+              {plumbing.drainageDwvMaterial}
+            </div>
+            <div>
+              <span className="font-semibold text-foreground">
+                Sizing Format:
+              </span>{" "}
+              {plumbing.nominalSizingFormat}
+            </div>
+            <div>
+              <span className="font-semibold text-foreground">
+                Drainage Slope:
+              </span>{" "}
+              {plumbing.drainageSlopeRule}
+            </div>
+            <div>
+              <span className="font-semibold text-foreground">
+                Commercial Lengths:
+              </span>{" "}
+              {plumbing.standardPipePurchasingLength} (
+              {plumbing.runDistanceUnit})
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

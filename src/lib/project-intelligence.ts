@@ -47,7 +47,8 @@ export interface SaveCalculationInput {
 export async function saveCalculationToProject(
   input: SaveCalculationInput,
 ): Promise<DbProjectCalculation> {
-  const { data: authData } = await supabase.auth.getUser();
+  const authRes = await supabase?.auth?.getUser?.();
+  const authData = authRes?.data;
   const userId = authData?.user?.id;
 
   const insertPayload: Record<string, unknown> = {

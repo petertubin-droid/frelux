@@ -39,7 +39,12 @@ export type WallFinMarketCode =
   | "AE"
   | "GH"
   | "KE"
-  | "ZA";
+  | "ZA"
+  | "CN"
+  | "ID"
+  | "MX"
+  | "KR"
+  | "IT";
 
 export interface WallFinCountryProfile {
   /** ISO 3166-1 alpha-2 */

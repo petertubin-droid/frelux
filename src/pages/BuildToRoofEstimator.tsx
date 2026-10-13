@@ -4,6 +4,7 @@ import { ConstructionExtractionPanel } from "@/components/estimation/Constructio
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { Link } from "react-router-dom";
 import MarketScopeNotice from "@/components/MarketScopeNotice";
+import { getConstructionTypology } from "@/lib/estimation/construction-typologies";
 import {
   resolveMarketCement,
   resolveMarketSandM3,
@@ -293,6 +294,10 @@ function RotatingText({
 
 export default function BuildToRoofEstimator() {
   const { market, marketCode } = useMarket();
+  const typology = useMemo(
+    () => getConstructionTypology(marketCode),
+    [marketCode],
+  );
   const { symbol: displayCurrencySymbol } = useDisplayCurrency();
   const currencySymbol = displayCurrencySymbol || market.currencySymbol || "₦";
   useSeo({
@@ -678,6 +683,49 @@ export default function BuildToRoofEstimator() {
                   <div className="space-y-4">
                     <SectionCard title="Project Information" icon={Home}>
                       <div className="grid md:grid-cols-2 gap-4">
+                        {/* Regional Construction Typology banner */}
+                        <div
+                          className="md:col-span-2 rounded-lg border border-primary/20 bg-primary/5 p-4 text-sm"
+                          data-testid="regional-construction-typology"
+                        >
+                          <div className="flex flex-wrap items-center justify-between gap-2">
+                            <p className="font-semibold text-foreground">
+                              Regional Structural Typology: {typology.name}
+                            </p>
+                            <span className="rounded bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                              {typology.applicableStandards}
+                            </span>
+                          </div>
+                          <div className="mt-2.5 grid gap-2 sm:grid-cols-2 text-xs text-muted-foreground">
+                            <div>
+                              <span className="font-medium text-foreground">
+                                Structural System:
+                              </span>{" "}
+                              {typology.primaryStructuralSystem}
+                            </div>
+                            <div>
+                              <span className="font-medium text-foreground">
+                                Wall Assembly:
+                              </span>{" "}
+                              {typology.wallTypology}
+                            </div>
+                            <div>
+                              <span className="font-medium text-foreground">
+                                Foundation Typology:
+                              </span>{" "}
+                              {typology.foundationTypology}
+                            </div>
+                            <div>
+                              <span className="font-medium text-foreground">
+                                Roof System:
+                              </span>{" "}
+                              {typology.roofTypology}
+                            </div>
+                          </div>
+                          <p className="mt-2.5 text-xs italic text-muted-foreground">
+                            {typology.disclaimer}
+                          </p>
+                        </div>
                         <Field
                           label="Project name"
                           type="text"
