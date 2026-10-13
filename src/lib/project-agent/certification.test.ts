@@ -205,7 +205,13 @@ vi.mock("@/lib/supabase", () => {
       },
     };
   }
-  return { supabase: { from }, isSupabaseConfigured: true };
+  // saveCalculationToProject() resolves the acting user via
+  // supabase.auth.getUser(); the mock user stays anonymous, which the
+  // row makes nullable.
+  const auth = {
+    getUser: () => Promise.resolve({ data: { user: null }, error: null }),
+  };
+  return { supabase: { from, auth }, isSupabaseConfigured: true };
 });
 
 // ---------------------------------------------------------
