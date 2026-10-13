@@ -48,10 +48,21 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         Key dirs audited: src/lib/estimation (37 modules), measurement (31),
         roof (18), wallfinishing, engineering (4), netlify/functions,
         learning, market-intelligence, plan-vision, predictive-intelligence.
-  - [ ] ai-foundation/engines-registry.ts has only 4 AI engine routes
-        (build_to_roof, roof_geometry, painting_wall_area,
-        tyrolene_partition_area) vs 54 canonical engines — reconcile the
-        AI-to-engine routing map.
+  - [x] AI routing audit: ai-foundation actually routes 13 engines
+        (registry 4: build_to_roof roof_geometry painting_wall_area
+        tyrolene_partition_area; expanded 4: electrical plumbing
+        regional_cost margin_calculator; phase2 5: painting_project
+        tile_estimate pop_ceiling screeding_system tyrolene_system).
+        DUPLICATE AI route roof_geometry_calculation (inline math,
+        boundary violation) removed. 41 canonical engines still have no
+        executeEngine route — extend family-by-family in P2 with real
+        adapters (see engine-duplicate-audit.md).
+  - [x] Duplicate-engine audit: docs/engine-duplicate-audit.md. Foundation
+        dual-path (estimation/foundation-engine vs engineering/
+        foundation-calculator, two live pages) is the ONE open duplicate —
+        reconcile FoundationCalculator page onto the authoritative
+        market-wired engine next batch. timeline/paint pairs are layered,
+        not duplicates.
   - [ ] Identify all hardcoded regional assumptions (grep NG naira/metric/
         typical defaults in engines) — feed P1.
 - **P1 Shared international infrastructure** — contracts, unit conversion,

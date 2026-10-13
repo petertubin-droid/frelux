@@ -232,45 +232,7 @@ export function registerExpandedEngines(): void {
   });
 
   // ── Roof Geometry Engine ──
-  registerEngine({
-    id: "roof_geometry_calculation",
-    domain: "roof",
-    title: "FRELUX Deterministic Roof Geometry Engine",
-    authoritative: true,
-    creditedAs: "Calculated by the authoritative FRELUX roof geometry engine",
-    async run(rawInput) {
-      const input = rawInput as {
-        pitchDegrees: number;
-        projectedArea: number;
-      };
-      // Same deterministic slope formula the build-to-roof engine uses:
-      // true sloped area = projected area / cos(pitch).
-      const pitch = Number.isFinite(input.pitchDegrees)
-        ? input.pitchDegrees
-        : 20;
-      const projected = Number.isFinite(input.projectedArea)
-        ? input.projectedArea
-        : 100;
-      const pitchRad = (pitch * Math.PI) / 180;
-      const mult = 1 / Math.cos(pitchRad);
-      const trueArea = projected * mult;
-
-      return engineOk(
-        "roof_geometry_calculation",
-        [
-          quantityLine("Pitch Multiplier", mult, "factor"),
-          quantityLine(
-            "True 3D Surface Area",
-            Math.round(trueArea * 100) / 100,
-            "m²",
-          ),
-        ],
-        { total: 0, currency: "NGN", regionalDataAvailable: true },
-        { pitchDegrees: pitch, pitchMultiplier: mult, trueArea },
-      );
-    },
-  });
-
+  
   // ── Contractor Margin & Markup Engine ──
   registerEngine({
     id: "margin_calculator",
