@@ -264,6 +264,27 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         wait ~5s in the browser and the product page renders with
         per-metre price lines ("Entspricht x EUR pro m").
         NEXT: GB/CA rebar per-tonne anchors, then electrical books.
+  - [x] P2 batch 7: REBAR PER-TONNE ANCHORS GB + CA, APPLIED LIVE
+        (2026-10-13, migration 202610132000): 8 rows, all
+        scan_confidence='manual'. resolveMarketRebar now resolves
+        all four diameters (12/16/20/25mm) for GB and CA.
+        GB (Tippers, live rendered pages, incl VAT): 12mm 6m GBP
+        8.84 (BIRFBT12) = GBP 17.68/12m; 16mm 6m GBP 15.74
+        (BIRFBT16) = GBP 31.48/12m; both = GBP 1.66/kg, so 20mm
+        GBP 49.13 and 25mm GBP 76.78 derived at that rate.
+        CA (MY Construction Supply Grade 400W 20ft, live Home
+        Depot Canada marketplace listings): 10M CAD 8.98 ->
+        CAD 17.68/12m (12mm slot); 15M CAD 17.98 -> CAD 35.39/12m
+        (16mm slot); both = CAD 1.877/kg, so 20M CAD 53.12 and
+        25M CAD 88.44 derived at that rate (bar masses from
+        Groupe Picard published lbs/ft). NOTE: rebar slugs are
+        category 'steel'; engine maps {mkt}-rebar-{d}mm ->
+        rebar-{d}mm-per-length. 245 estimation tests green.
+        GOTCHAS: Tippers prices are JS-rendered (Aphix platform;
+        static HTML only has GBP 0.00 cart placeholders) and they
+        stock only 12/16mm bars; homedepot.ca search is JS-only
+        (extract via browser). NEXT: electrical books (US/GB/AT/DE),
+        then remaining market structural anchors.
 ## 1. CONTEXT (read first)
 
 Frelux is a construction cost calculator SaaS (Vite + React + TS + Tailwind +
