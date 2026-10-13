@@ -1,5 +1,5 @@
 import { createEstimateAuditFromStorage, withCalculationAudit } from '@/lib/international/calculation-audit';
-import { describe, it, expect } from "vitest";
+import { afterEach, describe, it, expect } from 'vitest';
 import {
   createCalculationAudit,
   createLegacyAudit,
@@ -139,7 +139,9 @@ describe("withCalculationAudit", () => {
   });
 
   it("leaves payloads without inputs untouched", () => {
-    const data = { calculator_type: "tile" };
+    const data: { calculator_type?: string; inputs?: Record<string, unknown> } = {
+      calculator_type: "tile",
+    };
     expect(withCalculationAudit(data, "tile")).toBe(data);
   });
 });
