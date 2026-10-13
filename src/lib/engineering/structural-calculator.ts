@@ -24,6 +24,8 @@ export type SupportCondition = 'simply_supported' | 'fixed' | 'continuous' | 'ca
 export type BeamType = 'ground_beam' | 'suspended_beam' | 'ring_beam' | 'lintel';
 export type SlabType = 'one_way' | 'two_way' | 'cantilever_slab';
 
+import { resolveMemberSizing, type MemberSizingProfile } from "./member-sizing";
+
 export interface BeamDesignInput {
   span: number; // meters (clear span)
   beam_type: BeamType;
@@ -36,6 +38,7 @@ export interface BeamDesignInput {
   cover_mm: number; // concrete cover
   existing_width?: number; // optional: if width is predetermined
   existing_depth?: number; // optional: if depth is predetermined
+  market_code?: string; // market-scoped member sizing defaults (NG default)
 }
 
 export interface BeamDesignResult {
@@ -74,6 +77,7 @@ export interface ColumnDesignInput {
   existing_depth?: number; // mm (if rectangular)
   is_rectangular: boolean;
   unbraced_height_ratio: number; // slenderness ratio (height/thickness)
+  market_code?: string; // market-scoped member sizing defaults (NG default)
 }
 
 export interface ColumnDesignResult {
@@ -208,8 +212,13 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
 
   // Required effective depth (singly reinforced, approximate)
   // d = sqrt(M / (0.87 × fcu × b × 0.167)), simplified
-  // Assume b = 225mm (9-inch block width) initially, 9-inch is standard for Nigerian load-bearing walls
-  const assumed_width = input.existing_width ?? 225;
+  // Market-scoped width default: matches the market's standard wall unit width
+  const ms: MemberSizingProfile = resolveMemberSizing(input.market_code ?? "NG");
+  const assumed_width = input.existing_width ?? ms.beamWidthMm ?? 200;
+  if (!input.existing_width && ms.beamWidthMm === null) {
+    warnings.push(ms.beamWidthBasis);
+    if (!ms.verified) warnings.push(`Member sizing defaults for ${ms.marketCode} are not yet verified for this market — treat all outputs as generic guidance and confirm with a local engineer.`);
+  }
   const _K = max_moment * 1e6 / (fcu * assumed_width); // K = M / (fcu × b × d²)
   // z = d × (0.5 + sqrt(0.25 - K/0.9)), lever arm factor
   // For simplified: d ≈ sqrt(M / (0.156 × fcu × b))
@@ -269,11 +278,15 @@ export function designBeam(input: BeamDesignInput): BeamDesignResult {
   const link_spacing = Math.min(300, 0.75 * required_depth_eff);
 
   // Beam-type specific warnings
-  if (input.beam_type === 'ground_beam' && recommended_depth < 450) {
-    warnings.push('Ground beams in Nigerian practice are typically ≥ 450mm deep. Consider increasing depth.');
+  if (input.beam_type === 'ground_beam') {
+    if (ms.marketCode === 'NG') {
+      if (recommended_depth < 450) warnings.push(ms.groundBeamNote);
+    } else {
+      warnings.push(ms.groundBeamNote);
+    }
   }
   if (input.beam_type === 'lintel' && recommended_depth > 450) {
-    warnings.push('Lintel beams are typically 225×225mm (9-inch). Verify if larger section is truly needed.');
+    warnings.push(ms.lintelNote);
   }
   if (span_to_depth > basicRatio) {
     warnings.push(`Deflection check failed (span/depth = ${span_to_depth.toFixed(1)} > ${basicRatio}). Increase beam depth.`);
@@ -390,8 +403,13 @@ export function designColumn(input: ColumnDesignInput): ColumnDesignResult {
 
   formulas.push(`Capacity = (0.4 × ${fcu} × ${gross_area} + 0.67 × ${fy} × ${provided_steel}) / 1000 = ${load_capacity.toFixed(1)} kN ≥ ${factored_load.toFixed(1)} kN → ${capacity_check_pass ? 'PASS' : 'FAIL'}`);
 
-  if (recommended_width < 225) {
-    warnings.push(`Column width ${recommended_width}mm is below typical 225mm (9-inch) minimum for Nigerian block walls. Consider 225mm (9-inch) minimum.`);
+  const cms: MemberSizingProfile = resolveMemberSizing(input.market_code ?? "NG");
+  if (cms.minColumnWidthMm !== null && recommended_width < cms.minColumnWidthMm) {
+    warnings.push(`Column width ${recommended_width}mm is below the ${cms.minColumnWidthMm}mm typical minimum for this market's walls. ${cms.marketCode === 'NG' ? 'Consider 225mm (9-inch) minimum.' : 'Consider matching the standard wall unit width.'}`);
+  }
+  if (cms.minColumnWidthMm === null) {
+    warnings.push(cms.minColumnBasis);
+    if (!cms.verified) warnings.push(`Member sizing defaults for ${cms.marketCode} are not yet verified for this market — confirm with a local engineer.`);
   }
 
   return {

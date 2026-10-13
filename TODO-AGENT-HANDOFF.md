@@ -7,7 +7,7 @@ commands in section 6, then work top-to-bottom through section 4 (REMAINING
 WORK). Update this file with every batch you complete — including flipping
 status markers and adding the commit hash.
 
-Last updated: 2026-10-13 (P2 batch 1: sequence-planner market-scoped, 9/20 wall profiles verified)
+Last updated: 2026-10-13 (P2 batch 1 COMPLETE: sequence-planner + structural-calculator + timeline-estimator all market-scoped)
 
 ---
 
@@ -127,10 +127,23 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         incl. NG-output-unchanged regression.
   - [x] ConstructionSequence page: useMarket wiring + methodology note
         rendered.
-  - [ ] NEXT in batch: structural-calculator.ts market-scoped member
-        sizing rules (b=225mm NG preset -> per-market beam widths), then
-        timeline-estimator.ts climate model (dry/rainy -> per-market
-        workability inputs: winter CA/GB/DE, monsoon IN/ID, heat SA/AE).
+  - [x] structural-calculator.ts market-scoped: new engineering/
+        member-sizing.ts — beam widths match each verified market's
+        standard wall unit (US 203, GB 100, DE 175, IN 230, BR 90, ZA 140,
+        NG 225 unchanged); frame markets (AU/JP) disclose
+        engineer-determined; unprofiled markets get a generic 200mm WITH
+        explicit unverified warning — never silent NG. designBeam/designColumn
+        gain market_code; NG ground-beam 450mm + lintel 225x225 + column
+        225mm warnings preserved for NG, generic code-check notes
+        elsewhere; StructuralCalculator page passes market.marketCode.
+  - [x] timeline-estimator.ts climate model: new engineering/
+        climate-profile.ts — 20 market climate profiles (NG/GH/KE tropical
+        dry-rainy unchanged; GB/DE/FR/IT/JP/KR summer-winter; CA severe
+        winter 1.35; IN/ID monsoon; ZA/BR/MX dry-rainy; US/AU/CN mixed).
+        Season union extended with winter/summer/monsoon + heuristic
+        multipliers (disclosed as planning heuristics, not data);
+        ProjectTimeline page offers market-appropriate seasons, snaps
+        default on market change, renders climate disclosure.
   - [ ] Remaining 11 wall profiles need web verification (CA FR IT SA AE
         CN ID MX KR GH KE) — 1-2 searches per market.
 

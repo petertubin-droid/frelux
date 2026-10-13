@@ -16,7 +16,7 @@
 
 export type ProjectComplexity = "simple" | "standard" | "complex" | "high_end";
 export type WorkforceSize = "small" | "medium" | "large";
-export type Season = "dry" | "rainy";
+export type Season = "dry" | "rainy" | "winter" | "summer" | "monsoon";
 
 export interface TimelineInput {
   building_type: string;
@@ -73,7 +73,10 @@ const WORKFORCE_MULTIPLIER: Record<WorkforceSize, number> = {
 
 const SEASON_MULTIPLIER: Record<Season, number> = {
   dry: 1.0,
-  rainy: 1.2, // rainy season slows work
+  rainy: 1.2, // rainy season slows work (NG baseline heuristic)
+  winter: 1.25, // frost/cold slows excavation and curing (temperate heuristic)
+  summer: 1.05, // moderate heat adjustment (overridden per market by climate profile)
+  monsoon: 1.3, // monsoon rainfall (tropical monsoon heuristic)
 };
 
 // ── Base stage durations (days) for a standard 100m² single-floor bungalow ──
@@ -219,11 +222,21 @@ export function estimateTimeline(input: TimelineInput): TimelineResult {
     const estimated_days = Math.round(days);
 
     let notes = "";
-    if (base.stage === "foundation_concrete" && input.season === "rainy") {
-      notes = "Rainy season may delay concrete curing. Allow extra days.";
+    if (base.stage === "foundation_concrete" && (input.season === "rainy" || input.season === "winter" || input.season === "monsoon")) {
+      notes =
+        input.season === "winter"
+          ? "Winter frost slows concrete curing and excavation. Allow extra days and use cold-weather concreting protection."
+          : input.season === "monsoon"
+            ? "Monsoon rains may flood excavations and delay concrete pours. Allow extra days."
+            : "Rainy season may delay concrete curing. Allow extra days.";
     }
-    if (base.stage === "roofing" && input.season === "rainy") {
-      notes = "Roofing work is significantly harder during rainy season.";
+    if (base.stage === "roofing" && (input.season === "rainy" || input.season === "winter" || input.season === "monsoon")) {
+      notes =
+        input.season === "winter"
+          ? "Roofing is significantly harder in winter conditions (short days, wind, snow/ice risk)."
+          : input.season === "monsoon"
+            ? "Roofing work is significantly harder during the monsoon."
+            : "Roofing work is significantly harder during rainy season.";
     }
     if (base.stage === "walls" && input.number_of_floors > 1) {
       notes = `Multi-storey (${input.number_of_floors} floors), walls take proportionally longer.`;

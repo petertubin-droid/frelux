@@ -15,6 +15,7 @@ import {
   type BeamType,
   type SlabType,
 } from "@/lib/engineering/structural-calculator";
+import { useMarket } from "@/lib/international/market-context";
 import type {} from "@/types/build-to-roof";
 import {
   Calculator,
@@ -171,6 +172,8 @@ function BeamCalculator() {
   );
   const [showFormulas, setShowFormulas] = useState(false);
 
+  const { market } = useMarket();
+
   const calculate = useCallback(() => {
     const input: BeamDesignInput = {
       span,
@@ -182,6 +185,7 @@ function BeamCalculator() {
       concrete_grade: concreteGrade,
       steel_grade: steelGrade,
       cover_mm: cover,
+      market_code: market.marketCode,
     };
     setResult(monitoredCalc("Structural Calculator", () => designBeam(input)));
   }, [
@@ -194,6 +198,7 @@ function BeamCalculator() {
     concreteGrade,
     steelGrade,
     cover,
+    market.marketCode,
   ]);
 
   if (!result) {
@@ -441,6 +446,8 @@ function ColumnCalculator() {
   );
   const [showFormulas, setShowFormulas] = useState(false);
 
+  const { market } = useMarket();
+
   const calculate = useCallback(() => {
     const input: ColumnDesignInput = {
       axial_load: axialLoad,
@@ -448,6 +455,7 @@ function ColumnCalculator() {
       concrete_grade: concreteGrade,
       steel_grade: steelGrade,
       cover_mm: cover,
+      market_code: market.marketCode,
       is_rectangular: isRect,
       unbraced_height_ratio: 0,
     };

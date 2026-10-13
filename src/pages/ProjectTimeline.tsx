@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useSeo } from "@/lib/seo";
 import {
   estimateTimeline,
@@ -7,6 +7,8 @@ import {
   type WorkforceSize,
   type Season,
 } from "@/lib/engineering/timeline-estimator";
+import { resolveClimateProfile } from "@/lib/engineering/climate-profile";
+import { useMarket } from "@/lib/international/market-context";
 import { monitoredCalc } from "@/lib/calculator-monitor";
 import { Calendar, Clock, AlertTriangle, TrendingUp, Flag } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
@@ -26,7 +28,21 @@ export default function ProjectTimeline() {
   const [floors, setFloors] = useState(1);
   const [complexity, setComplexity] = useState<ProjectComplexity>("standard");
   const [workforce, setWorkforce] = useState<WorkforceSize>("medium");
-  const [season, setSeason] = useState<Season>("dry");
+  const { market } = useMarket();
+  const climate = resolveClimateProfile(market.marketCode);
+  const SEASON_LABELS: Record<Season, string> = {
+    dry: "Dry season",
+    rainy: "Rainy season",
+    winter: "Winter",
+    summer: "Summer",
+    monsoon: "Monsoon",
+  };
+  const [season, setSeason] = useState<Season>(climate.defaultSeason);
+
+  // Snap season to the market's default when the market changes (e.g. GB has no 'rainy')
+  useEffect(() => {
+    setSeason((prev) => (climate.seasons.includes(prev) ? prev : climate.defaultSeason));
+  }, [climate]);
   const [foundationType, setFoundationType] = useState("strip_footing");
   const [roofType, setRoofType] = useState("gable");
   const [hasEngineer, setHasEngineer] = useState(false);
@@ -135,10 +151,10 @@ export default function ProjectTimeline() {
               label="Season"
               value={season}
               onChange={(v) => setSeason(v as Season)}
-              options={[
-                { v: "dry", l: "Dry (Nov-Mar)" },
-                { v: "rainy", l: "Rainy (Apr-Oct)" },
-              ]}
+              options={climate.seasons.map((sv) => ({
+                v: sv,
+                l: SEASON_LABELS[sv],
+              }))}
             />
             <Select
               label="Foundation type"
@@ -181,7 +197,10 @@ export default function ProjectTimeline() {
           </Button>
         </div>
 
-        {result && (
+        <p className="rounded-lg border border-border bg-muted/50 p-3 text-sm text-muted-foreground">
+            Climate profile: {climate.climatePattern}. {climate.heuristicNote}
+          </p>
+          {result && (
           <>
             {/* Summary */}
             <div className="grid md:grid-cols-4 gap-4">
