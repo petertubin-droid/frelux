@@ -7,7 +7,7 @@ commands in section 6, then work top-to-bottom through section 4 (REMAINING
 WORK). Update this file with every batch you complete — including flipping
 status markers and adding the commit hash.
 
-Last updated: 2026-10-13 (P2 batch 1 COMPLETE: sequence-planner + structural-calculator + timeline-estimator all market-scoped)
+Last updated: 2026-10-13 (P2 batch 1 COMPLETE + all 20 wall profiles verified: engineering modules fully market-scoped)
 
 ---
 
@@ -144,8 +144,21 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         multipliers (disclosed as planning heuristics, not data);
         ProjectTimeline page offers market-appropriate seasons, snaps
         default on market change, renders climate disclosure.
-  - [ ] Remaining 11 wall profiles need web verification (CA FR IT SA AE
-        CN ID MX KR GH KE) — 1-2 searches per market.
+  - [x] Remaining 11 wall profiles WEB-VERIFIED (2026-10-13): CA (2x6
+        wood frame @16in o.c., R-20 batt, 8in poured concrete foundation,
+        NBC plan sets — verified), FR (parpaing 20cm + isolation par
+        l'extérieur, Qualitel 20-40cm — verified), IT (laterizio forato
+        20x25x25 + cappotto, Wienerberger/Poroton — industry_standard), SA
+        (concrete block 200mm + AAC growth, Benna guide —
+        industry_standard), AE (hollow concrete block work villas —
+        industry_standard), CN (砖混 brick-concrete low-rise / RC
+        high-rise — industry_standard), ID (bata merah + Hebel AAC —
+        industry_standard), MX (block 15x20x40 + tabique rojo with
+        castillos y dalas confined masonry — industry_standard), KR (RC
+        wall-panel apartments — verified), GH (sandcrete 9/6in —
+        verified), KE (machine-cut Ndarugo 9x9 stones — verified).
+        ALL 20 mandate markets now have profiled methodologies with
+        sources; generic unverified fallback only for non-mandate codes.
 
 ## 1. CONTEXT (read first)
 

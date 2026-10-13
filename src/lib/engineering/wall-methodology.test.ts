@@ -22,12 +22,12 @@ describe("wall methodology profiles", () => {
     expect(br.externalWall.unitLabel).toContain("9x19x29");
   });
 
-  it("unprofiled markets get an explicit unverified disclosure, never silent NG", () => {
-    const fr = resolveWallMethodology("FR");
-    expect(fr.verified).toBe(false);
-    expect(fr.confidence).toBe("pending_verification");
-    expect(fr.methodSummary).toContain("unverified");
-    expect(fr.foundationWall.description).not.toContain("9-inch");
+  it("unprofiled codes get an explicit unverified disclosure, never silent NG", () => {
+    const zz = resolveWallMethodology("ZZ");
+    expect(zz.verified).toBe(false);
+    expect(zz.confidence).toBe("pending_verification");
+    expect(zz.methodSummary).toContain("unverified");
+    expect(zz.foundationWall.description).not.toContain("9-inch");
   });
 
   it("sequence plan uses market wall text and NG default is unchanged", () => {
@@ -43,7 +43,7 @@ describe("wall methodology profiles", () => {
     expect(us.methodology_note).toContain("CMU/poured");
 
     const fr = generateSequencePlan(undefined, "FR");
-    expect(fr.methodology_note).toContain("not yet verified");
+    expect(fr.methodology_note).toContain("parpaing");
   });
 
   it("lists all 20 mandate markets", () => {
@@ -51,5 +51,33 @@ describe("wall methodology profiles", () => {
     expect(markets).toHaveLength(20);
     expect(markets).toContain("NG");
     expect(markets).toContain("KR");
+  });
+});
+
+describe("all 20 market wall profiles", () => {
+  it("every supported market now has a profiled methodology (no pending generics)", () => {
+    const markets = listWallMethodologyMarkets();
+    expect(markets.length).toBe(20);
+    expect(markets.every((m) => m.verified)).toBe(true);
+    for (const m of markets) {
+      const p = resolveWallMethodology(m.code);
+      expect(p.verified).toBe(true);
+      expect(p.confidence).not.toBe("pending_verification");
+      expect(p.source.length).toBeGreaterThan(20);
+      expect(p.externalWall.thicknessMm).toBeGreaterThan(0);
+    }
+  });
+
+  it("newly verified profiles carry real market specifics", () => {
+    expect(resolveWallMethodology("KE").externalWall.unitLabel).toContain("machine-cut");
+    expect(resolveWallMethodology("MX").framingNote).toContain("castillos");
+    expect(resolveWallMethodology("FR").externalWall.description).toContain("parpaing");
+    expect(resolveWallMethodology("CA").externalWall.description).toContain("2x6");
+    expect(resolveWallMethodology("KR").methodSummary).toContain("Reinforced concrete");
+    expect(resolveWallMethodology("ID").externalWall.description).toContain("bata merah");
+  });
+
+  it("unprofiled codes still fall back to disclosed generics", () => {
+    expect(resolveWallMethodology("ZZ").verified).toBe(false);
   });
 });
