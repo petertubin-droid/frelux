@@ -228,6 +228,25 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         (obi.de/hornbach.de search snippets stay price-poor; next pass
         should read product pages directly, Kirchhoff brass line at
         OBI is the candidate family).
+  - [x] P2 batch 5: PLUMBING FITTINGS DE COMPLETE, APPLIED LIVE
+        (2026-10-13, migration 20261013180000): all four remaining
+        DE fittings web-verified from live toom.de listings (rendered
+        via browser, snippets are price-poor):
+        de-elbow Winkel 90° Messing blank 1/2" IG/AG (Cornat art
+        5460285) EUR 8.29; de-reducer Reduzierstück Messing blank
+        3/4" IG x 1/2" AG EUR 3.99; de-union Muffe Messing blank 1/2"
+        IG EUR 4.29; de-valve Kugelhahn Messing 1/2 Zoll EUR 6.99.
+        DE methodology: brass threaded (Schraubfitting) fittings,
+        consistent with de-tee. FITTINGS BOOK NOW COMPLETE:
+        US 5/5, GB 5/5, AT 5/5, DE 5/5 = 20/20 active rows, all
+        scan_confidence='manual', verified via Management API SELECT.
+        Note: toom.de prices are JS-rendered — use the browser for
+        product-page reads; the "Häufig dazu gekauft" cross-listing
+        on a rendered product page carries exact name+price pairs
+        for the rest of the Cornat brass family.
+        NEXT for plumbing price books: pipes (plumb-pipe-*) for
+        US/GB/AT/DE if the resolver expects them and they are
+        missing; then GB/CA rebar per-tonne anchors.
 ## 1. CONTEXT (read first)
 
 Frelux is a construction cost calculator SaaS (Vite + React + TS + Tailwind +
