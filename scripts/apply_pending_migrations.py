@@ -28,6 +28,8 @@ PENDING = [
     "20261014030000_unpaid_daily_ad_limit_and_guest_ad_unlock.sql",
     "20261014110000_price_intel_pipeline.sql",
     "20261014120000_market_rankings.sql",
+    "20261013160000_plumbing_fittings_us_gb_at.sql",
+    "20261013170000_plumbing_fittings_at_complete_gb_de.sql",
 ]
 
 

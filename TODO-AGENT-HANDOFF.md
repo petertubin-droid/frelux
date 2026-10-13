@@ -204,7 +204,7 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         now returns an honest "Market code is required" error. Suite
         7156 green, type gate 0. 14 adapter tests in
         ai-foundation/__tests__/engines-structural.test.ts.
-  - [~] P2 batch 4: PLUMBING FITTINGS BATCH 2 MIGRATION WRITTEN,
+  - [x] P2 batch 4: PLUMBING FITTINGS BATCH 2 APPLIED LIVE (2026-10-13):
         verified, committed — 20261013170000_plumbing_fittings_at_complete_gb_de.sql.
         5 web-verified rows (zero manual confirmation, live listings
         read 2026-10-13): at-elbow PPR-Winkel Multitherm 90° 25x25mm
@@ -214,16 +214,20 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         Speedfit push-fit coupler 15mm GBP 4.04 inc VAT Screwfix product
         89950; de-tee T-Stück Messing 1/2" EUR 3.49 (toom.de/p/5464965).
         ON APPLY: AT becomes 5/5, GB 5/5, DE 1/5.
-        *** NOT YET APPLIED TO LIVE DB *** — all three SUPABASE_ACCESS_TOKEN
-        sbp_ tokens now 401 against api.supabase.com (expired/rotated).
-        Owner must mint a fresh Supabase personal access token and
-        export SUPA_TOKEN=<token>, then run:
-        SUPA_TOKEN=$SUPA_TOKEN python3 scripts/apply_pending_migrations.py
-        (script records versions in supabase_migrations and skips the
-        already-applied set). Remaining honest gaps after apply:
-        de-elbow/reducer/union/valve (obi.de/hornbach.de search snippets
-        stay price-poor; next pass should read product pages directly,
-        Kirchhoff brass line at OBI is the candidate family).
+        APPLIED + VERIFIED 2026-10-13 with a fresh owner-supplied
+        sbp_ token: 16/16 active fitting rows live (US 5, GB 5, AT 5,
+        DE 1), all scan_confidence='manual'; resolver slug convention
+        (marketCode-fitting, e.g. at-elbow) confirmed in
+        structural-market.ts resolvePlumbingSlugGroup; 245 estimation
+        tests green. NOTE: apply_pending_migrations.py uses a
+        HARDCODED file list (both plumbing migrations added to it);
+        new migrations must be appended there or they are silently
+        skipped. The 20261013160000 file re-applied idempotently (was
+        applied earlier without a supabase_migrations record).
+        Remaining honest gaps: de-elbow/reducer/union/valve
+        (obi.de/hornbach.de search snippets stay price-poor; next pass
+        should read product pages directly, Kirchhoff brass line at
+        OBI is the candidate family).
 ## 1. CONTEXT (read first)
 
 Frelux is a construction cost calculator SaaS (Vite + React + TS + Tailwind +
