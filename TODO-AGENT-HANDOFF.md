@@ -247,6 +247,23 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         NEXT for plumbing price books: pipes (plumb-pipe-*) for
         US/GB/AT/DE if the resolver expects them and they are
         missing; then GB/CA rebar per-tonne anchors.
+  - [x] P2 batch 6: PLUMBING PIPES AT+DE COMPLETE, APPLIED LIVE
+        (2026-10-13, migration 20261013190000): 4 web-verified rows
+        (browser-rendered hornbach.at / snippet-verified hornbach.de):
+        at-pipe-waste HT Rohr DN 50 1000mm (hornbach.at art. 262942)
+        EUR 2.25/m; at-pipe-drainage HT Rohr DN 110 2000mm (art.
+        266955) EUR 5.25/m; de-pipe-cold + de-pipe-hot Kupferrohr
+        15x1mm 5m (hornbach.de art. 1319206) EUR 34.00/5m =
+        EUR 6.80/m (copper hard rod, hot+cold, pairs with the brass
+        Schraubfitting fittings book). PIPE BOOK NOW COMPLETE:
+        US 4/4, GB 4/4, AT 4/4, DE 4/4 = 16/16 active rows, all
+        scan_confidence='manual'. Combined with batch 5 the plumbing
+        market books are complete: 36 rows (20 fittings + 16 pipes),
+        zero unresolved keys for US/GB/AT/DE plumbing pages.
+        GOTCHA: hornbach.at serves a JS bot-challenge on first load —
+        wait ~5s in the browser and the product page renders with
+        per-metre price lines ("Entspricht x EUR pro m").
+        NEXT: GB/CA rebar per-tonne anchors, then electrical books.
 ## 1. CONTEXT (read first)
 
 Frelux is a construction cost calculator SaaS (Vite + React + TS + Tailwind +
