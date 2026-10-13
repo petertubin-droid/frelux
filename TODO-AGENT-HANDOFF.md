@@ -7,7 +7,7 @@ commands in section 6, then work top-to-bottom through section 4 (REMAINING
 WORK). Update this file with every batch you complete — including flipping
 status markers and adding the commit hash.
 
-Last updated: 2026-10-13 (P2 batch 2: typology profiles — all 20 markets)
+Last updated: 2026-10-13 (P2 batch 2 typology profiles all 20 markets + concurrent UI currency sweep reconciled)
 
 ---
 
@@ -159,7 +159,6 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         verified), KE (machine-cut Ndarugo 9x9 stones — verified).
         ALL 20 mandate markets now have profiled methodologies with
         sources; generic unverified fallback only for non-mandate codes.
-<<<<<<< Updated upstream
   - [x] UI currency leaks & market context remediation (P1/P2 UI sweep):
         - BuildToRoofEstimator: binding wire cost now uses formatCurrency()
           reflecting the active market rather than hardcoded Naira.
@@ -172,7 +171,6 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
           total room costs.
         - LabourEstimator: integrated useMarket(); renders active market
           context banner clarifying benchmark worker-day productivity.
-=======
   - [x] P2 batch 2: engineering/typology-profile.ts — market-scoped
         residential building typologies, WEB-VERIFIED: US (single-family/
         ranch dominant), GB (semi-detached/terraced, stock shares 24.6/
@@ -186,7 +184,6 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         offers market-local typologies (Einfamilienhaus, Rumah, Sobrado,
         Maisonette...), snaps default on market change, disclosure note
         rendered. Unprofiled codes get disclosed generic fallback.
->>>>>>> Stashed changes
 
 ## 1. CONTEXT (read first)
 
