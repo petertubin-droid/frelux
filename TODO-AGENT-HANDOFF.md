@@ -204,6 +204,26 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         now returns an honest "Market code is required" error. Suite
         7156 green, type gate 0. 14 adapter tests in
         ai-foundation/__tests__/engines-structural.test.ts.
+  - [~] P2 batch 4: PLUMBING FITTINGS BATCH 2 MIGRATION WRITTEN,
+        verified, committed — 20261013170000_plumbing_fittings_at_complete_gb_de.sql.
+        5 web-verified rows (zero manual confirmation, live listings
+        read 2026-10-13): at-elbow PPR-Winkel Multitherm 90° 25x25mm
+        EUR 0.99 (hornbach.at/p/4031000); at-union PPR-Muffe Multitherm
+        25x25mm EUR 0.89 (hornbach.at/p/4031022); at-valve Kugelhahn
+        Edelstahl 1/2" I/I EUR 9.95 (hornbach.at/p/6088338); gb-union JG
+        Speedfit push-fit coupler 15mm GBP 4.04 inc VAT Screwfix product
+        89950; de-tee T-Stück Messing 1/2" EUR 3.49 (toom.de/p/5464965).
+        ON APPLY: AT becomes 5/5, GB 5/5, DE 1/5.
+        *** NOT YET APPLIED TO LIVE DB *** — all three SUPABASE_ACCESS_TOKEN
+        sbp_ tokens now 401 against api.supabase.com (expired/rotated).
+        Owner must mint a fresh Supabase personal access token and
+        export SUPA_TOKEN=<token>, then run:
+        SUPA_TOKEN=$SUPA_TOKEN python3 scripts/apply_pending_migrations.py
+        (script records versions in supabase_migrations and skips the
+        already-applied set). Remaining honest gaps after apply:
+        de-elbow/reducer/union/valve (obi.de/hornbach.de search snippets
+        stay price-poor; next pass should read product pages directly,
+        Kirchhoff brass line at OBI is the candidate family).
 ## 1. CONTEXT (read first)
 
 Frelux is a construction cost calculator SaaS (Vite + React + TS + Tailwind +
