@@ -57,12 +57,14 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         boundary violation) removed. 41 canonical engines still have no
         executeEngine route — extend family-by-family in P2 with real
         adapters (see engine-duplicate-audit.md).
-  - [x] Duplicate-engine audit: docs/engine-duplicate-audit.md. Foundation
-        dual-path (estimation/foundation-engine vs engineering/
-        foundation-calculator, two live pages) is the ONE open duplicate —
-        reconcile FoundationCalculator page onto the authoritative
-        market-wired engine next batch. timeline/paint pairs are layered,
-        not duplicates.
+  - [x] Duplicate-engine audit COMPLETE: docs/engine-duplicate-audit.md.
+        ZERO duplicate engines remain (roof_geometry_calculation AI duplicate
+        removed; foundation design-vs-cost pair verified complementary —
+        BS 8004 universal soil mechanics, custom bearing override, page
+        uses useMarket; timeline/paint pairs are layered sub-engines).
+        Remaining sweep items: reword NG-framed comments in engineering/
+        foundation-calculator.ts (cosmetic), per-market climate inputs for
+        timeline-estimator (dry/rainy is NG-only).
   - [ ] Identify all hardcoded regional assumptions (grep NG naira/metric/
         typical defaults in engines) — feed P1.
 - **P1 Shared international infrastructure** — contracts, unit conversion,

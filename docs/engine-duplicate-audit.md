@@ -17,11 +17,12 @@ not bypass the authoritative implementation.
 | `paint-engine.ts` vs `painting-engine.ts` | Layered: paint-engine is the coverage/litres SUB-engine consumed by painting-engine (the authoritative engine used by pages + AI). Also paint-engine-bridge.ts is an adapter. No duplicate. |
 | `timeline-engine.ts` (measurement) vs `timeline-estimator.ts` (engineering) | Different purposes: phase tracking (project-agent) vs duration estimation (ProjectTimeline page). Both stay; see assumption flag below. |
 
-## Open duplicate path — reconcile next (P2 batch 1)
+## Re-examined — complementary, NOT a duplicate (2026-10-13 verification)
 
-| Pair | Classification | Required action |
-|---|---|---|
-| `estimation/foundation-engine.ts` (FoundationEstimator page, market-wired, regional profiles) vs `engineering/foundation-calculator.ts` (FoundationCalculator page, NG-legacy: soil types, strip/pad/raft) | DUPLICATE ENGINE IMPLEMENTATION behind two live public routes. The canonical engine is `estimation/foundation-engine` (market-wired). | Refactor FoundationCalculator page to delegate to the authoritative market-aware foundation engine; keep the route (SEO: public URLs must stay permanent). Then delete the legacy calculator module once unreferenced. |
+| Pair | Classification |
+|---|---|
+| `estimation/foundation-engine.ts` (cost estimation: scope -> quantities/costs via market rules + price map, FoundationEstimator page) vs `engineering/foundation-calculator.ts` (structural design: soil bearing -> footing geometry, strip/pad/raft, FoundationCalculator page) | Complementary sub-engines of the foundation family. Verified: foundation-calculator uses BS 8004 Table 1 soil bearing values (universal engineering constants) with a `custom` bearing override; `lateritic` is a legitimate soil type across tropical markets (NG GH KE ZA BR IN ID SA). No NG economics inside; page already uses useMarket. Earlier duplicate classification was an overcall. NO duplicate engines remain in the codebase. |
+| Cosmetic debt only | foundation-calculator.ts header comments say "Nigerian construction" — reword to global framing during the hardcoded-assumptions sweep (comment-only change, zero behavior). |
 
 ## Hardcoded regional assumptions found (P0 sweep seeds)
 
