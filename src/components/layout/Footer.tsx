@@ -1,9 +1,8 @@
 import { Link } from "react-router-dom";
-import { Cookie, MessageCircle } from "lucide-react";
+import { Cookie, Mail } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import NewsletterSignup from "@/components/newsletter/NewsletterSignup";
 import { siteConfig } from "@/config/site";
-import { whatsappUrl } from "@/lib/analytics";
 import { withdrawConsent } from "@/lib/cookie-consent";
 import BrandBackdrop from "@/components/ui/BrandBackdrop";
 import { Button } from "@/components/ui/shadcn/button";
@@ -88,17 +87,20 @@ export default function Footer() {
               <NewsletterSignup source="footer" />
             </div>
             <a
-              href={whatsappUrl(
-                "Hello FRELUX, I have a question about a paint project.",
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Contact us on WhatsApp"
-              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-accent-green/10 px-3 py-1.5 text-sm font-semibold text-emerald-700 transition-colors hover:bg-accent-green/15 dark:bg-accent-green/15 dark:text-accent-green-light dark:hover:bg-accent-green/25"
+              href={`mailto:${siteConfig.email}`}
+              aria-label="Email us"
+              className="mt-3 inline-flex items-center gap-2 rounded-lg bg-primary/10 px-3 py-1.5 text-sm font-semibold text-brand-purple transition-colors hover:bg-primary/15 dark:bg-primary/15 dark:text-primary-foreground/90 dark:hover:bg-primary/25"
             >
-              <MessageCircle className="h-4 w-4" />
-              {siteConfig.whatsappDisplay}
+              <Mail className="h-4 w-4" />
+              {siteConfig.email}
             </a>
+            <p className="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground dark:text-muted-foreground">
+              <span className="font-medium text-foreground dark:text-primary-foreground/90">39 markets</span>
+              <span aria-hidden="true">·</span>
+              <span>Local currency pricing</span>
+              <span aria-hidden="true">·</span>
+              <span>Email support, replies within one business day</span>
+            </p>
           </div>
 
           <FooterColumn title="Calculate" links={calculateLinks} />

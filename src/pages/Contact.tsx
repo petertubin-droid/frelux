@@ -1,6 +1,5 @@
 import { useState, type ReactNode } from "react";
 import {
-  MessageCircle,
   Mail,
   Send,
   CheckCircle2,
@@ -8,7 +7,7 @@ import {
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { siteConfig } from "@/config/site";
-import { whatsappUrl, track } from "@/lib/analytics";
+import { track } from "@/lib/analytics";
 import { classNames } from "@/lib/utils";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
 import { supabase } from "@/lib/supabase";
@@ -193,30 +192,6 @@ export default function Contact() {
                 Other ways to reach us
               </h2>
               <ul className="mt-4 space-y-4 text-sm">
-                <li>
-                  <a
-                    aria-label="Contact us on WhatsApp"
-                    href={whatsappUrl("Hello FRELUX, I have a question.")}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() =>
-                      track("whatsapp_clicked", { source: "contact" })
-                    }
-                    className="flex items-start gap-3 rounded-lg border border-border p-3 transition-colors hover:border-accent-green/40 hover:bg-accent-green/5 dark:border-white/5 dark:hover:border-accent-green/30 dark:hover:bg-accent-green/10"
-                  >
-                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-accent-green/10 text-accent-green">
-                      <MessageCircle aria-hidden="true" className="h-4 w-4" />
-                    </span>
-                    <span>
-                      <span className="block font-semibold text-foreground dark:text-primary-foreground">
-                        WhatsApp
-                      </span>
-                      <span className="block text-muted-foreground dark:text-muted-foreground">
-                        {siteConfig.whatsappDisplay}
-                      </span>
-                    </span>
-                  </a>
-                </li>
                 <li className="flex items-start gap-3 rounded-lg border border-border p-3 dark:border-white/5">
                   <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-brand-purple">
                     <Mail aria-hidden="true" className="h-4 w-4" />

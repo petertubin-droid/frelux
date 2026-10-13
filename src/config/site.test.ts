@@ -9,9 +9,8 @@ describe("config/site", () => {
     expect(siteConfig.email).toBeTruthy();
   });
 
-  it("siteConfig has whatsapp config", () => {
-    expect(siteConfig.whatsappNumber).toBeTruthy();
-    expect(siteConfig.whatsappDisplay).toBeTruthy();
+  it("siteConfig has contact email config", () => {
+    expect(siteConfig.email).toBeTruthy();
   });
 
   it("siteConfig has adsense config", () => {

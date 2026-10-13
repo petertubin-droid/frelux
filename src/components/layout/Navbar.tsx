@@ -2,36 +2,35 @@ import { useEffect, useState, useRef } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 import {
-  Menu,
-  X,
-  Calculator,
-  LogIn,
-  LogOut,
-  User,
-  ChevronDown,
-  Sun,
-  Moon,
-  LayoutDashboard,
-  ShoppingBag,
+  BarChart3,
+  Bot,
   Briefcase,
-  Package,
-  UserCircle,
+  Calculator,
+  ChevronDown,
+  ChevronRight,
   ClipboardList,
+  Crown,
   FileStack,
   Gem,
-  Bot,
-  Users,
-  BarChart3,
+  LayoutDashboard,
+  LogIn,
+  LogOut,
+  Mail,
+  Menu,
+  Moon,
+  Package,
   Search,
-  ChevronRight,
-  Crown,
-  MessageCircle,
+  ShoppingBag,
+  Sun,
+  User,
+  UserCircle,
+  Users,
+  X,
 } from "lucide-react";
 import { PremiumBadge } from "@/components/ui/PremiumBadge";
 import Logo from "@/components/brand/Logo";
-import { navWorkspaces, type NavChild } from "@/config/site";
+import { navWorkspaces, siteConfig, type NavChild } from "@/config/site";
 import { classNames } from "@/lib/utils";
-import { whatsappUrl } from "@/lib/analytics";
 import { useAuth } from "@/lib/auth";
 import { useCredits } from "@/lib/credits-context";
 
@@ -412,15 +411,11 @@ export default function Navbar() {
                 )}
               </Button>
               <a
-                href={whatsappUrl(
-                  "Hello FRELUX, I would like to chat about a paint project.",
-                )}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Chat on WhatsApp"
-                className="inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground transition-all hover:bg-muted hover:text-accent-green active:scale-95 dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-accent-green"
+                href={`mailto:${siteConfig.email}`}
+                aria-label="Email us"
+                className="inline-flex items-center justify-center rounded-lg p-2 text-muted-foreground transition-all hover:bg-muted hover:text-brand-purple active:scale-95 dark:text-muted-foreground dark:hover:bg-white/5 dark:hover:text-primary-foreground/90"
               >
-                <MessageCircle className="h-[18px] w-[18px]" />
+                <Mail className="h-[18px] w-[18px]" />
               </a>
             </div>
 
@@ -872,17 +867,13 @@ export default function Navbar() {
               </Button>
             </div>
 
-            {/* WhatsApp contact */}
+            {/* Email contact */}
             <a
-              href={whatsappUrl(
-                "Hello FRELUX, I would like to chat about a paint project.",
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
+              href={`mailto:${siteConfig.email}`}
               className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted/50 dark:text-muted-foreground/80 dark:hover:bg-white/5"
             >
-              <MessageCircle className="h-4 w-4" />
-              <span>WhatsApp</span>
+              <Mail className="h-4 w-4" />
+              <span>Email us</span>
             </a>
 
             {/* AI Credit info */}

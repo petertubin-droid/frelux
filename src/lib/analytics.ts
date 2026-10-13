@@ -141,7 +141,3 @@ export function track(
 }
 
 // Builds a WhatsApp click-to-chat URL in international format.
-export function whatsappUrl(message?: string): string {
-  const base = `https://wa.me/${siteConfig.whatsappNumber}`;
-  return message ? `${base}?text=${encodeURIComponent(message)}` : base;
-}

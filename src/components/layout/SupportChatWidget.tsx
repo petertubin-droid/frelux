@@ -1,18 +1,18 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import {
-  X,
-  Send,
-  Minus,
-  Loader2,
-  MessageCircle,
   ChevronRight,
+  Loader2,
+  Mail,
+  MessageCircle,
+  Minus,
   Phone,
+  Send,
+  X,
 } from "lucide-react";
 import SupportMark from "@/components/ui/SupportMark";
 import HeadsetGlyph from "@/components/ui/HeadsetGlyph";
 import CopilotWidget from "@/components/copilot/CopilotWidget";
-// import { siteConfig } from '@/config/site';
-import { whatsappUrl } from "@/lib/analytics";
+import { siteConfig } from "@/config/site";
 import { supabase, getFunctionErrorMessage } from "@/lib/supabase";
 import { recordLiveChatSignal } from "@/lib/learning/learning-client";
 import { getClientId } from "@/lib/ai-access";
@@ -353,15 +353,11 @@ export default function SupportChatWidget() {
                   {hasError && (
                     <div className="border-t border-border/50 bg-card px-4 py-2 dark:border-white/5 dark:bg-card">
                       <a
-                        href={whatsappUrl(
-                          "Hello FRELUX, I need help with my paint project.",
-                        )}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-accent-green hover:underline"
+                        href={`mailto:${siteConfig.email}`}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-brand-purple hover:underline dark:text-primary-foreground/90"
                       >
-                        <Phone className="h-3.5 w-3.5" />
-                        Still need help? Chat on WhatsApp →
+                        <Mail className="h-3.5 w-3.5" />
+                        Still need help? Email us →
                       </a>
                     </div>
                   )}

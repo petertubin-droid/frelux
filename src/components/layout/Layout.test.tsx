@@ -22,7 +22,6 @@ vi.mock("@/lib/theme", () => ({
 }));
 
 vi.mock("@/lib/analytics", () => ({
-  whatsappUrl: vi.fn(() => "https://wa.me/1234567890"),
   track: vi.fn(),
 }));
 
@@ -34,14 +33,7 @@ vi.mock("@/components/ads/AdSlot", () => ({
   default: () => null,
 }));
 
-import WhatsAppFab from "@/components/layout/WhatsAppFab";
 import Footer from "@/components/layout/Footer";
-
-describe("WhatsAppFab", () => {
-  it("renders without crashing", () => {
-    render(<WhatsAppFab />);
-  });
-});
 
 describe("Footer", () => {
   it("renders footer content", () => {

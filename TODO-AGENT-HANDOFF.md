@@ -7,7 +7,7 @@ commands in section 6, then work top-to-bottom through section 4 (REMAINING
 WORK). Update this file with every batch you complete — including flipping
 status markers and adding the commit hash.
 
-Last updated: 2026-10-11 (after US drainage + AT pipes seed)
+Last updated: 2026-10-11 (identity sweep + hard-gate fixes)
 
 ---
 
@@ -172,9 +172,24 @@ provenance · `b3f12d40` plumbing US/DE · `6f34d349` GB pipes ·
   effects — keep that order. Effect deps must include `[marketCode]`.
 - Engine price keys are exact NG slug strings (`rebar-16mm-per-length`,
   `plumb-pipe-cold`); overlays key on those exact strings.
-- Tests: `npx vitest run src/lib/estimation/__tests__` (expect 231+ green);
-  `npx tsc --noEmit -p tsconfig.json` clean. Add unit tests for new resolvers
-  (`structural-market.test.ts` is the pattern).
+- **HARD GATE (2026-10-11 discovery): the root `tsconfig.json` is a
+  solution-style NO-OP — `npx tsc --noEmit -p tsconfig.json` checks nothing
+  and let broken pages ship. ALWAYS run `npx tsc --noEmit -p tsconfig.app.json`
+  (0 errors as of 2026-10-11) AND the FULL vitest suite
+  (`npx vitest run`, ~800 files, >5 min — run it in tmux), not just
+  `src/lib/estimation/__tests__`. Page-level breakage (regex edits landing
+  inside object literals / JSX blocks) only shows up in the full run.
+- Identity sweep (2026-10-11, shipped same day): all WhatsApp CTAs (footer,
+  navbar x2, contact page, support chat fallback) replaced with mailto email
+  contact; WhatsAppFab component deleted; siteConfig whatsapp keys removed;
+  whatsappUrl retired from analytics. No +234 number anywhere in the UI.
+  Share-to-WhatsApp (user's own number, via lib/share.ts) intentionally kept.
+  Footer now carries an honest trust strip: "39 markets · Local currency
+  pricing · Email support". No fake US address/badges — owner was advised
+  against fabricated origin claims; a real US LLC / custom-domain email are
+  the legitimate routes when budget allows.
+- `npx tsc --noEmit -p tsconfig.app.json` must stay at 0 errors before push.
+  Add unit tests for new resolvers (`structural-market.test.ts` is the pattern).
 
 ## 6. VERIFY CURRENT STATE (fresh agent checklist)
 
