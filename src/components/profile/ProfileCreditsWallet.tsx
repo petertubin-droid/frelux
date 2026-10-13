@@ -24,7 +24,7 @@ import { useNavigate } from "react-router-dom";
 
 export const ProfileCreditsWallet: React.FC = () => {
   const { user } = useAuth();
-  const { wallet, refreshWallet } = useCredits();
+  const { wallet, refresh: refreshWallet } = useCredits();
   const [tasks, setTasks] = useState<CreditTask[]>([]);
   const [transactions, setTransactions] = useState<CreditTransaction[]>([]);
   const [loadingTasks, setLoadingTasks] = useState(false);
@@ -86,7 +86,7 @@ export const ProfileCreditsWallet: React.FC = () => {
   const handleCompleteTask = async (taskId: string) => {
     if (!user) return;
     try {
-      const res = await completeCreditTask(taskId);
+      const res = await completeCreditTask(user.id, taskId);
       if (res.success) {
         await refreshWallet();
         await loadData();
@@ -221,10 +221,10 @@ export const ProfileCreditsWallet: React.FC = () => {
                 >
                   <div>
                     <div className="text-xs font-semibold text-foreground">
-                      {task.task_title}
+                      {task.title}
                     </div>
                     <div className="text-[11px] text-muted-foreground">
-                      {task.task_description}
+                      {task.description}
                     </div>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
@@ -309,7 +309,7 @@ export const ProfileCreditsWallet: React.FC = () => {
                         )}
                         <div>
                           <div className="font-medium text-foreground">
-                            {tx.description || tx.action}
+                            {tx.reason}
                           </div>
                           <div className="text-[10px] text-muted-foreground">
                             {new Date(tx.created_at).toLocaleDateString()} at{" "}
