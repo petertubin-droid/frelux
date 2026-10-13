@@ -7,7 +7,7 @@ commands in section 6, then work top-to-bottom through section 4 (REMAINING
 WORK). Update this file with every batch you complete — including flipping
 status markers and adding the commit hash.
 
-Last updated: 2026-10-13 (P2 batch 2 typology profiles all 20 markets + concurrent UI currency sweep reconciled)
+Last updated: 2026-10-13 (P2 batch 14 electrical books complete across all 20 global markets: 220 active manual rows in DB migrations)
 
 ---
 
@@ -543,13 +543,14 @@ Work this list in order. Each item's status is current as of the last update.
    to disclosed-NG.
 2. 🟡 **DE + GB rebar books** (section 4A) — need merchant-level anchors; all
    leads and gotchas documented.
-3. ✅ **Electrical cable/conduit books** (section 4C) — ALL 20 MARKETS COMPLETE
-   (20/20 markets, 220 manual-confidence rows live in migrations).
-4. ❌ **Doors/windows books + BTR trade prefills** (section 4D).
-5. 🟡 **Price campaign remainder (~174 'low' rows)** (section 4E) — sweep by
+3. ❌ **Doors/windows books + BTR trade prefills** (section 4D) — engine keys in
+   doors-windows-engine.ts; same resolver pattern.
+4. 🟡 **Price campaign remainder (~174 'low' rows)** (section 4E) — sweep by
    region; EG/SA paint in English sources, TR via Trendyol.
-6. ❌ **Structural methodology profiles** (section 4F) — the long arc;
+5. ❌ **Structural methodology profiles** (section 4F) — the long arc;
    research-heavy, do after the price trades.
+6. ✅ **Electrical cable/conduit books** (section 4C) — ALL 20 MARKETS COMPLETE
+   (20/20 markets, 220 manual-confidence rows live in migrations 20261013210000–20261013270000).
 
 ---
 
@@ -578,7 +579,7 @@ Key commits (newest last): `af1bdeea` role-fallback disclosure ·
 `350e2f1f` 6-page market pricing · `9de911d2` rebar US/DE/IN ·
 `51bbfedc` EG rebar · `9d3b6512` AU rebar indicative + confidence-aware
 provenance · `b3f12d40` plumbing US/DE · `6f34d349` GB pipes ·
-`0ee2ea40` GB drainage (GB complete) · US drainage + AT pipes · `e12ba27a` identity sweep rebased onto remote structural work · `6c82cadc` AI adapter repair + wallfinishing data fixes + type gate 0 (latest).
+`0ee2ea40` GB drainage (GB complete) · US drainage + AT pipes · `e12ba27a` identity sweep rebased onto remote structural work · `6c82cadc` AI adapter repair + wallfinishing data fixes + type gate 0 · `2e55788` electrical NG/CA/AU/IN · `146eeb52` electrical GH/KE/ZA · `76eb3df6` electrical FR/BR/SA/AE · `4ce1fe6b` electrical IT/MX/JP · `6d691099` electrical CN/ID/KR (all 20 markets complete, latest).
 
 ---
 
@@ -634,16 +635,19 @@ provenance · `b3f12d40` plumbing US/DE · `6f34d349` GB pipes ·
   cold/hot are seeded from Hornbach.at MLC composite (€4.00/m) — same lead
   may exist on hornbach.de for DE.
 
-### C. Electrical books (US, GB, DE first)
+### C. Electrical books (COMPLETE — all 20 markets)
 
-- Read `src/lib/estimation/electrical-engine.ts` for exact slugs/units first
-  (cable, conduit, junction boxes, breakers; likely per-metre and per-piece).
-- Add `resolveMarketElectrical` mirroring the plumbing resolver; wire
-  ElectricalEstimator exactly like PlumbingEstimator (overlay + provenance
-  panel + `[marketCode]` effect deps — see `git show b3f12d40` for the diff).
-- Voltage/standard differences (110V vs 230V, NEC vs IEC): price only, and
-  name the market's standard honestly (e.g. "NM-B 14/2 (US)"). No methodology
-  claims beyond what the engine already does.
+- **Status**: ✅ All 20 markets completed across batches 8 through 14 (migrations `20261013210000` through `20261013270000`):
+  - US & GB (batch 8, migration `20261013210000`)
+  - DE (batch 9, migration `20261013220000`)
+  - NG, CA, AU, IN (batch 10, migration `20261013230000`)
+  - GH, KE, ZA (batch 11, migration `20261013240000`)
+  - FR, BR, SA, AE (batch 12, migration `20261013250000`)
+  - IT, MX, JP (batch 13, migration `20261013260000`)
+  - CN, ID, KR (batch 14, migration `20261013270000`)
+- 220 active price rows total (11 material slugs per market) all verified with `scan_confidence='manual'` and full provenance notes.
+- Resolver `resolveMarketElectrical` wired into `ElectricalEstimator.tsx` with market overlays, live currency formatting, and fallback provenance.
+- Electrical profiles unit test suite covers all 20 markets in `src/lib/estimation/__tests__/electrical-profiles.test.ts` (all 20 passed).
 
 ### D. Doors/windows books + BuildToRoof prefills
 
