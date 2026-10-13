@@ -6,6 +6,7 @@
  * prep recommendations, waste-factor display, and a per-room calculator
  * modal trigger.
  */
+import { useMarket } from "@/lib/international/market-context";
 import {
   useCallback,
   useEffect,
@@ -495,6 +496,8 @@ function RoomCard({
   onDelete: () => void;
   onRunCalc: () => void;
 }) {
+  const { market } = useMarket();
+  const currencySymbol = market.currencySymbol || "₦";
   const [expanded, setExpanded] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const RoomIcon = ROOM_TYPE_ICONS[room.room_type] ?? Calculator;
@@ -547,12 +550,12 @@ function RoomCard({
             <span>Waste: {wasteFactor}%</span>
             {room.material_cost > 0 && (
               <span className="font-semibold text-foreground dark:text-primary-foreground">
-                Material: ₦{room.material_cost.toLocaleString()}
+                Material: {currencySymbol}{room.material_cost.toLocaleString()}
               </span>
             )}
             {room.labour_cost > 0 && (
               <span className="font-semibold text-foreground dark:text-primary-foreground">
-                Labour: ₦{room.labour_cost.toLocaleString()}
+                Labour: {currencySymbol}{room.labour_cost.toLocaleString()}
               </span>
             )}
           </div>
@@ -723,7 +726,7 @@ function RoomCard({
                       Material Cost
                     </p>
                     <p className="text-lg font-bold text-foreground dark:text-primary-foreground">
-                      ₦{room.material_cost.toLocaleString()}
+                      {currencySymbol}{room.material_cost.toLocaleString()}
                     </p>
                   </div>
                   <div className="rounded-lg border border-border dark:border-white/5 bg-card dark:bg-card p-3">
@@ -731,7 +734,7 @@ function RoomCard({
                       Labour Cost
                     </p>
                     <p className="text-lg font-bold text-foreground dark:text-primary-foreground">
-                      ₦{room.labour_cost.toLocaleString()}
+                      {currencySymbol}{room.labour_cost.toLocaleString()}
                     </p>
                   </div>
                   <div className="rounded-lg border border-border dark:border-white/5 bg-card dark:bg-card p-3">
@@ -739,7 +742,7 @@ function RoomCard({
                       Room Total
                     </p>
                     <p className="text-lg font-bold text-brand-purple">
-                      ₦{room.room_total_cost.toLocaleString()}
+                      {currencySymbol}{room.room_total_cost.toLocaleString()}
                     </p>
                   </div>
                 </div>

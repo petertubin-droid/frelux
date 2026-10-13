@@ -11,6 +11,7 @@
 
 import { useEffect, useState } from "react";
 import { useSeo, useBreadcrumbJsonLd } from "@/lib/seo";
+import { useMarket } from "@/lib/international/market-context";
 import { track } from "@/lib/analytics";
 import { getSafeError } from "@/lib/safeError";
 import Container from "@/components/ui/Container";
@@ -24,6 +25,7 @@ import type { LabourRate, EstimationCalcRule } from "@/types/estimation";
 import AdSlot from "@/components/ui/AdSlot";
 
 export default function LabourEstimator() {
+  const { market } = useMarket();
   useBreadcrumbJsonLd([
     { name: "Calculators", path: "/calculators" },
     { name: "Labour & Crew Estimator", path: "/labour-estimator" },
@@ -84,6 +86,10 @@ export default function LabourEstimator() {
             {loadError}
           </div>
         )}
+
+        <div className="rounded-lg border border-border/60 bg-muted/30 px-3.5 py-2.5 text-xs text-muted-foreground">
+          <span>Active Market: <strong className="text-foreground">{market.countryName} ({market.marketCode})</strong>. Productivity rates represent benchmark output per worker-day from verifiable industry references and apply across crew sizes. Site-specific efficiency and local working conditions adjust the effective output.</span>
+        </div>
 
         <div className="rounded-lg border border-border bg-card p-4 dark:border-white/5">
           {rates.length === 0 ? (

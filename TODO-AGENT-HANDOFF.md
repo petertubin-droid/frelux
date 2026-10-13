@@ -159,6 +159,18 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
         verified), KE (machine-cut Ndarugo 9x9 stones — verified).
         ALL 20 mandate markets now have profiled methodologies with
         sources; generic unverified fallback only for non-mandate codes.
+  - [x] UI currency leaks & market context remediation (P1/P2 UI sweep):
+        - BuildToRoofEstimator: binding wire cost now uses formatCurrency()
+          reflecting the active market rather than hardcoded Naira.
+        - AdvancedCalculator: integrated useMarket(); dynamic currency symbol
+          and code applied across AI analysis prompts, Q&A prompts,
+          cost adjustment inputs/summaries, PDF export HTML, and saved
+          estimate currency metadata.
+        - RoomBuilder: integrated useMarket(); dynamic currency symbol replaces
+          all 5 hardcoded Naira currency labels on material, labour, and
+          total room costs.
+        - LabourEstimator: integrated useMarket(); renders active market
+          context banner clarifying benchmark worker-day productivity.
 
 ## 1. CONTEXT (read first)
 

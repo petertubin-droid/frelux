@@ -20,6 +20,7 @@ import { supabase } from "@/lib/supabase";
 import type { AdvancedEstimateData } from "@/types";
 import { PremiumFeatureGate } from "@/components/premium/PremiumFeatureGate";
 import { useAuth } from "@/lib/auth";
+import { useMarket } from "@/lib/international/market-context";
 import { Button } from "@/components/ui/shadcn/button";
 
 interface Props {
@@ -41,6 +42,9 @@ export function AdvancedCalculator({
   contextSummary,
   clientHash,
 }: Props) {
+  const { market } = useMarket();
+  const currencySymbol = market.currencySymbol || "₦";
+  const currencyCode = market.currencyCode || "NGN";
   const [tab, setTab] = useState<Tab>("ai");
   const [savedEstimates, setSavedEstimates] = useState<
     {
@@ -95,7 +99,7 @@ Analysis of the cost structure, highlighting where money is being spent.
 ## Risk Assessment
 Flag any unrealistic values, potential issues, or things to verify on site.
 
-Use ₦ (Naira) for all currency. Be specific with numbers. Keep it practical and concise.`;
+Use ${currencySymbol} (${currencyCode}) for all currency. Be specific with numbers. Keep it practical and concise.`;
       const { data } = await supabase.functions.invoke<{
         response?: string;
         error?: string;
@@ -109,7 +113,7 @@ Use ₦ (Naira) for all currency. Be specific with numbers. Keep it practical an
       setAiBreakdown("Unable to reach the AI assistant. Please try again.");
     }
     setAiBreakdownLoading(false);
-  }, [contextSummary]);
+  }, [contextSummary, currencySymbol, currencyCode]);
 
   useEffect(() => {
     fetchAiBreakdown();
@@ -152,7 +156,7 @@ Use ₦ (Naira) for all currency. Be specific with numbers. Keep it practical an
         costAdjust,
       } as unknown as Record<string, unknown>,
       totalCost: 0,
-      currency: "NGN",
+      currency: currencyCode,
     });
     if (error) {
       setSaveStatus(`Error: ${error}`);
@@ -203,6 +207,7 @@ Use ₦ (Naira) for all currency. Be specific with numbers. Keep it practical an
       contextSummary,
       aiBreakdown,
       costAdjust,
+      currencySymbol,
     );
     win.document.write(html);
     win.document.close();
@@ -222,8 +227,8 @@ Here are the current calculator results:
 ${contextSummary}
 
 Cost adjustments applied:
-- Labour: ₦${formatNumber(costAdjust.labourCost)}
-- Transport: ₦${formatNumber(costAdjust.transportCost)}
+- Labour: ${currencySymbol}${formatNumber(costAdjust.labourCost)}
+- Transport: ${currencySymbol}${formatNumber(costAdjust.transportCost)}
 - Waste: ${costAdjust.wastePercentage}%
 - Markup: ${costAdjust.markupPercentage}%
 - Profit: ${costAdjust.profitPercentage}%
@@ -231,7 +236,7 @@ Cost adjustments applied:
 
 Question: ${aiQuestion}
 
-Give a concise, practical answer with specific numbers and recommendations. Use ₦ for currency.`;
+Give a concise, practical answer with specific numbers and recommendations. Use ${currencySymbol} for currency.`;
       const { data } = await supabase.functions.invoke<{
         response?: string;
         error?: string;
@@ -256,9 +261,9 @@ Give a concise, practical answer with specific numbers and recommendations. Use 
 Current results:
 ${contextSummary}
 
-Cost adjustments: Labour ₦${formatNumber(costAdjust.labourCost)}, Transport ₦${formatNumber(costAdjust.transportCost)}, Waste ${costAdjust.wastePercentage}%, Markup ${costAdjust.markupPercentage}%, Tax ${costAdjust.taxPercentage}%
+Cost adjustments: Labour ${currencySymbol}${formatNumber(costAdjust.labourCost)}, Transport ${currencySymbol}${formatNumber(costAdjust.transportCost)}, Waste ${costAdjust.wastePercentage}%, Markup ${costAdjust.markupPercentage}%, Tax ${costAdjust.taxPercentage}%
 
-Also flag any unrealistic values or potential issues. Use ₦ for currency. Be specific and practical.`;
+Also flag any unrealistic values or potential issues. Use ${currencySymbol} for currency. Be specific and practical.`;
       const { data } = await supabase.functions.invoke<{
         response?: string;
         error?: string;
@@ -349,6 +354,7 @@ Also flag any unrealistic values or potential issues. Use ₦ for currency. Be s
               setPdfGateOpen={setPdfGateOpen}
               setPdfUnlocked={setPdfUnlocked}
               onExportPDF={handleExportPDF}
+              currencySymbol={currencySymbol}
             />
           )}
           {tab === "ai" && (
@@ -516,6 +522,7 @@ function CostsTab({
   setPdfGateOpen,
   setPdfUnlocked,
   onExportPDF,
+  currencySymbol = "₦",
 }: {
   costAdjust: {
     labourCost: number;
@@ -530,6 +537,7 @@ function CostsTab({
   setPdfGateOpen: (open: boolean) => void;
   setPdfUnlocked: (unlocked: boolean) => void;
   onExportPDF: () => void;
+  currencySymbol?: string;
 }) {
   const transport = costAdjust.transportCost;
   const subtotal = transport + costAdjust.labourCost;
@@ -554,12 +562,12 @@ function CostsTab({
 
       <div className="grid gap-4 grid-cols-2">
         <NumField
-          label="Labour cost (₦)"
+          label={`Labour cost (${currencySymbol})`}
           value={costAdjust.labourCost}
           onChange={(v) => update("labourCost", v)}
         />
         <NumField
-          label="Transport cost (₦)"
+          label={`Transport cost (${currencySymbol})`}
           value={costAdjust.transportCost}
           onChange={(v) => update("transportCost", v)}
         />
@@ -618,30 +626,30 @@ function CostsTab({
           <>
             <SummaryRow
               label="Labour"
-              value={formatCurrency(costAdjust.labourCost)}
+              value={formatCurrency(costAdjust.labourCost, currencySymbol)}
             />
             <SummaryRow
               label="Transport"
-              value={formatCurrency(costAdjust.transportCost)}
+              value={formatCurrency(costAdjust.transportCost, currencySymbol)}
             />
             <SummaryRow
               label={`Markup (${costAdjust.markupPercentage}%)`}
-              value={formatCurrency(markupAmount)}
+              value={formatCurrency(markupAmount, currencySymbol)}
             />
             <SummaryRow
               label={`Profit (${costAdjust.profitPercentage}%)`}
-              value={formatCurrency(profitAmount)}
+              value={formatCurrency(profitAmount, currencySymbol)}
             />
             <SummaryRow
               label={`Tax/VAT (${costAdjust.taxPercentage}%)`}
-              value={formatCurrency(taxAmount)}
+              value={formatCurrency(taxAmount, currencySymbol)}
             />
             <div className="flex items-center justify-between border-t border-border pt-2">
               <span className="font-bold text-foreground dark:text-primary-foreground">
                 Additional Costs
               </span>
               <span className="text-lg font-bold text-foreground dark:text-primary-foreground">
-                {formatCurrency(grandTotal)}
+                {formatCurrency(grandTotal, currencySymbol)}
               </span>
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
@@ -927,6 +935,7 @@ function generateAiQuotationHTML(
     profitPercentage: number;
     taxPercentage: number;
   },
+  currencySymbol = "₦",
 ): string {
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${toolLabel} AI Analysis</title>
 <style>
@@ -946,8 +955,8 @@ body{font-family:Arial,sans-serif;max-width:800px;margin:0 auto;padding:40px;col
 ${aiBreakdown ? `<div class="section"><h2>AI Analysis</h2><p>${aiBreakdown.replace(/</g, "&lt;")}</p></div>` : ""}
 <div class="costs">
 <h2>Cost Adjustments</h2>
-<div><span>Labour</span><span>₦${formatNumber(costAdjust.labourCost)}</span></div>
-<div><span>Transport</span><span>₦${formatNumber(costAdjust.transportCost)}</span></div>
+<div><span>Labour</span><span>${currencySymbol}${formatNumber(costAdjust.labourCost)}</span></div>
+<div><span>Transport</span><span>${currencySymbol}${formatNumber(costAdjust.transportCost)}</span></div>
 <div><span>Waste</span><span>${costAdjust.wastePercentage}%</span></div>
 <div><span>Markup</span><span>${costAdjust.markupPercentage}%</span></div>
 <div><span>Profit</span><span>${costAdjust.profitPercentage}%</span></div>

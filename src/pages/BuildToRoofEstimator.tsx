@@ -2689,8 +2689,10 @@ function EstimateResult({
             </div>
             <p className="mt-3 text-xs text-muted-foreground">
               Binding wire:{" "}
-              {result.reinforcement_breakdown.binding_wire_kg.toFixed(1)} kg (₦
-              {result.reinforcement_breakdown.binding_wire_cost.toLocaleString()}
+              {result.reinforcement_breakdown.binding_wire_kg.toFixed(1)} kg (
+              {formatCurrency(
+                result.reinforcement_breakdown.binding_wire_cost,
+              )}
               )
             </p>
           </div>
