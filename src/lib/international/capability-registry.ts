@@ -61,7 +61,30 @@ export type CanonicalEngineId =
   | "conversational_estimator"
   | "count_vision"
   | "defect_diagnosis"
-  | "surface_assessment";
+  | "surface_assessment"
+  // Costing / commercial / workflow engines (source-audit reconciliation 2026-10-13)
+  | "regional_cost"
+  | "cash_flow"
+  | "contractor_credit"
+  | "circular_reuse"
+  | "embodied_carbon"
+  | "estimate_refresh"
+  | "maintenance"
+  | "price_forecast"
+  | "warranty_dispute"
+  // Structure & external works
+  | "fence"
+  // Measurement, intelligence & platform engines (source-audit reconciliation)
+  | "roof_geometry"
+  | "roof_plan_scanner"
+  | "space_measurement"
+  | "measurement_confidence"
+  | "measurement_explanation"
+  | "quotation_generator"
+  | "offline_field"
+  | "learning_engine"
+  | "price_validator"
+  | "market_crawler";
 
 /** Portability classification of an engine. */
 export type EnginePortability =
@@ -538,6 +561,233 @@ export const ENGINE_CAPABILITIES: readonly EngineCapability[] = [
     verifiedMarkets: FINISHING_VERIFIED_MARKETS,
     evidence: "Surface condition assessment; independent of pricing.",
     unverifiedReason: "Market-independent assessment feature.",
+  },
+
+  // ---- Source-audit reconciliation 2026-10-13 ----
+  // These 20 engines exist as real source modules and were recorded in the
+  // comprehensive_engine_inventory (54 engines) but were missing from this
+  // canonical registry (34). They are implemented and NG-tested; non-NG
+  // support is NOT claimed until per-market currency, tax, typology, unit
+  // and price-basis evidence is verified (see TODO-AGENT-HANDOFF P0).
+  {
+    id: "regional_cost",
+    name: "Regional Cost Engine",
+    category: "costing",
+    deterministic: true,
+    portability: "market_method",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/estimation/regional-cost-engine.ts; NG market book verified.",
+    unverifiedReason:
+      "Market price book, labour rates and price provenance for this market are not yet verified.",
+  },
+  {
+    id: "cash_flow",
+    name: "Cash Flow & Financial Forecasting Engine",
+    category: "costing",
+    deterministic: true,
+    portability: "market_method",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/estimation/cash-flow-engine.ts; NG currency flow verified.",
+    unverifiedReason:
+      "Local currency, tax configuration and payment-structure defaults for this market are not yet verified.",
+  },
+  {
+    id: "contractor_credit",
+    name: "Contractor Credit Engine",
+    category: "costing",
+    deterministic: true,
+    portability: "market_method",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/estimation/contractor-credit-engine.ts; NG verified.",
+    unverifiedReason:
+      "Local credit terms, currency and commercial conventions for this market are not yet verified.",
+  },
+  {
+    id: "circular_reuse",
+    name: "Circular Reuse Engine",
+    category: "costing",
+    deterministic: true,
+    portability: "market_method",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/estimation/circular-reuse-engine.ts; NG verified.",
+    unverifiedReason:
+      "Local salvage values, reuse norms and disposal costs for this market are not yet verified.",
+  },
+  {
+    id: "embodied_carbon",
+    name: "Embodied Carbon Engine",
+    category: "costing",
+    deterministic: true,
+    portability: "market_method",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/estimation/embodied-carbon-engine.ts; NG material factors verified.",
+    unverifiedReason:
+      "Market-specific emissions factors and local material supply chains are not yet verified.",
+  },
+  {
+    id: "estimate_refresh",
+    name: "Estimate Refresh Engine",
+    category: "costing",
+    deterministic: true,
+    portability: "market_method",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/estimation/estimate-refresh-engine.ts; NG verified.",
+    unverifiedReason:
+      "Market price history and refresh sources for this market are not yet verified.",
+  },
+  {
+    id: "maintenance",
+    name: "Maintenance & Warranty Engine",
+    category: "costing",
+    deterministic: true,
+    portability: "market_method",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/estimation/maintenance-engine.ts; NG verified.",
+    unverifiedReason:
+      "Local climate exposure, trade rates and maintenance norms for this market are not yet verified.",
+  },
+  {
+    id: "price_forecast",
+    name: "Price Forecast Engine",
+    category: "costing",
+    deterministic: true,
+    portability: "market_method",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/estimation/price-forecast-engine.ts; NG price history verified.",
+    unverifiedReason:
+      "Sufficient verified local price history does not exist for this market yet.",
+  },
+  {
+    id: "warranty_dispute",
+    name: "Warranty & Dispute Engine",
+    category: "costing",
+    deterministic: true,
+    portability: "market_method",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/estimation/warranty-dispute-engine.ts; NG verified.",
+    unverifiedReason:
+      "Local warranty periods and dispute resolution norms for this market are not yet verified.",
+  },
+  {
+    id: "fence",
+    name: "Fencing & External Works Engine",
+    category: "structure",
+    deterministic: true,
+    portability: "market_method",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/measurement/fence-engine.ts; NG fence typology verified.",
+    unverifiedReason:
+      "Local fencing typologies, footing rules and material books for this market are not yet verified.",
+  },
+  {
+    id: "roof_geometry",
+    name: "Roof Geometry Engine",
+    category: "structure",
+    deterministic: true,
+    portability: "portable",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/roof/geometry-engine.ts; NG pitch/section geometry verified.",
+    unverifiedReason:
+      "Local pitch conventions and metric/imperial regression cases for this market are not yet verified.",
+  },
+  {
+    id: "roof_plan_scanner",
+    name: "Roof Plan Scanner",
+    category: "ai",
+    deterministic: false,
+    portability: "portable",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/roof/plan-scanner.ts; NG plan extraction verified.",
+    unverifiedReason:
+      "Section-model accuracy has not been regression-tested on plans in this market yet.",
+  },
+  {
+    id: "space_measurement",
+    name: "Space Measurement Engine",
+    category: "structure",
+    deterministic: true,
+    portability: "portable",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/measurement/space-engine.ts; NG room/space takeoffs verified.",
+    unverifiedReason:
+      "Metric/imperial equivalence and local measurement conventions are not yet regression-tested.",
+  },
+  {
+    id: "measurement_confidence",
+    name: "Measurement Confidence Engine",
+    category: "ai",
+    deterministic: true,
+    portability: "portable",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/measurement/confidence-engine.ts; NG confidence scoring verified.",
+    unverifiedReason:
+      "Confidence thresholds have not been calibrated against market measurement data yet.",
+  },
+  {
+    id: "measurement_explanation",
+    name: "Measurement Explanation Engine",
+    category: "ai",
+    deterministic: true,
+    portability: "portable",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/measurement/explanation-engine.ts; NG explanations verified.",
+    unverifiedReason:
+      "Explanation wording has not been localized or verified for this market yet.",
+  },
+  {
+    id: "quotation_generator",
+    name: "Quotation Generator",
+    category: "costing",
+    deterministic: true,
+    portability: "market_method",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/measurement/quotation-engine.ts; NG quotation format verified.",
+    unverifiedReason:
+      "Local quotation formats, tax lines and currency presentation are not yet verified.",
+  },
+  {
+    id: "offline_field",
+    name: "Offline Field Engine",
+    category: "costing",
+    deterministic: true,
+    portability: "portable",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/estimation/offline-field-engine.ts; NG offline flow verified.",
+    unverifiedReason:
+      "Offline caches for this market have not been verified yet.",
+  },
+  {
+    id: "learning_engine",
+    name: "Learning & Predictive Intelligence Engine",
+    category: "ai",
+    deterministic: false,
+    portability: "market_method",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/learning/; NG prediction models verified.",
+    unverifiedReason:
+      "Prediction models are trained on NG data; local models do not exist yet.",
+  },
+  {
+    id: "price_validator",
+    name: "Price Validator",
+    category: "ai",
+    deterministic: true,
+    portability: "market_method",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/estimation/price-scanner.ts; NG validation rules verified.",
+    unverifiedReason:
+      "Validation bands and anomaly thresholds for this market are not yet verified.",
+  },
+  {
+    id: "market_crawler",
+    name: "Market Crawler & Price Scanning Engine",
+    category: "ai",
+    deterministic: true,
+    portability: "market_method",
+    verifiedMarkets: ["NG"],
+    evidence: "src/lib/market-intelligence/; NG supplier scanning verified.",
+    unverifiedReason:
+      "No verified local supplier sources are configured for this market yet.",
   },
 ];
 

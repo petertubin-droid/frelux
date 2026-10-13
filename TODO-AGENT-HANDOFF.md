@@ -7,9 +7,72 @@ commands in section 6, then work top-to-bottom through section 4 (REMAINING
 WORK). Update this file with every batch you complete — including flipping
 status markers and adding the commit hash.
 
-Last updated: 2026-10-13 (plumbing fittings seed EXECUTED 11/11 manual rows; comprehensive_engine_inventory migration applied)
+Last updated: 2026-10-13 (MASTER MANDATE: complete global internationalization mapped below; P0 registry reconciliation done: 54 engines)
 
 ---
+
+## 0. MASTER MANDATE — COMPLETE GLOBAL INTERNATIONALIZATION (active)
+
+Owner directive (2026-10-13): internationalize EVERY real engine, calculator,
+estimator, sub-engine, AI pathway and calculation in the repo across all 20
+markets (NG US GB CA AU DE IN GH KE ZA JP FR BR SA AE CN ID MX KR IT).
+Not just the 34 registry entries. Discover, audit, classify, test,
+internationalize. No subagents. No duplicate architecture. Preserve correct
+NG methods. Browse the web to fill prices, market finishing types, standards.
+
+### Phase plan (owner's P0-P4)
+
+- **P0 Discovery & correctness** — IN PROGRESS
+  - [x] Source audit: 375 non-test TS modules in src/lib; 54 real engines
+        identified (comprehensive_engine_inventory, DB table, 20261014150000).
+        Engine count 54 is separate from module count 375; several engines
+        share files (engines-expanded.ts) and some modules are presentation
+        layers, not engines.
+  - [x] Registry reconciliation: canonical registry had 34; the 20 missing
+        (regional_cost cash_flow contractor_credit circular_reuse
+        embodied_carbon estimate_refresh maintenance price_forecast
+        warranty_dispute fence roof_geometry roof_plan_scanner
+        space_measurement measurement_confidence measurement_explanation
+        quotation_generator offline_field learning_engine price_validator
+        market_crawler) added to capability-registry.ts 2026-10-13, NG-verified
+        only, honest unverifiedReason each; DB CHECK widened to 54
+        (20261014160000, EXECUTED live).
+  - [x] Honest-status fix: 386 boilerplate "verified" matrix rows downgraded
+        to requires_verification (no per-market evidence); fence matrix rows
+        kept (differentiated evidence).
+  - [ ] Full dependency graph (which pages/APIs/AI call each engine) — NEXT.
+        Key dirs: src/lib/estimation (37 modules), measurement (31),
+        roof (18), wallfinishing, engineering (4: foundation-calculator,
+        structural-calculator, sequence-planner, timeline-estimator),
+        ai-foundation (engines-registry.ts routes 4 AI pathways),
+        netlify/functions, learning, market-intelligence, construction-
+        intelligence, copilot-intelligence, plan-vision, predictive-
+        intelligence, project-agent, property-intelligence.
+  - [ ] ai-foundation/engines-registry.ts has only 4 AI engine routes
+        (build_to_roof, roof_geometry, painting_wall_area,
+        tyrolene_partition_area) vs 54 canonical engines — reconcile the
+        AI-to-engine routing map.
+  - [ ] Identify all hardcoded regional assumptions (grep NG naira/metric/
+        typical defaults in engines) — feed P1.
+- **P1 Shared international infrastructure** — contracts, unit conversion,
+  material roles, price provenance, saved-calc reproducibility.
+- **P2 Engine-by-engine implementation** — all families: finishing (A),
+  structural (B), electrical/plumbing (C), costing/commercial (D),
+  AI/measurement/intelligence (E). Workstream 3/4 items below fold into here.
+- **P3 Database, Admin, exports** — capability sync, pricebooks, admin views.
+- **P4 Verification** — full 20-market matrix, regression suite, deployment
+  report. Acceptance: no engine left unexamined; unverifiable things are
+  disclosed, not greenwashed.
+
+### Non-negotiables from the mandate
+
+- Never mark a market supported because a profile/currency/row exists.
+- Never invent prices, formulas, standards, soil/seismic/safety values.
+- Unpriced items stay visibly unpriced; no zero-cost totals.
+- AI never invents quantities/prices — routes to deterministic engines only.
+- Saved estimates must remain reproducible (engine+profile versions stored).
+- Admin interface must show truthful capability/verification state.
+- Distinguish preliminary estimation from engineering design compliance.
 
 ## 1. CONTEXT (read first)
 
