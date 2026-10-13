@@ -384,6 +384,10 @@ const ClientEstimateView = lazy(() => import("@/pages/ClientEstimateView"));
 const ClientEstimateEditor = lazy(() => import("@/pages/ClientEstimateEditor"));
 const MaterialPriceTracker = lazy(() => import("@/pages/MaterialPriceTracker"));
 const BoqGenerator = lazy(() => import("@/pages/BoqGenerator"));
+const GlobalMarkets = lazy(() => import("@/pages/GlobalMarkets"));
+const AdminPricePipeline = lazy(
+  () => import("@/pages/admin/AdminPricePipeline"),
+);
 const MaintenancePlanner = lazy(() => import("@/pages/MaintenancePlanner"));
 const RegionalCostIndex = lazy(() => import("@/pages/RegionalCostIndex"));
 const CarbonFootprint = lazy(() => import("@/pages/CarbonFootprint"));
@@ -1195,6 +1199,7 @@ export default function App() {
                       element={<MaintenancePlanner />}
                     />
                     <Route path="/boq-generator" element={<BoqGenerator />} />
+                    <Route path="/global-markets" element={<GlobalMarkets />} />
                     <Route
                       path="/regional-cost-index"
                       element={<RegionalCostIndex />}
@@ -1555,6 +1560,10 @@ export default function App() {
                     <Route
                       path="market-intelligence"
                       element={<AdminMarketIntelligence />}
+                    />
+                    <Route
+                      path="price-pipeline"
+                      element={<AdminPricePipeline />}
                     />
                     <Route
                       path="engine-config"

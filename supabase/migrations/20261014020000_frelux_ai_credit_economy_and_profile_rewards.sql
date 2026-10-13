@@ -30,7 +30,7 @@ SET credit_cost = 10,
 UPDATE public.rewarded_ad_credit_config
 SET credits_per_ad = 5,
     daily_earn_limit = 50, -- Allows up to 10 ads (50 credits) per day
-    min_watch_seconds = 15,
+    min_interval_seconds = 15,
     cooldown_seconds = 30
 WHERE id = 1;
 

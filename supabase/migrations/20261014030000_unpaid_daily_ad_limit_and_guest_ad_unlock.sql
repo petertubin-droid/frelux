@@ -7,7 +7,7 @@
 UPDATE public.rewarded_ad_credit_config
 SET credits_per_ad = 5,
     daily_earn_limit = 4,
-    min_watch_seconds = 15,
+    min_interval_seconds = 15,
     cooldown_seconds = 30
 WHERE id = 1;
 

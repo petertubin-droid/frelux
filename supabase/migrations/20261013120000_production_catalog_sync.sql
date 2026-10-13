@@ -435,7 +435,7 @@ ON CONFLICT (slug) DO NOTHING;
 
 -- ── 2. estimation_prices (375 active rows; ref_id resolved by slug) ──
 INSERT INTO estimation_prices (price_type, ref_id, price, currency, effective_date, notes, is_active, price_source, last_scanned_at, scan_confidence, scan_source, market, created_at, updated_at)
-SELECT v.price_type, m.id, v.price::numeric, v.currency, v.effective_date::date, v.notes, v.is_active, v.price_source, v.last_scanned_at, v.scan_confidence, v.scan_source, v.market, v.created_at::timestamptz, v.updated_at::timestamptz
+SELECT v.price_type, m.id, v.price::numeric, v.currency, v.effective_date::date, v.notes, v.is_active, v.price_source, v.last_scanned_at::timestamptz, v.scan_confidence, v.scan_source, v.market, v.created_at::timestamptz, v.updated_at::timestamptz
 FROM (VALUES
 ('material', 'gen-sandpaper-sheet', 1, 'AED', '2026-10-11', 'Indicative 2026 retail band; admin-adjustable.', true, 'Indicative 2026 retail band; admin-adjustable', NULL, 'low', NULL, 'AE', '2026-10-10 23:53:20.785071+00', '2026-10-10 23:53:20.785071+00', 'gen-sandpaper-sheet'),
 ('material', 'ae-waterproof-20l', 130, 'AED', '2026-10-11', 'Indicative 2026 retail band; admin-adjustable.', true, 'Indicative 2026 retail band; admin-adjustable', NULL, 'low', NULL, 'AE', '2026-10-10 23:53:20.785071+00', '2026-10-10 23:53:20.785071+00', 'ae-waterproof-20l'),
@@ -957,7 +957,7 @@ INSERT INTO screeding_system_config (system_type, display_name, description, cov
 ('putty', 'Sıva alçısı perdah (TR)', 'TR interior wall prep: regional equivalent of putty screeding before painting. Indicative coverage; verify per product datasheet.', '35', 'm²', 2, 10, 'TRY', '₺', 'Perdah alçısı 35 kg', '1', 'bag', '140', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'ceil', true, 5, false, NULL, NULL, NULL, NULL, 'TR'),
 ('putty', 'Joint Compound Skim Coat', 'US surface prep: a thin skim coat of all-purpose joint compound levels interior walls before painting (the US equivalent of putty screeding).', '46', 'm²', 2, 10, 'USD', '$', 'Sheetrock All-Purpose Joint Compound (4.5 gal pail)', '1', 'pail', NULL, NULL, NULL, NULL, '0', NULL, NULL, NULL, '0', 'ceil', true, 2, false, NULL, NULL, NULL, NULL, 'US'),
 ('putty', 'RhinoLite skim (ZA)', 'South African surface prep: RhinoLite gypsum skim over plastered brick — 2.5 kg/m² at 2.5 mm; 16 m² per 40 kg bag (official Gyproc datasheet; 40 kg is the SA retail bag).', '16', 'm²', 2, 10, 'ZAR', 'R', 'Gyproc RhinoLite skim plaster (40 kg bag)', '1', 'bag', '185', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'ceil', true, 5, false, NULL, NULL, NULL, NULL, 'ZA')
-ON CONFLICT (market, system_type) DO UPDATE SET
+ON CONFLICT (market, system_type) WHERE is_active DO UPDATE SET
   display_name = EXCLUDED.display_name,
   description = EXCLUDED.description,
   coverage_area_m2 = EXCLUDED.coverage_area_m2,
@@ -1045,8 +1045,8 @@ WHERE NOT EXISTS (SELECT 1 FROM price_scan_sources s WHERE s.market=v.market AND
 
 -- ── 6. pop_workflows (2 rows; repo phase12 seeds same slugs with own ids) ──
 INSERT INTO pop_workflows (id, slug, name, description, workflow_type, included_categories, default_waste_percentage, is_active, sort_order, created_at, updated_at) VALUES
-('5e9ab569-7571-4c46-a112-3cd1b86d66b3', 'nigeria', 'Nigeria POP Ceiling', 'Traditional Nigerian POP ceiling using POP cement, fibre, and surface board', 'nigeria', '["primary", "finishing", "decorative", "labour"]'::jsonb, 10, true, 1, '2026-08-18 02:03:05.848763+00', '2026-08-18 02:03:05.848763+00'),
-('e3488725-f676-4ca5-a7b1-b3218230c9c4', 'international', 'International POP Ceiling', 'Gypsum board ceiling with metal framework and suspension system', 'international', '["primary", "framework", "ceiling_boards", "fasteners", "finishing", "decorative", "labour"]'::jsonb, 10, true, 2, '2026-08-18 02:03:05.848763+00', '2026-08-18 02:03:05.848763+00')
+('5e9ab569-7571-4c46-a112-3cd1b86d66b3', 'nigeria', 'Nigeria POP Ceiling', 'Traditional Nigerian POP ceiling using POP cement, fibre, and surface board', 'nigeria', ARRAY['primary','finishing','decorative','labour'], 10, true, 1, '2026-08-18 02:03:05.848763+00', '2026-08-18 02:03:05.848763+00'),
+('e3488725-f676-4ca5-a7b1-b3218230c9c4', 'international', 'International POP Ceiling', 'Gypsum board ceiling with metal framework and suspension system', 'international', ARRAY['primary','framework','ceiling_boards','fasteners','finishing','decorative','labour'], 10, true, 2, '2026-08-18 02:03:05.848763+00', '2026-08-18 02:03:05.848763+00')
 ON CONFLICT (slug) DO NOTHING;
 
 -- ── 7. pop_materials (242 rows: 52 NG + 190 international across 38 markets) ──

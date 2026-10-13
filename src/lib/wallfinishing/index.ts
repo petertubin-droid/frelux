@@ -10,7 +10,6 @@
 // =========================================================
 
 import type {
-  CalcStep,
   LayerCostResult,
   LayerQuantityResult,
   ResolvedLabourRate,
@@ -129,6 +128,9 @@ export async function estimateWallFinishingProject(
             qty.baseQuantity,
             layerTemplate.mix,
           );
+          // mix-component material costs are attributed to the parent
+          // layer line so rows, exports and project totals reconcile
+          let parentMaterialCost = 0;
           for (const c of comps) {
             const compPrice = await ctx.resolvePrice(c.component.role);
             const compQty = round(
@@ -153,6 +155,7 @@ export async function estimateWallFinishingProject(
             if (cost.materialCost !== null) {
               materialsTotal += cost.materialCost;
               wallCost += cost.materialCost;
+              parentMaterialCost += cost.materialCost;
             }
           }
           // labour for a volumetric layer is on the layer, not per component
@@ -172,7 +175,7 @@ export async function estimateWallFinishingProject(
           }
           wallLayers.push({
             ...qty,
-            materialCost: null,
+            materialCost: round(parentMaterialCost, 2),
             labourCost: labourOnly.labourCost,
             labourSteps: [...qty.steps, ...labourOnly.labourSteps],
             currency: ctx.currency,
