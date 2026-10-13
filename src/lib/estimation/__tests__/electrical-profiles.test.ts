@@ -189,6 +189,42 @@ describe("Electrical Market Profiles", () => {
     expect(jp.conduitRequired).toBe(false);
   });
 
+  it("resolves CN profile with GB 50054, ZR-BV single-core in PVC conduit, and 86-type boxes", () => {
+    const cn = getElectricalProfile("CN");
+    expect(cn.marketCode).toBe("CN");
+    expect(cn.runDistanceUnit).toBe("m");
+    expect(cn.measurementSystem).toBe("metric");
+    expect(cn.standardsRef).toContain("GB 50054");
+    expect(cn.primaryWiringMethod).toContain("ZR-BV");
+    expect(cn.lightingConductorSize).toContain("1.5 mm²");
+    expect(cn.socketConductorSize).toContain("2.5 mm²");
+    expect(cn.conduitRequired).toBe(true);
+  });
+
+  it("resolves ID profile with PUIL 2011 / SNI 0225, NYM cable, and inbow boxes", () => {
+    const id = getElectricalProfile("ID");
+    expect(id.marketCode).toBe("ID");
+    expect(id.runDistanceUnit).toBe("m");
+    expect(id.measurementSystem).toBe("metric");
+    expect(id.standardsRef).toContain("PUIL 2011");
+    expect(id.primaryWiringMethod).toContain("NYM");
+    expect(id.lightingConductorSize).toContain("1.5 mm²");
+    expect(id.socketConductorSize).toContain("2.5 mm²");
+    expect(id.conduitRequired).toBe(true);
+  });
+
+  it("resolves KR profile with KEC 2021 / KS C IEC 60364, halogen-free HFIX wire, and CD conduit", () => {
+    const kr = getElectricalProfile("KR");
+    expect(kr.marketCode).toBe("KR");
+    expect(kr.runDistanceUnit).toBe("m");
+    expect(kr.measurementSystem).toBe("metric");
+    expect(kr.standardsRef).toContain("KEC 2021");
+    expect(kr.primaryWiringMethod).toContain("HFIX");
+    expect(kr.lightingConductorSize).toContain("1.5 mm²");
+    expect(kr.socketConductorSize).toContain("2.5 mm²");
+    expect(kr.conduitRequired).toBe(true);
+  });
+
   it("resolves all 20 markets to valid non-null electrical profiles", () => {
     const markets = [
       "NG",

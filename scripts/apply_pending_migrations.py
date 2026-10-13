@@ -39,6 +39,7 @@ PENDING = [
     "20261013240000_electrical_books_gh_ke_za.sql",
     "20261013250000_electrical_books_fr_br_sa_ae.sql",
     "20261013260000_electrical_books_it_mx_jp.sql",
+      "20261013270000_electrical_books_cn_id_kr.sql",
 ]
 
 

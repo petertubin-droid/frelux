@@ -471,7 +471,31 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
       breaker Panasonic compact breaker SH 2P1E 20A BSH2201 ¥1,428.00 each; switch Panasonic Cosmo Wide 21
       switch set WT5001 ¥580.00 each; socket Panasonic Cosmo Wide 21 duplex grounding outlet WTF1502WK ¥680.00 each;
       DB Tempearl/Panasonic 8-circuit residential DB with ELB ¥17,580.00 each.
-      REMAINING ELECTRICAL BOOKS (3 of 20): CN ID KR.
+- [x] P2 batch 14: ELECTRICAL BOOKS CN, ID, KR (2026-10-13,
+      migration 20261013270000): 33 rows (11 per market), all manual.
+      ALL 20 ELECTRICAL MARKETS ARE NOW COMPLETE: US, GB, DE, NG, CA, AU, IN, GH, KE, ZA, FR, BR, SA, AE, IT, MX, JP, CN, ID, KR (20 of 20 markets, 220 active rows total).
+      CN (GB 50054 / GB 50303 methodology, live merchant listings):
+      lighting Huaxin / Zhujiang ZR-BV 1x1.5mm2 100m 88.80-91.60 ¥ = 0.90 CNY/m; socket Xinxing / Zhujiang ZR-BV 1x2.5mm2 100m 145.00 ¥ = 1.45 CNY/m;
+      dedicated Huaxin ZR-BV 1x4.0mm2 100m 223.60 ¥ = 2.24 CNY/m; earth ZR-BV 1x2.5mm2 yellow/green 100m 145.00 ¥ = 1.45 CNY/m;
+      feeder Huaxin / Zhujiang ZR-BV 1x16mm2 / YJV 3x10/16mm2 14.80 CNY/m; conduit LESSO (联塑) PVC-U cold-bend A-pipe Ø20mm 2.85m 7.05 ¥ = 2.47 CNY/m;
+      junction LESSO / TEP 86-type PVC flush box (86型暗盒) 2.50 CNY each; breaker Chint (正泰) NXB-63 / DZ47 1P 16A/20A MCB 6kA 8.50 CNY each;
+      switch Bull (公牛) G12 86-type 1-gang 1-way switch (一开单控) 7.20 CNY each; socket Bull (公牛) G12 10A 5-hole combination socket (五孔插座) 7.20 CNY each;
+      DB Chint (正泰) PZ30-8 / PZ30-12 flush residential distribution box body 75.00 CNY each.
+      ID (PUIL 2011 / SNI 0225 methodology, Mitra10 / Tokopedia / GudangMaterial live listings):
+      lighting Kabel Eterna NYM 2x1.5mm2 50m IDR 666,000 = IDR 13,320/m; socket Kabel Supreme NYM 3x2.5mm2 50m IDR 1,370,000 = IDR 27,400/m;
+      dedicated Kabel Supreme NYM 3x4.0mm2 IDR 42,000/m; earth Kabel NYA 1x2.5mm2 tembaga hijau/kuning IDR 4,800/m;
+      feeder Kabel NYY 4x6 / 4x10mm2 PLN intake cable IDR 68,000/m; conduit Pipa conduit Boss / Clipsal PVC Ø20mm 2.9m/3m IDR 16,800 = IDR 5,800/m;
+      junction Inbow Doos mangkok tanam Nero / Broco IDR 2,800 each; breaker MCB Schneider Domae 1P 10A/16A/20A 4.5kA IDR 75,000 each;
+      switch Saklar engkel 1-gang inbow Broco Galleo / Gracio IDR 21,000 each; socket Stop kontak arde Schuko 16A Broco Galleo G151 IDR 22,500 each;
+      DB Box MCB Schneider Domae DOMH12108F 8 modul inbow IDR 185,000 each.
+      KR (KEC 2021 / KS C IEC 60364 methodology, Enuri / Danawa / Seoul P&C / Sangdo live listings):
+      lighting LS Cable / Gaon HFIX 1x1.5mm2 100m 51,000 KRW = 510 KRW/m; socket LS Cable / Gaon HFIX 1x2.5mm2 100m 65,350 KRW = 654 KRW/m;
+      dedicated LS Cable HFIX 1x4.0mm2 100m 105,000 KRW = 1,050 KRW/m; earth LS Cable HFIX 1x2.5mm2 green 100m 65,350 KRW = 654 KRW/m;
+      feeder 600V F-CV 3-core 6/10mm2 8,500 KRW/m; conduit Seoul P&C flame-retardant CD flexible conduit 16mm 100m 27,500 KRW = 275 KRW/m;
+      junction Standard 1-gang synthetic resin / steel flush box (1개용 매입박스) 850 KRW each; breaker LS ELECTRIC 32GRhN 2P 20A 30mA ELB 8,770 KRW each;
+      switch Winners / Jinheung 1-gang wide flush switch 2,200 KRW each; socket Winners / Jinheung 2-gang grounded outlet 16A 250V (MCP2-22008) 2,450 KRW each;
+      DB Sangdo / Jinheung residential distribution board 5-6 circuit (주택용 세대분전함) 22,600 KRW each.
+      REMAINING ELECTRICAL BOOKS: None! All 20 markets complete.
 
 ## 1. CONTEXT (read first)
 
@@ -519,8 +543,8 @@ Work this list in order. Each item's status is current as of the last update.
    to disclosed-NG.
 2. 🟡 **DE + GB rebar books** (section 4A) — need merchant-level anchors; all
    leads and gotchas documented.
-3. ❌ **Electrical cable/conduit books** (section 4C) — resolver pattern is
-   proven; needs price verification only.
+3. ✅ **Electrical cable/conduit books** (section 4C) — ALL 20 MARKETS COMPLETE
+   (20/20 markets, 220 manual-confidence rows live in migrations).
 4. ❌ **Doors/windows books + BTR trade prefills** (section 4D).
 5. 🟡 **Price campaign remainder (~174 'low' rows)** (section 4E) — sweep by
    region; EG/SA paint in English sources, TR via Trendyol.
@@ -542,7 +566,7 @@ Work this list in order. Each item's status is current as of the last update.
 | 7   | Rebar books                                          | 🟡     | ✅ US, DE, IN, EG verified; 🟡 AU indicative ('low', needs quote); ❌ GB, CA, rest                                                                                                                                                                                                                    |
 | 8   | Plumbing pipe books                                  | 🟡     | ✅ GB all 4 keys, US all 4, DE waste/drainage, AT cold/hot; ❌ DE cold/hot (PP-R)                                                                                                                                                                                                                     |
 | 8b  | Plumbing fittings/valves                             | 🟡     | Resolver walks PLUMBING_FITTING_KEYS (per-piece). US 5/5 + GB 4/5 + AT 2/5 LIVE in DB (seed migration executed 2026-10-13; 11/11 rows scan_confidence='manual', verified via resolver-shaped lookup). ❌ gb-union, at-elbow/union/valve, all DE                                                       |
-| 9   | Electrical books                                     | 🟡     | US, GB, DE, NG, CA, AU, IN, GH, KE, ZA, FR, BR, SA, AE, IT, MX, JP (17/20) complete; 3 markets remaining (CN, ID, KR)                                                                                                                                                                                 |
+| 9   | Electrical books                                     | ✅     | All 20 markets complete (US, GB, DE, NG, CA, AU, IN, GH, KE, ZA, FR, BR, SA, AE, IT, MX, JP, CN, ID, KR; 220 active rows)                                                                                                                                                                                 |
 | 10  | Doors/windows books                                  | ❌     | Not started                                                                                                                                                                                                                                                                                           |
 | 11  | Price campaign remainder                             | 🟡     | ~174 'low' rows to verify                                                                                                                                                                                                                                                                             |
 | 12  | Structural methodology profiles                      | ❌     | Research arc (DIN/BS/ACI foundation, block modules)                                                                                                                                                                                                                                                   |
