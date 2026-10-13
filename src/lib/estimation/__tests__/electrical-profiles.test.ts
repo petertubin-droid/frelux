@@ -106,6 +106,53 @@ describe("Electrical Market Profiles", () => {
     expect(za.conduitRequired).toBe(false);
   });
 
+  it("resolves FR profile with NF C 15-100, H07V-U in ICTA conduit, and Consuel attestation requirement", () => {
+    const fr = getElectricalProfile("FR");
+    expect(fr.marketCode).toBe("FR");
+    expect(fr.runDistanceUnit).toBe("m");
+    expect(fr.measurementSystem).toBe("metric");
+    expect(fr.standardsRef).toContain("NF C 15-100");
+    expect(fr.primaryWiringMethod).toContain("ICTA");
+    expect(fr.lightingConductorSize).toContain("1.5 mm²");
+    expect(fr.socketConductorSize).toContain("2.5 mm²");
+    expect(fr.conduitRequired).toBe(true);
+  });
+
+  it("resolves BR profile with ABNT NBR 5410, flexible 750V cable in corrugated conduit, and NBR 14136", () => {
+    const br = getElectricalProfile("BR");
+    expect(br.marketCode).toBe("BR");
+    expect(br.runDistanceUnit).toBe("m");
+    expect(br.measurementSystem).toBe("metric");
+    expect(br.standardsRef).toContain("NBR 5410");
+    expect(br.primaryWiringMethod).toContain("Cabo flexível");
+    expect(br.lightingConductorSize).toContain("1.5 mm²");
+    expect(br.socketConductorSize).toContain("2.5 mm²");
+    expect(br.conduitRequired).toBe(true);
+  });
+
+  it("resolves SA profile with SBC 401 standards and derated 2.5mm²/4.0mm² conductors", () => {
+    const sa = getElectricalProfile("SA");
+    expect(sa.marketCode).toBe("SA");
+    expect(sa.runDistanceUnit).toBe("m");
+    expect(sa.measurementSystem).toBe("metric");
+    expect(sa.standardsRef).toContain("SBC 401");
+    expect(sa.lightingConductorSize).toContain("2.5 mm²");
+    expect(sa.socketConductorSize).toContain("4.0 mm²");
+    expect(sa.conduitRequired).toBe(true);
+  });
+
+  it("resolves AE profile with DEWA/BS 7671 standards, LSZH single-core, and 4.0mm² socket circuits", () => {
+    const ae = getElectricalProfile("AE");
+    expect(ae.marketCode).toBe("AE");
+    expect(ae.runDistanceUnit).toBe("m");
+    expect(ae.measurementSystem).toBe("metric");
+    expect(ae.standardsRef).toContain("DEWA");
+    expect(ae.primaryWiringMethod).toContain("LSZH");
+    expect(ae.lightingConductorSize).toContain("2.5 mm²");
+    expect(ae.socketConductorSize).toContain("4.0 mm²");
+    expect(ae.conduitRequired).toBe(true);
+  });
+
   it("resolves all 20 markets to valid non-null electrical profiles", () => {
     const markets = [
       "NG",

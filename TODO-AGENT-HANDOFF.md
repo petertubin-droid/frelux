@@ -392,9 +392,63 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
       MCB INR 200.00 each; switch Anchor Penta Modular 6A 20-pack INR 919 =
       45.95 each; socket Anchor Roma 6/16A combi socket 10-pack INR 2,193 =
       219.30 each; DB Anchor UNO 6-way SPN distribution board INR 2,434.00 each.
-      REMAINING ELECTRICAL BOOKS (13 of 20): GH KE ZA JP FR BR SA AE CN
-      ID MX KR IT. Next suggested order: GH KE ZA, then FR BR SA AE,
-      then hard markets (JP KR CN ID MX KR IT).
+- [x] P2 batch 11: ELECTRICAL BOOKS GH, KE, ZA (2026-10-13,
+      migration 20261013240000): 33 rows (11 per market), all manual.
+      Electrical books now live for US, GB, DE, NG, CA, AU, IN, GH, KE, ZA (10 of 20 markets).
+      GH (Energy Commission L.I. 2008 methodology, Valmont/Esca Tech live listings):
+      lighting RR 1.5mm2 Cu 100m GH₵ 320.00 = 3.20/m; socket RR 2.5mm2 Cu 100m GH₵ 460.00 = 4.60/m;
+      dedicated RR 4.0mm2 Cu 100m GH₵ 1,150.00 = 11.50/m; earth RR 2.5mm2 Cu 100m GH₵ 460.00 = 4.60/m;
+      feeder Nexans Kabelmetal 16mm2 Cu 100m GH₵ 3,750.00 = 37.50/m; conduit Valmont 20mm x 3m PVC GH₵ 4.83/m;
+      junction Valmont 3x3 PVC pattress box GH₵ 4.50 each; breaker Valmont Focus 1P MCB GH₵ 28.00 each;
+      switch Valmont Focus 1-gang 1-way GH₵ 15.00 each; socket Valmont Focus 13A double socket GH₵ 38.00 each;
+      DB Valmont Focus 12-way consumer unit GH₵ 390.00 each.
+      KE (EPRA / KS IEC 60364 methodology, TDK / East Africa Cable / Rapidtech live listings):
+      lighting East Africa Cable 1.5mm2 Cu 100m KES 3,600.00 = 36.00/m; socket East Africa Cable 2.5mm2
+      Cu 90m KES 7,900.00 = 87.78/m; dedicated East Africa Cable 4.0mm2 Cu 100m KES 9,000.00 = 90.00/m;
+      earth East Africa Cable 2.5mm2 Cu 90m KES 7,900.00 = 87.78/m; feeder TDK 16mm2 Cu 100m
+      KES 28,400.00 = 284.00/m; conduit Rapidtech Tronic 20mm x 2.9m PVC KES 68.97/m; junction Winstar
+      single box KES 40.00 each; breaker Randtech 1P 20A MCB KES 270.00 each; switch Tronic 1-gang 1-way
+      KES 95.00 each; socket Hada Windsor 13A twin socket KES 300.00 each; DB Havells 8-way SPN DB KES 4,500.00 each.
+      ZA (SANS 10142-1 methodology, Leroy Merlin SA / Builders Warehouse live listings):
+      lighting Aberdare Surfix 1.5mm2 2C+E 100m R 1,649.00 = 16.49/m; socket Surfix 2.5mm2 2C+E 100m
+      R 2,249.00 = 22.49/m; dedicated 4.0mm2 T&E 10m R 411.00 = 41.10/m; earth Waco 1.5mm2 earth wire R 7.00/m;
+      feeder 16mm2 2C+E armoured cable 25m R 2,499.00 = 99.96/m; conduit 20mm PVC conduit 3m R 34.00 = 11.33/m;
+      junction Crabtree 4x2 PVC box R 14.00 each; breaker CBI 20A 1P MCB R 99.00 each; switch Veti 1-gang
+      1-way switch R 54.00 each; socket Veti double 16A socket R 115.00 each; DB Crabtree 12-way surface DB R 349.00 each.
+- [x] P2 batch 12: ELECTRICAL BOOKS FR, BR, SA, AE (2026-10-13,
+      migration 20261013250000): 44 rows (11 per market), all manual.
+      Electrical books now live for US, GB, DE, NG, CA, AU, IN, GH, KE, ZA, FR, BR, SA, AE (14 of 20 markets).
+      FR (NF C 15-100 methodology, Brico Dépôt / Leroy Merlin France live listings):
+      lighting Nexans H07V-U 1.5mm2 100m 21.60 € = 0.22/m; socket H07V-U 2.5mm2 100m 32.90 € = 0.33/m;
+      dedicated H07V-R 6.0mm2 25m 35.90 € = 1.44/m (32A plaque de cuisson); earth H07V-U 2.5mm2 100m 32.90 € = 0.33/m;
+      feeder H07V-R 16mm2 3.20 €/m; conduit ICTA Ø20mm 100m 30.50 € = 0.31/m; junction boîte placo Ø67mm 0.59 € each;
+      breaker Schneider Domae 1P+N 16A/20A 8.99 € each; switch Schneider Ovalis 10A 3.29 € each;
+      socket Legrand Dooxie 2P+T 16A affleurante 4.59 € each; DB tableau 2 rangées 26 modules 48.90 € each.
+      BR (ABNT NBR 5410 methodology, Leroy Merlin Brasil / Cobrecom / Megatron live listings):
+      lighting Cobrecom 1.5mm2 flex 100m R$ 162,90 = 1.63/m; socket Megatron 2.5mm2 flex 100m R$ 229,90 = 2.30/m;
+      dedicated Megatron 6.0mm2 flex 100m R$ 599,90 = 6.00/m (chuveiro elétrico); earth Cobrecom 2.5mm2 flex 100m
+      R$ 229,90 = 2.30/m; feeder Cobrecom 16mm2 flex 100m R$ 1.540,00 = 15.40/m; conduit Tramontina DN25 50m
+      R$ 84,99 = 1.70/m; junction Tigre Tigreflex 4x2 amarela R$ 3,69 each; breaker Steck 1P 20A DIN R$ 9,90 each;
+      switch Tramontina Liz 1-gang R$ 11,90 each; socket Tramontina Liz 10A 2P+T NBR 14136 R$ 15,90 each;
+      DB Tigre 12/16 disjuntores embutir R$ 108,90 each.
+      SA (SBC 401 / SASO methodology, Alfanar / Boussah live listings):
+      lighting Alfanar 2.5mm2 Cu 100m 271 SAR = 2.71/m; socket Alfanar 4.0mm2 Cu 100m 418 SAR = 4.18/m;
+      dedicated Alfanar 6.0mm2 Cu 100m 639 SAR = 6.39/m; earth Alfanar 2.5mm2 Cu 100m 271 SAR = 2.71/m;
+      feeder Riyadh Cables / Alfanar 4C 16mm2 Cu 35.00 SAR/m; conduit 20/25mm EMT / PVC 19.55 SAR/3m = 6.52/m;
+      junction Alfanar GI back box 7x7 cm 2.70 SAR each; breaker Alfanar 1P 20A/32A MCB 10kA 19.00 SAR each;
+      switch Alfanar Alfa 1-gang 10A 7.45 SAR each; socket Alfanar Massa 13A 3-pin SASO 2203 24.30 SAR each;
+      DB Alfanar 12-way 100A consumer unit 465.75 SAR each.
+      AE (DEWA / BS 7671 methodology, Ducab / Schneider / SupplyVan live listings):
+      lighting Ducab 2.5mm2 Cu 100m 113 AED = 1.13/m; socket Ducab 4.0mm2 Cu 100m 175 AED = 1.75/m;
+      dedicated Ducab 6.0mm2 Cu 100m 260 AED = 2.60/m; earth Ducab 2.5mm2 Cu 100m 113 AED = 1.13/m;
+      feeder Ducab 4C 16mm2 cable 28.00 AED/m; conduit Decoduct 25mm PVC 3m 5.00 AED = 1.67/m;
+      junction York GI back box 3x3 2.00 AED each; breaker Schneider Easy9 1P 20A 16.82 AED each;
+      switch Schneider Vivace 1-gang 6.00 AED each; socket Schneider Vivace 13A switched socket 16.00 AED each;
+      DB Gewiss / Schneider / Hager 8-12 way consumer unit 337.00 AED each.
+      REMAINING ELECTRICAL BOOKS (6 of 20): JP CN ID MX KR IT.
+      Next suggested order: IT (CEI 64-8 / Bticino / Gewiss in EUR), MX (NOM-001-SEDE / Condumex / IUSA in MXN),
+      then East Asia / SE Asia: JP (JIS C 3307 / VVF / Panasonic in JPY), CN (GB 50303 / BV / Chint / Delixi in CNY),
+      KR (KEC / Hfix / LS Cable in KRW), ID (PUIL 2011 / Supreme / Broco in IDR).
 
 ## 1. CONTEXT (read first)
 
@@ -465,7 +519,7 @@ Work this list in order. Each item's status is current as of the last update.
 | 7   | Rebar books                                          | 🟡     | ✅ US, DE, IN, EG verified; 🟡 AU indicative ('low', needs quote); ❌ GB, CA, rest                                                                                                                                                                                                                    |
 | 8   | Plumbing pipe books                                  | 🟡     | ✅ GB all 4 keys, US all 4, DE waste/drainage, AT cold/hot; ❌ DE cold/hot (PP-R)                                                                                                                                                                                                                     |
 | 8b  | Plumbing fittings/valves                             | 🟡     | Resolver walks PLUMBING_FITTING_KEYS (per-piece). US 5/5 + GB 4/5 + AT 2/5 LIVE in DB (seed migration executed 2026-10-13; 11/11 rows scan_confidence='manual', verified via resolver-shaped lookup). ❌ gb-union, at-elbow/union/valve, all DE                                                       |
-| 9   | Electrical books                                     | 🟡     | US, GB, DE, NG, CA, AU, IN, GH, KE, ZA (10/20) complete; 10 markets remaining                                                                                                                                                                                                                         |
+| 9   | Electrical books                                     | 🟡     | US, GB, DE, NG, CA, AU, IN, GH, KE, ZA, FR, BR, SA, AE (14/20) complete; 6 markets remaining                                                                                                                                                                                                          |
 | 10  | Doors/windows books                                  | ❌     | Not started                                                                                                                                                                                                                                                                                           |
 | 11  | Price campaign remainder                             | 🟡     | ~174 'low' rows to verify                                                                                                                                                                                                                                                                             |
 | 12  | Structural methodology profiles                      | ❌     | Research arc (DIN/BS/ACI foundation, block modules)                                                                                                                                                                                                                                                   |
