@@ -54,4 +54,67 @@ AND market_code <> 'NG'
 AND status = 'verified'
 AND notes LIKE 'Fully internationalized and verified%';
 
+
+
+-- Mirror the 20 new canonical engines into the DB registry (FK target for
+-- engine_capability_verified). Names/categories/portability match
+-- capability-registry.ts exactly.
+INSERT INTO engine_capabilities (engine_id, name, category, deterministic, portability, evidence)
+VALUES
+  ('regional_cost', 'Regional Cost Engine', 'costing', true, 'market_method', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('cash_flow', 'Cash Flow & Financial Forecasting Engine', 'costing', true, 'market_method', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('contractor_credit', 'Contractor Credit Engine', 'costing', true, 'market_method', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('circular_reuse', 'Circular Reuse Engine', 'costing', true, 'market_method', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('embodied_carbon', 'Embodied Carbon Engine', 'costing', true, 'market_method', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('estimate_refresh', 'Estimate Refresh Engine', 'costing', true, 'market_method', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('maintenance', 'Maintenance & Warranty Engine', 'costing', true, 'market_method', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('price_forecast', 'Price Forecast Engine', 'costing', true, 'market_method', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('warranty_dispute', 'Warranty & Dispute Engine', 'costing', true, 'market_method', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('fence', 'Fencing & External Works Engine', 'structure', true, 'market_method', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('roof_geometry', 'Roof Geometry Engine', 'structure', true, 'portable', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('roof_plan_scanner', 'Roof Plan Scanner', 'ai', false, 'portable', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('space_measurement', 'Space Measurement Engine', 'structure', true, 'portable', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('measurement_confidence', 'Measurement Confidence Engine', 'ai', true, 'portable', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('measurement_explanation', 'Measurement Explanation Engine', 'ai', true, 'portable', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('quotation_generator', 'Quotation Generator', 'costing', true, 'market_method', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('offline_field', 'Offline Field Engine', 'costing', true, 'portable', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('learning_engine', 'Learning & Predictive Intelligence Engine', 'ai', false, 'market_method', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('price_validator', 'Price Validator', 'ai', true, 'market_method', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)'),
+  ('market_crawler', 'Market Crawler & Price Scanning Engine', 'ai', true, 'market_method', 'Source-audit reconciliation 2026-10-13 (NG implemented and tested; non-NG requires verification)')
+ON CONFLICT (engine_id) DO NOTHING;
+
+-- Seed the 20 newly canonical engines as NG-verified (implemented and
+-- NG-tested; matches capability-registry.ts verifiedMarkets).
+INSERT INTO engine_capability_verified (engine_id, market_code) VALUES
+  ('regional_cost', 'NG'),
+  ('cash_flow', 'NG'),
+  ('contractor_credit', 'NG'),
+  ('circular_reuse', 'NG'),
+  ('embodied_carbon', 'NG'),
+  ('estimate_refresh', 'NG'),
+  ('maintenance', 'NG'),
+  ('price_forecast', 'NG'),
+  ('warranty_dispute', 'NG'),
+  ('fence', 'NG'),
+  ('roof_geometry', 'NG'),
+  ('roof_plan_scanner', 'NG'),
+  ('space_measurement', 'NG'),
+  ('measurement_confidence', 'NG'),
+  ('measurement_explanation', 'NG'),
+  ('quotation_generator', 'NG'),
+  ('offline_field', 'NG'),
+  ('learning_engine', 'NG'),
+  ('price_validator', 'NG'),
+  ('market_crawler', 'NG')
+ON CONFLICT (engine_id, market_code) DO NOTHING;
+
+
+-- Seed availability config rows from the (now updated) verified pairs, same
+-- idempotent pattern as 20261014130000. This makes the 20 new engines
+-- resolvable as enabled for NG (their only verified market).
+INSERT INTO market_calculator_config (market_code, calculator_type, is_available, config, labels)
+SELECT v.market_code, v.engine_id, true, '{}'::jsonb, '{}'::jsonb
+FROM engine_capability_verified v
+ON CONFLICT (market_code, calculator_type) DO NOTHING;
+
 -- Verification: expect 54 types allowed and 19x19 rows downgraded.

@@ -9,11 +9,19 @@ import {
   defaultSeedAvailability,
 } from "../capability-registry";
 
-const MIGRATION_PATH = resolve(
-  __dirname,
-  "../../../../supabase/migrations/20261014130000_engine_capability_registry.sql",
-);
-const MIGRATION_SQL = readFileSync(MIGRATION_PATH, "utf8");
+const MIGRATION_DIR = resolve(__dirname, "../../../../supabase/migrations");
+// The canonical constraint/seed is the UNION of the original registry
+// migration and the 2026-10-13 reconciliation migration (54 engines).
+const MIGRATION_SQL =
+  readFileSync(
+    MIGRATION_DIR + "/20261014130000_engine_capability_registry.sql",
+    "utf8",
+  ) +
+  "\n" +
+  readFileSync(
+    MIGRATION_DIR + "/20261014160000_reconcile_engine_registry.sql",
+    "utf8",
+  );
 
 describe("capability-registry", () => {
   it("covers the 20 mandate markets", () => {
@@ -136,11 +144,14 @@ describe("capability-registry", () => {
 
 describe("migration 20261014130000 stays in sync with the registry", () => {
   it("the CHECK constraint allows exactly the canonical engine ids", () => {
-    const check = MIGRATION_SQL.match(
-      /CHECK \(calculator_type IN \(([\s\S]*?)\)\);/,
+    // The constraint may be (re)defined across several migrations; the
+    // canonical set is the union of every CHECK list in the combined SQL.
+    const checks = MIGRATION_SQL.matchAll(
+      /CHECK \(calculator_type (?:IN \(|= ANY \(ARRAY\[)([\s\S]*?)\)?\]?\)?\);/g,
     );
-    expect(check).not.toBeNull();
-    const ids = Array.from(check![1].matchAll(/'([a-z_]+)'/g)).map((m) => m[1]);
+    const ids = Array.from(checks)
+      .flatMap((c) => Array.from(c[1].matchAll(/'([a-z_]+)'/g)).map((m) => m[1]));
+    expect(ids.length).toBeGreaterThan(0);
     expect(new Set(ids).size).toBe(ENGINE_CAPABILITIES.length);
     for (const e of ENGINE_CAPABILITIES) {
       expect(ids).toContain(e.id);
@@ -148,13 +159,14 @@ describe("migration 20261014130000 stays in sync with the registry", () => {
   });
 
   it("the verified-pairs seed matches the registry exactly", () => {
-    const seed = MIGRATION_SQL.match(
-      /INSERT INTO engine_capability_verified \(engine_id, market_code\) VALUES\n([\s\S]*?)\nON CONFLICT/,
+    const seeds = MIGRATION_SQL.matchAll(
+      /INSERT INTO engine_capability_verified \(engine_id, market_code\) VALUES\n([\s\S]*?)\nON CONFLICT/g,
     );
-    expect(seed).not.toBeNull();
     const pairs = new Set(
-      Array.from(seed![1].matchAll(/'([a-z_]+)', '([A-Z]{2})'\)/g)).map(
-        (m) => `${m[1]}:${m[2]}`,
+      Array.from(seeds).flatMap((seed) =>
+        Array.from(seed[1].matchAll(/'([a-z_]+)',\s*'([A-Z]{2})'\)/g)).map(
+          (m) => `${m[1]}:${m[2]}`,
+        ),
       ),
     );
     const registryPairs = new Set(
