@@ -40,14 +40,14 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
   - [x] Honest-status fix: 386 boilerplate "verified" matrix rows downgraded
         to requires_verification (no per-market evidence); fence matrix rows
         kept (differentiated evidence).
-  - [ ] Full dependency graph (which pages/APIs/AI call each engine) — NEXT.
-        Key dirs: src/lib/estimation (37 modules), measurement (31),
-        roof (18), wallfinishing, engineering (4: foundation-calculator,
-        structural-calculator, sequence-planner, timeline-estimator),
-        ai-foundation (engines-registry.ts routes 4 AI pathways),
-        netlify/functions, learning, market-intelligence, construction-
-        intelligence, copilot-intelligence, plan-vision, predictive-
-        intelligence, project-agent, property-intelligence.
+  - [x] Full dependency graph generated: docs/engine-dependency-graph.md
+        (all 54 engines mapped to importers + key page/component consumers;
+        zero orphan engines; barrel-consumed engines matched by symbol
+        fallback: fence/confidence/explanation/plan-scanner are consumed
+        via src/lib/measurement + roof barrels, not direct page imports).
+        Key dirs audited: src/lib/estimation (37 modules), measurement (31),
+        roof (18), wallfinishing, engineering (4), netlify/functions,
+        learning, market-intelligence, plan-vision, predictive-intelligence.
   - [ ] ai-foundation/engines-registry.ts has only 4 AI engine routes
         (build_to_roof, roof_geometry, painting_wall_area,
         tyrolene_partition_area) vs 54 canonical engines — reconcile the
