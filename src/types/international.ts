@@ -16,19 +16,45 @@ export type MarketStatus =
 export type MeasurementSystem = "metric" | "imperial" | "mixed";
 
 export type MarketCalculatorType =
+  // Finishing
   | "painting"
   | "screeding"
   | "pop_ceiling"
   | "tile"
+  | "wall_finishing"
   | "tyrolene"
   | "grafitex"
+  | "mineral_stone"
+  | "stucco"
+  | "flooring"
+  | "waterproofing"
+  // Structure & envelope
   | "block"
   | "roofing"
-  | "cost_estimator"
+  | "build_to_roof"
   | "foundation"
   | "structural"
-  | "build_to_roof"
-  | "sequence";
+  | "reinforcement"
+  | "doors_windows"
+  // MEP
+  | "electrical"
+  | "plumbing"
+  | "generator"
+  | "solar_pv"
+  | "heat_comfort"
+  // Costing & workflow
+  | "cost_estimator"
+  | "labour_estimator"
+  | "margin_calculator"
+  | "boq_generator"
+  | "sequence"
+  // AI-assisted
+  | "ai_image_estimator"
+  | "ai_color_assistant"
+  | "conversational_estimator"
+  | "count_vision"
+  | "defect_diagnosis"
+  | "surface_assessment";
 
 export interface MarketProfile {
   id: string;
@@ -239,15 +265,36 @@ export const CALCULATOR_TYPE_LABELS: Record<MarketCalculatorType, string> = {
   screeding: "Screeding",
   pop_ceiling: "POP Ceiling",
   tile: "Tiling",
+  wall_finishing: "Wall Finishing",
   tyrolene: "Tyrolene",
   grafitex: "Grafitex",
+  mineral_stone: "Mineral Stone",
+  stucco: "Stucco",
+  flooring: "Flooring",
+  waterproofing: "Waterproofing",
   block: "Block",
   roofing: "Roofing",
-  cost_estimator: "Cost Estimator",
+  build_to_roof: "Build to Roof",
   foundation: "Foundation",
   structural: "Structural",
-  build_to_roof: "Build to Roof",
+  reinforcement: "Reinforcement",
+  doors_windows: "Doors & Windows",
+  electrical: "Electrical",
+  plumbing: "Plumbing",
+  generator: "Generator",
+  solar_pv: "Solar PV",
+  heat_comfort: "Heat Comfort",
+  cost_estimator: "Cost Estimator",
+  labour_estimator: "Labour Estimator",
+  margin_calculator: "Margin Calculator",
+  boq_generator: "BOQ Generator",
   sequence: "Construction Sequence",
+  ai_image_estimator: "AI Photo Estimator",
+  ai_color_assistant: "Smart Color Assistant",
+  conversational_estimator: "Conversational Estimator",
+  count_vision: "Count Vision",
+  defect_diagnosis: "Defect Diagnosis",
+  surface_assessment: "Surface Assessment",
 };
 
 export const PRICE_TYPE_LABELS: Record<MaterialRulePriceType, string> = {

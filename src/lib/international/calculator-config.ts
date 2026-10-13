@@ -4,6 +4,18 @@
  * Resolves which calculators are available in each market.
  * Provides market-specific calculator settings and label overrides.
  *
+ * TRUTHFUL AVAILABILITY (20-market mandate):
+ * The canonical engine registry (`capability-registry.ts`) is the base
+ * truth about which engines exist and which markets they are verified
+ * for. Database rows in `market_calculator_config` can DISABLE a
+ * capability or attach market config/labels, but can never manufacture
+ * a capability the engine does not have: an `is_available = true` row
+ * for an unverified market+engine yields `requires_verification`,
+ * not `enabled`.
+ *
+ * Missing rows are never treated as evidence of anything — they resolve
+ * to `not_configured` (with the registry deciding what that means).
+ *
  * Existing calculators that don't use this service are unaffected.
  */
 
@@ -12,6 +24,13 @@ import type {
   MarketCalculatorConfig,
   MarketCalculatorType,
 } from "@/types/international";
+import {
+  ENGINE_CAPABILITIES,
+  resolveCapability,
+  type AvailabilityResolution,
+} from "./capability-registry";
+
+export type { AvailabilityState } from "./capability-registry";
 
 // ============================================================
 // CACHE
@@ -50,25 +69,43 @@ export async function fetchCalculatorConfigs(
 }
 
 // ============================================================
-// CHECK IF CALCULATOR IS AVAILABLE
+// TRUTHFUL AVAILABILITY
 // ============================================================
 
 /**
+ * Resolve the full availability state of an engine in a market.
+ * Returns the state (enabled / disabled / not_configured /
+ * not_implemented / requires_verification), a user-safe reason, and
+ * the canonical engine record. Returns null for unknown engines.
+ *
+ * This is the authoritative resolution shared by UI, exports and
+ * admin surfaces.
+ */
+export async function resolveCalculatorAvailability(
+  marketCode: string,
+  calculatorType: MarketCalculatorType,
+): Promise<AvailabilityResolution | null> {
+  const configs = await fetchCalculatorConfigs(marketCode);
+  const row = configs.get(calculatorType) ?? null;
+  return resolveCapability(calculatorType, marketCode, row);
+}
+
+/**
  * Check if a specific calculator is available in a market.
- * For Nigeria, all calculators are available (backward compatible).
- * For unsupported/coming_soon markets, no calculators are available
- * unless explicitly configured.
+ * Backward-compatible boolean gate: true only when the truthful state
+ * is "enabled" (verified + not admin-disabled). NG is no longer
+ * special-cased at runtime; it is simply verified for the widest set
+ * of engines in the registry, preserving existing Nigerian behaviour.
  */
 export async function isCalculatorAvailable(
   marketCode: string,
   calculatorType: MarketCalculatorType,
 ): Promise<boolean> {
-  // Nigeria: all calculators are available (preserves existing behavior)
-  if (marketCode === "NG") return true;
-
-  const configs = await fetchCalculatorConfigs(marketCode);
-  const config = configs.get(calculatorType);
-  return config?.is_available ?? false;
+  const resolution = await resolveCalculatorAvailability(
+    marketCode,
+    calculatorType,
+  );
+  return resolution?.state === "enabled";
 }
 
 // ============================================================
@@ -106,29 +143,27 @@ export async function getCalculatorLabel(
 // ============================================================
 
 /**
- * Get the list of calculators available in a market.
+ * The canonical list of engines known to the registry, for tooling
+ * that needs to enumerate everything that actually exists.
+ */
+export function listCanonicalEngines(): readonly MarketCalculatorType[] {
+  return ENGINE_CAPABILITIES.map((e) => e.id as MarketCalculatorType);
+}
+
+/**
+ * Get the list of calculators genuinely available (state "enabled")
+ * in a market.
  */
 export async function getAvailableCalculators(
   marketCode: string,
 ): Promise<MarketCalculatorType[]> {
-  // Nigeria: all calculators (backward compatible)
-  if (marketCode === "NG") {
-    return [
-      "painting",
-      "screeding",
-      "pop_ceiling",
-      "tile",
-      "tyrolene",
-      "grafitex",
-      "cost_estimator",
-    ];
-  }
-
   const configs = await fetchCalculatorConfigs(marketCode);
   const result: MarketCalculatorType[] = [];
-  for (const [type, config] of configs.entries()) {
-    if (config.is_available) {
-      result.push(type as MarketCalculatorType);
+  for (const engine of ENGINE_CAPABILITIES) {
+    const row = configs.get(engine.id) ?? null;
+    const resolution = resolveCapability(engine.id, marketCode, row);
+    if (resolution?.state === "enabled") {
+      result.push(engine.id as MarketCalculatorType);
     }
   }
   return result;
@@ -138,6 +173,9 @@ export async function getAvailableCalculators(
 // CLEAR CACHE
 // ============================================================
 
+/**
+ * Clear the calculator config cache (e.g. after an admin change).
+ */
 export function clearCalculatorConfigCache(): void {
   configCache.clear();
 }
