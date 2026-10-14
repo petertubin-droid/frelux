@@ -118,3 +118,8 @@ This roadmap is for implementation in the existing FRELUX application. It preser
 ## Definition of done
 
 The tax engine, credential verification engine and logistics engine are individually releasable only when their relevant phase acceptance checks pass for a named jurisdiction/provider and are verified in the deployed environment. “All markets operational” requires those gates separately for every enabled market. Until then, retain the existing helpful estimator and manual-review behavior with prominent partial/unverified labels; do not make legal, tax, credential or delivery guarantees.
+
+
+## Additional Product Journey — Save, Share, and Pro Connect
+
+The existing calculator-to-project journey has a separate, evidence-gated Phase 1 backlog: [`docs/phase1-save-share-pro-connect-roadmap.md`](docs/phase1-save-share-pro-connect-roadmap.md). It covers preserving free anonymous calculation, consent-based cloud saves after Google sign-in, privacy-safe revocable live links, and context-aware screeder discovery. The detailed plan records existing foundations, integration gaps, acceptance tests, and explicit non-claims; it does not replace the global operations-engine roadmap above.

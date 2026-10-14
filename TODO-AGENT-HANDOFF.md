@@ -1029,6 +1029,16 @@ md:hidden`) collision: real, identical z and bottom coordinates on mobile.
 
 ---
 
+## I. Phase 1 Save → Share → Pro Connect Journey (PLANNED)
+
+See [`docs/phase1-save-share-pro-connect-roadmap.md`](docs/phase1-save-share-pro-connect-roadmap.md) for this journey’s implementation sequence and acceptance gates, and [`roadmap.md`](roadmap.md) for the broader global-operations engines backlog. Existing foundations include anonymous calculator use/device saves, Google sign-in, calculator-to-contractor-project saves, share-link records/shared routes, and Pro Connect profiles. The remaining work is end-to-end integration and verification, not a claim that these foundations are missing.
+
+- [ ] Keep calculating/exporting free and anonymous; make cloud save an optional sign-in gate that resumes the intended save after Google OAuth. Keep local/device saves clearly distinguished; do not silently upload them.
+- [ ] Enable phone sign-in only after production SMS provider, country coverage, abuse protection, delivery, and redirect configuration are verified. Pro Connect phone confirmation alone is not general app phone authentication.
+- [ ] Reconcile saved calculator records (`contractor_projects`/project calculations) with the existing `/shared/:id` path that reads `user_projects` before shipping “Share Live Project Link.” Build a read-only, least-data public view with owner preview, explicit consent, revocation/expiry, and tested anonymous access; never expose addresses, contacts, private notes or unrelated project records by default.
+- [ ] Add a contextual screeder discovery card only for screeding work and actual trade/service-area matches. Do not hard-code a result count or say “near you,” “vetted,” “verified,” or “available” beyond what current matching evidence supports; ask for an appropriate location when missing and keep project data private.
+- [ ] Verify auth-resume, save-once, owner isolation/RLS, share privacy/revocation, Pro Connect match/empty/stale states, mobile accessibility, migration replay, production build and deployed behavior before marking this journey operational.
+
 ## 3. VERIFICATION COMMANDS & RUNTIME ENVIRONMENT
 
 Before committing any change to the repository, run these exact verification commands:
