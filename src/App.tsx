@@ -553,6 +553,20 @@ export default function App() {
                         </Suspense>
                       }
                     />
+                    {/* Category landing URLs organize the tool library while
+                        preserving every existing calculator URL. */}
+                    <Route
+                      path="/tools"
+                      element={<Navigate to="/construction-tools" replace />}
+                    />
+                    <Route
+                      path="/tools/:category"
+                      element={
+                        <Suspense fallback={<PageLoader />}>
+                          <ConstructionTools />
+                        </Suspense>
+                      }
+                    />
                     {/* Legacy path: every internal link, WhatsApp share and
                         search result pointing at /calculators keeps working. */}
                     <Route

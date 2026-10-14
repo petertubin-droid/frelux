@@ -1,6 +1,11 @@
 import HeroTitle from "@/components/ui/HeroTitle";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import {
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
 import {
   Search,
   ArrowLeft,
@@ -120,30 +125,48 @@ function ToolCard({ tool }: { tool: Tool }) {
 }
 
 export default function ConstructionTools() {
-  useBreadcrumbJsonLd([
-    { name: "Calculators", path: "/calculators" },
-    {
-      name: "Construction Tools: Calculators & Estimators | FRELUX",
-      path: "/construction-tools",
-    },
-  ]);
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { category: categorySlug } = useParams();
+  const routedCategory = TOOL_CATEGORIES.find(
+    (category) => category.id === categorySlug,
+  );
+  const activeCategory = (routedCategory?.id ??
+    searchParams.get("category") ??
+    "all") as ToolCategoryId | "all";
+  const activeCategoryDetails = TOOL_CATEGORIES.find(
+    (category) => category.id === activeCategory,
+  );
   const [query, setQuery] = useState(searchParams.get("q") ?? "");
   const [recent, setRecent] = useState<string[]>([]);
 
+  useBreadcrumbJsonLd([
+    { name: "Construction Tools", path: "/construction-tools" },
+    ...(activeCategoryDetails
+      ? [
+          {
+            name: activeCategoryDetails.label,
+            path: `/tools/${activeCategoryDetails.id}`,
+          },
+        ]
+      : []),
+  ]);
+
   useSeo({
-    title: "Construction Tools: Calculators & Estimators | FRELUX",
-    description:
-      "Every FRELUX construction tool in one place: paint, tiling, screeding, POP, concrete, solar, plumbing, BOQ and more. Search, compare and calculate with verified market prices, with Nigerian price books by default and community prices for markets worldwide.",
-    canonicalPath: "/construction-tools",
+    title: activeCategoryDetails
+      ? `${activeCategoryDetails.label} Tools | FRELUX`
+      : "Construction Tools: Calculators & Estimators | FRELUX",
+    description: activeCategoryDetails
+      ? `${activeCategoryDetails.blurb} Browse the FRELUX ${activeCategoryDetails.label.toLowerCase()} tool collection.`
+      : "Every FRELUX construction tool in one place: paint, tiling, screeding, POP, concrete, solar, plumbing, BOQ and more. Search, compare and calculate with verified market prices, with Nigerian price books by default and community prices for markets worldwide.",
+    canonicalPath: activeCategoryDetails
+      ? `/tools/${activeCategoryDetails.id}`
+      : "/construction-tools",
   });
 
   useEffect(() => {
     setRecent(loadRecent());
   }, []);
-
-  const activeCategory = (searchParams.get("category") ?? "all") as
-    ToolCategoryId | "all";
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -330,8 +353,9 @@ export default function ConstructionTools() {
             onClick={() => {
               const next = new URLSearchParams(searchParams);
               next.delete("category");
-              next.delete("page"); // a new category restarts at section 1
-              setSearchParams(next, { replace: true });
+              next.delete("page");
+              const search = next.toString();
+              navigate(`/construction-tools${search ? `?${search}` : ""}`);
             }}
             className={
               activeCategory === "all"
@@ -354,10 +378,11 @@ export default function ConstructionTools() {
                 aria-selected={active}
                 onClick={() => {
                   const next = new URLSearchParams(searchParams);
-                  next.set("category", cat.id);
+                  next.delete("category");
+                  next.delete("page");
                   if (query) next.set("q", query);
-                  next.delete("page"); // a new category restarts at section 1
-                  setSearchParams(next, { replace: true });
+                  const search = next.toString();
+                  navigate(`/tools/${cat.id}${search ? `?${search}` : ""}`);
                 }}
                 className={
                   active

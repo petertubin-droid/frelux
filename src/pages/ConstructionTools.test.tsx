@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import ConstructionTools from "@/pages/ConstructionTools";
 import {
   CONSTRUCTION_TOOLS,
@@ -34,7 +34,10 @@ function sectionIndicator(): string {
 function renderPage(route = "/construction-tools") {
   return render(
     <MemoryRouter initialEntries={[route]}>
-      <ConstructionTools />
+      <Routes>
+        <Route path="/construction-tools" element={<ConstructionTools />} />
+        <Route path="/tools/:category" element={<ConstructionTools />} />
+      </Routes>
     </MemoryRouter>,
   );
 }
@@ -111,6 +114,17 @@ describe("ConstructionTools", () => {
     expect(await screen.findByText("Solar PV Estimator")).toBeTruthy();
     // A non-matching tool is filtered out of the results view
     expect(screen.queryByText("Tile Calculator")).toBeNull();
+  });
+
+  it("supports categorized /tools routes and marks the matching category", async () => {
+    renderPage("/tools/finishes");
+    expect(await screen.findByText("Paint Calculator")).toBeTruthy();
+    expect(screen.queryByText("Electrical Wiring")).toBeNull();
+    expect(
+      screen
+        .getByRole("tab", { name: /Materials & Finishes/ })
+        .getAttribute("aria-selected"),
+    ).toBe("true");
   });
 
   it("category filter shows only that category's tools", async () => {

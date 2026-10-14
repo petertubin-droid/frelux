@@ -649,8 +649,15 @@ function ProjectCard({
 
       {/* Busy overlay */}
       {busy && (
-        <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-white/70">
-          <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-foreground" />
+        <div
+          role="status"
+          aria-label="Updating project"
+          className="absolute inset-0 flex items-center justify-center rounded-xl bg-background/70"
+        >
+          <div
+            aria-hidden="true"
+            className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-foreground"
+          />
         </div>
       )}
     </div>
