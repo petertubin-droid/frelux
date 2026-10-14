@@ -572,6 +572,15 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** no local public-holiday/site calendar, climate-driven production data, customs data or predictive shipping integration was found.
 - **Changes made:** none. Keep Egypt out of operational localized estimates until the local standards, source-backed materials/prices/tax, qualified workforce checks and season/logistics behavior are implemented, tested and deployed. Next remaining market: **Tanzania (`TZ`)**.
 
+### Tanzania market closeout (priority 24; audit only, 2026-10-14)
+
+- **Operational decision: NOT IMPLEMENTED / NOT VERIFIED.** Tanzania (`TZ`, TZS) appears in the general country selector only. No Tanzania-specific market profile, price-scanner catalog, construction typology, wall/climate method, electrical/plumbing profile or engine-support inventory entry was found in the reviewed sources.
+- **Quantities/standards:** no source-backed Tanzania packaging/coverage or structural/building-code formulas are configured. A country selection does not establish local calculation support; no silent Nigeria fallback.
+- **Pricing/tax:** no Tanzania product/retailer price book, TZS market references, live exchange/rate workflow, or jurisdiction-specific VAT/tax calculation was verified.
+- **Workforce compliance:** no country-specific license, insurance, safety credential or professional registry connection was found.
+- **Timeline/logistics:** no regional climate and work-calendar data, public holidays, customs constraints or predictive logistics support was found.
+- **Changes made:** none. Do not represent Tanzania as operational until independently sourced local standards, quantities, price and tax data, credentials, and calendar/logistics rules are validated and deployed. Next remaining market: **Côte d’Ivoire (`CI`)**.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
