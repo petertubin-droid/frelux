@@ -8,6 +8,7 @@ import {
   CA_REFERENCE_PRICES,
   IN_REFERENCE_PRICES,
   AE_REFERENCE_PRICES,
+  SA_REFERENCE_PRICES,
   JP_REFERENCE_PRICES,
   FR_REFERENCE_PRICES,
   BR_REFERENCE_PRICES,
@@ -176,7 +177,7 @@ describe("estimation/price-scanner US catalog", () => {
 
   it("has reference catalogs only where market-priced references exist", () => {
     for (const [market, catalog] of Object.entries(MARKET_CATALOGS)) {
-      if (market === "AE" || market === "JP" || market === "FR" || market === "BR") {
+      if (market === "AE" || market === "JP" || market === "FR" || market === "BR" || market === "SA") {
         expect(Object.keys(catalog)).toHaveLength(0);
       } else {
         expect(Object.keys(catalog).length).toBeGreaterThan(0);
@@ -215,6 +216,15 @@ describe("estimation/price-scanner US catalog", () => {
     const report = await scanMaterialPrices({}, { market: "JP" });
     expect(report.currency).toBe("JPY");
     expect(report.market_region).toBe("Japan");
+    expect(report.materials_scanned).toBe(0);
+    expect(report.results).toEqual([]);
+  });
+
+  it("Saudi scan never re-labels US retail references as SAR", async () => {
+    expect(SA_REFERENCE_PRICES).toEqual({});
+    const report = await scanMaterialPrices({}, { market: "SA" });
+    expect(report.currency).toBe("SAR");
+    expect(report.market_region).toBe("Saudi Arabia");
     expect(report.materials_scanned).toBe(0);
     expect(report.results).toEqual([]);
   });

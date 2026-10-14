@@ -544,6 +544,16 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** the climate profile only gives broad summer/winter seasons; no public-holiday/site-calendar integration, construction-weather productivity validation, import/customs feed or predictive shipping-delay engine was established.
 - **Changes made for KR:** none. Keep market functionality partial until production role mappings, current source-backed prices, regional standards, tax, workforce and timeline/logistics are validated. Next remaining market: **Saudi Arabia (`SA`)**.
 
+### Saudi Arabia market closeout (priority 21; audit and scanner safety fix, 2026-10-14)
+
+- **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** Saudi Arabia (`SA`) has an active visible metric, SAR, Arabic-language profile and local terminology. No live production status query was made.
+- **Quantities/standards:** Local Saudi Building Code/SASO typology and SBC 401 electrical/SBC 701 plumbing profiles are present; the construction note requires geotechnical investigation for sabkha soils and stamped review by a Saudi Council of Engineers-registered bureau. Inventory shows several finish/door/window calculators and Build-to-Roof not implemented; structural, roofing, foundation and reinforcement remain preliminary/partial.
+- **Pricing/tax:** A dedicated Saudi profile has some local references: an internal 2026-10-13 snapshot reports 8 price rows and 7 role mappings, with MP75 deliberately unmapped, and zero retailer scan sources. Saudi-specific electrical, door/window and plumbing price-book migrations exist; repo evidence does not prove migration application/current live prices or full quantity role coverage. No current live refresh, regional cost index, or Saudi-specific VAT/tax calculation was verified.
+- **Cross-market safety fix:** Price scanner incorrectly mapped `SA` to US reference prices while formatting results as SAR. Replaced the alias with an empty typed Saudi catalog until Saudi references are verified, and added a regression ensuring no USD references appear as SAR. Focused scanner tests: 21 passed; TypeScript and `git diff --check` passed.
+- **Workforce compliance:** no Saudi Council of Engineers/license registry, contractor insurance/safety credential validation, expiry or revocation integration was demonstrated.
+- **Timeline/logistics:** broad hot-desert seasonal heuristics only; no region-specific heat productivity, public-holiday/site calendar, procurement lead-time/customs or predictive international logistics engine was verified.
+- **Remaining operational gate:** confirm deployed mapping/prices, complete source-backed regional packages, tax, licensed-professional and calendar/logistics integrations before describing this market as verified. Next remaining market: **Ethiopia (`ET`)**.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:

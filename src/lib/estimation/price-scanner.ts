@@ -1084,6 +1084,8 @@ export const IT_REFERENCE_PRICES: Record<string, FallbackPrice> = {
  * this scanner's verified reference dataset.
  */
 export const AE_REFERENCE_PRICES: Record<string, FallbackPrice> = {};
+/** No verified Saudi retail references are available yet; never present USD prices as SAR. */
+export const SA_REFERENCE_PRICES: Record<string, FallbackPrice> = {};
 
 /** Japan has JP-specific SQL books, but no verified scanner reference dataset.
  * Keep this empty rather than presenting Canadian prices as JPY.
@@ -1116,7 +1118,7 @@ export const MARKET_CATALOGS: Record<ReferenceMarket, Record<string, FallbackPri
   JP: JP_REFERENCE_PRICES,
   FR: FR_REFERENCE_PRICES,
   BR: BR_REFERENCE_PRICES,
-  SA: US_REFERENCE_PRICES,
+  SA: SA_REFERENCE_PRICES,
   AE: AE_REFERENCE_PRICES,
 };
 
