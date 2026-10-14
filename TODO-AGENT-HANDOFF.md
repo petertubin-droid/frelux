@@ -608,6 +608,15 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** no local public-holiday/site calendar, validated weather productivity, route/customs or predictive supply-delay integration was found.
 - **Changes made:** none. Keep `NL` out of operational localized estimates until local rules, source-backed product mappings/prices/tax, workforce checks and schedule/logistics are validated and deployed. Next remaining market: **Poland**.
 
+### Poland market closeout (priority 28; audit only, 2026-10-14)
+
+- **Operational decision: NOT VERIFIED / NOT OPERATIONAL as a localized estimating market.** `PL` is listed as `PLN` in the generic country selector. Production-catalog migration has localized but unpriced product placeholders: Poland has unpriced catalog entries for cement, exterior/interior paint, primer, filler, waterproofing and sand. No PL market profile, scanner price reference, engineering profile, role mappings or operational VAT/price source was found. Do not infer operational coverage from localized product names.
+- **Quantities/standards:** no country-specific, source-backed quantity formulas and applicable construction/electrical/plumbing-code profile were verified. Do not use neighboring market assumptions as substitutes.
+- **Pricing/tax:** no verified local live/refreshable price catalog, role mapping, jurisdictional tax/VAT calculation or transaction FX workflow was found. A catalog row without a price and role mapping is not a functioning price book. No live production query was made.
+- **Workforce compliance:** no locally scoped professional/trade license, insurance or safety-credential validation was demonstrated.
+- **Timeline/logistics:** no local public-holiday/site calendar, validated weather productivity, route/customs or predictive supply-delay integration was found.
+- **Changes made:** none. Keep `PL` out of operational localized estimates until local rules, source-backed product mappings/prices/tax, workforce checks and schedule/logistics are validated and deployed. Next remaining market: **Sweden**.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
