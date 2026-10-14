@@ -526,6 +526,15 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** a tropical monsoon heuristic exists, but not calibrated island/province schedules, public-holiday calendars, inter-island transport/customs lead times or a live predictive supply feed. The shared date function excludes holidays and shipping.
 - **Changes made for ID:** none; the inventory documents zero role mappings at its snapshot date, major unimplemented calculator groups and seismic engineering limits. Keep Indonesia partial/unverified until migrations/live mappings, engineering validation and local tax, workforce and timeline evidence pass. Next remaining market: **Mexico (`MX`)**.
 
+### Mexico market closeout (priority 19; audit only, 2026-10-14)
+
+- **Operational decision: LOCALIZED PARTIAL FOUNDATION; NOT VERIFIED END TO END.** Mexico (`MX`) has a visible, active metric, MXN and Spanish built-in profile, but no live production status was queried.
+- **Quantities/standards:** Spanish terminology and NOM-oriented electrical/plumbing profiles, local wall methodology and structural typology are configured. Typology notes seismic-risk regions require review by a registered Director Responsable de Obra; the engine inventory labels block/roof/foundation/structural partial and several finishing tools, doors/windows and Build-to-Roof unimplemented. Code references and heuristics are not a complete federal/state/municipal engineering approval or all-calculator validation.
+- **Pricing/tax:** A dedicated MXN reference catalog and country-specific electrical, plumbing, and door/hardware migrations exist. The 2026-10-13 internal snapshot reports 8 book rows, zero role mappings and zero scan sources, noting mappings were pending; later migration files do not establish they applied or that current production has complete mappings. Some costs remain indicative or unpriced. No robust state-specific VAT/IVA tax computation, current live index/inflation or transaction FX engine was demonstrated.
+- **Workforce compliance:** no country/state-specific DRO or trade license verification, insurance/safety certification registry, expiry or revocation integration was found.
+- **Timeline/logistics:** dry/rainy season is a broad heuristic; no state-specific holidays/work calendars, storm/site productivity data, customs/shipping feed or predictive logistics were verified.
+- **Changes made for MX:** none. Keep the market partial/unverified until live role mappings and source-backed calculators, tax, workforce and calendar/logistics functions pass the activation gate. Next remaining market: **South Korea (`KR`)**.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
