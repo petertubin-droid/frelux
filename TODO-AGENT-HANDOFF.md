@@ -7,7 +7,7 @@ commands in section 6, then work top-to-bottom through section 4 (REMAINING
 WORK). Update this file with every batch you complete — including flipping
 status markers and adding the commit hash.
 
-Last updated: 2026-10-13 (P2 batch 14 electrical books complete across all 20 global markets: 220 active manual rows in DB migrations)
+Last updated: 2026-10-14 (P2 batch 16: plumbing fittings/valves full coverage GB/AT/DE; US/GB/AT/DE all 5/5 seeded; electrical books complete all 20 markets)
 
 ---
 
@@ -557,9 +557,9 @@ every market gets verified, country-specific pricing and methodology.
 
 Work this list in order. Each item's status is current as of the last update.
 
-1. ❌ **US/GB/DE/AT plumbing fittings + valves** (section 4B) — highest-value
-   next batch; the pages already render pipe prices, fittings still fall back
-   to disclosed-NG.
+1. ✅ **US/GB/DE/AT plumbing fittings + valves** (section 4B) — COMPLETE
+   2026-10-14 (batch 16): US 5/5, GB 5/5, AT 5/5, DE 5/5 seeded with verified
+   retail sources; status board row 8b. Only DE cold/hot pipes remain open.
 2. 🟡 **DE + GB rebar books** (section 4A) — need merchant-level anchors; all
    leads and gotchas documented.
 3. ❌ **Doors/windows books + BTR trade prefills** (section 4D) — engine keys in
@@ -632,11 +632,13 @@ provenance · `b3f12d40` plumbing US/DE · `6f34d349` GB pipes ·
   already committed (structural-market.ts PLUMBING_FITTING_KEYS;
   test `resolveMarketPlumbing.test.ts`).
   - "
-- Remaining gaps to verify: gb-union (straight union, not union-tee),
-  at-elbow/at-union/at-valve (Hornbach.at FV-Plast/Multitherm + Herz
-  Kugelhahn listings exist but prices didn't surface — use browserbase on
-  the product URLs), DE all 5 (obi.de search snippets are price-poor;
-  browserbase on hornbach.de Multitherm pages, or obi.de product pages).
+- ~~Remaining gaps: gb-union, at-elbow/at-union/at-valve, DE all 5~~ —
+  RESOLVED 2026-10-14 by P2 batch 16 (migration 20261013170000): gb-union
+  (£2.25 JG Speedfit 15mm push-fit connector, Wickes), at-elbow (€0.95
+  Multitherm PPR 90° 20mm), at-union (€0.89 Multitherm PPR 25mm Muffe),
+  at-valve (€12.59 DVGW Trinkwasserkugelhahn 1/2", OBI), DE full 5/5
+  (15mm copper press-fit: Hornbach/OBI). Fittings/valves now 5/5 in all
+  four markets; only DE cold/hot PP-R PIPES remain open (see lead below).
 - Engine keys: `plumb-elbow`, `plumb-tee`, `plumb-reducer`, `plumb-union`,
   `plumb-valve`. Prices are PER PIECE.
 - Seed slugs `{mkt}-elbow`, `{mkt}-tee`, `{mkt}-reducer`, `{mkt}-union`,
