@@ -409,6 +409,15 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** base stage durations are explicitly described as Nigerian construction labour productivity heuristics; NG has a tropical wet/dry profile and rainy-season notes. The published six-day workweek date correction is tested, but not a measured NG regional productivity model or official holiday/site calendar; no supplier availability, transport or delivery-delay feed was verified. Heuristics must remain disclosed planning estimates.
 - **Changes made for NG:** none. Active home-market foundation confirmed; end-to-end accuracy, live database freshness, workforce compliance and predictive logistics remain unverified. Next priority: **The Gambia (`GM`)**.
 
+### The Gambia market closeout (priority 6; unsupported / audit only, 2026-10-14)
+
+- **Operational decision: NOT REPRESENTED / NOT OPERATIONAL.** The canonical country selector `src/lib/international/countries.ts`, built-in market profiles, market-specific engineering/estimation profiles, ranking snapshots and country-specific migrations contain no `GM`/Gambia entry. `GM` appears only in this rollout instruction. Germany is `DE`; it is not a substitute.
+- **Quantities/standards:** no Gambia-local construction, packaging, quantity or code profile was found. NG regional defaults or Ghana/UK/Africa profiles are not verified Gambian standards and must not be silently applied.
+- **Pricing/tax:** no Gambian Dalasi (GMD) market price book, local suppliers/index, tax regime, FX valuation or tax calculation is configured. Do not convert NG prices and present them as Gambian.
+- **Workforce compliance:** no country-specific professional/trade licensing, insurance, regulator or safety verification configuration was found.
+- **Timeline/logistics:** no Gambian work calendar, weather/productivity calibration, customs/carrier feed or logistics profile was found.
+- **Changes made for GM:** none; this requested country is not currently represented by the market implementation. Add it only after approved country data, authoritative/local reviewers and a full country activation gate are available. Next priority: **United Arab Emirates (`AE`)**.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
