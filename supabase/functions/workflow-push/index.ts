@@ -68,22 +68,36 @@ async function resolveSecret(providerId: string): Promise<string | null> {
   }
 }
 
-/** VAPID keys: env vars first, then admin-pasted DB rows. */
+/**
+ * VAPID keys: admin-pasted DB rows first, then env vars as a
+ * fallback. DB rows come from the Integration Center, which
+ * validates the P-256 format at paste time; env vars only if
+ * they look like a valid pair (public must decode to a 65-byte
+ * uncompressed point, private to a 32-byte scalar). This avoids
+ * a shape-mismatched env value (e.g. raw hex) silently breaking
+ * delivery even when valid DB keys exist.
+ */
+function validVapidPair(pub: string, priv: string): boolean {
+  const pubLen = (pub.replace(/=+$/, "").length * 3) >> 2;
+  const privLen = (priv.replace(/=+$/, "").length * 3) >> 2;
+  return pubLen === 65 && pub.startsWith("B") && privLen === 32;
+}
+
 async function resolveVapidKeys(): Promise<{
   public: string;
   private: string;
 } | null> {
-  const envPublic = Deno.env.get("VAPID_PUBLIC_KEY");
-  const envPrivate = Deno.env.get("VAPID_PRIVATE_KEY");
-  if (envPublic && envPrivate) {
-    return { public: envPublic, private: envPrivate };
-  }
   const [pub, priv] = await Promise.all([
     resolveSecret("web-push-public"),
     resolveSecret("web-push-private"),
   ]);
-  if (!pub || !priv) return null;
-  return { public: pub, private: priv };
+  if (pub && priv) return { public: pub, private: priv };
+  const envPublic = Deno.env.get("VAPID_PUBLIC_KEY");
+  const envPrivate = Deno.env.get("VAPID_PRIVATE_KEY");
+  if (envPublic && envPrivate && validVapidPair(envPublic, envPrivate)) {
+    return { public: envPublic, private: envPrivate };
+  }
+  return null;
 }
 
 const handler = async (req: Request): Promise<Response> => {

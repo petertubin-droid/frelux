@@ -138,7 +138,20 @@ beforeEach(async () => {
         });
         return new Response("", { status: endpointStatus });
       }
-      // Supabase REST (integration_secrets lookups): no keys.
+      // Supabase REST (integration_secrets lookups): serve any
+      // seeded fixtures, honoring the provider_id query filter
+      // the same way PostgREST would.
+      if (url_s.includes("integration_secrets")) {
+        const match = url_s.match(/provider_id=eq\.([a-z-]+)/);
+        const wanted = match?.[1];
+        const rows = (tableFixtures.get("integration_secrets") ?? [])
+          .filter((r) => !wanted || r.provider_id === wanted)
+          .map((r) => ({ key_value: r.key_value }));
+        return new Response(JSON.stringify(rows), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
       return new Response("{}", { status: 404 });
     }),
   );
@@ -224,6 +237,60 @@ describe("workflow-push", () => {
     expect(log[0].event_id).toBe(EVENT_LATEST);
     expect(log[0].subscription_id).toBe(SUB_ID);
     expect(log[0].status).toBe("sent");
+  });
+
+  it("prefers DB-pasted VAPID keys over shape-mismatched env values", async () => {
+    seedAll();
+    // A SECOND valid pair lives in the DB (Integration Center).
+    const dbPair = await crypto.subtle.generateKey(
+      { name: "ECDSA", namedCurve: "P-256" },
+      true,
+      ["sign", "verify"],
+    );
+    const dbJwk = await crypto.subtle.exportKey("jwk", dbPair.privateKey);
+    const dbPub = btoa(
+      String.fromCharCode(
+        ...new Uint8Array(
+          await crypto.subtle.exportKey("raw", dbPair.publicKey),
+        ),
+      ),
+    )
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+    givenRows("integration_secrets", [
+      { provider_id: "web-push-public", key_value: dbPub, status: "active" },
+      {
+        provider_id: "web-push-private",
+        key_value: dbJwk.d as string,
+        status: "active",
+      },
+    ]);
+    // The env holds the OLD raw-hex values: not a valid P-256
+    // pair and must NEVER override the DB.
+    state.env.VAPID_PUBLIC_KEY =
+      "7d639b81d93d288a63ec36a677d89eebd39fd38bbeb0b0270516edef1f98cd4b";
+    state.env.VAPID_PRIVATE_KEY =
+      "5f6cc390e70e4b09b1c60f8bea2d4c9c2a6f0e5b7d3a4c1e8f9a0b2c3d4e5f60";
+    const res = await handler(freshReq("POST", { document_id: DOC_ID }));
+    expect(res.status).toBe(200);
+    const body = await json(res);
+    expect(body.sent).toBe(true);
+    // Delivery signed with the DB pair, NOT the env hex.
+    expect(pushCalls[0].headers.Authorization).toContain(`k=${dbPub}`);
+    expect(pushCalls[0].headers.Authorization).not.toContain("7d639b81");
+  });
+
+  it("rejects shape-mismatched env hex and reports not configured when no DB keys exist", async () => {
+    seedAll();
+    state.env.VAPID_PUBLIC_KEY =
+      "7d639b81d93d288a63ec36a677d89eebd39fd38bbeb0b0270516edef1f98cd4b";
+    state.env.VAPID_PRIVATE_KEY =
+      "5f6cc390e70e4b09b1c60f8bea2d4c9c2a6f0e5b7d3a4c1e8f9a0b2c3d4e5f60";
+    const res = await handler(freshReq("POST", { document_id: DOC_ID }));
+    expect(res.status).toBe(200);
+    expect((await json(res)).reason).toBe("not configured");
+    expect(pushCalls.length).toBe(0);
   });
 
   it("prunes a dead endpoint (410) and keeps an honest failed log row", async () => {
