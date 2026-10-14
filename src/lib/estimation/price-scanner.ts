@@ -1085,6 +1085,11 @@ export const IT_REFERENCE_PRICES: Record<string, FallbackPrice> = {
  */
 export const AE_REFERENCE_PRICES: Record<string, FallbackPrice> = {};
 
+/** Japan has JP-specific SQL books, but no verified scanner reference dataset.
+ * Keep this empty rather than presenting Canadian prices as JPY.
+ */
+export const JP_REFERENCE_PRICES: Record<string, FallbackPrice> = {};
+
 export const MARKET_CATALOGS: Record<ReferenceMarket, Record<string, FallbackPrice>> = {
   NG: FALLBACK_PRICES,
   US: US_REFERENCE_PRICES,
@@ -1098,7 +1103,7 @@ export const MARKET_CATALOGS: Record<ReferenceMarket, Record<string, FallbackPri
   MX: MX_REFERENCE_PRICES,
   KR: KR_REFERENCE_PRICES,
   IT: IT_REFERENCE_PRICES,
-  JP: CA_REFERENCE_PRICES,
+  JP: JP_REFERENCE_PRICES,
   FR: DE_REFERENCE_PRICES,
   BR: MX_REFERENCE_PRICES,
   SA: US_REFERENCE_PRICES,
