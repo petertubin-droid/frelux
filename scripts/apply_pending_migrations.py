@@ -37,6 +37,7 @@ PENDING = [
     "20261015140000_doors_windows_book_br.sql",
     "20261015150000_doors_windows_book_sa.sql",
     "20261015160000_doors_windows_book_ae.sql",
+    "20261015170000_doors_windows_book_mx.sql",
 ]
 
 
