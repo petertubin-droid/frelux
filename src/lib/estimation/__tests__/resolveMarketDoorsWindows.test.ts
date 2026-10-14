@@ -411,4 +411,97 @@ describe("resolveMarketDoorsWindows", () => {
       ]),
     );
   });
+
+  it("resolves Australia (AU) doors & windows price book with 6 overrides and marks unpriced custom items unresolved", async () => {
+    const auMaterials: Record<string, { id: string; name: string }> = {
+      "door-flush": {
+        id: "mat-au-flush",
+        name: "Flush Interior PMDF Honeycomb Core Primed 2040x820x35mm",
+      },
+      "door-panel": {
+        id: "mat-au-panel",
+        name: "Impressions ROC Moulded Primed MDF Skin 2040x820x35mm",
+      },
+      "door-frame": {
+        id: "mat-au-frame",
+        name: "Primed MDF Door Jamb Stop Set Single Open 2110x18mm",
+      },
+      "door-hinge": {
+        id: "mat-au-hinge",
+        name: "Zanda Door Butt Hinge 100mm Stainless Steel",
+      },
+      "door-lockset": {
+        id: "mat-au-lockset",
+        name: "Carbine Epsom PE3000 Cylindrical Entrance Knobset",
+      },
+      "window-aluminium": {
+        id: "mat-au-window",
+        name: "Aluminium Sliding Window 1200x1210mm Textura Black AS 1288",
+      },
+      "door-security": {
+        id: "mat-au-security",
+        name: "Security door leaf",
+      },
+      "window-louver": {
+        id: "mat-au-louver",
+        name: "Louver window",
+      },
+    };
+
+    const auPrices: Record<string, number> = {
+      "mat-au-flush": 108.9,
+      "mat-au-panel": 155.1,
+      "mat-au-frame": 53.9,
+      "mat-au-hinge": 6.9,
+      "mat-au-lockset": 31.96,
+      "mat-au-window": 395.0,
+    };
+
+    materialChain.eq.mockImplementation(function (
+      this: Chain,
+      field: unknown,
+      value: unknown,
+    ) {
+      if (field === "slug") {
+        const m = auMaterials[value as string];
+        this.maybeSingle.mockImplementation(async () => ({ data: m ?? null }));
+      }
+      return this;
+    } as never);
+
+    priceChain.eq.mockImplementation(function (
+      this: Chain,
+      field: unknown,
+      value: unknown,
+    ) {
+      if (field === "ref_id") {
+        const price = auPrices[value as string];
+        this.maybeSingle.mockImplementation(async () => ({
+          data:
+            price !== undefined
+              ? {
+                  price,
+                  scan_confidence: "manual",
+                  price_source:
+                    "Corinthian Doors / Keeler Hardware / Window Warehouse (AU)",
+                }
+              : null,
+        }));
+      }
+      return this;
+    } as never);
+
+    const result = await resolveMarketDoorsWindows("AU");
+
+    expect(result.overrides["door-flush"]).toBe(108.9);
+    expect(result.overrides["door-panel"]).toBe(155.1);
+    expect(result.overrides["door-frame"]).toBe(53.9);
+    expect(result.overrides["door-hinge"]).toBe(6.9);
+    expect(result.overrides["door-lockset"]).toBe(31.96);
+    expect(result.overrides["window-aluminium"]).toBe(395.0);
+
+    expect(result.unresolved).toEqual(
+      expect.arrayContaining(["door-security", "window-louver"]),
+    );
+  });
 });

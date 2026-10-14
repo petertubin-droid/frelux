@@ -17,7 +17,7 @@ partially implemented features may be presented as done. Every claim must
 carry its real status: verified live, tests only, or staged/partial with the
 hardcoded parts named. Unverifiable items are disclosed, never greenwashed.
 
-Last updated: 2026-10-15 (P2 batch 21: KE doors/windows price book READY in migration 20261015020000; batch 20 ZA & FR ready in 20261015010000; batch 19 CA pending DB exec; AU documented blocked-by-access; batch 18 resolver + US/GB/DE books complete)
+Last updated: 2026-10-15 (P2 batch 22: AU doors/windows price book READY in migration 20261015030000; batch 21 KE ready in 20261015020000; batch 20 ZA & FR ready in 20261015010000; batch 19 CA pending DB exec; batch 18 resolver + US/GB/DE books complete)
 
 ---
 
@@ -116,6 +116,19 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
 
 - [x] P2 batch 18: Doors & Windows Market Books, Resolver & Estimator Integration (2026-10-14): - Implemented `resolveMarketDoorsWindows` and `DOORS_WINDOWS_ENGINE_KEYS` in `src/lib/estimation/structural-market.ts`: * Resolves all 8 engine keys: `door-flush`, `door-panel`, `door-security`, `door-frame`, `door-hinge`, `door-lockset`, `window-aluminium`, `window-louver`. * Checks market-scoped slugs (e.g. `us-door-flush`) with fallback to shared engine slugs. * Explicitly reports unpriced keys in `unresolved` — zero silent substitution or fallback to Nigerian reference prices. * Detailed provenance rows include market, unit price, formatted explanation, and supplier source. - Integrated resolver into `src/pages/DoorsWindowsEstimator.tsx`: * Guarded `fetchMarketPriceBook` reference fallback: items in `fromReference` are nulled out for non-NG markets instead of inheriting Nigerian prices in local currency. * Overlays resolved market prices into `priceMap`. * Added dynamic price book coverage badge (`trade-price-coverage`) reporting exact count of priced items out of 8. * Added market price provenance card (`doors-windows-price-provenance`) displaying verified items with currency formatting, supplier citation, and honest unpriced disclosure. - Created additive Supabase migration `supabase/migrations/20261014170000_doors_windows_books_us_gb_de.sql`: * US: JELD-WEN flush slab $68, Masonite 6-panel slab $67, EverMark split jamb kit $61.98, Everbilt mortise hinge $2.32, Defiant keyed entry knob $10.13, JELD-WEN vinyl sliding window $169 (The Home Depot live listings, manual confidence). Unpriced: security screen (not equivalent to solid leaf) and jalousie louvre. * GB: Wickes flush primed door £39, Wickes 6-panel moulded door £32, softwood door lining set £32, 76mm butt hinges £1.50 (Wickes live listings, manual confidence). Unpriced: security, lockset, aluminum sliding window, louvre. * DE: Pertura CPL interior door €109, Pertura casing frame €79, galvanized frame hinge €1.35, stainless steel rose handle set €23.95 (Hornbach live listings, manual confidence). Unpriced: panel, security, aluminum sliding window, louvre. - Added unit test suite in `src/lib/estimation/__tests__/resolveMarketDoorsWindows.test.ts` (3 tests). - Added DOM integration tests in `src/pages/DoorsWindowsEstimator.test.tsx` (3 tests). - Verified: 22 test files (323 tests) passing across estimation and page suites, TypeScript app check 0 errors (`npx tsc --noEmit -p tsconfig.app.json`).
 
+- [x] P2 batch 22: Doors & Windows price book for Australia (AU) (2026-10-15):
+  - UNBLOCKED Australia: bypassed Cloudflare-gated consumer retailers by sourcing directly from Corinthian Doors Australia (major national door & systems manufacturer), Keeler Hardware (national architectural hardware specialist), and Window Warehouse Australia (AS 1288 certified residential window manufacturer).
+  - Migration `supabase/migrations/20261015030000_doors_windows_books_au.sql`: 6 verified manual rows (scan_confidence='manual') in AUD:
+    - door-flush: $108.90 AUD inc GST (Corinthian Doors Australia, Flush Interior PMDF Honeycomb Core Primed 2040 x 820 x 35 mm, live trade catalog 2026-10-15)
+    - door-panel: $155.10 AUD inc GST (Corinthian Doors Australia, Impressions ROC Moulded Primed MDF Skin 2040 x 820 x 35 mm, live trade catalog 2026-10-15)
+    - door-frame: $53.90 AUD inc GST (Corinthian Doors Australia, Primed MDF Door Jamb Stop Set Single Open 2110 x 18 mm / 112mm, live trade catalog 2026-10-15)
+    - door-hinge: $6.90 AUD (Keeler Hardware, Zanda Door Butt Hinge 100mm x 2.5mm Stainless Steel, SKU ZAN-100SS, live listing 2026-10-15)
+    - door-lockset: $31.96 AUD (Keeler Hardware, Carbine Epsom PE3000 Cylindrical Entrance Knobset Satin Stainless Steel, live listing 2026-10-15)
+    - window-aluminium: $395.00 AUD (Window Warehouse Australia, Aluminium Sliding Window 1200mm H x 1210mm W Textura Black, 4mm clear float glass AS 1288, primed meranti reveals, lockable handle, live listing 2026-10-15)
+    - door-security & window-louver intentionally unpriced: in Australian practice under AS 5039 / AS 5040, security screen doors are custom-measured welded aluminium diamond grille or woven stainless steel mesh barrier doors (typically $450–$900 custom fabricated per opening), not an off-the-shelf monolithic leaf; and in standard Australian residential building practice under NCC/BCA, adjustable glass louver galleries (e.g. Breezway Altair) are specialized tropical or architectural assemblies specified per blade gallery, not standard monolithic units. Disclosed honestly and never substituted.
+  - Unit test suite updated: `src/lib/estimation/__tests__/resolveMarketDoorsWindows.test.ts` expanded with dedicated AU test case verifying 6 override values and 2 unresolved items (all 7 tests green).
+  - Verified: 19 estimation test files (309 tests) passing, strict TypeScript app check clean (`npx tsc --noEmit -p tsconfig.app.json`).
+
 - [x] P2 batch 21: Doors & Windows price book for Kenya (KE) (2026-10-15):
   - Migration `supabase/migrations/20261015020000_doors_windows_books_ke.sql`: 5 verified manual rows (scan_confidence='manual') from Mastercraft Timber & Hardware (Kamakis, Ruiru / Nairobi, Kenya live trade catalog):
     - door-flush: KSh 3,500.00 (Mastercraft Timber Normal Toilet Bathroom Solid Veneer Flush Door 32x80 in. / 813x2032 mm, live listing 2026-10-15)
@@ -143,7 +156,7 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
       and returns 401 — owner must issue a fresh access token, then run the
       migration via Management API or SQL editor and verify with
       `SELECT count(*) FROM estimation_prices WHERE market='CA' AND is_active
-  AND scan_confidence='manual';` (expect >= 6). - AU researched same day, NOT seeded — blocked by access, per the mandate's
+AND scan_confidence='manual';` (expect >= 6). - AU researched same day, NOT seeded — blocked by access, per the mandate's
       no-fabrication rule: bunnings.com.au Cloudflare-gates category AND product
       pages; Mitre 10 search renders empty for the same bot session; Doors Plus
       is measure-and-quote only; Hume Doors publishes no online prices; google
@@ -606,9 +619,9 @@ every market gets verified, country-specific pricing and methodology.
 Work this list in order. Each item's status is current as of the last update.
 
 1. 🟡 **Doors/windows books** (section 4D) — resolver + US/GB/DE seeded & executed.
-   CA book ready in `20261014230000_doors_windows_books_ca.sql` but NOT executed live
-   (expired Supabase management token — owner action needed). AU blocked-by-access
-   (documented leads). Remaining markets disclosed unpriced.
+   CA book ready in `20261014230000_doors_windows_books_ca.sql`; ZA/FR in `20261015010000_doors_windows_books_za_fr.sql`;
+   KE in `20261015020000_doors_windows_books_ke.sql`; AU UNBLOCKED and ready in `20261015030000_doors_windows_books_au.sql`.
+   Pending live DB execution alongside pending list.
 2. 🟡 **DE + GB rebar books** (section 4A) — need merchant-level anchors; all
    leads and gotchas documented.
 3. 🟡 **Price campaign remainder (~174 'low' rows)** (section 4E) — sweep by
@@ -730,11 +743,7 @@ provenance · `b3f12d40` plumbing US/DE · `6f34d349` GB pipes ·
 - 🟡 ZA & FR price book `20261015010000_doors_windows_books_za_fr.sql` (10 verified rows:
   6 ZA rows from Cashbuild / Doors Direct / Leroy Merlin SA; 4 FR rows from Brico Dépôt France) — READY,
   needs DB execution alongside CA.
-- ❌→blocked-by-access AU: Bunnings Cloudflare-gated, Mitre 10 empty render, Doors Plus
-  quote-only, Hume Doors no online prices. Do not seed from search snippets (gotcha).
-  Retry when a clean product page is reachable; candidate leads: Lockwood Symmetry Manor
-  entrance knobset $62.72 (Bunnings p4092809), Ikonic San Fran passage leverset $24.98
-  (p0407181), Lemaar Almeri passage handle $60.89 (p0491748).
+- ✅ AU price book `20261015030000_doors_windows_books_au.sql` (6 verified rows from Corinthian Doors Australia, Keeler Hardware, Window Warehouse Australia) — UNBLOCKED & READY, needs DB execution.
 - BTR: cement/sand prefills exist; rebar prefill is active for markets with rebar books. Opening purchases remain explicitly excluded from BTR per engineering design.
 
 ### E. Price campaign remainder (~174 'low' rows in estimation_prices)
