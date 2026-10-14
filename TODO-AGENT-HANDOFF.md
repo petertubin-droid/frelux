@@ -17,7 +17,7 @@ partially implemented features may be presented as done. Every claim must
 carry its real status: verified live, tests only, or staged/partial with the
 hardcoded parts named. Unverifiable items are disclosed, never greenwashed.
 
-Last updated: 2026-10-14 (P2 batch 18 Doors & Windows market books, resolver, coverage, provenance, US/GB/DE verified seed migration & suites)
+Last updated: 2026-10-14 (P2 batch 19: CA doors/windows book READY pending DB exec; AU documented blocked-by-access; batch 18 resolver + US/GB/DE books complete)
 
 ---
 
@@ -132,6 +132,31 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
       - Added unit test suite in `src/lib/estimation/__tests__/resolveMarketDoorsWindows.test.ts` (3 tests).
       - Added DOM integration tests in `src/pages/DoorsWindowsEstimator.test.tsx` (3 tests).
       - Verified: 22 test files (323 tests) passing across estimation and page suites, TypeScript app check 0 errors (`npx tsc --noEmit -p tsconfig.app.json`).
+
+- [x] P2 batch 19: Doors & Windows CA price book (READY, needs DB execution) + AU blocked-by-access research (2026-10-14):
+      - Migration `20261014230000_doors_windows_books_ca.sql` — 6 CA rows verified from live
+        Home Depot Canada listings (scan_confidence='manual'): door-flush $104.00
+        (Masonite DHP30 30x80 flush hollow core slab, SKU 1000135663), door-panel $97.00
+        (Masonite 306PBORE 6-panel pre-bored slab, SKU 1000711037), door-frame $100.00
+        (Alexandria Moulding 03438-93S37CE pre-machined single frame set, SKU 1000814129),
+        door-hinge $4.49 (Onward 2820NBB 3in full-mortise 2-pack $8.98, SKU 1001602212),
+        door-lockset $13.98 (Defiant TFX200B keyed entry knob, SKU 1001952640),
+        window-aluminium $268.00 (JELD-WEN Willmar B44258 36x24 slider Low-E,
+        SKU 1000526625). door-security + window-louver intentionally unpriced
+        (no direct CA equivalence; disclosed, never substituted). NOT YET EXECUTED
+        against the live DB: the Supabase management token (sbp_570b...) expired
+        and returns 401 — owner must issue a fresh access token, then run the
+        migration via Management API or SQL editor and verify with
+        `SELECT count(*) FROM estimation_prices WHERE market='CA' AND is_active
+        AND scan_confidence='manual';` (expect >= 6).
+      - AU researched same day, NOT seeded — blocked by access, per the mandate's
+        no-fabrication rule: bunnings.com.au Cloudflare-gates category AND product
+        pages; Mitre 10 search renders empty for the same bot session; Doors Plus
+        is measure-and-quote only; Hume Doors publishes no online prices; google
+        snippets for Bunnings locksets/handles exist (Lockwood Symmetry Manor
+        entrance knobset $62.72 p4092809, Lemaar/ Ikonic passage sets $24.98-$60.89)
+        but per gotchas a snippet is below the clean-product-page bar — do not
+        seed from snippets. Retry AU when a verifiable product page is reachable.
 
 - [x] P2 batch 17: Tier 2 Estimator Currency Localization & Regression Suites (2026-10-14, commit `5095e9f`):
       - Localized active currency symbol and code derivation across 8 Tier 2 estimator pages:
@@ -599,10 +624,10 @@ every market gets verified, country-specific pricing and methodology.
 
 Work this list in order. Each item's status is current as of the last update.
 
-1. 🟡 **Doors/windows books + resolver** (section 4D) — ✅ RESOLVER & US/GB/DE BOOKS COMPLETE
-   (`resolveMarketDoorsWindows` in `structural-market.ts`, page coverage & provenance cards in
-   `DoorsWindowsEstimator.tsx`, migration `20261014170000_doors_windows_books_us_gb_de.sql`, and
-   unit/integration tests passing). Remaining markets disclosed unpriced.
+1. 🟡 **Doors/windows books** (section 4D) — resolver + US/GB/DE seeded & executed.
+   CA book ready in `20261014230000_doors_windows_books_ca.sql` but NOT executed live
+   (expired Supabase management token — owner action needed). AU blocked-by-access
+   (documented leads). Remaining markets disclosed unpriced.
 2. 🟡 **DE + GB rebar books** (section 4A) — need merchant-level anchors; all
    leads and gotchas documented.
 3. 🟡 **Price campaign remainder (~174 'low' rows)** (section 4E) — sweep by
@@ -632,7 +657,7 @@ Work this list in order. Each item's status is current as of the last update.
 | 8   | Plumbing pipe books                                  | 🟡     | ✅ GB all 4 keys, US all 4, DE waste/drainage, AT cold/hot; ❌ DE cold/hot (PP-R)                                                                                                                                                                                                                     |
 | 8b  | Plumbing fittings/valves                             | ✅     | Resolver walks PLUMBING_FITTING_KEYS (per-piece). US 5/5, GB 5/5, AT 5/5, DE 5/5 complete (migrations 20261013160000 & 20261013170000; 20/20 rows seeded with verified retail sources)                                                       |
 | 9   | Electrical books                                     | ✅     | All 20 markets complete (US, GB, DE, NG, CA, AU, IN, GH, KE, ZA, FR, BR, SA, AE, IT, MX, JP, CN, ID, KR; 220 active rows)                                                                                                                                                                             |
-| 10  | Doors/windows books                                  | 🟡     | Resolver (`resolveMarketDoorsWindows`) + page coverage/provenance live; US, GB, DE seeded with verified retail listings (migration 20261014170000); non-NG fallback to NG reference blocked; other markets disclosed unpriced                                                               |
+| 10  | Doors/windows books                                  | 🟡     | Resolver + page coverage/provenance live; US, GB, DE executed live (20261014170000); CA ready-but-not-executed (20261014230000, expired mgmt token); AU blocked-by-access; other markets disclosed unpriced                                                               |
 | 11  | Price campaign remainder                             | 🟡     | ~174 'low' rows to verify                                                                                                                                                                                                                                                                             |
 | 12  | Structural methodology profiles                      | ❌     | Research arc (DIN/BS/ACI foundation, block modules)                                                                                                                                                                                                                                                   |
 | 13  | AI foundation adapters (engines-expanded.ts)         | ✅     | Repaired 2026-10-13: electrical/plumbing adapters called 3-arg engines with 1 arg and read nonexistent result fields (would crash the conversational estimator). Now fetch rules + market price book exactly like the pages; margin/roof/regional adapters field-corrected; quantityLine takes 3 args |
@@ -717,7 +742,14 @@ provenance · `b3f12d40` plumbing US/DE · `6f34d349` GB pipes ·
 
 - ✅ Doors/windows resolver (`resolveMarketDoorsWindows`) and engine keys (`DOORS_WINDOWS_ENGINE_KEYS`) implemented in `structural-market.ts`.
 - ✅ Page integration in `DoorsWindowsEstimator.tsx` with dynamic coverage badge, provenance card, and honest unpriced disclosure (no silent fallback).
-- ✅ Verified price seeds for US, GB, DE in `20261014170000_doors_windows_books_us_gb_de.sql`.
+- ✅ Verified price seeds for US, GB, DE in `20261014170000_doors_windows_books_us_gb_de.sql` (EXECUTED live).
+- 🟡 CA price book `20261014230000_doors_windows_books_ca.sql` (6 verified Home Depot Canada
+  rows) — READY, needs DB execution (expired management token).
+- ❌→blocked-by-access AU: Bunnings Cloudflare-gated, Mitre 10 empty render, Doors Plus
+  quote-only, Hume Doors no online prices. Do not seed from search snippets (gotcha).
+  Retry when a clean product page is reachable; candidate leads: Lockwood Symmetry Manor
+  entrance knobset $62.72 (Bunnings p4092809), Ikonic San Fran passage leverset $24.98
+  (p0407181), Lemaar Almeri passage handle $60.89 (p0491748).
 - BTR: cement/sand prefills exist; rebar prefill is active for markets with rebar books. Opening purchases remain explicitly excluded from BTR per engineering design.
 
 ### E. Price campaign remainder (~174 'low' rows in estimation_prices)
