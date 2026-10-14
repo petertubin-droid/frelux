@@ -213,14 +213,29 @@ export class AiGateway {
         );
       }
 
-      // Reserve the guest operation
-      await this.supabase
+      // Reserve the guest operation atomically. The guest rule is
+      // exactly 1 operation per day, so the reservation is a
+      // compare-and-set: it only succeeds while nothing has been used
+      // AND nothing is pending (operations_used = 0, operations_reserved
+      // = 0). Two concurrent requests read the same row; only one CAS
+      // wins — the loser gets GUEST_LIMIT_REACHED instead of a second
+      // free operation.
+      const { data: reservedRow } = await this.supabase
         .from("ai_gateway_daily_allowance")
         .update({
-          operations_reserved: (allowance.operations_reserved || 0) + 1,
+          operations_reserved: 1,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", allowance.id);
+        .eq("id", allowance.id)
+        .eq("operations_used", 0)
+        .eq("operations_reserved", 0)
+        .select("id")
+        .maybeSingle();
+      if (!reservedRow) {
+        throw new Error(
+          "GUEST_LIMIT_REACHED: You have used your 1 free guest AI operation for today. Please sign in or create a FRELUX account to continue.",
+        );
+      }
 
       const { data: logEntry } = await this.supabase
         .from("ai_gateway_operations_log")
