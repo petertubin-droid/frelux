@@ -518,13 +518,13 @@ or "live-verified" (queried live DB/deployment).
     better than any mega-menu arrangement; complements the pillar reorg.
 
 ### H. UI/UX Implementation Checklist (INCOMPLETE)
-- [ ] **Fix Mobile Collision**: Add `bottom-16 md:bottom-0` to `StickyActionBar.tsx`.
-- [ ] **Fix Sticky Steppers**: Change `sticky top-0` to `sticky top-16` on `BuildToRoofEstimator.tsx` and `ProjectDetail.tsx`.
-- [ ] **Modernize Market Selector**: Add search input, continental grouping, and `max-h-72 overflow-y-auto` to `MarketSelector.tsx`.
-- [ ] **De-interstitial Homepage**: Replace blocking `EntryExperience.tsx` splash with non-blocking hero interaction.
-- [ ] **Wrap Tables**: Add horizontal overflow scrolling wrapper to `MaterialPrices.tsx`.
-- [ ] **Harmonize Dark Mode**: Audit and eliminate 58 hardcoded `text-black` / `bg-white` classes.
-- [ ] **Reorganize Navigation**: Transition from 222 flat routes to the 5 structured pillars (`/tools/`, `/prices/`, `/projects/`, `/network/`, `/learn/`); split App.tsx route groups by domain during the move; add a Cmd+K tool palette.
+- [x] **Fix Mobile Collision**: Offset `StickyActionBar.tsx` above the mobile bottom nav with safe-area clearance and reset at desktop breakpoints; covered by component tests.
+- [x] **Fix Sticky Steppers**: Dock sticky estimator/project headers beneath the fixed navbar in `BuildToRoofEstimator.tsx`, `ProjectDetail.tsx`, and contractor `ProjectDashboard.tsx`.
+- [x] **Modernize Market Selector**: Add search across country/currency fields, region grouping, bounded scrolling, Escape dismissal, and empty-search feedback.
+- [x] **Verify First-Visit Welcome**: Preserve `EntryExperience.tsx`; code review confirmed the homepage remains mounted and SEO content is not gated. Do not replace or retire it based on the stale audit claim.
+- [x] **Wrap Tables**: Keep all material-price columns available in a keyboard-focusable horizontal scroll region on mobile.
+- [ ] **Harmonize Dark Mode**: Continue the broad audit of hardcoded colors and preserve intentional print surfaces; scoped theme-aware surface batches are complete, including the contractor project action busy overlay.
+- [ ] **Reorganize Navigation**: Continue transition from flat routes to `/tools/`, `/prices/`, `/projects/`, `/network/`, and `/learn/`; first tools-library category landing routes are complete, while the other pillars, route-group refactor, and Cmd+K tool palette remain open.
 - [ ] **Numeric Keyboards (Velo)**: Add `inputMode="decimal"` (+ comma-decimal parsing) to all 322 `type="number"` estimator inputs.
 - [ ] **Shareable Market Links (Velo)**: Market in URL query param + `formatMarketCurrency` (ISO 4217) helper.
 - [ ] **Ad Route Exclusions (Velo)**: Suppress ad slots on auth/admin/billing routes before auto-deploy is re-enabled.
@@ -533,6 +533,9 @@ or "live-verified" (queried live DB/deployment).
 - [ ] **Keyboard Nav + axe CI (Velo)**: Full keyboard model for Navbar dropdowns/drawer; add axe checks to CI.
 - [ ] **EntryExperience (Velo correction)**: Keep the splash; cap <2.5s and honor prefers-reduced-motion (do NOT retire).
 - [ ] **Redeploy (Velo)**: Manual Netlify deploy of latest main once UI fixes are batched, so any of this reaches users.
+
+
+**UI/UX progress — 2026-10-14:** Published commit `57e19a4854dd33f331e576b3dfea23183628f205` (`fix(ui): add tool category routes and themed overlay`) to GitHub `main`. This batch adds canonical `/tools/finishes`, `/tools/structure`, `/tools/services`, `/tools/components`, `/tools/project`, `/tools/ai`, and `/tools/pro` tool-library landing routes; preserves the existing calculator paths and `/construction-tools`; routes category filters through the new URLs; and registers route SEO/prerender/sitemap content. It also replaces the contractor-project busy overlay's forced-white surface with semantic theme tokens and accessible status semantics. Verification passed: focused UI regressions (11 tests), strict TypeScript, estimation tests (19 files / 311 tests), production build, and `git diff --check`. Main later advanced to `fba057a1296fa684f50ef5c276252852aeb1b9ce` for plumbing-price-book updates; the UI commit remains an ancestor. These routes are a first IA slice, not completion of the five-pillar reorganization. Broad dark-mode audit, remaining pillars, route-group cleanup, and palette remain open. The stale homepage recommendation is explicitly corrected: preserve the existing welcome overlay.
 
 ---
 
