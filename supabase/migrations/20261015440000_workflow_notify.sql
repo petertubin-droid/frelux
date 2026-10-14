@@ -59,12 +59,16 @@ COMMENT ON TABLE public.workflow_notify_log IS
 
 -- Expose provider activation status to authenticated clients;
 -- raw key values still only for client_visible providers.
+-- NOTE: CREATE OR REPLACE VIEW cannot rename/reorder existing
+-- columns, so the original column order (provider_id, key_value,
+-- updated_at) is preserved and status is APPENDED. Never reorder
+-- these columns in a future replacement.
 create or replace view public.integration_keys_public as
   select
     provider_id,
-    status,
+    case when client_visible then key_value else null end as key_value,
     updated_at,
-    case when client_visible then key_value else null end as key_value
+    status
   from public.integration_secrets
   where status = 'active';
 
