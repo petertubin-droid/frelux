@@ -17,7 +17,7 @@ partially implemented features may be presented as done. Every claim must
 carry its real status: verified live, tests only, or staged/partial with the
 hardcoded parts named. Unverifiable items are disclosed, never greenwashed.
 
-Last updated: 2026-10-14 (P2 batch 19: CA doors/windows book READY pending DB exec; AU documented blocked-by-access; batch 18 resolver + US/GB/DE books complete)
+Last updated: 2026-10-15 (P2 batch 20: ZA & FR doors/windows price books READY in migration 20261015010000; batch 19 CA pending DB exec; AU documented blocked-by-access; batch 18 resolver + US/GB/DE books complete)
 
 ---
 
@@ -114,70 +114,40 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
 - Admin interface must show truthful capability/verification state.
 - Distinguish preliminary estimation from engineering design compliance.
 
-- [x] P2 batch 18: Doors & Windows Market Books, Resolver & Estimator Integration (2026-10-14):
-      - Implemented `resolveMarketDoorsWindows` and `DOORS_WINDOWS_ENGINE_KEYS` in `src/lib/estimation/structural-market.ts`:
-        * Resolves all 8 engine keys: `door-flush`, `door-panel`, `door-security`, `door-frame`, `door-hinge`, `door-lockset`, `window-aluminium`, `window-louver`.
-        * Checks market-scoped slugs (e.g. `us-door-flush`) with fallback to shared engine slugs.
-        * Explicitly reports unpriced keys in `unresolved` — zero silent substitution or fallback to Nigerian reference prices.
-        * Detailed provenance rows include market, unit price, formatted explanation, and supplier source.
-      - Integrated resolver into `src/pages/DoorsWindowsEstimator.tsx`:
-        * Guarded `fetchMarketPriceBook` reference fallback: items in `fromReference` are nulled out for non-NG markets instead of inheriting Nigerian prices in local currency.
-        * Overlays resolved market prices into `priceMap`.
-        * Added dynamic price book coverage badge (`trade-price-coverage`) reporting exact count of priced items out of 8.
-        * Added market price provenance card (`doors-windows-price-provenance`) displaying verified items with currency formatting, supplier citation, and honest unpriced disclosure.
-      - Created additive Supabase migration `supabase/migrations/20261014170000_doors_windows_books_us_gb_de.sql`:
-        * US: JELD-WEN flush slab $68, Masonite 6-panel slab $67, EverMark split jamb kit $61.98, Everbilt mortise hinge $2.32, Defiant keyed entry knob $10.13, JELD-WEN vinyl sliding window $169 (The Home Depot live listings, manual confidence). Unpriced: security screen (not equivalent to solid leaf) and jalousie louvre.
-        * GB: Wickes flush primed door £39, Wickes 6-panel moulded door £32, softwood door lining set £32, 76mm butt hinges £1.50 (Wickes live listings, manual confidence). Unpriced: security, lockset, aluminum sliding window, louvre.
-        * DE: Pertura CPL interior door €109, Pertura casing frame €79, galvanized frame hinge €1.35, stainless steel rose handle set €23.95 (Hornbach live listings, manual confidence). Unpriced: panel, security, aluminum sliding window, louvre.
-      - Added unit test suite in `src/lib/estimation/__tests__/resolveMarketDoorsWindows.test.ts` (3 tests).
-      - Added DOM integration tests in `src/pages/DoorsWindowsEstimator.test.tsx` (3 tests).
-      - Verified: 22 test files (323 tests) passing across estimation and page suites, TypeScript app check 0 errors (`npx tsc --noEmit -p tsconfig.app.json`).
+- [x] P2 batch 18: Doors & Windows Market Books, Resolver & Estimator Integration (2026-10-14): - Implemented `resolveMarketDoorsWindows` and `DOORS_WINDOWS_ENGINE_KEYS` in `src/lib/estimation/structural-market.ts`: * Resolves all 8 engine keys: `door-flush`, `door-panel`, `door-security`, `door-frame`, `door-hinge`, `door-lockset`, `window-aluminium`, `window-louver`. * Checks market-scoped slugs (e.g. `us-door-flush`) with fallback to shared engine slugs. * Explicitly reports unpriced keys in `unresolved` — zero silent substitution or fallback to Nigerian reference prices. * Detailed provenance rows include market, unit price, formatted explanation, and supplier source. - Integrated resolver into `src/pages/DoorsWindowsEstimator.tsx`: * Guarded `fetchMarketPriceBook` reference fallback: items in `fromReference` are nulled out for non-NG markets instead of inheriting Nigerian prices in local currency. * Overlays resolved market prices into `priceMap`. * Added dynamic price book coverage badge (`trade-price-coverage`) reporting exact count of priced items out of 8. * Added market price provenance card (`doors-windows-price-provenance`) displaying verified items with currency formatting, supplier citation, and honest unpriced disclosure. - Created additive Supabase migration `supabase/migrations/20261014170000_doors_windows_books_us_gb_de.sql`: * US: JELD-WEN flush slab $68, Masonite 6-panel slab $67, EverMark split jamb kit $61.98, Everbilt mortise hinge $2.32, Defiant keyed entry knob $10.13, JELD-WEN vinyl sliding window $169 (The Home Depot live listings, manual confidence). Unpriced: security screen (not equivalent to solid leaf) and jalousie louvre. * GB: Wickes flush primed door £39, Wickes 6-panel moulded door £32, softwood door lining set £32, 76mm butt hinges £1.50 (Wickes live listings, manual confidence). Unpriced: security, lockset, aluminum sliding window, louvre. * DE: Pertura CPL interior door €109, Pertura casing frame €79, galvanized frame hinge €1.35, stainless steel rose handle set €23.95 (Hornbach live listings, manual confidence). Unpriced: panel, security, aluminum sliding window, louvre. - Added unit test suite in `src/lib/estimation/__tests__/resolveMarketDoorsWindows.test.ts` (3 tests). - Added DOM integration tests in `src/pages/DoorsWindowsEstimator.test.tsx` (3 tests). - Verified: 22 test files (323 tests) passing across estimation and page suites, TypeScript app check 0 errors (`npx tsc --noEmit -p tsconfig.app.json`).
 
-- [x] P2 batch 19: Doors & Windows CA price book (READY, needs DB execution) + AU blocked-by-access research (2026-10-14):
-      - Migration `20261014230000_doors_windows_books_ca.sql` — 6 CA rows verified from live
-        Home Depot Canada listings (scan_confidence='manual'): door-flush $104.00
-        (Masonite DHP30 30x80 flush hollow core slab, SKU 1000135663), door-panel $97.00
-        (Masonite 306PBORE 6-panel pre-bored slab, SKU 1000711037), door-frame $100.00
-        (Alexandria Moulding 03438-93S37CE pre-machined single frame set, SKU 1000814129),
-        door-hinge $4.49 (Onward 2820NBB 3in full-mortise 2-pack $8.98, SKU 1001602212),
-        door-lockset $13.98 (Defiant TFX200B keyed entry knob, SKU 1001952640),
-        window-aluminium $268.00 (JELD-WEN Willmar B44258 36x24 slider Low-E,
-        SKU 1000526625). door-security + window-louver intentionally unpriced
-        (no direct CA equivalence; disclosed, never substituted). NOT YET EXECUTED
-        against the live DB: the Supabase management token (sbp_570b...) expired
-        and returns 401 — owner must issue a fresh access token, then run the
-        migration via Management API or SQL editor and verify with
-        `SELECT count(*) FROM estimation_prices WHERE market='CA' AND is_active
-        AND scan_confidence='manual';` (expect >= 6).
-      - AU researched same day, NOT seeded — blocked by access, per the mandate's
-        no-fabrication rule: bunnings.com.au Cloudflare-gates category AND product
-        pages; Mitre 10 search renders empty for the same bot session; Doors Plus
-        is measure-and-quote only; Hume Doors publishes no online prices; google
-        snippets for Bunnings locksets/handles exist (Lockwood Symmetry Manor
-        entrance knobset $62.72 p4092809, Lemaar/ Ikonic passage sets $24.98-$60.89)
-        but per gotchas a snippet is below the clean-product-page bar — do not
-        seed from snippets. Retry AU when a verifiable product page is reachable.
+- [x] P2 batch 20: Doors & Windows price books for South Africa (ZA) and France (FR) (2026-10-15): - Migration `supabase/migrations/20261015010000_doors_windows_books_za_fr.sql`: 11 total verified manual rows across ZA (7 rows) and FR (4 rows) (scan_confidence='manual'). - ZA (ZAR, Cashbuild, Doors Direct, and Leroy Merlin SA live listings): * door-flush: R302.95 (Cashbuild Hardboard Wood Door 813 x 2032 mm, SKU #212) * door-panel: R439.95 (Cashbuild Tudor Moulded 6 Panel Door 813 x 2032 mm, SKU #211404) * door-frame: R363.00 (Doors Direct Budget Unassembled Hardwood Door Frame 58x40mm, SKU #ALIDF001) * door-hinge: R23.00 (Doors Direct Lock Worx 100mm Butt Hinge Pair R46.00 / R23.00 each, SKU #LWFH100CH-1) * door-lockset: R250.00 (Leroy Merlin SA Eureka 2-Lever Fort Knox Satin Nickel Lockset with Handles, SKU #81439155) * window-aluminium: R1434.00 (Doors Direct PT912M Aluminium Top Hung Window 900x1200mm AAMSA certified, SKU #PT912M) * door-security: R3709.00 (Leroy Merlin SA Ibuild Aluminium Sliding Door 1790x2090mm Bronze with safety glass & hardware, SKU #81427020) * window-louver: intentionally unpriced (tropical jalousie louvres are not standard residential practice under SANS 10400-XA / SANS 204 fenestration) - FR (EUR TTC, Brico Dépôt France live listings): * door-flush: 39.90 € (Brico Dépôt Bloc-porte isoplane prépeint blanc poussant 204 x 73 cm ép. 40 mm avec cadre et serrure, Réf #3660568300447, Code #670722) * door-panel: 69.90 € (Brico Dépôt Bloc-porte isoplane prépeint décor 204 x 83 cm ép. 40 mm, Réf #3660568300546, Code #670724) * door-hinge: 1.99 € (Brico Dépôt Paumelle de bâtiment AB 110 x 55 mm, Réf #3283889158711) * door-lockset: 9.90 € (Brico Dépôt Ensemble de poignées de porte Cyriac avec rosaces clé/cylindre, Réf #5059340548296) * door-frame, door-security, window-aluminium, window-louver intentionally unpriced: in French practice (NF P 01-005 / DTU 36.2), interior doors are overwhelmingly installed as factory-assembled bloc-porte sets; separate huisserie requires partition thickness specification (50/72/98mm); French security entrance doors require certified A2P BP1/BP2/BP3 rating with multi-point lock under DTU 36.5; and residential fenestration requires double-glazed oscillo-battant / ouvrant à la française under NF EN 14351-1 / RE2020. Disclosed and never substituted. - Unit test suite updated: `src/lib/estimation/__tests__/resolveMarketDoorsWindows.test.ts` expanded with dedicated ZA and FR test cases verifying override values and unresolved items (all 5 tests green). - Verified: 19 estimation test files (307 tests) passing, strict TypeScript app check clean (`npx tsc --noEmit -p tsconfig.app.json`).
 
-- [x] P2 batch 17: Tier 2 Estimator Currency Localization & Regression Suites (2026-10-14, commit `5095e9f`):
-      - Localized active currency symbol and code derivation across 8 Tier 2 estimator pages:
-        `DoorsWindowsEstimator.tsx`, `ElectricalEstimator.tsx`, `FlooringEstimator.tsx`, `FoundationEstimator.tsx`,
-        `GeneratorEstimator.tsx`, `PlumbingEstimator.tsx`, `ReinforcementEstimator.tsx`, and `WaterproofingEstimator.tsx`.
-      - Eliminated hardcoded "NGN" across all 8 pages in `createEstimate` persistence calls and `price_snapshot` line items,
-        correctly snapshotting the active market's `currencyCode`.
-      - Added `currencyCode` into the `save` callback dependency arrays to ensure dynamic market profile switches immediately persist.
-      - Passed explicit `currencySymbol` into all `formatCurrency` invocations across all 8 pages to eliminate default fallback to Naira (₦).
-      - Added `key` prop support to `numberInput` helpers across all 8 pages, resolving React unique key warnings.
-      - Added comprehensive static AST contract regression test suite in `src/lib/estimation/__tests__/tier2-currency-regression.test.ts` (40 tests passing).
-      - Added complete DOM component integration regression suite in `src/pages/__tests__/tier2-currency-integration.test.tsx` verifying currency rendering, estimate persistence, and quote exports across US (USD), GB (GBP), and DE (EUR) markets.
-      - Verified: 317 tests passing across estimation and page suites, TypeScript app check 0 errors.
+- [x] P2 batch 19: Doors & Windows CA price book (READY, needs DB execution) + AU blocked-by-access research (2026-10-14): - Migration `20261014230000_doors_windows_books_ca.sql` — 6 CA rows verified from live
+      Home Depot Canada listings (scan_confidence='manual'): door-flush $104.00
+      (Masonite DHP30 30x80 flush hollow core slab, SKU 1000135663), door-panel $97.00
+      (Masonite 306PBORE 6-panel pre-bored slab, SKU 1000711037), door-frame $100.00
+      (Alexandria Moulding 03438-93S37CE pre-machined single frame set, SKU 1000814129),
+      door-hinge $4.49 (Onward 2820NBB 3in full-mortise 2-pack $8.98, SKU 1001602212),
+      door-lockset $13.98 (Defiant TFX200B keyed entry knob, SKU 1001952640),
+      window-aluminium $268.00 (JELD-WEN Willmar B44258 36x24 slider Low-E,
+      SKU 1000526625). door-security + window-louver intentionally unpriced
+      (no direct CA equivalence; disclosed, never substituted). NOT YET EXECUTED
+      against the live DB: the Supabase management token (sbp_570b...) expired
+      and returns 401 — owner must issue a fresh access token, then run the
+      migration via Management API or SQL editor and verify with
+      `SELECT count(*) FROM estimation_prices WHERE market='CA' AND is_active
+      AND scan_confidence='manual';` (expect >= 6). - AU researched same day, NOT seeded — blocked by access, per the mandate's
+      no-fabrication rule: bunnings.com.au Cloudflare-gates category AND product
+      pages; Mitre 10 search renders empty for the same bot session; Doors Plus
+      is measure-and-quote only; Hume Doors publishes no online prices; google
+      snippets for Bunnings locksets/handles exist (Lockwood Symmetry Manor
+      entrance knobset $62.72 p4092809, Lemaar/ Ikonic passage sets $24.98-$60.89)
+      but per gotchas a snippet is below the clean-product-page bar — do not
+      seed from snippets. Retry AU when a verifiable product page is reachable.
 
-- [x] P2 batch 16: Plumbing fittings/valves full coverage (GB, AT, DE) (2026-10-14):
-      - Added Supabase migration `20261013170000_plumbing_fittings_gb_at_de.sql` completing:
-        * GB: `gb-union` (£2.25 JG Speedfit 15mm push-fit connector, Wickes) -> GB 5/5
-        * AT: `at-elbow` (€0.95 Multitherm PPR 90° 20mm), `at-union` (€0.89 Multitherm PPR 25mm Muffe), `at-valve` (€12.59 DVGW Trinkwasserkugelhahn 1/2", OBI) -> AT 5/5
-        * DE: Full 5/5 set using standard domestic 15mm copper press-fit DVGW system & 1/2" ball valve:
-          `de-elbow` (€2.15, Hornbach), `de-tee` (€4.49, OBI), `de-reducer` (€2.00 22x15mm, Hornbach), `de-union` (€1.98, Hornbach), `de-valve` (€9.19, OBI) -> DE 5/5
-      - US (5/5), GB (5/5), AT (5/5), and DE (5/5) fittings and valves are now fully seeded.
+- [x] P2 batch 17: Tier 2 Estimator Currency Localization & Regression Suites (2026-10-14, commit `5095e9f`): - Localized active currency symbol and code derivation across 8 Tier 2 estimator pages:
+      `DoorsWindowsEstimator.tsx`, `ElectricalEstimator.tsx`, `FlooringEstimator.tsx`, `FoundationEstimator.tsx`,
+      `GeneratorEstimator.tsx`, `PlumbingEstimator.tsx`, `ReinforcementEstimator.tsx`, and `WaterproofingEstimator.tsx`. - Eliminated hardcoded "NGN" across all 8 pages in `createEstimate` persistence calls and `price_snapshot` line items,
+      correctly snapshotting the active market's `currencyCode`. - Added `currencyCode` into the `save` callback dependency arrays to ensure dynamic market profile switches immediately persist. - Passed explicit `currencySymbol` into all `formatCurrency` invocations across all 8 pages to eliminate default fallback to Naira (₦). - Added `key` prop support to `numberInput` helpers across all 8 pages, resolving React unique key warnings. - Added comprehensive static AST contract regression test suite in `src/lib/estimation/__tests__/tier2-currency-regression.test.ts` (40 tests passing). - Added complete DOM component integration regression suite in `src/pages/__tests__/tier2-currency-integration.test.tsx` verifying currency rendering, estimate persistence, and quote exports across US (USD), GB (GBP), and DE (EUR) markets. - Verified: 317 tests passing across estimation and page suites, TypeScript app check 0 errors.
+
+- [x] P2 batch 16: Plumbing fittings/valves full coverage (GB, AT, DE) (2026-10-14): - Added Supabase migration `20261013170000_plumbing_fittings_gb_at_de.sql` completing: * GB: `gb-union` (£2.25 JG Speedfit 15mm push-fit connector, Wickes) -> GB 5/5 * AT: `at-elbow` (€0.95 Multitherm PPR 90° 20mm), `at-union` (€0.89 Multitherm PPR 25mm Muffe), `at-valve` (€12.59 DVGW Trinkwasserkugelhahn 1/2", OBI) -> AT 5/5 * DE: Full 5/5 set using standard domestic 15mm copper press-fit DVGW system & 1/2" ball valve:
+      `de-elbow` (€2.15, Hornbach), `de-tee` (€4.49, OBI), `de-reducer` (€2.00 22x15mm, Hornbach), `de-union` (€1.98, Hornbach), `de-valve` (€9.19, OBI) -> DE 5/5 - US (5/5), GB (5/5), AT (5/5), and DE (5/5) fittings and valves are now fully seeded.
 
 - [x] P2 batch 15: BuildToRoof rebar prefill & plumbing coverage disclosure (2026-10-14): - BuildToRoofEstimator: wired `resolveMarketRebar(marketCode)` into the
       existing market price prefill effect alongside cement and sand.
@@ -649,15 +619,15 @@ Work this list in order. Each item's status is current as of the last update.
 | --- | ---------------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | 39-market price books (8 core rows + finish engines) | ✅     | All 39 markets in `market_profiles` active with books; ~182/356 rows verified                                                                                                                                                                                                                         |
 | 2   | Finish engines role-mapped (paint/tile/POP/screed)   | ✅     | NG, US, GB, DE, AU, CA, IN fully mapped via `market_material_roles`; FR has localized role mappings                                                                                                                                                                                                   |
-| 3   | Market-aware UI (i18n, currency, persistence)        | ✅     | Commit `fb776ffd` (internationalized calculators) + `5095e9f` (Tier 2 8-estimator complete currency localization & regression suites)                                                                                                                                                                |
+| 3   | Market-aware UI (i18n, currency, persistence)        | ✅     | Commit `fb776ffd` (internationalized calculators) + `5095e9f` (Tier 2 8-estimator complete currency localization & regression suites)                                                                                                                                                                 |
 | 4   | Foundation estimator market pricing                  | ✅     | Overlay + provenance + currency (commit `2c960ad6`)                                                                                                                                                                                                                                                   |
 | 5   | BuildToRoof market prefills                          | ✅     | Prices step prefills from market book; 34 inputs currency-aware (`350e2f1f`)                                                                                                                                                                                                                          |
 | 6   | Trade coverage panels (electrical/plumbing/doors)    | ✅     | Non-NG users told plainly what's covered (`350e2f1f`)                                                                                                                                                                                                                                                 |
 | 7   | Rebar books                                          | 🟡     | ✅ US, DE, IN, EG verified; 🟡 AU indicative ('low', needs quote); ❌ GB, CA, rest                                                                                                                                                                                                                    |
 | 8   | Plumbing pipe books                                  | 🟡     | ✅ GB all 4 keys, US all 4, DE waste/drainage, AT cold/hot; ❌ DE cold/hot (PP-R)                                                                                                                                                                                                                     |
-| 8b  | Plumbing fittings/valves                             | ✅     | Resolver walks PLUMBING_FITTING_KEYS (per-piece). US 5/5, GB 5/5, AT 5/5, DE 5/5 complete (migrations 20261013160000 & 20261013170000; 20/20 rows seeded with verified retail sources)                                                       |
+| 8b  | Plumbing fittings/valves                             | ✅     | Resolver walks PLUMBING_FITTING_KEYS (per-piece). US 5/5, GB 5/5, AT 5/5, DE 5/5 complete (migrations 20261013160000 & 20261013170000; 20/20 rows seeded with verified retail sources)                                                                                                                |
 | 9   | Electrical books                                     | ✅     | All 20 markets complete (US, GB, DE, NG, CA, AU, IN, GH, KE, ZA, FR, BR, SA, AE, IT, MX, JP, CN, ID, KR; 220 active rows)                                                                                                                                                                             |
-| 10  | Doors/windows books                                  | 🟡     | Resolver + page coverage/provenance live; US, GB, DE executed live (20261014170000); CA ready-but-not-executed (20261014230000, expired mgmt token); AU blocked-by-access; other markets disclosed unpriced                                                               |
+| 10  | Doors/windows books                                  | 🟡     | Resolver + page coverage/provenance live; US, GB, DE executed live (20261014170000); CA ready-but-not-executed (20261014230000, expired mgmt token); AU blocked-by-access; other markets disclosed unpriced                                                                                           |
 | 11  | Price campaign remainder                             | 🟡     | ~174 'low' rows to verify                                                                                                                                                                                                                                                                             |
 | 12  | Structural methodology profiles                      | ❌     | Research arc (DIN/BS/ACI foundation, block modules)                                                                                                                                                                                                                                                   |
 | 13  | AI foundation adapters (engines-expanded.ts)         | ✅     | Repaired 2026-10-13: electrical/plumbing adapters called 3-arg engines with 1 arg and read nonexistent result fields (would crash the conversational estimator). Now fetch rules + market price book exactly like the pages; margin/roof/regional adapters field-corrected; quantityLine takes 3 args |
@@ -745,6 +715,9 @@ provenance · `b3f12d40` plumbing US/DE · `6f34d349` GB pipes ·
 - ✅ Verified price seeds for US, GB, DE in `20261014170000_doors_windows_books_us_gb_de.sql` (EXECUTED live).
 - 🟡 CA price book `20261014230000_doors_windows_books_ca.sql` (6 verified Home Depot Canada
   rows) — READY, needs DB execution (expired management token).
+- 🟡 ZA & FR price book `20261015010000_doors_windows_books_za_fr.sql` (11 verified rows:
+  7 ZA rows from Cashbuild / Doors Direct / Leroy Merlin SA; 4 FR rows from Brico Dépôt France) — READY,
+  needs DB execution alongside CA.
 - ❌→blocked-by-access AU: Bunnings Cloudflare-gated, Mitre 10 empty render, Doors Plus
   quote-only, Hume Doors no online prices. Do not seed from search snippets (gotcha).
   Retry when a clean product page is reachable; candidate leads: Lockwood Symmetry Manor
