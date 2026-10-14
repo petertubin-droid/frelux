@@ -599,6 +599,15 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** only a broad Mediterranean seasonal heuristic exists; no region-specific work calendar/holidays, validated heat/weather productivity, supply route/customs or predictive delay support was found.
 - **Changes made:** none. Spain should not be treated as an operationally localized market until Spanish standards, units/calculations, material roles and current EUR sources, IVA, professional verification and calendar/logistics are tested and deployed. Next remaining market: **Netherlands (`NL`)**.
 
+### Netherlands market closeout (priority 27; audit only, 2026-10-14)
+
+- **Operational decision: NOT VERIFIED / NOT OPERATIONAL as a localized estimating market.** `NL` is listed as `EUR` in the generic country selector. Production-catalog migration has localized but unpriced product placeholders: Netherlands has unpriced catalog rows for CEM II 25 kg, primers, wall paint, filler, sand and waterproofing. No NL market profile, scanner price reference, estimating-engine profile, named role-mapping migration, or current verified price/tax data was found. Dutch labels/products are catalog scaffolding, not operational local estimates.
+- **Quantities/standards:** no country-specific, source-backed quantity formulas and applicable construction/electrical/plumbing-code profile were verified. Do not use neighboring market assumptions as substitutes.
+- **Pricing/tax:** no verified local live/refreshable price catalog, role mapping, jurisdictional tax/VAT calculation or transaction FX workflow was found. A catalog row without a price and role mapping is not a functioning price book. No live production query was made.
+- **Workforce compliance:** no locally scoped professional/trade license, insurance or safety-credential validation was demonstrated.
+- **Timeline/logistics:** no local public-holiday/site calendar, validated weather productivity, route/customs or predictive supply-delay integration was found.
+- **Changes made:** none. Keep `NL` out of operational localized estimates until local rules, source-backed product mappings/prices/tax, workforce checks and schedule/logistics are validated and deployed. Next remaining market: **Poland**.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
