@@ -1073,7 +1073,7 @@ export async function getCreditTasks(
 
   if (tasksError || !tasks) return [];
 
-  let completedTaskIds = new Set<string>();
+  const completedTaskIds = new Set<string>();
   if (userId) {
     const { data: completions } = await supabase
       .from("credit_task_completions")
