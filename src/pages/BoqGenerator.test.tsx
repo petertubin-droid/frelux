@@ -45,6 +45,8 @@ vi.mock("@/lib/estimation/queries", async () => {
     fetchCalcRules: vi.fn(),
     saveBoqQuote: vi.fn(),
     updateBoqQuote: vi.fn(),
+    saveBoqRevision: vi.fn(),
+    fetchBoqRevisions: vi.fn(),
   };
 });
 
@@ -145,7 +147,9 @@ describe("BoqGenerator", () => {
 
     // Subtotal 250,000 · contingency 12,500 · VAT 19,687.5 · grand 282,187.5
     await waitFor(() => {
-      expect(screen.getByText("₦282,187.5")).toBeInTheDocument();
+      // Grand total renders twice by design: the premium totals tile
+      // and the quote table row. Both must show the same verified amount.
+      expect(screen.getAllByText("₦282,187.5")).toHaveLength(2);
     });
     expect(screen.getByText(/Contingency \(5%\)/)).toBeInTheDocument();
     expect(screen.getByText(/VAT \(7.5%\)/)).toBeInTheDocument();
@@ -206,5 +210,92 @@ describe("BoqGenerator", () => {
       grand_total: 112875,
     });
     expect(payload.rates_snapshot).toMatchObject({ vat_source: "calc_rules" });
+  });
+});
+
+describe("BoqGenerator — Wave 1.2 (revisions, tax naming, bank BOQ gate)", () => {
+  it("labels the tax row with the selected market's scheme (DE -> MwSt)", async () => {
+    renderPage();
+    const importBtn = await screen.findByRole("button", {
+      name: /PNT-ABC123/i,
+    });
+    fireEvent.click(importBtn);
+    fireEvent.change(screen.getByLabelText(/Quote title \*/i), {
+      target: { value: "Berlin flat" },
+    });
+    fireEvent.change(screen.getByLabelText(/Client name \*/i), {
+      target: { value: "Herr Schmidt" },
+    });
+    // Switch the market select to Germany
+    fireEvent.change(screen.getByLabelText(/Tax scheme/i), {
+      target: { value: "DE" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Generate Quote/i }));
+    // The tax row now uses MwSt naming, never "VAT"
+    const row = await screen.findByText(/MwSt \(7\.5%\)/);
+    expect(row).toBeInTheDocument();
+  });
+
+  it("gates the bank BOQ export for free users with an upgrade message", async () => {
+    renderPage();
+    const importBtn = await screen.findByRole("button", {
+      name: /PNT-ABC123/i,
+    });
+    fireEvent.click(importBtn);
+    fireEvent.change(screen.getByLabelText(/Quote title \*/i), {
+      target: { value: "Loan BOQ" },
+    });
+    fireEvent.change(screen.getByLabelText(/Client name \*/i), {
+      target: { value: "Ada" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Generate Quote/i }));
+
+    const bankBtn = await screen.findByRole("button", {
+      name: /Export Bank BOQ/i,
+    });
+    // Free user (isPaid false in the default mock)
+    fireEvent.click(bankBtn);
+    expect(
+      await screen.findByText(/Frelux Pro feature/i),
+    ).toBeInTheDocument();
+  });
+
+  it("saves revision v1 and snapshots it to the revision history", async () => {
+    const { saveBoqRevision, fetchBoqRevisions } = await import(
+      "@/lib/estimation/queries"
+    );
+    const mockedSnapshot = vi.mocked(saveBoqRevision);
+    const mockedFetchRevs = vi.mocked(fetchBoqRevisions);
+    mockedFetchRevs.mockResolvedValue({ data: [], error: null } as never);
+    mockedSnapshot.mockResolvedValue({ data: null, error: null } as never);
+    const mockedSaveNow = vi.mocked(saveBoqQuote);
+    mockedSaveNow.mockResolvedValue({
+      data: { id: "q1", quote_ref: "BOQ-X1", revision: 1 },
+      error: null,
+    } as never);
+
+    renderPage();
+    fireEvent.click(
+      await screen.findByRole("button", { name: /PNT-ABC123/i }),
+    );
+    fireEvent.change(screen.getByLabelText(/Quote title \*/i), {
+      target: { value: "Versioned quote" },
+    });
+    fireEvent.change(screen.getByLabelText(/Client name \*/i), {
+      target: { value: "Ada" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Generate Quote/i }));
+    fireEvent.click(
+      await screen.findByRole("button", { name: /^Save Quote$/i }),
+    );
+
+    await waitFor(() => {
+      expect(mockedSnapshot).toHaveBeenCalledWith(
+        expect.objectContaining({ version: 1, quote_id: "q1" }),
+      );
+    });
+    expect(
+      await screen.findByText(/revision v1/i),
+    ).toBeInTheDocument();
   });
 });

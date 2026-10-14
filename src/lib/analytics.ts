@@ -72,6 +72,8 @@ export type TrackEvent =
   | "stucco_calculated"
   | "maintenance_planned"
   | "boq_generated"
+  | "boq_bank_export"
+  | "boq_revision_restored"
   | "regional_cost_adjusted"
   | "price_forecast_generated"
   | "carbon_estimated"

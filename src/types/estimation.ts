@@ -484,6 +484,8 @@ export interface BoqQuote {
   id: string;
   user_id: string | null;
   quote_ref: string;
+  /** Current version stamp; every save increments and snapshots into boq_quote_revisions. */
+  revision?: number;
   title: string;
   client_name: string;
   client_contact: string | null;
@@ -692,4 +694,18 @@ export interface DefectCause {
   sort_order: number;
   created_at: string;
   updated_at: string;
+}
+
+// 23b. boq_quote_revisions table (Wave 1.2 — editable BOQ revision history)
+export interface BoqRevision {
+  id: string;
+  quote_id: string;
+  user_id: string | null;
+  version: number;
+  quote_ref: string;
+  items: Record<string, unknown>[];
+  totals: Record<string, unknown>;
+  rates_snapshot: Record<string, unknown>;
+  note: string | null;
+  created_at: string;
 }

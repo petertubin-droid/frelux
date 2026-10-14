@@ -21,6 +21,7 @@ import type {
   MaintenanceProfile,
   MaintenancePlan,
   BoqQuote,
+  BoqRevision,
   RegionalCostIndex,
   CarbonFactor,
   ThermalFinishFactor,
@@ -1045,6 +1046,29 @@ export async function updateBoqQuote(
     .update(data)
     .eq("quote_ref", quoteRef);
   return { error };
+}
+
+// ── Wave 1.2: revision history (append-only snapshots) ──
+
+/** Records one immutable revision snapshot. Version numbering is
+ *  the caller's responsibility (the page bumps it per save). */
+export async function saveBoqRevision(rev: Partial<BoqRevision>) {
+  const { data, error } = await supabase
+    .from("boq_quote_revisions")
+    .insert(rev)
+    .select()
+    .single();
+  return { data: data as BoqRevision | null, error };
+}
+
+/** All revisions of one quote, newest first. */
+export async function fetchBoqRevisions(quoteId: string) {
+  const { data, error } = await supabase
+    .from("boq_quote_revisions")
+    .select("*")
+    .eq("quote_id", quoteId)
+    .order("version", { ascending: false });
+  return { data: (data ?? []) as BoqRevision[], error };
 }
 
 export async function fetchBoqQuotes(userId?: string) {

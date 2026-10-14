@@ -11,13 +11,18 @@
  * replayable and auditable end-to-end.
  */
 
-import { formatCurrency } from "@/lib/utils";
+import { formatByCode } from "@/lib/international/currency-format";
 import { SITE_URL } from "@/lib/seo";
 import type { EstimationCalcRule } from "@/types/estimation";
 
 // ─────────────────────────────────────────────
 // Input / output contracts
 // ─────────────────────────────────────────────
+
+/** Quote-currency money formatting — never a single-market default. */
+function fmt(currency: string, amount: number): string {
+  return formatByCode(amount || 0, currency || "XXX", { decimals: 0 });
+}
 
 export interface BoqLineItem {
   description: string;
@@ -144,7 +149,7 @@ export function generateBoq(input: BoqInput): BoqResult {
   const subtotal = money(line_totals.reduce((s, l) => s + l.line_total, 0));
   result.steps.push({
     label: "Subtotal",
-    detail: `${line_totals.length} line item(s) sum to ${formatCurrency(subtotal)}.`,
+    detail: `${line_totals.length} line item(s) sum to ${fmt(input.currency, subtotal)}.`,
   });
 
   // ── 3. Contingency (DB-configured default or explicit override; never guessed) ──
@@ -176,7 +181,7 @@ export function generateBoq(input: BoqInput): BoqResult {
     result.steps.push({
       label: "Contingency",
       detail: contingencyAmount
-        ? `${contingencyRate}% of subtotal = ${formatCurrency(contingencyAmount)}.`
+        ? `${contingencyRate}% of subtotal = ${fmt(input.currency, contingencyAmount)}.`
         : `Configured rate is 0%: no contingency line.`,
     });
   }
@@ -207,7 +212,7 @@ export function generateBoq(input: BoqInput): BoqResult {
     result.steps.push({
       label: "VAT",
       detail: vatAmount
-        ? `${vatRate}% of ${formatCurrency(baseForVat)} = ${formatCurrency(vatAmount)}.`
+        ? `${vatRate}% of ${fmt(input.currency, baseForVat)} = ${fmt(input.currency, vatAmount)}.`
         : `Configured rate is 0%: no VAT line.`,
     });
   }
@@ -216,7 +221,7 @@ export function generateBoq(input: BoqInput): BoqResult {
   const grandTotal = money(baseForVat + (vatAmount ?? 0));
   result.steps.push({
     label: "Grand total",
-    detail: `${formatCurrency(grandTotal)} (payable by ${input.client_name}).`,
+    detail: `${fmt(input.currency, grandTotal)} (payable by ${input.client_name}).`,
   });
 
   result.totals = {
@@ -258,7 +263,7 @@ export function boqToHtml(
   const rows = result.line_totals
     .map(
       (l, i) =>
-        `<tr><td>${i + 1}</td><td>${l.item.description}<br/><small>Source: ${l.item.source_estimate_ref}</small></td><td>${l.item.quantity.toLocaleString()} ${l.item.unit}</td><td>${formatCurrency(l.item.unit_cost)}</td><td><b>${formatCurrency(l.line_total)}</b></td></tr>`,
+        `<tr><td>${i + 1}</td><td>${l.item.description}<br/><small>Source: ${l.item.source_estimate_ref}</small></td><td>${l.item.quantity.toLocaleString()} ${l.item.unit}</td><td>${fmt(input.currency, l.item.unit_cost)}</td><td><b>${fmt(input.currency, l.line_total)}</b></td></tr>`,
     )
     .join("");
   const optLine = (
@@ -268,7 +273,7 @@ export function boqToHtml(
   ) =>
     rate === null || amount === null
       ? ""
-      : `<tr><td colspan="4">${label} (${rate}%)</td><td>${formatCurrency(amount)}</td></tr>`;
+      : `<tr><td colspan="4">${label} (${rate}%)</td><td>${fmt(input.currency, amount)}</td></tr>`;
   return `<!DOCTYPE html><html><head><title>BOQ ${quoteRef}: ${input.title}</title><style>
     body{font-family:system-ui,sans-serif;padding:32px;color:#111}
     .doc-head{display:flex;align-items:center;gap:14px;border-bottom:3px solid #7C3AED;padding-bottom:14px}
@@ -304,10 +309,10 @@ export function boqToHtml(
     <table>
       <tr><th>#</th><th>Description</th><th>Qty</th><th>Unit cost</th><th>Amount</th></tr>
       ${rows}
-      <tr><td colspan="4">Subtotal</td><td><b>${formatCurrency(t.subtotal)}</b></td></tr>
+      <tr><td colspan="4">Subtotal</td><td><b>${fmt(input.currency, t.subtotal)}</b></td></tr>
       ${optLine("Contingency", t.contingency_rate, t.contingency_amount)}
       ${optLine("VAT", t.vat_rate, t.vat_amount)}
-      <tr class="grand"><td colspan="4">GRAND TOTAL</td><td>${formatCurrency(t.grand_total)}</td></tr>
+      <tr class="grand"><td colspan="4">GRAND TOTAL</td><td>${fmt(input.currency, t.grand_total)}</td></tr>
     </table>
     ${result.warnings.length ? `<p class="warn">Note: ${result.warnings.join(" ")}</p>` : ""}
     <div class="disclaimer">
