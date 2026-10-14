@@ -39,6 +39,7 @@ import {
   AlertCircle,
   Brain,
   Receipt,
+  ClipboardCheck,
 } from "lucide-react";
 import {
   fetchContractorProject,
@@ -96,6 +97,7 @@ import type {
 import { useSeo } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
+import { WorkflowTab } from "./WorkflowTab";
 
 // ============================================================
 // CONSTANTS & HELPERS
@@ -116,6 +118,7 @@ type TabKey =
   | "labour"
   | "shopping"
   | "expenses"
+  | "workflows"
   | "quotation"
   | "timeline"
   | "notes"
@@ -127,6 +130,7 @@ const TABS: { key: TabKey; label: string; icon: typeof Package }[] = [
   { key: "labour", label: "Labour", icon: Users },
   { key: "shopping", label: "Shopping", icon: ClipboardList },
   { key: "expenses", label: "Expenses", icon: Receipt },
+  { key: "workflows", label: "Workflows", icon: ClipboardCheck },
   { key: "quotation", label: "Quotation", icon: FileText },
   { key: "timeline", label: "Timeline", icon: Calendar },
   { key: "notes", label: "Notes", icon: Hammer },
@@ -340,7 +344,8 @@ export default function ProjectDashboard() {
   const [expenses, setExpenses] = useState<DbProjectExpense[]>([]);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
   const [editingExpenseId, setEditingExpenseId] = useState<string | null>(null);
-  const [expenseForm, setExpenseForm] = useState<ExpenseFormData>(emptyExpenseForm);
+  const [expenseForm, setExpenseForm] =
+    useState<ExpenseFormData>(emptyExpenseForm);
   const [expenseSaving, setExpenseSaving] = useState(false);
   const [notes, setNotes] = useState("");
   const [notesDirty, setNotesDirty] = useState(false);
@@ -1138,8 +1143,9 @@ export default function ProjectDashboard() {
               onEdit={handleEditRoom}
               onDelete={handleDeleteRoom}
               currencySymbol={project.currency_symbol}
-            
-              currency={project.currency}/>
+
+              currency={project.currency}
+            />
           )}
 
           {activeTab === "labour" && (
@@ -1164,8 +1170,9 @@ export default function ProjectDashboard() {
               onEdit={handleEditLabour}
               onDelete={handleDeleteLabour}
               currencySymbol={project.currency_symbol}
-            
-              currency={project.currency}/>
+
+              currency={project.currency}
+            />
           )}
 
           {activeTab === "shopping" && (
@@ -1180,8 +1187,9 @@ export default function ProjectDashboard() {
               onDownloadPDF={handleDownloadShoppingPDF}
               onShareWhatsApp={handleShareWhatsApp}
               currencySymbol={project.currency_symbol}
-            
-              currency={project.currency}/>
+
+              currency={project.currency}
+            />
           )}
 
           {activeTab === "expenses" && (
@@ -1208,6 +1216,10 @@ export default function ProjectDashboard() {
             />
           )}
 
+          {activeTab === "workflows" && (
+            <WorkflowTab projectId={project.id} currency={project.currency} />
+          )}
+
           {activeTab === "quotation" && (
             <QuotationTab
               quotations={quotations}
@@ -1226,8 +1238,9 @@ export default function ProjectDashboard() {
               onDownloadPDF={handleDownloadQuotationPDF}
               onSend={handleSendQuotation}
               currencySymbol={project.currency_symbol}
-            
-              currency={project.currency}/>
+
+              currency={project.currency}
+            />
           )}
 
           {activeTab === "timeline" && (
@@ -2068,11 +2081,12 @@ function LabourTab(props: LabourTabProps) {
             <p className="text-sm text-violet-800">
               Total Cost:{" "}
               <span className="font-bold">
-                {formatCurrency((
+                {formatCurrency(
                   (parseInt(labourForm.worker_count) || 0) *
-                  (parseInt(labourForm.days_required) || 0) *
-                  (parseFloat(labourForm.daily_wage) || 0)
-                ), currency)}
+                    (parseInt(labourForm.days_required) || 0) *
+                    (parseFloat(labourForm.daily_wage) || 0),
+                  currency,
+                )}
               </span>
             </p>
           </div>
@@ -2457,7 +2471,8 @@ function ShoppingTab(props: ShoppingTabProps) {
                           {item.name}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {item.quantity} {item.unit} · {formatCurrency(item.estimated_price, currency)} each
+                          {item.quantity} {item.unit} ·{" "}
+                          {formatCurrency(item.estimated_price, currency)} each
                         </p>
                       </div>
                       <span
@@ -3418,7 +3433,10 @@ export function ExpensesTab(props: ExpensesTabProps) {
                     disabled={props.actionLoading}
                     aria-label={`Delete ${expense.name}`}
                   >
-                    <Trash2 aria-hidden="true" className="h-4 w-4 text-red-500" />
+                    <Trash2
+                      aria-hidden="true"
+                      className="h-4 w-4 text-red-500"
+                    />
                   </Button>
                 </div>
               </li>
