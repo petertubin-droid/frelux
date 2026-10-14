@@ -689,6 +689,14 @@ Process one country at a time. Complete evidence review, scoped implementation, 
 - **Timeline/logistics:** no local holiday/site calendar or validated climate, customs and predictive supply-delay integration was established.
 - **Changes made:** none. Keep `PK` out of fully operational coverage until mapped local standards, source-backed current prices, tax, compliance, and calendar/logistics functionality are validated in production. Next market: **Portugal**.
 
+### Portugal market closeout (priority 39; audit-only catalog evidence, 2026-10-14)
+
+- **Operational decision: LOCALIZED SEED DATA EXISTS; NOT VERIFIED END TO END.** Portugal (`PT`, EUR) has localized price/catalog migration records for cement, sand, paint, primer, filler and waterproofing, plus Portuguese tiling and ceiling products. Some rows cite Leroy Merlin PT price observations; several entries are only indicative/admin-adjustable. One primer slug says 5 L while the product description and cited price refer to 15 L, a pack-size mismatch requiring review. The repository migration is not proof of current production state.
+- **Quantities/standards:** a Portuguese putty screed/ceiling/tiling assumption exists in seed data, but no PT market profile or complete validated Portuguese construction/electrical/plumbing engine profiles, role mappings and tests were found.
+- **Pricing/tax:** EUR market-scoped rows exist, but no PT price scanner catalog/refresh, fully mapped verified price book, IVA rules or transaction FX operation was established.
+- **Workforce compliance / timeline:** no Portuguese licensing/insurance/safety verification, local work-calendar or public-holiday support, or predictive weather/logistics integration was demonstrated.
+- **Changes made:** none. Keep PT unverified until pack-size discrepancies, code-based quantities, price provenance/mappings, tax and deployment are tested. Next catalog-only country: **Austria (`AT`)**.
+
 ### All-market implementation sequence and release gate
 
 The all-country requirement remains open. Do not activate all represented countries merely because a profile or heuristic exists. Build and validate in market waves while keeping unverified country-specific functions unavailable or visibly indicative:
