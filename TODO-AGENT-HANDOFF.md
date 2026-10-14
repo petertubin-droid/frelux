@@ -7,7 +7,7 @@ commands in section 6, then work top-to-bottom through section 4 (REMAINING
 WORK). Update this file with every batch you complete — including flipping
 status markers and adding the commit hash.
 
-Last updated: 2026-10-14 (P2 batch 16: plumbing fittings/valves full coverage GB/AT/DE; US/GB/AT/DE all 5/5 seeded; electrical books complete all 20 markets)
+Last updated: 2026-10-14 (P2 batch 17 Tier 2 estimator currency localization across 8 pages with static & integration regression suites, commit 5095e9f)
 
 ---
 
@@ -103,6 +103,19 @@ NG methods. Browse the web to fill prices, market finishing types, standards.
 - Saved estimates must remain reproducible (engine+profile versions stored).
 - Admin interface must show truthful capability/verification state.
 - Distinguish preliminary estimation from engineering design compliance.
+
+- [x] P2 batch 17: Tier 2 Estimator Currency Localization & Regression Suites (2026-10-14, commit `5095e9f`):
+      - Localized active currency symbol and code derivation across 8 Tier 2 estimator pages:
+        `DoorsWindowsEstimator.tsx`, `ElectricalEstimator.tsx`, `FlooringEstimator.tsx`, `FoundationEstimator.tsx`,
+        `GeneratorEstimator.tsx`, `PlumbingEstimator.tsx`, `ReinforcementEstimator.tsx`, and `WaterproofingEstimator.tsx`.
+      - Eliminated hardcoded "NGN" across all 8 pages in `createEstimate` persistence calls and `price_snapshot` line items,
+        correctly snapshotting the active market's `currencyCode`.
+      - Added `currencyCode` into the `save` callback dependency arrays to ensure dynamic market profile switches immediately persist.
+      - Passed explicit `currencySymbol` into all `formatCurrency` invocations across all 8 pages to eliminate default fallback to Naira (₦).
+      - Added `key` prop support to `numberInput` helpers across all 8 pages, resolving React unique key warnings.
+      - Added comprehensive static AST contract regression test suite in `src/lib/estimation/__tests__/tier2-currency-regression.test.ts` (40 tests passing).
+      - Added complete DOM component integration regression suite in `src/pages/__tests__/tier2-currency-integration.test.tsx` verifying currency rendering, estimate persistence, and quote exports across US (USD), GB (GBP), and DE (EUR) markets.
+      - Verified: 317 tests passing across estimation and page suites, TypeScript app check 0 errors.
 
 - [x] P2 batch 16: Plumbing fittings/valves full coverage (GB, AT, DE) (2026-10-14):
       - Added Supabase migration `20261013170000_plumbing_fittings_gb_at_de.sql` completing:
@@ -557,19 +570,23 @@ every market gets verified, country-specific pricing and methodology.
 
 Work this list in order. Each item's status is current as of the last update.
 
-1. ✅ **US/GB/DE/AT plumbing fittings + valves** (section 4B) — COMPLETE
-   2026-10-14 (batch 16): US 5/5, GB 5/5, AT 5/5, DE 5/5 seeded with verified
-   retail sources; status board row 8b. Only DE cold/hot pipes remain open.
+1. ❌ **Doors/windows books + resolver + BuildToRoof prefills** (section 4D) —
+   engine keys in `doors-windows-engine.ts` (`door-flush`, `door-panel`,
+   `door-security`, `door-frame`, `door-hinge`, `door-lockset`, `window-aluminium`,
+   `window-louver`); build `resolveMarketDoorsWindows` resolver, add trade coverage
+   panel, and seed verified retail prices for target markets (US, GB, DE).
 2. 🟡 **DE + GB rebar books** (section 4A) — need merchant-level anchors; all
    leads and gotchas documented.
-3. ❌ **Doors/windows books + BTR trade prefills** (section 4D) — engine keys in
-   doors-windows-engine.ts; same resolver pattern.
-4. 🟡 **Price campaign remainder (~174 'low' rows)** (section 4E) — sweep by
+3. 🟡 **Price campaign remainder (~174 'low' rows)** (section 4E) — sweep by
    region; EG/SA paint in English sources, TR via Trendyol.
-5. ❌ **Structural methodology profiles** (section 4F) — the long arc;
+4. ❌ **Structural methodology profiles** (section 4F) — the long arc;
    research-heavy, do after the price trades.
+5. ✅ **Plumbing fittings & valves** (section 4B) — US, GB, AT, DE COMPLETE
+   (20/20 rows seeded with verified retail sources in migrations 20261013160000 & 20261013170000).
 6. ✅ **Electrical cable/conduit books** (section 4C) — ALL 20 MARKETS COMPLETE
    (20/20 markets, 220 manual-confidence rows live in migrations 20261013210000–20261013270000).
+7. ✅ **Tier 2 Estimator Currency Localization & Regression** (commit `5095e9f`) — ALL 8 PAGES COMPLETE
+   with static AST contract and live DOM integration test suites.
 
 ---
 
@@ -579,7 +596,7 @@ Work this list in order. Each item's status is current as of the last update.
 | --- | ---------------------------------------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1   | 39-market price books (8 core rows + finish engines) | ✅     | All 39 markets in `market_profiles` active with books; ~182/356 rows verified                                                                                                                                                                                                                         |
 | 2   | Finish engines role-mapped (paint/tile/POP/screed)   | ✅     | NG, US, GB, DE, AU, CA, IN fully mapped via `market_material_roles`; FR has localized role mappings                                                                                                                                                                                                   |
-| 3   | Market-aware UI (i18n, currency, persistence)        | ✅     | Commit `fb776ffd` (internationalized calculators)                                                                                                                                                                                                                                                     |
+| 3   | Market-aware UI (i18n, currency, persistence)        | ✅     | Commit `fb776ffd` (internationalized calculators) + `5095e9f` (Tier 2 8-estimator complete currency localization & regression suites)                                                                                                                                                                |
 | 4   | Foundation estimator market pricing                  | ✅     | Overlay + provenance + currency (commit `2c960ad6`)                                                                                                                                                                                                                                                   |
 | 5   | BuildToRoof market prefills                          | ✅     | Prices step prefills from market book; 34 inputs currency-aware (`350e2f1f`)                                                                                                                                                                                                                          |
 | 6   | Trade coverage panels (electrical/plumbing/doors)    | ✅     | Non-NG users told plainly what's covered (`350e2f1f`)                                                                                                                                                                                                                                                 |
@@ -598,7 +615,7 @@ Key commits (newest last): `af1bdeea` role-fallback disclosure ·
 `350e2f1f` 6-page market pricing · `9de911d2` rebar US/DE/IN ·
 `51bbfedc` EG rebar · `9d3b6512` AU rebar indicative + confidence-aware
 provenance · `b3f12d40` plumbing US/DE · `6f34d349` GB pipes ·
-`0ee2ea40` GB drainage (GB complete) · US drainage + AT pipes · `e12ba27a` identity sweep rebased onto remote structural work · `6c82cadc` AI adapter repair + wallfinishing data fixes + type gate 0 · `2e55788` electrical NG/CA/AU/IN · `146eeb52` electrical GH/KE/ZA · `76eb3df6` electrical FR/BR/SA/AE · `4ce1fe6b` electrical IT/MX/JP · `6d691099` electrical CN/ID/KR (all 20 markets complete, latest).
+`0ee2ea40` GB drainage (GB complete) · US drainage + AT pipes · `e12ba27a` identity sweep rebased onto remote structural work · `6c82cadc` AI adapter repair + wallfinishing data fixes + type gate 0 · `2e55788` electrical NG/CA/AU/IN · `146eeb52` electrical GH/KE/ZA · `76eb3df6` electrical FR/BR/SA/AE · `4ce1fe6b` electrical IT/MX/JP · `6d691099` electrical CN/ID/KR (all 20 markets complete) · `92e953d` plumbing fittings full coverage · `5095e9f` Tier 2 estimator currency localization & regression suites (latest).
 
 ---
 
@@ -632,13 +649,11 @@ provenance · `b3f12d40` plumbing US/DE · `6f34d349` GB pipes ·
   already committed (structural-market.ts PLUMBING_FITTING_KEYS;
   test `resolveMarketPlumbing.test.ts`).
   - "
-- ~~Remaining gaps: gb-union, at-elbow/at-union/at-valve, DE all 5~~ —
-  RESOLVED 2026-10-14 by P2 batch 16 (migration 20261013170000): gb-union
-  (£2.25 JG Speedfit 15mm push-fit connector, Wickes), at-elbow (€0.95
-  Multitherm PPR 90° 20mm), at-union (€0.89 Multitherm PPR 25mm Muffe),
-  at-valve (€12.59 DVGW Trinkwasserkugelhahn 1/2", OBI), DE full 5/5
-  (15mm copper press-fit: Hornbach/OBI). Fittings/valves now 5/5 in all
-  four markets; only DE cold/hot PP-R PIPES remain open (see lead below).
+- Remaining gaps to verify: gb-union (straight union, not union-tee),
+  at-elbow/at-union/at-valve (Hornbach.at FV-Plast/Multitherm + Herz
+  Kugelhahn listings exist but prices didn't surface — use browserbase on
+  the product URLs), DE all 5 (obi.de search snippets are price-poor;
+  browserbase on hornbach.de Multitherm pages, or obi.de product pages).
 - Engine keys: `plumb-elbow`, `plumb-tee`, `plumb-reducer`, `plumb-union`,
   `plumb-valve`. Prices are PER PIECE.
 - Seed slugs `{mkt}-elbow`, `{mkt}-tee`, `{mkt}-reducer`, `{mkt}-union`,
