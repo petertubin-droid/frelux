@@ -37,10 +37,23 @@ describe("market-scoped member sizing", () => {
   });
 
   it("unprofiled markets get explicit unverified disclosure, never silent NG", () => {
+    const pl = designBeam({ ...beam, market_code: "PL" });
+    expect(pl.warnings.some((w) => w.includes("not yet verified"))).toBe(true);
+    expect(pl.warnings.some((w) => w.includes("9-inch"))).toBe(false);
+  });
+
+  it("expansion markets (batch 2026-10-14) use their verified wall unit widths", () => {
     const fr = designBeam({ ...beam, market_code: "FR" });
-    expect(fr.required_width).toBe(200);
-    expect(fr.warnings.some((w) => w.includes("not yet verified"))).toBe(true);
-    expect(fr.warnings.some((w) => w.includes("9-inch"))).toBe(false);
+    expect(fr.required_width).toBe(200); // parpaing 20cm
+    expect(fr.warnings.some((w) => w.includes("not yet verified"))).toBe(false);
+    const mx = designBeam({ ...beam, market_code: "MX" });
+    expect(mx.required_width).toBe(150); // block de concreto 15cm
+    const cn = designBeam({ ...beam, market_code: "CN" });
+    expect(cn.required_width).toBe(240); // 砖混 brick-concrete 240mm
+    const ke = designBeam({ ...beam, market_code: "KE" });
+    expect(ke.required_width).toBe(225); // 9x9 Ndarugo stone
+    const ca = designBeam({ ...beam, market_code: "CA" });
+    expect(ca.warnings.some((w) => w.includes("engineer-determined"))).toBe(true);
   });
 
   it("NG ground beam warning preserved; other markets get generic code note", () => {
@@ -66,8 +79,10 @@ describe("market-scoped member sizing", () => {
     expect(ng.warnings.some((w) => w.includes("225mm"))).toBe(true);
     const au = designColumn({ ...col, market_code: "AU" });
     expect(au.warnings.some((w) => w.includes("engineer-determined"))).toBe(true);
-    const fr = designColumn({ ...col, market_code: "FR" });
-    expect(fr.warnings.some((w) => w.includes("not yet verified"))).toBe(true);
+    const pl = designColumn({ ...col, market_code: "PL" });
+    expect(pl.warnings.some((w) => w.includes("not yet verified"))).toBe(true);
+    const frCol = designColumn({ ...col, market_code: "FR" });
+    expect(frCol.warnings.some((w) => w.includes("200mm"))).toBe(true);
   });
 
   it("profiles mirror verified wall methodology sources", () => {
@@ -75,5 +90,10 @@ describe("market-scoped member sizing", () => {
     expect(resolveMemberSizing("ZA").beamWidthMm).toBe(140);
     expect(resolveMemberSizing("BR").beamWidthMm).toBe(90);
     expect(resolveMemberSizing("JP").confidence).toBe("industry_standard");
+    expect(resolveMemberSizing("SA").confidence).toBe("industry_standard");
+    expect(resolveMemberSizing("AE").beamWidthMm).toBe(200);
+    expect(resolveMemberSizing("GH").beamWidthMm).toBe(225);
+    expect(resolveMemberSizing("IT").beamWidthMm).toBeNull();
+    expect(resolveMemberSizing("KR").beamWidthMm).toBeNull();
   });
 });

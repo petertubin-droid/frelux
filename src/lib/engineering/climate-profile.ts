@@ -74,6 +74,13 @@ const MONSOON_NOTES = {
   },
 } as const;
 
+const DESERT_NOTES = {
+  summer: {
+    foundation_concrete: "Extreme heat accelerates surface drying and slows crews; pour concrete in cooler hours and cure carefully.",
+    roofing: "Roofing in extreme heat requires hydration breaks and early-hours scheduling.",
+  },
+} as const;
+
 const PROFILES: Record<string, ClimateProfile> = {
   NG: PROFILE("NG", "Tropical wet-and-dry", ["dry", "rainy"], "dry", {}, { ...NG_STAGE_NOTES }),
   GH: PROFILE("GH", "Tropical wet-and-dry", ["dry", "rainy"], "dry", {}, { ...NG_STAGE_NOTES }),
@@ -95,6 +102,8 @@ const PROFILES: Record<string, ClimateProfile> = {
   BR: PROFILE("BR", "Tropical / temperate mix with rainy summers", ["dry", "rainy"], "dry", {}, { ...NG_STAGE_NOTES }),
   MX: PROFILE("MX", "Dry/rainy season split", ["dry", "rainy"], "dry", {}, { ...NG_STAGE_NOTES }),
   AU: PROFILE("AU", "Temperate with hot summers", ["summer", "winter"], "summer", { summer: 1.1 }, { ...WINTER_NOTES }),
+  SA: PROFILE("SA", "Hot desert (extreme summers, mild winters)", ["summer", "winter"], "summer", { summer: 1.15, winter: 1.0 }, { ...DESERT_NOTES }),
+  AE: PROFILE("AE", "Hot desert (extreme summers, mild winters)", ["summer", "winter"], "summer", { summer: 1.15, winter: 1.0 }, { ...DESERT_NOTES }),
 };
 
 export function resolveClimateProfile(marketCode: string): ClimateProfile {

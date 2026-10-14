@@ -380,7 +380,29 @@ The following items represent all outstanding, in-progress, or unverified work o
   - Replace estimated numbers with verified distributor prices.
   - Upgrade confidence to `scan_confidence = 'manual'` and record verifiable provenance.
 
-### F. Structural Methodology & Engineering Profiles (P2 Research Arc - INCOMPLETE)
+### F. Structural Methodology & Engineering Profiles (P2 Research Arc - MOSTLY COMPLETE)
+- **Status**: MOSTLY COMPLETE (Solas batch 2026-10-14)
+  - DONE earlier: wall-methodology.ts 20/20 market profiles (verified sources,
+    NG/JP/CN/KR frame-bundle methodology disclosed), consumed by sequence-planner;
+    member-sizing NG/US/GB/DE/IN/AU/JP/BR/ZA; climate-profile module + page-level
+    season snapping in ProjectTimeline.tsx.
+  - DONE this batch (commit pending): member-sizing extended to ALL 20 markets —
+    CA (frame, engineer-determined), FR 200, IT (frame, NTC), SA 200, AE 200,
+    CN 240, ID 150, MX 150, KR (RC wall-panel, engineer-determined), GH 225,
+    KE 225 — each mirroring its verified wall-methodology source (no invented
+    numbers). Generic fallback now only for non-20 markets and is disclosed.
+  - DONE this batch: timeline-estimator is now FULLY climate-scoped — the
+    climate-profile module was dead code (nothing imported it); it is now wired
+    into estimateTimeline via optional market_code (TimelineInput), which the
+    ProjectTimeline page passes. Season multipliers and stage notes come from
+    the market's climate profile; NG outputs are byte-identical without it.
+    Added SA + AE hot-desert profiles: summer 1.15 heat heuristic, winter 1.0
+    (mild dry winters are peak season — NOT the 1.25 frost penalty; caught by
+    test). Assumptions now disclose the climate heuristic when market_code set.
+  - REMAINING (small): regional concrete mix designs (ACI 318 vs Eurocode 2 vs
+    IS 456) — concrete_grade presets per market in structural-calculator;
+    AI adapters for the 3 engineering engines (part of the 41-adapter backlog).
+
 - **Status**: INCOMPLETE
 - **Goal**: Disentangle legacy Nigerian construction assumptions from international engines:
   - Remove hardcoded 9-inch (225mm) sandcrete block assumptions from `src/lib/engineering/sequence-planner.ts` and `wall-methodology.ts`.

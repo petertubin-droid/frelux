@@ -59,6 +59,7 @@ export default function ProjectTimeline() {
 
   const calculate = useCallback(() => {
     const input: TimelineInput = {
+      market_code: market.marketCode,
       building_type: buildingType,
       building_length: length,
       building_width: width,
@@ -72,6 +73,7 @@ export default function ProjectTimeline() {
     };
     setResult(monitoredCalc("Project Timeline", () => estimateTimeline(input)));
   }, [
+    market.marketCode,
     buildingType,
     length,
     width,

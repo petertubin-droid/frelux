@@ -19,6 +19,7 @@ export type WorkforceSize = "small" | "medium" | "large";
 export type Season = "dry" | "rainy" | "winter" | "summer" | "monsoon";
 
 export interface TimelineInput {
+  market_code?: string;
   building_type: string;
   building_length: number; // meters
   building_width: number; // meters
@@ -64,6 +65,8 @@ const COMPLEXITY_MULTIPLIER: Record<ProjectComplexity, number> = {
   complex: 1.25,
   high_end: 1.5,
 };
+
+import { resolveClimateProfile } from "./climate-profile";
 
 const WORKFORCE_MULTIPLIER: Record<WorkforceSize, number> = {
   small: 1.4, // fewer workers → longer
@@ -199,7 +202,11 @@ export function estimateTimeline(input: TimelineInput): TimelineResult {
 
   const complexity_mult = COMPLEXITY_MULTIPLIER[input.complexity];
   const workforce_mult = WORKFORCE_MULTIPLIER[input.workforce];
-  const season_mult = SEASON_MULTIPLIER[input.season];
+  // Market-scoped climate profile (page also uses it for season options).
+  // Unprofiled seasons/markets fall back to the same baseline multipliers,
+  // so existing (NG) behaviour is unchanged.
+  const climate = resolveClimateProfile(input.market_code ?? "NG");
+  const season_mult = climate.multipliers[input.season] ?? SEASON_MULTIPLIER[input.season];
 
   // Foundation type adjustment
   let foundation_extra = 0;
@@ -222,21 +229,24 @@ export function estimateTimeline(input: TimelineInput): TimelineResult {
     const estimated_days = Math.round(days);
 
     let notes = "";
-    if (base.stage === "foundation_concrete" && (input.season === "rainy" || input.season === "winter" || input.season === "monsoon")) {
+    const seasonalNotes = climate.stageNotes[input.season];
+    if (base.stage === "foundation_concrete" && (input.season === "rainy" || input.season === "winter" || input.season === "monsoon" || input.season === "summer")) {
       notes =
-        input.season === "winter"
+        seasonalNotes?.foundation_concrete ??
+        (input.season === "winter"
           ? "Winter frost slows concrete curing and excavation. Allow extra days and use cold-weather concreting protection."
           : input.season === "monsoon"
             ? "Monsoon rains may flood excavations and delay concrete pours. Allow extra days."
-            : "Rainy season may delay concrete curing. Allow extra days.";
+            : "Rainy season may delay concrete curing. Allow extra days.");
     }
-    if (base.stage === "roofing" && (input.season === "rainy" || input.season === "winter" || input.season === "monsoon")) {
+    if (base.stage === "roofing" && (input.season === "rainy" || input.season === "winter" || input.season === "monsoon" || input.season === "summer")) {
       notes =
-        input.season === "winter"
+        seasonalNotes?.roofing ??
+        (input.season === "winter"
           ? "Roofing is significantly harder in winter conditions (short days, wind, snow/ice risk)."
           : input.season === "monsoon"
             ? "Roofing work is significantly harder during the monsoon."
-            : "Roofing work is significantly harder during rainy season.";
+            : "Roofing work is significantly harder during rainy season.");
     }
     if (base.stage === "walls" && input.number_of_floors > 1) {
       notes = `Multi-storey (${input.number_of_floors} floors), walls take proportionally longer.`;
@@ -335,6 +345,11 @@ export function estimateTimeline(input: TimelineInput): TimelineResult {
     "Assumes continuous work (6-day weeks)",
     "Excludes finishing stages (tiling, painting, fittings, estimate separately)",
     "Based on practical construction productivity benchmarks",
+    ...(input.market_code
+      ? [
+          `Climate profile (${input.market_code}): ${climate.climatePattern}. ${climate.heuristicNote}`,
+        ]
+      : []),
   ];
 
   // Calculate dates

@@ -15,6 +15,28 @@ describe("estimateTimeline", () => {
     has_engineer_schedule: true,
   };
 
+  it("market_code scopes the season multiplier via the climate profile (CA winter 1.35)", () => {
+    const caWinter = { ...baseInput, market_code: "CA", season: "winter" as const };
+    const gbWinter = { ...baseInput, market_code: "GB", season: "winter" as const };
+    expect(estimateTimeline(caWinter).total_days).toBeGreaterThan(estimateTimeline(gbWinter).total_days);
+  });
+
+  it("SA/AE desert summer heat applies the 1.15 heuristic and stage notes", () => {
+    const sa = { ...baseInput, market_code: "SA", season: "summer" as const };
+    const result = estimateTimeline(sa);
+    expect(result.assumptions.some((a) => a.includes("Hot desert"))).toBe(true);
+    expect(result.stages.some((st) => st.notes.includes("Extreme heat"))).toBe(true);
+    const mild = { ...baseInput, market_code: "SA", season: "winter" as const };
+    expect(estimateTimeline(mild).total_days).toBeLessThan(result.total_days);
+  });
+
+  it("NG results are identical with or without market_code", () => {
+    const without = estimateTimeline({ ...baseInput, season: "rainy" as const });
+    const withNg = estimateTimeline({ ...baseInput, market_code: "NG", season: "rainy" as const });
+    expect(withNg.total_days).toBe(without.total_days);
+    expect(withNg.stages.map((s) => s.notes)).toEqual(without.stages.map((s) => s.notes));
+  });
+
   it("returns multiple stages with durations", () => {
     const result = estimateTimeline(baseInput);
     expect(result.stages.length).toBeGreaterThan(3);
